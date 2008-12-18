@@ -1,3 +1,19 @@
+/*
+ * Copyright (C) 2008 The Android Open Source Project
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *      http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+
 package com.android.email.activity;
 
 import java.text.DateFormat;
@@ -35,20 +51,20 @@ import com.android.email.Account;
 import com.android.email.Email;
 import com.android.email.MessagingController;
 import com.android.email.MessagingListener;
+import com.android.email.Preferences;
 import com.android.email.R;
 import com.android.email.Utility;
-import com.android.email.Preferences;
-import com.android.email.activity.FolderMessageList.FolderMessageListAdapter.FolderInfoHolder;
-import com.android.email.activity.FolderMessageList.FolderMessageListAdapter.MessageInfoHolder;
 import com.android.email.activity.setup.AccountSettings;
 import com.android.email.mail.Address;
+import com.android.email.mail.AuthenticationFailedException;
+import com.android.email.mail.CertificateValidationException;
 import com.android.email.mail.Flag;
 import com.android.email.mail.Folder;
 import com.android.email.mail.Message;
 import com.android.email.mail.MessagingException;
 import com.android.email.mail.Message.RecipientType;
-import com.android.email.mail.store.LocalStore.LocalMessage;
 import com.android.email.mail.store.LocalStore;
+import com.android.email.mail.store.LocalStore.LocalMessage;
 
 /**
  * FolderMessageList is the primary user interface for the program. This Activity shows
@@ -119,8 +135,8 @@ public class FolderMessageList extends ExpandableListActivity {
      */
     private String mInitialFolder;
 
-    private DateFormat mDateFormat = DateFormat.getDateInstance(DateFormat.SHORT);
-    private DateFormat mTimeFormat = DateFormat.getTimeInstance(DateFormat.SHORT);
+    private java.text.DateFormat mDateFormat;
+    private java.text.DateFormat mTimeFormat;
 
     private int mExpandedGroup = -1;
     private boolean mRestoringState;
@@ -249,9 +265,12 @@ public class FolderMessageList extends ExpandableListActivity {
      * notifying the adapter that the message have been loaded and queueing up a remote
      * update of the folder.
      */
-    class FolderUpdateWorker implements Runnable {
+    static class FolderUpdateWorker implements Runnable {
         String mFolder;
         boolean mSynchronizeRemote;
+        MessagingListener mListener;
+        Account mAccount;
+        MessagingController mController;
 
         /**
          * Create a worker for the given folder and specifying whether the
@@ -259,26 +278,30 @@ public class FolderMessageList extends ExpandableListActivity {
          * @param folder
          * @param synchronizeRemote
          */
-        public FolderUpdateWorker(String folder, boolean synchronizeRemote) {
+        public FolderUpdateWorker(String folder, boolean synchronizeRemote, 
+                MessagingListener listener, Account account, MessagingController controller) {
             mFolder = folder;
             mSynchronizeRemote = synchronizeRemote;
+            mListener = listener;
+            mAccount = account;
+            mController = controller;
         }
 
         public void run() {
             // Lower our priority
             Process.setThreadPriority(Process.THREAD_PRIORITY_BACKGROUND);
             // Synchronously load the list of local messages
-            MessagingController.getInstance(getApplication()).listLocalMessages(
+            mController.listLocalMessages(
                     mAccount,
                     mFolder,
-                    mAdapter.mListener);
+                    mListener);
             if (mSynchronizeRemote) {
                 // Tell the MessagingController to run a remote update of this folder
                 // at it's leisure
-                MessagingController.getInstance(getApplication()).synchronizeMailbox(
+                mController.synchronizeMailbox(
                         mAccount,
                         mFolder,
-                        mAdapter.mListener);
+                        mListener);
             }
         }
     }
@@ -315,6 +338,9 @@ public class FolderMessageList extends ExpandableListActivity {
         super.onCreate(savedInstanceState);
 
         requestWindowFeature(Window.FEATURE_INDETERMINATE_PROGRESS);
+        
+        mDateFormat = android.text.format.DateFormat.getDateFormat(this);   // short format
+        mTimeFormat = android.text.format.DateFormat.getTimeFormat(this);   // 12/24 date format
 
         mListView = getExpandableListView();
         mListView.setScrollBarStyle(View.SCROLLBARS_OUTSIDE_INSET);
@@ -445,7 +471,9 @@ public class FolderMessageList extends ExpandableListActivity {
                 > UPDATE_FOLDER_ON_EXPAND_INTERVAL_MS) {
             folder.lastChecked = System.currentTimeMillis();
             // TODO: If the previous thread is already running, we should cancel it
-            new Thread(new FolderUpdateWorker(folder.name, true)).start();
+            new Thread(new FolderUpdateWorker(folder.name, true, null, mAccount, 
+                    MessagingController.getInstance(getApplication())))
+                    .start();
         }
     }
 
@@ -532,7 +560,7 @@ public class FolderMessageList extends ExpandableListActivity {
     }
 
     private void onAccounts() {
-        startActivity(new Intent(this, Accounts.class));
+        Accounts.actionShowAccounts(this);
         finish();
     }
 
@@ -755,7 +783,9 @@ public class FolderMessageList extends ExpandableListActivity {
                 for (int i = 0, count = getGroupCount(); i < count; i++) {
                     if (mListView.isGroupExpanded(i)) {
                         final FolderInfoHolder folder = (FolderInfoHolder) mAdapter.getGroup(i);
-                        new Thread(new FolderUpdateWorker(folder.name, mRefreshRemote)).start();
+                        new Thread(new FolderUpdateWorker(folder.name, mRefreshRemote, null, 
+                                mAccount, MessagingController.getInstance(getApplication())))
+                                .start();
                     }
                 }
                 mRefreshRemote = false;
@@ -824,16 +854,37 @@ public class FolderMessageList extends ExpandableListActivity {
             }
 
             @Override
-            public void synchronizeMailboxFailed(
-                    Account account,
-                    String folder,
-                    String message) {
+            public void synchronizeMailboxFailed(Account account, String folder, Exception e) {
                 if (!account.equals(mAccount)) {
                     return;
                 }
                 mHandler.progress(false);
                 mHandler.folderLoading(folder, false);
-                mHandler.folderStatus(folder, getString(R.string.status_network_error));
+                // Use exception details to select a decent string
+                // TODO combine with very similar code in AccountSettingsCheckSetup
+                int id = R.string.status_network_error;
+                if (e instanceof AuthenticationFailedException) {
+                    id = R.string.account_setup_failed_dlg_auth_message;
+                } else if (e instanceof CertificateValidationException) {
+                    id = R.string.account_setup_failed_dlg_certificate_message;
+                } else if (e instanceof MessagingException) {
+                    MessagingException me = (MessagingException) e;
+                    switch (me.getExceptionType()) {
+                        case MessagingException.IOERROR:
+                            id = R.string.account_setup_failed_ioerror;
+                            break;
+                        case MessagingException.TLS_REQUIRED:
+                            id = R.string.account_setup_failed_tls_required;
+                            break;
+                        case MessagingException.AUTH_REQUIRED:
+                            id = R.string.account_setup_failed_auth_required;
+                            break;
+                        case MessagingException.GENERAL_SECURITY:
+                            id = R.string.account_setup_failed_security;
+                            break;
+                    }
+                }
+                mHandler.folderStatus(folder, getString(id));
                 FolderInfoHolder holder = getFolder(folder);
                 if (holder != null) {
                     /*
@@ -936,7 +987,7 @@ public class FolderMessageList extends ExpandableListActivity {
                 boolean sort, boolean notify) {
             MessageInfoHolder m = getMessage(folder, message.getUid());
             if (m == null) {
-                m = new MessageInfoHolder(message, folder);
+                m = new MessageInfoHolder(message, folder, mDateFormat, mTimeFormat);
                 folder.messages.add(m);
             }
             else {
@@ -1159,100 +1210,115 @@ public class FolderMessageList extends ExpandableListActivity {
             return childPosition < getChildrenCount(groupPosition);
         }
 
-        public class FolderInfoHolder implements Comparable<FolderInfoHolder> {
-            public String name;
-            public String displayName;
-            public ArrayList<MessageInfoHolder> messages;
-            public long lastChecked;
-            public int unreadMessageCount;
-            public boolean loading;
-            public String status;
-            public boolean lastCheckFailed;
+    }
+    
+    /**
+     * Holder for a single folder's information.
+     */
+    static class FolderInfoHolder implements Comparable<FolderInfoHolder> {
+        public String name;
+        public String displayName;
+        public ArrayList<MessageInfoHolder> messages;
+        public long lastChecked;
+        public int unreadMessageCount;
+        public boolean loading;
+        public String status;
+        public boolean lastCheckFailed;
 
-            /**
-             * Outbox is handled differently from any other folder.
-             */
-            public boolean outbox;
+        /**
+         * Outbox is handled differently from any other folder.
+         */
+        public boolean outbox;
 
-            public int compareTo(FolderInfoHolder o) {
-                String s1 = this.name;
-                String s2 = o.name;
-                if (Email.INBOX.equalsIgnoreCase(s1)) {
-                    return -1;
-                } else if (Email.INBOX.equalsIgnoreCase(s2)) {
-                    return 1;
-                } else
-                    return s1.toUpperCase().compareTo(s2.toUpperCase());
-            }
-        }
-
-        public class MessageInfoHolder implements Comparable<MessageInfoHolder> {
-            public String subject;
-            public String date;
-            public Date compareDate;
-            public String sender;
-            public boolean hasAttachments;
-            public String uid;
-            public boolean read;
-            public Message message;
-
-            public MessageInfoHolder(Message m, FolderInfoHolder folder) {
-                populate(m, folder);
-            }
-
-            public void populate(Message m, FolderInfoHolder folder) {
-                try {
-                    LocalMessage message = (LocalMessage) m;
-                    Date date = message.getSentDate();
-                    this.compareDate = date;
-                    if (Utility.isDateToday(date)) {
-                        this.date = mTimeFormat.format(date);
-                    }
-                    else {
-                        this.date = mDateFormat.format(date);
-                    }
-                    this.hasAttachments = message.getAttachmentCount() > 0;
-                    this.read = message.isSet(Flag.SEEN);
-                    if (folder.outbox) {
-                        this.sender = Address.toFriendly(
-                                message.getRecipients(RecipientType.TO));
-                    }
-                    else {
-                        this.sender = Address.toFriendly(message.getFrom());
-                    }
-                    this.subject = message.getSubject();
-                    this.uid = message.getUid();
-                    this.message = m;
-                }
-                catch (MessagingException me) {
-                    if (Config.LOGV) {
-                        Log.v(Email.LOG_TAG, "Unable to load message info", me);
-                    }
-                }
-            }
-
-            public int compareTo(MessageInfoHolder o) {
-                return this.compareDate.compareTo(o.compareDate) * -1;
-            }
-        }
-
-        class FolderViewHolder {
-            public TextView folderName;
-            public TextView folderStatus;
-            public TextView newMessageCount;
-        }
-
-        class MessageViewHolder {
-            public TextView subject;
-            public TextView preview;
-            public TextView from;
-            public TextView date;
-            public View chip;
-        }
-
-        class FooterViewHolder {
-            public ProgressBar progress;
-            public TextView main;
+        public int compareTo(FolderInfoHolder o) {
+            String s1 = this.name;
+            String s2 = o.name;
+            if (Email.INBOX.equalsIgnoreCase(s1)) {
+                return -1;
+            } else if (Email.INBOX.equalsIgnoreCase(s2)) {
+                return 1;
+            } else
+                return s1.toUpperCase().compareTo(s2.toUpperCase());
         }
     }
+
+    /**
+     * Holder for a single message's information.
+     */
+    static class MessageInfoHolder implements Comparable<MessageInfoHolder> {
+        public String subject;
+        public String date;
+        public Date compareDate;
+        public String sender;
+        public boolean hasAttachments;
+        public String uid;
+        public boolean read;
+        public Message message;
+        
+        private java.text.DateFormat mDateFormat;
+        private java.text.DateFormat mTimeFormat;
+
+        public MessageInfoHolder(Message m, FolderInfoHolder folder, DateFormat formatForDate,
+                DateFormat formatForTime) {
+            mDateFormat = formatForDate;
+            mTimeFormat = formatForTime;
+            populate(m, folder);
+        }
+
+        public void populate(Message m, FolderInfoHolder folder) {
+            try {
+                LocalMessage message = (LocalMessage) m;
+                Date date = message.getSentDate();
+                this.compareDate = date;
+                if (Utility.isDateToday(date)) {
+                    this.date = mTimeFormat.format(date);
+                }
+                else {
+                    this.date = mDateFormat.format(date);
+                }
+                this.hasAttachments = message.getAttachmentCount() > 0;
+                this.read = message.isSet(Flag.SEEN);
+                if (folder.outbox) {
+                    this.sender = Address.toFriendly(
+                            message.getRecipients(RecipientType.TO));
+                }
+                else {
+                    this.sender = Address.toFriendly(message.getFrom());
+                }
+                this.subject = message.getSubject();
+                this.uid = message.getUid();
+                this.message = m;
+            }
+            catch (MessagingException me) {
+                if (Config.LOGV) {
+                    Log.v(Email.LOG_TAG, "Unable to load message info", me);
+                }
+            }
+        }
+
+        public int compareTo(MessageInfoHolder o) {
+            return this.compareDate.compareTo(o.compareDate) * -1;
+        }
+    }
+
+    static class FolderViewHolder {
+        public TextView folderName;
+        public TextView folderStatus;
+        public TextView newMessageCount;
+    }
+
+    static class MessageViewHolder {
+        public TextView subject;
+        public TextView preview;
+        public TextView from;
+        public TextView date;
+        public View chip;
+    }
+
+    static class FooterViewHolder {
+        public ProgressBar progress;
+        public TextView main;
+    }
+
+
 }

@@ -1,3 +1,18 @@
+/*
+ * Copyright (C) 2008 The Android Open Source Project
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *      http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
 
 package com.android.email.activity.setup;
 
@@ -149,7 +164,7 @@ public class AccountSetupOutgoing extends Activity implements OnClickListener,
         }
 
         try {
-            URI uri = new URI(mAccount.getTransportUri());
+            URI uri = new URI(mAccount.getSenderUri());
             String username = null;
             String password = null;
             if (uri.getUserInfo() != null) {
@@ -200,15 +215,28 @@ public class AccountSetupOutgoing extends Activity implements OnClickListener,
         outState.putSerializable(EXTRA_ACCOUNT, mAccount);
     }
 
+    /**
+     * Preflight the values in the fields and decide if it makes sense to enable the "next" button
+     * NOTE:  Does it make sense to extract & combine with similar code in AccountSetupIncoming? 
+     */
     private void validateFields() {
-        mNextButton
-                .setEnabled(
-                        Utility.requiredFieldValid(mServerView) && 
-                        Utility.requiredFieldValid(mPortView) && 
-                        (!mRequireLoginView.isChecked() || 
-                                (Utility.requiredFieldValid(mUsernameView) && 
-                                        Utility.requiredFieldValid(mPasswordView))));
-        Utility.setCompoundDrawablesAlpha(mNextButton, mNextButton.isEnabled() ? 255 : 128);
+        boolean enabled = 
+            Utility.requiredFieldValid(mServerView) && Utility.requiredFieldValid(mPortView);
+
+        if (enabled && mRequireLoginView.isChecked()) {
+            enabled = (Utility.requiredFieldValid(mUsernameView)
+                    && Utility.requiredFieldValid(mPasswordView));
+        }
+
+        if (enabled) {
+            try {
+                URI uri = getUri();
+            } catch (URISyntaxException use) {
+                enabled = false;
+            }
+        }
+        mNextButton.setEnabled(enabled);
+        Utility.setCompoundDrawablesAlpha(mNextButton, enabled ? 255 : 128);
     }
 
     private void updatePortFromSecurityType() {
@@ -228,19 +256,33 @@ public class AccountSetupOutgoing extends Activity implements OnClickListener,
             }
         }
     }
-
-    private void onNext() {
+    
+    /**
+     * Attempt to create a URI from the fields provided.  Throws URISyntaxException if there's 
+     * a problem with the user input.
+     * @return a URI built from the account setup fields
+     */
+    private URI getUri() throws URISyntaxException {
         int securityType = (Integer)((SpinnerOption)mSecurityTypeView.getSelectedItem()).value;
-        URI uri;
+        String userInfo = null;
+        if (mRequireLoginView.isChecked()) {
+            userInfo = mUsernameView.getText().toString().trim() + ":"
+                    + mPasswordView.getText().toString().trim();
+        }
+        URI uri = new URI(
+                smtpSchemes[securityType],
+                userInfo,
+                mServerView.getText().toString().trim(),
+                Integer.parseInt(mPortView.getText().toString().trim()),
+                null, null, null);
+        
+        return uri;
+    }
+
+    private void onNext() {       
         try {
-            String userInfo = null;
-            if (mRequireLoginView.isChecked()) {
-                userInfo = mUsernameView.getText().toString() + ":"
-                        + mPasswordView.getText().toString();
-            }
-            uri = new URI(smtpSchemes[securityType], userInfo, mServerView.getText().toString(),
-                    Integer.parseInt(mPortView.getText().toString()), null, null, null);
-            mAccount.setTransportUri(uri.toString());
+            URI uri = getUri();
+            mAccount.setSenderUri(uri.toString());
         } catch (URISyntaxException use) {
             /*
              * It's unrecoverable if we cannot create a URI from components that

@@ -1,3 +1,18 @@
+/*
+ * Copyright (C) 2008 The Android Open Source Project
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *      http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
 
 package com.android.email.activity;
 
@@ -6,6 +21,7 @@ import java.util.ArrayList;
 import java.util.Date;
 
 import android.app.Activity;
+import android.content.ActivityNotFoundException;
 import android.content.ContentResolver;
 import android.content.Context;
 import android.content.Intent;
@@ -167,8 +183,10 @@ public class MessageCompose extends Activity implements OnClickListener, OnFocus
     private EmailAddressAdapter mAddressAdapter;
     private Validator mAddressValidator;
 
-
-    class Attachment implements Serializable {
+    /**
+     * Encapsulates known information about a single attachment.
+     */
+    private static class Attachment implements Serializable {
         public String name;
         public String contentType;
         public long size;
@@ -182,9 +200,17 @@ public class MessageCompose extends Activity implements OnClickListener, OnFocus
      * @param account
      */
     public static void actionCompose(Context context, Account account) {
-       Intent i = new Intent(context, MessageCompose.class);
-       i.putExtra(EXTRA_ACCOUNT, account);
-       context.startActivity(i);
+       try {
+           Intent i = new Intent(context, MessageCompose.class);
+           i.putExtra(EXTRA_ACCOUNT, account);
+           context.startActivity(i);
+       } catch (ActivityNotFoundException anfe) {
+           // Swallow it - this is usually a race condition, especially under automated test.
+           // (The message composer might have been disabled)
+           if (Config.LOGD) {
+               Log.d(Email.LOG_TAG, anfe.toString());
+           }
+       }
     }
 
     /**
@@ -235,7 +261,6 @@ public class MessageCompose extends Activity implements OnClickListener, OnFocus
      * Discard will delete the message from the given folder.
      * @param context
      * @param account
-     * @param folder
      * @param message
      */
     public static void actionEditDraft(Context context, Account account, Message message) {
@@ -247,6 +272,7 @@ public class MessageCompose extends Activity implements OnClickListener, OnFocus
         context.startActivity(i);
     }
 
+    @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
 
@@ -337,7 +363,7 @@ public class MessageCompose extends Activity implements OnClickListener, OnFocus
                  * There are no accounts set up. This should not have happened. Prompt the
                  * user to set up an account as an acceptable bailout.
                  */
-                startActivity(new Intent(this, Accounts.class));
+                Accounts.actionShowAccounts(this);
                 mDraftNeedsSaving = false;
                 finish();
                 return;
@@ -370,7 +396,7 @@ public class MessageCompose extends Activity implements OnClickListener, OnFocus
                  * There are no accounts set up. This should not have happened. Prompt the
                  * user to set up an account as an acceptable bailout.
                  */
-                startActivity(new Intent(this, Accounts.class));
+                Accounts.actionShowAccounts(this);
                 mDraftNeedsSaving = false;
                 finish();
                 return;
@@ -386,8 +412,8 @@ public class MessageCompose extends Activity implements OnClickListener, OnFocus
         }
         else {
             mAccount = (Account) intent.getSerializableExtra(EXTRA_ACCOUNT);
-            mFolder = (String) intent.getStringExtra(EXTRA_FOLDER);
-            mSourceMessageUid = (String) intent.getStringExtra(EXTRA_MESSAGE);
+            mFolder = intent.getStringExtra(EXTRA_FOLDER);
+            mSourceMessageUid = intent.getStringExtra(EXTRA_MESSAGE);
         }
 
         if (ACTION_REPLY.equals(action) || ACTION_REPLY_ALL.equals(action) ||
@@ -409,15 +435,28 @@ public class MessageCompose extends Activity implements OnClickListener, OnFocus
         updateTitle();
     }
 
+    @Override
     public void onResume() {
         super.onResume();
         MessagingController.getInstance(getApplication()).addListener(mListener);
     }
 
+    @Override
     public void onPause() {
         super.onPause();
         saveIfNeeded();
         MessagingController.getInstance(getApplication()).removeListener(mListener);
+    }
+
+    /**
+     * We override onDestroy to make sure that the WebView gets explicitly destroyed.
+     * Otherwise it can leak native references.
+     */
+    @Override
+    public void onDestroy() {
+        super.onDestroy();
+        mQuotedText.destroy();
+        mQuotedText = null;
     }
 
     /**
@@ -450,7 +489,7 @@ public class MessageCompose extends Activity implements OnClickListener, OnFocus
     @Override
     protected void onRestoreInstanceState(Bundle savedInstanceState) {
         super.onRestoreInstanceState(savedInstanceState);
-        ArrayList<Parcelable> attachments = (ArrayList<Parcelable>)
+        ArrayList<Parcelable> attachments = 
                 savedInstanceState.getParcelableArrayList(STATE_KEY_ATTACHMENTS);
         mAttachments.removeAllViews();
         for (Parcelable p : attachments) {
@@ -799,6 +838,7 @@ public class MessageCompose extends Activity implements OnClickListener, OnFocus
         }
     }
 
+    @Override
     public boolean onOptionsItemSelected(MenuItem item) {
         switch (item.getItemId()) {
             case R.id.send:
@@ -822,6 +862,7 @@ public class MessageCompose extends Activity implements OnClickListener, OnFocus
         return true;
     }
 
+    @Override
     public boolean onCreateOptionsMenu(Menu menu) {
         super.onCreateOptionsMenu(menu);
         getMenuInflater().inflate(R.menu.message_compose_option, menu);
@@ -867,7 +908,7 @@ public class MessageCompose extends Activity implements OnClickListener, OnFocus
      * depending on the type of message being composed.
      * @param message
      */
-    private void processSourceMessage(Message message) {
+    /* package */ void processSourceMessage(Message message) {
         String action = getIntent().getAction();
         if (ACTION_REPLY.equals(action) || ACTION_REPLY_ALL.equals(action)) {
             try {
@@ -987,6 +1028,25 @@ public class MessageCompose extends Activity implements OnClickListener, OnFocus
                 // TODO
             }
         }
+        
+        // In order to accelerate typing, position the cursor in the first empty field, 
+        // or at the end of the body composition field if none are empty.  Typically, this will
+        // play out as follows:
+        //  Reply / Reply All - put cursor in the empty message body
+        //  Forward - put cursor in the empty To field
+        //  Edit Draft - put cursor in whatever field still needs entry
+        if (mToView.length() == 0) {
+            mToView.requestFocus();
+        } else if (mSubjectView.length() == 0) {
+            mSubjectView.requestFocus();
+        } else {
+            mMessageContentView.requestFocus();
+            // when selecting the message content, explicitly move IP to the end, so you can 
+            // quickly resume typing into a draft
+            int selection = mMessageContentView.length();
+            mMessageContentView.setSelection(selection, selection);
+        }
+        
         mSourceMessageProcessed = true;
         mDraftNeedsSaving = false;
     }

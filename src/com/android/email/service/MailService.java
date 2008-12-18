@@ -1,6 +1,22 @@
+/*
+ * Copyright (C) 2008 The Android Open Source Project
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *      http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
 
 package com.android.email.service;
 
+import java.util.ArrayList;
 import java.util.HashMap;
 
 import android.app.AlarmManager;
@@ -10,12 +26,12 @@ import android.app.PendingIntent;
 import android.app.Service;
 import android.content.Context;
 import android.content.Intent;
+import android.net.Uri;
 import android.os.IBinder;
 import android.os.SystemClock;
+import android.text.TextUtils;
 import android.util.Config;
 import android.util.Log;
-import android.text.TextUtils;
-import android.net.Uri;
 
 import com.android.email.Account;
 import com.android.email.Email;
@@ -56,23 +72,37 @@ public class MailService extends Service {
         super.onStart(intent, startId);
         this.mStartId = startId;
 
-        MessagingController.getInstance(getApplication()).addListener(mListener);
+        MessagingController controller = MessagingController.getInstance(getApplication());
+        controller.addListener(mListener);
         if (ACTION_CHECK_MAIL.equals(intent.getAction())) {
-            if (Config.LOGV) {
-                Log.v(Email.LOG_TAG, "***** MailService *****: checking mail");
+            if (Config.LOGD && Email.DEBUG) {
+                Log.d(Email.LOG_TAG, "*** MailService: checking mail");
             }
-            MessagingController.getInstance(getApplication()).checkMail(this, null, mListener);
+            // Only check mail for accounts that have enabled automatic checking.  There is still
+            // a bug here in that we check every enabled account, on every refresh - irrespective
+            // of that account's refresh frequency - but this fixes the worst case of checking 
+            // accounts that should not have been checked at all.
+            // Also note:  Due to the organization of this service, you must gather the accounts
+            // and make a single call to controller.checkMail().
+            ArrayList<Account> accountsToCheck = new ArrayList<Account>();
+            for (Account account : Preferences.getPreferences(this).getAccounts()) {
+                if (account.getAutomaticCheckIntervalMinutes() != -1) {
+                    accountsToCheck.add(account);
+                }
+            }
+            Account[] accounts = accountsToCheck.toArray(new Account[accountsToCheck.size()]);
+            controller.checkMail(this, accounts, mListener);
         }
         else if (ACTION_CANCEL.equals(intent.getAction())) {
-            if (Config.LOGV) {
-                Log.v(Email.LOG_TAG, "***** MailService *****: cancel");
+            if (Config.LOGD && Email.DEBUG) {
+                Log.d(Email.LOG_TAG, "*** MailService: cancel");
             }
             cancel();
             stopSelf(startId);
         }
         else if (ACTION_RESCHEDULE.equals(intent.getAction())) {
-            if (Config.LOGV) {
-                Log.v(Email.LOG_TAG, "***** MailService *****: reschedule");
+            if (Config.LOGD && Email.DEBUG) {
+                Log.d(Email.LOG_TAG, "*** MailService: reschedule");
             }
             reschedule();
             stopSelf(startId);
@@ -125,30 +155,48 @@ public class MailService extends Service {
     class Listener extends MessagingListener {
         HashMap<Account, Integer> accountsWithNewMail = new HashMap<Account, Integer>();
 
+        // TODO this should be redone because account is usually null, not very interesting.
+        // I think it would make more sense to pass Account[] here in case anyone uses it
+        // In any case, it should be noticed that this is called once per cycle
         @Override
         public void checkMailStarted(Context context, Account account) {
             accountsWithNewMail.clear();
         }
 
+        // Called once per checked account
         @Override
         public void checkMailFailed(Context context, Account account, String reason) {
+            if (Config.LOGD && Email.DEBUG) {
+                Log.d(Email.LOG_TAG, "*** MailService: checkMailFailed: " + reason);
+            }
             reschedule();
             stopSelf(mStartId);
         }
 
+        // Called once per checked account
         @Override
         public void synchronizeMailboxFinished(
                 Account account,
                 String folder,
                 int totalMessagesInMailbox,
                 int numNewMessages) {
+            if (Config.LOGD && Email.DEBUG) {
+                Log.d(Email.LOG_TAG, "*** MailService: synchronizeMailboxFinished: total=" + 
+                        totalMessagesInMailbox + " new=" + numNewMessages);
+            }
             if (account.isNotifyNewMail() && numNewMessages > 0) {
                 accountsWithNewMail.put(account, numNewMessages);
             }
         }
 
+        // TODO this should be redone because account is usually null, not very interesting.
+        // I think it would make more sense to pass Account[] here in case anyone uses it
+        // In any case, it should be noticed that this is called once per cycle
         @Override
         public void checkMailFinished(Context context, Account account) {
+            if (Config.LOGD && Email.DEBUG) {
+                Log.d(Email.LOG_TAG, "*** MailService: checkMailFinished");
+            }
             NotificationManager notifMgr = (NotificationManager)context
                     .getSystemService(Context.NOTIFICATION_SERVICE);
 

@@ -1,3 +1,18 @@
+/*
+ * Copyright (C) 2008 The Android Open Source Project
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *      http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
 
 package com.android.email.activity.setup;
 
@@ -25,6 +40,7 @@ import android.view.View.OnClickListener;
 import android.widget.Button;
 import android.widget.CheckBox;
 import android.widget.EditText;
+import android.widget.Toast;
 
 import com.android.email.Account;
 import com.android.email.Email;
@@ -47,6 +63,9 @@ public class AccountSetupBasics extends Activity
     private final static int DIALOG_NOTE = 1;
     private final static String STATE_KEY_PROVIDER =
         "com.android.email.AccountSetupBasics.provider";
+    
+    // NOTE: If you change this value, confirm that the new interval exists in arrays.xml
+    private final static int DEFAULT_ACCOUNT_CHECK_INTERVAL = 15;
 
     private Preferences mPrefs;
     private EditText mEmailView;
@@ -122,7 +141,7 @@ public class AccountSetupBasics extends Activity
     private void validateFields() {
         boolean valid = Utility.requiredFieldValid(mEmailView)
                 && Utility.requiredFieldValid(mPasswordView)
-                && mEmailValidator.isValid(mEmailView.getText().toString());
+                && mEmailValidator.isValid(mEmailView.getText().toString().trim());
         mNextButton.setEnabled(valid);
         mManualSetupButton.setEnabled(valid);
         /*
@@ -179,8 +198,8 @@ public class AccountSetupBasics extends Activity
     }
 
     private void finishAutoSetup() {
-        String email = mEmailView.getText().toString();
-        String password = mPasswordView.getText().toString();
+        String email = mEmailView.getText().toString().trim();
+        String password = mPasswordView.getText().toString().trim();
         String[] emailParts = email.split("@");
         String user = emailParts[0];
         String domain = emailParts[1];
@@ -219,23 +238,24 @@ public class AccountSetupBasics extends Activity
         mAccount.setName(getOwnerName());
         mAccount.setEmail(email);
         mAccount.setStoreUri(incomingUri.toString());
-        mAccount.setTransportUri(outgoingUri.toString());
+        mAccount.setSenderUri(outgoingUri.toString());
         mAccount.setDraftsFolderName(getString(R.string.special_mailbox_name_drafts));
         mAccount.setTrashFolderName(getString(R.string.special_mailbox_name_trash));
         mAccount.setOutboxFolderName(getString(R.string.special_mailbox_name_outbox));
         mAccount.setSentFolderName(getString(R.string.special_mailbox_name_sent));
         if (incomingUri.toString().startsWith("imap")) {
+            // Delete policy must be set explicitly, because IMAP does not provide a UI selection
+            // for it. This logic needs to be followed in the auto setup flow as well.
             mAccount.setDeletePolicy(Account.DELETE_POLICY_ON_DELETE);
         }
+        mAccount.setAutomaticCheckIntervalMinutes(DEFAULT_ACCOUNT_CHECK_INTERVAL);
         AccountSetupCheckSettings.actionCheckSettings(this, mAccount, true, true);
     }
 
     private void onNext() {
-        String email = mEmailView.getText().toString();
-        String password = mPasswordView.getText().toString();
+        String email = mEmailView.getText().toString().trim();
         String[] emailParts = email.split("@");
-        String user = emailParts[0];
-        String domain = emailParts[1];
+        String domain = emailParts[1].trim();
         mProvider = findProviderForDomain(domain);
         if (mProvider == null) {
             /*
@@ -269,30 +289,32 @@ public class AccountSetupBasics extends Activity
     }
 
     private void onManualSetup() {
-        String email = mEmailView.getText().toString();
-        String password = mPasswordView.getText().toString();
+        String email = mEmailView.getText().toString().trim();
+        String password = mPasswordView.getText().toString().trim();
         String[] emailParts = email.split("@");
-        String user = emailParts[0];
-        String domain = emailParts[1];
+        String user = emailParts[0].trim();
+        String domain = emailParts[1].trim();
 
         mAccount = new Account(this);
         mAccount.setName(getOwnerName());
         mAccount.setEmail(email);
         try {
-            URI uri = new URI("placeholder", user + ":" + password, "mail." + domain, -1, null,
-                    null, null);
+            URI uri = new URI("placeholder", user + ":" + password, domain, -1, null, null, null);
             mAccount.setStoreUri(uri.toString());
-            mAccount.setTransportUri(uri.toString());
+            mAccount.setSenderUri(uri.toString());
         } catch (URISyntaxException use) {
-            /*
-             * If we can't set up the URL we just continue. It's only for
-             * convenience.
-             */
+            // If we can't set up the URL, don't continue - account setup pages will fail too
+            Toast.makeText(this, R.string.account_setup_username_password_toast, Toast.LENGTH_LONG)
+                    .show();
+            mAccount = null;
+            return;
         }
         mAccount.setDraftsFolderName(getString(R.string.special_mailbox_name_drafts));
         mAccount.setTrashFolderName(getString(R.string.special_mailbox_name_trash));
         mAccount.setOutboxFolderName(getString(R.string.special_mailbox_name_outbox));
         mAccount.setSentFolderName(getString(R.string.special_mailbox_name_sent));
+        
+        mAccount.setAutomaticCheckIntervalMinutes(DEFAULT_ACCOUNT_CHECK_INTERVAL);
 
         AccountSetupAccountType.actionSelectAccountType(this, mAccount, mDefaultView.isChecked());
         finish();
