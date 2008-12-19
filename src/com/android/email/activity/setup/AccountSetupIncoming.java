@@ -1,3 +1,18 @@
+/*
+ * Copyright (C) 2008 The Android Open Source Project
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *      http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
 
 package com.android.email.activity.setup;
 
@@ -154,7 +169,7 @@ public class AccountSetupIncoming extends Activity implements OnClickListener {
         mPortView.setKeyListener(DigitsKeyListener.getInstance("0123456789"));
 
         mAccount = (Account)getIntent().getSerializableExtra(EXTRA_ACCOUNT);
-        mMakeDefault = (boolean)getIntent().getBooleanExtra(EXTRA_MAKE_DEFAULT, false);
+        mMakeDefault = getIntent().getBooleanExtra(EXTRA_MAKE_DEFAULT, false);
 
         /*
          * If we're being reloaded we override the original account with the one
@@ -237,13 +252,24 @@ public class AccountSetupIncoming extends Activity implements OnClickListener {
         outState.putSerializable(EXTRA_ACCOUNT, mAccount);
     }
 
+    /**
+     * Check the values in the fields and decide if it makes sense to enable the "next" button
+     * NOTE:  Does it make sense to extract & combine with similar code in AccountSetupIncoming? 
+     */
     private void validateFields() {
-        mNextButton
-                .setEnabled(Utility.requiredFieldValid(mUsernameView)
-                        && Utility.requiredFieldValid(mPasswordView)
-                        && Utility.requiredFieldValid(mServerView)
-                        && Utility.requiredFieldValid(mPortView));
-        Utility.setCompoundDrawablesAlpha(mNextButton, mNextButton.isEnabled() ? 255 : 128);
+        boolean enabled = Utility.requiredFieldValid(mUsernameView)
+                && Utility.requiredFieldValid(mPasswordView)
+                && Utility.requiredFieldValid(mServerView)
+                && Utility.requiredFieldValid(mPortView);
+        if (enabled) {
+            try {
+                URI uri = getUri();
+            } catch (URISyntaxException use) {
+                enabled = false;
+            }
+        }
+        mNextButton.setEnabled(enabled);
+        Utility.setCompoundDrawablesAlpha(mNextButton, enabled ? 255 : 128);
     }
 
     private void updatePortFromSecurityType() {
@@ -263,16 +289,17 @@ public class AccountSetupIncoming extends Activity implements OnClickListener {
                  * password the user just set for incoming.
                  */
                 try {
-                    URI oldUri = new URI(mAccount.getTransportUri());
+                    URI oldUri = new URI(mAccount.getSenderUri());
                     URI uri = new URI(
                             oldUri.getScheme(),
-                            mUsernameView.getText() + ":" + mPasswordView.getText(),
+                            mUsernameView.getText().toString().trim() + ":" 
+                                    + mPasswordView.getText().toString().trim(),
                             oldUri.getHost(),
                             oldUri.getPort(),
                             null,
                             null,
                             null);
-                    mAccount.setTransportUri(uri.toString());
+                    mAccount.setSenderUri(uri.toString());
                 } catch (URISyntaxException use) {
                     /*
                      * If we can't set up the URL we just continue. It's only for
@@ -286,22 +313,34 @@ public class AccountSetupIncoming extends Activity implements OnClickListener {
             }
         }
     }
+    
+    /**
+     * Attempt to create a URI from the fields provided.  Throws URISyntaxException if there's 
+     * a problem with the user input.
+     * @return a URI built from the account setup fields
+     */
+    private URI getUri() throws URISyntaxException {
+        int securityType = (Integer)((SpinnerOption)mSecurityTypeView.getSelectedItem()).value;
+        String path = null;
+        if (mAccountSchemes[securityType].startsWith("imap")) {
+            path = "/" + mImapPathPrefixView.getText().toString().trim();
+        }
+        URI uri = new URI(
+                mAccountSchemes[securityType],
+                mUsernameView.getText().toString().trim() + ":" + 
+                        mPasswordView.getText().toString().trim(),
+                mServerView.getText().toString().trim(),
+                Integer.parseInt(mPortView.getText().toString().trim()),
+                path, // path
+                null, // query
+                null);
+
+        return uri;
+    }
 
     private void onNext() {
-        int securityType = (Integer)((SpinnerOption)mSecurityTypeView.getSelectedItem()).value;
         try {
-            String path = null;
-            if (mAccountSchemes[securityType].startsWith("imap")) {
-                path = "/" + mImapPathPrefixView.getText();
-            }
-            URI uri = new URI(
-                    mAccountSchemes[securityType],
-                    mUsernameView.getText() + ":" + mPasswordView.getText(),
-                    mServerView.getText().toString(),
-                    Integer.parseInt(mPortView.getText().toString()),
-                    path, // path
-                    null, // query
-                    null);
+            URI uri = getUri();
             mAccount.setStoreUri(uri.toString());
         } catch (URISyntaxException use) {
             /*

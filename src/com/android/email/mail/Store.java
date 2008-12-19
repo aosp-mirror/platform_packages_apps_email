@@ -1,3 +1,18 @@
+/*
+ * Copyright (C) 2008 The Android Open Source Project
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *      http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
 
 package com.android.email.mail;
 
@@ -18,14 +33,19 @@ import com.android.email.mail.store.Pop3Store;
  * making as few network connections as possible.
  */
 public abstract class Store {
+    
+    /**
+     * String constants for known store schemes.
+     */
+    public static final String STORE_SCHEME_IMAP = "imap";
+    public static final String STORE_SCHEME_POP3 = "pop3";
+    public static final String STORE_SCHEME_LOCAL = "local";
+    
     /**
      * A global suggestion to Store implementors on how much of the body
      * should be returned on FetchProfile.Item.BODY_SANE requests.
      */
     public static final int FETCH_BODY_SANE_SUGGESTED_SIZE = (50 * 1024);
-
-    protected static final int SOCKET_CONNECT_TIMEOUT = 10000;
-    protected static final int SOCKET_READ_TIMEOUT = 60000;
 
     private static HashMap<String, Store> mStores = new HashMap<String, Store>();
 
@@ -42,17 +62,17 @@ public abstract class Store {
      * imap+ssl+://username:password@host
      *
      * @param uri The URI of the store.
-     * @return
+     * @return an initialized store of the appropriate class
      * @throws MessagingException
      */
     public synchronized static Store getInstance(String uri, Application application) throws MessagingException {
         Store store = mStores.get(uri);
         if (store == null) {
-            if (uri.startsWith("imap")) {
+            if (uri.startsWith(STORE_SCHEME_IMAP)) {
                 store = new ImapStore(uri);
-            } else if (uri.startsWith("pop3")) {
+            } else if (uri.startsWith(STORE_SCHEME_POP3)) {
                 store = new Pop3Store(uri);
-            } else if (uri.startsWith("local")) {
+            } else if (uri.startsWith(STORE_SCHEME_LOCAL)) {
                 store = new LocalStore(uri, application);
             }
 

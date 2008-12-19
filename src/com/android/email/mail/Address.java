@@ -1,3 +1,18 @@
+/*
+ * Copyright (C) 2008 The Android Open Source Project
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *      http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
 
 package com.android.email.mail;
 
@@ -119,9 +134,8 @@ public class Address {
     }
     
     /**
-     * Returns either the personal portion of the Address or the address portion if the personal
-     * is not available.
-     * @return
+     * @return the personal portion of this Address, or the address portion if the 
+     * personal portion is not available
      */
     public String toFriendly() {
         if (mPersonal != null && mPersonal.length() > 0) {
@@ -132,16 +146,23 @@ public class Address {
         }
     }
     
+    /**
+     * Creates a comma-delimited list of addresses in the "friendly" format (see toFriendly() for 
+     * details on the per-address conversion).
+     * @param addresses array of Address[] values
+     * @return A comma-delimited string listing all of the addresses supplied.  Null if source
+     * was null or empty.
+     */
     public static String toFriendly(Address[] addresses) {
-        if (addresses == null) {
+        if (addresses == null || addresses.length == 0) {
             return null;
         }
         StringBuffer sb = new StringBuffer();
         for (int i = 0; i < addresses.length; i++) {
-            sb.append(addresses[i].toFriendly());
-            if (i < addresses.length - 1) {
+            if (i > 0) {
                 sb.append(',');
             }
+            sb.append(addresses[i].toFriendly());
         }
         return sb.toString();
     }

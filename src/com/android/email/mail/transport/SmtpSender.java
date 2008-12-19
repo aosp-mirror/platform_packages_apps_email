@@ -1,112 +1,104 @@
+/*
+ * Copyright (C) 2008 The Android Open Source Project
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *      http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
 
 package com.android.email.mail.transport;
 
-import java.io.BufferedInputStream;
-import java.io.BufferedOutputStream;
-import java.io.IOException;
-import java.io.OutputStream;
-import java.net.InetAddress;
-import java.net.InetSocketAddress;
-import java.net.Socket;
-import java.net.SocketAddress;
-import java.net.URI;
-import java.net.URISyntaxException;
-import java.security.GeneralSecurityException;
-import java.security.SecureRandom;
-
-import javax.net.ssl.SSLContext;
-import javax.net.ssl.TrustManager;
-import javax.net.ssl.SSLException;
+import com.android.email.Email;
+import com.android.email.codec.binary.Base64;
+import com.android.email.mail.Address;
+import com.android.email.mail.AuthenticationFailedException;
+import com.android.email.mail.CertificateValidationException;
+import com.android.email.mail.Message;
+import com.android.email.mail.MessagingException;
+import com.android.email.mail.Sender;
+import com.android.email.mail.Transport;
+import com.android.email.mail.Message.RecipientType;
 
 import android.util.Config;
 import android.util.Log;
 
-import com.android.email.Email;
-import com.android.email.PeekableInputStream;
-import com.android.email.codec.binary.Base64;
-import com.android.email.mail.Address;
-import com.android.email.mail.AuthenticationFailedException;
-import com.android.email.mail.Message;
-import com.android.email.mail.MessagingException;
-import com.android.email.mail.Transport;
-import com.android.email.mail.CertificateValidationException;
-import com.android.email.mail.Message.RecipientType;
-import com.android.email.mail.store.TrustManagerFactory;
+import java.io.BufferedOutputStream;
+import java.io.IOException;
+import java.net.InetAddress;
+import java.net.URI;
+import java.net.URISyntaxException;
 
-public class SmtpTransport extends Transport {
+import javax.net.ssl.SSLException;
+
+/**
+ * This class handles all of the protocol-level aspects of sending messages via SMTP.
+ */
+public class SmtpSender extends Sender {
+    
     public static final int CONNECTION_SECURITY_NONE = 0;
-
     public static final int CONNECTION_SECURITY_TLS_OPTIONAL = 1;
-
     public static final int CONNECTION_SECURITY_TLS_REQUIRED = 2;
-
     public static final int CONNECTION_SECURITY_SSL_REQUIRED = 3;
-
     public static final int CONNECTION_SECURITY_SSL_OPTIONAL = 4;
 
-    String mHost;
-
-    int mPort;
-
+    private Transport mTransport;
     String mUsername;
-
     String mPassword;
 
-    int mConnectionSecurity;
-
-    boolean mSecure;
-
-    Socket mSocket;
-
-    PeekableInputStream mIn;
-
-    OutputStream mOut;
-
     /**
+     * Allowed formats for the Uri:
      * smtp://user:password@server:port CONNECTION_SECURITY_NONE
      * smtp+tls://user:password@server:port CONNECTION_SECURITY_TLS_OPTIONAL
      * smtp+tls+://user:password@server:port CONNECTION_SECURITY_TLS_REQUIRED
      * smtp+ssl+://user:password@server:port CONNECTION_SECURITY_SSL_REQUIRED
      * smtp+ssl://user:password@server:port CONNECTION_SECURITY_SSL_OPTIONAL
      *
-     * @param _uri
+     * @param uriString the Uri containing information to configure this sender
      */
-    public SmtpTransport(String _uri) throws MessagingException {
+    public SmtpSender(String uriString) throws MessagingException {
         URI uri;
         try {
-            uri = new URI(_uri);
+            uri = new URI(uriString);
         } catch (URISyntaxException use) {
             throw new MessagingException("Invalid SmtpTransport URI", use);
         }
 
         String scheme = uri.getScheme();
+        int connectionSecurity = Transport.CONNECTION_SECURITY_NONE;
+        int defaultPort = -1;
         if (scheme.equals("smtp")) {
-            mConnectionSecurity = CONNECTION_SECURITY_NONE;
-            mPort = 25;
+            connectionSecurity = CONNECTION_SECURITY_NONE;
+            defaultPort = 25;
         } else if (scheme.equals("smtp+tls")) {
-            mConnectionSecurity = CONNECTION_SECURITY_TLS_OPTIONAL;
-            mPort = 25;
+            connectionSecurity = CONNECTION_SECURITY_TLS_OPTIONAL;
+            defaultPort = 25;
         } else if (scheme.equals("smtp+tls+")) {
-            mConnectionSecurity = CONNECTION_SECURITY_TLS_REQUIRED;
-            mPort = 25;
+            connectionSecurity = CONNECTION_SECURITY_TLS_REQUIRED;
+            defaultPort = 25;
         } else if (scheme.equals("smtp+ssl+")) {
-            mConnectionSecurity = CONNECTION_SECURITY_SSL_REQUIRED;
-            mPort = 465;
+            connectionSecurity = CONNECTION_SECURITY_SSL_REQUIRED;
+            defaultPort = 465;
         } else if (scheme.equals("smtp+ssl")) {
-            mConnectionSecurity = CONNECTION_SECURITY_SSL_OPTIONAL;
-            mPort = 465;
+            connectionSecurity = CONNECTION_SECURITY_SSL_OPTIONAL;
+            defaultPort = 465;
         } else {
             throw new MessagingException("Unsupported protocol");
         }
 
-        mHost = uri.getHost();
+        mTransport = new MailTransport("SMTP");
+        mTransport.setUri(uri, defaultPort);
+        mTransport.setSecurity(connectionSecurity);
 
-        if (uri.getPort() != -1) {
-            mPort = uri.getPort();
-        }
-
-        if (uri.getUserInfo() != null) {
-            String[] userInfoParts = uri.getUserInfo().split(":", 2);
+        String[] userInfoParts = mTransport.getUserInfoParts();
+        if (userInfoParts != null) {
             mUsername = userInfoParts[0];
             if (userInfoParts.length > 1) {
                 mPassword = userInfoParts[1];
@@ -114,26 +106,18 @@ public class SmtpTransport extends Transport {
         }
     }
 
+    /**
+     * For testing only.  Injects a different transport.  The transport should already be set
+     * up and ready to use.  Do not use for real code.
+     * @param testTransport The Transport to inject and use for all future communication.
+     */
+    /* package */ void setTransport(Transport testTransport) {
+        mTransport = testTransport;
+    }
+
     public void open() throws MessagingException {
         try {
-            SocketAddress socketAddress = new InetSocketAddress(mHost, mPort);
-            if (mConnectionSecurity == CONNECTION_SECURITY_SSL_REQUIRED ||
-                    mConnectionSecurity == CONNECTION_SECURITY_SSL_OPTIONAL) {
-                SSLContext sslContext = SSLContext.getInstance("TLS");
-                boolean secure = mConnectionSecurity == CONNECTION_SECURITY_SSL_REQUIRED;
-                sslContext.init(null, new TrustManager[] {
-                        TrustManagerFactory.get(mHost, secure)
-                }, new SecureRandom());
-                mSocket = sslContext.getSocketFactory().createSocket();
-                mSocket.connect(socketAddress, SOCKET_CONNECT_TIMEOUT);
-                mSecure = true;
-            } else {
-                mSocket = new Socket();
-                mSocket.connect(socketAddress, SOCKET_CONNECT_TIMEOUT);
-            }
-
-            mIn = new PeekableInputStream(new BufferedInputStream(mSocket.getInputStream(), 1024));
-            mOut = mSocket.getOutputStream();
+            mTransport.open();
 
             // Eat the banner
             executeSimpleCommand(null);
@@ -143,10 +127,8 @@ public class SmtpTransport extends Transport {
                 InetAddress localAddress = InetAddress.getLocalHost();
                 localHost = localAddress.getHostName();
             } catch (Exception e) {
-                if (Config.LOGD) {
-                    if (Email.DEBUG) {
-                        Log.d(Email.LOG_TAG, "Unable to look up localhost");
-                    }
+                if (Config.LOGD && Email.DEBUG) {
+                    Log.d(Email.LOG_TAG, "Unable to look up localhost");
                 }
             }
 
@@ -160,29 +142,21 @@ public class SmtpTransport extends Transport {
              * and only attempting auth if it's available, and warning the user
              * if not.
              */
-            if (mConnectionSecurity == CONNECTION_SECURITY_TLS_OPTIONAL
-                    || mConnectionSecurity == CONNECTION_SECURITY_TLS_REQUIRED) {
+            if (mTransport.canTryTlsSecurity()) {
                 if (result.contains("-STARTTLS")) {
                     executeSimpleCommand("STARTTLS");
-
-                    SSLContext sslContext = SSLContext.getInstance("TLS");
-                    boolean secure = mConnectionSecurity == CONNECTION_SECURITY_TLS_REQUIRED;
-                    sslContext.init(null, new TrustManager[] {
-                            TrustManagerFactory.get(mHost, secure)
-                    }, new SecureRandom());
-                    mSocket = sslContext.getSocketFactory().createSocket(mSocket, mHost, mPort,
-                            true);
-                    mIn = new PeekableInputStream(new BufferedInputStream(mSocket.getInputStream(),
-                            1024));
-                    mOut = mSocket.getOutputStream();
-                    mSecure = true;
+                    mTransport.reopenTls();
                     /*
                      * Now resend the EHLO. Required by RFC2487 Sec. 5.2, and more specifically,
                      * Exim.
                      */
                     result = executeSimpleCommand("EHLO " + localHost);
-                } else if (mConnectionSecurity == CONNECTION_SECURITY_TLS_REQUIRED) {
-                    throw new MessagingException("TLS not supported but required");
+                } else if (mTransport.getSecurity() == 
+                        Transport.CONNECTION_SECURITY_TLS_REQUIRED) {
+                    if (Config.LOGD && Email.DEBUG) {
+                        Log.d(Email.LOG_TAG, "TLS not supported but required");
+                    }
+                    throw new MessagingException(MessagingException.TLS_REQUIRED);
                 }
             }
 
@@ -201,16 +175,22 @@ public class SmtpTransport extends Transport {
                     saslAuthLogin(mUsername, mPassword);
                 }
                 else {
-                    throw new MessagingException("No valid authentication mechanism found.");
+                    if (Config.LOGD && Email.DEBUG) {
+                        Log.d(Email.LOG_TAG, "No valid authentication mechanism found.");
+                    }
+                    throw new MessagingException(MessagingException.AUTH_REQUIRED);
                 }
             }
         } catch (SSLException e) {
+            if (Config.LOGD && Email.DEBUG) {
+                Log.d(Email.LOG_TAG, e.toString());
+            }
             throw new CertificateValidationException(e.getMessage(), e);
-        } catch (GeneralSecurityException gse) {
-            throw new MessagingException(
-                    "Unable to open connection to SMTP server due to security error.", gse);
         } catch (IOException ioe) {
-            throw new MessagingException("Unable to open connection to SMTP server.", ioe);
+            if (Config.LOGD && Email.DEBUG) {
+                Log.d(Email.LOG_TAG, ioe.toString());
+            }
+            throw new MessagingException(MessagingException.IOERROR, ioe.toString());
         }
     }
 
@@ -233,80 +213,62 @@ public class SmtpTransport extends Transport {
             message.setRecipients(RecipientType.BCC, null);
             executeSimpleCommand("DATA");
             // TODO byte stuffing
+            // TODO most of the MIME writeTo functions layer on *additional* buffering
+            // streams, making this one possibly not-necessary.  Need to get to the bottom
+            // of that.
+            // TODO Also, need to be absolutely positively sure that flush() is called
+            // on the wrappered outputs before sending the final \r\n via the regular mOut.
             message.writeTo(
                     new EOLConvertingOutputStream(
-                            new BufferedOutputStream(mOut, 1024)));
+                            new BufferedOutputStream(mTransport.getOutputStream(), 1024)));
             executeSimpleCommand("\r\n.");
         } catch (IOException ioe) {
             throw new MessagingException("Unable to send message", ioe);
         }
     }
 
+    /**
+     * Close the protocol (and the transport below it).  
+     * 
+     * MUST NOT return any exceptions.
+     */
     public void close() {
-        try {
-            mIn.close();
-        } catch (Exception e) {
-
-        }
-        try {
-            mOut.close();
-        } catch (Exception e) {
-
-        }
-        try {
-            mSocket.close();
-        } catch (Exception e) {
-
-        }
-        mIn = null;
-        mOut = null;
-        mSocket = null;
+        mTransport.close();
     }
 
-    private String readLine() throws IOException {
-        StringBuffer sb = new StringBuffer();
-        int d;
-        while ((d = mIn.read()) != -1) {
-            if (((char)d) == '\r') {
-                continue;
-            } else if (((char)d) == '\n') {
-                break;
-            } else {
-                sb.append((char)d);
-            }
-        }
-        String ret = sb.toString();
-        if (Config.LOGD) {
-            if (Email.DEBUG) {
-                Log.d(Email.LOG_TAG, "<<< " + ret);
-            }
-        }
-        return ret;
-    }
-
-    private void writeLine(String s) throws IOException {
-        if (Config.LOGD) {
-            if (Email.DEBUG) {
-                Log.d(Email.LOG_TAG, ">>> " + s);
-            }
-        }
-        mOut.write(s.getBytes());
-        mOut.write('\r');
-        mOut.write('\n');
-        mOut.flush();
-    }
-
+    /**
+     * Send a single command and wait for a single response.  Handles responses that continue
+     * onto multiple lines.  Throws MessagingException if response code is 4xx or 5xx.  All traffic
+     * is logged (if debug logging is enabled) so do not use this function for user ID or password.
+     * 
+     * @param command The command string to send to the server.
+     * @return Returns the response string from the server.
+     */
     private String executeSimpleCommand(String command) throws IOException, MessagingException {
+        return executeSensitiveCommand(command, null);
+    }
+    
+    /**
+     * Send a single command and wait for a single response.  Handles responses that continue
+     * onto multiple lines.  Throws MessagingException if response code is 4xx or 5xx.
+     * 
+     * @param command The command string to send to the server.
+     * @param sensitiveReplacement If the command includes sensitive data (e.g. authentication)
+     * please pass a replacement string here (for logging).
+     * @return Returns the response string from the server.
+     */
+    private String executeSensitiveCommand(String command, String sensitiveReplacement) 
+            throws IOException, MessagingException {
         if (command != null) {
-            writeLine(command);
+            mTransport.writeLine(command, sensitiveReplacement);
         }
 
-        String line = readLine();
+        String line = mTransport.readLine();
 
         String result = line;
 
         while (line.length() >= 4 && line.charAt(3) == '-') {
-            line = readLine();
+            line = mTransport.readLine();
             result += line.substring(3);
         }
 
@@ -340,13 +302,14 @@ public class SmtpTransport extends Transport {
         AuthenticationFailedException, IOException {
         try {
             executeSimpleCommand("AUTH LOGIN");
-            executeSimpleCommand(new String(Base64.encodeBase64(username.getBytes())));
-            executeSimpleCommand(new String(Base64.encodeBase64(password.getBytes())));
+            executeSensitiveCommand(new String(Base64.encodeBase64(username.getBytes())), 
+                    "/username redacted/");
+            executeSensitiveCommand(new String(Base64.encodeBase64(password.getBytes())), 
+                    "/password redacted/");
         }
         catch (MessagingException me) {
             if (me.getMessage().length() > 1 && me.getMessage().charAt(1) == '3') {
-                throw new AuthenticationFailedException("AUTH LOGIN failed (" + me.getMessage()
-                        + ")");
+                throw new AuthenticationFailedException(me.getMessage());
             }
             throw me;
         }
@@ -357,12 +320,11 @@ public class SmtpTransport extends Transport {
         byte[] data = ("\000" + username + "\000" + password).getBytes();
         data = new Base64().encode(data);
         try {
-            executeSimpleCommand("AUTH PLAIN " + new String(data));
+            executeSensitiveCommand("AUTH PLAIN " + new String(data), "AUTH PLAIN /redacted/");
         }
         catch (MessagingException me) {
             if (me.getMessage().length() > 1 && me.getMessage().charAt(1) == '3') {
-                throw new AuthenticationFailedException("AUTH PLAIN failed (" + me.getMessage()
-                        + ")");
+                throw new AuthenticationFailedException(me.getMessage());
             }
             throw me;
         }

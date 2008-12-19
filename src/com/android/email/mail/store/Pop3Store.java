@@ -1,28 +1,20 @@
+/*
+ * Copyright (C) 2008 The Android Open Source Project
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *      http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
 
 package com.android.email.mail.store;
-
-import java.io.BufferedInputStream;
-import java.io.BufferedOutputStream;
-import java.io.IOException;
-import java.io.InputStream;
-import java.io.OutputStream;
-import java.net.InetSocketAddress;
-import java.net.Socket;
-import java.net.SocketAddress;
-import java.net.URI;
-import java.net.URISyntaxException;
-import java.security.GeneralSecurityException;
-import java.security.SecureRandom;
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.HashSet;
-
-import javax.net.ssl.SSLContext;
-import javax.net.ssl.TrustManager;
-import javax.net.ssl.SSLException;
-
-import android.util.Config;
-import android.util.Log;
 
 import com.android.email.Email;
 import com.android.email.Utility;
@@ -34,26 +26,33 @@ import com.android.email.mail.Message;
 import com.android.email.mail.MessageRetrievalListener;
 import com.android.email.mail.MessagingException;
 import com.android.email.mail.Store;
-import com.android.email.mail.CertificateValidationException;
+import com.android.email.mail.Transport;
 import com.android.email.mail.Folder.OpenMode;
 import com.android.email.mail.internet.MimeMessage;
+import com.android.email.mail.transport.MailTransport;
+
+import android.util.Config;
+import android.util.Log;
+
+import java.io.IOException;
+import java.io.InputStream;
+import java.net.URI;
+import java.net.URISyntaxException;
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.HashSet;
 
 public class Pop3Store extends Store {
-    public static final int CONNECTION_SECURITY_NONE = 0;
-    public static final int CONNECTION_SECURITY_TLS_OPTIONAL = 1;
-    public static final int CONNECTION_SECURITY_TLS_REQUIRED = 2;
-    public static final int CONNECTION_SECURITY_SSL_REQUIRED = 3;
-    public static final int CONNECTION_SECURITY_SSL_OPTIONAL = 4;
-
+    // All flags defining debug or development code settings must be FALSE
+    // when code is checked in or released.
+    private static boolean DEBUG_FORCE_SINGLE_LINE_UIDL = false;
+    
     private static final Flag[] PERMANENT_FLAGS = { Flag.DELETED };
 
-    private String mHost;
-    private int mPort;
+    private Transport mTransport;
     private String mUsername;
     private String mPassword;
-    private int mConnectionSecurity;
     private HashMap<String, Folder> mFolders = new HashMap<String, Folder>();
-    private Pop3Capabilities mCapabilities;
 
 //    /**
 //     * Detected latency, used for usage scaling.
@@ -98,38 +97,47 @@ public class Pop3Store extends Store {
         }
 
         String scheme = uri.getScheme();
-        if (scheme.equals("pop3")) {
-            mConnectionSecurity = CONNECTION_SECURITY_NONE;
-            mPort = 110;
-        } else if (scheme.equals("pop3+tls")) {
-            mConnectionSecurity = CONNECTION_SECURITY_TLS_OPTIONAL;
-            mPort = 110;
-        } else if (scheme.equals("pop3+tls+")) {
-            mConnectionSecurity = CONNECTION_SECURITY_TLS_REQUIRED;
-            mPort = 110;
-        } else if (scheme.equals("pop3+ssl+")) {
-            mConnectionSecurity = CONNECTION_SECURITY_SSL_REQUIRED;
-            mPort = 995;
-        } else if (scheme.equals("pop3+ssl")) {
-            mConnectionSecurity = CONNECTION_SECURITY_SSL_OPTIONAL;
-            mPort = 995;
+        int connectionSecurity = Transport.CONNECTION_SECURITY_NONE;
+        int defaultPort = -1;
+        if (scheme.equals(STORE_SCHEME_POP3)) {
+            connectionSecurity = Transport.CONNECTION_SECURITY_NONE;
+            defaultPort = 110;
+        } else if (scheme.equals(STORE_SCHEME_POP3 + "+tls")) {
+            connectionSecurity = Transport.CONNECTION_SECURITY_TLS_OPTIONAL;
+            defaultPort = 110;
+        } else if (scheme.equals(STORE_SCHEME_POP3 + "+tls+")) {
+            connectionSecurity = Transport.CONNECTION_SECURITY_TLS_REQUIRED;
+            defaultPort = 110;
+        } else if (scheme.equals(STORE_SCHEME_POP3 + "+ssl+")) {
+            connectionSecurity = Transport.CONNECTION_SECURITY_SSL_REQUIRED;
+            defaultPort = 995;
+        } else if (scheme.equals(STORE_SCHEME_POP3 + "+ssl")) {
+            connectionSecurity = Transport.CONNECTION_SECURITY_SSL_OPTIONAL;
+            defaultPort = 995;
         } else {
             throw new MessagingException("Unsupported protocol");
         }
+        
+        mTransport = new MailTransport("POP3");
+        mTransport.setUri(uri, defaultPort);
+        mTransport.setSecurity(connectionSecurity);
 
-        mHost = uri.getHost();
-
-        if (uri.getPort() != -1) {
-            mPort = uri.getPort();
-        }
-
-        if (uri.getUserInfo() != null) {
-            String[] userInfoParts = uri.getUserInfo().split(":", 2);
+        String[] userInfoParts = mTransport.getUserInfoParts();
+        if (userInfoParts != null) {
             mUsername = userInfoParts[0];
             if (userInfoParts.length > 1) {
                 mPassword = userInfoParts[1];
             }
         }
+    }
+    
+    /**
+     * For testing only.  Injects a different transport.  The transport should already be set
+     * up and ready to use.  Do not use for real code.
+     * @param testTransport The Transport to inject and use for all future communication.
+     */
+    /* package */ void setTransport(Transport testTransport) {
+        mTransport = testTransport;
     }
 
     @Override
@@ -149,38 +157,31 @@ public class Pop3Store extends Store {
         };
     }
 
+    /**
+     * Used by account setup to test if an account's settings are appropriate.  The definition
+     * of "checked" here is simply, can you log into the account and does it meet some minimum set
+     * of feature requirements?
+     * 
+     * @throws MessagingException if there was some problem with the account
+     */
     @Override
     public void checkSettings() throws MessagingException {
         Pop3Folder folder = new Pop3Folder("INBOX");
-        folder.open(OpenMode.READ_WRITE);
-        if (!mCapabilities.uidl) {
-            /*
-             * Run an additional test to see if UIDL is supported on the server. If it's not we
-             * can't service this account.
-             */
-            try{
-                /*
-                 * If the server doesn't support UIDL it will return a - response, which causes
-                 * executeSimpleCommand to throw a MessagingException, exiting this method.
-                 */
-                folder.executeSimpleCommand("UIDL");
-            }
-            catch (IOException ioe) {
-                throw new MessagingException(null, ioe);
-            }
+        try {
+            folder.open(OpenMode.READ_WRITE);
+            folder.checkSettings();
+        } finally {
+            folder.close(false);    // false == don't expunge anything
         }
-        folder.close(false);
     }
 
     class Pop3Folder extends Folder {
-        private Socket mSocket;
-        private InputStream mIn;
-        private OutputStream mOut;
         private HashMap<String, Pop3Message> mUidToMsgMap = new HashMap<String, Pop3Message>();
         private HashMap<Integer, Pop3Message> mMsgNumToMsgMap = new HashMap<Integer, Pop3Message>();
         private HashMap<String, Integer> mUidToMsgNumMap = new HashMap<String, Integer>();
         private String mName;
         private int mMessageCount;
+        private Pop3Capabilities mCapabilities;
 
         public Pop3Folder(String name) {
             this.mName = name;
@@ -188,10 +189,37 @@ public class Pop3Store extends Store {
                 mName = "INBOX";
             }
         }
+        
+        /**
+         * Used by account setup to test if an account's settings are appropriate.  Here, we run
+         * an additional test to see if UIDL is supported on the server. If it's not we
+         * can't service this account.
+         * 
+         * @throws MessagingException if the account is not going to be useable
+         */
+        public void checkSettings() throws MessagingException {
+            if (!mCapabilities.uidl) {
+                try {
+                    UidlParser parser = new UidlParser();
+                    executeSimpleCommand("UIDL");
+                    // drain the entire output, so additional communications don't get confused.
+                    String response;
+                    while ((response = mTransport.readLine()) != null) {
+                        parser.parseMultiLine(response);
+                        if (parser.mEndOfMessage) {
+                            break;
+                        }
+                    }
+                } catch (IOException ioe) {
+                    mTransport.close();
+                    throw new MessagingException(null, ioe);
+                }
+            }
+        }
 
         @Override
         public synchronized void open(OpenMode mode) throws MessagingException {
-            if (isOpen()) {
+            if (mTransport.isOpen()) {
                 return;
             }
 
@@ -200,66 +228,40 @@ public class Pop3Store extends Store {
             }
 
             try {
-                SocketAddress socketAddress = new InetSocketAddress(mHost, mPort);
-                if (mConnectionSecurity == CONNECTION_SECURITY_SSL_REQUIRED ||
-                        mConnectionSecurity == CONNECTION_SECURITY_SSL_OPTIONAL) {
-                    SSLContext sslContext = SSLContext.getInstance("TLS");
-                    final boolean secure = mConnectionSecurity == CONNECTION_SECURITY_SSL_REQUIRED;
-                    sslContext.init(null, new TrustManager[] {
-                            TrustManagerFactory.get(mHost, secure)
-                    }, new SecureRandom());
-                    mSocket = sslContext.getSocketFactory().createSocket();
-                    mSocket.connect(socketAddress, SOCKET_CONNECT_TIMEOUT);
-                    mIn = new BufferedInputStream(mSocket.getInputStream(), 1024);
-                    mOut = new BufferedOutputStream(mSocket.getOutputStream(), 512);
-                } else {
-                    mSocket = new Socket();
-                    mSocket.connect(socketAddress, SOCKET_CONNECT_TIMEOUT);
-                    mIn = new BufferedInputStream(mSocket.getInputStream(), 1024);
-                    mOut = new BufferedOutputStream(mSocket.getOutputStream(), 512);
-                }
-
-                mSocket.setSoTimeout(Store.SOCKET_READ_TIMEOUT);
-
+                mTransport.open();
 
                 // Eat the banner
                 executeSimpleCommand(null);
 
                 mCapabilities = getCapabilities();
 
-                if (mConnectionSecurity == CONNECTION_SECURITY_TLS_OPTIONAL
-                        || mConnectionSecurity == CONNECTION_SECURITY_TLS_REQUIRED) {
+                if (mTransport.canTryTlsSecurity()) {
                     if (mCapabilities.stls) {
-                        writeLine("STLS");
-
-                        SSLContext sslContext = SSLContext.getInstance("TLS");
-                        boolean secure = mConnectionSecurity == CONNECTION_SECURITY_TLS_REQUIRED;
-                        sslContext.init(null, new TrustManager[] {
-                                TrustManagerFactory.get(mHost, secure)
-                        }, new SecureRandom());
-                        mSocket = sslContext.getSocketFactory().createSocket(mSocket, mHost, mPort,
-                                true);
-                        mSocket.setSoTimeout(Store.SOCKET_READ_TIMEOUT);
-                        mIn = new BufferedInputStream(mSocket.getInputStream(), 1024);
-                        mOut = new BufferedOutputStream(mSocket.getOutputStream(), 512);
-                    } else if (mConnectionSecurity == CONNECTION_SECURITY_TLS_REQUIRED) {
-                        throw new MessagingException("TLS not supported but required");
+                        mTransport.writeLine("STLS", null);
+                        mTransport.reopenTls();
+                    } else if (mTransport.getSecurity() == 
+                            Transport.CONNECTION_SECURITY_TLS_REQUIRED) {
+                        if (Config.LOGD && Email.DEBUG) {
+                            Log.d(Email.LOG_TAG, "TLS not supported but required");
+                        }
+                        throw new MessagingException(MessagingException.TLS_REQUIRED);
                     }
                 }
 
                 try {
-                    executeSimpleCommand("USER " + mUsername);
-                    executeSimpleCommand("PASS " + mPassword);
+                    executeSensitiveCommand("USER " + mUsername, "USER /redacted/");
+                    executeSensitiveCommand("PASS " + mPassword, "PASS /redacted/");
                 } catch (MessagingException me) {
+                    if (Config.LOGD && Email.DEBUG) {
+                        Log.d(Email.LOG_TAG, me.toString());
+                    }
                     throw new AuthenticationFailedException(null, me);
                 }
-            } catch (SSLException e) {
-                throw new CertificateValidationException(e.getMessage(), e);
-            } catch (GeneralSecurityException gse) {
-                throw new MessagingException(
-                        "Unable to open connection to POP server due to security error.", gse);
             } catch (IOException ioe) {
-                throw new MessagingException("Unable to open connection to POP server.", ioe);
+                if (Config.LOGD && Email.DEBUG) {
+                    Log.d(Email.LOG_TAG, ioe.toString());
+                }
+                throw new MessagingException(MessagingException.IOERROR, ioe.toString());
             }
 
             try {
@@ -268,16 +270,14 @@ public class Pop3Store extends Store {
                 mMessageCount = Integer.parseInt(parts[1]);
             }
             catch (IOException ioe) {
-                throw new MessagingException("Unable to STAT folder.", ioe);
+                if (Config.LOGD && Email.DEBUG) {
+                    Log.d(Email.LOG_TAG, ioe.toString());
+                }
+                throw new MessagingException("POP3 STAT", ioe);
             }
             mUidToMsgMap.clear();
             mMsgNumToMsgMap.clear();
             mUidToMsgNumMap.clear();
-        }
-
-        public boolean isOpen() {
-            return (mIn != null && mOut != null && mSocket != null && mSocket.isConnected() && !mSocket
-                    .isClosed());
         }
 
         @Override
@@ -285,41 +285,22 @@ public class Pop3Store extends Store {
             return OpenMode.READ_ONLY;
         }
 
+        /**
+         * Close the folder (and the transport below it).  
+         * 
+         * MUST NOT return any exceptions.
+         * 
+         * @param expunge If true all deleted messages will be expunged (TODO - not implemented)
+         */
         @Override
         public void close(boolean expunge) {
             try {
                 executeSimpleCommand("QUIT");
             }
             catch (Exception e) {
-                /*
-                 * QUIT may fail if the connection is already closed. We don't care. It's just
-                 * being friendly.
-                 */
+                // ignore any problems here - just continue closing
             }
-            try {
-                mIn.close();
-            } catch (Exception e) {
-                /*
-                 * May fail if the connection is already closed.
-                 */
-            }
-            try {
-                mOut.close();
-            } catch (Exception e) {
-                /*
-                 * May fail if the connection is already closed.
-                 */
-            }
-            try {
-                mSocket.close();
-            } catch (Exception e) {
-                /*
-                 * May fail if the connection is already closed.
-                 */
-            }
-            mIn = null;
-            mOut = null;
-            mSocket = null;
+            mTransport.close();
         }
 
         @Override
@@ -366,6 +347,10 @@ public class Pop3Store extends Store {
             try {
                 indexMsgNums(start, end);
             } catch (IOException ioe) {
+                mTransport.close();
+                if (Config.LOGD && Email.DEBUG) {
+                    Log.d(Email.LOG_TAG, ioe.toString());
+                }
                 throw new MessagingException("getMessages", ioe);
             }
             ArrayList<Message> messages = new ArrayList<Message>();
@@ -402,7 +387,9 @@ public class Pop3Store extends Store {
             if (unindexedMessageCount == 0) {
                 return;
             }
-            if (unindexedMessageCount < 50 && mMessageCount > 5000) {
+            UidlParser parser = new UidlParser();
+            if (DEBUG_FORCE_SINGLE_LINE_UIDL ||
+                    (unindexedMessageCount < 50 && mMessageCount > 5000)) {
                 /*
                  * In extreme cases we'll do a UIDL command per message instead of a bulk
                  * download.
@@ -411,26 +398,24 @@ public class Pop3Store extends Store {
                     Pop3Message message = mMsgNumToMsgMap.get(msgNum);
                     if (message == null) {
                         String response = executeSimpleCommand("UIDL " + msgNum);
-                        int uidIndex = response.lastIndexOf(' ');
-                        String msgUid = response.substring(uidIndex + 1);
-                        message = new Pop3Message(msgUid, this);
+                        parser.parseSingleLine(response);
+                        message = new Pop3Message(parser.mUniqueId, this);
                         indexMessage(msgNum, message);
                     }
                 }
             }
             else {
                 String response = executeSimpleCommand("UIDL");
-                while ((response = readLine()) != null) {
-                    if (response.equals(".")) {
+                while ((response = mTransport.readLine()) != null) {
+                    parser.parseMultiLine(response);
+                    if (parser.mEndOfMessage) {
                         break;
                     }
-                    String[] uidParts = response.split(" ");
-                    Integer msgNum = Integer.valueOf(uidParts[0]);
-                    String msgUid = uidParts[1];
+                    int msgNum = parser.mMessageNumber;
                     if (msgNum >= start && msgNum <= end) {
                         Pop3Message message = mMsgNumToMsgMap.get(msgNum);
                         if (message == null) {
-                            message = new Pop3Message(msgUid, this);
+                            message = new Pop3Message(parser.mUniqueId, this);
                             indexMessage(msgNum, message);
                         }
                     }
@@ -454,23 +439,105 @@ public class Pop3Store extends Store {
              * get them is to do a full UIDL list. A possible optimization
              * would be trying UIDL for the latest X messages and praying.
              */
+            UidlParser parser = new UidlParser();
             String response = executeSimpleCommand("UIDL");
-            while ((response = readLine()) != null) {
-                if (response.equals(".")) {
+            while ((response = mTransport.readLine()) != null) {
+                parser.parseMultiLine(response);
+                if (parser.mEndOfMessage) {
                     break;
                 }
-                String[] uidParts = response.split(" ");
-                Integer msgNum = Integer.valueOf(uidParts[0]);
-                String msgUid = uidParts[1];
-                if (unindexedUids.contains(msgUid)) {
-                    if (Config.LOGD) {
-                        Pop3Message message = mUidToMsgMap.get(msgUid);
-                        if (message == null) {
-                            message = new Pop3Message(msgUid, this);
-                        }
-                        indexMessage(msgNum, message);
+                if (unindexedUids.contains(parser.mUniqueId)) {
+                    Pop3Message message = mUidToMsgMap.get(parser.mUniqueId);
+                    if (message == null) {
+                        message = new Pop3Message(parser.mUniqueId, this);
+                    }
+                    indexMessage(parser.mMessageNumber, message);
+                }
+            }
+        }
+
+        /**
+         * Simple parser class for UIDL messages.
+         * 
+         * <p>NOTE:  In variance with RFC 1939, we allow multiple whitespace between the 
+         * message-number and unique-id fields.  This provides greater compatibility with some 
+         * non-compliant POP3 servers, e.g. mail.comcast.net.
+         */
+        /* package */ class UidlParser {
+            
+            /**
+             * Caller can read back message-number from this field
+             */
+            public int mMessageNumber;
+            /**
+             * Caller can read back unique-id from this field
+             */
+            public String mUniqueId;
+            /**
+             * True if the response was "end-of-message"
+             */
+            public boolean mEndOfMessage;
+            /**
+             * True if an error was reported
+             */
+            public boolean mErr;
+            
+            /**
+             * Construct & Initialize
+             */
+            public UidlParser() {
+                mErr = true;
+            }
+            
+            /**
+             * Parse a single-line response.  This is returned from a command of the form
+             * "UIDL msg-num" and will be formatted as: "+OK msg-num unique-id" or 
+             * "-ERR diagnostic text"
+             * 
+             * @param response The string returned from the server
+             * @return true if the string parsed as expected (e.g. no syntax problems)
+             */
+            public boolean parseSingleLine(String response) {
+                mErr = false;
+                char first = response.charAt(0);
+                if (first == '+') {
+                    String[] uidParts = response.split(" +");
+                    if (uidParts.length >= 3) {
+                        mMessageNumber = Integer.parseInt(uidParts[1]);
+                        mUniqueId = uidParts[2];
+                        mEndOfMessage = true;
+                        return true;
+                    }
+                } else if (first == '-') {
+                    mErr = true;
+                    return true;
+                }
+                return false;
+            }
+            
+            /**
+             * Parse a multi-line response.  This is returned from a command of the form
+             * "UIDL" and will be formatted as: "." or "msg-num unique-id".
+             * 
+             * @param response The string returned from the server
+             * @return true if the string parsed as expected (e.g. no syntax problems)
+             */
+            public boolean parseMultiLine(String response) {
+                mErr = false;
+                char first = response.charAt(0);
+                if (first == '.') {
+                    mEndOfMessage = true;
+                    return true;
+                } else {
+                    String[] uidParts = response.split(" +");
+                    if (uidParts.length >= 2) {
+                        mMessageNumber = Integer.parseInt(uidParts[0]);
+                        mUniqueId = uidParts[1];
+                        mEndOfMessage = false;
+                        return true;
                     }
                 }
+                return false;
             }
         }
 
@@ -509,22 +576,17 @@ public class Pop3Store extends Store {
             }
             try {
                 indexUids(uids);
-            }
-            catch (IOException ioe) {
-                throw new MessagingException("fetch", ioe);
-            }
-            try {
                 if (fp.contains(FetchProfile.Item.ENVELOPE)) {
-                    /*
-                     * We pass the listener only if there are other things to do in the
-                     * FetchProfile. Since fetchEnvelop works in bulk and eveything else
-                     * works one at a time if we let fetchEnvelope send events the
-                     * event would get sent twice.
-                     */
-                    fetchEnvelope(messages, fp.size() == 1 ? listener : null);
+                    // Note: We never pass the listener for the ENVELOPE call, because we're going
+                    // to be calling the listener below in the per-message loop.
+                    fetchEnvelope(messages, null);
                 }
             }
             catch (IOException ioe) {
+                mTransport.close();
+                if (Config.LOGD && Email.DEBUG) {
+                    Log.d(Email.LOG_TAG, ioe.toString());
+                }
                 throw new MessagingException("fetch", ioe);
             }
             for (int i = 0, count = messages.length; i < count; i++) {
@@ -534,7 +596,7 @@ public class Pop3Store extends Store {
                 }
                 Pop3Message pop3Message = (Pop3Message)message;
                 try {
-                    if (listener != null && !fp.contains(FetchProfile.Item.ENVELOPE)) {
+                    if (listener != null) {
                         listener.messageStarted(pop3Message.getUid(), i, count);
                     }
                     if (fp.contains(FetchProfile.Item.BODY)) {
@@ -555,10 +617,14 @@ public class Pop3Store extends Store {
                          */
                         pop3Message.setBody(null);
                     }
-                    if (listener != null && !fp.contains(FetchProfile.Item.ENVELOPE)) {
+                    if (listener != null) {
                         listener.messageFinished(message, i, count);
                     }
                 } catch (IOException ioe) {
+                    mTransport.close();
+                    if (Config.LOGD && Email.DEBUG) {
+                        Log.d(Email.LOG_TAG, ioe.toString());
+                    }
                     throw new MessagingException("Unable to fetch message", ioe);
                 }
             }
@@ -607,7 +673,7 @@ public class Pop3Store extends Store {
                 }
                 int i = 0, count = messages.length;
                 String response = executeSimpleCommand("LIST");
-                while ((response = readLine()) != null) {
+                while ((response = mTransport.readLine()) != null) {
                     if (response.equals(".")) {
                         break;
                     }
@@ -652,7 +718,7 @@ public class Pop3Store extends Store {
             }
             if (response != null)  {
                 try {
-                    message.parse(new Pop3ResponseInputStream(mIn));
+                    message.parse(new Pop3ResponseInputStream(mTransport.getInputStream()));
                 }
                 catch (MessagingException me) {
                     /*
@@ -698,6 +764,10 @@ public class Pop3Store extends Store {
                 }
             }
             catch (IOException ioe) {
+                mTransport.close();
+                if (Config.LOGD && Email.DEBUG) {
+                    Log.d(Email.LOG_TAG, ioe.toString());
+                }
                 throw new MessagingException("setFlags()", ioe);
             }
         }
@@ -714,47 +784,11 @@ public class Pop3Store extends Store {
 //                    (mMessageCount * 58) / (mThroughputKbS * 1024 / 8) * 1000;
 //        }
 
-        private String readLine() throws IOException {
-            StringBuffer sb = new StringBuffer();
-            int d = mIn.read();
-            if (d == -1) {
-                throw new IOException("End of stream reached while trying to read line.");
-            }
-            do {
-                if (((char)d) == '\r') {
-                    continue;
-                } else if (((char)d) == '\n') {
-                    break;
-                } else {
-                    sb.append((char)d);
-                }
-            } while ((d = mIn.read()) != -1);
-            String ret = sb.toString();
-            if (Config.LOGD) {
-                if (Email.DEBUG) {
-                    Log.d(Email.LOG_TAG, "<<< " + ret);
-                }
-            }
-            return ret;
-        }
-
-        private void writeLine(String s) throws IOException {
-            if (Config.LOGD) {
-                if (Email.DEBUG) {
-                    Log.d(Email.LOG_TAG, ">>> " + s);
-                }
-            }
-            mOut.write(s.getBytes());
-            mOut.write('\r');
-            mOut.write('\n');
-            mOut.flush();
-        }
-
         private Pop3Capabilities getCapabilities() throws IOException, MessagingException {
             Pop3Capabilities capabilities = new Pop3Capabilities();
             try {
                 String response = executeSimpleCommand("CAPA");
-                while ((response = readLine()) != null) {
+                while ((response = mTransport.readLine()) != null) {
                     if (response.equals(".")) {
                         break;
                     }
@@ -784,14 +818,35 @@ public class Pop3Store extends Store {
             return capabilities;
         }
 
+        /**
+         * Send a single command and wait for a single line response.  Reopens the connection,
+         * if it is closed.  Leaves the connection open.
+         * 
+         * @param command The command string to send to the server.
+         * @return Returns the response string from the server.
+         */
         private String executeSimpleCommand(String command) throws IOException, MessagingException {
+            return executeSensitiveCommand(command, null);
+        }
+        
+        /**
+         * Send a single command and wait for a single line response.  Reopens the connection,
+         * if it is closed.  Leaves the connection open.
+         * 
+         * @param command The command string to send to the server.
+         * @param sensitiveReplacement If the command includes sensitive data (e.g. authentication)
+         * please pass a replacement string here (for logging).
+         * @return Returns the response string from the server.
+         */
+        private String executeSensitiveCommand(String command, String sensitiveReplacement)
+                throws IOException, MessagingException {
             open(OpenMode.READ_WRITE);
 
             if (command != null) {
-                writeLine(command);
+                mTransport.writeLine(command, sensitiveReplacement);
             }
 
-            String response = readLine();
+            String response = mTransport.readLine();
 
             if (response.length() > 1 && response.charAt(0) == '-') {
                 throw new MessagingException(response);
@@ -806,6 +861,12 @@ public class Pop3Store extends Store {
                 return ((Pop3Folder) o).mName.equals(mName);
             }
             return super.equals(o);
+        }
+
+        @Override
+        // TODO this is deprecated, eventually discard
+        public boolean isOpen() {
+            return mTransport.isOpen();
         }
     }
 
@@ -831,11 +892,20 @@ public class Pop3Store extends Store {
         }
     }
 
+    /** 
+     * POP3 Capabilities as defined in RFC 2449.  This is not a complete list of CAPA
+     * responses - just those that we use in this client. 
+     */
     class Pop3Capabilities {
+        /** The STLS (start TLS) command is supported */
         public boolean stls;
+        /** the TOP command (retrieve a partial message) is supported */
         public boolean top;
+        /** USER and PASS login/auth commands are supported */
         public boolean user;
+        /** the optional UIDL command is supported (unused) */
         public boolean uidl;
+        /** the server is capable of accepting multiple commands at a time (unused) */
         public boolean pipelining;
 
         public String toString() {
@@ -848,6 +918,7 @@ public class Pop3Store extends Store {
         }
     }
 
+    // TODO figure out what is special about this and merge it into MailTransport
     class Pop3ResponseInputStream extends InputStream {
         InputStream mIn;
         boolean mStartOfLine = true;

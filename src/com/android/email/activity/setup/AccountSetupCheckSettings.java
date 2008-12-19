@@ -1,5 +1,28 @@
+/*
+ * Copyright (C) 2008 The Android Open Source Project
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *      http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
 
 package com.android.email.activity.setup;
+
+import com.android.email.Account;
+import com.android.email.R;
+import com.android.email.mail.AuthenticationFailedException;
+import com.android.email.mail.CertificateValidationException;
+import com.android.email.mail.MessagingException;
+import com.android.email.mail.Store;
+import com.android.email.mail.Sender;
 
 import android.app.Activity;
 import android.app.AlertDialog;
@@ -13,14 +36,6 @@ import android.view.View.OnClickListener;
 import android.widget.Button;
 import android.widget.ProgressBar;
 import android.widget.TextView;
-
-import com.android.email.Account;
-import com.android.email.R;
-import com.android.email.mail.AuthenticationFailedException;
-import com.android.email.mail.MessagingException;
-import com.android.email.mail.Store;
-import com.android.email.mail.Transport;
-import com.android.email.mail.CertificateValidationException;
 
 /**
  * Checks the given settings to make sure that they can be used to send and
@@ -101,10 +116,10 @@ public class AccountSetupCheckSettings extends Activity implements OnClickListen
                     }
                     if (mCheckOutgoing) {
                         setMessage(R.string.account_setup_check_settings_check_outgoing_msg);
-                        Transport transport = Transport.getInstance(mAccount.getTransportUri());
-                        transport.close();
-                        transport.open();
-                        transport.close();
+                        Sender sender = Sender.getInstance(mAccount.getSenderUri());
+                        sender.close();
+                        sender.open();
+                        sender.close();
                     }
                     if (mDestroyed) {
                         return;
@@ -116,17 +131,40 @@ public class AccountSetupCheckSettings extends Activity implements OnClickListen
                     setResult(RESULT_OK);
                     finish();
                 } catch (final AuthenticationFailedException afe) {
-                    showErrorDialog(
-                            R.string.account_setup_failed_dlg_auth_message_fmt,
-                    afe.getMessage() == null ? "" : afe.getMessage());
+                    String message = afe.getMessage();
+                    int id = (message == null) 
+                            ? R.string.account_setup_failed_dlg_auth_message
+                            : R.string.account_setup_failed_dlg_auth_message_fmt;
+                    showErrorDialog(id, message);
                 } catch (final CertificateValidationException cve) {
-                    showErrorDialog(
-                            R.string.account_setup_failed_dlg_certificate_message_fmt,
-                            cve.getMessage() == null ? "" : cve.getMessage());
+                    String message = cve.getMessage();
+                    int id = (message == null) 
+                        ? R.string.account_setup_failed_dlg_certificate_message
+                        : R.string.account_setup_failed_dlg_certificate_message_fmt;
+                    showErrorDialog(id, message);
                 } catch (final MessagingException me) {
-                    showErrorDialog(
-                            R.string.account_setup_failed_dlg_server_message_fmt,
-                            me.getMessage() == null ? "" : me.getMessage());
+                    int id;
+                    String message = me.getMessage();
+                    switch (me.getExceptionType()) {
+                        case MessagingException.IOERROR:
+                            id = R.string.account_setup_failed_ioerror;
+                            break;
+                        case MessagingException.TLS_REQUIRED:
+                            id = R.string.account_setup_failed_tls_required;
+                            break;
+                        case MessagingException.AUTH_REQUIRED:
+                            id = R.string.account_setup_failed_auth_required;
+                            break;
+                        case MessagingException.GENERAL_SECURITY:
+                            id = R.string.account_setup_failed_security;
+                            break;
+                        default:
+                            id = (message == null) 
+                                    ? R.string.account_setup_failed_dlg_server_message
+                                    : R.string.account_setup_failed_dlg_server_message_fmt;  
+                            break;
+                    }
+                    showErrorDialog(id, message);
                 }
             }
         }.start();

@@ -1,40 +1,26 @@
+/*
+ * Copyright (C) 2008 The Android Open Source Project
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *      http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
 
 package com.android.email.mail.store;
-
-import java.io.BufferedInputStream;
-import java.io.BufferedOutputStream;
-import java.io.IOException;
-import java.io.InputStream;
-import java.io.OutputStream;
-import java.io.UnsupportedEncodingException;
-import java.net.InetSocketAddress;
-import java.net.Socket;
-import java.net.SocketAddress;
-import java.net.URI;
-import java.net.URISyntaxException;
-import java.nio.ByteBuffer;
-import java.nio.CharBuffer;
-import java.nio.charset.Charset;
-import java.security.GeneralSecurityException;
-import java.security.SecureRandom;
-import java.util.ArrayList;
-import java.util.Date;
-import java.util.HashMap;
-import java.util.LinkedHashSet;
-import java.util.LinkedList;
-import java.util.List;
-
-import javax.net.ssl.SSLContext;
-import javax.net.ssl.TrustManager;
-import javax.net.ssl.SSLException;
-
-import android.util.Config;
-import android.util.Log;
 
 import com.android.email.Email;
 import com.android.email.PeekableInputStream;
 import com.android.email.Utility;
 import com.android.email.mail.AuthenticationFailedException;
+import com.android.email.mail.CertificateValidationException;
 import com.android.email.mail.FetchProfile;
 import com.android.email.mail.Flag;
 import com.android.email.mail.Folder;
@@ -43,7 +29,7 @@ import com.android.email.mail.MessageRetrievalListener;
 import com.android.email.mail.MessagingException;
 import com.android.email.mail.Part;
 import com.android.email.mail.Store;
-import com.android.email.mail.CertificateValidationException;
+import com.android.email.mail.Transport;
 import com.android.email.mail.internet.MimeBodyPart;
 import com.android.email.mail.internet.MimeHeader;
 import com.android.email.mail.internet.MimeMessage;
@@ -53,7 +39,28 @@ import com.android.email.mail.store.ImapResponseParser.ImapList;
 import com.android.email.mail.store.ImapResponseParser.ImapResponse;
 import com.android.email.mail.transport.CountingOutputStream;
 import com.android.email.mail.transport.EOLConvertingOutputStream;
+import com.android.email.mail.transport.MailTransport;
 import com.beetstra.jutf7.CharsetProvider;
+
+import android.util.Config;
+import android.util.Log;
+
+import java.io.IOException;
+import java.io.InputStream;
+import java.io.UnsupportedEncodingException;
+import java.net.URI;
+import java.net.URISyntaxException;
+import java.nio.ByteBuffer;
+import java.nio.CharBuffer;
+import java.nio.charset.Charset;
+import java.util.ArrayList;
+import java.util.Date;
+import java.util.HashMap;
+import java.util.LinkedHashSet;
+import java.util.LinkedList;
+import java.util.List;
+
+import javax.net.ssl.SSLException;
 
 /**
  * <pre>
@@ -79,11 +86,10 @@ public class ImapStore extends Store {
 
     private static final Flag[] PERMANENT_FLAGS = { Flag.DELETED, Flag.SEEN };
 
-    private String mHost;
-    private int mPort;
+    private Transport mRootTransport;
     private String mUsername;
     private String mPassword;
-    private int mConnectionSecurity;
+    private String mLoginPhrase;
     private String mPathPrefix;
 
     private LinkedList<ImapConnection> mConnections =
@@ -103,53 +109,58 @@ public class ImapStore extends Store {
     private HashMap<String, ImapFolder> mFolderCache = new HashMap<String, ImapFolder>();
 
     /**
+     * Allowed formats for the Uri:
      * imap://user:password@server:port CONNECTION_SECURITY_NONE
      * imap+tls://user:password@server:port CONNECTION_SECURITY_TLS_OPTIONAL
      * imap+tls+://user:password@server:port CONNECTION_SECURITY_TLS_REQUIRED
      * imap+ssl+://user:password@server:port CONNECTION_SECURITY_SSL_REQUIRED
      * imap+ssl://user:password@server:port CONNECTION_SECURITY_SSL_OPTIONAL
      *
-     * @param _uri
+     * @param uriString the Uri containing information to configure this store
      */
-    public ImapStore(String _uri) throws MessagingException {
+    public ImapStore(String uriString) throws MessagingException {
         URI uri;
         try {
-            uri = new URI(_uri);
+            uri = new URI(uriString);
         } catch (URISyntaxException use) {
             throw new MessagingException("Invalid ImapStore URI", use);
         }
 
         String scheme = uri.getScheme();
+        int connectionSecurity = Transport.CONNECTION_SECURITY_NONE;
+        int defaultPort = -1;
         if (scheme.equals("imap")) {
-            mConnectionSecurity = CONNECTION_SECURITY_NONE;
-            mPort = 143;
+            connectionSecurity = CONNECTION_SECURITY_NONE;
+            defaultPort = 143;
         } else if (scheme.equals("imap+tls")) {
-            mConnectionSecurity = CONNECTION_SECURITY_TLS_OPTIONAL;
-            mPort = 143;
+            connectionSecurity = CONNECTION_SECURITY_TLS_OPTIONAL;
+            defaultPort = 143;
         } else if (scheme.equals("imap+tls+")) {
-            mConnectionSecurity = CONNECTION_SECURITY_TLS_REQUIRED;
-            mPort = 143;
+            connectionSecurity = CONNECTION_SECURITY_TLS_REQUIRED;
+            defaultPort = 143;
         } else if (scheme.equals("imap+ssl+")) {
-            mConnectionSecurity = CONNECTION_SECURITY_SSL_REQUIRED;
-            mPort = 993;
+            connectionSecurity = CONNECTION_SECURITY_SSL_REQUIRED;
+            defaultPort = 993;
         } else if (scheme.equals("imap+ssl")) {
-            mConnectionSecurity = CONNECTION_SECURITY_SSL_OPTIONAL;
-            mPort = 993;
+            connectionSecurity = CONNECTION_SECURITY_SSL_OPTIONAL;
+            defaultPort = 993;
         } else {
             throw new MessagingException("Unsupported protocol");
         }
 
-        mHost = uri.getHost();
+        mRootTransport = new MailTransport("IMAP");
+        mRootTransport.setUri(uri, defaultPort);
+        mRootTransport.setSecurity(connectionSecurity);
 
-        if (uri.getPort() != -1) {
-            mPort = uri.getPort();
-        }
-
-        if (uri.getUserInfo() != null) {
-            String[] userInfoParts = uri.getUserInfo().split(":", 2);
+        String[] userInfoParts = mRootTransport.getUserInfoParts();
+        if (userInfoParts != null) {
             mUsername = userInfoParts[0];
             if (userInfoParts.length > 1) {
                 mPassword = userInfoParts[1];
+                
+                // build the LOGIN string once (instead of over-and-over again.)
+                // apply the quoting here around the built-up password
+                mLoginPhrase = "LOGIN " + mUsername + " " + Utility.imapQuoted(mPassword);
             }
         }
 
@@ -158,6 +169,16 @@ public class ImapStore extends Store {
         }
 
         mModifiedUtf7Charset = new CharsetProvider().charsetForName("X-RFC-3501");
+    }
+
+    /**
+     * For testing only.  Injects a different root transport (it will be copied using 
+     * newInstanceWithConfiguration() each time IMAP sets up a new channel).  The transport 
+     * should already be set up and ready to use.  Do not use for real code.
+     * @param testTransport The Transport to inject and use for all future communication.
+     */
+    /* package */ void setTransport(Transport testTransport) {
+        mRootTransport = testTransport;
     }
 
     @Override
@@ -219,7 +240,7 @@ public class ImapStore extends Store {
             connection.close();
         }
         catch (IOException ioe) {
-            throw new MessagingException("Unable to connect.", ioe);
+            throw new MessagingException(MessagingException.IOERROR, ioe.toString());
         }
     }
 
@@ -955,7 +976,7 @@ public class ImapStore extends Store {
                     do {
                         response = mConnection.readResponse();
                         if (response.mCommandContinuationRequested) {
-                            eolOut = new EOLConvertingOutputStream(mConnection.mOut);
+                            eolOut = new EOLConvertingOutputStream(mConnection.mTransport.getOutputStream());
                             message.writeTo(eolOut);
                             eolOut.write('\r');
                             eolOut.write('\n');
@@ -1057,47 +1078,35 @@ public class ImapStore extends Store {
      * A cacheable class that stores the details for a single IMAP connection.
      */
     class ImapConnection {
-        private Socket mSocket;
-        private PeekableInputStream mIn;
-        private OutputStream mOut;
+        private Transport mTransport;
         private ImapResponseParser mParser;
         private int mNextCommandTag;
 
         public void open() throws IOException, MessagingException {
-            if (isOpen()) {
+            PeekableInputStream mIn;
+
+            if (mTransport != null && mTransport.isOpen()) {
                 return;
             }
 
             mNextCommandTag = 1;
 
             try {
-                SocketAddress socketAddress = new InetSocketAddress(mHost, mPort);
-                if (mConnectionSecurity == CONNECTION_SECURITY_SSL_REQUIRED ||
-                        mConnectionSecurity == CONNECTION_SECURITY_SSL_OPTIONAL) {
-                    SSLContext sslContext = SSLContext.getInstance("TLS");
-                    final boolean secure = mConnectionSecurity == CONNECTION_SECURITY_SSL_REQUIRED;
-                    sslContext.init(null, new TrustManager[] {
-                            TrustManagerFactory.get(mHost, secure)
-                    }, new SecureRandom());
-                    mSocket = sslContext.getSocketFactory().createSocket();
-                    mSocket.connect(socketAddress, SOCKET_CONNECT_TIMEOUT);
-                } else {
-                    mSocket = new Socket();
-                    mSocket.connect(socketAddress, SOCKET_CONNECT_TIMEOUT);
+                // copy configuration into a clean transport, if necessary
+                if (mTransport == null) {
+                    mTransport = mRootTransport.newInstanceWithConfiguration();
                 }
+                
+                mTransport.open();
+                mTransport.setSoTimeout(MailTransport.SOCKET_READ_TIMEOUT);
 
-                mSocket.setSoTimeout(Store.SOCKET_READ_TIMEOUT);
-
-                mIn = new PeekableInputStream(new BufferedInputStream(mSocket.getInputStream(),
-                        1024));
+                mIn = new PeekableInputStream(mTransport.getInputStream());
                 mParser = new ImapResponseParser(mIn);
-                mOut = mSocket.getOutputStream();
 
                 // BANNER
                 mParser.readResponse();
 
-                if (mConnectionSecurity == CONNECTION_SECURITY_TLS_OPTIONAL
-                        || mConnectionSecurity == CONNECTION_SECURITY_TLS_REQUIRED) {
+                if (mTransport.canTryTlsSecurity()) {
                     // CAPABILITY
                     List<ImapResponse> responses = executeSimpleCommand("CAPABILITY");
                     if (responses.size() != 2) {
@@ -1107,46 +1116,46 @@ public class ImapStore extends Store {
                         // STARTTLS
                         executeSimpleCommand("STARTTLS");
 
-                        SSLContext sslContext = SSLContext.getInstance("TLS");
-                        boolean secure = mConnectionSecurity == CONNECTION_SECURITY_TLS_REQUIRED;
-                        sslContext.init(null, new TrustManager[] {
-                                TrustManagerFactory.get(mHost, secure)
-                        }, new SecureRandom());
-                        mSocket = sslContext.getSocketFactory().createSocket(mSocket, mHost, mPort,
-                                true);
-                        mSocket.setSoTimeout(Store.SOCKET_READ_TIMEOUT);
-                        mIn = new PeekableInputStream(new BufferedInputStream(mSocket
-                                .getInputStream(), 1024));
+                        mTransport.reopenTls();
+                        mTransport.setSoTimeout(MailTransport.SOCKET_READ_TIMEOUT);
+                        mIn = new PeekableInputStream(mTransport.getInputStream());
                         mParser = new ImapResponseParser(mIn);
-                        mOut = mSocket.getOutputStream();
-                    } else if (mConnectionSecurity == CONNECTION_SECURITY_TLS_REQUIRED) {
-                        throw new MessagingException("TLS not supported but required");
+                    } else if (mTransport.getSecurity() == 
+                            Transport.CONNECTION_SECURITY_TLS_REQUIRED) {
+                        if (Config.LOGD && Email.DEBUG) {
+                            Log.d(Email.LOG_TAG, "TLS not supported but required");
+                        }
+                        throw new MessagingException(MessagingException.TLS_REQUIRED);
                     }
                 }
-
-                mOut = new BufferedOutputStream(mOut);
 
                 try {
                     // TODO eventually we need to add additional authentication
                     // options such as SASL
-                    executeSimpleCommand("LOGIN " + mUsername + " " + mPassword, true);
+                    executeSimpleCommand(mLoginPhrase, true);
                 } catch (ImapException ie) {
+                    if (Config.LOGD && Email.DEBUG) {
+                        Log.d(Email.LOG_TAG, ie.toString());
+                    }
                     throw new AuthenticationFailedException(ie.getAlertText(), ie);
 
                 } catch (MessagingException me) {
                     throw new AuthenticationFailedException(null, me);
                 }
             } catch (SSLException e) {
+                if (Config.LOGD && Email.DEBUG) {
+                    Log.d(Email.LOG_TAG, e.toString());
+                }
                 throw new CertificateValidationException(e.getMessage(), e);
-            } catch (GeneralSecurityException gse) {
-                throw new MessagingException(
-                        "Unable to open connection to IMAP server due to security error.", gse);
+            } catch (IOException ioe) {
+                // NOTE:  Unlike similar code in POP3, I'm going to rethrow as-is.  There is a lot
+                // of other code here that catches IOException and I don't want to break it.
+                // This catch is only here to enhance logging of connection-time issues.
+                if (Config.LOGD && Email.DEBUG) {
+                    Log.d(Email.LOG_TAG, ioe.toString());
+                }
+                throw ioe;
             }
-        }
-
-        public boolean isOpen() {
-            return (mIn != null && mOut != null && mSocket != null && mSocket.isConnected() && !mSocket
-                    .isClosed());
         }
 
         public void close() {
@@ -1157,49 +1166,29 @@ public class ImapStore extends Store {
 //
 //                }
 //            }
-            try {
-                mIn.close();
-            } catch (Exception e) {
-
+            if (mTransport != null) {
+                mTransport.close();
             }
-            try {
-                mOut.close();
-            } catch (Exception e) {
-
-            }
-            try {
-                mSocket.close();
-            } catch (Exception e) {
-
-            }
-            mIn = null;
-            mOut = null;
-            mSocket = null;
         }
 
         public ImapResponse readResponse() throws IOException, MessagingException {
             return mParser.readResponse();
         }
 
+        /**
+         * Send a single command to the server.  The command will be preceded by an IMAP command
+         * tag and followed by \r\n (caller need not supply them).
+         * 
+         * @param command The command to send to the server
+         * @param sensitive If true, the command will not be logged
+         * @return Returns the command tag that was sent 
+         */
         public String sendCommand(String command, boolean sensitive)
             throws MessagingException, IOException {
             open();
             String tag = Integer.toString(mNextCommandTag++);
             String commandToSend = tag + " " + command;
-            mOut.write(commandToSend.getBytes());
-            mOut.write('\r');
-            mOut.write('\n');
-            mOut.flush();
-            if (Config.LOGD) {
-                if (Email.DEBUG) {
-                    if (sensitive && !Email.DEBUG_SENSITIVE) {
-                        Log.d(Email.LOG_TAG, ">>> "
-                                + "[Command Hidden, Enable Sensitive Debug Logging To Show]");
-                    } else {
-                        Log.d(Email.LOG_TAG, ">>> " + commandToSend);
-                    }
-                }
-            }
+            mTransport.writeLine(commandToSend, sensitive ? "[IMAP command redacted]" : null);
             return tag;
         }
 

@@ -1,3 +1,18 @@
+/*
+ * Copyright (C) 2008 The Android Open Source Project
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *      http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
 
 package com.android.email.activity;
 
@@ -6,12 +21,10 @@ import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
-import java.text.DateFormat;
 import java.util.ArrayList;
+import java.util.Date;
 import java.util.Map;
 import java.util.regex.Matcher;
-
-import org.apache.commons.io.IOUtils;
 
 import android.app.Activity;
 import android.content.Context;
@@ -44,6 +57,8 @@ import android.widget.LinearLayout;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import org.apache.commons.io.IOUtils;
+
 import com.android.email.Account;
 import com.android.email.Email;
 import com.android.email.MessagingController;
@@ -56,9 +71,7 @@ import com.android.email.mail.MessagingException;
 import com.android.email.mail.Multipart;
 import com.android.email.mail.Part;
 import com.android.email.mail.Message.RecipientType;
-import com.android.email.mail.internet.MimeHeader;
 import com.android.email.mail.internet.MimeUtility;
-import com.android.email.mail.store.LocalStore.LocalAttachmentBody;
 import com.android.email.mail.store.LocalStore.LocalAttachmentBodyPart;
 import com.android.email.mail.store.LocalStore.LocalMessage;
 import com.android.email.provider.AttachmentProvider;
@@ -71,10 +84,13 @@ public class MessageView extends Activity
     private static final String EXTRA_FOLDER_UIDS = "com.android.email.MessageView_folderUids";
     private static final String EXTRA_NEXT = "com.android.email.MessageView_next";
 
+    private TextView mSubjectView;
     private TextView mFromView;
     private TextView mDateView;
+    private TextView mTimeView;
     private TextView mToView;
-    private TextView mSubjectView;
+    private TextView mCcView;
+    private View mCcContainerView;
     private WebView mMessageContentView;
     private LinearLayout mAttachments;
     private View mAttachmentIcon;
@@ -89,8 +105,8 @@ public class MessageView extends Activity
     private String mNextMessageUid = null;
     private String mPreviousMessageUid = null;
 
-    private DateFormat mDateTimeFormat = DateFormat.getDateTimeInstance(DateFormat.SHORT, DateFormat.SHORT);
-    private DateFormat mTimeFormat = DateFormat.getTimeInstance(DateFormat.SHORT);
+    private java.text.DateFormat mDateFormat;
+    private java.text.DateFormat mTimeFormat;
 
     private Listener mListener = new Listener();
     private MessageViewHandler mHandler = new MessageViewHandler();
@@ -125,11 +141,13 @@ public class MessageView extends Activity
                     break;
                 case MSG_SET_HEADERS:
                     String[] values = (String[]) msg.obj;
-                    setTitle(values[0]);
                     mSubjectView.setText(values[0]);
                     mFromView.setText(values[1]);
-                    mDateView.setText(values[2]);
-                    mToView.setText(values[3]);
+                    mTimeView.setText(values[2]);
+                    mDateView.setText(values[3]);
+                    mToView.setText(values[4]);
+                    mCcView.setText(values[5]);
+                    mCcContainerView.setVisibility((values[5] != null) ? View.VISIBLE : View.GONE);
                     mAttachmentIcon.setVisibility(msg.arg1 == 1 ? View.VISIBLE : View.GONE);
                     break;
                 case MSG_NETWORK_ERROR:
@@ -183,13 +201,15 @@ public class MessageView extends Activity
         public void setHeaders(
                 String subject,
                 String from,
+                String time,
                 String date,
                 String to,
+                String cc,
                 boolean hasAttachments) {
             android.os.Message msg = new android.os.Message();
             msg.what = MSG_SET_HEADERS;
             msg.arg1 = hasAttachments ? 1 : 0;
-            msg.obj = new String[] { subject, from, date, to };
+            msg.obj = new String[] { subject, from, time, date, to, cc };
             sendMessage(msg);
         }
 
@@ -220,7 +240,10 @@ public class MessageView extends Activity
         }
     }
 
-    class Attachment {
+    /**
+     * Encapsulates known information about a single attachment.
+     */
+    private static class Attachment {
         public String name;
         public String contentType;
         public long size;
@@ -248,6 +271,7 @@ public class MessageView extends Activity
         context.startActivity(i);
      }
 
+    @Override
     public void onCreate(Bundle icicle) {
         super.onCreate(icicle);
 
@@ -255,10 +279,13 @@ public class MessageView extends Activity
 
         setContentView(R.layout.message_view);
 
+        mSubjectView = (TextView)findViewById(R.id.subject);
         mFromView = (TextView)findViewById(R.id.from);
         mToView = (TextView)findViewById(R.id.to);
-        mSubjectView = (TextView)findViewById(R.id.subject);
+        mCcView = (TextView)findViewById(R.id.cc);
+        mCcContainerView = findViewById(R.id.cc_container);
         mDateView = (TextView)findViewById(R.id.date);
+        mTimeView = (TextView)findViewById(R.id.time);
         mMessageContentView = (WebView)findViewById(R.id.message_content);
         mAttachments = (LinearLayout)findViewById(R.id.attachments);
         mAttachmentIcon = findViewById(R.id.attachment);
@@ -279,6 +306,9 @@ public class MessageView extends Activity
         mMessageContentView.getSettings().setSupportZoom(false);
 
         setTitle("");
+        
+        mDateFormat = android.text.format.DateFormat.getDateFormat(this);   // short format
+        mTimeFormat = android.text.format.DateFormat.getTimeFormat(this);   // 12/24 date format
 
         Intent intent = getIntent();
         mAccount = (Account) intent.getSerializableExtra(EXTRA_ACCOUNT);
@@ -309,6 +339,7 @@ public class MessageView extends Activity
 
         MessagingController.getInstance(getApplication()).addListener(mListener);
         new Thread() {
+            @Override
             public void run() {
                 // TODO this is a spot that should be eventually handled by a MessagingController
                 // thread pool. We want it in a thread but it can't be blocked by the normal
@@ -339,14 +370,27 @@ public class MessageView extends Activity
         }
     }
 
+    @Override
     public void onResume() {
         super.onResume();
         MessagingController.getInstance(getApplication()).addListener(mListener);
     }
 
+    @Override
     public void onPause() {
         super.onPause();
         MessagingController.getInstance(getApplication()).removeListener(mListener);
+    }
+
+    /**
+     * We override onDestroy to make sure that the WebView gets explicitly destroyed.
+     * Otherwise it can leak native references.
+     */
+    @Override
+    public void onDestroy() {
+        super.onDestroy();
+        mMessageContentView.destroy();
+        mMessageContentView = null;
     }
 
     private void onDelete() {
@@ -420,7 +464,7 @@ public class MessageView extends Activity
      * and a number to the given filename.
      * @param directory
      * @param filename
-     * @return
+     * @return a new File object, or null if one could not be created
      */
     private File createUniqueFile(File directory, String filename) {
         File file = new File(directory, filename);
@@ -509,6 +553,7 @@ public class MessageView extends Activity
         }
     }
 
+    @Override
     public boolean onOptionsItemSelected(MenuItem item) {
         switch (item.getItemId()) {
             case R.id.delete:
@@ -532,6 +577,7 @@ public class MessageView extends Activity
         return true;
     }
 
+    @Override
     public boolean onCreateOptionsMenu(Menu menu) {
         super.onCreateOptionsMenu(menu);
         getMenuInflater().inflate(R.menu.message_view_option, menu);
@@ -558,7 +604,7 @@ public class MessageView extends Activity
         return null;
     }
 
-    private Bitmap getPreviewIcon(Attachment attachment) throws MessagingException {
+    private Bitmap getPreviewIcon(Attachment attachment) {
         try {
             return BitmapFactory.decodeStream(
                     getContentResolver().openInputStream(
@@ -677,15 +723,19 @@ public class MessageView extends Activity
             try {
                 String subjectText = message.getSubject();
                 String fromText = Address.toFriendly(message.getFrom());
-                String dateText = Utility.isDateToday(message.getSentDate()) ?
-                        mTimeFormat.format(message.getSentDate()) :
-                            mDateTimeFormat.format(message.getSentDate());
+                Date sentDate = message.getSentDate();
+                String timeText = mTimeFormat.format(sentDate);
+                String dateText = Utility.isDateToday(sentDate) ? null : 
+                        mDateFormat.format(sentDate);
                 String toText = Address.toFriendly(message.getRecipients(RecipientType.TO));
+                String ccText = Address.toFriendly(message.getRecipients(RecipientType.CC));
                 boolean hasAttachments = ((LocalMessage) message).getAttachmentCount() > 0;
                 mHandler.setHeaders(subjectText,
                         fromText,
+                        timeText,
                         dateText,
                         toText,
+                        ccText,
                         hasAttachments);
             }
             catch (MessagingException me) {
@@ -844,11 +894,18 @@ public class MessageView extends Activity
         }
     }
 
-    class MediaScannerNotifier implements MediaScannerConnectionClient {
+    /**
+     * This notifier is created after an attachment completes downloaded.  It attaches to the
+     * media scanner and waits to handle the completion of the scan.  At that point it tries
+     * to start an ACTION_VIEW activity for the attachment.
+    */
+    private static class MediaScannerNotifier implements MediaScannerConnectionClient {
+        private Context mContext;
         private MediaScannerConnection mConnection;
         private File mFile;
 
         public MediaScannerNotifier(Context context, File file) {
+            mContext = context;
             mFile = file;
             mConnection = new MediaScannerConnection(context, this);
             mConnection.connect();
@@ -863,10 +920,11 @@ public class MessageView extends Activity
                 if (uri != null) {
                     Intent intent = new Intent(Intent.ACTION_VIEW);
                     intent.setData(uri);
-                    startActivity(intent);
+                    mContext.startActivity(intent);
                 }
             } finally {
                 mConnection.disconnect();
+                mContext = null;
             }
         }
     }

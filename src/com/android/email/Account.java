@@ -1,13 +1,30 @@
+/*
+ * Copyright (C) 2008 The Android Open Source Project
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *      http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
 
 package com.android.email;
 
-import java.io.Serializable;
-import java.util.Arrays;
-import java.util.UUID;
+import com.android.email.mail.Store;
 
 import android.content.Context;
 import android.content.SharedPreferences;
 import android.net.Uri;
+
+import java.io.Serializable;
+import java.util.Arrays;
+import java.util.UUID;
 
 /**
  * Account stores all of the settings for a single account defined by the user. It is able to save
@@ -23,7 +40,7 @@ public class Account implements Serializable {
     String mUuid;
     String mStoreUri;
     String mLocalStoreUri;
-    String mTransportUri;
+    String mSenderUri;
     String mDescription;
     String mName;
     String mEmail;
@@ -70,8 +87,15 @@ public class Account implements Serializable {
         mStoreUri = Utility.base64Decode(preferences.mSharedPreferences.getString(mUuid
                 + ".storeUri", null));
         mLocalStoreUri = preferences.mSharedPreferences.getString(mUuid + ".localStoreUri", null);
-        mTransportUri = Utility.base64Decode(preferences.mSharedPreferences.getString(mUuid
-                + ".transportUri", null));
+        
+        String senderText = preferences.mSharedPreferences.getString(mUuid + ".senderUri", null);
+        if (senderText == null) {
+            // Preference ".senderUri" was called ".transportUri" in earlier versions, so we'll
+            // do a simple upgrade here when necessary.
+            senderText = preferences.mSharedPreferences.getString(mUuid + ".transportUri", null);
+        }
+        mSenderUri = Utility.base64Decode(senderText);
+        
         mDescription = preferences.mSharedPreferences.getString(mUuid + ".description", null);
         mName = preferences.mSharedPreferences.getString(mUuid + ".name", mName);
         mEmail = preferences.mSharedPreferences.getString(mUuid + ".email", mEmail);
@@ -81,7 +105,15 @@ public class Account implements Serializable {
                 + ".lastAutomaticCheckTime", 0);
         mNotifyNewMail = preferences.mSharedPreferences.getBoolean(mUuid + ".notifyNewMail", 
                 false);
+        
+        // delete policy was incorrectly set on earlier versions, so we'll upgrade it here.
+        // rule:  if IMAP account and policy = 0 ("never"), change policy to 2 ("on delete")
         mDeletePolicy = preferences.mSharedPreferences.getInt(mUuid + ".deletePolicy", 0);
+        if (mDeletePolicy == DELETE_POLICY_NEVER && 
+                mStoreUri != null && mStoreUri.toString().startsWith(Store.STORE_SCHEME_IMAP)) {
+            mDeletePolicy = DELETE_POLICY_ON_DELETE;
+        }
+        
         mDraftsFolderName = preferences.mSharedPreferences.getString(mUuid  + ".draftsFolderName", 
                 "Drafts");
         mSentFolderName = preferences.mSharedPreferences.getString(mUuid  + ".sentFolderName", 
@@ -108,12 +140,12 @@ public class Account implements Serializable {
         this.mStoreUri = storeUri;
     }
 
-    public String getTransportUri() {
-        return mTransportUri;
+    public String getSenderUri() {
+        return mSenderUri;
     }
 
-    public void setTransportUri(String transportUri) {
-        this.mTransportUri = transportUri;
+    public void setSenderUri(String senderUri) {
+        this.mSenderUri = senderUri;
     }
 
     public String getDescription() {
@@ -173,7 +205,7 @@ public class Account implements Serializable {
 
         editor.remove(mUuid + ".storeUri");
         editor.remove(mUuid + ".localStoreUri");
-        editor.remove(mUuid + ".transportUri");
+        editor.remove(mUuid + ".senderUri");
         editor.remove(mUuid + ".description");
         editor.remove(mUuid + ".name");
         editor.remove(mUuid + ".email");
@@ -188,6 +220,10 @@ public class Account implements Serializable {
         editor.remove(mUuid + ".accountNumber");
         editor.remove(mUuid + ".vibrate");
         editor.remove(mUuid + ".ringtone");
+        
+        // also delete any deprecated fields
+        editor.remove(mUuid + ".transportUri");
+        
         editor.commit();
     }
 
@@ -229,7 +265,7 @@ public class Account implements Serializable {
 
         editor.putString(mUuid + ".storeUri", Utility.base64Encode(mStoreUri));
         editor.putString(mUuid + ".localStoreUri", mLocalStoreUri);
-        editor.putString(mUuid + ".transportUri", Utility.base64Encode(mTransportUri));
+        editor.putString(mUuid + ".senderUri", Utility.base64Encode(mSenderUri));
         editor.putString(mUuid + ".description", mDescription);
         editor.putString(mUuid + ".name", mName);
         editor.putString(mUuid + ".email", mEmail);
@@ -244,6 +280,10 @@ public class Account implements Serializable {
         editor.putInt(mUuid + ".accountNumber", mAccountNumber);
         editor.putBoolean(mUuid + ".vibrate", mVibrate);
         editor.putString(mUuid + ".ringtone", mRingtoneUri);
+        
+        // also delete any deprecated fields
+        editor.remove(mUuid + ".transportUri");
+
         editor.commit();
     }
 

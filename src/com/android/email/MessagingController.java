@@ -1,3 +1,18 @@
+/*
+ * Copyright (C) 2008 The Android Open Source Project
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *      http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
 
 package com.android.email;
 
@@ -6,6 +21,7 @@ import java.util.Collections;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.HashSet;
+import java.util.List;
 import java.util.concurrent.BlockingQueue;
 import java.util.concurrent.LinkedBlockingQueue;
 
@@ -22,11 +38,10 @@ import com.android.email.mail.Message;
 import com.android.email.mail.MessageRetrievalListener;
 import com.android.email.mail.MessagingException;
 import com.android.email.mail.Part;
+import com.android.email.mail.Sender;
 import com.android.email.mail.Store;
-import com.android.email.mail.Transport;
 import com.android.email.mail.Folder.FolderType;
 import com.android.email.mail.Folder.OpenMode;
-import com.android.email.mail.internet.MimeHeader;
 import com.android.email.mail.internet.MimeUtility;
 import com.android.email.mail.store.LocalStore;
 import com.android.email.mail.store.LocalStore.LocalFolder;
@@ -117,8 +132,8 @@ public class MessagingController implements Runnable {
                 }
             }
             catch (Exception e) {
-                if (Config.LOGV) {
-                    Log.v(Email.LOG_TAG, "Error running command", e);
+                if (Config.LOGD) {
+                    Log.d(Email.LOG_TAG, "Error running command", e);
                 }
             }
             mBusy = false;
@@ -471,7 +486,7 @@ public class MessagingController implements Runnable {
 
             /*
              * Fetch the flags and envelope only of the new messages. This is intended to get us
-s             * critical data as fast as possible, and then we'll fill in the details.
+             * critical data as fast as possible, and then we'll fill in the details.
              */
             if (unsyncedMessages.size() > 0) {
 
@@ -723,7 +738,7 @@ s             * critical data as fast as possible, and then we'll fill in the de
                 l.synchronizeMailboxFailed(
                         account,
                         folder,
-                        e.getMessage());
+                        e);
             }
         }
     }
@@ -1280,13 +1295,13 @@ s             * critical data as fast as possible, and then we'll fill in the de
                 (LocalFolder) localStore.getFolder(
                         account.getSentFolderName());
 
-            Transport transport = Transport.getInstance(account.getTransportUri());
+            Sender sender = Sender.getInstance(account.getSenderUri());
             for (Message message : localMessages) {
                 try {
                     localFolder.fetch(new Message[] { message }, fp, null);
                     try {
                         message.setFlag(Flag.X_SEND_IN_PROGRESS, true);
-                        transport.sendMessage(message);
+                        sender.sendMessage(message);
                         message.setFlag(Flag.X_SEND_IN_PROGRESS, false);
                         localFolder.copyMessages(
                                 new Message[] { message },
@@ -1392,24 +1407,23 @@ s             * critical data as fast as possible, and then we'll fill in the de
     /**
      * Checks mail for one or multiple accounts. If account is null all accounts
      * are checked.
+     * 
+     * TODO:  There is no use case for "check all accounts".  Clean up this API to remove
+     * that case.  Callers can supply the appropriate list.
      *
      * @param context
-     * @param account
+     * @param accountsToCheck List of accounts to check, or null to check all accounts
      * @param listener
      */
-    public void checkMail(final Context context, final Account account,
+    public void checkMail(final Context context, final Account[] accountsToCheck,
             final MessagingListener listener) {
         for (MessagingListener l : mListeners) {
-            l.checkMailStarted(context, account);
+            l.checkMailStarted(context, null);      // TODO this needs to pass the actual array
         }
         put("checkMail", listener, new Runnable() {
             public void run() {
-                Account[] accounts;
-                if (account != null) {
-                    accounts = new Account[] {
-                        account
-                    };
-                } else {
+                Account[] accounts = accountsToCheck;
+                if (accounts == null) {
                     accounts = Preferences.getPreferences(context).getAccounts();
                 }
                 for (Account account : accounts) {
@@ -1417,7 +1431,7 @@ s             * critical data as fast as possible, and then we'll fill in the de
                     synchronizeMailboxSyncronous(account, Email.INBOX);
                 }
                 for (MessagingListener l : mListeners) {
-                    l.checkMailFinished(context, account);
+                    l.checkMailFinished(context, null);  // TODO this needs to pass the actual array
                 }
             }
         });

@@ -572,8 +572,21 @@ public class Base64 implements BinaryEncoder, BinaryDecoder {
         if (mod != 0) {
             len += 4 - mod;
         }
+        // If chunked, add space for one CHUNK_SEPARATOR per chunk.  (Technically, these are chunk
+        // terminators, because even a single chunk message has one.)
+        //
+        //  User length     Encoded length      Rounded up by 4     Num chunks     Final buf len
+        //      56              74                  76                  1               78
+        //      57              76                  76                  1               78
+        //      58              77                  80                  2               84
+        //      59              78                  80                  2               84
+        //
+        // Or...
+        //    Rounded up size:   4...76    Chunks:  1
+        //    Rounded up size:  80..152    Chunks:  2
+        //    Rounded up size: 156..228    Chunks:  3     ...etc...
         if (isChunked) {
-            len += (1 + (len / CHUNK_SIZE)) * CHUNK_SEPARATOR.length;
+            len += ((len + CHUNK_SIZE - 1) / CHUNK_SIZE) * CHUNK_SEPARATOR.length;
         }
 
         if (len > Integer.MAX_VALUE) {
