@@ -19,7 +19,7 @@
         android:id="@+id/delete"
         android:alphabeticShortcut="q"
         android:title="@string/delete_action"
-        android:icon="@drawable/ic_menu_delete"
+        android:icon="@android:drawable/ic_menu_delete"
     />
     <item
         android:id="@+id/forward"

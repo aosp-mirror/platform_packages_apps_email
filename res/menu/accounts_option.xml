@@ -19,12 +19,12 @@
 		android:id="@+id/check_mail"
         android:alphabeticShortcut="r"
 		android:title="@string/refresh_action"
-		android:icon="@drawable/ic_menu_refresh"
+		android:icon="@android:drawable/ic_menu_refresh"
 	/>
 	<item
 		android:id="@+id/add_new_account"
 		android:title="@string/add_account_action"
-		android:icon="@drawable/ic_menu_add"
+		android:icon="@android:drawable/ic_menu_add"
 	/>
 	<item
 		android:id="@+id/compose"

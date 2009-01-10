@@ -1,0 +1,18 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<resources xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:xliff="urn:oasis:names:tc:xliff:document:1.2">
+    <!-- no translation found for account_settings_check_frequency_entries:0 (6411009116891757034) -->
+    <!-- no translation found for account_settings_check_frequency_entries:1 (271959156650891766) -->
+    <!-- no translation found for account_settings_check_frequency_entries:2 (3703160866906139249) -->
+    <!-- no translation found for account_settings_check_frequency_entries:3 (2130422272993390083) -->
+    <!-- no translation found for account_settings_check_frequency_entries:4 (4707916393216404274) -->
+    <!-- no translation found for account_settings_check_frequency_entries:5 (3714517029910621169) -->
+  <string-array name="account_settings_check_frequency_values">
+    <item>"-1"</item>
+    <item>"5"</item>
+    <item>"10"</item>
+    <item>"15"</item>
+    <item>"30"</item>
+    <item>"60"</item>
+  </string-array>
+</resources>

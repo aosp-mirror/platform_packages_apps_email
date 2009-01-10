@@ -19,7 +19,8 @@
 		android:id="@+id/refresh"
         android:alphabeticShortcut="r"
 		android:title="@string/refresh_action"
-		android:icon="@drawable/ic_menu_refresh"
+		android:icon="@android:drawable/ic_menu_refresh"
+
 	/>
     <item
 		android:id="@+id/compose"
