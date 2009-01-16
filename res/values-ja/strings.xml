@@ -1,312 +1,158 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <resources xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:xliff="urn:oasis:names:tc:xliff:document:1.2">
-    <!-- no translation found for read_attachment_label (1300286008047638726) -->
-    <skip />
-    <!-- no translation found for read_attachment_desc (7594746717616308643) -->
-    <skip />
-    <!-- no translation found for app_name (5815426892327290362) -->
-    <skip />
-    <!-- no translation found for accounts_title (7249537449234892146) -->
-    <skip />
-    <!-- no translation found for compose_title (427986915662706899) -->
-    <skip />
-    <!-- no translation found for debug_title (5175710493691536719) -->
-    <skip />
-    <!-- no translation found for next_action (3931301986364184415) -->
-    <skip />
-    <!-- no translation found for okay_action (8365197396795675617) -->
-    <skip />
-    <!-- no translation found for cancel_action (6967435583794021865) -->
-    <skip />
-    <!-- no translation found for send_action (1729766205562446418) -->
-    <skip />
-    <!-- no translation found for reply_action (4262472229221507619) -->
-    <skip />
-    <!-- no translation found for reply_all_action (6192179825726332152) -->
-    <skip />
-    <!-- no translation found for delete_action (8421026208288857155) -->
-    <skip />
-    <!-- no translation found for forward_action (669174181042344116) -->
-    <skip />
-    <!-- no translation found for done_action (7497990549515580249) -->
-    <skip />
-    <!-- no translation found for discard_action (6532206074859505968) -->
-    <skip />
-    <!-- no translation found for save_draft_action (812855865552028622) -->
-    <skip />
-    <!-- no translation found for refresh_action (5951383001436708175) -->
-    <skip />
-    <!-- no translation found for add_account_action (8835736309476033727) -->
-    <skip />
-    <!-- no translation found for compose_action (4045702519637388045) -->
-    <skip />
-    <!-- no translation found for search_action (6325101454876682308) -->
-    <skip />
-    <!-- no translation found for open_action (936766723989190816) -->
-    <skip />
-    <!-- no translation found for account_settings_action (4494079183315085171) -->
-    <skip />
-    <!-- no translation found for remove_account_action (3789169090601376209) -->
-    <skip />
-    <!-- no translation found for accounts_action (901105887272231493) -->
-    <skip />
-    <!-- no translation found for mark_as_read_action (5031651846998842419) -->
-    <skip />
-    <!-- no translation found for mark_as_unread_action (3766298115778767554) -->
-    <skip />
-    <!-- no translation found for add_cc_bcc_action (5569074812077509737) -->
-    <skip />
-    <!-- no translation found for add_attachment_action (2696013743130573897) -->
-    <skip />
-    <!-- no translation found for dump_settings_action (4478192525236169829) -->
-    <skip />
-    <!-- no translation found for accounts_context_menu_title (1053701760934475027) -->
-    <skip />
-    <!-- no translation found for status_loading_more (1580386959044617884) -->
-    <skip />
-    <!-- no translation found for status_network_error (6045933332005067021) -->
-    <skip />
-    <!-- no translation found for status_loading_more_failed (1629172047185323) -->
-    <skip />
-    <!-- no translation found for notification_new_title (2200257910380529139) -->
-    <skip />
-    <!-- no translation found for notification_new_one_account_fmt (2297966868227817580) -->
-    <skip />
-    <!-- no translation found for notification_new_multi_account_fmt (4144316828838392845) -->
-    <skip />
-    <!-- no translation found for special_mailbox_name_inbox (6549604962520041083) -->
-    <skip />
-    <!-- no translation found for accounts_welcome (7365378109109495588) -->
-    <skip />
-    <!-- no translation found for debug_version_fmt (6160213145745376955) -->
-    <skip />
-    <!-- no translation found for debug_enable_debug_logging_label (2715742416050944774) -->
-    <skip />
-    <!-- no translation found for debug_enable_sensitive_logging_label (9010809457943556126) -->
-    <skip />
-    <!-- no translation found for message_list_load_more_messages_action (7428302707908825692) -->
-    <skip />
-    <!-- no translation found for message_compose_to_hint (2891895306418177013) -->
-    <skip />
-    <!-- no translation found for message_compose_cc_hint (8481884461031434144) -->
-    <skip />
-    <!-- no translation found for message_compose_bcc_hint (9177337492358841680) -->
-    <skip />
-    <!-- no translation found for message_compose_subject_hint (6993487234024160782) -->
-    <skip />
-    <!-- no translation found for message_compose_fwd_header_fmt (5181300290654579434) -->
-    <skip />
-    <!-- no translation found for message_compose_reply_header_fmt (8815624773273454573) -->
-    <skip />
-    <!-- no translation found for message_compose_quoted_text_label (5722467956990009520) -->
-    <skip />
-    <!-- no translation found for message_compose_error_no_recipients (4903715888250785486) -->
-    <skip />
-    <!-- no translation found for message_compose_attachments_skipped_toast (5611815773808423460) -->
-    <skip />
-    <!-- no translation found for message_view_to_label (6485191743265527381) -->
-    <skip />
-    <!-- no translation found for message_view_cc_label (6322992216371163122) -->
-    <skip />
-    <!-- no translation found for message_view_attachment_view_action (5353550848340829134) -->
-    <skip />
-    <!-- no translation found for message_view_attachment_download_action (7552530274014544406) -->
-    <skip />
-    <!-- no translation found for message_view_prev_action (3757604122960160421) -->
-    <skip />
-    <!-- no translation found for message_view_next_action (9149907472781705510) -->
-    <skip />
-    <!-- no translation found for message_view_status_attachment_saved (2802843795251453632) -->
-    <skip />
-    <!-- no translation found for message_view_status_attachment_not_saved (5039599647697750874) -->
-    <skip />
-    <!-- no translation found for message_view_show_pictures_instructions (1156525837417031085) -->
-    <skip />
-    <!-- no translation found for message_view_show_pictures_action (5059936981743072545) -->
-    <skip />
-    <!-- no translation found for message_view_fetching_attachment_toast (8812363375155391184) -->
-    <skip />
-    <!-- no translation found for message_deleted_toast (1554845060991758649) -->
-    <skip />
-    <!-- no translation found for message_discarded_toast (3891461729325584026) -->
-    <skip />
-    <!-- no translation found for message_saved_toast (8443125659172627665) -->
-    <skip />
-    <!-- no translation found for account_setup_basics_title (3969856368228940980) -->
-    <skip />
-    <!-- no translation found for account_setup_basics_instructions (3580847367201161979) -->
-    <skip />
-    <!-- no translation found for account_setup_basics_email_hint (7414269319207261120) -->
-    <skip />
-    <!-- no translation found for account_setup_basics_password_hint (410210049040536870) -->
-    <skip />
-    <!-- no translation found for account_setup_basics_default_label (5924790142029806711) -->
-    <skip />
-    <!-- no translation found for account_setup_basics_manual_setup_action (8053852205391155912) -->
-    <skip />
-    <!-- no translation found for account_setup_username_password_toast (4441448542557889481) -->
-    <skip />
-    <!-- no translation found for account_setup_check_settings_retr_info_msg (4121970450267725664) -->
-    <skip />
-    <!-- no translation found for account_setup_check_settings_check_incoming_msg (5356212700221438863) -->
-    <skip />
-    <!-- no translation found for account_setup_check_settings_check_outgoing_msg (4033015234096725343) -->
-    <skip />
-    <!-- no translation found for account_setup_check_settings_canceling_msg (5077315503721883906) -->
-    <skip />
-    <!-- no translation found for account_setup_names_title (8875040521875381849) -->
-    <skip />
-    <!-- no translation found for account_setup_names_instructions (2880279273965835007) -->
-    <skip />
-    <!-- no translation found for account_setup_names_account_name_label (8033895024273259196) -->
-    <skip />
-    <!-- no translation found for account_setup_names_user_name_label (8967410178488604770) -->
-    <skip />
-    <!-- no translation found for account_setup_account_type_title (6645576356752495504) -->
-    <skip />
-    <!-- no translation found for account_setup_account_type_instructions (114515540798408760) -->
-    <skip />
-    <!-- no translation found for account_setup_account_type_pop_action (3958144865724586762) -->
-    <skip />
-    <!-- no translation found for account_setup_account_type_imap_action (3471220237309488124) -->
-    <skip />
-    <!-- no translation found for account_setup_incoming_title (6862032674547580337) -->
-    <skip />
-    <!-- no translation found for account_setup_incoming_username_label (5700581386104070302) -->
-    <skip />
-    <!-- no translation found for account_setup_incoming_password_label (6365327603172559859) -->
-    <skip />
-    <!-- no translation found for account_setup_incoming_pop_server_label (4917504440057879152) -->
-    <skip />
-    <!-- no translation found for account_setup_incoming_imap_server_label (8685076830847734322) -->
-    <skip />
-    <!-- no translation found for account_setup_incoming_port_label (8214738923690447796) -->
-    <skip />
-    <!-- no translation found for account_setup_incoming_security_label (2110260791086007424) -->
-    <skip />
-    <!-- no translation found for account_setup_incoming_security_none_label (8300169413118264895) -->
-    <skip />
-    <!-- no translation found for account_setup_incoming_security_ssl_optional_label (8550650266852041870) -->
-    <skip />
-    <!-- no translation found for account_setup_incoming_security_ssl_label (1239685754472907538) -->
-    <skip />
-    <!-- no translation found for account_setup_incoming_security_tls_optional_label (9140597901978722104) -->
-    <skip />
-    <!-- no translation found for account_setup_incoming_security_tls_label (8930532576790946912) -->
-    <skip />
-    <!-- no translation found for account_setup_incoming_delete_policy_label (9213590134693857912) -->
-    <skip />
-    <!-- no translation found for account_setup_incoming_delete_policy_never_label (3222897501875871041) -->
-    <skip />
-    <!-- no translation found for account_setup_incoming_delete_policy_7days_label (5091246829453195520) -->
-    <skip />
-    <!-- no translation found for account_setup_incoming_delete_policy_delete_label (222216840911785631) -->
-    <skip />
-    <!-- no translation found for account_setup_incoming_imap_path_prefix_label (401167247072926810) -->
-    <skip />
-    <!-- no translation found for account_setup_incoming_imap_path_prefix_hint (9190845919067906033) -->
-    <skip />
-    <!-- no translation found for account_setup_outgoing_title (7437215562885986394) -->
-    <skip />
-    <!-- no translation found for account_setup_outgoing_smtp_server_label (6035137446691195177) -->
-    <skip />
-    <!-- no translation found for account_setup_outgoing_port_label (7573207437835827876) -->
-    <skip />
-    <!-- no translation found for account_setup_outgoing_security_label (911398071120720589) -->
-    <skip />
-    <!-- no translation found for account_setup_outgoing_require_login_label (6371514297854287948) -->
-    <skip />
-    <!-- no translation found for account_setup_outgoing_username_label (3309680794731596981) -->
-    <skip />
-    <!-- no translation found for account_setup_outgoing_password_label (227844585493317550) -->
-    <skip />
-    <!-- no translation found for account_setup_options_title (8995162193118880993) -->
-    <skip />
-    <!-- no translation found for account_setup_options_mail_check_frequency_label (4598023962234986194) -->
-    <skip />
-    <!-- no translation found for account_setup_options_mail_check_frequency_never (287951859480505416) -->
-    <skip />
-    <!-- no translation found for account_setup_options_mail_check_frequency_5min (6388939895878539307) -->
-    <skip />
-    <!-- no translation found for account_setup_options_mail_check_frequency_10min (5344463157247877480) -->
-    <skip />
-    <!-- no translation found for account_setup_options_mail_check_frequency_15min (5052776740089741793) -->
-    <skip />
-    <!-- no translation found for account_setup_options_mail_check_frequency_30min (1097088928685931864) -->
-    <skip />
-    <!-- no translation found for account_setup_options_mail_check_frequency_1hour (3767715356039692899) -->
-    <skip />
-    <!-- no translation found for account_setup_options_default_label (8869166381331276697) -->
-    <skip />
-    <!-- no translation found for account_setup_options_notify_label (1247525794828820038) -->
-    <skip />
-    <!-- no translation found for account_setup_failed_dlg_title (7827583313117521383) -->
-    <skip />
-    <!-- no translation found for account_setup_failed_dlg_auth_message (42827150104879570) -->
-    <skip />
-    <!-- no translation found for account_setup_failed_dlg_auth_message_fmt (8598560266430207606) -->
-    <skip />
-    <!-- no translation found for account_setup_failed_dlg_certificate_message (961843413600482906) -->
-    <skip />
-    <!-- no translation found for account_setup_failed_dlg_certificate_message_fmt (2609150986774736900) -->
-    <skip />
-    <!-- no translation found for account_setup_failed_dlg_server_message (1828270369532779265) -->
-    <skip />
-    <!-- no translation found for account_setup_failed_dlg_server_message_fmt (5956976504788732779) -->
-    <skip />
-    <!-- no translation found for account_setup_failed_tls_required (307030406688611327) -->
-    <skip />
-    <!-- no translation found for account_setup_failed_auth_required (1676242821459638150) -->
-    <skip />
-    <!-- no translation found for account_setup_failed_security (6142264248671379943) -->
-    <skip />
-    <!-- no translation found for account_setup_failed_ioerror (7391458717708933095) -->
-    <skip />
-    <!-- no translation found for account_setup_failed_dlg_edit_details_action (5355993309841479360) -->
-    <skip />
-    <!-- no translation found for account_settings_title_fmt (1702058877284382340) -->
-    <skip />
-    <!-- no translation found for account_settings_default_label (3575963379680943640) -->
-    <skip />
-    <!-- no translation found for account_settings_default_summary (1531901438624688482) -->
-    <skip />
-    <!-- no translation found for account_settings_notify_label (1630001017303007974) -->
-    <skip />
-    <!-- no translation found for account_settings_notify_summary (6609224590300639887) -->
-    <skip />
-    <!-- no translation found for account_settings_mail_check_frequency_label (2067835530563849675) -->
-    <skip />
-    <!-- no translation found for account_settings_incoming_label (7858928031806297542) -->
-    <skip />
-    <!-- no translation found for account_settings_outgoing_label (4464829249980026745) -->
-    <skip />
-    <!-- no translation found for account_settings_add_account_label (63971622405360050) -->
-    <skip />
-    <!-- no translation found for account_settings_description_label (8894815221204511715) -->
-    <skip />
-    <!-- no translation found for account_settings_name_label (8186406122590008449) -->
-    <skip />
-    <!-- no translation found for account_settings_notifications (1042620094281375043) -->
-    <skip />
-    <!-- no translation found for account_settings_vibrate_enable (8045133290388856478) -->
-    <skip />
-    <!-- no translation found for account_settings_vibrate_summary (3690631050585589365) -->
-    <skip />
-    <!-- no translation found for account_settings_ringtone (7922187231467500404) -->
-    <skip />
-    <!-- no translation found for account_settings_servers (4925493817981624242) -->
-    <skip />
-    <!-- no translation found for account_delete_dlg_title (7819784415372084676) -->
-    <skip />
-    <!-- no translation found for account_delete_dlg_instructions_fmt (8236846322040271280) -->
-    <skip />
-    <!-- no translation found for provider_note_yahoo (8762024183024261236) -->
-    <skip />
-    <!-- no translation found for provider_note_yahoo_uk (2055976404478603298) -->
-    <skip />
-    <!-- no translation found for provider_note_live (3584841823811425060) -->
-    <skip />
-    <!-- no translation found for provider_note_t_online (1973701903400232774) -->
-    <skip />
+    <string name="read_attachment_label">"Email の添付ファイルを閲覧する"</string>
+    <string name="read_attachment_desc">"このアプリケーションで Email の添付ファイルを閲覧できるようにします。"</string>
+    <string name="app_name">"Email"</string>
+    <string name="accounts_title">"アカウント"</string>
+    <string name="compose_title">"作成"</string>
+    <string name="debug_title">"デバッグ"</string>
+    <string name="next_action">"次へ"</string>
+    <string name="okay_action">"OK"</string>
+    <string name="cancel_action">"キャンセル"</string>
+    <string name="send_action">"送信"</string>
+    <string name="reply_action">"返信"</string>
+    <string name="reply_all_action">"全員に返信"</string>
+    <string name="delete_action">"削除"</string>
+    <string name="forward_action">"転送"</string>
+    <string name="done_action">"完了"</string>
+    <string name="discard_action">"破棄"</string>
+    <string name="save_draft_action">"下書きとして保存"</string>
+    <string name="refresh_action">"更新"</string>
+    <string name="add_account_action">"アカウントを追加"</string>
+    <string name="compose_action">"作成"</string>
+    <string name="search_action">"検索"</string>
+    <string name="open_action">"開く"</string>
+    <string name="account_settings_action">"アカウントの設定"</string>
+    <string name="remove_account_action">"アカウントを削除"</string>
+    <string name="accounts_action">"アカウント"</string>
+    <string name="mark_as_read_action">"既読にする"</string>
+    <string name="mark_as_unread_action">"未読にする"</string>
+    <string name="add_cc_bcc_action">"Cc/Bcc を追加"</string>
+    <string name="add_attachment_action">"添付ファイルを追加"</string>
+    <string name="dump_settings_action">"ダンプ設定"</string>
+    <string name="accounts_context_menu_title">"アカウント オプション"</string>
+    <string name="status_loading_more">"メールを読み込み中..."</string>
+    <string name="status_network_error">"接続エラー"</string>
+    <string name="status_loading_more_failed">"その他のメールをもう一度読み込む"</string>
+    <string name="notification_new_title">"新着メール"</string>
+    <string name="notification_new_one_account_fmt">"未読 <xliff:g id="UNREAD_MESSAGE_COUNT">%d</xliff:g> 通 (<xliff:g id="ACCOUNT">%s</xliff:g>)"</string>
+    <string name="notification_new_multi_account_fmt">"<xliff:g id="NUMBER_ACCOUNTS">%d</xliff:g> 個のアカウント"</string>
+    <string name="special_mailbox_name_inbox">"受信トレイ"</string>
+    <string name="accounts_welcome">"Email の設定へようこそ"\n\n"Email ではさまざまなメール アカウントを使用できます。"\n\n"一般的なメール アカウントなら、たった 2 ステップで設定できます。"</string>
+    <string name="debug_version_fmt">"バージョン: <xliff:g id="VERSION">%s</xliff:g>"</string>
+    <string name="debug_enable_debug_logging_label">"追加のデバッグ ログを有効にする"</string>
+    <string name="debug_enable_sensitive_logging_label">"デバッグ ログへの個人情報の記録を有効にする (ログにパスワードが記載されることがあります)"</string>
+    <string name="message_list_load_more_messages_action">"その他のメールを読み込む"</string>
+    <string name="message_compose_to_hint">"To"</string>
+    <string name="message_compose_cc_hint">"Cc"</string>
+    <string name="message_compose_bcc_hint">"Bcc"</string>
+    <string name="message_compose_subject_hint">"件名"</string>
+    <string name="message_compose_fwd_header_fmt">\n\n"-------- 元のメッセージ --------"\n"件名: <xliff:g id="SUBJECT">%s</xliff:g>"\n"From: <xliff:g id="SENDER">%s</xliff:g>"\n"To: <xliff:g id="TO">%s</xliff:g>"\n"Cc: <xliff:g id="CC_0">%s</xliff:g>"\n\n</string>
+    <string name="message_compose_reply_header_fmt">\n\n"<xliff:g id="SENDER">%s</xliff:g>さんは書きました:"\n\n</string>
+    <string name="message_compose_quoted_text_label">"引用テキスト"</string>
+    <string name="message_compose_error_no_recipients">"宛先を 1 つ以上追加してください。"</string>
+    <string name="message_compose_attachments_skipped_toast">"ダウンロードされなかった添付ファイルは転送できません。"</string>
+    <string name="message_view_to_label">"To:"</string>
+    <string name="message_view_cc_label">"Cc:"</string>
+    <string name="message_view_attachment_view_action">"開く"</string>
+    <string name="message_view_attachment_download_action">"保存"</string>
+    <string name="message_view_prev_action">"前のメッセージ"</string>
+    <string name="message_view_next_action">"次のメッセージ"</string>
+    <string name="message_view_status_attachment_saved">"添付ファイルを「<xliff:g id="FILENAME">%s</xliff:g>」という名前で SD カードに保存しました。"</string>
+    <string name="message_view_status_attachment_not_saved">"添付ファイルを SD カードに保存できません。"</string>
+    <string name="message_view_show_pictures_instructions">"埋め込まれている画像を表示するには、[画像を表示] を選択してください。"</string>
+    <string name="message_view_show_pictures_action">"画像を表示"</string>
+    <string name="message_view_fetching_attachment_toast">"添付ファイルを取得中。"</string>
+    <string name="message_deleted_toast">"メッセージを削除しました。"</string>
+    <string name="message_discarded_toast">"メッセージを破棄しました。"</string>
+    <string name="message_saved_toast">"メッセージを下書きとして保存しました。"</string>
+    <string name="account_setup_basics_title">"メールを設定"</string>
+    <string name="account_setup_basics_instructions">"ご使用のアカウントのメール アドレスを入力してください:"</string>
+    <string name="account_setup_basics_email_hint">"メール アドレス"</string>
+    <string name="account_setup_basics_password_hint">"パスワード"</string>
+    <string name="account_setup_basics_default_label">"このアカウントをメール送信に使用する既定のアカウントにする"</string>
+    <string name="account_setup_basics_manual_setup_action">"手動で設定"</string>
+    <string name="account_setup_username_password_toast">"有効なメール アドレスとパスワードを入力してください。"</string>
+    <string name="account_setup_check_settings_retr_info_msg">"アカウント情報を取得中..."</string>
+    <string name="account_setup_check_settings_check_incoming_msg">"受信サーバーの設定を確認中..."</string>
+    <string name="account_setup_check_settings_check_outgoing_msg">"送信サーバーの設定を確認中..."</string>
+    <string name="account_setup_check_settings_canceling_msg">"取り消しています..."</string>
+    <string name="account_setup_names_title">"メールを設定"</string>
+    <string name="account_setup_names_instructions">"アカウントの設定が完了しましたので、さっそくご利用いただけます。"</string>
+    <string name="account_setup_names_account_name_label">"このアカウントに名前を付けてください (オプション)"</string>
+    <string name="account_setup_names_user_name_label">"名前 (送信メールに表示されます)"</string>
+    <string name="account_setup_account_type_title">"新しいメール アカウントを追加"</string>
+    <string name="account_setup_account_type_instructions">"このアカウントのタイプ"</string>
+    <string name="account_setup_account_type_pop_action">"POP3 アカウント"</string>
+    <string name="account_setup_account_type_imap_action">"IMAP アカウント"</string>
+    <string name="account_setup_incoming_title">"受信サーバーの設定"</string>
+    <string name="account_setup_incoming_username_label">"ユーザー名"</string>
+    <string name="account_setup_incoming_password_label">"パスワード"</string>
+    <string name="account_setup_incoming_pop_server_label">"POP3 サーバー"</string>
+    <string name="account_setup_incoming_imap_server_label">"IMAP サーバー"</string>
+    <string name="account_setup_incoming_port_label">"ポート"</string>
+    <string name="account_setup_incoming_security_label">"セキュリティ タイプ"</string>
+    <string name="account_setup_incoming_security_none_label">"なし"</string>
+    <string name="account_setup_incoming_security_ssl_optional_label">"SSL (使える場合)"</string>
+    <string name="account_setup_incoming_security_ssl_label">"SSL (常に使用)"</string>
+    <string name="account_setup_incoming_security_tls_optional_label">"TLS (使える場合)"</string>
+    <string name="account_setup_incoming_security_tls_label">"TLS (常に使用)"</string>
+    <string name="account_setup_incoming_delete_policy_label">"サーバーからメールを削除"</string>
+    <string name="account_setup_incoming_delete_policy_never_label">"削除しない"</string>
+    <string name="account_setup_incoming_delete_policy_7days_label">"7 日後"</string>
+    <string name="account_setup_incoming_delete_policy_delete_label">"受信トレイから削除したとき"</string>
+    <string name="account_setup_incoming_imap_path_prefix_label">"IMAP パスのプレフィックス"</string>
+    <string name="account_setup_incoming_imap_path_prefix_hint">"オプション"</string>
+    <string name="account_setup_outgoing_title">"送信サーバーの設定"</string>
+    <string name="account_setup_outgoing_smtp_server_label">"SMTP サーバー"</string>
+    <string name="account_setup_outgoing_port_label">"ポート"</string>
+    <string name="account_setup_outgoing_security_label">"セキュリティ タイプ"</string>
+    <string name="account_setup_outgoing_require_login_label">"ログインが必要"</string>
+    <string name="account_setup_outgoing_username_label">"ユーザー名"</string>
+    <string name="account_setup_outgoing_password_label">"パスワード"</string>
+    <string name="account_setup_options_title">"アカウント オプション"</string>
+    <string name="account_setup_options_mail_check_frequency_label">"メール チェックの頻度"</string>
+    <string name="account_setup_options_mail_check_frequency_never">"なし"</string>
+    <string name="account_setup_options_mail_check_frequency_5min">"5 分ごと"</string>
+    <string name="account_setup_options_mail_check_frequency_10min">"10 分ごと"</string>
+    <string name="account_setup_options_mail_check_frequency_15min">"15 分ごと"</string>
+    <string name="account_setup_options_mail_check_frequency_30min">"30 分ごと"</string>
+    <string name="account_setup_options_mail_check_frequency_1hour">"1 時間ごと"</string>
+    <string name="account_setup_options_default_label">"このアカウントをメール送信に使用する既定のアカウントにする"</string>
+    <string name="account_setup_options_notify_label">"メールの着信を知らせる"</string>
+    <string name="account_setup_failed_dlg_title">"設定を完了できませんでした"</string>
+    <string name="account_setup_failed_dlg_auth_message">"ユーザー名かパスワードが間違っています。"</string>
+    <string name="account_setup_failed_dlg_auth_message_fmt">"ユーザー名かパスワードが間違っています。"\n"(<xliff:g id="ERROR">%s</xliff:g>)"</string>
+    <string name="account_setup_failed_dlg_certificate_message">"サーバーに安全に接続できません。"</string>
+    <string name="account_setup_failed_dlg_certificate_message_fmt">"サーバーに安全に接続できません。"\n"(<xliff:g id="ERROR">%s</xliff:g>)"</string>
+    <string name="account_setup_failed_dlg_server_message">"サーバーに接続できません。"</string>
+    <string name="account_setup_failed_dlg_server_message_fmt">"サーバーに接続できません。"\n"(<xliff:g id="ERROR">%s</xliff:g>)"</string>
+    <string name="account_setup_failed_tls_required">"TLS が必要ですが、サーバーではサポートされていません。"</string>
+    <string name="account_setup_failed_auth_required">"認証方法がサーバーでサポートされていません。"</string>
+    <string name="account_setup_failed_security">"セキュリティ エラーが発生したため、サーバーに接続できません。"</string>
+    <string name="account_setup_failed_ioerror">"サーバーに接続できません。"</string>
+    <string name="account_setup_failed_dlg_edit_details_action">"詳細を編集"</string>
+    <string name="account_settings_title_fmt">"全般設定"</string>
+    <string name="account_settings_default_label">"既定のアカウント"</string>
+    <string name="account_settings_default_summary">"このアカウントをメール送信に使用する既定のアカウントにする"</string>
+    <string name="account_settings_notify_label">"メール通知"</string>
+    <string name="account_settings_notify_summary">"メールの着信をステータス バーで知らせる"</string>
+    <string name="account_settings_mail_check_frequency_label">"メール チェックの頻度"</string>
+    <string name="account_settings_incoming_label">"受信設定"</string>
+    <string name="account_settings_outgoing_label">"送信設定"</string>
+    <string name="account_settings_add_account_label">"別のアカウントを追加"</string>
+    <string name="account_settings_description_label">"アカウント名"</string>
+    <string name="account_settings_name_label">"名前"</string>
+    <string name="account_settings_notifications">"通知の設定"</string>
+    <string name="account_settings_vibrate_enable">"バイブレーション"</string>
+    <string name="account_settings_vibrate_summary">"メールの着信をバイブレーションでも知らせる"</string>
+    <string name="account_settings_ringtone">"着信音を選択"</string>
+    <string name="account_settings_servers">"サーバーの設定"</string>
+    <string name="account_delete_dlg_title">"削除"</string>
+    <string name="account_delete_dlg_instructions_fmt">"アカウント「<xliff:g id="ACCOUNT">%s</xliff:g>」を Email から削除します。"</string>
+    <string name="provider_note_yahoo">"一部のタイプの Yahoo! メール アカウントでは、受信トレイへのアクセスがサポートされていません。接続できない場合は yahoo.com にアクセスして詳細をご確認ください。"</string>
+    <string name="provider_note_yahoo_uk">"このメール アカウントを設定する前に、Yahoo! ウェブサイトにアクセスして、このアカウントでの POP3 メール アクセスを有効にしてください。"</string>
+    <string name="provider_note_live">"このプログラムで接続が許可されているのは、有料の「Plus」アカウントだけです。正しいメール アドレスとパスワードを入力してもログインできない場合は、有料の「Plus」アカウントをお持ちでない可能性があります。ウェブ ブラウザを起動して、有料のメール アカウントを取得してください。"</string>
+    <string name="provider_note_t_online">"このメール アカウントを設定する前に、T-Online ウェブサイトにアクセスして、POP3 メール アクセスに使用するパスワードを作成してください。"</string>
 </resources>
