@@ -16,11 +16,13 @@
 
 package com.android.email.mail.internet;
 
-import java.io.ByteArrayOutputStream;
-import java.io.IOException;
-import java.io.InputStream;
-import java.io.OutputStream;
-import java.util.ArrayList;
+import com.android.email.Email;
+import com.android.email.mail.Body;
+import com.android.email.mail.BodyPart;
+import com.android.email.mail.Message;
+import com.android.email.mail.MessagingException;
+import com.android.email.mail.Multipart;
+import com.android.email.mail.Part;
 
 import org.apache.commons.io.IOUtils;
 import org.apache.james.mime4j.decoder.Base64InputStream;
@@ -30,13 +32,12 @@ import org.apache.james.mime4j.util.CharsetUtil;
 
 import android.util.Log;
 
-import com.android.email.Email;
-import com.android.email.mail.Body;
-import com.android.email.mail.BodyPart;
-import com.android.email.mail.Message;
-import com.android.email.mail.MessagingException;
-import com.android.email.mail.Multipart;
-import com.android.email.mail.Part;
+import java.io.ByteArrayOutputStream;
+import java.io.IOException;
+import java.io.InputStream;
+import java.io.OutputStream;
+import java.util.ArrayList;
+import java.util.regex.Pattern;
 
 public class MimeUtility {
     public static String unfold(String s) {
@@ -197,26 +198,31 @@ public class MimeUtility {
     }
 
     /**
-     * Returns true if the given mimeType matches the matchAgainst specification.
+     * Returns true if the given mimeType matches the matchAgainst specification.  The comparison
+     * ignores case and the matchAgainst string may include "*" for a wildcard (e.g. "image/*").
+     * 
      * @param mimeType A MIME type to check.
-     * @param matchAgainst A MIME type to check against. May include wildcards such as image/* or
-     * * /*.
-     * @return
+     * @param matchAgainst A MIME type to check against. May include wildcards.
+     * @return true if the mimeType matches
      */
     public static boolean mimeTypeMatches(String mimeType, String matchAgainst) {
-        return mimeType.matches(matchAgainst.replaceAll("\\*", "\\.\\*"));
+        Pattern p = Pattern.compile(matchAgainst.replaceAll("\\*", "\\.\\*"), 
+                Pattern.CASE_INSENSITIVE);
+        return p.matcher(mimeType).matches();
     }
 
     /**
-     * Returns true if the given mimeType matches any of the matchAgainst specifications.
+     * Returns true if the given mimeType matches any of the matchAgainst specifications.  The 
+     * comparison ignores case and the matchAgainst strings may include "*" for a wildcard 
+     * (e.g. "image/*").
+     * 
      * @param mimeType A MIME type to check.
-     * @param matchAgainst An array of MIME types to check against. May include wildcards such
-     * as image/* or * /*.
-     * @return
+     * @param matchAgainst An array of MIME types to check against. May include wildcards.
+     * @return true if the mimeType matches any of the matchAgainst strings
      */
     public static boolean mimeTypeMatches(String mimeType, String[] matchAgainst) {
         for (String matchType : matchAgainst) {
-            if (mimeType.matches(matchType.replaceAll("\\*", "\\.\\*"))) {
+            if (mimeTypeMatches(mimeType, matchType)) {
                 return true;
             }
         }
