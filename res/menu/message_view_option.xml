@@ -43,6 +43,6 @@
         android:id="@+id/mark_as_unread"
         android:alphabeticShortcut="u"
         android:title="@string/mark_as_unread_action"
-        android:icon="@drawable/ic_menu_mark"
+        android:icon="@*android:drawable/ic_menu_mark"
     />
 </menu>

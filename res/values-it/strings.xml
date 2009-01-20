@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <resources xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:xliff="urn:oasis:names:tc:xliff:document:1.2">
-    <string name="read_attachment_label">"leggere allegati email"</string>
+    <string name="read_attachment_label">"lettura allegati email"</string>
     <string name="read_attachment_desc">"Consente all\'applicazione di leggere i tuoi allegati email."</string>
     <string name="app_name">"Email"</string>
     <string name="accounts_title">"I tuoi account"</string>
@@ -30,7 +30,7 @@
     <string name="mark_as_unread_action">"Segna come da leggere"</string>
     <string name="add_cc_bcc_action">"Aggiungi Cc/Ccn"</string>
     <string name="add_attachment_action">"Aggiungi allegato"</string>
-    <string name="dump_settings_action">"Impostazioni dump"</string>
+    <string name="dump_settings_action">"Scarica impostazioni"</string>
     <string name="accounts_context_menu_title">"Opzioni account"</string>
     <string name="status_loading_more">"Caricamento messaggi in corso..."</string>
     <string name="status_network_error">"Errore di connessione"</string>
@@ -80,7 +80,7 @@
     <string name="account_setup_check_settings_canceling_msg">"Annullamento in corso..."</string>
     <string name="account_setup_names_title">"Imposta email"</string>
     <string name="account_setup_names_instructions">"Il tuo account è stato impostato e l\'email sarà presto disponibile."</string>
-    <string name="account_setup_names_account_name_label">"Denomina questo account (facoltativo)"</string>
+    <string name="account_setup_names_account_name_label">"Assegna un nome all\'account (facoltativo)"</string>
     <string name="account_setup_names_user_name_label">"Il tuo nome (visualizzato nei messaggi in uscita)"</string>
     <string name="account_setup_account_type_title">"Aggiungi un nuovo account email"</string>
     <string name="account_setup_account_type_instructions">"Di quale tipo di account si tratta?"</string>
@@ -124,13 +124,13 @@
     <string name="account_setup_failed_dlg_title">"Impossibile completare l\'impostazione"</string>
     <string name="account_setup_failed_dlg_auth_message">"Nome utente o password errata."</string>
     <string name="account_setup_failed_dlg_auth_message_fmt">"Nome utente o password errata."\n"(<xliff:g id="ERROR">%s</xliff:g>)"</string>
-    <string name="account_setup_failed_dlg_certificate_message">"Impossibile connettersi correttamente al server."</string>
+    <string name="account_setup_failed_dlg_certificate_message">"Impossibile connettersi in modo sicuro al server."</string>
     <string name="account_setup_failed_dlg_certificate_message_fmt">"Impossibile connettersi correttamente al server."\n"(<xliff:g id="ERROR">%s</xliff:g>)"</string>
     <string name="account_setup_failed_dlg_server_message">"Impossibile connettersi al server."</string>
     <string name="account_setup_failed_dlg_server_message_fmt">"Impossibile connettersi al server."\n"(<xliff:g id="ERROR">%s</xliff:g>)"</string>
     <string name="account_setup_failed_tls_required">"TLS richiesto ma non supportato dal server."</string>
     <string name="account_setup_failed_auth_required">"I metodi di autenticazione non sono supportati dal server."</string>
-    <string name="account_setup_failed_security">"Impossibile aprire la connessione al server a causa di un errore della protezione."</string>
+    <string name="account_setup_failed_security">"Impossibile aprire la connessione al server a causa di un errore di protezione."</string>
     <string name="account_setup_failed_ioerror">"Impossibile aprire la connessione al server."</string>
     <string name="account_setup_failed_dlg_edit_details_action">"Modifica dettagli"</string>
     <string name="account_settings_title_fmt">"Impostazioni generali"</string>
@@ -154,5 +154,5 @@
     <string name="provider_note_yahoo">"Accesso alla casella di posta non supportato per alcuni tipi di account di posta Yahoo!. Se hai problemi di connessione, visita il sito yahoo.com per ulteriori informazioni."</string>
     <string name="provider_note_yahoo_uk">"Prima di impostare questo account email, visita il sito web Yahoo! e attiva l\'accesso email POP3 per questo account."</string>
     <string name="provider_note_live">"Solo alcuni account \"Plus\" includono l\'accesso POP che consente la connessione del programma. Se non riesci ad accedere con l\'indirizzo email e la password corretti, potresti non disporre di un account \"Plus\" a pagamento. Avvia il browser web per avere accesso a questi account di posta."</string>
-    <string name="provider_note_t_online">"Prima di impostare questo account email, visita il sito web T-Online Web e crea una password per l\'accesso email POP3."</string>
+    <string name="provider_note_t_online">"Prima di impostare questo account email, visita il sito web T-Online e crea una password per l\'accesso email POP3."</string>
 </resources>

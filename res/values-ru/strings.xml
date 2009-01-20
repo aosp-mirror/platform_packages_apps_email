@@ -28,13 +28,13 @@
     <string name="accounts_action">"Аккаунты"</string>
     <string name="mark_as_read_action">"Отметить как прочитанное"</string>
     <string name="mark_as_unread_action">"Отметить как непрочитанное"</string>
-    <string name="add_cc_bcc_action">"Добавить копии и скрытые копии"</string>
+    <string name="add_cc_bcc_action">"Добавить копии/скрытые копии"</string>
     <string name="add_attachment_action">"Добавить приложение"</string>
     <string name="dump_settings_action">"Настройки сброса"</string>
     <string name="accounts_context_menu_title">"Параметры аккаунта"</string>
     <string name="status_loading_more">"Загрузка писем..."</string>
     <string name="status_network_error">"Ошибка подключения"</string>
-    <string name="status_loading_more_failed">"Повторить попытку загрузки дополнительных писем"</string>
+    <string name="status_loading_more_failed">"Повторить попытку загрузки остальных писем"</string>
     <string name="notification_new_title">"Новое письмо"</string>
     <string name="notification_new_one_account_fmt">"Непрочитанных: <xliff:g id="UNREAD_MESSAGE_COUNT">%d</xliff:g> (<xliff:g id="ACCOUNT">%s</xliff:g>)"</string>
     <string name="notification_new_multi_account_fmt">"в нескольких (<xliff:g id="NUMBER_ACCOUNTS">%d</xliff:g>) аккаунтах"</string>
@@ -48,8 +48,8 @@
     <string name="message_compose_cc_hint">"Копия"</string>
     <string name="message_compose_bcc_hint">"Скрытая"</string>
     <string name="message_compose_subject_hint">"Тема"</string>
-    <string name="message_compose_fwd_header_fmt">\n\n"-------- Исходное письмо --------"\n"Тема: <xliff:g id="SUBJECT">%s</xliff:g>"\n"От: <xliff:g id="SENDER">%s</xliff:g>"\n"Кому: <xliff:g id="TO">%s</xliff:g>"\n"Копия: <xliff:g id="CC_0">%s</xliff:g>"\n\n</string>
-    <string name="message_compose_reply_header_fmt">\n\n"<xliff:g id="SENDER">%s</xliff:g> пишет:"\n\n</string>
+    <string name="message_compose_fwd_header_fmt">\n\n"-------- Исходное сообщение --------"\n"Тема: <xliff:g id="SUBJECT">%s</xliff:g>"\n"От: <xliff:g id="SENDER">%s</xliff:g>"\n"Кому: <xliff:g id="TO">%s</xliff:g>"\n"Копия: <xliff:g id="CC_0">%s</xliff:g>"\n\n</string>
+    <string name="message_compose_reply_header_fmt">\n\n"<xliff:g id="SENDER">%s</xliff:g> написал(а):"\n\n</string>
     <string name="message_compose_quoted_text_label">"Цитируемый текст"</string>
     <string name="message_compose_error_no_recipients">"Необходимо добавить хотя бы одного получателя."</string>
     <string name="message_compose_attachments_skipped_toast">"Некоторые приложения нельзя переслать, поскольку они не загружены."</string>
@@ -61,7 +61,7 @@
     <string name="message_view_next_action">"След. письмо"</string>
     <string name="message_view_status_attachment_saved">"Приложение сохранено на SD-карту как <xliff:g id="FILENAME">%s</xliff:g>."</string>
     <string name="message_view_status_attachment_not_saved">"Не удается сохранить приложение на SD-карту."</string>
-    <string name="message_view_show_pictures_instructions">"Выберите \"Показать картинки\", чтобы показать внедренные картинки."</string>
+    <string name="message_view_show_pictures_instructions">"Выберите \"Показать картинки\", чтобы показать встроенную графику."</string>
     <string name="message_view_show_pictures_action">"Показать картинки"</string>
     <string name="message_view_fetching_attachment_toast">"Загрузка приложения."</string>
     <string name="message_deleted_toast">"Письмо удалено."</string>
@@ -151,7 +151,7 @@
     <string name="account_settings_servers">"Настройки сервера"</string>
     <string name="account_delete_dlg_title">"Удалить"</string>
     <string name="account_delete_dlg_instructions_fmt">"Аккаунт \"<xliff:g id="ACCOUNT">%s</xliff:g>\" будет удален из системы электронной почты."</string>
-    <string name="provider_note_yahoo">"Доступ к почтовому ящику для некоторых типов почтовых аккаунтов Yahoo! не поддерживается. Если при подключении возникли проблемы, см. дополнительные сведения на yahoo.com ."</string>
+    <string name="provider_note_yahoo">"Доступ к почтовому ящику для некоторых типов почтовых аккаунтов Yahoo! не поддерживается. Если при подключении возникли проблемы, см. дополнительные сведения на yahoo.com."</string>
     <string name="provider_note_yahoo_uk">"Чтобы настроить этот аккаунт электронной почты, перейдите на веб-сайт Yahoo! и включите для этого аккаунта доступ по протоколу POP3."</string>
     <string name="provider_note_live">"Только некоторые аккаунты \"Plus\" поддерживают доступ по протоколу POP, который требуется данной программе для подключения. Если вам не удается войти в систему с верным адресом электронной почты и паролем, возможно, у вас нет платного аккаунта \"Plus\". Откройте веб-браузер, чтобы получить доступ к этим почтовым аккаунтам."</string>
     <string name="provider_note_t_online">"Чтобы настроить этот аккаунт электронной почты, перейдите на веб-сайт T-Online и создайте пароль для доступа к электронной почте по протоколу POP3."</string>
