@@ -30,7 +30,7 @@
     <string name="mark_as_unread_action">"标记为未读"</string>
     <string name="add_cc_bcc_action">"添加抄送/密送对象"</string>
     <string name="add_attachment_action">"添加附件"</string>
-    <string name="dump_settings_action">"转储设置"</string>
+    <string name="dump_settings_action">"转存设置"</string>
     <string name="accounts_context_menu_title">"帐户选项"</string>
     <string name="status_loading_more">"正在载入邮件..."</string>
     <string name="status_network_error">"连接错误"</string>
@@ -39,7 +39,7 @@
     <string name="notification_new_one_account_fmt">"有 <xliff:g id="UNREAD_MESSAGE_COUNT">%d</xliff:g> 封未读邮件 (<xliff:g id="ACCOUNT">%s</xliff:g>)"</string>
     <string name="notification_new_multi_account_fmt">"在 <xliff:g id="NUMBER_ACCOUNTS">%d</xliff:g> 个帐户中"</string>
     <string name="special_mailbox_name_inbox">"收件箱"</string>
-    <string name="accounts_welcome">"欢迎设置电子邮件！"\n\n"在电子邮件中使用任意的电子邮件帐户。"\n\n"大多数常见的电子邮件帐户通过 2 步即可完成设置！"</string>
+    <string name="accounts_welcome">"欢迎设置电子邮件！"\n\n"在此可使用任意电子邮件帐户。"\n\n"大多数常见的电子邮件帐户通过 2 步即可完成设置！"</string>
     <string name="debug_version_fmt">"版本：<xliff:g id="VERSION">%s</xliff:g>"</string>
     <string name="debug_enable_debug_logging_label">"启用额外的调试日志记录？"</string>
     <string name="debug_enable_sensitive_logging_label">"启用敏感信息调试日志记录（可能会在记录中显示密码）？"</string>
@@ -50,9 +50,9 @@
     <string name="message_compose_subject_hint">"主题"</string>
     <string name="message_compose_fwd_header_fmt">\n\n"-------- 原始邮件 --------"\n"主题：<xliff:g id="SUBJECT">%s</xliff:g>"\n"发件人：<xliff:g id="SENDER">%s</xliff:g>"\n"收件人：<xliff:g id="TO">%s</xliff:g>"\n"抄送：<xliff:g id="CC_0">%s</xliff:g>"\n\n</string>
     <string name="message_compose_reply_header_fmt">\n\n"<xliff:g id="SENDER">%s</xliff:g>写道："\n\n</string>
-    <string name="message_compose_quoted_text_label">"引用文本"</string>
+    <string name="message_compose_quoted_text_label">"引用文字"</string>
     <string name="message_compose_error_no_recipients">"您必须至少添加一个收件人。"</string>
-    <string name="message_compose_attachments_skipped_toast">"某些附件不能转发，因为它们尚未下载。"</string>
+    <string name="message_compose_attachments_skipped_toast">"某些附件尚未下载，因此无法转发。"</string>
     <string name="message_view_to_label">"收件人："</string>
     <string name="message_view_cc_label">"抄送："</string>
     <string name="message_view_attachment_view_action">"打开"</string>
@@ -79,14 +79,14 @@
     <string name="account_setup_check_settings_check_outgoing_msg">"正在检查外发服务器设置..."</string>
     <string name="account_setup_check_settings_canceling_msg">"正在取消..."</string>
     <string name="account_setup_names_title">"设置电子邮件"</string>
-    <string name="account_setup_names_instructions">"您的帐户已设置完毕，现在就可以收发电子邮件了！"</string>
+    <string name="account_setup_names_instructions">"您的帐户设置完毕，可以收发电子邮件了！"</string>
     <string name="account_setup_names_account_name_label">"为此帐户提供一个名称（可选）"</string>
     <string name="account_setup_names_user_name_label">"您的姓名（显示在发出的邮件中）"</string>
     <string name="account_setup_account_type_title">"添加新的电子邮件帐户"</string>
     <string name="account_setup_account_type_instructions">"这是什么类型的帐户？"</string>
     <string name="account_setup_account_type_pop_action">"POP3 帐户"</string>
     <string name="account_setup_account_type_imap_action">"IMAP 帐户"</string>
-    <string name="account_setup_incoming_title">"接收服务器设置"</string>
+    <string name="account_setup_incoming_title">"收件服务器的设置"</string>
     <string name="account_setup_incoming_username_label">"用户名"</string>
     <string name="account_setup_incoming_password_label">"密码"</string>
     <string name="account_setup_incoming_pop_server_label">"POP3 服务器"</string>
@@ -101,7 +101,7 @@
     <string name="account_setup_incoming_delete_policy_label">"从服务器删除电子邮件"</string>
     <string name="account_setup_incoming_delete_policy_never_label">"从不"</string>
     <string name="account_setup_incoming_delete_policy_7days_label">"7 天后"</string>
-    <string name="account_setup_incoming_delete_policy_delete_label">"当从收件箱中删除邮件时"</string>
+    <string name="account_setup_incoming_delete_policy_delete_label">"从收件箱中删除邮件时"</string>
     <string name="account_setup_incoming_imap_path_prefix_label">"IMAP 路径前缀"</string>
     <string name="account_setup_incoming_imap_path_prefix_hint">"可选"</string>
     <string name="account_setup_outgoing_title">"外发服务器设置"</string>
@@ -112,7 +112,7 @@
     <string name="account_setup_outgoing_username_label">"用户名"</string>
     <string name="account_setup_outgoing_password_label">"密码"</string>
     <string name="account_setup_options_title">"帐户选项"</string>
-    <string name="account_setup_options_mail_check_frequency_label">"电子邮件检查频率"</string>
+    <string name="account_setup_options_mail_check_frequency_label">"电子邮件查收频率"</string>
     <string name="account_setup_options_mail_check_frequency_never">"从不"</string>
     <string name="account_setup_options_mail_check_frequency_5min">"每隔 5 分钟"</string>
     <string name="account_setup_options_mail_check_frequency_10min">"每隔 10 分钟"</string>
@@ -120,8 +120,8 @@
     <string name="account_setup_options_mail_check_frequency_30min">"每隔 30 分钟"</string>
     <string name="account_setup_options_mail_check_frequency_1hour">"每隔一小时"</string>
     <string name="account_setup_options_default_label">"默认情况下从该帐户发送电子邮件。"</string>
-    <string name="account_setup_options_notify_label">"在电子邮件到达时通知我。"</string>
-    <string name="account_setup_failed_dlg_title">"设置无法完成"</string>
+    <string name="account_setup_options_notify_label">"收到电子邮件时通知我。"</string>
+    <string name="account_setup_failed_dlg_title">"无法完成设置"</string>
     <string name="account_setup_failed_dlg_auth_message">"用户名或密码不正确。"</string>
     <string name="account_setup_failed_dlg_auth_message_fmt">"用户名或密码不正确。"\n"（<xliff:g id="ERROR">%s</xliff:g>）"</string>
     <string name="account_setup_failed_dlg_certificate_message">"无法安全地连接到服务器。"</string>
@@ -130,15 +130,15 @@
     <string name="account_setup_failed_dlg_server_message_fmt">"无法连接到服务器。"\n"（<xliff:g id="ERROR">%s</xliff:g>）"</string>
     <string name="account_setup_failed_tls_required">"必须使用 TLS，但服务器不支持它。"</string>
     <string name="account_setup_failed_auth_required">"身份验证方法不受服务器支持。"</string>
-    <string name="account_setup_failed_security">"由于出现安全错误，因此无法打开到服务器的连接。"</string>
-    <string name="account_setup_failed_ioerror">"无法打开到服务器的连接。"</string>
+    <string name="account_setup_failed_security">"出现安全错误，导致无法与服务器建立连接。"</string>
+    <string name="account_setup_failed_ioerror">"无法与服务器建立连接。"</string>
     <string name="account_setup_failed_dlg_edit_details_action">"编辑详细信息"</string>
     <string name="account_settings_title_fmt">"常规设置"</string>
     <string name="account_settings_default_label">"默认帐户"</string>
     <string name="account_settings_default_summary">"默认情况下从该帐户发送电子邮件"</string>
     <string name="account_settings_notify_label">"电子邮件通知"</string>
-    <string name="account_settings_notify_summary">"电子邮件到达时在状态栏中显示通知"</string>
-    <string name="account_settings_mail_check_frequency_label">"电子邮件检查频率"</string>
+    <string name="account_settings_notify_summary">"收到电子邮件时在状态栏中显示通知"</string>
+    <string name="account_settings_mail_check_frequency_label">"电子邮件查收频率"</string>
     <string name="account_settings_incoming_label">"接收设置"</string>
     <string name="account_settings_outgoing_label">"外发设置"</string>
     <string name="account_settings_add_account_label">"添加其他帐户"</string>
@@ -146,13 +146,13 @@
     <string name="account_settings_name_label">"您的姓名"</string>
     <string name="account_settings_notifications">"通知设置"</string>
     <string name="account_settings_vibrate_enable">"振动"</string>
-    <string name="account_settings_vibrate_summary">"在电子邮件到达时还发出振动"</string>
+    <string name="account_settings_vibrate_summary">"收到电子邮件时发出振动"</string>
     <string name="account_settings_ringtone">"选择铃声"</string>
     <string name="account_settings_servers">"服务器设置"</string>
     <string name="account_delete_dlg_title">"删除"</string>
-    <string name="account_delete_dlg_instructions_fmt">"帐户“<xliff:g id="ACCOUNT">%s</xliff:g>”将会从电子邮件中删除。"</string>
+    <string name="account_delete_dlg_instructions_fmt">"帐户“<xliff:g id="ACCOUNT">%s</xliff:g>”将从电子邮件中删除。"</string>
     <string name="provider_note_yahoo">"某些类型的 Yahoo! 邮件帐户不支持邮箱访问。如果您在连接时遇到问题，请访问 yahoo.com 了解更多信息。"</string>
-    <string name="provider_note_yahoo_uk">"在设置此电子邮件帐户之前，请访问 Yahoo! 网站，并为此帐户启用 POP3 电子邮件访问。"</string>
-    <string name="provider_note_live">"只有一些“增强版”帐户才包含允许此程序进行连接的 POP 访问。如果您无法使用正确的电子邮件地址和密码进行登录，则可能是因为您没有付费的“增强版”帐户。请启动网络浏览器以获取访问这些邮件帐户的权限。"</string>
-    <string name="provider_note_t_online">"在设置此电子邮件帐户之前，请访问 T-Online 网站，并创建密码以便进行 POP3 电子邮件访问。"</string>
+    <string name="provider_note_yahoo_uk">"在设置此电子邮件帐户之前，请访问 Yahoo! 网站，并为此帐户启用 POP3 电子邮件服务。"</string>
+    <string name="provider_note_live">"只有部分“增强版”帐户能使用 POP，可让此程序进行连接。如果您使用正确的电子邮件地址和密码也无法登录，则可能是因为您没有付费的“增强版”帐户。请启动网络浏览器以获取此类邮件帐户。"</string>
+    <string name="provider_note_t_online">"在设置此电子邮件帐户之前，请访问 T-Online 网站，并创建密码以便通过 POP3 使用邮件服务。"</string>
 </resources>

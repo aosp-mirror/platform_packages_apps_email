@@ -67,7 +67,7 @@
     <string name="message_deleted_toast">"Wiadomość została usunięta."</string>
     <string name="message_discarded_toast">"Wiadomość została odrzucona."</string>
     <string name="message_saved_toast">"Wiadomość została zapisana jako wersja robocza."</string>
-    <string name="account_setup_basics_title">"Konfiguracja konta e-mail"</string>
+    <string name="account_setup_basics_title">"Skonfiguruj konto e-mail"</string>
     <string name="account_setup_basics_instructions">"Podaj adres e-mail swojego konta:"</string>
     <string name="account_setup_basics_email_hint">"Adres e-mail"</string>
     <string name="account_setup_basics_password_hint">"Hasło"</string>

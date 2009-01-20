@@ -39,7 +39,7 @@
     <string name="notification_new_one_account_fmt">"<xliff:g id="UNREAD_MESSAGE_COUNT">%d</xliff:g> no leídos (<xliff:g id="ACCOUNT">%s</xliff:g>)"</string>
     <string name="notification_new_multi_account_fmt">"en <xliff:g id="NUMBER_ACCOUNTS">%d</xliff:g> cuentas"</string>
     <string name="special_mailbox_name_inbox">"Recibidos"</string>
-    <string name="accounts_welcome">"Bienvenido/a a la configuración del correo electrónico."\n\n"Usa cualquier cuenta de correo electrónico con \"Correo electrónico\"."\n\n"Las cuentas de correo electrónico más populares se pueden configurar en 2 pasos."</string>
+    <string name="accounts_welcome">"Te damos la bienvenida a la configuración del correo electrónico."\n\n"Usa cualquier cuenta de correo electrónico con \"Correo electrónico\"."\n\n"Las cuentas de correo electrónico más populares se pueden configurar en 2 pasos."</string>
     <string name="debug_version_fmt">"Versión: <xliff:g id="VERSION">%s</xliff:g>"</string>
     <string name="debug_enable_debug_logging_label">"¿Deseas habilitar un registro adicional de depuración?"</string>
     <string name="debug_enable_sensitive_logging_label">"¿Deseas habilitar el registro de depuración de la información confidencial? (Es posible que se muestren las contraseñas en los registros)."</string>
@@ -80,7 +80,7 @@
     <string name="account_setup_check_settings_canceling_msg">"Cancelando..."</string>
     <string name="account_setup_names_title">"Configurar correo electrónico"</string>
     <string name="account_setup_names_instructions">"Tu cuenta ya está configurada y el correo electrónico está por llegar."</string>
-    <string name="account_setup_names_account_name_label">"Asígnale un nombre a esta cuenta (opcional)"</string>
+    <string name="account_setup_names_account_name_label">"Asignar un nombre a esta cuenta (opcional)"</string>
     <string name="account_setup_names_user_name_label">"Tu nombre (aparecerá en los mensajes salientes)"</string>
     <string name="account_setup_account_type_title">"Añadir una cuenta de correo electrónico nueva"</string>
     <string name="account_setup_account_type_instructions">"¿Qué tipo de cuenta es ésta?"</string>

@@ -167,6 +167,5 @@
     <!-- no translation found for provider_note_yahoo_uk (2055976404478603298) -->
     <skip />
     <string name="provider_note_live">"Nur einige \"Plus\"-Konten ermöglichen einen POP-Zugang und damit diesem Programm, eine Verbindung aufzubauen. Sollten Sie nicht dazu in der Lage sein, sich mit Ihrer korrekten E-Mail-Adresse und dem richtigen Password anzumelden, verfügen Sie möglicherweise nicht über ein kostenpflichtiges \"Plus\"-Konto. Starten Sie Ihren Webbrowser, um Zugriff auf diese Konten zu erlangen."</string>
-    <!-- no translation found for provider_note_t_online (1973701903400232774) -->
-    <skip />
+    <string name="provider_note_t_online">"Vor Erstellung des E-Mail Kontos bitte \\\"eMail-Passwort\\\" für den POP3-Zugang auf der T-Online Homepage einrichten."</string>
 </resources>
