@@ -15,6 +15,21 @@
 -->
 
     <!--
+        This file contains configuration data for commonly-used email providers.
+        
+        ==== CONTENT GUIDELINES ====
+        
+        This file should only be used for email providers that are considered "universal"
+        and are appropriate for *all* android platform devices.  These entries must be accessible
+        from all networks.  It should be reasonable for any user to obtain an account on these
+        networks, and test accounts must be easily obtainable.  No entries should be added
+        that are device, product, or carrier-specific.
+        
+        Entries that are device, product or carrier-specific should be added as overlays 
+        in the appropriate providers_product.xml file.
+     
+        ==== FORMAT OF ENTRIES ====
+        
         This file is used to specify providers that we know default settings for
         so that the user can set up their account by simply entering their email
         address and password.
@@ -79,6 +94,7 @@
         The username attribute MAY be the empty string for the outgoing element, but only if the 
         SMTP server supports anonymous transmission (most don't).
     -->
+
 <providers>
 
     <!-- Gmail variants -->
@@ -99,7 +115,7 @@
         <outgoing uri="smtp+ssl+://smtp.gmail.com" username="$email" />
     </provider>
 
-    <!-- Common US providers -->
+    <!-- USA -->
     <provider id="aim" label="AIM" domain="aim.com">
         <incoming uri="imap://imap.aim.com" label="IMAP" username="$email" />
         <outgoing uri="smtp://smtp.aim.com:587" username="$email" />
@@ -164,7 +180,7 @@
         <outgoing uri="smtp+ssl+://plus.smtp.mail.yahoo.com" username="$user" />
     </provider>
     
-    <!-- Common UK providers -->
+    <!-- UK -->
     <provider id="aol-uk" label="AOL" domain="aol.co.uk">
         <incoming uri="imap+ssl+://imap.uk.aol.com" label="IMAP" username="$user" />
         <outgoing uri="smtp+ssl+://smtp.uk.aol.com" username="$user" />
@@ -173,17 +189,12 @@
         <incoming uri="pop3://mail.btinternet.com" username="$email" />
         <outgoing uri="smtp://mail.btinternet.com" username="" />
     </provider>
-    <provider id="tiscali" label="Tiscali" domain="tiscali.co.uk">
-        <incoming uri="pop3://pop.tiscali.co.uk" username="$email" />
-        <outgoing uri="smtp://smtp.tiscali.co.uk" username="$email:wq" />
-    </provider>
-    <provider id="yahoo-uk" label="Yahoo" domain="yahoo.co.uk" 
-              note="@string/provider_note_yahoo_uk">
+    <provider id="yahoo-uk" label="Yahoo" domain="yahoo.co.uk" note="@string/provider_note_yahoo_uk">
         <incoming uri="pop3+ssl+://pop.mail.yahoo.co.uk" username="$user" />
         <outgoing uri="smtp+ssl+://smtp.mail.yahoo.co.uk" username="$user" />
     </provider>
     
-    <!-- Common Germany providers -->
+    <!-- Germany -->
     <provider id="freenet" label="Freenet" domain="freenet.de">
         <incoming uri="pop3://mx.freenet.de" username="$user" />
         <outgoing uri="smtp+ssl://mx.freenet.de" username="$email" />
@@ -202,7 +213,7 @@
         <outgoing uri="smtp+tls://smtp.web.de" username="$user" />
     </provider>
 
-    <!-- TMobile Netherlands -->
+    <!-- Netherlands -->
     <!-- TODO:  For all of these, please confirm POP3, and switch to IMAP if supported -->
     <!-- TODO:  username="" in incoming element is broken - will not work -->
     <!-- Disabled until username="" is resolved
@@ -231,11 +242,7 @@
     </provider>
      -->
 
-    <!-- ERA (TMobile Poland) -->
-    <provider id="eranet" label="Era Internet" domain="eranet.pl">
-        <incoming uri="imap+ssl://mail.eranet.pl:993" username="$user" />
-        <outgoing uri="smtp://mail.eranet.pl:25" username="$user" />
-    </provider>
+    <!-- Poland -->
     <provider id="onet" label="Onet.pl" domain="poczta.onet.pl">
         <incoming uri="pop3://pop3.poczta.onet.pl:110" username="$email" />
         <outgoing uri="smtp://smtp.poczta.onet.pl:25" username="$email" />
