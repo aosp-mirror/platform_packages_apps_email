@@ -348,9 +348,34 @@ public class AccountSetupBasics extends Activity
         }
     }
 
+    /**
+     * Search the list of known Email providers looking for one that matches the user's email
+     * domain.  We look in providers_product.xml first, followed by the entries in
+     * platform providers.xml.  This provides a nominal override capability.
+     * 
+     * A match is defined as any provider entry for which the "domain" attribute matches.
+     * 
+     * @param domain The domain portion of the user's email address
+     * @return suitable Provider definition, or null if no match found
+     */
     private Provider findProviderForDomain(String domain) {
+        Provider p = findProviderForDomain(domain, R.xml.providers_product);
+        if (p == null) {
+            p = findProviderForDomain(domain, R.xml.providers);
+        }
+        return p;
+    }
+
+    /**
+     * Search a single resource containing known Email provider definitions.
+     *
+     * @param domain The domain portion of the user's email address
+     * @param resourceId Id of the provider resource to scan
+     * @return suitable Provider definition, or null if no match found
+     */
+    private Provider findProviderForDomain(String domain, int resourceId) {
         try {
-            XmlResourceParser xml = getResources().getXml(R.xml.providers);
+            XmlResourceParser xml = getResources().getXml(resourceId);
             int xmlEventType;
             Provider provider = null;
             while ((xmlEventType = xml.next()) != XmlResourceParser.END_DOCUMENT) {
