@@ -163,7 +163,8 @@
     <string name="account_settings_vibrate_summary">"Attiva anche vibrazione all\'arrivo di email"</string>
     <string name="account_settings_ringtone">"Seleziona suoneria"</string>
     <string name="account_settings_servers">"Impostazioni server"</string>
-    <string name="account_delete_dlg_title">"Rimuovi"</string>
+    <!-- no translation found for account_delete_dlg_title (6806087520856396608) -->
+    <skip />
     <string name="account_delete_dlg_instructions_fmt">"L\'account \"<xliff:g id="ACCOUNT">%s</xliff:g>\" verrà rimosso da Email."</string>
     <string name="provider_note_yahoo">"Accesso alla casella di posta non supportato per alcuni tipi di account di posta Yahoo!. Se hai problemi di connessione, visita il sito yahoo.com per ulteriori informazioni."</string>
     <string name="provider_note_yahoo_uk">"Prima di impostare questo account email, visita il sito web Yahoo! e attiva l\'accesso email POP3 per questo account."</string>

@@ -163,7 +163,8 @@
     <string name="account_settings_vibrate_summary">"Ook trillen bij ontvangst van e-mail"</string>
     <string name="account_settings_ringtone">"Beltoon selecteren"</string>
     <string name="account_settings_servers">"Serverinstellingen"</string>
-    <string name="account_delete_dlg_title">"Verwijderen"</string>
+    <!-- no translation found for account_delete_dlg_title (6806087520856396608) -->
+    <skip />
     <string name="account_delete_dlg_instructions_fmt">"De account <xliff:g id="ACCOUNT">%s</xliff:g> wordt verwijderd van E-mail"</string>
     <string name="provider_note_yahoo">"Toegang tot postvakken wordt niet ondersteund door sommige typen Yahoo!-mailaccounts. Als er problemen ontstaan bij het verbinden, ga je naar yahoo.com voor meer informatie."</string>
     <string name="provider_note_yahoo_uk">"Ga voordat je deze e-mailaccount instelt naar de website van Yahoo! en schakel toegang met POP3 in voor deze account."</string>

@@ -33,6 +33,7 @@
                     android:textColor="?android:attr/textColorSecondaryInverse"
                     android:layout_marginLeft="6px"
                     android:layout_marginRight="6px"
+                    android:inputType="textEmailAddress|textMultiLine"
                     android:hint="@string/message_compose_to_hint" />
                 <MultiAutoCompleteTextView
                     android:id="@+id/cc" android:layout_width="fill_parent"
@@ -41,6 +42,7 @@
                     android:textColor="?android:attr/textColorSecondaryInverse"
                     android:layout_marginLeft="6px"
                     android:layout_marginRight="6px"
+                    android:inputType="textEmailAddress|textMultiLine"
                     android:hint="@string/message_compose_cc_hint"
                     android:visibility="gone" />
                 <MultiAutoCompleteTextView
@@ -50,18 +52,18 @@
                     android:textColor="?android:attr/textColorSecondaryInverse"
                     android:layout_marginLeft="6px"
                     android:layout_marginRight="6px"
+                    android:inputType="textEmailAddress|textMultiLine"
                     android:hint="@string/message_compose_bcc_hint"
                     android:visibility="gone" />
                 <EditText android:id="@+id/subject"
                     android:layout_width="fill_parent"
-                    android:singleLine="true"
                     android:textAppearance="?android:attr/textAppearanceMedium"
                     android:layout_height="wrap_content"
                     android:textColor="?android:attr/textColorSecondaryInverse"
                     android:layout_marginLeft="6px"
                     android:layout_marginRight="6px"
                     android:hint="@string/message_compose_subject_hint"
-                    android:autoText="true" android:capitalize="sentences" />
+                    android:inputType="textEmailSubject|textAutoCorrect|textCapSentences|textImeMultiLine" />
                 <!--
                     Empty container for storing attachments. We'll stick
                     instances of message_compose_attachment.xml in here.
@@ -81,8 +83,8 @@
                 android:layout_weight="1.0"
                 android:textAppearance="?android:attr/textAppearanceMedium"
                 android:gravity="left|top"
-                android:minLines="3" android:autoText="true"
-                android:capitalize="sentences" />
+                android:minLines="3"
+                android:inputType="textMultiLine|textAutoCorrect|textCapSentences" />
         <!--  quoted text bar -->
             <RelativeLayout android:id="@+id/quoted_text_bar"
                 android:layout_width="fill_parent"
@@ -106,17 +108,33 @@
                 android:layout_width="fill_parent" />
         </LinearLayout>
     </ScrollView>
-    <LinearLayout android:orientation="horizontal"
-        android:layout_width="fill_parent" android:layout_height="54px"
-        android:background="@drawable/bottombar_565" android:gravity="center_vertical">
-        <Button android:id="@+id/send" android:text="@string/send_action"
-            android:layout_height="wrap_content" android:layout_width="0dip"
+    
+    <LinearLayout
+        android:orientation="horizontal"
+        android:layout_width="fill_parent"
+        android:layout_height="wrap_content"
+        android:paddingTop="5dip"
+        android:paddingLeft="4dip"
+        android:paddingRight="4dip"
+        android:paddingBottom="1dip"   
+        android:background="@android:drawable/bottom_bar" >
+        <Button
+            android:id="@+id/send"
+            android:text="@string/send_action"
+            android:layout_height="fill_parent"
+            android:layout_width="0dip"
             android:layout_weight="1" />
-        <Button android:id="@+id/save" android:text="@string/save_draft_action"
-            android:layout_height="wrap_content" android:layout_width="0dip"
+        <Button
+            android:id="@+id/save"
+            android:text="@string/save_draft_action"
+            android:layout_height="fill_parent"
+            android:layout_width="0dip"
             android:layout_weight="1" />
-        <Button android:id="@+id/discard" android:text="@string/discard_action"
-            android:layout_height="wrap_content" android:layout_width="0dip"
+        <Button
+            android:id="@+id/discard"
+            android:text="@string/discard_action"
+            android:layout_height="fill_parent"
+            android:layout_width="0dip"
             android:layout_weight="1" />
     </LinearLayout>
 </LinearLayout>

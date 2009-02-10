@@ -163,6 +163,7 @@ public class Accounts extends ListActivity implements OnItemClickListener, OnCli
 
     private Dialog createRemoveAccountDialog() {
         return new AlertDialog.Builder(this)
+            .setIcon(android.R.drawable.ic_dialog_alert)
             .setTitle(R.string.account_delete_dlg_title)
             .setMessage(getString(R.string.account_delete_dlg_instructions_fmt,
                     mSelectedContextAccount.getDescription()))

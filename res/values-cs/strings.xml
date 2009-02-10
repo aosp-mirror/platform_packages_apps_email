@@ -95,7 +95,7 @@
     <string name="account_setup_names_title">"Nastavit e-mail"</string>
     <string name="account_setup_names_instructions">"Váš účet je nastaven, e-mail je na cestě!"</string>
     <string name="account_setup_names_account_name_label">"Pojmenovat tento účet (nepovinné)"</string>
-    <string name="account_setup_names_user_name_label">"Vaše jméno (zobrazované na odchozích zprávách)"</string>
+    <string name="account_setup_names_user_name_label">"Vaše jméno (zobrazované v odchozích zprávách)"</string>
     <string name="account_setup_account_type_title">"Přidat nový e-mailový účet"</string>
     <string name="account_setup_account_type_instructions">"O jaký typ účtu se jedná?"</string>
     <string name="account_setup_account_type_pop_action">"Účet POP3"</string>
@@ -143,9 +143,9 @@
     <string name="account_setup_failed_dlg_server_message">"Nelze se připojit k serveru."</string>
     <string name="account_setup_failed_dlg_server_message_fmt">"Nelze se připojit k serveru."\n"(<xliff:g id="ERROR">%s</xliff:g>)"</string>
     <string name="account_setup_failed_tls_required">"Služba TLS je požadována, ale není podporována na serveru."</string>
-    <string name="account_setup_failed_auth_required">"Metody ověřování nejsou na serveru podporovány."</string>
+    <string name="account_setup_failed_auth_required">"Server nepodporuje metody ověření."</string>
     <string name="account_setup_failed_security">"Nelze navázat připojení k serveru z důvodu chyby zabezpečení."</string>
-    <string name="account_setup_failed_ioerror">"Nelze otevřít připojení k serveru."</string>
+    <string name="account_setup_failed_ioerror">"Nelze navázat připojení k serveru."</string>
     <string name="account_setup_failed_dlg_edit_details_action">"Upravit podrobnosti"</string>
     <string name="account_settings_title_fmt">"Obecná nastavení"</string>
     <string name="account_settings_default_label">"Výchozí účet"</string>
@@ -163,7 +163,8 @@
     <string name="account_settings_vibrate_summary">"Při příchodu e-mailu také vibrovat"</string>
     <string name="account_settings_ringtone">"Zvolit vyzváněcí tón"</string>
     <string name="account_settings_servers">"Nastavení serveru"</string>
-    <string name="account_delete_dlg_title">"Odebrat"</string>
+    <!-- no translation found for account_delete_dlg_title (6806087520856396608) -->
+    <skip />
     <string name="account_delete_dlg_instructions_fmt">"Účet <xliff:g id="ACCOUNT">%s</xliff:g> bude z aplikace Email odebrán."</string>
     <string name="provider_note_yahoo">"Přístup do schránky není u některých poštovních účtů Yahoo! podporován. Pokud máte problémy s připojením, získáte další informace na webové stránce yahoo.com."</string>
     <string name="provider_note_yahoo_uk">"Před nastavením tohoto e-mailového účtu přejděte na web Yahoo! a povolte u tohoto účtu e-mailový přístup POP3."</string>

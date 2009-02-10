@@ -163,7 +163,8 @@
     <string name="account_settings_vibrate_summary">"收到电子邮件时发出振动"</string>
     <string name="account_settings_ringtone">"选择铃声"</string>
     <string name="account_settings_servers">"服务器设置"</string>
-    <string name="account_delete_dlg_title">"删除"</string>
+    <!-- no translation found for account_delete_dlg_title (6806087520856396608) -->
+    <skip />
     <string name="account_delete_dlg_instructions_fmt">"帐户“<xliff:g id="ACCOUNT">%s</xliff:g>”将从电子邮件中删除。"</string>
     <string name="provider_note_yahoo">"某些类型的 Yahoo! 邮件帐户不支持邮箱访问。如果您在连接时遇到问题，请访问 yahoo.com 了解更多信息。"</string>
     <string name="provider_note_yahoo_uk">"在设置此电子邮件帐户之前，请访问 Yahoo! 网站，并为此帐户启用 POP3 电子邮件服务。"</string>

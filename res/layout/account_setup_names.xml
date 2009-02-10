@@ -33,7 +33,7 @@
         android:textColor="?android:attr/textColorPrimary" />
     <EditText
         android:id="@+id/account_description"
-        android:singleLine="true"
+        android:inputType="textCapWords"
         android:layout_height="wrap_content"
         android:layout_width="fill_parent" />
     <TextView
@@ -44,7 +44,7 @@
         android:textColor="?android:attr/textColorPrimary" />
     <EditText
         android:id="@+id/account_name"
-        android:singleLine="true"
+        android:inputType="textPersonName"
         android:layout_height="wrap_content"
         android:layout_width="fill_parent" />
     <View
@@ -53,8 +53,8 @@
         android:layout_weight="1" />
     <RelativeLayout
         android:layout_width="fill_parent"
-        android:layout_height="54px"
-        android:background="@drawable/bottombar_565">
+        android:layout_height="54dip"
+        android:background="@android:drawable/bottom_bar">
         <Button
             android:id="@+id/done"
             android:text="@string/done_action"

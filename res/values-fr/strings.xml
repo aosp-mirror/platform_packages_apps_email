@@ -163,7 +163,8 @@
     <string name="account_settings_vibrate_summary">"Vibrer également lors de la réception d\'un e-mail"</string>
     <string name="account_settings_ringtone">"Sélectionner la sonnerie"</string>
     <string name="account_settings_servers">"Paramètres du serveur"</string>
-    <string name="account_delete_dlg_title">"Supprimer"</string>
+    <!-- no translation found for account_delete_dlg_title (6806087520856396608) -->
+    <skip />
     <string name="account_delete_dlg_instructions_fmt">"Le compte \"<xliff:g id="ACCOUNT">%s</xliff:g>\" va être supprimé de votre messagerie."</string>
     <string name="provider_note_yahoo">"L\'accès à la boîte aux lettres n\'est pas possible avec certains types de comptes Yahoo!. En cas de problème de connexion, consultez le site yahoo.fr pour obtenir plus d\'informations."</string>
     <string name="provider_note_yahoo_uk">"Avant de configurer ce compte de messagerie, veuillez consulter le site de Yahoo! et activer l\'accès POP3 pour ce compte."</string>

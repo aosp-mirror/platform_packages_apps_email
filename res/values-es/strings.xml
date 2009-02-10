@@ -95,7 +95,7 @@
     <string name="account_setup_names_title">"Configurar correo electrónico"</string>
     <string name="account_setup_names_instructions">"Tu cuenta ya está configurada y el correo electrónico está por llegar."</string>
     <string name="account_setup_names_account_name_label">"Asignar un nombre a esta cuenta (opcional)"</string>
-    <string name="account_setup_names_user_name_label">"Tu nombre (aparecerá en los mensajes salientes)"</string>
+    <string name="account_setup_names_user_name_label">"Tu nombre (aparece en los mensajes salientes)"</string>
     <string name="account_setup_account_type_title">"Añadir una cuenta de correo electrónico nueva"</string>
     <string name="account_setup_account_type_instructions">"¿Qué tipo de cuenta es ésta?"</string>
     <string name="account_setup_account_type_pop_action">"Cuenta POP3"</string>
@@ -163,7 +163,8 @@
     <string name="account_settings_vibrate_summary">"Vibrar también cuando llegue un mensaje"</string>
     <string name="account_settings_ringtone">"Seleccionar tono de llamada"</string>
     <string name="account_settings_servers">"Configuración del servidor"</string>
-    <string name="account_delete_dlg_title">"Eliminar"</string>
+    <!-- no translation found for account_delete_dlg_title (6806087520856396608) -->
+    <skip />
     <string name="account_delete_dlg_instructions_fmt">"Se va a eliminar la cuenta \"<xliff:g id="ACCOUNT">%s</xliff:g>\" de \"Correo electrónico\"."</string>
     <string name="provider_note_yahoo">"Algunos tipos de cuentas de correo de Yahoo! no permiten acceder al buzón de correo. Si tienes problemas de conexión, visita yahoo.com para obtener información adicional al respecto."</string>
     <string name="provider_note_yahoo_uk">"Antes de configurar esta cuenta de correo electrónico, visita el sitio web de Yahoo! y habilita el acceso al correo electrónico POP3 para esta cuenta."</string>

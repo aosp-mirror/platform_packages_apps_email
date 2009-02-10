@@ -23,6 +23,7 @@ import java.io.OutputStream;
 import java.io.OutputStreamWriter;
 import java.text.SimpleDateFormat;
 import java.util.Date;
+import java.util.Locale;
 import java.util.Stack;
 
 import org.apache.james.mime4j.BodyDescriptor;
@@ -51,7 +52,13 @@ public class MimeMessage extends Message {
     protected Address[] mBcc;
     protected Address[] mReplyTo;
     protected Date mSentDate;
-    protected SimpleDateFormat mDateFormat = new SimpleDateFormat("EEE, dd MMM yyyy HH:mm:ss Z");
+    // In MIME, en_US-like date format should be used. In other words "MMM" should be encoded to
+    // "Jan", not the other localized format like "Ene" (meaning January in locale es).
+    // This conversion is used when generating outgoing MIME messages. Incoming MIME date
+    // headers are parsed by org.apache.james.mime4j.field.DateTimeField which does not have any
+    // localization code.
+    protected SimpleDateFormat mDateFormat = 
+        new SimpleDateFormat("EEE, dd MMM yyyy HH:mm:ss Z", Locale.US);
     protected Body mBody;
     protected int mSize;
 

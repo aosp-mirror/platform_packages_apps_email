@@ -20,10 +20,15 @@ import com.android.email.mail.MessagingException;
 import com.android.email.mail.Transport;
 import com.android.email.mail.Folder.OpenMode;
 import com.android.email.mail.internet.BinaryTempFileBody;
+import com.android.email.mail.store.ImapResponseParser;
 import com.android.email.mail.transport.MockTransport;
+
+import java.util.Date;
+import java.util.Locale;
 
 import android.test.AndroidTestCase;
 import android.test.suitebuilder.annotation.SmallTest;
+import android.util.Log;
 
 /**
  * This is a series of unit tests for the ImapStore class.  These tests must be locally
@@ -63,6 +68,38 @@ public class ImapStoreUnitTests extends AndroidTestCase {
         mFolder.open(OpenMode.READ_WRITE);
         
         // TODO: inject specific facts in the initial folder SELECT and check them here
+    }
+    
+    /** 
+     * Confirms that ImapList object correctly returns an appropriate Date object
+     * without throwning MessagingException when getKeyedDate() is called.
+     *
+     * Here, we try a same test twice using two locales, Locale.US and the other.
+     * ImapList uses Locale class internally, and as a result, there's a
+     * possibility in which it may throw a MessageException when Locale is
+     * not Locale.US. Locale.JAPAN is a typical locale which emits different
+     * date formats, which had caused a bug before.
+     * @throws MessagingException
+     */
+    public void testImapListWithUsLocale() throws MessagingException {
+        Locale savedLocale = Locale.getDefault();
+        Locale.setDefault(Locale.US);
+        doTestImapList();
+        Locale.setDefault(Locale.JAPAN);
+        doTestImapList();
+        Locale.setDefault(savedLocale);
+    }
+    
+    private void doTestImapList() throws MessagingException {
+        ImapResponseParser parser = new ImapResponseParser(null);
+        ImapResponseParser.ImapList list = parser.new ImapList();
+        String key = "key";
+        String date = "01-Jan-2009 01:00:00 -0800";
+        list.add(key);
+        list.add(date);
+        Date result = list.getKeyedDate(key);
+        // "01-Jan-2009 09:00:00 +0000" => 1230800400000L 
+        assertEquals(1230800400000L, result.getTime());
     }
     
     /**

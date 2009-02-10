@@ -31,7 +31,7 @@
             android:textColor="?android:attr/textColorPrimary" />
         <EditText
             android:id="@+id/account_username"
-            android:singleLine="true"
+            android:inputType="textEmailAddress"
             android:layout_height="wrap_content"
             android:layout_width="fill_parent" />
         <TextView
@@ -42,8 +42,7 @@
             android:textColor="?android:attr/textColorPrimary" />
         <EditText
             android:id="@+id/account_password"
-            android:password="true"
-            android:singleLine="true"
+            android:inputType="textPassword"
             android:layout_height="wrap_content"
             android:layout_width="fill_parent" />
         <!-- This text may be changed in code if the server is IMAP, etc. -->
@@ -54,9 +53,10 @@
             android:layout_width="fill_parent"
             android:textAppearance="?android:attr/textAppearanceSmall"
             android:textColor="?android:attr/textColorPrimary" />
+        <!-- Note: we use inputType=textUri as the closest approximation to a server name -->
         <EditText
             android:id="@+id/account_server"
-            android:singleLine="true"
+            android:inputType="textUri"
             android:layout_height="wrap_content"
             android:layout_width="fill_parent" />
         <TextView
@@ -67,7 +67,7 @@
             android:textColor="?android:attr/textColorPrimary" />
         <EditText
             android:id="@+id/account_port"
-            android:singleLine="true"
+            android:inputType="number"
             android:layout_height="wrap_content"
             android:layout_width="fill_parent" />
         <TextView
@@ -105,7 +105,7 @@
             <EditText
                 android:id="@+id/imap_path_prefix"
                 android:hint="@string/account_setup_incoming_imap_path_prefix_hint"
-                android:singleLine="true"
+                inputType="text"
                 android:layout_height="wrap_content"
                 android:layout_width="fill_parent" />
         </LinearLayout>
@@ -115,8 +115,8 @@
             android:layout_weight="1" />
         <RelativeLayout
             android:layout_width="fill_parent"
-            android:layout_height="54px"
-            android:background="@drawable/bottombar_565">
+            android:layout_height="54dip"
+            android:background="@android:drawable/bottom_bar">
             <Button
                 android:id="@+id/next"
                 android:text="@string/next_action"

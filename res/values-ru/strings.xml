@@ -87,7 +87,7 @@
     <string name="account_setup_basics_password_hint">"Пароль"</string>
     <string name="account_setup_basics_default_label">"По умолчанию отправлять почту с данного аккаунта."</string>
     <string name="account_setup_basics_manual_setup_action">"Ручная настройка"</string>
-    <string name="account_setup_username_password_toast">"Укажите правильный адрес электронной почты и пароль."</string>
+    <string name="account_setup_username_password_toast">"Укажите правильные адрес электронной почты и пароль."</string>
     <string name="account_setup_check_settings_retr_info_msg">"Получение информации об аккаунте..."</string>
     <string name="account_setup_check_settings_check_incoming_msg">"Проверка настроек сервера входящей почты..."</string>
     <string name="account_setup_check_settings_check_outgoing_msg">"Проверка настроек сервера исходящей почты..."</string>
@@ -95,7 +95,7 @@
     <string name="account_setup_names_title">"Настройка электронной почты"</string>
     <string name="account_setup_names_instructions">"Ваш аккаунт настроен, электронная почта работает."</string>
     <string name="account_setup_names_account_name_label">"Указать название этого аккаунта (необязательно)"</string>
-    <string name="account_setup_names_user_name_label">"Ваше имя (будет показано в исходящих письмах)"</string>
+    <string name="account_setup_names_user_name_label">"Ваше имя (отображается в исходящих письмах)"</string>
     <string name="account_setup_account_type_title">"Добавить новый аккаунт электронной почты"</string>
     <string name="account_setup_account_type_instructions">"К какому типу принадлежит этот аккаунт?"</string>
     <string name="account_setup_account_type_pop_action">"Аккаунт POP3"</string>
@@ -143,7 +143,7 @@
     <string name="account_setup_failed_dlg_server_message">"Не удается подключиться к серверу."</string>
     <string name="account_setup_failed_dlg_server_message_fmt">"Не удается подключиться к серверу."\n"(<xliff:g id="ERROR">%s</xliff:g>)"</string>
     <string name="account_setup_failed_tls_required">"TLS требуется, но не поддерживается сервером."</string>
-    <string name="account_setup_failed_auth_required">"Методы проверки подлинности не поддерживаются сервером."</string>
+    <string name="account_setup_failed_auth_required">"Сервер не поддерживает методы аутентификации."</string>
     <string name="account_setup_failed_security">"Не удается установить соединение с сервером из-за ошибки безопасности."</string>
     <string name="account_setup_failed_ioerror">"Не удается установить соединение с сервером."</string>
     <string name="account_setup_failed_dlg_edit_details_action">"Изменить подробную информацию"</string>
@@ -163,7 +163,8 @@
     <string name="account_settings_vibrate_summary">"Также включить вибрацию при получении почты"</string>
     <string name="account_settings_ringtone">"Выбрать мелодию"</string>
     <string name="account_settings_servers">"Настройки сервера"</string>
-    <string name="account_delete_dlg_title">"Удалить"</string>
+    <!-- no translation found for account_delete_dlg_title (6806087520856396608) -->
+    <skip />
     <string name="account_delete_dlg_instructions_fmt">"Аккаунт \"<xliff:g id="ACCOUNT">%s</xliff:g>\" будет удален из системы электронной почты."</string>
     <string name="provider_note_yahoo">"Доступ к почтовому ящику для некоторых типов почтовых аккаунтов Yahoo! не поддерживается. Если при подключении возникли проблемы, см. дополнительные сведения на yahoo.com."</string>
     <string name="provider_note_yahoo_uk">"Чтобы настроить этот аккаунт электронной почты, перейдите на веб-сайт Yahoo! и включите для этого аккаунта доступ по протоколу POP3."</string>

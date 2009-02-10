@@ -39,25 +39,28 @@
     <LinearLayout
         android:orientation="horizontal"
         android:layout_width="fill_parent"
-        android:layout_height="57px"
-        android:background="@drawable/ic_email_thread_open_bottom_default"
-        android:gravity="center_vertical">
+        android:layout_height="wrap_content"
+        android:paddingTop="5dip"
+        android:paddingLeft="4dip"
+        android:paddingRight="4dip"
+        android:paddingBottom="1dip"    
+        android:background="@android:drawable/bottom_bar">
         <Button
             android:id="@+id/reply"
             android:text="@string/reply_action"
-            android:layout_height="wrap_content"
+            android:layout_height="fill_parent"
             android:layout_width="0dip"
             android:layout_weight="1" />
         <Button
             android:id="@+id/reply_all"
             android:text="@string/reply_all_action"
-            android:layout_height="wrap_content"
+            android:layout_height="fill_parent"
             android:layout_width="0dip"
             android:layout_weight="1" />
         <Button
             android:id="@+id/delete"
             android:text="@string/delete_action"
-            android:layout_height="wrap_content"
+            android:layout_height="fill_parent"
             android:layout_width="0dip"
             android:layout_weight="1" />
     </LinearLayout>

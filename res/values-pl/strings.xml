@@ -95,7 +95,7 @@
     <string name="account_setup_names_title">"Konfiguracja konta e-mail"</string>
     <string name="account_setup_names_instructions">"Konto zostało skonfigurowane, a wiadomości e-mail są w drodze!"</string>
     <string name="account_setup_names_account_name_label">"Nazwa konta (opcjonalnie)"</string>
-    <string name="account_setup_names_user_name_label">"Imię i nazwisko (wyświetlane w wiadomościach wychodzących)"</string>
+    <string name="account_setup_names_user_name_label">"Twoje nazwisko (wyświetlane w wiadomościach wychodzących)"</string>
     <string name="account_setup_account_type_title">"Dodaj nowe konto e-mail"</string>
     <string name="account_setup_account_type_instructions">"Jakiego typu jest to konto?"</string>
     <string name="account_setup_account_type_pop_action">"Konto POP3"</string>
@@ -144,7 +144,7 @@
     <string name="account_setup_failed_dlg_server_message_fmt">"Nie można nawiązać połączenia z serwerem."\n"(<xliff:g id="ERROR">%s</xliff:g>)"</string>
     <string name="account_setup_failed_tls_required">"Wymagane połączenie TLS nie jest obsługiwane przez serwer."</string>
     <string name="account_setup_failed_auth_required">"Serwer nie obsługuje metod uwierzytelniania."</string>
-    <string name="account_setup_failed_security">"Nie można nawiązać połączenia z serwerem z powodu wystąpienia błędu zabezpieczeń."</string>
+    <string name="account_setup_failed_security">"Nie można nawiązać połączenia z serwerem z powodu błędu zabezpieczeń."</string>
     <string name="account_setup_failed_ioerror">"Nie można nawiązać połączenia z serwerem."</string>
     <string name="account_setup_failed_dlg_edit_details_action">"Edytuj szczegóły"</string>
     <string name="account_settings_title_fmt">"Ustawienia ogólne"</string>
@@ -163,7 +163,8 @@
     <string name="account_settings_vibrate_summary">"Sygnalizuj wibracjami otrzymanie wiadomości e-mail"</string>
     <string name="account_settings_ringtone">"Wybierz dzwonek"</string>
     <string name="account_settings_servers">"Ustawienia serwera"</string>
-    <string name="account_delete_dlg_title">"Usuń"</string>
+    <!-- no translation found for account_delete_dlg_title (6806087520856396608) -->
+    <skip />
     <string name="account_delete_dlg_instructions_fmt">"Konto <xliff:g id="ACCOUNT">%s</xliff:g> zostanie usunięte z usługi poczty e-mail."</string>
     <string name="provider_note_yahoo">"Dostęp do skrzynki pocztowej nie jest obsługiwany w przypadku kilku typów kont pocztowych w usłudze Yahoo! Jeśli podczas nawiązywania połączenia występują problemy, odwiedź witrynę yahoo.com w celu uzyskania dodatkowych informacji."</string>
     <string name="provider_note_yahoo_uk">"Przed skonfigurowaniem tego konta e-mail odwiedź witrynę usługi Yahoo! i włącz dostęp do poczty POP3."</string>

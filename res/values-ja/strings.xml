@@ -163,7 +163,8 @@
     <string name="account_settings_vibrate_summary">"メールの着信をバイブレーションでも知らせる"</string>
     <string name="account_settings_ringtone">"着信音を選択"</string>
     <string name="account_settings_servers">"サーバーの設定"</string>
-    <string name="account_delete_dlg_title">"削除"</string>
+    <!-- no translation found for account_delete_dlg_title (6806087520856396608) -->
+    <skip />
     <string name="account_delete_dlg_instructions_fmt">"アカウント「<xliff:g id="ACCOUNT">%s</xliff:g>」をメールから削除します。"</string>
     <string name="provider_note_yahoo">"一部のタイプの Yahoo! メール アカウントでは、受信トレイへのアクセスがサポートされていません。接続できない場合は yahoo.com にアクセスして詳細をご確認ください。"</string>
     <string name="provider_note_yahoo_uk">"このメールアカウントを設定する前に、Yahoo!サイトでこのアカウントのPOP3メールアクセスを有効にしてください。"</string>

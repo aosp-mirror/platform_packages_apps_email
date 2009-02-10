@@ -344,7 +344,7 @@
     <!-- On Settings screen, section heading -->
     <string name="account_settings_servers">Server settings</string>
     <!-- Title of Remove account confirmation dialog box -->
-    <string name="account_delete_dlg_title">Remove</string>
+    <string name="account_delete_dlg_title">Remove account</string>
     <!-- Message of Remove account confirmation dialog box -->
     <string name="account_delete_dlg_instructions_fmt">The account \"<xliff:g id="account">%s</xliff:g>\" will be removed from Email.</string>
 
