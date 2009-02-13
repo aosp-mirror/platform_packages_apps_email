@@ -452,11 +452,13 @@ public class MessageView extends Activity
     }
 
     private void onMarkAsUnread() {
-        MessagingController.getInstance(getApplication()).markMessageRead(
-                mAccount,
-                mFolder,
-                mMessage.getUid(),
-                false);
+        if (mMessage != null) {
+            MessagingController.getInstance(getApplication()).markMessageRead(
+                    mAccount,
+                    mFolder,
+                    mMessage.getUid(),
+                    false);
+        }
     }
 
     /**
@@ -520,8 +522,10 @@ public class MessageView extends Activity
     }
 
     private void onShowPictures() {
-        mMessageContentView.getSettings().setBlockNetworkImage(false);
-        mShowPicturesSection.setVisibility(View.GONE);
+        if (mMessage != null) {
+            mMessageContentView.getSettings().setBlockNetworkImage(false);
+            mShowPicturesSection.setVisibility(View.GONE);
+        }
     }
 
     public void onClick(View view) {
@@ -552,30 +556,45 @@ public class MessageView extends Activity
                 break;
         }
     }
-
-    @Override
+    
+   @Override
     public boolean onOptionsItemSelected(MenuItem item) {
-        switch (item.getItemId()) {
-            case R.id.delete:
-                onDelete();
-                break;
-            case R.id.reply:
-                onReply();
-                break;
-            case R.id.reply_all:
-                onReplyAll();
-                break;
-            case R.id.forward:
-                onForward();
-                break;
-            case R.id.mark_as_unread:
-                onMarkAsUnread();
-                break;
-            default:
-                return super.onOptionsItemSelected(item);
-        }
-        return true;
-    }
+       boolean handled = handleMenuItem(item.getItemId());
+       if (!handled) {
+           handled = super.onOptionsItemSelected(item);
+       }
+       return handled;
+   }
+
+   /**
+    * This is the core functionality of onOptionsItemSelected() but broken out and exposed
+    * for testing purposes (because it's annoying to mock a MenuItem).
+    * 
+    * @param menuItemId id that was clicked
+    * @return true if handled here
+    */
+   /* package */ boolean handleMenuItem(int menuItemId) {
+       switch (menuItemId) {
+           case R.id.delete:
+               onDelete();
+               break;
+           case R.id.reply:
+               onReply();
+               break;
+           case R.id.reply_all:
+               onReplyAll();
+               break;
+           case R.id.forward:
+               onForward();
+               break;
+           case R.id.mark_as_unread:
+               onMarkAsUnread();
+               break;
+           default:
+               return false;
+       }
+       return true;
+   }
 
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {

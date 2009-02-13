@@ -16,10 +16,24 @@
 
 package com.android.email.activity;
 
-import java.text.DateFormat;
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.Date;
+import com.android.email.Account;
+import com.android.email.Email;
+import com.android.email.MessagingController;
+import com.android.email.MessagingListener;
+import com.android.email.Preferences;
+import com.android.email.R;
+import com.android.email.Utility;
+import com.android.email.activity.setup.AccountSettings;
+import com.android.email.mail.Address;
+import com.android.email.mail.AuthenticationFailedException;
+import com.android.email.mail.CertificateValidationException;
+import com.android.email.mail.Flag;
+import com.android.email.mail.Folder;
+import com.android.email.mail.Message;
+import com.android.email.mail.MessagingException;
+import com.android.email.mail.Message.RecipientType;
+import com.android.email.mail.store.LocalStore;
+import com.android.email.mail.store.LocalStore.LocalMessage;
 
 import android.app.ExpandableListActivity;
 import android.app.NotificationManager;
@@ -27,6 +41,7 @@ import android.content.Context;
 import android.content.Intent;
 import android.graphics.Typeface;
 import android.graphics.drawable.Drawable;
+import android.net.Uri;
 import android.os.Bundle;
 import android.os.Handler;
 import android.os.Process;
@@ -47,24 +62,10 @@ import android.widget.TextView;
 import android.widget.Toast;
 import android.widget.ExpandableListView.ExpandableListContextMenuInfo;
 
-import com.android.email.Account;
-import com.android.email.Email;
-import com.android.email.MessagingController;
-import com.android.email.MessagingListener;
-import com.android.email.Preferences;
-import com.android.email.R;
-import com.android.email.Utility;
-import com.android.email.activity.setup.AccountSettings;
-import com.android.email.mail.Address;
-import com.android.email.mail.AuthenticationFailedException;
-import com.android.email.mail.CertificateValidationException;
-import com.android.email.mail.Flag;
-import com.android.email.mail.Folder;
-import com.android.email.mail.Message;
-import com.android.email.mail.MessagingException;
-import com.android.email.mail.Message.RecipientType;
-import com.android.email.mail.store.LocalStore;
-import com.android.email.mail.store.LocalStore.LocalMessage;
+import java.text.DateFormat;
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.Date;
 
 /**
  * FolderMessageList is the primary user interface for the program. This Activity shows
@@ -329,8 +330,21 @@ public class FolderMessageList extends ExpandableListActivity {
         return intent;
     }
 
-    public static Intent actionHandleAccountIntent(Context context, Account account) {
-        return actionHandleAccountIntent(context, account, null);
+    /**
+     * This should be used for generating lightweight (Uri-only) intents.  It probably makes sense
+     * to move entirely to this, and stop passing entire account structs through Intents.
+     * 
+     * @param context Calling context for building the intent
+     * @param account The account of interest
+     * @param initialFolder If non-null, can set the folder name to open (typically Email.INBOX)
+     * @return an Intent which can be used to view that account
+     */
+    public static Intent actionHandleAccountUriIntent(Context context, Account account, 
+            String initialFolder) {
+        Intent i = actionHandleAccountIntent(context, account, initialFolder);
+        i.removeExtra(EXTRA_ACCOUNT);
+        i.setData(account.getContentUri());
+        return i;
     }
 
     @Override
@@ -359,6 +373,18 @@ public class FolderMessageList extends ExpandableListActivity {
 
         Intent intent = getIntent();
         mAccount = (Account)intent.getSerializableExtra(EXTRA_ACCOUNT);
+        if (mAccount == null) {
+            Uri uri = intent.getData();
+            if (uri != null) {
+                mAccount = Preferences.getPreferences(this).getAccountByContentUri(uri);
+            }
+        }
+        // If no useable account was specified, just go to the accounts list screen instead
+        if (mAccount == null) {
+            Accounts.actionShowAccounts(this);
+            finish();
+            return;
+        }
 
         // Take the initial folder into account only if we are *not* restoring the activity already
         if (savedInstanceState == null) {

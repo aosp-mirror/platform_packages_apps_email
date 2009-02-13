@@ -75,7 +75,7 @@
     <string name="message_view_next_action">"Neste melding"</string>
     <string name="message_view_status_attachment_saved">"Vedlegget ble lagret til minnekortet som <xliff:g id="FILENAME">%s</xliff:g>."</string>
     <string name="message_view_status_attachment_not_saved">"Kunne ikke lagre vedlegget til minnekort."</string>
-    <string name="message_view_show_pictures_instructions">"Velg \\\"Vis bilder\\\" for å vise vedlagte bilder."</string>
+    <string name="message_view_show_pictures_instructions">"Velg \\\\\\\"Vis bilder\\\\\\\" for å vise vedlagte bilder."</string>
     <string name="message_view_show_pictures_action">"Vis bilder"</string>
     <string name="message_view_fetching_attachment_toast">"Henter vedlegg."</string>
     <string name="message_deleted_toast">"Meldingen ble slettet."</string>
@@ -164,9 +164,9 @@
     <string name="account_settings_ringtone">"Velg ringetone"</string>
     <string name="account_settings_servers">"Innstillinger for tjener"</string>
     <string name="account_delete_dlg_title">"Fjern"</string>
-    <string name="account_delete_dlg_instructions_fmt">"Kontoen \\\"<xliff:g id="ACCOUNT">%s</xliff:g>\\\" vil bli fjernet fra e-postapplikasjonen."</string>
+    <string name="account_delete_dlg_instructions_fmt">"Kontoen \\\\\\\"<xliff:g id="ACCOUNT">%s</xliff:g>\\\\\\\" vil bli fjernet fra e-postapplikasjonen."</string>
     <string name="provider_note_yahoo">"E-posttilgang er ikke støttet for enkelte typer Yahoo!-e-postkontoer. Hvis du har problemer med å koble til, besøk yahoo.com for mer informasjon."</string>
     <string name="provider_note_yahoo_uk">"Før du setter opp denne e-postkontoen, må du gå til Yahoo!-nettsiden og slå på POP3-tilgang for den."</string>
-    <string name="provider_note_live">"Bare noen \\\"pluss-kontoer tilbyr POP-tilgangBREAK_0        som dette programmet trenger for å koble til. Hvis du ikke klarer å logge innBREAK_1        med riktig e-postadresse og passord, kan det være du ikke har en betaltBREAK_2        \\\"pluss-tilgang. Start nettleseren for å få tilgang til slike e-postkontoer."</string>
+    <string name="provider_note_live">"Bare noen \\\\\\\"pluss-kontoer tilbyr POP-tilgangBREAK_0        som dette programmet trenger for å koble til. Hvis du ikke klarer å logge innBREAK_1        med riktig e-postadresse og passord, kan det være du ikke har en betaltBREAK_2        \\\\\\\"pluss-tilgang. Start nettleseren for å få tilgang til slike e-postkontoer."</string>
     <string name="provider_note_t_online">"Før du setter opp denne e-postkontoen, besøk T-Online-nettsiden og velg et passord for e-posttilgang via POP3."</string>
 </resources>

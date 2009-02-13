@@ -67,8 +67,29 @@ public class Preferences {
         return accounts;
     }
 
+    /**
+     * Get an account object by Uri, or return null if no account exists
+     * TODO: Merge hardcoded strings with the same strings in Account.java
+     */
     public Account getAccountByContentUri(Uri uri) {
-        return new Account(this, uri.getPath().substring(1));
+        if (!"content".equals(uri.getScheme()) || !"accounts".equals(uri.getAuthority())) {
+            return null;
+        }
+        String uuid = uri.getPath().substring(1);
+        if (uuid == null) {
+            return null;
+        }
+        String accountUuids = mSharedPreferences.getString("accountUuids", null);
+        if (accountUuids == null || accountUuids.length() == 0) {
+            return null;
+        }
+        String[] uuids = accountUuids.split(",");
+        for (int i = 0, length = uuids.length; i < length; i++) {
+            if (uuid.equals(uuids[i])) {
+                return new Account(this, uuid);
+            }
+        }
+        return null;
     }
 
     /**
