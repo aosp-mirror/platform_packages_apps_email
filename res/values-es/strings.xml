@@ -37,7 +37,7 @@
     <string name="compose_action">"Redactar"</string>
     <string name="search_action">"Buscar"</string>
     <string name="open_action">"Abrir"</string>
-    <string name="account_settings_action">"Configuración de la cuenta"</string>
+    <string name="account_settings_action">"Configuración"</string>
     <string name="remove_account_action">"Eliminar cuenta"</string>
     <string name="accounts_action">"Cuentas"</string>
     <string name="mark_as_read_action">"Marcar como leída"</string>
@@ -152,7 +152,7 @@
     <string name="account_settings_default_summary">"Enviar correo electrónico desde esta cuenta de forma predeterminada"</string>
     <string name="account_settings_notify_label">"Notificaciones de correo electrónico"</string>
     <string name="account_settings_notify_summary">"Notificar en la barra de estado cuando llegue un mensaje"</string>
-    <string name="account_settings_mail_check_frequency_label">"Frecuencia de comprobación del correo electrónico"</string>
+    <string name="account_settings_mail_check_frequency_label">"Frecuencia de comprobación del correo"</string>
     <string name="account_settings_incoming_label">"Configuración entrante"</string>
     <string name="account_settings_outgoing_label">"Configuración saliente"</string>
     <string name="account_settings_add_account_label">"Añadir otra cuenta"</string>
@@ -163,8 +163,7 @@
     <string name="account_settings_vibrate_summary">"Vibrar también cuando llegue un mensaje"</string>
     <string name="account_settings_ringtone">"Seleccionar tono de llamada"</string>
     <string name="account_settings_servers">"Configuración del servidor"</string>
-    <!-- no translation found for account_delete_dlg_title (6806087520856396608) -->
-    <skip />
+    <string name="account_delete_dlg_title">"Eliminar cuenta"</string>
     <string name="account_delete_dlg_instructions_fmt">"Se va a eliminar la cuenta \"<xliff:g id="ACCOUNT">%s</xliff:g>\" de \"Correo electrónico\"."</string>
     <string name="provider_note_yahoo">"Algunos tipos de cuentas de correo de Yahoo! no permiten acceder al buzón de correo. Si tienes problemas de conexión, visita yahoo.com para obtener información adicional al respecto."</string>
     <string name="provider_note_yahoo_uk">"Antes de configurar esta cuenta de correo electrónico, visita el sitio web de Yahoo! y habilita el acceso al correo electrónico POP3 para esta cuenta."</string>

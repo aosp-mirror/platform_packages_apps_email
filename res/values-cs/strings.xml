@@ -163,8 +163,7 @@
     <string name="account_settings_vibrate_summary">"Při příchodu e-mailu také vibrovat"</string>
     <string name="account_settings_ringtone">"Zvolit vyzváněcí tón"</string>
     <string name="account_settings_servers">"Nastavení serveru"</string>
-    <!-- no translation found for account_delete_dlg_title (6806087520856396608) -->
-    <skip />
+    <string name="account_delete_dlg_title">"Odebrat účet"</string>
     <string name="account_delete_dlg_instructions_fmt">"Účet <xliff:g id="ACCOUNT">%s</xliff:g> bude z aplikace Email odebrán."</string>
     <string name="provider_note_yahoo">"Přístup do schránky není u některých poštovních účtů Yahoo! podporován. Pokud máte problémy s připojením, získáte další informace na webové stránce yahoo.com."</string>
     <string name="provider_note_yahoo_uk">"Před nastavením tohoto e-mailového účtu přejděte na web Yahoo! a povolte u tohoto účtu e-mailový přístup POP3."</string>

@@ -94,7 +94,9 @@
         
         <activity 
             android:name=".activity.AccountShortcutPicker"
-            android:label="@string/app_name">
+            android:label="@string/app_name"
+            android:enabled="false"
+            >
             <intent-filter>
                 <action android:name="android.intent.action.CREATE_SHORTCUT" />
                 <category android:name="android.intent.category.DEFAULT" />

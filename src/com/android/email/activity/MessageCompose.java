@@ -16,45 +16,6 @@
 
 package com.android.email.activity;
 
-import java.io.Serializable;
-import java.io.UnsupportedEncodingException;
-import java.net.URLDecoder;
-import java.util.ArrayList;
-import java.util.Date;
-import java.util.List;
-
-import android.app.Activity;
-import android.content.ActivityNotFoundException;
-import android.content.ContentResolver;
-import android.content.Context;
-import android.content.Intent;
-import android.content.pm.ActivityInfo;
-import android.database.Cursor;
-import android.net.Uri;
-import android.os.Bundle;
-import android.os.Handler;
-import android.os.Parcelable;
-import android.provider.OpenableColumns;
-import android.text.TextWatcher;
-import android.text.util.Rfc822Tokenizer;
-import android.util.Config;
-import android.util.Log;
-import android.view.Menu;
-import android.view.MenuItem;
-import android.view.View;
-import android.view.Window;
-import android.view.View.OnClickListener;
-import android.view.View.OnFocusChangeListener;
-import android.webkit.WebView;
-import android.widget.Button;
-import android.widget.EditText;
-import android.widget.ImageButton;
-import android.widget.LinearLayout;
-import android.widget.MultiAutoCompleteTextView;
-import android.widget.TextView;
-import android.widget.Toast;
-import android.widget.AutoCompleteTextView.Validator;
-
 import com.android.email.Account;
 import com.android.email.Email;
 import com.android.email.EmailAddressAdapter;
@@ -79,6 +40,48 @@ import com.android.email.mail.internet.MimeUtility;
 import com.android.email.mail.internet.TextBody;
 import com.android.email.mail.store.LocalStore;
 import com.android.email.mail.store.LocalStore.LocalAttachmentBody;
+
+import android.app.Activity;
+import android.content.ActivityNotFoundException;
+import android.content.ContentResolver;
+import android.content.Context;
+import android.content.Intent;
+import android.content.pm.ActivityInfo;
+import android.database.Cursor;
+import android.net.Uri;
+import android.os.Bundle;
+import android.os.Handler;
+import android.os.Parcelable;
+import android.provider.OpenableColumns;
+import android.text.InputFilter;
+import android.text.SpannableStringBuilder;
+import android.text.Spanned;
+import android.text.TextWatcher;
+import android.text.util.Rfc822Tokenizer;
+import android.util.Config;
+import android.util.Log;
+import android.view.Menu;
+import android.view.MenuItem;
+import android.view.View;
+import android.view.Window;
+import android.view.View.OnClickListener;
+import android.view.View.OnFocusChangeListener;
+import android.webkit.WebView;
+import android.widget.Button;
+import android.widget.EditText;
+import android.widget.ImageButton;
+import android.widget.LinearLayout;
+import android.widget.MultiAutoCompleteTextView;
+import android.widget.TextView;
+import android.widget.Toast;
+import android.widget.AutoCompleteTextView.Validator;
+
+import java.io.Serializable;
+import java.io.UnsupportedEncodingException;
+import java.net.URLDecoder;
+import java.util.ArrayList;
+import java.util.Date;
+import java.util.List;
 
 public class MessageCompose extends Activity implements OnClickListener, OnFocusChangeListener {
     private static final String ACTION_REPLY = "com.android.email.intent.action.REPLY";
@@ -310,12 +313,69 @@ public class MessageCompose extends Activity implements OnClickListener, OnFocus
 
             public void afterTextChanged(android.text.Editable s) { }
         };
+        
+        /** 
+         * Implements special address cleanup rules:
+         * The first space key entry following an "@" symbol that is followed by any combination
+         * of letters and symbols, including one+ dots and zero commas, should insert an extra
+         * comma (followed by the space).
+         */
+        InputFilter recipientFilter = new InputFilter() {
+
+            public CharSequence filter(CharSequence source, int start, int end, Spanned dest,
+                    int dstart, int dend) {
+                
+                // quick check - did they enter a single space?
+                if (end-start != 1 || source.charAt(start) != ' ') {
+                    return null;
+                }
+                
+                // determine if the characters before the new space fit the pattern
+                // follow backwards and see if we find a comma, dot, or @
+                int scanBack = dstart;
+                boolean dotFound = false;
+                while (scanBack > 0) {
+                    char c = dest.charAt(--scanBack);
+                    switch (c) {
+                        case '.':
+                            dotFound = true;    // one or more dots are req'd
+                            break;
+                        case ',':
+                            return null;
+                        case '@':
+                            if (!dotFound) {
+                                return null;
+                            }
+                            // we have found a comma-insert case.  now just do it
+                            // in the least expensive way we can.
+                            if (source instanceof Spanned) {
+                                SpannableStringBuilder sb = new SpannableStringBuilder(",");
+                                sb.append(source);
+                                return sb;
+                            } else {
+                                return ", ";
+                            }
+                        default:
+                            // just keep going
+                    }
+                }
+                
+                // no termination cases were found, so don't edit the input
+                return null;
+            }
+        };
+        InputFilter[] recipientFilters = new InputFilter[] { recipientFilter };
 
         mToView.addTextChangedListener(watcher);
         mCcView.addTextChangedListener(watcher);
         mBccView.addTextChangedListener(watcher);
         mSubjectView.addTextChangedListener(watcher);
         mMessageContentView.addTextChangedListener(watcher);
+
+        // NOTE: assumes no other filters are set
+        mToView.setFilters(recipientFilters);
+        mCcView.setFilters(recipientFilters);
+        mBccView.setFilters(recipientFilters);
 
         /*
          * We set this to invisible by default. Other methods will turn it back on if it's

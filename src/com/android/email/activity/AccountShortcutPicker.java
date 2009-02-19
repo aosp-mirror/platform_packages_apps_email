@@ -64,7 +64,6 @@ public class AccountShortcutPicker extends ListActivity implements OnItemClickLi
             finish();
             return;
         }
-        // TODO : enable/disable this activity if no accounts are configured
         
         setContentView(R.layout.accounts);
         ListView listView = getListView();

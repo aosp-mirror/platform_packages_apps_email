@@ -163,8 +163,7 @@
     <string name="account_settings_vibrate_summary">"Bei E-Mail-Eingang zusätzlich vibrieren"</string>
     <string name="account_settings_ringtone">"Klingelton auswählen"</string>
     <string name="account_settings_servers">"Servereinstellungen"</string>
-    <!-- no translation found for account_delete_dlg_title (6806087520856396608) -->
-    <skip />
+    <string name="account_delete_dlg_title">"Konto entfernen"</string>
     <string name="account_delete_dlg_instructions_fmt">"Das Konto \"<xliff:g id="ACCOUNT">%s</xliff:g>\" wird aus Email entfernt."</string>
     <string name="provider_note_yahoo">"Der Zugang zum Postfach bestimmter E-Mail-Konten von Yahoo! wird nicht unterstützt. Bei Verbindungsproblemen besuchen Sie die Website von Yahoo! für weitere Informationen."</string>
     <string name="provider_note_yahoo_uk">"Vor Eröffnung dieses E-Mail-Kontos bitte die Website von Yahoo! besuchen und E-Mail-Zugang über POP3 für dieses Konto aktivieren."</string>

@@ -163,8 +163,7 @@
     <string name="account_settings_vibrate_summary">"이메일 도착 시 진동"</string>
     <string name="account_settings_ringtone">"벨소리 선택"</string>
     <string name="account_settings_servers">"서버 설정"</string>
-    <!-- no translation found for account_delete_dlg_title (6806087520856396608) -->
-    <skip />
+    <string name="account_delete_dlg_title">"계정 삭제"</string>
     <string name="account_delete_dlg_instructions_fmt">"계정(<xliff:g id="ACCOUNT">%s</xliff:g>)이 이메일에서 삭제됩니다."</string>
     <string name="provider_note_yahoo">"일부 Yahoo! 메일 계정의 경우 편지함에 액세스할 수 없습니다. 접속에 문제가 있을 경우 자세한 정보는 yahoo.com을 참조하세요."</string>
     <string name="provider_note_yahoo_uk">"이메일 계정을 설정하기 전에 Yahoo! 웹사이트를 방문하여 이 계정에 대한 POP3 이메일 액세스를 사용 설정하세요."</string>

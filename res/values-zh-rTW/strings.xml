@@ -163,8 +163,7 @@
     <string name="account_settings_vibrate_summary">"收到電子郵件時也振動"</string>
     <string name="account_settings_ringtone">"選取鈴聲"</string>
     <string name="account_settings_servers">"伺服器設定"</string>
-    <!-- no translation found for account_delete_dlg_title (6806087520856396608) -->
-    <skip />
+    <string name="account_delete_dlg_title">"移除帳戶"</string>
     <string name="account_delete_dlg_instructions_fmt">"系統將從 [電子郵件] 中移除帳戶「<xliff:g id="ACCOUNT">%s</xliff:g>」。"</string>
     <string name="provider_note_yahoo">"不支援某些類型的 Yahoo! 郵件帳戶信箱。如果您無法順利連線，請造訪 yahoo.com 以取得詳細資訊。"</string>
     <string name="provider_note_yahoo_uk">"在設定此電子郵件帳戶前，請先造訪 Yahoo! 網站，並啟用這個帳戶的 POP3 電子郵件收發功能。"</string>

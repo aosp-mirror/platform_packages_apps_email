@@ -32,6 +32,7 @@ import android.content.Intent;
 import android.net.Uri;
 import android.test.ActivityInstrumentationTestCase2;
 import android.test.suitebuilder.annotation.MediumTest;
+import android.view.KeyEvent;
 import android.view.View;
 import android.widget.EditText;
 import android.content.Context;
@@ -368,6 +369,54 @@ public class MessageComposeInstrumentationTests
         return message;
     }
     
+    /**
+     * Tests for the comma-inserting logic.  The logic is applied equally to To: Cc: and Bcc:
+     * but we only run the full set on To:
+     */
+    public void testCommaInserting() throws Throwable {
+        // simple appending cases
+        checkCommaInsert("a", "", false);
+        checkCommaInsert("a@", "", false);
+        checkCommaInsert("a@b", "", false);
+        checkCommaInsert("a@b.", "", true); // non-optimal, but matches current implementation
+        checkCommaInsert("a@b.c", "", true);
+        
+        // confirm works properly for internal editing
+        checkCommaInsert("me@foo.com, you", " they@bar.com", false);
+        checkCommaInsert("me@foo.com, you@", "they@bar.com", false);
+        checkCommaInsert("me@foo.com, you@bar", " they@bar.com", false);
+        checkCommaInsert("me@foo.com, you@bar.", " they@bar.com", true); // non-optimal
+        checkCommaInsert("me@foo.com, you@bar.com", " they@bar.com", true);
+        
+        // check a couple of multi-period cases
+        checkCommaInsert("me.myself@foo", "", false);
+        checkCommaInsert("me.myself@foo.com", "", true);
+        checkCommaInsert("me@foo.co.uk", "", true);
+        
+        // cases that should not append because there's already a comma
+        checkCommaInsert("a@b.c,", "", false);
+        checkCommaInsert("me@foo.com, you@bar.com,", " they@bar.com", false);
+        checkCommaInsert("me.myself@foo.com,", "", false);
+        checkCommaInsert("me@foo.co.uk,", "", false);
+    }
 
+    /**
+     * Check comma insertion logic for a single try on the To: field
+     */
+    private void checkCommaInsert(final String before, final String after, boolean expectComma)
+            throws Throwable {
+        String expect = new String(before + (expectComma ? ", " : " ") + after);
+
+        runTestOnUiThread(new Runnable() {
+            public void run() {
+                mToView.setText(before + after);
+                mToView.setSelection(before.length());
+            }
+        });
+        getInstrumentation().sendStringSync(" ");
+        String result = mToView.getText().toString();
+        assertEquals(expect, result);
+      
+     }
 
 }

@@ -29,7 +29,7 @@
     <string name="reply_all_action">"Répondre à tous"</string>
     <string name="delete_action">"Supprimer"</string>
     <string name="forward_action">"Transférer"</string>
-    <string name="done_action">"Terminé"</string>
+    <string name="done_action">"OK"</string>
     <string name="discard_action">"Supprimer"</string>
     <string name="save_draft_action">"Enregistrer en tant que brouillon"</string>
     <string name="refresh_action">"Actualiser"</string>
@@ -115,7 +115,7 @@
     <string name="account_setup_incoming_delete_policy_label">"Supprimer les e-mails du serveur"</string>
     <string name="account_setup_incoming_delete_policy_never_label">"Jamais"</string>
     <string name="account_setup_incoming_delete_policy_7days_label">"Au bout de 7 jours"</string>
-    <string name="account_setup_incoming_delete_policy_delete_label">"Lorsque je supprime des messages de la boîte de réception"</string>
+    <string name="account_setup_incoming_delete_policy_delete_label">"Si messages suppr. de boîte de récep."</string>
     <string name="account_setup_incoming_imap_path_prefix_label">"Préfixe du chemin IMAP"</string>
     <string name="account_setup_incoming_imap_path_prefix_hint">"Facultatif"</string>
     <string name="account_setup_outgoing_title">"Paramètres de serveur sortant"</string>
@@ -126,7 +126,7 @@
     <string name="account_setup_outgoing_username_label">"Nom d\'utilisateur"</string>
     <string name="account_setup_outgoing_password_label">"Mot de passe"</string>
     <string name="account_setup_options_title">"Options de compte"</string>
-    <string name="account_setup_options_mail_check_frequency_label">"Fréquence de vérification des e-mails"</string>
+    <string name="account_setup_options_mail_check_frequency_label">"Vérification des e-mails"</string>
     <string name="account_setup_options_mail_check_frequency_never">"Jamais"</string>
     <string name="account_setup_options_mail_check_frequency_5min">"Toutes les 5 minutes"</string>
     <string name="account_setup_options_mail_check_frequency_10min">"Toutes les 10 minutes"</string>
@@ -150,7 +150,7 @@
     <string name="account_settings_title_fmt">"Paramètres généraux"</string>
     <string name="account_settings_default_label">"Compte par défaut"</string>
     <string name="account_settings_default_summary">"Par défaut, envoyer les e-mails avec ce compte"</string>
-    <string name="account_settings_notify_label">"Notifications de nouveaux e-mails"</string>
+    <string name="account_settings_notify_label">"Notifications d\'e-mails"</string>
     <string name="account_settings_notify_summary">"Afficher une notification dans la barre d\'état lors de la réception d\'un e-mail"</string>
     <string name="account_settings_mail_check_frequency_label">"Fréquence de vérification des e-mails"</string>
     <string name="account_settings_incoming_label">"Paramètres de réception"</string>
@@ -163,8 +163,7 @@
     <string name="account_settings_vibrate_summary">"Vibrer également lors de la réception d\'un e-mail"</string>
     <string name="account_settings_ringtone">"Sélectionner la sonnerie"</string>
     <string name="account_settings_servers">"Paramètres du serveur"</string>
-    <!-- no translation found for account_delete_dlg_title (6806087520856396608) -->
-    <skip />
+    <string name="account_delete_dlg_title">"Supprimer le compte"</string>
     <string name="account_delete_dlg_instructions_fmt">"Le compte \"<xliff:g id="ACCOUNT">%s</xliff:g>\" va être supprimé de votre messagerie."</string>
     <string name="provider_note_yahoo">"L\'accès à la boîte aux lettres n\'est pas possible avec certains types de comptes Yahoo!. En cas de problème de connexion, consultez le site yahoo.fr pour obtenir plus d\'informations."</string>
     <string name="provider_note_yahoo_uk">"Avant de configurer ce compte de messagerie, veuillez consulter le site de Yahoo! et activer l\'accès POP3 pour ce compte."</string>

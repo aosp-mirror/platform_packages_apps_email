@@ -163,8 +163,7 @@
     <string name="account_settings_vibrate_summary">"Также включить вибрацию при получении почты"</string>
     <string name="account_settings_ringtone">"Выбрать мелодию"</string>
     <string name="account_settings_servers">"Настройки сервера"</string>
-    <!-- no translation found for account_delete_dlg_title (6806087520856396608) -->
-    <skip />
+    <string name="account_delete_dlg_title">"Удалить аккаунт"</string>
     <string name="account_delete_dlg_instructions_fmt">"Аккаунт \"<xliff:g id="ACCOUNT">%s</xliff:g>\" будет удален из системы электронной почты."</string>
     <string name="provider_note_yahoo">"Доступ к почтовому ящику для некоторых типов почтовых аккаунтов Yahoo! не поддерживается. Если при подключении возникли проблемы, см. дополнительные сведения на yahoo.com."</string>
     <string name="provider_note_yahoo_uk">"Чтобы настроить этот аккаунт электронной почты, перейдите на веб-сайт Yahoo! и включите для этого аккаунта доступ по протоколу POP3."</string>
