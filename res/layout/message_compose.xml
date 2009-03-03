@@ -84,7 +84,6 @@
                 android:textAppearance="?android:attr/textAppearanceMedium"
                 android:gravity="left|top"
                 android:minLines="3"
-                android:hint="@string/message_compose_body_hint"
                 android:inputType="textMultiLine|textAutoCorrect|textCapSentences" />
         <!--  quoted text bar -->
             <RelativeLayout android:id="@+id/quoted_text_bar"

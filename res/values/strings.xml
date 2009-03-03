@@ -126,8 +126,6 @@
     <string name="message_compose_bcc_hint">Bcc</string>
     <!-- Hint text in Subject field -->
     <string name="message_compose_subject_hint">Subject</string>
-    <!-- Hint text in Message composer body field -->
-    <string name="message_compose_body_hint">Compose Mail</string>    
     <!-- Header for forwarded original messages -->
     <string name="message_compose_fwd_header_fmt">\n\n-------- Original Message --------\nSubject: <xliff:g id="subject">%s</xliff:g>\nFrom: <xliff:g id="sender">%s</xliff:g>\nTo: <xliff:g id="to">%s</xliff:g>\nCC: <xliff:g id="cc">%s</xliff:g>\n\n</string>
     <!-- Header for replied-to messages -->

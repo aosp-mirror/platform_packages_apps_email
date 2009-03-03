@@ -62,8 +62,6 @@
     <string name="message_compose_cc_hint">"참조"</string>
     <string name="message_compose_bcc_hint">"숨은참조"</string>
     <string name="message_compose_subject_hint">"제목"</string>
-    <!-- no translation found for message_compose_body_hint (7575406246484103697) -->
-    <skip />
     <string name="message_compose_fwd_header_fmt">\n\n"-------- 원본 메일 --------"\n"제목: <xliff:g id="SUBJECT">%s</xliff:g>"\n"보낸사람: <xliff:g id="SENDER">%s</xliff:g>"\n"받는사람: <xliff:g id="TO">%s</xliff:g>"\n"참조: <xliff:g id="CC_0">%s</xliff:g>"\n\n</string>
     <string name="message_compose_reply_header_fmt">\n\n"<xliff:g id="SENDER">%s</xliff:g>님이 작성:"\n\n</string>
     <string name="message_compose_quoted_text_label">"받은메일"</string>

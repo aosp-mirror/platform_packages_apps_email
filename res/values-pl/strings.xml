@@ -31,7 +31,7 @@
     <string name="forward_action">"Przekaż dalej"</string>
     <string name="done_action">"Gotowe"</string>
     <string name="discard_action">"Odrzuć"</string>
-    <string name="save_draft_action">"Zapisz wersję roboczą"</string>
+    <string name="save_draft_action">"Zapisz jako wersję roboczą"</string>
     <string name="refresh_action">"Odśwież"</string>
     <string name="add_account_action">"Dodaj konto"</string>
     <string name="compose_action">"Utwórz"</string>
@@ -53,7 +53,7 @@
     <string name="notification_new_one_account_fmt">"Nieprzeczytane: <xliff:g id="UNREAD_MESSAGE_COUNT">%d</xliff:g> (<xliff:g id="ACCOUNT">%s</xliff:g>)"</string>
     <string name="notification_new_multi_account_fmt">"na <xliff:g id="NUMBER_ACCOUNTS">%d</xliff:g> kontach"</string>
     <string name="special_mailbox_name_inbox">"Odebrane"</string>
-    <string name="accounts_welcome">"Zapraszamy do skonfigurowania poczty e-mail!"\n\n"W tej usłudze można korzystać z dowolnego konta e-mail."\n\n"Konfiguracja najpopularniejszych kont e-mail składa się z tylko 2 etapów."</string>
+    <string name="accounts_welcome">"Witamy w konfiguracji poczty e-mail!"\n\n"W tej usłudze można korzystać z dowolnego konta e-mail."\n\n"Konfiguracja najpopularniejszych kont e-mail składa się z tylko 2 etapów."</string>
     <string name="debug_version_fmt">"Wersja: <xliff:g id="VERSION">%s</xliff:g>"</string>
     <string name="debug_enable_debug_logging_label">"Czy włączyć dodatkowe rejestrowanie na potrzeby debugowania?"</string>
     <string name="debug_enable_sensitive_logging_label">"Czy chcesz włączyć rejestrowanie poufnych informacji na potrzeby debugowania? (Może to spowodować uwzględnianie haseł w dziennikach)."</string>
@@ -62,8 +62,6 @@
     <string name="message_compose_cc_hint">"DW"</string>
     <string name="message_compose_bcc_hint">"UDW"</string>
     <string name="message_compose_subject_hint">"Temat"</string>
-    <!-- no translation found for message_compose_body_hint (7575406246484103697) -->
-    <skip />
     <string name="message_compose_fwd_header_fmt">\n\n"-------- Wiadomość oryginalna --------"\n"Temat: <xliff:g id="SUBJECT">%s</xliff:g>"\n"Od: <xliff:g id="SENDER">%s</xliff:g>"\n"Do: <xliff:g id="TO">%s</xliff:g>"\n"DW: <xliff:g id="CC_0">%s</xliff:g>"\n\n</string>
     <string name="message_compose_reply_header_fmt">\n\n"Użytkownik <xliff:g id="SENDER">%s</xliff:g> napisał:"\n\n</string>
     <string name="message_compose_quoted_text_label">"Cytowany tekst"</string>
@@ -128,7 +126,7 @@
     <string name="account_setup_outgoing_username_label">"Nazwa użytkownika"</string>
     <string name="account_setup_outgoing_password_label">"Hasło"</string>
     <string name="account_setup_options_title">"Opcje konta"</string>
-    <string name="account_setup_options_mail_check_frequency_label">"Sprawdzanie poczty"</string>
+    <string name="account_setup_options_mail_check_frequency_label">"Częstotliwość sprawdzania poczty e-mail"</string>
     <string name="account_setup_options_mail_check_frequency_never">"Nigdy"</string>
     <string name="account_setup_options_mail_check_frequency_5min">"Co 5 minut"</string>
     <string name="account_setup_options_mail_check_frequency_10min">"Co 10 minut"</string>
@@ -153,16 +151,16 @@
     <string name="account_settings_default_label">"Domyślne konto"</string>
     <string name="account_settings_default_summary">"Domyślnie wysyłaj wiadomości e-mail z tego konta"</string>
     <string name="account_settings_notify_label">"Powiadomienia e-mail"</string>
-    <string name="account_settings_notify_summary">"Wyświetl powiadomienie na pasku stanu po otrzymaniu e-maila"</string>
-    <string name="account_settings_mail_check_frequency_label">"Sprawdzanie poczty"</string>
-    <string name="account_settings_incoming_label">"Poczta przychodząca"</string>
-    <string name="account_settings_outgoing_label">"Poczta wychodząca"</string>
+    <string name="account_settings_notify_summary">"Wyświetl powiadomienie na pasku stanu po otrzymaniu wiadomości e-mail"</string>
+    <string name="account_settings_mail_check_frequency_label">"Częstotliwość sprawdzania poczty e-mail"</string>
+    <string name="account_settings_incoming_label">"Ustawienia poczty przychodzącej"</string>
+    <string name="account_settings_outgoing_label">"Ustawienia poczty wychodzącej"</string>
     <string name="account_settings_add_account_label">"Dodaj kolejne konto"</string>
     <string name="account_settings_description_label">"Nazwa konta"</string>
     <string name="account_settings_name_label">"Imię i nazwisko"</string>
     <string name="account_settings_notifications">"Ustawienia powiadomień"</string>
     <string name="account_settings_vibrate_enable">"Wibracje"</string>
-    <string name="account_settings_vibrate_summary">"Sygnalizuj otrzymanie wiadomości e-mail wibracją"</string>
+    <string name="account_settings_vibrate_summary">"Sygnalizuj wibracjami otrzymanie wiadomości e-mail"</string>
     <string name="account_settings_ringtone">"Wybierz dzwonek"</string>
     <string name="account_settings_servers">"Ustawienia serwera"</string>
     <string name="account_delete_dlg_title">"Usuń konto"</string>

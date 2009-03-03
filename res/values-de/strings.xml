@@ -62,8 +62,6 @@
     <string name="message_compose_cc_hint">"Cc"</string>
     <string name="message_compose_bcc_hint">"Bcc"</string>
     <string name="message_compose_subject_hint">"Betreff"</string>
-    <!-- no translation found for message_compose_body_hint (7575406246484103697) -->
-    <skip />
     <string name="message_compose_fwd_header_fmt">\n\n"-------- Originalnachricht --------"\n"Betreff: <xliff:g id="SUBJECT">%s</xliff:g>"\n"Von: <xliff:g id="SENDER">%s</xliff:g>"\n"An: <xliff:g id="TO">%s</xliff:g>"\n"Cc: <xliff:g id="CC_0">%s</xliff:g>"\n\n</string>
     <string name="message_compose_reply_header_fmt">\n\n"<xliff:g id="SENDER">%s</xliff:g> schrieb:"\n\n</string>
     <string name="message_compose_quoted_text_label">"Zitierter Text"</string>
