@@ -62,6 +62,8 @@
     <string name="message_compose_cc_hint">"Cc"</string>
     <string name="message_compose_bcc_hint">"Bcc"</string>
     <string name="message_compose_subject_hint">"Onderwerp"</string>
+    <!-- no translation found for message_compose_body_hint (7575406246484103697) -->
+    <skip />
     <string name="message_compose_fwd_header_fmt">\n\n"-------- Oorspronkelijk bericht --------"\n"Onderwerp: <xliff:g id="SUBJECT">%s</xliff:g>"\n"Van: <xliff:g id="SENDER">%s</xliff:g>"\n"Aan: <xliff:g id="TO">%s</xliff:g>"\n"Cc: <xliff:g id="CC_0">%s</xliff:g>"\n\n</string>
     <string name="message_compose_reply_header_fmt">\n\n"<xliff:g id="SENDER">%s</xliff:g>schreef:"\n\n</string>
     <string name="message_compose_quoted_text_label">"Geciteerde tekst"</string>
@@ -79,7 +81,7 @@
     <string name="message_view_show_pictures_action">"Afbeeldingen weergeven"</string>
     <string name="message_view_fetching_attachment_toast">"Bijlage wordt opgehaald."</string>
     <string name="message_deleted_toast">"Bericht verwijderd."</string>
-    <string name="message_discarded_toast">"Bericht genegeerd"</string>
+    <string name="message_discarded_toast">"Bericht wordt verwijderd"</string>
     <string name="message_saved_toast">"Bericht opgeslagen als concept."</string>
     <string name="account_setup_basics_title">"E-mail instellen"</string>
     <string name="account_setup_basics_instructions">"Typ het e-mailadres van je account:"</string>

@@ -84,6 +84,8 @@ public class MessageComposeInstrumentationTests
             Preferences.getPreferences(context).getDefaultAccount();
             Email.setServicesEnabled(context);
         }
+        Intent intent = new Intent(Intent.ACTION_VIEW);
+        setActivityIntent(intent);
         final MessageCompose a = getActivity();
         mToView = (EditText) a.findViewById(R.id.to);
         mSubjectView = (EditText) a.findViewById(R.id.subject);

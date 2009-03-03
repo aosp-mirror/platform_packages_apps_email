@@ -25,12 +25,12 @@
         android:layout_height="0dip"
         android:layout_weight="1"
         android:scrollbarStyle="outsideInset"
-        android:fadingEdge="none">
+        android:fadingEdge="none"
+        android:fillViewport="true">
         <LinearLayout
             android:orientation="vertical"
             android:layout_width="fill_parent"
-            android:layout_height="0dip"
-            android:layout_weight="1">
+            android:layout_height="wrap_content">
             <RelativeLayout
                 android:layout_width="fill_parent"
                 android:layout_height="54px"

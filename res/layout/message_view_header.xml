@@ -24,10 +24,23 @@
         <LinearLayout
             android:id="@+id/from_container"
             android:layout_width="fill_parent"
-            android:layout_height="wrap_content" >
+            android:layout_height="wrap_content"
+            android:baselineAligned="false" >
+            <!-- Should be: -->
+            <!-- android:baselineAligned="true" -->
+            <ImageView
+                android:id="@+id/presence"
+                android:visibility="gone"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginRight="5px" 
+                android:layout_gravity="center_vertical"
+                android:baselineAlignBottom="true" />
+            <!-- Should remove android:layout_gravity -->
             <TextView
                 android:id="@+id/from"
                 android:textAppearance="?android:attr/textAppearanceMedium"
+                android:textStyle="bold"
                 android:textColor="?android:attr/textColorPrimaryInverse"
                 android:layout_width="0dip"
                 android:layout_weight="1.0"
@@ -36,12 +49,14 @@
                 android:singleLine="true"
                 android:ellipsize="end"
                 android:paddingRight="6px" />
-            <View
+            <ImageView
                 android:id="@+id/attachment"
-                android:background="@drawable/ic_email_attachment_small"
+                android:src="@drawable/ic_email_attachment_small"
                 android:layout_width="22px"
                 android:layout_height="22px"
-                android:layout_alignTop="@id/from" />
+                android:layout_gravity="center_vertical"
+                android:baselineAlignBottom="true" />
+            <!-- Should remove android:layout_gravity -->
             <TextView
                 android:id="@+id/date"
                 android:textAppearance="?android:attr/textAppearanceSmall"

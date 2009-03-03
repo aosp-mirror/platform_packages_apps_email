@@ -16,19 +16,29 @@
 
 package com.android.email.activity;
 
-import java.io.File;
-import java.io.FileOutputStream;
-import java.io.IOException;
-import java.io.InputStream;
-import java.io.OutputStream;
-import java.util.ArrayList;
-import java.util.Date;
-import java.util.Map;
-import java.util.regex.Matcher;
+import com.android.email.Account;
+import com.android.email.Email;
+import com.android.email.MessagingController;
+import com.android.email.MessagingListener;
+import com.android.email.R;
+import com.android.email.Utility;
+import com.android.email.mail.Address;
+import com.android.email.mail.Message;
+import com.android.email.mail.MessagingException;
+import com.android.email.mail.Multipart;
+import com.android.email.mail.Part;
+import com.android.email.mail.Message.RecipientType;
+import com.android.email.mail.internet.MimeUtility;
+import com.android.email.mail.store.LocalStore.LocalAttachmentBodyPart;
+import com.android.email.mail.store.LocalStore.LocalMessage;
+import com.android.email.provider.AttachmentProvider;
+
+import org.apache.commons.io.IOUtils;
 
 import android.app.Activity;
 import android.content.Context;
 import android.content.Intent;
+import android.database.Cursor;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.media.MediaScannerConnection;
@@ -38,6 +48,9 @@ import android.os.Bundle;
 import android.os.Environment;
 import android.os.Handler;
 import android.os.Process;
+import android.provider.Contacts;
+import android.provider.Contacts.People;
+import android.provider.Contacts.Presence;
 import android.text.util.Regex;
 import android.util.Config;
 import android.util.Log;
@@ -57,24 +70,16 @@ import android.widget.LinearLayout;
 import android.widget.TextView;
 import android.widget.Toast;
 
-import org.apache.commons.io.IOUtils;
-
-import com.android.email.Account;
-import com.android.email.Email;
-import com.android.email.MessagingController;
-import com.android.email.MessagingListener;
-import com.android.email.R;
-import com.android.email.Utility;
-import com.android.email.mail.Address;
-import com.android.email.mail.Message;
-import com.android.email.mail.MessagingException;
-import com.android.email.mail.Multipart;
-import com.android.email.mail.Part;
-import com.android.email.mail.Message.RecipientType;
-import com.android.email.mail.internet.MimeUtility;
-import com.android.email.mail.store.LocalStore.LocalAttachmentBodyPart;
-import com.android.email.mail.store.LocalStore.LocalMessage;
-import com.android.email.provider.AttachmentProvider;
+import java.io.File;
+import java.io.FileOutputStream;
+import java.io.IOException;
+import java.io.InputStream;
+import java.io.OutputStream;
+import java.util.ArrayList;
+import java.util.Date;
+import java.util.Map;
+import java.util.Random;
+import java.util.regex.Matcher;
 
 public class MessageView extends Activity
         implements UrlInterceptHandler, OnClickListener {
@@ -83,6 +88,12 @@ public class MessageView extends Activity
     private static final String EXTRA_MESSAGE = "com.android.email.MessageView_message";
     private static final String EXTRA_FOLDER_UIDS = "com.android.email.MessageView_folderUids";
     private static final String EXTRA_NEXT = "com.android.email.MessageView_next";
+    
+    private static final String[] METHODS_WITH_PRESENCE_PROJECTION = new String[] {
+        People.ContactMethods._ID,  // 0
+        People.PRESENCE_STATUS,     // 1
+    };
+    private static final int METHODS_STATUS_COLUMN = 1;
 
     private TextView mSubjectView;
     private TextView mFromView;
@@ -93,8 +104,9 @@ public class MessageView extends Activity
     private View mCcContainerView;
     private WebView mMessageContentView;
     private LinearLayout mAttachments;
-    private View mAttachmentIcon;
+    private ImageView mAttachmentIcon;
     private View mShowPicturesSection;
+    private ImageView mSenderPresenceView;
 
     private Account mAccount;
     private String mFolder;
@@ -121,6 +133,7 @@ public class MessageView extends Activity
         private static final int MSG_ATTACHMENT_NOT_SAVED = 8;
         private static final int MSG_SHOW_SHOW_PICTURES = 9;
         private static final int MSG_FETCHING_ATTACHMENT = 10;
+        private static final int MSG_SET_SENDER_PRESENCE = 11;
 
         @Override
         public void handleMessage(android.os.Message msg) {
@@ -171,6 +184,9 @@ public class MessageView extends Activity
                     Toast.makeText(MessageView.this,
                             getString(R.string.message_view_fetching_attachment_toast),
                             Toast.LENGTH_SHORT).show();
+                    break;
+                case MSG_SET_SENDER_PRESENCE:
+                    updateSenderPresence(msg.arg1);
                     break;
                 default:
                     super.handleMessage(msg);
@@ -238,6 +254,12 @@ public class MessageView extends Activity
             msg.arg1 = show ? 1 : 0;
             sendMessage(msg);
         }
+        
+        public void setSenderPresence(int presenceIconId) {
+            android.os.Message
+                    .obtain(this, MSG_SET_SENDER_PRESENCE,  presenceIconId, 0)
+                    .sendToTarget();
+        }
     }
 
     /**
@@ -279,22 +301,25 @@ public class MessageView extends Activity
 
         setContentView(R.layout.message_view);
 
-        mSubjectView = (TextView)findViewById(R.id.subject);
-        mFromView = (TextView)findViewById(R.id.from);
-        mToView = (TextView)findViewById(R.id.to);
-        mCcView = (TextView)findViewById(R.id.cc);
+        mSubjectView = (TextView) findViewById(R.id.subject);
+        mFromView = (TextView) findViewById(R.id.from);
+        mToView = (TextView) findViewById(R.id.to);
+        mCcView = (TextView) findViewById(R.id.cc);
         mCcContainerView = findViewById(R.id.cc_container);
-        mDateView = (TextView)findViewById(R.id.date);
-        mTimeView = (TextView)findViewById(R.id.time);
-        mMessageContentView = (WebView)findViewById(R.id.message_content);
-        mAttachments = (LinearLayout)findViewById(R.id.attachments);
-        mAttachmentIcon = findViewById(R.id.attachment);
+        mDateView = (TextView) findViewById(R.id.date);
+        mTimeView = (TextView) findViewById(R.id.time);
+        mMessageContentView = (WebView) findViewById(R.id.message_content);
+        mAttachments = (LinearLayout) findViewById(R.id.attachments);
+        mAttachmentIcon = (ImageView) findViewById(R.id.attachment);
         mShowPicturesSection = findViewById(R.id.show_pictures_section);
+        mSenderPresenceView = (ImageView) findViewById(R.id.presence);
 
         mMessageContentView.setVerticalScrollBarEnabled(false);
         mAttachments.setVisibility(View.GONE);
         mAttachmentIcon.setVisibility(View.GONE);
 
+        mFromView.setOnClickListener(this);
+        mSenderPresenceView.setOnClickListener(this);
         findViewById(R.id.reply).setOnClickListener(this);
         findViewById(R.id.reply_all).setOnClickListener(this);
         findViewById(R.id.delete).setOnClickListener(this);
@@ -374,6 +399,9 @@ public class MessageView extends Activity
     public void onResume() {
         super.onResume();
         MessagingController.getInstance(getApplication()).addListener(mListener);
+        if (mMessage != null) {
+            startPresenceCheck();
+        }
     }
 
     @Override
@@ -414,6 +442,27 @@ public class MessageView extends Activity
                 onNext();
             } else {
                 finish();
+            }
+        }
+    }
+    
+    private void onClickSender() {
+        if (mMessage != null) {
+            try {
+                Address senderEmail = mMessage.getFrom()[0];
+                
+                // TODO look up contact
+                // TODO action VIEW if exists
+                // TODO disambiguate
+                // TODO create
+                
+                Toast.makeText(this, 
+                        "Look up contact for " + senderEmail.toFriendly(), Toast.LENGTH_SHORT)
+                        .show();
+            } catch (MessagingException me) {
+                if (Config.LOGV) {
+                    Log.v(Email.LOG_TAG, "loadMessageForViewHeadersAvailable", me);
+                }
             }
         }
     }
@@ -530,6 +579,10 @@ public class MessageView extends Activity
 
     public void onClick(View view) {
         switch (view.getId()) {
+            case R.id.from:
+            case R.id.presence:
+                onClickSender();
+                break;
             case R.id.reply:
                 onReply();
                 break;
@@ -733,6 +786,72 @@ public class MessageView extends Activity
             }
         }
     }
+    
+    /**
+     * Launch a thread (because of cross-process DB lookup) to check presence of the sender of the
+     * message.  When that thread completes, update the UI.
+     * 
+     * This must only be called when mMessage is null (it will hide presence indications) or when
+     * mMessage has already seen its headers loaded.
+     * 
+     * Note:  This is just a polling operation.  A more advanced solution would be to keep the
+     * cursor open and respond to presence status updates (in the form of content change
+     * notifications).  However, because presence changes fairly slowly compared to the duration
+     * of viewing a single message, a simple poll at message load (and onResume) should be
+     * sufficient.
+     */
+    private void startPresenceCheck() {
+        String email = null;        
+        try {
+            if (mMessage != null) {
+                Address sender = mMessage.getFrom()[0];
+                email = sender.getAddress();
+            }
+        } catch (MessagingException me) { }
+        if (email == null) {
+            mHandler.setSenderPresence(0);
+            return;
+        }
+        final String senderEmail = email;
+        
+        new Thread() {
+            @Override
+            public void run() {
+                Cursor methodsCursor = getContentResolver().query(
+                        Uri.withAppendedPath(Contacts.ContactMethods.CONTENT_URI, "with_presence"),
+                        METHODS_WITH_PRESENCE_PROJECTION,
+                        Contacts.ContactMethods.DATA + "=?",
+                        new String[]{ senderEmail },
+                        null);
+
+                int presenceIcon = 0;
+
+                if (methodsCursor != null) {
+                    if (methodsCursor.moveToFirst() && 
+                            !methodsCursor.isNull(METHODS_STATUS_COLUMN)) {
+                        presenceIcon = Presence.getPresenceIconResourceId(
+                                methodsCursor.getInt(METHODS_STATUS_COLUMN));
+                    }
+                    methodsCursor.close();
+                }
+
+                mHandler.setSenderPresence(presenceIcon);
+            }
+        }.start();
+    }
+    
+    /**
+     * Update the actual UI.  Must be called from main thread (or handler)
+     * @param presenceIconId the presence of the sender, 0 for "unknown"
+     */
+    private void updateSenderPresence(int presenceIconId) {
+        if (presenceIconId == 0) {
+            mSenderPresenceView.setVisibility(View.GONE);                       
+        } else {
+            mSenderPresenceView.setImageResource(presenceIconId);
+            mSenderPresenceView.setVisibility(View.VISIBLE);
+        }
+    }
 
     class Listener extends MessagingListener {
         @Override
@@ -756,6 +875,7 @@ public class MessageView extends Activity
                         toText,
                         ccText,
                         hasAttachments);
+                startPresenceCheck();
             }
             catch (MessagingException me) {
                 if (Config.LOGV) {
