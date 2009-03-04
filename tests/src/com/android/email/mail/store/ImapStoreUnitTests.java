@@ -1,0 +1,154 @@
+/*
+ * Copyright (C) 2008 The Android Open Source Project
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *      http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+
+package com.android.email.mail.store;
+
+import com.android.email.mail.MessagingException;
+import com.android.email.mail.Transport;
+import com.android.email.mail.Folder.OpenMode;
+import com.android.email.mail.internet.BinaryTempFileBody;
+import com.android.email.mail.store.ImapResponseParser;
+import com.android.email.mail.transport.MockTransport;
+
+import java.util.Date;
+import java.util.Locale;
+
+import android.test.AndroidTestCase;
+import android.test.suitebuilder.annotation.SmallTest;
+import android.util.Log;
+
+/**
+ * This is a series of unit tests for the ImapStore class.  These tests must be locally
+ * complete - no server(s) required.
+ */
+@SmallTest
+public class ImapStoreUnitTests extends AndroidTestCase {
+    
+    /* These values are provided by setUp() */
+    private ImapStore mStore = null;
+    private ImapStore.ImapFolder mFolder = null;
+    
+    /**
+     * Setup code.  We generate a lightweight ImapStore and ImapStore.ImapFolder.
+     */
+    @Override
+    protected void setUp() throws Exception {
+        super.setUp();
+        
+        // These are needed so we can get at the inner classes
+        mStore = new ImapStore("imap://user:password@server:999");
+        mFolder = (ImapStore.ImapFolder) mStore.getFolder("INBOX");
+        
+        // This is needed for parsing mime messages
+        BinaryTempFileBody.setTempDirectory(this.getContext().getCacheDir());
+    }
+
+    /**
+     * Confirms simple non-SSL non-TLS login
+     */
+    public void testSimpleLogin() throws MessagingException {
+        
+        MockTransport mockTransport = openAndInjectMockTransport();
+        
+        // try to open it
+        setupOpenFolder(mockTransport);
+        mFolder.open(OpenMode.READ_WRITE);
+        
+        // TODO: inject specific facts in the initial folder SELECT and check them here
+    }
+    
+    /** 
+     * Confirms that ImapList object correctly returns an appropriate Date object
+     * without throwning MessagingException when getKeyedDate() is called.
+     *
+     * Here, we try a same test twice using two locales, Locale.US and the other.
+     * ImapList uses Locale class internally, and as a result, there's a
+     * possibility in which it may throw a MessageException when Locale is
+     * not Locale.US. Locale.JAPAN is a typical locale which emits different
+     * date formats, which had caused a bug before.
+     * @throws MessagingException
+     */
+    public void testImapListWithUsLocale() throws MessagingException {
+        Locale savedLocale = Locale.getDefault();
+        Locale.setDefault(Locale.US);
+        doTestImapList();
+        Locale.setDefault(Locale.JAPAN);
+        doTestImapList();
+        Locale.setDefault(savedLocale);
+    }
+    
+    private void doTestImapList() throws MessagingException {
+        ImapResponseParser parser = new ImapResponseParser(null);
+        ImapResponseParser.ImapList list = parser.new ImapList();
+        String key = "key";
+        String date = "01-Jan-2009 01:00:00 -0800";
+        list.add(key);
+        list.add(date);
+        Date result = list.getKeyedDate(key);
+        // "01-Jan-2009 09:00:00 +0000" => 1230800400000L 
+        assertEquals(1230800400000L, result.getTime());
+    }
+    
+    /**
+     * TODO: Test with SSL negotiation (faked)
+     * TODO: Test with SSL required but not supported
+     * TODO: Test with TLS negotiation (faked)
+     * TODO: Test with TLS required but not supported
+     * TODO: Test calling getMessageCount(), getMessages(), etc.
+     */
+    
+    /**
+     * TODO: Test the operation of checkSettings()
+     * TODO: Test small Store & Folder functions that manage folders & namespace
+     * TODO: Test small Folder functions that don't really do anything in Imap (if any)
+     */   
+    
+    /**
+     * TODO: Test the process of opening and indexing a mailbox with one unread message in it.
+     */
+
+    /**
+     * TODO: Test the scenario where the transport is "open" but not really (e.g. server closed).     
+    /**
+     * Set up a basic MockTransport. open it, and inject it into mStore
+     */
+    private MockTransport openAndInjectMockTransport() {
+        // Create mock transport and inject it into the ImapStore that's already set up
+        MockTransport mockTransport = new MockTransport();
+        mockTransport.setSecurity(Transport.CONNECTION_SECURITY_NONE);
+        mStore.setTransport(mockTransport);
+        return mockTransport;
+    }
+    
+    /**
+     * Helper which stuffs the mock with enough strings to satisfy a call to ImapFolder.open()
+     * 
+     * @param mockTransport the mock transport we're using
+     */
+    private void setupOpenFolder(MockTransport mockTransport) {
+        mockTransport.expect(null, "* OK Imap 2000 Ready To Assist You");
+        mockTransport.expect("1 LOGIN user \"password\"", 
+                "1 OK user authenticated (Success)");
+        mockTransport.expect("2 SELECT \"INBOX\"", new String[] {
+                "* FLAGS (\\Answered \\Flagged \\Draft \\Deleted \\Seen)",
+                "* OK [PERMANENTFLAGS (\\Answered \\Flagged \\Draft \\Deleted \\Seen \\*)]",
+                "* 0 EXISTS",
+                "* 0 RECENT",
+                "* OK [UNSEEN 0]",
+                "* OK [UIDNEXT 1]",
+                "2 OK [READ-WRITE] INBOX selected. (Success)"});
+    }
+}

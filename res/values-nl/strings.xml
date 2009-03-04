@@ -1,0 +1,174 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!-- Copyright (C) 2009 The Android Open Source Project
+
+     Licensed under the Apache License, Version 2.0 (the "License");
+     you may not use this file except in compliance with the License.
+     You may obtain a copy of the License at
+
+          http://www.apache.org/licenses/LICENSE-2.0
+
+     Unless required by applicable law or agreed to in writing, software
+     distributed under the License is distributed on an "AS IS" BASIS,
+     WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+     See the License for the specific language governing permissions and
+     limitations under the License.
+-->
+<resources xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:xliff="urn:oasis:names:tc:xliff:document:1.2">
+    <string name="read_attachment_label">"Bijlages van e-mail lezen"</string>
+    <string name="read_attachment_desc">"Staat deze toepassing toe om je E-mail-bijlages te lezen."</string>
+    <string name="app_name">"E-mail"</string>
+    <string name="accounts_title">"Je accounts"</string>
+    <string name="compose_title">"Opstellen"</string>
+    <string name="debug_title">"Foutopsporing"</string>
+    <string name="next_action">"Volgende"</string>
+    <string name="okay_action">"OK"</string>
+    <string name="cancel_action">"Annuleren"</string>
+    <string name="send_action">"Verzenden"</string>
+    <string name="reply_action">"Beantwoorden"</string>
+    <string name="reply_all_action">"Allen beantwoorden"</string>
+    <string name="delete_action">"Verwijderen"</string>
+    <string name="forward_action">"Doorsturen"</string>
+    <string name="done_action">"Gereed"</string>
+    <string name="discard_action">"Verwijderen"</string>
+    <string name="save_draft_action">"Opslaan als concept"</string>
+    <string name="refresh_action">"Vernieuwen"</string>
+    <string name="add_account_action">"Account toevoegen"</string>
+    <string name="compose_action">"Opstellen"</string>
+    <string name="search_action">"Zoeken"</string>
+    <string name="open_action">"Openen"</string>
+    <string name="account_settings_action">"Accountinstellingen"</string>
+    <string name="remove_account_action">"Account verwijderen"</string>
+    <string name="accounts_action">"Accounts"</string>
+    <string name="mark_as_read_action">"Markeren als gelezen"</string>
+    <string name="mark_as_unread_action">"Markeren als ongelezen"</string>
+    <string name="add_cc_bcc_action">"Cc/Bcc toevoegen"</string>
+    <string name="add_attachment_action">"Bijlage toevoegen"</string>
+    <string name="dump_settings_action">"Dumpinstellingen"</string>
+    <string name="accounts_context_menu_title">"Acountopties"</string>
+    <string name="status_loading_more">"Berichten laden..."</string>
+    <string name="status_network_error">"Verbindingsfout"</string>
+    <string name="status_loading_more_failed">"Probeer opnieuw meer berichten te laden"</string>
+    <string name="notification_new_title">"Nieuwe e-mail"</string>
+    <string name="notification_new_one_account_fmt">"<xliff:g id="UNREAD_MESSAGE_COUNT">%d</xliff:g> ongelezen (<xliff:g id="ACCOUNT">%s</xliff:g>)"</string>
+    <string name="notification_new_multi_account_fmt">"in <xliff:g id="NUMBER_ACCOUNTS">%d</xliff:g> accounts"</string>
+    <string name="special_mailbox_name_inbox">"Postvak IN"</string>
+    <string name="accounts_welcome">"Welkom bij E-mail instellen."\n\n"Je kunt elke account gebruiken met E-mail."\n\n"De meest populaire e-mailaccounts kunnen in twee stappen worden ingesteld."</string>
+    <string name="debug_version_fmt">"Versie: <xliff:g id="VERSION">%s</xliff:g>"</string>
+    <string name="debug_enable_debug_logging_label">"Extra logboek voor probleemoplossing bij gevoelige informatie maken?"</string>
+    <string name="debug_enable_sensitive_logging_label">"Probleemoplossing bij gevoelige informatie vastleggen? (Mogelijk worden er wachtwoorden weergegeven in de logboeken.)"</string>
+    <string name="message_list_load_more_messages_action">"Meer berichten laden"</string>
+    <string name="message_compose_to_hint">"Aan"</string>
+    <string name="message_compose_cc_hint">"Cc"</string>
+    <string name="message_compose_bcc_hint">"Bcc"</string>
+    <string name="message_compose_subject_hint">"Onderwerp"</string>
+    <!-- no translation found for message_compose_body_hint (7575406246484103697) -->
+    <skip />
+    <string name="message_compose_fwd_header_fmt">\n\n"-------- Oorspronkelijk bericht --------"\n"Onderwerp: <xliff:g id="SUBJECT">%s</xliff:g>"\n"Van: <xliff:g id="SENDER">%s</xliff:g>"\n"Aan: <xliff:g id="TO">%s</xliff:g>"\n"Cc: <xliff:g id="CC_0">%s</xliff:g>"\n\n</string>
+    <string name="message_compose_reply_header_fmt">\n\n"<xliff:g id="SENDER">%s</xliff:g>schreef:"\n\n</string>
+    <string name="message_compose_quoted_text_label">"Geciteerde tekst"</string>
+    <string name="message_compose_error_no_recipients">"Je moet minstens één ontvanger toevoegen."</string>
+    <string name="message_compose_attachments_skipped_toast">"Sommige bijlages kunnen niet worden doorgestuurd omdat ze niet zijn gedownload."</string>
+    <string name="message_view_to_label">"Aan:"</string>
+    <string name="message_view_cc_label">"Cc:"</string>
+    <string name="message_view_attachment_view_action">"Openen"</string>
+    <string name="message_view_attachment_download_action">"Opslaan"</string>
+    <string name="message_view_prev_action">"Vorig bericht"</string>
+    <string name="message_view_next_action">"Volgend bericht"</string>
+    <string name="message_view_status_attachment_saved">"Bijlage opgeslagen op SD-kaart als <xliff:g id="FILENAME">%s</xliff:g>."</string>
+    <string name="message_view_status_attachment_not_saved">"Kan bijlage niet opslaan op SD-kaart."</string>
+    <string name="message_view_show_pictures_instructions">"Selecteer Afbeeldingen weergeven om ingevoegde afbeeldingen weer te geven."</string>
+    <string name="message_view_show_pictures_action">"Afbeeldingen weergeven"</string>
+    <string name="message_view_fetching_attachment_toast">"Bijlage wordt opgehaald."</string>
+    <string name="message_deleted_toast">"Bericht verwijderd."</string>
+    <string name="message_discarded_toast">"Bericht wordt verwijderd"</string>
+    <string name="message_saved_toast">"Bericht opgeslagen als concept."</string>
+    <string name="account_setup_basics_title">"E-mail instellen"</string>
+    <string name="account_setup_basics_instructions">"Typ het e-mailadres van je account:"</string>
+    <string name="account_setup_basics_email_hint">"E-mailadres"</string>
+    <string name="account_setup_basics_password_hint">"Wachtwoord"</string>
+    <string name="account_setup_basics_default_label">"E-mail standaard vanaf deze account versturen"</string>
+    <string name="account_setup_basics_manual_setup_action">"Handmatig instellen"</string>
+    <string name="account_setup_username_password_toast">"Typ een geldig e-mailadres en wachtwoord"</string>
+    <string name="account_setup_check_settings_retr_info_msg">"Accountinformatie ophalen..."</string>
+    <string name="account_setup_check_settings_check_incoming_msg">"Serverinstellingen voor binnenkomende e-mail controleren..."</string>
+    <string name="account_setup_check_settings_check_outgoing_msg">"Serverinstellingen voor uitgaande e-mail controleren..."</string>
+    <string name="account_setup_check_settings_canceling_msg">"Annuleren..."</string>
+    <string name="account_setup_names_title">"E-mail instellen"</string>
+    <string name="account_setup_names_instructions">"Je account is ingesteld en er is e-mail onderweg."</string>
+    <string name="account_setup_names_account_name_label">"Geef deze account een naam (optioneel)"</string>
+    <string name="account_setup_names_user_name_label">"Je naam (wordt weergegeven in uitgaande berichten)"</string>
+    <string name="account_setup_account_type_title">"Nieuwe e-mailaccount toevoegen"</string>
+    <string name="account_setup_account_type_instructions">"Welk type account is dit?"</string>
+    <string name="account_setup_account_type_pop_action">"POP3-account"</string>
+    <string name="account_setup_account_type_imap_action">"IMAP-account"</string>
+    <string name="account_setup_incoming_title">"Serverinstellingen voor binnenkomende e-mail"</string>
+    <string name="account_setup_incoming_username_label">"Gebruikersnaam"</string>
+    <string name="account_setup_incoming_password_label">"Wachtwoord"</string>
+    <string name="account_setup_incoming_pop_server_label">"POP3-server"</string>
+    <string name="account_setup_incoming_imap_server_label">"IMAP-server"</string>
+    <string name="account_setup_incoming_port_label">"Port"</string>
+    <string name="account_setup_incoming_security_label">"Beveiligingstype"</string>
+    <string name="account_setup_incoming_security_none_label">"Geen"</string>
+    <string name="account_setup_incoming_security_ssl_optional_label">"SSL (indien beschikbaar)"</string>
+    <string name="account_setup_incoming_security_ssl_label">"SSL (altijd)"</string>
+    <string name="account_setup_incoming_security_tls_optional_label">"TLS (indien beschikbaar)"</string>
+    <string name="account_setup_incoming_security_tls_label">"TLS (altijd)"</string>
+    <string name="account_setup_incoming_delete_policy_label">"E-mail verwijderen van server"</string>
+    <string name="account_setup_incoming_delete_policy_never_label">"Nooit"</string>
+    <string name="account_setup_incoming_delete_policy_7days_label">"Na 7 dagen"</string>
+    <string name="account_setup_incoming_delete_policy_delete_label">"Als ik verwijder uit mijn Postvak IN"</string>
+    <string name="account_setup_incoming_imap_path_prefix_label">"Voorvoegsel IMAP-pad"</string>
+    <string name="account_setup_incoming_imap_path_prefix_hint">"Optioneel"</string>
+    <string name="account_setup_outgoing_title">"Serverinstellingen voor uitgaande e-mail"</string>
+    <string name="account_setup_outgoing_smtp_server_label">"SMTP-server"</string>
+    <string name="account_setup_outgoing_port_label">"Poort"</string>
+    <string name="account_setup_outgoing_security_label">"Beveiligingstype"</string>
+    <string name="account_setup_outgoing_require_login_label">"Aanmelden vereist"</string>
+    <string name="account_setup_outgoing_username_label">"Gebruikersnaam"</string>
+    <string name="account_setup_outgoing_password_label">"Wachtwoord"</string>
+    <string name="account_setup_options_title">"Accountopties"</string>
+    <string name="account_setup_options_mail_check_frequency_label">"Frequentie voor het controleren op nieuwe berichten"</string>
+    <string name="account_setup_options_mail_check_frequency_never">"Nooit"</string>
+    <string name="account_setup_options_mail_check_frequency_5min">"Elke 5 minuten"</string>
+    <string name="account_setup_options_mail_check_frequency_10min">"Elke 10 minuten"</string>
+    <string name="account_setup_options_mail_check_frequency_15min">"Elke 15 minuten"</string>
+    <string name="account_setup_options_mail_check_frequency_30min">"Elke 30 minuten"</string>
+    <string name="account_setup_options_mail_check_frequency_1hour">"Elk uur"</string>
+    <string name="account_setup_options_default_label">"E-mail standaard vanaf deze account versturen"</string>
+    <string name="account_setup_options_notify_label">"Stuur me een melding wanneer er e-mail binnenkomt."</string>
+    <string name="account_setup_failed_dlg_title">"Instellen is niet voltooid"</string>
+    <string name="account_setup_failed_dlg_auth_message">"Gebruikersnaam of wachtwoord onjuist"</string>
+    <string name="account_setup_failed_dlg_auth_message_fmt">"Gebruikersnaam of wachtwoord is onjuist."\n"(<xliff:g id="ERROR">%s</xliff:g>)"</string>
+    <string name="account_setup_failed_dlg_certificate_message">"Kan geen veilige verbinding met de server maken."</string>
+    <string name="account_setup_failed_dlg_certificate_message_fmt">"Kan geen veilige verbinding met de server tot stand brengen."\n"(<xliff:g id="ERROR">%s</xliff:g>)"</string>
+    <string name="account_setup_failed_dlg_server_message">"Kan geen verbinding maken met de server."</string>
+    <string name="account_setup_failed_dlg_server_message_fmt">"Kan geen verbinding maken met de server."\n"(<xliff:g id="ERROR">%s</xliff:g>)"</string>
+    <string name="account_setup_failed_tls_required">"TLS is vereist maar wordt niet ondersteund door de server."</string>
+    <string name="account_setup_failed_auth_required">"Verificatiemethoden worden niet ondersteund door de server."</string>
+    <string name="account_setup_failed_security">"Kan geen verbinding maken met de server wegens een beveiligingsfout."</string>
+    <string name="account_setup_failed_ioerror">"Kan geen verbinding met de server maken."</string>
+    <string name="account_setup_failed_dlg_edit_details_action">"Details bewerken"</string>
+    <string name="account_settings_title_fmt">"Algemene instellingen"</string>
+    <string name="account_settings_default_label">"Standaardaccount"</string>
+    <string name="account_settings_default_summary">"E-mail standaard vanaf deze account versturen"</string>
+    <string name="account_settings_notify_label">"Meldingen via e-mail"</string>
+    <string name="account_settings_notify_summary">"Melding in statusbalk wanneer er e-mail binnenkomt"</string>
+    <string name="account_settings_mail_check_frequency_label">"Frequentie voor het controleren op nieuwe e-mail"</string>
+    <string name="account_settings_incoming_label">"Instellingen voor binnenkomende e-mail"</string>
+    <string name="account_settings_outgoing_label">"Instellingen voor uitgaande e-mail"</string>
+    <string name="account_settings_add_account_label">"Nieuwe account toevoegen"</string>
+    <string name="account_settings_description_label">"Accountnaam"</string>
+    <string name="account_settings_name_label">"Je naam"</string>
+    <string name="account_settings_notifications">"Instellingen voor meldingen"</string>
+    <string name="account_settings_vibrate_enable">"Trillen"</string>
+    <string name="account_settings_vibrate_summary">"Ook trillen bij ontvangst van e-mail"</string>
+    <string name="account_settings_ringtone">"Beltoon selecteren"</string>
+    <string name="account_settings_servers">"Serverinstellingen"</string>
+    <string name="account_delete_dlg_title">"Account verwijderen"</string>
+    <string name="account_delete_dlg_instructions_fmt">"De account <xliff:g id="ACCOUNT">%s</xliff:g> wordt verwijderd van E-mail"</string>
+    <string name="provider_note_yahoo">"Toegang tot postvakken wordt niet ondersteund door sommige typen Yahoo!-mailaccounts. Als er problemen ontstaan bij het verbinden, ga je naar yahoo.com voor meer informatie."</string>
+    <string name="provider_note_yahoo_uk">"Ga voordat je deze e-mailaccount instelt naar de website van Yahoo! en schakel toegang met POP3 in voor deze account."</string>
+    <string name="provider_note_live">"Alleen sommige Plus-accounts hebben POP-toegang waarmee dit programma verbinding kan maken. Als je je niet kunt aanmelden met het juiste e-mailadres en wachtwoord, heb je mogelijk niet betaald voor je Plus-account. Start de webbrowser voor toegang tot deze e-mailaccounts."</string>
+    <string name="provider_note_t_online">"Voordat je deze e-mailaccount instelt, ga je naar de website van T-Online en maak je een wachtwoord voor toegang tot e-mail via POP3."</string>
+</resources>
