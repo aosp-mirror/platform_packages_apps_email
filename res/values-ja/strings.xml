@@ -50,8 +50,11 @@
     <string name="status_network_error">"接続エラー"</string>
     <string name="status_loading_more_failed">"追加のメールを読み込み直す"</string>
     <string name="notification_new_title">"新着メール"</string>
-    <string name="notification_new_one_account_fmt">"未読<xliff:g id="UNREAD_MESSAGE_COUNT">%d</xliff:g>件 (<xliff:g id="ACCOUNT">%s</xliff:g>)"</string>
-    <string name="notification_new_multi_account_fmt">"（<xliff:g id="NUMBER_ACCOUNTS">%d</xliff:g>個のアカウント）"</string>
+    <!-- no translation found for notification_new_one_account_fmt:one (3422945912787702191) -->
+    <!-- no translation found for notification_new_one_account_fmt:few (6543078667692990869) -->
+    <!-- no translation found for notification_new_one_account_fmt:other (6937673814351448076) -->
+    <!-- no translation found for notification_new_multi_account_fmt:few (1991747245324120305) -->
+    <!-- no translation found for notification_new_multi_account_fmt:other (2723797835410343458) -->
     <string name="special_mailbox_name_inbox">"受信トレイ"</string>
     <string name="accounts_welcome">"メールアカウントのセットアップ"\n\n"お好きなメールアカウントを登録してください。"\n\n"画面の手順に沿って簡単に追加できます。"</string>
     <string name="debug_version_fmt">"バージョン: <xliff:g id="VERSION">%s</xliff:g>"</string>
@@ -73,8 +76,6 @@
     <string name="message_view_cc_label">"Cc:"</string>
     <string name="message_view_attachment_view_action">"開く"</string>
     <string name="message_view_attachment_download_action">"保存"</string>
-    <string name="message_view_prev_action">"前のメッセージ"</string>
-    <string name="message_view_next_action">"次のメッセージ"</string>
     <string name="message_view_status_attachment_saved">"「<xliff:g id="FILENAME">%s</xliff:g>」という名前で添付ファイルをSDカードに保存しました。"</string>
     <string name="message_view_status_attachment_not_saved">"添付ファイルをSDカードに保存できません。"</string>
     <string name="message_view_show_pictures_instructions">"埋め込まれている画像を見るには[画像を表示]を選択してください。"</string>

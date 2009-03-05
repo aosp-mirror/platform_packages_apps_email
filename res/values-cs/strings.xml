@@ -50,8 +50,11 @@
     <string name="status_network_error">"Chyba připojení"</string>
     <string name="status_loading_more_failed">"Opakovat načítání dalších zpráv"</string>
     <string name="notification_new_title">"Nový e-mail"</string>
-    <string name="notification_new_one_account_fmt">"Nepřečtené zprávy: <xliff:g id="UNREAD_MESSAGE_COUNT">%d</xliff:g>(<xliff:g id="ACCOUNT">%s</xliff:g>)"</string>
-    <string name="notification_new_multi_account_fmt">"v(e) <xliff:g id="NUMBER_ACCOUNTS">%d</xliff:g> účtech"</string>
+    <!-- no translation found for notification_new_one_account_fmt:one (3422945912787702191) -->
+    <!-- no translation found for notification_new_one_account_fmt:few (6543078667692990869) -->
+    <!-- no translation found for notification_new_one_account_fmt:other (6937673814351448076) -->
+    <!-- no translation found for notification_new_multi_account_fmt:few (1991747245324120305) -->
+    <!-- no translation found for notification_new_multi_account_fmt:other (2723797835410343458) -->
     <string name="special_mailbox_name_inbox">"Doručená pošta"</string>
     <string name="accounts_welcome">"Vítá vás nastavení aplikace Email!"\n\n"V aplikaci Email můžete používat jakékoli e-mailové účty."\n\n"Nejznámější e-mailové účty lze nastavit ve dvou krocích!"</string>
     <string name="debug_version_fmt">"Verze: <xliff:g id="VERSION">%s</xliff:g>"</string>
@@ -73,8 +76,6 @@
     <string name="message_view_cc_label">"Kopie:"</string>
     <string name="message_view_attachment_view_action">"Otevřít"</string>
     <string name="message_view_attachment_download_action">"Uložit"</string>
-    <string name="message_view_prev_action">"Náhled zprávy"</string>
-    <string name="message_view_next_action">"Další zpráva"</string>
     <string name="message_view_status_attachment_saved">"Příloha byla uložena na SD kartu jako <xliff:g id="FILENAME">%s</xliff:g>."</string>
     <string name="message_view_status_attachment_not_saved">"Nelze uložit přílohu na SD kartu."</string>
     <string name="message_view_show_pictures_instructions">"Výběrem možnosti Zobrazit obrázky zobrazíte vnořené obrázky."</string>

@@ -50,8 +50,11 @@
     <string name="status_network_error">"Errore di connessione"</string>
     <string name="status_loading_more_failed">"Prova nuovamente a caricare altri messaggi"</string>
     <string name="notification_new_title">"Nuova email"</string>
-    <string name="notification_new_one_account_fmt">"<xliff:g id="UNREAD_MESSAGE_COUNT">%d</xliff:g> da leggere (<xliff:g id="ACCOUNT">%s</xliff:g>)"</string>
-    <string name="notification_new_multi_account_fmt">"in <xliff:g id="NUMBER_ACCOUNTS">%d</xliff:g> account"</string>
+    <!-- no translation found for notification_new_one_account_fmt:one (3422945912787702191) -->
+    <!-- no translation found for notification_new_one_account_fmt:few (6543078667692990869) -->
+    <!-- no translation found for notification_new_one_account_fmt:other (6937673814351448076) -->
+    <!-- no translation found for notification_new_multi_account_fmt:few (1991747245324120305) -->
+    <!-- no translation found for notification_new_multi_account_fmt:other (2723797835410343458) -->
     <string name="special_mailbox_name_inbox">"Posta in arrivo"</string>
     <string name="accounts_welcome">"Benvenuto in Impostazione email."\n\n"Usa qualunque account email con Email."\n\n"Puoi impostare gli account email più popolari in due semplici passaggi."</string>
     <string name="debug_version_fmt">"Versione: <xliff:g id="VERSION">%s</xliff:g>"</string>
@@ -73,8 +76,6 @@
     <string name="message_view_cc_label">"Cc:"</string>
     <string name="message_view_attachment_view_action">"Apri"</string>
     <string name="message_view_attachment_download_action">"Salva"</string>
-    <string name="message_view_prev_action">"Messaggio prec."</string>
-    <string name="message_view_next_action">"Messaggio succ."</string>
     <string name="message_view_status_attachment_saved">"Allegato salvato su scheda SD come <xliff:g id="FILENAME">%s</xliff:g>."</string>
     <string name="message_view_status_attachment_not_saved">"Impossibile salvare l\'allegato nella scheda SD."</string>
     <string name="message_view_show_pictures_instructions">"Seleziona \"Mostra immagini\" per visualizzare le immagini incorporate."</string>

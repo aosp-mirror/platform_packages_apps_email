@@ -50,8 +50,11 @@
     <string name="status_network_error">"連線錯誤"</string>
     <string name="status_loading_more_failed">"重新載入更多郵件"</string>
     <string name="notification_new_title">"新電子郵件"</string>
-    <string name="notification_new_one_account_fmt">"<xliff:g id="UNREAD_MESSAGE_COUNT">%d</xliff:g> 封未讀取的郵件 (<xliff:g id="ACCOUNT">%s</xliff:g>)"</string>
-    <string name="notification_new_multi_account_fmt">"在 <xliff:g id="NUMBER_ACCOUNTS">%d</xliff:g> 個帳戶中"</string>
+    <!-- no translation found for notification_new_one_account_fmt:one (3422945912787702191) -->
+    <!-- no translation found for notification_new_one_account_fmt:few (6543078667692990869) -->
+    <!-- no translation found for notification_new_one_account_fmt:other (6937673814351448076) -->
+    <!-- no translation found for notification_new_multi_account_fmt:few (1991747245324120305) -->
+    <!-- no translation found for notification_new_multi_account_fmt:other (2723797835410343458) -->
     <string name="special_mailbox_name_inbox">"收件匣"</string>
     <string name="accounts_welcome">"歡迎使用 [電子郵件] 設定！"\n\n"[電子郵件] 設定可讓您使用各種電子郵件帳戶！"\n\n"大部分常見的電子郵件只需要兩個步驟就能設定完成！"</string>
     <string name="debug_version_fmt">"版本：<xliff:g id="VERSION">%s</xliff:g>"</string>
@@ -73,8 +76,6 @@
     <string name="message_view_cc_label">"副本："</string>
     <string name="message_view_attachment_view_action">"開啟"</string>
     <string name="message_view_attachment_download_action">"儲存"</string>
-    <string name="message_view_prev_action">"上一封郵件"</string>
-    <string name="message_view_next_action">"下一封郵件"</string>
     <string name="message_view_status_attachment_saved">"已將附件儲存至 SD 記憶卡，檔名為 <xliff:g id="FILENAME">%s</xliff:g>。"</string>
     <string name="message_view_status_attachment_not_saved">"無法將附件儲存至 SD 記憶卡。"</string>
     <string name="message_view_show_pictures_instructions">"選取 [顯示圖片] 即可顯示內嵌的圖片。"</string>

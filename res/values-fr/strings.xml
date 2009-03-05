@@ -50,8 +50,11 @@
     <string name="status_network_error">"Erreur de connexion"</string>
     <string name="status_loading_more_failed">"Essayer de charger plus de messages"</string>
     <string name="notification_new_title">"Nouvel e-mail"</string>
-    <string name="notification_new_one_account_fmt">"<xliff:g id="UNREAD_MESSAGE_COUNT">%d</xliff:g> non lus (<xliff:g id="ACCOUNT">%s</xliff:g>)"</string>
-    <string name="notification_new_multi_account_fmt">"dans <xliff:g id="NUMBER_ACCOUNTS">%d</xliff:g> comptes"</string>
+    <!-- no translation found for notification_new_one_account_fmt:one (3422945912787702191) -->
+    <!-- no translation found for notification_new_one_account_fmt:few (6543078667692990869) -->
+    <!-- no translation found for notification_new_one_account_fmt:other (6937673814351448076) -->
+    <!-- no translation found for notification_new_multi_account_fmt:few (1991747245324120305) -->
+    <!-- no translation found for notification_new_multi_account_fmt:other (2723797835410343458) -->
     <string name="special_mailbox_name_inbox">"Boîte de réception"</string>
     <string name="accounts_welcome">"Bienvenue dans le programme de configuration de votre messagerie électronique !"\n\n"Utilisez le compte de votre choix."\n\n"Les comptes de messagerie les plus courants peuvent être configurés en deux étapes !"</string>
     <string name="debug_version_fmt">"Version : <xliff:g id="VERSION">%s</xliff:g>"</string>
@@ -73,8 +76,6 @@
     <string name="message_view_cc_label">"Cc :"</string>
     <string name="message_view_attachment_view_action">"Ouvrir"</string>
     <string name="message_view_attachment_download_action">"Enregistrer"</string>
-    <string name="message_view_prev_action">"Message préc."</string>
-    <string name="message_view_next_action">"Message suivant"</string>
     <string name="message_view_status_attachment_saved">"Pièce jointe enregistrée sur la carte SD sous le nom <xliff:g id="FILENAME">%s</xliff:g>."</string>
     <string name="message_view_status_attachment_not_saved">"Impossible d\'enregistrer la pièce jointe sur la carte SD."</string>
     <string name="message_view_show_pictures_instructions">"Sélectionnez \"Afficher les images\" pour afficher les images intégrées."</string>

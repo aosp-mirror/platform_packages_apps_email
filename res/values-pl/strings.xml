@@ -50,8 +50,11 @@
     <string name="status_network_error">"Błąd połączenia"</string>
     <string name="status_loading_more_failed">"Ponów próbę załadowania większej liczby wiadomości"</string>
     <string name="notification_new_title">"Nowa wiadomość e-mail"</string>
-    <string name="notification_new_one_account_fmt">"Nieprzeczytane: <xliff:g id="UNREAD_MESSAGE_COUNT">%d</xliff:g> (<xliff:g id="ACCOUNT">%s</xliff:g>)"</string>
-    <string name="notification_new_multi_account_fmt">"na <xliff:g id="NUMBER_ACCOUNTS">%d</xliff:g> kontach"</string>
+    <!-- no translation found for notification_new_one_account_fmt:one (3422945912787702191) -->
+    <!-- no translation found for notification_new_one_account_fmt:few (6543078667692990869) -->
+    <!-- no translation found for notification_new_one_account_fmt:other (6937673814351448076) -->
+    <!-- no translation found for notification_new_multi_account_fmt:few (1991747245324120305) -->
+    <!-- no translation found for notification_new_multi_account_fmt:other (2723797835410343458) -->
     <string name="special_mailbox_name_inbox">"Odebrane"</string>
     <string name="accounts_welcome">"Zapraszamy do skonfigurowania poczty e-mail!"\n\n"W tej usłudze można korzystać z dowolnego konta e-mail."\n\n"Konfiguracja najpopularniejszych kont e-mail składa się z tylko 2 etapów."</string>
     <string name="debug_version_fmt">"Wersja: <xliff:g id="VERSION">%s</xliff:g>"</string>
@@ -73,8 +76,6 @@
     <string name="message_view_cc_label">"DW:"</string>
     <string name="message_view_attachment_view_action">"Otwórz"</string>
     <string name="message_view_attachment_download_action">"Zapisz"</string>
-    <string name="message_view_prev_action">"Poprzednia wiadomość"</string>
-    <string name="message_view_next_action">"Następna wiadomość"</string>
     <string name="message_view_status_attachment_saved">"Załącznik został zapisany na karcie SD jako <xliff:g id="FILENAME">%s</xliff:g>."</string>
     <string name="message_view_status_attachment_not_saved">"Nie można zapisać załącznika na karcie SD."</string>
     <string name="message_view_show_pictures_instructions">"Wybierz opcję Pokaż obrazy, aby wyświetlić osadzone obrazy."</string>

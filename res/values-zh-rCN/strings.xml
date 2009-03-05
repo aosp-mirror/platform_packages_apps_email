@@ -50,8 +50,11 @@
     <string name="status_network_error">"连接错误"</string>
     <string name="status_loading_more_failed">"重新尝试载入更多邮件"</string>
     <string name="notification_new_title">"新电子邮件"</string>
-    <string name="notification_new_one_account_fmt">"有 <xliff:g id="UNREAD_MESSAGE_COUNT">%d</xliff:g> 封未读邮件 (<xliff:g id="ACCOUNT">%s</xliff:g>)"</string>
-    <string name="notification_new_multi_account_fmt">"在 <xliff:g id="NUMBER_ACCOUNTS">%d</xliff:g> 个帐户中"</string>
+    <!-- no translation found for notification_new_one_account_fmt:one (3422945912787702191) -->
+    <!-- no translation found for notification_new_one_account_fmt:few (6543078667692990869) -->
+    <!-- no translation found for notification_new_one_account_fmt:other (6937673814351448076) -->
+    <!-- no translation found for notification_new_multi_account_fmt:few (1991747245324120305) -->
+    <!-- no translation found for notification_new_multi_account_fmt:other (2723797835410343458) -->
     <string name="special_mailbox_name_inbox">"收件箱"</string>
     <string name="accounts_welcome">"欢迎设置电子邮件！"\n\n"在此可使用任意电子邮件帐户。"\n\n"大多数常见的电子邮件帐户通过 2 步即可完成设置！"</string>
     <string name="debug_version_fmt">"版本：<xliff:g id="VERSION">%s</xliff:g>"</string>
@@ -73,8 +76,6 @@
     <string name="message_view_cc_label">"抄送："</string>
     <string name="message_view_attachment_view_action">"打开"</string>
     <string name="message_view_attachment_download_action">"保存"</string>
-    <string name="message_view_prev_action">"上一封邮件"</string>
-    <string name="message_view_next_action">"下一封邮件"</string>
     <string name="message_view_status_attachment_saved">"附件已保存到 SD 卡中，文件名为 <xliff:g id="FILENAME">%s</xliff:g>。"</string>
     <string name="message_view_status_attachment_not_saved">"无法将附件保存到 SD 卡。"</string>
     <string name="message_view_show_pictures_instructions">"选择“显示图片”可显示嵌入的图片。"</string>

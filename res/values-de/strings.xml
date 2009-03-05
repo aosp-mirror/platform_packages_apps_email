@@ -50,8 +50,11 @@
     <string name="status_network_error">"Verbindungsfehler"</string>
     <string name="status_loading_more_failed">"Laden weiterer Nachrichten erneut versuchen"</string>
     <string name="notification_new_title">"Neue E-Mail"</string>
-    <string name="notification_new_one_account_fmt">"<xliff:g id="UNREAD_MESSAGE_COUNT">%d</xliff:g> ungelesen (<xliff:g id="ACCOUNT">%s</xliff:g>)"</string>
-    <string name="notification_new_multi_account_fmt">"in <xliff:g id="NUMBER_ACCOUNTS">%d</xliff:g> Google-Konten"</string>
+    <!-- no translation found for notification_new_one_account_fmt:one (3422945912787702191) -->
+    <!-- no translation found for notification_new_one_account_fmt:few (6543078667692990869) -->
+    <!-- no translation found for notification_new_one_account_fmt:other (6937673814351448076) -->
+    <!-- no translation found for notification_new_multi_account_fmt:few (1991747245324120305) -->
+    <!-- no translation found for notification_new_multi_account_fmt:other (2723797835410343458) -->
     <string name="special_mailbox_name_inbox">"Posteingang"</string>
     <string name="accounts_welcome">"Willkommen bei der Einrichtung von E-Mails."\n\n"Nutzen Sie ein beliebiges E-Mail-Konto."\n\n"Gängige E-Mail-Konten können in nur zwei Schritten eingerichtet werden."</string>
     <string name="debug_version_fmt">"Version: <xliff:g id="VERSION">%s</xliff:g>"</string>
@@ -73,8 +76,6 @@
     <string name="message_view_cc_label">"Cc:"</string>
     <string name="message_view_attachment_view_action">"Öffnen"</string>
     <string name="message_view_attachment_download_action">"Speichern"</string>
-    <string name="message_view_prev_action">"Vorherige Nachricht"</string>
-    <string name="message_view_next_action">"Nächste Nachricht"</string>
     <string name="message_view_status_attachment_saved">"Anhang auf SD-Speicherkarte unter \"<xliff:g id="FILENAME">%s</xliff:g>\" abgespeichert"</string>
     <string name="message_view_status_attachment_not_saved">"Speichern des Anhangs auf SD-Karte nicht möglich"</string>
     <string name="message_view_show_pictures_instructions">"Wählen Sie \"Bilder anzeigen\" aus, um eingebettete Bilder anzuzeigen."</string>

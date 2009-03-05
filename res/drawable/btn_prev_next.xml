@@ -19,6 +19,6 @@
 -->
 
 <selector xmlns:android="http://schemas.android.com/apk/res/android">
-    <item android:state_pressed="true" android:drawable="@drawable/btn_email_pressed_63" />
-    <item android:state_focused="true" android:drawable="@drawable/btn_email_focused_63" />
+    <item android:state_pressed="true" android:drawable="@drawable/btn_icon_bg_pressed" />
+    <item android:state_focused="true" android:drawable="@drawable/btn_icon_bg_focused" />
 </selector>

@@ -91,10 +91,29 @@
     <string name="status_loading_more_failed">Retry loading more messages</string>
     <!-- Notification title in status bar -->
     <string name="notification_new_title">New email</string>
-    <!-- Notification message in notifications window and one account has new mail; e.g, "279 unread (someone@google.com)" -->
-    <string name="notification_new_one_account_fmt"><xliff:g id="unread_message_count">%d</xliff:g> unread (<xliff:g id="account">%s</xliff:g>)</string> 
-    <!-- Notification message in notifications window and 2+ accounts has new mail; e.g, "in 3 accounts" -->
-    <string name="notification_new_multi_account_fmt">in <xliff:g id="number_accounts">%d</xliff:g> accounts</string>
+
+    <!-- Notification message in notifications window when one account has
+         one or more new messages; e.g, "279 unread (someone@google.com)". -->
+    <plurals name="notification_new_one_account_fmt">
+        <!-- Case of one new message. -->
+        <item quantity="one"><xliff:g id="unread_message_count" example="1">%d</xliff:g> unread (<xliff:g id="account">%s</xliff:g>)</item> 
+
+        <!-- Case of "few" (small number of) new messages. -->
+        <item quantity="few"><xliff:g id="unread_message_count" example="2">%d</xliff:g> unread (<xliff:g id="account">%s</xliff:g>)</item> 
+
+        <!-- Case of a plural number of new messages. -->
+        <item quantity="other"><xliff:g id="unread_message_count" example="279">%d</xliff:g> unread (<xliff:g id="account">%s</xliff:g>)</item>
+    </plurals>
+
+
+    <!-- Notification message in notifications window when 2+ accounts have new mail; e.g, "in 3 accounts". -->
+    <plurals name="notification_new_multi_account_fmt">
+        <!-- Case of "few" (small number of) accounts with unread messages. -->
+        <item quantity="few">in <xliff:g id="number_accounts" example="2">%d</xliff:g> accounts</item>
+        <!-- Case of plural number of accounts with unread messages. -->
+        <item quantity="other">in <xliff:g id="number_accounts" example="10">%d</xliff:g> accounts</item>
+    </plurals>
+        
 
     <!-- In the folder list view, the inbox will be displayed with this name -->
     <string name="special_mailbox_name_inbox">Inbox</string>
@@ -146,10 +165,6 @@
     <string name="message_view_attachment_view_action">Open</string>
     <!-- Button name -->
     <string name="message_view_attachment_download_action">Save</string>
-    <!-- Button name on read email screen -->
-    <string name="message_view_prev_action">Previous</string>
-    <!-- Button name on read email screen -->
-    <string name="message_view_next_action">Next</string>
     <!-- Toast after saving attachment -->
     <string name="message_view_status_attachment_saved">Attachment saved to SD card as <xliff:g id="filename">%s</xliff:g>.</string>
     <!-- Toast after attachment could not be saved-->

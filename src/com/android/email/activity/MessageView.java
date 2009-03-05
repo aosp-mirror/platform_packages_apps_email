@@ -60,10 +60,7 @@ import android.view.MenuItem;
 import android.view.View;
 import android.view.Window;
 import android.view.View.OnClickListener;
-import android.webkit.CacheManager;
-import android.webkit.UrlInterceptHandler;
 import android.webkit.WebView;
-import android.webkit.CacheManager.CacheResult;
 import android.widget.Button;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
@@ -82,7 +79,7 @@ import java.util.Random;
 import java.util.regex.Matcher;
 
 public class MessageView extends Activity
-        implements UrlInterceptHandler, OnClickListener {
+        implements OnClickListener {
     private static final String EXTRA_ACCOUNT = "com.android.email.MessageView_account";
     private static final String EXTRA_FOLDER = "com.android.email.MessageView_folder";
     private static final String EXTRA_MESSAGE = "com.android.email.MessageView_message";
@@ -324,8 +321,6 @@ public class MessageView extends Activity
         findViewById(R.id.reply_all).setOnClickListener(this);
         findViewById(R.id.delete).setOnClickListener(this);
         findViewById(R.id.show_pictures).setOnClickListener(this);
-
-        // UrlInterceptRegistry.registerHandler(this);
 
         mMessageContentView.getSettings().setBlockNetworkImage(true);
         mMessageContentView.getSettings().setSupportZoom(false);
@@ -654,26 +649,6 @@ public class MessageView extends Activity
         super.onCreateOptionsMenu(menu);
         getMenuInflater().inflate(R.menu.message_view_option, menu);
         return true;
-    }
-
-    public CacheResult service(String url, Map<String, String> headers) {
-        String prefix = "http://cid/";
-        if (url.startsWith(prefix)) {
-            try {
-                String contentId = url.substring(prefix.length());
-                final Part part = MimeUtility.findPartByContentId(mMessage, "<" + contentId + ">");
-                if (part != null) {
-                    CacheResult cr = new CacheManager.CacheResult();
-                    // TODO looks fixed in Mainline, cr.setInputStream
-                    // part.getBody().writeTo(cr.getStream());
-                    return cr;
-                }
-            }
-            catch (Exception e) {
-                // TODO
-            }
-        }
-        return null;
     }
 
     private Bitmap getPreviewIcon(Attachment attachment) {
