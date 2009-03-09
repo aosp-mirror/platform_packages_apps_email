@@ -26,6 +26,7 @@ import android.content.Context;
 import android.content.Intent;
 import android.test.ActivityInstrumentationTestCase2;
 import android.test.suitebuilder.annotation.MediumTest;
+import android.test.suitebuilder.annotation.Suppress;
 import android.view.MenuItem;
 import android.webkit.WebView;
 import android.widget.TextView;
@@ -112,6 +113,7 @@ public class MessageViewTests
      * Tests that various UI calls can be made safely even before the messaging controller
      * has completed loading the message.  This catches various race conditions.
      */
+    @Suppress
     public void testUiRaceConditions() {
         
         MessageView a = getActivity();

@@ -181,6 +181,13 @@
     <string name="message_discarded_toast">Message discarded.</string>
     <!-- Toast shown briefly while saving a draft -->
     <string name="message_saved_toast">Message saved as draft.</string>
+    <!-- Dialog title when prompting before creating a contact from incoming email -->
+    <string name="add_contact_dlg_title">Add Contact</string>
+    <!-- Dialog message when prompting before creating a contact from incoming email.  Includes
+         the email address, e.g. "Add xyz@foo.com to contacts" -->
+    <string name="add_contact_dlg_message_fmt">Add \"<xliff:g id="email">%s</xliff:g>\" to contacts
+        </string>
+
     <!-- Title of screen when setting up new email account -->
     <string name="account_setup_basics_title">Set up email</string>
     <!-- On "Set up email" screen, brief instructions -->
