@@ -30,7 +30,7 @@
             <!-- android:baselineAligned="true" -->
             <ImageView
                 android:id="@+id/presence"
-                android:visibility="gone"
+                android:src="@drawable/presence_placeholder"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:layout_marginRight="5px" 

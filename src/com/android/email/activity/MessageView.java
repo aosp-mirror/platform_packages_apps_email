@@ -49,6 +49,7 @@ import android.os.Environment;
 import android.os.Handler;
 import android.os.Process;
 import android.provider.Contacts;
+import android.provider.Contacts.Intents;
 import android.provider.Contacts.People;
 import android.provider.Contacts.Presence;
 import android.text.util.Regex;
@@ -445,15 +446,18 @@ public class MessageView extends Activity
         if (mMessage != null) {
             try {
                 Address senderEmail = mMessage.getFrom()[0];
+                Uri contactUri = Uri.fromParts("mailto", senderEmail.getAddress(), null);
                 
-                // TODO look up contact
-                // TODO action VIEW if exists
-                // TODO disambiguate
-                // TODO create
+                Intent contactIntent = new Intent(Contacts.Intents.SHOW_OR_CREATE_CONTACT);
+                contactIntent.setData(contactUri);
                 
-                Toast.makeText(this, 
-                        "Look up contact for " + senderEmail.toFriendly(), Toast.LENGTH_SHORT)
-                        .show();
+                // Only provide personal name hint if we have one
+                String senderPersonal = senderEmail.getPersonal();
+                if (senderPersonal != null) {
+                    contactIntent.putExtra(Intents.Insert.NAME, senderPersonal);
+                }
+                
+                startActivity(contactIntent);
             } catch (MessagingException me) {
                 if (Config.LOGV) {
                     Log.v(Email.LOG_TAG, "loadMessageForViewHeadersAvailable", me);
@@ -821,11 +825,11 @@ public class MessageView extends Activity
      */
     private void updateSenderPresence(int presenceIconId) {
         if (presenceIconId == 0) {
-            mSenderPresenceView.setVisibility(View.GONE);                       
-        } else {
-            mSenderPresenceView.setImageResource(presenceIconId);
-            mSenderPresenceView.setVisibility(View.VISIBLE);
+            // This is a placeholder used for "unknown" presence, including signed off,
+            // no presence relationship.
+            presenceIconId = R.drawable.presence_placeholder;
         }
+        mSenderPresenceView.setImageResource(presenceIconId);
     }
 
     class Listener extends MessagingListener {

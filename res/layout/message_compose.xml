@@ -34,6 +34,7 @@
                     android:layout_marginLeft="6px"
                     android:layout_marginRight="6px"
                     android:inputType="textEmailAddress|textMultiLine"
+                    android:imeOptions="actionNext"
                     android:hint="@string/message_compose_to_hint" />
                 <MultiAutoCompleteTextView
                     android:id="@+id/cc" android:layout_width="fill_parent"
@@ -43,6 +44,7 @@
                     android:layout_marginLeft="6px"
                     android:layout_marginRight="6px"
                     android:inputType="textEmailAddress|textMultiLine"
+                    android:imeOptions="actionNext"
                     android:hint="@string/message_compose_cc_hint"
                     android:visibility="gone" />
                 <MultiAutoCompleteTextView
@@ -53,6 +55,7 @@
                     android:layout_marginLeft="6px"
                     android:layout_marginRight="6px"
                     android:inputType="textEmailAddress|textMultiLine"
+                    android:imeOptions="actionNext"
                     android:hint="@string/message_compose_bcc_hint"
                     android:visibility="gone" />
                 <EditText android:id="@+id/subject"
@@ -63,7 +66,9 @@
                     android:layout_marginLeft="6px"
                     android:layout_marginRight="6px"
                     android:hint="@string/message_compose_subject_hint"
-                    android:inputType="textEmailSubject|textAutoCorrect|textCapSentences|textImeMultiLine" />
+                    android:inputType="textEmailSubject|textAutoCorrect|textCapSentences|textImeMultiLine" 
+                    android:imeOptions="actionNext"
+                    />
                 <!--
                     Empty container for storing attachments. We'll stick
                     instances of message_compose_attachment.xml in here.
@@ -85,7 +90,9 @@
                 android:gravity="left|top"
                 android:minLines="3"
                 android:hint="@string/message_compose_body_hint"
-                android:inputType="textMultiLine|textAutoCorrect|textCapSentences" />
+                android:inputType="textMultiLine|textAutoCorrect|textCapSentences"
+                android:imeOptions="actionSend|flagNoEnterAction"
+                />
         <!--  quoted text bar -->
             <RelativeLayout android:id="@+id/quoted_text_bar"
                 android:layout_width="fill_parent"

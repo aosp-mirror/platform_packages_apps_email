@@ -60,6 +60,7 @@ import android.text.TextWatcher;
 import android.text.util.Rfc822Tokenizer;
 import android.util.Config;
 import android.util.Log;
+import android.view.KeyEvent;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
@@ -83,7 +84,8 @@ import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
 
-public class MessageCompose extends Activity implements OnClickListener, OnFocusChangeListener {
+public class MessageCompose extends Activity implements OnClickListener, OnFocusChangeListener,
+        TextView.OnEditorActionListener {
     private static final String ACTION_REPLY = "com.android.email.intent.action.REPLY";
     private static final String ACTION_REPLY_ALL = "com.android.email.intent.action.REPLY_ALL";
     private static final String ACTION_FORWARD = "com.android.email.intent.action.FORWARD";
@@ -403,6 +405,8 @@ public class MessageCompose extends Activity implements OnClickListener, OnFocus
         mSaveButton.setOnClickListener(this);
 
         mSubjectView.setOnFocusChangeListener(this);
+        
+        mMessageContentView.setOnEditorActionListener(this);
 
         if (savedInstanceState != null) {
             /*
@@ -870,6 +874,20 @@ public class MessageCompose extends Activity implements OnClickListener, OnFocus
                 mDraftNeedsSaving = true;
                 break;
         }
+    }
+    
+    /**
+     * For better compatibility with an on-screen keyboard, we allow the user to "send"
+     * from the final text field (the message compose view).
+     */
+    public boolean onEditorAction(TextView v, int actionId, KeyEvent event) {
+        if (v == mMessageContentView) {     // make sure it's the right view
+            if (event == null) {            // don't allow enter key to send
+                onSend();
+                return true;
+            }
+        }
+        return false;
     }
 
     @Override
