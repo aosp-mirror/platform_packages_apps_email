@@ -827,7 +827,7 @@ public class MessageView extends Activity
         if (presenceIconId == 0) {
             // This is a placeholder used for "unknown" presence, including signed off,
             // no presence relationship.
-            presenceIconId = R.drawable.presence_placeholder;
+            presenceIconId = R.drawable.presence_inactive;
         }
         mSenderPresenceView.setImageResource(presenceIconId);
     }

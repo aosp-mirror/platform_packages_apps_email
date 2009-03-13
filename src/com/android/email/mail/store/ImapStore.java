@@ -649,7 +649,8 @@ public class ImapStore extends Store {
             if (fp.contains(FetchProfile.Item.ENVELOPE)) {
                 fetchFields.add("INTERNALDATE");
                 fetchFields.add("RFC822.SIZE");
-                fetchFields.add("BODY.PEEK[HEADER.FIELDS (date subject from content-type to cc)]");
+                fetchFields.add("BODY.PEEK[HEADER.FIELDS " + 
+                        "(date subject from content-type to cc message-id)]");
             }
             if (fp.contains(FetchProfile.Item.STRUCTURE)) {
                 fetchFields.add("BODYSTRUCTURE");

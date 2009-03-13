@@ -34,6 +34,7 @@
     <EditText
         android:id="@+id/account_description"
         android:inputType="textCapWords"
+        android:imeOptions="actionDone"
         android:layout_height="wrap_content"
         android:layout_width="fill_parent" />
     <TextView
@@ -45,6 +46,7 @@
     <EditText
         android:id="@+id/account_name"
         android:inputType="textPersonName"
+        android:imeOptions="actionDone"
         android:layout_height="wrap_content"
         android:layout_width="fill_parent" />
     <View

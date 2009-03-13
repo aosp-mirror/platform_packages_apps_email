@@ -67,7 +67,9 @@ public class MimeMessage extends Message {
          * Every new messages gets a Message-ID
          */
         try {
-            setHeader("Message-ID", generateMessageId());
+            // TODO: This is wasteful, since we overwrite it on incoming or locally-read messages.
+            // Should only generate it on as-needed basis.
+            setMessageId(generateMessageId());
         }
         catch (MessagingException me) {
             throw new RuntimeException("Unable to create MimeMessage", me);
@@ -261,6 +263,30 @@ public class MimeMessage extends Message {
             setHeader("Reply-to", Address.toString(replyTo));
             mReplyTo = replyTo;
         }
+    }
+    
+    /**
+     * Set the mime "Message-ID" header
+     * @param messageId the new Message-ID value
+     * @throws MessagingException
+     */
+    public void setMessageId(String messageId) throws MessagingException {
+        setHeader("Message-ID", messageId);
+    }
+    
+    /**
+     * Get the mime "Message-ID" header.  Note, this field is preset (randomly) in every new 
+     * message, so it should never return null.
+     * @return the Message-ID header string
+     * @throws MessagingException
+     */
+    public String getMessageId() throws MessagingException {
+        String[] headers = getHeader("Message-ID");
+        if (headers != null) {
+            // There should really only be one Message-ID here
+            return headers[0];
+        }
+        throw new MessagingException("A message was found without a Message-ID header");
     }
 
     public void saveChanges() throws MessagingException {

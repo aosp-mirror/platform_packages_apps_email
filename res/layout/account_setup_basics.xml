@@ -30,6 +30,7 @@
         android:id="@+id/account_email"
         android:hint="@string/account_setup_basics_email_hint"
         android:inputType="textEmailAddress"
+        android:imeOptions="actionNext"
         android:layout_height="wrap_content"
         android:layout_width="fill_parent"
         />
@@ -37,6 +38,7 @@
         android:id="@+id/account_password"
         android:hint="@string/account_setup_basics_password_hint"
         android:inputType="textPassword"
+        android:imeOptions="actionDone"
         android:layout_height="wrap_content"
         android:layout_width="fill_parent"
         android:nextFocusDown="@+id/next"

@@ -91,7 +91,7 @@
                 android:minLines="3"
                 android:hint="@string/message_compose_body_hint"
                 android:inputType="textMultiLine|textAutoCorrect|textCapSentences"
-                android:imeOptions="actionSend|flagNoEnterAction"
+                android:imeOptions="actionDone|flagNoEnterAction"
                 />
         <!--  quoted text bar -->
             <RelativeLayout android:id="@+id/quoted_text_bar"

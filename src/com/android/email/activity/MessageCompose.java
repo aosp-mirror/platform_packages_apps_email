@@ -84,8 +84,7 @@ import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
 
-public class MessageCompose extends Activity implements OnClickListener, OnFocusChangeListener,
-        TextView.OnEditorActionListener {
+public class MessageCompose extends Activity implements OnClickListener, OnFocusChangeListener {
     private static final String ACTION_REPLY = "com.android.email.intent.action.REPLY";
     private static final String ACTION_REPLY_ALL = "com.android.email.intent.action.REPLY_ALL";
     private static final String ACTION_FORWARD = "com.android.email.intent.action.FORWARD";
@@ -406,8 +405,6 @@ public class MessageCompose extends Activity implements OnClickListener, OnFocus
 
         mSubjectView.setOnFocusChangeListener(this);
         
-        mMessageContentView.setOnEditorActionListener(this);
-
         if (savedInstanceState != null) {
             /*
              * This data gets used in onCreate, so grab it here instead of onRestoreIntstanceState
@@ -588,6 +585,15 @@ public class MessageCompose extends Activity implements OnClickListener, OnFocus
         message.setRecipients(RecipientType.CC, getAddresses(mCcView));
         message.setRecipients(RecipientType.BCC, getAddresses(mBccView));
         message.setSubject(mSubjectView.getText().toString());
+        
+        // Preserve Message-ID header if found
+        // This makes sure that multiply-saved drafts are identified as the same message
+        if (mSourceMessage != null && mSourceMessage instanceof MimeMessage) {
+            String messageIdHeader = ((MimeMessage)mSourceMessage).getMessageId();
+            if (messageIdHeader != null) {
+                message.setMessageId(messageIdHeader);
+            }
+        }
 
         /*
          * Build the Body that will contain the text of the message. We'll decide where to
@@ -876,20 +882,6 @@ public class MessageCompose extends Activity implements OnClickListener, OnFocus
         }
     }
     
-    /**
-     * For better compatibility with an on-screen keyboard, we allow the user to "send"
-     * from the final text field (the message compose view).
-     */
-    public boolean onEditorAction(TextView v, int actionId, KeyEvent event) {
-        if (v == mMessageContentView) {     // make sure it's the right view
-            if (event == null) {            // don't allow enter key to send
-                onSend();
-                return true;
-            }
-        }
-        return false;
-    }
-
     @Override
     public boolean onOptionsItemSelected(MenuItem item) {
         switch (item.getItemId()) {

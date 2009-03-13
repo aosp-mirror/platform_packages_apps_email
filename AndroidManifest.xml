@@ -41,37 +41,31 @@
         <activity
             android:name=".activity.setup.AccountSetupBasics"
             android:label="@string/account_setup_basics_title"
-            android:screenOrientation="nosensor"
             >
         </activity>
         <activity
             android:name=".activity.setup.AccountSetupAccountType"
             android:label="@string/account_setup_account_type_title"
-            android:screenOrientation="nosensor"
             >
         </activity>
         <activity
             android:name=".activity.setup.AccountSetupIncoming"
             android:label="@string/account_setup_incoming_title"
-            android:screenOrientation="nosensor"
             >
         </activity>
         <activity
             android:name=".activity.setup.AccountSetupOutgoing"
             android:label="@string/account_setup_outgoing_title"
-            android:screenOrientation="nosensor"
             >
         </activity>
         <activity
             android:name=".activity.setup.AccountSetupOptions"
             android:label="@string/account_setup_options_title"
-            android:screenOrientation="nosensor"
             >
         </activity>
         <activity
             android:name=".activity.setup.AccountSetupNames"
             android:label="@string/account_setup_names_title"
-            android:screenOrientation="nosensor"
             >
         </activity>
         <!-- XXX Note: this activity is hacked to ignore config changes,
@@ -80,13 +74,11 @@
             android:name=".activity.setup.AccountSetupCheckSettings"
             android:label="@string/account_setup_check_settings_title"
             android:configChanges="keyboardHidden|orientation"
-            android:screenOrientation="nosensor"
             >
         </activity>
         <activity
             android:name=".activity.setup.AccountSettings"
             android:label="@string/account_settings_action"
-            android:screenOrientation="nosensor"
             >
         </activity>
 
