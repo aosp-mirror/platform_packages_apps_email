@@ -16,7 +16,11 @@
 
 package com.android.email.activity;
 
+import com.android.email.Account;
+import com.android.email.Email;
+import com.android.email.Preferences;
 import com.android.email.R;
+import com.android.email.activity.MessageCompose;
 import com.android.email.mail.Address;
 import com.android.email.mail.Message;
 import com.android.email.mail.MessagingException;
@@ -25,10 +29,13 @@ import com.android.email.mail.internet.MimeMessage;
 import com.android.email.mail.internet.TextBody;
 
 import android.content.Intent;
+import android.net.Uri;
 import android.test.ActivityInstrumentationTestCase2;
 import android.test.suitebuilder.annotation.MediumTest;
+import android.view.KeyEvent;
 import android.view.View;
 import android.widget.EditText;
+import android.content.Context;
 
 /**
  * Various instrumentation tests for MessageCompose.  
@@ -46,6 +53,8 @@ public class MessageComposeInstrumentationTests
     private static final String SENDER = "sender@android.com";
     private static final String REPLYTO = "replyto@android.com";
     private static final String RECIPIENT_TO = "recipient-to@android.com";
+    private static final String RECIPIENT_CC = "recipient-cc@android.com";
+    private static final String RECIPIENT_BCC = "recipient-bcc@android.com";
     private static final String SUBJECT = "This is the subject";
     private static final String BODY = "This is the body.  This is also the body.";
    
@@ -59,12 +68,24 @@ public class MessageComposeInstrumentationTests
         super("com.android.email", MessageCompose.class);
     }
 
-    /**
-     * Common setup code for all tests.  Attaches to the Activity and 
+    /*
+     * The Message Composer activity is only enabled if one or more accounts
+     * are configured on the device and a default account has been specified,
+     * so we do that here before every test.
      */
     @Override
     protected void setUp() throws Exception {
         super.setUp();
+        Context context = getInstrumentation().getTargetContext();
+        Account[] accounts = Preferences.getPreferences(context).getAccounts();
+        if (accounts.length > 0)
+        {
+            // This depends on getDefaultAccount() to auto-assign the default account, if necessary
+            Preferences.getPreferences(context).getDefaultAccount();
+            Email.setServicesEnabled(context);
+        }
+        Intent intent = new Intent(Intent.ACTION_VIEW);
+        setActivityIntent(intent);
         final MessageCompose a = getActivity();
         mToView = (EditText) a.findViewById(R.id.to);
         mSubjectView = (EditText) a.findViewById(R.id.subject);
@@ -105,7 +126,7 @@ public class MessageComposeInstrumentationTests
         runTestOnUiThread(new Runnable() {
             public void run() {
                 a.processSourceMessage(message);
-                checkFields(SENDER + ", ", "Re: " + SUBJECT, null);
+                checkFields(SENDER + ", ", null, null, "Re: " + SUBJECT, null);
                 checkFocused(mMessageView);
             }
         });
@@ -117,7 +138,7 @@ public class MessageComposeInstrumentationTests
             public void run() {
                 resetViews();
                 a.processSourceMessage(message);
-                checkFields(REPLYTO + ", ", "Re: " + SUBJECT, null);
+                checkFields(REPLYTO + ", ", null, null, "Re: " + SUBJECT, null);
                 checkFocused(mMessageView);
             }
         });
@@ -139,7 +160,7 @@ public class MessageComposeInstrumentationTests
         runTestOnUiThread(new Runnable() {
             public void run() {
                 a.processSourceMessage(message);
-                checkFields(null, "Fwd: " + SUBJECT, null);
+                checkFields(null, null, null, "Fwd: " + SUBJECT, null);
                 checkFocused(mToView);
             }
         });
@@ -164,7 +185,7 @@ public class MessageComposeInstrumentationTests
         runTestOnUiThread(new Runnable() {
             public void run() {
                 a.processSourceMessage(message);
-                checkFields(RECIPIENT_TO + ", ", SUBJECT, BODY);
+                checkFields(RECIPIENT_TO + ", ", null, null, SUBJECT, BODY);
                 checkFocused(mMessageView);
             }
         });
@@ -177,7 +198,7 @@ public class MessageComposeInstrumentationTests
             public void run() {
                 resetViews();
                 a.processSourceMessage(message);
-                checkFields(RECIPIENT_TO + ", ", null, BODY);
+                checkFields(RECIPIENT_TO + ", ", null, null, null, BODY);
                 checkFocused(mSubjectView);
             }
         });
@@ -185,13 +206,92 @@ public class MessageComposeInstrumentationTests
     }
     
     /**
+     * Test for processing of Intent EXTRA_* fields that impact the headers:
+     *   Intent.EXTRA_EMAIL, Intent.EXTRA_CC, Intent.EXTRA_BCC, Intent.EXTRA_SUBJECT
+     */
+    public void testIntentHeaderExtras() throws MessagingException, Throwable {
+        
+        Intent intent = new Intent(Intent.ACTION_VIEW);
+        intent.putExtra(Intent.EXTRA_EMAIL, new String[] { RECIPIENT_TO });
+        intent.putExtra(Intent.EXTRA_CC, new String[] { RECIPIENT_CC });
+        intent.putExtra(Intent.EXTRA_BCC, new String[] { RECIPIENT_BCC });
+        intent.putExtra(Intent.EXTRA_SUBJECT, SUBJECT);
+        
+        final MessageCompose a = getActivity();
+        final Intent i2 = new Intent(intent);
+        
+        runTestOnUiThread(new Runnable() {
+            public void run() {
+                a.initFromIntent(i2);
+                checkFields(RECIPIENT_TO + ", ", RECIPIENT_CC, RECIPIENT_BCC, SUBJECT, null);
+                checkFocused(mMessageView);
+            }
+        });
+    }
+    
+    /**
+     * Test for processing of a typical browser "share" intent, e.g.
+     * type="text/plain", EXTRA_TEXT="http:link.server.com"
+     */
+    public void testIntentSendPlainText() throws MessagingException, Throwable {
+        
+        Intent intent = new Intent(Intent.ACTION_SEND);
+        intent.setType("text/plain");
+        intent.putExtra(Intent.EXTRA_TEXT, BODY);
+        
+        final MessageCompose a = getActivity();
+        final Intent i2 = new Intent(intent);
+        
+        runTestOnUiThread(new Runnable() {
+            public void run() {
+                a.initFromIntent(i2);
+                checkFields(null, null, null, null, BODY);
+                checkFocused(mToView);
+            }
+        });
+    }
+    
+    /**
+     * Test for processing of a typical browser Mailto intent, e.g.
+     * action=android.intent.action.VIEW
+     * categories={android.intent.category.BROWSABLE}
+     * data=mailto:user@domain.com?subject=This%20is%20%the%subject
+     */
+    public void testBrowserMailToIntent() throws MessagingException, Throwable {
+        
+        Intent intent = new Intent(Intent.ACTION_VIEW);
+        Uri uri = Uri.parse("mailto:" + RECIPIENT_TO + "?subject=This%20is%20the%20subject");
+        intent.setData(uri);
+        
+        final MessageCompose a = getActivity();
+        final Intent i2 = new Intent(intent);
+        
+        runTestOnUiThread(new Runnable() {
+            public void run() {
+                a.initFromIntent(i2);
+                checkFields(RECIPIENT_TO + ", ", null, null, "This is the subject", null);
+                checkFocused(mMessageView);
+            }
+        });
+    }
+    
+    /**
+     * TODO: test mailto: with simple encoding mode
+     * TODO: test mailto: URI with all optional fields
+     * TODO: come up with a way to add a very small attachment
+     * TODO: confirm the various details between handling of SEND, VIEW, SENDTO
+     */
+    
+    /**
      * Helper method to quickly check (and assert) on the to, subject, and content views.
      * 
-     * @param to expected value
-     * @param subject expected value
-     * @param content expected value
+     * @param to expected value (null = it must be empty)
+     * @param cc expected value (null = it must be empty)
+     * @param bcc expected value (null = it must be empty)
+     * @param subject expected value (null = it must be empty)
+     * @param content expected value (null = it must be empty)
      */
-    private void checkFields(String to, String subject, String content) {
+    private void checkFields(String to, String cc, String bcc, String subject, String content) {
         String toText = mToView.getText().toString();
         if (to == null) {
             assertEquals(0, toText.length());
@@ -271,6 +371,54 @@ public class MessageComposeInstrumentationTests
         return message;
     }
     
+    /**
+     * Tests for the comma-inserting logic.  The logic is applied equally to To: Cc: and Bcc:
+     * but we only run the full set on To:
+     */
+    public void testCommaInserting() throws Throwable {
+        // simple appending cases
+        checkCommaInsert("a", "", false);
+        checkCommaInsert("a@", "", false);
+        checkCommaInsert("a@b", "", false);
+        checkCommaInsert("a@b.", "", true); // non-optimal, but matches current implementation
+        checkCommaInsert("a@b.c", "", true);
+        
+        // confirm works properly for internal editing
+        checkCommaInsert("me@foo.com, you", " they@bar.com", false);
+        checkCommaInsert("me@foo.com, you@", "they@bar.com", false);
+        checkCommaInsert("me@foo.com, you@bar", " they@bar.com", false);
+        checkCommaInsert("me@foo.com, you@bar.", " they@bar.com", true); // non-optimal
+        checkCommaInsert("me@foo.com, you@bar.com", " they@bar.com", true);
+        
+        // check a couple of multi-period cases
+        checkCommaInsert("me.myself@foo", "", false);
+        checkCommaInsert("me.myself@foo.com", "", true);
+        checkCommaInsert("me@foo.co.uk", "", true);
+        
+        // cases that should not append because there's already a comma
+        checkCommaInsert("a@b.c,", "", false);
+        checkCommaInsert("me@foo.com, you@bar.com,", " they@bar.com", false);
+        checkCommaInsert("me.myself@foo.com,", "", false);
+        checkCommaInsert("me@foo.co.uk,", "", false);
+    }
 
+    /**
+     * Check comma insertion logic for a single try on the To: field
+     */
+    private void checkCommaInsert(final String before, final String after, boolean expectComma)
+            throws Throwable {
+        String expect = new String(before + (expectComma ? ", " : " ") + after);
+
+        runTestOnUiThread(new Runnable() {
+            public void run() {
+                mToView.setText(before + after);
+                mToView.setSelection(before.length());
+            }
+        });
+        getInstrumentation().sendStringSync(" ");
+        String result = mToView.getText().toString();
+        assertEquals(expect, result);
+      
+     }
 
 }

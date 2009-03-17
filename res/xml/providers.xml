@@ -244,20 +244,20 @@
 
     <!-- Poland -->
     <provider id="onet" label="Onet.pl" domain="poczta.onet.pl">
-        <incoming uri="pop3://pop3.poczta.onet.pl:110" username="$email" />
-        <outgoing uri="smtp://smtp.poczta.onet.pl:25" username="$email" />
+        <incoming uri="pop3://pop3.poczta.onet.pl" username="$email" />
+        <outgoing uri="smtp://smtp.poczta.onet.pl" username="$email" />
     </provider>
     <provider id="wirtualna" label="Wirtualna Polska" domain="wp.pl">
-        <incoming uri="pop3://pop3.wp.pl:110" username="$user" />
-        <outgoing uri="smtp://smtp.wp.pl:25" username="$user" />
+        <incoming uri="pop3://pop3.wp.pl" username="$user" />
+        <outgoing uri="smtp://smtp.wp.pl" username="$user" />
     </provider>
     <provider id="interia" label="Interia" domain="interia.pl">
-        <incoming uri="pop3+ssl://poczta.interia.pl:995" username="$user" />
-        <outgoing uri="smtp+ssl://poczta.interia.pl:25" username="$user" />
+        <incoming uri="pop3+ssl://poczta.interia.pl" username="$user" />
+        <outgoing uri="smtp+ssl://poczta.interia.pl" username="$user" />
     </provider>
     <provider id="o2" label="O2" domain="o2.pl">
-        <incoming uri="pop3+ssl://poczta.o2.pl:995" username="$user" />
-        <outgoing uri="smtp+ssl://poczta.o2.pl:25" username="$user" />
+        <incoming uri="pop3+ssl://poczta.o2.pl" username="$user" />
+        <outgoing uri="smtp+ssl://poczta.o2.pl" username="$user" />
     </provider>
 
 </providers>

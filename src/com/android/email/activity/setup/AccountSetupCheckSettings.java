@@ -196,6 +196,7 @@ public class AccountSetupCheckSettings extends Activity implements OnClickListen
                 }
                 mProgressBar.setIndeterminate(false);
                 new AlertDialog.Builder(AccountSetupCheckSettings.this)
+                        .setIcon(android.R.drawable.ic_dialog_alert)
                         .setTitle(getString(R.string.account_setup_failed_dlg_title))
                         .setMessage(getString(msgResId, args))
                         .setCancelable(true)

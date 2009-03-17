@@ -48,6 +48,7 @@ import com.android.email.EmailAddressValidator;
 import com.android.email.Preferences;
 import com.android.email.R;
 import com.android.email.Utility;
+import com.android.email.activity.Debug;
 
 /**
  * Prompts the user for the email address and password. Also prompts for
@@ -59,6 +60,7 @@ import com.android.email.Utility;
  */
 public class AccountSetupBasics extends Activity
         implements OnClickListener, TextWatcher {
+    private final static boolean ENTER_DEBUG_SCREEN = true;
     private final static String EXTRA_ACCOUNT = "com.android.email.AccountSetupBasics.account";
     private final static int DIALOG_NOTE = 1;
     private final static String STATE_KEY_PROVIDER =
@@ -180,6 +182,8 @@ public class AccountSetupBasics extends Activity
         if (id == DIALOG_NOTE) {
             if (mProvider != null && mProvider.note != null) {
                 return new AlertDialog.Builder(this)
+                    .setIcon(android.R.drawable.ic_dialog_alert)
+                    .setTitle(android.R.string.dialog_alert_title)
                     .setMessage(mProvider.note)
                     .setPositiveButton(
                             getString(R.string.okay_action),
@@ -294,6 +298,14 @@ public class AccountSetupBasics extends Activity
         String[] emailParts = email.split("@");
         String user = emailParts[0].trim();
         String domain = emailParts[1].trim();
+        
+        // Alternate entry to the debug options screen (for devices without a physical keyboard:
+        //  Username: d@d
+        //  Password: debug
+        if (ENTER_DEBUG_SCREEN && "d@d".equals(email) && "debug".equals(password)) {
+            startActivity(new Intent(this, Debug.class));
+            return;
+        }
 
         mAccount = new Account(this);
         mAccount.setName(getOwnerName());

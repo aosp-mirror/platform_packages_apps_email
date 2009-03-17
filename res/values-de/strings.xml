@@ -50,8 +50,11 @@
     <string name="status_network_error">"Verbindungsfehler"</string>
     <string name="status_loading_more_failed">"Laden weiterer Nachrichten erneut versuchen"</string>
     <string name="notification_new_title">"Neue E-Mail"</string>
-    <string name="notification_new_one_account_fmt">"<xliff:g id="UNREAD_MESSAGE_COUNT">%d</xliff:g> ungelesen (<xliff:g id="ACCOUNT">%s</xliff:g>)"</string>
-    <string name="notification_new_multi_account_fmt">"in <xliff:g id="NUMBER_ACCOUNTS">%d</xliff:g> Google-Konten"</string>
+    <!-- no translation found for notification_new_one_account_fmt:one (3422945912787702191) -->
+    <!-- no translation found for notification_new_one_account_fmt:few (6543078667692990869) -->
+    <!-- no translation found for notification_new_one_account_fmt:other (6937673814351448076) -->
+    <!-- no translation found for notification_new_multi_account_fmt:few (1991747245324120305) -->
+    <!-- no translation found for notification_new_multi_account_fmt:other (2723797835410343458) -->
     <string name="special_mailbox_name_inbox">"Posteingang"</string>
     <string name="accounts_welcome">"Willkommen bei der Einrichtung von E-Mails."\n\n"Nutzen Sie ein beliebiges E-Mail-Konto."\n\n"Gängige E-Mail-Konten können in nur zwei Schritten eingerichtet werden."</string>
     <string name="debug_version_fmt">"Version: <xliff:g id="VERSION">%s</xliff:g>"</string>
@@ -62,18 +65,17 @@
     <string name="message_compose_cc_hint">"Cc"</string>
     <string name="message_compose_bcc_hint">"Bcc"</string>
     <string name="message_compose_subject_hint">"Betreff"</string>
+    <!-- no translation found for message_compose_body_hint (7575406246484103697) -->
+    <skip />
     <string name="message_compose_fwd_header_fmt">\n\n"-------- Originalnachricht --------"\n"Betreff: <xliff:g id="SUBJECT">%s</xliff:g>"\n"Von: <xliff:g id="SENDER">%s</xliff:g>"\n"An: <xliff:g id="TO">%s</xliff:g>"\n"Cc: <xliff:g id="CC_0">%s</xliff:g>"\n\n</string>
     <string name="message_compose_reply_header_fmt">\n\n"<xliff:g id="SENDER">%s</xliff:g> schrieb:"\n\n</string>
     <string name="message_compose_quoted_text_label">"Zitierter Text"</string>
     <string name="message_compose_error_no_recipients">"Sie müssen mindestens einen Empfänger hinzufügen."</string>
     <string name="message_compose_attachments_skipped_toast">"Einige Anhänge können nicht weitergeleitet werden, da Sie noch nicht heruntergeladen wurden."</string>
     <string name="message_view_to_label">"An:"</string>
-    <!-- no translation found for message_view_cc_label (6322992216371163122) -->
-    <skip />
+    <string name="message_view_cc_label">"Cc:"</string>
     <string name="message_view_attachment_view_action">"Öffnen"</string>
     <string name="message_view_attachment_download_action">"Speichern"</string>
-    <string name="message_view_prev_action">"Vorherige Nachricht"</string>
-    <string name="message_view_next_action">"Nächste Nachricht"</string>
     <string name="message_view_status_attachment_saved">"Anhang auf SD-Speicherkarte unter \"<xliff:g id="FILENAME">%s</xliff:g>\" abgespeichert"</string>
     <string name="message_view_status_attachment_not_saved">"Speichern des Anhangs auf SD-Karte nicht möglich"</string>
     <string name="message_view_show_pictures_instructions">"Wählen Sie \"Bilder anzeigen\" aus, um eingebettete Bilder anzuzeigen."</string>
@@ -88,18 +90,15 @@
     <string name="account_setup_basics_password_hint">"Passwort"</string>
     <string name="account_setup_basics_default_label">"E-Mails standardmäßig von diesem Konto senden"</string>
     <string name="account_setup_basics_manual_setup_action">"Manuelle Einrichtung"</string>
-    <!-- no translation found for account_setup_username_password_toast (4441448542557889481) -->
-    <skip />
+    <string name="account_setup_username_password_toast">"Geben Sie eine gültige E-Mail-Adresse und ein gültiges Passwort ein."</string>
     <string name="account_setup_check_settings_retr_info_msg">"Kontoinformationen werden abgerufen..."</string>
     <string name="account_setup_check_settings_check_incoming_msg">"Einstellungen des Eingangsservers werden überprüft..."</string>
     <string name="account_setup_check_settings_check_outgoing_msg">"Einstellungen des Ausgangsservers werden überprüft..."</string>
     <string name="account_setup_check_settings_canceling_msg">"Vorgang wird abgebrochen..."</string>
     <string name="account_setup_names_title">"E-Mail einrichten"</string>
     <string name="account_setup_names_instructions">"Ihr Konto ist nun eingerichtet."</string>
-    <!-- no translation found for account_setup_names_account_name_label (8033895024273259196) -->
-    <skip />
-    <!-- no translation found for account_setup_names_user_name_label (8967410178488604770) -->
-    <skip />
+    <string name="account_setup_names_account_name_label">"Konto benennen (optional)"</string>
+    <string name="account_setup_names_user_name_label">"Ihr Name (wird für ausgehende Nachrichten angezeigt)"</string>
     <string name="account_setup_account_type_title">"Neues E-Mail-Konto hinzufügen"</string>
     <string name="account_setup_account_type_instructions">"Um welchen Kontotyp handelt es sich hierbei?"</string>
     <string name="account_setup_account_type_pop_action">"POP3-Konto"</string>
@@ -116,8 +115,7 @@
     <string name="account_setup_incoming_security_ssl_label">"SSL (immer)"</string>
     <string name="account_setup_incoming_security_tls_optional_label">"TLS (wenn verfügbar)"</string>
     <string name="account_setup_incoming_security_tls_label">"TLS (immer)"</string>
-    <!-- no translation found for account_setup_incoming_delete_policy_label (9213590134693857912) -->
-    <skip />
+    <string name="account_setup_incoming_delete_policy_label">"E-Mail von Server löschen"</string>
     <string name="account_setup_incoming_delete_policy_never_label">"Nie"</string>
     <string name="account_setup_incoming_delete_policy_7days_label">"Nach 7 Tagen"</string>
     <string name="account_setup_incoming_delete_policy_delete_label">"Wenn ich sie aus dem Posteingang lösche"</string>
@@ -143,20 +141,14 @@
     <string name="account_setup_failed_dlg_title">"Einrichtung konnte nicht abgeschlossen werden"</string>
     <string name="account_setup_failed_dlg_auth_message">"Nutzername oder Passwort falsch"</string>
     <string name="account_setup_failed_dlg_auth_message_fmt">"Nutzername oder Password falsch"\n"(<xliff:g id="ERROR">%s</xliff:g>)"</string>
-    <!-- no translation found for account_setup_failed_dlg_certificate_message (961843413600482906) -->
-    <skip />
+    <string name="account_setup_failed_dlg_certificate_message">"Keine sichere Verbindung zu Server möglich"</string>
     <string name="account_setup_failed_dlg_certificate_message_fmt">"Keine sichere Verbindung zum Server möglich"\n"(<xliff:g id="ERROR">%s</xliff:g>)"</string>
-    <!-- no translation found for account_setup_failed_dlg_server_message (1828270369532779265) -->
-    <skip />
+    <string name="account_setup_failed_dlg_server_message">"Keine Verbindung zu Server möglich"</string>
     <string name="account_setup_failed_dlg_server_message_fmt">"Keine Verbindung zum Server möglich"\n"(<xliff:g id="ERROR">%s</xliff:g>)"</string>
-    <!-- no translation found for account_setup_failed_tls_required (307030406688611327) -->
-    <skip />
-    <!-- no translation found for account_setup_failed_auth_required (1676242821459638150) -->
-    <skip />
-    <!-- no translation found for account_setup_failed_security (6142264248671379943) -->
-    <skip />
-    <!-- no translation found for account_setup_failed_ioerror (7391458717708933095) -->
-    <skip />
+    <string name="account_setup_failed_tls_required">"TLS erforderlich aber nicht von Server unterstützt"</string>
+    <string name="account_setup_failed_auth_required">"Authentifizierungsmethoden nicht von Server unterstützt"</string>
+    <string name="account_setup_failed_security">"Verbindung zu Server kann aufgrund eines Sicherheitsfehlers nicht geöffnet werden."</string>
+    <string name="account_setup_failed_ioerror">"Verbindung zu Server kann nicht geöffnet werden"</string>
     <string name="account_setup_failed_dlg_edit_details_action">"Details bearbeiten"</string>
     <string name="account_settings_title_fmt">"Allgemeine Einstellungen"</string>
     <string name="account_settings_default_label">"Standardkonto"</string>
@@ -174,7 +166,7 @@
     <string name="account_settings_vibrate_summary">"Bei E-Mail-Eingang zusätzlich vibrieren"</string>
     <string name="account_settings_ringtone">"Klingelton auswählen"</string>
     <string name="account_settings_servers">"Servereinstellungen"</string>
-    <string name="account_delete_dlg_title">"Entfernen"</string>
+    <string name="account_delete_dlg_title">"Konto entfernen"</string>
     <string name="account_delete_dlg_instructions_fmt">"Das Konto \"<xliff:g id="ACCOUNT">%s</xliff:g>\" wird aus Email entfernt."</string>
     <string name="provider_note_yahoo">"Der Zugang zum Postfach bestimmter E-Mail-Konten von Yahoo! wird nicht unterstützt. Bei Verbindungsproblemen besuchen Sie die Website von Yahoo! für weitere Informationen."</string>
     <string name="provider_note_yahoo_uk">"Vor Eröffnung dieses E-Mail-Kontos bitte die Website von Yahoo! besuchen und E-Mail-Zugang über POP3 für dieses Konto aktivieren."</string>

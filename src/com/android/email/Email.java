@@ -16,20 +16,18 @@
 
 package com.android.email;
 
-import java.io.File;
+import com.android.email.activity.AccountShortcutPicker;
+import com.android.email.activity.MessageCompose;
+import com.android.email.mail.internet.BinaryTempFileBody;
+import com.android.email.service.BootReceiver;
+import com.android.email.service.MailService;
 
 import android.app.Application;
 import android.content.ComponentName;
 import android.content.Context;
 import android.content.pm.PackageManager;
-import android.util.Config;
-import android.util.Log;
 
-import com.android.email.activity.MessageCompose;
-import com.android.email.mail.internet.BinaryTempFileBody;
-import com.android.email.mail.internet.MimeMessage;
-import com.android.email.service.BootReceiver;
-import com.android.email.service.MailService;
+import java.io.File;
 
 public class Email extends Application {
     public static final String LOG_TAG = "Email";
@@ -48,15 +46,18 @@ public class Email extends Application {
      */
     public static boolean DEBUG_SENSITIVE = false;
 
-
     /**
      * The MIME type(s) of attachments we're willing to send. At the moment it is not possible
      * to open a chooser with a list of filter types, so the chooser is only opened with the first
      * item in the list. The entire list will be used to filter down attachments that are added
      * with Intent.ACTION_SEND.
+     * 
+     * TODO: It should be legal to send anything requested by another app.  This would provide
+     * parity with Gmail's behavior.
      */
     public static final String[] ACCEPTABLE_ATTACHMENT_SEND_TYPES = new String[] {
         "image/*",
+        "video/*",
     };
 
     /**
@@ -136,6 +137,11 @@ public class Email extends Application {
         }
         pm.setComponentEnabledSetting(
                 new ComponentName(context, MessageCompose.class),
+                enabled ? PackageManager.COMPONENT_ENABLED_STATE_ENABLED :
+                    PackageManager.COMPONENT_ENABLED_STATE_DISABLED,
+                PackageManager.DONT_KILL_APP);
+        pm.setComponentEnabledSetting(
+                new ComponentName(context, AccountShortcutPicker.class),
                 enabled ? PackageManager.COMPONENT_ENABLED_STATE_ENABLED :
                     PackageManager.COMPONENT_ENABLED_STATE_DISABLED,
                 PackageManager.DONT_KILL_APP);

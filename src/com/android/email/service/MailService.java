@@ -213,7 +213,9 @@ public class MailService extends Service {
                     Intent i = new Intent(context, Accounts.class);
                     PendingIntent pi = PendingIntent.getActivity(context, 0, i, 0);
                     notif.setLatestEventInfo(context, getString(R.string.notification_new_title),
-                            getString(R.string.notification_new_multi_account_fmt,
+                            getResources().
+                                getQuantityString(R.plurals.notification_new_multi_account_fmt,
+                                    accountsWithNewMail.size(),
                                     accountsWithNewMail.size()), pi);
                 } else {
                     Account account1 = accountsWithNewMail.keySet().iterator().next();
@@ -221,7 +223,9 @@ public class MailService extends Service {
                     Intent i = FolderMessageList.actionHandleAccountIntent(context, account1, Email.INBOX);
                     PendingIntent pi = PendingIntent.getActivity(context, 0, i, 0);
                     notif.setLatestEventInfo(context, getString(R.string.notification_new_title),
-                            getString(R.string.notification_new_one_account_fmt, totalNewMails,
+                            getResources().
+                                getQuantityString(R.plurals.notification_new_one_account_fmt,
+                                    totalNewMails, totalNewMails,
                                     account1.getDescription()), pi);
                     vibrate = account1.isVibrate();
                     ringtone = account1.getRingtone();

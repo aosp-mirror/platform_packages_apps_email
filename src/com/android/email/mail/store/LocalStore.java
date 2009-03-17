@@ -16,30 +16,6 @@
 
 package com.android.email.mail.store;
 
-import java.io.ByteArrayInputStream;
-import java.io.File;
-import java.io.FileNotFoundException;
-import java.io.FileOutputStream;
-import java.io.IOException;
-import java.io.InputStream;
-import java.io.OutputStream;
-import java.io.UnsupportedEncodingException;
-import java.net.URI;
-import java.net.URLEncoder;
-import java.util.ArrayList;
-import java.util.Date;
-import java.util.UUID;
-
-import org.apache.commons.io.IOUtils;
-
-import android.app.Application;
-import android.content.ContentValues;
-import android.database.Cursor;
-import android.database.sqlite.SQLiteDatabase;
-import android.net.Uri;
-import android.util.Config;
-import android.util.Log;
-
 import com.android.email.Email;
 import com.android.email.Utility;
 import com.android.email.codec.binary.Base64OutputStream;
@@ -62,25 +38,61 @@ import com.android.email.mail.internet.MimeUtility;
 import com.android.email.mail.internet.TextBody;
 import com.android.email.provider.AttachmentProvider;
 
+import org.apache.commons.io.IOUtils;
+
+import android.app.Application;
+import android.content.ContentValues;
+import android.content.Context;
+import android.database.Cursor;
+import android.database.sqlite.SQLiteDatabase;
+import android.net.Uri;
+import android.util.Config;
+import android.util.Log;
+
+import java.io.ByteArrayInputStream;
+import java.io.File;
+import java.io.FileNotFoundException;
+import java.io.FileOutputStream;
+import java.io.IOException;
+import java.io.InputStream;
+import java.io.OutputStream;
+import java.io.UnsupportedEncodingException;
+import java.net.URI;
+import java.net.URLEncoder;
+import java.util.ArrayList;
+import java.util.Date;
+import java.util.UUID;
+
 /**
  * <pre>
  * Implements a SQLite database backed local store for Messages.
  * </pre>
  */
 public class LocalStore extends Store {
-    private static final int DB_VERSION = 18;
+    /**
+     * History of database revisions.
+     * 
+     * db version   Shipped in  Notes
+     * ----------   ----------  -----
+     *      18      pre-1.0     Development versions.  No upgrade path.
+     *      18      1.0, 1.1    1.0 Release version.
+     *      19      1.5         Added message_id column
+     */
+    
+    private static final int DB_VERSION = 19;
+    
     private static final Flag[] PERMANENT_FLAGS = { Flag.DELETED, Flag.X_DESTROYED, Flag.SEEN };
 
     private String mPath;
     private SQLiteDatabase mDb;
     private File mAttachmentsDir;
-    private Application mApplication;
+    private Context mContext;
 
     /**
      * @param uri local://localhost/path/to/database/uuid.db
      */
-    public LocalStore(String _uri, Application application) throws MessagingException {
-        mApplication = application;
+    public LocalStore(String _uri, Context context) throws MessagingException {
+        mContext = context;
         URI uri = null;
         try {
             uri = new URI(_uri);
@@ -97,20 +109,26 @@ public class LocalStore extends Store {
             parentDir.mkdirs();
         }
         mDb = SQLiteDatabase.openOrCreateDatabase(mPath, null);
-        if (mDb.getVersion() != DB_VERSION) {
-            if (mDb.getVersion() < 18) {
-                if (Config.LOGV) {
-                    Log.v(Email.LOG_TAG, String.format("Upgrading database from %d to %d", mDb
-                            .getVersion(), 18));
-                }
+        int oldVersion = mDb.getVersion();
+        if (oldVersion != DB_VERSION) {
+            if (Config.LOGV) {
+                Log.v(Email.LOG_TAG, String.format("Upgrading database from %d to %d", 
+                        oldVersion, DB_VERSION));
+            }
+            if (oldVersion < 18) {
+                /**
+                 * Missing or old:  Create up-to-date tables
+                 */
                 mDb.execSQL("DROP TABLE IF EXISTS folders");
                 mDb.execSQL("CREATE TABLE folders (id INTEGER PRIMARY KEY, name TEXT, "
                         + "last_updated INTEGER, unread_count INTEGER, visible_limit INTEGER)");
 
                 mDb.execSQL("DROP TABLE IF EXISTS messages");
-                mDb.execSQL("CREATE TABLE messages (id INTEGER PRIMARY KEY, folder_id INTEGER, uid TEXT, subject TEXT, "
-                        + "date INTEGER, flags TEXT, sender_list TEXT, to_list TEXT, cc_list TEXT, bcc_list TEXT, reply_to_list TEXT, "
-                        + "html_content TEXT, text_content TEXT, attachment_count INTEGER, internal_date INTEGER)");
+                mDb.execSQL("CREATE TABLE messages (id INTEGER PRIMARY KEY, folder_id INTEGER, " +
+                        "uid TEXT, subject TEXT, date INTEGER, flags TEXT, sender_list TEXT, " +
+                        "to_list TEXT, cc_list TEXT, bcc_list TEXT, reply_to_list TEXT, " +
+                        "html_content TEXT, text_content TEXT, attachment_count INTEGER, " +
+                        "internal_date INTEGER, message_id TEXT)");
 
                 mDb.execSQL("DROP TABLE IF EXISTS attachments");
                 mDb.execSQL("CREATE TABLE attachments (id INTEGER PRIMARY KEY, message_id INTEGER,"
@@ -126,8 +144,16 @@ public class LocalStore extends Store {
 
                 mDb.execSQL("DROP TRIGGER IF EXISTS delete_message");
                 mDb.execSQL("CREATE TRIGGER delete_message BEFORE DELETE ON messages BEGIN DELETE FROM attachments WHERE old.id = message_id; END;");
-                mDb.setVersion(18);
+                mDb.setVersion(DB_VERSION);
             }
+            else if (oldVersion < 19) {
+                /**
+                 * Upgrade 18 to 19:  add message_id to messages table 
+                 */
+                mDb.execSQL("ALTER TABLE messages ADD COLUMN message_id TEXT;");
+                mDb.setVersion(DB_VERSION);
+            }
+
             if (mDb.getVersion() != DB_VERSION) {
                 throw new Error("Database upgrade failed!");
             }
@@ -513,7 +539,7 @@ public class LocalStore extends Store {
                             String contentUri = cursor.getString(5);
                             Body body = null;
                             if (contentUri != null) {
-                                body = new LocalAttachmentBody(Uri.parse(contentUri), mApplication);
+                                body = new LocalAttachmentBody(Uri.parse(contentUri), mContext);
                             }
                             MimeBodyPart bp = new LocalAttachmentBodyPart(body, id);
                             bp.setHeader(MimeHeader.HEADER_CONTENT_TYPE,
@@ -544,6 +570,23 @@ public class LocalStore extends Store {
             }
         }
 
+        /**
+         * Populate a message from a cursor with the following colummns:
+         * 
+         * 0    subject
+         * 1    from address
+         * 2    date (long)
+         * 3    uid
+         * 4    flag list
+         * 5    local id (long)
+         * 6    to addresses
+         * 7    cc addresses
+         * 8    bcc addresses
+         * 9    reply-to address
+         * 10   attachment count (int)
+         * 11   internal date (long)
+         * 12   message id (from Mime headers)
+         */
         private void populateMessageFromGetMessageCursor(LocalMessage message, Cursor cursor)
                 throws MessagingException{
             message.setSubject(cursor.getString(0) == null ? "" : cursor.getString(0));
@@ -570,6 +613,7 @@ public class LocalStore extends Store {
             message.setReplyTo(Address.unpack(cursor.getString(9)));
             message.mAttachmentCount = cursor.getInt(10);
             message.setInternalDate(new Date(cursor.getLong(11)));
+            message.setMessageId(cursor.getString(12));
         }
 
         @Override
@@ -588,7 +632,7 @@ public class LocalStore extends Store {
             try {
                 cursor = mDb.rawQuery(
                         "SELECT subject, sender_list, date, uid, flags, id, to_list, cc_list, "
-                        + "bcc_list, reply_to_list, attachment_count, internal_date "
+                        + "bcc_list, reply_to_list, attachment_count, internal_date, message_id "
                                 + "FROM messages " + "WHERE uid = ? " + "AND folder_id = ?",
                         new String[] {
                                 message.getUid(), Long.toString(mFolderId)
@@ -614,7 +658,7 @@ public class LocalStore extends Store {
             try {
                 cursor = mDb.rawQuery(
                         "SELECT subject, sender_list, date, uid, flags, id, to_list, cc_list, "
-                        + "bcc_list, reply_to_list, attachment_count, internal_date "
+                        + "bcc_list, reply_to_list, attachment_count, internal_date, message_id "
                                 + "FROM messages " + "WHERE folder_id = ?", new String[] {
                             Long.toString(mFolderId)
                         });
@@ -735,6 +779,7 @@ public class LocalStore extends Store {
                     cv.put("attachment_count", attachments.size());
                     cv.put("internal_date",  message.getInternalDate() == null
                             ? System.currentTimeMillis() : message.getInternalDate().getTime());
+                    cv.put("message_id", ((MimeMessage)message).getMessageId());
                     long messageId = mDb.insert("messages", "uid", cv);
                     for (Part attachment : attachments) {
                         saveAttachment(messageId, attachment, copy);
@@ -787,7 +832,7 @@ public class LocalStore extends Store {
                         + "uid = ?, subject = ?, sender_list = ?, date = ?, flags = ?, "
                         + "folder_id = ?, to_list = ?, cc_list = ?, bcc_list = ?, "
                         + "html_content = ?, text_content = ?, reply_to_list = ?, "
-                        + "attachment_count = ? WHERE id = ?",
+                        + "attachment_count = ?, message_id = ? WHERE id = ?",
                         new Object[] {
                                 message.getUid(),
                                 message.getSubject(),
@@ -807,6 +852,7 @@ public class LocalStore extends Store {
                                 sbText.length() > 0 ? sbText.toString() : null,
                                 Address.pack(message.getReplyTo()),
                                 attachments.size(),
+                                message.getMessageId(),
                                 message.mId
                                 });
 
@@ -907,7 +953,7 @@ public class LocalStore extends Store {
                 contentUri = AttachmentProvider.getAttachmentUri(
                         new File(mPath).getName(),
                         attachmentId);
-                attachment.setBody(new LocalAttachmentBody(contentUri, mApplication));
+                attachment.setBody(new LocalAttachmentBody(contentUri, mContext));
                 ContentValues cv = new ContentValues();
                 cv.put("content_uri", contentUri != null ? contentUri.toString() : null);
                 mDb.update(
@@ -1156,17 +1202,17 @@ public class LocalStore extends Store {
     }
 
     public static class LocalAttachmentBody implements Body {
-        private Application mApplication;
+        private Context mContext;
         private Uri mUri;
 
-        public LocalAttachmentBody(Uri uri, Application application) {
-            mApplication = application;
+        public LocalAttachmentBody(Uri uri, Context context) {
+            mContext = context;
             mUri = uri;
         }
 
         public InputStream getInputStream() throws MessagingException {
             try {
-                return mApplication.getContentResolver().openInputStream(mUri);
+                return mContext.getContentResolver().openInputStream(mUri);
             }
             catch (FileNotFoundException fnfe) {
                 /*

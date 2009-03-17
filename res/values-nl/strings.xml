@@ -50,8 +50,11 @@
     <string name="status_network_error">"Verbindingsfout"</string>
     <string name="status_loading_more_failed">"Probeer opnieuw meer berichten te laden"</string>
     <string name="notification_new_title">"Nieuwe e-mail"</string>
-    <string name="notification_new_one_account_fmt">"<xliff:g id="UNREAD_MESSAGE_COUNT">%d</xliff:g> ongelezen (<xliff:g id="ACCOUNT">%s</xliff:g>)"</string>
-    <string name="notification_new_multi_account_fmt">"in <xliff:g id="NUMBER_ACCOUNTS">%d</xliff:g> accounts"</string>
+    <!-- no translation found for notification_new_one_account_fmt:one (3422945912787702191) -->
+    <!-- no translation found for notification_new_one_account_fmt:few (6543078667692990869) -->
+    <!-- no translation found for notification_new_one_account_fmt:other (6937673814351448076) -->
+    <!-- no translation found for notification_new_multi_account_fmt:few (1991747245324120305) -->
+    <!-- no translation found for notification_new_multi_account_fmt:other (2723797835410343458) -->
     <string name="special_mailbox_name_inbox">"Postvak IN"</string>
     <string name="accounts_welcome">"Welkom bij E-mail instellen."\n\n"Je kunt elke account gebruiken met E-mail."\n\n"De meest populaire e-mailaccounts kunnen in twee stappen worden ingesteld."</string>
     <string name="debug_version_fmt">"Versie: <xliff:g id="VERSION">%s</xliff:g>"</string>
@@ -62,6 +65,8 @@
     <string name="message_compose_cc_hint">"Cc"</string>
     <string name="message_compose_bcc_hint">"Bcc"</string>
     <string name="message_compose_subject_hint">"Onderwerp"</string>
+    <!-- no translation found for message_compose_body_hint (7575406246484103697) -->
+    <skip />
     <string name="message_compose_fwd_header_fmt">\n\n"-------- Oorspronkelijk bericht --------"\n"Onderwerp: <xliff:g id="SUBJECT">%s</xliff:g>"\n"Van: <xliff:g id="SENDER">%s</xliff:g>"\n"Aan: <xliff:g id="TO">%s</xliff:g>"\n"Cc: <xliff:g id="CC_0">%s</xliff:g>"\n\n</string>
     <string name="message_compose_reply_header_fmt">\n\n"<xliff:g id="SENDER">%s</xliff:g>schreef:"\n\n</string>
     <string name="message_compose_quoted_text_label">"Geciteerde tekst"</string>
@@ -71,15 +76,13 @@
     <string name="message_view_cc_label">"Cc:"</string>
     <string name="message_view_attachment_view_action">"Openen"</string>
     <string name="message_view_attachment_download_action">"Opslaan"</string>
-    <string name="message_view_prev_action">"Vorig bericht"</string>
-    <string name="message_view_next_action">"Volgend bericht"</string>
     <string name="message_view_status_attachment_saved">"Bijlage opgeslagen op SD-kaart als <xliff:g id="FILENAME">%s</xliff:g>."</string>
     <string name="message_view_status_attachment_not_saved">"Kan bijlage niet opslaan op SD-kaart."</string>
     <string name="message_view_show_pictures_instructions">"Selecteer Afbeeldingen weergeven om ingevoegde afbeeldingen weer te geven."</string>
     <string name="message_view_show_pictures_action">"Afbeeldingen weergeven"</string>
     <string name="message_view_fetching_attachment_toast">"Bijlage wordt opgehaald."</string>
     <string name="message_deleted_toast">"Bericht verwijderd."</string>
-    <string name="message_discarded_toast">"Bericht genegeerd"</string>
+    <string name="message_discarded_toast">"Bericht wordt verwijderd"</string>
     <string name="message_saved_toast">"Bericht opgeslagen als concept."</string>
     <string name="account_setup_basics_title">"E-mail instellen"</string>
     <string name="account_setup_basics_instructions">"Typ het e-mailadres van je account:"</string>
@@ -163,7 +166,7 @@
     <string name="account_settings_vibrate_summary">"Ook trillen bij ontvangst van e-mail"</string>
     <string name="account_settings_ringtone">"Beltoon selecteren"</string>
     <string name="account_settings_servers">"Serverinstellingen"</string>
-    <string name="account_delete_dlg_title">"Verwijderen"</string>
+    <string name="account_delete_dlg_title">"Account verwijderen"</string>
     <string name="account_delete_dlg_instructions_fmt">"De account <xliff:g id="ACCOUNT">%s</xliff:g> wordt verwijderd van E-mail"</string>
     <string name="provider_note_yahoo">"Toegang tot postvakken wordt niet ondersteund door sommige typen Yahoo!-mailaccounts. Als er problemen ontstaan bij het verbinden, ga je naar yahoo.com voor meer informatie."</string>
     <string name="provider_note_yahoo_uk">"Ga voordat je deze e-mailaccount instelt naar de website van Yahoo! en schakel toegang met POP3 in voor deze account."</string>

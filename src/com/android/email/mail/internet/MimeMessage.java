@@ -23,6 +23,7 @@ import java.io.OutputStream;
 import java.io.OutputStreamWriter;
 import java.text.SimpleDateFormat;
 import java.util.Date;
+import java.util.Locale;
 import java.util.Stack;
 
 import org.apache.james.mime4j.BodyDescriptor;
@@ -51,7 +52,13 @@ public class MimeMessage extends Message {
     protected Address[] mBcc;
     protected Address[] mReplyTo;
     protected Date mSentDate;
-    protected SimpleDateFormat mDateFormat = new SimpleDateFormat("EEE, dd MMM yyyy HH:mm:ss Z");
+    // In MIME, en_US-like date format should be used. In other words "MMM" should be encoded to
+    // "Jan", not the other localized format like "Ene" (meaning January in locale es).
+    // This conversion is used when generating outgoing MIME messages. Incoming MIME date
+    // headers are parsed by org.apache.james.mime4j.field.DateTimeField which does not have any
+    // localization code.
+    protected SimpleDateFormat mDateFormat = 
+        new SimpleDateFormat("EEE, dd MMM yyyy HH:mm:ss Z", Locale.US);
     protected Body mBody;
     protected int mSize;
 
@@ -60,7 +67,9 @@ public class MimeMessage extends Message {
          * Every new messages gets a Message-ID
          */
         try {
-            setHeader("Message-ID", generateMessageId());
+            // TODO: This is wasteful, since we overwrite it on incoming or locally-read messages.
+            // Should only generate it on as-needed basis.
+            setMessageId(generateMessageId());
         }
         catch (MessagingException me) {
             throw new RuntimeException("Unable to create MimeMessage", me);
@@ -254,6 +263,30 @@ public class MimeMessage extends Message {
             setHeader("Reply-to", Address.toString(replyTo));
             mReplyTo = replyTo;
         }
+    }
+    
+    /**
+     * Set the mime "Message-ID" header
+     * @param messageId the new Message-ID value
+     * @throws MessagingException
+     */
+    public void setMessageId(String messageId) throws MessagingException {
+        setHeader("Message-ID", messageId);
+    }
+    
+    /**
+     * Get the mime "Message-ID" header.  Note, this field is preset (randomly) in every new 
+     * message, so it should never return null.
+     * @return the Message-ID header string
+     * @throws MessagingException
+     */
+    public String getMessageId() throws MessagingException {
+        String[] headers = getHeader("Message-ID");
+        if (headers != null) {
+            // There should really only be one Message-ID here
+            return headers[0];
+        }
+        throw new MessagingException("A message was found without a Message-ID header");
     }
 
     public void saveChanges() throws MessagingException {

@@ -29,7 +29,7 @@
     <string name="reply_all_action">"Rispondi a tutti"</string>
     <string name="delete_action">"Elimina"</string>
     <string name="forward_action">"Inoltra"</string>
-    <string name="done_action">"Completato"</string>
+    <string name="done_action">"Fine"</string>
     <string name="discard_action">"Elimina"</string>
     <string name="save_draft_action">"Salva come bozza"</string>
     <string name="refresh_action">"Aggiorna"</string>
@@ -50,8 +50,11 @@
     <string name="status_network_error">"Errore di connessione"</string>
     <string name="status_loading_more_failed">"Prova nuovamente a caricare altri messaggi"</string>
     <string name="notification_new_title">"Nuova email"</string>
-    <string name="notification_new_one_account_fmt">"<xliff:g id="UNREAD_MESSAGE_COUNT">%d</xliff:g> da leggere (<xliff:g id="ACCOUNT">%s</xliff:g>)"</string>
-    <string name="notification_new_multi_account_fmt">"in <xliff:g id="NUMBER_ACCOUNTS">%d</xliff:g> account"</string>
+    <!-- no translation found for notification_new_one_account_fmt:one (3422945912787702191) -->
+    <!-- no translation found for notification_new_one_account_fmt:few (6543078667692990869) -->
+    <!-- no translation found for notification_new_one_account_fmt:other (6937673814351448076) -->
+    <!-- no translation found for notification_new_multi_account_fmt:few (1991747245324120305) -->
+    <!-- no translation found for notification_new_multi_account_fmt:other (2723797835410343458) -->
     <string name="special_mailbox_name_inbox">"Posta in arrivo"</string>
     <string name="accounts_welcome">"Benvenuto in Impostazione email."\n\n"Usa qualunque account email con Email."\n\n"Puoi impostare gli account email più popolari in due semplici passaggi."</string>
     <string name="debug_version_fmt">"Versione: <xliff:g id="VERSION">%s</xliff:g>"</string>
@@ -62,6 +65,8 @@
     <string name="message_compose_cc_hint">"Cc"</string>
     <string name="message_compose_bcc_hint">"Ccn"</string>
     <string name="message_compose_subject_hint">"Oggetto"</string>
+    <!-- no translation found for message_compose_body_hint (7575406246484103697) -->
+    <skip />
     <string name="message_compose_fwd_header_fmt">\n\n"-------- Messaggio originale --------"\n"Oggetto: <xliff:g id="SUBJECT">%s</xliff:g>"\n"Da: <xliff:g id="SENDER">%s</xliff:g>"\n"A: <xliff:g id="TO">%s</xliff:g>"\n"CC: <xliff:g id="CC_0">%s</xliff:g>"\n\n</string>
     <string name="message_compose_reply_header_fmt">\n\n"<xliff:g id="SENDER">%s</xliff:g> ha scritto:"\n\n</string>
     <string name="message_compose_quoted_text_label">"Testo tra virgolette"</string>
@@ -71,8 +76,6 @@
     <string name="message_view_cc_label">"Cc:"</string>
     <string name="message_view_attachment_view_action">"Apri"</string>
     <string name="message_view_attachment_download_action">"Salva"</string>
-    <string name="message_view_prev_action">"Messaggio precedente"</string>
-    <string name="message_view_next_action">"Messaggio successivo"</string>
     <string name="message_view_status_attachment_saved">"Allegato salvato su scheda SD come <xliff:g id="FILENAME">%s</xliff:g>."</string>
     <string name="message_view_status_attachment_not_saved">"Impossibile salvare l\'allegato nella scheda SD."</string>
     <string name="message_view_show_pictures_instructions">"Seleziona \"Mostra immagini\" per visualizzare le immagini incorporate."</string>
@@ -86,11 +89,11 @@
     <string name="account_setup_basics_email_hint">"Indirizzo email"</string>
     <string name="account_setup_basics_password_hint">"Password"</string>
     <string name="account_setup_basics_default_label">"Invia email da questo account per impostazione predefinita."</string>
-    <string name="account_setup_basics_manual_setup_action">"Impostazione manuale"</string>
+    <string name="account_setup_basics_manual_setup_action">"Configurazione manuale"</string>
     <string name="account_setup_username_password_toast">"Digita un indirizzo email e una password validi."</string>
     <string name="account_setup_check_settings_retr_info_msg">"Recupero informazioni sull\'account in corso…"</string>
     <string name="account_setup_check_settings_check_incoming_msg">"Verifica delle impostazioni del server della posta in arrivo in corso…"</string>
-    <string name="account_setup_check_settings_check_outgoing_msg">"Verifica delle impostazioni del server della posta in uscita in corso…"</string>
+    <string name="account_setup_check_settings_check_outgoing_msg">"Verifica impostazioni server posta in uscita…"</string>
     <string name="account_setup_check_settings_canceling_msg">"Annullamento in corso..."</string>
     <string name="account_setup_names_title">"Imposta email"</string>
     <string name="account_setup_names_instructions">"Il tuo account è stato impostato e l\'email sarà presto disponibile."</string>
@@ -163,7 +166,7 @@
     <string name="account_settings_vibrate_summary">"Attiva anche vibrazione all\'arrivo di email"</string>
     <string name="account_settings_ringtone">"Seleziona suoneria"</string>
     <string name="account_settings_servers">"Impostazioni server"</string>
-    <string name="account_delete_dlg_title">"Rimuovi"</string>
+    <string name="account_delete_dlg_title">"Rimuovi account"</string>
     <string name="account_delete_dlg_instructions_fmt">"L\'account \"<xliff:g id="ACCOUNT">%s</xliff:g>\" verrà rimosso da Email."</string>
     <string name="provider_note_yahoo">"Accesso alla casella di posta non supportato per alcuni tipi di account di posta Yahoo!. Se hai problemi di connessione, visita il sito yahoo.com per ulteriori informazioni."</string>
     <string name="provider_note_yahoo_uk">"Prima di impostare questo account email, visita il sito web Yahoo! e attiva l\'accesso email POP3 per questo account."</string>

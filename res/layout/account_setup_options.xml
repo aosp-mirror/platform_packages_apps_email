@@ -45,8 +45,8 @@
         android:layout_weight="1" />
     <RelativeLayout
         android:layout_width="fill_parent"
-        android:layout_height="54px"
-        android:background="@drawable/bottombar_565">
+        android:layout_height="54dip"
+        android:background="@android:drawable/bottom_bar">
         <Button
             android:id="@+id/next"
             android:text="@string/next_action"

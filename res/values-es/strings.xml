@@ -17,7 +17,7 @@
     xmlns:xliff="urn:oasis:names:tc:xliff:document:1.2">
     <string name="read_attachment_label">"leer los archivos adjuntos del mensaje"</string>
     <string name="read_attachment_desc">"Permite que esta aplicación lea los archivos adjuntos del correo electrónico."</string>
-    <string name="app_name">"Correo electrónico"</string>
+    <string name="app_name">"Email"</string>
     <string name="accounts_title">"Tus cuentas"</string>
     <string name="compose_title">"Redactar"</string>
     <string name="debug_title">"Depurar"</string>
@@ -29,7 +29,7 @@
     <string name="reply_all_action">"Responder a todos"</string>
     <string name="delete_action">"Suprimir"</string>
     <string name="forward_action">"Reenviar"</string>
-    <string name="done_action">"Finalizado"</string>
+    <string name="done_action">"Listo"</string>
     <string name="discard_action">"Descartar"</string>
     <string name="save_draft_action">"Guardar como borrador"</string>
     <string name="refresh_action">"Actualizar"</string>
@@ -37,11 +37,11 @@
     <string name="compose_action">"Redactar"</string>
     <string name="search_action">"Buscar"</string>
     <string name="open_action">"Abrir"</string>
-    <string name="account_settings_action">"Configuración de la cuenta"</string>
+    <string name="account_settings_action">"Configuración"</string>
     <string name="remove_account_action">"Eliminar cuenta"</string>
     <string name="accounts_action">"Cuentas"</string>
     <string name="mark_as_read_action">"Marcar como leída"</string>
-    <string name="mark_as_unread_action">"Marcar como no leído"</string>
+    <string name="mark_as_unread_action">"Marcar como no leída"</string>
     <string name="add_cc_bcc_action">"Añadir Cc/CCO"</string>
     <string name="add_attachment_action">"Añadir archivo adjunto"</string>
     <string name="dump_settings_action">"Configuración de volcado"</string>
@@ -50,8 +50,11 @@
     <string name="status_network_error">"Error de conexión"</string>
     <string name="status_loading_more_failed">"Intentar cargar más mensajes"</string>
     <string name="notification_new_title">"Nuevo mensaje"</string>
-    <string name="notification_new_one_account_fmt">"<xliff:g id="UNREAD_MESSAGE_COUNT">%d</xliff:g> no leídos (<xliff:g id="ACCOUNT">%s</xliff:g>)"</string>
-    <string name="notification_new_multi_account_fmt">"en <xliff:g id="NUMBER_ACCOUNTS">%d</xliff:g> cuentas"</string>
+    <!-- no translation found for notification_new_one_account_fmt:one (3422945912787702191) -->
+    <!-- no translation found for notification_new_one_account_fmt:few (6543078667692990869) -->
+    <!-- no translation found for notification_new_one_account_fmt:other (6937673814351448076) -->
+    <!-- no translation found for notification_new_multi_account_fmt:few (1991747245324120305) -->
+    <!-- no translation found for notification_new_multi_account_fmt:other (2723797835410343458) -->
     <string name="special_mailbox_name_inbox">"Recibidos"</string>
     <string name="accounts_welcome">"Te damos la bienvenida a la configuración del correo electrónico."\n\n"Usa cualquier cuenta de correo electrónico con \"Correo electrónico\"."\n\n"Las cuentas de correo electrónico más populares se pueden configurar en 2 pasos."</string>
     <string name="debug_version_fmt">"Versión: <xliff:g id="VERSION">%s</xliff:g>"</string>
@@ -62,6 +65,8 @@
     <string name="message_compose_cc_hint">"Cc"</string>
     <string name="message_compose_bcc_hint">"CCO"</string>
     <string name="message_compose_subject_hint">"Asunto"</string>
+    <!-- no translation found for message_compose_body_hint (7575406246484103697) -->
+    <skip />
     <string name="message_compose_fwd_header_fmt">\n\n"-------- Original Message --------"\n"Subject: <xliff:g id="SUBJECT">%s</xliff:g>"\n"From: <xliff:g id="SENDER">%s</xliff:g>"\n"To: <xliff:g id="TO">%s</xliff:g>"\n"CC: <xliff:g id="CC_0">%s</xliff:g>"\n\n</string>
     <string name="message_compose_reply_header_fmt">\n\n"<xliff:g id="SENDER">%s</xliff:g> wrote:"\n\n</string>
     <string name="message_compose_quoted_text_label">"Texto entre comillas"</string>
@@ -71,8 +76,6 @@
     <string name="message_view_cc_label">"Cc:"</string>
     <string name="message_view_attachment_view_action">"Abrir"</string>
     <string name="message_view_attachment_download_action">"Guardar"</string>
-    <string name="message_view_prev_action">"Mensaje anterior"</string>
-    <string name="message_view_next_action">"Siguiente mensaje"</string>
     <string name="message_view_status_attachment_saved">"El archivo adjunto se ha guardado en una tarjeta SD como <xliff:g id="FILENAME">%s</xliff:g>."</string>
     <string name="message_view_status_attachment_not_saved">"No es posible guardar el archivo adjunto en la tarjeta SD."</string>
     <string name="message_view_show_pictures_instructions">"Selecciona \"Mostrar imágenes\" para visualizar las imágenes incrustadas."</string>
@@ -95,7 +98,7 @@
     <string name="account_setup_names_title">"Configurar correo electrónico"</string>
     <string name="account_setup_names_instructions">"Tu cuenta ya está configurada y el correo electrónico está por llegar."</string>
     <string name="account_setup_names_account_name_label">"Asignar un nombre a esta cuenta (opcional)"</string>
-    <string name="account_setup_names_user_name_label">"Tu nombre (aparecerá en los mensajes salientes)"</string>
+    <string name="account_setup_names_user_name_label">"Tu nombre (aparece en los mensajes salientes)"</string>
     <string name="account_setup_account_type_title">"Añadir una cuenta de correo electrónico nueva"</string>
     <string name="account_setup_account_type_instructions">"¿Qué tipo de cuenta es ésta?"</string>
     <string name="account_setup_account_type_pop_action">"Cuenta POP3"</string>
@@ -152,7 +155,7 @@
     <string name="account_settings_default_summary">"Enviar correo electrónico desde esta cuenta de forma predeterminada"</string>
     <string name="account_settings_notify_label">"Notificaciones de correo electrónico"</string>
     <string name="account_settings_notify_summary">"Notificar en la barra de estado cuando llegue un mensaje"</string>
-    <string name="account_settings_mail_check_frequency_label">"Frecuencia de comprobación del correo electrónico"</string>
+    <string name="account_settings_mail_check_frequency_label">"Frecuencia de comprobación del correo"</string>
     <string name="account_settings_incoming_label">"Configuración entrante"</string>
     <string name="account_settings_outgoing_label">"Configuración saliente"</string>
     <string name="account_settings_add_account_label">"Añadir otra cuenta"</string>
@@ -163,7 +166,7 @@
     <string name="account_settings_vibrate_summary">"Vibrar también cuando llegue un mensaje"</string>
     <string name="account_settings_ringtone">"Seleccionar tono de llamada"</string>
     <string name="account_settings_servers">"Configuración del servidor"</string>
-    <string name="account_delete_dlg_title">"Eliminar"</string>
+    <string name="account_delete_dlg_title">"Eliminar cuenta"</string>
     <string name="account_delete_dlg_instructions_fmt">"Se va a eliminar la cuenta \"<xliff:g id="ACCOUNT">%s</xliff:g>\" de \"Correo electrónico\"."</string>
     <string name="provider_note_yahoo">"Algunos tipos de cuentas de correo de Yahoo! no permiten acceder al buzón de correo. Si tienes problemas de conexión, visita yahoo.com para obtener información adicional al respecto."</string>
     <string name="provider_note_yahoo_uk">"Antes de configurar esta cuenta de correo electrónico, visita el sitio web de Yahoo! y habilita el acceso al correo electrónico POP3 para esta cuenta."</string>

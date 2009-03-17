@@ -95,7 +95,7 @@ public class MessagingController implements Runnable {
     private boolean mBusy;
     private Application mApplication;
 
-    private MessagingController(Application application) {
+    protected MessagingController(Application application) {
         mApplication = application;
         mThread = new Thread(this);
         mThread.start();
@@ -112,6 +112,13 @@ public class MessagingController implements Runnable {
             inst = new MessagingController(application);
         }
         return inst;
+    }
+    
+    /**
+     * Inject a mock controller.  Used only for testing.  Affects future calls to getInstance().
+     */
+    public static void injectMockController(MessagingController mockController) {
+        inst = mockController;
     }
 
     public boolean isBusy() {

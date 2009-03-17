@@ -22,6 +22,7 @@ import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Date;
+import java.util.Locale;
 
 import android.util.Config;
 import android.util.Log;
@@ -35,7 +36,10 @@ public class ImapResponseParser {
     // DEBUG ONLY - Always check in as "false"
     private static boolean DEBUG_LOG_RAW_STREAM = false;
     
-    SimpleDateFormat mDateTimeFormat = new SimpleDateFormat("dd-MMM-yyyy HH:mm:ss Z");
+    // mDateTimeFormat is used only for parsing IMAP's FETCH ENVELOPE command, in which
+    // en_US-like date format is used like "01-Jan-2009 11:20:39 -0800", so this should be
+    // handled by Locale.US
+    SimpleDateFormat mDateTimeFormat = new SimpleDateFormat("dd-MMM-yyyy HH:mm:ss Z", Locale.US);
     PeekableInputStream mIn;
     InputStream mActiveLiteral;
 

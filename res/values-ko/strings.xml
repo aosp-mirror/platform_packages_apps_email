@@ -1,0 +1,175 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!-- Copyright (C) 2009 The Android Open Source Project
+
+     Licensed under the Apache License, Version 2.0 (the "License");
+     you may not use this file except in compliance with the License.
+     You may obtain a copy of the License at
+
+          http://www.apache.org/licenses/LICENSE-2.0
+
+     Unless required by applicable law or agreed to in writing, software
+     distributed under the License is distributed on an "AS IS" BASIS,
+     WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+     See the License for the specific language governing permissions and
+     limitations under the License.
+-->
+<resources xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:xliff="urn:oasis:names:tc:xliff:document:1.2">
+    <string name="read_attachment_label">"이메일 첨부파일 읽기"</string>
+    <string name="read_attachment_desc">"이 응용프로그램으로 이메일 첨부파일을 읽을 수 있습니다."</string>
+    <string name="app_name">"이메일"</string>
+    <string name="accounts_title">"사용자 계정"</string>
+    <string name="compose_title">"편지쓰기"</string>
+    <string name="debug_title">"디버그"</string>
+    <string name="next_action">"다음"</string>
+    <string name="okay_action">"확인"</string>
+    <string name="cancel_action">"취소"</string>
+    <string name="send_action">"보내기"</string>
+    <string name="reply_action">"답장"</string>
+    <string name="reply_all_action">"전체답장"</string>
+    <string name="delete_action">"삭제"</string>
+    <string name="forward_action">"전달"</string>
+    <string name="done_action">"완료"</string>
+    <string name="discard_action">"삭제"</string>
+    <string name="save_draft_action">"임시 저장"</string>
+    <string name="refresh_action">"새로고침"</string>
+    <string name="add_account_action">"계정 추가"</string>
+    <string name="compose_action">"편지쓰기"</string>
+    <string name="search_action">"검색"</string>
+    <string name="open_action">"열기"</string>
+    <string name="account_settings_action">"계정 설정"</string>
+    <string name="remove_account_action">"계정 삭제"</string>
+    <string name="accounts_action">"계정"</string>
+    <string name="mark_as_read_action">"읽은 상태로 표시"</string>
+    <string name="mark_as_unread_action">"읽지않은 상태로 표시"</string>
+    <string name="add_cc_bcc_action">"참조 및 숨은참조 추가"</string>
+    <string name="add_attachment_action">"첨부파일 추가"</string>
+    <string name="dump_settings_action">"덤프 설정"</string>
+    <string name="accounts_context_menu_title">"계정 옵션"</string>
+    <string name="status_loading_more">"메일 로드 중..."</string>
+    <string name="status_network_error">"연결 오류"</string>
+    <string name="status_loading_more_failed">"추가 메일 로드 재시도"</string>
+    <string name="notification_new_title">"새 이메일"</string>
+    <!-- no translation found for notification_new_one_account_fmt:one (3422945912787702191) -->
+    <!-- no translation found for notification_new_one_account_fmt:few (6543078667692990869) -->
+    <!-- no translation found for notification_new_one_account_fmt:other (6937673814351448076) -->
+    <!-- no translation found for notification_new_multi_account_fmt:few (1991747245324120305) -->
+    <!-- no translation found for notification_new_multi_account_fmt:other (2723797835410343458) -->
+    <string name="special_mailbox_name_inbox">"받은편지함"</string>
+    <string name="accounts_welcome">"이메일 설정에 오신 것을 환영합니다."\n\n"원하는 이메일 계정을 사용하세요."\n\n"가장 많이 사용하는 이메일 계정은 2단계 만에 설정할 수 있습니다."</string>
+    <string name="debug_version_fmt">"버전: <xliff:g id="VERSION">%s</xliff:g>"</string>
+    <string name="debug_enable_debug_logging_label">"별도의 디버그 로깅 사용 여부"</string>
+    <string name="debug_enable_sensitive_logging_label">"디버그 로깅 시 중요 정보 표시 여부(로그에 비밀번호가 표시될 수 있음)"</string>
+    <string name="message_list_load_more_messages_action">"추가 메일 로드"</string>
+    <string name="message_compose_to_hint">"받는사람"</string>
+    <string name="message_compose_cc_hint">"참조"</string>
+    <string name="message_compose_bcc_hint">"숨은참조"</string>
+    <string name="message_compose_subject_hint">"제목"</string>
+    <!-- no translation found for message_compose_body_hint (7575406246484103697) -->
+    <skip />
+    <string name="message_compose_fwd_header_fmt">\n\n"-------- 원본 메일 --------"\n"제목: <xliff:g id="SUBJECT">%s</xliff:g>"\n"보낸사람: <xliff:g id="SENDER">%s</xliff:g>"\n"받는사람: <xliff:g id="TO">%s</xliff:g>"\n"참조: <xliff:g id="CC_0">%s</xliff:g>"\n\n</string>
+    <string name="message_compose_reply_header_fmt">\n\n"<xliff:g id="SENDER">%s</xliff:g>님이 작성:"\n\n</string>
+    <string name="message_compose_quoted_text_label">"받은메일"</string>
+    <string name="message_compose_error_no_recipients">"받는 사람을 한 명 이상 추가해야 합니다."</string>
+    <string name="message_compose_attachments_skipped_toast">"일부 첨부파일이 다운로드되지 않아 전달할 수 없습니다."</string>
+    <string name="message_view_to_label">"받는사람:"</string>
+    <string name="message_view_cc_label">"참조:"</string>
+    <string name="message_view_attachment_view_action">"열기"</string>
+    <string name="message_view_attachment_download_action">"저장"</string>
+    <string name="message_view_status_attachment_saved">"첨부파일(<xliff:g id="FILENAME">%s</xliff:g>)이 SD 카드에 저장되었습니다."</string>
+    <string name="message_view_status_attachment_not_saved">"SD 카드에 첨부파일을 저장할 수 없습니다."</string>
+    <string name="message_view_show_pictures_instructions">"삽입된 사진을 표시하려면 \'사진 표시\'를 선택하세요."</string>
+    <string name="message_view_show_pictures_action">"사진 표시"</string>
+    <string name="message_view_fetching_attachment_toast">"첨부파일을 가져오는 중입니다."</string>
+    <string name="message_deleted_toast">"메일이 삭제되었습니다."</string>
+    <string name="message_discarded_toast">"메일이 삭제되었습니다."</string>
+    <string name="message_saved_toast">"메일을 임시로 저장했습니다."</string>
+    <string name="account_setup_basics_title">"이메일 설정"</string>
+    <string name="account_setup_basics_instructions">"계정 이메일 주소 입력:"</string>
+    <string name="account_setup_basics_email_hint">"이메일 주소"</string>
+    <string name="account_setup_basics_password_hint">"비밀번호"</string>
+    <string name="account_setup_basics_default_label">"기본적으로 이 계정에서 이메일 전송"</string>
+    <string name="account_setup_basics_manual_setup_action">"수동 설정"</string>
+    <string name="account_setup_username_password_toast">"올바른 이메일 주소와 비밀번호를 입력하세요."</string>
+    <string name="account_setup_check_settings_retr_info_msg">"계정 정보 검색 중..."</string>
+    <string name="account_setup_check_settings_check_incoming_msg">"받는 서버 설정 확인 중..."</string>
+    <string name="account_setup_check_settings_check_outgoing_msg">"보내는 서버 설정 확인 중..."</string>
+    <string name="account_setup_check_settings_canceling_msg">"취소하는 중..."</string>
+    <string name="account_setup_names_title">"이메일 설정"</string>
+    <string name="account_setup_names_instructions">"계정이 설정되었으며 이메일이 작동됩니다."</string>
+    <string name="account_setup_names_account_name_label">"계정 이름 입력(선택사항)"</string>
+    <string name="account_setup_names_user_name_label">"발신 메일에 표시할 이름"</string>
+    <string name="account_setup_account_type_title">"새 이메일 계정 추가"</string>
+    <string name="account_setup_account_type_instructions">"계정 유형"</string>
+    <string name="account_setup_account_type_pop_action">"POP3 계정"</string>
+    <string name="account_setup_account_type_imap_action">"IMAP 계정"</string>
+    <string name="account_setup_incoming_title">"받는 서버 설정"</string>
+    <string name="account_setup_incoming_username_label">"사용자 이름"</string>
+    <string name="account_setup_incoming_password_label">"비밀번호"</string>
+    <string name="account_setup_incoming_pop_server_label">"POP3 서버"</string>
+    <string name="account_setup_incoming_imap_server_label">"IMAP 서버"</string>
+    <string name="account_setup_incoming_port_label">"포트"</string>
+    <string name="account_setup_incoming_security_label">"보안 유형"</string>
+    <string name="account_setup_incoming_security_none_label">"없음"</string>
+    <string name="account_setup_incoming_security_ssl_optional_label">"SSL(제공되는 경우)"</string>
+    <string name="account_setup_incoming_security_ssl_label">"SSL(항상)"</string>
+    <string name="account_setup_incoming_security_tls_optional_label">"TLS(제공되는 경우)"</string>
+    <string name="account_setup_incoming_security_tls_label">"TLS(항상)"</string>
+    <string name="account_setup_incoming_delete_policy_label">"서버에서 이메일 삭제"</string>
+    <string name="account_setup_incoming_delete_policy_never_label">"삭제 안함"</string>
+    <string name="account_setup_incoming_delete_policy_7days_label">"7일 후"</string>
+    <string name="account_setup_incoming_delete_policy_delete_label">"받은편지함에서 삭제할 때"</string>
+    <string name="account_setup_incoming_imap_path_prefix_label">"IMAP 경로 접두어(prefix)"</string>
+    <string name="account_setup_incoming_imap_path_prefix_hint">"선택사항"</string>
+    <string name="account_setup_outgoing_title">"보내는 서버 설정"</string>
+    <string name="account_setup_outgoing_smtp_server_label">"SMTP 서버"</string>
+    <string name="account_setup_outgoing_port_label">"포트"</string>
+    <string name="account_setup_outgoing_security_label">"보안 유형"</string>
+    <string name="account_setup_outgoing_require_login_label">"로그인해야 함"</string>
+    <string name="account_setup_outgoing_username_label">"사용자 이름"</string>
+    <string name="account_setup_outgoing_password_label">"비밀번호"</string>
+    <string name="account_setup_options_title">"계정 옵션"</string>
+    <string name="account_setup_options_mail_check_frequency_label">"이메일 확인 빈도"</string>
+    <string name="account_setup_options_mail_check_frequency_never">"안함"</string>
+    <string name="account_setup_options_mail_check_frequency_5min">"5분마다"</string>
+    <string name="account_setup_options_mail_check_frequency_10min">"10분마다"</string>
+    <string name="account_setup_options_mail_check_frequency_15min">"15분마다"</string>
+    <string name="account_setup_options_mail_check_frequency_30min">"30분마다"</string>
+    <string name="account_setup_options_mail_check_frequency_1hour">"1시간마다"</string>
+    <string name="account_setup_options_default_label">"기본적으로 이 계정에서 이메일 전송"</string>
+    <string name="account_setup_options_notify_label">"이메일 도착 시 알림"</string>
+    <string name="account_setup_failed_dlg_title">"설정을 완료할 수 없음"</string>
+    <string name="account_setup_failed_dlg_auth_message">"사용자 이름 또는 비밀번호가 잘못되었습니다."</string>
+    <string name="account_setup_failed_dlg_auth_message_fmt">"잘못된 사용자 이름 또는 비밀번호"\n"(<xliff:g id="ERROR">%s</xliff:g>)"</string>
+    <string name="account_setup_failed_dlg_certificate_message">"서버에 안전하게 연결할 수 없습니다."</string>
+    <string name="account_setup_failed_dlg_certificate_message_fmt">"서버에 안전하게 연결할 수 없습니다."\n"(<xliff:g id="ERROR">%s</xliff:g>)"</string>
+    <string name="account_setup_failed_dlg_server_message">"서버에 연결할 수 없습니다."</string>
+    <string name="account_setup_failed_dlg_server_message_fmt">"서버에 연결할 수 없습니다."\n"(<xliff:g id="ERROR">%s</xliff:g>)"</string>
+    <string name="account_setup_failed_tls_required">"TLS가 필요하지만 서버에서 지원하지 않습니다."</string>
+    <string name="account_setup_failed_auth_required">"인증 방법이 서버에서 지원되지 않습니다."</string>
+    <string name="account_setup_failed_security">"보안 오류로 서버에 연결할 수 없습니다."</string>
+    <string name="account_setup_failed_ioerror">"서버에 연결할 수 없습니다."</string>
+    <string name="account_setup_failed_dlg_edit_details_action">"세부정보 수정"</string>
+    <string name="account_settings_title_fmt">"기본설정"</string>
+    <string name="account_settings_default_label">"기본 계정"</string>
+    <string name="account_settings_default_summary">"기본적으로 이 계정에서 이메일 전송"</string>
+    <string name="account_settings_notify_label">"이메일 알림"</string>
+    <string name="account_settings_notify_summary">"이메일 도착 시 상태 표시줄에서 알림"</string>
+    <string name="account_settings_mail_check_frequency_label">"이메일 확인 빈도"</string>
+    <string name="account_settings_incoming_label">"수신 설정"</string>
+    <string name="account_settings_outgoing_label">"발신 설정"</string>
+    <string name="account_settings_add_account_label">"다른 계정 추가"</string>
+    <string name="account_settings_description_label">"계정 이름"</string>
+    <string name="account_settings_name_label">"이름"</string>
+    <string name="account_settings_notifications">"알림 설정"</string>
+    <string name="account_settings_vibrate_enable">"진동"</string>
+    <string name="account_settings_vibrate_summary">"이메일 도착 시 진동"</string>
+    <string name="account_settings_ringtone">"벨소리 선택"</string>
+    <string name="account_settings_servers">"서버 설정"</string>
+    <string name="account_delete_dlg_title">"계정 삭제"</string>
+    <string name="account_delete_dlg_instructions_fmt">"계정(<xliff:g id="ACCOUNT">%s</xliff:g>)이 이메일에서 삭제됩니다."</string>
+    <string name="provider_note_yahoo">"일부 Yahoo! 메일 계정의 경우 편지함에 액세스할 수 없습니다. 접속에 문제가 있을 경우 자세한 정보는 yahoo.com을 참조하세요."</string>
+    <string name="provider_note_yahoo_uk">"이메일 계정을 설정하기 전에 Yahoo! 웹사이트를 방문하여 이 계정에 대한 POP3 이메일 액세스를 사용 설정하세요."</string>
+    <string name="provider_note_live">"일부 \'Plus\' 계정에만 이 프로그램을 연결할 수 있는 POP 액세스 권한이 있습니다. 올바른 이메일 주소와 비밀번호를 입력해도 로그인이 되지 않으면 \'Plus\' 계정 사용료가 미납되었을 수 있습니다. 이러한 메일 계정에 액세스하려면 웹브라우저를 실행하세요."</string>
+    <string name="provider_note_t_online">"이메일 계정을 설정하기 전에 T-Online 웹사이트를 방문하여 POP3 이메일 액세스에 대한 비밀번호를 만드세요."</string>
+</resources>

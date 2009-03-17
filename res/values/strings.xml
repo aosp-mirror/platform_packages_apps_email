@@ -91,10 +91,29 @@
     <string name="status_loading_more_failed">Retry loading more messages</string>
     <!-- Notification title in status bar -->
     <string name="notification_new_title">New email</string>
-    <!-- Notification message in notifications window and one account has new mail; e.g, "279 unread (someone@google.com)" -->
-    <string name="notification_new_one_account_fmt"><xliff:g id="unread_message_count">%d</xliff:g> unread (<xliff:g id="account">%s</xliff:g>)</string> 
-    <!-- Notification message in notifications window and 2+ accounts has new mail; e.g, "in 3 accounts" -->
-    <string name="notification_new_multi_account_fmt">in <xliff:g id="number_accounts">%d</xliff:g> accounts</string>
+
+    <!-- Notification message in notifications window when one account has
+         one or more new messages; e.g, "279 unread (someone@google.com)". -->
+    <plurals name="notification_new_one_account_fmt">
+        <!-- Case of one new message. -->
+        <item quantity="one"><xliff:g id="unread_message_count" example="1">%d</xliff:g> unread (<xliff:g id="account">%s</xliff:g>)</item> 
+
+        <!-- Case of "few" (small number of) new messages. -->
+        <item quantity="few"><xliff:g id="unread_message_count" example="2">%d</xliff:g> unread (<xliff:g id="account">%s</xliff:g>)</item> 
+
+        <!-- Case of a plural number of new messages. -->
+        <item quantity="other"><xliff:g id="unread_message_count" example="279">%d</xliff:g> unread (<xliff:g id="account">%s</xliff:g>)</item>
+    </plurals>
+
+
+    <!-- Notification message in notifications window when 2+ accounts have new mail; e.g, "in 3 accounts". -->
+    <plurals name="notification_new_multi_account_fmt">
+        <!-- Case of "few" (small number of) accounts with unread messages. -->
+        <item quantity="few">in <xliff:g id="number_accounts" example="2">%d</xliff:g> accounts</item>
+        <!-- Case of plural number of accounts with unread messages. -->
+        <item quantity="other">in <xliff:g id="number_accounts" example="10">%d</xliff:g> accounts</item>
+    </plurals>
+        
 
     <!-- In the folder list view, the inbox will be displayed with this name -->
     <string name="special_mailbox_name_inbox">Inbox</string>
@@ -126,6 +145,8 @@
     <string name="message_compose_bcc_hint">Bcc</string>
     <!-- Hint text in Subject field -->
     <string name="message_compose_subject_hint">Subject</string>
+    <!-- Hint text in Message composer body field -->
+    <string name="message_compose_body_hint">Compose Mail</string>    
     <!-- Header for forwarded original messages -->
     <string name="message_compose_fwd_header_fmt">\n\n-------- Original Message --------\nSubject: <xliff:g id="subject">%s</xliff:g>\nFrom: <xliff:g id="sender">%s</xliff:g>\nTo: <xliff:g id="to">%s</xliff:g>\nCC: <xliff:g id="cc">%s</xliff:g>\n\n</string>
     <!-- Header for replied-to messages -->
@@ -144,10 +165,6 @@
     <string name="message_view_attachment_view_action">Open</string>
     <!-- Button name -->
     <string name="message_view_attachment_download_action">Save</string>
-    <!-- Button name on read email screen -->
-    <string name="message_view_prev_action">Prev message</string>
-    <!-- Button name on read email screen -->
-    <string name="message_view_next_action">Next message</string>
     <!-- Toast after saving attachment -->
     <string name="message_view_status_attachment_saved">Attachment saved to SD card as <xliff:g id="filename">%s</xliff:g>.</string>
     <!-- Toast after attachment could not be saved-->
@@ -164,6 +181,13 @@
     <string name="message_discarded_toast">Message discarded.</string>
     <!-- Toast shown briefly while saving a draft -->
     <string name="message_saved_toast">Message saved as draft.</string>
+    <!-- Dialog title when prompting before creating a contact from incoming email -->
+    <string name="add_contact_dlg_title">Add Contact</string>
+    <!-- Dialog message when prompting before creating a contact from incoming email.  Includes
+         the email address, e.g. "Add xyz@foo.com to contacts" -->
+    <string name="add_contact_dlg_message_fmt">Add \"<xliff:g id="email">%s</xliff:g>\" to contacts
+        </string>
+
     <!-- Title of screen when setting up new email account -->
     <string name="account_setup_basics_title">Set up email</string>
     <!-- On "Set up email" screen, brief instructions -->
@@ -344,7 +368,7 @@
     <!-- On Settings screen, section heading -->
     <string name="account_settings_servers">Server settings</string>
     <!-- Title of Remove account confirmation dialog box -->
-    <string name="account_delete_dlg_title">Remove</string>
+    <string name="account_delete_dlg_title">Remove account</string>
     <!-- Message of Remove account confirmation dialog box -->
     <string name="account_delete_dlg_instructions_fmt">The account \"<xliff:g id="account">%s</xliff:g>\" will be removed from Email.</string>
 

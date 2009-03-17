@@ -237,7 +237,7 @@ public class Pop3Store extends Store {
 
                 if (mTransport.canTryTlsSecurity()) {
                     if (mCapabilities.stls) {
-                        mTransport.writeLine("STLS", null);
+                        executeSimpleCommand("STLS");
                         mTransport.reopenTls();
                     } else if (mTransport.getSecurity() == 
                             Transport.CONNECTION_SECURITY_TLS_REQUIRED) {

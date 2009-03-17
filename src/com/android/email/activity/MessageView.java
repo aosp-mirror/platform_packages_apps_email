@@ -16,49 +16,6 @@
 
 package com.android.email.activity;
 
-import java.io.File;
-import java.io.FileOutputStream;
-import java.io.IOException;
-import java.io.InputStream;
-import java.io.OutputStream;
-import java.util.ArrayList;
-import java.util.Date;
-import java.util.Map;
-import java.util.regex.Matcher;
-
-import android.app.Activity;
-import android.content.Context;
-import android.content.Intent;
-import android.graphics.Bitmap;
-import android.graphics.BitmapFactory;
-import android.media.MediaScannerConnection;
-import android.media.MediaScannerConnection.MediaScannerConnectionClient;
-import android.net.Uri;
-import android.os.Bundle;
-import android.os.Environment;
-import android.os.Handler;
-import android.os.Process;
-import android.text.util.Regex;
-import android.util.Config;
-import android.util.Log;
-import android.view.LayoutInflater;
-import android.view.Menu;
-import android.view.MenuItem;
-import android.view.View;
-import android.view.Window;
-import android.view.View.OnClickListener;
-import android.webkit.CacheManager;
-import android.webkit.UrlInterceptHandler;
-import android.webkit.WebView;
-import android.webkit.CacheManager.CacheResult;
-import android.widget.Button;
-import android.widget.ImageView;
-import android.widget.LinearLayout;
-import android.widget.TextView;
-import android.widget.Toast;
-
-import org.apache.commons.io.IOUtils;
-
 import com.android.email.Account;
 import com.android.email.Email;
 import com.android.email.MessagingController;
@@ -76,13 +33,65 @@ import com.android.email.mail.store.LocalStore.LocalAttachmentBodyPart;
 import com.android.email.mail.store.LocalStore.LocalMessage;
 import com.android.email.provider.AttachmentProvider;
 
+import org.apache.commons.io.IOUtils;
+
+import android.app.Activity;
+import android.content.Context;
+import android.content.Intent;
+import android.database.Cursor;
+import android.graphics.Bitmap;
+import android.graphics.BitmapFactory;
+import android.media.MediaScannerConnection;
+import android.media.MediaScannerConnection.MediaScannerConnectionClient;
+import android.net.Uri;
+import android.os.Bundle;
+import android.os.Environment;
+import android.os.Handler;
+import android.os.Process;
+import android.provider.Contacts;
+import android.provider.Contacts.Intents;
+import android.provider.Contacts.People;
+import android.provider.Contacts.Presence;
+import android.text.util.Regex;
+import android.util.Config;
+import android.util.Log;
+import android.view.LayoutInflater;
+import android.view.Menu;
+import android.view.MenuItem;
+import android.view.View;
+import android.view.Window;
+import android.view.View.OnClickListener;
+import android.webkit.WebView;
+import android.widget.Button;
+import android.widget.ImageView;
+import android.widget.LinearLayout;
+import android.widget.TextView;
+import android.widget.Toast;
+
+import java.io.File;
+import java.io.FileOutputStream;
+import java.io.IOException;
+import java.io.InputStream;
+import java.io.OutputStream;
+import java.util.ArrayList;
+import java.util.Date;
+import java.util.Map;
+import java.util.Random;
+import java.util.regex.Matcher;
+
 public class MessageView extends Activity
-        implements UrlInterceptHandler, OnClickListener {
+        implements OnClickListener {
     private static final String EXTRA_ACCOUNT = "com.android.email.MessageView_account";
     private static final String EXTRA_FOLDER = "com.android.email.MessageView_folder";
     private static final String EXTRA_MESSAGE = "com.android.email.MessageView_message";
     private static final String EXTRA_FOLDER_UIDS = "com.android.email.MessageView_folderUids";
     private static final String EXTRA_NEXT = "com.android.email.MessageView_next";
+    
+    private static final String[] METHODS_WITH_PRESENCE_PROJECTION = new String[] {
+        People.ContactMethods._ID,  // 0
+        People.PRESENCE_STATUS,     // 1
+    };
+    private static final int METHODS_STATUS_COLUMN = 1;
 
     private TextView mSubjectView;
     private TextView mFromView;
@@ -93,8 +102,9 @@ public class MessageView extends Activity
     private View mCcContainerView;
     private WebView mMessageContentView;
     private LinearLayout mAttachments;
-    private View mAttachmentIcon;
+    private ImageView mAttachmentIcon;
     private View mShowPicturesSection;
+    private ImageView mSenderPresenceView;
 
     private Account mAccount;
     private String mFolder;
@@ -121,6 +131,7 @@ public class MessageView extends Activity
         private static final int MSG_ATTACHMENT_NOT_SAVED = 8;
         private static final int MSG_SHOW_SHOW_PICTURES = 9;
         private static final int MSG_FETCHING_ATTACHMENT = 10;
+        private static final int MSG_SET_SENDER_PRESENCE = 11;
 
         @Override
         public void handleMessage(android.os.Message msg) {
@@ -171,6 +182,9 @@ public class MessageView extends Activity
                     Toast.makeText(MessageView.this,
                             getString(R.string.message_view_fetching_attachment_toast),
                             Toast.LENGTH_SHORT).show();
+                    break;
+                case MSG_SET_SENDER_PRESENCE:
+                    updateSenderPresence(msg.arg1);
                     break;
                 default:
                     super.handleMessage(msg);
@@ -238,6 +252,12 @@ public class MessageView extends Activity
             msg.arg1 = show ? 1 : 0;
             sendMessage(msg);
         }
+        
+        public void setSenderPresence(int presenceIconId) {
+            android.os.Message
+                    .obtain(this, MSG_SET_SENDER_PRESENCE,  presenceIconId, 0)
+                    .sendToTarget();
+        }
     }
 
     /**
@@ -279,28 +299,29 @@ public class MessageView extends Activity
 
         setContentView(R.layout.message_view);
 
-        mSubjectView = (TextView)findViewById(R.id.subject);
-        mFromView = (TextView)findViewById(R.id.from);
-        mToView = (TextView)findViewById(R.id.to);
-        mCcView = (TextView)findViewById(R.id.cc);
+        mSubjectView = (TextView) findViewById(R.id.subject);
+        mFromView = (TextView) findViewById(R.id.from);
+        mToView = (TextView) findViewById(R.id.to);
+        mCcView = (TextView) findViewById(R.id.cc);
         mCcContainerView = findViewById(R.id.cc_container);
-        mDateView = (TextView)findViewById(R.id.date);
-        mTimeView = (TextView)findViewById(R.id.time);
-        mMessageContentView = (WebView)findViewById(R.id.message_content);
-        mAttachments = (LinearLayout)findViewById(R.id.attachments);
-        mAttachmentIcon = findViewById(R.id.attachment);
+        mDateView = (TextView) findViewById(R.id.date);
+        mTimeView = (TextView) findViewById(R.id.time);
+        mMessageContentView = (WebView) findViewById(R.id.message_content);
+        mAttachments = (LinearLayout) findViewById(R.id.attachments);
+        mAttachmentIcon = (ImageView) findViewById(R.id.attachment);
         mShowPicturesSection = findViewById(R.id.show_pictures_section);
+        mSenderPresenceView = (ImageView) findViewById(R.id.presence);
 
         mMessageContentView.setVerticalScrollBarEnabled(false);
         mAttachments.setVisibility(View.GONE);
         mAttachmentIcon.setVisibility(View.GONE);
 
+        mFromView.setOnClickListener(this);
+        mSenderPresenceView.setOnClickListener(this);
         findViewById(R.id.reply).setOnClickListener(this);
         findViewById(R.id.reply_all).setOnClickListener(this);
         findViewById(R.id.delete).setOnClickListener(this);
         findViewById(R.id.show_pictures).setOnClickListener(this);
-
-        // UrlInterceptRegistry.registerHandler(this);
 
         mMessageContentView.getSettings().setBlockNetworkImage(true);
         mMessageContentView.getSettings().setSupportZoom(false);
@@ -374,6 +395,9 @@ public class MessageView extends Activity
     public void onResume() {
         super.onResume();
         MessagingController.getInstance(getApplication()).addListener(mListener);
+        if (mMessage != null) {
+            startPresenceCheck();
+        }
     }
 
     @Override
@@ -417,6 +441,30 @@ public class MessageView extends Activity
             }
         }
     }
+    
+    private void onClickSender() {
+        if (mMessage != null) {
+            try {
+                Address senderEmail = mMessage.getFrom()[0];
+                Uri contactUri = Uri.fromParts("mailto", senderEmail.getAddress(), null);
+                
+                Intent contactIntent = new Intent(Contacts.Intents.SHOW_OR_CREATE_CONTACT);
+                contactIntent.setData(contactUri);
+                
+                // Only provide personal name hint if we have one
+                String senderPersonal = senderEmail.getPersonal();
+                if (senderPersonal != null) {
+                    contactIntent.putExtra(Intents.Insert.NAME, senderPersonal);
+                }
+                
+                startActivity(contactIntent);
+            } catch (MessagingException me) {
+                if (Config.LOGV) {
+                    Log.v(Email.LOG_TAG, "loadMessageForViewHeadersAvailable", me);
+                }
+            }
+        }
+    }
 
     private void onReply() {
         if (mMessage != null) {
@@ -452,11 +500,13 @@ public class MessageView extends Activity
     }
 
     private void onMarkAsUnread() {
-        MessagingController.getInstance(getApplication()).markMessageRead(
-                mAccount,
-                mFolder,
-                mMessage.getUid(),
-                false);
+        if (mMessage != null) {
+            MessagingController.getInstance(getApplication()).markMessageRead(
+                    mAccount,
+                    mFolder,
+                    mMessage.getUid(),
+                    false);
+        }
     }
 
     /**
@@ -520,12 +570,18 @@ public class MessageView extends Activity
     }
 
     private void onShowPictures() {
-        mMessageContentView.getSettings().setBlockNetworkImage(false);
-        mShowPicturesSection.setVisibility(View.GONE);
+        if (mMessage != null) {
+            mMessageContentView.getSettings().setBlockNetworkImage(false);
+            mShowPicturesSection.setVisibility(View.GONE);
+        }
     }
 
     public void onClick(View view) {
         switch (view.getId()) {
+            case R.id.from:
+            case R.id.presence:
+                onClickSender();
+                break;
             case R.id.reply:
                 onReply();
                 break;
@@ -552,56 +608,51 @@ public class MessageView extends Activity
                 break;
         }
     }
-
-    @Override
+    
+   @Override
     public boolean onOptionsItemSelected(MenuItem item) {
-        switch (item.getItemId()) {
-            case R.id.delete:
-                onDelete();
-                break;
-            case R.id.reply:
-                onReply();
-                break;
-            case R.id.reply_all:
-                onReplyAll();
-                break;
-            case R.id.forward:
-                onForward();
-                break;
-            case R.id.mark_as_unread:
-                onMarkAsUnread();
-                break;
-            default:
-                return super.onOptionsItemSelected(item);
-        }
-        return true;
-    }
+       boolean handled = handleMenuItem(item.getItemId());
+       if (!handled) {
+           handled = super.onOptionsItemSelected(item);
+       }
+       return handled;
+   }
+
+   /**
+    * This is the core functionality of onOptionsItemSelected() but broken out and exposed
+    * for testing purposes (because it's annoying to mock a MenuItem).
+    * 
+    * @param menuItemId id that was clicked
+    * @return true if handled here
+    */
+   /* package */ boolean handleMenuItem(int menuItemId) {
+       switch (menuItemId) {
+           case R.id.delete:
+               onDelete();
+               break;
+           case R.id.reply:
+               onReply();
+               break;
+           case R.id.reply_all:
+               onReplyAll();
+               break;
+           case R.id.forward:
+               onForward();
+               break;
+           case R.id.mark_as_unread:
+               onMarkAsUnread();
+               break;
+           default:
+               return false;
+       }
+       return true;
+   }
 
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {
         super.onCreateOptionsMenu(menu);
         getMenuInflater().inflate(R.menu.message_view_option, menu);
         return true;
-    }
-
-    public CacheResult service(String url, Map<String, String> headers) {
-        String prefix = "http://cid/";
-        if (url.startsWith(prefix)) {
-            try {
-                String contentId = url.substring(prefix.length());
-                final Part part = MimeUtility.findPartByContentId(mMessage, "<" + contentId + ">");
-                if (part != null) {
-                    CacheResult cr = new CacheManager.CacheResult();
-                    // TODO looks fixed in Mainline, cr.setInputStream
-                    // part.getBody().writeTo(cr.getStream());
-                    return cr;
-                }
-            }
-            catch (Exception e) {
-                // TODO
-            }
-        }
-        return null;
     }
 
     private Bitmap getPreviewIcon(Attachment attachment) {
@@ -714,6 +765,72 @@ public class MessageView extends Activity
             }
         }
     }
+    
+    /**
+     * Launch a thread (because of cross-process DB lookup) to check presence of the sender of the
+     * message.  When that thread completes, update the UI.
+     * 
+     * This must only be called when mMessage is null (it will hide presence indications) or when
+     * mMessage has already seen its headers loaded.
+     * 
+     * Note:  This is just a polling operation.  A more advanced solution would be to keep the
+     * cursor open and respond to presence status updates (in the form of content change
+     * notifications).  However, because presence changes fairly slowly compared to the duration
+     * of viewing a single message, a simple poll at message load (and onResume) should be
+     * sufficient.
+     */
+    private void startPresenceCheck() {
+        String email = null;        
+        try {
+            if (mMessage != null) {
+                Address sender = mMessage.getFrom()[0];
+                email = sender.getAddress();
+            }
+        } catch (MessagingException me) { }
+        if (email == null) {
+            mHandler.setSenderPresence(0);
+            return;
+        }
+        final String senderEmail = email;
+        
+        new Thread() {
+            @Override
+            public void run() {
+                Cursor methodsCursor = getContentResolver().query(
+                        Uri.withAppendedPath(Contacts.ContactMethods.CONTENT_URI, "with_presence"),
+                        METHODS_WITH_PRESENCE_PROJECTION,
+                        Contacts.ContactMethods.DATA + "=?",
+                        new String[]{ senderEmail },
+                        null);
+
+                int presenceIcon = 0;
+
+                if (methodsCursor != null) {
+                    if (methodsCursor.moveToFirst() && 
+                            !methodsCursor.isNull(METHODS_STATUS_COLUMN)) {
+                        presenceIcon = Presence.getPresenceIconResourceId(
+                                methodsCursor.getInt(METHODS_STATUS_COLUMN));
+                    }
+                    methodsCursor.close();
+                }
+
+                mHandler.setSenderPresence(presenceIcon);
+            }
+        }.start();
+    }
+    
+    /**
+     * Update the actual UI.  Must be called from main thread (or handler)
+     * @param presenceIconId the presence of the sender, 0 for "unknown"
+     */
+    private void updateSenderPresence(int presenceIconId) {
+        if (presenceIconId == 0) {
+            // This is a placeholder used for "unknown" presence, including signed off,
+            // no presence relationship.
+            presenceIconId = R.drawable.presence_inactive;
+        }
+        mSenderPresenceView.setImageResource(presenceIconId);
+    }
 
     class Listener extends MessagingListener {
         @Override
@@ -737,6 +854,7 @@ public class MessageView extends Activity
                         toText,
                         ccText,
                         hasAttachments);
+                startPresenceCheck();
             }
             catch (MessagingException me) {
                 if (Config.LOGV) {
