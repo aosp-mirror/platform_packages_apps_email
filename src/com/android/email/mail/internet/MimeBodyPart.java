@@ -20,6 +20,7 @@ import java.io.BufferedWriter;
 import java.io.IOException;
 import java.io.OutputStream;
 import java.io.OutputStreamWriter;
+import java.util.regex.Pattern;
 
 import com.android.email.mail.Body;
 import com.android.email.mail.BodyPart;
@@ -33,6 +34,9 @@ public class MimeBodyPart extends BodyPart {
     protected MimeHeader mHeader = new MimeHeader();
     protected Body mBody;
     protected int mSize;
+
+    // regex that matches content id surrounded by "<>" optionally.
+    private static final Pattern REMOVE_OPTIONAL_BRACKETS = Pattern.compile("^<?([^>]+)>?$");
 
     public MimeBodyPart() throws MessagingException {
         this(null);
@@ -106,6 +110,16 @@ public class MimeBodyPart extends BodyPart {
             return null;
         } else {
             return contentDisposition;
+        }
+    }
+
+    public String getContentId() throws MessagingException {
+        String contentId = getFirstHeader(MimeHeader.HEADER_CONTENT_ID);
+        if (contentId == null) {
+            return null;
+        } else {
+            // remove optionally surrounding brackets.
+            return REMOVE_OPTIONAL_BRACKETS.matcher(contentId).replaceAll("$1");
         }
     }
 

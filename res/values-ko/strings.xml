@@ -84,6 +84,10 @@
     <string name="message_deleted_toast">"메일이 삭제되었습니다."</string>
     <string name="message_discarded_toast">"메일이 삭제되었습니다."</string>
     <string name="message_saved_toast">"메일을 임시로 저장했습니다."</string>
+    <!-- no translation found for add_contact_dlg_title (7424641029188006580) -->
+    <skip />
+    <!-- no translation found for add_contact_dlg_message_fmt (4470846346726847478) -->
+    <skip />
     <string name="account_setup_basics_title">"이메일 설정"</string>
     <string name="account_setup_basics_instructions">"계정 이메일 주소 입력:"</string>
     <string name="account_setup_basics_email_hint">"이메일 주소"</string>

@@ -126,13 +126,9 @@ public class MimeUtility {
                 }
             }
         }
-        String[] header = part.getHeader("Content-ID");
-        if (header != null) {
-            for (String s : header) {
-                if (s.equals(contentId)) {
-                    return part;
-                }
-            }
+        String cid = part.getContentId();
+        if (contentId.equals(cid)) {
+            return part;
         }
         return null;
     }

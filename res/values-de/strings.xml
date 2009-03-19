@@ -84,6 +84,10 @@
     <string name="message_deleted_toast">"Nachricht gelöscht"</string>
     <string name="message_discarded_toast">"Nachricht gelöscht"</string>
     <string name="message_saved_toast">"Nachricht als Entwurf gespeichert"</string>
+    <!-- no translation found for add_contact_dlg_title (7424641029188006580) -->
+    <skip />
+    <!-- no translation found for add_contact_dlg_message_fmt (4470846346726847478) -->
+    <skip />
     <string name="account_setup_basics_title">"E-Mail einrichten"</string>
     <string name="account_setup_basics_instructions">"Geben Sie Ihre im Konto gespeicherte E-Mail-Adresse ein:"</string>
     <string name="account_setup_basics_email_hint">"E-Mail-Adresse"</string>

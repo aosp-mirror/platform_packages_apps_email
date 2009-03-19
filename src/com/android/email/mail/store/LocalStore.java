@@ -76,10 +76,11 @@ public class LocalStore extends Store {
      * ----------   ----------  -----
      *      18      pre-1.0     Development versions.  No upgrade path.
      *      18      1.0, 1.1    1.0 Release version.
-     *      19      1.5         Added message_id column
+     *      19      -           Added message_id column to messages table.
+     *      20      1.5         Added content_id column to attachments table.
      */
     
-    private static final int DB_VERSION = 19;
+    private static final int DB_VERSION = 20;
     
     private static final Flag[] PERMANENT_FLAGS = { Flag.DELETED, Flag.X_DESTROYED, Flag.SEEN };
 
@@ -110,6 +111,10 @@ public class LocalStore extends Store {
         }
         mDb = SQLiteDatabase.openOrCreateDatabase(mPath, null);
         int oldVersion = mDb.getVersion();
+  
+        /*
+         *  TODO we should have more sophisticated way to upgrade database.
+         */
         if (oldVersion != DB_VERSION) {
             if (Config.LOGV) {
                 Log.v(Email.LOG_TAG, String.format("Upgrading database from %d to %d", 
@@ -133,7 +138,7 @@ public class LocalStore extends Store {
                 mDb.execSQL("DROP TABLE IF EXISTS attachments");
                 mDb.execSQL("CREATE TABLE attachments (id INTEGER PRIMARY KEY, message_id INTEGER,"
                         + "store_data TEXT, content_uri TEXT, size INTEGER, name TEXT,"
-                        + "mime_type TEXT)");
+                        + "mime_type TEXT, content_id TEXT)");
 
                 mDb.execSQL("DROP TABLE IF EXISTS pending_commands");
                 mDb.execSQL("CREATE TABLE pending_commands " +
@@ -146,12 +151,21 @@ public class LocalStore extends Store {
                 mDb.execSQL("CREATE TRIGGER delete_message BEFORE DELETE ON messages BEGIN DELETE FROM attachments WHERE old.id = message_id; END;");
                 mDb.setVersion(DB_VERSION);
             }
-            else if (oldVersion < 19) {
-                /**
-                 * Upgrade 18 to 19:  add message_id to messages table 
-                 */
-                mDb.execSQL("ALTER TABLE messages ADD COLUMN message_id TEXT;");
-                mDb.setVersion(DB_VERSION);
+            else {
+                if (oldVersion < 19) {
+                    /**
+                     * Upgrade 18 to 19:  add message_id to messages table
+                     */ 
+                    mDb.execSQL("ALTER TABLE messages ADD COLUMN message_id TEXT;");
+                    mDb.setVersion(19);
+                }
+                if (oldVersion < 20) {
+                    /**
+                     * Upgrade 19 to 20:  add content_id to attachments table
+                     */ 
+                    mDb.execSQL("ALTER TABLE attachments ADD COLUMN content_id TEXT;");
+                    mDb.setVersion(20);
+                }
             }
 
             if (mDb.getVersion() != DB_VERSION) {
@@ -523,7 +537,8 @@ public class LocalStore extends Store {
                                         "name",
                                         "mime_type",
                                         "store_data",
-                                        "content_uri" },
+                                        "content_uri",
+                                        "content_id" },
                                 "message_id = ?",
                                 new String[] { Long.toString(localMessage.mId) },
                                 null,
@@ -537,6 +552,7 @@ public class LocalStore extends Store {
                             String type = cursor.getString(3);
                             String storeData = cursor.getString(4);
                             String contentUri = cursor.getString(5);
+                            String contentId = cursor.getString(6);
                             Body body = null;
                             if (contentUri != null) {
                                 body = new LocalAttachmentBody(Uri.parse(contentUri), mContext);
@@ -551,6 +567,7 @@ public class LocalStore extends Store {
                                     String.format("attachment;\n filename=\"%s\";\n size=%d",
                                     name,
                                     size));
+                            bp.setHeader(MimeHeader.HEADER_CONTENT_ID, contentId);
 
                             /*
                              * HEADER_ANDROID_ATTACHMENT_STORE_DATA is a custom header we add to that
@@ -924,6 +941,7 @@ public class LocalStore extends Store {
                         MimeHeader.HEADER_ANDROID_ATTACHMENT_STORE_DATA), ',');
 
             String name = MimeUtility.getHeaderParameter(attachment.getContentType(), "name");
+            String contentId = attachment.getContentId();
 
             if (attachmentId == -1) {
                 ContentValues cv = new ContentValues();
@@ -933,6 +951,7 @@ public class LocalStore extends Store {
                 cv.put("size", size);
                 cv.put("name", name);
                 cv.put("mime_type", attachment.getMimeType());
+                cv.put("content_id", contentId);
 
                 attachmentId = mDb.insert("attachments", "message_id", cv);
             }
@@ -940,6 +959,7 @@ public class LocalStore extends Store {
                 ContentValues cv = new ContentValues();
                 cv.put("content_uri", contentUri != null ? contentUri.toString() : null);
                 cv.put("size", size);
+                cv.put("content_id", contentId);
                 mDb.update(
                         "attachments",
                         cv,

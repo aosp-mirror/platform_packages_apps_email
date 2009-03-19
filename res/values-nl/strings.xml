@@ -84,6 +84,10 @@
     <string name="message_deleted_toast">"Bericht verwijderd."</string>
     <string name="message_discarded_toast">"Bericht wordt verwijderd"</string>
     <string name="message_saved_toast">"Bericht opgeslagen als concept."</string>
+    <!-- no translation found for add_contact_dlg_title (7424641029188006580) -->
+    <skip />
+    <!-- no translation found for add_contact_dlg_message_fmt (4470846346726847478) -->
+    <skip />
     <string name="account_setup_basics_title">"E-mail instellen"</string>
     <string name="account_setup_basics_instructions">"Typ het e-mailadres van je account:"</string>
     <string name="account_setup_basics_email_hint">"E-mailadres"</string>

@@ -16,6 +16,15 @@
 
 package com.android.email.mail.store;
 
+import com.android.email.Email;
+import com.android.email.FixedLengthInputStream;
+import com.android.email.PeekableInputStream;
+import com.android.email.mail.MessagingException;
+import com.android.email.mail.transport.LoggingInputStream;
+
+import android.util.Config;
+import android.util.Log;
+
 import java.io.IOException;
 import java.io.InputStream;
 import java.text.ParseException;
@@ -23,14 +32,6 @@ import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.Locale;
-
-import android.util.Config;
-import android.util.Log;
-
-import com.android.email.Email;
-import com.android.email.FixedLengthInputStream;
-import com.android.email.PeekableInputStream;
-import com.android.email.mail.MessagingException;
 
 public class ImapResponseParser {
     // DEBUG ONLY - Always check in as "false"
@@ -43,11 +44,11 @@ public class ImapResponseParser {
     PeekableInputStream mIn;
     InputStream mActiveLiteral;
 
-    public ImapResponseParser(PeekableInputStream in) {
+    public ImapResponseParser(InputStream in) {
         if (DEBUG_LOG_RAW_STREAM && Config.LOGD && Email.DEBUG) {
             in = new LoggingInputStream(in);
         }
-        this.mIn = in;
+        this.mIn = new PeekableInputStream(in);
     }
 
     /**
@@ -380,71 +381,6 @@ public class ImapResponseParser {
 
         public String toString() {
             return "#" + mTag + "# " + super.toString();
-        }
-    }
-
-    
-    /**
-     * Simple class used for debugging only that affords us a view of the raw Imap stream,
-     * in addition to the tokenized version.
-     */
-    private static class LoggingInputStream extends PeekableInputStream {
-        
-        PeekableInputStream mIn;
-        StringBuilder mSb;
-        
-        public LoggingInputStream(PeekableInputStream in) {
-            super(null);
-            mIn = in;
-            mSb = new StringBuilder();
-        }
-        
-        /**
-         * Collect chars as read, and log them when EOL reached.
-         */
-        @Override
-        public int read() throws IOException {
-            int oneByte = mIn.read();
-            logRaw(oneByte);
-            return oneByte;
-        }
-        
-        /**
-         * Collect chars as read, and log them when EOL reached.
-         */
-        @Override
-        public int read(byte[] b, int offset, int length) throws IOException {
-            int bytesRead = mIn.read(b, offset, length);
-            int copyBytes = bytesRead;
-            while (copyBytes > 0) {
-                logRaw((char)b[offset]);
-                copyBytes--;
-                offset++;
-            }
-            
-            return bytesRead;
-        }
-        
-        /**
-         * Pass-through any peeks
-         */
-        @Override
-        public int peek() throws IOException {
-            return mIn.peek();
-        }
-        
-        /**
-         * Write and clear the buffer
-         */
-        private void logRaw(int oneByte) {
-            if (oneByte == '\r' || oneByte == '\n') {          
-                if (mSb.length() > 0) {
-                    Log.d(Email.LOG_TAG, "RAW " + mSb.toString());
-                    mSb = new StringBuilder();
-                }
-            } else {
-                mSb.append((char)oneByte);
-            }
         }
     }
 

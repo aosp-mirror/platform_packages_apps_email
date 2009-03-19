@@ -75,9 +75,8 @@ import java.io.InputStream;
 import java.io.OutputStream;
 import java.util.ArrayList;
 import java.util.Date;
-import java.util.Map;
-import java.util.Random;
 import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 public class MessageView extends Activity
         implements OnClickListener {
@@ -92,6 +91,9 @@ public class MessageView extends Activity
         People.PRESENCE_STATUS,     // 1
     };
     private static final int METHODS_STATUS_COLUMN = 1;
+
+    // regex that matches start of img tag. '.*<(?i)img\s+.*'.
+    private static final Pattern IMG_TAG_START_REGEX = Pattern.compile(".*<(?i)img\\s+.*");
 
     private TextView mSubjectView;
     private TextView mFromView;
@@ -451,6 +453,10 @@ public class MessageView extends Activity
                 Intent contactIntent = new Intent(Contacts.Intents.SHOW_OR_CREATE_CONTACT);
                 contactIntent.setData(contactUri);
                 
+                // Pass along full E-mail string for possible create dialog  
+                contactIntent.putExtra(Contacts.Intents.EXTRA_CREATE_DESCRIPTION,
+                        senderEmail.toString());
+                
                 // Only provide personal name hint if we have one
                 String senderPersonal = senderEmail.getPersonal();
                 if (senderPersonal != null) {
@@ -694,6 +700,50 @@ public class MessageView extends Activity
         }
     }
 
+    /**
+     * Resolve content-id reference in src attribute of img tag to AttachmentProvider's
+     * content uri.  This method calls itself recursively at most the number of
+     * LocalAttachmentPart that mime type is image and has content id.
+     * The attribute src="cid:content_id" is resolved as src="content://...".
+     * This method is package scope for testing purpose.
+     *
+     * @param text html email text
+     * @param part mime part which may contain inline image
+     * @return html text in which src attribute of img tag may be replaced with content uri
+     */
+    /* package */ String resolveInlineImage(String text, Part part, int depth)
+        throws MessagingException {
+        // avoid too deep recursive call.
+        if (depth >= 10) {
+            return text;
+        }
+        String contentType = MimeUtility.unfoldAndDecode(part.getContentType());
+        String contentId = part.getContentId();
+        if (contentType.startsWith("image/") &&
+            contentId != null &&
+            part instanceof LocalAttachmentBodyPart) {
+            LocalAttachmentBodyPart attachment = (LocalAttachmentBodyPart)part;
+            Uri contentUri = AttachmentProvider.getAttachmentUri(
+                    mAccount,
+                    attachment.getAttachmentId());
+            if (contentUri != null) {
+                // Regexp which matches ' src="cid:contentId"'.
+                String contentIdRe = "\\s+(?i)src=\"cid(?-i):\\Q" + contentId + "\\E\"";
+                // Replace all occurrences of src attribute with ' src="content://contentUri"'.
+                text = text.replaceAll(contentIdRe, " src=\"" + contentUri + "\""); 
+            }
+        }
+
+        if (part.getBody() instanceof Multipart) {
+            Multipart mp = (Multipart)part.getBody();
+            for (int i = 0; i < mp.getCount(); i++) {
+                text = resolveInlineImage(text, mp.getBodyPart(i), depth + 1);
+            }
+        }
+
+        return text;
+    }
+    
     private void renderAttachments(Part part, int depth) throws MessagingException {
         String contentType = MimeUtility.unfoldAndDecode(part.getContentType());
         String name = MimeUtility.getHeaderParameter(contentType, "name");
@@ -875,7 +925,7 @@ public class MessageView extends Activity
                 if (part != null) {
                     String text = MimeUtility.getTextFromPart(part);
                     if (part.getMimeType().equalsIgnoreCase("text/html")) {
-                        text = text.replaceAll("cid:", "http://cid/");
+                        text = resolveInlineImage(text, mMessage, 0);
                     } else {
                         /*
                          * Linkify the plain text and convert it to HTML by replacing
@@ -898,10 +948,11 @@ public class MessageView extends Activity
                     }
 
                     /*
-                     * TODO this should be smarter, change to regex for img, but consider how to
-                     * get backgroung images and a million other things that HTML allows.
+                     * TODO consider how to get background images and a million other things
+                     * that HTML allows.
                      */
-                    if (text.contains("img")) {
+                    // Check if text contains img tag.
+                    if (IMG_TAG_START_REGEX.matcher(text).matches()) {
                         mHandler.showShowPictures(true);
                     }
 

@@ -84,6 +84,10 @@
     <string name="message_deleted_toast">"Wiadomość została usunięta."</string>
     <string name="message_discarded_toast">"Wiadomość została odrzucona."</string>
     <string name="message_saved_toast">"Wiadomość została zapisana jako wersja robocza."</string>
+    <!-- no translation found for add_contact_dlg_title (7424641029188006580) -->
+    <skip />
+    <!-- no translation found for add_contact_dlg_message_fmt (4470846346726847478) -->
+    <skip />
     <string name="account_setup_basics_title">"Skonfiguruj konto e-mail"</string>
     <string name="account_setup_basics_instructions">"Podaj adres e-mail swojego konta:"</string>
     <string name="account_setup_basics_email_hint">"Adres e-mail"</string>

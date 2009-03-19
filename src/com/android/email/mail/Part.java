@@ -31,6 +31,8 @@ public interface Part {
     public String getContentType() throws MessagingException;
 
     public String getDisposition() throws MessagingException;
+    
+    public String getContentId() throws MessagingException;
 
     public String[] getHeader(String name) throws MessagingException;
 

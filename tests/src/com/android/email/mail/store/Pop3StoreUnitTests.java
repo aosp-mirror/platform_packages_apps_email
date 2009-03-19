@@ -27,6 +27,7 @@ import com.android.email.mail.Folder.FolderType;
 import com.android.email.mail.Folder.OpenMode;
 import com.android.email.mail.Message.RecipientType;
 import com.android.email.mail.internet.BinaryTempFileBody;
+import com.android.email.mail.internet.MimeMessage;
 import com.android.email.mail.transport.MockTransport;
 
 import android.test.AndroidTestCase;
@@ -529,6 +530,16 @@ public class Pop3StoreUnitTests extends AndroidTestCase {
         fp.add(FetchProfile.Item.ENVELOPE);
         mFolder.fetch(messages, fp, null);
         assertEquals(PER_MESSAGE_SIZE, messages[0].getSize());
+        
+        // A side effect of how messages work is that if you get fields that are empty, 
+        // then empty arrays are written back into the parsed header fields (e.g. mTo, mFrom).  The
+        // standard message parser needs to clear these before parsing.  Make sure that this
+        // is happening.  (This doesn't affect IMAP, which reads the headers directly via
+        // IMAP evelopes.)
+        MimeMessage message = (MimeMessage) messages[0];
+        message.getRecipients(RecipientType.TO);
+        message.getRecipients(RecipientType.CC);
+        message.getRecipients(RecipientType.BCC);
 
         // now try fetching the message
         setupSingleMessage(mockTransport, 1, false);
@@ -586,6 +597,20 @@ public class Pop3StoreUnitTests extends AndroidTestCase {
         assertEquals(1, from.length);
         assertEquals("Jones@Registry.Org", from[0].getAddress());
         assertNull(from[0].getPersonal());
+        
+        // check Cc:
+        Address[] cc = message.getRecipients(RecipientType.CC);
+        assertNotNull(cc);
+        assertEquals(1, cc.length);
+        assertEquals("Chris@Registry.Org", cc[0].getAddress());
+        assertNull(cc[0].getPersonal());
+
+        // check Reply-To:
+        Address[] replyto = message.getReplyTo();
+        assertNotNull(replyto);
+        assertEquals(1, replyto.length);
+        assertEquals("Roger@Registry.Org", replyto[0].getAddress());
+        assertNull(replyto[0].getPersonal());
 
         // TODO date
         
@@ -649,6 +674,10 @@ public class Pop3StoreUnitTests extends AndroidTestCase {
      *     Date:     26 Aug 76 1429 EDT
      *     From:     Jones@Registry.Org
      *     To:       Smith@Registry.Org
+     * 
+     * We'll add the following fields to support additional tests:
+     *     Cc:       Chris@Registry.Org
+     *     Reply-To: Roger@Registry.Org
      *     
      * @param transport the mock transport to preload
      * @param msgNum the message number to expect and return
@@ -659,6 +688,8 @@ public class Pop3StoreUnitTests extends AndroidTestCase {
         transport.expect(null, "Date: 26 Aug 76 1429 EDT");
         transport.expect(null, "From: Jones@Registry.Org");
         transport.expect(null, "To:   Smith@Registry.Org");
+        transport.expect(null, "CC:   Chris@Registry.Org");
+        transport.expect(null, "Reply-To: Roger@Registry.Org");
         transport.expect(null, "");
         transport.expect(null, ".");
     }

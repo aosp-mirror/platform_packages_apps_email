@@ -856,6 +856,7 @@ public class ImapStore extends Store {
                 if (bs.get(2) instanceof ImapList) {
                     bodyParams = bs.getList(2);
                 }
+                String cid = bs.getString(3);
                 String encoding = bs.getString(5);
                 int size = bs.getNumber(6);
 
@@ -941,6 +942,12 @@ public class ImapStore extends Store {
                  * to parse the body.
                  */
                 part.setHeader(MimeHeader.HEADER_CONTENT_TRANSFER_ENCODING, encoding);
+                /*
+                 * Set the Content-ID header.
+                 */
+                if (!"NIL".equalsIgnoreCase(cid)) {
+                    part.setHeader(MimeHeader.HEADER_CONTENT_ID, cid);
+                }
 
                 if (part instanceof ImapMessage) {
                     ((ImapMessage) part).setSize(size);
@@ -1084,8 +1091,6 @@ public class ImapStore extends Store {
         private int mNextCommandTag;
 
         public void open() throws IOException, MessagingException {
-            PeekableInputStream mIn;
-
             if (mTransport != null && mTransport.isOpen()) {
                 return;
             }
@@ -1101,8 +1106,7 @@ public class ImapStore extends Store {
                 mTransport.open();
                 mTransport.setSoTimeout(MailTransport.SOCKET_READ_TIMEOUT);
 
-                mIn = new PeekableInputStream(mTransport.getInputStream());
-                mParser = new ImapResponseParser(mIn);
+                mParser = new ImapResponseParser(mTransport.getInputStream());
 
                 // BANNER
                 mParser.readResponse();
@@ -1119,8 +1123,7 @@ public class ImapStore extends Store {
 
                         mTransport.reopenTls();
                         mTransport.setSoTimeout(MailTransport.SOCKET_READ_TIMEOUT);
-                        mIn = new PeekableInputStream(mTransport.getInputStream());
-                        mParser = new ImapResponseParser(mIn);
+                        mParser = new ImapResponseParser(mTransport.getInputStream());
                     } else if (mTransport.getSecurity() == 
                             Transport.CONNECTION_SECURITY_TLS_REQUIRED) {
                         if (Config.LOGD && Email.DEBUG) {

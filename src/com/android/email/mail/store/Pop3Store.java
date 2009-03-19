@@ -29,6 +29,7 @@ import com.android.email.mail.Store;
 import com.android.email.mail.Transport;
 import com.android.email.mail.Folder.OpenMode;
 import com.android.email.mail.internet.MimeMessage;
+import com.android.email.mail.transport.LoggingInputStream;
 import com.android.email.mail.transport.MailTransport;
 
 import android.util.Config;
@@ -46,6 +47,7 @@ public class Pop3Store extends Store {
     // All flags defining debug or development code settings must be FALSE
     // when code is checked in or released.
     private static boolean DEBUG_FORCE_SINGLE_LINE_UIDL = false;
+    private static boolean DEBUG_LOG_RAW_STREAM = false;
     
     private static final Flag[] PERMANENT_FLAGS = { Flag.DELETED };
 
@@ -718,7 +720,11 @@ public class Pop3Store extends Store {
             }
             if (response != null)  {
                 try {
-                    message.parse(new Pop3ResponseInputStream(mTransport.getInputStream()));
+                    InputStream in = mTransport.getInputStream();
+                    if (DEBUG_LOG_RAW_STREAM && Config.LOGD && Email.DEBUG) {
+                        in = new LoggingInputStream(in);
+                    }
+                    message.parse(new Pop3ResponseInputStream(in));
                 }
                 catch (MessagingException me) {
                     /*

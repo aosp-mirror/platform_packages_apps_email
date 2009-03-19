@@ -73,10 +73,10 @@ public class Address {
      * @return An array of 0 or more Addresses.
      */
     public static Address[] parse(String addressList) {
-        ArrayList<Address> addresses = new ArrayList<Address>();
-        if (addressList == null) {
+        if (addressList == null || addressList.length() == 0) {
             return new Address[] {};
         }
+        ArrayList<Address> addresses = new ArrayList<Address>();
         try {
             MailboxList parsedList = AddressList.parse(addressList).flatten();
             for (int i = 0, count = parsedList.size(); i < count; i++) {
@@ -173,7 +173,7 @@ public class Address {
      * @return
      */
     public static Address[] unpack(String addressList) {
-        if (addressList == null) {
+        if (addressList == null || addressList.length() == 0) {
             return new Address[] { };
         }
         ArrayList<Address> addresses = new ArrayList<Address>();
@@ -205,7 +205,7 @@ public class Address {
     /**
      * Packs an address list into a String that is very quick to read
      * and parse. Packed lists can be unpacked with unpackAddressList()
-     * The packed list is a comma seperated list of:
+     * The packed list is a comma separated list of:
      * URLENCODE(address)[;URLENCODE(personal)] 
      * @param list
      * @return
@@ -213,6 +213,8 @@ public class Address {
     public static String pack(Address[] addresses) {
         if (addresses == null) {
             return null;
+        } else if (addresses.length == 0) {
+            return "";
         }
         StringBuffer sb = new StringBuffer();
         for (int i = 0, count = addresses.length; i < count; i++) {

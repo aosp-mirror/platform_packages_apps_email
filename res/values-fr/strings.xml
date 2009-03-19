@@ -84,6 +84,10 @@
     <string name="message_deleted_toast">"Message supprimé."</string>
     <string name="message_discarded_toast">"Message supprimé."</string>
     <string name="message_saved_toast">"Message enregistré comme brouillon."</string>
+    <!-- no translation found for add_contact_dlg_title (7424641029188006580) -->
+    <skip />
+    <!-- no translation found for add_contact_dlg_message_fmt (4470846346726847478) -->
+    <skip />
     <string name="account_setup_basics_title">"Configurer la messagerie électronique"</string>
     <string name="account_setup_basics_instructions">"Saisissez l\'adresse e-mail de votre compte :"</string>
     <string name="account_setup_basics_email_hint">"Adresse e-mail"</string>
