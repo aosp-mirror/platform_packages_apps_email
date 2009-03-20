@@ -247,7 +247,8 @@ public class MimeMessage extends Message {
     }
 
     public void setSubject(String subject) throws MessagingException {
-        setHeader("Subject", subject);
+        final int HEADER_NAME_LENGTH = 9;     // "Subject: "
+        setHeader("Subject", MimeUtility.foldAndEncode2(subject, HEADER_NAME_LENGTH));
     }
 
     public Address[] getFrom() throws MessagingException {

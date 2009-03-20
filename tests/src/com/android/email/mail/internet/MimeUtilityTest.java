@@ -35,11 +35,120 @@ import junit.framework.TestCase;
 @SmallTest
 public class MimeUtilityTest extends TestCase {
 
-    // TODO:  tests for unfold(String s)
+    /** up arrow, down arrow, left arrow, right arrow */
+    private final String SHORT_UNICODE = "\u2191\u2193\u2190\u2192";
+    private final String SHORT_UNICODE_ENCODED = "=?UTF-8?B?4oaR4oaT4oaQ4oaS?=";
+    
+    /** a string without any unicode */
+    private final String SHORT_PLAIN = "abcd";
+    
+    /** a typical no-param header */
+    private final String HEADER_NO_PARAMETER = 
+            "header";
+    /** a typical multi-param header */
+    private final String HEADER_MULTI_PARAMETER = 
+            "header; Param1Name=Param1Value; Param2Name=Param2Value";
+
+    /**
+     * Test that decode/unfold is efficient when it can be
+     */
+    public void testEfficientUnfoldAndDecode() {
+        String result1 = MimeUtility.unfold(SHORT_PLAIN);
+        String result2 = MimeUtility.decode(SHORT_PLAIN);
+        String result3 = MimeUtility.unfoldAndDecode(SHORT_PLAIN);
+        
+        assertSame(SHORT_PLAIN, result1);
+        assertSame(SHORT_PLAIN, result2);
+        assertSame(SHORT_PLAIN, result3);
+    }
+
+    // TODO:  more tests for unfold(String s)
+        
+    /**
+     * Test that decode is working for simple strings
+     */
+    public void testDecodeSimple() {
+        String result1 = MimeUtility.decode(SHORT_UNICODE_ENCODED);
+        assertEquals(SHORT_UNICODE, result1);
+    }
+    
     // TODO:  tests for decode(String s)
+
+    /**
+     * Test that unfoldAndDecode is working for simple strings
+     */
+    public void testUnfoldAndDecodeSimple() {
+        String result1 = MimeUtility.unfoldAndDecode(SHORT_UNICODE_ENCODED);
+        assertEquals(SHORT_UNICODE, result1);
+    }
+    
     // TODO:  tests for unfoldAndDecode(String s)
-    // TODO:  tests for foldAndEncode(String s)
-    // TODO:  tests for getHeaderParameter(String header, String name)
+
+    /**
+     * Test that fold/encode is efficient when it can be
+     */
+    public void testEfficientFoldAndEncode() {
+        String result1 = MimeUtility.foldAndEncode(SHORT_PLAIN);
+        String result2 = MimeUtility.foldAndEncode2(SHORT_PLAIN, 10);
+        String result3 = MimeUtility.fold(SHORT_PLAIN, 10);
+        
+        assertSame(SHORT_PLAIN, result1);
+        assertSame(SHORT_PLAIN, result2);
+        assertSame(SHORT_PLAIN, result3);
+    }
+
+    // TODO:  more tests for foldAndEncode(String s)
+
+    /**
+     * Test that foldAndEncode2 is working for simple strings
+     */
+    public void testFoldAndEncode2() {
+        String result1 = MimeUtility.foldAndEncode2(SHORT_UNICODE, 10);
+        assertEquals(SHORT_UNICODE_ENCODED, result1);
+    }
+    
+    // TODO:  more tests for foldAndEncode2(String s)
+    // TODO:  more tests for fold(String s, int usedCharacters)
+    
+    /**
+     * Basic tests of getHeaderParameter()
+     * 
+     * Typical header value:  multipart/mixed; boundary="----E5UGTXUQQJV80DR8SJ88F79BRA4S8K"
+     * 
+     * Function spec says:
+     *  if header is null:  return null
+     *  if name is null:    if params, return first param.  else return full field
+     *  else:               if param is found (case insensitive) return it
+     *                        else return null
+     */
+    public void testGetHeaderParameter() {
+        // if header is null, return null
+        assertNull("null header check", MimeUtility.getHeaderParameter(null, "name"));
+        
+        // if name is null, return first param or full header
+        // NOTE:  The docs are wrong - it returns the header (no params) in that case
+//      assertEquals("null name first param per docs", "Param1Value", 
+//              MimeUtility.getHeaderParameter(HEADER_MULTI_PARAMETER, null));
+        assertEquals("null name first param per code", "header", 
+                MimeUtility.getHeaderParameter(HEADER_MULTI_PARAMETER, null));
+        assertEquals("null name full header", HEADER_NO_PARAMETER, 
+                MimeUtility.getHeaderParameter(HEADER_NO_PARAMETER, null));
+        
+        // find name 
+        assertEquals("get 1st param", "Param1Value", 
+                MimeUtility.getHeaderParameter(HEADER_MULTI_PARAMETER, "Param1Name"));
+        assertEquals("get 2nd param", "Param2Value", 
+                MimeUtility.getHeaderParameter(HEADER_MULTI_PARAMETER, "Param2Name"));
+        assertEquals("get missing param", null, 
+                MimeUtility.getHeaderParameter(HEADER_MULTI_PARAMETER, "Param3Name"));
+        
+        // case insensitivity
+        assertEquals("get 2nd param all LC", "Param2Value", 
+                MimeUtility.getHeaderParameter(HEADER_MULTI_PARAMETER, "param2name"));
+        assertEquals("get 2nd param all UC", "Param2Value", 
+                MimeUtility.getHeaderParameter(HEADER_MULTI_PARAMETER, "PARAM2NAME"));
+    }
+    
     // TODO:  tests for findFirstPartByMimeType(Part part, String mimeType)
 
     /** Tests for findPartByContentId(Part part, String contentId) */

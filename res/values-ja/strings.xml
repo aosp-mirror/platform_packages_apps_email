@@ -16,7 +16,7 @@
 <resources xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:xliff="urn:oasis:names:tc:xliff:document:1.2">
     <string name="read_attachment_label">"メールの添付ファイルを読み取る"</string>
-    <string name="read_attachment_desc">"メールの添付ファイルの表示をこのアプリケーションに許可します。"</string>
+    <string name="read_attachment_desc">"Eメールの添付ファイルの読取表示をこのアプリケーションに許可します。"</string>
     <string name="app_name">"メール"</string>
     <string name="accounts_title">"アカウント"</string>
     <string name="compose_title">"作成"</string>
@@ -167,7 +167,7 @@
     <string name="account_settings_name_label">"名前"</string>
     <string name="account_settings_notifications">"通知設定"</string>
     <string name="account_settings_vibrate_enable">"バイブレーション"</string>
-    <string name="account_settings_vibrate_summary">"メール受信: バイブレーションもON"</string>
+    <string name="account_settings_vibrate_summary">"メール受信: バイブレーションON"</string>
     <string name="account_settings_ringtone">"着信音を選択"</string>
     <string name="account_settings_servers">"サーバーの設定"</string>
     <string name="account_delete_dlg_title">"アカウントを削除"</string>
