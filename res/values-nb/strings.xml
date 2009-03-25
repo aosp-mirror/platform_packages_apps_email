@@ -50,23 +50,24 @@
     <string name="status_network_error">"Feil ved tilkobling"</string>
     <string name="status_loading_more_failed">"Prøv på nytt å hente flere meldinger"</string>
     <string name="notification_new_title">"Ny e-post"</string>
-    <!-- no translation found for notification_new_one_account_fmt:one (3422945912787702191) -->
-    <!-- no translation found for notification_new_one_account_fmt:few (6543078667692990869) -->
-    <!-- no translation found for notification_new_one_account_fmt:other (6937673814351448076) -->
+  <plurals name="notification_new_one_account_fmt">
+    <item quantity="one">"<xliff:g id="UNREAD_MESSAGE_COUNT">%d</xliff:g> ulest (<xliff:g id="ACCOUNT">%s</xliff:g>)"</item>
+    <item quantity="few">"<xliff:g id="UNREAD_MESSAGE_COUNT">%d</xliff:g> uleste (<xliff:g id="ACCOUNT">%s</xliff:g>)"</item>
+    <item quantity="other">"<xliff:g id="UNREAD_MESSAGE_COUNT">%d</xliff:g> uleste (<xliff:g id="ACCOUNT">%s</xliff:g>)"</item>
+  </plurals>
     <!-- no translation found for notification_new_multi_account_fmt:few (1991747245324120305) -->
     <!-- no translation found for notification_new_multi_account_fmt:other (2723797835410343458) -->
     <string name="special_mailbox_name_inbox">"Innboks"</string>
     <string name="accounts_welcome">"Velkommen til e-post-oppsettet!"\n\n"Du kan bruke hvilken som helst e-postkonto."\n\n"De fleste vanlige e-postkontoer kan settes opp i to trinn!"</string>
     <string name="debug_version_fmt">"Version: <xliff:g id="VERSION">%s</xliff:g>"</string>
-    <string name="debug_enable_debug_logging_label">"Enable extra debug logging?"</string>
-    <string name="debug_enable_sensitive_logging_label">"Enable sensitive information debug logging? (May show passwords in logs.)"</string>
+    <string name="debug_enable_debug_logging_label">"Slå på ekstra debug-logging?"</string>
+    <string name="debug_enable_sensitive_logging_label">"Slå på debug-logging av sensitiv informasjon? (Kan vise passord i logger.)"</string>
     <string name="message_list_load_more_messages_action">"Hent flere meldinger"</string>
     <string name="message_compose_to_hint">"Til"</string>
     <string name="message_compose_cc_hint">"Kopi"</string>
     <string name="message_compose_bcc_hint">"Blindkopi"</string>
     <string name="message_compose_subject_hint">"Emne"</string>
-    <!-- no translation found for message_compose_body_hint (7575406246484103697) -->
-    <skip />
+    <string name="message_compose_body_hint">"Skriv e-post"</string>
     <string name="message_compose_fwd_header_fmt">\n\n"-------- Original Message --------"\n"Subject: <xliff:g id="SUBJECT">%s</xliff:g>"\n"From: <xliff:g id="SENDER">%s</xliff:g>"\n"To: <xliff:g id="TO">%s</xliff:g>"\n"CC: <xliff:g id="CC_0">%s</xliff:g>"\n\n</string>
     <string name="message_compose_reply_header_fmt">\n\n"<xliff:g id="SENDER">%s</xliff:g>:"\n\n</string>
     <string name="message_compose_quoted_text_label">"Sitert tekst"</string>

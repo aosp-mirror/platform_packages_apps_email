@@ -50,11 +50,15 @@
     <string name="status_network_error">"連線錯誤"</string>
     <string name="status_loading_more_failed">"重新載入更多郵件"</string>
     <string name="notification_new_title">"新電子郵件"</string>
-    <!-- no translation found for notification_new_one_account_fmt:one (3422945912787702191) -->
-    <!-- no translation found for notification_new_one_account_fmt:few (6543078667692990869) -->
-    <!-- no translation found for notification_new_one_account_fmt:other (6937673814351448076) -->
-    <!-- no translation found for notification_new_multi_account_fmt:few (1991747245324120305) -->
-    <!-- no translation found for notification_new_multi_account_fmt:other (2723797835410343458) -->
+  <plurals name="notification_new_one_account_fmt">
+    <item quantity="one">"<xliff:g id="UNREAD_MESSAGE_COUNT">%d</xliff:g> 封未讀取郵件 (<xliff:g id="ACCOUNT">%s</xliff:g>)"</item>
+    <item quantity="few">"<xliff:g id="UNREAD_MESSAGE_COUNT">%d</xliff:g> 封未讀取郵件 (<xliff:g id="ACCOUNT">%s</xliff:g>)"</item>
+    <item quantity="other">"<xliff:g id="UNREAD_MESSAGE_COUNT">%d</xliff:g> 封未讀取郵件 (<xliff:g id="ACCOUNT">%s</xliff:g>)"</item>
+  </plurals>
+  <plurals name="notification_new_multi_account_fmt">
+    <item quantity="few">"<xliff:g id="NUMBER_ACCOUNTS">%d</xliff:g> 個帳戶"</item>
+    <item quantity="other">"<xliff:g id="NUMBER_ACCOUNTS">%d</xliff:g> 個帳戶"</item>
+  </plurals>
     <string name="special_mailbox_name_inbox">"收件匣"</string>
     <string name="accounts_welcome">"歡迎使用 [電子郵件] 設定！"\n\n"[電子郵件] 設定可讓您使用各種電子郵件帳戶！"\n\n"大部分常見的電子郵件只需要兩個步驟就能設定完成！"</string>
     <string name="debug_version_fmt">"版本：<xliff:g id="VERSION">%s</xliff:g>"</string>
@@ -65,8 +69,7 @@
     <string name="message_compose_cc_hint">"副本"</string>
     <string name="message_compose_bcc_hint">"密件副本"</string>
     <string name="message_compose_subject_hint">"主旨"</string>
-    <!-- no translation found for message_compose_body_hint (7575406246484103697) -->
-    <skip />
+    <string name="message_compose_body_hint">"撰寫郵件"</string>
     <string name="message_compose_fwd_header_fmt">\n\n"--------原始郵件 --------"\n"主旨：<xliff:g id="SUBJECT">%s</xliff:g>"\n"寄件者：<xliff:g id="SENDER">%s</xliff:g>"\n"收件者：<xliff:g id="TO">%s</xliff:g>"\n"副本：<xliff:g id="CC_0">%s</xliff:g>"\n\n</string>
     <string name="message_compose_reply_header_fmt">\n\n"<xliff:g id="SENDER">%s</xliff:g>提到："\n\n</string>
     <string name="message_compose_quoted_text_label">"引用的文字"</string>
@@ -84,10 +87,8 @@
     <string name="message_deleted_toast">"已刪除郵件。"</string>
     <string name="message_discarded_toast">"已捨棄郵件。"</string>
     <string name="message_saved_toast">"已儲存郵件草稿。"</string>
-    <!-- no translation found for add_contact_dlg_title (7424641029188006580) -->
-    <skip />
-    <!-- no translation found for add_contact_dlg_message_fmt (4470846346726847478) -->
-    <skip />
+    <string name="add_contact_dlg_title">"新增聯絡人"</string>
+    <string name="add_contact_dlg_message_fmt">"將「<xliff:g id="EMAIL">%s</xliff:g>」新增為聯絡人"</string>
     <string name="account_setup_basics_title">"設定電子郵件"</string>
     <string name="account_setup_basics_instructions">"請輸入您帳戶的電子郵件地址："</string>
     <string name="account_setup_basics_email_hint">"電子郵件地址"</string>
