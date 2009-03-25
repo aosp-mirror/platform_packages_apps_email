@@ -39,6 +39,14 @@ public class MimeUtilityTest extends TestCase {
     private final String SHORT_UNICODE = "\u2191\u2193\u2190\u2192";
     private final String SHORT_UNICODE_ENCODED = "=?UTF-8?B?4oaR4oaT4oaQ4oaS?=";
     
+    /** dollar and euro sign */
+    private final String PADDED2_UNICODE = "$\u20AC";
+    private final String PADDED2_UNICODE_ENCODED = "=?UTF-8?B?JOKCrA==?=";
+    private final String PADDED1_UNICODE = "$$\u20AC";
+    private final String PADDED1_UNICODE_ENCODED = "=?UTF-8?B?JCTigqw=?=";
+    private final String PADDED0_UNICODE = "$$$\u20AC";
+    private final String PADDED0_UNICODE_ENCODED = "=?UTF-8?B?JCQk4oKs?=";
+
     /** a string without any unicode */
     private final String SHORT_PLAIN = "abcd";
     
@@ -139,6 +147,19 @@ public class MimeUtilityTest extends TestCase {
         assertSame(SHORT_PLAIN, result1);
         assertSame(SHORT_PLAIN, result2);
         assertSame(SHORT_PLAIN, result3);
+    }
+
+    /**
+     * Test about base64 padding variety.
+     */
+    public void testPaddingOfFoldAndEncode2() {
+        String result1 = MimeUtility.foldAndEncode2(PADDED2_UNICODE, 0);
+        String result2 = MimeUtility.foldAndEncode2(PADDED1_UNICODE, 0);
+        String result3 = MimeUtility.foldAndEncode2(PADDED0_UNICODE, 0);
+        
+        assertEquals("padding 2", PADDED2_UNICODE_ENCODED, result1);
+        assertEquals("padding 1", PADDED1_UNICODE_ENCODED, result2);
+        assertEquals("padding 0", PADDED0_UNICODE_ENCODED, result3);
     }
 
     // TODO:  more tests for foldAndEncode(String s)
