@@ -50,11 +50,15 @@
     <string name="status_network_error">"连接错误"</string>
     <string name="status_loading_more_failed">"重新尝试载入更多邮件"</string>
     <string name="notification_new_title">"新电子邮件"</string>
-    <!-- no translation found for notification_new_one_account_fmt:one (3422945912787702191) -->
-    <!-- no translation found for notification_new_one_account_fmt:few (6543078667692990869) -->
-    <!-- no translation found for notification_new_one_account_fmt:other (6937673814351448076) -->
-    <!-- no translation found for notification_new_multi_account_fmt:few (1991747245324120305) -->
-    <!-- no translation found for notification_new_multi_account_fmt:other (2723797835410343458) -->
+  <plurals name="notification_new_one_account_fmt">
+    <item quantity="one">"有 <xliff:g id="UNREAD_MESSAGE_COUNT">%d</xliff:g> 封未读邮件 (<xliff:g id="ACCOUNT">%s</xliff:g>)"</item>
+    <item quantity="few">"有 <xliff:g id="UNREAD_MESSAGE_COUNT">%d</xliff:g> 封未读邮件 (<xliff:g id="ACCOUNT">%s</xliff:g>)"</item>
+    <item quantity="other">"有 <xliff:g id="UNREAD_MESSAGE_COUNT">%d</xliff:g> 封未读邮件 (<xliff:g id="ACCOUNT">%s</xliff:g>)"</item>
+  </plurals>
+  <plurals name="notification_new_multi_account_fmt">
+    <item quantity="few">"在 <xliff:g id="NUMBER_ACCOUNTS">%d</xliff:g> 个帐户中"</item>
+    <item quantity="other">"在 <xliff:g id="NUMBER_ACCOUNTS">%d</xliff:g> 个帐户中"</item>
+  </plurals>
     <string name="special_mailbox_name_inbox">"收件箱"</string>
     <string name="accounts_welcome">"欢迎设置电子邮件！"\n\n"在此可使用任意电子邮件帐户。"\n\n"大多数常见的电子邮件帐户通过 2 步即可完成设置！"</string>
     <string name="debug_version_fmt">"版本：<xliff:g id="VERSION">%s</xliff:g>"</string>
@@ -65,8 +69,7 @@
     <string name="message_compose_cc_hint">"抄送"</string>
     <string name="message_compose_bcc_hint">"密送"</string>
     <string name="message_compose_subject_hint">"主题"</string>
-    <!-- no translation found for message_compose_body_hint (7575406246484103697) -->
-    <skip />
+    <string name="message_compose_body_hint">"撰写邮件"</string>
     <string name="message_compose_fwd_header_fmt">\n\n"-------- 原始邮件 --------"\n"主题：<xliff:g id="SUBJECT">%s</xliff:g>"\n"发件人：<xliff:g id="SENDER">%s</xliff:g>"\n"收件人：<xliff:g id="TO">%s</xliff:g>"\n"抄送：<xliff:g id="CC_0">%s</xliff:g>"\n\n</string>
     <string name="message_compose_reply_header_fmt">\n\n"<xliff:g id="SENDER">%s</xliff:g>写道："\n\n</string>
     <string name="message_compose_quoted_text_label">"引用文字"</string>
@@ -84,10 +87,8 @@
     <string name="message_deleted_toast">"邮件已删除。"</string>
     <string name="message_discarded_toast">"邮件已取消。"</string>
     <string name="message_saved_toast">"邮件已另存为草稿。"</string>
-    <!-- no translation found for add_contact_dlg_title (7424641029188006580) -->
-    <skip />
-    <!-- no translation found for add_contact_dlg_message_fmt (4470846346726847478) -->
-    <skip />
+    <string name="add_contact_dlg_title">"添加联系人"</string>
+    <string name="add_contact_dlg_message_fmt">"将“<xliff:g id="EMAIL">%s</xliff:g>”添加到通讯录中"</string>
     <string name="account_setup_basics_title">"设置电子邮件"</string>
     <string name="account_setup_basics_instructions">"键入您的帐户电子邮件地址："</string>
     <string name="account_setup_basics_email_hint">"电子邮件地址"</string>
