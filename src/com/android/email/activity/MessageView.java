@@ -36,6 +36,7 @@ import com.android.email.provider.AttachmentProvider;
 import org.apache.commons.io.IOUtils;
 
 import android.app.Activity;
+import android.content.ActivityNotFoundException;
 import android.content.Context;
 import android.content.Intent;
 import android.database.Cursor;
@@ -134,6 +135,7 @@ public class MessageView extends Activity
         private static final int MSG_SHOW_SHOW_PICTURES = 9;
         private static final int MSG_FETCHING_ATTACHMENT = 10;
         private static final int MSG_SET_SENDER_PRESENCE = 11;
+        private static final int MSG_VIEW_ATTACHMENT_ERROR = 12;
 
         @Override
         public void handleMessage(android.os.Message msg) {
@@ -187,6 +189,11 @@ public class MessageView extends Activity
                     break;
                 case MSG_SET_SENDER_PRESENCE:
                     updateSenderPresence(msg.arg1);
+                    break;
+                case MSG_VIEW_ATTACHMENT_ERROR:
+                    Toast.makeText(MessageView.this,
+                            getString(R.string.message_view_display_attachment_toast),
+                            Toast.LENGTH_SHORT).show();
                     break;
                 default:
                     super.handleMessage(msg);
@@ -259,6 +266,10 @@ public class MessageView extends Activity
             android.os.Message
                     .obtain(this, MSG_SET_SENDER_PRESENCE,  presenceIconId, 0)
                     .sendToTarget();
+        }
+        
+        public void attachmentViewError() {
+            sendEmptyMessage(MSG_VIEW_ATTACHMENT_ERROR);
         }
     }
 
@@ -1037,20 +1048,26 @@ public class MessageView extends Activity
                     out.close();
                     in.close();
                     mHandler.attachmentSaved(file.getName());
-                    new MediaScannerNotifier(MessageView.this, file);
+                    new MediaScannerNotifier(MessageView.this, file, mHandler);
                 }
                 catch (IOException ioe) {
                     mHandler.attachmentNotSaved();
                 }
             }
             else {
-                Uri uri = AttachmentProvider.getAttachmentUri(
-                        mAccount,
-                        attachment.part.getAttachmentId());
-                Intent intent = new Intent(Intent.ACTION_VIEW);
-                intent.setData(uri);
-                intent.addFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION);
-                startActivity(intent);
+                try {
+                    Uri uri = AttachmentProvider.getAttachmentUri(
+                            mAccount,
+                            attachment.part.getAttachmentId());
+                    Intent intent = new Intent(Intent.ACTION_VIEW);
+                    intent.setData(uri);
+                    intent.addFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION);
+                    startActivity(intent);
+                } catch (ActivityNotFoundException e) {
+                    mHandler.attachmentViewError(); 
+                    // TODO: Add a proper warning message (and lots of upstream cleanup to prevent 
+                    // it from happening) in the next release.
+                }
             }
         }
 
@@ -1072,10 +1089,12 @@ public class MessageView extends Activity
         private Context mContext;
         private MediaScannerConnection mConnection;
         private File mFile;
+        MessageViewHandler mHandler;
 
-        public MediaScannerNotifier(Context context, File file) {
+        public MediaScannerNotifier(Context context, File file, MessageViewHandler handler) {
             mContext = context;
             mFile = file;
+            mHandler = handler;
             mConnection = new MediaScannerConnection(context, this);
             mConnection.connect();
         }
@@ -1091,9 +1110,14 @@ public class MessageView extends Activity
                     intent.setData(uri);
                     mContext.startActivity(intent);
                 }
+            } catch (ActivityNotFoundException e) {
+                mHandler.attachmentViewError(); 
+                // TODO: Add a proper warning message (and lots of upstream cleanup to prevent 
+                // it from happening) in the next release.
             } finally {
                 mConnection.disconnect();
                 mContext = null;
+                mHandler = null;
             }
         }
     }
