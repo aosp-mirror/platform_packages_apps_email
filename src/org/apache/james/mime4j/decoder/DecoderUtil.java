@@ -166,7 +166,20 @@ public class DecoderUtil {
 
         while (true) {
             int begin = body.indexOf("=?", previousEnd);
-            int end = begin == -1 ? -1 : body.indexOf("?=", begin + 2);
+            
+            // ANDROID:  The mime4j original version has an error here.  It gets confused if
+            // the encoded string begins with an '=' (just after "?Q?").  This patch seeks forward
+            // to find the two '?' in the "header", before looking for the final "?=".
+            int endScan = begin + 2;
+            if (begin != -1) {
+                int qm1 = body.indexOf('?', endScan + 2);
+                int qm2 = body.indexOf('?', qm1 + 1);
+                if (qm2 != -1) {
+                    endScan = qm2 + 1;
+                }
+            }
+            
+            int end = begin == -1 ? -1 : body.indexOf("?=", endScan);
             if (end == -1) {
                 if (previousEnd == 0)
                     return body;
