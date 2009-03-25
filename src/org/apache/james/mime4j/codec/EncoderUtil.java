@@ -518,12 +518,14 @@ public class EncoderUtil {
         if (totalLength <= ENCODED_WORD_MAX_LENGTH - usedCharacters) {
             return prefix + encodeB(bytes) + ENC_WORD_SUFFIX;
         } else {
-            String part1 = text.substring(0, text.length() / 2);
+            int splitOffset = text.offsetByCodePoints(text.length() / 2, -1);
+                                                         
+            String part1 = text.substring(0, splitOffset);
             byte[] bytes1 = encode(part1, charset);
             String word1 = encodeB(prefix, part1, usedCharacters, charset,
                     bytes1);
 
-            String part2 = text.substring(text.length() / 2);
+            String part2 = text.substring(splitOffset);
             byte[] bytes2 = encode(part2, charset);
             String word2 = encodeB(prefix, part2, 0, charset, bytes2);
 
@@ -544,12 +546,14 @@ public class EncoderUtil {
         if (totalLength <= ENCODED_WORD_MAX_LENGTH - usedCharacters) {
             return prefix + encodeQ(bytes, usage) + ENC_WORD_SUFFIX;
         } else {
-            String part1 = text.substring(0, text.length() / 2);
+            int splitOffset = text.offsetByCodePoints(text.length() / 2, -1);
+
+            String part1 = text.substring(0, splitOffset);
             byte[] bytes1 = encode(part1, charset);
             String word1 = encodeQ(prefix, part1, usage, usedCharacters,
                     charset, bytes1);
 
-            String part2 = text.substring(text.length() / 2);
+            String part2 = text.substring(splitOffset);
             byte[] bytes2 = encode(part2, charset);
             String word2 = encodeQ(prefix, part2, usage, 0, charset, bytes2);
 

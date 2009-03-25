@@ -50,6 +50,38 @@ public class MimeUtilityTest extends TestCase {
     /** a string without any unicode */
     private final String SHORT_PLAIN = "abcd";
     
+    /** long subject which will be split into two MIME/Base64 chunks */
+    private final String LONG_UNICODE_SPLIT =
+        "$" +
+        "\u20AC\u20AC\u20AC\u20AC\u20AC\u20AC\u20AC\u20AC\u20AC\u20AC" +
+        "\u20AC\u20AC\u20AC\u20AC\u20AC\u20AC\u20AC\u20AC\u20AC\u20AC";
+    private final String LONG_UNICODE_SPLIT_ENCODED =
+        "=?UTF-8?B?JOKCrOKCrOKCrOKCrOKCrOKCrOKCrOKCrA==?=" + "\r\n " +
+        "=?UTF-8?B?4oKs4oKs4oKs4oKs4oKs4oKs4oKs4oKs4oKs4oKs4oKs4oKs?=";
+
+    /** strings that use supplemental characters and really stress encode/decode */
+    // actually it's U+10400
+    private final String SHORT_SUPPLEMENTAL = "\uD801\uDC00";
+    private final String SHORT_SUPPLEMENTAL_ENCODED = "=?UTF-8?B?8JCQgA==?=";
+    private final String LONG_SUPPLEMENTAL = SHORT_SUPPLEMENTAL + SHORT_SUPPLEMENTAL +
+        SHORT_SUPPLEMENTAL + SHORT_SUPPLEMENTAL + SHORT_SUPPLEMENTAL + SHORT_SUPPLEMENTAL +
+        SHORT_SUPPLEMENTAL + SHORT_SUPPLEMENTAL + SHORT_SUPPLEMENTAL + SHORT_SUPPLEMENTAL;
+    private final String LONG_SUPPLEMENTAL_ENCODED =
+        "=?UTF-8?B?8JCQgPCQkIDwkJCA8JCQgA==?=" + "\r\n " + 
+        "=?UTF-8?B?8JCQgPCQkIDwkJCA8JCQgPCQkIDwkJCA?=";
+    private final String LONG_SUPPLEMENTAL_2 = "a" + SHORT_SUPPLEMENTAL + SHORT_SUPPLEMENTAL +
+        SHORT_SUPPLEMENTAL + SHORT_SUPPLEMENTAL + SHORT_SUPPLEMENTAL + SHORT_SUPPLEMENTAL +
+        SHORT_SUPPLEMENTAL + SHORT_SUPPLEMENTAL + SHORT_SUPPLEMENTAL + SHORT_SUPPLEMENTAL;
+    private final String LONG_SUPPLEMENTAL_ENCODED_2 =
+        "=?UTF-8?B?YfCQkIDwkJCA8JCQgPCQkIA=?=" + "\r\n " +
+        "=?UTF-8?B?8JCQgPCQkIDwkJCA8JCQgPCQkIDwkJCA?="; 
+    // Earth is U+1D300.
+    private final String LONG_SUPPLEMENTAL_QP =
+        "*Monogram for Earth \uD834\uDF00. Monogram for Human \u268b."; 
+    private final String LONG_SUPPLEMENTAL_QP_ENCODED =
+        "=?UTF-8?Q?*Monogram_for_Earth_?=" + "\r\n " +
+        "=?UTF-8?Q?=F0=9D=8C=80._Monogram_for_Human_=E2=9A=8B.?=";
+
     /** a typical no-param header */
     private final String HEADER_NO_PARAMETER = 
             "header";
@@ -172,6 +204,44 @@ public class MimeUtilityTest extends TestCase {
         assertEquals(SHORT_UNICODE_ENCODED, result1);
     }
     
+    /**
+     * Test that foldAndEncode2 is working for long strings which needs splitting.
+     */
+    public void testFoldAndEncode2WithLongSplit() {
+        String result = MimeUtility.foldAndEncode2(LONG_UNICODE_SPLIT, "Subject: ".length()); 
+
+        assertEquals("long string", LONG_UNICODE_SPLIT_ENCODED, result);
+    }
+     
+    /**
+     * Tests of foldAndEncode2 that involve supplemental characters (UTF-32)
+     *
+     * Note that the difference between LONG_SUPPLEMENTAL and LONG_SUPPLEMENTAL_2 is the
+     * insertion of a single character at the head of the string. This is intended to disrupt
+     * the code that splits the long string into multiple encoded words, and confirm that it
+     * properly applies the breaks between UTF-32 code points.
+     */
+    public void testFoldAndEncode2Supplemental() {
+        String result1 = MimeUtility.foldAndEncode2(SHORT_SUPPLEMENTAL, "Subject: ".length());
+        String result2 = MimeUtility.foldAndEncode2(LONG_SUPPLEMENTAL, "Subject: ".length());
+        String result3 = MimeUtility.foldAndEncode2(LONG_SUPPLEMENTAL_2, "Subject: ".length());
+        assertEquals("short supplemental", SHORT_SUPPLEMENTAL_ENCODED, result1);
+        assertEquals("long supplemental", LONG_SUPPLEMENTAL_ENCODED, result2);
+        assertEquals("long supplemental 2", LONG_SUPPLEMENTAL_ENCODED_2, result3);
+    }
+
+    /**
+     * Tests of foldAndEncode2 that involve supplemental characters (UTF-32)
+     *
+     * Note that the difference between LONG_SUPPLEMENTAL and LONG_SUPPLEMENTAL_QP is that
+     * the former will be encoded as base64 but the latter will be encoded as quoted printable.
+     */
+    public void testFoldAndEncode2SupplementalQuotedPrintable() {
+        String result = MimeUtility.foldAndEncode2(LONG_SUPPLEMENTAL_QP, "Subject: ".length());
+        assertEquals("long supplement quoted printable",
+                     LONG_SUPPLEMENTAL_QP_ENCODED, result);
+    }
+
     // TODO:  more tests for foldAndEncode2(String s)
     // TODO:  more tests for fold(String s, int usedCharacters)
     
