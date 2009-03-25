@@ -374,14 +374,14 @@ public class EncoderUtil {
             sb.append((char) BASE64_TABLE[data >> 18 & 0x3f]);
             sb.append((char) BASE64_TABLE[data >> 12 & 0x3f]);
             sb.append((char) BASE64_TABLE[data >> 6 & 0x3f]);
-            sb.append(BASE64_PAD);
+            sb.append((char) BASE64_PAD);
 
         } else if (idx == end - 1) {
             int data = (bytes[idx] & 0xff) << 16;
             sb.append((char) BASE64_TABLE[data >> 18 & 0x3f]);
             sb.append((char) BASE64_TABLE[data >> 12 & 0x3f]);
-            sb.append(BASE64_PAD);
-            sb.append(BASE64_PAD);
+            sb.append((char) BASE64_PAD);
+            sb.append((char) BASE64_PAD);
         }
 
         return sb.toString();
