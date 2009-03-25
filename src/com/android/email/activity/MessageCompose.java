@@ -832,6 +832,13 @@ public class MessageCompose extends Activity implements OnClickListener, OnFocus
             attachment.name = uri.getLastPathSegment();
         }
 
+        // Before attaching the attachment, make sure it meets any other pre-attach criteria
+        if (attachment.size > Email.MAX_ATTACHMENT_UPLOAD_SIZE) {
+            Toast.makeText(this, R.string.message_compose_attachment_size, Toast.LENGTH_LONG)
+                    .show();
+            return;
+        }
+        
         View view = getLayoutInflater().inflate(
                 R.layout.message_compose_attachment,
                 mAttachments,
