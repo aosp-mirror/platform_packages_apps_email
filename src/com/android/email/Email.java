@@ -117,6 +117,14 @@ public class Email extends Application {
     public static final int MAX_ATTACHMENT_DOWNLOAD_SIZE = (5 * 1024 * 1024);
 
     /**
+     * The maximum size of an attachment we're willing to upload (measured as stored on disk).
+     * Attachments that are base64 encoded (most) will be about 1.375x their actual size
+     * so we should probably factor that in. A 5MB attachment will generally be around
+     * 6.8MB uploaded.
+     */
+    public static final int MAX_ATTACHMENT_UPLOAD_SIZE = (5 * 1024 * 1024);
+
+    /**
      * Called throughout the application when the number of accounts has changed. This method
      * enables or disables the Compose activity, the boot receiver and the service based on
      * whether any accounts are configured.
