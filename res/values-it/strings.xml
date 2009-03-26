@@ -75,6 +75,7 @@
     <string name="message_compose_quoted_text_label">"Testo tra virgolette"</string>
     <string name="message_compose_error_no_recipients">"Devi aggiungere almeno un destinatario."</string>
     <string name="message_compose_attachments_skipped_toast">"Impossibile inviare alcuni allegati poiché non sono stati scaricati."</string>
+    <string name="message_compose_attachment_size">"File troppo grande. Impossibile allegarlo."</string>
     <string name="message_view_to_label">"A:"</string>
     <string name="message_view_cc_label">"Cc:"</string>
     <string name="message_view_attachment_view_action">"Apri"</string>
@@ -89,6 +90,7 @@
     <string name="message_saved_toast">"Messaggio salvato come bozza."</string>
     <string name="add_contact_dlg_title">"Aggiungi contatto"</string>
     <string name="add_contact_dlg_message_fmt">"Aggiungi \"<xliff:g id="EMAIL">%s</xliff:g>\" ai contatti"</string>
+    <string name="message_view_display_attachment_toast">"Impossibile visualizzare l\'allegato."</string>
     <string name="account_setup_basics_title">"Imposta email"</string>
     <string name="account_setup_basics_instructions">"Digita l\'indirizzo email del tuo account:"</string>
     <string name="account_setup_basics_email_hint">"Indirizzo email"</string>

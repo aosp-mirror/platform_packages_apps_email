@@ -75,6 +75,7 @@
     <string name="message_compose_quoted_text_label">"Geciteerde tekst"</string>
     <string name="message_compose_error_no_recipients">"Je moet minstens één ontvanger toevoegen."</string>
     <string name="message_compose_attachments_skipped_toast">"Sommige bijlages kunnen niet worden doorgestuurd omdat ze niet zijn gedownload."</string>
+    <string name="message_compose_attachment_size">"Bestand is te groot om bij te voegen."</string>
     <string name="message_view_to_label">"Aan:"</string>
     <string name="message_view_cc_label">"Cc:"</string>
     <string name="message_view_attachment_view_action">"Openen"</string>
@@ -89,6 +90,7 @@
     <string name="message_saved_toast">"Bericht opgeslagen als concept."</string>
     <string name="add_contact_dlg_title">"Contactpersoon toevoegen"</string>
     <string name="add_contact_dlg_message_fmt">"Voeg \"<xliff:g id="EMAIL">%s</xliff:g>\" toe aan contactpersonen"</string>
+    <string name="message_view_display_attachment_toast">"Deze bijlage kan niet worden verwijderd."</string>
     <string name="account_setup_basics_title">"E-mail instellen"</string>
     <string name="account_setup_basics_instructions">"Typ het e-mailadres van je account:"</string>
     <string name="account_setup_basics_email_hint">"E-mailadres"</string>
