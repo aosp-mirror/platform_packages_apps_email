@@ -75,6 +75,7 @@
     <string name="message_compose_quoted_text_label">"Цитируемый текст"</string>
     <string name="message_compose_error_no_recipients">"Необходимо добавить хотя бы одного получателя."</string>
     <string name="message_compose_attachments_skipped_toast">"Некоторые приложения нельзя переслать, поскольку они не загружены."</string>
+    <string name="message_compose_attachment_size">"Файл имеет слишком большой размер и не может быть вложен."</string>
     <string name="message_view_to_label">"Кому:"</string>
     <string name="message_view_cc_label">"Копия:"</string>
     <string name="message_view_attachment_view_action">"Открыть"</string>
@@ -89,6 +90,7 @@
     <string name="message_saved_toast">"Письмо сохранено как черновик."</string>
     <string name="add_contact_dlg_title">"Добавить контакт"</string>
     <string name="add_contact_dlg_message_fmt">"Добавить адрес <xliff:g id="EMAIL">%s</xliff:g> в контакты"</string>
+    <string name="message_view_display_attachment_toast">"Не удается показать это приложение."</string>
     <string name="account_setup_basics_title">"Настройка электронной почты"</string>
     <string name="account_setup_basics_instructions">"Укажите почтовый адрес своего аккаунта:"</string>
     <string name="account_setup_basics_email_hint">"Адрес электронной почты"</string>

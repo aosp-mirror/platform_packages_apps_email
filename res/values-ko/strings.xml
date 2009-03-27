@@ -75,6 +75,7 @@
     <string name="message_compose_quoted_text_label">"받은메일"</string>
     <string name="message_compose_error_no_recipients">"받는 사람을 한 명 이상 추가해야 합니다."</string>
     <string name="message_compose_attachments_skipped_toast">"일부 첨부파일이 다운로드되지 않아 전달할 수 없습니다."</string>
+    <string name="message_compose_attachment_size">"파일이 너무 커서 첨부할 수 없습니다."</string>
     <string name="message_view_to_label">"받는사람:"</string>
     <string name="message_view_cc_label">"참조:"</string>
     <string name="message_view_attachment_view_action">"열기"</string>
@@ -89,6 +90,7 @@
     <string name="message_saved_toast">"메일을 임시로 저장했습니다."</string>
     <string name="add_contact_dlg_title">"주소 추가"</string>
     <string name="add_contact_dlg_message_fmt">"주소록에 \'<xliff:g id="EMAIL">%s</xliff:g>\' 추가"</string>
+    <string name="message_view_display_attachment_toast">"이 첨부파일은 표시할 수 없습니다."</string>
     <string name="account_setup_basics_title">"이메일 설정"</string>
     <string name="account_setup_basics_instructions">"계정 이메일 주소 입력:"</string>
     <string name="account_setup_basics_email_hint">"이메일 주소"</string>
