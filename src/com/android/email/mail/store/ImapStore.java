@@ -42,6 +42,7 @@ import com.android.email.mail.transport.EOLConvertingOutputStream;
 import com.android.email.mail.transport.MailTransport;
 import com.beetstra.jutf7.CharsetProvider;
 
+import android.content.Context;
 import android.util.Config;
 import android.util.Log;
 
@@ -109,6 +110,13 @@ public class ImapStore extends Store {
     private HashMap<String, ImapFolder> mFolderCache = new HashMap<String, ImapFolder>();
 
     /**
+     * Static named constructor.
+     */
+    public static Store newInstance(String uri, Context context) throws MessagingException {
+        return new ImapStore(uri);
+    }
+
+    /**
      * Allowed formats for the Uri:
      * imap://user:password@server:port CONNECTION_SECURITY_NONE
      * imap+tls://user:password@server:port CONNECTION_SECURITY_TLS_OPTIONAL
@@ -118,7 +126,7 @@ public class ImapStore extends Store {
      *
      * @param uriString the Uri containing information to configure this store
      */
-    public ImapStore(String uriString) throws MessagingException {
+    private ImapStore(String uriString) throws MessagingException {
         URI uri;
         try {
             uri = new URI(uriString);

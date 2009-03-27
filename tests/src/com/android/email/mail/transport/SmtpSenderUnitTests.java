@@ -45,7 +45,8 @@ public class SmtpSenderUnitTests extends AndroidTestCase {
         super.setUp();
         
         // These are needed so we can get at the inner classes
-        mSender = new SmtpSender("smtp://user:password@server:999");
+        mSender = (SmtpSender) SmtpSender.newInstance("smtp://user:password@server:999",
+                getContext());
     }
 
     /**

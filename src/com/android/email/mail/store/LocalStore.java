@@ -90,9 +90,16 @@ public class LocalStore extends Store {
     private Context mContext;
 
     /**
+     * Static named constructor.
+     */
+    public static Store newInstance(String uri, Context context) throws MessagingException {
+        return new LocalStore(uri, context);
+    }
+
+    /**
      * @param uri local://localhost/path/to/database/uuid.db
      */
-    public LocalStore(String _uri, Context context) throws MessagingException {
+    private LocalStore(String _uri, Context context) throws MessagingException {
         mContext = context;
         URI uri = null;
         try {
@@ -209,6 +216,7 @@ public class LocalStore extends Store {
     /**
      * Delete the entire Store and it's backing database.
      */
+    @Override
     public void delete() {
         try {
             mDb.close();
@@ -1256,5 +1264,13 @@ public class LocalStore extends Store {
         public Uri getContentUri() {
             return mUri;
         }
+    }
+    
+    /**
+     * LocalStore does not have SettingActivity.
+     */
+    @Override
+    public Class<? extends android.app.Activity> getSettingActivityClass() {
+        return null;
     }
 }

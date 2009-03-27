@@ -16,22 +16,24 @@
 
 package com.android.email.activity.setup;
 
-import android.content.Context;
-import android.content.Intent;
-import android.content.SharedPreferences;
-import android.os.Bundle;
-import android.view.KeyEvent;
-import android.preference.PreferenceActivity;
-import android.preference.EditTextPreference;
-import android.preference.ListPreference;
-import android.preference.CheckBoxPreference;
-import android.preference.Preference;
-import android.preference.RingtonePreference;
-
 import com.android.email.Account;
 import com.android.email.Email;
 import com.android.email.Preferences;
 import com.android.email.R;
+import com.android.email.mail.Sender;
+import com.android.email.mail.Store;
+
+import android.content.Context;
+import android.content.Intent;
+import android.content.SharedPreferences;
+import android.os.Bundle;
+import android.preference.CheckBoxPreference;
+import android.preference.EditTextPreference;
+import android.preference.ListPreference;
+import android.preference.Preference;
+import android.preference.PreferenceActivity;
+import android.preference.RingtonePreference;
+import android.view.KeyEvent;
 
 public class AccountSettings extends PreferenceActivity {
     private static final String EXTRA_ACCOUNT = "account";
@@ -183,11 +185,35 @@ public class AccountSettings extends PreferenceActivity {
     }
 
     private void onIncomingSettings() {
-        AccountSetupIncoming.actionEditIncomingSettings(this, mAccount);
+        try {
+            Store store = Store.getInstance(mAccount.getStoreUri(), getApplication());
+            if (store != null) {
+                Class<? extends android.app.Activity> setting = store.getSettingActivityClass();
+                if (setting != null) {
+                    java.lang.reflect.Method m = setting.getMethod("actionEditIncomingSettings",
+                            android.app.Activity.class, Account.class);
+                    m.invoke(null, this, mAccount);
+                }
+            }
+        } catch (Exception e) {
+            android.util.Log.d(Email.LOG_TAG, "Error while trying to invoke store settings.", e);
+        }
     }
 
     private void onOutgoingSettings() {
-        AccountSetupOutgoing.actionEditOutgoingSettings(this, mAccount);
+        try {
+            Sender sender = Sender.getInstance(mAccount.getSenderUri(), getApplication());
+            if (sender != null) {
+                Class<? extends android.app.Activity> setting = sender.getSettingActivityClass();
+                if (setting != null) {
+                    java.lang.reflect.Method m = setting.getMethod("actionEditOutgoingSettings",
+                            android.content.Context.class, Account.class);
+                    m.invoke(null, this, mAccount);
+                }
+            }
+        } catch (Exception e) {
+            android.util.Log.d(Email.LOG_TAG, "Error while trying to invoke sender settings.", e);
+        }
     }
 
     private void onAddNewAccount() {

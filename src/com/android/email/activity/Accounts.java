@@ -171,9 +171,14 @@ public class Accounts extends ListActivity implements OnItemClickListener, OnCli
                 public void onClick(DialogInterface dialog, int whichButton) {
                     dismissDialog(DIALOG_REMOVE_ACCOUNT);
                     try {
-                        ((LocalStore)Store.getInstance(
+                        // Delete Remote store at first.
+                        Store.getInstance(
+                                mSelectedContextAccount.getStoreUri(),
+                                getApplication()).delete();
+                        // If no error, then delete LocalStore
+                        Store.getInstance(
                                 mSelectedContextAccount.getLocalStoreUri(),
-                                getApplication())).delete();
+                                getApplication()).delete();
                     } catch (Exception e) {
                             // Ignore
                     }

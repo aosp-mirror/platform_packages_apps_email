@@ -1302,7 +1302,7 @@ public class MessagingController implements Runnable {
                 (LocalFolder) localStore.getFolder(
                         account.getSentFolderName());
 
-            Sender sender = Sender.getInstance(account.getSenderUri());
+            Sender sender = Sender.getInstance(account.getSenderUri(), mApplication);
             for (Message message : localMessages) {
                 try {
                     localFolder.fetch(new Message[] { message }, fp, null);
