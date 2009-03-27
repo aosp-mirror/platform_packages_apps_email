@@ -50,11 +50,15 @@
     <string name="status_network_error">"연결 오류"</string>
     <string name="status_loading_more_failed">"추가 메일 로드 재시도"</string>
     <string name="notification_new_title">"새 이메일"</string>
-    <!-- no translation found for notification_new_one_account_fmt:one (3422945912787702191) -->
-    <!-- no translation found for notification_new_one_account_fmt:few (6543078667692990869) -->
-    <!-- no translation found for notification_new_one_account_fmt:other (6937673814351448076) -->
-    <!-- no translation found for notification_new_multi_account_fmt:few (1991747245324120305) -->
-    <!-- no translation found for notification_new_multi_account_fmt:other (2723797835410343458) -->
+  <plurals name="notification_new_one_account_fmt">
+    <item quantity="one">"읽지 않은 메시지 <xliff:g id="UNREAD_MESSAGE_COUNT">%d</xliff:g>개(<xliff:g id="ACCOUNT">%s</xliff:g>)"</item>
+    <item quantity="few">"읽지 않은 메시지 <xliff:g id="UNREAD_MESSAGE_COUNT">%d</xliff:g>개(<xliff:g id="ACCOUNT">%s</xliff:g>)"</item>
+    <item quantity="other">"읽지 않은 메시지 <xliff:g id="UNREAD_MESSAGE_COUNT">%d</xliff:g>개(<xliff:g id="ACCOUNT">%s</xliff:g>)"</item>
+  </plurals>
+  <plurals name="notification_new_multi_account_fmt">
+    <item quantity="few">"(<xliff:g id="NUMBER_ACCOUNTS">%d</xliff:g>개 계정)"</item>
+    <item quantity="other">"(<xliff:g id="NUMBER_ACCOUNTS">%d</xliff:g>개 계정)"</item>
+  </plurals>
     <string name="special_mailbox_name_inbox">"받은편지함"</string>
     <string name="accounts_welcome">"이메일 설정에 오신 것을 환영합니다."\n\n"원하는 이메일 계정을 사용하세요."\n\n"가장 많이 사용하는 이메일 계정은 2단계 만에 설정할 수 있습니다."</string>
     <string name="debug_version_fmt">"버전: <xliff:g id="VERSION">%s</xliff:g>"</string>
@@ -65,13 +69,13 @@
     <string name="message_compose_cc_hint">"참조"</string>
     <string name="message_compose_bcc_hint">"숨은참조"</string>
     <string name="message_compose_subject_hint">"제목"</string>
-    <!-- no translation found for message_compose_body_hint (7575406246484103697) -->
-    <skip />
+    <string name="message_compose_body_hint">"편지쓰기"</string>
     <string name="message_compose_fwd_header_fmt">\n\n"-------- 원본 메일 --------"\n"제목: <xliff:g id="SUBJECT">%s</xliff:g>"\n"보낸사람: <xliff:g id="SENDER">%s</xliff:g>"\n"받는사람: <xliff:g id="TO">%s</xliff:g>"\n"참조: <xliff:g id="CC_0">%s</xliff:g>"\n\n</string>
     <string name="message_compose_reply_header_fmt">\n\n"<xliff:g id="SENDER">%s</xliff:g>님이 작성:"\n\n</string>
     <string name="message_compose_quoted_text_label">"받은메일"</string>
     <string name="message_compose_error_no_recipients">"받는 사람을 한 명 이상 추가해야 합니다."</string>
     <string name="message_compose_attachments_skipped_toast">"일부 첨부파일이 다운로드되지 않아 전달할 수 없습니다."</string>
+    <string name="message_compose_attachment_size">"파일이 너무 커서 첨부할 수 없습니다."</string>
     <string name="message_view_to_label">"받는사람:"</string>
     <string name="message_view_cc_label">"참조:"</string>
     <string name="message_view_attachment_view_action">"열기"</string>
@@ -84,6 +88,9 @@
     <string name="message_deleted_toast">"메일이 삭제되었습니다."</string>
     <string name="message_discarded_toast">"메일이 삭제되었습니다."</string>
     <string name="message_saved_toast">"메일을 임시로 저장했습니다."</string>
+    <string name="add_contact_dlg_title">"주소 추가"</string>
+    <string name="add_contact_dlg_message_fmt">"주소록에 \'<xliff:g id="EMAIL">%s</xliff:g>\' 추가"</string>
+    <string name="message_view_display_attachment_toast">"이 첨부파일은 표시할 수 없습니다."</string>
     <string name="account_setup_basics_title">"이메일 설정"</string>
     <string name="account_setup_basics_instructions">"계정 이메일 주소 입력:"</string>
     <string name="account_setup_basics_email_hint">"이메일 주소"</string>

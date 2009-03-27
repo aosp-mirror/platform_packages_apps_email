@@ -18,7 +18,6 @@ package com.android.email.mail.store;
 
 import com.android.email.mail.Address;
 import com.android.email.mail.Message;
-import com.android.email.mail.MessageRetrievalListener;
 import com.android.email.mail.MessagingException;
 import com.android.email.mail.Folder.OpenMode;
 import com.android.email.mail.Message.RecipientType;
@@ -26,13 +25,15 @@ import com.android.email.mail.internet.BinaryTempFileBody;
 import com.android.email.mail.internet.MimeMessage;
 import com.android.email.mail.internet.TextBody;
 
-import android.app.Application;
+import android.content.ContentValues;
+import android.database.Cursor;
+import android.database.sqlite.SQLiteDatabase;
 import android.test.AndroidTestCase;
-import android.test.mock.MockApplication;
 import android.test.suitebuilder.annotation.SmallTest;
 
 import java.io.File;
 import java.net.URI;
+import java.net.URISyntaxException;
 
 /**
  * This is a series of unit tests for the LocalStore class.
@@ -53,6 +54,7 @@ public class LocalStoreUnitTests extends AndroidTestCase {
     private String mLocalStoreUri = null;
     private LocalStore mStore = null;
     private LocalStore.LocalFolder mFolder = null;
+    private File mCacheDir;
     
     /**
      * Setup code.  We generate a lightweight LocalStore and LocalStore.LocalFolder.
@@ -69,7 +71,8 @@ public class LocalStoreUnitTests extends AndroidTestCase {
         mFolder = (LocalStore.LocalFolder) mStore.getFolder("TEST");
         
         // This is needed for parsing mime messages
-        BinaryTempFileBody.setTempDirectory(this.getContext().getCacheDir());
+        mCacheDir = getContext().getCacheDir();
+        BinaryTempFileBody.setTempDirectory(mCacheDir);
     }
     
     /**
@@ -199,6 +202,200 @@ public class LocalStoreUnitTests extends AndroidTestCase {
         return message;
     }
     
+    /**
+     * Tests for database version.
+     */
+    public void testDbVersion() throws MessagingException, URISyntaxException {
+        final LocalStore store = new LocalStore(mLocalStoreUri, getContext());
+        final URI uri = new URI(mLocalStoreUri);
+        final String dbPath = uri.getPath();
+        final SQLiteDatabase db = SQLiteDatabase.openOrCreateDatabase(dbPath, null);
 
+        // database version should be latest.
+        assertEquals("database version should be latest", 20, db.getVersion());
+        db.close();
+    }
+    
+    /**
+     * Helper function convert Cursor data to ContentValues
+     */
+    private ContentValues cursorToContentValues(Cursor c, String[] schema) {
+        if (c.getColumnCount() != schema.length) {
+            throw new IndexOutOfBoundsException("schema length is not mach with cursor columns");
+        }
+        
+        final ContentValues cv = new ContentValues();
+        for (int i = 0, count = c.getColumnCount(); i < count; ++i) {
+            final String key = c.getColumnName(i);
+            final String type = schema[i];
+            if (type == "text") {
+                cv.put(key, c.getString(i));
+            } else if (type == "integer" || type == "primary") {
+                cv.put(key, c.getLong(i));
+            } else if (type == "numeric" || type == "real") {
+                cv.put(key, c.getDouble(i));
+            } else if (type == "blob") {
+                cv.put(key, c.getBlob(i));
+            } else {
+                throw new IllegalArgumentException("unsupported type at index " + i);
+            }
+        }
+        return cv;
+    }
+    
+    /**
+     * Tests for database upgrade from version 18 to version 20.
+     */
+    public void testDbUpgrade18To20() throws MessagingException, URISyntaxException {
+        final URI uri = new URI(mLocalStoreUri);
+        final String dbPath = uri.getPath();
+        SQLiteDatabase db = SQLiteDatabase.openOrCreateDatabase(dbPath, null);
+
+        // create sample version 18 db tables
+        createSampleDb(db, 18);
+
+        // sample message data and expected data
+        final ContentValues initialMessage = new ContentValues();
+        initialMessage.put("folder_id", (long) 2);        // folder_id type integer == Long
+        initialMessage.put("internal_date", (long) 3);    // internal_date type integer == Long
+        final ContentValues expectedMessage = new ContentValues(initialMessage);
+        expectedMessage.put("id", db.insert("messages", null, initialMessage));
+
+        // sample attachment data and expected data
+        final ContentValues initialAttachment = new ContentValues();
+        initialAttachment.put("message_id", (long) 4);    // message_id type integer == Long
+        initialAttachment.put("mime_type", (String) "a"); // mime_type type text == String
+        final ContentValues expectedAttachment = new ContentValues(initialAttachment);
+        expectedAttachment.put("id", db.insert("attachments", null, initialAttachment));
+        db.close();
+
+        // upgrade database 18 to 20
+        new LocalStore(mLocalStoreUri, getContext());
+
+        // added message_id column should be initialized as null
+        expectedMessage.put("message_id", (String) null);    // message_id type text == String
+        // added content_id column should be initialized as null
+        expectedAttachment.put("content_id", (String) null); // content_id type text == String
+
+        // database should be upgraded
+        db = SQLiteDatabase.openOrCreateDatabase(dbPath, null);
+        assertEquals("database should be upgraded", 20, db.getVersion());
+        Cursor c;
+
+        // check message table
+        c = db.query("messages",
+                new String[] { "id", "folder_id", "internal_date", "message_id" },
+                null, null, null, null, null);
+        // check if data is available
+        assertTrue("messages table should have one data", c.moveToNext());
+        
+        // check if data are expected
+        final ContentValues actualMessage = cursorToContentValues(c,
+                new String[] { "primary", "integer", "integer", "text" });
+       assertEquals("messages table cursor does not have expected values",
+                expectedMessage, actualMessage);
+        c.close();
+
+        // check attachment table
+        c = db.query("attachments",
+                new String[] { "id", "message_id", "mime_type", "content_id" },
+                null, null, null, null, null);
+        // check if data is available
+        assertTrue("attachments table should have one data", c.moveToNext());
+
+        // check if data are expected
+        final ContentValues actualAttachment = cursorToContentValues(c,
+                new String[] { "primary", "integer", "text", "text" });
+        assertEquals("attachment table cursor does not have expected values",
+                expectedAttachment, actualAttachment);
+        c.close();
+
+        db.close();
+    }
+
+    /**
+     * Tests for database upgrade from version 19 to version 20.
+     */
+    public void testDbUpgrade19To20() throws MessagingException, URISyntaxException {
+        final URI uri = new URI(mLocalStoreUri);
+        final String dbPath = uri.getPath();
+        SQLiteDatabase db = SQLiteDatabase.openOrCreateDatabase(dbPath, null);
+
+        // create minimu version 18 db tables
+        createSampleDb(db, 19);
+
+        // sample message data and expected data
+        final ContentValues initialMessage = new ContentValues();
+        initialMessage.put("folder_id", (long) 2);      // folder_id type integer == Long
+        initialMessage.put("internal_date", (long) 3);  // internal_date integer == Long
+        initialMessage.put("message_id", (String) "x"); // message_id text == String
+        final ContentValues expectedMessage = new ContentValues(initialMessage);
+        expectedMessage.put("id", db.insert("messages", null, initialMessage));
+
+        // sample attachment data and expected data
+        final ContentValues initialAttachment = new ContentValues();
+        initialAttachment.put("message_id", (long) 4);  // message_id type integer == Long
+        initialAttachment.put("mime_type", (String) "a"); // mime_type type text == String
+        final ContentValues expectedAttachment = new ContentValues(initialAttachment);
+        expectedAttachment.put("id", db.insert("attachments", null, initialAttachment));
+        
+        db.close();
+
+        // upgrade database 19 to 20
+        new LocalStore(mLocalStoreUri, getContext());
+
+        // added content_id column should be initialized as null
+        expectedAttachment.put("content_id", (String) null);  // content_id type text == String
+
+        // database should be upgraded
+        db = SQLiteDatabase.openOrCreateDatabase(dbPath, null);
+        assertEquals(20, db.getVersion());
+        Cursor c;
+
+        // check message table
+        c = db.query("messages",
+                new String[] { "id", "folder_id", "internal_date", "message_id" },
+                null, null, null, null, null);
+        // check if data is available
+        assertTrue("attachments table should have one data", c.moveToNext());
+
+        // check if data are expected
+        final ContentValues actualMessage = cursorToContentValues(c,
+                new String[] { "primary", "integer", "integer", "text" });
+        assertEquals("messages table cursor does not have expected values",
+                expectedMessage, actualMessage);
+
+        // check attachment table
+        c = db.query("attachments",
+                new String[] { "id", "message_id", "mime_type", "content_id" },
+                null, null, null, null, null);
+        // check if data is available
+        assertTrue("attachments table should have one data", c.moveToNext());
+
+        // check if data are expected
+        final ContentValues actualAttachment = cursorToContentValues(c,
+                        new String[] { "primary", "integer", "text", "text" });
+        assertEquals("attachment table cursor does not have expected values",
+                expectedAttachment, actualAttachment);
+
+        db.close();
+    }
+
+    private static void createSampleDb(SQLiteDatabase db, int version) {
+        db.execSQL("DROP TABLE IF EXISTS messages");
+        db.execSQL("CREATE TABLE messages (id INTEGER PRIMARY KEY, folder_id INTEGER, " +
+                   "uid TEXT, subject TEXT, date INTEGER, flags TEXT, sender_list TEXT, " +
+                   "to_list TEXT, cc_list TEXT, bcc_list TEXT, reply_to_list TEXT, " +
+                   "html_content TEXT, text_content TEXT, attachment_count INTEGER, " +
+                   "internal_date INTEGER" +
+                   ((version >= 19) ? ", message_id TEXT" : "") +
+                   ")");
+        db.execSQL("DROP TABLE IF EXISTS attachments");
+        db.execSQL("CREATE TABLE attachments (id INTEGER PRIMARY KEY, message_id INTEGER," +
+                   "store_data TEXT, content_uri TEXT, size INTEGER, name TEXT," +
+                   "mime_type TEXT" +
+                   ((version >= 20) ? ", content_id" : "") +
+                   ")");
+        db.setVersion(version);
+    }
 }
-

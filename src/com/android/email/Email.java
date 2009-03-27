@@ -73,7 +73,6 @@ public class Email extends Application {
      * The MIME type(s) of attachments we're not willing to view.
      */
     public static final String[] UNACCEPTABLE_ATTACHMENT_VIEW_TYPES = new String[] {
-        "image/gif",
     };
 
     /**
@@ -87,7 +86,6 @@ public class Email extends Application {
      * The MIME type(s) of attachments we're not willing to download to SD.
      */
     public static final String[] UNACCEPTABLE_ATTACHMENT_DOWNLOAD_TYPES = new String[] {
-        "image/gif",
     };
 
     /**
@@ -115,6 +113,14 @@ public class Email extends Application {
      * 6.8MB downloaded but only 5MB saved.
      */
     public static final int MAX_ATTACHMENT_DOWNLOAD_SIZE = (5 * 1024 * 1024);
+
+    /**
+     * The maximum size of an attachment we're willing to upload (measured as stored on disk).
+     * Attachments that are base64 encoded (most) will be about 1.375x their actual size
+     * so we should probably factor that in. A 5MB attachment will generally be around
+     * 6.8MB uploaded.
+     */
+    public static final int MAX_ATTACHMENT_UPLOAD_SIZE = (5 * 1024 * 1024);
 
     /**
      * Called throughout the application when the number of accounts has changed. This method

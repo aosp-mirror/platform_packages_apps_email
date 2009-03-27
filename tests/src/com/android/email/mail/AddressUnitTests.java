@@ -43,8 +43,26 @@ public class AddressUnitTests extends AndroidTestCase {
     }
 
     /**
-     * TODO: test parse()
+     * TODO: more in-depth tests for parse()
      */
+    
+    /**
+     * Simple quick checks of empty-input edge conditions for parse()
+     * 
+     * NOTE:  This is not a claim that these edge cases are "correct", only to maintain consistent
+     * behavior while I am changing some of the code in the function under test.
+     */
+    public void testEmptyParse() {
+        Address[] result;
+        
+        // null input => empty array
+        result = Address.parse(null);
+        assertTrue("parsing null address", result != null && result.length == 0);
+        
+        // empty string input => empty array
+        result = Address.parse("");
+        assertTrue("parsing zero-length", result != null && result.length == 0);
+    }
     
     /**
      * TODO: test toString() (single & list)
@@ -75,6 +93,43 @@ public class AddressUnitTests extends AndroidTestCase {
     }
     
     /**
-     * TODO: test pack() and unpack()
+     * TODO: more in-depth tests for pack() and unpack()
      */
+    
+    /**
+     * Simple quick checks of empty-input edge conditions for pack()
+     * 
+     * NOTE:  This is not a claim that these edge cases are "correct", only to maintain consistent
+     * behavior while I am changing some of the code in the function under test.
+     */
+    public void testEmptyPack() {
+        String result;
+        
+        // null input => null string
+        result = Address.pack(null);
+        assertNull("packing null", result);
+        
+        // zero-length input => empty string
+        result = Address.pack(new Address[] { });
+        assertEquals("packing empty array", "", result);
+    }
+    
+    /**
+     * Simple quick checks of empty-input edge conditions for unpack()
+     * 
+     * NOTE:  This is not a claim that these edge cases are "correct", only to maintain consistent
+     * behavior while I am changing some of the code in the function under test.
+     */
+    public void testEmptyUnpack() {
+        Address[] result;
+        
+        // null input => empty array
+        result = Address.unpack(null);
+        assertTrue("unpacking null address", result != null && result.length == 0);
+        
+        // empty string input => empty array
+        result = Address.unpack("");
+        assertTrue("unpacking zero-length", result != null && result.length == 0);
+    }
+
 }

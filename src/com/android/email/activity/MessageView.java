@@ -36,6 +36,7 @@ import com.android.email.provider.AttachmentProvider;
 import org.apache.commons.io.IOUtils;
 
 import android.app.Activity;
+import android.content.ActivityNotFoundException;
 import android.content.Context;
 import android.content.Intent;
 import android.database.Cursor;
@@ -75,9 +76,8 @@ import java.io.InputStream;
 import java.io.OutputStream;
 import java.util.ArrayList;
 import java.util.Date;
-import java.util.Map;
-import java.util.Random;
 import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 public class MessageView extends Activity
         implements OnClickListener {
@@ -92,6 +92,9 @@ public class MessageView extends Activity
         People.PRESENCE_STATUS,     // 1
     };
     private static final int METHODS_STATUS_COLUMN = 1;
+
+    // regex that matches start of img tag. '.*<(?i)img\s+.*'.
+    private static final Pattern IMG_TAG_START_REGEX = Pattern.compile(".*<(?i)img\\s+.*");
 
     private TextView mSubjectView;
     private TextView mFromView;
@@ -132,6 +135,7 @@ public class MessageView extends Activity
         private static final int MSG_SHOW_SHOW_PICTURES = 9;
         private static final int MSG_FETCHING_ATTACHMENT = 10;
         private static final int MSG_SET_SENDER_PRESENCE = 11;
+        private static final int MSG_VIEW_ATTACHMENT_ERROR = 12;
 
         @Override
         public void handleMessage(android.os.Message msg) {
@@ -185,6 +189,11 @@ public class MessageView extends Activity
                     break;
                 case MSG_SET_SENDER_PRESENCE:
                     updateSenderPresence(msg.arg1);
+                    break;
+                case MSG_VIEW_ATTACHMENT_ERROR:
+                    Toast.makeText(MessageView.this,
+                            getString(R.string.message_view_display_attachment_toast),
+                            Toast.LENGTH_SHORT).show();
                     break;
                 default:
                     super.handleMessage(msg);
@@ -257,6 +266,10 @@ public class MessageView extends Activity
             android.os.Message
                     .obtain(this, MSG_SET_SENDER_PRESENCE,  presenceIconId, 0)
                     .sendToTarget();
+        }
+        
+        public void attachmentViewError() {
+            sendEmptyMessage(MSG_VIEW_ATTACHMENT_ERROR);
         }
     }
 
@@ -450,6 +463,10 @@ public class MessageView extends Activity
                 
                 Intent contactIntent = new Intent(Contacts.Intents.SHOW_OR_CREATE_CONTACT);
                 contactIntent.setData(contactUri);
+                
+                // Pass along full E-mail string for possible create dialog  
+                contactIntent.putExtra(Contacts.Intents.EXTRA_CREATE_DESCRIPTION,
+                        senderEmail.toString());
                 
                 // Only provide personal name hint if we have one
                 String senderPersonal = senderEmail.getPersonal();
@@ -694,6 +711,50 @@ public class MessageView extends Activity
         }
     }
 
+    /**
+     * Resolve content-id reference in src attribute of img tag to AttachmentProvider's
+     * content uri.  This method calls itself recursively at most the number of
+     * LocalAttachmentPart that mime type is image and has content id.
+     * The attribute src="cid:content_id" is resolved as src="content://...".
+     * This method is package scope for testing purpose.
+     *
+     * @param text html email text
+     * @param part mime part which may contain inline image
+     * @return html text in which src attribute of img tag may be replaced with content uri
+     */
+    /* package */ String resolveInlineImage(String text, Part part, int depth)
+        throws MessagingException {
+        // avoid too deep recursive call.
+        if (depth >= 10) {
+            return text;
+        }
+        String contentType = MimeUtility.unfoldAndDecode(part.getContentType());
+        String contentId = part.getContentId();
+        if (contentType.startsWith("image/") &&
+            contentId != null &&
+            part instanceof LocalAttachmentBodyPart) {
+            LocalAttachmentBodyPart attachment = (LocalAttachmentBodyPart)part;
+            Uri contentUri = AttachmentProvider.getAttachmentUri(
+                    mAccount,
+                    attachment.getAttachmentId());
+            if (contentUri != null) {
+                // Regexp which matches ' src="cid:contentId"'.
+                String contentIdRe = "\\s+(?i)src=\"cid(?-i):\\Q" + contentId + "\\E\"";
+                // Replace all occurrences of src attribute with ' src="content://contentUri"'.
+                text = text.replaceAll(contentIdRe, " src=\"" + contentUri + "\""); 
+            }
+        }
+
+        if (part.getBody() instanceof Multipart) {
+            Multipart mp = (Multipart)part.getBody();
+            for (int i = 0; i < mp.getCount(); i++) {
+                text = resolveInlineImage(text, mp.getBodyPart(i), depth + 1);
+            }
+        }
+
+        return text;
+    }
+    
     private void renderAttachments(Part part, int depth) throws MessagingException {
         String contentType = MimeUtility.unfoldAndDecode(part.getContentType());
         String name = MimeUtility.getHeaderParameter(contentType, "name");
@@ -875,7 +936,7 @@ public class MessageView extends Activity
                 if (part != null) {
                     String text = MimeUtility.getTextFromPart(part);
                     if (part.getMimeType().equalsIgnoreCase("text/html")) {
-                        text = text.replaceAll("cid:", "http://cid/");
+                        text = resolveInlineImage(text, mMessage, 0);
                     } else {
                         /*
                          * Linkify the plain text and convert it to HTML by replacing
@@ -898,10 +959,11 @@ public class MessageView extends Activity
                     }
 
                     /*
-                     * TODO this should be smarter, change to regex for img, but consider how to
-                     * get backgroung images and a million other things that HTML allows.
+                     * TODO consider how to get background images and a million other things
+                     * that HTML allows.
                      */
-                    if (text.contains("img")) {
+                    // Check if text contains img tag.
+                    if (IMG_TAG_START_REGEX.matcher(text).matches()) {
                         mHandler.showShowPictures(true);
                     }
 
@@ -986,20 +1048,26 @@ public class MessageView extends Activity
                     out.close();
                     in.close();
                     mHandler.attachmentSaved(file.getName());
-                    new MediaScannerNotifier(MessageView.this, file);
+                    new MediaScannerNotifier(MessageView.this, file, mHandler);
                 }
                 catch (IOException ioe) {
                     mHandler.attachmentNotSaved();
                 }
             }
             else {
-                Uri uri = AttachmentProvider.getAttachmentUri(
-                        mAccount,
-                        attachment.part.getAttachmentId());
-                Intent intent = new Intent(Intent.ACTION_VIEW);
-                intent.setData(uri);
-                intent.addFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION);
-                startActivity(intent);
+                try {
+                    Uri uri = AttachmentProvider.getAttachmentUri(
+                            mAccount,
+                            attachment.part.getAttachmentId());
+                    Intent intent = new Intent(Intent.ACTION_VIEW);
+                    intent.setData(uri);
+                    intent.addFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION);
+                    startActivity(intent);
+                } catch (ActivityNotFoundException e) {
+                    mHandler.attachmentViewError(); 
+                    // TODO: Add a proper warning message (and lots of upstream cleanup to prevent 
+                    // it from happening) in the next release.
+                }
             }
         }
 
@@ -1021,10 +1089,12 @@ public class MessageView extends Activity
         private Context mContext;
         private MediaScannerConnection mConnection;
         private File mFile;
+        MessageViewHandler mHandler;
 
-        public MediaScannerNotifier(Context context, File file) {
+        public MediaScannerNotifier(Context context, File file, MessageViewHandler handler) {
             mContext = context;
             mFile = file;
+            mHandler = handler;
             mConnection = new MediaScannerConnection(context, this);
             mConnection.connect();
         }
@@ -1040,9 +1110,14 @@ public class MessageView extends Activity
                     intent.setData(uri);
                     mContext.startActivity(intent);
                 }
+            } catch (ActivityNotFoundException e) {
+                mHandler.attachmentViewError(); 
+                // TODO: Add a proper warning message (and lots of upstream cleanup to prevent 
+                // it from happening) in the next release.
             } finally {
                 mConnection.disconnect();
                 mContext = null;
+                mHandler = null;
             }
         }
     }

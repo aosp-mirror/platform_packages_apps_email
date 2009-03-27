@@ -16,7 +16,7 @@
 <resources xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:xliff="urn:oasis:names:tc:xliff:document:1.2">
     <string name="read_attachment_label">"メールの添付ファイルを読み取る"</string>
-    <string name="read_attachment_desc">"メールの添付ファイルの表示をこのアプリケーションに許可します。"</string>
+    <string name="read_attachment_desc">"Eメールの添付ファイルの読取表示をこのアプリケーションに許可します。"</string>
     <string name="app_name">"メール"</string>
     <string name="accounts_title">"アカウント"</string>
     <string name="compose_title">"作成"</string>
@@ -31,7 +31,7 @@
     <string name="forward_action">"転送"</string>
     <string name="done_action">"完了"</string>
     <string name="discard_action">"破棄"</string>
-    <string name="save_draft_action">"下書きとして保存"</string>
+    <string name="save_draft_action">"下書き保存"</string>
     <string name="refresh_action">"更新"</string>
     <string name="add_account_action">"アカウントを追加"</string>
     <string name="compose_action">"作成"</string>
@@ -50,11 +50,15 @@
     <string name="status_network_error">"接続エラー"</string>
     <string name="status_loading_more_failed">"追加のメールを読み込み直す"</string>
     <string name="notification_new_title">"新着メール"</string>
-    <!-- no translation found for notification_new_one_account_fmt:one (3422945912787702191) -->
-    <!-- no translation found for notification_new_one_account_fmt:few (6543078667692990869) -->
-    <!-- no translation found for notification_new_one_account_fmt:other (6937673814351448076) -->
-    <!-- no translation found for notification_new_multi_account_fmt:few (1991747245324120305) -->
-    <!-- no translation found for notification_new_multi_account_fmt:other (2723797835410343458) -->
+  <plurals name="notification_new_one_account_fmt">
+    <item quantity="one">"未読<xliff:g id="UNREAD_MESSAGE_COUNT">%d</xliff:g>件（<xliff:g id="ACCOUNT">%s</xliff:g>）"</item>
+    <item quantity="few">"未読<xliff:g id="UNREAD_MESSAGE_COUNT">%d</xliff:g>件（<xliff:g id="ACCOUNT">%s</xliff:g>）"</item>
+    <item quantity="other">"未読<xliff:g id="UNREAD_MESSAGE_COUNT">%d</xliff:g>件（<xliff:g id="ACCOUNT">%s</xliff:g>）"</item>
+  </plurals>
+  <plurals name="notification_new_multi_account_fmt">
+    <item quantity="few">"（<xliff:g id="NUMBER_ACCOUNTS">%d</xliff:g>個のアカウント）"</item>
+    <item quantity="other">"（<xliff:g id="NUMBER_ACCOUNTS">%d</xliff:g>個のアカウント）"</item>
+  </plurals>
     <string name="special_mailbox_name_inbox">"受信トレイ"</string>
     <string name="accounts_welcome">"メールアカウントのセットアップ"\n\n"お好きなメールアカウントを登録してください。"\n\n"画面の手順に沿って簡単に追加できます。"</string>
     <string name="debug_version_fmt">"バージョン: <xliff:g id="VERSION">%s</xliff:g>"</string>
@@ -65,13 +69,13 @@
     <string name="message_compose_cc_hint">"Cc"</string>
     <string name="message_compose_bcc_hint">"Bcc"</string>
     <string name="message_compose_subject_hint">"件名"</string>
-    <!-- no translation found for message_compose_body_hint (7575406246484103697) -->
-    <skip />
+    <string name="message_compose_body_hint">"メールを作成"</string>
     <string name="message_compose_fwd_header_fmt">\n\n"-------- 元のメッセージ --------"\n"件名: <xliff:g id="SUBJECT">%s</xliff:g>"\n"From: <xliff:g id="SENDER">%s</xliff:g>"\n"To: <xliff:g id="TO">%s</xliff:g>"\n"Cc: <xliff:g id="CC_0">%s</xliff:g>"\n\n</string>
     <string name="message_compose_reply_header_fmt">\n\n"<xliff:g id="SENDER">%s</xliff:g>: "\n\n</string>
     <string name="message_compose_quoted_text_label">"元のメッセージ"</string>
     <string name="message_compose_error_no_recipients">"宛先を入力してください。"</string>
     <string name="message_compose_attachments_skipped_toast">"ダウンロードされていない添付ファイルは転送できません。"</string>
+    <string name="message_compose_attachment_size">"添付ファイルが大きすぎます。"</string>
     <string name="message_view_to_label">"To:"</string>
     <string name="message_view_cc_label">"Cc:"</string>
     <string name="message_view_attachment_view_action">"開く"</string>
@@ -83,7 +87,10 @@
     <string name="message_view_fetching_attachment_toast">"添付ファイルを取得中"</string>
     <string name="message_deleted_toast">"メッセージを削除しました。"</string>
     <string name="message_discarded_toast">"メッセージを破棄しました。"</string>
-    <string name="message_saved_toast">"メッセージを下書きとして保存しました。"</string>
+    <string name="message_saved_toast">"メッセージを下書き保存しました。"</string>
+    <string name="add_contact_dlg_title">"連絡先を追加"</string>
+    <string name="add_contact_dlg_message_fmt">"<xliff:g id="EMAIL">%s</xliff:g> を連絡先に追加する"</string>
+    <string name="message_view_display_attachment_toast">"この添付ファイルは表示できません。"</string>
     <string name="account_setup_basics_title">"メールアカウントの登録"</string>
     <string name="account_setup_basics_instructions">"メールのアカウント情報を入力:"</string>
     <string name="account_setup_basics_email_hint">"メールアドレス"</string>
@@ -153,8 +160,8 @@
     <string name="account_settings_title_fmt">"全般設定"</string>
     <string name="account_settings_default_label">"既定のアカウント"</string>
     <string name="account_settings_default_summary">"いつもこのアカウントでメールを送信する"</string>
-    <string name="account_settings_notify_label">"メール通知"</string>
-    <string name="account_settings_notify_summary">"メールの着信をステータスバーで知らせる"</string>
+    <string name="account_settings_notify_label">"メール着信通知"</string>
+    <string name="account_settings_notify_summary">"メール受信: ステータスバーで通知"</string>
     <string name="account_settings_mail_check_frequency_label">"メールチェックの頻度"</string>
     <string name="account_settings_incoming_label">"受信設定"</string>
     <string name="account_settings_outgoing_label">"送信設定"</string>
@@ -163,7 +170,7 @@
     <string name="account_settings_name_label">"名前"</string>
     <string name="account_settings_notifications">"通知設定"</string>
     <string name="account_settings_vibrate_enable">"バイブレーション"</string>
-    <string name="account_settings_vibrate_summary">"メール受信: バイブレーションもON"</string>
+    <string name="account_settings_vibrate_summary">"メール受信: バイブレーションON"</string>
     <string name="account_settings_ringtone">"着信音を選択"</string>
     <string name="account_settings_servers">"サーバーの設定"</string>
     <string name="account_delete_dlg_title">"アカウントを削除"</string>

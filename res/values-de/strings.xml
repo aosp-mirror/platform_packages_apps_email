@@ -50,11 +50,15 @@
     <string name="status_network_error">"Verbindungsfehler"</string>
     <string name="status_loading_more_failed">"Laden weiterer Nachrichten erneut versuchen"</string>
     <string name="notification_new_title">"Neue E-Mail"</string>
-    <!-- no translation found for notification_new_one_account_fmt:one (3422945912787702191) -->
-    <!-- no translation found for notification_new_one_account_fmt:few (6543078667692990869) -->
-    <!-- no translation found for notification_new_one_account_fmt:other (6937673814351448076) -->
-    <!-- no translation found for notification_new_multi_account_fmt:few (1991747245324120305) -->
-    <!-- no translation found for notification_new_multi_account_fmt:other (2723797835410343458) -->
+  <plurals name="notification_new_one_account_fmt">
+    <item quantity="one">"<xliff:g id="UNREAD_MESSAGE_COUNT">%d</xliff:g> ungelesen (<xliff:g id="ACCOUNT">%s</xliff:g>)"</item>
+    <item quantity="few">"<xliff:g id="UNREAD_MESSAGE_COUNT">%d</xliff:g> ungelesen (<xliff:g id="ACCOUNT">%s</xliff:g>)"</item>
+    <item quantity="other">"<xliff:g id="UNREAD_MESSAGE_COUNT">%d</xliff:g> ungelesen (<xliff:g id="ACCOUNT">%s</xliff:g>)"</item>
+  </plurals>
+  <plurals name="notification_new_multi_account_fmt">
+    <item quantity="few">"in <xliff:g id="NUMBER_ACCOUNTS">%d</xliff:g> E-Mail-Konten"</item>
+    <item quantity="other">"in <xliff:g id="NUMBER_ACCOUNTS">%d</xliff:g> E-Mail-Konten"</item>
+  </plurals>
     <string name="special_mailbox_name_inbox">"Posteingang"</string>
     <string name="accounts_welcome">"Willkommen bei der Einrichtung von E-Mails."\n\n"Nutzen Sie ein beliebiges E-Mail-Konto."\n\n"Gängige E-Mail-Konten können in nur zwei Schritten eingerichtet werden."</string>
     <string name="debug_version_fmt">"Version: <xliff:g id="VERSION">%s</xliff:g>"</string>
@@ -65,13 +69,13 @@
     <string name="message_compose_cc_hint">"Cc"</string>
     <string name="message_compose_bcc_hint">"Bcc"</string>
     <string name="message_compose_subject_hint">"Betreff"</string>
-    <!-- no translation found for message_compose_body_hint (7575406246484103697) -->
-    <skip />
+    <string name="message_compose_body_hint">"E-Mail schreiben"</string>
     <string name="message_compose_fwd_header_fmt">\n\n"-------- Originalnachricht --------"\n"Betreff: <xliff:g id="SUBJECT">%s</xliff:g>"\n"Von: <xliff:g id="SENDER">%s</xliff:g>"\n"An: <xliff:g id="TO">%s</xliff:g>"\n"Cc: <xliff:g id="CC_0">%s</xliff:g>"\n\n</string>
     <string name="message_compose_reply_header_fmt">\n\n"<xliff:g id="SENDER">%s</xliff:g> schrieb:"\n\n</string>
     <string name="message_compose_quoted_text_label">"Zitierter Text"</string>
     <string name="message_compose_error_no_recipients">"Sie müssen mindestens einen Empfänger hinzufügen."</string>
     <string name="message_compose_attachments_skipped_toast">"Einige Anhänge können nicht weitergeleitet werden, da Sie noch nicht heruntergeladen wurden."</string>
+    <string name="message_compose_attachment_size">"Dateianhang zu groß"</string>
     <string name="message_view_to_label">"An:"</string>
     <string name="message_view_cc_label">"Cc:"</string>
     <string name="message_view_attachment_view_action">"Öffnen"</string>
@@ -84,6 +88,9 @@
     <string name="message_deleted_toast">"Nachricht gelöscht"</string>
     <string name="message_discarded_toast">"Nachricht gelöscht"</string>
     <string name="message_saved_toast">"Nachricht als Entwurf gespeichert"</string>
+    <string name="add_contact_dlg_title">"Kontakt hinzufügen"</string>
+    <string name="add_contact_dlg_message_fmt">"\"<xliff:g id="EMAIL">%s</xliff:g>\" zu den Kontakten hinzufügen"</string>
+    <string name="message_view_display_attachment_toast">"Dieser Anhang kann nicht angezeigt werden."</string>
     <string name="account_setup_basics_title">"E-Mail einrichten"</string>
     <string name="account_setup_basics_instructions">"Geben Sie Ihre im Konto gespeicherte E-Mail-Adresse ein:"</string>
     <string name="account_setup_basics_email_hint">"E-Mail-Adresse"</string>

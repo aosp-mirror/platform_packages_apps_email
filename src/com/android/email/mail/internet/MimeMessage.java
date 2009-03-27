@@ -25,6 +25,7 @@ import java.text.SimpleDateFormat;
 import java.util.Date;
 import java.util.Locale;
 import java.util.Stack;
+import java.util.regex.Pattern;
 
 import org.apache.james.mime4j.BodyDescriptor;
 import org.apache.james.mime4j.ContentHandler;
@@ -38,6 +39,7 @@ import com.android.email.mail.Body;
 import com.android.email.mail.BodyPart;
 import com.android.email.mail.Message;
 import com.android.email.mail.MessagingException;
+import com.android.email.mail.Multipart;
 import com.android.email.mail.Part;
 
 /**
@@ -46,12 +48,17 @@ import com.android.email.mail.Part;
  */
 public class MimeMessage extends Message {
     protected MimeHeader mHeader = new MimeHeader();
+    
+    // NOTE:  The fields here are transcribed out of headers, and values stored here will supercede
+    // the values found in the headers.  Use caution to prevent any out-of-phase errors.  In
+    // particular, any adds/changes/deletes here must be echoed by changes in the parse() function.
     protected Address[] mFrom;
     protected Address[] mTo;
     protected Address[] mCc;
     protected Address[] mBcc;
     protected Address[] mReplyTo;
     protected Date mSentDate;
+    
     // In MIME, en_US-like date format should be used. In other words "MMM" should be encoded to
     // "Jan", not the other localized format like "Ene" (meaning January in locale es).
     // This conversion is used when generating outgoing MIME messages. Incoming MIME date
@@ -61,6 +68,9 @@ public class MimeMessage extends Message {
         new SimpleDateFormat("EEE, dd MMM yyyy HH:mm:ss Z", Locale.US);
     protected Body mBody;
     protected int mSize;
+
+    // regex that matches content id surrounded by "<>" optionally.
+    private static final Pattern REMOVE_OPTIONAL_BRACKETS = Pattern.compile("^<?([^>]+)>?$");
 
     public MimeMessage() {
         /*
@@ -100,12 +110,16 @@ public class MimeMessage extends Message {
     }
 
     protected void parse(InputStream in) throws IOException, MessagingException {
+        // Before parsing the input stream, clear all local fields that may be superceded by
+        // the new incoming message.
         mHeader.clear();
-        mBody = null;
-        mBcc = null;
-        mTo = null;
         mFrom = null;
+        mTo = null;
+        mCc = null;
+        mBcc = null;
+        mReplyTo = null;
         mSentDate = null;
+        mBody = null;
 
         MimeStreamParser parser = new MimeStreamParser();
         parser.setContentHandler(new MimeMessageBuilder());
@@ -149,6 +163,16 @@ public class MimeMessage extends Message {
             return null;
         } else {
             return contentDisposition;
+        }
+    }
+
+    public String getContentId() throws MessagingException {
+        String contentId = getFirstHeader(MimeHeader.HEADER_CONTENT_ID);
+        if (contentId == null) {
+            return null;
+        } else {
+            // remove optionally surrounding brackets.
+            return REMOVE_OPTIONAL_BRACKETS.matcher(contentId).replaceAll("$1");
         }
     }
 
@@ -223,7 +247,8 @@ public class MimeMessage extends Message {
     }
 
     public void setSubject(String subject) throws MessagingException {
-        setHeader("Subject", subject);
+        final int HEADER_NAME_LENGTH = 9;     // "Subject: "
+        setHeader("Subject", MimeUtility.foldAndEncode2(subject, HEADER_NAME_LENGTH));
     }
 
     public Address[] getFrom() throws MessagingException {

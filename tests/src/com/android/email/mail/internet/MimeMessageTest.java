@@ -17,6 +17,8 @@
 package com.android.email.mail.internet;
 
 import com.android.email.mail.MessagingException;
+import com.android.email.mail.internet.MimeHeader;
+import com.android.email.mail.internet.MimeMessage;
 
 import android.test.suitebuilder.annotation.SmallTest;
 
@@ -33,6 +35,26 @@ import junit.framework.TestCase;
  */
 @SmallTest
 public class MimeMessageTest extends TestCase {
+    
+    /** up arrow, down arrow, left arrow, right arrow */
+    private final String SHORT_UNICODE = "\u2191\u2193\u2190\u2192";
+    private final String SHORT_UNICODE_ENCODED = "=?UTF-8?B?4oaR4oaT4oaQ4oaS?=";
+    
+    /** a string without any unicode */
+    private final String SHORT_PLAIN = "abcd";
+    
+    /** longer unicode strings */
+    private final String LONG_UNICODE_16 = SHORT_UNICODE + SHORT_UNICODE + 
+            SHORT_UNICODE + SHORT_UNICODE;
+    private final String LONG_UNICODE_64 = LONG_UNICODE_16 + LONG_UNICODE_16 + 
+            LONG_UNICODE_16 + LONG_UNICODE_16;
+
+    /** longer plain strings (with fold points) */
+    private final String LONG_PLAIN_16 = "abcdefgh ijklmno";
+    private final String LONG_PLAIN_64 = 
+        LONG_PLAIN_16 + LONG_PLAIN_16 + LONG_PLAIN_16 + LONG_PLAIN_16;
+    private final String LONG_PLAIN_256 = 
+        LONG_PLAIN_64 + LONG_PLAIN_64 + LONG_PLAIN_64 + LONG_PLAIN_64;
 
     // TODO: more tests.
     
@@ -95,4 +117,99 @@ public class MimeMessageTest extends TestCase {
         message2.setMessageId(testId2);
         assertEquals("set and get Message-ID", testId2, message2.getMessageId());
     }
+
+    /**
+     * Confirm getContentID() correctly works.
+     */
+    public void testGetContentId() throws MessagingException {
+        MimeMessage message = new MimeMessage();
+
+        // no content-id
+        assertNull(message.getContentId());
+
+        // normal case
+        final String cid1 = "cid.1@android.com";
+        message.setHeader(MimeHeader.HEADER_CONTENT_ID, cid1);
+        assertEquals(cid1, message.getContentId());
+
+        // surrounded by optional bracket
+        message.setHeader(MimeHeader.HEADER_CONTENT_ID, "<" + cid1 + ">");
+        assertEquals(cid1, message.getContentId());
+    }
+    
+    /**
+     * Confirm that setSubject() works with plain strings
+     */
+    public void testSetSubjectPlain() throws MessagingException {
+        MimeMessage message = new MimeMessage();
+
+        message.setSubject(SHORT_PLAIN);
+        
+        // test 1: readback
+        assertEquals("plain subjects", SHORT_PLAIN, message.getSubject());
+        
+        // test 2: raw readback is not escaped
+        String rawHeader = message.getFirstHeader("Subject");
+        assertEquals("plain subject not encoded", -1, rawHeader.indexOf("=?"));
+        
+        // test 3: long subject (shouldn't fold)
+        message.setSubject(LONG_PLAIN_64);
+        rawHeader = message.getFirstHeader("Subject");
+        String[] split = rawHeader.split("\r\n");
+        assertEquals("64 shouldn't fold", 1, split.length);
+        
+        // test 4: very long subject (should fold)
+        message.setSubject(LONG_PLAIN_256);
+        rawHeader = message.getFirstHeader("Subject");
+        split = rawHeader.split("\r\n");
+        assertTrue("long subject should fold", split.length > 1);
+        for (String s : split) {
+            assertTrue("split lines max length 78", s.length() <= 76);  // 76+\r\n = 78
+            String trimmed = s.trim();
+            assertFalse("split lines are not encoded", trimmed.startsWith("=?"));
+        }
+    }
+    
+    /**
+     * Confirm that setSubject() works with unicode strings
+     */
+    public void testSetSubject() throws MessagingException {
+        MimeMessage message = new MimeMessage();
+
+        message.setSubject(SHORT_UNICODE);
+        
+        // test 1: readback in unicode
+        assertEquals("unicode readback", SHORT_UNICODE, message.getSubject());
+        
+        // test 2: raw readback is escaped
+        String rawHeader = message.getFirstHeader("Subject");
+        assertEquals("raw readback", SHORT_UNICODE_ENCODED, rawHeader);
+    }
+    
+    /**
+     * Confirm folding operations on unicode subjects
+     */
+    public void testSetLongSubject() throws MessagingException {
+        MimeMessage message = new MimeMessage();
+        
+        // test 1: long unicode - readback in unicode
+        message.setSubject(LONG_UNICODE_16);
+        assertEquals("unicode readback 16", LONG_UNICODE_16, message.getSubject());
+        
+        // test 2: longer unicode (will fold)
+        message.setSubject(LONG_UNICODE_64);
+        assertEquals("unicode readback 64", LONG_UNICODE_64, message.getSubject());
+        
+        // test 3: check folding & encoding
+        String rawHeader = message.getFirstHeader("Subject");
+        String[] split = rawHeader.split("\r\n");
+        assertTrue("long subject should fold", split.length > 1);
+        for (String s : split) {
+            assertTrue("split lines max length 78", s.length() <= 76);  // 76+\r\n = 78
+            String trimmed = s.trim();
+            assertTrue("split lines are encoded", 
+                    trimmed.startsWith("=?") && trimmed.endsWith("?="));
+        }
+    }
+
 }

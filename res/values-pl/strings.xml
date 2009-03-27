@@ -50,11 +50,15 @@
     <string name="status_network_error">"Błąd połączenia"</string>
     <string name="status_loading_more_failed">"Ponów próbę załadowania większej liczby wiadomości"</string>
     <string name="notification_new_title">"Nowa wiadomość e-mail"</string>
-    <!-- no translation found for notification_new_one_account_fmt:one (3422945912787702191) -->
-    <!-- no translation found for notification_new_one_account_fmt:few (6543078667692990869) -->
-    <!-- no translation found for notification_new_one_account_fmt:other (6937673814351448076) -->
-    <!-- no translation found for notification_new_multi_account_fmt:few (1991747245324120305) -->
-    <!-- no translation found for notification_new_multi_account_fmt:other (2723797835410343458) -->
+  <plurals name="notification_new_one_account_fmt">
+    <item quantity="one">"Nieprzeczytane: <xliff:g id="UNREAD_MESSAGE_COUNT">%d</xliff:g> (<xliff:g id="ACCOUNT">%s</xliff:g>)"</item>
+    <item quantity="few">"Nieprzeczytane: <xliff:g id="UNREAD_MESSAGE_COUNT">%d</xliff:g> (<xliff:g id="ACCOUNT">%s</xliff:g>)"</item>
+    <item quantity="other">"Nieprzeczytane: <xliff:g id="UNREAD_MESSAGE_COUNT">%d</xliff:g> (<xliff:g id="ACCOUNT">%s</xliff:g>)"</item>
+  </plurals>
+  <plurals name="notification_new_multi_account_fmt">
+    <item quantity="few">"na <xliff:g id="NUMBER_ACCOUNTS">%d</xliff:g> kontach"</item>
+    <item quantity="other">"na <xliff:g id="NUMBER_ACCOUNTS">%d</xliff:g> kontach"</item>
+  </plurals>
     <string name="special_mailbox_name_inbox">"Odebrane"</string>
     <string name="accounts_welcome">"Zapraszamy do skonfigurowania poczty e-mail!"\n\n"W tej usłudze można korzystać z dowolnego konta e-mail."\n\n"Konfiguracja najpopularniejszych kont e-mail składa się z tylko 2 etapów."</string>
     <string name="debug_version_fmt">"Wersja: <xliff:g id="VERSION">%s</xliff:g>"</string>
@@ -65,13 +69,13 @@
     <string name="message_compose_cc_hint">"DW"</string>
     <string name="message_compose_bcc_hint">"UDW"</string>
     <string name="message_compose_subject_hint">"Temat"</string>
-    <!-- no translation found for message_compose_body_hint (7575406246484103697) -->
-    <skip />
+    <string name="message_compose_body_hint">"Utwórz wiadomość"</string>
     <string name="message_compose_fwd_header_fmt">\n\n"-------- Wiadomość oryginalna --------"\n"Temat: <xliff:g id="SUBJECT">%s</xliff:g>"\n"Od: <xliff:g id="SENDER">%s</xliff:g>"\n"Do: <xliff:g id="TO">%s</xliff:g>"\n"DW: <xliff:g id="CC_0">%s</xliff:g>"\n\n</string>
     <string name="message_compose_reply_header_fmt">\n\n"Użytkownik <xliff:g id="SENDER">%s</xliff:g> napisał:"\n\n</string>
     <string name="message_compose_quoted_text_label">"Cytowany tekst"</string>
     <string name="message_compose_error_no_recipients">"Musisz dodać co najmniej jednego adresata."</string>
     <string name="message_compose_attachments_skipped_toast">"Nie można przekazać dalej niektórych załączników, ponieważ nie zostały one pobrane."</string>
+    <string name="message_compose_attachment_size">"Plik jest zbyt duży do załączenia."</string>
     <string name="message_view_to_label">"Do:"</string>
     <string name="message_view_cc_label">"DW:"</string>
     <string name="message_view_attachment_view_action">"Otwórz"</string>
@@ -84,6 +88,9 @@
     <string name="message_deleted_toast">"Wiadomość została usunięta."</string>
     <string name="message_discarded_toast">"Wiadomość została odrzucona."</string>
     <string name="message_saved_toast">"Wiadomość została zapisana jako wersja robocza."</string>
+    <string name="add_contact_dlg_title">"Dodaj kontakt"</string>
+    <string name="add_contact_dlg_message_fmt">"Dodaj adres „<xliff:g id="EMAIL">%s</xliff:g>” do kontaktów"</string>
+    <string name="message_view_display_attachment_toast">"Nie można wyświetlić tego załącznika."</string>
     <string name="account_setup_basics_title">"Skonfiguruj konto e-mail"</string>
     <string name="account_setup_basics_instructions">"Podaj adres e-mail swojego konta:"</string>
     <string name="account_setup_basics_email_hint">"Adres e-mail"</string>

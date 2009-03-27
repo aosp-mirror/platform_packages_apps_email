@@ -25,6 +25,7 @@ import com.android.email.mail.Multipart;
 import com.android.email.mail.Part;
 
 import org.apache.commons.io.IOUtils;
+import org.apache.james.mime4j.codec.EncoderUtil;
 import org.apache.james.mime4j.decoder.Base64InputStream;
 import org.apache.james.mime4j.decoder.DecoderUtil;
 import org.apache.james.mime4j.decoder.QuotedPrintableInputStream;
@@ -37,14 +38,27 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
 import java.util.ArrayList;
+import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 public class MimeUtility {
+    
+    private final static Pattern PATTERN_CR_OR_LF = Pattern.compile("\r|\n");
+    
+    /**
+     * Replace sequences of CRLF+WSP with WSP.  Tries to preserve original string
+     * object whenever possible.
+     */
     public static String unfold(String s) {
         if (s == null) {
             return null;
         }
-        return s.replaceAll("\r|\n", "");
+        Matcher patternMatcher = PATTERN_CR_OR_LF.matcher(s);
+        if (patternMatcher.find()) {
+            patternMatcher.reset();
+            s = patternMatcher.replaceAll("");
+        }
+        return s;
     }
 
     public static String decode(String s) {
@@ -59,8 +73,98 @@ public class MimeUtility {
     }
 
     // TODO implement proper foldAndEncode
+    // NOTE: When this really works, we *must* remove all calls to foldAndEncode2() to prevent
+    // duplication of encoding.
     public static String foldAndEncode(String s) {
         return s;
+    }
+    
+    /**
+     * INTERIM version of foldAndEncode that will be used only by Subject: headers.
+     * This is safer than implementing foldAndEncode() (see above) and risking unknown damage
+     * to other headers.
+     * 
+     * TODO: Copy this code to foldAndEncode(), get rid of this function, confirm all working OK.
+     * 
+     * @param s original string to encode and fold
+     * @param usedCharacters number of characters already used up by header name
+
+     * @return the String ready to be transmitted
+     */
+    public static String foldAndEncode2(String s, int usedCharacters) {
+        // james.mime4j.codec.EncoderUtil.java
+        // encode:  encodeIfNecessary(text, usage, numUsedInHeaderName) 
+        // Usage.TEXT_TOKENlooks like the right thing for subjects
+        // use WORD_ENTITY for address/names
+        
+        String encoded = EncoderUtil.encodeIfNecessary(s, EncoderUtil.Usage.TEXT_TOKEN, 
+                usedCharacters);
+
+        return fold(encoded, usedCharacters);
+    }
+    
+    /**
+     * INTERIM:  From newer version of org.apache.james (but we don't want to import
+     * the entire MimeUtil class).
+     * 
+     * Splits the specified string into a multiple-line representation with
+     * lines no longer than 76 characters (because the line might contain
+     * encoded words; see <a href='http://www.faqs.org/rfcs/rfc2047.html'>RFC
+     * 2047</a> section 2). If the string contains non-whitespace sequences
+     * longer than 76 characters a line break is inserted at the whitespace
+     * character following the sequence resulting in a line longer than 76
+     * characters.
+     * 
+     * @param s
+     *            string to split.
+     * @param usedCharacters
+     *            number of characters already used up. Usually the number of
+     *            characters for header field name plus colon and one space.
+     * @return a multiple-line representation of the given string.
+     */
+    public static String fold(String s, int usedCharacters) {
+        final int maxCharacters = 76;
+
+        final int length = s.length();
+        if (usedCharacters + length <= maxCharacters)
+            return s;
+
+        StringBuilder sb = new StringBuilder();
+
+        int lastLineBreak = -usedCharacters;
+        int wspIdx = indexOfWsp(s, 0);
+        while (true) {
+            if (wspIdx == length) {
+                sb.append(s.substring(Math.max(0, lastLineBreak)));
+                return sb.toString();
+            }
+
+            int nextWspIdx = indexOfWsp(s, wspIdx + 1);
+
+            if (nextWspIdx - lastLineBreak > maxCharacters) {
+                sb.append(s.substring(Math.max(0, lastLineBreak), wspIdx));
+                sb.append("\r\n");
+                lastLineBreak = wspIdx;
+            }
+
+            wspIdx = nextWspIdx;
+        }
+    }
+
+    /**
+     * INTERIM:  From newer version of org.apache.james (but we don't want to import
+     * the entire MimeUtil class).
+     * 
+     * Search for whitespace.
+     */
+    private static int indexOfWsp(String s, int fromIndex) {
+        final int len = s.length();
+        for (int index = fromIndex; index < len; index++) {
+            char c = s.charAt(index);
+            if (c == ' ' || c == '\t')
+                return index;
+        }
+        return len;
     }
 
     /**
@@ -69,6 +173,11 @@ public class MimeUtility {
      * field the entire field is returned. Otherwise the named parameter is
      * searched for in a case insensitive fashion and returned. If the parameter
      * cannot be found the method returns null.
+     * 
+     * TODO: quite inefficient with the inner trimming & splitting.
+     * TODO: Also has a latent bug: uses "startsWith" to match the name, which can false-positive.
+     * TODO: The doc says that for a null name you get the first param, but you get the header. 
+     *    Should probably just fix the doc, but if other code assumes that behavior, fix the code.
      *
      * @param header
      * @param name
@@ -78,13 +187,13 @@ public class MimeUtility {
         if (header == null) {
             return null;
         }
-        header = header.replaceAll("\r|\n", "");
-        String[] parts = header.split(";");
+        String[] parts = unfold(header).split(";");
         if (name == null) {
             return parts[0];
         }
+        String lowerCaseName = name.toLowerCase();
         for (String part : parts) {
-            if (part.trim().toLowerCase().startsWith(name.toLowerCase())) {
+            if (part.trim().toLowerCase().startsWith(lowerCaseName)) {
                 String parameter = part.split("=", 2)[1].trim();
                 if (parameter.startsWith("\"") && parameter.endsWith("\"")) {
                     return parameter.substring(1, parameter.length() - 1);
@@ -126,13 +235,9 @@ public class MimeUtility {
                 }
             }
         }
-        String[] header = part.getHeader("Content-ID");
-        if (header != null) {
-            for (String s : header) {
-                if (s.equals(contentId)) {
-                    return part;
-                }
-            }
+        String cid = part.getContentId();
+        if (contentId.equals(cid)) {
+            return part;
         }
         return null;
     }

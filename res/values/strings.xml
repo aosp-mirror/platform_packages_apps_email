@@ -157,6 +157,9 @@
     <string name="message_compose_error_no_recipients">You must add at least one recipient.</string>
     <!-- Toast that appears in the context of forwarding a message with attachment(s) -->
     <string name="message_compose_attachments_skipped_toast">Some attachments cannot be forwarded because they have not downloaded.</string>
+    <!-- Toast that appears when an attachment is too big to send.  Note, translation temporarily
+         borrowed from camera app (msgid="8944461117941172986") -->
+    <string name="message_compose_attachment_size" msgid="8944461117941172986">File too large to attach.</string>
     <!-- Label for To field in read message view -->
     <string name="message_view_to_label">To:</string>
     <!-- Label for CC field in read message view -->
@@ -187,6 +190,10 @@
          the email address, e.g. "Add xyz@foo.com to contacts" -->
     <string name="add_contact_dlg_message_fmt">Add \"<xliff:g id="email">%s</xliff:g>\" to contacts
         </string>
+    <!-- String that is displayed when the attachment could not be displayed.  TODO: Make local
+         version and remove use of "borrowed" string. -->
+    <string name="message_view_display_attachment_toast" 
+            msgid="2079093904785941494">This attachment cannot be displayed.</string>
 
     <!-- Title of screen when setting up new email account -->
     <string name="account_setup_basics_title">Set up email</string>
