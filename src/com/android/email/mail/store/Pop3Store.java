@@ -32,6 +32,7 @@ import com.android.email.mail.internet.MimeMessage;
 import com.android.email.mail.transport.LoggingInputStream;
 import com.android.email.mail.transport.MailTransport;
 
+import android.content.Context;
 import android.util.Config;
 import android.util.Log;
 
@@ -82,6 +83,13 @@ public class Pop3Store extends Store {
 //    private int mThroughputKbS = Integer.MAX_VALUE;
 
     /**
+     * Static named constructor.
+     */
+    public static Store newInstance(String uri, Context context) throws MessagingException {
+        return new Pop3Store(uri);
+    }
+
+    /**
      * pop3://user:password@server:port CONNECTION_SECURITY_NONE
      * pop3+tls://user:password@server:port CONNECTION_SECURITY_TLS_OPTIONAL
      * pop3+tls+://user:password@server:port CONNECTION_SECURITY_TLS_REQUIRED
@@ -90,7 +98,7 @@ public class Pop3Store extends Store {
      *
      * @param _uri
      */
-    public Pop3Store(String _uri) throws MessagingException {
+    private Pop3Store(String _uri) throws MessagingException {
         URI uri;
         try {
             uri = new URI(_uri);

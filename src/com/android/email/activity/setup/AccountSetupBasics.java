@@ -217,8 +217,8 @@ public class AccountSetupBasics extends Activity
 
             URI incomingUriTemplate = mProvider.incomingUriTemplate;
             incomingUri = new URI(incomingUriTemplate.getScheme(), incomingUsername + ":"
-                    + password, incomingUriTemplate.getHost(), incomingUriTemplate.getPort(), null,
-                    null, null);
+                    + password, incomingUriTemplate.getHost(), incomingUriTemplate.getPort(),
+                    incomingUriTemplate.getPath(), null, null);
 
             String outgoingUsername = mProvider.outgoingUsernameTemplate;
             outgoingUsername = outgoingUsername.replaceAll("\\$email", email);
@@ -227,8 +227,8 @@ public class AccountSetupBasics extends Activity
 
             URI outgoingUriTemplate = mProvider.outgoingUriTemplate;
             outgoingUri = new URI(outgoingUriTemplate.getScheme(), outgoingUsername + ":"
-                    + password, outgoingUriTemplate.getHost(), outgoingUriTemplate.getPort(), null,
-                    null, null);
+                    + password, outgoingUriTemplate.getHost(), outgoingUriTemplate.getPort(),
+                    outgoingUriTemplate.getPath(), null, null);
         } catch (URISyntaxException use) {
             /*
              * If there is some problem with the URI we give up and go on to

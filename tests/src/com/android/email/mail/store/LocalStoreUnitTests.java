@@ -67,7 +67,7 @@ public class LocalStoreUnitTests extends AndroidTestCase {
         // Create a dummy database (be sure to delete it in tearDown())
         mLocalStoreUri = "local://localhost/" + getContext().getDatabasePath(dbName);
         
-        mStore = new LocalStore(mLocalStoreUri, getContext());
+        mStore = (LocalStore) LocalStore.newInstance(mLocalStoreUri, getContext());
         mFolder = (LocalStore.LocalFolder) mStore.getFolder("TEST");
         
         // This is needed for parsing mime messages
@@ -206,7 +206,8 @@ public class LocalStoreUnitTests extends AndroidTestCase {
      * Tests for database version.
      */
     public void testDbVersion() throws MessagingException, URISyntaxException {
-        final LocalStore store = new LocalStore(mLocalStoreUri, getContext());
+        // build current version database.
+        LocalStore.newInstance(mLocalStoreUri, getContext());
         final URI uri = new URI(mLocalStoreUri);
         final String dbPath = uri.getPath();
         final SQLiteDatabase db = SQLiteDatabase.openOrCreateDatabase(dbPath, null);
@@ -270,7 +271,7 @@ public class LocalStoreUnitTests extends AndroidTestCase {
         db.close();
 
         // upgrade database 18 to 20
-        new LocalStore(mLocalStoreUri, getContext());
+        LocalStore.newInstance(mLocalStoreUri, getContext());
 
         // added message_id column should be initialized as null
         expectedMessage.put("message_id", (String) null);    // message_id type text == String
@@ -342,7 +343,7 @@ public class LocalStoreUnitTests extends AndroidTestCase {
         db.close();
 
         // upgrade database 19 to 20
-        new LocalStore(mLocalStoreUri, getContext());
+        LocalStore.newInstance(mLocalStoreUri, getContext());
 
         // added content_id column should be initialized as null
         expectedAttachment.put("content_id", (String) null);  // content_id type text == String
