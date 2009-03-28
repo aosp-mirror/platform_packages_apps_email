@@ -158,8 +158,8 @@
     <!-- Toast that appears in the context of forwarding a message with attachment(s) -->
     <string name="message_compose_attachments_skipped_toast">Some attachments cannot be forwarded because they have not downloaded.</string>
     <!-- Toast that appears when an attachment is too big to send.  Note, translation temporarily
-         borrowed from camera app (msgid="6989632611223725558") -->
-    <string name="message_compose_attachment_size" msgid="6989632611223725558">File too large to attach.</string>
+         borrowed from camera app (msgid="8944461117941172986") -->
+    <string name="message_compose_attachment_size" msgid="8944461117941172986">File too large to attach.</string>
     <!-- Label for To field in read message view -->
     <string name="message_view_to_label">To:</string>
     <!-- Label for CC field in read message view -->
@@ -193,7 +193,7 @@
     <!-- String that is displayed when the attachment could not be displayed.  TODO: Make local
          version and remove use of "borrowed" string. -->
     <string name="message_view_display_attachment_toast" 
-            msgid="6849630429576038532">This attachment cannot be displayed.</string>
+            msgid="2079093904785941494">This attachment cannot be displayed.</string>
 
     <!-- Title of screen when setting up new email account -->
     <string name="account_setup_basics_title">Set up email</string>

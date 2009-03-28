@@ -75,6 +75,7 @@
     <string name="message_compose_quoted_text_label">"Zitierter Text"</string>
     <string name="message_compose_error_no_recipients">"Sie müssen mindestens einen Empfänger hinzufügen."</string>
     <string name="message_compose_attachments_skipped_toast">"Einige Anhänge können nicht weitergeleitet werden, da Sie noch nicht heruntergeladen wurden."</string>
+    <string name="message_compose_attachment_size">"Dateianhang zu groß"</string>
     <string name="message_view_to_label">"An:"</string>
     <string name="message_view_cc_label">"Cc:"</string>
     <string name="message_view_attachment_view_action">"Öffnen"</string>
@@ -89,6 +90,7 @@
     <string name="message_saved_toast">"Nachricht als Entwurf gespeichert"</string>
     <string name="add_contact_dlg_title">"Kontakt hinzufügen"</string>
     <string name="add_contact_dlg_message_fmt">"\"<xliff:g id="EMAIL">%s</xliff:g>\" zu den Kontakten hinzufügen"</string>
+    <string name="message_view_display_attachment_toast">"Dieser Anhang kann nicht angezeigt werden."</string>
     <string name="account_setup_basics_title">"E-Mail einrichten"</string>
     <string name="account_setup_basics_instructions">"Geben Sie Ihre im Konto gespeicherte E-Mail-Adresse ein:"</string>
     <string name="account_setup_basics_email_hint">"E-Mail-Adresse"</string>

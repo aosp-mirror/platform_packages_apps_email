@@ -75,6 +75,7 @@
     <string name="message_compose_quoted_text_label">"引用文字"</string>
     <string name="message_compose_error_no_recipients">"您必须至少添加一个收件人。"</string>
     <string name="message_compose_attachments_skipped_toast">"某些附件尚未下载，因此无法转发。"</string>
+    <string name="message_compose_attachment_size">"文件太大，无法附加。"</string>
     <string name="message_view_to_label">"收件人："</string>
     <string name="message_view_cc_label">"抄送："</string>
     <string name="message_view_attachment_view_action">"打开"</string>
@@ -89,6 +90,7 @@
     <string name="message_saved_toast">"邮件已另存为草稿。"</string>
     <string name="add_contact_dlg_title">"添加联系人"</string>
     <string name="add_contact_dlg_message_fmt">"将“<xliff:g id="EMAIL">%s</xliff:g>”添加到通讯录中"</string>
+    <string name="message_view_display_attachment_toast">"此附件无法显示。"</string>
     <string name="account_setup_basics_title">"设置电子邮件"</string>
     <string name="account_setup_basics_instructions">"键入您的帐户电子邮件地址："</string>
     <string name="account_setup_basics_email_hint">"电子邮件地址"</string>
