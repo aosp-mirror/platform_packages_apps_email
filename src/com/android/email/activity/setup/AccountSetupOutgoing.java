@@ -16,11 +16,12 @@
 
 package com.android.email.activity.setup;
 
-import java.net.URI;
-import java.net.URISyntaxException;
+import com.android.email.Account;
+import com.android.email.Preferences;
+import com.android.email.R;
+import com.android.email.Utility;
 
 import android.app.Activity;
-import android.content.Context;
 import android.content.Intent;
 import android.os.Bundle;
 import android.text.Editable;
@@ -38,10 +39,8 @@ import android.widget.EditText;
 import android.widget.Spinner;
 import android.widget.CompoundButton.OnCheckedChangeListener;
 
-import com.android.email.Account;
-import com.android.email.Preferences;
-import com.android.email.R;
-import com.android.email.Utility;
+import java.net.URI;
+import java.net.URISyntaxException;
 
 public class AccountSetupOutgoing extends Activity implements OnClickListener,
         OnCheckedChangeListener {
@@ -68,18 +67,19 @@ public class AccountSetupOutgoing extends Activity implements OnClickListener,
     private Account mAccount;
     private boolean mMakeDefault;
 
-    public static void actionOutgoingSettings(Context context, Account account, boolean makeDefault) {
-        Intent i = new Intent(context, AccountSetupOutgoing.class);
+    public static void actionOutgoingSettings(Activity fromActivity, Account account, 
+            boolean makeDefault) {
+        Intent i = new Intent(fromActivity, AccountSetupOutgoing.class);
         i.putExtra(EXTRA_ACCOUNT, account);
         i.putExtra(EXTRA_MAKE_DEFAULT, makeDefault);
-        context.startActivity(i);
+        fromActivity.startActivity(i);
     }
 
-    public static void actionEditOutgoingSettings(Context context, Account account) {
-        Intent i = new Intent(context, AccountSetupOutgoing.class);
+    public static void actionEditOutgoingSettings(Activity fromActivity, Account account) {
+        Intent i = new Intent(fromActivity, AccountSetupOutgoing.class);
         i.setAction(Intent.ACTION_EDIT);
         i.putExtra(EXTRA_ACCOUNT, account);
-        context.startActivity(i);
+        fromActivity.startActivity(i);
     }
 
     @Override
