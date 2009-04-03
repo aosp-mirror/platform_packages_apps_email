@@ -59,6 +59,11 @@
             >
         </activity>
         <activity
+            android:name=".activity.setup.AccountSetupExchange"
+            android:label="@string/account_setup_exchange_title"
+            >
+        </activity>
+        <activity
             android:name=".activity.setup.AccountSetupOptions"
             android:label="@string/account_setup_options_title"
             >

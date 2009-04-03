@@ -238,6 +238,8 @@
     <string name="account_setup_account_type_pop_action">POP3 account</string>
     <!-- "Add new email account" screen, button name in response to what type of account this is -->
     <string name="account_setup_account_type_imap_action">IMAP account</string>
+    <!-- "Add new email account" screen, button name in response to what type of account this is -->
+    <string name="account_setup_account_type_exchange_action">Exchange/ActiveSync</string>
     <!-- "Incoming server settings" screen, label for text field -->
     <string name="account_setup_incoming_title">Incoming server settings</string>
     <!-- "Incoming server settings" screen, label for text field -->
@@ -290,6 +292,17 @@
     <string name="account_setup_outgoing_username_label">Username</string>
     <!-- On "Outgoing server settings" screen, label for text field -->
     <string name="account_setup_outgoing_password_label">Password</string>
+    
+    <!-- Title of "Exchange server settings" screen -->
+    <string name="account_setup_exchange_title">Exchange server settings</string>
+    <!-- On "Exchange" setup screen, the name of the server -->
+    <string name="account_setup_exchange_server_label">Exchange Server</string>
+    <!-- On "Exchange" setup screen, the domain name label -->
+    <string name="account_setup_exchange_domain_label">Domain:</string>
+    <!-- On "Exchange" setup screen, the domain name hint -->
+    <string name="account_setup_exchange_domain_hint">Enter domain here</string>
+    <!-- On "Exchange" setup screen, the use-SSL checkbox label -->
+    <string name="account_setup_exchange_ssl_label">Use secure connection (SSL)</string>
 
     <!-- In Account setup options screen, Activity title -->
     <string name="account_setup_options_title">Account options</string>

@@ -18,6 +18,8 @@ package com.android.email.activity.setup;
 
 import com.android.email.Account;
 import com.android.email.R;
+import com.android.email.mail.MessagingException;
+import com.android.email.mail.Store;
 
 import android.app.Activity;
 import android.content.Intent;
@@ -57,9 +59,15 @@ public class AccountSetupAccountType extends Activity implements OnClickListener
         setContentView(R.layout.account_setup_account_type);
         ((Button)findViewById(R.id.pop)).setOnClickListener(this);
         ((Button)findViewById(R.id.imap)).setOnClickListener(this);
-
+        ((Button)findViewById(R.id.exchange)).setOnClickListener(this);
+        
         mAccount = (Account)getIntent().getSerializableExtra(EXTRA_ACCOUNT);
         mMakeDefault = (boolean)getIntent().getBooleanExtra(EXTRA_MAKE_DEFAULT, false);
+
+        if (isExchangeAvailable()) {
+            findViewById(R.id.exchange).setVisibility(View.VISIBLE);
+        }
+        // TODO: Dynamic creation of buttons, instead of just hiding things we don't need
     }
 
     private void onPop() {
@@ -98,6 +106,47 @@ public class AccountSetupAccountType extends Activity implements OnClickListener
         AccountSetupIncoming.actionIncomingSettings(this, mAccount, mMakeDefault);
         finish();
     }
+    
+    /**
+     * The user has selected an exchange account type.  Try to put together a URI using the entered
+     * email address.  Also set the mail delete policy here, because there is no UI (for exchange).
+     */
+    private void onExchange() {
+        try {
+            URI uri = new URI(mAccount.getStoreUri());
+            uri = new URI("eas", uri.getUserInfo(), uri.getHost(), uri.getPort(), null, null, null);
+            mAccount.setStoreUri(uri.toString());
+            mAccount.setSenderUri(uri.toString());
+        } catch (URISyntaxException use) {
+            /*
+             * This should not happen.
+             */
+            throw new Error(use);
+        }
+        // TODO: Confirm correct delete policy for exchange
+        mAccount.setDeletePolicy(Account.DELETE_POLICY_ON_DELETE);
+        AccountSetupExchange.actionIncomingSettings(this, mAccount, mMakeDefault);
+        finish();
+    }
+    
+    /**
+     * Determine if we can show the "exchange" option
+     * 
+     * TODO: This should be dynamic and data-driven for all account types, not just hardcoded
+     * like this.
+     */
+    private boolean isExchangeAvailable() {
+        try {
+            URI uri = new URI(mAccount.getStoreUri());
+            uri = new URI("eas", uri.getUserInfo(), uri.getHost(), uri.getPort(), null, null, null);
+            Store store = Store.getInstance(uri.toString(), this);
+            return (store != null);
+        } catch (URISyntaxException e) {
+            return false;
+        } catch (MessagingException e) {
+            return false;
+        }
+    }
 
     public void onClick(View v) {
         switch (v.getId()) {
@@ -106,6 +155,9 @@ public class AccountSetupAccountType extends Activity implements OnClickListener
                 break;
             case R.id.imap:
                 onImap();
+                break;
+            case R.id.exchange:
+                onExchange();
                 break;
         }
     }
