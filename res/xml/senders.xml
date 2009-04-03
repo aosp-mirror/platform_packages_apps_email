@@ -31,4 +31,7 @@
 
 <senders>
     <sender scheme="smtp" class="com.android.email.mail.transport.SmtpSender" />
+    
+    <!-- This is here for temporary demo purposes only.  Do not ship with this. -->
+    <!-- sender scheme="eas" class="com.android.email.mail.exchange.ExchangeSenderExample" / -->
 </senders>

@@ -42,4 +42,13 @@
         android:minWidth="@dimen/button_minWidth"
         android:layout_gravity="center_horizontal"
         />
+    <Button
+        android:id="@+id/exchange"
+        android:text="@string/account_setup_account_type_exchange_action"
+        android:layout_height="wrap_content"
+        android:layout_width="150sp"
+        android:minWidth="@dimen/button_minWidth"
+        android:layout_gravity="center_horizontal"
+        android:visibility="gone"
+        />
 </LinearLayout>
