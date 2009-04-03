@@ -23,6 +23,7 @@ import org.xmlpull.v1.XmlPullParserException;
 
 import android.content.Context;
 import android.content.res.XmlResourceParser;
+import android.util.Log;
 
 import java.io.IOException;
 
@@ -61,7 +62,7 @@ public abstract class Store {
         throw new MessagingException("Store.newInstance: Unknown scheme in " + uri);
     }
 
-    private static Store instanciateStore(String className, String uri, Context context)
+    private static Store instantiateStore(String className, String uri, Context context)
         throws MessagingException {
         Object o = null;
         try {
@@ -71,10 +72,10 @@ public abstract class Store {
                 c.getMethod("newInstance", String.class, Context.class);
             o = m.invoke(null, uri, context);
         } catch (Exception e) {
-            android.util.Log.e(Email.LOG_TAG,
-                    String.format("can not invoke %s.newInstance(String, Context) method for %s",
-                            className, uri));
-            throw new MessagingException("can not instanciate Store object for " + uri);
+            Log.d(Email.LOG_TAG, String.format(
+                    "exception %s invoking %s.newInstance.(String, Context) method for %s",
+                    e.toString(), className, uri));
+            throw new MessagingException("can not instantiate Store object for " + uri);
         }
         if (!(o instanceof Store)) {
             throw new MessagingException(
@@ -101,7 +102,7 @@ public abstract class Store {
                         // found store entry whose scheme is matched with uri.
                         // then load store class.
                         String className = xml.getAttributeValue(null, "class");
-                        store = instanciateStore(className, uri, context);
+                        store = instantiateStore(className, uri, context);
                     }
                 }
             }
@@ -115,15 +116,20 @@ public abstract class Store {
 
     /**
      * Get an instance of a mail store. The URI is parsed as a standard URI and
-     * the scheme is used to determine which protocol will be used. The
-     * following schemes are currently recognized: imap - IMAP with no
-     * connection security. Ex: imap://username:password@host/ imap+tls - IMAP
-     * with TLS connection security, if the server supports it. Ex:
-     * imap+tls://username:password@host imap+tls+ - IMAP with required TLS
-     * connection security. Connection fails if TLS is not available. Ex:
-     * imap+tls+://username:password@host imap+ssl+ - IMAP with required SSL
-     * connection security. Connection fails if SSL is not available. Ex:
-     * imap+ssl+://username:password@host
+     * the scheme is used to determine which protocol will be used.
+     * 
+     * Although the URI format is somewhat protocol-specific, we use the following 
+     * guidelines wherever possible:
+     * 
+     * scheme [+ security [+]] :// username : password @ host [ / resource ]
+     * 
+     * Typical schemes include imap, pop3, local, eas.
+     * Typical security models include SSL or TLS.
+     * A + after the security identifier indicates "required".
+     * 
+     * Username, password, and host are as expected.
+     * Resource is protocol specific.  For example, IMAP uses it as the path prefix.  EAS uses it
+     * as the domain.
      *
      * @param uri The URI of the store.
      * @return an initialized store of the appropriate class

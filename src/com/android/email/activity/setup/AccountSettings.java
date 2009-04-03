@@ -23,7 +23,7 @@ import com.android.email.R;
 import com.android.email.mail.Sender;
 import com.android.email.mail.Store;
 
-import android.content.Context;
+import android.app.Activity;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.os.Bundle;
@@ -33,6 +33,7 @@ import android.preference.ListPreference;
 import android.preference.Preference;
 import android.preference.PreferenceActivity;
 import android.preference.RingtonePreference;
+import android.util.Log;
 import android.view.KeyEvent;
 
 public class AccountSettings extends PreferenceActivity {
@@ -60,10 +61,10 @@ public class AccountSettings extends PreferenceActivity {
     private CheckBoxPreference mAccountVibrate;
     private RingtonePreference mAccountRingtone;
 
-    public static void actionSettings(Context context, Account account) {
-        Intent i = new Intent(context, AccountSettings.class);
+    public static void actionSettings(Activity fromActivity, Account account) {
+        Intent i = new Intent(fromActivity, AccountSettings.class);
         i.putExtra(EXTRA_ACCOUNT, account);
-        context.startActivity(i);
+        fromActivity.startActivity(i);
     }
 
     @Override
@@ -196,7 +197,7 @@ public class AccountSettings extends PreferenceActivity {
                 }
             }
         } catch (Exception e) {
-            android.util.Log.d(Email.LOG_TAG, "Error while trying to invoke store settings.", e);
+            Log.d(Email.LOG_TAG, "Error while trying to invoke store settings.", e);
         }
     }
 
@@ -212,7 +213,7 @@ public class AccountSettings extends PreferenceActivity {
                 }
             }
         } catch (Exception e) {
-            android.util.Log.d(Email.LOG_TAG, "Error while trying to invoke sender settings.", e);
+            Log.d(Email.LOG_TAG, "Error while trying to invoke sender settings.", e);
         }
     }
 

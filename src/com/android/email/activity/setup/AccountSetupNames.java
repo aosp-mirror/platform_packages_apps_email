@@ -16,8 +16,14 @@
 
 package com.android.email.activity.setup;
 
+import com.android.email.Account;
+import com.android.email.Email;
+import com.android.email.Preferences;
+import com.android.email.R;
+import com.android.email.Utility;
+import com.android.email.activity.FolderMessageList;
+
 import android.app.Activity;
-import android.content.Context;
 import android.content.Intent;
 import android.os.Bundle;
 import android.text.Editable;
@@ -28,13 +34,6 @@ import android.view.View;
 import android.view.View.OnClickListener;
 import android.widget.Button;
 import android.widget.EditText;
-
-import com.android.email.Account;
-import com.android.email.Email;
-import com.android.email.Preferences;
-import com.android.email.R;
-import com.android.email.Utility;
-import com.android.email.activity.FolderMessageList;
 
 public class AccountSetupNames extends Activity implements OnClickListener {
     private static final String EXTRA_ACCOUNT = "account";
@@ -47,10 +46,10 @@ public class AccountSetupNames extends Activity implements OnClickListener {
 
     private Button mDoneButton;
 
-    public static void actionSetNames(Context context, Account account) {
-        Intent i = new Intent(context, AccountSetupNames.class);
+    public static void actionSetNames(Activity fromActivity, Account account) {
+        Intent i = new Intent(fromActivity, AccountSetupNames.class);
         i.putExtra(EXTRA_ACCOUNT, account);
-        context.startActivity(i);
+        fromActivity.startActivity(i);
     }
 
     @Override

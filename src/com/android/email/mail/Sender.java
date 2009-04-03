@@ -23,6 +23,7 @@ import org.xmlpull.v1.XmlPullParserException;
 
 import android.content.Context;
 import android.content.res.XmlResourceParser;
+import android.util.Log;
 
 import java.io.IOException;
 
@@ -38,10 +39,10 @@ public abstract class Sender {
      */
     public static Sender newInstance(String uri, Context context)
             throws MessagingException {
-        throw new MessagingException("Sender.newInscance: Unknown scheme in " + uri);
+        throw new MessagingException("Sender.newInstance: Unknown scheme in " + uri);
     }
 
-    private static Sender instanciateSender(String className, String uri, Context context)
+    private static Sender instantiateSender(String className, String uri, Context context)
         throws MessagingException {
         Object o = null;
         try {
@@ -51,10 +52,10 @@ public abstract class Sender {
                 c.getMethod("newInstance", String.class, Context.class);
             o = m.invoke(null, uri, context);
         } catch (Exception e) {
-            android.util.Log.e(Email.LOG_TAG,
-                    String.format("can not invoke %s.newInstance.(String, Context) method for %s",
-                            className, uri));
-            throw new MessagingException("can not instanciate Sender object for " + uri);
+            Log.d(Email.LOG_TAG, String.format(
+                    "exception %s invoking %s.newInstance.(String, Context) method for %s",
+                    e.toString(), className, uri));
+            throw new MessagingException("can not instantiate Sender object for " + uri);
         }
         if (!(o instanceof Sender)) {
             throw new MessagingException(
@@ -81,7 +82,7 @@ public abstract class Sender {
                         // found sender entry whose scheme is matched with uri.
                         // then load sender class.
                         String className = xml.getAttributeValue(null, "class");
-                        sender = instanciateSender(className, uri, context);
+                        sender = instantiateSender(className, uri, context);
                     }
                 }
             }
