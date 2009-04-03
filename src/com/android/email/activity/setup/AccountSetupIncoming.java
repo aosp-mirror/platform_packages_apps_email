@@ -16,8 +16,10 @@
 
 package com.android.email.activity.setup;
 
-import java.net.URI;
-import java.net.URISyntaxException;
+import com.android.email.Account;
+import com.android.email.Preferences;
+import com.android.email.R;
+import com.android.email.Utility;
 
 import android.app.Activity;
 import android.content.Intent;
@@ -34,10 +36,8 @@ import android.widget.EditText;
 import android.widget.Spinner;
 import android.widget.TextView;
 
-import com.android.email.Account;
-import com.android.email.Preferences;
-import com.android.email.R;
-import com.android.email.Utility;
+import java.net.URI;
+import java.net.URISyntaxException;
 
 public class AccountSetupIncoming extends Activity implements OnClickListener {
     private static final String EXTRA_ACCOUNT = "account";
@@ -69,18 +69,18 @@ public class AccountSetupIncoming extends Activity implements OnClickListener {
     private Account mAccount;
     private boolean mMakeDefault;
 
-    public static void actionIncomingSettings(Activity context, Account account, boolean makeDefault) {
-        Intent i = new Intent(context, AccountSetupIncoming.class);
+    public static void actionIncomingSettings(Activity fromActivity, Account account, boolean makeDefault) {
+        Intent i = new Intent(fromActivity, AccountSetupIncoming.class);
         i.putExtra(EXTRA_ACCOUNT, account);
         i.putExtra(EXTRA_MAKE_DEFAULT, makeDefault);
-        context.startActivity(i);
+        fromActivity.startActivity(i);
     }
 
-    public static void actionEditIncomingSettings(Activity context, Account account) {
-        Intent i = new Intent(context, AccountSetupIncoming.class);
+    public static void actionEditIncomingSettings(Activity fromActivity, Account account) {
+        Intent i = new Intent(fromActivity, AccountSetupIncoming.class);
         i.setAction(Intent.ACTION_EDIT);
         i.putExtra(EXTRA_ACCOUNT, account);
-        context.startActivity(i);
+        fromActivity.startActivity(i);
     }
 
     @Override

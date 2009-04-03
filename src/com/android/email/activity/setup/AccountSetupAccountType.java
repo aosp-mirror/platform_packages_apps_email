@@ -16,19 +16,18 @@
 
 package com.android.email.activity.setup;
 
-import java.net.URI;
-import java.net.URISyntaxException;
+import com.android.email.Account;
+import com.android.email.R;
 
 import android.app.Activity;
-import android.content.Context;
 import android.content.Intent;
 import android.os.Bundle;
 import android.view.View;
 import android.view.View.OnClickListener;
 import android.widget.Button;
 
-import com.android.email.Account;
-import com.android.email.R;
+import java.net.URI;
+import java.net.URISyntaxException;
 
 /**
  * Prompts the user to select an account type. The account type, along with the
@@ -44,11 +43,12 @@ public class AccountSetupAccountType extends Activity implements OnClickListener
 
     private boolean mMakeDefault;
 
-    public static void actionSelectAccountType(Context context, Account account, boolean makeDefault) {
-        Intent i = new Intent(context, AccountSetupAccountType.class);
+    public static void actionSelectAccountType(Activity fromActivity, Account account, 
+            boolean makeDefault) {
+        Intent i = new Intent(fromActivity, AccountSetupAccountType.class);
         i.putExtra(EXTRA_ACCOUNT, account);
         i.putExtra(EXTRA_MAKE_DEFAULT, makeDefault);
-        context.startActivity(i);
+        fromActivity.startActivity(i);
     }
 
     @Override

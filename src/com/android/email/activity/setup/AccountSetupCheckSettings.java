@@ -67,13 +67,13 @@ public class AccountSetupCheckSettings extends Activity implements OnClickListen
 
     private boolean mDestroyed;
 
-    public static void actionCheckSettings(Activity context, Account account,
+    public static void actionCheckSettings(Activity fromActivity, Account account,
             boolean checkIncoming, boolean checkOutgoing) {
-        Intent i = new Intent(context, AccountSetupCheckSettings.class);
+        Intent i = new Intent(fromActivity, AccountSetupCheckSettings.class);
         i.putExtra(EXTRA_ACCOUNT, account);
         i.putExtra(EXTRA_CHECK_INCOMING, checkIncoming);
         i.putExtra(EXTRA_CHECK_OUTGOING, checkOutgoing);
-        context.startActivityForResult(i, 1);
+        fromActivity.startActivityForResult(i, 1);
     }
 
     @Override
