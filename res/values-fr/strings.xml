@@ -162,7 +162,7 @@
     <string name="account_settings_default_summary">"Par défaut, envoyer les e-mails avec ce compte"</string>
     <string name="account_settings_notify_label">"Notifications d\'e-mails"</string>
     <string name="account_settings_notify_summary">"Afficher une notification dans la barre d\'état lors de la réception d\'un e-mail"</string>
-    <string name="account_settings_mail_check_frequency_label">"Fréquence de vérification des e-mails"</string>
+    <string name="account_settings_mail_check_frequency_label">"Fréquence de vérification"</string>
     <string name="account_settings_incoming_label">"Paramètres de réception"</string>
     <string name="account_settings_outgoing_label">"Paramètres d\'envoi"</string>
     <string name="account_settings_add_account_label">"Ajouter un autre compte"</string>
