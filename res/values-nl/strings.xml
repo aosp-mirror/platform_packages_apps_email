@@ -15,8 +15,8 @@
 -->
 <resources xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:xliff="urn:oasis:names:tc:xliff:document:1.2">
-    <string name="read_attachment_label">"Bijlages van e-mail lezen"</string>
-    <string name="read_attachment_desc">"Staat deze toepassing toe om uw E-mail-bijlages te lezen."</string>
+    <string name="read_attachment_label">"Bijlagen van e-mail lezen"</string>
+    <string name="read_attachment_desc">"Staat deze toepassing toe om uw e-mailbijlagen te lezen."</string>
     <string name="app_name">"E-mail"</string>
     <string name="accounts_title">"Uw accounts"</string>
     <string name="compose_title">"Opstellen"</string>
@@ -45,7 +45,7 @@
     <string name="add_cc_bcc_action">"Cc/Bcc toevoegen"</string>
     <string name="add_attachment_action">"Bijlage toevoegen"</string>
     <string name="dump_settings_action">"Dumpinstellingen"</string>
-    <string name="accounts_context_menu_title">"Acountopties"</string>
+    <string name="accounts_context_menu_title">"Accountopties"</string>
     <string name="status_loading_more">"Berichten laden..."</string>
     <string name="status_network_error">"Verbindingsfout"</string>
     <string name="status_loading_more_failed">"Probeer opnieuw meer berichten te laden"</string>
@@ -74,7 +74,7 @@
     <string name="message_compose_reply_header_fmt">\n\n"<xliff:g id="SENDER">%s</xliff:g>schreef:"\n\n</string>
     <string name="message_compose_quoted_text_label">"Geciteerde tekst"</string>
     <string name="message_compose_error_no_recipients">"U moet minstens één ontvanger toevoegen."</string>
-    <string name="message_compose_attachments_skipped_toast">"Sommige bijlages kunnen niet worden doorgestuurd omdat ze niet zijn gedownload."</string>
+    <string name="message_compose_attachments_skipped_toast">"Sommige bijlagen kunnen niet worden doorgestuurd omdat ze niet zijn gedownload."</string>
     <string name="message_compose_attachment_size">"Bestand is te groot om bij te voegen."</string>
     <string name="message_view_to_label">"Aan:"</string>
     <string name="message_view_cc_label">"Cc:"</string>
@@ -95,7 +95,7 @@
     <string name="account_setup_basics_instructions">"Typ het e-mailadres van uw account:"</string>
     <string name="account_setup_basics_email_hint">"E-mailadres"</string>
     <string name="account_setup_basics_password_hint">"Wachtwoord"</string>
-    <string name="account_setup_basics_default_label">"E-mail standaard vanaf dit account versturen"</string>
+    <string name="account_setup_basics_default_label">"E-mail standaard vanaf dit account verzenden"</string>
     <string name="account_setup_basics_manual_setup_action">"Handmatig instellen"</string>
     <string name="account_setup_username_password_toast">"Typ een geldig e-mailadres en wachtwoord"</string>
     <string name="account_setup_check_settings_retr_info_msg">"Accountinformatie ophalen..."</string>
@@ -143,7 +143,7 @@
     <string name="account_setup_options_mail_check_frequency_15min">"Elke 15 minuten"</string>
     <string name="account_setup_options_mail_check_frequency_30min">"Elke 30 minuten"</string>
     <string name="account_setup_options_mail_check_frequency_1hour">"Elk uur"</string>
-    <string name="account_setup_options_default_label">"E-mail standaard vanaf dit account versturen"</string>
+    <string name="account_setup_options_default_label">"E-mail standaard vanaf dit account verzenden"</string>
     <string name="account_setup_options_notify_label">"Stuur me een melding wanneer er e-mail binnenkomt."</string>
     <string name="account_setup_failed_dlg_title">"Instellen is niet voltooid"</string>
     <string name="account_setup_failed_dlg_auth_message">"Gebruikersnaam of wachtwoord onjuist"</string>
@@ -159,7 +159,7 @@
     <string name="account_setup_failed_dlg_edit_details_action">"Details bewerken"</string>
     <string name="account_settings_title_fmt">"Algemene instellingen"</string>
     <string name="account_settings_default_label">"Standaardaccount"</string>
-    <string name="account_settings_default_summary">"E-mail standaard vanaf dit account versturen"</string>
+    <string name="account_settings_default_summary">"E-mail standaard vanaf dit account verzenden"</string>
     <string name="account_settings_notify_label">"Meldingen via e-mail"</string>
     <string name="account_settings_notify_summary">"Melding in statusbalk als e-mail binnenkomt"</string>
     <string name="account_settings_mail_check_frequency_label">"Frequentie voor controle op nieuwe e-mail"</string>
