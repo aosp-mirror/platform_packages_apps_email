@@ -109,7 +109,8 @@ public class AccountSetupAccountType extends Activity implements OnClickListener
     
     /**
      * The user has selected an exchange account type.  Try to put together a URI using the entered
-     * email address.  Also set the mail delete policy here, because there is no UI (for exchange).
+     * email address.  Also set the mail delete policy here, because there is no UI (for exchange),
+     * and switch the default sync interval to "push".
      */
     private void onExchange() {
         try {
@@ -125,6 +126,7 @@ public class AccountSetupAccountType extends Activity implements OnClickListener
         }
         // TODO: Confirm correct delete policy for exchange
         mAccount.setDeletePolicy(Account.DELETE_POLICY_ON_DELETE);
+        mAccount.setAutomaticCheckIntervalMinutes(Account.CHECK_INTERVAL_PUSH);
         AccountSetupExchange.actionIncomingSettings(this, mAccount, mMakeDefault);
         finish();
     }

@@ -35,5 +35,6 @@
     <store scheme="imap" class="com.android.email.mail.store.ImapStore" />
     
     <!-- This is here for temporary demo purposes only.  Do not ship with this. -->
-    <!-- store scheme="eas" class="com.android.email.mail.exchange.ExchangeStoreExample" / -->
+    <store scheme="eas" class="com.android.email.mail.exchange.ExchangeStoreExample" 
+        push="true" />
 </stores>

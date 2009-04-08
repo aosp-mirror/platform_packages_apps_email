@@ -35,6 +35,9 @@ public class Account implements Serializable {
     public static final int DELETE_POLICY_7DAYS = 1;
     public static final int DELETE_POLICY_ON_DELETE = 2;
     
+    public static final int CHECK_INTERVAL_NEVER = -1;
+    public static final int CHECK_INTERVAL_PUSH = -2;
+    
     private static final long serialVersionUID = 2975156672298625121L;
 
     String mUuid;
