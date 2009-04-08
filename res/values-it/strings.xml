@@ -90,7 +90,7 @@
     <string name="message_saved_toast">"Messaggio salvato come bozza."</string>
     <string name="add_contact_dlg_title">"Aggiungi contatto"</string>
     <string name="add_contact_dlg_message_fmt">"Aggiungi \"<xliff:g id="EMAIL">%s</xliff:g>\" ai contatti"</string>
-    <string name="message_view_display_attachment_toast">"Impossibile visualizzare l\'allegato."</string>
+    <string name="message_view_display_attachment_toast">"Impossibile visualizzare questo allegato."</string>
     <string name="account_setup_basics_title">"Imposta email"</string>
     <string name="account_setup_basics_instructions">"Digita l\'indirizzo email del tuo account:"</string>
     <string name="account_setup_basics_email_hint">"Indirizzo email"</string>
@@ -117,7 +117,7 @@
     <string name="account_setup_incoming_imap_server_label">"Server IMAP"</string>
     <string name="account_setup_incoming_port_label">"Porta"</string>
     <string name="account_setup_incoming_security_label">"Tipo di protezione"</string>
-    <string name="account_setup_incoming_security_none_label">"Nessuno"</string>
+    <string name="account_setup_incoming_security_none_label">"Nessuna"</string>
     <string name="account_setup_incoming_security_ssl_optional_label">"SSL (se disponibile)"</string>
     <string name="account_setup_incoming_security_ssl_label">"SSL (sempre)"</string>
     <string name="account_setup_incoming_security_tls_optional_label">"TLS (se disponibile)"</string>
@@ -125,7 +125,7 @@
     <string name="account_setup_incoming_delete_policy_label">"Elimina email da server"</string>
     <string name="account_setup_incoming_delete_policy_never_label">"Mai"</string>
     <string name="account_setup_incoming_delete_policy_7days_label">"Dopo 7 giorni"</string>
-    <string name="account_setup_incoming_delete_policy_delete_label">"Quando elimino dalla Posta in arrivo"</string>
+    <string name="account_setup_incoming_delete_policy_delete_label">"Quando elimino da Posta in arrivo"</string>
     <string name="account_setup_incoming_imap_path_prefix_label">"Prefisso percorso IMAP"</string>
     <string name="account_setup_incoming_imap_path_prefix_hint">"Facoltativo"</string>
     <string name="account_setup_outgoing_title">"Impostazioni server posta in uscita"</string>
@@ -163,9 +163,9 @@
     <string name="account_settings_notify_label">"Notifiche email"</string>
     <string name="account_settings_notify_summary">"Notifica sulla barra di stato l\'arrivo di email"</string>
     <string name="account_settings_mail_check_frequency_label">"Frequenza di controllo email"</string>
-    <string name="account_settings_incoming_label">"Impostazioni posta in arrivo"</string>
-    <string name="account_settings_outgoing_label">"Impostazioni posta in uscita"</string>
-    <string name="account_settings_add_account_label">"Aggiungi un altro account"</string>
+    <string name="account_settings_incoming_label">"Impost. posta in arrivo"</string>
+    <string name="account_settings_outgoing_label">"Impost. posta in uscita"</string>
+    <string name="account_settings_add_account_label">"Aggiungi altro account"</string>
     <string name="account_settings_description_label">"Nome account"</string>
     <string name="account_settings_name_label">"Nome"</string>
     <string name="account_settings_notifications">"Impostazioni notifica"</string>
