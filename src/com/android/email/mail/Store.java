@@ -85,33 +85,47 @@ public abstract class Store {
     }
 
     /**
-     * Find Store implementation object consulting with stores.xml file.
+     * Look up descriptive information about a particular type of store.
      */
-    private static Store findStore(int resourceId, String uri, Context context)
-            throws MessagingException {
-        Store store = null;
-        try {
-            XmlResourceParser xml = context.getResources().getXml(resourceId);
-            int xmlEventType;
-            // walk through stores.xml file.
-            while ((xmlEventType = xml.next()) != XmlResourceParser.END_DOCUMENT) {
-                if (xmlEventType == XmlResourceParser.START_TAG &&
-                    "store".equals(xml.getName())) {
-                    String scheme = xml.getAttributeValue(null, "scheme");
-                    if (uri.startsWith(scheme)) {
-                        // found store entry whose scheme is matched with uri.
-                        // then load store class.
-                        String className = xml.getAttributeValue(null, "class");
-                        store = instantiateStore(className, uri, context);
+    public static class StoreInfo {
+        public String mScheme;
+        public String mClassName;
+        public boolean mPushSupported = false;
+        
+        public static StoreInfo getStoreInfo(String scheme, Context context) {
+            StoreInfo result = getStoreInfo(R.xml.stores_product, scheme, context);
+            if (result == null) {
+                result = getStoreInfo(R.xml.stores, scheme, context);
+            }
+            return result;
+        }
+        
+        public static StoreInfo getStoreInfo(int resourceId, String scheme, Context context) {
+            try {
+                XmlResourceParser xml = context.getResources().getXml(resourceId);
+                int xmlEventType;
+                // walk through stores.xml file.
+                while ((xmlEventType = xml.next()) != XmlResourceParser.END_DOCUMENT) {
+                    if (xmlEventType == XmlResourceParser.START_TAG && 
+                            "store".equals(xml.getName())) {
+                        String xmlScheme = xml.getAttributeValue(null, "scheme");
+                        if (scheme.startsWith(xmlScheme)) {
+                            StoreInfo result = new StoreInfo();
+                            result.mScheme = scheme;
+                            result.mClassName = xml.getAttributeValue(null, "class");
+                            result.mPushSupported = xml.getAttributeBooleanValue(
+                                    null, "push", false);
+                            return result;
+                        }
                     }
                 }
+            } catch (XmlPullParserException e) {
+                // ignore
+            } catch (IOException e) {
+                // ignore
             }
-        } catch (XmlPullParserException e) {
-            // ignore
-        } catch (IOException e) {
-            // ignore
+            return null;
         }
-        return store;
     }
 
     /**
@@ -139,9 +153,9 @@ public abstract class Store {
         throws MessagingException {
         Store store = mStores.get(uri);
         if (store == null) {
-            store = findStore(R.xml.stores_product, uri, context);
-            if (store == null) {
-                store = findStore(R.xml.stores, uri, context);
+            StoreInfo info = StoreInfo.getStoreInfo(uri, context);
+            if (info != null) {
+                store = instantiateStore(info.mClassName, uri, context);
             }
 
             if (store != null) {
