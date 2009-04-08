@@ -86,7 +86,7 @@ public class MailService extends Service {
             // and make a single call to controller.checkMail().
             ArrayList<Account> accountsToCheck = new ArrayList<Account>();
             for (Account account : Preferences.getPreferences(this).getAccounts()) {
-                if (account.getAutomaticCheckIntervalMinutes() != -1) {
+                if (account.getAutomaticCheckIntervalMinutes() > 0) {
                     accountsToCheck.add(account);
                 }
             }

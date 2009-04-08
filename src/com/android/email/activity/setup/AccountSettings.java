@@ -101,8 +101,16 @@ public class AccountSettings extends PreferenceActivity {
                 return false;
             }
         });
-
+        
         mCheckFrequency = (ListPreference) findPreference(PREFERENCE_FREQUENCY);
+        
+        // Before setting value, we may need to adjust the lists
+        Store.StoreInfo info = Store.StoreInfo.getStoreInfo(mAccount.getStoreUri(), this);
+        if (info.mPushSupported) {
+            mCheckFrequency.setEntries(R.array.account_settings_check_frequency_entries_push);
+            mCheckFrequency.setEntryValues(R.array.account_settings_check_frequency_values_push);
+        }
+
         mCheckFrequency.setValue(String.valueOf(mAccount.getAutomaticCheckIntervalMinutes()));
         mCheckFrequency.setSummary(mCheckFrequency.getEntry());
         mCheckFrequency.setOnPreferenceChangeListener(new Preference.OnPreferenceChangeListener() {

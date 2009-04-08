@@ -20,6 +20,7 @@ import com.android.email.Account;
 import com.android.email.Email;
 import com.android.email.Preferences;
 import com.android.email.R;
+import com.android.email.mail.Store;
 
 import android.app.Activity;
 import android.content.Intent;
@@ -61,33 +62,35 @@ public class AccountSetupOptions extends Activity implements OnClickListener {
 
         findViewById(R.id.next).setOnClickListener(this);
 
-        // NOTE: If you change these values, confirm that the new intervals exist in arrays.xml
-        // NOTE: It would be cleaner if the numeric values were obtained from  the
-        //       account_settings_check_frequency_values, array, so the options could be controlled
-        //       entirely via XML.
-        SpinnerOption checkFrequencies[] = {
-                new SpinnerOption(-1,
-                        getString(R.string.account_setup_options_mail_check_frequency_never)),
-                new SpinnerOption(5,
-                        getString(R.string.account_setup_options_mail_check_frequency_5min)),
-                new SpinnerOption(10,
-                        getString(R.string.account_setup_options_mail_check_frequency_10min)),
-                new SpinnerOption(15,
-                        getString(R.string.account_setup_options_mail_check_frequency_15min)),
-                new SpinnerOption(30,
-                        getString(R.string.account_setup_options_mail_check_frequency_30min)),
-                new SpinnerOption(60,
-                        getString(R.string.account_setup_options_mail_check_frequency_1hour)),
-        };
+        mAccount = (Account)getIntent().getSerializableExtra(EXTRA_ACCOUNT);
+        boolean makeDefault = getIntent().getBooleanExtra(EXTRA_MAKE_DEFAULT, false);
+        
+        // Generate spinner entries using XML arrays used by the preferences
+        int frequencyValuesId;
+        int frequencyEntriesId;
+        Store.StoreInfo info = Store.StoreInfo.getStoreInfo(mAccount.getStoreUri(), this);
+        if (info.mPushSupported) {
+            frequencyValuesId = R.array.account_settings_check_frequency_values_push;
+            frequencyEntriesId = R.array.account_settings_check_frequency_entries_push;
+        } else {
+            frequencyValuesId = R.array.account_settings_check_frequency_values;
+            frequencyEntriesId = R.array.account_settings_check_frequency_entries;
+        }
+        CharSequence[] frequencyValues = getResources().getTextArray(frequencyValuesId);
+        CharSequence[] frequencyEntries = getResources().getTextArray(frequencyEntriesId);
+        
+        // Now create the array used by the Spinner
+        SpinnerOption[] checkFrequencies = new SpinnerOption[frequencyEntries.length];
+        for (int i = 0; i < frequencyEntries.length; i++) {
+            checkFrequencies[i] = new SpinnerOption(
+                    Integer.valueOf(frequencyValues[i].toString()), frequencyEntries[i].toString());
+        }
 
         ArrayAdapter<SpinnerOption> checkFrequenciesAdapter = new ArrayAdapter<SpinnerOption>(this,
                 android.R.layout.simple_spinner_item, checkFrequencies);
         checkFrequenciesAdapter
                 .setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
         mCheckFrequencyView.setAdapter(checkFrequenciesAdapter);
-
-        mAccount = (Account)getIntent().getSerializableExtra(EXTRA_ACCOUNT);
-        boolean makeDefault = getIntent().getBooleanExtra(EXTRA_MAKE_DEFAULT, false);
 
         if (mAccount.equals(Preferences.getPreferences(this).getDefaultAccount()) || makeDefault) {
             mDefaultView.setChecked(true);
