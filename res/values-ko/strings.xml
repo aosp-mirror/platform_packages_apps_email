@@ -90,7 +90,7 @@
     <string name="message_saved_toast">"메일을 임시로 저장했습니다."</string>
     <string name="add_contact_dlg_title">"주소 추가"</string>
     <string name="add_contact_dlg_message_fmt">"주소록에 \'<xliff:g id="EMAIL">%s</xliff:g>\' 추가"</string>
-    <string name="message_view_display_attachment_toast">"이 첨부파일은 표시할 수 없습니다."</string>
+    <string name="message_view_display_attachment_toast">"첨부파일을 표시할 수 없습니다."</string>
     <string name="account_setup_basics_title">"이메일 설정"</string>
     <string name="account_setup_basics_instructions">"계정 이메일 주소 입력:"</string>
     <string name="account_setup_basics_email_hint">"이메일 주소"</string>

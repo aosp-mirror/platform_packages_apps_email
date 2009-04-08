@@ -42,7 +42,7 @@
     <string name="accounts_action">"Konten"</string>
     <string name="mark_as_read_action">"Als gelesen markieren"</string>
     <string name="mark_as_unread_action">"Als ungelesen markieren"</string>
-    <string name="add_cc_bcc_action">"Feld \"Cc\"/\"Bcc\" hinzufügen"</string>
+    <string name="add_cc_bcc_action">"\"Cc\"/\"Bcc\" hinzufügen"</string>
     <string name="add_attachment_action">"Anhang hinzufügen"</string>
     <string name="dump_settings_action">"Einstellungen für Speicherauszug"</string>
     <string name="accounts_context_menu_title">"Kontooptionen"</string>
@@ -160,12 +160,12 @@
     <string name="account_settings_title_fmt">"Allgemeine Einstellungen"</string>
     <string name="account_settings_default_label">"Standardkonto"</string>
     <string name="account_settings_default_summary">"E-Mails standardmäßig von diesem Konto senden"</string>
-    <string name="account_settings_notify_label">"E-Mail-Benachrichtigungen"</string>
+    <string name="account_settings_notify_label">"E-Mail-Benachrichtigung"</string>
     <string name="account_settings_notify_summary">"Bei E-Mail-Eingang Benachrichtigung in der Statusleiste"</string>
     <string name="account_settings_mail_check_frequency_label">"Abrufhäufigkeit"</string>
-    <string name="account_settings_incoming_label">"Einstellungen für eingehende Nachrichten"</string>
-    <string name="account_settings_outgoing_label">"Einstellungen für ausgehende Nachrichten"</string>
-    <string name="account_settings_add_account_label">"Weiteres Konto hinzufügen"</string>
+    <string name="account_settings_incoming_label">"Eingehende Nachrichten"</string>
+    <string name="account_settings_outgoing_label">"Ausgehende Nachrichten"</string>
+    <string name="account_settings_add_account_label">"Konto hinzufügen"</string>
     <string name="account_settings_description_label">"Kontoname"</string>
     <string name="account_settings_name_label">"Ihr Name"</string>
     <string name="account_settings_notifications">"Benachrichtigungseinstellungen"</string>

@@ -90,7 +90,7 @@
     <string name="message_saved_toast">"Mensaje guardado como borrador"</string>
     <string name="add_contact_dlg_title">"Añadir contacto"</string>
     <string name="add_contact_dlg_message_fmt">"Añadir \"<xliff:g id="EMAIL">%s</xliff:g>\" a los contactos"</string>
-    <string name="message_view_display_attachment_toast">"No se puede mostrar este archivo adjunto."</string>
+    <string name="message_view_display_attachment_toast">"No se puede mostrar el archivo adjunto."</string>
     <string name="account_setup_basics_title">"Configurar correo electrónico"</string>
     <string name="account_setup_basics_instructions">"Introduce la dirección de correo electrónico de tu cuenta:"</string>
     <string name="account_setup_basics_email_hint">"Dirección de correo electrónico"</string>
