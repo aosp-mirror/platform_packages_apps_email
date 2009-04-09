@@ -186,6 +186,27 @@ public abstract class Store {
     public abstract void checkSettings() throws MessagingException;
     
     /**
+     * Enable or disable push mode delivery for a given Store.  
+     * 
+     * <p>For protocols that do not support push mode, be sure that push="true" is not 
+     * set by the stores.xml definition file(s).  This function need not be implemented.
+     * 
+     * <p>For protocols that do support push mode, this will be called at startup (boot) time
+     * so that the Store can launch its own underlying connection service.  It will also be called
+     * any time the user changes the settings for the account (because the user may switch back
+     * to polling mode (or disable checking completely).
+     * 
+     * <p>This API will be called repeatedly, even after push mode has already been started or
+     * stopped.  Stores that support push mode should return quickly if the configuration has not
+     * changed.
+     * 
+     * @param enablePushMode start or stop push mode delivery
+     */
+    public void enablePushModeDelivery(boolean enablePushMode) {
+        // does nothing for non-push protocols
+    }
+    
+    /**
      * Delete Store and its corresponding resources.
      * @throws MessagingException
      */
