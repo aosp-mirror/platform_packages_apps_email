@@ -16,8 +16,16 @@
 
 package com.android.email.service;
 
-import java.util.ArrayList;
-import java.util.HashMap;
+import com.android.email.Account;
+import com.android.email.Email;
+import com.android.email.MessagingController;
+import com.android.email.MessagingListener;
+import com.android.email.Preferences;
+import com.android.email.R;
+import com.android.email.activity.Accounts;
+import com.android.email.activity.FolderMessageList;
+import com.android.email.mail.MessagingException;
+import com.android.email.mail.Store;
 
 import android.app.AlarmManager;
 import android.app.Notification;
@@ -33,14 +41,8 @@ import android.text.TextUtils;
 import android.util.Config;
 import android.util.Log;
 
-import com.android.email.Account;
-import com.android.email.Email;
-import com.android.email.MessagingController;
-import com.android.email.MessagingListener;
-import com.android.email.Preferences;
-import com.android.email.R;
-import com.android.email.activity.Accounts;
-import com.android.email.activity.FolderMessageList;
+import java.util.ArrayList;
+import java.util.HashMap;
 
 /**
  */
@@ -48,6 +50,8 @@ public class MailService extends Service {
     private static final String ACTION_CHECK_MAIL = "com.android.email.intent.action.MAIL_SERVICE_WAKEUP";
     private static final String ACTION_RESCHEDULE = "com.android.email.intent.action.MAIL_SERVICE_RESCHEDULE";
     private static final String ACTION_CANCEL = "com.android.email.intent.action.MAIL_SERVICE_CANCEL";
+    
+    private static final String EXTRA_CHECK_ACCOUNT = "com.android.email.intent.extra.ACCOUNT";
 
     private Listener mListener = new Listener();
 
@@ -64,6 +68,21 @@ public class MailService extends Service {
         Intent i = new Intent();
         i.setClass(context, MailService.class);
         i.setAction(MailService.ACTION_CANCEL);
+        context.startService(i);
+    }
+    
+    /**
+     * Entry point for asynchronous message services (e.g. push mode) to post notifications of new
+     * messages.  Note:  Although this is not a blocking call, it will start the MessagingController
+     * which will attempt to load the new messages.  So the Store should expect to be opened and
+     * fetched from shortly after making this call.
+     * 
+     * @param storeUri the Uri of the store that is reporting new messages
+     */
+    public static void actionNotifyNewMessages(Context context, String storeUri) {
+        Intent i = new Intent(ACTION_CHECK_MAIL);
+        i.setClass(context, MailService.class);
+        i.putExtra(EXTRA_CHECK_ACCOUNT, storeUri);
         context.startService(i);
     }
 
@@ -84,11 +103,21 @@ public class MailService extends Service {
             // accounts that should not have been checked at all.
             // Also note:  Due to the organization of this service, you must gather the accounts
             // and make a single call to controller.checkMail().
+            
+            // TODO: Notification for single push account will fire up checks on all other
+            // accounts.  This needs to be cleaned up for better efficiency.
+            String specificStoreUri = intent.getStringExtra(EXTRA_CHECK_ACCOUNT);
+            
             ArrayList<Account> accountsToCheck = new ArrayList<Account>();
             for (Account account : Preferences.getPreferences(this).getAccounts()) {
-                if (account.getAutomaticCheckIntervalMinutes() > 0) {
+                int interval = account.getAutomaticCheckIntervalMinutes();
+                String storeUri = account.getStoreUri();
+                if (interval > 0 || (storeUri != null && storeUri.equals(specificStoreUri))) {
                     accountsToCheck.add(account);
                 }
+                
+                // For each account, switch pushmail on or off
+                enablePushMail(account, interval == Account.CHECK_INTERVAL_PUSH);
             }
             Account[] accounts = accountsToCheck.toArray(new Account[accountsToCheck.size()]);
             controller.checkMail(this, accounts, mListener);
@@ -133,7 +162,7 @@ public class MailService extends Service {
 
         int shortestInterval = -1;
         for (Account account : Preferences.getPreferences(this).getAccounts()) {
-            if (account.getAutomaticCheckIntervalMinutes() != -1
+            if (account.getAutomaticCheckIntervalMinutes() > 0
                     && (account.getAutomaticCheckIntervalMinutes() < shortestInterval || shortestInterval == -1)) {
                 shortestInterval = account.getAutomaticCheckIntervalMinutes();
             }
@@ -240,6 +269,30 @@ public class MailService extends Service {
 
             reschedule();
             stopSelf(mStartId);
+        }
+    }
+
+    /**
+     * For any account that wants push mail, get its Store and start the pushmail service.
+     * This function makes no attempt to optimize, so accounts may have push enabled (or disabled)
+     * repeatedly, and should handle this appropriately.
+     * 
+     * @param account the account that needs push delivery enabled
+     */
+    private void enablePushMail(Account account, boolean enable) {
+        try {
+            String storeUri = account.getStoreUri();
+            if (storeUri != null) {
+                Store store = Store.getInstance(storeUri, this.getBaseContext());
+                if (store != null) {
+                    store.enablePushModeDelivery(enable);
+                }
+            }
+        } catch (MessagingException me) {
+            if (Config.LOGD && Email.DEBUG) {
+                Log.d(Email.LOG_TAG, "Failed to enable push mail for account" + account.getName() +
+                        " with exception " + me.toString());
+            }
         }
     }
 }
