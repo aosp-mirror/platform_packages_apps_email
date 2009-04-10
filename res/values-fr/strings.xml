@@ -42,7 +42,7 @@
     <string name="accounts_action">"Comptes"</string>
     <string name="mark_as_read_action">"Marquer comme lu"</string>
     <string name="mark_as_unread_action">"Marquer comme non lu"</string>
-    <string name="add_cc_bcc_action">"Reads “Ajouter les champs Cc/Cci” (previous version). It should read “Ajouter Cc/CCi”, as written in colon E."</string>
+    <string name="add_cc_bcc_action">"Ajouter Cc/CCi"</string>
     <string name="add_attachment_action">"Ajouter une pièce jointe"</string>
     <string name="dump_settings_action">"Paramètres d\'image mémoire"</string>
     <string name="accounts_context_menu_title">"Options de compte"</string>
