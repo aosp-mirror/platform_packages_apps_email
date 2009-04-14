@@ -136,7 +136,7 @@
     <string name="account_setup_outgoing_username_label">"ユーザー名"</string>
     <string name="account_setup_outgoing_password_label">"パスワード"</string>
     <string name="account_setup_options_title">"アカウントのオプション"</string>
-    <string name="account_setup_options_mail_check_frequency_label">"メールチェックの頻度"</string>
+    <string name="account_setup_options_mail_check_frequency_label">"新着メール自動確認"</string>
     <string name="account_setup_options_mail_check_frequency_never">"自動確認しない"</string>
     <string name="account_setup_options_mail_check_frequency_5min">"5分毎"</string>
     <string name="account_setup_options_mail_check_frequency_10min">"10分毎"</string>
@@ -162,7 +162,7 @@
     <string name="account_settings_default_summary">"いつもこのアカウントでメールを送信"</string>
     <string name="account_settings_notify_label">"メール着信通知"</string>
     <string name="account_settings_notify_summary">"メール受信: ステータスバーで通知"</string>
-    <string name="account_settings_mail_check_frequency_label">"メールチェックの頻度"</string>
+    <string name="account_settings_mail_check_frequency_label">"新着メール自動確認"</string>
     <string name="account_settings_incoming_label">"受信設定"</string>
     <string name="account_settings_outgoing_label">"送信設定"</string>
     <string name="account_settings_add_account_label">"別のアカウントを追加"</string>
@@ -178,5 +178,5 @@
     <string name="provider_note_yahoo">"一部のタイプのYahoo!メールアカウントでは、メールボックスへのアクセスがサポートされていません。接続できない場合はyahoo.comにアクセスして詳細をご確認ください。"</string>
     <string name="provider_note_yahoo_uk">"このメールアカウントを設定する前に、Yahoo!サイトでこのアカウントのPOP3メールアクセスを有効にしてください。"</string>
     <string name="provider_note_live">"このプログラムでPOPアクセスが許可されているのは一部の「Plus」アカウントだけです。有料の「Plus」アカウントがなければ、正しいメールアドレスとパスワードを入力してもログインできません。これらのアカウントにはブラウザからアクセスしてください。"</string>
-    <string name="provider_note_t_online">"このメールアカウントを設定する前に、T-OnlineサイトにアクセスしてPOP3メール アクセスに使用するパスワードを作成してください。"</string>
+    <string name="provider_note_t_online">"このメールアカウントを設定する前にT-Onlineサイトにアクセスして、POP3メールアクセス用のパスワードを作成してください。"</string>
 </resources>
