@@ -141,7 +141,7 @@ public class AccountSetupAccountType extends Activity implements OnClickListener
         try {
             URI uri = new URI(mAccount.getStoreUri());
             uri = new URI("eas", uri.getUserInfo(), uri.getHost(), uri.getPort(), null, null, null);
-            Store store = Store.getInstance(uri.toString(), this);
+            Store store = Store.getInstance(uri.toString(), this, mAccount.getStoreCallbacks());
             return (store != null);
         } catch (URISyntaxException e) {
             return false;

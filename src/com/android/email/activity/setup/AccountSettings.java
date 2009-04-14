@@ -195,7 +195,8 @@ public class AccountSettings extends PreferenceActivity {
 
     private void onIncomingSettings() {
         try {
-            Store store = Store.getInstance(mAccount.getStoreUri(), getApplication());
+            Store store = Store.getInstance(mAccount.getStoreUri(), getApplication(), 
+                    mAccount.getStoreCallbacks());
             if (store != null) {
                 Class<? extends android.app.Activity> setting = store.getSettingActivityClass();
                 if (setting != null) {

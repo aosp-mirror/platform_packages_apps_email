@@ -104,7 +104,8 @@ public class AccountSetupCheckSettings extends Activity implements OnClickListen
                     }
                     if (mCheckIncoming) {
                         setMessage(R.string.account_setup_check_settings_check_incoming_msg);
-                        Store store = Store.getInstance(mAccount.getStoreUri(), getApplication());
+                        Store store = Store.getInstance(mAccount.getStoreUri(), getApplication(), 
+                                mAccount.getStoreCallbacks());
                         store.checkSettings();
                     }
                     if (mDestroyed) {

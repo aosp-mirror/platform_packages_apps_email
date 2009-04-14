@@ -50,7 +50,7 @@ public class ImapStoreUnitTests extends AndroidTestCase {
         
         // These are needed so we can get at the inner classes
         mStore = (ImapStore) ImapStore.newInstance("imap://user:password@server:999",
-                getContext());
+                getContext(), null);
         mFolder = (ImapStore.ImapFolder) mStore.getFolder("INBOX");
         
         // This is needed for parsing mime messages
