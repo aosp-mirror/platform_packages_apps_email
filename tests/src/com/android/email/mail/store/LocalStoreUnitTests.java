@@ -16,6 +16,7 @@
 
 package com.android.email.mail.store;
 
+import com.android.email.Email;
 import com.android.email.mail.Address;
 import com.android.email.mail.Folder;
 import com.android.email.mail.Message;
@@ -248,6 +249,67 @@ public class LocalStoreUnitTests extends AndroidTestCase {
         assertEquals("value-1-2", callbacks.getPersistentString("key2", null));     // same
         assertEquals("value-2-1", callbacks2.getPersistentString("key1", null));    // same
         assertEquals("value-2-2b", callbacks2.getPersistentString("key2", null));   // changed
+    }
+    
+    /**
+     * Test visible limits support
+     */
+    public void testReadWriteVisibleLimits() throws MessagingException {
+        mFolder.open(OpenMode.READ_WRITE, null);
+
+        // set up a 2nd folder to confirm independent storage
+        LocalStore.LocalFolder folder2 = (LocalStore.LocalFolder) mStore.getFolder("FOLDER-2");
+        assertFalse(folder2.exists());
+        folder2.create(FolderType.HOLDS_MESSAGES);
+        folder2.open(OpenMode.READ_WRITE, null);
+        
+        // read and write, look for independent storage
+        mFolder.setVisibleLimit(100);
+        folder2.setVisibleLimit(200);
+        
+        mFolder.close(false);
+        folder2.close(false);
+        mFolder.open(OpenMode.READ_WRITE, null);
+        folder2.open(OpenMode.READ_WRITE, null);
+        
+        assertEquals(100, mFolder.getVisibleLimit());
+        assertEquals(200, folder2.getVisibleLimit());
+    }
+    
+    /**
+     * Test reset limits support
+     */
+    public void testResetVisibleLimits() throws MessagingException {
+        mFolder.open(OpenMode.READ_WRITE, null);
+
+        // set up a 2nd folder to confirm independent storage
+        LocalStore.LocalFolder folder2 = (LocalStore.LocalFolder) mStore.getFolder("FOLDER-2");
+        assertFalse(folder2.exists());
+        folder2.create(FolderType.HOLDS_MESSAGES);
+        folder2.open(OpenMode.READ_WRITE, null);
+        
+        // read and write, look for independent storage
+        mFolder.setVisibleLimit(100);
+        folder2.setVisibleLimit(200);
+        
+        mFolder.close(false);
+        folder2.close(false);
+        mFolder.open(OpenMode.READ_WRITE, null);
+        folder2.open(OpenMode.READ_WRITE, null);
+        
+        mStore.resetVisibleLimits(Email.VISIBLE_LIMIT_DEFAULT);
+        // NOTE:  The open folders do not change, because resetVisibleLimits() resets the
+        // database only.
+        assertEquals(100, mFolder.getVisibleLimit());
+        assertEquals(200, folder2.getVisibleLimit());
+        
+        mFolder.close(false);
+        folder2.close(false);
+        mFolder.open(OpenMode.READ_WRITE, null);
+        folder2.open(OpenMode.READ_WRITE, null);
+        
+        assertEquals(Email.VISIBLE_LIMIT_DEFAULT, mFolder.getVisibleLimit());
+        assertEquals(Email.VISIBLE_LIMIT_DEFAULT, folder2.getVisibleLimit());
     }
     
     /**

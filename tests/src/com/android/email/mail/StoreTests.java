@@ -16,6 +16,8 @@
 
 package com.android.email.mail;
 
+import com.android.email.Email;
+
 import android.test.AndroidTestCase;
 import android.test.suitebuilder.annotation.MediumTest;
 
@@ -36,6 +38,8 @@ public class StoreTests extends AndroidTestCase {
         assertNotNull("scheme null", info.mScheme);
         assertNotNull("classname null", info.mClassName);
         assertFalse(info.mPushSupported);
+        assertEquals(Email.VISIBLE_LIMIT_DEFAULT, info.mVisibleLimitDefault);
+        assertEquals(Email.VISIBLE_LIMIT_INCREMENT, info.mVisibleLimitIncrement);
         
         // This will throw MessagingException if the result would have been null
         Store store = Store.getInstance(storeUri, getContext(), null);
@@ -52,6 +56,8 @@ public class StoreTests extends AndroidTestCase {
         assertNotNull("scheme null", info.mScheme);
         assertNotNull("classname null", info.mClassName);
         assertFalse(info.mPushSupported);
+        assertEquals(Email.VISIBLE_LIMIT_DEFAULT, info.mVisibleLimitDefault);
+        assertEquals(Email.VISIBLE_LIMIT_INCREMENT, info.mVisibleLimitIncrement);
         
         // This will throw MessagingException if the result would have been null
         Store store = Store.getInstance(storeUri, getContext(), null);
@@ -68,6 +74,8 @@ public class StoreTests extends AndroidTestCase {
             assertNotNull("scheme null", info.mScheme);
             assertNotNull("classname null", info.mClassName);
             assertTrue(info.mPushSupported);
+            assertEquals(1, info.mVisibleLimitDefault);
+            assertEquals(1, info.mVisibleLimitIncrement);
             
             // This will throw MessagingException if the result would have been null
             Store store = Store.getInstance(storeUri, getContext(), null);
