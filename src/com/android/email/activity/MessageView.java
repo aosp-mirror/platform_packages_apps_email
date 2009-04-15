@@ -93,8 +93,8 @@ public class MessageView extends Activity
     };
     private static final int METHODS_STATUS_COLUMN = 1;
 
-    // regex that matches start of img tag. '<(?i)img\s+'.
-    private static final Pattern IMG_TAG_START_REGEX = Pattern.compile("<(?i)img\\s+");
+    // regex that matches start of img tag. '.*<(?i)img\s+.*'.
+    private static final Pattern IMG_TAG_START_REGEX = Pattern.compile(".*<(?i)img\\s+.*");
 
     private TextView mSubjectView;
     private TextView mFromView;
@@ -963,7 +963,7 @@ public class MessageView extends Activity
                      * that HTML allows.
                      */
                     // Check if text contains img tag.
-                    if (IMG_TAG_START_REGEX.matcher(text).find()) {
+                    if (IMG_TAG_START_REGEX.matcher(text).matches()) {
                         mHandler.showShowPictures(true);
                     }
 
