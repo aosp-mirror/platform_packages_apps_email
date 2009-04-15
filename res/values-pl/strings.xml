@@ -17,7 +17,7 @@
     xmlns:xliff="urn:oasis:names:tc:xliff:document:1.2">
     <string name="read_attachment_label">"odczyt załączników w wiadomościach e-mail"</string>
     <string name="read_attachment_desc">"Umożliwia tej aplikacji odczyt załączników poczty e-mail."</string>
-    <string name="app_name">"Poczta e-mail"</string>
+    <string name="app_name">"Poczta"</string>
     <string name="accounts_title">"Twoje konta"</string>
     <string name="compose_title">"Utwórz"</string>
     <string name="debug_title">"Debuguj"</string>
@@ -41,7 +41,7 @@
     <string name="remove_account_action">"Usuń konto"</string>
     <string name="accounts_action">"Konta"</string>
     <string name="mark_as_read_action">"Oznacz jako przeczytane"</string>
-    <string name="mark_as_unread_action">"Oznacz jako nieprzeczytane"</string>
+    <string name="mark_as_unread_action">"Oznacz jako nieprzeczyt."</string>
     <string name="add_cc_bcc_action">"Dodaj DW/UDW"</string>
     <string name="add_attachment_action">"Dodaj załącznik"</string>
     <string name="dump_settings_action">"Zrzut ustawień"</string>

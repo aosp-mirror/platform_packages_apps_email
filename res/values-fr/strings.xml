@@ -42,7 +42,7 @@
     <string name="accounts_action">"Comptes"</string>
     <string name="mark_as_read_action">"Marquer comme lu"</string>
     <string name="mark_as_unread_action">"Marquer comme non lu"</string>
-    <string name="add_cc_bcc_action">"Ajouter les champs Cc/Cci"</string>
+    <string name="add_cc_bcc_action">"Ajouter Cc/Cci"</string>
     <string name="add_attachment_action">"Ajouter une pièce jointe"</string>
     <string name="dump_settings_action">"Paramètres d\'image mémoire"</string>
     <string name="accounts_context_menu_title">"Options de compte"</string>
@@ -162,7 +162,7 @@
     <string name="account_settings_default_summary">"Par défaut, envoyer les e-mails avec ce compte"</string>
     <string name="account_settings_notify_label">"Notifications d\'e-mails"</string>
     <string name="account_settings_notify_summary">"Afficher une notification dans la barre d\'état lors de la réception d\'un e-mail"</string>
-    <string name="account_settings_mail_check_frequency_label">"Fréquence de vérification des e-mails"</string>
+    <string name="account_settings_mail_check_frequency_label">"Fréquence de vérification"</string>
     <string name="account_settings_incoming_label">"Paramètres de réception"</string>
     <string name="account_settings_outgoing_label">"Paramètres d\'envoi"</string>
     <string name="account_settings_add_account_label">"Ajouter un autre compte"</string>

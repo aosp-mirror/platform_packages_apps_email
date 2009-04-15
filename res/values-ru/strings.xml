@@ -90,7 +90,7 @@
     <string name="message_saved_toast">"Письмо сохранено как черновик."</string>
     <string name="add_contact_dlg_title">"Добавить контакт"</string>
     <string name="add_contact_dlg_message_fmt">"Добавить адрес <xliff:g id="EMAIL">%s</xliff:g> в контакты"</string>
-    <string name="message_view_display_attachment_toast">"Не удается показать это приложение."</string>
+    <string name="message_view_display_attachment_toast">"Это вложение нельзя просмотреть."</string>
     <string name="account_setup_basics_title">"Настройка электронной почты"</string>
     <string name="account_setup_basics_instructions">"Укажите почтовый адрес своего аккаунта:"</string>
     <string name="account_setup_basics_email_hint">"Адрес электронной почты"</string>
