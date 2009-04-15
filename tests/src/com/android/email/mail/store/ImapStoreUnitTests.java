@@ -16,19 +16,18 @@
 
 package com.android.email.mail.store;
 
+import com.android.email.mail.Folder;
 import com.android.email.mail.MessagingException;
 import com.android.email.mail.Transport;
 import com.android.email.mail.Folder.OpenMode;
 import com.android.email.mail.internet.BinaryTempFileBody;
-import com.android.email.mail.store.ImapResponseParser;
 import com.android.email.mail.transport.MockTransport;
-
-import java.util.Date;
-import java.util.Locale;
 
 import android.test.AndroidTestCase;
 import android.test.suitebuilder.annotation.SmallTest;
-import android.util.Log;
+
+import java.util.Date;
+import java.util.Locale;
 
 /**
  * This is a series of unit tests for the ImapStore class.  These tests must be locally
@@ -116,6 +115,15 @@ public class ImapStoreUnitTests extends AndroidTestCase {
      * TODO: Test small Store & Folder functions that manage folders & namespace
      * TODO: Test small Folder functions that don't really do anything in Imap (if any)
      */   
+    
+    /**
+     * Lightweight test to confirm that IMAP hasn't implemented any folder roles yet.
+     * 
+     * TODO: Test this with multiple folders provided by mock server
+     */
+    public void testNoFolderRolesYet() {
+        assertEquals(Folder.FolderRole.UNKNOWN, mFolder.getRole()); 
+    }
     
     /**
      * TODO: Test the process of opening and indexing a mailbox with one unread message in it.
