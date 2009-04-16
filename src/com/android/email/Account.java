@@ -30,16 +30,24 @@ import java.util.UUID;
  * Account stores all of the settings for a single account defined by the user. It is able to save
  * and delete itself given a Preferences to work with. Each account is defined by a UUID. 
  */
-public class Account implements Serializable {
+public class Account implements Serializable, Store.PersistentDataCallbacks {
     public static final int DELETE_POLICY_NEVER = 0;
     public static final int DELETE_POLICY_7DAYS = 1;
     public static final int DELETE_POLICY_ON_DELETE = 2;
     
     public static final int CHECK_INTERVAL_NEVER = -1;
     public static final int CHECK_INTERVAL_PUSH = -2;
-    
-    private static final long serialVersionUID = 2975156672298625121L;
 
+    /** 
+     * This should never be used for persistance, only for marshalling.
+     * TODO: Remove serializable (VERY SLOW) and replace with Parcelable
+     */
+    private static final long serialVersionUID = 1L;
+    
+    // transient values - do not serialize
+    private transient Preferences mPreferences;
+
+    // serialized values
     String mUuid;
     String mStoreUri;
     String mLocalStoreUri;
@@ -57,6 +65,12 @@ public class Account implements Serializable {
     int mAccountNumber;
     boolean mVibrate;
     String mRingtoneUri;
+    String mStorePersistent;
+
+    /**
+     * TODO: all fields should be tagged here
+     */
+    private final String PREF_TAG_STORE_PERSISTENT = ".storePersist";
 
     /**
      * <pre>
@@ -87,6 +101,8 @@ public class Account implements Serializable {
      * Refresh the account from the stored settings.
      */
     public void refresh(Preferences preferences) {
+        mPreferences = preferences;
+
         mStoreUri = Utility.base64Decode(preferences.mSharedPreferences.getString(mUuid
                 + ".storeUri", null));
         mLocalStoreUri = preferences.mSharedPreferences.getString(mUuid + ".localStoreUri", null);
@@ -129,6 +145,9 @@ public class Account implements Serializable {
         mVibrate = preferences.mSharedPreferences.getBoolean(mUuid + ".vibrate", false);
         mRingtoneUri = preferences.mSharedPreferences.getString(mUuid  + ".ringtone", 
                 "content://settings/system/notification_sound");
+
+        mStorePersistent = preferences.mSharedPreferences.getString(
+                mUuid  + PREF_TAG_STORE_PERSISTENT, null);
     }
 
     public String getUuid() {
@@ -223,7 +242,8 @@ public class Account implements Serializable {
         editor.remove(mUuid + ".accountNumber");
         editor.remove(mUuid + ".vibrate");
         editor.remove(mUuid + ".ringtone");
-        
+        editor.remove(mUuid + PREF_TAG_STORE_PERSISTENT);
+
         // also delete any deprecated fields
         editor.remove(mUuid + ".transportUri");
         
@@ -231,6 +251,8 @@ public class Account implements Serializable {
     }
 
     public void save(Preferences preferences) {
+        mPreferences = preferences;
+        
         if (!preferences.mSharedPreferences.getString("accountUuids", "").contains(mUuid)) {
             /*
              * When the account is first created we assign it a unique account number. The
@@ -284,12 +306,17 @@ public class Account implements Serializable {
         editor.putBoolean(mUuid + ".vibrate", mVibrate);
         editor.putString(mUuid + ".ringtone", mRingtoneUri);
         
+        // The following fields are *not* written because they need to be more fine-grained
+        // and not risk rewriting with old data.
+        // editor.putString(mUuid + PREF_TAG_STORE_PERSISTENT, mStorePersistent);
+
         // also delete any deprecated fields
         editor.remove(mUuid + ".transportUri");
 
         editor.commit();
     }
 
+    @Override
     public String toString() {
         return mDescription;
     }
@@ -378,6 +405,44 @@ public class Account implements Serializable {
     
     public int getAccountNumber() {
         return mAccountNumber;
+    }
+
+    /**
+     * Provides a small place for Stores to store persistent data.  This will need to be
+     * expanded in the future, but is sufficient for now.  
+     * @param storeData Data to persist.  All data must be encoded into a string,
+     * so use base64 or some other encoding if necessary.
+     */
+    public void setPersistentString(String storeData) {
+        synchronized (this.getClass()) {
+            mStorePersistent = mPreferences.mSharedPreferences.getString(
+                    mUuid  + PREF_TAG_STORE_PERSISTENT, null);
+            if ((mStorePersistent == null && storeData != null) || 
+                    (mStorePersistent != null && !mStorePersistent.equals(storeData))) {
+                mStorePersistent = storeData;
+                SharedPreferences.Editor editor = mPreferences.mSharedPreferences.edit();
+                editor.putString(mUuid + PREF_TAG_STORE_PERSISTENT, mStorePersistent);
+                editor.commit();
+            }
+        }
+    }
+
+    /**
+     * @return the data saved by the Store, or null if never set.
+     */
+    public String getPersistentString() {
+        synchronized (this.getClass()) {
+            mStorePersistent = mPreferences.mSharedPreferences.getString(
+                    mUuid  + PREF_TAG_STORE_PERSISTENT, null);
+        }
+        return mStorePersistent;
+    }
+    
+    /**
+     * @return An implementation of Store.PersistentDataCallbacks
+     */
+    public Store.PersistentDataCallbacks getStoreCallbacks() {
+        return this;
     }
 
     @Override

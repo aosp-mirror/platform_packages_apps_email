@@ -43,6 +43,7 @@ public class ExchangeStoreExample extends Store {
     
     private final Context mContext;
     private URI mUri;
+    private PersistentDataCallbacks mCallbacks;
 
     private final ExchangeTransportExample mTransport;
     private final HashMap<String, Folder> mFolders = new HashMap<String, Folder>();
@@ -52,9 +53,9 @@ public class ExchangeStoreExample extends Store {
     /**
      * Factory method.
      */
-    public static Store newInstance(String uri, Context context)
+    public static Store newInstance(String uri, Context context, PersistentDataCallbacks callbacks)
     throws MessagingException {
-        return new ExchangeStoreExample(uri, context);
+        return new ExchangeStoreExample(uri, context, callbacks);
     }
 
     /**
@@ -64,13 +65,15 @@ public class ExchangeStoreExample extends Store {
      * @param application
      * @throws MessagingException
      */
-    private ExchangeStoreExample(String _uri, Context context) throws MessagingException {
+    private ExchangeStoreExample(String _uri, Context context, PersistentDataCallbacks callbacks)
+            throws MessagingException {
         mContext = context;
         try {
             mUri = new URI(_uri);
         } catch (URISyntaxException e) {
             throw new MessagingException("Invalid uri for ExchangeStoreExample");
         }
+        mCallbacks = callbacks;
 
         String scheme = mUri.getScheme();
         int connectionSecurity;

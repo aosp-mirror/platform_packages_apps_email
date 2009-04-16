@@ -17,7 +17,6 @@
 package com.android.email.mail.store;
 
 import com.android.email.Email;
-import com.android.email.PeekableInputStream;
 import com.android.email.Utility;
 import com.android.email.mail.AuthenticationFailedException;
 import com.android.email.mail.CertificateValidationException;
@@ -112,7 +111,8 @@ public class ImapStore extends Store {
     /**
      * Static named constructor.
      */
-    public static Store newInstance(String uri, Context context) throws MessagingException {
+    public static Store newInstance(String uri, Context context, PersistentDataCallbacks callbacks)
+            throws MessagingException {
         return new ImapStore(uri);
     }
 

@@ -38,7 +38,7 @@ public class StoreTests extends AndroidTestCase {
         assertFalse(info.mPushSupported);
         
         // This will throw MessagingException if the result would have been null
-        Store store = Store.getInstance(storeUri, getContext());
+        Store store = Store.getInstance(storeUri, getContext(), null);
     }
         
     /**
@@ -54,11 +54,12 @@ public class StoreTests extends AndroidTestCase {
         assertFalse(info.mPushSupported);
         
         // This will throw MessagingException if the result would have been null
-        Store store = Store.getInstance(storeUri, getContext());
+        Store store = Store.getInstance(storeUri, getContext(), null);
     }
         
     /**
      * Test StoreInfo & Store lookup for EAS accounts
+     * TODO: EAS store will probably require implementation of Store.PersistentDataCallbacks
      */
     public void testStoreLookupEAS() throws MessagingException {
         final String storeUri = "eas://user:password@server.com";
@@ -69,10 +70,10 @@ public class StoreTests extends AndroidTestCase {
             assertTrue(info.mPushSupported);
             
             // This will throw MessagingException if the result would have been null
-            Store store = Store.getInstance(storeUri, getContext());
+            Store store = Store.getInstance(storeUri, getContext(), null);
         } else {
             try {
-                Store store = Store.getInstance(storeUri, getContext());
+                Store store = Store.getInstance(storeUri, getContext(), null);
                 fail("MessagingException expected when EAS not supported");
             } catch (MessagingException me) {
                 // expected - fall through
@@ -89,7 +90,7 @@ public class StoreTests extends AndroidTestCase {
         assertNull(info);
 
         try {
-            Store store = Store.getInstance(storeUri, getContext());
+            Store store = Store.getInstance(storeUri, getContext(), null);
             fail("MessagingException expected from bogus URI scheme");
         } catch (MessagingException me) {
             // expected - fall through

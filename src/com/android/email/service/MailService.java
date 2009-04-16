@@ -283,7 +283,8 @@ public class MailService extends Service {
         try {
             String storeUri = account.getStoreUri();
             if (storeUri != null) {
-                Store store = Store.getInstance(storeUri, this.getBaseContext());
+                Store store = Store.getInstance(storeUri, this.getBaseContext(), 
+                        account.getStoreCallbacks());
                 if (store != null) {
                     store.enablePushModeDelivery(enable);
                 }
