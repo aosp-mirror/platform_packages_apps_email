@@ -174,11 +174,13 @@ public class Accounts extends ListActivity implements OnItemClickListener, OnCli
                         // Delete Remote store at first.
                         Store.getInstance(
                                 mSelectedContextAccount.getStoreUri(),
-                                getApplication()).delete();
+                                getApplication(), 
+                                mSelectedContextAccount.getStoreCallbacks()).delete();
                         // If no error, then delete LocalStore
                         Store.getInstance(
                                 mSelectedContextAccount.getLocalStoreUri(),
-                                getApplication()).delete();
+                                getApplication(), 
+                                null).delete();
                     } catch (Exception e) {
                             // Ignore
                     }
@@ -299,7 +301,8 @@ public class Accounts extends ListActivity implements OnItemClickListener, OnCli
             try {
                 LocalStore localStore = (LocalStore) Store.getInstance(
                         account.getLocalStoreUri(),
-                        getApplication());
+                        getApplication(), 
+                        null);
                 LocalFolder localFolder = (LocalFolder) localStore.getFolder(Email.INBOX);
                 if (localFolder.exists()) {
                     unreadMessageCount = localFolder.getUnreadMessageCount();

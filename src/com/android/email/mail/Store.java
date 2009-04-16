@@ -57,20 +57,22 @@ public abstract class Store {
      * Static named constructor.  It should be overrode by extending class.
      * Because this method will be called through reflection, it can not be protected. 
      */
-    public static Store newInstance(String uri, Context context)
+    public static Store newInstance(String uri, Context context, PersistentDataCallbacks callbacks)
             throws MessagingException {
         throw new MessagingException("Store.newInstance: Unknown scheme in " + uri);
     }
 
-    private static Store instantiateStore(String className, String uri, Context context)
+    private static Store instantiateStore(String className, String uri, Context context, 
+            PersistentDataCallbacks callbacks)
         throws MessagingException {
         Object o = null;
         try {
             Class<?> c = Class.forName(className);
             // and invoke "newInstance" class method and instantiate store object.
             java.lang.reflect.Method m =
-                c.getMethod("newInstance", String.class, Context.class);
-            o = m.invoke(null, uri, context);
+                c.getMethod("newInstance", String.class, Context.class, 
+                        PersistentDataCallbacks.class);
+            o = m.invoke(null, uri, context, callbacks);
         } catch (Exception e) {
             Log.d(Email.LOG_TAG, String.format(
                     "exception %s invoking %s.newInstance.(String, Context) method for %s",
@@ -149,13 +151,14 @@ public abstract class Store {
      * @return an initialized store of the appropriate class
      * @throws MessagingException
      */
-    public synchronized static Store getInstance(String uri, Context context)
+    public synchronized static Store getInstance(String uri, Context context, 
+            PersistentDataCallbacks callbacks)
         throws MessagingException {
         Store store = mStores.get(uri);
         if (store == null) {
             StoreInfo info = StoreInfo.getStoreInfo(uri, context);
             if (info != null) {
-                store = instantiateStore(info.mClassName, uri, context);
+                store = instantiateStore(info.mClassName, uri, context, callbacks);
             }
 
             if (store != null) {
@@ -211,5 +214,24 @@ public abstract class Store {
      * @throws MessagingException
      */
     public void delete() throws MessagingException {
+    }
+    
+    /**
+     * Callback interface by which a Store can read and write persistent data.
+     * TODO This needs to be made more generic & flexible
+     */
+    public interface PersistentDataCallbacks {
+        
+        /**
+         * Provides a small place for Stores to store persistent data.
+         * @param storeData Data to persist.  All data must be encoded into a string,
+         * so use base64 or some other encoding if necessary.
+         */
+        public void setPersistentString(String storeData);
+
+        /**
+         * @return the data saved by the Store, or null if never set.
+         */
+        public String getPersistentString();
     }
 }

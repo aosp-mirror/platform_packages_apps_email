@@ -16,6 +16,8 @@
 
 package com.android.email;
 
+import com.android.email.mail.Store;
+
 import android.content.SharedPreferences;
 import android.test.AndroidTestCase;
 import android.test.suitebuilder.annotation.SmallTest;
@@ -134,6 +136,59 @@ public class AccountUnitTests extends AndroidTestCase {
         storedPolicy = mPreferences.mSharedPreferences.getInt(mUuid + ".deletePolicy", -1);
         assertEquals(Account.DELETE_POLICY_ON_DELETE, storedPolicy);
     }
+    
+    /**
+     * Test the new store persistent data code.
+     * 
+     * This test, and the underlying code, reflect the essential error in the Account class.  The
+     * account objects should have been singletons-per-account.  As it stands there are lots of
+     * them floating around, which is very expensive (we waste a lot of effort creating them)
+     * and forces slow sync hacks for dynamic data like the store's persistent data.
+     */
+    public void testStorePersistentData() {
+
+        final String TEST_STRING = "This is the store's persistent data.";
+        final String TEST_STRING_2 = "Rewrite the store data.";
+
+        // create a dummy account
+        createTestAccount();
+        
+        // confirm null on new account
+        assertNull(mAccount.getPersistentString());
+        
+        // test write/readback
+        mAccount.setPersistentString(TEST_STRING);
+        mAccount.save(mPreferences);
+        mAccount.refresh(mPreferences);
+        assertEquals(TEST_STRING, mAccount.getPersistentString());
+        
+        // test that the data is shared across multiple account instantiations
+        Account account2 = new Account(mPreferences, mUuid);
+        assertEquals(TEST_STRING, account2.getPersistentString());
+        mAccount.setPersistentString(TEST_STRING_2);
+        assertEquals(TEST_STRING_2, account2.getPersistentString());        
+    }
+    
+    /**
+     * Test the callbacks for setting & getting persistent data
+     */
+    public void testStorePersistentCallbacks() {
+
+        final String TEST_STRING = "This is the store's persistent data.";
+        final String TEST_STRING_2 = "Rewrite the store data.";
+
+        // create a dummy account
+        createTestAccount();
+        Store.PersistentDataCallbacks callbacks = mAccount.getStoreCallbacks();
+        
+        // push some data through the interfaces
+        assertNull(callbacks.getPersistentString());
+        callbacks.setPersistentString(TEST_STRING);
+        assertEquals(TEST_STRING, mAccount.getPersistentString());
+        
+        mAccount.setPersistentString(TEST_STRING_2);
+        assertEquals(TEST_STRING_2, callbacks.getPersistentString());
+   }
     
     /**
      * Create a dummy account with minimal fields

@@ -57,7 +57,7 @@ public class Pop3StoreUnitTests extends AndroidTestCase {
         
         // These are needed so we can get at the inner classes
         mStore = (Pop3Store) Pop3Store.newInstance("pop3://user:password@server:999",
-                getContext());
+                getContext(), null);
         mFolder = (Pop3Store.Pop3Folder) mStore.getFolder("INBOX");
         
         // This is needed for parsing mime messages

@@ -85,7 +85,8 @@ public class Pop3Store extends Store {
     /**
      * Static named constructor.
      */
-    public static Store newInstance(String uri, Context context) throws MessagingException {
+    public static Store newInstance(String uri, Context context, PersistentDataCallbacks callbacks)
+            throws MessagingException {
         return new Pop3Store(uri);
     }
 
