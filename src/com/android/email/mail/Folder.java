@@ -31,8 +31,12 @@ public abstract class Folder {
      * function returns without doing anything.
      *
      * @param mode READ_ONLY or READ_WRITE
+     * @param callbacks Pointer to callbacks class.  This may be used by the folder between this
+     * time and when close() is called.  This is only used for remote stores - should be null
+     * for LocalStore.LocalFolder.
      */
-    public abstract void open(OpenMode mode) throws MessagingException;
+    public abstract void open(OpenMode mode, PersistentDataCallbacks callbacks)
+            throws MessagingException;
 
     /**
      * Forces a close of the MailProvider. Any further access will attempt to
@@ -104,6 +108,28 @@ public abstract class Folder {
     public abstract String getName();
 
     public abstract Flag[] getPermanentFlags() throws MessagingException;
+
+    /**
+     * Callback interface by which a Folder can read and write persistent data.
+     * TODO This needs to be made more generic & flexible
+     */
+    public interface PersistentDataCallbacks {
+        
+        /**
+         * Provides keyed storage of strings.  Should be used for per-folder data.  Do not use for
+         * per-message data.
+         * @param key identifier for the data (e.g. "sync.key" or "folder.id")
+         * @param value Data to persist.  All data must be encoded into a string,
+         * so use base64 or some other encoding if necessary.
+         */
+        public void setPersistentString(String key, String value);
+
+        /**
+         * @param key identifier for the data of interest
+         * @return the data saved by the Folder, or defaultValue if never set.
+         */
+        public String getPersistentString(String key, String defaultValue);
+    }
 
     @Override
     public String toString() {

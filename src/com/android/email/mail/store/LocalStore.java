@@ -40,7 +40,6 @@ import com.android.email.provider.AttachmentProvider;
 
 import org.apache.commons.io.IOUtils;
 
-import android.app.Application;
 import android.content.ContentValues;
 import android.content.Context;
 import android.database.Cursor;
@@ -78,9 +77,10 @@ public class LocalStore extends Store {
      *      18      1.0, 1.1    1.0 Release version.
      *      19      -           Added message_id column to messages table.
      *      20      1.5         Added content_id column to attachments table.
+     *      21      -           Added remote_store_data table
      */
     
-    private static final int DB_VERSION = 20;
+    private static final int DB_VERSION = 21;
     
     private static final Flag[] PERMANENT_FLAGS = { Flag.DELETED, Flag.X_DESTROYED, Flag.SEEN };
 
@@ -92,7 +92,8 @@ public class LocalStore extends Store {
     /**
      * Static named constructor.
      */
-    public static Store newInstance(String uri, Context context) throws MessagingException {
+    public static Store newInstance(String uri, Context context, PersistentDataCallbacks callbacks)
+            throws MessagingException {
         return new LocalStore(uri, context);
     }
 
@@ -150,9 +151,10 @@ public class LocalStore extends Store {
                 mDb.execSQL("DROP TABLE IF EXISTS pending_commands");
                 mDb.execSQL("CREATE TABLE pending_commands " +
                         "(id INTEGER PRIMARY KEY, command TEXT, arguments TEXT)");
+                
+                addRemoteStoreDataTable();
 
-                mDb.execSQL("DROP TRIGGER IF EXISTS delete_folder");
-                mDb.execSQL("CREATE TRIGGER delete_folder BEFORE DELETE ON folders BEGIN DELETE FROM messages WHERE old.id = folder_id; END;");
+                addFolderDeleteTrigger();
 
                 mDb.execSQL("DROP TRIGGER IF EXISTS delete_message");
                 mDb.execSQL("CREATE TRIGGER delete_message BEFORE DELETE ON messages BEGIN DELETE FROM attachments WHERE old.id = message_id; END;");
@@ -173,6 +175,14 @@ public class LocalStore extends Store {
                     mDb.execSQL("ALTER TABLE attachments ADD COLUMN content_id TEXT;");
                     mDb.setVersion(20);
                 }
+                if (oldVersion < 21) {
+                    /**
+                     * Upgrade 20 to 21:  add remote_store_data and update triggers to match
+                     */
+                    addRemoteStoreDataTable();
+                    addFolderDeleteTrigger();
+                    mDb.setVersion(21);
+                }
             }
 
             if (mDb.getVersion() != DB_VERSION) {
@@ -183,6 +193,29 @@ public class LocalStore extends Store {
         if (!mAttachmentsDir.exists()) {
             mAttachmentsDir.mkdirs();
         }
+    }
+    
+    /**
+     * Common code to add the remote_store_data table
+     */
+    private void addRemoteStoreDataTable() {
+        mDb.execSQL("DROP TABLE IF EXISTS remote_store_data");
+        mDb.execSQL("CREATE TABLE remote_store_data "
+                + "(id INTEGER PRIMARY KEY, folder_id INTEGER, "
+                + "data_key TEXT, data TEXT)");
+    }
+    
+    /**
+     * Common code to add folder delete trigger
+     */
+    private void addFolderDeleteTrigger() {
+        mDb.execSQL("DROP TRIGGER IF EXISTS delete_folder");
+        mDb.execSQL("CREATE TRIGGER delete_folder "
+                + "BEFORE DELETE ON folders "
+                + "BEGIN "
+                    + "DELETE FROM messages WHERE old.id = folder_id; " 
+                    + "DELETE FROM remote_store_data WHERE old.id = folder_id; " 
+                + "END;");
     }
 
     @Override
@@ -369,7 +402,7 @@ public class LocalStore extends Store {
         }
     }
 
-    public class LocalFolder extends Folder {
+    public class LocalFolder extends Folder implements Folder.PersistentDataCallbacks {
         private String mName;
         private long mFolderId = -1;
         private int mUnreadMessageCount = -1;
@@ -382,9 +415,17 @@ public class LocalStore extends Store {
         public long getId() {
             return mFolderId;
         }
+        
+        /**
+         * This is just used by the internal callers
+         */
+        private void open(OpenMode mode) throws MessagingException {
+            open(mode, null);
+        }
 
         @Override
-        public void open(OpenMode mode) throws MessagingException {
+        public void open(OpenMode mode, PersistentDataCallbacks callbacks) 
+                throws MessagingException {
             if (isOpen()) {
                 return;
             }
@@ -1101,6 +1142,65 @@ public class LocalStore extends Store {
             finally {
                 if (messagesCursor != null) {
                     messagesCursor.close();
+                }
+            }
+        }
+        
+        /**
+         * Support for local persistence for our remote stores.
+         * Will open the folder if necessary.
+         */
+        public Folder.PersistentDataCallbacks getPersistentCallbacks() throws MessagingException {
+            open(OpenMode.READ_WRITE);
+            return this;
+        }
+
+        public String getPersistentString(String key, String defaultValue) {
+            String result = defaultValue;
+            Cursor cursor = null;
+            try {
+                cursor = mDb.query("remote_store_data",
+                        new String[] { "data" },
+                        "folder_id = ? AND data_key = ?",
+                        new String[] { Long.toString(mFolderId), key },
+                        null,
+                        null,
+                        null);
+                if (cursor != null && cursor.moveToNext()) {
+                    result = cursor.getString(0);
+                }
+            }
+            finally {
+                if (cursor != null) {
+                    cursor.close();
+                }
+            }
+            return result;
+        }
+
+        public void setPersistentString(String key, String value) {
+            // TODO apply sql-foo and replace this with a single statement
+            Cursor cursor = null;
+            try {
+                final String where = "folder_id = ? AND data_key = ?";
+                String[] whereArgs = new String[] { Long.toString(mFolderId), key };
+                ContentValues cv = new ContentValues();
+                cv.put("data", value);
+                cursor = mDb.query("remote_store_data",
+                        new String[] { "data" },
+                        where, whereArgs,
+                        null, null, null);
+                if (cursor != null && cursor.moveToNext()) {
+                    mDb.update("remote_store_data", cv, where, whereArgs);
+                } else {
+                    cv.put("folder_id", Long.toString(mFolderId));
+                    cv.put("data_key", key);
+                    mDb.insert("remote_store_data", null, cv);
+                }
+            }
+            finally {
+                if (cursor != null) {
+                    cursor.close();
                 }
             }
         }
