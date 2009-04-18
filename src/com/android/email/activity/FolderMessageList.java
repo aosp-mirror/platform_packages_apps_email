@@ -776,7 +776,7 @@ public class FolderMessageList extends ExpandableListActivity {
                         holder.messages = new ArrayList<MessageInfoHolder>();
                     }
                     try {
-                        folder.open(Folder.OpenMode.READ_WRITE);
+                        folder.open(Folder.OpenMode.READ_WRITE, null);
                         holder.unreadMessageCount = folder.getUnreadMessageCount();
                         folder.close(false);
                     }

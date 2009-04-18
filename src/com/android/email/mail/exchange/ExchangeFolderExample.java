@@ -33,6 +33,8 @@ public class ExchangeFolderExample extends Folder {
     private final ExchangeStoreExample mStore;
     private final String mName;
 
+    private PersistentDataCallbacks mPersistenceCallbacks;
+
     public ExchangeFolderExample(ExchangeStoreExample store, String name) 
             throws MessagingException {
         mStore = store;
@@ -50,6 +52,7 @@ public class ExchangeFolderExample extends Folder {
 
     @Override
     public void close(boolean expunge) throws MessagingException {
+        mPersistenceCallbacks = null;
         // TODO Implement this function
     }
 
@@ -150,7 +153,8 @@ public class ExchangeFolderExample extends Folder {
     }
 
     @Override
-    public void open(OpenMode mode) throws MessagingException {
+    public void open(OpenMode mode, PersistentDataCallbacks callbacks) throws MessagingException {
+        mPersistenceCallbacks = callbacks;
         // TODO Implement this function
     }
 

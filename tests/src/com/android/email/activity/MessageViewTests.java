@@ -156,7 +156,7 @@ public class MessageViewTests
     public void testResolveInlineImage() throws MessagingException, IOException {
         final MessageView a = getActivity();
         final LocalStore store = (LocalStore) LocalStore.newInstance(mAccount.getLocalStoreUri(),
-                mContext);
+                mContext, null);
 
         // Single cid case.
         final String cid1 = "cid.1@android.com";
