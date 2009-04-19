@@ -66,7 +66,7 @@ public class ImapStoreUnitTests extends AndroidTestCase {
         
         // try to open it
         setupOpenFolder(mockTransport);
-        mFolder.open(OpenMode.READ_WRITE);
+        mFolder.open(OpenMode.READ_WRITE, null);
         
         // TODO: inject specific facts in the initial folder SELECT and check them here
     }
