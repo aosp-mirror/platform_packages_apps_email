@@ -18,6 +18,7 @@ package com.android.email.mail.store;
 
 import com.android.email.Email;
 import com.android.email.mail.Address;
+import com.android.email.mail.Flag;
 import com.android.email.mail.Folder;
 import com.android.email.mail.Message;
 import com.android.email.mail.MessagingException;
@@ -249,6 +250,48 @@ public class LocalStoreUnitTests extends AndroidTestCase {
         assertEquals("value-1-2", callbacks.getPersistentString("key2", null));     // same
         assertEquals("value-2-1", callbacks2.getPersistentString("key1", null));    // same
         assertEquals("value-2-2b", callbacks2.getPersistentString("key2", null));   // changed
+    }
+    
+    /**
+     * Test that messages are being stored with store flags properly persisted.
+     * 
+     * This variant tests appendMessages() and updateMessages() and getMessage()
+     */
+    public void testStoreFlags() throws MessagingException {
+        final MimeMessage message = buildTestMessage(RECIPIENT_TO, SENDER, SUBJECT, BODY);
+        message.setMessageId(MESSAGE_ID);
+        message.setFlag(Flag.X_STORE_3, true);
+        message.setFlag(Flag.X_STORE_4, true);
+        
+        mFolder.open(OpenMode.READ_WRITE, null);
+        mFolder.appendMessages(new Message[]{ message });
+        String localUid = message.getUid();
+        
+        // Now try to read it back from the database using getMessage()
+        
+        MimeMessage retrieved = (MimeMessage) mFolder.getMessage(localUid);
+        assertEquals(MESSAGE_ID, retrieved.getMessageId());
+        assertFalse(message.isSet(Flag.X_STORE_1));
+        assertFalse(message.isSet(Flag.X_STORE_2));
+        assertTrue(message.isSet(Flag.X_STORE_3));
+        assertTrue(message.isSet(Flag.X_STORE_4));
+        
+        // Now try to update it using updateMessages()
+        
+        retrieved.setFlag(Flag.X_STORE_2, true);
+        retrieved.setFlag(Flag.X_STORE_4, false);
+        mFolder.updateMessage((LocalStore.LocalMessage)retrieved);
+        
+        // And read back once more to confirm the change (using getMessages() to confirm "just one")
+        Message[] retrievedArray = mFolder.getMessages(null);
+        assertEquals(1, retrievedArray.length);
+        MimeMessage retrievedEntry = (MimeMessage) retrievedArray[0];
+        assertEquals(MESSAGE_ID, retrieved.getMessageId());
+
+        assertFalse(retrievedEntry.isSet(Flag.X_STORE_1));
+        assertTrue(retrievedEntry.isSet(Flag.X_STORE_2));
+        assertTrue(retrievedEntry.isSet(Flag.X_STORE_3));
+        assertFalse(retrievedEntry.isSet(Flag.X_STORE_4));
     }
     
     /**

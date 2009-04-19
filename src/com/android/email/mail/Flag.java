@@ -60,4 +60,29 @@ public enum Flag {
      * This does not include attachments, which are never downloaded fully.
      */
     X_DOWNLOADED_PARTIAL,
+    
+    /**
+     * General purpose flag that can be used by any remote store.  The flag will be 
+     * saved and restored by the LocalStore.
+     */
+    X_STORE_1,
+    
+    /**
+     * General purpose flag that can be used by any remote store.  The flag will be 
+     * saved and restored by the LocalStore.
+     */
+    X_STORE_2,
+    
+    /**
+     * General purpose flag that can be used by any remote store.  The flag will be 
+     * saved and restored by the LocalStore.
+     */
+    X_STORE_3,
+    
+    /**
+     * General purpose flag that can be used by any remote store.  The flag will be 
+     * saved and restored by the LocalStore.
+     */
+    X_STORE_4,
+    
 }
