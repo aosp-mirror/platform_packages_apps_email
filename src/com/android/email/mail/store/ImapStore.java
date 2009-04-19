@@ -29,7 +29,6 @@ import com.android.email.mail.MessagingException;
 import com.android.email.mail.Part;
 import com.android.email.mail.Store;
 import com.android.email.mail.Transport;
-import com.android.email.mail.Folder.PersistentDataCallbacks;
 import com.android.email.mail.internet.MimeBodyPart;
 import com.android.email.mail.internet.MimeHeader;
 import com.android.email.mail.internet.MimeMessage;
@@ -326,8 +325,7 @@ public class ImapStore extends Store {
             this.mName = name;
         }
 
-        public void open(OpenMode mode, PersistentDataCallbacks callbacks)
-                throws MessagingException {
+        public void open(OpenMode mode) throws MessagingException {
             if (isOpen() && mMode == mode) {
                 // Make sure the connection is valid. If it's not we'll close it down and continue
                 // on to get a new one.
