@@ -16,9 +16,8 @@
 
 package com.android.email.mail.internet;
 
+import com.android.email.mail.Flag;
 import com.android.email.mail.MessagingException;
-import com.android.email.mail.internet.MimeHeader;
-import com.android.email.mail.internet.MimeMessage;
 
 import android.test.suitebuilder.annotation.SmallTest;
 
@@ -210,6 +209,40 @@ public class MimeMessageTest extends TestCase {
             assertTrue("split lines are encoded", 
                     trimmed.startsWith("=?") && trimmed.endsWith("?="));
         }
+    }
+    
+    /**
+     * Test setting & getting store-specific flags
+     */
+    public void testStoreFlags() throws MessagingException {
+        MimeMessage message = new MimeMessage();
+
+        // Message should create with no flags
+        Flag[] flags = message.getFlags();
+        assertEquals(0, flags.length);
+
+        // Set a store flag
+        message.setFlag(Flag.X_STORE_1, true);
+        assertTrue(message.isSet(Flag.X_STORE_1));
+        assertFalse(message.isSet(Flag.X_STORE_2));
+        assertFalse(message.isSet(Flag.X_STORE_3));
+        assertFalse(message.isSet(Flag.X_STORE_4));
+
+        // Set another
+        message.setFlag(Flag.X_STORE_2, true);
+        assertTrue(message.isSet(Flag.X_STORE_1));
+        assertTrue(message.isSet(Flag.X_STORE_2));
+        assertFalse(message.isSet(Flag.X_STORE_3));
+        assertFalse(message.isSet(Flag.X_STORE_4));
+
+        // Set some and clear some
+        message.setFlag(Flag.X_STORE_1, false);
+        message.setFlag(Flag.X_STORE_3, true);
+        assertFalse(message.isSet(Flag.X_STORE_1));
+        assertTrue(message.isSet(Flag.X_STORE_2));
+        assertTrue(message.isSet(Flag.X_STORE_3));
+        assertFalse(message.isSet(Flag.X_STORE_4));
+
     }
 
 }
