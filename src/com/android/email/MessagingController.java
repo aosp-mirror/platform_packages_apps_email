@@ -310,11 +310,16 @@ public class MessagingController implements Runnable {
 
     public void loadMoreMessages(Account account, String folder, MessagingListener listener) {
         try {
+            Store.StoreInfo info = Store.StoreInfo.getStoreInfo(account.getStoreUri(), 
+                    mApplication);
             LocalStore localStore = (LocalStore) Store.getInstance(
                     account.getLocalStoreUri(), mApplication, null);
             LocalFolder localFolder = (LocalFolder) localStore.getFolder(folder);
-            localFolder.setVisibleLimit(localFolder.getVisibleLimit()
-                    + Email.VISIBLE_LIMIT_INCREMENT);
+            int oldLimit = localFolder.getVisibleLimit();
+            if (oldLimit <= 0) {
+                oldLimit = info.mVisibleLimitDefault;
+            }
+            localFolder.setVisibleLimit(oldLimit + info.mVisibleLimitIncrement);
             synchronizeMailbox(account, folder, listener);
         }
         catch (MessagingException me) {
@@ -325,9 +330,11 @@ public class MessagingController implements Runnable {
     public void resetVisibleLimits(Account[] accounts) {
         for (Account account : accounts) {
             try {
+                Store.StoreInfo info = Store.StoreInfo.getStoreInfo(account.getStoreUri(), 
+                        mApplication);
                 LocalStore localStore =
                     (LocalStore) Store.getInstance(account.getLocalStoreUri(), mApplication, null);
-                localStore.resetVisibleLimits();
+                localStore.resetVisibleLimits(info.mVisibleLimitDefault);
             }
             catch (MessagingException e) {
                 Log.e(Email.LOG_TAG, "Unable to reset visible limits", e);
@@ -453,6 +460,12 @@ public class MessagingController implements Runnable {
             int remoteMessageCount = remoteFolder.getMessageCount();
 
             int visibleLimit = localFolder.getVisibleLimit();
+            if (visibleLimit <= 0) {
+                Store.StoreInfo info = Store.StoreInfo.getStoreInfo(account.getStoreUri(), 
+                        mApplication);
+                visibleLimit = info.mVisibleLimitDefault;
+                localFolder.setVisibleLimit(visibleLimit);
+            }
 
             Message[] remoteMessages = new Message[0];
             final ArrayList<Message> unsyncedMessages = new ArrayList<Message>();

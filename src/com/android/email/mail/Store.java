@@ -93,7 +93,10 @@ public abstract class Store {
         public String mScheme;
         public String mClassName;
         public boolean mPushSupported = false;
+        public int mVisibleLimitDefault;
+        public int mVisibleLimitIncrement;
         
+        // TODO cache result for performance - silly to keep reading the XML
         public static StoreInfo getStoreInfo(String scheme, Context context) {
             StoreInfo result = getStoreInfo(R.xml.stores_product, scheme, context);
             if (result == null) {
@@ -117,6 +120,10 @@ public abstract class Store {
                             result.mClassName = xml.getAttributeValue(null, "class");
                             result.mPushSupported = xml.getAttributeBooleanValue(
                                     null, "push", false);
+                            result.mVisibleLimitDefault = xml.getAttributeIntValue(
+                                    null, "visibleLimitDefault", Email.VISIBLE_LIMIT_DEFAULT);
+                            result.mVisibleLimitIncrement = xml.getAttributeIntValue(
+                                    null, "visibleLimitIncrement", Email.VISIBLE_LIMIT_INCREMENT);
                             return result;
                         }
                     }
