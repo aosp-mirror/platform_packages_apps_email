@@ -313,6 +313,16 @@ public class LocalStoreUnitTests extends AndroidTestCase {
     }
     
     /**
+     * Lightweight test to confirm that LocalStore hasn't implemented any folder roles yet.
+     */
+    public void testNoFolderRolesYet() throws MessagingException {
+        Folder[] localFolders = mStore.getPersonalNamespaces();
+        for (Folder folder : localFolders) {
+            assertEquals(Folder.FolderRole.UNKNOWN, folder.getRole()); 
+        }
+    }
+
+    /**
      * Tests for database version.
      */
     public void testDbVersion() throws MessagingException, URISyntaxException {
