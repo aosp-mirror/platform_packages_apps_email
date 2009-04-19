@@ -286,7 +286,7 @@ public class MessagingController implements Runnable {
         try {
             Store localStore = Store.getInstance(account.getLocalStoreUri(), mApplication, null);
             Folder localFolder = localStore.getFolder(folder);
-            localFolder.open(OpenMode.READ_WRITE, null);
+            localFolder.open(OpenMode.READ_WRITE);
             Message[] localMessages = localFolder.getMessages(null);
             ArrayList<Message> messages = new ArrayList<Message>();
             for (Message message : localMessages) {
@@ -388,7 +388,7 @@ public class MessagingController implements Runnable {
             final LocalStore localStore =
                 (LocalStore) Store.getInstance(account.getLocalStoreUri(), mApplication, null);
             final LocalFolder localFolder = (LocalFolder) localStore.getFolder(folder);
-            localFolder.open(OpenMode.READ_WRITE, null);
+            localFolder.open(OpenMode.READ_WRITE);
             Message[] localMessages = localFolder.getMessages(null);
             HashMap<String, Message> localUidMap = new HashMap<String, Message>();
             for (Message message : localMessages) {
@@ -441,7 +441,7 @@ public class MessagingController implements Runnable {
             /*
              * Open the remote folder. This pre-loads certain metadata like message count.
              */
-            remoteFolder.open(OpenMode.READ_WRITE, localFolder.getPersistentCallbacks());
+            remoteFolder.open(OpenMode.READ_WRITE);
 
             /*
              * Trash any remote messages that are marked as trashed locally.
@@ -837,7 +837,7 @@ public class MessagingController implements Runnable {
                 return;
             }
         }
-        remoteFolder.open(OpenMode.READ_WRITE, localFolder.getPersistentCallbacks());
+        remoteFolder.open(OpenMode.READ_WRITE);
         if (remoteFolder.getMode() != OpenMode.READ_WRITE) {
             return;
         }
@@ -914,17 +914,13 @@ public class MessagingController implements Runnable {
         String folder = command.arguments[0];
         String uid = command.arguments[1];
 
-        LocalStore localStore = (LocalStore) Store.getInstance(
-                account.getLocalStoreUri(), mApplication, null);
-        LocalFolder localFolder = (LocalFolder) localStore.getFolder(folder);
-
         Store remoteStore = Store.getInstance(account.getStoreUri(), mApplication, 
                 account.getStoreCallbacks());
         Folder remoteFolder = remoteStore.getFolder(folder);
         if (!remoteFolder.exists()) {
             return;
         }
-        remoteFolder.open(OpenMode.READ_WRITE, localFolder.getPersistentCallbacks());
+        remoteFolder.open(OpenMode.READ_WRITE);
         if (remoteFolder.getMode() != OpenMode.READ_WRITE) {
             return;
         }
@@ -969,17 +965,13 @@ public class MessagingController implements Runnable {
         String uid = command.arguments[1];
         boolean read = Boolean.parseBoolean(command.arguments[2]);
 
-        LocalStore localStore = (LocalStore) Store.getInstance(
-                account.getLocalStoreUri(), mApplication, null);
-        LocalFolder localFolder = (LocalFolder) localStore.getFolder(folder);
-
         Store remoteStore = Store.getInstance(account.getStoreUri(), mApplication, 
                 account.getStoreCallbacks());
         Folder remoteFolder = remoteStore.getFolder(folder);
         if (!remoteFolder.exists()) {
             return;
         }
-        remoteFolder.open(OpenMode.READ_WRITE, localFolder.getPersistentCallbacks());
+        remoteFolder.open(OpenMode.READ_WRITE);
         if (remoteFolder.getMode() != OpenMode.READ_WRITE) {
             return;
         }
@@ -1009,7 +1001,7 @@ public class MessagingController implements Runnable {
         try {
             Store localStore = Store.getInstance(account.getLocalStoreUri(), mApplication, null);
             Folder localFolder = localStore.getFolder(folder);
-            localFolder.open(OpenMode.READ_WRITE, null);
+            localFolder.open(OpenMode.READ_WRITE);
 
             Message message = localFolder.getMessage(uid);
             message.setFlag(Flag.SEEN, seen);
@@ -1032,7 +1024,7 @@ public class MessagingController implements Runnable {
                     Store localStore = Store.getInstance(
                             account.getLocalStoreUri(), mApplication, null);
                     LocalFolder localFolder = (LocalFolder) localStore.getFolder(folder);
-                    localFolder.open(OpenMode.READ_WRITE, null);
+                    localFolder.open(OpenMode.READ_WRITE);
 
                     Message message = localFolder.getMessage(uid);
 
@@ -1064,7 +1056,7 @@ public class MessagingController implements Runnable {
                     Store remoteStore = Store.getInstance(account.getStoreUri(), mApplication, 
                             account.getStoreCallbacks());
                     Folder remoteFolder = remoteStore.getFolder(folder);
-                    remoteFolder.open(OpenMode.READ_WRITE, localFolder.getPersistentCallbacks());
+                    remoteFolder.open(OpenMode.READ_WRITE);
 
                     // Get the remote message and fully download it
                     Message remoteMessage = remoteFolder.getMessage(uid);
@@ -1111,7 +1103,7 @@ public class MessagingController implements Runnable {
         try {
             Store localStore = Store.getInstance(account.getLocalStoreUri(), mApplication, null);
             LocalFolder localFolder = (LocalFolder) localStore.getFolder(folder);
-            localFolder.open(OpenMode.READ_WRITE, null);
+            localFolder.open(OpenMode.READ_WRITE);
 
             Message message = localFolder.getMessage(uid);
 
@@ -1215,7 +1207,7 @@ public class MessagingController implements Runnable {
                     LocalFolder localFolder =
                         (LocalFolder) localStore.getFolder(message.getFolder().getName());
                     Folder remoteFolder = remoteStore.getFolder(message.getFolder().getName());
-                    remoteFolder.open(OpenMode.READ_WRITE, localFolder.getPersistentCallbacks());
+                    remoteFolder.open(OpenMode.READ_WRITE);
 
                     FetchProfile fp = new FetchProfile();
                     fp.add(part);
@@ -1252,7 +1244,7 @@ public class MessagingController implements Runnable {
             Store localStore = Store.getInstance(account.getLocalStoreUri(), mApplication, null);
             LocalFolder localFolder =
                 (LocalFolder) localStore.getFolder(account.getOutboxFolderName());
-            localFolder.open(OpenMode.READ_WRITE, null);
+            localFolder.open(OpenMode.READ_WRITE);
             localFolder.appendMessages(new Message[] {
                 message
             });
@@ -1295,7 +1287,7 @@ public class MessagingController implements Runnable {
             if (!localFolder.exists()) {
                 return;
             }
-            localFolder.open(OpenMode.READ_WRITE, null);
+            localFolder.open(OpenMode.READ_WRITE);
 
             Message[] localMessages = localFolder.getMessages(null);
 
@@ -1401,7 +1393,7 @@ public class MessagingController implements Runnable {
                     Store localStore = Store.getInstance(
                             account.getLocalStoreUri(), mApplication, null);
                     Folder localFolder = localStore.getFolder(account.getTrashFolderName());
-                    localFolder.open(OpenMode.READ_WRITE, null);
+                    localFolder.open(OpenMode.READ_WRITE);
                     Message[] messages = localFolder.getMessages(null);
                     localFolder.setFlags(messages, new Flag[] {
                         Flag.DELETED
@@ -1459,7 +1451,7 @@ public class MessagingController implements Runnable {
             Store localStore = Store.getInstance(account.getLocalStoreUri(), mApplication, null);
             LocalFolder localFolder =
                 (LocalFolder) localStore.getFolder(account.getDraftsFolderName());
-            localFolder.open(OpenMode.READ_WRITE, null);
+            localFolder.open(OpenMode.READ_WRITE);
             localFolder.appendMessages(new Message[] {
                 message
             });

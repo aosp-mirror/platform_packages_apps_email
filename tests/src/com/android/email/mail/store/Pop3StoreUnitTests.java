@@ -129,7 +129,7 @@ public class Pop3StoreUnitTests extends AndroidTestCase {
         
         // try to open it
         setupOpenFolder(mockTransport, 0, null);
-        mFolder.open(OpenMode.READ_ONLY, null);
+        mFolder.open(OpenMode.READ_ONLY);
     }
     
     /**
@@ -569,7 +569,7 @@ public class Pop3StoreUnitTests extends AndroidTestCase {
     private void openFolderWithMessage(MockTransport mockTransport) throws MessagingException {
         // try to open it
         setupOpenFolder(mockTransport, 1, null);
-        mFolder.open(OpenMode.READ_ONLY, null);
+        mFolder.open(OpenMode.READ_ONLY);
         
         // check message count
         assertEquals(1, mFolder.getMessageCount());

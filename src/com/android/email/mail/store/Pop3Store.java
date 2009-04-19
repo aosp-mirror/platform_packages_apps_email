@@ -28,7 +28,6 @@ import com.android.email.mail.MessagingException;
 import com.android.email.mail.Store;
 import com.android.email.mail.Transport;
 import com.android.email.mail.Folder.OpenMode;
-import com.android.email.mail.Folder.PersistentDataCallbacks;
 import com.android.email.mail.internet.MimeMessage;
 import com.android.email.mail.transport.LoggingInputStream;
 import com.android.email.mail.transport.MailTransport;
@@ -180,7 +179,7 @@ public class Pop3Store extends Store {
     public void checkSettings() throws MessagingException {
         Pop3Folder folder = new Pop3Folder("INBOX");
         try {
-            folder.open(OpenMode.READ_WRITE, null);
+            folder.open(OpenMode.READ_WRITE);
             folder.checkSettings();
         } finally {
             folder.close(false);    // false == don't expunge anything
@@ -230,8 +229,7 @@ public class Pop3Store extends Store {
         }
 
         @Override
-        public synchronized void open(OpenMode mode, PersistentDataCallbacks callbacks)
-                throws MessagingException {
+        public synchronized void open(OpenMode mode) throws MessagingException {
             if (mTransport.isOpen()) {
                 return;
             }
@@ -857,7 +855,7 @@ public class Pop3Store extends Store {
          */
         private String executeSensitiveCommand(String command, String sensitiveReplacement)
                 throws IOException, MessagingException {
-            open(OpenMode.READ_WRITE, null);
+            open(OpenMode.READ_WRITE);
 
             if (command != null) {
                 mTransport.writeLine(command, sensitiveReplacement);
