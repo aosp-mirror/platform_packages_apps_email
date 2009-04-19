@@ -88,6 +88,7 @@ public class LocalStore extends Store {
     private SQLiteDatabase mDb;
     private File mAttachmentsDir;
     private Context mContext;
+    private int mVisibleLimitDefault = -1;
 
     /**
      * Static named constructor.
@@ -327,9 +328,19 @@ public class LocalStore extends Store {
         }
     }
 
-    public void resetVisibleLimits() {
+    /**
+     * Set the visible limit for all folders in a given store.
+     * 
+     * NOTE:  <b>Does Not</b> update cached values for any held Folder objects.  This is
+     * intended only for use at startup time.  To reset the value for any given folder, use
+     * {@link LocalFolder#setVisibleLimit(int)}.
+     * 
+     * @param visibleLimit the value to write to all folders.  -1 may also be used as a marker.
+     */
+    public void resetVisibleLimits(int visibleLimit) {
+        mVisibleLimitDefault = visibleLimit;            // used for future Folder.create ops
         ContentValues cv = new ContentValues();
-        cv.put("visible_limit", Integer.toString(Email.DEFAULT_VISIBLE_LIMIT));
+        cv.put("visible_limit", Integer.toString(visibleLimit));
         mDb.update("folders", cv, null, null);
     }
 
@@ -478,7 +489,7 @@ public class LocalStore extends Store {
             }
             mDb.execSQL("INSERT INTO folders (name, visible_limit) VALUES (?, ?)", new Object[] {
                 mName,
-                25
+                mVisibleLimitDefault
             });
             return true;
         }
