@@ -16,21 +16,6 @@
 
 package com.android.email;
 
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.Date;
-import java.util.HashMap;
-import java.util.HashSet;
-import java.util.List;
-import java.util.concurrent.BlockingQueue;
-import java.util.concurrent.LinkedBlockingQueue;
-
-import android.app.Application;
-import android.content.Context;
-import android.os.Process;
-import android.util.Config;
-import android.util.Log;
-
 import com.android.email.mail.FetchProfile;
 import com.android.email.mail.Flag;
 import com.android.email.mail.Folder;
@@ -47,6 +32,20 @@ import com.android.email.mail.store.LocalStore;
 import com.android.email.mail.store.LocalStore.LocalFolder;
 import com.android.email.mail.store.LocalStore.LocalMessage;
 import com.android.email.mail.store.LocalStore.PendingCommand;
+
+import android.app.Application;
+import android.content.Context;
+import android.os.Process;
+import android.util.Config;
+import android.util.Log;
+
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.Date;
+import java.util.HashMap;
+import java.util.HashSet;
+import java.util.concurrent.BlockingQueue;
+import java.util.concurrent.LinkedBlockingQueue;
 
 /**
  * Starts a long running (application) Thread that will run through commands
@@ -214,6 +213,7 @@ public class MessagingController implements Runnable {
                                 account.getStoreCallbacks());
 
                         Folder[] remoteFolders = store.getPersonalNamespaces();
+                        updateAccountFolderNames(account, remoteFolders);
 
                         Store localStore = Store.getInstance(
                                 account.getLocalStoreUri(), mApplication, null);
@@ -266,6 +266,35 @@ public class MessagingController implements Runnable {
                 l.listFoldersFinished(account);
             }
         }
+    }
+    
+    /**
+     * Asks the store for a list of server-specific folder names and, if provided, updates
+     * the account record for future getFolder() operations.
+     * 
+     * NOTE:  Inbox is not queried, because we require it to be INBOX, and outbox is not
+     * queried, because outbox is local-only.
+     */
+    /* package */ static void updateAccountFolderNames(Account account, Folder[] remoteFolders) {
+        String trash = null;
+        String sent = null;
+        String drafts = null;
+        
+        for (Folder folder : remoteFolders) {
+            Folder.FolderRole role = folder.getRole();
+            if (role == Folder.FolderRole.TRASH) {
+                trash = folder.getName();
+            } else if (role == Folder.FolderRole.SENT) {
+                sent = folder.getName();
+            } else if (role == Folder.FolderRole.DRAFTS) {
+                drafts = folder.getName();
+            }
+        }
+        
+        // Do not update when null (defaults are already in place)
+        if (trash != null)  account.setTrashFolderName(trash);
+        if (sent != null)   account.setSentFolderName(sent);
+        if (drafts != null) account.setDraftsFolderName(drafts);
     }
 
     /**

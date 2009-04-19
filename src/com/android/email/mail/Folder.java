@@ -25,6 +25,20 @@ public abstract class Folder {
     public enum FolderType {
         HOLDS_FOLDERS, HOLDS_MESSAGES,
     }
+    
+    /**
+     * Identifiers of "special" folders.
+     */
+    public enum FolderRole {
+        INBOX,      // NOTE:  The folder's name must be INBOX
+        TRASH,
+        SENT,
+        DRAFTS,
+        
+        OUTBOX,     // Local folders only - not used in remote Stores
+        OTHER,      // this folder has no specific role
+        UNKNOWN     // the role of this folder is unknown
+    }
 
     /**
      * Forces an open of the MailProvider. If the provider is already open this
@@ -108,6 +122,20 @@ public abstract class Folder {
     public abstract String getName();
 
     public abstract Flag[] getPermanentFlags() throws MessagingException;
+
+    /**
+     * This method returns a string identifying the name of a "role" folder
+     * (such as inbox, draft, sent, or trash).  Stores that do not implement this
+     * feature can be used - the account UI will provide default strings.  To
+     * let the server identify specific folder roles, simply override this method.
+     * 
+     * @return The server- or protocol- specific role for this folder.  If some roles are known
+     * but this is not one of them, return FolderRole.OTHER.  If roles are unsupported here,
+     * return FolderRole.UNKNOWN.  
+     */
+    public FolderRole getRole() {
+        return FolderRole.UNKNOWN;
+    }
 
     /**
      * Callback interface by which a Folder can read and write persistent data.

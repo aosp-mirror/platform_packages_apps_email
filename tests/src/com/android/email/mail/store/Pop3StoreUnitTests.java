@@ -249,6 +249,16 @@ public class Pop3StoreUnitTests extends AndroidTestCase {
     }
     
     /**
+     * Lightweight test to confirm that POP3 hasn't implemented any folder roles yet.
+     */
+    public void testNoFolderRolesYet() throws MessagingException {
+        Folder[] remoteFolders = mStore.getPersonalNamespaces();
+        for (Folder folder : remoteFolders) {
+            assertEquals(Folder.FolderRole.UNKNOWN, folder.getRole()); 
+        }
+    }
+
+    /**
      * Test the process of opening and indexing a mailbox with one unread message in it.
      * 
      * TODO should create an instrumented listener to confirm all expected callbacks.  Then use
