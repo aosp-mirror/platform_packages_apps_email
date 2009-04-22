@@ -225,23 +225,16 @@ public class MimeMessageTest extends TestCase {
         message.setFlag(Flag.X_STORE_1, true);
         assertTrue(message.isSet(Flag.X_STORE_1));
         assertFalse(message.isSet(Flag.X_STORE_2));
-        assertFalse(message.isSet(Flag.X_STORE_3));
-        assertFalse(message.isSet(Flag.X_STORE_4));
 
         // Set another
         message.setFlag(Flag.X_STORE_2, true);
         assertTrue(message.isSet(Flag.X_STORE_1));
         assertTrue(message.isSet(Flag.X_STORE_2));
-        assertFalse(message.isSet(Flag.X_STORE_3));
-        assertFalse(message.isSet(Flag.X_STORE_4));
 
         // Set some and clear some
         message.setFlag(Flag.X_STORE_1, false);
-        message.setFlag(Flag.X_STORE_3, true);
         assertFalse(message.isSet(Flag.X_STORE_1));
         assertTrue(message.isSet(Flag.X_STORE_2));
-        assertTrue(message.isSet(Flag.X_STORE_3));
-        assertFalse(message.isSet(Flag.X_STORE_4));
 
     }
 

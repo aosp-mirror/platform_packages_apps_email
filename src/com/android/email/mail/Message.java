@@ -130,4 +130,9 @@ public abstract class Message implements Part, Body {
     }
 
     public abstract void saveChanges() throws MessagingException;
+    
+    @Override
+    public String toString() {
+        return getClass().getSimpleName() + ':' + mUid;
+    }
 }

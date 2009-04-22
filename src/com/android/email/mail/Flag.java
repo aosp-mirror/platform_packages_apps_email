@@ -20,6 +20,9 @@ package com.android.email.mail;
  * Flags that can be applied to Messages.
  */
 public enum Flag {
+    
+    // If adding new flags: ALL FLAGS MUST BE UPPER CASE.
+
     DELETED,
     SEEN,
     ANSWERED,
@@ -72,17 +75,5 @@ public enum Flag {
      * saved and restored by the LocalStore.
      */
     X_STORE_2,
-    
-    /**
-     * General purpose flag that can be used by any remote store.  The flag will be 
-     * saved and restored by the LocalStore.
-     */
-    X_STORE_3,
-    
-    /**
-     * General purpose flag that can be used by any remote store.  The flag will be 
-     * saved and restored by the LocalStore.
-     */
-    X_STORE_4,
     
 }
