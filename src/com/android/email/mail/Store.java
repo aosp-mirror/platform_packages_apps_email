@@ -234,11 +234,11 @@ public abstract class Store {
          * @param storeData Data to persist.  All data must be encoded into a string,
          * so use base64 or some other encoding if necessary.
          */
-        public void setPersistentString(String storeData);
+        public void setPersistentString(Context context, String storeData);
 
         /**
          * @return the data saved by the Store, or null if never set.
          */
-        public String getPersistentString();
+        public String getPersistentString(Context context);
     }
 }
