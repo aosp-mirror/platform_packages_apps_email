@@ -243,12 +243,12 @@ public class MessagingController implements Runnable {
                             if (!remoteFolderNames.contains(localFolder.getName())) {
                                 localFolder.delete(false);
                             }
-                            
-                            // Signal the remote store so it can used folder-based callbacks
-                            for (Folder remoteFolder : remoteFolders) {
-                                localFolder = localStore.getFolder(remoteFolder.getName());
-                                remoteFolder.localFolderSetupComplete(localFolder);
-                            }
+                        }
+                        
+                        // Signal the remote store so it can used folder-based callbacks
+                        for (Folder remoteFolder : remoteFolders) {
+                            Folder localFolder = localStore.getFolder(remoteFolder.getName());
+                            remoteFolder.localFolderSetupComplete(localFolder);
                         }
 
                         localFolders = localStore.getPersonalNamespaces();
