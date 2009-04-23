@@ -18,15 +18,21 @@ package com.android.email.mail.store;
 
 import com.android.email.Email;
 import com.android.email.mail.Address;
+import com.android.email.mail.Body;
+import com.android.email.mail.FetchProfile;
 import com.android.email.mail.Flag;
 import com.android.email.mail.Folder;
 import com.android.email.mail.Message;
+import com.android.email.mail.MessageTestUtils;
 import com.android.email.mail.MessagingException;
+import com.android.email.mail.Part;
 import com.android.email.mail.Folder.FolderType;
 import com.android.email.mail.Folder.OpenMode;
 import com.android.email.mail.Message.RecipientType;
+import com.android.email.mail.MessageTestUtils.MultipartBuilder;
 import com.android.email.mail.internet.BinaryTempFileBody;
 import com.android.email.mail.internet.MimeMessage;
+import com.android.email.mail.internet.MimeUtility;
 import com.android.email.mail.internet.TextBody;
 
 import android.content.ContentValues;
@@ -209,6 +215,53 @@ public class LocalStoreUnitTests extends AndroidTestCase {
         }
         
         return message;
+    }
+    
+    /**
+     * Test two modes (STRUCTURE vs. BODY) of fetch()
+     */
+    public void testFetchModes() throws MessagingException {
+        final String BODY_TEXT_PLAIN = "This is the body text.";
+        final String BODY_TEXT_HTML = "But this is the HTML version of the body text.";
+        
+        MimeMessage message = buildTestMessage(RECIPIENT_TO, SENDER, SUBJECT, BODY);
+        message.setMessageId(MESSAGE_ID);
+        Body body = new MultipartBuilder("multipart/mixed")
+            .addBodyPart(MessageTestUtils.bodyPart("image/tiff", "cid.4@android.com"))
+            .addBodyPart(new MultipartBuilder("multipart/related")
+                .addBodyPart(new MultipartBuilder("multipart/alternative")
+                    .addBodyPart(MessageTestUtils.textPart("text/plain", BODY_TEXT_PLAIN))
+                    .addBodyPart(MessageTestUtils.textPart("text/html", BODY_TEXT_HTML))
+                    .buildBodyPart())
+                .buildBodyPart())
+            .addBodyPart(MessageTestUtils.bodyPart("image/gif", "cid.3@android.com"))
+            .build();
+        message.setBody(body);
+
+        mFolder.open(OpenMode.READ_WRITE, null);
+        mFolder.appendMessages(new Message[]{ message });
+        
+        // Now read it back, and fetch it two ways - first, structure only
+        Message[] messages = mFolder.getMessages(null);
+        FetchProfile fp = new FetchProfile();
+        fp.add(FetchProfile.Item.STRUCTURE);
+        mFolder.fetch(messages, fp, null);
+        // check for empty body parts
+        Part textPart = MimeUtility.findFirstPartByMimeType(messages[0], "text/plain");
+        Part htmlPart = MimeUtility.findFirstPartByMimeType(messages[0], "text/html");
+        assertNull(MimeUtility.getTextFromPart(textPart));
+        assertNull(MimeUtility.getTextFromPart(htmlPart));
+
+        // Next, complete body
+        messages = mFolder.getMessages(null);
+        fp.clear();
+        fp.add(FetchProfile.Item.BODY);
+        mFolder.fetch(messages, fp, null);
+        // check for real body parts
+        textPart = MimeUtility.findFirstPartByMimeType(messages[0], "text/plain");
+        htmlPart = MimeUtility.findFirstPartByMimeType(messages[0], "text/html");
+        assertEquals(BODY_TEXT_PLAIN, MimeUtility.getTextFromPart(textPart));
+        assertEquals(BODY_TEXT_HTML, MimeUtility.getTextFromPart(htmlPart));
     }
     
     /**
