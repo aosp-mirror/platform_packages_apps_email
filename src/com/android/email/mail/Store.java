@@ -193,20 +193,6 @@ public abstract class Store {
 
     public abstract Folder[] getPersonalNamespaces() throws MessagingException;
     
-    /**
-     * This function will be called after the messaging controller has called 
-     * getPersonalNamespaces() and has created a matching set of LocalFolder objects.  This can
-     * be used as a trigger for the store to write back any folder-specific persistent data using
-     * callbacks.
-     * 
-     * This is not abstract because most stores do not require this functionality and do not
-     * need to implement it.
-     */
-    @SuppressWarnings("unused")
-    public void localFolderSetupComplete() throws MessagingException {
-        // Do nothing - return immediately
-    }
-
     public abstract void checkSettings() throws MessagingException;
     
     /**

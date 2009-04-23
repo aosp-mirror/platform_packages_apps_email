@@ -151,6 +151,20 @@ public abstract class Folder {
     public FolderRole getRole() {
         return FolderRole.UNKNOWN;
     }
+    
+    /**
+     * This function will be called after the messaging controller has called 
+     * getPersonalNamespaces() and has created a matching LocalFolder object.  This can
+     * be used as a trigger for the folder to write back any folder-specific persistent data using
+     * callbacks.
+     * 
+     * This is not abstract because most folders do not require this functionality and do not
+     * need to implement it.
+     */
+    @SuppressWarnings("unused")
+    public void localFolderSetupComplete(Folder localFolder) throws MessagingException {
+        // Do nothing - return immediately
+    }
 
     /**
      * Callback interface by which a Folder can read and write persistent data.
