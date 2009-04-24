@@ -189,6 +189,14 @@ public abstract class Store {
         return com.android.email.activity.setup.AccountSetupIncoming.class;
     }
     
+    /**
+     * Get class of sync'er for this Store class
+     * @return Message Sync controller, or null to use default
+     */
+    public StoreSynchronizer getMessageSynchronizer() {
+        return null;
+    }
+    
     public abstract Folder getFolder(String name) throws MessagingException;
 
     public abstract Folder[] getPersonalNamespaces() throws MessagingException;
