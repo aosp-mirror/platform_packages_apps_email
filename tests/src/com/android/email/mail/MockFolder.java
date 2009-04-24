@@ -31,8 +31,7 @@ public class MockFolder extends Folder {
     }
 
     @Override
-    public void copyMessages(Message[] msgs, Folder folder, MessageUpdateCallbacks callbacks)
-            throws MessagingException {
+    public void copyMessages(Message[] msgs, Folder folder) throws MessagingException {
         // TODO Auto-generated method stub
 
     }
@@ -140,12 +139,6 @@ public class MockFolder extends Folder {
     public void setFlags(Message[] messages, Flag[] flags, boolean value) throws MessagingException {
         // TODO Auto-generated method stub
 
-    }
-
-    @Override
-    public void updateMessages(Message[] messages) throws MessagingException {
-        // TODO Auto-generated method stub
-        
     }
 
 }

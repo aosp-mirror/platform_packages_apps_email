@@ -27,7 +27,6 @@ import com.android.email.mail.MessageRetrievalListener;
 import com.android.email.mail.MessagingException;
 import com.android.email.mail.Store;
 import com.android.email.mail.Transport;
-import com.android.email.mail.Folder.MessageUpdateCallbacks;
 import com.android.email.mail.Folder.OpenMode;
 import com.android.email.mail.Folder.PersistentDataCallbacks;
 import com.android.email.mail.internet.MimeMessage;
@@ -791,17 +790,8 @@ public class Pop3Store extends Store {
         }
 
         @Override
-        public void copyMessages(Message[] msgs, Folder folder, MessageUpdateCallbacks callbacks)
-                throws MessagingException {
+        public void copyMessages(Message[] msgs, Folder folder) throws MessagingException {
             throw new UnsupportedOperationException("copyMessages is not supported in POP3");
-        }
-
-        /**
-         * This is only required for stores that call MessageUpdateCallbacks
-         */
-        @Override
-        public void updateMessages(Message[] messages) throws MessagingException {
-            throw new UnsupportedOperationException("unimplemented");
         }
 
 //        private boolean isRoundTripModeSuggested() {
