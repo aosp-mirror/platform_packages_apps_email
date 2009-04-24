@@ -29,7 +29,6 @@ import com.android.email.mail.MessagingException;
 import com.android.email.mail.Part;
 import com.android.email.mail.Store;
 import com.android.email.mail.Transport;
-import com.android.email.mail.Folder.MessageUpdateCallbacks;
 import com.android.email.mail.Folder.PersistentDataCallbacks;
 import com.android.email.mail.internet.MimeBodyPart;
 import com.android.email.mail.internet.MimeHeader;
@@ -483,8 +482,7 @@ public class ImapStore extends Store {
         }
 
         @Override
-        public void copyMessages(Message[] messages, Folder folder, 
-                MessageUpdateCallbacks callbacks) throws MessagingException {
+        public void copyMessages(Message[] messages, Folder folder) throws MessagingException {
             checkOpen();
             String[] uids = new String[messages.length];
             for (int i = 0, count = messages.length; i < count; i++) {
@@ -498,14 +496,6 @@ public class ImapStore extends Store {
             catch (IOException ioe) {
                 throw ioExceptionHandler(mConnection, ioe);
             }
-        }
-        
-        /**
-         * This is only required for stores that call MessageUpdateCallbacks
-         */
-        @Override
-        public void updateMessages(Message[] messages) throws MessagingException {
-            throw new UnsupportedOperationException("unimplemented");
         }
 
         @Override
