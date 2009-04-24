@@ -20,6 +20,7 @@ import com.android.email.Email;
 import com.android.email.mail.Folder;
 import com.android.email.mail.MessagingException;
 import com.android.email.mail.Store;
+import com.android.email.mail.StoreSynchronizer;
 
 import android.content.Context;
 import android.util.Config;
@@ -150,6 +151,18 @@ public class ExchangeStoreExample extends Store {
     @Override
     public Class<? extends android.app.Activity> getSettingActivityClass() {
         return com.android.email.activity.setup.AccountSetupExchange.class;
+    }
+    
+    /**
+     * Get class of sync'er for this Store class.  Because exchange Sync rules are so different
+     * than IMAP or POP3, it's likely that an Exchange implementation will need its own sync
+     * controller.  If so, this function must return a non-null value.
+     * 
+     * @return Message Sync controller, or null to use default
+     */
+    @Override
+    public StoreSynchronizer getMessageSynchronizer() {
+        return null;
     }
 }
 
