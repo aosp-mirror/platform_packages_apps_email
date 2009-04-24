@@ -28,7 +28,6 @@ import com.android.email.mail.MessagingException;
 import com.android.email.mail.Store;
 import com.android.email.mail.Transport;
 import com.android.email.mail.Folder.OpenMode;
-import com.android.email.mail.Folder.PersistentDataCallbacks;
 import com.android.email.mail.internet.MimeMessage;
 import com.android.email.mail.transport.LoggingInputStream;
 import com.android.email.mail.transport.MailTransport;
@@ -790,7 +789,8 @@ public class Pop3Store extends Store {
         }
 
         @Override
-        public void copyMessages(Message[] msgs, Folder folder) throws MessagingException {
+        public void copyMessages(Message[] msgs, Folder folder, MessageUpdateCallbacks callbacks)
+                throws MessagingException {
             throw new UnsupportedOperationException("copyMessages is not supported in POP3");
         }
 

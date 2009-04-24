@@ -957,12 +957,12 @@ public class MessagingController implements Runnable {
      * @param account
      * @throws MessagingException
      */
-    private void processPendingTrash(PendingCommand command, Account account)
+    private void processPendingTrash(PendingCommand command, final Account account)
             throws MessagingException {
         String folder = command.arguments[0];
         String uid = command.arguments[1];
 
-        LocalStore localStore = (LocalStore) Store.getInstance(
+        final LocalStore localStore = (LocalStore) Store.getInstance(
                 account.getLocalStoreUri(), mApplication, null);
         LocalFolder localFolder = (LocalFolder) localStore.getFolder(folder);
 
@@ -998,7 +998,23 @@ public class MessagingController implements Runnable {
         }
 
         if (remoteTrashFolder.exists()) {
-            remoteFolder.copyMessages(new Message[] { remoteMessage }, remoteTrashFolder);
+            remoteFolder.copyMessages(new Message[] { remoteMessage }, remoteTrashFolder,
+                    new Folder.MessageUpdateCallbacks() {
+                        public void onMessageUidChange(Message message, String newUid)
+                                throws MessagingException {
+                            // update the UID in the local trash folder, because some stores will
+                            // have to change it when copying to remoteTrashFolder
+                            LocalFolder localTrashFolder = 
+                                (LocalFolder) localStore.getFolder(account.getTrashFolderName());
+                            LocalMessage localMessage = 
+                                (LocalMessage) localTrashFolder.getMessage(message.getUid());
+                            if(localMessage != null) {
+                                localMessage.setUid(newUid);
+                                localTrashFolder.updateMessage(localMessage);
+                            }
+                        }
+                    }
+            );
         }
 
         remoteMessage.setFlag(Flag.DELETED, true);
@@ -1369,7 +1385,7 @@ public class MessagingController implements Runnable {
                         message.setFlag(Flag.X_SEND_IN_PROGRESS, false);
                         localFolder.copyMessages(
                                 new Message[] { message },
-                                localSentFolder);
+                                localSentFolder, null);
 
                         PendingCommand command = new PendingCommand();
                         command.command = PENDING_COMMAND_APPEND;
@@ -1425,7 +1441,7 @@ public class MessagingController implements Runnable {
             Folder localFolder = localStore.getFolder(folder);
             Folder localTrashFolder = localStore.getFolder(account.getTrashFolderName());
 
-            localFolder.copyMessages(new Message[] { message }, localTrashFolder);
+            localFolder.copyMessages(new Message[] { message }, localTrashFolder, null);
             message.setFlag(Flag.DELETED, true);
 
             if (account.getDeletePolicy() == Account.DELETE_POLICY_ON_DELETE) {
