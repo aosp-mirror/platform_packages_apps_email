@@ -189,8 +189,10 @@ public class MessagingController implements Runnable {
      * listFoldersCallback for local folders before it returns, and then for
      * remote folders at some later point. If there are no local folders
      * includeRemote is forced by this method. This method should be called from
-     * a Thread as it may take several seconds to list the local folders. TODO
-     * this needs to cache the remote folder list
+     * a Thread as it may take several seconds to list the local folders. 
+     * 
+     * TODO this needs to cache the remote folder list
+     * TODO break out an inner listFoldersSynchronized which could simplify checkMail
      *
      * @param account
      * @param includeRemote
@@ -1596,28 +1598,48 @@ public class MessagingController implements Runnable {
      * 
      * TODO:  There is no use case for "check all accounts".  Clean up this API to remove
      * that case.  Callers can supply the appropriate list.
+     * 
+     * TODO:  Better protection against a failure in account n, which should not prevent 
+     * syncing account in accounts n+1 and beyond.
      *
      * @param context
-     * @param accountsToCheck List of accounts to check, or null to check all accounts
+     * @param accounts List of accounts to check, or null to check all accounts
      * @param listener
      */
-    public void checkMail(final Context context, final Account[] accountsToCheck,
+    public void checkMail(final Context context, Account[] accounts,
             final MessagingListener listener) {
+        /**
+         * Note:  The somewhat tortured logic here is to guarantee proper ordering of events:
+         *      listeners: checkMailStarted
+         *      account 1: list folders
+         *      account 1: sync messages
+         *      account 2: list folders
+         *      account 2: sync messages
+         *      ...
+         *      account n: list folders
+         *      account n: sync messages
+         *      listeners: checkMailFinished
+         */
         synchronized (mListeners) {
             for (MessagingListener l : mListeners) {
                 l.checkMailStarted(context, null);      // TODO this needs to pass the actual array
             }
         }
-        put("checkMail", listener, new Runnable() {
-            public void run() {
-                Account[] accounts = accountsToCheck;
-                if (accounts == null) {
-                    accounts = Preferences.getPreferences(context).getAccounts();
-                }
-                for (Account account : accounts) {
+        if (accounts == null) {
+            accounts = Preferences.getPreferences(context).getAccounts();
+        }
+        for (final Account account : accounts) {
+            listFolders(account, true, null);
+
+            put("checkMail", listener, new Runnable() {
+                public void run() {
                     sendPendingMessagesSynchronous(account);
                     synchronizeMailboxSynchronous(account, Email.INBOX);
                 }
+            });
+        }
+        put("checkMailFinished", listener, new Runnable() {
+            public void run() {
                 synchronized (mListeners) {
                     for (MessagingListener l : mListeners) {
                         l.checkMailFinished(context, null);  // TODO this needs to pass actual array
