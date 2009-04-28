@@ -1077,22 +1077,31 @@ public class MessagingController implements Runnable {
         }
 
         if (remoteTrashFolder.exists()) {
+            /*
+             * Because remoteTrashFolder may be new, we need to explicitly open it
+             * and pass in the persistence callbacks.
+             */
+            final LocalFolder localTrashFolder =
+                (LocalFolder) localStore.getFolder(account.getTrashFolderName());
+            remoteTrashFolder.open(OpenMode.READ_WRITE, localTrashFolder.getPersistentCallbacks());
+            if (remoteTrashFolder.getMode() != OpenMode.READ_WRITE) {
+                return;
+            }
+
             remoteFolder.copyMessages(new Message[] { remoteMessage }, remoteTrashFolder,
                     new Folder.MessageUpdateCallbacks() {
-                        public void onMessageUidChange(Message message, String newUid)
-                                throws MessagingException {
-                            // update the UID in the local trash folder, because some stores will
-                            // have to change it when copying to remoteTrashFolder
-                            LocalFolder localTrashFolder = 
-                                (LocalFolder) localStore.getFolder(account.getTrashFolderName());
-                            LocalMessage localMessage = 
-                                (LocalMessage) localTrashFolder.getMessage(message.getUid());
-                            if(localMessage != null) {
-                                localMessage.setUid(newUid);
-                                localTrashFolder.updateMessage(localMessage);
-                            }
-                        }
+                public void onMessageUidChange(Message message, String newUid)
+                        throws MessagingException {
+                    // update the UID in the local trash folder, because some stores will
+                    // have to change it when copying to remoteTrashFolder
+                    LocalMessage localMessage =
+                        (LocalMessage) localTrashFolder.getMessage(message.getUid());
+                    if(localMessage != null) {
+                        localMessage.setUid(newUid);
+                        localTrashFolder.updateMessage(localMessage);
                     }
+                }
+            }
             );
         }
 
