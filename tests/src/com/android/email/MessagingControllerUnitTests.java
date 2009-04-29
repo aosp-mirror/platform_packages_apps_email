@@ -16,17 +16,9 @@
 
 package com.android.email;
 
-import com.android.email.mail.FetchProfile;
-import com.android.email.mail.Flag;
 import com.android.email.mail.Folder;
-import com.android.email.mail.Message;
-import com.android.email.mail.MessageRetrievalListener;
-import com.android.email.mail.MessagingException;
 import com.android.email.mail.MockFolder;
-import com.android.email.mail.Store;
-import com.android.email.mail.Folder.FolderRole;
 
-import android.content.SharedPreferences;
 import android.test.AndroidTestCase;
 import android.test.suitebuilder.annotation.SmallTest;
 
@@ -66,6 +58,7 @@ public class MessagingControllerUnitTests extends AndroidTestCase {
      * Test the code that copies server-supplied folder names into the account data
      */
     public void testUpdateAccountFolderNames() {
+        MessagingController mc = MessagingController.getInstance(getContext());
         // Create a dummy account
         createTestAccount();
         // Refresh it to fill in all fields (many will have default values)
@@ -75,8 +68,12 @@ public class MessagingControllerUnitTests extends AndroidTestCase {
         Folder[] folders1 = new Folder[] {
                 new MyMockFolder(Folder.FolderRole.DRAFTS, "DRAFTS_1"),
         };
-        MessagingController.updateAccountFolderNames(mAccount, folders1);
-        checkServerFolderNames("folders1", "DRAFTS_1", "Sent", "Trash", "Outbox");
+        mc.updateAccountFolderNames(mAccount, folders1);
+        checkServerFolderNames("folders1", mAccount, "DRAFTS_1", "Sent", "Trash", "Outbox");
+        
+        // test that the data is shared across multiple account instantiations
+        Account account2 = new Account(mPreferences, mUuid);
+        checkServerFolderNames("folders1-2", account2, "DRAFTS_1", "Sent", "Trash", "Outbox");
 
         // Replace one entry, others are included but called out as unknown
         Folder[] folders2 = new Folder[] {
@@ -85,9 +82,13 @@ public class MessagingControllerUnitTests extends AndroidTestCase {
                 new MyMockFolder(Folder.FolderRole.UNKNOWN, "TRASH_2"),
                 new MyMockFolder(Folder.FolderRole.UNKNOWN, "OUTBOX_2"),
         };
-        MessagingController.updateAccountFolderNames(mAccount, folders2);
-        checkServerFolderNames("folders2", "DRAFTS_1", "SENT_2", "Trash", "Outbox");
-
+        mc.updateAccountFolderNames(mAccount, folders2);
+        checkServerFolderNames("folders2", mAccount, "DRAFTS_1", "SENT_2", "Trash", "Outbox");
+        
+        // test that the data is shared across multiple account instantiations
+        account2 = new Account(mPreferences, mUuid);
+        checkServerFolderNames("folders2-2", account2, "DRAFTS_1", "SENT_2", "Trash", "Outbox");
+        
         // Replace one entry, check that "other" is ignored, check that Outbox is ignored
         Folder[] folders3 = new Folder[] {
                 new MyMockFolder(Folder.FolderRole.OTHER, "OTHER_3a"),
@@ -95,19 +96,23 @@ public class MessagingControllerUnitTests extends AndroidTestCase {
                 new MyMockFolder(Folder.FolderRole.OTHER, "OTHER_3b"),
                 new MyMockFolder(Folder.FolderRole.OUTBOX, "OUTBOX_3"),
         };
-        MessagingController.updateAccountFolderNames(mAccount, folders3);
-        checkServerFolderNames("folders2", "DRAFTS_1", "SENT_2", "TRASH_3", "Outbox");
+        mc.updateAccountFolderNames(mAccount, folders3);
+        checkServerFolderNames("folders3", mAccount, "DRAFTS_1", "SENT_2", "TRASH_3", "Outbox");
+        
+        // test that the data is shared across multiple account instantiations
+        account2 = new Account(mPreferences, mUuid);
+        checkServerFolderNames("folders3-2", account2, "DRAFTS_1", "SENT_2", "TRASH_3", "Outbox");
     }
     
     /**
      * Quickly check all four folder name slots in mAccount
      */
-    private void checkServerFolderNames(String diagnostic,
+    private void checkServerFolderNames(String diagnostic, Account account,
             String drafts, String sent, String trash, String outbox) {
-        assertEquals(diagnostic, drafts, mAccount.getDraftsFolderName());
-        assertEquals(diagnostic, sent, mAccount.getSentFolderName());
-        assertEquals(diagnostic, trash, mAccount.getTrashFolderName());
-        assertEquals(diagnostic, outbox, mAccount.getOutboxFolderName());
+        assertEquals(diagnostic, drafts, account.getDraftsFolderName());
+        assertEquals(diagnostic, sent, account.getSentFolderName());
+        assertEquals(diagnostic, trash, account.getTrashFolderName());
+        assertEquals(diagnostic, outbox, account.getOutboxFolderName());
     }
     
     /**
