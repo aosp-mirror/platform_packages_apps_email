@@ -56,6 +56,13 @@ public interface StoreSynchronizer {
      * The following callbacks should be called during this operation:
      *  {@link MessagingListener#synchronizeMailboxNewMessage(Account, String, Message)}
      *  {@link MessagingListener#synchronizeMailboxRemovedMessage(Account, String, Message)}
+     *  
+     * Callbacks (through listeners) *must* be synchronized on the listeners object, e.g.
+     *   synchronized (listeners) {
+     *       for(MessagingListener listener : listeners) {
+     *           listener.synchronizeMailboxNewMessage(account, folder, message);
+     *       }
+     *   }
      *
      * @param account The account to synchronize
      * @param folder The folder to synchronize

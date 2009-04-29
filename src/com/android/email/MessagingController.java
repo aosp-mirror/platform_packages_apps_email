@@ -91,6 +91,10 @@ public class MessagingController implements Runnable {
     private static MessagingController inst = null;
     private BlockingQueue<Command> mCommands = new LinkedBlockingQueue<Command>();
     private Thread mThread;
+    
+    /**
+     * All access to mListeners *must* be synchronized
+     */
     private HashSet<MessagingListener> mListeners = new HashSet<MessagingListener>();
     private boolean mBusy;
     private Application mApplication;
@@ -130,11 +134,13 @@ public class MessagingController implements Runnable {
         while (true) {
             try {
                 Command command = mCommands.take();
-                if (command.listener == null || mListeners.contains(command.listener)) {
+                if (command.listener == null || isActiveListener(command.listener)) {
                     mBusy = true;
                     command.runnable.run();
-                    for (MessagingListener l : mListeners) {
-                        l.controllerCommandCompleted(mCommands.size() > 0);
+                    synchronized (mListeners) {
+                        for (MessagingListener l : mListeners) {
+                            l.controllerCommandCompleted(mCommands.size() > 0);
+                        }
                     }
                 }
             }
@@ -153,19 +159,29 @@ public class MessagingController implements Runnable {
             command.listener = listener;
             command.runnable = runnable;
             command.description = description;
-            mCommands.put(command);
+            mCommands.add(command);
         }
-        catch (InterruptedException ie) {
+        catch (IllegalStateException ie) {
             throw new Error(ie);
         }
     }
 
     public void addListener(MessagingListener listener) {
-        mListeners.add(listener);
+        synchronized (mListeners) {
+            mListeners.add(listener);
+        }
     }
 
     public void removeListener(MessagingListener listener) {
-        mListeners.remove(listener);
+        synchronized (mListeners) {
+            mListeners.remove(listener);
+        }
+    }
+    
+    private boolean isActiveListener(MessagingListener listener) {
+        synchronized (mListeners) {
+            return mListeners.contains(listener);
+        }
     }
 
     /**
@@ -185,8 +201,10 @@ public class MessagingController implements Runnable {
             final Account account,
             boolean refreshRemote,
             MessagingListener listener) {
-        for (MessagingListener l : mListeners) {
-            l.listFoldersStarted(account);
+        synchronized (mListeners) {
+            for (MessagingListener l : mListeners) {
+                l.listFoldersStarted(account);
+            }
         }
         try {
             Store localStore = Store.getInstance(account.getLocalStoreUri(), mApplication, null);
@@ -195,15 +213,19 @@ public class MessagingController implements Runnable {
             if (localFolders == null || localFolders.length == 0) {
                 refreshRemote = true;
             } else {
-                for (MessagingListener l : mListeners) {
-                    l.listFolders(account, localFolders);
+                synchronized (mListeners) {
+                    for (MessagingListener l : mListeners) {
+                        l.listFolders(account, localFolders);
+                    }
                 }
             }
         }
         catch (Exception e) {
-            for (MessagingListener l : mListeners) {
-                l.listFoldersFailed(account, e.getMessage());
-                return;
+            synchronized (mListeners) {
+                for (MessagingListener l : mListeners) {
+                    l.listFoldersFailed(account, e.getMessage());
+                    return;
+                }
             }
         }
         if (refreshRemote) {
@@ -254,23 +276,29 @@ public class MessagingController implements Runnable {
 
                         localFolders = localStore.getPersonalNamespaces();
                         
-                        for (MessagingListener l : mListeners) {
-                            l.listFolders(account, localFolders);
-                        }
-                        for (MessagingListener l : mListeners) {
-                            l.listFoldersFinished(account);
+                        synchronized (mListeners) {
+                            for (MessagingListener l : mListeners) {
+                                l.listFolders(account, localFolders);
+                            }
+                            for (MessagingListener l : mListeners) {
+                                l.listFoldersFinished(account);
+                            }
                         }
                     }
                     catch (Exception e) {
-                        for (MessagingListener l : mListeners) {
-                            l.listFoldersFailed(account, "");
+                        synchronized (mListeners) {
+                            for (MessagingListener l : mListeners) {
+                                l.listFoldersFailed(account, "");
+                            }
                         }
                     }
                 }
             });
         } else {
-            for (MessagingListener l : mListeners) {
-                l.listFoldersFinished(account);
+            synchronized (mListeners) {
+                for (MessagingListener l : mListeners) {
+                    l.listFoldersFinished(account);
+                }
             }
         }
     }
@@ -315,8 +343,10 @@ public class MessagingController implements Runnable {
      */
     public void listLocalMessages(final Account account, final String folder,
             MessagingListener listener) {
-        for (MessagingListener l : mListeners) {
-            l.listLocalMessagesStarted(account, folder);
+        synchronized (mListeners) {
+            for (MessagingListener l : mListeners) {
+                l.listLocalMessagesStarted(account, folder);
+            }
         }
 
         try {
@@ -330,16 +360,20 @@ public class MessagingController implements Runnable {
                     messages.add(message);
                 }
             }
-            for (MessagingListener l : mListeners) {
-                l.listLocalMessages(account, folder, messages.toArray(new Message[0]));
-            }
-            for (MessagingListener l : mListeners) {
-                l.listLocalMessagesFinished(account, folder);
+            synchronized (mListeners) {
+                for (MessagingListener l : mListeners) {
+                    l.listLocalMessages(account, folder, messages.toArray(new Message[0]));
+                }
+                for (MessagingListener l : mListeners) {
+                    l.listLocalMessagesFinished(account, folder);
+                }
             }
         }
         catch (Exception e) {
-            for (MessagingListener l : mListeners) {
-                l.listLocalMessagesFailed(account, folder, e.getMessage());
+            synchronized (mListeners) {
+                for (MessagingListener l : mListeners) {
+                    l.listLocalMessagesFailed(account, folder, e.getMessage());
+                }
             }
         }
     }
@@ -392,8 +426,10 @@ public class MessagingController implements Runnable {
         if (folder.equals(account.getOutboxFolderName())) {
             return;
         }
-        for (MessagingListener l : mListeners) {
-            l.synchronizeMailboxStarted(account, folder);
+        synchronized (mListeners) {
+            for (MessagingListener l : mListeners) {
+                l.synchronizeMailboxStarted(account, folder);
+            }
         }
         put("synchronizeMailbox", listener, new Runnable() {
             public void run() {
@@ -410,8 +446,10 @@ public class MessagingController implements Runnable {
      * @param listener
      */
     private void synchronizeMailboxSynchronous(final Account account, final String folder) {
-        for (MessagingListener l : mListeners) {
-            l.synchronizeMailboxStarted(account, folder);
+        synchronized (mListeners) {
+            for (MessagingListener l : mListeners) {
+                l.synchronizeMailboxStarted(account, folder);
+            }
         }
         try {
             processPendingCommandsSynchronous(account);
@@ -429,22 +467,26 @@ public class MessagingController implements Runnable {
                         account, folder, mListeners, mApplication);
             }
             
-            for (MessagingListener l : mListeners) {
-                l.synchronizeMailboxFinished(
-                        account,
-                        folder,
-                        results.mTotalMessages, results.mNewMessages);
+            synchronized (mListeners) {
+                for (MessagingListener l : mListeners) {
+                    l.synchronizeMailboxFinished(
+                            account,
+                            folder,
+                            results.mTotalMessages, results.mNewMessages);
+                }
             }
 
         } catch (Exception e) {
             if (Config.LOGV) {
                 Log.v(Email.LOG_TAG, "synchronizeMailbox", e);
             }
-            for (MessagingListener l : mListeners) {
-                l.synchronizeMailboxFailed(
-                        account,
-                        folder,
-                        e);
+            synchronized (mListeners) {
+                for (MessagingListener l : mListeners) {
+                    l.synchronizeMailboxFailed(
+                            account,
+                            folder,
+                            e);
+                }
             }
         }
     }
@@ -607,9 +649,11 @@ public class MessagingController implements Runnable {
                                      * (POP) may not be able to give us headers for
                                      * ENVELOPE, only size.
                                      */
-                                    for (MessagingListener l : mListeners) {
-                                        l.synchronizeMailboxNewMessage(account, folder,
-                                                localFolder.getMessage(message.getUid()));
+                                    synchronized (mListeners) {
+                                        for (MessagingListener l : mListeners) {
+                                            l.synchronizeMailboxNewMessage(account, folder,
+                                                    localFolder.getMessage(message.getUid()));
+                                        }
                                     }
                                 }
 
@@ -643,8 +687,10 @@ public class MessagingController implements Runnable {
             }
             if (remoteMessage.isSet(Flag.SEEN) != localMessage.isSet(Flag.SEEN)) {
                 localMessage.setFlag(Flag.SEEN, remoteMessage.isSet(Flag.SEEN));
-                for (MessagingListener l : mListeners) {
-                    l.synchronizeMailboxNewMessage(account, folder, localMessage);
+                synchronized (mListeners) {
+                    for (MessagingListener l : mListeners) {
+                        l.synchronizeMailboxNewMessage(account, folder, localMessage);
+                    }
                 }
             }
         }
@@ -667,8 +713,10 @@ public class MessagingController implements Runnable {
         for (Message localMessage : localMessages) {
             if (remoteUidMap.get(localMessage.getUid()) == null) {
                 localMessage.setFlag(Flag.X_DESTROYED, true);
-                for (MessagingListener l : mListeners) {
-                    l.synchronizeMailboxRemovedMessage(account, folder, localMessage);
+                synchronized (mListeners) {
+                    for (MessagingListener l : mListeners) {
+                        l.synchronizeMailboxRemovedMessage(account, folder, localMessage);
+                    }
                 }
             }
         }
@@ -713,11 +761,13 @@ public class MessagingController implements Runnable {
                     localMessage.setFlag(Flag.X_DOWNLOADED_FULL, true);
 
                     // Update the listener with what we've found
-                    for (MessagingListener l : mListeners) {
-                        l.synchronizeMailboxNewMessage(
-                                account,
-                                folder,
-                                localMessage);
+                    synchronized (mListeners) {
+                        for (MessagingListener l : mListeners) {
+                            l.synchronizeMailboxNewMessage(
+                                    account,
+                                    folder,
+                                    localMessage);
+                        }
                     }
                 }
                 catch (MessagingException me) {
@@ -798,11 +848,13 @@ public class MessagingController implements Runnable {
             }
 
             // Update the listener with what we've found
-            for (MessagingListener l : mListeners) {
-                l.synchronizeMailboxNewMessage(
-                        account,
-                        folder,
-                        localFolder.getMessage(message.getUid()));
+            synchronized (mListeners) {
+                for (MessagingListener l : mListeners) {
+                    l.synchronizeMailboxNewMessage(
+                            account,
+                            folder,
+                            localFolder.getMessage(message.getUid()));
+                }
             }
         }
 
@@ -928,8 +980,10 @@ public class MessagingController implements Runnable {
             String oldUid = localMessage.getUid();
             remoteFolder.appendMessages(new Message[] { localMessage });
             localFolder.changeUid(localMessage);
-            for (MessagingListener l : mListeners) {
-                l.messageUidChanged(account, folder, oldUid, localMessage.getUid());
+            synchronized (mListeners) {
+                for (MessagingListener l : mListeners) {
+                    l.messageUidChanged(account, folder, oldUid, localMessage.getUid());
+                }
             }
         }
         else {
@@ -963,8 +1017,10 @@ public class MessagingController implements Runnable {
                 String oldUid = localMessage.getUid();
                 remoteFolder.appendMessages(new Message[] { localMessage });
                 localFolder.changeUid(localMessage);
-                for (MessagingListener l : mListeners) {
-                    l.messageUidChanged(account, folder, oldUid, localMessage.getUid());
+                synchronized (mListeners) {
+                    for (MessagingListener l : mListeners) {
+                        l.messageUidChanged(account, folder, oldUid, localMessage.getUid());
+                    }
                 }
                 remoteMessage.setFlag(Flag.DELETED, true);
             }
@@ -1131,11 +1187,13 @@ public class MessagingController implements Runnable {
                         fp.add(FetchProfile.Item.BODY);
                         localFolder.fetch(new Message[] { message }, fp, null);
 
-                        for (MessagingListener l : mListeners) {
-                            l.loadMessageForViewBodyAvailable(account, folder, uid, message);
-                        }
-                        for (MessagingListener l : mListeners) {
-                            l.loadMessageForViewFinished(account, folder, uid, message);
+                        synchronized (mListeners) {
+                            for (MessagingListener l : mListeners) {
+                                l.loadMessageForViewBodyAvailable(account, folder, uid, message);
+                            }
+                            for (MessagingListener l : mListeners) {
+                                l.loadMessageForViewFinished(account, folder, uid, message);
+                            }
                         }
                         localFolder.close(false);
                         return;
@@ -1170,18 +1228,22 @@ public class MessagingController implements Runnable {
                     // Mark that this message is now fully synched
                     message.setFlag(Flag.X_DOWNLOADED_FULL, true);
 
-                    for (MessagingListener l : mListeners) {
-                        l.loadMessageForViewBodyAvailable(account, folder, uid, message);
-                    }
-                    for (MessagingListener l : mListeners) {
-                        l.loadMessageForViewFinished(account, folder, uid, message);
+                    synchronized (mListeners) {
+                        for (MessagingListener l : mListeners) {
+                            l.loadMessageForViewBodyAvailable(account, folder, uid, message);
+                        }
+                        for (MessagingListener l : mListeners) {
+                            l.loadMessageForViewFinished(account, folder, uid, message);
+                        }
                     }
                     remoteFolder.close(false);
                     localFolder.close(false);
                 }
                 catch (Exception e) {
-                    for (MessagingListener l : mListeners) {
-                        l.loadMessageForViewFailed(account, folder, uid, e.getMessage());
+                    synchronized (mListeners) {
+                        for (MessagingListener l : mListeners) {
+                            l.loadMessageForViewFailed(account, folder, uid, e.getMessage());
+                        }
                     }
                 }
             }
@@ -1190,8 +1252,10 @@ public class MessagingController implements Runnable {
 
     public void loadMessageForView(final Account account, final String folder, final String uid,
             MessagingListener listener) {
-        for (MessagingListener l : mListeners) {
-            l.loadMessageForViewStarted(account, folder, uid);
+        synchronized (mListeners) {
+            for (MessagingListener l : mListeners) {
+                l.loadMessageForViewStarted(account, folder, uid);
+            }
         }
         try {
             Store localStore = Store.getInstance(account.getLocalStoreUri(), mApplication, null);
@@ -1200,8 +1264,10 @@ public class MessagingController implements Runnable {
 
             Message message = localFolder.getMessage(uid);
 
-            for (MessagingListener l : mListeners) {
-                l.loadMessageForViewHeadersAvailable(account, folder, uid, message);
+            synchronized (mListeners) {
+                for (MessagingListener l : mListeners) {
+                    l.loadMessageForViewHeadersAvailable(account, folder, uid, message);
+                }
             }
 
             if (!message.isSet(Flag.X_DOWNLOADED_FULL)) {
@@ -1221,18 +1287,21 @@ public class MessagingController implements Runnable {
                 message
             }, fp, null);
 
-            for (MessagingListener l : mListeners) {
-                l.loadMessageForViewBodyAvailable(account, folder, uid, message);
-            }
-
-            for (MessagingListener l : mListeners) {
-                l.loadMessageForViewFinished(account, folder, uid, message);
+            synchronized (mListeners) {
+                for (MessagingListener l : mListeners) {
+                    l.loadMessageForViewBodyAvailable(account, folder, uid, message);
+                }
+                for (MessagingListener l : mListeners) {
+                    l.loadMessageForViewFinished(account, folder, uid, message);
+                }
             }
             localFolder.close(false);
         }
         catch (Exception e) {
-            for (MessagingListener l : mListeners) {
-                l.loadMessageForViewFailed(account, folder, uid, e.getMessage());
+            synchronized (mListeners) {
+                for (MessagingListener l : mListeners) {
+                    l.loadMessageForViewFailed(account, folder, uid, e.getMessage());
+                }
             }
         }
     }
@@ -1256,12 +1325,13 @@ public class MessagingController implements Runnable {
          */
         try {
             if (part.getBody() != null) {
-                for (MessagingListener l : mListeners) {
-                    l.loadAttachmentStarted(account, message, part, tag, false);
-                }
-
-                for (MessagingListener l : mListeners) {
-                    l.loadAttachmentFinished(account, message, part, tag);
+                synchronized (mListeners) {
+                    for (MessagingListener l : mListeners) {
+                        l.loadAttachmentStarted(account, message, part, tag, false);
+                    }
+                    for (MessagingListener l : mListeners) {
+                        l.loadAttachmentFinished(account, message, part, tag);
+                    }
                 }
                 return;
             }
@@ -1273,8 +1343,10 @@ public class MessagingController implements Runnable {
              */
         }
 
-        for (MessagingListener l : mListeners) {
-            l.loadAttachmentStarted(account, message, part, tag, true);
+        synchronized (mListeners) {
+            for (MessagingListener l : mListeners) {
+                l.loadAttachmentStarted(account, message, part, tag, true);
+            }
         }
 
         put("loadAttachment", listener, new Runnable() {
@@ -1307,16 +1379,20 @@ public class MessagingController implements Runnable {
                     remoteFolder.fetch(new Message[] { message }, fp, null);
                     localFolder.updateMessage((LocalMessage)message);
                     localFolder.close(false);
-                    for (MessagingListener l : mListeners) {
-                        l.loadAttachmentFinished(account, message, part, tag);
+                    synchronized (mListeners) {
+                        for (MessagingListener l : mListeners) {
+                            l.loadAttachmentFinished(account, message, part, tag);
+                        }
                     }
                 }
                 catch (MessagingException me) {
                     if (Config.LOGV) {
                         Log.v(Email.LOG_TAG, "", me);
                     }
-                    for (MessagingListener l : mListeners) {
-                        l.loadAttachmentFailed(account, message, part, tag, me.getMessage());
+                    synchronized (mListeners) {
+                        for (MessagingListener l : mListeners) {
+                            l.loadAttachmentFailed(account, message, part, tag, me.getMessage());
+                        }
                     }
                 }
             }
@@ -1347,9 +1423,11 @@ public class MessagingController implements Runnable {
             sendPendingMessages(account, null);
         }
         catch (Exception e) {
-            for (MessagingListener l : mListeners) {
-                // TODO general failed
-            }
+//            synchronized (mListeners) {
+//                for (MessagingListener l : mListeners) {
+//                    // TODO general failed
+//                }
+//            }
         }
     }
 
@@ -1433,14 +1511,18 @@ public class MessagingController implements Runnable {
             if (localFolder.getMessageCount() == 0) {
                 localFolder.delete(false);
             }
-            for (MessagingListener l : mListeners) {
-                l.sendPendingMessagesCompleted(account);
+            synchronized (mListeners) {
+                for (MessagingListener l : mListeners) {
+                    l.sendPendingMessagesCompleted(account);
+                }
             }
         }
         catch (Exception e) {
-            for (MessagingListener l : mListeners) {
-                // TODO general failed
-            }
+//            synchronized (mListeners) {
+//                for (MessagingListener l : mListeners) {
+//                    // TODO general failed
+//                }
+//            }
         }
     }
 
@@ -1492,8 +1574,10 @@ public class MessagingController implements Runnable {
                         Flag.DELETED
                     }, true);
                     localFolder.close(true);
-                    for (MessagingListener l : mListeners) {
-                        l.emptyTrashCompleted(account);
+                    synchronized (mListeners) {
+                        for (MessagingListener l : mListeners) {
+                            l.emptyTrashCompleted(account);
+                        }
                     }
                 }
                 catch (Exception e) {
@@ -1519,8 +1603,10 @@ public class MessagingController implements Runnable {
      */
     public void checkMail(final Context context, final Account[] accountsToCheck,
             final MessagingListener listener) {
-        for (MessagingListener l : mListeners) {
-            l.checkMailStarted(context, null);      // TODO this needs to pass the actual array
+        synchronized (mListeners) {
+            for (MessagingListener l : mListeners) {
+                l.checkMailStarted(context, null);      // TODO this needs to pass the actual array
+            }
         }
         put("checkMail", listener, new Runnable() {
             public void run() {
@@ -1532,8 +1618,10 @@ public class MessagingController implements Runnable {
                     sendPendingMessagesSynchronous(account);
                     synchronizeMailboxSynchronous(account, Email.INBOX);
                 }
-                for (MessagingListener l : mListeners) {
-                    l.checkMailFinished(context, null);  // TODO this needs to pass the actual array
+                synchronized (mListeners) {
+                    for (MessagingListener l : mListeners) {
+                        l.checkMailFinished(context, null);  // TODO this needs to pass actual array
+                    }
                 }
             }
         });
@@ -1570,5 +1658,10 @@ public class MessagingController implements Runnable {
         public MessagingListener listener;
 
         public String description;
+        
+        @Override
+        public String toString() {
+            return description;
+        }
     }
 }
