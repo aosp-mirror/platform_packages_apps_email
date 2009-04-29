@@ -29,7 +29,6 @@ import com.android.email.mail.MessageRetrievalListener;
 import com.android.email.mail.MessagingException;
 import com.android.email.mail.Part;
 import com.android.email.mail.Store;
-import com.android.email.mail.Folder.MessageUpdateCallbacks;
 import com.android.email.mail.Message.RecipientType;
 import com.android.email.mail.internet.MimeBodyPart;
 import com.android.email.mail.internet.MimeHeader;
@@ -788,8 +787,7 @@ public class LocalStore extends Store {
         }
 
         @Override
-        public void copyMessages(Message[] msgs, Folder folder, MessageUpdateCallbacks callbacks)
-                throws MessagingException {
+        public void copyMessages(Message[] msgs, Folder folder) throws MessagingException {
             if (!(folder instanceof LocalFolder)) {
                 throw new MessagingException("copyMessages called with incorrect Folder");
             }
@@ -883,17 +881,6 @@ public class LocalStore extends Store {
                 } catch (Exception e) {
                     throw new MessagingException("Error appending message", e);
                 }
-            }
-        }
-
-        /**
-         * Note: Although implemented here, this is only required for stores that call
-         * MessageUpdateCallbacks
-         */
-        @Override
-        public void updateMessages(Message[] messages) throws MessagingException {
-            for (Message message : messages) {
-                updateMessage((LocalMessage)message);
             }
         }
 
