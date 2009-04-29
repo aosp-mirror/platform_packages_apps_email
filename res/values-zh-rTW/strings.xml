@@ -75,7 +75,7 @@
     <string name="message_compose_quoted_text_label">"引用的文字"</string>
     <string name="message_compose_error_no_recipients">"您必須新增至少一位收件者。"</string>
     <string name="message_compose_attachments_skipped_toast">"尚未下載部分附件，因此無法予以轉寄。"</string>
-    <string name="message_compose_attachment_size">"檔案太大，超過附檔上限。"</string>
+    <string name="message_compose_attachment_size">"檔案過大，無法貼附。"</string>
     <string name="message_view_to_label">"收件者："</string>
     <string name="message_view_cc_label">"副本："</string>
     <string name="message_view_attachment_view_action">"開啟"</string>
