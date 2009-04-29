@@ -246,6 +246,9 @@ public class MessagingController implements Runnable {
                         }
 
                         localFolders = localStore.getPersonalNamespaces();
+                        
+                        // Signal the remote store that it can now use folder-based callbacks
+                        store.localFolderSetupComplete();
 
                         for (MessagingListener l : mListeners) {
                             l.listFolders(account, localFolders);
