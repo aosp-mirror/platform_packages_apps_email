@@ -549,12 +549,14 @@ public class LocalStore extends Store {
                     new Object[] { mVisibleLimit, mFolderId });
         }
 
-
+        /**
+         * Supports FetchProfile.Item.BODY and FetchProfile.Item.STRUCTURE
+         */
         @Override
         public void fetch(Message[] messages, FetchProfile fp, MessageRetrievalListener listener)
                 throws MessagingException {
             open(OpenMode.READ_WRITE);
-            if (fp.contains(FetchProfile.Item.BODY)) {
+            if (fp.contains(FetchProfile.Item.BODY) || fp.contains(FetchProfile.Item.STRUCTURE)) {
                 for (Message message : messages) {
                     LocalMessage localMessage = (LocalMessage)message;
                     Cursor cursor = null;
@@ -562,30 +564,45 @@ public class LocalStore extends Store {
                     MimeMultipart mp = new MimeMultipart();
                     mp.setSubType("mixed");
                     localMessage.setBody(mp);
-                    try {
-                        cursor = mDb.rawQuery("SELECT html_content, text_content FROM messages "
-                                + "WHERE id = ?",
-                                new String[] { Long.toString(localMessage.mId) });
-                        cursor.moveToNext();
-                        String htmlContent = cursor.getString(0);
-                        String textContent = cursor.getString(1);
+                    
+                    // If fetching the body, retrieve html & plaintext from DB.
+                    // If fetching structure, simply build placeholders for them.
+                    if (fp.contains(FetchProfile.Item.BODY)) {
+                        try {
+                            cursor = mDb.rawQuery("SELECT html_content, text_content FROM messages "
+                                    + "WHERE id = ?",
+                                    new String[] { Long.toString(localMessage.mId) });
+                            cursor.moveToNext();
+                            String htmlContent = cursor.getString(0);
+                            String textContent = cursor.getString(1);
 
-                        if (htmlContent != null) {
-                            TextBody body = new TextBody(htmlContent);
-                            MimeBodyPart bp = new MimeBodyPart(body, "text/html");
-                            mp.addBodyPart(bp);
-                        }
+                            if (htmlContent != null) {
+                                TextBody body = new TextBody(htmlContent);
+                                MimeBodyPart bp = new MimeBodyPart(body, "text/html");
+                                mp.addBodyPart(bp);
+                            }
 
-                        if (textContent != null) {
-                            TextBody body = new TextBody(textContent);
-                            MimeBodyPart bp = new MimeBodyPart(body, "text/plain");
-                            mp.addBodyPart(bp);
+                            if (textContent != null) {
+                                TextBody body = new TextBody(textContent);
+                                MimeBodyPart bp = new MimeBodyPart(body, "text/plain");
+                                mp.addBodyPart(bp);
+                            }
                         }
-                    }
-                    finally {
-                        if (cursor != null) {
-                            cursor.close();
+                        finally {
+                            if (cursor != null) {
+                                cursor.close();
+                            }
                         }
+                    } else {
+                        MimeBodyPart bp = new MimeBodyPart();
+                        bp.setHeader(MimeHeader.HEADER_CONTENT_TYPE,
+                                "text/html;\n charset=\"UTF-8\"");
+                        mp.addBodyPart(bp);
+
+                        bp = new MimeBodyPart();
+                        bp.setHeader(MimeHeader.HEADER_CONTENT_TYPE,
+                                "text/plain;\n charset=\"UTF-8\"");
+                        mp.addBodyPart(bp);
                     }
 
                     try {
