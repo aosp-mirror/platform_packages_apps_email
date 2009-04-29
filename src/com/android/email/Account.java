@@ -413,7 +413,11 @@ public class Account implements Serializable, Store.PersistentDataCallbacks {
      * @param storeData Data to persist.  All data must be encoded into a string,
      * so use base64 or some other encoding if necessary.
      */
-    public void setPersistentString(String storeData) {
+    public void setPersistentString(Context context, String storeData) {
+        // recover preferences if needed
+        if (mPreferences == null) {
+            mPreferences = Preferences.getPreferences(context);
+        }
         synchronized (this.getClass()) {
             mStorePersistent = mPreferences.mSharedPreferences.getString(
                     mUuid  + PREF_TAG_STORE_PERSISTENT, null);
@@ -430,8 +434,12 @@ public class Account implements Serializable, Store.PersistentDataCallbacks {
     /**
      * @return the data saved by the Store, or null if never set.
      */
-    public String getPersistentString() {
-        synchronized (this.getClass()) {
+    public String getPersistentString(Context context) {
+        // recover preferences if needed
+        if (mPreferences == null) {
+            mPreferences = Preferences.getPreferences(context);
+        }
+         synchronized (this.getClass()) {
             mStorePersistent = mPreferences.mSharedPreferences.getString(
                     mUuid  + PREF_TAG_STORE_PERSISTENT, null);
         }

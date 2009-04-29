@@ -18,9 +18,16 @@ package com.android.email;
 
 import com.android.email.mail.Store;
 
+import android.content.Context;
 import android.content.SharedPreferences;
 import android.test.AndroidTestCase;
 import android.test.suitebuilder.annotation.SmallTest;
+
+import java.io.ByteArrayInputStream;
+import java.io.ByteArrayOutputStream;
+import java.io.IOException;
+import java.io.ObjectInputStream;
+import java.io.ObjectOutputStream;
 
 /**
  * This is a series of unit tests for the Account class.
@@ -150,25 +157,27 @@ public class AccountUnitTests extends AndroidTestCase {
         final String TEST_STRING = "This is the store's persistent data.";
         final String TEST_STRING_2 = "Rewrite the store data.";
 
+        Context context = getContext();
+
         // create a dummy account
         createTestAccount();
         
         // confirm null on new account
-        assertNull(mAccount.getPersistentString());
+        assertNull(mAccount.getPersistentString(context));
         
         // test write/readback
-        mAccount.setPersistentString(TEST_STRING);
+        mAccount.setPersistentString(context, TEST_STRING);
         mAccount.save(mPreferences);
         mAccount.refresh(mPreferences);
-        assertEquals(TEST_STRING, mAccount.getPersistentString());
+        assertEquals(TEST_STRING, mAccount.getPersistentString(context));
         
         // test that the data is shared across multiple account instantiations
         Account account2 = new Account(mPreferences, mUuid);
-        assertEquals(TEST_STRING, account2.getPersistentString());
-        mAccount.setPersistentString(TEST_STRING_2);
-        assertEquals(TEST_STRING_2, account2.getPersistentString());        
+        assertEquals(TEST_STRING, account2.getPersistentString(context));
+        mAccount.setPersistentString(context, TEST_STRING_2);
+        assertEquals(TEST_STRING_2, account2.getPersistentString(context));        
     }
-    
+
     /**
      * Test the callbacks for setting & getting persistent data
      */
@@ -177,18 +186,58 @@ public class AccountUnitTests extends AndroidTestCase {
         final String TEST_STRING = "This is the store's persistent data.";
         final String TEST_STRING_2 = "Rewrite the store data.";
 
+        Context context = getContext();
+
         // create a dummy account
         createTestAccount();
         Store.PersistentDataCallbacks callbacks = mAccount.getStoreCallbacks();
-        
+
         // push some data through the interfaces
-        assertNull(callbacks.getPersistentString());
-        callbacks.setPersistentString(TEST_STRING);
-        assertEquals(TEST_STRING, mAccount.getPersistentString());
+        assertNull(callbacks.getPersistentString(context));
+        callbacks.setPersistentString(context, TEST_STRING);
+        assertEquals(TEST_STRING, mAccount.getPersistentString(context));
+
+        mAccount.setPersistentString(context, TEST_STRING_2);
+        assertEquals(TEST_STRING_2, callbacks.getPersistentString(context));
+    }
+
+    /**
+     * Test that the Account survives serialization (which wipes mPreferences)
+     */
+    public void testStorePersistentCallbacksSerialized()
+            throws IOException, ClassNotFoundException {
+
+        final String TEST_STRING = "This is the store's persistent data.";
+
+        Context context = getContext();
+
+        // create a dummy account
+        createTestAccount();
+        Store.PersistentDataCallbacks callbacks = mAccount.getStoreCallbacks();
+
+        // push some data through the interfaces
+        assertNull(callbacks.getPersistentString(context));
+        callbacks.setPersistentString(context, TEST_STRING);
+        assertEquals(TEST_STRING, mAccount.getPersistentString(context));
         
-        mAccount.setPersistentString(TEST_STRING_2);
-        assertEquals(TEST_STRING_2, callbacks.getPersistentString());
-   }
+        // Serialize & Deserialize
+        ByteArrayOutputStream byteOutStream = new ByteArrayOutputStream();
+        ObjectOutputStream out = new ObjectOutputStream(byteOutStream);
+        out.writeObject(mAccount);
+        out.close();
+        byte[] bytes = byteOutStream.toByteArray();
+        
+        ByteArrayInputStream byteInStream = new ByteArrayInputStream(bytes);
+        ObjectInputStream in = new ObjectInputStream(byteInStream);
+        
+        Object obj = in.readObject();
+        Account newAccount = (Account) obj;
+        
+        Store.PersistentDataCallbacks newCallbacks = newAccount.getStoreCallbacks();
+        
+        assertEquals(TEST_STRING, newAccount.getPersistentString(context));
+    }
+
     
     /**
      * Create a dummy account with minimal fields
