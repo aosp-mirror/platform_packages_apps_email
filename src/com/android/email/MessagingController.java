@@ -968,7 +968,7 @@ public class MessagingController implements Runnable {
 
         Store remoteStore = Store.getInstance(account.getStoreUri(), mApplication, 
                 account.getStoreCallbacks());
-        Folder remoteFolder = remoteStore.getFolder(folder);
+        final Folder remoteFolder = remoteStore.getFolder(folder);
         if (!remoteFolder.exists()) {
             return;
         }
@@ -998,7 +998,19 @@ public class MessagingController implements Runnable {
         }
 
         if (remoteTrashFolder.exists()) {
-            remoteFolder.copyMessages(new Message[] { remoteMessage }, remoteTrashFolder);
+            remoteFolder.copyMessages(new Message[] { remoteMessage }, remoteTrashFolder,
+                    new Folder.MessageUpdateCallbacks() {
+                        @Override
+                        public void onMessageUidChange(Message message, String newUid)
+                                throws MessagingException {
+                            // update the UID in the original folder to match
+                            // because some stores will have to change it when copying
+                            // to remoteTrashFolder
+                            message.setUid(newUid);
+                            remoteFolder.updateMessages(new Message[] { message });
+                        }
+                    }
+            );
         }
 
         remoteMessage.setFlag(Flag.DELETED, true);
@@ -1367,9 +1379,7 @@ public class MessagingController implements Runnable {
                         message.setFlag(Flag.X_SEND_IN_PROGRESS, true);
                         sender.sendMessage(message);
                         message.setFlag(Flag.X_SEND_IN_PROGRESS, false);
-                        localFolder.copyMessages(
-                                new Message[] { message },
-                                localSentFolder);
+                        localFolder.copyMessages(new Message[] { message }, localSentFolder, null);
 
                         PendingCommand command = new PendingCommand();
                         command.command = PENDING_COMMAND_APPEND;
@@ -1425,7 +1435,7 @@ public class MessagingController implements Runnable {
             Folder localFolder = localStore.getFolder(folder);
             Folder localTrashFolder = localStore.getFolder(account.getTrashFolderName());
 
-            localFolder.copyMessages(new Message[] { message }, localTrashFolder);
+            localFolder.copyMessages(new Message[] { message }, localTrashFolder, null);
             message.setFlag(Flag.DELETED, true);
 
             if (account.getDeletePolicy() == Account.DELETE_POLICY_ON_DELETE) {

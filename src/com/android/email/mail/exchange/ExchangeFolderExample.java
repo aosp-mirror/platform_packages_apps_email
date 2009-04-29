@@ -22,6 +22,7 @@ import com.android.email.mail.Folder;
 import com.android.email.mail.Message;
 import com.android.email.mail.MessageRetrievalListener;
 import com.android.email.mail.MessagingException;
+import com.android.email.mail.Folder.MessageUpdateCallbacks;
 
 /**
  * Sample code for implementing a new server folder.  See also ExchangeStoreExample,
@@ -57,7 +58,8 @@ public class ExchangeFolderExample extends Folder {
     }
 
     @Override
-    public void copyMessages(Message[] msgs, Folder folder) throws MessagingException {
+    public void copyMessages(Message[] msgs, Folder folder, MessageUpdateCallbacks callbacks)
+        throws MessagingException {
         // TODO Implement this function
     }
 
@@ -162,6 +164,10 @@ public class ExchangeFolderExample extends Folder {
     public void setFlags(Message[] messages, Flag[] flags, boolean value) throws MessagingException {
         // TODO Implement this function
     }
-
-
+    
+    @Override
+    public void updateMessages(Message[] messages) throws MessagingException {
+        // TODO Implement this function, if required 
+        // (only required for stores that call MessageUpdateCallbacks)
+    }
 }

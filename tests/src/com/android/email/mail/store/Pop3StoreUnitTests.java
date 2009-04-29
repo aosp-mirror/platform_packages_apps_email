@@ -241,7 +241,7 @@ public class Pop3StoreUnitTests extends AndroidTestCase {
         
         // copyMessages() is unsupported
         try {
-            mFolder.copyMessages(null, null);
+            mFolder.copyMessages(null, null, null);
             fail("Exception not thrown by copyMessages()");
         } catch (UnsupportedOperationException e) {
             // expected - succeed
