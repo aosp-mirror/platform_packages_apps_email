@@ -31,7 +31,8 @@ public class MockFolder extends Folder {
     }
 
     @Override
-    public void copyMessages(Message[] msgs, Folder folder) throws MessagingException {
+    public void copyMessages(Message[] msgs, Folder folder, 
+            MessageUpdateCallbacks callbacks) throws MessagingException {
         // TODO Auto-generated method stub
 
     }

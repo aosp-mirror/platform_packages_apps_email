@@ -787,7 +787,8 @@ public class LocalStore extends Store {
         }
 
         @Override
-        public void copyMessages(Message[] msgs, Folder folder) throws MessagingException {
+        public void copyMessages(Message[] msgs, Folder folder, MessageUpdateCallbacks callbacks)
+                throws MessagingException {
             if (!(folder instanceof LocalFolder)) {
                 throw new MessagingException("copyMessages called with incorrect Folder");
             }

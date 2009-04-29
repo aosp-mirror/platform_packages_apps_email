@@ -107,7 +107,8 @@ public abstract class Folder {
 
     public abstract void appendMessages(Message[] messages) throws MessagingException;
 
-    public abstract void copyMessages(Message[] msgs, Folder folder) throws MessagingException;
+    public abstract void copyMessages(Message[] msgs, Folder folder,
+            MessageUpdateCallbacks callbacks) throws MessagingException;
 
     public abstract void setFlags(Message[] messages, Flag[] flags, boolean value)
             throws MessagingException;
@@ -171,6 +172,19 @@ public abstract class Folder {
          * @return the data saved by the Folder, or defaultValue if never set.
          */
         public String getPersistentString(String key, String defaultValue);
+    }
+
+    /**
+     * Callback interface by which a folder can report UID changes caused by certain operations.
+     */
+    public interface MessageUpdateCallbacks {
+        /**
+         * The operation caused the message's UID to change
+         * @param message The message for which the UID changed
+         * @param newUid The new UID for the message
+         */
+        public void onMessageUidChange(Message message, String newUid) 
+                throws MessagingException;
     }
 
     @Override

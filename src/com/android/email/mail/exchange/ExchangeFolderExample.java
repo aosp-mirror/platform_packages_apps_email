@@ -57,7 +57,8 @@ public class ExchangeFolderExample extends Folder {
     }
 
     @Override
-    public void copyMessages(Message[] msgs, Folder folder) throws MessagingException {
+    public void copyMessages(Message[] msgs, Folder folder, MessageUpdateCallbacks callbacks)
+            throws MessagingException {
         // TODO Implement this function
     }
 
