@@ -243,10 +243,14 @@ public class AccountSetupExchange extends Activity implements OnClickListener {
         return uri;
     }
 
+    /**
+     * Note, in EAS, store & sender are the same, so we always populate them together
+     */
     private void onNext() {
         try {
             URI uri = getUri();
             mAccount.setStoreUri(uri.toString());
+            mAccount.setSenderUri(uri.toString());
         } catch (URISyntaxException use) {
             /*
              * It's unrecoverable if we cannot create a URI from components that
