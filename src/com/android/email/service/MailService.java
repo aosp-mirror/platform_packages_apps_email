@@ -26,6 +26,7 @@ import com.android.email.activity.Accounts;
 import com.android.email.activity.FolderMessageList;
 import com.android.email.mail.MessagingException;
 import com.android.email.mail.Store;
+import com.android.email.mail.store.LocalStore;
 
 import android.app.AlarmManager;
 import android.app.Notification;
@@ -281,10 +282,13 @@ public class MailService extends Service {
      */
     private void enablePushMail(Account account, boolean enable) {
         try {
+            String localUri = account.getLocalStoreUri();
             String storeUri = account.getStoreUri();
-            if (storeUri != null) {
+            if (localUri != null && storeUri != null) {
+                LocalStore localStore = (LocalStore) Store.getInstance(
+                        localUri, this.getBaseContext(), null);
                 Store store = Store.getInstance(storeUri, this.getBaseContext(), 
-                        account.getStoreCallbacks());
+                        localStore.getPersistentCallbacks());
                 if (store != null) {
                     store.enablePushModeDelivery(enable);
                 }
