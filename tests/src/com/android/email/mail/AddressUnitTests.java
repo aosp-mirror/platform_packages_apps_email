@@ -55,6 +55,75 @@ public class AddressUnitTests extends AndroidTestCase {
     }
 
     /**
+     * Test for setAddress().
+     */
+    public void testSetAddress() {
+        String bareAddress = "user1@dom1.com";
+        String bracketAddress = "<user2@dom2.com>";
+        
+        Address address = new Address(bareAddress);
+        assertEquals("bare address", "user1@dom1.com", address.getAddress());
+        
+        address.setAddress(bracketAddress);
+        assertEquals("bracket address", "user2@dom2.com", address.getAddress());
+    }
+    
+    /**
+     * Test for empty setPersonal().
+     */
+    public void testNullPersonal() {
+        Address address = new Address("user1@dom1.org");
+        assertNull("no name", address.getPersonal());
+        
+        address.setPersonal(null);
+        assertNull("null name", address.getPersonal());
+        
+        address.setPersonal("");
+        assertNull("empty name", address.getPersonal());
+        
+        address.setPersonal("\"\"");
+        assertNull("quoted empty address", address.getPersonal());
+    }
+    
+    /**
+     * Test for setPersonal().
+     */
+    public void testSetPersonal() {
+        Address address = new Address("user1@dom1.net", "simple name");
+        assertEquals("simple name", "simple name", address.getPersonal());
+        
+        address.setPersonal("big \\\"G\\\"");
+        assertEquals("quoted name", "big \"G\"", address.getPersonal());
+        
+        address.setPersonal("=?UTF-8?Q?big \"G\"?=");
+        assertEquals("quoted printable name", "big \"G\"", address.getPersonal());
+        
+        address.setPersonal("=?UTF-8?B?YmlnICJHIg==?=");
+        assertEquals("base64 encoded name", "big \"G\"", address.getPersonal());
+    }
+    
+    /**
+     * Test for setPersonal() with utf-16 and utf-32.
+     */
+    public void testSetPersonalMultipleEncodings() {
+        Address address = new Address("user1@dom1.co.jp", "=?UTF-8?B?5bK45pys?=");
+        assertEquals("base64 utf-16 name", "\u5CB8\u672C", address.getPersonal());
+        
+        address.setPersonal("\"=?UTF-8?Q?=E5=B2=B8=E6=9C=AC?=\"");
+        assertEquals("quoted printable utf-16 name", "\u5CB8\u672C", address.getPersonal());
+        
+        address.setPersonal("=?ISO-2022-JP?B?GyRCNF9LXBsoQg==?=");
+        assertEquals("base64 jis encoded name", "\u5CB8\u672C", address.getPersonal());
+        
+        address.setPersonal("\"=?UTF-8?B?8J2MgfCdjYY=?=\"");
+        assertEquals("base64 utf-32 name", "\uD834\uDF01\uD834\uDF46", address.getPersonal());
+
+        address.setPersonal("=?UTF-8?Q?=F0=9D=8C=81=F0=9D=8D=86?=");
+        assertEquals("quoted printable utf-32 name",
+                "\uD834\uDF01\uD834\uDF46", address.getPersonal());
+    }
+    
+    /**
      * TODO: more in-depth tests for parse()
      */
     
@@ -74,6 +143,14 @@ public class AddressUnitTests extends AndroidTestCase {
         // empty string input => empty array
         result = Address.parse("");
         assertTrue("parsing zero-length", result != null && result.length == 0);
+        
+        // spaces
+        result = Address.parse("   ");
+        assertTrue("parsing spaces", result != null && result.length == 0);
+
+        // spaces with comma
+        result = Address.parse("  ,  ");
+        assertTrue("parsing spaces with comma", result != null && result.length == 0);
     }
     
     /**
@@ -268,6 +345,106 @@ public class AddressUnitTests extends AndroidTestCase {
                 + "\u65E5\u672C\u8A9E <address7@co.jp>,"
                 + "\uD834\uDF01\uD834\uDF46 <address8@ne.jp>,"
                 + "\uD834\uDF01\uD834\uDF46 <address9@ne.jp>",
+                line);
+    }
+
+    /**
+     * Test parsing for quoted and encoded name part.
+     */
+    public void testParsingQuotedEncodedName() {
+        Address[] addresses = Address.parse(
+                "\"big \\\"G\\\"\" <bigG@dom1.com>, =?UTF-8?B?5pel5pys6Kqe?= <address2@co.jp>");
+
+        assertEquals("address count", 2, addresses.length);
+
+        assertEquals("quoted name address", "bigG@dom1.com", addresses[0].getAddress());
+        assertEquals("quoted name", "big \"G\"", addresses[0].getPersonal());
+
+        assertEquals("encoded name address", "address2@co.jp", addresses[1].getAddress());
+        assertEquals("encoded name", "\u65E5\u672C\u8A9E", addresses[1].getPersonal());
+    }
+
+    /**
+     * Test various combinations of the toHeader (single) method
+     */
+    public void testToHeaderSingle() {
+        Address noName1 = new Address("noname1@dom1.com");
+        Address noName2 = new Address("<noname2@dom2.com>", "");
+        Address simpleName = new Address("address3@dom3.org", "simple name");
+        Address dquoteName = new Address("address4@dom4.org", "name,4");
+        Address quotedName = new Address("bigG@dom5.net", "big \"G\"");
+        Address utf16Name = new Address("<address6@co.jp>", "\"\u65E5\u672C\u8A9E\"");
+        Address utf32Name = new Address("<address8@ne.jp>", "\uD834\uDF01\uD834\uDF46");
+        
+        // test for internal states.
+        assertEquals("no name 1 address", "noname1@dom1.com", noName1.getAddress());
+        assertNull("no name 1 name", noName1.getPersonal());
+        assertEquals("no name 2 address", "noname2@dom2.com", noName2.getAddress());
+        assertNull("no name 2 name", noName2.getPersonal());
+        assertEquals("simple name address", "address3@dom3.org", simpleName.getAddress());
+        assertEquals("simple name name", "simple name", simpleName.getPersonal());
+        assertEquals("double quoted name address", "address4@dom4.org", dquoteName.getAddress());
+        assertEquals("double quoted name name", "name,4", dquoteName.getPersonal());
+        assertEquals("quoted name address", "bigG@dom5.net", quotedName.getAddress());
+        assertEquals("quoted name name", "big \"G\"", quotedName.getPersonal());
+        assertEquals("utf-16 name address", "address6@co.jp", utf16Name.getAddress());       
+        assertEquals("utf-16 name name", "\u65E5\u672C\u8A9E", utf16Name.getPersonal());       
+        assertEquals("utf-32 name address", "address8@ne.jp", utf32Name.getAddress());       
+        assertEquals("utf-32 name name", "\uD834\uDF01\uD834\uDF46", utf32Name.getPersonal());       
+
+        // Test for toHeader() results.
+        assertEquals("no name 1", "noname1@dom1.com", noName1.toHeader());
+        assertEquals("no name 2", "noname2@dom2.com", noName2.toHeader());
+        assertEquals("simple name", "simple name <address3@dom3.org>", simpleName.toHeader());
+        assertEquals("double quoted name", "\"name,4\" <address4@dom4.org>", dquoteName.toHeader());
+        assertEquals("quoted name", "\"big \\\"G\\\"\" <bigG@dom5.net>", quotedName.toHeader());
+        assertEquals("utf-16 name", "=?UTF-8?B?5pel5pys6Kqe?= <address6@co.jp>",
+                utf16Name.toHeader());       
+        assertEquals("utf-32 name", "=?UTF-8?B?8J2MgfCdjYY=?= <address8@ne.jp>",
+                utf32Name.toHeader());       
+    }
+    
+    /**
+     * Test various combinations of the toHeader (multi) method
+     */
+    public void testToHeaderMulti() {
+        Address noName1 = new Address("noname1@dom1.com");
+        Address noName2 = new Address("<noname2@dom2.com>", "");
+        Address simpleName = new Address("address3@dom3.org", "simple name");
+        Address dquoteName = new Address("address4@dom4.org", "name,4");
+        Address quotedName = new Address("bigG@dom5.net", "big \"G\"");
+        Address utf16Name = new Address("<address6@co.jp>", "\"\u65E5\u672C\u8A9E\"");
+        Address utf32Name = new Address("<address8@ne.jp>", "\uD834\uDF01\uD834\uDF46");
+        
+        // test for internal states.
+        assertEquals("no name 1 address", "noname1@dom1.com", noName1.getAddress());
+        assertNull("no name 1 name", noName1.getPersonal());
+        assertEquals("no name 2 address", "noname2@dom2.com", noName2.getAddress());
+        assertNull("no name 2 name", noName2.getPersonal());
+        assertEquals("simple name address", "address3@dom3.org", simpleName.getAddress());
+        assertEquals("simple name name", "simple name", simpleName.getPersonal());
+        assertEquals("double quoted name address", "address4@dom4.org", dquoteName.getAddress());
+        assertEquals("double quoted name name", "name,4", dquoteName.getPersonal());
+        assertEquals("quoted name address", "bigG@dom5.net", quotedName.getAddress());
+        assertEquals("quoted name name", "big \"G\"", quotedName.getPersonal());
+        assertEquals("utf-16 name address", "address6@co.jp", utf16Name.getAddress());       
+        assertEquals("utf-16 name name", "\u65E5\u672C\u8A9E", utf16Name.getPersonal());       
+        assertEquals("utf-32 name address", "address8@ne.jp", utf32Name.getAddress());       
+        assertEquals("utf-32 name name", "\uD834\uDF01\uD834\uDF46", utf32Name.getPersonal());       
+
+        Address[] addresses = new Address[] {
+                noName1, noName2, simpleName, dquoteName, quotedName, utf16Name, utf32Name,
+        };
+        String line = Address.toHeader(addresses);
+        
+        assertEquals("toHeader() multi",
+                "noname1@dom1.com, "
+                + "noname2@dom2.com, "
+                + "simple name <address3@dom3.org>, "
+                + "\"name,4\" <address4@dom4.org>, "
+                + "\"big \\\"G\\\"\" <bigG@dom5.net>, "
+                + "=?UTF-8?B?5pel5pys6Kqe?= <address6@co.jp>, "
+                + "=?UTF-8?B?8J2MgfCdjYY=?= <address8@ne.jp>",
                 line);
     }
     
