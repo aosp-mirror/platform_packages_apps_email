@@ -426,8 +426,11 @@ public class MessageView extends Activity
     @Override
     public void onDestroy() {
         super.onDestroy();
-        mMessageContentView.destroy();
-        mMessageContentView = null;
+        // This is synchronized because the listener accesses mMessageContentView from its thread
+        synchronized (this) {
+            mMessageContentView.destroy();
+            mMessageContentView = null;
+        }
     }
 
     private void onDelete() {
@@ -967,11 +970,10 @@ public class MessageView extends Activity
                         mHandler.showShowPictures(true);
                     }
 
-                    mMessageContentView.loadDataWithBaseURL("email://", text, "text/html",
-                            "utf-8", null);
+                    loadMessageContentText(text);
                 }
                 else {
-                    mMessageContentView.loadUrl("file:///android_asset/empty.html");
+                    loadMessageContentUrl("file:///android_asset/empty.html");
                 }
                 renderAttachments(mMessage, 0);
             }
@@ -989,7 +991,7 @@ public class MessageView extends Activity
                 public void run() {
                     setProgressBarIndeterminateVisibility(false);
                     mHandler.networkError();
-                    mMessageContentView.loadUrl("file:///android_asset/empty.html");
+                    loadMessageContentUrl("file:///android_asset/empty.html");
                 }
             });
         }
@@ -1008,7 +1010,7 @@ public class MessageView extends Activity
         public void loadMessageForViewStarted(Account account, String folder, String uid) {
             mHandler.post(new Runnable() {
                 public void run() {
-                    mMessageContentView.loadUrl("file:///android_asset/loading.html");
+                    loadMessageContentUrl("file:///android_asset/loading.html");
                     setProgressBarIndeterminateVisibility(true);
                 }
             });
@@ -1077,6 +1079,33 @@ public class MessageView extends Activity
             mHandler.setAttachmentsEnabled(true);
             mHandler.progress(false);
             mHandler.networkError();
+        }
+        
+        /**
+         * Safely load a URL for mMessageContentView, or drop it if the view is gone
+         * TODO this really should be moved into a handler message, avoiding the need
+         * for this synchronized() section
+         */
+        private void loadMessageContentUrl(String fileName) {
+            synchronized (MessageView.this) {
+                if (mMessageContentView != null) {
+                    mMessageContentView.loadUrl(fileName);
+                }
+            }
+        }
+        
+        /**
+         * Safely load text for mMessageContentView, or drop it if the view is gone
+         * TODO this really should be moved into a handler message, avoiding the need
+         * for this synchronized() section
+         */
+        private void loadMessageContentText(String text) {
+            synchronized (MessageView.this) {
+                if (mMessageContentView != null) {
+                    mMessageContentView.loadDataWithBaseURL("email://", text, "text/html",
+                            "utf-8", null);
+                }
+            }
         }
     }
 
