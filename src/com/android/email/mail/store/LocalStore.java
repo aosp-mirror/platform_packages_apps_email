@@ -411,10 +411,6 @@ public class LocalStore extends Store {
     /**
      * Set the visible limit for all folders in a given store.
      * 
-     * NOTE:  <b>Does Not</b> update cached values for any held Folder objects.  This is
-     * intended only for use at startup time.  To reset the value for any given folder, use
-     * {@link LocalFolder#setVisibleLimit(int)}.
-     * 
      * @param visibleLimit the value to write to all folders.  -1 may also be used as a marker.
      */
     public void resetVisibleLimits(int visibleLimit) {
@@ -604,10 +600,25 @@ public class LocalStore extends Store {
 
         @Override
         public int getUnreadMessageCount() throws MessagingException {
-            open(OpenMode.READ_WRITE);
+            if (!isOpen()) {
+                // opening it will read all columns including mUnreadMessageCount
+                open(OpenMode.READ_WRITE);
+            } else {
+                // already open.  refresh from db in case another instance wrote to it
+                Cursor cursor = null;
+                try {
+                    cursor = mDb.rawQuery("SELECT unread_count FROM folders WHERE folders.name = ?",
+                            new String[] { mName });
+                    cursor.moveToFirst();
+                    mUnreadMessageCount = cursor.getInt(0);
+                } finally {
+                    if (cursor != null) {
+                        cursor.close();
+                    }
+                }
+            }
             return mUnreadMessageCount;
         }
-
 
         public void setUnreadMessageCount(int unreadMessageCount) throws MessagingException {
             open(OpenMode.READ_WRITE);
@@ -617,10 +628,26 @@ public class LocalStore extends Store {
         }
 
         public int getVisibleLimit() throws MessagingException {
-            open(OpenMode.READ_WRITE);
+            if (!isOpen()) {
+                // opening it will read all columns including mVisibleLimit
+                open(OpenMode.READ_WRITE);
+            } else {
+                // already open.  refresh from db in case another instance wrote to it
+                Cursor cursor = null;
+                try {
+                    cursor = mDb.rawQuery(
+                            "SELECT visible_limit FROM folders WHERE folders.name = ?",
+                            new String[] { mName });
+                    cursor.moveToFirst();
+                    mVisibleLimit = cursor.getInt(0);
+                } finally {
+                    if (cursor != null) {
+                        cursor.close();
+                    }
+                }
+            }
             return mVisibleLimit;
         }
-
 
         public void setVisibleLimit(int visibleLimit) throws MessagingException {
             open(OpenMode.READ_WRITE);

@@ -65,6 +65,8 @@ public class LocalStoreUnitTests extends AndroidTestCase {
     
     private static final int DATABASE_VERSION = 23;
     
+    private static final String FOLDER_NAME = "TEST";
+    
     /* These values are provided by setUp() */
     private String mLocalStoreUri = null;
     private LocalStore mStore = null;
@@ -83,7 +85,7 @@ public class LocalStoreUnitTests extends AndroidTestCase {
         mLocalStoreUri = "local://localhost/" + getContext().getDatabasePath(dbName);
         
         mStore = (LocalStore) LocalStore.newInstance(mLocalStoreUri, getContext(), null);
-        mFolder = (LocalStore.LocalFolder) mStore.getFolder("TEST");
+        mFolder = (LocalStore.LocalFolder) mStore.getFolder(FOLDER_NAME);
         
         // This is needed for parsing mime messages
         mCacheDir = getContext().getCacheDir();
@@ -633,6 +635,47 @@ public class LocalStoreUnitTests extends AndroidTestCase {
     }
     
     /**
+     * Test unread messages count
+     */
+    public void testUnreadMessages() throws MessagingException {
+        mFolder.open(OpenMode.READ_WRITE, null);
+
+        // set up a 2nd folder to confirm independent storage
+        LocalStore.LocalFolder folder2 = (LocalStore.LocalFolder) mStore.getFolder("FOLDER-2");
+        assertFalse(folder2.exists());
+        folder2.create(FolderType.HOLDS_MESSAGES);
+        folder2.open(OpenMode.READ_WRITE, null);
+        
+        // read and write, look for independent storage
+        mFolder.setUnreadMessageCount(400);
+        folder2.setUnreadMessageCount(425);
+        
+        mFolder.close(false);
+        folder2.close(false);
+        mFolder.open(OpenMode.READ_WRITE, null);
+        folder2.open(OpenMode.READ_WRITE, null);
+        
+        assertEquals(400, mFolder.getUnreadMessageCount());
+        assertEquals(425, folder2.getUnreadMessageCount());
+    }
+    
+    /**
+     * Test unread messages count - concurrent access via two folder objects
+     */
+    public void testUnreadMessagesConcurrent() throws MessagingException {
+        mFolder.open(OpenMode.READ_WRITE, null);
+        
+        // set up a 2nd folder to confirm concurrent access
+        LocalStore.LocalFolder folder2 = (LocalStore.LocalFolder) mStore.getFolder(FOLDER_NAME);
+        assertTrue(folder2.exists());
+        folder2.open(OpenMode.READ_WRITE, null);
+        
+        // read and write, look for concurrent storage
+        mFolder.setUnreadMessageCount(450);
+        assertEquals(450, folder2.getUnreadMessageCount());
+    }
+    
+    /**
      * Test visible limits support
      */
     public void testReadWriteVisibleLimits() throws MessagingException {
@@ -658,6 +701,22 @@ public class LocalStoreUnitTests extends AndroidTestCase {
     }
     
     /**
+     * Test visible limits support - concurrent access via two folder objects
+     */
+    public void testVisibleLimitsConcurrent() throws MessagingException {
+        mFolder.open(OpenMode.READ_WRITE, null);
+        
+        // set up a 2nd folder to confirm concurrent access
+        LocalStore.LocalFolder folder2 = (LocalStore.LocalFolder) mStore.getFolder(FOLDER_NAME);
+        assertTrue(folder2.exists());
+        folder2.open(OpenMode.READ_WRITE, null);
+        
+        // read and write, look for concurrent storage
+        mFolder.setVisibleLimit(300);
+        assertEquals(300, folder2.getVisibleLimit());
+    }
+    
+    /**
      * Test reset limits support
      */
     public void testResetVisibleLimits() throws MessagingException {
@@ -679,18 +738,11 @@ public class LocalStoreUnitTests extends AndroidTestCase {
         folder2.open(OpenMode.READ_WRITE, null);
         
         mStore.resetVisibleLimits(Email.VISIBLE_LIMIT_DEFAULT);
-        // NOTE:  The open folders do not change, because resetVisibleLimits() resets the
-        // database only.
-        assertEquals(100, mFolder.getVisibleLimit());
-        assertEquals(200, folder2.getVisibleLimit());
+        assertEquals(Email.VISIBLE_LIMIT_DEFAULT, mFolder.getVisibleLimit());
+        assertEquals(Email.VISIBLE_LIMIT_DEFAULT, folder2.getVisibleLimit());
         
         mFolder.close(false);
         folder2.close(false);
-        mFolder.open(OpenMode.READ_WRITE, null);
-        folder2.open(OpenMode.READ_WRITE, null);
-        
-        assertEquals(Email.VISIBLE_LIMIT_DEFAULT, mFolder.getVisibleLimit());
-        assertEquals(Email.VISIBLE_LIMIT_DEFAULT, folder2.getVisibleLimit());
     }
     
     /**
