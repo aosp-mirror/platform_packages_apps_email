@@ -30,6 +30,7 @@ import com.android.email.mail.MessagingException;
 import com.android.email.mail.Part;
 import com.android.email.mail.Store;
 import com.android.email.mail.Message.RecipientType;
+import com.android.email.mail.Store.PersistentDataCallbacks;
 import com.android.email.mail.internet.MimeBodyPart;
 import com.android.email.mail.internet.MimeHeader;
 import com.android.email.mail.internet.MimeMessage;
@@ -67,7 +68,7 @@ import java.util.UUID;
  * Implements a SQLite database backed local store for Messages.
  * </pre>
  */
-public class LocalStore extends Store {
+public class LocalStore extends Store implements PersistentDataCallbacks {
     /**
      * History of database revisions.
      * 
@@ -487,6 +488,66 @@ public class LocalStore extends Store {
             }
             return sb.toString();
         }
+    }
+    
+    /**
+     * LocalStore-only function to get the callbacks API
+     */
+    public PersistentDataCallbacks getPersistentCallbacks() throws MessagingException {
+        return this;
+    }
+
+    public String getPersistentString(String key, String defaultValue) {
+        return getPersistentString(-1, key, defaultValue);
+    }
+
+    public void setPersistentString(String key, String value) {
+        setPersistentString(-1, key, value);
+    }
+    
+    /**
+     * Common implementation of getPersistentString
+     * @param folderId The id of the associated folder, or -1 for "store" values
+     * @param key The key
+     * @param defaultValue The value to return if the row is not found
+     * @return The row data or the default
+     */
+    private String getPersistentString(long folderId, String key, String defaultValue) {
+        String result = defaultValue;
+        Cursor cursor = null;
+        try {
+            cursor = mDb.query("remote_store_data",
+                    new String[] { "data" },
+                    "folder_id = ? AND data_key = ?",
+                    new String[] { Long.toString(folderId), key },
+                    null,
+                    null,
+                    null);
+            if (cursor != null && cursor.moveToNext()) {
+                result = cursor.getString(0);
+            }
+        }
+        finally {
+            if (cursor != null) {
+                cursor.close();
+            }
+        }
+        return result;
+    }
+
+    /**
+     * Common implementation of setPersistentString
+     * @param folderId The id of the associated folder, or -1 for "store" values
+     * @param key The key
+     * @param value The value to store
+     */
+    private void setPersistentString(long folderId, String key, String value) {
+        ContentValues cv = new ContentValues();
+        cv.put("folder_id", Long.toString(folderId));
+        cv.put("data_key", key);
+        cv.put("data", value);
+        // Note:  Table has on-conflict-replace rule
+        mDb.insert("remote_store_data", null, cv);
     }
 
     public class LocalFolder extends Folder implements Folder.PersistentDataCallbacks {
@@ -1407,35 +1468,11 @@ public class LocalStore extends Store {
         }
 
         public String getPersistentString(String key, String defaultValue) {
-            String result = defaultValue;
-            Cursor cursor = null;
-            try {
-                cursor = mDb.query("remote_store_data",
-                        new String[] { "data" },
-                        "folder_id = ? AND data_key = ?",
-                        new String[] { Long.toString(mFolderId), key },
-                        null,
-                        null,
-                        null);
-                if (cursor != null && cursor.moveToNext()) {
-                    result = cursor.getString(0);
-                }
-            }
-            finally {
-                if (cursor != null) {
-                    cursor.close();
-                }
-            }
-            return result;
+            return LocalStore.this.getPersistentString(mFolderId, key, defaultValue);
         }
 
         public void setPersistentString(String key, String value) {
-            ContentValues cv = new ContentValues();
-            cv.put("folder_id", Long.toString(mFolderId));
-            cv.put("data_key", key);
-            cv.put("data", value);
-            // Note:  Table has on-conflict-replace rule
-            mDb.insert("remote_store_data", null, cv);
+            LocalStore.this.setPersistentString(mFolderId, key, value);
         }
 
         /**

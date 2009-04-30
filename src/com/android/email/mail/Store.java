@@ -242,14 +242,17 @@ public abstract class Store {
         
         /**
          * Provides a small place for Stores to store persistent data.
-         * @param storeData Data to persist.  All data must be encoded into a string,
+         * @param key identifier for the data (e.g. "sync.key" or "folder.id")
+         * @param value The data to persist.  All data must be encoded into a string,
          * so use base64 or some other encoding if necessary.
          */
-        public void setPersistentString(Context context, String storeData);
+        public void setPersistentString(String key, String value);
 
         /**
+         * @param key identifier for the data (e.g. "sync.key" or "folder.id")
+         * @param defaultValue The data to return if no data was ever saved for this store
          * @return the data saved by the Store, or null if never set.
          */
-        public String getPersistentString(Context context);
+        public String getPersistentString(String key, String defaultValue);
     }
 }
