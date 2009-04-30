@@ -16,24 +16,15 @@
 
 package com.android.email.mail;
 
+import com.android.email.Utility;
+
+import android.text.TextUtils;
+import android.text.util.Rfc822Token;
+import android.text.util.Rfc822Tokenizer;
+
 import java.io.UnsupportedEncodingException;
 import java.net.URLEncoder;
 import java.util.ArrayList;
-import java.util.regex.Matcher;
-import java.util.regex.Pattern;
-
-import org.apache.james.mime4j.field.address.AddressList;
-import org.apache.james.mime4j.field.address.Mailbox;
-import org.apache.james.mime4j.field.address.MailboxList;
-import org.apache.james.mime4j.field.address.NamedMailbox;
-import org.apache.james.mime4j.field.address.parser.ParseException;
-
-import android.util.Config;
-import android.util.Log;
-
-import com.android.email.Email;
-import com.android.email.Utility;
-import com.android.email.mail.internet.MimeUtility;
 
 public class Address {
     String mAddress;
@@ -76,25 +67,29 @@ public class Address {
         if (addressList == null || addressList.length() == 0) {
             return new Address[] {};
         }
+        Rfc822Token[] tokens = Rfc822Tokenizer.tokenize(addressList);
         ArrayList<Address> addresses = new ArrayList<Address>();
-        try {
-            MailboxList parsedList = AddressList.parse(addressList).flatten();
-            for (int i = 0, count = parsedList.size(); i < count; i++) {
-                org.apache.james.mime4j.field.address.Address address = parsedList.get(i);
-                if (address instanceof NamedMailbox) {
-                    NamedMailbox namedMailbox = (NamedMailbox)address;
-                    addresses.add(new Address(namedMailbox.getLocalPart() + "@"
-                            + namedMailbox.getDomain(), namedMailbox.getName()));
-                } else if (address instanceof Mailbox) {
-                    Mailbox mailbox = (Mailbox)address;
-                    addresses.add(new Address(mailbox.getLocalPart() + "@" + mailbox.getDomain()));
-                } else {
-                    Log.e(Email.LOG_TAG, "Unknown address type from Mime4J: "
-                            + address.getClass().toString());
+        for (int i = 0, length = tokens.length; i < length; ++i) {
+            Rfc822Token token = tokens[i];
+            String address = token.getAddress();
+            if (!TextUtils.isEmpty(address)) {
+                // Note: Some email provider may violate the standard, so here we only check that
+                // address consists of two part that are separated by '@', and domain part contains
+                // at least one '.'.
+                int len = address.length();
+                int firstAt = address.indexOf('@');
+                int lastAt = address.lastIndexOf('@');
+                int firstDot = address.indexOf('.', lastAt + 1);
+                int lastDot = address.lastIndexOf('.');
+                if (firstAt > 0 && firstAt == lastAt && lastAt + 1 < firstDot
+                        && firstDot <= lastDot && lastDot < len - 1) {
+                    String name = token.getName();
+                    if (TextUtils.isEmpty(name)) {
+                        name = null;
+                    }
+                    addresses.add(new Address(address, name));
                 }
-
             }
-        } catch (ParseException pe) {
         }
         return addresses.toArray(new Address[] {});
     }

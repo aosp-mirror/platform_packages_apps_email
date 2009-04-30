@@ -20,7 +20,6 @@ import com.android.email.Account;
 import com.android.email.Email;
 import com.android.email.Preferences;
 import com.android.email.R;
-import com.android.email.activity.MessageCompose;
 import com.android.email.mail.Address;
 import com.android.email.mail.Message;
 import com.android.email.mail.MessagingException;
@@ -28,14 +27,13 @@ import com.android.email.mail.Message.RecipientType;
 import com.android.email.mail.internet.MimeMessage;
 import com.android.email.mail.internet.TextBody;
 
+import android.content.Context;
 import android.content.Intent;
 import android.net.Uri;
 import android.test.ActivityInstrumentationTestCase2;
 import android.test.suitebuilder.annotation.MediumTest;
-import android.view.KeyEvent;
 import android.view.View;
 import android.widget.EditText;
-import android.content.Context;
 
 /**
  * Various instrumentation tests for MessageCompose.  
@@ -58,6 +56,32 @@ public class MessageComposeInstrumentationTests
     private static final String SUBJECT = "This is the subject";
     private static final String BODY = "This is the body.  This is also the body.";
    
+    private static final String UTF16_SENDER =
+            "\u3042\u3044\u3046 \u3048\u304A <sender@android.com>";
+    private static final String UTF16_REPLYTO = 
+            "\u3042\u3044\u3046\u3048\u304A <replyto@android.com>";
+    private static final String UTF16_RECIPIENT_TO = 
+            "\"\u3042\u3044\u3046,\u3048\u304A\" <recipient-to@android.com>";
+    private static final String UTF16_RECIPIENT_CC = 
+            "\u30A2\u30AB \u30B5\u30BF\u30CA <recipient-cc@android.com>";
+    private static final String UTF16_RECIPIENT_BCC = 
+            "\"\u30A2\u30AB,\u30B5\u30BF\u30CA\" <recipient-bcc@android.com>";
+    private static final String UTF16_SUBJECT = "\u304A\u5BFF\u53F8\u306B\u3059\u308B\uFF1F";
+    private static final String UTF16_BODY = "\u65E5\u672C\u8A9E\u306E\u6587\u7AE0";
+    
+    private static final String UTF32_SENDER =
+            "\uD834\uDF01\uD834\uDF46 \uD834\uDF22 <sender@android.com>";
+    private static final String UTF32_REPLYTO = 
+            "\uD834\uDF01\uD834\uDF46\uD834\uDF22 <replyto@android.com>";
+    private static final String UTF32_RECIPIENT_TO = 
+            "\"\uD834\uDF01\uD834\uDF46,\uD834\uDF22\" <recipient-to@android.com>";
+    private static final String UTF32_RECIPIENT_CC = 
+            "\uD834\uDF22 \uD834\uDF01\uD834\uDF46 <recipient-cc@android.com>";
+    private static final String UTF32_RECIPIENT_BCC = 
+            "\"\uD834\uDF22,\uD834\uDF01\uD834\uDF46\" <recipient-bcc@android.com>";
+    private static final String UTF32_SUBJECT = "\uD834\uDF01\uD834\uDF46";
+    private static final String UTF32_BODY = "\uD834\uDF01\uD834\uDF46";
+
     /** Note - these are copied from private strings in MessageCompose.  Make them package? */
     private static final String ACTION_REPLY = "com.android.email.intent.action.REPLY";
     private static final String ACTION_REPLY_ALL = "com.android.email.intent.action.REPLY_ALL";
@@ -145,6 +169,68 @@ public class MessageComposeInstrumentationTests
     }
     
     /**
+     * Test reply to utf-16 name and address
+     */
+    public void testProcessSourceMessageReplyUtf16() throws MessagingException, Throwable {
+        final Message message = buildTestMessage(UTF16_RECIPIENT_TO, UTF16_SENDER,
+                UTF16_SUBJECT, UTF16_BODY);
+        Intent intent = new Intent(ACTION_REPLY);
+        final MessageCompose a = getActivity();
+        a.setIntent(intent);
+        
+        runTestOnUiThread(new Runnable() {
+            public void run() {
+                a.processSourceMessage(message);
+                checkFields(UTF16_SENDER + ", ", null, null, "Re: " + UTF16_SUBJECT, null);
+                checkFocused(mMessageView);
+            }
+        });
+        
+        message.setFrom(null);
+        message.setReplyTo(Address.parse(UTF16_REPLYTO));
+        
+        runTestOnUiThread(new Runnable() {
+            public void run() {
+                resetViews();
+                a.processSourceMessage(message);
+                checkFields(UTF16_REPLYTO + ", ", null, null, "Re: " + UTF16_SUBJECT, null);
+                checkFocused(mMessageView);
+            }
+        });
+    }
+    
+    /**
+     * Test reply to utf-32 name and address
+     */
+    public void testProcessSourceMessageReplyUtf32() throws MessagingException, Throwable {
+        final Message message = buildTestMessage(UTF32_RECIPIENT_TO, UTF32_SENDER,
+                UTF32_SUBJECT, UTF32_BODY);
+        Intent intent = new Intent(ACTION_REPLY);
+        final MessageCompose a = getActivity();
+        a.setIntent(intent);
+        
+        runTestOnUiThread(new Runnable() {
+            public void run() {
+                a.processSourceMessage(message);
+                checkFields(UTF32_SENDER + ", ", null, null, "Re: " + UTF32_SUBJECT, null);
+                checkFocused(mMessageView);
+            }
+        });
+        
+        message.setFrom(null);
+        message.setReplyTo(Address.parse(UTF32_REPLYTO));
+        
+        runTestOnUiThread(new Runnable() {
+            public void run() {
+                resetViews();
+                a.processSourceMessage(message);
+                checkFields(UTF32_REPLYTO + ", ", null, null, "Re: " + UTF32_SUBJECT, null);
+                checkFocused(mMessageView);
+            }
+        });
+    }
+    
+    /**
      * Test processSourceMessage() for FORWARD
      *   To = empty  (and has cursor)
      *   Subject = Fwd: Subject
@@ -206,6 +292,78 @@ public class MessageComposeInstrumentationTests
     }
     
     /**
+     * Test processSourceMessage() for EDIT_DRAFT with utf-16 name and address
+     * TODO check CC and BCC handling too
+     */
+    public void testProcessSourceMessageDraftWithUtf16() throws MessagingException, Throwable {
+        
+        final Message message = buildTestMessage(UTF16_RECIPIENT_TO, UTF16_SENDER,
+                UTF16_SUBJECT, UTF16_BODY);
+        Intent intent = new Intent(ACTION_EDIT_DRAFT);
+        final MessageCompose a = getActivity();
+        a.setIntent(intent);
+        
+        runTestOnUiThread(new Runnable() {
+            public void run() {
+                a.processSourceMessage(message);
+                checkFields(UTF16_RECIPIENT_TO + ", ",
+                        null, null, UTF16_SUBJECT, UTF16_BODY);
+                checkFocused(mMessageView);
+            }
+        });
+        
+        // if subject is null, then cursor should be there instead
+        
+        message.setSubject("");
+        
+        runTestOnUiThread(new Runnable() {
+            public void run() {
+                resetViews();
+                a.processSourceMessage(message);
+                checkFields(UTF16_RECIPIENT_TO + ", ", null, null, null, UTF16_BODY);
+                checkFocused(mSubjectView);
+            }
+        });
+        
+    }
+
+    /**
+     * Test processSourceMessage() for EDIT_DRAFT with utf-32 name and address
+     * TODO check CC and BCC handling too
+     */
+    public void testProcessSourceMessageDraftWithUtf32() throws MessagingException, Throwable {
+        
+        final Message message = buildTestMessage(UTF32_RECIPIENT_TO, UTF32_SENDER,
+                UTF32_SUBJECT, UTF32_BODY);
+        Intent intent = new Intent(ACTION_EDIT_DRAFT);
+        final MessageCompose a = getActivity();
+        a.setIntent(intent);
+        
+        runTestOnUiThread(new Runnable() {
+            public void run() {
+                a.processSourceMessage(message);
+                checkFields(UTF32_RECIPIENT_TO + ", ",
+                        null, null, UTF32_SUBJECT, UTF32_BODY);
+                checkFocused(mMessageView);
+            }
+        });
+        
+        // if subject is null, then cursor should be there instead
+        
+        message.setSubject("");
+        
+        runTestOnUiThread(new Runnable() {
+            public void run() {
+                resetViews();
+                a.processSourceMessage(message);
+                checkFields(UTF32_RECIPIENT_TO + ", ", null, null, null, UTF32_BODY);
+                checkFocused(mSubjectView);
+            }
+        });
+        
+    }
+
+    /**
      * Test for processing of Intent EXTRA_* fields that impact the headers:
      *   Intent.EXTRA_EMAIL, Intent.EXTRA_CC, Intent.EXTRA_BCC, Intent.EXTRA_SUBJECT
      */
@@ -229,6 +387,54 @@ public class MessageComposeInstrumentationTests
         });
     }
     
+    /**
+     * Test for processing of Intent EXTRA_* fields that impact the headers with utf-16.
+     */
+    public void testIntentHeaderExtrasWithUtf16() throws MessagingException, Throwable {
+        
+        Intent intent = new Intent(Intent.ACTION_VIEW);
+        intent.putExtra(Intent.EXTRA_EMAIL, new String[] { UTF16_RECIPIENT_TO });
+        intent.putExtra(Intent.EXTRA_CC, new String[] { UTF16_RECIPIENT_CC });
+        intent.putExtra(Intent.EXTRA_BCC, new String[] { UTF16_RECIPIENT_BCC });
+        intent.putExtra(Intent.EXTRA_SUBJECT, UTF16_SUBJECT);
+        
+        final MessageCompose a = getActivity();
+        final Intent i2 = new Intent(intent);
+        
+        runTestOnUiThread(new Runnable() {
+            public void run() {
+                a.initFromIntent(i2);
+                checkFields(UTF16_RECIPIENT_TO + ", ",
+                        UTF16_RECIPIENT_CC, UTF16_RECIPIENT_BCC, UTF16_SUBJECT, null);
+                checkFocused(mMessageView);
+            }
+        });
+    }
+
+    /**
+     * Test for processing of Intent EXTRA_* fields that impact the headers with utf-32.
+     */
+    public void testIntentHeaderExtrasWithUtf32() throws MessagingException, Throwable {
+        
+        Intent intent = new Intent(Intent.ACTION_VIEW);
+        intent.putExtra(Intent.EXTRA_EMAIL, new String[] { UTF32_RECIPIENT_TO });
+        intent.putExtra(Intent.EXTRA_CC, new String[] { UTF32_RECIPIENT_CC });
+        intent.putExtra(Intent.EXTRA_BCC, new String[] { UTF32_RECIPIENT_BCC });
+        intent.putExtra(Intent.EXTRA_SUBJECT, UTF32_SUBJECT);
+        
+        final MessageCompose a = getActivity();
+        final Intent i2 = new Intent(intent);
+        
+        runTestOnUiThread(new Runnable() {
+            public void run() {
+                a.initFromIntent(i2);
+                checkFields(UTF32_RECIPIENT_TO + ", ",
+                        UTF32_RECIPIENT_CC, UTF32_RECIPIENT_BCC, UTF32_SUBJECT, null);
+                checkFocused(mMessageView);
+            }
+        });
+    }
+
     /**
      * Test for processing of a typical browser "share" intent, e.g.
      * type="text/plain", EXTRA_TEXT="http:link.server.com"
@@ -356,7 +562,8 @@ public class MessageComposeInstrumentationTests
         
         if (sender != null) {
             Address[] addresses = Address.parse(sender);
-            message.setFrom(Address.parse(sender)[0]);
+            assertTrue("from address", addresses.length > 0);
+            message.setFrom(addresses[0]);
         }
         
         if (subject != null) {
