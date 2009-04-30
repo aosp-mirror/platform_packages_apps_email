@@ -154,6 +154,10 @@ public class FolderMessageList extends ExpandableListActivity {
         private static final int MSG_REMOVE_MESSAGE = 11;
         private static final int MSG_SYNC_MESSAGES = 13;
         private static final int MSG_FOLDER_STATUS = 17;
+        private static final int MSG_LIST_FOLDERS = 18;
+        private static final int MSG_NEW_MESSAGE = 19;
+        private static final int MSG_REMOVE_MESSAGE_UID = 20;
+        private static final int MSG_MESSAGE_UID_CHANGED = 21;
 
         @Override
         public void handleMessage(android.os.Message msg) {
@@ -208,6 +212,39 @@ public class FolderMessageList extends ExpandableListActivity {
                     }
                     break;
                 }
+                case MSG_LIST_FOLDERS: {
+                    Folder[] folders = (Folder[]) msg.obj;
+                    mAdapter.doListFolders(folders);
+                    break;
+                }
+                case MSG_NEW_MESSAGE: {
+                    String folder = (String) ((Object[]) msg.obj)[0];
+                    Message message = (Message) ((Object[]) msg.obj)[1];
+                    mAdapter.addOrUpdateMessage(folder, message);
+                    break;
+                }
+                case MSG_REMOVE_MESSAGE_UID: {
+                    String folder = (String) ((Object[]) msg.obj)[0];
+                    String messageUid = (String) ((Object[]) msg.obj)[1];
+                    mAdapter.removeMessage(folder, messageUid);
+                    break;
+                }
+                case MSG_MESSAGE_UID_CHANGED: {
+                    String folder = (String) ((Object[]) msg.obj)[0];
+                    String oldUid = (String) ((Object[]) msg.obj)[1];
+                    String newUid = (String) ((Object[]) msg.obj)[2];
+                    FolderInfoHolder holder = mAdapter.getFolder(folder);
+                    if (folder != null) {
+                        for (MessageInfoHolder message : holder.messages) {
+                            if (message.uid.equals(oldUid)) {
+                                message.uid = newUid;
+                                message.message.setUid(newUid);
+                            }
+                        }
+                    }
+                    break;
+                }
+                
                 default:
                     super.handleMessage(msg);
             }
@@ -257,6 +294,34 @@ public class FolderMessageList extends ExpandableListActivity {
             android.os.Message msg = new android.os.Message();
             msg.what = MSG_FOLDER_STATUS;
             msg.obj = new String[] { folder, status };
+            sendMessage(msg);
+        }
+        
+        public void listFolders(Folder[] folders) {
+            android.os.Message msg = android.os.Message.obtain();
+            msg.what = MSG_LIST_FOLDERS;
+            msg.obj = (Object) folders;
+            sendMessage(msg);
+        }
+        
+        public void newMessage(String folder, Message message) {
+            android.os.Message msg = android.os.Message.obtain();
+            msg.what = MSG_NEW_MESSAGE;
+            msg.obj = new Object[] { folder, message };
+            sendMessage(msg);
+        }
+        
+        public void removeMessageByUid(String folder, String messageUid) {
+            android.os.Message msg = android.os.Message.obtain();
+            msg.what = MSG_REMOVE_MESSAGE_UID;
+            msg.obj = new Object[] { folder, messageUid };
+            sendMessage(msg);
+        }
+        
+        public void messageUidChanged(String folder, String oldUid, String newUid) {
+            android.os.Message msg = android.os.Message.obtain();
+            msg.what = MSG_MESSAGE_UID_CHANGED;
+            msg.obj = new Object[] { folder, oldUid, newUid };
             sendMessage(msg);
         }
     }
@@ -756,65 +821,7 @@ public class FolderMessageList extends ExpandableListActivity {
                 if (!account.equals(mAccount)) {
                     return;
                 }
-                for (Folder folder : folders) {
-                    FolderInfoHolder holder = getFolder(folder.getName());
-                    if (holder == null) {
-                        holder = new FolderInfoHolder();
-                        mFolders.add(holder);
-                    }
-                    holder.name = folder.getName();
-                    if (holder.name.equalsIgnoreCase(Email.INBOX)) {
-                        holder.displayName = getString(R.string.special_mailbox_name_inbox);
-                    }
-                    else {
-                        holder.displayName = folder.getName();
-                    }
-                    if (holder.name.equals(mAccount.getOutboxFolderName())) {
-                        holder.outbox = true;
-                    }
-                    if (holder.messages == null) {
-                        holder.messages = new ArrayList<MessageInfoHolder>();
-                    }
-                    try {
-                        folder.open(Folder.OpenMode.READ_WRITE, null);
-                        holder.unreadMessageCount = folder.getUnreadMessageCount();
-                        folder.close(false);
-                    }
-                    catch (MessagingException me) {
-                        Log.e(Email.LOG_TAG, "Folder.getUnreadMessageCount() failed", me);
-                    }
-                }
-
-                Collections.sort(mFolders);
-                mHandler.dataChanged();
-
-
-                /*
-                 * We will do this eventually. This restores the state of the list in the
-                 * case of a killed Activity but we have some message sync issues to take care of.
-                 */
-//                if (mRestoredState != null) {
-//                    if (Config.LOGV) {
-//                        Log.v(Email.LOG_TAG, "Attempting to restore list state");
-//                    }
-//                    Parcelable listViewState =
-//                    mListView.onRestoreInstanceState(mListViewState);
-//                    mListViewState = null;
-//                }
-
-                /*
-                 * Now we need to refresh any folders that are currently expanded. We do this
-                 * in case the status or amount of messages has changed.
-                 */
-                for (int i = 0, count = getGroupCount(); i < count; i++) {
-                    if (mListView.isGroupExpanded(i)) {
-                        final FolderInfoHolder folder = (FolderInfoHolder) mAdapter.getGroup(i);
-                        new Thread(new FolderUpdateWorker(folder.name, mRefreshRemote, null, 
-                                mAccount, MessagingController.getInstance(getApplication())))
-                                .start();
-                    }
-                }
-                mRefreshRemote = false;
+                mHandler.listFolders(folders);
             }
 
             @Override
@@ -929,7 +936,7 @@ public class FolderMessageList extends ExpandableListActivity {
                 if (!account.equals(mAccount)) {
                     return;
                 }
-                addOrUpdateMessage(folder, message);
+                mHandler.newMessage(folder, message);
             }
 
             @Override
@@ -940,7 +947,7 @@ public class FolderMessageList extends ExpandableListActivity {
                 if (!account.equals(mAccount)) {
                     return;
                 }
-                removeMessage(folder, message.getUid());
+                mHandler.removeMessageByUid(folder, message.getUid());
             }
 
             @Override
@@ -965,17 +972,10 @@ public class FolderMessageList extends ExpandableListActivity {
                     String folder,
                     String oldUid,
                     String newUid) {
-                if (mAccount.equals(account)) {
-                    FolderInfoHolder holder = getFolder(folder);
-                    if (folder != null) {
-                        for (MessageInfoHolder message : holder.messages) {
-                            if (message.uid.equals(oldUid)) {
-                                message.uid = newUid;
-                                message.message.setUid(newUid);
-                            }
-                        }
-                    }
+                if (!mAccount.equals(account)) {
+                    return;
                 }
+                mHandler.messageUidChanged(folder, oldUid, newUid);
             }
         };
 
@@ -983,6 +983,71 @@ public class FolderMessageList extends ExpandableListActivity {
 
         FolderMessageListAdapter() {
             mAttachmentIcon = getResources().getDrawable(R.drawable.ic_mms_attachment_small);
+        }
+
+        /**
+         * This code is invoked (in the UI thread) in response to a listFolders() callback
+         * into the MessageListener.
+         */
+        private void doListFolders(Folder[] folders) {
+            for (Folder folder : folders) {
+                FolderInfoHolder holder = getFolder(folder.getName());
+                if (holder == null) {
+                    holder = new FolderInfoHolder();
+                    mFolders.add(holder);
+                }
+                holder.name = folder.getName();
+                if (holder.name.equalsIgnoreCase(Email.INBOX)) {
+                    holder.displayName = getString(R.string.special_mailbox_name_inbox);
+                }
+                else {
+                    holder.displayName = folder.getName();
+                }
+                if (holder.name.equals(mAccount.getOutboxFolderName())) {
+                    holder.outbox = true;
+                }
+                if (holder.messages == null) {
+                    holder.messages = new ArrayList<MessageInfoHolder>();
+                }
+                try {
+                    folder.open(Folder.OpenMode.READ_WRITE, null);
+                    holder.unreadMessageCount = folder.getUnreadMessageCount();
+                    folder.close(false);
+                }
+                catch (MessagingException me) {
+                    Log.e(Email.LOG_TAG, "Folder.getUnreadMessageCount() failed", me);
+                }
+            }
+
+            Collections.sort(mFolders);
+            mHandler.dataChanged();
+
+            /*
+             * We will do this eventually. This restores the state of the list in the
+             * case of a killed Activity but we have some message sync issues to take care of.
+             */
+//            if (mRestoredState != null) {
+//                if (Config.LOGV) {
+//                    Log.v(Email.LOG_TAG, "Attempting to restore list state");
+//                }
+//                Parcelable listViewState =
+//                mListView.onRestoreInstanceState(mListViewState);
+//                mListViewState = null;
+//            }
+
+            /*
+             * Now we need to refresh any folders that are currently expanded. We do this
+             * in case the status or amount of messages has changed.
+             */
+            for (int i = 0, count = getGroupCount(); i < count; i++) {
+                if (mListView.isGroupExpanded(i)) {
+                    final FolderInfoHolder folder = (FolderInfoHolder) getGroup(i);
+                    new Thread(new FolderUpdateWorker(folder.name, mRefreshRemote, null, 
+                            mAccount, MessagingController.getInstance(getApplication())))
+                            .start();
+                }
+            }
+            mRefreshRemote = false;
         }
 
         public void removeMessage(String folder, String messageUid) {

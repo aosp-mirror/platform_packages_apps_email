@@ -17,6 +17,7 @@
 package com.android.email.activity.setup;
 
 import com.android.email.Account;
+import com.android.email.Preferences;
 import com.android.email.R;
 import com.android.email.mail.MessagingException;
 import com.android.email.mail.Store;
@@ -141,13 +142,36 @@ public class AccountSetupAccountType extends Activity implements OnClickListener
         try {
             URI uri = new URI(mAccount.getStoreUri());
             uri = new URI("eas", uri.getUserInfo(), uri.getHost(), uri.getPort(), null, null, null);
-            Store store = Store.getInstance(uri.toString(), this, mAccount.getStoreCallbacks());
-            return (store != null);
+            Store.StoreInfo storeInfo = Store.StoreInfo.getStoreInfo(uri.toString(), this);
+            return (storeInfo != null && checkAccountInstanceLimit(storeInfo));
         } catch (URISyntaxException e) {
             return false;
-        } catch (MessagingException e) {
-            return false;
         }
+    }
+    
+    /**
+     * If the optional store specifies a limit on the number of accounts, make sure that we
+     * don't violate that limit.
+     * @return true if OK to create another account, false if not OK (limit reached)
+     */
+    /* package */ boolean checkAccountInstanceLimit(Store.StoreInfo storeInfo) {
+        // return immediately if account defines no limit
+        if (storeInfo.mAccountInstanceLimit < 0) {
+            return true;
+        }
+        
+        // count existing accounts
+        int currentAccountsCount = 0;
+        Account[] accounts = Preferences.getPreferences(this).getAccounts();
+        for (Account account : accounts) {
+            String storeUri = account.getStoreUri();
+            if (storeUri != null && storeUri.startsWith(storeInfo.mScheme)) {
+                currentAccountsCount++;
+            }
+        }
+        
+        // return true if we can accept another account
+        return (currentAccountsCount < storeInfo.mAccountInstanceLimit);
     }
 
     public void onClick(View v) {

@@ -95,6 +95,7 @@ public abstract class Store {
         public boolean mPushSupported = false;
         public int mVisibleLimitDefault;
         public int mVisibleLimitIncrement;
+        public int mAccountInstanceLimit;
         
         // TODO cache result for performance - silly to keep reading the XML
         public static StoreInfo getStoreInfo(String scheme, Context context) {
@@ -116,7 +117,7 @@ public abstract class Store {
                         String xmlScheme = xml.getAttributeValue(null, "scheme");
                         if (scheme.startsWith(xmlScheme)) {
                             StoreInfo result = new StoreInfo();
-                            result.mScheme = scheme;
+                            result.mScheme = xmlScheme;
                             result.mClassName = xml.getAttributeValue(null, "class");
                             result.mPushSupported = xml.getAttributeBooleanValue(
                                     null, "push", false);
@@ -124,6 +125,8 @@ public abstract class Store {
                                     null, "visibleLimitDefault", Email.VISIBLE_LIMIT_DEFAULT);
                             result.mVisibleLimitIncrement = xml.getAttributeIntValue(
                                     null, "visibleLimitIncrement", Email.VISIBLE_LIMIT_INCREMENT);
+                            result.mAccountInstanceLimit = xml.getAttributeIntValue(
+                                    null, "accountInstanceLimit", -1);
                             return result;
                         }
                     }

@@ -16,8 +16,12 @@
 
 package com.android.email.mail.internet;
 
+import com.android.email.mail.Address;
 import com.android.email.mail.Flag;
 import com.android.email.mail.MessagingException;
+import com.android.email.mail.internet.MimeHeader;
+import com.android.email.mail.internet.MimeMessage;
+import com.android.email.mail.Message.RecipientType;
 
 import android.test.suitebuilder.annotation.SmallTest;
 
@@ -212,6 +216,98 @@ public class MimeMessageTest extends TestCase {
     }
     
     /**
+     * Test for encoding address field.
+     */
+    public void testEncodingAddressField() throws MessagingException {
+        Address noName1 = new Address("noname1@dom1.com");
+        Address noName2 = new Address("<noname2@dom2.com>", "");
+        Address simpleName = new Address("address3@dom3.org", "simple long and long long name");
+        Address dquoteName = new Address("address4@dom4.org", "name,4,long long name");
+        Address quotedName = new Address("bigG@dom5.net", "big \"G\"");
+        Address utf16Name = new Address("<address6@co.jp>", "\"\u65E5\u672C\u8A9E\"");
+        Address utf32Name = new Address("<address8@ne.jp>", "\uD834\uDF01\uD834\uDF46");
+        
+        MimeMessage message = new MimeMessage();
+        
+        message.setFrom(noName1);
+        message.setRecipient(RecipientType.TO, noName2);
+        message.setRecipients(RecipientType.CC, new Address[] { simpleName, dquoteName });
+        message.setReplyTo(new Address[] { quotedName, utf16Name, utf32Name });
+        
+        String[] from = message.getHeader("From");
+        String[] to = message.getHeader("To");
+        String[] cc = message.getHeader("Cc");
+        String[] replyTo = message.getHeader("Reply-to");
+        
+        assertEquals("from address count", 1, from.length); 
+        assertEquals("no name 1", "noname1@dom1.com", from[0]);
+        
+        assertEquals("to address count", 1, to.length); 
+        assertEquals("no name 2", "noname2@dom2.com", to[0]);
+        
+        // folded.
+        assertEquals("cc address count", 1, cc.length); 
+        assertEquals("simple name & double quoted name",
+                "simple long and long long name <address3@dom3.org>, \"name,4,long long\r\n"
+                + " name\" <address4@dom4.org>",
+                cc[0]);
+        
+        // folded and encoded.
+        assertEquals("reply-to address count", 1, replyTo.length); 
+        assertEquals("quoted name & encoded name",
+                "\"big \\\"G\\\"\" <bigG@dom5.net>, =?UTF-8?B?5pel5pys6Kqe?=\r\n"
+                + " <address6@co.jp>, =?UTF-8?B?8J2MgfCdjYY=?= <address8@ne.jp>",
+                replyTo[0]);
+    }
+
+    /**
+     * Test for parsing address field.
+     */
+    public void testParsingAddressField() throws MessagingException {
+        MimeMessage message = new MimeMessage();
+        
+        message.setHeader("From", "noname1@dom1.com");
+        message.setHeader("To", "<noname2@dom2.com>");
+        // folded.
+        message.setHeader("Cc",
+                "simple name <address3@dom3.org>,\r\n"
+                + " \"name,4\" <address4@dom4.org>");
+        // folded and encoded.
+        message.setHeader("Reply-to", 
+                "\"big \\\"G\\\"\" <bigG@dom5.net>,\r\n"
+                + " =?UTF-8?B?5pel5pys6Kqe?=\r\n"
+                + " <address6@co.jp>,\n"
+                + " \"=?UTF-8?B?8J2MgfCdjYY=?=\" <address8@ne.jp>");
+        
+        Address[] from = message.getFrom();
+        Address[] to = message.getRecipients(RecipientType.TO);
+        Address[] cc = message.getRecipients(RecipientType.CC);
+        Address[] replyTo = message.getReplyTo();
+        
+        assertEquals("from address count", 1, from.length); 
+        assertEquals("no name 1 address", "noname1@dom1.com", from[0].getAddress());
+        assertNull("no name 1 name", from[0].getPersonal());
+        
+        assertEquals("to address count", 1, to.length); 
+        assertEquals("no name 2 address", "noname2@dom2.com", to[0].getAddress());
+        assertNull("no name 2 name", to[0].getPersonal());
+
+        assertEquals("cc address count", 2, cc.length); 
+        assertEquals("simple name address", "address3@dom3.org", cc[0].getAddress());
+        assertEquals("simple name name", "simple name", cc[0].getPersonal());
+        assertEquals("double quoted name address", "address4@dom4.org", cc[1].getAddress());
+        assertEquals("double quoted name name", "name,4", cc[1].getPersonal());
+
+        assertEquals("reply-to address count", 3, replyTo.length); 
+        assertEquals("quoted name address", "bigG@dom5.net", replyTo[0].getAddress());
+        assertEquals("quoted name name", "big \"G\"", replyTo[0].getPersonal());
+        assertEquals("utf-16 name address", "address6@co.jp", replyTo[1].getAddress());
+        assertEquals("utf-16 name name", "\u65E5\u672C\u8A9E", replyTo[1].getPersonal());
+        assertEquals("utf-32 name address", "address8@ne.jp", replyTo[2].getAddress());
+        assertEquals("utf-32 name name", "\uD834\uDF01\uD834\uDF46", replyTo[2].getPersonal());
+    }
+    
+    /*
      * Test setting & getting store-specific flags
      */
     public void testStoreFlags() throws MessagingException {
@@ -225,23 +321,16 @@ public class MimeMessageTest extends TestCase {
         message.setFlag(Flag.X_STORE_1, true);
         assertTrue(message.isSet(Flag.X_STORE_1));
         assertFalse(message.isSet(Flag.X_STORE_2));
-        assertFalse(message.isSet(Flag.X_STORE_3));
-        assertFalse(message.isSet(Flag.X_STORE_4));
 
         // Set another
         message.setFlag(Flag.X_STORE_2, true);
         assertTrue(message.isSet(Flag.X_STORE_1));
         assertTrue(message.isSet(Flag.X_STORE_2));
-        assertFalse(message.isSet(Flag.X_STORE_3));
-        assertFalse(message.isSet(Flag.X_STORE_4));
 
         // Set some and clear some
         message.setFlag(Flag.X_STORE_1, false);
-        message.setFlag(Flag.X_STORE_3, true);
         assertFalse(message.isSet(Flag.X_STORE_1));
         assertTrue(message.isSet(Flag.X_STORE_2));
-        assertTrue(message.isSet(Flag.X_STORE_3));
-        assertFalse(message.isSet(Flag.X_STORE_4));
 
     }
 

@@ -104,6 +104,21 @@ public abstract class Folder {
 
     public abstract Message[] getMessages(String[] uids, MessageRetrievalListener listener)
             throws MessagingException;
+    
+    /**
+     * Return a set of messages based on the state of the flags.
+     * Note: Not typically implemented in remote stores, so not abstract.
+     * 
+     * @param setFlags The flags that should be set for a message to be selected (can be null)
+     * @param clearFlags The flags that should be clear for a message to be selected (can be null)
+     * @param listener
+     * @return A list of messages matching the desired flag states.
+     * @throws MessagingException
+     */
+    public Message[] getMessages(Flag[] setFlags, Flag[] clearFlags, 
+            MessageRetrievalListener listener) throws MessagingException {
+        throw new MessagingException("Not implemented");
+    }
 
     public abstract void appendMessages(Message[] messages) throws MessagingException;
 
@@ -172,6 +187,18 @@ public abstract class Folder {
          * @return the data saved by the Folder, or defaultValue if never set.
          */
         public String getPersistentString(String key, String defaultValue);
+        
+        /**
+         * In a single transaction:  Set a key/value pair for the folder, and bulk set or clear
+         * message flags.  Typically used at the beginning or conclusion of a bulk sync operation.
+         * 
+         * @param key if non-null, the transaction will set this folder persistent value
+         * @param value the value that will be stored for the key
+         * @param setFlags if non-null, flag(s) will be set for all messages in the folder
+         * @param clearFlags if non-null, flag(s) will be cleared for all messages in the folder
+         */
+        public void setPersistentStringAndMessageFlags(String key, String value,
+                Flag[] setFlags, Flag[] clearFlags) throws MessagingException;
     }
 
     /**

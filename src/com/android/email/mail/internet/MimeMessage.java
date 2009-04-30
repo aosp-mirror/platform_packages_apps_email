@@ -16,6 +16,20 @@
 
 package com.android.email.mail.internet;
 
+import com.android.email.mail.Address;
+import com.android.email.mail.Body;
+import com.android.email.mail.BodyPart;
+import com.android.email.mail.Message;
+import com.android.email.mail.MessagingException;
+import com.android.email.mail.Part;
+
+import org.apache.james.mime4j.BodyDescriptor;
+import org.apache.james.mime4j.ContentHandler;
+import org.apache.james.mime4j.EOLConvertingInputStream;
+import org.apache.james.mime4j.MimeStreamParser;
+import org.apache.james.mime4j.field.DateTimeField;
+import org.apache.james.mime4j.field.Field;
+
 import java.io.BufferedWriter;
 import java.io.IOException;
 import java.io.InputStream;
@@ -26,21 +40,6 @@ import java.util.Date;
 import java.util.Locale;
 import java.util.Stack;
 import java.util.regex.Pattern;
-
-import org.apache.james.mime4j.BodyDescriptor;
-import org.apache.james.mime4j.ContentHandler;
-import org.apache.james.mime4j.EOLConvertingInputStream;
-import org.apache.james.mime4j.MimeStreamParser;
-import org.apache.james.mime4j.field.DateTimeField;
-import org.apache.james.mime4j.field.Field;
-
-import com.android.email.mail.Address;
-import com.android.email.mail.Body;
-import com.android.email.mail.BodyPart;
-import com.android.email.mail.Message;
-import com.android.email.mail.MessagingException;
-import com.android.email.mail.Multipart;
-import com.android.email.mail.Part;
 
 /**
  * An implementation of Message that stores all of it's metadata in RFC 822 and
@@ -210,12 +209,15 @@ public class MimeMessage extends Message {
     }
 
     public void setRecipients(RecipientType type, Address[] addresses) throws MessagingException {
+        final int TO_LENGTH = 4;  // "To: "
+        final int CC_LENGTH = 4;  // "Cc: "
+        final int BCC_LENGTH = 5; // "Bcc: "
         if (type == RecipientType.TO) {
             if (addresses == null || addresses.length == 0) {
                 removeHeader("To");
                 this.mTo = null;
             } else {
-                setHeader("To", Address.toString(addresses));
+                setHeader("To", MimeUtility.fold(Address.toHeader(addresses), TO_LENGTH));
                 this.mTo = addresses;
             }
         } else if (type == RecipientType.CC) {
@@ -223,7 +225,7 @@ public class MimeMessage extends Message {
                 removeHeader("CC");
                 this.mCc = null;
             } else {
-                setHeader("CC", Address.toString(addresses));
+                setHeader("CC", MimeUtility.fold(Address.toHeader(addresses), CC_LENGTH));
                 this.mCc = addresses;
             }
         } else if (type == RecipientType.BCC) {
@@ -231,7 +233,7 @@ public class MimeMessage extends Message {
                 removeHeader("BCC");
                 this.mBcc = null;
             } else {
-                setHeader("BCC", Address.toString(addresses));
+                setHeader("BCC", MimeUtility.fold(Address.toHeader(addresses), BCC_LENGTH));
                 this.mBcc = addresses;
             }
         } else {
@@ -263,8 +265,9 @@ public class MimeMessage extends Message {
     }
 
     public void setFrom(Address from) throws MessagingException {
+        final int FROM_LENGTH = 6;  // "From: "
         if (from != null) {
-            setHeader("From", from.toString());
+            setHeader("From", MimeUtility.fold(from.toHeader(), FROM_LENGTH));
             this.mFrom = new Address[] {
                     from
                 };
@@ -281,11 +284,12 @@ public class MimeMessage extends Message {
     }
 
     public void setReplyTo(Address[] replyTo) throws MessagingException {
+        final int REPLY_TO_LENGTH = 10;  // "Reply-to: "
         if (replyTo == null || replyTo.length == 0) {
             removeHeader("Reply-to");
             mReplyTo = null;
         } else {
-            setHeader("Reply-to", Address.toString(replyTo));
+            setHeader("Reply-to", MimeUtility.fold(Address.toHeader(replyTo), REPLY_TO_LENGTH));
             mReplyTo = replyTo;
         }
     }

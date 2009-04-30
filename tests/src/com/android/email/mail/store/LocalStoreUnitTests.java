@@ -63,7 +63,9 @@ public class LocalStoreUnitTests extends AndroidTestCase {
     private static final String MESSAGE_ID = "Test-Message-ID";
     private static final String MESSAGE_ID_2 = "Test-Message-ID-Second";
     
-    private static final int DATABASE_VERSION = 21;
+    private static final int DATABASE_VERSION = 23;
+    
+    private static final String FOLDER_NAME = "TEST";
     
     /* These values are provided by setUp() */
     private String mLocalStoreUri = null;
@@ -83,7 +85,7 @@ public class LocalStoreUnitTests extends AndroidTestCase {
         mLocalStoreUri = "local://localhost/" + getContext().getDatabasePath(dbName);
         
         mStore = (LocalStore) LocalStore.newInstance(mLocalStoreUri, getContext(), null);
-        mFolder = (LocalStore.LocalFolder) mStore.getFolder("TEST");
+        mFolder = (LocalStore.LocalFolder) mStore.getFolder(FOLDER_NAME);
         
         // This is needed for parsing mime messages
         mCacheDir = getContext().getCacheDir();
@@ -306,6 +308,72 @@ public class LocalStoreUnitTests extends AndroidTestCase {
     }
     
     /**
+     * Test functionality of persistence update with bulk update
+     */
+    public void testPersistentBulkUpdate() throws MessagingException {
+        mFolder.open(OpenMode.READ_WRITE, null);
+    
+        // set up a 2nd folder to confirm independent storage
+        LocalStore.LocalFolder folder2 = (LocalStore.LocalFolder) mStore.getFolder("FOLDER-2");
+        assertFalse(folder2.exists());
+        folder2.create(FolderType.HOLDS_MESSAGES);
+        folder2.open(OpenMode.READ_WRITE, null);
+    
+        // use the callbacks, as these are the "official" API
+        Folder.PersistentDataCallbacks callbacks = mFolder.getPersistentCallbacks();
+        Folder.PersistentDataCallbacks callbacks2 = folder2.getPersistentCallbacks();
+    
+        // set some values - tests independence & inserts
+        callbacks.setPersistentString("key1", "value-1-1");
+        callbacks.setPersistentString("key2", "value-1-2");
+        callbacks2.setPersistentString("key1", "value-2-1");
+        callbacks2.setPersistentString("key2", "value-2-2");
+        
+        final MimeMessage message1 = buildTestMessage(RECIPIENT_TO, SENDER, SUBJECT, BODY);
+        message1.setFlag(Flag.X_STORE_1, false);
+        message1.setFlag(Flag.X_STORE_2, false);
+        
+        final MimeMessage message2 = buildTestMessage(RECIPIENT_TO, SENDER, SUBJECT, BODY);
+        message2.setFlag(Flag.X_STORE_1, true);
+        message2.setFlag(Flag.X_STORE_2, false);
+
+        final MimeMessage message3 = buildTestMessage(RECIPIENT_TO, SENDER, SUBJECT, BODY);
+        message3.setFlag(Flag.X_STORE_1, false);
+        message3.setFlag(Flag.X_STORE_2, true);
+
+        final MimeMessage message4 = buildTestMessage(RECIPIENT_TO, SENDER, SUBJECT, BODY);
+        message4.setFlag(Flag.X_STORE_1, true);
+        message4.setFlag(Flag.X_STORE_2, true);
+
+        Message[] allOriginals = new Message[]{ message1, message2, message3, message4 };
+        
+        mFolder.appendMessages(allOriginals);
+
+        // Now make a bulk update (set)
+        callbacks.setPersistentStringAndMessageFlags("key1", "value-1-1a", 
+                new Flag[]{ Flag.X_STORE_1 }, null);
+        // And check all messages for that flag now set, but other flag was not set
+        Message[] messages = mFolder.getMessages(null);
+        for (Message msg : messages) {
+            assertTrue(msg.isSet(Flag.X_STORE_1));
+            if (msg.getUid().equals(message1.getUid())) assertFalse(msg.isSet(Flag.X_STORE_2));
+            if (msg.getUid().equals(message2.getUid())) assertFalse(msg.isSet(Flag.X_STORE_2));
+        }
+        assertEquals("value-1-1a", callbacks.getPersistentString("key1", null));
+        
+        // Same test, but clearing
+        callbacks.setPersistentStringAndMessageFlags("key2", "value-1-2a", 
+                null, new Flag[]{ Flag.X_STORE_2 });
+        // And check all messages for that flag now set, but other flag was not set
+        messages = mFolder.getMessages(null);
+        for (Message msg : messages) {
+            assertTrue(msg.isSet(Flag.X_STORE_1));
+            assertFalse(msg.isSet(Flag.X_STORE_2));
+        }
+        assertEquals("value-1-2a", callbacks.getPersistentString("key2", null));        
+    }
+    
+    /**
      * Test that messages are being stored with store flags properly persisted.
      * 
      * This variant tests appendMessages() and updateMessages() and getMessage()
@@ -313,8 +381,8 @@ public class LocalStoreUnitTests extends AndroidTestCase {
     public void testStoreFlags() throws MessagingException {
         final MimeMessage message = buildTestMessage(RECIPIENT_TO, SENDER, SUBJECT, BODY);
         message.setMessageId(MESSAGE_ID);
-        message.setFlag(Flag.X_STORE_3, true);
-        message.setFlag(Flag.X_STORE_4, true);
+        message.setFlag(Flag.X_STORE_1, true);
+        message.setFlag(Flag.X_STORE_2, false);
         
         mFolder.open(OpenMode.READ_WRITE, null);
         mFolder.appendMessages(new Message[]{ message });
@@ -324,15 +392,13 @@ public class LocalStoreUnitTests extends AndroidTestCase {
         
         MimeMessage retrieved = (MimeMessage) mFolder.getMessage(localUid);
         assertEquals(MESSAGE_ID, retrieved.getMessageId());
-        assertFalse(message.isSet(Flag.X_STORE_1));
+        assertTrue(message.isSet(Flag.X_STORE_1));
         assertFalse(message.isSet(Flag.X_STORE_2));
-        assertTrue(message.isSet(Flag.X_STORE_3));
-        assertTrue(message.isSet(Flag.X_STORE_4));
         
         // Now try to update it using updateMessages()
         
+        retrieved.setFlag(Flag.X_STORE_1, false);
         retrieved.setFlag(Flag.X_STORE_2, true);
-        retrieved.setFlag(Flag.X_STORE_4, false);
         mFolder.updateMessage((LocalStore.LocalMessage)retrieved);
         
         // And read back once more to confirm the change (using getMessages() to confirm "just one")
@@ -343,8 +409,270 @@ public class LocalStoreUnitTests extends AndroidTestCase {
 
         assertFalse(retrievedEntry.isSet(Flag.X_STORE_1));
         assertTrue(retrievedEntry.isSet(Flag.X_STORE_2));
-        assertTrue(retrievedEntry.isSet(Flag.X_STORE_3));
-        assertFalse(retrievedEntry.isSet(Flag.X_STORE_4));
+    }
+    
+    /**
+     * Test that messages are being stored with download & delete state flags properly persisted.
+     * 
+     * This variant tests appendMessages() and updateMessages() and getMessage()
+     */
+    public void testDownloadAndDeletedFlags() throws MessagingException {
+        final MimeMessage message = buildTestMessage(RECIPIENT_TO, SENDER, SUBJECT, BODY);
+        message.setMessageId(MESSAGE_ID);
+        message.setFlag(Flag.X_STORE_1, true);
+        message.setFlag(Flag.X_STORE_2, false);
+        message.setFlag(Flag.X_DOWNLOADED_FULL, true);
+        message.setFlag(Flag.X_DOWNLOADED_PARTIAL, false);
+        message.setFlag(Flag.DELETED, false);
+        
+        mFolder.open(OpenMode.READ_WRITE, null);
+        mFolder.appendMessages(new Message[]{ message });
+        String localUid = message.getUid();
+        
+        // Now try to read it back from the database using getMessage()
+        
+        MimeMessage retrieved = (MimeMessage) mFolder.getMessage(localUid);
+        assertEquals(MESSAGE_ID, retrieved.getMessageId());
+        assertTrue(retrieved.isSet(Flag.X_STORE_1));
+        assertFalse(retrieved.isSet(Flag.X_STORE_2));
+        assertTrue(retrieved.isSet(Flag.X_DOWNLOADED_FULL));
+        assertFalse(retrieved.isSet(Flag.X_DOWNLOADED_PARTIAL));
+        assertFalse(retrieved.isSet(Flag.DELETED));
+        
+        // Now try to update it using updateMessages()
+        
+        retrieved.setFlag(Flag.X_STORE_1, false);
+        retrieved.setFlag(Flag.X_STORE_2, true);
+        retrieved.setFlag(Flag.X_DOWNLOADED_FULL, false);
+        retrieved.setFlag(Flag.X_DOWNLOADED_PARTIAL, true);
+        mFolder.updateMessage((LocalStore.LocalMessage)retrieved);
+        
+        // And read back once more to confirm the change (using getMessages() to confirm "just one")
+        Message[] retrievedArray = mFolder.getMessages(null);
+        assertEquals(1, retrievedArray.length);
+        MimeMessage retrievedEntry = (MimeMessage) retrievedArray[0];
+        assertEquals(MESSAGE_ID, retrievedEntry.getMessageId());
+
+        assertFalse(retrievedEntry.isSet(Flag.X_STORE_1));
+        assertTrue(retrievedEntry.isSet(Flag.X_STORE_2));
+        assertFalse(retrievedEntry.isSet(Flag.X_DOWNLOADED_FULL));
+        assertTrue(retrievedEntry.isSet(Flag.X_DOWNLOADED_PARTIAL));
+        assertFalse(retrievedEntry.isSet(Flag.DELETED));
+        
+        // Finally test setFlag(Flag.DELETED)
+        retrievedEntry.setFlag(Flag.DELETED, true);
+        mFolder.updateMessage((LocalStore.LocalMessage)retrievedEntry);
+        Message[] retrievedArray2 = mFolder.getMessages(null);
+        assertEquals(1, retrievedArray2.length);
+        MimeMessage retrievedEntry2 = (MimeMessage) retrievedArray2[0];
+        assertEquals(MESSAGE_ID, retrievedEntry2.getMessageId());
+
+        assertFalse(retrievedEntry2.isSet(Flag.X_STORE_1));
+        assertTrue(retrievedEntry2.isSet(Flag.X_STORE_2));
+        assertFalse(retrievedEntry2.isSet(Flag.X_DOWNLOADED_FULL));
+        assertTrue(retrievedEntry2.isSet(Flag.X_DOWNLOADED_PARTIAL));
+        assertTrue(retrievedEntry2.isSet(Flag.DELETED));
+    }
+    
+    /**
+     * Test that store flags are separated into separate columns and not replicated in the
+     * (should be deprecated) string flags column.
+     */
+    public void testStoreFlagStorage() throws MessagingException, URISyntaxException {
+        final MimeMessage message = buildTestMessage(RECIPIENT_TO, SENDER, SUBJECT, BODY);
+        message.setMessageId(MESSAGE_ID);
+        message.setFlag(Flag.SEEN, true);
+        message.setFlag(Flag.FLAGGED, true);
+        message.setFlag(Flag.X_STORE_1, true);
+        message.setFlag(Flag.X_STORE_2, true);
+        message.setFlag(Flag.X_DOWNLOADED_FULL, true);
+        message.setFlag(Flag.X_DOWNLOADED_PARTIAL, true);
+        message.setFlag(Flag.DELETED, true);
+        
+        mFolder.open(OpenMode.READ_WRITE, null);
+        mFolder.appendMessages(new Message[]{ message });
+        String localUid = message.getUid();
+        long folderId = mFolder.getId();
+        mFolder.close(false);
+        
+        // read back using direct db calls, to view columns
+        final URI uri = new URI(mLocalStoreUri);
+        final String dbPath = uri.getPath();
+        SQLiteDatabase db = SQLiteDatabase.openOrCreateDatabase(dbPath, null);
+
+        Cursor cursor = null;
+        try {
+            cursor = db.rawQuery(
+                    "SELECT flags, store_flag_1, store_flag_2," +
+                    " flag_downloaded_full, flag_downloaded_partial, flag_deleted" +
+                    " FROM messages" + 
+                    " WHERE uid = ? AND folder_id = ?",
+                    new String[] {
+                            localUid, Long.toString(folderId)
+                    });
+            assertTrue("appended message not found", cursor.moveToNext());
+            String flagString = cursor.getString(0);
+            String[] flags = flagString.split(",");
+            assertEquals(2, flags.length);      // 2 = SEEN & FLAGGED
+            for (String flag : flags) {
+                assertFalse("storeFlag1 in string", flag.equals(Flag.X_STORE_1.toString()));
+                assertFalse("storeFlag2 in string", flag.equals(Flag.X_STORE_2.toString()));
+                assertFalse("flag_downloaded_full in string", 
+                        flag.equals(Flag.X_DOWNLOADED_FULL.toString()));
+                assertFalse("flag_downloaded_partial in string", 
+                        flag.equals(Flag.X_DOWNLOADED_PARTIAL.toString()));
+                assertFalse("flag_deleted in string", flag.equals(Flag.DELETED.toString()));
+            }
+            assertEquals(1, cursor.getInt(1));  // store flag 1 is set
+            assertEquals(1, cursor.getInt(2));  // store flag 2 is set
+            assertEquals(1, cursor.getInt(3));  // flag_downloaded_full is set
+            assertEquals(1, cursor.getInt(4));  // flag_downloaded_partial is set
+            assertEquals(1, cursor.getInt(5));  // flag_deleted is set
+        }
+        finally {
+            if (cursor != null) {
+                cursor.close();
+            }
+        }
+    }
+    
+    /**
+     * Test the new functionality of getting messages from LocalStore based on their flags.
+     */
+    public void testGetMessagesFlags() throws MessagingException {
+        
+        final MimeMessage message1 = buildTestMessage(RECIPIENT_TO, SENDER, SUBJECT, BODY);
+        message1.setFlag(Flag.X_STORE_1, false);
+        message1.setFlag(Flag.X_STORE_2, false);
+
+        final MimeMessage message2 = buildTestMessage(RECIPIENT_TO, SENDER, SUBJECT, BODY);
+        message2.setFlag(Flag.X_STORE_1, true);
+        message2.setFlag(Flag.X_STORE_2, false);
+
+        final MimeMessage message3 = buildTestMessage(RECIPIENT_TO, SENDER, SUBJECT, BODY);
+        message3.setFlag(Flag.X_STORE_1, false);
+        message3.setFlag(Flag.X_STORE_2, true);
+
+        final MimeMessage message4 = buildTestMessage(RECIPIENT_TO, SENDER, SUBJECT, BODY);
+        message4.setFlag(Flag.X_STORE_1, true);
+        message4.setFlag(Flag.X_STORE_2, true);
+
+        final MimeMessage message5 = buildTestMessage(RECIPIENT_TO, SENDER, SUBJECT, BODY);
+        message5.setFlag(Flag.X_DOWNLOADED_FULL, true);
+
+        final MimeMessage message6 = buildTestMessage(RECIPIENT_TO, SENDER, SUBJECT, BODY);
+        message6.setFlag(Flag.X_DOWNLOADED_PARTIAL, true);
+
+        final MimeMessage message7 = buildTestMessage(RECIPIENT_TO, SENDER, SUBJECT, BODY);
+        message7.setFlag(Flag.DELETED, true);
+
+        Message[] allOriginals = new Message[] { 
+                message1, message2, message3, message4, message5, message6, message7 };
+        
+        mFolder.open(OpenMode.READ_WRITE, null);
+        mFolder.appendMessages(allOriginals);
+        mFolder.close(false);
+        
+        // Now try getting various permutation and see if it works
+        
+        // Null lists are the same as empty lists - return all messages
+        mFolder.open(OpenMode.READ_WRITE, null);
+        Message[] getAll1 = mFolder.getMessages(null, null, null);
+        checkGottenMessages("null filters", allOriginals, getAll1);
+        
+        Message[] getAll2 = mFolder.getMessages(new Flag[0], new Flag[0], null);
+        checkGottenMessages("empty filters", allOriginals, getAll2);
+        
+        // Now try some selections, trying set and clear cases
+        Message[] getSome1 = mFolder.getMessages(new Flag[]{ Flag.X_STORE_1 }, null, null);
+        checkGottenMessages("store_1 set", new Message[]{ message2, message4 }, getSome1);
+
+        Message[] getSome2 = mFolder.getMessages(null, new Flag[]{ Flag.X_STORE_1 }, null);
+        checkGottenMessages("store_1 clear", 
+                new Message[]{ message1, message3, message5, message6, message7 }, getSome2);
+
+        Message[] getSome3 = mFolder.getMessages(new Flag[]{ Flag.X_STORE_2 }, null, null);
+        checkGottenMessages("store_2 set", new Message[]{ message3, message4 }, getSome3);
+        
+        Message[] getSome4 = mFolder.getMessages(null, new Flag[]{ Flag.X_STORE_2 }, null);
+        checkGottenMessages("store_2 clear", 
+                new Message[]{ message1, message2, message5, message6, message7 }, getSome4);
+        
+        Message[] getOne1 = mFolder.getMessages(new Flag[]{ Flag.X_DOWNLOADED_FULL }, null, null);
+        checkGottenMessages("downloaded full", new Message[]{ message5 }, getOne1);
+        
+        Message[] getOne2 = mFolder.getMessages(new Flag[]{ Flag.X_DOWNLOADED_PARTIAL }, null,
+                null);
+        checkGottenMessages("downloaded partial", new Message[]{ message6 }, getOne2);
+        
+        Message[] getOne3 = mFolder.getMessages(new Flag[]{ Flag.DELETED }, null, null);
+        checkGottenMessages("deleted", new Message[]{ message7 }, getOne3);
+        
+        // Multi-flag selections
+        Message[] getSingle1 = mFolder.getMessages(new Flag[]{ Flag.X_STORE_1, Flag.X_STORE_2 }, 
+                null, null);
+        checkGottenMessages("both set", new Message[]{ message4 }, getSingle1);
+        
+        Message[] getSingle2 = mFolder.getMessages(null,
+                new Flag[]{ Flag.X_STORE_1, Flag.X_STORE_2 }, null);
+        checkGottenMessages("both clear", new Message[]{ message1, message5, message6, message7 }, 
+                getSingle2);
+    }
+    
+    /**
+     * Check for matching uid's between two lists of messages
+     */
+    private void checkGottenMessages(String failMessage, Message[] expected, Message[] actual) {
+        HashSet<String> expectedUids = new HashSet<String>();
+        for (Message message : expected) {
+            expectedUids.add(message.getUid());
+        }
+        HashSet<String> actualUids = new HashSet<String>();
+        for (Message message : actual) {
+            actualUids.add(message.getUid());
+        }
+        assertEquals(failMessage, expectedUids, actualUids);
+    }
+    
+    /**
+     * Test unread messages count
+     */
+    public void testUnreadMessages() throws MessagingException {
+        mFolder.open(OpenMode.READ_WRITE, null);
+
+        // set up a 2nd folder to confirm independent storage
+        LocalStore.LocalFolder folder2 = (LocalStore.LocalFolder) mStore.getFolder("FOLDER-2");
+        assertFalse(folder2.exists());
+        folder2.create(FolderType.HOLDS_MESSAGES);
+        folder2.open(OpenMode.READ_WRITE, null);
+        
+        // read and write, look for independent storage
+        mFolder.setUnreadMessageCount(400);
+        folder2.setUnreadMessageCount(425);
+        
+        mFolder.close(false);
+        folder2.close(false);
+        mFolder.open(OpenMode.READ_WRITE, null);
+        folder2.open(OpenMode.READ_WRITE, null);
+        
+        assertEquals(400, mFolder.getUnreadMessageCount());
+        assertEquals(425, folder2.getUnreadMessageCount());
+    }
+    
+    /**
+     * Test unread messages count - concurrent access via two folder objects
+     */
+    public void testUnreadMessagesConcurrent() throws MessagingException {
+        mFolder.open(OpenMode.READ_WRITE, null);
+        
+        // set up a 2nd folder to confirm concurrent access
+        LocalStore.LocalFolder folder2 = (LocalStore.LocalFolder) mStore.getFolder(FOLDER_NAME);
+        assertTrue(folder2.exists());
+        folder2.open(OpenMode.READ_WRITE, null);
+        
+        // read and write, look for concurrent storage
+        mFolder.setUnreadMessageCount(450);
+        assertEquals(450, folder2.getUnreadMessageCount());
     }
     
     /**
@@ -373,6 +701,22 @@ public class LocalStoreUnitTests extends AndroidTestCase {
     }
     
     /**
+     * Test visible limits support - concurrent access via two folder objects
+     */
+    public void testVisibleLimitsConcurrent() throws MessagingException {
+        mFolder.open(OpenMode.READ_WRITE, null);
+        
+        // set up a 2nd folder to confirm concurrent access
+        LocalStore.LocalFolder folder2 = (LocalStore.LocalFolder) mStore.getFolder(FOLDER_NAME);
+        assertTrue(folder2.exists());
+        folder2.open(OpenMode.READ_WRITE, null);
+        
+        // read and write, look for concurrent storage
+        mFolder.setVisibleLimit(300);
+        assertEquals(300, folder2.getVisibleLimit());
+    }
+    
+    /**
      * Test reset limits support
      */
     public void testResetVisibleLimits() throws MessagingException {
@@ -394,18 +738,11 @@ public class LocalStoreUnitTests extends AndroidTestCase {
         folder2.open(OpenMode.READ_WRITE, null);
         
         mStore.resetVisibleLimits(Email.VISIBLE_LIMIT_DEFAULT);
-        // NOTE:  The open folders do not change, because resetVisibleLimits() resets the
-        // database only.
-        assertEquals(100, mFolder.getVisibleLimit());
-        assertEquals(200, folder2.getVisibleLimit());
+        assertEquals(Email.VISIBLE_LIMIT_DEFAULT, mFolder.getVisibleLimit());
+        assertEquals(Email.VISIBLE_LIMIT_DEFAULT, folder2.getVisibleLimit());
         
         mFolder.close(false);
         folder2.close(false);
-        mFolder.open(OpenMode.READ_WRITE, null);
-        folder2.open(OpenMode.READ_WRITE, null);
-        
-        assertEquals(Email.VISIBLE_LIMIT_DEFAULT, mFolder.getVisibleLimit());
-        assertEquals(Email.VISIBLE_LIMIT_DEFAULT, folder2.getVisibleLimit());
     }
     
     /**
@@ -639,6 +976,99 @@ public class LocalStoreUnitTests extends AndroidTestCase {
     }
 
     /**
+     * Check upgrade from db version 21 to latest
+     */
+    public void testDbUpgrade21ToLatest() throws MessagingException, URISyntaxException {
+        final URI uri = new URI(mLocalStoreUri);
+        final String dbPath = uri.getPath();
+        SQLiteDatabase db = SQLiteDatabase.openOrCreateDatabase(dbPath, null);
+
+        // create sample version 21 db tables
+        createSampleDb(db, 21);
+        db.close();
+
+        // upgrade database 21 to latest
+        LocalStore.newInstance(mLocalStoreUri, getContext(), null);
+
+        // database should be upgraded
+        db = SQLiteDatabase.openOrCreateDatabase(dbPath, null);
+        assertEquals("database should be upgraded", DATABASE_VERSION, db.getVersion());
+
+        // check for all "latest version" tables
+        checkAllTablesFound(db);
+    }
+
+    /**
+     * Check upgrade from db version 22 to latest.
+     * Flags must be migrated to new columns.
+     */
+    public void testDbUpgrade22ToLatest() throws MessagingException, URISyntaxException {
+        final URI uri = new URI(mLocalStoreUri);
+        final String dbPath = uri.getPath();
+        SQLiteDatabase db = SQLiteDatabase.openOrCreateDatabase(dbPath, null);
+
+        // create sample version 22 db tables
+        createSampleDb(db, 22);
+        
+        // insert three messages, one for each migration flag
+        final ContentValues inMessage1 = new ContentValues();
+        inMessage1.put("message_id", (String) "x"); // message_id text == String
+        inMessage1.put("flags", Flag.X_DOWNLOADED_FULL.toString());
+        final ContentValues outMessage1 = new ContentValues(inMessage1);
+        outMessage1.put("id", db.insert("messages", null, inMessage1));
+
+        final ContentValues inMessage2 = new ContentValues();
+        inMessage2.put("message_id", (String) "y"); // message_id text == String
+        inMessage2.put("flags", Flag.X_DOWNLOADED_PARTIAL.toString());
+        final ContentValues outMessage2 = new ContentValues(inMessage2);
+        outMessage2.put("id", db.insert("messages", null, inMessage2));
+
+        final ContentValues inMessage3 = new ContentValues();
+        inMessage3.put("message_id", (String) "z"); // message_id text == String
+        inMessage3.put("flags", Flag.DELETED.toString());
+        final ContentValues outMessage3 = new ContentValues(inMessage3);
+        outMessage3.put("id", db.insert("messages", null, inMessage3));
+
+        db.close();
+
+        // upgrade database 22 to latest
+        LocalStore.newInstance(mLocalStoreUri, getContext(), null);
+
+        // database should be upgraded
+        db = SQLiteDatabase.openOrCreateDatabase(dbPath, null);
+        assertEquals("database should be upgraded", DATABASE_VERSION, db.getVersion());
+
+        // check for all "latest version" tables
+        checkAllTablesFound(db);
+        
+        // check message table for migrated flags
+        String[] columns = new String[] { "id", "message_id", "flags", 
+                "flag_downloaded_full", "flag_downloaded_partial", "flag_deleted" };
+        Cursor c = db.query("messages", columns, null, null, null, null, null);
+        
+        for (int msgNum = 0; msgNum <= 2; ++msgNum) {
+            assertTrue(c.moveToNext());
+            ContentValues actualMessage = cursorToContentValues(c,
+                    new String[] { "primary", "text", "text", "integer", "integer", "integer" });
+            String messageId = actualMessage.getAsString("message_id");
+            int outDlFull = actualMessage.getAsInteger("flag_downloaded_full");
+            int outDlPartial = actualMessage.getAsInteger("flag_downloaded_partial");
+            int outDeleted = actualMessage.getAsInteger("flag_deleted");
+            if ("x".equals(messageId)) {
+                assertTrue("converted flag_downloaded_full",
+                        outDlFull == 1 && outDlPartial == 0 && outDeleted == 0);
+            } else if ("y".equals(messageId)) {
+                assertTrue("converted flag_downloaded_partial",
+                        outDlFull == 0 && outDlPartial == 1 && outDeleted == 0);
+            } else if ("z".equals(messageId)) {
+                assertTrue("converted flag_deleted",
+                        outDlFull == 0 && outDlPartial == 0 && outDeleted == 1);
+            }
+        }
+        c.close();
+    }
+
+    /**
      * Checks the database to confirm that all tables, with all expected columns are found.
      */
     private void checkAllTablesFound(SQLiteDatabase db) {
@@ -655,7 +1085,8 @@ public class LocalStoreUnitTests extends AndroidTestCase {
                 new String[]{ "id", "folder_id", "uid", "subject", "date", "flags", "sender_list",
                         "to_list", "cc_list", "bcc_list", "reply_to_list",
                         "html_content", "text_content", "attachment_count",
-                        "internal_date" }
+                        "internal_date", "store_flag_1", "store_flag_2", "flag_downloaded_full",
+                        "flag_downloaded_partial", "flag_deleted" }
                 ));
         assertTrue("messages", foundNames.containsAll(expectedNames));
         
@@ -690,6 +1121,10 @@ public class LocalStoreUnitTests extends AndroidTestCase {
                    "html_content TEXT, text_content TEXT, attachment_count INTEGER, " +
                    "internal_date INTEGER" +
                    ((version >= 19) ? ", message_id TEXT" : "") +
+                   ((version >= 22) ? ", store_flag_1 INTEGER, store_flag_2 INTEGER" : "") +
+                   ((version >= 23) ? 
+                           ", flag_downloaded_full INTEGER, flag_downloaded_partial INTEGER" : "") +
+                   ((version >= 23) ? ", flag_deleted INTEGER" : "") +
                    ")");
         db.execSQL("DROP TABLE IF EXISTS attachments");
         db.execSQL("CREATE TABLE attachments (id INTEGER PRIMARY KEY, message_id INTEGER," +
