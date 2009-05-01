@@ -57,7 +57,7 @@
   </plurals>
   <plurals name="notification_new_multi_account_fmt">
     <item quantity="few">"<xliff:g id="NUMBER_ACCOUNTS">%d</xliff:g> 個帳戶"</item>
-    <item quantity="other">"<xliff:g id="NUMBER_ACCOUNTS">%d</xliff:g> 個帳戶"</item>
+    <item quantity="other">"於 <xliff:g id="NUMBER_ACCOUNTS">%d</xliff:g> 個帳戶"</item>
   </plurals>
     <string name="special_mailbox_name_inbox">"收件匣"</string>
     <string name="accounts_welcome">"歡迎使用 [電子郵件] 設定！"\n\n"[電子郵件] 設定可讓您使用各種電子郵件帳戶！"\n\n"大部分常見的電子郵件只需要兩個步驟就能設定完成！"</string>
@@ -103,7 +103,7 @@
     <string name="account_setup_check_settings_check_outgoing_msg">"正在檢查外寄伺服器設定..."</string>
     <string name="account_setup_check_settings_canceling_msg">"取消中..."</string>
     <string name="account_setup_names_title">"設定電子郵件"</string>
-    <string name="account_setup_names_instructions">"帳戶已設定完成，您可以開始收發電子郵件！"</string>
+    <string name="account_setup_names_instructions">"帳戶已設定完成，您可以開始收發電子郵件了！"</string>
     <string name="account_setup_names_account_name_label">"設定帳戶名稱 (選擇性)"</string>
     <string name="account_setup_names_user_name_label">"您的姓名 (顯示於外寄郵件)"</string>
     <string name="account_setup_account_type_title">"新增電子郵件帳戶"</string>
@@ -156,7 +156,7 @@
     <string name="account_setup_failed_auth_required">"伺服器不支援這些驗證方法。"</string>
     <string name="account_setup_failed_security">"發生安全性錯誤，無法連線至伺服器。"</string>
     <string name="account_setup_failed_ioerror">"無法連線至伺服器。"</string>
-    <string name="account_setup_failed_dlg_edit_details_action">"編輯詳細資訊"</string>
+    <string name="account_setup_failed_dlg_edit_details_action">"請編輯資料"</string>
     <string name="account_settings_title_fmt">"一般設定"</string>
     <string name="account_settings_default_label">"預設帳戶"</string>
     <string name="account_settings_default_summary">"預設使用這個帳戶傳送電子郵件"</string>
@@ -169,14 +169,14 @@
     <string name="account_settings_description_label">"帳戶名稱"</string>
     <string name="account_settings_name_label">"您的姓名"</string>
     <string name="account_settings_notifications">"通知設定"</string>
-    <string name="account_settings_vibrate_enable">"振動"</string>
-    <string name="account_settings_vibrate_summary">"收到電子郵件時同時開啟振動提醒"</string>
+    <string name="account_settings_vibrate_enable">"震動"</string>
+    <string name="account_settings_vibrate_summary">"收到電子郵件時震動提醒"</string>
     <string name="account_settings_ringtone">"選取鈴聲"</string>
     <string name="account_settings_servers">"伺服器設定"</string>
     <string name="account_delete_dlg_title">"移除帳戶"</string>
     <string name="account_delete_dlg_instructions_fmt">"系統將從 [電子郵件] 中移除帳戶「<xliff:g id="ACCOUNT">%s</xliff:g>」。"</string>
-    <string name="provider_note_yahoo">"系統不支援某些類型的 Yahoo! 郵件帳戶信箱。如果您無法順利連線，請造訪 yahoo.com 以取得詳細資訊。"</string>
-    <string name="provider_note_yahoo_uk">"在設定此電子郵件帳戶前，請先造訪 Yahoo! 網站，並啟用這個帳戶的 POP3 電子郵件收發功能。"</string>
+    <string name="provider_note_yahoo">"系統不支援某些類型的 Yahoo! 郵件帳戶信箱。如果您無法順利連線，請前往 yahoo.com 以瞭解詳情。"</string>
+    <string name="provider_note_yahoo_uk">"在設定此電子郵件帳戶前，請先造訪 Yahoo! 網站，並啟用帳戶的 POP3 電子郵件收發功能。"</string>
     <string name="provider_note_live">"只有部分包含 POP 存取功能的「Plus」帳戶能與這個程式連線。如果您輸入的電子郵件地址和密碼無誤，卻仍無法登入，表示您可能尚未購買「Plus」帳戶。請啟動網頁瀏覽器，以存取這些電子郵件帳戶。"</string>
     <string name="provider_note_t_online">"在設定此電子郵件帳戶前，請先造訪 T-Online 網站，並設定 POP3 電子郵件收發功能的密碼。"</string>
 </resources>
