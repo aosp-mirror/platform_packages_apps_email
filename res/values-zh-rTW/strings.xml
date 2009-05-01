@@ -63,7 +63,7 @@
     <string name="accounts_welcome">"歡迎使用 [電子郵件] 設定！"\n\n"[電子郵件] 設定可讓您使用各種電子郵件帳戶！"\n\n"大部分常見的電子郵件只需要兩個步驟就能設定完成！"</string>
     <string name="debug_version_fmt">"版本：<xliff:g id="VERSION">%s</xliff:g>"</string>
     <string name="debug_enable_debug_logging_label">"要啟用附加的偵錯記錄嗎？"</string>
-    <string name="debug_enable_sensitive_logging_label">"要啟用敏感資訊偵錯記錄嗎 (該記錄中可能會顯示密碼)？"</string>
+    <string name="debug_enable_sensitive_logging_label">"要啟用敏感資訊偵錯記錄嗎？(該記錄可能會顯示密碼)"</string>
     <string name="message_list_load_more_messages_action">"載入更多郵件"</string>
     <string name="message_compose_to_hint">"收件者"</string>
     <string name="message_compose_cc_hint">"副本"</string>
@@ -75,7 +75,7 @@
     <string name="message_compose_quoted_text_label">"引用的文字"</string>
     <string name="message_compose_error_no_recipients">"您必須新增至少一位收件者。"</string>
     <string name="message_compose_attachments_skipped_toast">"尚未下載部分附件，因此無法予以轉寄。"</string>
-    <string name="message_compose_attachment_size">"檔案過大，無法貼附。"</string>
+    <string name="message_compose_attachment_size">"檔案過大，超過附件大小限制。"</string>
     <string name="message_view_to_label">"收件者："</string>
     <string name="message_view_cc_label">"副本："</string>
     <string name="message_view_attachment_view_action">"開啟"</string>
