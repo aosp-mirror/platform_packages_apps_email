@@ -26,6 +26,7 @@ import com.android.email.mail.Message;
 import com.android.email.mail.MessageTestUtils;
 import com.android.email.mail.MessagingException;
 import com.android.email.mail.Part;
+import com.android.email.mail.Store;
 import com.android.email.mail.Folder.FolderType;
 import com.android.email.mail.Folder.OpenMode;
 import com.android.email.mail.Message.RecipientType;
@@ -267,9 +268,56 @@ public class LocalStoreUnitTests extends AndroidTestCase {
     }
     
     /**
+     * Test the new store persistent data code.
+     * 
+     * This test, and the underlying code, reflect the essential error in the Account class.  The
+     * account objects should have been singletons-per-account.  As it stands there are lots of
+     * them floating around, which is very expensive (we waste a lot of effort creating them)
+     * and forces slow sync hacks for dynamic data like the store's persistent data.
+     */
+    public void testStorePersistentData() {
+
+        final String TEST_KEY = "the.test.key";
+        final String TEST_KEY_2 = "a.different.test.key";
+        final String TEST_STRING = "This is the store's persistent data.";
+        final String TEST_STRING_2 = "Rewrite the store data.";
+
+        // confirm default reads on new store
+        assertEquals("the-default", mStore.getPersistentString(TEST_KEY, "the-default"));
+        
+        // test write/readback
+        mStore.setPersistentString(TEST_KEY, TEST_STRING);
+        mStore.setPersistentString(TEST_KEY_2, TEST_STRING_2);
+        assertEquals(TEST_STRING, mStore.getPersistentString(TEST_KEY, null));
+        assertEquals(TEST_STRING_2, mStore.getPersistentString(TEST_KEY_2, null));
+    }
+
+    /**
+     * Test the callbacks for setting & getting persistent data
+     */
+    public void testStorePersistentCallbacks() throws MessagingException {
+
+        final String TEST_KEY = "the.test.key";
+        final String TEST_KEY_2 = "a.different.test.key";
+        final String TEST_STRING = "This is the store's persistent data.";
+        final String TEST_STRING_2 = "Rewrite the store data.";
+        
+        Store.PersistentDataCallbacks callbacks = mStore.getPersistentCallbacks();
+
+        // confirm default reads on new store
+        assertEquals("the-default", callbacks.getPersistentString(TEST_KEY, "the-default"));
+        
+        // test write/readback
+        callbacks.setPersistentString(TEST_KEY, TEST_STRING);
+        callbacks.setPersistentString(TEST_KEY_2, TEST_STRING_2);
+        assertEquals(TEST_STRING, mStore.getPersistentString(TEST_KEY, null));
+        assertEquals(TEST_STRING_2, mStore.getPersistentString(TEST_KEY_2, null));
+    }
+
+    /**
      * Test functionality of setting & saving store persistence values
      */
-    public void testPersistentStorage() throws MessagingException {
+    public void testFolderPersistentStorage() throws MessagingException {
         mFolder.open(OpenMode.READ_WRITE, null);
 
         // set up a 2nd folder to confirm independent storage
@@ -310,7 +358,7 @@ public class LocalStoreUnitTests extends AndroidTestCase {
     /**
      * Test functionality of persistence update with bulk update
      */
-    public void testPersistentBulkUpdate() throws MessagingException {
+    public void testFolderPersistentBulkUpdate() throws MessagingException {
         mFolder.open(OpenMode.READ_WRITE, null);
     
         // set up a 2nd folder to confirm independent storage

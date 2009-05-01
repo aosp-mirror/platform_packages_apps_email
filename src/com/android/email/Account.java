@@ -30,7 +30,7 @@ import java.util.UUID;
  * Account stores all of the settings for a single account defined by the user. It is able to save
  * and delete itself given a Preferences to work with. Each account is defined by a UUID. 
  */
-public class Account implements Serializable, Store.PersistentDataCallbacks {
+public class Account implements Serializable {
     public static final int DELETE_POLICY_NEVER = 0;
     public static final int DELETE_POLICY_7DAYS = 1;
     public static final int DELETE_POLICY_ON_DELETE = 2;
@@ -65,12 +65,6 @@ public class Account implements Serializable, Store.PersistentDataCallbacks {
     int mAccountNumber;
     boolean mVibrate;
     String mRingtoneUri;
-    String mStorePersistent;
-
-    /**
-     * TODO: all fields should be tagged here
-     */
-    private final String PREF_TAG_STORE_PERSISTENT = ".storePersist";
 
     /**
      * <pre>
@@ -146,8 +140,6 @@ public class Account implements Serializable, Store.PersistentDataCallbacks {
         mRingtoneUri = preferences.mSharedPreferences.getString(mUuid  + ".ringtone", 
                 "content://settings/system/notification_sound");
 
-        mStorePersistent = preferences.mSharedPreferences.getString(
-                mUuid  + PREF_TAG_STORE_PERSISTENT, null);
     }
 
     public String getUuid() {
@@ -242,7 +234,6 @@ public class Account implements Serializable, Store.PersistentDataCallbacks {
         editor.remove(mUuid + ".accountNumber");
         editor.remove(mUuid + ".vibrate");
         editor.remove(mUuid + ".ringtone");
-        editor.remove(mUuid + PREF_TAG_STORE_PERSISTENT);
 
         // also delete any deprecated fields
         editor.remove(mUuid + ".transportUri");
@@ -405,52 +396,6 @@ public class Account implements Serializable, Store.PersistentDataCallbacks {
     
     public int getAccountNumber() {
         return mAccountNumber;
-    }
-
-    /**
-     * Provides a small place for Stores to store persistent data.  This will need to be
-     * expanded in the future, but is sufficient for now.  
-     * @param storeData Data to persist.  All data must be encoded into a string,
-     * so use base64 or some other encoding if necessary.
-     */
-    public void setPersistentString(Context context, String storeData) {
-        // recover preferences if needed
-        if (mPreferences == null) {
-            mPreferences = Preferences.getPreferences(context);
-        }
-        synchronized (this.getClass()) {
-            mStorePersistent = mPreferences.mSharedPreferences.getString(
-                    mUuid  + PREF_TAG_STORE_PERSISTENT, null);
-            if ((mStorePersistent == null && storeData != null) || 
-                    (mStorePersistent != null && !mStorePersistent.equals(storeData))) {
-                mStorePersistent = storeData;
-                SharedPreferences.Editor editor = mPreferences.mSharedPreferences.edit();
-                editor.putString(mUuid + PREF_TAG_STORE_PERSISTENT, mStorePersistent);
-                editor.commit();
-            }
-        }
-    }
-
-    /**
-     * @return the data saved by the Store, or null if never set.
-     */
-    public String getPersistentString(Context context) {
-        // recover preferences if needed
-        if (mPreferences == null) {
-            mPreferences = Preferences.getPreferences(context);
-        }
-         synchronized (this.getClass()) {
-            mStorePersistent = mPreferences.mSharedPreferences.getString(
-                    mUuid  + PREF_TAG_STORE_PERSISTENT, null);
-        }
-        return mStorePersistent;
-    }
-    
-    /**
-     * @return An implementation of Store.PersistentDataCallbacks
-     */
-    public Store.PersistentDataCallbacks getStoreCallbacks() {
-        return this;
     }
 
     @Override
