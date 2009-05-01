@@ -74,8 +74,8 @@ public class StoreTests extends AndroidTestCase {
             assertNotNull("scheme null", info.mScheme);
             assertNotNull("classname null", info.mClassName);
             assertTrue(info.mPushSupported);
-            assertEquals(1, info.mVisibleLimitDefault);
-            assertEquals(1, info.mVisibleLimitIncrement);
+            assertEquals(-1, info.mVisibleLimitDefault);
+            assertEquals(-1, info.mVisibleLimitIncrement);
             
             // This will throw MessagingException if the result would have been null
             Store store = Store.getInstance(storeUri, getContext(), null);

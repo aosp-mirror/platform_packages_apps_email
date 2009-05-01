@@ -214,6 +214,17 @@ public abstract class Store {
         return false;
     }
     
+    /**
+     * Some protocols require that a sent message be copied (uploaded) into the Sent folder
+     * while others can take care of it automatically (ideally, on the server).  This function
+     * allows a given store to indicate which mode(s) it supports.
+     * @return true if the store requires an upload into "sent", false if this happens automatically
+     * for any sent message.
+     */
+    public boolean requireCopyMessageToSentFolder() {
+        return true;
+    }
+    
     public abstract Folder getFolder(String name) throws MessagingException;
 
     public abstract Folder[] getPersonalNamespaces() throws MessagingException;
