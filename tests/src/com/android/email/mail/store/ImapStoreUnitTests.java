@@ -120,11 +120,27 @@ public class ImapStoreUnitTests extends AndroidTestCase {
      * Lightweight test to confirm that IMAP hasn't implemented any folder roles yet.
      * 
      * TODO: Test this with multiple folders provided by mock server
+     * TODO: Implement XLIST and then support this
      */
     public void testNoFolderRolesYet() {
         assertEquals(Folder.FolderRole.UNKNOWN, mFolder.getRole()); 
     }
     
+    /**
+     * Lightweight test to confirm that IMAP isn't requesting structure prefetch.
+     */
+    public void testNoStructurePrefetch() {
+        assertFalse(mStore.requireStructurePrefetch()); 
+    }
+    
+    /**
+     * Lightweight test to confirm that IMAP is requesting sent-message-upload.
+     * TODO: Implement Gmail-specific cases and handle this server-side
+     */
+    public void testSentUploadRequested() {
+        assertTrue(mStore.requireCopyMessageToSentFolder()); 
+    }
+
     /**
      * TODO: Test the process of opening and indexing a mailbox with one unread message in it.
      */

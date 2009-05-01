@@ -1502,9 +1502,9 @@ public class MessagingController implements Runnable {
      */
     public void sendPendingMessagesSynchronous(final Account account) {
         try {
-            Store localStore = Store.getInstance(account.getLocalStoreUri(), mContext, null);
-            Folder localFolder = localStore.getFolder(
-                    account.getOutboxFolderName());
+            LocalStore localStore = (LocalStore) Store.getInstance(
+                    account.getLocalStoreUri(), mContext, null);
+            Folder localFolder = localStore.getFolder(account.getOutboxFolderName());
             if (!localFolder.exists()) {
                 return;
             }
@@ -1521,29 +1521,36 @@ public class MessagingController implements Runnable {
             fp.add(FetchProfile.Item.BODY);
 
             LocalFolder localSentFolder =
-                (LocalFolder) localStore.getFolder(
-                        account.getSentFolderName());
+                (LocalFolder) localStore.getFolder(account.getSentFolderName());
+            
+            // Determine if upload to "sent" folder is necessary
+            Store remoteStore = Store.getInstance(
+                    account.getStoreUri(), mContext, localStore.getPersistentCallbacks());
+            boolean requireCopyMessageToSentFolder = remoteStore.requireCopyMessageToSentFolder();
 
             Sender sender = Sender.getInstance(account.getSenderUri(), mContext);
             for (Message message : localMessages) {
                 try {
                     localFolder.fetch(new Message[] { message }, fp, null);
                     try {
+                        // Send message using Sender
                         message.setFlag(Flag.X_SEND_IN_PROGRESS, true);
                         sender.sendMessage(message);
                         message.setFlag(Flag.X_SEND_IN_PROGRESS, false);
-                        localFolder.copyMessages(
-                                new Message[] { message },
-                                localSentFolder, null);
-
-                        PendingCommand command = new PendingCommand();
-                        command.command = PENDING_COMMAND_APPEND;
-                        command.arguments =
-                            new String[] {
-                                localSentFolder.getName(),
-                                message.getUid() };
-                        queuePendingCommand(account, command);
-                        processPendingCommands(account);
+                        
+                        // Upload to "sent" folder if not supported server-side
+                        if (requireCopyMessageToSentFolder) {
+                            localFolder.copyMessages(
+                                    new Message[] { message },localSentFolder, null);
+                            PendingCommand command = new PendingCommand();
+                            command.command = PENDING_COMMAND_APPEND;
+                            command.arguments =
+                                new String[] { localSentFolder.getName(), message.getUid() };
+                            queuePendingCommand(account, command);
+                            processPendingCommands(account);
+                        }
+                        
+                        // And delete from outbox
                         message.setFlag(Flag.X_DESTROYED, true);
                     }
                     catch (Exception e) {

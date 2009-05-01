@@ -259,6 +259,20 @@ public class Pop3StoreUnitTests extends AndroidTestCase {
     }
 
     /**
+     * Lightweight test to confirm that POP3 isn't requesting structure prefetch.
+     */
+    public void testNoStructurePrefetch() {
+        assertFalse(mStore.requireStructurePrefetch()); 
+    }
+    
+    /**
+     * Lightweight test to confirm that POP3 is requesting sent-message-upload.
+     */
+    public void testSentUploadRequested() {
+        assertTrue(mStore.requireCopyMessageToSentFolder()); 
+    }
+
+    /**
      * Test the process of opening and indexing a mailbox with one unread message in it.
      * 
      * TODO should create an instrumented listener to confirm all expected callbacks.  Then use
