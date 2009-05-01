@@ -1232,15 +1232,42 @@ public class MessagingController implements Runnable {
                     Folder remoteFolder = remoteStore.getFolder(folder);
                     remoteFolder.open(OpenMode.READ_WRITE, localFolder.getPersistentCallbacks());
 
-                    // Get the remote message and fully download it
-                    Message remoteMessage = remoteFolder.getMessage(uid);
+                    // Get the remote message and fully download it (and save into local store)
+                    
+                    if (remoteStore.requireStructurePrefetch()) {
+                        // For remote stores that require it, prefetch the message structure.
+                        FetchProfile fp = new FetchProfile();
+                        fp.add(FetchProfile.Item.STRUCTURE);
+                        localFolder.fetch(new Message[] { message }, fp, null);
+                        
+                        ArrayList<Part> viewables = new ArrayList<Part>();
+                        ArrayList<Part> attachments = new ArrayList<Part>();
+                        MimeUtility.collectParts(message, viewables, attachments);
+                        fp.clear();
+                        for (Part part : viewables) {
+                            fp.add(part);
+                        }
+                        
+                        remoteFolder.fetch(new Message[] { message }, fp, null);
+                        
+                        // Store the updated message locally
+                        localFolder.updateMessage((LocalMessage)message);
+                        
+                    } else {
+                        // Most remote stores can directly obtain the message using only uid
+                        Message remoteMessage = remoteFolder.getMessage(uid);
+                        FetchProfile fp = new FetchProfile();
+                        fp.add(FetchProfile.Item.BODY);
+                        remoteFolder.fetch(new Message[] { remoteMessage }, fp, null);
+
+                        // Store the message locally
+                        localFolder.appendMessages(new Message[] { remoteMessage });
+                    }
+                    
+                    // Now obtain the local copy for further access & manipulation
+                    message = localFolder.getMessage(uid);
                     FetchProfile fp = new FetchProfile();
                     fp.add(FetchProfile.Item.BODY);
-                    remoteFolder.fetch(new Message[] { remoteMessage }, fp, null);
-
-                    // Store the message locally and load the stored message into memory
-                    localFolder.appendMessages(new Message[] { remoteMessage });
-                    message = localFolder.getMessage(uid);
                     localFolder.fetch(new Message[] { message }, fp, null);
 
                     // This is a view message request, so mark it read
