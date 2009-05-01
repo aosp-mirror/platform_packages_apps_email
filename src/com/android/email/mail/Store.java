@@ -200,6 +200,17 @@ public abstract class Store {
         return null;
     }
     
+    /**
+     * Some stores cannot download a message based only on the uid, and need the message structure
+     * to be preloaded and provided to them.  This method allows a remote store to signal this
+     * requirement.  Most stores do not need this and do not need to overload this method, which
+     * simply returns "false" in the base class.
+     * @return Return true if the remote store requires structure prefetch
+     */
+    public boolean requireStructurePrefetch() {
+        return false;
+    }
+    
     public abstract Folder getFolder(String name) throws MessagingException;
 
     public abstract Folder[] getPersonalNamespaces() throws MessagingException;
