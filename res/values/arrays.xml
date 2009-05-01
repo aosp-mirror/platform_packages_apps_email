@@ -61,4 +61,23 @@
         <item>60</item>  
     </string-array>
     
+    <!-- Mail sync window size for EAS accounts -->
+    <string-array name="account_settings_mail_window_entries">
+        <item>@string/account_setup_options_mail_window_1day</item>
+        <item>@string/account_setup_options_mail_window_3days</item>
+        <item>@string/account_setup_options_mail_window_1week</item>
+        <item>@string/account_setup_options_mail_window_2weeks</item>
+        <item>@string/account_setup_options_mail_window_1month</item>
+        <item>@string/account_setup_options_mail_window_all</item>
+    </string-array>
+
+    <string-array name="account_settings_mail_window_values" translatable="false">
+        <item>1</item>
+        <item>2</item>
+        <item>3</item>
+        <item>4</item>
+        <item>5</item>
+        <item>6</item>  
+    </string-array>
+    
 </resources>

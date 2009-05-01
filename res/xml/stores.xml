@@ -36,5 +36,5 @@
     
     <!-- This is here for temporary demo purposes only.  Do not ship with this. -->
     <store scheme="eas" class="com.android.email.mail.exchange.ExchangeStoreExample" 
-        push="true" visibleLimitDefault="1" visibleLimitIncrement="1" accountInstanceLimit="1" />
+        push="true" visibleLimitDefault="-1" visibleLimitIncrement="-1" accountInstanceLimit="1" />
 </stores>

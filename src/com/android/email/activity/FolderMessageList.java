@@ -97,6 +97,8 @@ public class FolderMessageList extends ExpandableListActivity {
             "com.android.email.activity.folderlist_expandedGroup";
     private static final String STATE_KEY_EXPANDED_GROUP_SELECTION =
             "com.android.email.activity.folderlist_expandedGroupSelection";
+    private static final String STATE_KEY_REFRESH_REMOTE = 
+            "com.android.email.activity.refresh_remote";
 
     private static final int UPDATE_FOLDER_ON_EXPAND_INTERVAL_MS = (1000 * 60 * 3);
 
@@ -130,6 +132,8 @@ public class FolderMessageList extends ExpandableListActivity {
     private FolderMessageListAdapter mAdapter;
     private LayoutInflater mInflater;
     private Account mAccount;
+    private boolean mSyncWindowUser;
+
     /**
      * Stores the name of the folder that we want to open as soon as possible after load. It is
      * set to null once the folder has been opened once.
@@ -462,6 +466,12 @@ public class FolderMessageList extends ExpandableListActivity {
          */
         colorChipResId = colorChipResIds[mAccount.getAccountNumber() % colorChipResIds.length];
 
+        /**
+         * "User" means the user adjusts the sync window in the UI (load more messages).
+         * Non-user means that it's set to a fixed window e.g. 3 days
+         */
+        mSyncWindowUser = mAccount.getSyncWindow() == Account.SYNC_WINDOW_USER;
+        
         mAdapter = new FolderMessageListAdapter();
 
         final Object previousData = getLastNonConfigurationInstance();
@@ -476,6 +486,7 @@ public class FolderMessageList extends ExpandableListActivity {
             mRestoringState = true;
             onRestoreListState(savedInstanceState);
             mRestoringState = false;
+            mRefreshRemote |= savedInstanceState.getBoolean(STATE_KEY_REFRESH_REMOTE);
         }
 
         setTitle(mAccount.getDescription());
@@ -528,6 +539,7 @@ public class FolderMessageList extends ExpandableListActivity {
         outState.putParcelable(STATE_KEY_LIST, mListView.onSaveInstanceState());
         outState.putInt(STATE_KEY_EXPANDED_GROUP, mExpandedGroup);
         outState.putLong(STATE_KEY_EXPANDED_GROUP_SELECTION, mListView.getSelectedPosition());
+        outState.putBoolean(STATE_KEY_REFRESH_REMOTE, mRefreshRemote);
     }
 
     @Override
@@ -576,7 +588,7 @@ public class FolderMessageList extends ExpandableListActivity {
             return false;
         }
         if (childPosition == folder.messages.size() && !folder.loading) {
-            if (folder.status == null) {
+            if (folder.status == null && mSyncWindowUser) {
                 MessagingController.getInstance(getApplication()).loadMoreMessages(
                         mAccount,
                         folder.name,
@@ -610,7 +622,7 @@ public class FolderMessageList extends ExpandableListActivity {
                 Process.setThreadPriority(Process.THREAD_PRIORITY_BACKGROUND);
                 MessagingController.getInstance(getApplication()).listFolders(
                         mAccount,
-                        forceRemote,
+                        mRefreshRemote,
                         mAdapter.mListener);
                 if (forceRemote) {
                     MessagingController.getInstance(getApplication()).sendPendingMessages(
@@ -647,6 +659,9 @@ public class FolderMessageList extends ExpandableListActivity {
     }
 
     private void onEditAccount() {
+        // We request a remote refresh *after* the account settings because user changes may
+        // change the results we get from the server.  This will be picked up in onResume().
+        mRefreshRemote = true;
         AccountSettings.actionSettings(this, mAccount);
     }
 
@@ -1234,7 +1249,12 @@ public class FolderMessageList extends ExpandableListActivity {
                 }
                 else {
                     if (folder.status == null) {
-                        holder.main.setText(getString(R.string.message_list_load_more_messages_action));
+                        if (mSyncWindowUser) {
+                            holder.main.setText(getString(
+                                    R.string.message_list_load_more_messages_action));
+                        } else {
+                            holder.main.setText(getString(R.string.refresh_action));
+                        }
                     }
                     else {
                         holder.main.setText(getString(R.string.status_loading_more_failed));
