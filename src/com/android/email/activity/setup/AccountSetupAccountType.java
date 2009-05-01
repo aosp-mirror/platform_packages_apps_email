@@ -19,7 +19,6 @@ package com.android.email.activity.setup;
 import com.android.email.Account;
 import com.android.email.Preferences;
 import com.android.email.R;
-import com.android.email.mail.MessagingException;
 import com.android.email.mail.Store;
 
 import android.app.Activity;
@@ -128,6 +127,7 @@ public class AccountSetupAccountType extends Activity implements OnClickListener
         // TODO: Confirm correct delete policy for exchange
         mAccount.setDeletePolicy(Account.DELETE_POLICY_ON_DELETE);
         mAccount.setAutomaticCheckIntervalMinutes(Account.CHECK_INTERVAL_PUSH);
+        mAccount.setSyncWindow(Account.SYNC_WINDOW_3_DAYS);
         AccountSetupExchange.actionIncomingSettings(this, mAccount, mMakeDefault);
         finish();
     }
