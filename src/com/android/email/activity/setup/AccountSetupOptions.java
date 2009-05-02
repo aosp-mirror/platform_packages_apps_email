@@ -37,6 +37,7 @@ public class AccountSetupOptions extends Activity implements OnClickListener {
     private static final String EXTRA_MAKE_DEFAULT = "makeDefault";
 
     private Spinner mCheckFrequencyView;
+    private Spinner mSyncWindowView;
 
     private CheckBox mDefaultView;
 
@@ -57,6 +58,7 @@ public class AccountSetupOptions extends Activity implements OnClickListener {
         setContentView(R.layout.account_setup_options);
 
         mCheckFrequencyView = (Spinner)findViewById(R.id.account_check_frequency);
+        mSyncWindowView = (Spinner) findViewById(R.id.account_sync_window);
         mDefaultView = (CheckBox)findViewById(R.id.account_default);
         mNotifyView = (CheckBox)findViewById(R.id.account_notify);
 
@@ -91,6 +93,10 @@ public class AccountSetupOptions extends Activity implements OnClickListener {
         checkFrequenciesAdapter
                 .setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
         mCheckFrequencyView.setAdapter(checkFrequenciesAdapter);
+        
+        if (info.mVisibleLimitDefault == -1) {
+            enableEASSyncWindowSpinner();
+        }
 
         if (mAccount.equals(Preferences.getPreferences(this).getDefaultAccount()) || makeDefault) {
             mDefaultView.setChecked(true);
@@ -105,6 +111,10 @@ public class AccountSetupOptions extends Activity implements OnClickListener {
         mAccount.setNotifyNewMail(mNotifyView.isChecked());
         mAccount.setAutomaticCheckIntervalMinutes((Integer)((SpinnerOption)mCheckFrequencyView
                 .getSelectedItem()).value);
+        if (mSyncWindowView.getVisibility() == View.VISIBLE) {
+            int window = (Integer)((SpinnerOption)mSyncWindowView.getSelectedItem()).value;
+            mAccount.setSyncWindow(window);
+        }
         mAccount.save(Preferences.getPreferences(this));
         if (mDefaultView.isChecked()) {
             Preferences.getPreferences(this).setDefaultAccount(mAccount);
@@ -120,5 +130,35 @@ public class AccountSetupOptions extends Activity implements OnClickListener {
                 onDone();
                 break;
         }
+    }
+    
+    /**
+     * Enable an additional spinner using the arrays normally handled by preferences
+     */
+    private void enableEASSyncWindowSpinner() {
+        // Show everything
+        findViewById(R.id.account_sync_window_label).setVisibility(View.VISIBLE);
+        mSyncWindowView.setVisibility(View.VISIBLE);
+
+        // Generate spinner entries using XML arrays used by the preferences
+        CharSequence[] windowValues = getResources().getTextArray(
+                R.array.account_settings_mail_window_values);
+        CharSequence[] windowEntries = getResources().getTextArray(
+                R.array.account_settings_mail_window_entries);
+        
+        // Now create the array used by the Spinner
+        SpinnerOption[] windowOptions = new SpinnerOption[windowEntries.length];
+        for (int i = 0; i < windowEntries.length; i++) {
+            windowOptions[i] = new SpinnerOption(
+                    Integer.valueOf(windowValues[i].toString()), windowEntries[i].toString());
+        }
+
+        ArrayAdapter<SpinnerOption> windowOptionsAdapter = new ArrayAdapter<SpinnerOption>(this,
+                android.R.layout.simple_spinner_item, windowOptions);
+        windowOptionsAdapter
+                .setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
+        mSyncWindowView.setAdapter(windowOptionsAdapter);
+        
+        SpinnerOption.setSpinnerOptionValue(mSyncWindowView, mAccount.getSyncWindow());
     }
 }

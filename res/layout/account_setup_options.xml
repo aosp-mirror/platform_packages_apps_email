@@ -29,6 +29,19 @@
         android:id="@+id/account_check_frequency"
         android:layout_height="wrap_content"
         android:layout_width="fill_parent" />
+    <TextView
+        android:id="@+id/account_sync_window_label"
+        android:text="@string/account_setup_options_mail_window_label"
+        android:visibility="gone"
+        android:layout_height="wrap_content"
+        android:layout_width="fill_parent"
+        android:textAppearance="?android:attr/textAppearanceSmall"
+        android:textColor="?android:attr/textColorPrimary" />
+    <Spinner
+        android:id="@+id/account_sync_window"
+        android:visibility="gone"
+        android:layout_height="wrap_content"
+        android:layout_width="fill_parent" />
     <CheckBox
         android:id="@+id/account_default"
         android:layout_height="wrap_content"

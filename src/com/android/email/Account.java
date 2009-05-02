@@ -37,6 +37,14 @@ public class Account implements Serializable {
     
     public static final int CHECK_INTERVAL_NEVER = -1;
     public static final int CHECK_INTERVAL_PUSH = -2;
+    
+    public static final int SYNC_WINDOW_USER = -1;
+    public static final int SYNC_WINDOW_1_DAY = 1;
+    public static final int SYNC_WINDOW_3_DAYS = 2;
+    public static final int SYNC_WINDOW_1_WEEK = 3;
+    public static final int SYNC_WINDOW_2_WEEKS = 4;
+    public static final int SYNC_WINDOW_1_MONTH = 5;
+    public static final int SYNC_WINDOW_ALL = 6;
 
     /** 
      * This should never be used for persistance, only for marshalling.
@@ -65,6 +73,7 @@ public class Account implements Serializable {
     int mAccountNumber;
     boolean mVibrate;
     String mRingtoneUri;
+    int mSyncWindow;
 
     /**
      * <pre>
@@ -75,6 +84,11 @@ public class Account implements Serializable {
      */
     int mDeletePolicy;
 
+    /**
+     * All new fields should have named keys
+     */
+    private final String KEY_SYNC_WINDOW = ".syncWindow";
+
     public Account(Context context) {
         // TODO Change local store path to something readable / recognizable
         mUuid = UUID.randomUUID().toString();
@@ -84,6 +98,7 @@ public class Account implements Serializable {
         mNotifyNewMail = true;
         mVibrate = false;
         mRingtoneUri = "content://settings/system/notification_sound";
+        mSyncWindow = SYNC_WINDOW_USER;       // IMAP & POP3
     }
 
     Account(Preferences preferences, String uuid) {
@@ -139,7 +154,9 @@ public class Account implements Serializable {
         mVibrate = preferences.mSharedPreferences.getBoolean(mUuid + ".vibrate", false);
         mRingtoneUri = preferences.mSharedPreferences.getString(mUuid  + ".ringtone", 
                 "content://settings/system/notification_sound");
-
+        
+        mSyncWindow = preferences.mSharedPreferences.getInt(mUuid + KEY_SYNC_WINDOW, 
+                SYNC_WINDOW_USER);
     }
 
     public String getUuid() {
@@ -234,6 +251,7 @@ public class Account implements Serializable {
         editor.remove(mUuid + ".accountNumber");
         editor.remove(mUuid + ".vibrate");
         editor.remove(mUuid + ".ringtone");
+        editor.remove(mUuid + KEY_SYNC_WINDOW);
 
         // also delete any deprecated fields
         editor.remove(mUuid + ".transportUri");
@@ -296,6 +314,7 @@ public class Account implements Serializable {
         editor.putInt(mUuid + ".accountNumber", mAccountNumber);
         editor.putBoolean(mUuid + ".vibrate", mVibrate);
         editor.putString(mUuid + ".ringtone", mRingtoneUri);
+        editor.putInt(mUuid + KEY_SYNC_WINDOW, mSyncWindow);
         
         // The following fields are *not* written because they need to be more fine-grained
         // and not risk rewriting with old data.
@@ -396,6 +415,14 @@ public class Account implements Serializable {
     
     public int getAccountNumber() {
         return mAccountNumber;
+    }
+
+    public int getSyncWindow() {
+        return mSyncWindow;
+    }
+    
+    public void setSyncWindow(int window) {
+        mSyncWindow = window;
     }
 
     @Override

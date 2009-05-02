@@ -32,6 +32,7 @@ import android.preference.EditTextPreference;
 import android.preference.ListPreference;
 import android.preference.Preference;
 import android.preference.PreferenceActivity;
+import android.preference.PreferenceCategory;
 import android.preference.RingtonePreference;
 import android.util.Log;
 import android.view.KeyEvent;
@@ -56,6 +57,7 @@ public class AccountSettings extends PreferenceActivity {
     private EditTextPreference mAccountDescription;
     private EditTextPreference mAccountName;
     private ListPreference mCheckFrequency;
+    private ListPreference mSyncWindow;
     private CheckBoxPreference mAccountDefault;
     private CheckBoxPreference mAccountNotify;
     private CheckBoxPreference mAccountVibrate;
@@ -75,7 +77,7 @@ public class AccountSettings extends PreferenceActivity {
 
         addPreferencesFromResource(R.xml.account_settings_preferences);
 
-        Preference category = findPreference(PREFERENCE_TOP_CATERGORY);
+        PreferenceCategory category = (PreferenceCategory) findPreference(PREFERENCE_TOP_CATERGORY);
         category.setTitle(getString(R.string.account_settings_title_fmt));
 
         mAccountDescription = (EditTextPreference) findPreference(PREFERENCE_DESCRIPTION);
@@ -122,6 +124,28 @@ public class AccountSettings extends PreferenceActivity {
                 return false;
             }
         });
+        
+        // Add check window preference
+        mSyncWindow = null;
+        if (info.mVisibleLimitDefault == -1) {
+            mSyncWindow = new ListPreference(this);
+            mSyncWindow.setTitle(R.string.account_setup_options_mail_window_label);
+            mSyncWindow.setEntries(R.array.account_settings_mail_window_entries);
+            mSyncWindow.setEntryValues(R.array.account_settings_mail_window_values);
+            mSyncWindow.setValue(String.valueOf(mAccount.getSyncWindow()));
+            mSyncWindow.setSummary(mSyncWindow.getEntry());
+            mSyncWindow.setOrder(4);
+            mSyncWindow.setOnPreferenceChangeListener(new Preference.OnPreferenceChangeListener() {
+                public boolean onPreferenceChange(Preference preference, Object newValue) {
+                    final String summary = newValue.toString();
+                    int index = mSyncWindow.findIndexOfValue(summary);
+                    mSyncWindow.setSummary(mSyncWindow.getEntries()[index]);
+                    mSyncWindow.setValue(summary);
+                    return false;
+                }
+            });
+            category.addPreference(mSyncWindow);
+        }
 
         mAccountDefault = (CheckBoxPreference) findPreference(PREFERENCE_DEFAULT);
         mAccountDefault.setChecked(
@@ -178,6 +202,10 @@ public class AccountSettings extends PreferenceActivity {
         mAccount.setName(mAccountName.getText());
         mAccount.setNotifyNewMail(mAccountNotify.isChecked());
         mAccount.setAutomaticCheckIntervalMinutes(Integer.parseInt(mCheckFrequency.getValue()));
+        if (mSyncWindow != null)
+        {
+            mAccount.setSyncWindow(Integer.parseInt(mSyncWindow.getValue()));
+        }
         mAccount.setVibrate(mAccountVibrate.isChecked());
         SharedPreferences prefs = mAccountRingtone.getPreferenceManager().getSharedPreferences();
         mAccount.setRingtone(prefs.getString(PREFERENCE_RINGTONE, null));
