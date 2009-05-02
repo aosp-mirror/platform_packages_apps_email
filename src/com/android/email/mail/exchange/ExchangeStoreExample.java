@@ -164,5 +164,15 @@ public class ExchangeStoreExample extends Store {
     public StoreSynchronizer getMessageSynchronizer() {
         return null;
     }
+    
+    /**
+     * Inform MessagingController that this store requires message structures to be prefetched
+     * before it can fetch message bodies (this is due to EAS protocol restrictions.)
+     * @return always true for EAS
+     */
+    @Override
+    public boolean requireStructurePrefetch() {
+        return true;
+    }
 }
 
