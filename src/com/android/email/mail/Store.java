@@ -174,6 +174,9 @@ public abstract class Store {
             if (store != null) {
                 mStores.put(uri, store);
             }
+        } else {
+            // update the callbacks, which may have been null at creation time.
+            store.setPersistentDataCallbacks(callbacks);
         }
 
         if (store == null) {
@@ -243,6 +246,15 @@ public abstract class Store {
      * @throws MessagingException
      */
     public void delete() throws MessagingException {
+    }
+    
+    /**
+     * If a Store intends to implement callbacks, it should be prepared to update them
+     * via overriding this method.  They may not be available at creation time (in which case they
+     * will be passed in as null.
+     * @param callbacks The updated provider of store callbacks
+     */
+    protected void setPersistentDataCallbacks(PersistentDataCallbacks callbacks) {
     }
     
     /**
