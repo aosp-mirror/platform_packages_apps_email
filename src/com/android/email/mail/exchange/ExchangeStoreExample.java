@@ -174,5 +174,15 @@ public class ExchangeStoreExample extends Store {
     public boolean requireStructurePrefetch() {
         return true;
     }
+    
+    /**
+     * Inform MessagingController that messages sent via EAS will be placed in the Sent folder
+     * automatically (server-side) and don't need to be uploaded.
+     * @return always false for EAS (assuming server-side copy is supported)
+     */
+    @Override
+    public boolean requireCopyMessageToSentFolder() {
+        return false;
+    }
 }
 
