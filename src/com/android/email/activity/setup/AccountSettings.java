@@ -20,6 +20,7 @@ import com.android.email.Account;
 import com.android.email.Email;
 import com.android.email.Preferences;
 import com.android.email.R;
+import com.android.email.mail.MessagingException;
 import com.android.email.mail.Sender;
 import com.android.email.mail.Store;
 
@@ -48,6 +49,7 @@ public class AccountSettings extends PreferenceActivity {
     private static final String PREFERENCE_NOTIFY = "account_notify";
     private static final String PREFERENCE_VIBRATE = "account_vibrate";
     private static final String PREFERENCE_RINGTONE = "account_ringtone";
+    private static final String PREFERENCE_SERVER_CATERGORY = "account_servers";
     private static final String PREFERENCE_INCOMING = "incoming";
     private static final String PREFERENCE_OUTGOING = "outgoing";
     private static final String PREFERENCE_ADD_ACCOUNT = "add_account";
@@ -77,8 +79,8 @@ public class AccountSettings extends PreferenceActivity {
 
         addPreferencesFromResource(R.xml.account_settings_preferences);
 
-        PreferenceCategory category = (PreferenceCategory) findPreference(PREFERENCE_TOP_CATERGORY);
-        category.setTitle(getString(R.string.account_settings_title_fmt));
+        PreferenceCategory topCategory = (PreferenceCategory) findPreference(PREFERENCE_TOP_CATERGORY);
+        topCategory.setTitle(getString(R.string.account_settings_title_fmt));
 
         mAccountDescription = (EditTextPreference) findPreference(PREFERENCE_DESCRIPTION);
         mAccountDescription.setSummary(mAccount.getDescription());
@@ -144,7 +146,7 @@ public class AccountSettings extends PreferenceActivity {
                     return false;
                 }
             });
-            category.addPreference(mSyncWindow);
+            topCategory.addPreference(mSyncWindow);
         }
 
         mAccountDefault = (CheckBoxPreference) findPreference(PREFERENCE_DEFAULT);
@@ -172,13 +174,32 @@ public class AccountSettings extends PreferenceActivity {
                     }
                 });
 
-        findPreference(PREFERENCE_OUTGOING).setOnPreferenceClickListener(
-                new Preference.OnPreferenceClickListener() {
-                    public boolean onPreferenceClick(Preference preference) {
-                        onOutgoingSettings();
-                        return true;
-                    }
-                });
+        // Hide the outgoing account setup link if it's not activated
+        Preference prefOutgoing = findPreference(PREFERENCE_OUTGOING);
+        boolean showOutgoing = true;
+        try {
+            Sender sender = Sender.getInstance(mAccount.getSenderUri(), getApplication());
+            if (sender != null) {
+                Class<? extends android.app.Activity> setting = sender.getSettingActivityClass();
+                showOutgoing = (setting != null);
+            }
+        } catch (MessagingException me) {
+            // just leave showOutgoing as true - bias towards showing it, so user can fix it
+        }
+        if (showOutgoing) {
+            prefOutgoing.setOnPreferenceClickListener(
+                    new Preference.OnPreferenceClickListener() {
+                        public boolean onPreferenceClick(Preference preference) {
+                            onOutgoingSettings();
+                            return true;
+                        }
+                    });
+        } else {
+            PreferenceCategory serverCategory = (PreferenceCategory) findPreference(
+                    PREFERENCE_SERVER_CATERGORY);
+            serverCategory.removePreference(prefOutgoing);
+        }
+        
         findPreference(PREFERENCE_ADD_ACCOUNT).setOnPreferenceClickListener(
                 new Preference.OnPreferenceClickListener() {
                     public boolean onPreferenceClick(Preference preference) {
@@ -244,7 +265,7 @@ public class AccountSettings extends PreferenceActivity {
                 Class<? extends android.app.Activity> setting = sender.getSettingActivityClass();
                 if (setting != null) {
                     java.lang.reflect.Method m = setting.getMethod("actionEditOutgoingSettings",
-                            android.content.Context.class, Account.class);
+                            android.app.Activity.class, Account.class);
                     m.invoke(null, this, mAccount);
                 }
             }

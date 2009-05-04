@@ -88,10 +88,12 @@ public class ExchangeSenderExample extends Sender {
 
     /**
      * Get class of SettingActivity for this Sender class.
-     * @return Activity class that has class method actionEditOutgoingSettings(). 
+     * @return Activity class that has class method actionEditOutgoingSettings(), or null if
+     * outgoing settings should not be presented (e.g. they're handled by the incoming settings
+     * screen).
      */
     @Override
     public Class<? extends android.app.Activity> getSettingActivityClass() {
-        return com.android.email.activity.setup.AccountSetupExchange.class;
+        return null;
     }
 }
