@@ -153,7 +153,6 @@ public class FolderMessageList extends ExpandableListActivity {
     class FolderMessageListHandler extends Handler {
         private static final int MSG_PROGRESS = 2;
         private static final int MSG_DATA_CHANGED = 3;
-        private static final int MSG_EXPAND_GROUP = 5;
         private static final int MSG_FOLDER_LOADING = 7;
         private static final int MSG_REMOVE_MESSAGE = 11;
         private static final int MSG_SYNC_MESSAGES = 13;
@@ -162,6 +161,7 @@ public class FolderMessageList extends ExpandableListActivity {
         private static final int MSG_NEW_MESSAGE = 19;
         private static final int MSG_REMOVE_MESSAGE_UID = 20;
         private static final int MSG_MESSAGE_UID_CHANGED = 21;
+        private static final int MSG_LIST_FOLDERS_FINISHED = 22;
 
         @Override
         public void handleMessage(android.os.Message msg) {
@@ -171,9 +171,6 @@ public class FolderMessageList extends ExpandableListActivity {
                     break;
                 case MSG_DATA_CHANGED:
                     mAdapter.notifyDataSetChanged();
-                    break;
-                case MSG_EXPAND_GROUP:
-                    mListView.expandGroup(msg.arg1);
                     break;
                 /*
                  * The following functions modify the state of the adapter's underlying list and
@@ -196,8 +193,12 @@ public class FolderMessageList extends ExpandableListActivity {
                     break;
                 }
                 case MSG_SYNC_MESSAGES: {
-                    FolderInfoHolder folder = (FolderInfoHolder) ((Object[]) msg.obj)[0];
+                    String folderName = (String) ((Object[]) msg.obj)[0];
                     Message[] messages = (Message[]) ((Object[]) msg.obj)[1];
+                    FolderInfoHolder folder = mAdapter.getFolder(folderName);
+                    if (folder == null) {
+                        return;
+                    }
                     folder.messages.clear();
                     for (Message message : messages) {
                         mAdapter.addOrUpdateMessage(folder, message, false, false);
@@ -209,9 +210,17 @@ public class FolderMessageList extends ExpandableListActivity {
                 case MSG_FOLDER_STATUS: {
                     String folderName = (String) ((Object[]) msg.obj)[0];
                     String status = (String) ((Object[]) msg.obj)[1];
+                    int forceRefresh = msg.arg1;
                     FolderInfoHolder folder = mAdapter.getFolder(folderName);
                     if (folder != null) {
                         folder.status = status;
+                        if (forceRefresh != 0) {
+                            /*
+                             * Reset the last checked time to 0 so that the next expand will
+                             * attempt to refresh this folder.
+                             */
+                            folder.lastChecked = 0;
+                        }
                         mAdapter.notifyDataSetChanged();
                     }
                     break;
@@ -248,14 +257,18 @@ public class FolderMessageList extends ExpandableListActivity {
                     }
                     break;
                 }
+                case MSG_LIST_FOLDERS_FINISHED: {
+                    mAdapter.doListFoldersFinished();
+                    break;
+                }
                 
                 default:
                     super.handleMessage(msg);
             }
         }
 
-        public void synchronizeMessages(FolderInfoHolder folder, Message[] messages) {
-            android.os.Message msg = new android.os.Message();
+        public void synchronizeMessages(String folder, Message[] messages) {
+            android.os.Message msg = android.os.Message.obtain();
             msg.what = MSG_SYNC_MESSAGES;
             msg.obj = new Object[] { folder, messages };
             sendMessage(msg);
@@ -287,17 +300,11 @@ public class FolderMessageList extends ExpandableListActivity {
             sendEmptyMessage(MSG_DATA_CHANGED);
         }
 
-        public void expandGroup(int groupPosition) {
-            android.os.Message msg = new android.os.Message();
-            msg.what = MSG_EXPAND_GROUP;
-            msg.arg1 = groupPosition;
-            sendMessage(msg);
-        }
-
-        public void folderStatus(String folder, String status) {
+        public void folderStatus(String folder, String status, boolean forceRefresh) {
             android.os.Message msg = new android.os.Message();
             msg.what = MSG_FOLDER_STATUS;
             msg.obj = new String[] { folder, status };
+            msg.arg1 = forceRefresh ? 1 : 0;
             sendMessage(msg);
         }
         
@@ -327,6 +334,10 @@ public class FolderMessageList extends ExpandableListActivity {
             msg.what = MSG_MESSAGE_UID_CHANGED;
             msg.obj = new Object[] { folder, oldUid, newUid };
             sendMessage(msg);
+        }
+        
+        public void listFoldersFinished() {
+            sendEmptyMessage(MSG_LIST_FOLDERS_FINISHED);
         }
     }
 
@@ -822,13 +833,7 @@ public class FolderMessageList extends ExpandableListActivity {
                     return;
                 }
                 mHandler.progress(false);
-                if (mInitialFolder != null) {
-                    int groupPosition = getFolderPosition(mInitialFolder);
-                    mInitialFolder = null;
-                    if (groupPosition != -1) {
-                        mHandler.expandGroup(groupPosition);
-                    }
-                }
+                mHandler.listFoldersFinished();
             }
 
             @Override
@@ -871,7 +876,7 @@ public class FolderMessageList extends ExpandableListActivity {
                 if (!account.equals(mAccount)) {
                     return;
                 }
-                synchronizeMessages(folder, messages);
+                mHandler.synchronizeMessages(folder, messages);
             }
 
             @Override
@@ -883,7 +888,7 @@ public class FolderMessageList extends ExpandableListActivity {
                 }
                 mHandler.progress(true);
                 mHandler.folderLoading(folder, true);
-                mHandler.folderStatus(folder, null);
+                mHandler.folderStatus(folder, null, false);
             }
 
             @Override
@@ -897,7 +902,7 @@ public class FolderMessageList extends ExpandableListActivity {
                 }
                 mHandler.progress(false);
                 mHandler.folderLoading(folder, false);
-                mHandler.folderStatus(folder, null);
+                mHandler.folderStatus(folder, null, false);
                 onRefresh(false);
             }
 
@@ -932,15 +937,7 @@ public class FolderMessageList extends ExpandableListActivity {
                             break;
                     }
                 }
-                mHandler.folderStatus(folder, getString(id));
-                FolderInfoHolder holder = getFolder(folder);
-                if (holder != null) {
-                    /*
-                     * Reset the last checked time to 0 so that the next expand will attempt to
-                     * refresh this folder.
-                     */
-                    holder.lastChecked = 0;
-                }
+                mHandler.folderStatus(folder, getString(id), true);
             }
 
             @Override
@@ -1064,6 +1061,20 @@ public class FolderMessageList extends ExpandableListActivity {
             }
             mRefreshRemote = false;
         }
+        
+        /**
+         * This code is invoked (in the UI thread) when listFoldersFinished() happens.  It
+         * implements the UI policy of opening the requested folder (if any).
+         */
+        public void doListFoldersFinished() {
+            if (mInitialFolder != null) {
+                int groupPosition = getFolderPosition(mInitialFolder);
+                mInitialFolder = null;
+                if (groupPosition != -1) {
+                    mListView.expandGroup(groupPosition);
+                }
+            }            
+        }
 
         public void removeMessage(String folder, String messageUid) {
             FolderInfoHolder f = getFolder(folder);
@@ -1075,14 +1086,6 @@ public class FolderMessageList extends ExpandableListActivity {
                 return;
             }
             mHandler.removeMessage(f, m);
-        }
-
-        public void synchronizeMessages(String folder, Message[] messages) {
-            FolderInfoHolder f = getFolder(folder);
-            if (f == null) {
-                return;
-            }
-            mHandler.synchronizeMessages(f, messages);
         }
 
         public void addOrUpdateMessage(String folder, Message message) {
