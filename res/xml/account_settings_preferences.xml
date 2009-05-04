@@ -77,7 +77,9 @@
 
     </PreferenceCategory>
 
-    <PreferenceCategory android:title="@string/account_settings_servers">
+    <PreferenceCategory 
+        android:key="account_servers"
+        android:title="@string/account_settings_servers">
     
         <PreferenceScreen
             android:key="incoming"
