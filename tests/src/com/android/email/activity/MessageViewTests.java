@@ -176,7 +176,7 @@ public class MessageViewTests
         final String actual1 = a.resolveInlineImage(text1, msg1, 0);
         assertEquals("one content id reference is not resolved",
                     expected1, actual1);
-
+        
         // Exceed recursive limit.
         final String actual0 = a.resolveInlineImage(text1, msg1, 10);
         assertEquals("recursive call limit may exceeded",
@@ -231,6 +231,10 @@ public class MessageViewTests
         final String actual4 = a.resolveInlineImage(text2 + text1, msg4, 0);
         assertEquals("two content ids in deep multipart level are resolved",
                 expected2 + expected1, actual4);
+        
+        // No crash on null text
+        final String actual5 = a.resolveInlineImage(null, msg4, 0);
+        assertNull(actual5);
     }
     
     
