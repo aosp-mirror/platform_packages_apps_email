@@ -1113,6 +1113,20 @@ public class MessagingController implements Runnable {
                         localTrashFolder.updateMessage(localMessage);
                     }
                 }
+                
+                /**
+                 * This will be called if the deleted message doesn't exist and can't be
+                 * deleted (e.g. it was already deleted from the server.)  In this case,
+                 * attempt to delete the local copy as well.
+                 */
+                public void onMessageNotFound(Message message) throws MessagingException {
+                    LocalMessage localMessage =
+                        (LocalMessage) localTrashFolder.getMessage(message.getUid());
+                    if (localMessage != null) {
+                        localMessage.setFlag(Flag.DELETED, true);
+                    }
+                }
+
             }
             );
         }
