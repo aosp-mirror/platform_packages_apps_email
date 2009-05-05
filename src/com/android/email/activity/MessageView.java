@@ -727,8 +727,8 @@ public class MessageView extends Activity
      */
     /* package */ String resolveInlineImage(String text, Part part, int depth)
         throws MessagingException {
-        // avoid too deep recursive call.
-        if (depth >= 10) {
+        // avoid too deep recursive call or null text
+        if (depth >= 10 || text == null) {
             return text;
         }
         String contentType = MimeUtility.unfoldAndDecode(part.getContentType());
@@ -945,20 +945,22 @@ public class MessageView extends Activity
                          * Linkify the plain text and convert it to HTML by replacing
                          * \r?\n with <br> and adding a html/body wrapper.
                          */
-                        Matcher m = Regex.WEB_URL_PATTERN.matcher(text);
-                        StringBuffer sb = new StringBuffer();
-                        while (m.find()) {
-                            int start = m.start();
-                            if (start != 0 && text.charAt(start - 1) != '@') {
-                                m.appendReplacement(sb, "<a href=\"$0\">$0</a>");
+                        StringBuffer sb = new StringBuffer("<html><body>");
+                        if (text != null) {
+                            Matcher m = Regex.WEB_URL_PATTERN.matcher(text);
+                            while (m.find()) {
+                                int start = m.start();
+                                if (start != 0 && text.charAt(start - 1) != '@') {
+                                    m.appendReplacement(sb, "<a href=\"$0\">$0</a>");
+                                }
+                                else {
+                                    m.appendReplacement(sb, "$0");
+                                }
                             }
-                            else {
-                                m.appendReplacement(sb, "$0");
-                            }
+                            m.appendTail(sb);
                         }
-                        m.appendTail(sb);
+                        sb.append("</body></html>");
                         text = sb.toString().replaceAll("\r?\n", "<br>");
-                        text = "<html><body>" + text + "</body></html>";
                     }
 
                     /*
