@@ -210,8 +210,15 @@ public abstract class Folder {
          * @param message The message for which the UID changed
          * @param newUid The new UID for the message
          */
-        public void onMessageUidChange(Message message, String newUid) 
-                throws MessagingException;
+        public void onMessageUidChange(Message message, String newUid) throws MessagingException;
+
+        /**
+         * The operation could not be completed because the message doesn't exist
+         * (for example, it was already deleted from the server side.)
+         * @param message The message that does not exist
+         * @throws MessagingException
+         */
+        public void onMessageNotFound(Message message) throws MessagingException;
     }
 
     @Override
