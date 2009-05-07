@@ -55,7 +55,7 @@ import java.util.HashSet;
 @SmallTest
 public class LocalStoreUnitTests extends AndroidTestCase {
     
-    private final String dbName = "com.android.email.mail.store.LocalStoreUnitTests.db";
+    private static final String dbName = "com.android.email.mail.store.LocalStoreUnitTests.db";
 
     private static final String SENDER = "sender@android.com";
     private static final String RECIPIENT_TO = "recipient-to@android.com";
@@ -67,6 +67,7 @@ public class LocalStoreUnitTests extends AndroidTestCase {
     private static final int DATABASE_VERSION = 23;
     
     private static final String FOLDER_NAME = "TEST";
+    private static final String MISSING_FOLDER_NAME = "TEST-NO-FOLDER";
     
     /* These values are provided by setUp() */
     private String mLocalStoreUri = null;
@@ -153,7 +154,7 @@ public class LocalStoreUnitTests extends AndroidTestCase {
         Message[] retrievedArray = mFolder.getMessages(null);
         assertEquals(1, retrievedArray.length);
         MimeMessage retrievedEntry = (MimeMessage) retrievedArray[0];
-        assertEquals(MESSAGE_ID, retrieved.getMessageId());
+        assertEquals(MESSAGE_ID, retrievedEntry.getMessageId());
     }
 
     /**
@@ -182,7 +183,7 @@ public class LocalStoreUnitTests extends AndroidTestCase {
         Message[] retrievedArray = mFolder.getMessages(null);
         assertEquals(1, retrievedArray.length);
         MimeMessage retrievedEntry = (MimeMessage) retrievedArray[0];
-        assertEquals(MESSAGE_ID_2, retrieved.getMessageId());
+        assertEquals(MESSAGE_ID_2, retrievedEntry.getMessageId());
     }
 
     /**
@@ -800,6 +801,75 @@ public class LocalStoreUnitTests extends AndroidTestCase {
         Folder[] localFolders = mStore.getPersonalNamespaces();
         for (Folder folder : localFolders) {
             assertEquals(Folder.FolderRole.UNKNOWN, folder.getRole()); 
+        }
+    }
+    
+    /**
+     * Test missing folder (on open).  This should succeed because open will create it.
+     */
+    public void testMissingFolderOpen() throws MessagingException {
+        Folder noFolder = mStore.getFolder(MISSING_FOLDER_NAME);
+        noFolder.open(OpenMode.READ_WRITE, null);
+        noFolder.close(false);
+    }
+
+    /**
+     * Test missing folder (on getMessageCount).  This should not fail - it should return zero,
+     * which is the actual count of messages in that folder.
+     */
+    public void testMissingFolderGetMessageCount() throws MessagingException {
+        Folder noFolder = mStore.getFolder(MISSING_FOLDER_NAME);
+        noFolder.open(OpenMode.READ_WRITE, null);
+        
+        // Now delete it behind its back
+        Folder noFolder2 = mStore.getFolder(MISSING_FOLDER_NAME);
+        noFolder2.delete(true);
+        
+        // Now try the call on the first instance
+        int count = noFolder.getMessageCount();
+        assertEquals(0, count);
+    }
+
+    /**
+     * Test missing folder (on getUnreadMessageCount).  This should fail because we delete the 
+     * open folder, simulating multi-threading behavior.
+     */
+    public void testMissingFolderGetUnreadMessageCount() throws MessagingException {
+        Folder noFolder = mStore.getFolder(MISSING_FOLDER_NAME);
+        noFolder.open(OpenMode.READ_WRITE, null);
+        
+        // Now delete it behind its back
+        Folder noFolder2 = mStore.getFolder(MISSING_FOLDER_NAME);
+        noFolder2.delete(true);
+        
+        // Now try the call on the first instance
+        try {
+            noFolder.getUnreadMessageCount();
+            fail("MessagingException expected");
+        } catch (MessagingException me) {
+            // OK - success.
+        }
+    }
+
+    /**
+     * Test missing folder (on getVisibleLimit).  This should fail because we delete the 
+     * open folder, simulating multi-threading behavior.
+     */
+    public void testMissingFolderGetVisibleLimit() throws MessagingException {
+        LocalStore.LocalFolder noFolder = 
+                (LocalStore.LocalFolder) mStore.getFolder(MISSING_FOLDER_NAME);
+        noFolder.open(OpenMode.READ_WRITE, null);
+        
+        // Now delete it behind its back
+        Folder noFolder2 = mStore.getFolder(MISSING_FOLDER_NAME);
+        noFolder2.delete(true);
+        
+        // Now try the call on the first instance
+        try {
+            noFolder.getVisibleLimit();
+            fail("MessagingException expected");
+        } catch (MessagingException me) {
+            // OK - success.
         }
     }
 
