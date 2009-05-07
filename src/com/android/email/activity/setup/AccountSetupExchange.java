@@ -191,8 +191,7 @@ public class AccountSetupExchange extends Activity implements OnClickListener {
     private void validateFields() {
         boolean enabled = Utility.requiredFieldValid(mUsernameView)
                 && Utility.requiredFieldValid(mPasswordView)
-                && Utility.requiredFieldValid(mServerView)
-                && Utility.requiredFieldValid(mDomainView);
+                && Utility.requiredFieldValid(mServerView);
         if (enabled) {
             try {
                 URI uri = getUri();
@@ -229,7 +228,11 @@ public class AccountSetupExchange extends Activity implements OnClickListener {
         String userInfo = mUsernameView.getText().toString().trim() + ":" + 
                 mPasswordView.getText().toString().trim();
         String host = mServerView.getText().toString().trim();
-        String path = "/" + mDomainView.getText().toString().trim();
+        String domain = mDomainView.getText().toString().trim();
+        String path = null;
+        if (domain.length() > 0) {
+            path = "/" + domain;
+        }
 
         URI uri = new URI(
                 scheme,
