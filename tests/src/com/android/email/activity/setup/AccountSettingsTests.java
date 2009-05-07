@@ -43,7 +43,8 @@ public class AccountSettingsTests extends ActivityInstrumentationTestCase2<Accou
      * Test that POP accounts aren't displayed with a push option
      */
     public void testPushOptionPOP() {
-        Intent i = getTestIntent("Name", "pop3://user:password@server.com");
+        Intent i = getTestIntent("Name", "pop3://user:password@server.com",
+                "smtp://user:password@server.com");
         this.setActivityIntent(i);
         
         getActivityAndFields();
@@ -56,7 +57,8 @@ public class AccountSettingsTests extends ActivityInstrumentationTestCase2<Accou
      * Test that IMAP accounts aren't displayed with a push option
      */
     public void testPushOptionIMAP() {
-        Intent i = getTestIntent("Name", "imap://user:password@server.com");
+        Intent i = getTestIntent("Name", "imap://user:password@server.com",
+                "smtp://user:password@server.com");
         this.setActivityIntent(i);
         
         getActivityAndFields();
@@ -75,7 +77,8 @@ public class AccountSettingsTests extends ActivityInstrumentationTestCase2<Accou
             return;
         }
             
-        Intent i = getTestIntent("Name", "eas://user:password@server.com");
+        Intent i = getTestIntent("Name", "eas://user:password@server.com",
+                "eas://user:password@server.com");
         this.setActivityIntent(i);
         
         getActivityAndFields();
@@ -108,10 +111,11 @@ public class AccountSettingsTests extends ActivityInstrumentationTestCase2<Accou
     /**
      * Create an intent with the Account in it
      */
-    private Intent getTestIntent(String name, String storeUri) {
+    private Intent getTestIntent(String name, String storeUri, String senderUri) {
         Account account = new Account(this.getInstrumentation().getTargetContext());
         account.setName(name);
         account.setStoreUri(storeUri);
+        account.setSenderUri(senderUri);
         Intent i = new Intent(Intent.ACTION_MAIN);
         i.putExtra("account", account);     // AccountSetupNames.EXTRA_ACCOUNT == "account"
         return i;
