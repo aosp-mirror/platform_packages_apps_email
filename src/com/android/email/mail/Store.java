@@ -185,6 +185,17 @@ public abstract class Store {
 
         return store;
     }
+    
+    /**
+     * Delete an instance of a mail store.
+     * 
+     * The store should have been notified already by calling delete(), and the caller should
+     * also take responsibility for deleting the matching LocalStore, etc.
+     * @param storeUri the store to be removed
+     */
+    public synchronized static void removeInstance(String storeUri) {
+        mStores.remove(storeUri);
+    }
 
     /**
      * Get class of SettingActivity for this Store class.
