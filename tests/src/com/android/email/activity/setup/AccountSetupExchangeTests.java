@@ -115,13 +115,13 @@ public class AccountSetupExchangeTests extends
     }
     
     /**
-     * No EAS domain is not OK - not enabled
+     * No EAS domain is OK - enabled
      */
     public void testBadUriNoDomain() {
         Intent i = getTestIntent("eas://user:password@server.com");
         setActivityIntent(i);
         getActivityAndFields();
-        assertFalse(mNextButton.isEnabled());
+        assertTrue(mNextButton.isEnabled());
     }
     
     /**
@@ -147,7 +147,7 @@ public class AccountSetupExchangeTests extends
         assertTrue(mNextButton.isEnabled());
         
         mDomainView.setText("  ");
-        assertFalse(mNextButton.isEnabled());
+        assertTrue(mNextButton.isEnabled());
         
         mDomainView.setText("do main");
         assertFalse(mNextButton.isEnabled());
