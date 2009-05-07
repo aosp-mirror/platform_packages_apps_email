@@ -587,10 +587,12 @@ public class LocalStore extends Store implements PersistentDataCallbacks {
                     new String[] {
                         mName
                     });
-            cursor.moveToFirst();
-            mFolderId = cursor.getInt(0);
-            mUnreadMessageCount = cursor.getInt(1);
-            mVisibleLimit = cursor.getInt(2);
+                if (!cursor.moveToFirst()) {
+                    throw new MessagingException("Nonexistent folder");
+                }
+                mFolderId = cursor.getInt(0);
+                mUnreadMessageCount = cursor.getInt(1);
+                mVisibleLimit = cursor.getInt(2);
             }
             finally {
                 if (cursor != null) {
@@ -670,7 +672,9 @@ public class LocalStore extends Store implements PersistentDataCallbacks {
                 try {
                     cursor = mDb.rawQuery("SELECT unread_count FROM folders WHERE folders.name = ?",
                             new String[] { mName });
-                    cursor.moveToFirst();
+                    if (!cursor.moveToFirst()) {
+                        throw new MessagingException("Nonexistent folder");
+                    }
                     mUnreadMessageCount = cursor.getInt(0);
                 } finally {
                     if (cursor != null) {
@@ -699,7 +703,9 @@ public class LocalStore extends Store implements PersistentDataCallbacks {
                     cursor = mDb.rawQuery(
                             "SELECT visible_limit FROM folders WHERE folders.name = ?",
                             new String[] { mName });
-                    cursor.moveToFirst();
+                    if (!cursor.moveToFirst()) {
+                        throw new MessagingException("Nonexistent folder");
+                    }
                     mVisibleLimit = cursor.getInt(0);
                 } finally {
                     if (cursor != null) {
