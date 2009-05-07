@@ -163,10 +163,11 @@ public class MailService extends Service {
 
         int shortestInterval = -1;
         for (Account account : Preferences.getPreferences(this).getAccounts()) {
-            if (account.getAutomaticCheckIntervalMinutes() > 0
-                    && (account.getAutomaticCheckIntervalMinutes() < shortestInterval || shortestInterval == -1)) {
-                shortestInterval = account.getAutomaticCheckIntervalMinutes();
+            int interval = account.getAutomaticCheckIntervalMinutes();
+            if (interval > 0 && (interval < shortestInterval || shortestInterval == -1)) {
+                shortestInterval = interval;
             }
+            enablePushMail(account, interval == Account.CHECK_INTERVAL_PUSH);
         }
 
         if (shortestInterval == -1) {
