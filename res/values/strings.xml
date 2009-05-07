@@ -298,7 +298,7 @@
     <!-- On "Exchange" setup screen, the name of the server -->
     <string name="account_setup_exchange_server_label">Exchange Server</string>
     <!-- On "Exchange" setup screen, the domain name label -->
-    <string name="account_setup_exchange_domain_label">Domain:</string>
+    <string name="account_setup_exchange_domain_label">Domain</string>
     <!-- On "Exchange" setup screen, the domain name hint -->
     <string name="account_setup_exchange_domain_hint">Enter domain here</string>
     <!-- On "Exchange" setup screen, the use-SSL checkbox label -->
