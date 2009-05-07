@@ -180,6 +180,8 @@ public class Accounts extends ListActivity implements OnItemClickListener, OnCli
                                 mSelectedContextAccount.getStoreUri(),
                                 getApplication(), 
                                 localStore.getPersistentCallbacks()).delete();
+                        // Remove the Store instance from cache.
+                        Store.removeInstance(mSelectedContextAccount.getStoreUri());
                         // If no error, then delete LocalStore
                         localStore.delete();
                     } catch (Exception e) {
