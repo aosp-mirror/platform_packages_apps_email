@@ -56,6 +56,15 @@ public class BinaryTempFileBody implements Body {
         }
     }
 
+    /**
+     * An alternate way to put data into a BinaryTempFileBody is to simply supply an already-
+     * created file.  Note that this file will be deleted after it is read.
+     * @param filePath The file containing the data to be stored on disk temporarily
+     */
+    public void setFile(String filePath) {
+        mFile = new File(filePath);
+    }
+
     public OutputStream getOutputStream() throws IOException {
         mFile = File.createTempFile("body", null, mTempDirectory);
         mFile.deleteOnExit();
