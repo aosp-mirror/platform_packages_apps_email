@@ -1216,9 +1216,25 @@ public class ImapStore extends Store {
             String tag = sendCommand(command, sensitive);
             ArrayList<ImapResponse> responses = new ArrayList<ImapResponse>();
             ImapResponse response;
+            ImapResponse previous = null;
             do {
+                // This is work around to parse literal in the middle of response.
+                // We should nail down the previous response literal string if any.
+                if (previous != null && !previous.completed()) {
+                    previous.nailDown();
+                }
                 response = mParser.readResponse();
+                // This is work around to parse literal in the middle of response.
+                // If we found unmatched tagged response, it possibly be the continuous
+                // response just after the literal string.
+                if (response.mTag != null && !response.mTag.equals(tag)
+                        && previous != null && !previous.completed()) {
+                    previous.appendAll(response);
+                    response.mTag = null;
+                    continue;
+                }
                 responses.add(response);
+                previous = response;
             } while (response.mTag == null);
             if (response.size() < 1 || !response.get(0).equals("OK")) {
                 throw new ImapException(response.toString(), response.getAlertText());
