@@ -358,6 +358,37 @@ public class ImapResponseParser {
         boolean mCommandContinuationRequested;
         String mTag;
 
+        /*
+         * Return true if this response is completely read and parsed.
+         */
+        public boolean completed() {
+            return mCompleted;
+        }
+        
+        /*
+         * Nail down the last element that possibly is FixedLengthInputStream literal. 
+         */
+        public void nailDown() throws IOException {
+            int last = size() - 1;
+            if (last >= 0) {
+                Object o = get(last);
+                if (o instanceof FixedLengthInputStream) {
+                    FixedLengthInputStream is = (FixedLengthInputStream) o;
+                    byte[] buffer = new byte[is.available()];
+                    is.read(buffer);
+                    set(last, (Object) new String(buffer));
+                }
+            }
+        }
+        
+        /*
+         * Append all response elements to this and copy completed flag.
+         */
+        public void appendAll(ImapResponse other) {
+            addAll(other);
+            mCompleted = other.mCompleted;
+        }
+        
         public boolean more() throws IOException {
             if (mCompleted) {
                 return false;

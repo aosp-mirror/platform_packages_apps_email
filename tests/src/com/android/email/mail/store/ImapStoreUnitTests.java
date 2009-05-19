@@ -176,4 +176,33 @@ public class ImapStoreUnitTests extends AndroidTestCase {
                 "* OK [UIDNEXT 1]",
                 "2 OK [READ-WRITE] INBOX selected. (Success)"});
     }
+    
+    /**
+     * Test for getUnreadMessageCount with quoted string in the middle of response.
+     */
+    public void testGetUnreadMessageCountWithQuotedString() throws Exception {
+        MockTransport mock = openAndInjectMockTransport();
+        setupOpenFolder(mock);
+        mock.expect("3 STATUS \"INBOX\" \\(UNSEEN\\)", new String[] {
+                "* STATUS \"INBOX\" (UNSEEN 2)",
+                "3 OK STATUS completed"});
+        mFolder.open(OpenMode.READ_WRITE, null);
+        int unreadCount = mFolder.getUnreadMessageCount();
+        assertEquals("getUnreadMessageCount with quoted string", 2, unreadCount);
+    }
+
+    /**
+     * Test for getUnreadMessageCount with literal string in the middle of response.
+     */
+    public void testGetUnreadMessageCountWithLiteralString() throws Exception {
+        MockTransport mock = openAndInjectMockTransport();
+        setupOpenFolder(mock);
+        mock.expect("3 STATUS \"INBOX\" \\(UNSEEN\\)", new String[] {
+                "* STATUS {5}",
+                "INBOX (UNSEEN 10)",
+                "3 OK STATUS completed"});
+        mFolder.open(OpenMode.READ_WRITE, null);
+        int unreadCount = mFolder.getUnreadMessageCount();
+        assertEquals("getUnreadMessageCount with literal string", 10, unreadCount);
+    }
 }
