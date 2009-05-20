@@ -528,8 +528,12 @@ public class MessagingController implements Runnable {
         localFolder.open(OpenMode.READ_WRITE, null);
         Message[] localMessages = localFolder.getMessages(null);
         HashMap<String, Message> localUidMap = new HashMap<String, Message>();
+        int localUnreadCount = 0;
         for (Message message : localMessages) {
             localUidMap.put(message.getUid(), message);
+            if (!message.isSet(Flag.SEEN)) {
+                localUnreadCount++;
+            }
         }
 
         Store remoteStore = Store.getInstance(account.getStoreUri(), mContext, 
@@ -597,6 +601,7 @@ public class MessagingController implements Runnable {
         final ArrayList<Message> unsyncedMessages = new ArrayList<Message>();
         HashMap<String, Message> remoteUidMap = new HashMap<String, Message>();
 
+        int newMessageCount = 0;
         if (remoteMessageCount > 0) {
             /*
              * Message numbers start at 1.
@@ -615,6 +620,9 @@ public class MessagingController implements Runnable {
              */
             for (Message message : remoteMessages) {
                 Message localMessage = localUidMap.get(message.getUid());
+                if (localMessage == null) {
+                    newMessageCount++;
+                }
                 if (localMessage == null ||
                         (!localMessage.isSet(Flag.X_DOWNLOADED_FULL) &&
                         !localMessage.isSet(Flag.X_DOWNLOADED_PARTIAL))) {
@@ -694,12 +702,19 @@ public class MessagingController implements Runnable {
         FetchProfile fp = new FetchProfile();
         fp.add(FetchProfile.Item.FLAGS);
         remoteFolder.fetch(remoteMessages, fp, null);
+        boolean remoteSupportsSeenFlag = false;
+        for (Flag flag : remoteFolder.getPermanentFlags()) {
+            if (flag == Flag.SEEN) {
+                remoteSupportsSeenFlag = true;
+            }
+        }
         for (Message remoteMessage : remoteMessages) {
             Message localMessage = localFolder.getMessage(remoteMessage.getUid());
             if (localMessage == null) {
                 continue;
             }
-            if (remoteMessage.isSet(Flag.SEEN) != localMessage.isSet(Flag.SEEN)) {
+            if (remoteMessage.isSet(Flag.SEEN) != localMessage.isSet(Flag.SEEN)
+                    && remoteSupportsSeenFlag) {
                 localMessage.setFlag(Flag.SEEN, remoteMessage.isSet(Flag.SEEN));
                 synchronized (mListeners) {
                     for (MessagingListener l : mListeners) {
@@ -714,10 +729,30 @@ public class MessagingController implements Runnable {
          */
         int remoteUnreadMessageCount = remoteFolder.getUnreadMessageCount();
         if (remoteUnreadMessageCount == -1) {
-            localFolder.setUnreadMessageCount(localFolder.getUnreadMessageCount()
-                    + newMessages.size());
-        }
-        else {
+            if (remoteSupportsSeenFlag) {
+                /*
+                 * If remote folder doesn't supported unread message count but supports
+                 * seen flag, use local folder's unread message count and the size of
+                 * new messages.
+                 * This mode is actually not used but for non-POP3, non-IMAP.
+                 */
+                localFolder.setUnreadMessageCount(localFolder.getUnreadMessageCount()
+                                                  + newMessages.size());
+            } else {
+                /*
+                 * If remote folder doesn't supported unread message count and doesn't
+                 * support seen flag, use localUnreadCount and newMessageCount which
+                 * don't rely on remote SEEN flag.
+                 * This mode is used by POP3.
+                 */
+                localFolder.setUnreadMessageCount(localUnreadCount + newMessageCount);
+            }
+        } else {
+            /*
+             * If remote folder supports unread message count,
+             * use remoteUnreadMessageCount.
+             * This mode is used by IMAP.
+             */
             localFolder.setUnreadMessageCount(remoteUnreadMessageCount);
         }
 
