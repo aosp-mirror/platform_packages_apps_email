@@ -21,13 +21,8 @@ import com.android.email.mail.Store;
 import android.content.Context;
 import android.content.SharedPreferences;
 import android.net.Uri;
-import android.os.Debug;
-import android.util.Log;
 
-import java.io.IOException;
 import java.io.Serializable;
-import java.net.URI;
-import java.net.URISyntaxException;
 import java.util.Arrays;
 import java.util.UUID;
 
@@ -36,9 +31,6 @@ import java.util.UUID;
  * and delete itself given a Preferences to work with. Each account is defined by a UUID. 
  */
 public class Account implements Serializable {
-    private static final boolean DEBUG_CHECK_BAD_DATA = true;         // DO NOT SHIP WITH "TRUE"
-    private static final boolean DEBUG_STOP_ON_BAD_DATA = false;      // DO NOT SHIP WITH "TRUE"
-    
     public static final int DELETE_POLICY_NEVER = 0;
     public static final int DELETE_POLICY_7DAYS = 1;
     public static final int DELETE_POLICY_ON_DELETE = 2;
@@ -101,21 +93,17 @@ public class Account implements Serializable {
         // TODO Change local store path to something readable / recognizable
         mUuid = UUID.randomUUID().toString();
         mLocalStoreUri = "local://localhost/" + context.getDatabasePath(mUuid + ".db");
-        debugCheckAllUriFields("constructor 1");
         mAutomaticCheckIntervalMinutes = -1;
         mAccountNumber = -1;
         mNotifyNewMail = true;
         mVibrate = false;
         mRingtoneUri = "content://settings/system/notification_sound";
         mSyncWindow = SYNC_WINDOW_USER;       // IMAP & POP3
-        debugCheckAllUriFields("constructor 2");
     }
 
     Account(Preferences preferences, String uuid) {
-        debugCheckAllUriFields("constructor 2-1");
         this.mUuid = uuid;
         refresh(preferences);
-        debugCheckAllUriFields("constructor 2-2");
     }
     
     /**
@@ -123,7 +111,6 @@ public class Account implements Serializable {
      */
     public void refresh(Preferences preferences) {
         mPreferences = preferences;
-        debugCheckAllUriFields("refresh 1");
         
         /**
          * Note:  Until we have resolved the potential for synchronization failures in
@@ -132,24 +119,17 @@ public class Account implements Serializable {
          */
         synchronized (Account.class) {
 
-            String storeText = preferences.mSharedPreferences.getString(mUuid + ".storeUri", null);
-            debugCheckBase64("refresh 1", storeText);
-            mStoreUri = Utility.base64Decode(storeText);
-            debugCheckAllUriFields("refresh 2");
-            
+            mStoreUri = Utility.base64Decode(preferences.mSharedPreferences.getString(mUuid
+                    + ".storeUri", null));
             mLocalStoreUri = preferences.mSharedPreferences.getString(mUuid + ".localStoreUri", null);
-            debugCheckAllUriFields("refresh 3");
 
             String senderText = preferences.mSharedPreferences.getString(mUuid + ".senderUri", null);
-            debugCheckBase64("refresh 2", senderText);
             if (senderText == null) {
                 // Preference ".senderUri" was called ".transportUri" in earlier versions, so we'll
                 // do a simple upgrade here when necessary.
                 senderText = preferences.mSharedPreferences.getString(mUuid + ".transportUri", null);
-                debugCheckBase64("refresh 3", senderText);
             }
             mSenderUri = Utility.base64Decode(senderText);
-            debugCheckAllUriFields("refresh 4");
 
             mDescription = preferences.mSharedPreferences.getString(mUuid + ".description", null);
             mName = preferences.mSharedPreferences.getString(mUuid + ".name", mName);
@@ -185,7 +165,6 @@ public class Account implements Serializable {
             mSyncWindow = preferences.mSharedPreferences.getInt(mUuid + KEY_SYNC_WINDOW, 
                     SYNC_WINDOW_USER);
         }
-        debugCheckAllUriFields("refresh 5");
     }
 
     public String getUuid() {
@@ -193,25 +172,19 @@ public class Account implements Serializable {
     }
 
     public String getStoreUri() {
-        debugCheckAllUriFields("getStoreUri");
         return mStoreUri;
     }
 
     public void setStoreUri(String storeUri) {
-        debugCheckAllUriFields("setStoreUri 1");
         this.mStoreUri = storeUri;
-        debugCheckAllUriFields("setStoreUri 2");
     }
 
     public String getSenderUri() {
-        debugCheckAllUriFields("getSenderUri");
         return mSenderUri;
     }
 
     public void setSenderUri(String senderUri) {
-        debugCheckAllUriFields("setSenderUri 1");
         this.mSenderUri = senderUri;
-        debugCheckAllUriFields("setSenderUri 2");
     }
 
     public String getDescription() {
@@ -303,7 +276,6 @@ public class Account implements Serializable {
 
     public void save(Preferences preferences) {
         mPreferences = preferences;
-        debugCheckAllUriFields("save 1");
         
         /**
          * Note:  Until we have resolved the potential for synchronization failures in
@@ -344,16 +316,11 @@ public class Account implements Serializable {
                 editor.commit();
             }
 
-            debugCheckAllUriFields("save 2");
             SharedPreferences.Editor editor = preferences.mSharedPreferences.edit();
 
-            String storeText = Utility.base64Encode(mStoreUri);
-            debugCheckBase64("save 1", storeText);
-            editor.putString(mUuid + ".storeUri", storeText);
+            editor.putString(mUuid + ".storeUri", Utility.base64Encode(mStoreUri));
             editor.putString(mUuid + ".localStoreUri", mLocalStoreUri);
-            String senderText = Utility.base64Encode(mSenderUri);
-            debugCheckBase64("save 2", senderText);
-            editor.putString(mUuid + ".senderUri", senderText);
+            editor.putString(mUuid + ".senderUri", Utility.base64Encode(mSenderUri));
             editor.putString(mUuid + ".description", mDescription);
             editor.putString(mUuid + ".name", mName);
             editor.putString(mUuid + ".email", mEmail);
@@ -378,9 +345,7 @@ public class Account implements Serializable {
             editor.remove(mUuid + ".transportUri");
 
             editor.commit();
-            debugCheckAllUriFields("save 3");
         }
-        debugCheckAllUriFields("save 4");
     }
 
     @Override
@@ -393,14 +358,11 @@ public class Account implements Serializable {
     }
 
     public String getLocalStoreUri() {
-        debugCheckAllUriFields("getLocalStoreUri");
         return mLocalStoreUri;
     }
 
     public void setLocalStoreUri(String localStoreUri) {
-        debugCheckAllUriFields("setLocalStoreUri 1");
         this.mLocalStoreUri = localStoreUri;
-        debugCheckAllUriFields("setLocalStoreUri 2");
     }
 
     /**
@@ -483,73 +445,6 @@ public class Account implements Serializable {
     
     public void setSyncWindow(int window) {
         mSyncWindow = window;
-    }
-    
-    /**
-     * Check fields after deserialization
-     * TODO this is bug-finding code and should not be enabled for shipping builds
-     */
-    private void readObject(java.io.ObjectInputStream in) 
-            throws IOException, ClassNotFoundException {
-        in.defaultReadObject();
-        // do my tests
-        if (DEBUG_CHECK_BAD_DATA) {
-            debugCheckAllUriFields("deserialize");
-        }
-    }
-
-    /**
-     * Check Uri fields for possible corruption
-     */
-    private void debugCheckAllUriFields(String when) {
-        if (DEBUG_CHECK_BAD_DATA) {
-            debugCheckUriField(when, "localstore", this.mLocalStoreUri);
-            debugCheckUriField(when, "store", this.mStoreUri);
-            debugCheckUriField(when, "sender", this.mSenderUri);
-        }
-    }
-    
-    /**
-     * Check a single Uri field for possible corruption
-     */
-    private void debugCheckUriField(String when, String what, String uri) {
-        if (!DEBUG_CHECK_BAD_DATA || uri == null || "".equals(uri)) {
-            return;
-        }
-        
-        try {
-            new URI(uri);
-        } catch (URISyntaxException use) {
-            String detail = "Corrupted account " + what + " during " + when + ": " + uri;
-            Log.d(Email.LOG_TAG, detail + " " + use.toString());
-            if (DEBUG_STOP_ON_BAD_DATA && Debug.isDebuggerConnected()) {
-                throw new Error(detail, use);
-            }
-        }
-    }
-    
-    /**
-     * Check a single base64 string for possible corruption
-     */
-    private void debugCheckBase64(String when, String base64) {
-        if (!DEBUG_CHECK_BAD_DATA || base64 == null || "".equals(base64)) {
-            return;
-        }
-        
-        // first test:  simply looking for legal chars (any ordering)
-        for (byte b : base64.getBytes()) {
-            if (b >= 'A' && b <= 'Z') continue;
-            if (b >= 'a' && b <= 'z') continue;
-            if (b >= '0' && b <= '9') continue;
-            if (b == '+' || b == '/') continue;
-            if (b == '=') continue;
-            
-            String detail = "Corrupted base64 string during " + when + ": " + base64;
-            Log.d(Email.LOG_TAG, detail);
-            if (DEBUG_STOP_ON_BAD_DATA && Debug.isDebuggerConnected()) {
-                throw new Error(detail);
-            }
-        }
     }
 
     @Override
