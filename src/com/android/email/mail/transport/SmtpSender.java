@@ -280,9 +280,11 @@ public class SmtpSender extends Sender {
             result += line.substring(3);
         }
 
-        char c = result.charAt(0);
-        if ((c == '4') || (c == '5')) {
-            throw new MessagingException(result);
+        if (result.length() > 0) {
+            char c = result.charAt(0);
+            if ((c == '4') || (c == '5')) {
+                throw new MessagingException(result);
+            }
         }
 
         return result;
