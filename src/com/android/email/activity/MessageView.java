@@ -950,7 +950,12 @@ public class MessageView extends Activity
                             Matcher m = Regex.WEB_URL_PATTERN.matcher(text);
                             while (m.find()) {
                                 int start = m.start();
-                                if (start != 0 && text.charAt(start - 1) != '@') {
+                                /*
+                                 * WEB_URL_PATTERN may match domain part of email address. To detect
+                                 * this false match, the character just before the matched string
+                                 * should not be '@'. 
+                                 */
+                                if (start == 0 || text.charAt(start - 1) != '@') {
                                     m.appendReplacement(sb, "<a href=\"$0\">$0</a>");
                                 }
                                 else {
