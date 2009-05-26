@@ -105,6 +105,42 @@ public class Pop3StoreUnitTests extends AndroidTestCase {
     }
     
     /**
+     * Test various rainy-day operations of the UIDL parser for multi-line responses
+     * TODO other malformed responses
+     */
+    public void testUIDLParserMultiFail() {
+        // multi-line mode
+        Pop3Store.Pop3Folder.UidlParser parser = mFolder.new UidlParser();
+        
+        // Test with null input
+        boolean result;
+        result = parser.parseMultiLine(null);
+        assertFalse(result);
+        
+        // Test with empty input
+        result = parser.parseMultiLine("");
+        assertFalse(result);
+    }
+    
+    /**
+     * Test various rainy-day operations of the UIDL parser for single-line responses
+     * TODO other malformed responses
+     */
+    public void testUIDLParserSingleFail() {
+        // single-line mode
+        Pop3Store.Pop3Folder.UidlParser parser = mFolder.new UidlParser();
+        
+        // Test with null input
+        boolean result;
+        result = parser.parseSingleLine(null);
+        assertFalse(result);
+        
+        // Test with empty input
+        result = parser.parseSingleLine("");
+        assertFalse(result);
+    }
+    
+    /**
      * Tests that variants on the RFC-specified formatting of UIDL work properly.
      */
     public void testUIDLComcastVariant() {

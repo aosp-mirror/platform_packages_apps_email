@@ -511,6 +511,9 @@ public class Pop3Store extends Store {
              */
             public boolean parseSingleLine(String response) {
                 mErr = false;
+                if (response == null || response.length() == 0) {
+                    return false;
+                }
                 char first = response.charAt(0);
                 if (first == '+') {
                     String[] uidParts = response.split(" +");
@@ -536,6 +539,9 @@ public class Pop3Store extends Store {
              */
             public boolean parseMultiLine(String response) {
                 mErr = false;
+                if (response == null || response.length() == 0) {
+                    return false;
+                }
                 char first = response.charAt(0);
                 if (first == '.') {
                     mEndOfMessage = true;

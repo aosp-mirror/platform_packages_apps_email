@@ -110,6 +110,30 @@ public class SmtpSenderUnitTests extends AndroidTestCase {
     }
     
     /**
+     * Test:  Recover from a server closing early (or returning an empty string)
+     */
+    public void testEmptyLineResponse() throws MessagingException {
+        MockTransport mockTransport = openAndInjectMockTransport();
+        
+        // Since SmtpSender.sendMessage() does a close then open, we need to preset for the open
+        mockTransport.expectClose();
+        
+        // Load up just the bare minimum to expose the error
+        mockTransport.expect(null, "220 MockTransport 2000 Ready To Assist You Peewee");
+        mockTransport.expect("EHLO .*", "");
+        
+        // Now trigger the transmission
+        // Note, a null message is sufficient here, as we won't even get past open()
+        try {
+            mSender.sendMessage(null);
+            fail("Should not be able to send with failed open()");
+        } catch (MessagingException me) {
+            // good - expected
+            // TODO maybe expect a particular exception?
+        }
+    }
+    
+    /**
      * Set up a basic MockTransport. open it, and inject it into mStore
      */
     private MockTransport openAndInjectMockTransport() {
