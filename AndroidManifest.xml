@@ -169,5 +169,11 @@
             android:grantUriPermissions="true"
             android:readPermission="com.android.email.permission.READ_ATTACHMENT"
             />
+        <provider
+            android:name=".provider.EmailProvider"
+            android:authorities="com.android.email.provider"
+            android:multiprocess="true"
+            android:grantUriPermissions="true"
+            />
     </application>
 </manifest>

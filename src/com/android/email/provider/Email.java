@@ -40,7 +40,7 @@ import android.net.Uri;
 
 public class Email {
     //private static final String TAG = "Email";
-    public static final String AUTHORITY = "com.marcblank.email.provider";
+    public static final String AUTHORITY = EmailProvider.EMAIL_AUTHORITY;
     public static final Uri CONTENT_URI = Uri.parse("content://" + AUTHORITY);
     
     /**
