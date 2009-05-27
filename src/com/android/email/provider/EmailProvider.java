@@ -16,12 +16,12 @@
 
 package com.android.email.provider;
 
-import com.android.email.provider.Email.Attachment;
-import com.android.email.provider.Email.AttachmentColumns;
-import com.android.email.provider.Email.Mailbox;
-import com.android.email.provider.Email.MailboxColumns;
-import com.android.email.provider.Email.Message;
-import com.android.email.provider.Email.MessageColumns;
+import com.android.email.provider.EmailStore.Attachment;
+import com.android.email.provider.EmailStore.AttachmentColumns;
+import com.android.email.provider.EmailStore.Mailbox;
+import com.android.email.provider.EmailStore.MailboxColumns;
+import com.android.email.provider.EmailStore.Message;
+import com.android.email.provider.EmailStore.MessageColumns;
 
 import android.content.ContentProvider;
 import android.content.ContentUris;
@@ -89,11 +89,11 @@ public class EmailProvider extends ContentProvider {
     private static final int BASE_SHIFT = 12;  // 12 bits to the base type: 0, 0x1000, 0x2000, etc.
     
     private static final String[] TABLE_NAMES = {
-        Email.Account.TABLE_NAME,
-        Email.Mailbox.TABLE_NAME,
-        Email.Message.TABLE_NAME,
-        Email.Attachment.TABLE_NAME,
-        Email.HostAuth.TABLE_NAME
+        EmailStore.Account.TABLE_NAME,
+        EmailStore.Mailbox.TABLE_NAME,
+        EmailStore.Message.TABLE_NAME,
+        EmailStore.Attachment.TABLE_NAME,
+        EmailStore.HostAuth.TABLE_NAME
     };
  
     private static final UriMatcher sURIMatcher = new UriMatcher(UriMatcher.NO_MATCH);
@@ -170,20 +170,20 @@ public class EmailProvider extends ContentProvider {
         @Override
         public void onCreate(SQLiteDatabase db) {
             // Create all tables here; each class has its own method
-            Email.Message.createTable(db);
-            Email.Attachment.createTable(db);
-            Email.Mailbox.createTable(db);
-            Email.HostAuth.createTable(db);
-            Email.Account.createTable(db);
+            EmailStore.Message.createTable(db);
+            EmailStore.Attachment.createTable(db);
+            EmailStore.Mailbox.createTable(db);
+            EmailStore.HostAuth.createTable(db);
+            EmailStore.Account.createTable(db);
        }
 
         @Override
         public void onUpgrade(SQLiteDatabase db, int oldVersion, int newVersion) {
-            Email.Message.upgradeTable(db, oldVersion, newVersion);
-            Email.Attachment.upgradeTable(db, oldVersion, newVersion);
-            Email.Mailbox.upgradeTable(db, oldVersion, newVersion);
-            Email.HostAuth.upgradeTable(db, oldVersion, newVersion);
-            Email.Account.upgradeTable(db, oldVersion, newVersion);
+            EmailStore.Message.upgradeTable(db, oldVersion, newVersion);
+            EmailStore.Attachment.upgradeTable(db, oldVersion, newVersion);
+            EmailStore.Mailbox.upgradeTable(db, oldVersion, newVersion);
+            EmailStore.HostAuth.upgradeTable(db, oldVersion, newVersion);
+            EmailStore.Account.upgradeTable(db, oldVersion, newVersion);
         }
 
         @Override
@@ -288,7 +288,7 @@ public class EmailProvider extends ContentProvider {
             return insert(Mailbox.CONTENT_URI, values);
         case MESSAGE_ATTACHMENTS:
             id = db.insert(TABLE_NAMES[table], "foo", values);
-            return ContentUris.withAppendedId(Email.Attachment.CONTENT_URI, id);
+            return ContentUris.withAppendedId(EmailStore.Attachment.CONTENT_URI, id);
         default:
             throw new IllegalArgumentException("Unknown URL " + uri);
         }
@@ -304,7 +304,7 @@ public class EmailProvider extends ContentProvider {
     public Cursor query(Uri uri, String[] projection, String selection, String[] selectionArgs, String sortOrder) {
         SQLiteDatabase db = getDatabase(getContext());
         Cursor c = null;
-        Uri notificationUri = Email.CONTENT_URI;
+        Uri notificationUri = EmailStore.CONTENT_URI;
         int match = sURIMatcher.match(uri);
         int table = match >> BASE_SHIFT;
         String id;

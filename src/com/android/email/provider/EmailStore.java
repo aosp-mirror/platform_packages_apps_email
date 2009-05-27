@@ -38,7 +38,7 @@ import android.net.Uri;
  *
  */
 
-public class Email {
+public class EmailStore {
     //private static final String TAG = "Email";
     public static final String AUTHORITY = EmailProvider.EMAIL_AUTHORITY;
     public static final Uri CONTENT_URI = Uri.parse("content://" + AUTHORITY);
@@ -46,7 +46,7 @@ public class Email {
     /**
      * no public constructor since this is a utility class
      */
-    private Email() {
+    private EmailStore() {
     }
 
     // All classes share this
@@ -85,7 +85,7 @@ public class Email {
         /**
          * The content:// style URL for this table
          */
-        public static final Uri CONTENT_URI = Uri.parse(Email.CONTENT_URI + "/body");
+        public static final Uri CONTENT_URI = Uri.parse(EmailStore.CONTENT_URI + "/body");
     }
 
     public interface MessageColumns {
@@ -283,7 +283,7 @@ public class Email {
         /**
          * The content:// style URL for this table
          */
-        public static final Uri CONTENT_URI = Uri.parse(Email.CONTENT_URI + "/message");
+        public static final Uri CONTENT_URI = Uri.parse(EmailStore.CONTENT_URI + "/message");
         
         @Override
         public ContentValues toContentValues() {
@@ -394,8 +394,8 @@ public class Email {
 
         @Override
         @SuppressWarnings("unchecked")
-        public Email.Message restore(Cursor c) {
-            baseUri = Email.Message.CONTENT_URI;
+        public EmailStore.Message restore(Cursor c) {
+            baseUri = EmailStore.Message.CONTENT_URI;
             displayName = c.getString(CONTENT_DISPLAY_NAME_COLUMN);
             timeStamp = c.getLong(CONTENT_TIMESTAMP_COLUMN);
             subject = c.getString(CONTENT_SUBJECT_COLUMN);
@@ -542,7 +542,7 @@ public class Email {
         /**
          * The content:// style URL for this table
          */
-        public static final Uri CONTENT_URI = Uri.parse(Email.CONTENT_URI + "/account");
+        public static final Uri CONTENT_URI = Uri.parse(EmailStore.CONTENT_URI + "/account");
 
         static void createTable(SQLiteDatabase db) {
             String s = " (" + RECORD_ID + " integer primary key autoincrement, " 
@@ -584,8 +584,8 @@ public class Email {
 
         @Override
         @SuppressWarnings("unchecked")
-        public Email.Account restore(Cursor cursor) {
-            baseUri = Email.Account.CONTENT_URI;
+        public EmailStore.Account restore(Cursor cursor) {
+            baseUri = EmailStore.Account.CONTENT_URI;
             displayName = cursor.getString(CONTENT_DISPLAY_NAME_COLUMN);
             protocol = cursor.getString(CONTENT_PROTOCOL_COLUMN);
             emailAddress = cursor.getString(CONTENT_EMAIL_ADDRESS_COLUMN);
@@ -669,7 +669,7 @@ public class Email {
         /**
          * The content:// style URL for this table
          */
-        public static final Uri CONTENT_URI = Uri.parse(Email.CONTENT_URI + "/attachment");
+        public static final Uri CONTENT_URI = Uri.parse(EmailStore.CONTENT_URI + "/attachment");
 
         static void createTable(SQLiteDatabase db) {
             String s = " (" + RECORD_ID + " integer primary key autoincrement, " 
@@ -710,8 +710,8 @@ public class Email {
 
         @Override
         @SuppressWarnings("unchecked")
-        public Email.Attachment restore(Cursor cursor) {
-            baseUri = Email.Attachment.CONTENT_URI;
+        public EmailStore.Attachment restore(Cursor cursor) {
+            baseUri = EmailStore.Attachment.CONTENT_URI;
             fileName= cursor.getString(CONTENT_FILENAME_COLUMN);
             mimeType = cursor.getString(CONTENT_MIME_TYPE_COLUMN);
             size = cursor.getLong(CONTENT_SIZE_COLUMN);
@@ -821,7 +821,7 @@ public class Email {
         /**
          * The content:// style URL for this table
          */
-        public static final Uri CONTENT_URI = Uri.parse(Email.CONTENT_URI + "/mailbox");
+        public static final Uri CONTENT_URI = Uri.parse(EmailStore.CONTENT_URI + "/mailbox");
         
         // Types of mailboxes
         // Holds mail (generic)
@@ -895,8 +895,8 @@ public class Email {
 
         @Override
         @SuppressWarnings("unchecked")
-        public Email.Mailbox restore(Cursor cursor) {
-            baseUri = Email.Attachment.CONTENT_URI;
+        public EmailStore.Mailbox restore(Cursor cursor) {
+            baseUri = EmailStore.Attachment.CONTENT_URI;
             displayName = cursor.getString(CONTENT_DISPLAY_NAME_COLUMN);
             serverId = cursor.getString(CONTENT_SERVER_ID_COLUMN);
             parentServerId = cursor.getString(CONTENT_PARENT_SERVER_ID_COLUMN);
@@ -992,7 +992,7 @@ public class Email {
         /**
          * The content:// style URL for this table
          */
-        public static final Uri CONTENT_URI = Uri.parse(Email.CONTENT_URI + "/hostauth");
+        public static final Uri CONTENT_URI = Uri.parse(EmailStore.CONTENT_URI + "/hostauth");
          
         static void createTable(SQLiteDatabase db) {
             String s = " (" + RECORD_ID + " integer primary key autoincrement, " 
@@ -1017,7 +1017,7 @@ public class Email {
         }
 
         public static HostAuth restoreHostAuthWithId(Context context, long id) {
-            Uri u = ContentUris.withAppendedId(Email.HostAuth.CONTENT_URI, id);
+            Uri u = ContentUris.withAppendedId(EmailStore.HostAuth.CONTENT_URI, id);
             Cursor c = context.getContentResolver().query(u, HostAuth.CONTENT_PROJECTION,
                     null, null, null);
 
@@ -1033,8 +1033,8 @@ public class Email {
 
         @Override
         @SuppressWarnings("unchecked")
-        public Email.HostAuth restore(Cursor cursor) {
-            baseUri = Email.Attachment.CONTENT_URI;
+        public EmailStore.HostAuth restore(Cursor cursor) {
+            baseUri = EmailStore.Attachment.CONTENT_URI;
             address = cursor.getString(CONTENT_ADDRESS_COLUMN);
             port = cursor.getInt(CONTENT_PORT_COLUMN);
             ssl = cursor.getInt(CONTENT_SSL_COLUMN) == 1;
