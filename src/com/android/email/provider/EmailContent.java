@@ -24,13 +24,13 @@ import android.net.Uri;
 
 public abstract class EmailContent {
     // Newly created objects get this id
-    public static final int NOT_SAVED = -1;
+    private static final int NOT_SAVED = -1;
     // The base Uri that this piece of content came from
-    public Uri baseUri;
+    public Uri mBaseUri;
     // Lazily initialized uri for this Content
-    Uri uri = null;
+    private Uri mUri = null;
     // The id of the Content
-    public long _id = NOT_SAVED;
+    public long mId = NOT_SAVED;
     
     // Write the Content into a ContentValues container
     public abstract ContentValues toContentValues();
@@ -39,13 +39,13 @@ public abstract class EmailContent {
     
     // The Uri is lazily initialized
     public Uri getUri() {
-        if (uri == null)
-            uri = ContentUris.withAppendedId(baseUri, _id);
-        return uri;
+        if (mUri == null)
+            mUri = ContentUris.withAppendedId(mBaseUri, mId);
+        return mUri;
     }
     
     public boolean isSaved() {
-        return _id != NOT_SAVED;
+        return mId != NOT_SAVED;
     }
     
     @SuppressWarnings("unchecked")
@@ -53,7 +53,7 @@ public abstract class EmailContent {
     static public <T extends EmailContent> T getContent(Cursor cursor, Class<T> klass) {
         try {
             T content = klass.newInstance();
-            content._id = cursor.getLong(0);
+            content.mId = cursor.getLong(0);
             return (T)content.restore(cursor);
         } catch (IllegalAccessException e) {
             e.printStackTrace();
@@ -66,7 +66,7 @@ public abstract class EmailContent {
     // Convenience method that saves or updates some Content
     public Uri saveOrUpdate(Context context) {
         if (!isSaved())
-            return context.getContentResolver().insert(baseUri, toContentValues());
+            return context.getContentResolver().insert(mBaseUri, toContentValues());
         else {
             if (update(context, toContentValues()) == 1)    
                 return getUri();
@@ -75,8 +75,8 @@ public abstract class EmailContent {
     }
     
     public Uri save(Context context) {
-        Uri res = context.getContentResolver().insert(baseUri, toContentValues());
-        _id = Long.parseLong(res.getPathSegments().get(1));
+        Uri res = context.getContentResolver().insert(mBaseUri, toContentValues());
+        mId = Long.parseLong(res.getPathSegments().get(1));
         return res;
     }
     

@@ -46,7 +46,7 @@ public class EmailProvider extends ContentProvider {
 
     private static final String TAG = "EmailProvider";
 
-    static final String DATABASE_NAME = "EmailProvider.db";
+    private static final String DATABASE_NAME = "EmailProvider.db";
     
     // In these early versions, updating the database version will cause all tables to be deleted
     // Obviously, we'll handle upgrades differently once things are a bit stable

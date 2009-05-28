@@ -37,7 +37,6 @@ import android.net.Uri;
  *   <name>_ID always refers to a unique identifier (whether on client, server, etc.)
  *
  */
-
 public class EmailStore {
     //private static final String TAG = "Email";
     public static final String AUTHORITY = EmailProvider.EMAIL_AUTHORITY;
@@ -226,42 +225,42 @@ public class EmailStore {
         public static final String[] ID_COLUMN_PROJECTION = new String[] { RECORD_ID };
         
         // _id field is in AbstractContent
-        public String displayName;
-        public long timeStamp;
-        public String subject;
-        public String preview;
-        public boolean flagRead = false;
-        public int flagLoaded = 0;
-        public boolean flagFavorite = false;
-        public boolean flagAttachment = false;
-        public int flags = 0;
+        public String mDisplayName;
+        public long mTimeStamp;
+        public String mSubject;
+        public String mPreview;
+        public boolean mFlagRead = false;
+        public int mFlagLoaded = 0;
+        public boolean mFlagFavorite = false;
+        public boolean mFlagAttachment = false;
+        public int mFlags = 0;
         
-        public String textInfo;
-        public String htmlInfo;
+        public String mTextInfo;
+        public String mHtmlInfo;
         
-        public String serverId;
-        public int serverIntId;
-        public String clientId;
-        public String messageId;
-        public String threadId;
+        public String mServerId;
+        public int mServerIntId;
+        public String mClientId;
+        public String mMessageId;
+        public String mThreadId;
         
-        public long bodyKey;
-        public long mailboxKey;
-        public long accountKey;
-        public long referenceKey;
+        public long mBodyKey;
+        public long mMailboxKey;
+        public long mAccountKey;
+        public long mReferenceKey;
         
-        public String sender;
-        public String from;
-        public String to;
-        public String cc;
-        public String bcc;
-        public String replyTo;
+        public String mSender;
+        public String mFrom;
+        public String mTo;
+        public String mCc;
+        public String mBcc;
+        public String mReplyTo;
         
         // THROW THIS AWAY; use tempObject
-        transient public String temp;
+        transient public String mTemp;
         
         // Can be used while building messages, but is NOT saved by the Provider
-        transient public ArrayList<Attachment> attachments = null;
+        transient public ArrayList<Attachment> mAttachments = null;
         
         public static final int UNREAD = 0;
         public static final int READ = 1;
@@ -275,7 +274,7 @@ public class EmailStore {
          * no public constructor since this is a utility class
          */
         public Message() {
-             baseUri = CONTENT_URI;
+             mBaseUri = CONTENT_URI;
         }
         
         public static final String TABLE_NAME = "Message";
@@ -290,37 +289,37 @@ public class EmailStore {
             ContentValues values = new ContentValues();
 
             // Assign values for each row.
-            values.put(MessageColumns.DISPLAY_NAME, displayName);
-            values.put(MessageColumns.TIMESTAMP, timeStamp);
-            values.put(MessageColumns.SUBJECT, subject);
-            values.put(MessageColumns.FLAG_READ, flagRead); 
-            values.put(MessageColumns.FLAG_LOADED, flagLoaded); 
-            values.put(MessageColumns.FLAG_FAVORITE, flagFavorite); 
-            values.put(MessageColumns.FLAG_ATTACHMENT, flagAttachment); 
-            values.put(MessageColumns.FLAGS, flags);
+            values.put(MessageColumns.DISPLAY_NAME, mDisplayName);
+            values.put(MessageColumns.TIMESTAMP, mTimeStamp);
+            values.put(MessageColumns.SUBJECT, mSubject);
+            values.put(MessageColumns.FLAG_READ, mFlagRead); 
+            values.put(MessageColumns.FLAG_LOADED, mFlagLoaded); 
+            values.put(MessageColumns.FLAG_FAVORITE, mFlagFavorite); 
+            values.put(MessageColumns.FLAG_ATTACHMENT, mFlagAttachment); 
+            values.put(MessageColumns.FLAGS, mFlags);
             
-            values.put(MessageColumns.TEXT_INFO, textInfo);
-            values.put(MessageColumns.HTML_INFO, htmlInfo);
+            values.put(MessageColumns.TEXT_INFO, mTextInfo);
+            values.put(MessageColumns.HTML_INFO, mHtmlInfo);
             
-            if (serverId != null)
-                values.put(SyncColumns.SERVER_ID, serverId);
+            if (mServerId != null)
+                values.put(SyncColumns.SERVER_ID, mServerId);
             else
-                values.put(SyncColumns.SERVER_ID, serverIntId);
+                values.put(SyncColumns.SERVER_ID, mServerIntId);
             
-            values.put(MessageColumns.CLIENT_ID, clientId);
-            values.put(MessageColumns.MESSAGE_ID, messageId);
+            values.put(MessageColumns.CLIENT_ID, mClientId);
+            values.put(MessageColumns.MESSAGE_ID, mMessageId);
 
-            values.put(MessageColumns.BODY_ID, bodyKey);
-            values.put(MessageColumns.MAILBOX_KEY, mailboxKey);
-            values.put(MessageColumns.ACCOUNT_KEY, accountKey);
-            values.put(MessageColumns.REFERENCE_KEY, referenceKey);
+            values.put(MessageColumns.BODY_ID, mBodyKey);
+            values.put(MessageColumns.MAILBOX_KEY, mMailboxKey);
+            values.put(MessageColumns.ACCOUNT_KEY, mAccountKey);
+            values.put(MessageColumns.REFERENCE_KEY, mReferenceKey);
             
-            values.put(MessageColumns.SENDER_LIST, sender);
-            values.put(MessageColumns.FROM_LIST, from);
-            values.put(MessageColumns.TO_LIST, to);
-            values.put(MessageColumns.CC_LIST, cc);
-            values.put(MessageColumns.BCC_LIST, bcc);
-            values.put(MessageColumns.REPLY_TO_LIST, replyTo);
+            values.put(MessageColumns.SENDER_LIST, mSender);
+            values.put(MessageColumns.FROM_LIST, mFrom);
+            values.put(MessageColumns.TO_LIST, mTo);
+            values.put(MessageColumns.CC_LIST, mCc);
+            values.put(MessageColumns.BCC_LIST, mBcc);
+            values.put(MessageColumns.REPLY_TO_LIST, mReplyTo);
  
             return values;
         }
@@ -395,33 +394,33 @@ public class EmailStore {
         @Override
         @SuppressWarnings("unchecked")
         public EmailStore.Message restore(Cursor c) {
-            baseUri = EmailStore.Message.CONTENT_URI;
-            displayName = c.getString(CONTENT_DISPLAY_NAME_COLUMN);
-            timeStamp = c.getLong(CONTENT_TIMESTAMP_COLUMN);
-            subject = c.getString(CONTENT_SUBJECT_COLUMN);
-            preview = c.getString(CONTENT_PREVIEW_COLUMN);
-            flagRead = c.getInt(CONTENT_FLAG_READ_COLUMN) == 1;
-            flagLoaded = c.getInt(CONTENT_FLAG_LOADED_COLUMN);
-            flagFavorite = c.getInt(CONTENT_FLAG_FAVORITE_COLUMN) == 1;
-            flagAttachment = c.getInt(CONTENT_FLAG_ATTACHMENT_COLUMN) == 1;
-            flags = c.getInt(CONTENT_FLAGS_COLUMN);
-            textInfo = c.getString(CONTENT_TEXT_INFO_COLUMN);
-            htmlInfo = c.getString(CONTENT_HTML_INFO_COLUMN);
-            serverId = c.getString(CONTENT_SERVER_ID_COLUMN);
-            serverIntId = c.getInt(CONTENT_SERVER_ID_COLUMN);
-            clientId = c.getString(CONTENT_CLIENT_ID_COLUMN);
-            messageId = c.getString(CONTENT_MESSAGE_ID_COLUMN);
-            threadId = c.getString(CONTENT_THREAD_ID_COLUMN);
-            bodyKey = c.getLong(CONTENT_BODY_ID_COLUMN);
-            mailboxKey = c.getLong(CONTENT_MAILBOX_KEY_COLUMN);
-            accountKey = c.getLong(CONTENT_ACCOUNT_KEY_COLUMN);
-            referenceKey = c.getLong(CONTENT_REFERENCE_KEY_COLUMN);
-            sender = c.getString(CONTENT_SENDER_LIST_COLUMN);
-            from = c.getString(CONTENT_FROM_LIST_COLUMN);
-            to = c.getString(CONTENT_TO_LIST_COLUMN);
-            cc = c.getString(CONTENT_CC_LIST_COLUMN);
-            bcc = c.getString(CONTENT_BCC_LIST_COLUMN);
-            replyTo = c.getString(CONTENT_REPLY_TO_COLUMN);
+            mBaseUri = EmailStore.Message.CONTENT_URI;
+            mDisplayName = c.getString(CONTENT_DISPLAY_NAME_COLUMN);
+            mTimeStamp = c.getLong(CONTENT_TIMESTAMP_COLUMN);
+            mSubject = c.getString(CONTENT_SUBJECT_COLUMN);
+            mPreview = c.getString(CONTENT_PREVIEW_COLUMN);
+            mFlagRead = c.getInt(CONTENT_FLAG_READ_COLUMN) == 1;
+            mFlagLoaded = c.getInt(CONTENT_FLAG_LOADED_COLUMN);
+            mFlagFavorite = c.getInt(CONTENT_FLAG_FAVORITE_COLUMN) == 1;
+            mFlagAttachment = c.getInt(CONTENT_FLAG_ATTACHMENT_COLUMN) == 1;
+            mFlags = c.getInt(CONTENT_FLAGS_COLUMN);
+            mTextInfo = c.getString(CONTENT_TEXT_INFO_COLUMN);
+            mHtmlInfo = c.getString(CONTENT_HTML_INFO_COLUMN);
+            mServerId = c.getString(CONTENT_SERVER_ID_COLUMN);
+            mServerIntId = c.getInt(CONTENT_SERVER_ID_COLUMN);
+            mClientId = c.getString(CONTENT_CLIENT_ID_COLUMN);
+            mMessageId = c.getString(CONTENT_MESSAGE_ID_COLUMN);
+            mThreadId = c.getString(CONTENT_THREAD_ID_COLUMN);
+            mBodyKey = c.getLong(CONTENT_BODY_ID_COLUMN);
+            mMailboxKey = c.getLong(CONTENT_MAILBOX_KEY_COLUMN);
+            mAccountKey = c.getLong(CONTENT_ACCOUNT_KEY_COLUMN);
+            mReferenceKey = c.getLong(CONTENT_REFERENCE_KEY_COLUMN);
+            mSender = c.getString(CONTENT_SENDER_LIST_COLUMN);
+            mFrom = c.getString(CONTENT_FROM_LIST_COLUMN);
+            mTo = c.getString(CONTENT_TO_LIST_COLUMN);
+            mCc = c.getString(CONTENT_CC_LIST_COLUMN);
+            mBcc = c.getString(CONTENT_BCC_LIST_COLUMN);
+            mReplyTo = c.getString(CONTENT_REPLY_TO_COLUMN);
             return this;
         }
         
@@ -436,35 +435,35 @@ public class EmailStore {
         
         
         public static final class BodyInfo {
-            public String location;
-            public char encoding;
-            public String charset;
-            public long length;
+            public String mLocation;
+            public char mEncoding;
+            public String mCharset;
+            public long mLength;
             
             static public BodyInfo expandFromTextOrHtmlInfo (String info) {
                 BodyInfo b = new BodyInfo();
                 int start = 0;
                 int next = info.indexOf(';');
                 if (next > 0) {
-                    b.location = info.substring(start, next);
+                    b.mLocation = info.substring(start, next);
                     start = next + 1;
                     next = info.indexOf(';', start);
                     if (next > 0) {
-                        b.encoding = info.charAt(start);
+                        b.mEncoding = info.charAt(start);
                         start = next + 1;
                         next = info.indexOf(';', start);
                         if (next > 0) {
                             String cs = info.substring(start, next);
                             if (cs.equals("U"))
-                                b.charset = "us-ascii";
+                                b.mCharset = "us-ascii";
                             else if (cs.equals("I"))
-                                b.charset = "iso-8859-1";
+                                b.mCharset = "iso-8859-1";
                             else if (cs.equals("8"))
-                                b.charset = "utf-8";
+                                b.mCharset = "utf-8";
                             else
-                                b.charset = cs;
+                                b.mCharset = cs;
                             start = next + 1;
-                            b.length = Integer.parseInt(info.substring(start));
+                            b.mLength = Integer.parseInt(info.substring(start));
                             return b;
                         }
                     }
@@ -496,30 +495,28 @@ public class EmailStore {
     }
 
     public static final class Account extends EmailContent implements AccountColumns {
-        public String displayName;
-        public String protocol;
-        public String emailAddress;
-        public String syncKey;
-        public int syncLookback;
-        public int syncFrequency;
-        public long hostAuthKeyRecv; 
-        public long hostAuthKeySend;
-        public int flags;
+        public String mDisplayName;
+        public String mEmailAddress;
+        public String mSyncKey;
+        public int mSyncLookback;
+        public int mSyncFrequency;
+        public long mHostAuthKeyRecv; 
+        public long mHostAuthKeySend;
+        public int mFlags;
         
         // Convenience for creating an account
-        public transient HostAuth hostAuthRecv;
-        public transient HostAuth hostAuthSend;
+        public transient HostAuth mHostAuthRecv;
+        public transient HostAuth mHostAuthSend;
         
         public static final int CONTENT_ID_COLUMN = 0;
         public static final int CONTENT_DISPLAY_NAME_COLUMN = 1;
-        public static final int CONTENT_PROTOCOL_COLUMN = 2;
-        public static final int CONTENT_EMAIL_ADDRESS_COLUMN = 3;
-        public static final int CONTENT_SYNC_KEY_COLUMN = 4;
-        public static final int CONTENT_SYNC_LOOKBACK_COLUMN = 5;
-        public static final int CONTENT_SYNC_FREQUENCY_COLUMN = 6;
-        public static final int CONTENT_HOST_AUTH_KEY_RECV_COLUMN = 7;
-        public static final int CONTENT_HOST_AUTH_KEY_SEND_COLUMN = 8;
-        public static final int CONTENT_FLAGS_COLUMN = 9;
+        public static final int CONTENT_EMAIL_ADDRESS_COLUMN = 2;
+        public static final int CONTENT_SYNC_KEY_COLUMN = 3;
+        public static final int CONTENT_SYNC_LOOKBACK_COLUMN = 4;
+        public static final int CONTENT_SYNC_FREQUENCY_COLUMN = 5;
+        public static final int CONTENT_HOST_AUTH_KEY_RECV_COLUMN = 6;
+        public static final int CONTENT_HOST_AUTH_KEY_SEND_COLUMN = 7;
+        public static final int CONTENT_FLAGS_COLUMN = 8;
         
         public static final String[] CONTENT_PROJECTION = new String[] {
             RECORD_ID, AccountColumns.DISPLAY_NAME,
@@ -532,7 +529,7 @@ public class EmailStore {
          * no public constructor since this is a utility class
          */
         public Account() {
-            baseUri = CONTENT_URI;
+            mBaseUri = CONTENT_URI;
         }
 
         public static final String TABLE_NAME = "Account";
@@ -582,30 +579,29 @@ public class EmailStore {
         @Override
         @SuppressWarnings("unchecked")
         public EmailStore.Account restore(Cursor cursor) {
-            baseUri = EmailStore.Account.CONTENT_URI;
-            displayName = cursor.getString(CONTENT_DISPLAY_NAME_COLUMN);
-            protocol = cursor.getString(CONTENT_PROTOCOL_COLUMN);
-            emailAddress = cursor.getString(CONTENT_EMAIL_ADDRESS_COLUMN);
-            syncKey = cursor.getString(CONTENT_SYNC_KEY_COLUMN);
-            syncLookback = cursor.getInt(CONTENT_SYNC_LOOKBACK_COLUMN);
-            syncFrequency = cursor.getInt(CONTENT_SYNC_FREQUENCY_COLUMN);
-            hostAuthKeyRecv = cursor.getLong(CONTENT_HOST_AUTH_KEY_RECV_COLUMN);
-            hostAuthKeySend = cursor.getLong(CONTENT_HOST_AUTH_KEY_SEND_COLUMN);
-            flags = cursor.getInt(CONTENT_FLAGS_COLUMN);
+            mBaseUri = EmailStore.Account.CONTENT_URI;
+            mDisplayName = cursor.getString(CONTENT_DISPLAY_NAME_COLUMN);
+            mEmailAddress = cursor.getString(CONTENT_EMAIL_ADDRESS_COLUMN);
+            mSyncKey = cursor.getString(CONTENT_SYNC_KEY_COLUMN);
+            mSyncLookback = cursor.getInt(CONTENT_SYNC_LOOKBACK_COLUMN);
+            mSyncFrequency = cursor.getInt(CONTENT_SYNC_FREQUENCY_COLUMN);
+            mHostAuthKeyRecv = cursor.getLong(CONTENT_HOST_AUTH_KEY_RECV_COLUMN);
+            mHostAuthKeySend = cursor.getLong(CONTENT_HOST_AUTH_KEY_SEND_COLUMN);
+            mFlags = cursor.getInt(CONTENT_FLAGS_COLUMN);
             return this;
         }
 
         @Override
         public ContentValues toContentValues() {
             ContentValues values = new ContentValues();
-            values.put(AccountColumns.DISPLAY_NAME, displayName);
-            values.put(AccountColumns.EMAIL_ADDRESS, emailAddress);
-            values.put(AccountColumns.SYNC_KEY, syncKey);
-            values.put(AccountColumns.SYNC_LOOKBACK, syncLookback);
-            values.put(AccountColumns.SYNC_FREQUENCY, syncFrequency);
-            values.put(AccountColumns.HOST_AUTH_KEY_RECV, hostAuthKeyRecv);
-            values.put(AccountColumns.HOST_AUTH_KEY_SEND, hostAuthKeySend);
-            values.put(AccountColumns.FLAGS, flags);
+            values.put(AccountColumns.DISPLAY_NAME, mDisplayName);
+            values.put(AccountColumns.EMAIL_ADDRESS, mEmailAddress);
+            values.put(AccountColumns.SYNC_KEY, mSyncKey);
+            values.put(AccountColumns.SYNC_LOOKBACK, mSyncLookback);
+            values.put(AccountColumns.SYNC_FREQUENCY, mSyncFrequency);
+            values.put(AccountColumns.HOST_AUTH_KEY_RECV, mHostAuthKeyRecv);
+            values.put(AccountColumns.HOST_AUTH_KEY_SEND, mHostAuthKeySend);
+            values.put(AccountColumns.FLAGS, mFlags);
             return values;
         }
     }
@@ -632,14 +628,14 @@ public class EmailStore {
 
     public static final class Attachment extends EmailContent implements AttachmentColumns {
         
-        public String fileName;
-        public String mimeType;
-        public long size;
-        public String contentId;
-        public String contentUri;
-        public long messageKey;
-        public String location;
-        public String encoding;
+        public String mFileName;
+        public String mMimeType;
+        public long mSize;
+        public String mContentId;
+        public String mContentUri;
+        public long mMessageKey;
+        public String mLocation;
+        public String mEncoding;
         
         public static final int CONTENT_ID_COLUMN = 0;
         public static final int CONTENT_FILENAME_COLUMN = 1;
@@ -650,14 +646,17 @@ public class EmailStore {
         public static final int CONTENT_MESSAGE_ID_COLUMN = 6;
         public static final int CONTENT_LOCATION_COLUMN = 7;
         public static final int CONTENT_ENCODING_COLUMN = 8;
-        public static final String[] CONTENT_PROJECTION = new String[] {RECORD_ID, AttachmentColumns.FILENAME, AttachmentColumns.MIME_TYPE, AttachmentColumns.SIZE, AttachmentColumns.CONTENT_ID, AttachmentColumns.CONTENT_URI,
-            AttachmentColumns.MESSAGE_KEY, AttachmentColumns.LOCATION, AttachmentColumns.ENCODING};
+        public static final String[] CONTENT_PROJECTION = new String[] {
+            RECORD_ID, AttachmentColumns.FILENAME, AttachmentColumns.MIME_TYPE,
+            AttachmentColumns.SIZE, AttachmentColumns.CONTENT_ID, AttachmentColumns.CONTENT_URI,
+            AttachmentColumns.MESSAGE_KEY, AttachmentColumns.LOCATION, AttachmentColumns.ENCODING
+        };
 
         /**
          * no public constructor since this is a utility class
          */
         public Attachment() {
-             baseUri = CONTENT_URI;
+             mBaseUri = CONTENT_URI;
         }
 
         public static final String TABLE_NAME = "Attachment";
@@ -707,29 +706,29 @@ public class EmailStore {
         @Override
         @SuppressWarnings("unchecked")
         public EmailStore.Attachment restore(Cursor cursor) {
-            baseUri = EmailStore.Attachment.CONTENT_URI;
-            fileName= cursor.getString(CONTENT_FILENAME_COLUMN);
-            mimeType = cursor.getString(CONTENT_MIME_TYPE_COLUMN);
-            size = cursor.getLong(CONTENT_SIZE_COLUMN);
-            contentId = cursor.getString(CONTENT_CONTENT_ID_COLUMN);
-            contentUri = cursor.getString(CONTENT_CONTENT_URI_COLUMN);
-            messageKey = cursor.getLong(CONTENT_MESSAGE_ID_COLUMN);
-            location = cursor.getString(CONTENT_LOCATION_COLUMN);
-            encoding = cursor.getString(CONTENT_ENCODING_COLUMN);
+            mBaseUri = EmailStore.Attachment.CONTENT_URI;
+            mFileName= cursor.getString(CONTENT_FILENAME_COLUMN);
+            mMimeType = cursor.getString(CONTENT_MIME_TYPE_COLUMN);
+            mSize = cursor.getLong(CONTENT_SIZE_COLUMN);
+            mContentId = cursor.getString(CONTENT_CONTENT_ID_COLUMN);
+            mContentUri = cursor.getString(CONTENT_CONTENT_URI_COLUMN);
+            mMessageKey = cursor.getLong(CONTENT_MESSAGE_ID_COLUMN);
+            mLocation = cursor.getString(CONTENT_LOCATION_COLUMN);
+            mEncoding = cursor.getString(CONTENT_ENCODING_COLUMN);
             return this;
         }
 
         @Override
         public ContentValues toContentValues() {
             ContentValues values = new ContentValues();
-            values.put(AttachmentColumns.FILENAME, fileName);
-            values.put(AttachmentColumns.MIME_TYPE, mimeType);          
-            values.put(AttachmentColumns.SIZE, size);           
-            values.put(AttachmentColumns.CONTENT_ID, contentId);            
-            values.put(AttachmentColumns.CONTENT_URI, contentUri);          
-            values.put(AttachmentColumns.MESSAGE_KEY, messageKey);          
-            values.put(AttachmentColumns.LOCATION, location);           
-            values.put(AttachmentColumns.ENCODING, encoding);           
+            values.put(AttachmentColumns.FILENAME, mFileName);
+            values.put(AttachmentColumns.MIME_TYPE, mMimeType);          
+            values.put(AttachmentColumns.SIZE, mSize);           
+            values.put(AttachmentColumns.CONTENT_ID, mContentId);            
+            values.put(AttachmentColumns.CONTENT_URI, mContentUri);          
+            values.put(AttachmentColumns.MESSAGE_KEY, mMessageKey);          
+            values.put(AttachmentColumns.LOCATION, mLocation);           
+            values.put(AttachmentColumns.ENCODING, mEncoding);           
             return values;
         }
     }
@@ -767,20 +766,20 @@ public class EmailStore {
       }
 
     public static final class Mailbox extends EmailContent implements SyncColumns, MailboxColumns {
-        public String displayName;
-        public String serverId;
-        public String parentServerId;
-        public long accountKey;
-        public int type;
-        public int delimiter;
-        public String syncKey;
-        public int syncLookback;
-        public int syncFrequency;
-        public long syncTime;
-        public int unreadCount;
-        public boolean flagVisible = true;
-        public int flags;
-        public int visibleLimit;
+        public String mDisplayName;
+        public String mServerId;
+        public String mParentServerId;
+        public long mAccountKey;
+        public int mType;
+        public int mDelimiter;
+        public String mSyncKey;
+        public int mSyncLookback;
+        public int mSyncFrequency;
+        public long mSyncTime;
+        public int mUnreadCount;
+        public boolean mFlagVisible = true;
+        public int mFlags;
+        public int mVisibleLimit;
         
         public static final int CONTENT_ID_COLUMN = 0;
         public static final int CONTENT_DISPLAY_NAME_COLUMN = 1;
@@ -809,7 +808,7 @@ public class EmailStore {
          * no public constructor since this is a utility class
          */
         public Mailbox() {
-            baseUri = CONTENT_URI;
+            mBaseUri = CONTENT_URI;
         }
 
         public static final String TABLE_NAME = "Mailbox";
@@ -892,41 +891,41 @@ public class EmailStore {
         @Override
         @SuppressWarnings("unchecked")
         public EmailStore.Mailbox restore(Cursor cursor) {
-            baseUri = EmailStore.Attachment.CONTENT_URI;
-            displayName = cursor.getString(CONTENT_DISPLAY_NAME_COLUMN);
-            serverId = cursor.getString(CONTENT_SERVER_ID_COLUMN);
-            parentServerId = cursor.getString(CONTENT_PARENT_SERVER_ID_COLUMN);
-            accountKey = cursor.getLong(CONTENT_ACCOUNT_KEY_COLUMN);
-            type = cursor.getInt(CONTENT_TYPE_COLUMN);
-            delimiter = cursor.getInt(CONTENT_DELIMITER_COLUMN);
-            syncKey = cursor.getString(CONTENT_SYNC_KEY_COLUMN);
-            syncLookback = cursor.getInt(CONTENT_SYNC_LOOKBACK_COLUMN);
-            syncFrequency = cursor.getInt(CONTENT_SYNC_FREQUENCY_COLUMN);
-            syncTime = cursor.getLong(CONTENT_SYNC_TIME_COLUMN);
-            unreadCount = cursor.getInt(CONTENT_UNREAD_COUNT_COLUMN);
-            flagVisible = cursor.getInt(CONTENT_FLAG_VISIBLE_COLUMN) == 1;
-            flags = cursor.getInt(CONTENT_FLAGS_COLUMN);
-            visibleLimit = cursor.getInt(CONTENT_VISIBLE_LIMIT_COLUMN);
+            mBaseUri = EmailStore.Attachment.CONTENT_URI;
+            mDisplayName = cursor.getString(CONTENT_DISPLAY_NAME_COLUMN);
+            mServerId = cursor.getString(CONTENT_SERVER_ID_COLUMN);
+            mParentServerId = cursor.getString(CONTENT_PARENT_SERVER_ID_COLUMN);
+            mAccountKey = cursor.getLong(CONTENT_ACCOUNT_KEY_COLUMN);
+            mType = cursor.getInt(CONTENT_TYPE_COLUMN);
+            mDelimiter = cursor.getInt(CONTENT_DELIMITER_COLUMN);
+            mSyncKey = cursor.getString(CONTENT_SYNC_KEY_COLUMN);
+            mSyncLookback = cursor.getInt(CONTENT_SYNC_LOOKBACK_COLUMN);
+            mSyncFrequency = cursor.getInt(CONTENT_SYNC_FREQUENCY_COLUMN);
+            mSyncTime = cursor.getLong(CONTENT_SYNC_TIME_COLUMN);
+            mUnreadCount = cursor.getInt(CONTENT_UNREAD_COUNT_COLUMN);
+            mFlagVisible = cursor.getInt(CONTENT_FLAG_VISIBLE_COLUMN) == 1;
+            mFlags = cursor.getInt(CONTENT_FLAGS_COLUMN);
+            mVisibleLimit = cursor.getInt(CONTENT_VISIBLE_LIMIT_COLUMN);
             return this;
         }
 
         @Override
         public ContentValues toContentValues() {
             ContentValues values = new ContentValues();
-            values.put(MailboxColumns.DISPLAY_NAME, displayName);           
-            values.put(MailboxColumns.SERVER_ID, serverId);         
-            values.put(MailboxColumns.PARENT_SERVER_ID, parentServerId);            
-            values.put(MailboxColumns.ACCOUNT_KEY, accountKey);         
-            values.put(MailboxColumns.TYPE, type);          
-            values.put(MailboxColumns.DELIMITER, delimiter);            
-            values.put(MailboxColumns.SYNC_KEY, syncKey);           
-            values.put(MailboxColumns.SYNC_LOOKBACK, syncLookback);         
-            values.put(MailboxColumns.SYNC_FREQUENCY, syncFrequency);           
-            values.put(MailboxColumns.SYNC_TIME, syncTime);         
-            values.put(MailboxColumns.UNREAD_COUNT, unreadCount);           
-            values.put(MailboxColumns.FLAG_VISIBLE, flagVisible);           
-            values.put(MailboxColumns.FLAGS, flags);            
-            values.put(MailboxColumns.VISIBLE_LIMIT, visibleLimit);         
+            values.put(MailboxColumns.DISPLAY_NAME, mDisplayName);           
+            values.put(MailboxColumns.SERVER_ID, mServerId);         
+            values.put(MailboxColumns.PARENT_SERVER_ID, mParentServerId);            
+            values.put(MailboxColumns.ACCOUNT_KEY, mAccountKey);         
+            values.put(MailboxColumns.TYPE, mType);          
+            values.put(MailboxColumns.DELIMITER, mDelimiter);            
+            values.put(MailboxColumns.SYNC_KEY, mSyncKey);           
+            values.put(MailboxColumns.SYNC_LOOKBACK, mSyncLookback);         
+            values.put(MailboxColumns.SYNC_FREQUENCY, mSyncFrequency);           
+            values.put(MailboxColumns.SYNC_TIME, mSyncTime);         
+            values.put(MailboxColumns.UNREAD_COUNT, mUnreadCount);           
+            values.put(MailboxColumns.FLAG_VISIBLE, mFlagVisible);           
+            values.put(MailboxColumns.FLAGS, mFlags);            
+            values.put(MailboxColumns.VISIBLE_LIMIT, mVisibleLimit);         
             return values;
         }
     }
@@ -956,16 +955,16 @@ public class EmailStore {
         }
 
     public static final class HostAuth extends EmailContent implements HostAuthColumns {
-        public String protocol;
-        public String address;
-        public int port;
-        public boolean ssl;
-        public boolean tls;
-        public String login;
-        public String password;
-        public String domain;
-        public boolean flagAuthenticate;
-        public long accountKey;
+        public String mProtocol;
+        public String mAddress;
+        public int mPort;
+        public boolean mSsl;
+        public boolean mTls;
+        public String mLogin;
+        public String mPassword;
+        public String mDomain;
+        public boolean mFlagAuthenticate;
+        public long mAccountKey;
         
         public static final int CONTENT_ID_COLUMN = 0;
         public static final int CONTENT_PROTOCOL_COLUMN = 1;
@@ -989,7 +988,7 @@ public class EmailStore {
          * no public constructor since this is a utility class
          */
         public HostAuth() {
-            baseUri = CONTENT_URI;
+            mBaseUri = CONTENT_URI;
         }
 
         public static final String TABLE_NAME = "HostAuth";
@@ -1041,33 +1040,33 @@ public class EmailStore {
         @Override
         @SuppressWarnings("unchecked")
         public EmailStore.HostAuth restore(Cursor cursor) {
-            baseUri = EmailStore.Attachment.CONTENT_URI;
-            protocol = cursor.getString(CONTENT_PROTOCOL_COLUMN);
-            address = cursor.getString(CONTENT_ADDRESS_COLUMN);
-            port = cursor.getInt(CONTENT_PORT_COLUMN);
-            ssl = cursor.getInt(CONTENT_SSL_COLUMN) == 1;
-            tls = cursor.getInt(CONTENT_TLS_COLUMN) == 1;
-            login = cursor.getString(CONTENT_LOGIN_COLUMN);
-            password = cursor.getString(CONTENT_PASSWORD_COLUMN);
-            domain = cursor.getString(CONTENT_DOMAIN_COLUMN);
-            flagAuthenticate = cursor.getInt(CONTENT_FLAG_AUTHENTICATE_COLUMN) == 1;
-            accountKey = cursor.getLong(CONTENT_ACCOUNT_KEY_COLUMN);
+            mBaseUri = EmailStore.Attachment.CONTENT_URI;
+            mProtocol = cursor.getString(CONTENT_PROTOCOL_COLUMN);
+            mAddress = cursor.getString(CONTENT_ADDRESS_COLUMN);
+            mPort = cursor.getInt(CONTENT_PORT_COLUMN);
+            mSsl = cursor.getInt(CONTENT_SSL_COLUMN) == 1;
+            mTls = cursor.getInt(CONTENT_TLS_COLUMN) == 1;
+            mLogin = cursor.getString(CONTENT_LOGIN_COLUMN);
+            mPassword = cursor.getString(CONTENT_PASSWORD_COLUMN);
+            mDomain = cursor.getString(CONTENT_DOMAIN_COLUMN);
+            mFlagAuthenticate = cursor.getInt(CONTENT_FLAG_AUTHENTICATE_COLUMN) == 1;
+            mAccountKey = cursor.getLong(CONTENT_ACCOUNT_KEY_COLUMN);
             return this;
         }
 
         @Override
         public ContentValues toContentValues() {
             ContentValues values = new ContentValues();
-            values.put(HostAuthColumns.PROTOCOL, protocol);
-            values.put(HostAuthColumns.ADDRESS, address);
-            values.put(HostAuthColumns.PORT, port);
-            values.put(HostAuthColumns.SSL, ssl);
-            values.put(HostAuthColumns.TLS, tls);
-            values.put(HostAuthColumns.LOGIN, login);
-            values.put(HostAuthColumns.PASSWORD, password);
-            values.put(HostAuthColumns.DOMAIN, domain);
-            values.put(HostAuthColumns.FLAG_AUTHENTICATE, flagAuthenticate);
-            values.put(HostAuthColumns.ACCOUNT_KEY, accountKey);
+            values.put(HostAuthColumns.PROTOCOL, mProtocol);
+            values.put(HostAuthColumns.ADDRESS, mAddress);
+            values.put(HostAuthColumns.PORT, mPort);
+            values.put(HostAuthColumns.SSL, mSsl);
+            values.put(HostAuthColumns.TLS, mTls);
+            values.put(HostAuthColumns.LOGIN, mLogin);
+            values.put(HostAuthColumns.PASSWORD, mPassword);
+            values.put(HostAuthColumns.DOMAIN, mDomain);
+            values.put(HostAuthColumns.FLAG_AUTHENTICATE, mFlagAuthenticate);
+            values.put(HostAuthColumns.ACCOUNT_KEY, mAccountKey);
             return values;
         }
     }
