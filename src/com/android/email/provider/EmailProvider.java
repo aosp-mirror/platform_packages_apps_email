@@ -50,7 +50,7 @@ public class EmailProvider extends ContentProvider {
     
     // In these early versions, updating the database version will cause all tables to be deleted
     // Obviously, we'll handle upgrades differently once things are a bit stable
-    public static final int DATABASE_VERSION = 4;
+    public static final int DATABASE_VERSION = 5;
 
     protected static final String EMAIL_AUTHORITY = "com.android.email.provider";
 

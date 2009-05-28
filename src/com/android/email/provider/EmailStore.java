@@ -473,13 +473,11 @@ public class EmailStore {
                 return null;
             }
         }
-   }
+    }
 
     public interface AccountColumns {
         // The display name of the account (user-settable)
         public static final String DISPLAY_NAME = "displayName";
-        // The receive protocol used by this account (e.g. IMAP, POP3, and EAS for now)
-        public static final String PROTOCOL = "protocol";
         // The email address corresponding to this account
         public static final String EMAIL_ADDRESS = "emailAddress";
         // A server-based sync key on an account-wide basis (EAS needs this)
@@ -489,13 +487,13 @@ public class EmailStore {
         // The default sync frequency for this account
         public static final String SYNC_FREQUENCY = "syncFrequency";
         // A foreign key into the account manager, having host, login, password, port, and ssl flags
-        public static final String HOST_AUTH_KEY = "hostAuthKey";
+        public static final String HOST_AUTH_KEY_RECV = "hostAuthKeyRecv";
         // (optional) A foreign key into the account manager, having host, login, password, port,
         // and ssl flags
-        public static final String SMTP_HOST_AUTH_KEY = "smtpHostAuthKey";
+        public static final String HOST_AUTH_KEY_SEND = "hostAuthKeySend";
         // Flags
         public static final String FLAGS = "flags";
-     }
+    }
 
     public static final class Account extends EmailContent implements AccountColumns {
         public String displayName;
@@ -504,13 +502,13 @@ public class EmailStore {
         public String syncKey;
         public int syncLookback;
         public int syncFrequency;
-        public long hostAuthKey; 
-        public long smtpHostAuthKey;
+        public long hostAuthKeyRecv; 
+        public long hostAuthKeySend;
         public int flags;
         
         // Convenience for creating an account
-        public transient HostAuth hostAuth;
-        public transient HostAuth smtpHostAuth;
+        public transient HostAuth hostAuthRecv;
+        public transient HostAuth hostAuthSend;
         
         public static final int CONTENT_ID_COLUMN = 0;
         public static final int CONTENT_DISPLAY_NAME_COLUMN = 1;
@@ -519,15 +517,15 @@ public class EmailStore {
         public static final int CONTENT_SYNC_KEY_COLUMN = 4;
         public static final int CONTENT_SYNC_LOOKBACK_COLUMN = 5;
         public static final int CONTENT_SYNC_FREQUENCY_COLUMN = 6;
-        public static final int CONTENT_HOST_AUTH_KEY_COLUMN = 7;
-        public static final int CONTENT_SMTP_HOST_AUTH_KEY_COLUMN = 8;
+        public static final int CONTENT_HOST_AUTH_KEY_RECV_COLUMN = 7;
+        public static final int CONTENT_HOST_AUTH_KEY_SEND_COLUMN = 8;
         public static final int CONTENT_FLAGS_COLUMN = 9;
         
         public static final String[] CONTENT_PROJECTION = new String[] {
-            RECORD_ID, AccountColumns.DISPLAY_NAME, AccountColumns.PROTOCOL,
+            RECORD_ID, AccountColumns.DISPLAY_NAME,
             AccountColumns.EMAIL_ADDRESS, AccountColumns.SYNC_KEY, AccountColumns.SYNC_LOOKBACK,
-            AccountColumns.SYNC_FREQUENCY, AccountColumns.HOST_AUTH_KEY,
-            AccountColumns.SMTP_HOST_AUTH_KEY, AccountColumns.FLAGS
+            AccountColumns.SYNC_FREQUENCY, AccountColumns.HOST_AUTH_KEY_RECV,
+            AccountColumns.HOST_AUTH_KEY_SEND, AccountColumns.FLAGS
         };
 
         /**
@@ -547,13 +545,12 @@ public class EmailStore {
         static void createTable(SQLiteDatabase db) {
             String s = " (" + RECORD_ID + " integer primary key autoincrement, " 
             + AccountColumns.DISPLAY_NAME + " text, "
-            + AccountColumns.PROTOCOL + " text, "
             + AccountColumns.EMAIL_ADDRESS + " text, "
             + AccountColumns.SYNC_KEY + " text, "
             + AccountColumns.SYNC_LOOKBACK + " integer, "
             + AccountColumns.SYNC_FREQUENCY + " text, "
-            + AccountColumns.HOST_AUTH_KEY + " integer, "
-            + AccountColumns.SMTP_HOST_AUTH_KEY + " integer, "
+            + AccountColumns.HOST_AUTH_KEY_RECV + " integer, "
+            + AccountColumns.HOST_AUTH_KEY_SEND + " integer, "
             + AccountColumns.FLAGS + " integer"
             + ");";
             db.execSQL("create table " + TABLE_NAME + s);
@@ -592,8 +589,8 @@ public class EmailStore {
             syncKey = cursor.getString(CONTENT_SYNC_KEY_COLUMN);
             syncLookback = cursor.getInt(CONTENT_SYNC_LOOKBACK_COLUMN);
             syncFrequency = cursor.getInt(CONTENT_SYNC_FREQUENCY_COLUMN);
-            hostAuthKey = cursor.getLong(CONTENT_HOST_AUTH_KEY_COLUMN);
-            smtpHostAuthKey = cursor.getLong(CONTENT_SMTP_HOST_AUTH_KEY_COLUMN);
+            hostAuthKeyRecv = cursor.getLong(CONTENT_HOST_AUTH_KEY_RECV_COLUMN);
+            hostAuthKeySend = cursor.getLong(CONTENT_HOST_AUTH_KEY_SEND_COLUMN);
             flags = cursor.getInt(CONTENT_FLAGS_COLUMN);
             return this;
         }
@@ -602,13 +599,12 @@ public class EmailStore {
         public ContentValues toContentValues() {
             ContentValues values = new ContentValues();
             values.put(AccountColumns.DISPLAY_NAME, displayName);
-            values.put(AccountColumns.PROTOCOL, protocol);
             values.put(AccountColumns.EMAIL_ADDRESS, emailAddress);
             values.put(AccountColumns.SYNC_KEY, syncKey);
             values.put(AccountColumns.SYNC_LOOKBACK, syncLookback);
             values.put(AccountColumns.SYNC_FREQUENCY, syncFrequency);
-            values.put(AccountColumns.HOST_AUTH_KEY, hostAuthKey);
-            values.put(AccountColumns.SMTP_HOST_AUTH_KEY, smtpHostAuthKey);
+            values.put(AccountColumns.HOST_AUTH_KEY_RECV, hostAuthKeyRecv);
+            values.put(AccountColumns.HOST_AUTH_KEY_SEND, hostAuthKeySend);
             values.put(AccountColumns.FLAGS, flags);
             return values;
         }
@@ -937,17 +933,21 @@ public class EmailStore {
     
     public interface HostAuthColumns {
         public static final String ID = "_id";
+        // The protocol (e.g. "imap", "pop3", "eas", "smtp"
+        static final String PROTOCOL = "protocol";
         // The host address
         static final String ADDRESS = "address"; 
         // The port to use for the connection
         static final String PORT = "port"; 
         // Whether SSL is to be used
         static final String SSL = "ssl"; 
+        // Whether TLS is to be used
+        static final String TLS = "tls"; 
         // The login (user name)
         static final String LOGIN = "login"; 
         // Password
         static final String PASSWORD = "password"; 
-        // A domain, if required (some EAS systems require this)
+        // A domain or path, if required (used in IMAP and EAS)
         static final String DOMAIN = "domain"; 
         // Whether authentication is required
         static final String FLAG_AUTHENTICATE = "flagAuthenticate";
@@ -956,9 +956,11 @@ public class EmailStore {
         }
 
     public static final class HostAuth extends EmailContent implements HostAuthColumns {
+        public String protocol;
         public String address;
         public int port;
         public boolean ssl;
+        public boolean tls;
         public String login;
         public String password;
         public String domain;
@@ -966,18 +968,21 @@ public class EmailStore {
         public long accountKey;
         
         public static final int CONTENT_ID_COLUMN = 0;
-        public static final int CONTENT_ADDRESS_COLUMN = 1;
-        public static final int CONTENT_PORT_COLUMN = 2;
-        public static final int CONTENT_SSL_COLUMN = 3;
-        public static final int CONTENT_LOGIN_COLUMN = 4;
-        public static final int CONTENT_PASSWORD_COLUMN = 5;
-        public static final int CONTENT_DOMAIN_COLUMN = 6;
-        public static final int CONTENT_FLAG_AUTHENTICATE_COLUMN = 7;
-        public static final int CONTENT_ACCOUNT_KEY_COLUMN = 8;
+        public static final int CONTENT_PROTOCOL_COLUMN = 1;
+        public static final int CONTENT_ADDRESS_COLUMN = 2;
+        public static final int CONTENT_PORT_COLUMN = 3;
+        public static final int CONTENT_SSL_COLUMN = 4;
+        public static final int CONTENT_TLS_COLUMN = 5;
+        public static final int CONTENT_LOGIN_COLUMN = 6;
+        public static final int CONTENT_PASSWORD_COLUMN = 7;
+        public static final int CONTENT_DOMAIN_COLUMN = 8;
+        public static final int CONTENT_FLAG_AUTHENTICATE_COLUMN = 9;
+        public static final int CONTENT_ACCOUNT_KEY_COLUMN = 10;
         public static final String[] CONTENT_PROJECTION = new String[] {
-            RECORD_ID, HostAuthColumns.ADDRESS, HostAuthColumns.PORT, HostAuthColumns.SSL,
-            HostAuthColumns.LOGIN, HostAuthColumns.PASSWORD, HostAuthColumns.DOMAIN,
-            HostAuthColumns.FLAG_AUTHENTICATE, HostAuthColumns.ACCOUNT_KEY
+            RECORD_ID, HostAuthColumns.PROTOCOL, HostAuthColumns.ADDRESS, HostAuthColumns.PORT,
+            HostAuthColumns.SSL, HostAuthColumns.TLS, HostAuthColumns.LOGIN,
+            HostAuthColumns.PASSWORD, HostAuthColumns.DOMAIN, HostAuthColumns.FLAG_AUTHENTICATE,
+            HostAuthColumns.ACCOUNT_KEY
         };
 
         /**
@@ -996,9 +1001,11 @@ public class EmailStore {
          
         static void createTable(SQLiteDatabase db) {
             String s = " (" + RECORD_ID + " integer primary key autoincrement, " 
+            + HostAuthColumns.PROTOCOL + " text, "
             + HostAuthColumns.ADDRESS + " text, "
             + HostAuthColumns.PORT + " integer, "
             + HostAuthColumns.SSL + " integer, "
+            + HostAuthColumns.TLS + " integer, "
             + HostAuthColumns.LOGIN + " text, "
             + HostAuthColumns.PASSWORD + " text, "
             + HostAuthColumns.DOMAIN + " text, "
@@ -1035,9 +1042,11 @@ public class EmailStore {
         @SuppressWarnings("unchecked")
         public EmailStore.HostAuth restore(Cursor cursor) {
             baseUri = EmailStore.Attachment.CONTENT_URI;
+            protocol = cursor.getString(CONTENT_PROTOCOL_COLUMN);
             address = cursor.getString(CONTENT_ADDRESS_COLUMN);
             port = cursor.getInt(CONTENT_PORT_COLUMN);
             ssl = cursor.getInt(CONTENT_SSL_COLUMN) == 1;
+            tls = cursor.getInt(CONTENT_TLS_COLUMN) == 1;
             login = cursor.getString(CONTENT_LOGIN_COLUMN);
             password = cursor.getString(CONTENT_PASSWORD_COLUMN);
             domain = cursor.getString(CONTENT_DOMAIN_COLUMN);
@@ -1049,9 +1058,11 @@ public class EmailStore {
         @Override
         public ContentValues toContentValues() {
             ContentValues values = new ContentValues();
+            values.put(HostAuthColumns.PROTOCOL, protocol);
             values.put(HostAuthColumns.ADDRESS, address);
             values.put(HostAuthColumns.PORT, port);
             values.put(HostAuthColumns.SSL, ssl);
+            values.put(HostAuthColumns.TLS, tls);
             values.put(HostAuthColumns.LOGIN, login);
             values.put(HostAuthColumns.PASSWORD, password);
             values.put(HostAuthColumns.DOMAIN, domain);
