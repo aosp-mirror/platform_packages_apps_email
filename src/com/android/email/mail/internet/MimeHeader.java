@@ -21,6 +21,7 @@ import java.io.IOException;
 import java.io.OutputStream;
 import java.io.OutputStreamWriter;
 import java.util.ArrayList;
+import java.util.regex.Pattern;
 
 import com.android.email.Utility;
 import com.android.email.mail.MessagingException;
@@ -98,6 +99,25 @@ public class MimeHeader {
         mFields.removeAll(removeFields);
     }
 
+    /**
+     * Write header into String
+     * 
+     * @return CR-NL separated header string except the headers in writeOmitFields
+     * null if header is empty
+     */
+    public String writeToString() {
+        if (mFields.size() == 0) {
+            return null;
+        }
+        StringBuilder builder = new StringBuilder();
+        for (Field field : mFields) {
+            if (!Utility.arrayContains(writeOmitFields, field.name)) {
+                builder.append(field.name + ": " + field.value + "\r\n");
+            }
+        }
+        return builder.toString();
+    }
+    
     public void writeTo(OutputStream out) throws IOException, MessagingException {
         BufferedWriter writer = new BufferedWriter(new OutputStreamWriter(out), 1024);
         for (Field field : mFields) {
