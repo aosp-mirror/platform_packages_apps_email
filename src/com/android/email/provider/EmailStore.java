@@ -18,13 +18,17 @@ package com.android.email.provider;
 
 import java.util.ArrayList;
 
+import android.content.ContentProviderOperation;
+import android.content.ContentProviderResult;
 import android.content.ContentUris;
 import android.content.ContentValues;
 import android.content.Context;
+import android.content.OperationApplicationException;
 import android.database.Cursor;
 import android.database.SQLException;
 import android.database.sqlite.SQLiteDatabase;
 import android.net.Uri;
+import android.os.RemoteException;
 
 /**
  * 
@@ -41,7 +45,7 @@ public class EmailStore {
     //private static final String TAG = "Email";
     public static final String AUTHORITY = EmailProvider.EMAIL_AUTHORITY;
     public static final Uri CONTENT_URI = Uri.parse("content://" + AUTHORITY);
-    
+
     /**
      * no public constructor since this is a utility class
      */
@@ -50,7 +54,7 @@ public class EmailStore {
 
     // All classes share this
     public static final String RECORD_ID = "_id";
-    
+
     public interface SyncColumns {
         // source (account name and type) : foreign key into the AccountsProvider
         public static final String ACCOUNT_KEY = "syncAccountKey";
@@ -63,8 +67,8 @@ public class EmailStore {
         // dirty count (boolean) : the number of times this item has changed since the last time it
         // was synced to the server
         public static final String DIRTY_COUNT = "syncDirtyCount";
-   }
-    
+    }
+
     public interface BodyColumns {
         // Foreign key to the message corresponding to this body
         public static final String MESSAGE_KEY = "messageKey";      
@@ -107,7 +111,7 @@ public class EmailStore {
         public static final String FLAG_ATTACHMENT = "flagAttachment";  
         // Bit field, e.g. replied, deleted
         public static final String FLAGS = "flags";                 
-        
+
         // Body related
         // charset: U = us-ascii; 8 = utf-8; I = iso-8559-1; others literally (e.g. KOI8-R)
         // encodings: B = base64; Q = quoted printable; X = none
@@ -117,7 +121,7 @@ public class EmailStore {
         public static final String HTML_INFO = "htmlInfo";          
         // Foreign key to the Body content of this message (text and/or html)
         public static final String BODY_ID = "bodyId";              
-        
+
         // Sync related identifiers
         // Any client-required identifier
         public static final String CLIENT_ID = "clientId";          
@@ -125,7 +129,7 @@ public class EmailStore {
         public static final String MESSAGE_ID = "messageId";        
         // Thread identifier
         public static final String THREAD_ID = "threadId";
- 
+
         // References to other Email objects in the database
         // Foreign key to the Mailbox holding this message [INDEX]
         public static final String MAILBOX_KEY = "mailboxKey";      
@@ -133,7 +137,7 @@ public class EmailStore {
         public static final String ACCOUNT_KEY = "accountKey";      
         // Foreign key to a referenced Message (e.g. for a reply/forward)
         public static final String REFERENCE_KEY = "referenceKey";  
-                
+
         // Address lists, of the form <address> [, <address> ...]
         public static final String SENDER_LIST = "senderList";
         public static final String FROM_LIST = "fromList";
@@ -141,10 +145,10 @@ public class EmailStore {
         public static final String CC_LIST = "ccList";
         public static final String BCC_LIST = "bccList";
         public static final String REPLY_TO_LIST = "replyToList";
-      }
-    
+    }
+
     public static final class Message extends EmailContent implements SyncColumns, MessageColumns {
-           
+
         public static final String KEY_TIMESTAMP_DESC = MessageColumns.TIMESTAMP + " desc";
 
         public static final int CONTENT_ID_COLUMN = 0;
@@ -198,7 +202,7 @@ public class EmailStore {
         public static final int LIST_MAILBOX_KEY_COLUMN = 10;
         public static final int LIST_ACCOUNT_KEY_COLUMN = 11;
         public static final int LIST_SERVER_ID_COLUMN = 12;
- 
+
         // Public projection for common list columns
         public static final String[] LIST_PROJECTION = new String[] { 
             RECORD_ID, MessageColumns.DISPLAY_NAME, MessageColumns.TIMESTAMP,
@@ -207,7 +211,7 @@ public class EmailStore {
             MessageColumns.FLAG_ATTACHMENT, MessageColumns.FLAGS, MessageColumns.MAILBOX_KEY,
             MessageColumns.ACCOUNT_KEY , SyncColumns.SERVER_ID
         };
-        
+
         public static final int LOAD_BODY_ID_COLUMN = 0;
         public static final int LOAD_BODY_SERVER_ID_COLUMN = 1;
         public static final int LOAD_BODY_TEXT_INFO_COLUMN = 2;
@@ -215,15 +219,15 @@ public class EmailStore {
         public static final String[] LOAD_BODY_PROJECTION = new String[] {
             RECORD_ID, SyncColumns.SERVER_ID, MessageColumns.TEXT_INFO, MessageColumns.HTML_INFO
         };
-        
+
         public static final int ID_COLUMNS_ID_COLUMN = 0;
         public static final int ID_COLUMNS_SYNC_SERVER_ID = 1;
         public static final String[] ID_COLUMNS_PROJECTION = new String[] {
             RECORD_ID, SyncColumns.SERVER_ID
         };
-        
+
         public static final String[] ID_COLUMN_PROJECTION = new String[] { RECORD_ID };
-        
+
         // _id field is in AbstractContent
         public String mDisplayName;
         public long mTimeStamp;
@@ -234,56 +238,56 @@ public class EmailStore {
         public boolean mFlagFavorite = false;
         public boolean mFlagAttachment = false;
         public int mFlags = 0;
-        
+
         public String mTextInfo;
         public String mHtmlInfo;
-        
+
         public String mServerId;
         public int mServerIntId;
         public String mClientId;
         public String mMessageId;
         public String mThreadId;
-        
+
         public long mBodyKey;
         public long mMailboxKey;
         public long mAccountKey;
         public long mReferenceKey;
-        
+
         public String mSender;
         public String mFrom;
         public String mTo;
         public String mCc;
         public String mBcc;
         public String mReplyTo;
-        
+
         // THROW THIS AWAY; use tempObject
         transient public String mTemp;
-        
+
         // Can be used while building messages, but is NOT saved by the Provider
         transient public ArrayList<Attachment> mAttachments = null;
-        
+
         public static final int UNREAD = 0;
         public static final int READ = 1;
         public static final int DELETED = 2;
-        
+
         public static final int NOT_LOADED = 0;
         public static final int LOADED = 1;
         public static final int PARTIALLY_LOADED = 2;
-        
+
         /**
          * no public constructor since this is a utility class
          */
         public Message() {
-             mBaseUri = CONTENT_URI;
+            mBaseUri = CONTENT_URI;
         }
-        
+
         public static final String TABLE_NAME = "Message";
         public static final String DELETED_TABLE_NAME = "Deleted_Message";
         /**
          * The content:// style URL for this table
          */
         public static final Uri CONTENT_URI = Uri.parse(EmailStore.CONTENT_URI + "/message");
-        
+
         @Override
         public ContentValues toContentValues() {
             ContentValues values = new ContentValues();
@@ -297,15 +301,15 @@ public class EmailStore {
             values.put(MessageColumns.FLAG_FAVORITE, mFlagFavorite); 
             values.put(MessageColumns.FLAG_ATTACHMENT, mFlagAttachment); 
             values.put(MessageColumns.FLAGS, mFlags);
-            
+
             values.put(MessageColumns.TEXT_INFO, mTextInfo);
             values.put(MessageColumns.HTML_INFO, mHtmlInfo);
-            
+
             if (mServerId != null)
                 values.put(SyncColumns.SERVER_ID, mServerId);
             else
                 values.put(SyncColumns.SERVER_ID, mServerIntId);
-            
+
             values.put(MessageColumns.CLIENT_ID, mClientId);
             values.put(MessageColumns.MESSAGE_ID, mMessageId);
 
@@ -313,14 +317,14 @@ public class EmailStore {
             values.put(MessageColumns.MAILBOX_KEY, mMailboxKey);
             values.put(MessageColumns.ACCOUNT_KEY, mAccountKey);
             values.put(MessageColumns.REFERENCE_KEY, mReferenceKey);
-            
+
             values.put(MessageColumns.SENDER_LIST, mSender);
             values.put(MessageColumns.FROM_LIST, mFrom);
             values.put(MessageColumns.TO_LIST, mTo);
             values.put(MessageColumns.CC_LIST, mCc);
             values.put(MessageColumns.BCC_LIST, mBcc);
             values.put(MessageColumns.REPLY_TO_LIST, mReplyTo);
- 
+
             return values;
         }
 
@@ -375,7 +379,7 @@ public class EmailStore {
             db.execSQL("drop table " + DELETED_TABLE_NAME);
             createTable(db);
         }
-        
+
         public static Message restoreMessageWithId(Context context, long id) {
             Uri u = ContentUris.withAppendedId(Message.CONTENT_URI, id);
             Cursor c = context.getContentResolver().query(u, Message.CONTENT_PROJECTION,
@@ -423,23 +427,22 @@ public class EmailStore {
             mReplyTo = c.getString(CONTENT_REPLY_TO_COLUMN);
             return this;
         }
-        
+
         public boolean update() {
             // TODO Auto-generated method stub
             return false;
         }
-        
+
         // Text and Html information are stored as <location>;<encoding>;<charset>;<length>
         // charset: U = us-ascii; 8 = utf-8; I = iso-8559-1; others literally (e.g. KOI8-R)
         // encodings: B = base64; Q = quoted printable; X = none
-        
-        
+
         public static final class BodyInfo {
             public String mLocation;
             public char mEncoding;
             public String mCharset;
             public long mLength;
-            
+
             static public BodyInfo expandFromTextOrHtmlInfo (String info) {
                 BodyInfo b = new BodyInfo();
                 int start = 0;
@@ -467,7 +470,7 @@ public class EmailStore {
                             return b;
                         }
                     }
-                    
+
                 }
                 return null;
             }
@@ -492,6 +495,8 @@ public class EmailStore {
         public static final String HOST_AUTH_KEY_SEND = "hostAuthKeySend";
         // Flags
         public static final String FLAGS = "flags";
+        // Default account
+        public static final String IS_DEFAULT = "isDefault";
     }
 
     public static final class Account extends EmailContent implements AccountColumns {
@@ -503,11 +508,12 @@ public class EmailStore {
         public long mHostAuthKeyRecv; 
         public long mHostAuthKeySend;
         public int mFlags;
-        
+        public boolean mIsDefault;
+
         // Convenience for creating an account
         public transient HostAuth mHostAuthRecv;
         public transient HostAuth mHostAuthSend;
-        
+
         public static final int CONTENT_ID_COLUMN = 0;
         public static final int CONTENT_DISPLAY_NAME_COLUMN = 1;
         public static final int CONTENT_EMAIL_ADDRESS_COLUMN = 2;
@@ -517,12 +523,13 @@ public class EmailStore {
         public static final int CONTENT_HOST_AUTH_KEY_RECV_COLUMN = 6;
         public static final int CONTENT_HOST_AUTH_KEY_SEND_COLUMN = 7;
         public static final int CONTENT_FLAGS_COLUMN = 8;
-        
+        public static final int CONTENT_DEFAULT_COLUMN = 9;
+
         public static final String[] CONTENT_PROJECTION = new String[] {
             RECORD_ID, AccountColumns.DISPLAY_NAME,
             AccountColumns.EMAIL_ADDRESS, AccountColumns.SYNC_KEY, AccountColumns.SYNC_LOOKBACK,
             AccountColumns.SYNC_FREQUENCY, AccountColumns.HOST_AUTH_KEY_RECV,
-            AccountColumns.HOST_AUTH_KEY_SEND, AccountColumns.FLAGS
+            AccountColumns.HOST_AUTH_KEY_SEND, AccountColumns.FLAGS, AccountColumns.IS_DEFAULT
         };
 
         /**
@@ -548,7 +555,8 @@ public class EmailStore {
             + AccountColumns.SYNC_FREQUENCY + " text, "
             + AccountColumns.HOST_AUTH_KEY_RECV + " integer, "
             + AccountColumns.HOST_AUTH_KEY_SEND + " integer, "
-            + AccountColumns.FLAGS + " integer"
+            + AccountColumns.FLAGS + " integer, "
+            + AccountColumns.IS_DEFAULT + " integer"
             + ");";
             db.execSQL("create table " + TABLE_NAME + s);
         }
@@ -560,17 +568,18 @@ public class EmailStore {
             }
             createTable(db);
         }
-        
+
         public static Account restoreAccountWithId(Context context, long id) {
             Uri u = ContentUris.withAppendedId(Account.CONTENT_URI, id);
             Cursor c = context.getContentResolver().query(u, Account.CONTENT_PROJECTION,
                     null, null, null);
 
             try {
-                if (c.moveToFirst())
+                if (c.moveToFirst()) {
                     return EmailContent.getContent(c, Account.class);
-                else
+                } else {
                     return null;
+                }
             } finally {
                 c.close();
             }
@@ -588,7 +597,143 @@ public class EmailStore {
             mHostAuthKeyRecv = cursor.getLong(CONTENT_HOST_AUTH_KEY_RECV_COLUMN);
             mHostAuthKeySend = cursor.getLong(CONTENT_HOST_AUTH_KEY_SEND_COLUMN);
             mFlags = cursor.getInt(CONTENT_FLAGS_COLUMN);
+            mIsDefault = cursor.getInt(CONTENT_DEFAULT_COLUMN) == 1;
             return this;
+        }
+
+        private long getId(Uri u) {
+            return Long.parseLong(u.getPathSegments().get(1));
+        }
+
+        /**
+         * Set the default Account
+         * @param context
+         * @return true if succeeds; false otherwise
+         */
+        static public boolean setDefaultAccount(Context context, long id) {
+            ContentProviderOperation[] opArray = new ContentProviderOperation[2];
+            ContentValues cv1 = new ContentValues();
+            cv1.put(AccountColumns.IS_DEFAULT, 0);
+            opArray[0] = ContentProviderOperation.newUpdate(CONTENT_URI).withValues(cv1).build();
+            ContentValues cv2 = new ContentValues();
+            cv2.put(AccountColumns.IS_DEFAULT, 1);
+            opArray[1] = ContentProviderOperation.newUpdate(CONTENT_URI)
+                .withValues(cv2)
+                .withSelection("_id=" + id, null)
+                .build();
+            try {
+                context.getContentResolver().applyBatch(EmailProvider.EMAIL_AUTHORITY, opArray);
+                return true;
+            } catch (RemoteException e) {
+                // There is nothing to be done here; return false to indicate failure
+            } catch (OperationApplicationException e) {
+                // There is nothing to be done here; return false to indicate failure
+            }
+            return false;
+        }
+
+        static private Account getAccountWhere(Context context, String where) {
+            Cursor cursor = context.getContentResolver().query(CONTENT_URI, CONTENT_PROJECTION, 
+                    where, null, null);
+            try {
+                if (cursor.moveToFirst()) {
+                    return EmailContent.getContent(cursor, Account.class);
+                }
+            } finally {
+                cursor.close();
+            }
+            return null;
+        }
+
+        /**
+         * Return the default Account; if one hasn't been explicitly specified, return the first
+         * account found in the database.
+         * @param context
+         * @return the default Account (or none, if there are no accounts)
+         */
+        static public Account getDefaultAccount(Context context) {
+            Account acct = getAccountWhere(context, AccountColumns.IS_DEFAULT + "=1");
+            if (acct == null) {
+                acct = getAccountWhere(context, null);
+            }
+            return acct;
+        }
+
+        /* 
+         * Override this so that we can store the HostAuth's first and link them to the Account
+         * (non-Javadoc)
+         * @see com.android.email.provider.EmailContent#save(android.content.Context)
+         */
+        public Uri save(Context context) {
+            if (mHostAuthRecv == null && mHostAuthSend == null)
+                return super.save(context);
+            int index = 0;
+            int recvIndex = -1;
+            int sendIndex = -1;
+
+            // Create operations for saving the send and recv hostAuths
+            // Also, remember which operation in the array they represent
+            ArrayList<ContentProviderOperation> ops = new ArrayList<ContentProviderOperation>();
+            if (mHostAuthRecv != null) {
+                recvIndex = index++;
+                ops.add(ContentProviderOperation
+                        .newInsert(mHostAuthRecv.mBaseUri)
+                        .withValues(mHostAuthRecv.toContentValues())
+                        .build());
+            }
+            if (mHostAuthSend != null) {
+                sendIndex = index++;
+                ops.add(ContentProviderOperation
+                        .newInsert(mHostAuthSend.mBaseUri)
+                        .withValues(mHostAuthSend.toContentValues())
+                        .build());
+            }
+
+            // Now do the Account
+            ContentValues cv = null;
+            if (recvIndex >= 0 || sendIndex >= 0) {
+                cv = new ContentValues();
+                if (recvIndex >= 0) {
+                    cv.put(Account.HOST_AUTH_KEY_RECV, recvIndex);
+                }
+                if (sendIndex >= 0) {
+                    cv.put(Account.HOST_AUTH_KEY_SEND, sendIndex);
+                }
+            }
+
+            ContentProviderOperation.Builder b = 
+                ContentProviderOperation.newInsert(mBaseUri).withValues(toContentValues());
+            if (cv != null) {
+                b.withValueBackReferences(cv);
+            }
+            ops.add(b.build());
+
+            // Load these into an array
+            ContentProviderOperation[] opArray = new ContentProviderOperation[ops.size()];
+            int cnt = 0;
+            for (ContentProviderOperation op: ops) {
+                opArray[cnt++] = op;
+            }
+
+            try {
+                ContentProviderResult[] res = 
+                    context.getContentResolver().applyBatch(EmailProvider.EMAIL_AUTHORITY, opArray);
+                // Set the mId's of the various saved objects
+                if (recvIndex >= 0) {
+                    mHostAuthRecv.mId = getId(res[recvIndex].uri);
+                }
+                if (sendIndex >= 0) {
+                    mHostAuthSend.mId = getId(res[recvIndex].uri);
+                }
+                Uri u = res[index].uri;
+                mId = getId(u);
+                return u;
+            } catch (RemoteException e) {
+                // There is nothing to be done here; fail by returning null
+            } catch (OperationApplicationException e) {
+                // There is nothing to be done here; fail by returning null
+            }
+            return null;
         }
 
         @Override
@@ -602,6 +747,7 @@ public class EmailStore {
             values.put(AccountColumns.HOST_AUTH_KEY_RECV, mHostAuthKeyRecv);
             values.put(AccountColumns.HOST_AUTH_KEY_SEND, mHostAuthKeySend);
             values.put(AccountColumns.FLAGS, mFlags);
+            values.put(AccountColumns.IS_DEFAULT, mIsDefault);
             return values;
         }
     }
@@ -624,10 +770,10 @@ public class EmailStore {
         public static final String LOCATION = "location";
         // The transfer encoding of the attachment
         public static final String ENCODING = "encoding";
-     }
+    }
 
     public static final class Attachment extends EmailContent implements AttachmentColumns {
-        
+
         public String mFileName;
         public String mMimeType;
         public long mSize;
@@ -636,7 +782,7 @@ public class EmailStore {
         public long mMessageKey;
         public String mLocation;
         public String mEncoding;
-        
+
         public static final int CONTENT_ID_COLUMN = 0;
         public static final int CONTENT_FILENAME_COLUMN = 1;
         public static final int CONTENT_MIME_TYPE_COLUMN = 2;
@@ -656,11 +802,11 @@ public class EmailStore {
          * no public constructor since this is a utility class
          */
         public Attachment() {
-             mBaseUri = CONTENT_URI;
+            mBaseUri = CONTENT_URI;
         }
 
         public static final String TABLE_NAME = "Attachment";
-        
+
         /**
          * The content:// style URL for this table
          */
@@ -687,17 +833,24 @@ public class EmailStore {
             }
             createTable(db);
         }
-        
+
+        /**
+         * Restore an Attachment from the database, given its unique id
+         * @param context
+         * @param id
+         * @return the instantiated Attachment
+         */
         public static Attachment restoreAttachmentWithId (Context context, long id) {
             Uri u = ContentUris.withAppendedId(Attachment.CONTENT_URI, id);
             Cursor c = context.getContentResolver().query(u, Attachment.CONTENT_PROJECTION,
                     null, null, null);
 
             try {
-                if (c.moveToFirst())
+                if (c.moveToFirst()) {
                     return EmailContent.getContent(c, Attachment.class);
-                else
+                } else {
                     return null;
+                }
             } finally {
                 c.close();
             }
@@ -763,7 +916,7 @@ public class EmailStore {
         public static final String FLAGS = "flags";
         // Backward compatible
         public static final String VISIBLE_LIMIT = "visibleLimit";
-      }
+    }
 
     public static final class Mailbox extends EmailContent implements SyncColumns, MailboxColumns {
         public String mDisplayName;
@@ -780,7 +933,7 @@ public class EmailStore {
         public boolean mFlagVisible = true;
         public int mFlags;
         public int mVisibleLimit;
-        
+
         public static final int CONTENT_ID_COLUMN = 0;
         public static final int CONTENT_DISPLAY_NAME_COLUMN = 1;
         public static final int CONTENT_SERVER_ID_COLUMN = 2;
@@ -812,12 +965,12 @@ public class EmailStore {
         }
 
         public static final String TABLE_NAME = "Mailbox";
- 
+
         /**
          * The content:// style URL for this table
          */
         public static final Uri CONTENT_URI = Uri.parse(EmailStore.CONTENT_URI + "/mailbox");
-        
+
         // Types of mailboxes
         // Holds mail (generic)
         public static final int TYPE_MAIL = 0;
@@ -835,11 +988,11 @@ public class EmailStore {
         public static final int TYPE_JUNK = 6;
         // Parent-only mailbox; holds no mail
         public static final int TYPE_PARENT = 7;
-        
+
         // Bit field flags
         public static final int FLAG_HAS_CHILDREN = 1<<0;
         public static final int FLAG_CHILDREN_VISIBLE = 1<<1;
-        
+
         static void createTable(SQLiteDatabase db) {
             String s = " (" + RECORD_ID + " integer primary key autoincrement, " 
             + MailboxColumns.DISPLAY_NAME + " text, "
@@ -863,7 +1016,7 @@ public class EmailStore {
             db.execSQL("create index mailbox_" + MailboxColumns.ACCOUNT_KEY 
                     + " on " + TABLE_NAME + " (" + MailboxColumns.ACCOUNT_KEY + ")");
 
-       }
+        }
 
         static void upgradeTable(SQLiteDatabase db, int oldVersion, int newVersion) {
             try {
@@ -873,16 +1026,23 @@ public class EmailStore {
             createTable(db);
         }
 
+        /**
+         * Restore a Mailbox from the database, given its unique id
+         * @param context
+         * @param id
+         * @return the instantiated Mailbox
+         */
         public static Mailbox restoreMailboxWithId(Context context, long id) {
             Uri u = ContentUris.withAppendedId(Mailbox.CONTENT_URI, id);
             Cursor c = context.getContentResolver().query(u, Mailbox.CONTENT_PROJECTION,
                     null, null, null);
 
             try {
-                if (c.moveToFirst())
+                if (c.moveToFirst()) {
                     return EmailContent.getContent(c, Mailbox.class);
-                else
+                } else {
                     return null;
+                }
             } finally {
                 c.close();
             }
@@ -929,7 +1089,7 @@ public class EmailStore {
             return values;
         }
     }
-    
+
     public interface HostAuthColumns {
         public static final String ID = "_id";
         // The protocol (e.g. "imap", "pop3", "eas", "smtp"
@@ -952,7 +1112,7 @@ public class EmailStore {
         static final String FLAG_AUTHENTICATE = "flagAuthenticate";
         // Foreign key of the Account this is attached to
         static final String ACCOUNT_KEY = "accountKey";
-        }
+    }
 
     public static final class HostAuth extends EmailContent implements HostAuthColumns {
         public String mProtocol;
@@ -965,7 +1125,7 @@ public class EmailStore {
         public String mDomain;
         public boolean mFlagAuthenticate;
         public long mAccountKey;
-        
+
         public static final int CONTENT_ID_COLUMN = 0;
         public static final int CONTENT_PROTOCOL_COLUMN = 1;
         public static final int CONTENT_ADDRESS_COLUMN = 2;
@@ -992,12 +1152,12 @@ public class EmailStore {
         }
 
         public static final String TABLE_NAME = "HostAuth";
- 
+
         /**
          * The content:// style URL for this table
          */
         public static final Uri CONTENT_URI = Uri.parse(EmailStore.CONTENT_URI + "/hostauth");
-         
+
         static void createTable(SQLiteDatabase db) {
             String s = " (" + RECORD_ID + " integer primary key autoincrement, " 
             + HostAuthColumns.PROTOCOL + " text, "
@@ -1012,7 +1172,7 @@ public class EmailStore {
             + HostAuthColumns.ACCOUNT_KEY + " integer"
             + ");";
             db.execSQL("create table " + TABLE_NAME + s);
-       }
+        }
 
         static void upgradeTable(SQLiteDatabase db, int oldVersion, int newVersion) {
             try {
@@ -1022,16 +1182,23 @@ public class EmailStore {
             createTable(db);
         }
 
+        /**
+         * Restore a HostAuth from the database, given its unique id
+         * @param context
+         * @param id
+         * @return the instantiated HostAuth
+         */
         public static HostAuth restoreHostAuthWithId(Context context, long id) {
             Uri u = ContentUris.withAppendedId(EmailStore.HostAuth.CONTENT_URI, id);
             Cursor c = context.getContentResolver().query(u, HostAuth.CONTENT_PROJECTION,
                     null, null, null);
 
             try {
-                if (c.moveToFirst())
+                if (c.moveToFirst()) {
                     return EmailContent.getContent(c, HostAuth.class);
-                else
+                } else {
                     return null;
+                }
             } finally {
                 c.close();
             }
@@ -1070,7 +1237,4 @@ public class EmailStore {
             return values;
         }
     }
-
- }       
-        
-        
+}

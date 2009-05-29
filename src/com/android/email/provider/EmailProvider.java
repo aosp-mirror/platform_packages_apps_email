@@ -24,9 +24,12 @@ import com.android.email.provider.EmailStore.Message;
 import com.android.email.provider.EmailStore.MessageColumns;
 
 import android.content.ContentProvider;
+import android.content.ContentProviderOperation;
+import android.content.ContentProviderResult;
 import android.content.ContentUris;
 import android.content.ContentValues;
 import android.content.Context;
+import android.content.OperationApplicationException;
 import android.content.UriMatcher;
 import android.database.Cursor;
 import android.database.sqlite.SQLiteDatabase;
@@ -46,11 +49,11 @@ public class EmailProvider extends ContentProvider {
 
     private static final String TAG = "EmailProvider";
 
-    private static final String DATABASE_NAME = "EmailProvider.db";
+    static final String DATABASE_NAME = "EmailProvider.db";
     
     // In these early versions, updating the database version will cause all tables to be deleted
     // Obviously, we'll handle upgrades differently once things are a bit stable
-    public static final int DATABASE_VERSION = 5;
+    public static final int DATABASE_VERSION = 11;
 
     protected static final String EMAIL_AUTHORITY = "com.android.email.provider";
 
@@ -191,31 +194,33 @@ public class EmailProvider extends ContentProvider {
         }
     }
 
+    @SuppressWarnings("deprecation")
     @Override
     public int delete(Uri uri, String selection, String[] selectionArgs) {
         SQLiteDatabase db = getDatabase(getContext());
         int match = sURIMatcher.match(uri);
         int table = match >> BASE_SHIFT;
 
-        if (Config.LOGV) 
+        if (Config.LOGV) {
             Log.v(TAG, "EmailProvider.delete: uri=" + uri + ", match is " + match);
+        }
 
         switch (match) {
-        case MESSAGE_ID:
-        case ATTACHMENT_ID:
-        case MAILBOX_ID:
-        case ACCOUNT_ID:
-        case HOSTAUTH_ID:
-            String id = uri.getPathSegments().get(1);
-            return db.delete(TABLE_NAMES[table], whereWithId(id, selection), selectionArgs);
-        case MESSAGE:
-        case ATTACHMENT:
-        case MAILBOX:
-        case ACCOUNT:
-        case HOSTAUTH:
-            return db.delete(TABLE_NAMES[table], selection, selectionArgs);
-        default:
-            throw new IllegalArgumentException("Unknown URI " + uri);
+            case MESSAGE_ID:
+            case ATTACHMENT_ID:
+            case MAILBOX_ID:
+            case ACCOUNT_ID:
+            case HOSTAUTH_ID:
+                String id = uri.getPathSegments().get(1);
+                return db.delete(TABLE_NAMES[table], whereWithId(id, selection), selectionArgs);
+            case MESSAGE:
+            case ATTACHMENT:
+            case MAILBOX:
+            case ACCOUNT:
+            case HOSTAUTH:
+                return db.delete(TABLE_NAMES[table], selection, selectionArgs);
+            default:
+                throw new IllegalArgumentException("Unknown URI " + uri);
         }
     }
 
@@ -224,34 +229,35 @@ public class EmailProvider extends ContentProvider {
     public String getType(Uri uri) {
         int match = sURIMatcher.match(uri);
         switch (match) {
-        case MESSAGE_ID:
-            return "vnd.android.cursor.dir/email-message";
-        case MAILBOX_MESSAGES:
-        case MESSAGE:
-            return "vnd.android.cursor.item/email-message";
-        case ACCOUNT_MAILBOXES:
-        case MAILBOX:
-            return "vnd.android.cursor.dir/email-mailbox";
-        case MAILBOX_ID:
-            return "vnd.android.cursor.item/email-mailbox";
-        case ACCOUNT:
-            return "vnd.android.cursor.dir/email-account";
-        case ACCOUNT_ID:
-            return "vnd.android.cursor.item/email-account";
-        case MESSAGE_ATTACHMENTS:
-        case ATTACHMENT:
-            return "vnd.android.cursor.dir/email-attachment";
-        case ATTACHMENT_ID:
-            return "vnd.android.cursor.item/email-attachment";
-        case HOSTAUTH:
-            return "vnd.android.cursor.dir/email-hostauth";
-        case HOSTAUTH_ID:
-            return "vnd.android.cursor.item/email-hostauth";
-        default:
-            throw new IllegalArgumentException("Unknown URI " + uri);
+            case MESSAGE_ID:
+                return "vnd.android.cursor.dir/email-message";
+            case MAILBOX_MESSAGES:
+            case MESSAGE:
+                return "vnd.android.cursor.item/email-message";
+            case ACCOUNT_MAILBOXES:
+            case MAILBOX:
+                return "vnd.android.cursor.dir/email-mailbox";
+            case MAILBOX_ID:
+                return "vnd.android.cursor.item/email-mailbox";
+            case ACCOUNT:
+                return "vnd.android.cursor.dir/email-account";
+            case ACCOUNT_ID:
+                return "vnd.android.cursor.item/email-account";
+            case MESSAGE_ATTACHMENTS:
+            case ATTACHMENT:
+                return "vnd.android.cursor.dir/email-attachment";
+            case ATTACHMENT_ID:
+                return "vnd.android.cursor.item/email-attachment";
+            case HOSTAUTH:
+                return "vnd.android.cursor.dir/email-hostauth";
+            case HOSTAUTH_ID:
+                return "vnd.android.cursor.item/email-hostauth";
+            default:
+                throw new IllegalArgumentException("Unknown URI " + uri);
         }
     }
 
+    @SuppressWarnings("deprecation")
     @Override
     public Uri insert(Uri uri, ContentValues values) {
         SQLiteDatabase db = getDatabase(getContext());
@@ -259,38 +265,40 @@ public class EmailProvider extends ContentProvider {
         int match = sURIMatcher.match(uri);
         int table = match >> BASE_SHIFT;
         
-        if (Config.LOGV) 
+        if (Config.LOGV) {
             Log.v(TAG, "EmailProvider.insert: uri=" + uri + ", match is " + match);
+        }
 
         switch (match) {
-        case MESSAGE:
-        case ATTACHMENT:
-        case MAILBOX:
-        case ACCOUNT:
-        case HOSTAUTH:
-            id = db.insert(TABLE_NAMES[table], "foo", values);
-            return ContentUris.withAppendedId(uri, id);
-        case MAILBOX_ID:
-            // This implies adding a message to a mailbox
-            // Hmm, one problem here is that we can't link the account as well, so it must be already in the values...
-            id = Long.parseLong(uri.getPathSegments().get(1));
-            values.put(MessageColumns.MAILBOX_KEY, id);
-            return insert(Message.CONTENT_URI, values);
-        case MESSAGE_ID:
-            // This implies adding an attachment to a message.
-            id = Long.parseLong(uri.getPathSegments().get(1));
-            values.put(AttachmentColumns.MESSAGE_KEY, id);
-            return insert(Attachment.CONTENT_URI, values);
-        case ACCOUNT_ID:
-            // This implies adding a mailbox to an account.
-            id = Long.parseLong(uri.getPathSegments().get(1));
-            values.put(MailboxColumns.ACCOUNT_KEY, id);
-            return insert(Mailbox.CONTENT_URI, values);
-        case MESSAGE_ATTACHMENTS:
-            id = db.insert(TABLE_NAMES[table], "foo", values);
-            return ContentUris.withAppendedId(EmailStore.Attachment.CONTENT_URI, id);
-        default:
-            throw new IllegalArgumentException("Unknown URL " + uri);
+            case MESSAGE:
+            case ATTACHMENT:
+            case MAILBOX:
+            case ACCOUNT:
+            case HOSTAUTH:
+                id = db.insert(TABLE_NAMES[table], "foo", values);
+                return ContentUris.withAppendedId(uri, id);
+            case MAILBOX_ID:
+                // This implies adding a message to a mailbox
+                // Hmm, one problem here is that we can't link the account as well,
+                // so it must be already in the values...
+                id = Long.parseLong(uri.getPathSegments().get(1));
+                values.put(MessageColumns.MAILBOX_KEY, id);
+                return insert(Message.CONTENT_URI, values);
+            case MESSAGE_ID:
+                // This implies adding an attachment to a message.
+                id = Long.parseLong(uri.getPathSegments().get(1));
+                values.put(AttachmentColumns.MESSAGE_KEY, id);
+                return insert(Attachment.CONTENT_URI, values);
+            case ACCOUNT_ID:
+                // This implies adding a mailbox to an account.
+                id = Long.parseLong(uri.getPathSegments().get(1));
+                values.put(MailboxColumns.ACCOUNT_KEY, id);
+                return insert(Mailbox.CONTENT_URI, values);
+            case MESSAGE_ATTACHMENTS:
+                id = db.insert(TABLE_NAMES[table], "foo", values);
+                return ContentUris.withAppendedId(EmailStore.Attachment.CONTENT_URI, id);
+            default:
+                throw new IllegalArgumentException("Unknown URL " + uri);
         }
     }
 
@@ -300,8 +308,10 @@ public class EmailProvider extends ContentProvider {
         return false;
     }
 
+    @SuppressWarnings("deprecation")
     @Override
-    public Cursor query(Uri uri, String[] projection, String selection, String[] selectionArgs, String sortOrder) {
+    public Cursor query(Uri uri, String[] projection, String selection, String[] selectionArgs, 
+            String sortOrder) {
         SQLiteDatabase db = getDatabase(getContext());
         Cursor c = null;
         Uri notificationUri = EmailStore.CONTENT_URI;
@@ -309,32 +319,37 @@ public class EmailProvider extends ContentProvider {
         int table = match >> BASE_SHIFT;
         String id;
         
-        if (Config.LOGV) 
+        if (Config.LOGV) {
             Log.v(TAG, "EmailProvider.query: uri=" + uri + ", match is " + match);
+        }
 
         switch (match) {
-        case MESSAGE:
-        case ATTACHMENT:
-        case MAILBOX:
-        case ACCOUNT:
-        case HOSTAUTH:
-            c = db.query(TABLE_NAMES[table], projection, selection, selectionArgs, null, null, sortOrder);
-            break;
-        case MESSAGE_ID:
-        case ATTACHMENT_ID:
-        case MAILBOX_ID:
-        case ACCOUNT_ID:
-        case HOSTAUTH_ID:
-            id = uri.getPathSegments().get(1);
-            c = db.query(TABLE_NAMES[table], projection, whereWithId(id, selection), selectionArgs, null, null, sortOrder);
-            break;
-        case MESSAGE_ATTACHMENTS:
-            // All attachments for the given message
-            id = uri.getPathSegments().get(1);
-            c = db.query(Attachment.TABLE_NAME, projection, whereWith(Attachment.MESSAGE_KEY + "=" + id, selection), selectionArgs, null, null, sortOrder);
-            break;
-        default:
-            throw new IllegalArgumentException("Unknown URI " + uri);
+            case MESSAGE:
+            case ATTACHMENT:
+            case MAILBOX:
+            case ACCOUNT:
+            case HOSTAUTH:
+                c = db.query(TABLE_NAMES[table], projection, 
+                        selection, selectionArgs, null, null, sortOrder);
+                break;
+            case MESSAGE_ID:
+            case ATTACHMENT_ID:
+            case MAILBOX_ID:
+            case ACCOUNT_ID:
+            case HOSTAUTH_ID:
+                id = uri.getPathSegments().get(1);
+                c = db.query(TABLE_NAMES[table], projection, 
+                        whereWithId(id, selection), selectionArgs, null, null, sortOrder);
+                break;
+            case MESSAGE_ATTACHMENTS:
+                // All attachments for the given message
+                id = uri.getPathSegments().get(1);
+                c = db.query(Attachment.TABLE_NAME, projection, 
+                        whereWith(Attachment.MESSAGE_KEY + "=" + id, selection), 
+                        selectionArgs, null, null, sortOrder);
+                break;
+            default:
+                throw new IllegalArgumentException("Unknown URI " + uri);
         }
 
         if ((c != null) && !isTemporary()) {
@@ -363,28 +378,47 @@ public class EmailProvider extends ContentProvider {
         return sb.toString();
     }
     
+    @SuppressWarnings("deprecation")
     @Override
     public int update(Uri uri, ContentValues values, String selection, String[] selectionArgs) {
         SQLiteDatabase db = getDatabase(getContext());
         int match = sURIMatcher.match(uri);
         int table = match >> BASE_SHIFT;
-        if (Config.LOGV) 
+        if (Config.LOGV) {
             Log.v(TAG, "EmailProvider.update: uri=" + uri + ", match is " + match);
+        }
 
         switch (match) {
-        case MESSAGE_ID:
-        case ATTACHMENT_ID:
-        case MAILBOX_ID:
-        case ACCOUNT_ID:
-            String id = uri.getPathSegments().get(1);
-            return db.update(TABLE_NAMES[table], values, whereWithId(id, selection), selectionArgs);
-        case MESSAGE:
-        case ATTACHMENT:
-        case MAILBOX:
-        case ACCOUNT:
-            return db.update(TABLE_NAMES[table], values, selection, selectionArgs);
-        default:
-            throw new IllegalArgumentException("Unknown URI " + uri);
+            case MESSAGE_ID:
+            case ATTACHMENT_ID:
+            case MAILBOX_ID:
+            case ACCOUNT_ID:
+                String id = uri.getPathSegments().get(1);
+                return db.update(TABLE_NAMES[table], values, 
+                        whereWithId(id, selection), selectionArgs);
+            case MESSAGE:
+            case ATTACHMENT:
+            case MAILBOX:
+            case ACCOUNT:
+                return db.update(TABLE_NAMES[table], values, selection, selectionArgs);
+            default:
+                throw new IllegalArgumentException("Unknown URI " + uri);
+        }
+    }
+    
+    /* (non-Javadoc)
+     * @see android.content.ContentProvider#applyBatch(android.content.ContentProviderOperation[])
+     */
+    public ContentProviderResult[] applyBatch(ContentProviderOperation[] operations) 
+            throws OperationApplicationException {
+        SQLiteDatabase db = getDatabase(getContext());
+        db.beginTransaction();
+        try {
+            ContentProviderResult[] results = super.applyBatch(operations);
+            db.setTransactionSuccessful();
+            return results;
+        } finally {
+            db.endTransaction();
         }
     }
 }

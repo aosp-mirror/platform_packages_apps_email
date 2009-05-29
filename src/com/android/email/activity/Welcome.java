@@ -19,10 +19,11 @@ package com.android.email.activity;
 import com.android.email.Account;
 import com.android.email.Email;
 import com.android.email.Preferences;
+import com.android.email.provider.EmailStore;
 
 import android.app.Activity;
-import android.content.Intent;
 import android.os.Bundle;
+import android.util.Log;
 
 /**
  * The Welcome activity initializes the application and decides what Activity
@@ -39,13 +40,72 @@ public class Welcome extends Activity {
     public void onCreate(Bundle icicle) {
         super.onCreate(icicle);
 
+        if (false) {
+            testAccounts();
+        }
+
         Account[] accounts = Preferences.getPreferences(this).getAccounts();
         if (accounts.length == 1) {
             FolderMessageList.actionHandleAccount(this, accounts[0], Email.INBOX);
         } else {
             Accounts.actionShowAccounts(this);
         }
-        
+
         finish();
+    }
+
+    private void testAccounts() {
+        EmailStore.Account acct = EmailStore.Account.getDefaultAccount(this);
+        Log.i("EmailApp", "Default (none) = " + ((acct == null) ? "none" : acct.mDisplayName));
+
+        EmailStore.HostAuth ha = new EmailStore.HostAuth();
+        ha.mAddress = "imap.everyone.net";
+        ha.mLogin = "foo@nextobject.com";
+        ha.mPassword = "flatearth";
+        ha.mProtocol = "imap";
+
+        EmailStore.HostAuth sha = new EmailStore.HostAuth();
+        sha.mAddress = "smtp.everyone.net";
+        sha.mLogin = "foo@nextobject.com";
+        sha.mPassword = "flatearth";
+        sha.mProtocol = "smtp";
+
+        EmailStore.Account acct1 = new EmailStore.Account();
+        acct1.mHostAuthRecv = ha;
+        acct1.mHostAuthSend = sha;
+        acct1.mDisplayName = "Nextobject";
+        acct1.mEmailAddress = "foo@nextobject.com";
+
+        acct1.save(this);
+
+        ha = new EmailStore.HostAuth();
+        ha.mAddress = "imap.gmail.com";
+        ha.mLogin = "mblank@google.com";
+        ha.mPassword = "flatearth";
+        ha.mProtocol = "imap";
+
+        sha = new EmailStore.HostAuth();
+        sha.mAddress = "smtp.gmail.com";
+        sha.mLogin = "mblank@google.com";
+        sha.mPassword = "flatearth";
+        sha.mProtocol = "smtp";
+
+        EmailStore.Account acct2 = new EmailStore.Account();
+        acct2.mHostAuthRecv = ha;
+        acct2.mHostAuthSend = sha;
+        acct2.mDisplayName = "Google";
+        acct2.mEmailAddress = "mblank@google.com";
+
+        acct2.save(this);
+
+        // Should be null
+        acct = EmailStore.Account.getDefaultAccount(this);
+        Log.i("EmailApp", "Default (Nextobject) = " + acct == null ? "none" : acct.mDisplayName);
+        EmailStore.Account.setDefaultAccount(this, acct2.mId);
+        acct = EmailStore.Account.getDefaultAccount(this);
+        Log.i("EmailApp", "Default (Google) = " + acct == null ? "none" : acct.mDisplayName);
+        EmailStore.Account.setDefaultAccount(this, acct1.mId);
+        acct = EmailStore.Account.getDefaultAccount(this);
+        Log.i("EmailApp", "Default (Nextobject) = " + acct == null ? "none" : acct.mDisplayName);
     }
 }
