@@ -16,8 +16,6 @@
 
 package com.android.email.provider;
 
-import java.util.ArrayList;
-
 import android.content.ContentProviderOperation;
 import android.content.ContentProviderResult;
 import android.content.ContentUris;
@@ -28,7 +26,14 @@ import android.database.Cursor;
 import android.database.SQLException;
 import android.database.sqlite.SQLiteDatabase;
 import android.net.Uri;
+import android.os.Parcel;
+import android.os.Parcelable;
 import android.os.RemoteException;
+
+import java.net.URI;
+import java.net.URISyntaxException;
+import java.util.ArrayList;
+
 
 /**
  * 
@@ -499,7 +504,7 @@ public class EmailStore {
         public static final String IS_DEFAULT = "isDefault";
     }
 
-    public static final class Account extends EmailContent implements AccountColumns {
+    public static final class Account extends EmailContent implements AccountColumns, Parcelable {
         public String mDisplayName;
         public String mEmailAddress;
         public String mSyncKey;
@@ -750,6 +755,84 @@ public class EmailStore {
             values.put(AccountColumns.IS_DEFAULT, mIsDefault);
             return values;
         }
+        
+        /**
+         * Supports Parcelable
+         */
+        @Override
+        public int describeContents() {
+            return 0;
+        }
+
+        /**
+         * Supports Parcelable
+         */
+        public static final Parcelable.Creator<EmailStore.Account> CREATOR
+                = new Parcelable.Creator<EmailStore.Account>() {
+            public EmailStore.Account createFromParcel(Parcel in) {
+                return new EmailStore.Account(in);
+            }
+
+            public EmailStore.Account[] newArray(int size) {
+                return new EmailStore.Account[size];
+            }
+        };
+
+        /**
+         * Supports Parcelable
+         */
+        @Override
+        public void writeToParcel(Parcel dest, int flags) {
+            dest.writeString(mDisplayName);
+            dest.writeString(mEmailAddress);
+            dest.writeString(mSyncKey);
+            dest.writeInt(mSyncLookback);
+            dest.writeInt(mSyncFrequency);
+            dest.writeLong(mHostAuthKeyRecv); 
+            dest.writeLong(mHostAuthKeySend);
+            dest.writeInt(mFlags);
+            dest.writeByte(mIsDefault ? (byte)1 : (byte)0);
+            
+            if (mHostAuthRecv != null) {
+                dest.writeByte((byte)1);
+                mHostAuthRecv.writeToParcel(dest, flags);
+            } else {
+                dest.writeByte((byte)0);
+            }
+            
+            if (mHostAuthSend != null) {
+                dest.writeByte((byte)1);
+                mHostAuthSend.writeToParcel(dest, flags);
+            } else {
+                dest.writeByte((byte)0);
+            }
+        }
+        
+        /**
+         * Supports Parcelable
+         */
+        public Account(Parcel in) {
+            mDisplayName = in.readString();
+            mEmailAddress = in.readString();
+            mSyncKey = in.readString();
+            mSyncLookback = in.readInt();
+            mSyncFrequency = in.readInt();
+            mHostAuthKeyRecv = in.readLong(); 
+            mHostAuthKeySend = in.readLong();
+            mFlags = in.readInt();
+            mIsDefault = in.readByte() == 1;
+            
+            mHostAuthRecv = null;
+            if (in.readByte() == 1) {
+                mHostAuthRecv = new EmailStore.HostAuth(in);
+            }
+            
+            mHostAuthSend = null;
+            if (in.readByte() == 1) {
+                mHostAuthSend = new EmailStore.HostAuth(in);
+            }
+        }
+        
     }
 
     public interface AttachmentColumns {
@@ -1114,7 +1197,7 @@ public class EmailStore {
         static final String ACCOUNT_KEY = "accountKey";
     }
 
-    public static final class HostAuth extends EmailContent implements HostAuthColumns {
+    public static final class HostAuth extends EmailContent implements HostAuthColumns, Parcelable {
         public String mProtocol;
         public String mAddress;
         public int mPort;
@@ -1236,5 +1319,148 @@ public class EmailStore {
             values.put(HostAuthColumns.ACCOUNT_KEY, mAccountKey);
             return values;
         }
+        
+        /**
+         * For compatibility while converting to provider model, generate a "store URI"
+         * 
+         * @return a string in the form of a Uri, as used by the other parts of the email app
+         */
+        public String getStoreUri() {
+            String security = "";
+            if (mSsl) {
+                security = "+ssl+";
+            } else if (mTls) {
+                security = "+tls+";
+            }
+            
+            URI uri;
+            try {
+                uri = new URI(
+                        mProtocol + security,
+                        mLogin.trim() + ":" + mPassword.trim(),
+                        mAddress.trim(),
+                        mPort,
+                        mDomain, // path
+                        null,
+                        null);
+                return uri.toString();
+            } catch (URISyntaxException e) {
+                return null;
+            }
+        }
+        
+        /**
+         * For compatibility while converting to provider model, set fields from a "store URI"
+         * 
+         * @param uriString a String containing a Uri
+         */
+        public void setStoreUri(String uriString) {
+            try {
+                URI uri = new URI(uriString);
+                mLogin = null;
+                mPassword = null;
+                if (uri.getUserInfo() != null) {
+                    String[] userInfoParts = uri.getUserInfo().split(":", 2);
+                    mLogin = userInfoParts[0];
+                    if (userInfoParts.length > 1) {
+                        mPassword = userInfoParts[1];
+                    }
+                }
+                
+                String[] schemeParts = uri.getScheme().split("+");
+                mProtocol = (schemeParts.length >= 1) ? schemeParts[0] : null;
+                if (schemeParts.length >= 2) {
+                    if ("ssl".equals(schemeParts[1])) {
+                        mSsl = true;
+                    } else if ("tls".equals(schemeParts[1])) {
+                        mTls = true;
+                    }
+                }
+
+                mAddress = uri.getHost();
+                mPort = uri.getPort();
+                if (mPort == -1) {
+                    // infer port# from protocol + security
+                    // SSL implies a different port - TLS runs in the "regular" port
+                    if ("pop3".equals(mProtocol)) {
+                        mPort = mSsl ? 995 : 110;
+                    } else if ("imap".equals(mProtocol)) {
+                        mPort = mSsl ? 993 : 143;
+                    } else if ("eas".equals(mProtocol)) {
+                        mPort = mSsl ? 443 : 80;
+                    }  else if ("smtp".equals(mProtocol)) {
+                        mPort = mSsl ? 465 : 25;
+                    }
+                }
+                
+                if (uri.getPath() != null && uri.getPath().length() > 0) {
+                    mDomain = uri.getPath().substring(1);
+                }
+
+
+            } catch (URISyntaxException use) {
+                /*
+                 * We should always be able to parse our own settings.
+                 */
+                throw new Error(use);
+            }
+
+        }
+        
+        /**
+         * Supports Parcelable
+         */
+        @Override
+        public int describeContents() {
+            return 0;
+        }
+
+        /**
+         * Supports Parcelable
+         */
+        public static final Parcelable.Creator<EmailStore.HostAuth> CREATOR
+                = new Parcelable.Creator<EmailStore.HostAuth>() {
+            public EmailStore.HostAuth createFromParcel(Parcel in) {
+                return new EmailStore.HostAuth(in);
+            }
+
+            public EmailStore.HostAuth[] newArray(int size) {
+                return new EmailStore.HostAuth[size];
+            }
+        };
+
+        /**
+         * Supports Parcelable
+         */
+        @Override
+        public void writeToParcel(Parcel dest, int flags) {
+            dest.writeString(mProtocol);
+            dest.writeString(mAddress);
+            dest.writeInt(mPort);
+            dest.writeByte(mSsl ? (byte) 1 : (byte) 0);
+            dest.writeByte(mTls ? (byte) 1 : (byte) 0);
+            dest.writeString(mLogin);
+            dest.writeString(mPassword);
+            dest.writeString(mDomain);
+            dest.writeByte(mFlagAuthenticate ? (byte) 1 : (byte) 0);
+            dest.writeLong(mAccountKey);
+        }
+        
+        /**
+         * Supports Parcelable
+         */
+        public HostAuth(Parcel in) {
+            mProtocol = in.readString();
+            mAddress = in.readString();
+            mPort = in.readInt();
+            mSsl = in.readByte() == 1;
+            mTls = in.readByte() == 1;
+            mLogin = in.readString();
+            mPassword = in.readString();
+            mDomain = in.readString();
+            mFlagAuthenticate = in.readByte() == 1;
+            mAccountKey = in.readLong();
+        }
+
     }
-}
+}       

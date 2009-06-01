@@ -205,6 +205,7 @@ public class EmailProvider extends ContentProvider {
             Log.v(TAG, "EmailProvider.delete: uri=" + uri + ", match is " + match);
         }
 
+        int result;
         switch (match) {
             case MESSAGE_ID:
             case ATTACHMENT_ID:
@@ -212,16 +213,21 @@ public class EmailProvider extends ContentProvider {
             case ACCOUNT_ID:
             case HOSTAUTH_ID:
                 String id = uri.getPathSegments().get(1);
-                return db.delete(TABLE_NAMES[table], whereWithId(id, selection), selectionArgs);
+                result = db.delete(TABLE_NAMES[table], whereWithId(id, selection), selectionArgs);
+                break;
             case MESSAGE:
             case ATTACHMENT:
             case MAILBOX:
             case ACCOUNT:
             case HOSTAUTH:
-                return db.delete(TABLE_NAMES[table], selection, selectionArgs);
+                result = db.delete(TABLE_NAMES[table], selection, selectionArgs);
+                break;
             default:
                 throw new IllegalArgumentException("Unknown URI " + uri);
         }
+
+        getContext().getContentResolver().notifyChange(uri, null);
+        return result;
     }
 
     @Override
@@ -269,6 +275,7 @@ public class EmailProvider extends ContentProvider {
             Log.v(TAG, "EmailProvider.insert: uri=" + uri + ", match is " + match);
         }
 
+        Uri resultUri = null;
         switch (match) {
             case MESSAGE:
             case ATTACHMENT:
@@ -276,30 +283,38 @@ public class EmailProvider extends ContentProvider {
             case ACCOUNT:
             case HOSTAUTH:
                 id = db.insert(TABLE_NAMES[table], "foo", values);
-                return ContentUris.withAppendedId(uri, id);
+                resultUri = ContentUris.withAppendedId(uri, id);
+                break;
             case MAILBOX_ID:
                 // This implies adding a message to a mailbox
-                // Hmm, one problem here is that we can't link the account as well,
-                // so it must be already in the values...
+                // Hmm, one problem here is that we can't link the account as well, so it must be
+                // already in the values...
                 id = Long.parseLong(uri.getPathSegments().get(1));
                 values.put(MessageColumns.MAILBOX_KEY, id);
-                return insert(Message.CONTENT_URI, values);
+                resultUri = insert(Message.CONTENT_URI, values);
+                break;
             case MESSAGE_ID:
                 // This implies adding an attachment to a message.
                 id = Long.parseLong(uri.getPathSegments().get(1));
                 values.put(AttachmentColumns.MESSAGE_KEY, id);
-                return insert(Attachment.CONTENT_URI, values);
+                resultUri = insert(Attachment.CONTENT_URI, values);
+                break;
             case ACCOUNT_ID:
                 // This implies adding a mailbox to an account.
                 id = Long.parseLong(uri.getPathSegments().get(1));
                 values.put(MailboxColumns.ACCOUNT_KEY, id);
-                return insert(Mailbox.CONTENT_URI, values);
+                resultUri = insert(Mailbox.CONTENT_URI, values);
+                break;
             case MESSAGE_ATTACHMENTS:
                 id = db.insert(TABLE_NAMES[table], "foo", values);
-                return ContentUris.withAppendedId(EmailStore.Attachment.CONTENT_URI, id);
+                resultUri = ContentUris.withAppendedId(EmailStore.Attachment.CONTENT_URI, id);
+                break;
             default:
                 throw new IllegalArgumentException("Unknown URL " + uri);
         }
+        
+        getContext().getContentResolver().notifyChange(resultUri, null);
+        return resultUri;
     }
 
     @Override
@@ -388,26 +403,35 @@ public class EmailProvider extends ContentProvider {
             Log.v(TAG, "EmailProvider.update: uri=" + uri + ", match is " + match);
         }
 
+        int result;
         switch (match) {
             case MESSAGE_ID:
             case ATTACHMENT_ID:
             case MAILBOX_ID:
             case ACCOUNT_ID:
                 String id = uri.getPathSegments().get(1);
-                return db.update(TABLE_NAMES[table], values, 
-                        whereWithId(id, selection), selectionArgs);
+                result = db.update(TABLE_NAMES[table], values, whereWithId(id, selection), 
+                        selectionArgs);
+                break;
             case MESSAGE:
             case ATTACHMENT:
             case MAILBOX:
             case ACCOUNT:
-                return db.update(TABLE_NAMES[table], values, selection, selectionArgs);
+                result = db.update(TABLE_NAMES[table], values, selection, selectionArgs);
+                break;
             default:
                 throw new IllegalArgumentException("Unknown URI " + uri);
         }
+        
+        getContext().getContentResolver().notifyChange(uri, null);
+        return result;
     }
     
     /* (non-Javadoc)
      * @see android.content.ContentProvider#applyBatch(android.content.ContentProviderOperation[])
+     * 
+     * TODO: How do we call notifyChange() or do we need to - does this call the various
+     * update/insert/delete calls?
      */
     public ContentProviderResult[] applyBatch(ContentProviderOperation[] operations) 
             throws OperationApplicationException {
