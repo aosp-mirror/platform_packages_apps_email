@@ -36,6 +36,10 @@ public interface Part {
 
     public String[] getHeader(String name) throws MessagingException;
 
+    public void setExtendedHeader(String name, String value) throws MessagingException;
+    
+    public String getExtendedHeader(String name) throws MessagingException;
+    
     public int getSize() throws MessagingException;
     
     public boolean isMimeType(String mimeType) throws MessagingException;

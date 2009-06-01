@@ -32,11 +32,14 @@ import com.android.email.mail.MessagingException;
  */
 public class MimeBodyPart extends BodyPart {
     protected MimeHeader mHeader = new MimeHeader();
+    protected MimeHeader mExtendedHeader;
     protected Body mBody;
     protected int mSize;
 
     // regex that matches content id surrounded by "<>" optionally.
     private static final Pattern REMOVE_OPTIONAL_BRACKETS = Pattern.compile("^<?([^>]+)>?$");
+    // regex that matches end of line.
+    private static final Pattern END_OF_LINE = Pattern.compile("\r?\n");
 
     public MimeBodyPart() throws MessagingException {
         this(null);
@@ -133,6 +136,41 @@ public class MimeBodyPart extends BodyPart {
 
     public int getSize() throws MessagingException {
         return mSize;
+    }
+
+    /**
+     * Set extended header
+     * 
+     * @param name Extended header name
+     * @param value header value - flattened by removing CR-NL if any
+     * remove header if value is null
+     * @throws MessagingException
+     */
+    public void setExtendedHeader(String name, String value) throws MessagingException {
+        if (value == null) {
+            if (mExtendedHeader != null) {
+                mExtendedHeader.removeHeader(name);
+            }
+            return;
+        }
+        if (mExtendedHeader == null) {
+            mExtendedHeader = new MimeHeader(); 
+        }
+        mExtendedHeader.setHeader(name, END_OF_LINE.matcher(value).replaceAll(""));
+    }
+
+    /**
+     * Get extended header
+     * 
+     * @param name Extended header name
+     * @return header value - null if header does not exist
+     * @throws MessagingException 
+     */
+    public String getExtendedHeader(String name) throws MessagingException {
+        if (mExtendedHeader == null) {
+            return null;
+        }
+        return mExtendedHeader.getFirstHeader(name);
     }
 
     /**

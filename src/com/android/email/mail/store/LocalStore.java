@@ -82,9 +82,10 @@ public class LocalStore extends Store implements PersistentDataCallbacks {
      *      22      -           Added store_flag_1 and store_flag_2 columns to messages table.
      *      23      -           Added flag_downloaded_full, flag_downloaded_partial, flag_deleted
      *                          columns to message table.
+     *      24      -           Added x_headers to messages table.
      */
     
-    private static final int DB_VERSION = 23;
+    private static final int DB_VERSION = 24;
     
     private static final Flag[] PERMANENT_FLAGS = { Flag.DELETED, Flag.X_DESTROYED, Flag.SEEN };
 
@@ -148,7 +149,7 @@ public class LocalStore extends Store implements PersistentDataCallbacks {
                         "html_content TEXT, text_content TEXT, attachment_count INTEGER, " +
                         "internal_date INTEGER, message_id TEXT, store_flag_1 INTEGER, " +
                         "store_flag_2 INTEGER, flag_downloaded_full INTEGER," +
-                        "flag_downloaded_partial INTEGER, flag_deleted INTEGER)");
+                        "flag_downloaded_partial INTEGER, flag_deleted INTEGER, x_headers TEXT)");
 
                 mDb.execSQL("DROP TABLE IF EXISTS attachments");
                 mDb.execSQL("CREATE TABLE attachments (id INTEGER PRIMARY KEY, message_id INTEGER,"
@@ -217,6 +218,13 @@ public class LocalStore extends Store implements PersistentDataCallbacks {
                     } finally {
                         mDb.endTransaction();
                     }
+                }
+                if (oldVersion < 24) {
+                    /**
+                     * Upgrade 23 to 24:  add x_headers to messages table
+                     */
+                    mDb.execSQL("ALTER TABLE messages ADD COLUMN x_headers TEXT;");
+                    mDb.setVersion(24);
                 }
             }
 
@@ -845,7 +853,7 @@ public class LocalStore extends Store implements PersistentDataCallbacks {
             "subject, sender_list, date, uid, flags, id, to_list, cc_list, " +
             "bcc_list, reply_to_list, attachment_count, internal_date, message_id, " +
             "store_flag_1, store_flag_2, flag_downloaded_full, flag_downloaded_partial, " +
-            "flag_deleted";
+            "flag_deleted, x_headers";
 
         /**
          * Populate a message from a cursor with the following columns:
@@ -868,6 +876,7 @@ public class LocalStore extends Store implements PersistentDataCallbacks {
          * 15   flag "downloaded full"
          * 16   flag "downloaded partial"
          * 17   flag "deleted"
+         * 18   extended headers ("\r\n"-separated string)
          */
         private void populateMessageFromGetMessageCursor(LocalMessage message, Cursor cursor)
                 throws MessagingException{
@@ -901,6 +910,7 @@ public class LocalStore extends Store implements PersistentDataCallbacks {
             message.setFlagInternal(Flag.X_DOWNLOADED_FULL, (0 != cursor.getInt(15)));
             message.setFlagInternal(Flag.X_DOWNLOADED_PARTIAL, (0 != cursor.getInt(16)));
             message.setFlagInternal(Flag.DELETED, (0 != cursor.getInt(17)));
+            message.setExtendedHeaders(cursor.getString(18));
         }
 
         @Override
@@ -1155,6 +1165,7 @@ public class LocalStore extends Store implements PersistentDataCallbacks {
                     cv.put("flag_downloaded_partial", 
                             makeFlagNumeric(message, Flag.X_DOWNLOADED_PARTIAL));
                     cv.put("flag_deleted", makeFlagNumeric(message, Flag.DELETED));
+                    cv.put("x_headers", ((MimeMessage) message).getExtendedHeaders());
                     long messageId = mDb.insert("messages", "uid", cv);
                     for (Part attachment : attachments) {
                         saveAttachment(messageId, attachment, copy);
@@ -1209,7 +1220,7 @@ public class LocalStore extends Store implements PersistentDataCallbacks {
                         + "html_content = ?, text_content = ?, reply_to_list = ?, "
                         + "attachment_count = ?, message_id = ?, store_flag_1 = ?, "
                         + "store_flag_2 = ?, flag_downloaded_full = ?, "
-                        + "flag_downloaded_partial = ?, flag_deleted = ? "
+                        + "flag_downloaded_partial = ?, flag_deleted = ?, x_headers = ? "
                         + "WHERE id = ?",
                         new Object[] {
                                 message.getUid(),
@@ -1236,6 +1247,7 @@ public class LocalStore extends Store implements PersistentDataCallbacks {
                                 makeFlagNumeric(message, Flag.X_DOWNLOADED_FULL),
                                 makeFlagNumeric(message, Flag.X_DOWNLOADED_PARTIAL),
                                 makeFlagNumeric(message, Flag.DELETED),
+                                message.getExtendedHeaders(),
                                 
                                 message.mId
                                 });
@@ -1327,6 +1339,7 @@ public class LocalStore extends Store implements PersistentDataCallbacks {
                 cv.put("content_uri", contentUri != null ? contentUri.toString() : null);
                 cv.put("size", size);
                 cv.put("content_id", contentId);
+                cv.put("message_id", messageId);
                 mDb.update(
                         "attachments",
                         cv,

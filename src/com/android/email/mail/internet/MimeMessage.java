@@ -30,7 +30,10 @@ import org.apache.james.mime4j.MimeStreamParser;
 import org.apache.james.mime4j.field.DateTimeField;
 import org.apache.james.mime4j.field.Field;
 
+import android.text.TextUtils;
+
 import java.io.BufferedWriter;
+import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
@@ -47,6 +50,7 @@ import java.util.regex.Pattern;
  */
 public class MimeMessage extends Message {
     protected MimeHeader mHeader = new MimeHeader();
+    protected MimeHeader mExtendedHeader;
     
     // NOTE:  The fields here are transcribed out of headers, and values stored here will supercede
     // the values found in the headers.  Use caution to prevent any out-of-phase errors.  In
@@ -70,6 +74,8 @@ public class MimeMessage extends Message {
 
     // regex that matches content id surrounded by "<>" optionally.
     private static final Pattern REMOVE_OPTIONAL_BRACKETS = Pattern.compile("^<?([^>]+)>?$");
+    // regex that matches end of line.
+    private static final Pattern END_OF_LINE = Pattern.compile("\r?\n");
 
     public MimeMessage() {
         /*
@@ -361,9 +367,85 @@ public class MimeMessage extends Message {
         mHeader.removeHeader(name);
     }
 
+    /**
+     * Set extended header
+     * 
+     * @param name Extended header name
+     * @param value header value - flattened by removing CR-NL if any
+     * remove header if value is null
+     * @throws MessagingException
+     */
+    public void setExtendedHeader(String name, String value) throws MessagingException {
+        if (value == null) {
+            if (mExtendedHeader != null) {
+                mExtendedHeader.removeHeader(name);
+            }
+            return;
+        }
+        if (mExtendedHeader == null) {
+            mExtendedHeader = new MimeHeader(); 
+        }
+        mExtendedHeader.setHeader(name, END_OF_LINE.matcher(value).replaceAll(""));
+    }
+
+    /**
+     * Get extended header
+     * 
+     * @param name Extended header name
+     * @return header value - null if header does not exist
+     * @throws MessagingException 
+     */
+    public String getExtendedHeader(String name) throws MessagingException {
+        if (mExtendedHeader == null) {
+            return null;
+        }
+        return mExtendedHeader.getFirstHeader(name);
+    }
+
+    /**
+     * Set entire extended headers from String
+     * 
+     * @param headers Extended header and its value - "CR-NL-separated pairs
+     * if null or empty, remove entire extended headers
+     * @throws MessagingException
+     */
+    public void setExtendedHeaders(String headers) throws MessagingException {
+        if (TextUtils.isEmpty(headers)) {
+            mExtendedHeader = null;
+        } else {
+            mExtendedHeader = new MimeHeader();
+            for (String header : END_OF_LINE.split(headers)) {
+                String[] tokens = header.split(":", 2);
+                if (tokens.length != 2) {
+                    throw new MessagingException("Illegal extended headers: " + headers);
+                }
+                mExtendedHeader.setHeader(tokens[0].trim(), tokens[1].trim());
+            }
+        }
+    }
+
+    /**
+     * Get entire extended headers as String
+     * 
+     * @return "CR-NL-separated extended headers - null if extended header does not exist
+     */
+    public String getExtendedHeaders() {
+        if (mExtendedHeader != null) {
+            return mExtendedHeader.writeToString();
+        }
+        return null;
+    }
+
+    /**
+     * Write message header and body to output stream
+     * 
+     * @param out Output steam to write message header and body.
+     */
     public void writeTo(OutputStream out) throws IOException, MessagingException {
         BufferedWriter writer = new BufferedWriter(new OutputStreamWriter(out), 1024);
         mHeader.writeTo(out);
+        // mExtendedHeader will not be write out to external output stream,
+        // because it is intended to internal use.
         writer.write("\r\n");
         writer.flush();
         if (mBody != null) {
