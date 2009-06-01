@@ -759,7 +759,6 @@ public class EmailStore {
         /**
          * Supports Parcelable
          */
-        @Override
         public int describeContents() {
             return 0;
         }
@@ -781,7 +780,6 @@ public class EmailStore {
         /**
          * Supports Parcelable
          */
-        @Override
         public void writeToParcel(Parcel dest, int flags) {
             dest.writeString(mDisplayName);
             dest.writeString(mEmailAddress);
@@ -1410,7 +1408,6 @@ public class EmailStore {
         /**
          * Supports Parcelable
          */
-        @Override
         public int describeContents() {
             return 0;
         }
@@ -1432,7 +1429,6 @@ public class EmailStore {
         /**
          * Supports Parcelable
          */
-        @Override
         public void writeToParcel(Parcel dest, int flags) {
             dest.writeString(mProtocol);
             dest.writeString(mAddress);
