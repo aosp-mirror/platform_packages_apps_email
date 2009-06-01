@@ -38,6 +38,8 @@ import android.net.Uri;
 import android.util.Config;
 import android.util.Log;
 
+import java.util.ArrayList;
+
 /*
  * TODO
  * 
@@ -428,12 +430,12 @@ public class EmailProvider extends ContentProvider {
     }
     
     /* (non-Javadoc)
-     * @see android.content.ContentProvider#applyBatch(android.content.ContentProviderOperation[])
+     * @see android.content.ContentProvider#applyBatch(android.content.ContentProviderOperation)
      * 
      * TODO: How do we call notifyChange() or do we need to - does this call the various
      * update/insert/delete calls?
      */
-    public ContentProviderResult[] applyBatch(ContentProviderOperation[] operations) 
+    public ContentProviderResult[] applyBatch(ArrayList<ContentProviderOperation> operations)
             throws OperationApplicationException {
         SQLiteDatabase db = getDatabase(getContext());
         db.beginTransaction();

@@ -616,16 +616,16 @@ public class EmailStore {
          * @return true if succeeds; false otherwise
          */
         static public boolean setDefaultAccount(Context context, long id) {
-            ContentProviderOperation[] opArray = new ContentProviderOperation[2];
+            ArrayList<ContentProviderOperation> opArray = new ArrayList<ContentProviderOperation>();
             ContentValues cv1 = new ContentValues();
             cv1.put(AccountColumns.IS_DEFAULT, 0);
-            opArray[0] = ContentProviderOperation.newUpdate(CONTENT_URI).withValues(cv1).build();
+            opArray.add(ContentProviderOperation.newUpdate(CONTENT_URI).withValues(cv1).build());
             ContentValues cv2 = new ContentValues();
             cv2.put(AccountColumns.IS_DEFAULT, 1);
-            opArray[1] = ContentProviderOperation.newUpdate(CONTENT_URI)
+            opArray.add(ContentProviderOperation.newUpdate(CONTENT_URI)
                 .withValues(cv2)
                 .withSelection("_id=" + id, null)
-                .build();
+                .build());
             try {
                 context.getContentResolver().applyBatch(EmailProvider.EMAIL_AUTHORITY, opArray);
                 return true;
@@ -713,16 +713,9 @@ public class EmailStore {
             }
             ops.add(b.build());
 
-            // Load these into an array
-            ContentProviderOperation[] opArray = new ContentProviderOperation[ops.size()];
-            int cnt = 0;
-            for (ContentProviderOperation op: ops) {
-                opArray[cnt++] = op;
-            }
-
             try {
                 ContentProviderResult[] res = 
-                    context.getContentResolver().applyBatch(EmailProvider.EMAIL_AUTHORITY, opArray);
+                    context.getContentResolver().applyBatch(EmailProvider.EMAIL_AUTHORITY, ops);
                 // Set the mId's of the various saved objects
                 if (recvIndex >= 0) {
                     mHostAuthRecv.mId = getId(res[recvIndex].uri);
