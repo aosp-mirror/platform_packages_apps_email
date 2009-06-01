@@ -715,6 +715,29 @@ public class MessageView extends Activity
     }
 
     /**
+     * Resolve attachment id to content URI.
+     * 
+     * @param attachmentUri
+     * @return resolved content URI
+     */
+    private Uri resolveAttachmentIdToContentUri(long attachmentId) {
+        Uri attachmentUri = AttachmentProvider.getAttachmentUri(mAccount, attachmentId);
+        Cursor c = getContentResolver().query(attachmentUri,
+                new String[] { AttachmentProvider.AttachmentProviderColumns.DATA },
+                null, null, null);
+        if (c != null) {
+            try {
+                if (c.moveToFirst()) {
+                    return Uri.parse(c.getString(0));
+                }
+            } finally {
+                c.close();
+            }
+        }
+        return attachmentUri;
+    }
+
+    /**
      * Resolve content-id reference in src attribute of img tag to AttachmentProvider's
      * content uri.  This method calls itself recursively at most the number of
      * LocalAttachmentPart that mime type is image and has content id.
@@ -737,15 +760,11 @@ public class MessageView extends Activity
             contentId != null &&
             part instanceof LocalAttachmentBodyPart) {
             LocalAttachmentBodyPart attachment = (LocalAttachmentBodyPart)part;
-            Uri contentUri = AttachmentProvider.getAttachmentUri(
-                    mAccount,
-                    attachment.getAttachmentId());
-            if (contentUri != null) {
-                // Regexp which matches ' src="cid:contentId"'.
-                String contentIdRe = "\\s+(?i)src=\"cid(?-i):\\Q" + contentId + "\\E\"";
-                // Replace all occurrences of src attribute with ' src="content://contentUri"'.
-                text = text.replaceAll(contentIdRe, " src=\"" + contentUri + "\""); 
-            }
+            Uri contentUri = resolveAttachmentIdToContentUri(attachment.getAttachmentId());
+            // Regexp which matches ' src="cid:contentId"'.
+            String contentIdRe = "\\s+(?i)src=\"cid(?-i):\\Q" + contentId + "\\E\"";
+            // Replace all occurrences of src attribute with ' src="content://contentUri"'.
+            text = text.replaceAll(contentIdRe, " src=\"" + contentUri + "\""); 
         }
 
         if (part.getBody() instanceof Multipart) {
@@ -1047,9 +1066,7 @@ public class MessageView extends Activity
                 try {
                     File file = createUniqueFile(Environment.getExternalStorageDirectory(),
                             attachment.name);
-                    Uri uri = AttachmentProvider.getAttachmentUri(
-                            mAccount,
-                            attachment.part.getAttachmentId());
+                    Uri uri = resolveAttachmentIdToContentUri(attachment.part.getAttachmentId());
                     InputStream in = getContentResolver().openInputStream(uri);
                     OutputStream out = new FileOutputStream(file);
                     IOUtils.copy(in, out);
@@ -1065,9 +1082,7 @@ public class MessageView extends Activity
             }
             else {
                 try {
-                    Uri uri = AttachmentProvider.getAttachmentUri(
-                            mAccount,
-                            attachment.part.getAttachmentId());
+                    Uri uri = resolveAttachmentIdToContentUri(attachment.part.getAttachmentId());
                     Intent intent = new Intent(Intent.ACTION_VIEW);
                     intent.setData(uri);
                     intent.addFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION);

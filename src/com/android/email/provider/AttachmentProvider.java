@@ -155,12 +155,23 @@ public class AttachmentProvider extends ContentProvider {
             File file = new File(dir, filename);
             if (!file.exists()) {
                 Uri attachmentUri = getAttachmentUri(dbName, Long.parseLong(id));
-                String type = getType(attachmentUri);
+                Cursor c = query(attachmentUri,
+                        new String[] { AttachmentProviderColumns.DATA }, null, null, null);
+                if (c != null) {
+                    try {
+                        if (c.moveToFirst()) {
+                            attachmentUri = Uri.parse(c.getString(0));
+                        }
+                    } finally {
+                        c.close();
+                    }
+                }
+                String type = getContext().getContentResolver().getType(attachmentUri);
                 try {
-                    FileInputStream in = new FileInputStream(
-                            new File(getContext().getDatabasePath(dbName + "_att"), id));
+                    InputStream in =
+                        getContext().getContentResolver().openInputStream(attachmentUri);
                     Bitmap thumbnail = createThumbnail(type, in);
-                    thumbnail = thumbnail.createScaledBitmap(thumbnail, width, height, true);
+                    thumbnail = Bitmap.createScaledBitmap(thumbnail, width, height, true);
                     FileOutputStream out = new FileOutputStream(file);
                     thumbnail.compress(Bitmap.CompressFormat.PNG, 100, out);
                     out.close();
@@ -207,13 +218,14 @@ public class AttachmentProvider extends ContentProvider {
         String path = getContext().getDatabasePath(dbName).getAbsolutePath();
         String name = null;
         int size = -1;
+        String contentUri = null;
         SQLiteDatabase db = null;
         Cursor cursor = null;
         try {
             db = SQLiteDatabase.openDatabase(path, null, 0);
             cursor = db.query(
                     "attachments",
-                    new String[] { "name", "size" },
+                    new String[] { "name", "size", "content_uri" },
                     "id = ?",
                     new String[] { id },
                     null,
@@ -224,6 +236,7 @@ public class AttachmentProvider extends ContentProvider {
             }
             name = cursor.getString(0);
             size = cursor.getInt(1);
+            contentUri = cursor.getString(2);
         }
         finally {
             if (cursor != null) {
@@ -242,7 +255,7 @@ public class AttachmentProvider extends ContentProvider {
                 values[i] = id;
             }
             else if (AttachmentProviderColumns.DATA.equals(column)) {
-                values[i] = uri.toString();
+                values[i] = contentUri;
             }
             else if (AttachmentProviderColumns.DISPLAY_NAME.equals(column)) {
                 values[i] = name;
