@@ -1339,6 +1339,7 @@ public class LocalStore extends Store implements PersistentDataCallbacks {
                 cv.put("content_uri", contentUri != null ? contentUri.toString() : null);
                 cv.put("size", size);
                 cv.put("content_id", contentId);
+                cv.put("message_id", messageId);
                 mDb.update(
                         "attachments",
                         cv,

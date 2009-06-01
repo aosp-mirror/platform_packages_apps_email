@@ -30,8 +30,10 @@ import com.android.email.mail.MessageTestUtils.TextBuilder;
 import com.android.email.mail.internet.BinaryTempFileBody;
 import com.android.email.mail.store.LocalStore;
 
+import android.content.ContentResolver;
 import android.content.Context;
 import android.content.Intent;
+import android.database.sqlite.SQLiteDatabase;
 import android.net.Uri;
 import android.test.ActivityInstrumentationTestCase2;
 import android.test.suitebuilder.annotation.MediumTest;
@@ -236,8 +238,20 @@ public class MessageViewTests
         final String actual5 = a.resolveInlineImage(null, msg4, 0);
         assertNull(actual5);
     }
-    
-    
+
+    /**
+     * Test for resolveAttachmentIdToContentUri.
+     */
+    public void testResolveAttachmentIdToContentUri() throws MessagingException, IOException {
+        final ContentResolver contentResolver = mContext.getContentResolver();
+        final MessageView a = getActivity();
+        // create attachments tables.
+        LocalStore.newInstance(mAccount.getLocalStoreUri(), mContext, null);
+        final String dbPath = mContext.getDatabasePath(mAccount.getUuid() + ".db").toString();
+        final SQLiteDatabase db = SQLiteDatabase.openDatabase(dbPath, null, 0);
+        // TODO write unit test
+    }
+
     /**
      * Mock Messaging controller, so we can drive its callbacks.  This probably should be
      * generalized since we're likely to use for other tests eventually.
