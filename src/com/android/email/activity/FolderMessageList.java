@@ -596,6 +596,13 @@ public class FolderMessageList extends ExpandableListActivity {
             int childPosition, long id) {
         FolderInfoHolder folder = (FolderInfoHolder) mAdapter.getGroup(groupPosition);
         if (folder.outbox) {
+            if (childPosition == folder.messages.size() && !folder.loading) {
+                mHandler.folderLoading(mAccount.getOutboxFolderName(), true);
+                mHandler.progress(true);
+                MessagingController.getInstance(getApplication()).sendPendingMessages(
+                        mAccount,
+                        null);
+            }
             return false;
         }
         if (childPosition == folder.messages.size() && !folder.loading) {
@@ -617,7 +624,8 @@ public class FolderMessageList extends ExpandableListActivity {
         else if (childPosition >= folder.messages.size()) {
             return false;
         }
-        MessageInfoHolder message = (MessageInfoHolder) mAdapter.getChild(groupPosition, childPosition);
+        MessageInfoHolder message =
+            (MessageInfoHolder) mAdapter.getChild(groupPosition, childPosition);
 
         onOpenMessage(folder, message);
 
@@ -636,6 +644,8 @@ public class FolderMessageList extends ExpandableListActivity {
                         mRefreshRemote,
                         mAdapter.mListener);
                 if (forceRemote) {
+                    mHandler.folderLoading(mAccount.getOutboxFolderName(), true);
+                    mHandler.progress(true);
                     MessagingController.getInstance(getApplication()).sendPendingMessages(
                             mAccount,
                             null);
@@ -975,7 +985,32 @@ public class FolderMessageList extends ExpandableListActivity {
                 if (!account.equals(mAccount)) {
                     return;
                 }
+                mHandler.folderLoading(account.getOutboxFolderName(), false);
+                mHandler.progress(false);
                 onRefresh(false);
+            }
+
+            @Override
+            public void sendPendingMessagesFailed(Account account, Exception reason) {
+                if (!account.equals(mAccount)) {
+                    return;
+                }
+                String outboxName = account.getOutboxFolderName();
+                mHandler.folderLoading(outboxName, false);
+                mHandler.progress(false);
+                mHandler.folderStatus(outboxName, reason.getMessage(), false);
+                onRefresh(false);
+            }
+
+            @Override
+            public void sendPendingMessageFailed(Account account, Message message,
+                    Exception reason) {
+                if (!account.equals(mAccount)) {
+                    return;
+                }
+                // TODO May we move failed message to draft folder?
+                //mHandler.removeMessageByUid(folder, message.getUid());
+                //mHandler.folderStatus(account.getOutboxFolderName(), reason.getMessage(), false);
             }
 
             @Override
@@ -1023,6 +1058,7 @@ public class FolderMessageList extends ExpandableListActivity {
                 }
                 try {
                     folder.open(Folder.OpenMode.READ_WRITE, null);
+                    holder.messageCount = folder.getMessageCount();
                     holder.unreadMessageCount = folder.getUnreadMessageCount();
                     folder.close(false);
                 }
@@ -1194,8 +1230,12 @@ public class FolderMessageList extends ExpandableListActivity {
                 holder.folderStatus.setVisibility(View.VISIBLE);
             }
 
-            if (folder.unreadMessageCount != 0) {
+            if (!folder.outbox && folder.unreadMessageCount != 0) {
                 holder.newMessageCount.setText(Integer.toString(folder.unreadMessageCount));
+                holder.newMessageCount.setVisibility(View.VISIBLE);
+            }
+            else if (folder.outbox && folder.messageCount > 0) {
+                holder.newMessageCount.setText(Integer.toString(folder.messageCount));
                 holder.newMessageCount.setVisibility(View.VISIBLE);
             }
             else {
@@ -1247,20 +1287,32 @@ public class FolderMessageList extends ExpandableListActivity {
                     view.setTag(holder);
                 }
                 if (folder.loading) {
-                    holder.main.setText(getString(R.string.status_loading_more));
+                    if (folder.outbox) {
+                        holder.main.setText(R.string.status_sending_messages);
+                    } else {
+                        holder.main.setText(R.string.status_loading_more);
+                    }
                     holder.progress.setVisibility(View.VISIBLE);
                 }
                 else {
                     if (folder.status == null) {
-                        if (mSyncWindowUser) {
-                            holder.main.setText(getString(
-                                    R.string.message_list_load_more_messages_action));
+                        if (folder.outbox) {
+                            holder.main.setText(R.string.message_list_send_pending_messages_action);
                         } else {
-                            holder.main.setText(getString(R.string.refresh_action));
+                            if (mSyncWindowUser) {
+                                holder.main.setText(
+                                    R.string.message_list_load_more_messages_action);
+                            } else {
+                                holder.main.setText(R.string.refresh_action);
+                            }
                         }
                     }
                     else {
-                        holder.main.setText(getString(R.string.status_loading_more_failed));
+                        if (folder.outbox) {
+                            holder.main.setText(R.string.status_sending_messages_failed);
+                        } else {
+                            holder.main.setText(R.string.status_loading_more_failed);
+                        }
                     }
                     holder.progress.setVisibility(View.GONE);
                 }
@@ -1334,6 +1386,7 @@ public class FolderMessageList extends ExpandableListActivity {
         public String displayName;
         public ArrayList<MessageInfoHolder> messages;
         public long lastChecked;
+        public int messageCount;
         public int unreadMessageCount;
         public boolean loading;
         public String status;
