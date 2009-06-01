@@ -84,9 +84,13 @@
     <string name="accounts_context_menu_title">Account options</string>
     <!-- Appears in message list view while messages are being loaded -->
     <string name="status_loading_more">Loading messages\u2026</string>
+    <!-- Appears in message list view of outbox while messages are being sent -->
+    <string name="status_sending_messages">Sending messages\u2026</string>
     <!-- Appears in message list view when there's a network error. -->
     <!-- Also appears in a toast, in the message viewer, when there's a network error. -->
     <string name="status_network_error">Connection error</string>
+    <!-- Appears in message list view when error when trying to "Load more messages". -->
+    <string name="status_sending_messages_failed">Retry sending messages</string>
     <!-- Appears in message list view when error when trying to "Load more messages". -->
     <string name="status_loading_more_failed">Retry loading more messages</string>
     <!-- Notification title in status bar -->
@@ -137,6 +141,9 @@
 
     <!-- Appears at the bottom of list of messages; user selects to load more messages from that folder. -->
     <string name="message_list_load_more_messages_action">Load more messages</string>
+    <!-- Appears at the bottom of list of messages of outbox;
+         user selects to send pending messages. -->
+    <string name="message_list_send_pending_messages_action">Send outgoing messages</string>
     <!-- Hint text in To field -->
     <string name="message_compose_to_hint">To</string>
     <!-- Hint text in Cc field -->

@@ -1586,7 +1586,7 @@ public class MessagingController implements Runnable {
                         message.setFlag(Flag.X_SEND_IN_PROGRESS, true);
                         sender.sendMessage(message);
                         message.setFlag(Flag.X_SEND_IN_PROGRESS, false);
-                        
+
                         // Upload to "sent" folder if not supported server-side
                         if (requireCopyMessageToSentFolder) {
                             localFolder.copyMessages(
@@ -1604,19 +1604,22 @@ public class MessagingController implements Runnable {
                     }
                     catch (Exception e) {
                         message.setFlag(Flag.X_SEND_FAILED, true);
+                        synchronized (mListeners) {
+                            for (MessagingListener l : mListeners) {
+                                l.sendPendingMessageFailed(account, message, e);
+                            }
+                        }
                     }
                 }
                 catch (Exception e) {
-                    /*
-                     * We ignore this exception because a future refresh will retry this
-                     * message.
-                     */
+                    synchronized (mListeners) {
+                         for (MessagingListener l : mListeners) {
+                            l.sendPendingMessageFailed(account, message, e);
+                        }
+                    }
                 }
             }
             localFolder.expunge();
-            if (localFolder.getMessageCount() == 0) {
-                localFolder.delete(false);
-            }
             synchronized (mListeners) {
                 for (MessagingListener l : mListeners) {
                     l.sendPendingMessagesCompleted(account);
@@ -1624,11 +1627,11 @@ public class MessagingController implements Runnable {
             }
         }
         catch (Exception e) {
-//            synchronized (mListeners) {
-//                for (MessagingListener l : mListeners) {
-//                    // TODO general failed
-//                }
-//            }
+            synchronized (mListeners) {
+                for (MessagingListener l : mListeners) {
+                    l.sendPendingMessagesFailed(account, e);
+                }
+            }
         }
     }
 
