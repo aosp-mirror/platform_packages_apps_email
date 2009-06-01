@@ -100,6 +100,12 @@ public class MessagingListener {
     public void sendPendingMessagesCompleted(Account account) {
     }
 
+    public void sendPendingMessagesFailed(Account account, Exception reason) {
+    }
+
+    public void sendPendingMessageFailed(Account account, Message message, Exception reason) {
+    }
+
     public void emptyTrashCompleted(Account account) {
     }
 
