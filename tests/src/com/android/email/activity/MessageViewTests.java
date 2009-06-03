@@ -28,8 +28,10 @@ import com.android.email.mail.MessageTestUtils.MessageBuilder;
 import com.android.email.mail.MessageTestUtils.MultipartBuilder;
 import com.android.email.mail.MessageTestUtils.TextBuilder;
 import com.android.email.mail.internet.BinaryTempFileBody;
+import com.android.email.mail.internet.EmailHtmlUtil;
 import com.android.email.mail.store.LocalStore;
 
+import android.app.Application;
 import android.content.ContentResolver;
 import android.content.Context;
 import android.content.Intent;
@@ -38,6 +40,7 @@ import android.net.Uri;
 import android.test.ActivityInstrumentationTestCase2;
 import android.test.suitebuilder.annotation.MediumTest;
 import android.test.suitebuilder.annotation.Suppress;
+import android.util.Log;
 import android.webkit.WebView;
 import android.widget.TextView;
 
@@ -78,6 +81,7 @@ public class MessageViewTests
     @Override
     protected void setUp() throws Exception {
         super.setUp();
+
         mContext = getInstrumentation().getTargetContext();
         Account[] accounts = Preferences.getPreferences(mContext).getAccounts();
         if (accounts.length > 0)
@@ -86,20 +90,22 @@ public class MessageViewTests
             mAccount = Preferences.getPreferences(mContext).getDefaultAccount();
             Email.setServicesEnabled(mContext);
         }
-        
-        // configure a mock controller
-        MessagingController mockController = new MockMessagingController();
-        MessagingController.injectMockController(mockController);
-        
+
         // setup an intent to spin up this activity with something useful
         ArrayList<String> FOLDER_UIDS = new ArrayList<String>(
                 Arrays.asList(new String[]{ "why", "is", "java", "so", "ugly?" }));
+        // Log.d("MessageViewTest", "--- folder:" + FOLDER_UIDS);
         Intent i = new Intent()
             .putExtra(EXTRA_ACCOUNT, mAccount)
             .putExtra(EXTRA_FOLDER, FOLDER_NAME)
             .putExtra(EXTRA_MESSAGE, MESSAGE_UID)
             .putStringArrayListExtra(EXTRA_FOLDER_UIDS, FOLDER_UIDS);
         this.setActivityIntent(i);
+
+        // configure a mock controller
+        MessagingController mockController = 
+            new MockMessagingController(getActivity().getApplication());
+        MessagingController.injectMockController(mockController);
 
         final MessageView a = getActivity();
         mToView = (TextView) a.findViewById(R.id.to);
@@ -152,114 +158,13 @@ public class MessageViewTests
     }
 
     /**
-     * Tests for resolving inline image src cid: reference to content uri.
-     */
-
-    public void testResolveInlineImage() throws MessagingException, IOException {
-        final MessageView a = getActivity();
-        final LocalStore store = (LocalStore) LocalStore.newInstance(mAccount.getLocalStoreUri(),
-                mContext, null);
-
-        // Single cid case.
-        final String cid1 = "cid.1@android.com";
-        final long aid1 = 10;
-        final Uri uri1 = MessageTestUtils.contentUri(aid1, mAccount);
-        final String text1     = new TextBuilder("text1 > ").addCidImg(cid1).build(" <.");
-        final String expected1 = new TextBuilder("text1 > ").addUidImg(uri1).build(" <.");
-        
-        // message with cid1
-        final Message msg1 = new MessageBuilder()
-            .setBody(new MultipartBuilder("multipart/related")
-                .addBodyPart(MessageTestUtils.textPart("text/html", text1))
-                .addBodyPart(MessageTestUtils.imagePart("image/jpeg", "<"+cid1+">", aid1, store))
-                .build())
-            .build();
-        // Simple case.
-        final String actual1 = a.resolveInlineImage(text1, msg1, 0);
-        assertEquals("one content id reference is not resolved",
-                    expected1, actual1);
-        
-        // Exceed recursive limit.
-        final String actual0 = a.resolveInlineImage(text1, msg1, 10);
-        assertEquals("recursive call limit may exceeded",
-                    text1, actual0);
-
-        // Multiple cids case.
-        final String cid2 = "cid.2@android.com";
-        final long aid2 = 20;
-        final Uri uri2 = MessageTestUtils.contentUri(aid2, mAccount);
-        final String text2     = new TextBuilder("text2 ").addCidImg(cid2).build(".");
-        final String expected2 = new TextBuilder("text2 ").addUidImg(uri2).build(".");
-        
-        // message with only cid2
-        final Message msg2 = new MessageBuilder()
-            .setBody(new MultipartBuilder("multipart/related")
-                .addBodyPart(MessageTestUtils.textPart("text/html", text1 + text2))
-                .addBodyPart(MessageTestUtils.imagePart("image/gif", cid2, aid2, store))
-                .build())
-            .build();
-        // cid1 is not replaced
-        final String actual2 = a.resolveInlineImage(text1 + text2, msg2, 0);
-        assertEquals("only one of two content id is resolved",
-                text1 + expected2, actual2);
-
-        // message with cid1 and cid2
-        final Message msg3 = new MessageBuilder()
-            .setBody(new MultipartBuilder("multipart/related")
-                .addBodyPart(MessageTestUtils.textPart("text/html", text2 + text1))
-                .addBodyPart(MessageTestUtils.imagePart("image/jpeg", cid1, aid1, store))
-                .addBodyPart(MessageTestUtils.imagePart("image/gif", cid2, aid2, store))
-                .build())
-            .build();
-        // cid1 and cid2 are replaced
-        final String actual3 = a.resolveInlineImage(text2 + text1, msg3, 0);
-        assertEquals("two content ids are resolved correctly",
-                expected2 + expected1, actual3);
-
-        // message with many cids and normal attachments
-        final Message msg4 = new MessageBuilder()
-            .setBody(new MultipartBuilder("multipart/mixed")
-                .addBodyPart(MessageTestUtils.imagePart("image/jpeg", null, 30, store))
-                .addBodyPart(MessageTestUtils.imagePart("application/pdf", cid1, aid1, store))
-                .addBodyPart(new MultipartBuilder("multipart/related")
-                    .addBodyPart(MessageTestUtils.textPart("text/html", text2 + text1))
-                    .addBodyPart(MessageTestUtils.imagePart("image/jpg", cid1, aid1, store))
-                    .addBodyPart(MessageTestUtils.imagePart("image/gif", cid2, aid2, store))
-                    .buildBodyPart())
-                .addBodyPart(MessageTestUtils.imagePart("application/pdf", cid2, aid2, store))
-                .build())
-            .build();
-        // cid1 and cid2 are replaced
-        final String actual4 = a.resolveInlineImage(text2 + text1, msg4, 0);
-        assertEquals("two content ids in deep multipart level are resolved",
-                expected2 + expected1, actual4);
-        
-        // No crash on null text
-        final String actual5 = a.resolveInlineImage(null, msg4, 0);
-        assertNull(actual5);
-    }
-
-    /**
-     * Test for resolveAttachmentIdToContentUri.
-     */
-    public void testResolveAttachmentIdToContentUri() throws MessagingException, IOException {
-        final ContentResolver contentResolver = mContext.getContentResolver();
-        final MessageView a = getActivity();
-        // create attachments tables.
-        LocalStore.newInstance(mAccount.getLocalStoreUri(), mContext, null);
-        final String dbPath = mContext.getDatabasePath(mAccount.getUuid() + ".db").toString();
-        final SQLiteDatabase db = SQLiteDatabase.openDatabase(dbPath, null, 0);
-        // TODO write unit test
-    }
-
-    /**
      * Mock Messaging controller, so we can drive its callbacks.  This probably should be
      * generalized since we're likely to use for other tests eventually.
      */
     private static class MockMessagingController extends MessagingController {
 
-        private MockMessagingController() {
-            super(null);
+        private MockMessagingController(Application application) {
+            super(application);
         }
     }
     

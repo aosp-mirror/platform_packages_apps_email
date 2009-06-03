@@ -28,6 +28,7 @@ import com.android.email.mail.MessagingException;
 import com.android.email.mail.Multipart;
 import com.android.email.mail.Part;
 import com.android.email.mail.Message.RecipientType;
+import com.android.email.mail.internet.EmailHtmlUtil;
 import com.android.email.mail.internet.MimeUtility;
 import com.android.email.mail.store.LocalStore.LocalAttachmentBodyPart;
 import com.android.email.mail.store.LocalStore.LocalMessage;
@@ -714,69 +715,6 @@ public class MessageView extends Activity
         }
     }
 
-    /**
-     * Resolve attachment id to content URI.
-     * 
-     * @param attachmentUri
-     * @return resolved content URI
-     */
-    private Uri resolveAttachmentIdToContentUri(long attachmentId) {
-        Uri attachmentUri = AttachmentProvider.getAttachmentUri(mAccount, attachmentId);
-        Cursor c = getContentResolver().query(attachmentUri,
-                new String[] { AttachmentProvider.AttachmentProviderColumns.DATA },
-                null, null, null);
-        if (c != null) {
-            try {
-                if (c.moveToFirst()) {
-                    return Uri.parse(c.getString(0));
-                }
-            } finally {
-                c.close();
-            }
-        }
-        return attachmentUri;
-    }
-
-    /**
-     * Resolve content-id reference in src attribute of img tag to AttachmentProvider's
-     * content uri.  This method calls itself recursively at most the number of
-     * LocalAttachmentPart that mime type is image and has content id.
-     * The attribute src="cid:content_id" is resolved as src="content://...".
-     * This method is package scope for testing purpose.
-     *
-     * @param text html email text
-     * @param part mime part which may contain inline image
-     * @return html text in which src attribute of img tag may be replaced with content uri
-     */
-    /* package */ String resolveInlineImage(String text, Part part, int depth)
-        throws MessagingException {
-        // avoid too deep recursive call or null text
-        if (depth >= 10 || text == null) {
-            return text;
-        }
-        String contentType = MimeUtility.unfoldAndDecode(part.getContentType());
-        String contentId = part.getContentId();
-        if (contentType.startsWith("image/") &&
-            contentId != null &&
-            part instanceof LocalAttachmentBodyPart) {
-            LocalAttachmentBodyPart attachment = (LocalAttachmentBodyPart)part;
-            Uri contentUri = resolveAttachmentIdToContentUri(attachment.getAttachmentId());
-            // Regexp which matches ' src="cid:contentId"'.
-            String contentIdRe = "\\s+(?i)src=\"cid(?-i):\\Q" + contentId + "\\E\"";
-            // Replace all occurrences of src attribute with ' src="content://contentUri"'.
-            text = text.replaceAll(contentIdRe, " src=\"" + contentUri + "\""); 
-        }
-
-        if (part.getBody() instanceof Multipart) {
-            Multipart mp = (Multipart)part.getBody();
-            for (int i = 0; i < mp.getCount(); i++) {
-                text = resolveInlineImage(text, mp.getBodyPart(i), depth + 1);
-            }
-        }
-
-        return text;
-    }
-    
     private void renderAttachments(Part part, int depth) throws MessagingException {
         String contentType = MimeUtility.unfoldAndDecode(part.getContentType());
         String name = MimeUtility.getHeaderParameter(contentType, "name");
@@ -958,7 +896,8 @@ public class MessageView extends Activity
                 if (part != null) {
                     String text = MimeUtility.getTextFromPart(part);
                     if (part.getMimeType().equalsIgnoreCase("text/html")) {
-                        text = resolveInlineImage(text, mMessage, 0);
+                        text = EmailHtmlUtil.resolveInlineImage(
+                                getContentResolver(), mAccount, text, mMessage, 0);
                     } else {
                         /*
                          * Linkify the plain text and convert it to HTML by replacing
@@ -1066,7 +1005,9 @@ public class MessageView extends Activity
                 try {
                     File file = createUniqueFile(Environment.getExternalStorageDirectory(),
                             attachment.name);
-                    Uri uri = resolveAttachmentIdToContentUri(attachment.part.getAttachmentId());
+                    Uri uri = AttachmentProvider.resolveAttachmentIdToContentUri(
+                            getContentResolver(), AttachmentProvider.getAttachmentUri(
+                                    mAccount, attachment.part.getAttachmentId()));
                     InputStream in = getContentResolver().openInputStream(uri);
                     OutputStream out = new FileOutputStream(file);
                     IOUtils.copy(in, out);
@@ -1082,7 +1023,9 @@ public class MessageView extends Activity
             }
             else {
                 try {
-                    Uri uri = resolveAttachmentIdToContentUri(attachment.part.getAttachmentId());
+                    Uri uri = AttachmentProvider.resolveAttachmentIdToContentUri(
+                            getContentResolver(), AttachmentProvider.getAttachmentUri(
+                                    mAccount, attachment.part.getAttachmentId()));
                     Intent intent = new Intent(Intent.ACTION_VIEW);
                     intent.setData(uri);
                     intent.addFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION);
@@ -1173,3 +1116,4 @@ public class MessageView extends Activity
         }
     }
 }
+

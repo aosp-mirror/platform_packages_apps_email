@@ -32,6 +32,7 @@ import com.android.email.mail.MessagingException;
 import com.android.email.mail.Multipart;
 import com.android.email.mail.Part;
 import com.android.email.mail.Message.RecipientType;
+import com.android.email.mail.internet.EmailHtmlUtil;
 import com.android.email.mail.internet.MimeBodyPart;
 import com.android.email.mail.internet.MimeHeader;
 import com.android.email.mail.internet.MimeMessage;
@@ -1133,16 +1134,25 @@ public class MessageCompose extends Activity implements OnClickListener, OnFocus
                     }
                 }
 
-                Part part = MimeUtility.findFirstPartByMimeType(message, "text/plain");
+                Boolean plainTextFlag = false;
+                Part part = MimeUtility.findFirstPartByMimeType(message, "text/html");
                 if (part == null) {
-                    part = MimeUtility.findFirstPartByMimeType(message, "text/html");
+                    part = MimeUtility.findFirstPartByMimeType(message, "text/plain");
+                    plainTextFlag = true;
                 }
+
                 if (part != null) {
                     String text = MimeUtility.getTextFromPart(part);
                     if (text != null) {
+                        if (!plainTextFlag) {
+                            text = EmailHtmlUtil.resolveInlineImage(
+                                    getContentResolver(), mAccount, text, message, 0);
+                        }
+                        text = EmailHtmlUtil.escapeCharacterToDisplay(
+                                text, plainTextFlag);
                         mQuotedTextBar.setVisibility(View.VISIBLE);
                         mQuotedText.setVisibility(View.VISIBLE);
-                        mQuotedText.loadDataWithBaseURL("email://", text, part.getMimeType(),
+                        mQuotedText.loadDataWithBaseURL("email://", text, "text/html",
                                 "utf-8", null);
                     }
                 }
@@ -1164,16 +1174,26 @@ public class MessageCompose extends Activity implements OnClickListener, OnFocus
                     mSubjectView.setText(message.getSubject());
                 }
 
-                Part part = MimeUtility.findFirstPartByMimeType(message, "text/plain");
+
+                Boolean plainTextFlag = false;
+                Part part = MimeUtility.findFirstPartByMimeType(message, "text/html");
                 if (part == null) {
-                    part = MimeUtility.findFirstPartByMimeType(message, "text/html");
+                    part = MimeUtility.findFirstPartByMimeType(message, "text/plain");
+                    plainTextFlag = true;
                 }
+
                 if (part != null) {
                     String text = MimeUtility.getTextFromPart(part);
                     if (text != null) {
+                        if (!plainTextFlag) {
+                            text = EmailHtmlUtil.resolveInlineImage(
+                                    getContentResolver(), mAccount, text, message, 0);
+                        }
+                        text = EmailHtmlUtil.escapeCharacterToDisplay(
+                                text, plainTextFlag);
                         mQuotedTextBar.setVisibility(View.VISIBLE);
                         mQuotedText.setVisibility(View.VISIBLE);
-                        mQuotedText.loadDataWithBaseURL("email://", text, part.getMimeType(),
+                        mQuotedText.loadDataWithBaseURL("email://", text, "text/html",
                                 "utf-8", null);
                     }
                 }
