@@ -33,6 +33,7 @@ import android.os.RemoteException;
 import java.net.URI;
 import java.net.URISyntaxException;
 import java.util.ArrayList;
+import java.util.UUID;
 
 
 /**
@@ -502,9 +503,25 @@ public class EmailStore {
         public static final String FLAGS = "flags";
         // Default account
         public static final String IS_DEFAULT = "isDefault";
+        // Old-Style UUID for compatibility with previous versions
+        public static final String COMPATIBILITY_UUID = "compatibilityUuid";
+        // User name (for outgoing messages)
+        public static final String SENDER_NAME = "senderName";
+        // Ringtone
+        public static final String RINGTONE_URI = "ringtoneUri";
     }
 
     public static final class Account extends EmailContent implements AccountColumns, Parcelable {
+        
+        public final static int FLAGS_NOTIFY_NEW_MAIL = 1;
+        public final static int FLAGS_VIBRATE = 2;
+        public static final int FLAGS_DELETE_POLICY_MASK = 4+8;
+        public static final int FLAGS_DELETE_POLICY_SHIFT = 2;
+        
+        public static final int DELETE_POLICY_NEVER = 0;
+        public static final int DELETE_POLICY_7DAYS = 1;
+        public static final int DELETE_POLICY_ON_DELETE = 2;
+        
         public String mDisplayName;
         public String mEmailAddress;
         public String mSyncKey;
@@ -514,6 +531,9 @@ public class EmailStore {
         public long mHostAuthKeySend;
         public int mFlags;
         public boolean mIsDefault;
+        public String mCompatibilityUuid;
+        public String mSenderName;
+        public String mRingtoneUri;
 
         // Convenience for creating an account
         public transient HostAuth mHostAuthRecv;
@@ -528,13 +548,18 @@ public class EmailStore {
         public static final int CONTENT_HOST_AUTH_KEY_RECV_COLUMN = 6;
         public static final int CONTENT_HOST_AUTH_KEY_SEND_COLUMN = 7;
         public static final int CONTENT_FLAGS_COLUMN = 8;
-        public static final int CONTENT_DEFAULT_COLUMN = 9;
+        public static final int CONTENT_IS_DEFAULT_COLUMN = 9;
+        public static final int CONTENT_COMPATIBILITY_UUID_COLUMN = 10;
+        public static final int CONTENT_SENDER_NAME_COLUMN = 11;
+        public static final int CONTENT_RINGTONE_URI_COLUMN = 12;
 
         public static final String[] CONTENT_PROJECTION = new String[] {
             RECORD_ID, AccountColumns.DISPLAY_NAME,
             AccountColumns.EMAIL_ADDRESS, AccountColumns.SYNC_KEY, AccountColumns.SYNC_LOOKBACK,
             AccountColumns.SYNC_FREQUENCY, AccountColumns.HOST_AUTH_KEY_RECV,
-            AccountColumns.HOST_AUTH_KEY_SEND, AccountColumns.FLAGS, AccountColumns.IS_DEFAULT
+            AccountColumns.HOST_AUTH_KEY_SEND, AccountColumns.FLAGS, AccountColumns.IS_DEFAULT,
+            AccountColumns.COMPATIBILITY_UUID, AccountColumns.SENDER_NAME,
+            AccountColumns.RINGTONE_URI, 
         };
 
         /**
@@ -542,6 +567,12 @@ public class EmailStore {
          */
         public Account() {
             mBaseUri = CONTENT_URI;
+            
+            // other defaults (policy)
+            mRingtoneUri = "content://settings/system/notification_sound";
+            mSyncFrequency = -1;
+            mSyncLookback = -1;
+            mFlags = FLAGS_NOTIFY_NEW_MAIL;
         }
 
         public static final String TABLE_NAME = "Account";
@@ -561,7 +592,10 @@ public class EmailStore {
             + AccountColumns.HOST_AUTH_KEY_RECV + " integer, "
             + AccountColumns.HOST_AUTH_KEY_SEND + " integer, "
             + AccountColumns.FLAGS + " integer, "
-            + AccountColumns.IS_DEFAULT + " integer"
+            + AccountColumns.IS_DEFAULT + " integer, "
+            + AccountColumns.COMPATIBILITY_UUID + " text, "
+            + AccountColumns.SENDER_NAME + " text, "
+            + AccountColumns.RINGTONE_URI + " text "
             + ");";
             db.execSQL("create table " + TABLE_NAME + s);
         }
@@ -602,39 +636,242 @@ public class EmailStore {
             mHostAuthKeyRecv = cursor.getLong(CONTENT_HOST_AUTH_KEY_RECV_COLUMN);
             mHostAuthKeySend = cursor.getLong(CONTENT_HOST_AUTH_KEY_SEND_COLUMN);
             mFlags = cursor.getInt(CONTENT_FLAGS_COLUMN);
-            mIsDefault = cursor.getInt(CONTENT_DEFAULT_COLUMN) == 1;
+            mIsDefault = cursor.getInt(CONTENT_IS_DEFAULT_COLUMN) == 1;
+            mCompatibilityUuid = cursor.getString(CONTENT_COMPATIBILITY_UUID_COLUMN);
+            mSenderName = cursor.getString(CONTENT_SENDER_NAME_COLUMN);
+            mRingtoneUri = cursor.getString(CONTENT_RINGTONE_URI_COLUMN);
             return this;
         }
 
         private long getId(Uri u) {
             return Long.parseLong(u.getPathSegments().get(1));
         }
-
+        
         /**
-         * Set the default Account
-         * @param context
-         * @return true if succeeds; false otherwise
+         * @return the user-visible name for the account
          */
-        static public boolean setDefaultAccount(Context context, long id) {
-            ArrayList<ContentProviderOperation> opArray = new ArrayList<ContentProviderOperation>();
-            ContentValues cv1 = new ContentValues();
-            cv1.put(AccountColumns.IS_DEFAULT, 0);
-            opArray.add(ContentProviderOperation.newUpdate(CONTENT_URI).withValues(cv1).build());
-            ContentValues cv2 = new ContentValues();
-            cv2.put(AccountColumns.IS_DEFAULT, 1);
-            opArray.add(ContentProviderOperation.newUpdate(CONTENT_URI)
-                .withValues(cv2)
-                .withSelection("_id=" + id, null)
-                .build());
-            try {
-                context.getContentResolver().applyBatch(EmailProvider.EMAIL_AUTHORITY, opArray);
-                return true;
-            } catch (RemoteException e) {
-                // There is nothing to be done here; return false to indicate failure
-            } catch (OperationApplicationException e) {
-                // There is nothing to be done here; return false to indicate failure
+        public String getDescription() {
+            return mDisplayName;
+        }
+        
+        /**
+         * Set the description.  Be sure to call save() to commit to database.
+         * @param description the new description
+         */
+        public void setDescription(String description) {
+            mDisplayName = description;
+        }
+        
+        /**
+         * @return the sender's name for this account
+         */
+        public String getName() {
+            return mSenderName;
+        }
+        
+        /**
+         * Set the sender's name.  Be sure to call save() to commit to database.
+         * @param name the new sender name
+         */
+        public void setName(String name) {
+            mSenderName = name;
+        }
+        
+        /**
+         * @return the minutes per check (for polling)
+         * TODO define sentinel values for "never", "push", etc.  See Account.java
+         */
+        public int getAutomaticCheckIntervalMinutes()
+        {
+            return mSyncFrequency;
+        }
+        
+        /**
+         * Set the minutes per check (for polling).  Be sure to call save() to commit to database.
+         * TODO define sentinel values for "never", "push", etc.  See Account.java
+         * @param minutes the number of minutes between polling checks
+         */
+        public void setAutomaticCheckIntervalMinutes(int minutes)
+        {
+            mSyncFrequency = minutes;
+        }
+        
+        /**
+         * @return the sync lookback window in # of days
+         * TODO define sentinel values for "all", "1 month", etc.  See Account.java
+         */
+        public int getSyncWindow() {
+            return mSyncLookback;
+        }
+        
+        /**
+         * Set the sync lookback window in # of days.  Be sure to call save() to commit to database.
+         * TODO define sentinel values for "all", "1 month", etc.  See Account.java
+         * @param days number of days to look back for syncing messages
+         */
+        public void setSyncWindow(int days) {
+            mSyncLookback = days;
+        }
+        
+        /**
+         * @return the flags for this account
+         * @see #FLAGS_NOTIFY_NEW_MAIL
+         * @see #FLAGS_VIBRATE
+         */
+        public int getFlags() {
+            return mFlags;
+        }
+        
+        /**
+         * Set the flags for this account
+         * @see #FLAGS_NOTIFY_NEW_MAIL
+         * @see #FLAGS_VIBRATE
+         * @param newFlags the new value for the flags
+         */
+        public void setFlags(int newFlags) {
+            mFlags = newFlags;
+        }
+        
+        /**
+         * @return the ringtone Uri for this account
+         */
+        public String getRingtone() {
+            return mRingtoneUri;
+        }
+        
+        /**
+         * Set the ringtone Uri for this account
+         * @param newUri the new URI string for the ringtone for this account
+         */
+        public void setRingtone(String newUri) {
+            mRingtoneUri = newUri;
+        }
+        
+        /**
+         * Set the "delete policy" as a simple 0,1,2 value set.
+         * @param newPolicy the new delete policy
+         */
+        public void setDeletePolicy(int newPolicy) {
+            mFlags &= ~FLAGS_DELETE_POLICY_MASK;
+            mFlags |= (newPolicy << FLAGS_DELETE_POLICY_SHIFT) & FLAGS_DELETE_POLICY_MASK;
+        }
+        
+        /**
+         * Return the "delete policy" as a simple 0,1,2 value set.
+         * @return the current delete policy
+         */
+        public int getDeletePolicy() {
+            return (mFlags & FLAGS_DELETE_POLICY_MASK) >> FLAGS_DELETE_POLICY_SHIFT;
+        }
+        
+        /**
+         * Return the Uuid associated with this account.  This is primarily for compatibility
+         * with accounts set up by previous versions, because there are externals references
+         * to the Uuid (e.g. desktop shortcuts).
+         */
+        String getUuid() {
+            if (mCompatibilityUuid == null || mCompatibilityUuid.length() == 0) {
+                mCompatibilityUuid = UUID.randomUUID().toString();
             }
-            return false;
+            return mCompatibilityUuid;
+        }
+        
+        /**
+         * For compatibility while converting to provider model, generate a "store URI"
+         * 
+         * @return a string in the form of a Uri, as used by the other parts of the email app
+         */
+        public String getStoreUri(Context context) {
+            // reconstitute if necessary
+            if (mHostAuthRecv == null) {
+                mHostAuthRecv = HostAuth.restoreHostAuthWithId(context, mHostAuthKeyRecv);
+            }
+            // convert if available
+            if (mHostAuthRecv != null) {
+                String storeUri = mHostAuthRecv.getStoreUri();
+                if (storeUri != null) {
+                    return storeUri;
+                }
+            }
+            return "";
+        }
+        
+        /**
+         * For compatibility while converting to provider model, generate a "sender URI"
+         * 
+         * @return a string in the form of a Uri, as used by the other parts of the email app
+         */
+        public String getSenderUri(Context context) {
+            // reconstitute if necessary
+            if (mHostAuthSend == null) {
+                mHostAuthSend = HostAuth.restoreHostAuthWithId(context, mHostAuthKeySend);
+            }
+            // convert if available
+            if (mHostAuthSend != null) {
+                String senderUri = mHostAuthSend.getStoreUri();
+                if (senderUri != null) {
+                    return senderUri;
+                }
+            }
+            return "";
+        }
+        
+        /**
+         * For compatibility while converting to provider model, set the store URI
+         * 
+         * @param the new value
+         */
+        public void setStoreUri(Context context, String senderUri) {
+            // reconstitute or create if necessary
+            if (mHostAuthRecv == null) {
+                if (mHostAuthKeyRecv != 0) {
+                    mHostAuthRecv = HostAuth.restoreHostAuthWithId(context, mHostAuthKeyRecv);
+                } else {
+                    mHostAuthRecv = new EmailStore.HostAuth();
+                }
+            }
+            
+            if (mHostAuthRecv != null) {
+                mHostAuthRecv.setStoreUri(senderUri);
+            }
+        }
+        
+        /**
+         * For compatibility while converting to provider model, set the sender URI
+         * 
+         * @param the new value
+         */
+        public void setSenderUri(Context context, String senderUri) {
+            // reconstitute or create if necessary
+            if (mHostAuthSend == null) {
+                if (mHostAuthKeySend != 0) {
+                    mHostAuthSend = HostAuth.restoreHostAuthWithId(context, mHostAuthKeySend);
+                } else {
+                    mHostAuthSend = new EmailStore.HostAuth();
+                }
+            }
+            
+            if (mHostAuthSend != null) {
+                mHostAuthSend.setStoreUri(senderUri);
+            }
+        }
+        
+        /**
+         * For compatibility while converting to provider model, generate a "local store URI"
+         * 
+         * @return a string in the form of a Uri, as used by the other parts of the email app
+         */
+        public String getLocalStoreUri(Context context) {
+            return "local://localhost/" + context.getDatabasePath(getUuid() + ".db");
+        }
+        
+        /**
+         * Set the account to be the default account.  If this is set to "true", when the account
+         * is saved, all other accounts will have the same value set to "false".
+         * @param newDefaultState the new default state - if true, others will be cleared.
+         */
+        public void setDefaultAccount(boolean newDefaultState) {
+            mIsDefault = newDefaultState;
         }
 
         static private Account getAccountWhere(Context context, String where) {
@@ -664,14 +901,55 @@ public class EmailStore {
             return acct;
         }
 
+        private ContentProviderOperation.Builder getSaveOrUpdateBuilder(boolean doSave, 
+                Uri uri, long id) {
+            if (doSave) {
+                return ContentProviderOperation.newInsert(uri);
+            } else {
+                return ContentProviderOperation.newUpdate(ContentUris.withAppendedId(uri, id));
+            }
+        }
+        
+        /**
+         * Do not use Account.save().  Use Account.saveOrUpdate()
+         */
+        @Override 
+        public Uri save(Context context) {
+            throw new UnsupportedOperationException();
+        }
+        
+        /**
+         * Do not use Account.update().  Use Account.saveOrUpdate()
+         */
+        @Override 
+        public int update(Context context, ContentValues contentValues) {
+            throw new UnsupportedOperationException();
+        }
+        
         /* 
          * Override this so that we can store the HostAuth's first and link them to the Account
          * (non-Javadoc)
          * @see com.android.email.provider.EmailContent#save(android.content.Context)
          */
-        public Uri save(Context context) {
-            if (mHostAuthRecv == null && mHostAuthSend == null)
-                return super.save(context);
+        @Override 
+        public Uri saveOrUpdate(Context context) {
+            
+            boolean doSave = !isSaved();
+            
+            // This logic is in place so I can (a) short circuit the expensive stuff when
+            // possible, and (b) override (and throw) if anyone tries to call save() or update()
+            // directly for Account, which are unsupported.
+            if (mHostAuthRecv == null && mHostAuthSend == null && mIsDefault == false) {
+                if (doSave) {
+                    return super.save(context);
+                } else {
+                    if (super.update(context, toContentValues()) == 1) {
+                        return getUri();
+                    }
+                    return null;
+                }
+            }
+            
             int index = 0;
             int recvIndex = -1;
             int sendIndex = -1;
@@ -681,22 +959,29 @@ public class EmailStore {
             ArrayList<ContentProviderOperation> ops = new ArrayList<ContentProviderOperation>();
             if (mHostAuthRecv != null) {
                 recvIndex = index++;
-                ops.add(ContentProviderOperation
-                        .newInsert(mHostAuthRecv.mBaseUri)
+                ops.add(getSaveOrUpdateBuilder(doSave, mHostAuthRecv.mBaseUri, mHostAuthRecv.mId)
                         .withValues(mHostAuthRecv.toContentValues())
                         .build());
             }
             if (mHostAuthSend != null) {
                 sendIndex = index++;
-                ops.add(ContentProviderOperation
-                        .newInsert(mHostAuthSend.mBaseUri)
+                ops.add(getSaveOrUpdateBuilder(doSave, mHostAuthSend.mBaseUri, mHostAuthSend.mId)
                         .withValues(mHostAuthSend.toContentValues())
                         .build());
             }
 
+            // Create operations for making this the only default account
+            // Note, these are always updates because they change existing accounts
+            if (mIsDefault) {
+                index++;
+                ContentValues cv1 = new ContentValues();
+                cv1.put(AccountColumns.IS_DEFAULT, 0);
+                ops.add(ContentProviderOperation.newUpdate(CONTENT_URI).withValues(cv1).build());
+            }
+
             // Now do the Account
             ContentValues cv = null;
-            if (recvIndex >= 0 || sendIndex >= 0) {
+            if (doSave && (recvIndex >= 0 || sendIndex >= 0)) {
                 cv = new ContentValues();
                 if (recvIndex >= 0) {
                     cv.put(Account.HOST_AUTH_KEY_RECV, recvIndex);
@@ -706,26 +991,34 @@ public class EmailStore {
                 }
             }
 
-            ContentProviderOperation.Builder b = 
-                ContentProviderOperation.newInsert(mBaseUri).withValues(toContentValues());
+            ContentProviderOperation.Builder b = getSaveOrUpdateBuilder(doSave, mBaseUri, mId);
+            b.withValues(toContentValues());
             if (cv != null) {
                 b.withValueBackReferences(cv);
             }
             ops.add(b.build());
-
+            
             try {
-                ContentProviderResult[] res = 
+                ContentProviderResult[] results = 
                     context.getContentResolver().applyBatch(EmailProvider.EMAIL_AUTHORITY, ops);
-                // Set the mId's of the various saved objects
-                if (recvIndex >= 0) {
-                    mHostAuthRecv.mId = getId(res[recvIndex].uri);
+                // If saving, set the mId's of the various saved objects
+                if (doSave) {
+                    if (recvIndex >= 0) {
+                        long newId = getId(results[recvIndex].uri);
+                        mHostAuthKeyRecv = newId;
+                        mHostAuthRecv.mId = newId;
+                    }
+                    if (sendIndex >= 0) {
+                        long newId = getId(results[sendIndex].uri);
+                        mHostAuthKeySend = newId;
+                        mHostAuthSend.mId = newId;
+                    }
+                    Uri u = results[index].uri;
+                    mId = getId(u);
+                    return u;
+                } else {
+                    return null;
                 }
-                if (sendIndex >= 0) {
-                    mHostAuthSend.mId = getId(res[recvIndex].uri);
-                }
-                Uri u = res[index].uri;
-                mId = getId(u);
-                return u;
             } catch (RemoteException e) {
                 // There is nothing to be done here; fail by returning null
             } catch (OperationApplicationException e) {
@@ -745,7 +1038,10 @@ public class EmailStore {
             values.put(AccountColumns.HOST_AUTH_KEY_RECV, mHostAuthKeyRecv);
             values.put(AccountColumns.HOST_AUTH_KEY_SEND, mHostAuthKeySend);
             values.put(AccountColumns.FLAGS, mFlags);
-            values.put(AccountColumns.IS_DEFAULT, mIsDefault);
+            values.put(AccountColumns.IS_DEFAULT, mIsDefault ? 1 : 0);
+            values.put(AccountColumns.COMPATIBILITY_UUID, mCompatibilityUuid);
+            values.put(AccountColumns.SENDER_NAME, mSenderName);
+            values.put(AccountColumns.RINGTONE_URI, mRingtoneUri);
             return values;
         }
         
@@ -774,6 +1070,8 @@ public class EmailStore {
          * Supports Parcelable
          */
         public void writeToParcel(Parcel dest, int flags) {
+            // mBaseUri is not parceled
+            dest.writeLong(mId);
             dest.writeString(mDisplayName);
             dest.writeString(mEmailAddress);
             dest.writeString(mSyncKey);
@@ -783,6 +1081,9 @@ public class EmailStore {
             dest.writeLong(mHostAuthKeySend);
             dest.writeInt(mFlags);
             dest.writeByte(mIsDefault ? (byte)1 : (byte)0);
+            dest.writeString(mCompatibilityUuid);
+            dest.writeString(mSenderName);
+            dest.writeString(mRingtoneUri);
             
             if (mHostAuthRecv != null) {
                 dest.writeByte((byte)1);
@@ -803,6 +1104,8 @@ public class EmailStore {
          * Supports Parcelable
          */
         public Account(Parcel in) {
+            mBaseUri = EmailStore.Account.CONTENT_URI;
+            mId = in.readLong();
             mDisplayName = in.readString();
             mEmailAddress = in.readString();
             mSyncKey = in.readString();
@@ -812,6 +1115,9 @@ public class EmailStore {
             mHostAuthKeySend = in.readLong();
             mFlags = in.readInt();
             mIsDefault = in.readByte() == 1;
+            mCompatibilityUuid = in.readString();
+            mSenderName = in.readString();
+            mRingtoneUri = in.readString();
             
             mHostAuthRecv = null;
             if (in.readByte() == 1) {
@@ -1125,7 +1431,7 @@ public class EmailStore {
         @Override
         @SuppressWarnings("unchecked")
         public EmailStore.Mailbox restore(Cursor cursor) {
-            mBaseUri = EmailStore.Attachment.CONTENT_URI;
+            mBaseUri = EmailStore.Mailbox.CONTENT_URI;
             mDisplayName = cursor.getString(CONTENT_DISPLAY_NAME_COLUMN);
             mServerId = cursor.getString(CONTENT_SERVER_ID_COLUMN);
             mParentServerId = cursor.getString(CONTENT_PARENT_SERVER_ID_COLUMN);
@@ -1172,49 +1478,46 @@ public class EmailStore {
         static final String ADDRESS = "address"; 
         // The port to use for the connection
         static final String PORT = "port"; 
-        // Whether SSL is to be used
-        static final String SSL = "ssl"; 
-        // Whether TLS is to be used
-        static final String TLS = "tls"; 
+        // General purpose flags
+        static final String FLAGS = "flags"; 
         // The login (user name)
         static final String LOGIN = "login"; 
         // Password
         static final String PASSWORD = "password"; 
         // A domain or path, if required (used in IMAP and EAS)
         static final String DOMAIN = "domain"; 
-        // Whether authentication is required
-        static final String FLAG_AUTHENTICATE = "flagAuthenticate";
         // Foreign key of the Account this is attached to
         static final String ACCOUNT_KEY = "accountKey";
     }
 
     public static final class HostAuth extends EmailContent implements HostAuthColumns, Parcelable {
+        private static final int FLAG_SSL = 1;
+        private static final int FLAG_TLS = 2;
+        private static final int FLAG_AUTHENTICATE = 4;
+
         public String mProtocol;
         public String mAddress;
         public int mPort;
-        public boolean mSsl;
-        public boolean mTls;
+        public int mFlags;
         public String mLogin;
         public String mPassword;
         public String mDomain;
-        public boolean mFlagAuthenticate;
         public long mAccountKey;
 
         public static final int CONTENT_ID_COLUMN = 0;
         public static final int CONTENT_PROTOCOL_COLUMN = 1;
         public static final int CONTENT_ADDRESS_COLUMN = 2;
         public static final int CONTENT_PORT_COLUMN = 3;
-        public static final int CONTENT_SSL_COLUMN = 4;
-        public static final int CONTENT_TLS_COLUMN = 5;
-        public static final int CONTENT_LOGIN_COLUMN = 6;
-        public static final int CONTENT_PASSWORD_COLUMN = 7;
-        public static final int CONTENT_DOMAIN_COLUMN = 8;
-        public static final int CONTENT_FLAG_AUTHENTICATE_COLUMN = 9;
-        public static final int CONTENT_ACCOUNT_KEY_COLUMN = 10;
+        public static final int CONTENT_FLAGS_COLUMN = 4;
+        public static final int CONTENT_LOGIN_COLUMN = 5;
+        public static final int CONTENT_PASSWORD_COLUMN = 6;
+        public static final int CONTENT_DOMAIN_COLUMN = 7;
+        public static final int CONTENT_ACCOUNT_KEY_COLUMN = 8;
+        
         public static final String[] CONTENT_PROJECTION = new String[] {
             RECORD_ID, HostAuthColumns.PROTOCOL, HostAuthColumns.ADDRESS, HostAuthColumns.PORT,
-            HostAuthColumns.SSL, HostAuthColumns.TLS, HostAuthColumns.LOGIN,
-            HostAuthColumns.PASSWORD, HostAuthColumns.DOMAIN, HostAuthColumns.FLAG_AUTHENTICATE,
+            HostAuthColumns.FLAGS, HostAuthColumns.LOGIN,
+            HostAuthColumns.PASSWORD, HostAuthColumns.DOMAIN,
             HostAuthColumns.ACCOUNT_KEY
         };
 
@@ -1223,6 +1526,10 @@ public class EmailStore {
          */
         public HostAuth() {
             mBaseUri = CONTENT_URI;
+            
+            // other defaults policy)
+            mPort = -1;
+            mFlags = FLAG_AUTHENTICATE;
         }
 
         public static final String TABLE_NAME = "HostAuth";
@@ -1237,12 +1544,10 @@ public class EmailStore {
             + HostAuthColumns.PROTOCOL + " text, "
             + HostAuthColumns.ADDRESS + " text, "
             + HostAuthColumns.PORT + " integer, "
-            + HostAuthColumns.SSL + " integer, "
-            + HostAuthColumns.TLS + " integer, "
+            + HostAuthColumns.FLAGS + " integer, "
             + HostAuthColumns.LOGIN + " text, "
             + HostAuthColumns.PASSWORD + " text, "
             + HostAuthColumns.DOMAIN + " text, "
-            + HostAuthColumns.FLAG_AUTHENTICATE + " text, "
             + HostAuthColumns.ACCOUNT_KEY + " integer"
             + ");";
             db.execSQL("create table " + TABLE_NAME + s);
@@ -1281,16 +1586,14 @@ public class EmailStore {
         @Override
         @SuppressWarnings("unchecked")
         public EmailStore.HostAuth restore(Cursor cursor) {
-            mBaseUri = EmailStore.Attachment.CONTENT_URI;
+            mBaseUri = EmailStore.HostAuth.CONTENT_URI;
             mProtocol = cursor.getString(CONTENT_PROTOCOL_COLUMN);
             mAddress = cursor.getString(CONTENT_ADDRESS_COLUMN);
             mPort = cursor.getInt(CONTENT_PORT_COLUMN);
-            mSsl = cursor.getInt(CONTENT_SSL_COLUMN) == 1;
-            mTls = cursor.getInt(CONTENT_TLS_COLUMN) == 1;
+            mFlags = cursor.getInt(CONTENT_FLAGS_COLUMN);
             mLogin = cursor.getString(CONTENT_LOGIN_COLUMN);
             mPassword = cursor.getString(CONTENT_PASSWORD_COLUMN);
             mDomain = cursor.getString(CONTENT_DOMAIN_COLUMN);
-            mFlagAuthenticate = cursor.getInt(CONTENT_FLAG_AUTHENTICATE_COLUMN) == 1;
             mAccountKey = cursor.getLong(CONTENT_ACCOUNT_KEY_COLUMN);
             return this;
         }
@@ -1301,12 +1604,10 @@ public class EmailStore {
             values.put(HostAuthColumns.PROTOCOL, mProtocol);
             values.put(HostAuthColumns.ADDRESS, mAddress);
             values.put(HostAuthColumns.PORT, mPort);
-            values.put(HostAuthColumns.SSL, mSsl);
-            values.put(HostAuthColumns.TLS, mTls);
+            values.put(HostAuthColumns.FLAGS, mFlags);
             values.put(HostAuthColumns.LOGIN, mLogin);
             values.put(HostAuthColumns.PASSWORD, mPassword);
             values.put(HostAuthColumns.DOMAIN, mDomain);
-            values.put(HostAuthColumns.FLAG_AUTHENTICATE, mFlagAuthenticate);
             values.put(HostAuthColumns.ACCOUNT_KEY, mAccountKey);
             return values;
         }
@@ -1318,9 +1619,9 @@ public class EmailStore {
          */
         public String getStoreUri() {
             String security = "";
-            if (mSsl) {
+            if ((mFlags & FLAG_SSL) != 0) {
                 security = "+ssl+";
-            } else if (mTls) {
+            } else if ((mFlags & FLAG_TLS) != 0) {
                 security = "+tls+";
             }
             
@@ -1358,14 +1659,24 @@ public class EmailStore {
                     }
                 }
                 
-                String[] schemeParts = uri.getScheme().split("+");
+                String[] schemeParts = uri.getScheme().split("\\+");
                 mProtocol = (schemeParts.length >= 1) ? schemeParts[0] : null;
+                boolean ssl = false;
+                boolean tls = false;
                 if (schemeParts.length >= 2) {
                     if ("ssl".equals(schemeParts[1])) {
-                        mSsl = true;
+                        ssl = true;
                     } else if ("tls".equals(schemeParts[1])) {
-                        mTls = true;
+                        tls = true;
                     }
+                }
+                
+                mFlags &= ~(FLAG_SSL | FLAG_TLS);
+                if (ssl) {
+                    mFlags |= FLAG_SSL;
+                }
+                if (tls) {
+                    mFlags |= FLAG_TLS;
                 }
 
                 mAddress = uri.getHost();
@@ -1374,13 +1685,13 @@ public class EmailStore {
                     // infer port# from protocol + security
                     // SSL implies a different port - TLS runs in the "regular" port
                     if ("pop3".equals(mProtocol)) {
-                        mPort = mSsl ? 995 : 110;
+                        mPort = ssl ? 995 : 110;
                     } else if ("imap".equals(mProtocol)) {
-                        mPort = mSsl ? 993 : 143;
+                        mPort = ssl ? 993 : 143;
                     } else if ("eas".equals(mProtocol)) {
-                        mPort = mSsl ? 443 : 80;
+                        mPort = ssl ? 443 : 80;
                     }  else if ("smtp".equals(mProtocol)) {
-                        mPort = mSsl ? 465 : 25;
+                        mPort = ssl ? 465 : 25;
                     }
                 }
                 
@@ -1423,15 +1734,15 @@ public class EmailStore {
          * Supports Parcelable
          */
         public void writeToParcel(Parcel dest, int flags) {
+            // mBaseUri is not parceled
+            dest.writeLong(mId);
             dest.writeString(mProtocol);
             dest.writeString(mAddress);
             dest.writeInt(mPort);
-            dest.writeByte(mSsl ? (byte) 1 : (byte) 0);
-            dest.writeByte(mTls ? (byte) 1 : (byte) 0);
+            dest.writeInt(mFlags);
             dest.writeString(mLogin);
             dest.writeString(mPassword);
             dest.writeString(mDomain);
-            dest.writeByte(mFlagAuthenticate ? (byte) 1 : (byte) 0);
             dest.writeLong(mAccountKey);
         }
         
@@ -1439,15 +1750,15 @@ public class EmailStore {
          * Supports Parcelable
          */
         public HostAuth(Parcel in) {
+            mBaseUri = CONTENT_URI;
+            mId = in.readLong();
             mProtocol = in.readString();
             mAddress = in.readString();
             mPort = in.readInt();
-            mSsl = in.readByte() == 1;
-            mTls = in.readByte() == 1;
+            mFlags = in.readInt();
             mLogin = in.readString();
             mPassword = in.readString();
             mDomain = in.readString();
-            mFlagAuthenticate = in.readByte() == 1;
             mAccountKey = in.readLong();
         }
 

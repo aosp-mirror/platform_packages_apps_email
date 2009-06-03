@@ -399,6 +399,26 @@ public class FolderMessageList extends ExpandableListActivity {
     public static void actionHandleAccount(Context context, Account account) {
         actionHandleAccount(context, account, null);
     }
+    
+    /**
+     * Open a specific account.  This replaces the old non-provider based version.
+     * @param context
+     * @param id
+     */
+    public static void actionHandleAccount(Context context, long id) {
+        actionHandleAccount(context, id, null);
+    }
+
+    /**
+     * Open a specific account.  This replaces the old non-provider based version.
+     * @param context
+     * @param id
+     * @param initialFolder The folder to open, or null for none
+     */
+    public static void actionHandleAccount(Context context, long id, String initialFolder) {
+        // TODO Auto-generated method stub
+        // DO NOT CHECK IN UNTIL WRITTEN
+    }
 
     public static Intent actionHandleAccountIntent(Context context, Account account, String initialFolder) {
         Intent intent = new Intent(context, FolderMessageList.class);

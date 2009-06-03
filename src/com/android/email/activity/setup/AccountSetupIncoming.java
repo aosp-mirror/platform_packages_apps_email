@@ -20,6 +20,7 @@ import com.android.email.Account;
 import com.android.email.Preferences;
 import com.android.email.R;
 import com.android.email.Utility;
+import com.android.email.provider.EmailStore;
 
 import android.app.Activity;
 import android.content.Intent;
@@ -66,7 +67,7 @@ public class AccountSetupIncoming extends Activity implements OnClickListener {
     private Spinner mDeletePolicyView;
     private EditText mImapPathPrefixView;
     private Button mNextButton;
-    private Account mAccount;
+    private EmailStore.Account mAccount;
     private boolean mMakeDefault;
 
     public static void actionIncomingSettings(Activity fromActivity, Account account, boolean makeDefault) {
@@ -76,7 +77,16 @@ public class AccountSetupIncoming extends Activity implements OnClickListener {
         fromActivity.startActivity(i);
     }
 
+    @Deprecated
     public static void actionEditIncomingSettings(Activity fromActivity, Account account) {
+        Intent i = new Intent(fromActivity, AccountSetupIncoming.class);
+        i.setAction(Intent.ACTION_EDIT);
+        i.putExtra(EXTRA_ACCOUNT, account);
+        fromActivity.startActivity(i);
+    }
+
+    public static void actionEditIncomingSettings(Activity fromActivity, EmailStore.Account account)
+            {
         Intent i = new Intent(fromActivity, AccountSetupIncoming.class);
         i.setAction(Intent.ACTION_EDIT);
         i.putExtra(EXTRA_ACCOUNT, account);
@@ -168,7 +178,7 @@ public class AccountSetupIncoming extends Activity implements OnClickListener {
          */
         mPortView.setKeyListener(DigitsKeyListener.getInstance("0123456789"));
 
-        mAccount = (Account)getIntent().getSerializableExtra(EXTRA_ACCOUNT);
+        mAccount = (EmailStore.Account)getIntent().getParcelableExtra(EXTRA_ACCOUNT);
         mMakeDefault = getIntent().getBooleanExtra(EXTRA_MAKE_DEFAULT, false);
 
         /*
@@ -176,11 +186,12 @@ public class AccountSetupIncoming extends Activity implements OnClickListener {
          * we saved
          */
         if (savedInstanceState != null && savedInstanceState.containsKey(EXTRA_ACCOUNT)) {
-            mAccount = (Account)savedInstanceState.getSerializable(EXTRA_ACCOUNT);
+            mAccount = (EmailStore.Account)savedInstanceState.getParcelable(EXTRA_ACCOUNT);
         }
 
         try {
-            URI uri = new URI(mAccount.getStoreUri());
+            // TODO this should be accessed directly via the HostAuth structure
+            URI uri = new URI(mAccount.getStoreUri(this));
             String username = null;
             String password = null;
             if (uri.getUserInfo() != null) {
@@ -216,7 +227,7 @@ public class AccountSetupIncoming extends Activity implements OnClickListener {
                     mImapPathPrefixView.setText(uri.getPath().substring(1));
                 }
             } else {
-                throw new Error("Unknown account type: " + mAccount.getStoreUri());
+                throw new Error("Unknown account type: " + mAccount.getStoreUri(this));
             }
 
             for (int i = 0; i < mAccountSchemes.length; i++) {
@@ -249,7 +260,7 @@ public class AccountSetupIncoming extends Activity implements OnClickListener {
     @Override
     public void onSaveInstanceState(Bundle outState) {
         super.onSaveInstanceState(outState);
-        outState.putSerializable(EXTRA_ACCOUNT, mAccount);
+        outState.putParcelable(EXTRA_ACCOUNT, mAccount);
     }
 
     /**
@@ -281,7 +292,7 @@ public class AccountSetupIncoming extends Activity implements OnClickListener {
     public void onActivityResult(int requestCode, int resultCode, Intent data) {
         if (resultCode == RESULT_OK) {
             if (Intent.ACTION_EDIT.equals(getIntent().getAction())) {
-                mAccount.save(Preferences.getPreferences(this));
+                mAccount.saveOrUpdate(this);
                 finish();
             } else {
                 /*
@@ -289,7 +300,7 @@ public class AccountSetupIncoming extends Activity implements OnClickListener {
                  * password the user just set for incoming.
                  */
                 try {
-                    URI oldUri = new URI(mAccount.getSenderUri());
+                    URI oldUri = new URI(mAccount.getSenderUri(this));
                     URI uri = new URI(
                             oldUri.getScheme(),
                             mUsernameView.getText().toString().trim() + ":" 
@@ -299,14 +310,13 @@ public class AccountSetupIncoming extends Activity implements OnClickListener {
                             null,
                             null,
                             null);
-                    mAccount.setSenderUri(uri.toString());
+                    mAccount.setSenderUri(this, uri.toString());
                 } catch (URISyntaxException use) {
                     /*
                      * If we can't set up the URL we just continue. It's only for
                      * convenience.
                      */
                 }
-
 
                 AccountSetupOutgoing.actionOutgoingSettings(this, mAccount, mMakeDefault);
                 finish();
@@ -341,7 +351,7 @@ public class AccountSetupIncoming extends Activity implements OnClickListener {
     private void onNext() {
         try {
             URI uri = getUri();
-            mAccount.setStoreUri(uri.toString());
+            mAccount.setStoreUri(this, uri.toString());
         } catch (URISyntaxException use) {
             /*
              * It's unrecoverable if we cannot create a URI from components that

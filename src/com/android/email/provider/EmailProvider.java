@@ -55,7 +55,7 @@ public class EmailProvider extends ContentProvider {
     
     // In these early versions, updating the database version will cause all tables to be deleted
     // Obviously, we'll handle upgrades differently once things are a bit stable
-    public static final int DATABASE_VERSION = 11;
+    public static final int DATABASE_VERSION = 12;
 
     protected static final String EMAIL_AUTHORITY = "com.android.email.provider";
 
@@ -411,6 +411,7 @@ public class EmailProvider extends ContentProvider {
             case ATTACHMENT_ID:
             case MAILBOX_ID:
             case ACCOUNT_ID:
+            case HOSTAUTH_ID:
                 String id = uri.getPathSegments().get(1);
                 result = db.update(TABLE_NAMES[table], values, whereWithId(id, selection), 
                         selectionArgs);
@@ -419,6 +420,7 @@ public class EmailProvider extends ContentProvider {
             case ATTACHMENT:
             case MAILBOX:
             case ACCOUNT:
+            case HOSTAUTH:
                 result = db.update(TABLE_NAMES[table], values, selection, selectionArgs);
                 break;
             default:

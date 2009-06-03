@@ -16,37 +16,37 @@
 
 package com.android.email.activity;
 
-import com.android.email.Account;
 import com.android.email.Email;
 import com.android.email.MessagingController;
-import com.android.email.Preferences;
 import com.android.email.R;
 import com.android.email.activity.setup.AccountSettings;
 import com.android.email.activity.setup.AccountSetupBasics;
-import com.android.email.mail.MessagingException;
 import com.android.email.mail.Store;
 import com.android.email.mail.store.LocalStore;
-import com.android.email.mail.store.LocalStore.LocalFolder;
+import com.android.email.provider.EmailStore;
+import com.android.email.provider.EmailStore.Account;
 
 import android.app.AlertDialog;
 import android.app.Dialog;
 import android.app.ListActivity;
 import android.app.NotificationManager;
+import android.content.ContentUris;
 import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
+import android.database.Cursor;
+import android.net.Uri;
 import android.os.Bundle;
 import android.view.ContextMenu;
 import android.view.KeyEvent;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
-import android.view.ViewGroup;
 import android.view.ContextMenu.ContextMenuInfo;
 import android.view.View.OnClickListener;
 import android.widget.AdapterView;
-import android.widget.ArrayAdapter;
 import android.widget.ListView;
+import android.widget.SimpleCursorAdapter;
 import android.widget.TextView;
 import android.widget.AdapterView.AdapterContextMenuInfo;
 import android.widget.AdapterView.OnItemClickListener;
@@ -62,8 +62,24 @@ public class Accounts extends ListActivity implements OnItemClickListener, OnCli
     };
 
     private int mSecretKeyCodeIndex = 0;
-    private Account mSelectedContextAccount;
     
+    private static final String ICICLE_SELECTED_ACCOUNT = "com.android.email.selectedAccount";
+    private EmailStore.Account mSelectedContextAccount;
+    
+    /**
+     * Support for list adapter
+     */
+    private final static String[] sFromColumns = new String[] { 
+            EmailStore.AccountColumns.DISPLAY_NAME,
+            EmailStore.AccountColumns.EMAIL_ADDRESS,
+            EmailStore.RECORD_ID
+    };
+    private final int[] sToIds = new int[] {
+            R.id.description,
+            R.id.email,
+            R.id.new_message_count
+    };
+
     /**
      * Start the Accounts list activity.  Uses the CLEAR_TOP flag which means that other stacked
      * activities may be killed in order to get back to Accounts.
@@ -85,16 +101,24 @@ public class Accounts extends ListActivity implements OnItemClickListener, OnCli
         findViewById(R.id.add_new_account).setOnClickListener(this);
         registerForContextMenu(listView);
 
-        if (icicle != null && icicle.containsKey("selectedContextAccount")) {
-            mSelectedContextAccount = (Account) icicle.getSerializable("selectedContextAccount");
+        if (icicle != null && icicle.containsKey(ICICLE_SELECTED_ACCOUNT)) {
+            mSelectedContextAccount = (Account) icicle.getParcelable(ICICLE_SELECTED_ACCOUNT);
         }
+        
+        Cursor c = this.managedQuery(
+                EmailStore.Account.CONTENT_URI, 
+                EmailStore.Account.CONTENT_PROJECTION,
+                null, null);
+        AccountsAdapter a = new AccountsAdapter(this, 
+                R.layout.accounts_item, c, sFromColumns, sToIds);
+        listView.setAdapter(a);
     }
 
     @Override
     public void onSaveInstanceState(Bundle outState) {
         super.onSaveInstanceState(outState);
         if (mSelectedContextAccount != null) {
-            outState.putSerializable("selectedContextAccount", mSelectedContextAccount);
+            outState.putParcelable(ICICLE_SELECTED_ACCOUNT, mSelectedContextAccount);
         }
     }
 
@@ -105,21 +129,14 @@ public class Accounts extends ListActivity implements OnItemClickListener, OnCli
         NotificationManager notifMgr = (NotificationManager)
                 getSystemService(Context.NOTIFICATION_SERVICE);
         notifMgr.cancel(1);
-
-        refresh();
-    }
-
-    private void refresh() {
-        Account[] accounts = Preferences.getPreferences(this).getAccounts();
-        getListView().setAdapter(new AccountsAdapter(accounts));
     }
 
     private void onAddNewAccount() {
         AccountSetupBasics.actionNewAccount(this);
     }
 
-    private void onEditAccount(Account account) {
-        AccountSettings.actionSettings(this, account);
+    private void onEditAccount(long accountId) {
+        AccountSettings.actionSettings(this, accountId);
     }
 
     private void onRefresh() {
@@ -127,18 +144,16 @@ public class Accounts extends ListActivity implements OnItemClickListener, OnCli
     }
 
     private void onCompose() {
-        Account defaultAccount =
-                Preferences.getPreferences(this).getDefaultAccount();
+        EmailStore.Account defaultAccount = EmailStore.Account.getDefaultAccount(this);
         if (defaultAccount != null) {
-            MessageCompose.actionCompose(this, defaultAccount);
-        }
-        else {
+            MessageCompose.actionCompose(this, defaultAccount.mId);
+        } else {
             onAddNewAccount();
         }
     }
 
-    private void onOpenAccount(Account account) {
-        FolderMessageList.actionHandleAccount(this, account);
+    private void onOpenAccount(long accountId) {
+        FolderMessageList.actionHandleAccount(this, accountId);
     }
 
     public void onClick(View view) {
@@ -147,8 +162,8 @@ public class Accounts extends ListActivity implements OnItemClickListener, OnCli
         }
     }
 
-    private void onDeleteAccount(Account account) {
-        mSelectedContextAccount = account;
+    private void onDeleteAccount(long accountId) {
+        mSelectedContextAccount = Account.restoreAccountWithId(this, accountId);
         showDialog(DIALOG_REMOVE_ACCOUNT);
     }
 
@@ -172,24 +187,25 @@ public class Accounts extends ListActivity implements OnItemClickListener, OnCli
                     dismissDialog(DIALOG_REMOVE_ACCOUNT);
                     try {
                         LocalStore localStore = (LocalStore) Store.getInstance(
-                                mSelectedContextAccount.getLocalStoreUri(),
+                                mSelectedContextAccount.getLocalStoreUri(Accounts.this),
                                 getApplication(), 
                                 null);
                         // Delete Remote store at first.
                         Store.getInstance(
-                                mSelectedContextAccount.getStoreUri(),
+                                mSelectedContextAccount.getStoreUri(Accounts.this),
                                 getApplication(), 
                                 localStore.getPersistentCallbacks()).delete();
                         // Remove the Store instance from cache.
-                        Store.removeInstance(mSelectedContextAccount.getStoreUri());
+                        Store.removeInstance(mSelectedContextAccount.getStoreUri(Accounts.this));
                         // If no error, then delete LocalStore
                         localStore.delete();
                     } catch (Exception e) {
                             // Ignore
                     }
-                    mSelectedContextAccount.delete(Preferences.getPreferences(Accounts.this));
+                    Uri uri = ContentUris.withAppendedId(
+                            EmailStore.Account.CONTENT_URI, mSelectedContextAccount.mId);
+                    Accounts.this.getContentResolver().delete(uri, null, null);
                     Email.setServicesEnabled(Accounts.this);
-                    refresh();
                 }
             })
             .setNegativeButton(R.string.cancel_action, new DialogInterface.OnClickListener() {
@@ -202,24 +218,26 @@ public class Accounts extends ListActivity implements OnItemClickListener, OnCli
 
     public boolean onContextItemSelected(MenuItem item) {
         AdapterContextMenuInfo menuInfo = (AdapterContextMenuInfo)item.getMenuInfo();
-        Account account = (Account)getListView().getItemAtPosition(menuInfo.position);
+        Cursor c = (Cursor) getListView().getItemAtPosition(menuInfo.position);
+        long accountId = c.getLong(Account.CONTENT_ID_COLUMN);
         switch (item.getItemId()) {
             case R.id.delete_account:
-                onDeleteAccount(account);
+                onDeleteAccount(accountId);
                 break;
             case R.id.edit_account:
-                onEditAccount(account);
+                onEditAccount(accountId);
                 break;
             case R.id.open:
-                onOpenAccount(account);
+                onOpenAccount(accountId);
                 break;
         }
         return true;
     }
 
     public void onItemClick(AdapterView parent, View view, int position, long id) {
-        Account account = (Account)parent.getItemAtPosition(position);
-        onOpenAccount(account);
+        Cursor c = (Cursor) getListView().getItemAtPosition(position);
+        long accountId = c.getLong(Account.CONTENT_ID_COLUMN);
+        onOpenAccount(accountId);
     }
 
     @Override
@@ -271,61 +289,34 @@ public class Accounts extends ListActivity implements OnItemClickListener, OnCli
         }
         return super.onKeyDown(keyCode, event);
     }
+    
+    private static class AccountsAdapter extends SimpleCursorAdapter {
 
-    class AccountsAdapter extends ArrayAdapter<Account> {
-        public AccountsAdapter(Account[] accounts) {
-            super(Accounts.this, 0, accounts);
+        public AccountsAdapter(Context context, int layout, Cursor c, String[] from, int[] to) {
+            super(context, layout, c, from, to);
+            setViewBinder(new MyViewBinder());
         }
+        
+        /**
+         * This is only used for the unread messages count.  Most of the views are handled
+         * normally by SimpleCursorAdapter.
+         */
+        private static class MyViewBinder implements SimpleCursorAdapter.ViewBinder {
 
-        @Override
-        public View getView(int position, View convertView, ViewGroup parent) {
-            Account account = getItem(position);
-            View view;
-            if (convertView != null) {
-                view = convertView;
-            }
-            else {
-                view = getLayoutInflater().inflate(R.layout.accounts_item, parent, false);
-            }
-            AccountViewHolder holder = (AccountViewHolder) view.getTag();
-            if (holder == null) {
-                holder = new AccountViewHolder();
-                holder.description = (TextView) view.findViewById(R.id.description);
-                holder.email = (TextView) view.findViewById(R.id.email);
-                holder.newMessageCount = (TextView) view.findViewById(R.id.new_message_count);
-                view.setTag(holder);
-            }
-            holder.description.setText(account.getDescription());
-            holder.email.setText(account.getEmail());
-            if (account.getEmail().equals(account.getDescription())) {
-                holder.email.setVisibility(View.GONE);
-            }
-            int unreadMessageCount = 0;
-            try {
-                LocalStore localStore = (LocalStore) Store.getInstance(
-                        account.getLocalStoreUri(),
-                        getApplication(), 
-                        null);
-                LocalFolder localFolder = (LocalFolder) localStore.getFolder(Email.INBOX);
-                if (localFolder.exists()) {
-                    unreadMessageCount = localFolder.getUnreadMessageCount();
+            public boolean setViewValue(View view, Cursor cursor, int columnIndex) {
+                if (view.getId() == R.id.new_message_count) {
+                    
+                    int unreadMessageCount = 0;     // TODO get unread count from Account
+                    if (unreadMessageCount <= 0) {
+                        view.setVisibility(View.GONE);
+                    } else {
+                        ((TextView)view).setText(String.valueOf(unreadMessageCount));
+                    }
+                    return true;
                 }
+                
+                return false;
             }
-            catch (MessagingException me) {
-                /*
-                 * This is not expected to fail under normal circumstances.
-                 */
-                throw new RuntimeException("Unable to get unread count from local store.", me);
-            }
-            holder.newMessageCount.setText(Integer.toString(unreadMessageCount));
-            holder.newMessageCount.setVisibility(unreadMessageCount > 0 ? View.VISIBLE : View.GONE);
-            return view;
-        }
-
-        class AccountViewHolder {
-            public TextView description;
-            public TextView email;
-            public TextView newMessageCount;
         }
     }
 }

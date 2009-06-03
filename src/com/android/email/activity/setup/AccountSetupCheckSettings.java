@@ -21,8 +21,9 @@ import com.android.email.R;
 import com.android.email.mail.AuthenticationFailedException;
 import com.android.email.mail.CertificateValidationException;
 import com.android.email.mail.MessagingException;
-import com.android.email.mail.Store;
 import com.android.email.mail.Sender;
+import com.android.email.mail.Store;
+import com.android.email.provider.EmailStore;
 
 import android.app.Activity;
 import android.app.AlertDialog;
@@ -67,7 +68,17 @@ public class AccountSetupCheckSettings extends Activity implements OnClickListen
 
     private boolean mDestroyed;
 
+    @Deprecated
     public static void actionCheckSettings(Activity fromActivity, Account account,
+            boolean checkIncoming, boolean checkOutgoing) {
+        Intent i = new Intent(fromActivity, AccountSetupCheckSettings.class);
+        i.putExtra(EXTRA_ACCOUNT, account);
+        i.putExtra(EXTRA_CHECK_INCOMING, checkIncoming);
+        i.putExtra(EXTRA_CHECK_OUTGOING, checkOutgoing);
+        fromActivity.startActivityForResult(i, 1);
+    }
+
+    public static void actionCheckSettings(Activity fromActivity, EmailStore.Account account,
             boolean checkIncoming, boolean checkOutgoing) {
         Intent i = new Intent(fromActivity, AccountSetupCheckSettings.class);
         i.putExtra(EXTRA_ACCOUNT, account);
@@ -86,6 +97,18 @@ public class AccountSetupCheckSettings extends Activity implements OnClickListen
 
         setMessage(R.string.account_setup_check_settings_retr_info_msg);
         mProgressBar.setIndeterminate(true);
+        
+        // Placeholder - for "new" accounts, always return "OK" for validation, so we
+        // can continue debugging new code.  Must remove this.
+        try {
+            EmailStore.Account acct = (EmailStore.Account) 
+                    getIntent().getParcelableExtra(EXTRA_ACCOUNT);
+            setResult(RESULT_OK);
+            finish();
+            return;
+        } catch (java.lang.ClassCastException cce) {
+            // old style Account - just continue to old code for now
+        }
 
         mAccount = (Account)getIntent().getSerializableExtra(EXTRA_ACCOUNT);
         mCheckIncoming = (boolean)getIntent().getBooleanExtra(EXTRA_CHECK_INCOMING, false);

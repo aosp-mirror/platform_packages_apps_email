@@ -16,12 +16,12 @@
 
 package com.android.email.activity;
 
-import com.android.email.Account;
 import com.android.email.Email;
-import com.android.email.Preferences;
+import com.android.email.provider.EmailContent;
 import com.android.email.provider.EmailStore;
 
 import android.app.Activity;
+import android.database.Cursor;
 import android.os.Bundle;
 import android.util.Log;
 
@@ -32,25 +32,41 @@ import android.util.Log;
  * can configure an account.
  * If a single account is configured the user is taken directly to the FolderMessageList for
  * the INBOX of that account.
- * If more than one account is configuref the user is takaen to the Accounts Activity so they
+ * If more than one account is configured the user is taken to the Accounts Activity so they
  * can select an account.
  */
 public class Welcome extends Activity {
+    private static final boolean DEBUG_ADD_TEST_ACCOUNTS = false;        // DO NOT CHECK IN "TRUE"
+    
     @Override
     public void onCreate(Bundle icicle) {
         super.onCreate(icicle);
 
-        if (false) {
+        if (DEBUG_ADD_TEST_ACCOUNTS) {
             testAccounts();
         }
-
-        Account[] accounts = Preferences.getPreferences(this).getAccounts();
-        if (accounts.length == 1) {
-            FolderMessageList.actionHandleAccount(this, accounts[0], Email.INBOX);
-        } else {
-            Accounts.actionShowAccounts(this);
+        
+        // Find out how many accounts we have, and if there's just one, go directly to it
+        Cursor c = null;
+        try {
+            c = getContentResolver().query(
+                    EmailStore.Account.CONTENT_URI, 
+                    EmailStore.Account.CONTENT_PROJECTION,
+                    null, null, null);
+            if (c.getCount() == 1) {
+                c.moveToFirst();
+                EmailStore.Account account = EmailContent.getContent(c, EmailStore.Account.class);   
+                FolderMessageList.actionHandleAccount(this, account.mId, Email.INBOX);
+            }
+        } finally {
+            if (c != null) {
+                c.close();
+            }
         }
 
+        // Otherwise  (n=0 or n>1) go to the account info screen
+        Accounts.actionShowAccounts(this);
+        
         finish();
     }
 
@@ -75,8 +91,9 @@ public class Welcome extends Activity {
         acct1.mHostAuthSend = sha;
         acct1.mDisplayName = "Nextobject";
         acct1.mEmailAddress = "foo@nextobject.com";
+        acct1.mIsDefault = true;
 
-        acct1.save(this);
+        acct1.saveOrUpdate(this);
 
         ha = new EmailStore.HostAuth();
         ha.mAddress = "imap.gmail.com";
@@ -95,17 +112,17 @@ public class Welcome extends Activity {
         acct2.mHostAuthSend = sha;
         acct2.mDisplayName = "Google";
         acct2.mEmailAddress = "mblank@google.com";
+        acct2.mIsDefault = true;                    // this should supercede the previous one
 
-        acct2.save(this);
+        acct2.saveOrUpdate(this);
 
-        // Should be null
+        // TODO this should move to unit tests of the new Account code
         acct = EmailStore.Account.getDefaultAccount(this);
-        Log.i("EmailApp", "Default (Nextobject) = " + acct == null ? "none" : acct.mDisplayName);
-        EmailStore.Account.setDefaultAccount(this, acct2.mId);
+        Log.i("EmailApp", "Default (Google) = " + (acct == null ? "none" : acct.mDisplayName));
+        
+        acct1.setDefaultAccount(true);
+        acct1.saveOrUpdate(this);
         acct = EmailStore.Account.getDefaultAccount(this);
-        Log.i("EmailApp", "Default (Google) = " + acct == null ? "none" : acct.mDisplayName);
-        EmailStore.Account.setDefaultAccount(this, acct1.mId);
-        acct = EmailStore.Account.getDefaultAccount(this);
-        Log.i("EmailApp", "Default (Nextobject) = " + acct == null ? "none" : acct.mDisplayName);
+        Log.i("EmailApp", "Default (Nextobject) = " + (acct == null ? "none" : acct.mDisplayName));
     }
 }

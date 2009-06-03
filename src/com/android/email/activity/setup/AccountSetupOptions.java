@@ -21,6 +21,7 @@ import com.android.email.Email;
 import com.android.email.Preferences;
 import com.android.email.R;
 import com.android.email.mail.Store;
+import com.android.email.provider.EmailStore;
 
 import android.app.Activity;
 import android.content.Intent;
@@ -45,7 +46,16 @@ public class AccountSetupOptions extends Activity implements OnClickListener {
 
     private Account mAccount;
 
+    @Deprecated
     public static void actionOptions(Activity fromActivity, Account account, boolean makeDefault) {
+        Intent i = new Intent(fromActivity, AccountSetupOptions.class);
+        i.putExtra(EXTRA_ACCOUNT, account);
+        i.putExtra(EXTRA_MAKE_DEFAULT, makeDefault);
+        fromActivity.startActivity(i);
+    }
+
+    public static void actionOptions(Activity fromActivity, EmailStore.Account account,
+            boolean makeDefault) {
         Intent i = new Intent(fromActivity, AccountSetupOptions.class);
         i.putExtra(EXTRA_ACCOUNT, account);
         i.putExtra(EXTRA_MAKE_DEFAULT, makeDefault);

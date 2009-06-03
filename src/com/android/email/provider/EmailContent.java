@@ -63,13 +63,17 @@ public abstract class EmailContent {
         return null;
     }
     
-    // Convenience method that saves or updates some Content
+    /**
+     * Convenience method to save or update content.  Note:  This is designed to save or update
+     * a single row, not for any bulk changes.
+     */
     public Uri saveOrUpdate(Context context) {
-        if (!isSaved())
-            return context.getContentResolver().insert(mBaseUri, toContentValues());
-        else {
-            if (update(context, toContentValues()) == 1)    
+        if (!isSaved()) {
+            return save(context);
+        } else {
+            if (update(context, toContentValues()) == 1) {
                 return getUri();
+            }
             return null;
         }
     }
