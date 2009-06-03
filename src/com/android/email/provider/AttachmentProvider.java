@@ -25,6 +25,7 @@ import java.io.InputStream;
 import java.util.List;
 
 import android.content.ContentProvider;
+import android.content.ContentResolver;
 import android.content.ContentValues;
 import android.database.Cursor;
 import android.database.MatrixCursor;
@@ -297,5 +298,26 @@ public class AttachmentProvider extends ContentProvider {
         catch (Exception e) {
             return null;
         }
+    }
+    /**
+     * Resolve attachment id to content URI.
+     * 
+     * @param attachmentUri
+     * @return resolved content URI
+     */
+    public static Uri resolveAttachmentIdToContentUri(ContentResolver resolver, Uri attachmentUri) {
+        Cursor c = resolver.query(attachmentUri,
+                new String[] { AttachmentProvider.AttachmentProviderColumns.DATA },
+                null, null, null);
+        if (c != null) {
+            try {
+                if (c.moveToFirst()) {
+                    return Uri.parse(c.getString(0));
+                }
+            } finally {
+                c.close();
+            }
+        }
+        return attachmentUri;
     }
 }
