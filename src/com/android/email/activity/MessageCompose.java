@@ -211,6 +211,7 @@ public class MessageCompose extends Activity implements OnClickListener, OnFocus
        try {
            Intent i = new Intent(context, MessageCompose.class);
            i.putExtra(EXTRA_ACCOUNT, account);
+           i.putExtra(EXTRA_FOLDER, account.getDraftsFolderName());
            context.startActivity(i);
        } catch (ActivityNotFoundException anfe) {
            // Swallow it - this is usually a race condition, especially under automated test.
@@ -1239,7 +1240,7 @@ public class MessageCompose extends Activity implements OnClickListener, OnFocus
         setNewMessageFocus();
         
         mSourceMessageProcessed = true;
-        mDraftNeedsSaving = false;
+        mDraftNeedsSaving = mFolder != null && !mFolder.equals(mAccount.getDraftsFolderName());
     }
 
     /**
