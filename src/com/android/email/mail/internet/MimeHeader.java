@@ -65,7 +65,7 @@ public class MimeHeader {
     }
 
     public void addHeader(String name, String value) throws MessagingException {
-        mFields.add(new Field(name, MimeUtility.foldAndEncode(value)));
+        mFields.add(new Field(name, value));
     }
 
     public void setHeader(String name, String value) throws MessagingException {
