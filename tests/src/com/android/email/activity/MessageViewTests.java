@@ -74,6 +74,10 @@ public class MessageViewTests
     private WebView mMessageContentView;
     private Context mContext;
     
+    private static final String textTags = "<b>Plain</b> &";
+    private static final String textSpaces = "3 spaces   end.";
+    private static final String textNewlines = "ab \r\n  \n   \n\r\n";
+
     public MessageViewTests() {
         super("com.android.email", MessageView.class);
     }
@@ -168,4 +172,29 @@ public class MessageViewTests
         }
     }
     
+    /**
+     * Test for escapeCharacterToDisplay in plain text mode.
+     */
+    public void testEscapeCharacterToDisplayPlainText() {
+        // HTML tag will be escaped.
+        String plainTags = MessageView.escapeCharacterToDisplay(textTags);
+        assertEquals("plain tag", "&lt;b&gt;Plain&lt;/b&gt; &amp;", plainTags);
+        
+        // Successive spaces will be escaped as "&nbsp;"
+        String plainSpaces = MessageView.escapeCharacterToDisplay(textSpaces);
+        assertEquals("plain spaces", "3 spaces&nbsp;&nbsp; end.", plainSpaces);
+
+        // Newlines will be escaped as "<br>"
+        String plainNewlines = MessageView.escapeCharacterToDisplay(textNewlines);
+        assertEquals("plain spaces", "ab <br>&nbsp; <br>&nbsp;&nbsp; <br><br>", plainNewlines);
+        
+        // All combinations.
+        String textAll = textTags + "\n" + textSpaces + "\n" + textNewlines;
+        String plainAll = MessageView.escapeCharacterToDisplay(textAll);
+        assertEquals("plain all",
+                "&lt;b&gt;Plain&lt;/b&gt; &amp;<br>" +
+                "3 spaces&nbsp;&nbsp; end.<br>" +
+                "ab <br>&nbsp; <br>&nbsp;&nbsp; <br><br>",
+                plainAll);
+     }
 }
