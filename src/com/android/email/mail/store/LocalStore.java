@@ -651,10 +651,28 @@ public class LocalStore extends Store implements PersistentDataCallbacks {
 
         @Override
         public int getMessageCount() throws MessagingException {
+            return getMessageCount(null, null);
+        }
+
+        /**
+         * Return number of messages based on the state of the flags.
+         * 
+         * @param setFlags The flags that should be set for a message to be selected (null ok)
+         * @param clearFlags The flags that should be clear for a message to be selected (null ok)
+         * @return The number of messages matching the desired flag states.
+         * @throws MessagingException
+         */
+        public int getMessageCount(Flag[] setFlags, Flag[] clearFlags) throws MessagingException {
+            // Generate WHERE clause based on flags observed
+            StringBuilder sql = new StringBuilder("SELECT COUNT(*) FROM messages WHERE ");
+            buildFlagPredicates(sql, setFlags, clearFlags);
+            sql.append("messages.folder_id = ?");
+            
             open(OpenMode.READ_WRITE);
             Cursor cursor = null;
             try {
-                cursor = mDb.rawQuery("SELECT COUNT(*) FROM messages WHERE messages.folder_id = ?",
+                cursor = mDb.rawQuery(
+                        sql.toString(),
                         new String[] {
                             Long.toString(mFolderId)
                         });
@@ -1007,6 +1025,39 @@ public class LocalStore extends Store implements PersistentDataCallbacks {
                     "SELECT " + POPULATE_MESSAGE_SELECT_COLUMNS +
                     " FROM messages" +
                     " WHERE ");
+            buildFlagPredicates(sql, setFlags, clearFlags);
+            sql.append("folder_id = ?");
+            
+            open(OpenMode.READ_WRITE);
+            ArrayList<Message> messages = new ArrayList<Message>();
+            
+            Cursor cursor = null;
+            try {
+                cursor = mDb.rawQuery(
+                        sql.toString(),
+                        new String[] {
+                                Long.toString(mFolderId)
+                        });
+
+                while (cursor.moveToNext()) {
+                    LocalMessage message = new LocalMessage(null, this);
+                    populateMessageFromGetMessageCursor(message, cursor);
+                    messages.add(message);
+                }
+            } finally {
+                if (cursor != null) {
+                    cursor.close();
+                }
+            }
+
+            return messages.toArray(new Message[] {});
+        }
+        
+        /*
+         * Build SQL where predicates expression from set and clear flag arrays.
+         */
+        private void buildFlagPredicates(StringBuilder sql, Flag[] setFlags, Flag[] clearFlags)
+                throws MessagingException {
             if (setFlags != null) {
                 for (Flag flag : setFlags) {
                     if (flag == Flag.X_STORE_1) {
@@ -1041,32 +1092,6 @@ public class LocalStore extends Store implements PersistentDataCallbacks {
                     }
                 }
             }
-            sql.append("folder_id = ?");
-            
-            open(OpenMode.READ_WRITE);
-            ArrayList<Message> messages = new ArrayList<Message>();
-            
-            Cursor cursor = null;
-            try {
-                cursor = mDb.rawQuery(
-                        sql.toString(),
-                        new String[] {
-                                Long.toString(mFolderId)
-                        });
-
-                while (cursor.moveToNext()) {
-                    LocalMessage message = new LocalMessage(null, this);
-                    populateMessageFromGetMessageCursor(message, cursor);
-                    messages.add(message);
-                }
-            }
-            finally {
-                if (cursor != null) {
-                    cursor.close();
-                }
-            }
-
-            return messages.toArray(new Message[] {});
         }
 
         @Override

@@ -33,6 +33,7 @@ import com.android.email.mail.Message;
 import com.android.email.mail.MessagingException;
 import com.android.email.mail.Message.RecipientType;
 import com.android.email.mail.store.LocalStore;
+import com.android.email.mail.store.LocalStore.LocalFolder;
 import com.android.email.mail.store.LocalStore.LocalMessage;
 
 import android.app.ExpandableListActivity;
@@ -125,6 +126,8 @@ public class FolderMessageList extends ExpandableListActivity {
         R.drawable.appointment_indicator_leftside_20,
         R.drawable.appointment_indicator_leftside_21,
     };
+    
+    private static final Flag[] DELETED_FLAG = new Flag[] { Flag.DELETED };
 
     private ExpandableListView mListView;
     private int colorChipResId;
@@ -667,7 +670,7 @@ public class FolderMessageList extends ExpandableListActivity {
             mHandler.dataChanged();
         }
 
-        if (folder.name.equals(mAccount.getDraftsFolderName())) {
+        if (folder.drafts) {
             MessageCompose.actionEditDraft(this, mAccount, message.message);
         }
         else {
@@ -1032,6 +1035,27 @@ public class FolderMessageList extends ExpandableListActivity {
             mAttachmentIcon = getResources().getDrawable(R.drawable.ic_mms_attachment_small);
         }
 
+        /*
+         * Set special folder boolean indicator in FolderInfoHolder
+         */
+        private void setSpecialFolderIndicator(FolderInfoHolder holder) {
+            String folderName = holder.name;
+            holder.special = true;
+            if (folderName.equalsIgnoreCase(Email.INBOX)) {
+                holder.inbox = true;
+            } else if (folderName.equals(mAccount.getDraftsFolderName())) {
+                holder.drafts = true;
+            } else if (folderName.equals(mAccount.getOutboxFolderName())) {
+                holder.outbox = true;
+            } else if (folderName.equals(mAccount.getSentFolderName())) {
+                holder.sent = true;
+            } else if (folderName.equals(mAccount.getTrashFolderName())) {
+                holder.trash = true;
+            } else {
+                holder.special = false;
+            }
+        }
+        
         /**
          * This code is invoked (in the UI thread) in response to a listFolders() callback
          * into the MessageListener.
@@ -1050,15 +1074,14 @@ public class FolderMessageList extends ExpandableListActivity {
                 else {
                     holder.displayName = folder.getName();
                 }
-                if (holder.name.equals(mAccount.getOutboxFolderName())) {
-                    holder.outbox = true;
-                }
+                setSpecialFolderIndicator(holder);
                 if (holder.messages == null) {
                     holder.messages = new ArrayList<MessageInfoHolder>();
                 }
                 try {
                     folder.open(Folder.OpenMode.READ_WRITE, null);
-                    holder.messageCount = folder.getMessageCount();
+                    holder.messageCount = ((LocalFolder) folder)
+                            .getMessageCount(null, DELETED_FLAG);
                     holder.unreadMessageCount = folder.getUnreadMessageCount();
                     folder.close(false);
                 }
@@ -1230,11 +1253,11 @@ public class FolderMessageList extends ExpandableListActivity {
                 holder.folderStatus.setVisibility(View.VISIBLE);
             }
 
-            if (!folder.outbox && folder.unreadMessageCount != 0) {
+            if ((folder.inbox || !folder.special) && folder.unreadMessageCount != 0) {
                 holder.newMessageCount.setText(Integer.toString(folder.unreadMessageCount));
                 holder.newMessageCount.setVisibility(View.VISIBLE);
             }
-            else if (folder.outbox && folder.messageCount > 0) {
+            else if ((folder.outbox || folder.drafts) && folder.messageCount > 0) {
                 holder.newMessageCount.setText(Integer.toString(folder.messageCount));
                 holder.newMessageCount.setVisibility(View.VISIBLE);
             }
@@ -1393,9 +1416,14 @@ public class FolderMessageList extends ExpandableListActivity {
         public boolean lastCheckFailed;
 
         /**
-         * Outbox is handled differently from any other folder.
+         * Special folder indicator.
          */
+        public boolean special;  // One of the following five folders.
+        public boolean inbox;
+        public boolean drafts;
         public boolean outbox;
+        public boolean sent;
+        public boolean trash;
 
         public int compareTo(FolderInfoHolder o) {
             String s1 = this.name;
@@ -1445,7 +1473,7 @@ public class FolderMessageList extends ExpandableListActivity {
                 }
                 this.hasAttachments = message.getAttachmentCount() > 0;
                 this.read = message.isSet(Flag.SEEN);
-                if (folder.outbox) {
+                if (folder.outbox || folder.drafts || folder.sent) {
                     this.sender = Address.toFriendly(
                             message.getRecipients(RecipientType.TO));
                 }
