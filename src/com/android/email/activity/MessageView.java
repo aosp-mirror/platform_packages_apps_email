@@ -94,9 +94,13 @@ public class MessageView extends Activity
     };
     private static final int METHODS_STATUS_COLUMN = 1;
 
-    // regex that matches start of img tag. '<(?i)img\s+'.
+    // Regex that matches start of img tag. '<(?i)img\s+'.
     private static final Pattern IMG_TAG_START_REGEX = Pattern.compile("<(?i)img\\s+");
 
+    // Regex that matches characters that has special meaning in HTML. '<', '>', '&' and
+    // continuous spaces at least two.
+    private static final Pattern PLAIN_TEXT_TO_ESCAPE = Pattern.compile("[<>&]| {2,}|\r?\n");
+    
     private TextView mSubjectView;
     private TextView mFromView;
     private TextView mDateView;
@@ -899,6 +903,10 @@ public class MessageView extends Activity
                         text = EmailHtmlUtil.resolveInlineImage(
                                 getContentResolver(), mAccount, text, mMessage, 0);
                     } else {
+                        // And also escape special character, such as "<>&",
+                        // to HTML escape sequence.
+                        text = escapeCharacterToDisplay(text);
+
                         /*
                          * Linkify the plain text and convert it to HTML by replacing
                          * \r?\n with <br> and adding a html/body wrapper.
@@ -923,7 +931,7 @@ public class MessageView extends Activity
                             m.appendTail(sb);
                         }
                         sb.append("</body></html>");
-                        text = sb.toString().replaceAll("\r?\n", "<br>");
+                        text = sb.toString();
                     }
 
                     /*
@@ -1115,5 +1123,44 @@ public class MessageView extends Activity
             }
         }
     }
+    
+    /**
+     * Escape some special character as HTML escape sequence.
+     * 
+     * @param text Text to be displayed using WebView.
+     * @return Text correctly escaped.
+     */
+    /* package */ static String escapeCharacterToDisplay(String text) {
+        Pattern pattern = PLAIN_TEXT_TO_ESCAPE;
+        Matcher match = pattern.matcher(text);
+        
+        if (match.find()) {
+            StringBuilder out = new StringBuilder();
+            int end = 0;
+            do {
+                int start = match.start();
+                out.append(text.substring(end, start));
+                end = match.end();
+                int c = text.codePointAt(start);
+                if (c == ' ') {
+                    // Escape successive spaces into series of "&nbsp;".
+                    for (int i = 1, n = end - start; i < n; ++i) {
+                        out.append("&nbsp;");
+                    }
+                    out.append(' ');
+                } else if (c == '\r' || c == '\n') {
+                    out.append("<br>");
+                } else if (c == '<') {
+                    out.append("&lt;");
+                } else if (c == '>') {
+                    out.append("&gt;");
+                } else if (c == '&') {
+                    out.append("&amp;");
+                }
+            } while (match.find());
+            out.append(text.substring(end));
+            text = out.toString();
+        }        
+        return text;
+    }
 }
-
