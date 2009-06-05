@@ -96,6 +96,8 @@ public class MessageView extends Activity
 
     // Regex that matches start of img tag. '<(?i)img\s+'.
     private static final Pattern IMG_TAG_START_REGEX = Pattern.compile("<(?i)img\\s+");
+    // Regex that matches Web URL protocol part as case insensitive.
+    private static final Pattern WEB_URL_PROTOCOL = Pattern.compile("(?i)http|https://");
 
     // Regex that matches characters that has special meaning in HTML. '<', '>', '&' and
     // continuous spaces at least two.
@@ -922,7 +924,20 @@ public class MessageView extends Activity
                                  * should not be '@'. 
                                  */
                                 if (start == 0 || text.charAt(start - 1) != '@') {
-                                    m.appendReplacement(sb, "<a href=\"$0\">$0</a>");
+                                    String url = m.group();
+                                    Matcher proto = WEB_URL_PROTOCOL.matcher(url);
+                                    String link;
+                                    if (proto.find()) {
+                                        // This is work around to force URL protocol part be lower case,
+                                        // because WebView could follow only lower case protocol link.
+                                        link = proto.group().toLowerCase() + url.substring(proto.end());
+                                    } else {
+                                        // Regex.WEB_URL_PATTERN matches URL without protocol part,
+                                        // so added default protocol to link.
+                                        link = "http://" + url;
+                                    }
+                                    String href = String.format("<a href=\"%s\">%s</a>", link, url);
+                                    m.appendReplacement(sb, href);
                                 }
                                 else {
                                     m.appendReplacement(sb, "$0");
