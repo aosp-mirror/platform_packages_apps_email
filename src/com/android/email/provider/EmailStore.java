@@ -522,6 +522,11 @@ public class EmailStore {
         public static final int DELETE_POLICY_7DAYS = 1;
         public static final int DELETE_POLICY_ON_DELETE = 2;
         
+        public static final int CHECK_INTERVAL_NEVER = -1;
+        public static final int CHECK_INTERVAL_PUSH = -2;
+        
+        public static final int SYNC_WINDOW_USER = -1;
+
         public String mDisplayName;
         public String mEmailAddress;
         public String mSyncKey;
@@ -660,6 +665,21 @@ public class EmailStore {
          */
         public void setDescription(String description) {
             mDisplayName = description;
+        }
+        
+        /**
+         * @return the email address for this account
+         */
+        public String getEmail() {
+            return mEmailAddress;
+        }
+        
+        /**
+         * Set the Email address for this account.  Be sure to call save() to commit to database.
+         * @param emailAddress the new email address for this account
+         */
+        public void setEmail(String emailAddress) {
+            mEmailAddress = emailAddress;
         }
         
         /**
@@ -1130,6 +1150,25 @@ public class EmailStore {
             }
         }
         
+        /**
+         * For debugger support only - DO NOT use for code.
+         */
+        @Override
+        public String toString() {
+            StringBuilder sb = new StringBuilder('[');
+            if (mHostAuthRecv != null && mHostAuthRecv.mProtocol != null) {
+                sb.append(mHostAuthRecv.mProtocol);
+                sb.append(':');
+            }
+            if (mDisplayName != null)   sb.append(mDisplayName);
+            sb.append(':');
+            if (mEmailAddress != null)  sb.append(mEmailAddress);
+            sb.append(':');
+            if (mSenderName != null)    sb.append(mSenderName);
+            sb.append(']');
+            return sb.toString();
+        }
+
     }
 
     public interface AttachmentColumns {
@@ -1529,7 +1568,6 @@ public class EmailStore {
             
             // other defaults policy)
             mPort = -1;
-            mFlags = FLAG_AUTHENTICATE;
         }
 
         public static final String TABLE_NAME = "HostAuth";
@@ -1624,12 +1662,16 @@ public class EmailStore {
             } else if ((mFlags & FLAG_TLS) != 0) {
                 security = "+tls+";
             }
+            String userInfo = null;
+            if ((mFlags & FLAG_AUTHENTICATE) != 0) {
+                userInfo = mLogin.trim() + ":" + mPassword.trim();
+            }
             
             URI uri;
             try {
                 uri = new URI(
                         mProtocol + security,
-                        mLogin.trim() + ":" + mPassword.trim(),
+                        userInfo,
                         mAddress.trim(),
                         mPort,
                         mDomain, // path
@@ -1651,11 +1693,13 @@ public class EmailStore {
                 URI uri = new URI(uriString);
                 mLogin = null;
                 mPassword = null;
+                mFlags &= ~FLAG_AUTHENTICATE;
                 if (uri.getUserInfo() != null) {
                     String[] userInfoParts = uri.getUserInfo().split(":", 2);
                     mLogin = userInfoParts[0];
                     if (userInfoParts.length > 1) {
                         mPassword = userInfoParts[1];
+                        mFlags |= FLAG_AUTHENTICATE;
                     }
                 }
                 
@@ -1762,5 +1806,12 @@ public class EmailStore {
             mAccountKey = in.readLong();
         }
 
+        /**
+         * For debugger support only - DO NOT use for code.
+         */
+        @Override
+        public String toString() {
+            return getStoreUri();
+        }
     }
 }       

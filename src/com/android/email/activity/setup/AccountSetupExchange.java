@@ -16,10 +16,9 @@
 
 package com.android.email.activity.setup;
 
-import com.android.email.Account;
-import com.android.email.Preferences;
 import com.android.email.R;
 import com.android.email.Utility;
+import com.android.email.provider.EmailStore;
 
 import android.app.Activity;
 import android.content.Intent;
@@ -57,10 +56,10 @@ public class AccountSetupExchange extends Activity implements OnClickListener {
     private CheckBox mSslSecurityView;
 
     private Button mNextButton;
-    private Account mAccount;
+    private EmailStore.Account mAccount;
     private boolean mMakeDefault;
 
-    public static void actionIncomingSettings(Activity fromActivity, Account account, 
+    public static void actionIncomingSettings(Activity fromActivity, EmailStore.Account account,
             boolean makeDefault) {
         Intent i = new Intent(fromActivity, AccountSetupExchange.class);
         i.putExtra(EXTRA_ACCOUNT, account);
@@ -68,7 +67,8 @@ public class AccountSetupExchange extends Activity implements OnClickListener {
         fromActivity.startActivity(i);
     }
 
-    public static void actionEditIncomingSettings(Activity fromActivity, Account account) {
+    public static void actionEditIncomingSettings(Activity fromActivity, EmailStore.Account account)
+            {
         Intent i = new Intent(fromActivity, AccountSetupExchange.class);
         i.setAction(Intent.ACTION_EDIT);
         i.putExtra(EXTRA_ACCOUNT, account);
@@ -79,7 +79,8 @@ public class AccountSetupExchange extends Activity implements OnClickListener {
      * For now, we'll simply replicate outgoing, for the purpose of satisfying the 
      * account settings flow.
      */
-    public static void actionEditOutgoingSettings(Activity fromActivity, Account account) {
+    public static void actionEditOutgoingSettings(Activity fromActivity, EmailStore.Account account)
+            {
         Intent i = new Intent(fromActivity, AccountSetupExchange.class);
         i.setAction(Intent.ACTION_EDIT);
         i.putExtra(EXTRA_ACCOUNT, account);
@@ -120,7 +121,7 @@ public class AccountSetupExchange extends Activity implements OnClickListener {
         mServerView.addTextChangedListener(validationTextWatcher);
         mDomainView.addTextChangedListener(validationTextWatcher);
 
-        mAccount = (Account)getIntent().getSerializableExtra(EXTRA_ACCOUNT);
+        mAccount = (EmailStore.Account) getIntent().getParcelableExtra(EXTRA_ACCOUNT);
         mMakeDefault = getIntent().getBooleanExtra(EXTRA_MAKE_DEFAULT, false);
 
         /*
@@ -128,11 +129,11 @@ public class AccountSetupExchange extends Activity implements OnClickListener {
          * we saved
          */
         if (savedInstanceState != null && savedInstanceState.containsKey(EXTRA_ACCOUNT)) {
-            mAccount = (Account)savedInstanceState.getSerializable(EXTRA_ACCOUNT);
+            mAccount = (EmailStore.Account) savedInstanceState.getParcelable(EXTRA_ACCOUNT);
         }
 
         try {
-            URI uri = new URI(mAccount.getStoreUri());
+            URI uri = new URI(mAccount.getStoreUri(this));
             String username = null;
             String password = null;
             if (uri.getUserInfo() != null) {
@@ -154,7 +155,7 @@ public class AccountSetupExchange extends Activity implements OnClickListener {
             if (uri.getScheme().startsWith("eas")) {
                 // any other setup from mAccount can go here
             } else {
-                throw new Error("Unknown account type: " + mAccount.getStoreUri());
+                throw new Error("Unknown account type: " + mAccount.getStoreUri(this));
             }
 
             if (uri.getHost() != null) {
@@ -181,7 +182,7 @@ public class AccountSetupExchange extends Activity implements OnClickListener {
     @Override
     public void onSaveInstanceState(Bundle outState) {
         super.onSaveInstanceState(outState);
-        outState.putSerializable(EXTRA_ACCOUNT, mAccount);
+        outState.putParcelable(EXTRA_ACCOUNT, mAccount);
     }
 
     /**
@@ -207,7 +208,7 @@ public class AccountSetupExchange extends Activity implements OnClickListener {
     public void onActivityResult(int requestCode, int resultCode, Intent data) {
         if (resultCode == RESULT_OK) {
             if (Intent.ACTION_EDIT.equals(getIntent().getAction())) {
-                mAccount.save(Preferences.getPreferences(this));
+                mAccount.saveOrUpdate(this);
                 finish();
             } else {
                 // Go directly to end - there is no 2nd screen for incoming settings
@@ -252,8 +253,8 @@ public class AccountSetupExchange extends Activity implements OnClickListener {
     private void onNext() {
         try {
             URI uri = getUri();
-            mAccount.setStoreUri(uri.toString());
-            mAccount.setSenderUri(uri.toString());
+            mAccount.setStoreUri(this, uri.toString());
+            mAccount.setSenderUri(this, uri.toString());
         } catch (URISyntaxException use) {
             /*
              * It's unrecoverable if we cannot create a URI from components that

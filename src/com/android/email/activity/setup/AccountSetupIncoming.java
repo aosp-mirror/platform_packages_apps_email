@@ -16,8 +16,6 @@
 
 package com.android.email.activity.setup;
 
-import com.android.email.Account;
-import com.android.email.Preferences;
 import com.android.email.R;
 import com.android.email.Utility;
 import com.android.email.provider.EmailStore;
@@ -70,18 +68,11 @@ public class AccountSetupIncoming extends Activity implements OnClickListener {
     private EmailStore.Account mAccount;
     private boolean mMakeDefault;
 
-    public static void actionIncomingSettings(Activity fromActivity, Account account, boolean makeDefault) {
+    public static void actionIncomingSettings(Activity fromActivity, EmailStore.Account account,
+            boolean makeDefault) {
         Intent i = new Intent(fromActivity, AccountSetupIncoming.class);
         i.putExtra(EXTRA_ACCOUNT, account);
         i.putExtra(EXTRA_MAKE_DEFAULT, makeDefault);
-        fromActivity.startActivity(i);
-    }
-
-    @Deprecated
-    public static void actionEditIncomingSettings(Activity fromActivity, Account account) {
-        Intent i = new Intent(fromActivity, AccountSetupIncoming.class);
-        i.setAction(Intent.ACTION_EDIT);
-        i.putExtra(EXTRA_ACCOUNT, account);
         fromActivity.startActivity(i);
     }
 

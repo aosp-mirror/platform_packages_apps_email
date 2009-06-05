@@ -16,8 +16,6 @@
 
 package com.android.email.activity.setup;
 
-import com.android.email.Account;
-import com.android.email.Preferences;
 import com.android.email.R;
 import com.android.email.Utility;
 import com.android.email.provider.EmailStore;
@@ -68,28 +66,11 @@ public class AccountSetupOutgoing extends Activity implements OnClickListener,
     private EmailStore.Account mAccount;
     private boolean mMakeDefault;
 
-    @Deprecated
-    public static void actionOutgoingSettings(Activity fromActivity, Account account, 
-            boolean makeDefault) {
-        Intent i = new Intent(fromActivity, AccountSetupOutgoing.class);
-        i.putExtra(EXTRA_ACCOUNT, account);
-        i.putExtra(EXTRA_MAKE_DEFAULT, makeDefault);
-        fromActivity.startActivity(i);
-    }
-
     public static void actionOutgoingSettings(Activity fromActivity, EmailStore.Account account, 
             boolean makeDefault) {
         Intent i = new Intent(fromActivity, AccountSetupOutgoing.class);
         i.putExtra(EXTRA_ACCOUNT, account);
         i.putExtra(EXTRA_MAKE_DEFAULT, makeDefault);
-        fromActivity.startActivity(i);
-    }
-
-    @Deprecated
-    public static void actionEditOutgoingSettings(Activity fromActivity, Account account) {
-        Intent i = new Intent(fromActivity, AccountSetupOutgoing.class);
-        i.setAction(Intent.ACTION_EDIT);
-        i.putExtra(EXTRA_ACCOUNT, account);
         fromActivity.startActivity(i);
     }
 
@@ -172,7 +153,7 @@ public class AccountSetupOutgoing extends Activity implements OnClickListener,
         mPortView.setKeyListener(DigitsKeyListener.getInstance("0123456789"));
 
         mAccount = (EmailStore.Account)getIntent().getParcelableExtra(EXTRA_ACCOUNT);
-        mMakeDefault = (boolean)getIntent().getBooleanExtra(EXTRA_MAKE_DEFAULT, false);
+        mMakeDefault = getIntent().getBooleanExtra(EXTRA_MAKE_DEFAULT, false);
 
         /*
          * If we're being reloaded we override the original account with the one

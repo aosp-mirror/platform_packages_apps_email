@@ -390,6 +390,7 @@ public class FolderMessageList extends ExpandableListActivity {
         }
     }
 
+    @Deprecated
     public static void actionHandleAccount(Context context, Account account, String initialFolder) {
         Intent intent = new Intent(context, FolderMessageList.class);
         intent.putExtra(EXTRA_ACCOUNT, account);
@@ -399,12 +400,13 @@ public class FolderMessageList extends ExpandableListActivity {
         context.startActivity(intent);
     }
 
+    @Deprecated
     public static void actionHandleAccount(Context context, Account account) {
         actionHandleAccount(context, account, null);
     }
     
     /**
-     * Open a specific account.  This replaces the old non-provider based version.
+     * Open a specific account.
      * @param context
      * @param id
      */
@@ -413,7 +415,7 @@ public class FolderMessageList extends ExpandableListActivity {
     }
 
     /**
-     * Open a specific account.  This replaces the old non-provider based version.
+     * Open a specific account.
      * @param context
      * @param id
      * @param initialFolder The folder to open, or null for none
@@ -421,6 +423,8 @@ public class FolderMessageList extends ExpandableListActivity {
     public static void actionHandleAccount(Context context, long id, String initialFolder) {
         // TODO Auto-generated method stub
         // DO NOT CHECK IN UNTIL WRITTEN
+        // PLACEHOLDER:  Just return to accounts list, for now
+        Accounts.actionShowAccounts(context);
     }
 
     public static Intent actionHandleAccountIntent(Context context, Account account, String initialFolder) {

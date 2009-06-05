@@ -16,13 +16,13 @@
 
 package com.android.email.activity.setup;
 
-import com.android.email.Account;
 import com.android.email.Email;
 import com.android.email.EmailAddressValidator;
 import com.android.email.Preferences;
 import com.android.email.R;
 import com.android.email.Utility;
 import com.android.email.activity.Debug;
+import com.android.email.provider.EmailStore;
 
 import android.app.Activity;
 import android.app.AlertDialog;
@@ -74,7 +74,7 @@ public class AccountSetupBasics extends Activity
     private CheckBox mDefaultView;
     private Button mNextButton;
     private Button mManualSetupButton;
-    private Account mAccount;
+    private EmailStore.Account mAccount;
     private Provider mProvider;
 
     private EmailAddressValidator mEmailValidator = new EmailAddressValidator();
@@ -106,7 +106,7 @@ public class AccountSetupBasics extends Activity
         }
 
         if (savedInstanceState != null && savedInstanceState.containsKey(EXTRA_ACCOUNT)) {
-            mAccount = (Account)savedInstanceState.getSerializable(EXTRA_ACCOUNT);
+            mAccount = (EmailStore.Account)savedInstanceState.getParcelable(EXTRA_ACCOUNT);
         }
 
         if (savedInstanceState != null && savedInstanceState.containsKey(STATE_KEY_PROVIDER)) {
@@ -123,7 +123,7 @@ public class AccountSetupBasics extends Activity
     @Override
     public void onSaveInstanceState(Bundle outState) {
         super.onSaveInstanceState(outState);
-        outState.putSerializable(EXTRA_ACCOUNT, mAccount);
+        outState.putParcelable(EXTRA_ACCOUNT, mAccount);
         if (mProvider != null) {
             outState.putSerializable(STATE_KEY_PROVIDER, mProvider);
         }
@@ -168,7 +168,7 @@ public class AccountSetupBasics extends Activity
         }
 
         if (name == null || name.length() == 0) {
-            Account account = Preferences.getPreferences(this).getDefaultAccount();
+            EmailStore.Account account = EmailStore.Account.getDefaultAccount(this);
             if (account != null) {
                 name = account.getName();
             }
@@ -237,19 +237,21 @@ public class AccountSetupBasics extends Activity
             return;
         }
 
-        mAccount = new Account(this);
+        mAccount = new EmailStore.Account();
         mAccount.setName(getOwnerName());
         mAccount.setEmail(email);
-        mAccount.setStoreUri(incomingUri.toString());
-        mAccount.setSenderUri(outgoingUri.toString());
+        mAccount.setStoreUri(this, incomingUri.toString());
+        mAccount.setSenderUri(this, outgoingUri.toString());
+/* TODO figure out the best way to implement this concept
         mAccount.setDraftsFolderName(getString(R.string.special_mailbox_name_drafts));
         mAccount.setTrashFolderName(getString(R.string.special_mailbox_name_trash));
         mAccount.setOutboxFolderName(getString(R.string.special_mailbox_name_outbox));
         mAccount.setSentFolderName(getString(R.string.special_mailbox_name_sent));
+*/
         if (incomingUri.toString().startsWith("imap")) {
             // Delete policy must be set explicitly, because IMAP does not provide a UI selection
             // for it. This logic needs to be followed in the auto setup flow as well.
-            mAccount.setDeletePolicy(Account.DELETE_POLICY_ON_DELETE);
+            mAccount.setDeletePolicy(EmailStore.Account.DELETE_POLICY_ON_DELETE);
         }
         mAccount.setAutomaticCheckIntervalMinutes(DEFAULT_ACCOUNT_CHECK_INTERVAL);
         AccountSetupCheckSettings.actionCheckSettings(this, mAccount, true, true);
@@ -281,12 +283,10 @@ public class AccountSetupBasics extends Activity
     public void onActivityResult(int requestCode, int resultCode, Intent data) {
         if (resultCode == RESULT_OK) {
             mAccount.setDescription(mAccount.getEmail());
-            mAccount.save(Preferences.getPreferences(this));
-            if (mDefaultView.isChecked()) {
-                Preferences.getPreferences(this).setDefaultAccount(mAccount);
-            }
+            mAccount.setDefaultAccount(mDefaultView.isChecked());
+            mAccount.saveOrUpdate(this);
             Email.setServicesEnabled(this);
-            AccountSetupNames.actionSetNames(this, mAccount);
+            AccountSetupNames.actionSetNames(this, mAccount.mId);
             finish();
         }
     }
@@ -306,13 +306,13 @@ public class AccountSetupBasics extends Activity
             return;
         }
 
-        mAccount = new Account(this);
+        mAccount = new EmailStore.Account();
         mAccount.setName(getOwnerName());
         mAccount.setEmail(email);
         try {
             URI uri = new URI("placeholder", user + ":" + password, domain, -1, null, null, null);
-            mAccount.setStoreUri(uri.toString());
-            mAccount.setSenderUri(uri.toString());
+            mAccount.setStoreUri(this, uri.toString());
+            mAccount.setSenderUri(this, uri.toString());
         } catch (URISyntaxException use) {
             // If we can't set up the URL, don't continue - account setup pages will fail too
             Toast.makeText(this, R.string.account_setup_username_password_toast, Toast.LENGTH_LONG)
@@ -320,11 +320,12 @@ public class AccountSetupBasics extends Activity
             mAccount = null;
             return;
         }
+/* TODO figure out the best way to implement this concept
         mAccount.setDraftsFolderName(getString(R.string.special_mailbox_name_drafts));
         mAccount.setTrashFolderName(getString(R.string.special_mailbox_name_trash));
         mAccount.setOutboxFolderName(getString(R.string.special_mailbox_name_outbox));
         mAccount.setSentFolderName(getString(R.string.special_mailbox_name_sent));
-        
+*/
         mAccount.setAutomaticCheckIntervalMinutes(DEFAULT_ACCOUNT_CHECK_INTERVAL);
 
         AccountSetupAccountType.actionSelectAccountType(this, mAccount, mDefaultView.isChecked());
@@ -347,7 +348,7 @@ public class AccountSetupBasics extends Activity
      * returns the attribute as a simple String value.
      * @param xml
      * @param name
-     * @return
+     * @return the requested resource
      */
     private String getXmlAttribute(XmlResourceParser xml, String name) {
         int resId = xml.getAttributeResourceValue(null, name, 0);

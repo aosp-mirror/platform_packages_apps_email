@@ -16,12 +16,11 @@
 
 package com.android.email.activity.setup;
 
-import com.android.email.Account;
 import com.android.email.Email;
-import com.android.email.Preferences;
 import com.android.email.R;
 import com.android.email.Utility;
 import com.android.email.activity.FolderMessageList;
+import com.android.email.provider.EmailStore;
 
 import android.app.Activity;
 import android.content.Intent;
@@ -36,19 +35,16 @@ import android.widget.Button;
 import android.widget.EditText;
 
 public class AccountSetupNames extends Activity implements OnClickListener {
-    private static final String EXTRA_ACCOUNT = "account";
+    private static final String EXTRA_ACCOUNT_ID = "accountId";
 
     private EditText mDescription;
-
     private EditText mName;
-
-    private Account mAccount;
-
+    private EmailStore.Account mAccount;
     private Button mDoneButton;
 
-    public static void actionSetNames(Activity fromActivity, Account account) {
+    public static void actionSetNames(Activity fromActivity, long accountId) {
         Intent i = new Intent(fromActivity, AccountSetupNames.class);
-        i.putExtra(EXTRA_ACCOUNT, account);
+        i.putExtra(EXTRA_ACCOUNT_ID, accountId);
         fromActivity.startActivity(i);
     }
 
@@ -76,7 +72,8 @@ public class AccountSetupNames extends Activity implements OnClickListener {
         
         mName.setKeyListener(TextKeyListener.getInstance(false, Capitalize.WORDS));
 
-        mAccount = (Account)getIntent().getSerializableExtra(EXTRA_ACCOUNT);
+        long accountId = getIntent().getLongExtra(EXTRA_ACCOUNT_ID, -1);
+        mAccount = EmailStore.Account.restoreAccountWithId(this, accountId);
 
         /*
          * Since this field is considered optional, we don't set this here. If
@@ -108,8 +105,8 @@ public class AccountSetupNames extends Activity implements OnClickListener {
             mAccount.setDescription(mDescription.getText().toString());
         }
         mAccount.setName(mName.getText().toString());
-        mAccount.save(Preferences.getPreferences(this));
-        FolderMessageList.actionHandleAccount(this, mAccount, Email.INBOX);
+        mAccount.saveOrUpdate(this);
+        FolderMessageList.actionHandleAccount(this, mAccount.mId, Email.INBOX);
         finish();
     }
 

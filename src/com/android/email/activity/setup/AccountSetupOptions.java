@@ -16,9 +16,7 @@
 
 package com.android.email.activity.setup;
 
-import com.android.email.Account;
 import com.android.email.Email;
-import com.android.email.Preferences;
 import com.android.email.R;
 import com.android.email.mail.Store;
 import com.android.email.provider.EmailStore;
@@ -33,26 +31,15 @@ import android.widget.CheckBox;
 import android.widget.Spinner;
 
 public class AccountSetupOptions extends Activity implements OnClickListener {
-    private static final String EXTRA_ACCOUNT = "account";
 
+    private static final String EXTRA_ACCOUNT = "account";
     private static final String EXTRA_MAKE_DEFAULT = "makeDefault";
 
     private Spinner mCheckFrequencyView;
     private Spinner mSyncWindowView;
-
     private CheckBox mDefaultView;
-
     private CheckBox mNotifyView;
-
-    private Account mAccount;
-
-    @Deprecated
-    public static void actionOptions(Activity fromActivity, Account account, boolean makeDefault) {
-        Intent i = new Intent(fromActivity, AccountSetupOptions.class);
-        i.putExtra(EXTRA_ACCOUNT, account);
-        i.putExtra(EXTRA_MAKE_DEFAULT, makeDefault);
-        fromActivity.startActivity(i);
-    }
+    private EmailStore.Account mAccount;
 
     public static void actionOptions(Activity fromActivity, EmailStore.Account account,
             boolean makeDefault) {
@@ -74,13 +61,13 @@ public class AccountSetupOptions extends Activity implements OnClickListener {
 
         findViewById(R.id.next).setOnClickListener(this);
 
-        mAccount = (Account)getIntent().getSerializableExtra(EXTRA_ACCOUNT);
+        mAccount = (EmailStore.Account) getIntent().getParcelableExtra(EXTRA_ACCOUNT);
         boolean makeDefault = getIntent().getBooleanExtra(EXTRA_MAKE_DEFAULT, false);
         
         // Generate spinner entries using XML arrays used by the preferences
         int frequencyValuesId;
         int frequencyEntriesId;
-        Store.StoreInfo info = Store.StoreInfo.getStoreInfo(mAccount.getStoreUri(), this);
+        Store.StoreInfo info = Store.StoreInfo.getStoreInfo(mAccount.getStoreUri(this), this);
         if (info.mPushSupported) {
             frequencyValuesId = R.array.account_settings_check_frequency_values_push;
             frequencyEntriesId = R.array.account_settings_check_frequency_entries_push;
@@ -108,29 +95,32 @@ public class AccountSetupOptions extends Activity implements OnClickListener {
             enableEASSyncWindowSpinner();
         }
 
-        if (mAccount.equals(Preferences.getPreferences(this).getDefaultAccount()) || makeDefault) {
+        if (mAccount.mIsDefault || makeDefault) {
             mDefaultView.setChecked(true);
         }
-        mNotifyView.setChecked(mAccount.isNotifyNewMail());
+        mNotifyView.setChecked(
+                (mAccount.getFlags() & EmailStore.Account.FLAGS_NOTIFY_NEW_MAIL) != 0);
         SpinnerOption.setSpinnerOptionValue(mCheckFrequencyView, mAccount
                 .getAutomaticCheckIntervalMinutes());
     }
 
     private void onDone() {
         mAccount.setDescription(mAccount.getEmail());
-        mAccount.setNotifyNewMail(mNotifyView.isChecked());
+        int newFlags = mAccount.getFlags() & ~(EmailStore.Account.FLAGS_NOTIFY_NEW_MAIL);
+        if (mNotifyView.isChecked()) {
+            newFlags |= EmailStore.Account.FLAGS_NOTIFY_NEW_MAIL;
+        }
+        mAccount.setFlags(newFlags);
         mAccount.setAutomaticCheckIntervalMinutes((Integer)((SpinnerOption)mCheckFrequencyView
                 .getSelectedItem()).value);
         if (mSyncWindowView.getVisibility() == View.VISIBLE) {
             int window = (Integer)((SpinnerOption)mSyncWindowView.getSelectedItem()).value;
             mAccount.setSyncWindow(window);
         }
-        mAccount.save(Preferences.getPreferences(this));
-        if (mDefaultView.isChecked()) {
-            Preferences.getPreferences(this).setDefaultAccount(mAccount);
-        }
+        mAccount.setDefaultAccount(mDefaultView.isChecked());
+        mAccount.saveOrUpdate(this);
         Email.setServicesEnabled(this);
-        AccountSetupNames.actionSetNames(this, mAccount);
+        AccountSetupNames.actionSetNames(this, mAccount.mId);
         finish();
     }
 

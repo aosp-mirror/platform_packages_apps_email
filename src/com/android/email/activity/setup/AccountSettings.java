@@ -18,16 +18,15 @@ package com.android.email.activity.setup;
 
 import com.android.email.Account;
 import com.android.email.Email;
-import com.android.email.Preferences;
 import com.android.email.R;
 import com.android.email.activity.Accounts;
 import com.android.email.mail.MessagingException;
 import com.android.email.mail.Sender;
 import com.android.email.mail.Store;
 import com.android.email.provider.EmailStore;
+import com.android.email.provider.EmailStore.HostAuth;
 
 import android.app.Activity;
-import android.content.Context;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.os.Bundle;
@@ -60,6 +59,7 @@ public class AccountSettings extends PreferenceActivity {
 
     private long mAccountId;
     private EmailStore.Account mAccount;
+    private boolean mAccountDirty;
 
     private EditTextPreference mAccountDescription;
     private EditTextPreference mAccountName;
@@ -71,7 +71,6 @@ public class AccountSettings extends PreferenceActivity {
     private RingtonePreference mAccountRingtone;
 
     /**
-     * Entry point using old-style
      * TODO remove
      */
     @Deprecated
@@ -82,7 +81,7 @@ public class AccountSettings extends PreferenceActivity {
     }
     
     /**
-     * Entry point using provider-based Account
+     * Display (and edit) settings for a specific account
      */
     public static void actionSettings(Accounts fromActivity, long accountId) {
         Intent i = new Intent(fromActivity, AccountSettings.class);
@@ -97,6 +96,7 @@ public class AccountSettings extends PreferenceActivity {
         Intent i = getIntent();
         mAccountId = getIntent().getLongExtra(EXTRA_ACCOUNT_ID, -1);
         mAccount = EmailStore.Account.restoreAccountWithId(this, mAccountId);
+        mAccountDirty = false;
 
         addPreferencesFromResource(R.xml.account_settings_preferences);
 
@@ -230,6 +230,23 @@ public class AccountSettings extends PreferenceActivity {
                     }
                 });
     }
+    
+    @Override
+    public void onResume() {
+        super.onResume();
+        if (mAccountDirty) {
+            // if we are coming back from editing incoming or outgoing settings, 
+            // we need to refresh them here so we don't accidentally overwrite the
+            // old values we're still holding here
+            mAccount.mHostAuthRecv = HostAuth.restoreHostAuthWithId(
+                    this, mAccount.mHostAuthKeyRecv);
+            mAccount.mHostAuthSend = HostAuth.restoreHostAuthWithId(
+                    this, mAccount.mHostAuthKeySend);
+            
+            // TODO write me.
+            mAccountDirty = false;
+        }
+    }
 
     private void saveSettings() {
         int newFlags = mAccount.getFlags() & 
@@ -270,6 +287,7 @@ public class AccountSettings extends PreferenceActivity {
                     java.lang.reflect.Method m = setting.getMethod("actionEditIncomingSettings",
                             android.app.Activity.class, EmailStore.Account.class);
                     m.invoke(null, this, mAccount);
+                    mAccountDirty = true;
                 }
             }
         } catch (Exception e) {
@@ -286,6 +304,7 @@ public class AccountSettings extends PreferenceActivity {
                     java.lang.reflect.Method m = setting.getMethod("actionEditOutgoingSettings",
                             android.app.Activity.class, EmailStore.Account.class);
                     m.invoke(null, this, mAccount);
+                    mAccountDirty = true;
                 }
             }
         } catch (Exception e) {

@@ -16,7 +16,6 @@
 
 package com.android.email.activity.setup;
 
-import com.android.email.Account;
 import com.android.email.R;
 import com.android.email.mail.AuthenticationFailedException;
 import com.android.email.mail.CertificateValidationException;
@@ -46,37 +45,27 @@ import android.widget.TextView;
  * it doesn't correctly deal with restarting while its thread is running.
  */
 public class AccountSetupCheckSettings extends Activity implements OnClickListener {
+    
+    // If true, returns immediately as if account was OK
+    private static final boolean DBG_SKIP_CHECK_OK = false;     // DO NOT CHECK IN WHILE TRUE
+    // If true, returns immediately as if account was not OK
+    private static final boolean DBG_SKIP_CHECK_ERR = false;    // DO NOT CHECK IN WHILE TRUE
+    // If true, performs real check(s), but always returns fixed OK result
+    private static final boolean DBG_FORCE_RESULT_OK = false;   // DO NOT CHECK IN WHILE TRUE
+
     private static final String EXTRA_ACCOUNT = "account";
-
     private static final String EXTRA_CHECK_INCOMING = "checkIncoming";
-
     private static final String EXTRA_CHECK_OUTGOING = "checkOutgoing";
 
     private Handler mHandler = new Handler();
-
     private ProgressBar mProgressBar;
-
     private TextView mMessageView;
 
-    private Account mAccount;
-
+    private EmailStore.Account mAccount;
     private boolean mCheckIncoming;
-
     private boolean mCheckOutgoing;
-
     private boolean mCanceled;
-
     private boolean mDestroyed;
-
-    @Deprecated
-    public static void actionCheckSettings(Activity fromActivity, Account account,
-            boolean checkIncoming, boolean checkOutgoing) {
-        Intent i = new Intent(fromActivity, AccountSetupCheckSettings.class);
-        i.putExtra(EXTRA_ACCOUNT, account);
-        i.putExtra(EXTRA_CHECK_INCOMING, checkIncoming);
-        i.putExtra(EXTRA_CHECK_OUTGOING, checkOutgoing);
-        fromActivity.startActivityForResult(i, 1);
-    }
 
     public static void actionCheckSettings(Activity fromActivity, EmailStore.Account account,
             boolean checkIncoming, boolean checkOutgoing) {
@@ -98,23 +87,19 @@ public class AccountSetupCheckSettings extends Activity implements OnClickListen
         setMessage(R.string.account_setup_check_settings_retr_info_msg);
         mProgressBar.setIndeterminate(true);
         
-        // Placeholder - for "new" accounts, always return "OK" for validation, so we
-        // can continue debugging new code.  Must remove this.
-        try {
-            EmailStore.Account acct = (EmailStore.Account) 
-                    getIntent().getParcelableExtra(EXTRA_ACCOUNT);
-            setResult(RESULT_OK);
+        // For debugging UI only, force a true or false result - don't actually try connection
+        if (DBG_SKIP_CHECK_OK || DBG_SKIP_CHECK_ERR) {
+            setResult(DBG_SKIP_CHECK_OK ? RESULT_OK : RESULT_CANCELED);
             finish();
             return;
-        } catch (java.lang.ClassCastException cce) {
-            // old style Account - just continue to old code for now
         }
 
-        mAccount = (Account)getIntent().getSerializableExtra(EXTRA_ACCOUNT);
-        mCheckIncoming = (boolean)getIntent().getBooleanExtra(EXTRA_CHECK_INCOMING, false);
-        mCheckOutgoing = (boolean)getIntent().getBooleanExtra(EXTRA_CHECK_OUTGOING, false);
+        mAccount = (EmailStore.Account) getIntent().getParcelableExtra(EXTRA_ACCOUNT);
+        mCheckIncoming = getIntent().getBooleanExtra(EXTRA_CHECK_INCOMING, false);
+        mCheckOutgoing = getIntent().getBooleanExtra(EXTRA_CHECK_OUTGOING, false);
 
         new Thread() {
+            @Override
             public void run() {
                 Process.setThreadPriority(Process.THREAD_PRIORITY_BACKGROUND);
                 try {
@@ -127,8 +112,9 @@ public class AccountSetupCheckSettings extends Activity implements OnClickListen
                     }
                     if (mCheckIncoming) {
                         setMessage(R.string.account_setup_check_settings_check_incoming_msg);
-                        Store store = Store.getInstance(mAccount.getStoreUri(), getApplication(), 
-                                null);
+                        Store store = Store.getInstance(
+                                mAccount.getStoreUri(AccountSetupCheckSettings.this),
+                                getApplication(), null);
                         store.checkSettings();
                     }
                     if (mDestroyed) {
@@ -140,7 +126,8 @@ public class AccountSetupCheckSettings extends Activity implements OnClickListen
                     }
                     if (mCheckOutgoing) {
                         setMessage(R.string.account_setup_check_settings_check_outgoing_msg);
-                        Sender sender = Sender.getInstance(mAccount.getSenderUri(),
+                        Sender sender = Sender.getInstance(
+                                mAccount.getSenderUri(AccountSetupCheckSettings.this),
                                 getApplication());
                         sender.close();
                         sender.open();
@@ -229,6 +216,11 @@ public class AccountSetupCheckSettings extends Activity implements OnClickListen
                                 getString(R.string.account_setup_failed_dlg_edit_details_action),
                                 new DialogInterface.OnClickListener() {
                                     public void onClick(DialogInterface dialog, int which) {
+                                        // while debugging connection logic, force a true result
+                                        // note, this will save possibly-bad settings
+                                        if (DBG_FORCE_RESULT_OK) {
+                                            setResult(RESULT_OK);
+                                        }
                                         finish();
                                     }
                                 })
