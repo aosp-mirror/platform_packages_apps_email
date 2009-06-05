@@ -1056,23 +1056,29 @@ public class FolderMessageList extends ExpandableListActivity {
         }
 
         /*
-         * Set special folder boolean indicator in FolderInfoHolder
+         * Set special folder boolean indicator and display name in FolderInfoHolder
          */
-        private void setSpecialFolderIndicator(FolderInfoHolder holder) {
+        private void setSpecialFolderInfo(FolderInfoHolder holder) {
             String folderName = holder.name;
             holder.special = true;
             if (folderName.equalsIgnoreCase(Email.INBOX)) {
                 holder.inbox = true;
+                holder.displayName = getString(R.string.special_mailbox_name_inbox); 
             } else if (folderName.equals(mAccount.getDraftsFolderName())) {
                 holder.drafts = true;
+                holder.displayName = getString(R.string.special_mailbox_display_name_drafts);
             } else if (folderName.equals(mAccount.getOutboxFolderName())) {
                 holder.outbox = true;
+                holder.displayName = getString(R.string.special_mailbox_display_name_outbox); 
             } else if (folderName.equals(mAccount.getSentFolderName())) {
                 holder.sent = true;
+                holder.displayName = getString(R.string.special_mailbox_display_name_sent);
             } else if (folderName.equals(mAccount.getTrashFolderName())) {
                 holder.trash = true;
+                holder.displayName = getString(R.string.special_mailbox_display_name_trash);
             } else {
                 holder.special = false;
+                holder.displayName = folderName;
             }
         }
         
@@ -1088,13 +1094,7 @@ public class FolderMessageList extends ExpandableListActivity {
                     mFolders.add(holder);
                 }
                 holder.name = folder.getName();
-                if (holder.name.equalsIgnoreCase(Email.INBOX)) {
-                    holder.displayName = getString(R.string.special_mailbox_name_inbox);
-                }
-                else {
-                    holder.displayName = folder.getName();
-                }
-                setSpecialFolderIndicator(holder);
+                setSpecialFolderInfo(holder);
                 if (holder.messages == null) {
                     holder.messages = new ArrayList<MessageInfoHolder>();
                 }
