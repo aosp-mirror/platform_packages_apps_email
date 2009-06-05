@@ -543,7 +543,7 @@ public class MessageView extends Activity
      * @param filename
      * @return a new File object, or null if one could not be created
      */
-    private File createUniqueFile(File directory, String filename) {
+    /* package */ static File createUniqueFile(File directory, String filename) {
         File file = new File(directory, filename);
         if (!file.exists()) {
             return file;
