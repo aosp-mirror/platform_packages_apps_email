@@ -21,30 +21,23 @@ import com.android.email.Email;
 import com.android.email.MessagingController;
 import com.android.email.Preferences;
 import com.android.email.R;
-import com.android.email.mail.MessageTestUtils;
-import com.android.email.mail.Message;
-import com.android.email.mail.MessagingException;
-import com.android.email.mail.MessageTestUtils.MessageBuilder;
-import com.android.email.mail.MessageTestUtils.MultipartBuilder;
-import com.android.email.mail.MessageTestUtils.TextBuilder;
 import com.android.email.mail.internet.BinaryTempFileBody;
-import com.android.email.mail.internet.EmailHtmlUtil;
-import com.android.email.mail.store.LocalStore;
 
 import android.app.Application;
-import android.content.ContentResolver;
 import android.content.Context;
 import android.content.Intent;
-import android.database.sqlite.SQLiteDatabase;
-import android.net.Uri;
+import android.os.Environment;
 import android.test.ActivityInstrumentationTestCase2;
 import android.test.suitebuilder.annotation.MediumTest;
 import android.test.suitebuilder.annotation.Suppress;
-import android.util.Log;
 import android.webkit.WebView;
 import android.widget.TextView;
 
+import java.io.File;
+import java.io.FileNotFoundException;
+import java.io.FileOutputStream;
 import java.io.IOException;
+import java.io.OutputStream;
 import java.util.ArrayList;
 import java.util.Arrays;
 
@@ -132,6 +125,30 @@ public class MessageViewTests
         assertNotNull(mSubjectView);
         assertEquals(0, mSubjectView.length());
         assertNotNull(mMessageContentView);
+    }
+    
+    /**
+     * Test that we have the necessary permissions to write to external storage.
+     */
+    public void testAttachmentWritePermissions() throws FileNotFoundException, IOException {
+        File file = null;
+        try {
+            file = MessageView.createUniqueFile(Environment.getExternalStorageDirectory(),
+                    "write-test");
+            OutputStream out = new FileOutputStream(file);
+            out.write(1);
+            out.close();
+        } finally {
+            try {
+                if (file != null) {
+                    if (file.exists()) {
+                        file.delete();
+                    }
+                }
+            } catch (Exception e) {
+                // ignore cleanup error - it still throws the original
+            }
+        }
     }
     
     /**
