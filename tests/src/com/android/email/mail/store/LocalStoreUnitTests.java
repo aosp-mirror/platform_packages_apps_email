@@ -690,6 +690,70 @@ public class LocalStoreUnitTests extends AndroidTestCase {
     }
     
     /**
+     * Test for getMessageCount
+     */
+    public void testMessageCount() throws MessagingException {
+        
+        final MimeMessage message1 = buildTestMessage(RECIPIENT_TO, SENDER, SUBJECT, BODY);
+        message1.setFlag(Flag.X_STORE_1, false);
+        message1.setFlag(Flag.X_STORE_2, false);
+        message1.setFlag(Flag.X_DOWNLOADED_FULL, true);
+
+        final MimeMessage message2 = buildTestMessage(RECIPIENT_TO, SENDER, SUBJECT, BODY);
+        message2.setFlag(Flag.X_STORE_1, true);
+        message2.setFlag(Flag.X_STORE_2, false);
+
+        final MimeMessage message3 = buildTestMessage(RECIPIENT_TO, SENDER, SUBJECT, BODY);
+        message3.setFlag(Flag.X_STORE_1, false);
+        message3.setFlag(Flag.X_STORE_2, true);
+        message3.setFlag(Flag.X_DOWNLOADED_FULL, true);
+
+        final MimeMessage message4 = buildTestMessage(RECIPIENT_TO, SENDER, SUBJECT, BODY);
+        message4.setFlag(Flag.X_STORE_1, true);
+        message4.setFlag(Flag.X_STORE_2, true);
+        message4.setFlag(Flag.X_DOWNLOADED_FULL, true);
+
+        final MimeMessage message5 = buildTestMessage(RECIPIENT_TO, SENDER, SUBJECT, BODY);
+        message5.setFlag(Flag.X_DOWNLOADED_FULL, true);
+
+        final MimeMessage message6 = buildTestMessage(RECIPIENT_TO, SENDER, SUBJECT, BODY);
+        message6.setFlag(Flag.X_DOWNLOADED_PARTIAL, true);
+
+        final MimeMessage message7 = buildTestMessage(RECIPIENT_TO, SENDER, SUBJECT, BODY);
+        message7.setFlag(Flag.DELETED, true);
+
+        Message[] allOriginals = new Message[] { 
+                message1, message2, message3, message4, message5, message6, message7 };
+        
+        mFolder.open(OpenMode.READ_WRITE, null);
+        mFolder.appendMessages(allOriginals);
+        mFolder.close(false);
+        
+        // Null lists are the same as empty lists - return all messages
+        mFolder.open(OpenMode.READ_WRITE, null);
+
+        int allMessages = mFolder.getMessageCount();
+        assertEquals("all messages", 7, allMessages);
+
+        int storeFlag1 = mFolder.getMessageCount(new Flag[] { Flag.X_STORE_1 }, null);
+        assertEquals("store flag 1", 2, storeFlag1);
+        
+        int storeFlag1NotFlag2 = mFolder.getMessageCount(
+                new Flag[] { Flag.X_STORE_1 }, new Flag[] { Flag.X_STORE_2 });
+        assertEquals("store flag 1, not 2", 1, storeFlag1NotFlag2);
+
+        int downloadedFull = mFolder.getMessageCount(new Flag[] { Flag.X_DOWNLOADED_FULL }, null);
+        assertEquals("downloaded full", 4, downloadedFull);
+        
+        int storeFlag2Full = mFolder.getMessageCount(
+                new Flag[] { Flag.X_STORE_2, Flag.X_DOWNLOADED_FULL }, null);
+        assertEquals("store flag 2, full", 2, storeFlag2Full);
+
+        int notDeleted = mFolder.getMessageCount(null, new Flag[] { Flag.DELETED });
+        assertEquals("not deleted", 6, notDeleted);
+    }
+
+    /**
      * Test unread messages count
      */
     public void testUnreadMessages() throws MessagingException {
