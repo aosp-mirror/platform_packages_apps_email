@@ -184,6 +184,8 @@
     <string name="message_view_show_pictures_action">Show pictures</string>
     <!-- Toast while fetching attachment -->
     <string name="message_view_fetching_attachment_toast">Fetching attachment.</string>
+    <!-- Appears progress dialog for fetching attachment -->
+    <string name="message_view_fetching_attachment_progress">Fetching attachment <xliff:g id="filename">%s</xliff:g></string>
     <!-- Toast shown briefly while deleting a message -->
     <string name="message_deleted_toast">Message deleted.</string>
     <!-- Toast shown briefly while deleting an unsent (draft) message -->
