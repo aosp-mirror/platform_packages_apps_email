@@ -129,6 +129,14 @@
     <string name="special_mailbox_name_trash">Trash</string>
     <!-- Do Not Translate.  This is the name of the "sent" folder, on the server. -->
     <string name="special_mailbox_name_sent">Sent</string>
+    <!-- In the folder list view, the outbox will be displayed with this name -->
+    <string name="special_mailbox_display_name_outbox">Outbox</string>
+    <!-- In the folder list view, the drafts will be displayed with this name -->
+    <string name="special_mailbox_display_name_drafts">Drafts</string>
+    <!-- In the folder list view, the trash will be displayed with this name -->
+    <string name="special_mailbox_display_name_trash">Trash</string>
+    <!-- In the folder list view, the sent will be displayed with this name -->
+    <string name="special_mailbox_display_name_sent">Sent</string>
     <!-- Text on screen when you don't have any external email accounts set up -->
     <string name="accounts_welcome">Welcome to Email setup!\n\nUse any email account with Email.\n\nMost popular email accounts can be set up in 2 steps!</string>
 
