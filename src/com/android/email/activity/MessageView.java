@@ -37,6 +37,7 @@ import com.android.email.provider.AttachmentProvider;
 import org.apache.commons.io.IOUtils;
 
 import android.app.Activity;
+import android.app.ProgressDialog;
 import android.content.ActivityNotFoundException;
 import android.content.Context;
 import android.content.Intent;
@@ -115,6 +116,7 @@ public class MessageView extends Activity
     private ImageView mAttachmentIcon;
     private View mShowPicturesSection;
     private ImageView mSenderPresenceView;
+    private ProgressDialog mProgressDialog;
 
     private Account mAccount;
     private String mFolder;
@@ -148,6 +150,14 @@ public class MessageView extends Activity
         public void handleMessage(android.os.Message msg) {
             switch (msg.what) {
                 case MSG_PROGRESS:
+                    if (msg.arg1 != 0) {
+                        mProgressDialog.setMessage(
+                                getString(R.string.message_view_fetching_attachment_progress,
+                                        msg.obj));
+                        mProgressDialog.show();
+                    } else {
+                        mProgressDialog.dismiss();
+                    }
                     setProgressBarIndeterminateVisibility(msg.arg1 != 0);
                     break;
                 case MSG_ADD_ATTACHMENT:
@@ -207,10 +217,11 @@ public class MessageView extends Activity
             }
         }
 
-        public void progress(boolean progress) {
+        public void progress(boolean progress, String filename) {
             android.os.Message msg = new android.os.Message();
             msg.what = MSG_PROGRESS;
             msg.arg1 = progress ? 1 : 0;
+            msg.obj = filename;
             sendMessage(msg);
         }
 
@@ -331,6 +342,9 @@ public class MessageView extends Activity
         mAttachmentIcon = (ImageView) findViewById(R.id.attachment);
         mShowPicturesSection = findViewById(R.id.show_pictures_section);
         mSenderPresenceView = (ImageView) findViewById(R.id.presence);
+        mProgressDialog = new ProgressDialog(this);
+        mProgressDialog.setIndeterminate(true);
+        mProgressDialog.setProgressStyle(ProgressDialog.STYLE_SPINNER);
 
         mMessageContentView.setVerticalScrollBarEnabled(false);
         mAttachments.setVisibility(View.GONE);
@@ -486,9 +500,9 @@ public class MessageView extends Activity
                 
                 startActivity(contactIntent);
             } catch (MessagingException me) {
-                if (Config.LOGV) {
-                    Log.v(Email.LOG_TAG, "loadMessageForViewHeadersAvailable", me);
-                }
+                // this will happen if message has illegal From:, ignore
+            } catch (ArrayIndexOutOfBoundsException e) {
+                // this will happen if message has no or illegal From:, ignore
             }
         }
     }
@@ -813,7 +827,11 @@ public class MessageView extends Activity
                 Address sender = mMessage.getFrom()[0];
                 email = sender.getAddress();
             }
-        } catch (MessagingException me) { }
+        } catch (MessagingException me) {
+            // this will happen if message has illegal From:, ignore
+        } catch (ArrayIndexOutOfBoundsException e) {
+            // this will happen if message has no or illegal From:, ignore
+        }
         if (email == null) {
             mHandler.setSenderPresence(0);
             return;
@@ -1008,7 +1026,8 @@ public class MessageView extends Activity
         public void loadAttachmentStarted(Account account, Message message,
                 Part part, Object tag, boolean requiresDownload) {
             mHandler.setAttachmentsEnabled(false);
-            mHandler.progress(true);
+            Object[] params = (Object[]) tag;
+            mHandler.progress(true, ((Attachment) params[1]).name);
             if (requiresDownload) {
                 mHandler.fetchingAttachment();
             }
@@ -1018,7 +1037,7 @@ public class MessageView extends Activity
         public void loadAttachmentFinished(Account account, Message message,
                 Part part, Object tag) {
             mHandler.setAttachmentsEnabled(true);
-            mHandler.progress(false);
+            mHandler.progress(false, null);
 
             Object[] params = (Object[]) tag;
             boolean download = (Boolean) params[0];
@@ -1065,7 +1084,7 @@ public class MessageView extends Activity
         public void loadAttachmentFailed(Account account, Message message, Part part,
                 Object tag, String reason) {
             mHandler.setAttachmentsEnabled(true);
-            mHandler.progress(false);
+            mHandler.progress(false, null);
             mHandler.networkError();
         }
         
