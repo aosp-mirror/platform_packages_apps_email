@@ -80,6 +80,8 @@
     <string name="add_attachment_action">Add attachment</string>
     <!-- Menu item (debug screen) -->
     <string name="dump_settings_action">Dump settings</string>
+    <!-- Appears in choose attachment dialog title -->
+    <string name="choose_attachment_dialog_title">Choose attachment</string>
     <!-- Title of account context menu -->
     <string name="accounts_context_menu_title">Account options</string>
     <!-- Appears in message list view while messages are being loaded -->

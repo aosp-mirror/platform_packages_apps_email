@@ -723,11 +723,12 @@ public class MessageCompose extends Activity implements OnClickListener, OnFocus
         else {
             /*
              * Send the message
-             * TODO Is it possible for us to be editing a draft with a null source message? Don't
-             * think so. Could probably remove below check.
+             * If the source message is in other folder than draft, it should not be deleted while
+             * sending message.
              */
             if (ACTION_EDIT_DRAFT.equals(getIntent().getAction())
-                    && mSourceMessageUid != null) {
+                    && mSourceMessageUid != null
+                    && mFolder.equals(mAccount.getDraftsFolderName())) {
                 /*
                  * We're sending a previously saved draft, so delete the old draft first.
                  */
@@ -795,7 +796,9 @@ public class MessageCompose extends Activity implements OnClickListener, OnFocus
         Intent i = new Intent(Intent.ACTION_GET_CONTENT);
         i.addCategory(Intent.CATEGORY_OPENABLE);
         i.setType(Email.ACCEPTABLE_ATTACHMENT_SEND_TYPES[0]);
-        startActivityForResult(Intent.createChooser(i, null), ACTIVITY_REQUEST_PICK_ATTACHMENT);
+        startActivityForResult(
+                Intent.createChooser(i, getString(R.string.choose_attachment_dialog_title)),
+                ACTIVITY_REQUEST_PICK_ATTACHMENT);
     }
 
     private void addAttachment(Uri uri) {
