@@ -16,7 +16,6 @@
 
 package com.android.email.mail;
 
-import com.android.email.Account;
 import com.android.email.mail.internet.BinaryTempFileBody;
 import com.android.email.mail.internet.MimeBodyPart;
 import com.android.email.mail.internet.MimeHeader;
@@ -25,6 +24,7 @@ import com.android.email.mail.internet.MimeMultipart;
 import com.android.email.mail.internet.TextBody;
 import com.android.email.mail.store.LocalStore;
 import com.android.email.provider.AttachmentProvider;
+import com.android.email.provider.EmailStore;
 
 import android.net.Uri;
 
@@ -65,7 +65,7 @@ public class MessageTestUtils {
      * @param account Account object
      * @return AttachmentProvider content URI
      */
-    public static Uri contentUri(long attachmentId, Account account) {
+    public static Uri contentUri(long attachmentId, EmailStore.Account account) {
         return AttachmentProvider.getAttachmentUri(account, attachmentId);
     }
 

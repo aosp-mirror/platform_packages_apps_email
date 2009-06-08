@@ -16,10 +16,13 @@
 
 package com.android.email.activity.setup;
 
-import com.android.email.Account;
 import com.android.email.mail.Store;
+import com.android.email.provider.EmailStore;
 
+import android.content.ContentUris;
+import android.content.Context;
 import android.content.Intent;
+import android.net.Uri;
 import android.preference.ListPreference;
 import android.test.ActivityInstrumentationTestCase2;
 import android.test.suitebuilder.annotation.MediumTest;
@@ -29,7 +32,14 @@ import android.test.suitebuilder.annotation.MediumTest;
  */
 @MediumTest
 public class AccountSettingsTests extends ActivityInstrumentationTestCase2<AccountSettings> {
+    
+    // Borrowed from AccountSettings
+    private static final String EXTRA_ACCOUNT_ID = "account_id";
+    
+    private long mAccountId;
+    private EmailStore.Account mAccount;
 
+    private Context mContext;
     private AccountSettings mActivity;
     private ListPreference mCheckFrequency;
     
@@ -40,6 +50,30 @@ public class AccountSettingsTests extends ActivityInstrumentationTestCase2<Accou
     }
 
     /**
+     * Common setup code for all tests.
+     */
+    @Override
+    protected void setUp() throws Exception {
+        super.setUp();
+
+        mContext = this.getInstrumentation().getTargetContext();
+    }
+    
+    /**
+     * Delete any dummy accounts we set up for this test
+     */
+    @Override
+    protected void tearDown() throws Exception {
+        super.tearDown();
+        
+        if (mAccount != null) {
+            Uri uri = ContentUris.withAppendedId(
+                    EmailStore.Account.CONTENT_URI, mAccountId);
+            mContext.getContentResolver().delete(uri, null, null);
+        }
+    }
+    
+    /**
      * Test that POP accounts aren't displayed with a push option
      */
     public void testPushOptionPOP() {
@@ -49,7 +83,7 @@ public class AccountSettingsTests extends ActivityInstrumentationTestCase2<Accou
         
         getActivityAndFields();
         
-        boolean hasPush = frequencySpinnerHasValue(Account.CHECK_INTERVAL_PUSH);
+        boolean hasPush = frequencySpinnerHasValue(EmailStore.Account.CHECK_INTERVAL_PUSH);
         assertFalse(hasPush);
     }
         
@@ -63,7 +97,7 @@ public class AccountSettingsTests extends ActivityInstrumentationTestCase2<Accou
         
         getActivityAndFields();
         
-        boolean hasPush = frequencySpinnerHasValue(Account.CHECK_INTERVAL_PUSH);
+        boolean hasPush = frequencySpinnerHasValue(EmailStore.Account.CHECK_INTERVAL_PUSH);
         assertFalse(hasPush);
     }
         
@@ -83,7 +117,7 @@ public class AccountSettingsTests extends ActivityInstrumentationTestCase2<Accou
         
         getActivityAndFields();
         
-        boolean hasPush = frequencySpinnerHasValue(Account.CHECK_INTERVAL_PUSH);
+        boolean hasPush = frequencySpinnerHasValue(EmailStore.Account.CHECK_INTERVAL_PUSH);
         assertTrue(hasPush);
     }
         
@@ -112,12 +146,15 @@ public class AccountSettingsTests extends ActivityInstrumentationTestCase2<Accou
      * Create an intent with the Account in it
      */
     private Intent getTestIntent(String name, String storeUri, String senderUri) {
-        Account account = new Account(this.getInstrumentation().getTargetContext());
-        account.setName(name);
-        account.setStoreUri(storeUri);
-        account.setSenderUri(senderUri);
+        EmailStore.Account mAccount = new EmailStore.Account();
+        mAccount.setName(name);
+        mAccount.setStoreUri(mContext, storeUri);
+        mAccount.setSenderUri(mContext, senderUri);
+        mAccount.saveOrUpdate(mContext);
+        mAccountId = mAccount.mId;
+
         Intent i = new Intent(Intent.ACTION_MAIN);
-        i.putExtra("account", account);     // AccountSetupNames.EXTRA_ACCOUNT == "account"
+        i.putExtra(EXTRA_ACCOUNT_ID, mAccountId);
         return i;
     }
     

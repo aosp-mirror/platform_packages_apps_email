@@ -19,6 +19,8 @@ package com.android.email;
 import com.android.email.activity.AccountShortcutPicker;
 import com.android.email.activity.MessageCompose;
 import com.android.email.mail.internet.BinaryTempFileBody;
+import com.android.email.provider.EmailContent;
+import com.android.email.provider.EmailStore;
 import com.android.email.service.BootReceiver;
 import com.android.email.service.MailService;
 
@@ -26,6 +28,7 @@ import android.app.Application;
 import android.content.ComponentName;
 import android.content.Context;
 import android.content.pm.PackageManager;
+import android.database.Cursor;
 
 import java.io.File;
 
@@ -126,7 +129,19 @@ public class Email extends Application {
      * whether any accounts are configured.
      */
     public static void setServicesEnabled(Context context) {
-        setServicesEnabled(context, Preferences.getPreferences(context).getAccounts().length > 0);
+        Cursor c = null;
+        try {
+            c = context.getContentResolver().query(
+                    EmailStore.Account.CONTENT_URI, 
+                    EmailStore.Account.CONTENT_PROJECTION,
+                    null, null, null);
+            boolean enable = c.getCount() > 0;
+            setServicesEnabled(context, c.getCount() > 0);
+        } finally {
+            if (c != null) {
+                c.close();
+            }
+        }
     }
 
     public static void setServicesEnabled(Context context, boolean enabled) {
@@ -175,7 +190,23 @@ public class Email extends Application {
         Preferences prefs = Preferences.getPreferences(this);
         DEBUG = prefs.geteEnableDebugLogging();
         DEBUG_SENSITIVE = prefs.getEnableSensitiveLogging();
-        MessagingController.getInstance(this).resetVisibleLimits(prefs.getAccounts());
+        
+        // Reset all accounts to default visible window
+        Cursor c = null;
+        try {
+            c = getContentResolver().query(
+                    EmailStore.Account.CONTENT_URI, 
+                    EmailStore.Account.CONTENT_PROJECTION,
+                    null, null, null);
+            while (c.moveToNext()) {
+                EmailStore.Account account = EmailContent.getContent(c, EmailStore.Account.class);
+                MessagingController.getInstance(this).resetVisibleLimits(account);
+            }
+        } finally {
+            if (c != null) {
+                c.close();
+            }
+        }
 
         /*
          * We have to give MimeMessage a temp directory because File.createTempFile(String, String)

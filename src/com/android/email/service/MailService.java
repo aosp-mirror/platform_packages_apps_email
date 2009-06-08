@@ -27,6 +27,8 @@ import com.android.email.activity.FolderMessageList;
 import com.android.email.mail.MessagingException;
 import com.android.email.mail.Store;
 import com.android.email.mail.store.LocalStore;
+import com.android.email.provider.EmailContent;
+import com.android.email.provider.EmailStore;
 
 import android.app.AlarmManager;
 import android.app.Notification;
@@ -35,6 +37,7 @@ import android.app.PendingIntent;
 import android.app.Service;
 import android.content.Context;
 import android.content.Intent;
+import android.database.Cursor;
 import android.net.Uri;
 import android.os.IBinder;
 import android.os.SystemClock;
@@ -109,18 +112,34 @@ public class MailService extends Service {
             // accounts.  This needs to be cleaned up for better efficiency.
             String specificStoreUri = intent.getStringExtra(EXTRA_CHECK_ACCOUNT);
             
-            ArrayList<Account> accountsToCheck = new ArrayList<Account>();
-            for (Account account : Preferences.getPreferences(this).getAccounts()) {
-                int interval = account.getAutomaticCheckIntervalMinutes();
-                String storeUri = account.getStoreUri();
-                if (interval > 0 || (storeUri != null && storeUri.equals(specificStoreUri))) {
-                    accountsToCheck.add(account);
+            ArrayList<EmailStore.Account> accountsToCheck = new ArrayList<EmailStore.Account>();
+            
+            Cursor c = null;
+            try {
+                c = this.getContentResolver().query(
+                        EmailStore.Account.CONTENT_URI, 
+                        EmailStore.Account.CONTENT_PROJECTION,
+                        null, null, null);
+                while (c.moveToNext()) {
+                    EmailStore.Account account = EmailContent.getContent(c, 
+                            EmailStore.Account.class);
+                    int interval = account.getAutomaticCheckIntervalMinutes();
+                    String storeUri = account.getStoreUri(this);
+                    if (interval > 0 || (storeUri != null && storeUri.equals(specificStoreUri))) {
+                        accountsToCheck.add(account);
+                    }
+                    
+                    // For each account, switch pushmail on or off
+                    enablePushMail(account, interval == EmailStore.Account.CHECK_INTERVAL_PUSH);
                 }
-                
-                // For each account, switch pushmail on or off
-                enablePushMail(account, interval == Account.CHECK_INTERVAL_PUSH);
+            } finally {
+                if (c != null) {
+                    c.close();
+                }
             }
-            Account[] accounts = accountsToCheck.toArray(new Account[accountsToCheck.size()]);
+
+            EmailStore.Account[] accounts = accountsToCheck.toArray(
+                    new EmailStore.Account[accountsToCheck.size()]);
             controller.checkMail(this, accounts, mListener);
         }
         else if (ACTION_CANCEL.equals(intent.getAction())) {
@@ -162,12 +181,25 @@ public class MailService extends Service {
         PendingIntent pi = PendingIntent.getService(this, 0, i, 0);
 
         int shortestInterval = -1;
-        for (Account account : Preferences.getPreferences(this).getAccounts()) {
-            int interval = account.getAutomaticCheckIntervalMinutes();
-            if (interval > 0 && (interval < shortestInterval || shortestInterval == -1)) {
-                shortestInterval = interval;
+        Cursor c = null;
+        try {
+            c = this.getContentResolver().query(
+                    EmailStore.Account.CONTENT_URI, 
+                    EmailStore.Account.CONTENT_PROJECTION,
+                    null, null, null);
+            while (c.moveToNext()) {
+                EmailStore.Account account = EmailContent.getContent(c, 
+                        EmailStore.Account.class);
+                int interval = account.getAutomaticCheckIntervalMinutes();
+                if (interval > 0 && (interval < shortestInterval || shortestInterval == -1)) {
+                    shortestInterval = interval;
+                }
+                enablePushMail(account, interval == Account.CHECK_INTERVAL_PUSH);
             }
-            enablePushMail(account, interval == Account.CHECK_INTERVAL_PUSH);
+        } finally {
+            if (c != null) {
+                c.close();
+            }
         }
 
         if (shortestInterval == -1) {
@@ -184,19 +216,20 @@ public class MailService extends Service {
     }
 
     class Listener extends MessagingListener {
-        HashMap<Account, Integer> accountsWithNewMail = new HashMap<Account, Integer>();
+        HashMap<EmailStore.Account, Integer> accountsWithNewMail = 
+            new HashMap<EmailStore.Account, Integer>();
 
         // TODO this should be redone because account is usually null, not very interesting.
         // I think it would make more sense to pass Account[] here in case anyone uses it
         // In any case, it should be noticed that this is called once per cycle
         @Override
-        public void checkMailStarted(Context context, Account account) {
+        public void checkMailStarted(Context context, EmailStore.Account account) {
             accountsWithNewMail.clear();
         }
 
         // Called once per checked account
         @Override
-        public void checkMailFailed(Context context, Account account, String reason) {
+        public void checkMailFailed(Context context, EmailStore.Account account, String reason) {
             if (Config.LOGD && Email.DEBUG) {
                 Log.d(Email.LOG_TAG, "*** MailService: checkMailFailed: " + reason);
             }
@@ -206,16 +239,14 @@ public class MailService extends Service {
 
         // Called once per checked account
         @Override
-        public void synchronizeMailboxFinished(
-                Account account,
-                String folder,
-                int totalMessagesInMailbox,
-                int numNewMessages) {
+        public void synchronizeMailboxFinished(EmailStore.Account account, String folder,
+                int totalMessagesInMailbox, int numNewMessages) {
             if (Config.LOGD && Email.DEBUG) {
                 Log.d(Email.LOG_TAG, "*** MailService: synchronizeMailboxFinished: total=" + 
                         totalMessagesInMailbox + " new=" + numNewMessages);
             }
-            if (account.isNotifyNewMail() && numNewMessages > 0) {
+            if (numNewMessages > 0 &&
+                    ((account.getFlags() & EmailStore.Account.FLAGS_NOTIFY_NEW_MAIL) != 0)) {
                 accountsWithNewMail.put(account, numNewMessages);
             }
         }
@@ -224,7 +255,7 @@ public class MailService extends Service {
         // I think it would make more sense to pass Account[] here in case anyone uses it
         // In any case, it should be noticed that this is called once per cycle
         @Override
-        public void checkMailFinished(Context context, Account account) {
+        public void checkMailFinished(Context context, EmailStore.Account account) {
             if (Config.LOGD && Email.DEBUG) {
                 Log.d(Email.LOG_TAG, "*** MailService: checkMailFinished");
             }
@@ -237,8 +268,10 @@ public class MailService extends Service {
                 boolean vibrate = false;
                 String ringtone = null;
                 if (accountsWithNewMail.size() > 1) {
-                    for (Account account1 : accountsWithNewMail.keySet()) {
-                        if (account1.isVibrate()) vibrate = true;
+                    for (EmailStore.Account account1 : accountsWithNewMail.keySet()) {
+                        if ((account1.getFlags() & EmailStore.Account.FLAGS_VIBRATE) != 0) {
+                            vibrate = true;
+                        }
                         ringtone = account1.getRingtone();
                     }
                     Intent i = new Intent(context, Accounts.class);
@@ -249,16 +282,17 @@ public class MailService extends Service {
                                     accountsWithNewMail.size(),
                                     accountsWithNewMail.size()), pi);
                 } else {
-                    Account account1 = accountsWithNewMail.keySet().iterator().next();
+                    EmailStore.Account account1 = accountsWithNewMail.keySet().iterator().next();
                     int totalNewMails = accountsWithNewMail.get(account1);
-                    Intent i = FolderMessageList.actionHandleAccountIntent(context, account1, Email.INBOX);
+                    Intent i = FolderMessageList.actionHandleAccountIntent(context,
+                            account1.mId, Email.INBOX);
                     PendingIntent pi = PendingIntent.getActivity(context, 0, i, 0);
                     notif.setLatestEventInfo(context, getString(R.string.notification_new_title),
                             getResources().
                                 getQuantityString(R.plurals.notification_new_one_account_fmt,
                                     totalNewMails, totalNewMails,
                                     account1.getDescription()), pi);
-                    vibrate = account1.isVibrate();
+                    vibrate = ((account1.getFlags() & EmailStore.Account.FLAGS_VIBRATE) != 0);
                     ringtone = account1.getRingtone();
                 }
                 notif.defaults = Notification.DEFAULT_LIGHTS;
@@ -281,10 +315,10 @@ public class MailService extends Service {
      * 
      * @param account the account that needs push delivery enabled
      */
-    private void enablePushMail(Account account, boolean enable) {
+    private void enablePushMail(EmailStore.Account account, boolean enable) {
         try {
-            String localUri = account.getLocalStoreUri();
-            String storeUri = account.getStoreUri();
+            String localUri = account.getLocalStoreUri(this);
+            String storeUri = account.getStoreUri(this);
             if (localUri != null && storeUri != null) {
                 LocalStore localStore = (LocalStore) Store.getInstance(
                         localUri, this.getBaseContext(), null);

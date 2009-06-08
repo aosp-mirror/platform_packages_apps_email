@@ -16,13 +16,7 @@
 
 package com.android.email.provider;
 
-import java.io.File;
-import java.io.FileInputStream;
-import java.io.FileNotFoundException;
-import java.io.FileOutputStream;
-import java.io.IOException;
-import java.io.InputStream;
-import java.util.List;
+import com.android.email.mail.internet.MimeUtility;
 
 import android.content.ContentProvider;
 import android.content.ContentResolver;
@@ -34,14 +28,13 @@ import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.net.Uri;
 import android.os.ParcelFileDescriptor;
-import android.provider.OpenableColumns;
-import android.util.Config;
-import android.util.Log;
 
-import com.android.email.Account;
-import com.android.email.Email;
-import com.android.email.Utility;
-import com.android.email.mail.internet.MimeUtility;
+import java.io.File;
+import java.io.FileNotFoundException;
+import java.io.FileOutputStream;
+import java.io.IOException;
+import java.io.InputStream;
+import java.util.List;
 
 /*
  * A simple ContentProvider that allows file access to Email's attachments.
@@ -59,7 +52,7 @@ public class AttachmentProvider extends ContentProvider {
         public static final String SIZE = "_size";
     }
 
-    public static Uri getAttachmentUri(Account account, long id) {
+    public static Uri getAttachmentUri(EmailStore.Account account, long id) {
         return CONTENT_URI.buildUpon()
                 .appendPath(account.getUuid() + ".db")
                 .appendPath(Long.toString(id))
@@ -67,7 +60,8 @@ public class AttachmentProvider extends ContentProvider {
                 .build();
     }
 
-    public static Uri getAttachmentThumbnailUri(Account account, long id, int width, int height) {
+    public static Uri getAttachmentThumbnailUri(EmailStore.Account account, long id,
+            int width, int height) {
         return CONTENT_URI.buildUpon()
                 .appendPath(account.getUuid() + ".db")
                 .appendPath(Long.toString(id))

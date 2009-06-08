@@ -16,12 +16,11 @@
 
 package com.android.email.activity;
 
-import com.android.email.Account;
 import com.android.email.Email;
 import com.android.email.MessagingController;
-import com.android.email.Preferences;
 import com.android.email.R;
 import com.android.email.mail.internet.BinaryTempFileBody;
+import com.android.email.provider.EmailStore;
 
 import android.app.Application;
 import android.content.Context;
@@ -51,7 +50,7 @@ public class MessageViewTests
         extends ActivityInstrumentationTestCase2<MessageView> {
     
     // copied from MessageView (could be package class)
-    private static final String EXTRA_ACCOUNT = "com.android.email.MessageView_account";
+    private static final String EXTRA_ACCOUNT_ID = "com.android.email.MessageView_account_id";
     private static final String EXTRA_FOLDER = "com.android.email.MessageView_folder";
     private static final String EXTRA_MESSAGE = "com.android.email.MessageView_message";
     private static final String EXTRA_FOLDER_UIDS = "com.android.email.MessageView_folderUids";
@@ -60,7 +59,8 @@ public class MessageViewTests
     private static final String FOLDER_NAME = "folder";
     private static final String MESSAGE_UID = "message_uid";
     
-    private Account mAccount;
+    private EmailStore.Account mAccount;
+    private long mAccountId;
     private TextView mToView;
     private TextView mSubjectView;
     private WebView mMessageContentView;
@@ -75,20 +75,17 @@ public class MessageViewTests
         super.setUp();
 
         mContext = getInstrumentation().getTargetContext();
-        Account[] accounts = Preferences.getPreferences(mContext).getAccounts();
-        if (accounts.length > 0)
-        {
-            // This depends on getDefaultAccount() to auto-assign the default account, if necessary
-            mAccount = Preferences.getPreferences(mContext).getDefaultAccount();
-            Email.setServicesEnabled(mContext);
-        }
-
+        // force assignment of a default account
+        mAccount = EmailStore.Account.getDefaultAccount(mContext);
+        mAccountId = mAccount.mId;
+        Email.setServicesEnabled(mContext);
+        
         // setup an intent to spin up this activity with something useful
         ArrayList<String> FOLDER_UIDS = new ArrayList<String>(
                 Arrays.asList(new String[]{ "why", "is", "java", "so", "ugly?" }));
         // Log.d("MessageViewTest", "--- folder:" + FOLDER_UIDS);
         Intent i = new Intent()
-            .putExtra(EXTRA_ACCOUNT, mAccount)
+            .putExtra(EXTRA_ACCOUNT_ID, mAccountId)
             .putExtra(EXTRA_FOLDER, FOLDER_NAME)
             .putExtra(EXTRA_MESSAGE, MESSAGE_UID)
             .putStringArrayListExtra(EXTRA_FOLDER_UIDS, FOLDER_UIDS);

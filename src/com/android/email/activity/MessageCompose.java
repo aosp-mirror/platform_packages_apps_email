@@ -16,13 +16,11 @@
 
 package com.android.email.activity;
 
-import com.android.email.Account;
 import com.android.email.Email;
 import com.android.email.EmailAddressAdapter;
 import com.android.email.EmailAddressValidator;
 import com.android.email.MessagingController;
 import com.android.email.MessagingListener;
-import com.android.email.Preferences;
 import com.android.email.R;
 import com.android.email.Utility;
 import com.android.email.mail.Address;
@@ -41,6 +39,7 @@ import com.android.email.mail.internet.MimeUtility;
 import com.android.email.mail.internet.TextBody;
 import com.android.email.mail.store.LocalStore;
 import com.android.email.mail.store.LocalStore.LocalAttachmentBody;
+import com.android.email.provider.EmailStore;
 
 import android.app.Activity;
 import android.content.ActivityNotFoundException;
@@ -61,7 +60,6 @@ import android.text.TextWatcher;
 import android.text.util.Rfc822Tokenizer;
 import android.util.Config;
 import android.util.Log;
-import android.view.KeyEvent;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
@@ -91,7 +89,7 @@ public class MessageCompose extends Activity implements OnClickListener, OnFocus
     private static final String ACTION_FORWARD = "com.android.email.intent.action.FORWARD";
     private static final String ACTION_EDIT_DRAFT = "com.android.email.intent.action.EDIT_DRAFT";
 
-    private static final String EXTRA_ACCOUNT = "account";
+    private static final String EXTRA_ACCOUNT_ID = "account_id";
     private static final String EXTRA_FOLDER = "folder";
     private static final String EXTRA_MESSAGE = "message";
 
@@ -117,7 +115,8 @@ public class MessageCompose extends Activity implements OnClickListener, OnFocus
 
     private static final int ACTIVITY_REQUEST_PICK_ATTACHMENT = 1;
 
-    private Account mAccount;
+    private long mAccountId;
+    private EmailStore.Account mAccount;
     private String mFolder;
     private String mSourceMessageUid;
     private Message mSourceMessage;
@@ -202,16 +201,20 @@ public class MessageCompose extends Activity implements OnClickListener, OnFocus
     }
 
     /**
-     * Compose a new message using the given account. If account is null the default account
+     * Compose a new message using the given account. If account is -1 the default account
      * will be used.
      * @param context
      * @param account
      */
-    public static void actionCompose(Context context, Account account) {
+    public static void actionCompose(Context context, long accountId) {
        try {
            Intent i = new Intent(context, MessageCompose.class);
-           i.putExtra(EXTRA_ACCOUNT, account);
-           i.putExtra(EXTRA_FOLDER, account.getDraftsFolderName());
+           i.putExtra(EXTRA_ACCOUNT_ID, accountId);
+           /*
+            * TODO handle drafts via role # note via string
+            * Is this used?  Do we ever compose anywhere else but in drafts?
+            */
+           i.putExtra(EXTRA_FOLDER, context.getString(R.string.special_mailbox_name_drafts));
            context.startActivity(i);
        } catch (ActivityNotFoundException anfe) {
            // Swallow it - this is usually a race condition, especially under automated test.
@@ -227,7 +230,7 @@ public class MessageCompose extends Activity implements OnClickListener, OnFocus
      * @param context
      * @param defaultAccountId
      */
-    public static void actionCompose(Accounts context, long defaultAccountId) {
+    public static void actionCompose(Activity context, long accountId) {
         // TODO Auto-generated method stub
         // DO NOT CHECK IN until written
     }
@@ -242,11 +245,11 @@ public class MessageCompose extends Activity implements OnClickListener, OnFocus
      */
     public static void actionReply(
             Context context,
-            Account account,
+            long accountId,
             Message message,
             boolean replyAll) {
         Intent i = new Intent(context, MessageCompose.class);
-        i.putExtra(EXTRA_ACCOUNT, account);
+        i.putExtra(EXTRA_ACCOUNT_ID, accountId);
         i.putExtra(EXTRA_FOLDER, message.getFolder().getName());
         i.putExtra(EXTRA_MESSAGE, message.getUid());
         if (replyAll) {
@@ -264,9 +267,9 @@ public class MessageCompose extends Activity implements OnClickListener, OnFocus
      * @param account
      * @param message
      */
-    public static void actionForward(Context context, Account account, Message message) {
+    public static void actionForward(Context context, long accountId, Message message) {
         Intent i = new Intent(context, MessageCompose.class);
-        i.putExtra(EXTRA_ACCOUNT, account);
+        i.putExtra(EXTRA_ACCOUNT_ID, accountId);
         i.putExtra(EXTRA_FOLDER, message.getFolder().getName());
         i.putExtra(EXTRA_MESSAGE, message.getUid());
         i.setAction(ACTION_FORWARD);
@@ -282,9 +285,9 @@ public class MessageCompose extends Activity implements OnClickListener, OnFocus
      * @param account
      * @param message
      */
-    public static void actionEditDraft(Context context, Account account, Message message) {
+    public static void actionEditDraft(Context context, long accountId, Message message) {
         Intent i = new Intent(context, MessageCompose.class);
-        i.putExtra(EXTRA_ACCOUNT, account);
+        i.putExtra(EXTRA_ACCOUNT_ID, accountId);
         i.putExtra(EXTRA_FOLDER, message.getFolder().getName());
         i.putExtra(EXTRA_MESSAGE, message.getUid());
         i.setAction(ACTION_EDIT_DRAFT);
@@ -434,7 +437,7 @@ public class MessageCompose extends Activity implements OnClickListener, OnFocus
                 (Intent.ACTION_SEND.equals(action))) {
             
             // Check first for a valid account
-            mAccount = Preferences.getPreferences(this).getDefaultAccount();
+            mAccount = EmailStore.Account.getDefaultAccount(this);
             if (mAccount == null) {
                 // There are no accounts set up. This should not have happened. Prompt the
                 // user to set up an account as an acceptable bailout.
@@ -449,7 +452,8 @@ public class MessageCompose extends Activity implements OnClickListener, OnFocus
         }
         else {
             // Otherwise, handle the internal cases (Message Composer invoked from within app)
-            mAccount = (Account) intent.getSerializableExtra(EXTRA_ACCOUNT);
+            mAccountId = intent.getLongExtra(EXTRA_ACCOUNT_ID, -1);
+            mAccount = EmailStore.Account.restoreAccountWithId(this, mAccountId);
             mFolder = intent.getStringExtra(EXTRA_FOLDER);
             mSourceMessageUid = intent.getStringExtra(EXTRA_MESSAGE);
         }
@@ -728,7 +732,7 @@ public class MessageCompose extends Activity implements OnClickListener, OnFocus
              */
             if (ACTION_EDIT_DRAFT.equals(getIntent().getAction())
                     && mSourceMessageUid != null
-                    && mFolder.equals(mAccount.getDraftsFolderName())) {
+                    && mFolder.equals(mAccount.getDraftsFolderName(this))) {
                 /*
                  * We're sending a previously saved draft, so delete the old draft first.
                  */
@@ -1253,7 +1257,7 @@ public class MessageCompose extends Activity implements OnClickListener, OnFocus
         setNewMessageFocus();
         
         mSourceMessageProcessed = true;
-        mDraftNeedsSaving = mFolder != null && !mFolder.equals(mAccount.getDraftsFolderName());
+        mDraftNeedsSaving = mFolder != null && !mFolder.equals(mAccount.getDraftsFolderName(this));
     }
 
     /**
@@ -1280,19 +1284,20 @@ public class MessageCompose extends Activity implements OnClickListener, OnFocus
 
     class Listener extends MessagingListener {
         @Override
-        public void loadMessageForViewStarted(Account account, String folder, String uid) {
+        public void loadMessageForViewStarted(EmailStore.Account account, String folder,
+                String uid) {
             mHandler.sendEmptyMessage(MSG_PROGRESS_ON);
         }
 
         @Override
-        public void loadMessageForViewFinished(Account account, String folder, String uid,
-                Message message) {
+        public void loadMessageForViewFinished(EmailStore.Account account, String folder,
+                String uid, Message message) {
             mHandler.sendEmptyMessage(MSG_PROGRESS_OFF);
         }
 
         @Override
-        public void loadMessageForViewBodyAvailable(Account account, String folder, String uid,
-                final Message message) {
+        public void loadMessageForViewBodyAvailable(EmailStore.Account account, String folder,
+                String uid, final Message message) {
             mSourceMessage = message;
             runOnUiThread(new Runnable() {
                 public void run() {
@@ -1302,22 +1307,18 @@ public class MessageCompose extends Activity implements OnClickListener, OnFocus
         }
 
         @Override
-        public void loadMessageForViewFailed(Account account, String folder, String uid,
+        public void loadMessageForViewFailed(EmailStore.Account account, String folder, String uid,
                 final String message) {
             mHandler.sendEmptyMessage(MSG_PROGRESS_OFF);
             // TODO show network error
         }
 
         @Override
-        public void messageUidChanged(
-                Account account,
-                String folder,
-                String oldUid,
+        public void messageUidChanged(EmailStore.Account account, String folder,String oldUid,
                 String newUid) {
-            if (account.equals(mAccount)
-                    && (folder.equals(mFolder)
-                            || (mFolder == null
-                                    && folder.equals(mAccount.getDraftsFolderName())))) {
+            if (account.equals(mAccount) && (folder.equals(mFolder)
+                    || (mFolder == null
+                            && folder.equals(mAccount.getDraftsFolderName(MessageCompose.this))))) {
                 if (oldUid.equals(mDraftUid)) {
                     mDraftUid = newUid;
                 }

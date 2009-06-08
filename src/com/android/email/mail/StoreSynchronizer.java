@@ -16,8 +16,8 @@
 
 package com.android.email.mail;
 
-import com.android.email.Account;
 import com.android.email.MessagingListener;
+import com.android.email.provider.EmailStore;
 
 import android.content.Context;
 
@@ -70,7 +70,7 @@ public interface StoreSynchronizer {
      * @param context if needed for making system calls
      * @return an object describing the sync results
      */
-    public SyncResults SynchronizeMessagesSynchronous(Account account, String folder,
+    public SyncResults SynchronizeMessagesSynchronous(EmailStore.Account account, String folder,
             Collection<MessagingListener> listeners, Context context) throws MessagingException;
     
 }

@@ -16,9 +16,7 @@
 
 package com.android.email.activity;
 
-import com.android.email.Account;
 import com.android.email.Email;
-import com.android.email.Preferences;
 import com.android.email.R;
 import com.android.email.mail.Address;
 import com.android.email.mail.Message;
@@ -26,6 +24,7 @@ import com.android.email.mail.MessagingException;
 import com.android.email.mail.Message.RecipientType;
 import com.android.email.mail.internet.MimeMessage;
 import com.android.email.mail.internet.TextBody;
+import com.android.email.provider.EmailStore;
 
 import android.content.Context;
 import android.content.Intent;
@@ -101,13 +100,10 @@ public class MessageComposeInstrumentationTests
     protected void setUp() throws Exception {
         super.setUp();
         Context context = getInstrumentation().getTargetContext();
-        Account[] accounts = Preferences.getPreferences(context).getAccounts();
-        if (accounts.length > 0)
-        {
-            // This depends on getDefaultAccount() to auto-assign the default account, if necessary
-            Preferences.getPreferences(context).getDefaultAccount();
-            Email.setServicesEnabled(context);
-        }
+        
+        EmailStore.Account.getDefaultAccount(context);
+        Email.setServicesEnabled(context);
+
         Intent intent = new Intent(Intent.ACTION_VIEW);
         setActivityIntent(intent);
         final MessageCompose a = getActivity();

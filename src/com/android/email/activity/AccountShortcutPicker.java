@@ -16,24 +16,21 @@
 
 package com.android.email.activity;
 
-import com.android.email.Account;
 import com.android.email.Email;
-import com.android.email.Preferences;
 import com.android.email.R;
-import com.android.email.mail.MessagingException;
-import com.android.email.mail.Store;
-import com.android.email.mail.store.LocalStore;
-import com.android.email.mail.store.LocalStore.LocalFolder;
+import com.android.email.provider.EmailStore;
+import com.android.email.provider.EmailStore.Account;
 
 import android.app.ListActivity;
+import android.content.Context;
 import android.content.Intent;
+import android.database.Cursor;
 import android.os.Bundle;
 import android.os.Parcelable;
 import android.view.View;
-import android.view.ViewGroup;
 import android.widget.AdapterView;
-import android.widget.ArrayAdapter;
 import android.widget.ListView;
+import android.widget.SimpleCursorAdapter;
 import android.widget.TextView;
 import android.widget.AdapterView.OnItemClickListener;
 
@@ -45,9 +42,21 @@ import android.widget.AdapterView.OnItemClickListener;
  * (or, one could be a base class of the other).
  */
 public class AccountShortcutPicker extends ListActivity implements OnItemClickListener {
-    
-    Account[] mAccounts;
-    
+        
+    /**
+     * Support for list adapter
+     */
+    private final static String[] sFromColumns = new String[] { 
+            EmailStore.AccountColumns.DISPLAY_NAME,
+            EmailStore.AccountColumns.EMAIL_ADDRESS,
+            EmailStore.RECORD_ID
+    };
+    private final int[] sToIds = new int[] {
+            R.id.description,
+            R.id.email,
+            R.id.new_message_count
+    };
+
     @Override
     public void onCreate(Bundle icicle) {
         super.onCreate(icicle);
@@ -59,8 +68,11 @@ public class AccountShortcutPicker extends ListActivity implements OnItemClickLi
         }
 
         // finish() immediately if no accounts are configured
-        mAccounts = Preferences.getPreferences(this).getAccounts();
-        if (mAccounts.length == 0) {
+        Cursor c = this.managedQuery(
+                EmailStore.Account.CONTENT_URI, 
+                EmailStore.Account.CONTENT_PROJECTION,
+                null, null);
+        if (c.getCount() == 0) {
             finish();
             return;
         }
@@ -70,16 +82,10 @@ public class AccountShortcutPicker extends ListActivity implements OnItemClickLi
         listView.setOnItemClickListener(this);
         listView.setItemsCanFocus(false);
         listView.setEmptyView(findViewById(R.id.empty));
-    }
-
-    @Override
-    public void onResume() {
-        super.onResume();
-        refresh();
-    }
-
-    private void refresh() {
-        getListView().setAdapter(new AccountsAdapter(mAccounts));
+        
+        AccountsAdapter a = new AccountsAdapter(this, 
+                R.layout.accounts_item, c, sFromColumns, sToIds);
+        listView.setAdapter(a);
     }
 
     private void onOpenAccount(Account account) {
@@ -93,58 +99,33 @@ public class AccountShortcutPicker extends ListActivity implements OnItemClickLi
         onOpenAccount(account);
     }
 
-    class AccountsAdapter extends ArrayAdapter<Account> {
-        public AccountsAdapter(Account[] accounts) {
-            super(AccountShortcutPicker.this, 0, accounts);
-        }
+    private static class AccountsAdapter extends SimpleCursorAdapter {
 
-        @Override
-        public View getView(int position, View convertView, ViewGroup parent) {
-            Account account = getItem(position);
-            View view;
-            if (convertView != null) {
-                view = convertView;
-            }
-            else {
-                view = getLayoutInflater().inflate(R.layout.accounts_item, parent, false);
-            }
-            AccountViewHolder holder = (AccountViewHolder) view.getTag();
-            if (holder == null) {
-                holder = new AccountViewHolder();
-                holder.description = (TextView) view.findViewById(R.id.description);
-                holder.email = (TextView) view.findViewById(R.id.email);
-                holder.newMessageCount = (TextView) view.findViewById(R.id.new_message_count);
-                view.setTag(holder);
-            }
-            holder.description.setText(account.getDescription());
-            holder.email.setText(account.getEmail());
-            if (account.getEmail().equals(account.getDescription())) {
-                holder.email.setVisibility(View.GONE);
-            }
-            int unreadMessageCount = 0;
-            try {
-                LocalStore localStore = (LocalStore) Store.getInstance(
-                        account.getLocalStoreUri(), getApplication(), null);
-                LocalFolder localFolder = (LocalFolder) localStore.getFolder(Email.INBOX);
-                if (localFolder.exists()) {
-                    unreadMessageCount = localFolder.getUnreadMessageCount();
+        public AccountsAdapter(Context context, int layout, Cursor c, String[] from, int[] to) {
+            super(context, layout, c, from, to);
+            setViewBinder(new MyViewBinder());
+        }
+        
+        /**
+         * This is only used for the unread messages count.  Most of the views are handled
+         * normally by SimpleCursorAdapter.
+         */
+        private static class MyViewBinder implements SimpleCursorAdapter.ViewBinder {
+
+            public boolean setViewValue(View view, Cursor cursor, int columnIndex) {
+                if (view.getId() == R.id.new_message_count) {
+                    
+                    int unreadMessageCount = 0;     // TODO get unread count from Account
+                    if (unreadMessageCount <= 0) {
+                        view.setVisibility(View.GONE);
+                    } else {
+                        ((TextView)view).setText(String.valueOf(unreadMessageCount));
+                    }
+                    return true;
                 }
+                
+                return false;
             }
-            catch (MessagingException me) {
-                /*
-                 * This is not expected to fail under normal circumstances.
-                 */
-                throw new RuntimeException("Unable to get unread count from local store.", me);
-            }
-            holder.newMessageCount.setText(Integer.toString(unreadMessageCount));
-            holder.newMessageCount.setVisibility(unreadMessageCount > 0 ? View.VISIBLE : View.GONE);
-            return view;
-        }
-
-        class AccountViewHolder {
-            public TextView description;
-            public TextView email;
-            public TextView newMessageCount;
         }
     }
     
@@ -175,11 +156,11 @@ public class AccountShortcutPicker extends ListActivity implements OnItemClickLi
      * with an appropriate Uri for your content, but any Intent will work here as long as it 
      * triggers the desired action within your Activity.
      */
-    private void setupShortcut(Account account) {
+    private void setupShortcut(EmailStore.Account account) {
         // First, set up the shortcut intent.
 
         Intent shortcutIntent = FolderMessageList.actionHandleAccountUriIntent(this, 
-                account, Email.INBOX);
+                account.mId, Email.INBOX);
 
         // Then, set up the container intent (the response to the caller)
 

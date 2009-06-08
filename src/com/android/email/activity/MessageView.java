@@ -16,7 +16,6 @@
 
 package com.android.email.activity;
 
-import com.android.email.Account;
 import com.android.email.Email;
 import com.android.email.MessagingController;
 import com.android.email.MessagingListener;
@@ -33,6 +32,7 @@ import com.android.email.mail.internet.MimeUtility;
 import com.android.email.mail.store.LocalStore.LocalAttachmentBodyPart;
 import com.android.email.mail.store.LocalStore.LocalMessage;
 import com.android.email.provider.AttachmentProvider;
+import com.android.email.provider.EmailStore;
 
 import org.apache.commons.io.IOUtils;
 
@@ -83,7 +83,7 @@ import java.util.regex.Pattern;
 
 public class MessageView extends Activity
         implements OnClickListener {
-    private static final String EXTRA_ACCOUNT = "com.android.email.MessageView_account";
+    private static final String EXTRA_ACCOUNT_ID = "com.android.email.MessageView_account_id";
     private static final String EXTRA_FOLDER = "com.android.email.MessageView_folder";
     private static final String EXTRA_MESSAGE = "com.android.email.MessageView_message";
     private static final String EXTRA_FOLDER_UIDS = "com.android.email.MessageView_folderUids";
@@ -114,7 +114,8 @@ public class MessageView extends Activity
     private ImageView mSenderPresenceView;
     private ProgressDialog mProgressDialog;
 
-    private Account mAccount;
+    private long mAccountId;
+    private EmailStore.Account mAccount;
     private String mFolder;
     private String mMessageUid;
     private ArrayList<String> mFolderUids;
@@ -300,15 +301,15 @@ public class MessageView extends Activity
         public ImageView iconView;
     }
 
-    public static void actionView(Context context, Account account,
+    public static void actionView(Context context, long accountId,
             String folder, String messageUid, ArrayList<String> folderUids) {
-        actionView(context, account, folder, messageUid, folderUids, null);
+        actionView(context, accountId, folder, messageUid, folderUids, null);
     }
 
-    public static void actionView(Context context, Account account,
+    public static void actionView(Context context, long accountId,
             String folder, String messageUid, ArrayList<String> folderUids, Bundle extras) {
         Intent i = new Intent(context, MessageView.class);
-        i.putExtra(EXTRA_ACCOUNT, account);
+        i.putExtra(EXTRA_ACCOUNT_ID, accountId);
         i.putExtra(EXTRA_FOLDER, folder);
         i.putExtra(EXTRA_MESSAGE, messageUid);
         i.putExtra(EXTRA_FOLDER_UIDS, folderUids);
@@ -362,7 +363,8 @@ public class MessageView extends Activity
         mTimeFormat = android.text.format.DateFormat.getTimeFormat(this);   // 12/24 date format
 
         Intent intent = getIntent();
-        mAccount = (Account) intent.getSerializableExtra(EXTRA_ACCOUNT);
+        mAccountId = intent.getLongExtra(EXTRA_ACCOUNT_ID, -1);
+        mAccount = EmailStore.Account.restoreAccountWithId(this, mAccountId);
         mFolder = intent.getStringExtra(EXTRA_FOLDER);
         mMessageUid = intent.getStringExtra(EXTRA_MESSAGE);
         mFolderUids = intent.getStringArrayListExtra(EXTRA_FOLDER_UIDS);
@@ -505,21 +507,21 @@ public class MessageView extends Activity
 
     private void onReply() {
         if (mMessage != null) {
-            MessageCompose.actionReply(this, mAccount, mMessage, false);
+            MessageCompose.actionReply(this, mAccountId, mMessage, false);
             finish();
         }
     }
 
     private void onReplyAll() {
         if (mMessage != null) {
-            MessageCompose.actionReply(this, mAccount, mMessage, true);
+            MessageCompose.actionReply(this, mAccountId, mMessage, true);
             finish();
         }
     }
 
     private void onForward() {
         if (mMessage != null) {
-            MessageCompose.actionForward(this, mAccount, mMessage);
+            MessageCompose.actionForward(this, mAccountId, mMessage);
             finish();
         }
     }
@@ -527,12 +529,12 @@ public class MessageView extends Activity
     private void onNext() {
         Bundle extras = new Bundle(1);
         extras.putBoolean(EXTRA_NEXT, true);
-        MessageView.actionView(this, mAccount, mFolder, mNextMessageUid, mFolderUids, extras);
+        MessageView.actionView(this, mAccountId, mFolder, mNextMessageUid, mFolderUids, extras);
         finish();
     }
 
     private void onPrevious() {
-        MessageView.actionView(this, mAccount, mFolder, mPreviousMessageUid, mFolderUids);
+        MessageView.actionView(this, mAccountId, mFolder, mPreviousMessageUid, mFolderUids);
         finish();
     }
 
@@ -875,8 +877,8 @@ public class MessageView extends Activity
 
     class Listener extends MessagingListener {
         @Override
-        public void loadMessageForViewHeadersAvailable(Account account, String folder, String uid,
-                final Message message) {
+        public void loadMessageForViewHeadersAvailable(EmailStore.Account account, String folder,
+                String uid, final Message message) {
             MessageView.this.mMessage = message;
             try {
                 String subjectText = message.getSubject();
@@ -905,8 +907,8 @@ public class MessageView extends Activity
         }
 
         @Override
-        public void loadMessageForViewBodyAvailable(Account account, String folder, String uid,
-                Message message) {
+        public void loadMessageForViewBodyAvailable(EmailStore.Account account, String folder,
+                String uid, Message message) {
             MessageView.this.mMessage = message;
             try {
                 Part part = MimeUtility.findFirstPartByMimeType(mMessage, "text/html");
@@ -987,7 +989,7 @@ public class MessageView extends Activity
         }
 
         @Override
-        public void loadMessageForViewFailed(Account account, String folder, String uid,
+        public void loadMessageForViewFailed(EmailStore.Account account, String folder, String uid,
                 final String message) {
             mHandler.post(new Runnable() {
                 public void run() {
@@ -999,8 +1001,8 @@ public class MessageView extends Activity
         }
 
         @Override
-        public void loadMessageForViewFinished(Account account, String folder, String uid,
-                Message message) {
+        public void loadMessageForViewFinished(EmailStore.Account account, String folder,
+                String uid, Message message) {
             mHandler.post(new Runnable() {
                 public void run() {
                     setProgressBarIndeterminateVisibility(false);
@@ -1009,7 +1011,8 @@ public class MessageView extends Activity
         }
 
         @Override
-        public void loadMessageForViewStarted(Account account, String folder, String uid) {
+        public void loadMessageForViewStarted(EmailStore.Account account, String folder, String uid)
+                {
             mHandler.post(new Runnable() {
                 public void run() {
                     loadMessageContentUrl("file:///android_asset/loading.html");
@@ -1019,7 +1022,7 @@ public class MessageView extends Activity
         }
 
         @Override
-        public void loadAttachmentStarted(Account account, Message message,
+        public void loadAttachmentStarted(EmailStore.Account account, Message message,
                 Part part, Object tag, boolean requiresDownload) {
             mHandler.setAttachmentsEnabled(false);
             Object[] params = (Object[]) tag;
@@ -1030,7 +1033,7 @@ public class MessageView extends Activity
         }
 
         @Override
-        public void loadAttachmentFinished(Account account, Message message,
+        public void loadAttachmentFinished(EmailStore.Account account, Message message,
                 Part part, Object tag) {
             mHandler.setAttachmentsEnabled(true);
             mHandler.progress(false, null);
@@ -1077,7 +1080,7 @@ public class MessageView extends Activity
         }
 
         @Override
-        public void loadAttachmentFailed(Account account, Message message, Part part,
+        public void loadAttachmentFailed(EmailStore.Account account, Message message, Part part,
                 Object tag, String reason) {
             mHandler.setAttachmentsEnabled(true);
             mHandler.progress(false, null);

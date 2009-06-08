@@ -16,6 +16,8 @@
 
 package com.android.email.provider;
 
+import com.android.email.R;
+
 import android.content.ContentProviderOperation;
 import android.content.ContentProviderResult;
 import android.content.ContentUris;
@@ -612,7 +614,7 @@ public class EmailStore {
             }
             createTable(db);
         }
-
+        
         public static Account restoreAccountWithId(Context context, long id) {
             Uri u = ContentUris.withAppendedId(Account.CONTENT_URI, id);
             Cursor c = context.getContentResolver().query(u, Account.CONTENT_PROJECTION,
@@ -626,6 +628,23 @@ public class EmailStore {
                 }
             } finally {
                 c.close();
+            }
+        }
+        
+        /**
+         * Refresh an account that has already been loaded.  This is slightly less expensive
+         * that generating a brand-new account object.
+         */
+        public void refresh(Context context) {
+            Cursor c = context.getContentResolver().query(this.getUri(), Account.CONTENT_PROJECTION,
+                    null, null, null);
+            try {
+                c.moveToFirst();
+                restore(c);
+            } finally {
+                if (c != null) {
+                    c.close();
+                }
             }
         }
 
@@ -1064,6 +1083,35 @@ public class EmailStore {
             values.put(AccountColumns.RINGTONE_URI, mRingtoneUri);
             return values;
         }
+        
+        /**
+         * TODO don't store these names in the account - just tag the folders
+         */
+        public String getDraftsFolderName(Context context) {
+            return context.getString(R.string.special_mailbox_name_drafts);
+        }
+
+        /**
+         * TODO don't store these names in the account - just tag the folders
+         */
+        public String getSentFolderName(Context context) {
+            return context.getString(R.string.special_mailbox_name_sent);
+        }
+
+        /**
+         * TODO don't store these names in the account - just tag the folders
+         */
+        public String getTrashFolderName(Context context) {
+            return context.getString(R.string.special_mailbox_name_trash);
+        }
+
+        /**
+         * TODO don't store these names in the account - just tag the folders
+         */
+        public String getOutboxFolderName(Context context) {
+            return context.getString(R.string.special_mailbox_name_outbox);
+        }
+
         
         /**
          * Supports Parcelable

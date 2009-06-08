@@ -18,30 +18,25 @@ package com.android.email;
 
 import com.android.email.mail.Folder;
 import com.android.email.mail.MockFolder;
+import com.android.email.provider.EmailStore;
 
+import android.content.ContentUris;
+import android.content.Context;
+import android.net.Uri;
 import android.test.AndroidTestCase;
 import android.test.suitebuilder.annotation.SmallTest;
 
 /**
  * This is a series of unit tests for the MessagingController class.
  * 
- * Technically these are functional because they use the underlying preferences framework.
+ * Technically these are functional because they use the underlying provider framework.
  */
 @SmallTest
 public class MessagingControllerUnitTests extends AndroidTestCase {
 
-    private Preferences mPreferences;
+    private long mAccountId;
+    private EmailStore.Account mAccount;
     
-    private String mUuid;
-    private Account mAccount;
-    
-    @Override
-    protected void setUp() throws Exception {
-        super.setUp();
-        
-        mPreferences = Preferences.getPreferences(getContext());
-    }
-
     /**
      * Delete any dummy accounts we set up for this test
      */
@@ -49,20 +44,26 @@ public class MessagingControllerUnitTests extends AndroidTestCase {
     protected void tearDown() throws Exception {
         super.tearDown();
         
-        if (mAccount != null && mPreferences != null) {
-            mAccount.delete(mPreferences);
+        if (mAccount != null) {
+            Uri uri = ContentUris.withAppendedId(
+                    EmailStore.Account.CONTENT_URI, mAccountId);
+            getContext().getContentResolver().delete(uri, null, null);
         }
     }
     
     /**
      * Test the code that copies server-supplied folder names into the account data
+     * 
+     * TODO:  custom folder naming is being re-implemented using folder types, and the notion
+     * of saving the names in the Account will probably go away.  This test should be replaced
+     * by an equivalent test, once there is a new implementation to look at.
      */
-    public void testUpdateAccountFolderNames() {
+    public void disabled_testUpdateAccountFolderNames() {
         MessagingController mc = MessagingController.getInstance(getContext());
         // Create a dummy account
         createTestAccount();
         // Refresh it to fill in all fields (many will have default values)
-        mAccount.refresh(mPreferences);
+        mAccount.refresh(getContext());
         
         // Replace one entry, others are not included
         Folder[] folders1 = new Folder[] {
@@ -72,7 +73,8 @@ public class MessagingControllerUnitTests extends AndroidTestCase {
         checkServerFolderNames("folders1", mAccount, "DRAFTS_1", "Sent", "Trash", "Outbox");
         
         // test that the data is shared across multiple account instantiations
-        Account account2 = new Account(mPreferences, mUuid);
+        EmailStore.Account account2 = EmailStore.Account.
+                restoreAccountWithId(getContext(), mAccountId);
         checkServerFolderNames("folders1-2", account2, "DRAFTS_1", "Sent", "Trash", "Outbox");
 
         // Replace one entry, others are included but called out as unknown
@@ -86,7 +88,7 @@ public class MessagingControllerUnitTests extends AndroidTestCase {
         checkServerFolderNames("folders2", mAccount, "DRAFTS_1", "SENT_2", "Trash", "Outbox");
         
         // test that the data is shared across multiple account instantiations
-        account2 = new Account(mPreferences, mUuid);
+        account2 = EmailStore.Account.restoreAccountWithId(getContext(), mAccountId);
         checkServerFolderNames("folders2-2", account2, "DRAFTS_1", "SENT_2", "Trash", "Outbox");
         
         // Replace one entry, check that "other" is ignored, check that Outbox is ignored
@@ -100,19 +102,20 @@ public class MessagingControllerUnitTests extends AndroidTestCase {
         checkServerFolderNames("folders3", mAccount, "DRAFTS_1", "SENT_2", "TRASH_3", "Outbox");
         
         // test that the data is shared across multiple account instantiations
-        account2 = new Account(mPreferences, mUuid);
+        account2 = EmailStore.Account.restoreAccountWithId(getContext(), mAccountId);
         checkServerFolderNames("folders3-2", account2, "DRAFTS_1", "SENT_2", "TRASH_3", "Outbox");
     }
     
     /**
      * Quickly check all four folder name slots in mAccount
      */
-    private void checkServerFolderNames(String diagnostic, Account account,
+    private void checkServerFolderNames(String diagnostic, EmailStore.Account account,
             String drafts, String sent, String trash, String outbox) {
-        assertEquals(diagnostic, drafts, account.getDraftsFolderName());
-        assertEquals(diagnostic, sent, account.getSentFolderName());
-        assertEquals(diagnostic, trash, account.getTrashFolderName());
-        assertEquals(diagnostic, outbox, account.getOutboxFolderName());
+        Context context = getContext();
+        assertEquals(diagnostic, drafts, account.getDraftsFolderName(context));
+        assertEquals(diagnostic, sent, account.getSentFolderName(context));
+        assertEquals(diagnostic, trash, account.getTrashFolderName(context));
+        assertEquals(diagnostic, outbox, account.getOutboxFolderName(context));
     }
     
     /**
@@ -141,10 +144,10 @@ public class MessagingControllerUnitTests extends AndroidTestCase {
      * Create a dummy account with minimal fields
      */
     private void createTestAccount() {
-        mAccount = new Account(getContext());
-        mAccount.save(mPreferences);
+        mAccount = new EmailStore.Account();
+        mAccount.saveOrUpdate(getContext());
         
-        mUuid = mAccount.getUuid();
+        mAccountId = mAccount.mId;
     }
     
 }

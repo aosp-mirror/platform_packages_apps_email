@@ -16,10 +16,8 @@
 
 package com.android.email.activity.setup;
 
-import com.android.email.Account;
 import com.android.email.Email;
 import com.android.email.R;
-import com.android.email.activity.Accounts;
 import com.android.email.mail.MessagingException;
 import com.android.email.mail.Sender;
 import com.android.email.mail.Store;
@@ -41,7 +39,6 @@ import android.util.Log;
 import android.view.KeyEvent;
 
 public class AccountSettings extends PreferenceActivity {
-    private static final String EXTRA_ACCOUNT = "account";
     private static final String EXTRA_ACCOUNT_ID = "account_id";
 
     private static final String PREFERENCE_TOP_CATEGORY = "account_settings";
@@ -71,19 +68,9 @@ public class AccountSettings extends PreferenceActivity {
     private RingtonePreference mAccountRingtone;
 
     /**
-     * TODO remove
-     */
-    @Deprecated
-    public static void actionSettings(Activity fromActivity, Account account) {
-        Intent i = new Intent(fromActivity, AccountSettings.class);
-        i.putExtra(EXTRA_ACCOUNT, account);
-        fromActivity.startActivity(i);
-    }
-    
-    /**
      * Display (and edit) settings for a specific account
      */
-    public static void actionSettings(Accounts fromActivity, long accountId) {
+    public static void actionSettings(Activity fromActivity, long accountId) {
         Intent i = new Intent(fromActivity, AccountSettings.class);
         i.putExtra(EXTRA_ACCOUNT_ID, accountId);
         fromActivity.startActivity(i);

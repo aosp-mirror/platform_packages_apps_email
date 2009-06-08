@@ -16,8 +16,6 @@
 
 package com.android.email.mail.internet;
 
-import com.android.email.Account;
-import com.android.email.Preferences;
 import com.android.email.mail.Message;
 import com.android.email.mail.MessageTestUtils;
 import com.android.email.mail.MessagingException;
@@ -25,6 +23,7 @@ import com.android.email.mail.MessageTestUtils.MessageBuilder;
 import com.android.email.mail.MessageTestUtils.MultipartBuilder;
 import com.android.email.mail.MessageTestUtils.TextBuilder;
 import com.android.email.mail.store.LocalStore;
+import com.android.email.provider.EmailStore;
 
 import android.net.Uri;
 import android.test.AndroidTestCase;
@@ -34,7 +33,7 @@ import java.io.IOException;
 
 @MediumTest
 public class EmailHtmlUtilTest extends AndroidTestCase {
-    private Account mAccount;
+    private EmailStore.Account mAccount;
 
     private static final String textTags = "<b>Plain</b> &";
     private static final String textSpaces = "3 spaces   end.";
@@ -43,12 +42,8 @@ public class EmailHtmlUtilTest extends AndroidTestCase {
     @Override
     protected void setUp() throws Exception {
         super.setUp();
-        Account[] accounts = Preferences.getPreferences(mContext).getAccounts();
-        if (accounts.length > 0)
-        {
-            // This depends on getDefaultAccount() to auto-assign the default account, if necessary
-            mAccount = Preferences.getPreferences(mContext).getAccounts()[0];
-        }
+        // Force assignment of a default account, and retrieve it
+        mAccount = EmailStore.Account.getDefaultAccount(getContext());
 
         // This is needed for mime image bodypart.
         BinaryTempFileBody.setTempDirectory(getContext().getCacheDir());
@@ -59,8 +54,8 @@ public class EmailHtmlUtilTest extends AndroidTestCase {
      */
 
     public void testResolveInlineImage() throws MessagingException, IOException {
-        final LocalStore store = (LocalStore) LocalStore.newInstance(mAccount.getLocalStoreUri(),
-                mContext, null);
+        final LocalStore store = (LocalStore) LocalStore.newInstance(
+                mAccount.getLocalStoreUri(getContext()), mContext, null);
         // Single cid case.
         final String cid1 = "cid.1@android.com";
         final long aid1 = 10;
