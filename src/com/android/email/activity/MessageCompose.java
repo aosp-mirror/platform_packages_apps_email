@@ -1151,9 +1151,9 @@ public class MessageCompose extends Activity implements OnClickListener, OnFocus
                         if (!plainTextFlag) {
                             text = EmailHtmlUtil.resolveInlineImage(
                                     getContentResolver(), mAccount, text, message, 0);
+                        } else {
+                            text = EmailHtmlUtil.escapeCharacterToDisplay(text);
                         }
-                        text = EmailHtmlUtil.escapeCharacterToDisplay(
-                                text, plainTextFlag);
                         mQuotedTextBar.setVisibility(View.VISIBLE);
                         mQuotedText.setVisibility(View.VISIBLE);
                         mQuotedText.loadDataWithBaseURL("email://", text, "text/html",
@@ -1192,9 +1192,9 @@ public class MessageCompose extends Activity implements OnClickListener, OnFocus
                         if (!plainTextFlag) {
                             text = EmailHtmlUtil.resolveInlineImage(
                                     getContentResolver(), mAccount, text, message, 0);
+                        } else {
+                            text = EmailHtmlUtil.escapeCharacterToDisplay(text);
                         }
-                        text = EmailHtmlUtil.escapeCharacterToDisplay(
-                                text, plainTextFlag);
                         mQuotedTextBar.setVisibility(View.VISIBLE);
                         mQuotedText.setVisibility(View.VISIBLE);
                         mQuotedText.loadDataWithBaseURL("email://", text, "text/html",
