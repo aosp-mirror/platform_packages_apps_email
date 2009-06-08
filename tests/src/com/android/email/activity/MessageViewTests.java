@@ -21,22 +21,11 @@ import com.android.email.Email;
 import com.android.email.MessagingController;
 import com.android.email.Preferences;
 import com.android.email.R;
-import com.android.email.mail.MessageTestUtils;
-import com.android.email.mail.Message;
-import com.android.email.mail.MessagingException;
-import com.android.email.mail.MessageTestUtils.MessageBuilder;
-import com.android.email.mail.MessageTestUtils.MultipartBuilder;
-import com.android.email.mail.MessageTestUtils.TextBuilder;
 import com.android.email.mail.internet.BinaryTempFileBody;
-import com.android.email.mail.internet.EmailHtmlUtil;
-import com.android.email.mail.store.LocalStore;
 
 import android.app.Application;
-import android.content.ContentResolver;
 import android.content.Context;
 import android.content.Intent;
-import android.database.sqlite.SQLiteDatabase;
-import android.net.Uri;
 import android.test.ActivityInstrumentationTestCase2;
 import android.test.suitebuilder.annotation.MediumTest;
 import android.test.suitebuilder.annotation.Suppress;
@@ -44,7 +33,6 @@ import android.util.Log;
 import android.webkit.WebView;
 import android.widget.TextView;
 
-import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Arrays;
 
@@ -62,8 +50,7 @@ public class MessageViewTests
     private static final String EXTRA_FOLDER = "com.android.email.MessageView_folder";
     private static final String EXTRA_MESSAGE = "com.android.email.MessageView_message";
     private static final String EXTRA_FOLDER_UIDS = "com.android.email.MessageView_folderUids";
-    private static final String EXTRA_NEXT = "com.android.email.MessageView_next";
-    
+
     // used by the mock controller
     private static final String FOLDER_NAME = "folder";
     private static final String MESSAGE_UID = "message_uid";
@@ -74,10 +61,6 @@ public class MessageViewTests
     private WebView mMessageContentView;
     private Context mContext;
     
-    private static final String textTags = "<b>Plain</b> &";
-    private static final String textSpaces = "3 spaces   end.";
-    private static final String textNewlines = "ab \r\n  \n   \n\r\n";
-
     public MessageViewTests() {
         super("com.android.email", MessageView.class);
     }
@@ -171,30 +154,4 @@ public class MessageViewTests
             super(application);
         }
     }
-    
-    /**
-     * Test for escapeCharacterToDisplay in plain text mode.
-     */
-    public void testEscapeCharacterToDisplayPlainText() {
-        // HTML tag will be escaped.
-        String plainTags = MessageView.escapeCharacterToDisplay(textTags);
-        assertEquals("plain tag", "&lt;b&gt;Plain&lt;/b&gt; &amp;", plainTags);
-        
-        // Successive spaces will be escaped as "&nbsp;"
-        String plainSpaces = MessageView.escapeCharacterToDisplay(textSpaces);
-        assertEquals("plain spaces", "3 spaces&nbsp;&nbsp; end.", plainSpaces);
-
-        // Newlines will be escaped as "<br>"
-        String plainNewlines = MessageView.escapeCharacterToDisplay(textNewlines);
-        assertEquals("plain spaces", "ab <br>&nbsp; <br>&nbsp;&nbsp; <br><br>", plainNewlines);
-        
-        // All combinations.
-        String textAll = textTags + "\n" + textSpaces + "\n" + textNewlines;
-        String plainAll = MessageView.escapeCharacterToDisplay(textAll);
-        assertEquals("plain all",
-                "&lt;b&gt;Plain&lt;/b&gt; &amp;<br>" +
-                "3 spaces&nbsp;&nbsp; end.<br>" +
-                "ab <br>&nbsp; <br>&nbsp;&nbsp; <br><br>",
-                plainAll);
-     }
 }
