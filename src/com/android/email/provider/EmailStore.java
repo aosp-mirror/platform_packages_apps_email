@@ -568,6 +568,13 @@ public class EmailStore {
             AccountColumns.COMPATIBILITY_UUID, AccountColumns.SENDER_NAME,
             AccountColumns.RINGTONE_URI, 
         };
+        
+        /**
+         * This projection is for listing account id's only
+         */
+        public static final String[] ID_PROJECTION = new String[] {
+            RECORD_ID
+        };
 
         /**
          * no public constructor since this is a utility class
@@ -580,6 +587,7 @@ public class EmailStore {
             mSyncFrequency = -1;
             mSyncLookback = -1;
             mFlags = FLAGS_NOTIFY_NEW_MAIL;
+            mCompatibilityUuid = UUID.randomUUID().toString();
         }
 
         public static final String TABLE_NAME = "Account";
@@ -809,9 +817,6 @@ public class EmailStore {
          * to the Uuid (e.g. desktop shortcuts).
          */
         String getUuid() {
-            if (mCompatibilityUuid == null || mCompatibilityUuid.length() == 0) {
-                mCompatibilityUuid = UUID.randomUUID().toString();
-            }
             return mCompatibilityUuid;
         }
         

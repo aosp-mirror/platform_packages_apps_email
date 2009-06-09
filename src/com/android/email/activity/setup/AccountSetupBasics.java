@@ -22,6 +22,7 @@ import com.android.email.Preferences;
 import com.android.email.R;
 import com.android.email.Utility;
 import com.android.email.activity.Debug;
+import com.android.email.activity.FolderMessageList;
 import com.android.email.provider.EmailStore;
 
 import android.app.Activity;
@@ -101,8 +102,21 @@ public class AccountSetupBasics extends Activity
         mEmailView.addTextChangedListener(this);
         mPasswordView.addTextChangedListener(this);
 
-        if (mPrefs.getAccounts().length > 0) {
-            mDefaultView.setVisibility(View.VISIBLE);
+        // Find out how many accounts we have, and if there one or more, then we have a choice
+        // about being default or not.
+        Cursor c = null;
+        try {
+            c = getContentResolver().query(
+                    EmailStore.Account.CONTENT_URI, 
+                    EmailStore.Account.ID_PROJECTION,
+                    null, null, null);
+            if (c.getCount() > 0) {
+                mDefaultView.setVisibility(View.VISIBLE);
+            }
+        } finally {
+            if (c != null) {
+                c.close();
+            }
         }
 
         if (savedInstanceState != null && savedInstanceState.containsKey(EXTRA_ACCOUNT)) {

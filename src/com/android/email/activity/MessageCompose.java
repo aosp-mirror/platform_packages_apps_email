@@ -226,16 +226,6 @@ public class MessageCompose extends Activity implements OnClickListener, OnFocus
     }
 
     /**
-     * Compose a new message using the given account, or the default account if -1
-     * @param context
-     * @param defaultAccountId
-     */
-    public static void actionCompose(Activity context, long accountId) {
-        // TODO Auto-generated method stub
-        // DO NOT CHECK IN until written
-    }
-
-    /**
      * Compose a new message as a reply to the given message. If replyAll is true the function
      * is reply all instead of simply reply.
      * @param context

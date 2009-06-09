@@ -68,6 +68,8 @@ public class AccountShortcutPicker extends ListActivity implements OnItemClickLi
         }
 
         // finish() immediately if no accounts are configured
+        // TODO: lightweight projection with only those columns needed for this display
+        // TODO: query outside of UI thread
         Cursor c = this.managedQuery(
                 EmailStore.Account.CONTENT_URI, 
                 EmailStore.Account.CONTENT_PROJECTION,

@@ -51,12 +51,14 @@ public class Welcome extends Activity {
         try {
             c = getContentResolver().query(
                     EmailStore.Account.CONTENT_URI, 
-                    EmailStore.Account.CONTENT_PROJECTION,
+                    EmailStore.Account.ID_PROJECTION,
                     null, null, null);
             if (c.getCount() == 1) {
                 c.moveToFirst();
-                EmailStore.Account account = EmailContent.getContent(c, EmailStore.Account.class);   
-                FolderMessageList.actionHandleAccount(this, account.mId, Email.INBOX);
+                long id = c.getLong(EmailStore.Account.CONTENT_ID_COLUMN);
+                FolderMessageList.actionHandleAccount(this, id, Email.INBOX);
+                finish();
+                return;
             }
         } finally {
             if (c != null) {
@@ -66,7 +68,6 @@ public class Welcome extends Activity {
 
         // Otherwise  (n=0 or n>1) go to the account info screen
         Accounts.actionShowAccounts(this);
-        
         finish();
     }
 

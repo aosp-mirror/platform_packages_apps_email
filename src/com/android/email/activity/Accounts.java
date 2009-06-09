@@ -105,6 +105,8 @@ public class Accounts extends ListActivity implements OnItemClickListener, OnCli
             mSelectedContextAccount = (Account) icicle.getParcelable(ICICLE_SELECTED_ACCOUNT);
         }
         
+        // TODO: lightweight projection with only those columns needed for this display
+        // TODO: query outside of UI thread
         Cursor c = this.managedQuery(
                 EmailStore.Account.CONTENT_URI, 
                 EmailStore.Account.CONTENT_PROJECTION,

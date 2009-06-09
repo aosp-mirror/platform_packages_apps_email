@@ -133,7 +133,7 @@ public class Email extends Application {
         try {
             c = context.getContentResolver().query(
                     EmailStore.Account.CONTENT_URI, 
-                    EmailStore.Account.CONTENT_PROJECTION,
+                    EmailStore.Account.ID_PROJECTION,
                     null, null, null);
             boolean enable = c.getCount() > 0;
             setServicesEnabled(context, c.getCount() > 0);
