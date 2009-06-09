@@ -16,10 +16,13 @@
 
 package com.android.email.activity.setup;
 
-import com.android.email.Account;
 import com.android.email.R;
+import com.android.email.provider.EmailStore;
 
+import android.content.ContentUris;
+import android.content.Context;
 import android.content.Intent;
+import android.net.Uri;
 import android.test.ActivityInstrumentationTestCase2;
 import android.test.suitebuilder.annotation.MediumTest;
 import android.widget.Button;
@@ -30,6 +33,13 @@ import android.widget.Button;
 @MediumTest
 public class AccountSetupNamesTests extends ActivityInstrumentationTestCase2<AccountSetupNames> {
 
+    // borrowed from AccountSetupNames
+    private static final String EXTRA_ACCOUNT_ID = "accountId";
+
+    private long mAccountId;
+    private EmailStore.Account mAccount;
+
+    private Context mContext;
     private AccountSetupNames mActivity;
     private Button mDoneButton;
     
@@ -37,6 +47,31 @@ public class AccountSetupNamesTests extends ActivityInstrumentationTestCase2<Acc
         super("com.android.email", AccountSetupNames.class);
     }
 
+    /**
+     * Common setup code for all tests.
+     */
+    @Override
+    protected void setUp() throws Exception {
+        super.setUp();
+
+        mContext = this.getInstrumentation().getTargetContext();
+    }
+    
+    /**
+     * Delete any dummy accounts we set up for this test
+     */
+    @Override
+    protected void tearDown() throws Exception {
+        if (mAccount != null) {
+            Uri uri = ContentUris.withAppendedId(
+                    EmailStore.Account.CONTENT_URI, mAccountId);
+            mContext.getContentResolver().delete(uri, null, null);
+        }
+        
+        // must call last because it scrubs member variables
+        super.tearDown();
+    }
+    
     /**
      * Test a "good" account name (enables the button)
      */
@@ -73,10 +108,13 @@ public class AccountSetupNamesTests extends ActivityInstrumentationTestCase2<Acc
      * Create an intent with the Account in it
      */
     private Intent getTestIntent(String name) {
-        Account account = new Account(this.getInstrumentation().getTargetContext());
-        account.setName(name);
+        mAccount = new EmailStore.Account();
+        mAccount.setName(name);
+        mAccount.saveOrUpdate(mContext);
+        mAccountId = mAccount.mId;
+
         Intent i = new Intent(Intent.ACTION_MAIN);
-        i.putExtra("account", account);     // AccountSetupNames.EXTRA_ACCOUNT == "account"
+        i.putExtra(EXTRA_ACCOUNT_ID, mAccountId);
         return i;
     }
     

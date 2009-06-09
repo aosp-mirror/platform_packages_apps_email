@@ -421,9 +421,11 @@ public class MessagingController implements Runnable {
         try {
             Store.StoreInfo info = Store.StoreInfo.getStoreInfo(account.getStoreUri(mContext), 
                     mContext);
-            LocalStore localStore = (LocalStore) Store.getInstance(
-                    account.getLocalStoreUri(mContext), mContext, null);
-            localStore.resetVisibleLimits(info.mVisibleLimitDefault);
+            if (info != null) {
+                LocalStore localStore = (LocalStore) Store.getInstance(
+                        account.getLocalStoreUri(mContext), mContext, null);
+                localStore.resetVisibleLimits(info.mVisibleLimitDefault);
+            }
         }
         catch (MessagingException e) {
             Log.e(Email.LOG_TAG, "Unable to reset visible limits", e);

@@ -860,6 +860,7 @@ public class EmailStore {
          * 
          * @param the new value
          */
+        @Deprecated
         public void setStoreUri(Context context, String senderUri) {
             // reconstitute or create if necessary
             if (mHostAuthRecv == null) {
@@ -880,6 +881,7 @@ public class EmailStore {
          * 
          * @param the new value
          */
+        @Deprecated
         public void setSenderUri(Context context, String senderUri) {
             // reconstitute or create if necessary
             if (mHostAuthSend == null) {
@@ -1700,6 +1702,7 @@ public class EmailStore {
         
         /**
          * For compatibility while converting to provider model, generate a "store URI"
+         * TODO cache this so we don't rebuild every time
          * 
          * @return a string in the form of a Uri, as used by the other parts of the email app
          */
@@ -1712,17 +1715,21 @@ public class EmailStore {
             }
             String userInfo = null;
             if ((mFlags & FLAG_AUTHENTICATE) != 0) {
-                userInfo = mLogin.trim() + ":" + mPassword.trim();
+                String trimUser = (mLogin != null) ? mLogin.trim() : "";
+                String trimPassword = (mPassword != null) ? mPassword.trim() : "";
+                userInfo = trimUser + ":" + trimPassword;
             }
+            String address = (mAddress != null) ? mAddress.trim() : null;
+            String path = (mDomain != null) ? "/" + mDomain : null;
             
             URI uri;
             try {
                 uri = new URI(
                         mProtocol + security,
                         userInfo,
-                        mAddress.trim(),
+                        address,
                         mPort,
-                        mDomain, // path
+                        path,
                         null,
                         null);
                 return uri.toString();
@@ -1736,6 +1743,7 @@ public class EmailStore {
          * 
          * @param uriString a String containing a Uri
          */
+        @Deprecated
         public void setStoreUri(String uriString) {
             try {
                 URI uri = new URI(uriString);
@@ -1745,9 +1753,9 @@ public class EmailStore {
                 if (uri.getUserInfo() != null) {
                     String[] userInfoParts = uri.getUserInfo().split(":", 2);
                     mLogin = userInfoParts[0];
+                    mFlags |= FLAG_AUTHENTICATE;
                     if (userInfoParts.length > 1) {
                         mPassword = userInfoParts[1];
-                        mFlags |= FLAG_AUTHENTICATE;
                     }
                 }
                 

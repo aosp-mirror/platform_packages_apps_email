@@ -16,12 +16,13 @@
 
 package com.android.email.activity.setup;
 
-import com.android.email.Account;
-import com.android.email.Preferences;
 import com.android.email.mail.Store;
+import com.android.email.provider.EmailStore;
 
+import android.content.ContentUris;
 import android.content.Context;
 import android.content.Intent;
+import android.net.Uri;
 import android.test.ActivityUnitTestCase;
 import android.test.suitebuilder.annotation.SmallTest;
 
@@ -36,10 +37,12 @@ import java.util.HashSet;
 public class AccountSetupAccountTypeUnitTests 
         extends ActivityUnitTestCase<AccountSetupAccountType> {
 
+    // Borrowed from AccountSetupAccountType
+    private static final String EXTRA_ACCOUNT = "account";
+
     Context mContext;
-    private Preferences mPreferences;
     
-    private HashSet<Account> mAccounts = new HashSet<Account>();
+    private HashSet<EmailStore.Account> mAccounts = new HashSet<EmailStore.Account>();
     
     public AccountSetupAccountTypeUnitTests() {
         super(AccountSetupAccountType.class);
@@ -50,7 +53,6 @@ public class AccountSetupAccountTypeUnitTests
         super.setUp();
         
         mContext = this.getInstrumentation().getTargetContext();
-        mPreferences = Preferences.getPreferences(mContext);
     }
 
     /**
@@ -58,22 +60,23 @@ public class AccountSetupAccountTypeUnitTests
      */
     @Override
     protected void tearDown() throws Exception {
-        super.tearDown();
-        
-        if (mPreferences != null) {
-            for (Account account : mAccounts) {
-                account.delete(mPreferences);
-            }
+        for (EmailStore.Account account : mAccounts) {
+            Uri uri = ContentUris.withAppendedId(
+                    EmailStore.Account.CONTENT_URI, account.mId);
+            mContext.getContentResolver().delete(uri, null, null);
         }
+        
+        // must call last because it scrubs member variables
+        super.tearDown();
     }
     
     /**
      * Test store type limit enforcement
      */
     public void testStoreTypeLimits() {
-        Account acct1 = createTestAccount("scheme1");
-        Account acct2 = createTestAccount("scheme1");
-        Account acct3 = createTestAccount("scheme2");
+        EmailStore.Account acct1 = createTestAccount("scheme1");
+        EmailStore.Account acct2 = createTestAccount("scheme1");
+        EmailStore.Account acct3 = createTestAccount("scheme2");
         
         AccountSetupAccountType activity = startActivity(getTestIntent(acct1), null, null);
 
@@ -95,10 +98,10 @@ public class AccountSetupAccountTypeUnitTests
     /**
      * Create a dummy account with minimal fields
      */
-    private Account createTestAccount(String scheme) {
-        Account account = new Account(mContext);
-        account.setStoreUri(scheme + "://user:pass@server.com:port");
-        account.save(mPreferences);
+    private EmailStore.Account createTestAccount(String scheme) {
+        EmailStore.Account account = new EmailStore.Account();
+        account.setStoreUri(mContext, scheme + "://user:pass@server.com:123");
+        account.saveOrUpdate(mContext);
         mAccounts.add(account);
         return account;
     }
@@ -106,9 +109,9 @@ public class AccountSetupAccountTypeUnitTests
     /**
      * Create an intent with the Account in it
      */
-    private Intent getTestIntent(Account account) {
+    private Intent getTestIntent(EmailStore.Account account) {
         Intent i = new Intent(Intent.ACTION_MAIN);
-        i.putExtra("account", account);     // AccountSetupNames.EXTRA_ACCOUNT == "account"
+        i.putExtra(EXTRA_ACCOUNT, account);
         return i;
     }
 

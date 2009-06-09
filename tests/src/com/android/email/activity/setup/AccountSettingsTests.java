@@ -64,13 +64,14 @@ public class AccountSettingsTests extends ActivityInstrumentationTestCase2<Accou
      */
     @Override
     protected void tearDown() throws Exception {
-        super.tearDown();
-        
         if (mAccount != null) {
             Uri uri = ContentUris.withAppendedId(
                     EmailStore.Account.CONTENT_URI, mAccountId);
             mContext.getContentResolver().delete(uri, null, null);
         }
+        
+        // must call last because it scrubs member variables
+        super.tearDown();
     }
     
     /**

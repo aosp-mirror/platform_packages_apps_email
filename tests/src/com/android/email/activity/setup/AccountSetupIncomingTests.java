@@ -16,8 +16,8 @@
 
 package com.android.email.activity.setup;
 
-import com.android.email.Account;
 import com.android.email.R;
+import com.android.email.provider.EmailStore;
 
 import android.content.Intent;
 import android.test.ActivityInstrumentationTestCase2;
@@ -32,6 +32,9 @@ import android.widget.EditText;
 @MediumTest
 public class AccountSetupIncomingTests extends 
         ActivityInstrumentationTestCase2<AccountSetupIncoming> {
+    
+    // borrowed from AccountSetupIncoming
+    private static final String EXTRA_ACCOUNT = "account";
 
     private AccountSetupIncoming mActivity;
     private EditText mServerView;
@@ -141,10 +144,10 @@ public class AccountSetupIncomingTests extends
      * Create an intent with the Account in it
      */
     private Intent getTestIntent(String storeUriString) {
-        Account account = new Account(this.getInstrumentation().getTargetContext());
-        account.setStoreUri(storeUriString);
+        EmailStore.Account account = new EmailStore.Account();
+        account.setStoreUri(getInstrumentation().getTargetContext(), storeUriString);
         Intent i = new Intent(Intent.ACTION_MAIN);
-        i.putExtra("account", account);     // AccountSetupNames.EXTRA_ACCOUNT == "account"
+        i.putExtra(EXTRA_ACCOUNT, account);
         return i;
     }
 
