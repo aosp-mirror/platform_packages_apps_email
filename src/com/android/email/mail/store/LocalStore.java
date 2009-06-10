@@ -379,17 +379,23 @@ public class LocalStore extends Store implements PersistentDataCallbacks {
                     try {
                         cursor = mDb.query(
                             "attachments",
-                            new String[] { "store_data" },
+                            new String[] { "store_data", "mime_type", "content_id" },
                             "id = ?",
                             new String[] { file.getName() },
                             null,
                             null,
                             null);
                         if (cursor.moveToNext()) {
-                            if (cursor.getString(0) == null) {
+                            String storeData = cursor.getString(0);
+                            String mimeType = cursor.getString(1);
+                            String contentId = cursor.getString(2);
+                            boolean inlineImage = contentId != null
+                                && (mimeType != null && mimeType.startsWith("image/"));
+                            if (storeData == null || inlineImage) {
                                 /*
                                  * If the attachment has no store data it is not recoverable, so
-                                 * we won't delete it.
+                                 * we won't delete it.  And if the attachment is image and has
+                                 * content id, so we won't delete it because it is inline image.
                                  */
                                 continue;
                             }
@@ -1277,8 +1283,7 @@ public class LocalStore extends Store implements PersistentDataCallbacks {
                                 message.mId
                                 });
 
-                for (int i = 0, count = attachments.size(); i < count; i++) {
-                    Part attachment = attachments.get(i);
+                for (Part attachment : attachments) {
                     saveAttachment(message.mId, attachment, false);
                 }
             } catch (Exception e) {
@@ -1302,6 +1307,7 @@ public class LocalStore extends Store implements PersistentDataCallbacks {
 
             if ((!saveAsNew) && (attachment instanceof LocalAttachmentBodyPart)) {
                 attachmentId = ((LocalAttachmentBodyPart) attachment).getAttachmentId();
+                size = ((LocalAttachmentBodyPart) attachment).getSize();
             }
 
             if (attachment.getBody() != null) {
@@ -1345,6 +1351,9 @@ public class LocalStore extends Store implements PersistentDataCallbacks {
                         MimeHeader.HEADER_ANDROID_ATTACHMENT_STORE_DATA), ',');
 
             String name = MimeUtility.getHeaderParameter(attachment.getContentType(), "name");
+            if (name == null) {
+                name = MimeUtility.getHeaderParameter(attachment.getDisposition(), "filename");
+            }
             String contentId = attachment.getContentId();
 
             if (attachmentId == -1) {

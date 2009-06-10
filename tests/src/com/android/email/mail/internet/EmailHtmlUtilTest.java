@@ -53,6 +53,8 @@ public class EmailHtmlUtilTest extends AndroidTestCase {
         // This is needed for mime image bodypart.
         BinaryTempFileBody.setTempDirectory(getContext().getCacheDir());
     }
+    
+    // TODO write test for renderMessageText()
 
     /**
      * Tests for resolving inline image src cid: reference to content uri.

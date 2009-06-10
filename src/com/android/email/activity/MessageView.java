@@ -55,7 +55,6 @@ import android.provider.Contacts;
 import android.provider.Contacts.Intents;
 import android.provider.Contacts.People;
 import android.provider.Contacts.Presence;
-import android.text.util.Regex;
 import android.util.Config;
 import android.util.Log;
 import android.view.LayoutInflater;
@@ -78,7 +77,6 @@ import java.io.InputStream;
 import java.io.OutputStream;
 import java.util.ArrayList;
 import java.util.Date;
-import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 public class MessageView extends Activity
@@ -97,8 +95,6 @@ public class MessageView extends Activity
 
     // Regex that matches start of img tag. '<(?i)img\s+'.
     private static final Pattern IMG_TAG_START_REGEX = Pattern.compile("<(?i)img\\s+");
-    // Regex that matches Web URL protocol part as case insensitive.
-    private static final Pattern WEB_URL_PROTOCOL = Pattern.compile("(?i)http|https://");
     
     private TextView mSubjectView;
     private TextView mFromView;
@@ -141,6 +137,7 @@ public class MessageView extends Activity
         private static final int MSG_FETCHING_ATTACHMENT = 10;
         private static final int MSG_SET_SENDER_PRESENCE = 11;
         private static final int MSG_VIEW_ATTACHMENT_ERROR = 12;
+        private static final int MSG_FETCHING_PICTURES = 17;
 
         @Override
         public void handleMessage(android.os.Message msg) {
@@ -206,6 +203,11 @@ public class MessageView extends Activity
                 case MSG_VIEW_ATTACHMENT_ERROR:
                     Toast.makeText(MessageView.this,
                             getString(R.string.message_view_display_attachment_toast),
+                            Toast.LENGTH_SHORT).show();
+                    break;
+                case MSG_FETCHING_PICTURES:
+                    Toast.makeText(MessageView.this,
+                            getString(R.string.message_view_fetching_pictures_toast),
                             Toast.LENGTH_SHORT).show();
                     break;
                 default:
@@ -284,6 +286,10 @@ public class MessageView extends Activity
         
         public void attachmentViewError() {
             sendEmptyMessage(MSG_VIEW_ATTACHMENT_ERROR);
+        }
+
+        public void fetchingPictures() {
+            sendEmptyMessage(MSG_FETCHING_PICTURES);
         }
     }
 
@@ -610,6 +616,16 @@ public class MessageView extends Activity
         if (mMessage != null) {
             mMessageContentView.getSettings().setBlockNetworkImage(false);
             mShowPicturesSection.setVisibility(View.GONE);
+            new Thread() {
+                @Override
+                public void run() {
+                    Process.setThreadPriority(Process.THREAD_PRIORITY_BACKGROUND);
+                    MessagingController.getInstance(getApplication()).loadInlineImagesForView(
+                            mAccount,
+                            mMessage,
+                            mListener);
+                }
+            }.start();
         }
     }
 
@@ -908,81 +924,26 @@ public class MessageView extends Activity
         public void loadMessageForViewBodyAvailable(Account account, String folder, String uid,
                 Message message) {
             MessageView.this.mMessage = message;
-            try {
-                Part part = MimeUtility.findFirstPartByMimeType(mMessage, "text/html");
-                if (part == null) {
-                    part = MimeUtility.findFirstPartByMimeType(mMessage, "text/plain");
+            String text = EmailHtmlUtil.renderMessageText(MessageView.this, account, message);
+            if (text != null) {
+                /*
+                 * TODO consider how to get background images and a million other things
+                 * that HTML allows.
+                 */
+                // Check if text contains img tag.
+                if (IMG_TAG_START_REGEX.matcher(text).find()) {
+                    mHandler.showShowPictures(true);
                 }
-                if (part != null) {
-                    String text = MimeUtility.getTextFromPart(part);
-                    if (part.getMimeType().equalsIgnoreCase("text/html")) {
-                        text = EmailHtmlUtil.resolveInlineImage(
-                                getContentResolver(), mAccount, text, mMessage, 0);
-                    } else {
-                        // And also escape special character, such as "<>&",
-                        // to HTML escape sequence.
-                        text = EmailHtmlUtil.escapeCharacterToDisplay(text);
 
-                        /*
-                         * Linkify the plain text and convert it to HTML by replacing
-                         * \r?\n with <br> and adding a html/body wrapper.
-                         */
-                        StringBuffer sb = new StringBuffer("<html><body>");
-                        if (text != null) {
-                            Matcher m = Regex.WEB_URL_PATTERN.matcher(text);
-                            while (m.find()) {
-                                int start = m.start();
-                                /*
-                                 * WEB_URL_PATTERN may match domain part of email address. To detect
-                                 * this false match, the character just before the matched string
-                                 * should not be '@'. 
-                                 */
-                                if (start == 0 || text.charAt(start - 1) != '@') {
-                                    String url = m.group();
-                                    Matcher proto = WEB_URL_PROTOCOL.matcher(url);
-                                    String link;
-                                    if (proto.find()) {
-                                        // This is work around to force URL protocol part be lower case,
-                                        // because WebView could follow only lower case protocol link.
-                                        link = proto.group().toLowerCase() + url.substring(proto.end());
-                                    } else {
-                                        // Regex.WEB_URL_PATTERN matches URL without protocol part,
-                                        // so added default protocol to link.
-                                        link = "http://" + url;
-                                    }
-                                    String href = String.format("<a href=\"%s\">%s</a>", link, url);
-                                    m.appendReplacement(sb, href);
-                                }
-                                else {
-                                    m.appendReplacement(sb, "$0");
-                                }
-                            }
-                            m.appendTail(sb);
-                        }
-                        sb.append("</body></html>");
-                        text = sb.toString();
-                    }
-
-                    /*
-                     * TODO consider how to get background images and a million other things
-                     * that HTML allows.
-                     */
-                    // Check if text contains img tag.
-                    if (IMG_TAG_START_REGEX.matcher(text).find()) {
-                        mHandler.showShowPictures(true);
-                    }
-
-                    loadMessageContentText(text);
-                }
-                else {
-                    loadMessageContentUrl("file:///android_asset/empty.html");
-                }
-                renderAttachments(mMessage, 0);
+                loadMessageContentText(text);
             }
-            catch (Exception e) {
-                if (Config.LOGV) {
-                    Log.v(Email.LOG_TAG, "loadMessageForViewBodyAvailable", e);
-                }
+            else {
+                loadMessageContentUrl("file:///android_asset/empty.html");
+            }
+            try {
+                renderAttachments(mMessage, 0);
+            } catch (MessagingException me) {
+                // ignore
             }
         }
 
@@ -1016,6 +977,35 @@ public class MessageView extends Activity
                     setProgressBarIndeterminateVisibility(true);
                 }
             });
+        }
+
+        @Override
+        public void loadInlineImagesForViewStarted(Account account, Message message) {
+            mHandler.fetchingPictures();
+        }
+        
+        @Override
+        public void loadInlineImagesForViewOneAvailable(final Account account,
+                final Message message, Part part) {
+            mHandler.post(new Runnable() {
+                public void run() {
+                    String text = EmailHtmlUtil.renderMessageText(
+                            MessageView.this, account, message);
+                    if (text != null) {
+                        loadMessageContentText(text);
+                    }
+                }
+            });
+        }
+        
+        @Override
+        public void loadInlineImagesForViewFinished(Account account, Message message) {
+            mHandler.progress(false, null);
+        }
+        
+        @Override
+        public void loadInlineImagesForViewFailed(Account account, Message message) {
+            mHandler.progress(false, null);
         }
 
         @Override
