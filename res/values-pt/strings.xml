@@ -45,9 +45,15 @@
     <string name="add_cc_bcc_action">"Adicionar Cc/Cco"</string>
     <string name="add_attachment_action">"Adicionar anexo"</string>
     <string name="dump_settings_action">"Despejar configurações"</string>
+    <!-- no translation found for choose_attachment_dialog_title (81937507117528954) -->
+    <skip />
     <string name="accounts_context_menu_title">"Opções da conta"</string>
     <string name="status_loading_more">"Carregando mensagens..."</string>
+    <!-- no translation found for status_sending_messages (3971880826111264523) -->
+    <skip />
     <string name="status_network_error">"Erro de conexão"</string>
+    <!-- no translation found for status_sending_messages_failed (7975009558738692407) -->
+    <skip />
     <string name="status_loading_more_failed">"Tentar carregar mais mensagens novamente"</string>
     <string name="notification_new_title">"Novo e-mail"</string>
   <plurals name="notification_new_one_account_fmt">
@@ -60,11 +66,21 @@
     <item quantity="other">"em <xliff:g id="NUMBER_ACCOUNTS">%d</xliff:g> contas"</item>
   </plurals>
     <string name="special_mailbox_name_inbox">"Caixa de entrada"</string>
+    <!-- no translation found for special_mailbox_display_name_outbox (1884580655148530989) -->
+    <skip />
+    <!-- no translation found for special_mailbox_display_name_drafts (5919687165402808119) -->
+    <skip />
+    <!-- no translation found for special_mailbox_display_name_trash (7042673673630272056) -->
+    <skip />
+    <!-- no translation found for special_mailbox_display_name_sent (3952772015118466625) -->
+    <skip />
     <string name="accounts_welcome">"Bem-vindo à configuração do Email! "\n\n"Use qualquer conta de e-mail com o Email. "\n\n"As contas de e-mail mais populares podem ser configuradas em duas etapas!"</string>
     <string name="debug_version_fmt">"Versão: <xliff:g id="VERSION">%s</xliff:g>"</string>
     <string name="debug_enable_debug_logging_label">"Permitir registro de depuração extra?"</string>
     <string name="debug_enable_sensitive_logging_label">"Permitir registro de depuração de informações pessoais? (Pode mostrar as senhas registradas.)"</string>
     <string name="message_list_load_more_messages_action">"Carregar mais mensagens"</string>
+    <!-- no translation found for message_list_send_pending_messages_action (9100624762133992435) -->
+    <skip />
     <string name="message_compose_to_hint">"Para"</string>
     <string name="message_compose_cc_hint">"Cc"</string>
     <string name="message_compose_bcc_hint">"Cco"</string>
@@ -85,6 +101,8 @@
     <string name="message_view_show_pictures_instructions">"Selecionar \"Mostrar imagens\" para exibir imagens anexadas."</string>
     <string name="message_view_show_pictures_action">"Mostrar imagens"</string>
     <string name="message_view_fetching_attachment_toast">"Buscando anexo."</string>
+    <!-- no translation found for message_view_fetching_attachment_progress (8238550182655758164) -->
+    <skip />
     <string name="message_deleted_toast">"Mensagem excluída."</string>
     <string name="message_discarded_toast">"Mensagem descartada."</string>
     <string name="message_saved_toast">"Mensagem salva como rascunho."</string>
@@ -110,6 +128,8 @@
     <string name="account_setup_account_type_instructions">"Que tipo de conta é esta?"</string>
     <string name="account_setup_account_type_pop_action">"Conta POP3"</string>
     <string name="account_setup_account_type_imap_action">"Conta IMAP"</string>
+    <!-- no translation found for account_setup_account_type_exchange_action (8193609147171666140) -->
+    <skip />
     <string name="account_setup_incoming_title">"Configurações de servidor recebidas"</string>
     <string name="account_setup_incoming_username_label">"Nome de usuário"</string>
     <string name="account_setup_incoming_password_label">"Senha"</string>
@@ -135,9 +155,21 @@
     <string name="account_setup_outgoing_require_login_label">"Requer login."</string>
     <string name="account_setup_outgoing_username_label">"Nome de usuário"</string>
     <string name="account_setup_outgoing_password_label">"Senha"</string>
+    <!-- no translation found for account_setup_exchange_title (247933841122558059) -->
+    <skip />
+    <!-- no translation found for account_setup_exchange_server_label (5390359659749339317) -->
+    <skip />
+    <!-- no translation found for account_setup_exchange_domain_label (3584668050727667045) -->
+    <skip />
+    <!-- no translation found for account_setup_exchange_domain_hint (350372033916025287) -->
+    <skip />
+    <!-- no translation found for account_setup_exchange_ssl_label (6704105469083211236) -->
+    <skip />
     <string name="account_setup_options_title">"Opções da conta"</string>
     <string name="account_setup_options_mail_check_frequency_label">"Frequência de verificação de e-mail"</string>
     <string name="account_setup_options_mail_check_frequency_never">"Nunca"</string>
+    <!-- no translation found for account_setup_options_mail_check_frequency_push (5934525907736008673) -->
+    <skip />
     <string name="account_setup_options_mail_check_frequency_5min">"A cada 5 minutos"</string>
     <string name="account_setup_options_mail_check_frequency_10min">"A cada 10 minutos"</string>
     <string name="account_setup_options_mail_check_frequency_15min">"A cada 15 minutos"</string>
@@ -146,6 +178,20 @@
     <string name="account_setup_options_default_label">"Enviar e-mail desta conta por padrão."</string>
     <string name="account_setup_options_notify_label">"Receber notificação quando chegar um e-mail"</string>
     <string name="account_setup_failed_dlg_title">"A configuração não pode ser finalizada"</string>
+    <!-- no translation found for account_setup_options_mail_window_label (8764417340954006086) -->
+    <skip />
+    <!-- no translation found for account_setup_options_mail_window_1day (3965715241135811407) -->
+    <skip />
+    <!-- no translation found for account_setup_options_mail_window_3days (736181102295878114) -->
+    <skip />
+    <!-- no translation found for account_setup_options_mail_window_1week (5639718031108023741) -->
+    <skip />
+    <!-- no translation found for account_setup_options_mail_window_2weeks (4567049268124213035) -->
+    <skip />
+    <!-- no translation found for account_setup_options_mail_window_1month (5846359669750047081) -->
+    <skip />
+    <!-- no translation found for account_setup_options_mail_window_all (5383858972681926166) -->
+    <skip />
     <string name="account_setup_failed_dlg_auth_message">"Nome de usuário ou senha incorretos."</string>
     <string name="account_setup_failed_dlg_auth_message_fmt">"Nome de usuário ou senha incorretos. "\n"(<xliff:g id="ERROR">%s</xliff:g>)"</string>
     <string name="account_setup_failed_dlg_certificate_message">"Não é possível se conectar ao servidor com segurança."</string>
