@@ -36,6 +36,7 @@ import android.content.DialogInterface;
 import android.content.Intent;
 import android.database.Cursor;
 import android.net.Uri;
+import android.os.AsyncTask;
 import android.os.Bundle;
 import android.view.ContextMenu;
 import android.view.KeyEvent;
@@ -66,6 +67,9 @@ public class Accounts extends ListActivity implements OnItemClickListener, OnCli
     private static final String ICICLE_SELECTED_ACCOUNT = "com.android.email.selectedAccount";
     private EmailStore.Account mSelectedContextAccount;
     
+    ListView mListView;
+    LoadAccountsTask mAsyncTask;
+
     /**
      * Support for list adapter
      */
@@ -94,26 +98,17 @@ public class Accounts extends ListActivity implements OnItemClickListener, OnCli
     public void onCreate(Bundle icicle) {
         super.onCreate(icicle);
         setContentView(R.layout.accounts);
-        ListView listView = getListView();
-        listView.setOnItemClickListener(this);
-        listView.setItemsCanFocus(false);
-        listView.setEmptyView(findViewById(R.id.empty));
+        mListView = getListView();
+        mListView.setOnItemClickListener(this);
+        mListView.setItemsCanFocus(false);
         findViewById(R.id.add_new_account).setOnClickListener(this);
-        registerForContextMenu(listView);
+        registerForContextMenu(mListView);
 
         if (icicle != null && icicle.containsKey(ICICLE_SELECTED_ACCOUNT)) {
             mSelectedContextAccount = (Account) icicle.getParcelable(ICICLE_SELECTED_ACCOUNT);
         }
         
-        // TODO: lightweight projection with only those columns needed for this display
-        // TODO: query outside of UI thread
-        Cursor c = this.managedQuery(
-                EmailStore.Account.CONTENT_URI, 
-                EmailStore.Account.CONTENT_PROJECTION,
-                null, null);
-        AccountsAdapter a = new AccountsAdapter(this, 
-                R.layout.accounts_item, c, sFromColumns, sToIds);
-        listView.setAdapter(a);
+        mAsyncTask = (LoadAccountsTask) new LoadAccountsTask().execute();
     }
 
     @Override
@@ -131,6 +126,41 @@ public class Accounts extends ListActivity implements OnItemClickListener, OnCli
         NotificationManager notifMgr = (NotificationManager)
                 getSystemService(Context.NOTIFICATION_SERVICE);
         notifMgr.cancel(1);
+    }
+
+    @Override
+    protected void onDestroy() {
+        super.onDestroy();
+
+        if (mAsyncTask != null && mAsyncTask.getStatus() != LoadAccountsTask.Status.FINISHED) {
+            mAsyncTask.cancel(true);
+            mAsyncTask = null;
+        }
+    }
+
+    /**
+     * Async task to handle the cursor query out of the UI thread
+     */
+    private class LoadAccountsTask extends AsyncTask<Void, Void, Cursor> {
+
+        @Override
+        protected Cursor doInBackground(Void... params) {
+            return Accounts.this.managedQuery(
+                    EmailStore.Account.CONTENT_URI,
+                    EmailStore.Account.CONTENT_PROJECTION,
+                    null, null);
+        }
+
+        @Override
+        protected void onPostExecute(Cursor theCursor) {
+            AccountsAdapter adapter = new AccountsAdapter(Accounts.this,
+                    R.layout.accounts_item, theCursor, sFromColumns, sToIds);
+            mListView.setAdapter(adapter);
+
+            // This is deferred until after the first fetch, so it won't flicker
+            // while we're waiting to find out if we have any accounts
+            mListView.setEmptyView(findViewById(R.id.empty));
+        }
     }
 
     private void onAddNewAccount() {
