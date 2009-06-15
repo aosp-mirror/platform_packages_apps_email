@@ -47,10 +47,10 @@ import android.graphics.BitmapFactory;
 import android.media.MediaScannerConnection;
 import android.media.MediaScannerConnection.MediaScannerConnectionClient;
 import android.net.Uri;
+import android.os.AsyncTask;
 import android.os.Bundle;
 import android.os.Environment;
 import android.os.Handler;
-import android.os.Process;
 import android.provider.Contacts;
 import android.provider.Contacts.Intents;
 import android.provider.Contacts.People;
@@ -83,6 +83,7 @@ import java.util.regex.Pattern;
 
 public class MessageView extends Activity
         implements OnClickListener {
+    private static final String EXTRA_MESSAGE_ID = "com.android.email.MessageView_message_id";
     private static final String EXTRA_ACCOUNT_ID = "com.android.email.MessageView_account_id";
     private static final String EXTRA_FOLDER = "com.android.email.MessageView_folder";
     private static final String EXTRA_MESSAGE = "com.android.email.MessageView_message";
@@ -99,7 +100,17 @@ public class MessageView extends Activity
     private static final Pattern IMG_TAG_START_REGEX = Pattern.compile("<(?i)img\\s+");
     // Regex that matches Web URL protocol part as case insensitive.
     private static final Pattern WEB_URL_PROTOCOL = Pattern.compile("(?i)http|https://");
-    
+
+    // Support for LoadBodyTask
+    private static final String[] BODY_CONTENT_PROJECTION = new String[] { 
+        EmailContent.RECORD_ID, EmailContent.BodyColumns.MESSAGE_KEY,
+        EmailContent.BodyColumns.HTML_CONTENT, EmailContent.BodyColumns.TEXT_CONTENT
+    };
+    private static final int BODY_CONTENT_COLUMN_RECORD_ID = 0;
+    private static final int BODY_CONTENT_COLUMN_MESSAGE_KEY = 1;
+    private static final int BODY_CONTENT_COLUMN_HTML_CONTENT = 2;
+    private static final int BODY_CONTENT_COLUMN_TEXT_CONTENT = 3;
+
     private TextView mSubjectView;
     private TextView mFromView;
     private TextView mDateView;
@@ -116,13 +127,16 @@ public class MessageView extends Activity
 
     private long mAccountId;
     private EmailContent.Account mAccount;
+    private long mMessageId;
+
+    private LoadMessageTask mLoadMessageTask;
+    private LoadBodyTask mLoadBodyTask;
+
     private String mFolder;
     private String mMessageUid;
-    private ArrayList<String> mFolderUids;
+    private Cursor mMessageListCursor;
 
     private Message mMessage;
-    private String mNextMessageUid = null;
-    private String mPreviousMessageUid = null;
 
     private java.text.DateFormat mDateFormat;
     private java.text.DateFormat mTimeFormat;
@@ -301,11 +315,24 @@ public class MessageView extends Activity
         public ImageView iconView;
     }
 
+    /**
+     * View a specific message found in the Email provider.
+     * 
+     * TODO: Find a way to pass a cursor so we can iterator prev/next as well
+     */
+    public static void actionView(Context context, long messageId) {
+        Intent i = new Intent(context, MessageView.class);
+        i.putExtra(EXTRA_MESSAGE_ID, messageId);
+        context.startActivity(i);
+    }
+
+    @Deprecated
     public static void actionView(Context context, long accountId,
             String folder, String messageUid, ArrayList<String> folderUids) {
         actionView(context, accountId, folder, messageUid, folderUids, null);
     }
 
+    @Deprecated
     public static void actionView(Context context, long accountId,
             String folder, String messageUid, ArrayList<String> folderUids, Bundle extras) {
         Intent i = new Intent(context, MessageView.class);
@@ -363,11 +390,12 @@ public class MessageView extends Activity
         mTimeFormat = android.text.format.DateFormat.getTimeFormat(this);   // 12/24 date format
 
         Intent intent = getIntent();
-        mAccountId = intent.getLongExtra(EXTRA_ACCOUNT_ID, -1);
-        mAccount = EmailContent.Account.restoreAccountWithId(this, mAccountId);
-        mFolder = intent.getStringExtra(EXTRA_FOLDER);
-        mMessageUid = intent.getStringExtra(EXTRA_MESSAGE);
-        mFolderUids = intent.getStringArrayListExtra(EXTRA_FOLDER_UIDS);
+        mMessageId = intent.getLongExtra(EXTRA_MESSAGE_ID, -1);
+//        mAccountId = intent.getLongExtra(EXTRA_ACCOUNT_ID, -1);
+//        mAccount = EmailStore.Account.restoreAccountWithId(this, mAccountId);
+//        mFolder = intent.getStringExtra(EXTRA_FOLDER);
+//        mMessageUid = intent.getStringExtra(EXTRA_MESSAGE);
+        mMessageListCursor = null;  // TODO - pass message list cursor so we can prev/next
 
         View next = findViewById(R.id.next);
         View previous = findViewById(R.id.previous);
@@ -375,7 +403,11 @@ public class MessageView extends Activity
          * Next and Previous Message are not shown in landscape mode, so
          * we need to check before we use them.
          */
-        if (next != null && previous != null) {
+        if (next != null && previous != null && mMessageListCursor != null) {
+            // TODO analyze based on cursor, not on a big nasty array
+            next.setVisibility(View.GONE);
+            previous.setVisibility(View.GONE);
+/*           
             next.setOnClickListener(this);
             previous.setOnClickListener(this);
 
@@ -388,8 +420,10 @@ public class MessageView extends Activity
             if (goNext) {
                 next.requestFocus();
             }
+*/
         }
 
+/*
         MessagingController.getInstance(getApplication()).addListener(mListener);
         new Thread() {
             @Override
@@ -405,22 +439,10 @@ public class MessageView extends Activity
                         mListener);
             }
         }.start();
-    }
-
-    private void findSurroundingMessagesUid() {
-        for (int i = 0, count = mFolderUids.size(); i < count; i++) {
-            String messageUid = mFolderUids.get(i);
-            if (messageUid.equals(mMessageUid)) {
-                if (i != 0) {
-                    mPreviousMessageUid = mFolderUids.get(i - 1);
-                }
-
-                if (i != count - 1) {
-                    mNextMessageUid = mFolderUids.get(i + 1);
-                }
-                break;
-            }
-        }
+*/
+        // Start an AsyncTask to make a new cursor and load the message
+        mLoadMessageTask = new LoadMessageTask(mMessageId);
+        mLoadMessageTask.execute();
     }
 
     @Override
@@ -445,6 +467,18 @@ public class MessageView extends Activity
     @Override
     public void onDestroy() {
         super.onDestroy();
+
+        if (mLoadMessageTask != null &&
+                mLoadMessageTask.getStatus() != AsyncTask.Status.FINISHED) {
+            mLoadMessageTask.cancel(true);
+            mLoadMessageTask = null;
+        }
+        if (mLoadBodyTask != null &&
+                mLoadBodyTask.getStatus() != AsyncTask.Status.FINISHED) {
+            mLoadBodyTask.cancel(true);
+            mLoadBodyTask = null;
+        }
+
         // This is synchronized because the listener accesses mMessageContentView from its thread
         synchronized (this) {
             mMessageContentView.destroy();
@@ -461,19 +495,13 @@ public class MessageView extends Activity
                     null);
             Toast.makeText(this, R.string.message_deleted_toast, Toast.LENGTH_SHORT).show();
 
-            // Remove this message's Uid locally
-            mFolderUids.remove(mMessage.getUid());
-            // Check if we have previous/next messages available before choosing
-            // which one to display
-            findSurroundingMessagesUid();
-
-            if (mPreviousMessageUid != null) {
-                onPrevious();
-            } else if (mNextMessageUid != null) {
-                onNext();
-            } else {
-                finish();
+            if (onPrevious()) {
+                return;
             }
+            if (onNext()) {
+                return;
+            }
+            finish();
         }
     }
     
@@ -526,16 +554,24 @@ public class MessageView extends Activity
         }
     }
 
-    private void onNext() {
+    private boolean onNext() {
+        // TODO make this work using a cursor
+        return false;
+/*
         Bundle extras = new Bundle(1);
         extras.putBoolean(EXTRA_NEXT, true);
         MessageView.actionView(this, mAccountId, mFolder, mNextMessageUid, mFolderUids, extras);
         finish();
+*/
     }
 
-    private void onPrevious() {
+    private boolean onPrevious() {
+        // TODO make this work using a cursor
+        return false;
+/*
         MessageView.actionView(this, mAccountId, mFolder, mPreviousMessageUid, mFolderUids);
         finish();
+*/
     }
 
     private void onMarkAsUnread() {
@@ -873,6 +909,178 @@ public class MessageView extends Activity
             presenceIconId = R.drawable.presence_inactive;
         }
         mSenderPresenceView.setImageResource(presenceIconId);
+    }
+    
+    /**
+     * Async task for loading a single message outside of the UI thread
+     * 
+     * TODO: start and stop progress indicator
+     * TODO: set up to listen for additional updates (cursor data changes)
+     */
+    private class LoadMessageTask extends AsyncTask<Void, Void, Cursor> {
+        
+        private long mMessageId;
+        
+        /**
+         * Special constructor to cache some local info
+         */
+        public LoadMessageTask(long messageId) {
+            mMessageId = messageId;
+        }
+
+        @Override
+        protected Cursor doInBackground(Void... params) {
+            return MessageView.this.managedQuery(
+                    EmailContent.Message.CONTENT_URI,
+                    EmailContent.Message.CONTENT_PROJECTION,
+                    EmailContent.RECORD_ID + "=?",
+                    new String[] {
+                            String.valueOf(mMessageId)
+                            }, 
+                    null);
+        }
+        
+        @Override
+        protected void onPostExecute(Cursor cursor) {
+            if (cursor.moveToFirst()) {
+                reloadUiFromCursor(cursor);
+            } else {
+                // toast?  why would this fail?
+            }
+        }
+    }
+    
+    /**
+     * Async task for loading a single message body outside of the UI thread
+     * 
+     * TODO: smarter loading of html vs. text
+     */
+    private class LoadBodyTask extends AsyncTask<Void, Void, Cursor> {
+        
+        private long mBodyId;
+        
+        /**
+         * Special constructor to cache some local info
+         */
+        public LoadBodyTask(long bodyId) {
+            mBodyId = bodyId;
+        }
+
+        @Override
+        protected Cursor doInBackground(Void... params) {
+            return MessageView.this.managedQuery(
+                    EmailContent.Body.CONTENT_URI,
+                    BODY_CONTENT_PROJECTION,
+                    EmailContent.RECORD_ID + "=?",
+                    new String[] {
+                            String.valueOf(mBodyId)
+                            }, 
+                    null);
+        }
+        
+        @Override
+        protected void onPostExecute(Cursor cursor) {
+            if (cursor.moveToFirst()) {
+                reloadBodyFromCursor(cursor);
+            } else {
+                // toast?  why would this fail?
+                reloadBodyFromCursor(null);     // hack to force text for display
+            }
+        }
+    }
+
+    /**
+     * Reload the UI from a provider cursor.  This must only be called from the UI thread.
+     * 
+     * @param cursor A cursor loaded from EmailStore.Message.
+     * 
+     * TODO: field-specific formatting rules
+     * TODO: timestamp -> date/time
+     * TODO: body
+     * TODO: attachments
+     * TODO: trigger presence check
+     * TODO: trigger body load
+     */
+    private void reloadUiFromCursor(Cursor cursor) {
+        EmailContent.Message message = EmailContent.getContent(cursor, EmailContent.Message.class);
+        
+        mSubjectView.setText(message.mSubject);
+        mFromView.setText(message.mFrom);
+        mTimeView.setText(String.valueOf(message.mTimeStamp));
+        mDateView.setText(String.valueOf(message.mTimeStamp));
+        mToView.setText(message.mTo);
+        mCcView.setText(message.mCc);
+        mCcContainerView.setVisibility((message.mCc != null) ? View.VISIBLE : View.GONE);
+        mAttachmentIcon.setVisibility(message.mAttachments != null ? View.VISIBLE : View.GONE);
+        
+        // Ask for body
+        mLoadBodyTask = new LoadBodyTask(message.mBodyKey);
+        mLoadBodyTask.execute();
+    }
+
+    /**
+     * Reload the body from the provider cursor.  This must only be called from the UI thread.
+     * 
+     * @param cursor
+     * 
+     * TODO deal with html vs text and many other issues
+     */
+    private void reloadBodyFromCursor(Cursor cursor) {
+        // TODO Remove this hack that forces some text to test the code
+        String text;
+        if (cursor == null) {
+            text = "This is dummy text from MessageView.reloadBodyFromCursor()";
+        } else {
+            text = cursor.getString(BODY_CONTENT_COLUMN_TEXT_CONTENT);
+        }
+        
+        // This code is stolen from Listener.loadMessageForViewBodyAvailable
+        // And also escape special character, such as "<>&",
+        // to HTML escape sequence.
+        text = EmailHtmlUtil.escapeCharacterToDisplay(text);
+
+        /*
+         * Linkify the plain text and convert it to HTML by replacing
+         * \r?\n with <br> and adding a html/body wrapper.
+         */
+        StringBuffer sb = new StringBuffer("<html><body>");
+        if (text != null) {
+            Matcher m = Regex.WEB_URL_PATTERN.matcher(text);
+            while (m.find()) {
+                int start = m.start();
+                /*
+                 * WEB_URL_PATTERN may match domain part of email address. To detect
+                 * this false match, the character just before the matched string
+                 * should not be '@'. 
+                 */
+                if (start == 0 || text.charAt(start - 1) != '@') {
+                    String url = m.group();
+                    Matcher proto = WEB_URL_PROTOCOL.matcher(url);
+                    String link;
+                    if (proto.find()) {
+                        // This is work around to force URL protocol part be lower case,
+                        // because WebView could follow only lower case protocol link.
+                        link = proto.group().toLowerCase() + url.substring(proto.end());
+                    } else {
+                        // Regex.WEB_URL_PATTERN matches URL without protocol part,
+                        // so added default protocol to link.
+                        link = "http://" + url;
+                    }
+                    String href = String.format("<a href=\"%s\">%s</a>", link, url);
+                    m.appendReplacement(sb, href);
+                }
+                else {
+                    m.appendReplacement(sb, "$0");
+                }
+            }
+            m.appendTail(sb);
+        }
+        sb.append("</body></html>");
+        text = sb.toString();
+       
+        if (mMessageContentView != null) {
+            mMessageContentView.loadDataWithBaseURL("email://", text, "text/html", "utf-8", null);
+        }
     }
 
     class Listener extends MessagingListener {

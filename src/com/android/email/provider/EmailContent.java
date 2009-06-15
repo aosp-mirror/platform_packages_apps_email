@@ -634,10 +634,10 @@ public abstract class EmailContent {
             Body body = new Body();
             ContentValues cv = new ContentValues();
             if (mText != null) {
-                cv.put("text", mText);
+                cv.put(Body.TEXT_CONTENT, mText);
             }
             if (mHtml != null) {
-                cv.put("html", mHtml);
+                cv.put(Body.HTML_CONTENT, mHtml);
             }
 
             b = getSaveOrUpdateBuilder(doSave, Body.CONTENT_URI, 0);

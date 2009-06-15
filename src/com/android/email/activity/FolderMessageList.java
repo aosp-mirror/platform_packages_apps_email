@@ -550,7 +550,8 @@ public class FolderMessageList extends ExpandableListActivity {
         */
         
         mMessagingListener = new NewMessagingListener();
-        mLoadMailboxesTask = (LoadMailBoxesTask) new LoadMailBoxesTask().execute();
+        mLoadMailboxesTask = (LoadMailBoxesTask) new LoadMailBoxesTask(savedInstanceState);
+        mLoadMailboxesTask.execute();
 
         setTitle(mAccount.getDescription());
     }
@@ -681,7 +682,7 @@ public class FolderMessageList extends ExpandableListActivity {
             int childPosition, long id) {
         
         // TODO completely rewrite this.  For now, quick access to new onOpenMessage call.
-        
+        onOpenMessage(groupPosition, childPosition);
         return true;    // "handled"
         
 /*
@@ -750,6 +751,7 @@ public class FolderMessageList extends ExpandableListActivity {
 */
     }
 
+    @Deprecated
     private void onOpenMessage(FolderInfoHolder folder, MessageInfoHolder message) {
         /*
          * We set read=true here for UI performance reasons. The actual value will get picked up
@@ -773,6 +775,30 @@ public class FolderMessageList extends ExpandableListActivity {
             }
             MessageView.actionView(this, mAccountId, folder.name, message.uid, folderUids);
         }
+    }
+    
+    /**
+     * TODO we can probably do the cursor work and message ID lookup in the caller, especially
+     * when we implement other handlers like onReply, onDelete, etc.
+     *
+     * @param groupPosition
+     * @param childPosition
+     */
+    private void onOpenMessage(int groupPosition, int childPosition) {
+        Cursor mailboxCursor = mNewAdapter.getGroup(groupPosition);
+        Cursor messageCursor = mNewAdapter.getChild(groupPosition, childPosition);
+        
+        int mailboxTypeColumn = mailboxCursor.getColumnIndex(EmailContent.MailboxColumns.TYPE);
+        int mailboxType = mailboxCursor.getInt(mailboxTypeColumn);
+        if (mailboxType == EmailContent.Mailbox.TYPE_DRAFTS) {
+            // TODO - compose from draft
+        } else {
+            // TODO - save enough data to recreate the cursor, to enable prev/next in MessageView
+            int messageIdColumn = messageCursor.getColumnIndex(EmailContent.RECORD_ID);
+            long messageId = messageCursor.getLong(messageIdColumn);
+            MessageView.actionView(this, messageId);
+        }
+        
     }
 
     private void onEditAccount() {
@@ -859,6 +885,11 @@ public class FolderMessageList extends ExpandableListActivity {
         int childPosition =
             ExpandableListView.getPackedPositionChild(info.packedPosition);
         if (childPosition < mAdapter.getChildrenCount(groupPosition)) {
+            switch (item.getItemId()) {
+                case R.id.open:
+                    onOpenMessage(groupPosition, childPosition);
+                    break;
+            }
             
             // TODO: completely rewrite this.  For now, just don't crash.
 /*
@@ -922,6 +953,15 @@ public class FolderMessageList extends ExpandableListActivity {
      * Async task to handle the cursor query out of the UI thread
      */
     private class LoadMailBoxesTask extends AsyncTask<Void, Void, Cursor> {
+        
+        // We park the activity's saved instance state here, to apply
+        // after the cursor is loaded and the adapter is ready for UI
+        Bundle mSavedInstanceState;
+        
+        public LoadMailBoxesTask(Bundle savedInstanceState) {
+            super();
+            mSavedInstanceState = savedInstanceState;
+        }
 
         @Override
         protected Cursor doInBackground(Void... params) {
@@ -942,6 +982,14 @@ public class FolderMessageList extends ExpandableListActivity {
             FolderMessageList.this.mNewAdapter =
                 new NewFolderMessageListAdapter(cursor, FolderMessageList.this);
             mListView.setAdapter(FolderMessageList.this.mNewAdapter);
+            
+            // After setting up the adapter & data, restore its state (if applicable)
+            if (mSavedInstanceState != null) {
+                mRestoringState = true;
+                onRestoreListState(mSavedInstanceState);
+                mRestoringState = false;
+                mRefreshRemote |= mSavedInstanceState.getBoolean(STATE_KEY_REFRESH_REMOTE);
+            }
             
             /**
              * For debugging purposes, add a single mailbox when there are none
@@ -1008,7 +1056,8 @@ public class FolderMessageList extends ExpandableListActivity {
                     // msg.mFlagFavorite = false;
                     // msg.mFlagAttachment = false;
                     // msg.mFlags = 0;
-                    // msg.mTextInfo;
+//                    msg.mText = "This is the body text of the 1st email.";
+//                    msg.mTextInfo = "X;X;8;" + msg.mText.length()*2;
                     // msg.mHtmlInfo;
                     // msg.mServerId;
                     // msg.mServerIntId;
@@ -1034,6 +1083,8 @@ public class FolderMessageList extends ExpandableListActivity {
                     msg.mMailboxKey = mailbox1Id;
                     msg.mAccountKey = FolderMessageList.this.mAccountId;
                     msg.mFrom = "sender2@google.com";
+//                    msg.mText = "This is the body text of this email.";
+//                    msg.mTextInfo = "X;X;8;" + msg.mText.length()*2;
                     msg.save(FolderMessageList.this);
                     
                     msg = new EmailContent.Message();
@@ -1043,6 +1094,8 @@ public class FolderMessageList extends ExpandableListActivity {
                     msg.mMailboxKey = mailbox1Id;
                     msg.mAccountKey = FolderMessageList.this.mAccountId;
                     msg.mFrom = "sender3@google.com";
+//                    msg.mText = "This is the body text of the 3rd email.";
+//                    msg.mTextInfo = "X;X;8;" + msg.mText.length()*2;
                     msg.save(FolderMessageList.this);
                     
                     msg = new EmailContent.Message();
@@ -1052,6 +1105,8 @@ public class FolderMessageList extends ExpandableListActivity {
                     msg.mMailboxKey = mailbox2Id;
                     msg.mAccountKey = FolderMessageList.this.mAccountId;
                     msg.mFrom = "sender4@google.com";
+//                    msg.mText = "This is the body text of the 4th email.";
+//                    msg.mTextInfo = "X;X;8;" + msg.mText.length()*2;
                     msg.save(FolderMessageList.this);                   
                 }
             }
@@ -1062,10 +1117,10 @@ public class FolderMessageList extends ExpandableListActivity {
      * Async task for loading a single folder out of the UI thread
      */
     private class LoadMessagesTask extends AsyncTask<Void, Void, Cursor> {
-        
+
         private int mGroupNumber;
         private long mMailboxKey;
-        
+
         /**
          * Special constructor to cache some local info
          */
@@ -1089,7 +1144,7 @@ public class FolderMessageList extends ExpandableListActivity {
                             }, 
                     null);
         }
-        
+
         @Override
         protected void onPostExecute(Cursor cursor) {
             if (DBG_LOG_CURSORS) {
