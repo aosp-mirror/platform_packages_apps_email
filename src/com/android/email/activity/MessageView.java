@@ -102,7 +102,9 @@ public class MessageView extends Activity
     private TextView mTimeView;
     private TextView mToView;
     private TextView mCcView;
+    private TextView mBccView;
     private View mCcContainerView;
+    private View mBccContainerView;
     private WebView mMessageContentView;
     private LinearLayout mAttachments;
     private ImageView mAttachmentIcon;
@@ -173,6 +175,9 @@ public class MessageView extends Activity
                     mToView.setText(values[4]);
                     mCcView.setText(values[5]);
                     mCcContainerView.setVisibility((values[5] != null) ? View.VISIBLE : View.GONE);
+                    String bcc = values[6];
+                    mBccView.setText(bcc);
+                    mBccContainerView.setVisibility(bcc != null ? View.VISIBLE : View.GONE);
                     mAttachmentIcon.setVisibility(msg.arg1 == 1 ? View.VISIBLE : View.GONE);
                     break;
                 case MSG_NETWORK_ERROR:
@@ -244,11 +249,12 @@ public class MessageView extends Activity
                 String date,
                 String to,
                 String cc,
+                String bcc,
                 boolean hasAttachments) {
             android.os.Message msg = new android.os.Message();
             msg.what = MSG_SET_HEADERS;
             msg.arg1 = hasAttachments ? 1 : 0;
-            msg.obj = new String[] { subject, from, time, date, to, cc };
+            msg.obj = new String[] { subject, from, time, date, to, cc, bcc};
             sendMessage(msg);
         }
 
@@ -337,6 +343,8 @@ public class MessageView extends Activity
         mToView = (TextView) findViewById(R.id.to);
         mCcView = (TextView) findViewById(R.id.cc);
         mCcContainerView = findViewById(R.id.cc_container);
+        mBccView = (TextView) findViewById(R.id.bcc);
+        mBccContainerView = findViewById(R.id.bcc_container);
         mDateView = (TextView) findViewById(R.id.date);
         mTimeView = (TextView) findViewById(R.id.time);
         mMessageContentView = (WebView) findViewById(R.id.message_content);
@@ -903,6 +911,7 @@ public class MessageView extends Activity
                         mDateFormat.format(sentDate);
                 String toText = Address.toFriendly(message.getRecipients(RecipientType.TO));
                 String ccText = Address.toFriendly(message.getRecipients(RecipientType.CC));
+                String bccText = Address.toFriendly(message.getRecipients(RecipientType.BCC));
                 boolean hasAttachments = ((LocalMessage) message).getAttachmentCount() > 0;
                 mHandler.setHeaders(subjectText,
                         fromText,
@@ -910,6 +919,7 @@ public class MessageView extends Activity
                         dateText,
                         toText,
                         ccText,
+                        bccText,
                         hasAttachments);
                 startPresenceCheck();
             }

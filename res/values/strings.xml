@@ -181,6 +181,8 @@
     <string name="message_view_to_label">To:</string>
     <!-- Label for CC field in read message view -->
     <string name="message_view_cc_label">Cc:</string>
+    <!-- Label for BCC field in read message view -->
+    <string name="message_view_bcc_label">Bcc:</string>
     <!-- Menu item -->
     <string name="message_view_attachment_view_action">Open</string>
     <!-- Button name -->
