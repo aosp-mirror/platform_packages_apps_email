@@ -112,6 +112,29 @@
                 android:singleLine="false"
                 android:ellipsize="none" />
         </LinearLayout>
+        <LinearLayout
+            android:id="@+id/bcc_container"
+            android:layout_width="fill_parent"
+            android:layout_height="wrap_content"
+            android:visibility="gone" >
+            <TextView
+                android:textAppearance="?android:attr/textAppearanceSmall"
+                android:textColor="?android:attr/textColorSecondaryInverse"
+                android:textStyle="bold"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="@string/message_view_bcc_label" />
+            <TextView
+                android:id="@+id/bcc"
+                android:textAppearance="?android:attr/textAppearanceSmall"
+                android:textColor="?android:attr/textColorSecondaryInverse"
+                android:layout_width="0dip"
+                android:layout_weight="1.0"
+                android:layout_height="wrap_content"
+                android:layout_marginLeft="4px"
+                android:singleLine="false"
+                android:ellipsize="none" />
+        </LinearLayout>
         <TextView
             android:id="@+id/subject"
             android:textAppearance="?android:attr/textAppearanceSmall"

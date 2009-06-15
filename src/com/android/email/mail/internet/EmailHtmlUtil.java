@@ -17,6 +17,7 @@
 package com.android.email.mail.internet;
 
 import com.android.email.Account;
+import com.android.email.mail.Message;
 import com.android.email.mail.MessagingException;
 import com.android.email.mail.Multipart;
 import com.android.email.mail.Part;
@@ -24,16 +25,19 @@ import com.android.email.mail.store.LocalStore.LocalAttachmentBodyPart;
 import com.android.email.provider.AttachmentProvider;
 
 import android.content.ContentResolver;
+import android.content.Context;
 import android.net.Uri;
+import android.text.util.Regex;
 
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 public class EmailHtmlUtil {
-
     // Regex that matches characters that have special meaning in HTML. '<', '>', '&' and
     // multiple continuous spaces.
     private static final Pattern PLAIN_TEXT_TO_ESCAPE = Pattern.compile("[<>&]| {2,}|\r?\n");
+    // Regex that matches Web URL protocol part as case insensitive.
+    private static final Pattern WEB_URL_PROTOCOL = Pattern.compile("(?i)http|https://");
 
     /**
      * Resolve content-id reference in src attribute of img tag to AttachmentProvider's
@@ -60,7 +64,8 @@ public class EmailHtmlUtil {
             part instanceof LocalAttachmentBodyPart) {
             LocalAttachmentBodyPart attachment = (LocalAttachmentBodyPart)part;
             Uri contentUri = AttachmentProvider.resolveAttachmentIdToContentUri(
-                    resolver, AttachmentProvider.getAttachmentUri(account, attachment.getAttachmentId()));
+                    resolver,
+                    AttachmentProvider.getAttachmentUri(account, attachment.getAttachmentId()));
             // Regexp which matches ' src="cid:contentId"'.
             String contentIdRe = "\\s+(?i)src=\"cid(?-i):\\Q" + contentId + "\\E\"";
             // Replace all occurrences of src attribute with ' src="content://contentUri"'.
@@ -114,6 +119,85 @@ public class EmailHtmlUtil {
             out.append(text.substring(end));
             text = out.toString();
         }        
+        return text;
+    }
+    
+    /**
+     * Rendering message into HTML text.
+     */
+    public static String renderMessageText(Context context, Account account,
+            Message message) {
+        String text = null;
+        boolean isHtml = false;
+        try {
+            Part part = MimeUtility.findFirstPartByMimeType(message, "text/html");
+            if (part == null) {
+                part = MimeUtility.findFirstPartByMimeType(message, "text/plain");
+            }
+            if (part != null) {
+                text = MimeUtility.getTextFromPart(part);
+                isHtml = part.getMimeType().equalsIgnoreCase("text/html");
+            }
+        } catch (MessagingException me) {
+            // ignore
+        }
+        if (text == null) {
+            return null;
+        }
+        
+        if (isHtml) { 
+            try {
+                text = resolveInlineImage(context.getContentResolver(), account, text, message, 0);
+            } catch (MessagingException me) {
+                // ignore
+            }
+        
+        } else {
+            // And also escape special character, such as "<>&\n",
+            // to HTML escape sequence.
+            text = escapeCharacterToDisplay(text);
+
+            /*
+             * Linkify the plain text and convert it to HTML by replacing \r?\n
+             * with <br> and adding a html/body wrapper.
+             */
+            StringBuffer sb = new StringBuffer("<html><body>");
+            if (text != null) {
+                Matcher m = Regex.WEB_URL_PATTERN.matcher(text);
+                while (m.find()) {
+                    /*
+                     * WEB_URL_PATTERN may match domain part of email address. To
+                     * detect this false match, the character just before the
+                     * matched string should not be '@'.
+                     */
+                    int start = m.start();
+                    if (start == 0 || text.charAt(start - 1) != '@') {
+                        String url = m.group();
+                        Matcher proto = WEB_URL_PROTOCOL.matcher(url);
+                        String link;
+                        if (proto.find()) {
+                            // This is work around to force URL protocol part be
+                            // lower case,
+                            // because WebView could follow only lower case protocol
+                            // link.
+                            link = proto.group().toLowerCase() + url.substring(proto.end());
+                        } else {
+                            // Regex.WEB_URL_PATTERN matches URL without protocol
+                            // part,
+                            // so added default protocol to link.
+                            link = "http://" + url;
+                        }
+                        String href = String.format("<a href=\"%s\">%s</a>", link, url);
+                        m.appendReplacement(sb, href);
+                    } else {
+                        m.appendReplacement(sb, "$0");
+                    }
+                }
+                m.appendTail(sb);
+            }
+            sb.append("</body></html>");
+            text = sb.toString();
+        }
         return text;
     }
 }

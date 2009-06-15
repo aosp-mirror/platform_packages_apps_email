@@ -1349,7 +1349,72 @@ public class MessagingController implements Runnable {
         });
     }
 
-    public void loadMessageForView(final Account account, final String folder, final String uid,
+    private boolean isInlineImage(Part part) throws MessagingException {
+        String contentId = part.getContentId();
+        String mimeType = part.getMimeType();
+        return contentId != null && mimeType != null && mimeType.startsWith("image/");
+    }
+
+    public void loadInlineImagesForView(final Account account, final Message message,
+            MessagingListener listener) {
+        synchronized (mListeners) {
+            for (MessagingListener l : mListeners) {
+                l.loadInlineImagesForViewStarted(account, message);
+            }
+        }
+        try {
+            LocalStore localStore = (LocalStore)Store.getInstance(account.getLocalStoreUri(),
+                    mContext, null);
+            LocalFolder localFolder = (LocalFolder)message.getFolder();
+            localFolder.open(OpenMode.READ_WRITE, null);
+
+            // Download inline images if necessary.
+            Folder remoteFolder = null;
+            ArrayList<Part> viewables = new ArrayList<Part>();
+            ArrayList<Part> attachments = new ArrayList<Part>();
+            MimeUtility.collectParts(message, viewables, attachments);
+            FetchProfile fp = new FetchProfile();
+            Message[] localMessages = new Message[] {
+                message
+            };
+            for (Part part : attachments) {
+                if (isInlineImage(part) && part.getBody() == null) {
+                    if (remoteFolder == null) {
+                        Store remoteStore = Store.getInstance(account.getStoreUri(), mContext,
+                                localStore.getPersistentCallbacks());
+                        remoteFolder = remoteStore.getFolder(message.getFolder().getName());
+                        remoteFolder
+                                .open(OpenMode.READ_WRITE, localFolder.getPersistentCallbacks());
+                    }
+                    fp.clear();
+                    fp.add(part);
+                    remoteFolder.fetch(localMessages, fp, null);
+                    localFolder.updateMessage((LocalMessage)message);
+                    synchronized (mListeners) {
+                        for (MessagingListener l : mListeners) {
+                            l.loadInlineImagesForViewOneAvailable(account, message, part);
+                        }
+                    }
+               }
+            }
+            if (remoteFolder != null) {
+                remoteFolder.close(false);
+            }
+            synchronized (mListeners) {
+                for (MessagingListener l : mListeners) {
+                    l.loadInlineImagesForViewFinished(account, message);
+                }
+            }
+       } catch (Exception e) {
+            synchronized (mListeners) {
+                for (MessagingListener l : mListeners) {
+                    l.loadInlineImagesForViewFailed(account, message);
+                }
+            }
+        }
+    }
+
+   public void loadMessageForView(final Account account, final String folder, final String uid,
             MessagingListener listener) {
         synchronized (mListeners) {
             for (MessagingListener l : mListeners) {
@@ -1454,17 +1519,19 @@ public class MessagingController implements Runnable {
                     LocalStore localStore = (LocalStore) Store.getInstance(
                             account.getLocalStoreUri(), mContext, null);
                     /*
-                     * We clear out any attachments already cached in the entire store and then
-                     * we update the passed in message to reflect that there are no cached
-                     * attachments. This is in support of limiting the account to having one
-                     * attachment downloaded at a time.
+                     * We clear out any attachments already cached in the entire store except
+                     * inline images and then we update the passed in message to reflect there are
+                     * no cached attachments. This is in support of limiting the account to having'
+                     * one attachment downloaded at a time.
                      */
                     localStore.pruneCachedAttachments();
                     ArrayList<Part> viewables = new ArrayList<Part>();
                     ArrayList<Part> attachments = new ArrayList<Part>();
                     MimeUtility.collectParts(message, viewables, attachments);
                     for (Part attachment : attachments) {
-                        attachment.setBody(null);
+                        if (!isInlineImage(attachment)) {
+                            attachment.setBody(null);
+                        }
                     }
                     Store remoteStore = Store.getInstance(account.getStoreUri(), mContext, 
                             localStore.getPersistentCallbacks());
