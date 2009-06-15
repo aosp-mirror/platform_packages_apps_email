@@ -40,9 +40,11 @@ import android.app.NotificationManager;
 import android.content.ContentUris;
 import android.content.Context;
 import android.content.Intent;
+import android.database.Cursor;
 import android.graphics.Typeface;
 import android.graphics.drawable.Drawable;
 import android.net.Uri;
+import android.os.AsyncTask;
 import android.os.Bundle;
 import android.os.Handler;
 import android.os.Process;
@@ -57,6 +59,7 @@ import android.view.ViewGroup;
 import android.view.Window;
 import android.view.ContextMenu.ContextMenuInfo;
 import android.widget.BaseExpandableListAdapter;
+import android.widget.CursorTreeAdapter;
 import android.widget.ExpandableListView;
 import android.widget.ProgressBar;
 import android.widget.TextView;
@@ -88,6 +91,10 @@ import java.util.Date;
  * And don't refresh remote folders ever unless the user runs a refresh. Maybe not even then.
  */
 public class FolderMessageList extends ExpandableListActivity {
+    
+    private static final boolean DBG_ADD_CONTENT = false;     // DO NOT CHECK IN AS 'TRUE'
+    private static final boolean DBG_LOG_CURSORS = false;     // DO NOT CHECK IN AS 'TRUE'
+    
     private static final String EXTRA_ACCOUNT_ID = "account";
     private static final String EXTRA_CLEAR_NOTIFICATION = "clearNotification";
     private static final String EXTRA_INITIAL_FOLDER = "initialFolder";
@@ -132,6 +139,11 @@ public class FolderMessageList extends ExpandableListActivity {
     private ExpandableListView mListView;
     private int colorChipResId;
 
+    private LoadMailBoxesTask mLoadMailboxesTask;
+    private LoadMessagesTask mLoadMessagesTask;
+    private NewMessagingListener mMessagingListener;
+    private NewFolderMessageListAdapter mNewAdapter;
+    
     private FolderMessageListAdapter mAdapter;
     private LayoutInflater mInflater;
     private long mAccountId;
@@ -151,6 +163,21 @@ public class FolderMessageList extends ExpandableListActivity {
     private boolean mRestoringState;
 
     private boolean mRefreshRemote;
+    
+    /**
+     * These arrays support NewFolderMessageListAdapter
+     */
+    private final static int[] sGroupToIds = new int[] {
+            R.id.folder_name,
+            R.id.folder_status,
+            R.id.new_message_count
+    };
+    private final static int[] sChildToIds = new int[] {
+            R.id.chip,
+            R.id.from,
+            R.id.date,
+            R.id.subject
+    };
 
     private FolderMessageListHandler mHandler = new FolderMessageListHandler();
 
@@ -503,6 +530,7 @@ public class FolderMessageList extends ExpandableListActivity {
          */
         mSyncWindowUser = mAccount.getSyncWindow() == EmailStore.Account.SYNC_WINDOW_USER;
         
+        /*
         mAdapter = new FolderMessageListAdapter();
 
         final Object previousData = getLastNonConfigurationInstance();
@@ -519,6 +547,10 @@ public class FolderMessageList extends ExpandableListActivity {
             mRestoringState = false;
             mRefreshRemote |= savedInstanceState.getBoolean(STATE_KEY_REFRESH_REMOTE);
         }
+        */
+        
+        mMessagingListener = new NewMessagingListener();
+        mLoadMailboxesTask = (LoadMailBoxesTask) new LoadMailBoxesTask().execute();
 
         setTitle(mAccount.getDescription());
     }
@@ -543,7 +575,7 @@ public class FolderMessageList extends ExpandableListActivity {
     @Override
     public void onPause() {
         super.onPause();
-        MessagingController.getInstance(getApplication()).removeListener(mAdapter.mListener);
+        MessagingController.getInstance(getApplication()).removeListener(mMessagingListener);
     }
 
     /**
@@ -559,7 +591,7 @@ public class FolderMessageList extends ExpandableListActivity {
                 getSystemService(Context.NOTIFICATION_SERVICE);
         notifMgr.cancel(1);
 
-        MessagingController.getInstance(getApplication()).addListener(mAdapter.mListener);
+        MessagingController.getInstance(getApplication()).addListener(mMessagingListener);
         mAccount.refresh(this);
         onRefresh(false);
     }
@@ -572,6 +604,22 @@ public class FolderMessageList extends ExpandableListActivity {
         outState.putLong(STATE_KEY_EXPANDED_GROUP_SELECTION, mListView.getSelectedPosition());
         outState.putBoolean(STATE_KEY_REFRESH_REMOTE, mRefreshRemote);
     }
+    
+    @Override
+    protected void onDestroy() {
+        super.onDestroy();
+
+        if (mLoadMailboxesTask != null &&
+                mLoadMailboxesTask.getStatus() != AsyncTask.Status.FINISHED) {
+            mLoadMailboxesTask.cancel(true);
+            mLoadMailboxesTask = null;
+        }
+        if (mLoadMessagesTask != null &&
+                mLoadMessagesTask.getStatus() != AsyncTask.Status.FINISHED) {
+            mLoadMessagesTask.cancel(true);
+            mLoadMessagesTask = null;
+        }
+    }
 
     @Override
     public void onGroupCollapse(int groupPosition) {
@@ -582,6 +630,8 @@ public class FolderMessageList extends ExpandableListActivity {
     @Override
     public void onGroupExpand(int groupPosition) {
         super.onGroupExpand(groupPosition);
+        
+        // We enforce viewing one folder at a time, so close the previously-opened folder
         if (mExpandedGroup != -1) {
             mListView.collapseGroup(mExpandedGroup);
         }
@@ -596,24 +646,45 @@ public class FolderMessageList extends ExpandableListActivity {
             mListView.setSelectionFromTop(position, 0);
         }
 
-        final FolderInfoHolder folder = (FolderInfoHolder) mAdapter.getGroup(groupPosition);
-        /*
-         * We'll only do a hard refresh of a particular folder every 3 minutes or if the user
-         * specifically asks for a refresh.
-         */
-        if (System.currentTimeMillis() - folder.lastChecked
-                > UPDATE_FOLDER_ON_EXPAND_INTERVAL_MS) {
-            folder.lastChecked = System.currentTimeMillis();
-            // TODO: If the previous thread is already running, we should cancel it
-            new Thread(new FolderUpdateWorker(folder.name, true, null, mAccount, 
-                    MessagingController.getInstance(getApplication())))
-                    .start();
+        // We're going to build a new cursor every time here.  TODO can we cache it?
+        // Kill any previous unfinished task
+        if (mLoadMessagesTask != null &&
+                mLoadMessagesTask.getStatus() != AsyncTask.Status.FINISHED) {
+            mLoadMessagesTask.cancel(true);
+            mLoadMessagesTask = null;
         }
+
+        // Now start a new task to create a non-empty cursor
+        Cursor groupCursor = mNewAdapter.getCursor();
+        long mailboxKey = groupCursor.getLong(EmailStore.Mailbox.CONTENT_ID_COLUMN);
+        mLoadMessagesTask = new LoadMessagesTask(groupPosition, mailboxKey);
+        mLoadMessagesTask.execute();
+
+
+//        final FolderInfoHolder folder = (FolderInfoHolder) mAdapter.getGroup(groupPosition);
+//        /*
+//         * We'll only do a hard refresh of a particular folder every 3 minutes or if the user
+//         * specifically asks for a refresh.
+//         */
+//        if (System.currentTimeMillis() - folder.lastChecked
+//                > UPDATE_FOLDER_ON_EXPAND_INTERVAL_MS) {
+//            folder.lastChecked = System.currentTimeMillis();
+//            // TODO: If the previous thread is already running, we should cancel it
+//            new Thread(new FolderUpdateWorker(folder.name, true, null, mAccount, 
+//                    MessagingController.getInstance(getApplication())))
+//                    .start();
+//        }
     }
 
     @Override
     public boolean onChildClick(ExpandableListView parent, View v, int groupPosition,
             int childPosition, long id) {
+        
+        // TODO completely rewrite this.  For now, quick access to new onOpenMessage call.
+        
+        return true;    // "handled"
+        
+/*
         FolderInfoHolder folder = (FolderInfoHolder) mAdapter.getGroup(groupPosition);
         if (folder.outbox) {
             if (childPosition == folder.messages.size() && !folder.loading) {
@@ -630,14 +701,14 @@ public class FolderMessageList extends ExpandableListActivity {
                 MessagingController.getInstance(getApplication()).loadMoreMessages(
                         mAccount,
                         folder.name,
-                        mAdapter.mListener);
+                        mMessagingListener);
                 return false;
             }
             else {
                 MessagingController.getInstance(getApplication()).synchronizeMailbox(
                         mAccount,
                         folder.name,
-                        mAdapter.mListener);
+                        mMessagingListener);
                 return false;
             }
         }
@@ -648,21 +719,24 @@ public class FolderMessageList extends ExpandableListActivity {
             (MessageInfoHolder) mAdapter.getChild(groupPosition, childPosition);
 
         onOpenMessage(folder, message);
-
         return true;
+*/
     }
 
     private void onRefresh(final boolean forceRemote) {
         if (forceRemote) {
             mRefreshRemote = true;
         }
+        
+        // TODO: wire in new controller to handle remote refresh
+/*
         new Thread() {
             public void run() {
                 Process.setThreadPriority(Process.THREAD_PRIORITY_BACKGROUND);
                 MessagingController.getInstance(getApplication()).listFolders(
                         mAccount,
                         mRefreshRemote,
-                        mAdapter.mListener);
+                        mMessagingListener);
                 if (forceRemote) {
                     mHandler.folderLoading(mAccount.getOutboxFolderName(FolderMessageList.this),
                             true);
@@ -673,6 +747,7 @@ public class FolderMessageList extends ExpandableListActivity {
                 }
             }
         }.start();
+*/
     }
 
     private void onOpenMessage(FolderInfoHolder folder, MessageInfoHolder message) {
@@ -783,8 +858,11 @@ public class FolderMessageList extends ExpandableListActivity {
                 ExpandableListView.getPackedPositionGroup(info.packedPosition);
         int childPosition =
             ExpandableListView.getPackedPositionChild(info.packedPosition);
-        FolderInfoHolder folder = (FolderInfoHolder) mAdapter.getGroup(groupPosition);
         if (childPosition < mAdapter.getChildrenCount(groupPosition)) {
+            
+            // TODO: completely rewrite this.  For now, just don't crash.
+/*
+            FolderInfoHolder folder = (FolderInfoHolder) mAdapter.getGroup(groupPosition);
             MessageInfoHolder holder =
                 (MessageInfoHolder) mAdapter.getChild(groupPosition, childPosition);
             switch (item.getItemId()) {
@@ -807,6 +885,7 @@ public class FolderMessageList extends ExpandableListActivity {
                     onToggleRead(holder);
                     break;
             }
+*/            
         }
         return super.onContextItemSelected(item);
     }
@@ -820,6 +899,9 @@ public class FolderMessageList extends ExpandableListActivity {
             long packedPosition = info.packedPosition;
             int groupPosition = ExpandableListView.getPackedPositionGroup(packedPosition);
             int childPosition = ExpandableListView.getPackedPositionChild(packedPosition);
+            
+            // TODO: completely rewrite this.  For now, just don't crash.
+/*
             FolderInfoHolder folder = (FolderInfoHolder) mAdapter.getGroup(groupPosition);
             if (folder.outbox) {
                 return;
@@ -832,7 +914,313 @@ public class FolderMessageList extends ExpandableListActivity {
                     menu.findItem(R.id.mark_as_read).setTitle(R.string.mark_as_unread_action);
                 }
             }
+*/
         }
+    }
+    
+    /**
+     * Async task to handle the cursor query out of the UI thread
+     */
+    private class LoadMailBoxesTask extends AsyncTask<Void, Void, Cursor> {
+
+        @Override
+        protected Cursor doInBackground(Void... params) {
+            return FolderMessageList.this.managedQuery(
+                    EmailStore.Mailbox.CONTENT_URI,
+                    EmailStore.Mailbox.CONTENT_PROJECTION,
+                    EmailStore.MailboxColumns.ACCOUNT_KEY + "=?",
+                    new String[] { String.valueOf(FolderMessageList.this.mAccountId) }, 
+                    null);
+        }
+
+        @Override
+        protected void onPostExecute(Cursor cursor) {
+            if (DBG_LOG_CURSORS) {
+                Log.d(Email.LOG_TAG, "LoadMailBoxesTask.onPostExecute: cursor length " +
+                        String.valueOf(cursor.getCount()));
+            }
+            FolderMessageList.this.mNewAdapter =
+                new NewFolderMessageListAdapter(cursor, FolderMessageList.this);
+            mListView.setAdapter(FolderMessageList.this.mNewAdapter);
+            
+            /**
+             * For debugging purposes, add a single mailbox when there are none
+             */
+            if (DBG_ADD_CONTENT) {
+                if (cursor.getCount() < 4) {
+                    EmailStore.Mailbox box = new EmailStore.Mailbox();
+                    
+                    box.mDisplayName = "dummy mailbox";
+                    // box.mServerId;
+                    // box.mParentServerId;
+                    box.mAccountKey = FolderMessageList.this.mAccountId;
+                    box.mType = EmailStore.Mailbox.TYPE_INBOX;
+                    // box.mDelimiter;
+                    // box.mSyncKey;
+                    // box.mSyncLookback;
+                    // box.mSyncFrequency;
+                    // box.mSyncTime;
+                    box.mUnreadCount = 100;
+                    box.mFlagVisible = true;
+                    // box.mFlags;
+                    // box.mVisibleLimit;
+                    box.save(FolderMessageList.this);
+                    long mailbox1Id = box.mId;
+                    
+                    box = new EmailStore.Mailbox();
+                    
+                    box.mDisplayName = "dummy mailbox 2";
+                    box.mAccountKey = FolderMessageList.this.mAccountId;
+                    box.mType = EmailStore.Mailbox.TYPE_MAIL;
+                    box.mUnreadCount = 75;
+                    box.mFlagVisible = true;
+                    box.save(FolderMessageList.this);
+                    long mailbox2Id = box.mId;
+                    
+                    box = new EmailStore.Mailbox();
+                    
+                    box.mDisplayName = "dummy mailbox 3";
+                    box.mAccountKey = FolderMessageList.this.mAccountId;
+                    box.mType = EmailStore.Mailbox.TYPE_MAIL;
+                    box.mUnreadCount = 75;
+                    box.mFlagVisible = true;
+                    box.save(FolderMessageList.this);
+                    long mailbox3Id = box.mId;
+                    
+                    box = new EmailStore.Mailbox();
+                    
+                    box.mDisplayName = "dummy mailbox diff acct";
+                    box.mAccountKey = FolderMessageList.this.mAccountId + 1;
+                    box.mType = EmailStore.Mailbox.TYPE_INBOX;
+                    box.mUnreadCount = 50;
+                    box.mFlagVisible = true;
+                    box.save(FolderMessageList.this);
+                    
+                    // finally toss in a few messages
+                    
+                    EmailStore.Message msg = new EmailStore.Message();
+                    msg.mDisplayName = "sender1@google.com";
+                    msg.mTimeStamp = 1010101090;    // invent a better timestamp
+                    msg.mSubject = "message 1";
+                    // msg.mPreview;
+                    // msg.mFlagRead = false;
+                    // msg.mFlagLoaded = 0;
+                    // msg.mFlagFavorite = false;
+                    // msg.mFlagAttachment = false;
+                    // msg.mFlags = 0;
+                    // msg.mTextInfo;
+                    // msg.mHtmlInfo;
+                    // msg.mServerId;
+                    // msg.mServerIntId;
+                    // msg.mClientId;
+                    // msg.mMessageId;
+                    // msg.mThreadId;
+                    // msg.mBodyKey;
+                    msg.mMailboxKey = mailbox1Id;
+                    msg.mAccountKey = FolderMessageList.this.mAccountId;
+                    // msg.mReferenceKey;
+                    // msg.mSender;
+                    msg.mFrom = "sender1@google.com";
+                    // msg.mTo;
+                    // msg.mCc;
+                    // msg.mBcc;
+                    // msg.mReplyTo;
+                    msg.save(FolderMessageList.this);
+                    
+                    msg = new EmailStore.Message();
+                    msg.mDisplayName = "sender2@google.com";
+                    msg.mTimeStamp = 1010101091;    // invent a better timestamp
+                    msg.mSubject = "message 2";
+                    msg.mMailboxKey = mailbox1Id;
+                    msg.mAccountKey = FolderMessageList.this.mAccountId;
+                    msg.mFrom = "sender2@google.com";
+                    msg.save(FolderMessageList.this);
+                    
+                    msg = new EmailStore.Message();
+                    msg.mDisplayName = "sender3@google.com";
+                    msg.mTimeStamp = 1010101092;    // invent a better timestamp
+                    msg.mSubject = "message 3";
+                    msg.mMailboxKey = mailbox1Id;
+                    msg.mAccountKey = FolderMessageList.this.mAccountId;
+                    msg.mFrom = "sender3@google.com";
+                    msg.save(FolderMessageList.this);
+                    
+                    msg = new EmailStore.Message();
+                    msg.mDisplayName = "sender4@google.com";
+                    msg.mTimeStamp = 1010101093;    // invent a better timestamp
+                    msg.mSubject = "message 4";
+                    msg.mMailboxKey = mailbox2Id;
+                    msg.mAccountKey = FolderMessageList.this.mAccountId;
+                    msg.mFrom = "sender4@google.com";
+                    msg.save(FolderMessageList.this);                   
+                }
+            }
+        }
+    }
+    
+    /**
+     * Async task for loading a single folder out of the UI thread
+     */
+    private class LoadMessagesTask extends AsyncTask<Void, Void, Cursor> {
+        
+        private int mGroupNumber;
+        private long mMailboxKey;
+        
+        /**
+         * Special constructor to cache some local info
+         */
+        public LoadMessagesTask(int groupNumber, long mailboxKey) {
+            mGroupNumber = groupNumber;
+            mMailboxKey = mailboxKey;
+        }
+
+        // TODO should use a lighter-weight projection of messages because we're only
+        // displaying summaries, not the whole message.
+        @Override
+        protected Cursor doInBackground(Void... params) {
+            return FolderMessageList.this.managedQuery(
+                    EmailStore.Message.CONTENT_URI,
+                    EmailStore.Message.CONTENT_PROJECTION,
+                    EmailStore.MessageColumns.ACCOUNT_KEY + "=?" +
+                        " AND " + EmailStore.MessageColumns.MAILBOX_KEY + "=?",
+                    new String[] {
+                            String.valueOf(FolderMessageList.this.mAccountId),
+                            String.valueOf(mMailboxKey)
+                            }, 
+                    null);
+        }
+        
+        @Override
+        protected void onPostExecute(Cursor cursor) {
+            if (DBG_LOG_CURSORS) {
+                Log.d(Email.LOG_TAG, "LoadMessagesTask.onPostExecute: cursor length " +
+                        String.valueOf(cursor.getCount()));
+            }
+            // Confirm that we're still stuffing the correct group #
+            if (mGroupNumber == FolderMessageList.this.mExpandedGroup) {
+                FolderMessageList.this.mNewAdapter.setChildrenCursor(mGroupNumber, cursor);
+            }
+        }
+    }
+
+    /**
+     * This class implements the tree for displaying folders and messages based on cursors.
+     * 
+     * TODO: There is a bug # 1913302 describing a bug in CursorTreeAdapter, mixing up recycled
+     * views when you have "last child" or "expanded/contracted group" layouts.  Because of this,
+     * we're going to simplify (for now) and simply display the message list, without the added
+     * "last" view of the loading status.  This is all placeholder code until we move folder view
+     * into the Account screen.
+     */
+    private static class NewFolderMessageListAdapter extends CursorTreeAdapter {
+        
+        Context mContext;
+        private LayoutInflater mInflater;
+        
+        int mFolderNameColumn;
+        int mFolderUnreadCountColumn;
+        
+        boolean haveChildColumns;
+        int mChildDisplayNameColumn;
+        int mChildDateColumn;
+        int mChildSubjectColumn;
+        
+        public NewFolderMessageListAdapter(Cursor cursor, Context context) {
+            super(cursor, context);
+            mContext = context;
+            mInflater = (LayoutInflater)context.getSystemService(Context.LAYOUT_INFLATER_SERVICE);
+
+            mFolderNameColumn =
+                cursor.getColumnIndexOrThrow(EmailStore.MailboxColumns.DISPLAY_NAME);
+            mFolderUnreadCountColumn =
+                cursor.getColumnIndexOrThrow(EmailStore.MailboxColumns.UNREAD_COUNT);
+        }
+
+        /**
+         * We return null here (no immediate cursor availability) and use an AsyncTask to get
+         * the cursor in certain onclick situations
+         */
+        @Override
+        protected Cursor getChildrenCursor(Cursor groupCursor) {
+            return null;
+        }
+
+        @Override
+        protected void bindChildView(View view, Context context, Cursor cursor, boolean isLastChild)
+                {
+            if (!haveChildColumns) {
+                mChildDisplayNameColumn =
+                    cursor.getColumnIndexOrThrow(EmailStore.MessageColumns.DISPLAY_NAME);
+                mChildDateColumn =
+                    cursor.getColumnIndexOrThrow(EmailStore.MessageColumns.TIMESTAMP);
+                mChildSubjectColumn =
+                    cursor.getColumnIndexOrThrow(EmailStore.MessageColumns.SUBJECT);
+                haveChildColumns = true;
+            }
+            for (int i = 0; i < sChildToIds.length; i++) {
+                View v = view.findViewById(sChildToIds[i]);
+                String text = null;
+                switch(v.getId()) {
+                    case R.id.chip:
+                        // TODO - figure out chip display based on acct#
+                        break;
+                    case R.id.from:
+                        text = cursor.getString(mChildDisplayNameColumn);
+                        break;
+                    case R.id.date:
+                        // TODO - date formatting
+                        text = cursor.getString(mChildDateColumn);
+                        break;
+                    case R.id.subject:
+                        // TODO maybe start using snippet instead of subject
+                        text = cursor.getString(mChildSubjectColumn);
+                        break;
+                }
+                if (text != null) ((TextView)v).setText(text);
+            }
+        }
+
+        @Override
+        protected void bindGroupView(View view, Context context, Cursor cursor, boolean isExpanded)
+                {
+            for (int i = 0; i < sGroupToIds.length; i++) {
+                View v = view.findViewById(sGroupToIds[i]);
+                String text = null;
+                switch(v.getId()) {
+                    case R.id.folder_name:
+                        text = cursor.getString(mFolderNameColumn);
+                        break;
+                    case R.id.folder_status:
+                        // TODO - display status, if any
+                        v.setVisibility(View.GONE);
+                        break;
+                    case R.id.new_message_count:
+                        text = cursor.getString(mFolderUnreadCountColumn);
+                        break;
+                }
+                if (text != null) ((TextView)v).setText(text);
+            }
+        }
+
+        @Override
+        protected View newChildView(Context context, Cursor cursor, boolean isLastChild,
+                ViewGroup parent) {
+            return mInflater.inflate(R.layout.folder_message_list_child, parent, false);
+        }
+
+        @Override
+        protected View newGroupView(Context context, Cursor cursor, boolean isExpanded,
+                ViewGroup parent) {
+            return mInflater.inflate(R.layout.folder_message_list_group, parent, false);
+        }
+
+    }
+    
+    /**
+     * This class replaces the old MessagingListener, and most of it is not implemented because
+     * we're switching over to cursors for most notifications.
+     */
+    private class NewMessagingListener extends MessagingListener {
     }
 
     class FolderMessageListAdapter extends BaseExpandableListAdapter {
