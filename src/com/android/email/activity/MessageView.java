@@ -32,7 +32,7 @@ import com.android.email.mail.internet.MimeUtility;
 import com.android.email.mail.store.LocalStore.LocalAttachmentBodyPart;
 import com.android.email.mail.store.LocalStore.LocalMessage;
 import com.android.email.provider.AttachmentProvider;
-import com.android.email.provider.EmailStore;
+import com.android.email.provider.EmailContent;
 
 import org.apache.commons.io.IOUtils;
 
@@ -115,7 +115,7 @@ public class MessageView extends Activity
     private ProgressDialog mProgressDialog;
 
     private long mAccountId;
-    private EmailStore.Account mAccount;
+    private EmailContent.Account mAccount;
     private String mFolder;
     private String mMessageUid;
     private ArrayList<String> mFolderUids;
@@ -364,7 +364,7 @@ public class MessageView extends Activity
 
         Intent intent = getIntent();
         mAccountId = intent.getLongExtra(EXTRA_ACCOUNT_ID, -1);
-        mAccount = EmailStore.Account.restoreAccountWithId(this, mAccountId);
+        mAccount = EmailContent.Account.restoreAccountWithId(this, mAccountId);
         mFolder = intent.getStringExtra(EXTRA_FOLDER);
         mMessageUid = intent.getStringExtra(EXTRA_MESSAGE);
         mFolderUids = intent.getStringArrayListExtra(EXTRA_FOLDER_UIDS);
@@ -877,7 +877,7 @@ public class MessageView extends Activity
 
     class Listener extends MessagingListener {
         @Override
-        public void loadMessageForViewHeadersAvailable(EmailStore.Account account, String folder,
+        public void loadMessageForViewHeadersAvailable(EmailContent.Account account, String folder,
                 String uid, final Message message) {
             MessageView.this.mMessage = message;
             try {
@@ -907,7 +907,7 @@ public class MessageView extends Activity
         }
 
         @Override
-        public void loadMessageForViewBodyAvailable(EmailStore.Account account, String folder,
+        public void loadMessageForViewBodyAvailable(EmailContent.Account account, String folder,
                 String uid, Message message) {
             MessageView.this.mMessage = message;
             try {
@@ -989,7 +989,7 @@ public class MessageView extends Activity
         }
 
         @Override
-        public void loadMessageForViewFailed(EmailStore.Account account, String folder, String uid,
+        public void loadMessageForViewFailed(EmailContent.Account account, String folder, String uid,
                 final String message) {
             mHandler.post(new Runnable() {
                 public void run() {
@@ -1001,7 +1001,7 @@ public class MessageView extends Activity
         }
 
         @Override
-        public void loadMessageForViewFinished(EmailStore.Account account, String folder,
+        public void loadMessageForViewFinished(EmailContent.Account account, String folder,
                 String uid, Message message) {
             mHandler.post(new Runnable() {
                 public void run() {
@@ -1011,7 +1011,7 @@ public class MessageView extends Activity
         }
 
         @Override
-        public void loadMessageForViewStarted(EmailStore.Account account, String folder, String uid)
+        public void loadMessageForViewStarted(EmailContent.Account account, String folder, String uid)
                 {
             mHandler.post(new Runnable() {
                 public void run() {
@@ -1022,7 +1022,7 @@ public class MessageView extends Activity
         }
 
         @Override
-        public void loadAttachmentStarted(EmailStore.Account account, Message message,
+        public void loadAttachmentStarted(EmailContent.Account account, Message message,
                 Part part, Object tag, boolean requiresDownload) {
             mHandler.setAttachmentsEnabled(false);
             Object[] params = (Object[]) tag;
@@ -1033,7 +1033,7 @@ public class MessageView extends Activity
         }
 
         @Override
-        public void loadAttachmentFinished(EmailStore.Account account, Message message,
+        public void loadAttachmentFinished(EmailContent.Account account, Message message,
                 Part part, Object tag) {
             mHandler.setAttachmentsEnabled(true);
             mHandler.progress(false, null);
@@ -1080,7 +1080,7 @@ public class MessageView extends Activity
         }
 
         @Override
-        public void loadAttachmentFailed(EmailStore.Account account, Message message, Part part,
+        public void loadAttachmentFailed(EmailContent.Account account, Message message, Part part,
                 Object tag, String reason) {
             mHandler.setAttachmentsEnabled(true);
             mHandler.progress(false, null);
