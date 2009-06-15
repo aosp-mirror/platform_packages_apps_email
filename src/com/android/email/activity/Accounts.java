@@ -23,8 +23,8 @@ import com.android.email.activity.setup.AccountSettings;
 import com.android.email.activity.setup.AccountSetupBasics;
 import com.android.email.mail.Store;
 import com.android.email.mail.store.LocalStore;
-import com.android.email.provider.EmailStore;
-import com.android.email.provider.EmailStore.Account;
+import com.android.email.provider.EmailContent;
+import com.android.email.provider.EmailContent.Account;
 
 import android.app.AlertDialog;
 import android.app.Dialog;
@@ -65,7 +65,7 @@ public class Accounts extends ListActivity implements OnItemClickListener, OnCli
     private int mSecretKeyCodeIndex = 0;
     
     private static final String ICICLE_SELECTED_ACCOUNT = "com.android.email.selectedAccount";
-    private EmailStore.Account mSelectedContextAccount;
+    private EmailContent.Account mSelectedContextAccount;
     
     ListView mListView;
     LoadAccountsTask mAsyncTask;
@@ -74,9 +74,9 @@ public class Accounts extends ListActivity implements OnItemClickListener, OnCli
      * Support for list adapter
      */
     private final static String[] sFromColumns = new String[] { 
-            EmailStore.AccountColumns.DISPLAY_NAME,
-            EmailStore.AccountColumns.EMAIL_ADDRESS,
-            EmailStore.RECORD_ID
+            EmailContent.AccountColumns.DISPLAY_NAME,
+            EmailContent.AccountColumns.EMAIL_ADDRESS,
+            EmailContent.RECORD_ID
     };
     private final int[] sToIds = new int[] {
             R.id.description,
@@ -146,9 +146,9 @@ public class Accounts extends ListActivity implements OnItemClickListener, OnCli
         @Override
         protected Cursor doInBackground(Void... params) {
             return Accounts.this.managedQuery(
-                    EmailStore.Account.CONTENT_URI,
-                    EmailStore.Account.CONTENT_PROJECTION,
-                    null, null);
+                    EmailContent.Account.CONTENT_URI,
+                    EmailContent.Account.CONTENT_PROJECTION,
+                    null, null, null);
         }
 
         @Override
@@ -176,7 +176,7 @@ public class Accounts extends ListActivity implements OnItemClickListener, OnCli
     }
 
     private void onCompose() {
-        EmailStore.Account defaultAccount = EmailStore.Account.getDefaultAccount(this);
+        EmailContent.Account defaultAccount = EmailContent.Account.getDefaultAccount(this);
         if (defaultAccount != null) {
             MessageCompose.actionCompose(this, defaultAccount.mId);
         } else {
@@ -235,7 +235,7 @@ public class Accounts extends ListActivity implements OnItemClickListener, OnCli
                             // Ignore
                     }
                     Uri uri = ContentUris.withAppendedId(
-                            EmailStore.Account.CONTENT_URI, mSelectedContextAccount.mId);
+                            EmailContent.Account.CONTENT_URI, mSelectedContextAccount.mId);
                     Accounts.this.getContentResolver().delete(uri, null, null);
                     Email.setServicesEnabled(Accounts.this);
                 }

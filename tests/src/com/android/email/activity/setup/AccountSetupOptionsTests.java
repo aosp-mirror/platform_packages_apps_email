@@ -18,7 +18,7 @@ package com.android.email.activity.setup;
 
 import com.android.email.R;
 import com.android.email.mail.Store;
-import com.android.email.provider.EmailStore;
+import com.android.email.provider.EmailContent;
 
 import android.content.Intent;
 import android.test.ActivityInstrumentationTestCase2;
@@ -52,7 +52,7 @@ public class AccountSetupOptionsTests
         
         getActivityAndFields();
         
-        boolean hasPush = frequencySpinnerHasValue(EmailStore.Account.CHECK_INTERVAL_PUSH);
+        boolean hasPush = frequencySpinnerHasValue(EmailContent.Account.CHECK_INTERVAL_PUSH);
         assertFalse(hasPush);
     }
         
@@ -65,7 +65,7 @@ public class AccountSetupOptionsTests
         
         getActivityAndFields();
         
-        boolean hasPush = frequencySpinnerHasValue(EmailStore.Account.CHECK_INTERVAL_PUSH);
+        boolean hasPush = frequencySpinnerHasValue(EmailContent.Account.CHECK_INTERVAL_PUSH);
         assertFalse(hasPush);
     }
         
@@ -84,7 +84,7 @@ public class AccountSetupOptionsTests
         
         getActivityAndFields();
         
-        boolean hasPush = frequencySpinnerHasValue(EmailStore.Account.CHECK_INTERVAL_PUSH);
+        boolean hasPush = frequencySpinnerHasValue(EmailContent.Account.CHECK_INTERVAL_PUSH);
         assertTrue(hasPush);
     }
         
@@ -115,7 +115,7 @@ public class AccountSetupOptionsTests
      * Create an intent with the Account in it
      */
     private Intent getTestIntent(String name, String storeUri) {
-        EmailStore.Account account = new EmailStore.Account();
+        EmailContent.Account account = new EmailContent.Account();
         account.setName(name);
         account.setStoreUri(getInstrumentation().getTargetContext(), storeUri);
         Intent i = new Intent(Intent.ACTION_MAIN);

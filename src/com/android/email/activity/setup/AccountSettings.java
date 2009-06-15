@@ -21,8 +21,8 @@ import com.android.email.R;
 import com.android.email.mail.MessagingException;
 import com.android.email.mail.Sender;
 import com.android.email.mail.Store;
-import com.android.email.provider.EmailStore;
-import com.android.email.provider.EmailStore.HostAuth;
+import com.android.email.provider.EmailContent;
+import com.android.email.provider.EmailContent.HostAuth;
 
 import android.app.Activity;
 import android.content.Intent;
@@ -55,7 +55,7 @@ public class AccountSettings extends PreferenceActivity {
     private static final String PREFERENCE_ADD_ACCOUNT = "add_account";
 
     private long mAccountId;
-    private EmailStore.Account mAccount;
+    private EmailContent.Account mAccount;
     private boolean mAccountDirty;
 
     private EditTextPreference mAccountDescription;
@@ -82,7 +82,7 @@ public class AccountSettings extends PreferenceActivity {
 
         Intent i = getIntent();
         mAccountId = getIntent().getLongExtra(EXTRA_ACCOUNT_ID, -1);
-        mAccount = EmailStore.Account.restoreAccountWithId(this, mAccountId);
+        mAccount = EmailContent.Account.restoreAccountWithId(this, mAccountId);
         mAccountDirty = false;
 
         addPreferencesFromResource(R.xml.account_settings_preferences);
@@ -162,7 +162,7 @@ public class AccountSettings extends PreferenceActivity {
 
         mAccountNotify = (CheckBoxPreference) findPreference(PREFERENCE_NOTIFY);
         mAccountNotify.setChecked(0 != 
-            (mAccount.getFlags() & EmailStore.Account.FLAGS_NOTIFY_NEW_MAIL));
+            (mAccount.getFlags() & EmailContent.Account.FLAGS_NOTIFY_NEW_MAIL));
 
         mAccountRingtone = (RingtonePreference) findPreference(PREFERENCE_RINGTONE);
 
@@ -173,7 +173,7 @@ public class AccountSettings extends PreferenceActivity {
 
         mAccountVibrate = (CheckBoxPreference) findPreference(PREFERENCE_VIBRATE);
         mAccountVibrate.setChecked(0 != 
-            (mAccount.getFlags() & EmailStore.Account.FLAGS_VIBRATE));
+            (mAccount.getFlags() & EmailContent.Account.FLAGS_VIBRATE));
 
         findPreference(PREFERENCE_INCOMING).setOnPreferenceClickListener(
                 new Preference.OnPreferenceClickListener() {
@@ -237,18 +237,18 @@ public class AccountSettings extends PreferenceActivity {
 
     private void saveSettings() {
         int newFlags = mAccount.getFlags() & 
-                ~(EmailStore.Account.FLAGS_NOTIFY_NEW_MAIL | EmailStore.Account.FLAGS_VIBRATE);
+                ~(EmailContent.Account.FLAGS_NOTIFY_NEW_MAIL | EmailContent.Account.FLAGS_VIBRATE);
         
         mAccount.setDefaultAccount(mAccountDefault.isChecked());
         mAccount.setDescription(mAccountDescription.getText());
         mAccount.setName(mAccountName.getText());
-        newFlags |= mAccountNotify.isChecked() ? EmailStore.Account.FLAGS_NOTIFY_NEW_MAIL : 0;
+        newFlags |= mAccountNotify.isChecked() ? EmailContent.Account.FLAGS_NOTIFY_NEW_MAIL : 0;
         mAccount.setAutomaticCheckIntervalMinutes(Integer.parseInt(mCheckFrequency.getValue()));
         if (mSyncWindow != null)
         {
             mAccount.setSyncWindow(Integer.parseInt(mSyncWindow.getValue()));
         }
-        newFlags |= mAccountVibrate.isChecked() ? EmailStore.Account.FLAGS_VIBRATE : 0;
+        newFlags |= mAccountVibrate.isChecked() ? EmailContent.Account.FLAGS_VIBRATE : 0;
         SharedPreferences prefs = mAccountRingtone.getPreferenceManager().getSharedPreferences();
         mAccount.setRingtone(prefs.getString(PREFERENCE_RINGTONE, null));
         mAccount.setFlags(newFlags);
@@ -272,7 +272,7 @@ public class AccountSettings extends PreferenceActivity {
                 Class<? extends android.app.Activity> setting = store.getSettingActivityClass();
                 if (setting != null) {
                     java.lang.reflect.Method m = setting.getMethod("actionEditIncomingSettings",
-                            android.app.Activity.class, EmailStore.Account.class);
+                            android.app.Activity.class, EmailContent.Account.class);
                     m.invoke(null, this, mAccount);
                     mAccountDirty = true;
                 }
@@ -289,7 +289,7 @@ public class AccountSettings extends PreferenceActivity {
                 Class<? extends android.app.Activity> setting = sender.getSettingActivityClass();
                 if (setting != null) {
                     java.lang.reflect.Method m = setting.getMethod("actionEditOutgoingSettings",
-                            android.app.Activity.class, EmailStore.Account.class);
+                            android.app.Activity.class, EmailContent.Account.class);
                     m.invoke(null, this, mAccount);
                     mAccountDirty = true;
                 }

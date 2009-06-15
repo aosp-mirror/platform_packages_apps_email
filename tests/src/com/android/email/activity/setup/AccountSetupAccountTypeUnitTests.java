@@ -17,7 +17,7 @@
 package com.android.email.activity.setup;
 
 import com.android.email.mail.Store;
-import com.android.email.provider.EmailStore;
+import com.android.email.provider.EmailContent;
 
 import android.content.ContentUris;
 import android.content.Context;
@@ -42,7 +42,7 @@ public class AccountSetupAccountTypeUnitTests
 
     Context mContext;
     
-    private HashSet<EmailStore.Account> mAccounts = new HashSet<EmailStore.Account>();
+    private HashSet<EmailContent.Account> mAccounts = new HashSet<EmailContent.Account>();
     
     public AccountSetupAccountTypeUnitTests() {
         super(AccountSetupAccountType.class);
@@ -60,9 +60,9 @@ public class AccountSetupAccountTypeUnitTests
      */
     @Override
     protected void tearDown() throws Exception {
-        for (EmailStore.Account account : mAccounts) {
+        for (EmailContent.Account account : mAccounts) {
             Uri uri = ContentUris.withAppendedId(
-                    EmailStore.Account.CONTENT_URI, account.mId);
+                    EmailContent.Account.CONTENT_URI, account.mId);
             mContext.getContentResolver().delete(uri, null, null);
         }
         
@@ -74,9 +74,9 @@ public class AccountSetupAccountTypeUnitTests
      * Test store type limit enforcement
      */
     public void testStoreTypeLimits() {
-        EmailStore.Account acct1 = createTestAccount("scheme1");
-        EmailStore.Account acct2 = createTestAccount("scheme1");
-        EmailStore.Account acct3 = createTestAccount("scheme2");
+        EmailContent.Account acct1 = createTestAccount("scheme1");
+        EmailContent.Account acct2 = createTestAccount("scheme1");
+        EmailContent.Account acct3 = createTestAccount("scheme2");
         
         AccountSetupAccountType activity = startActivity(getTestIntent(acct1), null, null);
 
@@ -98,8 +98,8 @@ public class AccountSetupAccountTypeUnitTests
     /**
      * Create a dummy account with minimal fields
      */
-    private EmailStore.Account createTestAccount(String scheme) {
-        EmailStore.Account account = new EmailStore.Account();
+    private EmailContent.Account createTestAccount(String scheme) {
+        EmailContent.Account account = new EmailContent.Account();
         account.setStoreUri(mContext, scheme + "://user:pass@server.com:123");
         account.saveOrUpdate(mContext);
         mAccounts.add(account);
@@ -109,7 +109,7 @@ public class AccountSetupAccountTypeUnitTests
     /**
      * Create an intent with the Account in it
      */
-    private Intent getTestIntent(EmailStore.Account account) {
+    private Intent getTestIntent(EmailContent.Account account) {
         Intent i = new Intent(Intent.ACTION_MAIN);
         i.putExtra(EXTRA_ACCOUNT, account);
         return i;

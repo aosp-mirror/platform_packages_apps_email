@@ -22,7 +22,7 @@ import com.android.email.mail.CertificateValidationException;
 import com.android.email.mail.MessagingException;
 import com.android.email.mail.Sender;
 import com.android.email.mail.Store;
-import com.android.email.provider.EmailStore;
+import com.android.email.provider.EmailContent;
 
 import android.app.Activity;
 import android.app.AlertDialog;
@@ -61,13 +61,13 @@ public class AccountSetupCheckSettings extends Activity implements OnClickListen
     private ProgressBar mProgressBar;
     private TextView mMessageView;
 
-    private EmailStore.Account mAccount;
+    private EmailContent.Account mAccount;
     private boolean mCheckIncoming;
     private boolean mCheckOutgoing;
     private boolean mCanceled;
     private boolean mDestroyed;
 
-    public static void actionCheckSettings(Activity fromActivity, EmailStore.Account account,
+    public static void actionCheckSettings(Activity fromActivity, EmailContent.Account account,
             boolean checkIncoming, boolean checkOutgoing) {
         Intent i = new Intent(fromActivity, AccountSetupCheckSettings.class);
         i.putExtra(EXTRA_ACCOUNT, account);
@@ -94,7 +94,7 @@ public class AccountSetupCheckSettings extends Activity implements OnClickListen
             return;
         }
 
-        mAccount = (EmailStore.Account) getIntent().getParcelableExtra(EXTRA_ACCOUNT);
+        mAccount = (EmailContent.Account) getIntent().getParcelableExtra(EXTRA_ACCOUNT);
         mCheckIncoming = getIntent().getBooleanExtra(EXTRA_CHECK_INCOMING, false);
         mCheckOutgoing = getIntent().getBooleanExtra(EXTRA_CHECK_OUTGOING, false);
 

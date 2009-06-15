@@ -18,9 +18,11 @@ package com.android.email.activity;
 
 import com.android.email.Email;
 import com.android.email.provider.EmailContent;
-import com.android.email.provider.EmailStore;
+import com.android.email.provider.EmailContent;
+//import com.android.exchange.SyncManager;
 
 import android.app.Activity;
+import android.content.Intent;
 import android.database.Cursor;
 import android.os.Bundle;
 import android.util.Log;
@@ -46,16 +48,20 @@ public class Welcome extends Activity {
             testAccounts();
         }
         
+        // TODO Automatically start Exchange service, until we can base this on the existence of
+        // at least one Exchange account
+        //startService(new Intent(this, SyncManager.class));
+        
         // Find out how many accounts we have, and if there's just one, go directly to it
         Cursor c = null;
         try {
             c = getContentResolver().query(
-                    EmailStore.Account.CONTENT_URI, 
-                    EmailStore.Account.ID_PROJECTION,
+                    EmailContent.Account.CONTENT_URI, 
+                    EmailContent.Account.ID_PROJECTION,
                     null, null, null);
             if (c.getCount() == 1) {
                 c.moveToFirst();
-                long id = c.getLong(EmailStore.Account.CONTENT_ID_COLUMN);
+                long id = c.getLong(EmailContent.Account.CONTENT_ID_COLUMN);
                 FolderMessageList.actionHandleAccount(this, id, Email.INBOX);
                 finish();
                 return;
@@ -72,22 +78,22 @@ public class Welcome extends Activity {
     }
 
     private void testAccounts() {
-        EmailStore.Account acct = EmailStore.Account.getDefaultAccount(this);
+        EmailContent.Account acct = EmailContent.Account.getDefaultAccount(this);
         Log.i("EmailApp", "Default (none) = " + ((acct == null) ? "none" : acct.mDisplayName));
 
-        EmailStore.HostAuth ha = new EmailStore.HostAuth();
+        EmailContent.HostAuth ha = new EmailContent.HostAuth();
         ha.mAddress = "imap.everyone.net";
         ha.mLogin = "foo@nextobject.com";
         ha.mPassword = "flatearth";
         ha.mProtocol = "imap";
 
-        EmailStore.HostAuth sha = new EmailStore.HostAuth();
+        EmailContent.HostAuth sha = new EmailContent.HostAuth();
         sha.mAddress = "smtp.everyone.net";
         sha.mLogin = "foo@nextobject.com";
         sha.mPassword = "flatearth";
         sha.mProtocol = "smtp";
 
-        EmailStore.Account acct1 = new EmailStore.Account();
+        EmailContent.Account acct1 = new EmailContent.Account();
         acct1.mHostAuthRecv = ha;
         acct1.mHostAuthSend = sha;
         acct1.mDisplayName = "Nextobject";
@@ -96,19 +102,19 @@ public class Welcome extends Activity {
 
         acct1.saveOrUpdate(this);
 
-        ha = new EmailStore.HostAuth();
+        ha = new EmailContent.HostAuth();
         ha.mAddress = "imap.gmail.com";
         ha.mLogin = "mblank@google.com";
         ha.mPassword = "flatearth";
         ha.mProtocol = "imap";
 
-        sha = new EmailStore.HostAuth();
+        sha = new EmailContent.HostAuth();
         sha.mAddress = "smtp.gmail.com";
         sha.mLogin = "mblank@google.com";
         sha.mPassword = "flatearth";
         sha.mProtocol = "smtp";
 
-        EmailStore.Account acct2 = new EmailStore.Account();
+        EmailContent.Account acct2 = new EmailContent.Account();
         acct2.mHostAuthRecv = ha;
         acct2.mHostAuthSend = sha;
         acct2.mDisplayName = "Google";
@@ -118,12 +124,12 @@ public class Welcome extends Activity {
         acct2.saveOrUpdate(this);
 
         // TODO this should move to unit tests of the new Account code
-        acct = EmailStore.Account.getDefaultAccount(this);
+        acct = EmailContent.Account.getDefaultAccount(this);
         Log.i("EmailApp", "Default (Google) = " + (acct == null ? "none" : acct.mDisplayName));
         
         acct1.setDefaultAccount(true);
         acct1.saveOrUpdate(this);
-        acct = EmailStore.Account.getDefaultAccount(this);
+        acct = EmailContent.Account.getDefaultAccount(this);
         Log.i("EmailApp", "Default (Nextobject) = " + (acct == null ? "none" : acct.mDisplayName));
     }
 }

@@ -18,7 +18,7 @@ package com.android.email.activity.setup;
 
 import com.android.email.R;
 import com.android.email.Utility;
-import com.android.email.provider.EmailStore;
+import com.android.email.provider.EmailContent;
 
 import android.app.Activity;
 import android.content.Intent;
@@ -63,10 +63,10 @@ public class AccountSetupOutgoing extends Activity implements OnClickListener,
     private ViewGroup mRequireLoginSettingsView;
     private Spinner mSecurityTypeView;
     private Button mNextButton;
-    private EmailStore.Account mAccount;
+    private EmailContent.Account mAccount;
     private boolean mMakeDefault;
 
-    public static void actionOutgoingSettings(Activity fromActivity, EmailStore.Account account, 
+    public static void actionOutgoingSettings(Activity fromActivity, EmailContent.Account account, 
             boolean makeDefault) {
         Intent i = new Intent(fromActivity, AccountSetupOutgoing.class);
         i.putExtra(EXTRA_ACCOUNT, account);
@@ -74,7 +74,7 @@ public class AccountSetupOutgoing extends Activity implements OnClickListener,
         fromActivity.startActivity(i);
     }
 
-    public static void actionEditOutgoingSettings(Activity fromActivity, EmailStore.Account account)
+    public static void actionEditOutgoingSettings(Activity fromActivity, EmailContent.Account account)
             {
         Intent i = new Intent(fromActivity, AccountSetupOutgoing.class);
         i.setAction(Intent.ACTION_EDIT);
@@ -152,7 +152,7 @@ public class AccountSetupOutgoing extends Activity implements OnClickListener,
          */
         mPortView.setKeyListener(DigitsKeyListener.getInstance("0123456789"));
 
-        mAccount = (EmailStore.Account)getIntent().getParcelableExtra(EXTRA_ACCOUNT);
+        mAccount = (EmailContent.Account)getIntent().getParcelableExtra(EXTRA_ACCOUNT);
         mMakeDefault = getIntent().getBooleanExtra(EXTRA_MAKE_DEFAULT, false);
 
         /*
@@ -160,7 +160,7 @@ public class AccountSetupOutgoing extends Activity implements OnClickListener,
          * we saved
          */
         if (savedInstanceState != null && savedInstanceState.containsKey(EXTRA_ACCOUNT)) {
-            mAccount = (EmailStore.Account)savedInstanceState.getParcelable(EXTRA_ACCOUNT);
+            mAccount = (EmailContent.Account)savedInstanceState.getParcelable(EXTRA_ACCOUNT);
         }
 
         try {

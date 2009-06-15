@@ -20,7 +20,7 @@ import com.android.email.Email;
 import com.android.email.R;
 import com.android.email.Utility;
 import com.android.email.activity.FolderMessageList;
-import com.android.email.provider.EmailStore;
+import com.android.email.provider.EmailContent;
 
 import android.app.Activity;
 import android.content.Intent;
@@ -39,7 +39,7 @@ public class AccountSetupNames extends Activity implements OnClickListener {
 
     private EditText mDescription;
     private EditText mName;
-    private EmailStore.Account mAccount;
+    private EmailContent.Account mAccount;
     private Button mDoneButton;
 
     public static void actionSetNames(Activity fromActivity, long accountId) {
@@ -73,7 +73,7 @@ public class AccountSetupNames extends Activity implements OnClickListener {
         mName.setKeyListener(TextKeyListener.getInstance(false, Capitalize.WORDS));
 
         long accountId = getIntent().getLongExtra(EXTRA_ACCOUNT_ID, -1);
-        mAccount = EmailStore.Account.restoreAccountWithId(this, accountId);
+        mAccount = EmailContent.Account.restoreAccountWithId(this, accountId);
 
         /*
          * Since this field is considered optional, we don't set this here. If

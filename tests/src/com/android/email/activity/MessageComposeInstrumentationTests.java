@@ -24,7 +24,7 @@ import com.android.email.mail.MessagingException;
 import com.android.email.mail.Message.RecipientType;
 import com.android.email.mail.internet.MimeMessage;
 import com.android.email.mail.internet.TextBody;
-import com.android.email.provider.EmailStore;
+import com.android.email.provider.EmailContent;
 
 import android.content.Context;
 import android.content.Intent;
@@ -101,7 +101,7 @@ public class MessageComposeInstrumentationTests
         super.setUp();
         Context context = getInstrumentation().getTargetContext();
         
-        EmailStore.Account.getDefaultAccount(context);
+        EmailContent.Account.getDefaultAccount(context);
         Email.setServicesEnabled(context);
 
         Intent intent = new Intent(Intent.ACTION_VIEW);

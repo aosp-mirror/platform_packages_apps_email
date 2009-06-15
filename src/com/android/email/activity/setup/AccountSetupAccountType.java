@@ -19,8 +19,8 @@ package com.android.email.activity.setup;
 import com.android.email.R;
 import com.android.email.mail.Store;
 import com.android.email.provider.EmailContent;
-import com.android.email.provider.EmailStore;
-import com.android.email.provider.EmailStore.Account;
+import com.android.email.provider.EmailContent;
+import com.android.email.provider.EmailContent.Account;
 
 import android.app.Activity;
 import android.content.Intent;
@@ -43,10 +43,10 @@ public class AccountSetupAccountType extends Activity implements OnClickListener
     private static final String EXTRA_ACCOUNT = "account";
     private static final String EXTRA_MAKE_DEFAULT = "makeDefault";
 
-    private EmailStore.Account mAccount;
+    private EmailContent.Account mAccount;
     private boolean mMakeDefault;
 
-    public static void actionSelectAccountType(Activity fromActivity, EmailStore.Account account, 
+    public static void actionSelectAccountType(Activity fromActivity, EmailContent.Account account, 
             boolean makeDefault) {
         Intent i = new Intent(fromActivity, AccountSetupAccountType.class);
         i.putExtra(EXTRA_ACCOUNT, account);
@@ -62,7 +62,7 @@ public class AccountSetupAccountType extends Activity implements OnClickListener
         ((Button)findViewById(R.id.imap)).setOnClickListener(this);
         ((Button)findViewById(R.id.exchange)).setOnClickListener(this);
         
-        mAccount = (EmailStore.Account)getIntent().getParcelableExtra(EXTRA_ACCOUNT);
+        mAccount = (EmailContent.Account)getIntent().getParcelableExtra(EXTRA_ACCOUNT);
         mMakeDefault = getIntent().getBooleanExtra(EXTRA_MAKE_DEFAULT, false);
 
         if (isExchangeAvailable()) {
@@ -103,7 +103,7 @@ public class AccountSetupAccountType extends Activity implements OnClickListener
         }
         // Delete policy must be set explicitly, because IMAP does not provide a UI selection
         // for it. This logic needs to be followed in the auto setup flow as well.
-        mAccount.setDeletePolicy(EmailStore.Account.DELETE_POLICY_ON_DELETE);
+        mAccount.setDeletePolicy(EmailContent.Account.DELETE_POLICY_ON_DELETE);
         AccountSetupIncoming.actionIncomingSettings(this, mAccount, mMakeDefault);
         finish();
     }
@@ -126,8 +126,8 @@ public class AccountSetupAccountType extends Activity implements OnClickListener
             throw new Error(use);
         }
         // TODO: Confirm correct delete policy for exchange
-        mAccount.setDeletePolicy(EmailStore.Account.DELETE_POLICY_ON_DELETE);
-        mAccount.setAutomaticCheckIntervalMinutes(EmailStore.Account.CHECK_INTERVAL_PUSH);
+        mAccount.setDeletePolicy(EmailContent.Account.DELETE_POLICY_ON_DELETE);
+        mAccount.setAutomaticCheckIntervalMinutes(EmailContent.Account.CHECK_INTERVAL_PUSH);
         mAccount.setSyncWindow(1);
         AccountSetupExchange.actionIncomingSettings(this, mAccount, mMakeDefault);
         finish();
@@ -166,11 +166,11 @@ public class AccountSetupAccountType extends Activity implements OnClickListener
         Cursor c = null;
         try {
             c = this.getContentResolver().query(
-                    EmailStore.Account.CONTENT_URI, 
-                    EmailStore.Account.CONTENT_PROJECTION,
+                    EmailContent.Account.CONTENT_URI, 
+                    EmailContent.Account.CONTENT_PROJECTION,
                     null, null, null);
             while (c.moveToNext()) {
-                EmailStore.Account account = EmailContent.getContent(c, Account.class);
+                EmailContent.Account account = EmailContent.getContent(c, Account.class);
                 String storeUri = account.getStoreUri(this);
                 if (storeUri != null && storeUri.startsWith(storeInfo.mScheme)) {
                     currentAccountsCount++;

@@ -21,7 +21,7 @@ import com.android.email.mail.Multipart;
 import com.android.email.mail.Part;
 import com.android.email.mail.store.LocalStore.LocalAttachmentBodyPart;
 import com.android.email.provider.AttachmentProvider;
-import com.android.email.provider.EmailStore;
+import com.android.email.provider.EmailContent;
 
 import android.content.ContentResolver;
 import android.net.Uri;
@@ -47,7 +47,7 @@ public class EmailHtmlUtil {
      * @return html text in which src attribute of img tag may be replaced with content uri
      */
     public static String resolveInlineImage(
-            ContentResolver resolver, EmailStore.Account account, String text, Part part, int depth)
+            ContentResolver resolver, EmailContent.Account account, String text, Part part, int depth)
         throws MessagingException {
         // avoid too deep recursive call.
         if (depth >= 10 || text == null) {

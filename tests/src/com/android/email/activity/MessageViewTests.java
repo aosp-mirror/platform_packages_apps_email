@@ -20,7 +20,7 @@ import com.android.email.Email;
 import com.android.email.MessagingController;
 import com.android.email.R;
 import com.android.email.mail.internet.BinaryTempFileBody;
-import com.android.email.provider.EmailStore;
+import com.android.email.provider.EmailContent;
 
 import android.app.Application;
 import android.content.Context;
@@ -59,7 +59,7 @@ public class MessageViewTests
     private static final String FOLDER_NAME = "folder";
     private static final String MESSAGE_UID = "message_uid";
     
-    private EmailStore.Account mAccount;
+    private EmailContent.Account mAccount;
     private long mAccountId;
     private TextView mToView;
     private TextView mSubjectView;
@@ -76,7 +76,7 @@ public class MessageViewTests
 
         mContext = getInstrumentation().getTargetContext();
         // force assignment of a default account
-        mAccount = EmailStore.Account.getDefaultAccount(mContext);
+        mAccount = EmailContent.Account.getDefaultAccount(mContext);
         mAccountId = mAccount.mId;
         Email.setServicesEnabled(mContext);
         

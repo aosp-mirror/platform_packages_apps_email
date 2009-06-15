@@ -19,7 +19,7 @@ package com.android.email.activity.setup;
 import com.android.email.Email;
 import com.android.email.R;
 import com.android.email.mail.Store;
-import com.android.email.provider.EmailStore;
+import com.android.email.provider.EmailContent;
 
 import android.app.Activity;
 import android.content.Intent;
@@ -39,9 +39,9 @@ public class AccountSetupOptions extends Activity implements OnClickListener {
     private Spinner mSyncWindowView;
     private CheckBox mDefaultView;
     private CheckBox mNotifyView;
-    private EmailStore.Account mAccount;
+    private EmailContent.Account mAccount;
 
-    public static void actionOptions(Activity fromActivity, EmailStore.Account account,
+    public static void actionOptions(Activity fromActivity, EmailContent.Account account,
             boolean makeDefault) {
         Intent i = new Intent(fromActivity, AccountSetupOptions.class);
         i.putExtra(EXTRA_ACCOUNT, account);
@@ -61,7 +61,7 @@ public class AccountSetupOptions extends Activity implements OnClickListener {
 
         findViewById(R.id.next).setOnClickListener(this);
 
-        mAccount = (EmailStore.Account) getIntent().getParcelableExtra(EXTRA_ACCOUNT);
+        mAccount = (EmailContent.Account) getIntent().getParcelableExtra(EXTRA_ACCOUNT);
         boolean makeDefault = getIntent().getBooleanExtra(EXTRA_MAKE_DEFAULT, false);
         
         // Generate spinner entries using XML arrays used by the preferences
@@ -99,16 +99,16 @@ public class AccountSetupOptions extends Activity implements OnClickListener {
             mDefaultView.setChecked(true);
         }
         mNotifyView.setChecked(
-                (mAccount.getFlags() & EmailStore.Account.FLAGS_NOTIFY_NEW_MAIL) != 0);
+                (mAccount.getFlags() & EmailContent.Account.FLAGS_NOTIFY_NEW_MAIL) != 0);
         SpinnerOption.setSpinnerOptionValue(mCheckFrequencyView, mAccount
                 .getAutomaticCheckIntervalMinutes());
     }
 
     private void onDone() {
         mAccount.setDescription(mAccount.getEmail());
-        int newFlags = mAccount.getFlags() & ~(EmailStore.Account.FLAGS_NOTIFY_NEW_MAIL);
+        int newFlags = mAccount.getFlags() & ~(EmailContent.Account.FLAGS_NOTIFY_NEW_MAIL);
         if (mNotifyView.isChecked()) {
-            newFlags |= EmailStore.Account.FLAGS_NOTIFY_NEW_MAIL;
+            newFlags |= EmailContent.Account.FLAGS_NOTIFY_NEW_MAIL;
         }
         mAccount.setFlags(newFlags);
         mAccount.setAutomaticCheckIntervalMinutes((Integer)((SpinnerOption)mCheckFrequencyView

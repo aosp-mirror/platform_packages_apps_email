@@ -39,7 +39,7 @@ import com.android.email.mail.internet.MimeUtility;
 import com.android.email.mail.internet.TextBody;
 import com.android.email.mail.store.LocalStore;
 import com.android.email.mail.store.LocalStore.LocalAttachmentBody;
-import com.android.email.provider.EmailStore;
+import com.android.email.provider.EmailContent;
 
 import android.app.Activity;
 import android.content.ActivityNotFoundException;
@@ -116,7 +116,7 @@ public class MessageCompose extends Activity implements OnClickListener, OnFocus
     private static final int ACTIVITY_REQUEST_PICK_ATTACHMENT = 1;
 
     private long mAccountId;
-    private EmailStore.Account mAccount;
+    private EmailContent.Account mAccount;
     private String mFolder;
     private String mSourceMessageUid;
     private Message mSourceMessage;
@@ -427,7 +427,7 @@ public class MessageCompose extends Activity implements OnClickListener, OnFocus
                 (Intent.ACTION_SEND.equals(action))) {
             
             // Check first for a valid account
-            mAccount = EmailStore.Account.getDefaultAccount(this);
+            mAccount = EmailContent.Account.getDefaultAccount(this);
             if (mAccount == null) {
                 // There are no accounts set up. This should not have happened. Prompt the
                 // user to set up an account as an acceptable bailout.
@@ -443,7 +443,7 @@ public class MessageCompose extends Activity implements OnClickListener, OnFocus
         else {
             // Otherwise, handle the internal cases (Message Composer invoked from within app)
             mAccountId = intent.getLongExtra(EXTRA_ACCOUNT_ID, -1);
-            mAccount = EmailStore.Account.restoreAccountWithId(this, mAccountId);
+            mAccount = EmailContent.Account.restoreAccountWithId(this, mAccountId);
             mFolder = intent.getStringExtra(EXTRA_FOLDER);
             mSourceMessageUid = intent.getStringExtra(EXTRA_MESSAGE);
         }
@@ -1274,19 +1274,19 @@ public class MessageCompose extends Activity implements OnClickListener, OnFocus
 
     class Listener extends MessagingListener {
         @Override
-        public void loadMessageForViewStarted(EmailStore.Account account, String folder,
+        public void loadMessageForViewStarted(EmailContent.Account account, String folder,
                 String uid) {
             mHandler.sendEmptyMessage(MSG_PROGRESS_ON);
         }
 
         @Override
-        public void loadMessageForViewFinished(EmailStore.Account account, String folder,
+        public void loadMessageForViewFinished(EmailContent.Account account, String folder,
                 String uid, Message message) {
             mHandler.sendEmptyMessage(MSG_PROGRESS_OFF);
         }
 
         @Override
-        public void loadMessageForViewBodyAvailable(EmailStore.Account account, String folder,
+        public void loadMessageForViewBodyAvailable(EmailContent.Account account, String folder,
                 String uid, final Message message) {
             mSourceMessage = message;
             runOnUiThread(new Runnable() {
@@ -1297,14 +1297,14 @@ public class MessageCompose extends Activity implements OnClickListener, OnFocus
         }
 
         @Override
-        public void loadMessageForViewFailed(EmailStore.Account account, String folder, String uid,
+        public void loadMessageForViewFailed(EmailContent.Account account, String folder, String uid,
                 final String message) {
             mHandler.sendEmptyMessage(MSG_PROGRESS_OFF);
             // TODO show network error
         }
 
         @Override
-        public void messageUidChanged(EmailStore.Account account, String folder,String oldUid,
+        public void messageUidChanged(EmailContent.Account account, String folder,String oldUid,
                 String newUid) {
             if (account.equals(mAccount) && (folder.equals(mFolder)
                     || (mFolder == null

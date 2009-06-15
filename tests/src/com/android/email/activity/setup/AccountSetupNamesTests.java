@@ -17,7 +17,7 @@
 package com.android.email.activity.setup;
 
 import com.android.email.R;
-import com.android.email.provider.EmailStore;
+import com.android.email.provider.EmailContent;
 
 import android.content.ContentUris;
 import android.content.Context;
@@ -37,7 +37,7 @@ public class AccountSetupNamesTests extends ActivityInstrumentationTestCase2<Acc
     private static final String EXTRA_ACCOUNT_ID = "accountId";
 
     private long mAccountId;
-    private EmailStore.Account mAccount;
+    private EmailContent.Account mAccount;
 
     private Context mContext;
     private AccountSetupNames mActivity;
@@ -64,7 +64,7 @@ public class AccountSetupNamesTests extends ActivityInstrumentationTestCase2<Acc
     protected void tearDown() throws Exception {
         if (mAccount != null) {
             Uri uri = ContentUris.withAppendedId(
-                    EmailStore.Account.CONTENT_URI, mAccountId);
+                    EmailContent.Account.CONTENT_URI, mAccountId);
             mContext.getContentResolver().delete(uri, null, null);
         }
         
@@ -108,7 +108,7 @@ public class AccountSetupNamesTests extends ActivityInstrumentationTestCase2<Acc
      * Create an intent with the Account in it
      */
     private Intent getTestIntent(String name) {
-        mAccount = new EmailStore.Account();
+        mAccount = new EmailContent.Account();
         mAccount.setName(name);
         mAccount.saveOrUpdate(mContext);
         mAccountId = mAccount.mId;

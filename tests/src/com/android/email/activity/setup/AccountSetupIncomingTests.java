@@ -17,7 +17,7 @@
 package com.android.email.activity.setup;
 
 import com.android.email.R;
-import com.android.email.provider.EmailStore;
+import com.android.email.provider.EmailContent;
 
 import android.content.Intent;
 import android.test.ActivityInstrumentationTestCase2;
@@ -144,7 +144,7 @@ public class AccountSetupIncomingTests extends
      * Create an intent with the Account in it
      */
     private Intent getTestIntent(String storeUriString) {
-        EmailStore.Account account = new EmailStore.Account();
+        EmailContent.Account account = new EmailContent.Account();
         account.setStoreUri(getInstrumentation().getTargetContext(), storeUriString);
         Intent i = new Intent(Intent.ACTION_MAIN);
         i.putExtra(EXTRA_ACCOUNT, account);

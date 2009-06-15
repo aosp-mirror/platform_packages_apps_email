@@ -18,7 +18,7 @@ package com.android.email.activity.setup;
 
 import com.android.email.R;
 import com.android.email.Utility;
-import com.android.email.provider.EmailStore;
+import com.android.email.provider.EmailContent;
 
 import android.app.Activity;
 import android.content.Intent;
@@ -56,10 +56,10 @@ public class AccountSetupExchange extends Activity implements OnClickListener {
     private CheckBox mSslSecurityView;
 
     private Button mNextButton;
-    private EmailStore.Account mAccount;
+    private EmailContent.Account mAccount;
     private boolean mMakeDefault;
 
-    public static void actionIncomingSettings(Activity fromActivity, EmailStore.Account account,
+    public static void actionIncomingSettings(Activity fromActivity, EmailContent.Account account,
             boolean makeDefault) {
         Intent i = new Intent(fromActivity, AccountSetupExchange.class);
         i.putExtra(EXTRA_ACCOUNT, account);
@@ -67,7 +67,7 @@ public class AccountSetupExchange extends Activity implements OnClickListener {
         fromActivity.startActivity(i);
     }
 
-    public static void actionEditIncomingSettings(Activity fromActivity, EmailStore.Account account)
+    public static void actionEditIncomingSettings(Activity fromActivity, EmailContent.Account account)
             {
         Intent i = new Intent(fromActivity, AccountSetupExchange.class);
         i.setAction(Intent.ACTION_EDIT);
@@ -79,7 +79,7 @@ public class AccountSetupExchange extends Activity implements OnClickListener {
      * For now, we'll simply replicate outgoing, for the purpose of satisfying the 
      * account settings flow.
      */
-    public static void actionEditOutgoingSettings(Activity fromActivity, EmailStore.Account account)
+    public static void actionEditOutgoingSettings(Activity fromActivity, EmailContent.Account account)
             {
         Intent i = new Intent(fromActivity, AccountSetupExchange.class);
         i.setAction(Intent.ACTION_EDIT);
@@ -121,7 +121,7 @@ public class AccountSetupExchange extends Activity implements OnClickListener {
         mServerView.addTextChangedListener(validationTextWatcher);
         mDomainView.addTextChangedListener(validationTextWatcher);
 
-        mAccount = (EmailStore.Account) getIntent().getParcelableExtra(EXTRA_ACCOUNT);
+        mAccount = (EmailContent.Account) getIntent().getParcelableExtra(EXTRA_ACCOUNT);
         mMakeDefault = getIntent().getBooleanExtra(EXTRA_MAKE_DEFAULT, false);
 
         /*
@@ -129,7 +129,7 @@ public class AccountSetupExchange extends Activity implements OnClickListener {
          * we saved
          */
         if (savedInstanceState != null && savedInstanceState.containsKey(EXTRA_ACCOUNT)) {
-            mAccount = (EmailStore.Account) savedInstanceState.getParcelable(EXTRA_ACCOUNT);
+            mAccount = (EmailContent.Account) savedInstanceState.getParcelable(EXTRA_ACCOUNT);
         }
 
         try {

@@ -23,7 +23,7 @@ import com.android.email.mail.MessageTestUtils.MessageBuilder;
 import com.android.email.mail.MessageTestUtils.MultipartBuilder;
 import com.android.email.mail.MessageTestUtils.TextBuilder;
 import com.android.email.mail.store.LocalStore;
-import com.android.email.provider.EmailStore;
+import com.android.email.provider.EmailContent;
 
 import android.net.Uri;
 import android.test.AndroidTestCase;
@@ -33,7 +33,7 @@ import java.io.IOException;
 
 @MediumTest
 public class EmailHtmlUtilTest extends AndroidTestCase {
-    private EmailStore.Account mAccount;
+    private EmailContent.Account mAccount;
 
     private static final String textTags = "<b>Plain</b> &";
     private static final String textSpaces = "3 spaces   end.";
@@ -43,7 +43,7 @@ public class EmailHtmlUtilTest extends AndroidTestCase {
     protected void setUp() throws Exception {
         super.setUp();
         // Force assignment of a default account, and retrieve it
-        mAccount = EmailStore.Account.getDefaultAccount(getContext());
+        mAccount = EmailContent.Account.getDefaultAccount(getContext());
 
         // This is needed for mime image bodypart.
         BinaryTempFileBody.setTempDirectory(getContext().getCacheDir());

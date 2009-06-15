@@ -19,7 +19,7 @@ package com.android.email;
 import com.android.email.mail.Folder;
 import com.android.email.mail.Message;
 import com.android.email.mail.Part;
-import com.android.email.provider.EmailStore;
+import com.android.email.provider.EmailContent;
 
 import android.content.Context;
 
@@ -31,95 +31,95 @@ import android.content.Context;
  * changes in this class.
  */
 public class MessagingListener {
-    public void listFoldersStarted(EmailStore.Account account) {
+    public void listFoldersStarted(EmailContent.Account account) {
     }
 
-    public void listFolders(EmailStore.Account account, Folder[] folders) {
+    public void listFolders(EmailContent.Account account, Folder[] folders) {
     }
 
-    public void listFoldersFailed(EmailStore.Account account, String message) {
+    public void listFoldersFailed(EmailContent.Account account, String message) {
     }
 
-    public void listFoldersFinished(EmailStore.Account account) {
+    public void listFoldersFinished(EmailContent.Account account) {
     }
 
-    public void listLocalMessagesStarted(EmailStore.Account account, String folder) {
+    public void listLocalMessagesStarted(EmailContent.Account account, String folder) {
     }
 
-    public void listLocalMessages(EmailStore.Account account, String folder, Message[] messages) {
+    public void listLocalMessages(EmailContent.Account account, String folder, Message[] messages) {
     }
 
-    public void listLocalMessagesFailed(EmailStore.Account account, String folder, String message) {
+    public void listLocalMessagesFailed(EmailContent.Account account, String folder, String message) {
     }
 
-    public void listLocalMessagesFinished(EmailStore.Account account, String folder) {
+    public void listLocalMessagesFinished(EmailContent.Account account, String folder) {
     }
 
-    public void synchronizeMailboxStarted(EmailStore.Account account, String folder) {
+    public void synchronizeMailboxStarted(EmailContent.Account account, String folder) {
     }
 
-    public void synchronizeMailboxNewMessage(EmailStore.Account account, String folder,
+    public void synchronizeMailboxNewMessage(EmailContent.Account account, String folder,
             Message message) {
     }
 
-    public void synchronizeMailboxRemovedMessage(EmailStore.Account account, String folder,
+    public void synchronizeMailboxRemovedMessage(EmailContent.Account account, String folder,
             Message message) {
     }
 
-    public void synchronizeMailboxFinished(EmailStore.Account account, String folder,
+    public void synchronizeMailboxFinished(EmailContent.Account account, String folder,
             int totalMessagesInMailbox, int numNewMessages) {
     }
 
-    public void synchronizeMailboxFailed(EmailStore.Account account, String folder, Exception e) {
+    public void synchronizeMailboxFailed(EmailContent.Account account, String folder, Exception e) {
     }
 
-    public void loadMessageForViewStarted(EmailStore.Account account, String folder, String uid) {
+    public void loadMessageForViewStarted(EmailContent.Account account, String folder, String uid) {
     }
 
-    public void loadMessageForViewHeadersAvailable(EmailStore.Account account, String folder,
+    public void loadMessageForViewHeadersAvailable(EmailContent.Account account, String folder,
             String uid, Message message) {
     }
 
-    public void loadMessageForViewBodyAvailable(EmailStore.Account account, String folder,
+    public void loadMessageForViewBodyAvailable(EmailContent.Account account, String folder,
             String uid, Message message) {
     }
 
-    public void loadMessageForViewFinished(EmailStore.Account account, String folder, String uid,
+    public void loadMessageForViewFinished(EmailContent.Account account, String folder, String uid,
             Message message) {
     }
 
-    public void loadMessageForViewFailed(EmailStore.Account account, String folder, String uid,
+    public void loadMessageForViewFailed(EmailContent.Account account, String folder, String uid,
             String message) {
     }
 
-    public void checkMailStarted(Context context, EmailStore.Account account) {
+    public void checkMailStarted(Context context, EmailContent.Account account) {
     }
 
-    public void checkMailFinished(Context context, EmailStore.Account account) {
+    public void checkMailFinished(Context context, EmailContent.Account account) {
     }
 
-    public void checkMailFailed(Context context, EmailStore.Account account, String reason) {
+    public void checkMailFailed(Context context, EmailContent.Account account, String reason) {
     }
 
-    public void sendPendingMessagesCompleted(EmailStore.Account account) {
+    public void sendPendingMessagesCompleted(EmailContent.Account account) {
     }
 
-    public void sendPendingMessagesFailed(EmailStore.Account account, Exception reason) {
+    public void sendPendingMessagesFailed(EmailContent.Account account, Exception reason) {
     }
 
-    public void sendPendingMessageFailed(EmailStore.Account account, Message message,
+    public void sendPendingMessageFailed(EmailContent.Account account, Message message,
             Exception reason) {
     }
 
-    public void emptyTrashCompleted(EmailStore.Account account) {
+    public void emptyTrashCompleted(EmailContent.Account account) {
     }
 
-    public void messageUidChanged(EmailStore.Account account, String folder,
+    public void messageUidChanged(EmailContent.Account account, String folder,
             String oldUid, String newUid) {
     }
 
     public void loadAttachmentStarted(
-            EmailStore.Account account,
+            EmailContent.Account account,
             Message message,
             Part part,
             Object tag,
@@ -128,7 +128,7 @@ public class MessagingListener {
     }
 
     public void loadAttachmentFinished(
-            EmailStore.Account account,
+            EmailContent.Account account,
             Message message,
             Part part,
             Object tag)
@@ -136,7 +136,7 @@ public class MessagingListener {
     }
 
     public void loadAttachmentFailed(
-            EmailStore.Account account,
+            EmailContent.Account account,
             Message message,
             Part part,
             Object tag,

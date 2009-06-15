@@ -17,7 +17,7 @@
 package com.android.email.activity.setup;
 
 import com.android.email.mail.Store;
-import com.android.email.provider.EmailStore;
+import com.android.email.provider.EmailContent;
 
 import android.content.ContentUris;
 import android.content.Context;
@@ -37,7 +37,7 @@ public class AccountSettingsTests extends ActivityInstrumentationTestCase2<Accou
     private static final String EXTRA_ACCOUNT_ID = "account_id";
     
     private long mAccountId;
-    private EmailStore.Account mAccount;
+    private EmailContent.Account mAccount;
 
     private Context mContext;
     private AccountSettings mActivity;
@@ -66,7 +66,7 @@ public class AccountSettingsTests extends ActivityInstrumentationTestCase2<Accou
     protected void tearDown() throws Exception {
         if (mAccount != null) {
             Uri uri = ContentUris.withAppendedId(
-                    EmailStore.Account.CONTENT_URI, mAccountId);
+                    EmailContent.Account.CONTENT_URI, mAccountId);
             mContext.getContentResolver().delete(uri, null, null);
         }
         
@@ -84,7 +84,7 @@ public class AccountSettingsTests extends ActivityInstrumentationTestCase2<Accou
         
         getActivityAndFields();
         
-        boolean hasPush = frequencySpinnerHasValue(EmailStore.Account.CHECK_INTERVAL_PUSH);
+        boolean hasPush = frequencySpinnerHasValue(EmailContent.Account.CHECK_INTERVAL_PUSH);
         assertFalse(hasPush);
     }
         
@@ -98,7 +98,7 @@ public class AccountSettingsTests extends ActivityInstrumentationTestCase2<Accou
         
         getActivityAndFields();
         
-        boolean hasPush = frequencySpinnerHasValue(EmailStore.Account.CHECK_INTERVAL_PUSH);
+        boolean hasPush = frequencySpinnerHasValue(EmailContent.Account.CHECK_INTERVAL_PUSH);
         assertFalse(hasPush);
     }
         
@@ -118,7 +118,7 @@ public class AccountSettingsTests extends ActivityInstrumentationTestCase2<Accou
         
         getActivityAndFields();
         
-        boolean hasPush = frequencySpinnerHasValue(EmailStore.Account.CHECK_INTERVAL_PUSH);
+        boolean hasPush = frequencySpinnerHasValue(EmailContent.Account.CHECK_INTERVAL_PUSH);
         assertTrue(hasPush);
     }
         
@@ -147,7 +147,7 @@ public class AccountSettingsTests extends ActivityInstrumentationTestCase2<Accou
      * Create an intent with the Account in it
      */
     private Intent getTestIntent(String name, String storeUri, String senderUri) {
-        EmailStore.Account mAccount = new EmailStore.Account();
+        EmailContent.Account mAccount = new EmailContent.Account();
         mAccount.setName(name);
         mAccount.setStoreUri(mContext, storeUri);
         mAccount.setSenderUri(mContext, senderUri);

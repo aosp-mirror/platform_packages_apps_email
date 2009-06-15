@@ -18,6 +18,7 @@ package com.android.email.mail.exchange;
 
 import com.android.email.Email;
 import com.android.email.mail.MessagingException;
+//import com.android.exchange.EasService;
 
 import android.content.Context;
 import android.text.TextUtils;
@@ -110,6 +111,9 @@ public class ExchangeTransportExample {
         setUri(uri);
         // Perform a server connection here
         // Throw MessageException if not useable
+        // TODO EasService isn't part of the commit
+        //boolean ssl = uri.getScheme().contains("ssl+");
+        //EasService.validate(EasService.class, mHost, mUsername, mPassword, ssl ? 443 : 80, ssl, mContext);
     }
     
     /**

@@ -16,7 +16,7 @@
 
 package com.android.email.activity;
 
-import com.android.email.provider.EmailStore;
+import com.android.email.provider.EmailContent;
 
 import android.content.ContentUris;
 import android.content.Context;
@@ -35,7 +35,7 @@ import android.test.suitebuilder.annotation.SmallTest;
 public class FolderMessageListUnitTests extends AndroidTestCase {
 
     private long mAccountId;
-    private EmailStore.Account mAccount;
+    private EmailContent.Account mAccount;
     
     /**
      * Delete any dummy accounts we set up for this test
@@ -44,7 +44,7 @@ public class FolderMessageListUnitTests extends AndroidTestCase {
     protected void tearDown() throws Exception {
         if (mAccount != null) {
             Uri uri = ContentUris.withAppendedId(
-                    EmailStore.Account.CONTENT_URI, mAccountId);
+                    EmailContent.Account.CONTENT_URI, mAccountId);
             getContext().getContentResolver().delete(uri, null, null);
         }
         
@@ -100,7 +100,7 @@ public class FolderMessageListUnitTests extends AndroidTestCase {
     public void testActionHandleAccountUriIntent() {
         // Create a dummy account
         createTestAccount();
-        Uri uri = ContentUris.withAppendedId(EmailStore.Account.CONTENT_URI, mAccountId);
+        Uri uri = ContentUris.withAppendedId(EmailContent.Account.CONTENT_URI, mAccountId);
         
         // First try with no initial folder
         Intent result = FolderMessageList.actionHandleAccountUriIntent(
@@ -117,7 +117,7 @@ public class FolderMessageListUnitTests extends AndroidTestCase {
      * Check the values in a generated intent
      */
     private void checkIntent(Intent i, 
-            Uri expectData, EmailStore.Account expectAccount, String expectFolder) {
+            Uri expectData, EmailContent.Account expectAccount, String expectFolder) {
         
         Uri resultUri = i.getData();
         assertEquals(expectData, resultUri);
@@ -134,7 +134,7 @@ public class FolderMessageListUnitTests extends AndroidTestCase {
      * Create a dummy account with minimal fields
      */
     private void createTestAccount() {
-        mAccount = new EmailStore.Account();
+        mAccount = new EmailContent.Account();
         mAccount.saveOrUpdate(getContext());
         
         mAccountId = mAccount.mId;

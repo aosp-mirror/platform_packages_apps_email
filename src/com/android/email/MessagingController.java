@@ -33,7 +33,7 @@ import com.android.email.mail.store.LocalStore;
 import com.android.email.mail.store.LocalStore.LocalFolder;
 import com.android.email.mail.store.LocalStore.LocalMessage;
 import com.android.email.mail.store.LocalStore.PendingCommand;
-import com.android.email.provider.EmailStore;
+import com.android.email.provider.EmailContent;
 
 import android.content.Context;
 import android.os.Process;
@@ -199,7 +199,7 @@ public class MessagingController implements Runnable {
      * @param listener
      * @throws MessagingException
      */
-    public void listFolders(final EmailStore.Account account, boolean refreshRemote,
+    public void listFolders(final EmailContent.Account account, boolean refreshRemote,
             MessagingListener listener) {
         synchronized (mListeners) {
             for (MessagingListener l : mListeners) {
@@ -313,7 +313,7 @@ public class MessagingController implements Runnable {
      * 
      * TODO: Rewrite this to use simple folder tagging and none of this account nonsense
      */
-    /* package */ void updateAccountFolderNames(EmailStore.Account account,
+    /* package */ void updateAccountFolderNames(EmailContent.Account account,
             Folder[] remoteFolders) {
         String trash = null;
         String sent = null;
@@ -359,7 +359,7 @@ public class MessagingController implements Runnable {
      * @param listener
      * @throws MessagingException
      */
-    public void listLocalMessages(final EmailStore.Account account, final String folder,
+    public void listLocalMessages(final EmailContent.Account account, final String folder,
             MessagingListener listener) {
         synchronized (mListeners) {
             for (MessagingListener l : mListeners) {
@@ -397,7 +397,7 @@ public class MessagingController implements Runnable {
         }
     }
 
-    public void loadMoreMessages(EmailStore.Account account, String folder,
+    public void loadMoreMessages(EmailContent.Account account, String folder,
             MessagingListener listener) {
         try {
             Store.StoreInfo info = Store.StoreInfo.getStoreInfo(account.getStoreUri(mContext),
@@ -417,7 +417,7 @@ public class MessagingController implements Runnable {
         }
     }
 
-    public void resetVisibleLimits(EmailStore.Account account) {
+    public void resetVisibleLimits(EmailContent.Account account) {
         try {
             Store.StoreInfo info = Store.StoreInfo.getStoreInfo(account.getStoreUri(mContext), 
                     mContext);
@@ -438,7 +438,7 @@ public class MessagingController implements Runnable {
      * @param folder
      * @param listener
      */
-    public void synchronizeMailbox(final EmailStore.Account account, final String folder,
+    public void synchronizeMailbox(final EmailContent.Account account, final String folder,
             MessagingListener listener) {
         /*
          * We don't ever sync the Outbox.
@@ -465,7 +465,7 @@ public class MessagingController implements Runnable {
      * @param folder
      * @param listener
      */
-    private void synchronizeMailboxSynchronous(final EmailStore.Account account, 
+    private void synchronizeMailboxSynchronous(final EmailContent.Account account, 
             final String folder) {
         synchronized (mListeners) {
             for (MessagingListener l : mListeners) {
@@ -525,7 +525,7 @@ public class MessagingController implements Runnable {
      * @throws MessagingException
      */
     private StoreSynchronizer.SyncResults synchronizeMailboxGeneric(
-            final EmailStore.Account account, final String folder) throws MessagingException {
+            final EmailContent.Account account, final String folder) throws MessagingException {
         /*
          * Get the message list from the local store and create an index of
          * the uids within the list.
@@ -929,7 +929,7 @@ public class MessagingController implements Runnable {
         return results;
     }
 
-    private void queuePendingCommand(EmailStore.Account account, PendingCommand command) {
+    private void queuePendingCommand(EmailContent.Account account, PendingCommand command) {
         try {
             LocalStore localStore = (LocalStore) Store.getInstance(
                     account.getLocalStoreUri(mContext), mContext, null);
@@ -940,7 +940,7 @@ public class MessagingController implements Runnable {
         }
     }
 
-    private void processPendingCommands(final EmailStore.Account account) {
+    private void processPendingCommands(final EmailContent.Account account) {
         put("processPendingCommands", null, new Runnable() {
             public void run() {
                 try {
@@ -959,7 +959,7 @@ public class MessagingController implements Runnable {
         });
     }
 
-    private void processPendingCommandsSynchronous(EmailStore.Account account)
+    private void processPendingCommandsSynchronous(EmailContent.Account account)
             throws MessagingException {
         LocalStore localStore = (LocalStore) Store.getInstance(
                 account.getLocalStoreUri(mContext), mContext, null);
@@ -995,7 +995,7 @@ public class MessagingController implements Runnable {
      * @param account
      * @throws MessagingException
      */
-    private void processPendingAppend(PendingCommand command, EmailStore.Account account)
+    private void processPendingAppend(PendingCommand command, EmailContent.Account account)
             throws MessagingException {
         String folder = command.arguments[0];
         String uid = command.arguments[1];
@@ -1093,7 +1093,7 @@ public class MessagingController implements Runnable {
      * @param account
      * @throws MessagingException
      */
-    private void processPendingTrash(PendingCommand command, final EmailStore.Account account)
+    private void processPendingTrash(PendingCommand command, final EmailContent.Account account)
             throws MessagingException {
         String folder = command.arguments[0];
         String uid = command.arguments[1];
@@ -1186,7 +1186,7 @@ public class MessagingController implements Runnable {
      * @param command arguments = (String folder, String uid, boolean read)
      * @param account
      */
-    private void processPendingMarkRead(PendingCommand command, EmailStore.Account account)
+    private void processPendingMarkRead(PendingCommand command, EmailContent.Account account)
             throws MessagingException {
         String folder = command.arguments[0];
         String uid = command.arguments[1];
@@ -1225,7 +1225,7 @@ public class MessagingController implements Runnable {
      * @param seen
      */
     public void markMessageRead(
-            final EmailStore.Account account,
+            final EmailContent.Account account,
             final String folder,
             final String uid,
             final boolean seen) {
@@ -1248,7 +1248,7 @@ public class MessagingController implements Runnable {
         }
     }
 
-    private void loadMessageForViewRemote(final EmailStore.Account account, final String folder,
+    private void loadMessageForViewRemote(final EmailContent.Account account, final String folder,
             final String uid, MessagingListener listener) {
         put("loadMessageForViewRemote", listener, new Runnable() {
             public void run() {
@@ -1360,7 +1360,7 @@ public class MessagingController implements Runnable {
         });
     }
 
-    public void loadMessageForView(final EmailStore.Account account, final String folder,
+    public void loadMessageForView(final EmailContent.Account account, final String folder,
             final String uid, MessagingListener listener) {
         synchronized (mListeners) {
             for (MessagingListener l : mListeners) {
@@ -1425,7 +1425,7 @@ public class MessagingController implements Runnable {
      * @param listener
      */
     public void loadAttachment(
-            final EmailStore.Account account,
+            final EmailContent.Account account,
             final Message message,
             final Part part,
             final Object tag,
@@ -1517,7 +1517,7 @@ public class MessagingController implements Runnable {
      * @param message
      * @param listener
      */
-    public void sendMessage(final EmailStore.Account account, final Message message,
+    public void sendMessage(final EmailContent.Account account, final Message message,
             MessagingListener listener) {
         try {
             Store localStore = Store.getInstance(account.getLocalStoreUri(mContext), mContext,
@@ -1547,7 +1547,7 @@ public class MessagingController implements Runnable {
      * @param account
      * @param listener
      */
-    public void sendPendingMessages(final EmailStore.Account account, MessagingListener listener) {
+    public void sendPendingMessages(final EmailContent.Account account, MessagingListener listener) {
         put("sendPendingMessages", listener, new Runnable() {
             public void run() {
                 sendPendingMessagesSynchronous(account);
@@ -1560,7 +1560,7 @@ public class MessagingController implements Runnable {
      * @param account
      * @param listener
      */
-    public void sendPendingMessagesSynchronous(final EmailStore.Account account) {
+    public void sendPendingMessagesSynchronous(final EmailContent.Account account) {
         try {
             LocalStore localStore = (LocalStore) Store.getInstance(
                     account.getLocalStoreUri(mContext), mContext, null);
@@ -1654,7 +1654,7 @@ public class MessagingController implements Runnable {
      * @param message
      * @param listener
      */
-    public void deleteMessage(final EmailStore.Account account, final String folder,
+    public void deleteMessage(final EmailContent.Account account, final String folder,
             final Message message, MessagingListener listener) {
         if (folder.equals(account.getTrashFolderName(mContext))) {
             return;
@@ -1681,7 +1681,7 @@ public class MessagingController implements Runnable {
         }
     }
 
-    public void emptyTrash(final EmailStore.Account account, MessagingListener listener) {
+    public void emptyTrash(final EmailContent.Account account, MessagingListener listener) {
         put("emptyTrash", listener, new Runnable() {
             public void run() {
                 // TODO IMAP
@@ -1725,7 +1725,7 @@ public class MessagingController implements Runnable {
      * @param accounts List of accounts to check, or null to check all accounts
      * @param listener
      */
-    public void checkMail(final Context context, EmailStore.Account[] accounts,
+    public void checkMail(final Context context, EmailContent.Account[] accounts,
             final MessagingListener listener) {
         /**
          * Note:  The somewhat tortured logic here is to guarantee proper ordering of events:
@@ -1748,7 +1748,7 @@ public class MessagingController implements Runnable {
             // TODO eliminate this use case, implement, or ...?
 //            accounts = Preferences.getPreferences(context).getAccounts();
         }
-        for (final EmailStore.Account account : accounts) {
+        for (final EmailContent.Account account : accounts) {
             listFolders(account, true, null);
 
             put("checkMail", listener, new Runnable() {
@@ -1769,7 +1769,7 @@ public class MessagingController implements Runnable {
         });
     }
 
-    public void saveDraft(final EmailStore.Account account, final Message message) {
+    public void saveDraft(final EmailContent.Account account, final Message message) {
         try {
             Store localStore = Store.getInstance(account.getLocalStoreUri(mContext), mContext,
                     null);

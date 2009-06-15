@@ -18,8 +18,8 @@ package com.android.email.activity;
 
 import com.android.email.Email;
 import com.android.email.R;
-import com.android.email.provider.EmailStore;
-import com.android.email.provider.EmailStore.Account;
+import com.android.email.provider.EmailContent;
+import com.android.email.provider.EmailContent.Account;
 
 import android.app.ListActivity;
 import android.content.Context;
@@ -47,9 +47,9 @@ public class AccountShortcutPicker extends ListActivity implements OnItemClickLi
      * Support for list adapter
      */
     private final static String[] sFromColumns = new String[] { 
-            EmailStore.AccountColumns.DISPLAY_NAME,
-            EmailStore.AccountColumns.EMAIL_ADDRESS,
-            EmailStore.RECORD_ID
+            EmailContent.AccountColumns.DISPLAY_NAME,
+            EmailContent.AccountColumns.EMAIL_ADDRESS,
+            EmailContent.RECORD_ID
     };
     private final int[] sToIds = new int[] {
             R.id.description,
@@ -71,9 +71,9 @@ public class AccountShortcutPicker extends ListActivity implements OnItemClickLi
         // TODO: lightweight projection with only those columns needed for this display
         // TODO: query outside of UI thread
         Cursor c = this.managedQuery(
-                EmailStore.Account.CONTENT_URI, 
-                EmailStore.Account.CONTENT_PROJECTION,
-                null, null);
+                EmailContent.Account.CONTENT_URI, 
+                EmailContent.Account.CONTENT_PROJECTION,
+                null, null, null);
         if (c.getCount() == 0) {
             finish();
             return;
@@ -158,7 +158,7 @@ public class AccountShortcutPicker extends ListActivity implements OnItemClickLi
      * with an appropriate Uri for your content, but any Intent will work here as long as it 
      * triggers the desired action within your Activity.
      */
-    private void setupShortcut(EmailStore.Account account) {
+    private void setupShortcut(EmailContent.Account account) {
         // First, set up the shortcut intent.
 
         Intent shortcutIntent = FolderMessageList.actionHandleAccountUriIntent(this, 

@@ -18,7 +18,7 @@ package com.android.email;
 
 import com.android.email.mail.Folder;
 import com.android.email.mail.MockFolder;
-import com.android.email.provider.EmailStore;
+import com.android.email.provider.EmailContent;
 
 import android.content.ContentUris;
 import android.content.Context;
@@ -35,7 +35,7 @@ import android.test.suitebuilder.annotation.SmallTest;
 public class MessagingControllerUnitTests extends AndroidTestCase {
 
     private long mAccountId;
-    private EmailStore.Account mAccount;
+    private EmailContent.Account mAccount;
     
     /**
      * Delete any dummy accounts we set up for this test
@@ -46,7 +46,7 @@ public class MessagingControllerUnitTests extends AndroidTestCase {
         
         if (mAccount != null) {
             Uri uri = ContentUris.withAppendedId(
-                    EmailStore.Account.CONTENT_URI, mAccountId);
+                    EmailContent.Account.CONTENT_URI, mAccountId);
             getContext().getContentResolver().delete(uri, null, null);
         }
     }
@@ -73,7 +73,7 @@ public class MessagingControllerUnitTests extends AndroidTestCase {
         checkServerFolderNames("folders1", mAccount, "DRAFTS_1", "Sent", "Trash", "Outbox");
         
         // test that the data is shared across multiple account instantiations
-        EmailStore.Account account2 = EmailStore.Account.
+        EmailContent.Account account2 = EmailContent.Account.
                 restoreAccountWithId(getContext(), mAccountId);
         checkServerFolderNames("folders1-2", account2, "DRAFTS_1", "Sent", "Trash", "Outbox");
 
@@ -88,7 +88,7 @@ public class MessagingControllerUnitTests extends AndroidTestCase {
         checkServerFolderNames("folders2", mAccount, "DRAFTS_1", "SENT_2", "Trash", "Outbox");
         
         // test that the data is shared across multiple account instantiations
-        account2 = EmailStore.Account.restoreAccountWithId(getContext(), mAccountId);
+        account2 = EmailContent.Account.restoreAccountWithId(getContext(), mAccountId);
         checkServerFolderNames("folders2-2", account2, "DRAFTS_1", "SENT_2", "Trash", "Outbox");
         
         // Replace one entry, check that "other" is ignored, check that Outbox is ignored
@@ -102,14 +102,14 @@ public class MessagingControllerUnitTests extends AndroidTestCase {
         checkServerFolderNames("folders3", mAccount, "DRAFTS_1", "SENT_2", "TRASH_3", "Outbox");
         
         // test that the data is shared across multiple account instantiations
-        account2 = EmailStore.Account.restoreAccountWithId(getContext(), mAccountId);
+        account2 = EmailContent.Account.restoreAccountWithId(getContext(), mAccountId);
         checkServerFolderNames("folders3-2", account2, "DRAFTS_1", "SENT_2", "TRASH_3", "Outbox");
     }
     
     /**
      * Quickly check all four folder name slots in mAccount
      */
-    private void checkServerFolderNames(String diagnostic, EmailStore.Account account,
+    private void checkServerFolderNames(String diagnostic, EmailContent.Account account,
             String drafts, String sent, String trash, String outbox) {
         Context context = getContext();
         assertEquals(diagnostic, drafts, account.getDraftsFolderName(context));
@@ -144,7 +144,7 @@ public class MessagingControllerUnitTests extends AndroidTestCase {
      * Create a dummy account with minimal fields
      */
     private void createTestAccount() {
-        mAccount = new EmailStore.Account();
+        mAccount = new EmailContent.Account();
         mAccount.saveOrUpdate(getContext());
         
         mAccountId = mAccount.mId;

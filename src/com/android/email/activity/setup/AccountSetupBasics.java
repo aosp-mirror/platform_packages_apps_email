@@ -23,7 +23,7 @@ import com.android.email.R;
 import com.android.email.Utility;
 import com.android.email.activity.Debug;
 import com.android.email.activity.FolderMessageList;
-import com.android.email.provider.EmailStore;
+import com.android.email.provider.EmailContent;
 
 import android.app.Activity;
 import android.app.AlertDialog;
@@ -75,7 +75,7 @@ public class AccountSetupBasics extends Activity
     private CheckBox mDefaultView;
     private Button mNextButton;
     private Button mManualSetupButton;
-    private EmailStore.Account mAccount;
+    private EmailContent.Account mAccount;
     private Provider mProvider;
 
     private EmailAddressValidator mEmailValidator = new EmailAddressValidator();
@@ -107,8 +107,8 @@ public class AccountSetupBasics extends Activity
         Cursor c = null;
         try {
             c = getContentResolver().query(
-                    EmailStore.Account.CONTENT_URI, 
-                    EmailStore.Account.ID_PROJECTION,
+                    EmailContent.Account.CONTENT_URI, 
+                    EmailContent.Account.ID_PROJECTION,
                     null, null, null);
             if (c.getCount() > 0) {
                 mDefaultView.setVisibility(View.VISIBLE);
@@ -120,7 +120,7 @@ public class AccountSetupBasics extends Activity
         }
 
         if (savedInstanceState != null && savedInstanceState.containsKey(EXTRA_ACCOUNT)) {
-            mAccount = (EmailStore.Account)savedInstanceState.getParcelable(EXTRA_ACCOUNT);
+            mAccount = (EmailContent.Account)savedInstanceState.getParcelable(EXTRA_ACCOUNT);
         }
 
         if (savedInstanceState != null && savedInstanceState.containsKey(STATE_KEY_PROVIDER)) {
@@ -182,7 +182,7 @@ public class AccountSetupBasics extends Activity
         }
 
         if (name == null || name.length() == 0) {
-            EmailStore.Account account = EmailStore.Account.getDefaultAccount(this);
+            EmailContent.Account account = EmailContent.Account.getDefaultAccount(this);
             if (account != null) {
                 name = account.getName();
             }
@@ -251,7 +251,7 @@ public class AccountSetupBasics extends Activity
             return;
         }
 
-        mAccount = new EmailStore.Account();
+        mAccount = new EmailContent.Account();
         mAccount.setName(getOwnerName());
         mAccount.setEmail(email);
         mAccount.setStoreUri(this, incomingUri.toString());
@@ -265,7 +265,7 @@ public class AccountSetupBasics extends Activity
         if (incomingUri.toString().startsWith("imap")) {
             // Delete policy must be set explicitly, because IMAP does not provide a UI selection
             // for it. This logic needs to be followed in the auto setup flow as well.
-            mAccount.setDeletePolicy(EmailStore.Account.DELETE_POLICY_ON_DELETE);
+            mAccount.setDeletePolicy(EmailContent.Account.DELETE_POLICY_ON_DELETE);
         }
         mAccount.setAutomaticCheckIntervalMinutes(DEFAULT_ACCOUNT_CHECK_INTERVAL);
         AccountSetupCheckSettings.actionCheckSettings(this, mAccount, true, true);
@@ -320,7 +320,7 @@ public class AccountSetupBasics extends Activity
             return;
         }
 
-        mAccount = new EmailStore.Account();
+        mAccount = new EmailContent.Account();
         mAccount.setName(getOwnerName());
         mAccount.setEmail(email);
         try {

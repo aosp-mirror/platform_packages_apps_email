@@ -20,7 +20,7 @@ import com.android.email.activity.AccountShortcutPicker;
 import com.android.email.activity.MessageCompose;
 import com.android.email.mail.internet.BinaryTempFileBody;
 import com.android.email.provider.EmailContent;
-import com.android.email.provider.EmailStore;
+import com.android.email.provider.EmailContent;
 import com.android.email.service.BootReceiver;
 import com.android.email.service.MailService;
 
@@ -132,8 +132,8 @@ public class Email extends Application {
         Cursor c = null;
         try {
             c = context.getContentResolver().query(
-                    EmailStore.Account.CONTENT_URI, 
-                    EmailStore.Account.ID_PROJECTION,
+                    EmailContent.Account.CONTENT_URI, 
+                    EmailContent.Account.ID_PROJECTION,
                     null, null, null);
             boolean enable = c.getCount() > 0;
             setServicesEnabled(context, c.getCount() > 0);
@@ -195,11 +195,11 @@ public class Email extends Application {
         Cursor c = null;
         try {
             c = getContentResolver().query(
-                    EmailStore.Account.CONTENT_URI, 
-                    EmailStore.Account.CONTENT_PROJECTION,
+                    EmailContent.Account.CONTENT_URI, 
+                    EmailContent.Account.CONTENT_PROJECTION,
                     null, null, null);
             while (c.moveToNext()) {
-                EmailStore.Account account = EmailContent.getContent(c, EmailStore.Account.class);
+                EmailContent.Account account = EmailContent.getContent(c, EmailContent.Account.class);
                 MessagingController.getInstance(this).resetVisibleLimits(account);
             }
         } finally {

@@ -24,7 +24,7 @@ import com.android.email.mail.internet.MimeMultipart;
 import com.android.email.mail.internet.TextBody;
 import com.android.email.mail.store.LocalStore;
 import com.android.email.provider.AttachmentProvider;
-import com.android.email.provider.EmailStore;
+import com.android.email.provider.EmailContent;
 
 import android.net.Uri;
 
@@ -65,7 +65,7 @@ public class MessageTestUtils {
      * @param account Account object
      * @return AttachmentProvider content URI
      */
-    public static Uri contentUri(long attachmentId, EmailStore.Account account) {
+    public static Uri contentUri(long attachmentId, EmailContent.Account account) {
         return AttachmentProvider.getAttachmentUri(account, attachmentId);
     }
 

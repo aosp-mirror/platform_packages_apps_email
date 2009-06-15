@@ -33,7 +33,7 @@ import com.android.email.mail.Message.RecipientType;
 import com.android.email.mail.store.LocalStore;
 import com.android.email.mail.store.LocalStore.LocalFolder;
 import com.android.email.mail.store.LocalStore.LocalMessage;
-import com.android.email.provider.EmailStore;
+import com.android.email.provider.EmailContent;
 
 import android.app.ExpandableListActivity;
 import android.app.NotificationManager;
@@ -147,7 +147,7 @@ public class FolderMessageList extends ExpandableListActivity {
     private FolderMessageListAdapter mAdapter;
     private LayoutInflater mInflater;
     private long mAccountId;
-    private EmailStore.Account mAccount;
+    private EmailContent.Account mAccount;
     private boolean mSyncWindowUser;
 
     /**
@@ -381,7 +381,7 @@ public class FolderMessageList extends ExpandableListActivity {
         String mFolder;
         boolean mSynchronizeRemote;
         MessagingListener mListener;
-        EmailStore.Account mAccount;
+        EmailContent.Account mAccount;
         MessagingController mController;
 
         /**
@@ -391,7 +391,7 @@ public class FolderMessageList extends ExpandableListActivity {
          * @param synchronizeRemote
          */
         public FolderUpdateWorker(String folder, boolean synchronizeRemote, 
-                MessagingListener listener, EmailStore.Account account,
+                MessagingListener listener, EmailContent.Account account,
                 MessagingController controller) {
             mFolder = folder;
             mSynchronizeRemote = synchronizeRemote;
@@ -466,7 +466,7 @@ public class FolderMessageList extends ExpandableListActivity {
             String initialFolder) {
         Intent i = actionHandleAccountIntent(context, id, initialFolder);
         i.removeExtra(EXTRA_ACCOUNT_ID);
-        Uri uri = ContentUris.withAppendedId(EmailStore.Account.CONTENT_URI, id);
+        Uri uri = ContentUris.withAppendedId(EmailContent.Account.CONTENT_URI, id);
         i.setData(uri);
         return i;
     }
@@ -497,7 +497,7 @@ public class FolderMessageList extends ExpandableListActivity {
 
         Intent intent = getIntent();
         mAccountId = intent.getLongExtra(EXTRA_ACCOUNT_ID, -1);
-        mAccount = EmailStore.Account.restoreAccountWithId(this, mAccountId);
+        mAccount = EmailContent.Account.restoreAccountWithId(this, mAccountId);
         if (mAccount == null) {
             Uri uri = intent.getData();
             if (uri != null) {
@@ -528,7 +528,7 @@ public class FolderMessageList extends ExpandableListActivity {
          * "User" means the user adjusts the sync window in the UI (load more messages).
          * Non-user means that it's set to a fixed window e.g. 3 days
          */
-        mSyncWindowUser = mAccount.getSyncWindow() == EmailStore.Account.SYNC_WINDOW_USER;
+        mSyncWindowUser = mAccount.getSyncWindow() == EmailContent.Account.SYNC_WINDOW_USER;
         
         /*
         mAdapter = new FolderMessageListAdapter();
@@ -656,7 +656,7 @@ public class FolderMessageList extends ExpandableListActivity {
 
         // Now start a new task to create a non-empty cursor
         Cursor groupCursor = mNewAdapter.getCursor();
-        long mailboxKey = groupCursor.getLong(EmailStore.Mailbox.CONTENT_ID_COLUMN);
+        long mailboxKey = groupCursor.getLong(EmailContent.Mailbox.CONTENT_ID_COLUMN);
         mLoadMessagesTask = new LoadMessagesTask(groupPosition, mailboxKey);
         mLoadMessagesTask.execute();
 
@@ -926,9 +926,9 @@ public class FolderMessageList extends ExpandableListActivity {
         @Override
         protected Cursor doInBackground(Void... params) {
             return FolderMessageList.this.managedQuery(
-                    EmailStore.Mailbox.CONTENT_URI,
-                    EmailStore.Mailbox.CONTENT_PROJECTION,
-                    EmailStore.MailboxColumns.ACCOUNT_KEY + "=?",
+                    EmailContent.Mailbox.CONTENT_URI,
+                    EmailContent.Mailbox.CONTENT_PROJECTION,
+                    EmailContent.MailboxColumns.ACCOUNT_KEY + "=?",
                     new String[] { String.valueOf(FolderMessageList.this.mAccountId) }, 
                     null);
         }
@@ -948,13 +948,13 @@ public class FolderMessageList extends ExpandableListActivity {
              */
             if (DBG_ADD_CONTENT) {
                 if (cursor.getCount() < 4) {
-                    EmailStore.Mailbox box = new EmailStore.Mailbox();
+                    EmailContent.Mailbox box = new EmailContent.Mailbox();
                     
                     box.mDisplayName = "dummy mailbox";
                     // box.mServerId;
                     // box.mParentServerId;
                     box.mAccountKey = FolderMessageList.this.mAccountId;
-                    box.mType = EmailStore.Mailbox.TYPE_INBOX;
+                    box.mType = EmailContent.Mailbox.TYPE_INBOX;
                     // box.mDelimiter;
                     // box.mSyncKey;
                     // box.mSyncLookback;
@@ -967,38 +967,38 @@ public class FolderMessageList extends ExpandableListActivity {
                     box.save(FolderMessageList.this);
                     long mailbox1Id = box.mId;
                     
-                    box = new EmailStore.Mailbox();
+                    box = new EmailContent.Mailbox();
                     
                     box.mDisplayName = "dummy mailbox 2";
                     box.mAccountKey = FolderMessageList.this.mAccountId;
-                    box.mType = EmailStore.Mailbox.TYPE_MAIL;
+                    box.mType = EmailContent.Mailbox.TYPE_MAIL;
                     box.mUnreadCount = 75;
                     box.mFlagVisible = true;
                     box.save(FolderMessageList.this);
                     long mailbox2Id = box.mId;
                     
-                    box = new EmailStore.Mailbox();
+                    box = new EmailContent.Mailbox();
                     
                     box.mDisplayName = "dummy mailbox 3";
                     box.mAccountKey = FolderMessageList.this.mAccountId;
-                    box.mType = EmailStore.Mailbox.TYPE_MAIL;
+                    box.mType = EmailContent.Mailbox.TYPE_MAIL;
                     box.mUnreadCount = 75;
                     box.mFlagVisible = true;
                     box.save(FolderMessageList.this);
                     long mailbox3Id = box.mId;
                     
-                    box = new EmailStore.Mailbox();
+                    box = new EmailContent.Mailbox();
                     
                     box.mDisplayName = "dummy mailbox diff acct";
                     box.mAccountKey = FolderMessageList.this.mAccountId + 1;
-                    box.mType = EmailStore.Mailbox.TYPE_INBOX;
+                    box.mType = EmailContent.Mailbox.TYPE_INBOX;
                     box.mUnreadCount = 50;
                     box.mFlagVisible = true;
                     box.save(FolderMessageList.this);
                     
                     // finally toss in a few messages
                     
-                    EmailStore.Message msg = new EmailStore.Message();
+                    EmailContent.Message msg = new EmailContent.Message();
                     msg.mDisplayName = "sender1@google.com";
                     msg.mTimeStamp = 1010101090;    // invent a better timestamp
                     msg.mSubject = "message 1";
@@ -1027,7 +1027,7 @@ public class FolderMessageList extends ExpandableListActivity {
                     // msg.mReplyTo;
                     msg.save(FolderMessageList.this);
                     
-                    msg = new EmailStore.Message();
+                    msg = new EmailContent.Message();
                     msg.mDisplayName = "sender2@google.com";
                     msg.mTimeStamp = 1010101091;    // invent a better timestamp
                     msg.mSubject = "message 2";
@@ -1036,7 +1036,7 @@ public class FolderMessageList extends ExpandableListActivity {
                     msg.mFrom = "sender2@google.com";
                     msg.save(FolderMessageList.this);
                     
-                    msg = new EmailStore.Message();
+                    msg = new EmailContent.Message();
                     msg.mDisplayName = "sender3@google.com";
                     msg.mTimeStamp = 1010101092;    // invent a better timestamp
                     msg.mSubject = "message 3";
@@ -1045,7 +1045,7 @@ public class FolderMessageList extends ExpandableListActivity {
                     msg.mFrom = "sender3@google.com";
                     msg.save(FolderMessageList.this);
                     
-                    msg = new EmailStore.Message();
+                    msg = new EmailContent.Message();
                     msg.mDisplayName = "sender4@google.com";
                     msg.mTimeStamp = 1010101093;    // invent a better timestamp
                     msg.mSubject = "message 4";
@@ -1079,10 +1079,10 @@ public class FolderMessageList extends ExpandableListActivity {
         @Override
         protected Cursor doInBackground(Void... params) {
             return FolderMessageList.this.managedQuery(
-                    EmailStore.Message.CONTENT_URI,
-                    EmailStore.Message.CONTENT_PROJECTION,
-                    EmailStore.MessageColumns.ACCOUNT_KEY + "=?" +
-                        " AND " + EmailStore.MessageColumns.MAILBOX_KEY + "=?",
+                    EmailContent.Message.CONTENT_URI,
+                    EmailContent.Message.CONTENT_PROJECTION,
+                    EmailContent.MessageColumns.ACCOUNT_KEY + "=?" +
+                        " AND " + EmailContent.MessageColumns.MAILBOX_KEY + "=?",
                     new String[] {
                             String.valueOf(FolderMessageList.this.mAccountId),
                             String.valueOf(mMailboxKey)
@@ -1131,9 +1131,9 @@ public class FolderMessageList extends ExpandableListActivity {
             mInflater = (LayoutInflater)context.getSystemService(Context.LAYOUT_INFLATER_SERVICE);
 
             mFolderNameColumn =
-                cursor.getColumnIndexOrThrow(EmailStore.MailboxColumns.DISPLAY_NAME);
+                cursor.getColumnIndexOrThrow(EmailContent.MailboxColumns.DISPLAY_NAME);
             mFolderUnreadCountColumn =
-                cursor.getColumnIndexOrThrow(EmailStore.MailboxColumns.UNREAD_COUNT);
+                cursor.getColumnIndexOrThrow(EmailContent.MailboxColumns.UNREAD_COUNT);
         }
 
         /**
@@ -1150,11 +1150,11 @@ public class FolderMessageList extends ExpandableListActivity {
                 {
             if (!haveChildColumns) {
                 mChildDisplayNameColumn =
-                    cursor.getColumnIndexOrThrow(EmailStore.MessageColumns.DISPLAY_NAME);
+                    cursor.getColumnIndexOrThrow(EmailContent.MessageColumns.DISPLAY_NAME);
                 mChildDateColumn =
-                    cursor.getColumnIndexOrThrow(EmailStore.MessageColumns.TIMESTAMP);
+                    cursor.getColumnIndexOrThrow(EmailContent.MessageColumns.TIMESTAMP);
                 mChildSubjectColumn =
-                    cursor.getColumnIndexOrThrow(EmailStore.MessageColumns.SUBJECT);
+                    cursor.getColumnIndexOrThrow(EmailContent.MessageColumns.SUBJECT);
                 haveChildColumns = true;
             }
             for (int i = 0; i < sChildToIds.length; i++) {
@@ -1228,7 +1228,7 @@ public class FolderMessageList extends ExpandableListActivity {
 
         private MessagingListener mListener = new MessagingListener() {
             @Override
-            public void listFoldersStarted(EmailStore.Account account) {
+            public void listFoldersStarted(EmailContent.Account account) {
                 if (!account.equals(mAccount)) {
                     return;
                 }
@@ -1236,7 +1236,7 @@ public class FolderMessageList extends ExpandableListActivity {
             }
 
             @Override
-            public void listFoldersFailed(EmailStore.Account account, String message) {
+            public void listFoldersFailed(EmailContent.Account account, String message) {
                 if (!account.equals(mAccount)) {
                     return;
                 }
@@ -1247,7 +1247,7 @@ public class FolderMessageList extends ExpandableListActivity {
             }
 
             @Override
-            public void listFoldersFinished(EmailStore.Account account) {
+            public void listFoldersFinished(EmailContent.Account account) {
                 if (!account.equals(mAccount)) {
                     return;
                 }
@@ -1256,7 +1256,7 @@ public class FolderMessageList extends ExpandableListActivity {
             }
 
             @Override
-            public void listFolders(EmailStore.Account account, Folder[] folders) {
+            public void listFolders(EmailContent.Account account, Folder[] folders) {
                 if (!account.equals(mAccount)) {
                     return;
                 }
@@ -1264,7 +1264,7 @@ public class FolderMessageList extends ExpandableListActivity {
             }
 
             @Override
-            public void listLocalMessagesStarted(EmailStore.Account account, String folder) {
+            public void listLocalMessagesStarted(EmailContent.Account account, String folder) {
                 if (!account.equals(mAccount)) {
                     return;
                 }
@@ -1273,7 +1273,7 @@ public class FolderMessageList extends ExpandableListActivity {
             }
 
             @Override
-            public void listLocalMessagesFailed(EmailStore.Account account, String folder,
+            public void listLocalMessagesFailed(EmailContent.Account account, String folder,
                     String message) {
                 if (!account.equals(mAccount)) {
                     return;
@@ -1283,7 +1283,7 @@ public class FolderMessageList extends ExpandableListActivity {
             }
 
             @Override
-            public void listLocalMessagesFinished(EmailStore.Account account, String folder) {
+            public void listLocalMessagesFinished(EmailContent.Account account, String folder) {
                 if (!account.equals(mAccount)) {
                     return;
                 }
@@ -1292,7 +1292,7 @@ public class FolderMessageList extends ExpandableListActivity {
             }
 
             @Override
-            public void listLocalMessages(EmailStore.Account account, String folder,
+            public void listLocalMessages(EmailContent.Account account, String folder,
                     Message[] messages) {
                 if (!account.equals(mAccount)) {
                     return;
@@ -1301,7 +1301,7 @@ public class FolderMessageList extends ExpandableListActivity {
             }
 
             @Override
-            public void synchronizeMailboxStarted(EmailStore.Account account, String folder) {
+            public void synchronizeMailboxStarted(EmailContent.Account account, String folder) {
                 if (!account.equals(mAccount)) {
                     return;
                 }
@@ -1311,7 +1311,7 @@ public class FolderMessageList extends ExpandableListActivity {
             }
 
             @Override
-            public void synchronizeMailboxFinished(EmailStore.Account account, String folder,
+            public void synchronizeMailboxFinished(EmailContent.Account account, String folder,
                     int totalMessagesInMailbox, int numNewMessages) {
                 if (!account.equals(mAccount)) {
                     return;
@@ -1323,7 +1323,7 @@ public class FolderMessageList extends ExpandableListActivity {
             }
 
             @Override
-            public void synchronizeMailboxFailed(EmailStore.Account account, String folder,
+            public void synchronizeMailboxFailed(EmailContent.Account account, String folder,
                     Exception e) {
                 if (!account.equals(mAccount)) {
                     return;
@@ -1358,7 +1358,7 @@ public class FolderMessageList extends ExpandableListActivity {
             }
 
             @Override
-            public void synchronizeMailboxNewMessage(EmailStore.Account account, String folder,
+            public void synchronizeMailboxNewMessage(EmailContent.Account account, String folder,
                     Message message) {
                 if (!account.equals(mAccount)) {
                     return;
@@ -1367,7 +1367,7 @@ public class FolderMessageList extends ExpandableListActivity {
             }
 
             @Override
-            public void synchronizeMailboxRemovedMessage(EmailStore.Account account, String folder,
+            public void synchronizeMailboxRemovedMessage(EmailContent.Account account, String folder,
                     Message message) {
                 if (!account.equals(mAccount)) {
                     return;
@@ -1376,7 +1376,7 @@ public class FolderMessageList extends ExpandableListActivity {
             }
 
             @Override
-            public void emptyTrashCompleted(EmailStore.Account account) {
+            public void emptyTrashCompleted(EmailContent.Account account) {
                 if (!account.equals(mAccount)) {
                     return;
                 }
@@ -1384,7 +1384,7 @@ public class FolderMessageList extends ExpandableListActivity {
             }
 
             @Override
-            public void sendPendingMessagesCompleted(EmailStore.Account account) {
+            public void sendPendingMessagesCompleted(EmailContent.Account account) {
                 if (!account.equals(mAccount)) {
                     return;
                 }
@@ -1394,7 +1394,7 @@ public class FolderMessageList extends ExpandableListActivity {
             }
 
             @Override
-            public void sendPendingMessagesFailed(EmailStore.Account account, Exception reason) {
+            public void sendPendingMessagesFailed(EmailContent.Account account, Exception reason) {
                 if (!account.equals(mAccount)) {
                     return;
                 }
@@ -1406,7 +1406,7 @@ public class FolderMessageList extends ExpandableListActivity {
             }
 
             @Override
-            public void sendPendingMessageFailed(EmailStore.Account account, Message message,
+            public void sendPendingMessageFailed(EmailContent.Account account, Message message,
                     Exception reason) {
                 if (!account.equals(mAccount)) {
                     return;
@@ -1417,7 +1417,7 @@ public class FolderMessageList extends ExpandableListActivity {
             }
 
             @Override
-            public void messageUidChanged(EmailStore.Account account, String folder,
+            public void messageUidChanged(EmailContent.Account account, String folder,
                     String oldUid, String newUid) {
                 if (!mAccount.equals(account)) {
                     return;
