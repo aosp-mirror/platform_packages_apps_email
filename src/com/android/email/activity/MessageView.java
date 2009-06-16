@@ -140,6 +140,7 @@ public class MessageView extends Activity
         private static final int MSG_SET_SENDER_PRESENCE = 11;
         private static final int MSG_VIEW_ATTACHMENT_ERROR = 12;
         private static final int MSG_FETCHING_PICTURES = 17;
+        private static final int MSG_UPDATE_ATTACHMENT_ICON = 18;
 
         @Override
         public void handleMessage(android.os.Message msg) {
@@ -214,6 +215,10 @@ public class MessageView extends Activity
                     Toast.makeText(MessageView.this,
                             getString(R.string.message_view_fetching_pictures_toast),
                             Toast.LENGTH_SHORT).show();
+                    break;
+                case MSG_UPDATE_ATTACHMENT_ICON:
+                    ((Attachment) mAttachments.getChildAt(msg.arg1).getTag())
+                        .iconView.setImageBitmap((Bitmap) msg.obj);
                     break;
                 default:
                     super.handleMessage(msg);
@@ -296,6 +301,13 @@ public class MessageView extends Activity
 
         public void fetchingPictures() {
             sendEmptyMessage(MSG_FETCHING_PICTURES);
+        }
+
+        public void updateAttachmentIcon(int pos, Bitmap icon) {
+            android.os.Message msg = android.os.Message.obtain(this, MSG_UPDATE_ATTACHMENT_ICON);
+            msg.arg1 = pos;
+            msg.obj = icon;
+            sendMessage(msg);
         }
     }
 
@@ -755,6 +767,19 @@ public class MessageView extends Activity
         }
     }
 
+    private void updateAttachmentThumbnail(Part part) {
+        for (int i = 0, count = mAttachments.getChildCount(); i < count; i++) {
+            Attachment attachment = (Attachment) mAttachments.getChildAt(i).getTag();
+            if (attachment.part == part) {
+                Bitmap previewIcon = getPreviewIcon(attachment);
+                if (previewIcon != null) {
+                    mHandler.updateAttachmentIcon(i, previewIcon);
+                }
+                return;
+            }
+        }
+    }
+
     private void renderAttachments(Part part, int depth) throws MessagingException {
         String contentType = MimeUtility.unfoldAndDecode(part.getContentType());
         String name = MimeUtility.getHeaderParameter(contentType, "name");
@@ -996,13 +1021,14 @@ public class MessageView extends Activity
         
         @Override
         public void loadInlineImagesForViewOneAvailable(final Account account,
-                final Message message, Part part) {
+                final Message message, final Part part) {
             mHandler.post(new Runnable() {
                 public void run() {
                     String text = EmailHtmlUtil.renderMessageText(
                             MessageView.this, account, message);
                     if (text != null) {
                         loadMessageContentText(text);
+                        updateAttachmentThumbnail(part);
                     }
                 }
             });
@@ -1034,6 +1060,7 @@ public class MessageView extends Activity
                 Part part, Object tag) {
             mHandler.setAttachmentsEnabled(true);
             mHandler.progress(false, null);
+            updateAttachmentThumbnail(part);
 
             Object[] params = (Object[]) tag;
             boolean download = (Boolean) params[0];
