@@ -795,6 +795,9 @@ public class MessageView extends Activity
     }
 
     private void renderAttachments(Part part, int depth) throws MessagingException {
+        if (depth >= 10 || part == null) {
+            return;
+        }
         String contentType = MimeUtility.unfoldAndDecode(part.getContentType());
         String name = MimeUtility.getHeaderParameter(contentType, "name");
         if (name != null) {
