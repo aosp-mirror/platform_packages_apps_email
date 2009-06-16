@@ -625,27 +625,7 @@ public abstract class EmailContent {
             }
             
             ArrayList<ContentProviderOperation> ops = new ArrayList<ContentProviderOperation>();
-            
-            // First, save the message
-            ContentProviderOperation.Builder b = getSaveOrUpdateBuilder(doSave, mBaseUri, mId);
-            ops.add(b.withValues(toContentValues()).build());
-            
-            // Create and save the body
-            Body body = new Body();
-            ContentValues cv = new ContentValues();
-            if (mText != null) {
-                cv.put(Body.TEXT_CONTENT, mText);
-            }
-            if (mHtml != null) {
-                cv.put(Body.HTML_CONTENT, mHtml);
-            }
-
-            b = getSaveOrUpdateBuilder(doSave, Body.CONTENT_URI, 0);
-            b.withValues(body.toContentValues());
-            ContentValues backValues = new ContentValues();
-            backValues.put(Body.MESSAGE_KEY, 0);
-            ops.add(b.withValueBackReferences(cv).build());
- 
+            addSaveOps(ops);
             try {
                 ContentProviderResult[] results = 
                     context.getContentResolver().applyBatch(EmailProvider.EMAIL_AUTHORITY, ops);
