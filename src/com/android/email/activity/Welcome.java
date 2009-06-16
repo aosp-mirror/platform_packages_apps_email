@@ -19,6 +19,7 @@ package com.android.email.activity;
 import com.android.email.Email;
 import com.android.email.provider.EmailContent;
 import com.android.email.provider.EmailContent;
+import com.android.exchange.SyncManager;
 //import com.android.exchange.SyncManager;
 
 import android.app.Activity;
@@ -50,7 +51,7 @@ public class Welcome extends Activity {
         
         // TODO Automatically start Exchange service, until we can base this on the existence of
         // at least one Exchange account
-        //startService(new Intent(this, SyncManager.class));
+        startService(new Intent(this, SyncManager.class));
         
         // Find out how many accounts we have, and if there's just one, go directly to it
         Cursor c = null;

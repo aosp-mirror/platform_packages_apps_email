@@ -163,6 +163,11 @@
             android:enabled="false"
             >
         </service>
+        <service
+            android:name="com.android.exchange.SyncManager"
+            android:enabled="true"
+            >
+        </service>
         <provider
             android:name=".provider.AttachmentProvider"
             android:authorities="com.android.email.attachmentprovider"

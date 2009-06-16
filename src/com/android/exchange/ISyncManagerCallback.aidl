@@ -1,5 +1,6 @@
 /*
- * Copyright (C) 2008 The Android Open Source Project
+ * Copyright (C) 2008-2009 Marc Blank
+ * Licensed to The Android Open Source Project.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -14,17 +15,8 @@
  * limitations under the License.
  */
 
-package com.android.email.mail;
+package com.android.exchange;
 
-public class AuthenticationFailedException extends MessagingException {
-    public static final long serialVersionUID = -1;
-
-    public AuthenticationFailedException(String message) {
-        super(MessagingException.AUTHENTICATION_FAILED, message);
-    }
-
-    public AuthenticationFailedException(String message, Throwable throwable) {
-        super(message, throwable);
-        mExceptionType = MessagingException.AUTHENTICATION_FAILED;
-     }
+oneway interface ISyncManagerCallback {
+    void progress(int value);
 }

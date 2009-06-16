@@ -1,5 +1,7 @@
 /*
- * Copyright (C) 2008 The Android Open Source Project
+/*
+ * Copyright (C) 2008-2009 Marc Blank
+ * Licensed to The Android Open Source Project.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -14,26 +16,21 @@
  * limitations under the License.
  */
 
-package com.android.email.service;
-
-import com.android.exchange.SyncManager;
+package com.android.exchange;
 
 import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
 
-public class BootReceiver extends BroadcastReceiver {
+public class KeepAliveReceiver extends BroadcastReceiver {
+    @Override
     public void onReceive(Context context, Intent intent) {
-        if (Intent.ACTION_BOOT_COMPLETED.equals(intent.getAction())) {
-            MailService.actionReschedule(context);
-            // TODO Remove when Exchange is running on its own
-            context.startService(new Intent(context, SyncManager.class));
+        long mid = intent.getLongExtra("mailbox", -1);
+        if (mid < 0) {
+            SyncManager.kick();
         }
-        else if (Intent.ACTION_DEVICE_STORAGE_LOW.equals(intent.getAction())) {
-            MailService.actionCancel(context);
-        }
-        else if (Intent.ACTION_DEVICE_STORAGE_OK.equals(intent.getAction())) {
-            MailService.actionReschedule(context);
+        else {
+            SyncManager.ping(mid);
         }
     }
 }

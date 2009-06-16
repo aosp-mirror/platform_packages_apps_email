@@ -28,6 +28,7 @@ package com.android.email.mail;
 public class MessagingException extends Exception {
     public static final long serialVersionUID = -1;
     
+    public static final int NO_ERROR = -1;
     /** Any exception that does not specify a specific issue */
     public static final int UNSPECIFIED_EXCEPTION = 0;
     /** Connection or IO errors */
@@ -38,10 +39,11 @@ public class MessagingException extends Exception {
     public static final int AUTH_REQUIRED = 3;
     /** General security failures */
     public static final int GENERAL_SECURITY = 4;
+    /** Authentication failed */
+    public static final int AUTHENTICATION_FAILED = 5;
     
-    private final int mExceptionType;
-    
-    
+    protected int mExceptionType;
+     
     public MessagingException(String message) {
         super(message);
         mExceptionType = UNSPECIFIED_EXCEPTION;

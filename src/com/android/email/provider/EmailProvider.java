@@ -48,13 +48,6 @@ import android.util.Log;
 
 import java.util.ArrayList;
 
-/*
- * TODO
- * 
- * Add Email.Body class and support, now that this is stored separately
- * Handle deletion cascades (either w/ triggers or code)
- * 
- */
 public class EmailProvider extends ContentProvider {
 
     private static final String TAG = "EmailProvider";
@@ -221,25 +214,14 @@ public class EmailProvider extends ContentProvider {
                 + " on " + Message.TABLE_NAME + " (" + MessageColumns.MAILBOX_KEY + ");");
         db.execSQL("create index message_" + SyncColumns.SERVER_ID 
                 + " on " + Message.TABLE_NAME + " (" + SyncColumns.SERVER_ID + ");");
-        
-        // When a record is FIRST updated, copy the original data into the updates table
-        // Server version not null tells us that this is synced back to the server
-        // The sync engine can determine what needs to go up to the server
-        db.execSQL("CREATE TRIGGER message_update UPDATE ON " + Message.TABLE_NAME + 
-                " WHEN old." + SyncColumns.DIRTY_COUNT + "=0 AND new." + SyncColumns.DIRTY_COUNT + 
-                "!=0 AND old." + SyncColumns.SERVER_VERSION + " IS NOT NULL " +
-                "BEGIN INSERT INTO " + Message.UPDATES_TABLE_NAME +
-                " SELECT * FROM message WHERE " + 
-                EmailContent.RECORD_ID + "=old." + EmailContent.RECORD_ID + ";END");
-        
-        // Deleted records are automatically copied into updates table
-        // TODO How will the sync adapter know that these records are deletions?
-        // Answer:  WeDo we may have to use an EXCEPT clause, as in
-        // SELECT id from Message_Update where mailboxKey=n EXCEPT SELECT id from Message?
-        db.execSQL("CREATE TRIGGER message_delete BEFORE DELETE ON " + Message.TABLE_NAME + 
-                " BEGIN INSERT INTO " + Message.UPDATES_TABLE_NAME +
-                " SELECT * FROM message WHERE " + EmailContent.RECORD_ID +
-                "=old." + EmailContent.RECORD_ID + ";END");
+
+        // Deleting a Message deletes associated Attachments
+        // Deleting the associated Body cannot be done in a trigger, because the Body is stored
+        // in a separate database, and trigger cannot operate on attached databases.
+        db.execSQL("create trigger message_delete before delete on " + Message.TABLE_NAME + 
+                " begin delete from " + Attachment.TABLE_NAME +
+                "  where " + AttachmentColumns.MESSAGE_KEY + "=old." + EmailContent.RECORD_ID + 
+                "; end");
     }
 
     static void upgradeMessageTable(SQLiteDatabase db, int oldVersion, int newVersion) {
@@ -264,7 +246,14 @@ public class EmailProvider extends ContentProvider {
             + AccountColumns.RINGTONE_URI + " text "
             + ");";
         db.execSQL("create table " + Account.TABLE_NAME + s);
-    }
+        // Deleting an account deletes associated Mailboxes and HostAuth's
+        db.execSQL("create trigger account_delete before delete on " + Account.TABLE_NAME + 
+                " begin delete from " + Mailbox.TABLE_NAME +
+                " where " + MailboxColumns.ACCOUNT_KEY + "=old." + EmailContent.RECORD_ID + 
+                "; delete from " + HostAuth.TABLE_NAME +
+                " where " + HostAuthColumns.ACCOUNT_KEY + "=old." + EmailContent.RECORD_ID +
+                "; end");
+   }
 
     static void upgradeAccountTable(SQLiteDatabase db, int oldVersion, int newVersion) {
         try {
@@ -318,7 +307,11 @@ public class EmailProvider extends ContentProvider {
                 + " on " + Mailbox.TABLE_NAME + " (" + MailboxColumns.SERVER_ID + ")");
         db.execSQL("create index mailbox_" + MailboxColumns.ACCOUNT_KEY 
                 + " on " + Mailbox.TABLE_NAME + " (" + MailboxColumns.ACCOUNT_KEY + ")");
-
+        // Deleting a Mailbox deletes associated Messages
+        db.execSQL("create trigger mailbox_delete before delete on " + Mailbox.TABLE_NAME + 
+                " begin delete from " + Message.TABLE_NAME +
+                "  where " + MessageColumns.MAILBOX_KEY + "=old." + EmailContent.RECORD_ID + 
+                "; end");
     }
 
     static void upgradeMailboxTable(SQLiteDatabase db, int oldVersion, int newVersion) {
@@ -453,37 +446,81 @@ public class EmailProvider extends ContentProvider {
         Context context = getContext();
         SQLiteDatabase db = (match >= BODY_BASE) ? getBodyDatabase(context) : getDatabase(context);
         int table = match >> BASE_SHIFT;
-        String id;
+        String id = "0";
+        boolean checkDeleteBody = false;
         
         if (Config.LOGV) {
             Log.v(TAG, "EmailProvider.delete: uri=" + uri + ", match is " + match);
         }
 
         int result;
-        switch (match) {
-            case BODY_ID:
-            case MESSAGE_ID:
-            case UPDATED_MESSAGE_ID:
-            case ATTACHMENT_ID:
-            case MAILBOX_ID:
-            case ACCOUNT_ID:
-            case HOSTAUTH_ID:
-                id = uri.getPathSegments().get(1);
-                result = db.delete(TABLE_NAMES[table], whereWithId(id, selection), selectionArgs);
-                break;
-            case BODY:
-            case MESSAGE:
-            case UPDATED_MESSAGE:
-            case ATTACHMENT:
-            case MAILBOX:
-            case ACCOUNT:
-            case HOSTAUTH:
-                result = db.delete(TABLE_NAMES[table], selection, selectionArgs);
-                break;
-            default:
-                throw new IllegalArgumentException("Unknown URI " + uri);
+        
+        try {
+            switch (match) {
+                // These are cases in which one or more Messages might get deleted, either by
+                // cascade or explicitly
+                case MAILBOX_ID:
+                case MAILBOX:
+                case ACCOUNT_ID:
+                case ACCOUNT:
+                case MESSAGE:
+                case MESSAGE_ID:
+                    // Handle lost Body records here, since this cannot be done in a trigger
+                    // The process is:
+                    //  1) Attach the Body database
+                    //  2) Begin a transaction, ensuring that both databases are affected atomically
+                    //  3) Do the requested deletion, with cascading deletions handled in triggers
+                    //  4) End the transaction, committing all changes atomically
+                    //  5) Detach the Body database
+                    String bodyFileName = context.getDatabasePath(BODY_DATABASE_NAME)
+                            .getAbsolutePath();
+                    db.execSQL("attach \"" + bodyFileName + "\" as BodyDatabase");
+                    db.beginTransaction();
+                    if (match != MESSAGE_ID) {
+                        checkDeleteBody = true;
+                    }
+                    break;
+            }
+            switch (match) {
+                case BODY_ID:
+                case MESSAGE_ID:
+                case UPDATED_MESSAGE_ID:
+                case ATTACHMENT_ID:
+                case MAILBOX_ID:
+                case ACCOUNT_ID:
+                case HOSTAUTH_ID:
+                    id = uri.getPathSegments().get(1);
+                    result = db.delete(TABLE_NAMES[table], whereWithId(id, selection),
+                            selectionArgs);
+                    break;
+                case BODY:
+                case MESSAGE:
+                case UPDATED_MESSAGE:
+                case ATTACHMENT:
+                case MAILBOX:
+                case ACCOUNT:
+                case HOSTAUTH:
+                    result = db.delete(TABLE_NAMES[table], selection, selectionArgs);
+                    break;
+                default:
+                    throw new IllegalArgumentException("Unknown URI " + uri);
+            }
+            if (checkDeleteBody) {
+                // Delete any orphaned Body records
+                db.execSQL("delete from " + Body.TABLE_NAME + " where _id in (select _id from " +
+                        Body.TABLE_NAME + " except select _id from " + Message.TABLE_NAME + ")");
+                db.setTransactionSuccessful();
+            } else if (match == MESSAGE_ID) {
+                // Delete the Body record associated with the deleted message
+                db.execSQL("delete from " + Body.TABLE_NAME + " where _id=" + id);
+                db.setTransactionSuccessful();
+             }
+        } finally {
+            if (checkDeleteBody) {
+                db.endTransaction();
+                db.execSQL("detach BodyDatabase");
+           }
         }
-
         getContext().getContentResolver().notifyChange(uri, null);
         return result;
     }
