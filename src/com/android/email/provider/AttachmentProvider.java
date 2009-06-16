@@ -93,7 +93,8 @@ public class AttachmentProvider extends ContentProvider {
          */
         File[] files = getContext().getCacheDir().listFiles();
         for (File file : files) {
-            if (file.getName().endsWith(".tmp")) {
+            String filename = file.getName();
+            if (filename.endsWith(".tmp") || filename.startsWith("thmb_")) {
                 file.delete();
             }
         }
