@@ -34,9 +34,6 @@ public class MessagingListener {
     public void listFoldersStarted(EmailContent.Account account) {
     }
 
-    public void listFolders(EmailContent.Account account, Folder[] folders) {
-    }
-
     public void listFoldersFailed(EmailContent.Account account, String message) {
     }
 

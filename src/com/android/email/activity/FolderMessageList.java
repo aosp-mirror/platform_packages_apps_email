@@ -16,6 +16,7 @@
 
 package com.android.email.activity;
 
+import com.android.email.Controller;
 import com.android.email.Email;
 import com.android.email.MessagingController;
 import com.android.email.MessagingListener;
@@ -26,12 +27,10 @@ import com.android.email.mail.Address;
 import com.android.email.mail.AuthenticationFailedException;
 import com.android.email.mail.CertificateValidationException;
 import com.android.email.mail.Flag;
-import com.android.email.mail.Folder;
 import com.android.email.mail.Message;
 import com.android.email.mail.MessagingException;
 import com.android.email.mail.Message.RecipientType;
 import com.android.email.mail.store.LocalStore;
-import com.android.email.mail.store.LocalStore.LocalFolder;
 import com.android.email.mail.store.LocalStore.LocalMessage;
 import com.android.email.provider.EmailContent;
 
@@ -77,11 +76,12 @@ import java.util.Date;
  * Activity the user can perform all standard message operations.
  *
  *
- * TODO some things that are slowing us down:
+ * TODO (old)
+ * some things that are slowing us down:
  * Need a way to remove state such as progress bar and per folder progress on
  * resume if the command has completed.
  *
- * TODO
+ * TODO (old)
  * Break out seperate functions for:
  *  refresh local folders
  *  refresh remote folders
@@ -89,6 +89,12 @@ import java.util.Date;
  *  refresh open folder remote messages
  *
  * And don't refresh remote folders ever unless the user runs a refresh. Maybe not even then.
+ * 
+ * TODO (new - 2009 rebuild)
+ * From old listFolders() handler - this now should happen with the groups (folder) cursor
+ * reports a data change:
+ *   Now we need to refresh any folders that are currently expanded. We do this
+ *   in case the status or amount of messages has changed.
  */
 public class FolderMessageList extends ExpandableListActivity {
     
@@ -143,6 +149,7 @@ public class FolderMessageList extends ExpandableListActivity {
     private LoadMessagesTask mLoadMessagesTask;
     private NewMessagingListener mMessagingListener;
     private NewFolderMessageListAdapter mNewAdapter;
+    private UpdateMailboxResults mControllerCallback;
     
     private FolderMessageListAdapter mAdapter;
     private LayoutInflater mInflater;
@@ -188,7 +195,6 @@ public class FolderMessageList extends ExpandableListActivity {
         private static final int MSG_REMOVE_MESSAGE = 11;
         private static final int MSG_SYNC_MESSAGES = 13;
         private static final int MSG_FOLDER_STATUS = 17;
-        private static final int MSG_LIST_FOLDERS = 18;
         private static final int MSG_NEW_MESSAGE = 19;
         private static final int MSG_REMOVE_MESSAGE_UID = 20;
         private static final int MSG_MESSAGE_UID_CHANGED = 21;
@@ -254,11 +260,6 @@ public class FolderMessageList extends ExpandableListActivity {
                         }
                         mAdapter.notifyDataSetChanged();
                     }
-                    break;
-                }
-                case MSG_LIST_FOLDERS: {
-                    Folder[] folders = (Folder[]) msg.obj;
-                    mAdapter.doListFolders(folders);
                     break;
                 }
                 case MSG_NEW_MESSAGE: {
@@ -336,13 +337,6 @@ public class FolderMessageList extends ExpandableListActivity {
             msg.what = MSG_FOLDER_STATUS;
             msg.obj = new String[] { folder, status };
             msg.arg1 = forceRefresh ? 1 : 0;
-            sendMessage(msg);
-        }
-        
-        public void listFolders(Folder[] folders) {
-            android.os.Message msg = android.os.Message.obtain();
-            msg.what = MSG_LIST_FOLDERS;
-            msg.obj = (Object) folders;
             sendMessage(msg);
         }
         
@@ -549,7 +543,9 @@ public class FolderMessageList extends ExpandableListActivity {
         }
         */
         
+        mControllerCallback = new UpdateMailboxResults();
         mMessagingListener = new NewMessagingListener();
+        
         mLoadMailboxesTask = (LoadMailBoxesTask) new LoadMailBoxesTask(savedInstanceState);
         mLoadMailboxesTask.execute();
 
@@ -577,6 +573,7 @@ public class FolderMessageList extends ExpandableListActivity {
     public void onPause() {
         super.onPause();
         MessagingController.getInstance(getApplication()).removeListener(mMessagingListener);
+        Controller.getInstance(getApplication()).removeResultCallback(mControllerCallback);
     }
 
     /**
@@ -592,6 +589,7 @@ public class FolderMessageList extends ExpandableListActivity {
                 getSystemService(Context.NOTIFICATION_SERVICE);
         notifMgr.cancel(1);
 
+        Controller.getInstance(getApplication()).addResultCallback(mControllerCallback);
         MessagingController.getInstance(getApplication()).addListener(mMessagingListener);
         mAccount.refresh(this);
         onRefresh(false);
@@ -729,26 +727,22 @@ public class FolderMessageList extends ExpandableListActivity {
             mRefreshRemote = true;
         }
         
-        // TODO: wire in new controller to handle remote refresh
-/*
-        new Thread() {
-            public void run() {
-                Process.setThreadPriority(Process.THREAD_PRIORITY_BACKGROUND);
-                MessagingController.getInstance(getApplication()).listFolders(
-                        mAccount,
-                        mRefreshRemote,
-                        mMessagingListener);
-                if (forceRemote) {
-                    mHandler.folderLoading(mAccount.getOutboxFolderName(FolderMessageList.this),
-                            true);
-                    mHandler.progress(true);
-                    MessagingController.getInstance(getApplication()).sendPendingMessages(
-                            mAccount,
-                            null);
-                }
-            }
-        }.start();
-*/
+        if (mRefreshRemote) {
+            mHandler.progress(true);
+            Controller.getInstance(getApplication()).
+                    updateMailboxList(mAccount, mControllerCallback);
+        }
+    }
+    
+    /**
+     * Callback for async Controller results.  This is all a placeholder until we figure out the
+     * final way to do this.
+     */
+    private class UpdateMailboxResults implements Controller.Result {
+        public void onResult(MessagingException result, long accountKey, long mailboxKey,
+                long messageKey) {
+            mHandler.progress(false);
+        }
     }
 
     @Deprecated
@@ -963,6 +957,8 @@ public class FolderMessageList extends ExpandableListActivity {
             mSavedInstanceState = savedInstanceState;
         }
 
+        // Note that we order by the mailbox columns type column, which should be ordered
+        // to match desired UI presentation (e.g. INBOX at the top)
         @Override
         protected Cursor doInBackground(Void... params) {
             return FolderMessageList.this.managedQuery(
@@ -970,7 +966,7 @@ public class FolderMessageList extends ExpandableListActivity {
                     EmailContent.Mailbox.CONTENT_PROJECTION,
                     EmailContent.MailboxColumns.ACCOUNT_KEY + "=?",
                     new String[] { String.valueOf(FolderMessageList.this.mAccountId) }, 
-                    null);
+                    EmailContent.MailboxColumns.TYPE);
         }
 
         @Override
@@ -989,6 +985,11 @@ public class FolderMessageList extends ExpandableListActivity {
                 onRestoreListState(mSavedInstanceState);
                 mRestoringState = false;
                 mRefreshRemote |= mSavedInstanceState.getBoolean(STATE_KEY_REFRESH_REMOTE);
+            }
+            
+            // If there are no folders at all, this is probably a new account - reload from server
+            if (cursor.getCount() == 0) {
+                FolderMessageList.this.onRefresh(true);
             }
             
             /**
@@ -1157,15 +1158,15 @@ public class FolderMessageList extends ExpandableListActivity {
             }
         }
     }
-
+    
     /**
      * This class implements the tree for displaying folders and messages based on cursors.
      * 
-     * TODO: There is a bug # 1913302 describing a bug in CursorTreeAdapter, mixing up recycled
-     * views when you have "last child" or "expanded/contracted group" layouts.  Because of this,
-     * we're going to simplify (for now) and simply display the message list, without the added
-     * "last" view of the loading status.  This is all placeholder code until we move folder view
-     * into the Account screen.
+     * TODO: There is a bug # 1913302 describing a bug in ResourceCursorTreeAdapter, mixing up 
+     * recycled views when you have "last child" or "expanded/contracted group" layouts.  Because of
+     * this, we're going to simplify (for now) and simply display the message list, without the
+     * added "last" view of the loading status.  This is all placeholder code until we move folder
+     * view into the Account screen.
      */
     private static class NewFolderMessageListAdapter extends CursorTreeAdapter {
         
@@ -1199,7 +1200,7 @@ public class FolderMessageList extends ExpandableListActivity {
         protected Cursor getChildrenCursor(Cursor groupCursor) {
             return null;
         }
-
+        
         @Override
         protected void bindChildView(View view, Context context, Cursor cursor, boolean isLastChild)
                 {
@@ -1308,14 +1309,6 @@ public class FolderMessageList extends ExpandableListActivity {
                 }
                 mHandler.progress(false);
                 mHandler.listFoldersFinished();
-            }
-
-            @Override
-            public void listFolders(EmailContent.Account account, Folder[] folders) {
-                if (!account.equals(mAccount)) {
-                    return;
-                }
-                mHandler.listFolders(folders);
             }
 
             @Override
@@ -1512,65 +1505,6 @@ public class FolderMessageList extends ExpandableListActivity {
                 holder.special = false;
                 holder.displayName = folderName;
             }
-        }
-        
-        /**
-         * This code is invoked (in the UI thread) in response to a listFolders() callback
-         * into the MessageListener.
-         */
-        private void doListFolders(Folder[] folders) {
-            for (Folder folder : folders) {
-                FolderInfoHolder holder = getFolder(folder.getName());
-                if (holder == null) {
-                    holder = new FolderInfoHolder();
-                    mFolders.add(holder);
-                }
-                holder.name = folder.getName();
-                setSpecialFolderInfo(holder);
-                if (holder.messages == null) {
-                    holder.messages = new ArrayList<MessageInfoHolder>();
-                }
-                try {
-                    folder.open(Folder.OpenMode.READ_WRITE, null);
-                    holder.messageCount = ((LocalFolder) folder)
-                            .getMessageCount(null, DELETED_FLAG);
-                    holder.unreadMessageCount = folder.getUnreadMessageCount();
-                    folder.close(false);
-                }
-                catch (MessagingException me) {
-                    Log.e(Email.LOG_TAG, "Folder.getUnreadMessageCount() failed", me);
-                }
-            }
-
-            Collections.sort(mFolders);
-            mHandler.dataChanged();
-
-            /*
-             * We will do this eventually. This restores the state of the list in the
-             * case of a killed Activity but we have some message sync issues to take care of.
-             */
-//            if (mRestoredState != null) {
-//                if (Config.LOGV) {
-//                    Log.v(Email.LOG_TAG, "Attempting to restore list state");
-//                }
-//                Parcelable listViewState =
-//                mListView.onRestoreInstanceState(mListViewState);
-//                mListViewState = null;
-//            }
-
-            /*
-             * Now we need to refresh any folders that are currently expanded. We do this
-             * in case the status or amount of messages has changed.
-             */
-            for (int i = 0, count = getGroupCount(); i < count; i++) {
-                if (mListView.isGroupExpanded(i)) {
-                    final FolderInfoHolder folder = (FolderInfoHolder) getGroup(i);
-                    new Thread(new FolderUpdateWorker(folder.name, mRefreshRemote, null, 
-                            mAccount, MessagingController.getInstance(getApplication())))
-                            .start();
-                }
-            }
-            mRefreshRemote = false;
         }
         
         /**

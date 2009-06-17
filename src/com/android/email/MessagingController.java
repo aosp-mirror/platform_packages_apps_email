@@ -16,6 +16,7 @@
 
 package com.android.email;
 
+import com.android.email.activity.FolderMessageList;
 import com.android.email.mail.FetchProfile;
 import com.android.email.mail.Flag;
 import com.android.email.mail.Folder;
@@ -36,6 +37,7 @@ import com.android.email.mail.store.LocalStore.PendingCommand;
 import com.android.email.provider.EmailContent;
 
 import android.content.Context;
+import android.database.Cursor;
 import android.os.Process;
 import android.util.Config;
 import android.util.Log;
@@ -190,118 +192,131 @@ public class MessagingController implements Runnable {
      * remote folders at some later point. If there are no local folders
      * includeRemote is forced by this method. This method should be called from
      * a Thread as it may take several seconds to list the local folders. 
-     * 
+     *
      * TODO this needs to cache the remote folder list
      * TODO break out an inner listFoldersSynchronized which could simplify checkMail
      *
      * @param account
-     * @param includeRemote
      * @param listener
      * @throws MessagingException
      */
-    public void listFolders(final EmailContent.Account account, boolean refreshRemote,
-            MessagingListener listener) {
+    public void listFolders(final EmailContent.Account account, MessagingListener listener) {
         synchronized (mListeners) {
             for (MessagingListener l : mListeners) {
                 l.listFoldersStarted(account);
             }
         }
-        try {
-            Store localStore = Store.getInstance(account.getLocalStoreUri(mContext), mContext,
-                    null);
-            Folder[] localFolders = localStore.getPersonalNamespaces();
 
-            if (localFolders == null || localFolders.length == 0) {
-                refreshRemote = true;
-            } else {
-                synchronized (mListeners) {
-                    for (MessagingListener l : mListeners) {
-                        l.listFolders(account, localFolders);
+        put("listFolders", listener, new Runnable() {
+            public void run() {
+                Cursor localFolders = null;
+                try {
+                    // Step 1:  Get remote folders, make a list, and add any local folders
+                    // that don't already exist.
+                    
+                    Store store = Store.getInstance(account.getStoreUri(mContext), mContext, null);
+
+                    Folder[] remoteFolders = store.getPersonalNamespaces();
+                    updateAccountFolderNames(account, remoteFolders);
+
+                    HashSet<String> remoteFolderNames = new HashSet<String>();
+                    for (int i = 0, count = remoteFolders.length; i < count; i++) {
+                        remoteFolderNames.add(remoteFolders[i].getName());
                     }
-                }
-            }
-        }
-        catch (Exception e) {
-            synchronized (mListeners) {
-                for (MessagingListener l : mListeners) {
-                    l.listFoldersFailed(account, e.getMessage());
-                    return;
-                }
-            }
-        }
-        if (refreshRemote) {
-            put("listFolders", listener, new Runnable() {
-                public void run() {
-                    try {
-                        LocalStore localStore = (LocalStore) Store.getInstance(
-                                account.getLocalStoreUri(mContext), mContext, null);
-                        Store store = Store.getInstance(account.getStoreUri(mContext), mContext, 
-                                localStore.getPersistentCallbacks());
-
-                        Folder[] remoteFolders = store.getPersonalNamespaces();
-                        updateAccountFolderNames(account, remoteFolders);
-
-                        HashSet<String> remoteFolderNames = new HashSet<String>();
-                        for (int i = 0, count = remoteFolders.length; i < count; i++) {
-                            Folder localFolder = localStore.getFolder(remoteFolders[i].getName());
-                            if (!localFolder.exists()) {
-                                localFolder.create(FolderType.HOLDS_MESSAGES);
-                            }
-                            remoteFolderNames.add(remoteFolders[i].getName());
-                        }
-
-                        Folder[] localFolders = localStore.getPersonalNamespaces();
-
-                        /*
-                         * Clear out any folders that are no longer on the remote store.
-                         */
-                        for (Folder localFolder : localFolders) {
-                            String localFolderName = localFolder.getName();
-                            if (localFolderName.equalsIgnoreCase(Email.INBOX) ||
-                                    localFolderName.equals(account.getTrashFolderName(mContext)) ||
-                                    localFolderName.equals(account.getOutboxFolderName(mContext)) ||
-                                    localFolderName.equals(account.getDraftsFolderName(mContext)) ||
-                                    localFolderName.equals(account.getSentFolderName(mContext))) {
-                                continue;
-                            }
-                            if (!remoteFolderNames.contains(localFolder.getName())) {
-                                localFolder.delete(false);
-                            }
+                    
+                    HashSet<String> localFolderNames = new HashSet<String>();
+                    localFolders = mContext.getContentResolver().query(
+                            EmailContent.Mailbox.CONTENT_URI,
+                            EmailContent.Mailbox.CONTENT_PROJECTION,
+                            EmailContent.MailboxColumns.ACCOUNT_KEY + "=?",
+                            new String[] { String.valueOf(account.mId) }, 
+                            null);
+                    while (localFolders.moveToNext()) {
+                        localFolderNames.add(
+                                localFolders.getString(
+                                        EmailContent.Mailbox.CONTENT_DISPLAY_NAME_COLUMN));
+                    }
+                    
+                    // Short circuit the rest if the sets are the same (the usual case)
+                    if (!remoteFolderNames.equals(localFolderNames)) {
+                        
+                        // They are different, so we have to do some adds and drops
+                        
+                        // Drops first, to make things smaller rather than larger
+                        HashSet<String> localsToDrop = new HashSet<String>(localFolderNames);
+                        localsToDrop.removeAll(remoteFolderNames);
+                        if (localsToDrop.size() > 0) {
+                            // TODO drop 'em.
+                            // See http://buganizer/issue?id=1921470
                         }
                         
-                        // Signal the remote store so it can used folder-based callbacks
-                        for (Folder remoteFolder : remoteFolders) {
-                            Folder localFolder = localStore.getFolder(remoteFolder.getName());
-                            remoteFolder.localFolderSetupComplete(localFolder);
-                        }
-
-                        localFolders = localStore.getPersonalNamespaces();
-                        
-                        synchronized (mListeners) {
-                            for (MessagingListener l : mListeners) {
-                                l.listFolders(account, localFolders);
-                            }
-                            for (MessagingListener l : mListeners) {
-                                l.listFoldersFinished(account);
-                            }
-                        }
-                    }
-                    catch (Exception e) {
-                        synchronized (mListeners) {
-                            for (MessagingListener l : mListeners) {
-                                l.listFoldersFailed(account, "");
-                            }
+                        // Now do the adds
+                        remoteFolderNames.removeAll(localFolderNames);
+                        for (String remoteNameToAdd : remoteFolderNames) {
+                            EmailContent.Mailbox box = new EmailContent.Mailbox();
+                            box.mDisplayName = remoteNameToAdd;
+                            // box.mServerId;
+                            // box.mParentServerId;
+                            box.mAccountKey = account.mId;
+                            box.mType = inferMailboxTypeFromName(account, remoteNameToAdd);
+                            // box.mDelimiter;
+                            // box.mSyncKey;
+                            // box.mSyncLookback;
+                            // box.mSyncFrequency;
+                            // box.mSyncTime;
+                            // box.mUnreadCount;
+                            box.mFlagVisible = true;
+                            // box.mFlags;
+                            box.mVisibleLimit = Email.VISIBLE_LIMIT_DEFAULT;
+                            box.save(mContext);
                         }
                     }
-                }
-            });
-        } else {
-            synchronized (mListeners) {
-                for (MessagingListener l : mListeners) {
-                    l.listFoldersFinished(account);
+                    synchronized (mListeners) {
+                        for (MessagingListener l : mListeners) {
+                            l.listFoldersFinished(account);
+                        }
+                    }
+                } catch (Exception e) {
+                    synchronized (mListeners) {
+                        for (MessagingListener l : mListeners) {
+                            l.listFoldersFailed(account, "");
+                        }
+                    }
+                } finally {
+                    if (localFolders != null) {
+                        localFolders.close();
+                    }
                 }
             }
+        });
+    }
+    
+    /**
+     * Temporarily:  Infer mailbox type from mailbox name.  This should probably be
+     * mutated into something that the stores can provide directly, instead of the two-step
+     * where we scan and report.
+     */
+    public int inferMailboxTypeFromName(EmailContent.Account account, String mailboxName) {
+        if (mailboxName == null || mailboxName.length() == 0) {
+            return EmailContent.Mailbox.TYPE_MAIL;
         }
+        if (mailboxName.equals(Email.INBOX)) {
+            return EmailContent.Mailbox.TYPE_INBOX;
+        }
+        if (mailboxName.equals(account.getTrashFolderName(mContext))) {
+            return EmailContent.Mailbox.TYPE_TRASH;
+        }
+        if (mailboxName.equals(account.getOutboxFolderName(mContext))) {
+            return EmailContent.Mailbox.TYPE_OUTBOX;
+        }
+        if (mailboxName.equals(account.getDraftsFolderName(mContext))) {
+            return EmailContent.Mailbox.TYPE_DRAFTS;
+        }
+        if (mailboxName.equals(account.getSentFolderName(mContext))) {
+            return EmailContent.Mailbox.TYPE_SENT;
+        }
+        
+        return EmailContent.Mailbox.TYPE_MAIL;
     }
     
     /**
@@ -1749,7 +1764,7 @@ public class MessagingController implements Runnable {
 //            accounts = Preferences.getPreferences(context).getAccounts();
         }
         for (final EmailContent.Account account : accounts) {
-            listFolders(account, true, null);
+            listFolders(account, null);
 
             put("checkMail", listener, new Runnable() {
                 public void run() {

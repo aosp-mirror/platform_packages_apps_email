@@ -1615,23 +1615,24 @@ public abstract class EmailContent {
          */
         public static final Uri CONTENT_URI = Uri.parse(EmailContent.CONTENT_URI + "/mailbox");
 
-        // Types of mailboxes
+        // Types of mailboxes.  The list is ordered to match a typical UI presentation, e.g.
+        // placing the inbox at the top.
+        // The "main" mailbox for the account, almost always referred to as "Inbox"
+        public static final int TYPE_INBOX = 0;
         // Holds mail (generic)
-        public static final int TYPE_MAIL = 0;
-        // Holds deleted mail
-        public static final int TYPE_TRASH = 1;
-        // Holds sent mail
-        public static final int TYPE_SENT = 2;
+        public static final int TYPE_MAIL = 1;
+        // Parent-only mailbox; holds no mail
+        public static final int TYPE_PARENT = 2;
         // Holds drafts
         public static final int TYPE_DRAFTS = 3;
-        // The "main" mailbox for the account, almost always referred to as "Inbox"
-        public static final int TYPE_INBOX = 4;
         // The local outbox associated with the Account
-        public static final int TYPE_OUTBOX = 5;
+        public static final int TYPE_OUTBOX = 4;
+        // Holds sent mail
+        public static final int TYPE_SENT = 5;
+        // Holds deleted mail
+        public static final int TYPE_TRASH = 6;
         // Holds junk mail
-        public static final int TYPE_JUNK = 6;
-        // Parent-only mailbox; holds no mail
-        public static final int TYPE_PARENT = 7;
+        public static final int TYPE_JUNK = 7;
 
         // Bit field flags
         public static final int FLAG_HAS_CHILDREN = 1<<0;
