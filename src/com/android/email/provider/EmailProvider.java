@@ -94,8 +94,13 @@ public class EmailProvider extends ContentProvider {
     private static final int HOSTAUTH = HOSTAUTH_BASE;
     private static final int HOSTAUTH_ID = HOSTAUTH_BASE + 1;
     
+    private static final int UPDATED_MESSAGE_BASE = 0x5000;
+    private static final int UPDATED_MESSAGE = UPDATED_MESSAGE_BASE;
+    private static final int UPDATED_MESSAGE_ATTACHMENTS = UPDATED_MESSAGE_BASE + 1;
+    private static final int UPDATED_MESSAGE_ID = UPDATED_MESSAGE_BASE + 2;
+    
     // BODY_BASE MAY BE CHANGED BUT IT MUST BE HIGHEST BASE VALUE (it's in a different database!)
-    private static final int BODY_BASE = 0x5000;
+    private static final int BODY_BASE = 0x6000;
     private static final int BODY = BODY_BASE;
     private static final int BODY_ID = BODY_BASE + 1;
     private static final int BODY_HTML = BODY_BASE + 2;
@@ -110,6 +115,7 @@ public class EmailProvider extends ContentProvider {
         EmailContent.Message.TABLE_NAME,
         EmailContent.Attachment.TABLE_NAME,
         EmailContent.HostAuth.TABLE_NAME,
+        EmailContent.Message.UPDATES_TABLE_NAME,
         EmailContent.Body.TABLE_NAME
     };
  
@@ -140,6 +146,12 @@ public class EmailProvider extends ContentProvider {
         matcher.addURI(EMAIL_AUTHORITY, "message/#", MESSAGE_ID); // IMPLEMENTED
         // The attachments of a specific message
         matcher.addURI(EMAIL_AUTHORITY, "message/#/attachment", MESSAGE_ATTACHMENTS); // IMPLEMENTED
+        // All updated messages
+        matcher.addURI(EMAIL_AUTHORITY, "updatedMessage", UPDATED_MESSAGE); // IMPLEMENTED
+        // A specific updated message
+        matcher.addURI(EMAIL_AUTHORITY, "updatedMessage/#", UPDATED_MESSAGE_ID); // IMPLEMENTED
+        // The attachments of a specific updated message
+        matcher.addURI(EMAIL_AUTHORITY, "updatedMessage/#/attachment", UPDATED_MESSAGE_ATTACHMENTS);
         // A specific attachment
         matcher.addURI(EMAIL_AUTHORITY, "attachment", ATTACHMENT); // IMPLEMENTED
         // A specific attachment (the header information)
@@ -449,6 +461,7 @@ public class EmailProvider extends ContentProvider {
         switch (match) {
             case BODY_ID:
             case MESSAGE_ID:
+            case UPDATED_MESSAGE_ID:
             case ATTACHMENT_ID:
             case MAILBOX_ID:
             case ACCOUNT_ID:
@@ -458,6 +471,7 @@ public class EmailProvider extends ContentProvider {
                 break;
             case BODY:
             case MESSAGE:
+            case UPDATED_MESSAGE:
             case ATTACHMENT:
             case MAILBOX:
             case ACCOUNT:
@@ -481,9 +495,11 @@ public class EmailProvider extends ContentProvider {
                 return "vnd.android.cursor.item/email-body";
             case BODY:
                 return "vnd.android.cursor.dir/email-message";
+            case UPDATED_MESSAGE_ID:
             case MESSAGE_ID:
                 return "vnd.android.cursor.item/email-message";
             case MAILBOX_MESSAGES:
+            case UPDATED_MESSAGE:
             case MESSAGE:
                 return "vnd.android.cursor.dir/email-message";
             case ACCOUNT_MAILBOXES:
@@ -594,6 +610,7 @@ public class EmailProvider extends ContentProvider {
         switch (match) {
             case BODY:
             case MESSAGE:
+            case UPDATED_MESSAGE:
             case ATTACHMENT:
             case MAILBOX:
             case ACCOUNT:
@@ -603,6 +620,7 @@ public class EmailProvider extends ContentProvider {
                 break;
             case BODY_ID:
             case MESSAGE_ID:
+            case UPDATED_MESSAGE_ID:
             case ATTACHMENT_ID:
             case MAILBOX_ID:
             case ACCOUNT_ID:
@@ -669,6 +687,7 @@ public class EmailProvider extends ContentProvider {
         switch (match) {
             case BODY_ID:
             case MESSAGE_ID:
+            case UPDATED_MESSAGE_ID:
             case ATTACHMENT_ID:
             case MAILBOX_ID:
             case ACCOUNT_ID:
@@ -680,6 +699,7 @@ public class EmailProvider extends ContentProvider {
                 break;
             case BODY:
             case MESSAGE:
+            case UPDATED_MESSAGE:
             case ATTACHMENT:
             case MAILBOX:
             case ACCOUNT:

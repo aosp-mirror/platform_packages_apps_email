@@ -499,6 +499,8 @@ public abstract class EmailContent {
          * The content:// style URL for this table
          */
         public static final Uri CONTENT_URI = Uri.parse(EmailContent.CONTENT_URI + "/message");
+        public static final Uri UPDATED_CONTENT_URI = 
+            Uri.parse(EmailContent.CONTENT_URI + "/updatedMessage");
 
         @Override
         public ContentValues toContentValues() {
