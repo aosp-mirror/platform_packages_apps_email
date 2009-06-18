@@ -22,6 +22,7 @@ import com.android.email.mail.MessagingException;
 import com.android.email.mail.Message.RecipientType;
 
 import android.test.suitebuilder.annotation.SmallTest;
+import android.test.suitebuilder.annotation.MediumTest;
 
 import java.io.ByteArrayOutputStream;
 import java.text.ParseException;
@@ -69,6 +70,7 @@ public class MimeMessageTest extends TestCase {
      * @throws MessagingException
      * @throws ParseException
      */
+    @MediumTest
     public void testSetSentDate() throws MessagingException, ParseException {
         Locale savedLocale = Locale.getDefault();
         Locale.setDefault(Locale.US);

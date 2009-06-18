@@ -41,7 +41,7 @@ import android.content.ContentValues;
 import android.database.Cursor;
 import android.database.sqlite.SQLiteDatabase;
 import android.test.AndroidTestCase;
-import android.test.suitebuilder.annotation.SmallTest;
+import android.test.suitebuilder.annotation.MediumTest;
 
 import java.io.File;
 import java.net.URI;
@@ -53,7 +53,7 @@ import java.util.HashSet;
 /**
  * This is a series of unit tests for the LocalStore class.
  */
-@SmallTest
+@MediumTest
 public class LocalStoreUnitTests extends AndroidTestCase {
     
     private static final String dbName = "com.android.email.mail.store.LocalStoreUnitTests.db";

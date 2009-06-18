@@ -28,7 +28,7 @@ import android.content.Context;
 import android.content.Intent;
 import android.os.Environment;
 import android.test.ActivityInstrumentationTestCase2;
-import android.test.suitebuilder.annotation.MediumTest;
+import android.test.suitebuilder.annotation.LargeTest;
 import android.test.suitebuilder.annotation.Suppress;
 import android.webkit.WebView;
 import android.widget.TextView;
@@ -46,7 +46,7 @@ import java.util.Arrays;
  * 
  * It might be possible to convert these to ActivityUnitTest, which would be faster.
  */
-@MediumTest
+@LargeTest
 public class MessageViewTests 
         extends ActivityInstrumentationTestCase2<MessageView> {
     

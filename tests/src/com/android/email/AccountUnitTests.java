@@ -21,7 +21,7 @@ import com.android.email.mail.Store;
 import android.content.Context;
 import android.content.SharedPreferences;
 import android.test.AndroidTestCase;
-import android.test.suitebuilder.annotation.SmallTest;
+import android.test.suitebuilder.annotation.MediumTest;
 
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
@@ -34,7 +34,7 @@ import java.io.ObjectOutputStream;
  * 
  * Technically these are functional because they use the underlying preferences framework.
  */
-@SmallTest
+@MediumTest
 public class AccountUnitTests extends AndroidTestCase {
 
     private Preferences mPreferences;
