@@ -18,14 +18,14 @@ package com.android.email;
 
 import android.content.SharedPreferences;
 import android.test.AndroidTestCase;
-import android.test.suitebuilder.annotation.SmallTest;
+import android.test.suitebuilder.annotation.MediumTest;
 
 /**
  * This is a series of unit tests for the Account class.
  * 
  * Technically these are functional because they use the underlying preferences framework.
  */
-@SmallTest
+@MediumTest
 public class AccountUnitTests extends AndroidTestCase {
 
     private Preferences mPreferences;

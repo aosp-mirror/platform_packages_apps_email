@@ -115,7 +115,7 @@ public abstract class Store {
                     if (xmlEventType == XmlResourceParser.START_TAG && 
                             "store".equals(xml.getName())) {
                         String xmlScheme = xml.getAttributeValue(null, "scheme");
-                        if (scheme.startsWith(xmlScheme)) {
+                        if (scheme != null && scheme.startsWith(xmlScheme)) {
                             StoreInfo result = new StoreInfo();
                             result.mScheme = xmlScheme;
                             result.mClassName = xml.getAttributeValue(null, "class");

@@ -30,7 +30,7 @@ import android.content.Context;
 import android.content.Intent;
 import android.net.Uri;
 import android.test.ActivityInstrumentationTestCase2;
-import android.test.suitebuilder.annotation.MediumTest;
+import android.test.suitebuilder.annotation.LargeTest;
 import android.view.View;
 import android.widget.EditText;
 
@@ -39,7 +39,7 @@ import android.widget.EditText;
  * 
  * It might be possible to convert these to ActivityUnitTest, which would be faster.
  */
-@MediumTest
+@LargeTest
 public class MessageComposeInstrumentationTests 
         extends ActivityInstrumentationTestCase2<MessageCompose> {
     
