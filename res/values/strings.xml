@@ -172,6 +172,8 @@
     <string name="message_compose_quoted_text_label">Quoted text</string>
     <!-- Toast that appears if you try to send with no recipients. -->
     <string name="message_compose_error_no_recipients">You must add at least one recipient.</string>
+    <!-- An address field contains invalid email addresses. -->
+    <string name="message_compose_error_invalid_email">Some email addresses are invalid.</string>
     <!-- Toast that appears in the context of forwarding a message with attachment(s) -->
     <string name="message_compose_attachments_skipped_toast">Some attachments cannot be forwarded because they have not downloaded.</string>
     <!-- Toast that appears when an attachment is too big to send. -->

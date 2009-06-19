@@ -18,6 +18,7 @@ package com.android.email.activity;
 
 import com.android.email.Email;
 import com.android.email.R;
+import com.android.email.EmailAddressValidator;
 import com.android.email.mail.Address;
 import com.android.email.mail.Message;
 import com.android.email.mail.MessagingException;
@@ -31,8 +32,10 @@ import android.content.Intent;
 import android.net.Uri;
 import android.test.ActivityInstrumentationTestCase2;
 import android.test.suitebuilder.annotation.LargeTest;
+import android.test.UiThreadTest;
 import android.view.View;
 import android.widget.EditText;
+import android.widget.AutoCompleteTextView;
 
 /**
  * Various instrumentation tests for MessageCompose.  
@@ -43,7 +46,7 @@ import android.widget.EditText;
 public class MessageComposeInstrumentationTests 
         extends ActivityInstrumentationTestCase2<MessageCompose> {
     
-    private EditText mToView;
+    private AutoCompleteTextView mToView;
     private EditText mSubjectView;
     private EditText mMessageView;
     
@@ -107,7 +110,7 @@ public class MessageComposeInstrumentationTests
         Intent intent = new Intent(Intent.ACTION_VIEW);
         setActivityIntent(intent);
         final MessageCompose a = getActivity();
-        mToView = (EditText) a.findViewById(R.id.to);
+        mToView = (AutoCompleteTextView) a.findViewById(R.id.to);
         mSubjectView = (EditText) a.findViewById(R.id.subject);
         mMessageView = (EditText) a.findViewById(R.id.message_content);
     }
@@ -575,6 +578,39 @@ public class MessageComposeInstrumentationTests
     }
     
     /**
+     * Check AddressTextView email address validation.
+     */
+    @UiThreadTest
+    public void testAddressTextView() {
+        MessageCompose messageCompose = getActivity();
+
+        mToView.setValidator(new EmailAddressValidator());
+        mToView.setText("foo");
+        mToView.performValidation();
+
+        // address is validated as errorneous
+        assertNotNull(mToView.getError());
+        assertFalse(messageCompose.isAddressAllValid());
+
+        // the wrong address is preserved by validation
+        assertEquals("foo, ", mToView.getText().toString());
+
+        mToView.setText("a@b.c");
+        mToView.performValidation();
+
+        // address is validated as correct
+        assertNull(mToView.getError());
+        assertTrue(messageCompose.isAddressAllValid());
+
+        mToView.setText("a@b.c, foo");
+        mToView.performValidation();
+
+        assertNotNull(mToView.getError());
+        assertFalse(messageCompose.isAddressAllValid());
+        assertEquals("a@b.c, foo, ", mToView.getText().toString());
+    }
+
+    /**
      * Tests for the comma-inserting logic.  The logic is applied equally to To: Cc: and Bcc:
      * but we only run the full set on To:
      */
@@ -623,5 +659,4 @@ public class MessageComposeInstrumentationTests
         assertEquals(expect, result);
       
      }
-
 }

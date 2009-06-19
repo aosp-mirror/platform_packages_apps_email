@@ -577,7 +577,7 @@ public class MessageCompose extends Activity implements OnClickListener, OnFocus
         view.append(address + ", ");
     }
 
-    private Address[] getAddresses(MultiAutoCompleteTextView view) {
+    private Address[] getAddresses(TextView view) {
         Address[] addresses = Address.parse(view.getText().toString().trim());
         return addresses;
     }
@@ -744,18 +744,35 @@ public class MessageCompose extends Activity implements OnClickListener, OnFocus
         sendOrSaveMessage(true);
     }
 
+    /** 
+     * Checks whether all the email addresses listed in TO, CC, BCC are valid.
+     */
+    /* package */ boolean isAddressAllValid() {
+        for (TextView view : new TextView[]{mToView, mCcView, mBccView}) {
+            String addresses = view.getText().toString().trim();
+            if (!Address.isAllValid(addresses)) {
+                view.setError(getString(R.string.message_compose_error_invalid_email));
+                return false;
+            }
+        }
+        return true;
+    }
+
     private void onSend() {
-        if (getAddresses(mToView).length == 0 &&
+        if (!isAddressAllValid()) {
+            Toast.makeText(this, getString(R.string.message_compose_error_invalid_email),
+                           Toast.LENGTH_LONG).show();
+        } else if (getAddresses(mToView).length == 0 &&
                 getAddresses(mCcView).length == 0 &&
                 getAddresses(mBccView).length == 0) {
             mToView.setError(getString(R.string.message_compose_error_no_recipients));
             Toast.makeText(this, getString(R.string.message_compose_error_no_recipients),
                     Toast.LENGTH_LONG).show();
-            return;
+        } else {
+            sendOrSaveMessage(false);
+            mDraftNeedsSaving = false;
+            finish();
         }
-        sendOrSaveMessage(false);
-        mDraftNeedsSaving = false;
-        finish();
     }
 
     private void onDiscard() {

@@ -512,4 +512,17 @@ public class AddressUnitTests extends AndroidTestCase {
         assertTrue("unpacking zero-length", result != null && result.length == 0);
     }
 
+    public void testIsValidAddress() {
+        String notValid[] = {"", "foo", "john@", "x@y", "x@y.", "foo.com"};
+        String valid[] = {"x@y.z", "john@gmail.com", "a@b.c.d"};
+        for (String address : notValid) {
+            assertTrue(address, !Address.isValidAddress(address));
+        }
+        for (String address : valid) {
+            assertTrue(address, Address.isValidAddress(address));
+        }
+        
+        // isAllValid() must accept empty address list as valid
+        assertTrue("Empty address list is valid", Address.isAllValid(""));
+    }
 }

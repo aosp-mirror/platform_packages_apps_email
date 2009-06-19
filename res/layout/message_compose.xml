@@ -26,7 +26,7 @@
             <LinearLayout android:orientation="vertical"
                 android:layout_width="fill_parent"
                 android:layout_height="wrap_content" android:background="#ededed">
-                <MultiAutoCompleteTextView
+                <com.android.email.activity.AddressTextView
                     android:id="@+id/to" android:layout_width="fill_parent"
                     android:layout_height="wrap_content"
                     android:textAppearance="?android:attr/textAppearanceMedium"
@@ -36,7 +36,7 @@
                     android:inputType="textEmailAddress|textMultiLine"
                     android:imeOptions="actionNext"
                     android:hint="@string/message_compose_to_hint" />
-                <MultiAutoCompleteTextView
+                <com.android.email.activity.AddressTextView
                     android:id="@+id/cc" android:layout_width="fill_parent"
                     android:layout_height="wrap_content"
                     android:textAppearance="?android:attr/textAppearanceMedium"
@@ -47,7 +47,7 @@
                     android:imeOptions="actionNext"
                     android:hint="@string/message_compose_cc_hint"
                     android:visibility="gone" />
-                <MultiAutoCompleteTextView
+                <com.android.email.activity.AddressTextView
                     android:id="@+id/bcc" android:layout_width="fill_parent"
                     android:layout_height="wrap_content"
                     android:textAppearance="?android:attr/textAppearanceMedium"
