@@ -985,13 +985,13 @@ public class MessageView extends Activity
      */
     private class LoadBodyTask extends AsyncTask<Void, Void, Cursor> {
         
-        private long mBodyId;
+        private long mMessageId;
         
         /**
          * Special constructor to cache some local info
          */
-        public LoadBodyTask(long bodyId) {
-            mBodyId = bodyId;
+        public LoadBodyTask(long messageId) {
+            mMessageId = messageId;
         }
 
         @Override
@@ -999,9 +999,9 @@ public class MessageView extends Activity
             return MessageView.this.managedQuery(
                     EmailContent.Body.CONTENT_URI,
                     BODY_CONTENT_PROJECTION,
-                    EmailContent.RECORD_ID + "=?",
+                    EmailContent.Body.MESSAGE_KEY + "=?",
                     new String[] {
-                            String.valueOf(mBodyId)
+                            String.valueOf(mMessageId)
                             }, 
                     null);
         }
@@ -1042,7 +1042,7 @@ public class MessageView extends Activity
         mAttachmentIcon.setVisibility(message.mAttachments != null ? View.VISIBLE : View.GONE);
         
         // Ask for body
-        mLoadBodyTask = new LoadBodyTask(message.mBodyKey);
+        mLoadBodyTask = new LoadBodyTask(message.mId);
         mLoadBodyTask.execute();
     }
 

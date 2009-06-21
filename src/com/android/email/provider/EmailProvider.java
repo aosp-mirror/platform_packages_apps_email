@@ -64,7 +64,7 @@ public class EmailProvider extends ContentProvider {
     
     // In these early versions, updating the database version will cause all tables to be deleted
     // Obviously, we'll handle upgrades differently once things are a bit stable
-    public static final int DATABASE_VERSION = 12;
+    public static final int DATABASE_VERSION = 13;
     public static final int BODY_DATABASE_VERSION = 1;
 
     public static final String EMAIL_AUTHORITY = "com.android.email.provider";
@@ -103,7 +103,8 @@ public class EmailProvider extends ContentProvider {
     private static final int BODY_BASE = 0x6000;
     private static final int BODY = BODY_BASE;
     private static final int BODY_ID = BODY_BASE + 1;
-    private static final int BODY_HTML = BODY_BASE + 2;
+    private static final int BODY_MESSAGE_ID = BODY_BASE + 2;
+    private static final int BODY_HTML = BODY_BASE + 3;
     private static final int BODY_TEXT = BODY_BASE + 4;
    
     
@@ -163,6 +164,8 @@ public class EmailProvider extends ContentProvider {
         matcher.addURI(EMAIL_AUTHORITY, "body", BODY);
         // A specific mail body
         matcher.addURI(EMAIL_AUTHORITY, "body/#", BODY_ID);
+        // The body for a specific message
+        matcher.addURI(EMAIL_AUTHORITY, "body/message/#", BODY_MESSAGE_ID);
         // The HTML part of a specific mail body
         matcher.addURI(EMAIL_AUTHORITY, "body/#/html", BODY_HTML);
         // The plain text part of a specific mail body
@@ -196,7 +199,6 @@ public class EmailProvider extends ContentProvider {
             + MessageColumns.CLIENT_ID + " integer, "
             + MessageColumns.MESSAGE_ID + " text, "
             + MessageColumns.THREAD_ID + " text, "
-            + MessageColumns.BODY_ID + " integer, "
             + MessageColumns.MAILBOX_KEY + " integer, "
             + MessageColumns.ACCOUNT_KEY + " integer, "
             + MessageColumns.REFERENCE_KEY + " integer, "
