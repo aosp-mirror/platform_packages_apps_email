@@ -139,7 +139,7 @@ public abstract class EmailContent {
      * @param selectionArgs as with a query call
      * @return the number of items matching the query (or zero)
      */
-    static public int count (Context context, Uri uri, String selection, String[] selectionArgs) {
+    static public int count(Context context, Uri uri, String selection, String[] selectionArgs) {
         Cursor cursor = context.getContentResolver()
             .query(uri, COUNT_COLUMNS, selection, selectionArgs, null);
         try {

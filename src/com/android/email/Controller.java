@@ -35,7 +35,7 @@ public class Controller {
     private Context mContext;
     private MessagingController mLegacyController;
     private HashSet<Result> mListeners = new HashSet<Result>();
-    
+
     protected Controller(Context _context) {
         mContext = _context;
         mLegacyController = MessagingController.getInstance(mContext);
@@ -52,7 +52,7 @@ public class Controller {
         }
         return sInstance;
     }
-    
+
     /**
      * Any UI code that wishes for callback results (on async ops) should register their callback
      * here (typically from onResume()).  Unregistered callbacks will never be called, to prevent
@@ -77,7 +77,7 @@ public class Controller {
             mListeners.remove(listener);
         }
     }
-    
+
     private boolean isActiveResultCallback(Result listener) {
         synchronized (mListeners) {
             return mListeners.contains(listener);
@@ -86,24 +86,24 @@ public class Controller {
 
     /**
      * Request a remote update of mailboxes for an account.
-     * 
+     *
      * TODO: Implement (if any) for non-MessagingController
      * TODO: Probably the right way is to create a fake "service" for MessagingController ops
      */
     public void updateMailboxList(final EmailContent.Account account, final Result callback) {
-        
+
         // 1. determine if we can use MessagingController for this
         boolean legacyController = isMessagingController(account);
-        
+
         // 2. if not...?
         // TODO: for now, just pretend "it worked"
         if (!legacyController) {
             if (callback != null) {
-                callback.onResult(null, account.mId, -1, -1);
+                callback.updateMailboxListCallback(null, account.mId);
             }
             return;
         }
-        
+
         // 3. if so, make the call
         new Thread() {
             @Override
@@ -114,7 +114,40 @@ public class Controller {
             }
         }.start();
     }
-    
+
+    /**
+     * Request a remote update of a mailbox.
+     *
+     * The contract here should be to try and update the headers ASAP, in order to populate
+     * a simple message list.  We should also at this point queue up a background task of
+     * downloading some/all of the messages in this mailbox, but that should be interruptable.
+     */
+    public void updateMailbox(final EmailContent.Account account,
+            final EmailContent.Mailbox mailbox, final Result callback) {
+
+        // 1. determine if we can use MessagingController for this
+        boolean legacyController = isMessagingController(account);
+
+        // 2. if not...?
+        // TODO: for now, just pretend "it worked"
+        if (!legacyController) {
+            if (callback != null) {
+                callback.updateMailboxCallback(null, account.mId, mailbox.mId, -1, -1);
+            }
+            return;
+        }
+
+        // 3. if so, make the call
+        new Thread() {
+            @Override
+            public void run() {
+                MessagingListener listener = new LegacyListener(callback);
+                mLegacyController.addListener(listener);
+                mLegacyController.synchronizeMailbox(account, mailbox, listener);
+            }
+        }.start();
+    }
+
     /**
      * Simple helper to determine if legacy MessagingController should be used
      */
@@ -122,44 +155,52 @@ public class Controller {
         Store.StoreInfo info =
             Store.StoreInfo.getStoreInfo(account.getStoreUri(mContext), mContext);
         String scheme = info.mScheme;
-        
+
         return ("pop3".equals(scheme) || "imap".equals(scheme));
     }
-    
+
     /**
      * Simple callback for synchronous commands.  For many commands, this can be largely ignored
      * and the result is observed via provider cursors.  The callback will *not* necessarily be
      * made from the UI thread, so you may need further handlers to safely make UI updates.
      */
     public interface Result {
-        
+
         /**
-         * Callback for operations affecting an account, mailbox, or message
-         * 
+         * Callback for updateMailboxList
+         *
          * @param result If null, the operation completed without error
          * @param accountKey The account being operated on
-         * @param mailboxKey The mailbox being operated on, or -1 if account-wide
-         * @param messageKey The message being operated on, or -1 if mailbox- or account- wide.
          */
-        public void onResult(MessagingException result,
-                long accountKey, long mailboxKey, long messageKey);
+        public void updateMailboxListCallback(MessagingException result, long accountKey);
+
+        /**
+         * Callback for updateMailbox
+         *
+         * @param result If null, the operation completed without error
+         * @param accountKey The account being operated on
+         * @param mailboxKey The mailbox being operated on
+         */
+        public void updateMailboxCallback(MessagingException result, long accountKey,
+                long mailboxKey, int totalMessagesInMailbox, int numNewMessages);
     }
-    
+
     /**
      * Support for receiving callbacks from MessagingController and dealing with UI going
      * out of scope.
      */
     private class LegacyListener extends MessagingListener {
         Result mResultCallback;
-        
+
         public LegacyListener(Result callback) {
             mResultCallback = callback;
         }
-        
+
         @Override
         public void listFoldersFailed(EmailContent.Account account, String message) {
             if (mResultCallback != null && isActiveResultCallback(mResultCallback)) {
-                mResultCallback.onResult(new MessagingException(message), account.mId, -1, -1);
+                mResultCallback.updateMailboxListCallback(new MessagingException(message),
+                        account.mId);
             }
             mLegacyController.removeListener(this);
         }
@@ -167,11 +208,38 @@ public class Controller {
         @Override
         public void listFoldersFinished(EmailContent.Account account) {
             if (mResultCallback != null && isActiveResultCallback(mResultCallback)) {
-                mResultCallback.onResult(null, account.mId, -1, -1);
+                mResultCallback.updateMailboxListCallback(null, account.mId);
             }
             mLegacyController.removeListener(this);
         }
+
+        @Override
+        public void synchronizeMailboxFinished(EmailContent.Account account,
+                EmailContent.Mailbox folder, int totalMessagesInMailbox, int numNewMessages) {
+            if (mResultCallback != null && isActiveResultCallback(mResultCallback)) {
+                mResultCallback.updateMailboxCallback(null, account.mId, folder.mId,
+                        totalMessagesInMailbox, numNewMessages);
+            }
+            mLegacyController.removeListener(this);
+        }
+
+        @Override
+        public void synchronizeMailboxFailed(EmailContent.Account account,
+                EmailContent.Mailbox folder, Exception e) {
+            if (mResultCallback != null && isActiveResultCallback(mResultCallback)) {
+                MessagingException me;
+                if (e instanceof MessagingException) {
+                    me = (MessagingException) e;
+                } else {
+                    me = new MessagingException(e.toString());
+                }
+                mResultCallback.updateMailboxCallback(me, account.mId, folder.mId, -1, -1);
+            }
+            mLegacyController.removeListener(this);
+        }
+
+
     }
-    
+
 
 }

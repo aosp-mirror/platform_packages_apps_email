@@ -89,7 +89,7 @@ import java.util.Date;
  *  refresh open folder remote messages
  *
  * And don't refresh remote folders ever unless the user runs a refresh. Maybe not even then.
- * 
+ *
  * TODO (new - 2009 rebuild)
  * From old listFolders() handler - this now should happen with the groups (folder) cursor
  * reports a data change:
@@ -97,10 +97,10 @@ import java.util.Date;
  *   in case the status or amount of messages has changed.
  */
 public class FolderMessageList extends ExpandableListActivity {
-    
+
     private static final boolean DBG_ADD_CONTENT = false;     // DO NOT CHECK IN AS 'TRUE'
     private static final boolean DBG_LOG_CURSORS = false;     // DO NOT CHECK IN AS 'TRUE'
-    
+
     private static final String EXTRA_ACCOUNT_ID = "account";
     private static final String EXTRA_CLEAR_NOTIFICATION = "clearNotification";
     private static final String EXTRA_INITIAL_FOLDER = "initialFolder";
@@ -111,7 +111,7 @@ public class FolderMessageList extends ExpandableListActivity {
             "com.android.email.activity.folderlist_expandedGroup";
     private static final String STATE_KEY_EXPANDED_GROUP_SELECTION =
             "com.android.email.activity.folderlist_expandedGroupSelection";
-    private static final String STATE_KEY_REFRESH_REMOTE = 
+    private static final String STATE_KEY_REFRESH_REMOTE =
             "com.android.email.activity.refresh_remote";
 
     private static final int UPDATE_FOLDER_ON_EXPAND_INTERVAL_MS = (1000 * 60 * 3);
@@ -139,7 +139,7 @@ public class FolderMessageList extends ExpandableListActivity {
         R.drawable.appointment_indicator_leftside_20,
         R.drawable.appointment_indicator_leftside_21,
     };
-    
+
     private static final Flag[] DELETED_FLAG = new Flag[] { Flag.DELETED };
 
     private ExpandableListView mListView;
@@ -149,8 +149,8 @@ public class FolderMessageList extends ExpandableListActivity {
     private LoadMessagesTask mLoadMessagesTask;
     private NewMessagingListener mMessagingListener;
     private NewFolderMessageListAdapter mNewAdapter;
-    private UpdateMailboxResults mControllerCallback;
-    
+    private ControllerResults mControllerCallback;
+
     private FolderMessageListAdapter mAdapter;
     private LayoutInflater mInflater;
     private long mAccountId;
@@ -170,7 +170,7 @@ public class FolderMessageList extends ExpandableListActivity {
     private boolean mRestoringState;
 
     private boolean mRefreshRemote;
-    
+
     /**
      * These arrays support NewFolderMessageListAdapter
      */
@@ -290,10 +290,10 @@ public class FolderMessageList extends ExpandableListActivity {
                     break;
                 }
                 case MSG_LIST_FOLDERS_FINISHED: {
-                    mAdapter.doListFoldersFinished();
+                    doRefreshOpenMailbox();
                     break;
                 }
-                
+
                 default:
                     super.handleMessage(msg);
             }
@@ -339,28 +339,28 @@ public class FolderMessageList extends ExpandableListActivity {
             msg.arg1 = forceRefresh ? 1 : 0;
             sendMessage(msg);
         }
-        
+
         public void newMessage(String folder, Message message) {
             android.os.Message msg = android.os.Message.obtain();
             msg.what = MSG_NEW_MESSAGE;
             msg.obj = new Object[] { folder, message };
             sendMessage(msg);
         }
-        
+
         public void removeMessageByUid(String folder, String messageUid) {
             android.os.Message msg = android.os.Message.obtain();
             msg.what = MSG_REMOVE_MESSAGE_UID;
             msg.obj = new Object[] { folder, messageUid };
             sendMessage(msg);
         }
-        
+
         public void messageUidChanged(String folder, String oldUid, String newUid) {
             android.os.Message msg = android.os.Message.obtain();
             msg.what = MSG_MESSAGE_UID_CHANGED;
             msg.obj = new Object[] { folder, oldUid, newUid };
             sendMessage(msg);
         }
-        
+
         public void listFoldersFinished() {
             sendEmptyMessage(MSG_LIST_FOLDERS_FINISHED);
         }
@@ -384,7 +384,7 @@ public class FolderMessageList extends ExpandableListActivity {
          * @param folder
          * @param synchronizeRemote
          */
-        public FolderUpdateWorker(String folder, boolean synchronizeRemote, 
+        public FolderUpdateWorker(String folder, boolean synchronizeRemote,
                 MessagingListener listener, EmailContent.Account account,
                 MessagingController controller) {
             mFolder = folder;
@@ -396,20 +396,20 @@ public class FolderMessageList extends ExpandableListActivity {
 
         public void run() {
             // Lower our priority
-            Process.setThreadPriority(Process.THREAD_PRIORITY_BACKGROUND);
+//            Process.setThreadPriority(Process.THREAD_PRIORITY_BACKGROUND);
             // Synchronously load the list of local messages
-            mController.listLocalMessages(
-                    mAccount,
-                    mFolder,
-                    mListener);
-            if (mSynchronizeRemote) {
-                // Tell the MessagingController to run a remote update of this folder
-                // at it's leisure
-                mController.synchronizeMailbox(
-                        mAccount,
-                        mFolder,
-                        mListener);
-            }
+//            mController.listLocalMessages(
+//                    mAccount,
+//                    mFolder,
+//                    mListener);
+//            if (mSynchronizeRemote) {
+//                // Tell the MessagingController to run a remote update of this folder
+//                // at it's leisure
+//                mController.synchronizeMailbox(
+//                        mAccount,
+//                        mFolder,
+//                        mListener);
+//            }
         }
     }
 
@@ -450,7 +450,7 @@ public class FolderMessageList extends ExpandableListActivity {
     /**
      * This should be used for generating lightweight (Uri-only) intents.  It probably makes sense
      * to move entirely to this, and stop passing entire account structs through Intents.
-     * 
+     *
      * @param context Calling context for building the intent
      * @param account The account of interest
      * @param initialFolder If non-null, can set the folder name to open (typically Email.INBOX)
@@ -470,7 +470,7 @@ public class FolderMessageList extends ExpandableListActivity {
         super.onCreate(savedInstanceState);
 
         requestWindowFeature(Window.FEATURE_INDETERMINATE_PROGRESS);
-        
+
         mDateFormat = android.text.format.DateFormat.getDateFormat(this);   // short format
         mTimeFormat = android.text.format.DateFormat.getTimeFormat(this);   // 12/24 date format
 
@@ -496,7 +496,7 @@ public class FolderMessageList extends ExpandableListActivity {
             Uri uri = intent.getData();
             if (uri != null) {
                 // TODO - DO NOT CHECK IN - add Account.restoreFromUri()
-                
+
                 // mAccount = Preferences.getPreferences(this).getAccountByContentUri(uri);
             }
         }
@@ -523,7 +523,7 @@ public class FolderMessageList extends ExpandableListActivity {
          * Non-user means that it's set to a fixed window e.g. 3 days
          */
         mSyncWindowUser = mAccount.getSyncWindow() == EmailContent.Account.SYNC_WINDOW_USER;
-        
+
         /*
         mAdapter = new FolderMessageListAdapter();
 
@@ -542,10 +542,10 @@ public class FolderMessageList extends ExpandableListActivity {
             mRefreshRemote |= savedInstanceState.getBoolean(STATE_KEY_REFRESH_REMOTE);
         }
         */
-        
-        mControllerCallback = new UpdateMailboxResults();
+
+        mControllerCallback = new ControllerResults();
         mMessagingListener = new NewMessagingListener();
-        
+
         mLoadMailboxesTask = (LoadMailBoxesTask) new LoadMailBoxesTask(savedInstanceState);
         mLoadMailboxesTask.execute();
 
@@ -603,7 +603,7 @@ public class FolderMessageList extends ExpandableListActivity {
         outState.putLong(STATE_KEY_EXPANDED_GROUP_SELECTION, mListView.getSelectedPosition());
         outState.putBoolean(STATE_KEY_REFRESH_REMOTE, mRefreshRemote);
     }
-    
+
     @Override
     protected void onDestroy() {
         super.onDestroy();
@@ -629,7 +629,7 @@ public class FolderMessageList extends ExpandableListActivity {
     @Override
     public void onGroupExpand(int groupPosition) {
         super.onGroupExpand(groupPosition);
-        
+
         // We enforce viewing one folder at a time, so close the previously-opened folder
         if (mExpandedGroup != -1) {
             mListView.collapseGroup(mExpandedGroup);
@@ -660,6 +660,7 @@ public class FolderMessageList extends ExpandableListActivity {
         mLoadMessagesTask.execute();
 
 
+        // TODO replace the worker with an equivalent that syncs remote messages into folder
 //        final FolderInfoHolder folder = (FolderInfoHolder) mAdapter.getGroup(groupPosition);
 //        /*
 //         * We'll only do a hard refresh of a particular folder every 3 minutes or if the user
@@ -669,7 +670,7 @@ public class FolderMessageList extends ExpandableListActivity {
 //                > UPDATE_FOLDER_ON_EXPAND_INTERVAL_MS) {
 //            folder.lastChecked = System.currentTimeMillis();
 //            // TODO: If the previous thread is already running, we should cancel it
-//            new Thread(new FolderUpdateWorker(folder.name, true, null, mAccount, 
+//            new Thread(new FolderUpdateWorker(folder.name, true, null, mAccount,
 //                    MessagingController.getInstance(getApplication())))
 //                    .start();
 //        }
@@ -678,11 +679,11 @@ public class FolderMessageList extends ExpandableListActivity {
     @Override
     public boolean onChildClick(ExpandableListView parent, View v, int groupPosition,
             int childPosition, long id) {
-        
+
         // TODO completely rewrite this.  For now, quick access to new onOpenMessage call.
         onOpenMessage(groupPosition, childPosition);
         return true;    // "handled"
-        
+
 /*
         FolderInfoHolder folder = (FolderInfoHolder) mAdapter.getGroup(groupPosition);
         if (folder.outbox) {
@@ -726,21 +727,44 @@ public class FolderMessageList extends ExpandableListActivity {
         if (forceRemote) {
             mRefreshRemote = true;
         }
-        
+
         if (mRefreshRemote) {
             mHandler.progress(true);
             Controller.getInstance(getApplication()).
                     updateMailboxList(mAccount, mControllerCallback);
         }
     }
-    
+
+    /**
+     * This is typically called after refreshing the mailbox list, but it might be called at
+     * other times as well.
+     */
+    private void doRefreshOpenMailbox() {
+        if (this.mExpandedGroup != -1) {
+            Cursor mailboxCursor = mNewAdapter.getGroup(mExpandedGroup);
+            EmailContent.Mailbox mailbox =
+                EmailContent.getContent(mailboxCursor, EmailContent.Mailbox.class);
+
+            if (mailbox != null) {
+                mHandler.progress(true);
+                Controller.getInstance(getApplication()).
+                        updateMailbox(mAccount, mailbox, mControllerCallback);
+            }
+        }
+     }
+
     /**
      * Callback for async Controller results.  This is all a placeholder until we figure out the
      * final way to do this.
      */
-    private class UpdateMailboxResults implements Controller.Result {
-        public void onResult(MessagingException result, long accountKey, long mailboxKey,
-                long messageKey) {
+    private class ControllerResults implements Controller.Result {
+        public void updateMailboxListCallback(MessagingException result, long accountKey) {
+            mHandler.progress(false);
+            mHandler.listFoldersFinished();
+        }
+
+        public void updateMailboxCallback(MessagingException result, long accountKey,
+                long mailboxKey, int totalMessagesInMailbox, int numNewMessages) {
             mHandler.progress(false);
         }
     }
@@ -770,7 +794,7 @@ public class FolderMessageList extends ExpandableListActivity {
             MessageView.actionView(this, mAccountId, folder.name, message.uid, folderUids);
         }
     }
-    
+
     /**
      * TODO we can probably do the cursor work and message ID lookup in the caller, especially
      * when we implement other handlers like onReply, onDelete, etc.
@@ -781,7 +805,7 @@ public class FolderMessageList extends ExpandableListActivity {
     private void onOpenMessage(int groupPosition, int childPosition) {
         Cursor mailboxCursor = mNewAdapter.getGroup(groupPosition);
         Cursor messageCursor = mNewAdapter.getChild(groupPosition, childPosition);
-        
+
         int mailboxTypeColumn = mailboxCursor.getColumnIndex(EmailContent.MailboxColumns.TYPE);
         int mailboxType = mailboxCursor.getInt(mailboxTypeColumn);
         if (mailboxType == EmailContent.Mailbox.TYPE_DRAFTS) {
@@ -792,7 +816,7 @@ public class FolderMessageList extends ExpandableListActivity {
             long messageId = messageCursor.getLong(messageIdColumn);
             MessageView.actionView(this, messageId);
         }
-        
+
     }
 
     private void onEditAccount() {
@@ -884,7 +908,7 @@ public class FolderMessageList extends ExpandableListActivity {
                     onOpenMessage(groupPosition, childPosition);
                     break;
             }
-            
+
             // TODO: completely rewrite this.  For now, just don't crash.
 /*
             FolderInfoHolder folder = (FolderInfoHolder) mAdapter.getGroup(groupPosition);
@@ -910,7 +934,7 @@ public class FolderMessageList extends ExpandableListActivity {
                     onToggleRead(holder);
                     break;
             }
-*/            
+*/
         }
         return super.onContextItemSelected(item);
     }
@@ -924,7 +948,7 @@ public class FolderMessageList extends ExpandableListActivity {
             long packedPosition = info.packedPosition;
             int groupPosition = ExpandableListView.getPackedPositionGroup(packedPosition);
             int childPosition = ExpandableListView.getPackedPositionChild(packedPosition);
-            
+
             // TODO: completely rewrite this.  For now, just don't crash.
 /*
             FolderInfoHolder folder = (FolderInfoHolder) mAdapter.getGroup(groupPosition);
@@ -942,16 +966,16 @@ public class FolderMessageList extends ExpandableListActivity {
 */
         }
     }
-    
+
     /**
      * Async task to handle the cursor query out of the UI thread
      */
     private class LoadMailBoxesTask extends AsyncTask<Void, Void, Cursor> {
-        
+
         // We park the activity's saved instance state here, to apply
         // after the cursor is loaded and the adapter is ready for UI
         Bundle mSavedInstanceState;
-        
+
         public LoadMailBoxesTask(Bundle savedInstanceState) {
             super();
             mSavedInstanceState = savedInstanceState;
@@ -965,7 +989,7 @@ public class FolderMessageList extends ExpandableListActivity {
                     EmailContent.Mailbox.CONTENT_URI,
                     EmailContent.Mailbox.CONTENT_PROJECTION,
                     EmailContent.MailboxColumns.ACCOUNT_KEY + "=?",
-                    new String[] { String.valueOf(FolderMessageList.this.mAccountId) }, 
+                    new String[] { String.valueOf(FolderMessageList.this.mAccountId) },
                     EmailContent.MailboxColumns.TYPE);
         }
 
@@ -978,7 +1002,7 @@ public class FolderMessageList extends ExpandableListActivity {
             FolderMessageList.this.mNewAdapter =
                 new NewFolderMessageListAdapter(cursor, FolderMessageList.this);
             mListView.setAdapter(FolderMessageList.this.mNewAdapter);
-            
+
             // After setting up the adapter & data, restore its state (if applicable)
             if (mSavedInstanceState != null) {
                 mRestoringState = true;
@@ -986,19 +1010,19 @@ public class FolderMessageList extends ExpandableListActivity {
                 mRestoringState = false;
                 mRefreshRemote |= mSavedInstanceState.getBoolean(STATE_KEY_REFRESH_REMOTE);
             }
-            
+
             // If there are no folders at all, this is probably a new account - reload from server
             if (cursor.getCount() == 0) {
                 FolderMessageList.this.onRefresh(true);
             }
-            
+
             /**
              * For debugging purposes, add a single mailbox when there are none
              */
             if (DBG_ADD_CONTENT) {
                 if (cursor.getCount() < 4) {
                     EmailContent.Mailbox box = new EmailContent.Mailbox();
-                    
+
                     box.mDisplayName = "dummy mailbox";
                     // box.mServerId;
                     // box.mParentServerId;
@@ -1015,9 +1039,9 @@ public class FolderMessageList extends ExpandableListActivity {
                     // box.mVisibleLimit;
                     box.save(FolderMessageList.this);
                     long mailbox1Id = box.mId;
-                    
+
                     box = new EmailContent.Mailbox();
-                    
+
                     box.mDisplayName = "dummy mailbox 2";
                     box.mAccountKey = FolderMessageList.this.mAccountId;
                     box.mType = EmailContent.Mailbox.TYPE_MAIL;
@@ -1025,9 +1049,9 @@ public class FolderMessageList extends ExpandableListActivity {
                     box.mFlagVisible = true;
                     box.save(FolderMessageList.this);
                     long mailbox2Id = box.mId;
-                    
+
                     box = new EmailContent.Mailbox();
-                    
+
                     box.mDisplayName = "dummy mailbox 3";
                     box.mAccountKey = FolderMessageList.this.mAccountId;
                     box.mType = EmailContent.Mailbox.TYPE_MAIL;
@@ -1035,18 +1059,18 @@ public class FolderMessageList extends ExpandableListActivity {
                     box.mFlagVisible = true;
                     box.save(FolderMessageList.this);
                     long mailbox3Id = box.mId;
-                    
+
                     box = new EmailContent.Mailbox();
-                    
+
                     box.mDisplayName = "dummy mailbox diff acct";
                     box.mAccountKey = FolderMessageList.this.mAccountId + 1;
                     box.mType = EmailContent.Mailbox.TYPE_INBOX;
                     box.mUnreadCount = 50;
                     box.mFlagVisible = true;
                     box.save(FolderMessageList.this);
-                    
+
                     // finally toss in a few messages
-                    
+
                     EmailContent.Message msg = new EmailContent.Message();
                     msg.mDisplayName = "sender1@google.com";
                     msg.mTimeStamp = 1010101090;    // invent a better timestamp
@@ -1076,7 +1100,7 @@ public class FolderMessageList extends ExpandableListActivity {
                     // msg.mBcc;
                     // msg.mReplyTo;
                     msg.save(FolderMessageList.this);
-                    
+
                     msg = new EmailContent.Message();
                     msg.mDisplayName = "sender2@google.com";
                     msg.mTimeStamp = 1010101091;    // invent a better timestamp
@@ -1087,7 +1111,7 @@ public class FolderMessageList extends ExpandableListActivity {
 //                    msg.mText = "This is the body text of this email.";
 //                    msg.mTextInfo = "X;X;8;" + msg.mText.length()*2;
                     msg.save(FolderMessageList.this);
-                    
+
                     msg = new EmailContent.Message();
                     msg.mDisplayName = "sender3@google.com";
                     msg.mTimeStamp = 1010101092;    // invent a better timestamp
@@ -1098,7 +1122,7 @@ public class FolderMessageList extends ExpandableListActivity {
 //                    msg.mText = "This is the body text of the 3rd email.";
 //                    msg.mTextInfo = "X;X;8;" + msg.mText.length()*2;
                     msg.save(FolderMessageList.this);
-                    
+
                     msg = new EmailContent.Message();
                     msg.mDisplayName = "sender4@google.com";
                     msg.mTimeStamp = 1010101093;    // invent a better timestamp
@@ -1108,12 +1132,12 @@ public class FolderMessageList extends ExpandableListActivity {
                     msg.mFrom = "sender4@google.com";
 //                    msg.mText = "This is the body text of the 4th email.";
 //                    msg.mTextInfo = "X;X;8;" + msg.mText.length()*2;
-                    msg.save(FolderMessageList.this);                   
+                    msg.save(FolderMessageList.this);
                 }
             }
         }
     }
-    
+
     /**
      * Async task for loading a single folder out of the UI thread
      */
@@ -1142,8 +1166,8 @@ public class FolderMessageList extends ExpandableListActivity {
                     new String[] {
                             String.valueOf(FolderMessageList.this.mAccountId),
                             String.valueOf(mMailboxKey)
-                            }, 
-                    null);
+                            },
+                    EmailContent.MessageColumns.TIMESTAMP + " DESC");
         }
 
         @Override
@@ -1155,32 +1179,36 @@ public class FolderMessageList extends ExpandableListActivity {
             // Confirm that we're still stuffing the correct group #
             if (mGroupNumber == FolderMessageList.this.mExpandedGroup) {
                 FolderMessageList.this.mNewAdapter.setChildrenCursor(mGroupNumber, cursor);
+
+                // TODO implement 3-minute refresh rule, instead of "every time"
+                doRefreshOpenMailbox();
             }
         }
     }
-    
+
     /**
      * This class implements the tree for displaying folders and messages based on cursors.
-     * 
-     * TODO: There is a bug # 1913302 describing a bug in ResourceCursorTreeAdapter, mixing up 
+     *
+     * TODO: There is a bug # 1913302 describing a bug in ResourceCursorTreeAdapter, mixing up
      * recycled views when you have "last child" or "expanded/contracted group" layouts.  Because of
      * this, we're going to simplify (for now) and simply display the message list, without the
      * added "last" view of the loading status.  This is all placeholder code until we move folder
      * view into the Account screen.
      */
     private static class NewFolderMessageListAdapter extends CursorTreeAdapter {
-        
+
         Context mContext;
         private LayoutInflater mInflater;
-        
+
         int mFolderNameColumn;
         int mFolderUnreadCountColumn;
-        
+
         boolean haveChildColumns;
+        int mChildReadFlagColumn;
         int mChildDisplayNameColumn;
         int mChildDateColumn;
         int mChildSubjectColumn;
-        
+
         public NewFolderMessageListAdapter(Cursor cursor, Context context) {
             super(cursor, context);
             mContext = context;
@@ -1201,10 +1229,20 @@ public class FolderMessageList extends ExpandableListActivity {
             return null;
         }
         
+        /**
+         * Overriding this allows the child cursors to be requeried on dataset changes
+         */
+        @Override
+        public void notifyDataSetChanged() {
+            notifyDataSetChanged(false);
+        }
+
         @Override
         protected void bindChildView(View view, Context context, Cursor cursor, boolean isLastChild)
                 {
             if (!haveChildColumns) {
+                mChildReadFlagColumn =
+                    cursor.getColumnIndexOrThrow(EmailContent.MessageColumns.FLAG_READ);
                 mChildDisplayNameColumn =
                     cursor.getColumnIndexOrThrow(EmailContent.MessageColumns.DISPLAY_NAME);
                 mChildDateColumn =
@@ -1218,7 +1256,9 @@ public class FolderMessageList extends ExpandableListActivity {
                 String text = null;
                 switch(v.getId()) {
                     case R.id.chip:
-                        // TODO - figure out chip display based on acct#
+                        // TODO - change chip color based on acct#
+                        boolean readFlag = cursor.getInt(mChildReadFlagColumn) != 0;
+                        v.getBackground().setAlpha(readFlag ? 0 : 255);
                         break;
                     case R.id.from:
                         text = cursor.getString(mChildDisplayNameColumn);
@@ -1271,7 +1311,7 @@ public class FolderMessageList extends ExpandableListActivity {
         }
 
     }
-    
+
     /**
      * This class replaces the old MessagingListener, and most of it is not implemented because
      * we're switching over to cursors for most notifications.
@@ -1311,6 +1351,7 @@ public class FolderMessageList extends ExpandableListActivity {
                 mHandler.listFoldersFinished();
             }
 
+/*
             @Override
             public void listLocalMessagesStarted(EmailContent.Account account, String folder) {
                 if (!account.equals(mAccount)) {
@@ -1347,37 +1388,38 @@ public class FolderMessageList extends ExpandableListActivity {
                 }
                 mHandler.synchronizeMessages(folder, messages);
             }
-
+*/
             @Override
-            public void synchronizeMailboxStarted(EmailContent.Account account, String folder) {
+            public void synchronizeMailboxStarted(EmailContent.Account account,
+                    EmailContent.Mailbox folder) {
                 if (!account.equals(mAccount)) {
                     return;
                 }
                 mHandler.progress(true);
-                mHandler.folderLoading(folder, true);
-                mHandler.folderStatus(folder, null, false);
+//                mHandler.folderLoading(folder, true);
+//                mHandler.folderStatus(folder, null, false);
             }
 
             @Override
-            public void synchronizeMailboxFinished(EmailContent.Account account, String folder,
-                    int totalMessagesInMailbox, int numNewMessages) {
+            public void synchronizeMailboxFinished(EmailContent.Account account,
+                    EmailContent.Mailbox folder, int totalMessagesInMailbox, int numNewMessages) {
                 if (!account.equals(mAccount)) {
                     return;
                 }
                 mHandler.progress(false);
-                mHandler.folderLoading(folder, false);
-                mHandler.folderStatus(folder, null, false);
+//                mHandler.folderLoading(folder, false);
+//                mHandler.folderStatus(folder, null, false);
                 onRefresh(false);
             }
 
             @Override
-            public void synchronizeMailboxFailed(EmailContent.Account account, String folder,
-                    Exception e) {
+            public void synchronizeMailboxFailed(EmailContent.Account account,
+                    EmailContent.Mailbox folder, Exception e) {
                 if (!account.equals(mAccount)) {
                     return;
                 }
                 mHandler.progress(false);
-                mHandler.folderLoading(folder, false);
+//                mHandler.folderLoading(folder, false);
                 // Use exception details to select a decent string
                 // TODO combine with very similar code in AccountSettingsCheckSetup
                 int id = R.string.status_network_error;
@@ -1402,25 +1444,7 @@ public class FolderMessageList extends ExpandableListActivity {
                             break;
                     }
                 }
-                mHandler.folderStatus(folder, getString(id), true);
-            }
-
-            @Override
-            public void synchronizeMailboxNewMessage(EmailContent.Account account, String folder,
-                    Message message) {
-                if (!account.equals(mAccount)) {
-                    return;
-                }
-                mHandler.newMessage(folder, message);
-            }
-
-            @Override
-            public void synchronizeMailboxRemovedMessage(EmailContent.Account account, String folder,
-                    Message message) {
-                if (!account.equals(mAccount)) {
-                    return;
-                }
-                mHandler.removeMessageByUid(folder, message.getUid());
+//                mHandler.folderStatus(folder, getString(id), true);
             }
 
             @Override
@@ -1488,13 +1512,13 @@ public class FolderMessageList extends ExpandableListActivity {
             holder.special = true;
             if (folderName.equalsIgnoreCase(Email.INBOX)) {
                 holder.inbox = true;
-                holder.displayName = getString(R.string.special_mailbox_name_inbox); 
+                holder.displayName = getString(R.string.special_mailbox_name_inbox);
             } else if (folderName.equals(mAccount.getDraftsFolderName(FolderMessageList.this))) {
                 holder.drafts = true;
                 holder.displayName = getString(R.string.special_mailbox_display_name_drafts);
             } else if (folderName.equals(mAccount.getOutboxFolderName(FolderMessageList.this))) {
                 holder.outbox = true;
-                holder.displayName = getString(R.string.special_mailbox_display_name_outbox); 
+                holder.displayName = getString(R.string.special_mailbox_display_name_outbox);
             } else if (folderName.equals(mAccount.getSentFolderName(FolderMessageList.this))) {
                 holder.sent = true;
                 holder.displayName = getString(R.string.special_mailbox_display_name_sent);
@@ -1506,7 +1530,7 @@ public class FolderMessageList extends ExpandableListActivity {
                 holder.displayName = folderName;
             }
         }
-        
+
         /**
          * This code is invoked (in the UI thread) when listFoldersFinished() happens.  It
          * implements the UI policy of opening the requested folder (if any).
@@ -1518,7 +1542,7 @@ public class FolderMessageList extends ExpandableListActivity {
                 if (groupPosition != -1) {
                     mListView.expandGroup(groupPosition);
                 }
-            }            
+            }
         }
 
         public void removeMessage(String folder, String messageUid) {
@@ -1786,7 +1810,7 @@ public class FolderMessageList extends ExpandableListActivity {
         }
 
     }
-    
+
     /**
      * Holder for a single folder's information.
      */
@@ -1835,7 +1859,7 @@ public class FolderMessageList extends ExpandableListActivity {
         public String uid;
         public boolean read;
         public Message message;
-        
+
         private java.text.DateFormat mDateFormat;
         private java.text.DateFormat mTimeFormat;
 

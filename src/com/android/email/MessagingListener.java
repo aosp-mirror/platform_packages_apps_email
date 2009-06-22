@@ -40,34 +40,16 @@ public class MessagingListener {
     public void listFoldersFinished(EmailContent.Account account) {
     }
 
-    public void listLocalMessagesStarted(EmailContent.Account account, String folder) {
+    public void synchronizeMailboxStarted(EmailContent.Account account, EmailContent.Mailbox folder)
+            {
     }
 
-    public void listLocalMessages(EmailContent.Account account, String folder, Message[] messages) {
+    public void synchronizeMailboxFinished(EmailContent.Account account,
+            EmailContent.Mailbox folder, int totalMessagesInMailbox, int numNewMessages) {
     }
 
-    public void listLocalMessagesFailed(EmailContent.Account account, String folder, String message) {
-    }
-
-    public void listLocalMessagesFinished(EmailContent.Account account, String folder) {
-    }
-
-    public void synchronizeMailboxStarted(EmailContent.Account account, String folder) {
-    }
-
-    public void synchronizeMailboxNewMessage(EmailContent.Account account, String folder,
-            Message message) {
-    }
-
-    public void synchronizeMailboxRemovedMessage(EmailContent.Account account, String folder,
-            Message message) {
-    }
-
-    public void synchronizeMailboxFinished(EmailContent.Account account, String folder,
-            int totalMessagesInMailbox, int numNewMessages) {
-    }
-
-    public void synchronizeMailboxFailed(EmailContent.Account account, String folder, Exception e) {
+    public void synchronizeMailboxFailed(EmailContent.Account account, EmailContent.Mailbox folder,
+            Exception e) {
     }
 
     public void loadMessageForViewStarted(EmailContent.Account account, String folder, String uid) {

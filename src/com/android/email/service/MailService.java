@@ -239,8 +239,8 @@ public class MailService extends Service {
 
         // Called once per checked account
         @Override
-        public void synchronizeMailboxFinished(EmailContent.Account account, String folder,
-                int totalMessagesInMailbox, int numNewMessages) {
+        public void synchronizeMailboxFinished(EmailContent.Account account,
+                EmailContent.Mailbox folder, int totalMessagesInMailbox, int numNewMessages) {
             if (Config.LOGD && Email.DEBUG) {
                 Log.d(Email.LOG_TAG, "*** MailService: synchronizeMailboxFinished: total=" + 
                         totalMessagesInMailbox + " new=" + numNewMessages);
