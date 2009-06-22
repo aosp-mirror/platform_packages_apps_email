@@ -16,7 +16,6 @@
 
 package com.android.email;
 
-import com.android.email.activity.FolderMessageList;
 import com.android.email.mail.FetchProfile;
 import com.android.email.mail.Flag;
 import com.android.email.mail.Folder;
@@ -35,9 +34,12 @@ import com.android.email.mail.store.LocalStore.LocalFolder;
 import com.android.email.mail.store.LocalStore.LocalMessage;
 import com.android.email.mail.store.LocalStore.PendingCommand;
 import com.android.email.provider.EmailContent;
+import com.android.email.provider.EmailContent.MailboxColumns;
 
+import android.content.ContentUris;
 import android.content.Context;
 import android.database.Cursor;
+import android.net.Uri;
 import android.os.Process;
 import android.util.Config;
 import android.util.Log;
@@ -187,6 +189,31 @@ public class MessagingController implements Runnable {
     }
 
     /**
+     * Lightweight class for capturing local mailboxes in an account.  Just the columns
+     * necessary for a sync.
+     */
+    private static class LocalMailboxInfo {
+        private static final int COLUMN_ID = 0;
+        private static final int COLUMN_DISPLAY_NAME = 1;
+        private static final int COLUMN_ACCOUNT_KEY = 2;
+
+        private static final String[] PROJECTION = new String[] {
+            EmailContent.RECORD_ID,
+            MailboxColumns.DISPLAY_NAME, MailboxColumns.ACCOUNT_KEY,
+        };
+        
+        long mId;
+        String mDisplayName;
+        long mAccountKey;
+        
+        public LocalMailboxInfo(Cursor c) {
+            mId = c.getLong(COLUMN_ID);
+            mDisplayName = c.getString(COLUMN_DISPLAY_NAME);
+            mAccountKey = c.getLong(COLUMN_ACCOUNT_KEY);
+        }
+    }
+
+    /**
      * Lists folders that are available locally and remotely. This method calls
      * listFoldersCallback for local folders before it returns, and then for
      * remote folders at some later point. If there are no local folders
@@ -209,7 +236,7 @@ public class MessagingController implements Runnable {
 
         put("listFolders", listener, new Runnable() {
             public void run() {
-                Cursor localFolders = null;
+                Cursor localFolderCursor = null;
                 try {
                     // Step 1:  Get remote folders, make a list, and add any local folders
                     // that don't already exist.
@@ -224,17 +251,19 @@ public class MessagingController implements Runnable {
                         remoteFolderNames.add(remoteFolders[i].getName());
                     }
                     
+                    HashMap<String, LocalMailboxInfo> localFolders =
+                        new HashMap<String, LocalMailboxInfo>();
                     HashSet<String> localFolderNames = new HashSet<String>();
-                    localFolders = mContext.getContentResolver().query(
+                    localFolderCursor = mContext.getContentResolver().query(
                             EmailContent.Mailbox.CONTENT_URI,
-                            EmailContent.Mailbox.CONTENT_PROJECTION,
+                            LocalMailboxInfo.PROJECTION,
                             EmailContent.MailboxColumns.ACCOUNT_KEY + "=?",
                             new String[] { String.valueOf(account.mId) }, 
                             null);
-                    while (localFolders.moveToNext()) {
-                        localFolderNames.add(
-                                localFolders.getString(
-                                        EmailContent.Mailbox.CONTENT_DISPLAY_NAME_COLUMN));
+                    while (localFolderCursor.moveToNext()) {
+                        LocalMailboxInfo info = new LocalMailboxInfo(localFolderCursor);
+                        localFolders.put(info.mDisplayName, info);
+                        localFolderNames.add(info.mDisplayName);
                     }
                     
                     // Short circuit the rest if the sets are the same (the usual case)
@@ -245,9 +274,11 @@ public class MessagingController implements Runnable {
                         // Drops first, to make things smaller rather than larger
                         HashSet<String> localsToDrop = new HashSet<String>(localFolderNames);
                         localsToDrop.removeAll(remoteFolderNames);
-                        if (localsToDrop.size() > 0) {
-                            // TODO drop 'em.
-                            // See http://buganizer/issue?id=1921470
+                        for (String localNameToDrop : localsToDrop) {
+                            LocalMailboxInfo localInfo = localFolders.get(localNameToDrop);
+                            Uri uri = ContentUris.withAppendedId(
+                                    EmailContent.Mailbox.CONTENT_URI, localInfo.mId);
+                            mContext.getContentResolver().delete(uri, null, null);
                         }
                         
                         // Now do the adds
@@ -283,8 +314,8 @@ public class MessagingController implements Runnable {
                         }
                     }
                 } finally {
-                    if (localFolders != null) {
-                        localFolders.close();
+                    if (localFolderCursor != null) {
+                        localFolderCursor.close();
                     }
                 }
             }

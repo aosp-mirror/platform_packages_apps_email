@@ -22,7 +22,6 @@ import com.android.email.R;
 import com.android.email.activity.setup.AccountSettings;
 import com.android.email.activity.setup.AccountSetupBasics;
 import com.android.email.mail.Store;
-import com.android.email.mail.store.LocalStore;
 import com.android.email.provider.EmailContent;
 import com.android.email.provider.EmailContent.Account;
 
@@ -218,25 +217,18 @@ public class Accounts extends ListActivity implements OnItemClickListener, OnCli
                 public void onClick(DialogInterface dialog, int whichButton) {
                     dismissDialog(DIALOG_REMOVE_ACCOUNT);
                     try {
-                        LocalStore localStore = (LocalStore) Store.getInstance(
-                                mSelectedContextAccount.getLocalStoreUri(Accounts.this),
-                                getApplication(), 
-                                null);
                         // Delete Remote store at first.
                         Store.getInstance(
                                 mSelectedContextAccount.getStoreUri(Accounts.this),
-                                getApplication(), 
-                                localStore.getPersistentCallbacks()).delete();
+                                getApplication(), null).delete();
                         // Remove the Store instance from cache.
                         Store.removeInstance(mSelectedContextAccount.getStoreUri(Accounts.this));
-                        // If no error, then delete LocalStore
-                        localStore.delete();
+                        Uri uri = ContentUris.withAppendedId(
+                                EmailContent.Account.CONTENT_URI, mSelectedContextAccount.mId);
+                        Accounts.this.getContentResolver().delete(uri, null, null);
                     } catch (Exception e) {
                             // Ignore
                     }
-                    Uri uri = ContentUris.withAppendedId(
-                            EmailContent.Account.CONTENT_URI, mSelectedContextAccount.mId);
-                    Accounts.this.getContentResolver().delete(uri, null, null);
                     Email.setServicesEnabled(Accounts.this);
                 }
             })
@@ -248,6 +240,7 @@ public class Accounts extends ListActivity implements OnItemClickListener, OnCli
             .create();
     }
 
+    @Override
     public boolean onContextItemSelected(MenuItem item) {
         AdapterContextMenuInfo menuInfo = (AdapterContextMenuInfo)item.getMenuInfo();
         Cursor c = (Cursor) getListView().getItemAtPosition(menuInfo.position);
