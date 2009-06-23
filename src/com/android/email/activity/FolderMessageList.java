@@ -1000,7 +1000,8 @@ public class FolderMessageList extends ExpandableListActivity {
                         String.valueOf(cursor.getCount()));
             }
             FolderMessageList.this.mNewAdapter =
-                new NewFolderMessageListAdapter(cursor, FolderMessageList.this);
+                new NewFolderMessageListAdapter(cursor, FolderMessageList.this,
+                        mDateFormat, mTimeFormat);
             mListView.setAdapter(FolderMessageList.this.mNewAdapter);
 
             // After setting up the adapter & data, restore its state (if applicable)
@@ -1209,10 +1210,16 @@ public class FolderMessageList extends ExpandableListActivity {
         int mChildDateColumn;
         int mChildSubjectColumn;
 
-        public NewFolderMessageListAdapter(Cursor cursor, Context context) {
+        private java.text.DateFormat mDateFormat;
+        private java.text.DateFormat mTimeFormat;
+
+        public NewFolderMessageListAdapter(Cursor cursor, Context context, DateFormat dateFormat,
+                DateFormat timeFormat) {
             super(cursor, context);
             mContext = context;
             mInflater = (LayoutInflater)context.getSystemService(Context.LAYOUT_INFLATER_SERVICE);
+            mDateFormat = dateFormat;
+            mTimeFormat = timeFormat;
 
             mFolderNameColumn =
                 cursor.getColumnIndexOrThrow(EmailContent.MailboxColumns.DISPLAY_NAME);
@@ -1264,8 +1271,13 @@ public class FolderMessageList extends ExpandableListActivity {
                         text = cursor.getString(mChildDisplayNameColumn);
                         break;
                     case R.id.date:
-                        // TODO - date formatting
-                        text = cursor.getString(mChildDateColumn);
+                        long timestamp = cursor.getLong(mChildDateColumn);
+                        Date date = new Date(timestamp);
+                        if (Utility.isDateToday(date)) {
+                            text = mTimeFormat.format(date);
+                        } else {
+                            text = mDateFormat.format(date);
+                        }
                         break;
                     case R.id.subject:
                         // TODO maybe start using snippet instead of subject

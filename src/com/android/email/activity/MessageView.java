@@ -1022,22 +1022,19 @@ public class MessageView extends Activity
      * 
      * @param cursor A cursor loaded from EmailStore.Message.
      * 
-     * TODO: field-specific formatting rules
-     * TODO: timestamp -> date/time
-     * TODO: body
      * TODO: attachments
      * TODO: trigger presence check
-     * TODO: trigger body load
      */
     private void reloadUiFromCursor(Cursor cursor) {
         EmailContent.Message message = EmailContent.getContent(cursor, EmailContent.Message.class);
         
         mSubjectView.setText(message.mSubject);
-        mFromView.setText(message.mFrom);
-        mTimeView.setText(String.valueOf(message.mTimeStamp));
-        mDateView.setText(String.valueOf(message.mTimeStamp));
-        mToView.setText(message.mTo);
-        mCcView.setText(message.mCc);
+        mFromView.setText(Address.toFriendly(Address.unpack(message.mFrom)));
+        Date date = new Date(message.mTimeStamp);
+        mTimeView.setText(mTimeFormat.format(date));
+        mDateView.setText(Utility.isDateToday(date) ? null : mDateFormat.format(date));
+        mToView.setText(Address.toFriendly(Address.unpack(message.mTo)));
+        mCcView.setText(Address.toFriendly(Address.unpack(message.mCc)));
         mCcContainerView.setVisibility((message.mCc != null) ? View.VISIBLE : View.GONE);
         mAttachmentIcon.setVisibility(message.mAttachments != null ? View.VISIBLE : View.GONE);
         
