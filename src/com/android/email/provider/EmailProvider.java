@@ -447,7 +447,8 @@ public class EmailProvider extends ContentProvider {
         SQLiteDatabase db = (match >= BODY_BASE) ? getBodyDatabase(context) : getDatabase(context);
         int table = match >> BASE_SHIFT;
         String id = "0";
-        boolean checkDeleteBody = false;
+        boolean attachBodyDb = false;
+        boolean deleteOrphanedBodies = false;
         
         if (Config.LOGV) {
             Log.v(TAG, "EmailProvider.delete: uri=" + uri + ", match is " + match);
@@ -467,17 +468,20 @@ public class EmailProvider extends ContentProvider {
                 case MESSAGE_ID:
                     // Handle lost Body records here, since this cannot be done in a trigger
                     // The process is:
+                    //  0) Activate the body database (bootstrap step, if doesn't exist yet)
                     //  1) Attach the Body database
                     //  2) Begin a transaction, ensuring that both databases are affected atomically
                     //  3) Do the requested deletion, with cascading deletions handled in triggers
                     //  4) End the transaction, committing all changes atomically
                     //  5) Detach the Body database
+                    attachBodyDb = true;
+                    getBodyDatabase(context);
                     String bodyFileName = context.getDatabasePath(BODY_DATABASE_NAME)
                             .getAbsolutePath();
                     db.execSQL("attach \"" + bodyFileName + "\" as BodyDatabase");
                     db.beginTransaction();
                     if (match != MESSAGE_ID) {
-                        checkDeleteBody = true;
+                        deleteOrphanedBodies = true;
                     }
                     break;
             }
@@ -505,21 +509,27 @@ public class EmailProvider extends ContentProvider {
                 default:
                     throw new IllegalArgumentException("Unknown URI " + uri);
             }
-            if (checkDeleteBody) {
-                // Delete any orphaned Body records
-                db.execSQL("delete from " + Body.TABLE_NAME + " where _id in (select _id from " +
-                        Body.TABLE_NAME + " except select _id from " + Message.TABLE_NAME + ")");
-                db.setTransactionSuccessful();
-            } else if (match == MESSAGE_ID) {
-                // Delete the Body record associated with the deleted message
-                db.execSQL("delete from " + Body.TABLE_NAME + " where _id=" + id);
-                db.setTransactionSuccessful();
-             }
+            if (attachBodyDb) {
+                if (deleteOrphanedBodies) {
+                    // Delete any orphaned Body records
+                    db.execSQL("delete from " + Body.TABLE_NAME +
+                            " where " + EmailContent.RECORD_ID + " in " +
+                            "(select " + EmailContent.RECORD_ID + " from " + Body.TABLE_NAME +
+                            " except select " + EmailContent.RECORD_ID +
+                            " from " + Message.TABLE_NAME + ")");
+                    db.setTransactionSuccessful();
+                } else {
+                    // Delete the Body record associated with the deleted message
+                    db.execSQL("delete from " + Body.TABLE_NAME +
+                            " where " + EmailContent.RECORD_ID + "=" + id);
+                    db.setTransactionSuccessful();
+                 }
+            }
         } finally {
-            if (checkDeleteBody) {
+            if (attachBodyDb) {
                 db.endTransaction();
                 db.execSQL("detach BodyDatabase");
-           }
+            }
         }
         getContext().getContentResolver().notifyChange(uri, null);
         return result;

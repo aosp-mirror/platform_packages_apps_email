@@ -1052,11 +1052,12 @@ public class MessageView extends Activity
      */
     private void reloadBodyFromCursor(Cursor cursor) {
         // TODO Remove this hack that forces some text to test the code
-        String text;
-        if (cursor == null) {
-            text = "This is dummy text from MessageView.reloadBodyFromCursor()";
-        } else {
+        String text = null;
+        if (cursor != null) {
             text = cursor.getString(BODY_CONTENT_COLUMN_TEXT_CONTENT);
+        }
+        if (text == null) {
+            text = "";
         }
         
         // This code is stolen from Listener.loadMessageForViewBodyAvailable

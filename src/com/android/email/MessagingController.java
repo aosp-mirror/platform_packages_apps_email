@@ -29,6 +29,7 @@ import com.android.email.mail.Store;
 import com.android.email.mail.StoreSynchronizer;
 import com.android.email.mail.Folder.FolderType;
 import com.android.email.mail.Folder.OpenMode;
+import com.android.email.mail.internet.MimeMessage;
 import com.android.email.mail.internet.MimeUtility;
 import com.android.email.mail.store.LocalStore;
 import com.android.email.mail.store.LocalStore.LocalFolder;
@@ -49,7 +50,6 @@ import android.util.Config;
 import android.util.Log;
 
 import java.util.ArrayList;
-import java.util.Collections;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.HashSet;
@@ -808,31 +808,10 @@ public class MessagingController implements Runnable {
                                 if (localMessageInfo == null) {
                                     localMessage = new EmailContent.Message();
                                 } else {
-                                    Cursor c = null;
-                                    try {
-                                        c = mContext.getContentResolver().query(
-                                                EmailContent.Message.CONTENT_URI,
-                                                EmailContent.Message.CONTENT_PROJECTION,
-                                                EmailContent.MessageColumns.ACCOUNT_KEY + "=?" +
-                                                " AND " + MessageColumns.MAILBOX_KEY + "=?" + 
-                                                " AND " + EmailContent.RECORD_ID + "=?",
-                                                new String[] {
-                                                        String.valueOf(account.mId),
-                                                        String.valueOf(folder.mId),
-                                                        String.valueOf(localMessageInfo.mId)
-                                                },
-                                                null);
-                                        if (c.moveToNext()) {
-                                            localMessage = EmailContent.getContent(
-                                                    c, EmailContent.Message.class);
-                                        }
-                                    } finally {
-                                        if (c != null) {
-                                            c.close();
-                                        }
-                                    }
+                                    localMessage = EmailContent.Message.restoreMessageWithId(
+                                            mContext, localMessageInfo.mId);
                                 }
-                                
+
                                 if (localMessage != null) {
                                     try {
                                         // Copy the fields that are available into the message
@@ -848,6 +827,7 @@ public class MessagingController implements Runnable {
                                         Log.e(Email.LOG_TAG,
                                                 "Error while copying downloaded message." + me);
                                     }
+
                                 }
                             }
                             catch (Exception e) {
@@ -933,36 +913,100 @@ public class MessagingController implements Runnable {
             mContext.getContentResolver().delete(uriToDelete, null, null);
         }
         
-        // 12. Download small messages
+        // 12. Divide the unsynced messages into small & large (by size)
         
-        // 13. Download large messages
+        // TODO doing this work here (synchronously) is problematic because it prevents the UI
+        // from affecting the order (e.g. download a message because the user requested it.)  Much
+        // of this logic should move out to a different sync loop that attempts to update small
+        // groups of messages at a time, as a background task.  However, we can't just return
+        // (yet) because POP messages don't have an envelope yet....
         
-        // 14. Clean up and report results
-        
-        
-        
-        
-
-        // Original sync code.  Using for reference, will delete when done.
-        if (false) {
-        /*
-         * Now we download the actual content of messages.
-         */
         ArrayList<Message> largeMessages = new ArrayList<Message>();
         ArrayList<Message> smallMessages = new ArrayList<Message>();
         for (Message message : unsyncedMessages) {
-            /*
-             * Sort the messages into two buckets, small and large. Small messages will be
-             * downloaded fully and large messages will be downloaded in parts. By sorting
-             * into two buckets we can pipeline the commands for each set of messages
-             * into a single command to the server saving lots of round trips.
-             */
             if (message.getSize() > (MAX_SMALL_MESSAGE_SIZE)) {
                 largeMessages.add(message);
             } else {
                 smallMessages.add(message);
             }
         }
+
+        // 13. Download small messages
+
+        // TODO Problems with this implementation.  1. For IMAP, where we get a real envelope,
+        // this is going to be inefficient and duplicate work we've already done.  2.  It's going
+        // back to the DB for a local message that we already had (and discarded).
+
+        fp = new FetchProfile();
+        fp.add(FetchProfile.Item.BODY);
+        remoteFolder.fetch(smallMessages.toArray(new Message[smallMessages.size()]), fp,
+                new MessageRetrievalListener() {
+                    public void messageFinished(Message message, int number, int ofTotal) {
+                        try {
+                            EmailContent.Message localMessage = null;
+                            Cursor c = null;
+                            try {
+                                c = mContext.getContentResolver().query(
+                                        EmailContent.Message.CONTENT_URI,
+                                        EmailContent.Message.CONTENT_PROJECTION,
+                                        EmailContent.MessageColumns.ACCOUNT_KEY + "=?" +
+                                        " AND " + MessageColumns.MAILBOX_KEY + "=?" +
+                                        " AND " + SyncColumns.SERVER_ID + "=?",
+                                        new String[] {
+                                                String.valueOf(account.mId),
+                                                String.valueOf(folder.mId),
+                                                String.valueOf(message.getUid())
+                                        },
+                                        null);
+                                if (c.moveToNext()) {
+                                    localMessage = EmailContent.getContent(
+                                            c, EmailContent.Message.class);
+                                }
+                            } finally {
+                                if (c != null) {
+                                    c.close();
+                                }
+                            }
+
+                            if (localMessage != null) {
+                                EmailContent.Body body = EmailContent.Body.restoreBodyWithId(
+                                        mContext, localMessage.mId);
+                                if (body == null) {
+                                    body = new EmailContent.Body();
+                                }
+                                try {
+                                    // Copy the fields that are available into the message
+                                    updateMessageFields(localMessage,
+                                            message, account.mId, folder.mId);
+                                    updateBodyFields(body, localMessage, message);
+                                    // TODO should updateMessageFields do this for us?
+                                    // localMessage.mFlagLoaded = EmailContent.Message.LOADED;
+                                    // Commit the message to the local store
+                                    localMessage.saveOrUpdate(mContext);
+                                    body.saveOrUpdate(mContext);
+                                } catch (MessagingException me) {
+                                    Log.e(Email.LOG_TAG,
+                                            "Error while copying downloaded message." + me);
+                                }
+                                
+                            }
+                        }
+                        catch (Exception e) {
+                            Log.e(Email.LOG_TAG,
+                                    "Error while storing downloaded message." + e.toString());
+                        }
+                    }
+    
+                    public void messageStarted(String uid, int number, int ofTotal) {
+                    }
+        });
+
+        // 14. Download large messages
+
+        // 15. Clean up and report results
+
+        // Original sync code.  Using for reference, will delete when done.
+        if (false) {
         /*
          * Grab the content of the small messages first. This is going to
          * be very fast and at very worst will be a single up of a few bytes and a single
@@ -1103,6 +1147,7 @@ public class MessagingController implements Runnable {
      * Copy field-by-field from a "store" message to a "provider" message
      * @param message The message we've just downloaded
      * @param localMessage The message we'd like to write into the DB
+     * @result true if dirty (changes were made)
      */
     /* package */ boolean updateMessageFields(EmailContent.Message localMessage, Message message,
             long accountId, long mailboxId) throws MessagingException {
@@ -1167,8 +1212,8 @@ public class MessagingController implements Runnable {
 //        
 //        public String mServerVersion;
 //
-//        transient public String mText;
-//        transient public String mHtml;
+//        public String mText;
+//        public String mHtml;
 //
 //        // Can be used while building messages, but is NOT saved by the Provider
 //        transient public ArrayList<Attachment> mAttachments = null;
@@ -1184,6 +1229,33 @@ public class MessagingController implements Runnable {
         return true;
     }
     
+    /**
+     * Copy body text (plain and/or HTML) from MimeMessage to provider Message
+     */
+    /* package */ boolean updateBodyFields(EmailContent.Body body,
+            EmailContent.Message localMessage, Message message) throws MessagingException {
+
+        body.mMessageKey = localMessage.mId;
+
+        Part htmlPart = MimeUtility.findFirstPartByMimeType(message, "text/html");
+        Part textPart = MimeUtility.findFirstPartByMimeType(message, "text/plain");
+
+        if (textPart != null) {
+            String text = MimeUtility.getTextFromPart(textPart);
+            if (text != null) {
+                localMessage.mTextInfo = "X;X;8;" + text.length()*2;
+                body.mTextContent = text;
+            }
+        }
+        if (htmlPart != null) {
+            String html = MimeUtility.getTextFromPart(htmlPart);
+            if (html != null) {
+                localMessage.mHtmlInfo = "X;X;8;" + html.length()*2;
+                body.mHtmlContent = html;
+            }
+        }
+        return true;
+    }
 
     private void queuePendingCommand(EmailContent.Account account, PendingCommand command) {
         try {

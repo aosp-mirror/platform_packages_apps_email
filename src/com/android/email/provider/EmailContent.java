@@ -222,10 +222,7 @@ public abstract class EmailContent {
         public String mHtmlContent;
         public String mTextContent;
 
-        /**
-         * no public constructor since this is a utility class
-         */
-        private Body() {
+        public Body() {
             mBaseUri = CONTENT_URI;
         }
 
@@ -282,7 +279,7 @@ public abstract class EmailContent {
         @Override
         @SuppressWarnings("unchecked")
         public EmailContent.Body restore(Cursor c) {
-            mBaseUri = EmailContent.Message.CONTENT_URI;
+            mBaseUri = EmailContent.Body.CONTENT_URI;
             mMessageKey = c.getLong(CONTENT_MESSAGE_KEY_COLUMN);
             mHtmlContent = c.getString(CONTENT_HTML_CONTENT_COLUMN);
             mTextContent = c.getString(CONTENT_TEXT_CONTENT_COLUMN);
