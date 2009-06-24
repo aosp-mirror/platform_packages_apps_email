@@ -60,6 +60,8 @@ public class Address {
     // Regex that matches escaped character '\\([\\"])'
     private static final Pattern UNQUOTE = Pattern.compile("\\\\([\\\\\"])");
 
+    private static final Address[] EMPTY_ADDRESS_ARRAY = new Address[0];
+
     public Address(String address, String personal) {
         setAddress(address);
         setPersonal(personal);
@@ -105,6 +107,26 @@ public class Address {
     }
 
     /**
+     * This method is used to check that all the addresses that the user
+     * entered in a list (e.g. To:) are valid, so that none is dropped.
+     */
+    public static boolean isAllValid(String addressList) {
+        // This code mimics the parse() method below.
+        // I don't know how to better avoid the code-duplication.
+        if (addressList != null && addressList.length() > 0) {
+            Rfc822Token[] tokens = Rfc822Tokenizer.tokenize(addressList);
+            for (int i = 0, length = tokens.length; i < length; ++i) {
+                Rfc822Token token = tokens[i];
+                String address = token.getAddress();
+                if (!TextUtils.isEmpty(address) && !isValidAddress(address)) {
+                    return false;
+                }
+            }
+        }
+        return true;
+    }
+
+    /**
      * Parse a comma-delimited list of addresses in RFC822 format and return an
      * array of Address objects.
      * 
@@ -113,7 +135,7 @@ public class Address {
      */
     public static Address[] parse(String addressList) {
         if (addressList == null || addressList.length() == 0) {
-            return new Address[] {};
+            return EMPTY_ADDRESS_ARRAY;
         }
         Rfc822Token[] tokens = Rfc822Tokenizer.tokenize(addressList);
         ArrayList<Address> addresses = new ArrayList<Address>();
@@ -121,16 +143,7 @@ public class Address {
             Rfc822Token token = tokens[i];
             String address = token.getAddress();
             if (!TextUtils.isEmpty(address)) {
-                // Note: Some email provider may violate the standard, so here we only check that
-                // address consists of two part that are separated by '@', and domain part contains
-                // at least one '.'.
-                int len = address.length();
-                int firstAt = address.indexOf('@');
-                int lastAt = address.lastIndexOf('@');
-                int firstDot = address.indexOf('.', lastAt + 1);
-                int lastDot = address.lastIndexOf('.');
-                if (firstAt > 0 && firstAt == lastAt && lastAt + 1 < firstDot
-                        && firstDot <= lastDot && lastDot < len - 1) {
+                if (isValidAddress(address)) {
                     String name = token.getName();
                     if (TextUtils.isEmpty(name)) {
                         name = null;
@@ -142,6 +155,23 @@ public class Address {
         return addresses.toArray(new Address[] {});
     }
     
+    /** 
+     * Checks whether a string email address is valid.
+     * E.g. name@domain.com is valid.
+     */
+    /* package */ static boolean isValidAddress(String address) {
+        // Note: Some email provider may violate the standard, so here we only check that
+        // address consists of two part that are separated by '@', and domain part contains
+        // at least one '.'.
+        int len = address.length();
+        int firstAt = address.indexOf('@');
+        int lastAt = address.lastIndexOf('@');
+        int firstDot = address.indexOf('.', lastAt + 1);
+        int lastDot = address.lastIndexOf('.');
+        return firstAt > 0 && firstAt == lastAt && lastAt + 1 < firstDot
+            && firstDot <= lastDot && lastDot < len - 1;
+    }
+
     @Override
     public boolean equals(Object o) {
         if (o instanceof Address) {
