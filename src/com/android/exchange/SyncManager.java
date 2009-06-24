@@ -30,6 +30,7 @@ import java.util.List;
 import com.android.email.mail.MessagingException;
 import com.android.exchange.EmailContent.Attachment;
 import com.android.exchange.EmailContent.Account;
+import com.android.exchange.EmailContent.HostAuth;
 import com.android.exchange.EmailContent.Mailbox;
 import com.android.exchange.EmailContent.Message;
 
@@ -137,26 +138,22 @@ public class SyncManager extends Service implements Runnable {
     };
 
     class AccountObserver extends ContentObserver {
-        ArrayList<Long> accountIds = new ArrayList<Long>();
+        ArrayList<Long> mAccountIds = new ArrayList<Long>();
 
         public AccountObserver(Handler handler) {
             super(handler);
+            Context context = getContext();
 
-            // At startup, we want to see what accounts exist and cache them
+            // At startup, we want to see what EAS accounts exist and cache them
             Cursor c = getContentResolver().query(Account.CONTENT_URI, 
                     Account.CONTENT_PROJECTION, null, null, null);
             try {
-                if (c.moveToFirst()) {
-                    do {
-                        accountIds.add(c.getLong(Account.CONTENT_ID_COLUMN));
-                    } while (c.moveToNext());
-                }
+                collectEasAccounts(c, mAccountIds);
             } finally {
                 c.close();
             }
 
-            for (long accountId: accountIds) {
-                Context context = getContext();
+            for (long accountId: mAccountIds) {
                 int cnt = Mailbox.count(context, Mailbox.CONTENT_URI, 
                         "accountKey=" + accountId, null);
                 if (cnt == 0) {
@@ -172,21 +169,18 @@ public class SyncManager extends Service implements Runnable {
             Cursor c = getContentResolver().query(Account.CONTENT_URI, 
                     Account.CONTENT_PROJECTION, null, null, null);
             try {
-                if (c.moveToFirst()) {
-                    do {
-                        currentIds.add(c.getLong(Account.CONTENT_ID_COLUMN));
-                    } while (c.moveToNext());
-                }
-                for (long accountId: accountIds) {
+                collectEasAccounts(c, currentIds);
+                for (long accountId: mAccountIds) {
                     if (!currentIds.contains(accountId)) {
                         // This is a deletion; shut down any account-related syncs
                         accountDeleted(accountId);
                     }
                 }
                 for (long accountId: currentIds) {
-                    if (!accountIds.contains(accountId)) {
+                    if (!mAccountIds.contains(accountId)) {
                         // This is an addition; create our magic hidden mailbox...
                         initializeAccount(accountId);
+                        mAccountIds.add(accountId);
                     }
                 }
             } finally {
@@ -197,9 +191,21 @@ public class SyncManager extends Service implements Runnable {
             kick();
         }
 
+        private void collectEasAccounts (Cursor c, ArrayList<Long> ids) {
+            Context context = getContext();
+            while (c.moveToNext()) {
+                long hostAuthId = c.getLong(Account.CONTENT_HOST_AUTH_KEY_RECV_COLUMN);
+                if (hostAuthId > 0) {
+                    HostAuth ha = HostAuth.restoreHostAuthWithId(context, hostAuthId);
+                    if (ha != null && ha.mProtocol.equals("eas")) {
+                        ids.add(c.getLong(Account.CONTENT_ID_COLUMN));
+                    }
+                }
+            }
+        }
+
         private void initializeAccount (long acctId) {
-            Account acct = 
-                Account.restoreAccountWithId(getContext(), acctId);
+            Account acct = Account.restoreAccountWithId(getContext(), acctId);
             Mailbox main = new Mailbox();
             main.mDisplayName = "_main";
             main.mServerId = "_main";
@@ -209,7 +215,6 @@ public class SyncManager extends Service implements Runnable {
             main.mFlagVisible = false;
             main.save(getContext());
             INSTANCE.log("Initializing account: " + acct.mDisplayName);
-
         }
 
         private void accountDeleted (long acctId) {
@@ -594,66 +599,69 @@ public class SyncManager extends Service implements Runnable {
                     try {
                         Cursor c = getContentResolver().query(Mailbox.CONTENT_URI, 
                                 Mailbox.CONTENT_PROJECTION, null, null, null);
-                        if (c.moveToFirst()) {
+                        while (c.moveToNext()) {
                             // TODO Could be much faster - just get cursor of ones we're watching...
-                            do {
-                                long mid = c.getLong(Mailbox.CONTENT_ID_COLUMN);
-                                ProtocolService service = serviceMap.get(mid);
-                                if (service == null) {
-                                    long freq = c.getInt(Mailbox.CONTENT_SYNC_FREQUENCY_COLUMN);
-                                    if (freq == Account.CHECK_INTERVAL_PUSH) {
-                                        Mailbox m = 
-                                            EmailContent.getContent(c, Mailbox.class);
-                                        // Either push, or 30 mins (default for idle timeout)
-                                        if (((m.mFlags & Mailbox.FLAG_CANT_PUSH) == 0)
-                                                || ((now - m.mSyncTime) > (1000 * 60 * 30L))) {
-                                            startService(m);
-                                        }
-                                    } else if (freq == -19) {
-                                        // See if we've got anything to do...
-                                        int cnt = EmailContent.count(this, 
-                                                Message.CONTENT_URI, "mailboxKey=" + 
-                                                mid + " and syncServerId=0", null);
-                                        if (cnt > 0) {
-                                            Mailbox m = EmailContent.getContent(c, Mailbox.class);
-                                            startService(new EasOutboxService(this, m), m);
-                                        }
-                                    } else if (freq > 0 && freq <= 1440) {
-                                        long lastSync = 
-                                            c.getLong(Mailbox.CONTENT_SYNC_TIME_COLUMN);
-                                        if (now - lastSync > (freq * 60000L)) {
-                                            Mailbox m = EmailContent.getContent(c, Mailbox.class);
-                                            startService(m);
-                                        }
+                            long aid = c.getLong(Mailbox.CONTENT_ACCOUNT_KEY_COLUMN);
+                            // Only check mailboxes for EAS accounts
+                            if (!mAccountObserver.mAccountIds.contains(aid)) {
+                                continue;
+                            }
+                            long mid = c.getLong(Mailbox.CONTENT_ID_COLUMN);
+                            ProtocolService service = serviceMap.get(mid);
+                            if (service == null) {
+                                long freq = c.getInt(Mailbox.CONTENT_SYNC_FREQUENCY_COLUMN);
+                                if (freq == Account.CHECK_INTERVAL_PUSH) {
+                                    Mailbox m = 
+                                        EmailContent.getContent(c, Mailbox.class);
+                                    // Either push, or 30 mins (default for idle timeout)
+                                    if (((m.mFlags & Mailbox.FLAG_CANT_PUSH) == 0)
+                                            || ((now - m.mSyncTime) > (1000 * 60 * 30L))) {
+                                        startService(m);
+                                    }
+                                } else if (freq == -19) {
+                                    // See if we've got anything to do...
+                                    int cnt = EmailContent.count(this, 
+                                            Message.CONTENT_URI, "mailboxKey=" + 
+                                            mid + " and syncServerId=0", null);
+                                    if (cnt > 0) {
+                                        Mailbox m = EmailContent.getContent(c, Mailbox.class);
+                                        startService(new EasOutboxService(this, m), m);
+                                    }
+                                } else if (freq > 0 && freq <= 1440) {
+                                    long lastSync = 
+                                        c.getLong(Mailbox.CONTENT_SYNC_TIME_COLUMN);
+                                    if (now - lastSync > (freq * 60000L)) {
+                                        Mailbox m = EmailContent.getContent(c, Mailbox.class);
+                                        startService(m);
+                                    }
+                                }
+                            } else {
+                                Thread thread = service.mThread;
+                                if (!thread.isAlive()) {
+                                    serviceMap.remove(mid);
+                                    // Restart this if necessary
+                                    if (nextWait > 3*SECS) {
+                                        nextWait = 3*SECS;
                                     }
                                 } else {
-                                    Thread thread = service.mThread;
-                                    if (!thread.isAlive()) {
-                                        serviceMap.remove(mid);
-                                        // Restart this if necessary
-                                        if (nextWait > 3*SECS) {
-                                            nextWait = 3*SECS;
-                                        }
-                                    } else {
-                                        long requestTime = service.mRequestTime;
-                                        if (requestTime > 0) {
-                                            long timeToRequest = requestTime - now;
-                                            if (service instanceof ProtocolService && 
-                                                    timeToRequest <= 0) {
-                                                service.mRequestTime = 0;
-                                                service.ping();
-                                            } else if (requestTime > 0 && timeToRequest < nextWait) {
-                                                if (timeToRequest < 11*MINS) {
-                                                    nextWait = 
-                                                        timeToRequest < 250 ? 250 : timeToRequest;
-                                                } else {
-                                                    log("Illegal timeToRequest: " + timeToRequest);
-                                                }
+                                    long requestTime = service.mRequestTime;
+                                    if (requestTime > 0) {
+                                        long timeToRequest = requestTime - now;
+                                        if (service instanceof ProtocolService && 
+                                                timeToRequest <= 0) {
+                                            service.mRequestTime = 0;
+                                            service.ping();
+                                        } else if (requestTime > 0 && timeToRequest < nextWait) {
+                                            if (timeToRequest < 11*MINS) {
+                                                nextWait = 
+                                                    timeToRequest < 250 ? 250 : timeToRequest;
+                                            } else {
+                                                log("Illegal timeToRequest: " + timeToRequest);
                                             }
                                         }
                                     }
                                 }
-                            } while (c.moveToNext());
+                            }
                         }
                         c.close();
 
