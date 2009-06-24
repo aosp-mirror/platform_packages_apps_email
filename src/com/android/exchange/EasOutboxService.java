@@ -19,7 +19,9 @@ package com.android.exchange;
 
 import java.net.HttpURLConnection;
 
-import com.android.email.provider.EmailContent;
+import com.android.exchange.EmailContent.HostAuth;
+import com.android.exchange.EmailContent.Mailbox;
+import com.android.exchange.EmailContent.Message;
 
 import android.content.ContentUris;
 import android.content.ContentValues;
@@ -28,11 +30,10 @@ import android.database.Cursor;
 
 public class EasOutboxService extends EasService {
 
-    public EasOutboxService(Context _context, EmailContent.Mailbox _mailbox) {
+    public EasOutboxService(Context _context, Mailbox _mailbox) {
         super(_context, _mailbox);
         mContext = _context;
-        EmailContent.HostAuth ha = 
-            EmailContent.HostAuth.restoreHostAuthWithId(mContext, mAccount.mHostAuthKeyRecv);
+        HostAuth ha = HostAuth.restoreHostAuthWithId(mContext, mAccount.mHostAuthKeyRecv);
         mHostAddress = ha.mAddress;
         mUserName = ha.mLogin;
         mPassword = ha.mPassword;
@@ -43,11 +44,11 @@ public class EasOutboxService extends EasService {
         String uniqueId = android.provider.Settings.System.getString(mContext.getContentResolver(), 
                 android.provider.Settings.System.ANDROID_ID);
         try {
-            Cursor c = mContext.getContentResolver().query(EmailContent.Message.CONTENT_URI, 
-                    EmailContent.Message.CONTENT_PROJECTION, "mMailbox=" + mMailbox, null, null);
+            Cursor c = mContext.getContentResolver().query(Message.CONTENT_URI, 
+                    Message.CONTENT_PROJECTION, "mMailbox=" + mMailbox, null, null);
             try {
                 if (c.moveToFirst()) {
-                    EmailContent.Message msg = new EmailContent.Message().restore(c);
+                    Message msg = new Message().restore(c);
                     if (msg != null) {
                         String data = Rfc822Formatter
                         .writeEmailAsRfc822String(mContext, mAccount, msg, uniqueId);
@@ -59,12 +60,12 @@ public class EasOutboxService extends EasService {
                             //intent.putExtra("text", "Your message with subject \"" + msg.mSubject + "\" has been sent.");
                             log("Deleting message...");
                             mContext.getContentResolver().delete(ContentUris.withAppendedId(
-                                    EmailContent.Message.CONTENT_URI, msg.mId), null, null);
+                                    Message.CONTENT_URI, msg.mId), null, null);
                         } else {
                             ContentValues cv = new ContentValues();
                             cv.put("uid", 1);
-                            EmailContent.Message.update(mContext, 
-                                    EmailContent.Message.CONTENT_URI, msg.mId, cv);
+                            Message.update(mContext, 
+                                    Message.CONTENT_URI, msg.mId, cv);
                             //intent.putExtra("text", "WHOA!  Your message with subject \"" + msg.mSubject + "\" failed to send.");
                         }
                         //mContext.sendBroadcast(intent);

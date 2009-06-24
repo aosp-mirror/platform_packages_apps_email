@@ -28,8 +28,10 @@ import java.util.HashMap;
 import java.util.List;
 
 import com.android.email.mail.MessagingException;
-import com.android.email.provider.EmailContent;
 import com.android.exchange.EmailContent.Attachment;
+import com.android.exchange.EmailContent.Account;
+import com.android.exchange.EmailContent.Mailbox;
+import com.android.exchange.EmailContent.Message;
 
 import android.app.AlarmManager;
 import android.app.PendingIntent;
@@ -141,11 +143,12 @@ public class SyncManager extends Service implements Runnable {
             super(handler);
 
             // At startup, we want to see what accounts exist and cache them
-            Cursor c = getContentResolver().query(EmailContent.Account.CONTENT_URI, EmailContent.Account.CONTENT_PROJECTION, null, null, null);
+            Cursor c = getContentResolver().query(Account.CONTENT_URI, 
+                    Account.CONTENT_PROJECTION, null, null, null);
             try {
                 if (c.moveToFirst()) {
                     do {
-                        accountIds.add(c.getLong(EmailContent.Account.CONTENT_ID_COLUMN));
+                        accountIds.add(c.getLong(Account.CONTENT_ID_COLUMN));
                     } while (c.moveToNext());
                 }
             } finally {
@@ -154,7 +157,8 @@ public class SyncManager extends Service implements Runnable {
 
             for (long accountId: accountIds) {
                 Context context = getContext();
-                int cnt = EmailContent.Mailbox.count(context, EmailContent.Mailbox.CONTENT_URI, "accountKey=" + accountId, null);
+                int cnt = Mailbox.count(context, Mailbox.CONTENT_URI, 
+                        "accountKey=" + accountId, null);
                 if (cnt == 0) {
                     initializeAccount(accountId);
                 }
@@ -162,14 +166,15 @@ public class SyncManager extends Service implements Runnable {
         }
 
         public void onChange (boolean selfChange) {
-            // A change to the list of accounts requires us to scan for deletions (so we can stop running syncs)
+            // A change to the list requires us to scan for deletions (to stop running syncs)
             // At startup, we want to see what accounts exist and cache them
             ArrayList<Long> currentIds = new ArrayList<Long>();
-            Cursor c = getContentResolver().query(EmailContent.Account.CONTENT_URI, EmailContent.Account.CONTENT_PROJECTION, null, null, null);
+            Cursor c = getContentResolver().query(Account.CONTENT_URI, 
+                    Account.CONTENT_PROJECTION, null, null, null);
             try {
                 if (c.moveToFirst()) {
                     do {
-                        currentIds.add(c.getLong(EmailContent.Account.CONTENT_ID_COLUMN));
+                        currentIds.add(c.getLong(Account.CONTENT_ID_COLUMN));
                     } while (c.moveToNext());
                 }
                 for (long accountId: accountIds) {
@@ -193,13 +198,14 @@ public class SyncManager extends Service implements Runnable {
         }
 
         private void initializeAccount (long acctId) {
-            EmailContent.Account acct = EmailContent.Account.restoreAccountWithId(getContext(), acctId);
-            EmailContent.Mailbox main = new EmailContent.Mailbox();
+            Account acct = 
+                Account.restoreAccountWithId(getContext(), acctId);
+            Mailbox main = new Mailbox();
             main.mDisplayName = "_main";
             main.mServerId = "_main";
             main.mAccountKey = acct.mId;
-            main.mType = EmailContent.Mailbox.TYPE_MAIL;
-            main.mSyncFrequency = EmailContent.Account.CHECK_INTERVAL_PUSH;
+            main.mType = Mailbox.TYPE_MAIL;
+            main.mSyncFrequency = Account.CHECK_INTERVAL_PUSH;
             main.mFlagVisible = false;
             main.save(getContext());
             INSTANCE.log("Initializing account: " + acct.mDisplayName);
@@ -210,7 +216,8 @@ public class SyncManager extends Service implements Runnable {
             synchronized (mSyncToken) {
                 List<Long> deletedBoxes = new ArrayList<Long>();
                 for (Long mid : INSTANCE.serviceMap.keySet()) {
-                    EmailContent.Mailbox box = EmailContent.Mailbox.restoreMailboxWithId(INSTANCE, mid);
+                    Mailbox box = 
+                        Mailbox.restoreMailboxWithId(INSTANCE, mid);
                     if (box != null) {
                         if (box.mAccountKey == acctId) {
                             ProtocolService svc = INSTANCE.serviceMap.get(mid);
@@ -267,7 +274,8 @@ public class SyncManager extends Service implements Runnable {
     }
 
     static private HashMap<Long, Boolean> mWakeLocks = new HashMap<Long, Boolean>();
-    static private HashMap<Long, PendingIntent> mPendingIntents = new HashMap<Long, PendingIntent>();
+    static private HashMap<Long, PendingIntent> mPendingIntents = 
+        new HashMap<Long, PendingIntent>();
     static private WakeLock mWakeLock = null;
 
     static public void acquireWakeLock (long id) {
@@ -276,7 +284,8 @@ public class SyncManager extends Service implements Runnable {
             if (lock == null) {
                 INSTANCE.log("+WakeLock requested for " + id);
                 if (mWakeLock == null) {
-                    PowerManager pm = (PowerManager) INSTANCE.getSystemService(Context.POWER_SERVICE);
+                    PowerManager pm = 
+                        (PowerManager) INSTANCE.getSystemService(Context.POWER_SERVICE);
                     mWakeLock = pm.newWakeLock(PowerManager.PARTIAL_WAKE_LOCK, "MAIL_SERVICE");
                     mWakeLock.acquire();
                     INSTANCE.log("+WAKE LOCK ACQUIRED");
@@ -312,7 +321,8 @@ public class SyncManager extends Service implements Runnable {
         synchronized (mPendingIntents) {
             PendingIntent pi = mPendingIntents.get(id);
             if (pi != null) {
-                AlarmManager alarmManager = (AlarmManager)INSTANCE.getSystemService(Context.ALARM_SERVICE);
+                AlarmManager alarmManager = 
+                    (AlarmManager)INSTANCE.getSystemService(Context.ALARM_SERVICE);
                 alarmManager.cancel(pi);
                 INSTANCE.log("+Alarm cleared for " + alarmOwner(id));
                 mPendingIntents.remove(id);
@@ -330,7 +340,8 @@ public class SyncManager extends Service implements Runnable {
                 pi = PendingIntent.getBroadcast(INSTANCE, 0, i, 0);
                 mPendingIntents.put(id, pi);
 
-                AlarmManager alarmManager = (AlarmManager)INSTANCE.getSystemService(Context.ALARM_SERVICE);
+                AlarmManager alarmManager = 
+                    (AlarmManager)INSTANCE.getSystemService(Context.ALARM_SERVICE);
                 alarmManager.set(AlarmManager.RTC_WAKEUP, System.currentTimeMillis() + millis, pi);
                 INSTANCE.log("+Alarm set for " + alarmOwner(id) + ", " + millis + "ms");
             }
@@ -360,9 +371,10 @@ public class SyncManager extends Service implements Runnable {
     static public void ping (long id) {
         ProtocolService service = INSTANCE.serviceMap.get(id);
         if (service != null) {
-            EmailContent.Mailbox m = EmailContent.Mailbox.restoreMailboxWithId(INSTANCE, id);
+            Mailbox m = Mailbox.restoreMailboxWithId(INSTANCE, id);
             if (m != null) {
-                service.mAccount = EmailContent.Account.restoreAccountWithId(INSTANCE, m.mAccountKey);
+                service.mAccount = 
+                    Account.restoreAccountWithId(INSTANCE, m.mAccountKey);
                 service.mMailbox = m;
                 service.ping();
             }
@@ -412,7 +424,7 @@ public class SyncManager extends Service implements Runnable {
         }
     }
 
-    private void startService (ProtocolService service, EmailContent.Mailbox m) {
+    private void startService (ProtocolService service, Mailbox m) {
         synchronized (mSyncToken) {
             String mailboxName = m.mDisplayName;
             String accountName = service.mAccount.mDisplayName;
@@ -423,9 +435,10 @@ public class SyncManager extends Service implements Runnable {
         }
     }
 
-    private void startService (EmailContent.Mailbox m) {
+    private void startService (Mailbox m) {
         synchronized (mSyncToken) {
-            EmailContent.Account acct = EmailContent.Account.restoreAccountWithId(this, m.mAccountKey);
+            Account acct = 
+                Account.restoreAccountWithId(this, m.mAccountKey);
             if (acct != null) {
                 ProtocolService service;
                 service = new EasService(this, m);
@@ -448,7 +461,8 @@ public class SyncManager extends Service implements Runnable {
 
             for (Long mid: toStop) {
                 ProtocolService svc = serviceMap.get(mid);
-                log("Going to sleep: shutting down "    + svc.mAccount.mDisplayName + "/" + svc.mMailboxName);
+                log("Going to sleep: shutting down "    + svc.mAccount.mDisplayName + 
+                        "/" + svc.mMailboxName);
                 svc.stop();
                 svc.mThread.interrupt();
                 stoppedOne = true;
@@ -473,12 +487,13 @@ public class SyncManager extends Service implements Runnable {
         runAwake(-1);
 
         ContentResolver resolver = getContentResolver();
-        resolver.registerContentObserver(EmailContent.Account.CONTENT_URI, false, mAccountObserver);
-        resolver.registerContentObserver(EmailContent.Mailbox.CONTENT_URI, false, mMailboxObserver);
+        resolver.registerContentObserver(Account.CONTENT_URI, false, mAccountObserver);
+        resolver.registerContentObserver(Mailbox.CONTENT_URI, false, mMailboxObserver);
 
         ConnectivityReceiver cr = new ConnectivityReceiver();
         registerReceiver(cr, new IntentFilter(ConnectivityManager.CONNECTIVITY_ACTION));
-        ConnectivityManager cm = (ConnectivityManager) getSystemService(Context.CONNECTIVITY_SERVICE);
+        ConnectivityManager cm = 
+            (ConnectivityManager) getSystemService(Context.CONNECTIVITY_SERVICE);
 
         mSettings = PreferenceManager.getDefaultSharedPreferences(this);
         GregorianCalendar calendar = new GregorianCalendar();
@@ -501,11 +516,9 @@ public class SyncManager extends Service implements Runnable {
                 long nextWait = 10*MINS;
                 long now = System.currentTimeMillis();
 
-                // We can be MUCH smarter!  We can send notices of sleep time changes and otherwise cache all of this...
+                // We could send notices of sleep time changes and otherwise cache all of this...
                 long sleepHours = mSettings.getLong("sleep_hours", 0);
                 if (sleepHours != 0) {
-                    boolean pastStartTime = false;
-                    boolean beforeEndTime = false;
                     boolean wantSleep = false;
                     calendar.setTimeInMillis(now);
                     int nowHour = calendar.get(GregorianCalendar.HOUR_OF_DAY);
@@ -520,23 +533,23 @@ public class SyncManager extends Service implements Runnable {
                     int endMinute = (int)(sleepEnd % 100);
 
                     if (sleepStart > sleepEnd) {
-                        if ((nowHour > startHour) || (nowHour == startHour && nowMinute >= startMinute) || (nowHour < endHour) || (nowHour == endHour && nowMinute <= endMinute))
+                        if ((nowHour > startHour) || 
+                                (nowHour == startHour && nowMinute >= startMinute) ||
+                                (nowHour < endHour) ||
+                                (nowHour == endHour && nowMinute <= endMinute))
                             wantSleep = true;
-                    } else if (((startHour < nowHour || (startHour == nowHour && nowMinute >= startMinute)) && ((nowHour < endHour) || (nowHour == endHour && nowMinute <= endMinute))))
+                    } else if (((startHour < nowHour ||
+                            (startHour == nowHour && nowMinute >= startMinute)) && 
+                            ((nowHour < endHour) || 
+                                    (nowHour == endHour && nowMinute <= endMinute))))
                         wantSleep = true;
 
                     if (wantSleep && (mStatus == AWAKE)) {
                         mStatus = SLEEP_HOURS;
-                        log("Going to sleep now...");
-                        log("startHour: " + startHour + ", startMinute: " + startMinute + ", endHour: " + endHour + ", endMinute: " + endMinute);
-                        log("nowHour: " + nowHour + ", nowMinute: " + nowMinute);
                         startSleep();
                         broadcastSleep();
                     } else if (!wantSleep && (mStatus == SLEEP_HOURS)) {
                         mStatus = AWAKE;
-                        log("Waking up now: " + (pastStartTime ? "pastStartTime, " : "not pastStartTime, ") + (beforeEndTime ? "beforeEndTime" : "not beforeEndTime"));
-                        log("startHour: " + startHour + ", startMinute: " + startMinute + ", endHour: " + endHour + ", endMinute: " + endMinute);
-                        log("nowHour: " + nowHour + ", nowMinute: " + nowMinute);
                         broadcastSleep();
                     }
                 }
@@ -546,7 +559,9 @@ public class SyncManager extends Service implements Runnable {
                     boolean wantSleep = false;
                     calendar.setTimeInMillis(now);
                     int day = calendar.get(GregorianCalendar.DAY_OF_WEEK);
-                    if (sleepWeekends && (day == GregorianCalendar.SATURDAY || day == GregorianCalendar.SUNDAY)) {
+                    if (sleepWeekends && 
+                            (day == GregorianCalendar.SATURDAY || 
+                             day == GregorianCalendar.SUNDAY)) {
                         wantSleep = true;
                     }
                     if ((mStatus == AWAKE) && wantSleep) {
@@ -577,38 +592,43 @@ public class SyncManager extends Service implements Runnable {
                 if (!mStop && ((mStatus == AWAKE) || mToothpicks)) {
                     // Start up threads that need it...
                     try {
-                        Cursor c = getContentResolver().query(EmailContent.Mailbox.CONTENT_URI, EmailContent.Mailbox.CONTENT_PROJECTION, null, null, null);
+                        Cursor c = getContentResolver().query(Mailbox.CONTENT_URI, 
+                                Mailbox.CONTENT_PROJECTION, null, null, null);
                         if (c.moveToFirst()) {
                             // TODO Could be much faster - just get cursor of ones we're watching...
                             do {
-                                long mid = c.getLong(EmailContent.Mailbox.CONTENT_ID_COLUMN);
+                                long mid = c.getLong(Mailbox.CONTENT_ID_COLUMN);
                                 ProtocolService service = serviceMap.get(mid);
                                 if (service == null) {
-                                    long freq = c.getInt(EmailContent.Mailbox.CONTENT_SYNC_FREQUENCY_COLUMN);
-                                    if (freq == EmailContent.Account.CHECK_INTERVAL_PUSH) {
-                                        EmailContent.Mailbox m = EmailContent.getContent(c, EmailContent.Mailbox.class);
-                                        // Either we're good to go, or it's been 30 minutes (the default for idle timeout)
-                                        if (((m.mFlags & EmailContent.Mailbox.FLAG_CANT_PUSH) == 0) || ((now - m.mSyncTime) > (1000 * 60 * 30L))) {
+                                    long freq = c.getInt(Mailbox.CONTENT_SYNC_FREQUENCY_COLUMN);
+                                    if (freq == Account.CHECK_INTERVAL_PUSH) {
+                                        Mailbox m = 
+                                            EmailContent.getContent(c, Mailbox.class);
+                                        // Either push, or 30 mins (default for idle timeout)
+                                        if (((m.mFlags & Mailbox.FLAG_CANT_PUSH) == 0)
+                                                || ((now - m.mSyncTime) > (1000 * 60 * 30L))) {
                                             startService(m);
                                         }
                                     } else if (freq == -19) {
                                         // See if we've got anything to do...
-                                        int cnt = EmailContent.count(this, EmailContent.Message.CONTENT_URI, "mailboxKey=" + mid + " and syncServerId=0", null);
+                                        int cnt = EmailContent.count(this, 
+                                                Message.CONTENT_URI, "mailboxKey=" + 
+                                                mid + " and syncServerId=0", null);
                                         if (cnt > 0) {
-                                            EmailContent.Mailbox m = EmailContent.getContent(c, EmailContent.Mailbox.class);
+                                            Mailbox m = EmailContent.getContent(c, Mailbox.class);
                                             startService(new EasOutboxService(this, m), m);
                                         }
                                     } else if (freq > 0 && freq <= 1440) {
-                                        long lastSync = c.getLong(EmailContent.Mailbox.CONTENT_SYNC_TIME_COLUMN);
+                                        long lastSync = 
+                                            c.getLong(Mailbox.CONTENT_SYNC_TIME_COLUMN);
                                         if (now - lastSync > (freq * 60000L)) {
-                                            EmailContent.Mailbox m = EmailContent.getContent(c, EmailContent.Mailbox.class);
+                                            Mailbox m = EmailContent.getContent(c, Mailbox.class);
                                             startService(m);
                                         }
                                     }
                                 } else {
                                     Thread thread = service.mThread;
                                     if (!thread.isAlive()) {
-                                        log("Removing dead thread for " + c.getString(EmailContent.Mailbox.CONTENT_DISPLAY_NAME_COLUMN));
                                         serviceMap.remove(mid);
                                         // Restart this if necessary
                                         if (nextWait > 3*SECS) {
@@ -618,12 +638,14 @@ public class SyncManager extends Service implements Runnable {
                                         long requestTime = service.mRequestTime;
                                         if (requestTime > 0) {
                                             long timeToRequest = requestTime - now;
-                                            if (service instanceof ProtocolService && timeToRequest <= 0) {
+                                            if (service instanceof ProtocolService && 
+                                                    timeToRequest <= 0) {
                                                 service.mRequestTime = 0;
                                                 service.ping();
                                             } else if (requestTime > 0 && timeToRequest < nextWait) {
                                                 if (timeToRequest < 11*MINS) {
-                                                    nextWait = timeToRequest < 250 ? 250 : timeToRequest;
+                                                    nextWait = 
+                                                        timeToRequest < 250 ? 250 : timeToRequest;
                                                 } else {
                                                     log("Illegal timeToRequest: " + timeToRequest);
                                                 }
@@ -674,7 +696,7 @@ public class SyncManager extends Service implements Runnable {
         throw new RuntimeException("MailService crash; please restart me...");
     }
 
-    static public void serviceRequest (EmailContent.Mailbox m) {
+    static public void serviceRequest (Mailbox m) {
         serviceRequest(m.mId, 10*SECS);
     }
 
@@ -702,15 +724,15 @@ public class SyncManager extends Service implements Runnable {
         ProtocolService service = INSTANCE.serviceMap.get(mailboxId);
         if (service != null) {
             service.mRequestTime = System.currentTimeMillis() ;
-            EmailContent.Mailbox m = EmailContent.Mailbox.restoreMailboxWithId(INSTANCE, mailboxId);
-            service.mAccount = EmailContent.Account.restoreAccountWithId(INSTANCE, m.mAccountKey);
+            Mailbox m = Mailbox.restoreMailboxWithId(INSTANCE, mailboxId);
+            service.mAccount = Account.restoreAccountWithId(INSTANCE, m.mAccountKey);
             service.mMailbox = m;
             kick();
         }
     }
 
     static public void partRequest (PartRequest req) {
-        EmailContent.Message msg = EmailContent.Message.restoreMessageWithId(INSTANCE, req.emailId);
+        Message msg = Message.restoreMessageWithId(INSTANCE, req.emailId);
         if (msg == null) {
             return;
         }
@@ -728,7 +750,7 @@ public class SyncManager extends Service implements Runnable {
     }
 
     static public PartRequest hasPartRequest(long emailId, String part) {
-        EmailContent.Message msg = EmailContent.Message.restoreMessageWithId(INSTANCE, emailId);
+        Message msg = Message.restoreMessageWithId(INSTANCE, emailId);
         if (msg == null) {
             return null;
         }
@@ -742,7 +764,7 @@ public class SyncManager extends Service implements Runnable {
     }
 
     static public void cancelPartRequest(long emailId, String part) {
-        EmailContent.Message msg = EmailContent.Message.restoreMessageWithId(INSTANCE, emailId);
+        Message msg = Message.restoreMessageWithId(INSTANCE, emailId);
         if (msg == null) {
             return;
         }
@@ -785,7 +807,7 @@ public class SyncManager extends Service implements Runnable {
         INSTANCE.log("startManualSync");
         synchronized (mSyncToken) {
             if (INSTANCE.serviceMap.get(mid) == null) {
-                EmailContent.Mailbox m = EmailContent.Mailbox.restoreMailboxWithId(INSTANCE, mid);
+                Mailbox m = Mailbox.restoreMailboxWithId(INSTANCE, mid);
                 INSTANCE.log("Starting sync for " + m.mDisplayName);
                 INSTANCE.startService(m);
             }
@@ -819,9 +841,9 @@ public class SyncManager extends Service implements Runnable {
     }
 
     static public void kick (long mid) {
-        EmailContent.Mailbox m = EmailContent.Mailbox.restoreMailboxWithId(INSTANCE, mid);
+        Mailbox m = Mailbox.restoreMailboxWithId(INSTANCE, mid);
         int syncType = m.mSyncFrequency;
-        if (syncType == EmailContent.Account.CHECK_INTERVAL_PUSH) {
+        if (syncType == Account.CHECK_INTERVAL_PUSH) {
             SyncManager.serviceRequestImmediate(mid);
         } else {
             SyncManager.startManualSync(mid);
@@ -833,7 +855,7 @@ public class SyncManager extends Service implements Runnable {
         synchronized (mSyncToken) {
             for (ProtocolService svc : INSTANCE.serviceMap.values()) {
                 if (svc.mAccount.mId == acctId) {
-                    svc.mAccount = EmailContent.Account.restoreAccountWithId(INSTANCE, acctId);
+                    svc.mAccount = Account.restoreAccountWithId(INSTANCE, acctId);
                 }
             }
         }

@@ -21,7 +21,7 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.net.HttpURLConnection;
 
-import com.android.email.provider.EmailContent;
+import com.android.exchange.EmailContent.Mailbox;
 
 import android.content.Context;
 
@@ -30,7 +30,7 @@ public class EasPingService extends EasService {
     EasService mCaller;
     HttpURLConnection mConnection = null;
 
-    public EasPingService(Context _context, EmailContent.Mailbox _mailbox, EasService _caller) {
+    public EasPingService(Context _context, Mailbox _mailbox, EasService _caller) {
         super(_context, _mailbox);
         mCaller = _caller;
         mHostAddress = _caller.mHostAddress;

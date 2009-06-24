@@ -26,7 +26,9 @@ import java.io.Writer;
 import java.text.SimpleDateFormat;
 import java.util.Date;
 
-import com.android.email.provider.EmailContent;
+import com.android.exchange.EmailContent.Account;
+import com.android.exchange.EmailContent.Attachment;
+import com.android.exchange.EmailContent.Message;
 
 import android.content.ContentUris;
 import android.content.Context;
@@ -47,21 +49,21 @@ public class Rfc822Formatter {
 
     static final String CRLF = "\r\n";
 
-    static public String writeEmailAsRfc822String (Context context, EmailContent.Account acct, 
-            EmailContent.Message msg, String uniqueId) throws IOException {
+    static public String writeEmailAsRfc822String (Context context, Account acct, 
+            Message msg, String uniqueId) throws IOException {
         StringWriter w = new StringWriter();
         writeEmailAsRfc822(context, acct, msg, w, uniqueId);
         return w.toString();
     }
 
-    static public boolean writeEmailAsRfc822 (Context context, EmailContent.Account acct, 
-            EmailContent.Message msg, Writer writer, String uniqueId) throws IOException {
+    static public boolean writeEmailAsRfc822 (Context context, Account acct, 
+            Message msg, Writer writer, String uniqueId) throws IOException {
         // For now, multi-part alternative means an HTML reply...
         boolean alternativeParts = false;
 
-        Uri u = ContentUris.withAppendedId(EmailContent.Message.CONTENT_URI, msg.mId)
+        Uri u = ContentUris.withAppendedId(Message.CONTENT_URI, msg.mId)
             .buildUpon().appendPath("attachment").build();
-        Cursor c = context.getContentResolver().query(u, EmailContent.Attachment.CONTENT_PROJECTION, 
+        Cursor c = context.getContentResolver().query(u, Attachment.CONTENT_PROJECTION, 
                 null, null, null);
         try {
             if (c.moveToFirst())
@@ -71,7 +73,7 @@ public class Rfc822Formatter {
         }
         //**PROVIDER
         boolean mixedParts = false; //(!msg.attachments.isEmpty());
-        EmailContent.Message reply = null;
+        Message reply = null;
         boolean forward = false;
 
         long referenceId = msg.mReferenceKey;
@@ -80,7 +82,7 @@ public class Rfc822Formatter {
                 referenceId = 0 - referenceId;
                 forward = true;
             }
-            reply = EmailContent.Message.restoreMessageWithId(context, referenceId);
+            reply = Message.restoreMessageWithId(context, referenceId);
             alternativeParts = true;
         }
 
@@ -161,7 +163,7 @@ public class Rfc822Formatter {
         }
 
         if (mixedParts) {
-            for (EmailContent.Attachment att: msg.mAttachments) {
+            for (Attachment att: msg.mAttachments) {
                 writeBoundary(writer, mixedBoundary, false);
                 writeHeader(writer, "Content-Type", att.mMimeType);
                 writeHeader(writer, "Content-Transfer-Encoding", "base64");
@@ -198,7 +200,7 @@ public class Rfc822Formatter {
         return true;
     }
 
-    protected static String createReplyIntro (EmailContent.Message msg) {
+    protected static String createReplyIntro (Message msg) {
         StringBuilder sb = new StringBuilder(2048);
         Date d = new Date(msg.mTimeStamp);
         sb.append("\n\n-----\nOn ");
@@ -211,7 +213,7 @@ public class Rfc822Formatter {
         return sb.toString();
     }
 
-    protected static String createForwardIntro (EmailContent.Message msg) {
+    protected static String createForwardIntro (Message msg) {
         StringBuilder sb = new StringBuilder(2048);
         sb.append("\n\nBegin forwarded message:\n\n");
         sb.append("From: ");

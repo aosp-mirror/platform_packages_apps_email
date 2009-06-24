@@ -24,7 +24,8 @@ import java.util.Arrays;
 import java.util.List;
 
 import com.android.email.provider.EmailProvider;
-import com.android.email.provider.EmailContent;
+import com.android.exchange.EmailContent.Account;
+import com.android.exchange.EmailContent.Mailbox;
 
 import android.content.ContentProviderOperation;
 import android.content.ContentProviderResult;
@@ -54,7 +55,7 @@ public class EasFolderSyncParser extends EasParser {
     public static final List<Integer> mMailFolderTypes = 
         Arrays.asList(INBOX_TYPE,DRAFTS_TYPE,DELETED_TYPE,SENT_TYPE,OUTBOX_TYPE,USER_MAILBOX_TYPE);
 
-    private EmailContent.Account mAccount;
+    private Account mAccount;
     private EasService mService;
     //private Context mContext;
     private MockParserStream mMock = null;
@@ -90,7 +91,7 @@ public class EasFolderSyncParser extends EasParser {
         //captureOff(mContext, "FolderSyncParser.txt");
     }
 
-    public void addParser(ArrayList<EmailContent.Mailbox> boxes) throws IOException {
+    public void addParser(ArrayList<Mailbox> boxes) throws IOException {
         String name = null;
         String serverId = null;
         String parentId = null;
@@ -119,26 +120,26 @@ public class EasFolderSyncParser extends EasParser {
             }
         }
         if (mMailFolderTypes.contains(type)) {
-            EmailContent.Mailbox m = new EmailContent.Mailbox();
+            Mailbox m = new Mailbox();
             m.mDisplayName = name;
             m.mServerId = serverId;
             m.mAccountKey = mAccount.mId;
             if (type == INBOX_TYPE) {
-                m.mSyncFrequency = EmailContent.Account.CHECK_INTERVAL_PUSH;
-                m.mType = EmailContent.Mailbox.TYPE_INBOX;
+                m.mSyncFrequency = Account.CHECK_INTERVAL_PUSH;
+                m.mType = Mailbox.TYPE_INBOX;
             } else if (type == OUTBOX_TYPE) {
                 //m.mSyncFrequency = MailService.OUTBOX_FREQUENCY;
-                m.mSyncFrequency = EmailContent.Account.CHECK_INTERVAL_NEVER;
-                m.mType = EmailContent.Mailbox.TYPE_OUTBOX;
+                m.mSyncFrequency = Account.CHECK_INTERVAL_NEVER;
+                m.mType = Mailbox.TYPE_OUTBOX;
             } else {
                 if (type == SENT_TYPE) {
-                    m.mType = EmailContent.Mailbox.TYPE_SENT;
+                    m.mType = Mailbox.TYPE_SENT;
                 } else if (type == DRAFTS_TYPE) {
-                    m.mType = EmailContent.Mailbox.TYPE_DRAFTS;
+                    m.mType = Mailbox.TYPE_DRAFTS;
                 } else if (type == DELETED_TYPE) {
-                    m.mType = EmailContent.Mailbox.TYPE_TRASH;
+                    m.mType = Mailbox.TYPE_TRASH;
                 }
-                m.mSyncFrequency = EmailContent.Account.CHECK_INTERVAL_NEVER;
+                m.mSyncFrequency = Account.CHECK_INTERVAL_NEVER;
             }
 
             if (!parentId.equals("0")) {
@@ -153,7 +154,7 @@ public class EasFolderSyncParser extends EasParser {
 
     public void changesParser() throws IOException {
         // Keep track of new boxes, deleted boxes, updated boxes
-        ArrayList<EmailContent.Mailbox> newBoxes = new ArrayList<EmailContent.Mailbox>();
+        ArrayList<Mailbox> newBoxes = new ArrayList<Mailbox>();
 
         while (nextTag(EasTags.FOLDER_CHANGES) != END) {
             if (tag == EasTags.FOLDER_ADD) {
@@ -164,13 +165,13 @@ public class EasFolderSyncParser extends EasParser {
                 skipTag();
         }
 
-        for (EmailContent.Mailbox m: newBoxes) {
+        for (Mailbox m: newBoxes) {
             String parent = m.mParentServerId;
             if (parent != null) {
                 // Wrong except first time!  Need to check existing boxes!
                 //**PROVIDER
                 m.mFlagVisible = true; //false;
-                for (EmailContent.Mailbox mm: newBoxes) {
+                for (Mailbox mm: newBoxes) {
                     if (mm.mServerId.equals(parent)) {
                         //mm.parent = true;
                     }
@@ -185,14 +186,14 @@ public class EasFolderSyncParser extends EasParser {
 
         if (!newBoxes.isEmpty()) {
             ArrayList<ContentProviderOperation> ops = new ArrayList<ContentProviderOperation>();
-            for (EmailContent.Mailbox content: newBoxes) {
+            for (Mailbox content: newBoxes) {
                 ContentProviderOperation.Builder b =  ContentProviderOperation
-                .newInsert(EmailContent.Mailbox.CONTENT_URI);
+                .newInsert(Mailbox.CONTENT_URI);
                 b.withValues(content.toContentValues());
                 ops.add(b.build());
             }
             ops.add(ContentProviderOperation.newUpdate(ContentUris
-                    .withAppendedId(EmailContent.Account.CONTENT_URI, mAccount.mId))
+                    .withAppendedId(Account.CONTENT_URI, mAccount.mId))
                     .withValues(mAccount.toContentValues()).build());
 
             try {

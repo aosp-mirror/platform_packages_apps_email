@@ -24,7 +24,12 @@ import java.util.GregorianCalendar;
 import java.util.TimeZone;
 
 import com.android.email.provider.EmailProvider;
-import com.android.email.provider.EmailContent;
+import com.android.exchange.EmailContent.Account;
+import com.android.exchange.EmailContent.Attachment;
+import com.android.exchange.EmailContent.Mailbox;
+import com.android.exchange.EmailContent.Message;
+import com.android.exchange.EmailContent.MessageColumns;
+import com.android.exchange.EmailContent.SyncColumns;
 
 import android.content.ContentProviderOperation;
 import android.content.ContentProviderResult;
@@ -41,11 +46,11 @@ public class EasEmailSyncParser extends EasParser {
 
     private static final String TAG = "EmailSyncParser";
 
-    private EmailContent.Account mAccount;
+    private Account mAccount;
     private EasService mService;
     private ContentResolver mContentResolver;
     private Context mContext;
-    private EmailContent.Mailbox mMailbox;
+    private Mailbox mMailbox;
     protected boolean mMoreAvailable = false;
     String[] bindArgument = new String[1];
 
@@ -75,8 +80,8 @@ public class EasEmailSyncParser extends EasParser {
                         mMailbox.mSyncKey = "0";
                         Log.w(TAG, "Bad sync key; RESET and delete mailbox contents");
                         mContext.getContentResolver()
-                        .delete(EmailContent.Message.CONTENT_URI, 
-                                EmailContent.Message.MAILBOX_KEY + "=" + mMailbox.mId, null);
+                        .delete(Message.CONTENT_URI, 
+                                Message.MAILBOX_KEY + "=" + mMailbox.mId, null);
                         mMoreAvailable = true;
                     }
                 }
@@ -96,8 +101,8 @@ public class EasEmailSyncParser extends EasParser {
         mMailbox.saveOrUpdate(mContext);
     }
 
-    public void addParser(ArrayList<EmailContent.Message> emails) throws IOException {
-        EmailContent.Message msg = new EmailContent.Message();
+    public void addParser(ArrayList<Message> emails) throws IOException {
+        Message msg = new Message();
         String to = "";
         String from = "";
         String cc = "";
@@ -105,9 +110,9 @@ public class EasEmailSyncParser extends EasParser {
         int size = 0;
         msg.mAccountKey = mAccount.mId;
         msg.mMailboxKey = mMailbox.mId;
-        msg.mFlagLoaded = EmailContent.Message.LOADED;
+        msg.mFlagLoaded = Message.LOADED;
 
-        ArrayList<EmailContent.Attachment> atts = new ArrayList<EmailContent.Attachment>();
+        ArrayList<Attachment> atts = new ArrayList<Attachment>();
         boolean inData = false;
 
         while (nextTag(EasTags.SYNC_ADD) != END) {
@@ -197,7 +202,7 @@ public class EasEmailSyncParser extends EasParser {
         emails.add(msg);
     }
 
-    public void attachmentParser(ArrayList<EmailContent.Attachment> atts, EmailContent.Message msg) 
+    public void attachmentParser(ArrayList<Attachment> atts, Message msg) 
     throws IOException {
         String fileName = null;
         String length = null;
@@ -220,7 +225,7 @@ public class EasEmailSyncParser extends EasParser {
         }
 
         if (fileName != null && length != null && lvl != null) {
-            EmailContent.Attachment att = new EmailContent.Attachment();
+            Attachment att = new Attachment();
             att.mEncoding = "base64";
             att.mSize = Long.parseLong(length);
             att.mFileName = fileName;
@@ -234,13 +239,13 @@ public class EasEmailSyncParser extends EasParser {
             switch (tag) {
                 case EasTags.SYNC_SERVER_ID:
                     String serverId = getValue();
-                    Cursor c = mContentResolver.query(EmailContent.Message.CONTENT_URI, 
-                            EmailContent.Message.ID_COLUMN_PROJECTION, 
-                            EmailContent.SyncColumns.SERVER_ID + "=" + serverId, null, null);
+                    Cursor c = mContentResolver.query(Message.CONTENT_URI, 
+                            Message.ID_COLUMN_PROJECTION, 
+                            SyncColumns.SERVER_ID + "=" + serverId, null, null);
                     try {
                         if (c.moveToFirst()) {
                             mService.log("Deleting " + serverId);
-                            deletes.add(c.getLong(EmailContent.Message.ID_COLUMNS_ID_COLUMN));
+                            deletes.add(c.getLong(Message.ID_COLUMNS_ID_COLUMN));
                         }
                     } finally {
                         c.close();
@@ -262,15 +267,14 @@ public class EasEmailSyncParser extends EasParser {
                 case EasTags.SYNC_SERVER_ID:
                     serverId = getValue();
                     bindArgument[0] = serverId;
-                    Cursor c = mContentResolver.query(EmailContent.Message.CONTENT_URI, 
-                            EmailContent.Message.LIST_PROJECTION, 
-                            EmailContent.SyncColumns.SERVER_ID + "=?", bindArgument, null);
+                    Cursor c = mContentResolver.query(Message.CONTENT_URI, 
+                            Message.LIST_PROJECTION, 
+                            SyncColumns.SERVER_ID + "=?", bindArgument, null);
                     try {
                         if (c.moveToFirst()) {
                             mService.log("Changing " + serverId);
-                            oldRead = c.getInt(EmailContent.Message.LIST_READ_COLUMN) == 
-                                EmailContent.Message.READ;
-                            id = c.getLong(EmailContent.Message.LIST_ID_COLUMN);
+                            oldRead = c.getInt(Message.LIST_READ_COLUMN) == Message.READ;
+                            id = c.getLong(Message.LIST_ID_COLUMN);
                         }
                     } finally {
                         c.close();
@@ -291,7 +295,7 @@ public class EasEmailSyncParser extends EasParser {
     }
 
     public void commandsParser() throws IOException {
-        ArrayList<EmailContent.Message> newEmails = new ArrayList<EmailContent.Message>();
+        ArrayList<Message> newEmails = new ArrayList<Message>();
         ArrayList<Long> deletedEmails = new ArrayList<Long>();
         ArrayList<Long> changedEmails = new ArrayList<Long>();
 
@@ -310,27 +314,27 @@ public class EasEmailSyncParser extends EasParser {
         // TODO Notifications
         // TODO Store message bodies
         ArrayList<ContentProviderOperation> ops = new ArrayList<ContentProviderOperation>();
-        for (EmailContent.Message content: newEmails) {
+        for (Message content: newEmails) {
             content.addSaveOps(ops);
         }
         for (Long id: deletedEmails) {
             ops.add(ContentProviderOperation
-                    .newDelete(ContentUris.withAppendedId(EmailContent.Message.CONTENT_URI, id)).build());
+                    .newDelete(ContentUris.withAppendedId(Message.CONTENT_URI, id)).build());
         }
         if (!changedEmails.isEmpty()) {
             ContentValues cv = new ContentValues();
             // TODO Handle proper priority
             // Set this as the correct state (assuming server wins)
-            cv.put(EmailContent.SyncColumns.DIRTY_COUNT, 0);
-            cv.put(EmailContent.MessageColumns.FLAG_READ, true);
+            cv.put(SyncColumns.DIRTY_COUNT, 0);
+            cv.put(MessageColumns.FLAG_READ, true);
             for (Long id: changedEmails) {
                 // For now, don't handle read->unread
                 ops.add(ContentProviderOperation.newUpdate(ContentUris
-                        .withAppendedId(EmailContent.Message.CONTENT_URI, id)).withValues(cv).build());
+                        .withAppendedId(Message.CONTENT_URI, id)).withValues(cv).build());
             }
         }
         ops.add(ContentProviderOperation.newUpdate(ContentUris
-                .withAppendedId(EmailContent.Mailbox.CONTENT_URI, mMailbox.mId))
+                .withAppendedId(Mailbox.CONTENT_URI, mMailbox.mId))
                 .withValues(mMailbox.toContentValues()).build());
 
         try {

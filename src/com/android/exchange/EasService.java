@@ -48,7 +48,10 @@ import org.apache.http.impl.client.DefaultHttpClient;
 import com.android.email.Account;
 import com.android.email.mail.AuthenticationFailedException;
 import com.android.email.mail.MessagingException;
-import com.android.email.provider.EmailContent;
+import com.android.exchange.EmailContent.AttachmentColumns;
+import com.android.exchange.EmailContent.HostAuth;
+import com.android.exchange.EmailContent.Mailbox;
+import com.android.exchange.EmailContent.Message;
 
 import android.content.ContentValues;
 import android.content.Context;
@@ -103,7 +106,7 @@ public class EasService extends ProtocolService {
     private boolean mStop = false;
     private Object mWaitTarget = new Object();
 
-    public EasService (Context _context, EmailContent.Mailbox _mailbox) {
+    public EasService (Context _context, Mailbox _mailbox) {
         // A comment
         super(_context, _mailbox);
         mContext = _context;
@@ -199,7 +202,7 @@ public class EasService extends ProtocolService {
             String type = e.getContentType().getValue();
             Log.v(TAG, "Attachment code: " + status + ", Length: " + len + ", Type: " + type);
             InputStream is = res.getEntity().getContent();
-            File f = null; //EmailContent.Attachment.openAttachmentFile(req);
+            File f = null; //Attachment.openAttachmentFile(req);
             if (f != null) {
                 FileOutputStream os = new FileOutputStream(f);
                 if (len > 0) {
@@ -227,8 +230,8 @@ public class EasService extends ProtocolService {
                 os.close();
 
                 ContentValues cv = new ContentValues();
-                cv.put(EmailContent.AttachmentColumns.CONTENT_URI, f.getAbsolutePath());
-                cv.put(EmailContent.AttachmentColumns.MIME_TYPE, type);
+                cv.put(AttachmentColumns.CONTENT_URI, f.getAbsolutePath());
+                cv.put(AttachmentColumns.MIME_TYPE, type);
                 req.att.update(mContext, cv);
                 // TODO Inform UI that we're done
             }
@@ -514,7 +517,7 @@ public class EasService extends ProtocolService {
     }
 
     long handleLocalReads (EASSerializer s) throws IOException {
-        Cursor c = mContext.getContentResolver().query(EmailContent.Message.CONTENT_URI, EmailContent.Message.LIST_PROJECTION, "mailboxKey=" + mMailboxId, null, null);
+        Cursor c = mContext.getContentResolver().query(Message.CONTENT_URI, Message.LIST_PROJECTION, "mailboxKey=" + mMailboxId, null, null);
         long maxReadId = -1;
         try {
             //            if (c.moveToFirst()) {
@@ -620,8 +623,7 @@ public class EasService extends ProtocolService {
         mDeviceId = android.provider.Settings.System
         .getString(mContext.getContentResolver(), android.provider.Settings.System.ANDROID_ID);
 
-        EmailContent.HostAuth ha = EmailContent.HostAuth
-        .restoreHostAuthWithId(mContext, mAccount.mHostAuthKeyRecv);
+        HostAuth ha = HostAuth.restoreHostAuthWithId(mContext, mAccount.mHostAuthKeyRecv);
         mHostAddress = ha.mAddress;
         mUserName = ha.mLogin;
         mPassword = ha.mPassword;
@@ -751,7 +753,7 @@ public class EasService extends ProtocolService {
                     // Handle local moves
                     handleLocalMoves();
 
-                    if (mMailbox.mSyncFrequency != EmailContent.Account.CHECK_INTERVAL_PUSH) {
+                    if (mMailbox.mSyncFrequency != Account.CHECK_INTERVAL_PUSH) {
                         return;
                     }
 

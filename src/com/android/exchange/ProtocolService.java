@@ -21,7 +21,8 @@ import java.util.ArrayList;
 
 import com.android.email.Email;
 import com.android.email.mail.MessagingException;
-import com.android.email.provider.EmailContent;
+import com.android.exchange.EmailContent.Account;
+import com.android.exchange.EmailContent.Mailbox;
 
 import android.content.Context;
 import android.net.ConnectivityManager;
@@ -57,11 +58,11 @@ public abstract class ProtocolService implements Runnable {
     // Kindly subclasses will synchronize on this before making an SSL connection
     public static Object sslGovernorToken = new Object();
 
-    protected EmailContent.Mailbox mMailbox;
+    protected Mailbox mMailbox;
     protected long mMailboxId;
     protected Thread mThread;
     protected String mMailboxName;
-    protected EmailContent.Account mAccount;
+    protected Account mAccount;
     protected Context mContext;
     protected long mRequestTime;
     protected ArrayList<PartRequest> mPartRequests = new ArrayList<PartRequest>();
@@ -81,12 +82,12 @@ public abstract class ProtocolService implements Runnable {
         //return MailService.SyncStatus.SYNC;
     }
 
-    public ProtocolService (Context _context, EmailContent.Mailbox _mailbox) {
+    public ProtocolService (Context _context, Mailbox _mailbox) {
         mContext = _context;
         mMailbox = _mailbox;
         mMailboxId = _mailbox.mId;
         mMailboxName = _mailbox.mServerId;
-        mAccount = EmailContent.Account.restoreAccountWithId(_context, _mailbox.mAccountKey);
+        mAccount = Account.restoreAccountWithId(_context, _mailbox.mAccountKey);
     }
 
     // Will be required when subclasses are instantiated by name

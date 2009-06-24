@@ -22,12 +22,12 @@ import java.io.InputStream;
 
 import android.util.Log;
 
-import com.android.email.provider.EmailContent;
+import com.android.exchange.EmailContent.Mailbox;
 
 public class EasMoveParser extends EasParser {
     private static final String TAG = "EasMoveParser";
     private EasService mService;
-    private EmailContent.Mailbox mMailbox;
+    private Mailbox mMailbox;
     protected boolean mMoreAvailable = false;
 
     public EasMoveParser(InputStream in, EasService service) throws IOException {

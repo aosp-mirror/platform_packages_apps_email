@@ -140,7 +140,7 @@ public abstract class EmailContent {
      * @param selectionArgs as with a query call
      * @return the number of items matching the query (or zero)
      */
-    static public int count (Context context, Uri uri, String selection, String[] selectionArgs) {
+    static public int count(Context context, Uri uri, String selection, String[] selectionArgs) {
         Cursor cursor = context.getContentResolver()
             .query(uri, COUNT_COLUMNS, selection, selectionArgs, null);
         try {
@@ -324,8 +324,6 @@ public abstract class EmailContent {
         public static final String TEXT_INFO = "textInfo";          
         // Information about the html part (if any) in form <location>;<encoding>;<charset>;<length>
         public static final String HTML_INFO = "htmlInfo";          
-        // Foreign key to the Body content of this message (text and/or html)
-        public static final String BODY_ID = "bodyId";              
 
         // Sync related identifiers
         // Any client-required identifier
@@ -371,27 +369,26 @@ public abstract class EmailContent {
         public static final int CONTENT_FLAGS_COLUMN = 9;
         public static final int CONTENT_TEXT_INFO_COLUMN = 10;
         public static final int CONTENT_HTML_INFO_COLUMN = 11;
-        public static final int CONTENT_BODY_ID_COLUMN = 12;
-        public static final int CONTENT_SERVER_ID_COLUMN = 13;
-        public static final int CONTENT_CLIENT_ID_COLUMN = 14;
-        public static final int CONTENT_MESSAGE_ID_COLUMN = 15;
-        public static final int CONTENT_THREAD_ID_COLUMN = 16;
-        public static final int CONTENT_MAILBOX_KEY_COLUMN = 17;
-        public static final int CONTENT_ACCOUNT_KEY_COLUMN = 18;
-        public static final int CONTENT_REFERENCE_KEY_COLUMN = 19;
-        public static final int CONTENT_SENDER_LIST_COLUMN = 20;
-        public static final int CONTENT_FROM_LIST_COLUMN = 21;
-        public static final int CONTENT_TO_LIST_COLUMN = 22;
-        public static final int CONTENT_CC_LIST_COLUMN = 23;
-        public static final int CONTENT_BCC_LIST_COLUMN = 24;
-        public static final int CONTENT_REPLY_TO_COLUMN = 25;
-        public static final int CONTENT_SERVER_VERSION_COLUMN = 26;
+        public static final int CONTENT_SERVER_ID_COLUMN = 12;
+        public static final int CONTENT_CLIENT_ID_COLUMN = 13;
+        public static final int CONTENT_MESSAGE_ID_COLUMN = 14;
+        public static final int CONTENT_THREAD_ID_COLUMN = 15;
+        public static final int CONTENT_MAILBOX_KEY_COLUMN = 16;
+        public static final int CONTENT_ACCOUNT_KEY_COLUMN = 17;
+        public static final int CONTENT_REFERENCE_KEY_COLUMN = 18;
+        public static final int CONTENT_SENDER_LIST_COLUMN = 19;
+        public static final int CONTENT_FROM_LIST_COLUMN = 20;
+        public static final int CONTENT_TO_LIST_COLUMN = 21;
+        public static final int CONTENT_CC_LIST_COLUMN = 22;
+        public static final int CONTENT_BCC_LIST_COLUMN = 23;
+        public static final int CONTENT_REPLY_TO_COLUMN = 24;
+        public static final int CONTENT_SERVER_VERSION_COLUMN = 25;
         public static final String[] CONTENT_PROJECTION = new String[] { 
             RECORD_ID, MessageColumns.DISPLAY_NAME, MessageColumns.TIMESTAMP, 
             MessageColumns.SUBJECT, MessageColumns.PREVIEW, MessageColumns.FLAG_READ,
             MessageColumns.FLAG_LOADED, MessageColumns.FLAG_FAVORITE,
             MessageColumns.FLAG_ATTACHMENT, MessageColumns.FLAGS, MessageColumns.TEXT_INFO,
-            MessageColumns.HTML_INFO, MessageColumns.BODY_ID, SyncColumns.SERVER_ID,
+            MessageColumns.HTML_INFO, SyncColumns.SERVER_ID,
             MessageColumns.CLIENT_ID, MessageColumns.MESSAGE_ID, MessageColumns.THREAD_ID,
             MessageColumns.MAILBOX_KEY, MessageColumns.ACCOUNT_KEY, MessageColumns.REFERENCE_KEY,
             MessageColumns.SENDER_LIST, MessageColumns.FROM_LIST, MessageColumns.TO_LIST,
@@ -458,7 +455,6 @@ public abstract class EmailContent {
         public String mMessageId;
         public String mThreadId;
 
-        public long mBodyKey;
         public long mMailboxKey;
         public long mAccountKey;
         public long mReferenceKey;
@@ -522,7 +518,6 @@ public abstract class EmailContent {
             values.put(MessageColumns.CLIENT_ID, mClientId);
             values.put(MessageColumns.MESSAGE_ID, mMessageId);
 
-            values.put(MessageColumns.BODY_ID, mBodyKey);
             values.put(MessageColumns.MAILBOX_KEY, mMailboxKey);
             values.put(MessageColumns.ACCOUNT_KEY, mAccountKey);
             values.put(MessageColumns.REFERENCE_KEY, mReferenceKey);
@@ -575,7 +570,6 @@ public abstract class EmailContent {
             mClientId = c.getString(CONTENT_CLIENT_ID_COLUMN);
             mMessageId = c.getString(CONTENT_MESSAGE_ID_COLUMN);
             mThreadId = c.getString(CONTENT_THREAD_ID_COLUMN);
-            mBodyKey = c.getLong(CONTENT_BODY_ID_COLUMN);
             mMailboxKey = c.getLong(CONTENT_MAILBOX_KEY_COLUMN);
             mAccountKey = c.getLong(CONTENT_ACCOUNT_KEY_COLUMN);
             mReferenceKey = c.getLong(CONTENT_REFERENCE_KEY_COLUMN);
