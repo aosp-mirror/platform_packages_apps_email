@@ -496,6 +496,7 @@ public abstract class EmailContent {
             values.put(MessageColumns.DISPLAY_NAME, mDisplayName);
             values.put(MessageColumns.TIMESTAMP, mTimeStamp);
             values.put(MessageColumns.SUBJECT, mSubject);
+            values.put(MessageColumns.PREVIEW, mPreview);
             values.put(MessageColumns.FLAG_READ, mFlagRead); 
             values.put(MessageColumns.FLAG_LOADED, mFlagLoaded); 
             values.put(MessageColumns.FLAG_FAVORITE, mFlagFavorite); 
@@ -513,6 +514,7 @@ public abstract class EmailContent {
 
             values.put(MessageColumns.CLIENT_ID, mClientId);
             values.put(MessageColumns.MESSAGE_ID, mMessageId);
+            values.put(MessageColumns.THREAD_ID, mThreadId);
 
             values.put(MessageColumns.MAILBOX_KEY, mMailboxKey);
             values.put(MessageColumns.ACCOUNT_KEY, mAccountKey);
