@@ -1100,15 +1100,16 @@ public class MessagingController implements Runnable {
         }
         remoteFolder.open(OpenMode.READ_WRITE, localFolder.getPersistentCallbacks());
         if (remoteFolder.getMode() != OpenMode.READ_WRITE) {
+            remoteFolder.close(false);
             return;
         }
 
         Message remoteMessage = null;
-        if (!uid.startsWith("Local")
-                && !uid.contains("-")) {
+        if (!uid.startsWith("Local")) {
             remoteMessage = remoteFolder.getMessage(uid);
         }
         if (remoteMessage == null) {
+            remoteFolder.close(false);
             return;
         }
 
@@ -1132,6 +1133,8 @@ public class MessagingController implements Runnable {
                 (LocalFolder) localStore.getFolder(account.getTrashFolderName());
             remoteTrashFolder.open(OpenMode.READ_WRITE, localTrashFolder.getPersistentCallbacks());
             if (remoteTrashFolder.getMode() != OpenMode.READ_WRITE) {
+                remoteFolder.close(false);
+                remoteTrashFolder.close(false);
                 return;
             }
 
@@ -1164,10 +1167,12 @@ public class MessagingController implements Runnable {
 
             }
             );
+            remoteTrashFolder.close(false);
         }
 
         remoteMessage.setFlag(Flag.DELETED, true);
         remoteFolder.expunge();
+        remoteFolder.close(false);
     }
 
     /**

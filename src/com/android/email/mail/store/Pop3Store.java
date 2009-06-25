@@ -294,7 +294,7 @@ public class Pop3Store extends Store {
 
         @Override
         public OpenMode getMode() throws MessagingException {
-            return OpenMode.READ_ONLY;
+            return OpenMode.READ_WRITE;
         }
 
         /**
@@ -342,10 +342,18 @@ public class Pop3Store extends Store {
 
         @Override
         public Message getMessage(String uid) throws MessagingException {
-            Pop3Message message = mUidToMsgMap.get(uid);
-            if (message == null) {
-                message = new Pop3Message(uid, this);
+            if (mUidToMsgNumMap.size() == 0) {
+                try {
+                    indexMsgNums(1, mMessageCount);
+                } catch (IOException ioe) {
+                    mTransport.close();
+                    if (Email.DEBUG) {
+                        Log.d(Email.LOG_TAG, "Unable to index during getMessage " + ioe);
+                    }
+                    throw new MessagingException("getMessages", ioe);
+                }
             }
+            Pop3Message message = mUidToMsgMap.get(uid);
             return message;
         }
 

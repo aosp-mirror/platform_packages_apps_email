@@ -32,6 +32,7 @@ import com.android.email.mail.transport.MockTransport;
 
 import android.test.AndroidTestCase;
 import android.test.suitebuilder.annotation.SmallTest;
+import android.util.Log;
 
 /**
  * This is a series of unit tests for the POP3 Store class.  These tests must be locally
@@ -234,8 +235,8 @@ public class Pop3StoreUnitTests extends AndroidTestCase {
      */
     public void testSmallFolderFunctions() throws MessagingException {
             
-        // getMode() returns OpenMode.READ_ONLY
-        assertEquals(OpenMode.READ_ONLY, mFolder.getMode());
+        // getMode() returns OpenMode.READ_WRITE
+        assertEquals(OpenMode.READ_WRITE, mFolder.getMode());
         
        // create() return false
         assertFalse(mFolder.create(FolderType.HOLDS_FOLDERS));
@@ -319,6 +320,35 @@ public class Pop3StoreUnitTests extends AndroidTestCase {
         MockTransport mockTransport = openAndInjectMockTransport();
         
         checkOneUnread(mockTransport);
+    }
+
+    /**
+     * Test the process of opening and getting message by uid.
+     */
+    public void testGetMessageByUid() throws MessagingException {
+        
+        MockTransport mockTransport = openAndInjectMockTransport();
+        
+        setupOpenFolder(mockTransport, 2, null);
+        mFolder.open(OpenMode.READ_WRITE, null);
+        // check message count
+        assertEquals(2, mFolder.getMessageCount());
+
+        // setup 2 messages
+        setupUidlSequence(mockTransport, 2);
+        String uid1 = getSingleMessageUID(1);
+        String uid2 = getSingleMessageUID(2);
+        String uid3 = getSingleMessageUID(3);
+        
+        Message msg1 = mFolder.getMessage(uid1);
+        assertTrue("message with uid1", msg1 != null);
+
+        // uid3 does not exist
+        Message msg3 = mFolder.getMessage(uid3);
+        assertTrue("message with uid3", msg3 == null);
+
+        Message msg2 = mFolder.getMessage(uid2);
+        assertTrue("message with uid2", msg2 != null);
     }
 
     /**
