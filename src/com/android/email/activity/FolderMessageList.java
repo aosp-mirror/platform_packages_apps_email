@@ -566,7 +566,7 @@ public class FolderMessageList extends ExpandableListActivity {
 
     @Override
     public Object onRetainNonConfigurationInstance() {
-        return mAdapter.mFolders;
+        return mAdapter != null ? mAdapter.mFolders : null;
     }
 
     @Override
