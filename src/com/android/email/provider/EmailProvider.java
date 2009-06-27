@@ -54,10 +54,10 @@ public class EmailProvider extends ContentProvider {
 
     static final String DATABASE_NAME = "EmailProvider.db";
     static final String BODY_DATABASE_NAME = "EmailProviderBody.db";
-    
+
     // In these early versions, updating the database version will cause all tables to be deleted
     // Obviously, we'll handle upgrades differently once things are a bit stable
-    public static final int DATABASE_VERSION = 13;
+    public static final int DATABASE_VERSION = 14;
     public static final int BODY_DATABASE_VERSION = 1;
 
     public static final String EMAIL_AUTHORITY = "com.android.email.provider";
@@ -66,91 +66,121 @@ public class EmailProvider extends ContentProvider {
     private static final int ACCOUNT = ACCOUNT_BASE;
     private static final int ACCOUNT_MAILBOXES = ACCOUNT_BASE + 1;
     private static final int ACCOUNT_ID = ACCOUNT_BASE + 2;
- 
+
     private static final int MAILBOX_BASE = 0x1000;
     private static final int MAILBOX = MAILBOX_BASE;
     private static final int MAILBOX_MESSAGES = MAILBOX_BASE + 1;
     private static final int MAILBOX_ID = MAILBOX_BASE + 2;
-    
+
     private static final int MESSAGE_BASE = 0x2000;
     private static final int MESSAGE = MESSAGE_BASE;
     private static final int MESSAGE_ATTACHMENTS = MESSAGE_BASE + 1;
     private static final int MESSAGE_ID = MESSAGE_BASE + 2;
-    
+    private static final int SYNCED_MESSAGE_ID = MESSAGE_BASE + 3;
+
     private static final int ATTACHMENT_BASE = 0x3000;
     private static final int ATTACHMENT = ATTACHMENT_BASE;
     private static final int ATTACHMENT_CONTENT = ATTACHMENT_BASE + 1;
     private static final int ATTACHMENT_ID = ATTACHMENT_BASE + 2;
-    
-     // TEMPORARY UNTIL ACCOUNT MANAGER CAN BE USED
+
     private static final int HOSTAUTH_BASE = 0x4000;
     private static final int HOSTAUTH = HOSTAUTH_BASE;
     private static final int HOSTAUTH_ID = HOSTAUTH_BASE + 1;
-    
+
     private static final int UPDATED_MESSAGE_BASE = 0x5000;
     private static final int UPDATED_MESSAGE = UPDATED_MESSAGE_BASE;
-    private static final int UPDATED_MESSAGE_ATTACHMENTS = UPDATED_MESSAGE_BASE + 1;
-    private static final int UPDATED_MESSAGE_ID = UPDATED_MESSAGE_BASE + 2;
-    
-    // BODY_BASE MAY BE CHANGED BUT IT MUST BE HIGHEST BASE VALUE (it's in a different database!)
-    private static final int BODY_BASE = 0x6000;
+    private static final int UPDATED_MESSAGE_ID = UPDATED_MESSAGE_BASE + 1;
+
+    private static final int DELETED_MESSAGE_BASE = 0x6000;
+    private static final int DELETED_MESSAGE = DELETED_MESSAGE_BASE;
+    private static final int DELETED_MESSAGE_ID = DELETED_MESSAGE_BASE + 1;
+    private static final int DELETED_MESSAGE_MAILBOX = DELETED_MESSAGE_BASE + 2;
+
+    // MUST ALWAYS EQUAL THE LAST OF THE PREVIOUS BASE CONSTANTS
+    private static final int LAST_EMAIL_PROVIDER_DB_BASE = DELETED_MESSAGE_BASE;
+
+    // DO NOT CHANGE BODY_BASE!!
+    private static final int BODY_BASE = LAST_EMAIL_PROVIDER_DB_BASE + 0x1000;
     private static final int BODY = BODY_BASE;
     private static final int BODY_ID = BODY_BASE + 1;
     private static final int BODY_MESSAGE_ID = BODY_BASE + 2;
     private static final int BODY_HTML = BODY_BASE + 3;
     private static final int BODY_TEXT = BODY_BASE + 4;
-   
-    
+
+
     private static final int BASE_SHIFT = 12;  // 12 bits to the base type: 0, 0x1000, 0x2000, etc.
-    
+
     private static final String[] TABLE_NAMES = {
         EmailContent.Account.TABLE_NAME,
         EmailContent.Mailbox.TABLE_NAME,
         EmailContent.Message.TABLE_NAME,
         EmailContent.Attachment.TABLE_NAME,
         EmailContent.HostAuth.TABLE_NAME,
-        EmailContent.Message.UPDATES_TABLE_NAME,
+        EmailContent.Message.UPDATED_TABLE_NAME,
+        EmailContent.Message.DELETED_TABLE_NAME,
         EmailContent.Body.TABLE_NAME
     };
- 
+
     private static final UriMatcher sURIMatcher = new UriMatcher(UriMatcher.NO_MATCH);
+
+    /**
+     * Let's only generate these SQL strings once, as they are used frequently
+     * Note that this isn't relevant for table creation strings, since they are used only once
+     */
+    private static final String UPDATED_MESSAGE_INSERT = "insert or ignore into " +
+        Message.UPDATED_TABLE_NAME + " select * from " + Message.TABLE_NAME + " where " +
+        EmailContent.RECORD_ID + '=';
+
+    private static final String UPDATED_MESSAGE_DELETE = "delete from " +
+        Message.UPDATED_TABLE_NAME + " where " + EmailContent.RECORD_ID + '=';
+
+    private static final String DELETED_MESSAGE_INSERT = "insert or replace into " +
+        Message.DELETED_TABLE_NAME + " select * from " + Message.TABLE_NAME + " where " +
+        EmailContent.RECORD_ID + '=';
+
+    private static final String DELETE_ORPHAN_BODIES = "delete from " + Body.TABLE_NAME +
+        " where " + EmailContent.RECORD_ID + " in " + "(select " + EmailContent.RECORD_ID +
+        " from " + Body.TABLE_NAME + " except select " + EmailContent.RECORD_ID + " from " +
+        Message.TABLE_NAME + ')';
+
+    private static final String DELETE_BODY = "delete from " + Body.TABLE_NAME +
+        " where " + EmailContent.RECORD_ID + '=';
 
     static {
         // Email URI matching table
         UriMatcher matcher = sURIMatcher;
+
         // All accounts
-        matcher.addURI(EMAIL_AUTHORITY, "account", ACCOUNT); // IMPLEMENTED
+        matcher.addURI(EMAIL_AUTHORITY, "account", ACCOUNT);
         // A specific account
         // insert into this URI causes a mailbox to be added to the account 
-        matcher.addURI(EMAIL_AUTHORITY, "account/#", ACCOUNT_ID);  // IMPLEMENTED
+        matcher.addURI(EMAIL_AUTHORITY, "account/#", ACCOUNT_ID);
         // The mailboxes in a specific account
         matcher.addURI(EMAIL_AUTHORITY, "account/#/mailbox", ACCOUNT_MAILBOXES);
+
         // All mailboxes
-        matcher.addURI(EMAIL_AUTHORITY, "mailbox", MAILBOX);  // IMPLEMENTED
+        matcher.addURI(EMAIL_AUTHORITY, "mailbox", MAILBOX);
         // A specific mailbox
         // insert into this URI causes a message to be added to the mailbox
         // ** NOTE For now, the accountKey must be set manually in the values!
-        matcher.addURI(EMAIL_AUTHORITY, "mailbox/#", MAILBOX_ID);  // IMPLEMENTED
+        matcher.addURI(EMAIL_AUTHORITY, "mailbox/#", MAILBOX_ID);
         // The messages in a specific mailbox
         matcher.addURI(EMAIL_AUTHORITY, "mailbox/#/message", MAILBOX_MESSAGES);
+
         // All messages
-        matcher.addURI(EMAIL_AUTHORITY, "message", MESSAGE); // IMPLEMENTED
+        matcher.addURI(EMAIL_AUTHORITY, "message", MESSAGE);
         // A specific message
         // insert into this URI causes an attachment to be added to the message 
-        matcher.addURI(EMAIL_AUTHORITY, "message/#", MESSAGE_ID); // IMPLEMENTED
+        matcher.addURI(EMAIL_AUTHORITY, "message/#", MESSAGE_ID);
         // The attachments of a specific message
-        matcher.addURI(EMAIL_AUTHORITY, "message/#/attachment", MESSAGE_ATTACHMENTS); // IMPLEMENTED
-        // All updated messages
-        matcher.addURI(EMAIL_AUTHORITY, "updatedMessage", UPDATED_MESSAGE); // IMPLEMENTED
-        // A specific updated message
-        matcher.addURI(EMAIL_AUTHORITY, "updatedMessage/#", UPDATED_MESSAGE_ID); // IMPLEMENTED
-        // The attachments of a specific updated message
-        matcher.addURI(EMAIL_AUTHORITY, "updatedMessage/#/attachment", UPDATED_MESSAGE_ATTACHMENTS);
+        matcher.addURI(EMAIL_AUTHORITY, "message/#/attachment", MESSAGE_ATTACHMENTS);
+
         // A specific attachment
-        matcher.addURI(EMAIL_AUTHORITY, "attachment", ATTACHMENT); // IMPLEMENTED
+        matcher.addURI(EMAIL_AUTHORITY, "attachment", ATTACHMENT);
         // A specific attachment (the header information)
-        matcher.addURI(EMAIL_AUTHORITY, "attachment/#", ATTACHMENT_ID);  // IMPLEMENTED
+        matcher.addURI(EMAIL_AUTHORITY, "attachment/#", ATTACHMENT_ID);
         // The content for a specific attachment
+        // NOT IMPLEMENTED
         matcher.addURI(EMAIL_AUTHORITY, "attachment/content/*", ATTACHMENT_CONTENT);
 
         // All mail bodies
@@ -163,47 +193,76 @@ public class EmailProvider extends ContentProvider {
         matcher.addURI(EMAIL_AUTHORITY, "body/#/html", BODY_HTML);
         // The plain text part of a specific mail body
         matcher.addURI(EMAIL_AUTHORITY, "body/#/text", BODY_TEXT);
-        
+
         // A specific attachment
         matcher.addURI(EMAIL_AUTHORITY, "hostauth", HOSTAUTH); // IMPLEMENTED
         // A specific attachment (the header information)
         matcher.addURI(EMAIL_AUTHORITY, "hostauth/#", HOSTAUTH_ID);  // IMPLEMENTED
-   
+
+        /**
+         * THIS URI HAS SPECIAL SEMANTICS
+         * ITS USE IS INDENTED FOR THE UI APPLICATION TO MARK CHANGES THAT NEED TO BE SYNCED BACK
+         * TO A SERVER VIA A SYNC ADAPTER
+         */
+        matcher.addURI(EMAIL_AUTHORITY, "syncedMessage/#", SYNCED_MESSAGE_ID);
+
+        /**
+         * THE URIs BELOW THIS POINT ARE INTENDED TO BE USED BY SYNC ADAPTERS ONLY
+         * THEY REFER TO DATA CREATED AND MAINTAINED BY CALLS TO THE SYNCED_MESSAGE_ID URI
+         * BY THE UI APPLICATION
+         */
+        // All deleted messages
+        matcher.addURI(EMAIL_AUTHORITY, "deletedMessage", DELETED_MESSAGE);
+        // A specific deleted message
+        matcher.addURI(EMAIL_AUTHORITY, "deletedMessage/#", DELETED_MESSAGE_ID);
+        // All deleted messages from a specific mailbox
+        // NOT IMPLEMENTED; do we need this as a convenience?
+        matcher.addURI(EMAIL_AUTHORITY, "deletedMessage/mailbox/#", DELETED_MESSAGE_MAILBOX);
+
+        // All updated messages
+        matcher.addURI(EMAIL_AUTHORITY, "updatedMessage", UPDATED_MESSAGE);
+        // A specific updated message
+        matcher.addURI(EMAIL_AUTHORITY, "updatedMessage/#", UPDATED_MESSAGE_ID);
     }
 
     static void createMessageTable(SQLiteDatabase db) {
         String s = " (" + EmailContent.RECORD_ID + " integer primary key autoincrement, " 
-            + SyncColumns.ACCOUNT_KEY + " integer, "
-            + SyncColumns.SERVER_ID + " integer, "
-            + SyncColumns.SERVER_VERSION + " integer, "
-            + SyncColumns.DATA + " text, "
-            + SyncColumns.DIRTY_COUNT + " integer, "
-            + MessageColumns.DISPLAY_NAME + " text, " 
-            + MessageColumns.TIMESTAMP + " integer, " 
-            + MessageColumns.SUBJECT + " text, " 
-            + MessageColumns.PREVIEW + " text, "
-            + MessageColumns.FLAG_READ + " integer, " 
-            + MessageColumns.FLAG_LOADED + " integer, " 
-            + MessageColumns.FLAG_FAVORITE + " integer, " 
-            + MessageColumns.FLAG_ATTACHMENT + " integer, " 
-            + MessageColumns.FLAGS + " integer, "
-            + MessageColumns.TEXT_INFO + " text, "
-            + MessageColumns.HTML_INFO + " text, "
-            + MessageColumns.CLIENT_ID + " integer, "
-            + MessageColumns.MESSAGE_ID + " text, "
-            + MessageColumns.THREAD_ID + " text, "
-            + MessageColumns.MAILBOX_KEY + " integer, "
-            + MessageColumns.ACCOUNT_KEY + " integer, "
-            + MessageColumns.REFERENCE_KEY + " integer, "
-            + MessageColumns.SENDER_LIST + " text, "
-            + MessageColumns.FROM_LIST + " text, "
-            + MessageColumns.TO_LIST + " text, "
-            + MessageColumns.CC_LIST + " text, "
-            + MessageColumns.BCC_LIST + " text, "
-            + MessageColumns.REPLY_TO_LIST + " text"
-            + ");";
+        + SyncColumns.ACCOUNT_KEY + " integer, "
+        + SyncColumns.SERVER_ID + " integer, "
+        + SyncColumns.SERVER_VERSION + " integer, "
+        + SyncColumns.DATA + " text, "
+        + SyncColumns.DIRTY_COUNT + " integer, "
+        + MessageColumns.DISPLAY_NAME + " text, "
+        + MessageColumns.TIMESTAMP + " integer, "
+        + MessageColumns.SUBJECT + " text, "
+        + MessageColumns.PREVIEW + " text, "
+        + MessageColumns.FLAG_READ + " integer, "
+        + MessageColumns.FLAG_LOADED + " integer, "
+        + MessageColumns.FLAG_FAVORITE + " integer, "
+        + MessageColumns.FLAG_ATTACHMENT + " integer, "
+        + MessageColumns.FLAGS + " integer, "
+        + MessageColumns.TEXT_INFO + " text, "
+        + MessageColumns.HTML_INFO + " text, "
+        + MessageColumns.CLIENT_ID + " integer, "
+        + MessageColumns.MESSAGE_ID + " text, "
+        + MessageColumns.THREAD_ID + " text, "
+        + MessageColumns.MAILBOX_KEY + " integer, "
+        + MessageColumns.ACCOUNT_KEY + " integer, "
+        + MessageColumns.REFERENCE_KEY + " integer, "
+        + MessageColumns.SENDER_LIST + " text, "
+        + MessageColumns.FROM_LIST + " text, "
+        + MessageColumns.TO_LIST + " text, "
+        + MessageColumns.CC_LIST + " text, "
+        + MessageColumns.BCC_LIST + " text, "
+        + MessageColumns.REPLY_TO_LIST + " text"
+        + ");";
+
+        // The three tables have the same schema
         db.execSQL("create table " + Message.TABLE_NAME + s);
-        db.execSQL("create table " + Message.UPDATES_TABLE_NAME + s);
+        db.execSQL("create table " + Message.UPDATED_TABLE_NAME + s);
+        db.execSQL("create table " + Message.DELETED_TABLE_NAME + s);
+
+        // For now, indices only on the Message table
         db.execSQL("create index message_" + MessageColumns.TIMESTAMP 
                 + " on " + Message.TABLE_NAME + " (" + MessageColumns.TIMESTAMP + ");");
         db.execSQL("create index message_" + MessageColumns.FLAG_READ 
@@ -215,18 +274,19 @@ public class EmailProvider extends ContentProvider {
         db.execSQL("create index message_" + SyncColumns.SERVER_ID 
                 + " on " + Message.TABLE_NAME + " (" + SyncColumns.SERVER_ID + ");");
 
-        // Deleting a Message deletes associated Attachments
+        // Deleting a Message deletes all associated Attachments
         // Deleting the associated Body cannot be done in a trigger, because the Body is stored
         // in a separate database, and trigger cannot operate on attached databases.
         db.execSQL("create trigger message_delete before delete on " + Message.TABLE_NAME + 
                 " begin delete from " + Attachment.TABLE_NAME +
                 "  where " + AttachmentColumns.MESSAGE_KEY + "=old." + EmailContent.RECORD_ID + 
-                "; end");
+        "; end");
     }
 
     static void upgradeMessageTable(SQLiteDatabase db, int oldVersion, int newVersion) {
         db.execSQL("drop table " + Message.TABLE_NAME);
-        db.execSQL("drop table " + Message.UPDATES_TABLE_NAME);
+        db.execSQL("drop table " + Message.UPDATED_TABLE_NAME);
+        db.execSQL("drop table " + Message.DELETED_TABLE_NAME);
         createMessageTable(db);
     }
 
@@ -252,8 +312,8 @@ public class EmailProvider extends ContentProvider {
                 " where " + MailboxColumns.ACCOUNT_KEY + "=old." + EmailContent.RECORD_ID + 
                 "; delete from " + HostAuth.TABLE_NAME +
                 " where " + HostAuthColumns.ACCOUNT_KEY + "=old." + EmailContent.RECORD_ID +
-                "; end");
-   }
+        "; end");
+    }
 
     static void upgradeAccountTable(SQLiteDatabase db, int oldVersion, int newVersion) {
         try {
@@ -262,7 +322,7 @@ public class EmailProvider extends ContentProvider {
         }
         createAccountTable(db);
     }
- 
+
     static void createHostAuthTable(SQLiteDatabase db) {
         String s = " (" + EmailContent.RECORD_ID + " integer primary key autoincrement, " 
             + HostAuthColumns.PROTOCOL + " text, "
@@ -285,7 +345,7 @@ public class EmailProvider extends ContentProvider {
         createHostAuthTable(db);
     }
 
-   static void createMailboxTable(SQLiteDatabase db) {
+    static void createMailboxTable(SQLiteDatabase db) {
         String s = " (" + EmailContent.RECORD_ID + " integer primary key autoincrement, " 
             + MailboxColumns.DISPLAY_NAME + " text, "
             + MailboxColumns.SERVER_ID + " text, "
@@ -301,8 +361,8 @@ public class EmailProvider extends ContentProvider {
             + MailboxColumns.FLAG_VISIBLE + " integer, "
             + MailboxColumns.FLAGS + " integer, "
             + MailboxColumns.VISIBLE_LIMIT + " integer"
-            + ");";
-            db.execSQL("create table " + Mailbox.TABLE_NAME + s);
+        + ");";
+        db.execSQL("create table " + Mailbox.TABLE_NAME + s);
         db.execSQL("create index mailbox_" + MailboxColumns.SERVER_ID 
                 + " on " + Mailbox.TABLE_NAME + " (" + MailboxColumns.SERVER_ID + ")");
         db.execSQL("create index mailbox_" + MailboxColumns.ACCOUNT_KEY 
@@ -311,7 +371,7 @@ public class EmailProvider extends ContentProvider {
         db.execSQL("create trigger mailbox_delete before delete on " + Mailbox.TABLE_NAME + 
                 " begin delete from " + Message.TABLE_NAME +
                 "  where " + MessageColumns.MAILBOX_KEY + "=old." + EmailContent.RECORD_ID + 
-                "; end");
+        "; end");
     }
 
     static void upgradeMailboxTable(SQLiteDatabase db, int oldVersion, int newVersion) {
@@ -321,7 +381,7 @@ public class EmailProvider extends ContentProvider {
         }
         createMailboxTable(db);
     }
-    
+
     static void createAttachmentTable(SQLiteDatabase db) {
         String s = " (" + EmailContent.RECORD_ID + " integer primary key autoincrement, " 
             + AttachmentColumns.FILENAME + " text, "
@@ -359,13 +419,13 @@ public class EmailProvider extends ContentProvider {
     }
 
 
-    
+
     private final int mDatabaseVersion = DATABASE_VERSION;
     private final int mBodyDatabaseVersion = BODY_DATABASE_VERSION;
-    
+
     private SQLiteDatabase mDatabase;
     private SQLiteDatabase mBodyDatabase;
-    
+
     public SQLiteDatabase getDatabase(Context context) {
         if (mDatabase !=  null) {
             return mDatabase;
@@ -392,7 +452,7 @@ public class EmailProvider extends ContentProvider {
 
     private class BodyDatabaseHelper extends SQLiteOpenHelper {
         BodyDatabaseHelper(Context context, String name) {
-             super(context, name, null, mBodyDatabaseVersion);
+            super(context, name, null, mBodyDatabaseVersion);
         }
 
         @Override
@@ -410,10 +470,10 @@ public class EmailProvider extends ContentProvider {
         public void onOpen(SQLiteDatabase db) {
         }
     }
-    
+
     private class DatabaseHelper extends SQLiteOpenHelper {
         DatabaseHelper(Context context, String name) {
-             super(context, name, null, mDatabaseVersion);
+            super(context, name, null, mDatabaseVersion);
         }
 
         @Override
@@ -424,7 +484,7 @@ public class EmailProvider extends ContentProvider {
             createMailboxTable(db);
             createHostAuthTable(db);
             createAccountTable(db);
-       }
+        }
 
         @Override
         public void onUpgrade(SQLiteDatabase db, int oldVersion, int newVersion) {
@@ -449,13 +509,13 @@ public class EmailProvider extends ContentProvider {
         String id = "0";
         boolean attachBodyDb = false;
         boolean deleteOrphanedBodies = false;
-        
+
         if (Config.LOGV) {
             Log.v(TAG, "EmailProvider.delete: uri=" + uri + ", match is " + match);
         }
 
         int result;
-        
+
         try {
             switch (match) {
                 // These are cases in which one or more Messages might get deleted, either by
@@ -465,6 +525,7 @@ public class EmailProvider extends ContentProvider {
                 case ACCOUNT_ID:
                 case ACCOUNT:
                 case MESSAGE:
+                case SYNCED_MESSAGE_ID:
                 case MESSAGE_ID:
                     // Handle lost Body records here, since this cannot be done in a trigger
                     // The process is:
@@ -477,7 +538,7 @@ public class EmailProvider extends ContentProvider {
                     attachBodyDb = true;
                     getBodyDatabase(context);
                     String bodyFileName = context.getDatabasePath(BODY_DATABASE_NAME)
-                            .getAbsolutePath();
+                    .getAbsolutePath();
                     db.execSQL("attach \"" + bodyFileName + "\" as BodyDatabase");
                     db.beginTransaction();
                     if (match != MESSAGE_ID) {
@@ -487,6 +548,8 @@ public class EmailProvider extends ContentProvider {
             }
             switch (match) {
                 case BODY_ID:
+                case DELETED_MESSAGE_ID:
+                case SYNCED_MESSAGE_ID:
                 case MESSAGE_ID:
                 case UPDATED_MESSAGE_ID:
                 case ATTACHMENT_ID:
@@ -494,11 +557,19 @@ public class EmailProvider extends ContentProvider {
                 case ACCOUNT_ID:
                 case HOSTAUTH_ID:
                     id = uri.getPathSegments().get(1);
+                    if (match == SYNCED_MESSAGE_ID) {
+                        // For synced messages, first copy the old message to the deleted table and
+                        // delete it from the updated table (in case it was updated first)
+                        // Note that this is all within a transaction, for atomicity
+                        db.execSQL(DELETED_MESSAGE_INSERT + id);
+                        db.execSQL(UPDATED_MESSAGE_DELETE + id);
+                    }
                     result = db.delete(TABLE_NAMES[table], whereWithId(id, selection),
                             selectionArgs);
                     break;
                 case BODY:
                 case MESSAGE:
+                case DELETED_MESSAGE:
                 case UPDATED_MESSAGE:
                 case ATTACHMENT:
                 case MAILBOX:
@@ -512,18 +583,13 @@ public class EmailProvider extends ContentProvider {
             if (attachBodyDb) {
                 if (deleteOrphanedBodies) {
                     // Delete any orphaned Body records
-                    db.execSQL("delete from " + Body.TABLE_NAME +
-                            " where " + EmailContent.RECORD_ID + " in " +
-                            "(select " + EmailContent.RECORD_ID + " from " + Body.TABLE_NAME +
-                            " except select " + EmailContent.RECORD_ID +
-                            " from " + Message.TABLE_NAME + ")");
+                    db.execSQL(DELETE_ORPHAN_BODIES);
                     db.setTransactionSuccessful();
                 } else {
                     // Delete the Body record associated with the deleted message
-                    db.execSQL("delete from " + Body.TABLE_NAME +
-                            " where " + EmailContent.RECORD_ID + "=" + id);
+                    db.execSQL(DELETE_BODY + id);
                     db.setTransactionSuccessful();
-                 }
+                }
             }
         } finally {
             if (attachBodyDb) {
@@ -581,13 +647,13 @@ public class EmailProvider extends ContentProvider {
         SQLiteDatabase db = (match >= BODY_BASE) ? getBodyDatabase(context) : getDatabase(context);
         int table = match >> BASE_SHIFT;
         long id;
-        
+
         if (Config.LOGV) {
             Log.v(TAG, "EmailProvider.insert: uri=" + uri + ", match is " + match);
         }
 
         Uri resultUri = null;
-         
+
         switch (match) {
             case BODY:
             case MESSAGE:
@@ -629,7 +695,7 @@ public class EmailProvider extends ContentProvider {
             default:
                 throw new IllegalArgumentException("Unknown URL " + uri);
         }
-        
+
         // Notify with the base uri, not the new uri (nobody is watching a new record)
         getContext().getContentResolver().notifyChange(uri, null);
         return resultUri;
@@ -651,7 +717,7 @@ public class EmailProvider extends ContentProvider {
         SQLiteDatabase db = (match >= BODY_BASE) ? getBodyDatabase(context) : getDatabase(context);
         int table = match >> BASE_SHIFT;
         String id;
-        
+
         if (Config.LOGV) {
             Log.v(TAG, "EmailProvider.query: uri=" + uri + ", match is " + match);
         }
@@ -705,7 +771,7 @@ public class EmailProvider extends ContentProvider {
         }
         return sb.toString();
     }
-    
+
     private String whereWith(String where, String selection) {
         StringBuilder sb = new StringBuilder(where);
         if (selection != null) {
@@ -714,35 +780,38 @@ public class EmailProvider extends ContentProvider {
         }
         return sb.toString();
     }
-    
+
     @Override
     public int update(Uri uri, ContentValues values, String selection, String[] selectionArgs) {
         int match = sURIMatcher.match(uri);
         Context context = getContext();
         SQLiteDatabase db = (match >= BODY_BASE) ? getBodyDatabase(context) : getDatabase(context);
         int table = match >> BASE_SHIFT;
-        if (Config.LOGV) {
-            Log.v(TAG, "EmailProvider.update: uri=" + uri + ", match is " + match);
-        }
-
         int result;
 
-        // Set the dirty bit for messages
-        if ((match == MESSAGE_ID || match == MESSAGE) 
-                && values.get(SyncColumns.DIRTY_COUNT) == null) {
-            values.put(SyncColumns.DIRTY_COUNT, 1);
+        if (Config.LOGV) {
+            Log.v(TAG, "EmailProvider.update: uri=" + uri + ", match is " + match);
         }
 
         switch (match) {
             case BODY_ID:
             case MESSAGE_ID:
+            case SYNCED_MESSAGE_ID:
             case UPDATED_MESSAGE_ID:
             case ATTACHMENT_ID:
             case MAILBOX_ID:
             case ACCOUNT_ID:
             case HOSTAUTH_ID:
                 String id = uri.getPathSegments().get(1);
-                // Set dirty if nobody is setting this manually
+                if (match == SYNCED_MESSAGE_ID) {
+                    // For synced messages, first copy the old message to the updated table
+                    // Note the insert or ignore semantics, guaranteeing that only the first
+                    // update will be reflected in the updated message table; therefore this row
+                    // will always have the "original" data
+                    db.execSQL(UPDATED_MESSAGE_INSERT + id);
+                } else if (match == MESSAGE_ID) {
+                    db.execSQL(UPDATED_MESSAGE_DELETE + id);
+                }
                 result = db.update(TABLE_NAMES[table], values, whereWithId(id, selection), 
                         selectionArgs);
                 break;
@@ -762,7 +831,7 @@ public class EmailProvider extends ContentProvider {
         getContext().getContentResolver().notifyChange(uri, null);
         return result;
     }
-    
+
     /* (non-Javadoc)
      * @see android.content.ContentProvider#applyBatch(android.content.ContentProviderOperation)
      * 
@@ -770,7 +839,7 @@ public class EmailProvider extends ContentProvider {
      * update/insert/delete calls?
      */
     public ContentProviderResult[] applyBatch(ArrayList<ContentProviderOperation> operations)
-            throws OperationApplicationException {
+    throws OperationApplicationException {
         SQLiteDatabase db = getDatabase(getContext());
         db.beginTransaction();
         try {

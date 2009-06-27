@@ -348,8 +348,17 @@ public abstract class EmailContent {
 
     public static final class Message extends EmailContent implements SyncColumns, MessageColumns {
         public static final String TABLE_NAME = "Message";
-        public static final String UPDATES_TABLE_NAME = "Message_Updates";
+        public static final String UPDATED_TABLE_NAME = "Message_Updates";
+        public static final String DELETED_TABLE_NAME = "Message_Deletes";
+
+        // To refer to a specific message, use ContentUris.withAppendedId(CONTENT_URI, id)
         public static final Uri CONTENT_URI = Uri.parse(EmailContent.CONTENT_URI + "/message");
+        public static final Uri SYNCED_CONTENT_URI =
+            Uri.parse(EmailContent.CONTENT_URI + "/syncedMessage");
+        public static final Uri DELETED_CONTENT_URI =
+            Uri.parse(EmailContent.CONTENT_URI + "/deletedMessage");
+        public static final Uri UPDATED_CONTENT_URI =
+            Uri.parse(EmailContent.CONTENT_URI + "/updatedMessage");
 
         public static final String KEY_TIMESTAMP_DESC = MessageColumns.TIMESTAMP + " desc";
 
@@ -484,9 +493,6 @@ public abstract class EmailContent {
         public Message() {
             mBaseUri = CONTENT_URI;
         }
-
-        public static final Uri UPDATED_CONTENT_URI = 
-            Uri.parse(EmailContent.CONTENT_URI + "/updatedMessage");
 
         @Override
         public ContentValues toContentValues() {
