@@ -1657,6 +1657,12 @@ public abstract class EmailContent {
         // Holds junk mail
         public static final int TYPE_JUNK = 7;
 
+        // Types after this are used for non-mail mailboxes (as in EAS)
+        public static final int TYPE_INVISIBLE = 0x40;
+        public static final int TYPE_CALENDAR = 0x41;
+        public static final int TYPE_CONTACTS = 0x42;
+        public static final int TYPE_TASKS = 0x43;
+
         // Bit field flags
         public static final int FLAG_HAS_CHILDREN = 1<<0;
         public static final int FLAG_CHILDREN_VISIBLE = 1<<1;
