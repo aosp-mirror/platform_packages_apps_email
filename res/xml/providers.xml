@@ -132,6 +132,10 @@
         <incoming uri="imap://imap.cs.com" username="$user" />
         <outgoing uri="smtp://smtp.cs.com" username="$user" />
     </provider>
+    <provider id="cox" label="Cox" domain="cox.net">
+        <incoming uri="pop3+ssl+://pop.east.cox.net" username="$user" />
+        <outgoing uri="smtp+ssl+://smtp.east.cox.net" username="$user" />
+    </provider>
     <provider id="dotmac" label=".Mac" domain="mac.com">
         <incoming uri="imap+tls://mail.mac.com" username="$email" />
         <outgoing uri="smtp+tls://smtp.mac.com" username="$email" />
