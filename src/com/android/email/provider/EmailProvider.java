@@ -284,9 +284,12 @@ public class EmailProvider extends ContentProvider {
     }
 
     static void upgradeMessageTable(SQLiteDatabase db, int oldVersion, int newVersion) {
-        db.execSQL("drop table " + Message.TABLE_NAME);
-        db.execSQL("drop table " + Message.UPDATED_TABLE_NAME);
-        db.execSQL("drop table " + Message.DELETED_TABLE_NAME);
+        try {
+            db.execSQL("drop table " + Message.TABLE_NAME);
+            db.execSQL("drop table " + Message.UPDATED_TABLE_NAME);
+            db.execSQL("drop table " + Message.DELETED_TABLE_NAME);
+        } catch (SQLException e) {
+        }
         createMessageTable(db);
     }
 
@@ -414,11 +417,12 @@ public class EmailProvider extends ContentProvider {
     }
 
     static void upgradeBodyTable(SQLiteDatabase db, int oldVersion, int newVersion) {
-        db.execSQL("drop table " + Body.TABLE_NAME);
+        try {
+            db.execSQL("drop table " + Body.TABLE_NAME);
+        } catch (SQLException e) {
+        }
         createBodyTable(db);
     }
-
-
 
     private final int mDatabaseVersion = DATABASE_VERSION;
     private final int mBodyDatabaseVersion = BODY_DATABASE_VERSION;
@@ -537,8 +541,7 @@ public class EmailProvider extends ContentProvider {
                     //  5) Detach the Body database
                     attachBodyDb = true;
                     getBodyDatabase(context);
-                    String bodyFileName = context.getDatabasePath(BODY_DATABASE_NAME)
-                    .getAbsolutePath();
+                    String bodyFileName = mBodyDatabase.getPath();
                     db.execSQL("attach \"" + bodyFileName + "\" as BodyDatabase");
                     db.beginTransaction();
                     if (match != MESSAGE_ID) {
@@ -725,6 +728,7 @@ public class EmailProvider extends ContentProvider {
         switch (match) {
             case BODY:
             case MESSAGE:
+            case DELETED_MESSAGE:
             case UPDATED_MESSAGE:
             case ATTACHMENT:
             case MAILBOX:
@@ -735,6 +739,7 @@ public class EmailProvider extends ContentProvider {
                 break;
             case BODY_ID:
             case MESSAGE_ID:
+            case DELETED_MESSAGE_ID:
             case UPDATED_MESSAGE_ID:
             case ATTACHMENT_ID:
             case MAILBOX_ID:

@@ -20,8 +20,11 @@ import com.android.email.provider.EmailContent.Account;
 import com.android.email.provider.EmailContent.Body;
 import com.android.email.provider.EmailContent.Mailbox;
 import com.android.email.provider.EmailContent.Message;
+import com.android.email.provider.EmailContent.MessageColumns;
 
+import android.content.ContentResolver;
 import android.content.ContentUris;
+import android.content.ContentValues;
 import android.content.Context;
 import android.database.Cursor;
 import android.net.Uri;
@@ -253,6 +256,148 @@ public class ProviderTests extends ProviderTestCase2<EmailProvider> {
         assertEquals(0, numMessages);
     }
     
+    /**
+     * Test delete synced message
+     * TODO: body
+     * TODO: attachments
+     */
+    public void testSyncedMessageDelete() {
+        Account account1 = setupAccount("synced-message-delete", true);
+        long account1Id = account1.mId;
+        Mailbox box1 = setupMailbox("box1", account1Id, true);
+        long box1Id = box1.mId;
+        Message message1 = setupMessage("message1", account1Id, box1Id, false, true);
+        long message1Id = message1.mId;
+        Message message2 = setupMessage("message2", account1Id, box1Id, false, true);
+        long message2Id = message2.mId;
+
+        String selection = EmailContent.MessageColumns.ACCOUNT_KEY + "=? AND "
+                + EmailContent.MessageColumns.MAILBOX_KEY + "=?";
+        String[] selArgs = new String[] {
+            String.valueOf(account1Id), String.valueOf(box1Id)
+        };
+
+        // make sure there are two messages
+        int numMessages = EmailContent.count(mMockContext, Message.CONTENT_URI, selection, selArgs);
+        assertEquals(2, numMessages);
+
+        // make sure we start with no synced deletions
+        numMessages = EmailContent.count(mMockContext, Message.DELETED_CONTENT_URI, selection,
+                selArgs);
+        assertEquals(0, numMessages);
+
+        // now delete one of them SYNCED
+        Uri uri = ContentUris.withAppendedId(Message.SYNCED_CONTENT_URI, message1Id);
+        mMockContext.getContentResolver().delete(uri, null, null);
+
+        // make sure there's only one message now
+        numMessages = EmailContent.count(mMockContext, Message.CONTENT_URI, selection, selArgs);
+        assertEquals(1, numMessages);
+
+        // make sure there's one synced deletion now
+        numMessages = EmailContent.count(mMockContext, Message.DELETED_CONTENT_URI, selection,
+                selArgs);
+        assertEquals(1, numMessages);
+
+        // now delete the other one NOT SYNCED
+        uri = ContentUris.withAppendedId(Message.CONTENT_URI, message2Id);
+        mMockContext.getContentResolver().delete(uri, null, null);
+
+        // make sure there are no messages now
+        numMessages = EmailContent.count(mMockContext, Message.CONTENT_URI, selection, selArgs);
+        assertEquals(0, numMessages);
+
+        // make sure there's still one deletion now
+        numMessages = EmailContent.count(mMockContext, Message.DELETED_CONTENT_URI, selection,
+                selArgs);
+        assertEquals(1, numMessages);
+    }
+
+    /**
+     * Test message update
+     * TODO: body
+     * TODO: attachments
+     */
+    public void testMessageUpdate() {
+        Account account1 = setupAccount("message-update", true);
+        long account1Id = account1.mId;
+        Mailbox box1 = setupMailbox("box1", account1Id, true);
+        long box1Id = box1.mId;
+        Message message1 = setupMessage("message1", account1Id, box1Id, false, true);
+        long message1Id = message1.mId;
+        Message message2 = setupMessage("message2", account1Id, box1Id, false, true);
+        long message2Id = message2.mId;
+        ContentResolver cr = mMockContext.getContentResolver();
+
+        String selection = EmailContent.MessageColumns.ACCOUNT_KEY + "=? AND "
+                + EmailContent.MessageColumns.MAILBOX_KEY + "=?";
+        String[] selArgs = new String[] {
+            String.valueOf(account1Id), String.valueOf(box1Id)
+        };
+
+        // make sure there are two messages
+        int numMessages = EmailContent.count(mMockContext, Message.CONTENT_URI, selection, selArgs);
+        assertEquals(2, numMessages);
+
+        // change the first one
+        Uri uri = ContentUris.withAppendedId(Message.CONTENT_URI, message1Id);
+        ContentValues cv = new ContentValues();
+        cv.put(MessageColumns.FROM_LIST, "from-list");
+        cr.update(uri, cv, null, null);
+
+        // make sure there's no updated message
+        numMessages = EmailContent.count(mMockContext, Message.UPDATED_CONTENT_URI, selection,
+                selArgs);
+        assertEquals(0, numMessages);
+
+        // get the message back from the provider, make sure the change "stuck"
+        Message restoredMessage = Message.restoreMessageWithId(mMockContext, message1Id);
+        assertEquals("from-list", restoredMessage.mFrom);
+
+        // change the second one
+        uri = ContentUris.withAppendedId(Message.SYNCED_CONTENT_URI, message2Id);
+        cv = new ContentValues();
+        cv.put(MessageColumns.FROM_LIST, "from-list");
+        cr.update(uri, cv, null, null);
+
+        // make sure there's one updated message
+        numMessages = EmailContent.count(mMockContext, Message.UPDATED_CONTENT_URI, selection,
+                selArgs);
+        assertEquals(1, numMessages);
+
+        // get the message back from the provider, make sure the change "stuck",
+        // as before
+        restoredMessage = Message.restoreMessageWithId(mMockContext, message2Id);
+        assertEquals("from-list", restoredMessage.mFrom);
+
+        // get the original message back from the provider
+        Cursor c = cr.query(Message.UPDATED_CONTENT_URI, Message.CONTENT_PROJECTION, null, null,
+                null);
+        try {
+            assertTrue(c.moveToFirst());
+            Message originalMessage = EmailContent.getContent(c, Message.class);
+            // make sure this has the original value
+            assertEquals("from message2", originalMessage.mFrom);
+            // Should only be one
+            assertFalse(c.moveToNext());
+        } finally {
+            c.close();
+        }
+
+        // delete the second message
+        cr.delete(ContentUris.withAppendedId(Message.SYNCED_CONTENT_URI, message2Id), null, null);
+
+        // hey, presto! the change should be gone
+        numMessages = EmailContent.count(mMockContext, Message.UPDATED_CONTENT_URI, selection,
+                selArgs);
+        assertEquals(0, numMessages);
+
+        // and there should now be a deleted record
+        numMessages = EmailContent.count(mMockContext, Message.DELETED_CONTENT_URI, selection,
+                selArgs);
+        assertEquals(1, numMessages);
+    }
+
     /**
      * TODO: cascaded delete account
      * TODO: hostauth
