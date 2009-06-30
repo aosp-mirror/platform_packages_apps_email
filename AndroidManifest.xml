@@ -121,6 +121,11 @@
                 <action android:name="android.intent.action.MAIN" />
             </intent-filter>
         </activity>
+        
+        <activity
+            android:name=".activity.MessageList">
+        </activity>
+                
         <activity
             android:name=".activity.MessageView"
             android:theme="@android:style/Theme.NoTitleBar" >

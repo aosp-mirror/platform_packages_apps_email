@@ -630,34 +630,41 @@ public class FolderMessageList extends ExpandableListActivity {
     public void onGroupExpand(int groupPosition) {
         super.onGroupExpand(groupPosition);
 
-        // We enforce viewing one folder at a time, so close the previously-opened folder
-        if (mExpandedGroup != -1) {
-            mListView.collapseGroup(mExpandedGroup);
-        }
-        mExpandedGroup = groupPosition;
-
-        if (!mRestoringState) {
-            /*
-             * Scroll the selected item to the top of the screen.
-             */
-            int position = mListView.getFlatListPosition(
-                    ExpandableListView.getPackedPositionForGroup(groupPosition));
-            mListView.setSelectionFromTop(position, 0);
-        }
-
-        // We're going to build a new cursor every time here.  TODO can we cache it?
-        // Kill any previous unfinished task
-        if (mLoadMessagesTask != null &&
-                mLoadMessagesTask.getStatus() != AsyncTask.Status.FINISHED) {
-            mLoadMessagesTask.cancel(true);
-            mLoadMessagesTask = null;
-        }
-
-        // Now start a new task to create a non-empty cursor
-        Cursor groupCursor = mNewAdapter.getCursor();
+        // This is a huge, temporary hack, since we're not really using the child cursor
+        // any more (we're jumping to MessageList).  This is allowed here because this class
+        // is slated for retirement anyway.
+        Cursor groupCursor = mNewAdapter.getGroup(groupPosition);
         long mailboxKey = groupCursor.getLong(EmailContent.Mailbox.CONTENT_ID_COLUMN);
-        mLoadMessagesTask = new LoadMessagesTask(groupPosition, mailboxKey);
-        mLoadMessagesTask.execute();
+        MessageList.actionHandleAccount(this, mailboxKey, null, null);
+        
+//        // We enforce viewing one folder at a time, so close the previously-opened folder
+//        if (mExpandedGroup != -1) {
+//            mListView.collapseGroup(mExpandedGroup);
+//        }
+//        mExpandedGroup = groupPosition;
+//
+//        if (!mRestoringState) {
+//            /*
+//             * Scroll the selected item to the top of the screen.
+//             */
+//            int position = mListView.getFlatListPosition(
+//                    ExpandableListView.getPackedPositionForGroup(groupPosition));
+//            mListView.setSelectionFromTop(position, 0);
+//        }
+        
+//        // We're going to build a new cursor every time here.  TODO can we cache it?
+//        // Kill any previous unfinished task
+//        if (mLoadMessagesTask != null &&
+//                mLoadMessagesTask.getStatus() != AsyncTask.Status.FINISHED) {
+//            mLoadMessagesTask.cancel(true);
+//            mLoadMessagesTask = null;
+//        }
+//
+//        // Now start a new task to create a non-empty cursor
+//        Cursor groupCursor = mNewAdapter.getCursor();
+//        long mailboxKey = groupCursor.getLong(EmailContent.Mailbox.CONTENT_ID_COLUMN);
+//        mLoadMessagesTask = new LoadMessagesTask(groupPosition, mailboxKey);
+//        mLoadMessagesTask.execute();
 
 
         // TODO replace the worker with an equivalent that syncs remote messages into folder
