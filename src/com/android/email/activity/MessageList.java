@@ -17,7 +17,6 @@
 package com.android.email.activity;
 
 import com.android.email.Controller;
-import com.android.email.MessagingController;
 import com.android.email.R;
 import com.android.email.Utility;
 import com.android.email.activity.setup.AccountSettings;
@@ -28,7 +27,9 @@ import com.android.email.provider.EmailContent.MessageColumns;
 import android.app.ListActivity;
 import android.content.Context;
 import android.content.Intent;
+import android.content.res.Resources;
 import android.database.Cursor;
+import android.graphics.drawable.Drawable;
 import android.os.AsyncTask;
 import android.os.Bundle;
 import android.os.Handler;
@@ -41,12 +42,13 @@ import android.view.Window;
 import android.view.View.OnClickListener;
 import android.widget.AdapterView;
 import android.widget.CursorAdapter;
+import android.widget.ImageView;
 import android.widget.ListView;
 import android.widget.TextView;
 import android.widget.AdapterView.OnItemClickListener;
 
 import java.util.Date;
-import java.util.HashMap;
+import java.util.HashSet;
 
 public class MessageList extends ListActivity implements OnItemClickListener, OnClickListener {
     
@@ -300,26 +302,39 @@ public class MessageList extends ListActivity implements OnItemClickListener, On
         public static final int COLUMN_DATE = 4;
         public static final int COLUMN_READ = 5;
         public static final int COLUMN_FAVORITE = 6;
+        public static final int COLUMN_ATTACHMENTS = 7;
 
         public static final String[] PROJECTION = new String[] {
             EmailContent.RECORD_ID, MessageColumns.MAILBOX_KEY,
             MessageColumns.DISPLAY_NAME, MessageColumns.SUBJECT, MessageColumns.TIMESTAMP,
-            MessageColumns.FLAG_READ, MessageColumns.FLAG_FAVORITE,
+            MessageColumns.FLAG_READ, MessageColumns.FLAG_FAVORITE, MessageColumns.FLAG_ATTACHMENT,
         };
 
         Context mContext;
         private LayoutInflater mInflater;
+        private Drawable mAttachmentIcon;
+        private Drawable mFavoriteIconOn;
+        private Drawable mFavoriteIconOff;
+        private Drawable mSelectedIconOn;
+        private Drawable mSelectedIconOff;
 
         private java.text.DateFormat mDateFormat;
         private java.text.DateFormat mDayFormat;
         private java.text.DateFormat mTimeFormat;
         
-        private HashMap<Long, Boolean> mChecked = new HashMap<Long, Boolean>();
+        private HashSet<Long> mChecked = new HashSet<Long>();
 
         public MessageListAdapter(Context context) {
             super(context, null);
             mContext = context;
             mInflater = (LayoutInflater)context.getSystemService(Context.LAYOUT_INFLATER_SERVICE);
+
+            Resources resources = context.getResources();
+            mAttachmentIcon = resources.getDrawable(R.drawable.ic_mms_attachment_small);
+            mFavoriteIconOn = resources.getDrawable(android.R.drawable.star_on);
+            mFavoriteIconOff = resources.getDrawable(android.R.drawable.star_off);
+            mSelectedIconOn = resources.getDrawable(R.drawable.btn_check_buttonless_on);
+            mSelectedIconOff = resources.getDrawable(R.drawable.btn_check_buttonless_off);
             
             mDateFormat = android.text.format.DateFormat.getDateFormat(context);    // short date
             mDayFormat = android.text.format.DateFormat.getDateFormat(context);     // TODO: day
@@ -336,6 +351,10 @@ public class MessageList extends ListActivity implements OnItemClickListener, On
             String text = cursor.getString(COLUMN_DISPLAY_NAME);
             if (text != null) fromView.setText(text);
             
+            boolean hasAttachments = cursor.getInt(COLUMN_ATTACHMENTS) != 0;
+            fromView.setCompoundDrawablesWithIntrinsicBounds(null, null,
+                    hasAttachments ? mAttachmentIcon : null, null);
+            
             TextView subjectView = (TextView) view.findViewById(R.id.subject);
             text = cursor.getString(COLUMN_SUBJECT);
             if (text != null) subjectView.setText(text);
@@ -351,12 +370,19 @@ public class MessageList extends ListActivity implements OnItemClickListener, On
             }
             dateView.setText(text);
             
-            // TODO multi-select checkbox state
-            // TODO favorites
+            ImageView selectedView = (ImageView) view.findViewById(R.id.selected);
+            boolean selected = mChecked.contains(Long.valueOf(cursor.getLong(COLUMN_ID)));
+            selectedView.setImageDrawable(selected ? mSelectedIconOn : mSelectedIconOff);
+
+            ImageView favoriteView = (ImageView) view.findViewById(R.id.favorite);
+            boolean favorite = cursor.getInt(COLUMN_FAVORITE) != 0;
+            favoriteView.setImageDrawable(favorite ? mFavoriteIconOn : mFavoriteIconOff);
         }
 
         @Override
         public View newView(Context context, Cursor cursor, ViewGroup parent) {
+            // TODO:  This should be a custom view so we can deal with touch events
+            // in the checkbox & star.
             return mInflater.inflate(R.layout.message_list_item, parent, false);
         }
     }
