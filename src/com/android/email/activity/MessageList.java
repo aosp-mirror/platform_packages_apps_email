@@ -25,20 +25,25 @@ import com.android.email.provider.EmailContent;
 import com.android.email.provider.EmailContent.MessageColumns;
 
 import android.app.ListActivity;
+import android.content.ContentUris;
+import android.content.ContentValues;
 import android.content.Context;
 import android.content.Intent;
 import android.content.res.Resources;
 import android.database.Cursor;
 import android.graphics.drawable.Drawable;
+import android.net.Uri;
 import android.os.AsyncTask;
 import android.os.Bundle;
 import android.os.Handler;
+import android.view.ContextMenu;
 import android.view.LayoutInflater;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
 import android.view.Window;
+import android.view.ContextMenu.ContextMenuInfo;
 import android.view.View.OnClickListener;
 import android.widget.AdapterView;
 import android.widget.CursorAdapter;
@@ -136,18 +141,7 @@ public class MessageList extends ListActivity implements OnItemClickListener, On
     }
 
     public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
-        // TODO these can be lighter-weight lookups
-        EmailContent.Message message = EmailContent.Message.restoreMessageWithId(this, id);
-        EmailContent.Mailbox mailbox =
-            EmailContent.Mailbox.restoreMailboxWithId(this, message.mMailboxKey);
-        
-        if (mailbox.mType == EmailContent.Mailbox.TYPE_DRAFTS) {
-            // TODO need id-based API for MessageCompose
-            // MessageCompose.actionEditDraft(this, id);
-        }
-        else {
-            MessageView.actionView(this, id);
-        }
+        onOpenMessage(id);
     }
 
     public void onClick(View v) {
@@ -182,6 +176,49 @@ public class MessageList extends ListActivity implements OnItemClickListener, On
         }
     }
 
+    @Override
+    public void onCreateContextMenu(ContextMenu menu, View v, ContextMenuInfo menuInfo) {
+        super.onCreateContextMenu(menu, v, menuInfo);
+        AdapterView.AdapterContextMenuInfo info = (AdapterView.AdapterContextMenuInfo) menuInfo;
+
+        // TODO: There is no context menu for the outbox
+        // TODO: There is probably a special context menu for the trash
+
+        getMenuInflater().inflate(R.menu.message_list_context, menu);
+
+        // TODO: flip the "mark as read" string if the message is already read
+        // In order to do this, I really should cache the read state in the item view,
+        // instead of re-reading data from the cursor.
+    }
+
+    @Override
+    public boolean onContextItemSelected(MenuItem item) {
+        AdapterView.AdapterContextMenuInfo info =
+            (AdapterView.AdapterContextMenuInfo) item.getMenuInfo();
+
+        switch (item.getItemId()) {
+            case R.id.open:
+                onOpenMessage(info.id);
+                break;
+            case R.id.delete:
+                //onDelete(holder);
+                break;
+            case R.id.reply:
+                //onReply(holder);
+                break;
+            case R.id.reply_all:
+                //onReplyAll(holder);
+                break;
+            case R.id.forward:
+                //onForward(holder);
+                break;
+            case R.id.mark_as_read:
+                onToggleRead(info.id, info.targetView);
+                break;
+        }
+        return super.onContextItemSelected(item);
+    }
+
     private void onRefresh() {
         // TODO: This needs to loop through all open mailboxes (there might be more than one)
         EmailContent.Mailbox mailbox =
@@ -210,6 +247,38 @@ public class MessageList extends ListActivity implements OnItemClickListener, On
         EmailContent.Mailbox mailbox =
             EmailContent.Mailbox.restoreMailboxWithId(this, mMailboxId);
         AccountSettings.actionSettings(this, mailbox.mAccountKey);
+    }
+
+    public void onOpenMessage(long messageId) {
+        // TODO Necessary info about the mailbox should have been cached in the listview item
+        // Instead, we're going to pull it from the DB here (expensively and in the wrong thread)
+        EmailContent.Message message = EmailContent.Message.restoreMessageWithId(this, messageId);
+        EmailContent.Mailbox mailbox =
+            EmailContent.Mailbox.restoreMailboxWithId(this, message.mMailboxKey);
+
+        if (mailbox.mType == EmailContent.Mailbox.TYPE_DRAFTS) {
+            // TODO need id-based API for MessageCompose
+            // MessageCompose.actionEditDraft(this, messageId);
+        }
+        else {
+            MessageView.actionView(this, messageId);
+        }
+    }
+
+    private void onToggleRead(long messageId, View itemView) {
+        // TODO the read-unread state of the given message should be cached in the listview item.
+        // Instead, we're going to pull it from the DB here (expensively and in the wrong thread)
+        EmailContent.Message message = EmailContent.Message.restoreMessageWithId(this, messageId);
+        boolean isRead = ! message.mFlagRead;
+
+        // TODO this should be a call to the controller, since it may possibly kick off
+        // more than just a DB update.  Also, the DB update shouldn't be in the UI thread
+        // as it is here.
+        ContentValues cv = new ContentValues();
+        cv.put(EmailContent.MessageColumns.FLAG_READ, isRead ? 1 : 0);
+        Uri uri = ContentUris.withAppendedId(
+                EmailContent.Message.SYNCED_CONTENT_URI, messageId);
+        getContentResolver().update(uri, cv, null, null);
     }
 
     /**

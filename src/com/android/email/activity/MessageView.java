@@ -569,6 +569,9 @@ public class MessageView extends Activity
             mFavoriteIcon.setImageDrawable(newFavorite ? mFavoriteIconOn : mFavoriteIconOff);
 
             // Update provider
+            // TODO this should be a call to the controller, since it may possibly kick off
+            // more than just a DB update.  Also, the DB update shouldn't be in the UI thread
+            // as it is here.
             mMessage.mFlagFavorite = newFavorite;
             ContentValues cv = new ContentValues();
             cv.put(EmailContent.MessageColumns.FLAG_FAVORITE, newFavorite ? 1 : 0);
@@ -619,13 +622,17 @@ public class MessageView extends Activity
 */
     }
 
-    private void onMarkAsUnread() {
-        if (mOldMessage != null) {
-            MessagingController.getInstance(getApplication()).markMessageRead(
-                    mAccount,
-                    mFolder,
-                    mOldMessage.getUid(),
-                    false);
+    private void onMarkAsRead(boolean isRead) {
+        if (mMessage != null && mMessage.mFlagRead != isRead) {
+            // TODO this should be a call to the controller, since it may possibly kick off
+            // more than just a DB update.  Also, the DB update shouldn't be in the UI thread
+            // as it is here.
+            mMessage.mFlagFavorite = isRead;
+            ContentValues cv = new ContentValues();
+            cv.put(EmailContent.MessageColumns.FLAG_READ, isRead ? 1 : 0);
+            Uri uri = ContentUris.withAppendedId(
+                    EmailContent.Message.SYNCED_CONTENT_URI, mMessageId);
+            getContentResolver().update(uri, cv, null, null);
         }
     }
 
@@ -763,7 +770,8 @@ public class MessageView extends Activity
                onForward();
                break;
            case R.id.mark_as_unread:
-               onMarkAsUnread();
+               onMarkAsRead(false);
+               finish();
                break;
            default:
                return false;
@@ -1050,6 +1058,9 @@ public class MessageView extends Activity
                 // toast?  why would this fail?
                 reloadBodyFromCursor(null);     // hack to force text for display
             }
+
+            // At this point it's fair to mark the message as "read"
+            onMarkAsRead(true);
         }
     }
 
