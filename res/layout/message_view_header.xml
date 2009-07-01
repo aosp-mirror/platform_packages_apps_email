@@ -112,15 +112,27 @@
                 android:singleLine="false"
                 android:ellipsize="none" />
         </LinearLayout>
-        <TextView
-            android:id="@+id/subject"
-            android:textAppearance="?android:attr/textAppearanceSmall"
-            android:textColor="?android:attr/textColorSecondaryInverse"
-            android:textStyle="bold"
+        <LinearLayout
             android:layout_width="fill_parent"
-            android:layout_height="wrap_content"
-            android:singleLine="false"
-            android:ellipsize="none" />
+            android:layout_height="wrap_content" >
+            <TextView
+                android:id="@+id/subject"
+                android:textAppearance="?android:attr/textAppearanceSmall"
+                android:textColor="?android:attr/textColorSecondaryInverse"
+                android:textStyle="bold"
+                android:layout_width="0dip"
+                android:layout_weight="1.0"
+                android:layout_height="wrap_content"
+                android:singleLine="false"
+                android:ellipsize="none" />
+            <!-- TODO: Move this to wherever it really belongs -->
+            <ImageView
+                android:id="@+id/favorite"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_alignParentRight="true"
+                android:src="@android:drawable/star_off" />
+                </LinearLayout>
     </LinearLayout>
     <LinearLayout
         android:id="@+id/show_pictures_section"

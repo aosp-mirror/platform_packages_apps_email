@@ -39,11 +39,14 @@ import org.apache.commons.io.IOUtils;
 import android.app.Activity;
 import android.app.ProgressDialog;
 import android.content.ActivityNotFoundException;
+import android.content.ContentUris;
+import android.content.ContentValues;
 import android.content.Context;
 import android.content.Intent;
 import android.database.Cursor;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
+import android.graphics.drawable.Drawable;
 import android.media.MediaScannerConnection;
 import android.media.MediaScannerConnection.MediaScannerConnectionClient;
 import android.net.Uri;
@@ -121,6 +124,7 @@ public class MessageView extends Activity
     private WebView mMessageContentView;
     private LinearLayout mAttachments;
     private ImageView mAttachmentIcon;
+    private ImageView mFavoriteIcon;
     private View mShowPicturesSection;
     private ImageView mSenderPresenceView;
     private ProgressDialog mProgressDialog;
@@ -128,6 +132,7 @@ public class MessageView extends Activity
     private long mAccountId;
     private EmailContent.Account mAccount;
     private long mMessageId;
+    private EmailContent.Message mMessage;
 
     private LoadMessageTask mLoadMessageTask;
     private LoadBodyTask mLoadBodyTask;
@@ -136,10 +141,14 @@ public class MessageView extends Activity
     private String mMessageUid;
     private Cursor mMessageListCursor;
 
-    private Message mMessage;
+    // TODO all uses of this need to be converted to "mMessage".  Then mOldMessage goes away.
+    private Message mOldMessage;
 
     private java.text.DateFormat mDateFormat;
     private java.text.DateFormat mTimeFormat;
+
+    private Drawable mFavoriteIconOn;
+    private Drawable mFavoriteIconOff;
 
     private Listener mListener = new Listener();
     private MessageViewHandler mHandler = new MessageViewHandler();
@@ -376,6 +385,7 @@ public class MessageView extends Activity
         mMessageContentView = (WebView) findViewById(R.id.message_content);
         mAttachments = (LinearLayout) findViewById(R.id.attachments);
         mAttachmentIcon = (ImageView) findViewById(R.id.attachment);
+        mFavoriteIcon = (ImageView) findViewById(R.id.favorite);
         mShowPicturesSection = findViewById(R.id.show_pictures_section);
         mSenderPresenceView = (ImageView) findViewById(R.id.presence);
         mProgressDialog = new ProgressDialog(this);
@@ -388,6 +398,7 @@ public class MessageView extends Activity
 
         mFromView.setOnClickListener(this);
         mSenderPresenceView.setOnClickListener(this);
+        mFavoriteIcon.setOnClickListener(this);
         findViewById(R.id.reply).setOnClickListener(this);
         findViewById(R.id.reply_all).setOnClickListener(this);
         findViewById(R.id.delete).setOnClickListener(this);
@@ -397,9 +408,12 @@ public class MessageView extends Activity
         mMessageContentView.getSettings().setSupportZoom(false);
 
         setTitle("");
-        
+
         mDateFormat = android.text.format.DateFormat.getDateFormat(this);   // short format
         mTimeFormat = android.text.format.DateFormat.getTimeFormat(this);   // 12/24 date format
+
+        mFavoriteIconOn = getResources().getDrawable(android.R.drawable.star_on);
+        mFavoriteIconOff = getResources().getDrawable(android.R.drawable.star_off);
 
         Intent intent = getIntent();
         mMessageId = intent.getLongExtra(EXTRA_MESSAGE_ID, -1);
@@ -461,7 +475,7 @@ public class MessageView extends Activity
     public void onResume() {
         super.onResume();
         MessagingController.getInstance(getApplication()).addListener(mListener);
-        if (mMessage != null) {
+        if (mOldMessage != null) {
             startPresenceCheck();
         }
     }
@@ -499,11 +513,11 @@ public class MessageView extends Activity
     }
 
     private void onDelete() {
-        if (mMessage != null) {
+        if (mOldMessage != null) {
             MessagingController.getInstance(getApplication()).deleteMessage(
                     mAccount,
                     mFolder,
-                    mMessage,
+                    mOldMessage,
                     null);
             Toast.makeText(this, R.string.message_deleted_toast, Toast.LENGTH_SHORT).show();
 
@@ -518,9 +532,9 @@ public class MessageView extends Activity
     }
     
     private void onClickSender() {
-        if (mMessage != null) {
+        if (mOldMessage != null) {
             try {
-                Address senderEmail = mMessage.getFrom()[0];
+                Address senderEmail = mOldMessage.getFrom()[0];
                 Uri contactUri = Uri.fromParts("mailto", senderEmail.getAddress(), null);
                 
                 Intent contactIntent = new Intent(Contacts.Intents.SHOW_OR_CREATE_CONTACT);
@@ -545,23 +559,42 @@ public class MessageView extends Activity
         }
     }
 
-    private void onReply() {
+    /**
+     * Toggle favorite status and write back to provider
+     */
+    private void onClickFavorite() {
         if (mMessage != null) {
-            MessageCompose.actionReply(this, mAccountId, mMessage, false);
+            // Update UI
+            boolean newFavorite = ! mMessage.mFlagFavorite;
+            mFavoriteIcon.setImageDrawable(newFavorite ? mFavoriteIconOn : mFavoriteIconOff);
+
+            // Update provider
+            mMessage.mFlagFavorite = newFavorite;
+            ContentValues cv = new ContentValues();
+            cv.put(EmailContent.MessageColumns.FLAG_FAVORITE, newFavorite ? 1 : 0);
+            Uri uri = ContentUris.withAppendedId(
+                    EmailContent.Message.SYNCED_CONTENT_URI, mMessageId);
+            getContentResolver().update(uri, cv, null, null);
+        }
+    }
+
+    private void onReply() {
+        if (mOldMessage != null) {
+            MessageCompose.actionReply(this, mAccountId, mOldMessage, false);
             finish();
         }
     }
 
     private void onReplyAll() {
-        if (mMessage != null) {
-            MessageCompose.actionReply(this, mAccountId, mMessage, true);
+        if (mOldMessage != null) {
+            MessageCompose.actionReply(this, mAccountId, mOldMessage, true);
             finish();
         }
     }
 
     private void onForward() {
-        if (mMessage != null) {
-            MessageCompose.actionForward(this, mAccountId, mMessage);
+        if (mOldMessage != null) {
+            MessageCompose.actionForward(this, mAccountId, mOldMessage);
             finish();
         }
     }
@@ -587,11 +620,11 @@ public class MessageView extends Activity
     }
 
     private void onMarkAsUnread() {
-        if (mMessage != null) {
+        if (mOldMessage != null) {
             MessagingController.getInstance(getApplication()).markMessageRead(
                     mAccount,
                     mFolder,
-                    mMessage.getUid(),
+                    mOldMessage.getUid(),
                     false);
         }
     }
@@ -641,7 +674,7 @@ public class MessageView extends Activity
         }
         MessagingController.getInstance(getApplication()).loadAttachment(
                 mAccount,
-                mMessage,
+                mOldMessage,
                 attachment.part,
                 new Object[] { true, attachment },
                 mListener);
@@ -650,14 +683,14 @@ public class MessageView extends Activity
     private void onViewAttachment(Attachment attachment) {
         MessagingController.getInstance(getApplication()).loadAttachment(
                 mAccount,
-                mMessage,
+                mOldMessage,
                 attachment.part,
                 new Object[] { false, attachment },
                 mListener);
     }
 
     private void onShowPictures() {
-        if (mMessage != null) {
+        if (mOldMessage != null) {
             mMessageContentView.getSettings().setBlockNetworkImage(false);
             mShowPicturesSection.setVisibility(View.GONE);
         }
@@ -668,6 +701,9 @@ public class MessageView extends Activity
             case R.id.from:
             case R.id.presence:
                 onClickSender();
+                break;
+            case R.id.favorite:
+                onClickFavorite();
                 break;
             case R.id.reply:
                 onReply();
@@ -885,8 +921,8 @@ public class MessageView extends Activity
     private void startPresenceCheck() {
         String email = null;        
         try {
-            if (mMessage != null) {
-                Address sender = mMessage.getFrom()[0];
+            if (mOldMessage != null) {
+                Address sender = mOldMessage.getFrom()[0];
                 email = sender.getAddress();
             }
         } catch (MessagingException me) {
@@ -1027,6 +1063,7 @@ public class MessageView extends Activity
      */
     private void reloadUiFromCursor(Cursor cursor) {
         EmailContent.Message message = EmailContent.getContent(cursor, EmailContent.Message.class);
+        mMessage = message;
         
         mSubjectView.setText(message.mSubject);
         mFromView.setText(Address.toFriendly(Address.unpack(message.mFrom)));
@@ -1037,7 +1074,8 @@ public class MessageView extends Activity
         mCcView.setText(Address.toFriendly(Address.unpack(message.mCc)));
         mCcContainerView.setVisibility((message.mCc != null) ? View.VISIBLE : View.GONE);
         mAttachmentIcon.setVisibility(message.mAttachments != null ? View.VISIBLE : View.GONE);
-        
+        mFavoriteIcon.setImageDrawable(message.mFlagFavorite ? mFavoriteIconOn : mFavoriteIconOff);
+
         // Ask for body
         mLoadBodyTask = new LoadBodyTask(message.mId);
         mLoadBodyTask.execute();
@@ -1113,7 +1151,7 @@ public class MessageView extends Activity
         @Override
         public void loadMessageForViewHeadersAvailable(EmailContent.Account account, String folder,
                 String uid, final Message message) {
-            MessageView.this.mMessage = message;
+            MessageView.this.mOldMessage = message;
             try {
                 String subjectText = message.getSubject();
                 String fromText = Address.toFriendly(message.getFrom());
@@ -1143,17 +1181,17 @@ public class MessageView extends Activity
         @Override
         public void loadMessageForViewBodyAvailable(EmailContent.Account account, String folder,
                 String uid, Message message) {
-            MessageView.this.mMessage = message;
+            MessageView.this.mOldMessage = message;
             try {
-                Part part = MimeUtility.findFirstPartByMimeType(mMessage, "text/html");
+                Part part = MimeUtility.findFirstPartByMimeType(mOldMessage, "text/html");
                 if (part == null) {
-                    part = MimeUtility.findFirstPartByMimeType(mMessage, "text/plain");
+                    part = MimeUtility.findFirstPartByMimeType(mOldMessage, "text/plain");
                 }
                 if (part != null) {
                     String text = MimeUtility.getTextFromPart(part);
                     if (part.getMimeType().equalsIgnoreCase("text/html")) {
                         text = EmailHtmlUtil.resolveInlineImage(
-                                getContentResolver(), mAccount, text, mMessage, 0);
+                                getContentResolver(), mAccount, text, mOldMessage, 0);
                     } else {
                         // And also escape special character, such as "<>&",
                         // to HTML escape sequence.
@@ -1213,7 +1251,7 @@ public class MessageView extends Activity
                 else {
                     loadMessageContentUrl("file:///android_asset/empty.html");
                 }
-                renderAttachments(mMessage, 0);
+                renderAttachments(mOldMessage, 0);
             }
             catch (Exception e) {
                 if (Config.LOGV) {
