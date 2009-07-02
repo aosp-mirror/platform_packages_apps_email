@@ -48,7 +48,7 @@ public class GroupMessagingListener extends MessagingListener {
     }
 
     synchronized public boolean isActiveListener(MessagingListener listener) {
-        return mListenersMap.contains(listener);
+        return mListenersMap.containsKey(listener);
     }
 
     @Override
