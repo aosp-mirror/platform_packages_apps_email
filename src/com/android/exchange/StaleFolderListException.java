@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2008-2009 Marc Blank
+ *  Copyright (C) 2008-2009 Marc Blank
  * Licensed to The Android Open Source Project.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
@@ -17,8 +17,6 @@
 
 package com.android.exchange;
 
-import java.io.IOException;
-
-public class EofException extends IOException {
+public class StaleFolderListException extends EasException {
     private static final long serialVersionUID = 1L;
 }

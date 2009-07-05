@@ -18,7 +18,7 @@
  * FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS
  * IN THE SOFTWARE. */
 
-package com.android.exchange;
+package com.android.exchange.adapter;
 
 /** contains the WBXML constants  */
 

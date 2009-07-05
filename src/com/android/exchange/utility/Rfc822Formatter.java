@@ -15,7 +15,7 @@
  * limitations under the License.
  */
 
-package com.android.exchange;
+package com.android.exchange.utility;
 
 import java.io.File;
 import java.io.FileInputStream;
@@ -38,6 +38,12 @@ import android.text.Html;
 import android.text.SpannedString;
 import android.util.Log;
 
+/**
+ * Generates RFC822 formatted message data from a Message object.  This functionality is also needed
+ * by the SMTP code, so we should use a single piece of code for this purpose.  stadler is currently
+ * planning on rewriting SMTP code to handle this task, and we will use that code when it is ready.
+ *
+ */
 public class Rfc822Formatter {
 
     static final SimpleDateFormat rfc822DateFormat = new SimpleDateFormat("dd MMM yy HH:mm:ss Z");
@@ -49,14 +55,14 @@ public class Rfc822Formatter {
 
     static final String CRLF = "\r\n";
 
-    static public String writeEmailAsRfc822String (Context context, Account acct, 
+    static public String writeEmailAsRfc822String(Context context, Account acct, 
             Message msg, String uniqueId) throws IOException {
         StringWriter w = new StringWriter();
         writeEmailAsRfc822(context, acct, msg, w, uniqueId);
         return w.toString();
     }
 
-    static public boolean writeEmailAsRfc822 (Context context, Account acct, 
+    static public boolean writeEmailAsRfc822(Context context, Account acct, 
             Message msg, Writer writer, String uniqueId) throws IOException {
         // For now, multi-part alternative means an HTML reply...
         boolean alternativeParts = false;

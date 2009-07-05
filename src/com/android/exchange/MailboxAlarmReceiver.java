@@ -1,6 +1,5 @@
 /*
-/*
- * Copyright (C) 2008-2009 Marc Blank
+ *  Copyright (C) 2008-2009 Marc Blank
  * Licensed to The Android Open Source Project.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
@@ -22,15 +21,19 @@ import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
 
-public class KeepAliveReceiver extends BroadcastReceiver {
+/**
+ * MailboxAlarmReceiver is used to "wake up" the SyncManager at the appropriate time(s).  It may
+ * also be used for individual sync adapters, but this isn't implemented at the present time.
+ *
+ */
+public class MailboxAlarmReceiver extends BroadcastReceiver {
     @Override
     public void onReceive(Context context, Intent intent) {
         long mid = intent.getLongExtra("mailbox", -1);
-        if (mid < 0) {
-            SyncManager.kick();
+        if (SyncManager.INSTANCE != null) {
+            SyncManager.INSTANCE.log("Alarm received for: " + mid);
         }
-        else {
-            SyncManager.ping(mid);
-        }
+        SyncManager.ping(mid);
     }
 }
+

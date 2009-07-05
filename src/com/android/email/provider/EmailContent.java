@@ -748,6 +748,7 @@ public abstract class EmailContent {
         
         public static final int CHECK_INTERVAL_NEVER = -1;
         public static final int CHECK_INTERVAL_PUSH = -2;
+        public static final int CHECK_INTERVAL_PING = -3;
         
         public static final int SYNC_WINDOW_USER = -1;
 
@@ -1658,7 +1659,7 @@ public abstract class EmailContent {
         public static final int TYPE_JUNK = 7;
 
         // Types after this are used for non-mail mailboxes (as in EAS)
-        public static final int TYPE_INVISIBLE = 0x40;
+        public static final int TYPE_NOT_EMAIL = 0x40;
         public static final int TYPE_CALENDAR = 0x41;
         public static final int TYPE_CONTACTS = 0x42;
         public static final int TYPE_TASKS = 0x43;
@@ -1756,9 +1757,9 @@ public abstract class EmailContent {
         public static final String TABLE_NAME = "HostAuth";
         public static final Uri CONTENT_URI = Uri.parse(EmailContent.CONTENT_URI + "/hostauth");
 
-        private static final int FLAG_SSL = 1;
-        private static final int FLAG_TLS = 2;
-        private static final int FLAG_AUTHENTICATE = 4;
+        public static final int FLAG_SSL = 1;
+        public static final int FLAG_TLS = 2;
+        public static final int FLAG_AUTHENTICATE = 4;
 
         public String mProtocol;
         public String mAddress;

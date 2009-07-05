@@ -106,7 +106,6 @@ public class MessageList extends ListActivity implements OnItemClickListener, On
         
         mListAdapter = new MessageListAdapter(this);
         setListAdapter(mListAdapter);
-        mListView.setAdapter(mAdapter);
 
         // TODO set title to "account > mailbox (#unread)"
         

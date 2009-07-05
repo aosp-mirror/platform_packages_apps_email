@@ -41,6 +41,8 @@ public class MessagingException extends Exception {
     public static final int GENERAL_SECURITY = 4;
     /** Authentication failed */
     public static final int AUTHENTICATION_FAILED = 5;
+    /** Attempt to create duplicate account */
+    public static final int DUPLICATE_ACCOUNT = 6;
     
     protected int mExceptionType;
      
