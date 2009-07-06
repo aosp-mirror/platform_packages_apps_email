@@ -19,8 +19,14 @@ package com.android.email;
 import com.android.email.mail.MessagingException;
 import com.android.email.mail.Store;
 import com.android.email.provider.EmailContent;
+import com.android.email.provider.EmailContent.Mailbox;
 
+import android.content.ContentResolver;
+import android.content.ContentUris;
+import android.content.ContentValues;
 import android.content.Context;
+import android.database.Cursor;
+import android.net.Uri;
 
 import java.util.HashSet;
 
@@ -33,24 +39,47 @@ public class Controller {
 
     static Controller sInstance;
     private Context mContext;
+    private Context mProviderContext;
     private MessagingController mLegacyController;
     private HashSet<Result> mListeners = new HashSet<Result>();
 
+    private static String[] MESSAGEID_TO_ACCOUNTID_PROJECTION = new String[] {
+        EmailContent.RECORD_ID,
+        EmailContent.MessageColumns.ACCOUNT_KEY
+    };
+    private static int MESSAGEID_TO_ACCOUNTID_COLUMN_ACCOUNTID = 1;
+
+    private static String[] ACCOUNTID_TO_MAILBOXTYPE_PROJECTION = new String[] {
+        EmailContent.RECORD_ID,
+        EmailContent.MailboxColumns.ACCOUNT_KEY,
+        EmailContent.MailboxColumns.TYPE
+    };
+    private static int ACCOUNTID_TO_MAILBOXTYPE_COLUMN_ID = 0;
+
     protected Controller(Context _context) {
         mContext = _context;
+        mProviderContext = _context;
         mLegacyController = MessagingController.getInstance(mContext);
     }
 
     /**
-     * Gets or creates the singleton instance of Controller. Application is used to
-     * provide a Context to classes that need it.
-     * @param _context
+     * Gets or creates the singleton instance of Controller.
+     * @param _context The context that will be used for all underlying system access
      */
     public synchronized static Controller getInstance(Context _context) {
         if (sInstance == null) {
             sInstance = new Controller(_context);
         }
         return sInstance;
+    }
+
+    /**
+     * For testing only:  Inject a different context for provider access.  This will be
+     * used internally for access the underlying provider (e.g. getContentResolver().query()).
+     * @param providerContext the provider context to be used by this instance
+     */
+    public void setProviderContext(Context providerContext) {
+        mProviderContext = providerContext;
     }
 
     /**
@@ -146,6 +175,95 @@ public class Controller {
                 mLegacyController.synchronizeMailbox(account, mailbox, listener);
             }
         }.start();
+    }
+
+    /**
+     * Delete a single message by moving it to the trash.
+     * 
+     * This function has no callback, no result reporting, because the desired outcome
+     * is reflected entirely by changes to one or more cursors.
+     * 
+     * @param messageId The id of the message to "delete".
+     * @param accountId The id of the message's account, or -1 if not known by caller
+     * 
+     * TODO: Move out of UI thread
+     * TODO: "get account a for message m" should be a utility
+     * TODO: "get mailbox of type n for account a" should be a utility
+     */
+     public void deleteMessage(long messageId, long accountId) {
+        ContentResolver resolver = mProviderContext.getContentResolver();
+
+        // 1.  Look up acct# for message we're deleting
+        Cursor c = null;
+        if (accountId == -1) {
+            try {
+                c = resolver.query(EmailContent.Message.CONTENT_URI,
+                        MESSAGEID_TO_ACCOUNTID_PROJECTION, EmailContent.RECORD_ID + "=?",
+                        new String[] { Long.toString(messageId) }, null);
+                if (c.moveToFirst()) {
+                    accountId = c.getLong(MESSAGEID_TO_ACCOUNTID_COLUMN_ACCOUNTID);
+                } else {
+                    return;
+                }
+            } finally {
+                if (c != null) c.close();
+            }
+        }
+
+        // 2. Confirm that there is a trash mailbox available
+        long trashMailboxId = -1;
+        c = null;
+        try {
+            c = resolver.query(EmailContent.Mailbox.CONTENT_URI,
+                    ACCOUNTID_TO_MAILBOXTYPE_PROJECTION,
+                    EmailContent.MailboxColumns.ACCOUNT_KEY + "=? AND " +
+                    EmailContent.MailboxColumns.TYPE + "=" + EmailContent.Mailbox.TYPE_TRASH,
+                    new String[] { Long.toString(accountId) }, null);
+            if (c.moveToFirst()) {
+                trashMailboxId = c.getLong(ACCOUNTID_TO_MAILBOXTYPE_COLUMN_ID);
+            }
+        } finally {
+            if (c != null) c.close();
+        }
+
+        // 3.  If there's no trash mailbox, create one
+        // TODO: Does this need to be signaled explicitly to the sync engines?
+        if (trashMailboxId == -1) {
+            Mailbox box = new Mailbox();
+
+            box.mDisplayName = mContext.getString(R.string.special_mailbox_name_trash);
+            box.mAccountKey = accountId;
+            box.mType = Mailbox.TYPE_TRASH;
+            box.mSyncFrequency = EmailContent.Account.CHECK_INTERVAL_NEVER;
+            box.mFlagVisible = true;
+            box.saveOrUpdate(mProviderContext);
+            trashMailboxId = box.mId;
+        }
+
+        // 4.  Change the mailbox key for the message we're "deleting"
+        ContentValues cv = new ContentValues();
+        cv.put(EmailContent.MessageColumns.MAILBOX_KEY, trashMailboxId);
+        Uri uri = ContentUris.withAppendedId(EmailContent.Message.SYNCED_CONTENT_URI, messageId);
+        resolver.update(uri, cv, null, null);
+
+        // 5.  Drop non-essential data for the message (e.g. attachments)
+        // TODO: find the actual files (if any, if loaded) & delete them
+        c = null;
+        try {
+            c = resolver.query(EmailContent.Attachment.CONTENT_URI,
+                    EmailContent.Attachment.CONTENT_PROJECTION,
+                    EmailContent.AttachmentColumns.MESSAGE_KEY + "=?",
+                    new String[] { Long.toString(messageId) }, null);
+            while (c.moveToNext()) {
+                // delete any associated storage
+                // delete row?
+            }
+        } finally {
+            if (c != null) c.close();
+        }
+
+        // 6.  For IMAP/POP3 we may need to kick off an immediate delete (depends on acct settings)
+        // TODO write this
     }
 
     /**

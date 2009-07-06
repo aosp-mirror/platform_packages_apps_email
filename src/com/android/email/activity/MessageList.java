@@ -50,6 +50,7 @@ import android.widget.CursorAdapter;
 import android.widget.ImageView;
 import android.widget.ListView;
 import android.widget.TextView;
+import android.widget.Toast;
 import android.widget.AdapterView.OnItemClickListener;
 
 import java.util.Date;
@@ -201,7 +202,7 @@ public class MessageList extends ListActivity implements OnItemClickListener, On
                 onOpenMessage(info.id);
                 break;
             case R.id.delete:
-                //onDelete(holder);
+                onDelete(info.id);
                 break;
             case R.id.reply:
                 //onReply(holder);
@@ -263,6 +264,11 @@ public class MessageList extends ListActivity implements OnItemClickListener, On
         else {
             MessageView.actionView(this, messageId);
         }
+    }
+
+    private void onDelete(long messageId) {
+        Controller.getInstance(getApplication()).deleteMessage(messageId, -1);
+        Toast.makeText(this, R.string.message_deleted_toast, Toast.LENGTH_SHORT).show();
     }
 
     private void onToggleRead(long messageId, View itemView) {

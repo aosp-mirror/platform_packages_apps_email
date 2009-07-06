@@ -16,6 +16,7 @@
 
 package com.android.email.activity;
 
+import com.android.email.Controller;
 import com.android.email.Email;
 import com.android.email.MessagingController;
 import com.android.email.MessagingListener;
@@ -513,12 +514,9 @@ public class MessageView extends Activity
     }
 
     private void onDelete() {
-        if (mOldMessage != null) {
-            MessagingController.getInstance(getApplication()).deleteMessage(
-                    mAccount,
-                    mFolder,
-                    mOldMessage,
-                    null);
+        if (mMessage != null) {
+            Controller.getInstance(getApplication()).deleteMessage(
+                    mMessageId, mMessage.mAccountKey);
             Toast.makeText(this, R.string.message_deleted_toast, Toast.LENGTH_SHORT).show();
 
             if (onPrevious()) {
