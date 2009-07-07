@@ -58,6 +58,7 @@ import java.util.HashSet;
 
 public class MessageList extends ListActivity implements OnItemClickListener, OnClickListener {
     
+    // Intent extras (internal to this activity)
     private static final String EXTRA_MAILBOX_ID = "com.android.email.activity.MAILBOX_ID";
     private static final String EXTRA_ACCOUNT_NAME = "com.android.email.activity.ACCOUNT_NAME";
     private static final String EXTRA_MAILBOX_NAME = "com.android.email.activity.MAILBOX_NAME";
@@ -222,9 +223,9 @@ public class MessageList extends ListActivity implements OnItemClickListener, On
     private void onRefresh() {
         // TODO: This needs to loop through all open mailboxes (there might be more than one)
         EmailContent.Mailbox mailbox =
-            EmailContent.Mailbox.restoreMailboxWithId(this, mMailboxId);
+                EmailContent.Mailbox.restoreMailboxWithId(this, mMailboxId);
         EmailContent.Account account =
-            EmailContent.Account.restoreAccountWithId(this, mailbox.mAccountKey);
+                EmailContent.Account.restoreAccountWithId(this, mailbox.mAccountKey);
         mHandler.progress(true);
         Controller.getInstance(getApplication()).updateMailbox(
                 account, mailbox, mControllerCallback);
@@ -238,14 +239,14 @@ public class MessageList extends ListActivity implements OnItemClickListener, On
     private void onCompose() {
         // TODO: Select correct account to send from when there are multiple mailboxes
         EmailContent.Mailbox mailbox =
-            EmailContent.Mailbox.restoreMailboxWithId(this, mMailboxId);
+                EmailContent.Mailbox.restoreMailboxWithId(this, mMailboxId);
         MessageCompose.actionCompose(this, mailbox.mAccountKey);
     }
     
     private void onEditAccount() {
         // TODO: Select correct account to edit when there are multiple mailboxes
         EmailContent.Mailbox mailbox =
-            EmailContent.Mailbox.restoreMailboxWithId(this, mMailboxId);
+                EmailContent.Mailbox.restoreMailboxWithId(this, mMailboxId);
         AccountSettings.actionSettings(this, mailbox.mAccountKey);
     }
 
@@ -259,8 +260,7 @@ public class MessageList extends ListActivity implements OnItemClickListener, On
         if (mailbox.mType == EmailContent.Mailbox.TYPE_DRAFTS) {
             // TODO need id-based API for MessageCompose
             // MessageCompose.actionEditDraft(this, messageId);
-        }
-        else {
+        } else {
             MessageView.actionView(this, messageId);
         }
     }
@@ -309,8 +309,8 @@ public class MessageList extends ListActivity implements OnItemClickListener, On
                     MessageListAdapter.PROJECTION,
                     EmailContent.MessageColumns.MAILBOX_KEY + "=?",
                     new String[] {
-                            String.valueOf(mMailboxKey)
-                            },
+                        String.valueOf(mMailboxKey)
+                    },
                     EmailContent.MessageColumns.TIMESTAMP + " DESC");
         }
 
@@ -343,7 +343,7 @@ public class MessageList extends ListActivity implements OnItemClickListener, On
         }
 
         public void progress(boolean progress) {
-            android.os.Message msg =android.os.Message.obtain();
+            android.os.Message msg = android.os.Message.obtain();
             msg.what = MSG_PROGRESS;
             msg.arg1 = progress ? 1 : 0;
             sendMessage(msg);
@@ -455,8 +455,6 @@ public class MessageList extends ListActivity implements OnItemClickListener, On
 
         @Override
         public View newView(Context context, Cursor cursor, ViewGroup parent) {
-            // TODO:  This should be a custom view so we can deal with touch events
-            // in the checkbox & star.
             return mInflater.inflate(R.layout.message_list_item, parent, false);
         }
     }
