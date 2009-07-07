@@ -27,7 +27,9 @@ public class Eas {
     // For temporary use while debugging
     public static boolean TEST_DEBUG = false;    // DO NOT CHECK IN WITH THIS SET TO TRUE
 
-    public static String VERSION = "0.1";
+    public static final String VERSION = "0.1";
+
+    public static final String ACCOUNT_MANAGER_TYPE = "com.android.exchange";
 
     // From EAS spec
     //                Mail Cal

@@ -49,9 +49,9 @@ import android.net.NetworkInfo;
 import android.net.Uri;
 import android.net.NetworkInfo.State;
 import android.os.Bundle;
+import android.os.Debug;
 import android.os.Handler;
 import android.os.PowerManager;
-import android.os.RemoteCallbackList;
 import android.os.RemoteException;
 import android.os.PowerManager.WakeLock;
 import android.database.ContentObserver;
@@ -94,30 +94,20 @@ public class SyncManager extends Service implements Runnable {
         new HashMap<Long, PendingIntent>();
     static private WakeLock mWakeLock = null;
 
-    final RemoteCallbackList<ISyncManagerCallback> mCallbacks = 
-        new RemoteCallbackList<ISyncManagerCallback>();
-
-    private final ISyncManager.Stub mBinder = new ISyncManager.Stub() {
+    /**
+     * Create the binder for EmailService implementation here.  These are the calls that are 
+     * defined in AbstractSyncService.   Only validate is now implemented; loadAttachment currently
+     * spins its wheels counting up to 100%.
+     */
+    private final IEmailService.Stub mBinder = new IEmailService.Stub() {
         public int validate(String protocol, String host, String userName, String password,
                 int port, boolean ssl) throws RemoteException {
             try {
-                AbstractSyncService.validate(EasSyncService.class, host, userName, password, port, ssl,
-                        SyncManager.this);
+                AbstractSyncService.validate(EasSyncService.class, host, userName, password, port,
+                        ssl, SyncManager.this);
                 return MessagingException.NO_ERROR;
             } catch (MessagingException e) {
                 return e.getExceptionType();
-            }
-        }
-
-        public void registerCallback(ISyncManagerCallback cb) {
-            if (cb != null) {
-                mCallbacks.register(cb);
-            }
-        }
-
-        public void unregisterCallback(ISyncManagerCallback cb) {
-            if (cb != null) {
-                mCallbacks.unregister(cb);
             }
         }
 
@@ -136,7 +126,7 @@ public class SyncManager extends Service implements Runnable {
             return false;
         }
 
-        public boolean loadMore(long messageId, ISyncManagerCallback cb) throws RemoteException {
+        public boolean loadMore(long messageId, IEmailServiceCallback cb) throws RemoteException {
             // TODO Auto-generated method stub
             return false;
         }
@@ -157,9 +147,17 @@ public class SyncManager extends Service implements Runnable {
             return false;
         }
 
-        public boolean loadAttachment(long messageId, Attachment att, ISyncManagerCallback cb)
+        public boolean loadAttachment(long messageId, Attachment att, IEmailServiceCallback cb)
                 throws RemoteException {
+            for (int i = 0; i < 10; i++) {
+                cb.status(EmailServiceStatus.IN_PROGRESS, i * 10);
+                try {
+                    Thread.sleep(1000);
+                } catch (InterruptedException e) {
+                }
+            }
             // TODO Auto-generated method stub
+            cb.status(EmailServiceStatus.SUCCESS, 0);
             return false;
         }
     };
@@ -237,7 +235,7 @@ public class SyncManager extends Service implements Runnable {
             main.mDisplayName = "_main";
             main.mServerId = "_main";
             main.mAccountKey = acct.mId;
-            main.mType = Mailbox.TYPE_MAIL;
+            main.mType = Mailbox.TYPE_NOT_EMAIL;
             main.mSyncFrequency = Account.CHECK_INTERVAL_PUSH;
             main.mFlagVisible = false;
             main.save(getContext());

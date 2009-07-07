@@ -176,7 +176,7 @@ public class EasSyncService extends InteractiveSyncService {
 
 
     @Override
-    public void loadAttachment(Attachment att, ISyncManagerCallback cb) {
+    public void loadAttachment(Attachment att, IEmailServiceCallback cb) {
         // TODO Auto-generated method stub
     }
 

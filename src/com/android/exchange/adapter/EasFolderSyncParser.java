@@ -212,6 +212,7 @@ public class EasFolderSyncParser extends EasParser {
             m.mDisplayName = name;
             m.mServerId = serverId;
             m.mAccountKey = mAccountId;
+            m.mType = Mailbox.TYPE_MAIL;
             m.mSyncFrequency = Account.CHECK_INTERVAL_NEVER;
             switch (type) {
                 case INBOX_TYPE:

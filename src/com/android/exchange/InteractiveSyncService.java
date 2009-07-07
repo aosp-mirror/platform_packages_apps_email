@@ -46,5 +46,5 @@ public abstract class InteractiveSyncService extends AbstractSyncService {
 
     public abstract void reloadFolderList();
 
-    public abstract void loadAttachment(Attachment att, ISyncManagerCallback cb);
+    public abstract void loadAttachment(Attachment att, IEmailServiceCallback cb);
 }

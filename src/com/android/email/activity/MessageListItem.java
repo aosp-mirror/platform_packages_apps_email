@@ -82,7 +82,7 @@ public class MessageListItem extends RelativeLayout {
         int touchX = (int) event.getX();
 
         if (!mCachedViewPositions) {
-            float paddingScale = mContext.getResources().getDisplayMetrics().density;
+            float paddingScale = getContext().getResources().getDisplayMetrics().density;
             int checkPadding = (int) ((CHECKMARK_PAD * paddingScale) + 0.5);
             int starPadding = (int) ((STAR_PAD * paddingScale) + 0.5);
             mCheckRight = findViewById(R.id.selected).getRight() + checkPadding;

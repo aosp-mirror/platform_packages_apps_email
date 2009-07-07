@@ -17,18 +17,9 @@
 package com.android.email.mail.exchange;
 
 import com.android.email.Email;
-import com.android.email.mail.AuthenticationFailedException;
 import com.android.email.mail.MessagingException;
-import com.android.exchange.ISyncManager;
-import com.android.exchange.SyncManager;
-//import com.android.exchange.EasService;
 
-import android.content.ComponentName;
 import android.content.Context;
-import android.content.Intent;
-import android.content.ServiceConnection;
-import android.os.IBinder;
-import android.os.RemoteException;
 import android.text.TextUtils;
 
 import java.net.URI;
@@ -44,6 +35,7 @@ public class ExchangeTransportExample {
     
     public static final String FOLDER_INBOX = Email.INBOX;
     
+    private static final String TAG = "ExchangeTransportExample";
     private final Context mContext;
     
     private String mHost;
@@ -115,52 +107,10 @@ public class ExchangeTransportExample {
      * @param uri the server/account to try and connect to
      * @throws MessagingException thrown if the connection, server, account are not useable
      */
-    ISyncManager mSyncManagerService = null;
-    
-    private ServiceConnection mSyncManagerConnection = new ServiceConnection () {
-        public void onServiceConnected(ComponentName name, IBinder binder) {
-            mSyncManagerService = ISyncManager.Stub.asInterface(binder);
-        }
 
-        public void onServiceDisconnected(ComponentName name) {
-            mSyncManagerService = null;
-        }
-    };
-    
     public void checkSettings(URI uri) throws MessagingException {
         setUri(uri);
-        boolean ssl = uri.getScheme().contains("ssl+");
-        try {
-            mContext.bindService(new Intent(mContext, SyncManager.class), mSyncManagerConnection, Context.BIND_AUTO_CREATE);
-            // TODO Is this the right way of waiting for a connection??
-            int count = 0;
-            while ((count++ < 10) && (mSyncManagerService == null)) {
-                Thread.sleep(500);
-            }
-            if (mSyncManagerService == null) {
-                throw new MessagingException(MessagingException.UNSPECIFIED_EXCEPTION);
-            }
-            // The result of validate is a MessagingException error code
-            // We use NO_ERROR to indicate a validated account
-            int result = mSyncManagerService.validate("eas", mHost, mUsername, mPassword, ssl ? 443 : 80, ssl);
-            if (result != MessagingException.NO_ERROR) {
-                if (result == MessagingException.AUTHENTICATION_FAILED) {
-                    throw new AuthenticationFailedException("Authentication failed.");
-                } else {
-                    throw new MessagingException(result);
-                }
-            }
-        } catch (RemoteException e) {
-            throw new MessagingException("Call to validate generated an exception", e);
-        } catch (InterruptedException e) {
-        } finally {
-            if (mSyncManagerService != null) {
-                mContext.unbindService(mSyncManagerConnection);
-            } else
-                throw new MessagingException(MessagingException.UNSPECIFIED_EXCEPTION);
-        }
-        
-    }
+     }
     
     /**
      * Typical helper function:  Return existence of a given folder

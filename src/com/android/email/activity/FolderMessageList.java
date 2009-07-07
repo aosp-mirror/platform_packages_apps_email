@@ -33,6 +33,8 @@ import com.android.email.mail.Message.RecipientType;
 import com.android.email.mail.store.LocalStore;
 import com.android.email.mail.store.LocalStore.LocalMessage;
 import com.android.email.provider.EmailContent;
+import com.android.email.provider.EmailContent.Mailbox;
+import com.android.email.provider.EmailContent.MailboxColumns;
 
 import android.app.ExpandableListActivity;
 import android.app.NotificationManager;
@@ -996,12 +998,14 @@ public class FolderMessageList extends ExpandableListActivity {
         // to match desired UI presentation (e.g. INBOX at the top)
         @Override
         protected Cursor doInBackground(Void... params) {
+            // Only show boxes with mail, and sort secondarily by name
             return FolderMessageList.this.managedQuery(
-                    EmailContent.Mailbox.CONTENT_URI,
-                    EmailContent.Mailbox.CONTENT_PROJECTION,
-                    EmailContent.MailboxColumns.ACCOUNT_KEY + "=?",
+                    Mailbox.CONTENT_URI,
+                    Mailbox.CONTENT_PROJECTION,
+                    MailboxColumns.ACCOUNT_KEY + "=? and "
+                        + MailboxColumns.TYPE + '<' + Mailbox.TYPE_NOT_EMAIL,
                     new String[] { String.valueOf(FolderMessageList.this.mAccountId) },
-                    EmailContent.MailboxColumns.TYPE);
+                    MailboxColumns.TYPE + ',' + MailboxColumns.DISPLAY_NAME);
         }
 
         @Override
