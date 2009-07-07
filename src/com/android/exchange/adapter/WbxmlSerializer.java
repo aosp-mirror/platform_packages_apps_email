@@ -1,4 +1,3 @@
-
 /* Copyright (c) 2002,2003, Stefan Haustein, Oberhausen, Rhld., Germany
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy
@@ -22,12 +21,13 @@
 //Contributors: Jonathan Cox, Bogdan Onoiu, Jerry Tian
 //Simplified for Google, Inc. by Marc Blank
 
-package com.android.exchange;
+package com.android.exchange.adapter;
 
 import java.io.*;
 import java.util.*;
 
 import org.xmlpull.v1.*;
+
 
 
 

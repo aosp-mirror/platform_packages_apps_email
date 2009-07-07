@@ -226,41 +226,56 @@ public class EmailProvider extends ContentProvider {
     }
 
     static void createMessageTable(SQLiteDatabase db) {
-        String s = " (" + EmailContent.RECORD_ID + " integer primary key autoincrement, " 
-        + SyncColumns.ACCOUNT_KEY + " integer, "
-        + SyncColumns.SERVER_ID + " integer, "
-        + SyncColumns.SERVER_VERSION + " integer, "
-        + SyncColumns.DATA + " text, "
-        + SyncColumns.DIRTY_COUNT + " integer, "
-        + MessageColumns.DISPLAY_NAME + " text, "
-        + MessageColumns.TIMESTAMP + " integer, "
-        + MessageColumns.SUBJECT + " text, "
-        + MessageColumns.PREVIEW + " text, "
-        + MessageColumns.FLAG_READ + " integer, "
-        + MessageColumns.FLAG_LOADED + " integer, "
-        + MessageColumns.FLAG_FAVORITE + " integer, "
-        + MessageColumns.FLAG_ATTACHMENT + " integer, "
-        + MessageColumns.FLAGS + " integer, "
-        + MessageColumns.TEXT_INFO + " text, "
-        + MessageColumns.HTML_INFO + " text, "
-        + MessageColumns.CLIENT_ID + " integer, "
-        + MessageColumns.MESSAGE_ID + " text, "
-        + MessageColumns.THREAD_ID + " text, "
-        + MessageColumns.MAILBOX_KEY + " integer, "
-        + MessageColumns.ACCOUNT_KEY + " integer, "
-        + MessageColumns.REFERENCE_KEY + " integer, "
-        + MessageColumns.SENDER_LIST + " text, "
-        + MessageColumns.FROM_LIST + " text, "
-        + MessageColumns.TO_LIST + " text, "
-        + MessageColumns.CC_LIST + " text, "
-        + MessageColumns.BCC_LIST + " text, "
-        + MessageColumns.REPLY_TO_LIST + " text"
-        + ");";
+        String messageColumns = MessageColumns.DISPLAY_NAME + " text, "
+            + MessageColumns.TIMESTAMP + " integer, "
+            + MessageColumns.SUBJECT + " text, "
+            + MessageColumns.PREVIEW + " text, "
+            + MessageColumns.FLAG_READ + " integer, "
+            + MessageColumns.FLAG_LOADED + " integer, "
+            + MessageColumns.FLAG_FAVORITE + " integer, "
+            + MessageColumns.FLAG_ATTACHMENT + " integer, "
+            + MessageColumns.FLAGS + " integer, "
+            + MessageColumns.TEXT_INFO + " text, "
+            + MessageColumns.HTML_INFO + " text, "
+            + MessageColumns.CLIENT_ID + " integer, "
+            + MessageColumns.MESSAGE_ID + " text, "
+            + MessageColumns.THREAD_ID + " text, "
+            + MessageColumns.MAILBOX_KEY + " integer, "
+            + MessageColumns.ACCOUNT_KEY + " integer, "
+            + MessageColumns.REFERENCE_KEY + " integer, "
+            + MessageColumns.SENDER_LIST + " text, "
+            + MessageColumns.FROM_LIST + " text, "
+            + MessageColumns.TO_LIST + " text, "
+            + MessageColumns.CC_LIST + " text, "
+            + MessageColumns.BCC_LIST + " text, "
+            + MessageColumns.REPLY_TO_LIST + " text"
+            + ");";
+
+        // This String and the following String MUST have the same columns, except for the type
+        // of those columns!
+        String createString = " (" + EmailContent.RECORD_ID + " integer primary key autoincrement, "
+            + SyncColumns.ACCOUNT_KEY + " integer, "
+            + SyncColumns.SERVER_ID + " integer, "
+            + SyncColumns.SERVER_VERSION + " integer, "
+            + SyncColumns.DATA + " text, "
+            + SyncColumns.DIRTY_COUNT + " integer, "
+            + messageColumns;
+
+        // For the updated and deleted tables, the id is assigned, but we do want to keep track
+        // of the ORDER of updates using an autoincrement primary key.  We use the DATA column
+        // at this point; it has no other function
+        String altCreateString = " (" + EmailContent.RECORD_ID + " integer, " 
+            + SyncColumns.ACCOUNT_KEY + " integer, "
+            + SyncColumns.SERVER_ID + " integer, "
+            + SyncColumns.SERVER_VERSION + " integer, "
+            + SyncColumns.DATA + " integer primary key autoincrement, "
+            + SyncColumns.DIRTY_COUNT + " integer, "
+            + messageColumns;
 
         // The three tables have the same schema
-        db.execSQL("create table " + Message.TABLE_NAME + s);
-        db.execSQL("create table " + Message.UPDATED_TABLE_NAME + s);
-        db.execSQL("create table " + Message.DELETED_TABLE_NAME + s);
+        db.execSQL("create table " + Message.TABLE_NAME + createString);
+        db.execSQL("create table " + Message.UPDATED_TABLE_NAME + altCreateString);
+        db.execSQL("create table " + Message.DELETED_TABLE_NAME + altCreateString);
 
         // For now, indices only on the Message table
         db.execSQL("create index message_" + MessageColumns.TIMESTAMP 
@@ -364,7 +379,7 @@ public class EmailProvider extends ContentProvider {
             + MailboxColumns.FLAG_VISIBLE + " integer, "
             + MailboxColumns.FLAGS + " integer, "
             + MailboxColumns.VISIBLE_LIMIT + " integer"
-        + ");";
+            + ");";
         db.execSQL("create table " + Mailbox.TABLE_NAME + s);
         db.execSQL("create index mailbox_" + MailboxColumns.SERVER_ID 
                 + " on " + Mailbox.TABLE_NAME + " (" + MailboxColumns.SERVER_ID + ")");
@@ -374,7 +389,7 @@ public class EmailProvider extends ContentProvider {
         db.execSQL("create trigger mailbox_delete before delete on " + Mailbox.TABLE_NAME + 
                 " begin delete from " + Message.TABLE_NAME +
                 "  where " + MessageColumns.MAILBOX_KEY + "=old." + EmailContent.RECORD_ID + 
-        "; end");
+                "; end");
     }
 
     static void upgradeMailboxTable(SQLiteDatabase db, int oldVersion, int newVersion) {
@@ -518,7 +533,7 @@ public class EmailProvider extends ContentProvider {
             Log.v(TAG, "EmailProvider.delete: uri=" + uri + ", match is " + match);
         }
 
-        int result;
+        int result = -1;
 
         try {
             switch (match) {
@@ -728,8 +743,8 @@ public class EmailProvider extends ContentProvider {
         switch (match) {
             case BODY:
             case MESSAGE:
-            case DELETED_MESSAGE:
             case UPDATED_MESSAGE:
+            case DELETED_MESSAGE:
             case ATTACHMENT:
             case MAILBOX:
             case ACCOUNT:
@@ -844,7 +859,7 @@ public class EmailProvider extends ContentProvider {
      * update/insert/delete calls?
      */
     public ContentProviderResult[] applyBatch(ArrayList<ContentProviderOperation> operations)
-    throws OperationApplicationException {
+            throws OperationApplicationException {
         SQLiteDatabase db = getDatabase(getContext());
         db.beginTransaction();
         try {

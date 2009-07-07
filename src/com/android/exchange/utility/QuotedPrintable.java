@@ -15,8 +15,13 @@
  * limitations under the License.
  */
 
-package com.android.exchange;
+package com.android.exchange.utility;
 
+/**
+ * Encode and decode QuotedPrintable text, according to the specification.  Since the Email
+ * application already does this elsewhere, the goal would be to use its functionality here.
+ *
+ */
 public class QuotedPrintable {
     static public String toString (String str) {
         int len = str.length();
@@ -34,7 +39,9 @@ public class QuotedPrintable {
                             if (n == '\n') {
                                 continue;
                             } else {
-                                System.err.println("Not valid QP");
+                                // This isn't valid QuotedPrintable, but what to do?
+                                // Let's just ignore it because 1) it's extremely unlikely to
+                                // happen, and 2) an exception is frankly no better.
                             }
                         } else {
                             // Must be less than 0x80, right?

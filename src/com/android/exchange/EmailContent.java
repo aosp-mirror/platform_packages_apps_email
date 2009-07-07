@@ -14,6 +14,12 @@
  * limitations under the License.
  */
 
+/**
+ * This is a local copy of com.android.email.EmailProvider
+ *
+ * Last copied from com.android.email.EmailProvider on 7/2/09
+ */
+
 package com.android.exchange;
 
 import com.android.email.R;
@@ -223,10 +229,7 @@ public abstract class EmailContent {
         public String mHtmlContent;
         public String mTextContent;
 
-        /**
-         * no public constructor since this is a utility class
-         */
-        private Body() {
+        public Body() {
             mBaseUri = CONTENT_URI;
         }
 
@@ -283,7 +286,7 @@ public abstract class EmailContent {
         @Override
         @SuppressWarnings("unchecked")
         public EmailContent.Body restore(Cursor c) {
-            mBaseUri = EmailContent.Message.CONTENT_URI;
+            mBaseUri = EmailContent.Body.CONTENT_URI;
             mMessageKey = c.getLong(CONTENT_MESSAGE_KEY_COLUMN);
             mHtmlContent = c.getString(CONTENT_HTML_CONTENT_COLUMN);
             mTextContent = c.getString(CONTENT_TEXT_CONTENT_COLUMN);
@@ -352,8 +355,17 @@ public abstract class EmailContent {
 
     public static final class Message extends EmailContent implements SyncColumns, MessageColumns {
         public static final String TABLE_NAME = "Message";
-        public static final String UPDATES_TABLE_NAME = "Message_Updates";
+        public static final String UPDATED_TABLE_NAME = "Message_Updates";
+        public static final String DELETED_TABLE_NAME = "Message_Deletes";
+
+        // To refer to a specific message, use ContentUris.withAppendedId(CONTENT_URI, id)
         public static final Uri CONTENT_URI = Uri.parse(EmailContent.CONTENT_URI + "/message");
+        public static final Uri SYNCED_CONTENT_URI =
+            Uri.parse(EmailContent.CONTENT_URI + "/syncedMessage");
+        public static final Uri DELETED_CONTENT_URI =
+            Uri.parse(EmailContent.CONTENT_URI + "/deletedMessage");
+        public static final Uri UPDATED_CONTENT_URI =
+            Uri.parse(EmailContent.CONTENT_URI + "/updatedMessage");
 
         public static final String KEY_TIMESTAMP_DESC = MessageColumns.TIMESTAMP + " desc";
 
@@ -489,9 +501,6 @@ public abstract class EmailContent {
             mBaseUri = CONTENT_URI;
         }
 
-        public static final Uri UPDATED_CONTENT_URI = 
-            Uri.parse(EmailContent.CONTENT_URI + "/updatedMessage");
-
         @Override
         public ContentValues toContentValues() {
             ContentValues values = new ContentValues();
@@ -500,6 +509,7 @@ public abstract class EmailContent {
             values.put(MessageColumns.DISPLAY_NAME, mDisplayName);
             values.put(MessageColumns.TIMESTAMP, mTimeStamp);
             values.put(MessageColumns.SUBJECT, mSubject);
+            values.put(MessageColumns.PREVIEW, mPreview);
             values.put(MessageColumns.FLAG_READ, mFlagRead); 
             values.put(MessageColumns.FLAG_LOADED, mFlagLoaded); 
             values.put(MessageColumns.FLAG_FAVORITE, mFlagFavorite); 
@@ -517,6 +527,7 @@ public abstract class EmailContent {
 
             values.put(MessageColumns.CLIENT_ID, mClientId);
             values.put(MessageColumns.MESSAGE_ID, mMessageId);
+            values.put(MessageColumns.THREAD_ID, mThreadId);
 
             values.put(MessageColumns.MAILBOX_KEY, mMailboxKey);
             values.put(MessageColumns.ACCOUNT_KEY, mAccountKey);
@@ -744,6 +755,7 @@ public abstract class EmailContent {
         
         public static final int CHECK_INTERVAL_NEVER = -1;
         public static final int CHECK_INTERVAL_PUSH = -2;
+        public static final int CHECK_INTERVAL_PING = -3;
         
         public static final int SYNC_WINDOW_USER = -1;
 
@@ -1653,6 +1665,12 @@ public abstract class EmailContent {
         // Holds junk mail
         public static final int TYPE_JUNK = 7;
 
+        // Types after this are used for non-mail mailboxes (as in EAS)
+        public static final int TYPE_NOT_EMAIL = 0x40;
+        public static final int TYPE_CALENDAR = 0x41;
+        public static final int TYPE_CONTACTS = 0x42;
+        public static final int TYPE_TASKS = 0x43;
+
         // Bit field flags
         public static final int FLAG_HAS_CHILDREN = 1<<0;
         public static final int FLAG_CHILDREN_VISIBLE = 1<<1;
@@ -1746,9 +1764,9 @@ public abstract class EmailContent {
         public static final String TABLE_NAME = "HostAuth";
         public static final Uri CONTENT_URI = Uri.parse(EmailContent.CONTENT_URI + "/hostauth");
 
-        private static final int FLAG_SSL = 1;
-        private static final int FLAG_TLS = 2;
-        private static final int FLAG_AUTHENTICATE = 4;
+        public static final int FLAG_SSL = 1;
+        public static final int FLAG_TLS = 2;
+        public static final int FLAG_AUTHENTICATE = 4;
 
         public String mProtocol;
         public String mAddress;

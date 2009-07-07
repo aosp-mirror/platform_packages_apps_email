@@ -15,20 +15,25 @@
  * limitations under the License.
  */
 
-package com.android.exchange;
+package com.android.exchange.adapter;
 
+import java.io.IOException;
 import java.net.HttpURLConnection;
 
+import com.android.exchange.EasSyncService;
+import com.android.exchange.SyncManager;
 import com.android.exchange.EmailContent.HostAuth;
 import com.android.exchange.EmailContent.Mailbox;
 import com.android.exchange.EmailContent.Message;
+import com.android.exchange.EmailContent.MessageColumns;
+import com.android.exchange.utility.Rfc822Formatter;
 
 import android.content.ContentUris;
 import android.content.ContentValues;
 import android.content.Context;
 import android.database.Cursor;
 
-public class EasOutboxService extends EasService {
+public class EasOutboxService extends EasSyncService {
 
     public EasOutboxService(Context _context, Mailbox _mailbox) {
         super(_context, _mailbox);
@@ -39,26 +44,24 @@ public class EasOutboxService extends EasService {
         mPassword = ha.mPassword;
     }
 
-    public void run () {
+    public void run() {
         mThread = Thread.currentThread();
         String uniqueId = android.provider.Settings.System.getString(mContext.getContentResolver(), 
                 android.provider.Settings.System.ANDROID_ID);
         try {
             Cursor c = mContext.getContentResolver().query(Message.CONTENT_URI, 
-                    Message.CONTENT_PROJECTION, "mMailbox=" + mMailbox, null, null);
+                    Message.CONTENT_PROJECTION, MessageColumns.MAILBOX_KEY + '=' + mMailbox,
+                    null, null);
             try {
-                if (c.moveToFirst()) {
+                while (c.moveToNext()) {
                     Message msg = new Message().restore(c);
                     if (msg != null) {
                         String data = Rfc822Formatter
-                        .writeEmailAsRfc822String(mContext, mAccount, msg, uniqueId);
+                            .writeEmailAsRfc822String(mContext, mAccount, msg, uniqueId);
                         HttpURLConnection uc = sendEASPostCommand("SendMail&SaveInSent=T", data);
                         int code = uc.getResponseCode();
-                        //Intent intent = new Intent(MessageListView.MAIL_UPDATE);
-                        //intent.putExtra("type", "toast");
                         if (code == HttpURLConnection.HTTP_OK) {
-                            //intent.putExtra("text", "Your message with subject \"" + msg.mSubject + "\" has been sent.");
-                            log("Deleting message...");
+                            userLog("Deleting message...");
                             mContext.getContentResolver().delete(ContentUris.withAppendedId(
                                     Message.CONTENT_URI, msg.mId), null, null);
                         } else {
@@ -66,19 +69,21 @@ public class EasOutboxService extends EasService {
                             cv.put("uid", 1);
                             Message.update(mContext, 
                                     Message.CONTENT_URI, msg.mId, cv);
-                            //intent.putExtra("text", "WHOA!  Your message with subject \"" + msg.mSubject + "\" failed to send.");
                         }
-                        //mContext.sendBroadcast(intent);
-                        updateUI();
+                        // TODO How will the user know that the message sent or not?
                     }
                 }
-            } catch (Exception e) {
-                e.printStackTrace();
             } finally {
                 c.close();
             }
-        } catch (RuntimeException e1) {
-            e1.printStackTrace();
+        } catch (IOException e) {
+            userLog("Caught IOException");
+            mExitStatus = EXIT_IO_ERROR;
+        } catch (Exception e) {
+            mExitStatus = EXIT_EXCEPTION;
+        } finally {
+            userLog(mMailbox.mDisplayName + ": sync finished");
+            SyncManager.done(this);
         }
     }
 }

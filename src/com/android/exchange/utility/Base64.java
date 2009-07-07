@@ -11,7 +11,7 @@
  * @author rob@iharder.net
  * @version 2.2.2
  */
-package com.android.exchange;
+package com.android.exchange.utility;
 
 import java.io.Writer;
 
