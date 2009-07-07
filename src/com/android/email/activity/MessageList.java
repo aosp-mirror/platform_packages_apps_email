@@ -142,7 +142,8 @@ public class MessageList extends ListActivity implements OnItemClickListener, On
     }
 
     public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
-        onOpenMessage(id);
+        MessageListItem itemView = (MessageListItem) view;
+        onOpenMessage(id, itemView.mMailboxId);
     }
 
     public void onClick(View v) {
@@ -181,28 +182,32 @@ public class MessageList extends ListActivity implements OnItemClickListener, On
     public void onCreateContextMenu(ContextMenu menu, View v, ContextMenuInfo menuInfo) {
         super.onCreateContextMenu(menu, v, menuInfo);
         AdapterView.AdapterContextMenuInfo info = (AdapterView.AdapterContextMenuInfo) menuInfo;
+        MessageListItem itemView = (MessageListItem) info.targetView;
 
         // TODO: There is no context menu for the outbox
         // TODO: There is probably a special context menu for the trash
 
         getMenuInflater().inflate(R.menu.message_list_context, menu);
 
-        // TODO: flip the "mark as read" string if the message is already read
-        // In order to do this, I really should cache the read state in the item view,
-        // instead of re-reading data from the cursor.
+        // The default menu contains "mark as read".  If the message is read, change
+        // the menu text to "mark as unread."
+        if (itemView.mRead) {
+            menu.findItem(R.id.mark_as_read).setTitle(R.string.mark_as_unread_action);
+        }
     }
 
     @Override
     public boolean onContextItemSelected(MenuItem item) {
         AdapterView.AdapterContextMenuInfo info =
             (AdapterView.AdapterContextMenuInfo) item.getMenuInfo();
+        MessageListItem itemView = (MessageListItem) info.targetView;
 
         switch (item.getItemId()) {
             case R.id.open:
-                onOpenMessage(info.id);
+                onOpenMessage(info.id, itemView.mMailboxId);
                 break;
             case R.id.delete:
-                onDelete(info.id);
+                onDelete(info.id, itemView.mAccountId);
                 break;
             case R.id.reply:
                 //onReply(holder);
@@ -214,7 +219,7 @@ public class MessageList extends ListActivity implements OnItemClickListener, On
                 //onForward(holder);
                 break;
             case R.id.mark_as_read:
-                onToggleRead(info.id, info.targetView);
+                onToggleRead(info.id, itemView.mRead);
                 break;
         }
         return super.onContextItemSelected(item);
@@ -250,12 +255,8 @@ public class MessageList extends ListActivity implements OnItemClickListener, On
         AccountSettings.actionSettings(this, mailbox.mAccountKey);
     }
 
-    public void onOpenMessage(long messageId) {
-        // TODO Necessary info about the mailbox should have been cached in the listview item
-        // Instead, we're going to pull it from the DB here (expensively and in the wrong thread)
-        EmailContent.Message message = EmailContent.Message.restoreMessageWithId(this, messageId);
-        EmailContent.Mailbox mailbox =
-            EmailContent.Mailbox.restoreMailboxWithId(this, message.mMailboxKey);
+    public void onOpenMessage(long messageId, long mailboxId) {
+        EmailContent.Mailbox mailbox = EmailContent.Mailbox.restoreMailboxWithId(this, mailboxId);
 
         if (mailbox.mType == EmailContent.Mailbox.TYPE_DRAFTS) {
             // TODO need id-based API for MessageCompose
@@ -265,16 +266,13 @@ public class MessageList extends ListActivity implements OnItemClickListener, On
         }
     }
 
-    private void onDelete(long messageId) {
-        Controller.getInstance(getApplication()).deleteMessage(messageId, -1);
+    private void onDelete(long messageId, long accountId) {
+        Controller.getInstance(getApplication()).deleteMessage(messageId, accountId);
         Toast.makeText(this, R.string.message_deleted_toast, Toast.LENGTH_SHORT).show();
     }
 
-    private void onToggleRead(long messageId, View itemView) {
-        // TODO the read-unread state of the given message should be cached in the listview item.
-        // Instead, we're going to pull it from the DB here (expensively and in the wrong thread)
-        EmailContent.Message message = EmailContent.Message.restoreMessageWithId(this, messageId);
-        boolean isRead = ! message.mFlagRead;
+    private void onToggleRead(long messageId, boolean oldRead) {
+        boolean isRead = ! oldRead;
 
         // TODO this should be a call to the controller, since it may possibly kick off
         // more than just a DB update.  Also, the DB update shouldn't be in the UI thread
@@ -342,6 +340,10 @@ public class MessageList extends ListActivity implements OnItemClickListener, On
             }
         }
 
+        /**
+         * Call from any thread to start/stop progress indicator(s)
+         * @param progress true to start, false to stop
+         */
         public void progress(boolean progress) {
             android.os.Message msg = android.os.Message.obtain();
             msg.what = MSG_PROGRESS;
@@ -367,19 +369,20 @@ public class MessageList extends ListActivity implements OnItemClickListener, On
     /**
      * This class implements the adapter for displaying messages based on cursors.
      */
-    private static class MessageListAdapter extends CursorAdapter {
+    /* package */ static class MessageListAdapter extends CursorAdapter {
         
         public static final int COLUMN_ID = 0;
         public static final int COLUMN_MAILBOX_KEY = 1;
-        public static final int COLUMN_DISPLAY_NAME = 2;
-        public static final int COLUMN_SUBJECT = 3;
-        public static final int COLUMN_DATE = 4;
-        public static final int COLUMN_READ = 5;
-        public static final int COLUMN_FAVORITE = 6;
-        public static final int COLUMN_ATTACHMENTS = 7;
+        public static final int COLUMN_ACCOUNT_KEY = 2;
+        public static final int COLUMN_DISPLAY_NAME = 3;
+        public static final int COLUMN_SUBJECT = 4;
+        public static final int COLUMN_DATE = 5;
+        public static final int COLUMN_READ = 6;
+        public static final int COLUMN_FAVORITE = 7;
+        public static final int COLUMN_ATTACHMENTS = 8;
 
         public static final String[] PROJECTION = new String[] {
-            EmailContent.RECORD_ID, MessageColumns.MAILBOX_KEY,
+            EmailContent.RECORD_ID, MessageColumns.MAILBOX_KEY, MessageColumns.ACCOUNT_KEY,
             MessageColumns.DISPLAY_NAME, MessageColumns.SUBJECT, MessageColumns.TIMESTAMP,
             MessageColumns.FLAG_READ, MessageColumns.FLAG_FAVORITE, MessageColumns.FLAG_ATTACHMENT,
         };
@@ -417,22 +420,34 @@ public class MessageList extends ListActivity implements OnItemClickListener, On
 
         @Override
         public void bindView(View view, Context context, Cursor cursor) {
-            View clipView = view.findViewById(R.id.chip);
-            boolean readFlag = cursor.getInt(COLUMN_READ) != 0;
-            clipView.getBackground().setAlpha(readFlag ? 0 : 255);
-            
+            // Reset the view (in case it was recycled) and prepare for binding
+            MessageListItem itemView = (MessageListItem) view;
+            itemView.bindViewInit(this, true);
+
+            // Load the public fields in the view (for later use)
+            itemView.mMessageId = cursor.getLong(COLUMN_ID);
+            itemView.mMailboxId = cursor.getLong(COLUMN_MAILBOX_KEY);
+            itemView.mAccountId = cursor.getLong(COLUMN_ACCOUNT_KEY);
+            itemView.mRead = cursor.getInt(COLUMN_READ) != 0;
+            itemView.mFavorite = cursor.getInt(COLUMN_FAVORITE) != 0;
+            itemView.mSelected = mChecked.contains(Long.valueOf(itemView.mMessageId));
+
+            // Load the UI
+            View chipView = view.findViewById(R.id.chip);
+            chipView.getBackground().setAlpha(itemView.mRead ? 0 : 255);
+
             TextView fromView = (TextView) view.findViewById(R.id.from);
             String text = cursor.getString(COLUMN_DISPLAY_NAME);
             if (text != null) fromView.setText(text);
-            
+
             boolean hasAttachments = cursor.getInt(COLUMN_ATTACHMENTS) != 0;
             fromView.setCompoundDrawablesWithIntrinsicBounds(null, null,
                     hasAttachments ? mAttachmentIcon : null, null);
-            
+
             TextView subjectView = (TextView) view.findViewById(R.id.subject);
             text = cursor.getString(COLUMN_SUBJECT);
             if (text != null) subjectView.setText(text);
-            
+
             // TODO ui spec suggests "time", "day", "date" - implement "day"
             TextView dateView = (TextView) view.findViewById(R.id.date);
             long timestamp = cursor.getLong(COLUMN_DATE);
@@ -443,21 +458,57 @@ public class MessageList extends ListActivity implements OnItemClickListener, On
                 text = mDateFormat.format(date);
             }
             dateView.setText(text);
-            
+
             ImageView selectedView = (ImageView) view.findViewById(R.id.selected);
-            boolean selected = mChecked.contains(Long.valueOf(cursor.getLong(COLUMN_ID)));
-            selectedView.setImageDrawable(selected ? mSelectedIconOn : mSelectedIconOff);
+            selectedView.setImageDrawable(itemView.mSelected ? mSelectedIconOn : mSelectedIconOff);
 
             ImageView favoriteView = (ImageView) view.findViewById(R.id.favorite);
-            boolean favorite = cursor.getInt(COLUMN_FAVORITE) != 0;
-            favoriteView.setImageDrawable(favorite ? mFavoriteIconOn : mFavoriteIconOff);
+            favoriteView.setImageDrawable(itemView.mFavorite ? mFavoriteIconOn : mFavoriteIconOff);
         }
 
         @Override
         public View newView(Context context, Cursor cursor, ViewGroup parent) {
             return mInflater.inflate(R.layout.message_list_item, parent, false);
         }
+
+        /**
+         * This is used as a callback from the list items, to set the selected state
+         *
+         * @param itemView the item being changed
+         * @param newSelected the new value of the selected flag (checkbox state)
+         */
+        public void updateSelected(MessageListItem itemView, boolean newSelected) {
+            ImageView selectedView = (ImageView) itemView.findViewById(R.id.selected);
+            selectedView.setImageDrawable(newSelected ? mSelectedIconOn : mSelectedIconOff);
+
+            Long id = Long.valueOf(itemView.mMessageId);
+            if (newSelected) {
+                mChecked.add(id);
+            } else {
+                mChecked.remove(id);
+            }
+
+            // TODO show/hide panel of options for multi-select mode
+        }
+
+        /**
+         * This is used as a callback from the list items, to set the favorite state
+         *
+         * @param itemView the item being changed
+         * @param newFavorite the new value of the favorite flag (star state)
+         */
+        public void updateFavorite(MessageListItem itemView, boolean newFavorite) {
+            ImageView favoriteView = (ImageView) itemView.findViewById(R.id.favorite);
+            favoriteView.setImageDrawable(newFavorite ? mFavoriteIconOn : mFavoriteIconOff);
+
+            // Update provider
+            // TODO this should probably be a call to the controller, since it may possibly kick off
+            // more than just a DB update.
+            ContentValues cv = new ContentValues();
+            cv.put(EmailContent.MessageColumns.FLAG_FAVORITE, newFavorite ? 1 : 0);
+            Uri uri = ContentUris.withAppendedId(
+                    EmailContent.Message.SYNCED_CONTENT_URI, itemView.mMessageId);
+            mContext.getContentResolver().update(uri, cv, null, null);
+        }
     }
-
-
 }

@@ -14,7 +14,7 @@
      limitations under the License.
 -->
 
-<RelativeLayout
+<com.android.email.activity.MessageListItem
     xmlns:android="http://schemas.android.com/apk/res/android"
     android:layout_width="fill_parent"
     android:layout_height="?android:attr/listPreferredItemHeight"
@@ -79,4 +79,4 @@
         android:layout_toLeftOf="@id/date"
         android:paddingLeft="10px"
         android:layout_marginRight="6dip" />
-</RelativeLayout>
+</com.android.email.activity.MessageListItem>
