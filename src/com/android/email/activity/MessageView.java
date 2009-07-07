@@ -625,7 +625,7 @@ public class MessageView extends Activity
             // TODO this should be a call to the controller, since it may possibly kick off
             // more than just a DB update.  Also, the DB update shouldn't be in the UI thread
             // as it is here.
-            mMessage.mFlagFavorite = isRead;
+            mMessage.mFlagRead = isRead;
             ContentValues cv = new ContentValues();
             cv.put(EmailContent.MessageColumns.FLAG_READ, isRead ? 1 : 0);
             Uri uri = ContentUris.withAppendedId(
