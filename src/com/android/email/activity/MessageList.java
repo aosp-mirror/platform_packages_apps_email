@@ -45,6 +45,7 @@ import android.view.ViewGroup;
 import android.view.Window;
 import android.view.ContextMenu.ContextMenuInfo;
 import android.view.View.OnClickListener;
+import android.view.animation.AnimationUtils;
 import android.widget.AdapterView;
 import android.widget.CursorAdapter;
 import android.widget.ImageView;
@@ -55,6 +56,7 @@ import android.widget.AdapterView.OnItemClickListener;
 
 import java.util.Date;
 import java.util.HashSet;
+import java.util.Set;
 
 public class MessageList extends ListActivity implements OnItemClickListener, OnClickListener {
     
@@ -65,6 +67,10 @@ public class MessageList extends ListActivity implements OnItemClickListener, On
     
     // UI support
     private ListView mListView;
+    private View mMultiSelectPanel;
+    private View mReadUnreadButton;
+    private View mFavoriteButton;
+    private View mDeleteButton;
     private MessageListAdapter mListAdapter;
     private MessageListHandler mHandler = new MessageListHandler();
     private ControllerResults mControllerCallback = new ControllerResults();
@@ -101,18 +107,27 @@ public class MessageList extends ListActivity implements OnItemClickListener, On
 
         setContentView(R.layout.message_list);
         mListView = getListView();
+        mMultiSelectPanel = findViewById(R.id.footer_organize);
+        mReadUnreadButton = findViewById(R.id.btn_read_unread);
+        mFavoriteButton = findViewById(R.id.btn_multi_favorite);
+        mDeleteButton = findViewById(R.id.btn_multi_delete);
+
+        mReadUnreadButton.setOnClickListener(this);
+        mFavoriteButton.setOnClickListener(this);
+        mDeleteButton.setOnClickListener(this);
+
         mListView.setOnItemClickListener(this);
         mListView.setItemsCanFocus(false);
         registerForContextMenu(mListView);
-        
+
         mListAdapter = new MessageListAdapter(this);
         setListAdapter(mListAdapter);
 
         // TODO set title to "account > mailbox (#unread)"
-        
+
         // TODO extend this to properly deal with multiple mailboxes, cursor, etc.
         mMailboxId = getIntent().getLongExtra(EXTRA_MAILBOX_ID, -1);
-        
+
         mLoadMessagesTask = (LoadMessagesTask) new LoadMessagesTask(mMailboxId).execute();
     }
 
@@ -147,8 +162,17 @@ public class MessageList extends ListActivity implements OnItemClickListener, On
     }
 
     public void onClick(View v) {
-        // TODO Auto-generated method stub
-        
+        switch (v.getId()) {
+            case R.id.btn_read_unread:
+                onMultiToggleRead(mListAdapter.getSelectedSet());
+                break;
+            case R.id.btn_multi_favorite:
+                onMultiToggleFavorite(mListAdapter.getSelectedSet());
+                break;
+            case R.id.btn_multi_delete:
+                onMultiDelete(mListAdapter.getSelectedSet());
+                break;
+        }
     }
     
     @Override
@@ -235,19 +259,19 @@ public class MessageList extends ListActivity implements OnItemClickListener, On
         Controller.getInstance(getApplication()).updateMailbox(
                 account, mailbox, mControllerCallback);
     }
-    
+
     private void onAccounts() {
         Accounts.actionShowAccounts(this);
         finish();
     }
-    
+
     private void onCompose() {
         // TODO: Select correct account to send from when there are multiple mailboxes
         EmailContent.Mailbox mailbox =
                 EmailContent.Mailbox.restoreMailboxWithId(this, mMailboxId);
         MessageCompose.actionCompose(this, mailbox.mAccountKey);
     }
-    
+
     private void onEditAccount() {
         // TODO: Select correct account to edit when there are multiple mailboxes
         EmailContent.Mailbox mailbox =
@@ -278,10 +302,156 @@ public class MessageList extends ListActivity implements OnItemClickListener, On
         // more than just a DB update.  Also, the DB update shouldn't be in the UI thread
         // as it is here.
         ContentValues cv = new ContentValues();
-        cv.put(EmailContent.MessageColumns.FLAG_READ, isRead ? 1 : 0);
+        cv.put(EmailContent.MessageColumns.FLAG_READ, isRead);
         Uri uri = ContentUris.withAppendedId(
                 EmailContent.Message.SYNCED_CONTENT_URI, messageId);
         getContentResolver().update(uri, cv, null, null);
+    }
+
+    /**
+     * Toggles a set read/unread states.  Note, the default behavior is "mark unread", so the
+     * sense of the helper methods is "true=unread".
+     * 
+     * @param selectedSet The current list of selected items
+     */
+    private void onMultiToggleRead(Set<Long> selectedSet) {
+        int numChanged = toggleMultiple(selectedSet, new MultiToggleHelper() {
+
+            public boolean getField(long messageId, Cursor c) {
+                return c.getInt(MessageListAdapter.COLUMN_READ) == 0;
+            }
+
+            public boolean setField(long messageId, Cursor c, boolean newValue) {
+                boolean oldValue = getField(messageId, c);
+                if (oldValue != newValue) {
+                    onToggleRead(messageId, !oldValue);
+                    return true;
+                }
+                return false;
+            }
+        });
+    }
+
+    /**
+     * Toggles a set of favorites (stars)
+     * 
+     * @param selectedSet The current list of selected items
+     */
+    private void onMultiToggleFavorite(Set<Long> selectedSet) {
+        int numChanged = toggleMultiple(selectedSet, new MultiToggleHelper() {
+
+            public boolean getField(long messageId, Cursor c) {
+                return c.getInt(MessageListAdapter.COLUMN_FAVORITE) != 0;
+            }
+
+            public boolean setField(long messageId, Cursor c, boolean newValue) {
+                boolean oldValue = getField(messageId, c);
+                if (oldValue != newValue) {
+                    // Update provider
+                    // TODO this should probably be a call to the controller, since it may possibly
+                    // kick off more than just a DB update.
+                    ContentValues cv = new ContentValues();
+                    cv.put(EmailContent.MessageColumns.FLAG_FAVORITE, newValue);
+                    Uri uri = ContentUris.withAppendedId(
+                            EmailContent.Message.SYNCED_CONTENT_URI, messageId);
+                    MessageList.this.getContentResolver().update(uri, cv, null, null);
+
+                    return true;
+                }
+                return false;
+            }
+        });
+    }
+
+    private void onMultiDelete(Set<Long> selectedSet) {
+        // Clone the set, because deleting is going to thrash things
+        HashSet<Long> cloneSet = new HashSet<Long>(selectedSet);
+        for (Long id : cloneSet) {
+            Controller.getInstance(getApplication()).deleteMessage(id, -1);
+        }
+        // TODO: count messages and show "n messages deleted"
+        Toast.makeText(this, R.string.message_deleted_toast, Toast.LENGTH_SHORT).show();
+        selectedSet.clear();
+        showMultiPanel(false);
+    }
+
+    private interface MultiToggleHelper {
+        /**
+         * Return true if the field of interest is "set".  If one or more are false, then our
+         * bulk action will be to "set".  If all are set, our bulk action will be to "clear".
+         * @param messageId the message id of the current message
+         * @param c the cursor, positioned to the item of interest
+         * @return true if the field at this row is "set"
+         */
+        public boolean getField(long messageId, Cursor c);
+
+        /**
+         * Set or clear the field of interest.  Return true if a change was made.
+         * @param messageId the message id of the current message
+         * @param c the cursor, positioned to the item of interest
+         * @param newValue the new value to be set at this row
+         * @return true if a change was actually made
+         */
+        public boolean setField(long messageId, Cursor c, boolean newValue);
+    }
+
+    /**
+     * Toggle multiple fields in a message, using the following logic:  If one or more fields
+     * are "clear", then "set" them.  If all fields are "set", then "clear" them all.
+     * 
+     * @param selectedSet the set of messages that are selected
+     * @param helper functions to implement the specific getter & setter
+     * @return the number of messages that were updated
+     */
+    private int toggleMultiple(Set<Long> selectedSet, MultiToggleHelper helper) {
+        Cursor c = mListAdapter.getCursor();
+        boolean anyWereFound = false;
+        boolean allWereSet = true;
+
+        c.moveToPosition(-1);
+        while (c.moveToNext()) {
+            long id = c.getInt(MessageListAdapter.COLUMN_ID);
+            if (selectedSet.contains(Long.valueOf(id))) {
+                anyWereFound = true;
+                if (!helper.getField(id, c)) {
+                    allWereSet = false;
+                    break;
+                }
+            }
+        }
+
+        int numChanged = 0;
+
+        if (anyWereFound) {
+            boolean newValue = !allWereSet;
+            c.moveToPosition(-1);
+            while (c.moveToNext()) {
+                long id = c.getInt(MessageListAdapter.COLUMN_ID);
+                if (selectedSet.contains(Long.valueOf(id))) {
+                    if (helper.setField(id, c, newValue)) {
+                        ++numChanged;
+                    }
+                }
+            }
+        }
+
+        return numChanged;
+    }
+
+    /**
+     * Show or hide the panel of multi-select options
+     */
+    private void showMultiPanel(boolean show) {
+        if (show && mMultiSelectPanel.getVisibility() != View.VISIBLE) {
+            mMultiSelectPanel.setVisibility(View.VISIBLE);
+            mMultiSelectPanel.startAnimation(
+                    AnimationUtils.loadAnimation(this, R.anim.footer_appear));
+
+        } else if (!show && mMultiSelectPanel.getVisibility() != View.GONE) {
+            mMultiSelectPanel.setVisibility(View.GONE);
+            mMultiSelectPanel.startAnimation(
+                        AnimationUtils.loadAnimation(this, R.anim.footer_disappear));
+        }
     }
 
     /**
@@ -304,7 +474,7 @@ public class MessageList extends ListActivity implements OnItemClickListener, On
         protected Cursor doInBackground(Void... params) {
             return MessageList.this.managedQuery(
                     EmailContent.Message.CONTENT_URI,
-                    MessageListAdapter.PROJECTION,
+                    MessageList.this.mListAdapter.PROJECTION,
                     EmailContent.MessageColumns.MAILBOX_KEY + "=?",
                     new String[] {
                         String.valueOf(mMailboxKey)
@@ -369,7 +539,7 @@ public class MessageList extends ListActivity implements OnItemClickListener, On
     /**
      * This class implements the adapter for displaying messages based on cursors.
      */
-    /* package */ static class MessageListAdapter extends CursorAdapter {
+    /* package */ class MessageListAdapter extends CursorAdapter {
         
         public static final int COLUMN_ID = 0;
         public static final int COLUMN_MAILBOX_KEY = 1;
@@ -381,7 +551,7 @@ public class MessageList extends ListActivity implements OnItemClickListener, On
         public static final int COLUMN_FAVORITE = 7;
         public static final int COLUMN_ATTACHMENTS = 8;
 
-        public static final String[] PROJECTION = new String[] {
+        public final String[] PROJECTION = new String[] {
             EmailContent.RECORD_ID, MessageColumns.MAILBOX_KEY, MessageColumns.ACCOUNT_KEY,
             MessageColumns.DISPLAY_NAME, MessageColumns.SUBJECT, MessageColumns.TIMESTAMP,
             MessageColumns.FLAG_READ, MessageColumns.FLAG_FAVORITE, MessageColumns.FLAG_ATTACHMENT,
@@ -416,6 +586,10 @@ public class MessageList extends ListActivity implements OnItemClickListener, On
             mDateFormat = android.text.format.DateFormat.getDateFormat(context);    // short date
             mDayFormat = android.text.format.DateFormat.getDateFormat(context);     // TODO: day
             mTimeFormat = android.text.format.DateFormat.getTimeFormat(context);    // 12/24 time
+        }
+
+        public Set<Long> getSelectedSet() {
+            return mChecked;
         }
 
         @Override
@@ -481,6 +655,7 @@ public class MessageList extends ListActivity implements OnItemClickListener, On
             ImageView selectedView = (ImageView) itemView.findViewById(R.id.selected);
             selectedView.setImageDrawable(newSelected ? mSelectedIconOn : mSelectedIconOff);
 
+            // Set checkbox state in list, and show/hide panel if necessary
             Long id = Long.valueOf(itemView.mMessageId);
             if (newSelected) {
                 mChecked.add(id);
@@ -488,7 +663,7 @@ public class MessageList extends ListActivity implements OnItemClickListener, On
                 mChecked.remove(id);
             }
 
-            // TODO show/hide panel of options for multi-select mode
+            MessageList.this.showMultiPanel(mChecked.size() > 0);
         }
 
         /**
@@ -505,7 +680,7 @@ public class MessageList extends ListActivity implements OnItemClickListener, On
             // TODO this should probably be a call to the controller, since it may possibly kick off
             // more than just a DB update.
             ContentValues cv = new ContentValues();
-            cv.put(EmailContent.MessageColumns.FLAG_FAVORITE, newFavorite ? 1 : 0);
+            cv.put(EmailContent.MessageColumns.FLAG_FAVORITE, newFavorite);
             Uri uri = ContentUris.withAppendedId(
                     EmailContent.Message.SYNCED_CONTENT_URI, itemView.mMessageId);
             mContext.getContentResolver().update(uri, cv, null, null);

@@ -54,6 +54,10 @@
     <string name="discard_action">Discard</string>
     <!-- Menu item/button name -->
     <string name="save_draft_action">Save as draft</string>
+    <!-- Menu item/button name -->
+    <string name="read_unread_action">Read/Unread</string>
+    <!-- Menu item/button name -->
+    <string name="favorite_action">Favorite</string>
     <!-- Menu item -->
     <string name="refresh_action">Refresh</string>
     <!-- Menu item -->
