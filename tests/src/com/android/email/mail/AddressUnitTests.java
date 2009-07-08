@@ -19,6 +19,9 @@ package com.android.email.mail;
 import android.test.AndroidTestCase;
 import android.test.suitebuilder.annotation.SmallTest;
 
+import java.net.URLEncoder;
+import java.io.UnsupportedEncodingException;
+
 /**
  * This is a series of unit tests for the Address class.  These tests must be locally
  * complete - no server(s) required.
@@ -37,6 +40,16 @@ public class AddressUnitTests extends AndroidTestCase {
             + "\uD834\uDF01\uD834\uDF46 <address8@ne.jp>,"
             + "\"\uD834\uDF01\uD834\uDF46\" <address9@ne.jp>";
     private static final int MULTI_ADDRESSES_COUNT = 9;
+
+    private static final Address PACK_ADDR_1 = new Address("john@gmail.com", "John Doe");
+    private static final Address PACK_ADDR_2 = new Address("foo@bar.com", null);
+    private static final Address PACK_ADDR_3 = new Address("mar.y+test@gmail.com", "Mar-y, B; B*arr");
+    private static final Address[][] PACK_CASES = {
+        {PACK_ADDR_2}, {PACK_ADDR_1}, 
+        {PACK_ADDR_1, PACK_ADDR_2}, {PACK_ADDR_2, PACK_ADDR_1}, 
+        {PACK_ADDR_1, PACK_ADDR_3}, {PACK_ADDR_2, PACK_ADDR_2}, 
+        {PACK_ADDR_1, PACK_ADDR_2, PACK_ADDR_3}, {PACK_ADDR_3, PACK_ADDR_1, PACK_ADDR_2}
+    };
     
     Address mAddress1;
     Address mAddress2;
@@ -473,10 +486,6 @@ public class AddressUnitTests extends AndroidTestCase {
     }
     
     /**
-     * TODO: more in-depth tests for pack() and unpack()
-     */
-    
-    /**
      * Simple quick checks of empty-input edge conditions for pack()
      * 
      * NOTE:  This is not a claim that these edge cases are "correct", only to maintain consistent
@@ -512,6 +521,45 @@ public class AddressUnitTests extends AndroidTestCase {
         assertTrue("unpacking zero-length", result != null && result.length == 0);
     }
 
+    private static boolean addressEquals(Address a1, Address a2) {
+        if (!a1.equals(a2)) {
+            return false;
+        }
+        final String displayName1 = a1.getPersonal();
+        final String displayName2 = a2.getPersonal();
+        if (displayName1 == null) {
+            return displayName2 == null;
+        } else {
+            return displayName1.equals(displayName2);
+        }
+    }
+
+    private static boolean addressArrayEquals(Address[] array1, Address[] array2) {
+        if (array1.length != array2.length) {
+            return false;
+        }
+        for (int i = array1.length - 1; i >= 0; --i) {
+            if (!addressEquals(array1[i], array2[i])) {
+                return false;
+            }
+        }
+        return true;
+    }
+
+    public void testPackUnpack() {
+        for (Address[] list : PACK_CASES) {
+            String packed = Address.pack(list);
+            assertTrue(packed, addressArrayEquals(list, Address.unpack(packed)));
+        }
+    }
+
+    public void testLegacyPackUnpack() {
+        for (Address[] list : PACK_CASES) {
+            String packed = legacyPack(list);
+            assertTrue(packed, addressArrayEquals(list, Address.legacyUnpack(packed)));
+        }
+    }
+
     public void testIsValidAddress() {
         String notValid[] = {"", "foo", "john@", "x@y", "x@y.", "foo.com"};
         String valid[] = {"x@y.z", "john@gmail.com", "a@b.c.d"};
@@ -524,5 +572,37 @@ public class AddressUnitTests extends AndroidTestCase {
         
         // isAllValid() must accept empty address list as valid
         assertTrue("Empty address list is valid", Address.isAllValid(""));
+    }
+
+    /**
+     * Legacy pack() used for testing legacyUnpack().
+     * The packed list is a comma separated list of:
+     * URLENCODE(address)[;URLENCODE(personal)]
+     * @See pack()
+     */
+    private static String legacyPack(Address[] addresses) {
+        if (addresses == null) {
+            return null;
+        } else if (addresses.length == 0) {
+            return "";
+        }
+        StringBuffer sb = new StringBuffer();
+        for (int i = 0, count = addresses.length; i < count; i++) {
+            Address address = addresses[i];
+            try {
+                sb.append(URLEncoder.encode(address.getAddress(), "UTF-8"));
+                if (address.getPersonal() != null) {
+                    sb.append(';');
+                    sb.append(URLEncoder.encode(address.getPersonal(), "UTF-8"));
+                }
+                if (i < count - 1) {
+                    sb.append(',');
+                }
+            }
+            catch (UnsupportedEncodingException uee) {
+                return null;
+            }
+        }
+        return sb.toString();
     }
 }

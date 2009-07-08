@@ -25,8 +25,6 @@ import android.text.TextUtils;
 import android.text.util.Rfc822Token;
 import android.text.util.Rfc822Tokenizer;
 
-import java.io.UnsupportedEncodingException;
-import java.net.URLEncoder;
 import java.util.ArrayList;
 import java.util.regex.Pattern;
 
@@ -61,6 +59,10 @@ public class Address {
     private static final Pattern UNQUOTE = Pattern.compile("\\\\([\\\\\"])");
 
     private static final Address[] EMPTY_ADDRESS_ARRAY = new Address[0];
+
+    // delimiters are chars that do not appear in an email address, used by pack/unpack
+    private static final char LIST_DELIMITER_EMAIL = '\1';
+    private static final char LIST_DELIMITER_PERSONAL = '\2';
 
     public Address(String address, String personal) {
         setAddress(address);
@@ -292,13 +294,98 @@ public class Address {
         }
         return sb.toString();
     }
-    
+
     /**
-     * Unpacks an address list previously packed with packAddressList()
-     * @param list
-     * @return
+     * Unpacks an address list previously packed with pack()
+     * @param addressList String with packed addresses as returned by pack()
+     * @return array of addresses resulting from unpack
      */
     public static Address[] unpack(String addressList) {
+        if (addressList == null || addressList.length() == 0) {
+            return EMPTY_ADDRESS_ARRAY;
+        }
+        ArrayList<Address> addresses = new ArrayList<Address>();
+        int length = addressList.length();
+        int pairStartIndex = 0;
+        int pairEndIndex = 0;
+
+        /* addressEndIndex is only re-scanned (indexOf()) when a LIST_DELIMITER_PERSONAL
+           is used, not for every email address; i.e. not for every iteration of the while().
+           This reduces the theoretical complexity from quadratic to linear,
+           and provides some speed-up in practice by removing redundant scans of the string.
+        */
+        int addressEndIndex = addressList.indexOf(LIST_DELIMITER_PERSONAL);
+
+        while (pairStartIndex < length) {
+            pairEndIndex = addressList.indexOf(LIST_DELIMITER_EMAIL, pairStartIndex);
+            if (pairEndIndex == -1) {
+                pairEndIndex = length;
+            }
+            Address address;
+            if (addressEndIndex == -1 || pairEndIndex <= addressEndIndex) {
+                // in this case the DELIMITER_PERSONAL is in a future pair,
+                // so don't use personal, and don't update addressEndIndex
+                address = new Address(addressList.substring(pairStartIndex, pairEndIndex), null);
+            } else {
+                address = new Address(addressList.substring(pairStartIndex, addressEndIndex),
+                                      addressList.substring(addressEndIndex + 1, pairEndIndex));
+                // only update addressEndIndex when we use the LIST_DELIMITER_PERSONAL
+                addressEndIndex = addressList.indexOf(LIST_DELIMITER_PERSONAL, pairEndIndex + 1);
+            }
+            addresses.add(address);
+            pairStartIndex = pairEndIndex + 1;
+        }
+        return addresses.toArray(EMPTY_ADDRESS_ARRAY);
+    }
+
+    /**
+     * Packs an address list into a String that is very quick to read
+     * and parse. Packed lists can be unpacked with unpack().
+     * The format is a series of packed addresses separated by LIST_DELIMITER_EMAIL.
+     * Each address is packed as
+     * a pair of address and personal separated by LIST_DELIMITER_PERSONAL,
+     * where the personal and delimiter are optional.
+     * E.g. "foo@x.com\1joe@x.com\2Joe Doe"
+     * @param addresses Array of addresses
+     * @return a string containing the packed addresses.
+     */
+    public static String pack(Address[] addresses) {
+        // TODO: return same value for both null & empty list
+        if (addresses == null) {
+            return null;
+        }
+        final int nAddr = addresses.length;
+        if (nAddr == 0) {
+            return "";
+        }
+
+        // shortcut: one email with no displayName
+        if (nAddr == 1 && addresses[0].getPersonal() == null) {
+            return addresses[0].getAddress();
+        }
+
+        StringBuffer sb = new StringBuffer();
+        for (int i = 0; i < nAddr; i++) {
+            final Address address = addresses[i];
+            sb.append(address.getAddress());
+            final String displayName = address.getPersonal();
+            if (displayName != null) {
+                sb.append(LIST_DELIMITER_PERSONAL);
+                sb.append(displayName);
+            }
+            if (i < nAddr - 1) {
+                sb.append(LIST_DELIMITER_EMAIL);
+            }
+        }
+        return sb.toString();
+    }
+
+    /**
+     * Legacy unpack() used for reading the old data (migration),
+     * as found in LocalStore (Donut; db version up to 24).
+     * @See unpack()
+     */
+    /* package */ static Address[] legacyUnpack(String addressList) {
         if (addressList == null || addressList.length() == 0) {
             return new Address[] { };
         }
@@ -316,49 +403,18 @@ public class Address {
             String address = null;
             String personal = null;
             if (addressEndIndex == -1 || addressEndIndex > pairEndIndex) {
-                address = Utility.fastUrlDecode(addressList.substring(pairStartIndex, pairEndIndex));
+                address =
+                    Utility.fastUrlDecode(addressList.substring(pairStartIndex, pairEndIndex));
             }
             else {
-                address = Utility.fastUrlDecode(addressList.substring(pairStartIndex, addressEndIndex));
-                personal = Utility.fastUrlDecode(addressList.substring(addressEndIndex + 1, pairEndIndex));
+                address =
+                    Utility.fastUrlDecode(addressList.substring(pairStartIndex, addressEndIndex));
+                personal = 
+                    Utility.fastUrlDecode(addressList.substring(addressEndIndex + 1, pairEndIndex));
             }
             addresses.add(new Address(address, personal));
             pairStartIndex = pairEndIndex + 1;
         }
         return addresses.toArray(new Address[] { });
-    }
-    
-    /**
-     * Packs an address list into a String that is very quick to read
-     * and parse. Packed lists can be unpacked with unpackAddressList()
-     * The packed list is a comma separated list of:
-     * URLENCODE(address)[;URLENCODE(personal)] 
-     * @param list
-     * @return
-     */
-    public static String pack(Address[] addresses) {
-        if (addresses == null) {
-            return null;
-        } else if (addresses.length == 0) {
-            return "";
-        }
-        StringBuffer sb = new StringBuffer();
-        for (int i = 0, count = addresses.length; i < count; i++) {
-            Address address = addresses[i];
-            try {
-                sb.append(URLEncoder.encode(address.getAddress(), "UTF-8"));
-                if (address.getPersonal() != null) {
-                    sb.append(';');
-                    sb.append(URLEncoder.encode(address.getPersonal(), "UTF-8"));
-                }
-                if (i < count - 1) {
-                    sb.append(',');
-                }
-            }
-            catch (UnsupportedEncodingException uee) {
-                return null;
-            }
-        }
-        return sb.toString();
     }
 }
