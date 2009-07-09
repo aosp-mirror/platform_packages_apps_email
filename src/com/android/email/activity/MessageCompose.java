@@ -23,6 +23,7 @@ import com.android.email.MessagingController;
 import com.android.email.MessagingListener;
 import com.android.email.R;
 import com.android.email.Utility;
+import com.android.email.Controller;
 import com.android.email.mail.Address;
 import com.android.email.mail.Body;
 import com.android.email.mail.Message;
@@ -139,6 +140,8 @@ public class MessageCompose extends Activity implements OnClickListener, OnFocus
     private View mQuotedTextBar;
     private ImageButton mQuotedTextDelete;
     private WebView mQuotedText;
+
+    private Controller mController;
 
     private boolean mDraftNeedsSaving = false;
 
@@ -291,6 +294,8 @@ public class MessageCompose extends Activity implements OnClickListener, OnFocus
         requestWindowFeature(Window.FEATURE_INDETERMINATE_PROGRESS);
 
         setContentView(R.layout.message_compose);
+
+        mController = Controller.getInstance(getApplication());
 
         mAddressAdapter = new EmailAddressAdapter(this);
         mAddressValidator = new EmailAddressValidator();
@@ -445,6 +450,7 @@ public class MessageCompose extends Activity implements OnClickListener, OnFocus
             mAccountId = intent.getLongExtra(EXTRA_ACCOUNT_ID, -1);
             mAccount = EmailContent.Account.restoreAccountWithId(this, mAccountId);
             mFolder = intent.getStringExtra(EXTRA_FOLDER);
+            // TODO: change sourceMessageUid to be long _id instead of String
             mSourceMessageUid = intent.getStringExtra(EXTRA_MESSAGE);
         }
 
@@ -577,27 +583,31 @@ public class MessageCompose extends Activity implements OnClickListener, OnFocus
         view.append(address + ", ");
     }
 
+    private String getPackedAddresses(TextView view) {
+        Address[] addresses = Address.parse(view.getText().toString().trim());
+        return Address.pack(addresses);
+    }
+
     private Address[] getAddresses(TextView view) {
         Address[] addresses = Address.parse(view.getText().toString().trim());
         return addresses;
     }
 
-    private MimeMessage createMessage() throws MessagingException {
-        MimeMessage message = new MimeMessage();
-        message.setSentDate(new Date());
-        Address from = new Address(mAccount.getEmail(), mAccount.getName());
-        message.setFrom(from);
-        message.setRecipients(RecipientType.TO, getAddresses(mToView));
-        message.setRecipients(RecipientType.CC, getAddresses(mCcView));
-        message.setRecipients(RecipientType.BCC, getAddresses(mBccView));
-        message.setSubject(mSubjectView.getText().toString());
+    private EmailContent.Message createMessage() throws MessagingException {
+        EmailContent.Message message = new EmailContent.Message();
+        message.mTimeStamp = System.currentTimeMillis();
+        message.mFrom = new Address(mAccount.getEmail(), mAccount.getName()).pack();
+        message.mTo = getPackedAddresses(mToView);
+        message.mCc = getPackedAddresses(mCcView);
+        message.mBcc = getPackedAddresses(mBccView);
+        message.mSubject = mSubjectView.getText().toString();
         
         // Preserve Message-ID header if found
         // This makes sure that multiply-saved drafts are identified as the same message
         if (mSourceMessage != null && mSourceMessage instanceof MimeMessage) {
             String messageIdHeader = ((MimeMessage)mSourceMessage).getMessageId();
             if (messageIdHeader != null) {
-                message.setMessageId(messageIdHeader);
+                message.mMessageId = messageIdHeader;
             }
         }
 
@@ -639,51 +649,53 @@ public class MessageCompose extends Activity implements OnClickListener, OnFocus
             }
         }
 
-        TextBody body = new TextBody(text);
-
-        if (mAttachments.getChildCount() > 0) {
-            /*
-             * The message has attachments that need to be included. First we add the part
-             * containing the text that will be sent and then we include each attachment.
-             */
-
-            MimeMultipart mp;
-
-            mp = new MimeMultipart();
-            mp.addBodyPart(new MimeBodyPart(body, "text/plain"));
-
-            for (int i = 0, count = mAttachments.getChildCount(); i < count; i++) {
-                Attachment attachment = (Attachment) mAttachments.getChildAt(i).getTag();
-                MimeBodyPart bp = new MimeBodyPart(
-                        new LocalStore.LocalAttachmentBody(attachment.uri, getApplication()));
-                bp.setHeader(MimeHeader.HEADER_CONTENT_TYPE, String.format("%s;\n name=\"%s\"",
-                        attachment.contentType,
-                        attachment.name));
-                bp.setHeader(MimeHeader.HEADER_CONTENT_TRANSFER_ENCODING, "base64");
-                bp.setHeader(MimeHeader.HEADER_CONTENT_DISPOSITION,
-                        String.format("attachment;\n filename=\"%s\"",
-                        attachment.name));
-                mp.addBodyPart(bp);
-            }
-
-            message.setBody(mp);
-        }
-        else {
-            /*
-             * No attachments to include, just stick the text body in the message and call
-             * it good.
-             */
-            message.setBody(body);
-        }
-
+        message.mText = text;
+        message.mAccountKey = mAccountId;
+        // TODO: add attachments (as below)
         return message;
     }
+//         TextBody body = new TextBody(text);
+//         if (mAttachments.getChildCount() > 0) {
+//             /*
+//              * The message has attachments that need to be included. First we add the part
+//              * containing the text that will be sent and then we include each attachment.
+//              */
+
+//             MimeMultipart mp;
+
+//             mp = new MimeMultipart();
+//             mp.addBodyPart(new MimeBodyPart(body, "text/plain"));
+
+//             for (int i = 0, count = mAttachments.getChildCount(); i < count; i++) {
+//                 Attachment attachment = (Attachment) mAttachments.getChildAt(i).getTag();
+//                 MimeBodyPart bp = new MimeBodyPart(
+//                         new LocalStore.LocalAttachmentBody(attachment.uri, getApplication()));
+//                 bp.setHeader(MimeHeader.HEADER_CONTENT_TYPE, String.format("%s;\n name=\"%s\"",
+//                         attachment.contentType,
+//                         attachment.name));
+//                 bp.setHeader(MimeHeader.HEADER_CONTENT_TRANSFER_ENCODING, "base64");
+//                 bp.setHeader(MimeHeader.HEADER_CONTENT_DISPOSITION,
+//                         String.format("attachment;\n filename=\"%s\"",
+//                         attachment.name));
+//                 mp.addBodyPart(bp);
+//             }
+
+//             message.setBody(mp);
+//         }
+//         else {
+//             /*
+//              * No attachments to include, just stick the text body in the message and call
+//              * it good.
+//              */
+//             message.setBody(body);
+//         }
+
 
     private void sendOrSaveMessage(boolean save) {
         /*
          * Create the message from all the data the user has entered.
          */
-        MimeMessage message;
+        EmailContent.Message message;
         try {
             message = createMessage();
         }
@@ -696,44 +708,46 @@ public class MessageCompose extends Activity implements OnClickListener, OnFocus
             /*
              * Save a draft
              */
-            if (mDraftUid != null) {
-                message.setUid(mDraftUid);
-            }
-            else if (ACTION_EDIT_DRAFT.equals(getIntent().getAction())) {
-                /*
-                 * We're saving a previously saved draft, so update the new message's uid
-                 * to the old message's uid.
-                 */
-                message.setUid(mSourceMessageUid);
-            }
-            MessagingController.getInstance(getApplication()).saveDraft(mAccount, message);
-            mDraftUid = message.getUid();
+            mController.saveToMailbox(message, EmailContent.Mailbox.TYPE_DRAFTS);
+
+//             if (mDraftUid != null) {
+//                 message.setUid(mDraftUid);
+//             }
+//             else if (ACTION_EDIT_DRAFT.equals(getIntent().getAction())) {
+//                 /*
+//                  * We're saving a previously saved draft, so update the new message's uid
+//                  * to the old message's uid.
+//                  */
+//                 message.setUid(mSourceMessageUid);
+//             }
+//             MessagingController.getInstance(getApplication()).saveDraft(mAccount, message);
+//             mDraftUid = message.getUid();
 
             // Don't display the toast if the user is just changing the orientation
             if ((getChangingConfigurations() & ActivityInfo.CONFIG_ORIENTATION) == 0) {
                 mHandler.sendEmptyMessage(MSG_SAVED_DRAFT);
             }
         }
-        else {
-            /*
-             * Send the message
-             * If the source message is in other folder than draft, it should not be deleted while
-             * sending message.
-             */
-            if (ACTION_EDIT_DRAFT.equals(getIntent().getAction())
-                    && mSourceMessageUid != null
-                    && mFolder.equals(mAccount.getDraftsFolderName(this))) {
-                /*
-                 * We're sending a previously saved draft, so delete the old draft first.
-                 */
-                MessagingController.getInstance(getApplication()).deleteMessage(
-                        mAccount,
-                        mFolder,
-                        mSourceMessage,
-                        null);
-            }
-            MessagingController.getInstance(getApplication()).sendMessage(mAccount, message, null);
-        }
+//         else {
+//             /*
+//              * Send the message
+//              * If the source message is in other folder than draft, it should not be deleted while
+//              * sending message.
+//              */
+//             if (ACTION_EDIT_DRAFT.equals(getIntent().getAction())
+//                     && mSourceMessageUid != null
+//                     && mFolder.equals(mAccount.getDraftsFolderName(this))) {
+//                 /*
+//                  * We're sending a previously saved draft, so delete the old draft first.
+//                  */
+//                 MessagingController.getInstance(getApplication()).deleteMessage(
+//                         mAccount,
+//                         mFolder,
+//                         mSourceMessage,
+//                         null);
+//             }
+//             MessagingController.getInstance(getApplication()).sendMessage(mAccount, message, null);
+//         }
     }
 
     private void saveIfNeeded() {

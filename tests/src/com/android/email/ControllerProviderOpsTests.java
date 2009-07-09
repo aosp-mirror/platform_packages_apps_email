@@ -69,6 +69,68 @@ public class ControllerProviderOpsTests extends ProviderTestCase2<EmailProvider>
         }
     }
 
+    public void testGetSpecialMailboxName() {
+        Controller ct = new TestController(mProviderContext, mContext);
+        assertEquals("Outbox", ct.getSpecialMailboxDisplayName(Mailbox.TYPE_OUTBOX));
+        assertEquals("", ct.getSpecialMailboxDisplayName(-1));
+    }
+
+    /**
+     * Test of Controller.createMailbox().
+     * Sunny day test only - creates a mailbox that does not exist.
+     * Does not test duplication, bad accountID, or any other bad input.
+     */
+    public void testCreateMailbox() {
+        Account account = ProviderTestUtils.setupAccount("mailboxid", true, mProviderContext);
+        long accountId = account.mId;
+
+        long oldBoxId = Mailbox.findMailboxOfType(mProviderContext, accountId, Mailbox.TYPE_DRAFTS);
+        assertEquals(Mailbox.NO_MAILBOX, oldBoxId);
+
+        Controller ct = new TestController(mProviderContext, mContext);
+        ct.createMailbox(accountId, Mailbox.TYPE_DRAFTS);
+        long boxId = Mailbox.findMailboxOfType(mProviderContext, accountId, Mailbox.TYPE_DRAFTS);
+        
+        // check that the drafts mailbox exists
+        assertTrue("mailbox exists", boxId != Mailbox.NO_MAILBOX);
+    }
+    
+    /** 
+     * Test of Controller.findOrCreateMailboxOfType().
+     * Checks:
+     * - finds correctly the ID of existing mailbox
+     * - creates non-existing mailbox
+     * - creates only once a new mailbox
+     * - when accountId or mailboxType are -1, returns NO_MAILBOX
+     */
+    public void testFindOrCreateMailboxOfType() {
+        Account account = ProviderTestUtils.setupAccount("mailboxid", true, mProviderContext);
+        long accountId = account.mId;
+        Mailbox box = ProviderTestUtils.setupMailbox("box", accountId, false, mProviderContext);
+        final int boxType = Mailbox.TYPE_TRASH;
+        box.mType = boxType;
+        box.save(mProviderContext);
+        long boxId = box.mId;
+
+        Controller ct = new TestController(mProviderContext, mContext);
+        long testBoxId = ct.findOrCreateMailboxOfType(accountId, boxType);
+
+        // check it found the right mailbox id
+        assertEquals(boxId, testBoxId);
+
+        long boxId2 = ct.findOrCreateMailboxOfType(accountId, Mailbox.TYPE_DRAFTS);
+        assertTrue("mailbox created", boxId2 != Mailbox.NO_MAILBOX);
+        assertTrue("with different id", testBoxId != boxId2);
+
+        // check it doesn't create twice when existing
+        long boxId3 = ct.findOrCreateMailboxOfType(accountId, Mailbox.TYPE_DRAFTS);
+        assertEquals("don't create if exists", boxId3, boxId2);
+        
+        // check invalid aruments
+        assertEquals(Mailbox.NO_MAILBOX, ct.findOrCreateMailboxOfType(-1, Mailbox.TYPE_DRAFTS));
+        assertEquals(Mailbox.NO_MAILBOX, ct.findOrCreateMailboxOfType(accountId, -1));
+    }
+
     /**
      * Test the "delete message" function.  Sunny day:
      *    - message/mailbox/account all exist

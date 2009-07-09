@@ -560,6 +560,16 @@ public class AddressUnitTests extends AndroidTestCase {
         }
     }
 
+    public void testSinglePack() {
+        Address[] addrArray = new Address[1];
+        for (Address address : new Address[]{PACK_ADDR_1, PACK_ADDR_2, PACK_ADDR_3}) {
+            String packed1 = address.pack();
+            addrArray[0] = address;
+            String packed2 = Address.pack(addrArray);
+            assertEquals(packed1, packed2);
+        }
+    }
+
     public void testIsValidAddress() {
         String notValid[] = {"", "foo", "john@", "x@y", "x@y.", "foo.com"};
         String valid[] = {"x@y.z", "john@gmail.com", "a@b.c.d"};
