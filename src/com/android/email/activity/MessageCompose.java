@@ -431,7 +431,7 @@ public class MessageCompose extends Activity implements OnClickListener, OnFocus
             if (mAccount == null) {
                 // There are no accounts set up. This should not have happened. Prompt the
                 // user to set up an account as an acceptable bailout.
-                Accounts.actionShowAccounts(this);
+                AccountFolderList.actionShowAccounts(this);
                 mDraftNeedsSaving = false;
                 finish();
                 return;

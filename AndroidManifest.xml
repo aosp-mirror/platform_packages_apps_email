@@ -101,7 +101,7 @@
             android:label="@string/debug_title">
         </activity>
         <activity
-            android:name=".activity.Accounts"
+            android:name=".activity.AccountFolderList"
             android:label="@string/accounts_title"
             android:launchMode="singleTop" >
         </activity>

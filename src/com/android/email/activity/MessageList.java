@@ -261,7 +261,7 @@ public class MessageList extends ListActivity implements OnItemClickListener, On
     }
 
     private void onAccounts() {
-        Accounts.actionShowAccounts(this);
+        AccountFolderList.actionShowAccounts(this);
         finish();
     }
 

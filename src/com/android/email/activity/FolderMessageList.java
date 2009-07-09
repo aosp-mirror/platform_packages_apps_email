@@ -502,7 +502,7 @@ public class FolderMessageList extends ExpandableListActivity {
         }
         // If no useable account was specified, just go to the accounts list screen instead
         if (mAccount == null) {
-            Accounts.actionShowAccounts(this);
+            AccountFolderList.actionShowAccounts(this);
             finish();
             return;
         }
@@ -834,7 +834,7 @@ public class FolderMessageList extends ExpandableListActivity {
     }
 
     private void onAccounts() {
-        Accounts.actionShowAccounts(this);
+        AccountFolderList.actionShowAccounts(this);
         finish();
     }
 

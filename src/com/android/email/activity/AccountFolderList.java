@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2008 The Android Open Source Project
+ * Copyright (C) 2009 The Android Open Source Project
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -27,7 +27,7 @@ import com.android.email.provider.EmailContent.Account;
 
 import android.app.AlertDialog;
 import android.app.Dialog;
-import android.app.ListActivity;
+import android.app.ExpandableListActivity;
 import android.app.NotificationManager;
 import android.content.ContentUris;
 import android.content.Context;
@@ -39,19 +39,23 @@ import android.os.AsyncTask;
 import android.os.Bundle;
 import android.view.ContextMenu;
 import android.view.KeyEvent;
+import android.view.LayoutInflater;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
+import android.view.ViewGroup;
 import android.view.ContextMenu.ContextMenuInfo;
 import android.view.View.OnClickListener;
 import android.widget.AdapterView;
-import android.widget.ListView;
-import android.widget.SimpleCursorAdapter;
+import android.widget.CursorTreeAdapter;
+import android.widget.ExpandableListAdapter;
+import android.widget.ExpandableListView;
 import android.widget.TextView;
 import android.widget.AdapterView.AdapterContextMenuInfo;
 import android.widget.AdapterView.OnItemClickListener;
 
-public class Accounts extends ListActivity implements OnItemClickListener, OnClickListener {
+public class AccountFolderList extends ExpandableListActivity
+        implements OnItemClickListener, OnClickListener {
     private static final int DIALOG_REMOVE_ACCOUNT = 1;
     /**
      * Key codes used to open a debug settings screen.
@@ -66,7 +70,7 @@ public class Accounts extends ListActivity implements OnItemClickListener, OnCli
     private static final String ICICLE_SELECTED_ACCOUNT = "com.android.email.selectedAccount";
     private EmailContent.Account mSelectedContextAccount;
     
-    ListView mListView;
+    ExpandableListView mListView;
     LoadAccountsTask mAsyncTask;
 
     /**
@@ -88,7 +92,7 @@ public class Accounts extends ListActivity implements OnItemClickListener, OnCli
      * activities may be killed in order to get back to Accounts.
      */
     public static void actionShowAccounts(Context context) {
-        Intent i = new Intent(context, Accounts.class);
+        Intent i = new Intent(context, AccountFolderList.class);
         i.setFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
         context.startActivity(i);
     }
@@ -96,17 +100,20 @@ public class Accounts extends ListActivity implements OnItemClickListener, OnCli
     @Override
     public void onCreate(Bundle icicle) {
         super.onCreate(icicle);
-        setContentView(R.layout.accounts);
-        mListView = getListView();
+        setContentView(R.layout.account_folder_list);
+        mListView = getExpandableListView();
         mListView.setOnItemClickListener(this);
         mListView.setItemsCanFocus(false);
-        findViewById(R.id.add_new_account).setOnClickListener(this);
+        mListView.setScrollBarStyle(View.SCROLLBARS_OUTSIDE_INSET);
+        mListView.setLongClickable(true);
         registerForContextMenu(mListView);
+
+        findViewById(R.id.add_new_account).setOnClickListener(this);
 
         if (icicle != null && icicle.containsKey(ICICLE_SELECTED_ACCOUNT)) {
             mSelectedContextAccount = (Account) icicle.getParcelable(ICICLE_SELECTED_ACCOUNT);
         }
-        
+
         mAsyncTask = (LoadAccountsTask) new LoadAccountsTask().execute();
     }
 
@@ -137,6 +144,19 @@ public class Accounts extends ListActivity implements OnItemClickListener, OnCli
         }
     }
 
+    @Override
+    public void onGroupExpand(int groupPosition) {
+        super.onGroupExpand(groupPosition);
+
+        // This is a temporary hack, until I implement the child cursors
+        AccountsAdapter adapter = (AccountsAdapter) mListView.getExpandableListAdapter();
+        if (adapter != null) {
+            Cursor groupCursor = adapter.getGroup(groupPosition);
+            long mailboxKey = groupCursor.getLong(EmailContent.Mailbox.CONTENT_ID_COLUMN);
+            FolderMessageList.actionHandleAccount(this, mailboxKey);
+        }
+    }
+
     /**
      * Async task to handle the cursor query out of the UI thread
      */
@@ -144,7 +164,8 @@ public class Accounts extends ListActivity implements OnItemClickListener, OnCli
 
         @Override
         protected Cursor doInBackground(Void... params) {
-            return Accounts.this.managedQuery(
+            // TODO use a custom projection and don't have to sample all of these columns
+            return AccountFolderList.this.managedQuery(
                     EmailContent.Account.CONTENT_URI,
                     EmailContent.Account.CONTENT_PROJECTION,
                     null, null, null);
@@ -152,8 +173,7 @@ public class Accounts extends ListActivity implements OnItemClickListener, OnCli
 
         @Override
         protected void onPostExecute(Cursor theCursor) {
-            AccountsAdapter adapter = new AccountsAdapter(Accounts.this,
-                    R.layout.accounts_item, theCursor, sFromColumns, sToIds);
+            AccountsAdapter adapter = new AccountsAdapter(theCursor, AccountFolderList.this);
             mListView.setAdapter(adapter);
 
             // This is deferred until after the first fetch, so it won't flicker
@@ -219,17 +239,18 @@ public class Accounts extends ListActivity implements OnItemClickListener, OnCli
                     try {
                         // Delete Remote store at first.
                         Store.getInstance(
-                                mSelectedContextAccount.getStoreUri(Accounts.this),
+                                mSelectedContextAccount.getStoreUri(AccountFolderList.this),
                                 getApplication(), null).delete();
                         // Remove the Store instance from cache.
-                        Store.removeInstance(mSelectedContextAccount.getStoreUri(Accounts.this));
+                        Store.removeInstance(mSelectedContextAccount.getStoreUri(
+                                AccountFolderList.this));
                         Uri uri = ContentUris.withAppendedId(
                                 EmailContent.Account.CONTENT_URI, mSelectedContextAccount.mId);
-                        Accounts.this.getContentResolver().delete(uri, null, null);
+                        AccountFolderList.this.getContentResolver().delete(uri, null, null);
                     } catch (Exception e) {
                             // Ignore
                     }
-                    Email.setServicesEnabled(Accounts.this);
+                    Email.setServicesEnabled(AccountFolderList.this);
                 }
             })
             .setNegativeButton(R.string.cancel_action, new DialogInterface.OnClickListener() {
@@ -243,7 +264,7 @@ public class Accounts extends ListActivity implements OnItemClickListener, OnCli
     @Override
     public boolean onContextItemSelected(MenuItem item) {
         AdapterContextMenuInfo menuInfo = (AdapterContextMenuInfo)item.getMenuInfo();
-        Cursor c = (Cursor) getListView().getItemAtPosition(menuInfo.position);
+        Cursor c = (Cursor) mListView.getItemAtPosition(menuInfo.position);
         long accountId = c.getLong(Account.CONTENT_ID_COLUMN);
         switch (item.getItemId()) {
             case R.id.delete_account:
@@ -260,7 +281,7 @@ public class Accounts extends ListActivity implements OnItemClickListener, OnCli
     }
 
     public void onItemClick(AdapterView parent, View view, int position, long id) {
-        Cursor c = (Cursor) getListView().getItemAtPosition(position);
+        Cursor c = (Cursor) mListView.getItemAtPosition(position);
         long accountId = c.getLong(Account.CONTENT_ID_COLUMN);
         onOpenAccount(accountId);
     }
@@ -315,33 +336,76 @@ public class Accounts extends ListActivity implements OnItemClickListener, OnCli
         return super.onKeyDown(keyCode, event);
     }
     
-    private static class AccountsAdapter extends SimpleCursorAdapter {
+    private static class AccountsAdapter extends CursorTreeAdapter {
 
-        public AccountsAdapter(Context context, int layout, Cursor c, String[] from, int[] to) {
-            super(context, layout, c, from, to);
-            setViewBinder(new MyViewBinder());
+        Context mContext;
+        private LayoutInflater mInflater;
+
+        public AccountsAdapter(Cursor c, Context context) {
+            super(c, context, true);
+            mContext = context;
+            mInflater = (LayoutInflater)context.getSystemService(Context.LAYOUT_INFLATER_SERVICE);
         }
-        
-        /**
-         * This is only used for the unread messages count.  Most of the views are handled
-         * normally by SimpleCursorAdapter.
-         */
-        private static class MyViewBinder implements SimpleCursorAdapter.ViewBinder {
 
-            public boolean setViewValue(View view, Cursor cursor, int columnIndex) {
-                if (view.getId() == R.id.new_message_count) {
-                    
-                    int unreadMessageCount = 0;     // TODO get unread count from Account
-                    if (unreadMessageCount <= 0) {
-                        view.setVisibility(View.GONE);
-                    } else {
-                        ((TextView)view).setText(String.valueOf(unreadMessageCount));
-                    }
-                    return true;
-                }
-                
-                return false;
+        @Override
+        protected void bindChildView(View view, Context context, Cursor cursor, boolean isLastChild)
+                {
+            // TODO Auto-generated method stub
+            
+        }
+
+        @Override
+        protected void bindGroupView(View view, Context context, Cursor cursor, boolean isExpanded)
+                {
+            String text = cursor.getString(EmailContent.Account.CONTENT_DISPLAY_NAME_COLUMN);
+            if (text != null) {
+                TextView descriptionView = (TextView) view.findViewById(R.id.description);
+                descriptionView.setText(text);
             }
+
+            text = cursor.getString(EmailContent.Account.CONTENT_EMAIL_ADDRESS_COLUMN);
+            if (text != null) {
+                TextView emailView = (TextView) view.findViewById(R.id.email);
+                emailView.setText(text);
+            }
+
+            TextView countView = (TextView) view.findViewById(R.id.new_message_count);
+            int unreadMessageCount = 0;     // TODO get unread count from Account
+            if (unreadMessageCount <= 0) {
+                countView.setVisibility(View.GONE);
+            } else {
+                countView.setText(String.valueOf(unreadMessageCount));
+            }
+        }
+
+        /**
+         * We return null here (no immediate cursor availability) and use an AsyncTask to get
+         * the cursor in certain onclick situations
+         */
+        @Override
+        protected Cursor getChildrenCursor(Cursor groupCursor) {
+            return null;
+        }
+
+        /**
+         * Overriding this allows the child cursors to be requeried on dataset changes
+         */
+        @Override
+        public void notifyDataSetChanged() {
+            notifyDataSetChanged(false);
+        }
+
+        @Override
+        protected View newChildView(Context context, Cursor cursor, boolean isLastChild,
+                ViewGroup parent) {
+            // TODO Auto-generated method stub
+            return null;
+        }
+
+        @Override
+        protected View newGroupView(Context context, Cursor cursor, boolean isExpanded,
+                ViewGroup parent) {
+            return mInflater.inflate(R.layout.account_folder_list_group, parent, false);
         }
     }
 }

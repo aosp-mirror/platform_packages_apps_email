@@ -74,7 +74,7 @@ public class Welcome extends Activity {
         }
 
         // Otherwise  (n=0 or n>1) go to the account info screen
-        Accounts.actionShowAccounts(this);
+        AccountFolderList.actionShowAccounts(this);
         finish();
     }
 
