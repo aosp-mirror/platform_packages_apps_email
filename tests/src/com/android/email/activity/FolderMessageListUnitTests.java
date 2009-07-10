@@ -52,66 +52,66 @@ public class FolderMessageListUnitTests extends AndroidTestCase {
         super.tearDown();
     }
     
-    /**
-     * Test of actionHandleAccount() variants.  Make sure they generate correct intents and 
-     * then call startActivity() with them.
-     */
-    public void testActionHandleAccount() {
-        // Create a dummy account
-        createTestAccount();
-        
-        // Create a mock context to catch the startActivity calls
-        MyContext mockContext = new MyContext(getContext());
-        
-        // First, try with no initial folder
-        FolderMessageList.actionHandleAccount(mockContext, mAccountId);
-        Intent i = mockContext.startActivityIntent;
-        assertNotNull(i);
-        checkIntent(i, null, mAccount, null);
-        
-        // Next try with initial folder specified
-        FolderMessageList.actionHandleAccount(mockContext, mAccountId, "test-folder-name");
-        i = mockContext.startActivityIntent;
-        assertNotNull(i);
-        checkIntent(i, null, mAccount, "test-folder-name");
-    }
+//    /**
+//     * Test of actionHandleAccount() variants.  Make sure they generate correct intents and 
+//     * then call startActivity() with them.
+//     */
+//    public void testActionHandleAccount() {
+//        // Create a dummy account
+//        createTestAccount();
+//        
+//        // Create a mock context to catch the startActivity calls
+//        MyContext mockContext = new MyContext(getContext());
+//        
+//        // First, try with no initial folder
+//        FolderMessageList.actionHandleAccount(mockContext, mAccountId);
+//        Intent i = mockContext.startActivityIntent;
+//        assertNotNull(i);
+//        checkIntent(i, null, mAccount, null);
+//        
+//        // Next try with initial folder specified
+//        FolderMessageList.actionHandleAccount(mockContext, mAccountId, "test-folder-name");
+//        i = mockContext.startActivityIntent;
+//        assertNotNull(i);
+//        checkIntent(i, null, mAccount, "test-folder-name");
+//    }
 
     /**
      * Test of actionHandleAccountIntent().  Make sure it generates correct intents.
      */
-    public void testActionHandleAccountIntent() {
-        // Create a dummy account
-        createTestAccount();
-        
-        // First try with no initial folder
-        Intent result = FolderMessageList.actionHandleAccountIntent(
-                getContext(), mAccountId, null);
-        checkIntent(result, null, mAccount, null);
-        
-        // now try with a specified initial folder
-        result = FolderMessageList.actionHandleAccountIntent(
-                getContext(), mAccountId, "test-folder-name");
-        checkIntent(result, null, mAccount, "test-folder-name");
-    }
+//    public void testActionHandleAccountIntent() {
+//        // Create a dummy account
+//        createTestAccount();
+//        
+//        // First try with no initial folder
+//        Intent result = FolderMessageList.actionHandleAccountIntent(
+//                getContext(), mAccountId, null);
+//        checkIntent(result, null, mAccount, null);
+//        
+//        // now try with a specified initial folder
+//        result = FolderMessageList.actionHandleAccountIntent(
+//                getContext(), mAccountId, "test-folder-name");
+//        checkIntent(result, null, mAccount, "test-folder-name");
+//    }
 
     /**
      * Test of actionHandleAccountUriIntent().  Make sure it generates correct intents.
      */
-    public void testActionHandleAccountUriIntent() {
-        // Create a dummy account
-        createTestAccount();
-        Uri uri = ContentUris.withAppendedId(EmailContent.Account.CONTENT_URI, mAccountId);
-        
-        // First try with no initial folder
-        Intent result = FolderMessageList.actionHandleAccountUriIntent(
-                getContext(), mAccountId, null);
-        checkIntent(result, uri, null, null);
-        
-        // now try with a specified initial folder
-        result = FolderMessageList.actionHandleAccountUriIntent(
-                getContext(), mAccountId, "test-folder-name");
-        checkIntent(result, uri, null, "test-folder-name");
-    }
+//    public void testActionHandleAccountUriIntent() {
+//        // Create a dummy account
+//        createTestAccount();
+//        Uri uri = ContentUris.withAppendedId(EmailContent.Account.CONTENT_URI, mAccountId);
+//        
+//        // First try with no initial folder
+//        Intent result = FolderMessageList.actionHandleAccountUriIntent(
+//                getContext(), mAccountId, null);
+//        checkIntent(result, uri, null, null);
+//        
+//        // now try with a specified initial folder
+//        result = FolderMessageList.actionHandleAccountUriIntent(
+//                getContext(), mAccountId, "test-folder-name");
+//        checkIntent(result, uri, null, "test-folder-name");
+//    }
 
     /**
      * Check the values in a generated intent

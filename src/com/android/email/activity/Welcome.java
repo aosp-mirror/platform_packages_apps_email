@@ -16,11 +16,8 @@
 
 package com.android.email.activity;
 
-import com.android.email.Email;
-import com.android.email.provider.EmailContent;
 import com.android.email.provider.EmailContent;
 import com.android.exchange.SyncManager;
-//import com.android.exchange.SyncManager;
 
 import android.app.Activity;
 import android.content.Intent;
@@ -62,8 +59,8 @@ public class Welcome extends Activity {
                     null, null, null);
             if (c.getCount() == 1) {
                 c.moveToFirst();
-                long id = c.getLong(EmailContent.Account.CONTENT_ID_COLUMN);
-                FolderMessageList.actionHandleAccount(this, id, Email.INBOX);
+                long accountId = c.getLong(EmailContent.Account.CONTENT_ID_COLUMN);
+                MessageList.actionHandleAccount(this, accountId, EmailContent.Mailbox.TYPE_INBOX);
                 finish();
                 return;
             }

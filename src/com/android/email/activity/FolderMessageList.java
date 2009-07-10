@@ -418,6 +418,7 @@ public class FolderMessageList extends ExpandableListActivity {
      * @param context
      * @param id
      */
+    @Deprecated
     public static void actionHandleAccount(Context context, long id) {
         actionHandleAccount(context, id, null);
     }
@@ -428,6 +429,7 @@ public class FolderMessageList extends ExpandableListActivity {
      * @param id
      * @param initialFolder The folder to open, or null for none
      */
+    @Deprecated
     public static void actionHandleAccount(Context context, long id, String initialFolder) {
         Intent intent = new Intent(context, FolderMessageList.class);
         intent.putExtra(EXTRA_ACCOUNT_ID, id);
@@ -437,6 +439,7 @@ public class FolderMessageList extends ExpandableListActivity {
         context.startActivity(intent);
     }
 
+    @Deprecated
     public static Intent actionHandleAccountIntent(Context context, long id, String initialFolder) {
         Intent intent = new Intent(context, FolderMessageList.class);
         intent.putExtra(EXTRA_ACCOUNT_ID, id);
@@ -456,6 +459,7 @@ public class FolderMessageList extends ExpandableListActivity {
      * @param initialFolder If non-null, can set the folder name to open (typically Email.INBOX)
      * @return an Intent which can be used to view that account
      */
+    @Deprecated
     public static Intent actionHandleAccountUriIntent(Context context, long id,
             String initialFolder) {
         Intent i = actionHandleAccountIntent(context, id, initialFolder);

@@ -16,10 +16,9 @@
 
 package com.android.email.activity.setup;
 
-import com.android.email.Email;
 import com.android.email.R;
 import com.android.email.Utility;
-import com.android.email.activity.FolderMessageList;
+import com.android.email.activity.MessageList;
 import com.android.email.provider.EmailContent;
 
 import android.app.Activity;
@@ -106,7 +105,7 @@ public class AccountSetupNames extends Activity implements OnClickListener {
         }
         mAccount.setName(mName.getText().toString());
         mAccount.saveOrUpdate(this);
-        FolderMessageList.actionHandleAccount(this, mAccount.mId, Email.INBOX);
+        MessageList.actionHandleAccount(this, mAccount.mId, EmailContent.Mailbox.TYPE_INBOX);
         finish();
     }
 

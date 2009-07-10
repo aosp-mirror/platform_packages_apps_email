@@ -22,7 +22,7 @@ import com.android.email.MessagingController;
 import com.android.email.MessagingListener;
 import com.android.email.R;
 import com.android.email.activity.AccountFolderList;
-import com.android.email.activity.FolderMessageList;
+import com.android.email.activity.MessageList;
 import com.android.email.mail.MessagingException;
 import com.android.email.mail.Store;
 import com.android.email.mail.store.LocalStore;
@@ -282,8 +282,8 @@ public class MailService extends Service {
                 } else {
                     EmailContent.Account account1 = accountsWithNewMail.keySet().iterator().next();
                     int totalNewMails = accountsWithNewMail.get(account1);
-                    Intent i = FolderMessageList.actionHandleAccountIntent(context,
-                            account1.mId, Email.INBOX);
+                    Intent i = MessageList.actionHandleAccountIntent(context,
+                            account1.mId, EmailContent.Mailbox.TYPE_INBOX);
                     PendingIntent pi = PendingIntent.getActivity(context, 0, i, 0);
                     notif.setLatestEventInfo(context, getString(R.string.notification_new_title),
                             getResources().

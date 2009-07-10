@@ -61,6 +61,8 @@ import java.util.Set;
 public class MessageList extends ListActivity implements OnItemClickListener, OnClickListener {
     
     // Intent extras (internal to this activity)
+    private static final String EXTRA_ACCOUNT_ID = "com.android.email.activity._ACCOUNT_ID";
+    private static final String EXTRA_MAILBOX_TYPE = "com.android.email.activity.MAILBOX_TYPE";
     private static final String EXTRA_MAILBOX_ID = "com.android.email.activity.MAILBOX_ID";
     private static final String EXTRA_ACCOUNT_NAME = "com.android.email.activity.ACCOUNT_NAME";
     private static final String EXTRA_MAILBOX_NAME = "com.android.email.activity.MAILBOX_NAME";
@@ -99,6 +101,36 @@ public class MessageList extends ListActivity implements OnItemClickListener, On
         context.startActivity(intent);
     }
 
+    /**
+     * Open a specific mailbox by account & type
+     * 
+     * @param context The caller's context (for generating an intent)
+     * @param accountId The account to open
+     * @param mailboxType the type of mailbox to open (e.g. @see EmailContent.Mailbox.TYPE_INBOX)
+     */
+    public static void actionHandleAccount(Context context, long accountId, int mailboxType) {
+        Intent intent = new Intent(context, MessageList.class);
+        intent.putExtra(EXTRA_ACCOUNT_ID, accountId);
+        intent.putExtra(EXTRA_MAILBOX_TYPE, mailboxType);
+        context.startActivity(intent);
+    }
+
+    /**
+     * Return an intent to open a specific mailbox by account & type.  It will also clear
+     * notifications.
+     * 
+     * @param context The caller's context (for generating an intent)
+     * @param accountId The account to open
+     * @param mailboxType the type of mailbox to open (e.g. @see EmailContent.Mailbox.TYPE_INBOX)
+     */
+    public static Intent actionHandleAccountIntent(Context context, long accountId,
+            int mailboxType) {
+        Intent intent = new Intent(context, MessageList.class);
+        intent.putExtra(EXTRA_ACCOUNT_ID, accountId);
+        intent.putExtra(EXTRA_MAILBOX_TYPE, mailboxType);
+        return intent;
+    }
+
     @Override
     public void onCreate(Bundle icicle) {
         super.onCreate(icicle);
@@ -123,10 +155,30 @@ public class MessageList extends ListActivity implements OnItemClickListener, On
         mListAdapter = new MessageListAdapter(this);
         setListAdapter(mListAdapter);
 
-        // TODO set title to "account > mailbox (#unread)"
-
         // TODO extend this to properly deal with multiple mailboxes, cursor, etc.
         mMailboxId = getIntent().getLongExtra(EXTRA_MAILBOX_ID, -1);
+        if (mMailboxId == -1) {
+            // Try account/type mode
+            long accountId = getIntent().getLongExtra(EXTRA_ACCOUNT_ID, -1);
+            int mailboxType = getIntent().getIntExtra(EXTRA_MAILBOX_TYPE, -1);
+            Cursor c = null;
+            try {
+                c = getContentResolver().query(EmailContent.Mailbox.CONTENT_URI,
+                        EmailContent.Mailbox.CONTENT_PROJECTION,
+                        EmailContent.MailboxColumns.ACCOUNT_KEY + "=? AND " +
+                        EmailContent.MailboxColumns.TYPE + "=?",
+                        new String[] { Long.toString(accountId), Integer.toString(mailboxType) },
+                        null);
+                if (c.moveToFirst()) {
+                    mMailboxId = c.getLong(EmailContent.Mailbox.CONTENT_ID_COLUMN);
+                }
+            } finally {
+                if (c != null) c.close();
+            }
+
+        }
+
+        // TODO set title to "account > mailbox (#unread)"
 
         mLoadMessagesTask = (LoadMessagesTask) new LoadMessagesTask(mMailboxId).execute();
     }
@@ -300,7 +352,7 @@ public class MessageList extends ListActivity implements OnItemClickListener, On
 
         // TODO this should be a call to the controller, since it may possibly kick off
         // more than just a DB update.  Also, the DB update shouldn't be in the UI thread
-        // as it is here.
+        // as it is here.  Also, it needs to update the read/unread count in the mailbox?
         ContentValues cv = new ContentValues();
         cv.put(EmailContent.MessageColumns.FLAG_READ, isRead);
         Uri uri = ContentUris.withAppendedId(
