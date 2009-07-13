@@ -15,11 +15,11 @@
 -->
 <resources xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:xliff="urn:oasis:names:tc:xliff:document:1.2">
-    <string name="read_attachment_label">"чтение почтовых приложений"</string>
-    <string name="read_attachment_desc">"Позволяет данной программе читать ваши почтовые приложения."</string>
-    <string name="app_name">"Электронная почта"</string>
+    <string name="read_attachment_label">"открывать приложения к письмам"</string>
+    <string name="read_attachment_desc">"Разрешить этой программе открывать приложения электронной почты."</string>
+    <string name="app_name">"Email"</string>
     <string name="accounts_title">"Ваши аккаунты"</string>
-    <string name="compose_title">"Написать письмо"</string>
+    <string name="compose_title">"Новое сообщение"</string>
     <string name="debug_title">"Отладка"</string>
     <string name="next_action">"Далее"</string>
     <string name="okay_action">"ОК"</string>
@@ -30,25 +30,31 @@
     <string name="delete_action">"Удалить"</string>
     <string name="forward_action">"Переслать"</string>
     <string name="done_action">"Готово"</string>
-    <string name="discard_action">"Отменить"</string>
-    <string name="save_draft_action">"Сохранить как черновик"</string>
+    <string name="discard_action">"Удалить черновик"</string>
+    <string name="save_draft_action">"Сохранить черновик"</string>
     <string name="refresh_action">"Обновить"</string>
     <string name="add_account_action">"Добавить аккаунт"</string>
-    <string name="compose_action">"Написать письмо"</string>
+    <string name="compose_action">"Новое сообщение"</string>
     <string name="search_action">"Поиск"</string>
     <string name="open_action">"Открыть"</string>
     <string name="account_settings_action">"Настройки аккаунта"</string>
     <string name="remove_account_action">"Удалить аккаунт"</string>
     <string name="accounts_action">"Аккаунты"</string>
-    <string name="mark_as_read_action">"Отметить как прочитанное"</string>
+    <string name="mark_as_read_action">"Отметить как прочитанные"</string>
     <string name="mark_as_unread_action">"Отметить как непрочитанное"</string>
-    <string name="add_cc_bcc_action">"Добавить копии/скрытые копии"</string>
+    <string name="add_cc_bcc_action">"Добавить копию или скрытую копию"</string>
     <string name="add_attachment_action">"Добавить приложение"</string>
-    <string name="dump_settings_action">"Настройки сброса"</string>
+    <string name="dump_settings_action">"Настройки дампа"</string>
+    <!-- no translation found for choose_attachment_dialog_title (81937507117528954) -->
+    <skip />
     <string name="accounts_context_menu_title">"Параметры аккаунта"</string>
-    <string name="status_loading_more">"Загрузка писем..."</string>
-    <string name="status_network_error">"Ошибка подключения"</string>
-    <string name="status_loading_more_failed">"Повторить попытку загрузки остальных писем"</string>
+    <string name="status_loading_more">"Загрузка сообщений..."</string>
+    <!-- no translation found for status_sending_messages (3971880826111264523) -->
+    <skip />
+    <string name="status_network_error">"Ошибка соединения"</string>
+    <!-- no translation found for status_sending_messages_failed (7975009558738692407) -->
+    <skip />
+    <string name="status_loading_more_failed">"Попробуйте загрузить остальные сообщения еще раз"</string>
     <string name="notification_new_title">"Новое письмо"</string>
   <plurals name="notification_new_one_account_fmt">
     <item quantity="one">"Непрочитанных: <xliff:g id="UNREAD_MESSAGE_COUNT">%d</xliff:g> (<xliff:g id="ACCOUNT">%s</xliff:g>)"</item>
@@ -56,61 +62,79 @@
     <item quantity="other">"Непрочитанных: <xliff:g id="UNREAD_MESSAGE_COUNT">%d</xliff:g> (<xliff:g id="ACCOUNT">%s</xliff:g>)"</item>
   </plurals>
   <plurals name="notification_new_multi_account_fmt">
-    <item quantity="few">"в нескольких (<xliff:g id="NUMBER_ACCOUNTS">%d</xliff:g>) аккаунтах"</item>
-    <item quantity="other">"в нескольких (<xliff:g id="NUMBER_ACCOUNTS">%d</xliff:g>) аккаунтах"</item>
+    <item quantity="few">"в <xliff:g id="NUMBER_ACCOUNTS">%d</xliff:g> аккаунтах"</item>
+    <item quantity="other">"в <xliff:g id="NUMBER_ACCOUNTS">%d</xliff:g> аккаунтах"</item>
   </plurals>
     <string name="special_mailbox_name_inbox">"Входящие"</string>
-    <string name="accounts_welcome">"Добро пожаловать на страницу настройки электронной почты."\n\n"С нашей почтовой системой можно использовать любой аккаунт электронной почты."\n\n"Самые распространенные аккаунты электронной почты можно настроить за 2 шага."</string>
+    <!-- no translation found for special_mailbox_display_name_outbox (1884580655148530989) -->
+    <skip />
+    <!-- no translation found for special_mailbox_display_name_drafts (5919687165402808119) -->
+    <skip />
+    <!-- no translation found for special_mailbox_display_name_trash (7042673673630272056) -->
+    <skip />
+    <!-- no translation found for special_mailbox_display_name_sent (3952772015118466625) -->
+    <skip />
+    <string name="accounts_welcome">"Добро пожаловать в настройку Email!"\n\n"Вы можете использовать любой аккаунт электронной почты."\n\n"Большинство популярных аккаунтов можно настроить всего в два действия!"</string>
     <string name="debug_version_fmt">"Версия: <xliff:g id="VERSION">%s</xliff:g>"</string>
-    <string name="debug_enable_debug_logging_label">"Включить ведение журнала расширенной отладки?"</string>
-    <string name="debug_enable_sensitive_logging_label">"Включить ведение журнала отладки для конфиденциальной информации? (В журналах могут быть показаны пароли.)"</string>
-    <string name="message_list_load_more_messages_action">"Загрузить еще письма"</string>
+    <string name="debug_enable_debug_logging_label">"Включить запись дополнительных сведений для отладки?"</string>
+    <string name="debug_enable_sensitive_logging_label">"Включить в журналы отладки конфиденциальную информацию? (В журналах могут сохраняться пароли.)"</string>
+    <string name="message_list_load_more_messages_action">"Загрузить еще сообщения"</string>
+    <!-- no translation found for message_list_send_pending_messages_action (9100624762133992435) -->
+    <skip />
     <string name="message_compose_to_hint">"Кому"</string>
     <string name="message_compose_cc_hint">"Копия"</string>
-    <string name="message_compose_bcc_hint">"Скрытая"</string>
+    <string name="message_compose_bcc_hint">"Скрытая копия"</string>
     <string name="message_compose_subject_hint">"Тема"</string>
-    <string name="message_compose_body_hint">"Написать письмо"</string>
+    <string name="message_compose_body_hint">"Текст сообщения"</string>
     <string name="message_compose_fwd_header_fmt">\n\n"-------- Исходное сообщение --------"\n"Тема: <xliff:g id="SUBJECT">%s</xliff:g>"\n"От: <xliff:g id="SENDER">%s</xliff:g>"\n"Кому: <xliff:g id="TO">%s</xliff:g>"\n"Копия: <xliff:g id="CC_0">%s</xliff:g>"\n\n</string>
-    <string name="message_compose_reply_header_fmt">\n\n"<xliff:g id="SENDER">%s</xliff:g> написал(а):"\n\n</string>
+    <string name="message_compose_reply_header_fmt">\n\n"Пользователь <xliff:g id="SENDER">%s</xliff:g> писал:"\n\n</string>
     <string name="message_compose_quoted_text_label">"Цитируемый текст"</string>
-    <string name="message_compose_error_no_recipients">"Необходимо добавить хотя бы одного получателя."</string>
-    <string name="message_compose_attachments_skipped_toast">"Некоторые приложения нельзя переслать, поскольку они не загружены."</string>
-    <string name="message_compose_attachment_size">"Файл имеет слишком большой размер и не может быть вложен."</string>
+    <string name="message_compose_error_no_recipients">"Добавьте хотя бы одного получателя."</string>
+    <string name="message_compose_attachments_skipped_toast">"Некоторые приложения нельзя переслать, так как они не были загружены."</string>
+    <string name="message_compose_attachment_size">"Файл имеет слишком большой размер и не может быть приложен."</string>
     <string name="message_view_to_label">"Кому:"</string>
     <string name="message_view_cc_label">"Копия:"</string>
+    <!-- no translation found for message_view_bcc_label (7577479221285310198) -->
+    <skip />
     <string name="message_view_attachment_view_action">"Открыть"</string>
     <string name="message_view_attachment_download_action">"Сохранить"</string>
-    <string name="message_view_status_attachment_saved">"Приложение сохранено на SD-карту как <xliff:g id="FILENAME">%s</xliff:g>."</string>
+    <string name="message_view_status_attachment_saved">"Приложение сохранено на SD-карту под именем <xliff:g id="FILENAME">%s</xliff:g>."</string>
     <string name="message_view_status_attachment_not_saved">"Не удается сохранить приложение на SD-карту."</string>
-    <string name="message_view_show_pictures_instructions">"Выберите \"Показать картинки\", чтобы показать встроенную графику."</string>
+    <string name="message_view_show_pictures_instructions">"Выберите \"Показать картинки\", чтобы видеть вложенные изображения."</string>
     <string name="message_view_show_pictures_action">"Показать картинки"</string>
-    <string name="message_view_fetching_attachment_toast">"Загрузка приложения."</string>
-    <string name="message_deleted_toast">"Письмо удалено."</string>
-    <string name="message_discarded_toast">"Письмо не сохранено."</string>
-    <string name="message_saved_toast">"Письмо сохранено как черновик."</string>
+    <string name="message_view_fetching_attachment_toast">"Получение приложения."</string>
+    <!-- no translation found for message_view_fetching_pictures_toast (922006271551499573) -->
+    <skip />
+    <!-- no translation found for message_view_fetching_attachment_progress (8238550182655758164) -->
+    <skip />
+    <string name="message_deleted_toast">"Сообщение удалено."</string>
+    <string name="message_discarded_toast">"Черновик удален."</string>
+    <string name="message_saved_toast">"Черновик сообщения сохранен."</string>
     <string name="add_contact_dlg_title">"Добавить контакт"</string>
-    <string name="add_contact_dlg_message_fmt">"Добавить адрес <xliff:g id="EMAIL">%s</xliff:g> в контакты"</string>
-    <string name="message_view_display_attachment_toast">"Это вложение нельзя просмотреть."</string>
+    <string name="add_contact_dlg_message_fmt">"Добавить <xliff:g id="EMAIL">%s</xliff:g> в контакты"</string>
+    <string name="message_view_display_attachment_toast">"Это приложение нельзя просмотреть."</string>
     <string name="account_setup_basics_title">"Настройка электронной почты"</string>
-    <string name="account_setup_basics_instructions">"Укажите почтовый адрес своего аккаунта:"</string>
+    <string name="account_setup_basics_instructions">"Введите адрес электронной почты аккаунта:"</string>
     <string name="account_setup_basics_email_hint">"Адрес электронной почты"</string>
     <string name="account_setup_basics_password_hint">"Пароль"</string>
-    <string name="account_setup_basics_default_label">"По умолчанию отправлять почту с данного аккаунта."</string>
-    <string name="account_setup_basics_manual_setup_action">"Ручная настройка"</string>
-    <string name="account_setup_username_password_toast">"Укажите правильные адрес электронной почты и пароль."</string>
-    <string name="account_setup_check_settings_retr_info_msg">"Получение информации об аккаунте..."</string>
-    <string name="account_setup_check_settings_check_incoming_msg">"Проверка настроек сервера входящей почты..."</string>
-    <string name="account_setup_check_settings_check_outgoing_msg">"Проверка настроек сервера исходящей почты..."</string>
+    <string name="account_setup_basics_default_label">"Сделать аккаунтом электронной почты по умолчанию для отправки сообщений."</string>
+    <string name="account_setup_basics_manual_setup_action">"Настройка вручную"</string>
+    <string name="account_setup_username_password_toast">"Введите действительный адрес электронной почты и пароль."</string>
+    <string name="account_setup_check_settings_retr_info_msg">"Получение информации аккаунта..."</string>
+    <string name="account_setup_check_settings_check_incoming_msg">"Проверка настроек сервера входящих сообщений..."</string>
+    <string name="account_setup_check_settings_check_outgoing_msg">"Проверка настроек сервера исходящих сообщений..."</string>
     <string name="account_setup_check_settings_canceling_msg">"Отмена..."</string>
     <string name="account_setup_names_title">"Настройка электронной почты"</string>
-    <string name="account_setup_names_instructions">"Ваш аккаунт настроен, электронная почта работает."</string>
-    <string name="account_setup_names_account_name_label">"Указать название этого аккаунта (необязательно)"</string>
-    <string name="account_setup_names_user_name_label">"Ваше имя (отображается в исходящих письмах)"</string>
+    <string name="account_setup_names_instructions">"Ваш аккаунт настроен, ждите сообщений!"</string>
+    <string name="account_setup_names_account_name_label">"Присвойте этому аккаунту название (не обязательно)"</string>
+    <string name="account_setup_names_user_name_label">"Ваше имя (показывается в исходящих сообщениях)"</string>
     <string name="account_setup_account_type_title">"Добавить новый аккаунт электронной почты"</string>
-    <string name="account_setup_account_type_instructions">"К какому типу принадлежит этот аккаунт?"</string>
+    <string name="account_setup_account_type_instructions">"Что это за аккаунт?"</string>
     <string name="account_setup_account_type_pop_action">"Аккаунт POP3"</string>
     <string name="account_setup_account_type_imap_action">"Аккаунт IMAP"</string>
-    <string name="account_setup_incoming_title">"Настройки сервера входящей почты"</string>
+    <!-- no translation found for account_setup_account_type_exchange_action (8193609147171666140) -->
+    <skip />
+    <string name="account_setup_incoming_title">"Настройки сервера входящих сообщений"</string>
     <string name="account_setup_incoming_username_label">"Имя пользователя"</string>
     <string name="account_setup_incoming_password_label">"Пароль"</string>
     <string name="account_setup_incoming_pop_server_label">"Сервер POP3"</string>
@@ -118,65 +142,91 @@
     <string name="account_setup_incoming_port_label">"Порт"</string>
     <string name="account_setup_incoming_security_label">"Тип безопасности"</string>
     <string name="account_setup_incoming_security_none_label">"Нет"</string>
-    <string name="account_setup_incoming_security_ssl_optional_label">"SSL (если доступен)"</string>
+    <string name="account_setup_incoming_security_ssl_optional_label">"SSL (если доступно)"</string>
     <string name="account_setup_incoming_security_ssl_label">"SSL (всегда)"</string>
     <string name="account_setup_incoming_security_tls_optional_label">"TLS (если доступно)"</string>
     <string name="account_setup_incoming_security_tls_label">"TLS (всегда)"</string>
-    <string name="account_setup_incoming_delete_policy_label">"Удалить письмо с сервера"</string>
+    <string name="account_setup_incoming_delete_policy_label">"Удалять сообщения с сервера"</string>
     <string name="account_setup_incoming_delete_policy_never_label">"Никогда"</string>
     <string name="account_setup_incoming_delete_policy_7days_label">"Через 7 дней"</string>
-    <string name="account_setup_incoming_delete_policy_delete_label">"При удалении письма из папки \"Входящие\""</string>
+    <string name="account_setup_incoming_delete_policy_delete_label">"При удалении из входящих"</string>
     <string name="account_setup_incoming_imap_path_prefix_label">"Префикс пути IMAP"</string>
-    <string name="account_setup_incoming_imap_path_prefix_hint">"Необязательно"</string>
-    <string name="account_setup_outgoing_title">"Настройки сервера исходящей почты"</string>
+    <string name="account_setup_incoming_imap_path_prefix_hint">"Не обязательно"</string>
+    <string name="account_setup_outgoing_title">"Настройки сервера исходящих сообщений"</string>
     <string name="account_setup_outgoing_smtp_server_label">"Сервер SMTP"</string>
     <string name="account_setup_outgoing_port_label">"Порт"</string>
     <string name="account_setup_outgoing_security_label">"Тип безопасности"</string>
-    <string name="account_setup_outgoing_require_login_label">"Требовать входа в систему."</string>
+    <string name="account_setup_outgoing_require_login_label">"Требовать входа в аккаунт."</string>
     <string name="account_setup_outgoing_username_label">"Имя пользователя"</string>
     <string name="account_setup_outgoing_password_label">"Пароль"</string>
+    <!-- no translation found for account_setup_exchange_title (247933841122558059) -->
+    <skip />
+    <!-- no translation found for account_setup_exchange_server_label (5390359659749339317) -->
+    <skip />
+    <!-- no translation found for account_setup_exchange_domain_label (3584668050727667045) -->
+    <skip />
+    <!-- no translation found for account_setup_exchange_domain_hint (350372033916025287) -->
+    <skip />
+    <!-- no translation found for account_setup_exchange_ssl_label (6704105469083211236) -->
+    <skip />
     <string name="account_setup_options_title">"Параметры аккаунта"</string>
-    <string name="account_setup_options_mail_check_frequency_label">"Частота проверки электронной почты"</string>
+    <string name="account_setup_options_mail_check_frequency_label">"Частота проверки почты"</string>
     <string name="account_setup_options_mail_check_frequency_never">"Никогда"</string>
+    <!-- no translation found for account_setup_options_mail_check_frequency_push (5934525907736008673) -->
+    <skip />
     <string name="account_setup_options_mail_check_frequency_5min">"Каждые 5 минут"</string>
     <string name="account_setup_options_mail_check_frequency_10min">"Каждые 10 минут"</string>
     <string name="account_setup_options_mail_check_frequency_15min">"Каждые 15 минут"</string>
     <string name="account_setup_options_mail_check_frequency_30min">"Каждые 30 минут"</string>
     <string name="account_setup_options_mail_check_frequency_1hour">"Каждый час"</string>
-    <string name="account_setup_options_default_label">"По умолчанию отправлять почту с данного аккаунта."</string>
-    <string name="account_setup_options_notify_label">"Оповещать меня при получении почты."</string>
-    <string name="account_setup_failed_dlg_title">"Не удается завершить установку"</string>
-    <string name="account_setup_failed_dlg_auth_message">"Неверное имя пользователя или неверный пароль."</string>
-    <string name="account_setup_failed_dlg_auth_message_fmt">"Неверное имя пользователя или неверный пароль."\n"(<xliff:g id="ERROR">%s</xliff:g>)"</string>
-    <string name="account_setup_failed_dlg_certificate_message">"Не удается установить защищенное соединение с сервером."</string>
-    <string name="account_setup_failed_dlg_certificate_message_fmt">"Не удается установить защищенное соединение с сервером."\n"(<xliff:g id="ERROR">%s</xliff:g>)"</string>
+    <string name="account_setup_options_default_label">"Сделать аккаунтом электронной почты по умолчанию для отправки сообщений."</string>
+    <string name="account_setup_options_notify_label">"Уведомлять при получении сообщения по электронной почте."</string>
+    <string name="account_setup_failed_dlg_title">"Не удается завершить настройку"</string>
+    <!-- no translation found for account_setup_options_mail_window_label (8764417340954006086) -->
+    <skip />
+    <!-- no translation found for account_setup_options_mail_window_1day (3965715241135811407) -->
+    <skip />
+    <!-- no translation found for account_setup_options_mail_window_3days (736181102295878114) -->
+    <skip />
+    <!-- no translation found for account_setup_options_mail_window_1week (5639718031108023741) -->
+    <skip />
+    <!-- no translation found for account_setup_options_mail_window_2weeks (4567049268124213035) -->
+    <skip />
+    <!-- no translation found for account_setup_options_mail_window_1month (5846359669750047081) -->
+    <skip />
+    <!-- no translation found for account_setup_options_mail_window_all (5383858972681926166) -->
+    <skip />
+    <string name="account_setup_failed_dlg_auth_message">"Неверное имя пользователя или пароль."</string>
+    <string name="account_setup_failed_dlg_auth_message_fmt">"Неверное имя пользователя или пароль."\n"<xliff:g id="ERROR">%s</xliff:g>"</string>
+    <string name="account_setup_failed_dlg_certificate_message">"Не удается установить защищенное подключение к серверу."</string>
+    <string name="account_setup_failed_dlg_certificate_message_fmt">"Не удается установить защищенное подключение к серверу."\n"(<xliff:g id="ERROR">%s</xliff:g>)"</string>
     <string name="account_setup_failed_dlg_server_message">"Не удается подключиться к серверу."</string>
     <string name="account_setup_failed_dlg_server_message_fmt">"Не удается подключиться к серверу."\n"(<xliff:g id="ERROR">%s</xliff:g>)"</string>
-    <string name="account_setup_failed_tls_required">"TLS требуется, но не поддерживается сервером."</string>
-    <string name="account_setup_failed_auth_required">"Сервер не поддерживает методы аутентификации."</string>
+    <string name="account_setup_failed_tls_required">"TLS не поддерживается сервером."</string>
+    <string name="account_setup_failed_auth_required">"Методы аутентификации не поддерживаются сервером."</string>
     <string name="account_setup_failed_security">"Не удается установить соединение с сервером из-за ошибки безопасности."</string>
     <string name="account_setup_failed_ioerror">"Не удается установить соединение с сервером."</string>
-    <string name="account_setup_failed_dlg_edit_details_action">"Изменить подробную информацию"</string>
+    <string name="account_setup_failed_dlg_edit_details_action">"Изменить сведения"</string>
     <string name="account_settings_title_fmt">"Общие настройки"</string>
     <string name="account_settings_default_label">"Аккаунт по умолчанию"</string>
-    <string name="account_settings_default_summary">"По умолчанию отправлять почту с данного аккаунта"</string>
-    <string name="account_settings_notify_label">"Оповещения о получении почты"</string>
-    <string name="account_settings_notify_summary">"При получении почты показывать оповещение в строке состояния"</string>
-    <string name="account_settings_mail_check_frequency_label">"Частота проверки электронной почты"</string>
-    <string name="account_settings_incoming_label">"Настройки входящей почты"</string>
-    <string name="account_settings_outgoing_label">"Настройки исходящей почты"</string>
+    <string name="account_settings_default_summary">"Сделать аккаунтом электронной почты по умолчанию для отправки сообщений"</string>
+    <string name="account_settings_notify_label">"Уведомления о почте"</string>
+    <string name="account_settings_notify_summary">"Показывать уведомление о получении сообщения в строке состояния"</string>
+    <string name="account_settings_mail_check_frequency_label">"Частота проверки почты"</string>
+    <string name="account_settings_incoming_label">"Настройки входящих сообщений"</string>
+    <string name="account_settings_outgoing_label">"Настройки исходящих сообщений"</string>
     <string name="account_settings_add_account_label">"Добавить другой аккаунт"</string>
     <string name="account_settings_description_label">"Название аккаунта"</string>
     <string name="account_settings_name_label">"Ваше имя"</string>
-    <string name="account_settings_notifications">"Настройки оповещения"</string>
+    <string name="account_settings_notifications">"Настройки уведомлений"</string>
     <string name="account_settings_vibrate_enable">"Вибрация"</string>
-    <string name="account_settings_vibrate_summary">"Также включить вибрацию при получении почты"</string>
+    <string name="account_settings_vibrate_summary">"Вибрация при получении сообщения"</string>
     <string name="account_settings_ringtone">"Выбрать мелодию"</string>
     <string name="account_settings_servers">"Настройки сервера"</string>
     <string name="account_delete_dlg_title">"Удалить аккаунт"</string>
-    <string name="account_delete_dlg_instructions_fmt">"Аккаунт \"<xliff:g id="ACCOUNT">%s</xliff:g>\" будет удален из системы электронной почты."</string>
-    <string name="provider_note_yahoo">"Доступ к почтовому ящику для некоторых типов почтовых аккаунтов Yahoo! не поддерживается. Если при подключении возникли проблемы, см. дополнительные сведения на yahoo.com."</string>
-    <string name="provider_note_yahoo_uk">"Чтобы настроить этот аккаунт электронной почты, перейдите на веб-сайт Yahoo! и включите для этого аккаунта доступ по протоколу POP3."</string>
-    <string name="provider_note_live">"Только некоторые аккаунты \"Plus\" поддерживают доступ по протоколу POP, который требуется данной программе для подключения. Если вам не удается войти в систему с верным адресом электронной почты и паролем, возможно, у вас нет платного аккаунта \"Plus\". Откройте веб-браузер, чтобы получить доступ к этим почтовым аккаунтам."</string>
-    <string name="provider_note_t_online">"Чтобы настроить этот аккаунт электронной почты, перейдите на веб-сайт T-Online и создайте пароль для доступа к электронной почте по протоколу POP3."</string>
+    <string name="account_delete_dlg_instructions_fmt">"Аккаунт \"<xliff:g id="ACCOUNT">%s</xliff:g>\" будет удален из Email."</string>
+    <string name="provider_note_yahoo">"Не все типы аккаунтов Yahoo! поддерживают доступ к почте. При возникновении проблем с подключением см. дополнительную информацию на yahoo.com."</string>
+    <string name="provider_note_yahoo_uk">"Прежде чем настраивать аккаунт, посетите веб-сайт Yahoo! и включите доступ к аккаунту по протоколу POP3."</string>
+    <string name="provider_note_live">"Доступ по протоколу POP, позволяющий этой программе подключаться, разрешен только в некоторых аккаунтах Plus. Если вам не удается войти со своим адресом электронной почты и паролем, скорее всего, у вас бесплатный аккаунт (не Plus). Доступ к такому аккаунту возможен через браузер."</string>
+    <string name="provider_note_t_online">"Прежде чем настраивать аккаунт электронной почты, посетите веб-сайт оператора связи и установите пароль для доступа к электронной почте по протоколу POP3."</string>
 </resources>

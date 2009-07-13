@@ -45,9 +45,12 @@
     <string name="add_cc_bcc_action">"新增副本/密件副本"</string>
     <string name="add_attachment_action">"新增附件"</string>
     <string name="dump_settings_action">"傾印設定"</string>
+    <string name="choose_attachment_dialog_title">"選擇附件"</string>
     <string name="accounts_context_menu_title">"帳戶選項"</string>
     <string name="status_loading_more">"正在載入郵件..."</string>
+    <string name="status_sending_messages">"正在傳送訊息..."</string>
     <string name="status_network_error">"連線錯誤"</string>
+    <string name="status_sending_messages_failed">"正在重新傳送訊息"</string>
     <string name="status_loading_more_failed">"重新載入更多郵件"</string>
     <string name="notification_new_title">"新郵件"</string>
   <plurals name="notification_new_one_account_fmt">
@@ -60,11 +63,16 @@
     <item quantity="other">"於 <xliff:g id="NUMBER_ACCOUNTS">%d</xliff:g> 個帳戶"</item>
   </plurals>
     <string name="special_mailbox_name_inbox">"收件匣"</string>
+    <string name="special_mailbox_display_name_outbox">"寄件匣"</string>
+    <string name="special_mailbox_display_name_drafts">"草稿"</string>
+    <string name="special_mailbox_display_name_trash">"垃圾桶"</string>
+    <string name="special_mailbox_display_name_sent">"寄件備份"</string>
     <string name="accounts_welcome">"歡迎使用 [電子郵件] 設定！"\n\n"[電子郵件] 設定可讓您使用各種電子郵件帳戶！"\n\n"大部分常見的電子郵件只需要兩個步驟就能設定完成！"</string>
     <string name="debug_version_fmt">"版本：<xliff:g id="VERSION">%s</xliff:g>"</string>
     <string name="debug_enable_debug_logging_label">"要啟用附加的偵錯記錄嗎？"</string>
     <string name="debug_enable_sensitive_logging_label">"要啟用敏感資訊偵錯記錄嗎？(該記錄可能會顯示密碼)"</string>
     <string name="message_list_load_more_messages_action">"載入更多郵件"</string>
+    <string name="message_list_send_pending_messages_action">"傳送寄出訊息"</string>
     <string name="message_compose_to_hint">"收件者"</string>
     <string name="message_compose_cc_hint">"副本"</string>
     <string name="message_compose_bcc_hint">"密件副本"</string>
@@ -78,6 +86,7 @@
     <string name="message_compose_attachment_size">"檔案過大，超過附件大小限制。"</string>
     <string name="message_view_to_label">"收件者："</string>
     <string name="message_view_cc_label">"副本："</string>
+    <string name="message_view_bcc_label">"密件副本："</string>
     <string name="message_view_attachment_view_action">"開啟"</string>
     <string name="message_view_attachment_download_action">"儲存"</string>
     <string name="message_view_status_attachment_saved">"已將附件儲存至 SD 記憶卡，檔名為 <xliff:g id="FILENAME">%s</xliff:g>。"</string>
@@ -85,6 +94,8 @@
     <string name="message_view_show_pictures_instructions">"選取 [顯示圖片] 即可顯示內嵌的圖片。"</string>
     <string name="message_view_show_pictures_action">"顯示圖片"</string>
     <string name="message_view_fetching_attachment_toast">"正在取得附件。"</string>
+    <string name="message_view_fetching_pictures_toast">"正在擷取圖片..."</string>
+    <string name="message_view_fetching_attachment_progress">"正在擷取附件 <xliff:g id="FILENAME">%s</xliff:g>"</string>
     <string name="message_deleted_toast">"已刪除郵件。"</string>
     <string name="message_discarded_toast">"已捨棄郵件。"</string>
     <string name="message_saved_toast">"已儲存郵件草稿。"</string>
@@ -110,6 +121,7 @@
     <string name="account_setup_account_type_instructions">"帳戶類型為何？"</string>
     <string name="account_setup_account_type_pop_action">"POP3 帳戶"</string>
     <string name="account_setup_account_type_imap_action">"IMAP 帳戶"</string>
+    <string name="account_setup_account_type_exchange_action">"Exchange/ActiveSync"</string>
     <string name="account_setup_incoming_title">"收信伺服器設定"</string>
     <string name="account_setup_incoming_username_label">"使用者名稱"</string>
     <string name="account_setup_incoming_password_label">"密碼"</string>
@@ -135,9 +147,15 @@
     <string name="account_setup_outgoing_require_login_label">"必須登入。"</string>
     <string name="account_setup_outgoing_username_label">"使用者名稱"</string>
     <string name="account_setup_outgoing_password_label">"密碼"</string>
+    <string name="account_setup_exchange_title">"Exchange 伺服器設定"</string>
+    <string name="account_setup_exchange_server_label">"Exchange 伺服器"</string>
+    <string name="account_setup_exchange_domain_label">"網域"</string>
+    <string name="account_setup_exchange_domain_hint">"在此輸入網域"</string>
+    <string name="account_setup_exchange_ssl_label">"使用安全連線 (SSL)"</string>
     <string name="account_setup_options_title">"帳戶選項"</string>
     <string name="account_setup_options_mail_check_frequency_label">"檢查電子郵件的頻率"</string>
     <string name="account_setup_options_mail_check_frequency_never">"不要檢查"</string>
+    <string name="account_setup_options_mail_check_frequency_push">"自動 (預先載入)"</string>
     <string name="account_setup_options_mail_check_frequency_5min">"每 5 分鐘檢查一次"</string>
     <string name="account_setup_options_mail_check_frequency_10min">"每 10 分鐘檢查一次"</string>
     <string name="account_setup_options_mail_check_frequency_15min">"每 15 分鐘檢查一次"</string>
@@ -146,6 +164,13 @@
     <string name="account_setup_options_default_label">"設為傳送電子郵件的預設帳戶。"</string>
     <string name="account_setup_options_notify_label">"收到電子郵件時通知我。"</string>
     <string name="account_setup_failed_dlg_title">"無法完成設定"</string>
+    <string name="account_setup_options_mail_window_label">"同步數量"</string>
+    <string name="account_setup_options_mail_window_1day">"1 天"</string>
+    <string name="account_setup_options_mail_window_3days">"3 天"</string>
+    <string name="account_setup_options_mail_window_1week">"1 週"</string>
+    <string name="account_setup_options_mail_window_2weeks">"2 週"</string>
+    <string name="account_setup_options_mail_window_1month">"1 個月"</string>
+    <string name="account_setup_options_mail_window_all">"所有郵件"</string>
     <string name="account_setup_failed_dlg_auth_message">"使用者名稱或密碼不正確。"</string>
     <string name="account_setup_failed_dlg_auth_message_fmt">"使用者名稱或密碼不正確。"\n"(<xliff:g id="ERROR">%s</xliff:g>)"</string>
     <string name="account_setup_failed_dlg_certificate_message">"無法安全地連線至伺服器。"</string>
