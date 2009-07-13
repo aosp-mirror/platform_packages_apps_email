@@ -15,8 +15,8 @@
 -->
 <resources xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:xliff="urn:oasis:names:tc:xliff:document:1.2">
-    <string name="read_attachment_label">"Bijlages van e-mail lezen"</string>
-    <string name="read_attachment_desc">"Staat deze toepassing toe om uw E-mail-bijlages te lezen."</string>
+    <string name="read_attachment_label">"Bijlagen van e-mail lezen"</string>
+    <string name="read_attachment_desc">"Staat deze toepassing toe om uw e-mailbijlagen te lezen."</string>
     <string name="app_name">"E-mail"</string>
     <string name="accounts_title">"Uw accounts"</string>
     <string name="compose_title">"Opstellen"</string>
@@ -45,9 +45,12 @@
     <string name="add_cc_bcc_action">"Cc/Bcc toevoegen"</string>
     <string name="add_attachment_action">"Bijlage toevoegen"</string>
     <string name="dump_settings_action">"Dumpinstellingen"</string>
-    <string name="accounts_context_menu_title">"Acountopties"</string>
+    <string name="choose_attachment_dialog_title">"Bijlage kiezen"</string>
+    <string name="accounts_context_menu_title">"Accountopties"</string>
     <string name="status_loading_more">"Berichten laden..."</string>
+    <string name="status_sending_messages">"Berichten verzenden…"</string>
     <string name="status_network_error">"Verbindingsfout"</string>
+    <string name="status_sending_messages_failed">"Verzenden van berichten opnieuw proberen"</string>
     <string name="status_loading_more_failed">"Probeer opnieuw meer berichten te laden"</string>
     <string name="notification_new_title">"Nieuwe e-mail"</string>
   <plurals name="notification_new_one_account_fmt">
@@ -60,11 +63,16 @@
     <item quantity="other">"in <xliff:g id="NUMBER_ACCOUNTS">%d</xliff:g> accounts"</item>
   </plurals>
     <string name="special_mailbox_name_inbox">"Postvak IN"</string>
+    <string name="special_mailbox_display_name_outbox">"Postvak UIT"</string>
+    <string name="special_mailbox_display_name_drafts">"Concepten"</string>
+    <string name="special_mailbox_display_name_trash">"Prullenbak"</string>
+    <string name="special_mailbox_display_name_sent">"Verzonden"</string>
     <string name="accounts_welcome">"Welkom bij E-mail instellen."\n\n"U kunt elk account gebruiken met E-mail."\n\n"De meest populaire e-mailaccounts kunnen in twee stappen worden ingesteld."</string>
     <string name="debug_version_fmt">"Versie: <xliff:g id="VERSION">%s</xliff:g>"</string>
     <string name="debug_enable_debug_logging_label">"Extra logboek voor probleemoplossing bij gevoelige informatie maken?"</string>
     <string name="debug_enable_sensitive_logging_label">"Probleemoplossing bij gevoelige informatie vastleggen? (Mogelijk worden er wachtwoorden weergegeven in de logboeken.)"</string>
     <string name="message_list_load_more_messages_action">"Meer berichten laden"</string>
+    <string name="message_list_send_pending_messages_action">"Uitgaande berichten verzenden"</string>
     <string name="message_compose_to_hint">"Aan"</string>
     <string name="message_compose_cc_hint">"Cc"</string>
     <string name="message_compose_bcc_hint">"Bcc"</string>
@@ -74,10 +82,11 @@
     <string name="message_compose_reply_header_fmt">\n\n"<xliff:g id="SENDER">%s</xliff:g>schreef:"\n\n</string>
     <string name="message_compose_quoted_text_label">"Geciteerde tekst"</string>
     <string name="message_compose_error_no_recipients">"U moet minstens één ontvanger toevoegen."</string>
-    <string name="message_compose_attachments_skipped_toast">"Sommige bijlages kunnen niet worden doorgestuurd omdat ze niet zijn gedownload."</string>
+    <string name="message_compose_attachments_skipped_toast">"Sommige bijlagen kunnen niet worden doorgestuurd omdat ze niet zijn gedownload."</string>
     <string name="message_compose_attachment_size">"Bestand is te groot om bij te voegen."</string>
     <string name="message_view_to_label">"Aan:"</string>
     <string name="message_view_cc_label">"Cc:"</string>
+    <string name="message_view_bcc_label">"Bcc:"</string>
     <string name="message_view_attachment_view_action">"Openen"</string>
     <string name="message_view_attachment_download_action">"Opslaan"</string>
     <string name="message_view_status_attachment_saved">"Bijlage opgeslagen op SD-kaart als <xliff:g id="FILENAME">%s</xliff:g>."</string>
@@ -85,6 +94,8 @@
     <string name="message_view_show_pictures_instructions">"Selecteer Afbeeldingen weergeven om ingevoegde afbeeldingen weer te geven."</string>
     <string name="message_view_show_pictures_action">"Afbeeldingen weergeven"</string>
     <string name="message_view_fetching_attachment_toast">"Bijlage wordt opgehaald."</string>
+    <string name="message_view_fetching_pictures_toast">"Afbeeldingen ophalen…"</string>
+    <string name="message_view_fetching_attachment_progress">"Bijlage <xliff:g id="FILENAME">%s</xliff:g> ophalen"</string>
     <string name="message_deleted_toast">"Bericht verwijderd."</string>
     <string name="message_discarded_toast">"Bericht wordt verwijderd"</string>
     <string name="message_saved_toast">"Bericht opgeslagen als concept."</string>
@@ -95,7 +106,7 @@
     <string name="account_setup_basics_instructions">"Typ het e-mailadres van uw account:"</string>
     <string name="account_setup_basics_email_hint">"E-mailadres"</string>
     <string name="account_setup_basics_password_hint">"Wachtwoord"</string>
-    <string name="account_setup_basics_default_label">"E-mail standaard vanaf dit account versturen"</string>
+    <string name="account_setup_basics_default_label">"E-mail standaard vanaf dit account verzenden"</string>
     <string name="account_setup_basics_manual_setup_action">"Handmatig instellen"</string>
     <string name="account_setup_username_password_toast">"Typ een geldig e-mailadres en wachtwoord"</string>
     <string name="account_setup_check_settings_retr_info_msg">"Accountinformatie ophalen..."</string>
@@ -110,6 +121,7 @@
     <string name="account_setup_account_type_instructions">"Welk type account is dit?"</string>
     <string name="account_setup_account_type_pop_action">"POP3-account"</string>
     <string name="account_setup_account_type_imap_action">"IMAP-account"</string>
+    <string name="account_setup_account_type_exchange_action">"Exchange/ActiveSync"</string>
     <string name="account_setup_incoming_title">"Serverinstellingen inkomende e-mail"</string>
     <string name="account_setup_incoming_username_label">"Gebruikersnaam"</string>
     <string name="account_setup_incoming_password_label">"Wachtwoord"</string>
@@ -135,17 +147,30 @@
     <string name="account_setup_outgoing_require_login_label">"Aanmelden vereist"</string>
     <string name="account_setup_outgoing_username_label">"Gebruikersnaam"</string>
     <string name="account_setup_outgoing_password_label">"Wachtwoord"</string>
+    <string name="account_setup_exchange_title">"Instellingen voor Exchange-server"</string>
+    <string name="account_setup_exchange_server_label">"Exchange-server"</string>
+    <string name="account_setup_exchange_domain_label">"Domein"</string>
+    <string name="account_setup_exchange_domain_hint">"Geef hier het domein op"</string>
+    <string name="account_setup_exchange_ssl_label">"Beveiligde verbinding (SSL) gebruiken"</string>
     <string name="account_setup_options_title">"Accountopties"</string>
     <string name="account_setup_options_mail_check_frequency_label">"Frequentie voor controle op nieuwe berichten"</string>
     <string name="account_setup_options_mail_check_frequency_never">"Nooit"</string>
+    <string name="account_setup_options_mail_check_frequency_push">"Automatisch (push)"</string>
     <string name="account_setup_options_mail_check_frequency_5min">"Elke 5 minuten"</string>
     <string name="account_setup_options_mail_check_frequency_10min">"Elke 10 minuten"</string>
     <string name="account_setup_options_mail_check_frequency_15min">"Elke 15 minuten"</string>
     <string name="account_setup_options_mail_check_frequency_30min">"Elke 30 minuten"</string>
     <string name="account_setup_options_mail_check_frequency_1hour">"Elk uur"</string>
-    <string name="account_setup_options_default_label">"E-mail standaard vanaf dit account versturen"</string>
+    <string name="account_setup_options_default_label">"E-mail standaard vanaf dit account verzenden"</string>
     <string name="account_setup_options_notify_label">"Stuur me een melding wanneer er e-mail binnenkomt."</string>
     <string name="account_setup_failed_dlg_title">"Instellen is niet voltooid"</string>
+    <string name="account_setup_options_mail_window_label">"Hoeveelheid om te synchroniseren"</string>
+    <string name="account_setup_options_mail_window_1day">"Eén dag"</string>
+    <string name="account_setup_options_mail_window_3days">"Drie dagen"</string>
+    <string name="account_setup_options_mail_window_1week">"Eén week"</string>
+    <string name="account_setup_options_mail_window_2weeks">"Twee weken"</string>
+    <string name="account_setup_options_mail_window_1month">"Eén maand"</string>
+    <string name="account_setup_options_mail_window_all">"Alle e-mail"</string>
     <string name="account_setup_failed_dlg_auth_message">"Gebruikersnaam of wachtwoord onjuist"</string>
     <string name="account_setup_failed_dlg_auth_message_fmt">"Gebruikersnaam of wachtwoord is onjuist."\n"(<xliff:g id="ERROR">%s</xliff:g>)"</string>
     <string name="account_setup_failed_dlg_certificate_message">"Kan geen veilige verbinding met de server maken."</string>
@@ -159,7 +184,7 @@
     <string name="account_setup_failed_dlg_edit_details_action">"Details bewerken"</string>
     <string name="account_settings_title_fmt">"Algemene instellingen"</string>
     <string name="account_settings_default_label">"Standaardaccount"</string>
-    <string name="account_settings_default_summary">"E-mail standaard vanaf dit account versturen"</string>
+    <string name="account_settings_default_summary">"E-mail standaard vanaf dit account verzenden"</string>
     <string name="account_settings_notify_label">"Meldingen via e-mail"</string>
     <string name="account_settings_notify_summary">"Melding in statusbalk als e-mail binnenkomt"</string>
     <string name="account_settings_mail_check_frequency_label">"Frequentie voor controle op nieuwe e-mail"</string>
