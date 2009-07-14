@@ -14,28 +14,25 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-
 package com.android.exchange;
 
-import com.android.exchange.ISyncManagerCallback;
+import com.android.exchange.IEmailServiceCallback;
 import com.android.exchange.EmailContent;
 
-interface ISyncManager {
-    int validate(in String protocol, in String host, in String userName, in String password, int port, boolean ssl) ;
-
-    void registerCallback(ISyncManagerCallback cb);
-    void unregisterCallback(ISyncManagerCallback cb);
+interface IEmailService {
+    int validate(in String protocol, in String host, in String userName, in String password,
+        int port, boolean ssl) ;
 
     boolean startSync(long mailboxId);
     boolean stopSync(long mailboxId);
 
-    boolean updateFolderList(long accountId);
+    boolean loadMore(long messageId, IEmailServiceCallback cb);
+    boolean loadAttachment(long messageId, in EmailContent.Attachment att,
+        IEmailServiceCallback cb);
 
-    boolean loadMore(long messageId, ISyncManagerCallback cb);
-    boolean loadAttachment(long messageId, in EmailContent.Attachment att, ISyncManagerCallback cb);
+    boolean updateFolderList(long accountId);
 
     boolean createFolder(long accountId, String name);
     boolean deleteFolder(long accountId, String name);
     boolean renameFolder(long accountId, String oldName, String newName);
-    //AddressLookup - real-time address lookup (EAS)
 }

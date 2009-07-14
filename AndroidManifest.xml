@@ -178,6 +178,16 @@
             android:enabled="true"
             >
         </service>
+
+        <!--Required stanza to register the EasAuthenticatorService with AccountManager -->
+        <service android:name=".service.EasAuthenticatorService" android:exported="true">
+            <intent-filter>
+                <action android:name="android.accounts.AccountAuthenticator" />
+            </intent-filter>
+            <meta-data android:name="android.accounts.AccountAuthenticator"
+                       android:resource="@xml/authenticator" />
+        </service>
+
         <provider
             android:name=".provider.AttachmentProvider"
             android:authorities="com.android.email.attachmentprovider"

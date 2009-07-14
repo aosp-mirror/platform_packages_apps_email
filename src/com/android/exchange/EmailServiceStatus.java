@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2008-2009 Marc Blank
+ *  Copyright (C) 2008-2009 Marc Blank
  * Licensed to The Android Open Source Project.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
@@ -17,6 +17,19 @@
 
 package com.android.exchange;
 
-oneway interface ISyncManagerCallback {
-    void progress(int value);
+/**
+ * Definitions of service status codes returned to IEmailServiceCallback's status method
+ */
+public interface EmailServiceStatus {
+    public static final int SUCCESS = 0;
+    public static final int IN_PROGRESS = 1;
+
+    public static final int MESSAGE_NOT_FOUND = 0x10;
+    public static final int ATTACHMENT_NOT_FOUND = 0x11;
+    public static final int FOLDER_NOT_DELETED = 0x12;
+    public static final int FOLDER_NOT_RENAMED = 0x13;
+    public static final int FOLDER_NOT_CREATED = 0x14;
+
+    // Maybe we should automatically retry these?
+    public static final int CONNECTION_ERROR = 0x20;
 }
