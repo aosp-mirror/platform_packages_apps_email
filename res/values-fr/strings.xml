@@ -86,7 +86,6 @@
     <string name="message_compose_attachment_size">"Impossible de joindre le fichier, car il est trop volumineux."</string>
     <string name="message_view_to_label">"À :"</string>
     <string name="message_view_cc_label">"Cc :"</string>
-    <string name="message_view_bcc_label">"Cci :"</string>
     <string name="message_view_attachment_view_action">"Ouvrir"</string>
     <string name="message_view_attachment_download_action">"Enregistrer"</string>
     <string name="message_view_status_attachment_saved">"Pièce jointe enregistrée sur la carte SD sous le nom <xliff:g id="FILENAME">%s</xliff:g>."</string>
@@ -94,7 +93,6 @@
     <string name="message_view_show_pictures_instructions">"Sélectionnez \"Afficher les images\" pour afficher les images intégrées."</string>
     <string name="message_view_show_pictures_action">"Afficher les images"</string>
     <string name="message_view_fetching_attachment_toast">"Récupération de la pièce jointe."</string>
-    <string name="message_view_fetching_pictures_toast">"Récupération des images en cours…"</string>
     <string name="message_view_fetching_attachment_progress">"Récupération de la pièce jointe <xliff:g id="FILENAME">%s</xliff:g>"</string>
     <string name="message_deleted_toast">"Message supprimé."</string>
     <string name="message_discarded_toast">"Message supprimé."</string>

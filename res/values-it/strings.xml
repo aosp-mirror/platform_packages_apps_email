@@ -86,7 +86,6 @@
     <string name="message_compose_attachment_size">"File troppo grande. Impossibile allegarlo."</string>
     <string name="message_view_to_label">"A:"</string>
     <string name="message_view_cc_label">"Cc:"</string>
-    <string name="message_view_bcc_label">"Ccn:"</string>
     <string name="message_view_attachment_view_action">"Apri"</string>
     <string name="message_view_attachment_download_action">"Salva"</string>
     <string name="message_view_status_attachment_saved">"Allegato salvato su scheda SD come <xliff:g id="FILENAME">%s</xliff:g>."</string>
@@ -94,7 +93,6 @@
     <string name="message_view_show_pictures_instructions">"Seleziona \"Mostra immagini\" per visualizzare le immagini incorporate."</string>
     <string name="message_view_show_pictures_action">"Mostra immagini"</string>
     <string name="message_view_fetching_attachment_toast">"Recupero allegato in corso."</string>
-    <string name="message_view_fetching_pictures_toast">"Recupero immagini…"</string>
     <string name="message_view_fetching_attachment_progress">"Recupero allegato <xliff:g id="FILENAME">%s</xliff:g>"</string>
     <string name="message_deleted_toast">"Messaggio eliminato."</string>
     <string name="message_discarded_toast">"Messaggio eliminato."</string>

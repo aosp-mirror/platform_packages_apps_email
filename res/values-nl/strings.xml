@@ -86,7 +86,6 @@
     <string name="message_compose_attachment_size">"Bestand is te groot om bij te voegen."</string>
     <string name="message_view_to_label">"Aan:"</string>
     <string name="message_view_cc_label">"Cc:"</string>
-    <string name="message_view_bcc_label">"Bcc:"</string>
     <string name="message_view_attachment_view_action">"Openen"</string>
     <string name="message_view_attachment_download_action">"Opslaan"</string>
     <string name="message_view_status_attachment_saved">"Bijlage opgeslagen op SD-kaart als <xliff:g id="FILENAME">%s</xliff:g>."</string>
@@ -94,7 +93,6 @@
     <string name="message_view_show_pictures_instructions">"Selecteer Afbeeldingen weergeven om ingevoegde afbeeldingen weer te geven."</string>
     <string name="message_view_show_pictures_action">"Afbeeldingen weergeven"</string>
     <string name="message_view_fetching_attachment_toast">"Bijlage wordt opgehaald."</string>
-    <string name="message_view_fetching_pictures_toast">"Afbeeldingen ophalen…"</string>
     <string name="message_view_fetching_attachment_progress">"Bijlage <xliff:g id="FILENAME">%s</xliff:g> ophalen"</string>
     <string name="message_deleted_toast">"Bericht verwijderd."</string>
     <string name="message_discarded_toast">"Bericht wordt verwijderd"</string>

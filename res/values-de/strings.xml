@@ -86,7 +86,6 @@
     <string name="message_compose_attachment_size">"Dateianhang zu groß"</string>
     <string name="message_view_to_label">"An:"</string>
     <string name="message_view_cc_label">"Cc:"</string>
-    <string name="message_view_bcc_label">"Bcc:"</string>
     <string name="message_view_attachment_view_action">"Öffnen"</string>
     <string name="message_view_attachment_download_action">"Speichern"</string>
     <string name="message_view_status_attachment_saved">"Anhang auf SD-Speicherkarte unter \"<xliff:g id="FILENAME">%s</xliff:g>\" abgespeichert"</string>
@@ -94,7 +93,6 @@
     <string name="message_view_show_pictures_instructions">"Wählen Sie \"Bilder anzeigen\" aus, um eingebettete Bilder anzuzeigen."</string>
     <string name="message_view_show_pictures_action">"Bilder anzeigen"</string>
     <string name="message_view_fetching_attachment_toast">"Anhang wird abgerufen"</string>
-    <string name="message_view_fetching_pictures_toast">"Bilder werden abgerufen…"</string>
     <string name="message_view_fetching_attachment_progress">"Anhang <xliff:g id="FILENAME">%s</xliff:g> wird abgerufen."</string>
     <string name="message_deleted_toast">"Nachricht gelöscht"</string>
     <string name="message_discarded_toast">"Nachricht gelöscht"</string>

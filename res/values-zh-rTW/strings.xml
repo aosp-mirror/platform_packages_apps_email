@@ -86,7 +86,6 @@
     <string name="message_compose_attachment_size">"檔案過大，超過附件大小限制。"</string>
     <string name="message_view_to_label">"收件者："</string>
     <string name="message_view_cc_label">"副本："</string>
-    <string name="message_view_bcc_label">"密件副本："</string>
     <string name="message_view_attachment_view_action">"開啟"</string>
     <string name="message_view_attachment_download_action">"儲存"</string>
     <string name="message_view_status_attachment_saved">"已將附件儲存至 SD 記憶卡，檔名為 <xliff:g id="FILENAME">%s</xliff:g>。"</string>
@@ -94,7 +93,6 @@
     <string name="message_view_show_pictures_instructions">"選取 [顯示圖片] 即可顯示內嵌的圖片。"</string>
     <string name="message_view_show_pictures_action">"顯示圖片"</string>
     <string name="message_view_fetching_attachment_toast">"正在取得附件。"</string>
-    <string name="message_view_fetching_pictures_toast">"正在擷取圖片..."</string>
     <string name="message_view_fetching_attachment_progress">"正在擷取附件 <xliff:g id="FILENAME">%s</xliff:g>"</string>
     <string name="message_deleted_toast">"已刪除郵件。"</string>
     <string name="message_discarded_toast">"已捨棄郵件。"</string>

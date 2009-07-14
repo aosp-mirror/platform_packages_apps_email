@@ -86,7 +86,6 @@
     <string name="message_compose_attachment_size">"El archivo es demasiado grande para adjuntarlo."</string>
     <string name="message_view_to_label">"Para:"</string>
     <string name="message_view_cc_label">"Cc:"</string>
-    <string name="message_view_bcc_label">"CCO:"</string>
     <string name="message_view_attachment_view_action">"Abrir"</string>
     <string name="message_view_attachment_download_action">"Guardar"</string>
     <string name="message_view_status_attachment_saved">"El archivo adjunto se ha guardado en una tarjeta SD como <xliff:g id="FILENAME">%s</xliff:g>."</string>
@@ -94,7 +93,6 @@
     <string name="message_view_show_pictures_instructions">"Selecciona \"Mostrar imágenes\" para visualizar las imágenes incrustadas."</string>
     <string name="message_view_show_pictures_action">"Mostrar imágenes"</string>
     <string name="message_view_fetching_attachment_toast">"Obteniendo archivo adjunto"</string>
-    <string name="message_view_fetching_pictures_toast">"Extrayendo imágenes..."</string>
     <string name="message_view_fetching_attachment_progress">"Extrayendo archivo adjunto <xliff:g id="FILENAME">%s</xliff:g>"</string>
     <string name="message_deleted_toast">"Mensaje suprimido"</string>
     <string name="message_discarded_toast">"Mensaje descartado"</string>

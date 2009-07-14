@@ -86,7 +86,6 @@
     <string name="message_compose_attachment_size">"Soubor nelze připojit, protože je příliš velký."</string>
     <string name="message_view_to_label">"Komu:"</string>
     <string name="message_view_cc_label">"Kopie:"</string>
-    <string name="message_view_bcc_label">"Skrytá kopie:"</string>
     <string name="message_view_attachment_view_action">"Otevřít"</string>
     <string name="message_view_attachment_download_action">"Uložit"</string>
     <string name="message_view_status_attachment_saved">"Příloha byla uložena na SD kartu jako <xliff:g id="FILENAME">%s</xliff:g>."</string>
@@ -94,7 +93,6 @@
     <string name="message_view_show_pictures_instructions">"Výběrem možnosti Zobrazit obrázky zobrazíte vnořené obrázky."</string>
     <string name="message_view_show_pictures_action">"Zobrazit obrázky"</string>
     <string name="message_view_fetching_attachment_toast">"Načítání přílohy"</string>
-    <string name="message_view_fetching_pictures_toast">"Načítání obrázků..."</string>
     <string name="message_view_fetching_attachment_progress">"Načítání přílohy <xliff:g id="FILENAME">%s</xliff:g>"</string>
     <string name="message_deleted_toast">"Zpráva byla smazána."</string>
     <string name="message_discarded_toast">"Zpráva byla zrušena."</string>
