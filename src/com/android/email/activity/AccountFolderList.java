@@ -27,7 +27,6 @@ import com.android.email.provider.EmailContent;
 import com.android.email.provider.EmailContent.Account;
 import com.android.email.provider.EmailContent.Mailbox;
 import com.android.email.provider.EmailContent.MailboxColumns;
-import com.android.internal.database.ArrayListCursor;
 
 import android.app.AlertDialog;
 import android.app.Dialog;
@@ -38,7 +37,9 @@ import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.database.Cursor;
+import android.database.MatrixCursor;
 import android.database.MergeCursor;
+import android.database.MatrixCursor.RowBuilder;
 import android.net.Uri;
 import android.os.AsyncTask;
 import android.os.Bundle;
@@ -58,8 +59,6 @@ import android.widget.ExpandableListView;
 import android.widget.TextView;
 import android.widget.Toast;
 import android.widget.ExpandableListView.ExpandableListContextMenuInfo;
-
-import java.util.ArrayList;
 
 public class AccountFolderList extends ExpandableListActivity implements OnClickListener {
     private static final int DIALOG_REMOVE_ACCOUNT = 1;
@@ -231,52 +230,46 @@ public class AccountFolderList extends ExpandableListActivity implements OnClick
      */
     private void setupSummaryCursors() {
         // This will be combined with the Accounts cursor (via a MergeCursor)
-        ArrayList<ArrayList> rows = new ArrayList<ArrayList>(1);
-        ArrayList<Object> row = new ArrayList<Object>();
+        MatrixCursor groupCursor = new MatrixCursor(EmailContent.Account.CONTENT_PROJECTION);
+        RowBuilder row = groupCursor.newRow();
         row.add(Long.valueOf(-1));                              // CONTENT_ID_COLUMN = 0;
         row.add(getString(R.string.account_folder_list_summary_section)); // CONTENT_ID_DISPLAY_NAME
         row.add("");                                            // CONTENT_EMAIL_ADDRESS_COLUMN = 2;
-        rows.add(row);
-        mSummaryGroupCursor = new ArrayListCursor(EmailContent.Account.CONTENT_PROJECTION, rows);
+        mSummaryGroupCursor = groupCursor;
 
         // This will be used as the child (mailboxes) cursor for the summary group
-        rows = new ArrayList<ArrayList>(3);
-        row = new ArrayList<Object>();
+        MatrixCursor childCursor = new MatrixCursor(MAILBOX_PROJECTION);
+        row = childCursor.newRow();
         row.add(Long.valueOf(MessageList.QUERY_ALL_INBOXES));   // MAILBOX_COLUMN_ID = 0;
         row.add(getString(R.string.account_folder_list_summary_inbox));     // MAILBOX_DISPLAY_NAME
         row.add(null);                                          // MAILBOX_ACCOUNT_KEY = 2;
         row.add(Integer.valueOf(Mailbox.TYPE_INBOX));           // MAILBOX_TYPE = 3;
         row.add(Integer.valueOf(0));                            // MAILBOX_UNREAD_COUNT = 4;
-        rows.add(row);
-        row = new ArrayList<Object>();
+        row = childCursor.newRow();
         row.add(Long.valueOf(MessageList.QUERY_ALL_UNREAD));    // MAILBOX_COLUMN_ID = 0;
         row.add(getString(R.string.account_folder_list_summary_unread));    // MAILBOX_DISPLAY_NAME
         row.add(null);                                          // MAILBOX_ACCOUNT_KEY = 2;
         row.add(Integer.valueOf(Mailbox.TYPE_MAIL));            // MAILBOX_TYPE = 3;
         row.add(Integer.valueOf(0));                            // MAILBOX_UNREAD_COUNT = 4;
-        rows.add(row);
-        row = new ArrayList<Object>();
+        row = childCursor.newRow();
         row.add(Long.valueOf(MessageList.QUERY_ALL_FAVORITES)); // MAILBOX_COLUMN_ID = 0;
         row.add(getString(R.string.account_folder_list_summary_favorite));  // MAILBOX_DISPLAY_NAME
         row.add(null);                                          // MAILBOX_ACCOUNT_KEY = 2;
         row.add(Integer.valueOf(Mailbox.TYPE_MAIL));            // MAILBOX_TYPE = 3;
         row.add(Integer.valueOf(0));                            // MAILBOX_UNREAD_COUNT = 4;
-        rows.add(row);
-        row = new ArrayList<Object>();
+        row = childCursor.newRow();
         row.add(Long.valueOf(MessageList.QUERY_ALL_DRAFTS));    // MAILBOX_COLUMN_ID = 0;
         row.add(getString(R.string.account_folder_list_summary_drafts));    // MAILBOX_DISPLAY_NAME
         row.add(null);                                          // MAILBOX_ACCOUNT_KEY = 2;
         row.add(Integer.valueOf(Mailbox.TYPE_DRAFTS));          // MAILBOX_TYPE = 3;
         row.add(Integer.valueOf(0));                            // MAILBOX_UNREAD_COUNT = 4;
-        rows.add(row);
-        row = new ArrayList<Object>();
+        row = childCursor.newRow();
         row.add(Long.valueOf(MessageList.QUERY_ALL_OUTBOX));    // MAILBOX_COLUMN_ID = 0;
         row.add(getString(R.string.account_folder_list_summary_outbox));    // MAILBOX_DISPLAY_NAME
         row.add(null);                                          // MAILBOX_ACCOUNT_KEY = 2;
         row.add(Integer.valueOf(Mailbox.TYPE_OUTBOX));          // MAILBOX_TYPE = 3;
         row.add(Integer.valueOf(0));                            // MAILBOX_UNREAD_COUNT = 4;
-        rows.add(row);
-        mSummaryChildCursor = new ArrayListCursor(MAILBOX_PROJECTION, rows);
+        mSummaryChildCursor = childCursor;
     }
 
     /**
