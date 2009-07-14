@@ -28,6 +28,7 @@ import android.content.ContentProviderOperation;
 import android.content.ContentResolver;
 import android.content.ContentUris;
 import android.content.ContentValues;
+import android.content.Context;
 import android.content.OperationApplicationException;
 import android.database.Cursor;
 import android.os.RemoteException;
@@ -46,7 +47,13 @@ import com.android.exchange.EmailContent.SyncColumns;
  */
 public class EasEmailSyncAdapter extends EasSyncAdapter {
 
-    private static final String[] UPDATES_PROJECTION = {MessageColumns.FLAG_READ};
+    private static final int UPDATES_READ_COLUMN = 0;
+    private static final int UPDATES_MAILBOX_KEY_COLUMN = 1;
+    private static final int UPDATES_SERVER_ID_COLUMN = 2;
+    private static final String[] UPDATES_PROJECTION =
+        {MessageColumns.FLAG_READ, MessageColumns.MAILBOX_KEY, SyncColumns.SERVER_ID};
+
+    String[] bindArguments = new String[2];
 
     ArrayList<Long> mDeletedIdList = new ArrayList<Long>();
 
@@ -68,8 +75,6 @@ public class EasEmailSyncAdapter extends EasSyncAdapter {
             SyncColumns.SERVER_ID + "=? and " + MessageColumns.MAILBOX_KEY + "=?";
 
         private String mMailboxIdAsString;
-
-        String[] bindArguments = new String[2];
 
         public EasEmailSyncParser(InputStream in, EasSyncService service) throws IOException {
             super(in, service);
@@ -337,6 +342,11 @@ public class EasEmailSyncAdapter extends EasSyncAdapter {
                 ops.add(ContentProviderOperation.newDelete(
                         ContentUris.withAppendedId(Message.DELETED_CONTENT_URI, id)).build());
             }
+            // And same with the updates
+            for (Long id: mUpdatedIdList) {
+                ops.add(ContentProviderOperation.newDelete(
+                        ContentUris.withAppendedId(Message.UPDATED_CONTENT_URI, id)).build());
+            }
             
             try {
                 mService.mContext.getContentResolver()
@@ -358,7 +368,8 @@ public class EasEmailSyncAdapter extends EasSyncAdapter {
 
     @Override
     public boolean sendLocalChanges(EasSerializer s, EasSyncService service) throws IOException {
-        ContentResolver cr = service.mContext.getContentResolver();
+        Context context = service.mContext;
+        ContentResolver cr = context.getContentResolver();
 
         // Find any of our deleted items
         Cursor c = cr.query(Message.DELETED_CONTENT_URI, Message.LIST_PROJECTION,
@@ -383,11 +394,15 @@ public class EasEmailSyncAdapter extends EasSyncAdapter {
             c.close();
         }
 
+        // Find our trash mailbox, since deletions will have been moved there...
+        long trashMailboxId =
+            Mailbox.findMailboxOfType(context, mMailbox.mAccountKey, Mailbox.TYPE_TRASH);
+
         // Do the same now for updated items
         c = cr.query(Message.UPDATED_CONTENT_URI, Message.LIST_PROJECTION,
                 MessageColumns.MAILBOX_KEY + '=' + mMailbox.mId, null, null);
-        // We keep track of the list of updated item id's so that we can remove them from the
-        // deleted table after the server receives our command
+
+        // We keep track of the list of updated item id's as we did above with deleted items
         mUpdatedIdList.clear();
         try {
             while (c.moveToNext()) {
@@ -403,7 +418,21 @@ public class EasEmailSyncAdapter extends EasSyncAdapter {
                     if (!currentCursor.moveToFirst()) {
                          continue;
                     }
-                    int read = currentCursor.getInt(0);
+
+                    // If the message is now in the trash folder, it has been deleted by the user
+                    if (currentCursor.getLong(UPDATES_MAILBOX_KEY_COLUMN) == trashMailboxId) {
+                         if (first) {
+                            s.start("Commands");
+                            first = false;
+                        }
+                        // Send the command to delete this message
+                        s.start("Delete")
+                            .data("ServerId", currentCursor.getString(UPDATES_SERVER_ID_COLUMN))
+                            .end("Delete");
+                        continue;
+                    }
+
+                    int read = currentCursor.getInt(UPDATES_READ_COLUMN);
                     if (read == c.getInt(Message.LIST_READ_COLUMN)) {
                         // The read state hasn't really changed, so move on...
                         continue;

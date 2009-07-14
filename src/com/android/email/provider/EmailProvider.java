@@ -264,7 +264,7 @@ public class EmailProvider extends ContentProvider {
         // For the updated and deleted tables, the id is assigned, but we do want to keep track
         // of the ORDER of updates using an autoincrement primary key.  We use the DATA column
         // at this point; it has no other function
-        String altCreateString = " (" + EmailContent.RECORD_ID + " integer, " 
+        String altCreateString = " (" + EmailContent.RECORD_ID + " integer unique, "
             + SyncColumns.ACCOUNT_KEY + " integer, "
             + SyncColumns.SERVER_ID + " integer, "
             + SyncColumns.SERVER_VERSION + " integer, "

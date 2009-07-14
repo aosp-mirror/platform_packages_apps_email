@@ -49,7 +49,6 @@ import android.net.NetworkInfo;
 import android.net.Uri;
 import android.net.NetworkInfo.State;
 import android.os.Bundle;
-import android.os.Debug;
 import android.os.Handler;
 import android.os.PowerManager;
 import android.os.RemoteException;

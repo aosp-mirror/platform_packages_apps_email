@@ -1630,7 +1630,13 @@ public abstract class EmailContent {
             MailboxColumns.FLAG_VISIBLE, MailboxColumns.FLAGS, MailboxColumns.VISIBLE_LIMIT
         };
 
-        /**
+        private static final String WHERE_TYPE_AND_ACCOUNT_KEY =
+            MailboxColumns.TYPE + "=? and " + MailboxColumns.ACCOUNT_KEY + "=?";
+
+        private static final int ID_PROJECTION_ID = 0;
+        private static final String[] ID_PROJECTION = new String[] { ID };
+
+       /**
          * no public constructor since this is a utility class
          */
         public Mailbox() {
@@ -1730,6 +1736,28 @@ public abstract class EmailContent {
             values.put(MailboxColumns.FLAGS, mFlags);            
             values.put(MailboxColumns.VISIBLE_LIMIT, mVisibleLimit);         
             return values;
+        }
+
+        /**
+         * Convenience method to return the id of a given type of Mailbox for a given Account
+         * @param context the caller's context, used to get a ContentResolver
+         * @param accountId the id of the account to be queried
+         * @param type the mailbox type, as defined above
+         * @return the id of the mailbox, or -1 if not found
+         */
+        public static long findMailboxOfType(Context context, long accountId, int type) {
+            long mailboxId = -1;
+            String[] bindArguments = new String[] {Long.toString(type), Long.toString(accountId)};
+            Cursor c = context.getContentResolver().query(Mailbox.CONTENT_URI,
+                    ID_PROJECTION, WHERE_TYPE_AND_ACCOUNT_KEY, bindArguments, null);
+            try {
+                if (c.moveToFirst()) {
+                    mailboxId = c.getLong(ID_PROJECTION_ID);
+                }
+            } finally {
+                c.close();
+            }
+            return mailboxId;
         }
     }
 
