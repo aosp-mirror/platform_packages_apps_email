@@ -153,11 +153,25 @@
     <!-- Checkbox label, shown only on debug screen -->
     <string name="debug_enable_sensitive_logging_label">Enable sensitive information debug logging? (May show passwords in logs.)</string>
 
+    <!-- The title of the summary section in the AccountFolder list -->
+    <string name="account_folder_list_summary_section">At a glance</string>
+    <!-- The summary section entry in the AccountFolder list to display all inboxes -->
+    <string name="account_folder_list_summary_inbox">Inbox</string>
+    <!-- The summary section entry in the AccountFolder list to display all unread -->
+    <string name="account_folder_list_summary_unread">Unread</string>
+    <!-- The summary section entry in the AccountFolder list to display all favorites -->
+    <string name="account_folder_list_summary_favorite">Favorite</string>
+    <!-- The summary section entry in the AccountFolder list to display all drafts -->
+    <string name="account_folder_list_summary_drafts">Drafts</string>
+    <!-- The summary section entry in the AccountFolder list to display all outboxes -->
+    <string name="account_folder_list_summary_outbox">Outbox</string>
+
     <!-- Appears at the bottom of list of messages; user selects to load more messages from that folder. -->
     <string name="message_list_load_more_messages_action">Load more messages</string>
     <!-- Appears at the bottom of list of messages of outbox;
          user selects to send pending messages. -->
     <string name="message_list_send_pending_messages_action">Send outgoing messages</string>
+
     <!-- Hint text in To field -->
     <string name="message_compose_to_hint">To</string>
     <!-- Hint text in Cc field -->

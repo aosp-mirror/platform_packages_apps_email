@@ -22,6 +22,9 @@ import com.android.email.Utility;
 import com.android.email.activity.setup.AccountSettings;
 import com.android.email.mail.MessagingException;
 import com.android.email.provider.EmailContent;
+import com.android.email.provider.EmailContent.Mailbox;
+import com.android.email.provider.EmailContent.MailboxColumns;
+import com.android.email.provider.EmailContent.Message;
 import com.android.email.provider.EmailContent.MessageColumns;
 
 import android.app.ListActivity;
@@ -59,7 +62,16 @@ import java.util.HashSet;
 import java.util.Set;
 
 public class MessageList extends ListActivity implements OnItemClickListener, OnClickListener {
-    
+
+    // Magic mailbox ID's
+    // NOTE:  This is a quick solution for merged mailboxes.  I would rather implement this
+    // with a more generic way of packaging and sharing queries between activities
+    public static final long QUERY_ALL_INBOXES = -2;
+    public static final long QUERY_ALL_UNREAD = -3;
+    public static final long QUERY_ALL_FAVORITES = -4;
+    public static final long QUERY_ALL_DRAFTS = -5;
+    public static final long QUERY_ALL_OUTBOX = -6;
+
     // Intent extras (internal to this activity)
     private static final String EXTRA_ACCOUNT_ID = "com.android.email.activity._ACCOUNT_ID";
     private static final String EXTRA_MAILBOX_TYPE = "com.android.email.activity.MAILBOX_TYPE";
@@ -82,6 +94,16 @@ public class MessageList extends ListActivity implements OnItemClickListener, On
     private LoadMessagesTask mLoadMessagesTask;
 
     /**
+     * Reduced mailbox projection used to hunt for inboxes
+     * TODO: remove this and implement a custom URI
+     */
+    public final static int MAILBOX_FIND_INBOX_COLUMN_ID = 0;
+
+    public final static String[] MAILBOX_FIND_INBOX_PROJECTION = new String[] {
+        EmailContent.RECORD_ID, MailboxColumns.TYPE, MailboxColumns.FLAG_VISIBLE
+    };
+
+    /**
      * Open a specific mailbox.
      * 
      * TODO This should just shortcut to a more generic version that can accept a list of
@@ -89,8 +111,8 @@ public class MessageList extends ListActivity implements OnItemClickListener, On
      * 
      * @param context
      * @param id mailbox key
-     * @param accountName the account we're viewing
-     * @param mailboxName the mailbox we're viewing
+     * @param accountName the account we're viewing (for title formatting - not for lookup)
+     * @param mailboxName the mailbox we're viewing (for title formatting - not for lookup)
      */
     public static void actionHandleAccount(Context context, long id, 
             String accountName, String mailboxName) {
@@ -303,13 +325,16 @@ public class MessageList extends ListActivity implements OnItemClickListener, On
 
     private void onRefresh() {
         // TODO: This needs to loop through all open mailboxes (there might be more than one)
-        EmailContent.Mailbox mailbox =
-                EmailContent.Mailbox.restoreMailboxWithId(this, mMailboxId);
-        EmailContent.Account account =
-                EmailContent.Account.restoreAccountWithId(this, mailbox.mAccountKey);
-        mHandler.progress(true);
-        Controller.getInstance(getApplication()).updateMailbox(
-                account, mailbox, mControllerCallback);
+        // TODO: Should not be reading from DB in UI thread
+        if (mMailboxId >= 0) {
+            EmailContent.Mailbox mailbox =
+                    EmailContent.Mailbox.restoreMailboxWithId(this, mMailboxId);
+            EmailContent.Account account =
+                    EmailContent.Account.restoreAccountWithId(this, mailbox.mAccountKey);
+            mHandler.progress(true);
+            Controller.getInstance(getApplication()).updateMailbox(
+                    account, mailbox, mControllerCallback);
+        }
     }
 
     private void onAccounts() {
@@ -319,19 +344,26 @@ public class MessageList extends ListActivity implements OnItemClickListener, On
 
     private void onCompose() {
         // TODO: Select correct account to send from when there are multiple mailboxes
-        EmailContent.Mailbox mailbox =
-                EmailContent.Mailbox.restoreMailboxWithId(this, mMailboxId);
-        MessageCompose.actionCompose(this, mailbox.mAccountKey);
+        // TODO: Should not be reading from DB in UI thread
+        if (mMailboxId >= 0) {
+            EmailContent.Mailbox mailbox =
+                    EmailContent.Mailbox.restoreMailboxWithId(this, mMailboxId);
+            MessageCompose.actionCompose(this, mailbox.mAccountKey);
+        }
     }
 
     private void onEditAccount() {
         // TODO: Select correct account to edit when there are multiple mailboxes
-        EmailContent.Mailbox mailbox =
-                EmailContent.Mailbox.restoreMailboxWithId(this, mMailboxId);
-        AccountSettings.actionSettings(this, mailbox.mAccountKey);
+        // TODO: Should not be reading from DB in UI thread
+        if (mMailboxId >= 0) {
+            EmailContent.Mailbox mailbox =
+                    EmailContent.Mailbox.restoreMailboxWithId(this, mMailboxId);
+            AccountSettings.actionSettings(this, mailbox.mAccountKey);
+        }
     }
 
     public void onOpenMessage(long messageId, long mailboxId) {
+        // TODO: Should not be reading from DB in UI thread
         EmailContent.Mailbox mailbox = EmailContent.Mailbox.restoreMailboxWithId(this, mailboxId);
 
         if (mailbox.mType == EmailContent.Mailbox.TYPE_DRAFTS) {
@@ -509,7 +541,11 @@ public class MessageList extends ListActivity implements OnItemClickListener, On
     /**
      * Async task for loading a single folder out of the UI thread
      * 
-     * TODO: Extend API to support compound select (e.g. merged inbox list)
+     * The code here (for merged boxes) is a placeholder/hack and should be replaced.  Some
+     * specific notes:
+     * TODO:  Move the double query into a specialized URI that returns all inbox messages
+     * and do the dirty work in raw SQL in the provider.
+     * TODO:  Generalize the query generation so we can reuse it in MessageView (for next/prev)
      */
     private class LoadMessagesTask extends AsyncTask<Void, Void, Cursor> {
 
@@ -524,13 +560,60 @@ public class MessageList extends ListActivity implements OnItemClickListener, On
 
         @Override
         protected Cursor doInBackground(Void... params) {
+            String selection;
+            String[] selArgs;
+            if (mMailboxKey == QUERY_ALL_INBOXES || mMailboxKey == QUERY_ALL_DRAFTS ||
+                    mMailboxKey == QUERY_ALL_OUTBOX) {
+                // query for all mailboxes of type INBOX, DRAFTS, or OUTBOX
+                int type;
+                if (mMailboxKey == QUERY_ALL_INBOXES) {
+                    type = Mailbox.TYPE_INBOX;
+                } else if (mMailboxKey == QUERY_ALL_DRAFTS) {
+                    type = Mailbox.TYPE_DRAFTS;
+                } else {
+                    type = Mailbox.TYPE_OUTBOX;
+                }
+                StringBuilder inboxes = new StringBuilder();
+                Cursor c = MessageList.this.getContentResolver().query(
+                        Mailbox.CONTENT_URI,
+                        MAILBOX_FIND_INBOX_PROJECTION,
+                        MailboxColumns.TYPE + "=? AND " + MailboxColumns.FLAG_VISIBLE + "=1",
+                        new String[] { Integer.toString(type) }, null);
+                // build a long WHERE list
+                // TODO do this directly in the provider
+                while (c.moveToNext()) {
+                    if (inboxes.length() != 0) {
+                        inboxes.append(" OR ");
+                    }
+                    inboxes.append(MessageColumns.MAILBOX_KEY + "=");
+                    inboxes.append(c.getLong(MAILBOX_FIND_INBOX_COLUMN_ID));
+                }
+                c.close();
+                // make that the selection
+                selection = inboxes.toString();
+                selArgs = null;
+                // This is a hack - if there were no matching mailboxes, the empty selection string
+                // would match *all* messages.  Instead, force a "non-matching" selection, which
+                // generates an empty Message cursor.
+                // TODO: handle this properly when we move the compound lookup into the provider
+                if ("".equals(selection)) {
+                    selection = Message.RECORD_ID + "=-1";
+                }
+            } else  if (mMailboxKey == QUERY_ALL_UNREAD) {
+                selection = Message.FLAG_READ + "=0";
+                selArgs = null;
+            } else if (mMailboxKey == QUERY_ALL_FAVORITES) {
+                selection = Message.FLAG_FAVORITE + "=1";
+                selArgs = null;
+            } else {
+                selection = MessageColumns.MAILBOX_KEY + "=?";
+                selArgs = new String[] { String.valueOf(mMailboxKey) };
+
+            }
             return MessageList.this.managedQuery(
                     EmailContent.Message.CONTENT_URI,
                     MessageList.this.mListAdapter.PROJECTION,
-                    EmailContent.MessageColumns.MAILBOX_KEY + "=?",
-                    new String[] {
-                        String.valueOf(mMailboxKey)
-                    },
+                    selection, selArgs,
                     EmailContent.MessageColumns.TIMESTAMP + " DESC");
         }
 
