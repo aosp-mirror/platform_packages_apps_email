@@ -706,6 +706,7 @@ public class EasSyncService extends InteractiveSyncService {
                 ByteArrayInputStream is = readResponse(uc);
                 if (is != null) {
                     moreAvailable = target.parse(is, this);
+                    target.cleanup(this);
                 }
             } else {
                 userLog("Sync response error: " + code);

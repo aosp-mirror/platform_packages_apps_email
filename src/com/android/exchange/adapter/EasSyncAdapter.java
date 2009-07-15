@@ -39,6 +39,7 @@ public abstract class EasSyncAdapter {
         throws IOException;
     // The name used to specify the collection type of the target (Email, Calendar, or Contacts)
     public abstract String getCollectionName();
+    public abstract void cleanup(EasSyncService service);
 
     public EasSyncAdapter(Mailbox mailbox) {
         mMailbox = mailbox;

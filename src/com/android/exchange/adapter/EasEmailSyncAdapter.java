@@ -337,16 +337,7 @@ public class EasEmailSyncAdapter extends EasSyncAdapter {
                     ContentUris.withAppendedId(Mailbox.CONTENT_URI, mMailbox.mId)).withValues(
                     mMailbox.toContentValues()).build());
 
-            // If we've sent local deletions, clear out the deleted table
-            for (Long id: mDeletedIdList) {
-                ops.add(ContentProviderOperation.newDelete(
-                        ContentUris.withAppendedId(Message.DELETED_CONTENT_URI, id)).build());
-            }
-            // And same with the updates
-            for (Long id: mUpdatedIdList) {
-                ops.add(ContentProviderOperation.newDelete(
-                        ContentUris.withAppendedId(Message.UPDATED_CONTENT_URI, id)).build());
-            }
+            addCleanupOps(ops);
             
             try {
                 mService.mContext.getContentResolver()
@@ -359,11 +350,41 @@ public class EasEmailSyncAdapter extends EasSyncAdapter {
 
             mService.userLog("SyncKey confirmed as: " + mMailbox.mSyncKey);
         }
+
     }
 
     @Override
     public String getCollectionName() {
         return "Email";
+    }
+
+    private void addCleanupOps(ArrayList<ContentProviderOperation> ops) {
+        // If we've sent local deletions, clear out the deleted table
+        for (Long id: mDeletedIdList) {
+            ops.add(ContentProviderOperation.newDelete(
+                    ContentUris.withAppendedId(Message.DELETED_CONTENT_URI, id)).build());
+        }
+        // And same with the updates
+        for (Long id: mUpdatedIdList) {
+            ops.add(ContentProviderOperation.newDelete(
+                    ContentUris.withAppendedId(Message.UPDATED_CONTENT_URI, id)).build());
+        }
+    }
+
+    @Override
+    public void cleanup(EasSyncService service) {
+        if (!mDeletedIdList.isEmpty() || !mUpdatedIdList.isEmpty()) {
+            ArrayList<ContentProviderOperation> ops = new ArrayList<ContentProviderOperation>();
+            addCleanupOps(ops);
+            try {
+                service.mContext.getContentResolver()
+                    .applyBatch(EmailProvider.EMAIL_AUTHORITY, ops);
+            } catch (RemoteException e) {
+                // There is nothing to be done here; fail by returning null
+            } catch (OperationApplicationException e) {
+                // There is nothing to be done here; fail by returning null
+            }
+        }
     }
 
     @Override

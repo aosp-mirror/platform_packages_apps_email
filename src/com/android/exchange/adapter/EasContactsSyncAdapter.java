@@ -374,6 +374,10 @@ public class EasContactsSyncAdapter extends EasSyncAdapter {
     }
 
     @Override
+    public void cleanup(EasSyncService service) {
+    }
+
+    @Override
     public String getCollectionName() {
         return "Contacts";
     }
