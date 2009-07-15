@@ -1127,8 +1127,15 @@ public class MessagingController implements Runnable {
         }
 //        public String mPreview;
 //        public boolean mFlagRead = false;
+
+        // Keep the message in the "unloaded" state until it has (at least) a display name.
+        // This prevents early flickering of empty messages in POP download.
         if (localMessage.mFlagLoaded != EmailContent.Message.LOADED) {
-            localMessage.mFlagLoaded = EmailContent.Message.PARTIALLY_LOADED;
+            if (localMessage.mDisplayName == null || "".equals(localMessage.mDisplayName)) {
+                localMessage.mFlagLoaded = EmailContent.Message.NOT_LOADED;
+            } else {
+                localMessage.mFlagLoaded = EmailContent.Message.PARTIALLY_LOADED;
+            }
         }
 //        public boolean mFlagFavorite = false;
 //        public boolean mFlagAttachment = false;

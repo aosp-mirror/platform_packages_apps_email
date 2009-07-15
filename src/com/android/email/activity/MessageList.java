@@ -88,10 +88,35 @@ public class MessageList extends ListActivity implements OnItemClickListener, On
     private MessageListAdapter mListAdapter;
     private MessageListHandler mHandler = new MessageListHandler();
     private ControllerResults mControllerCallback = new ControllerResults();
-    
+
+    private static final int[] mColorChipResIds = new int[] {
+        R.drawable.appointment_indicator_leftside_1,
+        R.drawable.appointment_indicator_leftside_2,
+        R.drawable.appointment_indicator_leftside_3,
+        R.drawable.appointment_indicator_leftside_4,
+        R.drawable.appointment_indicator_leftside_5,
+        R.drawable.appointment_indicator_leftside_6,
+        R.drawable.appointment_indicator_leftside_7,
+        R.drawable.appointment_indicator_leftside_8,
+        R.drawable.appointment_indicator_leftside_9,
+        R.drawable.appointment_indicator_leftside_10,
+        R.drawable.appointment_indicator_leftside_11,
+        R.drawable.appointment_indicator_leftside_12,
+        R.drawable.appointment_indicator_leftside_13,
+        R.drawable.appointment_indicator_leftside_14,
+        R.drawable.appointment_indicator_leftside_15,
+        R.drawable.appointment_indicator_leftside_16,
+        R.drawable.appointment_indicator_leftside_17,
+        R.drawable.appointment_indicator_leftside_18,
+        R.drawable.appointment_indicator_leftside_19,
+        R.drawable.appointment_indicator_leftside_20,
+        R.drawable.appointment_indicator_leftside_21,
+    };
+
     // DB access
     private long mMailboxId;
     private LoadMessagesTask mLoadMessagesTask;
+    private FindMailboxTask mFindMailboxTask;
 
     /**
      * Reduced mailbox projection used to hunt for inboxes
@@ -178,31 +203,21 @@ public class MessageList extends ListActivity implements OnItemClickListener, On
         setListAdapter(mListAdapter);
 
         // TODO extend this to properly deal with multiple mailboxes, cursor, etc.
+
+        // Select 'by id' or 'by type' mode and launch appropriate queries
+
         mMailboxId = getIntent().getLongExtra(EXTRA_MAILBOX_ID, -1);
-        if (mMailboxId == -1) {
-            // Try account/type mode
+        if (mMailboxId != -1) {
+            mLoadMessagesTask = new LoadMessagesTask(mMailboxId);
+            mLoadMessagesTask.execute();
+        } else {
             long accountId = getIntent().getLongExtra(EXTRA_ACCOUNT_ID, -1);
             int mailboxType = getIntent().getIntExtra(EXTRA_MAILBOX_TYPE, -1);
-            Cursor c = null;
-            try {
-                c = getContentResolver().query(EmailContent.Mailbox.CONTENT_URI,
-                        EmailContent.Mailbox.CONTENT_PROJECTION,
-                        EmailContent.MailboxColumns.ACCOUNT_KEY + "=? AND " +
-                        EmailContent.MailboxColumns.TYPE + "=?",
-                        new String[] { Long.toString(accountId), Integer.toString(mailboxType) },
-                        null);
-                if (c.moveToFirst()) {
-                    mMailboxId = c.getLong(EmailContent.Mailbox.CONTENT_ID_COLUMN);
-                }
-            } finally {
-                if (c != null) c.close();
-            }
-
+            mFindMailboxTask = new FindMailboxTask(accountId, mailboxType, true);
+            mFindMailboxTask.execute();
         }
 
         // TODO set title to "account > mailbox (#unread)"
-
-        mLoadMessagesTask = (LoadMessagesTask) new LoadMessagesTask(mMailboxId).execute();
     }
 
     @Override
@@ -227,6 +242,11 @@ public class MessageList extends ListActivity implements OnItemClickListener, On
                 mLoadMessagesTask.getStatus() != LoadMessagesTask.Status.FINISHED) {
             mLoadMessagesTask.cancel(true);
             mLoadMessagesTask = null;
+        }
+        if (mFindMailboxTask != null &&
+                mFindMailboxTask.getStatus() != FindMailboxTask.Status.FINISHED) {
+            mFindMailboxTask.cancel(true);
+            mFindMailboxTask = null;
         }
     }
 
@@ -539,6 +559,59 @@ public class MessageList extends ListActivity implements OnItemClickListener, On
     }
 
     /**
+     * Async task for finding a single mailbox by type (possibly even going to the network).
+     * 
+     * This is much too complex, as implemented.  It uses this AsyncTask to check for a mailbox,
+     * then (if not found) a Controller call to refresh mailboxes from the server, and a handler
+     * to relaunch this task (a 2nd time) to read the results of the network refresh.  The core
+     * problem is that we have two different non-UI-thread jobs (reading DB and reading network)
+     * and two different paradigms for dealing with them.  Some unification would be needed here
+     * to make this cleaner.
+     * 
+     * TODO: If this problem spreads to other operations, find a cleaner way to handle it.
+     */
+    private class FindMailboxTask extends AsyncTask<Void, Void, Long> {
+
+        private long mAccountId;
+        private int mMailboxType;
+        private boolean mOkToRecurse;
+
+        /**
+         * Special constructor to cache some local info
+         */
+        public FindMailboxTask(long accountId, int mailboxType, boolean okToRecurse) {
+            mAccountId = accountId;
+            mMailboxType = mailboxType;
+            mOkToRecurse = okToRecurse;
+        }
+
+        @Override
+        protected Long doInBackground(Void... params) {
+            // See if we can find the requested mailbox in the DB.
+            long mailboxId = Mailbox.findMailboxOfType(MessageList.this, mAccountId, mMailboxType);
+            if (mailboxId == -1 && mOkToRecurse) {
+                // Not found - launch network lookup
+                EmailContent.Account account =
+                    EmailContent.Account.restoreAccountWithId(MessageList.this, mAccountId);
+                mControllerCallback.mWaitForMailboxType = mMailboxType;
+                mHandler.progress(true);
+                Controller.getInstance(getApplication()).updateMailboxList(
+                        account, mControllerCallback);
+            }
+            return mailboxId;
+        }
+
+        @Override
+        protected void onPostExecute(Long mailboxId) {
+            if (mailboxId != -1) {
+                mMailboxId = mailboxId;
+                mLoadMessagesTask = new LoadMessagesTask(mMailboxId);
+                mLoadMessagesTask.execute();
+            }
+        }
+    }
+
+    /**
      * Async task for loading a single folder out of the UI thread
      * 
      * The code here (for merged boxes) is a placeholder/hack and should be replaced.  Some
@@ -560,8 +633,11 @@ public class MessageList extends ListActivity implements OnItemClickListener, On
 
         @Override
         protected Cursor doInBackground(Void... params) {
-            String selection;
-            String[] selArgs;
+            // Setup default selection & args, then add to it as necessary
+            StringBuilder selection = new StringBuilder(
+                    Message.FLAG_LOADED + "!=" + Message.NOT_LOADED + " AND ");
+            String[] selArgs = null;
+
             if (mMailboxKey == QUERY_ALL_INBOXES || mMailboxKey == QUERY_ALL_DRAFTS ||
                     mMailboxKey == QUERY_ALL_OUTBOX) {
                 // query for all mailboxes of type INBOX, DRAFTS, or OUTBOX
@@ -589,31 +665,27 @@ public class MessageList extends ListActivity implements OnItemClickListener, On
                     inboxes.append(c.getLong(MAILBOX_FIND_INBOX_COLUMN_ID));
                 }
                 c.close();
-                // make that the selection
-                selection = inboxes.toString();
-                selArgs = null;
                 // This is a hack - if there were no matching mailboxes, the empty selection string
                 // would match *all* messages.  Instead, force a "non-matching" selection, which
                 // generates an empty Message cursor.
                 // TODO: handle this properly when we move the compound lookup into the provider
-                if ("".equals(selection)) {
-                    selection = Message.RECORD_ID + "=-1";
+                if (inboxes.length() == 0) {
+                    inboxes.append(Message.RECORD_ID + "=-1");
                 }
+                // make that the selection
+                selection.append(inboxes);
             } else  if (mMailboxKey == QUERY_ALL_UNREAD) {
-                selection = Message.FLAG_READ + "=0";
-                selArgs = null;
+                selection.append(Message.FLAG_READ + "=0");
             } else if (mMailboxKey == QUERY_ALL_FAVORITES) {
-                selection = Message.FLAG_FAVORITE + "=1";
-                selArgs = null;
+                selection.append(Message.FLAG_FAVORITE + "=1");
             } else {
-                selection = MessageColumns.MAILBOX_KEY + "=?";
+                selection.append(MessageColumns.MAILBOX_KEY + "=?");
                 selArgs = new String[] { String.valueOf(mMailboxKey) };
-
             }
             return MessageList.this.managedQuery(
                     EmailContent.Message.CONTENT_URI,
                     MessageList.this.mListAdapter.PROJECTION,
-                    selection, selArgs,
+                    selection.toString(), selArgs,
                     EmailContent.MessageColumns.TIMESTAMP + " DESC");
         }
 
@@ -633,12 +705,26 @@ public class MessageList extends ListActivity implements OnItemClickListener, On
      */
     class MessageListHandler extends Handler {
         private static final int MSG_PROGRESS = 1;
+        private static final int MSG_LOOKUP_MAILBOX_TYPE = 2;
 
         @Override
         public void handleMessage(android.os.Message msg) {
             switch (msg.what) {
                 case MSG_PROGRESS:
                     setProgressBarIndeterminateVisibility(msg.arg1 != 0);
+                    break;
+                case MSG_LOOKUP_MAILBOX_TYPE:
+                    // kill running async task, if any
+                    if (mFindMailboxTask != null &&
+                            mFindMailboxTask.getStatus() != FindMailboxTask.Status.FINISHED) {
+                        mFindMailboxTask.cancel(true);
+                        mFindMailboxTask = null;
+                    }
+                    // start new one.  do not recurse back to controller.
+                    long accountId = ((Long)msg.obj).longValue();
+                    int mailboxType = msg.arg1;
+                    mFindMailboxTask = new FindMailboxTask(accountId, mailboxType, false);
+                    mFindMailboxTask.execute();
                     break;
                 default:
                     super.handleMessage(msg);
@@ -655,14 +741,39 @@ public class MessageList extends ListActivity implements OnItemClickListener, On
             msg.arg1 = progress ? 1 : 0;
             sendMessage(msg);
         }
+
+        /**
+         * Called from any thread to look for a mailbox of a specific type.  This is designed
+         * to be called from the Controller's MailboxList callback;  It instructs the async task
+         * not to recurse, in case the mailbox is not found after this.
+         * 
+         * See FindMailboxTask for more notes on this handler.
+         */
+        public void lookupMailboxType(long accountId, int mailboxType) {
+            android.os.Message msg = android.os.Message.obtain();
+            msg.what = MSG_LOOKUP_MAILBOX_TYPE;
+            msg.arg1 = mailboxType;
+            msg.obj = Long.valueOf(accountId);
+            sendMessage(msg);
+        }
     }
-    
+
     /**
      * Callback for async Controller results.  This is all a placeholder until we figure out the
      * final way to do this.
      */
     private class ControllerResults implements Controller.Result {
+
+        // These are preset for use by updateMailboxListCallback
+        int mWaitForMailboxType = -1;
+
         public void updateMailboxListCallback(MessagingException result, long accountKey) {
+            if (mWaitForMailboxType != -1) {
+                mHandler.progress(false);
+                if (result == null) {
+                    mHandler.lookupMailboxType(accountKey, mWaitForMailboxType);
+                }
+            }
         }
 
         public void updateMailboxCallback(MessagingException result, long accountKey,
@@ -743,7 +854,10 @@ public class MessageList extends ListActivity implements OnItemClickListener, On
 
             // Load the UI
             View chipView = view.findViewById(R.id.chip);
-            chipView.getBackground().setAlpha(itemView.mRead ? 0 : 255);
+            int chipResId = mColorChipResIds[(int)itemView.mAccountId % mColorChipResIds.length];
+            chipView.setBackgroundResource(chipResId);
+            // TODO always display chip.  Use other indications (e.g. boldface) for read/unread
+            chipView.getBackground().setAlpha(itemView.mRead ? 100 : 255);
 
             TextView fromView = (TextView) view.findViewById(R.id.from);
             String text = cursor.getString(COLUMN_DISPLAY_NAME);
