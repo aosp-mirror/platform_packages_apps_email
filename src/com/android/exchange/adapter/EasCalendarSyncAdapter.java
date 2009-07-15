@@ -49,4 +49,9 @@ public class EasCalendarSyncAdapter extends EasSyncAdapter {
         // TODO Auto-generated method stub
         return false;
     }
+
+    @Override
+    public void cleanup(EasSyncService service) {
+        // TODO Auto-generated method stub
+    }
 }
