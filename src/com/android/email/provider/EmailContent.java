@@ -337,7 +337,7 @@ public abstract class EmailContent {
         // Foreign key to a referenced Message (e.g. for a reply/forward)
         public static final String REFERENCE_KEY = "referenceKey";  
 
-        // Address lists, of the form <address> [, <address> ...]
+        // Address lists, packed with Address.pack()
         public static final String SENDER_LIST = "senderList";
         public static final String FROM_LIST = "fromList";
         public static final String TO_LIST = "toList";
@@ -487,9 +487,6 @@ public abstract class EmailContent {
         public static final int LOADED = 1;
         public static final int PARTIALLY_LOADED = 2;
 
-        /**
-         * no public constructor since this is a utility class
-         */
         public Message() {
             mBaseUri = CONTENT_URI;
         }
@@ -1629,6 +1626,7 @@ public abstract class EmailContent {
             MailboxColumns.SYNC_FREQUENCY, MailboxColumns.SYNC_TIME,MailboxColumns.UNREAD_COUNT,
             MailboxColumns.FLAG_VISIBLE, MailboxColumns.FLAGS, MailboxColumns.VISIBLE_LIMIT
         };
+        public static final long NO_MAILBOX = -1;
 
         private static final String WHERE_TYPE_AND_ACCOUNT_KEY =
             MailboxColumns.TYPE + "=? and " + MailboxColumns.ACCOUNT_KEY + "=?";
@@ -1636,13 +1634,9 @@ public abstract class EmailContent {
         private static final int ID_PROJECTION_ID = 0;
         private static final String[] ID_PROJECTION = new String[] { ID };
 
-       /**
-         * no public constructor since this is a utility class
-         */
         public Mailbox() {
             mBaseUri = CONTENT_URI;
         }
-
 
         // Types of mailboxes.  The list is ordered to match a typical UI presentation, e.g.
         // placing the inbox at the top.
@@ -1746,7 +1740,7 @@ public abstract class EmailContent {
          * @return the id of the mailbox, or -1 if not found
          */
         public static long findMailboxOfType(Context context, long accountId, int type) {
-            long mailboxId = -1;
+            long mailboxId = NO_MAILBOX;
             String[] bindArguments = new String[] {Long.toString(type), Long.toString(accountId)};
             Cursor c = context.getContentResolver().query(Mailbox.CONTENT_URI,
                     ID_PROJECTION, WHERE_TYPE_AND_ACCOUNT_KEY, bindArguments, null);

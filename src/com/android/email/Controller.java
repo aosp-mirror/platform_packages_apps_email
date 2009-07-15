@@ -27,6 +27,7 @@ import android.content.ContentValues;
 import android.content.Context;
 import android.database.Cursor;
 import android.net.Uri;
+import android.util.Log;
 
 import java.util.HashSet;
 
@@ -48,13 +49,6 @@ public class Controller {
         EmailContent.MessageColumns.ACCOUNT_KEY
     };
     private static int MESSAGEID_TO_ACCOUNTID_COLUMN_ACCOUNTID = 1;
-
-    private static String[] ACCOUNTID_TO_MAILBOXTYPE_PROJECTION = new String[] {
-        EmailContent.RECORD_ID,
-        EmailContent.MailboxColumns.ACCOUNT_KEY,
-        EmailContent.MailboxColumns.TYPE
-    };
-    private static int ACCOUNTID_TO_MAILBOXTYPE_COLUMN_ID = 0;
 
     protected Controller(Context _context) {
         mContext = _context;
@@ -178,6 +172,90 @@ public class Controller {
     }
 
     /**
+     * Saves the message to a mailbox of given type.
+     * @param message the message (must have the mAccountId set).
+     * @param mailboxType the mailbox type (e.g. Mailbox.TYPE_DRAFTS).
+     * TODO: UI feedback.
+     * TODO: use AsyncTask instead of Thread
+     */
+    public void saveToMailbox(final EmailContent.Message message, final int mailboxType) {
+        new Thread() {
+            @Override
+            public void run() {
+                long accountId = message.mAccountKey;
+                long mailboxId = findOrCreateMailboxOfType(accountId, mailboxType);
+                message.mMailboxKey = mailboxId;
+                message.save(mContext);
+            }
+        }.start();
+    }
+
+    /**
+     * @param accountId the account id
+     * @param mailboxType the mailbox type (e.g.  EmailContent.Mailbox.TYPE_TRASH)
+     * @return the id of the mailbox. The mailbox is created if not existing.
+     * Returns Mailbox.NO_MAILBOX if the accountId or mailboxType are negative.
+     * Does not validate the input in other ways (e.g. does not verify the existence of account).
+     */
+    public long findOrCreateMailboxOfType(long accountId, int mailboxType) {
+        if (accountId < 0 || mailboxType < 0) {
+            return Mailbox.NO_MAILBOX;
+        }
+        long mailboxId =
+            Mailbox.findMailboxOfType(mProviderContext, accountId, mailboxType);
+        return mailboxId == Mailbox.NO_MAILBOX ? createMailbox(accountId, mailboxType) : mailboxId;
+    }
+
+    /**
+     * @param mailboxType the mailbox type
+     * @return the resource string corresponding to the mailbox type, empty if not found.
+     */
+    /* package */ String getSpecialMailboxDisplayName(int mailboxType) {
+        int resId = -1;
+        switch (mailboxType) {
+        case Mailbox.TYPE_INBOX:
+            // TODO: there is no special_mailbox_display_name_inbox; why?
+            resId = R.string.special_mailbox_name_inbox;
+            break;
+        case Mailbox.TYPE_OUTBOX:
+            resId = R.string.special_mailbox_display_name_outbox;
+            break;
+        case Mailbox.TYPE_DRAFTS:
+            resId = R.string.special_mailbox_display_name_drafts;
+            break;
+        case Mailbox.TYPE_TRASH:
+            resId = R.string.special_mailbox_display_name_trash;
+            break;
+        case Mailbox.TYPE_SENT:
+            resId = R.string.special_mailbox_display_name_sent;
+            break;
+        }
+        return resId != -1 ? mContext.getString(resId) : "";
+    }
+
+    /**
+     * Create a mailbox given the account and mailboxType.
+     * TODO: Does this need to be signaled explicitly to the sync engines?
+     * As this method is only used internally ('private'), it does not
+     * validate its inputs (accountId and mailboxType).
+     */
+    /* package */ long createMailbox(long accountId, int mailboxType) {
+        if (accountId < 0 || mailboxType < 0) {
+            String mes = "Invalid arguments " + accountId + ' ' + mailboxType;
+            Log.e(Email.LOG_TAG, mes);
+            throw new RuntimeException(mes); 
+        }
+        Mailbox box = new Mailbox();
+        box.mAccountKey = accountId;
+        box.mType = mailboxType;
+        box.mSyncFrequency = EmailContent.Account.CHECK_INTERVAL_NEVER;
+        box.mFlagVisible = true;
+        box.mDisplayName = getSpecialMailboxDisplayName(mailboxType);
+        box.saveOrUpdate(mProviderContext);
+        return box.mId;
+    }
+
+    /**
      * Delete a single message by moving it to the trash.
      * 
      * This function has no callback, no result reporting, because the desired outcome
@@ -211,34 +289,9 @@ public class Controller {
         }
 
         // 2. Confirm that there is a trash mailbox available
-        long trashMailboxId = -1;
-        c = null;
-        try {
-            c = resolver.query(EmailContent.Mailbox.CONTENT_URI,
-                    ACCOUNTID_TO_MAILBOXTYPE_PROJECTION,
-                    EmailContent.MailboxColumns.ACCOUNT_KEY + "=? AND " +
-                    EmailContent.MailboxColumns.TYPE + "=" + EmailContent.Mailbox.TYPE_TRASH,
-                    new String[] { Long.toString(accountId) }, null);
-            if (c.moveToFirst()) {
-                trashMailboxId = c.getLong(ACCOUNTID_TO_MAILBOXTYPE_COLUMN_ID);
-            }
-        } finally {
-            if (c != null) c.close();
-        }
-
         // 3.  If there's no trash mailbox, create one
         // TODO: Does this need to be signaled explicitly to the sync engines?
-        if (trashMailboxId == -1) {
-            Mailbox box = new Mailbox();
-
-            box.mDisplayName = mContext.getString(R.string.special_mailbox_name_trash);
-            box.mAccountKey = accountId;
-            box.mType = Mailbox.TYPE_TRASH;
-            box.mSyncFrequency = EmailContent.Account.CHECK_INTERVAL_NEVER;
-            box.mFlagVisible = true;
-            box.saveOrUpdate(mProviderContext);
-            trashMailboxId = box.mId;
-        }
+        long trashMailboxId = findOrCreateMailboxOfType(accountId, Mailbox.TYPE_TRASH);
 
         // 4.  Change the mailbox key for the message we're "deleting"
         ContentValues cv = new ContentValues();

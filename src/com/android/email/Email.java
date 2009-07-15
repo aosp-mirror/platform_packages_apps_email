@@ -20,7 +20,6 @@ import com.android.email.activity.AccountShortcutPicker;
 import com.android.email.activity.MessageCompose;
 import com.android.email.mail.internet.BinaryTempFileBody;
 import com.android.email.provider.EmailContent;
-import com.android.email.provider.EmailContent;
 import com.android.email.service.BootReceiver;
 import com.android.email.service.MailService;
 

@@ -366,6 +366,9 @@ public class Address {
 
         StringBuffer sb = new StringBuffer();
         for (int i = 0; i < nAddr; i++) {
+            if (i != 0) {
+                sb.append(LIST_DELIMITER_EMAIL);
+            }
             final Address address = addresses[i];
             sb.append(address.getAddress());
             final String displayName = address.getPersonal();
@@ -373,11 +376,21 @@ public class Address {
                 sb.append(LIST_DELIMITER_PERSONAL);
                 sb.append(displayName);
             }
-            if (i < nAddr - 1) {
-                sb.append(LIST_DELIMITER_EMAIL);
-            }
         }
         return sb.toString();
+    }
+
+    /**
+     * Produces the same result as pack(array), but only packs one (this) address.
+     */
+    public String pack() {
+        final String address = getAddress();
+        final String personal = getPersonal();
+        if (personal == null) {
+            return address;
+        } else {
+            return address + LIST_DELIMITER_PERSONAL + personal;
+        }
     }
 
     /**
