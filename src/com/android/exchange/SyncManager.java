@@ -568,8 +568,9 @@ public class SyncManager extends Service implements Runnable {
     }
 
     public void run() {
-        log("Running");
         mStop = false;
+
+        //Debug.waitForDebugger();    // DON'T CHECK IN WITH THIS
 
         runAwake(-1);
 
@@ -762,7 +763,6 @@ public class SyncManager extends Service implements Runnable {
         }
 
         if (service != null) {
-            service.mRequestTime = System.currentTimeMillis();
             service.addPartRequest(req);
             kick();
         }
@@ -776,7 +776,6 @@ public class SyncManager extends Service implements Runnable {
         long mailboxId = msg.mMailboxKey;
         AbstractSyncService service = INSTANCE.mServiceMap.get(mailboxId);
         if (service != null) {
-            service.mRequestTime = System.currentTimeMillis();
             return service.hasPartRequest(emailId, part);
         }
         return null;
@@ -790,7 +789,6 @@ public class SyncManager extends Service implements Runnable {
         long mailboxId = msg.mMailboxKey;
         AbstractSyncService service = INSTANCE.mServiceMap.get(mailboxId);
         if (service != null) {
-            service.mRequestTime = System.currentTimeMillis();
             service.cancelPartRequest(emailId, part);
         }
     }

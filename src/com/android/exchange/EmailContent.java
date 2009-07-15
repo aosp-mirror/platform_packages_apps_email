@@ -13,14 +13,13 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+package com.android.exchange;
 
 /**     
 * This is a local copy of com.android.email.EmailProvider      
 *
-* Last copied from com.android.email.EmailProvider on 7/15/09      
+* Last copied from com.android.email.EmailProvider on 7/16/09      
 */
-
-package com.android.exchange;
 
 import com.android.email.R;
 import com.android.email.provider.EmailProvider;
@@ -33,10 +32,12 @@ import android.content.Context;
 import android.content.OperationApplicationException;
 import android.database.Cursor;
 import android.net.Uri;
+import android.os.Environment;
 import android.os.Parcel;
 import android.os.Parcelable;
 import android.os.RemoteException;
 
+import java.io.File;
 import java.net.URI;
 import java.net.URISyntaxException;
 import java.util.ArrayList;
@@ -647,10 +648,10 @@ public abstract class EmailContent {
         }
 
         public void addSaveOps(ArrayList<ContentProviderOperation> ops) {
-             // First, save the message
-            ContentProviderOperation.Builder b = getSaveOrUpdateBuilder(true, mBaseUri, mId);
+            // First, save the message
+            ContentProviderOperation.Builder b = getSaveOrUpdateBuilder(true, mBaseUri, -1);
             ops.add(b.withValues(toContentValues()).build());
-            
+
             // Create and save the body
             ContentValues cv = new ContentValues();
             if (mText != null) {
@@ -662,9 +663,20 @@ public abstract class EmailContent {
             b = getSaveOrUpdateBuilder(true, Body.CONTENT_URI, 0);
             b.withValues(cv);
             ContentValues backValues = new ContentValues();
-            backValues.put(Body.MESSAGE_KEY, ops.size() - 1);
+            int messageBackValue = ops.size() - 1;
+            backValues.put(Body.MESSAGE_KEY, messageBackValue);
             ops.add(b.withValueBackReferences(backValues).build());
-         }
+
+            // Create the attaachments, if any
+            if (mAttachments != null) {
+                for (Attachment att: mAttachments) {
+                    ops.add(getSaveOrUpdateBuilder(true, Attachment.CONTENT_URI, -1)
+                            .withValues(att.toContentValues())
+                            .withValueBackReference(Attachment.MESSAGE_KEY, messageBackValue)
+                            .build());
+                }
+            }
+        }
 
        // Text and Html information are stored as <location>;<encoding>;<charset>;<length>
         // charset: U = us-ascii; 8 = utf-8; I = iso-8559-1; others literally (e.g. KOI8-R)
@@ -1490,6 +1502,38 @@ public abstract class EmailContent {
             } finally {
                 c.close();
             }
+        }
+
+        /**
+         * Creates a unique file in the external store by appending a hyphen
+         * and a number to the given filename.
+         * @param filename
+         * @return a new File object, or null if one could not be created
+         */
+        public static File createUniqueFile(String filename) {
+            if (Environment.getExternalStorageState().equals(Environment.MEDIA_MOUNTED)) {
+                File directory = Environment.getExternalStorageDirectory();
+                File file = new File(directory, filename);
+                if (!file.exists()) {
+                    return file;
+                }
+                // Get the extension of the file, if any.
+                int index = filename.lastIndexOf('.');
+                String name = filename;
+                String extension = "";
+                if (index != -1) {
+                    name = filename.substring(0, index);
+                    extension = filename.substring(index);
+                }
+                for (int i = 2; i < Integer.MAX_VALUE; i++) {
+                    file = new File(directory, name + '-' + i + extension);
+                    if (!file.exists()) {
+                        return file;
+                    }
+                }
+                return null;
+            }
+            return null;
         }
 
         @Override

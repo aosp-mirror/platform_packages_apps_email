@@ -66,6 +66,7 @@ import android.content.ContentResolver;
 import android.content.ContentValues;
 import android.content.Context;
 import android.database.Cursor;
+import android.os.RemoteException;
 import android.util.Log;
 
 public class EasSyncService extends InteractiveSyncService {
@@ -76,8 +77,11 @@ public class EasSyncService extends InteractiveSyncService {
     private static final String WHERE_SYNC_FREQUENCY_PING =
         Mailbox.SYNC_FREQUENCY + '=' + Account.CHECK_INTERVAL_PING;
     private static final String SYNC_FREQUENCY_PING =
-        MailboxColumns.SYNC_FREQUENCY + '=' + Account.CHECK_INTERVAL_PING;
+        MailboxColumns.SYNC_FREQUENCY + " IN (" + Account.CHECK_INTERVAL_PING +
+        ',' + Account.CHECK_INTERVAL_PUSH + ')';
     
+    static private final int CHUNK_SIZE = 16 * 1024;
+
     // Reasonable default
     String mProtocolVersion = "2.5";
     static String mDeviceId = null;
@@ -195,7 +199,7 @@ public class EasSyncService extends InteractiveSyncService {
         // TODO Auto-generated method stub
     }
 
-   protected HttpURLConnection sendEASPostCommand(String cmd, String data) throws IOException {
+    protected HttpURLConnection sendEASPostCommand(String cmd, String data) throws IOException {
         HttpURLConnection uc = setupEASCommand("POST", cmd);
         if (uc != null) {
             uc.setRequestProperty("Content-Length", Integer.toString(data.length() + 2));
@@ -208,11 +212,36 @@ public class EasSyncService extends InteractiveSyncService {
         return uc;
     }
 
-    static private final int CHUNK_SIZE = 16 * 1024;
+    private void doStatusCallback(IEmailServiceCallback callback, int status) {
+        try {
+            callback.status(status, 0);
+        } catch (RemoteException e2) {
+            // No danger if the client is no longer around
+        }
+    }
 
-    protected void getAttachment(PartRequest req) throws IOException {
+    private void doProgressCallback(IEmailServiceCallback callback, int progress) {
+        try {
+            callback.status(EmailServiceStatus.IN_PROGRESS, progress);
+        } catch (RemoteException e2) {
+            // No danger if the client is no longer around
+        }
+    }
+
+    /**
+     * Loads an attachment, based on the PartRequest passed in.  The PartRequest is basically our
+     * wrapper for Attachment
+     * @param req the part (attachment) to be retrieved
+     * @param external whether the attachment should be loaded to external storage
+     * @throws IOException
+     */
+    protected void getAttachment(PartRequest req, boolean external) throws IOException {
+        // TODO Implement internal storage as required
+        IEmailServiceCallback callback = req.callback;
+        Attachment att = req.att;
+        doProgressCallback(callback, 0);
         DefaultHttpClient client = new DefaultHttpClient();
-        String us = makeUriString("GetAttachment", "&AttachmentName=" + req.att.mLocation);
+        String us = makeUriString("GetAttachment", "&AttachmentName=" + att.mLocation);
         HttpPost method = new HttpPost(URI.create(us));
         method.setHeader("Authorization", mAuthString);
 
@@ -226,8 +255,7 @@ public class EasSyncService extends InteractiveSyncService {
                 Log.v(TAG, "Attachment code: " + status + ", Length: " + len + ", Type: " + type);
             }
             InputStream is = res.getEntity().getContent();
-            // TODO Use the request data, when it's defined.  For now, stubbed out
-            File f = null; // Attachment.openAttachmentFile(req);
+            File f = Attachment.createUniqueFile(att.mFileName);
             if (f != null) {
                 FileOutputStream os = new FileOutputStream(f);
                 if (len > 0) {
@@ -241,10 +269,8 @@ public class EasSyncService extends InteractiveSyncService {
                             int read = is.read(bytes, 0, n);
                             os.write(bytes, 0, read);
                             len -= read;
-                            if (req.handler != null) {
-                                long pct = ((length - len) * 100 / length);
-                                req.handler.sendEmptyMessage((int)pct);
-                            }
+                            int pct = ((length - len) * 100 / length);
+                            doProgressCallback(callback, pct);
                         }
                     } finally {
                         mPendingPartRequest = null;
@@ -254,12 +280,17 @@ public class EasSyncService extends InteractiveSyncService {
                 os.flush();
                 os.close();
 
-                ContentValues cv = new ContentValues();
-                cv.put(AttachmentColumns.CONTENT_URI, f.getAbsolutePath());
-                cv.put(AttachmentColumns.MIME_TYPE, type);
-                req.att.update(mContext, cv);
-                // TODO Inform UI that we're done
+                // EmailProvider will throw an exception if we try to update an unsaved attachment
+                if (att.isSaved()) {
+                    ContentValues cv = new ContentValues();
+                    cv.put(AttachmentColumns.CONTENT_URI, f.getAbsolutePath());
+                    cv.put(AttachmentColumns.MIME_TYPE, type);
+                    att.update(mContext, cv);
+                    doStatusCallback(callback, EmailServiceStatus.SUCCESS);
+                }
             }
+        } else {
+            doStatusCallback(callback, EmailServiceStatus.MESSAGE_NOT_FOUND);
         }
     }
 
@@ -408,11 +439,14 @@ public class EasSyncService extends InteractiveSyncService {
                         }
 
                         // Wait for push notifications.
+                        String threadName = Thread.currentThread().getName();
                         try {
                             runPingLoop();
                         } catch (StaleFolderListException e) {
                             // We break out if we get told about a stale folder list
                             userLog("Ping interrupted; folder list requires sync...");
+                        } finally {
+                            Thread.currentThread().setName(threadName);
                         }
                     }
                  }
@@ -471,6 +505,7 @@ public class EasSyncService extends InteractiveSyncService {
                 // If we have some number that are ready for push, send Ping to the server
                 s.end("PingFolders").end("Ping").end();
                 uc = sendEASPostCommand("Ping", s.toString());
+                Thread.currentThread().setName(mAccount.mDisplayName + ": Ping");
                 userLog("Sending ping, timeout: " + uc.getReadTimeout() / 1000 + "s");
                 code = uc.getResponseCode();
                 userLog("Ping response: " + code);
@@ -521,7 +556,7 @@ public class EasSyncService extends InteractiveSyncService {
             mBindArguments[0] = Long.toString(mAccount.mId);
             ArrayList<String> syncList = pp.getSyncList();
             for (String serverId: syncList) {
-                 mBindArguments[1] = serverId;
+                mBindArguments[1] = serverId;
                 Cursor c = cr.query(Mailbox.CONTENT_URI, Mailbox.CONTENT_PROJECTION,
                         WHERE_ACCOUNT_KEY_AND_SERVER_ID, mBindArguments, null);
                 try {
@@ -625,6 +660,21 @@ public class EasSyncService extends InteractiveSyncService {
         while (!mStop && moreAvailable) {
             runAwake();
             waitForConnectivity();
+
+            while (true) {
+                PartRequest req = null;
+                synchronized (mPartRequests) {
+                    if (mPartRequests.isEmpty()) {
+                        break;
+                    } else {
+                        req = mPartRequests.get(0);
+                    }
+                }
+                getAttachment(req, true);
+                synchronized(mPartRequests) {
+                    mPartRequests.remove(req);
+                }
+            }
 
             EasSerializer s = new EasSerializer();
             if (mailbox.mSyncKey == null) {

@@ -16,7 +16,13 @@
 
 package com.android.email.provider;
 
+import java.io.File;
+import java.io.IOException;
+
+import java.util.ArrayList;
+
 import com.android.email.provider.EmailContent.Account;
+import com.android.email.provider.EmailContent.Attachment;
 import com.android.email.provider.EmailContent.Body;
 import com.android.email.provider.EmailContent.Mailbox;
 import com.android.email.provider.EmailContent.Message;
@@ -28,6 +34,7 @@ import android.content.ContentValues;
 import android.content.Context;
 import android.database.Cursor;
 import android.net.Uri;
+import android.os.Environment;
 import android.test.ProviderTestCase2;
 
 /**
@@ -87,10 +94,22 @@ public class ProviderTests extends ProviderTestCase2<EmailProvider> {
         ProviderTestUtils.assertMailboxEqual("testMailboxSave", box1, box2);
     }
     
+    private static Attachment setupAttachment(String fileName, long length) {
+        Attachment att = new Attachment();
+        att.mFileName = fileName;
+        att.mLocation = "location" + length;
+        att.mSize = length;
+        return att;
+    }
+
+    public static String[] expectedAttachmentNames =
+        new String[] {"attachment1.doc", "attachment2.xls", "attachment3"};
+    // The lengths need to be kept in ascending order
+    public static long[] expectedAttachmentSizes = new long[] {31415L, 97701L, 151213L};
+
     /**
      * Test simple message save/retrieve
      * 
-     * TODO: attachments
      * TODO: serverId vs. serverIntId
      */
     public void testMessageSave() {
@@ -137,7 +156,45 @@ public class ProviderTests extends ProviderTestCase2<EmailProvider> {
             assertEquals("body text", text2, body2.mTextContent);
             assertEquals("body html", html2, body2.mHtmlContent);
         } finally {
-            if (c != null) c.close();
+            c.close();
+        }
+
+        Message message3 = ProviderTestUtils.setupMessage("message3", account1Id, box1Id, true,
+                false, mMockContext);
+        ArrayList<Attachment> atts = new ArrayList<Attachment>();
+        for (int i = 0; i < 3; i++) {
+            atts.add(setupAttachment(expectedAttachmentNames[i], expectedAttachmentSizes[i]));
+        }
+        message3.mAttachments = atts;
+        message3.saveOrUpdate(mMockContext);
+        long message3Id = message3.mId;
+
+        // Now check the attachments; there should be three and they should match name and size
+        c = null;
+        try {
+            // Note that there is NO guarantee of the order of returned records in the general case,
+            // so we specifically ask for ordering by size.  The expectedAttachmentSizes array must
+            // be kept sorted by size (ascending) for this test to work properly
+            c = mMockContext.getContentResolver().query(
+                    Attachment.CONTENT_URI,
+                    Attachment.CONTENT_PROJECTION,
+                    Attachment.MESSAGE_KEY + "=?",
+                    new String[] {
+                            String.valueOf(message3Id)
+                    },
+                    Attachment.SIZE);
+            int numAtts = c.getCount();
+            assertEquals(3, numAtts);
+            int i = 0;
+            while (c.moveToNext()) {
+                assertEquals(expectedAttachmentNames[i],
+                        c.getString(Attachment.CONTENT_FILENAME_COLUMN));
+                assertEquals(expectedAttachmentSizes[i],
+                        c.getLong(Attachment.CONTENT_SIZE_COLUMN));
+                i++;
+            }
+        } finally {
+            c.close();
         }
     }
     
@@ -487,4 +544,47 @@ public class ProviderTests extends ProviderTestCase2<EmailProvider> {
      * TODO: attachments
      */
 
+    /**
+     * Test that our unique file name algorithm works as expected.  Since this test requires an
+     * SD card, we check the environment first, and return immediately if none is mounted.
+     * @throws IOException
+     */
+    public void testCreateUniqueFile() throws IOException {
+        // Delete existing files, if they exist
+        if (!Environment.getExternalStorageState().equals(Environment.MEDIA_MOUNTED)) {
+            return;
+        }
+        try {
+            String fileName = "A11achm3n1.doc";
+            File uniqueFile = Attachment.createUniqueFile(fileName);
+            assertEquals(fileName, uniqueFile.getName());
+            if (uniqueFile.createNewFile()) {
+                uniqueFile = Attachment.createUniqueFile(fileName);
+                assertEquals("A11achm3n1-2.doc", uniqueFile.getName());
+                if (uniqueFile.createNewFile()) {
+                    uniqueFile = Attachment.createUniqueFile(fileName);
+                    assertEquals("A11achm3n1-3.doc", uniqueFile.getName());
+                }
+           }
+            fileName = "A11achm3n1";
+            uniqueFile = Attachment.createUniqueFile(fileName);
+            assertEquals(fileName, uniqueFile.getName());
+            if (uniqueFile.createNewFile()) {
+                uniqueFile = Attachment.createUniqueFile(fileName);
+                assertEquals("A11achm3n1-2", uniqueFile.getName());
+            }
+        } finally {
+            File directory = Environment.getExternalStorageDirectory();
+            // These are the files that should be created earlier in the test.  Make sure
+            // they are deleted for the next go-around
+            String[] fileNames = new String[] {"A11achm3n1.doc", "A11achm3n1-2.doc", "A11achm3n1"};
+            int length = fileNames.length;
+            for (int i = 0; i < length; i++) {
+                File file = new File(directory, fileNames[i]);
+                if (file.exists()) {
+                    file.delete();
+                }
+            }
+        }
+    }
 }

@@ -103,9 +103,7 @@ public class EasEmailSyncAdapter extends EasSyncAdapter {
             while (nextTag(EasTags.SYNC_APPLICATION_DATA) != END) {
                 switch (tag) {
                     case EasTags.EMAIL_ATTACHMENTS:
-                        break;
-                    case EasTags.EMAIL_ATTACHMENT:
-                        attachmentParser(atts, msg);
+                        attachmentsParser(atts, msg);
                         break;
                     case EasTags.EMAIL_TO:
                         to = getValue();
@@ -194,7 +192,7 @@ public class EasEmailSyncAdapter extends EasSyncAdapter {
         public void attachmentParser(ArrayList<Attachment> atts, Message msg) throws IOException {
             String fileName = null;
             String length = null;
-            String lvl = null;
+            String location = null;
 
             while (nextTag(EasTags.EMAIL_ATTACHMENT) != END) {
                 switch (tag) {
@@ -202,7 +200,7 @@ public class EasEmailSyncAdapter extends EasSyncAdapter {
                         fileName = getValue();
                         break;
                     case EasTags.EMAIL_ATT_NAME:
-                        lvl = getValue();
+                        location = getValue();
                         break;
                     case EasTags.EMAIL_ATT_SIZE:
                         length = getValue();
@@ -212,13 +210,26 @@ public class EasEmailSyncAdapter extends EasSyncAdapter {
                 }
             }
 
-            if (fileName != null && length != null && lvl != null) {
+            if (fileName != null && length != null && location != null) {
                 Attachment att = new Attachment();
                 att.mEncoding = "base64";
                 att.mSize = Long.parseLong(length);
                 att.mFileName = fileName;
+                att.mLocation = location;
                 atts.add(att);
                 msg.mFlagAttachment = true;
+            }
+        }
+
+        public void attachmentsParser(ArrayList<Attachment> atts, Message msg) throws IOException {
+            while (nextTag(EasTags.EMAIL_ATTACHMENTS) != END) {
+                switch (tag) {
+                    case EasTags.EMAIL_ATTACHMENT:
+                        attachmentParser(atts, msg);
+                        break;
+                    default:
+                        skipTag();
+                }
             }
         }
 

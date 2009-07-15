@@ -69,8 +69,8 @@ public abstract class AbstractSyncService implements Runnable {
     protected String mMailboxName;
     public Account mAccount;
     protected Context mContext;
-    protected long mRequestTime = 0;
 
+    protected volatile long mRequestTime = 0;
     protected ArrayList<PartRequest> mPartRequests = new ArrayList<PartRequest>();
     protected PartRequest mPendingPartRequest = null;
 
@@ -285,6 +285,7 @@ public abstract class AbstractSyncService implements Runnable {
     public void addPartRequest(PartRequest req) {
         synchronized (mPartRequests) {
             mPartRequests.add(req);
+            mRequestTime = System.currentTimeMillis();
         }
     }
 
