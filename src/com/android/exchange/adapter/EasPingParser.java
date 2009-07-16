@@ -68,6 +68,7 @@ public class EasPingParser extends EasParser {
                 mService.userLog("Ping completed, status = " + status);
                 if (status == 2) {
                     // Status = 2 indicates changes in one folder or other
+                    mService.userLog("Changes found");
                     res = true;
                 } else if (status == 7 || status == 4) {
                     // Status of 7 or 4 indicate a stale folder list

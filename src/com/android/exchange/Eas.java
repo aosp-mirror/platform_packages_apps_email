@@ -31,6 +31,8 @@ public class Eas {
 
     public static final String ACCOUNT_MANAGER_TYPE = "com.android.exchange";
 
+    public static final String ACCOUNT_MAILBOX = "__eas";
+
     // From EAS spec
     //                Mail Cal
     // 0 No filter    Yes  Yes

@@ -369,7 +369,7 @@ public class EasContactsSyncAdapter extends EasSyncAdapter {
 //                // There is nothing to be done here; fail by returning null
 //            }
 
-            mService.userLog("SyncKey confirmed as: " + mMailbox.mSyncKey);
+            mService.userLog("Contacts SyncKey confirmed as: " + mMailbox.mSyncKey);
         }
     }
 

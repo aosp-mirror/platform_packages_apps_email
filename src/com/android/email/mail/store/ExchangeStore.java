@@ -332,9 +332,8 @@ public class ExchangeStore extends Store {
                     // service (EasAuthenticatorService)
                     AccountManager.get(mContext).addAccount(Eas.ACCOUNT_MANAGER_TYPE, null, null,
                             options, null, callback, null);
-                 }
-                svc.loadAttachment(0, new Attachment(), mCallback);
-             } catch (RemoteException e) {
+                }
+            } catch (RemoteException e) {
                 throw new MessagingException("Call to validate generated an exception", e);
             }
         }

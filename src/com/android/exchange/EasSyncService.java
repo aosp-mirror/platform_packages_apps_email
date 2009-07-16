@@ -76,9 +76,10 @@ public class EasSyncService extends InteractiveSyncService {
         MailboxColumns.ACCOUNT_KEY + "=? and " + MailboxColumns.SERVER_ID + "=?";
     private static final String WHERE_SYNC_FREQUENCY_PING =
         Mailbox.SYNC_FREQUENCY + '=' + Account.CHECK_INTERVAL_PING;
-    private static final String SYNC_FREQUENCY_PING =
+    private static final String AND_FREQUENCY_PING_PUSH_AND_NOT_ACCOUNT_MAILBOX = " AND " +
         MailboxColumns.SYNC_FREQUENCY + " IN (" + Account.CHECK_INTERVAL_PING +
-        ',' + Account.CHECK_INTERVAL_PUSH + ')';
+        ',' + Account.CHECK_INTERVAL_PUSH + ") AND " + MailboxColumns.SERVER_ID + "!=\"" +
+        Eas.ACCOUNT_MAILBOX + '\"';
     
     static private final int CHUNK_SIZE = 16 * 1024;
 
@@ -469,8 +470,8 @@ public class EasSyncService extends InteractiveSyncService {
             HttpURLConnection uc;
             int code;
             Cursor c = mContentResolver.query(Mailbox.CONTENT_URI, Mailbox.CONTENT_PROJECTION,
-                    MailboxColumns.ACCOUNT_KEY + '=' + mAccount.mId + " and " + SYNC_FREQUENCY_PING,
-                    null, null);
+                    MailboxColumns.ACCOUNT_KEY + '=' + mAccount.mId +
+                    AND_FREQUENCY_PING_PUSH_AND_NOT_ACCOUNT_MAILBOX, null, null);
 
             try {
                 // Loop through our pushed boxes seeing what is available to push
@@ -495,13 +496,19 @@ public class EasSyncService extends InteractiveSyncService {
                             .data("PingId", c.getString(Mailbox.CONTENT_SERVER_ID_COLUMN))
                             .data("PingClass", folderClass)
                             .end("PingFolder");
+                        userLog("Ping ready for: " + folderClass + ", " +
+                                c.getString(Mailbox.CONTENT_SERVER_ID_COLUMN) + " (" +
+                                c.getString(Mailbox.CONTENT_DISPLAY_NAME_COLUMN) + ')');
+                    } else {
+                        userLog(c.getString(Mailbox.CONTENT_DISPLAY_NAME_COLUMN) +
+                                " not ready for ping");
                     }
                 }
             } finally {
                 c.close();
             }
 
-            if (canPushCount > 0) {
+            if (canPushCount > 0 && (canPushCount == pushCount)) {
                 // If we have some number that are ready for push, send Ping to the server
                 s.end("PingFolders").end("Ping").end();
                 uc = sendEASPostCommand("Ping", s.toString());
@@ -531,6 +538,7 @@ public class EasSyncService extends InteractiveSyncService {
                 }
             } else if (pushCount > 0) {
                 // If we want to Ping, but can't just yet, wait 10 seconds and try again
+                userLog("pingLoop waiting for " + (pushCount - canPushCount) + " box(es)");
                 sleep(10*SECS);
             } else {
                 // We've got nothing to do, so let's hang out for a while
@@ -787,7 +795,7 @@ public class EasSyncService extends InteractiveSyncService {
         mPassword = ha.mPassword;
 
         try {
-            if (mMailbox.mServerId.equals("_main")) {
+            if (mMailbox.mServerId.equals(Eas.ACCOUNT_MAILBOX)) {
                 runMain();
             } else {
                 EasSyncAdapter target;
