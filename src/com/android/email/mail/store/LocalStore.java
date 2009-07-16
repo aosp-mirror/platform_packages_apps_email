@@ -130,7 +130,7 @@ public class LocalStore extends Store implements PersistentDataCallbacks {
          *  TODO we should have more sophisticated way to upgrade database.
          */
         if (oldVersion != DB_VERSION) {
-            if (Config.LOGV) {
+            if (Email.LOGD) {
                 Log.v(Email.LOG_TAG, String.format("Upgrading database from %d to %d", 
                         oldVersion, DB_VERSION));
             }

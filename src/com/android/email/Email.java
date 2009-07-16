@@ -39,6 +39,14 @@ public class Email extends Application {
     /**
      * If this is enabled there will be additional logging information sent to
      * Log.d, including protocol dumps.
+     *
+     * This should only be used for logs that are useful for debbuging user problems,
+     * not for internal/development logs.
+     *
+     * This can be enabled by typing "debug" in the AccountFolderList activity.
+     * Changing the value to 'true' here will likely have no effect at all!
+     *
+     * TODO: rename this to sUserDebug, and rename LOGD below to DEBUG.
      */
     public static boolean DEBUG = false;
 
@@ -47,6 +55,12 @@ public class Email extends Application {
      * like passwords will show that information.
      */
     public static boolean DEBUG_SENSITIVE = false;
+
+    /** 
+     * Set this to 'true' to enable as much Email logging as possible.
+     * Do not check-in with it set to 'true'!
+     */
+    public static final boolean LOGD = false;
 
     /**
      * The MIME type(s) of attachments we're willing to send. At the moment it is not possible

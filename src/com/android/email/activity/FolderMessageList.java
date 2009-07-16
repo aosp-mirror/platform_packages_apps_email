@@ -1364,7 +1364,7 @@ public class FolderMessageList extends ExpandableListActivity {
                     return;
                 }
                 mHandler.progress(false);
-                if (Config.LOGV) {
+                if (Email.LOGD) {
                     Log.v(Email.LOG_TAG, "listFoldersFailed " + message);
                 }
             }
@@ -1922,7 +1922,7 @@ public class FolderMessageList extends ExpandableListActivity {
                 this.message = m;
             }
             catch (MessagingException me) {
-                if (Config.LOGV) {
+                if (Email.LOGD) {
                     Log.v(Email.LOG_TAG, "Unable to load message info", me);
                 }
             }

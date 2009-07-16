@@ -16,6 +16,7 @@
 
 package com.android.email.provider;
 
+import com.android.email.Email;
 import com.android.email.provider.EmailContent.Account;
 import com.android.email.provider.EmailContent.AccountColumns;
 import com.android.email.provider.EmailContent.Attachment;
@@ -530,7 +531,7 @@ public class EmailProvider extends ContentProvider {
         boolean attachBodyDb = false;
         boolean deleteOrphanedBodies = false;
 
-        if (Config.LOGV) {
+        if (Email.LOGD) {
             Log.v(TAG, "EmailProvider.delete: uri=" + uri + ", match is " + match);
         }
 
@@ -667,7 +668,7 @@ public class EmailProvider extends ContentProvider {
         int table = match >> BASE_SHIFT;
         long id;
 
-        if (Config.LOGV) {
+        if (Email.LOGD) {
             Log.v(TAG, "EmailProvider.insert: uri=" + uri + ", match is " + match);
         }
 
@@ -737,7 +738,7 @@ public class EmailProvider extends ContentProvider {
         int table = match >> BASE_SHIFT;
         String id;
 
-        if (Config.LOGV) {
+        if (Email.LOGD) {
             Log.v(TAG, "EmailProvider.query: uri=" + uri + ", match is " + match);
         }
 
@@ -810,7 +811,7 @@ public class EmailProvider extends ContentProvider {
         int table = match >> BASE_SHIFT;
         int result;
 
-        if (Config.LOGV) {
+        if (Email.LOGD) {
             Log.v(TAG, "EmailProvider.update: uri=" + uri + ", match is " + match);
         }
 

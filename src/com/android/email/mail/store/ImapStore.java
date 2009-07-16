@@ -738,7 +738,7 @@ public class ImapStore extends Store {
                                     parseBodyStructure(bs, message, "TEXT");
                                 }
                                 catch (MessagingException e) {
-                                    if (Config.LOGV) {
+                                    if (Email.LOGD) {
                                         Log.v(Email.LOG_TAG, "Error handling message", e);
                                     }
                                     message.setBody(null);
