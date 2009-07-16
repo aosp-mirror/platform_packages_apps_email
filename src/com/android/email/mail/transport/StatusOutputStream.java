@@ -36,7 +36,7 @@ public class StatusOutputStream extends FilterOutputStream {
     public void write(int oneByte) throws IOException {
         super.write(oneByte);
         mCount++;
-        if (Config.LOGV) {
+        if (Email.LOGD) {
             if (mCount % 1024 == 0) {
                 Log.v(Email.LOG_TAG, "# " + mCount);
             }

@@ -150,7 +150,7 @@ public class Preferences {
     }
 
     public void dump() {
-        if (Config.LOGV) {
+        if (Email.LOGD) {
             for (String key : mSharedPreferences.getAll().keySet()) {
                 Log.v(Email.LOG_TAG, key + " = " + mSharedPreferences.getAll().get(key));
             }

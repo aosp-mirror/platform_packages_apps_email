@@ -522,7 +522,7 @@ public class MessagingController implements Runnable {
                                                   results.mTotalMessages, 
                                                   results.mNewMessages);
         } catch (MessagingException e) {
-            if (Config.LOGV) {
+            if (Email.LOGD) {
                 Log.v(Email.LOG_TAG, "synchronizeMailbox", e);
             }
             mListeners.synchronizeMailboxFailed(account, folder, e);
@@ -1241,7 +1241,7 @@ public class MessagingController implements Runnable {
                     processPendingCommandsSynchronous(account);
                 }
                 catch (MessagingException me) {
-                    if (Config.LOGV) {
+                    if (Email.LOGD) {
                         Log.v(Email.LOG_TAG, "processPendingCommands", me);
                     }
                     /*
@@ -1738,7 +1738,7 @@ public class MessagingController implements Runnable {
                     mListeners.loadAttachmentFinished(account, message, part, tag);
                 }
                 catch (MessagingException me) {
-                    if (Config.LOGV) {
+                    if (Email.LOGD) {
                         Log.v(Email.LOG_TAG, "", me);
                     }
                     mListeners.loadAttachmentFailed(account, message, part, tag, me.getMessage());
@@ -1920,7 +1920,7 @@ public class MessagingController implements Runnable {
                 }
                 catch (Exception e) {
                     // TODO
-                    if (Config.LOGV) {
+                    if (Email.LOGD) {
                         Log.v(Email.LOG_TAG, "emptyTrash");
                     }
                 }

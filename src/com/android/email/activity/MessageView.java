@@ -1181,7 +1181,7 @@ public class MessageView extends Activity
                 startPresenceCheck();
             }
             catch (MessagingException me) {
-                if (Config.LOGV) {
+                if (Email.LOGD) {
                     Log.v(Email.LOG_TAG, "loadMessageForViewHeadersAvailable", me);
                 }
             }
@@ -1263,7 +1263,7 @@ public class MessageView extends Activity
                 renderAttachments(mOldMessage, 0);
             }
             catch (Exception e) {
-                if (Config.LOGV) {
+                if (Email.LOGD) {
                     Log.v(Email.LOG_TAG, "loadMessageForViewBodyAvailable", e);
                 }
             }
