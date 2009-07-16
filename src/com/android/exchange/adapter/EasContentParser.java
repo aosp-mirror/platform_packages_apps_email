@@ -119,7 +119,7 @@ public abstract class EasContentParser extends EasParser {
                 if (mMailbox.mSyncKey.equals("0"))
                     moreAvailable = true;
                 String newKey = getValue();
-                mService.userLog("New sync key: " + newKey);
+                mService.userLog("Parsed key for " + mMailbox.mDisplayName + ": " + newKey);
                 mMailbox.mSyncKey = newKey;
                 // If we were pushing (i.e. auto-start), now we'll become ping-triggered
                 if (mMailbox.mSyncFrequency == Account.CHECK_INTERVAL_PUSH) {
@@ -132,7 +132,7 @@ public abstract class EasContentParser extends EasParser {
 
         // Make sure we save away the new syncKey, syncFrequency, etc.
         mMailbox.saveOrUpdate(mContext);
-
+        mService.userLog(mMailbox.mDisplayName + " SyncKey saved as: " + mMailbox.mSyncKey);
         // Let the caller know that there's more to do
         return moreAvailable;
     }

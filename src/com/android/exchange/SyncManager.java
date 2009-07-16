@@ -181,7 +181,7 @@ public class SyncManager extends Service implements Runnable {
                 int cnt = Mailbox.count(context, Mailbox.CONTENT_URI, "accountKey=" + accountId,
                         null);
                 if (cnt == 0) {
-                    initializeAccount(accountId);
+                    addAccountMailbox(accountId);
                 }
             }
         }
@@ -203,7 +203,7 @@ public class SyncManager extends Service implements Runnable {
                 for (long accountId : currentIds) {
                     if (!mAccountIds.contains(accountId)) {
                         // This is an addition; create our magic hidden mailbox...
-                        initializeAccount(accountId);
+                        addAccountMailbox(accountId);
                         mAccountIds.add(accountId);
                     }
                 }
@@ -228,11 +228,11 @@ public class SyncManager extends Service implements Runnable {
             }
         }
 
-        void initializeAccount(long acctId) {
+        void addAccountMailbox(long acctId) {
             Account acct = Account.restoreAccountWithId(getContext(), acctId);
             Mailbox main = new Mailbox();
-            main.mDisplayName = "_main";
-            main.mServerId = "_main";
+            main.mDisplayName = Eas.ACCOUNT_MAILBOX;
+            main.mServerId = Eas.ACCOUNT_MAILBOX;
             main.mAccountKey = acct.mId;
             main.mType = Mailbox.TYPE_NOT_EMAIL;
             main.mSyncFrequency = Account.CHECK_INTERVAL_PUSH;
@@ -371,7 +371,7 @@ public class SyncManager extends Service implements Runnable {
         if (INSTANCE != null) {
             AccountObserver obs = INSTANCE.mAccountObserver;
             obs.accountDeleted(acctId);
-            obs.initializeAccount(acctId);
+            obs.addAccountMailbox(acctId);
         }
     }
 

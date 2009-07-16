@@ -49,6 +49,8 @@ import android.util.Log;
 
 public class EasFolderSyncParser extends EasParser {
 
+    private static boolean DEBUG_LOGGING = false;
+
     public static final String TAG = "FolderSyncParser";
 
     // These are defined by the EAS protocol
@@ -107,7 +109,9 @@ public class EasFolderSyncParser extends EasParser {
         if (in instanceof MockParserStream) {
             mMock = (MockParserStream)in;
         }
-        setDebug(true);
+        if (DEBUG_LOGGING) {
+            setDebug(true);
+        }
     }
 
     public boolean parse() throws IOException {
@@ -298,7 +302,7 @@ public class EasFolderSyncParser extends EasParser {
             try {
                 mService.mContext.getContentResolver()
                         .applyBatch(EmailProvider.EMAIL_AUTHORITY, ops);
-                mService.userLog("New syncKey: " + mAccount.mSyncKey);
+                mService.userLog("New Account SyncKey: " + mAccount.mSyncKey);
             } catch (RemoteException e) {
                 // There is nothing to be done here; fail by returning null
             } catch (OperationApplicationException e) {

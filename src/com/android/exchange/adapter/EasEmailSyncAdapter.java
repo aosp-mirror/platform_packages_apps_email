@@ -359,7 +359,7 @@ public class EasEmailSyncAdapter extends EasSyncAdapter {
                 // There is nothing to be done here; fail by returning null
             }
 
-            mService.userLog("SyncKey confirmed as: " + mMailbox.mSyncKey);
+            mService.userLog(mMailbox.mDisplayName + " SyncKey saved as: " + mMailbox.mSyncKey);
         }
 
     }
