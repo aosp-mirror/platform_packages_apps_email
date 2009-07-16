@@ -961,6 +961,9 @@ public class MessagingController implements Runnable {
 
         // 15. Clean up and report results
 
+        remoteFolder.close(false);
+        // TODO - more
+
         // Original sync code.  Using for reference, will delete when done.
         if (false) {
         /*
