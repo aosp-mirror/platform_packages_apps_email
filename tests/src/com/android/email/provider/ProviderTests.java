@@ -94,18 +94,10 @@ public class ProviderTests extends ProviderTestCase2<EmailProvider> {
         ProviderTestUtils.assertMailboxEqual("testMailboxSave", box1, box2);
     }
     
-    private static Attachment setupAttachment(String fileName, long length) {
-        Attachment att = new Attachment();
-        att.mFileName = fileName;
-        att.mLocation = "location" + length;
-        att.mSize = length;
-        return att;
-    }
-
-    public static String[] expectedAttachmentNames =
+    private static String[] expectedAttachmentNames =
         new String[] {"attachment1.doc", "attachment2.xls", "attachment3"};
     // The lengths need to be kept in ascending order
-    public static long[] expectedAttachmentSizes = new long[] {31415L, 97701L, 151213L};
+    private static long[] expectedAttachmentSizes = new long[] {31415L, 97701L, 151213L};
 
     /**
      * Test simple message save/retrieve
@@ -159,11 +151,14 @@ public class ProviderTests extends ProviderTestCase2<EmailProvider> {
             c.close();
         }
 
+        // Message with attachments and body
         Message message3 = ProviderTestUtils.setupMessage("message3", account1Id, box1Id, true,
                 false, mMockContext);
         ArrayList<Attachment> atts = new ArrayList<Attachment>();
         for (int i = 0; i < 3; i++) {
-            atts.add(setupAttachment(expectedAttachmentNames[i], expectedAttachmentSizes[i]));
+            atts.add(ProviderTestUtils.setupAttachment(
+                    -1, expectedAttachmentNames[i], expectedAttachmentSizes[i],
+                    false, mMockContext));
         }
         message3.mAttachments = atts;
         message3.saveOrUpdate(mMockContext);
@@ -187,10 +182,47 @@ public class ProviderTests extends ProviderTestCase2<EmailProvider> {
             assertEquals(3, numAtts);
             int i = 0;
             while (c.moveToNext()) {
-                assertEquals(expectedAttachmentNames[i],
-                        c.getString(Attachment.CONTENT_FILENAME_COLUMN));
-                assertEquals(expectedAttachmentSizes[i],
-                        c.getLong(Attachment.CONTENT_SIZE_COLUMN));
+                Attachment actual = EmailContent.getContent(c, Attachment.class);
+                ProviderTestUtils.assertAttachmentEqual("save-message3", atts.get(i), actual);
+                i++;
+            }
+        } finally {
+            c.close();
+        }
+
+        // Message with attachments but no body
+        Message message4 = ProviderTestUtils.setupMessage("message4", account1Id, box1Id, false,
+                false, mMockContext);
+        atts = new ArrayList<Attachment>();
+        for (int i = 0; i < 3; i++) {
+            atts.add(ProviderTestUtils.setupAttachment(
+                    -1, expectedAttachmentNames[i], expectedAttachmentSizes[i],
+                    false, mMockContext));
+        }
+        message4.mAttachments = atts;
+        message4.saveOrUpdate(mMockContext);
+        long message4Id = message4.mId;
+
+        // Now check the attachments; there should be three and they should match name and size
+        c = null;
+        try {
+            // Note that there is NO guarantee of the order of returned records in the general case,
+            // so we specifically ask for ordering by size.  The expectedAttachmentSizes array must
+            // be kept sorted by size (ascending) for this test to work properly
+            c = mMockContext.getContentResolver().query(
+                    Attachment.CONTENT_URI,
+                    Attachment.CONTENT_PROJECTION,
+                    Attachment.MESSAGE_KEY + "=?",
+                    new String[] {
+                            String.valueOf(message4Id)
+                    },
+                    Attachment.SIZE);
+            int numAtts = c.getCount();
+            assertEquals(3, numAtts);
+            int i = 0;
+            while (c.moveToNext()) {
+                Attachment actual = EmailContent.getContent(c, Attachment.class);
+                ProviderTestUtils.assertAttachmentEqual("save-message4", atts.get(i), actual);
                 i++;
             }
         } finally {
@@ -585,6 +617,36 @@ public class ProviderTests extends ProviderTestCase2<EmailProvider> {
                     file.delete();
                 }
             }
+        }
+    }
+
+    /**
+     * Test retrieving attachments by message ID (using EmailContent.Attachment.MESSAGE_ID_URI)
+     */
+    public void testGetAttachmentByMessageIdUri() {
+
+        // Note, we don't strictly need accounts, mailboxes or messages to run this test.
+        Attachment a1 = ProviderTestUtils.setupAttachment(1, "a1", 100, true, mMockContext);
+        Attachment a2 = ProviderTestUtils.setupAttachment(1, "a2", 200, true, mMockContext);
+        Attachment a3 = ProviderTestUtils.setupAttachment(2, "a3", 300, true, mMockContext);
+        Attachment a4 = ProviderTestUtils.setupAttachment(2, "a4", 400, true, mMockContext);
+
+        // Now ask for the attachments of message id=1
+        // Note: Using the "sort by size" trick to bring them back in expected order
+        Uri uri = ContentUris.withAppendedId(Attachment.MESSAGE_ID_URI, 1);
+        Cursor c = mMockContext.getContentResolver().query(uri, Attachment.CONTENT_PROJECTION,
+                null, null, Attachment.SIZE);
+        assertEquals(2, c.getCount());
+
+        try {
+            c.moveToFirst();
+            Attachment a1Get = EmailContent.getContent(c, Attachment.class);
+            ProviderTestUtils.assertAttachmentEqual("getAttachByUri-1", a1, a1Get);
+            c.moveToNext();
+            Attachment a2Get = EmailContent.getContent(c, Attachment.class);
+            ProviderTestUtils.assertAttachmentEqual("getAttachByUri-2", a2, a2Get);
+        } finally {
+            c.close();
         }
     }
 }

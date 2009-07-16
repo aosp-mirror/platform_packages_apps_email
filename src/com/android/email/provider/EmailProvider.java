@@ -76,14 +76,14 @@ public class EmailProvider extends ContentProvider {
 
     private static final int MESSAGE_BASE = 0x2000;
     private static final int MESSAGE = MESSAGE_BASE;
-    private static final int MESSAGE_ATTACHMENTS = MESSAGE_BASE + 1;
-    private static final int MESSAGE_ID = MESSAGE_BASE + 2;
-    private static final int SYNCED_MESSAGE_ID = MESSAGE_BASE + 3;
+    private static final int MESSAGE_ID = MESSAGE_BASE + 1;
+    private static final int SYNCED_MESSAGE_ID = MESSAGE_BASE + 2;
 
     private static final int ATTACHMENT_BASE = 0x3000;
     private static final int ATTACHMENT = ATTACHMENT_BASE;
     private static final int ATTACHMENT_CONTENT = ATTACHMENT_BASE + 1;
     private static final int ATTACHMENT_ID = ATTACHMENT_BASE + 2;
+    private static final int ATTACHMENTS_MESSAGE_ID = ATTACHMENT_BASE + 3;
 
     private static final int HOSTAUTH_BASE = 0x4000;
     private static final int HOSTAUTH = HOSTAUTH_BASE;
@@ -174,8 +174,6 @@ public class EmailProvider extends ContentProvider {
         // A specific message
         // insert into this URI causes an attachment to be added to the message 
         matcher.addURI(EMAIL_AUTHORITY, "message/#", MESSAGE_ID);
-        // The attachments of a specific message
-        matcher.addURI(EMAIL_AUTHORITY, "message/#/attachment", MESSAGE_ATTACHMENTS);
 
         // A specific attachment
         matcher.addURI(EMAIL_AUTHORITY, "attachment", ATTACHMENT);
@@ -184,6 +182,8 @@ public class EmailProvider extends ContentProvider {
         // The content for a specific attachment
         // NOT IMPLEMENTED
         matcher.addURI(EMAIL_AUTHORITY, "attachment/content/*", ATTACHMENT_CONTENT);
+        // The attachments of a specific message (query only) (insert & delete TBD)
+        matcher.addURI(EMAIL_AUTHORITY, "attachment/message/#", ATTACHMENTS_MESSAGE_ID);
 
         // All mail bodies
         matcher.addURI(EMAIL_AUTHORITY, "body", BODY);
@@ -196,10 +196,10 @@ public class EmailProvider extends ContentProvider {
         // The plain text part of a specific mail body
         matcher.addURI(EMAIL_AUTHORITY, "body/#/text", BODY_TEXT);
 
-        // A specific attachment
-        matcher.addURI(EMAIL_AUTHORITY, "hostauth", HOSTAUTH); // IMPLEMENTED
-        // A specific attachment (the header information)
-        matcher.addURI(EMAIL_AUTHORITY, "hostauth/#", HOSTAUTH_ID);  // IMPLEMENTED
+        // All hostauth records
+        matcher.addURI(EMAIL_AUTHORITY, "hostauth", HOSTAUTH);
+        // A specific hostauth
+        matcher.addURI(EMAIL_AUTHORITY, "hostauth/#", HOSTAUTH_ID);
 
         /**
          * THIS URI HAS SPECIAL SEMANTICS
@@ -646,7 +646,7 @@ public class EmailProvider extends ContentProvider {
                 return "vnd.android.cursor.dir/email-account";
             case ACCOUNT_ID:
                 return "vnd.android.cursor.item/email-account";
-            case MESSAGE_ATTACHMENTS:
+            case ATTACHMENTS_MESSAGE_ID:
             case ATTACHMENT:
                 return "vnd.android.cursor.dir/email-attachment";
             case ATTACHMENT_ID:
@@ -708,7 +708,7 @@ public class EmailProvider extends ContentProvider {
                 values.put(MailboxColumns.ACCOUNT_KEY, id);
                 resultUri = insert(Mailbox.CONTENT_URI, values);
                 break;
-            case MESSAGE_ATTACHMENTS:
+            case ATTACHMENTS_MESSAGE_ID:
                 id = db.insert(TABLE_NAMES[table], "foo", values);
                 resultUri = ContentUris.withAppendedId(Attachment.CONTENT_URI, id);
                 break;
@@ -766,9 +766,9 @@ public class EmailProvider extends ContentProvider {
                 c = db.query(TABLE_NAMES[table], projection, 
                         whereWithId(id, selection), selectionArgs, null, null, sortOrder);
                 break;
-            case MESSAGE_ATTACHMENTS:
+            case ATTACHMENTS_MESSAGE_ID:
                 // All attachments for the given message
-                id = uri.getPathSegments().get(1);
+                id = uri.getPathSegments().get(2);
                 c = db.query(Attachment.TABLE_NAME, projection, 
                         whereWith(Attachment.MESSAGE_KEY + "=" + id, selection), 
                         selectionArgs, null, null, sortOrder);

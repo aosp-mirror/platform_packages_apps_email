@@ -605,7 +605,8 @@ public abstract class EmailContent {
             // This logic is in place so I can (a) short circuit the expensive stuff when
             // possible, and (b) override (and throw) if anyone tries to call save() or update()
             // directly for Message, which are unsupported.
-            if (mText == null && mHtml == null) {
+            if (mText == null && mHtml == null &&
+                    (mAttachments == null || mAttachments.isEmpty())) {
                 if (doSave) {
                     return super.save(context);
                 } else {
@@ -626,6 +627,11 @@ public abstract class EmailContent {
                 if (doSave) {
                     Uri u = results[0].uri;
                     mId = Long.parseLong(u.getPathSegments().get(1));
+                    if (mAttachments != null) {
+                        for (Attachment a : mAttachments) {
+                            a.mMessageKey = mId;
+                        }
+                    }
                     return u;
                 } else {
                     return null;
@@ -1440,7 +1446,9 @@ public abstract class EmailContent {
     public static final class Attachment extends EmailContent implements AttachmentColumns {
         public static final String TABLE_NAME = "Attachment";
         public static final Uri CONTENT_URI = Uri.parse(EmailContent.CONTENT_URI + "/attachment");
-
+        // This must be used with an appended id: ContentUris.withAppendedId(MESSAGE_ID_URI, id)
+        public static final Uri MESSAGE_ID_URI = Uri.parse(
+                EmailContent.CONTENT_URI + "/attachment/message");
 
         public String mFileName;
         public String mMimeType;

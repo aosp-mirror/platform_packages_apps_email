@@ -17,6 +17,7 @@
 package com.android.email.provider;
 
 import com.android.email.provider.EmailContent.Account;
+import com.android.email.provider.EmailContent.Attachment;
 import com.android.email.provider.EmailContent.Mailbox;
 import com.android.email.provider.EmailContent.Message;
 
@@ -139,6 +140,33 @@ public class ProviderTestUtils extends Assert {
     }
 
     /**
+     * Create a test attachment.  A few fields are specified by params, and all other fields
+     * are generated using pseudo-unique values.
+     * 
+     * @param messageId the message to attach to
+     * @param fileName the "file" to indicate in the attachment
+     * @param length the "length" of the attachment
+     * @param saveIt if true, write the new attachment directly to the DB
+     * @param context use this context
+     */
+    public static Attachment setupAttachment(long messageId, String fileName, long length,
+            boolean saveIt, Context context) {
+        Attachment att = new Attachment();
+        att.mSize = length;
+        att.mFileName = fileName;
+        att.mContentId = "contentId " + fileName;
+        att.mContentUri = "contentUri " + fileName;
+        att.mMessageKey = messageId;
+        att.mMimeType = "mimeType " + fileName;
+        att.mLocation = "location " + fileName;
+        att.mEncoding = "encoding " + fileName;
+        if (saveIt) {
+            att.saveOrUpdate(context);
+        }
+        return att;
+    }
+
+    /**
      * Compare two accounts for equality
      * 
      * TODO: check host auth?
@@ -235,5 +263,25 @@ public class ProviderTestUtils extends Assert {
 
         assertEquals(caller + " mText", expect.mText, actual.mText);
         assertEquals(caller + " mHtml", expect.mHtml, actual.mHtml);
+    }
+
+    /**
+     * Compare to attachments for equality
+     * 
+     * TODO: file / content URI mapping?  Compare the actual files?
+     */
+    public static void assertAttachmentEqual(String caller, Attachment expect, Attachment actual) {
+        if (expect == actual) {
+            return;
+        }
+
+        assertEquals(caller + " mSize", expect.mSize, actual.mSize);
+        assertEquals(caller + " mFileName", expect.mFileName, actual.mFileName);
+        assertEquals(caller + " mContentId", expect.mContentId, actual.mContentId);
+        assertEquals(caller + " mContentUri", expect.mContentUri, actual.mContentUri);
+        assertEquals(caller + " mMessageKey", expect.mMessageKey, actual.mMessageKey);
+        assertEquals(caller + " mMimeType", expect.mMimeType, actual.mMimeType);
+        assertEquals(caller + " mLocation", expect.mLocation, actual.mLocation);
+        assertEquals(caller + " mEncoding", expect.mEncoding, actual.mEncoding);
     }
 }
