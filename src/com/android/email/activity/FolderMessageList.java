@@ -801,7 +801,8 @@ public class FolderMessageList extends ExpandableListActivity {
         }
 
         if (folder.drafts) {
-            MessageCompose.actionEditDraft(this, mAccountId, message.message);
+            // actionEditDraft() now takes messageId only
+            // MessageCompose.actionEditDraft(this, mAccountId, message.message);
         }
         else {
             ArrayList<String> folderUids = new ArrayList<String>();
@@ -863,15 +864,18 @@ public class FolderMessageList extends ExpandableListActivity {
     }
 
     private void onReply(MessageInfoHolder holder) {
-        MessageCompose.actionReply(this, mAccountId, holder.message, false);
+        // now uses messageId
+        // MessageCompose.actionReply(this, mAccountId, holder.message, false);
     }
 
     private void onReplyAll(MessageInfoHolder holder) {
-        MessageCompose.actionReply(this, mAccountId, holder.message, true);
+        // now uses messageId
+        // MessageCompose.actionReply(this, mAccountId, holder.message, true);
     }
 
     private void onForward(MessageInfoHolder holder) {
-        MessageCompose.actionForward(this, mAccountId, holder.message);
+        // now uses messageId
+        // MessageCompose.actionForward(this, mAccountId, holder.message);
     }
 
     private void onToggleRead(MessageInfoHolder holder) {

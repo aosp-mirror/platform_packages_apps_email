@@ -35,6 +35,7 @@ public class EmailHtmlUtil {
     // multiple continuous spaces.
     private static final Pattern PLAIN_TEXT_TO_ESCAPE = Pattern.compile("[<>&]| {2,}|\r?\n");
 
+    //TODO: make resolveInlineImage() work in the new content provider model.
     /**
      * Resolve content-id reference in src attribute of img tag to AttachmentProvider's
      * content uri.  This method calls itself recursively at most the number of

@@ -560,6 +560,27 @@ public class AddressUnitTests extends AndroidTestCase {
         }
     }
 
+    /**
+     * Tests that unpackToString() returns the same result as toString(unpack()).
+     */
+    public void testUnpackToString() {
+        for (Address[] list : PACK_CASES) {
+            String packed = Address.pack(list);
+            String s1 = Address.unpackToString(packed);
+            String s2 = Address.toString(Address.unpack(packed));
+            assertEquals(s2, s2, s1);
+        }
+    }
+
+    /**
+     * Tests that parseAndPack() returns the same result as pack(parse()).
+     */
+    public void testParseAndPack() {
+        String s1 = Address.parseAndPack(MULTI_ADDRESSES_LIST);
+        String s2 = Address.pack(Address.parse(MULTI_ADDRESSES_LIST));
+        assertEquals(s2, s1);
+    }
+
     public void testSinglePack() {
         Address[] addrArray = new Address[1];
         for (Address address : new Address[]{PACK_ADDR_1, PACK_ADDR_2, PACK_ADDR_3}) {

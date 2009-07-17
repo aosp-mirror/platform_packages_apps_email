@@ -420,8 +420,7 @@ public class MessageList extends ListActivity implements OnItemClickListener, On
         EmailContent.Mailbox mailbox = EmailContent.Mailbox.restoreMailboxWithId(this, mailboxId);
 
         if (mailbox.mType == EmailContent.Mailbox.TYPE_DRAFTS) {
-            // TODO need id-based API for MessageCompose
-            // MessageCompose.actionEditDraft(this, messageId);
+            MessageCompose.actionEditDraft(this, messageId);
         } else {
             MessageView.actionView(this, messageId);
         }

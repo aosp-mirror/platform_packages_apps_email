@@ -177,6 +177,14 @@ public class Address {
     @Override
     public boolean equals(Object o) {
         if (o instanceof Address) {
+            // It seems that the spec says that the "user" part is case-sensitive,
+            // while the domain part in case-insesitive.
+            // So foo@yahoo.com and Foo@yahoo.com are different.
+            // This may seem non-intuitive from the user POV, so we
+            // may re-consider it if it creates UI trouble.
+            // A problem case is "replyAll" sending to both
+            // a@b.c and to A@b.c, which turn out to be the same on the server.
+            // Leave unchanged for now (i.e. case-sensitive).
             return getAddress().equals(((Address) o).getAddress());
         }
         return super.equals(o);
@@ -295,6 +303,19 @@ public class Address {
         return sb.toString();
     }
 
+    /**
+     * Returns exactly the same result as Address.toString(Address.unpack(packedList)).
+     */
+    public static String unpackToString(String packedList) {
+        return toString(unpack(packedList));
+    }
+
+    /**
+     * Returns exactly the same result as Address.pack(Address.parse(textList)).
+     */
+    public static String parseAndPack(String textList) {
+        return Address.pack(Address.parse(textList));
+    }
     /**
      * Unpacks an address list previously packed with pack()
      * @param addressList String with packed addresses as returned by pack()

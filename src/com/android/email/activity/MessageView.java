@@ -592,21 +592,21 @@ public class MessageView extends Activity
 
     private void onReply() {
         if (mOldMessage != null) {
-            MessageCompose.actionReply(this, mAccountId, mOldMessage, false);
+            MessageCompose.actionReply(this, mMessage.mId, false);
             finish();
         }
     }
 
     private void onReplyAll() {
         if (mOldMessage != null) {
-            MessageCompose.actionReply(this, mAccountId, mOldMessage, true);
+            MessageCompose.actionReply(this, mMessage.mId, true);
             finish();
         }
     }
 
     private void onForward() {
         if (mOldMessage != null) {
-            MessageCompose.actionForward(this, mAccountId, mOldMessage);
+            MessageCompose.actionForward(this, mMessage.mId);
             finish();
         }
     }

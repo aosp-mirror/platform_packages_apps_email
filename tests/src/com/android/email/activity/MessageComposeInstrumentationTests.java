@@ -20,13 +20,13 @@ import com.android.email.Email;
 import com.android.email.R;
 import com.android.email.EmailAddressValidator;
 import com.android.email.mail.Address;
-import com.android.email.mail.Message;
 import com.android.email.mail.MessagingException;
 import com.android.email.mail.Message.RecipientType;
 import com.android.email.mail.internet.MimeMessage;
 import com.android.email.mail.internet.TextBody;
 import com.android.email.provider.EmailContent;
 import com.android.email.provider.EmailContent.Account;
+import com.android.email.provider.EmailContent.Message;
 
 import android.content.Context;
 import android.content.Intent;
@@ -157,8 +157,8 @@ public class MessageComposeInstrumentationTests
             }
         });
         
-        message.setFrom(null);
-        message.setReplyTo(Address.parse(REPLYTO));
+        message.mFrom = null;
+        message.mReplyTo = Address.parseAndPack(REPLYTO);
         
         runTestOnUiThread(new Runnable() {
             public void run() {
@@ -188,8 +188,8 @@ public class MessageComposeInstrumentationTests
             }
         });
         
-        message.setFrom(null);
-        message.setReplyTo(Address.parse(UTF16_REPLYTO));
+        message.mFrom = null;
+        message.mReplyTo = Address.parseAndPack(UTF16_REPLYTO);
         
         runTestOnUiThread(new Runnable() {
             public void run() {
@@ -219,8 +219,8 @@ public class MessageComposeInstrumentationTests
             }
         });
         
-        message.setFrom(null);
-        message.setReplyTo(Address.parse(UTF32_REPLYTO));
+        message.mFrom = null;
+        message.mReplyTo = Address.parseAndPack(UTF32_REPLYTO);
         
         runTestOnUiThread(new Runnable() {
             public void run() {
@@ -238,8 +238,7 @@ public class MessageComposeInstrumentationTests
      *   Subject = Fwd: Subject
      *   Body = empty
      */
-    public void testProcessSourceMessageForward() throws MessagingException, Throwable {
-        
+    public void testProcessSourceMessageForward() throws MessagingException, Throwable {        
         final Message message = buildTestMessage(RECIPIENT_TO, SENDER, SUBJECT, BODY);
         Intent intent = new Intent(ACTION_FORWARD);
         final MessageCompose a = getActivity();
@@ -280,7 +279,7 @@ public class MessageComposeInstrumentationTests
         
         // if subject is null, then cursor should be there instead
         
-        message.setSubject("");
+        message.mSubject = "";
         
         runTestOnUiThread(new Runnable() {
             public void run() {
@@ -316,7 +315,7 @@ public class MessageComposeInstrumentationTests
         
         // if subject is null, then cursor should be there instead
         
-        message.setSubject("");
+        message.mSubject = "";
         
         runTestOnUiThread(new Runnable() {
             public void run() {
@@ -352,7 +351,7 @@ public class MessageComposeInstrumentationTests
         
         // if subject is null, then cursor should be there instead
         
-        message.setSubject("");
+        message.mSubject = "";
         
         runTestOnUiThread(new Runnable() {
             public void run() {
@@ -553,28 +552,25 @@ public class MessageComposeInstrumentationTests
      * @param content Content of the message
      * @return a complete Message object
      */
-    private Message buildTestMessage(String to, String sender, String subject, String content) 
+    private Message buildTestMessage(String to, String sender,
+                                                  String subject, String content)
             throws MessagingException {
-        Message message = new MimeMessage();
+        Message message = new Message();
         
         if (to != null) {
-            Address[] addresses = Address.parse(to);
-            message.setRecipients(RecipientType.TO, addresses);
+            message.mTo = Address.parseAndPack(to);
         }
         
         if (sender != null) {
             Address[] addresses = Address.parse(sender);
             assertTrue("from address", addresses.length > 0);
-            message.setFrom(addresses[0]);
+            message.mFrom = addresses[0].pack();
         }
         
-        if (subject != null) {
-            message.setSubject(subject);
-        }
+        message.mSubject = subject;
         
         if (content != null) {
-            TextBody body = new TextBody(content);
-            message.setBody(body);
+            message.mText = content;
         }
         
         return message;
