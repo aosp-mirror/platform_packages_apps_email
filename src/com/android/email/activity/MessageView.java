@@ -25,17 +25,13 @@ import com.android.email.Utility;
 import com.android.email.mail.Address;
 import com.android.email.mail.Message;
 import com.android.email.mail.MessagingException;
-import com.android.email.mail.Multipart;
 import com.android.email.mail.Part;
 import com.android.email.mail.Message.RecipientType;
 import com.android.email.mail.internet.EmailHtmlUtil;
 import com.android.email.mail.internet.MimeUtility;
-import com.android.email.mail.store.LocalStore.LocalAttachmentBodyPart;
 import com.android.email.mail.store.LocalStore.LocalMessage;
-import com.android.email.provider.AttachmentProvider;
 import com.android.email.provider.EmailContent;
-
-import org.apache.commons.io.IOUtils;
+import com.android.email.provider.EmailContent.Attachment;
 
 import android.app.Activity;
 import android.app.ProgressDialog;
@@ -46,7 +42,6 @@ import android.content.Context;
 import android.content.Intent;
 import android.database.Cursor;
 import android.graphics.Bitmap;
-import android.graphics.BitmapFactory;
 import android.graphics.drawable.Drawable;
 import android.media.MediaScannerConnection;
 import android.media.MediaScannerConnection.MediaScannerConnectionClient;
@@ -60,7 +55,6 @@ import android.provider.Contacts.Intents;
 import android.provider.Contacts.People;
 import android.provider.Contacts.Presence;
 import android.text.util.Regex;
-import android.util.Config;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.Menu;
@@ -76,10 +70,6 @@ import android.widget.TextView;
 import android.widget.Toast;
 
 import java.io.File;
-import java.io.FileOutputStream;
-import java.io.IOException;
-import java.io.InputStream;
-import java.io.OutputStream;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.regex.Matcher;
@@ -137,6 +127,7 @@ public class MessageView extends Activity
 
     private LoadMessageTask mLoadMessageTask;
     private LoadBodyTask mLoadBodyTask;
+    private LoadAttachmentsTask mLoadAttachmentsTask;
 
     private String mFolder;
     private String mMessageUid;
@@ -156,7 +147,6 @@ public class MessageView extends Activity
 
     class MessageViewHandler extends Handler {
         private static final int MSG_PROGRESS = 2;
-        private static final int MSG_ADD_ATTACHMENT = 3;
         private static final int MSG_SET_ATTACHMENTS_ENABLED = 4;
         private static final int MSG_SET_HEADERS = 5;
         private static final int MSG_NETWORK_ERROR = 6;
@@ -182,13 +172,10 @@ public class MessageView extends Activity
                     }
                     setProgressBarIndeterminateVisibility(msg.arg1 != 0);
                     break;
-                case MSG_ADD_ATTACHMENT:
-                    mAttachments.addView((View) msg.obj);
-                    mAttachments.setVisibility(View.VISIBLE);
-                    break;
                 case MSG_SET_ATTACHMENTS_ENABLED:
                     for (int i = 0, count = mAttachments.getChildCount(); i < count; i++) {
-                        Attachment attachment = (Attachment) mAttachments.getChildAt(i).getTag();
+                        AttachmentInfo attachment =
+                            (AttachmentInfo) mAttachments.getChildAt(i).getTag();
                         attachment.viewButton.setEnabled(msg.arg1 == 1);
                         attachment.downloadButton.setEnabled(msg.arg1 == 1);
                     }
@@ -235,7 +222,7 @@ public class MessageView extends Activity
                             Toast.LENGTH_SHORT).show();
                     break;
                 case MSG_UPDATE_ATTACHMENT_ICON:
-                    ((Attachment) mAttachments.getChildAt(msg.arg1).getTag())
+                    ((AttachmentInfo) mAttachments.getChildAt(msg.arg1).getTag())
                         .iconView.setImageBitmap((Bitmap) msg.obj);
                     break;
                 default:
@@ -248,13 +235,6 @@ public class MessageView extends Activity
             msg.what = MSG_PROGRESS;
             msg.arg1 = progress ? 1 : 0;
             msg.obj = filename;
-            sendMessage(msg);
-        }
-
-        public void addAttachment(View attachmentView) {
-            android.os.Message msg = new android.os.Message();
-            msg.what = MSG_ADD_ATTACHMENT;
-            msg.obj = attachmentView;
             sendMessage(msg);
         }
 
@@ -327,11 +307,11 @@ public class MessageView extends Activity
     /**
      * Encapsulates known information about a single attachment.
      */
-    private static class Attachment {
+    private static class AttachmentInfo {
         public String name;
         public String contentType;
         public long size;
-        public LocalAttachmentBodyPart part;
+        public long attachmentId;
         public Button viewButton;
         public Button downloadButton;
         public ImageView iconView;
@@ -495,15 +475,20 @@ public class MessageView extends Activity
     public void onDestroy() {
         super.onDestroy();
 
-        if (mLoadMessageTask != null &&
-                mLoadMessageTask.getStatus() != AsyncTask.Status.FINISHED) {
+        if (mLoadMessageTask != null
+                && mLoadMessageTask.getStatus() != AsyncTask.Status.FINISHED) {
             mLoadMessageTask.cancel(true);
             mLoadMessageTask = null;
         }
-        if (mLoadBodyTask != null &&
-                mLoadBodyTask.getStatus() != AsyncTask.Status.FINISHED) {
+        if (mLoadBodyTask != null
+                && mLoadBodyTask.getStatus() != AsyncTask.Status.FINISHED) {
             mLoadBodyTask.cancel(true);
             mLoadBodyTask = null;
+        }
+        if (mLoadAttachmentsTask != null
+                && mLoadAttachmentsTask.getStatus() != AsyncTask.Status.FINISHED) {
+            mLoadAttachmentsTask.cancel(true);
+            mLoadAttachmentsTask = null;
         }
 
         // This is synchronized because the listener accesses mMessageContentView from its thread
@@ -666,7 +651,7 @@ public class MessageView extends Activity
         return null;
     }
 
-    private void onDownloadAttachment(Attachment attachment) {
+    private void onDownloadAttachment(AttachmentInfo attachment) {
         if (!Environment.getExternalStorageState().equals(Environment.MEDIA_MOUNTED)) {
             /*
              * Abort early if there's no place to save the attachment. We don't want to spend
@@ -677,21 +662,21 @@ public class MessageView extends Activity
                     Toast.LENGTH_SHORT).show();
             return;
         }
-        MessagingController.getInstance(getApplication()).loadAttachment(
-                mAccount,
-                mOldMessage,
-                attachment.part,
-                new Object[] { true, attachment },
-                mListener);
+//        MessagingController.getInstance(getApplication()).loadAttachment(
+//                mAccount,
+//                mOldMessage,
+//                attachment.part,
+//                new Object[] { true, attachment },
+//                mListener);
     }
 
-    private void onViewAttachment(Attachment attachment) {
-        MessagingController.getInstance(getApplication()).loadAttachment(
-                mAccount,
-                mOldMessage,
-                attachment.part,
-                new Object[] { false, attachment },
-                mListener);
+    private void onViewAttachment(AttachmentInfo attachment) {
+//        MessagingController.getInstance(getApplication()).loadAttachment(
+//                mAccount,
+//                mOldMessage,
+//                attachment.part,
+//                new Object[] { false, attachment },
+//                mListener);
     }
 
     private void onShowPictures() {
@@ -726,10 +711,10 @@ public class MessageView extends Activity
                 onPrevious();
                 break;
             case R.id.download:
-                onDownloadAttachment((Attachment) view.getTag());
+                onDownloadAttachment((AttachmentInfo) view.getTag());
                 break;
             case R.id.view:
-                onViewAttachment((Attachment) view.getTag());
+                onViewAttachment((AttachmentInfo) view.getTag());
                 break;
             case R.id.show_pictures:
                 onShowPictures();
@@ -784,14 +769,15 @@ public class MessageView extends Activity
         return true;
     }
 
-    private Bitmap getPreviewIcon(Attachment attachment) {
+    private Bitmap getPreviewIcon(AttachmentInfo attachment) {
         try {
-            return BitmapFactory.decodeStream(
-                    getContentResolver().openInputStream(
-                            AttachmentProvider.getAttachmentThumbnailUri(mAccount,
-                                    attachment.part.getAttachmentId(),
-                                    62,
-                                    62)));
+//            return BitmapFactory.decodeStream(
+//                    getContentResolver().openInputStream(
+//                            AttachmentProvider.getAttachmentThumbnailUri(mAccount,
+//                                    attachment.part.getAttachmentId(),
+//                                    62,
+//                                    62)));
+            return null;
         }
         catch (Exception e) {
             /*
@@ -825,90 +811,82 @@ public class MessageView extends Activity
 
     private void updateAttachmentThumbnail(Part part) {
         for (int i = 0, count = mAttachments.getChildCount(); i < count; i++) {
-            Attachment attachment = (Attachment) mAttachments.getChildAt(i).getTag();
-            if (attachment.part == part) {
-                Bitmap previewIcon = getPreviewIcon(attachment);
-                if (previewIcon != null) {
-                    mHandler.updateAttachmentIcon(i, previewIcon);
-                }
-                return;
-            }
+            AttachmentInfo attachment = (AttachmentInfo) mAttachments.getChildAt(i).getTag();
+//            if (attachment.part == part) {
+//                Bitmap previewIcon = getPreviewIcon(attachment);
+//                if (previewIcon != null) {
+//                    mHandler.updateAttachmentIcon(i, previewIcon);
+//                }
+//                return;
+//            }
         }
     }
 
-    private void renderAttachments(Part part, int depth) throws MessagingException {
-        if (depth >= 10 || part == null) {
-            return;
-        }
-        String contentType = MimeUtility.unfoldAndDecode(part.getContentType());
-        String name = MimeUtility.getHeaderParameter(contentType, "name");
-        if (name != null) {
-            /*
-             * We're guaranteed size because LocalStore.fetch puts it there.
-             */
-            String contentDisposition = MimeUtility.unfoldAndDecode(part.getDisposition());
-            int size = Integer.parseInt(MimeUtility.getHeaderParameter(contentDisposition, "size"));
+    /**
+     * Copy data from a cursor-refreshed attachment into the UI.  Called from UI thread.
+     *
+     * @param attachment A single attachment loaded from the provider
+     */
+    private void addAttachment(Attachment attachment) {
 
-            Attachment attachment = new Attachment();
-            attachment.size = size;
-            attachment.contentType = part.getMimeType();
-            attachment.name = name;
-            attachment.part = (LocalAttachmentBodyPart) part;
+        AttachmentInfo attachmentInfo = new AttachmentInfo();
+        attachmentInfo.size = attachment.mSize;
+        attachmentInfo.contentType = attachment.mMimeType;
+        attachmentInfo.name = attachment.mFileName;
+        attachmentInfo.attachmentId = attachment.mId;
 
-            LayoutInflater inflater = getLayoutInflater();
-            View view = inflater.inflate(R.layout.message_view_attachment, null);
-
-            TextView attachmentName = (TextView)view.findViewById(R.id.attachment_name);
-            TextView attachmentInfo = (TextView)view.findViewById(R.id.attachment_info);
-            ImageView attachmentIcon = (ImageView)view.findViewById(R.id.attachment_icon);
-            Button attachmentView = (Button)view.findViewById(R.id.view);
-            Button attachmentDownload = (Button)view.findViewById(R.id.download);
-
-            if ((!MimeUtility.mimeTypeMatches(attachment.contentType,
-                    Email.ACCEPTABLE_ATTACHMENT_VIEW_TYPES))
-                    || (MimeUtility.mimeTypeMatches(attachment.contentType,
-                            Email.UNACCEPTABLE_ATTACHMENT_VIEW_TYPES))) {
-                attachmentView.setVisibility(View.GONE);
-            }
-            if ((!MimeUtility.mimeTypeMatches(attachment.contentType,
-                    Email.ACCEPTABLE_ATTACHMENT_DOWNLOAD_TYPES))
-                    || (MimeUtility.mimeTypeMatches(attachment.contentType,
-                            Email.UNACCEPTABLE_ATTACHMENT_DOWNLOAD_TYPES))) {
-                attachmentDownload.setVisibility(View.GONE);
-            }
-
-            if (attachment.size > Email.MAX_ATTACHMENT_DOWNLOAD_SIZE) {
-                attachmentView.setVisibility(View.GONE);
-                attachmentDownload.setVisibility(View.GONE);
-            }
-
-            attachment.viewButton = attachmentView;
-            attachment.downloadButton = attachmentDownload;
-            attachment.iconView = attachmentIcon;
-
-            view.setTag(attachment);
-            attachmentView.setOnClickListener(this);
-            attachmentView.setTag(attachment);
-            attachmentDownload.setOnClickListener(this);
-            attachmentDownload.setTag(attachment);
-
-            attachmentName.setText(name);
-            attachmentInfo.setText(formatSize(size));
-
-            Bitmap previewIcon = getPreviewIcon(attachment);
-            if (previewIcon != null) {
-                attachmentIcon.setImageBitmap(previewIcon);
-            }
-
-            mHandler.addAttachment(view);
+        // TODO: remove this when EAS writes mime types
+        if (attachmentInfo.contentType == null || attachmentInfo.contentType.length() == 0) {
+            attachmentInfo.contentType = "application/octet-stream";
         }
 
-        if (part.getBody() instanceof Multipart) {
-            Multipart mp = (Multipart)part.getBody();
-            for (int i = 0; i < mp.getCount(); i++) {
-                renderAttachments(mp.getBodyPart(i), depth + 1);
-            }
+        LayoutInflater inflater = getLayoutInflater();
+        View view = inflater.inflate(R.layout.message_view_attachment, null);
+
+        TextView attachmentName = (TextView)view.findViewById(R.id.attachment_name);
+        TextView attachmentInfoView = (TextView)view.findViewById(R.id.attachment_info);
+        ImageView attachmentIcon = (ImageView)view.findViewById(R.id.attachment_icon);
+        Button attachmentView = (Button)view.findViewById(R.id.view);
+        Button attachmentDownload = (Button)view.findViewById(R.id.download);
+
+        if ((!MimeUtility.mimeTypeMatches(attachmentInfo.contentType,
+                Email.ACCEPTABLE_ATTACHMENT_VIEW_TYPES))
+                || (MimeUtility.mimeTypeMatches(attachmentInfo.contentType,
+                        Email.UNACCEPTABLE_ATTACHMENT_VIEW_TYPES))) {
+            attachmentView.setVisibility(View.GONE);
         }
+        if ((!MimeUtility.mimeTypeMatches(attachmentInfo.contentType,
+                Email.ACCEPTABLE_ATTACHMENT_DOWNLOAD_TYPES))
+                || (MimeUtility.mimeTypeMatches(attachmentInfo.contentType,
+                        Email.UNACCEPTABLE_ATTACHMENT_DOWNLOAD_TYPES))) {
+            attachmentDownload.setVisibility(View.GONE);
+        }
+
+        if (attachmentInfo.size > Email.MAX_ATTACHMENT_DOWNLOAD_SIZE) {
+            attachmentView.setVisibility(View.GONE);
+            attachmentDownload.setVisibility(View.GONE);
+        }
+
+        attachmentInfo.viewButton = attachmentView;
+        attachmentInfo.downloadButton = attachmentDownload;
+        attachmentInfo.iconView = attachmentIcon;
+
+        view.setTag(attachmentInfo);
+        attachmentView.setOnClickListener(this);
+        attachmentView.setTag(attachmentInfo);
+        attachmentDownload.setOnClickListener(this);
+        attachmentDownload.setTag(attachmentInfo);
+
+        attachmentName.setText(attachmentInfo.name);
+        attachmentInfoView.setText(formatSize(attachmentInfo.size));
+
+        Bitmap previewIcon = getPreviewIcon(attachmentInfo);
+        if (previewIcon != null) {
+            attachmentIcon.setImageBitmap(previewIcon);
+        }
+
+        mAttachments.addView(view);
+        mAttachments.setVisibility(View.VISIBLE);
     }
     
     /**
@@ -989,13 +967,13 @@ public class MessageView extends Activity
      */
     private class LoadMessageTask extends AsyncTask<Void, Void, Cursor> {
         
-        private long mMessageId;
+        private long mId;
         
         /**
          * Special constructor to cache some local info
          */
         public LoadMessageTask(long messageId) {
-            mMessageId = messageId;
+            mId = messageId;
         }
 
         @Override
@@ -1005,7 +983,7 @@ public class MessageView extends Activity
                     EmailContent.Message.CONTENT_PROJECTION,
                     EmailContent.RECORD_ID + "=?",
                     new String[] {
-                            String.valueOf(mMessageId)
+                            String.valueOf(mId)
                             }, 
                     null);
         }
@@ -1027,13 +1005,13 @@ public class MessageView extends Activity
      */
     private class LoadBodyTask extends AsyncTask<Void, Void, Cursor> {
         
-        private long mMessageId;
+        private long mId;
         
         /**
          * Special constructor to cache some local info
          */
         public LoadBodyTask(long messageId) {
-            mMessageId = messageId;
+            mId = messageId;
         }
 
         @Override
@@ -1043,7 +1021,7 @@ public class MessageView extends Activity
                     BODY_CONTENT_PROJECTION,
                     EmailContent.Body.MESSAGE_KEY + "=?",
                     new String[] {
-                            String.valueOf(mMessageId)
+                            String.valueOf(mId)
                             }, 
                     null);
         }
@@ -1059,6 +1037,44 @@ public class MessageView extends Activity
 
             // At this point it's fair to mark the message as "read"
             onMarkAsRead(true);
+        }
+    }
+
+    /**
+     * Async task for loading attachments
+     *
+     * Note:  This really should only be called when the message load is complete - or, we should
+     * leave open a listener so the attachments can fill in as they are discovered.  In either case,
+     * this implementation is incomplete, as it will fail to refresh properly if the message is
+     * partially loaded at this time.
+     */
+    private class LoadAttachmentsTask extends AsyncTask<Void, Void, Cursor> {
+
+        private long mId;
+
+        /**
+         * Special constructor to cache some local info
+         */
+        public LoadAttachmentsTask(long messageId) {
+            mId = messageId;
+        }
+
+        @Override
+        protected Cursor doInBackground(Void... params) {
+            Uri uri = ContentUris.withAppendedId(Attachment.MESSAGE_ID_URI, mId);
+            return MessageView.this.managedQuery(
+                    uri,
+                    Attachment.CONTENT_PROJECTION,
+                    null, null, null);
+        }
+
+        @Override
+        protected void onPostExecute(Cursor cursor) {
+            while (cursor.moveToNext()) {
+                // load and capture one attachment
+                Attachment attachment = Attachment.getContent(cursor, Attachment.class);
+                addAttachment(attachment);
+            }
         }
     }
 
@@ -1085,9 +1101,19 @@ public class MessageView extends Activity
         mAttachmentIcon.setVisibility(message.mAttachments != null ? View.VISIBLE : View.GONE);
         mFavoriteIcon.setImageDrawable(message.mFlagFavorite ? mFavoriteIconOn : mFavoriteIconOff);
 
+        // TODO: Handle partially-loaded email, as follows:
+        // 1. Check value of message.mFlagLoaded
+        // 2. If != LOADED, ask controller to load it
+        // 3. Controller callback (after loaded) should trigger LoadBodyTask & LoadAttachmentsTask
+        // 4. Else start the loader tasks right away (message already loaded)
+
         // Ask for body
         mLoadBodyTask = new LoadBodyTask(message.mId);
         mLoadBodyTask.execute();
+
+        // Ask for attachments
+        mLoadAttachmentsTask = new LoadAttachmentsTask(message.mId);
+        mLoadAttachmentsTask.execute();
     }
 
     /**
@@ -1260,7 +1286,7 @@ public class MessageView extends Activity
                 else {
                     loadMessageContentUrl("file:///android_asset/empty.html");
                 }
-                renderAttachments(mOldMessage, 0);
+//                renderAttachments(mOldMessage, 0);
             }
             catch (Exception e) {
                 if (Email.LOGD) {
@@ -1307,7 +1333,7 @@ public class MessageView extends Activity
                 Part part, Object tag, boolean requiresDownload) {
             mHandler.setAttachmentsEnabled(false);
             Object[] params = (Object[]) tag;
-            mHandler.progress(true, ((Attachment) params[1]).name);
+            mHandler.progress(true, ((AttachmentInfo) params[1]).name);
             if (requiresDownload) {
                 mHandler.fetchingAttachment();
             }
@@ -1322,42 +1348,42 @@ public class MessageView extends Activity
 
             Object[] params = (Object[]) tag;
             boolean download = (Boolean) params[0];
-            Attachment attachment = (Attachment) params[1];
+            AttachmentInfo attachment = (AttachmentInfo) params[1];
 
             if (download) {
-                try {
-                    File file = createUniqueFile(Environment.getExternalStorageDirectory(),
-                            attachment.name);
-                    Uri uri = AttachmentProvider.resolveAttachmentIdToContentUri(
-                            getContentResolver(), AttachmentProvider.getAttachmentUri(
-                                    mAccount, attachment.part.getAttachmentId()));
-                    InputStream in = getContentResolver().openInputStream(uri);
-                    OutputStream out = new FileOutputStream(file);
-                    IOUtils.copy(in, out);
-                    out.flush();
-                    out.close();
-                    in.close();
-                    mHandler.attachmentSaved(file.getName());
-                    new MediaScannerNotifier(MessageView.this, file, mHandler);
-                }
-                catch (IOException ioe) {
-                    mHandler.attachmentNotSaved();
-                }
+//                try {
+//                    File file = createUniqueFile(Environment.getExternalStorageDirectory(),
+//                            attachment.name);
+//                    Uri uri = AttachmentProvider.resolveAttachmentIdToContentUri(
+//                            getContentResolver(), AttachmentProvider.getAttachmentUri(
+//                                    mAccount, attachment.part.getAttachmentId()));
+//                    InputStream in = getContentResolver().openInputStream(uri);
+//                    OutputStream out = new FileOutputStream(file);
+//                    IOUtils.copy(in, out);
+//                    out.flush();
+//                    out.close();
+//                    in.close();
+//                    mHandler.attachmentSaved(file.getName());
+//                    new MediaScannerNotifier(MessageView.this, file, mHandler);
+//                }
+//                catch (IOException ioe) {
+//                    mHandler.attachmentNotSaved();
+//                }
             }
             else {
-                try {
-                    Uri uri = AttachmentProvider.resolveAttachmentIdToContentUri(
-                            getContentResolver(), AttachmentProvider.getAttachmentUri(
-                                    mAccount, attachment.part.getAttachmentId()));
-                    Intent intent = new Intent(Intent.ACTION_VIEW);
-                    intent.setData(uri);
-                    intent.addFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION);
-                    startActivity(intent);
-                } catch (ActivityNotFoundException e) {
-                    mHandler.attachmentViewError(); 
-                    // TODO: Add a proper warning message (and lots of upstream cleanup to prevent 
-                    // it from happening) in the next release.
-                }
+//                try {
+//                    Uri uri = AttachmentProvider.resolveAttachmentIdToContentUri(
+//                            getContentResolver(), AttachmentProvider.getAttachmentUri(
+//                                    mAccount, attachment.part.getAttachmentId()));
+//                    Intent intent = new Intent(Intent.ACTION_VIEW);
+//                    intent.setData(uri);
+//                    intent.addFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION);
+//                    startActivity(intent);
+//                } catch (ActivityNotFoundException e) {
+//                    mHandler.attachmentViewError();
+//                    // TODO: Add a proper warning message (and lots of upstream cleanup to prevent
+//                    // it from happening) in the next release.
+//                }
             }
         }
 
