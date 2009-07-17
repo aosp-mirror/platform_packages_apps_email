@@ -17,18 +17,9 @@
 
 package com.android.exchange;
 
-import android.app.Service;
-import android.content.Intent;
-import android.os.IBinder;
-import android.util.Log;
-
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-
 import com.android.email.mail.MessagingException;
-import com.android.exchange.EmailContent.Attachment;
 import com.android.exchange.EmailContent.Account;
+import com.android.exchange.EmailContent.Attachment;
 import com.android.exchange.EmailContent.HostAuth;
 import com.android.exchange.EmailContent.Mailbox;
 import com.android.exchange.EmailContent.Message;
@@ -38,22 +29,31 @@ import com.android.exchange.adapter.EasOutboxService;
 
 import android.app.AlarmManager;
 import android.app.PendingIntent;
+import android.app.Service;
 import android.content.BroadcastReceiver;
 import android.content.ContentResolver;
 import android.content.Context;
+import android.content.Intent;
 import android.content.IntentFilter;
 import android.content.SharedPreferences;
+import android.database.ContentObserver;
 import android.database.Cursor;
 import android.net.ConnectivityManager;
 import android.net.NetworkInfo;
 import android.net.Uri;
 import android.net.NetworkInfo.State;
 import android.os.Bundle;
+import android.os.Debug;
 import android.os.Handler;
+import android.os.IBinder;
 import android.os.PowerManager;
 import android.os.RemoteException;
 import android.os.PowerManager.WakeLock;
-import android.database.ContentObserver;
+import android.util.Log;
+
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
 
 /**
  * The SyncManager handles all aspects of starting, maintaining, and stopping the various sync
@@ -86,6 +86,7 @@ public class SyncManager extends Service implements Runnable {
     AccountObserver mAccountObserver;
     MailboxObserver mMailboxObserver;
     SyncedMessageObserver mSyncedMessageObserver;
+    MessageObserver mMessageObserver;
     String mNextWaitReason;
 
     static private HashMap<Long, Boolean> mWakeLocks = new HashMap<Long, Boolean>();
@@ -295,13 +296,24 @@ public class SyncManager extends Service implements Runnable {
         }
     }
 
+    class MessageObserver extends ContentObserver {
+
+        public MessageObserver(Handler handler) {
+            super(handler);
+        }
+
+        public void onChange(boolean selfChange) {
+            INSTANCE.log("MessageObserver");
+            // A rather blunt instrument here.  But we don't have information about the URI that
+            // triggered this, though it must have been an insert
+            kick();
+        }
+    }
+
     public class SyncStatus {
         static public final int NOT_RUNNING = 0;
-
         static public final int DIED = 1;
-
         static public final int SYNC = 2;
-
         static public final int IDLE = 3;
     }
 
@@ -349,6 +361,7 @@ public class SyncManager extends Service implements Runnable {
         mAccountObserver = new AccountObserver(mHandler);
         mMailboxObserver = new MailboxObserver(mHandler);
         mSyncedMessageObserver = new SyncedMessageObserver(mHandler);
+        mMessageObserver = new MessageObserver(mHandler);
 
         // Start our thread...
         if (mServiceThread == null || !mServiceThread.isAlive()) {
@@ -578,6 +591,7 @@ public class SyncManager extends Service implements Runnable {
         resolver.registerContentObserver(Account.CONTENT_URI, false, mAccountObserver);
         resolver.registerContentObserver(Mailbox.CONTENT_URI, false, mMailboxObserver);
         resolver.registerContentObserver(Message.SYNCED_CONTENT_URI, true, mSyncedMessageObserver);
+        resolver.registerContentObserver(Message.CONTENT_URI, false, mMessageObserver);
 
         ConnectivityReceiver cr = new ConnectivityReceiver();
         registerReceiver(cr, new IntentFilter(ConnectivityManager.CONNECTIVITY_ACTION));

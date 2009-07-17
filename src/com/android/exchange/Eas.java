@@ -44,18 +44,18 @@ public class Eas {
     // 6 3 months ago No   Yes
     // 7 6 months ago No   Yes
 
-    static final String FILTER_ALL = "0";
-    static final String FILTER_1_DAY = "1";
-    static final String FILTER_3_DAYS = "2";
-    static final String FILTER_1_WEEK = "3";
-    static final String FILTER_2_WEEKS = "4";
-    static final String FILTER_1_MONTH = "5";
-    static final String FILTER_3_MONTHS = "6";
-    static final String FILTER_6_MONTHS = "7";
-    static final String BODY_PREFERENCE_TEXT = "1";
-    static final String BODY_PREFERENCE_HTML = "2";
+    public static final String FILTER_ALL = "0";
+    public static final String FILTER_1_DAY = "1";
+    public static final String FILTER_3_DAYS = "2";
+    public static final String FILTER_1_WEEK = "3";
+    public static final String FILTER_2_WEEKS = "4";
+    public static final String FILTER_1_MONTH = "5";
+    public static final String FILTER_3_MONTHS = "6";
+    public static final String FILTER_6_MONTHS = "7";
+    public static final String BODY_PREFERENCE_TEXT = "1";
+    public static final String BODY_PREFERENCE_HTML = "2";
 
-    static final String DEFAULT_BODY_TRUNCATION_SIZE = "50000";
+    public static final String DEFAULT_BODY_TRUNCATION_SIZE = "50000";
 
     public static final int FOLDER_STATUS_OK = 1;
     public static final int FOLDER_STATUS_INVALID_KEY = 9;

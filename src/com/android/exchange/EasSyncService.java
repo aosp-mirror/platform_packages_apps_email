@@ -17,34 +17,6 @@
 
 package com.android.exchange;
 
-import java.io.BufferedReader;
-import java.io.BufferedWriter;
-import java.io.ByteArrayInputStream;
-import java.io.File;
-import java.io.FileNotFoundException;
-import java.io.FileOutputStream;
-import java.io.FileReader;
-import java.io.FileWriter;
-import java.io.IOException;
-import java.io.InputStream;
-import java.io.OutputStreamWriter;
-import java.net.HttpURLConnection;
-import java.net.MalformedURLException;
-import java.net.ProtocolException;
-import java.net.URI;
-import java.net.URL;
-import java.net.URLEncoder;
-
-import java.util.ArrayList;
-
-import javax.net.ssl.HttpsURLConnection;
-
-import org.apache.http.HttpEntity;
-import org.apache.http.HttpResponse;
-import org.apache.http.client.methods.HttpPost;
-import org.apache.http.conn.ssl.AllowAllHostnameVerifier;
-import org.apache.http.impl.client.DefaultHttpClient;
-
 import com.android.email.mail.AuthenticationFailedException;
 import com.android.email.mail.MessagingException;
 import com.android.exchange.EmailContent.Account;
@@ -62,12 +34,39 @@ import com.android.exchange.adapter.EasSyncAdapter;
 import com.android.exchange.adapter.EasParser.EasParserException;
 import com.android.exchange.utility.Base64;
 
+import org.apache.http.HttpEntity;
+import org.apache.http.HttpResponse;
+import org.apache.http.client.methods.HttpPost;
+import org.apache.http.conn.ssl.AllowAllHostnameVerifier;
+import org.apache.http.impl.client.DefaultHttpClient;
+
 import android.content.ContentResolver;
 import android.content.ContentValues;
 import android.content.Context;
 import android.database.Cursor;
 import android.os.RemoteException;
 import android.util.Log;
+
+import java.io.BufferedReader;
+import java.io.BufferedWriter;
+import java.io.ByteArrayInputStream;
+import java.io.File;
+import java.io.FileNotFoundException;
+import java.io.FileOutputStream;
+import java.io.FileReader;
+import java.io.FileWriter;
+import java.io.IOException;
+import java.io.InputStream;
+import java.io.OutputStreamWriter;
+import java.net.HttpURLConnection;
+import java.net.MalformedURLException;
+import java.net.ProtocolException;
+import java.net.URI;
+import java.net.URL;
+import java.net.URLEncoder;
+import java.util.ArrayList;
+
+import javax.net.ssl.HttpsURLConnection;
 
 public class EasSyncService extends InteractiveSyncService {
 
@@ -85,6 +84,7 @@ public class EasSyncService extends InteractiveSyncService {
 
     // Reasonable default
     String mProtocolVersion = "2.5";
+    public Double mProtocolVersionDouble;
     static String mDeviceId = null;
     static String mDeviceType = "Android";
     EasSyncAdapter mTarget;
@@ -408,9 +408,10 @@ public class EasSyncService extends InteractiveSyncService {
                         if (mVersions.contains("12.0")) {
                             mProtocolVersion = "12.0";
                         }
-                        // TODO We only do 2.5 at the moment; add 'else' above when fixed
-                        mProtocolVersion = "2.5";
+                        mProtocolVersionDouble = Double.parseDouble(mProtocolVersion);
+                        mAccount.mProtocolVersion = mProtocolVersion;
                         userLog(mVersions);
+                        userLog("Using version " + mProtocolVersion);
                     } else {
                         throw new IOException();
                     }
@@ -707,7 +708,6 @@ public class EasSyncService extends InteractiveSyncService {
             s.data("WindowSize", WINDOW_SIZE);
             boolean options = false;
             if (!className.equals("Contacts")) {
-                options = true;
                 // Set the lookback appropriately (EAS calls this a "filter")
                 String filter = Eas.FILTER_1_WEEK;
                 switch (mAccount.mSyncLookback) {
@@ -736,19 +736,21 @@ public class EasSyncService extends InteractiveSyncService {
                         break;
                     }
                 }
-                s.start("Options")
-                    .data("FilterType", filter);
+                s.start("Options").data("FilterType", filter);
+                if (mProtocolVersionDouble < 12.0) {
+                    s.data("Truncation", "7");
+                }
+                options = true;
             }
-            if (mProtocolVersion.equals("12.0")) {
+            if (mProtocolVersionDouble >= 12.0) {
                 if (!options) {
                     options = true;
                     s.start("Options");
-                    s.start("BodyPreference")
-                        // Plain text to start
-                        .data("BodyPreferenceType", Eas.BODY_PREFERENCE_TEXT)
-                        .data("BodyPreferenceTruncationSize", Eas.DEFAULT_BODY_TRUNCATION_SIZE)
-                        .end("BodyPreference");
                 }
+                s.start("BodyPreference")
+                    .data("BodyPreferenceType", Eas.BODY_PREFERENCE_HTML)
+                    .data("BodyPreferenceTruncationSize", Eas.DEFAULT_BODY_TRUNCATION_SIZE)
+                    .end("BodyPreference");
             }
             if (options) {
                 s.end("Options");
@@ -799,6 +801,9 @@ public class EasSyncService extends InteractiveSyncService {
                 runMain();
             } else {
                 EasSyncAdapter target;
+                mAccount = Account.restoreAccountWithId(mContext, mAccount.mId);
+                mProtocolVersion = mAccount.mProtocolVersion;
+                mProtocolVersionDouble = Double.parseDouble(mProtocolVersion);
                 if (mMailbox.mType == Mailbox.TYPE_CONTACTS)
                     target = new EasContactsSyncAdapter(mMailbox);
                 else {

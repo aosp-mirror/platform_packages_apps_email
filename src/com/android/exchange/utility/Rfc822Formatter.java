@@ -28,6 +28,7 @@ import java.util.Date;
 
 import com.android.exchange.EmailContent.Account;
 import com.android.exchange.EmailContent.Attachment;
+import com.android.exchange.EmailContent.Body;
 import com.android.exchange.EmailContent.Message;
 
 import android.content.ContentUris;
@@ -36,7 +37,6 @@ import android.database.Cursor;
 import android.net.Uri;
 import android.text.Html;
 import android.text.SpannedString;
-import android.util.Log;
 
 /**
  * Generates RFC822 formatted message data from a Message object.  This functionality is also needed
@@ -67,17 +67,17 @@ public class Rfc822Formatter {
         // For now, multi-part alternative means an HTML reply...
         boolean alternativeParts = false;
 
-        Uri u = ContentUris.withAppendedId(Message.CONTENT_URI, msg.mId)
-            .buildUpon().appendPath("attachment").build();
+        Uri u = ContentUris.withAppendedId(Attachment.MESSAGE_ID_URI, msg.mId);
         Cursor c = context.getContentResolver().query(u, Attachment.CONTENT_PROJECTION, 
                 null, null, null);
         try {
-            if (c.moveToFirst())
-                Log.v("Rfc822", "Has attachments");
+            if (c.moveToFirst()) {
+                // Loop through attachments now
+            }
         } finally {
             c.close();
         }
-        //**PROVIDER
+ 
         boolean mixedParts = false; //(!msg.attachments.isEmpty());
         Message reply = null;
         boolean forward = false;
@@ -143,8 +143,7 @@ public class Rfc822Formatter {
         writeHeader(writer, "Content-Transfer-Encoding", "7bit");
         writer.write(CRLF);
 
-        //String text = Messages.getBody(context, msg);
-        String text = "Fake body (for now)";
+        String text = Body.restoreBodyTextWithMessageId(context, msg.mId);
         writeWithCRLF(writer, text);
 
         if (alternativeParts) {

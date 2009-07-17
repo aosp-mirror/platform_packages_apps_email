@@ -442,9 +442,10 @@ public class EasTags {
         {
             // 0x11 AirSyncBase
             "BodyPreference", "BodyPreferenceType", "BodyPreferenceTruncationSize", "AllOrNone",
-            "Body", "Data", "EstimatedDataSize", "Truncated", "Attachments", "Attachment",
-            "DisplayName", "FileReference", "Method", "ContentId", "ContentLocation", "IsInline",
-            "NativeBodyType", "ContentType"
+            "--unused--", "BaseBody", "BaseData", "BaseEstimatedDataSize", "BaseTruncated", 
+            "BaseAttachments", "BaseAttachment", "BaseDisplayName", "FileReference", "BaseMethod",
+            "BaseContentId", "BaseContentLocation", "BaseIsInline", "BaseNativeBodyType",
+            "BaseContentType"
         },
         {
             // 0x12 Settings

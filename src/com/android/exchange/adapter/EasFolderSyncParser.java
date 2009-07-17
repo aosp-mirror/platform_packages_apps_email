@@ -17,12 +17,6 @@
 
 package com.android.exchange.adapter;
 
-import java.io.IOException;
-import java.io.InputStream;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.List;
-
 import com.android.email.provider.EmailProvider;
 import com.android.exchange.Eas;
 import com.android.exchange.EasSyncService;
@@ -40,6 +34,12 @@ import android.content.OperationApplicationException;
 import android.database.Cursor;
 import android.os.RemoteException;
 import android.util.Log;
+
+import java.io.IOException;
+import java.io.InputStream;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.List;
 
 /**
  * Parse the result of a FolderSync command

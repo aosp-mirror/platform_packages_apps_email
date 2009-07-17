@@ -59,7 +59,8 @@ public class EmailProvider extends ContentProvider {
     // In these early versions, updating the database version will cause all tables to be deleted
     // Obviously, we'll handle upgrades differently once things are a bit stable
     // version 15: changed Address.pack() format.
-    public static final int DATABASE_VERSION = 15;
+    // version 16: added protocolVersion column to Account
+    public static final int DATABASE_VERSION = 16;
     public static final int BODY_DATABASE_VERSION = 1;
 
     public static final String EMAIL_AUTHORITY = "com.android.email.provider";
@@ -323,7 +324,8 @@ public class EmailProvider extends ContentProvider {
             + AccountColumns.IS_DEFAULT + " integer, "
             + AccountColumns.COMPATIBILITY_UUID + " text, "
             + AccountColumns.SENDER_NAME + " text, "
-            + AccountColumns.RINGTONE_URI + " text "
+            + AccountColumns.RINGTONE_URI + " text, "
+            + AccountColumns.PROTOCOL_VERSION + " text"
             + ");";
         db.execSQL("create table " + Account.TABLE_NAME + s);
         // Deleting an account deletes associated Mailboxes and HostAuth's

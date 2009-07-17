@@ -23,15 +23,18 @@ import com.android.email.MessagingListener;
 import com.android.email.R;
 import com.android.email.Utility;
 import com.android.email.mail.Address;
-import com.android.email.mail.Message;
 import com.android.email.mail.MessagingException;
 import com.android.email.mail.Part;
 import com.android.email.mail.Message.RecipientType;
 import com.android.email.mail.internet.EmailHtmlUtil;
 import com.android.email.mail.internet.MimeUtility;
 import com.android.email.mail.store.LocalStore.LocalMessage;
-import com.android.email.provider.EmailContent;
+import com.android.email.provider.EmailContent.Account;
 import com.android.email.provider.EmailContent.Attachment;
+import com.android.email.provider.EmailContent.Body;
+import com.android.email.provider.EmailContent.BodyColumns;
+import com.android.email.provider.EmailContent.Message;
+import com.android.email.provider.EmailContent.MessageColumns;
 
 import android.app.Activity;
 import android.app.ProgressDialog;
@@ -97,8 +100,8 @@ public class MessageView extends Activity
 
     // Support for LoadBodyTask
     private static final String[] BODY_CONTENT_PROJECTION = new String[] { 
-        EmailContent.RECORD_ID, EmailContent.BodyColumns.MESSAGE_KEY,
-        EmailContent.BodyColumns.HTML_CONTENT, EmailContent.BodyColumns.TEXT_CONTENT
+        Body.RECORD_ID, BodyColumns.MESSAGE_KEY,
+        BodyColumns.HTML_CONTENT, BodyColumns.TEXT_CONTENT
     };
     private static final int BODY_CONTENT_COLUMN_RECORD_ID = 0;
     private static final int BODY_CONTENT_COLUMN_MESSAGE_KEY = 1;
@@ -121,9 +124,9 @@ public class MessageView extends Activity
     private ProgressDialog mProgressDialog;
 
     private long mAccountId;
-    private EmailContent.Account mAccount;
+    private Account mAccount;
     private long mMessageId;
-    private EmailContent.Message mMessage;
+    private Message mMessage;
 
     private LoadMessageTask mLoadMessageTask;
     private LoadBodyTask mLoadBodyTask;
@@ -134,7 +137,7 @@ public class MessageView extends Activity
     private Cursor mMessageListCursor;
 
     // TODO all uses of this need to be converted to "mMessage".  Then mOldMessage goes away.
-    private Message mOldMessage;
+    private com.android.email.mail.Message mOldMessage;
 
     private java.text.DateFormat mDateFormat;
     private java.text.DateFormat mTimeFormat;
@@ -557,9 +560,9 @@ public class MessageView extends Activity
             // as it is here.
             mMessage.mFlagFavorite = newFavorite;
             ContentValues cv = new ContentValues();
-            cv.put(EmailContent.MessageColumns.FLAG_FAVORITE, newFavorite ? 1 : 0);
+            cv.put(MessageColumns.FLAG_FAVORITE, newFavorite ? 1 : 0);
             Uri uri = ContentUris.withAppendedId(
-                    EmailContent.Message.SYNCED_CONTENT_URI, mMessageId);
+                    Message.SYNCED_CONTENT_URI, mMessageId);
             getContentResolver().update(uri, cv, null, null);
         }
     }
@@ -612,9 +615,9 @@ public class MessageView extends Activity
             // as it is here.
             mMessage.mFlagRead = isRead;
             ContentValues cv = new ContentValues();
-            cv.put(EmailContent.MessageColumns.FLAG_READ, isRead ? 1 : 0);
+            cv.put(MessageColumns.FLAG_READ, isRead ? 1 : 0);
             Uri uri = ContentUris.withAppendedId(
-                    EmailContent.Message.SYNCED_CONTENT_URI, mMessageId);
+                    Message.SYNCED_CONTENT_URI, mMessageId);
             getContentResolver().update(uri, cv, null, null);
         }
     }
@@ -979,9 +982,9 @@ public class MessageView extends Activity
         @Override
         protected Cursor doInBackground(Void... params) {
             return MessageView.this.managedQuery(
-                    EmailContent.Message.CONTENT_URI,
-                    EmailContent.Message.CONTENT_PROJECTION,
-                    EmailContent.RECORD_ID + "=?",
+                    Message.CONTENT_URI,
+                    Message.CONTENT_PROJECTION,
+                    Message.RECORD_ID + "=?",
                     new String[] {
                             String.valueOf(mId)
                             }, 
@@ -1017,9 +1020,9 @@ public class MessageView extends Activity
         @Override
         protected Cursor doInBackground(Void... params) {
             return MessageView.this.managedQuery(
-                    EmailContent.Body.CONTENT_URI,
+                    Body.CONTENT_URI,
                     BODY_CONTENT_PROJECTION,
-                    EmailContent.Body.MESSAGE_KEY + "=?",
+                    Body.MESSAGE_KEY + "=?",
                     new String[] {
                             String.valueOf(mId)
                             }, 
@@ -1087,7 +1090,7 @@ public class MessageView extends Activity
      * TODO: trigger presence check
      */
     private void reloadUiFromCursor(Cursor cursor) {
-        EmailContent.Message message = EmailContent.getContent(cursor, EmailContent.Message.class);
+        Message message = new Message().restore(cursor);
         mMessage = message;
         
         mSubjectView.setText(message.mSubject);
@@ -1125,57 +1128,68 @@ public class MessageView extends Activity
      */
     private void reloadBodyFromCursor(Cursor cursor) {
         // TODO Remove this hack that forces some text to test the code
+        String html = null;
         String text = null;
         if (cursor != null) {
-            text = cursor.getString(BODY_CONTENT_COLUMN_TEXT_CONTENT);
-        }
-        if (text == null) {
-            text = "";
-        }
-        
-        // This code is stolen from Listener.loadMessageForViewBodyAvailable
-        // And also escape special character, such as "<>&",
-        // to HTML escape sequence.
-        text = EmailHtmlUtil.escapeCharacterToDisplay(text);
-
-        /*
-         * Linkify the plain text and convert it to HTML by replacing
-         * \r?\n with <br> and adding a html/body wrapper.
-         */
-        StringBuffer sb = new StringBuffer("<html><body>");
-        if (text != null) {
-            Matcher m = Regex.WEB_URL_PATTERN.matcher(text);
-            while (m.find()) {
-                int start = m.start();
-                /*
-                 * WEB_URL_PATTERN may match domain part of email address. To detect
-                 * this false match, the character just before the matched string
-                 * should not be '@'. 
-                 */
-                if (start == 0 || text.charAt(start - 1) != '@') {
-                    String url = m.group();
-                    Matcher proto = WEB_URL_PROTOCOL.matcher(url);
-                    String link;
-                    if (proto.find()) {
-                        // This is work around to force URL protocol part be lower case,
-                        // because WebView could follow only lower case protocol link.
-                        link = proto.group().toLowerCase() + url.substring(proto.end());
-                    } else {
-                        // Regex.WEB_URL_PATTERN matches URL without protocol part,
-                        // so added default protocol to link.
-                        link = "http://" + url;
-                    }
-                    String href = String.format("<a href=\"%s\">%s</a>", link, url);
-                    m.appendReplacement(sb, href);
-                }
-                else {
-                    m.appendReplacement(sb, "$0");
-                }
+            // First try HTML; we'll show that if it exists...
+            html = cursor.getString(BODY_CONTENT_COLUMN_HTML_CONTENT);
+            if (html == null) {
+                text = cursor.getString(BODY_CONTENT_COLUMN_TEXT_CONTENT);
             }
-            m.appendTail(sb);
         }
-        sb.append("</body></html>");
-        text = sb.toString();
+
+        if (html == null) {
+            // This code is stolen from Listener.loadMessageForViewBodyAvailable
+            // And also escape special character, such as "<>&",
+            // to HTML escape sequence.
+            if (text == null) {
+                text = "";
+            }
+            text = EmailHtmlUtil.escapeCharacterToDisplay(text);
+
+            /*
+             * Linkify the plain text and convert it to HTML by replacing
+             * \r?\n with <br> and adding a html/body wrapper.
+             */
+            StringBuffer sb = new StringBuffer("<html><body>");
+            if (text != null) {
+                Matcher m = Regex.WEB_URL_PATTERN.matcher(text);
+                while (m.find()) {
+                    int start = m.start();
+                    /*
+                     * WEB_URL_PATTERN may match domain part of email address. To detect
+                     * this false match, the character just before the matched string
+                     * should not be '@'. 
+                     */
+                    if (start == 0 || text.charAt(start - 1) != '@') {
+                        String url = m.group();
+                        Matcher proto = WEB_URL_PROTOCOL.matcher(url);
+                        String link;
+                        if (proto.find()) {
+                            // This is work around to force URL protocol part be lower case,
+                            // because WebView could follow only lower case protocol link.
+                            link = proto.group().toLowerCase() + url.substring(proto.end());
+                        } else {
+                            // Regex.WEB_URL_PATTERN matches URL without protocol part,
+                            // so added default protocol to link.
+                            link = "http://" + url;
+                        }
+                        String href = String.format("<a href=\"%s\">%s</a>", link, url);
+                        m.appendReplacement(sb, href);
+                    }
+                    else {
+                        m.appendReplacement(sb, "$0");
+                    }
+                }
+                m.appendTail(sb);
+            }
+            sb.append("</body></html>");
+            text = sb.toString();
+        } else {
+            // TODO Clean this up later
+            // For example, enable the view images button
+            text = html;
+        }
        
         if (mMessageContentView != null) {
             mMessageContentView.loadDataWithBaseURL("email://", text, "text/html", "utf-8", null);
@@ -1184,8 +1198,8 @@ public class MessageView extends Activity
 
     class Listener extends MessagingListener {
         @Override
-        public void loadMessageForViewHeadersAvailable(EmailContent.Account account, String folder,
-                String uid, final Message message) {
+        public void loadMessageForViewHeadersAvailable(Account account, String folder,
+                String uid, final com.android.email.mail.Message message) {
             MessageView.this.mOldMessage = message;
             try {
                 String subjectText = message.getSubject();
@@ -1214,8 +1228,8 @@ public class MessageView extends Activity
         }
 
         @Override
-        public void loadMessageForViewBodyAvailable(EmailContent.Account account, String folder,
-                String uid, Message message) {
+        public void loadMessageForViewBodyAvailable(Account account, String folder,
+                String uid, com.android.email.mail.Message message) {
             MessageView.this.mOldMessage = message;
             try {
                 Part part = MimeUtility.findFirstPartByMimeType(mOldMessage, "text/html");
@@ -1296,7 +1310,7 @@ public class MessageView extends Activity
         }
 
         @Override
-        public void loadMessageForViewFailed(EmailContent.Account account, String folder, String uid,
+        public void loadMessageForViewFailed(Account account, String folder, String uid,
                 final String message) {
             mHandler.post(new Runnable() {
                 public void run() {
@@ -1308,8 +1322,8 @@ public class MessageView extends Activity
         }
 
         @Override
-        public void loadMessageForViewFinished(EmailContent.Account account, String folder,
-                String uid, Message message) {
+        public void loadMessageForViewFinished(Account account, String folder,
+                String uid, com.android.email.mail.Message message) {
             mHandler.post(new Runnable() {
                 public void run() {
                     setProgressBarIndeterminateVisibility(false);
@@ -1318,7 +1332,7 @@ public class MessageView extends Activity
         }
 
         @Override
-        public void loadMessageForViewStarted(EmailContent.Account account, String folder, String uid)
+        public void loadMessageForViewStarted(Account account, String folder, String uid)
                 {
             mHandler.post(new Runnable() {
                 public void run() {
@@ -1329,7 +1343,7 @@ public class MessageView extends Activity
         }
         
         @Override
-        public void loadAttachmentStarted(EmailContent.Account account, Message message,
+        public void loadAttachmentStarted(Account account, com.android.email.mail.Message message,
                 Part part, Object tag, boolean requiresDownload) {
             mHandler.setAttachmentsEnabled(false);
             Object[] params = (Object[]) tag;
@@ -1340,7 +1354,7 @@ public class MessageView extends Activity
         }
 
         @Override
-        public void loadAttachmentFinished(EmailContent.Account account, Message message,
+        public void loadAttachmentFinished(Account account, com.android.email.mail.Message message,
                 Part part, Object tag) {
             mHandler.setAttachmentsEnabled(true);
             mHandler.progress(false, null);
@@ -1388,8 +1402,8 @@ public class MessageView extends Activity
         }
 
         @Override
-        public void loadAttachmentFailed(EmailContent.Account account, Message message, Part part,
-                Object tag, String reason) {
+        public void loadAttachmentFailed(Account account, com.android.email.mail.Message message, 
+                Part part, Object tag, String reason) {
             mHandler.setAttachmentsEnabled(true);
             mHandler.progress(false, null);
             mHandler.networkError();

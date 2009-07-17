@@ -15,12 +15,6 @@
  */
 package com.android.exchange;
 
-/**     
-* This is a local copy of com.android.email.EmailProvider      
-*
-* Last copied from com.android.email.EmailProvider on 7/16/09      
-*/
-
 import com.android.email.R;
 import com.android.email.provider.EmailProvider;
 
@@ -42,6 +36,12 @@ import java.net.URI;
 import java.net.URISyntaxException;
 import java.util.ArrayList;
 import java.util.UUID;
+
+/**
+ * This is a local copy of com.android.email.EmailProvider
+ *
+ * Last copied from com.android.email.EmailProvider on 7/18/09
+ */
 
 /**
  * EmailContent is the superclass of the various classes of content stored by EmailProvider.
@@ -244,16 +244,41 @@ public abstract class EmailContent {
             values.put(BodyColumns.TEXT_CONTENT, mTextContent);
             
             return values;
-        }
+         }
 
-        public static Body restoreBodyWithId(Context context, long id) {
-            Uri u = ContentUris.withAppendedId(Body.CONTENT_URI, id);
-            Cursor c = context.getContentResolver().query(u, Body.CONTENT_PROJECTION,
-                    null, null, null);
+         private static Body restoreBodyWithCursor(Cursor cursor) {
+             try {
+                 if (cursor.moveToFirst()) {
+                     return getContent(cursor, Body.class);
+                 } else {
+                     return null;
+                 }
+             } finally {
+                 cursor.close();
+             }
+         }
 
+         public static Body restoreBodyWithId(Context context, long id) {
+             Uri u = ContentUris.withAppendedId(Body.CONTENT_URI, id);
+             Cursor c = context.getContentResolver().query(u, Body.CONTENT_PROJECTION,
+                     null, null, null);
+             return restoreBodyWithCursor(c);
+         }
+
+         public static Body restoreBodyWithMessageId(Context context, long messageId) {
+             Cursor c = context.getContentResolver().query(Body.CONTENT_URI,
+                     Body.CONTENT_PROJECTION, Body.MESSAGE_KEY + "=?",
+                     new String[] {Long.toString(messageId)}, null);
+             return restoreBodyWithCursor(c);
+         }
+
+         private static String restoreTextWithMessageId(Context context, long messageId,
+                 String[] projection) {
+            Cursor c = context.getContentResolver().query(Body.CONTENT_URI, projection,
+                    Body.MESSAGE_KEY + "=?", new String[] {Long.toString(messageId)}, null);
             try {
                 if (c.moveToFirst()) {
-                    return getContent(c, Body.class);
+                    return c.getString(COMMON_TEXT_COLUMN);
                 } else {
                     return null;
                 }
@@ -262,26 +287,12 @@ public abstract class EmailContent {
             }
         }
 
-        private static String restoreTextWithId(Context context, long id, String[] projection) {
-            Uri u = ContentUris.withAppendedId(Body.CONTENT_URI, id);
-            Cursor c = context.getContentResolver().query(u, projection, null, null, null);
-            try {
-                if (c.moveToFirst()) {
-                    return c.getString(COMMON_TEXT_COLUMN); 
-                } else {
-                    return null;
-                }
-            } finally {
-                c.close();
-            }
+        public static String restoreBodyTextWithMessageId(Context context, long messageId) {
+            return restoreTextWithMessageId(context, messageId, Body.TEXT_PROJECTION);
         }
 
-        public static String restoreBodyTextWithId(Context context, long id) {
-            return restoreTextWithId(context, id, Body.TEXT_PROJECTION);
-        }
-
-        public static String restoreBodyHtmlWithId(Context context, long id) {
-            return restoreTextWithId(context, id, Body.HTML_PROJECTION);
+        public static String restoreBodyHtmlWithMessageId(Context context, long messageId) {
+            return restoreTextWithMessageId(context, messageId, Body.HTML_PROJECTION);
         }
 
         @Override
@@ -345,7 +356,7 @@ public abstract class EmailContent {
         // Foreign key to a referenced Message (e.g. for a reply/forward)
         public static final String REFERENCE_KEY = "referenceKey";  
 
-        // Address lists, of the form <address> [, <address> ...]
+        // Address lists, packed with Address.pack()
         public static final String SENDER_LIST = "senderList";
         public static final String FROM_LIST = "fromList";
         public static final String TO_LIST = "toList";
@@ -495,9 +506,6 @@ public abstract class EmailContent {
         public static final int LOADED = 1;
         public static final int PARTIALLY_LOADED = 2;
 
-        /**
-         * no public constructor since this is a utility class
-         */
         public Message() {
             mBaseUri = CONTENT_URI;
         }
@@ -565,7 +573,8 @@ public abstract class EmailContent {
         @Override
         @SuppressWarnings("unchecked")
         public EmailContent.Message restore(Cursor c) {
-            mBaseUri = EmailContent.Message.CONTENT_URI;
+            mBaseUri = CONTENT_URI;
+            mId = c.getLong(CONTENT_ID_COLUMN);
             mDisplayName = c.getString(CONTENT_DISPLAY_NAME_COLUMN);
             mTimeStamp = c.getLong(CONTENT_TIMESTAMP_COLUMN);
             mSubject = c.getString(CONTENT_SUBJECT_COLUMN);
@@ -614,7 +623,8 @@ public abstract class EmailContent {
             // This logic is in place so I can (a) short circuit the expensive stuff when
             // possible, and (b) override (and throw) if anyone tries to call save() or update()
             // directly for Message, which are unsupported.
-            if (mText == null && mHtml == null) {
+            if (mText == null && mHtml == null &&
+                    (mAttachments == null || mAttachments.isEmpty())) {
                 if (doSave) {
                     return super.save(context);
                 } else {
@@ -635,6 +645,17 @@ public abstract class EmailContent {
                 if (doSave) {
                     Uri u = results[0].uri;
                     mId = Long.parseLong(u.getPathSegments().get(1));
+                    if (mAttachments != null) {
+                        int resultOffset = 2;
+                        for (Attachment a : mAttachments) {
+                            // Save the id of the attachment record
+                            u = results[resultOffset++].uri;
+                            if (u != null) {
+                                a.mId = Long.parseLong(u.getPathSegments().get(1));
+                            }
+                            a.mMessageKey = mId;
+                        }
+                    }
                     return u;
                 } else {
                     return null;
@@ -648,7 +669,7 @@ public abstract class EmailContent {
         }
 
         public void addSaveOps(ArrayList<ContentProviderOperation> ops) {
-            // First, save the message
+             // First, save the message
             ContentProviderOperation.Builder b = getSaveOrUpdateBuilder(true, mBaseUri, -1);
             ops.add(b.withValues(toContentValues()).build());
 
@@ -671,12 +692,12 @@ public abstract class EmailContent {
             if (mAttachments != null) {
                 for (Attachment att: mAttachments) {
                     ops.add(getSaveOrUpdateBuilder(true, Attachment.CONTENT_URI, -1)
-                            .withValues(att.toContentValues())
-                            .withValueBackReference(Attachment.MESSAGE_KEY, messageBackValue)
-                            .build());
+                        .withValues(att.toContentValues())
+                        .withValueBackReference(Attachment.MESSAGE_KEY, messageBackValue)
+                        .build());
                 }
             }
-        }
+         }
 
        // Text and Html information are stored as <location>;<encoding>;<charset>;<length>
         // charset: U = us-ascii; 8 = utf-8; I = iso-8559-1; others literally (e.g. KOI8-R)
@@ -749,6 +770,8 @@ public abstract class EmailContent {
         public static final String SENDER_NAME = "senderName";
         // Ringtone
         public static final String RINGTONE_URI = "ringtoneUri";
+        // Protocol version (arbitrary string, used by EAS currently)
+        public static final String PROTOCOL_VERSION = "protocolVersion";
     }
 
     public static final class Account extends EmailContent implements AccountColumns, Parcelable {
@@ -783,6 +806,7 @@ public abstract class EmailContent {
         public String mCompatibilityUuid;
         public String mSenderName;
         public String mRingtoneUri;
+        public String mProtocolVersion;
 
         // Convenience for creating an account
         public transient HostAuth mHostAuthRecv;
@@ -801,6 +825,7 @@ public abstract class EmailContent {
         public static final int CONTENT_COMPATIBILITY_UUID_COLUMN = 10;
         public static final int CONTENT_SENDER_NAME_COLUMN = 11;
         public static final int CONTENT_RINGTONE_URI_COLUMN = 12;
+        public static final int CONTENT_PROTOCOL_VERSION_COLUMN = 13;
 
         public static final String[] CONTENT_PROJECTION = new String[] {
             RECORD_ID, AccountColumns.DISPLAY_NAME,
@@ -808,7 +833,7 @@ public abstract class EmailContent {
             AccountColumns.SYNC_FREQUENCY, AccountColumns.HOST_AUTH_KEY_RECV,
             AccountColumns.HOST_AUTH_KEY_SEND, AccountColumns.FLAGS, AccountColumns.IS_DEFAULT,
             AccountColumns.COMPATIBILITY_UUID, AccountColumns.SENDER_NAME,
-            AccountColumns.RINGTONE_URI, 
+            AccountColumns.RINGTONE_URI, AccountColumns.PROTOCOL_VERSION
         };
         
         /**
@@ -868,7 +893,8 @@ public abstract class EmailContent {
         @Override
         @SuppressWarnings("unchecked")
         public EmailContent.Account restore(Cursor cursor) {
-            mBaseUri = EmailContent.Account.CONTENT_URI;
+            mId = cursor.getLong(CONTENT_ID_COLUMN);
+            mBaseUri = CONTENT_URI;
             mDisplayName = cursor.getString(CONTENT_DISPLAY_NAME_COLUMN);
             mEmailAddress = cursor.getString(CONTENT_EMAIL_ADDRESS_COLUMN);
             mSyncKey = cursor.getString(CONTENT_SYNC_KEY_COLUMN);
@@ -881,6 +907,7 @@ public abstract class EmailContent {
             mCompatibilityUuid = cursor.getString(CONTENT_COMPATIBILITY_UUID_COLUMN);
             mSenderName = cursor.getString(CONTENT_SENDER_NAME_COLUMN);
             mRingtoneUri = cursor.getString(CONTENT_RINGTONE_URI_COLUMN);
+            mProtocolVersion = cursor.getString(CONTENT_PROTOCOL_VERSION_COLUMN);
             return this;
         }
 
@@ -1288,6 +1315,7 @@ public abstract class EmailContent {
             values.put(AccountColumns.COMPATIBILITY_UUID, mCompatibilityUuid);
             values.put(AccountColumns.SENDER_NAME, mSenderName);
             values.put(AccountColumns.RINGTONE_URI, mRingtoneUri);
+            values.put(AccountColumns.PROTOCOL_VERSION, mProtocolVersion);
             return values;
         }
         
@@ -1449,7 +1477,9 @@ public abstract class EmailContent {
     public static final class Attachment extends EmailContent implements AttachmentColumns {
         public static final String TABLE_NAME = "Attachment";
         public static final Uri CONTENT_URI = Uri.parse(EmailContent.CONTENT_URI + "/attachment");
-
+        // This must be used with an appended id: ContentUris.withAppendedId(MESSAGE_ID_URI, id)
+        public static final Uri MESSAGE_ID_URI = Uri.parse(
+                EmailContent.CONTENT_URI + "/attachment/message");
 
         public String mFileName;
         public String mMimeType;
@@ -1511,6 +1541,7 @@ public abstract class EmailContent {
          * @return a new File object, or null if one could not be created
          */
         public static File createUniqueFile(String filename) {
+            // TODO Handle internal storage, as required
             if (Environment.getExternalStorageState().equals(Environment.MEDIA_MOUNTED)) {
                 File directory = Environment.getExternalStorageDirectory();
                 File file = new File(directory, filename);
@@ -1539,7 +1570,8 @@ public abstract class EmailContent {
         @Override
         @SuppressWarnings("unchecked")
         public EmailContent.Attachment restore(Cursor cursor) {
-            mBaseUri = EmailContent.Attachment.CONTENT_URI;
+            mBaseUri = CONTENT_URI;
+            mId = cursor.getLong(CONTENT_ID_COLUMN);
             mFileName= cursor.getString(CONTENT_FILENAME_COLUMN);
             mMimeType = cursor.getString(CONTENT_MIME_TYPE_COLUMN);
             mSize = cursor.getLong(CONTENT_SIZE_COLUMN);
@@ -1680,6 +1712,7 @@ public abstract class EmailContent {
             MailboxColumns.SYNC_FREQUENCY, MailboxColumns.SYNC_TIME,MailboxColumns.UNREAD_COUNT,
             MailboxColumns.FLAG_VISIBLE, MailboxColumns.FLAGS, MailboxColumns.VISIBLE_LIMIT
         };
+        public static final long NO_MAILBOX = -1;
 
         private static final String WHERE_TYPE_AND_ACCOUNT_KEY =
             MailboxColumns.TYPE + "=? and " + MailboxColumns.ACCOUNT_KEY + "=?";
@@ -1687,13 +1720,9 @@ public abstract class EmailContent {
         private static final int ID_PROJECTION_ID = 0;
         private static final String[] ID_PROJECTION = new String[] { ID };
 
-       /**
-         * no public constructor since this is a utility class
-         */
         public Mailbox() {
             mBaseUri = CONTENT_URI;
         }
-
 
         // Types of mailboxes.  The list is ordered to match a typical UI presentation, e.g.
         // placing the inbox at the top.
@@ -1751,7 +1780,8 @@ public abstract class EmailContent {
         @Override
         @SuppressWarnings("unchecked")
         public EmailContent.Mailbox restore(Cursor cursor) {
-            mBaseUri = EmailContent.Mailbox.CONTENT_URI;
+            mBaseUri = CONTENT_URI;
+            mId = cursor.getLong(CONTENT_ID_COLUMN);
             mDisplayName = cursor.getString(CONTENT_DISPLAY_NAME_COLUMN);
             mServerId = cursor.getString(CONTENT_SERVER_ID_COLUMN);
             mParentServerId = cursor.getString(CONTENT_PARENT_SERVER_ID_COLUMN);
@@ -1797,7 +1827,7 @@ public abstract class EmailContent {
          * @return the id of the mailbox, or -1 if not found
          */
         public static long findMailboxOfType(Context context, long accountId, int type) {
-            long mailboxId = -1;
+            long mailboxId = NO_MAILBOX;
             String[] bindArguments = new String[] {Long.toString(type), Long.toString(accountId)};
             Cursor c = context.getContentResolver().query(Mailbox.CONTENT_URI,
                     ID_PROJECTION, WHERE_TYPE_AND_ACCOUNT_KEY, bindArguments, null);
@@ -1901,7 +1931,8 @@ public abstract class EmailContent {
         @Override
         @SuppressWarnings("unchecked")
         public EmailContent.HostAuth restore(Cursor cursor) {
-            mBaseUri = EmailContent.HostAuth.CONTENT_URI;
+            mBaseUri = CONTENT_URI;
+            mId = cursor.getLong(CONTENT_ID_COLUMN);
             mProtocol = cursor.getString(CONTENT_PROTOCOL_COLUMN);
             mAddress = cursor.getString(CONTENT_ADDRESS_COLUMN);
             mPort = cursor.getInt(CONTENT_PORT_COLUMN);
@@ -2097,4 +2128,4 @@ public abstract class EmailContent {
             return getStoreUri();
         }
     }
-}       
+}

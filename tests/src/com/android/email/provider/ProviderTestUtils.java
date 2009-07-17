@@ -51,6 +51,7 @@ public class ProviderTestUtils extends Assert {
         account.mCompatibilityUuid = "test-uid-" + name;
         account.mSenderName = name;
         account.mRingtoneUri = "content://ringtone-" + name;
+        account.mProtocolVersion = "2.5" + name;
 
         if (saveIt) {
             account.saveOrUpdate(context);
@@ -166,6 +167,16 @@ public class ProviderTestUtils extends Assert {
         return att;
     }
 
+    private static void assertEmailContentEqual(String caller, EmailContent expect, 
+            EmailContent actual) {
+        if (expect == actual) {
+            return;
+        }
+
+        assertEquals(caller + " mId", expect.mId, actual.mId);
+        assertEquals(caller + " mBaseUri", expect.mBaseUri, actual.mBaseUri);
+    }
+
     /**
      * Compare two accounts for equality
      * 
@@ -176,6 +187,7 @@ public class ProviderTestUtils extends Assert {
             return;
         }
 
+        assertEmailContentEqual(caller, expect, actual);
         assertEquals(caller + " mDisplayName", expect.mDisplayName, actual.mDisplayName);
         assertEquals(caller + " mEmailAddress", expect.mEmailAddress, actual.mEmailAddress);
         assertEquals(caller + " mSyncKey", expect.mSyncKey, actual.mSyncKey);
@@ -192,6 +204,8 @@ public class ProviderTestUtils extends Assert {
                 actual.mCompatibilityUuid);
         assertEquals(caller + " mSenderName", expect.mSenderName, actual.mSenderName);
         assertEquals(caller + " mRingtoneUri", expect.mRingtoneUri, actual.mRingtoneUri);
+        assertEquals(caller + " mProtocolVersion", expect.mProtocolVersion,
+                actual.mProtocolVersion);
     }
 
     /**
@@ -202,6 +216,7 @@ public class ProviderTestUtils extends Assert {
             return;
         }
 
+        assertEmailContentEqual(caller, expect, actual);
         assertEquals(caller + " mDisplayName", expect.mDisplayName, actual.mDisplayName);
         assertEquals(caller + " mServerId", expect.mServerId, actual.mServerId);
         assertEquals(caller + " mParentServerId", expect.mParentServerId, actual.mParentServerId);
@@ -229,6 +244,7 @@ public class ProviderTestUtils extends Assert {
             return;
         }
 
+        assertEmailContentEqual(caller, expect, actual);
         assertEquals(caller + " mDisplayName", expect.mDisplayName, actual.mDisplayName);
         assertEquals(caller + " mTimeStamp", expect.mTimeStamp, actual.mTimeStamp);
         assertEquals(caller + " mSubject", expect.mSubject, actual.mSubject);
@@ -275,6 +291,7 @@ public class ProviderTestUtils extends Assert {
             return;
         }
 
+        assertEmailContentEqual(caller, expect, actual);
         assertEquals(caller + " mSize", expect.mSize, actual.mSize);
         assertEquals(caller + " mFileName", expect.mFileName, actual.mFileName);
         assertEquals(caller + " mContentId", expect.mContentId, actual.mContentId);

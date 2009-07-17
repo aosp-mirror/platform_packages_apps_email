@@ -17,12 +17,14 @@
 
 package com.android.exchange.adapter;
 
-import java.io.ByteArrayInputStream;
-import java.io.IOException;
-import java.io.InputStream;
-import java.util.ArrayList;
-import java.util.GregorianCalendar;
-import java.util.TimeZone;
+import com.android.email.provider.EmailProvider;
+import com.android.exchange.Eas;
+import com.android.exchange.EasSyncService;
+import com.android.exchange.EmailContent.Attachment;
+import com.android.exchange.EmailContent.Mailbox;
+import com.android.exchange.EmailContent.Message;
+import com.android.exchange.EmailContent.MessageColumns;
+import com.android.exchange.EmailContent.SyncColumns;
 
 import android.content.ContentProviderOperation;
 import android.content.ContentResolver;
@@ -32,20 +34,22 @@ import android.content.Context;
 import android.content.OperationApplicationException;
 import android.database.Cursor;
 import android.os.RemoteException;
+import android.webkit.MimeTypeMap;
 
-import com.android.email.provider.EmailProvider;
-import com.android.exchange.EasSyncService;
-import com.android.exchange.EmailContent.Attachment;
-import com.android.exchange.EmailContent.Mailbox;
-import com.android.exchange.EmailContent.Message;
-import com.android.exchange.EmailContent.MessageColumns;
-import com.android.exchange.EmailContent.SyncColumns;
+import java.io.ByteArrayInputStream;
+import java.io.IOException;
+import java.io.InputStream;
+import java.util.ArrayList;
+import java.util.GregorianCalendar;
+import java.util.TimeZone;
 
 /**
  * Sync adapter for EAS email
  *
  */
 public class EasEmailSyncAdapter extends EasSyncAdapter {
+
+    private static boolean DEBUG_LOGGING = false;  // DON'T CHECK THIS IN SET TO TRUE
 
     private static final int UPDATES_READ_COLUMN = 0;
     private static final int UPDATES_MAILBOX_KEY_COLUMN = 1;
@@ -56,7 +60,6 @@ public class EasEmailSyncAdapter extends EasSyncAdapter {
     String[] bindArguments = new String[2];
 
     ArrayList<Long> mDeletedIdList = new ArrayList<Long>();
-
     ArrayList<Long> mUpdatedIdList = new ArrayList<Long>();
 
     public EasEmailSyncAdapter(Mailbox mailbox) {
@@ -68,8 +71,8 @@ public class EasEmailSyncAdapter extends EasSyncAdapter {
         EasEmailSyncParser p = new EasEmailSyncParser(is, service);
         return p.parse();
     }
-
-    class EasEmailSyncParser extends EasContentParser {
+    
+    public class EasEmailSyncParser extends EasContentParser {
 
         private static final String WHERE_SERVER_ID_AND_MAILBOX_KEY = 
             SyncColumns.SERVER_ID + "=? and " + MessageColumns.MAILBOX_KEY + "=?";
@@ -79,7 +82,9 @@ public class EasEmailSyncAdapter extends EasSyncAdapter {
         public EasEmailSyncParser(InputStream in, EasSyncService service) throws IOException {
             super(in, service);
             mMailboxIdAsString = Long.toString(mMailbox.mId);
-            //setDebug(true); // DON'T CHECK IN WITH THIS
+            if (DEBUG_LOGGING) {
+                setDebug(true);
+            }
         }
 
         public void wipe() {
@@ -144,6 +149,9 @@ public class EasEmailSyncAdapter extends EasSyncAdapter {
                     case EasTags.EMAIL_READ:
                         msg.mFlagRead = getValueInt() == 1;
                         break;
+                    case EasTags.BASE_BODY:
+                        bodyParser(msg);
+                        break;
                     case EasTags.EMAIL_BODY:
                         msg.mTextInfo = "X;X;8;" + size; // location;encoding;charset;size
                         msg.mText = getValue();
@@ -165,7 +173,7 @@ public class EasEmailSyncAdapter extends EasSyncAdapter {
 
         }
         
-        public void addParser(ArrayList<Message> emails) throws IOException {
+        private void addParser(ArrayList<Message> emails) throws IOException {
             Message msg = new Message();
             msg.mAccountKey = mAccount.mId;
             msg.mMailboxKey = mMailbox.mId;
@@ -189,7 +197,33 @@ public class EasEmailSyncAdapter extends EasSyncAdapter {
             emails.add(msg);
         }
 
-        public void attachmentParser(ArrayList<Attachment> atts, Message msg) throws IOException {
+        private void bodyParser(Message msg) throws IOException {
+            String bodyType = Eas.BODY_PREFERENCE_TEXT;
+            String body = "";
+            while (nextTag(EasTags.EMAIL_BODY) != END) {
+                switch (tag) {
+                    case EasTags.BASE_TYPE:
+                        bodyType = getValue();
+                        break;
+                    case EasTags.BASE_DATA:
+                        body = getValue();
+                        break;
+                    default:
+                        skipTag();
+                }
+            }
+            // We always ask for TEXT or HTML; there's no third option
+            String info = "X;X;8;" + body.length();
+            if (bodyType.equals(Eas.BODY_PREFERENCE_HTML)) {
+                msg.mHtmlInfo = info;
+                msg.mHtml = body;
+            } else {
+                msg.mTextInfo = info;
+                msg.mText = body;
+            }
+        }
+
+        private void attachmentParser(ArrayList<Attachment> atts, Message msg) throws IOException {
             String fileName = null;
             String length = null;
             String location = null;
@@ -216,12 +250,41 @@ public class EasEmailSyncAdapter extends EasSyncAdapter {
                 att.mSize = Long.parseLong(length);
                 att.mFileName = fileName;
                 att.mLocation = location;
+                att.mMimeType = getMimeTypeFromFileName(fileName);
                 atts.add(att);
                 msg.mFlagAttachment = true;
             }
         }
 
-        public void attachmentsParser(ArrayList<Attachment> atts, Message msg) throws IOException {
+        /**
+         * Try to determine a mime type from a file name, defaulting to application/x, where x
+         * is either the extension or (if none) octet-stream
+         * At the moment, this is somewhat lame, since many file types aren't recognized
+         * @param fileName the file name to ponder
+         * @return
+         */
+        // Note: The MimeTypeMap method currently uses a very limited set of mime types
+        // A bug has been filed against this issue.
+        public String getMimeTypeFromFileName(String fileName) {
+            String mimeType;
+            int lastDot = fileName.lastIndexOf('.');
+            String extension = null;
+            if (lastDot > 0 && lastDot < fileName.length() - 1) {
+                extension = fileName.substring(lastDot + 1);
+            }
+            if (extension == null) {
+                // A reasonable default for now.
+                mimeType = "application/octet-stream";
+            } else {
+                mimeType = MimeTypeMap.getSingleton().getMimeTypeFromExtension(extension);
+                if (mimeType == null) {
+                    mimeType = "application/" + extension;
+                }
+            }
+            return mimeType;
+        }
+
+        private void attachmentsParser(ArrayList<Attachment> atts, Message msg) throws IOException {
             while (nextTag(EasTags.EMAIL_ATTACHMENTS) != END) {
                 switch (tag) {
                     case EasTags.EMAIL_ATTACHMENT:
@@ -240,7 +303,7 @@ public class EasEmailSyncAdapter extends EasSyncAdapter {
                     WHERE_SERVER_ID_AND_MAILBOX_KEY, bindArguments, null);
         }
 
-        public void deleteParser(ArrayList<Long> deletes) throws IOException {
+        private void deleteParser(ArrayList<Long> deletes) throws IOException {
             while (nextTag(EasTags.SYNC_DELETE) != END) {
                 switch (tag) {
                     case EasTags.SYNC_SERVER_ID:
@@ -272,7 +335,7 @@ public class EasEmailSyncAdapter extends EasSyncAdapter {
             }
         }
 
-        public void changeParser(ArrayList<ServerChange> changes) throws IOException {
+        private void changeParser(ArrayList<ServerChange> changes) throws IOException {
             String serverId = null;
             boolean oldRead = false;
             boolean read = true;
@@ -306,6 +369,9 @@ public class EasEmailSyncAdapter extends EasSyncAdapter {
             }
         }
 
+        /* (non-Javadoc)
+         * @see com.android.exchange.adapter.EasContentParser#commandsParser()
+         */
         public void commandsParser() throws IOException {
             ArrayList<Message> newEmails = new ArrayList<Message>();
             ArrayList<Long> deletedEmails = new ArrayList<Long>();

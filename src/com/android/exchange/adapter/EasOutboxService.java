@@ -46,11 +46,11 @@ public class EasOutboxService extends EasSyncService {
 
     public void run() {
         mThread = Thread.currentThread();
-        String uniqueId = android.provider.Settings.System.getString(mContext.getContentResolver(), 
-                android.provider.Settings.System.ANDROID_ID);
+        String uniqueId = android.provider.Settings.Secure.getString(mContext.getContentResolver(), 
+                android.provider.Settings.Secure.ANDROID_ID);
         try {
             Cursor c = mContext.getContentResolver().query(Message.CONTENT_URI, 
-                    Message.CONTENT_PROJECTION, MessageColumns.MAILBOX_KEY + '=' + mMailbox,
+                    Message.CONTENT_PROJECTION, MessageColumns.MAILBOX_KEY + '=' + mMailbox.mId,
                     null, null);
             try {
                 while (c.moveToNext()) {
@@ -67,8 +67,7 @@ public class EasOutboxService extends EasSyncService {
                         } else {
                             ContentValues cv = new ContentValues();
                             cv.put("uid", 1);
-                            Message.update(mContext, 
-                                    Message.CONTENT_URI, msg.mId, cv);
+                            Message.update(mContext, Message.CONTENT_URI, msg.mId, cv);
                         }
                         // TODO How will the user know that the message sent or not?
                     }
