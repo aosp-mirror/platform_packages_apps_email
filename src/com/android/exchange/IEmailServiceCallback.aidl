@@ -18,5 +18,5 @@
 package com.android.exchange;
 
 oneway interface IEmailServiceCallback {
-    void status(int statusCode, int progress);
+    void status(long messageId, long attachmentId, int statusCode, int progress);
 }

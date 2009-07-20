@@ -1,6 +1,5 @@
 /*
- * Copyright (C) 2008-2009 Marc Blank
- * Licensed to The Android Open Source Project.
+ * Copyright (C) 2009 The Android Open Source Project
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -17,110 +16,183 @@
 
 package com.android.email.service;
 
-import java.util.HashMap;
+import com.android.email.mail.MessagingException;
+import com.android.exchange.IEmailService;
+import com.android.exchange.IEmailServiceCallback;
 
-import android.app.Service;
 import android.content.ComponentName;
 import android.content.Context;
 import android.content.Intent;
 import android.content.ServiceConnection;
 import android.os.IBinder;
 import android.os.RemoteException;
-
-import com.android.exchange.IEmailService;
+import android.util.Log;
 
 /**
- * Proxy for an IEmailService (remote email service); handles all connections to the service.
- * All calls via the proxy are synchronous; the UI must ensure that these calls are running
- * on appropriate background threads.
+ * The EmailServiceProxy class provides a simple interface for the UI to call into the various
+ * EmailService classes (e.g. SyncManager for EAS).  It wraps the service connect/disconnect
+ * process so that the caller need not be concerned with it.
  *
- * A call to loadAttachment, for example, would look like this (assuming MyService is the service)
- *     EmailProxyService.getService(context, MyService.class).loadAttachment(..args..);
+ * Use the class like this:
+ *   new EmailServiceClass(context, class).loadAttachment(attachmentId, callback)
+ *
+ * Methods without a return value return immediately (i.e. are asynchronous); methods with a
+ * return value wait for a result from the Service (i.e. they should not be called from the UI
+ * thread) with a default timeout of 30 seconds (settable)
+ *
+ * An EmailServiceProxy object cannot be reused (trying to do so generates a RemoteException)
  */
 
-public class EmailServiceProxy {
+public class EmailServiceProxy implements IEmailService {
+    private static final boolean DEBUG_PROXY = false; // DO NOT CHECK THIS IN SET TO TRUE
+    private static final String TAG = "EmailServiceProxy";
 
-    // Map associating a context and a proxy
-    static HashMap<Context, EmailServiceProxy> sProxyMap =
-        new HashMap<Context, EmailServiceProxy>();
+    private Context mContext;
+    private Class<?> mClass;
+    private Runnable mRunnable;
+    private ServiceConnection mSyncManagerConnection = new EmailServiceConnection ();
+    private IEmailService mService = null;
+    private Object mReturn = null;
+    private int mTimeout = 30;
+    private boolean mDead = false;
 
-    // Map associating, for a given proxy, a class name (String) and a connected service
-    public HashMap<String, IEmailService> serviceMap =
-        new HashMap<String, IEmailService>();
-
-    public EmailServiceProxy () {
+    public EmailServiceProxy(Context _context, Class<?> _class) {
+        mContext = _context;
+        mClass = _class;
     }
 
     class EmailServiceConnection implements ServiceConnection {
-        EmailServiceProxy mProxy;
-
-        EmailServiceConnection (EmailServiceProxy proxy) {
-            mProxy = proxy;
-        }
-
-        void setProxy (EmailServiceProxy proxy) {
-            mProxy = proxy;
-        }
-
         public void onServiceConnected(ComponentName name, IBinder binder) {
-            synchronized (mProxy) {
-                IEmailService service = IEmailService.Stub.asInterface(binder);
-                mProxy.serviceMap.put(name.getClassName(), service);
+            mService = IEmailService.Stub.asInterface(binder);
+            if (DEBUG_PROXY) {
+                Log.v(TAG, "Service " + mClass.getSimpleName() + " connected");
             }
+            runTask();
         }
 
         public void onServiceDisconnected(ComponentName name) {
-            synchronized (mProxy) {
-                mProxy.serviceMap.remove(name.getClassName());
+            if (DEBUG_PROXY) {
+                Log.v(TAG, "Service " + mClass.getSimpleName() + " disconnected");
             }
         }
     }
 
-    public ServiceConnection mSyncManagerConnection = new EmailServiceConnection (this);
+    public EmailServiceProxy setTimeout(int secs) {
+        mTimeout = secs;
+        return this;
+    }
 
-    static public IEmailService getService(Context context, Class<? extends Service> klass)
-            throws RemoteException {
-        String className = klass.getName();
-
-        // First, lets get the proxy for this context
-        // Make sure we're synchronized on the map
-        EmailServiceProxy proxy;
-        synchronized (sProxyMap) {
-            proxy = sProxyMap.get(context);
-            if (proxy == null) {
-                proxy = new EmailServiceProxy();
-                sProxyMap.put(context, proxy);
-            }
+    private void runTask() {
+        Thread thread = new Thread(mRunnable);
+        thread.start();
+        try {
+            thread.join();
+        } catch (InterruptedException e) {
         }
-
-        // Once we have the proxy, we need to synchronize working with its map, connect to the
-        // appropriate service (if not already connected) and return that service
-        synchronized (proxy) {
-            if (proxy.serviceMap.get(klass) == null) {
-                context.bindService(new Intent(context, klass), proxy.mSyncManagerConnection,
-                        Context.BIND_AUTO_CREATE);
+        mContext.unbindService(mSyncManagerConnection);
+        mDead = true;
+        synchronized(mSyncManagerConnection) {
+            if (DEBUG_PROXY) {
+                Log.v(TAG, "Service task completed; disconnecting");
             }
+            mSyncManagerConnection.notify();
         }
+    }
 
-        // Wait up to 5 seconds for the connection
-        int count = 0;
-        IEmailService service = null;
-        while (count++ < 10) {
-            synchronized (proxy) {
-                service = proxy.serviceMap.get(className);
-                if (service != null) {
-                     break;
-                }
-            }
-            try {
-                Thread.sleep(500);
-            } catch (InterruptedException e) {
-            }
-        }
-
-        if (service == null) {
+    private void setTask(Runnable runnable) throws RemoteException {
+        if (mDead) {
             throw new RemoteException();
         }
-        return service;
-     }
+        mRunnable = runnable;
+        if (DEBUG_PROXY) {
+            Log.v(TAG, "Service " + mClass.getSimpleName() + " bind requested");
+        }
+        mContext.bindService(new Intent(mContext, mClass), mSyncManagerConnection,
+                Context.BIND_AUTO_CREATE);
+    }
+
+    public void waitForCompletion() {
+        synchronized (mSyncManagerConnection) {
+            long time = System.currentTimeMillis();
+            try {
+                if (DEBUG_PROXY) {
+                    Log.v(TAG, "Waiting for task to complete...");
+                }
+                mSyncManagerConnection.wait(mTimeout * 1000L);
+            } catch (InterruptedException e) {
+                // Can be ignored safely
+            }
+            if (DEBUG_PROXY) {
+                Log.v(TAG, "Wait finished in " + (System.currentTimeMillis() - time) + "ms");
+            }
+        }
+    }
+
+    public boolean createFolder(long accountId, String name) throws RemoteException {
+        // TODO Auto-generated method stub
+        return false;
+    }
+
+    public boolean deleteFolder(long accountId, String name) throws RemoteException {
+        // TODO Auto-generated method stub
+        return false;
+    }
+
+    public boolean renameFolder(long accountId, String oldName, String newName)
+            throws RemoteException {
+        // TODO Auto-generated method stub
+        return false;
+    }
+
+    public void loadAttachment(final long attachmentId, final IEmailServiceCallback cb)
+            throws RemoteException {
+        setTask(new Runnable () {
+            public void run() {
+                try {
+                    mService.loadAttachment(attachmentId, cb);
+                } catch (RemoteException e) {
+                }
+            }
+        });
+        Log.v(TAG, "loadAttachment finished");
+    }
+
+    public void loadMore(long messageId, IEmailServiceCallback cb) throws RemoteException {
+        // TODO Auto-generated method stub
+    }
+
+    public void startSync(long mailboxId) throws RemoteException {
+        // TODO Auto-generated method stub
+    }
+
+    public void stopSync(long mailboxId) throws RemoteException {
+        // TODO Auto-generated method stub
+    }
+
+    public void updateFolderList(long accountId) throws RemoteException {
+        // TODO Auto-generated method stub
+    }
+
+    public int validate(final String protocol, final String host, final String userName,
+            final String password, final int port, final boolean ssl) throws RemoteException {
+        setTask(new Runnable () {
+            public void run() {
+                try {
+                    mReturn = mService.validate(protocol, host, userName, password, port, ssl);
+                } catch (RemoteException e) {
+                }
+            }
+        });
+        waitForCompletion();
+        if (mReturn == null) {
+            return MessagingException.UNSPECIFIED_EXCEPTION;
+        } else {
+            Log.v(TAG, "validate returns " + mReturn);
+            return (Integer)mReturn;
+        }
+    }
+
+    public IBinder asBinder() {
+        return null;
+    }
 }

@@ -40,28 +40,30 @@ public class PartRequest {
         /* (non-Javadoc)
          * @see com.android.exchange.IEmailServiceCallback#status(int, int)
          */
-        public void status(int statusCode, int progress) throws RemoteException {
+        public void status(long messageId, long attachmentId, int statusCode, int progress)
+                throws RemoteException {
             // This is a placeholder, so that all PartRequests have a callback (prevents a lot of
             // useless checking in the sync service).  When debugging, logs the status and progress
             // of the download.
             if (Eas.TEST_DEBUG) {
-                Log.d("Status: ", "Code = " + statusCode + ", progress = " + progress);
+                Log.d("PartRequestStatus", "Message " + messageId + ", Attachment " + attachmentId
+                        + ", Code " + statusCode + ", progress " + progress);
             }
         }
 
         public IBinder asBinder() { return null; }
     };
 
-    public PartRequest(long _emailId, Attachment _att) {
+    public PartRequest(Attachment _att) {
         timeStamp = System.currentTimeMillis();
-        emailId = _emailId;
+        emailId = _att.mMessageKey;
         att = _att;
         loc = att.mLocation;
         callback = sCallback;
     }
 
-    public PartRequest(long _emailId, Attachment _att, IEmailServiceCallback _callback) {
-        this(_emailId, _att);
+    public PartRequest(Attachment _att, IEmailServiceCallback _callback) {
+        this(_att);
         callback = _callback;
     }
 }

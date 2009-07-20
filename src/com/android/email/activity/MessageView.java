@@ -33,8 +33,12 @@ import com.android.email.provider.EmailContent.Account;
 import com.android.email.provider.EmailContent.Attachment;
 import com.android.email.provider.EmailContent.Body;
 import com.android.email.provider.EmailContent.BodyColumns;
+import com.android.email.provider.EmailContent.HostAuth;
 import com.android.email.provider.EmailContent.Message;
 import com.android.email.provider.EmailContent.MessageColumns;
+import com.android.email.service.EmailServiceProxy;
+import com.android.exchange.IEmailServiceCallback;
+import com.android.exchange.SyncManager;
 
 import android.app.Activity;
 import android.app.ProgressDialog;
@@ -53,6 +57,7 @@ import android.os.AsyncTask;
 import android.os.Bundle;
 import android.os.Environment;
 import android.os.Handler;
+import android.os.RemoteException;
 import android.provider.Contacts;
 import android.provider.Contacts.Intents;
 import android.provider.Contacts.People;
@@ -135,6 +140,28 @@ public class MessageView extends Activity
     private String mFolder;
     private String mMessageUid;
     private Cursor mMessageListCursor;
+    
+    private IEmailServiceCallback mServiceListener = new IEmailServiceCallback.Stub() {
+        /**
+         * Placeholder for IEmailService callbacks, which are used with Exchange
+         *
+         * @param messageId the id of the message the callback relates to
+         * @param attachmentId the id of the attachment (if any)
+         * @param statusCode from the definitions in EmailServiceStatus
+         * @param progress the progress (from 0 to 100) of a download
+         *
+         * NOTE The IEmailServiceCallback interface is likely to change
+         */
+        public void status(long messageId, long attachmentId, int statusCode, int progress)
+        throws RemoteException {
+            Attachment att = Attachment.restoreAttachmentWithId(MessageView.this, attachmentId);
+            if (att != null) {
+                Log.i("Attachment Callback", "File: " + att.mFileName + ", Status: " + statusCode
+                        + ", Progress: " + progress);
+            }
+        }
+    };
+
 
     // TODO all uses of this need to be converted to "mMessage".  Then mOldMessage goes away.
     private com.android.email.mail.Message mOldMessage;
@@ -561,8 +588,7 @@ public class MessageView extends Activity
             mMessage.mFlagFavorite = newFavorite;
             ContentValues cv = new ContentValues();
             cv.put(MessageColumns.FLAG_FAVORITE, newFavorite ? 1 : 0);
-            Uri uri = ContentUris.withAppendedId(
-                    Message.SYNCED_CONTENT_URI, mMessageId);
+            Uri uri = ContentUris.withAppendedId(Message.SYNCED_CONTENT_URI, mMessageId);
             getContentResolver().update(uri, cv, null, null);
         }
     }
@@ -664,6 +690,28 @@ public class MessageView extends Activity
                     getString(R.string.message_view_status_attachment_not_saved),
                     Toast.LENGTH_SHORT).show();
             return;
+        }
+
+        // It's too complicated to go from an Attachment to the protocol that created it
+        // TODO Perhaps we should have Account include a protocol column
+        com.android.exchange.EmailContent.Attachment att =
+            com.android.exchange.EmailContent.Attachment.restoreAttachmentWithId(this,
+                    attachment.attachmentId);
+        if (att != null) {
+            // Need account to get the HostAuth that includes the protocol
+            Account acct = Account.restoreAccountWithId(this, mMessage.mAccountKey);
+            // Need the hostauth to get the protocol
+            HostAuth ha = HostAuth.restoreHostAuthWithId(this, acct.mHostAuthKeyRecv);
+            if (ha.mProtocol.equals("eas")) {
+                try {
+                    new EmailServiceProxy(this, SyncManager.class)
+                        .loadAttachment(att.mId, mServiceListener);
+                } catch (RemoteException e) {
+                    // TODO Change exception handling to be consistent with however this method
+                    // is implemented for other protocols
+                    Log.e("onDownloadAttachment", "RemoteException", e);
+                }
+            }
         }
 //        MessagingController.getInstance(getApplication()).loadAttachment(
 //                mAccount,
@@ -1075,7 +1123,7 @@ public class MessageView extends Activity
         protected void onPostExecute(Cursor cursor) {
             while (cursor.moveToNext()) {
                 // load and capture one attachment
-                Attachment attachment = Attachment.getContent(cursor, Attachment.class);
+                Attachment attachment = new Attachment().restore(cursor);
                 addAttachment(attachment);
             }
         }
@@ -1092,6 +1140,7 @@ public class MessageView extends Activity
     private void reloadUiFromCursor(Cursor cursor) {
         Message message = new Message().restore(cursor);
         mMessage = message;
+        mAccountId = message.mAccountKey;
         
         mSubjectView.setText(message.mSubject);
         mFromView.setText(Address.toFriendly(Address.unpack(message.mFrom)));
@@ -1196,6 +1245,12 @@ public class MessageView extends Activity
         }
     }
 
+    /**
+     * MessagingListener is the traditional form of callback used by the Email application; remote
+     * services (like Exchange) will use mServiceListener
+     *
+     * TODO: All of this needs to move to Controller
+     */
     class Listener extends MessagingListener {
         @Override
         public void loadMessageForViewHeadersAvailable(Account account, String folder,
@@ -1265,9 +1320,10 @@ public class MessageView extends Activity
                                     Matcher proto = WEB_URL_PROTOCOL.matcher(url);
                                     String link;
                                     if (proto.find()) {
-                                        // This is work around to force URL protocol part be lower case,
-                                        // because WebView could follow only lower case protocol link.
-                                        link = proto.group().toLowerCase() + url.substring(proto.end());
+                                        // Work around to force URL protocol part be lower case,
+                                        // since WebView could follow only lower case protocol link.
+                                        link = proto.group().toLowerCase()
+                                            + url.substring(proto.end());
                                     } else {
                                         // Regex.WEB_URL_PATTERN matches URL without protocol part,
                                         // so added default protocol to link.

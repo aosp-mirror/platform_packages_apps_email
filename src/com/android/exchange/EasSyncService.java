@@ -25,6 +25,7 @@ import com.android.exchange.EmailContent.AttachmentColumns;
 import com.android.exchange.EmailContent.HostAuth;
 import com.android.exchange.EmailContent.Mailbox;
 import com.android.exchange.EmailContent.MailboxColumns;
+import com.android.exchange.EmailContent.Message;
 import com.android.exchange.adapter.EasContactsSyncAdapter;
 import com.android.exchange.adapter.EasEmailSyncAdapter;
 import com.android.exchange.adapter.EasFolderSyncParser;
@@ -213,17 +214,19 @@ public class EasSyncService extends InteractiveSyncService {
         return uc;
     }
 
-    private void doStatusCallback(IEmailServiceCallback callback, int status) {
+    private void doStatusCallback(IEmailServiceCallback callback, long messageId,
+            long attachmentId, int status) {
         try {
-            callback.status(status, 0);
+            callback.status(messageId, attachmentId, status, 0);
         } catch (RemoteException e2) {
             // No danger if the client is no longer around
         }
     }
 
-    private void doProgressCallback(IEmailServiceCallback callback, int progress) {
+    private void doProgressCallback(IEmailServiceCallback callback, long messageId,
+            long attachmentId, int progress) {
         try {
-            callback.status(EmailServiceStatus.IN_PROGRESS, progress);
+            callback.status(messageId, attachmentId, EmailServiceStatus.IN_PROGRESS, progress);
         } catch (RemoteException e2) {
             // No danger if the client is no longer around
         }
@@ -240,7 +243,8 @@ public class EasSyncService extends InteractiveSyncService {
         // TODO Implement internal storage as required
         IEmailServiceCallback callback = req.callback;
         Attachment att = req.att;
-        doProgressCallback(callback, 0);
+        Message msg = Message.restoreMessageWithId(mContext, att.mMessageKey);
+        doProgressCallback(callback, msg.mId, att.mId, 0);
         DefaultHttpClient client = new DefaultHttpClient();
         String us = makeUriString("GetAttachment", "&AttachmentName=" + att.mLocation);
         HttpPost method = new HttpPost(URI.create(us));
@@ -271,7 +275,7 @@ public class EasSyncService extends InteractiveSyncService {
                             os.write(bytes, 0, read);
                             len -= read;
                             int pct = ((length - len) * 100 / length);
-                            doProgressCallback(callback, pct);
+                            doProgressCallback(callback, msg.mId, att.mId, pct);
                         }
                     } finally {
                         mPendingPartRequest = null;
@@ -287,11 +291,11 @@ public class EasSyncService extends InteractiveSyncService {
                     cv.put(AttachmentColumns.CONTENT_URI, f.getAbsolutePath());
                     cv.put(AttachmentColumns.MIME_TYPE, type);
                     att.update(mContext, cv);
-                    doStatusCallback(callback, EmailServiceStatus.SUCCESS);
+                    doStatusCallback(callback, msg.mId, att.mId, EmailServiceStatus.SUCCESS);
                 }
             }
         } else {
-            doStatusCallback(callback, EmailServiceStatus.MESSAGE_NOT_FOUND);
+            doStatusCallback(callback, msg.mId, att.mId, EmailServiceStatus.MESSAGE_NOT_FOUND);
         }
     }
 
@@ -570,7 +574,7 @@ public class EasSyncService extends InteractiveSyncService {
                         WHERE_ACCOUNT_KEY_AND_SERVER_ID, mBindArguments, null);
                 try {
                     if (c.moveToFirst()) {
-                        SyncManager.startManualSync(c.getLong(Mailbox.CONTENT_ID_COLUMN));
+                        SyncManager.startManualSync(c.getLong(Mailbox.CONTENT_ID_COLUMN), null);
                     }
                 } finally {
                     c.close();
@@ -785,8 +789,8 @@ public class EasSyncService extends InteractiveSyncService {
     public void run() {
         mThread = Thread.currentThread();
         TAG = mThread.getName();
-        mDeviceId = android.provider.Settings.System.getString(mContext.getContentResolver(),
-                android.provider.Settings.System.ANDROID_ID);
+        mDeviceId = android.provider.Settings.Secure.getString(mContext.getContentResolver(),
+                android.provider.Settings.Secure.ANDROID_ID);
         // Generate a device id if we don't have one
         if (mDeviceId == null) {
             mDeviceId = getSimulatedDeviceId();

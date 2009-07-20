@@ -29,6 +29,7 @@ public interface EmailServiceStatus {
     public static final int FOLDER_NOT_DELETED = 0x12;
     public static final int FOLDER_NOT_RENAMED = 0x13;
     public static final int FOLDER_NOT_CREATED = 0x14;
+    public static final int REMOTE_EXCEPTION = 0x15;
 
     // Maybe we should automatically retry these?
     public static final int CONNECTION_ERROR = 0x20;

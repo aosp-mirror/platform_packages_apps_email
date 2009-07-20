@@ -111,24 +111,20 @@ public class SyncManager extends Service implements Runnable {
             }
         }
 
-        public boolean startSync(long mailboxId) throws RemoteException {
+        public void startSync(long mailboxId) throws RemoteException {
             // TODO Auto-generated method stub
-            return false;
         }
 
-        public boolean stopSync(long mailboxId) throws RemoteException {
+        public void stopSync(long mailboxId) throws RemoteException {
             // TODO Auto-generated method stub
-            return false;
         }
 
-        public boolean updateFolderList(long accountId) throws RemoteException {
+        public void updateFolderList(long accountId) throws RemoteException {
             // TODO Auto-generated method stub
-            return false;
         }
 
-        public boolean loadMore(long messageId, IEmailServiceCallback cb) throws RemoteException {
+        public void loadMore(long messageId, IEmailServiceCallback cb) throws RemoteException {
             // TODO Auto-generated method stub
-            return false;
         }
 
         public boolean createFolder(long accountId, String name) throws RemoteException {
@@ -147,18 +143,10 @@ public class SyncManager extends Service implements Runnable {
             return false;
         }
 
-        public boolean loadAttachment(long messageId, Attachment att, IEmailServiceCallback cb)
+        public void loadAttachment(long attachmentId, IEmailServiceCallback cb)
                 throws RemoteException {
-            for (int i = 0; i < 10; i++) {
-                cb.status(EmailServiceStatus.IN_PROGRESS, i * 10);
-                try {
-                    Thread.sleep(1000);
-                } catch (InterruptedException e) {
-                }
-            }
-            // TODO Auto-generated method stub
-            cb.status(EmailServiceStatus.SUCCESS, 0);
-            return false;
+            Attachment att = Attachment.restoreAttachmentWithId(SyncManager.this, attachmentId);
+            partRequest(new PartRequest(att, cb));
         }
     };
 
@@ -550,12 +538,15 @@ public class SyncManager extends Service implements Runnable {
         }
     }
 
-    private void startService(Mailbox m) {
+    private void startService(Mailbox m, PartRequest req) {
         synchronized (mSyncToken) {
             Account acct = Account.restoreAccountWithId(this, m.mAccountKey);
             if (acct != null) {
                 AbstractSyncService service;
                 service = new EasSyncService(this, m);
+                if (req != null) {
+                    service.addPartRequest(req);
+                }
                 startService(service, m);
             }
         }
@@ -679,7 +670,7 @@ public class SyncManager extends Service implements Runnable {
                     long freq = c.getInt(Mailbox.CONTENT_SYNC_FREQUENCY_COLUMN);
                     if (freq == Account.CHECK_INTERVAL_PUSH) {
                         Mailbox m = EmailContent.getContent(c, Mailbox.class);
-                        startService(m);
+                        startService(m, null);
                     } else if (c.getInt(Mailbox.CONTENT_TYPE_COLUMN) == Mailbox.TYPE_OUTBOX) {
                         int cnt = EmailContent.count(this, Message.CONTENT_URI,
                                 "mailboxKey=" + mid + " and syncServerId=0", null);
@@ -691,7 +682,7 @@ public class SyncManager extends Service implements Runnable {
                         long lastSync = c.getLong(Mailbox.CONTENT_SYNC_TIME_COLUMN);
                         if (now - lastSync > (freq*MINS)) {
                             Mailbox m = EmailContent.getContent(c, Mailbox.class);
-                            startService(m);
+                            startService(m, null);
                         }
                     }
                 } else {
@@ -746,7 +737,7 @@ public class SyncManager extends Service implements Runnable {
                 service.mRequestTime = System.currentTimeMillis() + ms;
                 kick();
             } else {
-                startManualSync(mailboxId);
+                startManualSync(mailboxId, null);
             }
         } catch (Exception e) {
             e.printStackTrace();
@@ -773,12 +764,10 @@ public class SyncManager extends Service implements Runnable {
         AbstractSyncService service = INSTANCE.mServiceMap.get(mailboxId);
 
         if (service == null) {
-            service = startManualSync(mailboxId);
-        }
-
-        if (service != null) {
-            service.addPartRequest(req);
+            service = startManualSync(mailboxId, req);
             kick();
+        } else {
+            service.addPartRequest(req);
         }
     }
 
@@ -844,7 +833,7 @@ public class SyncManager extends Service implements Runnable {
         }
     }
 
-    static public AbstractSyncService startManualSync(long mailboxId) {
+    static public AbstractSyncService startManualSync(long mailboxId, PartRequest req) {
         if (INSTANCE == null || INSTANCE.mServiceMap == null) {
             return null;
         }
@@ -854,7 +843,7 @@ public class SyncManager extends Service implements Runnable {
                 INSTANCE.mSyncErrorMap.remove(mailboxId);
                 Mailbox m = Mailbox.restoreMailboxWithId(INSTANCE, mailboxId);
                 INSTANCE.log("Starting sync for " + m.mDisplayName);
-                INSTANCE.startService(m);
+                INSTANCE.startService(m, req);
             }
         }
         return INSTANCE.mServiceMap.get(mailboxId);
@@ -891,7 +880,7 @@ public class SyncManager extends Service implements Runnable {
         if (syncType == Account.CHECK_INTERVAL_PUSH) {
             SyncManager.serviceRequestImmediate(mailboxId);
         } else {
-            SyncManager.startManualSync(mailboxId);
+            SyncManager.startManualSync(mailboxId, null);
         }
     }
 
@@ -913,6 +902,9 @@ public class SyncManager extends Service implements Runnable {
         int exitStatus = svc.mExitStatus;
         switch (exitStatus) {
             case AbstractSyncService.EXIT_DONE:
+                if (!svc.mPartRequests.isEmpty()) {
+                    // TODO Handle this case
+                }
                 errorMap.remove(mailboxId);
                 break;
             case AbstractSyncService.EXIT_IO_ERROR:

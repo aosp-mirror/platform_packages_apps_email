@@ -275,21 +275,6 @@ public class ExchangeStore extends Store {
         }
 
         /**
-         * Blocking call that checks for a useable server connection, credentials, etc.
-         * @param uri the server/account to try and connect to
-         * @throws MessagingException thrown if the connection, server, account are not useable
-         */
-
-        IEmailServiceCallback mCallback = new IEmailServiceCallback () {
-
-            public void status(int statusCode, int progress) throws RemoteException {
-                Log.d("Status: ", "Code = " + statusCode + ", progress = " + progress);
-            }
-
-            public IBinder asBinder() { return null; }
-        };
-
-        /**
          * Here's where we check the settings for EAS.
          * @param uri the URI of the account to create
          * @throws MessagingException if we can't authenticate the account
@@ -298,8 +283,8 @@ public class ExchangeStore extends Store {
             setUri(uri);
             boolean ssl = uri.getScheme().contains("ssl+");
             try {
-                IEmailService svc = EmailServiceProxy.getService(mContext, SyncManager.class);
-                int result = svc.validate("eas", mHost, mUsername, mPassword, ssl ? 443 : 80, ssl);
+                int result = new EmailServiceProxy(mContext, SyncManager.class)
+                    .validate("eas", mHost, mUsername, mPassword, ssl ? 443 : 80, ssl);
                 if (result != MessagingException.NO_ERROR) {
                     if (result == MessagingException.AUTHENTICATION_FAILED) {
                         throw new AuthenticationFailedException("Authentication failed.");

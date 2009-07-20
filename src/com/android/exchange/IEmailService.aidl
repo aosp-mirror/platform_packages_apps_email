@@ -23,14 +23,13 @@ interface IEmailService {
     int validate(in String protocol, in String host, in String userName, in String password,
         int port, boolean ssl) ;
 
-    boolean startSync(long mailboxId);
-    boolean stopSync(long mailboxId);
+    void startSync(long mailboxId);
+    void stopSync(long mailboxId);
 
-    boolean loadMore(long messageId, IEmailServiceCallback cb);
-    boolean loadAttachment(long messageId, in EmailContent.Attachment att,
-        IEmailServiceCallback cb);
+    void loadMore(long messageId, IEmailServiceCallback cb);
+    void loadAttachment(long attachmentId, IEmailServiceCallback cb);
 
-    boolean updateFolderList(long accountId);
+    void updateFolderList(long accountId);
 
     boolean createFolder(long accountId, String name);
     boolean deleteFolder(long accountId, String name);
