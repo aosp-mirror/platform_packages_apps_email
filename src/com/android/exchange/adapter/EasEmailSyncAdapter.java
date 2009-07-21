@@ -152,6 +152,9 @@ public class EasEmailSyncAdapter extends EasSyncAdapter {
                     case EasTags.BASE_BODY:
                         bodyParser(msg);
                         break;
+                    case EasTags.EMAIL_FLAG:
+                        msg.mFlagFavorite = flagParser();
+                        break;
                     case EasTags.EMAIL_BODY:
                         msg.mTextInfo = "X;X;8;" + size; // location;encoding;charset;size
                         msg.mText = getValue();
@@ -195,6 +198,21 @@ public class EasEmailSyncAdapter extends EasSyncAdapter {
             // Tell the provider that this is synced back
             msg.mServerVersion = mMailbox.mSyncKey;
             emails.add(msg);
+        }
+
+        // For now, we only care about the "active" state
+        private Boolean flagParser() throws IOException {
+            Boolean state = false;
+            while (nextTag(EasTags.EMAIL_FLAG) != END) {
+                switch (tag) {
+                    case EasTags.EMAIL_FLAG_STATUS:
+                        state = true;
+                        break;
+                    default:
+                        skipTag();
+                }
+            }
+            return state;
         }
 
         private void bodyParser(Message msg) throws IOException {
@@ -327,18 +345,22 @@ public class EasEmailSyncAdapter extends EasSyncAdapter {
 
         class ServerChange {
             long id;
-            boolean read;
+            Boolean read;
+            Boolean flag;
 
-            ServerChange(long _id, boolean _read) {
+            ServerChange(long _id, Boolean _read, Boolean _flag) {
                 id = _id;
                 read = _read;
+                flag = _flag;
             }
         }
 
         private void changeParser(ArrayList<ServerChange> changes) throws IOException {
             String serverId = null;
-            boolean oldRead = false;
-            boolean read = true;
+            Boolean oldRead = false;
+            Boolean read = null;
+            Boolean oldFlag = false;
+            Boolean flag = null;
             long id = 0;
             while (nextTag(EasTags.SYNC_CHANGE) != END) {
                 switch (tag) {
@@ -349,6 +371,7 @@ public class EasEmailSyncAdapter extends EasSyncAdapter {
                             if (c.moveToFirst()) {
                                 mService.userLog("Changing " + serverId);
                                 oldRead = c.getInt(Message.LIST_READ_COLUMN) == Message.READ;
+                                oldFlag = c.getInt(Message.LIST_FAVORITE_COLUMN) == 1;
                                 id = c.getLong(Message.LIST_ID_COLUMN);
                             }
                         } finally {
@@ -358,14 +381,18 @@ public class EasEmailSyncAdapter extends EasSyncAdapter {
                     case EasTags.EMAIL_READ:
                         read = getValueInt() == 1;
                         break;
+                    case EasTags.EMAIL_FLAG:
+                        flag = flagParser();
+                        break;
                     case EasTags.SYNC_APPLICATION_DATA:
                         break;
                     default:
                         skipTag();
                 }
             }
-            if (oldRead != read) {
-                changes.add(new ServerChange(id, read));
+            if ((read != null && !oldRead.equals(read)) ||
+                    (flag != null && !oldFlag.equals(flag))) {
+                changes.add(new ServerChange(id, read, flag));
             }
         }
 
@@ -401,9 +428,13 @@ public class EasEmailSyncAdapter extends EasSyncAdapter {
             if (!changedEmails.isEmpty()) {
                 // Server wins in a conflict...
                 for (ServerChange change : changedEmails) {
-                    // For now, don't handle read->unread
-                    ContentValues cv = new ContentValues();
-                    cv.put(MessageColumns.FLAG_READ, change.read);
+                     ContentValues cv = new ContentValues();
+                    if (change.read != null) {
+                        cv.put(MessageColumns.FLAG_READ, change.read);
+                    }
+                    if (change.flag != null) {
+                        cv.put(MessageColumns.FLAG_FAVORITE, change.flag);
+                    }
                     ops.add(ContentProviderOperation.newUpdate(
                             ContentUris.withAppendedId(Message.CONTENT_URI, change.id))
                                 .withValues(cv)
@@ -541,6 +572,7 @@ public class EasEmailSyncAdapter extends EasSyncAdapter {
                     }
                     // Send the change to "read".  We'll do "flagged" here eventually as well
                     // TODO Add support for flags here (EAS 12.0 and above)
+                    // Or is this not safe??
                     s.start("Change")
                         .data("ServerId", c.getString(Message.LIST_SERVER_ID_COLUMN))
                         .start("ApplicationData")

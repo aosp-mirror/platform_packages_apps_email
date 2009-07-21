@@ -128,22 +128,6 @@ public class EmailServiceProxy implements IEmailService {
         }
     }
 
-    public boolean createFolder(long accountId, String name) throws RemoteException {
-        // TODO Auto-generated method stub
-        return false;
-    }
-
-    public boolean deleteFolder(long accountId, String name) throws RemoteException {
-        // TODO Auto-generated method stub
-        return false;
-    }
-
-    public boolean renameFolder(long accountId, String oldName, String newName)
-            throws RemoteException {
-        // TODO Auto-generated method stub
-        return false;
-    }
-
     public void loadAttachment(final long attachmentId, final IEmailServiceCallback cb)
             throws RemoteException {
         setTask(new Runnable () {
@@ -154,23 +138,28 @@ public class EmailServiceProxy implements IEmailService {
                 }
             }
         });
-        Log.v(TAG, "loadAttachment finished");
     }
 
-    public void loadMore(long messageId, IEmailServiceCallback cb) throws RemoteException {
-        // TODO Auto-generated method stub
+    public void startSync(final long mailboxId) throws RemoteException {
+        setTask(new Runnable () {
+            public void run() {
+                try {
+                    mService.startSync(mailboxId);
+                } catch (RemoteException e) {
+                }
+            }
+        });
     }
 
-    public void startSync(long mailboxId) throws RemoteException {
-        // TODO Auto-generated method stub
-    }
-
-    public void stopSync(long mailboxId) throws RemoteException {
-        // TODO Auto-generated method stub
-    }
-
-    public void updateFolderList(long accountId) throws RemoteException {
-        // TODO Auto-generated method stub
+    public void stopSync(final long mailboxId) throws RemoteException {
+        setTask(new Runnable () {
+            public void run() {
+                try {
+                    mService.stopSync(mailboxId);
+                } catch (RemoteException e) {
+                }
+            }
+        });
     }
 
     public int validate(final String protocol, final String host, final String userName,
@@ -192,7 +181,35 @@ public class EmailServiceProxy implements IEmailService {
         }
     }
 
-    public IBinder asBinder() {
+    public void updateFolderList(final long accountId) throws RemoteException {
+        setTask(new Runnable () {
+            public void run() {
+                try {
+                    mService.updateFolderList(accountId);
+                } catch (RemoteException e) {
+                }
+            }
+        });
+    }
+
+    public void loadMore(long messageId, IEmailServiceCallback cb) throws RemoteException {
+        // TODO Auto-generated method stub
+    }
+
+    public boolean createFolder(long accountId, String name) throws RemoteException {
+        return false;
+    }
+
+    public boolean deleteFolder(long accountId, String name) throws RemoteException {
+        return false;
+    }
+
+    public boolean renameFolder(long accountId, String oldName, String newName)
+            throws RemoteException {
+        return false;
+    }
+
+   public IBinder asBinder() {
         return null;
     }
 }

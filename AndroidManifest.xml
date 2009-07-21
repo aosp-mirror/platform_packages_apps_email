@@ -173,6 +173,8 @@
             android:enabled="false"
             >
         </service>
+        
+        <!-- Add android:process=":remote" below to enable SyncManager as a separate process -->
         <service
             android:name="com.android.exchange.SyncManager"
             android:enabled="true"

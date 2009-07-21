@@ -22,6 +22,7 @@ import com.android.exchange.EmailContent.Account;
 import com.android.exchange.EmailContent.Attachment;
 import com.android.exchange.EmailContent.HostAuth;
 import com.android.exchange.EmailContent.Mailbox;
+import com.android.exchange.EmailContent.MailboxColumns;
 import com.android.exchange.EmailContent.Message;
 import com.android.exchange.EmailContent.MessageColumns;
 import com.android.exchange.EmailContent.SyncColumns;
@@ -100,6 +101,7 @@ public class SyncManager extends Service implements Runnable {
      * spins its wheels counting up to 100%.
      */
     private final IEmailService.Stub mBinder = new IEmailService.Stub() {
+
         public int validate(String protocol, String host, String userName, String password,
                 int port, boolean ssl) throws RemoteException {
             try {
@@ -112,35 +114,11 @@ public class SyncManager extends Service implements Runnable {
         }
 
         public void startSync(long mailboxId) throws RemoteException {
-            // TODO Auto-generated method stub
+            startManualSync(mailboxId, null);
         }
 
         public void stopSync(long mailboxId) throws RemoteException {
-            // TODO Auto-generated method stub
-        }
-
-        public void updateFolderList(long accountId) throws RemoteException {
-            // TODO Auto-generated method stub
-        }
-
-        public void loadMore(long messageId, IEmailServiceCallback cb) throws RemoteException {
-            // TODO Auto-generated method stub
-        }
-
-        public boolean createFolder(long accountId, String name) throws RemoteException {
-            // TODO Auto-generated method stub
-            return false;
-        }
-
-        public boolean deleteFolder(long accountId, String name) throws RemoteException {
-            // TODO Auto-generated method stub
-            return false;
-        }
-
-        public boolean renameFolder(long accountId, String oldName, String newName)
-                throws RemoteException {
-            // TODO Auto-generated method stub
-            return false;
+            stopManualSync(mailboxId);
         }
 
         public void loadAttachment(long attachmentId, IEmailServiceCallback cb)
@@ -148,6 +126,45 @@ public class SyncManager extends Service implements Runnable {
             Attachment att = Attachment.restoreAttachmentWithId(SyncManager.this, attachmentId);
             partRequest(new PartRequest(att, cb));
         }
+
+        public void updateFolderList(long accountId) throws RemoteException {
+            Cursor c = getContentResolver().query(Mailbox.CONTENT_URI,
+                    Mailbox.CONTENT_PROJECTION, MailboxColumns.ACCOUNT_KEY + "=? AND " +
+                    MailboxColumns.SERVER_ID + "=?",
+                    new String[] {Long.toString(accountId), Eas.ACCOUNT_MAILBOX}, null);
+            try {
+                if (c.moveToFirst()) {
+                    synchronized(mSyncToken) {
+                        AbstractSyncService svc =
+                            INSTANCE.mServiceMap.get(c.getLong(Mailbox.CONTENT_ID_COLUMN));
+                        // TODO See if this is sufficient.  Low priority since there is no
+                        // user-driven "update folder list" in the UI
+                        svc.mThread.interrupt();
+                    }
+                }
+            } finally {
+                c.close();
+            }
+        }
+
+        public void loadMore(long messageId, IEmailServiceCallback cb) throws RemoteException {
+            // TODO Auto-generated method stub
+        }
+
+        // The following three methods are not implemented in this version
+        public boolean createFolder(long accountId, String name) throws RemoteException {
+            return false;
+        }
+
+        public boolean deleteFolder(long accountId, String name) throws RemoteException {
+            return false;
+        }
+
+        public boolean renameFolder(long accountId, String oldName, String newName)
+                throws RemoteException {
+            return false;
+        }
+
     };
 
     class AccountObserver extends ContentObserver {
