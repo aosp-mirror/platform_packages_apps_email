@@ -22,6 +22,7 @@ import com.android.email.Utility;
 import com.android.email.activity.setup.AccountSettings;
 import com.android.email.mail.MessagingException;
 import com.android.email.provider.EmailContent;
+import com.android.email.provider.EmailContent.Account;
 import com.android.email.provider.EmailContent.Mailbox;
 import com.android.email.provider.EmailContent.MailboxColumns;
 import com.android.email.provider.EmailContent.Message;
@@ -178,6 +179,23 @@ public class MessageList extends ListActivity implements OnItemClickListener, On
         return intent;
     }
 
+    /**
+     * Used for generating lightweight (Uri-only) intents.
+     *
+     * @param context Calling context for building the intent
+     * @param accountId The account of interest
+     * @param mailboxType The folder name to open (typically Mailbox.TYPE_INBOX)
+     * @return an Intent which can be used to view that account
+     */
+    public static Intent actionHandleAccountUriIntent(Context context, long accountId,
+            int mailboxType) {
+        Intent i = actionHandleAccountIntent(context, accountId, mailboxType);
+        i.removeExtra(EXTRA_ACCOUNT_ID);
+        Uri uri = ContentUris.withAppendedId(Account.CONTENT_URI, accountId);
+        i.setData(uri);
+        return i;
+    }
+
     @Override
     public void onCreate(Bundle icicle) {
         super.onCreate(icicle);
@@ -204,17 +222,33 @@ public class MessageList extends ListActivity implements OnItemClickListener, On
 
         // TODO extend this to properly deal with multiple mailboxes, cursor, etc.
 
-        // Select 'by id' or 'by type' mode and launch appropriate queries
+        // Select 'by id' or 'by type' or 'by uri' mode and launch appropriate queries
 
         mMailboxId = getIntent().getLongExtra(EXTRA_MAILBOX_ID, -1);
         if (mMailboxId != -1) {
+            // Specific mailbox ID was provided - go directly to it
             mLoadMessagesTask = new LoadMessagesTask(mMailboxId);
             mLoadMessagesTask.execute();
         } else {
-            long accountId = getIntent().getLongExtra(EXTRA_ACCOUNT_ID, -1);
-            int mailboxType = getIntent().getIntExtra(EXTRA_MAILBOX_TYPE, -1);
-            mFindMailboxTask = new FindMailboxTask(accountId, mailboxType, true);
-            mFindMailboxTask.execute();
+            long accountId = -1;
+            int mailboxType = getIntent().getIntExtra(EXTRA_MAILBOX_TYPE, Mailbox.TYPE_INBOX);
+            Uri uri = getIntent().getData();
+            if (uri != null
+                    && "content".equals(uri.getScheme())
+                    && EmailContent.AUTHORITY.equals(uri.getAuthority())) {
+                // A content URI was provided - try to look up the account
+                String accountIdString = uri.getPathSegments().get(1);
+                if (accountIdString != null) {
+                    accountId = Long.parseLong(accountIdString);
+                }
+                mFindMailboxTask = new FindMailboxTask(accountId, mailboxType, false);
+                mFindMailboxTask.execute();
+            } else {
+                // Go by account id + type
+                accountId = getIntent().getLongExtra(EXTRA_ACCOUNT_ID, -1);
+                mFindMailboxTask = new FindMailboxTask(accountId, mailboxType, true);
+                mFindMailboxTask.execute();
+            }
         }
 
         // TODO set title to "account > mailbox (#unread)"

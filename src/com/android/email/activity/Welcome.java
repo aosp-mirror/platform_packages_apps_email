@@ -16,36 +16,32 @@
 
 package com.android.email.activity;
 
-import com.android.email.provider.EmailContent;
+import com.android.email.activity.setup.AccountSetupBasics;
+import com.android.email.provider.EmailContent.Account;
+import com.android.email.provider.EmailContent.Mailbox;
 import com.android.exchange.SyncManager;
 
 import android.app.Activity;
 import android.content.Intent;
 import android.database.Cursor;
 import android.os.Bundle;
-import android.util.Log;
 
 /**
  * The Welcome activity initializes the application and decides what Activity
  * the user should start with.
- * If no accounts are configured the user is taken to the Accounts Activity where they
+ * If no accounts are configured the user is taken to the AccountSetupBasics Activity where they
  * can configure an account.
- * If a single account is configured the user is taken directly to the FolderMessageList for
+ * If a single account is configured the user is taken directly to the MessageList for
  * the INBOX of that account.
- * If more than one account is configured the user is taken to the Accounts Activity so they
- * can select an account.
+ * If more than one account is configured the user is taken to the AccountFolderList Activity so
+ * they can select an account.
  */
 public class Welcome extends Activity {
-    private static final boolean DEBUG_ADD_TEST_ACCOUNTS = false;        // DO NOT CHECK IN "TRUE"
-    
+
     @Override
     public void onCreate(Bundle icicle) {
         super.onCreate(icicle);
 
-        if (DEBUG_ADD_TEST_ACCOUNTS) {
-            testAccounts();
-        }
-        
         // TODO Automatically start Exchange service, until we can base this on the existence of
         // at least one Exchange account
         startService(new Intent(this, SyncManager.class));
@@ -54,15 +50,21 @@ public class Welcome extends Activity {
         Cursor c = null;
         try {
             c = getContentResolver().query(
-                    EmailContent.Account.CONTENT_URI, 
-                    EmailContent.Account.ID_PROJECTION,
+                    Account.CONTENT_URI,
+                    Account.ID_PROJECTION,
                     null, null, null);
-            if (c.getCount() == 1) {
-                c.moveToFirst();
-                long accountId = c.getLong(EmailContent.Account.CONTENT_ID_COLUMN);
-                MessageList.actionHandleAccount(this, accountId, EmailContent.Mailbox.TYPE_INBOX);
-                finish();
-                return;
+            switch (c.getCount()) {
+                case 0:
+                    AccountSetupBasics.actionNewAccount(this);
+                    break;
+                case 1:
+                    c.moveToFirst();
+                    long accountId = c.getLong(Account.CONTENT_ID_COLUMN);
+                    MessageList.actionHandleAccount(this, accountId, Mailbox.TYPE_INBOX);
+                    break;
+                default:
+                    AccountFolderList.actionShowAccounts(this);
+                    break;
             }
         } finally {
             if (c != null) {
@@ -70,64 +72,7 @@ public class Welcome extends Activity {
             }
         }
 
-        // Otherwise  (n=0 or n>1) go to the account info screen
-        AccountFolderList.actionShowAccounts(this);
+        // In all cases, do not return to this activity
         finish();
-    }
-
-    private void testAccounts() {
-        EmailContent.Account acct = EmailContent.Account.getDefaultAccount(this);
-        Log.i("EmailApp", "Default (none) = " + ((acct == null) ? "none" : acct.mDisplayName));
-
-        EmailContent.HostAuth ha = new EmailContent.HostAuth();
-        ha.mAddress = "imap.everyone.net";
-        ha.mLogin = "foo@nextobject.com";
-        ha.mPassword = "flatearth";
-        ha.mProtocol = "imap";
-
-        EmailContent.HostAuth sha = new EmailContent.HostAuth();
-        sha.mAddress = "smtp.everyone.net";
-        sha.mLogin = "foo@nextobject.com";
-        sha.mPassword = "flatearth";
-        sha.mProtocol = "smtp";
-
-        EmailContent.Account acct1 = new EmailContent.Account();
-        acct1.mHostAuthRecv = ha;
-        acct1.mHostAuthSend = sha;
-        acct1.mDisplayName = "Nextobject";
-        acct1.mEmailAddress = "foo@nextobject.com";
-        acct1.mIsDefault = true;
-
-        acct1.saveOrUpdate(this);
-
-        ha = new EmailContent.HostAuth();
-        ha.mAddress = "imap.gmail.com";
-        ha.mLogin = "mblank@google.com";
-        ha.mPassword = "flatearth";
-        ha.mProtocol = "imap";
-
-        sha = new EmailContent.HostAuth();
-        sha.mAddress = "smtp.gmail.com";
-        sha.mLogin = "mblank@google.com";
-        sha.mPassword = "flatearth";
-        sha.mProtocol = "smtp";
-
-        EmailContent.Account acct2 = new EmailContent.Account();
-        acct2.mHostAuthRecv = ha;
-        acct2.mHostAuthSend = sha;
-        acct2.mDisplayName = "Google";
-        acct2.mEmailAddress = "mblank@google.com";
-        acct2.mIsDefault = true;                    // this should supercede the previous one
-
-        acct2.saveOrUpdate(this);
-
-        // TODO this should move to unit tests of the new Account code
-        acct = EmailContent.Account.getDefaultAccount(this);
-        Log.i("EmailApp", "Default (Google) = " + (acct == null ? "none" : acct.mDisplayName));
-        
-        acct1.setDefaultAccount(true);
-        acct1.saveOrUpdate(this);
-        acct = EmailContent.Account.getDefaultAccount(this);
-        Log.i("EmailApp", "Default (Nextobject) = " + (acct == null ? "none" : acct.mDisplayName));
     }
 }

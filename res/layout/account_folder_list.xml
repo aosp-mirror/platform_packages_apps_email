@@ -23,34 +23,4 @@
         android:layout_width="fill_parent"
         android:layout_height="fill_parent"
         />
-    <LinearLayout
-        android:id="@+id/empty"
-        android:layout_width="fill_parent"
-        android:layout_height="fill_parent"
-        android:orientation="vertical">
-        <TextView
-            android:layout_width="fill_parent"
-            android:layout_height="wrap_content"
-            android:textSize="20sp"
-            android:text="@string/accounts_welcome"
-            android:textColor="?android:attr/textColorPrimary" />
-        <View
-            android:layout_width="fill_parent"
-            android:layout_height="0px"
-            android:layout_weight="1" />
-        <RelativeLayout
-            android:layout_width="fill_parent"
-            android:layout_height="54dip"
-            android:background="@android:drawable/bottom_bar">
-            <Button
-                android:id="@+id/add_new_account"
-                android:layout_width="wrap_content"
-                android:minWidth="@dimen/button_minWidth"
-                android:layout_height="wrap_content"
-                android:text="@string/next_action"
-                android:drawableRight="@drawable/button_indicator_next"
-                android:layout_alignParentRight="true"
-                android:layout_centerVertical="true" />
-        </RelativeLayout>
-    </LinearLayout>
 </FrameLayout>

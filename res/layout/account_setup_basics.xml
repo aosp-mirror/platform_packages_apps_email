@@ -17,15 +17,23 @@
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
     android:layout_width="fill_parent"
     android:layout_height="fill_parent"
-    android:orientation="vertical"
-      >
-      <TextView
+    android:orientation="vertical" >
+    <TextView
+        android:layout_width="fill_parent"
+        android:layout_height="wrap_content"
+        android:textSize="20sp"
+        android:text="@string/accounts_welcome"
+        android:textColor="?android:attr/textColorPrimary" />
+    <View
+        android:layout_width="fill_parent"
+        android:layout_height="0px"
+        android:layout_weight="1" />
+    <TextView
         android:text="@string/account_setup_basics_instructions"
         android:layout_height="wrap_content"
         android:layout_width="fill_parent"
         android:textAppearance="?android:attr/textAppearanceMedium"
-        android:textColor="?android:attr/textColorPrimary"
-          />
+        android:textColor="?android:attr/textColorPrimary" />
     <EditText
         android:id="@+id/account_email"
         android:hint="@string/account_setup_basics_email_hint"

@@ -60,7 +60,7 @@ import android.widget.TextView;
 import android.widget.Toast;
 import android.widget.ExpandableListView.ExpandableListContextMenuInfo;
 
-public class AccountFolderList extends ExpandableListActivity implements OnClickListener {
+public class AccountFolderList extends ExpandableListActivity {
     private static final int DIALOG_REMOVE_ACCOUNT = 1;
     /**
      * Key codes used to open a debug settings screen.
@@ -124,8 +124,6 @@ public class AccountFolderList extends ExpandableListActivity implements OnClick
         mListView.setScrollBarStyle(View.SCROLLBARS_OUTSIDE_INSET);
         mListView.setLongClickable(true);
         registerForContextMenu(mListView);
-
-        findViewById(R.id.add_new_account).setOnClickListener(this);
 
         if (icicle != null && icicle.containsKey(ICICLE_SELECTED_ACCOUNT)) {
             mSelectedContextAccount = (Account) icicle.getParcelable(ICICLE_SELECTED_ACCOUNT);
@@ -294,10 +292,6 @@ public class AccountFolderList extends ExpandableListActivity implements OnClick
 
             mListAdapter = new AccountsAdapter(merged, AccountFolderList.this);
             mListView.setAdapter(mListAdapter);
-
-            // This is deferred until after the first fetch, so it won't flicker
-            // while we're waiting to find out if we have any accounts
-            mListView.setEmptyView(findViewById(R.id.empty));
         }
     }
 
@@ -377,12 +371,6 @@ public class AccountFolderList extends ExpandableListActivity implements OnClick
         }
     }
 
-    public void onClick(View view) {
-        if (view.getId() == R.id.add_new_account) {
-            onAddNewAccount();
-        }
-    }
-
     private void onDeleteAccount(long accountId) {
         mSelectedContextAccount = Account.restoreAccountWithId(this, accountId);
         showDialog(DIALOG_REMOVE_ACCOUNT);
@@ -432,6 +420,14 @@ public class AccountFolderList extends ExpandableListActivity implements OnClick
                             // Ignore
                     }
                     Email.setServicesEnabled(AccountFolderList.this);
+
+                    // Jump to account setup if the last/only account was deleted
+                    int numAccounts = EmailContent.count(AccountFolderList.this,
+                            Account.CONTENT_URI, null, null);
+                    if (numAccounts == 0) {
+                        AccountSetupBasics.actionNewAccount(AccountFolderList.this);
+                        finish();
+                    }
                 }
             })
             .setNegativeButton(R.string.cancel_action, new DialogInterface.OnClickListener() {

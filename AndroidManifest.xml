@@ -119,14 +119,14 @@
         
         <activity
             android:name=".activity.FolderMessageList">
-            <intent-filter>
-                <!-- This action is only to allow an entry point for launcher shortcuts -->
-                <action android:name="android.intent.action.MAIN" />
-            </intent-filter>
         </activity>
         
         <activity
             android:name=".activity.MessageList">
+            <intent-filter>
+                <!-- This action is only to allow an entry point for launcher shortcuts -->
+                <action android:name="android.intent.action.MAIN" />
+            </intent-filter>
         </activity>
                 
         <activity

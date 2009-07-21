@@ -19,7 +19,6 @@ package com.android.email.activity.setup;
 import com.android.email.R;
 import com.android.email.mail.Store;
 import com.android.email.provider.EmailContent;
-import com.android.email.provider.EmailContent;
 import com.android.email.provider.EmailContent.Account;
 
 import android.app.Activity;
@@ -43,10 +42,10 @@ public class AccountSetupAccountType extends Activity implements OnClickListener
     private static final String EXTRA_ACCOUNT = "account";
     private static final String EXTRA_MAKE_DEFAULT = "makeDefault";
 
-    private EmailContent.Account mAccount;
+    private Account mAccount;
     private boolean mMakeDefault;
 
-    public static void actionSelectAccountType(Activity fromActivity, EmailContent.Account account, 
+    public static void actionSelectAccountType(Activity fromActivity, Account account, 
             boolean makeDefault) {
         Intent i = new Intent(fromActivity, AccountSetupAccountType.class);
         i.putExtra(EXTRA_ACCOUNT, account);
@@ -62,7 +61,7 @@ public class AccountSetupAccountType extends Activity implements OnClickListener
         ((Button)findViewById(R.id.imap)).setOnClickListener(this);
         ((Button)findViewById(R.id.exchange)).setOnClickListener(this);
         
-        mAccount = (EmailContent.Account)getIntent().getParcelableExtra(EXTRA_ACCOUNT);
+        mAccount = (Account) getIntent().getParcelableExtra(EXTRA_ACCOUNT);
         mMakeDefault = getIntent().getBooleanExtra(EXTRA_MAKE_DEFAULT, false);
 
         if (isExchangeAvailable()) {
@@ -103,7 +102,7 @@ public class AccountSetupAccountType extends Activity implements OnClickListener
         }
         // Delete policy must be set explicitly, because IMAP does not provide a UI selection
         // for it. This logic needs to be followed in the auto setup flow as well.
-        mAccount.setDeletePolicy(EmailContent.Account.DELETE_POLICY_ON_DELETE);
+        mAccount.setDeletePolicy(Account.DELETE_POLICY_ON_DELETE);
         AccountSetupIncoming.actionIncomingSettings(this, mAccount, mMakeDefault);
         finish();
     }
@@ -116,7 +115,8 @@ public class AccountSetupAccountType extends Activity implements OnClickListener
     private void onExchange() {
         try {
             URI uri = new URI(mAccount.getStoreUri(this));
-            uri = new URI("eas", uri.getUserInfo(), uri.getHost(), uri.getPort(), null, null, null);
+            uri = new URI("eas+ssl+", uri.getUserInfo(), uri.getHost(), uri.getPort(),
+                    null, null, null);
             mAccount.setStoreUri(this, uri.toString());
             mAccount.setSenderUri(this, uri.toString());
         } catch (URISyntaxException use) {
@@ -126,8 +126,8 @@ public class AccountSetupAccountType extends Activity implements OnClickListener
             throw new Error(use);
         }
         // TODO: Confirm correct delete policy for exchange
-        mAccount.setDeletePolicy(EmailContent.Account.DELETE_POLICY_ON_DELETE);
-        mAccount.setAutomaticCheckIntervalMinutes(EmailContent.Account.CHECK_INTERVAL_PUSH);
+        mAccount.setDeletePolicy(Account.DELETE_POLICY_ON_DELETE);
+        mAccount.setAutomaticCheckIntervalMinutes(Account.CHECK_INTERVAL_PUSH);
         mAccount.setSyncWindow(1);
         AccountSetupExchange.actionIncomingSettings(this, mAccount, mMakeDefault);
         finish();
@@ -166,11 +166,11 @@ public class AccountSetupAccountType extends Activity implements OnClickListener
         Cursor c = null;
         try {
             c = this.getContentResolver().query(
-                    EmailContent.Account.CONTENT_URI, 
-                    EmailContent.Account.CONTENT_PROJECTION,
+                    Account.CONTENT_URI, 
+                    Account.CONTENT_PROJECTION,
                     null, null, null);
             while (c.moveToNext()) {
-                EmailContent.Account account = EmailContent.getContent(c, Account.class);
+                Account account = EmailContent.getContent(c, Account.class);
                 String storeUri = account.getStoreUri(this);
                 if (storeUri != null && storeUri.startsWith(storeInfo.mScheme)) {
                     currentAccountsCount++;

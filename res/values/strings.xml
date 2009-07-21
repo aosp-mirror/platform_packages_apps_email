@@ -143,8 +143,6 @@
     <string name="special_mailbox_display_name_trash">Trash</string>
     <!-- In the folder list view, the sent will be displayed with this name -->
     <string name="special_mailbox_display_name_sent">Sent</string>
-    <!-- Text on screen when you don't have any external email accounts set up -->
-    <string name="accounts_welcome">Welcome to Email setup!\n\nUse any email account with Email.\n\nMost popular email accounts can be set up in 2 steps!</string>
 
     <!-- Version number, shown only on debug screen -->
     <string name="debug_version_fmt">Version: <xliff:g id="version">%s</xliff:g></string>
@@ -233,8 +231,10 @@
 
     <!-- Title of screen when setting up new email account -->
     <string name="account_setup_basics_title">Set up email</string>
+    <!-- On "Set up email" screen, enthusiastic welcome message. -->
+    <string name="accounts_welcome">Welcome to Email setup!\n\nUse any email account with Email.  Most popular email accounts can be set up in 2 steps!</string>
     <!-- On "Set up email" screen, brief instructions -->
-    <string name="account_setup_basics_instructions">Type your account email address:</string>
+    <string name="account_setup_basics_instructions">To begin, type your email address and password:</string>
     <!-- On "Set up email" screen, hint for account email address text field -->
     <string name="account_setup_basics_email_hint">Email address</string>
     <!-- On "Set up email" screen, hint for account email password text field -->

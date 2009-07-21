@@ -16,10 +16,10 @@
 
 package com.android.email.activity;
 
-import com.android.email.Email;
 import com.android.email.R;
 import com.android.email.provider.EmailContent;
 import com.android.email.provider.EmailContent.Account;
+import com.android.email.provider.EmailContent.Mailbox;
 
 import android.app.ListActivity;
 import android.content.Context;
@@ -90,15 +90,11 @@ public class AccountShortcutPicker extends ListActivity implements OnItemClickLi
         listView.setAdapter(a);
     }
 
-    private void onOpenAccount(Account account) {
-        // generate & return intents
+    public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
+        Cursor cursor = (Cursor)parent.getItemAtPosition(position);
+        Account account = new Account().restore(cursor);
         setupShortcut(account);
         finish();
-    }
-
-    public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
-        Account account = (Account)parent.getItemAtPosition(position);
-        onOpenAccount(account);
     }
 
     private static class AccountsAdapter extends SimpleCursorAdapter {
@@ -158,11 +154,11 @@ public class AccountShortcutPicker extends ListActivity implements OnItemClickLi
      * with an appropriate Uri for your content, but any Intent will work here as long as it 
      * triggers the desired action within your Activity.
      */
-    private void setupShortcut(EmailContent.Account account) {
+    private void setupShortcut(Account account) {
         // First, set up the shortcut intent.
 
-        Intent shortcutIntent = FolderMessageList.actionHandleAccountUriIntent(this, 
-                account.mId, Email.INBOX);
+        Intent shortcutIntent = MessageList.actionHandleAccountUriIntent(this,
+                account.mId, Mailbox.TYPE_INBOX);
 
         // Then, set up the container intent (the response to the caller)
 
