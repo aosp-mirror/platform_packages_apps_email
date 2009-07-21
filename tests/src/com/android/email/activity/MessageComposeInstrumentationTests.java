@@ -26,6 +26,7 @@ import com.android.email.mail.Message.RecipientType;
 import com.android.email.mail.internet.MimeMessage;
 import com.android.email.mail.internet.TextBody;
 import com.android.email.provider.EmailContent;
+import com.android.email.provider.EmailContent.Account;
 
 import android.content.Context;
 import android.content.Intent;
@@ -104,7 +105,9 @@ public class MessageComposeInstrumentationTests
         super.setUp();
         Context context = getInstrumentation().getTargetContext();
         
-        EmailContent.Account.getDefaultAccount(context);
+        // Force assignment of a default account
+        long accountId = Account.getDefaultAccountId(context);
+        Account.restoreAccountWithId(context, accountId);
         Email.setServicesEnabled(context);
 
         Intent intent = new Intent(Intent.ACTION_VIEW);

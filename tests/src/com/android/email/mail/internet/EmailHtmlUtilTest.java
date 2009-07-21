@@ -24,6 +24,7 @@ import com.android.email.mail.MessageTestUtils.MultipartBuilder;
 import com.android.email.mail.MessageTestUtils.TextBuilder;
 import com.android.email.mail.store.LocalStore;
 import com.android.email.provider.EmailContent;
+import com.android.email.provider.EmailContent.Account;
 
 import android.net.Uri;
 import android.test.AndroidTestCase;
@@ -43,7 +44,8 @@ public class EmailHtmlUtilTest extends AndroidTestCase {
     protected void setUp() throws Exception {
         super.setUp();
         // Force assignment of a default account, and retrieve it
-        mAccount = EmailContent.Account.getDefaultAccount(getContext());
+        long accountId = Account.getDefaultAccountId(getContext());
+        mAccount = Account.restoreAccountWithId(getContext(), accountId);
 
         // This is needed for mime image bodypart.
         BinaryTempFileBody.setTempDirectory(getContext().getCacheDir());

@@ -363,9 +363,9 @@ public class AccountFolderList extends ExpandableListActivity {
     }
 
     private void onCompose() {
-        EmailContent.Account defaultAccount = EmailContent.Account.getDefaultAccount(this);
-        if (defaultAccount != null) {
-            MessageCompose.actionCompose(this, defaultAccount.mId);
+        long defaultAccountId = Account.getDefaultAccountId(this);
+        if (defaultAccountId != -1) {
+            MessageCompose.actionCompose(this, defaultAccountId);
         } else {
             onAddNewAccount();
         }

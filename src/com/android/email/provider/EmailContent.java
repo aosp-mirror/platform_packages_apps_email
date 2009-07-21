@@ -797,7 +797,7 @@ public abstract class EmailContent {
         public long mHostAuthKeyRecv; 
         public long mHostAuthKeySend;
         public int mFlags;
-        public boolean mIsDefault;
+        public boolean mIsDefault;          // note: callers should use getDefaultAccountId()
         public String mCompatibilityUuid;
         public String mSenderName;
         public String mRingtoneUri;
@@ -836,6 +836,13 @@ public abstract class EmailContent {
          */
         public static final String[] ID_PROJECTION = new String[] {
             RECORD_ID
+        };
+
+        /**
+         * This projection is for searching for the default account
+         */
+        private static final String[] DEFAULT_ID_PROJECTION = new String[] {
+            RECORD_ID, IS_DEFAULT
         };
 
         /**
@@ -1151,31 +1158,37 @@ public abstract class EmailContent {
             mIsDefault = newDefaultState;
         }
 
-        static private Account getAccountWhere(Context context, String where) {
-            Cursor cursor = context.getContentResolver().query(CONTENT_URI, CONTENT_PROJECTION, 
+        /**
+         * Helper method for finding the default account.
+         */
+        static private long getDefaultAccountWhere(Context context, String where) {
+            Cursor cursor = context.getContentResolver().query(CONTENT_URI,
+                    DEFAULT_ID_PROJECTION,
                     where, null, null);
             try {
                 if (cursor.moveToFirst()) {
-                    return getContent(cursor, Account.class);
+                    return cursor.getLong(0);   // column 0 is id
                 }
             } finally {
                 cursor.close();
             }
-            return null;
+            return -1;
         }
 
         /**
-         * Return the default Account; if one hasn't been explicitly specified, return the first
-         * account found in the database.
-         * @param context
-         * @return the default Account (or none, if there are no accounts)
+         * Return the id of the default account.  If one hasn't been explicitly specified, return
+         * the first one in the database.  For any account saved in the DB, this must be used
+         * to check for the default account - the mIsDefault field is set lazily and may be
+         * incorrect.
+         * @param context the caller's context
+         * @return the id of the default account, or -1 if there are no accounts
          */
-        static public Account getDefaultAccount(Context context) {
-            Account acct = getAccountWhere(context, AccountColumns.IS_DEFAULT + "=1");
-            if (acct == null) {
-                acct = getAccountWhere(context, null);
+        static public long getDefaultAccountId(Context context) {
+            long id = getDefaultAccountWhere(context, AccountColumns.IS_DEFAULT + "=1");
+            if (id == -1) {
+                id = getDefaultAccountWhere(context, null);
             }
-            return acct;
+            return id;
         }
 
         /**

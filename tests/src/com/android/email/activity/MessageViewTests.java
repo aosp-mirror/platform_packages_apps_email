@@ -21,6 +21,7 @@ import com.android.email.MessagingController;
 import com.android.email.R;
 import com.android.email.mail.internet.BinaryTempFileBody;
 import com.android.email.provider.EmailContent;
+import com.android.email.provider.EmailContent.Account;
 
 import android.app.Application;
 import android.content.Context;
@@ -75,9 +76,9 @@ public class MessageViewTests
         super.setUp();
 
         mContext = getInstrumentation().getTargetContext();
-        // force assignment of a default account
-        mAccount = EmailContent.Account.getDefaultAccount(mContext);
-        mAccountId = mAccount.mId;
+        // Force assignment of a default account, and retrieve it
+        mAccountId = Account.getDefaultAccountId(mContext);
+        mAccount = Account.restoreAccountWithId(mContext, mAccountId);
         Email.setServicesEnabled(mContext);
         
         // setup an intent to spin up this activity with something useful

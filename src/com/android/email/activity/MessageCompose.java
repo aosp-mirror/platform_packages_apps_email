@@ -16,6 +16,7 @@
 
 package com.android.email.activity;
 
+import com.android.email.Controller;
 import com.android.email.Email;
 import com.android.email.EmailAddressAdapter;
 import com.android.email.EmailAddressValidator;
@@ -23,7 +24,6 @@ import com.android.email.MessagingController;
 import com.android.email.MessagingListener;
 import com.android.email.R;
 import com.android.email.Utility;
-import com.android.email.Controller;
 import com.android.email.mail.Address;
 import com.android.email.mail.Body;
 import com.android.email.mail.Message;
@@ -32,15 +32,11 @@ import com.android.email.mail.Multipart;
 import com.android.email.mail.Part;
 import com.android.email.mail.Message.RecipientType;
 import com.android.email.mail.internet.EmailHtmlUtil;
-import com.android.email.mail.internet.MimeBodyPart;
-import com.android.email.mail.internet.MimeHeader;
 import com.android.email.mail.internet.MimeMessage;
-import com.android.email.mail.internet.MimeMultipart;
 import com.android.email.mail.internet.MimeUtility;
-import com.android.email.mail.internet.TextBody;
-import com.android.email.mail.store.LocalStore;
 import com.android.email.mail.store.LocalStore.LocalAttachmentBody;
 import com.android.email.provider.EmailContent;
+import com.android.email.provider.EmailContent.Account;
 
 import android.app.Activity;
 import android.content.ActivityNotFoundException;
@@ -81,7 +77,6 @@ import java.io.Serializable;
 import java.io.UnsupportedEncodingException;
 import java.net.URLDecoder;
 import java.util.ArrayList;
-import java.util.Date;
 import java.util.List;
 
 public class MessageCompose extends Activity implements OnClickListener, OnFocusChangeListener {
@@ -117,7 +112,7 @@ public class MessageCompose extends Activity implements OnClickListener, OnFocus
     private static final int ACTIVITY_REQUEST_PICK_ATTACHMENT = 1;
 
     private long mAccountId;
-    private EmailContent.Account mAccount;
+    private Account mAccount;
     private String mFolder;
     private String mSourceMessageUid;
     private Message mSourceMessage;
@@ -432,14 +427,16 @@ public class MessageCompose extends Activity implements OnClickListener, OnFocus
                 (Intent.ACTION_SEND.equals(action))) {
             
             // Check first for a valid account
-            mAccount = EmailContent.Account.getDefaultAccount(this);
-            if (mAccount == null) {
+            mAccountId = Account.getDefaultAccountId(this);
+            if (mAccountId == -1) {
                 // There are no accounts set up. This should not have happened. Prompt the
                 // user to set up an account as an acceptable bailout.
                 AccountFolderList.actionShowAccounts(this);
                 mDraftNeedsSaving = false;
                 finish();
                 return;
+            } else {
+                mAccount = Account.restoreAccountWithId(this, mAccountId);
             }
             
             // Use the fields found in the Intent to prefill as much of the message as possible
@@ -448,7 +445,7 @@ public class MessageCompose extends Activity implements OnClickListener, OnFocus
         else {
             // Otherwise, handle the internal cases (Message Composer invoked from within app)
             mAccountId = intent.getLongExtra(EXTRA_ACCOUNT_ID, -1);
-            mAccount = EmailContent.Account.restoreAccountWithId(this, mAccountId);
+            mAccount = Account.restoreAccountWithId(this, mAccountId);
             mFolder = intent.getStringExtra(EXTRA_FOLDER);
             // TODO: change sourceMessageUid to be long _id instead of String
             mSourceMessageUid = intent.getStringExtra(EXTRA_MESSAGE);
@@ -1305,19 +1302,19 @@ public class MessageCompose extends Activity implements OnClickListener, OnFocus
 
     class Listener extends MessagingListener {
         @Override
-        public void loadMessageForViewStarted(EmailContent.Account account, String folder,
+        public void loadMessageForViewStarted(Account account, String folder,
                 String uid) {
             mHandler.sendEmptyMessage(MSG_PROGRESS_ON);
         }
 
         @Override
-        public void loadMessageForViewFinished(EmailContent.Account account, String folder,
+        public void loadMessageForViewFinished(Account account, String folder,
                 String uid, Message message) {
             mHandler.sendEmptyMessage(MSG_PROGRESS_OFF);
         }
 
         @Override
-        public void loadMessageForViewBodyAvailable(EmailContent.Account account, String folder,
+        public void loadMessageForViewBodyAvailable(Account account, String folder,
                 String uid, final Message message) {
             mSourceMessage = message;
             runOnUiThread(new Runnable() {
@@ -1328,14 +1325,14 @@ public class MessageCompose extends Activity implements OnClickListener, OnFocus
         }
 
         @Override
-        public void loadMessageForViewFailed(EmailContent.Account account, String folder, String uid,
+        public void loadMessageForViewFailed(Account account, String folder, String uid,
                 final String message) {
             mHandler.sendEmptyMessage(MSG_PROGRESS_OFF);
             // TODO show network error
         }
 
         @Override
-        public void messageUidChanged(EmailContent.Account account, String folder,String oldUid,
+        public void messageUidChanged(Account account, String folder,String oldUid,
                 String newUid) {
             if (account.equals(mAccount) && (folder.equals(mFolder)
                     || (mFolder == null

@@ -649,4 +649,54 @@ public class ProviderTests extends ProviderTestCase2<EmailProvider> {
             c.close();
         }
     }
+
+    /**
+     * Tests of default account behavior
+     * 
+     * 1.  Simple set/get
+     * 2.  Moving default between 3 accounts
+     * 3.  Delete default, make sure another becomes default
+     */
+    public void testSetGetDefaultAccount() {
+        // There should be no default account if there are no accounts
+        long defaultAccountId = Account.getDefaultAccountId(mMockContext);
+        assertEquals(-1, defaultAccountId);
+
+        Account account1 = ProviderTestUtils.setupAccount("account-default-1", true, mMockContext);
+        long account1Id = account1.mId;
+        Account account2 = ProviderTestUtils.setupAccount("account-default-2", true, mMockContext);
+        long account2Id = account2.mId;
+        Account account3 = ProviderTestUtils.setupAccount("account-default-3", true, mMockContext);
+        long account3Id = account3.mId;
+
+        account1.setDefaultAccount(true);
+        account1.saveOrUpdate(mMockContext);
+        defaultAccountId = Account.getDefaultAccountId(mMockContext);
+        assertEquals(account1Id, defaultAccountId);
+
+        account2.setDefaultAccount(true);
+        account2.saveOrUpdate(mMockContext);
+        defaultAccountId = Account.getDefaultAccountId(mMockContext);
+        assertEquals(account2Id, defaultAccountId);
+
+        account3.setDefaultAccount(true);
+        account3.saveOrUpdate(mMockContext);
+        defaultAccountId = Account.getDefaultAccountId(mMockContext);
+        assertEquals(account3Id, defaultAccountId);
+
+        // Now delete a non-default account and confirm no change
+        Uri uri = ContentUris.withAppendedId(Account.CONTENT_URI, account1Id);
+        mMockContext.getContentResolver().delete(uri, null, null);
+
+        defaultAccountId = Account.getDefaultAccountId(mMockContext);
+        assertEquals(account3Id, defaultAccountId);
+
+        // Now confirm deleting the default account and it switches to another one
+        uri = ContentUris.withAppendedId(Account.CONTENT_URI, account3Id);
+        mMockContext.getContentResolver().delete(uri, null, null);
+
+        defaultAccountId = Account.getDefaultAccountId(mMockContext);
+        assertEquals(account2Id, defaultAccountId);
+    }
+
 }

@@ -95,6 +95,8 @@ public class AccountSetupOptions extends Activity implements OnClickListener {
             enableEASSyncWindowSpinner();
         }
 
+        // Note:  It is OK to use mAccount.mIsDefault here *only* because the account
+        // has not been written to the DB yet.  Ordinarily, call Account.getDefaultAccountId().
         if (mAccount.mIsDefault || makeDefault) {
             mDefaultView.setChecked(true);
         }

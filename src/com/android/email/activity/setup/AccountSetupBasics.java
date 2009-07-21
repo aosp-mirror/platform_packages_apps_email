@@ -24,6 +24,7 @@ import com.android.email.Utility;
 import com.android.email.activity.Debug;
 import com.android.email.activity.FolderMessageList;
 import com.android.email.provider.EmailContent;
+import com.android.email.provider.EmailContent.Account;
 
 import android.app.Activity;
 import android.app.AlertDialog;
@@ -182,9 +183,12 @@ public class AccountSetupBasics extends Activity
         }
 
         if (name == null || name.length() == 0) {
-            EmailContent.Account account = EmailContent.Account.getDefaultAccount(this);
-            if (account != null) {
-                name = account.getName();
+            long defaultId = Account.getDefaultAccountId(this);
+            if (defaultId != -1) {
+                Account account = Account.restoreAccountWithId(this, defaultId);
+                if (account != null) {
+                    name = account.getName();
+                }
             }
         }
         return name;
