@@ -59,7 +59,8 @@ public class EmailProvider extends ContentProvider {
     // Obviously, we'll handle upgrades differently once things are a bit stable
     // version 15: changed Address.pack() format.
     // version 16: added protocolVersion column to Account
-    public static final int DATABASE_VERSION = 16;
+    // version 17: prevent duplication of mailboxes with the same serverId
+    public static final int DATABASE_VERSION = 17;
     public static final int BODY_DATABASE_VERSION = 1;
 
     public static final String EMAIL_AUTHORITY = "com.android.email.provider";
@@ -369,7 +370,7 @@ public class EmailProvider extends ContentProvider {
     static void createMailboxTable(SQLiteDatabase db) {
         String s = " (" + EmailContent.RECORD_ID + " integer primary key autoincrement, " 
             + MailboxColumns.DISPLAY_NAME + " text, "
-            + MailboxColumns.SERVER_ID + " text, "
+            + MailboxColumns.SERVER_ID + " text unique on conflict replace, "
             + MailboxColumns.PARENT_SERVER_ID + " text, "
             + MailboxColumns.ACCOUNT_KEY + " integer, "
             + MailboxColumns.TYPE + " integer, "

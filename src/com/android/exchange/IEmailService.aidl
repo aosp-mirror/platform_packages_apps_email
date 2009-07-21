@@ -34,4 +34,6 @@ interface IEmailService {
     boolean createFolder(long accountId, String name);
     boolean deleteFolder(long accountId, String name);
     boolean renameFolder(long accountId, String oldName, String newName);
+
+    void setLogging(boolean on);
 }
