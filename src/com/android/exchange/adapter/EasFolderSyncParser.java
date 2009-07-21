@@ -147,7 +147,6 @@ public class EasFolderSyncParser extends EasParser {
             } else
                 skipTag();
         }
-
         mAccount.saveOrUpdate(mContext);
         return res;
     }

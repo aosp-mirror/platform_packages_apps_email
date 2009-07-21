@@ -44,7 +44,6 @@ import android.net.NetworkInfo;
 import android.net.Uri;
 import android.net.NetworkInfo.State;
 import android.os.Bundle;
-import android.os.Debug;
 import android.os.Handler;
 import android.os.IBinder;
 import android.os.PowerManager;
@@ -145,6 +144,10 @@ public class SyncManager extends Service implements Runnable {
             } finally {
                 c.close();
             }
+        }
+
+        public void setLogging(boolean on) throws RemoteException {
+            Eas.USER_DEBUG = on;
         }
 
         public void loadMore(long messageId, IEmailServiceCallback cb) throws RemoteException {
@@ -371,10 +374,10 @@ public class SyncManager extends Service implements Runnable {
         // Start our thread...
         if (mServiceThread == null || !mServiceThread.isAlive()) {
             log(mServiceThread == null ? "Starting thread..." : "Restarting thread...");
-            mServiceThread = new Thread(this, "<MailService>");
+            mServiceThread = new Thread(this, "SyncManager");
             mServiceThread.start();
         } else {
-            log("Attempt to start MailService though already started before?");
+            log("Attempt to start SyncManager though already started before?");
         }
     }
 
@@ -591,7 +594,12 @@ public class SyncManager extends Service implements Runnable {
     public void run() {
         mStop = false;
 
-        //Debug.waitForDebugger();    // DON'T CHECK IN WITH THIS
+//        if (Debug.isDebuggerConnected()) {
+//            try {
+//                Thread.sleep(10000L);
+//            } catch (InterruptedException e) {
+//            }
+//        }
 
         runAwake(-1);
 
@@ -881,13 +889,14 @@ public class SyncManager extends Service implements Runnable {
         }
     }
 
+    /**
+     * Wake up SyncManager to check for mailboxes needing service
+     */
     static public void kick() {
-        if (INSTANCE == null) {
-            return;
-        }
-        synchronized (INSTANCE) {
-            INSTANCE.log("We've been kicked!");
-            INSTANCE.notify();
+        if (INSTANCE != null) {
+            synchronized (INSTANCE) {
+                INSTANCE.notify();
+            }
         }
     }
 
@@ -911,6 +920,12 @@ public class SyncManager extends Service implements Runnable {
         }
     }
 
+    /**
+     * Sent by services indicating that their thread is finished; action depends on the exitStatus
+     * of the service.
+     *
+     * @param svc the service that is finished
+     */
     static public void done(AbstractSyncService svc) {
         long mailboxId = svc.mMailboxId;
         HashMap<Long, SyncError> errorMap = INSTANCE.mSyncErrorMap;

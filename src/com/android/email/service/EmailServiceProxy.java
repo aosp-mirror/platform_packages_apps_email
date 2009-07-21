@@ -192,6 +192,18 @@ public class EmailServiceProxy implements IEmailService {
         });
     }
 
+    public void setLogging(final boolean on) throws RemoteException {
+        setTask(new Runnable () {
+            public void run() {
+                try {
+                    mService.setLogging(on);
+                } catch (RemoteException e) {
+                }
+            }
+        });
+
+    }
+
     public void loadMore(long messageId, IEmailServiceCallback cb) throws RemoteException {
         // TODO Auto-generated method stub
     }
@@ -212,4 +224,5 @@ public class EmailServiceProxy implements IEmailService {
    public IBinder asBinder() {
         return null;
     }
+
 }

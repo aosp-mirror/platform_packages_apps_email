@@ -800,6 +800,9 @@ public class EasSyncService extends InteractiveSyncService {
         mUserName = ha.mLogin;
         mPassword = ha.mPassword;
 
+        // Make sure account and mailbox are always the latest from the database
+        mAccount = Account.restoreAccountWithId(mContext, mAccount.mId);
+        mMailbox = Mailbox.restoreMailboxWithId(mContext, mMailbox.mId);
         try {
             if (mMailbox.mServerId.equals(Eas.ACCOUNT_MAILBOX)) {
                 runMain();
