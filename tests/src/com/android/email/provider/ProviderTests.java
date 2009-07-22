@@ -681,28 +681,27 @@ public class ProviderTests extends ProviderTestCase2<EmailProvider> {
         defaultAccountId = Account.getDefaultAccountId(mMockContext);
         assertEquals(account1Id, defaultAccountId);
 
-        // TODO: Reenable these when the single-default-account logic is fixed
-//        updateIsDefault(account2, true);
-//        defaultAccountId = Account.getDefaultAccountId(mMockContext);
-//        assertEquals(account2Id, defaultAccountId);
-//
-//        updateIsDefault(account3, true);
-//        defaultAccountId = Account.getDefaultAccountId(mMockContext);
-//        assertEquals(account3Id, defaultAccountId);
+        updateIsDefault(account2, true);
+        defaultAccountId = Account.getDefaultAccountId(mMockContext);
+        assertEquals(account2Id, defaultAccountId);
+
+        updateIsDefault(account3, true);
+        defaultAccountId = Account.getDefaultAccountId(mMockContext);
+        assertEquals(account3Id, defaultAccountId);
 
         // Now delete a non-default account and confirm no change
         Uri uri = ContentUris.withAppendedId(Account.CONTENT_URI, account1Id);
         mMockContext.getContentResolver().delete(uri, null, null);
 
-//        defaultAccountId = Account.getDefaultAccountId(mMockContext);
-//        assertEquals(account3Id, defaultAccountId);
+        defaultAccountId = Account.getDefaultAccountId(mMockContext);
+        assertEquals(account3Id, defaultAccountId);
 
         // Now confirm deleting the default account and it switches to another one
         uri = ContentUris.withAppendedId(Account.CONTENT_URI, account3Id);
         mMockContext.getContentResolver().delete(uri, null, null);
 
-//        defaultAccountId = Account.getDefaultAccountId(mMockContext);
-//        assertEquals(account2Id, defaultAccountId);
+        defaultAccountId = Account.getDefaultAccountId(mMockContext);
+        assertEquals(account2Id, defaultAccountId);
         
         // Now delete the final account and confirm there are no default accounts again
         uri = ContentUris.withAppendedId(Account.CONTENT_URI, account2Id);

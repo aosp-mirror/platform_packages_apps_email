@@ -17,6 +17,7 @@
 package com.android.email.provider;
 
 import com.android.email.R;
+import com.android.exchange.EmailContent.AccountColumns;
 
 import android.content.ContentProviderOperation;
 import android.content.ContentProviderResult;
@@ -1173,6 +1174,34 @@ public abstract class EmailContent {
             return id;
         }
         
+        /**
+         * Override update to enforce a single default account, and do it atomically
+         */
+        public int update(Context context, ContentValues cv) {
+            if (cv.containsKey(AccountColumns.IS_DEFAULT) && 
+                    cv.getAsBoolean(AccountColumns.IS_DEFAULT)) {
+                ArrayList<ContentProviderOperation> ops = new ArrayList<ContentProviderOperation>();
+                ContentValues cv1 = new ContentValues();
+                cv1.put(AccountColumns.IS_DEFAULT, 0);
+                // Clear the default flag in all accounts
+                ops.add(ContentProviderOperation.newUpdate(CONTENT_URI).withValues(cv1).build());
+                // Update this account
+                ops.add(ContentProviderOperation
+                        .newUpdate(ContentUris.withAppendedId(CONTENT_URI, mId))
+                        .withValues(cv).build());
+                try {
+                    context.getContentResolver().applyBatch(EmailProvider.EMAIL_AUTHORITY, ops);
+                    return 1;
+                } catch (RemoteException e) {
+                    // There is nothing to be done here; fail by returning 0
+                } catch (OperationApplicationException e) {
+                    // There is nothing to be done here; fail by returning 0
+                }
+                return 0;
+            }
+            return super.update(context, cv);
+        }
+
         /* 
          * Override this so that we can store the HostAuth's first and link them to the Account
          * (non-Javadoc)
