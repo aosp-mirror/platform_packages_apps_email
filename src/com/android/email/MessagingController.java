@@ -608,6 +608,14 @@ public class MessagingController implements Runnable {
         }
     }
 
+    private void saveOrUpdate(EmailContent content) {
+        if (content.isSaved()) {
+            content.update(mContext, content.toContentValues());
+        } else {
+            content.save(mContext);
+        }
+    }
+
     /**
      * Generic synchronizer - used for POP3 and IMAP.
      *
@@ -776,7 +784,7 @@ public class MessagingController implements Runnable {
                                         updateMessageFields(localMessage, 
                                                 message, account.mId, folder.mId);
                                         // Commit the message to the local store
-                                        localMessage.saveOrUpdate(mContext);
+                                        saveOrUpdate(localMessage);
                                         // Track the "new" ness of the downloaded message
                                         if (!message.isSet(Flag.SEEN)) {
                                             newMessages.add(message);
@@ -940,8 +948,8 @@ public class MessagingController implements Runnable {
                                     // TODO should updateMessageFields do this for us?
                                     // localMessage.mFlagLoaded = EmailContent.Message.LOADED;
                                     // Commit the message to the local store
-                                    localMessage.saveOrUpdate(mContext);
-                                    body.saveOrUpdate(mContext);
+                                    saveOrUpdate(localMessage);
+                                    saveOrUpdate(body);
                                 } catch (MessagingException me) {
                                     Log.e(Email.LOG_TAG,
                                             "Error while copying downloaded message." + me);

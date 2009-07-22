@@ -22,13 +22,14 @@ import com.android.email.Preferences;
 import com.android.email.R;
 import com.android.email.Utility;
 import com.android.email.activity.Debug;
-import com.android.email.activity.FolderMessageList;
 import com.android.email.provider.EmailContent;
 import com.android.email.provider.EmailContent.Account;
+import com.android.email.provider.EmailContent.AccountColumns;
 
 import android.app.Activity;
 import android.app.AlertDialog;
 import android.app.Dialog;
+import android.content.ContentValues;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.res.XmlResourceParser;
@@ -187,7 +188,7 @@ public class AccountSetupBasics extends Activity
             if (defaultId != -1) {
                 Account account = Account.restoreAccountWithId(this, defaultId);
                 if (account != null) {
-                    name = account.getName();
+                    name = account.getSenderName();
                 }
             }
         }
@@ -256,8 +257,8 @@ public class AccountSetupBasics extends Activity
         }
 
         mAccount = new EmailContent.Account();
-        mAccount.setName(getOwnerName());
-        mAccount.setEmail(email);
+        mAccount.setSenderName(getOwnerName());
+        mAccount.setEmailAddress(email);
         mAccount.setStoreUri(this, incomingUri.toString());
         mAccount.setSenderUri(this, outgoingUri.toString());
 /* TODO figure out the best way to implement this concept
@@ -271,7 +272,7 @@ public class AccountSetupBasics extends Activity
             // for it. This logic needs to be followed in the auto setup flow as well.
             mAccount.setDeletePolicy(EmailContent.Account.DELETE_POLICY_ON_DELETE);
         }
-        mAccount.setAutomaticCheckIntervalMinutes(DEFAULT_ACCOUNT_CHECK_INTERVAL);
+        mAccount.setSyncInterval(DEFAULT_ACCOUNT_CHECK_INTERVAL);
         AccountSetupCheckSettings.actionCheckSettings(this, mAccount, true, true);
     }
 
@@ -300,9 +301,14 @@ public class AccountSetupBasics extends Activity
     @Override
     public void onActivityResult(int requestCode, int resultCode, Intent data) {
         if (resultCode == RESULT_OK) {
-            mAccount.setDescription(mAccount.getEmail());
+            String email = mAccount.getEmailAddress();
+            boolean isDefault = mDefaultView.isChecked();
+            mAccount.setDisplayName(mAccount.getEmailAddress());
             mAccount.setDefaultAccount(mDefaultView.isChecked());
-            mAccount.saveOrUpdate(this);
+            ContentValues cv = new ContentValues();
+            cv.put(AccountColumns.DISPLAY_NAME, email);
+            cv.put(AccountColumns.IS_DEFAULT, isDefault);
+            mAccount.update(this, cv);
             Email.setServicesEnabled(this);
             AccountSetupNames.actionSetNames(this, mAccount.mId);
             finish();
@@ -325,8 +331,8 @@ public class AccountSetupBasics extends Activity
         }
 
         mAccount = new EmailContent.Account();
-        mAccount.setName(getOwnerName());
-        mAccount.setEmail(email);
+        mAccount.setSenderName(getOwnerName());
+        mAccount.setEmailAddress(email);
         try {
             URI uri = new URI("placeholder", user + ":" + password, domain, -1, null, null, null);
             mAccount.setStoreUri(this, uri.toString());
@@ -344,7 +350,7 @@ public class AccountSetupBasics extends Activity
         mAccount.setOutboxFolderName(getString(R.string.special_mailbox_name_outbox));
         mAccount.setSentFolderName(getString(R.string.special_mailbox_name_sent));
 */
-        mAccount.setAutomaticCheckIntervalMinutes(DEFAULT_ACCOUNT_CHECK_INTERVAL);
+        mAccount.setSyncInterval(DEFAULT_ACCOUNT_CHECK_INTERVAL);
 
         AccountSetupAccountType.actionSelectAccountType(this, mAccount, mDefaultView.isChecked());
         finish();

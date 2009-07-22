@@ -61,7 +61,7 @@ import android.os.RemoteException;
 import android.provider.Contacts;
 import android.provider.Contacts.Intents;
 import android.provider.Contacts.People;
-import android.provider.Contacts.Presence;
+//import android.provider.Contacts.Presence;
 import android.text.util.Regex;
 import android.util.Log;
 import android.view.LayoutInflater;
@@ -94,7 +94,7 @@ public class MessageView extends Activity
     
     private static final String[] METHODS_WITH_PRESENCE_PROJECTION = new String[] {
         People.ContactMethods._ID,  // 0
-        People.PRESENCE_STATUS,     // 1
+//        People.PRESENCE_STATUS,     // 1
     };
     private static final int METHODS_STATUS_COLUMN = 1;
 
@@ -986,8 +986,8 @@ public class MessageView extends Activity
                 if (methodsCursor != null) {
                     if (methodsCursor.moveToFirst() && 
                             !methodsCursor.isNull(METHODS_STATUS_COLUMN)) {
-                        presenceIcon = Presence.getPresenceIconResourceId(
-                                methodsCursor.getInt(METHODS_STATUS_COLUMN));
+//                        presenceIcon = Presence.getPresenceIconResourceId(
+//                                methodsCursor.getInt(METHODS_STATUS_COLUMN));
                     }
                     methodsCursor.close();
                 }

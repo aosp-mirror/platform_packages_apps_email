@@ -21,11 +21,14 @@ import java.io.IOException;
 import java.io.InputStream;
 
 import android.content.ContentResolver;
+import android.content.ContentValues;
 import android.content.Context;
 
 import com.android.exchange.EasSyncService;
 import com.android.exchange.EmailContent.Account;
+import com.android.exchange.EmailContent.AccountColumns;
 import com.android.exchange.EmailContent.Mailbox;
+import com.android.exchange.EmailContent.MailboxColumns;
 
 /**
  * Base class for the Email and PIM sync parsers
@@ -102,7 +105,7 @@ public abstract class EasContentParser extends EasParser {
                         mMailbox.mSyncKey = "0";
                         // Make this a push box through the first sync
                         // TODO Make frequency conditional on user settings!
-                        mMailbox.mSyncFrequency = Account.CHECK_INTERVAL_PUSH;
+                        mMailbox.mSyncInterval = Account.CHECK_INTERVAL_PUSH;
                         mService.errorLog("Bad sync key; RESET and delete contacts");
                         wipe();
                         // Indicate there's more so that we'll start syncing again
@@ -122,8 +125,8 @@ public abstract class EasContentParser extends EasParser {
                 mService.userLog("Parsed key for " + mMailbox.mDisplayName + ": " + newKey);
                 mMailbox.mSyncKey = newKey;
                 // If we were pushing (i.e. auto-start), now we'll become ping-triggered
-                if (mMailbox.mSyncFrequency == Account.CHECK_INTERVAL_PUSH) {
-                    mMailbox.mSyncFrequency = Account.CHECK_INTERVAL_PING;
+                if (mMailbox.mSyncInterval == Account.CHECK_INTERVAL_PUSH) {
+                    mMailbox.mSyncInterval = Account.CHECK_INTERVAL_PING;
                 }
            } else {
                 skipTag();
@@ -131,7 +134,10 @@ public abstract class EasContentParser extends EasParser {
         }
 
         // Make sure we save away the new syncKey, syncFrequency, etc.
-        mMailbox.saveOrUpdate(mContext);
+        ContentValues cv = new ContentValues();
+        cv.put(MailboxColumns.SYNC_KEY, mMailbox.mSyncKey);
+        cv.put(MailboxColumns.SYNC_INTERVAL, mMailbox.mSyncInterval);
+        mMailbox.update(mContext, cv);
         mService.userLog(mMailbox.mDisplayName + " SyncKey saved as: " + mMailbox.mSyncKey);
         // Let the caller know that there's more to do
         return moreAvailable;

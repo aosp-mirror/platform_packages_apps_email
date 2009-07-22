@@ -401,7 +401,7 @@ public class AccountFolderList extends ExpandableListActivity {
             .setIcon(android.R.drawable.ic_dialog_alert)
             .setTitle(R.string.account_delete_dlg_title)
             .setMessage(getString(R.string.account_delete_dlg_instructions_fmt,
-                    mSelectedContextAccount.getDescription()))
+                    mSelectedContextAccount.getDisplayName()))
             .setPositiveButton(R.string.okay_action, new DialogInterface.OnClickListener() {
                 public void onClick(DialogInterface dialog, int whichButton) {
                     dismissDialog(DIALOG_REMOVE_ACCOUNT);

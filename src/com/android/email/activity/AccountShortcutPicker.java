@@ -164,7 +164,7 @@ public class AccountShortcutPicker extends ListActivity implements OnItemClickLi
 
         Intent intent = new Intent();
         intent.putExtra(Intent.EXTRA_SHORTCUT_INTENT, shortcutIntent);
-        intent.putExtra(Intent.EXTRA_SHORTCUT_NAME, account.getDescription());
+        intent.putExtra(Intent.EXTRA_SHORTCUT_NAME, account.getDisplayName());
         Parcelable iconResource = Intent.ShortcutIconResource.fromContext(this, R.drawable.icon);
         intent.putExtra(Intent.EXTRA_SHORTCUT_ICON_RESOURCE, iconResource);
 

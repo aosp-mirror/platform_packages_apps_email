@@ -248,10 +248,10 @@ public class Controller {
         Mailbox box = new Mailbox();
         box.mAccountKey = accountId;
         box.mType = mailboxType;
-        box.mSyncFrequency = EmailContent.Account.CHECK_INTERVAL_NEVER;
+        box.mSyncInterval = EmailContent.Account.CHECK_INTERVAL_NEVER;
         box.mFlagVisible = true;
         box.mDisplayName = getSpecialMailboxDisplayName(mailboxType);
-        box.saveOrUpdate(mProviderContext);
+        box.save(mProviderContext);
         return box.mId;
     }
 

@@ -21,7 +21,6 @@ import com.android.email.R;
 import com.android.email.mail.MessagingException;
 import com.android.email.mail.Sender;
 import com.android.email.mail.Store;
-import com.android.email.provider.EmailContent;
 import com.android.email.provider.EmailContent.Account;
 import com.android.email.provider.EmailContent.HostAuth;
 
@@ -92,8 +91,8 @@ public class AccountSettings extends PreferenceActivity {
         topCategory.setTitle(getString(R.string.account_settings_title_fmt));
 
         mAccountDescription = (EditTextPreference) findPreference(PREFERENCE_DESCRIPTION);
-        mAccountDescription.setSummary(mAccount.getDescription());
-        mAccountDescription.setText(mAccount.getDescription());
+        mAccountDescription.setSummary(mAccount.getDisplayName());
+        mAccountDescription.setText(mAccount.getDisplayName());
         mAccountDescription.setOnPreferenceChangeListener(new Preference.OnPreferenceChangeListener() {
             public boolean onPreferenceChange(Preference preference, Object newValue) {
                 final String summary = newValue.toString();
@@ -104,8 +103,8 @@ public class AccountSettings extends PreferenceActivity {
         });
 
         mAccountName = (EditTextPreference) findPreference(PREFERENCE_NAME);
-        mAccountName.setSummary(mAccount.getName());
-        mAccountName.setText(mAccount.getName());
+        mAccountName.setSummary(mAccount.getSenderName());
+        mAccountName.setText(mAccount.getSenderName());
         mAccountName.setOnPreferenceChangeListener(new Preference.OnPreferenceChangeListener() {
             public boolean onPreferenceChange(Preference preference, Object newValue) {
                 final String summary = newValue.toString();
@@ -124,7 +123,7 @@ public class AccountSettings extends PreferenceActivity {
             mCheckFrequency.setEntryValues(R.array.account_settings_check_frequency_values_push);
         }
 
-        mCheckFrequency.setValue(String.valueOf(mAccount.getAutomaticCheckIntervalMinutes()));
+        mCheckFrequency.setValue(String.valueOf(mAccount.getSyncInterval()));
         mCheckFrequency.setSummary(mCheckFrequency.getEntry());
         mCheckFrequency.setOnPreferenceChangeListener(new Preference.OnPreferenceChangeListener() {
             public boolean onPreferenceChange(Preference preference, Object newValue) {
@@ -143,7 +142,7 @@ public class AccountSettings extends PreferenceActivity {
             mSyncWindow.setTitle(R.string.account_setup_options_mail_window_label);
             mSyncWindow.setEntries(R.array.account_settings_mail_window_entries);
             mSyncWindow.setEntryValues(R.array.account_settings_mail_window_values);
-            mSyncWindow.setValue(String.valueOf(mAccount.getSyncWindow()));
+            mSyncWindow.setValue(String.valueOf(mAccount.getSyncLookback()));
             mSyncWindow.setSummary(mSyncWindow.getEntry());
             mSyncWindow.setOrder(4);
             mSyncWindow.setOnPreferenceChangeListener(new Preference.OnPreferenceChangeListener() {
@@ -240,20 +239,20 @@ public class AccountSettings extends PreferenceActivity {
                 ~(Account.FLAGS_NOTIFY_NEW_MAIL | Account.FLAGS_VIBRATE);
         
         mAccount.setDefaultAccount(mAccountDefault.isChecked());
-        mAccount.setDescription(mAccountDescription.getText());
-        mAccount.setName(mAccountName.getText());
+        mAccount.setDisplayName(mAccountDescription.getText());
+        mAccount.setSenderName(mAccountName.getText());
         newFlags |= mAccountNotify.isChecked() ? Account.FLAGS_NOTIFY_NEW_MAIL : 0;
-        mAccount.setAutomaticCheckIntervalMinutes(Integer.parseInt(mCheckFrequency.getValue()));
+        mAccount.setSyncInterval(Integer.parseInt(mCheckFrequency.getValue()));
         if (mSyncWindow != null)
         {
-            mAccount.setSyncWindow(Integer.parseInt(mSyncWindow.getValue()));
+            mAccount.setSyncLookback(Integer.parseInt(mSyncWindow.getValue()));
         }
         newFlags |= mAccountVibrate.isChecked() ? Account.FLAGS_VIBRATE : 0;
         SharedPreferences prefs = mAccountRingtone.getPreferenceManager().getSharedPreferences();
         mAccount.setRingtone(prefs.getString(PREFERENCE_RINGTONE, null));
         mAccount.setFlags(newFlags);
-        
-        mAccount.saveOrUpdate(this);
+
+        AccountSettingsUtils.commitSettings(this, mAccount);
         Email.setServicesEnabled(this);
     }
 

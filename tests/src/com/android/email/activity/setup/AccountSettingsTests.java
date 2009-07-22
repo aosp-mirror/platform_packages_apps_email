@@ -148,10 +148,10 @@ public class AccountSettingsTests extends ActivityInstrumentationTestCase2<Accou
      */
     private Intent getTestIntent(String name, String storeUri, String senderUri) {
         EmailContent.Account mAccount = new EmailContent.Account();
-        mAccount.setName(name);
+        mAccount.setSenderName(name);
         mAccount.setStoreUri(mContext, storeUri);
         mAccount.setSenderUri(mContext, senderUri);
-        mAccount.saveOrUpdate(mContext);
+        mAccount.save(mContext);
         mAccountId = mAccount.mId;
 
         Intent i = new Intent(Intent.ACTION_MAIN);

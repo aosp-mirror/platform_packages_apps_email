@@ -43,7 +43,7 @@ public class ProviderTestUtils extends Assert {
         account.mEmailAddress = name + "@android.com";
         account.mSyncKey = "sync-key-" + name;
         account.mSyncLookback = 1;
-        account.mSyncFrequency = EmailContent.Account.CHECK_INTERVAL_NEVER;
+        account.mSyncInterval = EmailContent.Account.CHECK_INTERVAL_NEVER;
         account.mHostAuthKeyRecv = 2;
         account.mHostAuthKeySend = 3;
         account.mFlags = 4;
@@ -54,7 +54,7 @@ public class ProviderTestUtils extends Assert {
         account.mProtocolVersion = "2.5" + name;
 
         if (saveIt) {
-            account.saveOrUpdate(context);
+            account.save(context);
         }
         return account;
     }
@@ -74,7 +74,7 @@ public class ProviderTestUtils extends Assert {
         box.mDelimiter = 1;
         box.mSyncKey = "sync-key-" + name;
         box.mSyncLookback = 2;
-        box.mSyncFrequency = EmailContent.Account.CHECK_INTERVAL_NEVER;
+        box.mSyncInterval = EmailContent.Account.CHECK_INTERVAL_NEVER;
         box.mSyncTime = 3;
         box.mUnreadCount = 4;
         box.mFlagVisible = true;
@@ -82,7 +82,7 @@ public class ProviderTestUtils extends Assert {
         box.mVisibleLimit = 6;
 
         if (saveIt) {
-            box.saveOrUpdate(context);
+            box.save(context);
         }
         return box;
     }
@@ -135,7 +135,7 @@ public class ProviderTestUtils extends Assert {
         }
 
         if (saveIt) {
-            message.saveOrUpdate(context);
+            message.save(context);
         }
         return message;
     }
@@ -162,7 +162,7 @@ public class ProviderTestUtils extends Assert {
         att.mLocation = "location " + fileName;
         att.mEncoding = "encoding " + fileName;
         if (saveIt) {
-            att.saveOrUpdate(context);
+            att.save(context);
         }
         return att;
     }
@@ -193,7 +193,7 @@ public class ProviderTestUtils extends Assert {
         assertEquals(caller + " mSyncKey", expect.mSyncKey, actual.mSyncKey);
 
         assertEquals(caller + " mSyncLookback", expect.mSyncLookback, actual.mSyncLookback);
-        assertEquals(caller + " mSyncFrequency", expect.mSyncFrequency, actual.mSyncFrequency);
+        assertEquals(caller + " mSyncInterval", expect.mSyncInterval, actual.mSyncInterval);
         assertEquals(caller + " mHostAuthKeyRecv", expect.mHostAuthKeyRecv,
                 actual.mHostAuthKeyRecv);
         assertEquals(caller + " mHostAuthKeySend", expect.mHostAuthKeySend,
@@ -225,7 +225,7 @@ public class ProviderTestUtils extends Assert {
         assertEquals(caller + " mDelimiter", expect.mDelimiter, actual.mDelimiter);
         assertEquals(caller + " mSyncKey", expect.mSyncKey, actual.mSyncKey);
         assertEquals(caller + " mSyncLookback", expect.mSyncLookback, actual.mSyncLookback);
-        assertEquals(caller + " mSyncFrequency", expect.mSyncFrequency, actual.mSyncFrequency);
+        assertEquals(caller + " mSyncInterval", expect.mSyncInterval, actual.mSyncInterval);
         assertEquals(caller + " mSyncTime", expect.mSyncTime, actual.mSyncTime);
         assertEquals(caller + " mUnreadCount", expect.mUnreadCount, actual.mUnreadCount);
         assertEquals(caller + " mFlagVisible", expect.mFlagVisible, actual.mFlagVisible);

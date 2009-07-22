@@ -116,7 +116,7 @@ public class AccountSetupOptionsTests
      */
     private Intent getTestIntent(String name, String storeUri) {
         EmailContent.Account account = new EmailContent.Account();
-        account.setName(name);
+        account.setSenderName(name);
         account.setStoreUri(getInstrumentation().getTargetContext(), storeUri);
         Intent i = new Intent(Intent.ACTION_MAIN);
         i.putExtra(EXTRA_ACCOUNT, account);

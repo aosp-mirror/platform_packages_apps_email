@@ -109,8 +109,8 @@ public class AccountSetupNamesTests extends ActivityInstrumentationTestCase2<Acc
      */
     private Intent getTestIntent(String name) {
         mAccount = new EmailContent.Account();
-        mAccount.setName(name);
-        mAccount.saveOrUpdate(mContext);
+        mAccount.setSenderName(name);
+        mAccount.save(mContext);
         mAccountId = mAccount.mId;
 
         Intent i = new Intent(Intent.ACTION_MAIN);

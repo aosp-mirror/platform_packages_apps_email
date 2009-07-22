@@ -244,7 +244,7 @@ public class SyncManager extends Service implements Runnable {
             main.mServerId = Eas.ACCOUNT_MAILBOX;
             main.mAccountKey = acct.mId;
             main.mType = Mailbox.TYPE_NOT_EMAIL;
-            main.mSyncFrequency = Account.CHECK_INTERVAL_PUSH;
+            main.mSyncInterval = Account.CHECK_INTERVAL_PUSH;
             main.mFlagVisible = false;
             main.save(getContext());
             INSTANCE.log("Initializing account: " + acct.mDisplayName);
@@ -692,7 +692,7 @@ public class SyncManager extends Service implements Runnable {
                         }
                         continue;
                     }
-                    long freq = c.getInt(Mailbox.CONTENT_SYNC_FREQUENCY_COLUMN);
+                    long freq = c.getInt(Mailbox.CONTENT_SYNC_INTERVAL_COLUMN);
                     if (freq == Account.CHECK_INTERVAL_PUSH) {
                         Mailbox m = EmailContent.getContent(c, Mailbox.class);
                         startService(m, null);
@@ -902,7 +902,7 @@ public class SyncManager extends Service implements Runnable {
 
     static public void kick(long mailboxId) {
         Mailbox m = Mailbox.restoreMailboxWithId(INSTANCE, mailboxId);
-        int syncType = m.mSyncFrequency;
+        int syncType = m.mSyncInterval;
         if (syncType == Account.CHECK_INTERVAL_PUSH) {
             SyncManager.serviceRequestImmediate(mailboxId);
         } else {

@@ -20,8 +20,10 @@ import com.android.email.R;
 import com.android.email.Utility;
 import com.android.email.activity.MessageList;
 import com.android.email.provider.EmailContent;
+import com.android.email.provider.EmailContent.AccountColumns;
 
 import android.app.Activity;
+import android.content.ContentValues;
 import android.content.Intent;
 import android.os.Bundle;
 import android.text.Editable;
@@ -80,8 +82,8 @@ public class AccountSetupNames extends Activity implements OnClickListener {
          * just leave the saved value alone.
          */
         // mDescription.setText(mAccount.getDescription());
-        if (mAccount.getName() != null) {
-            mName.setText(mAccount.getName());
+        if (mAccount.getSenderName() != null) {
+            mName.setText(mAccount.getSenderName());
         }
         if (!Utility.requiredFieldValid(mName)) {
             mDoneButton.setEnabled(false);
@@ -101,10 +103,14 @@ public class AccountSetupNames extends Activity implements OnClickListener {
      */
     private void onNext() {
         if (Utility.requiredFieldValid(mDescription)) {
-            mAccount.setDescription(mDescription.getText().toString());
+            mAccount.setDisplayName(mDescription.getText().toString());
         }
-        mAccount.setName(mName.getText().toString());
-        mAccount.saveOrUpdate(this);
+        String name = mName.getText().toString();
+        mAccount.setSenderName(name);
+        ContentValues cv = new ContentValues();
+        cv.put(AccountColumns.DISPLAY_NAME, mAccount.getDisplayName());
+        cv.put(AccountColumns.SENDER_NAME, name);
+        mAccount.update(this, cv);
         MessageList.actionHandleAccount(this, mAccount.mId, EmailContent.Mailbox.TYPE_INBOX);
         finish();
     }

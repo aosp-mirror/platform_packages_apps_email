@@ -103,24 +103,24 @@ public class AccountSetupOptions extends Activity implements OnClickListener {
         mNotifyView.setChecked(
                 (mAccount.getFlags() & EmailContent.Account.FLAGS_NOTIFY_NEW_MAIL) != 0);
         SpinnerOption.setSpinnerOptionValue(mCheckFrequencyView, mAccount
-                .getAutomaticCheckIntervalMinutes());
+                .getSyncInterval());
     }
 
     private void onDone() {
-        mAccount.setDescription(mAccount.getEmail());
+        mAccount.setDisplayName(mAccount.getEmailAddress());
         int newFlags = mAccount.getFlags() & ~(EmailContent.Account.FLAGS_NOTIFY_NEW_MAIL);
         if (mNotifyView.isChecked()) {
             newFlags |= EmailContent.Account.FLAGS_NOTIFY_NEW_MAIL;
         }
         mAccount.setFlags(newFlags);
-        mAccount.setAutomaticCheckIntervalMinutes((Integer)((SpinnerOption)mCheckFrequencyView
+        mAccount.setSyncInterval((Integer)((SpinnerOption)mCheckFrequencyView
                 .getSelectedItem()).value);
         if (mSyncWindowView.getVisibility() == View.VISIBLE) {
             int window = (Integer)((SpinnerOption)mSyncWindowView.getSelectedItem()).value;
-            mAccount.setSyncWindow(window);
+            mAccount.setSyncLookback(window);
         }
         mAccount.setDefaultAccount(mDefaultView.isChecked());
-        mAccount.saveOrUpdate(this);
+        AccountSettingsUtils.commitSettings(this, mAccount);
         Email.setServicesEnabled(this);
         AccountSetupNames.actionSetNames(this, mAccount.mId);
         finish();
@@ -161,6 +161,6 @@ public class AccountSetupOptions extends Activity implements OnClickListener {
                 .setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
         mSyncWindowView.setAdapter(windowOptionsAdapter);
         
-        SpinnerOption.setSpinnerOptionValue(mSyncWindowView, mAccount.getSyncWindow());
+        SpinnerOption.setSpinnerOptionValue(mSyncWindowView, mAccount.getSyncLookback());
     }
 }

@@ -23,12 +23,14 @@ import com.android.exchange.EasSyncService;
 import com.android.exchange.MockParserStream;
 import com.android.exchange.SyncManager;
 import com.android.exchange.EmailContent.Account;
+import com.android.exchange.EmailContent.AccountColumns;
 import com.android.exchange.EmailContent.Mailbox;
 import com.android.exchange.EmailContent.MailboxColumns;
 
 import android.content.ContentProviderOperation;
 import android.content.ContentResolver;
 import android.content.ContentUris;
+import android.content.ContentValues;
 import android.content.Context;
 import android.content.OperationApplicationException;
 import android.database.Cursor;
@@ -147,7 +149,9 @@ public class EasFolderSyncParser extends EasParser {
             } else
                 skipTag();
         }
-        mAccount.saveOrUpdate(mContext);
+        ContentValues cv = new ContentValues();
+        cv.put(AccountColumns.SYNC_KEY, mAccount.mSyncKey);
+        mAccount.update(mContext, cv);
         return res;
     }
 
@@ -216,14 +220,14 @@ public class EasFolderSyncParser extends EasParser {
             m.mServerId = serverId;
             m.mAccountKey = mAccountId;
             m.mType = Mailbox.TYPE_MAIL;
-            m.mSyncFrequency = Account.CHECK_INTERVAL_NEVER;
+            m.mSyncInterval = Account.CHECK_INTERVAL_NEVER;
             switch (type) {
                 case INBOX_TYPE:
-                    m.mSyncFrequency = Account.CHECK_INTERVAL_PUSH;
+                    m.mSyncInterval = Account.CHECK_INTERVAL_PUSH;
                     m.mType = Mailbox.TYPE_INBOX;
                     break;
                 case OUTBOX_TYPE:
-                    m.mSyncFrequency = Account.CHECK_INTERVAL_NEVER;
+                    m.mSyncInterval = Account.CHECK_INTERVAL_NEVER;
                     // TYPE_OUTBOX mailboxes are known by SyncManager to sync whenever they aren't
                     // empty.  The value of mSyncFrequency is ignored for this kind of mailbox.
                     m.mType = Mailbox.TYPE_OUTBOX;
@@ -245,7 +249,7 @@ public class EasFolderSyncParser extends EasParser {
                 case CONTACTS_TYPE:
                     m.mType = Mailbox.TYPE_CONTACTS;
                     // TODO Frequency below should depend on settings
-                    m.mSyncFrequency = Account.CHECK_INTERVAL_PUSH;
+                    m.mSyncInterval = Account.CHECK_INTERVAL_PUSH;
                     break;
             }
 

@@ -127,8 +127,8 @@ public class AccountSetupAccountType extends Activity implements OnClickListener
         }
         // TODO: Confirm correct delete policy for exchange
         mAccount.setDeletePolicy(Account.DELETE_POLICY_ON_DELETE);
-        mAccount.setAutomaticCheckIntervalMinutes(Account.CHECK_INTERVAL_PUSH);
-        mAccount.setSyncWindow(1);
+        mAccount.setSyncInterval(Account.CHECK_INTERVAL_PUSH);
+        mAccount.setSyncLookback(1);
         AccountSetupExchange.actionIncomingSettings(this, mAccount, mMakeDefault);
         finish();
     }

@@ -101,7 +101,7 @@ public class AccountSetupAccountTypeUnitTests
     private EmailContent.Account createTestAccount(String scheme) {
         EmailContent.Account account = new EmailContent.Account();
         account.setStoreUri(mContext, scheme + "://user:pass@server.com:123");
-        account.saveOrUpdate(mContext);
+        account.save(mContext);
         mAccounts.add(account);
         return account;
     }

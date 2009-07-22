@@ -528,7 +528,7 @@ public class FolderMessageList extends ExpandableListActivity {
          * "User" means the user adjusts the sync window in the UI (load more messages).
          * Non-user means that it's set to a fixed window e.g. 3 days
          */
-        mSyncWindowUser = mAccount.getSyncWindow() == EmailContent.Account.SYNC_WINDOW_USER;
+        mSyncWindowUser = mAccount.getSyncLookback() == EmailContent.Account.SYNC_WINDOW_USER;
 
         /*
         mAdapter = new FolderMessageListAdapter();
@@ -555,7 +555,7 @@ public class FolderMessageList extends ExpandableListActivity {
         mLoadMailboxesTask = (LoadMailBoxesTask) new LoadMailBoxesTask(savedInstanceState);
         mLoadMailboxesTask.execute();
 
-        setTitle(mAccount.getDescription());
+        setTitle(mAccount.getDisplayName());
     }
 
     private void onRestoreListState(Bundle savedInstanceState) {

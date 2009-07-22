@@ -60,7 +60,8 @@ public class EmailProvider extends ContentProvider {
     // version 15: changed Address.pack() format.
     // version 16: added protocolVersion column to Account
     // version 17: prevent duplication of mailboxes with the same serverId
-    public static final int DATABASE_VERSION = 17;
+    // version 18: renamed syncFrequency to syncInterval for Account and Mailbox
+    public static final int DATABASE_VERSION = 18;
     public static final int BODY_DATABASE_VERSION = 1;
 
     public static final String EMAIL_AUTHORITY = "com.android.email.provider";
@@ -317,7 +318,7 @@ public class EmailProvider extends ContentProvider {
             + AccountColumns.EMAIL_ADDRESS + " text, "
             + AccountColumns.SYNC_KEY + " text, "
             + AccountColumns.SYNC_LOOKBACK + " integer, "
-            + AccountColumns.SYNC_FREQUENCY + " text, "
+            + AccountColumns.SYNC_INTERVAL + " text, "
             + AccountColumns.HOST_AUTH_KEY_RECV + " integer, "
             + AccountColumns.HOST_AUTH_KEY_SEND + " integer, "
             + AccountColumns.FLAGS + " integer, "
@@ -377,7 +378,7 @@ public class EmailProvider extends ContentProvider {
             + MailboxColumns.DELIMITER + " integer, "
             + MailboxColumns.SYNC_KEY + " text, "
             + MailboxColumns.SYNC_LOOKBACK + " integer, "
-            + MailboxColumns.SYNC_FREQUENCY+ " integer, "
+            + MailboxColumns.SYNC_INTERVAL + " integer, "
             + MailboxColumns.SYNC_TIME + " integer, "
             + MailboxColumns.UNREAD_COUNT + " integer, "
             + MailboxColumns.FLAG_VISIBLE + " integer, "

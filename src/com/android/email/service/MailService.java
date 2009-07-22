@@ -49,9 +49,12 @@ import java.util.HashMap;
 /**
  */
 public class MailService extends Service {
-    private static final String ACTION_CHECK_MAIL = "com.android.email.intent.action.MAIL_SERVICE_WAKEUP";
-    private static final String ACTION_RESCHEDULE = "com.android.email.intent.action.MAIL_SERVICE_RESCHEDULE";
-    private static final String ACTION_CANCEL = "com.android.email.intent.action.MAIL_SERVICE_CANCEL";
+    private static final String ACTION_CHECK_MAIL =
+        "com.android.email.intent.action.MAIL_SERVICE_WAKEUP";
+    private static final String ACTION_RESCHEDULE =
+        "com.android.email.intent.action.MAIL_SERVICE_RESCHEDULE";
+    private static final String ACTION_CANCEL =
+        "com.android.email.intent.action.MAIL_SERVICE_CANCEL";
     
     private static final String EXTRA_CHECK_ACCOUNT = "com.android.email.intent.extra.ACCOUNT";
 
@@ -121,7 +124,7 @@ public class MailService extends Service {
                 while (c.moveToNext()) {
                     EmailContent.Account account = EmailContent.getContent(c, 
                             EmailContent.Account.class);
-                    int interval = account.getAutomaticCheckIntervalMinutes();
+                    int interval = account.getSyncInterval();
                     String storeUri = account.getStoreUri(this);
                     if (interval > 0 || (storeUri != null && storeUri.equals(specificStoreUri))) {
                         accountsToCheck.add(account);
@@ -188,7 +191,7 @@ public class MailService extends Service {
             while (c.moveToNext()) {
                 EmailContent.Account account = EmailContent.getContent(c, 
                         EmailContent.Account.class);
-                int interval = account.getAutomaticCheckIntervalMinutes();
+                int interval = account.getSyncInterval();
                 if (interval > 0 && (interval < shortestInterval || shortestInterval == -1)) {
                     shortestInterval = interval;
                 }
@@ -289,7 +292,7 @@ public class MailService extends Service {
                             getResources().
                                 getQuantityString(R.plurals.notification_new_one_account_fmt,
                                     totalNewMails, totalNewMails,
-                                    account1.getDescription()), pi);
+                                    account1.getDisplayName()), pi);
                     vibrate = ((account1.getFlags() & EmailContent.Account.FLAGS_VIBRATE) != 0);
                     ringtone = account1.getRingtone();
                 }
@@ -328,8 +331,8 @@ public class MailService extends Service {
             }
         } catch (MessagingException me) {
             if (Config.LOGD && Email.DEBUG) {
-                Log.d(Email.LOG_TAG, "Failed to enable push mail for account" + account.getName() +
-                        " with exception " + me.toString());
+                Log.d(Email.LOG_TAG, "Failed to enable push mail for account" +
+                        account.getSenderName() + " with exception " + me.toString());
             }
         }
     }

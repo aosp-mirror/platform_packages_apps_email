@@ -104,28 +104,19 @@ public abstract class EmailContent {
         return null;
     }
     
-    /**
-     * Convenience method to save or update content.  Note:  This is designed to save or update
-     * a single row, not for any bulk changes.
-     */
-    public Uri saveOrUpdate(Context context) {
-        if (!isSaved()) {
-            return save(context);
-        } else {
-            if (update(context, toContentValues()) == 1) {
-                return getUri();
-            }
-            return null;
-        }
-    }
-    
     public Uri save(Context context) {
+        if (isSaved()) {
+            throw new UnsupportedOperationException();
+        }
         Uri res = context.getContentResolver().insert(mBaseUri, toContentValues());
         mId = Long.parseLong(res.getPathSegments().get(1));
         return res;
     }
     
     public int update(Context context, ContentValues contentValues) {
+        if (!isSaved()) {
+            throw new UnsupportedOperationException();
+        }
         return context.getContentResolver().update(getUri(), contentValues, null, null);
     }
     
@@ -163,15 +154,6 @@ public abstract class EmailContent {
 
     // All classes share this
     public static final String RECORD_ID = "_id";
-
-    static ContentProviderOperation.Builder getSaveOrUpdateBuilder(boolean doSave, 
-            Uri uri, long id) {
-        if (doSave) {
-            return ContentProviderOperation.newInsert(uri);
-        } else {
-            return ContentProviderOperation.newUpdate(ContentUris.withAppendedId(uri, id));
-        }
-    }
      
     public interface SyncColumns {
         // source (account name and type) : foreign key into the AccountsProvider
@@ -665,7 +647,7 @@ public abstract class EmailContent {
 
         public void addSaveOps(ArrayList<ContentProviderOperation> ops) {
             // First, save the message
-            ContentProviderOperation.Builder b = getSaveOrUpdateBuilder(true, mBaseUri, -1);
+            ContentProviderOperation.Builder b = ContentProviderOperation.newInsert(mBaseUri);
             ops.add(b.withValues(toContentValues()).build());
 
             // Create and save the body
@@ -676,7 +658,7 @@ public abstract class EmailContent {
             if (mHtml != null) {
                 cv.put(Body.HTML_CONTENT, mHtml);
             }
-            b = getSaveOrUpdateBuilder(true, Body.CONTENT_URI, 0);
+            b = ContentProviderOperation.newInsert(Body.CONTENT_URI);
             b.withValues(cv);
             ContentValues backValues = new ContentValues();
             int messageBackValue = ops.size() - 1;
@@ -686,7 +668,7 @@ public abstract class EmailContent {
             // Create the attaachments, if any
             if (mAttachments != null) {
                 for (Attachment att: mAttachments) {
-                    ops.add(getSaveOrUpdateBuilder(true, Attachment.CONTENT_URI, -1)
+                    ops.add(ContentProviderOperation.newInsert(Attachment.CONTENT_URI)
                         .withValues(att.toContentValues())
                         .withValueBackReference(Attachment.MESSAGE_KEY, messageBackValue)
                         .build());
@@ -749,7 +731,7 @@ public abstract class EmailContent {
         // The default sync lookback period for this account
         public static final String SYNC_LOOKBACK = "syncLookback";
         // The default sync frequency for this account
-        public static final String SYNC_FREQUENCY = "syncFrequency";
+        public static final String SYNC_INTERVAL = "syncInterval";
         // A foreign key into the account manager, having host, login, password, port, and ssl flags
         public static final String HOST_AUTH_KEY_RECV = "hostAuthKeyRecv";
         // (optional) A foreign key into the account manager, having host, login, password, port,
@@ -793,7 +775,7 @@ public abstract class EmailContent {
         public String mEmailAddress;
         public String mSyncKey;
         public int mSyncLookback;
-        public int mSyncFrequency;
+        public int mSyncInterval;
         public long mHostAuthKeyRecv; 
         public long mHostAuthKeySend;
         public int mFlags;
@@ -812,7 +794,7 @@ public abstract class EmailContent {
         public static final int CONTENT_EMAIL_ADDRESS_COLUMN = 2;
         public static final int CONTENT_SYNC_KEY_COLUMN = 3;
         public static final int CONTENT_SYNC_LOOKBACK_COLUMN = 4;
-        public static final int CONTENT_SYNC_FREQUENCY_COLUMN = 5;
+        public static final int CONTENT_SYNC_INTERVAL_COLUMN = 5;
         public static final int CONTENT_HOST_AUTH_KEY_RECV_COLUMN = 6;
         public static final int CONTENT_HOST_AUTH_KEY_SEND_COLUMN = 7;
         public static final int CONTENT_FLAGS_COLUMN = 8;
@@ -825,7 +807,7 @@ public abstract class EmailContent {
         public static final String[] CONTENT_PROJECTION = new String[] {
             RECORD_ID, AccountColumns.DISPLAY_NAME,
             AccountColumns.EMAIL_ADDRESS, AccountColumns.SYNC_KEY, AccountColumns.SYNC_LOOKBACK,
-            AccountColumns.SYNC_FREQUENCY, AccountColumns.HOST_AUTH_KEY_RECV,
+            AccountColumns.SYNC_INTERVAL, AccountColumns.HOST_AUTH_KEY_RECV,
             AccountColumns.HOST_AUTH_KEY_SEND, AccountColumns.FLAGS, AccountColumns.IS_DEFAULT,
             AccountColumns.COMPATIBILITY_UUID, AccountColumns.SENDER_NAME,
             AccountColumns.RINGTONE_URI, AccountColumns.PROTOCOL_VERSION
@@ -853,7 +835,7 @@ public abstract class EmailContent {
             
             // other defaults (policy)
             mRingtoneUri = "content://settings/system/notification_sound";
-            mSyncFrequency = -1;
+            mSyncInterval = -1;
             mSyncLookback = -1;
             mFlags = FLAGS_NOTIFY_NEW_MAIL;
             mCompatibilityUuid = UUID.randomUUID().toString();
@@ -901,7 +883,7 @@ public abstract class EmailContent {
             mEmailAddress = cursor.getString(CONTENT_EMAIL_ADDRESS_COLUMN);
             mSyncKey = cursor.getString(CONTENT_SYNC_KEY_COLUMN);
             mSyncLookback = cursor.getInt(CONTENT_SYNC_LOOKBACK_COLUMN);
-            mSyncFrequency = cursor.getInt(CONTENT_SYNC_FREQUENCY_COLUMN);
+            mSyncInterval = cursor.getInt(CONTENT_SYNC_INTERVAL_COLUMN);
             mHostAuthKeyRecv = cursor.getLong(CONTENT_HOST_AUTH_KEY_RECV_COLUMN);
             mHostAuthKeySend = cursor.getLong(CONTENT_HOST_AUTH_KEY_SEND_COLUMN);
             mFlags = cursor.getInt(CONTENT_FLAGS_COLUMN);
@@ -920,7 +902,7 @@ public abstract class EmailContent {
         /**
          * @return the user-visible name for the account
          */
-        public String getDescription() {
+        public String getDisplayName() {
             return mDisplayName;
         }
         
@@ -928,14 +910,14 @@ public abstract class EmailContent {
          * Set the description.  Be sure to call save() to commit to database.
          * @param description the new description
          */
-        public void setDescription(String description) {
+        public void setDisplayName(String description) {
             mDisplayName = description;
         }
         
         /**
          * @return the email address for this account
          */
-        public String getEmail() {
+        public String getEmailAddress() {
             return mEmailAddress;
         }
         
@@ -943,14 +925,14 @@ public abstract class EmailContent {
          * Set the Email address for this account.  Be sure to call save() to commit to database.
          * @param emailAddress the new email address for this account
          */
-        public void setEmail(String emailAddress) {
+        public void setEmailAddress(String emailAddress) {
             mEmailAddress = emailAddress;
         }
         
         /**
          * @return the sender's name for this account
          */
-        public String getName() {
+        public String getSenderName() {
             return mSenderName;
         }
         
@@ -958,7 +940,7 @@ public abstract class EmailContent {
          * Set the sender's name.  Be sure to call save() to commit to database.
          * @param name the new sender name
          */
-        public void setName(String name) {
+        public void setSenderName(String name) {
             mSenderName = name;
         }
         
@@ -966,9 +948,9 @@ public abstract class EmailContent {
          * @return the minutes per check (for polling)
          * TODO define sentinel values for "never", "push", etc.  See Account.java
          */
-        public int getAutomaticCheckIntervalMinutes()
+        public int getSyncInterval()
         {
-            return mSyncFrequency;
+            return mSyncInterval;
         }
         
         /**
@@ -976,16 +958,16 @@ public abstract class EmailContent {
          * TODO define sentinel values for "never", "push", etc.  See Account.java
          * @param minutes the number of minutes between polling checks
          */
-        public void setAutomaticCheckIntervalMinutes(int minutes)
+        public void setSyncInterval(int minutes)
         {
-            mSyncFrequency = minutes;
+            mSyncInterval = minutes;
         }
         
         /**
          * @return the sync lookback window in # of days
          * TODO define sentinel values for "all", "1 month", etc.  See Account.java
          */
-        public int getSyncWindow() {
+        public int getSyncLookback() {
             return mSyncLookback;
         }
         
@@ -994,7 +976,7 @@ public abstract class EmailContent {
          * TODO define sentinel values for "all", "1 month", etc.  See Account.java
          * @param days number of days to look back for syncing messages
          */
-        public void setSyncWindow(int days) {
+        public void setSyncLookback(int days) {
             mSyncLookback = days;
         }
         
@@ -1190,22 +1172,6 @@ public abstract class EmailContent {
             }
             return id;
         }
-
-        /**
-         * Do not use Account.save().  Use Account.saveOrUpdate()
-         */
-        @Override 
-        public Uri save(Context context) {
-            throw new UnsupportedOperationException();
-        }
-        
-        /**
-         * Do not use Account.update().  Use Account.saveOrUpdate()
-         */
-        @Override 
-        public int update(Context context, ContentValues contentValues) {
-            throw new UnsupportedOperationException();
-        }
         
         /* 
          * Override this so that we can store the HostAuth's first and link them to the Account
@@ -1213,22 +1179,15 @@ public abstract class EmailContent {
          * @see com.android.email.provider.EmailContent#save(android.content.Context)
          */
         @Override 
-        public Uri saveOrUpdate(Context context) {
-            
-            boolean doSave = !isSaved();
-            
+        public Uri save(Context context) {
+            if (isSaved()) {
+                throw new UnsupportedOperationException();
+            }
             // This logic is in place so I can (a) short circuit the expensive stuff when
             // possible, and (b) override (and throw) if anyone tries to call save() or update()
             // directly for Account, which are unsupported.
             if (mHostAuthRecv == null && mHostAuthSend == null && mIsDefault == false) {
-                if (doSave) {
                     return super.save(context);
-                } else {
-                    if (super.update(context, toContentValues()) == 1) {
-                        return getUri();
-                    }
-                    return null;
-                }
             }
             
             int index = 0;
@@ -1240,13 +1199,13 @@ public abstract class EmailContent {
             ArrayList<ContentProviderOperation> ops = new ArrayList<ContentProviderOperation>();
             if (mHostAuthRecv != null) {
                 recvIndex = index++;
-                ops.add(getSaveOrUpdateBuilder(doSave, mHostAuthRecv.mBaseUri, mHostAuthRecv.mId)
+                ops.add(ContentProviderOperation.newInsert(mHostAuthRecv.mBaseUri)
                         .withValues(mHostAuthRecv.toContentValues())
                         .build());
             }
             if (mHostAuthSend != null) {
                 sendIndex = index++;
-                ops.add(getSaveOrUpdateBuilder(doSave, mHostAuthSend.mBaseUri, mHostAuthSend.mId)
+                ops.add(ContentProviderOperation.newInsert(mHostAuthRecv.mBaseUri)
                         .withValues(mHostAuthSend.toContentValues())
                         .build());
             }
@@ -1262,7 +1221,7 @@ public abstract class EmailContent {
 
             // Now do the Account
             ContentValues cv = null;
-            if (doSave && (recvIndex >= 0 || sendIndex >= 0)) {
+            if (recvIndex >= 0 || sendIndex >= 0) {
                 cv = new ContentValues();
                 if (recvIndex >= 0) {
                     cv.put(Account.HOST_AUTH_KEY_RECV, recvIndex);
@@ -1272,34 +1231,30 @@ public abstract class EmailContent {
                 }
             }
 
-            ContentProviderOperation.Builder b = getSaveOrUpdateBuilder(doSave, mBaseUri, mId);
+            ContentProviderOperation.Builder b = ContentProviderOperation.newInsert(mBaseUri);
             b.withValues(toContentValues());
             if (cv != null) {
                 b.withValueBackReferences(cv);
             }
             ops.add(b.build());
-            
+
             try {
                 ContentProviderResult[] results = 
                     context.getContentResolver().applyBatch(EmailProvider.EMAIL_AUTHORITY, ops);
                 // If saving, set the mId's of the various saved objects
-                if (doSave) {
-                    if (recvIndex >= 0) {
-                        long newId = getId(results[recvIndex].uri);
-                        mHostAuthKeyRecv = newId;
-                        mHostAuthRecv.mId = newId;
-                    }
-                    if (sendIndex >= 0) {
-                        long newId = getId(results[sendIndex].uri);
-                        mHostAuthKeySend = newId;
-                        mHostAuthSend.mId = newId;
-                    }
-                    Uri u = results[index].uri;
-                    mId = getId(u);
-                    return u;
-                } else {
-                    return null;
+                if (recvIndex >= 0) {
+                    long newId = getId(results[recvIndex].uri);
+                    mHostAuthKeyRecv = newId;
+                    mHostAuthRecv.mId = newId;
                 }
+                if (sendIndex >= 0) {
+                    long newId = getId(results[sendIndex].uri);
+                    mHostAuthKeySend = newId;
+                    mHostAuthSend.mId = newId;
+                }
+                Uri u = results[index].uri;
+                mId = getId(u);
+                return u;
             } catch (RemoteException e) {
                 // There is nothing to be done here; fail by returning null
             } catch (OperationApplicationException e) {
@@ -1315,7 +1270,7 @@ public abstract class EmailContent {
             values.put(AccountColumns.EMAIL_ADDRESS, mEmailAddress);
             values.put(AccountColumns.SYNC_KEY, mSyncKey);
             values.put(AccountColumns.SYNC_LOOKBACK, mSyncLookback);
-            values.put(AccountColumns.SYNC_FREQUENCY, mSyncFrequency);
+            values.put(AccountColumns.SYNC_INTERVAL, mSyncInterval);
             values.put(AccountColumns.HOST_AUTH_KEY_RECV, mHostAuthKeyRecv);
             values.put(AccountColumns.HOST_AUTH_KEY_SEND, mHostAuthKeySend);
             values.put(AccountColumns.FLAGS, mFlags);
@@ -1387,7 +1342,7 @@ public abstract class EmailContent {
             dest.writeString(mEmailAddress);
             dest.writeString(mSyncKey);
             dest.writeInt(mSyncLookback);
-            dest.writeInt(mSyncFrequency);
+            dest.writeInt(mSyncInterval);
             dest.writeLong(mHostAuthKeyRecv); 
             dest.writeLong(mHostAuthKeySend);
             dest.writeInt(mFlags);
@@ -1421,7 +1376,7 @@ public abstract class EmailContent {
             mEmailAddress = in.readString();
             mSyncKey = in.readString();
             mSyncLookback = in.readInt();
-            mSyncFrequency = in.readInt();
+            mSyncInterval = in.readInt();
             mHostAuthKeyRecv = in.readLong(); 
             mHostAuthKeySend = in.readLong();
             mFlags = in.readInt();
@@ -1666,7 +1621,7 @@ public abstract class EmailContent {
         // The sync lookback period for this mailbox (or null if using the account default)
         public static final String SYNC_LOOKBACK = "syncLookback";
         // The sync frequency for this mailbox (or null if using the account default)
-        public static final String SYNC_FREQUENCY = "syncFrequency";
+        public static final String SYNC_INTERVAL = "syncInterval";
         // The time of last successful sync completion (millis)
         public static final String SYNC_TIME = "syncTime";
         // Cached unread count
@@ -1691,7 +1646,7 @@ public abstract class EmailContent {
         public int mDelimiter;
         public String mSyncKey;
         public int mSyncLookback;
-        public int mSyncFrequency;
+        public int mSyncInterval;
         public long mSyncTime;
         public int mUnreadCount;
         public boolean mFlagVisible = true;
@@ -1707,7 +1662,7 @@ public abstract class EmailContent {
         public static final int CONTENT_DELIMITER_COLUMN = 6;
         public static final int CONTENT_SYNC_KEY_COLUMN = 7;
         public static final int CONTENT_SYNC_LOOKBACK_COLUMN = 8;
-        public static final int CONTENT_SYNC_FREQUENCY_COLUMN = 9;
+        public static final int CONTENT_SYNC_INTERVAL_COLUMN = 9;
         public static final int CONTENT_SYNC_TIME_COLUMN = 10;
         public static final int CONTENT_UNREAD_COUNT_COLUMN = 11;
         public static final int CONTENT_FLAG_VISIBLE_COLUMN = 12;
@@ -1717,7 +1672,7 @@ public abstract class EmailContent {
             RECORD_ID, MailboxColumns.DISPLAY_NAME, MailboxColumns.SERVER_ID,
             MailboxColumns.PARENT_SERVER_ID, MailboxColumns.ACCOUNT_KEY, MailboxColumns.TYPE,
             MailboxColumns.DELIMITER, MailboxColumns.SYNC_KEY, MailboxColumns.SYNC_LOOKBACK,
-            MailboxColumns.SYNC_FREQUENCY, MailboxColumns.SYNC_TIME,MailboxColumns.UNREAD_COUNT,
+            MailboxColumns.SYNC_INTERVAL, MailboxColumns.SYNC_TIME,MailboxColumns.UNREAD_COUNT,
             MailboxColumns.FLAG_VISIBLE, MailboxColumns.FLAGS, MailboxColumns.VISIBLE_LIMIT
         };
         public static final long NO_MAILBOX = -1;
@@ -1798,7 +1753,7 @@ public abstract class EmailContent {
             mDelimiter = cursor.getInt(CONTENT_DELIMITER_COLUMN);
             mSyncKey = cursor.getString(CONTENT_SYNC_KEY_COLUMN);
             mSyncLookback = cursor.getInt(CONTENT_SYNC_LOOKBACK_COLUMN);
-            mSyncFrequency = cursor.getInt(CONTENT_SYNC_FREQUENCY_COLUMN);
+            mSyncInterval = cursor.getInt(CONTENT_SYNC_INTERVAL_COLUMN);
             mSyncTime = cursor.getLong(CONTENT_SYNC_TIME_COLUMN);
             mUnreadCount = cursor.getInt(CONTENT_UNREAD_COUNT_COLUMN);
             mFlagVisible = cursor.getInt(CONTENT_FLAG_VISIBLE_COLUMN) == 1;
@@ -1818,7 +1773,7 @@ public abstract class EmailContent {
             values.put(MailboxColumns.DELIMITER, mDelimiter);            
             values.put(MailboxColumns.SYNC_KEY, mSyncKey);           
             values.put(MailboxColumns.SYNC_LOOKBACK, mSyncLookback);         
-            values.put(MailboxColumns.SYNC_FREQUENCY, mSyncFrequency);           
+            values.put(MailboxColumns.SYNC_INTERVAL, mSyncInterval);           
             values.put(MailboxColumns.SYNC_TIME, mSyncTime);         
             values.put(MailboxColumns.UNREAD_COUNT, mUnreadCount);           
             values.put(MailboxColumns.FLAG_VISIBLE, mFlagVisible);           

@@ -593,7 +593,7 @@ public class MessageCompose extends Activity implements OnClickListener, OnFocus
     private EmailContent.Message createMessage() throws MessagingException {
         EmailContent.Message message = new EmailContent.Message();
         message.mTimeStamp = System.currentTimeMillis();
-        message.mFrom = new Address(mAccount.getEmail(), mAccount.getName()).pack();
+        message.mFrom = new Address(mAccount.getEmailAddress(), mAccount.getSenderName()).pack();
         message.mTo = getPackedAddresses(mToView);
         message.mCc = getPackedAddresses(mCcView);
         message.mBcc = getPackedAddresses(mBccView);
@@ -1156,7 +1156,7 @@ public class MessageCompose extends Activity implements OnClickListener, OnFocus
                 }
                 if (ACTION_REPLY_ALL.equals(action)) {
                     for (Address address : message.getRecipients(RecipientType.TO)) {
-                        if (!address.getAddress().equalsIgnoreCase(mAccount.getEmail())) {
+                        if (!address.getAddress().equalsIgnoreCase(mAccount.getEmailAddress())) {
                             addAddress(mToView, address.toString());
                         }
                     }

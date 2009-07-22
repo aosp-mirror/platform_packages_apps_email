@@ -20,6 +20,7 @@ package com.android.exchange;
 import com.android.email.mail.AuthenticationFailedException;
 import com.android.email.mail.MessagingException;
 import com.android.exchange.EmailContent.Account;
+import com.android.exchange.EmailContent.AccountColumns;
 import com.android.exchange.EmailContent.Attachment;
 import com.android.exchange.EmailContent.AttachmentColumns;
 import com.android.exchange.EmailContent.HostAuth;
@@ -74,10 +75,10 @@ public class EasSyncService extends InteractiveSyncService {
     private static final String WINDOW_SIZE = "10";
     private static final String WHERE_ACCOUNT_KEY_AND_SERVER_ID =
         MailboxColumns.ACCOUNT_KEY + "=? and " + MailboxColumns.SERVER_ID + "=?";
-    private static final String WHERE_SYNC_FREQUENCY_PING =
-        Mailbox.SYNC_FREQUENCY + '=' + Account.CHECK_INTERVAL_PING;
+    private static final String WHERE_SYNC_INTERVAL_PING =
+        Mailbox.SYNC_INTERVAL + '=' + Account.CHECK_INTERVAL_PING;
     private static final String AND_FREQUENCY_PING_PUSH_AND_NOT_ACCOUNT_MAILBOX = " AND " +
-        MailboxColumns.SYNC_FREQUENCY + " IN (" + Account.CHECK_INTERVAL_PING +
+        MailboxColumns.SYNC_INTERVAL + " IN (" + Account.CHECK_INTERVAL_PING +
         ',' + Account.CHECK_INTERVAL_PUSH + ") AND " + MailboxColumns.SERVER_ID + "!=\"" +
         Eas.ACCOUNT_MAILBOX + '\"';
     
@@ -390,14 +391,16 @@ public class EasSyncService extends InteractiveSyncService {
             if (mAccount.mSyncKey == null) {
                 mAccount.mSyncKey = "0";
                 userLog("Account syncKey RESET");
-                mAccount.saveOrUpdate(mContext);
+                ContentValues cv = new ContentValues();
+                cv.put(AccountColumns.SYNC_KEY, mAccount.mSyncKey);
+                mAccount.update(mContext, cv);
             }
 
             // When we first start up, change all ping mailboxes to push.
             ContentValues cv = new ContentValues();
-            cv.put(Mailbox.SYNC_FREQUENCY, Account.CHECK_INTERVAL_PUSH);
+            cv.put(Mailbox.SYNC_INTERVAL, Account.CHECK_INTERVAL_PUSH);
             if (mContentResolver.update(Mailbox.CONTENT_URI, cv,
-                    WHERE_SYNC_FREQUENCY_PING, null) > 0) {
+                    WHERE_SYNC_INTERVAL_PING, null) > 0) {
                 SyncManager.kick();
             }
 
@@ -693,7 +696,7 @@ public class EasSyncService extends InteractiveSyncService {
             if (mailbox.mSyncKey == null) {
                 userLog("Mailbox syncKey RESET");
                 mailbox.mSyncKey = "0";
-                mailbox.mSyncFrequency = Account.CHECK_INTERVAL_PUSH;
+                mailbox.mSyncInterval = Account.CHECK_INTERVAL_PUSH;
             }
             String className = target.getCollectionName();
             userLog("Sending " + className + " syncKey: " + mailbox.mSyncKey);

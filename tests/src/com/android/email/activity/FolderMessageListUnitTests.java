@@ -135,7 +135,7 @@ public class FolderMessageListUnitTests extends AndroidTestCase {
      */
     private void createTestAccount() {
         mAccount = new EmailContent.Account();
-        mAccount.saveOrUpdate(getContext());
+        mAccount.save(getContext());
         
         mAccountId = mAccount.mId;
     }
