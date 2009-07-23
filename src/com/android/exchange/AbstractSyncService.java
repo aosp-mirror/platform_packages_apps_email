@@ -17,18 +17,18 @@
 
 package com.android.exchange;
 
-import java.util.ArrayList;
-
 import com.android.email.Email;
 import com.android.email.mail.MessagingException;
-import com.android.exchange.EmailContent.Account;
-import com.android.exchange.EmailContent.Mailbox;
+import com.android.email.provider.EmailContent.Account;
+import com.android.email.provider.EmailContent.Mailbox;
 
 import android.content.Context;
 import android.net.ConnectivityManager;
 import android.net.NetworkInfo;
 import android.net.NetworkInfo.DetailedState;
 import android.util.Log;
+
+import java.util.ArrayList;
 
 /**
  * Base class for all protocol services SyncManager (extends Service, implements

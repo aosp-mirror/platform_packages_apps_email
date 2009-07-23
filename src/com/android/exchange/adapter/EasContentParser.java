@@ -17,18 +17,17 @@
 
 package com.android.exchange.adapter;
 
-import java.io.IOException;
-import java.io.InputStream;
+import com.android.email.provider.EmailContent.Account;
+import com.android.email.provider.EmailContent.Mailbox;
+import com.android.email.provider.EmailContent.MailboxColumns;
+import com.android.exchange.EasSyncService;
 
 import android.content.ContentResolver;
 import android.content.ContentValues;
 import android.content.Context;
 
-import com.android.exchange.EasSyncService;
-import com.android.exchange.EmailContent.Account;
-import com.android.exchange.EmailContent.AccountColumns;
-import com.android.exchange.EmailContent.Mailbox;
-import com.android.exchange.EmailContent.MailboxColumns;
+import java.io.IOException;
+import java.io.InputStream;
 
 /**
  * Base class for the Email and PIM sync parsers

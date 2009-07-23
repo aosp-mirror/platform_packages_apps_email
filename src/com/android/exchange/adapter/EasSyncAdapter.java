@@ -17,11 +17,11 @@
 
 package com.android.exchange.adapter;
 
+import com.android.email.provider.EmailContent.Mailbox;
+import com.android.exchange.EasSyncService;
+
 import java.io.ByteArrayInputStream;
 import java.io.IOException;
-
-import com.android.exchange.EasSyncService;
-import com.android.exchange.EmailContent.Mailbox;
 
 /**
  * Parent class of all sync adapters (EasMailbox, EasCalendar, and EasContacts)

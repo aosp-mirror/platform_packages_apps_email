@@ -17,10 +17,8 @@
 
 package com.android.exchange.adapter;
 
-import java.io.ByteArrayInputStream;
-import java.io.IOException;
-import java.io.InputStream;
-import java.util.ArrayList;
+import com.android.email.provider.EmailContent.Mailbox;
+import com.android.exchange.EasSyncService;
 
 import android.content.ContentProviderOperation;
 import android.content.ContentUris;
@@ -30,8 +28,10 @@ import android.net.Uri;
 import android.provider.Contacts;
 import android.provider.Contacts.People;
 
-import com.android.exchange.EasSyncService;
-import com.android.exchange.EmailContent.Mailbox;
+import java.io.ByteArrayInputStream;
+import java.io.IOException;
+import java.io.InputStream;
+import java.util.ArrayList;
 
 /**
  * Sync adapter for EAS Contacts

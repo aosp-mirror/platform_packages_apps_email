@@ -17,14 +17,15 @@
 
 package com.android.exchange.adapter;
 
+import com.android.email.mail.Address;
 import com.android.email.provider.EmailProvider;
+import com.android.email.provider.EmailContent.Attachment;
+import com.android.email.provider.EmailContent.Mailbox;
+import com.android.email.provider.EmailContent.Message;
+import com.android.email.provider.EmailContent.MessageColumns;
+import com.android.email.provider.EmailContent.SyncColumns;
 import com.android.exchange.Eas;
 import com.android.exchange.EasSyncService;
-import com.android.exchange.EmailContent.Attachment;
-import com.android.exchange.EmailContent.Mailbox;
-import com.android.exchange.EmailContent.Message;
-import com.android.exchange.EmailContent.MessageColumns;
-import com.android.exchange.EmailContent.SyncColumns;
 
 import android.content.ContentProviderOperation;
 import android.content.ContentResolver;
@@ -97,12 +98,6 @@ public class EasEmailSyncAdapter extends EasSyncAdapter {
         }
 
         public void addData (Message msg) throws IOException {
-            String to = "";
-            String from = "";
-            String cc = "";
-            String replyTo = "";
-            int size = 0;
-
             ArrayList<Attachment> atts = new ArrayList<Attachment>();
 
             while (nextTag(EasTags.SYNC_APPLICATION_DATA) != END) {
@@ -111,10 +106,10 @@ public class EasEmailSyncAdapter extends EasSyncAdapter {
                         attachmentsParser(atts, msg);
                         break;
                     case EasTags.EMAIL_TO:
-                        to = getValue();
+                        msg.mTo = Address.pack(Address.parse(getValue()));
                         break;
                     case EasTags.EMAIL_FROM:
-                        from = getValue();
+                        String from = getValue();
                         String sender = from;
                         int q = from.indexOf('\"');
                         if (q >= 0) {
@@ -124,12 +119,13 @@ public class EasEmailSyncAdapter extends EasSyncAdapter {
                             }
                         }
                         msg.mDisplayName = sender;
+                        msg.mFrom = Address.pack(Address.parse(from));
                         break;
                     case EasTags.EMAIL_CC:
-                        cc = getValue();
+                        msg.mCc = Address.pack(Address.parse(getValue()));
                         break;
                     case EasTags.EMAIL_REPLY_TO:
-                        replyTo = getValue();
+                        msg.mReplyTo = Address.pack(Address.parse(getValue()));
                         break;
                     case EasTags.EMAIL_DATE_RECEIVED:
                         String date = getValue();
@@ -156,26 +152,20 @@ public class EasEmailSyncAdapter extends EasSyncAdapter {
                         msg.mFlagFavorite = flagParser();
                         break;
                     case EasTags.EMAIL_BODY:
-                        msg.mTextInfo = "X;X;8;" + size; // location;encoding;charset;size
-                        msg.mText = getValue();
-                        // For now...
-                        msg.mPreview = "Fake preview"; // Messages.previewFromText(body);
+                        String text = getValue();
+                        msg.mText = text;
+                        msg.mTextInfo = "X;X;8;" + text.length(); // location;encoding;charset;size
                         break;
                     default:
                         skipTag();
                 }
             }
 
-            msg.mTo = to;
-            msg.mFrom = from;
-            msg.mCc = cc;
-            msg.mReplyTo = replyTo;
             if (atts.size() > 0) {
                 msg.mAttachments = atts;
             }
-
         }
-        
+
         private void addParser(ArrayList<Message> emails) throws IOException {
             Message msg = new Message();
             msg.mAccountKey = mAccount.mId;

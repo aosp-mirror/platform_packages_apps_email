@@ -28,10 +28,7 @@ import com.android.email.mail.Store;
 import com.android.email.mail.StoreSynchronizer;
 import com.android.email.service.EmailServiceProxy;
 import com.android.exchange.Eas;
-import com.android.exchange.IEmailService;
-import com.android.exchange.IEmailServiceCallback;
 import com.android.exchange.SyncManager;
-import com.android.exchange.EmailContent.Attachment;
 
 import android.accounts.AccountManager;
 import android.accounts.AuthenticatorException;
@@ -40,7 +37,6 @@ import android.accounts.Future2Callback;
 import android.accounts.OperationCanceledException;
 import android.content.Context;
 import android.os.Bundle;
-import android.os.IBinder;
 import android.os.RemoteException;
 import android.text.TextUtils;
 import android.util.Config;

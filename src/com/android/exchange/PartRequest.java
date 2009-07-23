@@ -17,11 +17,11 @@
 
 package com.android.exchange;
 
+import com.android.email.provider.EmailContent.Attachment;
+
 import android.os.IBinder;
 import android.os.RemoteException;
 import android.util.Log;
-
-import com.android.exchange.EmailContent.Attachment;
 
 /**
  * PartRequest is the EAS wrapper for attachment loading requests.  In addition to information about

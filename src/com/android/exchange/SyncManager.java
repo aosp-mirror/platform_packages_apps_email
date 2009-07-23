@@ -18,14 +18,15 @@
 package com.android.exchange;
 
 import com.android.email.mail.MessagingException;
-import com.android.exchange.EmailContent.Account;
-import com.android.exchange.EmailContent.Attachment;
-import com.android.exchange.EmailContent.HostAuth;
-import com.android.exchange.EmailContent.Mailbox;
-import com.android.exchange.EmailContent.MailboxColumns;
-import com.android.exchange.EmailContent.Message;
-import com.android.exchange.EmailContent.MessageColumns;
-import com.android.exchange.EmailContent.SyncColumns;
+import com.android.email.provider.EmailContent;
+import com.android.email.provider.EmailContent.Account;
+import com.android.email.provider.EmailContent.Attachment;
+import com.android.email.provider.EmailContent.HostAuth;
+import com.android.email.provider.EmailContent.Mailbox;
+import com.android.email.provider.EmailContent.MailboxColumns;
+import com.android.email.provider.EmailContent.Message;
+import com.android.email.provider.EmailContent.MessageColumns;
+import com.android.email.provider.EmailContent.SyncColumns;
 import com.android.exchange.adapter.EasOutboxService;
 
 import android.app.AlarmManager;

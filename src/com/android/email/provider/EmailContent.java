@@ -17,7 +17,6 @@
 package com.android.email.provider;
 
 import com.android.email.R;
-import com.android.exchange.EmailContent.AccountColumns;
 
 import android.content.ContentProviderOperation;
 import android.content.ContentProviderResult;

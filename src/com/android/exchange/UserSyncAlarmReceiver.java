@@ -17,11 +17,9 @@
 
 package com.android.exchange;
 
-import java.util.ArrayList;
-
-import com.android.exchange.EmailContent.Message;
-import com.android.exchange.EmailContent.MessageColumns;
-import com.android.exchange.EmailContent.SyncColumns;
+import com.android.email.provider.EmailContent.Message;
+import com.android.email.provider.EmailContent.MessageColumns;
+import com.android.email.provider.EmailContent.SyncColumns;
 
 import android.content.BroadcastReceiver;
 import android.content.ContentResolver;
@@ -29,6 +27,8 @@ import android.content.Context;
 import android.content.Intent;
 import android.database.Cursor;
 import android.util.Log;
+
+import java.util.ArrayList;
 
 /**
  * UserSyncAlarmReceiver (USAR) is used by the SyncManager to start up-syncs of user-modified data

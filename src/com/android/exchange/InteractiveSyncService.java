@@ -17,10 +17,10 @@
 
 package com.android.exchange;
 
-import android.content.Context;
+import com.android.email.provider.EmailContent.Attachment;
+import com.android.email.provider.EmailContent.Mailbox;
 
-import com.android.exchange.EmailContent.Attachment;
-import com.android.exchange.EmailContent.Mailbox;
+import android.content.Context;
 
 /**
  * The parent class of all SyncServices that are interactive (i.e. need to

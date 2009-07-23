@@ -17,6 +17,18 @@
 
 package com.android.exchange.utility;
 
+import com.android.email.provider.EmailContent.Account;
+import com.android.email.provider.EmailContent.Attachment;
+import com.android.email.provider.EmailContent.Body;
+import com.android.email.provider.EmailContent.Message;
+
+import android.content.ContentUris;
+import android.content.Context;
+import android.database.Cursor;
+import android.net.Uri;
+import android.text.Html;
+import android.text.SpannedString;
+
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.IOException;
@@ -25,18 +37,6 @@ import java.io.StringWriter;
 import java.io.Writer;
 import java.text.SimpleDateFormat;
 import java.util.Date;
-
-import com.android.exchange.EmailContent.Account;
-import com.android.exchange.EmailContent.Attachment;
-import com.android.exchange.EmailContent.Body;
-import com.android.exchange.EmailContent.Message;
-
-import android.content.ContentUris;
-import android.content.Context;
-import android.database.Cursor;
-import android.net.Uri;
-import android.text.Html;
-import android.text.SpannedString;
 
 /**
  * Generates RFC822 formatted message data from a Message object.  This functionality is also needed

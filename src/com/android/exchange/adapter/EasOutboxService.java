@@ -17,21 +17,21 @@
 
 package com.android.exchange.adapter;
 
-import java.io.IOException;
-import java.net.HttpURLConnection;
-
+import com.android.email.provider.EmailContent.HostAuth;
+import com.android.email.provider.EmailContent.Mailbox;
+import com.android.email.provider.EmailContent.Message;
+import com.android.email.provider.EmailContent.MessageColumns;
 import com.android.exchange.EasSyncService;
 import com.android.exchange.SyncManager;
-import com.android.exchange.EmailContent.HostAuth;
-import com.android.exchange.EmailContent.Mailbox;
-import com.android.exchange.EmailContent.Message;
-import com.android.exchange.EmailContent.MessageColumns;
 import com.android.exchange.utility.Rfc822Formatter;
 
 import android.content.ContentUris;
 import android.content.ContentValues;
 import android.content.Context;
 import android.database.Cursor;
+
+import java.io.IOException;
+import java.net.HttpURLConnection;
 
 public class EasOutboxService extends EasSyncService {
 

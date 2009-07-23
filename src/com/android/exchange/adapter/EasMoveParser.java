@@ -17,13 +17,13 @@
 
 package com.android.exchange.adapter;
 
-import java.io.IOException;
-import java.io.InputStream;
+import com.android.email.provider.EmailContent.Mailbox;
+import com.android.exchange.EasSyncService;
 
 import android.util.Log;
 
-import com.android.exchange.EasSyncService;
-import com.android.exchange.EmailContent.Mailbox;
+import java.io.IOException;
+import java.io.InputStream;
 
 /**
  * Parse the result of a Move command
