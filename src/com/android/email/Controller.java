@@ -19,7 +19,15 @@ package com.android.email;
 import com.android.email.mail.MessagingException;
 import com.android.email.mail.Store;
 import com.android.email.provider.EmailContent;
+import com.android.email.provider.EmailContent.Account;
+import com.android.email.provider.EmailContent.Attachment;
 import com.android.email.provider.EmailContent.Mailbox;
+import com.android.email.provider.EmailContent.Message;
+import com.android.email.service.EmailServiceProxy;
+import com.android.exchange.EmailServiceStatus;
+import com.android.exchange.IEmailService;
+import com.android.exchange.IEmailServiceCallback;
+import com.android.exchange.SyncManager;
 
 import android.content.ContentResolver;
 import android.content.ContentUris;
@@ -27,6 +35,7 @@ import android.content.ContentValues;
 import android.content.Context;
 import android.database.Cursor;
 import android.net.Uri;
+import android.os.RemoteException;
 import android.util.Log;
 
 import java.util.HashSet;
@@ -213,22 +222,22 @@ public class Controller {
     /* package */ String getSpecialMailboxDisplayName(int mailboxType) {
         int resId = -1;
         switch (mailboxType) {
-        case Mailbox.TYPE_INBOX:
-            // TODO: there is no special_mailbox_display_name_inbox; why?
-            resId = R.string.special_mailbox_name_inbox;
-            break;
-        case Mailbox.TYPE_OUTBOX:
-            resId = R.string.special_mailbox_display_name_outbox;
-            break;
-        case Mailbox.TYPE_DRAFTS:
-            resId = R.string.special_mailbox_display_name_drafts;
-            break;
-        case Mailbox.TYPE_TRASH:
-            resId = R.string.special_mailbox_display_name_trash;
-            break;
-        case Mailbox.TYPE_SENT:
-            resId = R.string.special_mailbox_display_name_sent;
-            break;
+            case Mailbox.TYPE_INBOX:
+                // TODO: there is no special_mailbox_display_name_inbox; why?
+                resId = R.string.special_mailbox_name_inbox;
+                break;
+            case Mailbox.TYPE_OUTBOX:
+                resId = R.string.special_mailbox_display_name_outbox;
+                break;
+            case Mailbox.TYPE_DRAFTS:
+                resId = R.string.special_mailbox_display_name_drafts;
+                break;
+            case Mailbox.TYPE_TRASH:
+                resId = R.string.special_mailbox_display_name_trash;
+                break;
+            case Mailbox.TYPE_SENT:
+                resId = R.string.special_mailbox_display_name_sent;
+                break;
         }
         return resId != -1 ? mContext.getString(resId) : "";
     }
@@ -268,7 +277,7 @@ public class Controller {
      * TODO: "get account a for message m" should be a utility
      * TODO: "get mailbox of type n for account a" should be a utility
      */
-     public void deleteMessage(long messageId, long accountId) {
+    public void deleteMessage(long messageId, long accountId) {
         ContentResolver resolver = mProviderContext.getContentResolver();
 
         // 1.  Look up acct# for message we're deleting
@@ -320,7 +329,92 @@ public class Controller {
     }
 
     /**
+     * Set/clear the unread status of a message
+     *
+     * @param messageId the message to update
+     * @param isRead the new value for the isRead flag
+     */
+    public void setMessageRead(long messageId, boolean isRead) {
+        // TODO this should not be in this thread. queue it up.
+        // TODO Also, it needs to update the read/unread count in the mailbox
+        // TODO kick off service/messagingcontroller actions
+
+        ContentValues cv = new ContentValues();
+        cv.put(EmailContent.MessageColumns.FLAG_READ, isRead);
+        Uri uri = ContentUris.withAppendedId(
+                EmailContent.Message.SYNCED_CONTENT_URI, messageId);
+        mProviderContext.getContentResolver().update(uri, cv, null, null);
+    }
+
+    /**
+     * Set/clear the favorite status of a message
+     *
+     * @param messageId the message to update
+     * @param isFavorite the new value for the isFavorite flag
+     */
+    public void setMessageFavorite(long messageId, boolean isFavorite) {
+        // TODO this should not be in this thread. queue it up.
+        // TODO kick off service/messagingcontroller actions
+
+        ContentValues cv = new ContentValues();
+        cv.put(EmailContent.MessageColumns.FLAG_FAVORITE, isFavorite);
+        Uri uri = ContentUris.withAppendedId(
+                EmailContent.Message.SYNCED_CONTENT_URI, messageId);
+        mProviderContext.getContentResolver().update(uri, cv, null, null);
+    }
+
+    /**
+     * Request that an attachment be loaded
+     *
+     * @param save If true, attachment will be saved into a well-known place e.g. sdcard
+     * @param attachmentId the attachment to load
+     * @param messageId the owner message
+     * @param callback the Controller callback by which results will be reported
+     */
+    public void loadAttachment(boolean save, long attachmentId, long messageId,
+            final Result callback, Object tag) {
+
+        Attachment attachInfo = Attachment.restoreAttachmentWithId(mProviderContext, attachmentId);
+
+        // Split here for target type (Service or MessagingController)
+        IEmailService service = getServiceForMessage(messageId);
+        if (service != null) {
+            // Service implementation
+            try {
+                service.loadAttachment(attachInfo.mId, new LoadAttachmentCallback(callback, tag));
+            } catch (RemoteException e) {
+                // TODO Change exception handling to be consistent with however this method
+                // is implemented for other protocols
+                Log.e("onDownloadAttachment", "RemoteException", e);
+            }
+        } else {
+            // MessagingController implementation
+        }
+    }
+
+    /**
+     * For a given message id, return a service proxy if applicable, or null.
+     *
+     * @param messageId the message of interest
+     * @result service proxy, or null if n/a
+     */
+    private IEmailService getServiceForMessage(long messageId) {
+        // TODO make this more efficient, caching the account, smaller lookup here, etc.
+        Message message = Message.restoreMessageWithId(mProviderContext, messageId);
+        long accountId = message.mAccountKey;
+        Account account = EmailContent.Account.restoreAccountWithId(mProviderContext, accountId);
+        if (isMessagingController(account)) {
+            return null;
+        } else {
+            return new EmailServiceProxy(mContext, SyncManager.class);
+        }
+    }
+
+    /**
      * Simple helper to determine if legacy MessagingController should be used
+     *
+     * TODO this should not require a full account, just an accountId
+     * TODO this should use a cache because we'll be doing this a lot
      */
     private boolean isMessagingController(EmailContent.Account account) {
         Store.StoreInfo info =
@@ -341,19 +435,31 @@ public class Controller {
          * Callback for updateMailboxList
          *
          * @param result If null, the operation completed without error
-         * @param accountKey The account being operated on
+         * @param accountId The account being operated on
          */
-        public void updateMailboxListCallback(MessagingException result, long accountKey);
+        public void updateMailboxListCallback(MessagingException result, long accountId);
 
         /**
          * Callback for updateMailbox
          *
          * @param result If null, the operation completed without error
-         * @param accountKey The account being operated on
-         * @param mailboxKey The mailbox being operated on
+         * @param accountId The account being operated on
+         * @param mailboxId The mailbox being operated on
          */
-        public void updateMailboxCallback(MessagingException result, long accountKey,
-                long mailboxKey, int totalMessagesInMailbox, int numNewMessages);
+        public void updateMailboxCallback(MessagingException result, long accountId,
+                long mailboxId, int totalMessagesInMailbox, int numNewMessages);
+
+        /**
+         * Callback for loadAttachment
+         *
+         * @param result if null, the attachment completed - if non-null, terminating with failure
+         * @param messageId the message which contains the attachment
+         * @param attachmentId the attachment being loaded
+         * @param progress 0 for "starting", 1..99 for updates (if needed in UI), 100 for complete
+         * @param tag caller-defined tag, if supplied
+         */
+        public void loadAttachmentCallback(MessagingException result, long messageId,
+                long attachmentId, int progress, Object tag);
     }
 
     /**
@@ -412,5 +518,66 @@ public class Controller {
 
     }
 
+    /**
+     * Service callback for load attachment
+     */
+    private class LoadAttachmentCallback extends IEmailServiceCallback.Stub {
 
+        private final static boolean DEBUG_FAIL_DOWNLOADS = false;       // do not check in "true"
+
+        Result mCallback;
+        boolean mMadeFirstCallback;
+        Object mTag;
+
+        public LoadAttachmentCallback(Result callback, Object tag) {
+            super();
+            mCallback = callback;
+            mMadeFirstCallback = false;
+            mTag = tag;
+        }
+
+        /**
+         * Callback from Service for load attachment status.
+         *
+         * This performs some translations to what the UI expects, which is (assuming no fail):
+         *  progress = 0 ("started")
+         *  progress = 1..99 ("running")
+         *  progress = 100 ("finished")
+         *
+         * @param messageId the id of the message the callback relates to
+         * @param attachmentId the id of the attachment (if any)
+         * @param statusCode from the definitions in EmailServiceStatus
+         * @param progress the progress (from 0 to 100) of a download
+         */
+        public void status(long messageId, long attachmentId, int statusCode, int progress) {
+            if (mCallback != null && isActiveResultCallback(mCallback)) {
+                MessagingException result = null;
+                switch (statusCode) {
+                    case EmailServiceStatus.SUCCESS:
+                        progress = 100;
+                        break;
+                    case EmailServiceStatus.IN_PROGRESS:
+                        // special case, force a single "progress = 0" for the first time
+                        if (!mMadeFirstCallback) {
+                            progress = 0;
+                            mMadeFirstCallback = true;
+                        } else if (DEBUG_FAIL_DOWNLOADS && progress > 75) {
+                            result = new MessagingException(
+                                    String.valueOf(EmailServiceStatus.CONNECTION_ERROR));
+                        } else if (progress <= 0 || progress >= 100) {
+                            return;
+                        }
+                        break;
+                    default:
+                        result = new MessagingException(String.valueOf(statusCode));
+                    break;
+                }
+                mCallback.loadAttachmentCallback(result, messageId, attachmentId, progress, mTag);
+                // prevent any trailing reports if there was an error
+                if (result != null) {
+                    mCallback = null;
+                }
+            }
+        }
+    }
 }

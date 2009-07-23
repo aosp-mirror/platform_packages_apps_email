@@ -780,6 +780,10 @@ public class FolderMessageList extends ExpandableListActivity {
                 long mailboxKey, int totalMessagesInMailbox, int numNewMessages) {
             mHandler.progress(false);
         }
+
+        public void loadAttachmentCallback(MessagingException result, long messageId,
+                long attachmentId, int progress, Object tag) {
+        }
     }
 
     @Deprecated

@@ -33,18 +33,12 @@ import com.android.email.provider.EmailContent.Account;
 import com.android.email.provider.EmailContent.Attachment;
 import com.android.email.provider.EmailContent.Body;
 import com.android.email.provider.EmailContent.BodyColumns;
-import com.android.email.provider.EmailContent.HostAuth;
 import com.android.email.provider.EmailContent.Message;
-import com.android.email.provider.EmailContent.MessageColumns;
-import com.android.email.service.EmailServiceProxy;
-import com.android.exchange.IEmailServiceCallback;
-import com.android.exchange.SyncManager;
 
 import android.app.Activity;
 import android.app.ProgressDialog;
 import android.content.ActivityNotFoundException;
 import android.content.ContentUris;
-import android.content.ContentValues;
 import android.content.Context;
 import android.content.Intent;
 import android.database.Cursor;
@@ -57,7 +51,6 @@ import android.os.AsyncTask;
 import android.os.Bundle;
 import android.os.Environment;
 import android.os.Handler;
-import android.os.RemoteException;
 import android.provider.Contacts;
 import android.provider.Contacts.Intents;
 import android.provider.Contacts.People;
@@ -140,28 +133,6 @@ public class MessageView extends Activity
     private String mFolder;
     private String mMessageUid;
     private Cursor mMessageListCursor;
-    
-    private IEmailServiceCallback mServiceListener = new IEmailServiceCallback.Stub() {
-        /**
-         * Placeholder for IEmailService callbacks, which are used with Exchange
-         *
-         * @param messageId the id of the message the callback relates to
-         * @param attachmentId the id of the attachment (if any)
-         * @param statusCode from the definitions in EmailServiceStatus
-         * @param progress the progress (from 0 to 100) of a download
-         *
-         * NOTE The IEmailServiceCallback interface is likely to change
-         */
-        public void status(long messageId, long attachmentId, int statusCode, int progress)
-        throws RemoteException {
-            Attachment att = Attachment.restoreAttachmentWithId(MessageView.this, attachmentId);
-            if (att != null) {
-                Log.i("Attachment Callback", "File: " + att.mFileName + ", Status: " + statusCode
-                        + ", Progress: " + progress);
-            }
-        }
-    };
-
 
     // TODO all uses of this need to be converted to "mMessage".  Then mOldMessage goes away.
     private com.android.email.mail.Message mOldMessage;
@@ -174,6 +145,7 @@ public class MessageView extends Activity
 
     private Listener mListener = new Listener();
     private MessageViewHandler mHandler = new MessageViewHandler();
+    private ControllerResults mControllerCallback = new ControllerResults();
 
     class MessageViewHandler extends Handler {
         private static final int MSG_PROGRESS = 2;
@@ -187,6 +159,7 @@ public class MessageView extends Activity
         private static final int MSG_SET_SENDER_PRESENCE = 11;
         private static final int MSG_VIEW_ATTACHMENT_ERROR = 12;
         private static final int MSG_UPDATE_ATTACHMENT_ICON = 18;
+        private static final int MSG_FINISH_LOAD_ATTACHMENT = 19;
 
         @Override
         public void handleMessage(android.os.Message msg) {
@@ -254,6 +227,27 @@ public class MessageView extends Activity
                 case MSG_UPDATE_ATTACHMENT_ICON:
                     ((AttachmentInfo) mAttachments.getChildAt(msg.arg1).getTag())
                         .iconView.setImageBitmap((Bitmap) msg.obj);
+                    break;
+                case MSG_FINISH_LOAD_ATTACHMENT:
+                    boolean save = msg.arg1 != 0;
+                    long attachmentId = (Long)msg.obj;
+                    if (save) {
+                        Attachment attachment =
+                            Attachment.restoreAttachmentWithId(MessageView.this, attachmentId);
+                        if (attachment.mContentUri.startsWith("file://")) {
+                            File file =
+                                new File(attachment.mContentUri.substring("file://".length()));
+                            String leaf = file.getName();
+                            Toast.makeText(MessageView.this, String.format(
+                                    getString(R.string.message_view_status_attachment_saved), leaf),
+                                    Toast.LENGTH_LONG).show();
+                            new MediaScannerNotifier(MessageView.this, file, mHandler);
+                        } else {
+                            // TODO content// uri
+                        }
+                    } else {
+                        // TODO: view
+                    }
                     break;
                 default:
                     super.handleMessage(msg);
@@ -330,6 +324,13 @@ public class MessageView extends Activity
             android.os.Message msg = android.os.Message.obtain(this, MSG_UPDATE_ATTACHMENT_ICON);
             msg.arg1 = pos;
             msg.obj = icon;
+            sendMessage(msg);
+        }
+
+        public void finishLoadAttachment(long attachmentId, boolean save) {
+            android.os.Message msg = android.os.Message.obtain(this, MSG_FINISH_LOAD_ATTACHMENT);
+            msg.arg1 = save ? 1 : 0;
+            msg.obj = Long.valueOf(attachmentId);
             sendMessage(msg);
         }
     }
@@ -485,6 +486,7 @@ public class MessageView extends Activity
     @Override
     public void onResume() {
         super.onResume();
+        Controller.getInstance(getApplication()).addResultCallback(mControllerCallback);
         MessagingController.getInstance(getApplication()).addListener(mListener);
         if (mOldMessage != null) {
             startPresenceCheck();
@@ -495,6 +497,7 @@ public class MessageView extends Activity
     public void onPause() {
         super.onPause();
         MessagingController.getInstance(getApplication()).removeListener(mListener);
+        Controller.getInstance(getApplication()).removeResultCallback(mControllerCallback);
     }
 
     /**
@@ -582,14 +585,8 @@ public class MessageView extends Activity
             mFavoriteIcon.setImageDrawable(newFavorite ? mFavoriteIconOn : mFavoriteIconOff);
 
             // Update provider
-            // TODO this should be a call to the controller, since it may possibly kick off
-            // more than just a DB update.  Also, the DB update shouldn't be in the UI thread
-            // as it is here.
             mMessage.mFlagFavorite = newFavorite;
-            ContentValues cv = new ContentValues();
-            cv.put(MessageColumns.FLAG_FAVORITE, newFavorite ? 1 : 0);
-            Uri uri = ContentUris.withAppendedId(Message.SYNCED_CONTENT_URI, mMessageId);
-            getContentResolver().update(uri, cv, null, null);
+            Controller.getInstance(getApplication()).setMessageFavorite(mMessageId, newFavorite);
         }
     }
 
@@ -636,15 +633,8 @@ public class MessageView extends Activity
 
     private void onMarkAsRead(boolean isRead) {
         if (mMessage != null && mMessage.mFlagRead != isRead) {
-            // TODO this should be a call to the controller, since it may possibly kick off
-            // more than just a DB update.  Also, the DB update shouldn't be in the UI thread
-            // as it is here.
             mMessage.mFlagRead = isRead;
-            ContentValues cv = new ContentValues();
-            cv.put(MessageColumns.FLAG_READ, isRead ? 1 : 0);
-            Uri uri = ContentUris.withAppendedId(
-                    Message.SYNCED_CONTENT_URI, mMessageId);
-            getContentResolver().update(uri, cv, null, null);
+            Controller.getInstance(getApplication()).setMessageRead(mMessageId, isRead);
         }
     }
 
@@ -692,36 +682,17 @@ public class MessageView extends Activity
             return;
         }
 
-        // It's too complicated to go from an Attachment to the protocol that created it
-        // TODO Perhaps we should have Account include a protocol column
-        com.android.exchange.EmailContent.Attachment att =
-            com.android.exchange.EmailContent.Attachment.restoreAttachmentWithId(this,
-                    attachment.attachmentId);
-        if (att != null) {
-            // Need account to get the HostAuth that includes the protocol
-            Account acct = Account.restoreAccountWithId(this, mMessage.mAccountKey);
-            // Need the hostauth to get the protocol
-            HostAuth ha = HostAuth.restoreHostAuthWithId(this, acct.mHostAuthKeyRecv);
-            if (ha.mProtocol.equals("eas")) {
-                try {
-                    new EmailServiceProxy(this, SyncManager.class)
-                        .loadAttachment(att.mId, mServiceListener);
-                } catch (RemoteException e) {
-                    // TODO Change exception handling to be consistent with however this method
-                    // is implemented for other protocols
-                    Log.e("onDownloadAttachment", "RemoteException", e);
-                }
-            }
-        }
-//        MessagingController.getInstance(getApplication()).loadAttachment(
-//                mAccount,
-//                mOldMessage,
-//                attachment.part,
-//                new Object[] { true, attachment },
-//                mListener);
+        LoadAttachTag tag = new LoadAttachTag(true, attachment.name);
+
+        Controller.getInstance(getApplication()).loadAttachment(true, attachment.attachmentId,
+                mMessageId, mControllerCallback, tag);
     }
 
     private void onViewAttachment(AttachmentInfo attachment) {
+        // TODO: Until EAS can download into temp mem *and* AttachmentProvider is rewritten
+        // to use the new database, "view" is really just "save"
+        onDownloadAttachment(attachment);
+
 //        MessagingController.getInstance(getApplication()).loadAttachment(
 //                mAccount,
 //                mOldMessage,
@@ -822,6 +793,7 @@ public class MessageView extends Activity
 
     private Bitmap getPreviewIcon(AttachmentInfo attachment) {
         try {
+            // TODO write the new call to the attachment provider using ID, not part
 //            return BitmapFactory.decodeStream(
 //                    getContentResolver().openInputStream(
 //                            AttachmentProvider.getAttachmentThumbnailUri(mAccount,
@@ -860,16 +832,16 @@ public class MessageView extends Activity
         }
     }
 
-    private void updateAttachmentThumbnail(Part part) {
+    private void updateAttachmentThumbnail(long attachmentId) {
         for (int i = 0, count = mAttachments.getChildCount(); i < count; i++) {
             AttachmentInfo attachment = (AttachmentInfo) mAttachments.getChildAt(i).getTag();
-//            if (attachment.part == part) {
-//                Bitmap previewIcon = getPreviewIcon(attachment);
-//                if (previewIcon != null) {
-//                    mHandler.updateAttachmentIcon(i, previewIcon);
-//                }
-//                return;
-//            }
+            if (attachment.attachmentId == attachmentId) {
+                Bitmap previewIcon = getPreviewIcon(attachment);
+                if (previewIcon != null) {
+                    mHandler.updateAttachmentIcon(i, previewIcon);
+                }
+                return;
+            }
         }
     }
 
@@ -1246,6 +1218,61 @@ public class MessageView extends Activity
     }
 
     /**
+     * Passed-back tag for Controller.loadAttachmentCallback
+     */
+    private static class LoadAttachTag {
+        boolean save;       // false = view, true = save
+        String name;        // the server-side name of the attachment
+
+        LoadAttachTag(boolean _save, String _name) {
+            save = _save;
+            name = _name;
+        }
+    }
+
+    /**
+     * Controller results listener.  This completely replaces MessagingListener
+     */
+    class ControllerResults implements Controller.Result {
+
+        public void loadAttachmentCallback(MessagingException result, long messageId,
+                long attachmentId, int progress, Object tag) {
+            if (messageId == MessageView.this.mMessageId) {
+                LoadAttachTag tagInfo = (LoadAttachTag) tag;
+                if (result == null) {
+                    switch (progress) {
+                        case 0:
+                            mHandler.setAttachmentsEnabled(false);
+                            mHandler.progress(true, tagInfo.name);
+                            mHandler.fetchingAttachment();
+                            break;
+                        case 100:
+                            mHandler.setAttachmentsEnabled(true);
+                            mHandler.progress(false, null);
+                            updateAttachmentThumbnail(attachmentId);
+                            mHandler.finishLoadAttachment(attachmentId, tagInfo.save);
+                            break;
+                        default:
+                            // do nothing - we don't have a progress bar at this time
+                            break;
+                    }
+                } else {
+                    mHandler.setAttachmentsEnabled(true);
+                    mHandler.progress(false, null);
+                    mHandler.networkError();
+                }
+            }
+        }
+
+        public void updateMailboxCallback(MessagingException result, long accountId,
+                long mailboxId, int totalMessagesInMailbox, int numNewMessages) {
+        }
+
+        public void updateMailboxListCallback(MessagingException result, long accountId) {
+        }
+    }
+
+    /**
      * MessagingListener is the traditional form of callback used by the Email application; remote
      * services (like Exchange) will use mServiceListener
      *
@@ -1414,7 +1441,7 @@ public class MessageView extends Activity
                 Part part, Object tag) {
             mHandler.setAttachmentsEnabled(true);
             mHandler.progress(false, null);
-            updateAttachmentThumbnail(part);
+//            updateAttachmentThumbnail(part);
 
             Object[] params = (Object[]) tag;
             boolean download = (Boolean) params[0];

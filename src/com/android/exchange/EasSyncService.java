@@ -289,7 +289,7 @@ public class EasSyncService extends InteractiveSyncService {
                 // EmailProvider will throw an exception if we try to update an unsaved attachment
                 if (att.isSaved()) {
                     ContentValues cv = new ContentValues();
-                    cv.put(AttachmentColumns.CONTENT_URI, f.getAbsolutePath());
+                    cv.put(AttachmentColumns.CONTENT_URI, "file://" + f.getAbsolutePath());
                     cv.put(AttachmentColumns.MIME_TYPE, type);
                     att.update(mContext, cv);
                     doStatusCallback(callback, msg.mId, att.mId, EmailServiceStatus.SUCCESS);

@@ -204,6 +204,62 @@ public class ControllerProviderOpsTests extends ProviderTestCase2<EmailProvider>
     }
 
     /**
+     * Test read/unread flag
+     */
+    public void testReadUnread() {
+        // No account or mailbox needed for this test
+        long account1Id = 1;
+        long box1Id = 2;
+
+        Message message1 =
+                ProviderTestUtils.setupMessage("message1", account1Id, box1Id, false, true,
+                        mProviderContext);
+        long message1Id = message1.mId;
+
+        Controller ct = new TestController(mProviderContext, mContext);
+
+        // test setting to "read"
+        ct.setMessageRead(message1Id, true);
+        Message message1get = Message.restoreMessageWithId(mProviderContext, message1Id);
+        assertTrue(message1get.mFlagRead);
+
+        // test setting to "unread"
+        ct.setMessageRead(message1Id, false);
+        message1get = Message.restoreMessageWithId(mProviderContext, message1Id);
+        assertFalse(message1get.mFlagRead);
+    }
+
+    /**
+     * Test favorites flag
+     */
+    public void testFavorites() {
+        // No account or mailbox needed for this test
+        long account1Id = 1;
+        long box1Id = 2;
+
+        Message message1 =
+                ProviderTestUtils.setupMessage("message1", account1Id, box1Id, false, true,
+                        mProviderContext);
+        long message1Id = message1.mId;
+
+        Controller ct = new TestController(mProviderContext, mContext);
+
+        // test setting to "favorite"
+        ct.setMessageFavorite(message1Id, true);
+        Message message1get = Message.restoreMessageWithId(mProviderContext, message1Id);
+        assertTrue(message1get.mFlagFavorite);
+
+        // test setting to "not favorite"
+        ct.setMessageFavorite(message1Id, false);
+        message1get = Message.restoreMessageWithId(mProviderContext, message1Id);
+        assertFalse(message1get.mFlagFavorite);
+    }
+
+    /**
      * TODO: releasing associated data (e.g. attachments, embedded images)
+     */
+
+    /**
+     * TODO: test isMessagingController()
      */
 }

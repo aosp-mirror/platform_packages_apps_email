@@ -30,7 +30,6 @@ import com.android.email.provider.EmailContent.MessageColumns;
 
 import android.app.ListActivity;
 import android.content.ContentUris;
-import android.content.ContentValues;
 import android.content.Context;
 import android.content.Intent;
 import android.content.res.Resources;
@@ -371,7 +370,7 @@ public class MessageList extends ListActivity implements OnItemClickListener, On
                 //onForward(holder);
                 break;
             case R.id.mark_as_read:
-                onToggleRead(info.id, itemView.mRead);
+                onSetMessageRead(info.id, !itemView.mRead);
                 break;
         }
         return super.onContextItemSelected(item);
@@ -433,17 +432,12 @@ public class MessageList extends ListActivity implements OnItemClickListener, On
         Toast.makeText(this, R.string.message_deleted_toast, Toast.LENGTH_SHORT).show();
     }
 
-    private void onToggleRead(long messageId, boolean oldRead) {
-        boolean isRead = ! oldRead;
+    private void onSetMessageRead(long messageId, boolean newRead) {
+        Controller.getInstance(getApplication()).setMessageRead(messageId, newRead);
+    }
 
-        // TODO this should be a call to the controller, since it may possibly kick off
-        // more than just a DB update.  Also, the DB update shouldn't be in the UI thread
-        // as it is here.  Also, it needs to update the read/unread count in the mailbox?
-        ContentValues cv = new ContentValues();
-        cv.put(EmailContent.MessageColumns.FLAG_READ, isRead);
-        Uri uri = ContentUris.withAppendedId(
-                EmailContent.Message.SYNCED_CONTENT_URI, messageId);
-        getContentResolver().update(uri, cv, null, null);
+    private void onSetMessageFavorite(long messageId, boolean newFavorite) {
+        Controller.getInstance(getApplication()).setMessageFavorite(messageId, newFavorite);
     }
 
     /**
@@ -462,7 +456,7 @@ public class MessageList extends ListActivity implements OnItemClickListener, On
             public boolean setField(long messageId, Cursor c, boolean newValue) {
                 boolean oldValue = getField(messageId, c);
                 if (oldValue != newValue) {
-                    onToggleRead(messageId, !oldValue);
+                    onSetMessageRead(messageId, !newValue);
                     return true;
                 }
                 return false;
@@ -485,15 +479,7 @@ public class MessageList extends ListActivity implements OnItemClickListener, On
             public boolean setField(long messageId, Cursor c, boolean newValue) {
                 boolean oldValue = getField(messageId, c);
                 if (oldValue != newValue) {
-                    // Update provider
-                    // TODO this should probably be a call to the controller, since it may possibly
-                    // kick off more than just a DB update.
-                    ContentValues cv = new ContentValues();
-                    cv.put(EmailContent.MessageColumns.FLAG_FAVORITE, newValue);
-                    Uri uri = ContentUris.withAppendedId(
-                            EmailContent.Message.SYNCED_CONTENT_URI, messageId);
-                    MessageList.this.getContentResolver().update(uri, cv, null, null);
-
+                    onSetMessageFavorite(messageId, newValue);
                     return true;
                 }
                 return false;
@@ -814,6 +800,10 @@ public class MessageList extends ListActivity implements OnItemClickListener, On
                 long mailboxKey, int totalMessagesInMailbox, int numNewMessages) {
             mHandler.progress(false);
         }
+
+        public void loadAttachmentCallback(MessagingException result, long messageId,
+                long attachmentId, int progress, Object tag) {
+        }
     }
 
     /**
@@ -958,15 +948,7 @@ public class MessageList extends ListActivity implements OnItemClickListener, On
         public void updateFavorite(MessageListItem itemView, boolean newFavorite) {
             ImageView favoriteView = (ImageView) itemView.findViewById(R.id.favorite);
             favoriteView.setImageDrawable(newFavorite ? mFavoriteIconOn : mFavoriteIconOff);
-
-            // Update provider
-            // TODO this should probably be a call to the controller, since it may possibly kick off
-            // more than just a DB update.
-            ContentValues cv = new ContentValues();
-            cv.put(EmailContent.MessageColumns.FLAG_FAVORITE, newFavorite);
-            Uri uri = ContentUris.withAppendedId(
-                    EmailContent.Message.SYNCED_CONTENT_URI, itemView.mMessageId);
-            mContext.getContentResolver().update(uri, cv, null, null);
+            onSetMessageFavorite(itemView.mMessageId, newFavorite);
         }
     }
 }
