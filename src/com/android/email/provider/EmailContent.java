@@ -820,6 +820,21 @@ public abstract class EmailContent {
             RECORD_ID
         };
 
+        public static final int CONTENT_MAILBOX_TYPE_COLUMN = 1;
+
+        /**
+         * This projection is for listing account id's only
+         */
+        public static final String[] ID_TYPE_PROJECTION = new String[] {
+            RECORD_ID, MailboxColumns.TYPE
+        };
+
+        public static final String MAILBOX_SELECTION =
+            MessageColumns.MAILBOX_KEY + " =?";
+
+        public static final String UNREAD_COUNT_SELECTION =
+            MessageColumns.MAILBOX_KEY + " =? and " + MessageColumns.FLAG_READ + "= 0";
+
         /**
          * This projection is for searching for the default account
          */
@@ -1172,7 +1187,46 @@ public abstract class EmailContent {
             }
             return id;
         }
-        
+
+        /**
+         * Update unread counts of all folders in the account.
+         * @param context
+         * @param accountId
+         */
+        public static void updateUnreadCount(Context context, long accountId) {
+            Cursor c = context.getContentResolver().query(Mailbox.CONTENT_URI, ID_TYPE_PROJECTION,
+                    MailboxColumns.ACCOUNT_KEY + "=?",
+                    new String[] { String.valueOf(accountId) }, null);
+
+            try {
+                while (c.moveToNext()) {
+                    int mailboxId = c.getInt(CONTENT_ID_COLUMN);
+                    int count = 0;
+                    switch (c.getInt(CONTENT_MAILBOX_TYPE_COLUMN)) {
+                        case Mailbox.TYPE_DRAFTS:
+                        case Mailbox.TYPE_SENT:
+                        case Mailbox.TYPE_OUTBOX:
+                        case Mailbox.TYPE_JUNK:
+                            count = EmailContent.count(context, Message.CONTENT_URI,
+                                    MAILBOX_SELECTION,
+                                    new String[] { String.valueOf(mailboxId) });
+                            break;
+                        default:
+                            count = EmailContent.count(context, Message.CONTENT_URI,
+                                    UNREAD_COUNT_SELECTION,
+                                    new String[] { String.valueOf(mailboxId) });
+                            break;
+                    }
+                    Uri uri = ContentUris.withAppendedId(Mailbox.CONTENT_URI, mailboxId);
+                    ContentValues cv = new ContentValues();
+                    cv.put(MailboxColumns.UNREAD_COUNT, count);
+                    context.getContentResolver().update(uri, cv, null, null);
+                }
+            } finally {
+                c.close();
+            }
+        }
+
         /**
          * Override update to enforce a single default account, and do it atomically
          */

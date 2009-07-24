@@ -313,6 +313,7 @@ public class AccountFolderList extends ExpandableListActivity {
             if (mGroupNumber == 0) {
                 return mSummaryChildCursor;
             }
+            Account.updateUnreadCount(AccountFolderList.this, mAccountId);
             return AccountFolderList.this.managedQuery(
                     Mailbox.CONTENT_URI,
                     MAILBOX_PROJECTION,
@@ -605,10 +606,18 @@ public class AccountFolderList extends ExpandableListActivity {
             }
 
             // TODO work out a way to report summary unread counts for merged mailboxes
+            int count = -1;
             text = cursor.getString(MAILBOX_UNREAD_COUNT);
             if (text != null) {
-                TextView countView = (TextView) view.findViewById(R.id.new_message_count);
+                count = Integer.valueOf(text);
+            }
+            TextView countView = (TextView) view.findViewById(R.id.new_message_count);
+            // If the unread count is zero, not to show countView.
+            if (count > 0) {
+                countView.setVisibility(View.VISIBLE);
                 countView.setText(text);
+            } else {
+                countView.setVisibility(View.GONE);
             }
         }
 

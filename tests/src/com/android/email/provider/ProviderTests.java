@@ -21,11 +21,14 @@ import java.io.IOException;
 
 import java.util.ArrayList;
 
+import com.android.email.activity.AccountFolderList;
+import com.android.email.provider.EmailContent;
 import com.android.email.provider.EmailContent.Account;
 import com.android.email.provider.EmailContent.AccountColumns;
 import com.android.email.provider.EmailContent.Attachment;
 import com.android.email.provider.EmailContent.Body;
 import com.android.email.provider.EmailContent.Mailbox;
+import com.android.email.provider.EmailContent.MailboxColumns;
 import com.android.email.provider.EmailContent.Message;
 import com.android.email.provider.EmailContent.MessageColumns;
 
@@ -75,7 +78,80 @@ public class ProviderTests extends ProviderTestCase2<EmailProvider> {
         
         ProviderTestUtils.assertAccountEqual("testAccountSave", account1, account2);
     }
-    
+
+    private final static String[] MAILBOX_UNREAD_COUNT_PROJECTION = new String [] {
+        MailboxColumns.UNREAD_COUNT
+    };
+    private final static int MAILBOX_UNREAD_COUNT_COLMUN = 0;
+
+    /**
+     * Get the value of the unread count in the mailbox of the account.
+     * This can be different from the actual number of unread messages in that mailbox.
+     * @param accountId
+     * @param mailboxId
+     * @return
+     */
+    private int getUnreadCount(long mailboxId) {
+        String text = null;
+        Cursor c = null;
+        try {
+            c = mMockContext.getContentResolver().query(
+                    Mailbox.CONTENT_URI,
+                    MAILBOX_UNREAD_COUNT_PROJECTION,
+                    EmailContent.RECORD_ID + "=?",
+                    new String[] { String.valueOf(mailboxId) },
+                    null);
+            c.moveToFirst();
+            text = c.getString(MAILBOX_UNREAD_COUNT_COLMUN);
+        } finally {
+            c.close();
+        }
+        return Integer.valueOf(text);
+    }
+
+    public void testUpdateUnreadCount() {
+        Account account1 = ProviderTestUtils.setupAccount("mailbox-save", true, mMockContext);
+        long account1Id = account1.mId;
+        Mailbox box1 = ProviderTestUtils.setupMailbox("box1", account1Id, false, mMockContext);
+        box1.mUnreadCount = 0;
+        box1.save(mMockContext);
+        long box1Id = box1.mId;
+        Message message1 = ProviderTestUtils.setupMessage("message1", account1Id, box1Id, false,
+                false, mMockContext);
+        message1.mFlagRead = false;
+        message1.save(mMockContext);
+        Message message2 = ProviderTestUtils.setupMessage("message2", account1Id, box1Id, false,
+                false, mMockContext);
+        message2.mFlagRead = true;
+        message2.save(mMockContext);
+        Message message3 = ProviderTestUtils.setupMessage("message3", account1Id, box1Id, false,
+                false, mMockContext);
+        message3.mFlagRead = false;
+        message3.save(mMockContext);
+        Mailbox box2 = ProviderTestUtils.setupMailbox("box2", account1Id, false, mMockContext);
+        box2.mUnreadCount = 0;
+        box2.mType = Mailbox.TYPE_DRAFTS;
+        box2.save(mMockContext);
+        long box2Id = box2.mId;
+        Message message4 = ProviderTestUtils.setupMessage("message4", account1Id, box2Id, false,
+                false, mMockContext);
+        message4.mFlagRead = false;
+        message4.save(mMockContext);
+        Message message5 = ProviderTestUtils.setupMessage("message5", account1Id, box2Id, false,
+                false, mMockContext);
+        message5.mFlagRead = true;
+        message5.save(mMockContext);
+        Message message6 = ProviderTestUtils.setupMessage("message6", account1Id, box2Id, false,
+                false, mMockContext);
+        message6.mFlagRead = false;
+        message6.save(mMockContext);
+        assertEquals(0, getUnreadCount(box1Id));
+        assertEquals(0, getUnreadCount(box2Id));
+        Account.updateUnreadCount(mMockContext, account1Id);
+        assertEquals(2, getUnreadCount(box1Id));
+        assertEquals(3, getUnreadCount(box2Id));
+    }
+
     /**
      * TODO: HostAuth tests
      */
@@ -206,6 +282,7 @@ public class ProviderTests extends ProviderTestCase2<EmailProvider> {
 
         // Now check the attachments; there should be three and they should match name and size
         c = null;
+
         try {
             // Note that there is NO guarantee of the order of returned records in the general case,
             // so we specifically ask for ordering by size.  The expectedAttachmentSizes array must
