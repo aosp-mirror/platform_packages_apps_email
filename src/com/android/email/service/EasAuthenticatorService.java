@@ -26,6 +26,9 @@ import android.accounts.Constants;
 import android.accounts.NetworkErrorException;
 import android.app.Service;
 import android.content.Intent;
+import android.content.Context;
+import android.content.pm.PermissionInfo;
+import android.content.pm.PackageManager;
 import android.os.Bundle;
 import android.os.IBinder;
 
@@ -37,6 +40,9 @@ import android.os.IBinder;
 public class EasAuthenticatorService extends Service {
 
     class EasAuthenticator extends AbstractAccountAuthenticator {
+        public EasAuthenticator(Context context) {
+            super(context);
+        }
 
         @Override
         public Bundle addAccount(AccountAuthenticatorResponse response, String accountType,
@@ -77,6 +83,12 @@ public class EasAuthenticatorService extends Service {
         }
 
         @Override
+        public String getAuthTokenLabel(String authTokenType) {
+            // null means we don't have compartmentalized authtoken types 
+            return null;
+        }
+
+        @Override
         public Bundle hasFeatures(AccountAuthenticatorResponse response, Account account,
                 String[] features) throws NetworkErrorException {
             return null;
@@ -97,7 +109,7 @@ public class EasAuthenticatorService extends Service {
         String authenticatorIntent = "android.accounts.AccountAuthenticator";
         
         if (authenticatorIntent.equals(intent.getAction())) {
-            return new EasAuthenticator().getIAccountAuthenticator().asBinder();
+            return new EasAuthenticator(this).getIAccountAuthenticator().asBinder();
         } else {
             return null;
         }
