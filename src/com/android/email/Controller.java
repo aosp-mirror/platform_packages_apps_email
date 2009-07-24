@@ -381,7 +381,8 @@ public class Controller {
         if (service != null) {
             // Service implementation
             try {
-                service.loadAttachment(attachInfo.mId, new LoadAttachmentCallback(callback, tag));
+                service.loadAttachment(attachInfo.mId, null,
+                        new LoadAttachmentCallback(callback, tag));
             } catch (RemoteException e) {
                 // TODO Change exception handling to be consistent with however this method
                 // is implemented for other protocols

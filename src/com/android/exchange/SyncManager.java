@@ -121,10 +121,10 @@ public class SyncManager extends Service implements Runnable {
             stopManualSync(mailboxId);
         }
 
-        public void loadAttachment(long attachmentId, IEmailServiceCallback cb)
+        public void loadAttachment(long attachmentId, String directory, IEmailServiceCallback cb)
                 throws RemoteException {
             Attachment att = Attachment.restoreAttachmentWithId(SyncManager.this, attachmentId);
-            partRequest(new PartRequest(att, cb));
+            partRequest(new PartRequest(att, directory, cb));
         }
 
         public void updateFolderList(long accountId) throws RemoteException {
@@ -172,7 +172,22 @@ public class SyncManager extends Service implements Runnable {
     };
 
     class AccountObserver extends ContentObserver {
-        ArrayList<Long> mAccountIds = new ArrayList<Long>();
+
+        // mAccounts keeps track of Accounts that we care about (EAS for now)
+        AccountList mAccounts = new AccountList();
+
+        class AccountList extends ArrayList<Account> {
+            private static final long serialVersionUID = 1L;
+
+            public boolean contains(long id) {
+                for (Account account: this) {
+                    if (account.mId == id) {
+                        return true;
+                    }
+                }
+                return false;
+            }
+        }
 
         public AccountObserver(Handler handler) {
             super(handler);
@@ -182,39 +197,61 @@ public class SyncManager extends Service implements Runnable {
             Cursor c = getContentResolver().query(Account.CONTENT_URI, Account.CONTENT_PROJECTION,
                     null, null, null);
             try {
-                collectEasAccounts(c, mAccountIds);
+                collectEasAccounts(c, mAccounts);
             } finally {
                 c.close();
             }
 
-            for (long accountId : mAccountIds) {
-                int cnt = Mailbox.count(context, Mailbox.CONTENT_URI, "accountKey=" + accountId,
+            for (Account account: mAccounts) {
+                int cnt = Mailbox.count(context, Mailbox.CONTENT_URI, "accountKey=" + account.mId,
                         null);
                 if (cnt == 0) {
-                    addAccountMailbox(accountId);
+                    addAccountMailbox(account.mId);
                 }
             }
+        }
+
+        private boolean accountChanged(Account account) {
+            long accountId = account.mId;
+            // Reload account from database to get its current state
+            account = Account.restoreAccountWithId(getContext(), accountId);
+            for (Account oldAccount: mAccounts) {
+                if (oldAccount.mId == accountId) {
+                    return (oldAccount.mSyncInterval != account.mSyncInterval ||
+                            oldAccount.mSyncLookback != account.mSyncLookback);
+                }
+            }
+            // Really, we can't get here, but we don't want the compiler to complain
+            return false;
         }
 
         public void onChange(boolean selfChange) {
             // A change to the list requires us to scan for deletions (to stop running syncs)
             // At startup, we want to see what accounts exist and cache them
-            ArrayList<Long> currentIds = new ArrayList<Long>();
+            AccountList currentAccounts = new AccountList();
             Cursor c = getContentResolver().query(Account.CONTENT_URI, Account.CONTENT_PROJECTION,
                     null, null, null);
             try {
-                collectEasAccounts(c, currentIds);
-                for (long accountId : mAccountIds) {
-                    if (!currentIds.contains(accountId)) {
+                collectEasAccounts(c, currentAccounts);
+                for (Account account : mAccounts) {
+                    if (!currentAccounts.contains(account.mId)) {
                         // This is a deletion; shut down any account-related syncs
-                        accountDeleted(accountId);
+                        stopAccountSyncs(account.mId);
+                    } else {
+                        // See whether any of our accounts has changed sync interval or window
+                        if (accountChanged(account)) {
+                            // Here's one that has...
+                            INSTANCE.log("Account " + account.mDisplayName +
+                                    " changed; stopping running syncs...");
+                            stopAccountSyncs(account.mId);
+                        }
                     }
                 }
-                for (long accountId : currentIds) {
-                    if (!mAccountIds.contains(accountId)) {
+                for (Account account: currentAccounts) {
+                    if (!mAccounts.contains(account.mId)) {
                         // This is an addition; create our magic hidden mailbox...
-                        addAccountMailbox(accountId);
-                        mAccountIds.add(accountId);
+                        addAccountMailbox(account.mId);
+                        mAccounts.add(account);
                     }
                 }
             } finally {
@@ -225,14 +262,14 @@ public class SyncManager extends Service implements Runnable {
             kick();
         }
 
-        void collectEasAccounts(Cursor c, ArrayList<Long> ids) {
+        void collectEasAccounts(Cursor c, ArrayList<Account> accounts) {
             Context context = getContext();
             while (c.moveToNext()) {
                 long hostAuthId = c.getLong(Account.CONTENT_HOST_AUTH_KEY_RECV_COLUMN);
                 if (hostAuthId > 0) {
                     HostAuth ha = HostAuth.restoreHostAuthWithId(context, hostAuthId);
                     if (ha != null && ha.mProtocol.equals("eas")) {
-                        ids.add(c.getLong(Account.CONTENT_ID_COLUMN));
+                        accounts.add(new Account().restore(c));
                     }
                 }
             }
@@ -251,7 +288,7 @@ public class SyncManager extends Service implements Runnable {
             INSTANCE.log("Initializing account: " + acct.mDisplayName);
         }
 
-        void accountDeleted(long acctId) {
+        void stopAccountSyncs(long acctId) {
             synchronized (mSyncToken) {
                 List<Long> deletedBoxes = new ArrayList<Long>();
                 for (Long mid : INSTANCE.mServiceMap.keySet()) {
@@ -392,7 +429,7 @@ public class SyncManager extends Service implements Runnable {
     static public void folderListReloaded(long acctId) {
         if (INSTANCE != null) {
             AccountObserver obs = INSTANCE.mAccountObserver;
-            obs.accountDeleted(acctId);
+            obs.stopAccountSyncs(acctId);
             obs.addAccountMailbox(acctId);
         }
     }
@@ -676,7 +713,7 @@ public class SyncManager extends Service implements Runnable {
                 // ones we're watching...
                 long aid = c.getLong(Mailbox.CONTENT_ACCOUNT_KEY_COLUMN);
                 // Only check mailboxes for EAS accounts
-                if (!mAccountObserver.mAccountIds.contains(aid)) {
+                if (!mAccountObserver.mAccounts.contains(aid)) {
                     continue;
                 }
                 long mid = c.getLong(Mailbox.CONTENT_ID_COLUMN);
