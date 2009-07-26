@@ -39,4 +39,46 @@
         <item>60</item>  
     </string-array>
     
+    
+    <!-- The arrays that are presented to push-enabled accounts -->
+    <string-array name="account_settings_check_frequency_entries_push">
+        <item>@string/account_setup_options_mail_check_frequency_push</item>
+        <item>@string/account_setup_options_mail_check_frequency_never</item>
+        <item>@string/account_setup_options_mail_check_frequency_5min</item>
+        <item>@string/account_setup_options_mail_check_frequency_10min</item>
+        <item>@string/account_setup_options_mail_check_frequency_15min</item>
+        <item>@string/account_setup_options_mail_check_frequency_30min</item>
+        <item>@string/account_setup_options_mail_check_frequency_1hour</item>
+    </string-array>
+
+    <string-array name="account_settings_check_frequency_values_push" translatable="false">
+        <item>-2</item>
+        <item>-1</item>
+        <item>5</item>
+        <item>10</item>
+        <item>15</item>
+        <item>30</item>
+        <item>60</item>  
+    </string-array>
+    
+    <!-- Mail sync window sizes for EAS accounts -->
+    <!-- Note, "all" (value 6) is not presented in UI. -->
+    <string-array name="account_settings_mail_window_entries">
+        <item>@string/account_setup_options_mail_window_1day</item>
+        <item>@string/account_setup_options_mail_window_3days</item>
+        <item>@string/account_setup_options_mail_window_1week</item>
+        <item>@string/account_setup_options_mail_window_2weeks</item>
+        <item>@string/account_setup_options_mail_window_1month</item>
+    </string-array>
+
+    <!-- Mail sync window size codes for EAS accounts -->
+    <!-- Note, "all" (value 6) is not presented in UI. -->
+    <string-array name="account_settings_mail_window_values" translatable="false">
+        <item>1</item>
+        <item>2</item>
+        <item>3</item>
+        <item>4</item>
+        <item>5</item>
+    </string-array>
+    
 </resources>

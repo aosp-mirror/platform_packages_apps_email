@@ -49,7 +49,7 @@
     <string name="status_loading_more">"正在載入郵件..."</string>
     <string name="status_network_error">"連線錯誤"</string>
     <string name="status_loading_more_failed">"重新載入更多郵件"</string>
-    <string name="notification_new_title">"新電子郵件"</string>
+    <string name="notification_new_title">"新郵件"</string>
   <plurals name="notification_new_one_account_fmt">
     <item quantity="one">"<xliff:g id="UNREAD_MESSAGE_COUNT">%d</xliff:g> 封未讀取郵件 (<xliff:g id="ACCOUNT">%s</xliff:g>)"</item>
     <item quantity="few">"<xliff:g id="UNREAD_MESSAGE_COUNT">%d</xliff:g> 封未讀取郵件 (<xliff:g id="ACCOUNT">%s</xliff:g>)"</item>
@@ -57,13 +57,13 @@
   </plurals>
   <plurals name="notification_new_multi_account_fmt">
     <item quantity="few">"<xliff:g id="NUMBER_ACCOUNTS">%d</xliff:g> 個帳戶"</item>
-    <item quantity="other">"<xliff:g id="NUMBER_ACCOUNTS">%d</xliff:g> 個帳戶"</item>
+    <item quantity="other">"於 <xliff:g id="NUMBER_ACCOUNTS">%d</xliff:g> 個帳戶"</item>
   </plurals>
     <string name="special_mailbox_name_inbox">"收件匣"</string>
     <string name="accounts_welcome">"歡迎使用 [電子郵件] 設定！"\n\n"[電子郵件] 設定可讓您使用各種電子郵件帳戶！"\n\n"大部分常見的電子郵件只需要兩個步驟就能設定完成！"</string>
     <string name="debug_version_fmt">"版本：<xliff:g id="VERSION">%s</xliff:g>"</string>
     <string name="debug_enable_debug_logging_label">"要啟用附加的偵錯記錄嗎？"</string>
-    <string name="debug_enable_sensitive_logging_label">"要啟用敏感資訊偵錯記錄嗎 (該記錄中可能會顯示密碼)？"</string>
+    <string name="debug_enable_sensitive_logging_label">"要啟用敏感資訊偵錯記錄嗎？(該記錄可能會顯示密碼)"</string>
     <string name="message_list_load_more_messages_action">"載入更多郵件"</string>
     <string name="message_compose_to_hint">"收件者"</string>
     <string name="message_compose_cc_hint">"副本"</string>
@@ -75,7 +75,7 @@
     <string name="message_compose_quoted_text_label">"引用的文字"</string>
     <string name="message_compose_error_no_recipients">"您必須新增至少一位收件者。"</string>
     <string name="message_compose_attachments_skipped_toast">"尚未下載部分附件，因此無法予以轉寄。"</string>
-    <string name="message_compose_attachment_size">"檔案太大，超過附檔上限。"</string>
+    <string name="message_compose_attachment_size">"檔案過大，超過附件大小限制。"</string>
     <string name="message_view_to_label">"收件者："</string>
     <string name="message_view_cc_label">"副本："</string>
     <string name="message_view_attachment_view_action">"開啟"</string>
@@ -92,25 +92,25 @@
     <string name="add_contact_dlg_message_fmt">"將「<xliff:g id="EMAIL">%s</xliff:g>」新增為聯絡人"</string>
     <string name="message_view_display_attachment_toast">"無法顯示此附件。"</string>
     <string name="account_setup_basics_title">"設定電子郵件"</string>
-    <string name="account_setup_basics_instructions">"請輸入您帳戶的電子郵件地址："</string>
+    <string name="account_setup_basics_instructions">"請輸入帳戶的電子郵件地址："</string>
     <string name="account_setup_basics_email_hint">"電子郵件地址"</string>
     <string name="account_setup_basics_password_hint">"密碼"</string>
     <string name="account_setup_basics_default_label">"預設使用這個帳戶傳送電子郵件。"</string>
     <string name="account_setup_basics_manual_setup_action">"手動設定"</string>
     <string name="account_setup_username_password_toast">"請輸入有效的電子郵件地址和密碼。"</string>
     <string name="account_setup_check_settings_retr_info_msg">"正在擷取帳戶資訊..."</string>
-    <string name="account_setup_check_settings_check_incoming_msg">"正在檢查內收伺服器設定..."</string>
+    <string name="account_setup_check_settings_check_incoming_msg">"正在檢查收信伺服器設定..."</string>
     <string name="account_setup_check_settings_check_outgoing_msg">"正在檢查外寄伺服器設定..."</string>
     <string name="account_setup_check_settings_canceling_msg">"取消中..."</string>
     <string name="account_setup_names_title">"設定電子郵件"</string>
-    <string name="account_setup_names_instructions">"帳戶已設定完成，您可以收發電子郵件了！"</string>
-    <string name="account_setup_names_account_name_label">"為此帳戶命名 (選用)"</string>
-    <string name="account_setup_names_user_name_label">"您的名稱 (顯示於外寄郵件)"</string>
+    <string name="account_setup_names_instructions">"帳戶已設定完成，您可以開始收發電子郵件了！"</string>
+    <string name="account_setup_names_account_name_label">"設定帳戶名稱 (選擇性)"</string>
+    <string name="account_setup_names_user_name_label">"您的姓名 (顯示於外寄郵件)"</string>
     <string name="account_setup_account_type_title">"新增電子郵件帳戶"</string>
     <string name="account_setup_account_type_instructions">"帳戶類型為何？"</string>
     <string name="account_setup_account_type_pop_action">"POP3 帳戶"</string>
     <string name="account_setup_account_type_imap_action">"IMAP 帳戶"</string>
-    <string name="account_setup_incoming_title">"內收伺服器設定"</string>
+    <string name="account_setup_incoming_title">"收信伺服器設定"</string>
     <string name="account_setup_incoming_username_label">"使用者名稱"</string>
     <string name="account_setup_incoming_password_label">"密碼"</string>
     <string name="account_setup_incoming_pop_server_label">"POP3 伺服器"</string>
@@ -143,7 +143,7 @@
     <string name="account_setup_options_mail_check_frequency_15min">"每 15 分鐘檢查一次"</string>
     <string name="account_setup_options_mail_check_frequency_30min">"每 30 分鐘檢查一次"</string>
     <string name="account_setup_options_mail_check_frequency_1hour">"每小時檢查一次"</string>
-    <string name="account_setup_options_default_label">"預設使用這個帳戶傳送電子郵件。"</string>
+    <string name="account_setup_options_default_label">"設為傳送電子郵件的預設帳戶。"</string>
     <string name="account_setup_options_notify_label">"收到電子郵件時通知我。"</string>
     <string name="account_setup_failed_dlg_title">"無法完成設定"</string>
     <string name="account_setup_failed_dlg_auth_message">"使用者名稱或密碼不正確。"</string>
@@ -156,7 +156,7 @@
     <string name="account_setup_failed_auth_required">"伺服器不支援這些驗證方法。"</string>
     <string name="account_setup_failed_security">"發生安全性錯誤，無法連線至伺服器。"</string>
     <string name="account_setup_failed_ioerror">"無法連線至伺服器。"</string>
-    <string name="account_setup_failed_dlg_edit_details_action">"編輯詳細資訊"</string>
+    <string name="account_setup_failed_dlg_edit_details_action">"請編輯資料"</string>
     <string name="account_settings_title_fmt">"一般設定"</string>
     <string name="account_settings_default_label">"預設帳戶"</string>
     <string name="account_settings_default_summary">"預設使用這個帳戶傳送電子郵件"</string>
@@ -167,16 +167,16 @@
     <string name="account_settings_outgoing_label">"外寄設定"</string>
     <string name="account_settings_add_account_label">"新增其他帳戶"</string>
     <string name="account_settings_description_label">"帳戶名稱"</string>
-    <string name="account_settings_name_label">"您的名稱"</string>
+    <string name="account_settings_name_label">"您的姓名"</string>
     <string name="account_settings_notifications">"通知設定"</string>
-    <string name="account_settings_vibrate_enable">"振動"</string>
-    <string name="account_settings_vibrate_summary">"收到電子郵件時也振動"</string>
+    <string name="account_settings_vibrate_enable">"震動"</string>
+    <string name="account_settings_vibrate_summary">"收到電子郵件時震動提醒"</string>
     <string name="account_settings_ringtone">"選取鈴聲"</string>
     <string name="account_settings_servers">"伺服器設定"</string>
     <string name="account_delete_dlg_title">"移除帳戶"</string>
     <string name="account_delete_dlg_instructions_fmt">"系統將從 [電子郵件] 中移除帳戶「<xliff:g id="ACCOUNT">%s</xliff:g>」。"</string>
-    <string name="provider_note_yahoo">"不支援某些類型的 Yahoo! 郵件帳戶信箱。如果您無法順利連線，請造訪 yahoo.com 以取得詳細資訊。"</string>
-    <string name="provider_note_yahoo_uk">"在設定此電子郵件帳戶前，請先造訪 Yahoo! 網站，並啟用這個帳戶的 POP3 電子郵件收發功能。"</string>
+    <string name="provider_note_yahoo">"系統不支援某些類型的 Yahoo! 郵件帳戶信箱。如果您無法順利連線，請前往 yahoo.com 以瞭解詳情。"</string>
+    <string name="provider_note_yahoo_uk">"在設定此電子郵件帳戶前，請先造訪 Yahoo! 網站，並啟用帳戶的 POP3 電子郵件收發功能。"</string>
     <string name="provider_note_live">"只有部分包含 POP 存取功能的「Plus」帳戶能與這個程式連線。如果您輸入的電子郵件地址和密碼無誤，卻仍無法登入，表示您可能尚未購買「Plus」帳戶。請啟動網頁瀏覽器，以存取這些電子郵件帳戶。"</string>
     <string name="provider_note_t_online">"在設定此電子郵件帳戶前，請先造訪 T-Online 網站，並設定 POP3 電子郵件收發功能的密碼。"</string>
 </resources>

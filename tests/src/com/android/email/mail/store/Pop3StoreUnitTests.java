@@ -32,6 +32,7 @@ import com.android.email.mail.transport.MockTransport;
 
 import android.test.AndroidTestCase;
 import android.test.suitebuilder.annotation.SmallTest;
+import android.util.Log;
 
 /**
  * This is a series of unit tests for the POP3 Store class.  These tests must be locally
@@ -56,7 +57,8 @@ public class Pop3StoreUnitTests extends AndroidTestCase {
         super.setUp();
         
         // These are needed so we can get at the inner classes
-        mStore = new Pop3Store("pop3://user:password@server:999");
+        mStore = (Pop3Store) Pop3Store.newInstance("pop3://user:password@server:999",
+                getContext(), null);
         mFolder = (Pop3Store.Pop3Folder) mStore.getFolder("INBOX");
         
         // This is needed for parsing mime messages
@@ -104,6 +106,42 @@ public class Pop3StoreUnitTests extends AndroidTestCase {
     }
     
     /**
+     * Test various rainy-day operations of the UIDL parser for multi-line responses
+     * TODO other malformed responses
+     */
+    public void testUIDLParserMultiFail() {
+        // multi-line mode
+        Pop3Store.Pop3Folder.UidlParser parser = mFolder.new UidlParser();
+        
+        // Test with null input
+        boolean result;
+        result = parser.parseMultiLine(null);
+        assertFalse(result);
+        
+        // Test with empty input
+        result = parser.parseMultiLine("");
+        assertFalse(result);
+    }
+    
+    /**
+     * Test various rainy-day operations of the UIDL parser for single-line responses
+     * TODO other malformed responses
+     */
+    public void testUIDLParserSingleFail() {
+        // single-line mode
+        Pop3Store.Pop3Folder.UidlParser parser = mFolder.new UidlParser();
+        
+        // Test with null input
+        boolean result;
+        result = parser.parseSingleLine(null);
+        assertFalse(result);
+        
+        // Test with empty input
+        result = parser.parseSingleLine("");
+        assertFalse(result);
+    }
+    
+    /**
      * Tests that variants on the RFC-specified formatting of UIDL work properly.
      */
     public void testUIDLComcastVariant() {
@@ -128,7 +166,7 @@ public class Pop3StoreUnitTests extends AndroidTestCase {
         
         // try to open it
         setupOpenFolder(mockTransport, 0, null);
-        mFolder.open(OpenMode.READ_ONLY);
+        mFolder.open(OpenMode.READ_ONLY, null);
     }
     
     /**
@@ -197,8 +235,8 @@ public class Pop3StoreUnitTests extends AndroidTestCase {
      */
     public void testSmallFolderFunctions() throws MessagingException {
             
-        // getMode() returns OpenMode.READ_ONLY
-        assertEquals(OpenMode.READ_ONLY, mFolder.getMode());
+        // getMode() returns OpenMode.READ_WRITE
+        assertEquals(OpenMode.READ_WRITE, mFolder.getMode());
         
        // create() return false
         assertFalse(mFolder.create(FolderType.HOLDS_FOLDERS));
@@ -240,13 +278,37 @@ public class Pop3StoreUnitTests extends AndroidTestCase {
         
         // copyMessages() is unsupported
         try {
-            mFolder.copyMessages(null, null);
+            mFolder.copyMessages(null, null, null);
             fail("Exception not thrown by copyMessages()");
         } catch (UnsupportedOperationException e) {
             // expected - succeed
         }
     }
     
+    /**
+     * Lightweight test to confirm that POP3 hasn't implemented any folder roles yet.
+     */
+    public void testNoFolderRolesYet() throws MessagingException {
+        Folder[] remoteFolders = mStore.getPersonalNamespaces();
+        for (Folder folder : remoteFolders) {
+            assertEquals(Folder.FolderRole.UNKNOWN, folder.getRole()); 
+        }
+    }
+
+    /**
+     * Lightweight test to confirm that POP3 isn't requesting structure prefetch.
+     */
+    public void testNoStructurePrefetch() {
+        assertFalse(mStore.requireStructurePrefetch()); 
+    }
+    
+    /**
+     * Lightweight test to confirm that POP3 is requesting sent-message-upload.
+     */
+    public void testSentUploadRequested() {
+        assertTrue(mStore.requireCopyMessageToSentFolder()); 
+    }
+
     /**
      * Test the process of opening and indexing a mailbox with one unread message in it.
      * 
@@ -258,6 +320,35 @@ public class Pop3StoreUnitTests extends AndroidTestCase {
         MockTransport mockTransport = openAndInjectMockTransport();
         
         checkOneUnread(mockTransport);
+    }
+
+    /**
+     * Test the process of opening and getting message by uid.
+     */
+    public void testGetMessageByUid() throws MessagingException {
+        
+        MockTransport mockTransport = openAndInjectMockTransport();
+        
+        setupOpenFolder(mockTransport, 2, null);
+        mFolder.open(OpenMode.READ_WRITE, null);
+        // check message count
+        assertEquals(2, mFolder.getMessageCount());
+
+        // setup 2 messages
+        setupUidlSequence(mockTransport, 2);
+        String uid1 = getSingleMessageUID(1);
+        String uid2 = getSingleMessageUID(2);
+        String uid3 = getSingleMessageUID(3);
+        
+        Message msg1 = mFolder.getMessage(uid1);
+        assertTrue("message with uid1", msg1 != null);
+
+        // uid3 does not exist
+        Message msg3 = mFolder.getMessage(uid3);
+        assertTrue("message with uid3", msg3 == null);
+
+        Message msg2 = mFolder.getMessage(uid2);
+        assertTrue("message with uid2", msg2 != null);
     }
 
     /**
@@ -568,7 +659,7 @@ public class Pop3StoreUnitTests extends AndroidTestCase {
     private void openFolderWithMessage(MockTransport mockTransport) throws MessagingException {
         // try to open it
         setupOpenFolder(mockTransport, 1, null);
-        mFolder.open(OpenMode.READ_ONLY);
+        mFolder.open(OpenMode.READ_ONLY, null);
         
         // check message count
         assertEquals(1, mFolder.getMessageCount());

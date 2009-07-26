@@ -16,12 +16,15 @@
 
 package com.android.email.mail.internet;
 
+import com.android.email.mail.Address;
+import com.android.email.mail.Flag;
 import com.android.email.mail.MessagingException;
-import com.android.email.mail.internet.MimeHeader;
-import com.android.email.mail.internet.MimeMessage;
+import com.android.email.mail.Message.RecipientType;
 
 import android.test.suitebuilder.annotation.SmallTest;
+import android.test.suitebuilder.annotation.MediumTest;
 
+import java.io.ByteArrayOutputStream;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.Date;
@@ -67,6 +70,7 @@ public class MimeMessageTest extends TestCase {
      * @throws MessagingException
      * @throws ParseException
      */
+    @MediumTest
     public void testSetSentDate() throws MessagingException, ParseException {
         Locale savedLocale = Locale.getDefault();
         Locale.setDefault(Locale.US);
@@ -211,5 +215,210 @@ public class MimeMessageTest extends TestCase {
                     trimmed.startsWith("=?") && trimmed.endsWith("?="));
         }
     }
+    
+    /**
+     * Test for encoding address field.
+     */
+    public void testEncodingAddressField() throws MessagingException {
+        Address noName1 = new Address("noname1@dom1.com");
+        Address noName2 = new Address("<noname2@dom2.com>", "");
+        Address simpleName = new Address("address3@dom3.org", "simple long and long long name");
+        Address dquoteName = new Address("address4@dom4.org", "name,4,long long name");
+        Address quotedName = new Address("bigG@dom5.net", "big \"G\"");
+        Address utf16Name = new Address("<address6@co.jp>", "\"\u65E5\u672C\u8A9E\"");
+        Address utf32Name = new Address("<address8@ne.jp>", "\uD834\uDF01\uD834\uDF46");
+        
+        MimeMessage message = new MimeMessage();
+        
+        message.setFrom(noName1);
+        message.setRecipient(RecipientType.TO, noName2);
+        message.setRecipients(RecipientType.CC, new Address[] { simpleName, dquoteName });
+        message.setReplyTo(new Address[] { quotedName, utf16Name, utf32Name });
+        
+        String[] from = message.getHeader("From");
+        String[] to = message.getHeader("To");
+        String[] cc = message.getHeader("Cc");
+        String[] replyTo = message.getHeader("Reply-to");
+        
+        assertEquals("from address count", 1, from.length); 
+        assertEquals("no name 1", "noname1@dom1.com", from[0]);
+        
+        assertEquals("to address count", 1, to.length); 
+        assertEquals("no name 2", "noname2@dom2.com", to[0]);
+        
+        // folded.
+        assertEquals("cc address count", 1, cc.length); 
+        assertEquals("simple name & double quoted name",
+                "simple long and long long name <address3@dom3.org>, \"name,4,long long\r\n"
+                + " name\" <address4@dom4.org>",
+                cc[0]);
+        
+        // folded and encoded.
+        assertEquals("reply-to address count", 1, replyTo.length); 
+        assertEquals("quoted name & encoded name",
+                "\"big \\\"G\\\"\" <bigG@dom5.net>, =?UTF-8?B?5pel5pys6Kqe?=\r\n"
+                + " <address6@co.jp>, =?UTF-8?B?8J2MgfCdjYY=?= <address8@ne.jp>",
+                replyTo[0]);
+    }
 
+    /**
+     * Test for parsing address field.
+     */
+    public void testParsingAddressField() throws MessagingException {
+        MimeMessage message = new MimeMessage();
+        
+        message.setHeader("From", "noname1@dom1.com");
+        message.setHeader("To", "<noname2@dom2.com>");
+        // folded.
+        message.setHeader("Cc",
+                "simple name <address3@dom3.org>,\r\n"
+                + " \"name,4\" <address4@dom4.org>");
+        // folded and encoded.
+        message.setHeader("Reply-to", 
+                "\"big \\\"G\\\"\" <bigG@dom5.net>,\r\n"
+                + " =?UTF-8?B?5pel5pys6Kqe?=\r\n"
+                + " <address6@co.jp>,\n"
+                + " \"=?UTF-8?B?8J2MgfCdjYY=?=\" <address8@ne.jp>");
+        
+        Address[] from = message.getFrom();
+        Address[] to = message.getRecipients(RecipientType.TO);
+        Address[] cc = message.getRecipients(RecipientType.CC);
+        Address[] replyTo = message.getReplyTo();
+        
+        assertEquals("from address count", 1, from.length); 
+        assertEquals("no name 1 address", "noname1@dom1.com", from[0].getAddress());
+        assertNull("no name 1 name", from[0].getPersonal());
+        
+        assertEquals("to address count", 1, to.length); 
+        assertEquals("no name 2 address", "noname2@dom2.com", to[0].getAddress());
+        assertNull("no name 2 name", to[0].getPersonal());
+
+        assertEquals("cc address count", 2, cc.length); 
+        assertEquals("simple name address", "address3@dom3.org", cc[0].getAddress());
+        assertEquals("simple name name", "simple name", cc[0].getPersonal());
+        assertEquals("double quoted name address", "address4@dom4.org", cc[1].getAddress());
+        assertEquals("double quoted name name", "name,4", cc[1].getPersonal());
+
+        assertEquals("reply-to address count", 3, replyTo.length); 
+        assertEquals("quoted name address", "bigG@dom5.net", replyTo[0].getAddress());
+        assertEquals("quoted name name", "big \"G\"", replyTo[0].getPersonal());
+        assertEquals("utf-16 name address", "address6@co.jp", replyTo[1].getAddress());
+        assertEquals("utf-16 name name", "\u65E5\u672C\u8A9E", replyTo[1].getPersonal());
+        assertEquals("utf-32 name address", "address8@ne.jp", replyTo[2].getAddress());
+        assertEquals("utf-32 name name", "\uD834\uDF01\uD834\uDF46", replyTo[2].getPersonal());
+    }
+    
+    /*
+     * Test setting & getting store-specific flags
+     */
+    public void testStoreFlags() throws MessagingException {
+        MimeMessage message = new MimeMessage();
+
+        // Message should create with no flags
+        Flag[] flags = message.getFlags();
+        assertEquals(0, flags.length);
+
+        // Set a store flag
+        message.setFlag(Flag.X_STORE_1, true);
+        assertTrue(message.isSet(Flag.X_STORE_1));
+        assertFalse(message.isSet(Flag.X_STORE_2));
+
+        // Set another
+        message.setFlag(Flag.X_STORE_2, true);
+        assertTrue(message.isSet(Flag.X_STORE_1));
+        assertTrue(message.isSet(Flag.X_STORE_2));
+
+        // Set some and clear some
+        message.setFlag(Flag.X_STORE_1, false);
+        assertFalse(message.isSet(Flag.X_STORE_1));
+        assertTrue(message.isSet(Flag.X_STORE_2));
+
+    }
+
+    /*
+     * Test for setExtendedHeader() and getExtendedHeader()
+     */
+    public void testExtendedHeader() throws MessagingException {
+        MimeMessage message = new MimeMessage();
+        
+        assertNull("non existent header", message.getExtendedHeader("X-Non-Existent"));
+        
+        message.setExtendedHeader("X-Header1", "value1");
+        message.setExtendedHeader("X-Header2", "value2\n value3\r\n value4\r\n");
+        assertEquals("simple value", "value1",
+                message.getExtendedHeader("X-Header1"));
+        assertEquals("multi line value", "value2 value3 value4",
+                message.getExtendedHeader("X-Header2"));
+        assertNull("non existent header 2", message.getExtendedHeader("X-Non-Existent"));
+        
+        message.setExtendedHeader("X-Header1", "value4");
+        assertEquals("over written value", "value4", message.getExtendedHeader("X-Header1"));
+        
+        message.setExtendedHeader("X-Header1", null);
+        assertNull("remove header", message.getExtendedHeader("X-Header1"));
+    }
+    
+    /*
+     * Test for setExtendedHeaders() and getExtendedheaders()
+     */
+    public void testExtendedHeaders() throws MessagingException {
+        MimeMessage message = new MimeMessage();
+
+        assertNull("new message", message.getExtendedHeaders());
+        message.setExtendedHeaders(null);
+        assertNull("null headers", message.getExtendedHeaders());
+        message.setExtendedHeaders("");
+        assertNull("empty headers", message.getExtendedHeaders());
+        
+        message.setExtendedHeaders("X-Header1: value1\r\n");
+        assertEquals("header 1 value", "value1", message.getExtendedHeader("X-Header1"));
+        assertEquals("header 1", "X-Header1: value1\r\n", message.getExtendedHeaders());
+        
+        message.setExtendedHeaders(null);
+        message.setExtendedHeader("X-Header2", "value2");
+        message.setExtendedHeader("X-Header3",  "value3\n value4\r\n value5\r\n");
+        assertEquals("headers 2,3",
+                "X-Header2: value2\r\n" +
+                "X-Header3: value3 value4 value5\r\n",
+                message.getExtendedHeaders());
+
+        message.setExtendedHeaders(
+                "X-Header3: value3 value4 value5\r\n" +
+                "X-Header2: value2\r\n");
+        assertEquals("header 2", "value2", message.getExtendedHeader("X-Header2"));
+        assertEquals("header 3", "value3 value4 value5", message.getExtendedHeader("X-Header3"));
+        assertEquals("headers 3,2",
+                "X-Header3: value3 value4 value5\r\n" +
+                "X-Header2: value2\r\n",
+                message.getExtendedHeaders());
+    }
+    
+    /*
+     * Test for writeTo(), only for header part.
+     */
+    public void testWriteToHeader() throws Exception {
+        MimeMessage message = new MimeMessage();
+        
+        message.setHeader("Header1", "value1");
+        message.setHeader(MimeHeader.HEADER_ANDROID_ATTACHMENT_STORE_DATA, "value2");
+        message.setExtendedHeader("X-Header3", "value3");
+        message.setHeader("Header4", "value4");
+        message.setExtendedHeader("X-Header5", "value5");
+        
+        ByteArrayOutputStream out = new ByteArrayOutputStream();
+        message.writeTo(out);
+        out.close();
+        String expectedString = "Message-ID: " + message.getMessageId() + "\r\n" +
+                "Header1: value1\r\n" +
+                "Header4: value4\r\n" +
+                "\r\n";
+        byte[] expected = expectedString.getBytes();
+        byte[] actual = out.toByteArray();
+        assertEquals("output length", expected.length, actual.length);
+        for (int i = 0; i < actual.length; ++i) {
+            assertEquals("output byte["+i+"]", expected[i], actual[i]);
+        }
+    }
+    
+    // TODO more test for writeTo()
 }

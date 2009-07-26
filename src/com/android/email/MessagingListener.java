@@ -87,6 +87,18 @@ public class MessagingListener {
 
     public void loadMessageForViewFailed(Account account, String folder, String uid, String message) {
     }
+    
+    public void loadInlineImagesForViewStarted(Account account, Message message) {
+    }
+
+    public void loadInlineImagesForViewOneAvailable(Account account, Message message, Part part) {
+    }
+
+    public void loadInlineImagesForViewFinished(Account account, Message message) {
+    }
+
+    public void loadInlineImagesForViewFailed(Account account, Message message) {
+    }
 
     public void checkMailStarted(Context context, Account account) {
     }
@@ -98,6 +110,12 @@ public class MessagingListener {
     }
 
     public void sendPendingMessagesCompleted(Account account) {
+    }
+
+    public void sendPendingMessagesFailed(Account account, Exception reason) {
+    }
+
+    public void sendPendingMessageFailed(Account account, Message message, Exception reason) {
     }
 
     public void emptyTrashCompleted(Account account) {

@@ -55,10 +55,8 @@
     <item quantity="few">"<xliff:g id="UNREAD_MESSAGE_COUNT">%d</xliff:g> uleste (<xliff:g id="ACCOUNT">%s</xliff:g>)"</item>
     <item quantity="other">"<xliff:g id="UNREAD_MESSAGE_COUNT">%d</xliff:g> uleste (<xliff:g id="ACCOUNT">%s</xliff:g>)"</item>
   </plurals>
-  <plurals name="notification_new_multi_account_fmt">
-    <item quantity="few">"i <xliff:g id="NUMBER_ACCOUNTS">%d</xliff:g> kontoer"</item>
-    <item quantity="other">"i <xliff:g id="NUMBER_ACCOUNTS">%d</xliff:g> kontoer"</item>
-  </plurals>
+    <!-- no translation found for notification_new_multi_account_fmt:few (1991747245324120305) -->
+    <!-- no translation found for notification_new_multi_account_fmt:other (2723797835410343458) -->
     <string name="special_mailbox_name_inbox">"Innboks"</string>
     <string name="accounts_welcome">"Velkommen til e-post-oppsettet!"\n\n"Du kan bruke hvilken som helst e-postkonto."\n\n"De fleste vanlige e-postkontoer kan settes opp i to trinn!"</string>
     <string name="debug_version_fmt">"Version: <xliff:g id="VERSION">%s</xliff:g>"</string>
@@ -75,7 +73,9 @@
     <string name="message_compose_quoted_text_label">"Sitert tekst"</string>
     <string name="message_compose_error_no_recipients">"Du må legge til minst én mottager."</string>
     <string name="message_compose_attachments_skipped_toast">"Noen vedlegg kunne ikke sendes videre fordi de ikke er blitt lastet ned."</string>
-    <string name="message_compose_attachment_size">"Filen er for stor til å bli lagt ved."</string>
+    <!-- no translation found for message_compose_attachment_size (4401081828287333647) -->
+    <!-- no translation found for message_compose_attachment_size (8944461117941172986) -->
+    <skip />
     <string name="message_view_to_label">"Til:"</string>
     <string name="message_view_cc_label">"Kopi:"</string>
     <string name="message_view_attachment_view_action">"Åpne"</string>
@@ -88,8 +88,10 @@
     <string name="message_deleted_toast">"Meldingen ble slettet."</string>
     <string name="message_discarded_toast">"Meldingen ble forkastet."</string>
     <string name="message_saved_toast">"Meldingen ble lagret som utkast."</string>
-    <string name="add_contact_dlg_title">"Legg til kontakt"</string>
-    <string name="add_contact_dlg_message_fmt">"Legg til \"<xliff:g id="EMAIL">%s</xliff:g>\" som kontakt"</string>
+    <!-- no translation found for add_contact_dlg_title (7424641029188006580) -->
+    <skip />
+    <!-- no translation found for add_contact_dlg_message_fmt (4470846346726847478) -->
+    <skip />
     <string name="message_view_display_attachment_toast">"Kan ikke vise vedlegget."</string>
     <string name="account_setup_basics_title">"Sett opp e-post"</string>
     <string name="account_setup_basics_instructions">"Skriv e-postadressen til kontoen din:"</string>
@@ -177,6 +179,6 @@
     <string name="account_delete_dlg_instructions_fmt">"Kontoen \"<xliff:g id="ACCOUNT">%s</xliff:g>\" vil bli fjernet fra e-postapplikasjonen."</string>
     <string name="provider_note_yahoo">"E-posttilgang er ikke støttet for enkelte typer Yahoo!-e-postkontoer. Hvis du har problemer med å koble til, besøk yahoo.com for mer informasjon."</string>
     <string name="provider_note_yahoo_uk">"Før du setter opp denne e-postkontoen, må du gå til Yahoo!-nettsiden og slå på POP3-tilgang for den."</string>
-    <string name="provider_note_live">"Bare noen \"pluss-kontoer\" tilbyr POP-tilgang som dette programmet trenger for å koble til. Hvis du ikke klarer å logge inn med riktig e-postadresse og passord, kan det være du ikke har en betalt \"pluss-tilgang\". Start nettleseren for å få tilgang til slike e-postkontoer."</string>
+    <string name="provider_note_live">"Bare noen \"pluss-kontoer tilbyr POP-tilgangBREAK_0        som dette programmet trenger for å koble til. Hvis du ikke klarer å logge innBREAK_1        med riktig e-postadresse og passord, kan det være du ikke har en betaltBREAK_2        \"pluss-tilgang. Start nettleseren for å få tilgang til slike e-postkontoer."</string>
     <string name="provider_note_t_online">"Før du setter opp denne e-postkontoen, besøk T-Online-nettsiden og velg et passord for e-posttilgang via POP3."</string>
 </resources>

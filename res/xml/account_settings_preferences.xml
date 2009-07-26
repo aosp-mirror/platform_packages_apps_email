@@ -20,25 +20,31 @@
         android:key="account_settings">
 
         <EditTextPreference
+            android:order="1"
             android:key="account_description"
             android:title="@string/account_settings_description_label"
             android:summary=""
             android:dialogTitle="@string/account_settings_description_label" />
 
         <EditTextPreference
+            android:order="2"
             android:key="account_name"
             android:title="@string/account_settings_name_label"
             android:summary=""
             android:dialogTitle="@string/account_settings_name_label" />
 
         <ListPreference
+            android:order="3"
             android:key="account_check_frequency"
             android:title="@string/account_settings_mail_check_frequency_label"
             android:entries="@array/account_settings_check_frequency_entries"
             android:entryValues="@array/account_settings_check_frequency_values"
             android:dialogTitle="@string/account_settings_mail_check_frequency_label" />
 
+		<!-- Reserve order#4 here for window size (if inserted) -->
+		
         <CheckBoxPreference
+            android:order="5"
             android:key="account_default"
             android:title="@string/account_settings_default_label"
             android:summary="@string/account_settings_default_summary" />
@@ -71,7 +77,9 @@
 
     </PreferenceCategory>
 
-    <PreferenceCategory android:title="@string/account_settings_servers">
+    <PreferenceCategory 
+        android:key="account_servers"
+        android:title="@string/account_settings_servers">
     
         <PreferenceScreen
             android:key="incoming"

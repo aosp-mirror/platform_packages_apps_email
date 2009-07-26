@@ -16,7 +16,24 @@
 
 package com.android.email.mail.internet;
 
+import com.android.email.mail.Address;
+import com.android.email.mail.Body;
+import com.android.email.mail.BodyPart;
+import com.android.email.mail.Message;
+import com.android.email.mail.MessagingException;
+import com.android.email.mail.Part;
+
+import org.apache.james.mime4j.BodyDescriptor;
+import org.apache.james.mime4j.ContentHandler;
+import org.apache.james.mime4j.EOLConvertingInputStream;
+import org.apache.james.mime4j.MimeStreamParser;
+import org.apache.james.mime4j.field.DateTimeField;
+import org.apache.james.mime4j.field.Field;
+
+import android.text.TextUtils;
+
 import java.io.BufferedWriter;
+import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
@@ -27,27 +44,13 @@ import java.util.Locale;
 import java.util.Stack;
 import java.util.regex.Pattern;
 
-import org.apache.james.mime4j.BodyDescriptor;
-import org.apache.james.mime4j.ContentHandler;
-import org.apache.james.mime4j.EOLConvertingInputStream;
-import org.apache.james.mime4j.MimeStreamParser;
-import org.apache.james.mime4j.field.DateTimeField;
-import org.apache.james.mime4j.field.Field;
-
-import com.android.email.mail.Address;
-import com.android.email.mail.Body;
-import com.android.email.mail.BodyPart;
-import com.android.email.mail.Message;
-import com.android.email.mail.MessagingException;
-import com.android.email.mail.Multipart;
-import com.android.email.mail.Part;
-
 /**
  * An implementation of Message that stores all of it's metadata in RFC 822 and
  * RFC 2045 style headers.
  */
 public class MimeMessage extends Message {
     protected MimeHeader mHeader = new MimeHeader();
+    protected MimeHeader mExtendedHeader;
     
     // NOTE:  The fields here are transcribed out of headers, and values stored here will supercede
     // the values found in the headers.  Use caution to prevent any out-of-phase errors.  In
@@ -71,6 +74,8 @@ public class MimeMessage extends Message {
 
     // regex that matches content id surrounded by "<>" optionally.
     private static final Pattern REMOVE_OPTIONAL_BRACKETS = Pattern.compile("^<?([^>]+)>?$");
+    // regex that matches end of line.
+    private static final Pattern END_OF_LINE = Pattern.compile("\r?\n");
 
     public MimeMessage() {
         /*
@@ -210,12 +215,15 @@ public class MimeMessage extends Message {
     }
 
     public void setRecipients(RecipientType type, Address[] addresses) throws MessagingException {
+        final int TO_LENGTH = 4;  // "To: "
+        final int CC_LENGTH = 4;  // "Cc: "
+        final int BCC_LENGTH = 5; // "Bcc: "
         if (type == RecipientType.TO) {
             if (addresses == null || addresses.length == 0) {
                 removeHeader("To");
                 this.mTo = null;
             } else {
-                setHeader("To", Address.toString(addresses));
+                setHeader("To", MimeUtility.fold(Address.toHeader(addresses), TO_LENGTH));
                 this.mTo = addresses;
             }
         } else if (type == RecipientType.CC) {
@@ -223,7 +231,7 @@ public class MimeMessage extends Message {
                 removeHeader("CC");
                 this.mCc = null;
             } else {
-                setHeader("CC", Address.toString(addresses));
+                setHeader("CC", MimeUtility.fold(Address.toHeader(addresses), CC_LENGTH));
                 this.mCc = addresses;
             }
         } else if (type == RecipientType.BCC) {
@@ -231,7 +239,7 @@ public class MimeMessage extends Message {
                 removeHeader("BCC");
                 this.mBcc = null;
             } else {
-                setHeader("BCC", Address.toString(addresses));
+                setHeader("BCC", MimeUtility.fold(Address.toHeader(addresses), BCC_LENGTH));
                 this.mBcc = addresses;
             }
         } else {
@@ -263,8 +271,9 @@ public class MimeMessage extends Message {
     }
 
     public void setFrom(Address from) throws MessagingException {
+        final int FROM_LENGTH = 6;  // "From: "
         if (from != null) {
-            setHeader("From", from.toString());
+            setHeader("From", MimeUtility.fold(from.toHeader(), FROM_LENGTH));
             this.mFrom = new Address[] {
                     from
                 };
@@ -281,11 +290,12 @@ public class MimeMessage extends Message {
     }
 
     public void setReplyTo(Address[] replyTo) throws MessagingException {
+        final int REPLY_TO_LENGTH = 10;  // "Reply-to: "
         if (replyTo == null || replyTo.length == 0) {
             removeHeader("Reply-to");
             mReplyTo = null;
         } else {
-            setHeader("Reply-to", Address.toString(replyTo));
+            setHeader("Reply-to", MimeUtility.fold(Address.toHeader(replyTo), REPLY_TO_LENGTH));
             mReplyTo = replyTo;
         }
     }
@@ -357,9 +367,85 @@ public class MimeMessage extends Message {
         mHeader.removeHeader(name);
     }
 
+    /**
+     * Set extended header
+     * 
+     * @param name Extended header name
+     * @param value header value - flattened by removing CR-NL if any
+     * remove header if value is null
+     * @throws MessagingException
+     */
+    public void setExtendedHeader(String name, String value) throws MessagingException {
+        if (value == null) {
+            if (mExtendedHeader != null) {
+                mExtendedHeader.removeHeader(name);
+            }
+            return;
+        }
+        if (mExtendedHeader == null) {
+            mExtendedHeader = new MimeHeader(); 
+        }
+        mExtendedHeader.setHeader(name, END_OF_LINE.matcher(value).replaceAll(""));
+    }
+
+    /**
+     * Get extended header
+     * 
+     * @param name Extended header name
+     * @return header value - null if header does not exist
+     * @throws MessagingException 
+     */
+    public String getExtendedHeader(String name) throws MessagingException {
+        if (mExtendedHeader == null) {
+            return null;
+        }
+        return mExtendedHeader.getFirstHeader(name);
+    }
+
+    /**
+     * Set entire extended headers from String
+     * 
+     * @param headers Extended header and its value - "CR-NL-separated pairs
+     * if null or empty, remove entire extended headers
+     * @throws MessagingException
+     */
+    public void setExtendedHeaders(String headers) throws MessagingException {
+        if (TextUtils.isEmpty(headers)) {
+            mExtendedHeader = null;
+        } else {
+            mExtendedHeader = new MimeHeader();
+            for (String header : END_OF_LINE.split(headers)) {
+                String[] tokens = header.split(":", 2);
+                if (tokens.length != 2) {
+                    throw new MessagingException("Illegal extended headers: " + headers);
+                }
+                mExtendedHeader.setHeader(tokens[0].trim(), tokens[1].trim());
+            }
+        }
+    }
+
+    /**
+     * Get entire extended headers as String
+     * 
+     * @return "CR-NL-separated extended headers - null if extended header does not exist
+     */
+    public String getExtendedHeaders() {
+        if (mExtendedHeader != null) {
+            return mExtendedHeader.writeToString();
+        }
+        return null;
+    }
+
+    /**
+     * Write message header and body to output stream
+     * 
+     * @param out Output steam to write message header and body.
+     */
     public void writeTo(OutputStream out) throws IOException, MessagingException {
         BufferedWriter writer = new BufferedWriter(new OutputStreamWriter(out), 1024);
         mHeader.writeTo(out);
+        // mExtendedHeader will not be write out to external output stream,
+        // because it is intended to internal use.
         writer.write("\r\n");
         writer.flush();
         if (mBody != null) {

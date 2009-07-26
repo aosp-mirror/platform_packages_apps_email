@@ -64,9 +64,7 @@ public class Email extends Application {
      * The MIME type(s) of attachments we're willing to view.
      */
     public static final String[] ACCEPTABLE_ATTACHMENT_VIEW_TYPES = new String[] {
-        "image/*",
-        "audio/*",
-        "text/*",
+        "*/*",
     };
 
     /**
@@ -99,10 +97,10 @@ public class Email extends Application {
      * on each new folder and can be incremented with "Load more messages..." by the
      * VISIBLE_LIMIT_INCREMENT
      */
-    public static final int DEFAULT_VISIBLE_LIMIT = 25;
+    public static final int VISIBLE_LIMIT_DEFAULT = 25;
 
     /**
-     * Number of additioanl messages to load when a user selectes "Load more messages..."
+     * Number of additional messages to load when a user selects "Load more messages..."
      */
     public static final int VISIBLE_LIMIT_INCREMENT = 25;
 

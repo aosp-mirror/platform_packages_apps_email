@@ -17,7 +17,6 @@
 package com.android.email.mail.store;
 
 import com.android.email.Email;
-import com.android.email.PeekableInputStream;
 import com.android.email.Utility;
 import com.android.email.mail.AuthenticationFailedException;
 import com.android.email.mail.CertificateValidationException;
@@ -42,6 +41,7 @@ import com.android.email.mail.transport.EOLConvertingOutputStream;
 import com.android.email.mail.transport.MailTransport;
 import com.beetstra.jutf7.CharsetProvider;
 
+import android.content.Context;
 import android.util.Config;
 import android.util.Log;
 
@@ -109,6 +109,14 @@ public class ImapStore extends Store {
     private HashMap<String, ImapFolder> mFolderCache = new HashMap<String, ImapFolder>();
 
     /**
+     * Static named constructor.
+     */
+    public static Store newInstance(String uri, Context context, PersistentDataCallbacks callbacks)
+            throws MessagingException {
+        return new ImapStore(uri);
+    }
+
+    /**
      * Allowed formats for the Uri:
      * imap://user:password@server:port CONNECTION_SECURITY_NONE
      * imap+tls://user:password@server:port CONNECTION_SECURITY_TLS_OPTIONAL
@@ -118,7 +126,7 @@ public class ImapStore extends Store {
      *
      * @param uriString the Uri containing information to configure this store
      */
-    public ImapStore(String uriString) throws MessagingException {
+    private ImapStore(String uriString) throws MessagingException {
         URI uri;
         try {
             uri = new URI(uriString);
@@ -317,7 +325,8 @@ public class ImapStore extends Store {
             this.mName = name;
         }
 
-        public void open(OpenMode mode) throws MessagingException {
+        public void open(OpenMode mode, PersistentDataCallbacks callbacks)
+                throws MessagingException {
             if (isOpen() && mMode == mode) {
                 // Make sure the connection is valid. If it's not we'll close it down and continue
                 // on to get a new one.
@@ -472,7 +481,8 @@ public class ImapStore extends Store {
         }
 
         @Override
-        public void copyMessages(Message[] messages, Folder folder) throws MessagingException {
+        public void copyMessages(Message[] messages, Folder folder, 
+                MessageUpdateCallbacks callbacks) throws MessagingException {
             checkOpen();
             String[] uids = new String[messages.length];
             for (int i = 0, count = messages.length; i < count; i++) {
@@ -1206,9 +1216,25 @@ public class ImapStore extends Store {
             String tag = sendCommand(command, sensitive);
             ArrayList<ImapResponse> responses = new ArrayList<ImapResponse>();
             ImapResponse response;
+            ImapResponse previous = null;
             do {
+                // This is work around to parse literal in the middle of response.
+                // We should nail down the previous response literal string if any.
+                if (previous != null && !previous.completed()) {
+                    previous.nailDown();
+                }
                 response = mParser.readResponse();
+                // This is work around to parse literal in the middle of response.
+                // If we found unmatched tagged response, it possibly be the continuous
+                // response just after the literal string.
+                if (response.mTag != null && !response.mTag.equals(tag)
+                        && previous != null && !previous.completed()) {
+                    previous.appendAll(response);
+                    response.mTag = null;
+                    continue;
+                }
                 responses.add(response);
+                previous = response;
             } while (response.mTag == null);
             if (response.size() < 1 || !response.get(0).equals("OK")) {
                 throw new ImapException(response.toString(), response.getAlertText());

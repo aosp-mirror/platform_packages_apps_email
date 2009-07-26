@@ -16,6 +16,18 @@
 
 package com.android.email.activity;
 
+import com.android.email.Account;
+import com.android.email.Email;
+import com.android.email.MessagingController;
+import com.android.email.Preferences;
+import com.android.email.R;
+import com.android.email.activity.setup.AccountSettings;
+import com.android.email.activity.setup.AccountSetupBasics;
+import com.android.email.mail.MessagingException;
+import com.android.email.mail.Store;
+import com.android.email.mail.store.LocalStore;
+import com.android.email.mail.store.LocalStore.LocalFolder;
+
 import android.app.AlertDialog;
 import android.app.Dialog;
 import android.app.ListActivity;
@@ -38,18 +50,6 @@ import android.widget.ListView;
 import android.widget.TextView;
 import android.widget.AdapterView.AdapterContextMenuInfo;
 import android.widget.AdapterView.OnItemClickListener;
-
-import com.android.email.Account;
-import com.android.email.Email;
-import com.android.email.MessagingController;
-import com.android.email.Preferences;
-import com.android.email.R;
-import com.android.email.activity.setup.AccountSettings;
-import com.android.email.activity.setup.AccountSetupBasics;
-import com.android.email.mail.MessagingException;
-import com.android.email.mail.Store;
-import com.android.email.mail.store.LocalStore;
-import com.android.email.mail.store.LocalStore.LocalFolder;
 
 public class Accounts extends ListActivity implements OnItemClickListener, OnClickListener {
     private static final int DIALOG_REMOVE_ACCOUNT = 1;
@@ -171,9 +171,19 @@ public class Accounts extends ListActivity implements OnItemClickListener, OnCli
                 public void onClick(DialogInterface dialog, int whichButton) {
                     dismissDialog(DIALOG_REMOVE_ACCOUNT);
                     try {
-                        ((LocalStore)Store.getInstance(
+                        LocalStore localStore = (LocalStore) Store.getInstance(
                                 mSelectedContextAccount.getLocalStoreUri(),
-                                getApplication())).delete();
+                                getApplication(), 
+                                null);
+                        // Delete Remote store at first.
+                        Store.getInstance(
+                                mSelectedContextAccount.getStoreUri(),
+                                getApplication(), 
+                                localStore.getPersistentCallbacks()).delete();
+                        // Remove the Store instance from cache.
+                        Store.removeInstance(mSelectedContextAccount.getStoreUri());
+                        // If no error, then delete LocalStore
+                        localStore.delete();
                     } catch (Exception e) {
                             // Ignore
                     }
@@ -294,7 +304,8 @@ public class Accounts extends ListActivity implements OnItemClickListener, OnCli
             try {
                 LocalStore localStore = (LocalStore) Store.getInstance(
                         account.getLocalStoreUri(),
-                        getApplication());
+                        getApplication(), 
+                        null);
                 LocalFolder localFolder = (LocalFolder) localStore.getFolder(Email.INBOX);
                 if (localFolder.exists()) {
                     unreadMessageCount = localFolder.getUnreadMessageCount();

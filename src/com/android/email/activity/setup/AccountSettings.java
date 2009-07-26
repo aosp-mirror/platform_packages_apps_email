@@ -16,22 +16,27 @@
 
 package com.android.email.activity.setup;
 
-import android.content.Context;
-import android.content.Intent;
-import android.content.SharedPreferences;
-import android.os.Bundle;
-import android.view.KeyEvent;
-import android.preference.PreferenceActivity;
-import android.preference.EditTextPreference;
-import android.preference.ListPreference;
-import android.preference.CheckBoxPreference;
-import android.preference.Preference;
-import android.preference.RingtonePreference;
-
 import com.android.email.Account;
 import com.android.email.Email;
 import com.android.email.Preferences;
 import com.android.email.R;
+import com.android.email.mail.MessagingException;
+import com.android.email.mail.Sender;
+import com.android.email.mail.Store;
+
+import android.app.Activity;
+import android.content.Intent;
+import android.content.SharedPreferences;
+import android.os.Bundle;
+import android.preference.CheckBoxPreference;
+import android.preference.EditTextPreference;
+import android.preference.ListPreference;
+import android.preference.Preference;
+import android.preference.PreferenceActivity;
+import android.preference.PreferenceCategory;
+import android.preference.RingtonePreference;
+import android.util.Log;
+import android.view.KeyEvent;
 
 public class AccountSettings extends PreferenceActivity {
     private static final String EXTRA_ACCOUNT = "account";
@@ -44,6 +49,7 @@ public class AccountSettings extends PreferenceActivity {
     private static final String PREFERENCE_NOTIFY = "account_notify";
     private static final String PREFERENCE_VIBRATE = "account_vibrate";
     private static final String PREFERENCE_RINGTONE = "account_ringtone";
+    private static final String PREFERENCE_SERVER_CATERGORY = "account_servers";
     private static final String PREFERENCE_INCOMING = "incoming";
     private static final String PREFERENCE_OUTGOING = "outgoing";
     private static final String PREFERENCE_ADD_ACCOUNT = "add_account";
@@ -53,15 +59,16 @@ public class AccountSettings extends PreferenceActivity {
     private EditTextPreference mAccountDescription;
     private EditTextPreference mAccountName;
     private ListPreference mCheckFrequency;
+    private ListPreference mSyncWindow;
     private CheckBoxPreference mAccountDefault;
     private CheckBoxPreference mAccountNotify;
     private CheckBoxPreference mAccountVibrate;
     private RingtonePreference mAccountRingtone;
 
-    public static void actionSettings(Context context, Account account) {
-        Intent i = new Intent(context, AccountSettings.class);
+    public static void actionSettings(Activity fromActivity, Account account) {
+        Intent i = new Intent(fromActivity, AccountSettings.class);
         i.putExtra(EXTRA_ACCOUNT, account);
-        context.startActivity(i);
+        fromActivity.startActivity(i);
     }
 
     @Override
@@ -72,8 +79,8 @@ public class AccountSettings extends PreferenceActivity {
 
         addPreferencesFromResource(R.xml.account_settings_preferences);
 
-        Preference category = findPreference(PREFERENCE_TOP_CATERGORY);
-        category.setTitle(getString(R.string.account_settings_title_fmt));
+        PreferenceCategory topCategory = (PreferenceCategory) findPreference(PREFERENCE_TOP_CATERGORY);
+        topCategory.setTitle(getString(R.string.account_settings_title_fmt));
 
         mAccountDescription = (EditTextPreference) findPreference(PREFERENCE_DESCRIPTION);
         mAccountDescription.setSummary(mAccount.getDescription());
@@ -98,8 +105,16 @@ public class AccountSettings extends PreferenceActivity {
                 return false;
             }
         });
-
+        
         mCheckFrequency = (ListPreference) findPreference(PREFERENCE_FREQUENCY);
+        
+        // Before setting value, we may need to adjust the lists
+        Store.StoreInfo info = Store.StoreInfo.getStoreInfo(mAccount.getStoreUri(), this);
+        if (info.mPushSupported) {
+            mCheckFrequency.setEntries(R.array.account_settings_check_frequency_entries_push);
+            mCheckFrequency.setEntryValues(R.array.account_settings_check_frequency_values_push);
+        }
+
         mCheckFrequency.setValue(String.valueOf(mAccount.getAutomaticCheckIntervalMinutes()));
         mCheckFrequency.setSummary(mCheckFrequency.getEntry());
         mCheckFrequency.setOnPreferenceChangeListener(new Preference.OnPreferenceChangeListener() {
@@ -111,6 +126,28 @@ public class AccountSettings extends PreferenceActivity {
                 return false;
             }
         });
+        
+        // Add check window preference
+        mSyncWindow = null;
+        if (info.mVisibleLimitDefault == -1) {
+            mSyncWindow = new ListPreference(this);
+            mSyncWindow.setTitle(R.string.account_setup_options_mail_window_label);
+            mSyncWindow.setEntries(R.array.account_settings_mail_window_entries);
+            mSyncWindow.setEntryValues(R.array.account_settings_mail_window_values);
+            mSyncWindow.setValue(String.valueOf(mAccount.getSyncWindow()));
+            mSyncWindow.setSummary(mSyncWindow.getEntry());
+            mSyncWindow.setOrder(4);
+            mSyncWindow.setOnPreferenceChangeListener(new Preference.OnPreferenceChangeListener() {
+                public boolean onPreferenceChange(Preference preference, Object newValue) {
+                    final String summary = newValue.toString();
+                    int index = mSyncWindow.findIndexOfValue(summary);
+                    mSyncWindow.setSummary(mSyncWindow.getEntries()[index]);
+                    mSyncWindow.setValue(summary);
+                    return false;
+                }
+            });
+            topCategory.addPreference(mSyncWindow);
+        }
 
         mAccountDefault = (CheckBoxPreference) findPreference(PREFERENCE_DEFAULT);
         mAccountDefault.setChecked(
@@ -137,13 +174,32 @@ public class AccountSettings extends PreferenceActivity {
                     }
                 });
 
-        findPreference(PREFERENCE_OUTGOING).setOnPreferenceClickListener(
-                new Preference.OnPreferenceClickListener() {
-                    public boolean onPreferenceClick(Preference preference) {
-                        onOutgoingSettings();
-                        return true;
-                    }
-                });
+        // Hide the outgoing account setup link if it's not activated
+        Preference prefOutgoing = findPreference(PREFERENCE_OUTGOING);
+        boolean showOutgoing = true;
+        try {
+            Sender sender = Sender.getInstance(mAccount.getSenderUri(), getApplication());
+            if (sender != null) {
+                Class<? extends android.app.Activity> setting = sender.getSettingActivityClass();
+                showOutgoing = (setting != null);
+            }
+        } catch (MessagingException me) {
+            // just leave showOutgoing as true - bias towards showing it, so user can fix it
+        }
+        if (showOutgoing) {
+            prefOutgoing.setOnPreferenceClickListener(
+                    new Preference.OnPreferenceClickListener() {
+                        public boolean onPreferenceClick(Preference preference) {
+                            onOutgoingSettings();
+                            return true;
+                        }
+                    });
+        } else {
+            PreferenceCategory serverCategory = (PreferenceCategory) findPreference(
+                    PREFERENCE_SERVER_CATERGORY);
+            serverCategory.removePreference(prefOutgoing);
+        }
+        
         findPreference(PREFERENCE_ADD_ACCOUNT).setOnPreferenceClickListener(
                 new Preference.OnPreferenceClickListener() {
                     public boolean onPreferenceClick(Preference preference) {
@@ -167,6 +223,10 @@ public class AccountSettings extends PreferenceActivity {
         mAccount.setName(mAccountName.getText());
         mAccount.setNotifyNewMail(mAccountNotify.isChecked());
         mAccount.setAutomaticCheckIntervalMinutes(Integer.parseInt(mCheckFrequency.getValue()));
+        if (mSyncWindow != null)
+        {
+            mAccount.setSyncWindow(Integer.parseInt(mSyncWindow.getValue()));
+        }
         mAccount.setVibrate(mAccountVibrate.isChecked());
         SharedPreferences prefs = mAccountRingtone.getPreferenceManager().getSharedPreferences();
         mAccount.setRingtone(prefs.getString(PREFERENCE_RINGTONE, null));
@@ -183,11 +243,35 @@ public class AccountSettings extends PreferenceActivity {
     }
 
     private void onIncomingSettings() {
-        AccountSetupIncoming.actionEditIncomingSettings(this, mAccount);
+        try {
+            Store store = Store.getInstance(mAccount.getStoreUri(), getApplication(), null);
+            if (store != null) {
+                Class<? extends android.app.Activity> setting = store.getSettingActivityClass();
+                if (setting != null) {
+                    java.lang.reflect.Method m = setting.getMethod("actionEditIncomingSettings",
+                            android.app.Activity.class, Account.class);
+                    m.invoke(null, this, mAccount);
+                }
+            }
+        } catch (Exception e) {
+            Log.d(Email.LOG_TAG, "Error while trying to invoke store settings.", e);
+        }
     }
 
     private void onOutgoingSettings() {
-        AccountSetupOutgoing.actionEditOutgoingSettings(this, mAccount);
+        try {
+            Sender sender = Sender.getInstance(mAccount.getSenderUri(), getApplication());
+            if (sender != null) {
+                Class<? extends android.app.Activity> setting = sender.getSettingActivityClass();
+                if (setting != null) {
+                    java.lang.reflect.Method m = setting.getMethod("actionEditOutgoingSettings",
+                            android.app.Activity.class, Account.class);
+                    m.invoke(null, this, mAccount);
+                }
+            }
+        } catch (Exception e) {
+            Log.d(Email.LOG_TAG, "Error while trying to invoke sender settings.", e);
+        }
     }
 
     private void onAddNewAccount() {

@@ -32,6 +32,7 @@ import com.android.email.mail.MessagingException;
 import com.android.email.mail.Multipart;
 import com.android.email.mail.Part;
 import com.android.email.mail.Message.RecipientType;
+import com.android.email.mail.internet.EmailHtmlUtil;
 import com.android.email.mail.internet.MimeBodyPart;
 import com.android.email.mail.internet.MimeHeader;
 import com.android.email.mail.internet.MimeMessage;
@@ -210,6 +211,7 @@ public class MessageCompose extends Activity implements OnClickListener, OnFocus
        try {
            Intent i = new Intent(context, MessageCompose.class);
            i.putExtra(EXTRA_ACCOUNT, account);
+           i.putExtra(EXTRA_FOLDER, account.getDraftsFolderName());
            context.startActivity(i);
        } catch (ActivityNotFoundException anfe) {
            // Swallow it - this is usually a race condition, especially under automated test.
@@ -711,11 +713,12 @@ public class MessageCompose extends Activity implements OnClickListener, OnFocus
         else {
             /*
              * Send the message
-             * TODO Is it possible for us to be editing a draft with a null source message? Don't
-             * think so. Could probably remove below check.
+             * If the source message is in other folder than draft, it should not be deleted while
+             * sending message.
              */
             if (ACTION_EDIT_DRAFT.equals(getIntent().getAction())
-                    && mSourceMessageUid != null) {
+                    && mSourceMessageUid != null
+                    && mFolder.equals(mAccount.getDraftsFolderName())) {
                 /*
                  * We're sending a previously saved draft, so delete the old draft first.
                  */
@@ -783,7 +786,9 @@ public class MessageCompose extends Activity implements OnClickListener, OnFocus
         Intent i = new Intent(Intent.ACTION_GET_CONTENT);
         i.addCategory(Intent.CATEGORY_OPENABLE);
         i.setType(Email.ACCEPTABLE_ATTACHMENT_SEND_TYPES[0]);
-        startActivityForResult(Intent.createChooser(i, null), ACTIVITY_REQUEST_PICK_ATTACHMENT);
+        startActivityForResult(
+                Intent.createChooser(i, getString(R.string.choose_attachment_dialog_title)),
+                ACTIVITY_REQUEST_PICK_ATTACHMENT);
     }
 
     private void addAttachment(Uri uri) {
@@ -1133,16 +1138,25 @@ public class MessageCompose extends Activity implements OnClickListener, OnFocus
                     }
                 }
 
-                Part part = MimeUtility.findFirstPartByMimeType(message, "text/plain");
+                Boolean plainTextFlag = false;
+                Part part = MimeUtility.findFirstPartByMimeType(message, "text/html");
                 if (part == null) {
-                    part = MimeUtility.findFirstPartByMimeType(message, "text/html");
+                    part = MimeUtility.findFirstPartByMimeType(message, "text/plain");
+                    plainTextFlag = true;
                 }
+
                 if (part != null) {
                     String text = MimeUtility.getTextFromPart(part);
                     if (text != null) {
+                        if (!plainTextFlag) {
+                            text = EmailHtmlUtil.resolveInlineImage(
+                                    getContentResolver(), mAccount, text, message, 0);
+                        } else {
+                            text = EmailHtmlUtil.escapeCharacterToDisplay(text);
+                        }
                         mQuotedTextBar.setVisibility(View.VISIBLE);
                         mQuotedText.setVisibility(View.VISIBLE);
-                        mQuotedText.loadDataWithBaseURL("email://", text, part.getMimeType(),
+                        mQuotedText.loadDataWithBaseURL("email://", text, "text/html",
                                 "utf-8", null);
                     }
                 }
@@ -1164,16 +1178,26 @@ public class MessageCompose extends Activity implements OnClickListener, OnFocus
                     mSubjectView.setText(message.getSubject());
                 }
 
-                Part part = MimeUtility.findFirstPartByMimeType(message, "text/plain");
+
+                Boolean plainTextFlag = false;
+                Part part = MimeUtility.findFirstPartByMimeType(message, "text/html");
                 if (part == null) {
-                    part = MimeUtility.findFirstPartByMimeType(message, "text/html");
+                    part = MimeUtility.findFirstPartByMimeType(message, "text/plain");
+                    plainTextFlag = true;
                 }
+
                 if (part != null) {
                     String text = MimeUtility.getTextFromPart(part);
                     if (text != null) {
+                        if (!plainTextFlag) {
+                            text = EmailHtmlUtil.resolveInlineImage(
+                                    getContentResolver(), mAccount, text, message, 0);
+                        } else {
+                            text = EmailHtmlUtil.escapeCharacterToDisplay(text);
+                        }
                         mQuotedTextBar.setVisibility(View.VISIBLE);
                         mQuotedText.setVisibility(View.VISIBLE);
-                        mQuotedText.loadDataWithBaseURL("email://", text, part.getMimeType(),
+                        mQuotedText.loadDataWithBaseURL("email://", text, "text/html",
                                 "utf-8", null);
                     }
                 }
@@ -1219,7 +1243,7 @@ public class MessageCompose extends Activity implements OnClickListener, OnFocus
         setNewMessageFocus();
         
         mSourceMessageProcessed = true;
-        mDraftNeedsSaving = false;
+        mDraftNeedsSaving = mFolder != null && !mFolder.equals(mAccount.getDraftsFolderName());
     }
 
     /**

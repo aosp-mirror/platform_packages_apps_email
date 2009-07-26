@@ -28,6 +28,7 @@ import com.android.email.mail.MessagingException;
 import com.android.email.mail.Multipart;
 import com.android.email.mail.Part;
 import com.android.email.mail.Message.RecipientType;
+import com.android.email.mail.internet.EmailHtmlUtil;
 import com.android.email.mail.internet.MimeUtility;
 import com.android.email.mail.store.LocalStore.LocalAttachmentBodyPart;
 import com.android.email.mail.store.LocalStore.LocalMessage;
@@ -36,6 +37,7 @@ import com.android.email.provider.AttachmentProvider;
 import org.apache.commons.io.IOUtils;
 
 import android.app.Activity;
+import android.app.ProgressDialog;
 import android.content.ActivityNotFoundException;
 import android.content.Context;
 import android.content.Intent;
@@ -53,7 +55,6 @@ import android.provider.Contacts;
 import android.provider.Contacts.Intents;
 import android.provider.Contacts.People;
 import android.provider.Contacts.Presence;
-import android.text.util.Regex;
 import android.util.Config;
 import android.util.Log;
 import android.view.LayoutInflater;
@@ -76,7 +77,6 @@ import java.io.InputStream;
 import java.io.OutputStream;
 import java.util.ArrayList;
 import java.util.Date;
-import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 public class MessageView extends Activity
@@ -93,21 +93,24 @@ public class MessageView extends Activity
     };
     private static final int METHODS_STATUS_COLUMN = 1;
 
-    // regex that matches start of img tag. '.*<(?i)img\s+.*'.
-    private static final Pattern IMG_TAG_START_REGEX = Pattern.compile(".*<(?i)img\\s+.*");
-
+    // Regex that matches start of img tag. '<(?i)img\s+'.
+    private static final Pattern IMG_TAG_START_REGEX = Pattern.compile("<(?i)img\\s+");
+    
     private TextView mSubjectView;
     private TextView mFromView;
     private TextView mDateView;
     private TextView mTimeView;
     private TextView mToView;
     private TextView mCcView;
+    private TextView mBccView;
     private View mCcContainerView;
+    private View mBccContainerView;
     private WebView mMessageContentView;
     private LinearLayout mAttachments;
     private ImageView mAttachmentIcon;
     private View mShowPicturesSection;
     private ImageView mSenderPresenceView;
+    private ProgressDialog mProgressDialog;
 
     private Account mAccount;
     private String mFolder;
@@ -136,11 +139,21 @@ public class MessageView extends Activity
         private static final int MSG_FETCHING_ATTACHMENT = 10;
         private static final int MSG_SET_SENDER_PRESENCE = 11;
         private static final int MSG_VIEW_ATTACHMENT_ERROR = 12;
+        private static final int MSG_FETCHING_PICTURES = 17;
+        private static final int MSG_UPDATE_ATTACHMENT_ICON = 18;
 
         @Override
         public void handleMessage(android.os.Message msg) {
             switch (msg.what) {
                 case MSG_PROGRESS:
+                    if (msg.arg1 != 0) {
+                        mProgressDialog.setMessage(
+                                getString(R.string.message_view_fetching_attachment_progress,
+                                        msg.obj));
+                        mProgressDialog.show();
+                    } else {
+                        mProgressDialog.dismiss();
+                    }
                     setProgressBarIndeterminateVisibility(msg.arg1 != 0);
                     break;
                 case MSG_ADD_ATTACHMENT:
@@ -163,6 +176,9 @@ public class MessageView extends Activity
                     mToView.setText(values[4]);
                     mCcView.setText(values[5]);
                     mCcContainerView.setVisibility((values[5] != null) ? View.VISIBLE : View.GONE);
+                    String bcc = values[6];
+                    mBccView.setText(bcc);
+                    mBccContainerView.setVisibility(bcc != null ? View.VISIBLE : View.GONE);
                     mAttachmentIcon.setVisibility(msg.arg1 == 1 ? View.VISIBLE : View.GONE);
                     break;
                 case MSG_NETWORK_ERROR:
@@ -195,15 +211,25 @@ public class MessageView extends Activity
                             getString(R.string.message_view_display_attachment_toast),
                             Toast.LENGTH_SHORT).show();
                     break;
+                case MSG_FETCHING_PICTURES:
+                    Toast.makeText(MessageView.this,
+                            getString(R.string.message_view_fetching_pictures_toast),
+                            Toast.LENGTH_SHORT).show();
+                    break;
+                case MSG_UPDATE_ATTACHMENT_ICON:
+                    ((Attachment) mAttachments.getChildAt(msg.arg1).getTag())
+                        .iconView.setImageBitmap((Bitmap) msg.obj);
+                    break;
                 default:
                     super.handleMessage(msg);
             }
         }
 
-        public void progress(boolean progress) {
+        public void progress(boolean progress, String filename) {
             android.os.Message msg = new android.os.Message();
             msg.what = MSG_PROGRESS;
             msg.arg1 = progress ? 1 : 0;
+            msg.obj = filename;
             sendMessage(msg);
         }
 
@@ -228,11 +254,12 @@ public class MessageView extends Activity
                 String date,
                 String to,
                 String cc,
+                String bcc,
                 boolean hasAttachments) {
             android.os.Message msg = new android.os.Message();
             msg.what = MSG_SET_HEADERS;
             msg.arg1 = hasAttachments ? 1 : 0;
-            msg.obj = new String[] { subject, from, time, date, to, cc };
+            msg.obj = new String[] { subject, from, time, date, to, cc, bcc};
             sendMessage(msg);
         }
 
@@ -270,6 +297,17 @@ public class MessageView extends Activity
         
         public void attachmentViewError() {
             sendEmptyMessage(MSG_VIEW_ATTACHMENT_ERROR);
+        }
+
+        public void fetchingPictures() {
+            sendEmptyMessage(MSG_FETCHING_PICTURES);
+        }
+
+        public void updateAttachmentIcon(int pos, Bitmap icon) {
+            android.os.Message msg = android.os.Message.obtain(this, MSG_UPDATE_ATTACHMENT_ICON);
+            msg.arg1 = pos;
+            msg.obj = icon;
+            sendMessage(msg);
         }
     }
 
@@ -317,6 +355,8 @@ public class MessageView extends Activity
         mToView = (TextView) findViewById(R.id.to);
         mCcView = (TextView) findViewById(R.id.cc);
         mCcContainerView = findViewById(R.id.cc_container);
+        mBccView = (TextView) findViewById(R.id.bcc);
+        mBccContainerView = findViewById(R.id.bcc_container);
         mDateView = (TextView) findViewById(R.id.date);
         mTimeView = (TextView) findViewById(R.id.time);
         mMessageContentView = (WebView) findViewById(R.id.message_content);
@@ -324,6 +364,9 @@ public class MessageView extends Activity
         mAttachmentIcon = (ImageView) findViewById(R.id.attachment);
         mShowPicturesSection = findViewById(R.id.show_pictures_section);
         mSenderPresenceView = (ImageView) findViewById(R.id.presence);
+        mProgressDialog = new ProgressDialog(this);
+        mProgressDialog.setIndeterminate(true);
+        mProgressDialog.setProgressStyle(ProgressDialog.STYLE_SPINNER);
 
         mMessageContentView.setVerticalScrollBarEnabled(false);
         mAttachments.setVisibility(View.GONE);
@@ -426,8 +469,11 @@ public class MessageView extends Activity
     @Override
     public void onDestroy() {
         super.onDestroy();
-        mMessageContentView.destroy();
-        mMessageContentView = null;
+        // This is synchronized because the listener accesses mMessageContentView from its thread
+        synchronized (this) {
+            mMessageContentView.destroy();
+            mMessageContentView = null;
+        }
     }
 
     private void onDelete() {
@@ -476,9 +522,9 @@ public class MessageView extends Activity
                 
                 startActivity(contactIntent);
             } catch (MessagingException me) {
-                if (Config.LOGV) {
-                    Log.v(Email.LOG_TAG, "loadMessageForViewHeadersAvailable", me);
-                }
+                // this will happen if message has illegal From:, ignore
+            } catch (ArrayIndexOutOfBoundsException e) {
+                // this will happen if message has no or illegal From:, ignore
             }
         }
     }
@@ -533,7 +579,7 @@ public class MessageView extends Activity
      * @param filename
      * @return a new File object, or null if one could not be created
      */
-    private File createUniqueFile(File directory, String filename) {
+    /* package */ static File createUniqueFile(File directory, String filename) {
         File file = new File(directory, filename);
         if (!file.exists()) {
             return file;
@@ -590,6 +636,16 @@ public class MessageView extends Activity
         if (mMessage != null) {
             mMessageContentView.getSettings().setBlockNetworkImage(false);
             mShowPicturesSection.setVisibility(View.GONE);
+            new Thread() {
+                @Override
+                public void run() {
+                    Process.setThreadPriority(Process.THREAD_PRIORITY_BACKGROUND);
+                    MessagingController.getInstance(getApplication()).loadInlineImagesForView(
+                            mAccount,
+                            mMessage,
+                            mListener);
+                }
+            }.start();
         }
     }
 
@@ -711,51 +767,23 @@ public class MessageView extends Activity
         }
     }
 
-    /**
-     * Resolve content-id reference in src attribute of img tag to AttachmentProvider's
-     * content uri.  This method calls itself recursively at most the number of
-     * LocalAttachmentPart that mime type is image and has content id.
-     * The attribute src="cid:content_id" is resolved as src="content://...".
-     * This method is package scope for testing purpose.
-     *
-     * @param text html email text
-     * @param part mime part which may contain inline image
-     * @return html text in which src attribute of img tag may be replaced with content uri
-     */
-    /* package */ String resolveInlineImage(String text, Part part, int depth)
-        throws MessagingException {
-        // avoid too deep recursive call.
-        if (depth >= 10) {
-            return text;
-        }
-        String contentType = MimeUtility.unfoldAndDecode(part.getContentType());
-        String contentId = part.getContentId();
-        if (contentType.startsWith("image/") &&
-            contentId != null &&
-            part instanceof LocalAttachmentBodyPart) {
-            LocalAttachmentBodyPart attachment = (LocalAttachmentBodyPart)part;
-            Uri contentUri = AttachmentProvider.getAttachmentUri(
-                    mAccount,
-                    attachment.getAttachmentId());
-            if (contentUri != null) {
-                // Regexp which matches ' src="cid:contentId"'.
-                String contentIdRe = "\\s+(?i)src=\"cid(?-i):\\Q" + contentId + "\\E\"";
-                // Replace all occurrences of src attribute with ' src="content://contentUri"'.
-                text = text.replaceAll(contentIdRe, " src=\"" + contentUri + "\""); 
+    private void updateAttachmentThumbnail(Part part) {
+        for (int i = 0, count = mAttachments.getChildCount(); i < count; i++) {
+            Attachment attachment = (Attachment) mAttachments.getChildAt(i).getTag();
+            if (attachment.part == part) {
+                Bitmap previewIcon = getPreviewIcon(attachment);
+                if (previewIcon != null) {
+                    mHandler.updateAttachmentIcon(i, previewIcon);
+                }
+                return;
             }
         }
-
-        if (part.getBody() instanceof Multipart) {
-            Multipart mp = (Multipart)part.getBody();
-            for (int i = 0; i < mp.getCount(); i++) {
-                text = resolveInlineImage(text, mp.getBodyPart(i), depth + 1);
-            }
-        }
-
-        return text;
     }
-    
+
     private void renderAttachments(Part part, int depth) throws MessagingException {
+        if (depth >= 10 || part == null) {
+            return;
+        }
         String contentType = MimeUtility.unfoldAndDecode(part.getContentType());
         String name = MimeUtility.getHeaderParameter(contentType, "name");
         if (name != null) {
@@ -847,7 +875,11 @@ public class MessageView extends Activity
                 Address sender = mMessage.getFrom()[0];
                 email = sender.getAddress();
             }
-        } catch (MessagingException me) { }
+        } catch (MessagingException me) {
+            // this will happen if message has illegal From:, ignore
+        } catch (ArrayIndexOutOfBoundsException e) {
+            // this will happen if message has no or illegal From:, ignore
+        }
         if (email == null) {
             mHandler.setSenderPresence(0);
             return;
@@ -907,6 +939,7 @@ public class MessageView extends Activity
                         mDateFormat.format(sentDate);
                 String toText = Address.toFriendly(message.getRecipients(RecipientType.TO));
                 String ccText = Address.toFriendly(message.getRecipients(RecipientType.CC));
+                String bccText = Address.toFriendly(message.getRecipients(RecipientType.BCC));
                 boolean hasAttachments = ((LocalMessage) message).getAttachmentCount() > 0;
                 mHandler.setHeaders(subjectText,
                         fromText,
@@ -914,6 +947,7 @@ public class MessageView extends Activity
                         dateText,
                         toText,
                         ccText,
+                        bccText,
                         hasAttachments);
                 startPresenceCheck();
             }
@@ -928,57 +962,26 @@ public class MessageView extends Activity
         public void loadMessageForViewBodyAvailable(Account account, String folder, String uid,
                 Message message) {
             MessageView.this.mMessage = message;
-            try {
-                Part part = MimeUtility.findFirstPartByMimeType(mMessage, "text/html");
-                if (part == null) {
-                    part = MimeUtility.findFirstPartByMimeType(mMessage, "text/plain");
+            String text = EmailHtmlUtil.renderMessageText(MessageView.this, account, message);
+            if (text != null) {
+                /*
+                 * TODO consider how to get background images and a million other things
+                 * that HTML allows.
+                 */
+                // Check if text contains img tag.
+                if (IMG_TAG_START_REGEX.matcher(text).find()) {
+                    mHandler.showShowPictures(true);
                 }
-                if (part != null) {
-                    String text = MimeUtility.getTextFromPart(part);
-                    if (part.getMimeType().equalsIgnoreCase("text/html")) {
-                        text = resolveInlineImage(text, mMessage, 0);
-                    } else {
-                        /*
-                         * Linkify the plain text and convert it to HTML by replacing
-                         * \r?\n with <br> and adding a html/body wrapper.
-                         */
-                        Matcher m = Regex.WEB_URL_PATTERN.matcher(text);
-                        StringBuffer sb = new StringBuffer();
-                        while (m.find()) {
-                            int start = m.start();
-                            if (start != 0 && text.charAt(start - 1) != '@') {
-                                m.appendReplacement(sb, "<a href=\"$0\">$0</a>");
-                            }
-                            else {
-                                m.appendReplacement(sb, "$0");
-                            }
-                        }
-                        m.appendTail(sb);
-                        text = sb.toString().replaceAll("\r?\n", "<br>");
-                        text = "<html><body>" + text + "</body></html>";
-                    }
 
-                    /*
-                     * TODO consider how to get background images and a million other things
-                     * that HTML allows.
-                     */
-                    // Check if text contains img tag.
-                    if (IMG_TAG_START_REGEX.matcher(text).matches()) {
-                        mHandler.showShowPictures(true);
-                    }
-
-                    mMessageContentView.loadDataWithBaseURL("email://", text, "text/html",
-                            "utf-8", null);
-                }
-                else {
-                    mMessageContentView.loadUrl("file:///android_asset/empty.html");
-                }
-                renderAttachments(mMessage, 0);
+                loadMessageContentText(text);
             }
-            catch (Exception e) {
-                if (Config.LOGV) {
-                    Log.v(Email.LOG_TAG, "loadMessageForViewBodyAvailable", e);
-                }
+            else {
+                loadMessageContentUrl("file:///android_asset/empty.html");
+            }
+            try {
+                renderAttachments(mMessage, 0);
+            } catch (MessagingException me) {
+                // ignore
             }
         }
 
@@ -989,7 +992,7 @@ public class MessageView extends Activity
                 public void run() {
                     setProgressBarIndeterminateVisibility(false);
                     mHandler.networkError();
-                    mMessageContentView.loadUrl("file:///android_asset/empty.html");
+                    loadMessageContentUrl("file:///android_asset/empty.html");
                 }
             });
         }
@@ -1008,17 +1011,48 @@ public class MessageView extends Activity
         public void loadMessageForViewStarted(Account account, String folder, String uid) {
             mHandler.post(new Runnable() {
                 public void run() {
-                    mMessageContentView.loadUrl("file:///android_asset/loading.html");
+                    loadMessageContentUrl("file:///android_asset/loading.html");
                     setProgressBarIndeterminateVisibility(true);
                 }
             });
         }
 
         @Override
+        public void loadInlineImagesForViewStarted(Account account, Message message) {
+            mHandler.fetchingPictures();
+        }
+        
+        @Override
+        public void loadInlineImagesForViewOneAvailable(final Account account,
+                final Message message, final Part part) {
+            mHandler.post(new Runnable() {
+                public void run() {
+                    String text = EmailHtmlUtil.renderMessageText(
+                            MessageView.this, account, message);
+                    if (text != null) {
+                        loadMessageContentText(text);
+                        updateAttachmentThumbnail(part);
+                    }
+                }
+            });
+        }
+        
+        @Override
+        public void loadInlineImagesForViewFinished(Account account, Message message) {
+            mHandler.progress(false, null);
+        }
+        
+        @Override
+        public void loadInlineImagesForViewFailed(Account account, Message message) {
+            mHandler.progress(false, null);
+        }
+
+        @Override
         public void loadAttachmentStarted(Account account, Message message,
                 Part part, Object tag, boolean requiresDownload) {
             mHandler.setAttachmentsEnabled(false);
-            mHandler.progress(true);
+            Object[] params = (Object[]) tag;
+            mHandler.progress(true, ((Attachment) params[1]).name);
             if (requiresDownload) {
                 mHandler.fetchingAttachment();
             }
@@ -1028,7 +1062,8 @@ public class MessageView extends Activity
         public void loadAttachmentFinished(Account account, Message message,
                 Part part, Object tag) {
             mHandler.setAttachmentsEnabled(true);
-            mHandler.progress(false);
+            mHandler.progress(false, null);
+            updateAttachmentThumbnail(part);
 
             Object[] params = (Object[]) tag;
             boolean download = (Boolean) params[0];
@@ -1038,9 +1073,9 @@ public class MessageView extends Activity
                 try {
                     File file = createUniqueFile(Environment.getExternalStorageDirectory(),
                             attachment.name);
-                    Uri uri = AttachmentProvider.getAttachmentUri(
-                            mAccount,
-                            attachment.part.getAttachmentId());
+                    Uri uri = AttachmentProvider.resolveAttachmentIdToContentUri(
+                            getContentResolver(), AttachmentProvider.getAttachmentUri(
+                                    mAccount, attachment.part.getAttachmentId()));
                     InputStream in = getContentResolver().openInputStream(uri);
                     OutputStream out = new FileOutputStream(file);
                     IOUtils.copy(in, out);
@@ -1056,9 +1091,9 @@ public class MessageView extends Activity
             }
             else {
                 try {
-                    Uri uri = AttachmentProvider.getAttachmentUri(
-                            mAccount,
-                            attachment.part.getAttachmentId());
+                    Uri uri = AttachmentProvider.resolveAttachmentIdToContentUri(
+                            getContentResolver(), AttachmentProvider.getAttachmentUri(
+                                    mAccount, attachment.part.getAttachmentId()));
                     Intent intent = new Intent(Intent.ACTION_VIEW);
                     intent.setData(uri);
                     intent.addFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION);
@@ -1075,8 +1110,35 @@ public class MessageView extends Activity
         public void loadAttachmentFailed(Account account, Message message, Part part,
                 Object tag, String reason) {
             mHandler.setAttachmentsEnabled(true);
-            mHandler.progress(false);
+            mHandler.progress(false, null);
             mHandler.networkError();
+        }
+        
+        /**
+         * Safely load a URL for mMessageContentView, or drop it if the view is gone
+         * TODO this really should be moved into a handler message, avoiding the need
+         * for this synchronized() section
+         */
+        private void loadMessageContentUrl(String fileName) {
+            synchronized (MessageView.this) {
+                if (mMessageContentView != null) {
+                    mMessageContentView.loadUrl(fileName);
+                }
+            }
+        }
+        
+        /**
+         * Safely load text for mMessageContentView, or drop it if the view is gone
+         * TODO this really should be moved into a handler message, avoiding the need
+         * for this synchronized() section
+         */
+        private void loadMessageContentText(String text) {
+            synchronized (MessageView.this) {
+                if (mMessageContentView != null) {
+                    mMessageContentView.loadDataWithBaseURL("email://", text, "text/html",
+                            "utf-8", null);
+                }
+            }
         }
     }
 

@@ -16,19 +16,20 @@
 
 package com.android.email.activity.setup;
 
-import java.net.URI;
-import java.net.URISyntaxException;
+import com.android.email.Account;
+import com.android.email.Preferences;
+import com.android.email.R;
+import com.android.email.mail.Store;
 
 import android.app.Activity;
-import android.content.Context;
 import android.content.Intent;
 import android.os.Bundle;
 import android.view.View;
 import android.view.View.OnClickListener;
 import android.widget.Button;
 
-import com.android.email.Account;
-import com.android.email.R;
+import java.net.URI;
+import java.net.URISyntaxException;
 
 /**
  * Prompts the user to select an account type. The account type, along with the
@@ -44,11 +45,12 @@ public class AccountSetupAccountType extends Activity implements OnClickListener
 
     private boolean mMakeDefault;
 
-    public static void actionSelectAccountType(Context context, Account account, boolean makeDefault) {
-        Intent i = new Intent(context, AccountSetupAccountType.class);
+    public static void actionSelectAccountType(Activity fromActivity, Account account, 
+            boolean makeDefault) {
+        Intent i = new Intent(fromActivity, AccountSetupAccountType.class);
         i.putExtra(EXTRA_ACCOUNT, account);
         i.putExtra(EXTRA_MAKE_DEFAULT, makeDefault);
-        context.startActivity(i);
+        fromActivity.startActivity(i);
     }
 
     @Override
@@ -57,9 +59,15 @@ public class AccountSetupAccountType extends Activity implements OnClickListener
         setContentView(R.layout.account_setup_account_type);
         ((Button)findViewById(R.id.pop)).setOnClickListener(this);
         ((Button)findViewById(R.id.imap)).setOnClickListener(this);
-
+        ((Button)findViewById(R.id.exchange)).setOnClickListener(this);
+        
         mAccount = (Account)getIntent().getSerializableExtra(EXTRA_ACCOUNT);
         mMakeDefault = (boolean)getIntent().getBooleanExtra(EXTRA_MAKE_DEFAULT, false);
+
+        if (isExchangeAvailable()) {
+            findViewById(R.id.exchange).setVisibility(View.VISIBLE);
+        }
+        // TODO: Dynamic creation of buttons, instead of just hiding things we don't need
     }
 
     private void onPop() {
@@ -98,6 +106,73 @@ public class AccountSetupAccountType extends Activity implements OnClickListener
         AccountSetupIncoming.actionIncomingSettings(this, mAccount, mMakeDefault);
         finish();
     }
+    
+    /**
+     * The user has selected an exchange account type.  Try to put together a URI using the entered
+     * email address.  Also set the mail delete policy here, because there is no UI (for exchange),
+     * and switch the default sync interval to "push".
+     */
+    private void onExchange() {
+        try {
+            URI uri = new URI(mAccount.getStoreUri());
+            uri = new URI("eas", uri.getUserInfo(), uri.getHost(), uri.getPort(), null, null, null);
+            mAccount.setStoreUri(uri.toString());
+            mAccount.setSenderUri(uri.toString());
+        } catch (URISyntaxException use) {
+            /*
+             * This should not happen.
+             */
+            throw new Error(use);
+        }
+        // TODO: Confirm correct delete policy for exchange
+        mAccount.setDeletePolicy(Account.DELETE_POLICY_ON_DELETE);
+        mAccount.setAutomaticCheckIntervalMinutes(Account.CHECK_INTERVAL_PUSH);
+        mAccount.setSyncWindow(Account.SYNC_WINDOW_1_DAY);
+        AccountSetupExchange.actionIncomingSettings(this, mAccount, mMakeDefault);
+        finish();
+    }
+    
+    /**
+     * Determine if we can show the "exchange" option
+     * 
+     * TODO: This should be dynamic and data-driven for all account types, not just hardcoded
+     * like this.
+     */
+    private boolean isExchangeAvailable() {
+        try {
+            URI uri = new URI(mAccount.getStoreUri());
+            uri = new URI("eas", uri.getUserInfo(), uri.getHost(), uri.getPort(), null, null, null);
+            Store.StoreInfo storeInfo = Store.StoreInfo.getStoreInfo(uri.toString(), this);
+            return (storeInfo != null && checkAccountInstanceLimit(storeInfo));
+        } catch (URISyntaxException e) {
+            return false;
+        }
+    }
+    
+    /**
+     * If the optional store specifies a limit on the number of accounts, make sure that we
+     * don't violate that limit.
+     * @return true if OK to create another account, false if not OK (limit reached)
+     */
+    /* package */ boolean checkAccountInstanceLimit(Store.StoreInfo storeInfo) {
+        // return immediately if account defines no limit
+        if (storeInfo.mAccountInstanceLimit < 0) {
+            return true;
+        }
+        
+        // count existing accounts
+        int currentAccountsCount = 0;
+        Account[] accounts = Preferences.getPreferences(this).getAccounts();
+        for (Account account : accounts) {
+            String storeUri = account.getStoreUri();
+            if (storeUri != null && storeUri.startsWith(storeInfo.mScheme)) {
+                currentAccountsCount++;
+            }
+        }
+        
+        // return true if we can accept another account
+        return (currentAccountsCount < storeInfo.mAccountInstanceLimit);
+    }
 
     public void onClick(View v) {
         switch (v.getId()) {
@@ -106,6 +181,9 @@ public class AccountSetupAccountType extends Activity implements OnClickListener
                 break;
             case R.id.imap:
                 onImap();
+                break;
+            case R.id.exchange:
+                onExchange();
                 break;
         }
     }

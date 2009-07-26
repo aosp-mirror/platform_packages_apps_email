@@ -45,7 +45,7 @@
     <string name="add_cc_bcc_action">"\"Cc\"/\"Bcc\" hinzufügen"</string>
     <string name="add_attachment_action">"Anhang hinzufügen"</string>
     <string name="dump_settings_action">"Einstellungen für Speicherauszug"</string>
-    <string name="accounts_context_menu_title">"Konto-Optionen"</string>
+    <string name="accounts_context_menu_title">"Kontooptionen"</string>
     <string name="status_loading_more">"Nachrichten werden geladen..."</string>
     <string name="status_network_error">"Verbindungsfehler"</string>
     <string name="status_loading_more_failed">"Laden weiterer Nachrichten erneut versuchen"</string>

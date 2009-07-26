@@ -16,14 +16,17 @@
 
 package com.android.email.activity.setup;
 
-import java.io.Serializable;
-import java.net.URI;
-import java.net.URISyntaxException;
+import com.android.email.Account;
+import com.android.email.Email;
+import com.android.email.EmailAddressValidator;
+import com.android.email.Preferences;
+import com.android.email.R;
+import com.android.email.Utility;
+import com.android.email.activity.Debug;
 
 import android.app.Activity;
 import android.app.AlertDialog;
 import android.app.Dialog;
-import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.res.XmlResourceParser;
@@ -42,13 +45,9 @@ import android.widget.CheckBox;
 import android.widget.EditText;
 import android.widget.Toast;
 
-import com.android.email.Account;
-import com.android.email.Email;
-import com.android.email.EmailAddressValidator;
-import com.android.email.Preferences;
-import com.android.email.R;
-import com.android.email.Utility;
-import com.android.email.activity.Debug;
+import java.io.Serializable;
+import java.net.URI;
+import java.net.URISyntaxException;
 
 /**
  * Prompts the user for the email address and password. Also prompts for
@@ -80,9 +79,9 @@ public class AccountSetupBasics extends Activity
 
     private EmailAddressValidator mEmailValidator = new EmailAddressValidator();
 
-    public static void actionNewAccount(Context context) {
-        Intent i = new Intent(context, AccountSetupBasics.class);
-        context.startActivity(i);
+    public static void actionNewAccount(Activity fromActivity) {
+        Intent i = new Intent(fromActivity, AccountSetupBasics.class);
+        fromActivity.startActivity(i);
     }
 
     @Override
@@ -217,8 +216,8 @@ public class AccountSetupBasics extends Activity
 
             URI incomingUriTemplate = mProvider.incomingUriTemplate;
             incomingUri = new URI(incomingUriTemplate.getScheme(), incomingUsername + ":"
-                    + password, incomingUriTemplate.getHost(), incomingUriTemplate.getPort(), null,
-                    null, null);
+                    + password, incomingUriTemplate.getHost(), incomingUriTemplate.getPort(),
+                    incomingUriTemplate.getPath(), null, null);
 
             String outgoingUsername = mProvider.outgoingUsernameTemplate;
             outgoingUsername = outgoingUsername.replaceAll("\\$email", email);
@@ -227,8 +226,8 @@ public class AccountSetupBasics extends Activity
 
             URI outgoingUriTemplate = mProvider.outgoingUriTemplate;
             outgoingUri = new URI(outgoingUriTemplate.getScheme(), outgoingUsername + ":"
-                    + password, outgoingUriTemplate.getHost(), outgoingUriTemplate.getPort(), null,
-                    null, null);
+                    + password, outgoingUriTemplate.getHost(), outgoingUriTemplate.getPort(),
+                    outgoingUriTemplate.getPath(), null, null);
         } catch (URISyntaxException use) {
             /*
              * If there is some problem with the URI we give up and go on to

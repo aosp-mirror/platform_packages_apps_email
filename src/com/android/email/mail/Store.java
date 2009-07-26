@@ -16,13 +16,16 @@
 
 package com.android.email.mail;
 
-import java.util.HashMap;
+import com.android.email.Email;
+import com.android.email.R;
 
-import android.app.Application;
+import org.xmlpull.v1.XmlPullParserException;
 
-import com.android.email.mail.store.ImapStore;
-import com.android.email.mail.store.LocalStore;
-import com.android.email.mail.store.Pop3Store;
+import android.content.Context;
+import android.content.res.XmlResourceParser;
+import android.util.Log;
+
+import java.io.IOException;
 
 /**
  * Store is the access point for an email message store. It's location can be
@@ -47,38 +50,133 @@ public abstract class Store {
      */
     public static final int FETCH_BODY_SANE_SUGGESTED_SIZE = (50 * 1024);
 
-    private static HashMap<String, Store> mStores = new HashMap<String, Store>();
+    private static java.util.HashMap<String, Store> mStores =
+        new java.util.HashMap<String, Store>();
+
+    /**
+     * Static named constructor.  It should be overrode by extending class.
+     * Because this method will be called through reflection, it can not be protected. 
+     */
+    public static Store newInstance(String uri, Context context, PersistentDataCallbacks callbacks)
+            throws MessagingException {
+        throw new MessagingException("Store.newInstance: Unknown scheme in " + uri);
+    }
+
+    private static Store instantiateStore(String className, String uri, Context context, 
+            PersistentDataCallbacks callbacks)
+        throws MessagingException {
+        Object o = null;
+        try {
+            Class<?> c = Class.forName(className);
+            // and invoke "newInstance" class method and instantiate store object.
+            java.lang.reflect.Method m =
+                c.getMethod("newInstance", String.class, Context.class, 
+                        PersistentDataCallbacks.class);
+            o = m.invoke(null, uri, context, callbacks);
+        } catch (Exception e) {
+            Log.d(Email.LOG_TAG, String.format(
+                    "exception %s invoking %s.newInstance.(String, Context) method for %s",
+                    e.toString(), className, uri));
+            throw new MessagingException("can not instantiate Store object for " + uri);
+        }
+        if (!(o instanceof Store)) {
+            throw new MessagingException(
+                    uri + ": " + className + " create incompatible object");
+        }
+        return (Store) o;
+    }
+
+    /**
+     * Look up descriptive information about a particular type of store.
+     */
+    public static class StoreInfo {
+        public String mScheme;
+        public String mClassName;
+        public boolean mPushSupported = false;
+        public int mVisibleLimitDefault;
+        public int mVisibleLimitIncrement;
+        public int mAccountInstanceLimit;
+        
+        // TODO cache result for performance - silly to keep reading the XML
+        public static StoreInfo getStoreInfo(String scheme, Context context) {
+            StoreInfo result = getStoreInfo(R.xml.stores_product, scheme, context);
+            if (result == null) {
+                result = getStoreInfo(R.xml.stores, scheme, context);
+            }
+            return result;
+        }
+        
+        public static StoreInfo getStoreInfo(int resourceId, String scheme, Context context) {
+            try {
+                XmlResourceParser xml = context.getResources().getXml(resourceId);
+                int xmlEventType;
+                // walk through stores.xml file.
+                while ((xmlEventType = xml.next()) != XmlResourceParser.END_DOCUMENT) {
+                    if (xmlEventType == XmlResourceParser.START_TAG && 
+                            "store".equals(xml.getName())) {
+                        String xmlScheme = xml.getAttributeValue(null, "scheme");
+                        if (scheme != null && scheme.startsWith(xmlScheme)) {
+                            StoreInfo result = new StoreInfo();
+                            result.mScheme = xmlScheme;
+                            result.mClassName = xml.getAttributeValue(null, "class");
+                            result.mPushSupported = xml.getAttributeBooleanValue(
+                                    null, "push", false);
+                            result.mVisibleLimitDefault = xml.getAttributeIntValue(
+                                    null, "visibleLimitDefault", Email.VISIBLE_LIMIT_DEFAULT);
+                            result.mVisibleLimitIncrement = xml.getAttributeIntValue(
+                                    null, "visibleLimitIncrement", Email.VISIBLE_LIMIT_INCREMENT);
+                            result.mAccountInstanceLimit = xml.getAttributeIntValue(
+                                    null, "accountInstanceLimit", -1);
+                            return result;
+                        }
+                    }
+                }
+            } catch (XmlPullParserException e) {
+                // ignore
+            } catch (IOException e) {
+                // ignore
+            }
+            return null;
+        }
+    }
 
     /**
      * Get an instance of a mail store. The URI is parsed as a standard URI and
-     * the scheme is used to determine which protocol will be used. The
-     * following schemes are currently recognized: imap - IMAP with no
-     * connection security. Ex: imap://username:password@host/ imap+tls - IMAP
-     * with TLS connection security, if the server supports it. Ex:
-     * imap+tls://username:password@host imap+tls+ - IMAP with required TLS
-     * connection security. Connection fails if TLS is not available. Ex:
-     * imap+tls+://username:password@host imap+ssl+ - IMAP with required SSL
-     * connection security. Connection fails if SSL is not available. Ex:
-     * imap+ssl+://username:password@host
+     * the scheme is used to determine which protocol will be used.
+     * 
+     * Although the URI format is somewhat protocol-specific, we use the following 
+     * guidelines wherever possible:
+     * 
+     * scheme [+ security [+]] :// username : password @ host [ / resource ]
+     * 
+     * Typical schemes include imap, pop3, local, eas.
+     * Typical security models include SSL or TLS.
+     * A + after the security identifier indicates "required".
+     * 
+     * Username, password, and host are as expected.
+     * Resource is protocol specific.  For example, IMAP uses it as the path prefix.  EAS uses it
+     * as the domain.
      *
      * @param uri The URI of the store.
      * @return an initialized store of the appropriate class
      * @throws MessagingException
      */
-    public synchronized static Store getInstance(String uri, Application application) throws MessagingException {
+    public synchronized static Store getInstance(String uri, Context context, 
+            PersistentDataCallbacks callbacks)
+        throws MessagingException {
         Store store = mStores.get(uri);
         if (store == null) {
-            if (uri.startsWith(STORE_SCHEME_IMAP)) {
-                store = new ImapStore(uri);
-            } else if (uri.startsWith(STORE_SCHEME_POP3)) {
-                store = new Pop3Store(uri);
-            } else if (uri.startsWith(STORE_SCHEME_LOCAL)) {
-                store = new LocalStore(uri, application);
+            StoreInfo info = StoreInfo.getStoreInfo(uri, context);
+            if (info != null) {
+                store = instantiateStore(info.mClassName, uri, context, callbacks);
             }
 
             if (store != null) {
                 mStores.put(uri, store);
             }
+        } else {
+            // update the callbacks, which may have been null at creation time.
+            store.setPersistentDataCallbacks(callbacks);
         }
 
         if (store == null) {
@@ -87,10 +185,119 @@ public abstract class Store {
 
         return store;
     }
+    
+    /**
+     * Delete an instance of a mail store.
+     * 
+     * The store should have been notified already by calling delete(), and the caller should
+     * also take responsibility for deleting the matching LocalStore, etc.
+     * @param storeUri the store to be removed
+     */
+    public synchronized static void removeInstance(String storeUri) {
+        mStores.remove(storeUri);
+    }
 
+    /**
+     * Get class of SettingActivity for this Store class.
+     * @return Activity class that has class method actionEditIncomingSettings(). 
+     */
+    public Class<? extends android.app.Activity> getSettingActivityClass() {
+        // default SettingActivity class
+        return com.android.email.activity.setup.AccountSetupIncoming.class;
+    }
+    
+    /**
+     * Get class of sync'er for this Store class
+     * @return Message Sync controller, or null to use default
+     */
+    public StoreSynchronizer getMessageSynchronizer() {
+        return null;
+    }
+    
+    /**
+     * Some stores cannot download a message based only on the uid, and need the message structure
+     * to be preloaded and provided to them.  This method allows a remote store to signal this
+     * requirement.  Most stores do not need this and do not need to overload this method, which
+     * simply returns "false" in the base class.
+     * @return Return true if the remote store requires structure prefetch
+     */
+    public boolean requireStructurePrefetch() {
+        return false;
+    }
+    
+    /**
+     * Some protocols require that a sent message be copied (uploaded) into the Sent folder
+     * while others can take care of it automatically (ideally, on the server).  This function
+     * allows a given store to indicate which mode(s) it supports.
+     * @return true if the store requires an upload into "sent", false if this happens automatically
+     * for any sent message.
+     */
+    public boolean requireCopyMessageToSentFolder() {
+        return true;
+    }
+    
     public abstract Folder getFolder(String name) throws MessagingException;
 
     public abstract Folder[] getPersonalNamespaces() throws MessagingException;
-
+    
     public abstract void checkSettings() throws MessagingException;
+    
+    /**
+     * Enable or disable push mode delivery for a given Store.  
+     * 
+     * <p>For protocols that do not support push mode, be sure that push="true" is not 
+     * set by the stores.xml definition file(s).  This function need not be implemented.
+     * 
+     * <p>For protocols that do support push mode, this will be called at startup (boot) time
+     * so that the Store can launch its own underlying connection service.  It will also be called
+     * any time the user changes the settings for the account (because the user may switch back
+     * to polling mode (or disable checking completely).
+     * 
+     * <p>This API will be called repeatedly, even after push mode has already been started or
+     * stopped.  Stores that support push mode should return quickly if the configuration has not
+     * changed.
+     * 
+     * @param enablePushMode start or stop push mode delivery
+     */
+    public void enablePushModeDelivery(boolean enablePushMode) {
+        // does nothing for non-push protocols
+    }
+    
+    /**
+     * Delete Store and its corresponding resources.
+     * @throws MessagingException
+     */
+    public void delete() throws MessagingException {
+    }
+    
+    /**
+     * If a Store intends to implement callbacks, it should be prepared to update them
+     * via overriding this method.  They may not be available at creation time (in which case they
+     * will be passed in as null.
+     * @param callbacks The updated provider of store callbacks
+     */
+    protected void setPersistentDataCallbacks(PersistentDataCallbacks callbacks) {
+    }
+    
+    /**
+     * Callback interface by which a Store can read and write persistent data.
+     * TODO This needs to be made more generic & flexible
+     */
+    public interface PersistentDataCallbacks {
+        
+        /**
+         * Provides a small place for Stores to store persistent data.
+         * @param key identifier for the data (e.g. "sync.key" or "folder.id")
+         * @param value The data to persist.  All data must be encoded into a string,
+         * so use base64 or some other encoding if necessary.
+         */
+        public void setPersistentString(String key, String value);
+
+        /**
+         * @param key identifier for the data (e.g. "sync.key" or "folder.id")
+         * @param defaultValue The data to return if no data was ever saved for this store
+         * @return the data saved by the Store, or null if never set.
+         */
+        public String getPersistentString(String key, String defaultValue);
+    }
 }

@@ -67,13 +67,13 @@ public class AccountSetupCheckSettings extends Activity implements OnClickListen
 
     private boolean mDestroyed;
 
-    public static void actionCheckSettings(Activity context, Account account,
+    public static void actionCheckSettings(Activity fromActivity, Account account,
             boolean checkIncoming, boolean checkOutgoing) {
-        Intent i = new Intent(context, AccountSetupCheckSettings.class);
+        Intent i = new Intent(fromActivity, AccountSetupCheckSettings.class);
         i.putExtra(EXTRA_ACCOUNT, account);
         i.putExtra(EXTRA_CHECK_INCOMING, checkIncoming);
         i.putExtra(EXTRA_CHECK_OUTGOING, checkOutgoing);
-        context.startActivityForResult(i, 1);
+        fromActivity.startActivityForResult(i, 1);
     }
 
     @Override
@@ -104,7 +104,8 @@ public class AccountSetupCheckSettings extends Activity implements OnClickListen
                     }
                     if (mCheckIncoming) {
                         setMessage(R.string.account_setup_check_settings_check_incoming_msg);
-                        Store store = Store.getInstance(mAccount.getStoreUri(), getApplication());
+                        Store store = Store.getInstance(mAccount.getStoreUri(), getApplication(), 
+                                null);
                         store.checkSettings();
                     }
                     if (mDestroyed) {
@@ -116,7 +117,8 @@ public class AccountSetupCheckSettings extends Activity implements OnClickListen
                     }
                     if (mCheckOutgoing) {
                         setMessage(R.string.account_setup_check_settings_check_outgoing_msg);
-                        Sender sender = Sender.getInstance(mAccount.getSenderUri());
+                        Sender sender = Sender.getInstance(mAccount.getSenderUri(),
+                                getApplication());
                         sender.close();
                         sender.open();
                         sender.close();

@@ -245,9 +245,9 @@ public class MimeUtility {
     /**
      * Reads the Part's body and returns a String based on any charset conversion that needed
      * to be done.
-     * @param part
-     * @return
-     * @throws IOException
+     * @param part The part containing a body
+     * @return a String containing the converted text in the body, or null if there was no text
+     * or an error during conversion.
      */
     public static String getTextFromPart(Part part) {
         try {
@@ -261,43 +261,48 @@ public class MimeUtility {
                      */
                     ByteArrayOutputStream out = new ByteArrayOutputStream();
                     IOUtils.copy(in, out);
-
-                    byte[] bytes = out.toByteArray();
                     in.close();
-                    out.close();
+                    in = null;      // we want all of our memory back, and close might not release
 
-                    String charset = getHeaderParameter(part.getContentType(), "charset");
                     /*
                      * We've got a text part, so let's see if it needs to be processed further.
                      */
+                    String charset = getHeaderParameter(part.getContentType(), "charset");
                     if (charset != null) {
                         /*
                          * See if there is conversion from the MIME charset to the Java one.
                          */
                         charset = CharsetUtil.toJavaCharset(charset);
                     }
-                    if (charset != null) {
-                        /*
-                         * We've got a charset encoding, so decode using it.
-                         */
-                        return new String(bytes, 0, bytes.length, charset);
+                    /*
+                     * No encoding, so use us-ascii, which is the standard.
+                     */
+                    if (charset == null) {
+                        charset = "ASCII";
                     }
-                    else {
-                        /*
-                         * No encoding, so use us-ascii, which is the standard.
-                         */
-                        return new String(bytes, 0, bytes.length, "ASCII");
-                    }
+                    /*
+                     * Convert and return as new String
+                     */
+                    String result = out.toString(charset);
+                    out.close();
+                    return result;
                 }
             }
 
+        }
+        catch (OutOfMemoryError oom) {
+            /*
+             * If we are not able to process the body there's nothing we can do about it. Return
+             * null and let the upper layers handle the missing content.
+             */
+            Log.e(Email.LOG_TAG, "Unable to getTextFromPart " + oom.toString());
         }
         catch (Exception e) {
             /*
              * If we are not able to process the body there's nothing we can do about it. Return
              * null and let the upper layers handle the missing content.
              */
-            Log.e(Email.LOG_TAG, "Unable to getTextFromPart", e);
+            Log.e(Email.LOG_TAG, "Unable to getTextFromPart " + e.toString());
         }
         return null;
     }

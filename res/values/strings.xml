@@ -80,13 +80,19 @@
     <string name="add_attachment_action">Add attachment</string>
     <!-- Menu item (debug screen) -->
     <string name="dump_settings_action">Dump settings</string>
+    <!-- Appears in choose attachment dialog title -->
+    <string name="choose_attachment_dialog_title">Choose attachment</string>
     <!-- Title of account context menu -->
     <string name="accounts_context_menu_title">Account options</string>
     <!-- Appears in message list view while messages are being loaded -->
     <string name="status_loading_more">Loading messages\u2026</string>
+    <!-- Appears in message list view of outbox while messages are being sent -->
+    <string name="status_sending_messages">Sending messages\u2026</string>
     <!-- Appears in message list view when there's a network error. -->
     <!-- Also appears in a toast, in the message viewer, when there's a network error. -->
     <string name="status_network_error">Connection error</string>
+    <!-- Appears in message list view when error when trying to "Load more messages". -->
+    <string name="status_sending_messages_failed">Retry sending messages</string>
     <!-- Appears in message list view when error when trying to "Load more messages". -->
     <string name="status_loading_more_failed">Retry loading more messages</string>
     <!-- Notification title in status bar -->
@@ -125,6 +131,14 @@
     <string name="special_mailbox_name_trash">Trash</string>
     <!-- Do Not Translate.  This is the name of the "sent" folder, on the server. -->
     <string name="special_mailbox_name_sent">Sent</string>
+    <!-- In the folder list view, the outbox will be displayed with this name -->
+    <string name="special_mailbox_display_name_outbox">Outbox</string>
+    <!-- In the folder list view, the drafts will be displayed with this name -->
+    <string name="special_mailbox_display_name_drafts">Drafts</string>
+    <!-- In the folder list view, the trash will be displayed with this name -->
+    <string name="special_mailbox_display_name_trash">Trash</string>
+    <!-- In the folder list view, the sent will be displayed with this name -->
+    <string name="special_mailbox_display_name_sent">Sent</string>
     <!-- Text on screen when you don't have any external email accounts set up -->
     <string name="accounts_welcome">Welcome to Email setup!\n\nUse any email account with Email.\n\nMost popular email accounts can be set up in 2 steps!</string>
 
@@ -137,6 +151,9 @@
 
     <!-- Appears at the bottom of list of messages; user selects to load more messages from that folder. -->
     <string name="message_list_load_more_messages_action">Load more messages</string>
+    <!-- Appears at the bottom of list of messages of outbox;
+         user selects to send pending messages. -->
+    <string name="message_list_send_pending_messages_action">Send outgoing messages</string>
     <!-- Hint text in To field -->
     <string name="message_compose_to_hint">To</string>
     <!-- Hint text in Cc field -->
@@ -157,13 +174,14 @@
     <string name="message_compose_error_no_recipients">You must add at least one recipient.</string>
     <!-- Toast that appears in the context of forwarding a message with attachment(s) -->
     <string name="message_compose_attachments_skipped_toast">Some attachments cannot be forwarded because they have not downloaded.</string>
-    <!-- Toast that appears when an attachment is too big to send.  Note, translation temporarily
-         borrowed from camera app (msgid="8944461117941172986") -->
-    <string name="message_compose_attachment_size" msgid="8944461117941172986">File too large to attach.</string>
+    <!-- Toast that appears when an attachment is too big to send. -->
+    <string name="message_compose_attachment_size">File too large to attach.</string>
     <!-- Label for To field in read message view -->
     <string name="message_view_to_label">To:</string>
     <!-- Label for CC field in read message view -->
     <string name="message_view_cc_label">Cc:</string>
+    <!-- Label for BCC field in read message view -->
+    <string name="message_view_bcc_label">Bcc:</string>
     <!-- Menu item -->
     <string name="message_view_attachment_view_action">Open</string>
     <!-- Button name -->
@@ -178,6 +196,10 @@
     <string name="message_view_show_pictures_action">Show pictures</string>
     <!-- Toast while fetching attachment -->
     <string name="message_view_fetching_attachment_toast">Fetching attachment.</string>
+    <!-- Appears progress dialog for fetching pictures -->
+    <string name="message_view_fetching_pictures_toast">Fetching images\u2026</string>
+    <!-- Appears progress dialog for fetching attachment -->
+    <string name="message_view_fetching_attachment_progress">Fetching attachment <xliff:g id="filename">%s</xliff:g></string>
     <!-- Toast shown briefly while deleting a message -->
     <string name="message_deleted_toast">Message deleted.</string>
     <!-- Toast shown briefly while deleting an unsent (draft) message -->
@@ -190,10 +212,8 @@
          the email address, e.g. "Add xyz@foo.com to contacts" -->
     <string name="add_contact_dlg_message_fmt">Add \"<xliff:g id="email">%s</xliff:g>\" to contacts
         </string>
-    <!-- String that is displayed when the attachment could not be displayed.  TODO: Make local
-         version and remove use of "borrowed" string. -->
-    <string name="message_view_display_attachment_toast" 
-            msgid="2079093904785941494">This attachment cannot be displayed.</string>
+    <!-- String that is displayed when the attachment could not be displayed. -->
+    <string name="message_view_display_attachment_toast">This attachment cannot be displayed.</string>
 
     <!-- Title of screen when setting up new email account -->
     <string name="account_setup_basics_title">Set up email</string>
@@ -238,6 +258,8 @@
     <string name="account_setup_account_type_pop_action">POP3 account</string>
     <!-- "Add new email account" screen, button name in response to what type of account this is -->
     <string name="account_setup_account_type_imap_action">IMAP account</string>
+    <!-- "Add new email account" screen, button name in response to what type of account this is -->
+    <string name="account_setup_account_type_exchange_action">Exchange/ActiveSync</string>
     <!-- "Incoming server settings" screen, label for text field -->
     <string name="account_setup_incoming_title">Incoming server settings</string>
     <!-- "Incoming server settings" screen, label for text field -->
@@ -290,6 +312,17 @@
     <string name="account_setup_outgoing_username_label">Username</string>
     <!-- On "Outgoing server settings" screen, label for text field -->
     <string name="account_setup_outgoing_password_label">Password</string>
+    
+    <!-- Title of "Exchange server settings" screen -->
+    <string name="account_setup_exchange_title">Exchange server settings</string>
+    <!-- On "Exchange" setup screen, the name of the server -->
+    <string name="account_setup_exchange_server_label">Exchange Server</string>
+    <!-- On "Exchange" setup screen, the domain name label -->
+    <string name="account_setup_exchange_domain_label">Domain</string>
+    <!-- On "Exchange" setup screen, the domain name hint -->
+    <string name="account_setup_exchange_domain_hint">Enter domain here</string>
+    <!-- On "Exchange" setup screen, the use-SSL checkbox label -->
+    <string name="account_setup_exchange_ssl_label">Use secure connection (SSL)</string>
 
     <!-- In Account setup options screen, Activity title -->
     <string name="account_setup_options_title">Account options</string>
@@ -297,6 +330,8 @@
     <string name="account_setup_options_mail_check_frequency_label">Email checking frequency</string>
     <!-- In Account setup options & Account Settings screens, label for email check frequency option -->
     <string name="account_setup_options_mail_check_frequency_never">Never</string>
+    <!-- In Account setup options & Account Settings screens, label for email check frequency option -->
+    <string name="account_setup_options_mail_check_frequency_push">Automatic (Push)</string>
     <!-- In Account setup options & Account Settings screens, email check frequency option -->
     <string name="account_setup_options_mail_check_frequency_5min">Every 5 minutes</string>
     <!-- In Account setup options & Account Settings screens, email check frequency option -->
@@ -314,6 +349,20 @@
     <string name="account_setup_options_notify_label">Notify me when email arrives.</string>
     <!-- Dialog title when "setup" could not finish -->
     <string name="account_setup_failed_dlg_title">Setup could not finish</string>
+    <!-- In Account setup options screen, label for email check frequency selector -->
+    <string name="account_setup_options_mail_window_label">Amount to synchronize</string>
+    <!-- In account setup options & account settings screens (exchange), sync window length  -->
+    <string name="account_setup_options_mail_window_1day">One day</string>
+    <!-- In account setup options & account settings screens (exchange), sync window length  -->
+    <string name="account_setup_options_mail_window_3days">Three days</string>
+    <!-- In account setup options & account settings screens (exchange), sync window length  -->
+    <string name="account_setup_options_mail_window_1week">One week</string>
+    <!-- In account setup options & account settings screens (exchange), sync window length  -->
+    <string name="account_setup_options_mail_window_2weeks">Two weeks</string>
+    <!-- In account setup options & account settings screens (exchange), sync window length  -->
+    <string name="account_setup_options_mail_window_1month">One month</string>
+    <!-- In account setup options & account settings screens (exchange), sync window length  -->
+    <string name="account_setup_options_mail_window_all">All mail</string>
 
     <!-- "Setup could not finish" dialog text; e.g., Username or password incorrect -->
     <string name="account_setup_failed_dlg_auth_message">Username or password incorrect.</string> 

@@ -124,8 +124,7 @@ public class AccountShortcutPicker extends ListActivity implements OnItemClickLi
             int unreadMessageCount = 0;
             try {
                 LocalStore localStore = (LocalStore) Store.getInstance(
-                        account.getLocalStoreUri(),
-                        getApplication());
+                        account.getLocalStoreUri(), getApplication(), null);
                 LocalFolder localFolder = (LocalFolder) localStore.getFolder(Email.INBOX);
                 if (localFolder.exists()) {
                     unreadMessageCount = localFolder.getUnreadMessageCount();

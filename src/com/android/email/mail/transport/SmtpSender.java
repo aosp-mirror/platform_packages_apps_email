@@ -27,6 +27,7 @@ import com.android.email.mail.Sender;
 import com.android.email.mail.Transport;
 import com.android.email.mail.Message.RecipientType;
 
+import android.content.Context;
 import android.util.Config;
 import android.util.Log;
 
@@ -54,6 +55,13 @@ public class SmtpSender extends Sender {
     String mPassword;
 
     /**
+     * Static named constructor.
+     */
+    public static Sender newInstance(String uri, Context context) throws MessagingException {
+        return new SmtpSender(uri);
+    }
+
+    /**
      * Allowed formats for the Uri:
      * smtp://user:password@server:port CONNECTION_SECURITY_NONE
      * smtp+tls://user:password@server:port CONNECTION_SECURITY_TLS_OPTIONAL
@@ -63,7 +71,7 @@ public class SmtpSender extends Sender {
      *
      * @param uriString the Uri containing information to configure this sender
      */
-    public SmtpSender(String uriString) throws MessagingException {
+    private SmtpSender(String uriString) throws MessagingException {
         URI uri;
         try {
             uri = new URI(uriString);
@@ -272,9 +280,11 @@ public class SmtpSender extends Sender {
             result += line.substring(3);
         }
 
-        char c = result.charAt(0);
-        if ((c == '4') || (c == '5')) {
-            throw new MessagingException(result);
+        if (result.length() > 0) {
+            char c = result.charAt(0);
+            if ((c == '4') || (c == '5')) {
+                throw new MessagingException(result);
+            }
         }
 
         return result;
