@@ -303,12 +303,11 @@ public class AccountSetupBasics extends Activity
         if (resultCode == RESULT_OK) {
             String email = mAccount.getEmailAddress();
             boolean isDefault = mDefaultView.isChecked();
-            mAccount.setDisplayName(mAccount.getEmailAddress());
-            mAccount.setDefaultAccount(mDefaultView.isChecked());
-            ContentValues cv = new ContentValues();
-            cv.put(AccountColumns.DISPLAY_NAME, email);
-            cv.put(AccountColumns.IS_DEFAULT, isDefault);
-            mAccount.update(this, cv);
+            mAccount.setDisplayName(email);
+            mAccount.setDefaultAccount(isDefault);
+            // At this point we write the Account object to the DB for the first time.
+            // From now on we'll only pass the accountId around.
+            mAccount.save(this);
             Email.setServicesEnabled(this);
             AccountSetupNames.actionSetNames(this, mAccount.mId);
             finish();
