@@ -40,7 +40,9 @@ import java.util.List;
  * A simple ContentProvider that allows file access to Email's attachments.
  */
 public class AttachmentProvider extends ContentProvider {
-    public static final Uri CONTENT_URI = Uri.parse( "content://com.android.email.attachmentprovider");
+
+    public static final String AUTHORITY = "com.android.email.attachmentprovider";
+    public static final Uri CONTENT_URI = Uri.parse( "content://" + AUTHORITY);
 
     private static final String FORMAT_RAW = "RAW";
     private static final String FORMAT_THUMBNAIL = "THUMBNAIL";
@@ -95,6 +97,12 @@ public class AttachmentProvider extends ContentProvider {
         return true;
     }
 
+    /**
+     * Returns the mime type for a given attachment.  There are three possible results:
+     *  - If thumbnail Uri, always returns "image/png" (even if there's no attachment)
+     *  - If the attachment does not exist, returns null
+     *  - Returns the mime type of the attachment
+     */
     @Override
     public String getType(Uri uri) {
         List<String> segments = uri.getPathSegments();
@@ -137,6 +145,17 @@ public class AttachmentProvider extends ContentProvider {
         }
     }
 
+    /**
+     * Open an attachment file.  There are two "modes" - "raw", which returns an actual file,
+     * and "thumbnail", which attempts to generate a thumbnail image.
+     * 
+     * Thumbnails are cached for easy space recovery and cleanup.
+     * 
+     * TODO:  The thumbnail mode returns null for its failure cases, instead of throwing
+     * FileNotFoundException, and should be fixed for consistency.
+     * 
+     *  @throws FileNotFoundException
+     */
     @Override
     public ParcelFileDescriptor openFile(Uri uri, String mode) throws FileNotFoundException {
         List<String> segments = uri.getPathSegments();
@@ -196,6 +215,16 @@ public class AttachmentProvider extends ContentProvider {
         return null;
     }
 
+    /**
+     * Returns a cursor based on the data in the attachments table, or null if the attachment
+     * is not recorded in the table.
+     * 
+     * Supports REST Uri only, for a single row - selection, selection args, and sortOrder are
+     * ignored (non-null values should probably throw an exception....)
+     * 
+     * TODO:  Throws an SQLite exception on a missing DB file (e.g. unknown URI) instead of just
+     * returning null, as it should.
+     */
     @Override
     public Cursor query(Uri uri, String[] projection, String selection, String[] selectionArgs,
             String sortOrder) {
@@ -295,10 +324,14 @@ public class AttachmentProvider extends ContentProvider {
         }
     }
     /**
-     * Resolve attachment id to content URI.
+     * Resolve attachment id to content URI.  Returns the resolved content URI (from the attachment
+     * DB) or, if not found, simply returns the incoming value.
      * 
      * @param attachmentUri
      * @return resolved content URI
+     *
+     * TODO:  Throws an SQLite exception on a missing DB file (e.g. unknown URI) instead of just
+     * returning the incoming uri, as it should.
      */
     public static Uri resolveAttachmentIdToContentUri(ContentResolver resolver, Uri attachmentUri) {
         Cursor c = resolver.query(attachmentUri,
