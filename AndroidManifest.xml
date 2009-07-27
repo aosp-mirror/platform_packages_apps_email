@@ -24,6 +24,7 @@
     <uses-permission android:name="android.permission.VIBRATE"/>
     <uses-permission android:name="android.permission.WRITE_EXTERNAL_STORAGE" />
     <uses-permission android:name="android.permission.MANAGE_ACCOUNTS" />
+    <uses-permission android:name="android.permission.AUTHENTICATE_ACCOUNTS" />
  
     <!--  For EAS purposes; could be removed when EAS has a permanent home -->
     <uses-permission android:name="android.permission.WRITE_CONTACTS"/>
@@ -174,6 +175,17 @@
             >
         </service>
         
+        <!--Required stanza to register the ContactsSyncAdapterService with SyncManager -->
+        <service 
+            android:name="com.android.exchange.ContactsSyncAdapterService" 
+        	android:exported="true">
+            <intent-filter>
+                <action android:name="android.content.SyncAdapter" />
+            </intent-filter>
+            <meta-data android:name="android.content.SyncAdapter"
+                       android:resource="@xml/syncadapter_contacts" />
+        </service>
+
         <!-- Add android:process=":remote" below to enable SyncManager as a separate process -->
         <service
             android:name="com.android.exchange.SyncManager"

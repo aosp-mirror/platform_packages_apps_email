@@ -347,6 +347,7 @@ public class EasSyncService extends InteractiveSyncService {
         return setupEASCommand(method, cmd, null);
     }
 
+    @SuppressWarnings("deprecation")
     private String makeUriString(String cmd, String extra) {
          // Cache the authentication string and the command string
         if (mDeviceId == null)
@@ -691,7 +692,7 @@ public class EasSyncService extends InteractiveSyncService {
             BufferedReader rdr = null;
             String id;
             if (f.exists() && f.canRead()) {
-                rdr = new BufferedReader(new FileReader(f));
+                rdr = new BufferedReader(new FileReader(f), 128);
                 id = rdr.readLine();
                 rdr.close();
                 return id;
@@ -853,7 +854,9 @@ public class EasSyncService extends InteractiveSyncService {
         mAccount = Account.restoreAccountWithId(mContext, mAccount.mId);
         mMailbox = Mailbox.restoreMailboxWithId(mContext, mMailbox.mId);
         try {
-            if (mMailbox.mServerId.equals(Eas.ACCOUNT_MAILBOX)) {
+            if (mMailbox == null || mAccount == null) {
+                return;
+            } else if (mMailbox.mServerId.equals(Eas.ACCOUNT_MAILBOX)) {
                 runMain();
             } else {
                 EasSyncAdapter target;
@@ -861,9 +864,9 @@ public class EasSyncService extends InteractiveSyncService {
                 mProtocolVersion = mAccount.mProtocolVersion;
                 mProtocolVersionDouble = Double.parseDouble(mProtocolVersion);
                 if (mMailbox.mType == Mailbox.TYPE_CONTACTS)
-                    target = new EasContactsSyncAdapter(mMailbox);
+                    target = new EasContactsSyncAdapter(mMailbox, this);
                 else {
-                    target = new EasEmailSyncAdapter(mMailbox);
+                    target = new EasEmailSyncAdapter(mMailbox, this);
                 }
                 // We loop here because someone might have put a request in while we were syncing
                 // and we've missed that opportunity...

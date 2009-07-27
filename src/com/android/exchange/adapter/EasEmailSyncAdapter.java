@@ -63,8 +63,8 @@ public class EasEmailSyncAdapter extends EasSyncAdapter {
     ArrayList<Long> mDeletedIdList = new ArrayList<Long>();
     ArrayList<Long> mUpdatedIdList = new ArrayList<Long>();
 
-    public EasEmailSyncAdapter(Mailbox mailbox) {
-        super(mailbox);
+    public EasEmailSyncAdapter(Mailbox mailbox, EasSyncService service) {
+        super(mailbox, service);
     }
 
     @Override
@@ -72,10 +72,10 @@ public class EasEmailSyncAdapter extends EasSyncAdapter {
         EasEmailSyncParser p = new EasEmailSyncParser(is, service);
         return p.parse();
     }
-    
+
     public class EasEmailSyncParser extends EasContentParser {
 
-        private static final String WHERE_SERVER_ID_AND_MAILBOX_KEY = 
+        private static final String WHERE_SERVER_ID_AND_MAILBOX_KEY =
             SyncColumns.SERVER_ID + "=? and " + MessageColumns.MAILBOX_KEY + "=?";
 
         private String mMailboxIdAsString;
@@ -88,6 +88,7 @@ public class EasEmailSyncAdapter extends EasSyncAdapter {
             }
         }
 
+        @Override
         public void wipe() {
             mContentResolver.delete(Message.CONTENT_URI,
                     Message.MAILBOX_KEY + "=" + mMailbox.mId, null);
@@ -174,7 +175,7 @@ public class EasEmailSyncAdapter extends EasSyncAdapter {
 
             while (nextTag(EasTags.SYNC_ADD) != END) {
                 switch (tag) {
-                    case EasTags.SYNC_SERVER_ID: 
+                    case EasTags.SYNC_SERVER_ID:
                         msg.mServerId = getValue();
                         break;
                     case EasTags.SYNC_APPLICATION_DATA:
@@ -389,6 +390,7 @@ public class EasEmailSyncAdapter extends EasSyncAdapter {
         /* (non-Javadoc)
          * @see com.android.exchange.adapter.EasContentParser#commandsParser()
          */
+        @Override
         public void commandsParser() throws IOException {
             ArrayList<Message> newEmails = new ArrayList<Message>();
             ArrayList<Long> deletedEmails = new ArrayList<Long>();
@@ -436,7 +438,7 @@ public class EasEmailSyncAdapter extends EasSyncAdapter {
                     mMailbox.toContentValues()).build());
 
             addCleanupOps(ops);
-            
+
             try {
                 mService.mContext.getContentResolver()
                         .applyBatch(EmailProvider.EMAIL_AUTHORITY, ops);

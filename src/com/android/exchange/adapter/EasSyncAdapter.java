@@ -29,6 +29,7 @@ import java.io.IOException;
  */
 public abstract class EasSyncAdapter {
     public Mailbox mMailbox;
+    public EasSyncService mService;
 
     // Create the data for local changes that need to be sent up to the server
     public abstract boolean sendLocalChanges(EasSerializer s, EasSyncService service) 
@@ -41,8 +42,9 @@ public abstract class EasSyncAdapter {
     public abstract String getCollectionName();
     public abstract void cleanup(EasSyncService service);
 
-    public EasSyncAdapter(Mailbox mailbox) {
+    public EasSyncAdapter(Mailbox mailbox, EasSyncService service) {
         mMailbox = mailbox;
+        mService = service;
     }
 }
 

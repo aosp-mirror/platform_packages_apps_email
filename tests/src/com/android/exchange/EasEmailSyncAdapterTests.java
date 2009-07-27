@@ -51,7 +51,7 @@ public class EasEmailSyncAdapterTests extends AndroidTestCase {
         service.mContext = getContext();
         service.mMailbox = mailbox;
         service.mAccount = account;
-        EasEmailSyncAdapter adapter = new EasEmailSyncAdapter(mailbox);
+        EasEmailSyncAdapter adapter = new EasEmailSyncAdapter(mailbox, service);
         EasEmailSyncParser p;
         p = adapter.new EasEmailSyncParser(getTestInputStream(), service);
         // Test a few known types

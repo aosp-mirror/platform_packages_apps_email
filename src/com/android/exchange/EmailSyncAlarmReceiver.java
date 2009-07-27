@@ -31,7 +31,7 @@ import android.util.Log;
 import java.util.ArrayList;
 
 /**
- * UserSyncAlarmReceiver (USAR) is used by the SyncManager to start up-syncs of user-modified data
+ * EmailSyncAlarmReceiver (USAR) is used by the SyncManager to start up-syncs of user-modified data
  * back to the Exchange server.
  *
  * Here's how this works for Email, for example:
@@ -40,15 +40,15 @@ import java.util.ArrayList;
  * 2) SyncManager, which has a ContentObserver watching the Message class, is alerted to a change
  * 3) SyncManager sets an alarm (to be received by USAR) for a few seconds in the
  * future (currently 15), the delay preventing excess syncing (think of it as a debounce mechanism).
- * 4) USAR Receiver's onReceive method is called
- * 5) USAR goes through all change and deletion records and compiles a list of mailboxes which have
+ * 4) ESAR Receiver's onReceive method is called
+ * 5) ESAR goes through all change and deletion records and compiles a list of mailboxes which have
  * changes to be uploaded.
- * 6) USAR calls SyncManager to start syncs of those mailboxes
+ * 6) ESAR calls SyncManager to start syncs of those mailboxes
  *
  */
-public class UserSyncAlarmReceiver extends BroadcastReceiver {
+public class EmailSyncAlarmReceiver extends BroadcastReceiver {
     final String[] MAILBOX_DATA_PROJECTION = {MessageColumns.MAILBOX_KEY, SyncColumns.DATA};
-    private static String TAG = "UserSyncAlarm";
+    private static String TAG = "EmailSyncAlarm";
 
     @Override
     public void onReceive(Context context, Intent intent) {

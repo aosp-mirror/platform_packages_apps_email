@@ -25,10 +25,8 @@ import android.accounts.AccountManager;
 import android.accounts.Constants;
 import android.accounts.NetworkErrorException;
 import android.app.Service;
-import android.content.Intent;
 import android.content.Context;
-import android.content.pm.PermissionInfo;
-import android.content.pm.PackageManager;
+import android.content.Intent;
 import android.os.Bundle;
 import android.os.IBinder;
 
@@ -38,6 +36,8 @@ import android.os.IBinder;
  * password.  We will need to implement confirmPassword, confirmCredentials, and updateCredentials.
  */
 public class EasAuthenticatorService extends Service {
+    public static final String OPTIONS_USERNAME = "username";
+    public static final String OPTIONS_PASSWORD = "password";
 
     class EasAuthenticator extends AbstractAccountAuthenticator {
         public EasAuthenticator(Context context) {
@@ -50,8 +50,8 @@ public class EasAuthenticatorService extends Service {
                 throws NetworkErrorException {
             // The Bundle we are passed has username and password set
             AccountManager.get(EasAuthenticatorService.this).blockingAddAccountExplicitly(
-                    new Account(options.getString("username"), Eas.ACCOUNT_MANAGER_TYPE),
-                    options.getString("password"), null);
+                    new Account(options.getString(OPTIONS_USERNAME), Eas.ACCOUNT_MANAGER_TYPE),
+                    options.getString(OPTIONS_PASSWORD), null);
             Bundle b = new Bundle();
             b.putString(Constants.ACCOUNT_NAME_KEY, options.getString("username"));
             b.putString(Constants.ACCOUNT_TYPE_KEY, Eas.ACCOUNT_MANAGER_TYPE);
@@ -84,7 +84,7 @@ public class EasAuthenticatorService extends Service {
 
         @Override
         public String getAuthTokenLabel(String authTokenType) {
-            // null means we don't have compartmentalized authtoken types 
+            // null means we don't have compartmentalized authtoken types
             return null;
         }
 
@@ -107,7 +107,7 @@ public class EasAuthenticatorService extends Service {
     public IBinder onBind(Intent intent) {
         // TODO Replace this with an appropriate constant in AccountManager, when it's created
         String authenticatorIntent = "android.accounts.AccountAuthenticator";
-        
+
         if (authenticatorIntent.equals(intent.getAction())) {
             return new EasAuthenticator(this).getIAccountAuthenticator().asBinder();
         } else {

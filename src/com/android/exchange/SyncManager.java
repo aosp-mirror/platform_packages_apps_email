@@ -59,7 +59,7 @@ import java.util.List;
 
 /**
  * The SyncManager handles all aspects of starting, maintaining, and stopping the various sync
- * adapters used by Exchange.  However, it is capable of handing any kind of email sync, and it 
+ * adapters used by Exchange.  However, it is capable of handing any kind of email sync, and it
  * would be appropriate to use for IMAP push, when that functionality is added to the Email
  * application.
  *
@@ -91,17 +91,17 @@ public class SyncManager extends Service implements Runnable {
     MessageObserver mMessageObserver;
     String mNextWaitReason;
     IEmailServiceCallback mCallback;
-    
+
     RemoteCallbackList<IEmailServiceCallback> mCallbackList =
         new RemoteCallbackList<IEmailServiceCallback>();
-    
+
     static private HashMap<Long, Boolean> mWakeLocks = new HashMap<Long, Boolean>();
     static private HashMap<Long, PendingIntent> mPendingIntents =
         new HashMap<Long, PendingIntent>();
     static private WakeLock mWakeLock = null;
 
     /**
-     * Create the binder for EmailService implementation here.  These are the calls that are 
+     * Create the binder for EmailService implementation here.  These are the calls that are
      * defined in AbstractSyncService.   Only validate is now implemented; loadAttachment currently
      * spins its wheels counting up to 100%.
      */
@@ -183,23 +183,23 @@ public class SyncManager extends Service implements Runnable {
         }
     };
 
+    class AccountList extends ArrayList<Account> {
+        private static final long serialVersionUID = 1L;
+
+        public boolean contains(long id) {
+            for (Account account: this) {
+                if (account.mId == id) {
+                    return true;
+                }
+            }
+            return false;
+        }
+    }
+
     class AccountObserver extends ContentObserver {
 
         // mAccounts keeps track of Accounts that we care about (EAS for now)
         AccountList mAccounts = new AccountList();
-
-        class AccountList extends ArrayList<Account> {
-            private static final long serialVersionUID = 1L;
-
-            public boolean contains(long id) {
-                for (Account account: this) {
-                    if (account.mId == id) {
-                        return true;
-                    }
-                }
-                return false;
-            }
-        }
 
         public AccountObserver(Handler handler) {
             super(handler);
@@ -237,6 +237,7 @@ public class SyncManager extends Service implements Runnable {
             return false;
         }
 
+        @Override
         public void onChange(boolean selfChange) {
             // A change to the list requires us to scan for deletions (to stop running syncs)
             // At startup, we want to see what accounts exist and cache them
@@ -328,6 +329,7 @@ public class SyncManager extends Service implements Runnable {
             super(handler);
         }
 
+        @Override
         public void onChange(boolean selfChange) {
             // See if there's anything to do...
             kick();
@@ -337,7 +339,7 @@ public class SyncManager extends Service implements Runnable {
     class SyncedMessageObserver extends ContentObserver {
         long maxChangedId = 0;
         long maxDeletedId = 0;
-        Intent syncAlarmIntent = new Intent(INSTANCE, UserSyncAlarmReceiver.class);
+        Intent syncAlarmIntent = new Intent(INSTANCE, EmailSyncAlarmReceiver.class);
         PendingIntent syncAlarmPendingIntent =
             PendingIntent.getBroadcast(INSTANCE, 0, syncAlarmIntent, 0);
         AlarmManager alarmManager = (AlarmManager)INSTANCE.getSystemService(Context.ALARM_SERVICE);
@@ -347,6 +349,7 @@ public class SyncManager extends Service implements Runnable {
             super(handler);
         }
 
+        @Override
         public void onChange(boolean selfChange) {
             INSTANCE.log("SyncedMessage changed: (re)setting alarm for 10s");
             alarmManager.set(AlarmManager.RTC_WAKEUP,
@@ -360,6 +363,7 @@ public class SyncManager extends Service implements Runnable {
             super(handler);
         }
 
+        @Override
         public void onChange(boolean selfChange) {
             INSTANCE.log("MessageObserver");
             // A rather blunt instrument here.  But we don't have information about the URI that
@@ -374,7 +378,15 @@ public class SyncManager extends Service implements Runnable {
         }
         return null;
     }
-    
+
+    static public AccountList getAccountList() {
+        if (INSTANCE != null) {
+            return INSTANCE.mAccountObserver.mAccounts;
+        } else {
+            return null;
+        }
+    }
+
     public class SyncStatus {
         static public final int NOT_RUNNING = 0;
         static public final int DIED = 1;
@@ -651,13 +663,6 @@ public class SyncManager extends Service implements Runnable {
     public void run() {
         mStop = false;
 
-//        if (Debug.isDebuggerConnected()) {
-//            try {
-//                Thread.sleep(10000L);
-//            } catch (InterruptedException e) {
-//            }
-//        }
-
         runAwake(-1);
 
         ContentResolver resolver = getContentResolver();
@@ -668,7 +673,7 @@ public class SyncManager extends Service implements Runnable {
 
         ConnectivityReceiver cr = new ConnectivityReceiver();
         registerReceiver(cr, new IntentFilter(ConnectivityManager.CONNECTIVITY_ACTION));
-        ConnectivityManager cm = 
+        ConnectivityManager cm =
             (ConnectivityManager)getSystemService(Context.CONNECTIVITY_SERVICE);
 
         try {
@@ -721,6 +726,22 @@ public class SyncManager extends Service implements Runnable {
     }
 
     long checkMailboxes () {
+        // First, see if any running mailboxes have been deleted
+        ArrayList<Long> deadMailboxes = new ArrayList<Long>();
+        synchronized (mSyncToken) {
+            for (long mailboxId: mServiceMap.keySet()) {
+                Mailbox m = Mailbox.restoreMailboxWithId(INSTANCE, mailboxId);
+                if (m == null) {
+                    deadMailboxes.add(mailboxId);
+                    log("Stopping sync for mailbox " + mailboxId + "; record not found.");
+                }
+            }
+        }
+        // If so, stop them
+        for (Long mailboxId: deadMailboxes) {
+            stopManualSync(mailboxId);
+        }
+
         long nextWait = 10*MINS;
         long now = System.currentTimeMillis();
         // Start up threads that need it...
@@ -800,7 +821,7 @@ public class SyncManager extends Service implements Runnable {
         }
         return nextWait;
     }
-        
+
     static public void serviceRequest(Mailbox m) {
         serviceRequest(m.mId, 5*SECS);
     }
@@ -881,7 +902,7 @@ public class SyncManager extends Service implements Runnable {
     /**
      * Determine whether a given Mailbox can be synced, i.e. is not already syncing and is not in
      * an error state
-     * 
+     *
      * @param mailboxId
      * @return whether or not the Mailbox is available for syncing (i.e. is a valid push target)
      */
@@ -896,7 +917,7 @@ public class SyncManager extends Service implements Runnable {
         }
         return true;
     }
-    
+
     static public int getSyncStatus(long mailboxId) {
         synchronized (mSyncToken) {
             if (INSTANCE == null || INSTANCE.mServiceMap == null) {
@@ -984,30 +1005,32 @@ public class SyncManager extends Service implements Runnable {
      * @param svc the service that is finished
      */
     static public void done(AbstractSyncService svc) {
-        long mailboxId = svc.mMailboxId;
-        HashMap<Long, SyncError> errorMap = INSTANCE.mSyncErrorMap;
-        SyncError syncError = errorMap.get(mailboxId);
-        INSTANCE.mServiceMap.remove(mailboxId);
-        int exitStatus = svc.mExitStatus;
-        switch (exitStatus) {
-            case AbstractSyncService.EXIT_DONE:
-                if (!svc.mPartRequests.isEmpty()) {
-                    // TODO Handle this case
-                }
-                errorMap.remove(mailboxId);
-                break;
-            case AbstractSyncService.EXIT_IO_ERROR:
-                if (syncError != null) {
-                    syncError.escalate();
-                } else {
-                    errorMap.put(mailboxId, INSTANCE.new SyncError(exitStatus, false));
-                }
-                kick();
-                break;
-            case AbstractSyncService.EXIT_LOGIN_FAILURE:
-            case AbstractSyncService.EXIT_EXCEPTION:
-                errorMap.put(mailboxId, INSTANCE.new SyncError(exitStatus, true));
-                break;
+        synchronized(mSyncToken) {
+            long mailboxId = svc.mMailboxId;
+            HashMap<Long, SyncError> errorMap = INSTANCE.mSyncErrorMap;
+            SyncError syncError = errorMap.get(mailboxId);
+            INSTANCE.mServiceMap.remove(mailboxId);
+            int exitStatus = svc.mExitStatus;
+            switch (exitStatus) {
+                case AbstractSyncService.EXIT_DONE:
+                    if (!svc.mPartRequests.isEmpty()) {
+                        // TODO Handle this case
+                    }
+                    errorMap.remove(mailboxId);
+                    break;
+                case AbstractSyncService.EXIT_IO_ERROR:
+                    if (syncError != null) {
+                        syncError.escalate();
+                    } else {
+                        errorMap.put(mailboxId, INSTANCE.new SyncError(exitStatus, false));
+                    }
+                    kick();
+                    break;
+                case AbstractSyncService.EXIT_LOGIN_FAILURE:
+                case AbstractSyncService.EXIT_EXCEPTION:
+                    errorMap.put(mailboxId, INSTANCE.new SyncError(exitStatus, true));
+                    break;
+            }
         }
     }
 
@@ -1034,6 +1057,6 @@ public class SyncManager extends Service implements Runnable {
         if (INSTANCE == null) {
             return null;
         }
-        return (Context)INSTANCE;
+        return INSTANCE;
     }
 }

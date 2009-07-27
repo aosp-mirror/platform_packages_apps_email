@@ -329,8 +329,9 @@ public class EasTags {
         },
         {
             // 0x01 Contacts
-            "Anniversary", "AssistantName", "AssistantTelephoneNumber", "Birthday", "Body",
-            "BodySize", "BodyTruncated", "Business2TelephoneNumber", "BusinessAddressCity",
+            "Anniversary", "AssistantName", "AssistantTelephoneNumber", "Birthday", "ContactsBody",
+            "ContactsBodySize", "ContactsBodyTruncated", "Business2TelephoneNumber",
+            "BusinessAddressCity",
             "BusinessAddressCountry", "BusinessAddressPostalCode", "BusinessAddressState",
             "BusinessAddressStreet", "BusinessFaxNumber", "BusinessTelephoneNumber",
             "CarTelephoneNumber", "ContactsCategories", "ContactsCategory", "Children", "Child",
@@ -338,8 +339,8 @@ public class EasTags {
             "FileAs", "FirstName", "Home2TelephoneNumber", "HomeAddressCity", "HomeAddressCountry",
             "HomeAddressPostalCode", "HomeAddressState", "HomeAddressStreet", "HomeFaxNumber",
             "HomeTelephoneNumber", "JobTitle", "LastName", "MiddleName", "MobileTelephoneNumber",
-            "OfficeLocation", "OfficeAddressCity", "OfficeAddressCountry",
-            "OfficeAddressPostalCode", "OfficeAddressState", "OfficeAddressStreet", "PagerNumber",
+            "OfficeLocation", "OtherAddressCity", "OtherAddressCountry",
+            "OtherAddressPostalCode", "OtherAddressState", "OtherAddressStreet", "PagerNumber",
             "RadioTelephoneNumber", "Spouse", "Suffix", "Title", "Webpage", "YomiCompanyName",
             "YomiFirstName", "YomiLastName", "CompressedRTF", "Picture"
         },
@@ -354,7 +355,7 @@ public class EasTags {
             "Recurrence_Occurrences", "Recurrence_Interval", "Recurrence_DayOfWeek",
             "Recurrence_DayOfMonth", "Recurrence_WeekOfMonth", "Recurrence_MonthOfYear",
             "StartTime", "Sensitivity", "TimeZone", "GlobalObjId", "ThreadTopic", "MIMEData",
-            "MIMETruncated", "MIMESize", "InternetCPID", "Flag", "FlagStatus", "ContentClass",
+            "MIMETruncated", "MIMESize", "InternetCPID", "Flag", "FlagStatus", "EmailContentClass",
             "FlagType", "CompleteTime"
         },
         {
@@ -375,7 +376,7 @@ public class EasTags {
         },
         {
             // 0x05 Move
-            "MoveItems", "Move", "SrcMsgId", "SrcFldId", "DstFldId", "Response", "Status",
+            "MoveItems", "Move", "SrcMsgId", "SrcFldId", "DstFldId", "MoveResponse", "MoveStatus",
             "DstMsgId"
         },
         {
@@ -384,9 +385,9 @@ public class EasTags {
         {
             // 0x07 FolderHierarchy
             "Folders", "Folder", "FolderDisplayName", "FolderServerId", "FolderParentId", "Type",
-            "Response", "Status", "ContentClass", "Changes", "FolderAdd", "FolderDelete",
-            "FolderUpdate", "FolderSyncKey", "FolderCreate", "FolderDelete", "FolderUpdate",
-            "FolderSync", "Count", "Version"
+            "FolderResponse", "FolderStatus", "FolderContentClass", "Changes", "FolderAdd",
+            "FolderDelete", "FolderUpdate", "FolderSyncKey", "FolderFolderCreate",
+            "FolderFolderDelete", "FolderFolderUpdate", "FolderSync", "Count", "FolderVersion"
         },
         {
             // 0x08 MeetingResponse
@@ -407,12 +408,12 @@ public class EasTags {
         },
         {
             // 0x0D Ping
-            "Ping", "AutdState", "Status", "HeartbeatInterval", "PingFolders", "PingFolder",
+            "Ping", "AutdState", "PingStatus", "HeartbeatInterval", "PingFolders", "PingFolder",
             "PingId", "PingClass", "MaxFolders"
         },
         {
             // 0x0E Provision
-            "Provision", "Policies", "Policy", "PolicyType", "PolicyKey", "Data", "Status",
+            "Provision", "Policies", "Policy", "PolicyType", "PolicyKey", "Data", "ProvisionStatus",
             "RemoteWipe", "EASProvidionDoc", "DevicePasswordEnabled",
             "AlphanumericDevicePasswordRequired",
             "DeviceEncryptionEnabled", "-unused-", "AttachmentsEnabled", "MinDevicePasswordLength",
@@ -436,8 +437,8 @@ public class EasTags {
         },
         {
             // 0x10 Gal
-            "DisplayName", "Phone", "Office", "Title", "Company", "Alias", "FirstName", "LastName",
-            "HomePhone", "MobilePhone", "EmailAddress"
+            "GalDisplayName", "GalPhone", "GalOffice", "GalTitle", "GalCompany", "GalAlias",
+            "GalFirstName", "GalLastName", "GalHomePhone", "GalMobilePhone", "GalEmailAddress"
         },
         {
             // 0x11 AirSyncBase

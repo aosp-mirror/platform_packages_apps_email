@@ -19,6 +19,7 @@ package com.android.email.activity.setup;
 import com.android.email.Email;
 import com.android.email.R;
 import com.android.email.mail.Store;
+import com.android.email.mail.store.ExchangeStore;
 import com.android.email.provider.EmailContent;
 
 import android.app.Activity;
@@ -120,6 +121,11 @@ public class AccountSetupOptions extends Activity implements OnClickListener {
             mAccount.setSyncLookback(window);
         }
         mAccount.setDefaultAccount(mDefaultView.isChecked());
+        // EAS needs a hook to store account information for use by AccountManager
+        if (!mAccount.isSaved() && mAccount.mHostAuthRecv != null
+                && mAccount.mHostAuthRecv.mProtocol.equals("eas")) {
+            ExchangeStore.addSystemAccount(this, mAccount);
+        }
         AccountSettingsUtils.commitSettings(this, mAccount);
         Email.setServicesEnabled(this);
         AccountSetupNames.actionSetNames(this, mAccount.mId);

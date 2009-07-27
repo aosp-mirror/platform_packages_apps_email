@@ -29,8 +29,8 @@ import java.io.IOException;
  */
 public class EasCalendarSyncAdapter extends EasSyncAdapter {
 
-    public EasCalendarSyncAdapter(Mailbox mailbox) {
-        super(mailbox);
+    public EasCalendarSyncAdapter(Mailbox mailbox, EasSyncService service) {
+        super(mailbox, service);
     }
 
     @Override

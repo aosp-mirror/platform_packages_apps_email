@@ -51,7 +51,7 @@ import java.util.List;
 
 public class EasFolderSyncParser extends EasParser {
 
-    private static boolean DEBUG_LOGGING = false;
+    private static boolean DEBUG_LOGGING = true;
 
     public static final String TAG = "FolderSyncParser";
 

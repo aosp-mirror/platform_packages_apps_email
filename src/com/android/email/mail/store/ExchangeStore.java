@@ -26,6 +26,8 @@ import com.android.email.mail.MessageRetrievalListener;
 import com.android.email.mail.MessagingException;
 import com.android.email.mail.Store;
 import com.android.email.mail.StoreSynchronizer;
+import com.android.email.provider.EmailContent.Account;
+import com.android.email.service.EasAuthenticatorService;
 import com.android.email.service.EmailServiceProxy;
 import com.android.exchange.Eas;
 import com.android.exchange.SyncManager;
@@ -113,6 +115,34 @@ public class ExchangeStore extends Store {
     @Override
     public void checkSettings() throws MessagingException {
         mTransport.checkSettings(mUri);
+    }
+
+    static public void addSystemAccount(Context context, Account acct) {
+        // This code was taken from sample code in AccountsTester
+        Bundle options = new Bundle();
+        options.putString(EasAuthenticatorService.OPTIONS_USERNAME, acct.mEmailAddress);
+        options.putString(EasAuthenticatorService.OPTIONS_PASSWORD, acct.mHostAuthRecv.mPassword);
+        Future2Callback callback = new Future2Callback() {
+            public void run(Future2 future) {
+                try {
+                    Bundle bundle = future.getResult();
+                    bundle.keySet();
+                    Log.d(LOG_TAG, "account added: " + bundle);
+                } catch (OperationCanceledException e) {
+                    Log.d(LOG_TAG, "addAccount was canceled");
+                } catch (IOException e) {
+                    Log.d(LOG_TAG, "addAccount failed: " + e);
+                } catch (AuthenticatorException e) {
+                    Log.d(LOG_TAG, "addAccount failed: " + e);
+                }
+
+            }
+        };
+        // Here's where we tell AccountManager about the new account.  The addAccount
+        // method in AccountManager calls the addAccount method in our authenticator
+        // service (EasAuthenticatorService)
+        AccountManager.get(context).addAccount(Eas.ACCOUNT_MANAGER_TYPE, null, null,
+                options, null, callback, null);
     }
 
     @Override
@@ -287,32 +317,6 @@ public class ExchangeStore extends Store {
                     } else {
                         throw new MessagingException(result);
                     }
-                } else {
-                    // This code was taken from sample code in AccountsTester
-                    Bundle options = new Bundle();
-                    options.putString("username", mUsername);
-                    options.putString("password", mPassword);
-                    Future2Callback callback = new Future2Callback() {
-                        public void run(Future2 future) {
-                            try {
-                                Bundle bundle = future.getResult();
-                                bundle.keySet();
-                                Log.d(TAG, "account added: " + bundle);
-                            } catch (OperationCanceledException e) {
-                                Log.d(TAG, "addAccount was canceled");
-                            } catch (IOException e) {
-                                Log.d(TAG, "addAccount failed: " + e);
-                            } catch (AuthenticatorException e) {
-                                Log.d(TAG, "addAccount failed: " + e);
-                            }
-
-                        }
-                    };
-                    // Here's where we tell AccountManager about the new account.  The addAccount
-                    // method in AccountManager calls the addAccount method in our authenticator
-                    // service (EasAuthenticatorService)
-                    AccountManager.get(mContext).addAccount(Eas.ACCOUNT_MANAGER_TYPE, null, null,
-                            options, null, callback, null);
                 }
             } catch (RemoteException e) {
                 throw new MessagingException("Call to validate generated an exception", e);
