@@ -316,6 +316,17 @@ public class Address {
     public static String parseAndPack(String textList) {
         return Address.pack(Address.parse(textList));
     }
+
+    /**
+     * Returns null if the packedList has 0 addresses, otherwise returns the first address.
+     * The same as Address.unpack(packedList)[0] for non-empty list.
+     * This is an utility method that offers some performance optimization opportunities.
+     */
+    public static Address unpackFirst(String packedList) {
+        Address[] array = unpack(packedList);
+        return array.length > 0 ? array[0] : null;
+    }
+
     /**
      * Unpacks an address list previously packed with pack()
      * @param addressList String with packed addresses as returned by pack()

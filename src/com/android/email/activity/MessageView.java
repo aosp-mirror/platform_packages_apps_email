@@ -141,9 +141,6 @@ public class MessageView extends Activity
     private String mMessageUid;
     private Cursor mMessageListCursor;
 
-    // TODO all uses of this need to be converted to "mMessage".  Then mOldMessage goes away.
-    private com.android.email.mail.Message mOldMessage;
-
     private java.text.DateFormat mDateFormat;
     private java.text.DateFormat mTimeFormat;
 
@@ -479,7 +476,7 @@ public class MessageView extends Activity
         super.onResume();
         Controller.getInstance(getApplication()).addResultCallback(mControllerCallback);
         MessagingController.getInstance(getApplication()).addListener(mListener);
-        if (mOldMessage != null) {
+        if (mMessage != null) {
             startPresenceCheck();
         }
     }
@@ -539,29 +536,25 @@ public class MessageView extends Activity
     }
     
     private void onClickSender() {
-        if (mOldMessage != null) {
-            try {
-                Address senderEmail = mOldMessage.getFrom()[0];
+        if (mMessage != null) {
+            Address senderEmail = Address.unpackFirst(mMessage.mFrom);
+            if (senderEmail != null) {
                 Uri contactUri = Uri.fromParts("mailto", senderEmail.getAddress(), null);
-                
+
                 Intent contactIntent = new Intent(Contacts.Intents.SHOW_OR_CREATE_CONTACT);
                 contactIntent.setData(contactUri);
-                
+
                 // Pass along full E-mail string for possible create dialog  
                 contactIntent.putExtra(Contacts.Intents.EXTRA_CREATE_DESCRIPTION,
-                        senderEmail.toString());
-                
+                                       senderEmail.toString());
+
                 // Only provide personal name hint if we have one
                 String senderPersonal = senderEmail.getPersonal();
                 if (senderPersonal != null) {
                     contactIntent.putExtra(Intents.Insert.NAME, senderPersonal);
                 }
-                
+
                 startActivity(contactIntent);
-            } catch (MessagingException me) {
-                // this will happen if message has illegal From:, ignore
-            } catch (ArrayIndexOutOfBoundsException e) {
-                // this will happen if message has no or illegal From:, ignore
             }
         }
     }
@@ -582,21 +575,21 @@ public class MessageView extends Activity
     }
 
     private void onReply() {
-        if (mOldMessage != null) {
+        if (mMessage != null) {
             MessageCompose.actionReply(this, mMessage.mId, false);
             finish();
         }
     }
 
     private void onReplyAll() {
-        if (mOldMessage != null) {
+        if (mMessage != null) {
             MessageCompose.actionReply(this, mMessage.mId, true);
             finish();
         }
     }
 
     private void onForward() {
-        if (mOldMessage != null) {
+        if (mMessage != null) {
             MessageCompose.actionForward(this, mMessage.mId);
             finish();
         }
@@ -687,7 +680,7 @@ public class MessageView extends Activity
     }
 
     private void onShowPictures() {
-        if (mOldMessage != null) {
+        if (mMessage != null) {
             mMessageContentView.getSettings().setBlockNetworkImage(false);
             mShowPicturesSection.setVisibility(View.GONE);
         }
@@ -910,16 +903,11 @@ public class MessageView extends Activity
      */
     private void startPresenceCheck() {
         String email = null;        
-        try {
-            if (mOldMessage != null) {
-                Address sender = mOldMessage.getFrom()[0];
-                email = sender.getAddress();
-            }
-        } catch (MessagingException me) {
-            // this will happen if message has illegal From:, ignore
-        } catch (ArrayIndexOutOfBoundsException e) {
-            // this will happen if message has no or illegal From:, ignore
+        if (mMessage != null) {
+            Address sender = Address.unpackFirst(mMessage.mFrom);
+            email = sender != null ? sender.getAddress() : null;
         }
+
         if (email == null) {
             mHandler.setSenderPresence(0);
             return;
@@ -1265,114 +1253,114 @@ public class MessageView extends Activity
         @Override
         public void loadMessageForViewHeadersAvailable(Account account, String folder,
                 String uid, final com.android.email.mail.Message message) {
-            MessageView.this.mOldMessage = message;
-            try {
-                String subjectText = message.getSubject();
-                String fromText = Address.toFriendly(message.getFrom());
-                Date sentDate = message.getSentDate();
-                String timeText = mTimeFormat.format(sentDate);
-                String dateText = Utility.isDateToday(sentDate) ? null : 
-                        mDateFormat.format(sentDate);
-                String toText = Address.toFriendly(message.getRecipients(RecipientType.TO));
-                String ccText = Address.toFriendly(message.getRecipients(RecipientType.CC));
-                boolean hasAttachments = ((LocalMessage) message).getAttachmentCount() > 0;
-                mHandler.setHeaders(subjectText,
-                        fromText,
-                        timeText,
-                        dateText,
-                        toText,
-                        ccText,
-                        hasAttachments);
-                startPresenceCheck();
-            }
-            catch (MessagingException me) {
-                if (Email.LOGD) {
-                    Log.v(Email.LOG_TAG, "loadMessageForViewHeadersAvailable", me);
-                }
-            }
+//             MessageView.this.mOldMessage = message;
+//             try {
+//                 String subjectText = message.getSubject();
+//                 String fromText = Address.toFriendly(message.getFrom());
+//                 Date sentDate = message.getSentDate();
+//                 String timeText = mTimeFormat.format(sentDate);
+//                 String dateText = Utility.isDateToday(sentDate) ? null : 
+//                         mDateFormat.format(sentDate);
+//                 String toText = Address.toFriendly(message.getRecipients(RecipientType.TO));
+//                 String ccText = Address.toFriendly(message.getRecipients(RecipientType.CC));
+//                 boolean hasAttachments = ((LocalMessage) message).getAttachmentCount() > 0;
+//                 mHandler.setHeaders(subjectText,
+//                         fromText,
+//                         timeText,
+//                         dateText,
+//                         toText,
+//                         ccText,
+//                         hasAttachments);
+//                 startPresenceCheck();
+//             }
+//             catch (MessagingException me) {
+//                 if (Email.LOGD) {
+//                     Log.v(Email.LOG_TAG, "loadMessageForViewHeadersAvailable", me);
+//                 }
+//             }
         }
 
         @Override
         public void loadMessageForViewBodyAvailable(Account account, String folder,
                 String uid, com.android.email.mail.Message message) {
-            MessageView.this.mOldMessage = message;
-            try {
-                Part part = MimeUtility.findFirstPartByMimeType(mOldMessage, "text/html");
-                if (part == null) {
-                    part = MimeUtility.findFirstPartByMimeType(mOldMessage, "text/plain");
-                }
-                if (part != null) {
-                    String text = MimeUtility.getTextFromPart(part);
-                    if (part.getMimeType().equalsIgnoreCase("text/html")) {
-                        text = EmailHtmlUtil.resolveInlineImage(
-                                getContentResolver(), mAccount.mId, text, mOldMessage, 0);
-                    } else {
-                        // And also escape special character, such as "<>&",
-                        // to HTML escape sequence.
-                        text = EmailHtmlUtil.escapeCharacterToDisplay(text);
+//             MessageView.this.mOldMessage = message;
+//             try {
+//                 Part part = MimeUtility.findFirstPartByMimeType(mOldMessage, "text/html");
+//                 if (part == null) {
+//                     part = MimeUtility.findFirstPartByMimeType(mOldMessage, "text/plain");
+//                 }
+//                 if (part != null) {
+//                     String text = MimeUtility.getTextFromPart(part);
+//                     if (part.getMimeType().equalsIgnoreCase("text/html")) {
+//                         text = EmailHtmlUtil.resolveInlineImage(
+//                                 getContentResolver(), mAccount.mId, text, mOldMessage, 0);
+//                     } else {
+//                         // And also escape special character, such as "<>&",
+//                         // to HTML escape sequence.
+//                         text = EmailHtmlUtil.escapeCharacterToDisplay(text);
 
-                        /*
-                         * Linkify the plain text and convert it to HTML by replacing
-                         * \r?\n with <br> and adding a html/body wrapper.
-                         */
-                        StringBuffer sb = new StringBuffer("<html><body>");
-                        if (text != null) {
-                            Matcher m = Regex.WEB_URL_PATTERN.matcher(text);
-                            while (m.find()) {
-                                int start = m.start();
-                                /*
-                                 * WEB_URL_PATTERN may match domain part of email address. To detect
-                                 * this false match, the character just before the matched string
-                                 * should not be '@'. 
-                                 */
-                                if (start == 0 || text.charAt(start - 1) != '@') {
-                                    String url = m.group();
-                                    Matcher proto = WEB_URL_PROTOCOL.matcher(url);
-                                    String link;
-                                    if (proto.find()) {
-                                        // Work around to force URL protocol part be lower case,
-                                        // since WebView could follow only lower case protocol link.
-                                        link = proto.group().toLowerCase()
-                                            + url.substring(proto.end());
-                                    } else {
-                                        // Regex.WEB_URL_PATTERN matches URL without protocol part,
-                                        // so added default protocol to link.
-                                        link = "http://" + url;
-                                    }
-                                    String href = String.format("<a href=\"%s\">%s</a>", link, url);
-                                    m.appendReplacement(sb, href);
-                                }
-                                else {
-                                    m.appendReplacement(sb, "$0");
-                                }
-                            }
-                            m.appendTail(sb);
-                        }
-                        sb.append("</body></html>");
-                        text = sb.toString();
-                    }
+//                         /*
+//                          * Linkify the plain text and convert it to HTML by replacing
+//                          * \r?\n with <br> and adding a html/body wrapper.
+//                          */
+//                         StringBuffer sb = new StringBuffer("<html><body>");
+//                         if (text != null) {
+//                             Matcher m = Regex.WEB_URL_PATTERN.matcher(text);
+//                             while (m.find()) {
+//                                 int start = m.start();
+//                                 /*
+//                                  * WEB_URL_PATTERN may match domain part of email address. To detect
+//                                  * this false match, the character just before the matched string
+//                                  * should not be '@'. 
+//                                  */
+//                                 if (start == 0 || text.charAt(start - 1) != '@') {
+//                                     String url = m.group();
+//                                     Matcher proto = WEB_URL_PROTOCOL.matcher(url);
+//                                     String link;
+//                                     if (proto.find()) {
+//                                         // Work around to force URL protocol part be lower case,
+//                                         // since WebView could follow only lower case protocol link.
+//                                         link = proto.group().toLowerCase()
+//                                             + url.substring(proto.end());
+//                                     } else {
+//                                         // Regex.WEB_URL_PATTERN matches URL without protocol part,
+//                                         // so added default protocol to link.
+//                                         link = "http://" + url;
+//                                     }
+//                                     String href = String.format("<a href=\"%s\">%s</a>", link, url);
+//                                     m.appendReplacement(sb, href);
+//                                 }
+//                                 else {
+//                                     m.appendReplacement(sb, "$0");
+//                                 }
+//                             }
+//                             m.appendTail(sb);
+//                         }
+//                         sb.append("</body></html>");
+//                         text = sb.toString();
+//                     }
 
-                    /*
-                     * TODO consider how to get background images and a million other things
-                     * that HTML allows.
-                     */
-                    // Check if text contains img tag.
-                    if (IMG_TAG_START_REGEX.matcher(text).find()) {
-                        mHandler.showShowPictures(true);
-                    }
+//                     /*
+//                      * TODO consider how to get background images and a million other things
+//                      * that HTML allows.
+//                      */
+//                     // Check if text contains img tag.
+//                     if (IMG_TAG_START_REGEX.matcher(text).find()) {
+//                         mHandler.showShowPictures(true);
+//                     }
 
-                    loadMessageContentText(text);
-                }
-                else {
-                    loadMessageContentUrl("file:///android_asset/empty.html");
-                }
-//                renderAttachments(mOldMessage, 0);
-            }
-            catch (Exception e) {
-                if (Email.LOGD) {
-                    Log.v(Email.LOG_TAG, "loadMessageForViewBodyAvailable", e);
-                }
-            }
+//                     loadMessageContentText(text);
+//                 }
+//                 else {
+//                     loadMessageContentUrl("file:///android_asset/empty.html");
+//                 }
+// //                renderAttachments(mOldMessage, 0);
+//             }
+//             catch (Exception e) {
+//                 if (Email.LOGD) {
+//                     Log.v(Email.LOG_TAG, "loadMessageForViewBodyAvailable", e);
+//                 }
+//             }
         }
 
         @Override
@@ -1493,14 +1481,14 @@ public class MessageView extends Activity
          * TODO this really should be moved into a handler message, avoiding the need
          * for this synchronized() section
          */
-        private void loadMessageContentText(String text) {
-            synchronized (MessageView.this) {
-                if (mMessageContentView != null) {
-                    mMessageContentView.loadDataWithBaseURL("email://", text, "text/html",
-                            "utf-8", null);
-                }
-            }
-        }
+//         private void loadMessageContentText(String text) {
+//             synchronized (MessageView.this) {
+//                 if (mMessageContentView != null) {
+//                     mMessageContentView.loadDataWithBaseURL("email://", text, "text/html",
+//                             "utf-8", null);
+//                 }
+//             }
+//         }
     }
 
     /**

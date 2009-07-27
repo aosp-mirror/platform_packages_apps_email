@@ -564,6 +564,9 @@ public class AddressUnitTests extends AndroidTestCase {
      * Tests that unpackToString() returns the same result as toString(unpack()).
      */
     public void testUnpackToString() {
+        assertNull(Address.unpackToString(null));
+        assertNull(Address.unpackToString(""));
+
         for (Address[] list : PACK_CASES) {
             String packed = Address.pack(list);
             String s1 = Address.unpackToString(packed);
@@ -588,6 +591,23 @@ public class AddressUnitTests extends AndroidTestCase {
             addrArray[0] = address;
             String packed2 = Address.pack(addrArray);
             assertEquals(packed1, packed2);
+        }
+    }
+
+    /**
+     * Tests that:
+     * 1. unpackFirst() with empty list returns null.
+     * 2. unpackFirst() with non-empty returns the same as unpack()[0]
+     */
+    public void testUnpackFirst() {
+        assertNull(Address.unpackFirst(null));
+        assertNull(Address.unpackFirst(""));
+
+        for (Address[] list : PACK_CASES) {
+            String packed = Address.pack(list);
+            Address[] array = Address.unpack(packed);
+            Address first = Address.unpackFirst(packed);
+            assertTrue(packed, addressEquals(array[0], first));
         }
     }
 
