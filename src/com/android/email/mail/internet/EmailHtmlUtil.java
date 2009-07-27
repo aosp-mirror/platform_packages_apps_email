@@ -48,7 +48,7 @@ public class EmailHtmlUtil {
      * @return html text in which src attribute of img tag may be replaced with content uri
      */
     public static String resolveInlineImage(
-            ContentResolver resolver, EmailContent.Account account, String text, Part part, int depth)
+            ContentResolver resolver, long accountId, String text, Part part, int depth)
         throws MessagingException {
         // avoid too deep recursive call.
         if (depth >= 10 || text == null) {
@@ -60,8 +60,10 @@ public class EmailHtmlUtil {
             contentId != null &&
             part instanceof LocalAttachmentBodyPart) {
             LocalAttachmentBodyPart attachment = (LocalAttachmentBodyPart)part;
-            Uri contentUri = AttachmentProvider.resolveAttachmentIdToContentUri(
-                    resolver, AttachmentProvider.getAttachmentUri(account, attachment.getAttachmentId()));
+            Uri attachmentUri =
+                AttachmentProvider.getAttachmentUri(accountId, attachment.getAttachmentId());
+            Uri contentUri =
+                AttachmentProvider.resolveAttachmentIdToContentUri(resolver, attachmentUri);
             // Regexp which matches ' src="cid:contentId"'.
             String contentIdRe = "\\s+(?i)src=\"cid(?-i):\\Q" + contentId + "\\E\"";
             // Replace all occurrences of src attribute with ' src="content://contentUri"'.
@@ -71,7 +73,7 @@ public class EmailHtmlUtil {
         if (part.getBody() instanceof Multipart) {
             Multipart mp = (Multipart)part.getBody();
             for (int i = 0; i < mp.getCount(); i++) {
-                text = resolveInlineImage(resolver, account, text, mp.getBodyPart(i), depth + 1);
+                text = resolveInlineImage(resolver, accountId, text, mp.getBodyPart(i), depth + 1);
             }
         }
 

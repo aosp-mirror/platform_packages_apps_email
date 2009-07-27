@@ -1322,7 +1322,7 @@ public class MessageView extends Activity
                     String text = MimeUtility.getTextFromPart(part);
                     if (part.getMimeType().equalsIgnoreCase("text/html")) {
                         text = EmailHtmlUtil.resolveInlineImage(
-                                getContentResolver(), mAccount, text, mOldMessage, 0);
+                                getContentResolver(), mAccount.mId, text, mOldMessage, 0);
                     } else {
                         // And also escape special character, such as "<>&",
                         // to HTML escape sequence.

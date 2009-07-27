@@ -29,7 +29,6 @@ import android.content.Context;
 import android.content.res.AssetFileDescriptor;
 import android.database.Cursor;
 import android.database.sqlite.SQLiteDatabase;
-import android.database.sqlite.SQLiteException;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.net.Uri;
@@ -54,7 +53,7 @@ public class AttachmentProviderTests extends ProviderTestCase2<AttachmentProvide
      * "old" LocalStore model to the "new" provider model.  After the transition is complete,
      * this flag (and its associated code) can be removed.
      */
-    private final boolean USE_LOCALSTORE = true;
+    private final boolean USE_LOCALSTORE = false;
     LocalStore mLocalStore = null;
 
     EmailProvider mEmailProvider;
@@ -118,18 +117,13 @@ public class AttachmentProviderTests extends ProviderTestCase2<AttachmentProvide
         // attachment we add will be id=1 and the 2nd will have id=2.  This could fail on
         // a legitimate implementation.  Asserts below will catch this and fail the test
         // if necessary.
-        Uri attachment1Uri = AttachmentProvider.getAttachmentUri(account1, attachment1Id);
-        Uri attachment2Uri = AttachmentProvider.getAttachmentUri(account1, attachment2Id);
-        Uri attachment3Uri = AttachmentProvider.getAttachmentUri(account1, attachment3Id);
+        Uri attachment1Uri = AttachmentProvider.getAttachmentUri(account1.mId, attachment1Id);
+        Uri attachment2Uri = AttachmentProvider.getAttachmentUri(account1.mId, attachment2Id);
+        Uri attachment3Uri = AttachmentProvider.getAttachmentUri(account1.mId, attachment3Id);
 
-        // Test with no attached database - should return null, but throws SQLiteException
-        Cursor c;
-        try {
-            c = mMockResolver.query(attachment1Uri, (String[])null, null, (String[])null, null);
-            fail("Should throw an exception on a bad URI");
-        } catch (SQLiteException sqe) {
-            // expected
-        }
+        // Test with no attached database - should return null
+        Cursor c = mMockResolver.query(attachment1Uri, (String[])null, null, (String[])null, null);
+        assertNull(c);
 
         // Test with an attached database, but no attachment found - should return null
         setupAttachmentDatabase(account1);
@@ -141,26 +135,26 @@ public class AttachmentProviderTests extends ProviderTestCase2<AttachmentProvide
         Attachment newAttachment1 = ProviderTestUtils.setupAttachment(message1Id, "file1", 100,
                 false, mMockContext);
         newAttachment1.mContentUri =
-            AttachmentProvider.getAttachmentUri(account1, attachment1Id).toString();
+            AttachmentProvider.getAttachmentUri(account1.mId, attachment1Id).toString();
         attachment1Id = addAttachmentToDb(account1, newAttachment1);
         assertEquals("Broken test:  Unexpected id assignment", 1, attachment1Id);
 
         Attachment newAttachment2 = ProviderTestUtils.setupAttachment(message1Id, "file2", 200,
                 false, mMockContext);
         newAttachment2.mContentUri =
-            AttachmentProvider.getAttachmentUri(account1, attachment2Id).toString();
+            AttachmentProvider.getAttachmentUri(account1.mId, attachment2Id).toString();
         attachment2Id = addAttachmentToDb(account1, newAttachment2);
         assertEquals("Broken test:  Unexpected id assignment", 2, attachment2Id);
 
         Attachment newAttachment3 = ProviderTestUtils.setupAttachment(message1Id, "file3", 300,
                 false, mMockContext);
         newAttachment3.mContentUri =
-            AttachmentProvider.getAttachmentUri(account1, attachment3Id).toString();
+            AttachmentProvider.getAttachmentUri(account1.mId, attachment3Id).toString();
         attachment3Id = addAttachmentToDb(account1, newAttachment3);
         assertEquals("Broken test:  Unexpected id assignment", 3, attachment3Id);
 
         // Return a row with all columns specified
-        attachment2Uri = AttachmentProvider.getAttachmentUri(account1, attachment2Id);
+        attachment2Uri = AttachmentProvider.getAttachmentUri(account1.mId, attachment2Id);
         c = mMockResolver.query(
                 attachment2Uri,
                 new String[] { AttachmentProviderColumns._ID, AttachmentProviderColumns.DATA,
@@ -175,7 +169,7 @@ public class AttachmentProviderTests extends ProviderTestCase2<AttachmentProvide
         assertEquals(200, c.getInt(3));                             // size
 
         // Return a row with permuted columns
-        attachment3Uri = AttachmentProvider.getAttachmentUri(account1, attachment3Id);
+        attachment3Uri = AttachmentProvider.getAttachmentUri(account1.mId, attachment3Id);
         c = mMockResolver.query(
                 attachment3Uri,
                 new String[] { AttachmentProviderColumns.SIZE,
@@ -204,7 +198,7 @@ public class AttachmentProviderTests extends ProviderTestCase2<AttachmentProvide
         long attachment2Id = 2;
         long attachment3Id = 3;
 
-        Uri attachment1Uri = AttachmentProvider.getAttachmentUri(account1, attachment1Id);
+        Uri attachment1Uri = AttachmentProvider.getAttachmentUri(account1.mId, attachment1Id);
 
         // Test with no attached database - should return null
         String type = mMockResolver.getType(attachment1Uri);
@@ -224,14 +218,14 @@ public class AttachmentProviderTests extends ProviderTestCase2<AttachmentProvide
 
         Attachment newAttachment3 = ProviderTestUtils.setupAttachment(message1Id, "file3", 100,
                 false, mMockContext);
-        newAttachment2.mMimeType = "text/plain";
-        attachment3Id = addAttachmentToDb(account1, newAttachment2);
+        newAttachment3.mMimeType = "text/plain";
+        attachment3Id = addAttachmentToDb(account1, newAttachment3);
 
         // Check the returned filetypes
-        Uri uri = AttachmentProvider.getAttachmentUri(account1, attachment2Id);
+        Uri uri = AttachmentProvider.getAttachmentUri(account1.mId, attachment2Id);
         type = mMockResolver.getType(uri);
         assertEquals("image/jpg", type);
-        uri = AttachmentProvider.getAttachmentUri(account1, attachment3Id);
+        uri = AttachmentProvider.getAttachmentUri(account1.mId, attachment3Id);
         type = mMockResolver.getType(uri);
         assertEquals("text/plain", type);
 
@@ -261,8 +255,8 @@ public class AttachmentProviderTests extends ProviderTestCase2<AttachmentProvide
         // attachment we add will be id=1 and the 2nd will have id=2.  This could fail on
         // a legitimate implementation.  Asserts below will catch this and fail the test
         // if necessary.
-        Uri file1Uri = AttachmentProvider.getAttachmentUri(account1, attachment1Id);
-        Uri file2Uri = AttachmentProvider.getAttachmentUri(account1, attachment2Id);
+        Uri file1Uri = AttachmentProvider.getAttachmentUri(account1.mId, attachment1Id);
+        Uri file2Uri = AttachmentProvider.getAttachmentUri(account1.mId, attachment2Id);
 
         // Test with no attached database - should throw an exception
         AssetFileDescriptor afd;
@@ -302,7 +296,7 @@ public class AttachmentProviderTests extends ProviderTestCase2<AttachmentProvide
                 false, mMockContext);
         newAttachment2.mContentId = null;
         newAttachment2.mContentUri =
-                AttachmentProvider.getAttachmentUri(account1, attachment2Id).toString();
+                AttachmentProvider.getAttachmentUri(account1.mId, attachment2Id).toString();
         newAttachment2.mMimeType = "image/png";
         attachment2Id = addAttachmentToDb(account1, newAttachment2);
         assertEquals("Broken test:  Unexpected id assignment", 2, attachment2Id);
@@ -340,17 +334,13 @@ public class AttachmentProviderTests extends ProviderTestCase2<AttachmentProvide
         Uri thumb2Uri = AttachmentProvider.getAttachmentThumbnailUri(account1, attachment2Id,
                 62, 62);
 
-        // Test with no attached database - should throw an exception
-        try {
-            /* AssetFileDescriptor afd = */ mMockResolver.openAssetFileDescriptor(thumb1Uri, "r");
-            fail("Should throw an exception on a bad URI");
-        } catch (SQLiteException sqe) {
-            // expected
-        }
+        // Test with no attached database - should return null (used to throw SQLiteException)
+        AssetFileDescriptor afd = mMockResolver.openAssetFileDescriptor(thumb1Uri, "r");
+        assertNull(afd);
 
         // Test with an attached database, but no attachment found
         setupAttachmentDatabase(account1);
-        AssetFileDescriptor afd = mMockResolver.openAssetFileDescriptor(thumb1Uri, "r");
+        afd = mMockResolver.openAssetFileDescriptor(thumb1Uri, "r");
         assertNull(afd);
 
         // Add an attachment (but no associated file)
@@ -369,7 +359,7 @@ public class AttachmentProviderTests extends ProviderTestCase2<AttachmentProvide
                 false, mMockContext);
         newAttachment2.mContentId = null;
         newAttachment2.mContentUri =
-                AttachmentProvider.getAttachmentUri(account1, attachment2Id).toString();
+                AttachmentProvider.getAttachmentUri(account1.mId, attachment2Id).toString();
         newAttachment2.mMimeType = "image/png";
         attachment2Id = addAttachmentToDb(account1, newAttachment2);
         assertEquals("Broken test:  Unexpected id assignment", 2, attachment2Id);
@@ -397,20 +387,16 @@ public class AttachmentProviderTests extends ProviderTestCase2<AttachmentProvide
         // attachment we add will be id=1 and the 2nd will have id=2.  This could fail on
         // a legitimate implementation.  Asserts below will catch this and fail the test
         // if necessary.
-        Uri attachment1Uri = AttachmentProvider.getAttachmentUri(account1, attachment1Id);
+        Uri attachment1Uri = AttachmentProvider.getAttachmentUri(account1.mId, attachment1Id);
 
-        // Test with no attached database - should return null, but throws SQLiteException
-        try {
-            Uri result = AttachmentProvider.resolveAttachmentIdToContentUri(
+        // Test with no attached database - should return input
+        Uri result = AttachmentProvider.resolveAttachmentIdToContentUri(
                     mMockResolver, attachment1Uri);
-            fail("Expected an exception on a bad URI");
-        } catch (SQLiteException sqe) {
-            // expected
-        }
+        assertEquals(attachment1Uri, result);
 
         // Test with an attached database, but no attachment found - should return input
         setupAttachmentDatabase(account1);
-        Uri result = AttachmentProvider.resolveAttachmentIdToContentUri(
+        result = AttachmentProvider.resolveAttachmentIdToContentUri(
                 mMockResolver, attachment1Uri);
         assertEquals(attachment1Uri, result);
 
@@ -451,7 +437,7 @@ public class AttachmentProviderTests extends ProviderTestCase2<AttachmentProvide
             String localStoreUri = "local://localhost/" + dbName(forAccount);
             mLocalStore = (LocalStore) LocalStore.newInstance(localStoreUri, mMockContext, null);
         } else {
-            throw new java.lang.UnsupportedOperationException();
+            // Nothing to do - EmailProvider is already available for us
         }
     }
 
@@ -482,7 +468,8 @@ public class AttachmentProviderTests extends ProviderTestCase2<AttachmentProvide
                 }
             }
         } else {
-            throw new java.lang.UnsupportedOperationException();
+            newAttachment.save(mMockContext);
+            attachmentId = newAttachment.mId;
         }
         return attachmentId;
     }
@@ -507,7 +494,11 @@ public class AttachmentProviderTests extends ProviderTestCase2<AttachmentProvide
             return new File(mMockContext.getDatabasePath(forAccount.mCompatibilityUuid + ".db_att"),
                     idString);
         } else {
-            throw new java.lang.UnsupportedOperationException();
+            File attachmentsDir = mMockContext.getDatabasePath(forAccount.mId + ".db_att");
+            if (!attachmentsDir.exists()) {
+                attachmentsDir.mkdirs();
+            }
+            return new File(attachmentsDir, idString);
         }
     }
 }

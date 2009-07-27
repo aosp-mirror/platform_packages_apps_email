@@ -17,13 +17,15 @@
 package com.android.email.provider;
 
 import com.android.email.mail.internet.MimeUtility;
+import com.android.email.provider.EmailContent.Attachment;
+import com.android.email.provider.EmailContent.AttachmentColumns;
 
 import android.content.ContentProvider;
 import android.content.ContentResolver;
+import android.content.ContentUris;
 import android.content.ContentValues;
 import android.database.Cursor;
 import android.database.MatrixCursor;
-import android.database.sqlite.SQLiteDatabase;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.net.Uri;
@@ -38,6 +40,12 @@ import java.util.List;
 
 /*
  * A simple ContentProvider that allows file access to Email's attachments.
+ * 
+ * The URI scheme is as follows.  For raw file access:
+ *   content://com.android.email.attachmentprovider/acct#/attach#/RAW
+ * 
+ * And for access to thumbnails:
+ *   content://com.android.email.attachmentprovider/acct#/attach#/THUMBNAIL/width#/height#
  */
 public class AttachmentProvider extends ContentProvider {
 
@@ -54,9 +62,13 @@ public class AttachmentProvider extends ContentProvider {
         public static final String SIZE = "_size";
     }
 
-    public static Uri getAttachmentUri(EmailContent.Account account, long id) {
+    private String[] PROJECTION_MIME_TYPE = new String[] { AttachmentColumns.MIME_TYPE };
+    private String[] PROJECTION_QUERY = new String[] { AttachmentColumns.FILENAME,
+            AttachmentColumns.SIZE, AttachmentColumns.CONTENT_URI };
+
+    public static Uri getAttachmentUri(long accountId, long id) {
         return CONTENT_URI.buildUpon()
-                .appendPath(account.getUuid() + ".db")
+                .appendPath(Long.toString(accountId))
                 .appendPath(Long.toString(id))
                 .appendPath(FORMAT_RAW)
                 .build();
@@ -65,19 +77,11 @@ public class AttachmentProvider extends ContentProvider {
     public static Uri getAttachmentThumbnailUri(EmailContent.Account account, long id,
             int width, int height) {
         return CONTENT_URI.buildUpon()
-                .appendPath(account.getUuid() + ".db")
+                .appendPath(Long.toString(account.mId))
                 .appendPath(Long.toString(id))
                 .appendPath(FORMAT_THUMBNAIL)
                 .appendPath(Integer.toString(width))
                 .appendPath(Integer.toString(height))
-                .build();
-    }
-
-    public static Uri getAttachmentUri(String db, long id) {
-        return CONTENT_URI.buildUpon()
-                .appendPath(db)
-                .appendPath(Long.toString(id))
-                .appendPath(FORMAT_RAW)
                 .build();
     }
 
@@ -106,42 +110,23 @@ public class AttachmentProvider extends ContentProvider {
     @Override
     public String getType(Uri uri) {
         List<String> segments = uri.getPathSegments();
-        String dbName = segments.get(0);
+        String accountId = segments.get(0);
         String id = segments.get(1);
         String format = segments.get(2);
         if (FORMAT_THUMBNAIL.equals(format)) {
             return "image/png";
-        }
-        else {
-            String path = getContext().getDatabasePath(dbName).getAbsolutePath();
-            SQLiteDatabase db = null;
-            Cursor cursor = null;
+        } else {
+            uri = ContentUris.withAppendedId(Attachment.CONTENT_URI, Long.parseLong(id));
+            Cursor c = getContext().getContentResolver().query(uri, PROJECTION_MIME_TYPE,
+                    null, null, null);
             try {
-                db = SQLiteDatabase.openDatabase(path, null, 0);
-                cursor = db.query(
-                        "attachments",
-                        new String[] { "mime_type" },
-                        "id = ?",
-                        new String[] { id },
-                        null,
-                        null,
-                        null);
-                cursor.moveToFirst();
-                String type = cursor.getString(0);
-                cursor.close();
-                db.close();
-                return type;
-
-            }
-            finally {
-                if (cursor != null) {
-                    cursor.close();
+                if (c.moveToFirst()) {
+                    return c.getString(0);
                 }
-                if (db != null) {
-                    db.close();
-                }
-
+            } finally {
+                c.close();
             }
+            return null;
         }
     }
 
@@ -159,23 +144,25 @@ public class AttachmentProvider extends ContentProvider {
     @Override
     public ParcelFileDescriptor openFile(Uri uri, String mode) throws FileNotFoundException {
         List<String> segments = uri.getPathSegments();
-        String dbName = segments.get(0);
+        String accountId = segments.get(0);
         String id = segments.get(1);
         String format = segments.get(2);
         if (FORMAT_THUMBNAIL.equals(format)) {
             int width = Integer.parseInt(segments.get(3));
             int height = Integer.parseInt(segments.get(4));
-            String filename = "thmb_" + dbName + "_" + id;
+            String filename = "thmb_" + accountId + "_" + id;
             File dir = getContext().getCacheDir();
             File file = new File(dir, filename);
             if (!file.exists()) {
-                Uri attachmentUri = getAttachmentUri(dbName, Long.parseLong(id));
+                Uri attachmentUri = getAttachmentUri(Long.parseLong(accountId), Long.parseLong(id));
                 Cursor c = query(attachmentUri,
                         new String[] { AttachmentProviderColumns.DATA }, null, null, null);
                 if (c != null) {
                     try {
                         if (c.moveToFirst()) {
                             attachmentUri = Uri.parse(c.getString(0));
+                        } else {
+                            return null;
                         }
                     } finally {
                         c.close();
@@ -200,7 +187,7 @@ public class AttachmentProvider extends ContentProvider {
         }
         else {
             return ParcelFileDescriptor.open(
-                    new File(getContext().getDatabasePath(dbName + "_att"), id),
+                    new File(getContext().getDatabasePath(accountId + ".db_att"), id),
                     ParcelFileDescriptor.MODE_READ_ONLY);
         }
     }
@@ -221,9 +208,6 @@ public class AttachmentProvider extends ContentProvider {
      * 
      * Supports REST Uri only, for a single row - selection, selection args, and sortOrder are
      * ignored (non-null values should probably throw an exception....)
-     * 
-     * TODO:  Throws an SQLite exception on a missing DB file (e.g. unknown URI) instead of just
-     * returning null, as it should.
      */
     @Override
     public Cursor query(Uri uri, String[] projection, String selection, String[] selectionArgs,
@@ -237,39 +221,26 @@ public class AttachmentProvider extends ContentProvider {
         }
 
         List<String> segments = uri.getPathSegments();
-        String dbName = segments.get(0);
+        String accountId = segments.get(0);
         String id = segments.get(1);
         String format = segments.get(2);
-        String path = getContext().getDatabasePath(dbName).getAbsolutePath();
         String name = null;
         int size = -1;
         String contentUri = null;
-        SQLiteDatabase db = null;
-        Cursor cursor = null;
+
+        uri = ContentUris.withAppendedId(Attachment.CONTENT_URI, Long.parseLong(id));
+        Cursor c = getContext().getContentResolver().query(uri, PROJECTION_QUERY,
+                null, null, null);
         try {
-            db = SQLiteDatabase.openDatabase(path, null, 0);
-            cursor = db.query(
-                    "attachments",
-                    new String[] { "name", "size", "content_uri" },
-                    "id = ?",
-                    new String[] { id },
-                    null,
-                    null,
-                    null);
-            if (!cursor.moveToFirst()) {
+            if (c.moveToFirst()) {
+                name = c.getString(0);
+                size = c.getInt(1);
+                contentUri = c.getString(2);
+            } else {
                 return null;
             }
-            name = cursor.getString(0);
-            size = cursor.getInt(1);
-            contentUri = cursor.getString(2);
-        }
-        finally {
-            if (cursor != null) {
-                cursor.close();
-            }
-            if (db != null) {
-                db.close();
-            }
+        } finally {
+            c.close();
         }
 
         MatrixCursor ret = new MatrixCursor(projection);

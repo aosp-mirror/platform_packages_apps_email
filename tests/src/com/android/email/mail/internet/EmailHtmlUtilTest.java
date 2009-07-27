@@ -32,6 +32,12 @@ import android.test.suitebuilder.annotation.MediumTest;
 
 import java.io.IOException;
 
+/**
+ * Tests of the Email HTML utils.
+ * 
+ * You can run this entire test case with:
+ *   runtest -c com.android.email.mail.internet.EmailHtmlUtilTest email
+ */
 @MediumTest
 public class EmailHtmlUtilTest extends AndroidTestCase {
     private EmailContent.Account mAccount;
@@ -74,13 +80,13 @@ public class EmailHtmlUtilTest extends AndroidTestCase {
             .build();
         // Simple case.
         final String actual1 = EmailHtmlUtil.resolveInlineImage(
-                getContext().getContentResolver(), mAccount, text1, msg1, 0);
+                getContext().getContentResolver(), mAccount.mId, text1, msg1, 0);
         assertEquals("one content id reference is not resolved",
                     expected1, actual1);
 
         // Exceed recursive limit.
         final String actual0 = EmailHtmlUtil.resolveInlineImage(
-                getContext().getContentResolver(), mAccount, text1, msg1, 10);
+                getContext().getContentResolver(), mAccount.mId, text1, msg1, 10);
         assertEquals("recursive call limit may exceeded",
                     text1, actual0);
 
@@ -100,7 +106,7 @@ public class EmailHtmlUtilTest extends AndroidTestCase {
             .build();
         // cid1 is not replaced
         final String actual2 = EmailHtmlUtil.resolveInlineImage(
-                getContext().getContentResolver(), mAccount, text1 + text2, msg2, 0);
+                getContext().getContentResolver(), mAccount.mId, text1 + text2, msg2, 0);
         assertEquals("only one of two content id is resolved",
                 text1 + expected2, actual2);
 
@@ -114,7 +120,7 @@ public class EmailHtmlUtilTest extends AndroidTestCase {
             .build();
         // cid1 and cid2 are replaced
         final String actual3 = EmailHtmlUtil.resolveInlineImage(
-                getContext().getContentResolver(), mAccount, text2 + text1, msg3, 0);
+                getContext().getContentResolver(), mAccount.mId, text2 + text1, msg3, 0);
         assertEquals("two content ids are resolved correctly",
                 expected2 + expected1, actual3);
 
@@ -133,13 +139,13 @@ public class EmailHtmlUtilTest extends AndroidTestCase {
             .build();
         // cid1 and cid2 are replaced
         final String actual4 = EmailHtmlUtil.resolveInlineImage(
-                getContext().getContentResolver(), mAccount, text2 + text1, msg4, 0);
+                getContext().getContentResolver(), mAccount.mId, text2 + text1, msg4, 0);
         assertEquals("two content ids in deep multipart level are resolved",
                 expected2 + expected1, actual4);
 
         // No crash on null text
         final String actual5 = EmailHtmlUtil.resolveInlineImage(getContext().getContentResolver(),
-                                                                mAccount, null, msg4, 0);
+                                                                mAccount.mId, null, msg4, 0);
         assertNull(actual5);
     }
 

@@ -66,7 +66,7 @@ public class MessageTestUtils {
      * @return AttachmentProvider content URI
      */
     public static Uri contentUri(long attachmentId, EmailContent.Account account) {
-        return AttachmentProvider.getAttachmentUri(account, attachmentId);
+        return AttachmentProvider.getAttachmentUri(account.mId, attachmentId);
     }
 
     /**

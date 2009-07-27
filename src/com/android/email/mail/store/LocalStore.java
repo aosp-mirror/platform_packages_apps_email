@@ -1375,9 +1375,10 @@ public class LocalStore extends Store implements PersistentDataCallbacks {
             if (tempAttachmentFile != null) {
                 File attachmentFile = new File(mAttachmentsDir, Long.toString(attachmentId));
                 tempAttachmentFile.renameTo(attachmentFile);
-                contentUri = AttachmentProvider.getAttachmentUri(
-                        new File(mPath).getName(),
-                        attachmentId);
+                // Doing this requires knowing the account id
+//                contentUri = AttachmentProvider.getAttachmentUri(
+//                        new File(mPath).getName(),
+//                        attachmentId);
                 attachment.setBody(new LocalAttachmentBody(contentUri, mContext));
                 ContentValues cv = new ContentValues();
                 cv.put("content_uri", contentUri != null ? contentUri.toString() : null);
