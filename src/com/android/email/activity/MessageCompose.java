@@ -145,7 +145,6 @@ public class MessageCompose extends Activity implements OnClickListener, OnFocus
      * overwritten instead of being created anew. This property is null until the first save.
      */
     private String mDraftUid;
-    private String mAction;
 
     private Handler mHandler = new Handler() {
         @Override
@@ -400,13 +399,13 @@ public class MessageCompose extends Activity implements OnClickListener, OnFocus
         }
 
         Intent intent = getIntent();
-        mAction = intent.getAction();
+        final String action = intent.getAction();
         mSourceMessage = null;
         
         // Handle the various intents that launch the message composer
-        if (Intent.ACTION_VIEW.equals(mAction) 
-                || Intent.ACTION_SENDTO.equals(mAction) 
-                || Intent.ACTION_SEND.equals(mAction)) {
+        if (Intent.ACTION_VIEW.equals(action) 
+                || Intent.ACTION_SENDTO.equals(action) 
+                || Intent.ACTION_SEND.equals(action)) {
             // Check first for a valid account
             long accountId = Account.getDefaultAccountId(this);
             if (accountId == -1) {
@@ -432,8 +431,8 @@ public class MessageCompose extends Activity implements OnClickListener, OnFocus
             }
         }
 
-        if (ACTION_REPLY.equals(mAction) || ACTION_REPLY_ALL.equals(mAction) ||
-                ACTION_FORWARD.equals(mAction) || ACTION_EDIT_DRAFT.equals(mAction)) {
+        if (ACTION_REPLY.equals(action) || ACTION_REPLY_ALL.equals(action) ||
+                ACTION_FORWARD.equals(action) || ACTION_EDIT_DRAFT.equals(action)) {
             /*
              * If we need to load the message we add ourself as a message listener here
              * so we can kick it off. Normally we add in onResume but we don't
@@ -598,19 +597,19 @@ public class MessageCompose extends Activity implements OnClickListener, OnFocus
          * Build the Body that will contain the text of the message. We'll decide where to
          * include it later.
          */
-
+        final String action = getIntent().getAction();
         String text = mMessageContentView.getText().toString();
 
         if (mQuotedTextBar.getVisibility() == View.VISIBLE && mSourceMessage != null) {
             String quotedText = mSourceMessage.mText;
             String fromAsString = Address.unpackToString(mSourceMessage.mFrom);
-            if (ACTION_REPLY.equals(mAction) || ACTION_REPLY_ALL.equals(mAction)) {
+            if (ACTION_REPLY.equals(action) || ACTION_REPLY_ALL.equals(action)) {
                 text += String.format(getString(R.string.message_compose_reply_header_fmt),
                                       fromAsString);
                 if (quotedText != null) {
                     text += quotedText.replaceAll("(?m)^", ">");
                 }
-            } else if (ACTION_FORWARD.equals(mAction)) {
+            } else if (ACTION_FORWARD.equals(action)) {
                 // mSourceMessage can be null during the unit-tests.
                 String subject = mSourceMessage.mSubject;
                 text += String.format(
@@ -696,11 +695,12 @@ public class MessageCompose extends Activity implements OnClickListener, OnFocus
 //         }
 
     private void sendOrSaveMessage(boolean save) {
+        final String action = getIntent().getAction();
         if (save) {
             /*
              * Save a draft
              */
-            if (ACTION_EDIT_DRAFT.equals(mAction)) {
+            if (ACTION_EDIT_DRAFT.equals(action)) {
                 // The update doesn't modify the mailboxKey,
                 // so just keep the same mailbox which is already DRAFTS.
                 // TODO: move out of UI thread
@@ -1147,10 +1147,10 @@ public class MessageCompose extends Activity implements OnClickListener, OnFocus
      */
     /* package */
     void processSourceMessage(Message message) {
-        String action = getIntent().getAction();
+        final String action = getIntent().getAction();
         mDraftNeedsSaving = true;
         final String subject = message.mSubject;
-        if (ACTION_REPLY.equals(mAction) || ACTION_REPLY_ALL.equals(mAction)) {
+        if (ACTION_REPLY.equals(action) || ACTION_REPLY_ALL.equals(action)) {
             if (subject != null && !subject.toLowerCase().startsWith("re:")) {
                 mSubjectView.setText("Re: " + subject);
             } else {
@@ -1167,7 +1167,7 @@ public class MessageCompose extends Activity implements OnClickListener, OnFocus
             }
             addAddresses(mToView, replyToAddresses);
 
-            if (ACTION_REPLY_ALL.equals(mAction)) {
+            if (ACTION_REPLY_ALL.equals(action)) {
                 for (Address address : Address.unpack(message.mTo)) {
                     if (!address.getAddress().equalsIgnoreCase(mAccount.mEmailAddress)) {
                         addAddress(mToView, address.toString());
@@ -1185,7 +1185,7 @@ public class MessageCompose extends Activity implements OnClickListener, OnFocus
                 }
             }
             displayQuotedText(message);
-        } else if (ACTION_FORWARD.equals(mAction)) {
+        } else if (ACTION_FORWARD.equals(action)) {
             mSubjectView.setText(subject != null && !subject.toLowerCase().startsWith("fwd:") ?
                                  "Fwd: " + subject : subject);
             displayQuotedText(message);
@@ -1195,7 +1195,7 @@ public class MessageCompose extends Activity implements OnClickListener, OnFocus
 //                     mHandler.sendEmptyMessage(MSG_SKIPPED_ATTACHMENTS);
 //                 }
             }
-        } else if (ACTION_EDIT_DRAFT.equals(mAction)) {
+        } else if (ACTION_EDIT_DRAFT.equals(action)) {
             mSubjectView.setText(subject);
             addAddresses(mToView, Address.unpack(message.mTo));
             Address[] cc = Address.unpack(message.mCc);

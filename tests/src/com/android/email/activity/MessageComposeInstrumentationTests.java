@@ -552,8 +552,7 @@ public class MessageComposeInstrumentationTests
      * @param content Content of the message
      * @return a complete Message object
      */
-    private Message buildTestMessage(String to, String sender,
-                                                  String subject, String content)
+    private Message buildTestMessage(String to, String sender, String subject, String content)
             throws MessagingException {
         Message message = new Message();
         
