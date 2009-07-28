@@ -177,7 +177,8 @@
     <!-- Appears at the bottom of list of messages of outbox;
          user selects to send pending messages. -->
     <string name="message_list_send_pending_messages_action">Send outgoing messages</string>
-
+    <!-- Appears at the title bar of list of messages. -->
+    <string name="message_list_title"><xliff:g id="account">%s</xliff:g>: <xliff:g id="mailbox">%s</xliff:g></string>
     <!-- Hint text in To field -->
     <string name="message_compose_to_hint">To</string>
     <!-- Hint text in Cc field -->

@@ -23,6 +23,7 @@ import com.android.email.activity.setup.AccountSettings;
 import com.android.email.mail.MessagingException;
 import com.android.email.provider.EmailContent;
 import com.android.email.provider.EmailContent.Account;
+import com.android.email.provider.EmailContent.AccountColumns;
 import com.android.email.provider.EmailContent.Mailbox;
 import com.android.email.provider.EmailContent.MailboxColumns;
 import com.android.email.provider.EmailContent.Message;
@@ -117,6 +118,7 @@ public class MessageList extends ListActivity implements OnItemClickListener, On
     private long mMailboxId;
     private LoadMessagesTask mLoadMessagesTask;
     private FindMailboxTask mFindMailboxTask;
+    private SetTitleTask mSetTitleTask;
 
     /**
      * Reduced mailbox projection used to hunt for inboxes
@@ -127,6 +129,17 @@ public class MessageList extends ListActivity implements OnItemClickListener, On
     public final static String[] MAILBOX_FIND_INBOX_PROJECTION = new String[] {
         EmailContent.RECORD_ID, MailboxColumns.TYPE, MailboxColumns.FLAG_VISIBLE
     };
+
+    private static final int MAILBOX_DISPLAY_NAME_COLUMN_ID = 0;
+    private static final int MAILBOX_ACCOUNT_KEY_ID = 1;
+    private static final String[] MAILBOX_NAME_PROJECTION = new String[] {
+            MailboxColumns.DISPLAY_NAME, MailboxColumns.ACCOUNT_KEY };
+
+    private static final int ACCOUNT_DISPLAY_NAME_COLUMN_ID = 0;
+    private static final String[] ACCOUNT_NAME_PROJECTION = new String[] {
+            AccountColumns.DISPLAY_NAME };
+
+    private static final String ID_SELECTION = EmailContent.RECORD_ID + "=?";
 
     /**
      * Open a specific mailbox.
@@ -226,6 +239,8 @@ public class MessageList extends ListActivity implements OnItemClickListener, On
         mMailboxId = getIntent().getLongExtra(EXTRA_MAILBOX_ID, -1);
         if (mMailboxId != -1) {
             // Specific mailbox ID was provided - go directly to it
+            mSetTitleTask = new SetTitleTask(mMailboxId);
+            mSetTitleTask.execute();
             mLoadMessagesTask = new LoadMessagesTask(mMailboxId);
             mLoadMessagesTask.execute();
         } else {
@@ -280,6 +295,11 @@ public class MessageList extends ListActivity implements OnItemClickListener, On
                 mFindMailboxTask.getStatus() != FindMailboxTask.Status.FINISHED) {
             mFindMailboxTask.cancel(true);
             mFindMailboxTask = null;
+        }
+        if (mSetTitleTask != null &&
+                mSetTitleTask.getStatus() != SetTitleTask.Status.FINISHED) {
+            mSetTitleTask.cancel(true);
+            mSetTitleTask = null;
         }
     }
 
@@ -629,6 +649,8 @@ public class MessageList extends ListActivity implements OnItemClickListener, On
         protected void onPostExecute(Long mailboxId) {
             if (mailboxId != -1) {
                 mMailboxId = mailboxId;
+                mSetTitleTask = new SetTitleTask(mMailboxId);
+                mSetTitleTask.execute();
                 mLoadMessagesTask = new LoadMessagesTask(mMailboxId);
                 mLoadMessagesTask.execute();
             }
@@ -723,7 +745,55 @@ public class MessageList extends ListActivity implements OnItemClickListener, On
             }
         }
     }
-    
+
+    private class SetTitleTask extends AsyncTask<Void, Void, String[]> {
+
+        private long mMailboxKey;
+
+        public SetTitleTask(long mailboxKey) {
+            mMailboxKey = mailboxKey;
+        }
+
+        @Override
+        protected String[] doInBackground(Void... params) {
+            String accountName = null;
+            String mailboxName = null;
+            String accountKey = null;
+            Cursor c = MessageList.this.getContentResolver().query(Mailbox.CONTENT_URI,
+                    MAILBOX_NAME_PROJECTION, ID_SELECTION,
+                    new String[] { Long.toString(mMailboxKey) }, null);
+            try {
+                if (c.moveToFirst()) {
+                    mailboxName = c.getString(MAILBOX_DISPLAY_NAME_COLUMN_ID);
+                    accountKey = c.getString(MAILBOX_ACCOUNT_KEY_ID);
+                }
+            } finally {
+                c.close();
+            }
+            if (accountKey != null) {
+                c = MessageList.this.getContentResolver().query(Account.CONTENT_URI,
+                        ACCOUNT_NAME_PROJECTION, ID_SELECTION, new String[] { accountKey },
+                        null);
+                try {
+                    if (c.moveToFirst()) {
+                        accountName = c.getString(ACCOUNT_DISPLAY_NAME_COLUMN_ID);
+                    }
+                } finally {
+                    c.close();
+                }
+            }
+            return new String[] {accountName, mailboxName};
+        }
+
+        @Override
+        protected void onPostExecute(String[] names) {
+            if (names[0] != null && names[1] != null) {
+                MessageList.this.setTitle(getString(R.string.message_list_title, names[0],
+                        names[1]));
+            }
+        }
+    }
+
     /**
      * Handler for UI-thread operations (when called from callbacks or any other threads)
      */
