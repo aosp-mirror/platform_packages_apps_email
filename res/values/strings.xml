@@ -135,6 +135,8 @@
     <string name="special_mailbox_name_trash">Trash</string>
     <!-- Do Not Translate.  This is the name of the "sent" folder, on the server. -->
     <string name="special_mailbox_name_sent">Sent</string>
+    <!-- In the folder list view, the inbox will be displayed with this name -->
+    <string name="special_mailbox_display_name_inbox">Inbox</string>
     <!-- In the folder list view, the outbox will be displayed with this name -->
     <string name="special_mailbox_display_name_outbox">Outbox</string>
     <!-- In the folder list view, the drafts will be displayed with this name -->
@@ -143,6 +145,8 @@
     <string name="special_mailbox_display_name_trash">Trash</string>
     <!-- In the folder list view, the sent will be displayed with this name -->
     <string name="special_mailbox_display_name_sent">Sent</string>
+    <!-- In the folder list view, the junk will be displayed with this name -->
+    <string name="special_mailbox_display_name_junk">Junk</string>
 
     <!-- Version number, shown only on debug screen -->
     <string name="debug_version_fmt">Version: <xliff:g id="version">%s</xliff:g></string>

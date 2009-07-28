@@ -70,6 +70,7 @@ public class AccountFolderList extends ExpandableListActivity {
             KeyEvent.KEYCODE_D, KeyEvent.KEYCODE_E, KeyEvent.KEYCODE_B, KeyEvent.KEYCODE_U,
             KeyEvent.KEYCODE_G
     };
+    private static String[] sSpecialMailboxDisplayNameListCache;
 
     private int mSecretKeyCodeIndex = 0;
 
@@ -144,6 +145,9 @@ public class AccountFolderList extends ExpandableListActivity {
         }
 
         setupSummaryCursors();
+
+        // Called only for filling cache of specialMailboxDisplayName
+        getSpecialMailboxDisplayName(this, 0);
 
         mLoadAccountsTask = (LoadAccountsTask) new LoadAccountsTask().execute();
     }
@@ -358,6 +362,47 @@ public class AccountFolderList extends ExpandableListActivity {
             row.add(Integer.valueOf(count));                        // MAILBOX_UNREAD_COUNT = 4;
         }
         return childCursor;
+    }
+
+    /**
+     * Returns localized name for splecial folders.
+     * @param context
+     * @param sSpecialMailboxDisplayNameListCache
+     * @param type
+     * @return
+     */
+    private static String getSpecialMailboxDisplayName(Context context, int type) {
+        final int MAILBOX_TYPE_SIZE = 8;
+        if (sSpecialMailboxDisplayNameListCache != null) {
+            sSpecialMailboxDisplayNameListCache = new String[MAILBOX_TYPE_SIZE];
+            // TYPE_INBOX = 0
+            sSpecialMailboxDisplayNameListCache[0] = context.getString(
+                    R.string.special_mailbox_display_name_inbox);
+            // TYPE_MAIL = 1
+            sSpecialMailboxDisplayNameListCache[1] = null;
+            // TYPE_PARENT = 2
+            sSpecialMailboxDisplayNameListCache[2] = null;
+            // TYPE_DRAFTS = 3
+            sSpecialMailboxDisplayNameListCache[3] = context.getString(
+                    R.string.special_mailbox_display_name_drafts);
+            // TYPE_OUTBOX = 4
+            sSpecialMailboxDisplayNameListCache[4] = context.getString(
+                    R.string.special_mailbox_display_name_outbox);
+            // TYPE_SENT = 5
+            sSpecialMailboxDisplayNameListCache[5] = context.getString(
+                    R.string.special_mailbox_display_name_sent);
+            // TYPE_TRASH = 6
+            sSpecialMailboxDisplayNameListCache[6] = context.getString(
+                    R.string.special_mailbox_display_name_trash);
+            // TYPE_JUNK = 7
+            sSpecialMailboxDisplayNameListCache[7] = context.getString(
+                    R.string.special_mailbox_display_name_junk);
+        }
+        if (type >= MAILBOX_TYPE_SIZE) {
+            return null;
+        } else {
+            return sSpecialMailboxDisplayNameListCache[type];
+        }
     }
 
     /**
@@ -679,7 +724,10 @@ public class AccountFolderList extends ExpandableListActivity {
         @Override
         protected void bindChildView(View view, Context context, Cursor cursor, boolean isLastChild)
                 {
-            String text = cursor.getString(MAILBOX_DISPLAY_NAME);
+            String text = getSpecialMailboxDisplayName(context, cursor.getInt(MAILBOX_TYPE));
+            if (text == null) {
+                text = cursor.getString(MAILBOX_DISPLAY_NAME);
+            }
             if (text != null) {
                 TextView nameView = (TextView) view.findViewById(R.id.folder_name);
                 nameView.setText(text);
