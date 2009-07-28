@@ -27,6 +27,8 @@ import com.android.email.provider.EmailContent;
 import com.android.email.provider.EmailContent.Account;
 import com.android.email.provider.EmailContent.Mailbox;
 import com.android.email.provider.EmailContent.MailboxColumns;
+import com.android.email.provider.EmailContent.Message;
+import com.android.email.provider.EmailContent.MessageColumns;
 
 import android.app.AlertDialog;
 import android.app.Dialog;
@@ -52,7 +54,6 @@ import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
 import android.view.ContextMenu.ContextMenuInfo;
-import android.view.View.OnClickListener;
 import android.widget.AdapterView;
 import android.widget.CursorTreeAdapter;
 import android.widget.ExpandableListView;
@@ -103,6 +104,19 @@ public class AccountFolderList extends ExpandableListActivity {
         MailboxColumns.ACCOUNT_KEY, MailboxColumns.TYPE,
         MailboxColumns.UNREAD_COUNT,
         MailboxColumns.FLAG_VISIBLE, MailboxColumns.FLAGS
+    };
+
+    private static final String UNREAD_COUNT_SELECTION =
+        MessageColumns.FLAG_READ + "= 0";
+
+    private static final String FAVORITE_COUNT_SELECTION =
+        MessageColumns.FLAG_FAVORITE + "= 1";
+
+    private static final String MAILBOX_TYPE_SELECTION =
+        MailboxColumns.TYPE + " =?";
+
+    private static final String[] MAILBOX_SUM_OF_UNREAD_COUNT_PROJECTION = new String [] {
+        "sum(" + MailboxColumns.UNREAD_COUNT + ")"
     };
 
     /**
@@ -207,6 +221,23 @@ public class AccountFolderList extends ExpandableListActivity {
         return true;    // "handled"
     }
 
+    private static int getCountByMailboxType(Context context, int type) {
+        int count = 0;
+        Cursor c = context.getContentResolver().query(Mailbox.CONTENT_URI,
+                MAILBOX_SUM_OF_UNREAD_COUNT_PROJECTION,
+                MAILBOX_TYPE_SELECTION,
+                new String[] { String.valueOf(type) }, null);
+
+        try {
+            if (c.moveToFirst()) {
+                return c.getInt(0);
+            }
+        } finally {
+            c.close();
+        }
+        return count;
+    }
+
     /**
      * Build the group and child cursors that support the summary views (aka "at a glance").
      * 
@@ -270,6 +301,65 @@ public class AccountFolderList extends ExpandableListActivity {
         mSummaryChildCursor = childCursor;
     }
 
+    private MatrixCursor getSummaryChildCursor() {
+        MatrixCursor childCursor = new MatrixCursor(MAILBOX_PROJECTION);
+        int count;
+        RowBuilder row;
+        // TYPE_INBOX
+        count = getCountByMailboxType(this, Mailbox.TYPE_INBOX);
+        if (count > 0) {
+            row = childCursor.newRow();
+            row.add(Long.valueOf(MessageList.QUERY_ALL_INBOXES));   // MAILBOX_COLUMN_ID = 0;
+            row.add(getString(R.string.account_folder_list_summary_inbox)); // MAILBOX_DISPLAY_NAME
+            row.add(null);                                          // MAILBOX_ACCOUNT_KEY = 2;
+            row.add(Integer.valueOf(Mailbox.TYPE_INBOX));           // MAILBOX_TYPE = 3;
+            // This value is 0 because count doesn't the number of messages in INBOX
+            row.add(Integer.valueOf(0));                        // MAILBOX_UNREAD_COUNT = 4;
+        }
+        // TYPE_MAIL (UNREAD)
+        count = EmailContent.count(this, Message.CONTENT_URI, UNREAD_COUNT_SELECTION, null);
+        if (count > 0) {
+            row = childCursor.newRow();
+            row.add(Long.valueOf(MessageList.QUERY_ALL_UNREAD));    // MAILBOX_COLUMN_ID = 0;
+            row.add(getString(R.string.account_folder_list_summary_unread));// MAILBOX_DISPLAY_NAME
+            row.add(null);                                          // MAILBOX_ACCOUNT_KEY = 2;
+            row.add(Integer.valueOf(Mailbox.TYPE_MAIL));            // MAILBOX_TYPE = 3;
+            row.add(Integer.valueOf(count));                        // MAILBOX_UNREAD_COUNT = 4;
+        }
+        // TYPE_MAIL (FAVORITES)
+        count = EmailContent.count(this, Message.CONTENT_URI, FAVORITE_COUNT_SELECTION, null);
+        if (count > 0) {
+            row = childCursor.newRow();
+            row.add(Long.valueOf(MessageList.QUERY_ALL_FAVORITES)); // MAILBOX_COLUMN_ID = 0;
+            // MAILBOX_DISPLAY_NAME
+            row.add(getString(R.string.account_folder_list_summary_favorite));
+            row.add(null);                                          // MAILBOX_ACCOUNT_KEY = 2;
+            row.add(Integer.valueOf(Mailbox.TYPE_MAIL));            // MAILBOX_TYPE = 3;
+            row.add(Integer.valueOf(count));                        // MAILBOX_UNREAD_COUNT = 4;
+        }
+        // TYPE_DRAFTS
+        count = getCountByMailboxType(this, Mailbox.TYPE_DRAFTS);
+        if (count > 0) {
+            row = childCursor.newRow();
+            row.add(Long.valueOf(MessageList.QUERY_ALL_DRAFTS));    // MAILBOX_COLUMN_ID = 0;
+            row.add(getString(R.string.account_folder_list_summary_drafts));// MAILBOX_DISPLAY_NAME
+            row.add(null);                                          // MAILBOX_ACCOUNT_KEY = 2;
+            row.add(Integer.valueOf(Mailbox.TYPE_DRAFTS));          // MAILBOX_TYPE = 3;
+            row.add(Integer.valueOf(count));                        // MAILBOX_UNREAD_COUNT = 4;
+        }
+        // TYPE_OUTBOX
+        count = getCountByMailboxType(this, Mailbox.TYPE_OUTBOX);
+        if (count > 0) {
+            row = childCursor.newRow();
+            row.add(Long.valueOf(MessageList.QUERY_ALL_OUTBOX));    // MAILBOX_COLUMN_ID = 0;
+            row.add(getString(R.string.account_folder_list_summary_outbox));// MAILBOX_DISPLAY_NAME
+            row.add(null);                                          // MAILBOX_ACCOUNT_KEY = 2;
+            row.add(Integer.valueOf(Mailbox.TYPE_OUTBOX));          // MAILBOX_TYPE = 3;
+            row.add(Integer.valueOf(count));                        // MAILBOX_UNREAD_COUNT = 4;
+        }
+        return childCursor;
+    }
+
     /**
      * Async task to handle the accounts query outside of the UI thread
      */
@@ -311,7 +401,7 @@ public class AccountFolderList extends ExpandableListActivity {
         @Override
         protected Cursor doInBackground(Void... params) {
             if (mGroupNumber == 0) {
-                return mSummaryChildCursor;
+                return getSummaryChildCursor();
             }
             Account.updateUnreadCount(AccountFolderList.this, mAccountId);
             return AccountFolderList.this.managedQuery(
