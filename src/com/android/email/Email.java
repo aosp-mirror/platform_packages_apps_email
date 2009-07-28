@@ -28,6 +28,7 @@ import android.content.ComponentName;
 import android.content.Context;
 import android.content.pm.PackageManager;
 import android.database.Cursor;
+import android.util.Log;
 
 import java.io.File;
 
@@ -227,12 +228,16 @@ public class Email extends Application {
          */
         BinaryTempFileBody.setTempDirectory(getCacheDir());
     }
+
+    /**
+     * Internal, utility method for logging.
+     * The calls to log() must be guarded with "if (Email.LOGD)" for performance reasons.
+     */
+    public static void log(String message) {
+        if (!Email.LOGD) {
+            // somebody called log() without the guard.
+            throw new IllegalStateException("Must guard with \"if (Email.LOGD)\"");
+        }
+        Log.d(LOG_TAG, message);
+    }
 }
-
-
-
-
-
-
-
-
