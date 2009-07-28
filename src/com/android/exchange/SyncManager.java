@@ -121,10 +121,10 @@ public class SyncManager extends Service implements Runnable {
             stopManualSync(mailboxId);
         }
 
-        public void loadAttachment(long attachmentId, String directory, IEmailServiceCallback cb)
-                throws RemoteException {
+        public void loadAttachment(long attachmentId, String destinationFile,
+                String contentUriString, IEmailServiceCallback cb) throws RemoteException {
             Attachment att = Attachment.restoreAttachmentWithId(SyncManager.this, attachmentId);
-            partRequest(new PartRequest(att, directory, cb));
+            partRequest(new PartRequest(att, destinationFile, contentUriString, cb));
         }
 
         public void updateFolderList(long accountId) throws RemoteException {

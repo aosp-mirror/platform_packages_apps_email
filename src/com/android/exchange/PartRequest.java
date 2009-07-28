@@ -32,7 +32,8 @@ public class PartRequest {
     public long timeStamp;
     public long emailId;
     public Attachment att;
-    public String dir;
+    public String destination;
+    public String contentUriString;
     public String loc;
     public IEmailServiceCallback callback;
 
@@ -63,9 +64,11 @@ public class PartRequest {
         callback = sCallback;
     }
 
-    public PartRequest(Attachment _att, String _dir, IEmailServiceCallback _callback) {
+    public PartRequest(Attachment _att, String _destination, String _contentUriString,
+            IEmailServiceCallback _callback) {
         this(_att);
-        dir = _dir;
+        destination = _destination;
+        contentUriString = _contentUriString;
         callback = _callback;
     }
 }

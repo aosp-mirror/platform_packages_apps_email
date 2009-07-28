@@ -27,7 +27,8 @@ interface IEmailService {
     void stopSync(long mailboxId);
 
     void loadMore(long messageId, IEmailServiceCallback cb);
-    void loadAttachment(long attachmentId, String directory, IEmailServiceCallback cb);
+    void loadAttachment(long attachmentId, String destinationFile, String contentUriString,
+            IEmailServiceCallback cb);
 
     void updateFolderList(long accountId);
 

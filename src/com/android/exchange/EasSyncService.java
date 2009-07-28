@@ -268,7 +268,6 @@ public class EasSyncService extends InteractiveSyncService {
      * Loads an attachment, based on the PartRequest passed in.  The PartRequest is basically our
      * wrapper for Attachment
      * @param req the part (attachment) to be retrieved
-     * @param external whether the attachment should be loaded to external storage
      * @throws IOException
      */
     protected void getAttachment(PartRequest req) throws IOException {
@@ -291,8 +290,15 @@ public class EasSyncService extends InteractiveSyncService {
                 Log.v(TAG, "Attachment code: " + status + ", Length: " + len + ", Type: " + type);
             }
             InputStream is = res.getEntity().getContent();
-            File f = createUniqueFileInternal(req.dir, att.mFileName);
+            File f = (req.destination != null)
+                    ? new File(req.destination)
+                    : createUniqueFileInternal(req.destination, att.mFileName);
             if (f != null) {
+                // Ensure that the target directory exists
+                File destDir = f.getParentFile();
+                if (!destDir.exists()) {
+                    destDir.mkdirs();
+                }
                 FileOutputStream os = new FileOutputStream(f);
                 if (len > 0) {
                     try {
@@ -318,8 +324,11 @@ public class EasSyncService extends InteractiveSyncService {
 
                 // EmailProvider will throw an exception if we try to update an unsaved attachment
                 if (att.isSaved()) {
+                    String contentUriString = (req.contentUriString != null)
+                            ? req.contentUriString
+                            : "file://" + f.getAbsolutePath();
                     ContentValues cv = new ContentValues();
-                    cv.put(AttachmentColumns.CONTENT_URI, "file://" + f.getAbsolutePath());
+                    cv.put(AttachmentColumns.CONTENT_URI, contentUriString);
                     cv.put(AttachmentColumns.MIME_TYPE, type);
                     att.update(mContext, cv);
                     doStatusCallback(callback, msg.mId, att.mId, EmailServiceStatus.SUCCESS);

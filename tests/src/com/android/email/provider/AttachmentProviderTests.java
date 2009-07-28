@@ -230,10 +230,10 @@ public class AttachmentProviderTests extends ProviderTestCase2<AttachmentProvide
         assertEquals("text/plain", type);
 
         // Check the returned filetypes for the thumbnails
-        uri = AttachmentProvider.getAttachmentThumbnailUri(account1, attachment2Id, 62, 62);
+        uri = AttachmentProvider.getAttachmentThumbnailUri(account1.mId, attachment2Id, 62, 62);
         type = mMockResolver.getType(uri);
         assertEquals("image/png", type);
-        uri = AttachmentProvider.getAttachmentThumbnailUri(account1, attachment3Id, 62, 62);
+        uri = AttachmentProvider.getAttachmentThumbnailUri(account1.mId, attachment3Id, 62, 62);
         type = mMockResolver.getType(uri);
         assertEquals("image/png", type);
     }
@@ -329,9 +329,9 @@ public class AttachmentProviderTests extends ProviderTestCase2<AttachmentProvide
         // attachment we add will be id=1 and the 2nd will have id=2.  This could fail on
         // a legitimate implementation.  Asserts below will catch this and fail the test
         // if necessary.
-        Uri thumb1Uri = AttachmentProvider.getAttachmentThumbnailUri(account1, attachment1Id,
+        Uri thumb1Uri = AttachmentProvider.getAttachmentThumbnailUri(account1.mId, attachment1Id,
                 62, 62);
-        Uri thumb2Uri = AttachmentProvider.getAttachmentThumbnailUri(account1, attachment2Id,
+        Uri thumb2Uri = AttachmentProvider.getAttachmentThumbnailUri(account1.mId, attachment2Id,
                 62, 62);
 
         // Test with no attached database - should return null (used to throw SQLiteException)

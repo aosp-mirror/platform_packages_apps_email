@@ -18,6 +18,7 @@ package com.android.email;
 
 import com.android.email.mail.MessagingException;
 import com.android.email.mail.Store;
+import com.android.email.provider.AttachmentProvider;
 import com.android.email.provider.EmailContent;
 import com.android.email.provider.EmailContent.Account;
 import com.android.email.provider.EmailContent.Attachment;
@@ -38,6 +39,7 @@ import android.net.Uri;
 import android.os.RemoteException;
 import android.util.Log;
 
+import java.io.File;
 import java.util.HashSet;
 
 /**
@@ -364,24 +366,29 @@ public class Controller {
     }
 
     /**
-     * Request that an attachment be loaded
+     * Request that an attachment be loaded.  It will be stored at a location controlled
+     * by the AttachmentProvider.
      *
-     * @param save If true, attachment will be saved into a well-known place e.g. sdcard
      * @param attachmentId the attachment to load
      * @param messageId the owner message
+     * @param accountId the owner account
      * @param callback the Controller callback by which results will be reported
      */
-    public void loadAttachment(boolean save, long attachmentId, long messageId,
+    public void loadAttachment(long attachmentId, long messageId, long accountId,
             final Result callback, Object tag) {
 
         Attachment attachInfo = Attachment.restoreAttachmentWithId(mProviderContext, attachmentId);
+
+        File saveToFile = AttachmentProvider.getAttachmentFilename(mContext,
+                accountId, attachmentId);
 
         // Split here for target type (Service or MessagingController)
         IEmailService service = getServiceForMessage(messageId);
         if (service != null) {
             // Service implementation
             try {
-                service.loadAttachment(attachInfo.mId, null,
+                service.loadAttachment(attachInfo.mId, saveToFile.getAbsolutePath(),
+                        AttachmentProvider.getAttachmentUri(accountId, attachmentId).toString(),
                         new LoadAttachmentCallback(callback, tag));
             } catch (RemoteException e) {
                 // TODO Change exception handling to be consistent with however this method

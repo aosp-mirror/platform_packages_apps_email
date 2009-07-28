@@ -29,11 +29,14 @@ import com.android.email.mail.Message.RecipientType;
 import com.android.email.mail.internet.EmailHtmlUtil;
 import com.android.email.mail.internet.MimeUtility;
 import com.android.email.mail.store.LocalStore.LocalMessage;
+import com.android.email.provider.AttachmentProvider;
 import com.android.email.provider.EmailContent.Account;
 import com.android.email.provider.EmailContent.Attachment;
 import com.android.email.provider.EmailContent.Body;
 import com.android.email.provider.EmailContent.BodyColumns;
 import com.android.email.provider.EmailContent.Message;
+
+import org.apache.commons.io.IOUtils;
 
 import android.app.Activity;
 import android.app.ProgressDialog;
@@ -43,6 +46,7 @@ import android.content.Context;
 import android.content.Intent;
 import android.database.Cursor;
 import android.graphics.Bitmap;
+import android.graphics.BitmapFactory;
 import android.graphics.drawable.Drawable;
 import android.media.MediaScannerConnection;
 import android.media.MediaScannerConnection.MediaScannerConnectionClient;
@@ -54,7 +58,6 @@ import android.os.Handler;
 import android.provider.Contacts;
 import android.provider.Contacts.Intents;
 import android.provider.Contacts.People;
-//import android.provider.Contacts.Presence;
 import android.text.util.Regex;
 import android.util.Log;
 import android.view.LayoutInflater;
@@ -71,6 +74,10 @@ import android.widget.TextView;
 import android.widget.Toast;
 
 import java.io.File;
+import java.io.FileOutputStream;
+import java.io.IOException;
+import java.io.InputStream;
+import java.io.OutputStream;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.regex.Matcher;
@@ -231,23 +238,7 @@ public class MessageView extends Activity
                 case MSG_FINISH_LOAD_ATTACHMENT:
                     boolean save = msg.arg1 != 0;
                     long attachmentId = (Long)msg.obj;
-                    if (save) {
-                        Attachment attachment =
-                            Attachment.restoreAttachmentWithId(MessageView.this, attachmentId);
-                        if (attachment.mContentUri.startsWith("file://")) {
-                            File file =
-                                new File(attachment.mContentUri.substring("file://".length()));
-                            String leaf = file.getName();
-                            Toast.makeText(MessageView.this, String.format(
-                                    getString(R.string.message_view_status_attachment_saved), leaf),
-                                    Toast.LENGTH_LONG).show();
-                            new MediaScannerNotifier(MessageView.this, file, mHandler);
-                        } else {
-                            // TODO content// uri
-                        }
-                    } else {
-                        // TODO: view
-                    }
+                    doFinishLoadAttachment(save, attachmentId);
                     break;
                 default:
                     super.handleMessage(msg);
@@ -684,21 +675,15 @@ public class MessageView extends Activity
 
         LoadAttachTag tag = new LoadAttachTag(true, attachment.name);
 
-        Controller.getInstance(getApplication()).loadAttachment(true, attachment.attachmentId,
-                mMessageId, mControllerCallback, tag);
+        Controller.getInstance(getApplication()).loadAttachment(attachment.attachmentId,
+                mMessageId, mAccountId, mControllerCallback, tag);
     }
 
     private void onViewAttachment(AttachmentInfo attachment) {
-        // TODO: Until EAS can download into temp mem *and* AttachmentProvider is rewritten
-        // to use the new database, "view" is really just "save"
-        onDownloadAttachment(attachment);
+        LoadAttachTag tag = new LoadAttachTag(false, attachment.name);
 
-//        MessagingController.getInstance(getApplication()).loadAttachment(
-//                mAccount,
-//                mOldMessage,
-//                attachment.part,
-//                new Object[] { false, attachment },
-//                mListener);
+        Controller.getInstance(getApplication()).loadAttachment(attachment.attachmentId,
+                mMessageId, mAccountId, mControllerCallback, tag);
     }
 
     private void onShowPictures() {
@@ -793,14 +778,12 @@ public class MessageView extends Activity
 
     private Bitmap getPreviewIcon(AttachmentInfo attachment) {
         try {
-            // TODO write the new call to the attachment provider using ID, not part
-//            return BitmapFactory.decodeStream(
-//                    getContentResolver().openInputStream(
-//                            AttachmentProvider.getAttachmentThumbnailUri(mAccount,
-//                                    attachment.part.getAttachmentId(),
-//                                    62,
-//                                    62)));
-            return null;
+            return BitmapFactory.decodeStream(
+                    getContentResolver().openInputStream(
+                            AttachmentProvider.getAttachmentThumbnailUri(
+                                    mAccountId, attachment.attachmentId,
+                                    62,
+                                    62)));
         }
         catch (Exception e) {
             /*
@@ -1516,6 +1499,54 @@ public class MessageView extends Activity
                     mMessageContentView.loadDataWithBaseURL("email://", text, "text/html",
                             "utf-8", null);
                 }
+            }
+        }
+    }
+
+    /**
+     * Back in the UI thread, handle the final steps of downloading an attachment (view or save).
+     *
+     * @param save If true, save to SD card.  If false, send view intent
+     * @param attachmentId the attachment that was just downloaded
+     */
+    private void doFinishLoadAttachment(boolean save, long attachmentId) {
+        Attachment attachment =
+            Attachment.restoreAttachmentWithId(MessageView.this, attachmentId);
+        Uri attachmentUri = AttachmentProvider.getAttachmentUri(mAccountId, attachment.mId);
+        Uri contentUri =
+            AttachmentProvider.resolveAttachmentIdToContentUri(getContentResolver(), attachmentUri);
+
+        if (save) {
+            try {
+                File file = createUniqueFile(Environment.getExternalStorageDirectory(),
+                        attachment.mFileName);
+                InputStream in = getContentResolver().openInputStream(contentUri);
+                OutputStream out = new FileOutputStream(file);
+                IOUtils.copy(in, out);
+                out.flush();
+                out.close();
+                in.close();
+
+                Toast.makeText(MessageView.this, String.format(
+                        getString(R.string.message_view_status_attachment_saved), file.getName()),
+                        Toast.LENGTH_LONG).show();
+
+                new MediaScannerNotifier(this, file, mHandler);
+            } catch (IOException ioe) {
+                Toast.makeText(MessageView.this,
+                        getString(R.string.message_view_status_attachment_not_saved),
+                        Toast.LENGTH_LONG).show();
+            }
+        } else {
+            try {
+                Intent intent = new Intent(Intent.ACTION_VIEW);
+                intent.setData(contentUri);
+                intent.addFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION);
+                startActivity(intent);
+            } catch (ActivityNotFoundException e) {
+                mHandler.attachmentViewError();
+                // TODO: Add a proper warning message (and lots of upstream cleanup to prevent
+                // it from happening) in the next release.
             }
         }
     }

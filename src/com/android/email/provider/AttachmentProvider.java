@@ -24,6 +24,7 @@ import android.content.ContentProvider;
 import android.content.ContentResolver;
 import android.content.ContentUris;
 import android.content.ContentValues;
+import android.content.Context;
 import android.database.Cursor;
 import android.database.MatrixCursor;
 import android.graphics.Bitmap;
@@ -46,6 +47,15 @@ import java.util.List;
  * 
  * And for access to thumbnails:
  *   content://com.android.email.attachmentprovider/acct#/attach#/THUMBNAIL/width#/height#
+ *
+ * The on-disk (storage) schema is as follows.
+ * 
+ * Attachments are stored at:  <database-path>/account#.db_att/item#
+ * Thumbnails are stored at:   <cache-path>/thmb_account#_item#
+ * 
+ * Using the standard application context, account #10 and attachment # 20, this would be:
+ *      /data/data/com.android.email/databases/10.db_att/20
+ *      /data/data/com.android.email/cache/thmb_10_20
  */
 public class AttachmentProvider extends ContentProvider {
 
@@ -74,15 +84,27 @@ public class AttachmentProvider extends ContentProvider {
                 .build();
     }
 
-    public static Uri getAttachmentThumbnailUri(EmailContent.Account account, long id,
+    public static Uri getAttachmentThumbnailUri(long accountId, long id,
             int width, int height) {
         return CONTENT_URI.buildUpon()
-                .appendPath(Long.toString(account.mId))
+                .appendPath(Long.toString(accountId))
                 .appendPath(Long.toString(id))
                 .appendPath(FORMAT_THUMBNAIL)
                 .appendPath(Integer.toString(width))
                 .appendPath(Integer.toString(height))
                 .build();
+    }
+
+    /**
+     * Return the filename for a given attachment.  This should be used by any code that is
+     * going to *write* attachments.
+     *
+     * This does not create or write the file, or even the directories.  It simply builds
+     * the filename that should be used.
+     */
+    public static File getAttachmentFilename(Context context, long accountId, long attachmentId) {
+        return new File(
+                context.getDatabasePath(accountId + ".db_att"), Long.toString(attachmentId));
     }
 
     @Override
