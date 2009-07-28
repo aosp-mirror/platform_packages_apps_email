@@ -26,7 +26,6 @@ import com.android.email.R;
 import com.android.email.Utility;
 import com.android.email.mail.Address;
 import com.android.email.mail.Body;
-import com.android.email.mail.Message;
 import com.android.email.mail.MessagingException;
 import com.android.email.mail.Multipart;
 import com.android.email.mail.Part;
@@ -37,6 +36,7 @@ import com.android.email.mail.internet.MimeUtility;
 import com.android.email.mail.store.LocalStore.LocalAttachmentBody;
 import com.android.email.provider.EmailContent;
 import com.android.email.provider.EmailContent.Account;
+import com.android.email.provider.EmailContent.Message;
 import com.android.email.provider.EmailContent.MessageColumns;
 
 import android.app.Activity;
@@ -48,6 +48,7 @@ import android.content.Intent;
 import android.content.pm.ActivityInfo;
 import android.database.Cursor;
 import android.net.Uri;
+import android.os.AsyncTask;
 import android.os.Bundle;
 import android.os.Handler;
 import android.os.Parcelable;
@@ -113,9 +114,8 @@ public class MessageCompose extends Activity implements OnClickListener, OnFocus
 
     private static final int ACTIVITY_REQUEST_PICK_ATTACHMENT = 1;
 
-    private long mAccountId;
     private Account mAccount;
-    private EmailContent.Message mSourceMessage;
+    private Message mSourceMessage;
     /**
      * Indicates that the source message has been processed at least once and should not
      * be processed on any subsequent loads. This protects us from adding attachments that
@@ -400,16 +400,16 @@ public class MessageCompose extends Activity implements OnClickListener, OnFocus
         }
 
         Intent intent = getIntent();
-
         mAction = intent.getAction();
+        mSourceMessage = null;
         
         // Handle the various intents that launch the message composer
         if (Intent.ACTION_VIEW.equals(mAction) 
                 || Intent.ACTION_SENDTO.equals(mAction) 
                 || Intent.ACTION_SEND.equals(mAction)) {
             // Check first for a valid account
-            mAccountId = Account.getDefaultAccountId(this);
-            if (mAccountId == -1) {
+            long accountId = Account.getDefaultAccountId(this);
+            if (accountId == -1) {
                 // There are no accounts set up. This should not have happened. Prompt the
                 // user to set up an account as an acceptable bailout.
                 AccountFolderList.actionShowAccounts(this);
@@ -417,18 +417,19 @@ public class MessageCompose extends Activity implements OnClickListener, OnFocus
                 finish();
                 return;
             } else {
-                mAccount = Account.restoreAccountWithId(this, mAccountId);
+                mAccount = Account.restoreAccountWithId(this, accountId);
             }
-            
+
             // Use the fields found in the Intent to prefill as much of the message as possible
             initFromIntent(intent);
-        }
-        else {
+        } else {
             // Otherwise, handle the internal cases (Message Composer invoked from within app)
             long messageId = intent.getLongExtra(EXTRA_MESSAGE_ID, -1);
-            mSourceMessage = EmailContent.Message.restoreMessageWithId(this, messageId);
-            mAccountId = mSourceMessage.mAccountKey;
-            mAccount = Account.restoreAccountWithId(this, mAccountId);
+            if (messageId != -1) {
+                new LoadMessageTask().execute(messageId);
+            } else {
+                mAccount = Account.restoreAccountWithId(this, Account.getDefaultAccountId(this));
+            }
         }
 
         if (ACTION_REPLY.equals(mAction) || ACTION_REPLY_ALL.equals(mAction) ||
@@ -526,6 +527,26 @@ public class MessageCompose extends Activity implements OnClickListener, OnFocus
         mDraftNeedsSaving = false;
     }
 
+    // TODO: is there any way to unify this with MessageView.LoadMessageTask?
+    private class LoadMessageTask extends AsyncTask<Long, Void, Object[]> {
+        @Override
+        protected Object[] doInBackground(Long... messageIds) {
+            Message message = Message.restoreMessageWithId(MessageCompose.this, messageIds[0]);
+            long accountId = message.mAccountKey;
+            Account account = Account.restoreAccountWithId(MessageCompose.this, accountId);
+            return new Object[]{message, account};
+        }
+
+        @Override
+        protected void onPostExecute(Object[] messageAndAccount) {
+            final Message message = (Message) messageAndAccount[0];
+            final Account account = (Account) messageAndAccount[1];
+            mSourceMessage = message;
+            mAccount = account;
+            processSourceMessage(message);
+        }
+    }
+
     private void updateTitle() {
         if (mSubjectView.getText().length() == 0) {
             setTitle(R.string.compose_title);
@@ -606,7 +627,7 @@ public class MessageCompose extends Activity implements OnClickListener, OnFocus
         return text;
     }
 
-    private ContentValues getUpdateContentValues(EmailContent.Message message) {
+    private ContentValues getUpdateContentValues(Message message) {
         ContentValues values = new ContentValues();
         values.put(MessageColumns.TIMESTAMP, message.mTimeStamp);
         values.put(MessageColumns.FROM_LIST, message.mFrom);
@@ -622,9 +643,9 @@ public class MessageCompose extends Activity implements OnClickListener, OnFocus
      * @param message The message to be updated. If it's null, a new message is created.
      *
      */
-    private EmailContent.Message updateMessage(EmailContent.Message message) {
+    private Message updateMessage(Message message) {
         if (message == null) {
-            message = new EmailContent.Message();
+            message = new Message();
         }
         message.mTimeStamp = System.currentTimeMillis();
         message.mFrom = new Address(mAccount.getEmailAddress(), mAccount.getSenderName()).pack();
@@ -633,8 +654,8 @@ public class MessageCompose extends Activity implements OnClickListener, OnFocus
         message.mBcc = getPackedAddresses(mBccView);
         message.mSubject = mSubjectView.getText().toString();
         message.mText = buildBodyText();
-        message.mAccountKey = mAccountId;
-        // message.mFlagLoaded = EmailContent.Message.LOADED;
+        message.mAccountKey = mAccount.mId;
+        // message.mFlagLoaded = Message.LOADED;
         // TODO: add attachments (as below)
         return message;
     }
@@ -683,10 +704,10 @@ public class MessageCompose extends Activity implements OnClickListener, OnFocus
                 // The update doesn't modify the mailboxKey,
                 // so just keep the same mailbox which is already DRAFTS.
                 // TODO: move out of UI thread
-                EmailContent.Message message = updateMessage(mSourceMessage);
+                Message message = updateMessage(mSourceMessage);
                 message.update(getApplication(), getUpdateContentValues(message));
             } else {
-                EmailContent.Message message = updateMessage(null);
+                Message message = updateMessage(null);
                 mController.saveToMailbox(message, EmailContent.Mailbox.TYPE_DRAFTS);
             }
 
@@ -1104,7 +1125,7 @@ public class MessageCompose extends Activity implements OnClickListener, OnFocus
     /*
      * This method de-dups code from processSourceMessage().
      */
-    private void displayQuotedText(EmailContent.Message message) {
+    private void displayQuotedText(Message message) {
         boolean plainTextFlag = message.mHtml == null;
         String text = plainTextFlag ? message.mText : message.mHtml;
         if (text != null) {
@@ -1125,7 +1146,7 @@ public class MessageCompose extends Activity implements OnClickListener, OnFocus
      * @param message
      */
     /* package */
-    void processSourceMessage(EmailContent.Message message) {
+    void processSourceMessage(Message message) {
         String action = getIntent().getAction();
         mDraftNeedsSaving = true;
         final String subject = message.mSubject;
@@ -1230,23 +1251,23 @@ public class MessageCompose extends Activity implements OnClickListener, OnFocus
             mHandler.sendEmptyMessage(MSG_PROGRESS_ON);
         }
 
-        @Override
-        public void loadMessageForViewFinished(Account account, String folder,
-                String uid, Message message) {
-            mHandler.sendEmptyMessage(MSG_PROGRESS_OFF);
-        }
+//         @Override
+//         public void loadMessageForViewFinished(Account account, String folder,
+//                 String uid, Message message) {
+//             mHandler.sendEmptyMessage(MSG_PROGRESS_OFF);
+//         }
 
-        @Override
-        public void loadMessageForViewBodyAvailable(Account account, String folder,
-                String uid, final Message message) {
-            // TODO: convert uid to EmailContent.Message and re-do what's below
+//         @Override
+//         public void loadMessageForViewBodyAvailable(Account account, String folder,
+//                 String uid, final Message message) {
+//            // TODO: convert uid to EmailContent.Message and re-do what's below
 //             mSourceMessage = message;
 //             runOnUiThread(new Runnable() {
 //                 public void run() {
 //                     processSourceMessage(message);
 //                 }
 //             });
-        }
+//         }
 
         @Override
         public void loadMessageForViewFailed(Account account, String folder, String uid,
