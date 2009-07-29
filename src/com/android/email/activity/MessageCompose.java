@@ -455,14 +455,14 @@ public class MessageCompose extends Activity implements OnClickListener, OnFocus
     @Override
     public void onResume() {
         super.onResume();
-        MessagingController.getInstance(getApplication()).addListener(mListener);
+        mController.addResultCallback(mListener);
     }
 
     @Override
     public void onPause() {
         super.onPause();
         saveIfNeeded();
-        MessagingController.getInstance(getApplication()).removeListener(mListener);
+        mController.removeResultCallback(mListener);
     }
 
     /**
@@ -694,23 +694,33 @@ public class MessageCompose extends Activity implements OnClickListener, OnFocus
 //             message.setBody(body);
 //         }
 
-    private void sendOrSaveMessage(boolean save) {
-        final String action = getIntent().getAction();
-        if (save) {
-            /*
-             * Save a draft
-             */
-            if (ACTION_EDIT_DRAFT.equals(action)) {
-                // The update doesn't modify the mailboxKey,
-                // so just keep the same mailbox which is already DRAFTS.
-                // TODO: move out of UI thread
-                Message message = updateMessage(mSourceMessage);
-                message.update(getApplication(), getUpdateContentValues(message));
-            } else {
-                Message message = updateMessage(null);
-                mController.saveToMailbox(message, EmailContent.Mailbox.TYPE_DRAFTS);
-            }
+    /**
+     * Send a message:
+     * save to Drafts and invoke Controller.sendMessage().
+     */
+    private void sendMessage() {
+        Message message = saveMessage();
+        mController.sendMessage(message.mId, message.mAccountKey);
+    }
 
+    /**
+     * Save a draft
+     * @return the id of the saved message.
+     */
+    private Message saveMessage() {
+        final String action = getIntent().getAction();
+
+        Message message;
+        if (ACTION_EDIT_DRAFT.equals(action)) {
+            // The update doesn't modify the mailboxKey,
+            // so just keep the same mailbox which is already DRAFTS.
+            // TODO: move out of UI thread
+            message = updateMessage(mSourceMessage);
+            message.update(getApplication(), getUpdateContentValues(message));
+        } else {
+            message = updateMessage(null);
+            mController.saveToMailbox(message, EmailContent.Mailbox.TYPE_DRAFTS);
+        }
 //             if (mDraftUid != null) {
 //                 message.setUid(mDraftUid);
 //             }
@@ -725,30 +735,10 @@ public class MessageCompose extends Activity implements OnClickListener, OnFocus
 //             mDraftUid = message.getUid();
 
             // Don't display the toast if the user is just changing the orientation
-            if ((getChangingConfigurations() & ActivityInfo.CONFIG_ORIENTATION) == 0) {
-                mHandler.sendEmptyMessage(MSG_SAVED_DRAFT);
-            }
+        if ((getChangingConfigurations() & ActivityInfo.CONFIG_ORIENTATION) == 0) {
+            mHandler.sendEmptyMessage(MSG_SAVED_DRAFT);
         }
-//         else {
-//             /*
-//              * Send the message
-//              * If the source message is in other folder than draft, it should not be deleted while
-//              * sending message.
-//              */
-//             if (ACTION_EDIT_DRAFT.equals(getIntent().getAction())
-//                     && mSourceMessageUid != null
-//                     && mFolder.equals(mAccount.getDraftsFolderName(this))) {
-//                 /*
-//                  * We're sending a previously saved draft, so delete the old draft first.
-//                  */
-//                 MessagingController.getInstance(getApplication()).deleteMessage(
-//                         mAccount,
-//                         mFolder,
-//                         mSourceMessage,
-//                         null);
-//             }
-//             MessagingController.getInstance(getApplication()).sendMessage(mAccount, message, null);
-//         }
+        return message;
     }
 
     private void saveIfNeeded() {
@@ -756,7 +746,7 @@ public class MessageCompose extends Activity implements OnClickListener, OnFocus
             return;
         }
         mDraftNeedsSaving = false;
-        sendOrSaveMessage(true);
+        saveMessage();
     }
 
     /** 
@@ -784,7 +774,7 @@ public class MessageCompose extends Activity implements OnClickListener, OnFocus
             Toast.makeText(this, getString(R.string.message_compose_error_no_recipients),
                     Toast.LENGTH_LONG).show();
         } else {
-            sendOrSaveMessage(false);
+            sendMessage();
             mDraftNeedsSaving = false;
             finish();
         }
@@ -1244,12 +1234,25 @@ public class MessageCompose extends Activity implements OnClickListener, OnFocus
         }
     }
 
-    class Listener extends MessagingListener {
-        @Override
-        public void loadMessageForViewStarted(Account account, String folder,
-                String uid) {
-            mHandler.sendEmptyMessage(MSG_PROGRESS_ON);
+    class Listener implements Controller.Result {
+        public void updateMailboxListCallback(MessagingException result, long accountId) {
         }
+
+        public void updateMailboxCallback(MessagingException result, long accountId,
+                long mailboxId, int totalMessagesInMailbox, int numNewMessages) {
+        }
+
+        public void loadAttachmentCallback(MessagingException result, long messageId,
+                long attachmentId, int progress, Object tag) {
+        }
+    }
+
+//     class Listener extends MessagingListener {
+//         @Override
+//         public void loadMessageForViewStarted(Account account, String folder,
+//                 String uid) {
+//             mHandler.sendEmptyMessage(MSG_PROGRESS_ON);
+//         }
 
 //         @Override
 //         public void loadMessageForViewFinished(Account account, String folder,
@@ -1269,11 +1272,11 @@ public class MessageCompose extends Activity implements OnClickListener, OnFocus
 //             });
 //         }
 
-        @Override
-        public void loadMessageForViewFailed(Account account, String folder, String uid,
-                final String message) {
-            mHandler.sendEmptyMessage(MSG_PROGRESS_OFF);
-            // TODO show network error
-        }
-    }
+//         @Override
+//         public void loadMessageForViewFailed(Account account, String folder, String uid,
+//                 final String message) {
+//             mHandler.sendEmptyMessage(MSG_PROGRESS_OFF);
+//             // TODO show network error
+//         }
+//     }
 }

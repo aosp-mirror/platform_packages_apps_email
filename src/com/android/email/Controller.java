@@ -267,6 +267,56 @@ public class Controller {
     }
 
     /**
+     * Send a message:
+     * - move the message to Outbox (the message is assumed to be in Drafts).
+     * - perform any necessary notification
+     * - do the work in a separate (non-UI) thread
+     * @param messageId the id of the message to send
+     */
+    public void sendMessage(long messageId, long accountId) {
+        ContentResolver resolver = mProviderContext.getContentResolver();
+        if (accountId == -1) {
+            accountId = lookupAccountForMessage(messageId);
+        }
+        if (accountId == -1) {
+            // probably the message was not found
+            if (Email.LOGD) {
+                Email.log("no account found for message " + messageId);
+            }
+            return;
+        }
+
+        // Move to Outbox
+        long outboxId = findOrCreateMailboxOfType(accountId, Mailbox.TYPE_OUTBOX);
+        ContentValues cv = new ContentValues();
+        cv.put(EmailContent.MessageColumns.MAILBOX_KEY, outboxId);
+
+        // does this need to be SYNCED_CONTENT_URI instead?
+        Uri uri = ContentUris.withAppendedId(EmailContent.Message.CONTENT_URI, messageId);
+        resolver.update(uri, cv, null, null);
+
+        // TODO: notifications
+    }
+
+    /**
+     * @param messageId the id of message
+     * @return the accountId corresponding to the given messageId, or -1 if not found.
+     */
+    private long lookupAccountForMessage(long messageId) {
+        ContentResolver resolver = mProviderContext.getContentResolver();
+        Cursor c = resolver.query(EmailContent.Message.CONTENT_URI,
+                                  MESSAGEID_TO_ACCOUNTID_PROJECTION, EmailContent.RECORD_ID + "=?",
+                                  new String[] { Long.toString(messageId) }, null);
+        try {
+            return c.moveToFirst()
+                ? c.getLong(MESSAGEID_TO_ACCOUNTID_COLUMN_ACCOUNTID)
+                : -1;
+        } finally {
+            c.close();
+        }
+    }
+
+    /**
      * Delete a single message by moving it to the trash.
      * 
      * This function has no callback, no result reporting, because the desired outcome
@@ -285,18 +335,10 @@ public class Controller {
         // 1.  Look up acct# for message we're deleting
         Cursor c = null;
         if (accountId == -1) {
-            try {
-                c = resolver.query(EmailContent.Message.CONTENT_URI,
-                        MESSAGEID_TO_ACCOUNTID_PROJECTION, EmailContent.RECORD_ID + "=?",
-                        new String[] { Long.toString(messageId) }, null);
-                if (c.moveToFirst()) {
-                    accountId = c.getLong(MESSAGEID_TO_ACCOUNTID_COLUMN_ACCOUNTID);
-                } else {
-                    return;
-                }
-            } finally {
-                if (c != null) c.close();
-            }
+            accountId = lookupAccountForMessage(messageId);
+        }
+        if (accountId == -1) {
+            return;
         }
 
         // 2. Confirm that there is a trash mailbox available
