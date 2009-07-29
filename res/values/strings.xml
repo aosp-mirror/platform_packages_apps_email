@@ -198,6 +198,9 @@
     <string name="message_compose_attachments_skipped_toast">Some attachments cannot be forwarded because they have not downloaded.</string>
     <!-- Toast that appears when an attachment is too big to send. -->
     <string name="message_compose_attachment_size">File too large to attach.</string>
+    <!-- Display name for composed message, indicating the destination of the message.
+      e.g. "John and 2 others" -->
+    <string name="message_compose_display_name">%s and %d others</string>
     <!-- Label for To field in read message view -->
     <string name="message_view_to_label">To:</string>
     <!-- Label for CC field in read message view -->

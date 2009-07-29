@@ -89,7 +89,6 @@ public class MessageCompose extends Activity implements OnClickListener, OnFocus
     private static final String ACTION_EDIT_DRAFT = "com.android.email.intent.action.EDIT_DRAFT";
 
     private static final String EXTRA_ACCOUNT_ID = "account_id";
-
     private static final String EXTRA_MESSAGE_ID = "message_id";
 
     private static final String STATE_KEY_ATTACHMENTS =
@@ -109,13 +108,18 @@ public class MessageCompose extends Activity implements OnClickListener, OnFocus
     private static final int MSG_PROGRESS_OFF = 2;
     private static final int MSG_UPDATE_TITLE = 3;
     private static final int MSG_SKIPPED_ATTACHMENTS = 4;
-    private static final int MSG_SAVED_DRAFT = 5;
     private static final int MSG_DISCARDED_DRAFT = 6;
 
     private static final int ACTIVITY_REQUEST_PICK_ATTACHMENT = 1;
 
     private Account mAccount;
-    private Message mSourceMessage;
+
+    // mDraft is null until the first save, afterwards it contains the last saved version.
+    private Message mDraft;
+
+    // mSource is only set for REPLY, REPLY_ALL and FORWARD, and contains the source message.
+    private Message mSource;
+
     /**
      * Indicates that the source message has been processed at least once and should not
      * be processed on any subsequent loads. This protects us from adding attachments that
@@ -137,14 +141,8 @@ public class MessageCompose extends Activity implements OnClickListener, OnFocus
     private WebView mQuotedText;
 
     private Controller mController;
-
-    private boolean mDraftNeedsSaving = false;
-
-    /**
-     * The draft uid of this message. This is used when saving drafts so that the same draft is
-     * overwritten instead of being created anew. This property is null until the first save.
-     */
-    private String mDraftUid;
+    private Listener mListener = new Listener();
+    private boolean mDraftNeedsSaving;
 
     private Handler mHandler = new Handler() {
         @Override
@@ -165,12 +163,6 @@ public class MessageCompose extends Activity implements OnClickListener, OnFocus
                             getString(R.string.message_compose_attachments_skipped_toast),
                             Toast.LENGTH_LONG).show();
                     break;
-                case MSG_SAVED_DRAFT:
-                    Toast.makeText(
-                            MessageCompose.this,
-                            getString(R.string.message_saved_toast),
-                            Toast.LENGTH_LONG).show();
-                    break;
                 case MSG_DISCARDED_DRAFT:
                     Toast.makeText(
                             MessageCompose.this,
@@ -183,10 +175,6 @@ public class MessageCompose extends Activity implements OnClickListener, OnFocus
             }
         }
     };
-
-    private Listener mListener = new Listener();
-    private EmailAddressAdapter mAddressAdapter;
-    private Validator mAddressValidator;
 
     /**
      * Encapsulates known information about a single attachment.
@@ -212,7 +200,7 @@ public class MessageCompose extends Activity implements OnClickListener, OnFocus
        } catch (ActivityNotFoundException anfe) {
            // Swallow it - this is usually a race condition, especially under automated test.
            // (The message composer might have been disabled)
-           Log.d(Email.LOG_TAG, anfe.toString());
+           Email.log(anfe.toString());
        }
     }
 
@@ -224,15 +212,7 @@ public class MessageCompose extends Activity implements OnClickListener, OnFocus
      * @param replyAll
      */
     public static void actionReply(Context context, long messageId, boolean replyAll) {
-        Intent i = new Intent(context, MessageCompose.class);
-        i.putExtra(EXTRA_MESSAGE_ID, messageId);
-        if (replyAll) {
-            i.setAction(ACTION_REPLY_ALL);
-        }
-        else {
-            i.setAction(ACTION_REPLY);
-        }
-        context.startActivity(i);
+        startActivityWithMessage(context, replyAll ? ACTION_REPLY_ALL : ACTION_REPLY, messageId);
     }
 
     /**
@@ -241,10 +221,7 @@ public class MessageCompose extends Activity implements OnClickListener, OnFocus
      * @param messageId
      */
     public static void actionForward(Context context, long messageId) {
-        Intent i = new Intent(context, MessageCompose.class);
-        i.putExtra(EXTRA_MESSAGE_ID, messageId);
-        i.setAction(ACTION_FORWARD);
-        context.startActivity(i);
+        startActivityWithMessage(context, ACTION_FORWARD, messageId);
     }
 
     /**
@@ -256,140 +233,24 @@ public class MessageCompose extends Activity implements OnClickListener, OnFocus
      * @param messageId the message id.
      */
     public static void actionEditDraft(Context context, long messageId) {
+        startActivityWithMessage(context, ACTION_EDIT_DRAFT, messageId);
+    }
+
+    private static void startActivityWithMessage(Context context, String action, long messageId) {
         Intent i = new Intent(context, MessageCompose.class);
         i.putExtra(EXTRA_MESSAGE_ID, messageId);
-        i.setAction(ACTION_EDIT_DRAFT);
+        i.setAction(action);
         context.startActivity(i);
     }
 
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-
         requestWindowFeature(Window.FEATURE_INDETERMINATE_PROGRESS);
-
         setContentView(R.layout.message_compose);
-
         mController = Controller.getInstance(getApplication());
+        initViews();
 
-        mAddressAdapter = new EmailAddressAdapter(this);
-        mAddressValidator = new EmailAddressValidator();
-
-        mToView = (MultiAutoCompleteTextView)findViewById(R.id.to);
-        mCcView = (MultiAutoCompleteTextView)findViewById(R.id.cc);
-        mBccView = (MultiAutoCompleteTextView)findViewById(R.id.bcc);
-        mSubjectView = (EditText)findViewById(R.id.subject);
-        mMessageContentView = (EditText)findViewById(R.id.message_content);
-        mSendButton = (Button)findViewById(R.id.send);
-        mDiscardButton = (Button)findViewById(R.id.discard);
-        mSaveButton = (Button)findViewById(R.id.save);
-        mAttachments = (LinearLayout)findViewById(R.id.attachments);
-        mQuotedTextBar = findViewById(R.id.quoted_text_bar);
-        mQuotedTextDelete = (ImageButton)findViewById(R.id.quoted_text_delete);
-        mQuotedText = (WebView)findViewById(R.id.quoted_text);
-
-        TextWatcher watcher = new TextWatcher() {
-            public void beforeTextChanged(CharSequence s, int start,
-                                          int before, int after) { }
-
-            public void onTextChanged(CharSequence s, int start,
-                                          int before, int count) {
-                mDraftNeedsSaving = true;
-            }
-
-            public void afterTextChanged(android.text.Editable s) { }
-        };
-        
-        /** 
-         * Implements special address cleanup rules:
-         * The first space key entry following an "@" symbol that is followed by any combination
-         * of letters and symbols, including one+ dots and zero commas, should insert an extra
-         * comma (followed by the space).
-         */
-        InputFilter recipientFilter = new InputFilter() {
-
-            public CharSequence filter(CharSequence source, int start, int end, Spanned dest,
-                    int dstart, int dend) {
-                
-                // quick check - did they enter a single space?
-                if (end-start != 1 || source.charAt(start) != ' ') {
-                    return null;
-                }
-                
-                // determine if the characters before the new space fit the pattern
-                // follow backwards and see if we find a comma, dot, or @
-                int scanBack = dstart;
-                boolean dotFound = false;
-                while (scanBack > 0) {
-                    char c = dest.charAt(--scanBack);
-                    switch (c) {
-                        case '.':
-                            dotFound = true;    // one or more dots are req'd
-                            break;
-                        case ',':
-                            return null;
-                        case '@':
-                            if (!dotFound) {
-                                return null;
-                            }
-                            // we have found a comma-insert case.  now just do it
-                            // in the least expensive way we can.
-                            if (source instanceof Spanned) {
-                                SpannableStringBuilder sb = new SpannableStringBuilder(",");
-                                sb.append(source);
-                                return sb;
-                            } else {
-                                return ", ";
-                            }
-                        default:
-                            // just keep going
-                    }
-                }
-                
-                // no termination cases were found, so don't edit the input
-                return null;
-            }
-        };
-        InputFilter[] recipientFilters = new InputFilter[] { recipientFilter };
-
-        mToView.addTextChangedListener(watcher);
-        mCcView.addTextChangedListener(watcher);
-        mBccView.addTextChangedListener(watcher);
-        mSubjectView.addTextChangedListener(watcher);
-        mMessageContentView.addTextChangedListener(watcher);
-
-        // NOTE: assumes no other filters are set
-        mToView.setFilters(recipientFilters);
-        mCcView.setFilters(recipientFilters);
-        mBccView.setFilters(recipientFilters);
-
-        /*
-         * We set this to invisible by default. Other methods will turn it back on if it's
-         * needed.
-         */
-        mQuotedTextBar.setVisibility(View.GONE);
-        mQuotedText.setVisibility(View.GONE);
-
-        mQuotedTextDelete.setOnClickListener(this);
-
-        mToView.setAdapter(mAddressAdapter);
-        mToView.setTokenizer(new Rfc822Tokenizer());
-        mToView.setValidator(mAddressValidator);
-
-        mCcView.setAdapter(mAddressAdapter);
-        mCcView.setTokenizer(new Rfc822Tokenizer());
-        mCcView.setValidator(mAddressValidator);
-
-        mBccView.setAdapter(mAddressAdapter);
-        mBccView.setTokenizer(new Rfc822Tokenizer());
-        mBccView.setValidator(mAddressValidator);
-
-        mSendButton.setOnClickListener(this);
-        mDiscardButton.setOnClickListener(this);
-        mSaveButton.setOnClickListener(this);
-
-        mSubjectView.setOnFocusChangeListener(this);
-        
         if (savedInstanceState != null) {
             /*
              * This data gets used in onCreate, so grab it here instead of onRestoreIntstanceState
@@ -400,7 +261,6 @@ public class MessageCompose extends Activity implements OnClickListener, OnFocus
 
         Intent intent = getIntent();
         final String action = intent.getAction();
-        mSourceMessage = null;
         
         // Handle the various intents that launch the message composer
         if (Intent.ACTION_VIEW.equals(action) 
@@ -412,7 +272,6 @@ public class MessageCompose extends Activity implements OnClickListener, OnFocus
                 // There are no accounts set up. This should not have happened. Prompt the
                 // user to set up an account as an acceptable bailout.
                 AccountFolderList.actionShowAccounts(this);
-                mDraftNeedsSaving = false;
                 finish();
                 return;
             } else {
@@ -439,16 +298,8 @@ public class MessageCompose extends Activity implements OnClickListener, OnFocus
              * want to reload the message every time the activity is resumed.
              * There is no harm in adding twice.
              */
-
             // TODO: signal the controller to load the message
-//             MessagingController.getInstance(getApplication()).addListener(mListener);
-//             MessagingController.getInstance(getApplication()).loadMessageForView(
-//                     mAccount,
-//                     mFolder,
-//                     mSourceMessageUid,
-//                     mListener);
         }
-
         updateTitle();
     }
 
@@ -500,7 +351,7 @@ public class MessageCompose extends Activity implements OnClickListener, OnFocus
         outState.putBoolean(STATE_KEY_QUOTED_TEXT_SHOWN,
                 mQuotedTextBar.getVisibility() == View.VISIBLE);
         outState.putBoolean(STATE_KEY_SOURCE_MESSAGE_PROCED, mSourceMessageProcessed);
-        outState.putString(STATE_KEY_DRAFT_UID, mDraftUid);
+        // outState.putString(STATE_KEY_DRAFT_UID, mDraftUid);
     }
 
     @Override
@@ -522,8 +373,128 @@ public class MessageCompose extends Activity implements OnClickListener, OnFocus
                 View.VISIBLE : View.GONE);
         mQuotedText.setVisibility(savedInstanceState.getBoolean(STATE_KEY_QUOTED_TEXT_SHOWN) ?
                 View.VISIBLE : View.GONE);
-        mDraftUid = savedInstanceState.getString(STATE_KEY_DRAFT_UID);
+        // mDraftUid = savedInstanceState.getString(STATE_KEY_DRAFT_UID);
         mDraftNeedsSaving = false;
+    }
+
+    private void initViews() {
+        mToView = (MultiAutoCompleteTextView)findViewById(R.id.to);
+        mCcView = (MultiAutoCompleteTextView)findViewById(R.id.cc);
+        mBccView = (MultiAutoCompleteTextView)findViewById(R.id.bcc);
+        mSubjectView = (EditText)findViewById(R.id.subject);
+        mMessageContentView = (EditText)findViewById(R.id.message_content);
+        mSendButton = (Button)findViewById(R.id.send);
+        mDiscardButton = (Button)findViewById(R.id.discard);
+        mSaveButton = (Button)findViewById(R.id.save);
+        mAttachments = (LinearLayout)findViewById(R.id.attachments);
+        mQuotedTextBar = findViewById(R.id.quoted_text_bar);
+        mQuotedTextDelete = (ImageButton)findViewById(R.id.quoted_text_delete);
+        mQuotedText = (WebView)findViewById(R.id.quoted_text);
+
+        TextWatcher watcher = new TextWatcher() {
+            public void beforeTextChanged(CharSequence s, int start,
+                                          int before, int after) { }
+
+            public void onTextChanged(CharSequence s, int start,
+                                          int before, int count) {
+                mDraftNeedsSaving = true;
+            }
+
+            public void afterTextChanged(android.text.Editable s) { }
+        };
+
+        /**
+         * Implements special address cleanup rules:
+         * The first space key entry following an "@" symbol that is followed by any combination
+         * of letters and symbols, including one+ dots and zero commas, should insert an extra
+         * comma (followed by the space).
+         */
+        InputFilter recipientFilter = new InputFilter() {
+
+            public CharSequence filter(CharSequence source, int start, int end, Spanned dest,
+                    int dstart, int dend) {
+
+                // quick check - did they enter a single space?
+                if (end-start != 1 || source.charAt(start) != ' ') {
+                    return null;
+                }
+
+                // determine if the characters before the new space fit the pattern
+                // follow backwards and see if we find a comma, dot, or @
+                int scanBack = dstart;
+                boolean dotFound = false;
+                while (scanBack > 0) {
+                    char c = dest.charAt(--scanBack);
+                    switch (c) {
+                        case '.':
+                            dotFound = true;    // one or more dots are req'd
+                            break;
+                        case ',':
+                            return null;
+                        case '@':
+                            if (!dotFound) {
+                                return null;
+                            }
+                            // we have found a comma-insert case.  now just do it
+                            // in the least expensive way we can.
+                            if (source instanceof Spanned) {
+                                SpannableStringBuilder sb = new SpannableStringBuilder(",");
+                                sb.append(source);
+                                return sb;
+                            } else {
+                                return ", ";
+                            }
+                        default:
+                            // just keep going
+                    }
+                }
+
+                // no termination cases were found, so don't edit the input
+                return null;
+            }
+        };
+        InputFilter[] recipientFilters = new InputFilter[] { recipientFilter };
+
+        mToView.addTextChangedListener(watcher);
+        mCcView.addTextChangedListener(watcher);
+        mBccView.addTextChangedListener(watcher);
+        mSubjectView.addTextChangedListener(watcher);
+        mMessageContentView.addTextChangedListener(watcher);
+
+        // NOTE: assumes no other filters are set
+        mToView.setFilters(recipientFilters);
+        mCcView.setFilters(recipientFilters);
+        mBccView.setFilters(recipientFilters);
+
+        /*
+         * We set this to invisible by default. Other methods will turn it back on if it's
+         * needed.
+         */
+        mQuotedTextBar.setVisibility(View.GONE);
+        mQuotedText.setVisibility(View.GONE);
+
+        mQuotedTextDelete.setOnClickListener(this);
+
+        EmailAddressAdapter addressAdapter = new EmailAddressAdapter(this);
+        EmailAddressValidator addressValidator = new EmailAddressValidator();
+
+        mToView.setAdapter(addressAdapter);
+        mToView.setTokenizer(new Rfc822Tokenizer());
+        mToView.setValidator(addressValidator);
+
+        mCcView.setAdapter(addressAdapter);
+        mCcView.setTokenizer(new Rfc822Tokenizer());
+        mCcView.setValidator(addressValidator);
+
+        mBccView.setAdapter(addressAdapter);
+        mBccView.setTokenizer(new Rfc822Tokenizer());
+        mBccView.setValidator(addressValidator);
+
+        mSendButton.setOnClickListener(this);
+        mDiscardButton.setOnClickListener(this);
+        mSaveButton.setOnClickListener(this);
+
+        mSubjectView.setOnFocusChangeListener(this);
     }
 
     // TODO: is there any way to unify this with MessageView.LoadMessageTask?
@@ -540,9 +511,19 @@ public class MessageCompose extends Activity implements OnClickListener, OnFocus
         protected void onPostExecute(Object[] messageAndAccount) {
             final Message message = (Message) messageAndAccount[0];
             final Account account = (Account) messageAndAccount[1];
-            mSourceMessage = message;
+            final String action = getIntent().getAction();
+            if (ACTION_EDIT_DRAFT.equals(action)) {
+                mDraft = message;
+            } else if (ACTION_REPLY.equals(action)
+                       || ACTION_REPLY_ALL.equals(action)
+                       || ACTION_FORWARD.equals(action)) {
+                mSource = message;
+            } else if (Email.LOGD) {
+                Email.log("Action " + action + " has unexpected EXTRA_MESSAGE_ID");
+            }
+
             mAccount = account;
-            processSourceMessage(message);
+            processSourceMessage(message, mAccount);
         }
     }
 
@@ -592,7 +573,10 @@ public class MessageCompose extends Activity implements OnClickListener, OnFocus
         return addresses;
     }
 
-    private String buildBodyText() {
+    /*
+     * Takes care to append source info and text in a REPLY or FORWARD situation.
+     */
+    private String buildBodyText(Message sourceMessage) {
         /*
          * Build the Body that will contain the text of the message. We'll decide where to
          * include it later.
@@ -600,9 +584,9 @@ public class MessageCompose extends Activity implements OnClickListener, OnFocus
         final String action = getIntent().getAction();
         String text = mMessageContentView.getText().toString();
 
-        if (mQuotedTextBar.getVisibility() == View.VISIBLE && mSourceMessage != null) {
-            String quotedText = mSourceMessage.mText;
-            String fromAsString = Address.unpackToString(mSourceMessage.mFrom);
+        if (mQuotedTextBar.getVisibility() == View.VISIBLE && sourceMessage != null) {
+            String quotedText = sourceMessage.mText;
+            String fromAsString = Address.unpackToString(sourceMessage.mFrom);
             if (ACTION_REPLY.equals(action) || ACTION_REPLY_ALL.equals(action)) {
                 text += String.format(getString(R.string.message_compose_reply_header_fmt),
                                       fromAsString);
@@ -610,14 +594,13 @@ public class MessageCompose extends Activity implements OnClickListener, OnFocus
                     text += quotedText.replaceAll("(?m)^", ">");
                 }
             } else if (ACTION_FORWARD.equals(action)) {
-                // mSourceMessage can be null during the unit-tests.
-                String subject = mSourceMessage.mSubject;
+                String subject = sourceMessage.mSubject;
                 text += String.format(
                         getString(R.string.message_compose_fwd_header_fmt),
                         subject,
                         fromAsString,
-                        Address.unpackToString(mSourceMessage.mTo),
-                        Address.unpackToString(mSourceMessage.mCc));
+                        Address.unpackToString(sourceMessage.mTo),
+                        Address.unpackToString(sourceMessage.mCc));
                 if (quotedText != null) {
                     text += quotedText;
                 }
@@ -634,30 +617,56 @@ public class MessageCompose extends Activity implements OnClickListener, OnFocus
         values.put(MessageColumns.CC_LIST, message.mCc);
         values.put(MessageColumns.BCC_LIST, message.mBcc);
         values.put(MessageColumns.SUBJECT, message.mSubject);
+        values.put(MessageColumns.DISPLAY_NAME, message.mDisplayName);
+        values.put(MessageColumns.FLAG_LOADED, message.mFlagLoaded);
         // TODO: write body and update TEXT_INFO
         return values;
     }
 
-    /**
-     * @param message The message to be updated. If it's null, a new message is created.
-     *
+    /*
+     * Computes a short string indicating the destination of the message based on To, Cc, Bcc.
+     * If only one address appears, returns the friendly form of that address.
+     * Otherwise returns the friendly form of the first address appended with "and N others".
      */
-    private Message updateMessage(Message message) {
-        if (message == null) {
-            message = new Message();
+    private String makeDisplayName(String packedTo, String packedCc, String packedBcc) {
+        Address first = null;
+        int nRecipients = 0;
+        for (String packed: new String[] {packedTo, packedCc, packedBcc}) {
+            Address[] addresses = Address.unpack(packed);
+            nRecipients += addresses.length;
+            if (first == null && addresses.length > 0) {
+                first = addresses[0];
+            }
         }
+        if (nRecipients == 0) {
+            return "";
+        }
+        String friendly = first.toFriendly();
+        if (nRecipients == 1) {
+            return friendly;
+        }
+        return this.getString(R.string.message_compose_display_name, friendly, nRecipients - 1);
+    }
+
+    /**
+     * @param message The message to be updated.
+     * @param account the account (used to obtain From: address).
+     * @param bodyText the body text.
+     */
+    private void updateMessage(Message message, Account account, String bodyText) {
         message.mTimeStamp = System.currentTimeMillis();
-        message.mFrom = new Address(mAccount.getEmailAddress(), mAccount.getSenderName()).pack();
+        message.mFrom = new Address(account.getEmailAddress(), account.getSenderName()).pack();
         message.mTo = getPackedAddresses(mToView);
         message.mCc = getPackedAddresses(mCcView);
         message.mBcc = getPackedAddresses(mBccView);
         message.mSubject = mSubjectView.getText().toString();
-        message.mText = buildBodyText();
-        message.mAccountKey = mAccount.mId;
-        // message.mFlagLoaded = Message.LOADED;
+        message.mText = bodyText;
+        message.mAccountKey = account.mId;
+        message.mDisplayName = makeDisplayName(message.mTo, message.mCc, message.mBcc);
+        message.mFlagLoaded = Message.LOADED;
         // TODO: add attachments (as below)
-        return message;
     }
+
 //         TextBody body = new TextBody(text);
 //         if (mAttachments.getChildCount() > 0) {
 //             /*
@@ -695,50 +704,54 @@ public class MessageCompose extends Activity implements OnClickListener, OnFocus
 //         }
 
     /**
-     * Send a message:
-     * save to Drafts and invoke Controller.sendMessage().
+     * Send or save a message:
+     * - out of the UI thread
+     * - write to Drafts
+     * - if send, invoke Controller.sendMessage()
+     * - when operation is complete, display toast
      */
-    private void sendMessage() {
-        Message message = saveMessage();
-        mController.sendMessage(message.mId, message.mAccountKey);
-    }
-
-    /**
-     * Save a draft
-     * @return the id of the saved message.
-     */
-    private Message saveMessage() {
-        final String action = getIntent().getAction();
-
-        Message message;
-        if (ACTION_EDIT_DRAFT.equals(action)) {
-            // The update doesn't modify the mailboxKey,
-            // so just keep the same mailbox which is already DRAFTS.
-            // TODO: move out of UI thread
-            message = updateMessage(mSourceMessage);
-            message.update(getApplication(), getUpdateContentValues(message));
-        } else {
-            message = updateMessage(null);
-            mController.saveToMailbox(message, EmailContent.Mailbox.TYPE_DRAFTS);
+    private void sendOrSaveMessage(final boolean send) {
+        if (mDraft == null) {
+            mDraft = new Message();
         }
-//             if (mDraftUid != null) {
-//                 message.setUid(mDraftUid);
-//             }
-//             else if (ACTION_EDIT_DRAFT.equals(getIntent().getAction())) {
-//                 /*
-//                  * We're saving a previously saved draft, so update the new message's uid
-//                  * to the old message's uid.
-//                  */
-//                 message.setUid(mSourceMessageUid);
-//             }
-//             MessagingController.getInstance(getApplication()).saveDraft(mAccount, message);
-//             mDraftUid = message.getUid();
 
-            // Don't display the toast if the user is just changing the orientation
-        if ((getChangingConfigurations() & ActivityInfo.CONFIG_ORIENTATION) == 0) {
-            mHandler.sendEmptyMessage(MSG_SAVED_DRAFT);
-        }
-        return message;
+        updateMessage(mDraft, mAccount, buildBodyText(mSource));
+
+        new AsyncTask<Void, Void, Void>() {
+            @Override
+            protected Void doInBackground(Void... params) {
+                final String action = getIntent().getAction();
+                if (mDraft.isSaved()) {
+                    mDraft.update(getApplication(), getUpdateContentValues(mDraft));
+                } else {
+                    // saveToMailbox() is synchronous (in this same thread)
+                    // so that mDraft.mId is set upon return 
+                    // (needed by the sendMessage() that happens afterwards).
+                    mController.saveToMailbox(mDraft, EmailContent.Mailbox.TYPE_DRAFTS);
+                }
+                return null;
+            }
+
+            @Override
+            protected void onPostExecute(Void dummy) {
+                if (send) {
+                    mController.sendMessage(mDraft.mId, mDraft.mAccountKey);
+                    // Decide whether we need to show a Toast with something like
+                    // "Message saved to Outbox for sending"
+                    // or whether just the dismissing of the composing activity is enough feedback
+
+                    // After a send it's no longer a draft; null it here just to be sure,
+                    // although MessageCompose should just finish() anyway.
+                    mDraft = null;
+                } else {
+                    // Don't display the toast if the user is just changing the orientation
+                    if ((getChangingConfigurations() & ActivityInfo.CONFIG_ORIENTATION) == 0) {
+                        Toast.makeText(MessageCompose.this, getString(R.string.message_saved_toast),
+                                       Toast.LENGTH_LONG).show();
+                    }
+                }
+            }
+        }.execute();
     }
 
     private void saveIfNeeded() {
@@ -746,7 +759,7 @@ public class MessageCompose extends Activity implements OnClickListener, OnFocus
             return;
         }
         mDraftNeedsSaving = false;
-        saveMessage();
+        sendOrSaveMessage(false);
     }
 
     /** 
@@ -774,15 +787,15 @@ public class MessageCompose extends Activity implements OnClickListener, OnFocus
             Toast.makeText(this, getString(R.string.message_compose_error_no_recipients),
                     Toast.LENGTH_LONG).show();
         } else {
-            sendMessage();
+            sendOrSaveMessage(true);
             mDraftNeedsSaving = false;
             finish();
         }
     }
 
     private void onDiscard() {
-        if (ACTION_EDIT_DRAFT.equals(getIntent().getAction()) && mSourceMessage != null) {
-            mController.deleteMessage(mSourceMessage.mId, mSourceMessage.mAccountKey);
+        if (mDraft != null) {
+            mController.deleteMessage(mDraft.mId, mDraft.mAccountKey);
         }
         mHandler.sendEmptyMessage(MSG_DISCARDED_DRAFT);
         mDraftNeedsSaving = false;
@@ -1112,9 +1125,7 @@ public class MessageCompose extends Activity implements OnClickListener, OnFocus
         return URLDecoder.decode(s, "UTF-8");
     }
 
-    /*
-     * This method de-dups code from processSourceMessage().
-     */
+    // used by processSourceMessage()
     private void displayQuotedText(Message message) {
         boolean plainTextFlag = message.mHtml == null;
         String text = plainTextFlag ? message.mText : message.mHtml;
@@ -1136,7 +1147,7 @@ public class MessageCompose extends Activity implements OnClickListener, OnFocus
      * @param message
      */
     /* package */
-    void processSourceMessage(Message message) {
+    void processSourceMessage(Message message, Account account) {
         final String action = getIntent().getAction();
         mDraftNeedsSaving = true;
         final String subject = message.mSubject;
@@ -1159,7 +1170,7 @@ public class MessageCompose extends Activity implements OnClickListener, OnFocus
 
             if (ACTION_REPLY_ALL.equals(action)) {
                 for (Address address : Address.unpack(message.mTo)) {
-                    if (!address.getAddress().equalsIgnoreCase(mAccount.mEmailAddress)) {
+                    if (!address.getAddress().equalsIgnoreCase(account.mEmailAddress)) {
                         addAddress(mToView, address.toString());
                     }
                 }

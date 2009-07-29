@@ -205,21 +205,16 @@ public class Controller {
 
     /**
      * Saves the message to a mailbox of given type.
+     * This is a synchronous operation taking place in the same thread as the caller.
+     * Upon return the message.mId is set.
      * @param message the message (must have the mAccountId set).
      * @param mailboxType the mailbox type (e.g. Mailbox.TYPE_DRAFTS).
-     * TODO: UI feedback.
-     * TODO: use AsyncTask instead of Thread
      */
     public void saveToMailbox(final EmailContent.Message message, final int mailboxType) {
-        new Thread() {
-            @Override
-            public void run() {
-                long accountId = message.mAccountKey;
-                long mailboxId = findOrCreateMailboxOfType(accountId, mailboxType);
-                message.mMailboxKey = mailboxId;
-                message.save(mContext);
-            }
-        }.start();
+        long accountId = message.mAccountKey;
+        long mailboxId = findOrCreateMailboxOfType(accountId, mailboxType);
+        message.mMailboxKey = mailboxId;
+        message.save(mContext);
     }
 
     /**

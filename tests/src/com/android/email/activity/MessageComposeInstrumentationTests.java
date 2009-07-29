@@ -151,7 +151,7 @@ public class MessageComposeInstrumentationTests
         
         runTestOnUiThread(new Runnable() {
             public void run() {
-                a.processSourceMessage(message);
+                a.processSourceMessage(message, null);
                 checkFields(SENDER + ", ", null, null, "Re: " + SUBJECT, null);
                 checkFocused(mMessageView);
             }
@@ -163,7 +163,7 @@ public class MessageComposeInstrumentationTests
         runTestOnUiThread(new Runnable() {
             public void run() {
                 resetViews();
-                a.processSourceMessage(message);
+                a.processSourceMessage(message, null);
                 checkFields(REPLYTO + ", ", null, null, "Re: " + SUBJECT, null);
                 checkFocused(mMessageView);
             }
@@ -182,7 +182,7 @@ public class MessageComposeInstrumentationTests
         
         runTestOnUiThread(new Runnable() {
             public void run() {
-                a.processSourceMessage(message);
+                a.processSourceMessage(message, null);
                 checkFields(UTF16_SENDER + ", ", null, null, "Re: " + UTF16_SUBJECT, null);
                 checkFocused(mMessageView);
             }
@@ -194,7 +194,7 @@ public class MessageComposeInstrumentationTests
         runTestOnUiThread(new Runnable() {
             public void run() {
                 resetViews();
-                a.processSourceMessage(message);
+                a.processSourceMessage(message, null);
                 checkFields(UTF16_REPLYTO + ", ", null, null, "Re: " + UTF16_SUBJECT, null);
                 checkFocused(mMessageView);
             }
@@ -213,7 +213,7 @@ public class MessageComposeInstrumentationTests
         
         runTestOnUiThread(new Runnable() {
             public void run() {
-                a.processSourceMessage(message);
+                a.processSourceMessage(message, null);
                 checkFields(UTF32_SENDER + ", ", null, null, "Re: " + UTF32_SUBJECT, null);
                 checkFocused(mMessageView);
             }
@@ -225,7 +225,7 @@ public class MessageComposeInstrumentationTests
         runTestOnUiThread(new Runnable() {
             public void run() {
                 resetViews();
-                a.processSourceMessage(message);
+                a.processSourceMessage(message, null);
                 checkFields(UTF32_REPLYTO + ", ", null, null, "Re: " + UTF32_SUBJECT, null);
                 checkFocused(mMessageView);
             }
@@ -246,7 +246,7 @@ public class MessageComposeInstrumentationTests
         
         runTestOnUiThread(new Runnable() {
             public void run() {
-                a.processSourceMessage(message);
+                a.processSourceMessage(message, null);
                 checkFields(null, null, null, "Fwd: " + SUBJECT, null);
                 checkFocused(mToView);
             }
@@ -271,7 +271,7 @@ public class MessageComposeInstrumentationTests
         
         runTestOnUiThread(new Runnable() {
             public void run() {
-                a.processSourceMessage(message);
+                a.processSourceMessage(message, null);
                 checkFields(RECIPIENT_TO + ", ", null, null, SUBJECT, BODY);
                 checkFocused(mMessageView);
             }
@@ -284,7 +284,7 @@ public class MessageComposeInstrumentationTests
         runTestOnUiThread(new Runnable() {
             public void run() {
                 resetViews();
-                a.processSourceMessage(message);
+                a.processSourceMessage(message, null);
                 checkFields(RECIPIENT_TO + ", ", null, null, null, BODY);
                 checkFocused(mSubjectView);
             }
@@ -306,7 +306,7 @@ public class MessageComposeInstrumentationTests
         
         runTestOnUiThread(new Runnable() {
             public void run() {
-                a.processSourceMessage(message);
+                a.processSourceMessage(message, null);
                 checkFields(UTF16_RECIPIENT_TO + ", ",
                         null, null, UTF16_SUBJECT, UTF16_BODY);
                 checkFocused(mMessageView);
@@ -320,7 +320,7 @@ public class MessageComposeInstrumentationTests
         runTestOnUiThread(new Runnable() {
             public void run() {
                 resetViews();
-                a.processSourceMessage(message);
+                a.processSourceMessage(message, null);
                 checkFields(UTF16_RECIPIENT_TO + ", ", null, null, null, UTF16_BODY);
                 checkFocused(mSubjectView);
             }
@@ -342,7 +342,7 @@ public class MessageComposeInstrumentationTests
         
         runTestOnUiThread(new Runnable() {
             public void run() {
-                a.processSourceMessage(message);
+                a.processSourceMessage(message, null);
                 checkFields(UTF32_RECIPIENT_TO + ", ",
                         null, null, UTF32_SUBJECT, UTF32_BODY);
                 checkFocused(mMessageView);
@@ -356,7 +356,7 @@ public class MessageComposeInstrumentationTests
         runTestOnUiThread(new Runnable() {
             public void run() {
                 resetViews();
-                a.processSourceMessage(message);
+                a.processSourceMessage(message, null);
                 checkFields(UTF32_RECIPIENT_TO + ", ", null, null, null, UTF32_BODY);
                 checkFocused(mSubjectView);
             }

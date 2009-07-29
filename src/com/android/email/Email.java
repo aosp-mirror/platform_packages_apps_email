@@ -237,10 +237,6 @@ public class Email extends Application {
      * The calls to log() must be guarded with "if (Email.LOGD)" for performance reasons.
      */
     public static void log(String message) {
-        if (!Email.LOGD) {
-            // somebody called log() without the guard.
-            throw new IllegalStateException("Must guard with \"if (Email.LOGD)\"");
-        }
         Log.d(LOG_TAG, message);
     }
 }
