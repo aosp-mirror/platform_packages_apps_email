@@ -45,9 +45,12 @@
     <string name="add_cc_bcc_action">"Přidat příjemce kopie/skryté kopie"</string>
     <string name="add_attachment_action">"Připojit přílohu"</string>
     <string name="dump_settings_action">"Nastavení výpisu"</string>
+    <string name="choose_attachment_dialog_title">"Výběr přílohy"</string>
     <string name="accounts_context_menu_title">"Možnosti účtu"</string>
     <string name="status_loading_more">"Načítání zpráv..."</string>
+    <string name="status_sending_messages">"Odesílání zpráv..."</string>
     <string name="status_network_error">"Chyba připojení"</string>
+    <string name="status_sending_messages_failed">"Nový pokus o odeslání zpráv"</string>
     <string name="status_loading_more_failed">"Opakovat načítání dalších zpráv"</string>
     <string name="notification_new_title">"Nový e-mail"</string>
   <plurals name="notification_new_one_account_fmt">
@@ -60,11 +63,16 @@
     <item quantity="other">"v(e) <xliff:g id="NUMBER_ACCOUNTS">%d</xliff:g> účtech"</item>
   </plurals>
     <string name="special_mailbox_name_inbox">"Doručená pošta"</string>
+    <string name="special_mailbox_display_name_outbox">"Pošta k odeslání"</string>
+    <string name="special_mailbox_display_name_drafts">"Koncepty"</string>
+    <string name="special_mailbox_display_name_trash">"Koš"</string>
+    <string name="special_mailbox_display_name_sent">"Odeslaná pošta"</string>
     <string name="accounts_welcome">"Vítá vás nastavení aplikace Email!"\n\n"V aplikaci Email můžete používat jakékoli e-mailové účty."\n\n"Nejznámější e-mailové účty lze nastavit ve dvou krocích!"</string>
     <string name="debug_version_fmt">"Verze: <xliff:g id="VERSION">%s</xliff:g>"</string>
     <string name="debug_enable_debug_logging_label">"Povolit zvláštní protokolování ladění?"</string>
     <string name="debug_enable_sensitive_logging_label">"Povolit protokolování ladění citlivých informací? (Může zobrazovat hesla v protokolech.)"</string>
     <string name="message_list_load_more_messages_action">"Načíst další zprávy"</string>
+    <string name="message_list_send_pending_messages_action">"Odeslat odchozí zprávy"</string>
     <string name="message_compose_to_hint">"Komu"</string>
     <string name="message_compose_cc_hint">"Kopie"</string>
     <string name="message_compose_bcc_hint">"Skrytá kopie"</string>
@@ -78,6 +86,7 @@
     <string name="message_compose_attachment_size">"Soubor nelze připojit, protože je příliš velký."</string>
     <string name="message_view_to_label">"Komu:"</string>
     <string name="message_view_cc_label">"Kopie:"</string>
+    <string name="message_view_bcc_label">"Skrytá kopie:"</string>
     <string name="message_view_attachment_view_action">"Otevřít"</string>
     <string name="message_view_attachment_download_action">"Uložit"</string>
     <string name="message_view_status_attachment_saved">"Příloha byla uložena na SD kartu jako <xliff:g id="FILENAME">%s</xliff:g>."</string>
@@ -85,6 +94,8 @@
     <string name="message_view_show_pictures_instructions">"Výběrem možnosti Zobrazit obrázky zobrazíte vnořené obrázky."</string>
     <string name="message_view_show_pictures_action">"Zobrazit obrázky"</string>
     <string name="message_view_fetching_attachment_toast">"Načítání přílohy"</string>
+    <string name="message_view_fetching_pictures_toast">"Načítání obrázků..."</string>
+    <string name="message_view_fetching_attachment_progress">"Načítání přílohy <xliff:g id="FILENAME">%s</xliff:g>"</string>
     <string name="message_deleted_toast">"Zpráva byla smazána."</string>
     <string name="message_discarded_toast">"Zpráva byla zrušena."</string>
     <string name="message_saved_toast">"Zpráva byla uložena jako koncept."</string>
@@ -110,6 +121,7 @@
     <string name="account_setup_account_type_instructions">"O jaký typ účtu se jedná?"</string>
     <string name="account_setup_account_type_pop_action">"Účet POP3"</string>
     <string name="account_setup_account_type_imap_action">"Účet IMAP"</string>
+    <string name="account_setup_account_type_exchange_action">"Exchange/ActiveSync"</string>
     <string name="account_setup_incoming_title">"Nastavení serveru příchozí pošty"</string>
     <string name="account_setup_incoming_username_label">"Uživatelské jméno"</string>
     <string name="account_setup_incoming_password_label">"Heslo"</string>
@@ -135,9 +147,15 @@
     <string name="account_setup_outgoing_require_login_label">"Požadovat přihlášení"</string>
     <string name="account_setup_outgoing_username_label">"Uživatelské jméno"</string>
     <string name="account_setup_outgoing_password_label">"Heslo"</string>
+    <string name="account_setup_exchange_title">"Nastavení serveru Exchange"</string>
+    <string name="account_setup_exchange_server_label">"Exchange Server"</string>
+    <string name="account_setup_exchange_domain_label">"Doména"</string>
+    <string name="account_setup_exchange_domain_hint">"Sem zadejte doménu"</string>
+    <string name="account_setup_exchange_ssl_label">"Použít zabezpečené připojení (SSL)"</string>
     <string name="account_setup_options_title">"Možnosti účtu"</string>
     <string name="account_setup_options_mail_check_frequency_label">"Četnost kontrol e-mailů"</string>
     <string name="account_setup_options_mail_check_frequency_never">"Nikdy"</string>
+    <string name="account_setup_options_mail_check_frequency_push">"Automaticky (v případě potřeby)"</string>
     <string name="account_setup_options_mail_check_frequency_5min">"Každých 5 minut"</string>
     <string name="account_setup_options_mail_check_frequency_10min">"Každých 10 minut"</string>
     <string name="account_setup_options_mail_check_frequency_15min">"Každých 15 minut"</string>
@@ -146,6 +164,13 @@
     <string name="account_setup_options_default_label">"Ve výchozím nastavení odesílat e-maily z tohoto účtu."</string>
     <string name="account_setup_options_notify_label">"Upozornit mě na příchozí e-mail"</string>
     <string name="account_setup_failed_dlg_title">"Nastavení nelze dokončit"</string>
+    <string name="account_setup_options_mail_window_label">"Množství k synchronizaci"</string>
+    <string name="account_setup_options_mail_window_1day">"Jeden den"</string>
+    <string name="account_setup_options_mail_window_3days">"Tři dny"</string>
+    <string name="account_setup_options_mail_window_1week">"Jeden týden"</string>
+    <string name="account_setup_options_mail_window_2weeks">"Dva týdny"</string>
+    <string name="account_setup_options_mail_window_1month">"Jeden měsíc"</string>
+    <string name="account_setup_options_mail_window_all">"Všechna pošta"</string>
     <string name="account_setup_failed_dlg_auth_message">"Uživatelské jméno nebo heslo není správné"</string>
     <string name="account_setup_failed_dlg_auth_message_fmt">"Uživatelské jméno nebo heslo není správné."\n"(<xliff:g id="ERROR">%s</xliff:g>)"</string>
     <string name="account_setup_failed_dlg_certificate_message">"Nelze se bezpečně připojit k serveru."</string>

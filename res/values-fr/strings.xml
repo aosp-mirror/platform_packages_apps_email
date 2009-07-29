@@ -42,12 +42,15 @@
     <string name="accounts_action">"Comptes"</string>
     <string name="mark_as_read_action">"Marquer comme lu"</string>
     <string name="mark_as_unread_action">"Marquer comme non lu"</string>
-    <string name="add_cc_bcc_action">"Ajouter les champs Cc/Cci"</string>
+    <string name="add_cc_bcc_action">"Ajouter Cc/CCi"</string>
     <string name="add_attachment_action">"Ajouter une pièce jointe"</string>
     <string name="dump_settings_action">"Paramètres d\'image mémoire"</string>
+    <string name="choose_attachment_dialog_title">"Choisir·une·pièce·jointe"</string>
     <string name="accounts_context_menu_title">"Options de compte"</string>
     <string name="status_loading_more">"Chargement des messages..."</string>
+    <string name="status_sending_messages">"Envoi des messages en cours"</string>
     <string name="status_network_error">"Erreur de connexion"</string>
+    <string name="status_sending_messages_failed">"Essayez de renvoyer les messages."</string>
     <string name="status_loading_more_failed">"Essayer de charger plus de messages"</string>
     <string name="notification_new_title">"Nouvel e-mail"</string>
   <plurals name="notification_new_one_account_fmt">
@@ -60,11 +63,16 @@
     <item quantity="other">"dans <xliff:g id="NUMBER_ACCOUNTS">%d</xliff:g> comptes"</item>
   </plurals>
     <string name="special_mailbox_name_inbox">"Boîte de réception"</string>
+    <string name="special_mailbox_display_name_outbox">"Boîte d\'envoi"</string>
+    <string name="special_mailbox_display_name_drafts">"Brouillons"</string>
+    <string name="special_mailbox_display_name_trash">"Corbeille"</string>
+    <string name="special_mailbox_display_name_sent">"Élément envoyé"</string>
     <string name="accounts_welcome">"Bienvenue dans le programme de configuration de votre messagerie électronique !"\n\n"Utilisez le compte de votre choix."\n\n"Les comptes de messagerie les plus courants peuvent être configurés en deux étapes !"</string>
     <string name="debug_version_fmt">"Version : <xliff:g id="VERSION">%s</xliff:g>"</string>
     <string name="debug_enable_debug_logging_label">"Activer la consignation supplémentaire des données de débogage ?"</string>
     <string name="debug_enable_sensitive_logging_label">"Activer la consignation des données de débogage pour les informations sensibles ? (Les mots de passe pourront s\'afficher dans les journaux.)"</string>
     <string name="message_list_load_more_messages_action">"Charger plus de messages"</string>
+    <string name="message_list_send_pending_messages_action">"Envoyer les messages sortants"</string>
     <string name="message_compose_to_hint">"À"</string>
     <string name="message_compose_cc_hint">"Cc"</string>
     <string name="message_compose_bcc_hint">"Cci"</string>
@@ -78,6 +86,7 @@
     <string name="message_compose_attachment_size">"Impossible de joindre le fichier, car il est trop volumineux."</string>
     <string name="message_view_to_label">"À :"</string>
     <string name="message_view_cc_label">"Cc :"</string>
+    <string name="message_view_bcc_label">"Cci :"</string>
     <string name="message_view_attachment_view_action">"Ouvrir"</string>
     <string name="message_view_attachment_download_action">"Enregistrer"</string>
     <string name="message_view_status_attachment_saved">"Pièce jointe enregistrée sur la carte SD sous le nom <xliff:g id="FILENAME">%s</xliff:g>."</string>
@@ -85,6 +94,8 @@
     <string name="message_view_show_pictures_instructions">"Sélectionnez \"Afficher les images\" pour afficher les images intégrées."</string>
     <string name="message_view_show_pictures_action">"Afficher les images"</string>
     <string name="message_view_fetching_attachment_toast">"Récupération de la pièce jointe."</string>
+    <string name="message_view_fetching_pictures_toast">"Récupération des images en cours…"</string>
+    <string name="message_view_fetching_attachment_progress">"Récupération de la pièce jointe <xliff:g id="FILENAME">%s</xliff:g>"</string>
     <string name="message_deleted_toast">"Message supprimé."</string>
     <string name="message_discarded_toast">"Message supprimé."</string>
     <string name="message_saved_toast">"Message enregistré comme brouillon."</string>
@@ -110,6 +121,7 @@
     <string name="account_setup_account_type_instructions">"De quel type de compte s\'agit-il ?"</string>
     <string name="account_setup_account_type_pop_action">"Compte POP3"</string>
     <string name="account_setup_account_type_imap_action">"Compte IMAP"</string>
+    <string name="account_setup_account_type_exchange_action">"Exchange/ActiveSync"</string>
     <string name="account_setup_incoming_title">"Paramètres de serveur entrant"</string>
     <string name="account_setup_incoming_username_label">"Nom d\'utilisateur"</string>
     <string name="account_setup_incoming_password_label">"Mot de passe"</string>
@@ -135,9 +147,15 @@
     <string name="account_setup_outgoing_require_login_label">"Connexion obligatoire."</string>
     <string name="account_setup_outgoing_username_label">"Nom d\'utilisateur"</string>
     <string name="account_setup_outgoing_password_label">"Mot de passe"</string>
+    <string name="account_setup_exchange_title">"Paramètres Exchange Server"</string>
+    <string name="account_setup_exchange_server_label">"Exchange Server"</string>
+    <string name="account_setup_exchange_domain_label">"Domaine"</string>
+    <string name="account_setup_exchange_domain_hint">"Saisir le nom de domaine ici"</string>
+    <string name="account_setup_exchange_ssl_label">"Utiliser une connexion sécurisée (SSL)"</string>
     <string name="account_setup_options_title">"Options de compte"</string>
     <string name="account_setup_options_mail_check_frequency_label">"Vérification des e-mails"</string>
     <string name="account_setup_options_mail_check_frequency_never">"Jamais"</string>
+    <string name="account_setup_options_mail_check_frequency_push">"Automatique (Push)"</string>
     <string name="account_setup_options_mail_check_frequency_5min">"Toutes les 5 minutes"</string>
     <string name="account_setup_options_mail_check_frequency_10min">"Toutes les 10 minutes"</string>
     <string name="account_setup_options_mail_check_frequency_15min">"Toutes les 15 minutes"</string>
@@ -146,6 +164,13 @@
     <string name="account_setup_options_default_label">"Par défaut, envoyer les e-mails avec ce compte"</string>
     <string name="account_setup_options_notify_label">"Afficher une notification lors de la réception d\'un e-mail"</string>
     <string name="account_setup_failed_dlg_title">"La configuration a échoué."</string>
+    <string name="account_setup_options_mail_window_label">"Nombre de messages à synchroniser"</string>
+    <string name="account_setup_options_mail_window_1day">"Un jour"</string>
+    <string name="account_setup_options_mail_window_3days">"Trois jours"</string>
+    <string name="account_setup_options_mail_window_1week">"Une semaine"</string>
+    <string name="account_setup_options_mail_window_2weeks">"Deux semaines"</string>
+    <string name="account_setup_options_mail_window_1month">"Un mois"</string>
+    <string name="account_setup_options_mail_window_all">"Tous les messages"</string>
     <string name="account_setup_failed_dlg_auth_message">"Nom d\'utilisateur ou mot de passe incorrect."</string>
     <string name="account_setup_failed_dlg_auth_message_fmt">"Nom d\'utilisateur ou mot de passe incorrect."\n"(<xliff:g id="ERROR">%s</xliff:g>)"</string>
     <string name="account_setup_failed_dlg_certificate_message">"Impossible d\'établir une connexion sécurisée avec le serveur."</string>

@@ -45,9 +45,12 @@
     <string name="add_cc_bcc_action">"Aggiungi Cc/Ccn"</string>
     <string name="add_attachment_action">"Aggiungi allegato"</string>
     <string name="dump_settings_action">"Scarica impostazioni"</string>
+    <string name="choose_attachment_dialog_title">"Scegli allegato"</string>
     <string name="accounts_context_menu_title">"Opzioni account"</string>
     <string name="status_loading_more">"Caricamento messaggi in corso..."</string>
+    <string name="status_sending_messages">"Invio messaggi..."</string>
     <string name="status_network_error">"Errore di connessione"</string>
+    <string name="status_sending_messages_failed">"Riprova a inviare i messaggi"</string>
     <string name="status_loading_more_failed">"Prova nuovamente a caricare altri messaggi"</string>
     <string name="notification_new_title">"Nuova email"</string>
   <plurals name="notification_new_one_account_fmt">
@@ -60,11 +63,16 @@
     <item quantity="other">"in <xliff:g id="NUMBER_ACCOUNTS">%d</xliff:g> account"</item>
   </plurals>
     <string name="special_mailbox_name_inbox">"Posta in arrivo"</string>
+    <string name="special_mailbox_display_name_outbox">"Posta in uscita"</string>
+    <string name="special_mailbox_display_name_drafts">"Bozze"</string>
+    <string name="special_mailbox_display_name_trash">"Cestino"</string>
+    <string name="special_mailbox_display_name_sent">"Inviati"</string>
     <string name="accounts_welcome">"Benvenuto in Impostazione email."\n\n"Usa qualunque account email con Email."\n\n"Puoi impostare gli account email più popolari in due semplici passaggi."</string>
     <string name="debug_version_fmt">"Versione: <xliff:g id="VERSION">%s</xliff:g>"</string>
     <string name="debug_enable_debug_logging_label">"Attivare la registrazione debug aggiuntiva?"</string>
     <string name="debug_enable_sensitive_logging_label">"Attivare la registrazione debug delle informazioni riservate? (Nei registri potrebbero essere visualizzate le password.)"</string>
     <string name="message_list_load_more_messages_action">"Carica ulteriori messaggi"</string>
+    <string name="message_list_send_pending_messages_action">"Invia messaggi in uscita"</string>
     <string name="message_compose_to_hint">"A"</string>
     <string name="message_compose_cc_hint">"Cc"</string>
     <string name="message_compose_bcc_hint">"Ccn"</string>
@@ -78,6 +86,7 @@
     <string name="message_compose_attachment_size">"File troppo grande. Impossibile allegarlo."</string>
     <string name="message_view_to_label">"A:"</string>
     <string name="message_view_cc_label">"Cc:"</string>
+    <string name="message_view_bcc_label">"Ccn:"</string>
     <string name="message_view_attachment_view_action">"Apri"</string>
     <string name="message_view_attachment_download_action">"Salva"</string>
     <string name="message_view_status_attachment_saved">"Allegato salvato su scheda SD come <xliff:g id="FILENAME">%s</xliff:g>."</string>
@@ -85,6 +94,8 @@
     <string name="message_view_show_pictures_instructions">"Seleziona \"Mostra immagini\" per visualizzare le immagini incorporate."</string>
     <string name="message_view_show_pictures_action">"Mostra immagini"</string>
     <string name="message_view_fetching_attachment_toast">"Recupero allegato in corso."</string>
+    <string name="message_view_fetching_pictures_toast">"Recupero immagini…"</string>
+    <string name="message_view_fetching_attachment_progress">"Recupero allegato <xliff:g id="FILENAME">%s</xliff:g>"</string>
     <string name="message_deleted_toast">"Messaggio eliminato."</string>
     <string name="message_discarded_toast">"Messaggio eliminato."</string>
     <string name="message_saved_toast">"Messaggio salvato come bozza."</string>
@@ -110,6 +121,7 @@
     <string name="account_setup_account_type_instructions">"Di quale tipo di account si tratta?"</string>
     <string name="account_setup_account_type_pop_action">"Account POP3"</string>
     <string name="account_setup_account_type_imap_action">"Account IMAP"</string>
+    <string name="account_setup_account_type_exchange_action">"Exchange/ActiveSync"</string>
     <string name="account_setup_incoming_title">"Impostazioni server della Posta in arrivo"</string>
     <string name="account_setup_incoming_username_label">"Nome utente"</string>
     <string name="account_setup_incoming_password_label">"Password"</string>
@@ -135,9 +147,15 @@
     <string name="account_setup_outgoing_require_login_label">"Richiedi accesso"</string>
     <string name="account_setup_outgoing_username_label">"Nome utente"</string>
     <string name="account_setup_outgoing_password_label">"Password"</string>
+    <string name="account_setup_exchange_title">"Impostazioni Server Exchange"</string>
+    <string name="account_setup_exchange_server_label">"Server Exchange"</string>
+    <string name="account_setup_exchange_domain_label">"Dominio"</string>
+    <string name="account_setup_exchange_domain_hint">"Inserisci dominio qui"</string>
+    <string name="account_setup_exchange_ssl_label">"Utilizza connessione sicura (SSL)"</string>
     <string name="account_setup_options_title">"Opzioni account"</string>
     <string name="account_setup_options_mail_check_frequency_label">"Frequenza di controllo email"</string>
     <string name="account_setup_options_mail_check_frequency_never">"Mai"</string>
+    <string name="account_setup_options_mail_check_frequency_push">"Automatico (push)"</string>
     <string name="account_setup_options_mail_check_frequency_5min">"Ogni 5 minuti"</string>
     <string name="account_setup_options_mail_check_frequency_10min">"Ogni 10 minuti"</string>
     <string name="account_setup_options_mail_check_frequency_15min">"Ogni 15 minuti"</string>
@@ -146,6 +164,13 @@
     <string name="account_setup_options_default_label">"Invia email da questo account per impostazione predefinita."</string>
     <string name="account_setup_options_notify_label">"Avvisami all\'arrivo di email."</string>
     <string name="account_setup_failed_dlg_title">"Impossibile completare l\'impostazione"</string>
+    <string name="account_setup_options_mail_window_label">"Quantità da sincronizzare"</string>
+    <string name="account_setup_options_mail_window_1day">"Un giorno"</string>
+    <string name="account_setup_options_mail_window_3days">"Tre giorni"</string>
+    <string name="account_setup_options_mail_window_1week">"Una settimana"</string>
+    <string name="account_setup_options_mail_window_2weeks">"Due settimane"</string>
+    <string name="account_setup_options_mail_window_1month">"Un mese"</string>
+    <string name="account_setup_options_mail_window_all">"Tutta la posta"</string>
     <string name="account_setup_failed_dlg_auth_message">"Nome utente o password errata."</string>
     <string name="account_setup_failed_dlg_auth_message_fmt">"Nome utente o password errata."\n"(<xliff:g id="ERROR">%s</xliff:g>)"</string>
     <string name="account_setup_failed_dlg_certificate_message">"Impossibile connettersi in modo sicuro al server."</string>
