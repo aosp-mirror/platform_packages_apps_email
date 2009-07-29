@@ -26,15 +26,16 @@ interface IEmailService {
     void startSync(long mailboxId);
     void stopSync(long mailboxId);
 
-    void loadMore(long messageId, IEmailServiceCallback cb);
-    void loadAttachment(long attachmentId, String destinationFile, String contentUriString,
-            IEmailServiceCallback cb);
+    void loadMore(long messageId);
+    void loadAttachment(long attachmentId, String destinationFile, String contentUriString);
 
     void updateFolderList(long accountId);
 
     boolean createFolder(long accountId, String name);
     boolean deleteFolder(long accountId, String name);
     boolean renameFolder(long accountId, String oldName, String newName);
+
+    void setCallback(IEmailServiceCallback cb);
 
     void setLogging(boolean on);
 }

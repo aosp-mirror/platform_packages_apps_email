@@ -19,10 +19,6 @@ package com.android.exchange;
 
 import com.android.email.provider.EmailContent.Attachment;
 
-import android.os.IBinder;
-import android.os.RemoteException;
-import android.util.Log;
-
 /**
  * PartRequest is the EAS wrapper for attachment loading requests.  In addition to information about
  * the attachment to be loaded, it also contains the callback to be used for status/progress
@@ -35,40 +31,17 @@ public class PartRequest {
     public String destination;
     public String contentUriString;
     public String loc;
-    public IEmailServiceCallback callback;
-
-    static IEmailServiceCallback sCallback = new IEmailServiceCallback () {
-
-        /* (non-Javadoc)
-         * @see com.android.exchange.IEmailServiceCallback#status(int, int)
-         */
-        public void status(long messageId, long attachmentId, int statusCode, int progress)
-                throws RemoteException {
-            // This is a placeholder, so that all PartRequests have a callback (prevents a lot of
-            // useless checking in the sync service).  When debugging, logs the status and progress
-            // of the download.
-            if (Eas.TEST_DEBUG) {
-                Log.d("PartRequestStatus", "Message " + messageId + ", Attachment " + attachmentId
-                        + ", Code " + statusCode + ", progress " + progress);
-            }
-        }
-
-        public IBinder asBinder() { return null; }
-    };
 
     public PartRequest(Attachment _att) {
         timeStamp = System.currentTimeMillis();
         emailId = _att.mMessageKey;
         att = _att;
         loc = att.mLocation;
-        callback = sCallback;
     }
 
-    public PartRequest(Attachment _att, String _destination, String _contentUriString,
-            IEmailServiceCallback _callback) {
+    public PartRequest(Attachment _att, String _destination, String _contentUriString) {
         this(_att);
         destination = _destination;
         contentUriString = _contentUriString;
-        callback = _callback;
     }
 }

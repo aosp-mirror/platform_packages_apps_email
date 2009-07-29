@@ -215,19 +215,24 @@ public class EasSyncService extends InteractiveSyncService {
         return uc;
     }
 
-    private void doStatusCallback(IEmailServiceCallback callback, long messageId,
-            long attachmentId, int status) {
+    private void doStatusCallback(long messageId, long attachmentId, int status) {
         try {
-            callback.status(messageId, attachmentId, status, 0);
+            IEmailServiceCallback cb = SyncManager.getCallback();
+            if (cb != null) {
+                cb.loadAttachmentStatus(messageId, attachmentId, status, 0);
+            }
         } catch (RemoteException e2) {
             // No danger if the client is no longer around
         }
     }
 
-    private void doProgressCallback(IEmailServiceCallback callback, long messageId,
-            long attachmentId, int progress) {
+    private void doProgressCallback(long messageId, long attachmentId, int progress) {
         try {
-            callback.status(messageId, attachmentId, EmailServiceStatus.IN_PROGRESS, progress);
+            IEmailServiceCallback cb = SyncManager.getCallback();
+            if (cb != null) {
+                cb.loadAttachmentStatus(messageId, attachmentId, EmailServiceStatus.IN_PROGRESS,
+                        progress);
+            }
         } catch (RemoteException e2) {
             // No danger if the client is no longer around
         }
@@ -271,10 +276,9 @@ public class EasSyncService extends InteractiveSyncService {
      * @throws IOException
      */
     protected void getAttachment(PartRequest req) throws IOException {
-        IEmailServiceCallback callback = req.callback;
         Attachment att = req.att;
         Message msg = Message.restoreMessageWithId(mContext, att.mMessageKey);
-        doProgressCallback(callback, msg.mId, att.mId, 0);
+        doProgressCallback(msg.mId, att.mId, 0);
         DefaultHttpClient client = new DefaultHttpClient();
         String us = makeUriString("GetAttachment", "&AttachmentName=" + att.mLocation);
         HttpPost method = new HttpPost(URI.create(us));
@@ -312,7 +316,7 @@ public class EasSyncService extends InteractiveSyncService {
                             os.write(bytes, 0, read);
                             len -= read;
                             int pct = ((length - len) * 100 / length);
-                            doProgressCallback(callback, msg.mId, att.mId, pct);
+                            doProgressCallback(msg.mId, att.mId, pct);
                         }
                     } finally {
                         mPendingPartRequest = null;
@@ -331,11 +335,11 @@ public class EasSyncService extends InteractiveSyncService {
                     cv.put(AttachmentColumns.CONTENT_URI, contentUriString);
                     cv.put(AttachmentColumns.MIME_TYPE, type);
                     att.update(mContext, cv);
-                    doStatusCallback(callback, msg.mId, att.mId, EmailServiceStatus.SUCCESS);
+                    doStatusCallback(msg.mId, att.mId, EmailServiceStatus.SUCCESS);
                 }
             }
         } else {
-            doStatusCallback(callback, msg.mId, att.mId, EmailServiceStatus.MESSAGE_NOT_FOUND);
+            doStatusCallback(msg.mId, att.mId, EmailServiceStatus.MESSAGE_NOT_FOUND);
         }
     }
 

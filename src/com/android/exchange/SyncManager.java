@@ -48,6 +48,7 @@ import android.os.Bundle;
 import android.os.Handler;
 import android.os.IBinder;
 import android.os.PowerManager;
+import android.os.RemoteCallbackList;
 import android.os.RemoteException;
 import android.os.PowerManager.WakeLock;
 import android.util.Log;
@@ -89,7 +90,11 @@ public class SyncManager extends Service implements Runnable {
     SyncedMessageObserver mSyncedMessageObserver;
     MessageObserver mMessageObserver;
     String mNextWaitReason;
-
+    IEmailServiceCallback mCallback;
+    
+    RemoteCallbackList<IEmailServiceCallback> mCallbackList =
+        new RemoteCallbackList<IEmailServiceCallback>();
+    
     static private HashMap<Long, Boolean> mWakeLocks = new HashMap<Long, Boolean>();
     static private HashMap<Long, PendingIntent> mPendingIntents =
         new HashMap<Long, PendingIntent>();
@@ -122,9 +127,9 @@ public class SyncManager extends Service implements Runnable {
         }
 
         public void loadAttachment(long attachmentId, String destinationFile,
-                String contentUriString, IEmailServiceCallback cb) throws RemoteException {
+                String contentUriString) throws RemoteException {
             Attachment att = Attachment.restoreAttachmentWithId(SyncManager.this, attachmentId);
-            partRequest(new PartRequest(att, destinationFile, contentUriString, cb));
+            partRequest(new PartRequest(att, destinationFile, contentUriString));
         }
 
         public void updateFolderList(long accountId) throws RemoteException {
@@ -151,7 +156,7 @@ public class SyncManager extends Service implements Runnable {
             Eas.USER_DEBUG = on;
         }
 
-        public void loadMore(long messageId, IEmailServiceCallback cb) throws RemoteException {
+        public void loadMore(long messageId) throws RemoteException {
             // TODO Auto-generated method stub
         }
 
@@ -169,6 +174,13 @@ public class SyncManager extends Service implements Runnable {
             return false;
         }
 
+        public void setCallback(IEmailServiceCallback cb) throws RemoteException {
+            if (mCallback != null) {
+                mCallbackList.unregister(mCallback);
+            }
+            mCallback = cb;
+            mCallbackList.register(cb);
+        }
     };
 
     class AccountObserver extends ContentObserver {
@@ -356,6 +368,13 @@ public class SyncManager extends Service implements Runnable {
         }
     }
 
+    static public IEmailServiceCallback getCallback() {
+        if (INSTANCE != null) {
+            return INSTANCE.mCallback;
+        }
+        return null;
+    }
+    
     public class SyncStatus {
         static public final int NOT_RUNNING = 0;
         static public final int DIED = 1;

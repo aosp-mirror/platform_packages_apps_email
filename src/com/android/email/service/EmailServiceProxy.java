@@ -49,6 +49,7 @@ public class EmailServiceProxy implements IEmailService {
 
     private Context mContext;
     private Class<?> mClass;
+    private IEmailServiceCallback mCallback;
     private Runnable mRunnable;
     private ServiceConnection mSyncManagerConnection = new EmailServiceConnection ();
     private IEmailService mService = null;
@@ -59,6 +60,12 @@ public class EmailServiceProxy implements IEmailService {
     public EmailServiceProxy(Context _context, Class<?> _class) {
         mContext = _context;
         mClass = _class;
+    }
+
+    public EmailServiceProxy(Context _context, Class<?> _class, IEmailServiceCallback _callback) {
+        mContext = _context;
+        mClass = _class;
+        mCallback = _callback;
     }
 
     class EmailServiceConnection implements ServiceConnection {
@@ -129,11 +136,12 @@ public class EmailServiceProxy implements IEmailService {
     }
 
     public void loadAttachment(final long attachmentId, final String destinationFile,
-            final String contentUriString, final IEmailServiceCallback cb) throws RemoteException {
+            final String contentUriString) throws RemoteException {
         setTask(new Runnable () {
             public void run() {
                 try {
-                    mService.loadAttachment(attachmentId, destinationFile, contentUriString, cb);
+                    if (mCallback != null) mService.setCallback(mCallback);
+                    mService.loadAttachment(attachmentId, destinationFile, contentUriString);
                 } catch (RemoteException e) {
                 }
             }
@@ -144,6 +152,7 @@ public class EmailServiceProxy implements IEmailService {
         setTask(new Runnable () {
             public void run() {
                 try {
+                    if (mCallback != null) mService.setCallback(mCallback);
                     mService.startSync(mailboxId);
                 } catch (RemoteException e) {
                 }
@@ -155,6 +164,7 @@ public class EmailServiceProxy implements IEmailService {
         setTask(new Runnable () {
             public void run() {
                 try {
+                    if (mCallback != null) mService.setCallback(mCallback);
                     mService.stopSync(mailboxId);
                 } catch (RemoteException e) {
                 }
@@ -167,6 +177,7 @@ public class EmailServiceProxy implements IEmailService {
         setTask(new Runnable () {
             public void run() {
                 try {
+                    if (mCallback != null) mService.setCallback(mCallback);
                     mReturn = mService.validate(protocol, host, userName, password, port, ssl);
                 } catch (RemoteException e) {
                 }
@@ -185,6 +196,7 @@ public class EmailServiceProxy implements IEmailService {
         setTask(new Runnable () {
             public void run() {
                 try {
+                    if (mCallback != null) mService.setCallback(mCallback);
                     mService.updateFolderList(accountId);
                 } catch (RemoteException e) {
                 }
@@ -196,15 +208,27 @@ public class EmailServiceProxy implements IEmailService {
         setTask(new Runnable () {
             public void run() {
                 try {
+                    if (mCallback != null) mService.setCallback(mCallback);
                     mService.setLogging(on);
                 } catch (RemoteException e) {
                 }
             }
         });
-
     }
 
-    public void loadMore(long messageId, IEmailServiceCallback cb) throws RemoteException {
+    public void setCallback(final IEmailServiceCallback cb) throws RemoteException {
+        setTask(new Runnable () {
+            public void run() {
+                try {
+                    if (mCallback != null) mService.setCallback(mCallback);
+                   mService.setCallback(cb);
+                } catch (RemoteException e) {
+                }
+            }
+        });
+    }
+
+    public void loadMore(long messageId) throws RemoteException {
         // TODO Auto-generated method stub
     }
 
@@ -221,8 +245,7 @@ public class EmailServiceProxy implements IEmailService {
         return false;
     }
 
-   public IBinder asBinder() {
+    public IBinder asBinder() {
         return null;
     }
-
 }

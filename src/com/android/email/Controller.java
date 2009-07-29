@@ -430,8 +430,7 @@ public class Controller {
             // Service implementation
             try {
                 service.loadAttachment(attachInfo.mId, saveToFile.getAbsolutePath(),
-                        AttachmentProvider.getAttachmentUri(accountId, attachmentId).toString(),
-                        new LoadAttachmentCallback(callback, tag));
+                        AttachmentProvider.getAttachmentUri(accountId, attachmentId).toString());
             } catch (RemoteException e) {
                 // TODO Change exception handling to be consistent with however this method
                 // is implemented for other protocols
@@ -628,6 +627,30 @@ public class Controller {
                     mCallback = null;
                 }
             }
+        }
+
+        public void loadAttachmentStatus(long messageId, long attachmentId, int statusCode,
+                int progress) throws RemoteException {
+            // TODO Auto-generated method stub
+            
+        }
+
+        public void sendMessageStatus(long messageId, int statusCode, int progress)
+                throws RemoteException {
+            // TODO Auto-generated method stub
+            
+        }
+
+        public void syncMailboxListStatus(long accountId, int statusCode, int progress)
+                throws RemoteException {
+            // TODO Auto-generated method stub
+            
+        }
+
+        public void syncMailboxStatus(long mailboxId, int statusCode, int progress)
+                throws RemoteException {
+            // TODO Auto-generated method stub
+            
         }
     }
 }
