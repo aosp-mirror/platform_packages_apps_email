@@ -30,7 +30,6 @@ import android.app.ListActivity;
 import android.content.ContentUris;
 import android.content.Context;
 import android.content.Intent;
-import android.content.res.Resources;
 import android.database.Cursor;
 import android.net.Uri;
 import android.os.AsyncTask;
@@ -400,9 +399,6 @@ public class MailboxList extends ListActivity implements OnItemClickListener, On
             super(context, null);
             mContext = context;
             mInflater = (LayoutInflater)context.getSystemService(Context.LAYOUT_INFLATER_SERVICE);
-
-            Resources resources = context.getResources();
-            // TODO get mailbox typename strings here
         }
 
         @Override

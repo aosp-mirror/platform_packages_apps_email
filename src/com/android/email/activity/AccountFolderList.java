@@ -53,7 +53,9 @@ import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
+import android.view.Window;
 import android.view.ContextMenu.ContextMenuInfo;
+import android.view.View.OnClickListener;
 import android.widget.AdapterView;
 import android.widget.CursorTreeAdapter;
 import android.widget.ExpandableListView;
@@ -61,7 +63,7 @@ import android.widget.TextView;
 import android.widget.Toast;
 import android.widget.ExpandableListView.ExpandableListContextMenuInfo;
 
-public class AccountFolderList extends ExpandableListActivity {
+public class AccountFolderList extends ExpandableListActivity implements OnClickListener {
     private static final int DIALOG_REMOVE_ACCOUNT = 1;
     /**
      * Key codes used to open a debug settings screen.
@@ -78,6 +80,9 @@ public class AccountFolderList extends ExpandableListActivity {
     private EmailContent.Account mSelectedContextAccount;
 
     ExpandableListView mListView;
+    private View mRefreshButton;
+    private View mProgress;
+
     AccountsAdapter mListAdapter;
 
     LoadAccountsTask mLoadAccountsTask;
@@ -133,6 +138,9 @@ public class AccountFolderList extends ExpandableListActivity {
     @Override
     public void onCreate(Bundle icicle) {
         super.onCreate(icicle);
+
+        requestWindowFeature(Window.FEATURE_NO_TITLE);
+
         setContentView(R.layout.account_folder_list);
         mListView = getExpandableListView();
         mListView.setItemsCanFocus(false);
@@ -143,6 +151,16 @@ public class AccountFolderList extends ExpandableListActivity {
         if (icicle != null && icicle.containsKey(ICICLE_SELECTED_ACCOUNT)) {
             mSelectedContextAccount = (Account) icicle.getParcelable(ICICLE_SELECTED_ACCOUNT);
         }
+
+        // Set up fat title bar elements
+        findViewById(R.id.chip).setVisibility(View.GONE);
+        findViewById(R.id.button_compose).setOnClickListener(this);
+        mRefreshButton = findViewById(R.id.button_refresh);
+        mRefreshButton.setOnClickListener(this);
+        ((TextView) findViewById(R.id.account_name)).setText(R.string.accounts_title);
+        findViewById(R.id.account_status).setVisibility(View.GONE);
+        mProgress = findViewById(R.id.progress);
+        mProgress.setVisibility(View.GONE);
 
         setupSummaryCursors();
 
@@ -193,6 +211,17 @@ public class AccountFolderList extends ExpandableListActivity {
                 mLoadAccountsTask.getStatus() != LoadAccountsTask.Status.FINISHED) {
             mLoadAccountsTask.cancel(true);
             mLoadAccountsTask = null;
+        }
+    }
+
+    public void onClick(View v) {
+        switch (v.getId()) {
+            case R.id.button_compose:
+                onCompose();
+                break;
+            case R.id.button_refresh:
+                onRefresh(-1);
+                break;
         }
     }
 
@@ -500,6 +529,7 @@ public class AccountFolderList extends ExpandableListActivity {
         } else {
             EmailContent.Account account =
                     EmailContent.Account.restoreAccountWithId(this, accountId);
+            mHandler.progress(true);
             Controller.getInstance(getApplication()).updateMailboxList(
                     account, mControllerCallback);
         }
@@ -679,7 +709,14 @@ public class AccountFolderList extends ExpandableListActivity {
         public void handleMessage(android.os.Message msg) {
             switch (msg.what) {
                 case MSG_PROGRESS:
-                    setProgressBarIndeterminateVisibility(msg.arg1 != 0);
+                    boolean showProgress = (msg.arg1 != 0);
+                    if (showProgress) {
+                        mRefreshButton.setVisibility(View.GONE);
+                        mProgress.setVisibility(View.VISIBLE);
+                    } else {
+                        mRefreshButton.setVisibility(View.VISIBLE);
+                        mProgress.setVisibility(View.GONE);
+                    }
                     break;
                 default:
                     super.handleMessage(msg);

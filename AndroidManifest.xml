@@ -103,7 +103,6 @@
         </activity>
         <activity
             android:name=".activity.AccountFolderList"
-            android:label="@string/accounts_title"
             android:launchMode="singleTop" >
         </activity>
         
