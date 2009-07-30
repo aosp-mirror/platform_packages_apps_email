@@ -61,7 +61,9 @@ public class EmailProvider extends ContentProvider {
     // version 16: added protocolVersion column to Account
     // version 17: prevent duplication of mailboxes with the same serverId
     // version 18: renamed syncFrequency to syncInterval for Account and Mailbox
-    public static final int DATABASE_VERSION = 18;
+    // version 19: added triggers to keep track of unreadCount by Mailbox
+
+    public static final int DATABASE_VERSION = 19;
     public static final int BODY_DATABASE_VERSION = 1;
 
     public static final String EMAIL_AUTHORITY = "com.android.email.provider";
@@ -157,7 +159,7 @@ public class EmailProvider extends ContentProvider {
         // All accounts
         matcher.addURI(EMAIL_AUTHORITY, "account", ACCOUNT);
         // A specific account
-        // insert into this URI causes a mailbox to be added to the account 
+        // insert into this URI causes a mailbox to be added to the account
         matcher.addURI(EMAIL_AUTHORITY, "account/#", ACCOUNT_ID);
         // The mailboxes in a specific account
         matcher.addURI(EMAIL_AUTHORITY, "account/#/mailbox", ACCOUNT_MAILBOXES);
@@ -174,7 +176,7 @@ public class EmailProvider extends ContentProvider {
         // All messages
         matcher.addURI(EMAIL_AUTHORITY, "message", MESSAGE);
         // A specific message
-        // insert into this URI causes an attachment to be added to the message 
+        // insert into this URI causes an attachment to be added to the message
         matcher.addURI(EMAIL_AUTHORITY, "message/#", MESSAGE_ID);
 
         // A specific attachment
@@ -282,25 +284,65 @@ public class EmailProvider extends ContentProvider {
         db.execSQL("create table " + Message.DELETED_TABLE_NAME + altCreateString);
 
         // For now, indices only on the Message table
-        db.execSQL("create index message_" + MessageColumns.TIMESTAMP 
+        db.execSQL("create index message_" + MessageColumns.TIMESTAMP
                 + " on " + Message.TABLE_NAME + " (" + MessageColumns.TIMESTAMP + ");");
-        db.execSQL("create index message_" + MessageColumns.FLAG_READ 
+        db.execSQL("create index message_" + MessageColumns.FLAG_READ
                 + " on " + Message.TABLE_NAME + " (" + MessageColumns.FLAG_READ + ");");
-        db.execSQL("create index message_" + MessageColumns.FLAG_LOADED 
+        db.execSQL("create index message_" + MessageColumns.FLAG_LOADED
                 + " on " + Message.TABLE_NAME + " (" + MessageColumns.FLAG_LOADED + ");");
-        db.execSQL("create index message_" + MessageColumns.MAILBOX_KEY 
+        db.execSQL("create index message_" + MessageColumns.MAILBOX_KEY
                 + " on " + Message.TABLE_NAME + " (" + MessageColumns.MAILBOX_KEY + ");");
-        db.execSQL("create index message_" + SyncColumns.SERVER_ID 
+        db.execSQL("create index message_" + SyncColumns.SERVER_ID
                 + " on " + Message.TABLE_NAME + " (" + SyncColumns.SERVER_ID + ");");
 
         // Deleting a Message deletes all associated Attachments
         // Deleting the associated Body cannot be done in a trigger, because the Body is stored
         // in a separate database, and trigger cannot operate on attached databases.
-        db.execSQL("create trigger message_delete before delete on " + Message.TABLE_NAME + 
+        db.execSQL("create trigger message_delete before delete on " + Message.TABLE_NAME +
                 " begin delete from " + Attachment.TABLE_NAME +
-                "  where " + AttachmentColumns.MESSAGE_KEY + "=old." + EmailContent.RECORD_ID + 
-        "; end");
-    }
+                "  where " + AttachmentColumns.MESSAGE_KEY + "=old." + EmailContent.RECORD_ID +
+                "; end");
+
+        // Add triggers to keep unread count accurate per mailbox
+
+        // Insert a message; if flagRead is zero, add to the unread count of the message's mailbox
+        db.execSQL("create trigger unread_message_insert before insert on " + Message.TABLE_NAME +
+                " when NEW." + MessageColumns.FLAG_READ + "=0" +
+                " begin update " + Mailbox.TABLE_NAME + " set " + MailboxColumns.UNREAD_COUNT +
+                '=' + MailboxColumns.UNREAD_COUNT + "+1" +
+                "  where " + EmailContent.RECORD_ID + "=NEW." + MessageColumns.MAILBOX_KEY +
+                "; end");
+
+        // Delete a message; if flagRead is zero, decrement the unread count of the msg's mailbox
+        db.execSQL("create trigger unread_message_delete before delete on " + Message.TABLE_NAME +
+                " when OLD." + MessageColumns.FLAG_READ + "=0" +
+                " begin update " + Mailbox.TABLE_NAME + " set " + MailboxColumns.UNREAD_COUNT +
+                '=' + MailboxColumns.UNREAD_COUNT + "-1" +
+                "  where " + EmailContent.RECORD_ID + "=OLD." + MessageColumns.MAILBOX_KEY +
+                "; end");
+
+        // Change a message's mailbox
+        db.execSQL("create trigger unread_message_move before update of " +
+                MessageColumns.MAILBOX_KEY + " on " + Message.TABLE_NAME +
+                " when OLD." + MessageColumns.FLAG_READ + "=0" +
+                " begin update " + Mailbox.TABLE_NAME + " set " + MailboxColumns.UNREAD_COUNT +
+                '=' + MailboxColumns.UNREAD_COUNT + "-1" +
+                "  where " + EmailContent.RECORD_ID + "=OLD." + MessageColumns.MAILBOX_KEY +
+                "; update " + Mailbox.TABLE_NAME + " set " + MailboxColumns.UNREAD_COUNT +
+                '=' + MailboxColumns.UNREAD_COUNT + "+1" +
+                " where " + EmailContent.RECORD_ID + "=NEW." + MessageColumns.MAILBOX_KEY +
+                "; end");
+
+        // Change a message's read state
+        db.execSQL("create trigger unread_message_read before update of " +
+                MessageColumns.FLAG_READ + " on " + Message.TABLE_NAME +
+                " when OLD." + MessageColumns.FLAG_READ + "!=NEW." + MessageColumns.FLAG_READ +
+                " begin update " + Mailbox.TABLE_NAME + " set " + MailboxColumns.UNREAD_COUNT +
+                '=' + MailboxColumns.UNREAD_COUNT + "+ case OLD." + MessageColumns.FLAG_READ +
+                " when 0 then -1 else 1 end" +
+                "  where " + EmailContent.RECORD_ID + "=OLD." + MessageColumns.MAILBOX_KEY +
+                "; end");
+   }
 
     static void upgradeMessageTable(SQLiteDatabase db, int oldVersion, int newVersion) {
         try {
@@ -313,7 +355,7 @@ public class EmailProvider extends ContentProvider {
     }
 
     static void createAccountTable(SQLiteDatabase db) {
-        String s = " (" + EmailContent.RECORD_ID + " integer primary key autoincrement, " 
+        String s = " (" + EmailContent.RECORD_ID + " integer primary key autoincrement, "
             + AccountColumns.DISPLAY_NAME + " text, "
             + AccountColumns.EMAIL_ADDRESS + " text, "
             + AccountColumns.SYNC_KEY + " text, "
@@ -330,9 +372,9 @@ public class EmailProvider extends ContentProvider {
             + ");";
         db.execSQL("create table " + Account.TABLE_NAME + s);
         // Deleting an account deletes associated Mailboxes and HostAuth's
-        db.execSQL("create trigger account_delete before delete on " + Account.TABLE_NAME + 
+        db.execSQL("create trigger account_delete before delete on " + Account.TABLE_NAME +
                 " begin delete from " + Mailbox.TABLE_NAME +
-                " where " + MailboxColumns.ACCOUNT_KEY + "=old." + EmailContent.RECORD_ID + 
+                " where " + MailboxColumns.ACCOUNT_KEY + "=old." + EmailContent.RECORD_ID +
                 "; delete from " + HostAuth.TABLE_NAME +
                 " where " + HostAuthColumns.ACCOUNT_KEY + "=old." + EmailContent.RECORD_ID +
         "; end");
@@ -347,7 +389,7 @@ public class EmailProvider extends ContentProvider {
     }
 
     static void createHostAuthTable(SQLiteDatabase db) {
-        String s = " (" + EmailContent.RECORD_ID + " integer primary key autoincrement, " 
+        String s = " (" + EmailContent.RECORD_ID + " integer primary key autoincrement, "
             + HostAuthColumns.PROTOCOL + " text, "
             + HostAuthColumns.ADDRESS + " text, "
             + HostAuthColumns.PORT + " integer, "
@@ -369,7 +411,7 @@ public class EmailProvider extends ContentProvider {
     }
 
     static void createMailboxTable(SQLiteDatabase db) {
-        String s = " (" + EmailContent.RECORD_ID + " integer primary key autoincrement, " 
+        String s = " (" + EmailContent.RECORD_ID + " integer primary key autoincrement, "
             + MailboxColumns.DISPLAY_NAME + " text, "
             + MailboxColumns.SERVER_ID + " text unique on conflict replace, "
             + MailboxColumns.PARENT_SERVER_ID + " text, "
@@ -386,14 +428,14 @@ public class EmailProvider extends ContentProvider {
             + MailboxColumns.VISIBLE_LIMIT + " integer"
             + ");";
         db.execSQL("create table " + Mailbox.TABLE_NAME + s);
-        db.execSQL("create index mailbox_" + MailboxColumns.SERVER_ID 
+        db.execSQL("create index mailbox_" + MailboxColumns.SERVER_ID
                 + " on " + Mailbox.TABLE_NAME + " (" + MailboxColumns.SERVER_ID + ")");
-        db.execSQL("create index mailbox_" + MailboxColumns.ACCOUNT_KEY 
+        db.execSQL("create index mailbox_" + MailboxColumns.ACCOUNT_KEY
                 + " on " + Mailbox.TABLE_NAME + " (" + MailboxColumns.ACCOUNT_KEY + ")");
         // Deleting a Mailbox deletes associated Messages
-        db.execSQL("create trigger mailbox_delete before delete on " + Mailbox.TABLE_NAME + 
+        db.execSQL("create trigger mailbox_delete before delete on " + Mailbox.TABLE_NAME +
                 " begin delete from " + Message.TABLE_NAME +
-                "  where " + MessageColumns.MAILBOX_KEY + "=old." + EmailContent.RECORD_ID + 
+                "  where " + MessageColumns.MAILBOX_KEY + "=old." + EmailContent.RECORD_ID +
                 "; end");
     }
 
@@ -406,7 +448,7 @@ public class EmailProvider extends ContentProvider {
     }
 
     static void createAttachmentTable(SQLiteDatabase db) {
-        String s = " (" + EmailContent.RECORD_ID + " integer primary key autoincrement, " 
+        String s = " (" + EmailContent.RECORD_ID + " integer primary key autoincrement, "
             + AttachmentColumns.FILENAME + " text, "
             + AttachmentColumns.MIME_TYPE + " text, "
             + AttachmentColumns.SIZE + " integer, "
@@ -428,7 +470,7 @@ public class EmailProvider extends ContentProvider {
     }
 
     static void createBodyTable(SQLiteDatabase db) {
-        String s = " (" + EmailContent.RECORD_ID + " integer primary key autoincrement, " 
+        String s = " (" + EmailContent.RECORD_ID + " integer primary key autoincrement, "
             + BodyColumns.MESSAGE_KEY + " integer, "
             + BodyColumns.HTML_CONTENT + " text, "
             + BodyColumns.TEXT_CONTENT + " text"
@@ -731,7 +773,7 @@ public class EmailProvider extends ContentProvider {
     }
 
     @Override
-    public Cursor query(Uri uri, String[] projection, String selection, String[] selectionArgs, 
+    public Cursor query(Uri uri, String[] projection, String selection, String[] selectionArgs,
             String sortOrder) {
         Cursor c = null;
         Uri notificationUri = EmailContent.CONTENT_URI;
@@ -754,7 +796,7 @@ public class EmailProvider extends ContentProvider {
             case MAILBOX:
             case ACCOUNT:
             case HOSTAUTH:
-                c = db.query(TABLE_NAMES[table], projection, 
+                c = db.query(TABLE_NAMES[table], projection,
                         selection, selectionArgs, null, null, sortOrder);
                 break;
             case BODY_ID:
@@ -766,14 +808,14 @@ public class EmailProvider extends ContentProvider {
             case ACCOUNT_ID:
             case HOSTAUTH_ID:
                 id = uri.getPathSegments().get(1);
-                c = db.query(TABLE_NAMES[table], projection, 
+                c = db.query(TABLE_NAMES[table], projection,
                         whereWithId(id, selection), selectionArgs, null, null, sortOrder);
                 break;
             case ATTACHMENTS_MESSAGE_ID:
                 // All attachments for the given message
                 id = uri.getPathSegments().get(2);
-                c = db.query(Attachment.TABLE_NAME, projection, 
-                        whereWith(Attachment.MESSAGE_KEY + "=" + id, selection), 
+                c = db.query(Attachment.TABLE_NAME, projection,
+                        whereWith(Attachment.MESSAGE_KEY + "=" + id, selection),
                         selectionArgs, null, null, sortOrder);
                 break;
             default:
@@ -818,6 +860,12 @@ public class EmailProvider extends ContentProvider {
             Log.v(TAG, "EmailProvider.update: uri=" + uri + ", match is " + match);
         }
 
+        // We do NOT allow setting of unreadCount via the provider
+        // This column is maintained via triggers
+        if (match == MAILBOX_ID || match == MAILBOX) {
+            values.remove(MailboxColumns.UNREAD_COUNT);
+        }
+
         switch (match) {
             case BODY_ID:
             case MESSAGE_ID:
@@ -837,7 +885,7 @@ public class EmailProvider extends ContentProvider {
                 } else if (match == MESSAGE_ID) {
                     db.execSQL(UPDATED_MESSAGE_DELETE + id);
                 }
-                result = db.update(TABLE_NAMES[table], values, whereWithId(id, selection), 
+                result = db.update(TABLE_NAMES[table], values, whereWithId(id, selection),
                         selectionArgs);
                 break;
             case BODY:
@@ -859,10 +907,11 @@ public class EmailProvider extends ContentProvider {
 
     /* (non-Javadoc)
      * @see android.content.ContentProvider#applyBatch(android.content.ContentProviderOperation)
-     * 
+     *
      * TODO: How do we call notifyChange() or do we need to - does this call the various
      * update/insert/delete calls?
      */
+    @Override
     public ContentProviderResult[] applyBatch(ArrayList<ContentProviderOperation> operations)
             throws OperationApplicationException {
         SQLiteDatabase db = getDatabase(getContext());
