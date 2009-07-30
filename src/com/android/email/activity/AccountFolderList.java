@@ -200,6 +200,14 @@ public class AccountFolderList extends ExpandableListActivity {
     public void onGroupExpand(int groupPosition) {
         super.onGroupExpand(groupPosition);
 
+        // TEMP: Launch new MailboxList activity
+        if (groupPosition > 0) {
+            Cursor groupCursor = mListAdapter.getGroup(groupPosition);
+            long accountId = groupCursor.getLong(EmailContent.Account.CONTENT_ID_COLUMN);
+            MailboxList.actionHandleAccount(this, accountId);
+            return;
+        }
+
         // If we don't have a cursor yet, create one
         Cursor childCursor = mListAdapter.getChild(groupPosition, 0);
         if (childCursor == null) {
@@ -365,15 +373,14 @@ public class AccountFolderList extends ExpandableListActivity {
     }
 
     /**
-     * Returns localized name for splecial folders.
+     * Returns localized name for special folders.
      * @param context
-     * @param sSpecialMailboxDisplayNameListCache
-     * @param type
-     * @return
+     * @param type The mailbox type of interest
+     * @return A localized name, or null if the mailbox is not special
      */
     private static String getSpecialMailboxDisplayName(Context context, int type) {
         final int MAILBOX_TYPE_SIZE = 8;
-        if (sSpecialMailboxDisplayNameListCache != null) {
+        if (sSpecialMailboxDisplayNameListCache == null) {
             sSpecialMailboxDisplayNameListCache = new String[MAILBOX_TYPE_SIZE];
             // TYPE_INBOX = 0
             sSpecialMailboxDisplayNameListCache[0] = context.getString(
