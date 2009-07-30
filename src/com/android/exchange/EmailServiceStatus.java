@@ -30,6 +30,7 @@ public interface EmailServiceStatus {
     public static final int FOLDER_NOT_RENAMED = 0x13;
     public static final int FOLDER_NOT_CREATED = 0x14;
     public static final int REMOTE_EXCEPTION = 0x15;
+    public static final int LOGIN_FAILED = 0x16;
 
     // Maybe we should automatically retry these?
     public static final int CONNECTION_ERROR = 0x20;

@@ -101,6 +101,48 @@ public class SyncManager extends Service implements Runnable {
     static private WakeLock mWakeLock = null;
 
     /**
+     * Proxy that can be used by various sync adapters to call into SyncManager's callback system.
+     * Used this way:  SyncManager.callback().callbackMethod(args...);
+     * The proxy wraps checking for existence of a SyncManager instance and an active callback.
+     * Failures of these callbacks can be safely ignored.
+     */
+    static private final IEmailServiceCallback.Stub sCallbackProxy =
+        new IEmailServiceCallback.Stub() {
+
+        public void loadAttachmentStatus(long messageId, long attachmentId, int statusCode,
+                int progress) throws RemoteException {
+            IEmailServiceCallback cb = INSTANCE == null ? null: INSTANCE.mCallback;
+            if (cb != null) {
+                cb.loadAttachmentStatus(messageId, attachmentId, statusCode, progress);
+            }
+        }
+
+        public void sendMessageStatus(long messageId, int statusCode, int progress)
+        throws RemoteException{
+            IEmailServiceCallback cb = INSTANCE == null ? null: INSTANCE.mCallback;
+            if (cb != null) {
+                cb.sendMessageStatus(messageId, statusCode, progress);
+            }
+        }
+
+        public void syncMailboxListStatus(long accountId, int statusCode, int progress)
+        throws RemoteException{
+            IEmailServiceCallback cb = INSTANCE == null ? null: INSTANCE.mCallback;
+            if (cb != null) {
+                cb.syncMailboxListStatus(accountId, statusCode, progress);
+            }
+        }
+
+        public void syncMailboxStatus(long mailboxId, int statusCode, int progress)
+        throws RemoteException{
+            IEmailServiceCallback cb = INSTANCE == null ? null: INSTANCE.mCallback;
+            if (cb != null) {
+                cb.syncMailboxListStatus(mailboxId, statusCode, progress);
+            }
+        }
+    };
+
+    /**
      * Create the binder for EmailService implementation here.  These are the calls that are
      * defined in AbstractSyncService.   Only validate is now implemented; loadAttachment currently
      * spins its wheels counting up to 100%.
@@ -372,11 +414,8 @@ public class SyncManager extends Service implements Runnable {
         }
     }
 
-    static public IEmailServiceCallback getCallback() {
-        if (INSTANCE != null) {
-            return INSTANCE.mCallback;
-        }
-        return null;
+    static public IEmailServiceCallback callback() {
+        return sCallbackProxy;
     }
 
     static public AccountList getAccountList() {

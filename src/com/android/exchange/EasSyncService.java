@@ -81,7 +81,7 @@ public class EasSyncService extends InteractiveSyncService {
         MailboxColumns.SYNC_INTERVAL + " IN (" + Account.CHECK_INTERVAL_PING +
         ',' + Account.CHECK_INTERVAL_PUSH + ") AND " + MailboxColumns.SERVER_ID + "!=\"" +
         Eas.ACCOUNT_MAILBOX + '\"';
-    
+
     static private final int CHUNK_SIZE = 16 * 1024;
 
     // Reasonable default
@@ -136,6 +136,7 @@ public class EasSyncService extends InteractiveSyncService {
         mStop = true;
     }
 
+    @Override
     public int getSyncStatus() {
         return 0;
     }
@@ -143,6 +144,7 @@ public class EasSyncService extends InteractiveSyncService {
     /* (non-Javadoc)
      * @see com.android.exchange.SyncService#validateAccount(java.lang.String, java.lang.String, java.lang.String, int, boolean, android.content.Context)
      */
+    @Override
     public void validateAccount(String hostAddress, String userName, String password, int port,
             boolean ssl, Context context) throws MessagingException {
         try {
@@ -217,23 +219,17 @@ public class EasSyncService extends InteractiveSyncService {
 
     private void doStatusCallback(long messageId, long attachmentId, int status) {
         try {
-            IEmailServiceCallback cb = SyncManager.getCallback();
-            if (cb != null) {
-                cb.loadAttachmentStatus(messageId, attachmentId, status, 0);
-            }
-        } catch (RemoteException e2) {
+            SyncManager.callback().loadAttachmentStatus(messageId, attachmentId, status, 0);
+        } catch (RemoteException e) {
             // No danger if the client is no longer around
         }
     }
 
     private void doProgressCallback(long messageId, long attachmentId, int progress) {
         try {
-            IEmailServiceCallback cb = SyncManager.getCallback();
-            if (cb != null) {
-                cb.loadAttachmentStatus(messageId, attachmentId, EmailServiceStatus.IN_PROGRESS,
-                        progress);
-            }
-        } catch (RemoteException e2) {
+            SyncManager.callback().loadAttachmentStatus(messageId, attachmentId,
+                    EmailServiceStatus.IN_PROGRESS, progress);
+        } catch (RemoteException e) {
             // No danger if the client is no longer around
         }
     }
@@ -371,14 +367,14 @@ public class EasSyncService extends InteractiveSyncService {
         return us;
     }
 
-    private HttpURLConnection setupEASCommand(String method, String cmd, String extra) 
+    private HttpURLConnection setupEASCommand(String method, String cmd, String extra)
             throws IOException {
         try {
             String us = makeUriString(cmd, extra);
             URL u = new URL(us);
             HttpURLConnection uc = (HttpURLConnection)u.openConnection();
             HttpURLConnection.setFollowRedirects(true);
- 
+
             if (mSsl) {
                 ((HttpsURLConnection)uc).setHostnameVerifier(new AllowAllHostnameVerifier());
             }
@@ -431,7 +427,16 @@ public class EasSyncService extends InteractiveSyncService {
      * @throws EasParserException
      */
     public void runMain() throws IOException, EasParserException {
+        // Initialize exit status to success
+        mExitStatus = EmailServiceStatus.SUCCESS;
         try {
+            try {
+                SyncManager.callback()
+                    .syncMailboxListStatus(mAccount.mId, EmailServiceStatus.IN_PROGRESS, 0);
+            } catch (RemoteException e1) {
+                // Don't care if this fails
+            }
+
             if (mAccount.mSyncKey == null) {
                 mAccount.mSyncKey = "0";
                 userLog("Account syncKey RESET");
@@ -487,8 +492,18 @@ public class EasSyncService extends InteractiveSyncService {
                             } else if (encoding.equalsIgnoreCase("chunked")) {
                                 // TODO We don't handle this yet
                             }
+                        } else if (code == HttpURLConnection.HTTP_UNAUTHORIZED ||
+                                code == HttpURLConnection.HTTP_FORBIDDEN) {
+                            mExitStatus = AbstractSyncService.EXIT_LOGIN_FAILURE;
                         } else {
                             userLog("FolderSync response error: " + code);
+                        }
+
+                        try {
+                            SyncManager.callback()
+                                .syncMailboxListStatus(mAccount.mId, mExitStatus, 0);
+                        } catch (RemoteException e1) {
+                            // Don't care if this fails
                         }
 
                         // Wait for push notifications.
@@ -504,7 +519,15 @@ public class EasSyncService extends InteractiveSyncService {
                     }
                  }
             }
-        } catch (MalformedURLException e) {
+        } catch (IOException e) {
+            // We catch this here to send the folder sync status callback
+            // A folder sync failed callback will get sent from run()
+            try {
+                SyncManager.callback()
+                    .syncMailboxListStatus(mAccount.mId, EmailServiceStatus.CONNECTION_ERROR, 0);
+            } catch (RemoteException e1) {
+                // Don't care if this fails
+            }
             throw new IOException();
         }
     }
@@ -850,6 +873,12 @@ public class EasSyncService extends InteractiveSyncService {
         mUserName = ha.mLogin;
         mPassword = ha.mPassword;
 
+        try {
+            SyncManager.callback().syncMailboxStatus(mMailboxId, EmailServiceStatus.IN_PROGRESS, 0);
+        } catch (RemoteException e1) {
+            // Don't care if this fails
+        }
+
         // Make sure account and mailbox are always the latest from the database
         mAccount = Account.restoreAccountWithId(mContext, mAccount.mId);
         mMailbox = Mailbox.restoreMailboxWithId(mContext, mMailbox.mId);
@@ -887,6 +916,27 @@ public class EasSyncService extends InteractiveSyncService {
         } finally {
             userLog(mMailbox.mDisplayName + ": sync finished");
             SyncManager.done(this);
+
+            try {
+                int status;
+                switch (mExitStatus) {
+                    case EXIT_IO_ERROR:
+                        status = EmailServiceStatus.CONNECTION_ERROR;
+                        break;
+                    case EXIT_DONE:
+                        status = EmailServiceStatus.SUCCESS;
+                        break;
+                    case EXIT_LOGIN_FAILURE:
+                        status = EmailServiceStatus.LOGIN_FAILED;
+                        break;
+                    default:
+                        status = EmailServiceStatus.REMOTE_EXCEPTION;
+                        break;
+                }
+                SyncManager.callback().syncMailboxStatus(mMailboxId, status, 0);
+            } catch (RemoteException e1) {
+                // Don't care if this fails
+            }
         }
     }
 }
