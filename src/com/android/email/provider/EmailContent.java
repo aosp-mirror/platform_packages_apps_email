@@ -40,19 +40,19 @@ import java.util.UUID;
 
 /**
  * EmailContent is the superclass of the various classes of content stored by EmailProvider.
- * 
+ *
  * It is intended to include 1) column definitions for use with the Provider, and 2) convenience
  * methods for saving and retrieving content from the Provider.
- * 
+ *
  * This class will be used by 1) the Email process (which includes the application and
  * EmaiLProvider) as well as 2) the Exchange process (which runs independently).  It will
  * necessarily be cloned for use in these two cases.
- * 
+ *
  * Conventions used in naming columns:
  *   RECORD_ID is the primary key for all Email records
- *   The SyncColumns interface is used by all classes that are synced to the server directly 
+ *   The SyncColumns interface is used by all classes that are synced to the server directly
  *   (Mailbox and Email)
- *   
+ *
  *   <name>_KEY always refers to a foreign key
  *   <name>_ID always refers to a unique identifier (whether on client, server, etc.)
  *
@@ -71,12 +71,12 @@ public abstract class EmailContent {
     private Uri mUri = null;
     // The id of the Content
     public long mId = NOT_SAVED;
-    
+
     // Write the Content into a ContentValues container
     public abstract ContentValues toContentValues();
     // Read the Content from a ContentCursor
     public abstract <T extends EmailContent> T restore (Cursor cursor);
-    
+
     // The Uri is lazily initialized
     public Uri getUri() {
         if (mUri == null) {
@@ -84,11 +84,11 @@ public abstract class EmailContent {
         }
         return mUri;
     }
-    
+
     public boolean isSaved() {
         return mId != NOT_SAVED;
     }
-    
+
     @SuppressWarnings("unchecked")
     // The Content sub class must have a no-arg constructor
     static public <T extends EmailContent> T getContent(Cursor cursor, Class<T> klass) {
@@ -103,7 +103,7 @@ public abstract class EmailContent {
         }
         return null;
     }
-    
+
     public Uri save(Context context) {
         if (isSaved()) {
             throw new UnsupportedOperationException();
@@ -112,19 +112,19 @@ public abstract class EmailContent {
         mId = Long.parseLong(res.getPathSegments().get(1));
         return res;
     }
-    
+
     public int update(Context context, ContentValues contentValues) {
         if (!isSaved()) {
             throw new UnsupportedOperationException();
         }
         return context.getContentResolver().update(getUri(), contentValues, null, null);
     }
-    
+
     static public int update(Context context, Uri baseUri, long id, ContentValues contentValues) {
         return context.getContentResolver()
             .update(ContentUris.withAppendedId(baseUri, id), contentValues, null, null);
     }
-    
+
     /**
      * Generic count method that can be used for any ContentProvider
      * @param context the calling Context
@@ -154,7 +154,7 @@ public abstract class EmailContent {
 
     // All classes share this
     public static final String RECORD_ID = "_id";
-     
+
     public interface SyncColumns {
         // source (account name and type) : foreign key into the AccountsProvider
         public static final String ACCOUNT_KEY = "syncAccountKey";
@@ -171,38 +171,38 @@ public abstract class EmailContent {
 
     public interface BodyColumns {
         // Foreign key to the message corresponding to this body
-        public static final String MESSAGE_KEY = "messageKey";      
+        public static final String MESSAGE_KEY = "messageKey";
         // The html content itself
-        public static final String HTML_CONTENT = "htmlContent";    
+        public static final String HTML_CONTENT = "htmlContent";
         // The plain text content itself
-        public static final String TEXT_CONTENT = "textContent";    
+        public static final String TEXT_CONTENT = "textContent";
     }
 
     public static final class Body extends EmailContent implements BodyColumns {
         public static final String TABLE_NAME = "Body";
         public static final Uri CONTENT_URI = Uri.parse(EmailContent.CONTENT_URI + "/body");
-  
-       
+
+
         public static final int CONTENT_ID_COLUMN = 0;
         public static final int CONTENT_MESSAGE_KEY_COLUMN = 1;
         public static final int CONTENT_HTML_CONTENT_COLUMN = 2;
         public static final int CONTENT_TEXT_CONTENT_COLUMN = 3;
-        public static final String[] CONTENT_PROJECTION = new String[] { 
+        public static final String[] CONTENT_PROJECTION = new String[] {
             RECORD_ID, BodyColumns.MESSAGE_KEY, BodyColumns.HTML_CONTENT, BodyColumns.TEXT_CONTENT
         };
 
         public static final int TEXT_TEXT_COLUMN = 1;
-        public static final String[] TEXT_PROJECTION = new String[] { 
+        public static final String[] TEXT_PROJECTION = new String[] {
             RECORD_ID, BodyColumns.TEXT_CONTENT
         };
 
         public static final int HTML_HTML_COLUMN = 1;
-        public static final String[] HTML_PROJECTION = new String[] { 
+        public static final String[] HTML_PROJECTION = new String[] {
             RECORD_ID, BodyColumns.HTML_CONTENT
         };
 
         public static final int COMMON_TEXT_COLUMN = 1;
-        
+
         public long mMessageKey;
         public String mHtmlContent;
         public String mTextContent;
@@ -219,7 +219,7 @@ public abstract class EmailContent {
             values.put(BodyColumns.MESSAGE_KEY, mMessageKey);
             values.put(BodyColumns.HTML_CONTENT, mHtmlContent);
             values.put(BodyColumns.TEXT_CONTENT, mTextContent);
-            
+
             return values;
         }
 
@@ -291,47 +291,47 @@ public abstract class EmailContent {
     public interface MessageColumns {
         // Basic columns used in message list presentation
         // The name as shown to the user in a message list
-        public static final String DISPLAY_NAME = "displayName";    
+        public static final String DISPLAY_NAME = "displayName";
         // The time (millis) as shown to the user in a message list [INDEX]
-        public static final String TIMESTAMP = "timeStamp";         
+        public static final String TIMESTAMP = "timeStamp";
         // Message subject
-        public static final String SUBJECT = "subject";             
+        public static final String SUBJECT = "subject";
         // A preview, as might be shown to the user in a message list
-        public static final String PREVIEW = "preview";             
+        public static final String PREVIEW = "preview";
         // Boolean, unread = 0, read = 1 [INDEX]
-        public static final String FLAG_READ = "flagRead";          
+        public static final String FLAG_READ = "flagRead";
         // Three state, unloaded = 0, loaded = 1, partially loaded (optional) = 2 [INDEX]
-        public static final String FLAG_LOADED = "flagLoaded";      
+        public static final String FLAG_LOADED = "flagLoaded";
         // Boolean, unflagged = 0, flagged (favorite) = 1
-        public static final String FLAG_FAVORITE = "flagFavorite";  
+        public static final String FLAG_FAVORITE = "flagFavorite";
         // Boolean, no attachment = 0, attachment = 1
-        public static final String FLAG_ATTACHMENT = "flagAttachment";  
+        public static final String FLAG_ATTACHMENT = "flagAttachment";
         // Bit field, e.g. replied, deleted
-        public static final String FLAGS = "flags";                 
+        public static final String FLAGS = "flags";
 
         // Body related
         // charset: U = us-ascii; 8 = utf-8; I = iso-8559-1; others literally (e.g. KOI8-R)
         // encodings: B = base64; Q = quoted printable; X = none
         // Information about the text part (if any) in form <location>;<encoding>;<charset>;<length>
-        public static final String TEXT_INFO = "textInfo";          
+        public static final String TEXT_INFO = "textInfo";
         // Information about the html part (if any) in form <location>;<encoding>;<charset>;<length>
-        public static final String HTML_INFO = "htmlInfo";          
+        public static final String HTML_INFO = "htmlInfo";
 
         // Sync related identifiers
         // Any client-required identifier
-        public static final String CLIENT_ID = "clientId";          
+        public static final String CLIENT_ID = "clientId";
         // The message-id in the message's header
-        public static final String MESSAGE_ID = "messageId";        
+        public static final String MESSAGE_ID = "messageId";
         // Thread identifier
         public static final String THREAD_ID = "threadId";
 
         // References to other Email objects in the database
         // Foreign key to the Mailbox holding this message [INDEX]
-        public static final String MAILBOX_KEY = "mailboxKey";      
+        public static final String MAILBOX_KEY = "mailboxKey";
         // Foreign key to the Account holding this message
-        public static final String ACCOUNT_KEY = "accountKey";      
+        public static final String ACCOUNT_KEY = "accountKey";
         // Foreign key to a referenced Message (e.g. for a reply/forward)
-        public static final String REFERENCE_KEY = "referenceKey";  
+        public static final String REFERENCE_KEY = "referenceKey";
 
         // Address lists, packed with Address.pack()
         public static final String SENDER_LIST = "senderList";
@@ -384,8 +384,8 @@ public abstract class EmailContent {
         public static final int CONTENT_BCC_LIST_COLUMN = 23;
         public static final int CONTENT_REPLY_TO_COLUMN = 24;
         public static final int CONTENT_SERVER_VERSION_COLUMN = 25;
-        public static final String[] CONTENT_PROJECTION = new String[] { 
-            RECORD_ID, MessageColumns.DISPLAY_NAME, MessageColumns.TIMESTAMP, 
+        public static final String[] CONTENT_PROJECTION = new String[] {
+            RECORD_ID, MessageColumns.DISPLAY_NAME, MessageColumns.TIMESTAMP,
             MessageColumns.SUBJECT, MessageColumns.PREVIEW, MessageColumns.FLAG_READ,
             MessageColumns.FLAG_LOADED, MessageColumns.FLAG_FAVORITE,
             MessageColumns.FLAG_ATTACHMENT, MessageColumns.FLAGS, MessageColumns.TEXT_INFO,
@@ -412,7 +412,7 @@ public abstract class EmailContent {
         public static final int LIST_SERVER_ID_COLUMN = 12;
 
         // Public projection for common list columns
-        public static final String[] LIST_PROJECTION = new String[] { 
+        public static final String[] LIST_PROJECTION = new String[] {
             RECORD_ID, MessageColumns.DISPLAY_NAME, MessageColumns.TIMESTAMP,
             MessageColumns.SUBJECT, MessageColumns.PREVIEW, MessageColumns.FLAG_READ,
             MessageColumns.FLAG_LOADED, MessageColumns.FLAG_FAVORITE,
@@ -466,7 +466,7 @@ public abstract class EmailContent {
         public String mCc;
         public String mBcc;
         public String mReplyTo;
-        
+
         public String mServerVersion;
 
         transient public String mText;
@@ -496,10 +496,10 @@ public abstract class EmailContent {
             values.put(MessageColumns.TIMESTAMP, mTimeStamp);
             values.put(MessageColumns.SUBJECT, mSubject);
             values.put(MessageColumns.PREVIEW, mPreview);
-            values.put(MessageColumns.FLAG_READ, mFlagRead); 
-            values.put(MessageColumns.FLAG_LOADED, mFlagLoaded); 
-            values.put(MessageColumns.FLAG_FAVORITE, mFlagFavorite); 
-            values.put(MessageColumns.FLAG_ATTACHMENT, mFlagAttachment); 
+            values.put(MessageColumns.FLAG_READ, mFlagRead);
+            values.put(MessageColumns.FLAG_LOADED, mFlagLoaded);
+            values.put(MessageColumns.FLAG_FAVORITE, mFlagFavorite);
+            values.put(MessageColumns.FLAG_ATTACHMENT, mFlagAttachment);
             values.put(MessageColumns.FLAGS, mFlags);
 
             values.put(MessageColumns.TEXT_INFO, mTextInfo);
@@ -525,7 +525,7 @@ public abstract class EmailContent {
             values.put(MessageColumns.CC_LIST, mCc);
             values.put(MessageColumns.BCC_LIST, mBcc);
             values.put(MessageColumns.REPLY_TO_LIST, mReplyTo);
-            
+
             values.put(SyncColumns.SERVER_VERSION, mServerVersion);
 
             return values;
@@ -586,17 +586,17 @@ public abstract class EmailContent {
             return false;
         }
 
-        /* 
+        /*
          * Override this so that we can store the Body first and link it to the Message
          * Also, attachments when we get there...
          * (non-Javadoc)
          * @see com.android.email.provider.EmailContent#save(android.content.Context)
          */
-        @Override 
+        @Override
         public Uri save(Context context) {
-            
+
             boolean doSave = !isSaved();
-            
+
             // This logic is in place so I can (a) short circuit the expensive stuff when
             // possible, and (b) override (and throw) if anyone tries to call save() or update()
             // directly for Message, which are unsupported.
@@ -612,11 +612,11 @@ public abstract class EmailContent {
                     return null;
                 }
             }
-            
+
             ArrayList<ContentProviderOperation> ops = new ArrayList<ContentProviderOperation>();
             addSaveOps(ops);
             try {
-                ContentProviderResult[] results = 
+                ContentProviderResult[] results =
                     context.getContentResolver().applyBatch(EmailProvider.EMAIL_AUTHORITY, ops);
                 // If saving, set the mId's of the various saved objects
                 if (doSave) {
@@ -755,20 +755,20 @@ public abstract class EmailContent {
         public static final String TABLE_NAME = "Account";
         public static final Uri CONTENT_URI = Uri.parse(EmailContent.CONTENT_URI + "/account");
 
-        
+
         public final static int FLAGS_NOTIFY_NEW_MAIL = 1;
         public final static int FLAGS_VIBRATE = 2;
         public static final int FLAGS_DELETE_POLICY_MASK = 4+8;
         public static final int FLAGS_DELETE_POLICY_SHIFT = 2;
-        
+
         public static final int DELETE_POLICY_NEVER = 0;
         public static final int DELETE_POLICY_7DAYS = 1;
         public static final int DELETE_POLICY_ON_DELETE = 2;
-        
+
         public static final int CHECK_INTERVAL_NEVER = -1;
         public static final int CHECK_INTERVAL_PUSH = -2;
         public static final int CHECK_INTERVAL_PING = -3;
-        
+
         public static final int SYNC_WINDOW_USER = -1;
 
         public String mDisplayName;
@@ -776,7 +776,7 @@ public abstract class EmailContent {
         public String mSyncKey;
         public int mSyncLookback;
         public int mSyncInterval;
-        public long mHostAuthKeyRecv; 
+        public long mHostAuthKeyRecv;
         public long mHostAuthKeySend;
         public int mFlags;
         public boolean mIsDefault;          // note: callers should use getDefaultAccountId()
@@ -812,7 +812,7 @@ public abstract class EmailContent {
             AccountColumns.COMPATIBILITY_UUID, AccountColumns.SENDER_NAME,
             AccountColumns.RINGTONE_URI, AccountColumns.PROTOCOL_VERSION
         };
-        
+
         /**
          * This projection is for listing account id's only
          */
@@ -847,7 +847,7 @@ public abstract class EmailContent {
          */
         public Account() {
             mBaseUri = CONTENT_URI;
-            
+
             // other defaults (policy)
             mRingtoneUri = "content://settings/system/notification_sound";
             mSyncInterval = -1;
@@ -871,7 +871,7 @@ public abstract class EmailContent {
                 c.close();
             }
         }
-        
+
         /**
          * Refresh an account that has already been loaded.  This is slightly less expensive
          * that generating a brand-new account object.
@@ -913,14 +913,14 @@ public abstract class EmailContent {
         private long getId(Uri u) {
             return Long.parseLong(u.getPathSegments().get(1));
         }
-        
+
         /**
          * @return the user-visible name for the account
          */
         public String getDisplayName() {
             return mDisplayName;
         }
-        
+
         /**
          * Set the description.  Be sure to call save() to commit to database.
          * @param description the new description
@@ -928,14 +928,14 @@ public abstract class EmailContent {
         public void setDisplayName(String description) {
             mDisplayName = description;
         }
-        
+
         /**
          * @return the email address for this account
          */
         public String getEmailAddress() {
             return mEmailAddress;
         }
-        
+
         /**
          * Set the Email address for this account.  Be sure to call save() to commit to database.
          * @param emailAddress the new email address for this account
@@ -943,14 +943,14 @@ public abstract class EmailContent {
         public void setEmailAddress(String emailAddress) {
             mEmailAddress = emailAddress;
         }
-        
+
         /**
          * @return the sender's name for this account
          */
         public String getSenderName() {
             return mSenderName;
         }
-        
+
         /**
          * Set the sender's name.  Be sure to call save() to commit to database.
          * @param name the new sender name
@@ -958,7 +958,7 @@ public abstract class EmailContent {
         public void setSenderName(String name) {
             mSenderName = name;
         }
-        
+
         /**
          * @return the minutes per check (for polling)
          * TODO define sentinel values for "never", "push", etc.  See Account.java
@@ -967,7 +967,7 @@ public abstract class EmailContent {
         {
             return mSyncInterval;
         }
-        
+
         /**
          * Set the minutes per check (for polling).  Be sure to call save() to commit to database.
          * TODO define sentinel values for "never", "push", etc.  See Account.java
@@ -977,7 +977,7 @@ public abstract class EmailContent {
         {
             mSyncInterval = minutes;
         }
-        
+
         /**
          * @return the sync lookback window in # of days
          * TODO define sentinel values for "all", "1 month", etc.  See Account.java
@@ -985,7 +985,7 @@ public abstract class EmailContent {
         public int getSyncLookback() {
             return mSyncLookback;
         }
-        
+
         /**
          * Set the sync lookback window in # of days.  Be sure to call save() to commit to database.
          * TODO define sentinel values for "all", "1 month", etc.  See Account.java
@@ -994,7 +994,7 @@ public abstract class EmailContent {
         public void setSyncLookback(int days) {
             mSyncLookback = days;
         }
-        
+
         /**
          * @return the flags for this account
          * @see #FLAGS_NOTIFY_NEW_MAIL
@@ -1003,7 +1003,7 @@ public abstract class EmailContent {
         public int getFlags() {
             return mFlags;
         }
-        
+
         /**
          * Set the flags for this account
          * @see #FLAGS_NOTIFY_NEW_MAIL
@@ -1013,14 +1013,14 @@ public abstract class EmailContent {
         public void setFlags(int newFlags) {
             mFlags = newFlags;
         }
-        
+
         /**
          * @return the ringtone Uri for this account
          */
         public String getRingtone() {
             return mRingtoneUri;
         }
-        
+
         /**
          * Set the ringtone Uri for this account
          * @param newUri the new URI string for the ringtone for this account
@@ -1028,7 +1028,7 @@ public abstract class EmailContent {
         public void setRingtone(String newUri) {
             mRingtoneUri = newUri;
         }
-        
+
         /**
          * Set the "delete policy" as a simple 0,1,2 value set.
          * @param newPolicy the new delete policy
@@ -1037,7 +1037,7 @@ public abstract class EmailContent {
             mFlags &= ~FLAGS_DELETE_POLICY_MASK;
             mFlags |= (newPolicy << FLAGS_DELETE_POLICY_SHIFT) & FLAGS_DELETE_POLICY_MASK;
         }
-        
+
         /**
          * Return the "delete policy" as a simple 0,1,2 value set.
          * @return the current delete policy
@@ -1045,7 +1045,7 @@ public abstract class EmailContent {
         public int getDeletePolicy() {
             return (mFlags & FLAGS_DELETE_POLICY_MASK) >> FLAGS_DELETE_POLICY_SHIFT;
         }
-        
+
         /**
          * Return the Uuid associated with this account.  This is primarily for compatibility
          * with accounts set up by previous versions, because there are externals references
@@ -1054,10 +1054,10 @@ public abstract class EmailContent {
         String getUuid() {
             return mCompatibilityUuid;
         }
-        
+
         /**
          * For compatibility while converting to provider model, generate a "store URI"
-         * 
+         *
          * @return a string in the form of a Uri, as used by the other parts of the email app
          */
         public String getStoreUri(Context context) {
@@ -1074,10 +1074,10 @@ public abstract class EmailContent {
             }
             return "";
         }
-        
+
         /**
          * For compatibility while converting to provider model, generate a "sender URI"
-         * 
+         *
          * @return a string in the form of a Uri, as used by the other parts of the email app
          */
         public String getSenderUri(Context context) {
@@ -1094,10 +1094,10 @@ public abstract class EmailContent {
             }
             return "";
         }
-        
+
         /**
          * For compatibility while converting to provider model, set the store URI
-         * 
+         *
          * @param the new value
          */
         @Deprecated
@@ -1110,15 +1110,15 @@ public abstract class EmailContent {
                     mHostAuthRecv = new EmailContent.HostAuth();
                 }
             }
-            
+
             if (mHostAuthRecv != null) {
                 mHostAuthRecv.setStoreUri(senderUri);
             }
         }
-        
+
         /**
          * For compatibility while converting to provider model, set the sender URI
-         * 
+         *
          * @param the new value
          */
         @Deprecated
@@ -1131,21 +1131,21 @@ public abstract class EmailContent {
                     mHostAuthSend = new EmailContent.HostAuth();
                 }
             }
-            
+
             if (mHostAuthSend != null) {
                 mHostAuthSend.setStoreUri(senderUri);
             }
         }
-        
+
         /**
          * For compatibility while converting to provider model, generate a "local store URI"
-         * 
+         *
          * @return a string in the form of a Uri, as used by the other parts of the email app
          */
         public String getLocalStoreUri(Context context) {
             return "local://localhost/" + context.getDatabasePath(getUuid() + ".db");
         }
-        
+
         /**
          * Set the account to be the default account.  If this is set to "true", when the account
          * is saved, all other accounts will have the same value set to "false".
@@ -1189,49 +1189,11 @@ public abstract class EmailContent {
         }
 
         /**
-         * Update unread counts of all folders in the account.
-         * @param context
-         * @param accountId
-         */
-        public static void updateUnreadCount(Context context, long accountId) {
-            Cursor c = context.getContentResolver().query(Mailbox.CONTENT_URI, ID_TYPE_PROJECTION,
-                    MailboxColumns.ACCOUNT_KEY + "=?",
-                    new String[] { String.valueOf(accountId) }, null);
-
-            try {
-                while (c.moveToNext()) {
-                    int mailboxId = c.getInt(CONTENT_ID_COLUMN);
-                    int count = 0;
-                    switch (c.getInt(CONTENT_MAILBOX_TYPE_COLUMN)) {
-                        case Mailbox.TYPE_DRAFTS:
-                        case Mailbox.TYPE_SENT:
-                        case Mailbox.TYPE_OUTBOX:
-                        case Mailbox.TYPE_JUNK:
-                            count = EmailContent.count(context, Message.CONTENT_URI,
-                                    MAILBOX_SELECTION,
-                                    new String[] { String.valueOf(mailboxId) });
-                            break;
-                        default:
-                            count = EmailContent.count(context, Message.CONTENT_URI,
-                                    UNREAD_COUNT_SELECTION,
-                                    new String[] { String.valueOf(mailboxId) });
-                            break;
-                    }
-                    Uri uri = ContentUris.withAppendedId(Mailbox.CONTENT_URI, mailboxId);
-                    ContentValues cv = new ContentValues();
-                    cv.put(MailboxColumns.UNREAD_COUNT, count);
-                    context.getContentResolver().update(uri, cv, null, null);
-                }
-            } finally {
-                c.close();
-            }
-        }
-
-        /**
          * Override update to enforce a single default account, and do it atomically
          */
+        @Override
         public int update(Context context, ContentValues cv) {
-            if (cv.containsKey(AccountColumns.IS_DEFAULT) && 
+            if (cv.containsKey(AccountColumns.IS_DEFAULT) &&
                     cv.getAsBoolean(AccountColumns.IS_DEFAULT)) {
                 ArrayList<ContentProviderOperation> ops = new ArrayList<ContentProviderOperation>();
                 ContentValues cv1 = new ContentValues();
@@ -1255,12 +1217,12 @@ public abstract class EmailContent {
             return super.update(context, cv);
         }
 
-        /* 
+        /*
          * Override this so that we can store the HostAuth's first and link them to the Account
          * (non-Javadoc)
          * @see com.android.email.provider.EmailContent#save(android.content.Context)
          */
-        @Override 
+        @Override
         public Uri save(Context context) {
             if (isSaved()) {
                 throw new UnsupportedOperationException();
@@ -1271,7 +1233,7 @@ public abstract class EmailContent {
             if (mHostAuthRecv == null && mHostAuthSend == null && mIsDefault == false) {
                     return super.save(context);
             }
-            
+
             int index = 0;
             int recvIndex = -1;
             int sendIndex = -1;
@@ -1321,7 +1283,7 @@ public abstract class EmailContent {
             ops.add(b.build());
 
             try {
-                ContentProviderResult[] results = 
+                ContentProviderResult[] results =
                     context.getContentResolver().applyBatch(EmailProvider.EMAIL_AUTHORITY, ops);
                 // If saving, set the mId's of the various saved objects
                 if (recvIndex >= 0) {
@@ -1363,7 +1325,7 @@ public abstract class EmailContent {
             values.put(AccountColumns.PROTOCOL_VERSION, mProtocolVersion);
             return values;
         }
-        
+
         /**
          * TODO don't store these names in the account - just tag the folders
          */
@@ -1392,7 +1354,7 @@ public abstract class EmailContent {
             return context.getString(R.string.special_mailbox_name_outbox);
         }
 
-        
+
         /**
          * Supports Parcelable
          */
@@ -1425,21 +1387,21 @@ public abstract class EmailContent {
             dest.writeString(mSyncKey);
             dest.writeInt(mSyncLookback);
             dest.writeInt(mSyncInterval);
-            dest.writeLong(mHostAuthKeyRecv); 
+            dest.writeLong(mHostAuthKeyRecv);
             dest.writeLong(mHostAuthKeySend);
             dest.writeInt(mFlags);
             dest.writeByte(mIsDefault ? (byte)1 : (byte)0);
             dest.writeString(mCompatibilityUuid);
             dest.writeString(mSenderName);
             dest.writeString(mRingtoneUri);
-            
+
             if (mHostAuthRecv != null) {
                 dest.writeByte((byte)1);
                 mHostAuthRecv.writeToParcel(dest, flags);
             } else {
                 dest.writeByte((byte)0);
             }
-            
+
             if (mHostAuthSend != null) {
                 dest.writeByte((byte)1);
                 mHostAuthSend.writeToParcel(dest, flags);
@@ -1447,7 +1409,7 @@ public abstract class EmailContent {
                 dest.writeByte((byte)0);
             }
         }
-        
+
         /**
          * Supports Parcelable
          */
@@ -1459,25 +1421,25 @@ public abstract class EmailContent {
             mSyncKey = in.readString();
             mSyncLookback = in.readInt();
             mSyncInterval = in.readInt();
-            mHostAuthKeyRecv = in.readLong(); 
+            mHostAuthKeyRecv = in.readLong();
             mHostAuthKeySend = in.readLong();
             mFlags = in.readInt();
             mIsDefault = in.readByte() == 1;
             mCompatibilityUuid = in.readString();
             mSenderName = in.readString();
             mRingtoneUri = in.readString();
-            
+
             mHostAuthRecv = null;
             if (in.readByte() == 1) {
                 mHostAuthRecv = new EmailContent.HostAuth(in);
             }
-            
+
             mHostAuthSend = null;
             if (in.readByte() == 1) {
                 mHostAuthSend = new EmailContent.HostAuth(in);
             }
         }
-        
+
         /**
          * For debugger support only - DO NOT use for code.
          */
@@ -1500,7 +1462,7 @@ public abstract class EmailContent {
     }
 
     public interface AttachmentColumns {
-        // The display name of the attachment 
+        // The display name of the attachment
         public static final String FILENAME = "fileName";
         // The mime type of the attachment
         public static final String MIME_TYPE = "mimeType";
@@ -1556,7 +1518,7 @@ public abstract class EmailContent {
         public Attachment() {
             mBaseUri = CONTENT_URI;
         }
-        
+
          /**
          * Restore an Attachment from the database, given its unique id
          * @param context
@@ -1632,13 +1594,13 @@ public abstract class EmailContent {
         public ContentValues toContentValues() {
             ContentValues values = new ContentValues();
             values.put(AttachmentColumns.FILENAME, mFileName);
-            values.put(AttachmentColumns.MIME_TYPE, mMimeType);          
-            values.put(AttachmentColumns.SIZE, mSize);           
-            values.put(AttachmentColumns.CONTENT_ID, mContentId);            
-            values.put(AttachmentColumns.CONTENT_URI, mContentUri);          
-            values.put(AttachmentColumns.MESSAGE_KEY, mMessageKey);          
-            values.put(AttachmentColumns.LOCATION, mLocation);           
-            values.put(AttachmentColumns.ENCODING, mEncoding);           
+            values.put(AttachmentColumns.MIME_TYPE, mMimeType);
+            values.put(AttachmentColumns.SIZE, mSize);
+            values.put(AttachmentColumns.CONTENT_ID, mContentId);
+            values.put(AttachmentColumns.CONTENT_URI, mContentUri);
+            values.put(AttachmentColumns.MESSAGE_KEY, mMessageKey);
+            values.put(AttachmentColumns.LOCATION, mLocation);
+            values.put(AttachmentColumns.ENCODING, mEncoding);
             return values;
         }
 
@@ -1687,7 +1649,7 @@ public abstract class EmailContent {
     public interface MailboxColumns {
         public static final String ID = "_id";
         // The display name of this mailbox [INDEX]
-        static final String DISPLAY_NAME = "displayName"; 
+        static final String DISPLAY_NAME = "displayName";
         // The server's identifier for this mailbox
         public static final String SERVER_ID = "serverId";
         // The server's identifier for the parent of this mailbox (null = top-level)
@@ -1847,20 +1809,20 @@ public abstract class EmailContent {
         @Override
         public ContentValues toContentValues() {
             ContentValues values = new ContentValues();
-            values.put(MailboxColumns.DISPLAY_NAME, mDisplayName);           
-            values.put(MailboxColumns.SERVER_ID, mServerId);         
-            values.put(MailboxColumns.PARENT_SERVER_ID, mParentServerId);            
-            values.put(MailboxColumns.ACCOUNT_KEY, mAccountKey);         
-            values.put(MailboxColumns.TYPE, mType);          
-            values.put(MailboxColumns.DELIMITER, mDelimiter);            
-            values.put(MailboxColumns.SYNC_KEY, mSyncKey);           
-            values.put(MailboxColumns.SYNC_LOOKBACK, mSyncLookback);         
-            values.put(MailboxColumns.SYNC_INTERVAL, mSyncInterval);           
-            values.put(MailboxColumns.SYNC_TIME, mSyncTime);         
-            values.put(MailboxColumns.UNREAD_COUNT, mUnreadCount);           
-            values.put(MailboxColumns.FLAG_VISIBLE, mFlagVisible);           
-            values.put(MailboxColumns.FLAGS, mFlags);            
-            values.put(MailboxColumns.VISIBLE_LIMIT, mVisibleLimit);         
+            values.put(MailboxColumns.DISPLAY_NAME, mDisplayName);
+            values.put(MailboxColumns.SERVER_ID, mServerId);
+            values.put(MailboxColumns.PARENT_SERVER_ID, mParentServerId);
+            values.put(MailboxColumns.ACCOUNT_KEY, mAccountKey);
+            values.put(MailboxColumns.TYPE, mType);
+            values.put(MailboxColumns.DELIMITER, mDelimiter);
+            values.put(MailboxColumns.SYNC_KEY, mSyncKey);
+            values.put(MailboxColumns.SYNC_LOOKBACK, mSyncLookback);
+            values.put(MailboxColumns.SYNC_INTERVAL, mSyncInterval);
+            values.put(MailboxColumns.SYNC_TIME, mSyncTime);
+            values.put(MailboxColumns.UNREAD_COUNT, mUnreadCount);
+            values.put(MailboxColumns.FLAG_VISIBLE, mFlagVisible);
+            values.put(MailboxColumns.FLAGS, mFlags);
+            values.put(MailboxColumns.VISIBLE_LIMIT, mVisibleLimit);
             return values;
         }
 
@@ -1892,17 +1854,17 @@ public abstract class EmailContent {
         // The protocol (e.g. "imap", "pop3", "eas", "smtp"
         static final String PROTOCOL = "protocol";
         // The host address
-        static final String ADDRESS = "address"; 
+        static final String ADDRESS = "address";
         // The port to use for the connection
-        static final String PORT = "port"; 
+        static final String PORT = "port";
         // General purpose flags
-        static final String FLAGS = "flags"; 
+        static final String FLAGS = "flags";
         // The login (user name)
-        static final String LOGIN = "login"; 
+        static final String LOGIN = "login";
         // Password
-        static final String PASSWORD = "password"; 
+        static final String PASSWORD = "password";
         // A domain or path, if required (used in IMAP and EAS)
-        static final String DOMAIN = "domain"; 
+        static final String DOMAIN = "domain";
         // Foreign key of the Account this is attached to
         static final String ACCOUNT_KEY = "accountKey";
     }
@@ -1933,7 +1895,7 @@ public abstract class EmailContent {
         public static final int CONTENT_PASSWORD_COLUMN = 6;
         public static final int CONTENT_DOMAIN_COLUMN = 7;
         public static final int CONTENT_ACCOUNT_KEY_COLUMN = 8;
-        
+
         public static final String[] CONTENT_PROJECTION = new String[] {
             RECORD_ID, HostAuthColumns.PROTOCOL, HostAuthColumns.ADDRESS, HostAuthColumns.PORT,
             HostAuthColumns.FLAGS, HostAuthColumns.LOGIN,
@@ -1946,7 +1908,7 @@ public abstract class EmailContent {
          */
         public HostAuth() {
             mBaseUri = CONTENT_URI;
-            
+
             // other defaults policy)
             mPort = -1;
         }
@@ -2002,11 +1964,11 @@ public abstract class EmailContent {
             values.put(HostAuthColumns.ACCOUNT_KEY, mAccountKey);
             return values;
         }
-        
+
         /**
          * For compatibility while converting to provider model, generate a "store URI"
          * TODO cache this so we don't rebuild every time
-         * 
+         *
          * @return a string in the form of a Uri, as used by the other parts of the email app
          */
         public String getStoreUri() {
@@ -2024,7 +1986,7 @@ public abstract class EmailContent {
             }
             String address = (mAddress != null) ? mAddress.trim() : null;
             String path = (mDomain != null) ? "/" + mDomain : null;
-            
+
             URI uri;
             try {
                 uri = new URI(
@@ -2040,10 +2002,10 @@ public abstract class EmailContent {
                 return null;
             }
         }
-        
+
         /**
          * For compatibility while converting to provider model, set fields from a "store URI"
-         * 
+         *
          * @param uriString a String containing a Uri
          */
         @Deprecated
@@ -2061,7 +2023,7 @@ public abstract class EmailContent {
                         mPassword = userInfoParts[1];
                     }
                 }
-                
+
                 String[] schemeParts = uri.getScheme().split("\\+");
                 mProtocol = (schemeParts.length >= 1) ? schemeParts[0] : null;
                 boolean ssl = false;
@@ -2073,7 +2035,7 @@ public abstract class EmailContent {
                         tls = true;
                     }
                 }
-                
+
                 mFlags &= ~(FLAG_SSL | FLAG_TLS);
                 if (ssl) {
                     mFlags |= FLAG_SSL;
@@ -2097,7 +2059,7 @@ public abstract class EmailContent {
                         mPort = ssl ? 465 : 25;
                     }
                 }
-                
+
                 if (uri.getPath() != null && uri.getPath().length() > 0) {
                     mDomain = uri.getPath().substring(1);
                 }
@@ -2111,7 +2073,7 @@ public abstract class EmailContent {
             }
 
         }
-        
+
         /**
          * Supports Parcelable
          */
@@ -2148,7 +2110,7 @@ public abstract class EmailContent {
             dest.writeString(mDomain);
             dest.writeLong(mAccountKey);
         }
-        
+
         /**
          * Supports Parcelable
          */

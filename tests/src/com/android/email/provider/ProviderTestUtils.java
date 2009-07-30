@@ -76,7 +76,8 @@ public class ProviderTestUtils extends Assert {
         box.mSyncLookback = 2;
         box.mSyncInterval = EmailContent.Account.CHECK_INTERVAL_NEVER;
         box.mSyncTime = 3;
-        box.mUnreadCount = 4;
+        // Should always be saved as zero
+        box.mUnreadCount = 0;
         box.mFlagVisible = true;
         box.mFlags = 5;
         box.mVisibleLimit = 6;
@@ -89,7 +90,7 @@ public class ProviderTestUtils extends Assert {
 
     /**
      * Create a message for test purposes
-     * 
+     *
      * TODO: body
      * TODO: attachments
      */
@@ -143,7 +144,7 @@ public class ProviderTestUtils extends Assert {
     /**
      * Create a test attachment.  A few fields are specified by params, and all other fields
      * are generated using pseudo-unique values.
-     * 
+     *
      * @param messageId the message to attach to
      * @param fileName the "file" to indicate in the attachment
      * @param length the "length" of the attachment
@@ -167,7 +168,7 @@ public class ProviderTestUtils extends Assert {
         return att;
     }
 
-    private static void assertEmailContentEqual(String caller, EmailContent expect, 
+    private static void assertEmailContentEqual(String caller, EmailContent expect,
             EmailContent actual) {
         if (expect == actual) {
             return;
@@ -179,7 +180,7 @@ public class ProviderTestUtils extends Assert {
 
     /**
      * Compare two accounts for equality
-     * 
+     *
      * TODO: check host auth?
      */
     public static void assertAccountEqual(String caller, Account expect, Account actual) {
@@ -235,7 +236,7 @@ public class ProviderTestUtils extends Assert {
 
     /**
      * Compare two messages for equality
-     * 
+     *
      * TODO: body?
      * TODO: attachments?
      */
@@ -283,7 +284,7 @@ public class ProviderTestUtils extends Assert {
 
     /**
      * Compare to attachments for equality
-     * 
+     *
      * TODO: file / content URI mapping?  Compare the actual files?
      */
     public static void assertAttachmentEqual(String caller, Attachment expect, Attachment actual) {

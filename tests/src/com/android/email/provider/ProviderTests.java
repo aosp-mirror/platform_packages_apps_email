@@ -16,13 +16,6 @@
 
 package com.android.email.provider;
 
-import java.io.File;
-import java.io.IOException;
-
-import java.util.ArrayList;
-
-import com.android.email.activity.AccountFolderList;
-import com.android.email.provider.EmailContent;
 import com.android.email.provider.EmailContent.Account;
 import com.android.email.provider.EmailContent.AccountColumns;
 import com.android.email.provider.EmailContent.Attachment;
@@ -41,21 +34,25 @@ import android.net.Uri;
 import android.os.Environment;
 import android.test.ProviderTestCase2;
 
+import java.io.File;
+import java.io.IOException;
+import java.util.ArrayList;
+
 /**
  * Tests of the Email provider.
- * 
+ *
  * You can run this entire test case with:
  *   runtest -c com.android.email.provider.ProviderTests email
  */
 public class ProviderTests extends ProviderTestCase2<EmailProvider> {
-    
+
     EmailProvider mProvider;
     Context mMockContext;
 
     public ProviderTests() {
         super(EmailProvider.class, EmailProvider.EMAIL_AUTHORITY);
     }
-    
+
     @Override
     public void setUp() throws Exception {
         super.setUp();
@@ -73,9 +70,9 @@ public class ProviderTests extends ProviderTestCase2<EmailProvider> {
     public void testAccountSave() {
         Account account1 = ProviderTestUtils.setupAccount("account-save", true, mMockContext);
         long account1Id = account1.mId;
-        
+
         Account account2 = EmailContent.Account.restoreAccountWithId(mMockContext, account1Id);
-        
+
         ProviderTestUtils.assertAccountEqual("testAccountSave", account1, account2);
     }
 
@@ -109,53 +106,10 @@ public class ProviderTests extends ProviderTestCase2<EmailProvider> {
         return Integer.valueOf(text);
     }
 
-    public void testUpdateUnreadCount() {
-        Account account1 = ProviderTestUtils.setupAccount("mailbox-save", true, mMockContext);
-        long account1Id = account1.mId;
-        Mailbox box1 = ProviderTestUtils.setupMailbox("box1", account1Id, false, mMockContext);
-        box1.mUnreadCount = 0;
-        box1.save(mMockContext);
-        long box1Id = box1.mId;
-        Message message1 = ProviderTestUtils.setupMessage("message1", account1Id, box1Id, false,
-                false, mMockContext);
-        message1.mFlagRead = false;
-        message1.save(mMockContext);
-        Message message2 = ProviderTestUtils.setupMessage("message2", account1Id, box1Id, false,
-                false, mMockContext);
-        message2.mFlagRead = true;
-        message2.save(mMockContext);
-        Message message3 = ProviderTestUtils.setupMessage("message3", account1Id, box1Id, false,
-                false, mMockContext);
-        message3.mFlagRead = false;
-        message3.save(mMockContext);
-        Mailbox box2 = ProviderTestUtils.setupMailbox("box2", account1Id, false, mMockContext);
-        box2.mUnreadCount = 0;
-        box2.mType = Mailbox.TYPE_DRAFTS;
-        box2.save(mMockContext);
-        long box2Id = box2.mId;
-        Message message4 = ProviderTestUtils.setupMessage("message4", account1Id, box2Id, false,
-                false, mMockContext);
-        message4.mFlagRead = false;
-        message4.save(mMockContext);
-        Message message5 = ProviderTestUtils.setupMessage("message5", account1Id, box2Id, false,
-                false, mMockContext);
-        message5.mFlagRead = true;
-        message5.save(mMockContext);
-        Message message6 = ProviderTestUtils.setupMessage("message6", account1Id, box2Id, false,
-                false, mMockContext);
-        message6.mFlagRead = false;
-        message6.save(mMockContext);
-        assertEquals(0, getUnreadCount(box1Id));
-        assertEquals(0, getUnreadCount(box2Id));
-        Account.updateUnreadCount(mMockContext, account1Id);
-        assertEquals(2, getUnreadCount(box1Id));
-        assertEquals(3, getUnreadCount(box2Id));
-    }
-
     /**
      * TODO: HostAuth tests
      */
-    
+
     /**
      * Test simple mailbox save/retrieve
      */
@@ -165,12 +119,12 @@ public class ProviderTests extends ProviderTestCase2<EmailProvider> {
         Mailbox box1 = ProviderTestUtils.setupMailbox("box1", account1Id, true,
                 mMockContext);
         long box1Id = box1.mId;
-        
+
         Mailbox box2 = EmailContent.Mailbox.restoreMailboxWithId(mMockContext, box1Id);
-        
+
         ProviderTestUtils.assertMailboxEqual("testMailboxSave", box1, box2);
     }
-    
+
     private static String[] expectedAttachmentNames =
         new String[] {"attachment1.doc", "attachment2.xls", "attachment3"};
     // The lengths need to be kept in ascending order
@@ -178,7 +132,7 @@ public class ProviderTests extends ProviderTestCase2<EmailProvider> {
 
     /**
      * Test simple message save/retrieve
-     * 
+     *
      * TODO: serverId vs. serverIntId
      */
     public void testMessageSave() {
@@ -205,7 +159,7 @@ public class ProviderTests extends ProviderTestCase2<EmailProvider> {
         message2.mHtml = null;
         Message message2get = EmailContent.Message.restoreMessageWithId(mMockContext, message2Id);
         ProviderTestUtils.assertMessageEqual("testMessageSave", message2, message2get);
-        
+
         // Now see if there's a body saved with the right stuff
         // TODO it might make sense to add a function to restore the body with the message id
         Cursor c = null;
@@ -216,7 +170,7 @@ public class ProviderTests extends ProviderTestCase2<EmailProvider> {
                     EmailContent.Body.MESSAGE_KEY + "=?",
                     new String[] {
                             String.valueOf(message2Id)
-                    }, 
+                    },
                     null);
             int numBodies = c.getCount();
             assertEquals(1, numBodies);
@@ -307,19 +261,19 @@ public class ProviderTests extends ProviderTestCase2<EmailProvider> {
             c.close();
         }
     }
-    
+
     /**
      * TODO: update account
      */
-    
+
     /**
      * TODO: update mailbox
      */
-    
+
     /**
      * TODO: update message
      */
-    
+
     /**
      * Test delete account
      * TODO: hostauth
@@ -350,7 +304,7 @@ public class ProviderTests extends ProviderTestCase2<EmailProvider> {
         numBoxes = EmailContent.count(mMockContext, Account.CONTENT_URI, null, null);
         assertEquals(0, numBoxes);
     }
-    
+
     /**
      * Test delete mailbox
      */
@@ -361,7 +315,7 @@ public class ProviderTests extends ProviderTestCase2<EmailProvider> {
         long box1Id = box1.mId;
         Mailbox box2 = ProviderTestUtils.setupMailbox("box2", account1Id, true, mMockContext);
         long box2Id = box2.mId;
-        
+
         String selection = EmailContent.MailboxColumns.ACCOUNT_KEY + "=?";
         String[] selArgs = new String[] { String.valueOf(account1Id) };
 
@@ -385,7 +339,7 @@ public class ProviderTests extends ProviderTestCase2<EmailProvider> {
         numBoxes = EmailContent.count(mMockContext, Mailbox.CONTENT_URI, selection, selArgs);
         assertEquals(0, numBoxes);
     }
-    
+
     /**
      * Test delete message
      * TODO: body
@@ -427,7 +381,7 @@ public class ProviderTests extends ProviderTestCase2<EmailProvider> {
         numMessages = EmailContent.count(mMockContext, Message.CONTENT_URI, selection, selArgs);
         assertEquals(0, numMessages);
     }
-    
+
     /**
      * Test delete synced message
      * TODO: body
@@ -613,7 +567,7 @@ public class ProviderTests extends ProviderTestCase2<EmailProvider> {
         numMessages = EmailContent.count(mMockContext, Message.CONTENT_URI, null, null);
         assertEquals(0, numMessages);
     }
-    
+
     /**
      * Test cascaded delete mailbox
      * TODO: body
@@ -638,16 +592,16 @@ public class ProviderTests extends ProviderTestCase2<EmailProvider> {
         // make sure there are two messages
         int numMessages = EmailContent.count(mMockContext, Message.CONTENT_URI, selection, selArgs);
         assertEquals(2, numMessages);
-        
+
         // now delete the mailbox
         Uri uri = ContentUris.withAppendedId(Mailbox.CONTENT_URI, box1Id);
         mMockContext.getContentResolver().delete(uri, null, null);
-        
+
         // there should now be zero messages
         numMessages = EmailContent.count(mMockContext, Message.CONTENT_URI, selection, selArgs);
         assertEquals(0, numMessages);
     }
-    
+
     /**
      * TODO: Test cascaded delete message
      * TODO: body
@@ -706,8 +660,8 @@ public class ProviderTests extends ProviderTestCase2<EmailProvider> {
         // Note, we don't strictly need accounts, mailboxes or messages to run this test.
         Attachment a1 = ProviderTestUtils.setupAttachment(1, "a1", 100, true, mMockContext);
         Attachment a2 = ProviderTestUtils.setupAttachment(1, "a2", 200, true, mMockContext);
-        Attachment a3 = ProviderTestUtils.setupAttachment(2, "a3", 300, true, mMockContext);
-        Attachment a4 = ProviderTestUtils.setupAttachment(2, "a4", 400, true, mMockContext);
+        ProviderTestUtils.setupAttachment(2, "a3", 300, true, mMockContext);
+        ProviderTestUtils.setupAttachment(2, "a4", 400, true, mMockContext);
 
         // Now ask for the attachments of message id=1
         // Note: Using the "sort by size" trick to bring them back in expected order
@@ -730,7 +684,7 @@ public class ProviderTests extends ProviderTestCase2<EmailProvider> {
 
     /**
      * Tests of default account behavior
-     * 
+     *
      * 1.  Simple set/get
      * 2.  Moving default between 3 accounts
      * 3.  Delete default, make sure another becomes default
@@ -779,7 +733,7 @@ public class ProviderTests extends ProviderTestCase2<EmailProvider> {
 
         defaultAccountId = Account.getDefaultAccountId(mMockContext);
         assertEquals(account2Id, defaultAccountId);
-        
+
         // Now delete the final account and confirm there are no default accounts again
         uri = ContentUris.withAppendedId(Account.CONTENT_URI, account2Id);
         mMockContext.getContentResolver().delete(uri, null, null);
@@ -793,5 +747,85 @@ public class ProviderTests extends ProviderTestCase2<EmailProvider> {
         ContentValues cv = new ContentValues();
         cv.put(AccountColumns.IS_DEFAULT, account.mIsDefault);
         account.update(mMockContext, cv);
+    }
+
+    public static Message setupUnreadMessage(String name, long accountId, long mailboxId,
+            boolean addBody, boolean saveIt, Context context) {
+        Message msg =
+            ProviderTestUtils.setupMessage(name, accountId, mailboxId, addBody, false, context);
+        msg.mFlagRead = false;
+        if (saveIt) {
+            msg.save(context);
+        }
+        return msg;
+    }
+
+    public void testUnreadCountTriggers() {
+        // Start with one account and three mailboxes
+        Account account = ProviderTestUtils.setupAccount("triggers", true, mMockContext);
+        Mailbox boxA = ProviderTestUtils.setupMailbox("boxA", account.mId, true, mMockContext);
+        Mailbox boxB = ProviderTestUtils.setupMailbox("boxB", account.mId, true, mMockContext);
+        Mailbox boxC = ProviderTestUtils.setupMailbox("boxC", account.mId, true, mMockContext);
+
+        // Make sure there are no unreads
+        assertEquals(0, getUnreadCount(boxA.mId));
+        assertEquals(0, getUnreadCount(boxB.mId));
+        assertEquals(0, getUnreadCount(boxC.mId));
+
+        // Create 4 unread messages (only 3 named) in boxA
+        Message message1 = setupUnreadMessage("message1", account.mId, boxA.mId,
+                false, true, mMockContext);
+        Message message2= setupUnreadMessage("message2", account.mId, boxA.mId,
+                false, true, mMockContext);
+        Message message3 =  setupUnreadMessage("message3", account.mId, boxA.mId,
+                false, true, mMockContext);
+        setupUnreadMessage("message4", account.mId, boxC.mId, false, true, mMockContext);
+
+        // Make sure the unreads are where we expect them
+        assertEquals(3, getUnreadCount(boxA.mId));
+        assertEquals(0, getUnreadCount(boxB.mId));
+        assertEquals(1, getUnreadCount(boxC.mId));
+
+        // After deleting message 1, the count in box A should be decremented (to 2)
+        ContentResolver cr = mMockContext.getContentResolver();
+        Uri uri = ContentUris.withAppendedId(Message.CONTENT_URI, message1.mId);
+        cr.delete(uri, null, null);
+        assertEquals(2, getUnreadCount(boxA.mId));
+        assertEquals(0, getUnreadCount(boxB.mId));
+        assertEquals(1, getUnreadCount(boxC.mId));
+
+        // Move message 2 to box B, leaving 1 in box A and 1 in box B
+        message2.mMailboxKey = boxB.mId;
+        ContentValues cv = new ContentValues();
+        cv.put(MessageColumns.MAILBOX_KEY, boxB.mId);
+        cr.update(ContentUris.withAppendedId(Message.CONTENT_URI, message2.mId), cv, null, null);
+        assertEquals(1, getUnreadCount(boxA.mId));
+        assertEquals(1, getUnreadCount(boxB.mId));
+        assertEquals(1, getUnreadCount(boxC.mId));
+
+        // Mark message 3 (from box A) read, leaving 0 in box A
+        cv.clear();
+        cv.put(MessageColumns.FLAG_READ, 1);
+        cr.update(ContentUris.withAppendedId(Message.CONTENT_URI, message3.mId), cv, null, null);
+        assertEquals(0, getUnreadCount(boxA.mId));
+        assertEquals(1, getUnreadCount(boxB.mId));
+        assertEquals(1, getUnreadCount(boxC.mId));
+
+        // Move message 3 to box C; should be no change (it's read)
+        message3.mMailboxKey = boxC.mId;
+        cv.clear();
+        cv.put(MessageColumns.MAILBOX_KEY, boxC.mId);
+        cr.update(ContentUris.withAppendedId(Message.CONTENT_URI, message3.mId), cv, null, null);
+        assertEquals(0, getUnreadCount(boxA.mId));
+        assertEquals(1, getUnreadCount(boxB.mId));
+        assertEquals(1, getUnreadCount(boxC.mId));
+
+        // Mark message 3 unread; it's now in box C, so that box's count should go up to 3
+        cv.clear();
+        cv.put(MessageColumns.FLAG_READ, 0);
+        cr.update(ContentUris.withAppendedId(Message.CONTENT_URI, message3.mId), cv, null, null);
+        assertEquals(0, getUnreadCount(boxA.mId));
+        assertEquals(1, getUnreadCount(boxB.mId));
+        assertEquals(2, getUnreadCount(boxC.mId));
     }
 }
