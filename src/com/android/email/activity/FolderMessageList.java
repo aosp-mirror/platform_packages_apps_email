@@ -782,7 +782,7 @@ public class FolderMessageList extends ExpandableListActivity {
         }
 
         public void loadAttachmentCallback(MessagingException result, long messageId,
-                long attachmentId, int progress, Object tag) {
+                long attachmentId, int progress) {
         }
     }
 

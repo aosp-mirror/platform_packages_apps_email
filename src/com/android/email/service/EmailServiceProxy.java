@@ -220,8 +220,7 @@ public class EmailServiceProxy implements IEmailService {
         setTask(new Runnable () {
             public void run() {
                 try {
-                    if (mCallback != null) mService.setCallback(mCallback);
-                   mService.setCallback(cb);
+                    mService.setCallback(cb);
                 } catch (RemoteException e) {
                 }
             }

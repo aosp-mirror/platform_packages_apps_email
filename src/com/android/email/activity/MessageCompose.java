@@ -1243,7 +1243,7 @@ public class MessageCompose extends Activity implements OnClickListener, OnFocus
         }
 
         public void loadAttachmentCallback(MessagingException result, long messageId,
-                long attachmentId, int progress, Object tag) {
+                long attachmentId, int progress) {
         }
     }
 

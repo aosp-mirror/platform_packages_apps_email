@@ -801,7 +801,7 @@ public class MessageList extends ListActivity implements OnItemClickListener, On
         }
 
         public void loadAttachmentCallback(MessagingException result, long messageId,
-                long attachmentId, int progress, Object tag) {
+                long attachmentId, int progress) {
         }
     }
 

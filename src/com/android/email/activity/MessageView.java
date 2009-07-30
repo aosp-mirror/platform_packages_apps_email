@@ -137,6 +137,10 @@ public class MessageView extends Activity
     private LoadBodyTask mLoadBodyTask;
     private LoadAttachmentsTask mLoadAttachmentsTask;
 
+    private long mLoadAttachmentId;         // the attachment being saved/viewed
+    private boolean mLoadAttachmentSave;    // if true, saving - if false, viewing
+    private String mLoadAttachmentName;     // the display name
+
     private String mFolder;
     private String mMessageUid;
     private Cursor mMessageListCursor;
@@ -152,7 +156,7 @@ public class MessageView extends Activity
     private ControllerResults mControllerCallback = new ControllerResults();
 
     class MessageViewHandler extends Handler {
-        private static final int MSG_PROGRESS = 2;
+        private static final int MSG_ATTACHMENT_PROGRESS = 2;
         private static final int MSG_SET_ATTACHMENTS_ENABLED = 4;
         private static final int MSG_SET_HEADERS = 5;
         private static final int MSG_NETWORK_ERROR = 6;
@@ -168,16 +172,17 @@ public class MessageView extends Activity
         @Override
         public void handleMessage(android.os.Message msg) {
             switch (msg.what) {
-                case MSG_PROGRESS:
-                    if (msg.arg1 != 0) {
+                case MSG_ATTACHMENT_PROGRESS:
+                    boolean progress = (msg.arg1 != 0);
+                    if (progress) {
                         mProgressDialog.setMessage(
                                 getString(R.string.message_view_fetching_attachment_progress,
-                                        msg.obj));
+                                        mLoadAttachmentName));
                         mProgressDialog.show();
                     } else {
                         mProgressDialog.dismiss();
                     }
-                    setProgressBarIndeterminateVisibility(msg.arg1 != 0);
+                    setProgressBarIndeterminateVisibility(progress);
                     break;
                 case MSG_SET_ATTACHMENTS_ENABLED:
                     for (int i = 0, count = mAttachments.getChildCount(); i < count; i++) {
@@ -233,20 +238,17 @@ public class MessageView extends Activity
                         .iconView.setImageBitmap((Bitmap) msg.obj);
                     break;
                 case MSG_FINISH_LOAD_ATTACHMENT:
-                    boolean save = msg.arg1 != 0;
                     long attachmentId = (Long)msg.obj;
-                    doFinishLoadAttachment(save, attachmentId);
+                    doFinishLoadAttachment(attachmentId);
                     break;
                 default:
                     super.handleMessage(msg);
             }
         }
 
-        public void progress(boolean progress, String filename) {
-            android.os.Message msg = new android.os.Message();
-            msg.what = MSG_PROGRESS;
+        public void attachmentProgress(boolean progress) {
+            android.os.Message msg = android.os.Message.obtain(this, MSG_ATTACHMENT_PROGRESS);
             msg.arg1 = progress ? 1 : 0;
-            msg.obj = filename;
             sendMessage(msg);
         }
 
@@ -315,9 +317,8 @@ public class MessageView extends Activity
             sendMessage(msg);
         }
 
-        public void finishLoadAttachment(long attachmentId, boolean save) {
+        public void finishLoadAttachment(long attachmentId) {
             android.os.Message msg = android.os.Message.obtain(this, MSG_FINISH_LOAD_ATTACHMENT);
-            msg.arg1 = save ? 1 : 0;
             msg.obj = Long.valueOf(attachmentId);
             sendMessage(msg);
         }
@@ -666,17 +667,21 @@ public class MessageView extends Activity
             return;
         }
 
-        LoadAttachTag tag = new LoadAttachTag(true, attachment.name);
+        mLoadAttachmentId = attachment.attachmentId;
+        mLoadAttachmentSave = true;
+        mLoadAttachmentName = attachment.name;
 
         Controller.getInstance(getApplication()).loadAttachment(attachment.attachmentId,
-                mMessageId, mAccountId, mControllerCallback, tag);
+                mMessageId, mAccountId, mControllerCallback);
     }
 
     private void onViewAttachment(AttachmentInfo attachment) {
-        LoadAttachTag tag = new LoadAttachTag(false, attachment.name);
+        mLoadAttachmentId = attachment.attachmentId;
+        mLoadAttachmentSave = false;
+        mLoadAttachmentName = attachment.name;
 
         Controller.getInstance(getApplication()).loadAttachment(attachment.attachmentId,
-                mMessageId, mAccountId, mControllerCallback, tag);
+                mMessageId, mAccountId, mControllerCallback);
     }
 
     private void onShowPictures() {
@@ -1189,39 +1194,25 @@ public class MessageView extends Activity
     }
 
     /**
-     * Passed-back tag for Controller.loadAttachmentCallback
-     */
-    private static class LoadAttachTag {
-        boolean save;       // false = view, true = save
-        String name;        // the server-side name of the attachment
-
-        LoadAttachTag(boolean _save, String _name) {
-            save = _save;
-            name = _name;
-        }
-    }
-
-    /**
      * Controller results listener.  This completely replaces MessagingListener
      */
     class ControllerResults implements Controller.Result {
 
         public void loadAttachmentCallback(MessagingException result, long messageId,
-                long attachmentId, int progress, Object tag) {
+                long attachmentId, int progress) {
             if (messageId == MessageView.this.mMessageId) {
-                LoadAttachTag tagInfo = (LoadAttachTag) tag;
                 if (result == null) {
                     switch (progress) {
                         case 0:
                             mHandler.setAttachmentsEnabled(false);
-                            mHandler.progress(true, tagInfo.name);
+                            mHandler.attachmentProgress(true);
                             mHandler.fetchingAttachment();
                             break;
                         case 100:
                             mHandler.setAttachmentsEnabled(true);
-                            mHandler.progress(false, null);
+                            mHandler.attachmentProgress(false);
                             updateAttachmentThumbnail(attachmentId);
-                            mHandler.finishLoadAttachment(attachmentId, tagInfo.save);
+                            mHandler.finishLoadAttachment(attachmentId);
                             break;
                         default:
                             // do nothing - we don't have a progress bar at this time
@@ -1229,7 +1220,7 @@ public class MessageView extends Activity
                     }
                 } else {
                     mHandler.setAttachmentsEnabled(true);
-                    mHandler.progress(false, null);
+                    mHandler.attachmentProgress(false);
                     mHandler.networkError();
                 }
             }
@@ -1401,7 +1392,7 @@ public class MessageView extends Activity
                 Part part, Object tag, boolean requiresDownload) {
             mHandler.setAttachmentsEnabled(false);
             Object[] params = (Object[]) tag;
-            mHandler.progress(true, ((AttachmentInfo) params[1]).name);
+//            mHandler.progress(true, ((AttachmentInfo) params[1]).name);
             if (requiresDownload) {
                 mHandler.fetchingAttachment();
             }
@@ -1411,7 +1402,7 @@ public class MessageView extends Activity
         public void loadAttachmentFinished(Account account, com.android.email.mail.Message message,
                 Part part, Object tag) {
             mHandler.setAttachmentsEnabled(true);
-            mHandler.progress(false, null);
+//            mHandler.progress(false, null);
 //            updateAttachmentThumbnail(part);
 
             Object[] params = (Object[]) tag;
@@ -1459,7 +1450,7 @@ public class MessageView extends Activity
         public void loadAttachmentFailed(Account account, com.android.email.mail.Message message, 
                 Part part, Object tag, String reason) {
             mHandler.setAttachmentsEnabled(true);
-            mHandler.progress(false, null);
+//            mHandler.progress(false, null);
             mHandler.networkError();
         }
         
@@ -1497,14 +1488,18 @@ public class MessageView extends Activity
      * @param save If true, save to SD card.  If false, send view intent
      * @param attachmentId the attachment that was just downloaded
      */
-    private void doFinishLoadAttachment(boolean save, long attachmentId) {
+    private void doFinishLoadAttachment(long attachmentId) {
+        // If the result does't line up, just skip it - we handle one at a time.
+        if (attachmentId != mLoadAttachmentId) {
+            return;
+        }
         Attachment attachment =
             Attachment.restoreAttachmentWithId(MessageView.this, attachmentId);
         Uri attachmentUri = AttachmentProvider.getAttachmentUri(mAccountId, attachment.mId);
         Uri contentUri =
             AttachmentProvider.resolveAttachmentIdToContentUri(getContentResolver(), attachmentUri);
 
-        if (save) {
+        if (mLoadAttachmentSave) {
             try {
                 File file = createUniqueFile(Environment.getExternalStorageDirectory(),
                         attachment.mFileName);

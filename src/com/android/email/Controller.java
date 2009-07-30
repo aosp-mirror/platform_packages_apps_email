@@ -53,6 +53,7 @@ public class Controller {
     private Context mContext;
     private Context mProviderContext;
     private MessagingController mLegacyController;
+    private ServiceCallback mServiceCallback = new ServiceCallback();
     private HashSet<Result> mListeners = new HashSet<Result>();
 
     private static String[] MESSAGEID_TO_ACCOUNTID_PROJECTION = new String[] {
@@ -417,7 +418,7 @@ public class Controller {
      * @param callback the Controller callback by which results will be reported
      */
     public void loadAttachment(long attachmentId, long messageId, long accountId,
-            final Result callback, Object tag) {
+            final Result callback) {
 
         Attachment attachInfo = Attachment.restoreAttachmentWithId(mProviderContext, attachmentId);
 
@@ -455,7 +456,7 @@ public class Controller {
         if (isMessagingController(account)) {
             return null;
         } else {
-            return new EmailServiceProxy(mContext, SyncManager.class);
+            return new EmailServiceProxy(mContext, SyncManager.class, mServiceCallback);
         }
     }
 
@@ -505,10 +506,9 @@ public class Controller {
          * @param messageId the message which contains the attachment
          * @param attachmentId the attachment being loaded
          * @param progress 0 for "starting", 1..99 for updates (if needed in UI), 100 for complete
-         * @param tag caller-defined tag, if supplied
          */
         public void loadAttachmentCallback(MessagingException result, long messageId,
-                long attachmentId, int progress, Object tag);
+                long attachmentId, int progress);
     }
 
     /**
@@ -570,87 +570,54 @@ public class Controller {
     /**
      * Service callback for load attachment
      */
-    private class LoadAttachmentCallback extends IEmailServiceCallback.Stub {
+    private class ServiceCallback extends IEmailServiceCallback.Stub {
 
         private final static boolean DEBUG_FAIL_DOWNLOADS = false;       // do not check in "true"
 
-        Result mCallback;
-        boolean mMadeFirstCallback;
-        Object mTag;
-
-        public LoadAttachmentCallback(Result callback, Object tag) {
-            super();
-            mCallback = callback;
-            mMadeFirstCallback = false;
-            mTag = tag;
-        }
-
-        /**
-         * Callback from Service for load attachment status.
-         *
-         * This performs some translations to what the UI expects, which is (assuming no fail):
-         *  progress = 0 ("started")
-         *  progress = 1..99 ("running")
-         *  progress = 100 ("finished")
-         *
-         * @param messageId the id of the message the callback relates to
-         * @param attachmentId the id of the attachment (if any)
-         * @param statusCode from the definitions in EmailServiceStatus
-         * @param progress the progress (from 0 to 100) of a download
-         */
-        public void status(long messageId, long attachmentId, int statusCode, int progress) {
-            if (mCallback != null && isActiveResultCallback(mCallback)) {
-                MessagingException result = null;
-                switch (statusCode) {
-                    case EmailServiceStatus.SUCCESS:
-                        progress = 100;
-                        break;
-                    case EmailServiceStatus.IN_PROGRESS:
-                        // special case, force a single "progress = 0" for the first time
-                        if (!mMadeFirstCallback) {
-                            progress = 0;
-                            mMadeFirstCallback = true;
-                        } else if (DEBUG_FAIL_DOWNLOADS && progress > 75) {
-                            result = new MessagingException(
-                                    String.valueOf(EmailServiceStatus.CONNECTION_ERROR));
-                        } else if (progress <= 0 || progress >= 100) {
-                            return;
-                        }
-                        break;
-                    default:
-                        result = new MessagingException(String.valueOf(statusCode));
-                    break;
-                }
-                mCallback.loadAttachmentCallback(result, messageId, attachmentId, progress, mTag);
-                // prevent any trailing reports if there was an error
-                if (result != null) {
-                    mCallback = null;
-                }
-            }
-        }
-
         public void loadAttachmentStatus(long messageId, long attachmentId, int statusCode,
                 int progress) throws RemoteException {
-            // TODO Auto-generated method stub
-            
+            MessagingException result = null;
+            switch (statusCode) {
+                case EmailServiceStatus.SUCCESS:
+                    progress = 100;
+                    break;
+                case EmailServiceStatus.IN_PROGRESS:
+                    if (DEBUG_FAIL_DOWNLOADS && progress > 75) {
+                        result = new MessagingException(
+                                String.valueOf(EmailServiceStatus.CONNECTION_ERROR));
+                    }
+                    // discard progress reports that look like sentinels
+                    if (progress < 0 || progress >= 100) {
+                        return;
+                    }
+                    break;
+                default:
+                    result = new MessagingException(String.valueOf(statusCode));
+                break;
+            }
+            synchronized (mListeners) {
+                for (Result listener : mListeners) {
+                    listener.loadAttachmentCallback(result, messageId, attachmentId, progress);
+                }
+            }
         }
 
         public void sendMessageStatus(long messageId, int statusCode, int progress)
                 throws RemoteException {
             // TODO Auto-generated method stub
-            
+
         }
 
         public void syncMailboxListStatus(long accountId, int statusCode, int progress)
                 throws RemoteException {
             // TODO Auto-generated method stub
-            
+
         }
 
         public void syncMailboxStatus(long mailboxId, int statusCode, int progress)
                 throws RemoteException {
             // TODO Auto-generated method stub
-            
+
         }
     }
 }

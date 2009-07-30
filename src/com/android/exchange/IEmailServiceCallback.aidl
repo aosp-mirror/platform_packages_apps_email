@@ -20,32 +20,32 @@ package com.android.exchange;
 oneway interface IEmailServiceCallback {
     /*
      * Ordinary results:
-     *   statuscode = 0, progress = 0:  "starting"
-     *   statuscode = 0, progress = 100:  "finished"
+     *   statuscode = 1, progress = 0:      "starting"
+     *   statuscode = 0, progress = n/a:    "finished"
      *
      * If there is an error, it must be reported as follows:
-     *   statuscode != 0, progress = n/a:   "stopping due to error"
+     *   statuscode = err, progress = n/a:  "stopping due to error"
      *
      * *Optionally* a callback can also include intermediate values from 1..99 e.g.
-     *   statuscode = 0, progress = 0:  "starting"
-     *   statuscode = 0, progress = 30:  "working"
-     *   statuscode = 0, progress = 60:  "working"
-     *   statuscode = 0, progress = 100:  "finished"
+     *   statuscode = 1, progress = 0:      "starting"
+     *   statuscode = 1, progress = 30:     "working"
+     *   statuscode = 1, progress = 60:     "working"
+     *   statuscode = 0, progress = n/a:    "finished"
      */
 
     /**
      * Callback to indicate that an account is being synced (updating folder list)
      * accountId = the account being synced
-     * statusCode = 0 for OK, != 0 for error
-     * progress = 0 for "start", 1..99 (if available), 100 for "finished"
+     * statusCode = 0 for OK, 1 for progress, other codes for error
+     * progress = 0 for "start", 1..100 for optional progress reports
      */
     void syncMailboxListStatus(long accountId, int statusCode, int progress);
 
     /**
      * Callback to indicate that a mailbox is being synced
      * mailboxId = the mailbox being synced
-     * statusCode = 0 for OK, != 0 for error
-     * progress = 0 for "start", 1..99 (if available), 100 for "finished"
+     * statusCode = 0 for OK, 1 for progress, other codes for error
+     * progress = 0 for "start", 1..100 for optional progress reports
      */
     void syncMailboxStatus(long mailboxId, int statusCode, int progress);
 
@@ -53,21 +53,16 @@ oneway interface IEmailServiceCallback {
      * Callback to indicate that a particular attachment is being synced
      * messageId = the message that owns the attachment
      * attachmentId = the attachment being synced
-     * statusCode = 0 for OK, != 0 for error
-     * progress = 0 for "start", 1..99 (if available), 100 for "finished"
+     * statusCode = 0 for OK, 1 for progress, other codes for error
+     * progress = 0 for "start", 1..100 for optional progress reports
      */
     void loadAttachmentStatus(long messageId, long attachmentId, int statusCode, int progress);
 
     /**
      * Callback to indicate that a particular message is being sent
      * messageId = the message being sent
-     * statusCode = 0 for OK, != 0 for error
-     * progress = 0 for "start", 1..99 (if available), 100 for "finished"
+     * statusCode = 0 for OK, 1 for progress, other codes for error
+     * progress = 0 for "start", 1..100 for optional progress reports
      */
     void sendMessageStatus(long messageId, int statusCode, int progress);
-
-    /**
-     * Deprecated
-     */
-    void status(long messageId, long attachmentId, int statusCode, int progress);
 }
