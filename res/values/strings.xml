@@ -23,7 +23,7 @@
     <!-- Name of application on Home screen -->
     <string name="app_name">Email</string>
     <!-- Title of Accounts screen -->
-    <string name="accounts_title">Your accounts</string>
+    <string name="accounts_title">Email</string>
     <!-- Title of compose screen -->
     <string name="compose_title">Compose</string>
     <!-- Title of debug screen -->
@@ -155,8 +155,8 @@
     <!-- Checkbox label, shown only on debug screen -->
     <string name="debug_enable_sensitive_logging_label">Enable sensitive information debug logging? (May show passwords in logs.)</string>
 
-    <!-- The title of the summary section in the AccountFolder list -->
-    <string name="account_folder_list_summary_section">At a glance</string>
+    <!-- The text in the small separator between smart folders and the accounts -->
+    <string name="account_folder_list_separator_accounts">Accounts</string>
     <!-- The summary section entry in the AccountFolder list to display all inboxes -->
     <string name="account_folder_list_summary_inbox">Inbox</string>
     <!-- The summary section entry in the AccountFolder list to display all unread -->

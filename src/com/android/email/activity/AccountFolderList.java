@@ -243,9 +243,7 @@ public class AccountFolderList extends ListActivity
         if (mListAdapter.isMailbox(position)) {
             MessageList.actionHandleAccount(this, id, null, null);
         } else if (mListAdapter.isAccount(position)) {
-            // TODO this should be calling
-            // MessageList.actionHandleAccount(context, accountId, INBOX) 
-            MailboxList.actionHandleAccount(this, id);
+            MessageList.actionHandleAccount(this, id, Mailbox.TYPE_INBOX); 
         }
     }
 
@@ -640,11 +638,12 @@ public class AccountFolderList extends ListActivity
         }
     }
 
-    private static class AccountsAdapter extends CursorAdapter {
+    /* package */ static class AccountsAdapter extends CursorAdapter {
 
         Context mContext;
         private LayoutInflater mInflater;
         private int mMailboxesCount;
+        private int mSeparatorPosition;
 
         public static AccountsAdapter getInstance(Cursor mailboxesCursor, Cursor accountsCursor,
                 Context context) {
@@ -658,6 +657,7 @@ public class AccountFolderList extends ListActivity
             mContext = context;
             mInflater = (LayoutInflater)context.getSystemService(Context.LAYOUT_INFLATER_SERVICE);
             mMailboxesCount = mailboxesCount;
+            mSeparatorPosition = mailboxesCount;
         }
 
         public boolean isMailbox(int position) {
@@ -666,6 +666,15 @@ public class AccountFolderList extends ListActivity
 
         public boolean isAccount(int position) {
             return position >= mMailboxesCount;
+        }
+
+        /**
+         * This is used as a callback from the list items, for clicks in the folder "button"
+         *
+         * @param itemView the item in which the click occurred
+         */
+        public void onClickFolder(AccountFolderListItem itemView) {
+            MailboxList.actionHandleAccount(mContext, itemView.mAccountId);
         }
 
         @Override
@@ -679,6 +688,10 @@ public class AccountFolderList extends ListActivity
 
         private void bindMailboxItem(View view, Context context, Cursor cursor, boolean isLastChild)
                 {
+            // Reset the view (in case it was recycled) and prepare for binding
+            AccountFolderListItem itemView = (AccountFolderListItem) view;
+            itemView.bindViewInit(this, false);
+
             // Invisible (not "gone") to maintain spacing
             view.findViewById(R.id.chip).setVisibility(View.INVISIBLE);
 
@@ -721,6 +734,11 @@ public class AccountFolderList extends ListActivity
 
         private void bindAccountItem(View view, Context context, Cursor cursor, boolean isExpanded)
                 {
+            // Reset the view (in case it was recycled) and prepare for binding
+            AccountFolderListItem itemView = (AccountFolderListItem) view;
+            itemView.bindViewInit(this, true);
+            itemView.mAccountId = cursor.getLong(Account.CONTENT_ID_COLUMN);
+
             long accountId = cursor.getLong(Account.CONTENT_ID_COLUMN);
             View chipView = view.findViewById(R.id.chip);
             int chipResId = mColorChipResIds[(int)accountId % mColorChipResIds.length];
@@ -756,6 +774,112 @@ public class AccountFolderList extends ListActivity
         @Override
         public View newView(Context context, Cursor cursor, ViewGroup parent) {
             return mInflater.inflate(R.layout.account_folder_list_item, parent, false);
+        }
+
+        /*
+         * The following series of overrides insert the "Accounts" separator
+         */
+
+        /**
+         * Prevents the separator view from recycling into the other views
+         */
+        @Override
+        public int getItemViewType(int position) {
+            if (position == mSeparatorPosition) {
+                return IGNORE_ITEM_VIEW_TYPE;
+            }
+            return super.getItemViewType(position);
+        }
+
+        /**
+         * Injects the separator view when required, and fudges the cursor for other views
+         */
+        @Override
+        public View getView(int position, View convertView, ViewGroup parent) {
+            if (!mDataValid) {
+                throw new IllegalStateException("cursor invalid");
+            }
+
+            // Handle the separator here - create & bind
+            if (position == mSeparatorPosition) {
+                TextView view;
+                view = (TextView) mInflater.inflate(R.layout.list_separator, parent, false);
+                view.setText(R.string.account_folder_list_separator_accounts);
+                return view;
+            }
+
+            if (!mCursor.moveToPosition(getRealPosition(position))) {
+                throw new IllegalStateException("cursor failed move to " + position);
+            }
+
+            View v;
+            if (convertView == null) {
+                v = newView(mContext, mCursor, parent);
+            } else {
+                v = convertView;
+            }
+            bindView(v, mContext, mCursor);
+            return v;
+        }
+
+        /**
+         * Forces navigation to skip over the separator
+         */
+        @Override
+        public boolean areAllItemsEnabled() {
+            return false;
+        }
+
+        /**
+         * Forces navigation to skip over the separator
+         */
+        @Override
+        public boolean isEnabled(int position) {
+            return position != mSeparatorPosition;
+        }
+
+        /**
+         * Adjusts list count to include separator
+         */
+        @Override
+        public int getCount() {
+            int count = super.getCount();
+            if (mDataValid && (mSeparatorPosition != ListView.INVALID_POSITION)) {
+                count += 1;
+            }
+            return count;
+        }
+
+        /**
+         * Converts list position to cursor position
+         */
+        private int getRealPosition(int pos) {
+            if (mSeparatorPosition == ListView.INVALID_POSITION) {
+                // No separator, identity map
+                return pos;
+            } else if (pos <= mSeparatorPosition) {
+                // Before or at the separator, identity map
+                return pos;
+            } else {
+                // After the separator, remove 1 from the pos to get the real underlying pos
+                return pos - 1;
+            }
+        }
+
+        /**
+         * Returns the item using external position numbering (no separator)
+         */
+        @Override
+        public Object getItem(int pos) {
+            return super.getItem(getRealPosition(pos));
+        }
+
+        /**
+         * Returns the item id using external position numbering (no separator)
+         */
+        @Override
+        public long getItemId(int pos) {
+            return super.getItemId(getRealPosition(pos));
         }
     }
 }
