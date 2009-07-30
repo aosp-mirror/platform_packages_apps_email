@@ -32,7 +32,7 @@ import com.android.email.provider.EmailContent.MessageColumns;
 
 import android.app.AlertDialog;
 import android.app.Dialog;
-import android.app.ExpandableListActivity;
+import android.app.ListActivity;
 import android.app.NotificationManager;
 import android.content.ContentUris;
 import android.content.Context;
@@ -57,13 +57,14 @@ import android.view.Window;
 import android.view.ContextMenu.ContextMenuInfo;
 import android.view.View.OnClickListener;
 import android.widget.AdapterView;
-import android.widget.CursorTreeAdapter;
-import android.widget.ExpandableListView;
+import android.widget.CursorAdapter;
+import android.widget.ListView;
 import android.widget.TextView;
 import android.widget.Toast;
-import android.widget.ExpandableListView.ExpandableListContextMenuInfo;
+import android.widget.AdapterView.OnItemClickListener;
 
-public class AccountFolderList extends ExpandableListActivity implements OnClickListener {
+public class AccountFolderList extends ListActivity
+        implements OnItemClickListener, OnClickListener {
     private static final int DIALOG_REMOVE_ACCOUNT = 1;
     /**
      * Key codes used to open a debug settings screen.
@@ -79,17 +80,13 @@ public class AccountFolderList extends ExpandableListActivity implements OnClick
     private static final String ICICLE_SELECTED_ACCOUNT = "com.android.email.selectedAccount";
     private EmailContent.Account mSelectedContextAccount;
 
-    ExpandableListView mListView;
+    private ListView mListView;
     private View mRefreshButton;
     private View mProgress;
 
     AccountsAdapter mListAdapter;
 
     LoadAccountsTask mLoadAccountsTask;
-    LoadMailboxesTask mLoadMailboxesTask;
-
-    Cursor mSummaryGroupCursor;
-    Cursor mSummaryChildCursor;
 
     private MessageListHandler mHandler = new MessageListHandler();
     private ControllerResults mControllerCallback = new ControllerResults();
@@ -125,6 +122,30 @@ public class AccountFolderList extends ExpandableListActivity implements OnClick
         "sum(" + MailboxColumns.UNREAD_COUNT + ")"
     };
 
+    private static final int[] mColorChipResIds = new int[] {
+        R.drawable.appointment_indicator_leftside_1,
+        R.drawable.appointment_indicator_leftside_2,
+        R.drawable.appointment_indicator_leftside_3,
+        R.drawable.appointment_indicator_leftside_4,
+        R.drawable.appointment_indicator_leftside_5,
+        R.drawable.appointment_indicator_leftside_6,
+        R.drawable.appointment_indicator_leftside_7,
+        R.drawable.appointment_indicator_leftside_8,
+        R.drawable.appointment_indicator_leftside_9,
+        R.drawable.appointment_indicator_leftside_10,
+        R.drawable.appointment_indicator_leftside_11,
+        R.drawable.appointment_indicator_leftside_12,
+        R.drawable.appointment_indicator_leftside_13,
+        R.drawable.appointment_indicator_leftside_14,
+        R.drawable.appointment_indicator_leftside_15,
+        R.drawable.appointment_indicator_leftside_16,
+        R.drawable.appointment_indicator_leftside_17,
+        R.drawable.appointment_indicator_leftside_18,
+        R.drawable.appointment_indicator_leftside_19,
+        R.drawable.appointment_indicator_leftside_20,
+        R.drawable.appointment_indicator_leftside_21,
+    };
+
     /**
      * Start the Accounts list activity.  Uses the CLEAR_TOP flag which means that other stacked
      * activities may be killed in order to get back to Accounts.
@@ -142,9 +163,10 @@ public class AccountFolderList extends ExpandableListActivity implements OnClick
         requestWindowFeature(Window.FEATURE_NO_TITLE);
 
         setContentView(R.layout.account_folder_list);
-        mListView = getExpandableListView();
+        mListView = getListView();
         mListView.setItemsCanFocus(false);
         mListView.setScrollBarStyle(View.SCROLLBARS_OUTSIDE_INSET);
+        mListView.setOnItemClickListener(this);
         mListView.setLongClickable(true);
         registerForContextMenu(mListView);
 
@@ -161,8 +183,6 @@ public class AccountFolderList extends ExpandableListActivity implements OnClick
         findViewById(R.id.account_status).setVisibility(View.GONE);
         mProgress = findViewById(R.id.progress);
         mProgress.setVisibility(View.GONE);
-
-        setupSummaryCursors();
 
         // Called only for filling cache of specialMailboxDisplayName
         getSpecialMailboxDisplayName(this, 0);
@@ -201,12 +221,6 @@ public class AccountFolderList extends ExpandableListActivity implements OnClick
     protected void onDestroy() {
         super.onDestroy();
 
-        if (mLoadMailboxesTask != null &&
-                mLoadMailboxesTask.getStatus() != LoadMailboxesTask.Status.FINISHED) {
-            mLoadMailboxesTask.cancel(true);
-            mLoadMailboxesTask = null;
-        }
-
         if (mLoadAccountsTask != null &&
                 mLoadAccountsTask.getStatus() != LoadAccountsTask.Status.FINISHED) {
             mLoadAccountsTask.cancel(true);
@@ -225,41 +239,14 @@ public class AccountFolderList extends ExpandableListActivity implements OnClick
         }
     }
 
-    @Override
-    public void onGroupExpand(int groupPosition) {
-        super.onGroupExpand(groupPosition);
-
-        // TEMP: Launch new MailboxList activity
-        if (groupPosition > 0) {
-            Cursor groupCursor = mListAdapter.getGroup(groupPosition);
-            long accountId = groupCursor.getLong(EmailContent.Account.CONTENT_ID_COLUMN);
-            MailboxList.actionHandleAccount(this, accountId);
-            return;
+    public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
+        if (mListAdapter.isMailbox(position)) {
+            MessageList.actionHandleAccount(this, id, null, null);
+        } else if (mListAdapter.isAccount(position)) {
+            // TODO this should be calling
+            // MessageList.actionHandleAccount(context, accountId, INBOX) 
+            MailboxList.actionHandleAccount(this, id);
         }
-
-        // If we don't have a cursor yet, create one
-        Cursor childCursor = mListAdapter.getChild(groupPosition, 0);
-        if (childCursor == null) {
-            // Kill any previous unfinished task
-            if (mLoadMailboxesTask != null &&
-                    mLoadMailboxesTask.getStatus() != LoadMailboxesTask.Status.FINISHED) {
-                mLoadMailboxesTask.cancel(true);
-                mLoadMailboxesTask = null;
-            }
-
-            // Now start a new task to create a non-empty cursor
-            Cursor groupCursor = mListAdapter.getGroup(groupPosition);
-            long accountKey = groupCursor.getLong(EmailContent.Account.CONTENT_ID_COLUMN);
-            mLoadMailboxesTask = new LoadMailboxesTask(accountKey, groupPosition);
-            mLoadMailboxesTask.execute();
-        }
-    }
-
-    @Override
-    public boolean onChildClick(ExpandableListView parent, View v, int groupPosition,
-            int childPosition, long id) {
-        onOpenFolder(groupPosition, childPosition);
-        return true;    // "handled"
     }
 
     private static int getCountByMailboxType(Context context, int type) {
@@ -298,50 +285,6 @@ public class AccountFolderList extends ExpandableListActivity implements OnClick
      *
      * TODO use narrower account projection (see LoadAccountsTask)
      */
-    private void setupSummaryCursors() {
-        // This will be combined with the Accounts cursor (via a MergeCursor)
-        MatrixCursor groupCursor = new MatrixCursor(EmailContent.Account.CONTENT_PROJECTION);
-        RowBuilder row = groupCursor.newRow();
-        row.add(Long.valueOf(-1));                              // CONTENT_ID_COLUMN = 0;
-        row.add(getString(R.string.account_folder_list_summary_section)); // CONTENT_ID_DISPLAY_NAME
-        row.add("");                                            // CONTENT_EMAIL_ADDRESS_COLUMN = 2;
-        mSummaryGroupCursor = groupCursor;
-
-        // This will be used as the child (mailboxes) cursor for the summary group
-        MatrixCursor childCursor = new MatrixCursor(MAILBOX_PROJECTION);
-        row = childCursor.newRow();
-        row.add(Long.valueOf(MessageList.QUERY_ALL_INBOXES));   // MAILBOX_COLUMN_ID = 0;
-        row.add(getString(R.string.account_folder_list_summary_inbox));     // MAILBOX_DISPLAY_NAME
-        row.add(null);                                          // MAILBOX_ACCOUNT_KEY = 2;
-        row.add(Integer.valueOf(Mailbox.TYPE_INBOX));           // MAILBOX_TYPE = 3;
-        row.add(Integer.valueOf(0));                            // MAILBOX_UNREAD_COUNT = 4;
-        row = childCursor.newRow();
-        row.add(Long.valueOf(MessageList.QUERY_ALL_UNREAD));    // MAILBOX_COLUMN_ID = 0;
-        row.add(getString(R.string.account_folder_list_summary_unread));    // MAILBOX_DISPLAY_NAME
-        row.add(null);                                          // MAILBOX_ACCOUNT_KEY = 2;
-        row.add(Integer.valueOf(Mailbox.TYPE_MAIL));            // MAILBOX_TYPE = 3;
-        row.add(Integer.valueOf(0));                            // MAILBOX_UNREAD_COUNT = 4;
-        row = childCursor.newRow();
-        row.add(Long.valueOf(MessageList.QUERY_ALL_FAVORITES)); // MAILBOX_COLUMN_ID = 0;
-        row.add(getString(R.string.account_folder_list_summary_favorite));  // MAILBOX_DISPLAY_NAME
-        row.add(null);                                          // MAILBOX_ACCOUNT_KEY = 2;
-        row.add(Integer.valueOf(Mailbox.TYPE_MAIL));            // MAILBOX_TYPE = 3;
-        row.add(Integer.valueOf(0));                            // MAILBOX_UNREAD_COUNT = 4;
-        row = childCursor.newRow();
-        row.add(Long.valueOf(MessageList.QUERY_ALL_DRAFTS));    // MAILBOX_COLUMN_ID = 0;
-        row.add(getString(R.string.account_folder_list_summary_drafts));    // MAILBOX_DISPLAY_NAME
-        row.add(null);                                          // MAILBOX_ACCOUNT_KEY = 2;
-        row.add(Integer.valueOf(Mailbox.TYPE_DRAFTS));          // MAILBOX_TYPE = 3;
-        row.add(Integer.valueOf(0));                            // MAILBOX_UNREAD_COUNT = 4;
-        row = childCursor.newRow();
-        row.add(Long.valueOf(MessageList.QUERY_ALL_OUTBOX));    // MAILBOX_COLUMN_ID = 0;
-        row.add(getString(R.string.account_folder_list_summary_outbox));    // MAILBOX_DISPLAY_NAME
-        row.add(null);                                          // MAILBOX_ACCOUNT_KEY = 2;
-        row.add(Integer.valueOf(Mailbox.TYPE_OUTBOX));          // MAILBOX_TYPE = 3;
-        row.add(Integer.valueOf(0));                            // MAILBOX_UNREAD_COUNT = 4;
-        mSummaryChildCursor = childCursor;
-    }
-
     private MatrixCursor getSummaryChildCursor() {
         MatrixCursor childCursor = new MatrixCursor(MAILBOX_PROJECTION);
         int count;
@@ -444,67 +387,27 @@ public class AccountFolderList extends ExpandableListActivity implements OnClick
     /**
      * Async task to handle the accounts query outside of the UI thread
      */
-    private class LoadAccountsTask extends AsyncTask<Void, Void, Cursor> {
+    private class LoadAccountsTask extends AsyncTask<Void, Void, Cursor[]> {
 
         @Override
-        protected Cursor doInBackground(Void... params) {
+        protected Cursor[] doInBackground(Void... params) {
+            // Create the summaries cursor
+            Cursor c1 = getSummaryChildCursor();
+
             // TODO use a custom projection and don't have to sample all of these columns
-            return AccountFolderList.this.managedQuery(
+            Cursor c2 = AccountFolderList.this.managedQuery(
                     EmailContent.Account.CONTENT_URI,
                     EmailContent.Account.CONTENT_PROJECTION,
                     null, null, null);
+
+            return new Cursor[] { c1, c2 };
         }
 
         @Override
-        protected void onPostExecute(Cursor theCursor) {
-            // Create a MergeCursor to insert the first row (not from the DB)
-            Cursor[] cursors = new Cursor[] { mSummaryGroupCursor, theCursor };
-            Cursor merged = new MergeCursor(cursors);
-
-            mListAdapter = new AccountsAdapter(merged, AccountFolderList.this);
+        protected void onPostExecute(Cursor[] cursors) {
+            mListAdapter = AccountsAdapter.getInstance(cursors[0], cursors[1],
+                    AccountFolderList.this);
             mListView.setAdapter(mListAdapter);
-        }
-    }
-
-    /**
-     * Async task to handle the mailboxes query outside of the UI thread
-     */
-    private class LoadMailboxesTask extends AsyncTask<Void, Void, Cursor> {
-
-        private long mAccountId;
-        private int mGroupNumber;
-
-        public LoadMailboxesTask(long accountId, int groupNumber) {
-            mAccountId = accountId;
-            mGroupNumber = groupNumber;
-        }
-
-        @Override
-        protected Cursor doInBackground(Void... params) {
-            if (mGroupNumber == 0) {
-                return getSummaryChildCursor();
-            }
-            Account.updateUnreadCount(AccountFolderList.this, mAccountId);
-            return AccountFolderList.this.managedQuery(
-                    Mailbox.CONTENT_URI,
-                    MAILBOX_PROJECTION,
-                    MailboxColumns.ACCOUNT_KEY + "=?",
-                    new String[] { String.valueOf(mAccountId) },
-                    MailboxColumns.TYPE);
-        }
-
-        @Override
-        protected void onPostExecute(Cursor theCursor) {
-            // TODO: There is a race condition here - what if the result came back after
-            // the positions shifted?  We need to use something other than "groupNumber"
-            // to set the correct adapter & cursor.
-            AccountFolderList.this.mListAdapter.setChildrenCursor(mGroupNumber, theCursor);
-
-            // If there are zero folders, this is probably a brand-new account - schedule a
-            // top-level refresh
-            if (theCursor.getCount() == 0) {
-                onRefresh(mAccountId);
-            }
         }
     }
 
@@ -558,17 +461,6 @@ public class AccountFolderList extends ExpandableListActivity implements OnClick
         return super.onCreateDialog(id);
     }
 
-    /**
-     * Open a folder.  This may be a "real" folder or composite, depending on which group.
-     * @param groupPosition The group # (account)
-     * @param childPosition The child # (folder)
-     */
-    private void onOpenFolder(int groupPosition, int childPosition) {
-        Cursor childCursor = mListAdapter.getChild(groupPosition, childPosition);
-        long mailboxKey = childCursor.getLong(MAILBOX_COLUMN_ID);
-        MessageList.actionHandleAccount(this, mailboxKey, null, null);
-    }
-
     private Dialog createRemoveAccountDialog() {
         return new AlertDialog.Builder(this)
             .setIcon(android.R.drawable.ic_dialog_alert)
@@ -613,12 +505,14 @@ public class AccountFolderList extends ExpandableListActivity implements OnClick
 
     @Override
     public boolean onContextItemSelected(MenuItem item) {
-        ExpandableListContextMenuInfo menuInfo = (ExpandableListContextMenuInfo)item.getMenuInfo();
-        int type = ExpandableListView.getPackedPositionType(menuInfo.packedPosition);
+        AdapterView.AdapterContextMenuInfo menuInfo =
+            (AdapterView.AdapterContextMenuInfo) item.getMenuInfo();
 
-        if (type == ExpandableListView.PACKED_POSITION_TYPE_GROUP) {
-            int group = ExpandableListView.getPackedPositionGroup(menuInfo.packedPosition);
-            Cursor c = (Cursor) mListView.getItemAtPosition(group);
+        if (mListAdapter.isMailbox(menuInfo.position)) {
+            // TODO is there any context menu for smart mailboxes?
+            return false;
+        } else if (mListAdapter.isAccount(menuInfo.position)) {
+            Cursor c = (Cursor) mListView.getItemAtPosition(menuInfo.position);
             long accountId = c.getLong(Account.CONTENT_ID_COLUMN);
             switch (item.getItemId()) {
                 case R.id.delete_account:
@@ -632,10 +526,8 @@ public class AccountFolderList extends ExpandableListActivity implements OnClick
                     break;
             }
             return true;
-        } else {
-            // TODO child context menus (per mailbox)
-            return false;
         }
+        return false;
     }
 
     @Override
@@ -670,18 +562,12 @@ public class AccountFolderList extends ExpandableListActivity implements OnClick
     @Override
     public void onCreateContextMenu(ContextMenu menu, View v, ContextMenuInfo info) {
         super.onCreateContextMenu(menu, v, info);
-        ExpandableListContextMenuInfo menuInfo = (ExpandableListContextMenuInfo) info;
-        int type = ExpandableListView.getPackedPositionType(menuInfo.packedPosition);
-        if (type == ExpandableListView.PACKED_POSITION_TYPE_GROUP) {
-            int groupPosition = ExpandableListView.getPackedPositionGroup(menuInfo.packedPosition);
-            if (groupPosition == 0) {
-                // TODO is there any context menu for "At a glance" ?
-            } else {
-                menu.setHeaderTitle(R.string.accounts_context_menu_title);
-                getMenuInflater().inflate(R.menu.account_folder_list_context, menu);
-            }
-        } else {
-            // TODO child context menus (per mailbox)
+        AdapterView.AdapterContextMenuInfo menuInfo = (AdapterView.AdapterContextMenuInfo) info;
+        if (mListAdapter.isMailbox(menuInfo.position)) {
+            // TODO is there any context menu for smart mailboxes?
+        } else if (mListAdapter.isAccount(menuInfo.position)) {
+            menu.setHeaderTitle(R.string.accounts_context_menu_title);
+            getMenuInflater().inflate(R.menu.account_folder_list_context, menu);
         }
     }
 
@@ -754,32 +640,60 @@ public class AccountFolderList extends ExpandableListActivity implements OnClick
         }
     }
 
-    private static class AccountsAdapter extends CursorTreeAdapter {
+    private static class AccountsAdapter extends CursorAdapter {
 
         Context mContext;
         private LayoutInflater mInflater;
+        private int mMailboxesCount;
 
-        public AccountsAdapter(Cursor c, Context context) {
-            super(c, context, true);
+        public static AccountsAdapter getInstance(Cursor mailboxesCursor, Cursor accountsCursor,
+                Context context) {
+            Cursor[] cursors = new Cursor[] { mailboxesCursor, accountsCursor };
+            Cursor mc = new MergeCursor(cursors);
+            return new AccountsAdapter(mc, context, mailboxesCursor.getCount());
+        }
+
+        public AccountsAdapter(Cursor c, Context context, int mailboxesCount) {
+            super(context, c, true);
             mContext = context;
             mInflater = (LayoutInflater)context.getSystemService(Context.LAYOUT_INFLATER_SERVICE);
+            mMailboxesCount = mailboxesCount;
+        }
+
+        public boolean isMailbox(int position) {
+            return position < mMailboxesCount;
+        }
+
+        public boolean isAccount(int position) {
+            return position >= mMailboxesCount;
         }
 
         @Override
-        protected void bindChildView(View view, Context context, Cursor cursor, boolean isLastChild)
+        public void bindView(View view, Context context, Cursor cursor) {
+            if (cursor.getPosition() < mMailboxesCount) {
+                bindMailboxItem(view, context, cursor, false);
+            } else {
+                bindAccountItem(view, context, cursor, false);
+            }
+        }
+
+        private void bindMailboxItem(View view, Context context, Cursor cursor, boolean isLastChild)
                 {
+            // Invisible (not "gone") to maintain spacing
+            view.findViewById(R.id.chip).setVisibility(View.INVISIBLE);
+
             String text = getSpecialMailboxDisplayName(context, cursor.getInt(MAILBOX_TYPE));
             if (text == null) {
                 text = cursor.getString(MAILBOX_DISPLAY_NAME);
             }
             if (text != null) {
-                TextView nameView = (TextView) view.findViewById(R.id.folder_name);
+                TextView nameView = (TextView) view.findViewById(R.id.name);
                 nameView.setText(text);
             }
 
             // TODO get/track live folder status
             text = null;
-            TextView statusView = (TextView) view.findViewById(R.id.folder_status);
+            TextView statusView = (TextView) view.findViewById(R.id.status);
             if (text != null) {
                 statusView.setText(text);
                 statusView.setVisibility(View.VISIBLE);
@@ -801,27 +715,27 @@ public class AccountFolderList extends ExpandableListActivity implements OnClick
             } else {
                 countView.setVisibility(View.GONE);
             }
+
+            view.findViewById(R.id.folder_button).setVisibility(View.GONE);
         }
 
-        @Override
-        protected void bindGroupView(View view, Context context, Cursor cursor, boolean isExpanded)
+        private void bindAccountItem(View view, Context context, Cursor cursor, boolean isExpanded)
                 {
-            String text = cursor.getString(EmailContent.Account.CONTENT_DISPLAY_NAME_COLUMN);
+            long accountId = cursor.getLong(Account.CONTENT_ID_COLUMN);
+            View chipView = view.findViewById(R.id.chip);
+            int chipResId = mColorChipResIds[(int)accountId % mColorChipResIds.length];
+            chipView.setBackgroundResource(chipResId);
+            chipView.setVisibility(View.VISIBLE);
+
+            String text = cursor.getString(Account.CONTENT_DISPLAY_NAME_COLUMN);
             if (text != null) {
-                TextView descriptionView = (TextView) view.findViewById(R.id.description);
+                TextView descriptionView = (TextView) view.findViewById(R.id.name);
                 descriptionView.setText(text);
             }
 
-            // Special case handling for summary section
-            if (cursor.getPosition() == 0) {
-                view.findViewById(R.id.email).setVisibility(View.GONE);
-                view.findViewById(R.id.new_message_count).setVisibility(View.GONE);
-                return;
-            }
-
-            text = cursor.getString(EmailContent.Account.CONTENT_EMAIL_ADDRESS_COLUMN);
+            text = cursor.getString(Account.CONTENT_EMAIL_ADDRESS_COLUMN);
             if (text != null) {
-                TextView emailView = (TextView) view.findViewById(R.id.email);
+                TextView emailView = (TextView) view.findViewById(R.id.status);
                 emailView.setText(text);
                 emailView.setVisibility(View.VISIBLE);
             }
@@ -835,35 +749,13 @@ public class AccountFolderList extends ExpandableListActivity implements OnClick
             } else {
                 countView.setVisibility(View.GONE);
             }
-        }
 
-        /**
-         * We return null here (no immediate cursor availability) and use an AsyncTask to get
-         * the cursor in certain onclick situations
-         */
-        @Override
-        protected Cursor getChildrenCursor(Cursor groupCursor) {
-            return null;
-        }
-
-        /**
-         * Overriding this allows the child cursors to be requeried on dataset changes
-         */
-        @Override
-        public void notifyDataSetChanged() {
-            notifyDataSetChanged(false);
+            view.findViewById(R.id.folder_button).setVisibility(View.VISIBLE);
         }
 
         @Override
-        protected View newChildView(Context context, Cursor cursor, boolean isLastChild,
-                ViewGroup parent) {
-            return mInflater.inflate(R.layout.account_folder_list_child, parent, false);
-        }
-
-        @Override
-        protected View newGroupView(Context context, Cursor cursor, boolean isExpanded,
-                ViewGroup parent) {
-            return mInflater.inflate(R.layout.account_folder_list_group, parent, false);
+        public View newView(Context context, Cursor cursor, ViewGroup parent) {
+            return mInflater.inflate(R.layout.account_folder_list_item, parent, false);
         }
     }
 }

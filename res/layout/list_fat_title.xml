@@ -21,6 +21,7 @@
         android:layout_width="fill_parent"
         android:layout_height="?android:attr/listPreferredItemHeight"
         android:orientation="horizontal"
+        android:background="@drawable/text_box_light"
         android:gravity="center" >
         <View
             android:id="@+id/chip"
