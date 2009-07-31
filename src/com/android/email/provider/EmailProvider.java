@@ -62,8 +62,10 @@ public class EmailProvider extends ContentProvider {
     // version 17: prevent duplication of mailboxes with the same serverId
     // version 18: renamed syncFrequency to syncInterval for Account and Mailbox
     // version 19: added triggers to keep track of unreadCount by Mailbox
+    // version 20: changed type of EAS account mailbox, making old databases invalid for EAS
+    // version 21: fixed broken trigger linking account deletion to the deletion of its HostAuth's
 
-    public static final int DATABASE_VERSION = 19;
+    public static final int DATABASE_VERSION = 21;
     public static final int BODY_DATABASE_VERSION = 1;
 
     public static final String EMAIL_AUTHORITY = "com.android.email.provider";
@@ -376,7 +378,9 @@ public class EmailProvider extends ContentProvider {
                 " begin delete from " + Mailbox.TABLE_NAME +
                 " where " + MailboxColumns.ACCOUNT_KEY + "=old." + EmailContent.RECORD_ID +
                 "; delete from " + HostAuth.TABLE_NAME +
-                " where " + HostAuthColumns.ACCOUNT_KEY + "=old." + EmailContent.RECORD_ID +
+                " where " + EmailContent.RECORD_ID + "=old." + AccountColumns.HOST_AUTH_KEY_RECV +
+                "; delete from " + HostAuth.TABLE_NAME +
+                " where " + EmailContent.RECORD_ID + "=old." + AccountColumns.HOST_AUTH_KEY_SEND +
         "; end");
     }
 

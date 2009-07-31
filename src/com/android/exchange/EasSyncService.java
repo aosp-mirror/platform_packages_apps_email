@@ -27,13 +27,14 @@ import com.android.email.provider.EmailContent.HostAuth;
 import com.android.email.provider.EmailContent.Mailbox;
 import com.android.email.provider.EmailContent.MailboxColumns;
 import com.android.email.provider.EmailContent.Message;
-import com.android.exchange.adapter.EasContactsSyncAdapter;
-import com.android.exchange.adapter.EasEmailSyncAdapter;
-import com.android.exchange.adapter.EasFolderSyncParser;
-import com.android.exchange.adapter.EasPingParser;
-import com.android.exchange.adapter.EasSerializer;
-import com.android.exchange.adapter.EasSyncAdapter;
-import com.android.exchange.adapter.EasParser.EasParserException;
+import com.android.exchange.adapter.AbstractSyncAdapter;
+import com.android.exchange.adapter.ContactsSyncAdapter;
+import com.android.exchange.adapter.EmailSyncAdapter;
+import com.android.exchange.adapter.FolderSyncParser;
+import com.android.exchange.adapter.PingParser;
+import com.android.exchange.adapter.Serializer;
+import com.android.exchange.adapter.Tags;
+import com.android.exchange.adapter.Parser.EasParserException;
 import com.android.exchange.utility.Base64;
 
 import org.apache.http.HttpEntity;
@@ -47,7 +48,6 @@ import android.content.ContentValues;
 import android.content.Context;
 import android.database.Cursor;
 import android.os.RemoteException;
-import android.util.Log;
 
 import java.io.BufferedReader;
 import java.io.BufferedWriter;
@@ -79,8 +79,8 @@ public class EasSyncService extends InteractiveSyncService {
         Mailbox.SYNC_INTERVAL + '=' + Account.CHECK_INTERVAL_PING;
     private static final String AND_FREQUENCY_PING_PUSH_AND_NOT_ACCOUNT_MAILBOX = " AND " +
         MailboxColumns.SYNC_INTERVAL + " IN (" + Account.CHECK_INTERVAL_PING +
-        ',' + Account.CHECK_INTERVAL_PUSH + ") AND " + MailboxColumns.SERVER_ID + "!=\"" +
-        Eas.ACCOUNT_MAILBOX + '\"';
+        ',' + Account.CHECK_INTERVAL_PUSH + ") AND " + MailboxColumns.TYPE + "!=\"" +
+        Mailbox.TYPE_EAS_ACCOUNT_MAILBOX + '\"';
 
     static private final int CHUNK_SIZE = 16 * 1024;
 
@@ -89,7 +89,7 @@ public class EasSyncService extends InteractiveSyncService {
     public Double mProtocolVersionDouble;
     static String mDeviceId = null;
     static String mDeviceType = "Android";
-    EasSyncAdapter mTarget;
+    AbstractSyncAdapter mTarget;
     String mAuthString = null;
     String mCmdString = null;
     String mVersions;
@@ -148,12 +148,10 @@ public class EasSyncService extends InteractiveSyncService {
     public void validateAccount(String hostAddress, String userName, String password, int port,
             boolean ssl, Context context) throws MessagingException {
         try {
-            if (Eas.USER_DEBUG) {
-                userLog("Testing EAS: " + hostAddress + ", " + userName + ", ssl = " + ssl);
-            }
-            EasSerializer s = new EasSerializer();
-            s.start("FolderSync").start("FolderSyncKey").text("0").end("FolderSyncKey")
-                .end("FolderSync").end();
+            userLog("Testing EAS: " + hostAddress + ", " + userName + ", ssl = " + ssl);
+            Serializer s = new Serializer();
+            s.start(Tags.FOLDER_FOLDER_SYNC).start(Tags.FOLDER_SYNC_KEY).text("0")
+                .end().end().done();
             EasSyncService svc = new EasSyncService("%TestAccount%");
             svc.mHostAddress = hostAddress;
             svc.mUserName = userName;
@@ -286,9 +284,6 @@ public class EasSyncService extends InteractiveSyncService {
             HttpEntity e = res.getEntity();
             int len = (int)e.getContentLength();
             String type = e.getContentType().getValue();
-            if (Eas.TEST_DEBUG) {
-                Log.v(TAG, "Attachment code: " + status + ", Length: " + len + ", Type: " + type);
-            }
             InputStream is = res.getEntity().getContent();
             File f = (req.destination != null)
                     ? new File(req.destination)
@@ -473,9 +468,9 @@ public class EasSyncService extends InteractiveSyncService {
                     }
 
                     while (!mStop) {
-                        EasSerializer s = new EasSerializer();
-                        s.start("FolderSync").start("FolderSyncKey").text(mAccount.mSyncKey).end(
-                                "FolderSyncKey").end("FolderSync").end();
+                        Serializer s = new Serializer();
+                        s.start(Tags.FOLDER_FOLDER_SYNC).start(Tags.FOLDER_SYNC_KEY)
+                            .text(mAccount.mSyncKey).end().end().done();
                         uc = sendEASPostCommand("FolderSync", s.toString());
                         code = uc.getResponseCode();
                         if (code == HttpURLConnection.HTTP_OK) {
@@ -485,7 +480,7 @@ public class EasSyncService extends InteractiveSyncService {
                                 if (len > 0) {
                                     InputStream is = uc.getInputStream();
                                     // Returns true if we need to sync again
-                                    if (new EasFolderSyncParser(is, this).parse()) {
+                                    if (new FolderSyncParser(is, this).parse()) {
                                         continue;
                                     }
                                 }
@@ -535,13 +530,14 @@ public class EasSyncService extends InteractiveSyncService {
     void runPingLoop() throws IOException, StaleFolderListException {
         // Do push for all sync services here
         long endTime = System.currentTimeMillis() + (30*MINS);
+        long lastPingTime = 0;
 
         while (System.currentTimeMillis() < endTime) {
             // Count of pushable mailboxes
             int pushCount = 0;
             // Count of mailboxes that can be pushed right now
             int canPushCount = 0;
-            EasSerializer s = new EasSerializer();
+            Serializer s = new Serializer();
             HttpURLConnection uc;
             int code;
             Cursor c = mContentResolver.query(Mailbox.CONTENT_URI, Mailbox.CONTENT_PROJECTION,
@@ -562,15 +558,16 @@ public class EasSyncService extends InteractiveSyncService {
                         }
                         if (canPushCount++ == 0) {
                             // Initialize the Ping command
-                            s.start("Ping").data("HeartbeatInterval", "900").start("PingFolders");
+                            s.start(Tags.PING_PING).data(Tags.PING_HEARTBEAT_INTERVAL, "900")
+                                .start(Tags.PING_FOLDERS);
                         }
                         // When we're ready for Calendar/Contacts, we will check folder type
                         // TODO Save Calendar and Contacts!! Mark as not visible!
                         String folderClass = getTargetCollectionClassFromCursor(c);
-                        s.start("PingFolder")
-                            .data("PingId", c.getString(Mailbox.CONTENT_SERVER_ID_COLUMN))
-                            .data("PingClass", folderClass)
-                            .end("PingFolder");
+                        s.start(Tags.PING_FOLDER)
+                            .data(Tags.PING_ID, c.getString(Mailbox.CONTENT_SERVER_ID_COLUMN))
+                            .data(Tags.PING_CLASS, folderClass)
+                            .end();
                         userLog("Ping ready for: " + folderClass + ", " +
                                 c.getString(Mailbox.CONTENT_SERVER_ID_COLUMN) + " (" +
                                 c.getString(Mailbox.CONTENT_DISPLAY_NAME_COLUMN) + ')');
@@ -585,7 +582,18 @@ public class EasSyncService extends InteractiveSyncService {
 
             if (canPushCount > 0 && (canPushCount == pushCount)) {
                 // If we have some number that are ready for push, send Ping to the server
-                s.end("PingFolders").end("Ping").end();
+                s.end().end().done();
+
+                long time = System.currentTimeMillis();
+                long timeSinceLastPing = time - lastPingTime;
+                if (timeSinceLastPing < 30*SECS) {
+                    try {
+                        userLog("Waiting to send ping...");
+                        Thread.sleep(30*SECS - timeSinceLastPing);
+                    } catch (InterruptedException e) {
+                        // No need for action
+                    }
+                }
                 uc = sendEASPostCommand("Ping", s.toString());
                 Thread.currentThread().setName(mAccount.mDisplayName + ": Ping");
                 userLog("Sending ping, timeout: " + uc.getReadTimeout() / 1000 + "s");
@@ -599,7 +607,9 @@ public class EasSyncService extends InteractiveSyncService {
                     if (encoding == null) {
                         int len = uc.getHeaderFieldInt("Content-Length", 0);
                         if (len > 0) {
-                            parsePingResult(uc, mContentResolver);
+                            if (parsePingResult(uc, mContentResolver) > 0) {
+                                lastPingTime = time;
+                            }
                         } else {
                             // This implies a connection issue that we can't handle
                             throw new IOException();
@@ -633,9 +643,9 @@ public class EasSyncService extends InteractiveSyncService {
         }
     }
 
-    void parsePingResult(HttpURLConnection uc, ContentResolver cr)
+    private int parsePingResult(HttpURLConnection uc, ContentResolver cr)
         throws IOException, StaleFolderListException {
-        EasPingParser pp = new EasPingParser(uc.getInputStream(), this);
+        PingParser pp = new PingParser(uc.getInputStream(), this);
         if (pp.parse()) {
             // True indicates some mailboxes need syncing...
             // syncList has the serverId's of the mailboxes...
@@ -654,6 +664,7 @@ public class EasSyncService extends InteractiveSyncService {
                 }
             }
         }
+        return pp.getSyncList().size();
     }
 
     ByteArrayInputStream readResponse(HttpURLConnection uc) throws IOException {
@@ -738,7 +749,7 @@ public class EasSyncService extends InteractiveSyncService {
      *
      * @param target, an EasMailbox, EasContacts, or EasCalendar object
      */
-    public void sync(EasSyncAdapter target) throws IOException {
+    public void sync(AbstractSyncAdapter target) throws IOException {
         mTarget = target;
         Mailbox mailbox = target.mMailbox;
 
@@ -762,7 +773,7 @@ public class EasSyncService extends InteractiveSyncService {
                 }
             }
 
-            EasSerializer s = new EasSerializer();
+            Serializer s = new Serializer();
             if (mailbox.mSyncKey == null) {
                 userLog("Mailbox syncKey RESET");
                 mailbox.mSyncKey = "0";
@@ -770,19 +781,19 @@ public class EasSyncService extends InteractiveSyncService {
             }
             String className = target.getCollectionName();
             userLog("Sending " + className + " syncKey: " + mailbox.mSyncKey);
-            s.start("Sync")
-                .start("Collections")
-                .start("Collection")
-                .data("Class", className)
-                .data("SyncKey", mailbox.mSyncKey)
-                .data("CollectionId", mailbox.mServerId)
-                .tag("DeletesAsMoves");
+            s.start(Tags.SYNC_SYNC)
+                .start(Tags.SYNC_COLLECTIONS)
+                .start(Tags.SYNC_COLLECTION)
+                .data(Tags.SYNC_CLASS, className)
+                .data(Tags.SYNC_SYNC_KEY, mailbox.mSyncKey)
+                .data(Tags.SYNC_COLLECTION_ID, mailbox.mServerId)
+                .tag(Tags.SYNC_DELETES_AS_MOVES);
 
             // EAS doesn't like GetChanges if the syncKey is "0"; not documented
             if (!mailbox.mSyncKey.equals("0")) {
-                s.tag("GetChanges");
+                s.tag(Tags.SYNC_GET_CHANGES);
             }
-            s.data("WindowSize", WINDOW_SIZE);
+            s.data(Tags.SYNC_WINDOW_SIZE, WINDOW_SIZE);
             boolean options = false;
             if (!className.equals("Contacts")) {
                 // Set the lookback appropriately (EAS calls this a "filter")
@@ -813,30 +824,32 @@ public class EasSyncService extends InteractiveSyncService {
                         break;
                     }
                 }
-                s.start("Options").data("FilterType", filter);
-                if (mProtocolVersionDouble < 12.0) {
-                    s.data("Truncation", "7");
-                }
+                s.start(Tags.SYNC_OPTIONS).data(Tags.SYNC_FILTER_TYPE, filter);
+                // No truncation in this version
+                //if (mProtocolVersionDouble < 12.0) {
+                //    s.data(Tags.SYNC_TRUNCATION, "7");
+                //}
                 options = true;
             }
             if (mProtocolVersionDouble >= 12.0) {
                 if (!options) {
                     options = true;
-                    s.start("Options");
+                    s.start(Tags.SYNC_OPTIONS);
                 }
-                s.start("BodyPreference")
-                    .data("BodyPreferenceType", Eas.BODY_PREFERENCE_HTML)
-                    .data("BodyPreferenceTruncationSize", Eas.DEFAULT_BODY_TRUNCATION_SIZE)
-                    .end("BodyPreference");
+                s.start(Tags.BASE_BODY_PREFERENCE)
+                    .data(Tags.BASE_TYPE, Eas.BODY_PREFERENCE_HTML)
+                    // No truncation in this version
+                    //.data(Tags.BASE_TRUNCATION_SIZE, Eas.DEFAULT_BODY_TRUNCATION_SIZE)
+                    .end();
             }
             if (options) {
-                s.end("Options");
+                s.end();
             }
 
             // Send our changes up to the server
             target.sendLocalChanges(s, this);
 
-            s.end("Collection").end("Collections").end("Sync").end();
+            s.end().end().end().done();
             HttpURLConnection uc = sendEASPostCommand("Sync", s.toString());
             int code = uc.getResponseCode();
             if (code == HttpURLConnection.HTTP_OK) {
@@ -887,18 +900,18 @@ public class EasSyncService extends InteractiveSyncService {
         try {
             if (mMailbox == null || mAccount == null) {
                 return;
-            } else if (mMailbox.mServerId.equals(Eas.ACCOUNT_MAILBOX)) {
+            } else if (mMailbox.mType == Mailbox.TYPE_EAS_ACCOUNT_MAILBOX) {
                 accountMailbox = true;
                 runAccountMailbox();
             } else {
-                EasSyncAdapter target;
+                AbstractSyncAdapter target;
                 mAccount = Account.restoreAccountWithId(mContext, mAccount.mId);
                 mProtocolVersion = mAccount.mProtocolVersion;
                 mProtocolVersionDouble = Double.parseDouble(mProtocolVersion);
                 if (mMailbox.mType == Mailbox.TYPE_CONTACTS)
-                    target = new EasContactsSyncAdapter(mMailbox, this);
+                    target = new ContactsSyncAdapter(mMailbox, this);
                 else {
-                    target = new EasEmailSyncAdapter(mMailbox, this);
+                    target = new EmailSyncAdapter(mMailbox, this);
                 }
                 // We loop here because someone might have put a request in while we were syncing
                 // and we've missed that opportunity...

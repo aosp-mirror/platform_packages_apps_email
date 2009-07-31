@@ -22,15 +22,16 @@ package com.android.exchange;
  *
  */
 public class Eas {
-    // For use in collecting user logs
-    public static boolean USER_DEBUG = false;    // DO NOT CHECK IN WITH THIS SET TO TRUE
-    // For temporary use while debugging
-    public static boolean TEST_DEBUG = false;    // DO NOT CHECK IN WITH THIS SET TO TRUE
+    // For debugging
+    public static boolean WAIT_DEBUG = false;   // DO NOT CHECK IN WITH THIS SET TO TRUE
+    public static boolean DEBUG = true;         // DO NOT CHECK IN WITH THIS SET TO TRUE
 
-    public static final String VERSION = "0.1";
+    // The following two are for user logging (the second providing more detail)
+    public static boolean USER_LOG = false;     // DO NOT CHECK IN WITH THIS SET TO TRUE
+    public static boolean PARSER_LOG = false;   // DO NOT CHECK IN WITH THIS SET TO TRUE
 
+    public static final String VERSION = "0.2";
     public static final String ACCOUNT_MANAGER_TYPE = "com.android.exchange";
-
     public static final String ACCOUNT_MAILBOX = "__eas";
 
     // From EAS spec
@@ -60,7 +61,10 @@ public class Eas {
     public static final int FOLDER_STATUS_OK = 1;
     public static final int FOLDER_STATUS_INVALID_KEY = 9;
 
-    public void setUserDebug(boolean state) {
-        USER_DEBUG = state;
+    public static void setUserDebug(boolean state) {
+        // DEBUG takes precedence and is never true in a user build
+        if (!DEBUG) {
+            USER_LOG = state;
+        }
      }
 }

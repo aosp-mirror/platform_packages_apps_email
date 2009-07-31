@@ -463,4 +463,8 @@
         these mail accounts.</string>
     <!-- Message that appears when adding a T-Online account -->
     <string name="provider_note_t_online">Before setting up this email account, please visit the T-Online Web site and create a password for POP3 email access.</string>
+
+    <!-- Name of Microsoft Exchange account type; used by AccountManager -->
+    <string name="exchange_name">Exchange</string>
+
 </resources>

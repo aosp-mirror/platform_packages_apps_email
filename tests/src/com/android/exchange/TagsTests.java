@@ -16,24 +16,17 @@
 
 package com.android.exchange;
 
-import com.android.email.provider.EmailContent.Account;
-import com.android.email.provider.EmailContent.Mailbox;
-import com.android.exchange.adapter.EasEmailSyncAdapter;
-import com.android.exchange.adapter.EasTags;
-import com.android.exchange.adapter.EasEmailSyncAdapter.EasEmailSyncParser;
+import com.android.exchange.adapter.Tags;
 
 import android.test.AndroidTestCase;
 
-import java.io.ByteArrayInputStream;
-import java.io.IOException;
-import java.io.InputStream;
 import java.util.HashMap;
 
-public class EasTagsTests extends AndroidTestCase {
+public class TagsTests extends AndroidTestCase {
 
     // Make sure there are no duplicates in the tags table
     public void testNoDuplicates() {
-        String[][] allTags = EasTags.pages;
+        String[][] allTags = Tags.pages;
         HashMap<String, Boolean> map = new HashMap<String, Boolean>();
         for (String[] page: allTags) {
             for (String tag: page) {

@@ -56,7 +56,7 @@ import java.util.ArrayList;
  * Sync adapter for EAS Contacts
  *
  */
-public class EasContactsSyncAdapter extends EasSyncAdapter {
+public class ContactsSyncAdapter extends AbstractSyncAdapter {
 
     private static final String TAG = "EasContactsSyncAdapter";
     private static final String SERVER_ID_SELECTION = RawContacts.SOURCE_ID + "=?";
@@ -82,7 +82,7 @@ public class EasContactsSyncAdapter extends EasSyncAdapter {
     ArrayList<Long> mDeletedIdList = new ArrayList<Long>();
     ArrayList<Long> mUpdatedIdList = new ArrayList<Long>();
 
-    public EasContactsSyncAdapter(Mailbox mailbox, EasSyncService service) {
+    public ContactsSyncAdapter(Mailbox mailbox, EasSyncService service) {
         super(mailbox, service);
     }
 
@@ -105,7 +105,7 @@ public class EasContactsSyncAdapter extends EasSyncAdapter {
         public static final String EXTRAS = "data2";
     }
 
-    class EasContactsSyncParser extends EasContentParser {
+    class EasContactsSyncParser extends ContentParser {
 
         String[] mBindArgument = new String[1];
         String mMailboxIdAsString;
@@ -114,13 +114,27 @@ public class EasContactsSyncAdapter extends EasSyncAdapter {
         public EasContactsSyncParser(InputStream in, EasSyncService service) throws IOException {
             super(in, service);
             mAccountUri = uriWithAccount(RawContacts.CONTENT_URI);
-            setDebug(false); // DON'T CHECK IN WITH THIS UNCOMMENTED
         }
 
         @Override
         public void wipe() {
-            // TODO Uncomment when the new provider works with this
-            //mContentResolver.delete(mAccountUri, null, null);
+            // TODO Use the bulk delete when the CP supports it
+//            mContentResolver.delete(mAccountUri.buildUpon()
+//                    .appendQueryParameter(ContactsContract.RawContacts.DELETE_PERMANENTLY, "true")
+//                    .build(), null, null);
+            Cursor c = mContentResolver.query(mAccountUri, new String[] {"_id"}, null, null, null);
+            try {
+                while (c.moveToNext()) {
+                    long id = c.getLong(0);
+                    mContentResolver.delete(ContentUris
+                            .withAppendedId(mAccountUri, id)
+                            .buildUpon().appendQueryParameter(
+                                    ContactsContract.RawContacts.DELETE_PERMANENTLY, "true")
+                            .build(), null, null);
+                }
+            } finally {
+                c.close();
+            }
         }
 
         void saveExtraData (StringBuilder extras, int tag) throws IOException {
@@ -160,157 +174,157 @@ public class EasContactsSyncAdapter extends EasSyncAdapter {
 
             StringBuilder extraData = new StringBuilder(1024);
 
-            while (nextTag(EasTags.SYNC_APPLICATION_DATA) != END) {
+            while (nextTag(Tags.SYNC_APPLICATION_DATA) != END) {
                 switch (tag) {
-                    case EasTags.CONTACTS_FIRST_NAME:
+                    case Tags.CONTACTS_FIRST_NAME:
                         firstName = getValue();
                         break;
-                    case EasTags.CONTACTS_LAST_NAME:
+                    case Tags.CONTACTS_LAST_NAME:
                         lastName = getValue();
                         break;
-                    case EasTags.CONTACTS_COMPANY_NAME:
+                    case Tags.CONTACTS_COMPANY_NAME:
                         companyName = getValue();
                         break;
-                    case EasTags.CONTACTS_JOB_TITLE:
+                    case Tags.CONTACTS_JOB_TITLE:
                         title = getValue();
                         break;
-                    case EasTags.CONTACTS_EMAIL1_ADDRESS:
+                    case Tags.CONTACTS_EMAIL1_ADDRESS:
                         ops.addEmail(entity, TYPE_EMAIL1, getValue());
                         break;
-                    case EasTags.CONTACTS_EMAIL2_ADDRESS:
+                    case Tags.CONTACTS_EMAIL2_ADDRESS:
                         ops.addEmail(entity, TYPE_EMAIL2, getValue());
                         break;
-                    case EasTags.CONTACTS_EMAIL3_ADDRESS:
+                    case Tags.CONTACTS_EMAIL3_ADDRESS:
                         ops.addEmail(entity, TYPE_EMAIL3, getValue());
                         break;
-                    case EasTags.CONTACTS_BUSINESS2_TELEPHONE_NUMBER:
+                    case Tags.CONTACTS_BUSINESS2_TELEPHONE_NUMBER:
                         ops.addPhone(entity, TYPE_WORK2, getValue());
                         break;
-                    case EasTags.CONTACTS_BUSINESS_TELEPHONE_NUMBER:
+                    case Tags.CONTACTS_BUSINESS_TELEPHONE_NUMBER:
                         ops.addPhone(entity, Phone.TYPE_WORK, getValue());
                         break;
-                    case EasTags.CONTACTS2_MMS:
+                    case Tags.CONTACTS2_MMS:
                         ops.addPhone(entity, TYPE_MMS, getValue());
                         break;
-                    case EasTags.CONTACTS_BUSINESS_FAX_NUMBER:
+                    case Tags.CONTACTS_BUSINESS_FAX_NUMBER:
                         ops.addPhone(entity, Phone.TYPE_FAX_WORK, getValue());
                         break;
-                    case EasTags.CONTACTS2_COMPANY_MAIN_PHONE:
+                    case Tags.CONTACTS2_COMPANY_MAIN_PHONE:
                         ops.addPhone(entity, TYPE_COMPANY_MAIN, getValue());
                         break;
-                    case EasTags.CONTACTS_HOME_FAX_NUMBER:
+                    case Tags.CONTACTS_HOME_FAX_NUMBER:
                         ops.addPhone(entity, Phone.TYPE_FAX_HOME, getValue());
                         break;
-                    case EasTags.CONTACTS_HOME_TELEPHONE_NUMBER:
+                    case Tags.CONTACTS_HOME_TELEPHONE_NUMBER:
                         ops.addPhone(entity, Phone.TYPE_HOME, getValue());
                         break;
-                    case EasTags.CONTACTS_HOME2_TELEPHONE_NUMBER:
+                    case Tags.CONTACTS_HOME2_TELEPHONE_NUMBER:
                         ops.addPhone(entity, TYPE_HOME2, getValue());
                         break;
-                    case EasTags.CONTACTS_MOBILE_TELEPHONE_NUMBER:
+                    case Tags.CONTACTS_MOBILE_TELEPHONE_NUMBER:
                         ops.addPhone(entity, Phone.TYPE_MOBILE, getValue());
                         break;
-                    case EasTags.CONTACTS_CAR_TELEPHONE_NUMBER:
+                    case Tags.CONTACTS_CAR_TELEPHONE_NUMBER:
                         ops.addPhone(entity, TYPE_CAR, getValue());
                         break;
-                    case EasTags.CONTACTS_RADIO_TELEPHONE_NUMBER:
+                    case Tags.CONTACTS_RADIO_TELEPHONE_NUMBER:
                         ops.addPhone(entity, TYPE_RADIO, getValue());
                         break;
-                    case EasTags.CONTACTS_PAGER_NUMBER:
+                    case Tags.CONTACTS_PAGER_NUMBER:
                         ops.addPhone(entity, Phone.TYPE_PAGER, getValue());
                         break;
-                    case EasTags.CONTACTS2_IM_ADDRESS:
+                    case Tags.CONTACTS2_IM_ADDRESS:
                         ops.addIm(entity, TYPE_IM1, getValue());
                         break;
-                    case EasTags.CONTACTS2_IM_ADDRESS_2:
+                    case Tags.CONTACTS2_IM_ADDRESS_2:
                         ops.addIm(entity, TYPE_IM2, getValue());
                         break;
-                    case EasTags.CONTACTS2_IM_ADDRESS_3:
+                    case Tags.CONTACTS2_IM_ADDRESS_3:
                         ops.addIm(entity, TYPE_IM3, getValue());
                         break;
-                    case EasTags.CONTACTS_BUSINESS_ADDRESS_CITY:
+                    case Tags.CONTACTS_BUSINESS_ADDRESS_CITY:
                         work.city = getValue();
                         break;
-                    case EasTags.CONTACTS_BUSINESS_ADDRESS_COUNTRY:
+                    case Tags.CONTACTS_BUSINESS_ADDRESS_COUNTRY:
                         work.country = getValue();
                         break;
-                    case EasTags.CONTACTS_BUSINESS_ADDRESS_POSTAL_CODE:
+                    case Tags.CONTACTS_BUSINESS_ADDRESS_POSTAL_CODE:
                         work.code = getValue();
                         break;
-                    case EasTags.CONTACTS_BUSINESS_ADDRESS_STATE:
+                    case Tags.CONTACTS_BUSINESS_ADDRESS_STATE:
                         work.state = getValue();
                         break;
-                    case EasTags.CONTACTS_BUSINESS_ADDRESS_STREET:
+                    case Tags.CONTACTS_BUSINESS_ADDRESS_STREET:
                         work.street = getValue();
                         break;
-                    case EasTags.CONTACTS_HOME_ADDRESS_CITY:
+                    case Tags.CONTACTS_HOME_ADDRESS_CITY:
                         home.city = getValue();
                         break;
-                    case EasTags.CONTACTS_HOME_ADDRESS_COUNTRY:
+                    case Tags.CONTACTS_HOME_ADDRESS_COUNTRY:
                         home.country = getValue();
                         break;
-                    case EasTags.CONTACTS_HOME_ADDRESS_POSTAL_CODE:
+                    case Tags.CONTACTS_HOME_ADDRESS_POSTAL_CODE:
                         home.code = getValue();
                         break;
-                    case EasTags.CONTACTS_HOME_ADDRESS_STATE:
+                    case Tags.CONTACTS_HOME_ADDRESS_STATE:
                         home.state = getValue();
                         break;
-                    case EasTags.CONTACTS_HOME_ADDRESS_STREET:
+                    case Tags.CONTACTS_HOME_ADDRESS_STREET:
                         home.street = getValue();
                         break;
-                    case EasTags.CONTACTS_OTHER_ADDRESS_CITY:
+                    case Tags.CONTACTS_OTHER_ADDRESS_CITY:
                         other.city = getValue();
                         break;
-                    case EasTags.CONTACTS_OTHER_ADDRESS_COUNTRY:
+                    case Tags.CONTACTS_OTHER_ADDRESS_COUNTRY:
                         other.country = getValue();
                         break;
-                    case EasTags.CONTACTS_OTHER_ADDRESS_POSTAL_CODE:
+                    case Tags.CONTACTS_OTHER_ADDRESS_POSTAL_CODE:
                         other.code = getValue();
                         break;
-                    case EasTags.CONTACTS_OTHER_ADDRESS_STATE:
+                    case Tags.CONTACTS_OTHER_ADDRESS_STATE:
                         other.state = getValue();
                         break;
-                    case EasTags.CONTACTS_OTHER_ADDRESS_STREET:
+                    case Tags.CONTACTS_OTHER_ADDRESS_STREET:
                         other.street = getValue();
                         break;
 
-                    case EasTags.CONTACTS_CHILDREN:
+                    case Tags.CONTACTS_CHILDREN:
                         childrenParser(extraData);
                         break;
 
-                    case EasTags.CONTACTS_CATEGORIES:
+                    case Tags.CONTACTS_CATEGORIES:
                         categoriesParser(extraData);
                         break;
 
                         // TODO We'll add this later
-                    case EasTags.CONTACTS_PICTURE:
+                    case Tags.CONTACTS_PICTURE:
                         getValue();
                         break;
 
                     // All tags that we don't use (except for a few like picture and body) need to
                     // be saved, even if we're not using them.  Otherwise, when we upload changes,
                     // those items will be deleted back on the server.
-                    case EasTags.CONTACTS_ANNIVERSARY:
-                    case EasTags.CONTACTS_ASSISTANT_NAME:
-                    case EasTags.CONTACTS_ASSISTANT_TELEPHONE_NUMBER:
-                    case EasTags.CONTACTS_BIRTHDAY:
-                    case EasTags.CONTACTS_DEPARTMENT:
-                    case EasTags.CONTACTS_FILE_AS:
-                    case EasTags.CONTACTS_TITLE:
-                    case EasTags.CONTACTS_MIDDLE_NAME:
-                    case EasTags.CONTACTS_OFFICE_LOCATION:
-                    case EasTags.CONTACTS_SPOUSE:
-                    case EasTags.CONTACTS_SUFFIX:
-                    case EasTags.CONTACTS_WEBPAGE:
-                    case EasTags.CONTACTS_YOMI_COMPANY_NAME:
-                    case EasTags.CONTACTS_YOMI_FIRST_NAME:
-                    case EasTags.CONTACTS_YOMI_LAST_NAME:
-                    case EasTags.CONTACTS_COMPRESSED_RTF:
-                    case EasTags.CONTACTS2_CUSTOMER_ID:
-                    case EasTags.CONTACTS2_GOVERNMENT_ID:
-                    case EasTags.CONTACTS2_MANAGER_NAME:
-                    case EasTags.CONTACTS2_ACCOUNT_NAME:
-                    case EasTags.CONTACTS2_NICKNAME:
+                    case Tags.CONTACTS_ANNIVERSARY:
+                    case Tags.CONTACTS_ASSISTANT_NAME:
+                    case Tags.CONTACTS_ASSISTANT_TELEPHONE_NUMBER:
+                    case Tags.CONTACTS_BIRTHDAY:
+                    case Tags.CONTACTS_DEPARTMENT:
+                    case Tags.CONTACTS_FILE_AS:
+                    case Tags.CONTACTS_TITLE:
+                    case Tags.CONTACTS_MIDDLE_NAME:
+                    case Tags.CONTACTS_OFFICE_LOCATION:
+                    case Tags.CONTACTS_SPOUSE:
+                    case Tags.CONTACTS_SUFFIX:
+                    case Tags.CONTACTS_WEBPAGE:
+                    case Tags.CONTACTS_YOMI_COMPANY_NAME:
+                    case Tags.CONTACTS_YOMI_FIRST_NAME:
+                    case Tags.CONTACTS_YOMI_LAST_NAME:
+                    case Tags.CONTACTS_COMPRESSED_RTF:
+                    case Tags.CONTACTS2_CUSTOMER_ID:
+                    case Tags.CONTACTS2_GOVERNMENT_ID:
+                    case Tags.CONTACTS2_MANAGER_NAME:
+                    case Tags.CONTACTS2_ACCOUNT_NAME:
+                    case Tags.CONTACTS2_NICKNAME:
                         saveExtraData(extraData, tag);
                         break;
                     default:
@@ -356,9 +370,9 @@ public class EasContactsSyncAdapter extends EasSyncAdapter {
         }
 
         private void categoriesParser(StringBuilder extras) throws IOException {
-            while (nextTag(EasTags.CONTACTS_CATEGORIES) != END) {
+            while (nextTag(Tags.CONTACTS_CATEGORIES) != END) {
                 switch (tag) {
-                    case EasTags.CONTACTS_CATEGORY:
+                    case Tags.CONTACTS_CATEGORY:
                         saveExtraData(extras, tag);
                     default:
                         skipTag();
@@ -367,9 +381,9 @@ public class EasContactsSyncAdapter extends EasSyncAdapter {
         }
 
         private void childrenParser(StringBuilder extras) throws IOException {
-            while (nextTag(EasTags.CONTACTS_CHILDREN) != END) {
+            while (nextTag(Tags.CONTACTS_CHILDREN) != END) {
                 switch (tag) {
-                    case EasTags.CONTACTS_CHILD:
+                    case Tags.CONTACTS_CHILD:
                         saveExtraData(extras, tag);
                     default:
                         skipTag();
@@ -379,12 +393,12 @@ public class EasContactsSyncAdapter extends EasSyncAdapter {
 
         public void addParser(ContactOperations ops) throws IOException {
             String serverId = null;
-            while (nextTag(EasTags.SYNC_ADD) != END) {
+            while (nextTag(Tags.SYNC_ADD) != END) {
                 switch (tag) {
-                    case EasTags.SYNC_SERVER_ID: // same as
+                    case Tags.SYNC_SERVER_ID: // same as
                         serverId = getValue();
                         break;
-                    case EasTags.SYNC_APPLICATION_DATA:
+                    case Tags.SYNC_APPLICATION_DATA:
                         addData(serverId, ops, null);
                         break;
                     default:
@@ -400,9 +414,9 @@ public class EasContactsSyncAdapter extends EasSyncAdapter {
         }
 
         public void deleteParser(ContactOperations ops) throws IOException {
-            while (nextTag(EasTags.SYNC_DELETE) != END) {
+            while (nextTag(Tags.SYNC_DELETE) != END) {
                 switch (tag) {
-                    case EasTags.SYNC_SERVER_ID:
+                    case Tags.SYNC_SERVER_ID:
                         String serverId = getValue();
                         // Find the message in this mailbox with the given serverId
                         Cursor c = getServerIdCursor(serverId);
@@ -439,9 +453,9 @@ public class EasContactsSyncAdapter extends EasSyncAdapter {
         public void changeParser(ContactOperations ops) throws IOException {
             String serverId = null;
             Entity entity = null;
-            while (nextTag(EasTags.SYNC_CHANGE) != END) {
+            while (nextTag(Tags.SYNC_CHANGE) != END) {
                 switch (tag) {
-                    case EasTags.SYNC_SERVER_ID:
+                    case Tags.SYNC_SERVER_ID:
                         serverId = getValue();
                         Cursor c = getServerIdCursor(serverId);
                         try {
@@ -463,7 +477,7 @@ public class EasContactsSyncAdapter extends EasSyncAdapter {
                             c.close();
                         }
                         break;
-                    case EasTags.SYNC_APPLICATION_DATA:
+                    case Tags.SYNC_APPLICATION_DATA:
                         addData(serverId, ops, entity);
                         break;
                     default:
@@ -475,12 +489,12 @@ public class EasContactsSyncAdapter extends EasSyncAdapter {
         @Override
         public void commandsParser() throws IOException {
             ContactOperations ops = new ContactOperations();
-            while (nextTag(EasTags.SYNC_COMMANDS) != END) {
-                if (tag == EasTags.SYNC_ADD) {
+            while (nextTag(Tags.SYNC_COMMANDS) != END) {
+                if (tag == Tags.SYNC_ADD) {
                     addParser(ops);
-                } else if (tag == EasTags.SYNC_DELETE) {
+                } else if (tag == Tags.SYNC_DELETE) {
                     deleteParser(ops);
-                } else if (tag == EasTags.SYNC_CHANGE) {
+                } else if (tag == Tags.SYNC_CHANGE) {
                     changeParser(ops);
                 } else
                     skipTag();
@@ -588,8 +602,13 @@ public class EasContactsSyncAdapter extends EasSyncAdapter {
         }
 
         public void delete(long id) {
-            add(ContentProviderOperation.newDelete(ContentUris
-                    .withAppendedId(RawContacts.CONTENT_URI, id)).build());
+            add(ContentProviderOperation
+                    .newDelete(ContentUris.withAppendedId(RawContacts.CONTENT_URI, id)
+                            .buildUpon()
+                            .appendQueryParameter(ContactsContract.RawContacts.DELETE_PERMANENTLY,
+                                    "true")
+                            .build())
+                    .build());
         }
 
         public void execute() {
@@ -850,41 +869,41 @@ public class EasContactsSyncAdapter extends EasSyncAdapter {
         return "Contacts";
     }
 
-    private void sendEmail(EasSerializer s, ContentValues cv) throws IOException {
+    private void sendEmail(Serializer s, ContentValues cv) throws IOException {
         String value = cv.getAsString(Email.DATA);
         switch (cv.getAsInteger(Email.TYPE)) {
             case TYPE_EMAIL1:
-                s.data("Email1Address", value);
+                s.data(Tags.CONTACTS_EMAIL1_ADDRESS, value);
                 break;
             case TYPE_EMAIL2:
-                s.data("Email2Address", value);
+                s.data(Tags.CONTACTS_EMAIL2_ADDRESS, value);
                 break;
             case TYPE_EMAIL3:
-                s.data("Email3Address", value);
+                s.data(Tags.CONTACTS_EMAIL3_ADDRESS, value);
                 break;
             default:
                 break;
         }
     }
 
-    private void sendIm(EasSerializer s, ContentValues cv) throws IOException {
+    private void sendIm(Serializer s, ContentValues cv) throws IOException {
         String value = cv.getAsString(Email.DATA);
         switch (cv.getAsInteger(Email.TYPE)) {
             case TYPE_IM1:
-                s.data("IMAddress", value);
+                s.data(Tags.CONTACTS2_IM_ADDRESS, value);
                 break;
             case TYPE_IM2:
-                s.data("IMAddress2", value);
+                s.data(Tags.CONTACTS2_IM_ADDRESS_2, value);
                 break;
             case TYPE_IM3:
-                s.data("IMAddress3", value);
+                s.data(Tags.CONTACTS2_IM_ADDRESS_3, value);
                 break;
             default:
                 break;
         }
     }
 
-    private void sendOnePostal(EasSerializer s, ContentValues cv, String[] fieldNames)
+    private void sendOnePostal(Serializer s, ContentValues cv, int[] fieldNames)
             throws IOException{
         if (cv.containsKey(StructuredPostal.CITY)) {
             s.data(fieldNames[0], cv.getAsString(StructuredPostal.CITY));
@@ -903,88 +922,96 @@ public class EasContactsSyncAdapter extends EasSyncAdapter {
         }
     }
 
-    private void sendStructuredPostal(EasSerializer s, ContentValues cv) throws IOException {
+    private void sendStructuredPostal(Serializer s, ContentValues cv) throws IOException {
         switch (cv.getAsInteger(StructuredPostal.TYPE)) {
             case StructuredPostal.TYPE_HOME:
-                sendOnePostal(s, cv, new String[] {"HomeAddressCity", "HomeAddressCountry",
-                        "HomeAddressPostalCode", "HomeAddressState", "HomeAddressStreet"});
+                sendOnePostal(s, cv, new int[] {Tags.CONTACTS_HOME_ADDRESS_CITY,
+                        Tags.CONTACTS_HOME_ADDRESS_COUNTRY,
+                        Tags.CONTACTS_HOME_ADDRESS_POSTAL_CODE,
+                        Tags.CONTACTS_HOME_ADDRESS_STATE,
+                        Tags.CONTACTS_HOME_ADDRESS_STREET});
                 break;
             case StructuredPostal.TYPE_WORK:
-                sendOnePostal(s, cv, new String[] {"BusinessAddressCity", "BusinessAddressCountry",
-                        "BusinessAddressPostalCode", "BusinessAddressState",
-                        "BusinessAddressStreet"});
+                sendOnePostal(s, cv, new int[] {Tags.CONTACTS_BUSINESS_ADDRESS_CITY,
+                        Tags.CONTACTS_BUSINESS_ADDRESS_COUNTRY,
+                        Tags.CONTACTS_BUSINESS_ADDRESS_POSTAL_CODE,
+                        Tags.CONTACTS_BUSINESS_ADDRESS_STATE,
+                        Tags.CONTACTS_BUSINESS_ADDRESS_STREET});
                 break;
             case StructuredPostal.TYPE_OTHER:
-                sendOnePostal(s, cv, new String[] {"OtherAddressCity", "OtherAddressCountry",
-                        "OtherAddressPostalCode", "OtherAddressState", "OtherAddressStreet"});
+                sendOnePostal(s, cv, new int[] {Tags.CONTACTS_HOME_ADDRESS_CITY,
+                        Tags.CONTACTS_OTHER_ADDRESS_COUNTRY,
+                        Tags.CONTACTS_OTHER_ADDRESS_POSTAL_CODE,
+                        Tags.CONTACTS_OTHER_ADDRESS_STATE,
+                        Tags.CONTACTS_OTHER_ADDRESS_STREET});
                 break;
             default:
                 break;
         }
     }
 
-    private void sendStructuredName(EasSerializer s, ContentValues cv) throws IOException {
+    private void sendStructuredName(Serializer s, ContentValues cv) throws IOException {
         if (cv.containsKey(StructuredName.FAMILY_NAME)) {
-            s.data("LastName", cv.getAsString(StructuredName.FAMILY_NAME));
+            s.data(Tags.CONTACTS_LAST_NAME, cv.getAsString(StructuredName.FAMILY_NAME));
         }
         if (cv.containsKey(StructuredName.GIVEN_NAME)) {
-            s.data("FirstName", cv.getAsString(StructuredName.GIVEN_NAME));
+            s.data(Tags.CONTACTS_FIRST_NAME, cv.getAsString(StructuredName.GIVEN_NAME));
         }
     }
 
-    private void sendOrganization(EasSerializer s, ContentValues cv) throws IOException {
+    private void sendOrganization(Serializer s, ContentValues cv) throws IOException {
         if (cv.containsKey(Organization.TITLE)) {
-            s.data("JobTitle", cv.getAsString(Organization.TITLE));
+            s.data(Tags.CONTACTS_JOB_TITLE, cv.getAsString(Organization.TITLE));
         }
         if (cv.containsKey(Organization.COMPANY)) {
-            s.data("CompanyName", cv.getAsString(Organization.COMPANY));
+            s.data(Tags.CONTACTS_COMPANY_NAME, cv.getAsString(Organization.COMPANY));
         }
     }
 
-    private void sendPhone(EasSerializer s, ContentValues cv) throws IOException {
+    private void sendPhone(Serializer s, ContentValues cv) throws IOException {
         String value = cv.getAsString(Phone.NUMBER);
         switch (cv.getAsInteger(Phone.TYPE)) {
             case TYPE_WORK2:
-                s.data("Business2TelephoneNumber", value);
+                s.data(Tags.CONTACTS_BUSINESS2_TELEPHONE_NUMBER, value);
                 break;
             case Phone.TYPE_WORK:
-                s.data("BusinessTelephoneNumber", value);
+                s.data(Tags.CONTACTS_BUSINESS_TELEPHONE_NUMBER, value);
                 break;
             case TYPE_MMS:
-                s.data("MMS", value);
+                s.data(Tags.CONTACTS2_MMS, value);
                 break;
             case Phone.TYPE_FAX_WORK:
-                s.data("BusinessFaxNumber", value);
+                s.data(Tags.CONTACTS_BUSINESS_FAX_NUMBER, value);
                 break;
             case TYPE_COMPANY_MAIN:
-                s.data("CompanyMainPhone", value);
+                s.data(Tags.CONTACTS2_COMPANY_MAIN_PHONE, value);
                 break;
             case Phone.TYPE_HOME:
-                s.data("HomeTelephoneNumber", value);
+                s.data(Tags.CONTACTS_HOME_TELEPHONE_NUMBER, value);
                 break;
             case TYPE_HOME2:
-                s.data("Home2TelephoneNumber", value);
+                s.data(Tags.CONTACTS_HOME2_TELEPHONE_NUMBER, value);
                 break;
             case Phone.TYPE_MOBILE:
-                s.data("MobileTelephoneNumber", value);
+                s.data(Tags.CONTACTS_MOBILE_TELEPHONE_NUMBER, value);
                 break;
             case TYPE_CAR:
-                s.data("CarTelephoneNumber", value);
+                s.data(Tags.CONTACTS_CAR_TELEPHONE_NUMBER, value);
                 break;
             case Phone.TYPE_PAGER:
-                s.data("PagerNumber", value);
+                s.data(Tags.CONTACTS_PAGER_NUMBER, value);
                 break;
             case TYPE_RADIO:
-                s.data("RadioTelephoneNumber", value);
+                s.data(Tags.CONTACTS_RADIO_TELEPHONE_NUMBER, value);
                 break;
             case Phone.TYPE_FAX_HOME:
-                s.data("HomeFaxNumber", value);
+                s.data(Tags.CONTACTS_HOME_FAX_NUMBER, value);
                 break;
             case TYPE_EMAIL2:
-                s.data("Email2Address", value);
+                s.data(Tags.CONTACTS_EMAIL2_ADDRESS, value);
                 break;
             case TYPE_EMAIL3:
-                s.data("Email3Address", value);
+                s.data(Tags.CONTACTS_EMAIL3_ADDRESS, value);
                 break;
             default:
                 break;
@@ -992,7 +1019,7 @@ public class EasContactsSyncAdapter extends EasSyncAdapter {
     }
 
     @Override
-    public boolean sendLocalChanges(EasSerializer s, EasSyncService service) throws IOException {
+    public boolean sendLocalChanges(Serializer s, EasSyncService service) throws IOException {
         // First, let's find Contacts that have changed.
         ContentResolver cr = service.mContentResolver;
         Uri uri = RawContacts.CONTENT_URI.buildUpon()
@@ -1000,10 +1027,13 @@ public class EasContactsSyncAdapter extends EasSyncAdapter {
                 .appendQueryParameter(RawContacts.ACCOUNT_TYPE, Eas.ACCOUNT_MANAGER_TYPE)
                 .build();
 
+        if (service.mMailbox.mSyncKey.equals("0")) {
+            return false;
+        }
+
         try {
             // Get them all atomically
-            //EntityIterator ei = cr.queryEntities(uri, RawContacts.DIRTY + "=1", null, null);
-            EntityIterator ei = cr.queryEntities(uri, null, null, null);
+            EntityIterator ei = cr.queryEntities(uri, RawContacts.DIRTY + "=1", null, null);
             boolean first = true;
             while (ei.hasNext()) {
                 Entity entity = ei.next();
@@ -1011,10 +1041,11 @@ public class EasContactsSyncAdapter extends EasSyncAdapter {
                 ContentValues entityValues = entity.getEntityValues();
                 String serverId = entityValues.getAsString(RawContacts.SOURCE_ID);
                 if (first) {
-                    s.start("Commands");
+                    s.start(Tags.SYNC_COMMANDS);
                     first = false;
                 }
-                s.start("Change").data("ServerId", serverId).start("ApplicationData");
+                s.start(Tags.SYNC_CHANGE).data(Tags.SYNC_SERVER_ID, serverId)
+                    .start(Tags.SYNC_APPLICATION_DATA);
                 // Write out the data here
                 for (NamedContentValues ncv: entity.getSubValues()) {
                     ContentValues cv = ncv.values;
@@ -1032,18 +1063,18 @@ public class EasContactsSyncAdapter extends EasSyncAdapter {
                     } else if (mimeType.equals(Im.CONTENT_ITEM_TYPE)) {
                         sendIm(s, cv);
                     } else if (mimeType.equals(Note.CONTENT_ITEM_TYPE)) {
-
+                        // TODO Finish this...
                     } else if (mimeType.equals(Extras.CONTENT_ITEM_TYPE)) {
-
+                        // TODO Finish this...
                     } else {
                         mService.userLog("Contacts upsync, unknown data: " + mimeType);
                     }
                 }
-                s.end("ApplicationData").end("Change");
+                s.end().end(); // ApplicationData & Change
                 mUpdatedIdList.add(entityValues.getAsLong(RawContacts._ID));
             }
            if (!first) {
-                s.end("Commands");
+                s.end(); // Commands
             }
 
         } catch (RemoteException e) {

@@ -1756,6 +1756,7 @@ public abstract class EmailContent {
         public static final int TYPE_CALENDAR = 0x41;
         public static final int TYPE_CONTACTS = 0x42;
         public static final int TYPE_TASKS = 0x43;
+        public static final int TYPE_EAS_ACCOUNT_MAILBOX = 0x44;
 
         // Bit field flags
         public static final int FLAG_HAS_CHILDREN = 1<<0;

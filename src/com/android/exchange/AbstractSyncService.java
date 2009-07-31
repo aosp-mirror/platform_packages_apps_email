@@ -17,7 +17,6 @@
 
 package com.android.exchange;
 
-import com.android.email.Email;
 import com.android.email.mail.MessagingException;
 import com.android.email.provider.EmailContent.Account;
 import com.android.email.provider.EmailContent.Mailbox;
@@ -90,7 +89,7 @@ public abstract class AbstractSyncService implements Runnable {
      * is necessary. For consistency with the Email app's original
      * functionality, success is indicated by a failure to throw an Exception
      * (ugh). Parameters are self-explanatory
-     * 
+     *
      * @param host
      * @param userName
      * @param password
@@ -105,7 +104,7 @@ public abstract class AbstractSyncService implements Runnable {
     /**
      * Sent by SyncManager to determine the state of a running sync This is
      * currently unused
-     * 
+     *
      * @return status code
      */
     public int getSyncStatus() {
@@ -127,7 +126,7 @@ public abstract class AbstractSyncService implements Runnable {
     /**
      * The UI can call this static method to perform account validation.  This method wraps each
      * protocol's validateAccount method.   Arguments are self-explanatory, except where noted.
-     * 
+     *
      * @param klass the protocol class (EasSyncService.class for example)
      * @param host
      * @param userName
@@ -212,27 +211,14 @@ public abstract class AbstractSyncService implements Runnable {
      * @param str the String to log
      */
     public void userLog(String str) {
-        if (Eas.USER_DEBUG) {
+        if (Eas.USER_LOG) {
             Log.i(TAG, str);
         }
     }
 
     public void errorLog(String str) {
-        if (Eas.USER_DEBUG) {
+        if (Eas.USER_LOG) {
             Log.e(TAG, str);
-        }
-    }
-
-    /**
-     * Convenience method to do test logging.  Saves a bunch of repetitive code.
-     * Unlike user logging, TEST_DEBUG is declared final, so that testLog calls should get
-     * "compiled out" for non-debug builds.
-     * 
-     * @param str the String to log
-     */
-    protected void testLog(String str) {
-        if (Eas.TEST_DEBUG) {
-            Log.v(Email.LOG_TAG, str);
         }
     }
 
@@ -277,11 +263,11 @@ public abstract class AbstractSyncService implements Runnable {
 
     // What's below here is temporary
 
-    /** 
+    /**
      * PartRequest handling (common functionality)
      * Can be overridden if desired, but IMAP/EAS both use the next three methods as-is
      */
-      
+
     public void addPartRequest(PartRequest req) {
         synchronized (mPartRequests) {
             mPartRequests.add(req);

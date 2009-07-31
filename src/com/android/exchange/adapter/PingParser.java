@@ -16,12 +16,12 @@
 
 package com.android.exchange.adapter;
 
+import com.android.exchange.EasSyncService;
+import com.android.exchange.StaleFolderListException;
+
 import java.io.IOException;
 import java.io.InputStream;
 import java.util.ArrayList;
-
-import com.android.exchange.EasSyncService;
-import com.android.exchange.StaleFolderListException;
 
 /**
  * Parse the result of a Ping command.
@@ -30,24 +30,22 @@ import com.android.exchange.StaleFolderListException;
  * If the folder list needs to be reloaded, throw a StaleFolderListException, which will be caught
  * by the sync server, which will sync the updated folder list.
  */
-public class EasPingParser extends EasParser {
+public class PingParser extends Parser {
     ArrayList<String> syncList = new ArrayList<String>();
-
     EasSyncService mService;
 
     public ArrayList<String> getSyncList() {
         return syncList;
     }
 
-    public EasPingParser(InputStream in, EasSyncService _service) throws IOException {
+    public PingParser(InputStream in, EasSyncService _service) throws IOException {
         super(in);
         mService = _service;
-        //setDebug(true);
     }
 
     public void parsePingFolders(ArrayList<String> syncList) throws IOException {
-        while (nextTag(EasTags.PING_FOLDERS) != END) {
-            if (tag == EasTags.PING_FOLDER) {
+        while (nextTag(Tags.PING_FOLDERS) != END) {
+            if (tag == Tags.PING_FOLDER) {
                 // Here we'll keep track of which mailboxes need syncing
                 syncList.add(getValue());
             } else {
@@ -59,11 +57,11 @@ public class EasPingParser extends EasParser {
     @Override
     public boolean parse() throws IOException, StaleFolderListException {
         boolean res = false;
-        if (nextTag(START_DOCUMENT) != EasTags.PING_PING) {
+        if (nextTag(START_DOCUMENT) != Tags.PING_PING) {
             throw new IOException();
         }
         while (nextTag(START_DOCUMENT) != END_DOCUMENT) {
-            if (tag == EasTags.PING_STATUS) {
+            if (tag == Tags.PING_STATUS) {
                 int status = getValueInt();
                 mService.userLog("Ping completed, status = " + status);
                 if (status == 2) {
@@ -74,7 +72,7 @@ public class EasPingParser extends EasParser {
                     // Status of 7 or 4 indicate a stale folder list
                     throw new StaleFolderListException();
                 }
-            } else if (tag == EasTags.PING_FOLDERS) {
+            } else if (tag == Tags.PING_FOLDERS) {
                 parsePingFolders(syncList);
             } else {
                 skipTag();
