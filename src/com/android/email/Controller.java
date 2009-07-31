@@ -120,6 +120,23 @@ public class Controller {
     }
 
     /**
+     * Enable/disable logging for external sync services
+     * 
+     * Generally this should be called by anybody who changes Email.DEBUG
+     */
+    public void serviceLogging(boolean debugEnabled) {
+        IEmailService service =
+            new EmailServiceProxy(mContext, SyncManager.class, mServiceCallback);
+        try {
+            service.setLogging(debugEnabled);
+        } catch (RemoteException e) {
+            // TODO Change exception handling to be consistent with however this method
+            // is implemented for other protocols
+            Log.d("updateMailboxList", "RemoteException" + e);
+        }
+    }
+
+    /**
      * Request a remote update of mailboxes for an account.
      *
      * TODO: Clean up threading in MessagingController cases (or perhaps here in Controller)

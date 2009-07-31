@@ -227,6 +227,9 @@ public class Email extends Application {
          * doesn't work in Android and MimeMessage does not have access to a Context.
          */
         BinaryTempFileBody.setTempDirectory(getCacheDir());
+        
+        // Enable logging in the EAS service, so it starts up as early as possible.
+        Controller.getInstance(this).serviceLogging(DEBUG);
     }
 
     /**

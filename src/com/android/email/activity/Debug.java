@@ -25,6 +25,7 @@ import android.widget.CompoundButton;
 import android.widget.TextView;
 import android.widget.CompoundButton.OnCheckedChangeListener;
 
+import com.android.email.Controller;
 import com.android.email.Email;
 import com.android.email.Preferences;
 import com.android.email.R;
@@ -62,6 +63,7 @@ public class Debug extends Activity implements OnCheckedChangeListener {
         if (buttonView.getId() == R.id.debug_logging) {
             Email.DEBUG = isChecked;
             mPreferences.setEnableDebugLogging(Email.DEBUG);
+            Controller.getInstance(getApplication()).serviceLogging(Email.DEBUG);
         } else if (buttonView.getId() == R.id.sensitive_logging) {
             Email.DEBUG_SENSITIVE = isChecked;
             mPreferences.setEnableSensitiveLogging(Email.DEBUG_SENSITIVE);
