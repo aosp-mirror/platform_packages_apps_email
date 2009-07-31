@@ -1227,10 +1227,11 @@ public class MessageView extends Activity
         }
 
         public void updateMailboxCallback(MessagingException result, long accountId,
-                long mailboxId, int totalMessagesInMailbox, int numNewMessages) {
+                long mailboxId, int progress, int totalMessagesInMailbox, int numNewMessages) {
         }
 
-        public void updateMailboxListCallback(MessagingException result, long accountId) {
+        public void updateMailboxListCallback(MessagingException result, long accountId,
+                int progress) {
         }
     }
 

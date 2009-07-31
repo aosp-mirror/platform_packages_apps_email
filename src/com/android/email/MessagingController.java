@@ -837,35 +837,36 @@ public class MessagingController implements Runnable {
         }
 
         // 10. Compute and store the unread message count.
+        // -- no longer necessary - Provider uses DB triggers to keep track
 
-        int remoteUnreadMessageCount = remoteFolder.getUnreadMessageCount();
-        if (remoteUnreadMessageCount == -1) {
-            if (remoteSupportsSeenFlag) {
-                /*
-                 * If remote folder doesn't supported unread message count but supports
-                 * seen flag, use local folder's unread message count and the size of
-                 * new messages. This mode is not used for POP3, or IMAP.
-                 */
-                
-                remoteUnreadMessageCount = folder.mUnreadCount + newMessages.size();
-            } else {
-                /*
-                 * If remote folder doesn't supported unread message count and doesn't
-                 * support seen flag, use localUnreadCount and newMessageCount which
-                 * don't rely on remote SEEN flag.  This mode is used by POP3.
-                 */
-                remoteUnreadMessageCount = localUnreadCount + newMessageCount;
-            }
-        } else {
-            /*
-             * If remote folder supports unread message count, use remoteUnreadMessageCount.
-             * This mode is used by IMAP.
-             */
-         }
-        Uri uri = ContentUris.withAppendedId(EmailContent.Mailbox.CONTENT_URI, folder.mId);
-        ContentValues updateValues = new ContentValues();
-        updateValues.put(EmailContent.Mailbox.UNREAD_COUNT, remoteUnreadMessageCount);
-        mContext.getContentResolver().update(uri, updateValues, null, null);
+//        int remoteUnreadMessageCount = remoteFolder.getUnreadMessageCount();
+//        if (remoteUnreadMessageCount == -1) {
+//            if (remoteSupportsSeenFlag) {
+//                /*
+//                 * If remote folder doesn't supported unread message count but supports
+//                 * seen flag, use local folder's unread message count and the size of
+//                 * new messages. This mode is not used for POP3, or IMAP.
+//                 */
+//                
+//                remoteUnreadMessageCount = folder.mUnreadCount + newMessages.size();
+//            } else {
+//                /*
+//                 * If remote folder doesn't supported unread message count and doesn't
+//                 * support seen flag, use localUnreadCount and newMessageCount which
+//                 * don't rely on remote SEEN flag.  This mode is used by POP3.
+//                 */
+//                remoteUnreadMessageCount = localUnreadCount + newMessageCount;
+//            }
+//        } else {
+//            /*
+//             * If remote folder supports unread message count, use remoteUnreadMessageCount.
+//             * This mode is used by IMAP.
+//             */
+//         }
+//        Uri uri = ContentUris.withAppendedId(EmailContent.Mailbox.CONTENT_URI, folder.mId);
+//        ContentValues updateValues = new ContentValues();
+//        updateValues.put(EmailContent.Mailbox.UNREAD_COUNT, remoteUnreadMessageCount);
+//        mContext.getContentResolver().update(uri, updateValues, null, null);
 
         // 11. Remove any messages that are in the local store but no longer on the remote store.
 

@@ -265,13 +265,12 @@ public class MailboxList extends ListActivity implements OnItemClickListener, On
      */
     private void onRefresh(long mailboxId) {
         Controller controller = Controller.getInstance(getApplication());
-        Account account = Account.restoreAccountWithId(this, mAccountId);
         mHandler.progress(true);
         if (mailboxId >= 0) {
             Mailbox mailbox = Mailbox.restoreMailboxWithId(this, mailboxId);
-            controller.updateMailbox(account, mailbox, mControllerCallback);
+            controller.updateMailbox(mAccountId, mailbox, mControllerCallback);
         } else {
-            controller.updateMailboxList(account, mControllerCallback);
+            controller.updateMailboxList(mAccountId, mControllerCallback);
         }
     }
 
@@ -364,16 +363,29 @@ public class MailboxList extends ListActivity implements OnItemClickListener, On
      */
     private class ControllerResults implements Controller.Result {
 
-        public void updateMailboxListCallback(MessagingException result, long accountKey) {
+        // TODO report errors into UI
+        public void updateMailboxListCallback(MessagingException result, long accountKey,
+                int progress) {
             if (accountKey == mAccountId) {
-                mHandler.progress(false);
+                if (progress == 0) {
+                    mHandler.progress(true);
+                }
+                else if (result != null || progress == 100) {
+                    mHandler.progress(false);
+                }
             }
         }
 
+        // TODO report errors into UI
         public void updateMailboxCallback(MessagingException result, long accountKey,
-                long mailboxKey, int totalMessagesInMailbox, int numNewMessages) {
+                long mailboxKey, int progress, int totalMessagesInMailbox, int numNewMessages) {
             if (accountKey == mAccountId) {
-                mHandler.progress(false);
+                if (progress == 0) {
+                    mHandler.progress(true);
+                }
+                else if (result != null || progress == 100) {
+                    mHandler.progress(false);
+                }
             }
         }
 

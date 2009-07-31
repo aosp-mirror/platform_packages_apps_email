@@ -428,11 +428,9 @@ public class AccountFolderList extends ListActivity
             Toast.makeText(this,
                     "Please longpress an account to refresh it", Toast.LENGTH_LONG).show();
         } else {
-            EmailContent.Account account =
-                    EmailContent.Account.restoreAccountWithId(this, accountId);
             mHandler.progress(true);
             Controller.getInstance(getApplication()).updateMailboxList(
-                    account, mControllerCallback);
+                    accountId, mControllerCallback);
         }
     }
 
@@ -624,12 +622,13 @@ public class AccountFolderList extends ListActivity
      * final way to do this.
      */
     private class ControllerResults implements Controller.Result {
-        public void updateMailboxListCallback(MessagingException result, long accountKey) {
+        public void updateMailboxListCallback(MessagingException result, long accountKey,
+                int progress) {
             mHandler.progress(false);
         }
 
         public void updateMailboxCallback(MessagingException result, long accountKey,
-                long mailboxKey, int totalMessagesInMailbox, int numNewMessages) {
+                long mailboxKey, int progress, int totalMessagesInMailbox, int numNewMessages) {
             mHandler.progress(false);
         }
 

@@ -137,7 +137,7 @@ public class SyncManager extends Service implements Runnable {
         throws RemoteException{
             IEmailServiceCallback cb = INSTANCE == null ? null: INSTANCE.mCallback;
             if (cb != null) {
-                cb.syncMailboxListStatus(mailboxId, statusCode, progress);
+                cb.syncMailboxStatus(mailboxId, statusCode, progress);
             }
         }
     };

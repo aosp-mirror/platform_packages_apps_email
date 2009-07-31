@@ -122,32 +122,33 @@ public class Controller {
     /**
      * Request a remote update of mailboxes for an account.
      *
-     * TODO: Implement (if any) for non-MessagingController
-     * TODO: Probably the right way is to create a fake "service" for MessagingController ops
+     * TODO: Clean up threading in MessagingController cases (or perhaps here in Controller)
      */
-    public void updateMailboxList(final EmailContent.Account account, final Result callback) {
+    public void updateMailboxList(final long accountId, final Result callback) {
 
-        // 1. determine if we can use MessagingController for this
-        boolean legacyController = isMessagingController(account);
-
-        // 2. if not...?
-        // TODO: for now, just pretend "it worked"
-        if (!legacyController) {
-            if (callback != null) {
-                callback.updateMailboxListCallback(null, account.mId);
+        IEmailService service = getServiceForAccount(accountId);
+        if (service != null) {
+            // Service implementation
+            try {
+                service.updateFolderList(accountId);
+            } catch (RemoteException e) {
+                // TODO Change exception handling to be consistent with however this method
+                // is implemented for other protocols
+                Log.d("updateMailboxList", "RemoteException" + e);
             }
-            return;
+        } else {
+            // MessagingController implementation
+            new Thread() {
+                @Override
+                public void run() {
+                    Account account =
+                        EmailContent.Account.restoreAccountWithId(mProviderContext, accountId);
+                    MessagingListener listener = new LegacyListener(callback);
+                    mLegacyController.addListener(listener);
+                    mLegacyController.listFolders(account, listener);
+                }
+            }.start();
         }
-
-        // 3. if so, make the call
-        new Thread() {
-            @Override
-            public void run() {
-                MessagingListener listener = new LegacyListener(callback);
-                mLegacyController.addListener(listener);
-                mLegacyController.listFolders(account, listener);
-            }
-        }.start();
     }
 
     /**
@@ -157,30 +158,32 @@ public class Controller {
      * a simple message list.  We should also at this point queue up a background task of
      * downloading some/all of the messages in this mailbox, but that should be interruptable.
      */
-    public void updateMailbox(final EmailContent.Account account,
+    public void updateMailbox(final long accountId,
             final EmailContent.Mailbox mailbox, final Result callback) {
 
-        // 1. determine if we can use MessagingController for this
-        boolean legacyController = isMessagingController(account);
-
-        // 2. if not...?
-        // TODO: for now, just pretend "it worked"
-        if (!legacyController) {
-            if (callback != null) {
-                callback.updateMailboxCallback(null, account.mId, mailbox.mId, -1, -1);
+        IEmailService service = getServiceForAccount(accountId);
+        if (service != null) {
+            // Service implementation
+            try {
+                service.startSync(mailbox.mId);
+            } catch (RemoteException e) {
+                // TODO Change exception handling to be consistent with however this method
+                // is implemented for other protocols
+                Log.d("updateMailbox", "RemoteException" + e);
             }
-            return;
+        } else {
+            // MessagingController implementation
+            new Thread() {
+                @Override
+                public void run() {
+                    Account account =
+                        EmailContent.Account.restoreAccountWithId(mProviderContext, accountId);
+                    MessagingListener listener = new LegacyListener(callback);
+                    mLegacyController.addListener(listener);
+                    mLegacyController.synchronizeMailbox(account, mailbox, listener);
+                }
+            }.start();
         }
-
-        // 3. if so, make the call
-        new Thread() {
-            @Override
-            public void run() {
-                MessagingListener listener = new LegacyListener(callback);
-                mLegacyController.addListener(listener);
-                mLegacyController.synchronizeMailbox(account, mailbox, listener);
-            }
-        }.start();
     }
 
     /**
@@ -451,7 +454,17 @@ public class Controller {
     private IEmailService getServiceForMessage(long messageId) {
         // TODO make this more efficient, caching the account, smaller lookup here, etc.
         Message message = Message.restoreMessageWithId(mProviderContext, messageId);
-        long accountId = message.mAccountKey;
+        return getServiceForAccount(message.mAccountKey);
+    }
+
+    /**
+     * For a given account id, return a service proxy if applicable, or null.
+     *
+     * @param accountId the message of interest
+     * @result service proxy, or null if n/a
+     */
+    private IEmailService getServiceForAccount(long accountId) {
+        // TODO make this more efficient, caching the account, MUCH smaller lookup here, etc.
         Account account = EmailContent.Account.restoreAccountWithId(mProviderContext, accountId);
         if (isMessagingController(account)) {
             return null;
@@ -486,8 +499,10 @@ public class Controller {
          *
          * @param result If null, the operation completed without error
          * @param accountId The account being operated on
+         * @param progress 0 for "starting", 1..99 for updates (if needed in UI), 100 for complete
          */
-        public void updateMailboxListCallback(MessagingException result, long accountId);
+        public void updateMailboxListCallback(MessagingException result, long accountId,
+                int progress);
 
         /**
          * Callback for updateMailbox
@@ -495,9 +510,10 @@ public class Controller {
          * @param result If null, the operation completed without error
          * @param accountId The account being operated on
          * @param mailboxId The mailbox being operated on
+         * @param progress 0 for "starting", 1..99 for updates (if needed in UI), 100 for complete
          */
         public void updateMailboxCallback(MessagingException result, long accountId,
-                long mailboxId, int totalMessagesInMailbox, int numNewMessages);
+                long mailboxId, int progress, int totalMessagesInMailbox, int numNewMessages);
 
         /**
          * Callback for loadAttachment
@@ -523,10 +539,17 @@ public class Controller {
         }
 
         @Override
+        public void listFoldersStarted(EmailContent.Account account) {
+            if (mResultCallback != null && isActiveResultCallback(mResultCallback)) {
+                mResultCallback.updateMailboxListCallback(null, account.mId, 0);
+            }
+        }
+
+        @Override
         public void listFoldersFailed(EmailContent.Account account, String message) {
             if (mResultCallback != null && isActiveResultCallback(mResultCallback)) {
                 mResultCallback.updateMailboxListCallback(new MessagingException(message),
-                        account.mId);
+                        account.mId, 0);
             }
             mLegacyController.removeListener(this);
         }
@@ -534,16 +557,24 @@ public class Controller {
         @Override
         public void listFoldersFinished(EmailContent.Account account) {
             if (mResultCallback != null && isActiveResultCallback(mResultCallback)) {
-                mResultCallback.updateMailboxListCallback(null, account.mId);
+                mResultCallback.updateMailboxListCallback(null, account.mId, 100);
             }
             mLegacyController.removeListener(this);
+        }
+
+        @Override
+        public void synchronizeMailboxStarted(EmailContent.Account account,
+                EmailContent.Mailbox folder) {
+            if (mResultCallback != null && isActiveResultCallback(mResultCallback)) {
+                mResultCallback.updateMailboxCallback(null, account.mId, folder.mId, 0, -1, -1);
+            }
         }
 
         @Override
         public void synchronizeMailboxFinished(EmailContent.Account account,
                 EmailContent.Mailbox folder, int totalMessagesInMailbox, int numNewMessages) {
             if (mResultCallback != null && isActiveResultCallback(mResultCallback)) {
-                mResultCallback.updateMailboxCallback(null, account.mId, folder.mId,
+                mResultCallback.updateMailboxCallback(null, account.mId, folder.mId, 100,
                         totalMessagesInMailbox, numNewMessages);
             }
             mLegacyController.removeListener(this);
@@ -559,7 +590,7 @@ public class Controller {
                 } else {
                     me = new MessagingException(e.toString());
                 }
-                mResultCallback.updateMailboxCallback(me, account.mId, folder.mId, -1, -1);
+                mResultCallback.updateMailboxCallback(me, account.mId, folder.mId, 0, -1, -1);
             }
             mLegacyController.removeListener(this);
         }
@@ -568,14 +599,14 @@ public class Controller {
     }
 
     /**
-     * Service callback for load attachment
+     * Service callback for service operations
      */
     private class ServiceCallback extends IEmailServiceCallback.Stub {
 
         private final static boolean DEBUG_FAIL_DOWNLOADS = false;       // do not check in "true"
 
         public void loadAttachmentStatus(long messageId, long attachmentId, int statusCode,
-                int progress) throws RemoteException {
+                int progress) {
             MessagingException result = null;
             switch (statusCode) {
                 case EmailServiceStatus.SUCCESS:
@@ -602,22 +633,61 @@ public class Controller {
             }
         }
 
-        public void sendMessageStatus(long messageId, int statusCode, int progress)
-                throws RemoteException {
+        public void sendMessageStatus(long messageId, int statusCode, int progress) {
             // TODO Auto-generated method stub
 
         }
 
-        public void syncMailboxListStatus(long accountId, int statusCode, int progress)
-                throws RemoteException {
-            // TODO Auto-generated method stub
-
+        public void syncMailboxListStatus(long accountId, int statusCode, int progress) {
+            MessagingException result= null;
+            switch (statusCode) {
+                case EmailServiceStatus.SUCCESS:
+                    progress = 100;
+                    break;
+                case EmailServiceStatus.IN_PROGRESS:
+                    // discard progress reports that look like sentinels
+                    if (progress < 0 || progress >= 100) {
+                        return;
+                    }
+                    break;
+                default:
+                    result = new MessagingException(String.valueOf(statusCode));
+                break;
+            }
+            synchronized(mListeners) {
+                for (Result listener : mListeners) {
+                    listener.updateMailboxListCallback(result, accountId, progress);
+                }
+            }
         }
 
-        public void syncMailboxStatus(long mailboxId, int statusCode, int progress)
-                throws RemoteException {
-            // TODO Auto-generated method stub
-
+        public void syncMailboxStatus(long mailboxId, int statusCode, int progress) {
+            MessagingException result= null;
+            switch (statusCode) {
+                case EmailServiceStatus.SUCCESS:
+                    progress = 100;
+                    break;
+                case EmailServiceStatus.IN_PROGRESS:
+                    // discard progress reports that look like sentinels
+                    if (progress < 0 || progress >= 100) {
+                        return;
+                    }
+                    break;
+                default:
+                    result = new MessagingException(String.valueOf(statusCode));
+                break;
+            }
+            // TODO can we get "number of new messages" back as well?
+            // TODO remove "total num messages" which can be looked up if needed
+            // TODO should pass this back instead of looking it up here
+            // TODO smaller projection
+            Mailbox mbx = Mailbox.restoreMailboxWithId(mContext, mailboxId);
+            long accountId = mbx.mAccountKey;
+            synchronized(mListeners) {
+                for (Result listener : mListeners) {
+                    listener.updateMailboxCallback(result, accountId, mailboxId, progress, 0, 0);
+                }
+            }
         }
     }
 }

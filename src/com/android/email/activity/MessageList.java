@@ -382,11 +382,8 @@ public class MessageList extends ListActivity implements OnItemClickListener, On
         if (mMailboxId >= 0) {
             EmailContent.Mailbox mailbox =
                     EmailContent.Mailbox.restoreMailboxWithId(this, mMailboxId);
-            EmailContent.Account account =
-                    EmailContent.Account.restoreAccountWithId(this, mailbox.mAccountKey);
-            mHandler.progress(true);
             Controller.getInstance(getApplication()).updateMailbox(
-                    account, mailbox, mControllerCallback);
+                    mailbox.mAccountKey, mailbox, mControllerCallback);
         }
     }
 
@@ -610,12 +607,9 @@ public class MessageList extends ListActivity implements OnItemClickListener, On
             long mailboxId = Mailbox.findMailboxOfType(MessageList.this, mAccountId, mMailboxType);
             if (mailboxId == -1 && mOkToRecurse) {
                 // Not found - launch network lookup
-                EmailContent.Account account =
-                    EmailContent.Account.restoreAccountWithId(MessageList.this, mAccountId);
                 mControllerCallback.mWaitForMailboxType = mMailboxType;
-                mHandler.progress(true);
                 Controller.getInstance(getApplication()).updateMailboxList(
-                        account, mControllerCallback);
+                        mAccountId, mControllerCallback);
             }
             return mailboxId;
         }
@@ -778,26 +772,40 @@ public class MessageList extends ListActivity implements OnItemClickListener, On
     }
 
     /**
-     * Callback for async Controller results.  This is all a placeholder until we figure out the
-     * final way to do this.
+     * Callback for async Controller results.
      */
     private class ControllerResults implements Controller.Result {
 
         // These are preset for use by updateMailboxListCallback
         int mWaitForMailboxType = -1;
 
-        public void updateMailboxListCallback(MessagingException result, long accountKey) {
-            if (mWaitForMailboxType != -1) {
+        // TODO report errors into UI
+        // TODO check accountKey and only react to relevant notifications
+        public void updateMailboxListCallback(MessagingException result, long accountKey,
+                int progress) {
+            if (progress == 0) {
+                mHandler.progress(true);
+            }
+            else if (result != null || progress == 100) {
                 mHandler.progress(false);
-                if (result == null) {
-                    mHandler.lookupMailboxType(accountKey, mWaitForMailboxType);
+                if (mWaitForMailboxType != -1) {
+                    if (result == null) {
+                        mHandler.lookupMailboxType(accountKey, mWaitForMailboxType);
+                    }
                 }
             }
         }
 
+        // TODO report errors into UI
+        // TODO check accountKey and only react to relevant notifications
         public void updateMailboxCallback(MessagingException result, long accountKey,
-                long mailboxKey, int totalMessagesInMailbox, int numNewMessages) {
-            mHandler.progress(false);
+                long mailboxKey, int progress, int totalMessagesInMailbox, int numNewMessages) {
+            if (progress == 0) {
+                mHandler.progress(true);
+            }
+            else if (result != null || progress == 100) {
+                mHandler.progress(false);
+            }
         }
 
         public void loadAttachmentCallback(MessagingException result, long messageId,

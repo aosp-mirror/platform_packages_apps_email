@@ -744,7 +744,7 @@ public class FolderMessageList extends ExpandableListActivity {
         if (mRefreshRemote) {
             mHandler.progress(true);
             Controller.getInstance(getApplication()).
-                    updateMailboxList(mAccount, mControllerCallback);
+                    updateMailboxList(mAccount.mId, mControllerCallback);
         }
     }
 
@@ -761,7 +761,7 @@ public class FolderMessageList extends ExpandableListActivity {
             if (mailbox != null) {
                 mHandler.progress(true);
                 Controller.getInstance(getApplication()).
-                        updateMailbox(mAccount, mailbox, mControllerCallback);
+                        updateMailbox(mAccount.mId, mailbox, mControllerCallback);
             }
         }
      }
@@ -771,13 +771,14 @@ public class FolderMessageList extends ExpandableListActivity {
      * final way to do this.
      */
     private class ControllerResults implements Controller.Result {
-        public void updateMailboxListCallback(MessagingException result, long accountKey) {
+        public void updateMailboxListCallback(MessagingException result, long accountKey,
+                int progress) {
             mHandler.progress(false);
             mHandler.listFoldersFinished();
         }
 
         public void updateMailboxCallback(MessagingException result, long accountKey,
-                long mailboxKey, int totalMessagesInMailbox, int numNewMessages) {
+                long mailboxKey, int progress, int totalMessagesInMailbox, int numNewMessages) {
             mHandler.progress(false);
         }
 

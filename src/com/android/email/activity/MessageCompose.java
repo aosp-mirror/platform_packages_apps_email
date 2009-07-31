@@ -1235,11 +1235,12 @@ public class MessageCompose extends Activity implements OnClickListener, OnFocus
     }
 
     class Listener implements Controller.Result {
-        public void updateMailboxListCallback(MessagingException result, long accountId) {
+        public void updateMailboxListCallback(MessagingException result, long accountId,
+                int progress) {
         }
 
         public void updateMailboxCallback(MessagingException result, long accountId,
-                long mailboxId, int totalMessagesInMailbox, int numNewMessages) {
+                long mailboxId, int progress, int totalMessagesInMailbox, int numNewMessages) {
         }
 
         public void loadAttachmentCallback(MessagingException result, long messageId,
