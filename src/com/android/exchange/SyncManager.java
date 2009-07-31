@@ -118,7 +118,7 @@ public class SyncManager extends Service implements Runnable {
         }
 
         public void sendMessageStatus(long messageId, int statusCode, int progress)
-        throws RemoteException{
+                throws RemoteException{
             IEmailServiceCallback cb = INSTANCE == null ? null: INSTANCE.mCallback;
             if (cb != null) {
                 cb.sendMessageStatus(messageId, statusCode, progress);
@@ -126,7 +126,7 @@ public class SyncManager extends Service implements Runnable {
         }
 
         public void syncMailboxListStatus(long accountId, int statusCode, int progress)
-        throws RemoteException{
+                throws RemoteException{
             IEmailServiceCallback cb = INSTANCE == null ? null: INSTANCE.mCallback;
             if (cb != null) {
                 cb.syncMailboxListStatus(accountId, statusCode, progress);
@@ -134,7 +134,7 @@ public class SyncManager extends Service implements Runnable {
         }
 
         public void syncMailboxStatus(long mailboxId, int statusCode, int progress)
-        throws RemoteException{
+                throws RemoteException{
             IEmailServiceCallback cb = INSTANCE == null ? null: INSTANCE.mCallback;
             if (cb != null) {
                 cb.syncMailboxStatus(mailboxId, statusCode, progress);
@@ -179,20 +179,23 @@ public class SyncManager extends Service implements Runnable {
                     Mailbox.CONTENT_PROJECTION, MailboxColumns.ACCOUNT_KEY + "=? AND " +
                     MailboxColumns.SERVER_ID + "=?",
                     new String[] {Long.toString(accountId), Eas.ACCOUNT_MAILBOX}, null);
-            try {
-                if (c.moveToFirst()) {
-                    synchronized(mSyncToken) {
-                        AbstractSyncService svc =
-                            INSTANCE.mServiceMap.get(c.getLong(Mailbox.CONTENT_ID_COLUMN));
-                        // Tell the service we're done
-                        svc.stop();
-                        // Interrupt it so that it can stop
-                        svc.mThread.interrupt();
-                    }
-                }
-            } finally {
-                c.close();
-            }
+            sCallbackProxy.syncMailboxListStatus(accountId, EmailServiceStatus.IN_PROGRESS, 0);
+            sCallbackProxy.syncMailboxListStatus(accountId, EmailServiceStatus.SUCCESS, 0);
+            // TODO Remove previous two lines; reimplement what's below (this is bug #2026451)
+//            try {
+//                if (c.moveToFirst()) {
+//                    synchronized(mSyncToken) {
+//                        AbstractSyncService svc =
+//                            INSTANCE.mServiceMap.get(c.getLong(Mailbox.CONTENT_ID_COLUMN));
+//                        // Tell the service we're done
+//                        svc.stop();
+//                        // Interrupt it so that it can stop
+//                        svc.mThread.interrupt();
+//                    }
+//                }
+//            } finally {
+//                c.close();
+//            }
         }
 
         public void setLogging(boolean on) throws RemoteException {
