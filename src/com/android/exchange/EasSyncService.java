@@ -426,7 +426,7 @@ public class EasSyncService extends InteractiveSyncService {
      * @throws IOException
      * @throws EasParserException
      */
-    public void runMain() throws IOException, EasParserException {
+    public void runAccountMailbox() throws IOException, EasParserException {
         // Initialize exit status to success
         mExitStatus = EmailServiceStatus.SUCCESS;
         try {
@@ -882,11 +882,14 @@ public class EasSyncService extends InteractiveSyncService {
         // Make sure account and mailbox are always the latest from the database
         mAccount = Account.restoreAccountWithId(mContext, mAccount.mId);
         mMailbox = Mailbox.restoreMailboxWithId(mContext, mMailbox.mId);
+        // Whether or not we're the account mailbox
+        boolean accountMailbox = false;
         try {
             if (mMailbox == null || mAccount == null) {
                 return;
             } else if (mMailbox.mServerId.equals(Eas.ACCOUNT_MAILBOX)) {
-                runMain();
+                accountMailbox = true;
+                runAccountMailbox();
             } else {
                 EasSyncAdapter target;
                 mAccount = Account.restoreAccountWithId(mContext, mAccount.mId);
@@ -916,7 +919,12 @@ public class EasSyncService extends InteractiveSyncService {
         } finally {
             userLog(mMailbox.mDisplayName + ": sync finished");
             SyncManager.done(this);
-
+            // If this is the account mailbox, wake up SyncManager
+            // Because this box has a "push" interval, it will be restarted immediately
+            // which will cause the folder list to be reloaded...
+            if (accountMailbox) {
+                SyncManager.kick();
+            }
             try {
                 int status;
                 switch (mExitStatus) {

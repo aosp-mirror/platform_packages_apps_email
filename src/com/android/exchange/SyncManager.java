@@ -184,8 +184,9 @@ public class SyncManager extends Service implements Runnable {
                     synchronized(mSyncToken) {
                         AbstractSyncService svc =
                             INSTANCE.mServiceMap.get(c.getLong(Mailbox.CONTENT_ID_COLUMN));
-                        // TODO See if this is sufficient.  Low priority since there is no
-                        // user-driven "update folder list" in the UI
+                        // Tell the service we're done
+                        svc.stop();
+                        // Interrupt it so that it can stop
                         svc.mThread.interrupt();
                     }
                 }
