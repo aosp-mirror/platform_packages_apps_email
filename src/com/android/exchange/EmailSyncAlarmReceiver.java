@@ -57,7 +57,7 @@ public class EmailSyncAlarmReceiver extends BroadcastReceiver {
         ContentResolver cr = context.getContentResolver();
         int messageCount = 0;
         // Find all of the deletions
-        Cursor c = cr.query(Message.DELETED_CONTENT_URI, MAILBOX_DATA_PROJECTION, 
+        Cursor c = cr.query(Message.DELETED_CONTENT_URI, MAILBOX_DATA_PROJECTION,
                 null, null, null);
         try {
             // Keep track of which mailboxes to notify; we'll only notify each one once
@@ -90,7 +90,7 @@ public class EmailSyncAlarmReceiver extends BroadcastReceiver {
 
         // Request service from the mailbox
         for (Long mailboxId: mailboxesToNotify) {
-            SyncManager.serviceRequest(mailboxId);
+            SyncManager.serviceRequest(mailboxId, "User data upsync");
         }
         Log.v(TAG, "Changed/Deleted messages: " + messageCount + ", mailboxes: " +
                 mailboxesToNotify.size());

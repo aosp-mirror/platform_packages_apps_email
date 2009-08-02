@@ -31,7 +31,7 @@ public class MailboxAlarmReceiver extends BroadcastReceiver {
     public void onReceive(Context context, Intent intent) {
         long mid = intent.getLongExtra("mailbox", -1);
         if (SyncManager.INSTANCE != null) {
-            SyncManager.INSTANCE.log("Alarm received for: " + mid);
+            SyncManager.INSTANCE.log("Alarm received for: " + SyncManager.alarmOwner(mid));
         }
         SyncManager.ping(mid);
     }

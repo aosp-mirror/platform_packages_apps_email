@@ -92,7 +92,7 @@ public class ContactsSyncAdapterService extends Service {
                     if (mailboxCursor.moveToFirst()) {
                         Log.i(TAG, "Contact sync requested for " + account.mName);
                         // Ask for a sync from our sync manager
-                        SyncManager.serviceRequest(mailboxCursor.getLong(0));
+                        SyncManager.serviceRequest(mailboxCursor.getLong(0), "SyncAdapterService");
                     }
                 } finally {
                     mailboxCursor.close();

@@ -104,7 +104,7 @@ public class EasSyncService extends InteractiveSyncService {
     public ContentResolver mContentResolver;
     String[] mBindArguments = new String[2];
     InputStream mPendingPartInputStream = null;
-    private boolean mStop = false;
+    private volatile boolean mStop = false;
     private Object mWaitTarget = new Object();
 
     public EasSyncService(Context _context, Mailbox _mailbox) {
@@ -134,7 +134,7 @@ public class EasSyncService extends InteractiveSyncService {
     @Override
     public void stop() {
         mStop = true;
-    }
+     }
 
     @Override
     public int getSyncStatus() {
@@ -518,8 +518,11 @@ public class EasSyncService extends InteractiveSyncService {
             // We catch this here to send the folder sync status callback
             // A folder sync failed callback will get sent from run()
             try {
-                SyncManager.callback()
-                    .syncMailboxListStatus(mAccount.mId, EmailServiceStatus.CONNECTION_ERROR, 0);
+                if (!mStop) {
+                    SyncManager.callback()
+                        .syncMailboxListStatus(mAccount.mId,
+                                EmailServiceStatus.CONNECTION_ERROR, 0);
+                }
             } catch (RemoteException e1) {
                 // Don't care if this fails
             }
@@ -597,8 +600,12 @@ public class EasSyncService extends InteractiveSyncService {
                 uc = sendEASPostCommand("Ping", s.toString());
                 Thread.currentThread().setName(mAccount.mDisplayName + ": Ping");
                 userLog("Sending ping, timeout: " + uc.getReadTimeout() / 1000 + "s");
+                // Don't send request if we've been asked to stop
+                if (mStop) return;
                 code = uc.getResponseCode();
+                // Return immediately if we've been asked to stop
                 if (mStop) {
+                    userLog("Stooping pingLoop");
                     return;
                 }
                 userLog("Ping response: " + code);
@@ -657,7 +664,8 @@ public class EasSyncService extends InteractiveSyncService {
                         WHERE_ACCOUNT_KEY_AND_SERVER_ID, mBindArguments, null);
                 try {
                     if (c.moveToFirst()) {
-                        SyncManager.startManualSync(c.getLong(Mailbox.CONTENT_ID_COLUMN), null);
+                        SyncManager.startManualSync(c.getLong(Mailbox.CONTENT_ID_COLUMN),
+                                null, "Ping");
                     }
                 } finally {
                     c.close();
@@ -930,33 +938,37 @@ public class EasSyncService extends InteractiveSyncService {
         } catch (Exception e) {
             e.printStackTrace();
         } finally {
-            userLog(mMailbox.mDisplayName + ": sync finished");
-            SyncManager.done(this);
-            // If this is the account mailbox, wake up SyncManager
-            // Because this box has a "push" interval, it will be restarted immediately
-            // which will cause the folder list to be reloaded...
-            if (accountMailbox) {
-                SyncManager.kick();
-            }
-            try {
-                int status;
-                switch (mExitStatus) {
-                    case EXIT_IO_ERROR:
-                        status = EmailServiceStatus.CONNECTION_ERROR;
-                        break;
-                    case EXIT_DONE:
-                        status = EmailServiceStatus.SUCCESS;
-                        break;
-                    case EXIT_LOGIN_FAILURE:
-                        status = EmailServiceStatus.LOGIN_FAILED;
-                        break;
-                    default:
-                        status = EmailServiceStatus.REMOTE_EXCEPTION;
-                        break;
+            if (!mStop) {
+                userLog(mMailbox.mDisplayName + ": sync finished");
+                SyncManager.done(this);
+                // If this is the account mailbox, wake up SyncManager
+                // Because this box has a "push" interval, it will be restarted immediately
+                // which will cause the folder list to be reloaded...
+                if (accountMailbox) {
+                    SyncManager.kick();
                 }
-                SyncManager.callback().syncMailboxStatus(mMailboxId, status, 0);
-            } catch (RemoteException e1) {
-                // Don't care if this fails
+                try {
+                    int status;
+                    switch (mExitStatus) {
+                        case EXIT_IO_ERROR:
+                            status = EmailServiceStatus.CONNECTION_ERROR;
+                            break;
+                        case EXIT_DONE:
+                            status = EmailServiceStatus.SUCCESS;
+                            break;
+                        case EXIT_LOGIN_FAILURE:
+                            status = EmailServiceStatus.LOGIN_FAILED;
+                            break;
+                        default:
+                            status = EmailServiceStatus.REMOTE_EXCEPTION;
+                            break;
+                    }
+                    SyncManager.callback().syncMailboxStatus(mMailboxId, status, 0);
+                } catch (RemoteException e1) {
+                    // Don't care if this fails
+                }
+            } else {
+                userLog(mMailbox.mDisplayName + ": stopped thread finished.");
             }
         }
     }

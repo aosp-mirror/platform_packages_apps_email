@@ -23,6 +23,7 @@ import com.android.email.provider.EmailContent.Account;
 import com.android.email.provider.EmailContent.Attachment;
 import com.android.email.provider.EmailContent.HostAuth;
 import com.android.email.provider.EmailContent.Mailbox;
+import com.android.email.provider.EmailContent.MailboxColumns;
 import com.android.email.provider.EmailContent.Message;
 import com.android.email.provider.EmailContent.MessageColumns;
 import com.android.email.provider.EmailContent.SyncColumns;
@@ -159,7 +160,7 @@ public class SyncManager extends Service implements Runnable {
         }
 
         public void startSync(long mailboxId) throws RemoteException {
-            startManualSync(mailboxId, null);
+            startManualSync(mailboxId, null, "startSync service call");
         }
 
         public void stopSync(long mailboxId) throws RemoteException {
@@ -173,27 +174,34 @@ public class SyncManager extends Service implements Runnable {
         }
 
         public void updateFolderList(long accountId) throws RemoteException {
-//            Cursor c = getContentResolver().query(Mailbox.CONTENT_URI,
-//                    Mailbox.CONTENT_PROJECTION, MailboxColumns.ACCOUNT_KEY + "=? AND " +
-//                    MailboxColumns.SERVER_ID + "=?",
-//                    new String[] {Long.toString(accountId), Eas.ACCOUNT_MAILBOX}, null);
-            sCallbackProxy.syncMailboxListStatus(accountId, EmailServiceStatus.IN_PROGRESS, 0);
-            sCallbackProxy.syncMailboxListStatus(accountId, EmailServiceStatus.SUCCESS, 0);
+            Cursor c = getContentResolver().query(Mailbox.CONTENT_URI,
+                    Mailbox.CONTENT_PROJECTION, MailboxColumns.ACCOUNT_KEY + "=? AND " +
+                    MailboxColumns.TYPE + "=?",
+                    new String[] {Long.toString(accountId),
+                        Long.toString(Mailbox.TYPE_EAS_ACCOUNT_MAILBOX)}, null);
+            //sCallbackProxy.syncMailboxListStatus(accountId, EmailServiceStatus.IN_PROGRESS, 0);
+            //sCallbackProxy.syncMailboxListStatus(accountId, EmailServiceStatus.SUCCESS, 0);
             // TODO Remove previous two lines; reimplement what's below (this is bug #2026451)
-//            try {
-//                if (c.moveToFirst()) {
-//                    synchronized(mSyncToken) {
-//                        AbstractSyncService svc =
-//                            INSTANCE.mServiceMap.get(c.getLong(Mailbox.CONTENT_ID_COLUMN));
-//                        // Tell the service we're done
-//                        svc.stop();
-//                        // Interrupt it so that it can stop
-//                        svc.mThread.interrupt();
-//                    }
-//                }
-//            } finally {
-//                c.close();
-//            }
+            try {
+                if (c.moveToFirst()) {
+                    synchronized(mSyncToken) {
+                        long id = c.getLong(Mailbox.CONTENT_ID_COLUMN);
+                        AbstractSyncService svc = INSTANCE.mServiceMap.get(id);
+                        // Tell the service we're done
+                        svc.stop();
+                        // Interrupt the thread so that it can stop
+                        Thread thread = svc.mThread;
+                        thread.setName(thread.getName() + " (Stopped)");
+                        thread.interrupt();
+                        // Abandon the service
+                        INSTANCE.mServiceMap.remove(id);
+                        // And have it start naturally
+                        kick();
+                    }
+                }
+            } finally {
+                c.close();
+            }
         }
 
         public void setLogging(boolean on) throws RemoteException {
@@ -510,7 +518,7 @@ public class SyncManager extends Service implements Runnable {
         synchronized (mWakeLocks) {
             Boolean lock = mWakeLocks.get(id);
             if (lock == null) {
-                INSTANCE.log("+WakeLock requested for " + id);
+                INSTANCE.log("+WakeLock requested for " + alarmOwner(id));
                 if (mWakeLock == null) {
                     PowerManager pm = (PowerManager)INSTANCE
                             .getSystemService(Context.POWER_SERVICE);
@@ -527,7 +535,7 @@ public class SyncManager extends Service implements Runnable {
         synchronized (mWakeLocks) {
             Boolean lock = mWakeLocks.get(id);
             if (lock != null) {
-                INSTANCE.log("+WakeLock not needed for " + id);
+                INSTANCE.log("+WakeLock not needed for " + alarmOwner(id));
                 mWakeLocks.remove(id);
                 if (mWakeLocks.isEmpty()) {
                     mWakeLock.release();
@@ -538,9 +546,9 @@ public class SyncManager extends Service implements Runnable {
         }
     }
 
-    static private String alarmOwner(long id) {
+    static public String alarmOwner(long id) {
         if (id == -1) {
-            return "MailService";
+            return "SyncManager";
         } else
             return "Mailbox " + Long.toString(id);
     }
@@ -872,15 +880,15 @@ public class SyncManager extends Service implements Runnable {
         return nextWait;
     }
 
-    static public void serviceRequest(Mailbox m) {
-        serviceRequest(m.mId, 5*SECS);
+    static public void serviceRequest(Mailbox m, String reason) {
+        serviceRequest(m.mId, 5*SECS, reason);
     }
 
-    static public void serviceRequest(long mailboxId) {
-        serviceRequest(mailboxId, 5*SECS);
+    static public void serviceRequest(long mailboxId, String reason) {
+        serviceRequest(mailboxId, 5*SECS, reason);
     }
 
-    static public void serviceRequest(long mailboxId, long ms) {
+    static public void serviceRequest(long mailboxId, long ms, String reason) {
         try {
             if (INSTANCE == null) {
                 return;
@@ -890,7 +898,7 @@ public class SyncManager extends Service implements Runnable {
                 service.mRequestTime = System.currentTimeMillis() + ms;
                 kick();
             } else {
-                startManualSync(mailboxId, null);
+                startManualSync(mailboxId, null, "Service request: " + reason);
             }
         } catch (Exception e) {
             e.printStackTrace();
@@ -917,7 +925,7 @@ public class SyncManager extends Service implements Runnable {
         AbstractSyncService service = INSTANCE.mServiceMap.get(mailboxId);
 
         if (service == null) {
-            service = startManualSync(mailboxId, req);
+            service = startManualSync(mailboxId, req, "Part request");
             kick();
         } else {
             service.addPartRequest(req);
@@ -986,7 +994,8 @@ public class SyncManager extends Service implements Runnable {
         }
     }
 
-    static public AbstractSyncService startManualSync(long mailboxId, PartRequest req) {
+    static public AbstractSyncService startManualSync(long mailboxId, PartRequest req,
+            String reason) {
         if (INSTANCE == null || INSTANCE.mServiceMap == null) {
             return null;
         }
@@ -1034,7 +1043,7 @@ public class SyncManager extends Service implements Runnable {
         if (syncType == Account.CHECK_INTERVAL_PUSH) {
             SyncManager.serviceRequestImmediate(mailboxId);
         } else {
-            SyncManager.startManualSync(mailboxId, null);
+            SyncManager.startManualSync(mailboxId, null, "Kick");
         }
     }
 

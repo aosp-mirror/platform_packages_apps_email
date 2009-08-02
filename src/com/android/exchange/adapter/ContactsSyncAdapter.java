@@ -1034,47 +1034,51 @@ public class ContactsSyncAdapter extends AbstractSyncAdapter {
         try {
             // Get them all atomically
             EntityIterator ei = cr.queryEntities(uri, RawContacts.DIRTY + "=1", null, null);
-            boolean first = true;
-            while (ei.hasNext()) {
-                Entity entity = ei.next();
-                // For each of these entities, create the change commands
-                ContentValues entityValues = entity.getEntityValues();
-                String serverId = entityValues.getAsString(RawContacts.SOURCE_ID);
-                if (first) {
-                    s.start(Tags.SYNC_COMMANDS);
-                    first = false;
-                }
-                s.start(Tags.SYNC_CHANGE).data(Tags.SYNC_SERVER_ID, serverId)
-                    .start(Tags.SYNC_APPLICATION_DATA);
-                // Write out the data here
-                for (NamedContentValues ncv: entity.getSubValues()) {
-                    ContentValues cv = ncv.values;
-                    String mimeType = cv.getAsString(Data.MIMETYPE);
-                    if (mimeType.equals(Email.CONTENT_ITEM_TYPE)) {
-                        sendEmail(s, cv);
-                    } else if (mimeType.equals(Phone.CONTENT_ITEM_TYPE)) {
-                        sendPhone(s, cv);
-                    } else if (mimeType.equals(StructuredName.CONTENT_ITEM_TYPE)) {
-                        sendStructuredName(s, cv);
-                    } else if (mimeType.equals(StructuredPostal.CONTENT_ITEM_TYPE)) {
-                        sendStructuredPostal(s, cv);
-                    } else if (mimeType.equals(Organization.CONTENT_ITEM_TYPE)) {
-                        sendOrganization(s, cv);
-                    } else if (mimeType.equals(Im.CONTENT_ITEM_TYPE)) {
-                        sendIm(s, cv);
-                    } else if (mimeType.equals(Note.CONTENT_ITEM_TYPE)) {
-                        // TODO Finish this...
-                    } else if (mimeType.equals(Extras.CONTENT_ITEM_TYPE)) {
-                        // TODO Finish this...
-                    } else {
-                        mService.userLog("Contacts upsync, unknown data: " + mimeType);
+            try {
+                boolean first = true;
+                while (ei.hasNext()) {
+                    Entity entity = ei.next();
+                    // For each of these entities, create the change commands
+                    ContentValues entityValues = entity.getEntityValues();
+                    String serverId = entityValues.getAsString(RawContacts.SOURCE_ID);
+                    if (first) {
+                        s.start(Tags.SYNC_COMMANDS);
+                        first = false;
                     }
+                    s.start(Tags.SYNC_CHANGE).data(Tags.SYNC_SERVER_ID, serverId)
+                    .start(Tags.SYNC_APPLICATION_DATA);
+                    // Write out the data here
+                    for (NamedContentValues ncv: entity.getSubValues()) {
+                        ContentValues cv = ncv.values;
+                        String mimeType = cv.getAsString(Data.MIMETYPE);
+                        if (mimeType.equals(Email.CONTENT_ITEM_TYPE)) {
+                            sendEmail(s, cv);
+                        } else if (mimeType.equals(Phone.CONTENT_ITEM_TYPE)) {
+                            sendPhone(s, cv);
+                        } else if (mimeType.equals(StructuredName.CONTENT_ITEM_TYPE)) {
+                            sendStructuredName(s, cv);
+                        } else if (mimeType.equals(StructuredPostal.CONTENT_ITEM_TYPE)) {
+                            sendStructuredPostal(s, cv);
+                        } else if (mimeType.equals(Organization.CONTENT_ITEM_TYPE)) {
+                            sendOrganization(s, cv);
+                        } else if (mimeType.equals(Im.CONTENT_ITEM_TYPE)) {
+                            sendIm(s, cv);
+                        } else if (mimeType.equals(Note.CONTENT_ITEM_TYPE)) {
+                            // TODO Finish this...
+                        } else if (mimeType.equals(Extras.CONTENT_ITEM_TYPE)) {
+                            // TODO Finish this...
+                        } else {
+                            mService.userLog("Contacts upsync, unknown data: " + mimeType);
+                        }
+                    }
+                    s.end().end(); // ApplicationData & Change
+                    mUpdatedIdList.add(entityValues.getAsLong(RawContacts._ID));
                 }
-                s.end().end(); // ApplicationData & Change
-                mUpdatedIdList.add(entityValues.getAsLong(RawContacts._ID));
-            }
-           if (!first) {
-                s.end(); // Commands
+                if (!first) {
+                    s.end(); // Commands
+                }
+            } finally {
+                ei.close();
             }
 
         } catch (RemoteException e) {
