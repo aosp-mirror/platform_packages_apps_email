@@ -71,7 +71,7 @@ public class EmailSyncAdapter extends AbstractSyncAdapter {
         return p.parse();
     }
 
-    public class EasEmailSyncParser extends ContentParser {
+    public class EasEmailSyncParser extends AbstractSyncParser {
 
         private static final String WHERE_SERVER_ID_AND_MAILBOX_KEY =
             SyncColumns.SERVER_ID + "=? and " + MessageColumns.MAILBOX_KEY + "=?";

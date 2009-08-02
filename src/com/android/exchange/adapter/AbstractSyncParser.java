@@ -21,6 +21,7 @@ import com.android.email.provider.EmailContent.Account;
 import com.android.email.provider.EmailContent.Mailbox;
 import com.android.email.provider.EmailContent.MailboxColumns;
 import com.android.exchange.EasSyncService;
+import com.android.exchange.SyncManager;
 
 import android.content.ContentResolver;
 import android.content.ContentValues;
@@ -35,7 +36,7 @@ import java.io.InputStream;
  * Each subclass must implement a handful of methods that relate specifically to the data type
  *
  */
-public abstract class ContentParser extends Parser {
+public abstract class AbstractSyncParser extends Parser {
 
     EasSyncService mService;
     Mailbox mMailbox;
@@ -43,7 +44,7 @@ public abstract class ContentParser extends Parser {
     Context mContext;
     ContentResolver mContentResolver;
 
-    public ContentParser(InputStream in, EasSyncService _service) throws IOException {
+    public AbstractSyncParser(InputStream in, EasSyncService _service) throws IOException {
         super(in);
         mService = _service;
         mContext = mService.mContext;
@@ -106,7 +107,12 @@ public abstract class ContentParser extends Parser {
                         wipe();
                         // Indicate there's more so that we'll start syncing again
                         moreAvailable = true;
+                    } else if (status == 8) {
+                        // This is Bad; it means the server doesn't recognize the serverId it
+                        // sent us.  What's needed is a refresh of the folder list.
+                        SyncManager.reloadFolderList(mContext, mAccount.mId);
                     }
+                    // TODO Look at other error codes and consider what's to be done
                 }
             } else if (tag == Tags.SYNC_COMMANDS) {
                 commandsParser();

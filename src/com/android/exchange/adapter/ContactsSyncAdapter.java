@@ -21,6 +21,7 @@ import com.android.email.provider.EmailContent.Mailbox;
 import com.android.email.provider.EmailContent.MailboxColumns;
 import com.android.exchange.Eas;
 import com.android.exchange.EasSyncService;
+import com.android.exchange.utility.Base64;
 
 import android.content.ContentProviderOperation;
 import android.content.ContentProviderResult;
@@ -40,9 +41,11 @@ import android.provider.ContactsContract.Data;
 import android.provider.ContactsContract.RawContacts;
 import android.provider.ContactsContract.CommonDataKinds.Email;
 import android.provider.ContactsContract.CommonDataKinds.Im;
+import android.provider.ContactsContract.CommonDataKinds.Nickname;
 import android.provider.ContactsContract.CommonDataKinds.Note;
 import android.provider.ContactsContract.CommonDataKinds.Organization;
 import android.provider.ContactsContract.CommonDataKinds.Phone;
+import android.provider.ContactsContract.CommonDataKinds.Photo;
 import android.provider.ContactsContract.CommonDataKinds.StructuredName;
 import android.provider.ContactsContract.CommonDataKinds.StructuredPostal;
 import android.util.Log;
@@ -78,6 +81,7 @@ public class ContactsSyncAdapter extends AbstractSyncAdapter {
     private static final int TYPE_COMPANY_MAIN = 29;
     private static final int TYPE_MMS = 30;
     private static final int TYPE_RADIO = 31;
+    private static final int TYPE_ASSISTANT = 32;
 
     ArrayList<Long> mDeletedIdList = new ArrayList<Long>();
     ArrayList<Long> mUpdatedIdList = new ArrayList<Long>();
@@ -92,20 +96,89 @@ public class ContactsSyncAdapter extends AbstractSyncAdapter {
         return p.parse();
     }
 
-    public static final class Extras {
-        private Extras() {}
+    public static final class Yomi {
+        private Yomi() {}
 
         /** MIME type used when storing this in data table. */
-        public static final String CONTENT_ITEM_TYPE = "vnd.android.cursor.item/easextras";
-
-        /**
-         * The note text.
-         * <P>Type: TEXT</P>
-         */
-        public static final String EXTRAS = "data2";
+        public static final String CONTENT_ITEM_TYPE = "vnd.android.cursor.item/eas_yomi";
+        public static final String FIRST_NAME = "data2";
+        public static final String LAST_NAME = "data3";
+        public static final String COMPANY_NAME = "data4";
     }
 
-    class EasContactsSyncParser extends ContentParser {
+    public static final class EasChildren {
+        private EasChildren() {}
+
+        /** MIME type used when storing this in data table. */
+        public static final String CONTENT_ITEM_TYPE = "vnd.android.cursor.item/eas_children";
+        public static final int MAX_CHILDREN = 8;
+        public static final String[] ROWS =
+            new String[] {"data2", "data3", "data4", "data5", "data6", "data7", "data8", "data9"};
+    }
+
+    public static final class EasPersonal {
+        String anniversary;
+        String birthday;
+        String fileAs;
+        String title;
+        String spouse;
+        String webpage;
+
+            /** MIME type used when storing this in data table. */
+        public static final String CONTENT_ITEM_TYPE = "vnd.android.cursor.item/eas_personal";
+        public static final String ANNIVERSARY = "data2";
+        public static final String BIRTHDAY = "data3";
+        public static final String FILE_AS = "data4";
+        public static final String TITLE = "data5";
+        public static final String SPOUSE = "data6";
+        public static final String WEBPAGE = "data7";
+
+        boolean hasData() {
+            return anniversary != null || birthday != null || fileAs != null || title != null
+                || spouse != null || webpage != null;
+        }
+    }
+
+    public static final class EasBusiness {
+        String assistantName;
+        String department;
+        String officeLocation;
+        String managerName;
+        String customerId;
+        String governmentId;
+        String accountName;
+
+        /** MIME type used when storing this in data table. */
+        public static final String CONTENT_ITEM_TYPE = "vnd.android.cursor.item/eas_business";
+        public static final String ASSISTANT_NAME = "data2";
+        public static final String DEPARTMENT = "data3";
+        public static final String OFFICE_LOCATION = "data4";
+        public static final String MANAGER_NAME = "data5";
+        public static final String CUSTOMER_ID = "data6";
+        public static final String GOVERNMENT_ID = "data7";
+        public static final String ACCOUNT_NAME = "data8";
+
+        boolean hasData() {
+            return assistantName != null || department != null || officeLocation != null
+                || managerName != null || customerId != null || governmentId != null
+                || accountName != null;
+        }
+    }
+
+    public static final class Address {
+        String city;
+        String country;
+        String code;
+        String street;
+        String state;
+
+        boolean hasData() {
+            return city != null || country != null || code != null || state != null
+                || street != null;
+        }
+    }
+
+    class EasContactsSyncParser extends AbstractSyncParser {
 
         String[] mBindArgument = new String[1];
         String mMailboxIdAsString;
@@ -137,42 +210,27 @@ public class ContactsSyncAdapter extends AbstractSyncAdapter {
             }
         }
 
-        void saveExtraData (StringBuilder extras, int tag) throws IOException {
-            // TODO Handle containers (categories/children)
-            extras.append(tag);
-            extras.append("~");
-            extras.append(getValue());
-            extras.append('~');
-        }
-
-        class Address {
-            String city;
-            String country;
-            String code;
-            String street;
-            String state;
-
-            boolean hasData() {
-                return city != null || country != null || code != null || state != null
-                    || street != null;
-            }
-        }
-
         public void addData(String serverId, ContactOperations ops, Entity entity)
                 throws IOException {
             String firstName = null;
             String lastName = null;
+            String middleName = null;
+            String suffix = null;
             String companyName = null;
+            String yomiFirstName = null;
+            String yomiLastName = null;
+            String yomiCompanyName = null;
             String title = null;
             Address home = new Address();
             Address work = new Address();
             Address other = new Address();
+            EasBusiness business = new EasBusiness();
+            EasPersonal personal = new EasPersonal();
+            ArrayList<String> children = new ArrayList<String>();
 
             if (entity == null) {
                 ops.newContact(serverId);
             }
-
-            StringBuilder extraData = new StringBuilder(1024);
 
             while (nextTag(Tags.SYNC_APPLICATION_DATA) != END) {
                 switch (tag) {
@@ -181,6 +239,12 @@ public class ContactsSyncAdapter extends AbstractSyncAdapter {
                         break;
                     case Tags.CONTACTS_LAST_NAME:
                         lastName = getValue();
+                        break;
+                    case Tags.CONTACTS_MIDDLE_NAME:
+                        middleName = getValue();
+                        break;
+                    case Tags.CONTACTS_SUFFIX:
+                        suffix = getValue();
                         break;
                     case Tags.CONTACTS_COMPANY_NAME:
                         companyName = getValue();
@@ -232,6 +296,9 @@ public class ContactsSyncAdapter extends AbstractSyncAdapter {
                         break;
                     case Tags.CONTACTS_PAGER_NUMBER:
                         ops.addPhone(entity, Phone.TYPE_PAGER, getValue());
+                        break;
+                    case Tags.CONTACTS_ASSISTANT_TELEPHONE_NUMBER:
+                        ops.addPhone(entity, TYPE_ASSISTANT, getValue());
                         break;
                     case Tags.CONTACTS2_IM_ADDRESS:
                         ops.addIm(entity, TYPE_IM1, getValue());
@@ -289,50 +356,94 @@ public class ContactsSyncAdapter extends AbstractSyncAdapter {
                         break;
 
                     case Tags.CONTACTS_CHILDREN:
-                        childrenParser(extraData);
+                        childrenParser(children);
                         break;
 
                     case Tags.CONTACTS_CATEGORIES:
-                        categoriesParser(extraData);
+                        categoriesParser();
                         break;
 
-                        // TODO We'll add this later
-                    case Tags.CONTACTS_PICTURE:
-                        getValue();
-                        break;
-
-                    // All tags that we don't use (except for a few like picture and body) need to
-                    // be saved, even if we're not using them.  Otherwise, when we upload changes,
-                    // those items will be deleted back on the server.
-                    case Tags.CONTACTS_ANNIVERSARY:
-                    case Tags.CONTACTS_ASSISTANT_NAME:
-                    case Tags.CONTACTS_ASSISTANT_TELEPHONE_NUMBER:
-                    case Tags.CONTACTS_BIRTHDAY:
-                    case Tags.CONTACTS_DEPARTMENT:
-                    case Tags.CONTACTS_FILE_AS:
-                    case Tags.CONTACTS_TITLE:
-                    case Tags.CONTACTS_MIDDLE_NAME:
-                    case Tags.CONTACTS_OFFICE_LOCATION:
-                    case Tags.CONTACTS_SPOUSE:
-                    case Tags.CONTACTS_SUFFIX:
-                    case Tags.CONTACTS_WEBPAGE:
                     case Tags.CONTACTS_YOMI_COMPANY_NAME:
-                    case Tags.CONTACTS_YOMI_FIRST_NAME:
-                    case Tags.CONTACTS_YOMI_LAST_NAME:
-                    case Tags.CONTACTS_COMPRESSED_RTF:
-                    case Tags.CONTACTS2_CUSTOMER_ID:
-                    case Tags.CONTACTS2_GOVERNMENT_ID:
-                    case Tags.CONTACTS2_MANAGER_NAME:
-                    case Tags.CONTACTS2_ACCOUNT_NAME:
-                    case Tags.CONTACTS2_NICKNAME:
-                        saveExtraData(extraData, tag);
+                        yomiCompanyName = getValue();
                         break;
+                    case Tags.CONTACTS_YOMI_FIRST_NAME:
+                        yomiFirstName = getValue();
+                        break;
+                    case Tags.CONTACTS_YOMI_LAST_NAME:
+                        yomiLastName = getValue();
+                        break;
+
+                    case Tags.CONTACTS2_NICKNAME:
+                        ops.addNickname(entity, getValue());
+                        break;
+
+                    // EAS Business
+                    case Tags.CONTACTS_ASSISTANT_NAME:
+                        business.assistantName = getValue();
+                        break;
+                    case Tags.CONTACTS_DEPARTMENT:
+                        business.department = getValue();
+                        break;
+                    case Tags.CONTACTS_OFFICE_LOCATION:
+                        business.officeLocation = getValue();
+                        break;
+                    case Tags.CONTACTS2_MANAGER_NAME:
+                        business.managerName = getValue();
+                        break;
+                    case Tags.CONTACTS2_CUSTOMER_ID:
+                        business.customerId = getValue();
+                        break;
+                    case Tags.CONTACTS2_GOVERNMENT_ID:
+                        business.governmentId = getValue();
+                        break;
+                    case Tags.CONTACTS2_ACCOUNT_NAME:
+                        business.accountName = getValue();
+                        break;
+
+                    // EAS Personal
+                    case Tags.CONTACTS_ANNIVERSARY:
+                        personal.anniversary = getValue();
+                        break;
+                    case Tags.CONTACTS_BIRTHDAY:
+                        personal.birthday = getValue();
+                        break;
+                    case Tags.CONTACTS_FILE_AS:
+                        personal.fileAs = getValue();
+                        break;
+                    case Tags.CONTACTS_TITLE:
+                        personal.title = getValue();
+                        break;
+                    case Tags.CONTACTS_SPOUSE:
+                        personal.spouse = getValue();
+                        break;
+                    case Tags.CONTACTS_WEBPAGE:
+                        personal.webpage = getValue();
+                        break;
+
+                    case Tags.CONTACTS_PICTURE:
+                        ops.addPhoto(entity, getValue());
+                        break;
+
+                    case Tags.BASE_BODY:
+                        ops.addNote(entity, bodyParser());
+                        break;
+                    case Tags.CONTACTS_BODY:
+                        ops.addNote(entity, getValue());
+                        break;
+
+                    // TODO Handle Categories/Category
+                    // If we don't handle this properly, we'll lose the information if/when we
+                    // upload changes to the server!
+
+                    case Tags.CONTACTS_COMPRESSED_RTF:
+                        // We don't use this, and it isn't necessary to upload, so we'll ignore it
+                        skipTag();
+                        break;
+
                     default:
                         skipTag();
                 }
             }
-
-            ops.addExtras(entity, extraData.toString());
 
             // We must have first name, last name, or company name
             String name;
@@ -349,7 +460,15 @@ public class ContactsSyncAdapter extends AbstractSyncAdapter {
             } else {
                 return;
             }
-            ops.addName(entity, firstName, lastName, name);
+
+            ops.addName(entity, firstName, lastName, middleName, suffix, name);
+            ops.addYomi(entity, yomiFirstName, yomiLastName, yomiCompanyName);
+            ops.addBusiness(entity, business);
+            ops.addPersonal(entity, personal);
+
+            if (!children.isEmpty()) {
+                ops.addChildren(entity, children);
+            }
 
             if (work.hasData()) {
                 ops.addPostal(entity, StructuredPostal.TYPE_WORK, work.street, work.city,
@@ -369,26 +488,42 @@ public class ContactsSyncAdapter extends AbstractSyncAdapter {
             }
         }
 
-        private void categoriesParser(StringBuilder extras) throws IOException {
+        private void categoriesParser() throws IOException {
             while (nextTag(Tags.CONTACTS_CATEGORIES) != END) {
                 switch (tag) {
                     case Tags.CONTACTS_CATEGORY:
-                        saveExtraData(extras, tag);
                     default:
                         skipTag();
                 }
             }
         }
 
-        private void childrenParser(StringBuilder extras) throws IOException {
+        private void childrenParser(ArrayList<String> children) throws IOException {
             while (nextTag(Tags.CONTACTS_CHILDREN) != END) {
                 switch (tag) {
                     case Tags.CONTACTS_CHILD:
-                        saveExtraData(extras, tag);
+                        if (children.size() < EasChildren.MAX_CHILDREN) {
+                            children.add(getValue());
+                        }
+                        break;
                     default:
                         skipTag();
                 }
             }
+        }
+
+        private String bodyParser() throws IOException {
+            String body = null;
+            while (nextTag(Tags.BASE_BODY) != END) {
+                switch (tag) {
+                    case Tags.BASE_DATA:
+                        body = getValue();
+                        break;
+                    default:
+                        skipTag();
+                }
+            }
+            return body;
         }
 
         public void addParser(ContactOperations ops) throws IOException {
@@ -716,7 +851,7 @@ public class ContactsSyncAdapter extends AbstractSyncAdapter {
             }
 
             // Return the appropriate builder (insert or update)
-            // Caller will fill in the appropriate values; note MIMETYPE is already set
+            // Caller will fill in the appropriate values; 4 MIMETYPE is already set
             return builder;
         }
 
@@ -750,28 +885,100 @@ public class ContactsSyncAdapter extends AbstractSyncAdapter {
             add(builder.build());
         }
 
-        public void addName(Entity entity, String givenName, String familyName,
-                String displayName) {
+        public void addChildren(Entity entity, ArrayList<String> children) {
+            SmartBuilder builder = createBuilder(entity, EasChildren.CONTENT_ITEM_TYPE, -1);
+            int i = 0;
+            for (String child: children) {
+                builder.withValue(EasChildren.ROWS[i++], child);
+            }
+            add(builder.build());
+        }
+
+        public void addName(Entity entity, String givenName, String familyName, String middleName,
+                String suffix, String displayName) {
             SmartBuilder builder = createBuilder(entity, StructuredName.CONTENT_ITEM_TYPE, -1);
             ContentValues cv = builder.cv;
             if (cv != null && cvCompareString(cv, StructuredName.GIVEN_NAME, givenName) &&
-                    cvCompareString(cv, StructuredName.FAMILY_NAME, familyName)) {
+                    cvCompareString(cv, StructuredName.FAMILY_NAME, familyName) &&
+                    cvCompareString(cv, StructuredName.MIDDLE_NAME, middleName) &&
+                    cvCompareString(cv, StructuredName.SUFFIX, suffix)) {
                 return;
             }
             builder.withValue(StructuredName.GIVEN_NAME, givenName);
             builder.withValue(StructuredName.FAMILY_NAME, familyName);
+            builder.withValue(StructuredName.MIDDLE_NAME, middleName);
+            builder.withValue(StructuredName.SUFFIX, suffix);
             add(builder.build());
         }
 
-        public void addPhoto() {
-//            final int photoRes = Generator.pickRandom(PHOTO_POOL);
-//
-//            Builder builder = ContentProviderOperation.newInsert(Data.CONTENT_URI);
-//            builder.withValueBackReference(Data.CONTACT_ID, 0);
-//            builder.withValue(Data.MIMETYPE, Photo.CONTENT_ITEM_TYPE);
-//            builder.withValue(Photo.PHOTO, getPhotoBytes(photoRes));
-//
-//            this.add(builder.build());
+        public void addYomi(Entity entity, String firstName, String lastName, String companyName) {
+            SmartBuilder builder = createBuilder(entity, Yomi.CONTENT_ITEM_TYPE, -1);
+            ContentValues cv = builder.cv;
+            if (cv != null && cvCompareString(cv, Yomi.FIRST_NAME, firstName) &&
+                    cvCompareString(cv, Yomi.LAST_NAME, lastName) &&
+                    cvCompareString(cv, Yomi.COMPANY_NAME, companyName)) {
+                return;
+            }
+            builder.withValue(Yomi.FIRST_NAME, firstName);
+            builder.withValue(Yomi.LAST_NAME, lastName);
+            builder.withValue(Yomi.COMPANY_NAME, companyName);
+            add(builder.build());
+        }
+
+        public void addPersonal(Entity entity, EasPersonal personal) {
+            SmartBuilder builder = createBuilder(entity, EasPersonal.CONTENT_ITEM_TYPE, -1);
+            ContentValues cv = builder.cv;
+            if (cv != null && cvCompareString(cv, EasPersonal.ANNIVERSARY, personal.anniversary) &&
+                    cvCompareString(cv, EasPersonal.BIRTHDAY, personal.birthday) &&
+                    cvCompareString(cv, EasPersonal.FILE_AS , personal.fileAs) &&
+                    cvCompareString(cv, EasPersonal.SPOUSE, personal.spouse) &&
+                    cvCompareString(cv, EasPersonal.TITLE, personal.title) &&
+                    cvCompareString(cv, EasPersonal.WEBPAGE, personal.webpage)) {
+                return;
+            }
+            if (!personal.hasData()) {
+                return;
+            }
+            builder.withValue(EasPersonal.BIRTHDAY, personal.birthday);
+            builder.withValue(EasPersonal.FILE_AS, personal.fileAs);
+            builder.withValue(EasPersonal.ANNIVERSARY, personal.anniversary);
+            builder.withValue(EasPersonal.SPOUSE, personal.spouse);
+            builder.withValue(EasPersonal.TITLE, personal.title);
+            builder.withValue(EasPersonal.WEBPAGE, personal.webpage);
+            add(builder.build());
+        }
+
+        public void addBusiness(Entity entity, EasBusiness business) {
+            SmartBuilder builder = createBuilder(entity, EasPersonal.CONTENT_ITEM_TYPE, -1);
+            ContentValues cv = builder.cv;
+            if (cv != null && cvCompareString(cv, EasBusiness.ACCOUNT_NAME, business.accountName) &&
+                    cvCompareString(cv, EasBusiness.ASSISTANT_NAME, business.assistantName) &&
+                    cvCompareString(cv, EasBusiness.CUSTOMER_ID, business.customerId) &&
+                    cvCompareString(cv, EasBusiness.DEPARTMENT, business.department) &&
+                    cvCompareString(cv, EasBusiness.GOVERNMENT_ID, business.governmentId) &&
+                    cvCompareString(cv, EasBusiness.MANAGER_NAME, business.managerName) &&
+                    cvCompareString(cv, EasBusiness.OFFICE_LOCATION, business.officeLocation)) {
+                return;
+            }
+            if (!business.hasData()) {
+                return;
+            }
+            builder.withValue(EasBusiness.ACCOUNT_NAME, business.accountName);
+            builder.withValue(EasBusiness.ASSISTANT_NAME, business.assistantName);
+            builder.withValue(EasBusiness.CUSTOMER_ID, business.customerId);
+            builder.withValue(EasBusiness.DEPARTMENT, business.department);
+            builder.withValue(EasBusiness.GOVERNMENT_ID, business.governmentId);
+            builder.withValue(EasBusiness.MANAGER_NAME, business.managerName);
+            builder.withValue(EasBusiness.OFFICE_LOCATION, business.officeLocation);
+            add(builder.build());
+        }
+
+        public void addPhoto(Entity entity, String photo) {
+            SmartBuilder builder = createBuilder(entity, Photo.CONTENT_ITEM_TYPE, -1);
+            // We're always going to add this; it's not worth trying to figure out whether the
+            // picture is the same as the one stored.
+            builder.withValue(Photo.PHOTO, Base64.decodeToObject(photo));
+            add(builder.build());
         }
 
         public void addPhone(Entity entity, int type, String phone) {
@@ -782,6 +989,16 @@ public class ContactsSyncAdapter extends AbstractSyncAdapter {
             }
             builder.withValue(Phone.TYPE, type);
             builder.withValue(Phone.NUMBER, phone);
+            add(builder.build());
+        }
+
+        public void addNickname(Entity entity, String name) {
+            SmartBuilder builder = createBuilder(entity, Nickname.CONTENT_ITEM_TYPE, -1);
+            ContentValues cv = builder.cv;
+            if (cv != null && cvCompareString(cv, Nickname.NAME, name)) {
+                return;
+            }
+            builder.withValue(Nickname.NAME, name);
             add(builder.build());
         }
 
@@ -830,22 +1047,13 @@ public class ContactsSyncAdapter extends AbstractSyncAdapter {
             add(builder.build());
         }
 
-        // TODO
-        public void addNote(String note) {
-            Builder builder = ContentProviderOperation.newInsert(Data.CONTENT_URI);
-            builder.withValueBackReference(Data.RAW_CONTACT_ID, mContactBackValue);
-            builder.withValue(Data.MIMETYPE, Note.CONTENT_ITEM_TYPE);
-            builder.withValue(Note.NOTE, note);
-            add(builder.build());
-        }
-
-        public void addExtras(Entity entity, String extras) {
-            SmartBuilder builder = createBuilder(entity, Extras.CONTENT_ITEM_TYPE, -1);
+        public void addNote(Entity entity, String note) {
+            SmartBuilder builder = createBuilder(entity, Note.CONTENT_ITEM_TYPE, -1);
             ContentValues cv = builder.cv;
-            if (cv != null && cvCompareString(cv, Extras.EXTRAS, extras)) {
+            if (cv != null && cvCompareString(cv, Note.NOTE, note)) {
                 return;
             }
-            builder.withValue(Extras.EXTRAS, extras);
+            builder.withValue(Note.NOTE, note);
             add(builder.build());
         }
     }
@@ -957,6 +1165,69 @@ public class ContactsSyncAdapter extends AbstractSyncAdapter {
         if (cv.containsKey(StructuredName.GIVEN_NAME)) {
             s.data(Tags.CONTACTS_FIRST_NAME, cv.getAsString(StructuredName.GIVEN_NAME));
         }
+        if (cv.containsKey(StructuredName.MIDDLE_NAME)) {
+            s.data(Tags.CONTACTS_MIDDLE_NAME, cv.getAsString(StructuredName.MIDDLE_NAME));
+        }
+        if (cv.containsKey(StructuredName.SUFFIX)) {
+            s.data(Tags.CONTACTS_SUFFIX, cv.getAsString(StructuredName.SUFFIX));
+        }
+    }
+
+    private void sendBusiness(Serializer s, ContentValues cv) throws IOException {
+        if (cv.containsKey(EasBusiness.ACCOUNT_NAME)) {
+            s.data(Tags.CONTACTS2_ACCOUNT_NAME, cv.getAsString(EasBusiness.ACCOUNT_NAME));
+        }
+        if (cv.containsKey(EasBusiness.ASSISTANT_NAME)) {
+            s.data(Tags.CONTACTS_ASSISTANT_NAME, cv.getAsString(EasBusiness.ASSISTANT_NAME));
+        }
+        if (cv.containsKey(EasBusiness.CUSTOMER_ID)) {
+            s.data(Tags.CONTACTS2_CUSTOMER_ID, cv.getAsString(EasBusiness.CUSTOMER_ID));
+        }
+        if (cv.containsKey(EasBusiness.DEPARTMENT)) {
+            s.data(Tags.CONTACTS_DEPARTMENT, cv.getAsString(EasBusiness.DEPARTMENT));
+        }
+        if (cv.containsKey(EasBusiness.GOVERNMENT_ID)) {
+            s.data(Tags.CONTACTS2_GOVERNMENT_ID, cv.getAsString(EasBusiness.GOVERNMENT_ID));
+        }
+        if (cv.containsKey(EasBusiness.MANAGER_NAME)) {
+            s.data(Tags.CONTACTS2_MANAGER_NAME, cv.getAsString(EasBusiness.MANAGER_NAME));
+        }
+        if (cv.containsKey(EasBusiness.OFFICE_LOCATION)) {
+            s.data(Tags.CONTACTS_OFFICE_LOCATION, cv.getAsString(EasBusiness.OFFICE_LOCATION));
+        }
+    }
+
+    private void sendPersonal(Serializer s, ContentValues cv) throws IOException {
+        if (cv.containsKey(EasPersonal.ANNIVERSARY)) {
+            s.data(Tags.CONTACTS_ANNIVERSARY, cv.getAsString(EasPersonal.ANNIVERSARY));
+        }
+        if (cv.containsKey(EasPersonal.BIRTHDAY)) {
+            s.data(Tags.CONTACTS_BIRTHDAY, cv.getAsString(EasPersonal.BIRTHDAY));
+        }
+        if (cv.containsKey(EasPersonal.FILE_AS)) {
+            s.data(Tags.CONTACTS_FILE_AS, cv.getAsString(EasPersonal.FILE_AS));
+        }
+        if (cv.containsKey(EasPersonal.SPOUSE)) {
+            s.data(Tags.CONTACTS_SPOUSE, cv.getAsString(EasPersonal.SPOUSE));
+        }
+        if (cv.containsKey(EasPersonal.TITLE)) {
+            s.data(Tags.CONTACTS_TITLE, cv.getAsString(EasPersonal.TITLE));
+        }
+        if (cv.containsKey(EasPersonal.WEBPAGE)) {
+            s.data(Tags.CONTACTS_WEBPAGE, cv.getAsString(EasPersonal.WEBPAGE));
+        }
+    }
+
+    private void sendYomi(Serializer s, ContentValues cv) throws IOException {
+        if (cv.containsKey(Yomi.FIRST_NAME)) {
+            s.data(Tags.CONTACTS_YOMI_FIRST_NAME, cv.getAsString(Yomi.FIRST_NAME));
+        }
+        if (cv.containsKey(Yomi.LAST_NAME)) {
+            s.data(Tags.CONTACTS_YOMI_LAST_NAME, cv.getAsString(Yomi.LAST_NAME));
+        }
+        if (cv.containsKey(Yomi.COMPANY_NAME)) {
+            s.data(Tags.CONTACTS_YOMI_COMPANY_NAME, cv.getAsString(Yomi.COMPANY_NAME));
+        }
     }
 
     private void sendOrganization(Serializer s, ContentValues cv) throws IOException {
@@ -965,6 +1236,29 @@ public class ContactsSyncAdapter extends AbstractSyncAdapter {
         }
         if (cv.containsKey(Organization.COMPANY)) {
             s.data(Tags.CONTACTS_COMPANY_NAME, cv.getAsString(Organization.COMPANY));
+        }
+    }
+
+    private void sendNickname(Serializer s, ContentValues cv) throws IOException {
+        if (cv.containsKey(Nickname.NAME)) {
+            s.data(Tags.CONTACTS2_NICKNAME, cv.getAsString(Nickname.NAME));
+        }
+    }
+
+    private void sendChildren(Serializer s, ContentValues cv) throws IOException {
+        boolean first = true;
+        for (int i = 0; i < EasChildren.MAX_CHILDREN; i++) {
+            String row = EasChildren.ROWS[i];
+            if (cv.containsKey(row)) {
+                if (first) {
+                    s.start(Tags.CONTACTS_CHILDREN);
+                    first = false;
+                }
+                s.data(Tags.CONTACTS_CHILD, cv.getAsString(row));
+            }
+        }
+        if (!first) {
+            s.end();
         }
     }
 
@@ -1053,8 +1347,18 @@ public class ContactsSyncAdapter extends AbstractSyncAdapter {
                         String mimeType = cv.getAsString(Data.MIMETYPE);
                         if (mimeType.equals(Email.CONTENT_ITEM_TYPE)) {
                             sendEmail(s, cv);
+                        } else if (mimeType.equals(Nickname.CONTENT_ITEM_TYPE)) {
+                            sendNickname(s, cv);
+                        } else if (mimeType.equals(EasChildren.CONTENT_ITEM_TYPE)) {
+                            sendChildren(s, cv);
+                        } else if (mimeType.equals(EasBusiness.CONTENT_ITEM_TYPE)) {
+                            sendBusiness(s, cv);
+                        } else if (mimeType.equals(EasPersonal.CONTENT_ITEM_TYPE)) {
+                            sendPersonal(s, cv);
                         } else if (mimeType.equals(Phone.CONTENT_ITEM_TYPE)) {
                             sendPhone(s, cv);
+                        } else if (mimeType.equals(Yomi.CONTENT_ITEM_TYPE)) {
+                            sendYomi(s, cv);
                         } else if (mimeType.equals(StructuredName.CONTENT_ITEM_TYPE)) {
                             sendStructuredName(s, cv);
                         } else if (mimeType.equals(StructuredPostal.CONTENT_ITEM_TYPE)) {
@@ -1064,9 +1368,10 @@ public class ContactsSyncAdapter extends AbstractSyncAdapter {
                         } else if (mimeType.equals(Im.CONTENT_ITEM_TYPE)) {
                             sendIm(s, cv);
                         } else if (mimeType.equals(Note.CONTENT_ITEM_TYPE)) {
-                            // TODO Finish this...
-                        } else if (mimeType.equals(Extras.CONTENT_ITEM_TYPE)) {
-                            // TODO Finish this...
+                            // TODO Should we upload this (it will be plain text)
+                        } else if (mimeType.equals(Photo.CONTENT_ITEM_TYPE)) {
+                            // TODO Decide whether to upload new photos
+                            // For now, we're not going to upload photos
                         } else {
                             mService.userLog("Contacts upsync, unknown data: " + mimeType);
                         }
