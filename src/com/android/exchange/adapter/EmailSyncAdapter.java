@@ -48,9 +48,7 @@ import java.util.TimeZone;
  * Sync adapter for EAS email
  *
  */
-public class EasEmailSyncAdapter extends EasSyncAdapter {
-
-    private static boolean DEBUG_LOGGING = false;  // DON'T CHECK THIS IN SET TO TRUE
+public class EmailSyncAdapter extends AbstractSyncAdapter {
 
     private static final int UPDATES_READ_COLUMN = 0;
     private static final int UPDATES_MAILBOX_KEY_COLUMN = 1;
@@ -63,7 +61,7 @@ public class EasEmailSyncAdapter extends EasSyncAdapter {
     ArrayList<Long> mDeletedIdList = new ArrayList<Long>();
     ArrayList<Long> mUpdatedIdList = new ArrayList<Long>();
 
-    public EasEmailSyncAdapter(Mailbox mailbox, EasSyncService service) {
+    public EmailSyncAdapter(Mailbox mailbox, EasSyncService service) {
         super(mailbox, service);
     }
 
@@ -73,7 +71,7 @@ public class EasEmailSyncAdapter extends EasSyncAdapter {
         return p.parse();
     }
 
-    public class EasEmailSyncParser extends EasContentParser {
+    public class EasEmailSyncParser extends ContentParser {
 
         private static final String WHERE_SERVER_ID_AND_MAILBOX_KEY =
             SyncColumns.SERVER_ID + "=? and " + MessageColumns.MAILBOX_KEY + "=?";
@@ -83,9 +81,6 @@ public class EasEmailSyncAdapter extends EasSyncAdapter {
         public EasEmailSyncParser(InputStream in, EasSyncService service) throws IOException {
             super(in, service);
             mMailboxIdAsString = Long.toString(mMailbox.mId);
-            if (DEBUG_LOGGING) {
-                setDebug(true);
-            }
         }
 
         @Override
@@ -101,15 +96,15 @@ public class EasEmailSyncAdapter extends EasSyncAdapter {
         public void addData (Message msg) throws IOException {
             ArrayList<Attachment> atts = new ArrayList<Attachment>();
 
-            while (nextTag(EasTags.SYNC_APPLICATION_DATA) != END) {
+            while (nextTag(Tags.SYNC_APPLICATION_DATA) != END) {
                 switch (tag) {
-                    case EasTags.EMAIL_ATTACHMENTS:
+                    case Tags.EMAIL_ATTACHMENTS:
                         attachmentsParser(atts, msg);
                         break;
-                    case EasTags.EMAIL_TO:
+                    case Tags.EMAIL_TO:
                         msg.mTo = Address.pack(Address.parse(getValue()));
                         break;
-                    case EasTags.EMAIL_FROM:
+                    case Tags.EMAIL_FROM:
                         String from = getValue();
                         String sender = from;
                         int q = from.indexOf('\"');
@@ -122,13 +117,13 @@ public class EasEmailSyncAdapter extends EasSyncAdapter {
                         msg.mDisplayName = sender;
                         msg.mFrom = Address.pack(Address.parse(from));
                         break;
-                    case EasTags.EMAIL_CC:
+                    case Tags.EMAIL_CC:
                         msg.mCc = Address.pack(Address.parse(getValue()));
                         break;
-                    case EasTags.EMAIL_REPLY_TO:
+                    case Tags.EMAIL_REPLY_TO:
                         msg.mReplyTo = Address.pack(Address.parse(getValue()));
                         break;
-                    case EasTags.EMAIL_DATE_RECEIVED:
+                    case Tags.EMAIL_DATE_RECEIVED:
                         String date = getValue();
                         // 2009-02-11T18:03:03.627Z
                         GregorianCalendar cal = new GregorianCalendar();
@@ -140,19 +135,19 @@ public class EasEmailSyncAdapter extends EasSyncAdapter {
                         cal.setTimeZone(TimeZone.getTimeZone("GMT"));
                         msg.mTimeStamp = cal.getTimeInMillis();
                         break;
-                    case EasTags.EMAIL_SUBJECT:
+                    case Tags.EMAIL_SUBJECT:
                         msg.mSubject = getValue();
                         break;
-                    case EasTags.EMAIL_READ:
+                    case Tags.EMAIL_READ:
                         msg.mFlagRead = getValueInt() == 1;
                         break;
-                    case EasTags.BASE_BODY:
+                    case Tags.BASE_BODY:
                         bodyParser(msg);
                         break;
-                    case EasTags.EMAIL_FLAG:
+                    case Tags.EMAIL_FLAG:
                         msg.mFlagFavorite = flagParser();
                         break;
-                    case EasTags.EMAIL_BODY:
+                    case Tags.EMAIL_BODY:
                         String text = getValue();
                         msg.mText = text;
                         msg.mTextInfo = "X;X;8;" + text.length(); // location;encoding;charset;size
@@ -173,12 +168,12 @@ public class EasEmailSyncAdapter extends EasSyncAdapter {
             msg.mMailboxKey = mMailbox.mId;
             msg.mFlagLoaded = Message.LOADED;
 
-            while (nextTag(EasTags.SYNC_ADD) != END) {
+            while (nextTag(Tags.SYNC_ADD) != END) {
                 switch (tag) {
-                    case EasTags.SYNC_SERVER_ID:
+                    case Tags.SYNC_SERVER_ID:
                         msg.mServerId = getValue();
                         break;
-                    case EasTags.SYNC_APPLICATION_DATA:
+                    case Tags.SYNC_APPLICATION_DATA:
                         addData(msg);
                         break;
                     default:
@@ -194,9 +189,9 @@ public class EasEmailSyncAdapter extends EasSyncAdapter {
         // For now, we only care about the "active" state
         private Boolean flagParser() throws IOException {
             Boolean state = false;
-            while (nextTag(EasTags.EMAIL_FLAG) != END) {
+            while (nextTag(Tags.EMAIL_FLAG) != END) {
                 switch (tag) {
-                    case EasTags.EMAIL_FLAG_STATUS:
+                    case Tags.EMAIL_FLAG_STATUS:
                         state = true;
                         break;
                     default:
@@ -209,12 +204,12 @@ public class EasEmailSyncAdapter extends EasSyncAdapter {
         private void bodyParser(Message msg) throws IOException {
             String bodyType = Eas.BODY_PREFERENCE_TEXT;
             String body = "";
-            while (nextTag(EasTags.EMAIL_BODY) != END) {
+            while (nextTag(Tags.EMAIL_BODY) != END) {
                 switch (tag) {
-                    case EasTags.BASE_TYPE:
+                    case Tags.BASE_TYPE:
                         bodyType = getValue();
                         break;
-                    case EasTags.BASE_DATA:
+                    case Tags.BASE_DATA:
                         body = getValue();
                         break;
                     default:
@@ -237,15 +232,15 @@ public class EasEmailSyncAdapter extends EasSyncAdapter {
             String length = null;
             String location = null;
 
-            while (nextTag(EasTags.EMAIL_ATTACHMENT) != END) {
+            while (nextTag(Tags.EMAIL_ATTACHMENT) != END) {
                 switch (tag) {
-                    case EasTags.EMAIL_DISPLAY_NAME:
+                    case Tags.EMAIL_DISPLAY_NAME:
                         fileName = getValue();
                         break;
-                    case EasTags.EMAIL_ATT_NAME:
+                    case Tags.EMAIL_ATT_NAME:
                         location = getValue();
                         break;
-                    case EasTags.EMAIL_ATT_SIZE:
+                    case Tags.EMAIL_ATT_SIZE:
                         length = getValue();
                         break;
                     default:
@@ -294,9 +289,9 @@ public class EasEmailSyncAdapter extends EasSyncAdapter {
         }
 
         private void attachmentsParser(ArrayList<Attachment> atts, Message msg) throws IOException {
-            while (nextTag(EasTags.EMAIL_ATTACHMENTS) != END) {
+            while (nextTag(Tags.EMAIL_ATTACHMENTS) != END) {
                 switch (tag) {
-                    case EasTags.EMAIL_ATTACHMENT:
+                    case Tags.EMAIL_ATTACHMENT:
                         attachmentParser(atts, msg);
                         break;
                     default:
@@ -313,9 +308,9 @@ public class EasEmailSyncAdapter extends EasSyncAdapter {
         }
 
         private void deleteParser(ArrayList<Long> deletes) throws IOException {
-            while (nextTag(EasTags.SYNC_DELETE) != END) {
+            while (nextTag(Tags.SYNC_DELETE) != END) {
                 switch (tag) {
-                    case EasTags.SYNC_SERVER_ID:
+                    case Tags.SYNC_SERVER_ID:
                         String serverId = getValue();
                         // Find the message in this mailbox with the given serverId
                         Cursor c = getServerIdCursor(serverId, Message.ID_COLUMN_PROJECTION);
@@ -353,9 +348,9 @@ public class EasEmailSyncAdapter extends EasSyncAdapter {
             Boolean oldFlag = false;
             Boolean flag = null;
             long id = 0;
-            while (nextTag(EasTags.SYNC_CHANGE) != END) {
+            while (nextTag(Tags.SYNC_CHANGE) != END) {
                 switch (tag) {
-                    case EasTags.SYNC_SERVER_ID:
+                    case Tags.SYNC_SERVER_ID:
                         serverId = getValue();
                         Cursor c = getServerIdCursor(serverId, Message.LIST_PROJECTION);
                         try {
@@ -369,13 +364,13 @@ public class EasEmailSyncAdapter extends EasSyncAdapter {
                             c.close();
                         }
                         break;
-                    case EasTags.EMAIL_READ:
+                    case Tags.EMAIL_READ:
                         read = getValueInt() == 1;
                         break;
-                    case EasTags.EMAIL_FLAG:
+                    case Tags.EMAIL_FLAG:
                         flag = flagParser();
                         break;
-                    case EasTags.SYNC_APPLICATION_DATA:
+                    case Tags.SYNC_APPLICATION_DATA:
                         break;
                     default:
                         skipTag();
@@ -396,12 +391,12 @@ public class EasEmailSyncAdapter extends EasSyncAdapter {
             ArrayList<Long> deletedEmails = new ArrayList<Long>();
             ArrayList<ServerChange> changedEmails = new ArrayList<ServerChange>();
 
-            while (nextTag(EasTags.SYNC_COMMANDS) != END) {
-                if (tag == EasTags.SYNC_ADD) {
+            while (nextTag(Tags.SYNC_COMMANDS) != END) {
+                if (tag == Tags.SYNC_ADD) {
                     addParser(newEmails);
-                } else if (tag == EasTags.SYNC_DELETE) {
+                } else if (tag == Tags.SYNC_DELETE) {
                     deleteParser(deletedEmails);
-                } else if (tag == EasTags.SYNC_CHANGE) {
+                } else if (tag == Tags.SYNC_CHANGE) {
                     changeParser(changedEmails);
                 } else
                     skipTag();
@@ -488,7 +483,7 @@ public class EasEmailSyncAdapter extends EasSyncAdapter {
     }
 
     @Override
-    public boolean sendLocalChanges(EasSerializer s, EasSyncService service) throws IOException {
+    public boolean sendLocalChanges(Serializer s, EasSyncService service) throws IOException {
         Context context = service.mContext;
         ContentResolver cr = context.getContentResolver();
 
@@ -502,13 +497,13 @@ public class EasEmailSyncAdapter extends EasSyncAdapter {
         try {
             while (c.moveToNext()) {
                 if (first) {
-                    s.start("Commands");
+                    s.start(Tags.SYNC_COMMANDS);
                     first = false;
                 }
                 // Send the command to delete this message
-                s.start("Delete")
-                    .data("ServerId", c.getString(Message.LIST_SERVER_ID_COLUMN))
-                    .end("Delete");
+                s.start(Tags.SYNC_DELETE)
+                    .data(Tags.SYNC_SERVER_ID, c.getString(Message.LIST_SERVER_ID_COLUMN))
+                    .end(); // SYNC_DELETE
                 mDeletedIdList.add(c.getLong(Message.LIST_ID_COLUMN));
             }
         } finally {
@@ -543,13 +538,13 @@ public class EasEmailSyncAdapter extends EasSyncAdapter {
                     // If the message is now in the trash folder, it has been deleted by the user
                     if (currentCursor.getLong(UPDATES_MAILBOX_KEY_COLUMN) == trashMailboxId) {
                          if (first) {
-                            s.start("Commands");
+                            s.start(Tags.SYNC_COMMANDS);
                             first = false;
                         }
                         // Send the command to delete this message
-                        s.start("Delete")
-                            .data("ServerId", currentCursor.getString(UPDATES_SERVER_ID_COLUMN))
-                            .end("Delete");
+                        s.start(Tags.SYNC_DELETE)
+                            .data(Tags.SYNC_SERVER_ID, currentCursor.getString(UPDATES_SERVER_ID_COLUMN))
+                            .end(); // SYNC_DELETE
                         continue;
                     }
 
@@ -559,18 +554,17 @@ public class EasEmailSyncAdapter extends EasSyncAdapter {
                         continue;
                     }
                     if (first) {
-                        s.start("Commands");
+                        s.start(Tags.SYNC_COMMANDS);
                         first = false;
                     }
                     // Send the change to "read".  We'll do "flagged" here eventually as well
                     // TODO Add support for flags here (EAS 12.0 and above)
                     // Or is this not safe??
-                    s.start("Change")
-                        .data("ServerId", c.getString(Message.LIST_SERVER_ID_COLUMN))
-                        .start("ApplicationData")
-                        .data("Read", Integer.toString(read))
-                        .end("ApplicationData")
-                        .end("Change");
+                    s.start(Tags.SYNC_CHANGE)
+                        .data(Tags.SYNC_SERVER_ID, c.getString(Message.LIST_SERVER_ID_COLUMN))
+                        .start(Tags.SYNC_APPLICATION_DATA)
+                        .data(Tags.EMAIL_READ, Integer.toString(read))
+                        .end().end(); // SYNC_APPLICATION_DATA, SYNC_CHANGE
                 } finally {
                     currentCursor.close();
                 }
@@ -580,7 +574,7 @@ public class EasEmailSyncAdapter extends EasSyncAdapter {
         }
 
         if (!first) {
-            s.end("Commands");
+            s.end(); // SYNC_COMMANDS
         }
         return false;
     }

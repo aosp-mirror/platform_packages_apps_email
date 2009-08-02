@@ -49,9 +49,7 @@ import java.util.List;
  * Handles the addition, deletion, and changes to folders in the user's Exchange account.
  **/
 
-public class EasFolderSyncParser extends EasParser {
-
-    private static boolean DEBUG_LOGGING = true;
+public class FolderSyncParser extends Parser {
 
     public static final String TAG = "FolderSyncParser";
 
@@ -85,22 +83,15 @@ public class EasFolderSyncParser extends EasParser {
         new String[] {MailboxColumns.ID, MailboxColumns.SERVER_ID};
 
     private Account mAccount;
-
     private long mAccountId;
-
     private String mAccountIdAsString;
-
     private EasSyncService mService;
-
     private Context mContext;
-
     private ContentResolver mContentResolver;
-
     private MockParserStream mMock = null;
-
     private String[] mBindArguments = new String[2];
 
-    public EasFolderSyncParser(InputStream in, EasSyncService service) throws IOException {
+    public FolderSyncParser(InputStream in, EasSyncService service) throws IOException {
         super(in);
         mService = service;
         mAccount = service.mAccount;
@@ -111,18 +102,16 @@ public class EasFolderSyncParser extends EasParser {
         if (in instanceof MockParserStream) {
             mMock = (MockParserStream)in;
         }
-        if (DEBUG_LOGGING) {
-            setDebug(true);
-        }
     }
 
+    @Override
     public boolean parse() throws IOException {
         int status;
         boolean res = false;
-        if (nextTag(START_DOCUMENT) != EasTags.FOLDER_FOLDER_SYNC)
+        if (nextTag(START_DOCUMENT) != Tags.FOLDER_FOLDER_SYNC)
             throw new IOException();
         while (nextTag(START_DOCUMENT) != END_DOCUMENT) {
-            if (tag == EasTags.FOLDER_STATUS) {
+            if (tag == Tags.FOLDER_STATUS) {
                 status = getValueInt();
                 if (status != Eas.FOLDER_STATUS_OK) {
                     mService.errorLog("FolderSync failed: " + status);
@@ -141,10 +130,10 @@ public class EasFolderSyncParser extends EasParser {
                         throw new IOException();
                     }
                 }
-            } else if (tag == EasTags.FOLDER_SYNC_KEY) {
+            } else if (tag == Tags.FOLDER_SYNC_KEY) {
                 mAccount.mSyncKey = getValue();
                 mService.userLog("New Account SyncKey: " + mAccount.mSyncKey);
-            } else if (tag == EasTags.FOLDER_CHANGES) {
+            } else if (tag == Tags.FOLDER_CHANGES) {
                 changesParser();
             } else
                 skipTag();
@@ -163,9 +152,9 @@ public class EasFolderSyncParser extends EasParser {
     }
 
     public void deleteParser(ArrayList<ContentProviderOperation> ops) throws IOException {
-        while (nextTag(EasTags.SYNC_DELETE) != END) {
+        while (nextTag(Tags.SYNC_DELETE) != END) {
             switch (tag) {
-                case EasTags.FOLDER_SERVER_ID:
+                case Tags.FOLDER_SERVER_ID:
                     String serverId = getValue();
                     // Find the mailbox in this account with the given serverId
                     Cursor c = getServerIdCursor(serverId);
@@ -192,21 +181,21 @@ public class EasFolderSyncParser extends EasParser {
         String parentId = null;
         int type = 0;
 
-        while (nextTag(EasTags.FOLDER_ADD) != END) {
+        while (nextTag(Tags.FOLDER_ADD) != END) {
             switch (tag) {
-                case EasTags.FOLDER_DISPLAY_NAME: {
+                case Tags.FOLDER_DISPLAY_NAME: {
                     name = getValue();
                     break;
                 }
-                case EasTags.FOLDER_TYPE: {
+                case Tags.FOLDER_TYPE: {
                     type = getValueInt();
                     break;
                 }
-                case EasTags.FOLDER_PARENT_ID: {
+                case Tags.FOLDER_PARENT_ID: {
                     parentId = getValue();
                     break;
                 }
-                case EasTags.FOLDER_SERVER_ID: {
+                case Tags.FOLDER_SERVER_ID: {
                     serverId = getValue();
                     break;
                 }
@@ -241,7 +230,7 @@ public class EasFolderSyncParser extends EasParser {
                 case DELETED_TYPE:
                     m.mType = Mailbox.TYPE_TRASH;
                     break;
-                case CALENDAR_TYPE: 
+                case CALENDAR_TYPE:
                     m.mType = Mailbox.TYPE_CALENDAR;
                     // TODO This could be push, depending on settings
                     // For now, no sync, since it's not yet implemented
@@ -272,13 +261,13 @@ public class EasFolderSyncParser extends EasParser {
         // Keep track of new boxes, deleted boxes, updated boxes
         ArrayList<ContentProviderOperation> ops = new ArrayList<ContentProviderOperation>();
 
-        while (nextTag(EasTags.FOLDER_CHANGES) != END) {
+        while (nextTag(Tags.FOLDER_CHANGES) != END) {
             // TODO Handle FOLDER_CHANGE and FOLDER_DELETE
-            if (tag == EasTags.FOLDER_ADD) {
+            if (tag == Tags.FOLDER_ADD) {
                 addParser(ops);
-            } else if (tag == EasTags.FOLDER_DELETE) {
+            } else if (tag == Tags.FOLDER_DELETE) {
                 deleteParser(ops);
-            } else if (tag == EasTags.FOLDER_COUNT) {
+            } else if (tag == Tags.FOLDER_COUNT) {
                 getValueInt();
             } else
                 skipTag();

@@ -35,19 +35,15 @@ import java.io.InputStream;
  * Each subclass must implement a handful of methods that relate specifically to the data type
  *
  */
-public abstract class EasContentParser extends EasParser {
+public abstract class ContentParser extends Parser {
 
     EasSyncService mService;
-
     Mailbox mMailbox;
-
     Account mAccount;
-
     Context mContext;
-
     ContentResolver mContentResolver;
 
-    public EasContentParser(InputStream in, EasSyncService _service) throws IOException {
+    public ContentParser(InputStream in, EasSyncService _service) throws IOException {
         super(in);
         mService = _service;
         mContext = mService.mContext;
@@ -82,18 +78,19 @@ public abstract class EasContentParser extends EasParser {
      * Sync keys and the more available flag are handled here, whereas specific data parsing
      * is handled by abstract methods implemented for each data class (e.g. Email, Contacts, etc.)
      */
+    @Override
     public boolean parse() throws IOException {
         int status;
         boolean moreAvailable = false;
         // If we're not at the top of the xml tree, throw an exception
-        if (nextTag(START_DOCUMENT) != EasTags.SYNC_SYNC) {
+        if (nextTag(START_DOCUMENT) != Tags.SYNC_SYNC) {
             throw new IOException();
         }
         // Loop here through the remaining xml
         while (nextTag(START_DOCUMENT) != END_DOCUMENT) {
-            if (tag == EasTags.SYNC_COLLECTION || tag == EasTags.SYNC_COLLECTIONS) {
+            if (tag == Tags.SYNC_COLLECTION || tag == Tags.SYNC_COLLECTIONS) {
                 // Ignore these tags, since we've only got one collection syncing in this loop
-            } else if (tag == EasTags.SYNC_STATUS) {
+            } else if (tag == Tags.SYNC_STATUS) {
                 // Status = 1 is success; everything else is a failure
                 status = getValueInt();
                 if (status != 1) {
@@ -111,13 +108,13 @@ public abstract class EasContentParser extends EasParser {
                         moreAvailable = true;
                     }
                 }
-            } else if (tag == EasTags.SYNC_COMMANDS) {
+            } else if (tag == Tags.SYNC_COMMANDS) {
                 commandsParser();
-            } else if (tag == EasTags.SYNC_RESPONSES) {
+            } else if (tag == Tags.SYNC_RESPONSES) {
                 responsesParser();
-            } else if (tag == EasTags.SYNC_MORE_AVAILABLE) {
+            } else if (tag == Tags.SYNC_MORE_AVAILABLE) {
                 moreAvailable = true;
-            } else if (tag == EasTags.SYNC_SYNC_KEY) {
+            } else if (tag == Tags.SYNC_SYNC_KEY) {
                 if (mMailbox.mSyncKey.equals("0"))
                     moreAvailable = true;
                 String newKey = getValue();

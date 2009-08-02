@@ -15,14 +15,12 @@
  * limitations under the License.
  */
 
-package com.android.exchange.adapter;
+package com.android.exchange;
 
 import com.android.email.provider.EmailContent.HostAuth;
 import com.android.email.provider.EmailContent.Mailbox;
 import com.android.email.provider.EmailContent.Message;
 import com.android.email.provider.EmailContent.MessageColumns;
-import com.android.exchange.EasSyncService;
-import com.android.exchange.SyncManager;
 import com.android.exchange.utility.Rfc822Formatter;
 
 import android.content.ContentUris;

@@ -121,7 +121,7 @@ public class Controller {
 
     /**
      * Enable/disable logging for external sync services
-     * 
+     *
      * Generally this should be called by anybody who changes Email.DEBUG
      */
     public void serviceLogging(boolean debugEnabled) {
@@ -275,7 +275,7 @@ public class Controller {
         if (accountId < 0 || mailboxType < 0) {
             String mes = "Invalid arguments " + accountId + ' ' + mailboxType;
             Log.e(Email.LOG_TAG, mes);
-            throw new RuntimeException(mes); 
+            throw new RuntimeException(mes);
         }
         Mailbox box = new Mailbox();
         box.mAccountKey = accountId;
@@ -339,13 +339,13 @@ public class Controller {
 
     /**
      * Delete a single message by moving it to the trash.
-     * 
+     *
      * This function has no callback, no result reporting, because the desired outcome
      * is reflected entirely by changes to one or more cursors.
-     * 
+     *
      * @param messageId The id of the message to "delete".
      * @param accountId The id of the message's account, or -1 if not known by caller
-     * 
+     *
      * TODO: Move out of UI thread
      * TODO: "get account a for message m" should be a utility
      * TODO: "get mailbox of type n for account a" should be a utility
@@ -699,6 +699,8 @@ public class Controller {
             // TODO should pass this back instead of looking it up here
             // TODO smaller projection
             Mailbox mbx = Mailbox.restoreMailboxWithId(mContext, mailboxId);
+            // The mailbox could have disappeared if the server commanded it
+            if (mbx == null) return;
             long accountId = mbx.mAccountKey;
             synchronized(mListeners) {
                 for (Result listener : mListeners) {

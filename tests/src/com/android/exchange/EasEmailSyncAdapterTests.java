@@ -18,8 +18,8 @@ package com.android.exchange;
 
 import com.android.email.provider.EmailContent.Account;
 import com.android.email.provider.EmailContent.Mailbox;
-import com.android.exchange.adapter.EasEmailSyncAdapter;
-import com.android.exchange.adapter.EasEmailSyncAdapter.EasEmailSyncParser;
+import com.android.exchange.adapter.EmailSyncAdapter;
+import com.android.exchange.adapter.EmailSyncAdapter.EasEmailSyncParser;
 
 import android.test.AndroidTestCase;
 
@@ -51,7 +51,7 @@ public class EasEmailSyncAdapterTests extends AndroidTestCase {
         service.mContext = getContext();
         service.mMailbox = mailbox;
         service.mAccount = account;
-        EasEmailSyncAdapter adapter = new EasEmailSyncAdapter(mailbox, service);
+        EmailSyncAdapter adapter = new EmailSyncAdapter(mailbox, service);
         EasEmailSyncParser p;
         p = adapter.new EasEmailSyncParser(getTestInputStream(), service);
         // Test a few known types

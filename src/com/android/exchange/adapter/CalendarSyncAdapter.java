@@ -27,9 +27,9 @@ import java.io.IOException;
  * Sync adapter class for EAS calendars
  *
  */
-public class EasCalendarSyncAdapter extends EasSyncAdapter {
+public class CalendarSyncAdapter extends AbstractSyncAdapter {
 
-    public EasCalendarSyncAdapter(Mailbox mailbox, EasSyncService service) {
+    public CalendarSyncAdapter(Mailbox mailbox, EasSyncService service) {
         super(mailbox, service);
     }
 
@@ -45,7 +45,7 @@ public class EasCalendarSyncAdapter extends EasSyncAdapter {
     }
 
     @Override
-    public boolean sendLocalChanges(EasSerializer s, EasSyncService service) throws IOException {
+    public boolean sendLocalChanges(Serializer s, EasSyncService service) throws IOException {
         // TODO Auto-generated method stub
         return false;
     }

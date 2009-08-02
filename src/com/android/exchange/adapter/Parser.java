@@ -17,20 +17,24 @@
 
 package com.android.exchange.adapter;
 
-import java.io.*;
-import java.util.ArrayList;
-
+import com.android.exchange.Eas;
 import com.android.exchange.EasException;
 
 import android.content.Context;
 import android.util.Log;
+
+import java.io.FileNotFoundException;
+import java.io.FileOutputStream;
+import java.io.IOException;
+import java.io.InputStream;
+import java.util.ArrayList;
 
 /**
  * Extremely fast and lightweight WBXML parser, implementing only the subset of WBXML that
  * EAS uses (as defined in the EAS specification)
  *
  */
-public abstract class EasParser {
+public abstract class Parser {
 
     private static final String TAG = "EasParser";
 
@@ -44,7 +48,7 @@ public abstract class EasParser {
     private static final int NOT_FETCHED = Integer.MIN_VALUE;
     private static final int NOT_ENDED = Integer.MIN_VALUE;
     private static final int EOF_BYTE = -1;
-    private boolean debug = false;
+    private boolean logging = false;
     private boolean capture = false;
 
     private ArrayList<Integer> captureArray;
@@ -119,7 +123,7 @@ public abstract class EasParser {
      *
      */
     {
-        String[][] pages = EasTags.pages;
+        String[][] pages = Tags.pages;
         for (int i = 0; i < pages.length; i++) {
             String[] page = pages[i];
             if (page.length > 0) {
@@ -128,8 +132,9 @@ public abstract class EasParser {
         }
     }
 
-    public EasParser(InputStream in) throws IOException {
+    public Parser(InputStream in) throws IOException {
         setInput(in);
+        logging = Eas.PARSER_LOG;
     }
 
     /**
@@ -139,7 +144,7 @@ public abstract class EasParser {
      * @param val the desired state for debug output
      */
     public void setDebug(boolean val) {
-        debug = val;
+        logging = val;
     }
 
     /**
@@ -221,7 +226,7 @@ public abstract class EasParser {
      */
     public int nextTag(int endingTag) throws IOException {
         // Lose the page information
-        endTag = endingTag &= EasTags.PAGE_MASK;
+        endTag = endingTag &= Tags.PAGE_MASK;
         while (getNext(false) != DONE) {
             // If we're a start, set tag to include the page and return it
             if (type == START) {
@@ -320,7 +325,7 @@ public abstract class EasParser {
             // Get the new page number
             int pg = readByte();
             // Save the shifted page to add into the startTag in nextTag
-            page = pg << EasTags.PAGE_SHIFT;
+            page = pg << Tags.PAGE_SHIFT;
             // Retrieve the current tag table
             tagTable = tagTables[pg];
             id = nextId();
@@ -336,7 +341,7 @@ public abstract class EasParser {
             case Wbxml.END:
                 // End of tag
                 type = END;
-                if (debug) {
+                if (logging) {
                     name = nameArray[depth];
                     Log.v(TAG, "</" + name + '>');
                 }
@@ -352,7 +357,7 @@ public abstract class EasParser {
                 } else {
                     text = readInlineString();
                 }
-                if (debug) {
+                if (logging) {
                     Log.v(TAG, asInt ? Integer.toString(num) : text);
                 }
                 break;
@@ -365,7 +370,7 @@ public abstract class EasParser {
                 // If the high bit is set, there is content (a value) to be read
                 noContent = (id & 0x40) == 0;
                 depth++;
-                if (debug) {
+                if (logging) {
                     name = tagTable[startTag - 5];
                     Log.v(TAG, '<' + name + '>');
                     nameArray[depth] = name;

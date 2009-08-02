@@ -30,33 +30,33 @@ import java.io.InputStream;
  *
  * This is currently unused, as "move to folder" is not implemented in the application.
  **/
-public class EasMoveParser extends EasParser {
+public class MoveParser extends Parser {
     private static final String TAG = "EasMoveParser";
     private EasSyncService mService;
     private Mailbox mMailbox;
     protected boolean mMoreAvailable = false;
 
-    public EasMoveParser(InputStream in, EasSyncService service) throws IOException {
+    public MoveParser(InputStream in, EasSyncService service) throws IOException {
         super(in);
         mService = service;
         mMailbox = service.mMailbox;
-        //setDebug(true);
     }
 
+    @Override
     public boolean parse() throws IOException {
         int status;
-        if (nextTag(START_DOCUMENT) != EasTags.MOVE_MOVE_ITEMS) {
+        if (nextTag(START_DOCUMENT) != Tags.MOVE_MOVE_ITEMS) {
             throw new IOException();
         }
         while (nextTag(START_DOCUMENT) != END_DOCUMENT) {
-            if (tag == EasTags.MOVE_RESPONSE) {
+            if (tag == Tags.MOVE_RESPONSE) {
                 // Ignore
-            } else if (tag == EasTags.MOVE_STATUS) {
+            } else if (tag == Tags.MOVE_STATUS) {
                 status = getValueInt();
                 if (status != 3) {
                     Log.e(TAG, "Sync failed (3 is success): " + status);
                 }
-            } else if (tag == EasTags.SYNC_RESPONSES) {
+            } else if (tag == Tags.SYNC_RESPONSES) {
                 // TODO See if any of these cases need to be handled
                 skipTag();
             } else {

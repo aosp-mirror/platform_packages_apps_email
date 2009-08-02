@@ -27,12 +27,12 @@ import java.io.IOException;
  * Parent class of all sync adapters (EasMailbox, EasCalendar, and EasContacts)
  *
  */
-public abstract class EasSyncAdapter {
+public abstract class AbstractSyncAdapter {
     public Mailbox mMailbox;
     public EasSyncService mService;
 
     // Create the data for local changes that need to be sent up to the server
-    public abstract boolean sendLocalChanges(EasSerializer s, EasSyncService service) 
+    public abstract boolean sendLocalChanges(Serializer s, EasSyncService service) 
         throws IOException;
     // Parse incoming data from the EAS server, creating, modifying, and deleting objects as
     // required through the EmailProvider
@@ -42,7 +42,7 @@ public abstract class EasSyncAdapter {
     public abstract String getCollectionName();
     public abstract void cleanup(EasSyncService service);
 
-    public EasSyncAdapter(Mailbox mailbox, EasSyncService service) {
+    public AbstractSyncAdapter(Mailbox mailbox, EasSyncService service) {
         mMailbox = mailbox;
         mService = service;
     }

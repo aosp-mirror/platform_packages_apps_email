@@ -23,11 +23,9 @@ import com.android.email.provider.EmailContent.Account;
 import com.android.email.provider.EmailContent.Attachment;
 import com.android.email.provider.EmailContent.HostAuth;
 import com.android.email.provider.EmailContent.Mailbox;
-import com.android.email.provider.EmailContent.MailboxColumns;
 import com.android.email.provider.EmailContent.Message;
 import com.android.email.provider.EmailContent.MessageColumns;
 import com.android.email.provider.EmailContent.SyncColumns;
-import com.android.exchange.adapter.EasOutboxService;
 
 import android.app.AlarmManager;
 import android.app.PendingIntent;
@@ -175,10 +173,10 @@ public class SyncManager extends Service implements Runnable {
         }
 
         public void updateFolderList(long accountId) throws RemoteException {
-            Cursor c = getContentResolver().query(Mailbox.CONTENT_URI,
-                    Mailbox.CONTENT_PROJECTION, MailboxColumns.ACCOUNT_KEY + "=? AND " +
-                    MailboxColumns.SERVER_ID + "=?",
-                    new String[] {Long.toString(accountId), Eas.ACCOUNT_MAILBOX}, null);
+//            Cursor c = getContentResolver().query(Mailbox.CONTENT_URI,
+//                    Mailbox.CONTENT_PROJECTION, MailboxColumns.ACCOUNT_KEY + "=? AND " +
+//                    MailboxColumns.SERVER_ID + "=?",
+//                    new String[] {Long.toString(accountId), Eas.ACCOUNT_MAILBOX}, null);
             sCallbackProxy.syncMailboxListStatus(accountId, EmailServiceStatus.IN_PROGRESS, 0);
             sCallbackProxy.syncMailboxListStatus(accountId, EmailServiceStatus.SUCCESS, 0);
             // TODO Remove previous two lines; reimplement what's below (this is bug #2026451)
@@ -199,7 +197,7 @@ public class SyncManager extends Service implements Runnable {
         }
 
         public void setLogging(boolean on) throws RemoteException {
-            Eas.USER_DEBUG = on;
+            Eas.setUserDebug(on);
         }
 
         public void loadMore(long messageId) throws RemoteException {
@@ -338,9 +336,9 @@ public class SyncManager extends Service implements Runnable {
             Account acct = Account.restoreAccountWithId(getContext(), acctId);
             Mailbox main = new Mailbox();
             main.mDisplayName = Eas.ACCOUNT_MAILBOX;
-            main.mServerId = Eas.ACCOUNT_MAILBOX;
+            main.mServerId = Eas.ACCOUNT_MAILBOX + System.nanoTime();
             main.mAccountKey = acct.mId;
-            main.mType = Mailbox.TYPE_NOT_EMAIL;
+            main.mType = Mailbox.TYPE_EAS_ACCOUNT_MAILBOX;
             main.mSyncInterval = Account.CHECK_INTERVAL_PUSH;
             main.mFlagVisible = false;
             main.save(getContext());
@@ -466,7 +464,7 @@ public class SyncManager extends Service implements Runnable {
     }
 
     public void log(String str) {
-        if (Eas.USER_DEBUG) {
+        if (Eas.USER_LOG) {
             Log.d(TAG, str);
         }
     }
@@ -706,8 +704,17 @@ public class SyncManager extends Service implements Runnable {
     public void run() {
         mStop = false;
 
+        // If we're really debugging, turn on all logging
+        if (Eas.DEBUG) {
+            Eas.PARSER_LOG = true;
+            Eas.USER_LOG = true;
+        }
+
         runAwake(-1);
 
+        // Set up our observers; we need them to know when to start/stop various syncs based
+        // on the insert/delete/update of mailboxes and accounts
+        // We also observe synced messages to trigger upsyncs at the appropriate time
         ContentResolver resolver = getContentResolver();
         resolver.registerContentObserver(Account.CONTENT_URI, false, mAccountObserver);
         resolver.registerContentObserver(Mailbox.CONTENT_URI, false, mMailboxObserver);
