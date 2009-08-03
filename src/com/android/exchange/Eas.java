@@ -24,7 +24,7 @@ package com.android.exchange;
 public class Eas {
     // For debugging
     public static boolean WAIT_DEBUG = false;   // DO NOT CHECK IN WITH THIS SET TO TRUE
-    public static boolean DEBUG = true;         // DO NOT CHECK IN WITH THIS SET TO TRUE
+    public static boolean DEBUG = false;        // DO NOT CHECK IN WITH THIS SET TO TRUE
 
     // The following two are for user logging (the second providing more detail)
     public static boolean USER_LOG = false;     // DO NOT CHECK IN WITH THIS SET TO TRUE
