@@ -130,6 +130,26 @@ public class ProviderTests extends ProviderTestCase2<EmailProvider> {
     // The lengths need to be kept in ascending order
     private static long[] expectedAttachmentSizes = new long[] {31415L, 97701L, 151213L};
 
+    /*
+     * Returns null if the message has no body.
+     */
+    private Body loadBodyForMessageId(long messageId) {
+        Cursor c = null;
+        try {
+            c = mMockContext.getContentResolver().query(
+                    EmailContent.Body.CONTENT_URI,
+                    EmailContent.Body.CONTENT_PROJECTION,
+                    EmailContent.Body.MESSAGE_KEY + "=?",
+                    new String[] {String.valueOf(messageId)},
+                    null);
+            int numBodies = c.getCount();
+            assertTrue("at most one body", numBodies < 2);
+            return c.moveToFirst() ? EmailContent.getContent(c, Body.class) : null;
+        } finally {
+            c.close();
+        }
+    }
+
     /**
      * Test simple message save/retrieve
      *
@@ -161,26 +181,9 @@ public class ProviderTests extends ProviderTestCase2<EmailProvider> {
         ProviderTestUtils.assertMessageEqual("testMessageSave", message2, message2get);
 
         // Now see if there's a body saved with the right stuff
-        // TODO it might make sense to add a function to restore the body with the message id
-        Cursor c = null;
-        try {
-            c = mMockContext.getContentResolver().query(
-                    EmailContent.Body.CONTENT_URI,
-                    EmailContent.Body.CONTENT_PROJECTION,
-                    EmailContent.Body.MESSAGE_KEY + "=?",
-                    new String[] {
-                            String.valueOf(message2Id)
-                    },
-                    null);
-            int numBodies = c.getCount();
-            assertEquals(1, numBodies);
-            c.moveToFirst();
-            Body body2 = EmailContent.getContent(c, Body.class);
-            assertEquals("body text", text2, body2.mTextContent);
-            assertEquals("body html", html2, body2.mHtmlContent);
-        } finally {
-            c.close();
-        }
+        Body body2 = loadBodyForMessageId(message2Id);
+        assertEquals("body text", text2, body2.mTextContent);
+        assertEquals("body html", html2, body2.mHtmlContent);
 
         // Message with attachments and body
         Message message3 = ProviderTestUtils.setupMessage("message3", account1Id, box1Id, true,
@@ -196,7 +199,7 @@ public class ProviderTests extends ProviderTestCase2<EmailProvider> {
         long message3Id = message3.mId;
 
         // Now check the attachments; there should be three and they should match name and size
-        c = null;
+        Cursor c = null;
         try {
             // Note that there is NO guarantee of the order of returned records in the general case,
             // so we specifically ask for ordering by size.  The expectedAttachmentSizes array must
@@ -303,6 +306,88 @@ public class ProviderTests extends ProviderTestCase2<EmailProvider> {
         // make sure there are no accounts now
         numBoxes = EmailContent.count(mMockContext, Account.CONTENT_URI, null, null);
         assertEquals(0, numBoxes);
+    }
+
+    /**
+     * Test delete body.
+     * 1. create message without body (message id 1)
+     * 2. create message with body (message id 2. The body has _id 1 and messageKey 2).
+     * 3. delete first message.
+     * 4. verify that body for message 2 has not been deleted.
+     * 5. delete message 2, verify body is deleted.
+     */
+    public void testDeleteBody() {
+        final ContentResolver resolver = mMockContext.getContentResolver();
+
+        // Create account and mailboxes
+        Account account1 = ProviderTestUtils.setupAccount("orphaned body", true, mMockContext);
+        long account1Id = account1.mId;
+        Mailbox box1 = ProviderTestUtils.setupMailbox("box1", account1Id, true, mMockContext);
+        long box1Id = box1.mId;
+
+        // 1. create message without body
+        Message message1 = ProviderTestUtils.setupMessage("message1", account1Id, box1Id, false,
+                true, mMockContext);
+        long message1Id = message1.mId;
+
+        // 2. create message with body
+        Message message2 = ProviderTestUtils.setupMessage("message1", account1Id, box1Id, true,
+                true, mMockContext);
+        long message2Id = message2.mId;
+        // verify body is there
+        assertNotNull(loadBodyForMessageId(message2Id));
+
+        // 3. delete first message
+        resolver.delete(ContentUris.withAppendedId(Message.CONTENT_URI, message1Id), null, null);
+        
+        // 4. verify body for second message wasn't deleted
+        assertNotNull(loadBodyForMessageId(message2Id));
+
+        // 5. delete second message, check its body is deleted
+        resolver.delete(ContentUris.withAppendedId(Message.CONTENT_URI, message2Id), null, null);
+        assertNull(loadBodyForMessageId(message2Id));
+    }
+
+    /**
+     * Test delete orphan bodies.
+     * 1. create message without body (message id 1)
+     * 2. create message with body (message id 2. Body has _id 1 and messageKey 2).
+     * 3. delete first message.
+     * 4. delete some other mailbox -- this triggers delete orphan bodies.
+     * 5. verify that body for message 2 has not been deleted.
+     */
+    public void testDeleteOrphanBodies() {
+        final ContentResolver resolver = mMockContext.getContentResolver();
+
+        // Create account and twa mailboxes
+        Account account1 = ProviderTestUtils.setupAccount("orphaned body", true, mMockContext);
+        long account1Id = account1.mId;
+        Mailbox box1 = ProviderTestUtils.setupMailbox("box1", account1Id, true, mMockContext);
+        long box1Id = box1.mId;
+        Mailbox box2 = ProviderTestUtils.setupMailbox("box2", account1Id, true, mMockContext);
+        long box2Id = box2.mId;
+
+        // 1. create message without body
+        Message message1 = ProviderTestUtils.setupMessage("message1", account1Id, box1Id, false,
+                true, mMockContext);
+        long message1Id = message1.mId;
+
+        // 2. create message with body
+        Message message2 = ProviderTestUtils.setupMessage("message1", account1Id, box1Id, true,
+                true, mMockContext);
+        long message2Id = message2.mId;
+        //verify body is there
+        Body body = loadBodyForMessageId(message2Id);
+        assertNotNull(loadBodyForMessageId(message2Id));
+
+        // 3. delete first message
+        resolver.delete(ContentUris.withAppendedId(Message.CONTENT_URI, message1Id), null, null);
+
+        // 4. delete some mailbox (because it triggers "delete orphan bodies")
+        resolver.delete(ContentUris.withAppendedId(Mailbox.CONTENT_URI, box2Id), null, null);
+
+        // 5. verify body for second message wasn't deleted during "delete orphan bodies"
+        assertNotNull(loadBodyForMessageId(message2Id));
     }
 
     /**

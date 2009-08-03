@@ -148,12 +148,12 @@ public class EmailProvider extends ContentProvider {
         EmailContent.RECORD_ID + '=';
 
     private static final String DELETE_ORPHAN_BODIES = "delete from " + Body.TABLE_NAME +
-        " where " + EmailContent.RECORD_ID + " in " + "(select " + EmailContent.RECORD_ID +
+        " where " + BodyColumns.MESSAGE_KEY + " in " + "(select " + BodyColumns.MESSAGE_KEY +
         " from " + Body.TABLE_NAME + " except select " + EmailContent.RECORD_ID + " from " +
         Message.TABLE_NAME + ')';
 
     private static final String DELETE_BODY = "delete from " + Body.TABLE_NAME +
-        " where " + EmailContent.RECORD_ID + '=';
+        " where " + BodyColumns.MESSAGE_KEY + '=';
 
     static {
         // Email URI matching table
@@ -575,7 +575,7 @@ public class EmailProvider extends ContentProvider {
 
     @Override
     public int delete(Uri uri, String selection, String[] selectionArgs) {
-        int match = sURIMatcher.match(uri);
+        final int match = sURIMatcher.match(uri);
         Context context = getContext();
         // Pick the correct database for this operation
         // If we're in a transaction already (which would happen during applyBatch), then the
@@ -586,7 +586,6 @@ public class EmailProvider extends ContentProvider {
         int table = match >> BASE_SHIFT;
         String id = "0";
         boolean messageDeletion = false;
-        boolean deleteOrphanedBodies = false;
 
         if (Email.LOGD) {
             Log.v(TAG, "EmailProvider.delete: uri=" + uri + ", match is " + match);
@@ -622,9 +621,6 @@ public class EmailProvider extends ContentProvider {
                         String bodyFileName = mBodyDatabase.getPath();
                         db.execSQL("attach \"" + bodyFileName + "\" as BodyDatabase");
                         db.beginTransaction();
-                    }
-                    if (match != MESSAGE_ID) {
-                        deleteOrphanedBodies = true;
                     }
                     break;
             }
@@ -663,12 +659,12 @@ public class EmailProvider extends ContentProvider {
                     throw new IllegalArgumentException("Unknown URI " + uri);
             }
             if (messageDeletion) {
-                if (deleteOrphanedBodies) {
-                    // Delete any orphaned Body records
-                    db.execSQL(DELETE_ORPHAN_BODIES);
-                } else {
+                if (match == MESSAGE_ID) {
                     // Delete the Body record associated with the deleted message
                     db.execSQL(DELETE_BODY + id);
+                } else {
+                    // Delete any orphaned Body records
+                    db.execSQL(DELETE_ORPHAN_BODIES);
                 }
                 if (!mInTransaction) {
                     db.setTransactionSuccessful();
