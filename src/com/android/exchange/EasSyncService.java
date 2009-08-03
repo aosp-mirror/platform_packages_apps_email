@@ -449,72 +449,77 @@ public class EasSyncService extends InteractiveSyncService {
             }
 
             userLog("Account syncKey: " + mAccount.mSyncKey);
-            HttpURLConnection uc = setupEASCommand("OPTIONS", null);
-            if (uc != null) {
-                int code = uc.getResponseCode();
-                userLog("OPTIONS response: " + code);
-                if (code == HttpURLConnection.HTTP_OK) {
-                    mVersions = uc.getHeaderField("ms-asprotocolversions");
-                    if (mVersions != null) {
-                        if (mVersions.contains("12.0")) {
-                            mProtocolVersion = "12.0";
+            // Determine our protocol version, if we haven't already
+            if (mAccount.mProtocolVersion == null) {
+                HttpURLConnection uc = setupEASCommand("OPTIONS", null);
+                if (uc != null) {
+                    int code = uc.getResponseCode();
+                    userLog("OPTIONS response: " + code);
+                    if (code == HttpURLConnection.HTTP_OK) {
+                        mVersions = uc.getHeaderField("ms-asprotocolversions");
+                        if (mVersions != null) {
+                            if (mVersions.contains("12.0")) {
+                                mProtocolVersion = "12.0";
+                            }
+                            mProtocolVersionDouble = Double.parseDouble(mProtocolVersion);
+                            mAccount.mProtocolVersion = mProtocolVersion;
+                            userLog(mVersions);
+                            userLog("Using version " + mProtocolVersion);
+                        } else {
+                            throw new IOException();
                         }
-                        mProtocolVersionDouble = Double.parseDouble(mProtocolVersion);
-                        mAccount.mProtocolVersion = mProtocolVersion;
-                        userLog(mVersions);
-                        userLog("Using version " + mProtocolVersion);
                     } else {
+                        userLog("OPTIONS command failed; throwing IOException");
                         throw new IOException();
                     }
-
-                    while (!mStop) {
-                        Serializer s = new Serializer();
-                        s.start(Tags.FOLDER_FOLDER_SYNC).start(Tags.FOLDER_SYNC_KEY)
-                            .text(mAccount.mSyncKey).end().end().done();
-                        uc = sendEASPostCommand("FolderSync", s.toString());
-                        code = uc.getResponseCode();
-                        if (code == HttpURLConnection.HTTP_OK) {
-                            String encoding = uc.getHeaderField("Transfer-Encoding");
-                            if (encoding == null) {
-                                int len = uc.getHeaderFieldInt("Content-Length", 0);
-                                if (len > 0) {
-                                    InputStream is = uc.getInputStream();
-                                    // Returns true if we need to sync again
-                                    if (new FolderSyncParser(is, this).parse()) {
-                                        continue;
-                                    }
-                                }
-                            } else if (encoding.equalsIgnoreCase("chunked")) {
-                                // TODO We don't handle this yet
-                            }
-                        } else if (code == HttpURLConnection.HTTP_UNAUTHORIZED ||
-                                code == HttpURLConnection.HTTP_FORBIDDEN) {
-                            mExitStatus = AbstractSyncService.EXIT_LOGIN_FAILURE;
-                        } else {
-                            userLog("FolderSync response error: " + code);
-                        }
-
-                        try {
-                            SyncManager.callback()
-                                .syncMailboxListStatus(mAccount.mId, mExitStatus, 0);
-                        } catch (RemoteException e1) {
-                            // Don't care if this fails
-                        }
-
-                        // Wait for push notifications.
-                        String threadName = Thread.currentThread().getName();
-                        try {
-                            runPingLoop();
-                        } catch (StaleFolderListException e) {
-                            // We break out if we get told about a stale folder list
-                            userLog("Ping interrupted; folder list requires sync...");
-                        } finally {
-                            Thread.currentThread().setName(threadName);
-                        }
-                    }
-                 }
+                }
             }
-        } catch (IOException e) {
+            while (!mStop) {
+                Serializer s = new Serializer();
+                s.start(Tags.FOLDER_FOLDER_SYNC).start(Tags.FOLDER_SYNC_KEY)
+                    .text(mAccount.mSyncKey).end().end().done();
+                HttpURLConnection uc = sendEASPostCommand("FolderSync", s.toString());
+                int code = uc.getResponseCode();
+                if (code == HttpURLConnection.HTTP_OK) {
+                    String encoding = uc.getHeaderField("Transfer-Encoding");
+                    if (encoding == null) {
+                        int len = uc.getHeaderFieldInt("Content-Length", 0);
+                        if (len > 0) {
+                            InputStream is = uc.getInputStream();
+                            // Returns true if we need to sync again
+                            if (new FolderSyncParser(is, this).parse()) {
+                                continue;
+                            }
+                        }
+                    } else if (encoding.equalsIgnoreCase("chunked")) {
+                        // TODO We don't handle this yet
+                    }
+                } else if (code == HttpURLConnection.HTTP_UNAUTHORIZED ||
+                        code == HttpURLConnection.HTTP_FORBIDDEN) {
+                    mExitStatus = AbstractSyncService.EXIT_LOGIN_FAILURE;
+                } else {
+                    userLog("FolderSync response error: " + code);
+                }
+
+                try {
+                    SyncManager.callback()
+                    .syncMailboxListStatus(mAccount.mId, mExitStatus, 0);
+                } catch (RemoteException e1) {
+                    // Don't care if this fails
+                }
+
+                // Wait for push notifications.
+                String threadName = Thread.currentThread().getName();
+                try {
+                    runPingLoop();
+                } catch (StaleFolderListException e) {
+                    // We break out if we get told about a stale folder list
+                    userLog("Ping interrupted; folder list requires sync...");
+                } finally {
+                    Thread.currentThread().setName(threadName);
+                }
+            }
+         } catch (IOException e) {
             // We catch this here to send the folder sync status callback
             // A folder sync failed callback will get sent from run()
             try {

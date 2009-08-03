@@ -35,7 +35,6 @@ import android.content.Context;
 import android.content.OperationApplicationException;
 import android.database.Cursor;
 import android.os.RemoteException;
-import android.util.Log;
 
 import java.io.IOException;
 import java.io.InputStream;
@@ -249,7 +248,7 @@ public class FolderSyncParser extends Parser {
                 m.mParentServerId = parentId;
             }
 
-            Log.v(TAG, "Adding mailbox: " + m.mDisplayName);
+            mService.userLog("Adding mailbox: " + m.mDisplayName);
             ops.add(ContentProviderOperation
                     .newInsert(Mailbox.CONTENT_URI).withValues(m.toContentValues()).build());
         }
