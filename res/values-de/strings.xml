@@ -15,193 +15,193 @@
 -->
 <resources xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:xliff="urn:oasis:names:tc:xliff:document:1.2">
-    <string name="read_attachment_label">"Anhänge lesen"</string>
-    <string name="read_attachment_desc">"Erlaubt der Anwendung, Ihre Anhänge zu lesen."</string>
-    <string name="app_name">"E-Mail"</string>
-    <string name="accounts_title">"Ihre Konten"</string>
-    <string name="compose_title">"E-Mail schreiben"</string>
-    <string name="debug_title">"Fehlersuche"</string>
-    <string name="next_action">"Weiter"</string>
-    <string name="okay_action">"OK"</string>
-    <string name="cancel_action">"Abbrechen"</string>
-    <string name="send_action">"Senden"</string>
-    <string name="reply_action">"Antworten"</string>
-    <string name="reply_all_action">"Allen antworten"</string>
-    <string name="delete_action">"Löschen"</string>
-    <string name="forward_action">"Weiterleiten"</string>
-    <string name="done_action">"Fertig"</string>
-    <string name="discard_action">"Löschen"</string>
-    <string name="save_draft_action">"Als Entwurf speichern"</string>
-    <string name="refresh_action">"Aktualisieren"</string>
-    <string name="add_account_action">"Konto hinzufügen"</string>
-    <string name="compose_action">"E-Mail schreiben"</string>
-    <string name="search_action">"Suchen"</string>
-    <string name="open_action">"Öffnen"</string>
-    <string name="account_settings_action">"Kontoeinstellungen"</string>
-    <string name="remove_account_action">"Konto entfernen"</string>
-    <string name="accounts_action">"Konten"</string>
-    <string name="mark_as_read_action">"Als gelesen markieren"</string>
-    <string name="mark_as_unread_action">"Als ungelesen markieren"</string>
-    <string name="add_cc_bcc_action">"\"Cc\"/\"Bcc\" hinzufügen"</string>
-    <string name="add_attachment_action">"Anhang hinzufügen"</string>
-    <string name="dump_settings_action">"Einstellungen für Speicherauszug"</string>
-    <string name="choose_attachment_dialog_title">"Anhang auswählen"</string>
-    <string name="accounts_context_menu_title">"Konto-Optionen"</string>
-    <string name="status_loading_more">"Nachrichten werden geladen..."</string>
-    <string name="status_sending_messages">"Nachrichten werden gesendet…"</string>
-    <string name="status_network_error">"Verbindungsfehler"</string>
-    <string name="status_sending_messages_failed">"Nachrichtenübermittlung wiederholen"</string>
-    <string name="status_loading_more_failed">"Laden weiterer Nachrichten erneut versuchen"</string>
-    <string name="notification_new_title">"Neue E-Mail"</string>
+    <string name="read_attachment_label" msgid="1300286008047638726">"Anhänge lesen"</string>
+    <string name="read_attachment_desc" msgid="7594746717616308643">"Erlaubt der Anwendung, Ihre Anhänge zu lesen."</string>
+    <string name="app_name" msgid="5815426892327290362">"E-Mail"</string>
+    <string name="accounts_title" msgid="7249537449234892146">"Ihre Konten"</string>
+    <string name="compose_title" msgid="427986915662706899">"E-Mail schreiben"</string>
+    <string name="debug_title" msgid="5175710493691536719">"Fehlersuche"</string>
+    <string name="next_action" msgid="3931301986364184415">"Weiter"</string>
+    <string name="okay_action" msgid="8365197396795675617">"OK"</string>
+    <string name="cancel_action" msgid="6967435583794021865">"Abbrechen"</string>
+    <string name="send_action" msgid="1729766205562446418">"Senden"</string>
+    <string name="reply_action" msgid="4262472229221507619">"Antworten"</string>
+    <string name="reply_all_action" msgid="6192179825726332152">"Allen antworten"</string>
+    <string name="delete_action" msgid="8421026208288857155">"Löschen"</string>
+    <string name="forward_action" msgid="669174181042344116">"Weiterleiten"</string>
+    <string name="done_action" msgid="7497990549515580249">"Fertig"</string>
+    <string name="discard_action" msgid="6532206074859505968">"Löschen"</string>
+    <string name="save_draft_action" msgid="812855865552028622">"Als Entwurf speichern"</string>
+    <string name="refresh_action" msgid="5951383001436708175">"Aktualisieren"</string>
+    <string name="add_account_action" msgid="8835736309476033727">"Konto hinzufügen"</string>
+    <string name="compose_action" msgid="4045702519637388045">"E-Mail schreiben"</string>
+    <string name="search_action" msgid="6325101454876682308">"Suchen"</string>
+    <string name="open_action" msgid="936766723989190816">"Öffnen"</string>
+    <string name="account_settings_action" msgid="4494079183315085171">"Kontoeinstellungen"</string>
+    <string name="remove_account_action" msgid="3789169090601376209">"Konto entfernen"</string>
+    <string name="accounts_action" msgid="901105887272231493">"Konten"</string>
+    <string name="mark_as_read_action" msgid="5031651846998842419">"Als gelesen markieren"</string>
+    <string name="mark_as_unread_action" msgid="3766298115778767554">"Als ungelesen markieren"</string>
+    <string name="add_cc_bcc_action" msgid="5569074812077509737">"\"Cc\"/\"Bcc\" hinzufügen"</string>
+    <string name="add_attachment_action" msgid="2696013743130573897">"Anhang hinzufügen"</string>
+    <string name="dump_settings_action" msgid="4478192525236169829">"Einstellungen für Speicherauszug"</string>
+    <string name="choose_attachment_dialog_title" msgid="81937507117528954">"Anhang auswählen"</string>
+    <string name="accounts_context_menu_title" msgid="1053701760934475027">"Konto-Optionen"</string>
+    <string name="status_loading_more" msgid="1580386959044617884">"Nachrichten werden geladen..."</string>
+    <string name="status_sending_messages" msgid="3971880826111264523">"Nachrichten werden gesendet…"</string>
+    <string name="status_network_error" msgid="6045933332005067021">"Verbindungsfehler"</string>
+    <string name="status_sending_messages_failed" msgid="7975009558738692407">"Nachrichtenübermittlung wiederholen"</string>
+    <string name="status_loading_more_failed" msgid="1629172047185323">"Laden weiterer Nachrichten erneut versuchen"</string>
+    <string name="notification_new_title" msgid="2200257910380529139">"Neue E-Mail"</string>
   <plurals name="notification_new_one_account_fmt">
-    <item quantity="one">"<xliff:g id="UNREAD_MESSAGE_COUNT">%d</xliff:g> ungelesen (<xliff:g id="ACCOUNT">%s</xliff:g>)"</item>
-    <item quantity="few">"<xliff:g id="UNREAD_MESSAGE_COUNT">%d</xliff:g> ungelesen (<xliff:g id="ACCOUNT">%s</xliff:g>)"</item>
-    <item quantity="other">"<xliff:g id="UNREAD_MESSAGE_COUNT">%d</xliff:g> ungelesen (<xliff:g id="ACCOUNT">%s</xliff:g>)"</item>
+    <item quantity="one" msgid="3422945912787702191">"<xliff:g id="UNREAD_MESSAGE_COUNT">%d</xliff:g> ungelesen (<xliff:g id="ACCOUNT">%s</xliff:g>)"</item>
+    <item quantity="few" msgid="6543078667692990869">"<xliff:g id="UNREAD_MESSAGE_COUNT">%d</xliff:g> ungelesen (<xliff:g id="ACCOUNT">%s</xliff:g>)"</item>
+    <item quantity="other" msgid="6937673814351448076">"<xliff:g id="UNREAD_MESSAGE_COUNT">%d</xliff:g> ungelesen (<xliff:g id="ACCOUNT">%s</xliff:g>)"</item>
   </plurals>
   <plurals name="notification_new_multi_account_fmt">
-    <item quantity="few">"in <xliff:g id="NUMBER_ACCOUNTS">%d</xliff:g> E-Mail-Konten"</item>
-    <item quantity="other">"in <xliff:g id="NUMBER_ACCOUNTS">%d</xliff:g> E-Mail-Konten"</item>
+    <item quantity="few" msgid="1991747245324120305">"in <xliff:g id="NUMBER_ACCOUNTS">%d</xliff:g> E-Mail-Konten"</item>
+    <item quantity="other" msgid="2723797835410343458">"in <xliff:g id="NUMBER_ACCOUNTS">%d</xliff:g> E-Mail-Konten"</item>
   </plurals>
-    <string name="special_mailbox_name_inbox">"Posteingang"</string>
-    <string name="special_mailbox_display_name_outbox">"Postausgang"</string>
-    <string name="special_mailbox_display_name_drafts">"Entwürfe"</string>
-    <string name="special_mailbox_display_name_trash">"Papierkorb"</string>
-    <string name="special_mailbox_display_name_sent">"Gesendet"</string>
-    <string name="accounts_welcome">"Willkommen bei der Einrichtung von E-Mails."\n\n"Nutzen Sie ein beliebiges E-Mail-Konto."\n\n"Gängige E-Mail-Konten können in nur zwei Schritten eingerichtet werden."</string>
-    <string name="debug_version_fmt">"Version: <xliff:g id="VERSION">%s</xliff:g>"</string>
-    <string name="debug_enable_debug_logging_label">"Zusätzliche Debug-Protokollierung aktivieren?"</string>
-    <string name="debug_enable_sensitive_logging_label">"Debug-Protokoll für sensible Daten aktivieren? (Passwörter werden evtl. in Protokollen angezeigt.)"</string>
-    <string name="message_list_load_more_messages_action">"Weitere Nachrichten laden"</string>
-    <string name="message_list_send_pending_messages_action">"Ausgehende Nachrichten senden"</string>
-    <string name="message_compose_to_hint">"An"</string>
-    <string name="message_compose_cc_hint">"Cc"</string>
-    <string name="message_compose_bcc_hint">"Bcc"</string>
-    <string name="message_compose_subject_hint">"Betreff"</string>
-    <string name="message_compose_body_hint">"E-Mail schreiben"</string>
-    <string name="message_compose_fwd_header_fmt">\n\n"-------- Originalnachricht --------"\n"Betreff: <xliff:g id="SUBJECT">%s</xliff:g>"\n"Von: <xliff:g id="SENDER">%s</xliff:g>"\n"An: <xliff:g id="TO">%s</xliff:g>"\n"Cc: <xliff:g id="CC_0">%s</xliff:g>"\n\n</string>
-    <string name="message_compose_reply_header_fmt">\n\n"<xliff:g id="SENDER">%s</xliff:g> schrieb:"\n\n</string>
-    <string name="message_compose_quoted_text_label">"Zitierter Text"</string>
-    <string name="message_compose_error_no_recipients">"Sie müssen mindestens einen Empfänger hinzufügen."</string>
-    <string name="message_compose_attachments_skipped_toast">"Einige Anhänge können nicht weitergeleitet werden, da Sie noch nicht heruntergeladen wurden."</string>
-    <string name="message_compose_attachment_size">"Dateianhang zu groß"</string>
-    <string name="message_view_to_label">"An:"</string>
-    <string name="message_view_cc_label">"Cc:"</string>
-    <string name="message_view_bcc_label">"Bcc:"</string>
-    <string name="message_view_attachment_view_action">"Öffnen"</string>
-    <string name="message_view_attachment_download_action">"Speichern"</string>
-    <string name="message_view_status_attachment_saved">"Anhang auf SD-Speicherkarte unter \"<xliff:g id="FILENAME">%s</xliff:g>\" abgespeichert"</string>
-    <string name="message_view_status_attachment_not_saved">"Speichern des Anhangs auf SD-Karte nicht möglich"</string>
-    <string name="message_view_show_pictures_instructions">"Wählen Sie \"Bilder anzeigen\" aus, um eingebettete Bilder anzuzeigen."</string>
-    <string name="message_view_show_pictures_action">"Bilder anzeigen"</string>
-    <string name="message_view_fetching_attachment_toast">"Anhang wird abgerufen"</string>
-    <string name="message_view_fetching_pictures_toast">"Bilder werden abgerufen…"</string>
-    <string name="message_view_fetching_attachment_progress">"Anhang <xliff:g id="FILENAME">%s</xliff:g> wird abgerufen."</string>
-    <string name="message_deleted_toast">"Nachricht gelöscht"</string>
-    <string name="message_discarded_toast">"Nachricht gelöscht"</string>
-    <string name="message_saved_toast">"Nachricht als Entwurf gespeichert"</string>
-    <string name="add_contact_dlg_title">"Kontakt hinzufügen"</string>
-    <string name="add_contact_dlg_message_fmt">"\"<xliff:g id="EMAIL">%s</xliff:g>\" zu den Kontakten hinzufügen"</string>
-    <string name="message_view_display_attachment_toast">"Dieser Anhang kann nicht angezeigt werden."</string>
-    <string name="account_setup_basics_title">"E-Mail einrichten"</string>
-    <string name="account_setup_basics_instructions">"Geben Sie Ihre im Konto gespeicherte E-Mail-Adresse ein:"</string>
-    <string name="account_setup_basics_email_hint">"E-Mail-Adresse"</string>
-    <string name="account_setup_basics_password_hint">"Passwort"</string>
-    <string name="account_setup_basics_default_label">"E-Mails standardmäßig von diesem Konto senden"</string>
-    <string name="account_setup_basics_manual_setup_action">"Manuelle Einrichtung"</string>
-    <string name="account_setup_username_password_toast">"Geben Sie eine gültige E-Mail-Adresse und ein gültiges Passwort ein."</string>
-    <string name="account_setup_check_settings_retr_info_msg">"Kontoinformationen werden abgerufen..."</string>
-    <string name="account_setup_check_settings_check_incoming_msg">"Einstellungen des Eingangsservers werden überprüft..."</string>
-    <string name="account_setup_check_settings_check_outgoing_msg">"Einstellungen des Ausgangsservers werden überprüft..."</string>
-    <string name="account_setup_check_settings_canceling_msg">"Vorgang wird abgebrochen..."</string>
-    <string name="account_setup_names_title">"E-Mail einrichten"</string>
-    <string name="account_setup_names_instructions">"Ihr Konto ist nun eingerichtet."</string>
-    <string name="account_setup_names_account_name_label">"Konto benennen (optional)"</string>
-    <string name="account_setup_names_user_name_label">"Ihr Name (wird für ausgehende Nachrichten angezeigt)"</string>
-    <string name="account_setup_account_type_title">"Neues E-Mail-Konto hinzufügen"</string>
-    <string name="account_setup_account_type_instructions">"Um welchen Kontotyp handelt es sich hierbei?"</string>
-    <string name="account_setup_account_type_pop_action">"POP3-Konto"</string>
-    <string name="account_setup_account_type_imap_action">"IMAP-Konto"</string>
-    <string name="account_setup_account_type_exchange_action">"Exchange/ActiveSync"</string>
-    <string name="account_setup_incoming_title">"Einstellungen für Eingangsserver"</string>
-    <string name="account_setup_incoming_username_label">"Nutzername"</string>
-    <string name="account_setup_incoming_password_label">"Passwort"</string>
-    <string name="account_setup_incoming_pop_server_label">"POP3-Server"</string>
-    <string name="account_setup_incoming_imap_server_label">"IMAP-Server"</string>
-    <string name="account_setup_incoming_port_label">"Port"</string>
-    <string name="account_setup_incoming_security_label">"Sicherheitstyp"</string>
-    <string name="account_setup_incoming_security_none_label">"Keine"</string>
-    <string name="account_setup_incoming_security_ssl_optional_label">"SSL (wenn verfügbar)"</string>
-    <string name="account_setup_incoming_security_ssl_label">"SSL (immer)"</string>
-    <string name="account_setup_incoming_security_tls_optional_label">"TLS (wenn verfügbar)"</string>
-    <string name="account_setup_incoming_security_tls_label">"TLS (immer)"</string>
-    <string name="account_setup_incoming_delete_policy_label">"E-Mail von Server löschen"</string>
-    <string name="account_setup_incoming_delete_policy_never_label">"Nie"</string>
-    <string name="account_setup_incoming_delete_policy_7days_label">"Nach 7 Tagen"</string>
-    <string name="account_setup_incoming_delete_policy_delete_label">"Wenn ich sie aus dem Posteingang lösche"</string>
-    <string name="account_setup_incoming_imap_path_prefix_label">"IMAP-Pfadpräfix"</string>
-    <string name="account_setup_incoming_imap_path_prefix_hint">"Optional"</string>
-    <string name="account_setup_outgoing_title">"Einstellungen für Postausgangsserver"</string>
-    <string name="account_setup_outgoing_smtp_server_label">"SMTP-Server"</string>
-    <string name="account_setup_outgoing_port_label">"Port"</string>
-    <string name="account_setup_outgoing_security_label">"Sicherheitstyp"</string>
-    <string name="account_setup_outgoing_require_login_label">"Anmeldung erforderlich"</string>
-    <string name="account_setup_outgoing_username_label">"Nutzername"</string>
-    <string name="account_setup_outgoing_password_label">"Passwort"</string>
-    <string name="account_setup_exchange_title">"Exchange-Server-Einstellungen"</string>
-    <string name="account_setup_exchange_server_label">"Exchange-Server"</string>
-    <string name="account_setup_exchange_domain_label">"Domain"</string>
-    <string name="account_setup_exchange_domain_hint">"Domain hier eingeben"</string>
-    <string name="account_setup_exchange_ssl_label">"Sichere Verbindung (SSL) verwenden"</string>
-    <string name="account_setup_options_title">"Kontooptionen"</string>
-    <string name="account_setup_options_mail_check_frequency_label">"Abrufhäufigkeit"</string>
-    <string name="account_setup_options_mail_check_frequency_never">"Nie"</string>
-    <string name="account_setup_options_mail_check_frequency_push">"Automatisch (Push)"</string>
-    <string name="account_setup_options_mail_check_frequency_5min">"Alle 5 Minuten"</string>
-    <string name="account_setup_options_mail_check_frequency_10min">"Alle 10 Minuten"</string>
-    <string name="account_setup_options_mail_check_frequency_15min">"Alle 15 Minuten"</string>
-    <string name="account_setup_options_mail_check_frequency_30min">"Alle 30 Minuten"</string>
-    <string name="account_setup_options_mail_check_frequency_1hour">"Stündlich"</string>
-    <string name="account_setup_options_default_label">"E-Mails standardmäßig von diesem Konto senden"</string>
-    <string name="account_setup_options_notify_label">"Benachrichtigung bei E-Mail-Eingang"</string>
-    <string name="account_setup_failed_dlg_title">"Einrichtung konnte nicht abgeschlossen werden"</string>
-    <string name="account_setup_options_mail_window_label">"Umfang der Synchronisation"</string>
-    <string name="account_setup_options_mail_window_1day">"Ein Tag"</string>
-    <string name="account_setup_options_mail_window_3days">"Drei Tage"</string>
-    <string name="account_setup_options_mail_window_1week">"Eine Woche"</string>
-    <string name="account_setup_options_mail_window_2weeks">"Zwei Wochen"</string>
-    <string name="account_setup_options_mail_window_1month">"Ein Monat"</string>
-    <string name="account_setup_options_mail_window_all">"Alle E-Mails"</string>
-    <string name="account_setup_failed_dlg_auth_message">"Nutzername oder Passwort falsch"</string>
-    <string name="account_setup_failed_dlg_auth_message_fmt">"Nutzername oder Password falsch"\n"(<xliff:g id="ERROR">%s</xliff:g>)"</string>
-    <string name="account_setup_failed_dlg_certificate_message">"Keine sichere Verbindung zu Server möglich"</string>
-    <string name="account_setup_failed_dlg_certificate_message_fmt">"Keine sichere Verbindung zum Server möglich"\n"(<xliff:g id="ERROR">%s</xliff:g>)"</string>
-    <string name="account_setup_failed_dlg_server_message">"Keine Verbindung zu Server möglich"</string>
-    <string name="account_setup_failed_dlg_server_message_fmt">"Keine Verbindung zum Server möglich"\n"(<xliff:g id="ERROR">%s</xliff:g>)"</string>
-    <string name="account_setup_failed_tls_required">"TLS erforderlich aber nicht von Server unterstützt"</string>
-    <string name="account_setup_failed_auth_required">"Authentifizierungsmethoden nicht von Server unterstützt"</string>
-    <string name="account_setup_failed_security">"Verbindung zu Server kann aufgrund eines Sicherheitsfehlers nicht geöffnet werden."</string>
-    <string name="account_setup_failed_ioerror">"Verbindung zu Server kann nicht geöffnet werden"</string>
-    <string name="account_setup_failed_dlg_edit_details_action">"Details bearbeiten"</string>
-    <string name="account_settings_title_fmt">"Allgemeine Einstellungen"</string>
-    <string name="account_settings_default_label">"Standardkonto"</string>
-    <string name="account_settings_default_summary">"E-Mails standardmäßig von diesem Konto senden"</string>
-    <string name="account_settings_notify_label">"E-Mail-Benachrichtigung"</string>
-    <string name="account_settings_notify_summary">"Bei E-Mail-Eingang Benachrichtigung in der Statusleiste"</string>
-    <string name="account_settings_mail_check_frequency_label">"Abrufhäufigkeit"</string>
-    <string name="account_settings_incoming_label">"Eingehende Nachrichten"</string>
-    <string name="account_settings_outgoing_label">"Ausgehende Nachrichten"</string>
-    <string name="account_settings_add_account_label">"Konto hinzufügen"</string>
-    <string name="account_settings_description_label">"Kontoname"</string>
-    <string name="account_settings_name_label">"Ihr Name"</string>
-    <string name="account_settings_notifications">"Benachrichtigungseinstellungen"</string>
-    <string name="account_settings_vibrate_enable">"Vibration"</string>
-    <string name="account_settings_vibrate_summary">"Bei E-Mail-Eingang zusätzlich vibrieren"</string>
-    <string name="account_settings_ringtone">"Klingelton auswählen"</string>
-    <string name="account_settings_servers">"Servereinstellungen"</string>
-    <string name="account_delete_dlg_title">"Konto entfernen"</string>
-    <string name="account_delete_dlg_instructions_fmt">"Das Konto \"<xliff:g id="ACCOUNT">%s</xliff:g>\" wird aus Email entfernt."</string>
-    <string name="provider_note_yahoo">"Der Zugang zum Postfach bestimmter E-Mail-Konten von Yahoo! wird nicht unterstützt. Bei Verbindungsproblemen besuchen Sie die Website von Yahoo! für weitere Informationen."</string>
-    <string name="provider_note_yahoo_uk">"Vor Eröffnung dieses E-Mail-Kontos bitte die Website von Yahoo! besuchen und E-Mail-Zugang über POP3 für dieses Konto aktivieren."</string>
-    <string name="provider_note_live">"Nur einige \"Plus\"-Konten ermöglichen einen POP-Zugang und damit diesem Programm, eine Verbindung aufzubauen. Sollten Sie nicht dazu in der Lage sein, sich mit Ihrer korrekten E-Mail-Adresse und dem richtigen Password anzumelden, verfügen Sie möglicherweise nicht über ein kostenpflichtiges \"Plus\"-Konto. Starten Sie Ihren Webbrowser, um Zugriff auf diese Konten zu erlangen."</string>
-    <string name="provider_note_t_online">"Vor Erstellung des E-Mail Kontos bitte \\\"eMail-Passwort\\\" für den POP3-Zugang auf der T-Online Homepage einrichten."</string>
+    <string name="special_mailbox_name_inbox" msgid="6549604962520041083">"Posteingang"</string>
+    <string name="special_mailbox_display_name_outbox" msgid="1884580655148530989">"Postausgang"</string>
+    <string name="special_mailbox_display_name_drafts" msgid="5919687165402808119">"Entwürfe"</string>
+    <string name="special_mailbox_display_name_trash" msgid="7042673673630272056">"Papierkorb"</string>
+    <string name="special_mailbox_display_name_sent" msgid="3952772015118466625">"Gesendet"</string>
+    <string name="accounts_welcome" msgid="7365378109109495588">"Willkommen bei der Einrichtung von E-Mails."\n\n"Nutzen Sie ein beliebiges E-Mail-Konto."\n\n"Gängige E-Mail-Konten können in nur zwei Schritten eingerichtet werden."</string>
+    <string name="debug_version_fmt" msgid="6160213145745376955">"Version: <xliff:g id="VERSION">%s</xliff:g>"</string>
+    <string name="debug_enable_debug_logging_label" msgid="2715742416050944774">"Zusätzliche Debug-Protokollierung aktivieren?"</string>
+    <string name="debug_enable_sensitive_logging_label" msgid="9010809457943556126">"Debug-Protokoll für sensible Daten aktivieren? (Passwörter werden evtl. in Protokollen angezeigt.)"</string>
+    <string name="message_list_load_more_messages_action" msgid="7428302707908825692">"Weitere Nachrichten laden"</string>
+    <string name="message_list_send_pending_messages_action" msgid="9100624762133992435">"Ausgehende Nachrichten senden"</string>
+    <string name="message_compose_to_hint" msgid="2891895306418177013">"An"</string>
+    <string name="message_compose_cc_hint" msgid="8481884461031434144">"Cc"</string>
+    <string name="message_compose_bcc_hint" msgid="9177337492358841680">"Bcc"</string>
+    <string name="message_compose_subject_hint" msgid="6993487234024160782">"Betreff"</string>
+    <string name="message_compose_body_hint" msgid="7575406246484103697">"E-Mail schreiben"</string>
+    <string name="message_compose_fwd_header_fmt" msgid="5181300290654579434">\n\n"-------- Originalnachricht --------"\n"Betreff: <xliff:g id="SUBJECT">%s</xliff:g>"\n"Von: <xliff:g id="SENDER">%s</xliff:g>"\n"An: <xliff:g id="TO">%s</xliff:g>"\n"Cc: <xliff:g id="CC_0">%s</xliff:g>"\n\n</string>
+    <string name="message_compose_reply_header_fmt" msgid="8815624773273454573">\n\n"<xliff:g id="SENDER">%s</xliff:g> schrieb:"\n\n</string>
+    <string name="message_compose_quoted_text_label" msgid="5722467956990009520">"Zitierter Text"</string>
+    <string name="message_compose_error_no_recipients" msgid="4903715888250785486">"Sie müssen mindestens einen Empfänger hinzufügen."</string>
+    <string name="message_compose_attachments_skipped_toast" msgid="5611815773808423460">"Einige Anhänge können nicht weitergeleitet werden, da Sie noch nicht heruntergeladen wurden."</string>
+    <string name="message_compose_attachment_size" msgid="4401081828287333647">"Dateianhang zu groß"</string>
+    <string name="message_view_to_label" msgid="6485191743265527381">"An:"</string>
+    <string name="message_view_cc_label" msgid="6322992216371163122">"Cc:"</string>
+    <string name="message_view_bcc_label" msgid="7577479221285310198">"Bcc:"</string>
+    <string name="message_view_attachment_view_action" msgid="5353550848340829134">"Öffnen"</string>
+    <string name="message_view_attachment_download_action" msgid="7552530274014544406">"Speichern"</string>
+    <string name="message_view_status_attachment_saved" msgid="2802843795251453632">"Anhang auf SD-Speicherkarte unter \"<xliff:g id="FILENAME">%s</xliff:g>\" abgespeichert"</string>
+    <string name="message_view_status_attachment_not_saved" msgid="5039599647697750874">"Speichern des Anhangs auf SD-Karte nicht möglich"</string>
+    <string name="message_view_show_pictures_instructions" msgid="1156525837417031085">"Wählen Sie \"Bilder anzeigen\" aus, um eingebettete Bilder anzuzeigen."</string>
+    <string name="message_view_show_pictures_action" msgid="5059936981743072545">"Bilder anzeigen"</string>
+    <string name="message_view_fetching_attachment_toast" msgid="8812363375155391184">"Anhang wird abgerufen"</string>
+    <string name="message_view_fetching_pictures_toast" msgid="922006271551499573">"Bilder werden abgerufen…"</string>
+    <string name="message_view_fetching_attachment_progress" msgid="8238550182655758164">"Anhang <xliff:g id="FILENAME">%s</xliff:g> wird abgerufen."</string>
+    <string name="message_deleted_toast" msgid="1554845060991758649">"Nachricht gelöscht"</string>
+    <string name="message_discarded_toast" msgid="3891461729325584026">"Nachricht gelöscht"</string>
+    <string name="message_saved_toast" msgid="8443125659172627665">"Nachricht als Entwurf gespeichert"</string>
+    <string name="add_contact_dlg_title" msgid="7424641029188006580">"Kontakt hinzufügen"</string>
+    <string name="add_contact_dlg_message_fmt" msgid="4470846346726847478">"\"<xliff:g id="EMAIL">%s</xliff:g>\" zu den Kontakten hinzufügen"</string>
+    <string name="message_view_display_attachment_toast" msgid="6096315816776330821">"Dieser Anhang kann nicht angezeigt werden."</string>
+    <string name="account_setup_basics_title" msgid="3969856368228940980">"E-Mail einrichten"</string>
+    <string name="account_setup_basics_instructions" msgid="3580847367201161979">"Geben Sie Ihre im Konto gespeicherte E-Mail-Adresse ein:"</string>
+    <string name="account_setup_basics_email_hint" msgid="7414269319207261120">"E-Mail-Adresse"</string>
+    <string name="account_setup_basics_password_hint" msgid="410210049040536870">"Passwort"</string>
+    <string name="account_setup_basics_default_label" msgid="5924790142029806711">"E-Mails standardmäßig von diesem Konto senden"</string>
+    <string name="account_setup_basics_manual_setup_action" msgid="8053852205391155912">"Manuelle Einrichtung"</string>
+    <string name="account_setup_username_password_toast" msgid="4441448542557889481">"Geben Sie eine gültige E-Mail-Adresse und ein gültiges Passwort ein."</string>
+    <string name="account_setup_check_settings_retr_info_msg" msgid="4121970450267725664">"Kontoinformationen werden abgerufen..."</string>
+    <string name="account_setup_check_settings_check_incoming_msg" msgid="5356212700221438863">"Einstellungen des Eingangsservers werden überprüft..."</string>
+    <string name="account_setup_check_settings_check_outgoing_msg" msgid="4033015234096725343">"Einstellungen des Ausgangsservers werden überprüft..."</string>
+    <string name="account_setup_check_settings_canceling_msg" msgid="5077315503721883906">"Vorgang wird abgebrochen..."</string>
+    <string name="account_setup_names_title" msgid="8875040521875381849">"E-Mail einrichten"</string>
+    <string name="account_setup_names_instructions" msgid="2880279273965835007">"Ihr Konto ist nun eingerichtet."</string>
+    <string name="account_setup_names_account_name_label" msgid="8033895024273259196">"Konto benennen (optional)"</string>
+    <string name="account_setup_names_user_name_label" msgid="8967410178488604770">"Ihr Name (wird für ausgehende Nachrichten angezeigt)"</string>
+    <string name="account_setup_account_type_title" msgid="6645576356752495504">"Neues E-Mail-Konto hinzufügen"</string>
+    <string name="account_setup_account_type_instructions" msgid="114515540798408760">"Um welchen Kontotyp handelt es sich hierbei?"</string>
+    <string name="account_setup_account_type_pop_action" msgid="3958144865724586762">"POP3-Konto"</string>
+    <string name="account_setup_account_type_imap_action" msgid="3471220237309488124">"IMAP-Konto"</string>
+    <string name="account_setup_account_type_exchange_action" msgid="8193609147171666140">"Exchange/ActiveSync"</string>
+    <string name="account_setup_incoming_title" msgid="6862032674547580337">"Einstellungen für Eingangsserver"</string>
+    <string name="account_setup_incoming_username_label" msgid="5700581386104070302">"Nutzername"</string>
+    <string name="account_setup_incoming_password_label" msgid="6365327603172559859">"Passwort"</string>
+    <string name="account_setup_incoming_pop_server_label" msgid="4917504440057879152">"POP3-Server"</string>
+    <string name="account_setup_incoming_imap_server_label" msgid="8685076830847734322">"IMAP-Server"</string>
+    <string name="account_setup_incoming_port_label" msgid="8214738923690447796">"Port"</string>
+    <string name="account_setup_incoming_security_label" msgid="2110260791086007424">"Sicherheitstyp"</string>
+    <string name="account_setup_incoming_security_none_label" msgid="8300169413118264895">"Keine"</string>
+    <string name="account_setup_incoming_security_ssl_optional_label" msgid="8550650266852041870">"SSL (wenn verfügbar)"</string>
+    <string name="account_setup_incoming_security_ssl_label" msgid="1239685754472907538">"SSL (immer)"</string>
+    <string name="account_setup_incoming_security_tls_optional_label" msgid="9140597901978722104">"TLS (wenn verfügbar)"</string>
+    <string name="account_setup_incoming_security_tls_label" msgid="8930532576790946912">"TLS (immer)"</string>
+    <string name="account_setup_incoming_delete_policy_label" msgid="9213590134693857912">"E-Mail von Server löschen"</string>
+    <string name="account_setup_incoming_delete_policy_never_label" msgid="3222897501875871041">"Nie"</string>
+    <string name="account_setup_incoming_delete_policy_7days_label" msgid="5091246829453195520">"Nach 7 Tagen"</string>
+    <string name="account_setup_incoming_delete_policy_delete_label" msgid="222216840911785631">"Wenn ich sie aus dem Posteingang lösche"</string>
+    <string name="account_setup_incoming_imap_path_prefix_label" msgid="401167247072926810">"IMAP-Pfadpräfix"</string>
+    <string name="account_setup_incoming_imap_path_prefix_hint" msgid="9190845919067906033">"Optional"</string>
+    <string name="account_setup_outgoing_title" msgid="7437215562885986394">"Einstellungen für Postausgangsserver"</string>
+    <string name="account_setup_outgoing_smtp_server_label" msgid="6035137446691195177">"SMTP-Server"</string>
+    <string name="account_setup_outgoing_port_label" msgid="7573207437835827876">"Port"</string>
+    <string name="account_setup_outgoing_security_label" msgid="911398071120720589">"Sicherheitstyp"</string>
+    <string name="account_setup_outgoing_require_login_label" msgid="6371514297854287948">"Anmeldung erforderlich"</string>
+    <string name="account_setup_outgoing_username_label" msgid="3309680794731596981">"Nutzername"</string>
+    <string name="account_setup_outgoing_password_label" msgid="227844585493317550">"Passwort"</string>
+    <string name="account_setup_exchange_title" msgid="247933841122558059">"Exchange-Server-Einstellungen"</string>
+    <string name="account_setup_exchange_server_label" msgid="5390359659749339317">"Exchange-Server"</string>
+    <string name="account_setup_exchange_domain_label" msgid="3584668050727667045">"Domain"</string>
+    <string name="account_setup_exchange_domain_hint" msgid="350372033916025287">"Domain hier eingeben"</string>
+    <string name="account_setup_exchange_ssl_label" msgid="6704105469083211236">"Sichere Verbindung (SSL) verwenden"</string>
+    <string name="account_setup_options_title" msgid="8995162193118880993">"Kontooptionen"</string>
+    <string name="account_setup_options_mail_check_frequency_label" msgid="4598023962234986194">"Abrufhäufigkeit"</string>
+    <string name="account_setup_options_mail_check_frequency_never" msgid="287951859480505416">"Nie"</string>
+    <string name="account_setup_options_mail_check_frequency_push" msgid="5934525907736008673">"Automatisch (Push)"</string>
+    <string name="account_setup_options_mail_check_frequency_5min" msgid="6388939895878539307">"Alle 5 Minuten"</string>
+    <string name="account_setup_options_mail_check_frequency_10min" msgid="5344463157247877480">"Alle 10 Minuten"</string>
+    <string name="account_setup_options_mail_check_frequency_15min" msgid="5052776740089741793">"Alle 15 Minuten"</string>
+    <string name="account_setup_options_mail_check_frequency_30min" msgid="1097088928685931864">"Alle 30 Minuten"</string>
+    <string name="account_setup_options_mail_check_frequency_1hour" msgid="3767715356039692899">"Stündlich"</string>
+    <string name="account_setup_options_default_label" msgid="8869166381331276697">"E-Mails standardmäßig von diesem Konto senden"</string>
+    <string name="account_setup_options_notify_label" msgid="1247525794828820038">"Benachrichtigung bei E-Mail-Eingang"</string>
+    <string name="account_setup_failed_dlg_title" msgid="7827583313117521383">"Einrichtung konnte nicht abgeschlossen werden"</string>
+    <string name="account_setup_options_mail_window_label" msgid="8764417340954006086">"Umfang der Synchronisation"</string>
+    <string name="account_setup_options_mail_window_1day" msgid="3965715241135811407">"Ein Tag"</string>
+    <string name="account_setup_options_mail_window_3days" msgid="736181102295878114">"Drei Tage"</string>
+    <string name="account_setup_options_mail_window_1week" msgid="5639718031108023741">"Eine Woche"</string>
+    <string name="account_setup_options_mail_window_2weeks" msgid="4567049268124213035">"Zwei Wochen"</string>
+    <string name="account_setup_options_mail_window_1month" msgid="5846359669750047081">"Ein Monat"</string>
+    <string name="account_setup_options_mail_window_all" msgid="5383858972681926166">"Alle E-Mails"</string>
+    <string name="account_setup_failed_dlg_auth_message" msgid="42827150104879570">"Nutzername oder Passwort falsch"</string>
+    <string name="account_setup_failed_dlg_auth_message_fmt" msgid="8598560266430207606">"Nutzername oder Password falsch"\n"(<xliff:g id="ERROR">%s</xliff:g>)"</string>
+    <string name="account_setup_failed_dlg_certificate_message" msgid="961843413600482906">"Keine sichere Verbindung zu Server möglich"</string>
+    <string name="account_setup_failed_dlg_certificate_message_fmt" msgid="2609150986774736900">"Keine sichere Verbindung zum Server möglich"\n"(<xliff:g id="ERROR">%s</xliff:g>)"</string>
+    <string name="account_setup_failed_dlg_server_message" msgid="1828270369532779265">"Keine Verbindung zu Server möglich"</string>
+    <string name="account_setup_failed_dlg_server_message_fmt" msgid="5956976504788732779">"Keine Verbindung zum Server möglich"\n"(<xliff:g id="ERROR">%s</xliff:g>)"</string>
+    <string name="account_setup_failed_tls_required" msgid="307030406688611327">"TLS erforderlich aber nicht von Server unterstützt"</string>
+    <string name="account_setup_failed_auth_required" msgid="1676242821459638150">"Authentifizierungsmethoden nicht von Server unterstützt"</string>
+    <string name="account_setup_failed_security" msgid="6142264248671379943">"Verbindung zu Server kann aufgrund eines Sicherheitsfehlers nicht geöffnet werden."</string>
+    <string name="account_setup_failed_ioerror" msgid="7391458717708933095">"Verbindung zu Server kann nicht geöffnet werden"</string>
+    <string name="account_setup_failed_dlg_edit_details_action" msgid="5355993309841479360">"Details bearbeiten"</string>
+    <string name="account_settings_title_fmt" msgid="1702058877284382340">"Allgemeine Einstellungen"</string>
+    <string name="account_settings_default_label" msgid="3575963379680943640">"Standardkonto"</string>
+    <string name="account_settings_default_summary" msgid="1531901438624688482">"E-Mails standardmäßig von diesem Konto senden"</string>
+    <string name="account_settings_notify_label" msgid="1630001017303007974">"E-Mail-Benachrichtigung"</string>
+    <string name="account_settings_notify_summary" msgid="6609224590300639887">"Bei E-Mail-Eingang Benachrichtigung in der Statusleiste"</string>
+    <string name="account_settings_mail_check_frequency_label" msgid="2067835530563849675">"Abrufhäufigkeit"</string>
+    <string name="account_settings_incoming_label" msgid="7858928031806297542">"Eingehende Nachrichten"</string>
+    <string name="account_settings_outgoing_label" msgid="4464829249980026745">"Ausgehende Nachrichten"</string>
+    <string name="account_settings_add_account_label" msgid="63971622405360050">"Konto hinzufügen"</string>
+    <string name="account_settings_description_label" msgid="8894815221204511715">"Kontoname"</string>
+    <string name="account_settings_name_label" msgid="8186406122590008449">"Ihr Name"</string>
+    <string name="account_settings_notifications" msgid="1042620094281375043">"Benachrichtigungseinstellungen"</string>
+    <string name="account_settings_vibrate_enable" msgid="8045133290388856478">"Vibration"</string>
+    <string name="account_settings_vibrate_summary" msgid="3690631050585589365">"Bei E-Mail-Eingang zusätzlich vibrieren"</string>
+    <string name="account_settings_ringtone" msgid="7922187231467500404">"Klingelton auswählen"</string>
+    <string name="account_settings_servers" msgid="4925493817981624242">"Servereinstellungen"</string>
+    <string name="account_delete_dlg_title" msgid="6806087520856396608">"Konto entfernen"</string>
+    <string name="account_delete_dlg_instructions_fmt" msgid="8236846322040271280">"Das Konto \"<xliff:g id="ACCOUNT">%s</xliff:g>\" wird aus Email entfernt."</string>
+    <string name="provider_note_yahoo" msgid="8762024183024261236">"Der Zugang zum Postfach bestimmter E-Mail-Konten von Yahoo! wird nicht unterstützt. Bei Verbindungsproblemen besuchen Sie die Website von Yahoo! für weitere Informationen."</string>
+    <string name="provider_note_yahoo_uk" msgid="2055976404478603298">"Vor Eröffnung dieses E-Mail-Kontos bitte die Website von Yahoo! besuchen und E-Mail-Zugang über POP3 für dieses Konto aktivieren."</string>
+    <string name="provider_note_live" msgid="3584841823811425060">"Nur einige \"Plus\"-Konten ermöglichen einen POP-Zugang und damit diesem Programm, eine Verbindung aufzubauen. Sollten Sie nicht dazu in der Lage sein, sich mit Ihrer korrekten E-Mail-Adresse und dem richtigen Password anzumelden, verfügen Sie möglicherweise nicht über ein kostenpflichtiges \"Plus\"-Konto. Starten Sie Ihren Webbrowser, um Zugriff auf diese Konten zu erlangen."</string>
+    <string name="provider_note_t_online" msgid="1973701903400232774">"Vor Erstellung des E-Mail Kontos bitte \\\"eMail-Passwort\\\" für den POP3-Zugang auf der T-Online Homepage einrichten."</string>
 </resources>
