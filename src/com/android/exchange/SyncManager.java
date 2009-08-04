@@ -488,15 +488,17 @@ public class SyncManager extends Service implements Runnable {
                     long id = c.getLong(Mailbox.CONTENT_ID_COLUMN);
                     AbstractSyncService svc = INSTANCE.mServiceMap.get(id);
                     // Tell the service we're done
-                    svc.stop();
-                    // Interrupt the thread so that it can stop
-                    Thread thread = svc.mThread;
-                    thread.setName(thread.getName() + " (Stopped)");
-                    thread.interrupt();
-                    // Abandon the service
-                    INSTANCE.mServiceMap.remove(id);
-                    // And have it start naturally
-                    kick();
+                    if (svc != null) {
+                        svc.stop();
+                        // Interrupt the thread so that it can stop
+                        Thread thread = svc.mThread;
+                        thread.setName(thread.getName() + " (Stopped)");
+                        thread.interrupt();
+                        // Abandon the service
+                        INSTANCE.mServiceMap.remove(id);
+                        // And have it start naturally
+                        kick();
+                    }
                 }
             }
         } finally {

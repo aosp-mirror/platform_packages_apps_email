@@ -38,8 +38,10 @@ import android.net.Uri;
 import android.os.RemoteException;
 import android.provider.ContactsContract;
 import android.provider.ContactsContract.Data;
+import android.provider.ContactsContract.Groups;
 import android.provider.ContactsContract.RawContacts;
 import android.provider.ContactsContract.CommonDataKinds.Email;
+import android.provider.ContactsContract.CommonDataKinds.GroupMembership;
 import android.provider.ContactsContract.CommonDataKinds.Im;
 import android.provider.ContactsContract.CommonDataKinds.Nickname;
 import android.provider.ContactsContract.CommonDataKinds.Note;
@@ -64,6 +66,7 @@ public class ContactsSyncAdapter extends AbstractSyncAdapter {
     private static final String TAG = "EasContactsSyncAdapter";
     private static final String SERVER_ID_SELECTION = RawContacts.SOURCE_ID + "=?";
     private static final String[] ID_PROJECTION = new String[] {RawContacts._ID};
+    private static final String[] GROUP_PROJECTION = new String[] {Groups.SOURCE_ID};
 
     // Note: These constants are likely to change; they are internal to this class now, but
     // may end up in the provider.
@@ -359,10 +362,6 @@ public class ContactsSyncAdapter extends AbstractSyncAdapter {
                         childrenParser(children);
                         break;
 
-                    case Tags.CONTACTS_CATEGORIES:
-                        categoriesParser();
-                        break;
-
                     case Tags.CONTACTS_YOMI_COMPANY_NAME:
                         yomiCompanyName = getValue();
                         break;
@@ -434,6 +433,10 @@ public class ContactsSyncAdapter extends AbstractSyncAdapter {
                     // TODO Handle Categories/Category
                     // If we don't handle this properly, we'll lose the information if/when we
                     // upload changes to the server!
+                    case Tags.CONTACTS_CATEGORIES:
+                        categoriesParser(ops, entity);
+                        break;
+
 
                     case Tags.CONTACTS_COMPRESSED_RTF:
                         // We don't use this, and it isn't necessary to upload, so we'll ignore it
@@ -488,10 +491,11 @@ public class ContactsSyncAdapter extends AbstractSyncAdapter {
             }
         }
 
-        private void categoriesParser() throws IOException {
+        private void categoriesParser(ContactOperations ops, Entity entity) throws IOException {
             while (nextTag(Tags.CONTACTS_CATEGORIES) != END) {
                 switch (tag) {
                     case Tags.CONTACTS_CATEGORY:
+                        ops.addGroup(entity, getValue());
                     default:
                         skipTag();
                 }
@@ -780,7 +784,7 @@ public class ContactsSyncAdapter extends AbstractSyncAdapter {
          * @return the matching NCV or null if not found
          */
         private NamedContentValues findExistingData(ArrayList<NamedContentValues> list,
-                String contentItemType, int type) {
+                String contentItemType, int type, String stringType) {
             NamedContentValues result = null;
 
             // Loop through the ncv's, looking for an existing row
@@ -790,13 +794,20 @@ public class ContactsSyncAdapter extends AbstractSyncAdapter {
                 if (Data.CONTENT_URI.equals(uri)) {
                     String mimeType = cv.getAsString(Data.MIMETYPE);
                     if (mimeType.equals(contentItemType)) {
-                        if (type < 0 || cv.getAsInteger(Email.TYPE) == type) {
+                        if (stringType != null) {
+                            if (cv.getAsString(GroupMembership.GROUP_ROW_ID).equals(stringType)) {
+                                result = namedContentValues;
+                            }
+                        // Note Email.TYPE could be ANY type column; they are all defined in
+                        // the private CommonColumns class in ContactsContract
+                        } else if (type < 0 || cv.getAsInteger(Email.TYPE) == type) {
                             result = namedContentValues;
                         }
                     }
                 }
             }
 
+            // TODO Handle deleted items
             // If we've found an existing data row, we'll delete it.  Any rows left at the
             // end should be deleted...
             if (result != null) {
@@ -819,15 +830,21 @@ public class ContactsSyncAdapter extends AbstractSyncAdapter {
          * @param entity the contact entity (or null if this is a new contact)
          * @param mimeType the mime type of this row
          * @param type the subtype of this row
+         * @param stringType for groups, the name of the group (type will be ignored), or null
          * @return the created SmartBuilder
          */
         public SmartBuilder createBuilder(Entity entity, String mimeType, int type) {
+            return createBuilder(entity, mimeType, type, null);
+        }
+
+        public SmartBuilder createBuilder(Entity entity, String mimeType, int type,
+                String stringType) {
             int contactId = mContactBackValue;
             SmartBuilder builder = null;
 
             if (entity != null) {
                 NamedContentValues ncv =
-                    findExistingData(entity.getSubValues(), mimeType, type);
+                    findExistingData(entity.getSubValues(), mimeType, type, stringType);
                 if (ncv != null) {
                     builder = new SmartBuilder(
                             ContentProviderOperation
@@ -891,6 +908,13 @@ public class ContactsSyncAdapter extends AbstractSyncAdapter {
             for (String child: children) {
                 builder.withValue(EasChildren.ROWS[i++], child);
             }
+            add(builder.build());
+        }
+
+        public void addGroup(Entity entity, String group) {
+            SmartBuilder builder =
+                createBuilder(entity, GroupMembership.CONTENT_ITEM_TYPE, -1, group);
+            builder.withValue(GroupMembership.GROUP_SOURCE_ID, group);
             add(builder.build());
         }
 
@@ -977,7 +1001,14 @@ public class ContactsSyncAdapter extends AbstractSyncAdapter {
             SmartBuilder builder = createBuilder(entity, Photo.CONTENT_ITEM_TYPE, -1);
             // We're always going to add this; it's not worth trying to figure out whether the
             // picture is the same as the one stored.
-            builder.withValue(Photo.PHOTO, Base64.decodeToObject(photo));
+            byte[] pic = Base64.decode(photo);
+//            Bitmap b = BitmapFactory.decodeByteArray (pic, 0, pic.length);
+//            if (b == null) {
+//                mService.userLog("Bitmap creation failed");
+//            } else {
+//                mService.userLog("W00t!  Bitmap creation worked!");
+//            }
+            builder.withValue(Photo.PHOTO, pic);
             add(builder.build());
         }
 
@@ -1050,6 +1081,9 @@ public class ContactsSyncAdapter extends AbstractSyncAdapter {
         public void addNote(Entity entity, String note) {
             SmartBuilder builder = createBuilder(entity, Note.CONTENT_ITEM_TYPE, -1);
             ContentValues cv = builder.cv;
+            if (note != null) {
+                note.replace("\r\n", "\n");
+            }
             if (cv != null && cvCompareString(cv, Note.NOTE, note)) {
                 return;
             }
@@ -1245,6 +1279,21 @@ public class ContactsSyncAdapter extends AbstractSyncAdapter {
         }
     }
 
+    private void sendNote(Serializer s, ContentValues cv) throws IOException {
+        if (cv.containsKey(Note.NOTE)) {
+            // EAS won't accept note data with raw newline characters
+            String note = cv.getAsString(Note.NOTE).replace("\n", "\r\n");
+            // Format of data depends on protocol version
+            if (mService.mProtocolVersionDouble >= 12.0) {
+                s.start(Tags.BASE_BODY);
+                s.data(Tags.BASE_TYPE, Eas.BODY_PREFERENCE_TEXT).data(Tags.BASE_DATA, note);
+                s.end();
+            } else {
+                s.data(Tags.CONTACTS_BODY, note);
+            }
+        }
+    }
+
     private void sendChildren(Serializer s, ContentValues cv) throws IOException {
         boolean first = true;
         for (int i = 0; i < EasChildren.MAX_CHILDREN; i++) {
@@ -1335,12 +1384,13 @@ public class ContactsSyncAdapter extends AbstractSyncAdapter {
                     // For each of these entities, create the change commands
                     ContentValues entityValues = entity.getEntityValues();
                     String serverId = entityValues.getAsString(RawContacts.SOURCE_ID);
+                    ArrayList<Integer> groupIds = new ArrayList<Integer>();
                     if (first) {
                         s.start(Tags.SYNC_COMMANDS);
                         first = false;
                     }
                     s.start(Tags.SYNC_CHANGE).data(Tags.SYNC_SERVER_ID, serverId)
-                    .start(Tags.SYNC_APPLICATION_DATA);
+                        .start(Tags.SYNC_APPLICATION_DATA);
                     // Write out the data here
                     for (NamedContentValues ncv: entity.getSubValues()) {
                         ContentValues cv = ncv.values;
@@ -1367,13 +1417,41 @@ public class ContactsSyncAdapter extends AbstractSyncAdapter {
                             sendOrganization(s, cv);
                         } else if (mimeType.equals(Im.CONTENT_ITEM_TYPE)) {
                             sendIm(s, cv);
+                        } else if (mimeType.equals(GroupMembership.CONTENT_ITEM_TYPE)) {
+                            // We must gather these, and send them together (below)
+                            groupIds.add(cv.getAsInteger(GroupMembership.GROUP_ROW_ID));
                         } else if (mimeType.equals(Note.CONTENT_ITEM_TYPE)) {
-                            // TODO Should we upload this (it will be plain text)
+                            sendNote(s, cv);
                         } else if (mimeType.equals(Photo.CONTENT_ITEM_TYPE)) {
-                            // TODO Decide whether to upload new photos
-                            // For now, we're not going to upload photos
+                            // For now, the user can change the photo, but the change won't be
+                            // uploaded.
                         } else {
                             mService.userLog("Contacts upsync, unknown data: " + mimeType);
+                        }
+                    }
+
+                    // Now, we'll send up groups, if any
+                    if (!groupIds.isEmpty()) {
+                        boolean groupFirst = true;
+                        for (int id: groupIds) {
+                            // Since we get id's from the provider, we need to find their names
+                            Cursor c = cr.query(ContentUris.withAppendedId(Groups.CONTENT_URI, id),
+                                    GROUP_PROJECTION, null, null, null);
+                            try {
+                                // Presumably, this should always succeed, but ...
+                                if (c.moveToFirst()) {
+                                    if (groupFirst) {
+                                        s.start(Tags.CONTACTS_CATEGORIES);
+                                        groupFirst = false;
+                                    }
+                                    s.data(Tags.CONTACTS_CATEGORY, c.getString(0));
+                                }
+                            } finally {
+                                c.close();
+                            }
+                        }
+                        if (!groupFirst) {
+                            s.end();
                         }
                     }
                     s.end().end(); // ApplicationData & Change
@@ -1385,7 +1463,6 @@ public class ContactsSyncAdapter extends AbstractSyncAdapter {
             } finally {
                 ei.close();
             }
-
         } catch (RemoteException e) {
             Log.e(TAG, "Could not read dirty contacts.");
         }
