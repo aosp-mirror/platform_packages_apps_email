@@ -322,9 +322,9 @@ public class AccountSetupBasics extends Activity
         String domain = emailParts[1].trim();
         
         // Alternate entry to the debug options screen (for devices without a physical keyboard:
-        //  Username: d@d
+        //  Username: d@d.d
         //  Password: debug
-        if (ENTER_DEBUG_SCREEN && "d@d".equals(email) && "debug".equals(password)) {
+        if (ENTER_DEBUG_SCREEN && "d@d.d".equals(email) && "debug".equals(password)) {
             startActivity(new Intent(this, Debug.class));
             return;
         }

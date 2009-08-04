@@ -21,21 +21,19 @@ import com.android.email.Email;
 import com.android.email.EmailAddressAdapter;
 import com.android.email.EmailAddressValidator;
 import com.android.email.MessagingController;
-import com.android.email.MessagingListener;
 import com.android.email.R;
 import com.android.email.Utility;
 import com.android.email.mail.Address;
-import com.android.email.mail.Body;
 import com.android.email.mail.MessagingException;
 import com.android.email.mail.Multipart;
 import com.android.email.mail.Part;
 import com.android.email.mail.Message.RecipientType;
 import com.android.email.mail.internet.EmailHtmlUtil;
-import com.android.email.mail.internet.MimeMessage;
 import com.android.email.mail.internet.MimeUtility;
 import com.android.email.mail.store.LocalStore.LocalAttachmentBody;
 import com.android.email.provider.EmailContent;
 import com.android.email.provider.EmailContent.Account;
+import com.android.email.provider.EmailContent.Body;
 import com.android.email.provider.EmailContent.Message;
 import com.android.email.provider.EmailContent.MessageColumns;
 
@@ -161,12 +159,6 @@ public class MessageCompose extends Activity implements OnClickListener, OnFocus
                     Toast.makeText(
                             MessageCompose.this,
                             getString(R.string.message_compose_attachments_skipped_toast),
-                            Toast.LENGTH_LONG).show();
-                    break;
-                case MSG_DISCARDED_DRAFT:
-                    Toast.makeText(
-                            MessageCompose.this,
-                            getString(R.string.message_discarded_toast),
                             Toast.LENGTH_LONG).show();
                     break;
                 default:
@@ -504,6 +496,9 @@ public class MessageCompose extends Activity implements OnClickListener, OnFocus
             Message message = Message.restoreMessageWithId(MessageCompose.this, messageIds[0]);
             long accountId = message.mAccountKey;
             Account account = Account.restoreAccountWithId(MessageCompose.this, accountId);
+            Body body = Body.restoreBodyWithMessageId(MessageCompose.this, message.mId);
+            message.mHtml = body.mHtmlContent;
+            message.mText = body.mTextContent;
             return new Object[]{message, account};
         }
 
@@ -586,21 +581,20 @@ public class MessageCompose extends Activity implements OnClickListener, OnFocus
 
         if (mQuotedTextBar.getVisibility() == View.VISIBLE && sourceMessage != null) {
             String quotedText = sourceMessage.mText;
+            // fix CR-LF line endings to LF-only needed by EditText.
+            quotedText = quotedText.replaceAll("\r\n", "\n");
             String fromAsString = Address.unpackToString(sourceMessage.mFrom);
             if (ACTION_REPLY.equals(action) || ACTION_REPLY_ALL.equals(action)) {
-                text += String.format(getString(R.string.message_compose_reply_header_fmt),
-                                      fromAsString);
+                text += getString(R.string.message_compose_reply_header_fmt, fromAsString);
                 if (quotedText != null) {
                     text += quotedText.replaceAll("(?m)^", ">");
                 }
             } else if (ACTION_FORWARD.equals(action)) {
                 String subject = sourceMessage.mSubject;
-                text += String.format(
-                        getString(R.string.message_compose_fwd_header_fmt),
-                        subject,
-                        fromAsString,
-                        Address.unpackToString(sourceMessage.mTo),
-                        Address.unpackToString(sourceMessage.mCc));
+                String to = Address.unpackToString(sourceMessage.mTo);
+                String cc = Address.unpackToString(sourceMessage.mCc);
+                text += getString(R.string.message_compose_fwd_header_fmt, subject, fromAsString,
+                                  to != null ? to : "", cc != null ? cc : "");
                 if (quotedText != null) {
                     text += quotedText;
                 }
@@ -797,7 +791,7 @@ public class MessageCompose extends Activity implements OnClickListener, OnFocus
         if (mDraft != null) {
             mController.deleteMessage(mDraft.mId, mDraft.mAccountKey);
         }
-        mHandler.sendEmptyMessage(MSG_DISCARDED_DRAFT);
+        Toast.makeText(this, getString(R.string.message_discarded_toast), Toast.LENGTH_LONG).show();
         mDraftNeedsSaving = false;
         finish();
     }
@@ -961,36 +955,36 @@ public class MessageCompose extends Activity implements OnClickListener, OnFocus
     /**
      * Returns true if all attachments were able to be attached, otherwise returns false.
      */
-    private boolean loadAttachments(Part part, int depth) throws MessagingException {
-        if (part.getBody() instanceof Multipart) {
-            Multipart mp = (Multipart) part.getBody();
-            boolean ret = true;
-            for (int i = 0, count = mp.getCount(); i < count; i++) {
-                if (!loadAttachments(mp.getBodyPart(i), depth + 1)) {
-                    ret = false;
-                }
-            }
-            return ret;
-        } else {
-            String contentType = MimeUtility.unfoldAndDecode(part.getContentType());
-            String name = MimeUtility.getHeaderParameter(contentType, "name");
-            if (name != null) {
-                Body body = part.getBody();
-                if (body != null && body instanceof LocalAttachmentBody) {
-                    final Uri uri = ((LocalAttachmentBody) body).getContentUri();
-                    mHandler.post(new Runnable() {
-                        public void run() {
-                            addAttachment(uri);
-                        }
-                    });
-                }
-                else {
-                    return false;
-                }
-            }
-            return true;
-        }
-    }
+//     private boolean loadAttachments(Part part, int depth) throws MessagingException {
+//         if (part.getBody() instanceof Multipart) {
+//             Multipart mp = (Multipart) part.getBody();
+//             boolean ret = true;
+//             for (int i = 0, count = mp.getCount(); i < count; i++) {
+//                 if (!loadAttachments(mp.getBodyPart(i), depth + 1)) {
+//                     ret = false;
+//                 }
+//             }
+//             return ret;
+//         } else {
+//             String contentType = MimeUtility.unfoldAndDecode(part.getContentType());
+//             String name = MimeUtility.getHeaderParameter(contentType, "name");
+//             if (name != null) {
+//                 Body body = part.getBody();
+//                 if (body != null && body instanceof LocalAttachmentBody) {
+//                     final Uri uri = ((LocalAttachmentBody) body).getContentUri();
+//                     mHandler.post(new Runnable() {
+//                         public void run() {
+//                             addAttachment(uri);
+//                         }
+//                     });
+//                 }
+//                 else {
+//                     return false;
+//                 }
+//             }
+//             return true;
+//         }
+//     }
     
     /**
      * Fill all the widgets with the content found in the Intent Extra, if any.  

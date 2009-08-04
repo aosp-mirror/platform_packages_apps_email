@@ -404,24 +404,23 @@ public class MessageList extends ListActivity implements OnItemClickListener, On
         finish();
     }
 
-    private void onCompose() {
+    private long lookupAccountIdFromMailboxId(long mailboxId) {
         // TODO: Select correct account to send from when there are multiple mailboxes
         // TODO: Should not be reading from DB in UI thread
-        if (mMailboxId >= 0) {
-            EmailContent.Mailbox mailbox =
-                    EmailContent.Mailbox.restoreMailboxWithId(this, mMailboxId);
-            MessageCompose.actionCompose(this, mailbox.mAccountKey);
+        if (mailboxId < 0) {
+            return -1; // no info, default account
         }
+        EmailContent.Mailbox mailbox =
+            EmailContent.Mailbox.restoreMailboxWithId(this, mailboxId);
+        return mailbox.mAccountKey;
+    }
+
+    private void onCompose() {
+        MessageCompose.actionCompose(this, lookupAccountIdFromMailboxId(mMailboxId));
     }
 
     private void onEditAccount() {
-        // TODO: Select correct account to edit when there are multiple mailboxes
-        // TODO: Should not be reading from DB in UI thread
-        if (mMailboxId >= 0) {
-            EmailContent.Mailbox mailbox =
-                    EmailContent.Mailbox.restoreMailboxWithId(this, mMailboxId);
-            AccountSettings.actionSettings(this, mailbox.mAccountKey);
-        }
+        AccountSettings.actionSettings(this, lookupAccountIdFromMailboxId(mMailboxId));
     }
 
     public void onOpenMessage(long messageId, long mailboxId) {
