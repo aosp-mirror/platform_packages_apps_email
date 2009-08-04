@@ -31,6 +31,7 @@ import com.android.exchange.adapter.AbstractSyncAdapter;
 import com.android.exchange.adapter.ContactsSyncAdapter;
 import com.android.exchange.adapter.EmailSyncAdapter;
 import com.android.exchange.adapter.FolderSyncParser;
+import com.android.exchange.adapter.ItemEstimateParser;
 import com.android.exchange.adapter.PingParser;
 import com.android.exchange.adapter.Serializer;
 import com.android.exchange.adapter.Tags;
@@ -141,6 +142,11 @@ public class EasSyncService extends InteractiveSyncService {
         return 0;
     }
 
+    private boolean isAuthError(int code) {
+        return (code == HttpURLConnection.HTTP_UNAUTHORIZED || code == HttpURLConnection.HTTP_FORBIDDEN
+                || code == HttpURLConnection.HTTP_INTERNAL_ERROR);
+    }
+
     /* (non-Javadoc)
      * @see com.android.exchange.SyncService#validateAccount(java.lang.String, java.lang.String, java.lang.String, int, boolean, android.content.Context)
      */
@@ -165,8 +171,7 @@ public class EasSyncService extends InteractiveSyncService {
                 userLog("Validation successful");
                 return;
             }
-            if (code == HttpURLConnection.HTTP_UNAUTHORIZED ||
-                    code == HttpURLConnection.HTTP_FORBIDDEN) {
+            if (isAuthError(code)) {
                 userLog("Authentication failed");
                 throw new AuthenticationFailedException("Validation failed");
             } else {
@@ -535,10 +540,43 @@ public class EasSyncService extends InteractiveSyncService {
         }
     }
 
+    private void getItemEstimate(Mailbox mailbox) throws IOException {
+        Serializer s = new Serializer();
+        s.start(Tags.GIE_GET_ITEM_ESTIMATE).start(Tags.GIE_COLLECTIONS).start(Tags.GIE_COLLECTION);
+            String className = "Email";
+            if (mailbox.mType == Mailbox.TYPE_CONTACTS) {
+                className = "Contacts";
+            }
+            s.data(Tags.GIE_CLASS, className);
+            if (mailbox.mType < Mailbox.TYPE_NOT_EMAIL) {
+                s.data(Tags.GIE_COLLECTION_ID, mailbox.mServerId);
+            }
+            if (mailbox.mType != Mailbox.TYPE_CONTACTS) {
+                s.data(Tags.SYNC_FILTER_TYPE, getFilterType());
+            }
+            s.data(Tags.SYNC_SYNC_KEY, mailbox.mSyncKey).end().end().end().done();
+        HttpURLConnection uc = sendEASPostCommand("GetItemEstimate", s.toString());
+        int code = uc.getResponseCode();
+        if (code == HttpURLConnection.HTTP_OK) {
+            String encoding = uc.getHeaderField("Transfer-Encoding");
+            if (encoding == null) {
+                int len = uc.getHeaderFieldInt("Content-Length", 0);
+                if (len > 0) {
+                    InputStream is = uc.getInputStream();
+                    // Returns true if we need to sync again
+                    if (new ItemEstimateParser(is, this).parse()) {
+                    }
+                }
+            } else if (encoding.equalsIgnoreCase("chunked")) {
+                // TODO We don't handle this yet
+            }
+        }
+    }
+
     void runPingLoop() throws IOException, StaleFolderListException {
         // Do push for all sync services here
+        ArrayList<Mailbox> pushBoxes = new ArrayList<Mailbox>();
         long endTime = System.currentTimeMillis() + (30*MINS);
-        long lastPingTime = 0;
 
         while (System.currentTimeMillis() < endTime) {
             // Count of pushable mailboxes
@@ -551,6 +589,8 @@ public class EasSyncService extends InteractiveSyncService {
             Cursor c = mContentResolver.query(Mailbox.CONTENT_URI, Mailbox.CONTENT_PROJECTION,
                     MailboxColumns.ACCOUNT_KEY + '=' + mAccount.mId +
                     AND_FREQUENCY_PING_PUSH_AND_NOT_ACCOUNT_MAILBOX, null, null);
+
+            pushBoxes.clear();
 
             try {
                 // Loop through our pushed boxes seeing what is available to push
@@ -579,6 +619,7 @@ public class EasSyncService extends InteractiveSyncService {
                         userLog("Ping ready for: " + folderClass + ", " +
                                 c.getString(Mailbox.CONTENT_SERVER_ID_COLUMN) + " (" +
                                 c.getString(Mailbox.CONTENT_DISPLAY_NAME_COLUMN) + ')');
+                        pushBoxes.add(new Mailbox().restore(c));
                     } else {
                         userLog(c.getString(Mailbox.CONTENT_DISPLAY_NAME_COLUMN) +
                                 " not ready for ping");
@@ -592,36 +633,38 @@ public class EasSyncService extends InteractiveSyncService {
                 // If we have some number that are ready for push, send Ping to the server
                 s.end().end().done();
 
-                long time = System.currentTimeMillis();
-                long timeSinceLastPing = time - lastPingTime;
-                if (timeSinceLastPing < 30*SECS) {
-                    try {
-                        userLog("Waiting to send ping...");
-                        Thread.sleep(30*SECS - timeSinceLastPing);
-                    } catch (InterruptedException e) {
-                        // No need for action
-                    }
-                }
                 uc = sendEASPostCommand("Ping", s.toString());
                 Thread.currentThread().setName(mAccount.mDisplayName + ": Ping");
                 userLog("Sending ping, timeout: " + uc.getReadTimeout() / 1000 + "s");
                 // Don't send request if we've been asked to stop
                 if (mStop) return;
+                long time = System.currentTimeMillis();
                 code = uc.getResponseCode();
+
                 // Return immediately if we've been asked to stop
                 if (mStop) {
-                    userLog("Stooping pingLoop");
+                    userLog("Stopping pingLoop");
                     return;
                 }
-                userLog("Ping response: " + code);
+
+                // Get elapsed time
+                time = System.currentTimeMillis() - time;
+                userLog("Ping response: " + code + " in " + time + "ms");
+
+                if (time < 2*SECS) {
+                    // This is the Ping loop situation; try sending an item estimate
+                    userLog("Trying getItemEstimate to break ping loop");
+                    for (Mailbox m: pushBoxes) {
+                        getItemEstimate(m);
+                    }
+                }
+
                 if (code == HttpURLConnection.HTTP_OK) {
                     String encoding = uc.getHeaderField("Transfer-Encoding");
                     if (encoding == null) {
                         int len = uc.getHeaderFieldInt("Content-Length", 0);
                         if (len > 0) {
-                            if (parsePingResult(uc, mContentResolver) > 0) {
-                                lastPingTime = time;
-                            }
+                            parsePingResult(uc, mContentResolver);
                         } else {
                             // This implies a connection issue that we can't handle
                             throw new IOException();
@@ -630,8 +673,7 @@ public class EasSyncService extends InteractiveSyncService {
                         // It shouldn't be possible for EAS server to send chunked data here
                         throw new IOException();
                     }
-                } else if (code == HttpURLConnection.HTTP_UNAUTHORIZED ||
-                        code == HttpURLConnection.HTTP_FORBIDDEN) {
+                } else if (isAuthError(code)) {
                     mExitStatus = AbstractSyncService.EXIT_LOGIN_FAILURE;
                     userLog("Authorization error during Ping: " + code);
                     throw new IOException();
@@ -726,6 +768,37 @@ public class EasSyncService extends InteractiveSyncService {
         return null;
     }
 
+    private String getFilterType() {
+        String filter = Eas.FILTER_1_WEEK;
+        switch (mAccount.mSyncLookback) {
+            case com.android.email.Account.SYNC_WINDOW_1_DAY: {
+                filter = Eas.FILTER_1_DAY;
+                break;
+            }
+            case com.android.email.Account.SYNC_WINDOW_3_DAYS: {
+                filter = Eas.FILTER_3_DAYS;
+                break;
+            }
+            case com.android.email.Account.SYNC_WINDOW_1_WEEK: {
+                filter = Eas.FILTER_1_WEEK;
+                break;
+            }
+            case com.android.email.Account.SYNC_WINDOW_2_WEEKS: {
+                filter = Eas.FILTER_2_WEEKS;
+                break;
+            }
+            case com.android.email.Account.SYNC_WINDOW_1_MONTH: {
+                filter = Eas.FILTER_1_MONTH;
+                break;
+            }
+            case com.android.email.Account.SYNC_WINDOW_ALL: {
+                filter = Eas.FILTER_ALL;
+                break;
+            }
+        }
+        return filter;
+    }
+
     /**
      * EAS requires a unique device id, so that sync is possible from a variety of different
      * devices (e.g. the syncKey is specific to a device)  If we're on an emulator or some other
@@ -810,34 +883,7 @@ public class EasSyncService extends InteractiveSyncService {
             boolean options = false;
             if (!className.equals("Contacts")) {
                 // Set the lookback appropriately (EAS calls this a "filter")
-                String filter = Eas.FILTER_1_WEEK;
-                switch (mAccount.mSyncLookback) {
-                    case com.android.email.Account.SYNC_WINDOW_1_DAY: {
-                        filter = Eas.FILTER_1_DAY;
-                        break;
-                    }
-                    case com.android.email.Account.SYNC_WINDOW_3_DAYS: {
-                        filter = Eas.FILTER_3_DAYS;
-                        break;
-                    }
-                    case com.android.email.Account.SYNC_WINDOW_1_WEEK: {
-                        filter = Eas.FILTER_1_WEEK;
-                        break;
-                    }
-                    case com.android.email.Account.SYNC_WINDOW_2_WEEKS: {
-                        filter = Eas.FILTER_2_WEEKS;
-                        break;
-                    }
-                    case com.android.email.Account.SYNC_WINDOW_1_MONTH: {
-                        filter = Eas.FILTER_1_MONTH;
-                        break;
-                    }
-                    case com.android.email.Account.SYNC_WINDOW_ALL: {
-                        filter = Eas.FILTER_ALL;
-                        break;
-                    }
-                }
-                s.start(Tags.SYNC_OPTIONS).data(Tags.SYNC_FILTER_TYPE, filter);
+                s.start(Tags.SYNC_OPTIONS).data(Tags.SYNC_FILTER_TYPE, getFilterType());
                 // No truncation in this version
                 //if (mProtocolVersionDouble < 12.0) {
                 //    s.data(Tags.SYNC_TRUNCATION, "7");
@@ -850,9 +896,11 @@ public class EasSyncService extends InteractiveSyncService {
                     s.start(Tags.SYNC_OPTIONS);
                 }
                 s.start(Tags.BASE_BODY_PREFERENCE)
-                    .data(Tags.BASE_TYPE, Eas.BODY_PREFERENCE_HTML)
-                    // No truncation in this version
-                    //.data(Tags.BASE_TRUNCATION_SIZE, Eas.DEFAULT_BODY_TRUNCATION_SIZE)
+                    // HTML for email; plain text for everything else
+                .data(Tags.BASE_TYPE, (className.equals("Email") ? Eas.BODY_PREFERENCE_HTML
+                            : Eas.BODY_PREFERENCE_TEXT))
+                // No truncation in this version
+                //.data(Tags.BASE_TRUNCATION_SIZE, Eas.DEFAULT_BODY_TRUNCATION_SIZE)
                     .end();
             }
             if (options) {
@@ -873,8 +921,7 @@ public class EasSyncService extends InteractiveSyncService {
                 }
             } else {
                 userLog("Sync response error: " + code);
-                if (code == HttpURLConnection.HTTP_UNAUTHORIZED ||
-                        code == HttpURLConnection.HTTP_FORBIDDEN) {
+                if (isAuthError(code)) {
                     mExitStatus = AbstractSyncService.EXIT_LOGIN_FAILURE;
                 }
                 return;

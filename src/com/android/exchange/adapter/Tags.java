@@ -37,6 +37,7 @@ public class Tags {
     public static final int EMAIL = 0x02;
     public static final int CALENDAR = 0x04;
     public static final int MOVE = 0x05;
+    public static final int GIE = 0x06;
     public static final int FOLDER = 0x07;
     public static final int CONTACTS2 = 0x0C;
     public static final int PING = 0x0D;
@@ -83,6 +84,19 @@ public class Tags {
     public static final int SYNC_LIMIT = SYNC_PAGE + 0x25;
     public static final int SYNC_PARTIAL = SYNC_PAGE + 0x26;
 
+
+    public static final int GIE_PAGE = GIE << PAGE_SHIFT;
+    public static final int GIE_GET_ITEM_ESTIMATE = GIE_PAGE + 5;
+    public static final int GIE_VERSION = GIE_PAGE + 6;
+    public static final int GIE_COLLECTIONS = GIE_PAGE + 7;
+    public static final int GIE_COLLECTION = GIE_PAGE + 8;
+    public static final int GIE_CLASS = GIE_PAGE + 9;
+    public static final int GIE_COLLECTION_ID = GIE_PAGE + 0xA;
+    public static final int GIE_DATE_TIME = GIE_PAGE + 0xB;
+    public static final int GIE_ESTIMATE = GIE_PAGE + 0xC;
+    public static final int GIE_RESPONSE = GIE_PAGE + 0xD;
+    public static final int GIE_STATUS = GIE_PAGE + 0xE;
+
     public static final int CONTACTS_PAGE = CONTACTS << PAGE_SHIFT;
     public static final int CONTACTS_ANNIVERSARY = CONTACTS_PAGE + 5;
     public static final int CONTACTS_ASSISTANT_NAME = CONTACTS_PAGE + 6;
@@ -105,7 +119,7 @@ public class Tags {
     public static final int CONTACTS_CHILDREN = CONTACTS_PAGE + 0x17;
     public static final int CONTACTS_CHILD = CONTACTS_PAGE + 0x18;
     public static final int CONTACTS_COMPANY_NAME = CONTACTS_PAGE + 0x19;
-    public static final int CONTACTS_DEPARTMENT = 0x1A;
+    public static final int CONTACTS_DEPARTMENT = CONTACTS_PAGE + 0x1A;
     public static final int CONTACTS_EMAIL1_ADDRESS = CONTACTS_PAGE + 0x1B;
     public static final int CONTACTS_EMAIL2_ADDRESS = CONTACTS_PAGE + 0x1C;
     public static final int CONTACTS_EMAIL3_ADDRESS = CONTACTS_PAGE + 0x1D;
@@ -381,6 +395,8 @@ public class Tags {
         },
         {
             // 0x06 ItemEstimate
+            "GetItemEstimate", "Version", "Collection", "Collection", "Class", "CollectionId",
+            "DateTime", "Estimate", "Response", "Status"
         },
         {
             // 0x07 FolderHierarchy

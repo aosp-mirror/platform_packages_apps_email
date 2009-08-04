@@ -304,6 +304,7 @@ public abstract class Parser {
      * @throws IOException
      */
     private final int getNext(boolean asInt) throws IOException {
+        int savedEndTag = endTag;
         if (type == END) {
             depth--;
         } else {
@@ -313,6 +314,7 @@ public abstract class Parser {
         if (noContent) {
             type = END;
             noContent = false;
+            endTag = savedEndTag;
             return type;
         }
 

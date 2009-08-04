@@ -44,6 +44,7 @@ import android.net.NetworkInfo;
 import android.net.Uri;
 import android.net.NetworkInfo.State;
 import android.os.Bundle;
+import android.os.Debug;
 import android.os.Handler;
 import android.os.IBinder;
 import android.os.PowerManager;
@@ -174,34 +175,7 @@ public class SyncManager extends Service implements Runnable {
         }
 
         public void updateFolderList(long accountId) throws RemoteException {
-            Cursor c = getContentResolver().query(Mailbox.CONTENT_URI,
-                    Mailbox.CONTENT_PROJECTION, MailboxColumns.ACCOUNT_KEY + "=? AND " +
-                    MailboxColumns.TYPE + "=?",
-                    new String[] {Long.toString(accountId),
-                        Long.toString(Mailbox.TYPE_EAS_ACCOUNT_MAILBOX)}, null);
-            //sCallbackProxy.syncMailboxListStatus(accountId, EmailServiceStatus.IN_PROGRESS, 0);
-            //sCallbackProxy.syncMailboxListStatus(accountId, EmailServiceStatus.SUCCESS, 0);
-            // TODO Remove previous two lines; reimplement what's below (this is bug #2026451)
-            try {
-                if (c.moveToFirst()) {
-                    synchronized(mSyncToken) {
-                        long id = c.getLong(Mailbox.CONTENT_ID_COLUMN);
-                        AbstractSyncService svc = INSTANCE.mServiceMap.get(id);
-                        // Tell the service we're done
-                        svc.stop();
-                        // Interrupt the thread so that it can stop
-                        Thread thread = svc.mThread;
-                        thread.setName(thread.getName() + " (Stopped)");
-                        thread.interrupt();
-                        // Abandon the service
-                        INSTANCE.mServiceMap.remove(id);
-                        // And have it start naturally
-                        kick();
-                    }
-                }
-            } finally {
-                c.close();
-            }
+            reloadFolderList(SyncManager.this, accountId);
         }
 
         public void setLogging(boolean on) throws RemoteException {
@@ -499,6 +473,37 @@ public class SyncManager extends Service implements Runnable {
         }
     }
 
+    static public void reloadFolderList(Context context, long accountId) {
+        Cursor c = context.getContentResolver().query(Mailbox.CONTENT_URI,
+                Mailbox.CONTENT_PROJECTION, MailboxColumns.ACCOUNT_KEY + "=? AND " +
+                MailboxColumns.TYPE + "=?",
+                new String[] {Long.toString(accountId),
+                    Long.toString(Mailbox.TYPE_EAS_ACCOUNT_MAILBOX)}, null);
+        //sCallbackProxy.syncMailboxListStatus(accountId, EmailServiceStatus.IN_PROGRESS, 0);
+        //sCallbackProxy.syncMailboxListStatus(accountId, EmailServiceStatus.SUCCESS, 0);
+        // TODO Remove previous two lines; reimplement what's below (this is bug #2026451)
+        try {
+            if (c.moveToFirst()) {
+                synchronized(mSyncToken) {
+                    long id = c.getLong(Mailbox.CONTENT_ID_COLUMN);
+                    AbstractSyncService svc = INSTANCE.mServiceMap.get(id);
+                    // Tell the service we're done
+                    svc.stop();
+                    // Interrupt the thread so that it can stop
+                    Thread thread = svc.mThread;
+                    thread.setName(thread.getName() + " (Stopped)");
+                    thread.interrupt();
+                    // Abandon the service
+                    INSTANCE.mServiceMap.remove(id);
+                    // And have it start naturally
+                    kick();
+                }
+            }
+        } finally {
+            c.close();
+        }
+    }
+
     /**
      * Informs SyncManager that an account has a new folder list; as a result, any existing folder
      * might have become invalid.  Therefore, we act as if the account has been deleted, and then
@@ -716,6 +721,10 @@ public class SyncManager extends Service implements Runnable {
         if (Eas.DEBUG) {
             Eas.PARSER_LOG = true;
             Eas.USER_LOG = true;
+        }
+
+        if (Eas.WAIT_DEBUG) {
+            Debug.waitForDebugger();
         }
 
         runAwake(-1);
