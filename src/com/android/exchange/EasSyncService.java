@@ -471,10 +471,11 @@ public class EasSyncService extends InteractiveSyncService {
                             userLog(mVersions);
                             userLog("Using version " + mProtocolVersion);
                         } else {
+                            errorLog("No protocol versions in OPTIONS response");
                             throw new IOException();
                         }
                     } else {
-                        userLog("OPTIONS command failed; throwing IOException");
+                        errorLog("OPTIONS command failed; throwing IOException");
                         throw new IOException();
                     }
                 }
