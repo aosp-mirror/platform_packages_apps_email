@@ -91,6 +91,7 @@ public class SyncManager extends Service implements Runnable {
     MessageObserver mMessageObserver;
     String mNextWaitReason;
     IEmailServiceCallback mCallback;
+    ConnectivityReceiver mConnectivityReceiver = null;
 
     RemoteCallbackList<IEmailServiceCallback> mCallbackList =
         new RemoteCallbackList<IEmailServiceCallback>();
@@ -545,7 +546,9 @@ public class SyncManager extends Service implements Runnable {
                 INSTANCE.log("+WakeLock not needed for " + alarmOwner(id));
                 mWakeLocks.remove(id);
                 if (mWakeLocks.isEmpty()) {
-                    mWakeLock.release();
+                    if (mWakeLock != null) {
+                        mWakeLock.release();
+                    }
                     mWakeLock = null;
                     INSTANCE.log("+WAKE LOCK RELEASED");
                 }
@@ -633,6 +636,9 @@ public class SyncManager extends Service implements Runnable {
         if (mWakeLock != null) {
             mWakeLock.release();
             mWakeLock = null;
+        }
+        if (mConnectivityReceiver != null) {
+            unregisterReceiver(mConnectivityReceiver);
         }
         clearAlarms();
     }
@@ -740,8 +746,9 @@ public class SyncManager extends Service implements Runnable {
         resolver.registerContentObserver(Message.SYNCED_CONTENT_URI, true, mSyncedMessageObserver);
         resolver.registerContentObserver(Message.CONTENT_URI, false, mMessageObserver);
 
-        ConnectivityReceiver cr = new ConnectivityReceiver();
-        registerReceiver(cr, new IntentFilter(ConnectivityManager.CONNECTIVITY_ACTION));
+        mConnectivityReceiver = new ConnectivityReceiver();
+        registerReceiver(mConnectivityReceiver,
+                new IntentFilter(ConnectivityManager.CONNECTIVITY_ACTION));
         ConnectivityManager cm =
             (ConnectivityManager)getSystemService(Context.CONNECTIVITY_SERVICE);
 
