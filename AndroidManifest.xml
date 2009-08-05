@@ -154,7 +154,7 @@
                 <category android:name="android.intent.category.DEFAULT" />
             </intent-filter>
         </activity>
-       <receiver android:name="com.android.exchange.UserSyncAlarmReceiver"/>
+       <receiver android:name="com.android.exchange.EmailSyncAlarmReceiver"/>
        <receiver android:name="com.android.exchange.MailboxAlarmReceiver"/>
        <receiver android:name=".service.BootReceiver"
               android:enabled="false"
