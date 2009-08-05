@@ -55,6 +55,9 @@ public class MailboxList extends ListActivity implements OnItemClickListener, On
     // Intent extras (internal to this activity)
     private static final String EXTRA_ACCOUNT_ID = "com.android.email.activity._ACCOUNT_ID";
 
+    private static final String MAILBOX_SELECTION = MailboxColumns.ACCOUNT_KEY + "=?"
+        + " AND " + MailboxColumns.TYPE + "<" + Mailbox.TYPE_NOT_EMAIL
+        + " AND " + MailboxColumns.FLAG_VISIBLE + "=1";
     // UI support
     private ListView mListView;
     private TextView mAccountNameView;
@@ -310,8 +313,7 @@ public class MailboxList extends ListActivity implements OnItemClickListener, On
             return MailboxList.this.managedQuery(
                     EmailContent.Mailbox.CONTENT_URI,
                     MailboxList.this.mListAdapter.PROJECTION,
-                    MailboxColumns.ACCOUNT_KEY + "=?"
-                        + " AND " + MailboxColumns.TYPE + "<" + Mailbox.TYPE_NOT_EMAIL,
+                    MAILBOX_SELECTION,
                     new String[] { String.valueOf(mAccountKey) },
                     MailboxColumns.TYPE);
         }
