@@ -337,13 +337,25 @@ public class MessageList extends ListActivity implements OnItemClickListener, On
 
         // TODO: There is no context menu for the outbox
         // TODO: There is probably a special context menu for the trash
+        // TODO: Should not be reading from DB in UI thread
+        EmailContent.Mailbox mailbox = EmailContent.Mailbox.restoreMailboxWithId(this,
+                itemView.mMailboxId);
 
-        getMenuInflater().inflate(R.menu.message_list_context, menu);
-
-        // The default menu contains "mark as read".  If the message is read, change
-        // the menu text to "mark as unread."
-        if (itemView.mRead) {
-            menu.findItem(R.id.mark_as_read).setTitle(R.string.mark_as_unread_action);
+        switch (mailbox.mType) {
+            case EmailContent.Mailbox.TYPE_DRAFTS:
+                getMenuInflater().inflate(R.menu.message_list_context, menu);
+                break;
+            case EmailContent.Mailbox.TYPE_OUTBOX:
+                break;
+            default:
+                getMenuInflater().inflate(R.menu.message_list_context, menu);
+                getMenuInflater().inflate(R.menu.message_list_context_extra, menu);
+                // The default menu contains "mark as read".  If the message is read, change
+                // the menu text to "mark as unread."
+                if (itemView.mRead) {
+                    menu.findItem(R.id.mark_as_read).setTitle(R.string.mark_as_unread_action);
+                }
+                break;
         }
     }
 
