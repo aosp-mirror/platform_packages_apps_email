@@ -17,6 +17,8 @@
 
 package com.android.exchange;
 
+import com.android.email.R;
+import com.android.email.activity.AccountFolderList;
 import com.android.email.mail.AuthenticationFailedException;
 import com.android.email.mail.MessagingException;
 import com.android.email.provider.EmailContent.Account;
@@ -31,7 +33,6 @@ import com.android.exchange.adapter.AbstractSyncAdapter;
 import com.android.exchange.adapter.ContactsSyncAdapter;
 import com.android.exchange.adapter.EmailSyncAdapter;
 import com.android.exchange.adapter.FolderSyncParser;
-import com.android.exchange.adapter.ItemEstimateParser;
 import com.android.exchange.adapter.PingParser;
 import com.android.exchange.adapter.Serializer;
 import com.android.exchange.adapter.Tags;
@@ -44,9 +45,14 @@ import org.apache.http.client.methods.HttpPost;
 import org.apache.http.conn.ssl.AllowAllHostnameVerifier;
 import org.apache.http.impl.client.DefaultHttpClient;
 
+import android.app.Notification;
+import android.app.NotificationManager;
+import android.app.PendingIntent;
 import android.content.ContentResolver;
+import android.content.ContentUris;
 import android.content.ContentValues;
 import android.content.Context;
+import android.content.Intent;
 import android.database.Cursor;
 import android.os.RemoteException;
 
@@ -68,10 +74,11 @@ import java.net.URI;
 import java.net.URL;
 import java.net.URLEncoder;
 import java.util.ArrayList;
+import java.util.HashMap;
 
 import javax.net.ssl.HttpsURLConnection;
 
-public class EasSyncService extends InteractiveSyncService {
+public class EasSyncService extends AbstractSyncService {
 
     private static final String WINDOW_SIZE = "10";
     private static final String WHERE_ACCOUNT_KEY_AND_SERVER_ID =
@@ -107,6 +114,7 @@ public class EasSyncService extends InteractiveSyncService {
     InputStream mPendingPartInputStream = null;
     private volatile boolean mStop = false;
     private Object mWaitTarget = new Object();
+    private boolean mTriedReloadFolderList = false;
 
     public EasSyncService(Context _context, Mailbox _mailbox) {
         super(_context, _mailbox);
@@ -184,27 +192,6 @@ public class EasSyncService extends InteractiveSyncService {
             throw new MessagingException(MessagingException.IOERROR);
         }
 
-    }
-
-
-    @Override
-    public void loadAttachment(Attachment att, IEmailServiceCallback cb) {
-        // TODO Auto-generated method stub
-    }
-
-    @Override
-    public void reloadFolderList() {
-        // TODO Auto-generated method stub
-    }
-
-    @Override
-    public void startSync() {
-        // TODO Auto-generated method stub
-    }
-
-    @Override
-    public void stopSync() {
-        // TODO Auto-generated method stub
     }
 
     protected HttpURLConnection sendEASPostCommand(String cmd, String data) throws IOException {
@@ -541,36 +528,39 @@ public class EasSyncService extends InteractiveSyncService {
         }
     }
 
-    private void getItemEstimate(Mailbox mailbox) throws IOException {
-        Serializer s = new Serializer();
-        s.start(Tags.GIE_GET_ITEM_ESTIMATE).start(Tags.GIE_COLLECTIONS).start(Tags.GIE_COLLECTION);
-            String className = "Email";
-            if (mailbox.mType == Mailbox.TYPE_CONTACTS) {
-                className = "Contacts";
-            }
-            s.data(Tags.GIE_CLASS, className);
-            if (mailbox.mType < Mailbox.TYPE_NOT_EMAIL) {
-                s.data(Tags.GIE_COLLECTION_ID, mailbox.mServerId);
-            }
-            if (mailbox.mType != Mailbox.TYPE_CONTACTS) {
-                s.data(Tags.SYNC_FILTER_TYPE, getFilterType());
-            }
-            s.data(Tags.SYNC_SYNC_KEY, mailbox.mSyncKey).end().end().end().done();
-        HttpURLConnection uc = sendEASPostCommand("GetItemEstimate", s.toString());
-        int code = uc.getResponseCode();
-        if (code == HttpURLConnection.HTTP_OK) {
-            String encoding = uc.getHeaderField("Transfer-Encoding");
-            if (encoding == null) {
-                int len = uc.getHeaderFieldInt("Content-Length", 0);
-                if (len > 0) {
-                    InputStream is = uc.getInputStream();
-                    // Returns true if we need to sync again
-                    if (new ItemEstimateParser(is, this).parse()) {
-                    }
-                }
-            } else if (encoding.equalsIgnoreCase("chunked")) {
-                // TODO We don't handle this yet
-            }
+    void pushFallback() {
+        // We'll try reloading folders first; this has been observed to work in some cases
+        if (!mTriedReloadFolderList) {
+            errorLog("*** PING LOOP: Trying to reload folder list...");
+            SyncManager.reloadFolderList(mContext, mAccount.mId);
+            mTriedReloadFolderList = true;
+        // If we've tried that, set all mailboxes (except the account mailbox) to 5 minute sync
+        } else {
+            errorLog("*** PING LOOP: Turning off push due to ping loop...");
+            ContentValues cv = new ContentValues();
+            cv.put(Mailbox.SYNC_INTERVAL, 5);
+            mContentResolver.update(Mailbox.CONTENT_URI, cv,
+                    MailboxColumns.ACCOUNT_KEY + '=' + mAccount.mId
+                    + AND_FREQUENCY_PING_PUSH_AND_NOT_ACCOUNT_MAILBOX, null);
+            // Now, change the account as well
+            cv.clear();
+            cv.put(Account.SYNC_INTERVAL, 5);
+            mContentResolver.update(ContentUris.withAppendedId(Account.CONTENT_URI, mAccount.mId),
+                    cv, null, null);
+            // TODO Discuss the best way to alert the user
+            // Alert the user about what we've done
+            NotificationManager nm = (NotificationManager)mContext
+                .getSystemService(Context.NOTIFICATION_SERVICE);
+            Notification note =
+                new Notification(R.drawable.stat_notify_email_generic,
+                        mContext.getString(R.string.notification_ping_loop_title),
+                        System.currentTimeMillis());
+            Intent i = new Intent(mContext, AccountFolderList.class);
+            PendingIntent pi = PendingIntent.getActivity(mContext, 0, i, 0);
+            note.setLatestEventInfo(mContext,
+                    mContext.getString(R.string.notification_ping_loop_title),
+                    mContext.getString(R.string.notification_ping_loop_text), pi);
+            nm.notify(Eas.EXCHANGE_ERROR_NOTIFICATION, note);
         }
     }
 
@@ -578,6 +568,7 @@ public class EasSyncService extends InteractiveSyncService {
         // Do push for all sync services here
         ArrayList<Mailbox> pushBoxes = new ArrayList<Mailbox>();
         long endTime = System.currentTimeMillis() + (30*MINS);
+        HashMap<Long, Integer> pingFailureMap = new HashMap<Long, Integer>();
 
         while (System.currentTimeMillis() < endTime) {
             // Count of pushable mailboxes
@@ -600,11 +591,43 @@ public class EasSyncService extends InteractiveSyncService {
                     // Two requirements for push:
                     // 1) SyncManager tells us the mailbox is syncable (not running, not stopped)
                     // 2) The syncKey isn't "0" (i.e. it's synced at least once)
-                    if (SyncManager.canSync(c.getLong(Mailbox.CONTENT_ID_COLUMN))) {
+                    long mailboxId = c.getLong(Mailbox.CONTENT_ID_COLUMN);
+                    if (SyncManager.canSync(mailboxId)) {
                         String syncKey = c.getString(Mailbox.CONTENT_SYNC_KEY_COLUMN);
                         if (syncKey == null || syncKey.equals("0")) {
                             continue;
                         }
+
+                        // Take a peek at this box's behavior last sync
+                        // We do this because some Exchange 2003 servers put themselves (and
+                        // therefore our client) into a "ping loop" in which the client is
+                        // continuously told of server changes, only to find that there aren't any.
+                        // This behavior is seemingly random, and we must code defensively by
+                        // backing off of push behavior when this is detected.
+                        // The server fix is at http://support.microsoft.com/kb/923282
+
+                        // Sync status is encoded as S<type>:<exitstatus>:<changes>
+                        String status = c.getString(Mailbox.CONTENT_SYNC_STATUS_COLUMN);
+                        int type = SyncManager.getStatusType(status);
+                        if (type == SyncManager.SYNC_PING) {
+                            int changeCount = SyncManager.getStatusChangeCount(status);
+                            if (changeCount == 0) {
+                                // This means that a ping failed; we'll keep track of this
+                                Integer failures = pingFailureMap.get(mailboxId);
+                                if (failures == null) {
+                                    pingFailureMap.put(mailboxId, 1);
+                                } else if (failures > 4) {
+                                    // Change all push/ping boxes (except account) to 5 minute sync
+                                    pushFallback();
+                                    return;
+                                } else {
+                                    pingFailureMap.put(mailboxId, failures + 1);
+                                }
+                            } else {
+                                pingFailureMap.put(mailboxId, 0);
+                            }
+                        }
+
                         if (canPushCount++ == 0) {
                             // Initialize the Ping command
                             s.start(Tags.PING_PING).data(Tags.PING_HEARTBEAT_INTERVAL, "900")
@@ -652,14 +675,6 @@ public class EasSyncService extends InteractiveSyncService {
                 time = System.currentTimeMillis() - time;
                 userLog("Ping response: " + code + " in " + time + "ms");
 
-                if (time < 2*SECS) {
-                    // This is the Ping loop situation; try sending an item estimate
-                    userLog("Trying getItemEstimate to break ping loop");
-                    for (Mailbox m: pushBoxes) {
-                        getItemEstimate(m);
-                    }
-                }
-
                 if (code == HttpURLConnection.HTTP_OK) {
                     String encoding = uc.getHeaderField("Transfer-Encoding");
                     if (encoding == null) {
@@ -685,7 +700,7 @@ public class EasSyncService extends InteractiveSyncService {
                 sleep(10*SECS);
             } else {
                 // We've got nothing to do, so let's hang out for a while
-                sleep(10*MINS);
+                sleep(20*MINS);
             }
         }
     }
@@ -713,7 +728,7 @@ public class EasSyncService extends InteractiveSyncService {
                 try {
                     if (c.moveToFirst()) {
                         SyncManager.startManualSync(c.getLong(Mailbox.CONTENT_ID_COLUMN),
-                                null, "Ping");
+                                SyncManager.SYNC_PING, null);
                     }
                 } finally {
                     c.close();
@@ -864,7 +879,7 @@ public class EasSyncService extends InteractiveSyncService {
             if (mailbox.mSyncKey == null) {
                 userLog("Mailbox syncKey RESET");
                 mailbox.mSyncKey = "0";
-                mailbox.mSyncInterval = Account.CHECK_INTERVAL_PUSH;
+                mailbox.mSyncInterval = target.mService.mAccount.mSyncInterval;
             }
             String className = target.getCollectionName();
             userLog("Sending " + className + " syncKey: " + mailbox.mSyncKey);
@@ -1017,6 +1032,14 @@ public class EasSyncService extends InteractiveSyncService {
                             break;
                     }
                     SyncManager.callback().syncMailboxStatus(mMailboxId, status, 0);
+
+                    // Save the sync time and status
+                    ContentValues cv = new ContentValues();
+                    cv.put(Mailbox.SYNC_TIME, System.currentTimeMillis());
+                    String s = "S" + mSyncReason + ':' + status + ':' + mChangeCount;
+                    cv.put(Mailbox.SYNC_STATUS, s);
+                    mContentResolver.update(ContentUris
+                            .withAppendedId(Mailbox.CONTENT_URI, mMailboxId), cv, null, null);
                 } catch (RemoteException e1) {
                     // Don't care if this fails
                 }

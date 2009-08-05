@@ -61,6 +61,8 @@ public class Eas {
     public static final int FOLDER_STATUS_OK = 1;
     public static final int FOLDER_STATUS_INVALID_KEY = 9;
 
+    public static final int EXCHANGE_ERROR_NOTIFICATION = 0x10;
+
     public static void setUserDebug(boolean state) {
         // DEBUG takes precedence and is never true in a user build
         if (!DEBUG) {

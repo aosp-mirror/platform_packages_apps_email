@@ -64,8 +64,9 @@ public class EmailProvider extends ContentProvider {
     // version 19: added triggers to keep track of unreadCount by Mailbox
     // version 20: changed type of EAS account mailbox, making old databases invalid for EAS
     // version 21: fixed broken trigger linking account deletion to the deletion of its HostAuth's
+    // version 22: added syncStatus column to Mailbox
 
-    public static final int DATABASE_VERSION = 21;
+    public static final int DATABASE_VERSION = 22;
     public static final int BODY_DATABASE_VERSION = 1;
 
     public static final String EMAIL_AUTHORITY = "com.android.email.provider";
@@ -429,7 +430,8 @@ public class EmailProvider extends ContentProvider {
             + MailboxColumns.UNREAD_COUNT + " integer, "
             + MailboxColumns.FLAG_VISIBLE + " integer, "
             + MailboxColumns.FLAGS + " integer, "
-            + MailboxColumns.VISIBLE_LIMIT + " integer"
+            + MailboxColumns.VISIBLE_LIMIT + " integer, "
+            + MailboxColumns.SYNC_STATUS + " text"
             + ");";
         db.execSQL("create table " + Mailbox.TABLE_NAME + s);
         db.execSQL("create index mailbox_" + MailboxColumns.SERVER_ID

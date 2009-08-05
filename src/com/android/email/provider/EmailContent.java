@@ -730,7 +730,7 @@ public abstract class EmailContent {
         public static final String SYNC_KEY = "syncKey";
         // The default sync lookback period for this account
         public static final String SYNC_LOOKBACK = "syncLookback";
-        // The default sync frequency for this account
+        // The default sync frequency for this account, in minutes
         public static final String SYNC_INTERVAL = "syncInterval";
         // A foreign key into the account manager, having host, login, password, port, and ssl flags
         public static final String HOST_AUTH_KEY_RECV = "hostAuthKeyRecv";
@@ -1676,6 +1676,8 @@ public abstract class EmailContent {
         public static final String FLAGS = "flags";
         // Backward compatible
         public static final String VISIBLE_LIMIT = "visibleLimit";
+        // Sync status (can be used as desired by sync services)
+        public static final String SYNC_STATUS = "syncStatus";
     }
 
     public static final class Mailbox extends EmailContent implements SyncColumns, MailboxColumns {
@@ -1696,6 +1698,7 @@ public abstract class EmailContent {
         public boolean mFlagVisible = true;
         public int mFlags;
         public int mVisibleLimit;
+        public String mSyncStatus;
 
         public static final int CONTENT_ID_COLUMN = 0;
         public static final int CONTENT_DISPLAY_NAME_COLUMN = 1;
@@ -1712,12 +1715,14 @@ public abstract class EmailContent {
         public static final int CONTENT_FLAG_VISIBLE_COLUMN = 12;
         public static final int CONTENT_FLAGS_COLUMN = 13;
         public static final int CONTENT_VISIBLE_LIMIT_COLUMN = 14;
+        public static final int CONTENT_SYNC_STATUS_COLUMN = 15;
         public static final String[] CONTENT_PROJECTION = new String[] {
             RECORD_ID, MailboxColumns.DISPLAY_NAME, MailboxColumns.SERVER_ID,
             MailboxColumns.PARENT_SERVER_ID, MailboxColumns.ACCOUNT_KEY, MailboxColumns.TYPE,
             MailboxColumns.DELIMITER, MailboxColumns.SYNC_KEY, MailboxColumns.SYNC_LOOKBACK,
             MailboxColumns.SYNC_INTERVAL, MailboxColumns.SYNC_TIME,MailboxColumns.UNREAD_COUNT,
-            MailboxColumns.FLAG_VISIBLE, MailboxColumns.FLAGS, MailboxColumns.VISIBLE_LIMIT
+            MailboxColumns.FLAG_VISIBLE, MailboxColumns.FLAGS, MailboxColumns.VISIBLE_LIMIT,
+            MailboxColumns.SYNC_STATUS
         };
         public static final long NO_MAILBOX = -1;
 
@@ -1804,6 +1809,7 @@ public abstract class EmailContent {
             mFlagVisible = cursor.getInt(CONTENT_FLAG_VISIBLE_COLUMN) == 1;
             mFlags = cursor.getInt(CONTENT_FLAGS_COLUMN);
             mVisibleLimit = cursor.getInt(CONTENT_VISIBLE_LIMIT_COLUMN);
+            mSyncStatus = cursor.getString(CONTENT_SYNC_STATUS_COLUMN);
             return this;
         }
 
@@ -1824,6 +1830,7 @@ public abstract class EmailContent {
             values.put(MailboxColumns.FLAG_VISIBLE, mFlagVisible);
             values.put(MailboxColumns.FLAGS, mFlags);
             values.put(MailboxColumns.VISIBLE_LIMIT, mVisibleLimit);
+            values.put(MailboxColumns.SYNC_STATUS, mSyncStatus);
             return values;
         }
 

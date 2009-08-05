@@ -90,7 +90,7 @@ public class EmailSyncAlarmReceiver extends BroadcastReceiver {
 
         // Request service from the mailbox
         for (Long mailboxId: mailboxesToNotify) {
-            SyncManager.serviceRequest(mailboxId, "User data upsync");
+            SyncManager.serviceRequest(mailboxId, SyncManager.SYNC_UPSYNC);
         }
         Log.v(TAG, "Changed/Deleted messages: " + messageCount + ", mailboxes: " +
                 mailboxesToNotify.size());

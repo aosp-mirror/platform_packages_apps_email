@@ -394,10 +394,13 @@ public class EmailSyncAdapter extends AbstractSyncAdapter {
             while (nextTag(Tags.SYNC_COMMANDS) != END) {
                 if (tag == Tags.SYNC_ADD) {
                     addParser(newEmails);
+                    mService.mChangeCount++;
                 } else if (tag == Tags.SYNC_DELETE) {
                     deleteParser(deletedEmails);
+                    mService.mChangeCount++;
                 } else if (tag == Tags.SYNC_CHANGE) {
                     changeParser(changedEmails);
+                    mService.mChangeCount++;
                 } else
                     skipTag();
             }

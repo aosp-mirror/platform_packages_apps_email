@@ -68,6 +68,8 @@ public abstract class AbstractSyncService implements Runnable {
     protected String mMailboxName;
     public Account mAccount;
     protected Context mContext;
+    public int mChangeCount = 0;
+    public int mSyncReason = 0;
 
     protected volatile long mRequestTime = 0;
     protected ArrayList<PartRequest> mPartRequests = new ArrayList<PartRequest>();
@@ -216,10 +218,12 @@ public abstract class AbstractSyncService implements Runnable {
         }
     }
 
+    /**
+     * Error log is used for serious issues that should always be logged
+     * @param str the string to log
+     */
     public void errorLog(String str) {
-        if (Eas.USER_LOG) {
-            Log.e(TAG, str);
-        }
+        Log.e(TAG, str);
     }
 
     /**

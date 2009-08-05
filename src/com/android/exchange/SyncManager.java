@@ -77,6 +77,21 @@ public class SyncManager extends Service implements Runnable {
     public static final int DEFAULT_WINDOW = Integer.MIN_VALUE;
     public static final int SECS = 1000;
     public static final int MINS = 60 * SECS;
+
+    public static final int SYNC_UPSYNC = 0;
+    public static final int SYNC_SCHEDULED = 1;
+    public static final int SYNC_PUSH = 2;
+    public static final int SYNC_PING = 3;
+    public static final int SYNC_SERVICE_START_SYNC = 4;
+    public static final int SYNC_SERVICE_PART_REQUEST = 5;
+    public static final int SYNC_KICK = 6;
+
+    // Offsets into the syncStatus data for EAS that indicate type, exit status, and change count
+    // The format is S<type_char>:<exit_char>:<change_count>
+    public static final int STATUS_TYPE_CHAR = 1;
+    public static final int STATUS_EXIT_CHAR = 3;
+    public static final int STATUS_CHANGE_COUNT_OFFSET = 5;
+
     static SyncManager INSTANCE;
     static Object mSyncToken = new Object();
     static Thread mServiceThread = null;
@@ -162,7 +177,7 @@ public class SyncManager extends Service implements Runnable {
         }
 
         public void startSync(long mailboxId) throws RemoteException {
-            startManualSync(mailboxId, null, "startSync service call");
+            startManualSync(mailboxId, SyncManager.SYNC_SERVICE_START_SYNC, null);
         }
 
         public void stopSync(long mailboxId) throws RemoteException {
@@ -392,7 +407,6 @@ public class SyncManager extends Service implements Runnable {
 
         @Override
         public void onChange(boolean selfChange) {
-            INSTANCE.log("MessageObserver");
             // A rather blunt instrument here.  But we don't have information about the URI that
             // triggered this, though it must have been an insert
             kick();
@@ -687,12 +701,13 @@ public class SyncManager extends Service implements Runnable {
         }
     }
 
-    private void startService(Mailbox m, PartRequest req) {
+    private void startService(Mailbox m, int reason, PartRequest req) {
         synchronized (mSyncToken) {
             Account acct = Account.restoreAccountWithId(this, m.mAccountKey);
             if (acct != null) {
                 AbstractSyncService service;
                 service = new EasSyncService(this, m);
+                service.mSyncReason = reason;
                 if (req != null) {
                     service.addPartRequest(req);
                 }
@@ -847,7 +862,7 @@ public class SyncManager extends Service implements Runnable {
                     long freq = c.getInt(Mailbox.CONTENT_SYNC_INTERVAL_COLUMN);
                     if (freq == Account.CHECK_INTERVAL_PUSH) {
                         Mailbox m = EmailContent.getContent(c, Mailbox.class);
-                        startService(m, null);
+                        startService(m, SYNC_PUSH, null);
                     } else if (c.getInt(Mailbox.CONTENT_TYPE_COLUMN) == Mailbox.TYPE_OUTBOX) {
                         int cnt = EmailContent.count(this, Message.CONTENT_URI,
                                 "mailboxKey=" + mid + " and syncServerId=0", null);
@@ -859,7 +874,7 @@ public class SyncManager extends Service implements Runnable {
                         long lastSync = c.getLong(Mailbox.CONTENT_SYNC_TIME_COLUMN);
                         if (now - lastSync > (freq*MINS)) {
                             Mailbox m = EmailContent.getContent(c, Mailbox.class);
-                            startService(m, null);
+                            startService(m, SYNC_SCHEDULED, null);
                         }
                     }
                 } else {
@@ -896,15 +911,15 @@ public class SyncManager extends Service implements Runnable {
         return nextWait;
     }
 
-    static public void serviceRequest(Mailbox m, String reason) {
+    static public void serviceRequest(Mailbox m, int reason) {
         serviceRequest(m.mId, 5*SECS, reason);
     }
 
-    static public void serviceRequest(long mailboxId, String reason) {
+    static public void serviceRequest(long mailboxId, int reason) {
         serviceRequest(mailboxId, 5*SECS, reason);
     }
 
-    static public void serviceRequest(long mailboxId, long ms, String reason) {
+    static public void serviceRequest(long mailboxId, long ms, int reason) {
         try {
             if (INSTANCE == null) {
                 return;
@@ -914,7 +929,7 @@ public class SyncManager extends Service implements Runnable {
                 service.mRequestTime = System.currentTimeMillis() + ms;
                 kick();
             } else {
-                startManualSync(mailboxId, null, "Service request: " + reason);
+                startManualSync(mailboxId, reason, null);
             }
         } catch (Exception e) {
             e.printStackTrace();
@@ -941,7 +956,7 @@ public class SyncManager extends Service implements Runnable {
         AbstractSyncService service = INSTANCE.mServiceMap.get(mailboxId);
 
         if (service == null) {
-            service = startManualSync(mailboxId, req, "Part request");
+            service = startManualSync(mailboxId, SYNC_SERVICE_PART_REQUEST, req);
             kick();
         } else {
             service.addPartRequest(req);
@@ -1010,8 +1025,7 @@ public class SyncManager extends Service implements Runnable {
         }
     }
 
-    static public AbstractSyncService startManualSync(long mailboxId, PartRequest req,
-            String reason) {
+    static public AbstractSyncService startManualSync(long mailboxId, int reason, PartRequest req) {
         if (INSTANCE == null || INSTANCE.mServiceMap == null) {
             return null;
         }
@@ -1021,7 +1035,7 @@ public class SyncManager extends Service implements Runnable {
                 INSTANCE.mSyncErrorMap.remove(mailboxId);
                 Mailbox m = Mailbox.restoreMailboxWithId(INSTANCE, mailboxId);
                 INSTANCE.log("Starting sync for " + m.mDisplayName);
-                INSTANCE.startService(m, req);
+                INSTANCE.startService(m, reason, req);
             }
         }
         return INSTANCE.mServiceMap.get(mailboxId);
@@ -1059,7 +1073,7 @@ public class SyncManager extends Service implements Runnable {
         if (syncType == Account.CHECK_INTERVAL_PUSH) {
             SyncManager.serviceRequestImmediate(mailboxId);
         } else {
-            SyncManager.startManualSync(mailboxId, null, "Kick");
+            SyncManager.startManualSync(mailboxId, SYNC_KICK, null);
         }
     }
 
@@ -1125,6 +1139,34 @@ public class SyncManager extends Service implements Runnable {
             } else {
                 return "Not running?";
             }
+        }
+    }
+
+    /**
+     * Given the status string from a Mailbox, return the type code for the last sync
+     * @param status the syncStatus column of a Mailbox
+     * @return
+     */
+    static public int getStatusType(String status) {
+        if (status == null) {
+            return -1;
+        } else {
+            return status.charAt(STATUS_TYPE_CHAR) - '0';
+        }
+    }
+
+    /**
+     * Given the status string from a Mailbox, return the change count for the last sync
+     * The change count is the number of adds + deletes + changes in the last sync
+     * @param status the syncStatus column of a Mailbox
+     * @return
+     */
+    static public int getStatusChangeCount(String status) {
+        try {
+            String s = status.substring(STATUS_CHANGE_COUNT_OFFSET);
+            return Integer.parseInt(s);
+        } catch (RuntimeException e) {
+            return -1;
         }
     }
 

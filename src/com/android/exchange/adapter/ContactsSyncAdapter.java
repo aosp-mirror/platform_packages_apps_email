@@ -78,7 +78,7 @@ public class ContactsSyncAdapter extends AbstractSyncAdapter {
 
     // We'll split email into two columns, the one that Contacts uses (just for the email address
     // portion, and another one (the one defined here) for the display name
-    private static final String EMAIL_DISPLAY_NAME = Data.SYNC1;
+    //private static final String EMAIL_DISPLAY_NAME = Data.SYNC1;
 
     private static final int TYPE_IM1 = 23;
     private static final int TYPE_IM2 = 24;
@@ -637,10 +637,13 @@ public class ContactsSyncAdapter extends AbstractSyncAdapter {
             while (nextTag(Tags.SYNC_COMMANDS) != END) {
                 if (tag == Tags.SYNC_ADD) {
                     addParser(ops);
+                    mService.mChangeCount++;
                 } else if (tag == Tags.SYNC_DELETE) {
                     deleteParser(ops);
+                    mService.mChangeCount++;
                 } else if (tag == Tags.SYNC_CHANGE) {
                     changeParser(ops);
+                    mService.mChangeCount++;
                 } else
                     skipTag();
             }
@@ -909,12 +912,12 @@ public class ContactsSyncAdapter extends AbstractSyncAdapter {
             String name = token.getName();
             ContentValues cv = builder.cv;
             if (cv != null && cvCompareString(cv, Email.DATA, addr)
-                    && cvCompareString(cv, EMAIL_DISPLAY_NAME, name)) {
+                    && cvCompareString(cv, Email.DISPLAY_NAME, name)) {
                 return;
             }
             builder.withValue(Email.TYPE, type);
             builder.withValue(Email.DATA, addr);
-            builder.withValue(EMAIL_DISPLAY_NAME, name);
+            builder.withValue(Email.DISPLAY_NAME, name);
             add(builder.build());
         }
 
@@ -1130,7 +1133,7 @@ public class ContactsSyncAdapter extends AbstractSyncAdapter {
     private void sendEmail(Serializer s, ContentValues cv) throws IOException {
         // Get both parts of the email address (a newly created one in the UI won't have a name)
         String addr = cv.getAsString(Email.DATA);
-        String name = cv.getAsString(EMAIL_DISPLAY_NAME);
+        String name = cv.getAsString(Email.DISPLAY_NAME);
         // Don't crash if we don't have a name
         if (name == null) {
             name = "";
