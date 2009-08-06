@@ -50,6 +50,8 @@ import android.provider.ContactsContract.CommonDataKinds.Phone;
 import android.provider.ContactsContract.CommonDataKinds.Photo;
 import android.provider.ContactsContract.CommonDataKinds.StructuredName;
 import android.provider.ContactsContract.CommonDataKinds.StructuredPostal;
+import android.text.util.Rfc822Token;
+import android.text.util.Rfc822Tokenizer;
 import android.util.Log;
 
 import java.io.ByteArrayInputStream;
@@ -73,6 +75,10 @@ public class ContactsSyncAdapter extends AbstractSyncAdapter {
     private static final int TYPE_EMAIL1 = 20;
     private static final int TYPE_EMAIL2 = 21;
     private static final int TYPE_EMAIL3 = 22;
+
+    // We'll split email into two columns, the one that Contacts uses (just for the email address
+    // portion, and another one (the one defined here) for the display name
+    private static final String EMAIL_DISPLAY_NAME = Data.SYNC1;
 
     private static final int TYPE_IM1 = 23;
     private static final int TYPE_IM2 = 24;
@@ -893,12 +899,22 @@ public class ContactsSyncAdapter extends AbstractSyncAdapter {
 
         public void addEmail(Entity entity, int type, String email) {
             SmartBuilder builder = createBuilder(entity, Email.CONTENT_ITEM_TYPE, type);
+            Rfc822Token[] tokens = Rfc822Tokenizer.tokenize(email);
+            // Can't happen, but belt & suspenders
+            if (tokens.length == 0) {
+                return;
+            }
+            Rfc822Token token = tokens[0];
+            String addr = token.getAddress();
+            String name = token.getName();
             ContentValues cv = builder.cv;
-            if (cv != null && cvCompareString(cv, Email.DATA, email)) {
+            if (cv != null && cvCompareString(cv, Email.DATA, addr)
+                    && cvCompareString(cv, EMAIL_DISPLAY_NAME, name)) {
                 return;
             }
             builder.withValue(Email.TYPE, type);
-            builder.withValue(Email.DATA, email);
+            builder.withValue(Email.DATA, addr);
+            builder.withValue(EMAIL_DISPLAY_NAME, name);
             add(builder.build());
         }
 
@@ -1082,7 +1098,7 @@ public class ContactsSyncAdapter extends AbstractSyncAdapter {
             SmartBuilder builder = createBuilder(entity, Note.CONTENT_ITEM_TYPE, -1);
             ContentValues cv = builder.cv;
             if (note != null) {
-                note.replace("\r\n", "\n");
+                note = note.replaceAll("\r\n", "\n");
             }
             if (cv != null && cvCompareString(cv, Note.NOTE, note)) {
                 return;
@@ -1112,7 +1128,19 @@ public class ContactsSyncAdapter extends AbstractSyncAdapter {
     }
 
     private void sendEmail(Serializer s, ContentValues cv) throws IOException {
-        String value = cv.getAsString(Email.DATA);
+        // Get both parts of the email address (a newly created one in the UI won't have a name)
+        String addr = cv.getAsString(Email.DATA);
+        String name = cv.getAsString(EMAIL_DISPLAY_NAME);
+        // Don't crash if we don't have a name
+        if (name == null) {
+            name = "";
+        }
+        String value = null;
+        // If there's no addr, just send an empty address (will delete it on the server)
+        // Otherwise compose it from name and addr
+        if (addr != null) {
+            value = '\"' + name + "\" <" + addr + '>';
+        }
         switch (cv.getAsInteger(Email.TYPE)) {
             case TYPE_EMAIL1:
                 s.data(Tags.CONTACTS_EMAIL1_ADDRESS, value);
@@ -1282,8 +1310,8 @@ public class ContactsSyncAdapter extends AbstractSyncAdapter {
     private void sendNote(Serializer s, ContentValues cv) throws IOException {
         if (cv.containsKey(Note.NOTE)) {
             // EAS won't accept note data with raw newline characters
-            String note = cv.getAsString(Note.NOTE).replace("\n", "\r\n");
-            // Format of data depends on protocol version
+            String note = cv.getAsString(Note.NOTE).replaceAll("\n", "\r\n");
+            // Format of upsync data depends on protocol version
             if (mService.mProtocolVersionDouble >= 12.0) {
                 s.start(Tags.BASE_BODY);
                 s.data(Tags.BASE_TYPE, Eas.BODY_PREFERENCE_TEXT).data(Tags.BASE_DATA, note);
