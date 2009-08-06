@@ -455,7 +455,8 @@ public class SyncManager extends Service implements Runnable {
     @Override
     public void onCreate() {
         if (INSTANCE != null) {
-            throw new RuntimeException("\n************ ALREADY RUNNING *************\n");
+            Log.d(TAG, "onCreate called on running SyncManager");
+            return;
         }
         INSTANCE = this;
 
@@ -480,9 +481,6 @@ public class SyncManager extends Service implements Runnable {
                 MailboxColumns.TYPE + "=?",
                 new String[] {Long.toString(accountId),
                     Long.toString(Mailbox.TYPE_EAS_ACCOUNT_MAILBOX)}, null);
-        //sCallbackProxy.syncMailboxListStatus(accountId, EmailServiceStatus.IN_PROGRESS, 0);
-        //sCallbackProxy.syncMailboxListStatus(accountId, EmailServiceStatus.SUCCESS, 0);
-        // TODO Remove previous two lines; reimplement what's below (this is bug #2026451)
         try {
             if (c.moveToFirst()) {
                 synchronized(mSyncToken) {
