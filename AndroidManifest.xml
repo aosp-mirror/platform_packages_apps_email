@@ -49,9 +49,11 @@
             </intent-filter>
         </activity>
 
+        <!-- Must be exported in order for the AccountManager to launch it -->
         <activity
             android:name=".activity.setup.AccountSetupBasics"
             android:label="@string/account_setup_basics_title"
+            android:exported="true"
             >
         </activity>
         <activity

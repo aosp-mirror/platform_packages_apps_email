@@ -16,6 +16,7 @@
 
 package com.android.email.service;
 
+import com.android.email.activity.setup.AccountSetupBasics;
 import com.android.exchange.Eas;
 
 import android.accounts.AbstractAccountAuthenticator;
@@ -48,14 +49,32 @@ public class EasAuthenticatorService extends Service {
         public Bundle addAccount(AccountAuthenticatorResponse response, String accountType,
                 String authTokenType, String[] requiredFeatures, Bundle options)
                 throws NetworkErrorException {
-            // The Bundle we are passed has username and password set
-            AccountManager.get(EasAuthenticatorService.this).blockingAddAccountExplicitly(
-                    new Account(options.getString(OPTIONS_USERNAME), Eas.ACCOUNT_MANAGER_TYPE),
-                    options.getString(OPTIONS_PASSWORD), null);
-            Bundle b = new Bundle();
-            b.putString(Constants.ACCOUNT_NAME_KEY, options.getString("username"));
-            b.putString(Constants.ACCOUNT_TYPE_KEY, Eas.ACCOUNT_MANAGER_TYPE);
-            return b;
+            // There are two cases here:
+            // 1) We are called with a username/password; this comes from the traditional email
+            //    app UI; we simply create the account and return the proper bundle
+            if (options != null && options.containsKey(OPTIONS_PASSWORD)
+                    && options.containsKey(OPTIONS_USERNAME)) {
+                AccountManager.get(EasAuthenticatorService.this).blockingAddAccountExplicitly(
+                        new Account(options.getString(OPTIONS_USERNAME), Eas.ACCOUNT_MANAGER_TYPE),
+                        options.getString(OPTIONS_PASSWORD), null);
+                Bundle b = new Bundle();
+                b.putString(Constants.ACCOUNT_NAME_KEY, options.getString(OPTIONS_USERNAME));
+                b.putString(Constants.ACCOUNT_TYPE_KEY, Eas.ACCOUNT_MANAGER_TYPE);
+                return b;
+            // 2) The other case is that we're creating a new account from an Account manager
+            //    activity.  In this case, we add an intent that will be used to gather the
+            //    account information...
+            } else {
+                Bundle b = new Bundle();
+                Intent intent =
+                    new Intent(EasAuthenticatorService.this, AccountSetupBasics.class);
+                // Add extras that indicate this is an Exchange account creation
+                // So we'll skip the "account type" activity, and we'll use the response when
+                // we're done
+                intent.putExtra(Constants.ACCOUNT_AUTHENTICATOR_RESPONSE_KEY, response);
+                b.putParcelable(Constants.INTENT_KEY, intent);
+                return b;
+            }
         }
 
         @Override
