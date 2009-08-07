@@ -137,9 +137,15 @@ public class FolderSyncParser extends Parser {
             } else
                 skipTag();
         }
-        ContentValues cv = new ContentValues();
-        cv.put(AccountColumns.SYNC_KEY, mAccount.mSyncKey);
-        mAccount.update(mContext, cv);
+        synchronized (mService.getSynchronizer()) {
+            if (!mService.isStopped()) {
+                ContentValues cv = new ContentValues();
+                cv.put(AccountColumns.SYNC_KEY, mAccount.mSyncKey);
+                mAccount.update(mContext, cv);
+                mService.userLog("Leaving FolderSyncParser with Account syncKey="
+                        + mAccount.mSyncKey);
+            }
+        }
         return res;
     }
 
@@ -281,47 +287,50 @@ public class FolderSyncParser extends Parser {
         }
 
         // Create the new mailboxes in a single batch operation
-        if (!ops.isEmpty()) {
-            mService.userLog("Applying " + ops.size() + " mailbox operations.");
+        // Don't save any data if the service has been stopped
+        synchronized (mService.getSynchronizer()) {
+            if (!ops.isEmpty() && !mService.isStopped()) {
+                mService.userLog("Applying " + ops.size() + " mailbox operations.");
 
-            // Then, we create an update for the account (most importantly, updating the syncKey)
-            ops.add(ContentProviderOperation.newUpdate(
-                    ContentUris.withAppendedId(Account.CONTENT_URI, mAccountId)).withValues(
-                    mAccount.toContentValues()).build());
+                // Then, we create an update for the account (most importantly, updating the syncKey)
+                ops.add(ContentProviderOperation.newUpdate(
+                        ContentUris.withAppendedId(Account.CONTENT_URI, mAccountId)).withValues(
+                                mAccount.toContentValues()).build());
 
-            // Finally, we execute the batch
-            try {
-                mService.mContext.getContentResolver()
-                        .applyBatch(EmailProvider.EMAIL_AUTHORITY, ops);
-                mService.userLog("New Account SyncKey: " + mAccount.mSyncKey);
-            } catch (RemoteException e) {
-                // There is nothing to be done here; fail by returning null
-            } catch (OperationApplicationException e) {
-                // There is nothing to be done here; fail by returning null
-            }
-
-            // Look for sync issues and its children and delete them
-            // I'm not aware of any other way to deal with this properly
-            mBindArguments[0] = "Sync Issues";
-            mBindArguments[1] = mAccountIdAsString;
-            Cursor c = mContentResolver.query(Mailbox.CONTENT_URI, MAILBOX_ID_COLUMNS_PROJECTION,
-                    WHERE_DISPLAY_NAME_AND_ACCOUNT, mBindArguments, null);
-            String parentServerId = null;
-            long id = 0;
-            try {
-                if (c.moveToFirst()) {
-                    id = c.getLong(0);
-                    parentServerId = c.getString(1);
+                // Finally, we execute the batch
+                try {
+                    mService.mContext.getContentResolver()
+                    .applyBatch(EmailProvider.EMAIL_AUTHORITY, ops);
+                    mService.userLog("New Account SyncKey: " + mAccount.mSyncKey);
+                } catch (RemoteException e) {
+                    // There is nothing to be done here; fail by returning null
+                } catch (OperationApplicationException e) {
+                    // There is nothing to be done here; fail by returning null
                 }
-            } finally {
-                c.close();
-            }
-            if (parentServerId != null) {
-                mContentResolver.delete(ContentUris.withAppendedId(Mailbox.CONTENT_URI, id),
-                        null, null);
-                mBindArguments[0] = parentServerId;
-                mContentResolver.delete(Mailbox.CONTENT_URI, WHERE_PARENT_SERVER_ID_AND_ACCOUNT,
-                        mBindArguments);
+
+                // Look for sync issues and its children and delete them
+                // I'm not aware of any other way to deal with this properly
+                mBindArguments[0] = "Sync Issues";
+                mBindArguments[1] = mAccountIdAsString;
+                Cursor c = mContentResolver.query(Mailbox.CONTENT_URI, MAILBOX_ID_COLUMNS_PROJECTION,
+                        WHERE_DISPLAY_NAME_AND_ACCOUNT, mBindArguments, null);
+                String parentServerId = null;
+                long id = 0;
+                try {
+                    if (c.moveToFirst()) {
+                        id = c.getLong(0);
+                        parentServerId = c.getString(1);
+                    }
+                } finally {
+                    c.close();
+                }
+                if (parentServerId != null) {
+                    mContentResolver.delete(ContentUris.withAppendedId(Mailbox.CONTENT_URI, id),
+                            null, null);
+                    mBindArguments[0] = parentServerId;
+                    mContentResolver.delete(Mailbox.CONTENT_URI, WHERE_PARENT_SERVER_ID_AND_ACCOUNT,
+                            mBindArguments);
+                }
             }
         }
     }

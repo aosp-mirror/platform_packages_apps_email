@@ -80,7 +80,8 @@ import javax.net.ssl.HttpsURLConnection;
 
 public class EasSyncService extends AbstractSyncService {
 
-    private static final String WINDOW_SIZE = "10";
+    private static final String EMAIL_WINDOW_SIZE = "5";
+    private static final String PIM_WINDOW_SIZE = "20";
     private static final String WHERE_ACCOUNT_KEY_AND_SERVER_ID =
         MailboxColumns.ACCOUNT_KEY + "=? and " + MailboxColumns.SERVER_ID + "=?";
     private static final String WHERE_SYNC_INTERVAL_PING =
@@ -112,8 +113,6 @@ public class EasSyncService extends AbstractSyncService {
     public ContentResolver mContentResolver;
     String[] mBindArguments = new String[2];
     InputStream mPendingPartInputStream = null;
-    private volatile boolean mStop = false;
-    private Object mWaitTarget = new Object();
     private boolean mTriedReloadFolderList = false;
 
     public EasSyncService(Context _context, Mailbox _mailbox) {
@@ -135,8 +134,9 @@ public class EasSyncService extends AbstractSyncService {
     @Override
     public void ping() {
         userLog("We've been pinged!");
-        synchronized (mWaitTarget) {
-            mWaitTarget.notify();
+        Object synchronizer = getSynchronizer();
+        synchronized (synchronizer) {
+            synchronizer.notify();
         }
     }
 
@@ -426,10 +426,14 @@ public class EasSyncService extends AbstractSyncService {
 
             if (mAccount.mSyncKey == null) {
                 mAccount.mSyncKey = "0";
-                userLog("Account syncKey RESET");
+                userLog("Account syncKey INIT to 0");
                 ContentValues cv = new ContentValues();
                 cv.put(AccountColumns.SYNC_KEY, mAccount.mSyncKey);
                 mAccount.update(mContext, cv);
+            }
+
+            if (mAccount.mSyncKey.equals("0")) {
+                userLog("Initial FolderSync");
             }
 
             // When we first start up, change all ping mailboxes to push.
@@ -440,9 +444,9 @@ public class EasSyncService extends AbstractSyncService {
                 SyncManager.kick();
             }
 
-            userLog("Account syncKey: " + mAccount.mSyncKey);
             // Determine our protocol version, if we haven't already
             if (mAccount.mProtocolVersion == null) {
+                userLog("Determine EAS protocol version");
                 HttpURLConnection uc = setupEASCommand("OPTIONS", null);
                 if (uc != null) {
                     int code = uc.getResponseCode();
@@ -467,12 +471,15 @@ public class EasSyncService extends AbstractSyncService {
                     }
                 }
             }
+
             while (!mStop) {
+                userLog("Sending Account syncKey: " + mAccount.mSyncKey);
                 Serializer s = new Serializer();
                 s.start(Tags.FOLDER_FOLDER_SYNC).start(Tags.FOLDER_SYNC_KEY)
                     .text(mAccount.mSyncKey).end().end().done();
                 HttpURLConnection uc = sendEASPostCommand("FolderSync", s.toString());
                 int code = uc.getResponseCode();
+                if (mStop) break;
                 if (code == HttpURLConnection.HTTP_OK) {
                     String encoding = uc.getHeaderField("Transfer-Encoding");
                     if (encoding == null) {
@@ -895,7 +902,8 @@ public class EasSyncService extends AbstractSyncService {
             if (!mailbox.mSyncKey.equals("0")) {
                 s.tag(Tags.SYNC_GET_CHANGES);
             }
-            s.data(Tags.SYNC_WINDOW_SIZE, WINDOW_SIZE);
+            s.data(Tags.SYNC_WINDOW_SIZE,
+                    className.equals("Email") ? EMAIL_WINDOW_SIZE : PIM_WINDOW_SIZE);
             boolean options = false;
             if (!className.equals("Contacts")) {
                 // Set the lookback appropriately (EAS calls this a "filter")

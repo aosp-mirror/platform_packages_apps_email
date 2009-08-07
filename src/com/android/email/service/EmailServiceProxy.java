@@ -24,6 +24,7 @@ import android.content.ComponentName;
 import android.content.Context;
 import android.content.Intent;
 import android.content.ServiceConnection;
+import android.os.Debug;
 import android.os.IBinder;
 import android.os.RemoteException;
 import android.util.Log;
@@ -60,12 +61,22 @@ public class EmailServiceProxy implements IEmailService {
     public EmailServiceProxy(Context _context, Class<?> _class) {
         mContext = _context;
         mClass = _class;
+        // Proxy calls have a timeout, and this can cause failures while debugging due to the
+        // far slower execution speed.  In particular, validate calls fail regularly with ssl
+        // connections at the default timeout (30 seconds)
+        if (Debug.isDebuggerConnected()) {
+            mTimeout <<= 2;
+        }
     }
 
     public EmailServiceProxy(Context _context, Class<?> _class, IEmailServiceCallback _callback) {
         mContext = _context;
         mClass = _class;
         mCallback = _callback;
+        // See comment above
+        if (Debug.isDebuggerConnected()) {
+            mTimeout <<= 2;
+        }
     }
 
     class EmailServiceConnection implements ServiceConnection {

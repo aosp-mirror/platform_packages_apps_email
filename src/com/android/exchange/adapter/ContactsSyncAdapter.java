@@ -760,16 +760,20 @@ public class ContactsSyncAdapter extends AbstractSyncAdapter {
         }
 
         public void execute() {
-            try {
-                mService.userLog("Executing " + size() + " CPO's");
-                mResults = mService.mContext.getContentResolver()
-                    .applyBatch(ContactsContract.AUTHORITY, this);
-            } catch (RemoteException e) {
-                // There is nothing sensible to be done here
-                Log.e(TAG, "problem inserting contact during server update", e);
-            } catch (OperationApplicationException e) {
-                // There is nothing sensible to be done here
-                Log.e(TAG, "problem inserting contact during server update", e);
+            synchronized (mService.getSynchronizer()) {
+                if (!mService.isStopped()) {
+                    try {
+                        mService.userLog("Executing " + size() + " CPO's");
+                        mResults = mService.mContext.getContentResolver().applyBatch(
+                                ContactsContract.AUTHORITY, this);
+                    } catch (RemoteException e) {
+                        // There is nothing sensible to be done here
+                        Log.e(TAG, "problem inserting contact during server update", e);
+                    } catch (OperationApplicationException e) {
+                        // There is nothing sensible to be done here
+                        Log.e(TAG, "problem inserting contact during server update", e);
+                    }
+                }
             }
         }
 

@@ -70,6 +70,8 @@ public abstract class AbstractSyncService implements Runnable {
     protected Context mContext;
     public int mChangeCount = 0;
     public int mSyncReason = 0;
+    protected volatile boolean mStop = false;
+    private Object mSynchronizer = new Object();
 
     protected volatile long mRequestTime = 0;
     protected ArrayList<PartRequest> mPartRequests = new ArrayList<PartRequest>();
@@ -187,6 +189,14 @@ public abstract class AbstractSyncService implements Runnable {
         public String getReason() {
             return reason;
         }
+    }
+
+    public boolean isStopped() {
+        return mStop;
+    }
+
+    public Object getSynchronizer() {
+        return mSynchronizer;
     }
 
     /**

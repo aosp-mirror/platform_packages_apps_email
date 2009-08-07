@@ -437,13 +437,17 @@ public class EmailSyncAdapter extends AbstractSyncAdapter {
 
             addCleanupOps(ops);
 
-            try {
-                mService.mContext.getContentResolver()
-                        .applyBatch(EmailProvider.EMAIL_AUTHORITY, ops);
-            } catch (RemoteException e) {
-                // There is nothing to be done here; fail by returning null
-            } catch (OperationApplicationException e) {
-                // There is nothing to be done here; fail by returning null
+            // No commits if we're stopped
+            synchronized (mService.getSynchronizer()) {
+                if (mService.isStopped()) return;
+                try {
+                    mService.mContext.getContentResolver()
+                    .applyBatch(EmailProvider.EMAIL_AUTHORITY, ops);
+                } catch (RemoteException e) {
+                    // There is nothing to be done here; fail by returning null
+                } catch (OperationApplicationException e) {
+                    // There is nothing to be done here; fail by returning null
+                }
             }
 
             mService.userLog(mMailbox.mDisplayName + " SyncKey saved as: " + mMailbox.mSyncKey);

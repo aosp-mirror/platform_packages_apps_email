@@ -291,14 +291,14 @@ public class SyncManager extends Service implements Runnable {
                 for (Account account : mAccounts) {
                     if (!currentAccounts.contains(account.mId)) {
                         // This is a deletion; shut down any account-related syncs
-                        stopAccountSyncs(account.mId);
+                        stopAccountSyncs(account.mId, true);
                     } else {
                         // See whether any of our accounts has changed sync interval or window
                         if (accountChanged(account)) {
                             // Here's one that has...
                             INSTANCE.log("Account " + account.mDisplayName +
                                     " changed; stopping running syncs...");
-                            stopAccountSyncs(account.mId);
+                            stopAccountSyncs(account.mId, false);
                         }
                     }
                 }
@@ -343,13 +343,17 @@ public class SyncManager extends Service implements Runnable {
             INSTANCE.log("Initializing account: " + acct.mDisplayName);
         }
 
-        void stopAccountSyncs(long acctId) {
+        void stopAccountSyncs(long acctId, boolean includeAccountMailbox) {
             synchronized (mSyncToken) {
                 List<Long> deletedBoxes = new ArrayList<Long>();
                 for (Long mid : INSTANCE.mServiceMap.keySet()) {
                     Mailbox box = Mailbox.restoreMailboxWithId(INSTANCE, mid);
                     if (box != null) {
                         if (box.mAccountKey == acctId) {
+                            if (!includeAccountMailbox &&
+                                    box.mType == Mailbox.TYPE_EAS_ACCOUNT_MAILBOX) {
+                                continue;
+                            }
                             AbstractSyncService svc = INSTANCE.mServiceMap.get(mid);
                             if (svc != null) {
                                 svc.stop();
@@ -498,11 +502,19 @@ public class SyncManager extends Service implements Runnable {
         try {
             if (c.moveToFirst()) {
                 synchronized(mSyncToken) {
-                    long id = c.getLong(Mailbox.CONTENT_ID_COLUMN);
+                    Mailbox m = new Mailbox().restore(c);
+                    String syncKey = m.mSyncKey;
+                    // No need to reload the list if we don't have one
+                    if (syncKey == null || syncKey.equals("0")) {
+                        return;
+                    }
+                    long id = m.mId;
                     AbstractSyncService svc = INSTANCE.mServiceMap.get(id);
                     // Tell the service we're done
                     if (svc != null) {
-                        svc.stop();
+                        synchronized (svc.getSynchronizer()) {
+                            svc.stop();
+                        }
                         // Interrupt the thread so that it can stop
                         Thread thread = svc.mThread;
                         thread.setName(thread.getName() + " (Stopped)");
@@ -529,7 +541,7 @@ public class SyncManager extends Service implements Runnable {
     static public void folderListReloaded(long acctId) {
         if (INSTANCE != null) {
             AccountObserver obs = INSTANCE.mAccountObserver;
-            obs.stopAccountSyncs(acctId);
+            obs.stopAccountSyncs(acctId, false);
             obs.addAccountMailbox(acctId);
         }
     }
@@ -740,7 +752,6 @@ public class SyncManager extends Service implements Runnable {
 
         // If we're really debugging, turn on all logging
         if (Eas.DEBUG) {
-            Eas.PARSER_LOG = true;
             Eas.USER_LOG = true;
         }
 

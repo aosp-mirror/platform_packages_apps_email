@@ -135,12 +135,16 @@ public abstract class AbstractSyncParser extends Parser {
            }
         }
 
-        // Make sure we save away the new syncKey, syncFrequency, etc.
-        ContentValues cv = new ContentValues();
-        cv.put(MailboxColumns.SYNC_KEY, mMailbox.mSyncKey);
-        cv.put(MailboxColumns.SYNC_INTERVAL, mMailbox.mSyncInterval);
-        mMailbox.update(mContext, cv);
-        mService.userLog(mMailbox.mDisplayName + " SyncKey saved as: " + mMailbox.mSyncKey);
+        synchronized (mService.getSynchronizer()) {
+            if (!mService.isStopped()) {
+                // Make sure we save away the new syncKey, syncFrequency, etc.
+                ContentValues cv = new ContentValues();
+                cv.put(MailboxColumns.SYNC_KEY, mMailbox.mSyncKey);
+                cv.put(MailboxColumns.SYNC_INTERVAL, mMailbox.mSyncInterval);
+                mMailbox.update(mContext, cv);
+                mService.userLog(mMailbox.mDisplayName + " SyncKey saved as: " + mMailbox.mSyncKey);
+            }
+        }
         // Let the caller know that there's more to do
         return moreAvailable;
     }
