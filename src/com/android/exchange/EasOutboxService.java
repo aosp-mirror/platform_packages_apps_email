@@ -23,6 +23,8 @@ import com.android.email.provider.EmailContent.Message;
 import com.android.email.provider.EmailContent.MessageColumns;
 import com.android.exchange.utility.Rfc822Formatter;
 
+import org.apache.http.HttpResponse;
+
 import android.content.ContentUris;
 import android.content.ContentValues;
 import android.content.Context;
@@ -42,12 +44,13 @@ public class EasOutboxService extends EasSyncService {
         mPassword = ha.mPassword;
     }
 
+    @Override
     public void run() {
         mThread = Thread.currentThread();
-        String uniqueId = android.provider.Settings.Secure.getString(mContext.getContentResolver(), 
+        String uniqueId = android.provider.Settings.Secure.getString(mContext.getContentResolver(),
                 android.provider.Settings.Secure.ANDROID_ID);
         try {
-            Cursor c = mContext.getContentResolver().query(Message.CONTENT_URI, 
+            Cursor c = mContext.getContentResolver().query(Message.CONTENT_URI,
                     Message.CONTENT_PROJECTION, MessageColumns.MAILBOX_KEY + '=' + mMailbox.mId,
                     null, null);
             try {
@@ -56,8 +59,8 @@ public class EasOutboxService extends EasSyncService {
                     if (msg != null) {
                         String data = Rfc822Formatter
                             .writeEmailAsRfc822String(mContext, mAccount, msg, uniqueId);
-                        HttpURLConnection uc = sendEASPostCommand("SendMail&SaveInSent=T", data);
-                        int code = uc.getResponseCode();
+                        HttpResponse resp = sendHttpClientPost("SendMail&SaveInSent=T", data.getBytes());
+                        int code = resp.getStatusLine().getStatusCode();
                         if (code == HttpURLConnection.HTTP_OK) {
                             userLog("Deleting message...");
                             mContext.getContentResolver().delete(ContentUris.withAppendedId(

@@ -120,6 +120,10 @@ public class Serializer {
         return out.toString();
     }
 
+    public byte[] toByteArray() {
+        return out.toByteArray();
+    }
+
     public Serializer text(String text) throws IOException {
         checkPendingTag(false);
         buf.write(Wbxml.STR_I);

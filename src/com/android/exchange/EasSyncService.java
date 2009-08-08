@@ -39,11 +39,18 @@ import com.android.exchange.adapter.Tags;
 import com.android.exchange.adapter.Parser.EasParserException;
 import com.android.exchange.utility.Base64;
 
+import org.apache.http.Header;
 import org.apache.http.HttpEntity;
 import org.apache.http.HttpResponse;
+import org.apache.http.client.HttpClient;
+import org.apache.http.client.methods.HttpOptions;
 import org.apache.http.client.methods.HttpPost;
-import org.apache.http.conn.ssl.AllowAllHostnameVerifier;
+import org.apache.http.client.methods.HttpRequestBase;
+import org.apache.http.entity.ByteArrayEntity;
 import org.apache.http.impl.client.DefaultHttpClient;
+import org.apache.http.params.BasicHttpParams;
+import org.apache.http.params.HttpConnectionParams;
+import org.apache.http.params.HttpParams;
 
 import android.app.Notification;
 import android.app.NotificationManager;
@@ -61,22 +68,16 @@ import java.io.File;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
-import java.io.OutputStreamWriter;
 import java.net.HttpURLConnection;
-import java.net.MalformedURLException;
-import java.net.ProtocolException;
 import java.net.URI;
-import java.net.URL;
 import java.net.URLEncoder;
 import java.util.ArrayList;
 import java.util.HashMap;
 
-import javax.net.ssl.HttpsURLConnection;
-
 public class EasSyncService extends AbstractSyncService {
 
     private static final String EMAIL_WINDOW_SIZE = "5";
-    private static final String PIM_WINDOW_SIZE = "20";
+    public static final String PIM_WINDOW_SIZE = "20";
     private static final String WHERE_ACCOUNT_KEY_AND_SERVER_ID =
         MailboxColumns.ACCOUNT_KEY + "=? and " + MailboxColumns.SERVER_ID + "=?";
     private static final String WHERE_ACCOUNT_AND_SYNC_INTERVAL_PING =
@@ -90,7 +91,11 @@ public class EasSyncService extends AbstractSyncService {
         MailboxColumns.ACCOUNT_KEY + "=? and " + MailboxColumns.SYNC_INTERVAL +
         '=' + Account.CHECK_INTERVAL_PUSH_HOLD;
 
-    static private final int CHUNK_SIZE = 16 * 1024;
+    static private final int CHUNK_SIZE = 16*1024;
+
+    static private final String PING_COMMAND = "Ping";
+    static private final int COMMAND_TIMEOUT = 20*SECS;
+    static private final int PING_COMMAND_TIMEOUT = 20*MINS;
 
     // Reasonable default
     String mProtocolVersion = "2.5";
@@ -100,7 +105,6 @@ public class EasSyncService extends AbstractSyncService {
     AbstractSyncAdapter mTarget;
     String mAuthString = null;
     String mCmdString = null;
-    String mVersions;
     public String mHostAddress;
     public String mUserName;
     public String mPassword;
@@ -169,8 +173,8 @@ public class EasSyncService extends AbstractSyncService {
             svc.mPassword = password;
             svc.mSsl = ssl;
             svc.mDeviceId = SyncManager.getDeviceId();
-            HttpURLConnection uc = svc.setupEASCommand("OPTIONS", null);
-            int code = uc.getResponseCode();
+            HttpResponse resp = svc.sendHttpClientOptions();
+            int code = resp.getStatusLine().getStatusCode();
             userLog("Validation (OPTIONS) response: " + code);
             if (code == HttpURLConnection.HTTP_OK) {
                 // No exception means successful validation
@@ -190,19 +194,6 @@ public class EasSyncService extends AbstractSyncService {
             throw new MessagingException(MessagingException.IOERROR);
         }
 
-    }
-
-    protected HttpURLConnection sendEASPostCommand(String cmd, String data) throws IOException {
-        HttpURLConnection uc = setupEASCommand("POST", cmd);
-        if (uc != null) {
-            uc.setRequestProperty("Content-Length", Integer.toString(data.length() + 2));
-            OutputStreamWriter w = new OutputStreamWriter(uc.getOutputStream(), "UTF-8");
-            w.write(data);
-            w.write("\r\n");
-            w.flush();
-            w.close();
-        }
-        return uc;
     }
 
     private void doStatusCallback(long messageId, long attachmentId, int status) {
@@ -324,10 +315,6 @@ public class EasSyncService extends AbstractSyncService {
         }
     }
 
-    private HttpURLConnection setupEASCommand(String method, String cmd) throws IOException {
-        return setupEASCommand(method, cmd, null);
-    }
-
     @SuppressWarnings("deprecation")
     private String makeUriString(String cmd, String extra) throws IOException {
          // Cache the authentication string and the command string
@@ -349,46 +336,41 @@ public class EasSyncService extends AbstractSyncService {
         return us;
     }
 
-    private HttpURLConnection setupEASCommand(String method, String cmd, String extra)
-            throws IOException {
-        try {
-            String us = makeUriString(cmd, extra);
-            URL u = new URL(us);
-            HttpURLConnection uc = (HttpURLConnection)u.openConnection();
-            HttpURLConnection.setFollowRedirects(true);
+    private void setHeaders(HttpRequestBase method) {
+        method.setHeader("Authorization", mAuthString);
+        method.setHeader("MS-ASProtocolVersion", mProtocolVersion);
+        method.setHeader("Connection", "keep-alive");
+        method.setHeader("User-Agent", mDeviceType + '/' + Eas.VERSION);
+    }
 
-            if (mSsl) {
-                ((HttpsURLConnection)uc).setHostnameVerifier(new AllowAllHostnameVerifier());
-            }
+    private HttpClient getHttpClient(int timeout) {
+        HttpParams params = new BasicHttpParams();
+        HttpConnectionParams.setConnectionTimeout(params, 10*SECS);
+        HttpConnectionParams.setSoTimeout(params, timeout);
+        return new DefaultHttpClient(params);
+    }
 
-            uc.setConnectTimeout(10 * SECS);
-            uc.setReadTimeout(20 * MINS);
-            if (method.equals("POST")) {
-                uc.setDoOutput(true);
-            }
-            uc.setRequestMethod(method);
-            uc.setRequestProperty("Authorization", mAuthString);
-
-            if (extra == null) {
-                if (cmd != null && cmd.startsWith("SendMail&")) {
-                    uc.setRequestProperty("Content-Type", "message/rfc822");
-                } else {
-                    uc.setRequestProperty("Content-Type", "application/vnd.ms-sync.wbxml");
-                }
-                uc.setRequestProperty("MS-ASProtocolVersion", mProtocolVersion);
-                uc.setRequestProperty("Connection", "keep-alive");
-                uc.setRequestProperty("User-Agent", mDeviceType + '/' + Eas.VERSION);
-            } else {
-                uc.setRequestProperty("Content-Length", "0");
-            }
-
-            return uc;
-        } catch (MalformedURLException e) {
-            // TODO See if there is a better exception to throw here and below
-            throw new IOException();
-        } catch (ProtocolException e) {
-            throw new IOException();
+    protected HttpResponse sendHttpClientPost(String cmd, byte[] bytes) throws IOException {
+        HttpClient client =
+            getHttpClient(cmd.equals(PING_COMMAND) ? PING_COMMAND_TIMEOUT : COMMAND_TIMEOUT);
+        String us = makeUriString(cmd, null);
+        HttpPost method = new HttpPost(URI.create(us));
+        if (cmd.startsWith("SendMail&")) {
+            method.setHeader("Content-Type", "message/rfc822");
+        } else {
+            method.setHeader("Content-Type", "application/vnd.ms-sync.wbxml");
         }
+        setHeaders(method);
+        method.setEntity(new ByteArrayEntity(bytes));
+        return client.execute(method);
+    }
+
+    protected HttpResponse sendHttpClientOptions() throws IOException {
+        HttpClient client = getHttpClient(COMMAND_TIMEOUT);
+        String us = makeUriString("OPTIONS", null);
+        HttpOptions method = new HttpOptions(URI.create(us));
+        setHeaders(method);
+        return client.execute(method);
     }
 
     String getTargetCollectionClassFromCursor(Cursor c) {
@@ -444,54 +426,49 @@ public class EasSyncService extends AbstractSyncService {
             // Determine our protocol version, if we haven't already
             if (mAccount.mProtocolVersion == null) {
                 userLog("Determine EAS protocol version");
-                HttpURLConnection uc = setupEASCommand("OPTIONS", null);
-                if (uc != null) {
-                    int code = uc.getResponseCode();
-                    userLog("OPTIONS response: " + code);
-                    if (code == HttpURLConnection.HTTP_OK) {
-                        mVersions = uc.getHeaderField("ms-asprotocolversions");
-                        if (mVersions != null) {
-                            if (mVersions.contains("12.0")) {
-                                mProtocolVersion = "12.0";
-                            }
-                            mProtocolVersionDouble = Double.parseDouble(mProtocolVersion);
-                            mAccount.mProtocolVersion = mProtocolVersion;
-                            userLog(mVersions);
-                            userLog("Using version " + mProtocolVersion);
-                        } else {
-                            errorLog("No protocol versions in OPTIONS response");
-                            throw new IOException();
+                HttpResponse resp = sendHttpClientOptions();
+                int code = resp.getStatusLine().getStatusCode();
+                userLog("OPTIONS response: " + code);
+                if (code == HttpURLConnection.HTTP_OK) {
+                    Header header = resp.getFirstHeader("ms-asprotocolversions");
+                    String versions = header.getValue();
+                    if (versions != null) {
+                        if (versions.contains("12.0")) {
+                            mProtocolVersion = "12.0";
                         }
+                        mProtocolVersionDouble = Double.parseDouble(mProtocolVersion);
+                        mAccount.mProtocolVersion = mProtocolVersion;
+                        userLog(versions);
+                        userLog("Using version " + mProtocolVersion);
                     } else {
-                        errorLog("OPTIONS command failed; throwing IOException");
+                        errorLog("No protocol versions in OPTIONS response");
                         throw new IOException();
                     }
+                } else {
+                    errorLog("OPTIONS command failed; throwing IOException");
+                    throw new IOException();
                 }
             }
 
              while (!mStop) {
-                userLog("Sending Account syncKey: " + mAccount.mSyncKey);
-                Serializer s = new Serializer();
-                s.start(Tags.FOLDER_FOLDER_SYNC).start(Tags.FOLDER_SYNC_KEY)
-                    .text(mAccount.mSyncKey).end().end().done();
-                HttpURLConnection uc = sendEASPostCommand("FolderSync", s.toString());
-                int code = uc.getResponseCode();
-                if (mStop) break;
-                if (code == HttpURLConnection.HTTP_OK) {
-                    String encoding = uc.getHeaderField("Transfer-Encoding");
-                    if (encoding == null) {
-                        int len = uc.getHeaderFieldInt("Content-Length", 0);
-                        if (len > 0) {
-                            InputStream is = uc.getInputStream();
-                            // Returns true if we need to sync again
-                            if (new FolderSyncParser(is, this).parse()) {
-                                continue;
-                            }
-                        }
-                    } else if (encoding.equalsIgnoreCase("chunked")) {
-                        // TODO We don't handle this yet
-                    }
-                } else if (code == HttpURLConnection.HTTP_UNAUTHORIZED ||
+                 userLog("Sending Account syncKey: " + mAccount.mSyncKey);
+                 Serializer s = new Serializer();
+                 s.start(Tags.FOLDER_FOLDER_SYNC).start(Tags.FOLDER_SYNC_KEY)
+                 .text(mAccount.mSyncKey).end().end().done();
+                 HttpResponse resp = sendHttpClientPost("FolderSync", s.toByteArray());
+                 if (mStop) break;
+                 int code = resp.getStatusLine().getStatusCode();
+                 if (code == HttpURLConnection.HTTP_OK) {
+                     HttpEntity entity = resp.getEntity();
+                     int len = (int)entity.getContentLength();
+                     if (len > 0) {
+                         InputStream is = entity.getContent();
+                         // Returns true if we need to sync again
+                         if (new FolderSyncParser(is, this).parse()) {
+                             continue;
+                         }
+                     }
+                 } else if (code == HttpURLConnection.HTTP_UNAUTHORIZED ||
                         code == HttpURLConnection.HTTP_FORBIDDEN) {
                     mExitStatus = AbstractSyncService.EXIT_LOGIN_FAILURE;
                 } else {
@@ -589,7 +566,6 @@ public class EasSyncService extends AbstractSyncService {
             // Count of mailboxes that can be pushed right now
             int canPushCount = 0;
             Serializer s = new Serializer();
-            HttpURLConnection uc;
             int code;
             Cursor c = mContentResolver.query(Mailbox.CONTENT_URI, Mailbox.CONTENT_PROJECTION,
                     MailboxColumns.ACCOUNT_KEY + '=' + mAccount.mId +
@@ -670,13 +646,14 @@ public class EasSyncService extends AbstractSyncService {
                 // If we have some number that are ready for push, send Ping to the server
                 s.end().end().done();
 
-                uc = sendEASPostCommand("Ping", s.toString());
+                HttpResponse res = sendHttpClientPost(PING_COMMAND, s.toByteArray());
                 Thread.currentThread().setName(mAccount.mDisplayName + ": Ping");
-                userLog("Sending ping, timeout: " + uc.getReadTimeout() / 1000 + "s");
+                //userLog("Sending ping, timeout: " + uc.getReadTimeout() / 1000 + "s");
+
                 // Don't send request if we've been asked to stop
                 if (mStop) return;
                 long time = System.currentTimeMillis();
-                code = uc.getResponseCode();
+                code = res.getStatusLine().getStatusCode();
 
                 // Return immediately if we've been asked to stop
                 if (mStop) {
@@ -689,17 +666,12 @@ public class EasSyncService extends AbstractSyncService {
                 userLog("Ping response: " + code + " in " + time + "ms");
 
                 if (code == HttpURLConnection.HTTP_OK) {
-                    String encoding = uc.getHeaderField("Transfer-Encoding");
-                    if (encoding == null) {
-                        int len = uc.getHeaderFieldInt("Content-Length", 0);
-                        if (len > 0) {
-                            parsePingResult(uc, mContentResolver);
-                        } else {
-                            // This implies a connection issue that we can't handle
-                            throw new IOException();
-                        }
+                    HttpEntity e = res.getEntity();
+                    int len = (int)e.getContentLength();
+                    InputStream is = res.getEntity().getContent();
+                    if (len > 0) {
+                        parsePingResult(is, mContentResolver);
                     } else {
-                        // It shouldn't be possible for EAS server to send chunked data here
                         throw new IOException();
                     }
                 } else if (isAuthError(code)) {
@@ -726,9 +698,9 @@ public class EasSyncService extends AbstractSyncService {
         }
     }
 
-    private int parsePingResult(HttpURLConnection uc, ContentResolver cr)
+    private int parsePingResult(InputStream is, ContentResolver cr)
         throws IOException, StaleFolderListException {
-        PingParser pp = new PingParser(uc.getInputStream(), this);
+        PingParser pp = new PingParser(is, this);
         if (pp.parse()) {
             // True indicates some mailboxes need syncing...
             // syncList has the serverId's of the mailboxes...
@@ -909,10 +881,10 @@ public class EasSyncService extends AbstractSyncService {
             target.sendLocalChanges(s, this);
 
             s.end().end().end().done();
-            HttpURLConnection uc = sendEASPostCommand("Sync", s.toString());
-            int code = uc.getResponseCode();
+            HttpResponse resp = sendHttpClientPost("Sync", s.toByteArray());
+            int code = resp.getStatusLine().getStatusCode();
             if (code == HttpURLConnection.HTTP_OK) {
-                ByteArrayInputStream is = readResponse(uc);
+                 InputStream is = resp.getEntity().getContent();
                 if (is != null) {
                     moreAvailable = target.parse(is, this);
                     target.cleanup(this);

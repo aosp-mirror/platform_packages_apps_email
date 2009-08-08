@@ -977,7 +977,7 @@ public class SyncManager extends Service implements Runnable {
                     }
                 } else {
                     Thread thread = service.mThread;
-                    if (!thread.isAlive()) {
+                    if (thread != null && !thread.isAlive()) {
                         mServiceMap.remove(mid);
                         // Restart this if necessary
                         if (nextWait > 3*SECS) {

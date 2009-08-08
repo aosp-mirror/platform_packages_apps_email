@@ -138,12 +138,15 @@ public abstract class AbstractSyncParser extends Parser {
            }
         }
 
-        // If the sync interval has changed, save the change
-        if (mMailbox.mSyncInterval != interval) {
+        // If the sync interval has changed, or if no commands were parsed save the change
+        if (mMailbox.mSyncInterval != interval || mService.mChangeCount == 0) {
             synchronized (mService.getSynchronizer()) {
                 if (!mService.isStopped()) {
                     // Make sure we save away the new syncFrequency
                     ContentValues cv = new ContentValues();
+                    if (mService.mChangeCount == 0) {
+                        cv.put(MailboxColumns.SYNC_KEY, mMailbox.mSyncKey);
+                    }
                     cv.put(MailboxColumns.SYNC_INTERVAL, mMailbox.mSyncInterval);
                     mMailbox.update(mContext, cv);
                 }

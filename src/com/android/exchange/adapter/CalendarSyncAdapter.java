@@ -20,8 +20,8 @@ package com.android.exchange.adapter;
 import com.android.email.provider.EmailContent.Mailbox;
 import com.android.exchange.EasSyncService;
 
-import java.io.ByteArrayInputStream;
 import java.io.IOException;
+import java.io.InputStream;
 
 /**
  * Sync adapter class for EAS calendars
@@ -31,12 +31,6 @@ public class CalendarSyncAdapter extends AbstractSyncAdapter {
 
     public CalendarSyncAdapter(Mailbox mailbox, EasSyncService service) {
         super(mailbox, service);
-    }
-
-    @Override
-    public boolean parse(ByteArrayInputStream is, EasSyncService service) throws IOException {
-        // TODO Auto-generated method stub
-        return false;
     }
 
     @Override
@@ -53,5 +47,11 @@ public class CalendarSyncAdapter extends AbstractSyncAdapter {
     @Override
     public void cleanup(EasSyncService service) {
         // TODO Auto-generated method stub
+    }
+
+    @Override
+    public boolean parse(InputStream is, EasSyncService service) throws IOException {
+        // TODO Auto-generated method stub
+        return false;
     }
 }

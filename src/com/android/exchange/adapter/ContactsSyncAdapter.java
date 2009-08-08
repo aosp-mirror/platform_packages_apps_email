@@ -54,7 +54,6 @@ import android.text.util.Rfc822Token;
 import android.text.util.Rfc822Tokenizer;
 import android.util.Log;
 
-import java.io.ByteArrayInputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.util.ArrayList;
@@ -100,7 +99,7 @@ public class ContactsSyncAdapter extends AbstractSyncAdapter {
     }
 
     @Override
-    public boolean parse(ByteArrayInputStream is, EasSyncService service) throws IOException {
+    public boolean parse(InputStream is, EasSyncService service) throws IOException {
         EasContactsSyncParser p = new EasContactsSyncParser(is, service);
         return p.parse();
     }
@@ -725,7 +724,9 @@ public class ContactsSyncAdapter extends AbstractSyncAdapter {
         private static final long serialVersionUID = 1L;
         private int mCount = 0;
         private int mContactBackValue = mCount;
-        private int[] mContactIndexArray = new int[10];
+        // Make an array big enough for the PIM window (max items we can get)
+        private int[] mContactIndexArray =
+            new int[Integer.parseInt(EasSyncService.PIM_WINDOW_SIZE)];
         private int mContactIndexCount = 0;
         private ContentProviderResult[] mResults = null;
 

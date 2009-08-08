@@ -20,8 +20,8 @@ package com.android.exchange.adapter;
 import com.android.email.provider.EmailContent.Mailbox;
 import com.android.exchange.EasSyncService;
 
-import java.io.ByteArrayInputStream;
 import java.io.IOException;
+import java.io.InputStream;
 
 /**
  * Parent class of all sync adapters (EasMailbox, EasCalendar, and EasContacts)
@@ -32,11 +32,11 @@ public abstract class AbstractSyncAdapter {
     public EasSyncService mService;
 
     // Create the data for local changes that need to be sent up to the server
-    public abstract boolean sendLocalChanges(Serializer s, EasSyncService service) 
+    public abstract boolean sendLocalChanges(Serializer s, EasSyncService service)
         throws IOException;
     // Parse incoming data from the EAS server, creating, modifying, and deleting objects as
     // required through the EmailProvider
-    public abstract boolean parse(ByteArrayInputStream is, EasSyncService service) 
+    public abstract boolean parse(InputStream is, EasSyncService service)
         throws IOException;
     // The name used to specify the collection type of the target (Email, Calendar, or Contacts)
     public abstract String getCollectionName();

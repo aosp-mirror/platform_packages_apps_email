@@ -37,7 +37,6 @@ import android.database.Cursor;
 import android.os.RemoteException;
 import android.webkit.MimeTypeMap;
 
-import java.io.ByteArrayInputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.util.ArrayList;
@@ -66,7 +65,7 @@ public class EmailSyncAdapter extends AbstractSyncAdapter {
     }
 
     @Override
-    public boolean parse(ByteArrayInputStream is, EasSyncService service) throws IOException {
+    public boolean parse(InputStream is, EasSyncService service) throws IOException {
         EasEmailSyncParser p = new EasEmailSyncParser(is, service);
         return p.parse();
     }
