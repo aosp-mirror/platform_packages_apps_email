@@ -33,6 +33,7 @@ import android.app.PendingIntent;
 import android.app.Service;
 import android.content.BroadcastReceiver;
 import android.content.ContentResolver;
+import android.content.ContentValues;
 import android.content.Context;
 import android.content.Intent;
 import android.content.IntentFilter;
@@ -53,6 +54,13 @@ import android.os.RemoteException;
 import android.os.PowerManager.WakeLock;
 import android.util.Log;
 
+import java.io.BufferedReader;
+import java.io.BufferedWriter;
+import java.io.File;
+import java.io.FileNotFoundException;
+import java.io.FileReader;
+import java.io.FileWriter;
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -86,6 +94,11 @@ public class SyncManager extends Service implements Runnable {
     public static final int SYNC_SERVICE_PART_REQUEST = 5;
     public static final int SYNC_KICK = 6;
 
+    private static final String WHERE_PUSH_OR_PING_NOT_ACCOUNT_MAILBOX =
+        MailboxColumns.ACCOUNT_KEY + "=? and " + MailboxColumns.TYPE + "!=" +
+        Mailbox.TYPE_EAS_ACCOUNT_MAILBOX + " and " + MailboxColumns.SYNC_INTERVAL +
+        " IN (" + Account.CHECK_INTERVAL_PING + ',' + Account.CHECK_INTERVAL_PUSH + ')';
+
     // Offsets into the syncStatus data for EAS that indicate type, exit status, and change count
     // The format is S<type_char>:<exit_char>:<change_count>
     public static final int STATUS_TYPE_CHAR = 1;
@@ -107,6 +120,7 @@ public class SyncManager extends Service implements Runnable {
     String mNextWaitReason;
     IEmailServiceCallback mCallback;
     ConnectivityReceiver mConnectivityReceiver = null;
+    String mDeviceId = null;
 
     RemoteCallbackList<IEmailServiceCallback> mCallbackList =
         new RemoteCallbackList<IEmailServiceCallback>();
@@ -191,7 +205,7 @@ public class SyncManager extends Service implements Runnable {
         }
 
         public void updateFolderList(long accountId) throws RemoteException {
-            reloadFolderList(SyncManager.this, accountId);
+            reloadFolderList(SyncManager.this, accountId, false);
         }
 
         public void setLogging(boolean on) throws RemoteException {
@@ -314,7 +328,7 @@ public class SyncManager extends Service implements Runnable {
             }
 
             // See if there's anything to do...
-            kick();
+            kick("account changed");
         }
 
         void collectEasAccounts(Cursor c, ArrayList<Account> accounts) {
@@ -378,7 +392,9 @@ public class SyncManager extends Service implements Runnable {
         @Override
         public void onChange(boolean selfChange) {
             // See if there's anything to do...
-            kick();
+            if (!selfChange) {
+                kick("mailbox changed");
+            }
         }
     }
 
@@ -413,7 +429,9 @@ public class SyncManager extends Service implements Runnable {
         public void onChange(boolean selfChange) {
             // A rather blunt instrument here.  But we don't have information about the URI that
             // triggered this, though it must have been an insert
-            kick();
+            if (!selfChange) {
+                kick(null);
+            }
         }
     }
 
@@ -491,9 +509,58 @@ public class SyncManager extends Service implements Runnable {
         } else {
             log("Attempt to start SyncManager though already started before?");
         }
+
+        mDeviceId = android.provider.Settings.Secure.getString(getContentResolver(),
+                android.provider.Settings.Secure.ANDROID_ID);
+
+
     }
 
-    static public void reloadFolderList(Context context, long accountId) {
+    /**
+     * EAS requires a unique device id, so that sync is possible from a variety of different
+     * devices (e.g. the syncKey is specific to a device)  If we're on an emulator or some other
+     * device that doesn't provide one, we can create it as droid<n> where <n> is system time.
+     * This would work on a real device as well, but it would be better to use the "real" id if
+     * it's available
+     */
+    static public synchronized String getDeviceId() throws IOException {
+        if (INSTANCE == null) {
+            throw new IOException();
+        }
+        // If we've already got the id, return it
+
+        if (INSTANCE.mDeviceId != null) {
+            return INSTANCE.mDeviceId;
+        }
+
+        // Otherwise, we'll read the id file or create one if it's not found
+        try {
+            File f = INSTANCE.getFileStreamPath("deviceName");
+            BufferedReader rdr = null;
+            String id;
+            if (f.exists() && f.canRead()) {
+                rdr = new BufferedReader(new FileReader(f), 128);
+                id = rdr.readLine();
+                rdr.close();
+                return id;
+            } else if (f.createNewFile()) {
+                BufferedWriter w = new BufferedWriter(new FileWriter(f), 128);
+                id = "droid" + System.currentTimeMillis();
+                w.write(id);
+                w.close();
+                return id;
+            }
+        } catch (FileNotFoundException e) {
+            // We'll just use the default below
+            Log.e(TAG, "Can't get device name");
+        } catch (IOException e) {
+            // We'll just use the default below
+            Log.e(TAG, "Can't get device name");
+        }
+        throw new IOException();
+    }
+
+   static public void reloadFolderList(Context context, long accountId, boolean force) {
         Cursor c = context.getContentResolver().query(Mailbox.CONTENT_URI,
                 Mailbox.CONTENT_PROJECTION, MailboxColumns.ACCOUNT_KEY + "=? AND " +
                 MailboxColumns.TYPE + "=?",
@@ -505,9 +572,18 @@ public class SyncManager extends Service implements Runnable {
                     Mailbox m = new Mailbox().restore(c);
                     String syncKey = m.mSyncKey;
                     // No need to reload the list if we don't have one
-                    if (syncKey == null || syncKey.equals("0")) {
+                    if (!force && (syncKey == null || syncKey.equals("0"))) {
                         return;
                     }
+
+                    // Change all ping/push boxes to push/hold
+                    ContentValues cv = new ContentValues();
+                    cv.put(Mailbox.SYNC_INTERVAL, Account.CHECK_INTERVAL_PUSH_HOLD);
+                    context.getContentResolver().update(Mailbox.CONTENT_URI, cv,
+                            WHERE_PUSH_OR_PING_NOT_ACCOUNT_MAILBOX,
+                            new String[] {Long.toString(accountId)});
+                    INSTANCE.log("Set push/ping boxes to push/hold");
+
                     long id = m.mId;
                     AbstractSyncService svc = INSTANCE.mServiceMap.get(id);
                     // Tell the service we're done
@@ -522,7 +598,7 @@ public class SyncManager extends Service implements Runnable {
                         // Abandon the service
                         INSTANCE.mServiceMap.remove(id);
                         // And have it start naturally
-                        kick();
+                        kick("reload folder list");
                     }
                 }
             }
@@ -542,7 +618,7 @@ public class SyncManager extends Service implements Runnable {
         if (INSTANCE != null) {
             AccountObserver obs = INSTANCE.mAccountObserver;
             obs.stopAccountSyncs(acctId, false);
-            obs.addAccountMailbox(acctId);
+            //obs.addAccountMailbox(acctId);
         }
     }
 
@@ -550,7 +626,9 @@ public class SyncManager extends Service implements Runnable {
         synchronized (mWakeLocks) {
             Boolean lock = mWakeLocks.get(id);
             if (lock == null) {
-                INSTANCE.log("+WakeLock requested for " + alarmOwner(id));
+                if (id > 0) {
+                    INSTANCE.log("+WakeLock requested for " + alarmOwner(id));
+                }
                 if (mWakeLock == null) {
                     PowerManager pm = (PowerManager)INSTANCE
                             .getSystemService(Context.POWER_SERVICE);
@@ -567,7 +645,9 @@ public class SyncManager extends Service implements Runnable {
         synchronized (mWakeLocks) {
             Boolean lock = mWakeLocks.get(id);
             if (lock != null) {
-                INSTANCE.log("+WakeLock not needed for " + alarmOwner(id));
+                if (id > 0) {
+                    INSTANCE.log("+WakeLock not needed for " + alarmOwner(id));
+                }
                 mWakeLocks.remove(id);
                 if (mWakeLocks.isEmpty()) {
                     if (mWakeLock != null) {
@@ -613,7 +693,7 @@ public class SyncManager extends Service implements Runnable {
                 AlarmManager alarmManager = (AlarmManager)INSTANCE
                         .getSystemService(Context.ALARM_SERVICE);
                 alarmManager.set(AlarmManager.RTC_WAKEUP, System.currentTimeMillis() + millis, pi);
-                INSTANCE.log("+Alarm set for " + alarmOwner(id) + ", " + millis + "ms");
+                INSTANCE.log("+Alarm set for " + alarmOwner(id) + ", " + millis/1000 + "s");
             }
         }
     }
@@ -640,7 +720,7 @@ public class SyncManager extends Service implements Runnable {
 
     static public void ping(long id) {
         if (id < 0) {
-            kick();
+            kick("ping SyncManager");
         } else {
             AbstractSyncService service = INSTANCE.mServiceMap.get(id);
             if (service != null) {
@@ -677,12 +757,12 @@ public class SyncManager extends Service implements Runnable {
                 State state = a.getState();
                 if (state == State.CONNECTED) {
                     info += " CONNECTED";
-                    kick();
+                    kick("connected");
                 } else if (state == State.CONNECTING) {
                     info += " CONNECTING";
                 } else if (state == State.DISCONNECTED) {
                     info += " DISCONNECTED";
-                    kick();
+                    kick("disconnected");
                 } else if (state == State.DISCONNECTING) {
                     info += " DISCONNECTING";
                 } else if (state == State.SUSPENDED) {
@@ -827,19 +907,26 @@ public class SyncManager extends Service implements Runnable {
 
     long checkMailboxes () {
         // First, see if any running mailboxes have been deleted
-        ArrayList<Long> deadMailboxes = new ArrayList<Long>();
+        ArrayList<Long> deletedMailboxes = new ArrayList<Long>();
         synchronized (mSyncToken) {
             for (long mailboxId: mServiceMap.keySet()) {
                 Mailbox m = Mailbox.restoreMailboxWithId(INSTANCE, mailboxId);
                 if (m == null) {
-                    deadMailboxes.add(mailboxId);
-                    log("Stopping sync for mailbox " + mailboxId + "; record not found.");
+                    deletedMailboxes.add(mailboxId);
                 }
             }
         }
-        // If so, stop them
-        for (Long mailboxId: deadMailboxes) {
-            stopManualSync(mailboxId);
+        // If so, stop them or remove them from the map
+        for (Long mailboxId: deletedMailboxes) {
+            AbstractSyncService svc = mServiceMap.get(mailboxId);
+            boolean alive = svc.mThread.isAlive();
+            log("Deleted mailbox: " + svc.mMailboxName);
+            if (alive) {
+                stopManualSync(mailboxId);
+            } else {
+                log("Removing from serviceMap");
+                mServiceMap.remove(mailboxId);
+            }
         }
 
         long nextWait = 10*MINS;
@@ -938,7 +1025,7 @@ public class SyncManager extends Service implements Runnable {
             AbstractSyncService service = INSTANCE.mServiceMap.get(mailboxId);
             if (service != null) {
                 service.mRequestTime = System.currentTimeMillis() + ms;
-                kick();
+                kick("service request");
             } else {
                 startManualSync(mailboxId, reason, null);
             }
@@ -952,9 +1039,11 @@ public class SyncManager extends Service implements Runnable {
         if (service != null) {
             service.mRequestTime = System.currentTimeMillis();
             Mailbox m = Mailbox.restoreMailboxWithId(INSTANCE, mailboxId);
-            service.mAccount = Account.restoreAccountWithId(INSTANCE, m.mAccountKey);
-            service.mMailbox = m;
-            kick();
+            if (m != null) {
+                service.mAccount = Account.restoreAccountWithId(INSTANCE, m.mAccountKey);
+                service.mMailbox = m;
+                kick("service request immediate");
+            }
         }
     }
 
@@ -968,7 +1057,7 @@ public class SyncManager extends Service implements Runnable {
 
         if (service == null) {
             service = startManualSync(mailboxId, SYNC_SERVICE_PART_REQUEST, req);
-            kick();
+            kick("part request");
         } else {
             service.addPartRequest(req);
         }
@@ -1070,8 +1159,11 @@ public class SyncManager extends Service implements Runnable {
     /**
      * Wake up SyncManager to check for mailboxes needing service
      */
-    static public void kick() {
+    static public void kick(String reason) {
         if (INSTANCE != null) {
+            //if (reason != null) {
+            //    INSTANCE.log("Kick: " + reason);
+            //}
             synchronized (INSTANCE) {
                 INSTANCE.notify();
             }
@@ -1124,7 +1216,7 @@ public class SyncManager extends Service implements Runnable {
                     } else {
                         errorMap.put(mailboxId, INSTANCE.new SyncError(exitStatus, false));
                     }
-                    kick();
+                    kick("i/o error in sync");
                     break;
                 case AbstractSyncService.EXIT_LOGIN_FAILURE:
                 case AbstractSyncService.EXIT_EXCEPTION:
@@ -1136,7 +1228,7 @@ public class SyncManager extends Service implements Runnable {
 
     public static void shutdown() {
         INSTANCE.mStop = true;
-        kick();
+        kick("shutdown");
         INSTANCE.stopSelf();
     }
 

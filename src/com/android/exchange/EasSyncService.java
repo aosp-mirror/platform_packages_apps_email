@@ -56,14 +56,9 @@ import android.content.Intent;
 import android.database.Cursor;
 import android.os.RemoteException;
 
-import java.io.BufferedReader;
-import java.io.BufferedWriter;
 import java.io.ByteArrayInputStream;
 import java.io.File;
-import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
-import java.io.FileReader;
-import java.io.FileWriter;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStreamWriter;
@@ -84,20 +79,24 @@ public class EasSyncService extends AbstractSyncService {
     private static final String PIM_WINDOW_SIZE = "20";
     private static final String WHERE_ACCOUNT_KEY_AND_SERVER_ID =
         MailboxColumns.ACCOUNT_KEY + "=? and " + MailboxColumns.SERVER_ID + "=?";
-    private static final String WHERE_SYNC_INTERVAL_PING =
-        Mailbox.SYNC_INTERVAL + '=' + Account.CHECK_INTERVAL_PING;
+    private static final String WHERE_ACCOUNT_AND_SYNC_INTERVAL_PING =
+        MailboxColumns.ACCOUNT_KEY + "=? and " + MailboxColumns.SYNC_INTERVAL +
+        '=' + Account.CHECK_INTERVAL_PING;
     private static final String AND_FREQUENCY_PING_PUSH_AND_NOT_ACCOUNT_MAILBOX = " AND " +
         MailboxColumns.SYNC_INTERVAL + " IN (" + Account.CHECK_INTERVAL_PING +
         ',' + Account.CHECK_INTERVAL_PUSH + ") AND " + MailboxColumns.TYPE + "!=\"" +
         Mailbox.TYPE_EAS_ACCOUNT_MAILBOX + '\"';
+    private static final String WHERE_PUSH_HOLD_NOT_ACCOUNT_MAILBOX =
+        MailboxColumns.ACCOUNT_KEY + "=? and " + MailboxColumns.SYNC_INTERVAL +
+        '=' + Account.CHECK_INTERVAL_PUSH_HOLD;
 
     static private final int CHUNK_SIZE = 16 * 1024;
 
     // Reasonable default
     String mProtocolVersion = "2.5";
     public Double mProtocolVersionDouble;
-    static String mDeviceId = null;
-    static String mDeviceType = "Android";
+    private String mDeviceId = null;
+    private String mDeviceType = "Android";
     AbstractSyncAdapter mTarget;
     String mAuthString = null;
     String mCmdString = null;
@@ -163,17 +162,16 @@ public class EasSyncService extends AbstractSyncService {
             boolean ssl, Context context) throws MessagingException {
         try {
             userLog("Testing EAS: " + hostAddress + ", " + userName + ", ssl = " + ssl);
-            Serializer s = new Serializer();
-            s.start(Tags.FOLDER_FOLDER_SYNC).start(Tags.FOLDER_SYNC_KEY).text("0")
-                .end().end().done();
             EasSyncService svc = new EasSyncService("%TestAccount%");
+            svc.mContext = context;
             svc.mHostAddress = hostAddress;
             svc.mUserName = userName;
             svc.mPassword = password;
             svc.mSsl = ssl;
-            HttpURLConnection uc = svc.sendEASPostCommand("FolderSync", s.toString());
+            svc.mDeviceId = SyncManager.getDeviceId();
+            HttpURLConnection uc = svc.setupEASCommand("OPTIONS", null);
             int code = uc.getResponseCode();
-            userLog("Validation response code: " + code);
+            userLog("Validation (OPTIONS) response: " + code);
             if (code == HttpURLConnection.HTTP_OK) {
                 // No exception means successful validation
                 userLog("Validation successful");
@@ -331,10 +329,8 @@ public class EasSyncService extends AbstractSyncService {
     }
 
     @SuppressWarnings("deprecation")
-    private String makeUriString(String cmd, String extra) {
+    private String makeUriString(String cmd, String extra) throws IOException {
          // Cache the authentication string and the command string
-        if (mDeviceId == null)
-            mDeviceId = "droidfu";
         String safeUserName = URLEncoder.encode(mUserName);
         if (mAuthString == null) {
             String cs = mUserName + ':' + mPassword;
@@ -342,7 +338,6 @@ public class EasSyncService extends AbstractSyncService {
             mCmdString = "&User=" + safeUserName + "&DeviceId=" + mDeviceId + "&DeviceType="
                     + mDeviceType;
         }
-
         String us = (mSsl ? "https" : "http") + "://" + mHostAddress +
             "/Microsoft-Server-ActiveSync";
         if (cmd != null) {
@@ -432,7 +427,8 @@ public class EasSyncService extends AbstractSyncService {
                 mAccount.update(mContext, cv);
             }
 
-            if (mAccount.mSyncKey.equals("0")) {
+            boolean firstSync = mAccount.mSyncKey.equals("0");
+            if (firstSync) {
                 userLog("Initial FolderSync");
             }
 
@@ -440,8 +436,9 @@ public class EasSyncService extends AbstractSyncService {
             ContentValues cv = new ContentValues();
             cv.put(Mailbox.SYNC_INTERVAL, Account.CHECK_INTERVAL_PUSH);
             if (mContentResolver.update(Mailbox.CONTENT_URI, cv,
-                    WHERE_SYNC_INTERVAL_PING, null) > 0) {
-                SyncManager.kick();
+                    WHERE_ACCOUNT_AND_SYNC_INTERVAL_PING,
+                    new String[] {Long.toString(mAccount.mId)}) > 0) {
+                SyncManager.kick("change ping boxes to push");
             }
 
             // Determine our protocol version, if we haven't already
@@ -472,7 +469,7 @@ public class EasSyncService extends AbstractSyncService {
                 }
             }
 
-            while (!mStop) {
+             while (!mStop) {
                 userLog("Sending Account syncKey: " + mAccount.mSyncKey);
                 Serializer s = new Serializer();
                 s.start(Tags.FOLDER_FOLDER_SYNC).start(Tags.FOLDER_SYNC_KEY)
@@ -501,9 +498,18 @@ public class EasSyncService extends AbstractSyncService {
                     userLog("FolderSync response error: " + code);
                 }
 
+                // Change all push/hold boxes to push
+                cv = new ContentValues();
+                cv.put(Mailbox.SYNC_INTERVAL, Account.CHECK_INTERVAL_PUSH);
+                if (mContentResolver.update(Mailbox.CONTENT_URI, cv,
+                        WHERE_PUSH_HOLD_NOT_ACCOUNT_MAILBOX,
+                        new String[] {Long.toString(mAccount.mId)}) > 0) {
+                    userLog("Set push/hold boxes to push...");
+                }
+
                 try {
                     SyncManager.callback()
-                    .syncMailboxListStatus(mAccount.mId, mExitStatus, 0);
+                        .syncMailboxListStatus(mAccount.mId, mExitStatus, 0);
                 } catch (RemoteException e1) {
                     // Don't care if this fails
                 }
@@ -539,7 +545,7 @@ public class EasSyncService extends AbstractSyncService {
         // We'll try reloading folders first; this has been observed to work in some cases
         if (!mTriedReloadFolderList) {
             errorLog("*** PING LOOP: Trying to reload folder list...");
-            SyncManager.reloadFolderList(mContext, mAccount.mId);
+            SyncManager.reloadFolderList(mContext, mAccount.mId, true);
             mTriedReloadFolderList = true;
         // If we've tried that, set all mailboxes (except the account mailbox) to 5 minute sync
         } else {
@@ -823,37 +829,6 @@ public class EasSyncService extends AbstractSyncService {
     }
 
     /**
-     * EAS requires a unique device id, so that sync is possible from a variety of different
-     * devices (e.g. the syncKey is specific to a device)  If we're on an emulator or some other
-     * device that doesn't provide one, we can create it as droid<n> where <n> is system time.
-     * This would work on a real device as well, but it would be better to use the "real" id if
-     * it's available
-     */
-    private String getSimulatedDeviceId() {
-        try {
-            File f = mContext.getFileStreamPath("deviceName");
-            BufferedReader rdr = null;
-            String id;
-            if (f.exists() && f.canRead()) {
-                rdr = new BufferedReader(new FileReader(f), 128);
-                id = rdr.readLine();
-                rdr.close();
-                return id;
-            } else if (f.createNewFile()) {
-                BufferedWriter w = new BufferedWriter(new FileWriter(f));
-                id = "droid" + System.currentTimeMillis();
-                w.write(id);
-                w.close();
-            }
-        } catch (FileNotFoundException e) {
-            // We'll just use the default below
-        } catch (IOException e) {
-            // We'll just use the default below
-        }
-        return "droid0";
-    }
-
-    /**
      * Common code to sync E+PIM data
      *
      * @param target, an EasMailbox, EasContacts, or EasCalendar object
@@ -886,7 +861,6 @@ public class EasSyncService extends AbstractSyncService {
             if (mailbox.mSyncKey == null) {
                 userLog("Mailbox syncKey RESET");
                 mailbox.mSyncKey = "0";
-                mailbox.mSyncInterval = target.mService.mAccount.mSyncInterval;
             }
             String className = target.getCollectionName();
             userLog("Sending " + className + " syncKey: " + mailbox.mSyncKey);
@@ -959,12 +933,7 @@ public class EasSyncService extends AbstractSyncService {
     public void run() {
         mThread = Thread.currentThread();
         TAG = mThread.getName();
-        mDeviceId = android.provider.Settings.Secure.getString(mContext.getContentResolver(),
-                android.provider.Settings.Secure.ANDROID_ID);
-        // Generate a device id if we don't have one
-        if (mDeviceId == null) {
-            mDeviceId = getSimulatedDeviceId();
-        }
+
         HostAuth ha = HostAuth.restoreHostAuthWithId(mContext, mAccount.mHostAuthKeyRecv);
         mHostAddress = ha.mAddress;
         mUserName = ha.mLogin;
@@ -982,6 +951,7 @@ public class EasSyncService extends AbstractSyncService {
         // Whether or not we're the account mailbox
         boolean accountMailbox = false;
         try {
+            mDeviceId = SyncManager.getDeviceId();
             if (mMailbox == null || mAccount == null) {
                 return;
             } else if (mMailbox.mType == Mailbox.TYPE_EAS_ACCOUNT_MAILBOX) {
@@ -1020,9 +990,6 @@ public class EasSyncService extends AbstractSyncService {
                 // If this is the account mailbox, wake up SyncManager
                 // Because this box has a "push" interval, it will be restarted immediately
                 // which will cause the folder list to be reloaded...
-                if (accountMailbox) {
-                    SyncManager.kick();
-                }
                 try {
                     int status;
                     switch (mExitStatus) {
@@ -1054,6 +1021,11 @@ public class EasSyncService extends AbstractSyncService {
             } else {
                 userLog(mMailbox.mDisplayName + ": stopped thread finished.");
             }
-        }
+
+            // Make sure this gets restarted...
+            if (accountMailbox) {
+                SyncManager.kick("account mailbox stopped");
+            }
+       }
     }
 }

@@ -442,15 +442,15 @@ public class EmailSyncAdapter extends AbstractSyncAdapter {
                 if (mService.isStopped()) return;
                 try {
                     mService.mContext.getContentResolver()
-                    .applyBatch(EmailProvider.EMAIL_AUTHORITY, ops);
+                        .applyBatch(EmailProvider.EMAIL_AUTHORITY, ops);
+                    mService.userLog(mMailbox.mDisplayName +
+                            " SyncKey saved as: " + mMailbox.mSyncKey);
                 } catch (RemoteException e) {
                     // There is nothing to be done here; fail by returning null
                 } catch (OperationApplicationException e) {
                     // There is nothing to be done here; fail by returning null
                 }
             }
-
-            mService.userLog(mMailbox.mDisplayName + " SyncKey saved as: " + mMailbox.mSyncKey);
         }
 
     }

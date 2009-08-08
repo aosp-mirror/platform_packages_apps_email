@@ -69,7 +69,10 @@ public class FolderSyncParser extends Parser {
     public static final List<Integer> mValidFolderTypes = Arrays.asList(INBOX_TYPE, DRAFTS_TYPE,
             DELETED_TYPE, SENT_TYPE, OUTBOX_TYPE, USER_MAILBOX_TYPE, CALENDAR_TYPE, CONTACTS_TYPE);
 
-    private static final String WHERE_SERVER_ID_AND_ACCOUNT = MailboxColumns.SERVER_ID + "=? and " +
+    public static final String ALL_BUT_ACCOUNT_MAILBOX = MailboxColumns.ACCOUNT_KEY + "=? and " +
+        MailboxColumns.TYPE + "!=" + Mailbox.TYPE_EAS_ACCOUNT_MAILBOX;
+
+   private static final String WHERE_SERVER_ID_AND_ACCOUNT = MailboxColumns.SERVER_ID + "=? and " +
         MailboxColumns.ACCOUNT_KEY + "=?";
 
     private static final String WHERE_DISPLAY_NAME_AND_ACCOUNT = MailboxColumns.DISPLAY_NAME +
@@ -117,8 +120,8 @@ public class FolderSyncParser extends Parser {
                     if (status == Eas.FOLDER_STATUS_INVALID_KEY) {
                         mAccount.mSyncKey = "0";
                         mService.errorLog("Bad sync key; RESET and delete all folders");
-                        mContentResolver.delete(Mailbox.CONTENT_URI,
-                                MailboxColumns.ACCOUNT_KEY + '=' + mAccountId, null);
+                        mContentResolver.delete(Mailbox.CONTENT_URI, ALL_BUT_ACCOUNT_MAILBOX,
+                                new String[] {Long.toString(mAccountId)});
                         // Stop existing syncs and reconstruct _main
                         SyncManager.folderListReloaded(mAccountId);
                         res = true;

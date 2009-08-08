@@ -670,8 +670,6 @@ public class ContactsSyncAdapter extends AbstractSyncAdapter {
             ContentValues cv = new ContentValues();
             cv.put(MailboxColumns.SYNC_KEY, mMailbox.mSyncKey);
             Mailbox.update(mContext, Mailbox.CONTENT_URI, mMailbox.mId, cv);
-
-            mService.userLog("Contacts SyncKey confirmed as: " + mMailbox.mSyncKey);
         }
     }
 

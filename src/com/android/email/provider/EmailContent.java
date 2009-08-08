@@ -767,7 +767,12 @@ public abstract class EmailContent {
 
         public static final int CHECK_INTERVAL_NEVER = -1;
         public static final int CHECK_INTERVAL_PUSH = -2;
+
+        // For EAS...
+        // Ping indicates that the box is pushed via a "ping" from the server
         public static final int CHECK_INTERVAL_PING = -3;
+        // PingHold indicates a push or ping box that shouldn't sync just yet
+        public static final int CHECK_INTERVAL_PUSH_HOLD = -4;
 
         public static final int SYNC_WINDOW_USER = -1;
 

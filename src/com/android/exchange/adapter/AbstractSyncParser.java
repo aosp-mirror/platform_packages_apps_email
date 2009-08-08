@@ -83,6 +83,8 @@ public abstract class AbstractSyncParser extends Parser {
     public boolean parse() throws IOException {
         int status;
         boolean moreAvailable = false;
+        int interval = mMailbox.mSyncInterval;
+
         // If we're not at the top of the xml tree, throw an exception
         if (nextTag(START_DOCUMENT) != Tags.SYNC_SYNC) {
             throw new IOException();
@@ -110,7 +112,7 @@ public abstract class AbstractSyncParser extends Parser {
                     } else if (status == 8) {
                         // This is Bad; it means the server doesn't recognize the serverId it
                         // sent us.  What's needed is a refresh of the folder list.
-                        SyncManager.reloadFolderList(mContext, mAccount.mId);
+                        SyncManager.reloadFolderList(mContext, mAccount.mId, true);
                     }
                     // TODO Look at other error codes and consider what's to be done
                 }
@@ -121,8 +123,9 @@ public abstract class AbstractSyncParser extends Parser {
             } else if (tag == Tags.SYNC_MORE_AVAILABLE) {
                 moreAvailable = true;
             } else if (tag == Tags.SYNC_SYNC_KEY) {
-                if (mMailbox.mSyncKey.equals("0"))
+                if (mMailbox.mSyncKey.equals("0")) {
                     moreAvailable = true;
+                }
                 String newKey = getValue();
                 mService.userLog("Parsed key for " + mMailbox.mDisplayName + ": " + newKey);
                 mMailbox.mSyncKey = newKey;
@@ -135,16 +138,18 @@ public abstract class AbstractSyncParser extends Parser {
            }
         }
 
-        synchronized (mService.getSynchronizer()) {
-            if (!mService.isStopped()) {
-                // Make sure we save away the new syncKey, syncFrequency, etc.
-                ContentValues cv = new ContentValues();
-                cv.put(MailboxColumns.SYNC_KEY, mMailbox.mSyncKey);
-                cv.put(MailboxColumns.SYNC_INTERVAL, mMailbox.mSyncInterval);
-                mMailbox.update(mContext, cv);
-                mService.userLog(mMailbox.mDisplayName + " SyncKey saved as: " + mMailbox.mSyncKey);
+        // If the sync interval has changed, save the change
+        if (mMailbox.mSyncInterval != interval) {
+            synchronized (mService.getSynchronizer()) {
+                if (!mService.isStopped()) {
+                    // Make sure we save away the new syncFrequency
+                    ContentValues cv = new ContentValues();
+                    cv.put(MailboxColumns.SYNC_INTERVAL, mMailbox.mSyncInterval);
+                    mMailbox.update(mContext, cv);
+                }
             }
         }
+
         // Let the caller know that there's more to do
         return moreAvailable;
     }
