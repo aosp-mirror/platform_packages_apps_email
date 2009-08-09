@@ -146,7 +146,7 @@ public class EasSyncService extends AbstractSyncService {
     @Override
     public void stop() {
         mStop = true;
-     }
+    }
 
     @Override
     public int getSyncStatus() {
@@ -965,34 +965,34 @@ public class EasSyncService extends AbstractSyncService {
                 // If this is the account mailbox, wake up SyncManager
                 // Because this box has a "push" interval, it will be restarted immediately
                 // which will cause the folder list to be reloaded...
+                int status;
+                switch (mExitStatus) {
+                    case EXIT_IO_ERROR:
+                        status = EmailServiceStatus.CONNECTION_ERROR;
+                        break;
+                    case EXIT_DONE:
+                        status = EmailServiceStatus.SUCCESS;
+                        break;
+                    case EXIT_LOGIN_FAILURE:
+                        status = EmailServiceStatus.LOGIN_FAILED;
+                        break;
+                    default:
+                        status = EmailServiceStatus.REMOTE_EXCEPTION;
+                        break;
+                }
                 try {
-                    int status;
-                    switch (mExitStatus) {
-                        case EXIT_IO_ERROR:
-                            status = EmailServiceStatus.CONNECTION_ERROR;
-                            break;
-                        case EXIT_DONE:
-                            status = EmailServiceStatus.SUCCESS;
-                            break;
-                        case EXIT_LOGIN_FAILURE:
-                            status = EmailServiceStatus.LOGIN_FAILED;
-                            break;
-                        default:
-                            status = EmailServiceStatus.REMOTE_EXCEPTION;
-                            break;
-                    }
                     SyncManager.callback().syncMailboxStatus(mMailboxId, status, 0);
-
-                    // Save the sync time and status
-                    ContentValues cv = new ContentValues();
-                    cv.put(Mailbox.SYNC_TIME, System.currentTimeMillis());
-                    String s = "S" + mSyncReason + ':' + status + ':' + mChangeCount;
-                    cv.put(Mailbox.SYNC_STATUS, s);
-                    mContentResolver.update(ContentUris
-                            .withAppendedId(Mailbox.CONTENT_URI, mMailboxId), cv, null, null);
                 } catch (RemoteException e1) {
                     // Don't care if this fails
                 }
+
+                // Save the sync time and status
+                ContentValues cv = new ContentValues();
+                cv.put(Mailbox.SYNC_TIME, System.currentTimeMillis());
+                String s = "S" + mSyncReason + ':' + status + ':' + mChangeCount;
+                cv.put(Mailbox.SYNC_STATUS, s);
+                mContentResolver.update(ContentUris
+                        .withAppendedId(Mailbox.CONTENT_URI, mMailboxId), cv, null, null);
             } else {
                 userLog(mMailbox.mDisplayName + ": stopped thread finished.");
             }
