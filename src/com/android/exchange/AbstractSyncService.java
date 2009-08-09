@@ -200,23 +200,6 @@ public abstract class AbstractSyncService implements Runnable {
     }
 
     /**
-     * Asks SyncManager for a WaitLock for this sync
-     */
-    public final void runAwake() {
-        //SyncManager.runAwake(mMailboxId);
-    }
-
-    /**
-     * Asks SyncManager to release any WaitLock and schedule an alarm at a specified number
-     * of milliseconds in the future
-     *
-     * @param millis
-     */
-    public final void runAsleep(long millis) {
-        //SyncManager.runAsleep(mMailboxId, millis);
-    }
-
-    /**
      * Convenience method to do user logging (i.e. connection activity).  Saves a bunch of
      * repetitive code.
      *

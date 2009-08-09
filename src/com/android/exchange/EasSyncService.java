@@ -464,6 +464,7 @@ public class EasSyncService extends AbstractSyncService {
                      if (len > 0) {
                          InputStream is = entity.getContent();
                          // Returns true if we need to sync again
+                         userLog("FolderSync, deviceId = " + mDeviceId);
                          if (new FolderSyncParser(is, this).parse()) {
                              continue;
                          }
@@ -646,9 +647,12 @@ public class EasSyncService extends AbstractSyncService {
                 // If we have some number that are ready for push, send Ping to the server
                 s.end().end().done();
 
-                HttpResponse res = sendHttpClientPost(PING_COMMAND, s.toByteArray());
                 Thread.currentThread().setName(mAccount.mDisplayName + ": Ping");
-                //userLog("Sending ping, timeout: " + uc.getReadTimeout() / 1000 + "s");
+                userLog("Sending ping, timeout: " + PING_COMMAND_TIMEOUT / MINS + "m");
+
+                SyncManager.runAsleep(mMailboxId, PING_COMMAND_TIMEOUT);
+                HttpResponse res = sendHttpClientPost(PING_COMMAND, s.toByteArray());
+                SyncManager.runAwake(mMailboxId);
 
                 // Don't send request if we've been asked to stop
                 if (mStop) return;
@@ -811,7 +815,6 @@ public class EasSyncService extends AbstractSyncService {
 
         boolean moreAvailable = true;
         while (!mStop && moreAvailable) {
-            runAwake();
             waitForConnectivity();
 
             while (true) {
