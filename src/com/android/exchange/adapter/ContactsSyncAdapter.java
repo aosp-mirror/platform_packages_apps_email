@@ -1046,11 +1046,13 @@ public class ContactsSyncAdapter extends AbstractSyncAdapter {
         }
 
         public void addNickname(Entity entity, String name) {
-            SmartBuilder builder = createBuilder(entity, Nickname.CONTENT_ITEM_TYPE, -1);
+            SmartBuilder builder =
+                createBuilder(entity, Nickname.CONTENT_ITEM_TYPE, Nickname.TYPE_DEFAULT);
             ContentValues cv = builder.cv;
             if (cv != null && cvCompareString(cv, Nickname.NAME, name)) {
                 return;
             }
+            builder.withValue(Nickname.TYPE, Nickname.TYPE_DEFAULT);
             builder.withValue(Nickname.NAME, name);
             add(builder.build());
         }

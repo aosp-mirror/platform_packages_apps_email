@@ -47,7 +47,9 @@ public class PingParser extends Parser {
         while (nextTag(Tags.PING_FOLDERS) != END) {
             if (tag == Tags.PING_FOLDER) {
                 // Here we'll keep track of which mailboxes need syncing
-                syncList.add(getValue());
+                String serverId = getValue();
+                syncList.add(serverId);
+                mService.userLog("Changes found in: " + serverId);
             } else {
                 skipTag();
             }

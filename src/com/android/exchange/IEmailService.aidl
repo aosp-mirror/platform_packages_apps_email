@@ -37,5 +37,5 @@ interface IEmailService {
 
     void setCallback(IEmailServiceCallback cb);
 
-    void setLogging(boolean on);
+    void setLogging(int on);
 }

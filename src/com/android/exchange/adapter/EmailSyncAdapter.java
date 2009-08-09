@@ -17,7 +17,10 @@
 
 package com.android.exchange.adapter;
 
+import com.android.email.R;
+import com.android.email.activity.MessageList;
 import com.android.email.mail.Address;
+import com.android.email.provider.EmailContent;
 import com.android.email.provider.EmailProvider;
 import com.android.email.provider.EmailContent.Attachment;
 import com.android.email.provider.EmailContent.Mailbox;
@@ -27,14 +30,20 @@ import com.android.email.provider.EmailContent.SyncColumns;
 import com.android.exchange.Eas;
 import com.android.exchange.EasSyncService;
 
+import android.app.Notification;
+import android.app.NotificationManager;
+import android.app.PendingIntent;
 import android.content.ContentProviderOperation;
 import android.content.ContentResolver;
 import android.content.ContentUris;
 import android.content.ContentValues;
 import android.content.Context;
+import android.content.Intent;
 import android.content.OperationApplicationException;
 import android.database.Cursor;
+import android.net.Uri;
 import android.os.RemoteException;
+import android.text.TextUtils;
 import android.webkit.MimeTypeMap;
 
 import java.io.IOException;
@@ -389,6 +398,7 @@ public class EmailSyncAdapter extends AbstractSyncAdapter {
             ArrayList<Message> newEmails = new ArrayList<Message>();
             ArrayList<Long> deletedEmails = new ArrayList<Long>();
             ArrayList<ServerChange> changedEmails = new ArrayList<ServerChange>();
+            int notifyCount = 0;
 
             while (nextTag(Tags.SYNC_COMMANDS) != END) {
                 if (tag == Tags.SYNC_ADD) {
@@ -407,8 +417,11 @@ public class EmailSyncAdapter extends AbstractSyncAdapter {
             // Use a batch operation to handle the changes
             // TODO New mail notifications?  Who looks for these?
             ArrayList<ContentProviderOperation> ops = new ArrayList<ContentProviderOperation>();
-            for (Message content : newEmails) {
-                content.addSaveOps(ops);
+            for (Message msg: newEmails) {
+                if (!msg.mFlagRead) {
+                    notifyCount++;
+                }
+                msg.addSaveOps(ops);
             }
             for (Long id : deletedEmails) {
                 ops.add(ContentProviderOperation.newDelete(
@@ -450,8 +463,30 @@ public class EmailSyncAdapter extends AbstractSyncAdapter {
                     // There is nothing to be done here; fail by returning null
                 }
             }
-        }
 
+            // TODO Remove this temporary notification code
+            if (notifyCount > 0) {
+                NotificationManager notifMgr =
+                    (NotificationManager)mContext.getSystemService(Context.NOTIFICATION_SERVICE);
+                Notification notif = new Notification(R.drawable.stat_notify_email_generic,
+                        mContext.getString(R.string.notification_new_title),
+                        System.currentTimeMillis());
+                Intent i = MessageList.actionHandleAccountIntent(mContext, mAccount.mId,
+                        Mailbox.TYPE_INBOX);
+                PendingIntent pi = PendingIntent.getActivity(mContext, 0, i, 0);
+                notif.setLatestEventInfo(mContext,
+                        mContext.getString(R.string.notification_new_title),
+                        "You've got new mail!", pi);
+                boolean vibrate = ((mAccount.getFlags() & EmailContent.Account.FLAGS_VIBRATE) != 0);
+                String ringtone = mAccount.getRingtone();
+                notif.defaults = Notification.DEFAULT_LIGHTS;
+                notif.sound = TextUtils.isEmpty(ringtone) ? null : Uri.parse(ringtone);
+                if (vibrate) {
+                    notif.defaults |= Notification.DEFAULT_VIBRATE;
+                }
+                notifMgr.notify(1, notif);
+             }
+        }
     }
 
     @Override

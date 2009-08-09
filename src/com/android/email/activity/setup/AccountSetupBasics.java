@@ -24,12 +24,10 @@ import com.android.email.Utility;
 import com.android.email.activity.Debug;
 import com.android.email.provider.EmailContent;
 import com.android.email.provider.EmailContent.Account;
-import com.android.email.provider.EmailContent.AccountColumns;
 
 import android.app.Activity;
 import android.app.AlertDialog;
 import android.app.Dialog;
-import android.content.ContentValues;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.res.XmlResourceParser;
@@ -67,7 +65,7 @@ public class AccountSetupBasics extends Activity
     private final static int DIALOG_NOTE = 1;
     private final static String STATE_KEY_PROVIDER =
         "com.android.email.AccountSetupBasics.provider";
-    
+
     // NOTE: If you change this value, confirm that the new interval exists in arrays.xml
     private final static int DEFAULT_ACCOUNT_CHECK_INTERVAL = 15;
 
@@ -109,7 +107,7 @@ public class AccountSetupBasics extends Activity
         Cursor c = null;
         try {
             c = getContentResolver().query(
-                    EmailContent.Account.CONTENT_URI, 
+                    EmailContent.Account.CONTENT_URI,
                     EmailContent.Account.ID_PROJECTION,
                     null, null, null);
             if (c.getCount() > 0) {
@@ -320,11 +318,13 @@ public class AccountSetupBasics extends Activity
         String[] emailParts = email.split("@");
         String user = emailParts[0].trim();
         String domain = emailParts[1].trim();
-        
+
         // Alternate entry to the debug options screen (for devices without a physical keyboard:
         //  Username: d@d.d
         //  Password: debug
         if (ENTER_DEBUG_SCREEN && "d@d.d".equals(email) && "debug".equals(password)) {
+            mEmailView.setText("");
+            mPasswordView.setText("");
             startActivity(new Intent(this, Debug.class));
             return;
         }
@@ -387,9 +387,9 @@ public class AccountSetupBasics extends Activity
      * Search the list of known Email providers looking for one that matches the user's email
      * domain.  We look in providers_product.xml first, followed by the entries in
      * platform providers.xml.  This provides a nominal override capability.
-     * 
+     *
      * A match is defined as any provider entry for which the "domain" attribute matches.
-     * 
+     *
      * @param domain The domain portion of the user's email address
      * @return suitable Provider definition, or null if no match found
      */

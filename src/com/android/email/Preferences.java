@@ -16,12 +16,9 @@
 
 package com.android.email;
 
-import java.util.Arrays;
-
 import android.content.Context;
 import android.content.SharedPreferences;
 import android.net.Uri;
-import android.util.Config;
 import android.util.Log;
 
 public class Preferences {
@@ -140,6 +137,22 @@ public class Preferences {
 
     public boolean getEnableSensitiveLogging() {
         return mSharedPreferences.getBoolean("enableSensitiveLogging", false);
+    }
+
+    public void setEnableExchangeLogging(boolean value) {
+        mSharedPreferences.edit().putBoolean("enableExchangeLogging", value).commit();
+    }
+
+    public boolean getEnableExchangeLogging() {
+        return mSharedPreferences.getBoolean("enableExchgangeLogging", false);
+    }
+
+    public void setEnableExchangeFileLogging(boolean value) {
+        mSharedPreferences.edit().putBoolean("enableExchangeFileLogging", value).commit();
+    }
+
+    public boolean getEnableExchangeFileLogging() {
+        return mSharedPreferences.getBoolean("enableExchgangeFileLogging", false);
     }
 
     public void save() {

@@ -22,6 +22,7 @@ import com.android.email.mail.internet.BinaryTempFileBody;
 import com.android.email.provider.EmailContent;
 import com.android.email.service.BootReceiver;
 import com.android.email.service.MailService;
+import com.android.exchange.Eas;
 
 import android.app.Application;
 import android.content.ComponentName;
@@ -57,7 +58,7 @@ public class Email extends Application {
      */
     public static boolean DEBUG_SENSITIVE = false;
 
-    /** 
+    /**
      * Set this to 'true' to enable as much Email logging as possible.
      * Do not check-in with it set to 'true'!
      */
@@ -68,7 +69,7 @@ public class Email extends Application {
      * to open a chooser with a list of filter types, so the chooser is only opened with the first
      * item in the list. The entire list will be used to filter down attachments that are added
      * with Intent.ACTION_SEND.
-     * 
+     *
      * TODO: It should be legal to send anything requested by another app.  This would provide
      * parity with Gmail's behavior.
      */
@@ -146,7 +147,7 @@ public class Email extends Application {
         Cursor c = null;
         try {
             c = context.getContentResolver().query(
-                    EmailContent.Account.CONTENT_URI, 
+                    EmailContent.Account.CONTENT_URI,
                     EmailContent.Account.ID_PROJECTION,
                     null, null, null);
             boolean enable = c.getCount() > 0;
@@ -204,12 +205,12 @@ public class Email extends Application {
         Preferences prefs = Preferences.getPreferences(this);
         DEBUG = prefs.geteEnableDebugLogging();
         DEBUG_SENSITIVE = prefs.getEnableSensitiveLogging();
-        
+
         // Reset all accounts to default visible window
         Cursor c = null;
         try {
             c = getContentResolver().query(
-                    EmailContent.Account.CONTENT_URI, 
+                    EmailContent.Account.CONTENT_URI,
                     EmailContent.Account.CONTENT_PROJECTION,
                     null, null, null);
             while (c.moveToNext()) {
@@ -227,9 +228,13 @@ public class Email extends Application {
          * doesn't work in Android and MimeMessage does not have access to a Context.
          */
         BinaryTempFileBody.setTempDirectory(getCacheDir());
-        
+
         // Enable logging in the EAS service, so it starts up as early as possible.
-        Controller.getInstance(this).serviceLogging(DEBUG);
+        int debugLogging = prefs.geteEnableDebugLogging() ? Eas.DEBUG_BIT : 0;
+        int exchangeLogging = prefs.getEnableExchangeLogging() ? Eas.DEBUG_EXCHANGE_BIT : 0;
+        int fileLogging = prefs.getEnableExchangeFileLogging() ? Eas.DEBUG_FILE_BIT : 0;
+        int debugBits = debugLogging + exchangeLogging + fileLogging;
+        Controller.getInstance(this).serviceLogging(debugBits);
     }
 
     /**

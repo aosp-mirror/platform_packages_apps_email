@@ -124,7 +124,7 @@ public class Controller {
      *
      * Generally this should be called by anybody who changes Email.DEBUG
      */
-    public void serviceLogging(boolean debugEnabled) {
+    public void serviceLogging(int debugEnabled) {
         IEmailService service =
             new EmailServiceProxy(mContext, SyncManager.class, mServiceCallback);
         try {

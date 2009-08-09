@@ -215,7 +215,7 @@ public class EmailServiceProxy implements IEmailService {
         });
     }
 
-    public void setLogging(final boolean on) throws RemoteException {
+    public void setLogging(final int on) throws RemoteException {
         setTask(new Runnable () {
             public void run() {
                 try {

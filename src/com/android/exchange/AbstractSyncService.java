@@ -20,6 +20,7 @@ package com.android.exchange;
 import com.android.email.mail.MessagingException;
 import com.android.email.provider.EmailContent.Account;
 import com.android.email.provider.EmailContent.Mailbox;
+import com.android.exchange.utility.FileLogger;
 
 import android.content.Context;
 import android.net.ConnectivityManager;
@@ -208,6 +209,9 @@ public abstract class AbstractSyncService implements Runnable {
     public void userLog(String str) {
         if (Eas.USER_LOG) {
             Log.i(TAG, str);
+            if (Eas.FILE_LOG) {
+                FileLogger.log(TAG, str);
+            }
         }
     }
 
@@ -217,6 +221,9 @@ public abstract class AbstractSyncService implements Runnable {
      */
     public void errorLog(String str) {
         Log.e(TAG, str);
+        if (Eas.FILE_LOG) {
+            FileLogger.log(TAG, str);
+        }
     }
 
     /**

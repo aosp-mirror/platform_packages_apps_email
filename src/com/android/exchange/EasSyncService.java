@@ -62,6 +62,7 @@ import android.content.Context;
 import android.content.Intent;
 import android.database.Cursor;
 import android.os.RemoteException;
+import android.util.Log;
 
 import java.io.ByteArrayInputStream;
 import java.io.File;
@@ -116,7 +117,7 @@ public class EasSyncService extends AbstractSyncService {
     public ContentResolver mContentResolver;
     String[] mBindArguments = new String[2];
     InputStream mPendingPartInputStream = null;
-    private boolean mTriedReloadFolderList = false;
+    //private boolean mTriedReloadFolderList = false;
 
     public EasSyncService(Context _context, Mailbox _mailbox) {
         super(_context, _mailbox);
@@ -154,7 +155,8 @@ public class EasSyncService extends AbstractSyncService {
     }
 
     private boolean isAuthError(int code) {
-        return (code == HttpURLConnection.HTTP_UNAUTHORIZED || code == HttpURLConnection.HTTP_FORBIDDEN
+        return (code == HttpURLConnection.HTTP_UNAUTHORIZED
+                || code == HttpURLConnection.HTTP_FORBIDDEN
                 || code == HttpURLConnection.HTTP_INTERNAL_ERROR);
     }
 
@@ -450,11 +452,22 @@ public class EasSyncService extends AbstractSyncService {
                 }
             }
 
-             while (!mStop) {
+            // Change all pushable boxes to push when we start the account mailbox
+            if (mAccount.mSyncInterval == Account.CHECK_INTERVAL_PUSH) {
+                cv = new ContentValues();
+                cv.put(Mailbox.SYNC_INTERVAL, Account.CHECK_INTERVAL_PUSH);
+                if (mContentResolver.update(Mailbox.CONTENT_URI, cv,
+                        SyncManager.WHERE_IN_ACCOUNT_AND_PUSHABLE,
+                        new String[] {Long.toString(mAccount.mId)}) > 0) {
+                    userLog("Push account; set pushable boxes to push...");
+                }
+            }
+
+            while (!mStop) {
                  userLog("Sending Account syncKey: " + mAccount.mSyncKey);
                  Serializer s = new Serializer();
                  s.start(Tags.FOLDER_FOLDER_SYNC).start(Tags.FOLDER_SYNC_KEY)
-                 .text(mAccount.mSyncKey).end().end().done();
+                     .text(mAccount.mSyncKey).end().end().done();
                  HttpResponse resp = sendHttpClientPost("FolderSync", s.toByteArray());
                  if (mStop) break;
                  int code = resp.getStatusLine().getStatusCode();
@@ -521,12 +534,12 @@ public class EasSyncService extends AbstractSyncService {
 
     void pushFallback() {
         // We'll try reloading folders first; this has been observed to work in some cases
-        if (!mTriedReloadFolderList) {
-            errorLog("*** PING LOOP: Trying to reload folder list...");
-            SyncManager.reloadFolderList(mContext, mAccount.mId, true);
-            mTriedReloadFolderList = true;
-        // If we've tried that, set all mailboxes (except the account mailbox) to 5 minute sync
-        } else {
+//        if (!mTriedReloadFolderList) {
+//            errorLog("*** PING LOOP: Trying to reload folder list...");
+//            SyncManager.reloadFolderList(mContext, mAccount.mId, true);
+//            mTriedReloadFolderList = true;
+//        // If we've tried that, set all mailboxes (except the account mailbox) to 5 minute sync
+//        } else {
             errorLog("*** PING LOOP: Turning off push due to ping loop...");
             ContentValues cv = new ContentValues();
             cv.put(Mailbox.SYNC_INTERVAL, 5);
@@ -538,6 +551,9 @@ public class EasSyncService extends AbstractSyncService {
             cv.put(Account.SYNC_INTERVAL, 5);
             mContentResolver.update(ContentUris.withAppendedId(Account.CONTENT_URI, mAccount.mId),
                     cv, null, null);
+            // Let the SyncManager know that something's changed
+            SyncManager.kick("push fallback");
+
             // TODO Discuss the best way to alert the user
             // Alert the user about what we've done
             NotificationManager nm = (NotificationManager)mContext
@@ -552,7 +568,7 @@ public class EasSyncService extends AbstractSyncService {
                     mContext.getString(R.string.notification_ping_loop_title),
                     mContext.getString(R.string.notification_ping_loop_text), pi);
             nm.notify(Eas.EXCHANGE_ERROR_NOTIFICATION, note);
-        }
+//        }
     }
 
     void runPingLoop() throws IOException, StaleFolderListException {
@@ -582,9 +598,12 @@ public class EasSyncService extends AbstractSyncService {
                     // 1) SyncManager tells us the mailbox is syncable (not running, not stopped)
                     // 2) The syncKey isn't "0" (i.e. it's synced at least once)
                     long mailboxId = c.getLong(Mailbox.CONTENT_ID_COLUMN);
-                    if (SyncManager.canSync(mailboxId)) {
+                    int pingStatus = SyncManager.pingStatus(mailboxId);
+                    String mailboxName = c.getString(Mailbox.CONTENT_DISPLAY_NAME_COLUMN);
+                    if (pingStatus == SyncManager.PING_STATUS_OK) {
                         String syncKey = c.getString(Mailbox.CONTENT_SYNC_KEY_COLUMN);
                         if (syncKey == null || syncKey.equals("0")) {
+                            pushCount--;
                             continue;
                         }
 
@@ -630,13 +649,16 @@ public class EasSyncService extends AbstractSyncService {
                             .data(Tags.PING_ID, c.getString(Mailbox.CONTENT_SERVER_ID_COLUMN))
                             .data(Tags.PING_CLASS, folderClass)
                             .end();
-                        userLog("Ping ready for: " + folderClass + ", " +
-                                c.getString(Mailbox.CONTENT_SERVER_ID_COLUMN) + " (" +
-                                c.getString(Mailbox.CONTENT_DISPLAY_NAME_COLUMN) + ')');
+                        userLog("Ping ready for: " + folderClass + ", " + mailboxName + " (" +
+                                c.getString(Mailbox.CONTENT_SERVER_ID_COLUMN) + ')');
                         pushBoxes.add(new Mailbox().restore(c));
-                    } else {
-                        userLog(c.getString(Mailbox.CONTENT_DISPLAY_NAME_COLUMN) +
-                                " not ready for ping");
+                    } else if (pingStatus == SyncManager.PING_STATUS_RUNNING ||
+                            pingStatus == SyncManager.PING_STATUS_WAITING) {
+                        userLog(mailboxName + " not ready for ping");
+                    } else if (pingStatus == SyncManager.PING_STATUS_UNABLE) {
+                        pushCount--;
+                        userLog(mailboxName + " in error state; ignore");
+                        continue;
                     }
                 }
             } finally {
@@ -689,7 +711,9 @@ public class EasSyncService extends AbstractSyncService {
                 sleep(10*SECS);
             } else {
                 // We've got nothing to do, so let's hang out for a while
-                sleep(20*MINS);
+                SyncManager.runAsleep(mMailboxId, 30*MINS);
+                sleep(30*MINS);
+                SyncManager.runAwake(mMailboxId);
             }
         }
     }
@@ -957,7 +981,7 @@ public class EasSyncService extends AbstractSyncService {
             userLog("Caught IOException");
             mExitStatus = EXIT_IO_ERROR;
         } catch (Exception e) {
-            e.printStackTrace();
+            Log.e(TAG, "Uncaught exception in EasSyncService", e);
         } finally {
             if (!mStop) {
                 userLog(mMailbox.mDisplayName + ": sync finished");
@@ -978,6 +1002,7 @@ public class EasSyncService extends AbstractSyncService {
                         break;
                     default:
                         status = EmailServiceStatus.REMOTE_EXCEPTION;
+                        errorLog("Sync ended due to an exception.");
                         break;
                 }
                 try {

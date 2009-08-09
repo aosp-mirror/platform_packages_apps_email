@@ -27,6 +27,7 @@ import com.android.email.provider.EmailContent.MailboxColumns;
 import com.android.email.provider.EmailContent.Message;
 import com.android.email.provider.EmailContent.MessageColumns;
 import com.android.email.provider.EmailContent.SyncColumns;
+import com.android.exchange.utility.FileLogger;
 
 import android.app.AlarmManager;
 import android.app.PendingIntent;
@@ -86,6 +87,7 @@ public class SyncManager extends Service implements Runnable {
     public static final int SECS = 1000;
     public static final int MINS = 60 * SECS;
 
+    // Reason codes when SyncManager.kick is called (mainly for debugging)
     public static final int SYNC_UPSYNC = 0;
     public static final int SYNC_SCHEDULED = 1;
     public static final int SYNC_PUSH = 2;
@@ -98,12 +100,24 @@ public class SyncManager extends Service implements Runnable {
         MailboxColumns.ACCOUNT_KEY + "=? and " + MailboxColumns.TYPE + "!=" +
         Mailbox.TYPE_EAS_ACCOUNT_MAILBOX + " and " + MailboxColumns.SYNC_INTERVAL +
         " IN (" + Account.CHECK_INTERVAL_PING + ',' + Account.CHECK_INTERVAL_PUSH + ')';
+    public static final String WHERE_IN_ACCOUNT_AND_PUSHABLE =
+        MailboxColumns.ACCOUNT_KEY + "=? and type in (" + Mailbox.TYPE_INBOX + ','
+        /*+ Mailbox.TYPE_CALENDAR + ','*/ + Mailbox.TYPE_CONTACTS + ')';
 
     // Offsets into the syncStatus data for EAS that indicate type, exit status, and change count
     // The format is S<type_char>:<exit_char>:<change_count>
     public static final int STATUS_TYPE_CHAR = 1;
     public static final int STATUS_EXIT_CHAR = 3;
     public static final int STATUS_CHANGE_COUNT_OFFSET = 5;
+
+    // Ready for ping
+    public static final int PING_STATUS_OK = 0;
+    // Service already running (can't ping)
+    public static final int PING_STATUS_RUNNING = 1;
+    // Service waiting after I/O error (can't ping)
+    public static final int PING_STATUS_WAITING = 2;
+    // Service had a fatal error; can't run
+    public static final int PING_STATUS_UNABLE = 3;
 
     static SyncManager INSTANCE;
     static Object mSyncToken = new Object();
@@ -208,7 +222,7 @@ public class SyncManager extends Service implements Runnable {
             reloadFolderList(SyncManager.this, accountId, false);
         }
 
-        public void setLogging(boolean on) throws RemoteException {
+        public void setLogging(int on) throws RemoteException {
             Eas.setUserDebug(on);
         }
 
@@ -312,10 +326,23 @@ public class SyncManager extends Service implements Runnable {
                             // Here's one that has...
                             INSTANCE.log("Account " + account.mDisplayName +
                                     " changed; stopping running syncs...");
+                            // If account is push, set contacts and inbox to push
+                            Account updatedAccount =
+                                Account.restoreAccountWithId(getContext(), account.mId);
+                            if (updatedAccount.mSyncInterval == Account.CHECK_INTERVAL_PUSH) {
+                                ContentValues cv = new ContentValues();
+                                cv.put(MailboxColumns.SYNC_INTERVAL, Account.CHECK_INTERVAL_PUSH);
+                                getContext().getContentResolver().update(Mailbox.CONTENT_URI, cv,
+                                        WHERE_IN_ACCOUNT_AND_PUSHABLE,
+                                        new String[] {Long.toString(account.mId)});
+                            }
+                            // Stop all current syncs; the appropriate ones will restart
                             stopAccountSyncs(account.mId, false);
                         }
                     }
                 }
+
+                // Look for new accounts
                 for (Account account: currentAccounts) {
                     if (!mAccounts.contains(account.mId)) {
                         // This is an addition; create our magic hidden mailbox...
@@ -323,7 +350,10 @@ public class SyncManager extends Service implements Runnable {
                         mAccounts.add(account);
                     }
                 }
-            } finally {
+
+                // Finally, make sure mAccounts is up to date
+                mAccounts = currentAccounts;
+           } finally {
                 c.close();
             }
 
@@ -485,6 +515,9 @@ public class SyncManager extends Service implements Runnable {
     public void log(String str) {
         if (Eas.USER_LOG) {
             Log.d(TAG, str);
+            if (Eas.FILE_LOG) {
+                FileLogger.log(TAG, str);
+            }
         }
     }
 
@@ -778,6 +811,8 @@ public class SyncManager extends Service implements Runnable {
                 if (state == State.CONNECTED) {
                     info += " CONNECTED";
                     kick("connected");
+                    // Clear our sync error map when we get connected
+                    mSyncErrorMap.clear();
                 } else if (state == State.CONNECTING) {
                     info += " CONNECTING";
                 } else if (state == State.DISCONNECTED) {
@@ -1124,16 +1159,21 @@ public class SyncManager extends Service implements Runnable {
      * @param mailboxId
      * @return whether or not the Mailbox is available for syncing (i.e. is a valid push target)
      */
-    static public boolean canSync(long mailboxId) {
+    static public int pingStatus(long mailboxId) {
         // Already syncing...
         if (INSTANCE.mServiceMap.get(mailboxId) != null) {
-            return false;
+            return PING_STATUS_RUNNING;
         }
-        // Blocked from syncing (transient or permanent)
-        if (INSTANCE.mSyncErrorMap.get(mailboxId) != null) {
-            return false;
+        // No errors or a transient error, don't ping...
+        SyncError error = INSTANCE.mSyncErrorMap.get(mailboxId);
+        if (error != null) {
+            if (error.fatal) {
+                return PING_STATUS_UNABLE;
+            } else {
+                return PING_STATUS_WAITING;
+            }
         }
-        return true;
+        return PING_STATUS_OK;
     }
 
     static public int getSyncStatus(long mailboxId) {
@@ -1243,8 +1283,11 @@ public class SyncManager extends Service implements Runnable {
                 case AbstractSyncService.EXIT_IO_ERROR:
                     if (syncError != null) {
                         syncError.escalate();
+                        INSTANCE.log("Mailbox " + mailboxId + " now held for "
+                                + syncError.holdDelay + "s");
                     } else {
                         errorMap.put(mailboxId, INSTANCE.new SyncError(exitStatus, false));
+                        INSTANCE.log("Mailbox " + mailboxId + " added to syncErrorMap");
                     }
                     kick("i/o error in sync");
                     break;
