@@ -19,6 +19,7 @@ package com.android.exchange.adapter;
 
 import com.android.exchange.Eas;
 import com.android.exchange.EasException;
+import com.android.exchange.utility.FileLogger;
 
 import android.content.Context;
 import android.util.Log;
@@ -294,6 +295,13 @@ public abstract class Parser {
         tagTable = tagTables[0];
     }
 
+    void log(String str) {
+        Log.v(TAG, str);
+        if (Eas.FILE_LOG) {
+            FileLogger.log(TAG, str);
+        }
+    }
+
     /**
      * Return the next piece of data from the stream.  The return value indicates the type of data
      * that has been retrieved - START (start of tag), END (end of tag), DONE (end of stream), or
@@ -345,7 +353,7 @@ public abstract class Parser {
                 type = END;
                 if (logging) {
                     name = nameArray[depth];
-                    Log.v(TAG, "</" + name + '>');
+                    log("</" + name + '>');
                 }
                 // Retrieve the now-current startTag from our stack
                 startTag = endTag = startTagArray[depth];
@@ -360,7 +368,7 @@ public abstract class Parser {
                     text = readInlineString();
                 }
                 if (logging) {
-                    Log.v(TAG, asInt ? Integer.toString(num) : text);
+                    log(asInt ? Integer.toString(num) : text);
                 }
                 break;
 
@@ -374,7 +382,7 @@ public abstract class Parser {
                 depth++;
                 if (logging) {
                     name = tagTable[startTag - 5];
-                    Log.v(TAG, '<' + name + '>');
+                    log('<' + name + '>');
                     nameArray[depth] = name;
                 }
                 // Save the startTag to our stack

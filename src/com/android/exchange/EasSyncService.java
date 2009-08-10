@@ -95,8 +95,12 @@ public class EasSyncService extends AbstractSyncService {
     static private final int CHUNK_SIZE = 16*1024;
 
     static private final String PING_COMMAND = "Ping";
-    static private final int COMMAND_TIMEOUT = 20*SECS;
-    static private final int PING_COMMAND_TIMEOUT = 20*MINS;
+    static private final int COMMAND_TIMEOUT = 20*SECONDS;
+    static private final int PING_COMMAND_TIMEOUT = 20*MINUTES;
+
+    // Fallbacks (in minutes) for ping loop failures
+    static private final int PING_FALLBACK_INBOX = 5;
+    static private final int PING_FALLBACK_PIM = 10;
 
     // Reasonable default
     String mProtocolVersion = "2.5";
@@ -117,7 +121,7 @@ public class EasSyncService extends AbstractSyncService {
     public ContentResolver mContentResolver;
     String[] mBindArguments = new String[2];
     InputStream mPendingPartInputStream = null;
-    //private boolean mTriedReloadFolderList = false;
+    HttpPost mPendingPost = null;
 
     public EasSyncService(Context _context, Mailbox _mailbox) {
         super(_context, _mailbox);
@@ -147,6 +151,11 @@ public class EasSyncService extends AbstractSyncService {
     @Override
     public void stop() {
         mStop = true;
+        synchronized(getSynchronizer()) {
+            if (mPendingPost != null) {
+                mPendingPost.abort();
+            }
+        }
     }
 
     @Override
@@ -160,9 +169,6 @@ public class EasSyncService extends AbstractSyncService {
                 || code == HttpURLConnection.HTTP_INTERNAL_ERROR);
     }
 
-    /* (non-Javadoc)
-     * @see com.android.exchange.SyncService#validateAccount(java.lang.String, java.lang.String, java.lang.String, int, boolean, android.content.Context)
-     */
     @Override
     public void validateAccount(String hostAddress, String userName, String password, int port,
             boolean ssl, Context context) throws MessagingException {
@@ -347,7 +353,7 @@ public class EasSyncService extends AbstractSyncService {
 
     private HttpClient getHttpClient(int timeout) {
         HttpParams params = new BasicHttpParams();
-        HttpConnectionParams.setConnectionTimeout(params, 10*SECS);
+        HttpConnectionParams.setConnectionTimeout(params, 10*SECONDS);
         HttpConnectionParams.setSoTimeout(params, timeout);
         return new DefaultHttpClient(params);
     }
@@ -364,7 +370,16 @@ public class EasSyncService extends AbstractSyncService {
         }
         setHeaders(method);
         method.setEntity(new ByteArrayEntity(bytes));
-        return client.execute(method);
+        synchronized(getSynchronizer()) {
+            mPendingPost = method;
+        }
+        try {
+            return client.execute(method);
+        } finally {
+            synchronized(getSynchronizer()) {
+                mPendingPost = null;
+            }
+        }
     }
 
     protected HttpResponse sendHttpClientOptions() throws IOException {
@@ -532,25 +547,21 @@ public class EasSyncService extends AbstractSyncService {
         }
     }
 
-    void pushFallback() {
-        // We'll try reloading folders first; this has been observed to work in some cases
-//        if (!mTriedReloadFolderList) {
-//            errorLog("*** PING LOOP: Trying to reload folder list...");
-//            SyncManager.reloadFolderList(mContext, mAccount.mId, true);
-//            mTriedReloadFolderList = true;
-//        // If we've tried that, set all mailboxes (except the account mailbox) to 5 minute sync
-//        } else {
-            errorLog("*** PING LOOP: Turning off push due to ping loop...");
-            ContentValues cv = new ContentValues();
-            cv.put(Mailbox.SYNC_INTERVAL, 5);
+    void pushFallback(long mailboxId) {
+        Mailbox mailbox = Mailbox.restoreMailboxWithId(mContext, mailboxId);
+        ContentValues cv = new ContentValues();
+        if (mailbox.mType == Mailbox.TYPE_INBOX) {
+            cv.put(Mailbox.SYNC_INTERVAL, PING_FALLBACK_INBOX);
+            errorLog("*** PING LOOP: Turning off push due to ping loop on inbox...");
             mContentResolver.update(Mailbox.CONTENT_URI, cv,
                     MailboxColumns.ACCOUNT_KEY + '=' + mAccount.mId
                     + AND_FREQUENCY_PING_PUSH_AND_NOT_ACCOUNT_MAILBOX, null);
             // Now, change the account as well
             cv.clear();
-            cv.put(Account.SYNC_INTERVAL, 5);
+            cv.put(Account.SYNC_INTERVAL, PING_FALLBACK_INBOX);
             mContentResolver.update(ContentUris.withAppendedId(Account.CONTENT_URI, mAccount.mId),
                     cv, null, null);
+
             // Let the SyncManager know that something's changed
             SyncManager.kick("push fallback");
 
@@ -568,13 +579,19 @@ public class EasSyncService extends AbstractSyncService {
                     mContext.getString(R.string.notification_ping_loop_title),
                     mContext.getString(R.string.notification_ping_loop_text), pi);
             nm.notify(Eas.EXCHANGE_ERROR_NOTIFICATION, note);
-//        }
+        } else {
+            // Just change this box to sync every 10 minutes
+            cv.put(Mailbox.SYNC_INTERVAL, PING_FALLBACK_PIM);
+            mContentResolver.update(ContentUris.withAppendedId(Mailbox.CONTENT_URI, mailboxId),
+                    cv, null, null);
+            errorLog("*** PING LOOP: Backing off sync of " + mailbox.mDisplayName + " to 10 mins");
+        }
     }
 
     void runPingLoop() throws IOException, StaleFolderListException {
         // Do push for all sync services here
         ArrayList<Mailbox> pushBoxes = new ArrayList<Mailbox>();
-        long endTime = System.currentTimeMillis() + (30*MINS);
+        long endTime = System.currentTimeMillis() + (30*MINUTES);
         HashMap<Long, Integer> pingFailureMap = new HashMap<Long, Integer>();
 
         while (System.currentTimeMillis() < endTime) {
@@ -620,20 +637,20 @@ public class EasSyncService extends AbstractSyncService {
                         int type = SyncManager.getStatusType(status);
                         if (type == SyncManager.SYNC_PING) {
                             int changeCount = SyncManager.getStatusChangeCount(status);
-                            if (changeCount == 0) {
+                            if (changeCount > 0) {
+                                pingFailureMap.remove(mailboxId);
+                            } else if (changeCount == 0) {
                                 // This means that a ping failed; we'll keep track of this
                                 Integer failures = pingFailureMap.get(mailboxId);
                                 if (failures == null) {
                                     pingFailureMap.put(mailboxId, 1);
                                 } else if (failures > 4) {
                                     // Change all push/ping boxes (except account) to 5 minute sync
-                                    pushFallback();
+                                    pushFallback(mailboxId);
                                     return;
                                 } else {
                                     pingFailureMap.put(mailboxId, failures + 1);
                                 }
-                            } else {
-                                pingFailureMap.put(mailboxId, 0);
                             }
                         }
 
@@ -670,26 +687,26 @@ public class EasSyncService extends AbstractSyncService {
                 s.end().end().done();
 
                 Thread.currentThread().setName(mAccount.mDisplayName + ": Ping");
-                userLog("Sending ping, timeout: " + PING_COMMAND_TIMEOUT / MINS + "m");
+                userLog("Sending ping, timeout: " + PING_COMMAND_TIMEOUT / MINUTES + "m");
 
                 SyncManager.runAsleep(mMailboxId, PING_COMMAND_TIMEOUT);
+                long time = System.currentTimeMillis();
                 HttpResponse res = sendHttpClientPost(PING_COMMAND, s.toByteArray());
                 SyncManager.runAwake(mMailboxId);
 
                 // Don't send request if we've been asked to stop
                 if (mStop) return;
-                long time = System.currentTimeMillis();
                 code = res.getStatusLine().getStatusCode();
+
+                // Get elapsed time
+                time = System.currentTimeMillis() - time;
+                userLog("Ping response: " + code + " in " + time + "ms");
 
                 // Return immediately if we've been asked to stop
                 if (mStop) {
                     userLog("Stopping pingLoop");
                     return;
                 }
-
-                // Get elapsed time
-                time = System.currentTimeMillis() - time;
-                userLog("Ping response: " + code + " in " + time + "ms");
 
                 if (code == HttpURLConnection.HTTP_OK) {
                     HttpEntity e = res.getEntity();
@@ -708,11 +725,12 @@ public class EasSyncService extends AbstractSyncService {
             } else if (pushCount > 0) {
                 // If we want to Ping, but can't just yet, wait 10 seconds and try again
                 userLog("pingLoop waiting for " + (pushCount - canPushCount) + " box(es)");
-                sleep(10*SECS);
+                sleep(10*SECONDS);
             } else {
-                // We've got nothing to do, so let's hang out for a while
-                SyncManager.runAsleep(mMailboxId, 30*MINS);
-                sleep(30*MINS);
+                // We've got nothing to do, so we'll check again in 30 minutes at which time
+                // we'll update the folder list.
+                SyncManager.runAsleep(mMailboxId, 30*MINUTES);
+                sleep(30*MINUTES);
                 SyncManager.runAwake(mMailboxId);
             }
         }
@@ -894,7 +912,7 @@ public class EasSyncService extends AbstractSyncService {
                 }
                 s.start(Tags.BASE_BODY_PREFERENCE)
                     // HTML for email; plain text for everything else
-                .data(Tags.BASE_TYPE, (className.equals("Email") ? Eas.BODY_PREFERENCE_HTML
+                    .data(Tags.BASE_TYPE, (className.equals("Email") ? Eas.BODY_PREFERENCE_HTML
                             : Eas.BODY_PREFERENCE_TEXT))
                 // No truncation in this version
                 //.data(Tags.BASE_TRUNCATION_SIZE, Eas.DEFAULT_BODY_TRUNCATION_SIZE)
@@ -908,6 +926,7 @@ public class EasSyncService extends AbstractSyncService {
             target.sendLocalChanges(s, this);
 
             s.end().end().end().done();
+            userLog("Sync, deviceId = " + mDeviceId);
             HttpResponse resp = sendHttpClientPost("Sync", s.toByteArray());
             int code = resp.getStatusLine().getStatusCode();
             if (code == HttpURLConnection.HTTP_OK) {
@@ -948,13 +967,11 @@ public class EasSyncService extends AbstractSyncService {
         mAccount = Account.restoreAccountWithId(mContext, mAccount.mId);
         mMailbox = Mailbox.restoreMailboxWithId(mContext, mMailbox.mId);
         // Whether or not we're the account mailbox
-        boolean accountMailbox = false;
         try {
             mDeviceId = SyncManager.getDeviceId();
             if (mMailbox == null || mAccount == null) {
                 return;
             } else if (mMailbox.mType == Mailbox.TYPE_EAS_ACCOUNT_MAILBOX) {
-                accountMailbox = true;
                 runAccountMailbox();
             } else {
                 AbstractSyncAdapter target;
@@ -1005,6 +1022,7 @@ public class EasSyncService extends AbstractSyncService {
                         errorLog("Sync ended due to an exception.");
                         break;
                 }
+
                 try {
                     SyncManager.callback().syncMailboxStatus(mMailboxId, status, 0);
                 } catch (RemoteException e1) {
@@ -1022,10 +1040,8 @@ public class EasSyncService extends AbstractSyncService {
                 userLog(mMailbox.mDisplayName + ": stopped thread finished.");
             }
 
-            // Make sure this gets restarted...
-            if (accountMailbox) {
-                SyncManager.kick("account mailbox stopped");
-            }
+            // Make sure SyncManager knows about this
+            SyncManager.kick("sync finished");
        }
     }
 }

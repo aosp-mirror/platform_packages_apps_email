@@ -44,12 +44,14 @@ public abstract class AbstractSyncService implements Runnable {
     public static final String SUMMARY_PROTOCOL = "_SUMMARY_";
     public static final String SYNCED_PROTOCOL = "_SYNCING_";
     public static final String MOVE_FAVORITES_PROTOCOL = "_MOVE_FAVORITES_";
-    public static final int CONNECT_TIMEOUT = 30000;
-    public static final int NETWORK_WAIT = 15000;
-    public static final int SECS = 1000;
-    public static final int MINS = 60 * SECS;
-    public static final int HRS = 60 * MINS;
-    public static final int DAYS = 24 * HRS;
+    public static final int SECONDS = 1000;
+    public static final int MINUTES = 60*SECONDS;
+    public static final int HOURS = 60*MINUTES;
+    public static final int DAYS = 24*HOURS;
+
+    public static final int CONNECT_TIMEOUT = 30*SECONDS;
+    public static final int NETWORK_WAIT = 15*SECONDS;
+
     public static final String IMAP_PROTOCOL = "imap";
     public static final String EAS_PROTOCOL = "eas";
     public static final int EXIT_DONE = 0;
@@ -72,7 +74,7 @@ public abstract class AbstractSyncService implements Runnable {
     public int mChangeCount = 0;
     public int mSyncReason = 0;
     protected volatile boolean mStop = false;
-    private Object mSynchronizer = new Object();
+    protected Object mSynchronizer = new Object();
 
     protected volatile long mRequestTime = 0;
     protected ArrayList<PartRequest> mPartRequests = new ArrayList<PartRequest>();
