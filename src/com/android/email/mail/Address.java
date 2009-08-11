@@ -328,6 +328,15 @@ public class Address {
     }
 
     /**
+     * Convert a packed list of addresses to a form suitable for use in an RFC822 header.
+     * This implementation is brute-force, and could be replaced with a more efficient version
+     * if desired.
+     */
+    public static String packedToHeader(String packedList) {
+        return toHeader(unpack(packedList));
+    }
+
+    /**
      * Unpacks an address list previously packed with pack()
      * @param addressList String with packed addresses as returned by pack()
      * @return array of addresses resulting from unpack
