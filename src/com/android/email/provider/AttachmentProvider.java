@@ -103,8 +103,18 @@ public class AttachmentProvider extends ContentProvider {
      * the filename that should be used.
      */
     public static File getAttachmentFilename(Context context, long accountId, long attachmentId) {
-        return new File(
-                context.getDatabasePath(accountId + ".db_att"), Long.toString(attachmentId));
+        return new File(getAttachmentDirectory(context, accountId), Long.toString(attachmentId));
+    }
+
+    /**
+     * Return the directory for a given attachment.  This should be used by any code that is
+     * going to *write* attachments.
+     *
+     * This does not create or write the directory.  It simply builds the pathname that should be
+     * used.
+     */
+    public static File getAttachmentDirectory(Context context, long accountId) {
+        return context.getDatabasePath(accountId + ".db_att");
     }
 
     @Override

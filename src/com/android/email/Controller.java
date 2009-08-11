@@ -435,10 +435,22 @@ public class Controller {
     public void loadAttachment(long attachmentId, long messageId, long accountId,
             final Result callback) {
 
-        Attachment attachInfo = Attachment.restoreAttachmentWithId(mProviderContext, attachmentId);
-
         File saveToFile = AttachmentProvider.getAttachmentFilename(mContext,
                 accountId, attachmentId);
+        if (saveToFile.exists()) {
+            // The attachment has already been downloaded, so we will just "pretend" to download it
+            synchronized (mListeners) {
+                for (Result listener : mListeners) {
+                    listener.loadAttachmentCallback(null, messageId, attachmentId, 0);
+                }
+                for (Result listener : mListeners) {
+                    listener.loadAttachmentCallback(null, messageId, attachmentId, 100);
+                }
+            }
+            return;
+        }
+
+        Attachment attachInfo = Attachment.restoreAttachmentWithId(mProviderContext, attachmentId);
 
         // Split here for target type (Service or MessagingController)
         IEmailService service = getServiceForMessage(messageId);

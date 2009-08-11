@@ -16,7 +16,6 @@
 
 package com.android.email;
 
-import com.android.email.mail.Address;
 import com.android.email.mail.FetchProfile;
 import com.android.email.mail.Flag;
 import com.android.email.mail.Folder;
@@ -29,7 +28,6 @@ import com.android.email.mail.Store;
 import com.android.email.mail.StoreSynchronizer;
 import com.android.email.mail.Folder.FolderType;
 import com.android.email.mail.Folder.OpenMode;
-import com.android.email.mail.internet.MimeMessage;
 import com.android.email.mail.internet.MimeUtility;
 import com.android.email.mail.store.LocalStore;
 import com.android.email.mail.store.LocalStore.LocalFolder;
@@ -46,9 +44,9 @@ import android.content.Context;
 import android.database.Cursor;
 import android.net.Uri;
 import android.os.Process;
-import android.util.Config;
 import android.util.Log;
 
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.HashMap;
@@ -781,7 +779,7 @@ public class MessagingController implements Runnable {
                                 if (localMessage != null) {
                                     try {
                                         // Copy the fields that are available into the message
-                                        updateMessageFields(localMessage, 
+                                        LegacyConversions.updateMessageFields(localMessage,
                                                 message, account.mId, folder.mId);
                                         // Commit the message to the local store
                                         saveOrUpdate(localMessage);
@@ -904,6 +902,7 @@ public class MessagingController implements Runnable {
         // this is going to be inefficient and duplicate work we've already done.  2.  It's going
         // back to the DB for a local message that we already had (and discarded).
 
+        // For small messages, we specify "body", which returns everything (incl. attachments)
         fp = new FetchProfile();
         fp.add(FetchProfile.Item.BODY);
         remoteFolder.fetch(smallMessages.toArray(new Message[smallMessages.size()]), fp,
@@ -934,36 +933,63 @@ public class MessagingController implements Runnable {
                                     c.close();
                                 }
                             }
-
-                            if (localMessage != null) {
-                                EmailContent.Body body = EmailContent.Body.restoreBodyWithId(
-                                        mContext, localMessage.mId);
-                                if (body == null) {
-                                    body = new EmailContent.Body();
-                                }
-                                try {
-                                    // Copy the fields that are available into the message
-                                    updateMessageFields(localMessage,
-                                            message, account.mId, folder.mId);
-                                    updateBodyFields(body, localMessage, message);
-                                    // TODO should updateMessageFields do this for us?
-                                    // localMessage.mFlagLoaded = EmailContent.Message.LOADED;
-                                    // Commit the message to the local store
-                                    saveOrUpdate(localMessage);
-                                    saveOrUpdate(body);
-                                } catch (MessagingException me) {
-                                    Log.e(Email.LOG_TAG,
-                                            "Error while copying downloaded message." + me);
-                                }
-                                
+                            if (localMessage == null) {
+                                Log.d(Email.LOG_TAG, "Could not retrieve message from db, UUID="
+                                        + message.getUid());
+                                return;
                             }
-                        }
-                        catch (Exception e) {
+
+                            EmailContent.Body body = EmailContent.Body.restoreBodyWithId(
+                                    mContext, localMessage.mId);
+                            if (body == null) {
+                                body = new EmailContent.Body();
+                            }
+                            try {
+                                // Copy the fields that are available into the message object
+                                LegacyConversions.updateMessageFields(localMessage, message,
+                                        account.mId, folder.mId);
+
+                                // Now process body parts & attachments
+                                ArrayList<Part> viewables = new ArrayList<Part>();
+                                ArrayList<Part> attachments = new ArrayList<Part>();
+                                MimeUtility.collectParts(message, viewables, attachments);
+
+                                LegacyConversions.updateBodyFields(body, localMessage, viewables);
+
+                                // Commit the message & body to the local store immediately
+                                saveOrUpdate(localMessage);
+                                saveOrUpdate(body);
+
+                                // process (and save) attachments
+                                LegacyConversions.updateAttachments(mContext, localMessage,
+                                        attachments);
+
+                                // One last update of message with two updated flags
+                                localMessage.mFlagLoaded = EmailContent.Message.LOADED;
+
+                                ContentValues cv = new ContentValues();
+                                cv.put(EmailContent.MessageColumns.FLAG_ATTACHMENT,
+                                        localMessage.mFlagAttachment);
+                                cv.put(EmailContent.MessageColumns.FLAG_LOADED,
+                                        localMessage.mFlagLoaded);
+                                Uri uri = ContentUris.withAppendedId(
+                                        EmailContent.Message.CONTENT_URI, localMessage.mId);
+                                mContext.getContentResolver().update(uri, cv, null, null);
+
+                            } catch (MessagingException me) {
+                                Log.e(Email.LOG_TAG,
+                                        "Error while copying downloaded message." + me);
+                            }
+
+                        } catch (RuntimeException rte) {
                             Log.e(Email.LOG_TAG,
-                                    "Error while storing downloaded message." + e.toString());
+                                    "Error while storing downloaded message." + rte.toString());
+                        } catch (IOException ioe) {
+                            Log.e(Email.LOG_TAG,
+                                    "Error while storing attachment." + ioe.toString());
                         }
                     }
-    
+
                     public void messageStarted(String uid, int number, int ofTotal) {
                     }
         });
@@ -1113,127 +1139,6 @@ public class MessagingController implements Runnable {
 
     }
     
-    /**
-     * Copy field-by-field from a "store" message to a "provider" message
-     * @param message The message we've just downloaded
-     * @param localMessage The message we'd like to write into the DB
-     * @result true if dirty (changes were made)
-     */
-    /* package */ boolean updateMessageFields(EmailContent.Message localMessage, Message message,
-            long accountId, long mailboxId) throws MessagingException {
-
-        Address[] from = message.getFrom();
-        Address[] to = message.getRecipients(Message.RecipientType.TO);
-        Address[] cc = message.getRecipients(Message.RecipientType.CC);
-        Address[] bcc = message.getRecipients(Message.RecipientType.BCC);
-        Address[] replyTo = message.getReplyTo();
-        String subject = message.getSubject();
-        Date sentDate = message.getSentDate();
-        
-        if (from != null && from.length > 0) {
-            localMessage.mDisplayName = from[0].toFriendly();
-        }
-        if (sentDate != null) {
-            localMessage.mTimeStamp = sentDate.getTime();
-        }
-        if (subject != null) {
-            localMessage.mSubject = subject;
-        }
-//        public String mPreview;
-//        public boolean mFlagRead = false;
-
-        // Keep the message in the "unloaded" state until it has (at least) a display name.
-        // This prevents early flickering of empty messages in POP download.
-        if (localMessage.mFlagLoaded != EmailContent.Message.LOADED) {
-            if (localMessage.mDisplayName == null || "".equals(localMessage.mDisplayName)) {
-                localMessage.mFlagLoaded = EmailContent.Message.NOT_LOADED;
-            } else {
-                localMessage.mFlagLoaded = EmailContent.Message.PARTIALLY_LOADED;
-            }
-        }
-//        public boolean mFlagFavorite = false;
-//        public boolean mFlagAttachment = false;
-//        public int mFlags = 0;
-//
-//        public String mTextInfo;
-//        public String mHtmlInfo;
-//
-        localMessage.mServerId = message.getUid();
-//        public int mServerIntId;
-//        public String mClientId;
-//        public String mMessageId;
-//        public String mThreadId;
-//
-//        public long mBodyKey;
-        localMessage.mMailboxKey = mailboxId;
-        localMessage.mAccountKey = accountId;
-//        public long mReferenceKey;
-//
-//        public String mSender;
-        if (from != null && from.length > 0) {
-            localMessage.mFrom = Address.pack(from);
-        }
-            
-        if (to != null && to.length > 0) {
-            localMessage.mTo = Address.pack(to);
-        }
-        if (cc != null && cc.length > 0) {
-            localMessage.mCc = Address.pack(cc);
-        }
-        if (bcc != null && bcc.length > 0) {
-            localMessage.mBcc = Address.pack(bcc);
-        }
-        if (replyTo != null && replyTo.length > 0) {
-            localMessage.mReplyTo = Address.pack(replyTo);
-        }
-//        
-//        public String mServerVersion;
-//
-//        public String mText;
-//        public String mHtml;
-//
-//        // Can be used while building messages, but is NOT saved by the Provider
-//        transient public ArrayList<Attachment> mAttachments = null;
-//
-//        public static final int UNREAD = 0;
-//        public static final int READ = 1;
-//        public static final int DELETED = 2;
-//
-//        public static final int NOT_LOADED = 0;
-//        public static final int LOADED = 1;
-//        public static final int PARTIALLY_LOADED = 2;
-
-        return true;
-    }
-    
-    /**
-     * Copy body text (plain and/or HTML) from MimeMessage to provider Message
-     */
-    /* package */ boolean updateBodyFields(EmailContent.Body body,
-            EmailContent.Message localMessage, Message message) throws MessagingException {
-
-        body.mMessageKey = localMessage.mId;
-
-        Part htmlPart = MimeUtility.findFirstPartByMimeType(message, "text/html");
-        Part textPart = MimeUtility.findFirstPartByMimeType(message, "text/plain");
-
-        if (textPart != null) {
-            String text = MimeUtility.getTextFromPart(textPart);
-            if (text != null) {
-                localMessage.mTextInfo = "X;X;8;" + text.length()*2;
-                body.mTextContent = text;
-            }
-        }
-        if (htmlPart != null) {
-            String html = MimeUtility.getTextFromPart(htmlPart);
-            if (html != null) {
-                localMessage.mHtmlInfo = "X;X;8;" + html.length()*2;
-                body.mHtmlContent = html;
-            }
-        }
-        return true;
-    }
-
     private void queuePendingCommand(EmailContent.Account account, PendingCommand command) {
         try {
             LocalStore localStore = (LocalStore) Store.getInstance(
