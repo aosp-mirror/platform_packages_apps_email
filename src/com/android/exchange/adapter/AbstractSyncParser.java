@@ -151,6 +151,20 @@ public abstract class AbstractSyncParser extends Parser {
                     mMailbox.update(mContext, cv);
                 }
             }
+        // If this box has backed off of push, and there were changes, try to change back to
+        // ping; it seems to help at times
+        } else if (mService.mChangeCount > 0 &&
+                mAccount.mSyncInterval == Account.CHECK_INTERVAL_PUSH &&
+                mMailbox.mSyncInterval > 0) {
+            synchronized (mService.getSynchronizer()) {
+                if (!mService.isStopped()) {
+                    ContentValues cv = new ContentValues();
+                    cv.put(MailboxColumns.SYNC_INTERVAL, Account.CHECK_INTERVAL_PING);
+                    mMailbox.update(mContext, cv);
+                    mService.userLog("Changes found to ping loop mailbox " + mMailbox.mDisplayName +
+                            ": switch back to ping.");
+                }
+            }
         }
 
         // Let the caller know that there's more to do

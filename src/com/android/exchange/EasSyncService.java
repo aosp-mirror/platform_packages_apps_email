@@ -100,7 +100,7 @@ public class EasSyncService extends AbstractSyncService {
 
     // Fallbacks (in minutes) for ping loop failures
     static private final int PING_FALLBACK_INBOX = 5;
-    static private final int PING_FALLBACK_PIM = 10;
+    static private final int PING_FALLBACK_PIM = 30;
 
     // Reasonable default
     String mProtocolVersion = "2.5";
