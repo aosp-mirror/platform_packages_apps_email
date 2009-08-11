@@ -100,9 +100,9 @@ public class EasSyncService extends AbstractSyncService {
     static private final int PING_COMMAND_TIMEOUT = 20*MINUTES;
 
     // For mobile, we use a 5 minute timeout (less a few seconds)
-    static private final String PING_HEARTBEAT_MOBILE = "295";
+    static private final int PING_HEARTBEAT_MOBILE = 295;
     // For wifi, we use a 15 minute timeout
-    static private final String PING_HEARTBEAT_WIFI = "900";
+    static private final int PING_HEARTBEAT_WIFI = 900;
 
     // Fallbacks (in minutes) for ping loop failures
     static private final int MAX_PING_FAILURES = 2;
@@ -130,6 +130,7 @@ public class EasSyncService extends AbstractSyncService {
     InputStream mPendingPartInputStream = null;
     HttpPost mPendingPost = null;
     int mNetworkType;
+    int mPingHeartbeat;
 
     public EasSyncService(Context _context, Mailbox _mailbox) {
         super(_context, _mailbox);
@@ -418,6 +419,10 @@ public class EasSyncService extends AbstractSyncService {
     public void runAccountMailbox() throws IOException, EasParserException {
         // Initialize exit status to success
         mNetworkType = waitForConnectivity();
+        mPingHeartbeat = PING_HEARTBEAT_MOBILE;
+        if (mNetworkType == ConnectivityManager.TYPE_WIFI) {
+            mPingHeartbeat = PING_HEARTBEAT_WIFI;
+        }
         mExitStatus = EmailServiceStatus.SUCCESS;
         try {
             try {
@@ -665,12 +670,9 @@ public class EasSyncService extends AbstractSyncService {
 
                         if (canPushCount++ == 0) {
                             // Initialize the Ping command
-                            String pingHeartbeat = PING_HEARTBEAT_MOBILE;
-                            if (mNetworkType == ConnectivityManager.TYPE_WIFI) {
-                                pingHeartbeat = PING_HEARTBEAT_WIFI;
-                            }
                             s.start(Tags.PING_PING)
-                                .data(Tags.PING_HEARTBEAT_INTERVAL, pingHeartbeat)
+                                .data(Tags.PING_HEARTBEAT_INTERVAL,
+                                        Integer.toString(mPingHeartbeat))
                                 .start(Tags.PING_FOLDERS);
                         }
                         // When we're ready for Calendar/Contacts, we will check folder type
@@ -701,9 +703,10 @@ public class EasSyncService extends AbstractSyncService {
                 s.end().end().done();
 
                 Thread.currentThread().setName(mAccount.mDisplayName + ": Ping");
-                userLog("Sending ping, timeout: " + PING_COMMAND_TIMEOUT / MINUTES + "m");
+                userLog("Sending ping, timeout: " + mPingHeartbeat + "s");
 
-                SyncManager.runAsleep(mMailboxId, PING_COMMAND_TIMEOUT);
+                // Sleep for the heartbeat time plus a little bit of slack
+                SyncManager.runAsleep(mMailboxId, (mPingHeartbeat+15)*SECONDS);
                 long time = System.currentTimeMillis();
                 HttpResponse res = sendHttpClientPost(PING_COMMAND, s.toByteArray());
                 SyncManager.runAwake(mMailboxId);

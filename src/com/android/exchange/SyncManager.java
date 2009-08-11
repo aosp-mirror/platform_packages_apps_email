@@ -372,7 +372,7 @@ public class SyncManager extends Service implements Runnable {
                                         new String[] {Long.toString(account.mId)});
                             }
                             // Stop all current syncs; the appropriate ones will restart
-                            stopAccountSyncs(account.mId, false);
+                            stopAccountSyncs(account.mId, true);
                         }
                     }
                 }
