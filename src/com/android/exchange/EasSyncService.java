@@ -61,6 +61,7 @@ import android.content.ContentValues;
 import android.content.Context;
 import android.content.Intent;
 import android.database.Cursor;
+import android.net.ConnectivityManager;
 import android.os.RemoteException;
 import android.util.Log;
 
@@ -98,7 +99,13 @@ public class EasSyncService extends AbstractSyncService {
     static private final int COMMAND_TIMEOUT = 20*SECONDS;
     static private final int PING_COMMAND_TIMEOUT = 20*MINUTES;
 
+    // For mobile, we use a 5 minute timeout (less a few seconds)
+    static private final String PING_HEARTBEAT_MOBILE = "295";
+    // For wifi, we use a 15 minute timeout
+    static private final String PING_HEARTBEAT_WIFI = "900";
+
     // Fallbacks (in minutes) for ping loop failures
+    static private final int MAX_PING_FAILURES = 2;
     static private final int PING_FALLBACK_INBOX = 5;
     static private final int PING_FALLBACK_PIM = 30;
 
@@ -122,6 +129,7 @@ public class EasSyncService extends AbstractSyncService {
     String[] mBindArguments = new String[2];
     InputStream mPendingPartInputStream = null;
     HttpPost mPendingPost = null;
+    int mNetworkType;
 
     public EasSyncService(Context _context, Mailbox _mailbox) {
         super(_context, _mailbox);
@@ -409,6 +417,7 @@ public class EasSyncService extends AbstractSyncService {
      */
     public void runAccountMailbox() throws IOException, EasParserException {
         // Initialize exit status to success
+        mNetworkType = waitForConnectivity();
         mExitStatus = EmailServiceStatus.SUCCESS;
         try {
             try {
@@ -543,7 +552,7 @@ public class EasSyncService extends AbstractSyncService {
             } catch (RemoteException e1) {
                 // Don't care if this fails
             }
-            throw new IOException();
+            throw e;
         }
     }
 
@@ -644,7 +653,7 @@ public class EasSyncService extends AbstractSyncService {
                                 Integer failures = pingFailureMap.get(mailboxId);
                                 if (failures == null) {
                                     pingFailureMap.put(mailboxId, 1);
-                                } else if (failures > 4) {
+                                } else if (failures > MAX_PING_FAILURES) {
                                     // Change all push/ping boxes (except account) to 5 minute sync
                                     pushFallback(mailboxId);
                                     return;
@@ -656,7 +665,12 @@ public class EasSyncService extends AbstractSyncService {
 
                         if (canPushCount++ == 0) {
                             // Initialize the Ping command
-                            s.start(Tags.PING_PING).data(Tags.PING_HEARTBEAT_INTERVAL, "900")
+                            String pingHeartbeat = PING_HEARTBEAT_MOBILE;
+                            if (mNetworkType == ConnectivityManager.TYPE_WIFI) {
+                                pingHeartbeat = PING_HEARTBEAT_WIFI;
+                            }
+                            s.start(Tags.PING_PING)
+                                .data(Tags.PING_HEARTBEAT_INTERVAL, pingHeartbeat)
                                 .start(Tags.PING_FOLDERS);
                         }
                         // When we're ready for Calendar/Contacts, we will check folder type
