@@ -202,7 +202,6 @@ public class Rfc822Output {
         byte[] bytes = text.getBytes("UTF-8");
         writer.flush();
         out.write(Base64.encodeBase64Chunked(bytes));
-        writer.write(text);
         writer.write("\r\n");
     }
 }

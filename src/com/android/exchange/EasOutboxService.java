@@ -17,11 +17,12 @@
 
 package com.android.exchange;
 
+import com.android.email.mail.transport.Rfc822Output;
 import com.android.email.provider.EmailContent.HostAuth;
 import com.android.email.provider.EmailContent.Mailbox;
 import com.android.email.provider.EmailContent.Message;
 import com.android.email.provider.EmailContent.MessageColumns;
-import com.android.exchange.utility.Rfc822Formatter;
+import com.android.email.provider.EmailContent.SyncColumns;
 
 import org.apache.http.HttpResponse;
 
@@ -30,6 +31,7 @@ import android.content.ContentValues;
 import android.content.Context;
 import android.database.Cursor;
 
+import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.net.HttpURLConnection;
 
@@ -47,8 +49,6 @@ public class EasOutboxService extends EasSyncService {
     @Override
     public void run() {
         mThread = Thread.currentThread();
-        String uniqueId = android.provider.Settings.Secure.getString(mContext.getContentResolver(),
-                android.provider.Settings.Secure.ANDROID_ID);
         try {
             Cursor c = mContext.getContentResolver().query(Message.CONTENT_URI,
                     Message.CONTENT_PROJECTION, MessageColumns.MAILBOX_KEY + '=' + mMailbox.mId,
@@ -57,9 +57,10 @@ public class EasOutboxService extends EasSyncService {
                 while (c.moveToNext()) {
                     Message msg = new Message().restore(c);
                     if (msg != null) {
-                        String data = Rfc822Formatter
-                            .writeEmailAsRfc822String(mContext, mAccount, msg, uniqueId);
-                        HttpResponse resp = sendHttpClientPost("SendMail&SaveInSent=T", data.getBytes());
+                        ByteArrayOutputStream baos = new ByteArrayOutputStream(1024);
+                        Rfc822Output.writeTo(mContext, msg.mId, baos);
+                        HttpResponse resp =
+                            sendHttpClientPost("SendMail&SaveInSent=T", baos.toByteArray());
                         int code = resp.getStatusLine().getStatusCode();
                         if (code == HttpURLConnection.HTTP_OK) {
                             userLog("Deleting message...");
@@ -67,7 +68,7 @@ public class EasOutboxService extends EasSyncService {
                                     Message.CONTENT_URI, msg.mId), null, null);
                         } else {
                             ContentValues cv = new ContentValues();
-                            cv.put("uid", 1);
+                            cv.put(SyncColumns.SERVER_ID, 1);
                             Message.update(mContext, Message.CONTENT_URI, msg.mId, cv);
                         }
                         // TODO How will the user know that the message sent or not?
