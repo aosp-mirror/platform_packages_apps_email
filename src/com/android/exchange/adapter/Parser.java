@@ -296,6 +296,10 @@ public abstract class Parser {
     }
 
     void log(String str) {
+        int cr = str.indexOf('\n');
+        if (cr > 0) {
+            str = str.substring(0, cr);
+        }
         Log.v(TAG, str);
         if (Eas.FILE_LOG) {
             FileLogger.log(TAG, str);
@@ -353,7 +357,7 @@ public abstract class Parser {
                 type = END;
                 if (logging) {
                     name = nameArray[depth];
-                    log("</" + name + '>');
+                    //log("</" + name + '>');
                 }
                 // Retrieve the now-current startTag from our stack
                 startTag = endTag = startTagArray[depth];
@@ -368,7 +372,8 @@ public abstract class Parser {
                     text = readInlineString();
                 }
                 if (logging) {
-                    log(asInt ? Integer.toString(num) : text);
+                    name = tagTable[startTag - 5];
+                    log(name + ": " + (asInt ? Integer.toString(num) : text));
                 }
                 break;
 
@@ -382,7 +387,7 @@ public abstract class Parser {
                 depth++;
                 if (logging) {
                     name = tagTable[startTag - 5];
-                    log('<' + name + '>');
+                    //log('<' + name + '>');
                     nameArray[depth] = name;
                 }
                 // Save the startTag to our stack

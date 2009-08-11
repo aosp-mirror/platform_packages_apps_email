@@ -995,7 +995,8 @@ public class EasSyncService extends AbstractSyncService {
             }
             mExitStatus = EXIT_DONE;
         } catch (IOException e) {
-            userLog("Caught IOException");
+            String message = e.getMessage();
+            userLog("Caught IOException: " + ((message == null) ? "" : message));
             mExitStatus = EXIT_IO_ERROR;
         } catch (Exception e) {
             Log.e(TAG, "Uncaught exception in EasSyncService", e);
