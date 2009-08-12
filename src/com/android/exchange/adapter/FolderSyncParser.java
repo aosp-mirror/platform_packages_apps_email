@@ -303,7 +303,7 @@ public class FolderSyncParser extends Parser {
                 // Finally, we execute the batch
                 try {
                     mService.mContext.getContentResolver()
-                    .applyBatch(EmailProvider.EMAIL_AUTHORITY, ops);
+                        .applyBatch(EmailProvider.EMAIL_AUTHORITY, ops);
                     mService.userLog("New Account SyncKey: " + mAccount.mSyncKey);
                 } catch (RemoteException e) {
                     // There is nothing to be done here; fail by returning null
@@ -315,8 +315,9 @@ public class FolderSyncParser extends Parser {
                 // I'm not aware of any other way to deal with this properly
                 mBindArguments[0] = "Sync Issues";
                 mBindArguments[1] = mAccountIdAsString;
-                Cursor c = mContentResolver.query(Mailbox.CONTENT_URI, MAILBOX_ID_COLUMNS_PROJECTION,
-                        WHERE_DISPLAY_NAME_AND_ACCOUNT, mBindArguments, null);
+                Cursor c = mContentResolver.query(Mailbox.CONTENT_URI,
+                        MAILBOX_ID_COLUMNS_PROJECTION, WHERE_DISPLAY_NAME_AND_ACCOUNT,
+                        mBindArguments, null);
                 String parentServerId = null;
                 long id = 0;
                 try {
