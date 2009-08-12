@@ -234,6 +234,18 @@ public class EmailProvider extends ContentProvider {
         matcher.addURI(EMAIL_AUTHORITY, "updatedMessage/#", UPDATED_MESSAGE_ID);
     }
 
+    /*
+     * Internal helper method for index creation.
+     * Example:
+     * "create index message_" + MessageColumns.FLAG_READ
+     * + " on " + Message.TABLE_NAME + " (" + MessageColumns.FLAG_READ + ");"
+     */
+    /* package */
+    static String createIndex(String tableName, String columnName) {
+        return "create index " + tableName.toLowerCase() + '_' + columnName
+            + " on " + tableName + " (" + columnName + ");";
+    }
+
     static void createMessageTable(SQLiteDatabase db) {
         String messageColumns = MessageColumns.DISPLAY_NAME + " text, "
             + MessageColumns.TIMESTAMP + " integer, "
@@ -286,17 +298,17 @@ public class EmailProvider extends ContentProvider {
         db.execSQL("create table " + Message.UPDATED_TABLE_NAME + altCreateString);
         db.execSQL("create table " + Message.DELETED_TABLE_NAME + altCreateString);
 
-        // For now, indices only on the Message table
-        db.execSQL("create index message_" + MessageColumns.TIMESTAMP
-                + " on " + Message.TABLE_NAME + " (" + MessageColumns.TIMESTAMP + ");");
-        db.execSQL("create index message_" + MessageColumns.FLAG_READ
-                + " on " + Message.TABLE_NAME + " (" + MessageColumns.FLAG_READ + ");");
-        db.execSQL("create index message_" + MessageColumns.FLAG_LOADED
-                + " on " + Message.TABLE_NAME + " (" + MessageColumns.FLAG_LOADED + ");");
-        db.execSQL("create index message_" + MessageColumns.MAILBOX_KEY
-                + " on " + Message.TABLE_NAME + " (" + MessageColumns.MAILBOX_KEY + ");");
-        db.execSQL("create index message_" + SyncColumns.SERVER_ID
-                + " on " + Message.TABLE_NAME + " (" + SyncColumns.SERVER_ID + ");");
+        String indexColumns[] = {
+            MessageColumns.TIMESTAMP,
+            MessageColumns.FLAG_READ,
+            MessageColumns.FLAG_LOADED,
+            MessageColumns.MAILBOX_KEY,
+            SyncColumns.SERVER_ID
+        };
+
+        for (String columnName : indexColumns) {
+            db.execSQL(createIndex(Message.TABLE_NAME, columnName));
+        }
 
         // Deleting a Message deletes all associated Attachments
         // Deleting the associated Body cannot be done in a trigger, because the Body is stored
@@ -465,6 +477,7 @@ public class EmailProvider extends ContentProvider {
             + AttachmentColumns.ENCODING + " text"
             + ");";
         db.execSQL("create table " + Attachment.TABLE_NAME + s);
+        db.execSQL(createIndex(Attachment.TABLE_NAME, AttachmentColumns.MESSAGE_KEY));
     }
 
     static void upgradeAttachmentTable(SQLiteDatabase db, int oldVersion, int newVersion) {
@@ -482,6 +495,7 @@ public class EmailProvider extends ContentProvider {
             + BodyColumns.TEXT_CONTENT + " text"
             + ");";
         db.execSQL("create table " + Body.TABLE_NAME + s);
+        db.execSQL(createIndex(Body.TABLE_NAME, BodyColumns.MESSAGE_KEY));
     }
 
     static void upgradeBodyTable(SQLiteDatabase db, int oldVersion, int newVersion) {

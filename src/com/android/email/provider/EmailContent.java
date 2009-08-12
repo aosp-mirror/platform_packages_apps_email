@@ -20,6 +20,7 @@ import com.android.email.R;
 
 import android.content.ContentProviderOperation;
 import android.content.ContentProviderResult;
+import android.content.ContentResolver;
 import android.content.ContentUris;
 import android.content.ContentValues;
 import android.content.Context;
@@ -60,8 +61,14 @@ import java.util.UUID;
 public abstract class EmailContent {
     public static final String AUTHORITY = EmailProvider.EMAIL_AUTHORITY;
     public static final Uri CONTENT_URI = Uri.parse("content://" + AUTHORITY);
+    // All classes share this
+    public static final String RECORD_ID = "_id";
 
     private static final String[] COUNT_COLUMNS = new String[]{"count(*)"};
+    public static final String[] ID_PROJECTION = new String[] {
+        RECORD_ID
+    };
+    private static final int ID_PROJECTION_COLUMN = 0;
 
     // Newly created objects get this id
     private static final int NOT_SAVED = -1;
@@ -152,10 +159,8 @@ public abstract class EmailContent {
     private EmailContent() {
     }
 
-    // All classes share this
-    public static final String RECORD_ID = "_id";
-
     public interface SyncColumns {
+        public static final String ID = "_id";
         // source (account name and type) : foreign key into the AccountsProvider
         public static final String ACCOUNT_KEY = "syncAccountKey";
         // source id (string) : the source's name of this item
@@ -170,6 +175,7 @@ public abstract class EmailContent {
     }
 
     public interface BodyColumns {
+        public static final String ID = "_id";
         // Foreign key to the message corresponding to this body
         public static final String MESSAGE_KEY = "messageKey";
         // The html content itself
@@ -249,6 +255,39 @@ public abstract class EmailContent {
              return restoreBodyWithCursor(c);
          }
 
+        /**
+         * Returns the bodyId for the given messageId, or -1 if no body is found.
+         */
+        /* package */
+        static long lookupBodyIdWithMessageId(ContentResolver resolver, long messageId) {
+            Cursor c = resolver.query(Body.CONTENT_URI, ID_PROJECTION,
+                                      Body.MESSAGE_KEY + "=?",
+                                      new String[] {Long.toString(messageId)}, null);
+            try {
+                return c.moveToFirst() ? c.getLong(ID_PROJECTION_COLUMN) : -1;
+            } finally {
+                c.close();
+            }
+        }
+
+        /**
+         * Updates the Body for a messageId with the given ContentValues.
+         * If the message has no body, a new body is inserted for the message.
+         * Warning: the argument "values" is modified by this method, setting MESSAGE_KEY.
+         */
+        public static void updateBodyWithMessageId(Context context, long messageId, 
+                ContentValues values) {
+            ContentResolver resolver = context.getContentResolver();
+            long bodyId = lookupBodyIdWithMessageId(resolver, messageId);
+            values.put(BodyColumns.MESSAGE_KEY, messageId);
+            if (bodyId == -1) {
+                resolver.insert(CONTENT_URI, values);
+            } else {
+                final Uri uri = ContentUris.withAppendedId(CONTENT_URI, bodyId);
+                resolver.update(uri, values, null, null);
+            }
+        }
+
          private static String restoreTextWithMessageId(Context context, long messageId,
                  String[] projection) {
             Cursor c = context.getContentResolver().query(Body.CONTENT_URI, projection,
@@ -289,6 +328,7 @@ public abstract class EmailContent {
     }
 
     public interface MessageColumns {
+        public static final String ID = "_id";
         // Basic columns used in message list presentation
         // The name as shown to the user in a message list
         public static final String DISPLAY_NAME = "displayName";
@@ -722,6 +762,7 @@ public abstract class EmailContent {
     }
 
     public interface AccountColumns {
+        public static final String ID = "_id";
         // The display name of the account (user-settable)
         public static final String DISPLAY_NAME = "displayName";
         // The email address corresponding to this account
@@ -811,13 +852,6 @@ public abstract class EmailContent {
             AccountColumns.HOST_AUTH_KEY_SEND, AccountColumns.FLAGS, AccountColumns.IS_DEFAULT,
             AccountColumns.COMPATIBILITY_UUID, AccountColumns.SENDER_NAME,
             AccountColumns.RINGTONE_URI, AccountColumns.PROTOCOL_VERSION
-        };
-
-        /**
-         * This projection is for listing account id's only
-         */
-        public static final String[] ID_PROJECTION = new String[] {
-            RECORD_ID
         };
 
         public static final int CONTENT_MAILBOX_TYPE_COLUMN = 1;
@@ -1462,6 +1496,7 @@ public abstract class EmailContent {
     }
 
     public interface AttachmentColumns {
+        public static final String ID = "_id";
         // The display name of the attachment
         public static final String FILENAME = "fileName";
         // The mime type of the attachment
@@ -1739,9 +1774,6 @@ public abstract class EmailContent {
         private static final String WHERE_TYPE_AND_ACCOUNT_KEY =
             MailboxColumns.TYPE + "=? and " + MailboxColumns.ACCOUNT_KEY + "=?";
 
-        private static final int ID_PROJECTION_ID = 0;
-        private static final String[] ID_PROJECTION = new String[] { ID };
-
         public Mailbox() {
             mBaseUri = CONTENT_URI;
         }
@@ -1858,7 +1890,7 @@ public abstract class EmailContent {
                     ID_PROJECTION, WHERE_TYPE_AND_ACCOUNT_KEY, bindArguments, null);
             try {
                 if (c.moveToFirst()) {
-                    mailboxId = c.getLong(ID_PROJECTION_ID);
+                    mailboxId = c.getLong(ID_PROJECTION_COLUMN);
                 }
             } finally {
                 c.close();

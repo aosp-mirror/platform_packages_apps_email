@@ -30,10 +30,10 @@ import com.android.email.mail.Part;
 import com.android.email.mail.Message.RecipientType;
 import com.android.email.mail.internet.EmailHtmlUtil;
 import com.android.email.mail.internet.MimeUtility;
-import com.android.email.mail.store.LocalStore.LocalAttachmentBody;
 import com.android.email.provider.EmailContent;
 import com.android.email.provider.EmailContent.Account;
 import com.android.email.provider.EmailContent.Body;
+import com.android.email.provider.EmailContent.BodyColumns;
 import com.android.email.provider.EmailContent.Message;
 import com.android.email.provider.EmailContent.MessageColumns;
 
@@ -171,7 +171,7 @@ public class MessageCompose extends Activity implements OnClickListener, OnFocus
     /**
      * Encapsulates known information about a single attachment.
      */
-    private static class Attachment implements Serializable {
+    private static class AttachmentInfo {
         public String name;
         public String contentType;
         public long size;
@@ -334,7 +334,7 @@ public class MessageCompose extends Activity implements OnClickListener, OnFocus
         ArrayList<Uri> attachments = new ArrayList<Uri>();
         for (int i = 0, count = mAttachments.getChildCount(); i < count; i++) {
             View view = mAttachments.getChildAt(i);
-            Attachment attachment = (Attachment) view.getTag();
+            AttachmentInfo attachment = (AttachmentInfo) view.getTag();
             attachments.add(attachment.uri);
         }
         outState.putParcelableArrayList(STATE_KEY_ATTACHMENTS, attachments);
@@ -708,7 +708,6 @@ public class MessageCompose extends Activity implements OnClickListener, OnFocus
         if (mDraft == null) {
             mDraft = new Message();
         }
-
         updateMessage(mDraft, mAccount, buildBodyText(mSource));
 
         new AsyncTask<Void, Void, Void>() {
@@ -716,28 +715,28 @@ public class MessageCompose extends Activity implements OnClickListener, OnFocus
             protected Void doInBackground(Void... params) {
                 final String action = getIntent().getAction();
                 if (mDraft.isSaved()) {
-                    mDraft.update(getApplication(), getUpdateContentValues(mDraft));
+                    mDraft.update(MessageCompose.this, getUpdateContentValues(mDraft));
+                    ContentValues values = new ContentValues();
+                    values.put(BodyColumns.TEXT_CONTENT, mDraft.mText);
+                    Body.updateBodyWithMessageId(MessageCompose.this, mDraft.mId, values);
                 } else {
                     // saveToMailbox() is synchronous (in this same thread)
                     // so that mDraft.mId is set upon return 
                     // (needed by the sendMessage() that happens afterwards).
                     mController.saveToMailbox(mDraft, EmailContent.Mailbox.TYPE_DRAFTS);
                 }
+                if (send) {
+                    mController.sendMessage(mDraft.mId, mDraft.mAccountKey);
+                    // After a send it's no longer a draft; null it here just to be sure,
+                    // although MessageCompose should just finish() anyway.
+                    mDraft = null;
+                }
                 return null;
             }
 
             @Override
             protected void onPostExecute(Void dummy) {
-                if (send) {
-                    mController.sendMessage(mDraft.mId, mDraft.mAccountKey);
-                    // Decide whether we need to show a Toast with something like
-                    // "Message saved to Outbox for sending"
-                    // or whether just the dismissing of the composing activity is enough feedback
-
-                    // After a send it's no longer a draft; null it here just to be sure,
-                    // although MessageCompose should just finish() anyway.
-                    mDraft = null;
-                } else {
+                if (!send) {
                     // Don't display the toast if the user is just changing the orientation
                     if ((getChangingConfigurations() & ActivityInfo.CONFIG_ORIENTATION) == 0) {
                         Toast.makeText(MessageCompose.this, getString(R.string.message_saved_toast),
@@ -818,63 +817,51 @@ public class MessageCompose extends Activity implements OnClickListener, OnFocus
                 ACTIVITY_REQUEST_PICK_ATTACHMENT);
     }
 
-    private void addAttachment(Uri uri) {
-        addAttachment(uri, -1, null);
-    }
-
-    private void addAttachment(Uri uri, int size, String name) {
+    private AttachmentInfo loadAttachmentInfo(Uri uri) {
+        int size = -1;
+        String name = null;
         ContentResolver contentResolver = getContentResolver();
+        Cursor metadataCursor = contentResolver.query(uri,
+                new String[]{ OpenableColumns.DISPLAY_NAME, OpenableColumns.SIZE },
+                null, null, null);
+        if (metadataCursor != null) {
+            try {
+                if (metadataCursor.moveToFirst()) {
+                    name = metadataCursor.getString(0);
+                    size = metadataCursor.getInt(1);
+                }
+            } finally {
+                metadataCursor.close();
+            }
+        }
+        if (name == null) {
+            name = uri.getLastPathSegment();
+        }
 
         String contentType = contentResolver.getType(uri);
-
         if (contentType == null) {
             contentType = "";
         }
 
-        Attachment attachment = new Attachment();
+        AttachmentInfo attachment = new AttachmentInfo();
         attachment.name = name;
         attachment.contentType = contentType;
         attachment.size = size;
         attachment.uri = uri;
+        return attachment;
+    }
 
-        if (attachment.size == -1 || attachment.name == null) {
-            Cursor metadataCursor = contentResolver.query(
-                    uri,
-                    new String[]{ OpenableColumns.DISPLAY_NAME, OpenableColumns.SIZE },
-                    null,
-                    null,
-                    null);
-            if (metadataCursor != null) {
-                try {
-                    if (metadataCursor.moveToFirst()) {
-                        if (attachment.name == null) {
-                            attachment.name = metadataCursor.getString(0);
-                        }
-                        if (attachment.size == -1) {
-                            attachment.size = metadataCursor.getInt(1);
-                        }
-                    }
-                } finally {
-                    metadataCursor.close();
-                }
-            }
-        }
-
-        if (attachment.name == null) {
-            attachment.name = uri.getLastPathSegment();
-        }
-
+    private void addAttachment(Uri uri) {
+        AttachmentInfo attachment = loadAttachmentInfo(uri);
         // Before attaching the attachment, make sure it meets any other pre-attach criteria
         if (attachment.size > Email.MAX_ATTACHMENT_UPLOAD_SIZE) {
             Toast.makeText(this, R.string.message_compose_attachment_size, Toast.LENGTH_LONG)
                     .show();
             return;
         }
-        
-        View view = getLayoutInflater().inflate(
-                R.layout.message_compose_attachment,
-                mAttachments,
-                false);
+
+        View view = getLayoutInflater().inflate(R.layout.message_compose_attachment,
+                mAttachments, false);
         TextView nameView = (TextView)view.findViewById(R.id.attachment_name);
         ImageButton delete = (ImageButton)view.findViewById(R.id.attachment_delete);
         nameView.setText(attachment.name);
