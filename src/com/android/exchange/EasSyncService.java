@@ -368,6 +368,10 @@ public class EasSyncService extends AbstractSyncService {
     }
 
     protected HttpResponse sendHttpClientPost(String cmd, byte[] bytes) throws IOException {
+        return sendHttpClientPost(cmd, new ByteArrayEntity(bytes));
+    }
+
+    protected HttpResponse sendHttpClientPost(String cmd, HttpEntity entity) throws IOException {
         HttpClient client =
             getHttpClient(cmd.equals(PING_COMMAND) ? PING_COMMAND_TIMEOUT : COMMAND_TIMEOUT);
         String us = makeUriString(cmd, null);
@@ -378,7 +382,7 @@ public class EasSyncService extends AbstractSyncService {
             method.setHeader("Content-Type", "application/vnd.ms-sync.wbxml");
         }
         setHeaders(method);
-        method.setEntity(new ByteArrayEntity(bytes));
+        method.setEntity(entity);
         synchronized(getSynchronizer()) {
             mPendingPost = method;
         }

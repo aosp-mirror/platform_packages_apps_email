@@ -18,68 +18,101 @@
 package com.android.exchange;
 
 import com.android.email.mail.transport.Rfc822Output;
-import com.android.email.provider.EmailContent.HostAuth;
 import com.android.email.provider.EmailContent.Mailbox;
 import com.android.email.provider.EmailContent.Message;
 import com.android.email.provider.EmailContent.MessageColumns;
 import com.android.email.provider.EmailContent.SyncColumns;
 
 import org.apache.http.HttpResponse;
+import org.apache.http.entity.InputStreamEntity;
 
 import android.content.ContentUris;
 import android.content.ContentValues;
 import android.content.Context;
 import android.database.Cursor;
 
-import java.io.ByteArrayOutputStream;
+import java.io.File;
+import java.io.FileInputStream;
+import java.io.FileOutputStream;
 import java.io.IOException;
 import java.net.HttpURLConnection;
 
 public class EasOutboxService extends EasSyncService {
 
+    public static final int SEND_FAILED = 1;
+    public static final String MAILBOX_KEY_AND_NOT_SEND_FAILED =
+        MessageColumns.MAILBOX_KEY + "=? and " + SyncColumns.SERVER_ID + "!=" + SEND_FAILED;
+
     public EasOutboxService(Context _context, Mailbox _mailbox) {
         super(_context, _mailbox);
         mContext = _context;
-        HostAuth ha = HostAuth.restoreHostAuthWithId(mContext, mAccount.mHostAuthKeyRecv);
-        mHostAddress = ha.mAddress;
-        mUserName = ha.mLogin;
-        mPassword = ha.mPassword;
+    }
+
+    /**
+     * Send a single message via EAS
+     * Note that we mark messages SEND_FAILED when there is a permanent failure, rather than an
+     * IOException, which is handled by SyncManager with retries, backoffs, etc.
+     *
+     * @param cacheDir the cache directory for this context
+     * @param msgId the _id of the message to send
+     * @throws IOException
+     */
+    void sendMessage(File cacheDir, long msgId) throws IOException {
+        File tmpFile = File.createTempFile("eas_", "tmp", cacheDir);
+        // Write the output to a temporary file
+        try {
+            FileOutputStream fileStream = new FileOutputStream(tmpFile);
+            Rfc822Output.writeTo(mContext, msgId, fileStream);
+            fileStream.close();
+            // Now, get an input stream to our new file and create an entity with it
+            FileInputStream inputStream = new FileInputStream(tmpFile);
+            InputStreamEntity inputEntity =
+                new InputStreamEntity(inputStream, tmpFile.length());
+            // Send the post to the server
+            HttpResponse resp =
+                sendHttpClientPost("SendMail&SaveInSent=T", inputEntity);
+            inputStream.close();
+            int code = resp.getStatusLine().getStatusCode();
+            if (code == HttpURLConnection.HTTP_OK) {
+                userLog("Deleting message...");
+                mContext.getContentResolver().delete(ContentUris.withAppendedId(
+                        Message.CONTENT_URI, msgId), null, null);
+            } else {
+                // This case handles post-connection failures (i.e. errors coming back from the
+                // server)
+                // TODO Handle login failures?
+                ContentValues cv = new ContentValues();
+                cv.put(SyncColumns.SERVER_ID, SEND_FAILED);
+                Message.update(mContext, Message.CONTENT_URI, msgId, cv);
+            }
+            // TODO Implement the upcoming EmailServiceCallback for messageSent
+            // sendMessageResult(messageId, result);
+        } finally {
+            // Clean up the temporary file
+            if (tmpFile.exists()) {
+                tmpFile.delete();
+            }
+        }
     }
 
     @Override
     public void run() {
         mThread = Thread.currentThread();
+        File cacheDir = mContext.getCacheDir();
         try {
             Cursor c = mContext.getContentResolver().query(Message.CONTENT_URI,
-                    Message.CONTENT_PROJECTION, MessageColumns.MAILBOX_KEY + '=' + mMailbox.mId,
-                    null, null);
-            try {
+                    Message.ID_COLUMN_PROJECTION, MAILBOX_KEY_AND_NOT_SEND_FAILED,
+                    new String[] {Long.toString(mMailbox.mId)}, null);
+             try {
                 while (c.moveToNext()) {
-                    Message msg = new Message().restore(c);
-                    if (msg != null) {
-                        ByteArrayOutputStream baos = new ByteArrayOutputStream(1024);
-                        Rfc822Output.writeTo(mContext, msg.mId, baos);
-                        HttpResponse resp =
-                            sendHttpClientPost("SendMail&SaveInSent=T", baos.toByteArray());
-                        int code = resp.getStatusLine().getStatusCode();
-                        if (code == HttpURLConnection.HTTP_OK) {
-                            userLog("Deleting message...");
-                            mContext.getContentResolver().delete(ContentUris.withAppendedId(
-                                    Message.CONTENT_URI, msg.mId), null, null);
-                        } else {
-                            ContentValues cv = new ContentValues();
-                            cv.put(SyncColumns.SERVER_ID, 1);
-                            Message.update(mContext, Message.CONTENT_URI, msg.mId, cv);
-                        }
-                        // TODO How will the user know that the message sent or not?
+                    long msgId = c.getLong(0);
+                    if (msgId != 0) {
+                        sendMessage(cacheDir, msgId);
                     }
                 }
             } finally {
-                c.close();
+                 c.close();
             }
-        } catch (IOException e) {
-            userLog("Caught IOException");
-            mExitStatus = EXIT_IO_ERROR;
         } catch (Exception e) {
             mExitStatus = EXIT_EXCEPTION;
         } finally {

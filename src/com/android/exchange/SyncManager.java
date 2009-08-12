@@ -1081,8 +1081,7 @@ public class SyncManager extends Service implements Runnable {
                         startService(m, SYNC_PUSH, null);
                     } else if (c.getInt(Mailbox.CONTENT_TYPE_COLUMN) == Mailbox.TYPE_OUTBOX) {
                         int cnt = EmailContent.count(this, Message.CONTENT_URI,
-                                MessageColumns.MAILBOX_KEY + "=? and " +
-                                SyncColumns.SERVER_ID + "!=1",
+                                EasOutboxService.MAILBOX_KEY_AND_NOT_SEND_FAILED,
                                 new String[] {Long.toString(mid)});
                         if (cnt > 0) {
                             Mailbox m = EmailContent.getContent(c, Mailbox.class);
