@@ -113,7 +113,7 @@ public class SyncManager extends Service implements Runnable {
     private static final String WHERE_PUSH_OR_PING_NOT_ACCOUNT_MAILBOX =
         MailboxColumns.ACCOUNT_KEY + "=? and " + MailboxColumns.TYPE + "!=" +
         Mailbox.TYPE_EAS_ACCOUNT_MAILBOX + " and " + MailboxColumns.SYNC_INTERVAL +
-        " IN (" + Account.CHECK_INTERVAL_PING + ',' + Account.CHECK_INTERVAL_PUSH + ')';
+        " IN (" + Mailbox.CHECK_INTERVAL_PING + ',' + Mailbox.CHECK_INTERVAL_PUSH + ')';
     protected static final String WHERE_IN_ACCOUNT_AND_PUSHABLE =
         MailboxColumns.ACCOUNT_KEY + "=? and type in (" + Mailbox.TYPE_INBOX + ','
         /*+ Mailbox.TYPE_CALENDAR + ','*/ + Mailbox.TYPE_CONTACTS + ')';
@@ -137,7 +137,8 @@ public class SyncManager extends Service implements Runnable {
     private static Object sSyncToken = new Object();
 
     // Keeps track of running services (by mailbox id)
-    private HashMap<Long, AbstractSyncService> mServiceMap = new HashMap<Long, AbstractSyncService>();
+    private HashMap<Long, AbstractSyncService> mServiceMap =
+        new HashMap<Long, AbstractSyncService>();
     // Keeps track of services whose last sync ended with an error (by mailbox id)
     private HashMap<Long, SyncError> mSyncErrorMap = new HashMap<Long, SyncError>();
     // Keeps track of which services require a wake lock (by mailbox id)
@@ -366,7 +367,7 @@ public class SyncManager extends Service implements Runnable {
                                 Account.restoreAccountWithId(getContext(), account.mId);
                             if (updatedAccount.mSyncInterval == Account.CHECK_INTERVAL_PUSH) {
                                 ContentValues cv = new ContentValues();
-                                cv.put(MailboxColumns.SYNC_INTERVAL, Account.CHECK_INTERVAL_PUSH);
+                                cv.put(MailboxColumns.SYNC_INTERVAL, Mailbox.CHECK_INTERVAL_PUSH);
                                 getContext().getContentResolver().update(Mailbox.CONTENT_URI, cv,
                                         WHERE_IN_ACCOUNT_AND_PUSHABLE,
                                         new String[] {Long.toString(account.mId)});
@@ -416,7 +417,7 @@ public class SyncManager extends Service implements Runnable {
             main.mServerId = Eas.ACCOUNT_MAILBOX + System.nanoTime();
             main.mAccountKey = acct.mId;
             main.mType = Mailbox.TYPE_EAS_ACCOUNT_MAILBOX;
-            main.mSyncInterval = Account.CHECK_INTERVAL_PUSH;
+            main.mSyncInterval = Mailbox.CHECK_INTERVAL_PUSH;
             main.mFlagVisible = false;
             main.save(getContext());
             INSTANCE.log("Initializing account: " + acct.mDisplayName);
@@ -679,7 +680,7 @@ public class SyncManager extends Service implements Runnable {
 
                     // Change all ping/push boxes to push/hold
                     ContentValues cv = new ContentValues();
-                    cv.put(Mailbox.SYNC_INTERVAL, Account.CHECK_INTERVAL_PUSH_HOLD);
+                    cv.put(Mailbox.SYNC_INTERVAL, Mailbox.CHECK_INTERVAL_PUSH_HOLD);
                     context.getContentResolver().update(Mailbox.CONTENT_URI, cv,
                             WHERE_PUSH_OR_PING_NOT_ACCOUNT_MAILBOX,
                             new String[] {Long.toString(accountId)});
@@ -1075,7 +1076,7 @@ public class SyncManager extends Service implements Runnable {
                         continue;
                     }
                     long freq = c.getInt(Mailbox.CONTENT_SYNC_INTERVAL_COLUMN);
-                    if (freq == Account.CHECK_INTERVAL_PUSH) {
+                    if (freq == Mailbox.CHECK_INTERVAL_PUSH) {
                         Mailbox m = EmailContent.getContent(c, Mailbox.class);
                         startService(m, SYNC_PUSH, null);
                     } else if (c.getInt(Mailbox.CONTENT_TYPE_COLUMN) == Mailbox.TYPE_OUTBOX) {
@@ -1279,7 +1280,7 @@ public class SyncManager extends Service implements Runnable {
         if (INSTANCE == null) return;
         Mailbox m = Mailbox.restoreMailboxWithId(INSTANCE, mailboxId);
         int syncType = m.mSyncInterval;
-        if (syncType == Account.CHECK_INTERVAL_PUSH) {
+        if (syncType == Mailbox.CHECK_INTERVAL_PUSH) {
             SyncManager.serviceRequestImmediate(mailboxId);
         } else {
             SyncManager.startManualSync(mailboxId, SYNC_KICK, null);

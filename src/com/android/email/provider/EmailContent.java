@@ -765,14 +765,9 @@ public abstract class EmailContent {
         public static final int DELETE_POLICY_7DAYS = 1;
         public static final int DELETE_POLICY_ON_DELETE = 2;
 
+        // Sentinel values for the mSyncInterval field of both Account records
         public static final int CHECK_INTERVAL_NEVER = -1;
         public static final int CHECK_INTERVAL_PUSH = -2;
-
-        // For EAS...
-        // Ping indicates that the box is pushed via a "ping" from the server
-        public static final int CHECK_INTERVAL_PING = -3;
-        // PingHold indicates a push or ping box that shouldn't sync just yet
-        public static final int CHECK_INTERVAL_PUSH_HOLD = -4;
 
         public static final int SYNC_WINDOW_USER = -1;
 
@@ -1730,6 +1725,16 @@ public abstract class EmailContent {
             MailboxColumns.SYNC_STATUS
         };
         public static final long NO_MAILBOX = -1;
+
+        // Sentinel values for the mSyncInterval field of both Mailbox records
+        public static final int CHECK_INTERVAL_NEVER = -1;
+        public static final int CHECK_INTERVAL_PUSH = -2;
+        // The following two sentinel values are used by EAS
+        // Ping indicates that the EAS mailbox is synced based on a "ping" from the server
+        public static final int CHECK_INTERVAL_PING = -3;
+        // Push-Hold indicates an EAS push or ping Mailbox shouldn't sync just yet
+        public static final int CHECK_INTERVAL_PUSH_HOLD = -4;
+
 
         private static final String WHERE_TYPE_AND_ACCOUNT_KEY =
             MailboxColumns.TYPE + "=? and " + MailboxColumns.ACCOUNT_KEY + "=?";

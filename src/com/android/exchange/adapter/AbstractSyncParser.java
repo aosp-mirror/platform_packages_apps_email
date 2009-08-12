@@ -104,7 +104,7 @@ public abstract class AbstractSyncParser extends Parser {
                         mMailbox.mSyncKey = "0";
                         // Make this a push box through the first sync
                         // TODO Make frequency conditional on user settings!
-                        mMailbox.mSyncInterval = Account.CHECK_INTERVAL_PUSH;
+                        mMailbox.mSyncInterval = Mailbox.CHECK_INTERVAL_PUSH;
                         mService.errorLog("Bad sync key; RESET and delete contacts");
                         wipe();
                         // Indicate there's more so that we'll start syncing again
@@ -130,8 +130,8 @@ public abstract class AbstractSyncParser extends Parser {
                 mService.userLog("Parsed key for " + mMailbox.mDisplayName + ": " + newKey);
                 mMailbox.mSyncKey = newKey;
                 // If we were pushing (i.e. auto-start), now we'll become ping-triggered
-                if (mMailbox.mSyncInterval == Account.CHECK_INTERVAL_PUSH) {
-                    mMailbox.mSyncInterval = Account.CHECK_INTERVAL_PING;
+                if (mMailbox.mSyncInterval == Mailbox.CHECK_INTERVAL_PUSH) {
+                    mMailbox.mSyncInterval = Mailbox.CHECK_INTERVAL_PING;
                 }
            } else {
                 skipTag();
@@ -159,7 +159,7 @@ public abstract class AbstractSyncParser extends Parser {
             synchronized (mService.getSynchronizer()) {
                 if (!mService.isStopped()) {
                     ContentValues cv = new ContentValues();
-                    cv.put(MailboxColumns.SYNC_INTERVAL, Account.CHECK_INTERVAL_PING);
+                    cv.put(MailboxColumns.SYNC_INTERVAL, Mailbox.CHECK_INTERVAL_PING);
                     mMailbox.update(mContext, cv);
                     mService.userLog("Changes found to ping loop mailbox " + mMailbox.mDisplayName +
                             ": switch back to ping.");

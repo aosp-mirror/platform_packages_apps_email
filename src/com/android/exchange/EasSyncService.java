@@ -84,14 +84,14 @@ public class EasSyncService extends AbstractSyncService {
         MailboxColumns.ACCOUNT_KEY + "=? and " + MailboxColumns.SERVER_ID + "=?";
     private static final String WHERE_ACCOUNT_AND_SYNC_INTERVAL_PING =
         MailboxColumns.ACCOUNT_KEY + "=? and " + MailboxColumns.SYNC_INTERVAL +
-        '=' + Account.CHECK_INTERVAL_PING;
+        '=' + Mailbox.CHECK_INTERVAL_PING;
     private static final String AND_FREQUENCY_PING_PUSH_AND_NOT_ACCOUNT_MAILBOX = " AND " +
-        MailboxColumns.SYNC_INTERVAL + " IN (" + Account.CHECK_INTERVAL_PING +
-        ',' + Account.CHECK_INTERVAL_PUSH + ") AND " + MailboxColumns.TYPE + "!=\"" +
+        MailboxColumns.SYNC_INTERVAL + " IN (" + Mailbox.CHECK_INTERVAL_PING +
+        ',' + Mailbox.CHECK_INTERVAL_PUSH + ") AND " + MailboxColumns.TYPE + "!=\"" +
         Mailbox.TYPE_EAS_ACCOUNT_MAILBOX + '\"';
     private static final String WHERE_PUSH_HOLD_NOT_ACCOUNT_MAILBOX =
         MailboxColumns.ACCOUNT_KEY + "=? and " + MailboxColumns.SYNC_INTERVAL +
-        '=' + Account.CHECK_INTERVAL_PUSH_HOLD;
+        '=' + Mailbox.CHECK_INTERVAL_PUSH_HOLD;
 
     static private final int CHUNK_SIZE = 16*1024;
 
@@ -447,7 +447,7 @@ public class EasSyncService extends AbstractSyncService {
 
             // When we first start up, change all ping mailboxes to push.
             ContentValues cv = new ContentValues();
-            cv.put(Mailbox.SYNC_INTERVAL, Account.CHECK_INTERVAL_PUSH);
+            cv.put(Mailbox.SYNC_INTERVAL, Mailbox.CHECK_INTERVAL_PUSH);
             if (mContentResolver.update(Mailbox.CONTENT_URI, cv,
                     WHERE_ACCOUNT_AND_SYNC_INTERVAL_PING,
                     new String[] {Long.toString(mAccount.mId)}) > 0) {
@@ -484,7 +484,7 @@ public class EasSyncService extends AbstractSyncService {
             // Change all pushable boxes to push when we start the account mailbox
             if (mAccount.mSyncInterval == Account.CHECK_INTERVAL_PUSH) {
                 cv = new ContentValues();
-                cv.put(Mailbox.SYNC_INTERVAL, Account.CHECK_INTERVAL_PUSH);
+                cv.put(Mailbox.SYNC_INTERVAL, Mailbox.CHECK_INTERVAL_PUSH);
                 if (mContentResolver.update(Mailbox.CONTENT_URI, cv,
                         SyncManager.WHERE_IN_ACCOUNT_AND_PUSHABLE,
                         new String[] {Long.toString(mAccount.mId)}) > 0) {

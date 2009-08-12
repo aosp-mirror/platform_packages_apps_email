@@ -217,14 +217,14 @@ public class FolderSyncParser extends Parser {
             m.mServerId = serverId;
             m.mAccountKey = mAccountId;
             m.mType = Mailbox.TYPE_MAIL;
-            m.mSyncInterval = Account.CHECK_INTERVAL_NEVER;
+            m.mSyncInterval = Mailbox.CHECK_INTERVAL_NEVER;
             switch (type) {
                 case INBOX_TYPE:
-                    m.mSyncInterval = Account.CHECK_INTERVAL_PUSH;
+                    m.mSyncInterval = Mailbox.CHECK_INTERVAL_PUSH;
                     m.mType = Mailbox.TYPE_INBOX;
                     break;
                 case OUTBOX_TYPE:
-                    m.mSyncInterval = Account.CHECK_INTERVAL_NEVER;
+                    m.mSyncInterval = Mailbox.CHECK_INTERVAL_NEVER;
                     // TYPE_OUTBOX mailboxes are known by SyncManager to sync whenever they aren't
                     // empty.  The value of mSyncFrequency is ignored for this kind of mailbox.
                     m.mType = Mailbox.TYPE_OUTBOX;
@@ -246,7 +246,7 @@ public class FolderSyncParser extends Parser {
                 case CONTACTS_TYPE:
                     m.mType = Mailbox.TYPE_CONTACTS;
                     // TODO Frequency below should depend on settings
-                    m.mSyncInterval = Account.CHECK_INTERVAL_PUSH;
+                    m.mSyncInterval = Mailbox.CHECK_INTERVAL_PUSH;
                     break;
             }
 
