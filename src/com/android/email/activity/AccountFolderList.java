@@ -214,6 +214,12 @@ public class AccountFolderList extends ListActivity
 
         Controller.getInstance(getApplication()).addResultCallback(mControllerCallback);
 
+        if (mLoadAccountsTask != null &&
+                mLoadAccountsTask.getStatus() != LoadAccountsTask.Status.FINISHED) {
+            mLoadAccountsTask.cancel(true);
+        }
+        mLoadAccountsTask = (LoadAccountsTask) new LoadAccountsTask().execute();
+
         // TODO: What updates do we need to auto-trigger, now that we have mailboxes in view?
     }
 
