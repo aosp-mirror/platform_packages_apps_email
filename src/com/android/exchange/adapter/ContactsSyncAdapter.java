@@ -104,6 +104,8 @@ public class ContactsSyncAdapter extends AbstractSyncAdapter {
         return p.parse();
     }
 
+    // YomiFirstName, YomiLastName, and YomiCompanyName are the names of EAS fields
+    // Yomi is a shortened form of yomigana, which is a Japanese phonetic rendering.
     public static final class Yomi {
         private Yomi() {}
 
@@ -494,6 +496,17 @@ public class ContactsSyncAdapter extends AbstractSyncAdapter {
             if (companyName != null) {
                 ops.addOrganization(entity, Organization.TYPE_WORK, companyName, title);
             }
+
+            if (entity != null) {
+                // We've been removing rows from the list as they've been found in the xml
+                // Any that are left must have been deleted on the server
+                ArrayList<NamedContentValues> ncvList = entity.getSubValues();
+                for (NamedContentValues ncv: ncvList) {
+                    // These rows need to be deleted...
+                    Uri u = dataUriFromNamedContentValues(ncv);
+                    ops.add(ContentProviderOperation.newDelete(u).build());
+                }
+            }
         }
 
         private void categoriesParser(ContactOperations ops, Entity entity) throws IOException {
@@ -774,17 +787,6 @@ public class ContactsSyncAdapter extends AbstractSyncAdapter {
                     }
                 }
             }
-        }
-
-        /**
-         * Generate the uri for the data row associated with this NamedContentValues object
-         * @param ncv the NamedContentValues object
-         * @return a uri that can be used to refer to this row
-         */
-        private Uri dataUriFromNamedContentValues(NamedContentValues ncv) {
-            long id = ncv.values.getAsLong(RawContacts._ID);
-            Uri dataUri = ContentUris.withAppendedId(ncv.uri, id);
-            return dataUri;
         }
 
         /**
@@ -1114,6 +1116,17 @@ public class ContactsSyncAdapter extends AbstractSyncAdapter {
             builder.withValue(Note.NOTE, note);
             add(builder.build());
         }
+    }
+
+    /**
+     * Generate the uri for the data row associated with this NamedContentValues object
+     * @param ncv the NamedContentValues object
+     * @return a uri that can be used to refer to this row
+     */
+    public Uri dataUriFromNamedContentValues(NamedContentValues ncv) {
+        long id = ncv.values.getAsLong(RawContacts._ID);
+        Uri dataUri = ContentUris.withAppendedId(ncv.uri, id);
+        return dataUri;
     }
 
     @Override
