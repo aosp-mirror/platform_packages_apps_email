@@ -37,12 +37,12 @@ public abstract class Sender {
      * Static named constructor.  It should be overrode by extending class.
      * Because this method will be called through reflection, it can not be protected.
      */
-    public static Sender newInstance(String uri, Context context)
+    public static Sender newInstance(Context context, String uri)
             throws MessagingException {
         throw new MessagingException("Sender.newInstance: Unknown scheme in " + uri);
     }
 
-    private static Sender instantiateSender(String className, String uri, Context context)
+    private static Sender instantiateSender(Context context, String className, String uri)
         throws MessagingException {
         Object o = null;
         try {
@@ -67,7 +67,7 @@ public abstract class Sender {
     /**
      * Find Sender implementation consulting with sender.xml file.
      */
-    private static Sender findSender(int resourceId, String uri, Context context)
+    private static Sender findSender(Context context, int resourceId, String uri)
             throws MessagingException {
         Sender sender = null;
         try {
@@ -82,7 +82,7 @@ public abstract class Sender {
                         // found sender entry whose scheme is matched with uri.
                         // then load sender class.
                         String className = xml.getAttributeValue(null, "class");
-                        sender = instantiateSender(className, uri, context);
+                        sender = instantiateSender(context, className, uri);
                     }
                 }
             }
@@ -94,13 +94,13 @@ public abstract class Sender {
         return sender;
     }
 
-    public synchronized static Sender getInstance(String uri, Context context)
+    public synchronized static Sender getInstance(Context context, String uri)
             throws MessagingException {
        Sender sender = mSenders.get(uri);
        if (sender == null) {
-           sender = findSender(R.xml.senders_product, uri, context);
+           sender = findSender(context, R.xml.senders_product, uri);
            if (sender == null) {
-               sender = findSender(R.xml.senders, uri, context);
+               sender = findSender(context, R.xml.senders, uri);
            }
 
            if (sender != null) {
@@ -126,18 +126,17 @@ public abstract class Sender {
 
     public abstract void open() throws MessagingException;
     
-    public String validateSenderLimit(Message message) {
+    public String validateSenderLimit(long messageId) {
         return null;
     }
 
     /**
      * Check message has any limitation of Sender or not.
      * 
-     * @param message the message that will be checked.
+     * @param messageId the message that will be checked.
      * @throws LimitViolationException
      */
-    public void checkSenderLimitation(Message message)
-        throws LimitViolationException, MessagingException {
+    public void checkSenderLimitation(long messageId) throws LimitViolationException {
     }
     
     public static class LimitViolationException extends MessagingException {
@@ -160,7 +159,7 @@ public abstract class Sender {
         }
     }
     
-    public abstract void sendMessage(Message message) throws MessagingException;
+    public abstract void sendMessage(long messageId) throws MessagingException;
 
     public abstract void close() throws MessagingException;
 }

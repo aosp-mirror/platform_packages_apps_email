@@ -186,7 +186,7 @@ public class AccountSettings extends PreferenceActivity {
         Preference prefOutgoing = findPreference(PREFERENCE_OUTGOING);
         boolean showOutgoing = true;
         try {
-            Sender sender = Sender.getInstance(mAccount.getSenderUri(this), getApplication());
+            Sender sender = Sender.getInstance(getApplication(), mAccount.getSenderUri(this));
             if (sender != null) {
                 Class<? extends android.app.Activity> setting = sender.getSettingActivityClass();
                 showOutgoing = (setting != null);
@@ -283,7 +283,7 @@ public class AccountSettings extends PreferenceActivity {
 
     private void onOutgoingSettings() {
         try {
-            Sender sender = Sender.getInstance(mAccount.getSenderUri(this), getApplication());
+            Sender sender = Sender.getInstance(getApplication(), mAccount.getSenderUri(this));
             if (sender != null) {
                 Class<? extends android.app.Activity> setting = sender.getSettingActivityClass();
                 if (setting != null) {

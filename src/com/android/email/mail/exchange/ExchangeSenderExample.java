@@ -81,7 +81,7 @@ public class ExchangeSenderExample extends Sender {
     }
 
     @Override
-    public void sendMessage(Message message) throws MessagingException {
+    public void sendMessage(long messageId) throws MessagingException {
         // TODO Auto-generated method stub
 
     }

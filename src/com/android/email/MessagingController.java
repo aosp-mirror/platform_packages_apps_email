@@ -1741,14 +1741,14 @@ public class MessagingController implements Runnable {
                     account.getStoreUri(mContext), mContext, localStore.getPersistentCallbacks());
             boolean requireCopyMessageToSentFolder = remoteStore.requireCopyMessageToSentFolder();
 
-            Sender sender = Sender.getInstance(account.getSenderUri(mContext), mContext);
+            Sender sender = Sender.getInstance(mContext, account.getSenderUri(mContext));
             for (Message message : localMessages) {
                 try {
                     localFolder.fetch(new Message[] { message }, fp, null);
                     try {
                         // Send message using Sender
                         message.setFlag(Flag.X_SEND_IN_PROGRESS, true);
-                        sender.sendMessage(message);
+//                        sender.sendMessage(message);
                         message.setFlag(Flag.X_SEND_IN_PROGRESS, false);
 
                         // Upload to "sent" folder if not supported server-side

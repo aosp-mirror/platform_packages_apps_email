@@ -23,7 +23,6 @@ import android.util.Log;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
-import java.net.SocketException;
 import java.net.URI;
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -85,7 +84,15 @@ public class MockTransport implements Transport {
     }
     
     private ArrayList<Transaction> mPairs = new ArrayList<Transaction>();
-    
+
+    /**
+     * Give the mock a pattern to wait for.  No response will be sent.
+     * @param pattern Java RegEx to wait for
+     */
+    public void expect(String pattern) {
+        expect(pattern, (String[])null);
+    }
+
     /**
      * Give the mock a pattern to wait for and a response to send back.
      * @param pattern Java RegEx to wait for
@@ -316,16 +323,14 @@ public class MockTransport implements Transport {
         StringBuilder sb = new StringBuilder();
 
         @Override
-        public void write(int oneByte) throws IOException {
-            switch (oneByte) {
-            case '\n':
-            case '\r':
-                if (sb.length() > 0) {
-                    writeLine(sb.toString(), null);
-                    sb = new StringBuilder();
-                }
-                break;
-            default:
+        public void write(int oneByte) {
+            // CR or CRLF will immediately dump previous line (w/o CRLF)
+            if (oneByte == '\r') {
+                writeLine(sb.toString(), null);
+                sb = new StringBuilder();
+            } else if (oneByte == '\n') {
+                // swallow it
+            } else {
                 sb.append((char)oneByte);
             }
         }

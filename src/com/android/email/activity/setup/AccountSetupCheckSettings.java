@@ -126,9 +126,8 @@ public class AccountSetupCheckSettings extends Activity implements OnClickListen
                     }
                     if (mCheckOutgoing) {
                         setMessage(R.string.account_setup_check_settings_check_outgoing_msg);
-                        Sender sender = Sender.getInstance(
-                                mAccount.getSenderUri(AccountSetupCheckSettings.this),
-                                getApplication());
+                        Sender sender = Sender.getInstance(getApplication(),
+                                mAccount.getSenderUri(AccountSetupCheckSettings.this));
                         sender.close();
                         sender.open();
                         sender.close();

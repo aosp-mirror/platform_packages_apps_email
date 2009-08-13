@@ -17,15 +17,25 @@
 package com.android.email.mail.transport;
 
 import com.android.email.codec.binary.Base64;
+import com.android.email.codec.binary.Base64OutputStream;
 import com.android.email.mail.Address;
+import com.android.email.mail.MessagingException;
 import com.android.email.mail.internet.MimeUtility;
+import com.android.email.provider.EmailContent.Attachment;
 import com.android.email.provider.EmailContent.Body;
 import com.android.email.provider.EmailContent.Message;
 
+import org.apache.commons.io.IOUtils;
+
+import android.content.ContentUris;
 import android.content.Context;
+import android.database.Cursor;
+import android.net.Uri;
 
 import java.io.BufferedOutputStream;
+import java.io.FileNotFoundException;
 import java.io.IOException;
+import java.io.InputStream;
 import java.io.OutputStream;
 import java.io.OutputStreamWriter;
 import java.io.Writer;
@@ -55,7 +65,7 @@ public class Rfc822Output {
      * TODO alternative parts (e.g. text+html) are not supported here.
      */
     public static void writeTo(Context context, long messageId, OutputStream out)
-            throws IOException {
+            throws IOException, MessagingException {
         Message message = Message.restoreMessageWithId(context, messageId);
         if (message == null) {
             // throw something?
@@ -82,37 +92,94 @@ public class Rfc822Output {
         writeAddressHeader(writer, "Reply-To", message.mReplyTo);
 
         // Analyze message and determine if we have multiparts
-        // TODO count attachments
-        boolean mixedParts = false;
-        String mixedBoundary = null;
+        String text = Body.restoreBodyTextWithMessageId(context, messageId);
 
-        // Simplified case for no multipart - just emit text and be done.
-        if (!mixedParts) {
-            String text = Body.restoreBodyTextWithMessageId(context, messageId);
-            writeTextWithHeaders(writer, stream, text);
-        } else {
-            // continue with multipart headers, then into multipart body
-            writeHeader(writer, "MIME-Version", "1.0");
+        Uri uri = ContentUris.withAppendedId(Attachment.MESSAGE_ID_URI, messageId);
+        Cursor attachmentsCursor = context.getContentResolver().query(uri,
+                Attachment.CONTENT_PROJECTION, null, null, null);
 
-            mixedBoundary = "--_com.android.email_" + System.nanoTime();
-            writeHeader(writer, "Content-Type",
-                    "multipart/mixed; boundary=\"" + mixedBoundary + "\"");
+        try {
+            boolean mixedParts = attachmentsCursor.getCount() > 0;
+            String mixedBoundary = null;
 
-            // Finish headers and prepare for body section(s)
-            writer.write("\r\n");
+            // Simplified case for no multipart - just emit text and be done.
+            if (!mixedParts) {
+                if (text != null) {
+                    writeTextWithHeaders(writer, stream, text);
+                } else {
+                    writer.write("\r\n");       // a truly empty message
+                }
+            } else {
+                // continue with multipart headers, then into multipart body
+                writeHeader(writer, "MIME-Version", "1.0");
 
-            // first multipart element is the body
-            String text = Body.restoreBodyTextWithMessageId(context, messageId);
-            writeTextWithHeaders(writer, stream, text);
+                mixedBoundary = "--_com.android.email_" + System.nanoTime();
+                writeHeader(writer, "Content-Type",
+                        "multipart/mixed; boundary=\"" + mixedBoundary + "\"");
 
-            // TODO: attachments here
+                // Finish headers and prepare for body section(s)
+                writer.write("\r\n");
 
-            // end of multipart section
-            writeBoundary(writer, mixedBoundary, true);
+                // first multipart element is the body
+                if (text != null) {
+                    writeBoundary(writer, mixedBoundary, false);
+                    writeTextWithHeaders(writer, stream, text);
+                }
+
+                // Write out the attachments
+                while (attachmentsCursor.moveToNext()) {
+                    writeBoundary(writer, mixedBoundary, false);
+                    Attachment attachment =
+                        Attachment.getContent(attachmentsCursor, Attachment.class);
+                    writeOneAttachment(context, writer, stream, attachment);
+                    writer.write("\r\n");
+                }
+
+                // end of multipart section
+                writeBoundary(writer, mixedBoundary, true);
+            }
+        } finally {
+            attachmentsCursor.close();
         }
 
         writer.flush();
         out.flush();
+    }
+
+    /**
+     * Write a single attachment and its payload
+     */
+    private static void writeOneAttachment(Context context, Writer writer, OutputStream out,
+            Attachment attachment) throws IOException, MessagingException {
+        writeHeader(writer, "Content-Type",
+                attachment.mMimeType + ";\n name=\"" + attachment.mFileName + "\"");
+        writeHeader(writer, "Content-Transfer-Encoding", "base64");
+        writeHeader(writer, "Content-Disposition",
+                "attachment;"
+                + "\n filename=\"" + attachment.mFileName + "\";"
+                + "\n size=" + Long.toString(attachment.mSize));
+        writeHeader(writer, "Content-ID", attachment.mContentId);
+        writer.append("\r\n");
+
+        // Set up input stream and write it out via base64
+        InputStream inStream = null;
+        try {
+            // try to open the file
+            Uri fileUri = Uri.parse(attachment.mContentUri);
+            inStream = context.getContentResolver().openInputStream(fileUri);
+            // switch to output stream for base64 text output
+            writer.flush();
+            Base64OutputStream base64Out = new Base64OutputStream(out);
+            // copy base64 data and close up
+            IOUtils.copy(inStream, base64Out);
+            base64Out.close();
+        }
+        catch (FileNotFoundException fnfe) {
+            // Ignore this - empty file is OK
+        }
+        catch (IOException ioe) {
+            throw new MessagingException("Invalid attachment.", ioe);
+        }
     }
 
     /**
@@ -198,10 +265,8 @@ public class Rfc822Output {
         writeHeader(writer, "Content-Type", "text/plain; charset=utf-8");
         writeHeader(writer, "Content-Transfer-Encoding", "base64");
         writer.write("\r\n");
-
         byte[] bytes = text.getBytes("UTF-8");
         writer.flush();
         out.write(Base64.encodeBase64Chunked(bytes));
-        writer.write("\r\n");
     }
 }

@@ -17,6 +17,7 @@
 
 package com.android.exchange;
 
+import com.android.email.mail.MessagingException;
 import com.android.email.mail.transport.Rfc822Output;
 import com.android.email.provider.EmailContent.Mailbox;
 import com.android.email.provider.EmailContent.Message;
@@ -57,7 +58,7 @@ public class EasOutboxService extends EasSyncService {
      * @param msgId the _id of the message to send
      * @throws IOException
      */
-    void sendMessage(File cacheDir, long msgId) throws IOException {
+    void sendMessage(File cacheDir, long msgId) throws IOException, MessagingException {
         File tmpFile = File.createTempFile("eas_", "tmp", cacheDir);
         // Write the output to a temporary file
         try {

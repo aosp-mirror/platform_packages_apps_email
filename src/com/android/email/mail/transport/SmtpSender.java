@@ -21,17 +21,15 @@ import com.android.email.codec.binary.Base64;
 import com.android.email.mail.Address;
 import com.android.email.mail.AuthenticationFailedException;
 import com.android.email.mail.CertificateValidationException;
-import com.android.email.mail.Message;
 import com.android.email.mail.MessagingException;
 import com.android.email.mail.Sender;
 import com.android.email.mail.Transport;
-import com.android.email.mail.Message.RecipientType;
+import com.android.email.provider.EmailContent.Message;
 
 import android.content.Context;
 import android.util.Config;
 import android.util.Log;
 
-import java.io.BufferedOutputStream;
 import java.io.IOException;
 import java.net.InetAddress;
 import java.net.URI;
@@ -50,6 +48,7 @@ public class SmtpSender extends Sender {
     public static final int CONNECTION_SECURITY_SSL_REQUIRED = 3;
     public static final int CONNECTION_SECURITY_SSL_OPTIONAL = 4;
 
+    Context mContext;
     private Transport mTransport;
     String mUsername;
     String mPassword;
@@ -57,8 +56,8 @@ public class SmtpSender extends Sender {
     /**
      * Static named constructor.
      */
-    public static Sender newInstance(String uri, Context context) throws MessagingException {
-        return new SmtpSender(uri);
+    public static Sender newInstance(Context context, String uri) throws MessagingException {
+        return new SmtpSender(context, uri);
     }
 
     /**
@@ -71,7 +70,8 @@ public class SmtpSender extends Sender {
      *
      * @param uriString the Uri containing information to configure this sender
      */
-    private SmtpSender(String uriString) throws MessagingException {
+    private SmtpSender(Context context, String uriString) throws MessagingException {
+        mContext = context;
         URI uri;
         try {
             uri = new URI(uriString);
@@ -123,6 +123,7 @@ public class SmtpSender extends Sender {
         mTransport = testTransport;
     }
 
+    @Override
     public void open() throws MessagingException {
         try {
             mTransport.open();
@@ -202,33 +203,36 @@ public class SmtpSender extends Sender {
         }
     }
 
-    public void sendMessage(Message message) throws MessagingException {
+    @Override
+    public void sendMessage(long messageId) throws MessagingException {
         close();
         open();
-        Address[] from = message.getFrom();
+
+        Message message = Message.restoreMessageWithId(mContext, messageId);
+        if (message == null) {
+            throw new MessagingException("Trying to send non-existent message id="
+                    + Long.toString(messageId));
+        }
+        Address from = Address.unpackFirst(message.mFrom);
+        Address[] to = Address.unpack(message.mTo);
+        Address[] cc = Address.unpack(message.mCc);
+        Address[] bcc = Address.unpack(message.mBcc);
 
         try {
-            executeSimpleCommand("MAIL FROM: " + "<" + from[0].getAddress() + ">");
-            for (Address address : message.getRecipients(RecipientType.TO)) {
+            executeSimpleCommand("MAIL FROM: " + "<" + from.getAddress() + ">");
+            for (Address address : to) {
                 executeSimpleCommand("RCPT TO: " + "<" + address.getAddress() + ">");
             }
-            for (Address address : message.getRecipients(RecipientType.CC)) {
+            for (Address address : cc) {
                 executeSimpleCommand("RCPT TO: " + "<" + address.getAddress() + ">");
             }
-            for (Address address : message.getRecipients(RecipientType.BCC)) {
+            for (Address address : bcc) {
                 executeSimpleCommand("RCPT TO: " + "<" + address.getAddress() + ">");
             }
-            message.setRecipients(RecipientType.BCC, null);
             executeSimpleCommand("DATA");
             // TODO byte stuffing
-            // TODO most of the MIME writeTo functions layer on *additional* buffering
-            // streams, making this one possibly not-necessary.  Need to get to the bottom
-            // of that.
-            // TODO Also, need to be absolutely positively sure that flush() is called
-            // on the wrappered outputs before sending the final \r\n via the regular mOut.
-            message.writeTo(
-                    new EOLConvertingOutputStream(
-                            new BufferedOutputStream(mTransport.getOutputStream(), 1024)));
+            Rfc822Output.writeTo(mContext, messageId,
+                    new EOLConvertingOutputStream(mTransport.getOutputStream()));
             executeSimpleCommand("\r\n.");
         } catch (IOException ioe) {
             throw new MessagingException("Unable to send message", ioe);
@@ -240,6 +244,7 @@ public class SmtpSender extends Sender {
      * 
      * MUST NOT return any exceptions.
      */
+    @Override
     public void close() {
         mTransport.close();
     }
