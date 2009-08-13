@@ -182,7 +182,7 @@ public class EasSyncService extends AbstractSyncService {
     public void validateAccount(String hostAddress, String userName, String password, int port,
             boolean ssl, Context context) throws MessagingException {
         try {
-            userLog("Testing EAS: " + hostAddress + ", " + userName + ", ssl = " + ssl);
+            userLog("Testing EAS: ", hostAddress, ", ", userName, ", ssl = ", ssl ? "1" : "0");
             EasSyncService svc = new EasSyncService("%TestAccount%");
             svc.mContext = context;
             svc.mHostAddress = hostAddress;
@@ -203,11 +203,11 @@ public class EasSyncService extends AbstractSyncService {
                 throw new AuthenticationFailedException("Validation failed");
             } else {
                 // TODO Need to catch other kinds of errors (e.g. policy) For now, report the code.
-                userLog("Validation failed, reporting I/O error: " + code);
+                userLog("Validation failed, reporting I/O error: ", code);
                 throw new MessagingException(MessagingException.IOERROR);
             }
         } catch (IOException e) {
-            userLog("IOException caught, reporting I/O error: " + e.getMessage());
+            userLog("IOException caught, reporting I/O error: ", e.getMessage());
             throw new MessagingException(MessagingException.IOERROR);
         }
 
@@ -463,7 +463,7 @@ public class EasSyncService extends AbstractSyncService {
                 userLog("Determine EAS protocol version");
                 HttpResponse resp = sendHttpClientOptions();
                 int code = resp.getStatusLine().getStatusCode();
-                userLog("OPTIONS response: " + code);
+                userLog("OPTIONS response: ", code);
                 if (code == HttpURLConnection.HTTP_OK) {
                     Header header = resp.getFirstHeader("ms-asprotocolversions");
                     String versions = header.getValue();
@@ -474,7 +474,7 @@ public class EasSyncService extends AbstractSyncService {
                         mProtocolVersionDouble = Double.parseDouble(mProtocolVersion);
                         mAccount.mProtocolVersion = mProtocolVersion;
                         userLog(versions);
-                        userLog("Using version " + mProtocolVersion);
+                        userLog("Using version ", mProtocolVersion);
                     } else {
                         errorLog("No protocol versions in OPTIONS response");
                         throw new IOException();
@@ -497,7 +497,7 @@ public class EasSyncService extends AbstractSyncService {
             }
 
             while (!mStop) {
-                 userLog("Sending Account syncKey: " + mAccount.mSyncKey);
+                 userLog("Sending Account syncKey: ", mAccount.mSyncKey);
                  Serializer s = new Serializer();
                  s.start(Tags.FOLDER_FOLDER_SYNC).start(Tags.FOLDER_SYNC_KEY)
                      .text(mAccount.mSyncKey).end().end().done();
@@ -510,7 +510,7 @@ public class EasSyncService extends AbstractSyncService {
                      if (len > 0) {
                          InputStream is = entity.getContent();
                          // Returns true if we need to sync again
-                         userLog("FolderSync, deviceId = " + mDeviceId);
+                         userLog("FolderSync, deviceId = ", mDeviceId);
                          if (new FolderSyncParser(is, this).parse()) {
                              continue;
                          }
@@ -519,7 +519,7 @@ public class EasSyncService extends AbstractSyncService {
                         code == HttpURLConnection.HTTP_FORBIDDEN) {
                     mExitStatus = AbstractSyncService.EXIT_LOGIN_FAILURE;
                 } else {
-                    userLog("FolderSync response error: " + code);
+                    userLog("FolderSync response error: ", code);
                 }
 
                 // Change all push/hold boxes to push
@@ -686,15 +686,15 @@ public class EasSyncService extends AbstractSyncService {
                             .data(Tags.PING_ID, c.getString(Mailbox.CONTENT_SERVER_ID_COLUMN))
                             .data(Tags.PING_CLASS, folderClass)
                             .end();
-                        userLog("Ping ready for: " + folderClass + ", " + mailboxName + " (" +
-                                c.getString(Mailbox.CONTENT_SERVER_ID_COLUMN) + ')');
+                        userLog("Ping ready for: ", folderClass, ", ", mailboxName, " (",
+                                c.getString(Mailbox.CONTENT_SERVER_ID_COLUMN), ")");
                         pushBoxes.add(new Mailbox().restore(c));
                     } else if (pingStatus == SyncManager.PING_STATUS_RUNNING ||
                             pingStatus == SyncManager.PING_STATUS_WAITING) {
-                        userLog(mailboxName + " not ready for ping");
+                        userLog(mailboxName, " not ready for ping");
                     } else if (pingStatus == SyncManager.PING_STATUS_UNABLE) {
                         pushCount--;
-                        userLog(mailboxName + " in error state; ignore");
+                        userLog(mailboxName, " in error state; ignore");
                         continue;
                     }
                 }
@@ -711,7 +711,6 @@ public class EasSyncService extends AbstractSyncService {
 
                 // Sleep for the heartbeat time plus a little bit of slack
                 SyncManager.runAsleep(mMailboxId, (mPingHeartbeat+15)*SECONDS);
-                long time = System.currentTimeMillis();
                 HttpResponse res = sendHttpClientPost(PING_COMMAND, s.toByteArray());
                 SyncManager.runAwake(mMailboxId);
 
@@ -719,9 +718,7 @@ public class EasSyncService extends AbstractSyncService {
                 if (mStop) return;
                 code = res.getStatusLine().getStatusCode();
 
-                // Get elapsed time
-                time = System.currentTimeMillis() - time;
-                userLog("Ping response: " + code + " in " + time + "ms");
+                userLog("Ping response: ", code);
 
                 // Return immediately if we've been asked to stop
                 if (mStop) {
@@ -740,12 +737,12 @@ public class EasSyncService extends AbstractSyncService {
                     }
                 } else if (isAuthError(code)) {
                     mExitStatus = AbstractSyncService.EXIT_LOGIN_FAILURE;
-                    userLog("Authorization error during Ping: " + code);
+                    userLog("Authorization error during Ping: ", code);
                     throw new IOException();
                 }
             } else if (pushCount > 0) {
                 // If we want to Ping, but can't just yet, wait 10 seconds and try again
-                userLog("pingLoop waiting for " + (pushCount - canPushCount) + " box(es)");
+                userLog("pingLoop waiting for: ", (pushCount - canPushCount), " box(es)");
                 sleep(10*SECONDS);
             } else {
                 // We've got nothing to do, so we'll check again in 30 minutes at which time
@@ -901,7 +898,7 @@ public class EasSyncService extends AbstractSyncService {
                 mailbox.mSyncKey = "0";
             }
             String className = target.getCollectionName();
-            userLog("Sending " + className + " syncKey: " + mailbox.mSyncKey);
+            userLog("Sending ", className, " syncKey: ", mailbox.mSyncKey);
             s.start(Tags.SYNC_SYNC)
                 .start(Tags.SYNC_COLLECTIONS)
                 .start(Tags.SYNC_COLLECTION)
@@ -947,7 +944,7 @@ public class EasSyncService extends AbstractSyncService {
             target.sendLocalChanges(s, this);
 
             s.end().end().end().done();
-            userLog("Sync, deviceId = " + mDeviceId);
+            userLog("Sync, deviceId = ", mDeviceId);
             HttpResponse resp = sendHttpClientPost("Sync", s.toByteArray());
             int code = resp.getStatusLine().getStatusCode();
             if (code == HttpURLConnection.HTTP_OK) {
@@ -957,7 +954,7 @@ public class EasSyncService extends AbstractSyncService {
                     target.cleanup(this);
                 }
             } else {
-                userLog("Sync response error: " + code);
+                userLog("Sync response error: ", code);
                 if (isAuthError(code)) {
                     mExitStatus = AbstractSyncService.EXIT_LOGIN_FAILURE;
                 }
@@ -1017,13 +1014,13 @@ public class EasSyncService extends AbstractSyncService {
             mExitStatus = EXIT_DONE;
         } catch (IOException e) {
             String message = e.getMessage();
-            userLog("Caught IOException: " + ((message == null) ? "" : message));
+            userLog("Caught IOException: ", ((message == null) ? "" : message));
             mExitStatus = EXIT_IO_ERROR;
         } catch (Exception e) {
             Log.e(TAG, "Uncaught exception in EasSyncService", e);
         } finally {
             if (!mStop) {
-                userLog(mMailbox.mDisplayName + ": sync finished");
+                userLog(mMailbox.mDisplayName, ": sync finished");
                 SyncManager.done(this);
                 // If this is the account mailbox, wake up SyncManager
                 // Because this box has a "push" interval, it will be restarted immediately
@@ -1059,7 +1056,7 @@ public class EasSyncService extends AbstractSyncService {
                 mContentResolver.update(ContentUris
                         .withAppendedId(Mailbox.CONTENT_URI, mMailboxId), cv, null, null);
             } else {
-                userLog(mMailbox.mDisplayName + ": stopped thread finished.");
+                userLog(mMailbox.mDisplayName, ": stopped thread finished.");
             }
 
             // Make sure SyncManager knows about this

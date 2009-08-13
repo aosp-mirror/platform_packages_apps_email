@@ -28,10 +28,8 @@ import com.android.exchange.MockParserStream;
 import com.android.exchange.SyncManager;
 
 import android.content.ContentProviderOperation;
-import android.content.ContentResolver;
 import android.content.ContentUris;
 import android.content.ContentValues;
-import android.content.Context;
 import android.content.OperationApplicationException;
 import android.database.Cursor;
 import android.os.RemoteException;
@@ -48,7 +46,7 @@ import java.util.List;
  * Handles the addition, deletion, and changes to folders in the user's Exchange account.
  **/
 
-public class FolderSyncParser extends Parser {
+public class FolderSyncParser extends AbstractSyncParser {
 
     public static final String TAG = "FolderSyncParser";
 
@@ -84,23 +82,15 @@ public class FolderSyncParser extends Parser {
     private static final String[] MAILBOX_ID_COLUMNS_PROJECTION =
         new String[] {MailboxColumns.ID, MailboxColumns.SERVER_ID};
 
-    private Account mAccount;
     private long mAccountId;
     private String mAccountIdAsString;
-    private EasSyncService mService;
-    private Context mContext;
-    private ContentResolver mContentResolver;
     private MockParserStream mMock = null;
     private String[] mBindArguments = new String[2];
 
     public FolderSyncParser(InputStream in, EasSyncService service) throws IOException {
-        super(in);
-        mService = service;
-        mAccount = service.mAccount;
+        super(in, service);
         mAccountId = mAccount.mId;
         mAccountIdAsString = Long.toString(mAccountId);
-        mContext = service.mContext;
-        mContentResolver = mContext.getContentResolver();
         if (in instanceof MockParserStream) {
             mMock = (MockParserStream)in;
         }
@@ -134,7 +124,7 @@ public class FolderSyncParser extends Parser {
                 }
             } else if (tag == Tags.FOLDER_SYNC_KEY) {
                 mAccount.mSyncKey = getValue();
-                mService.userLog("New Account SyncKey: " + mAccount.mSyncKey);
+                userLog("New Account SyncKey: ", mAccount.mSyncKey);
             } else if (tag == Tags.FOLDER_CHANGES) {
                 changesParser();
             } else
@@ -145,8 +135,7 @@ public class FolderSyncParser extends Parser {
                 ContentValues cv = new ContentValues();
                 cv.put(AccountColumns.SYNC_KEY, mAccount.mSyncKey);
                 mAccount.update(mContext, cv);
-                mService.userLog("Leaving FolderSyncParser with Account syncKey="
-                        + mAccount.mSyncKey);
+                userLog("Leaving FolderSyncParser with Account syncKey=", mAccount.mSyncKey);
             }
         }
         return res;
@@ -168,7 +157,7 @@ public class FolderSyncParser extends Parser {
                     Cursor c = getServerIdCursor(serverId);
                     try {
                         if (c.moveToFirst()) {
-                            mService.userLog("Deleting " + serverId);
+                            userLog("Deleting ", serverId);
                             ops.add(ContentProviderOperation.newDelete(
                                     ContentUris.withAppendedId(Mailbox.CONTENT_URI,
                                             c.getLong(0))).build());
@@ -246,7 +235,7 @@ public class FolderSyncParser extends Parser {
                 case CONTACTS_TYPE:
                     m.mType = Mailbox.TYPE_CONTACTS;
                     // TODO Frequency below should depend on settings
-                    m.mSyncInterval = Mailbox.CHECK_INTERVAL_PUSH;
+                    //m.mSyncInterval = Mailbox.CHECK_INTERVAL_PUSH;
                     break;
             }
 
@@ -257,7 +246,7 @@ public class FolderSyncParser extends Parser {
                 m.mParentServerId = parentId;
             }
 
-            mService.userLog("Adding mailbox: " + m.mDisplayName);
+            userLog("Adding mailbox: ", m.mDisplayName);
             ops.add(ContentProviderOperation
                     .newInsert(Mailbox.CONTENT_URI).withValues(m.toContentValues()).build());
         }
@@ -293,7 +282,7 @@ public class FolderSyncParser extends Parser {
         // Don't save any data if the service has been stopped
         synchronized (mService.getSynchronizer()) {
             if (!ops.isEmpty() && !mService.isStopped()) {
-                mService.userLog("Applying " + ops.size() + " mailbox operations.");
+                userLog("Applying ", ops.size(), " mailbox operations.");
 
                 // Then, we create an update for the account (most importantly, updating the syncKey)
                 ops.add(ContentProviderOperation.newUpdate(
@@ -302,9 +291,8 @@ public class FolderSyncParser extends Parser {
 
                 // Finally, we execute the batch
                 try {
-                    mService.mContext.getContentResolver()
-                        .applyBatch(EmailProvider.EMAIL_AUTHORITY, ops);
-                    mService.userLog("New Account SyncKey: " + mAccount.mSyncKey);
+                    mContentResolver.applyBatch(EmailProvider.EMAIL_AUTHORITY, ops);
+                    userLog("New Account SyncKey: ", mAccount.mSyncKey);
                 } catch (RemoteException e) {
                     // There is nothing to be done here; fail by returning null
                 } catch (OperationApplicationException e) {
@@ -337,6 +325,14 @@ public class FolderSyncParser extends Parser {
                 }
             }
         }
+    }
+
+    @Override
+    public void commandsParser() throws IOException {
+    }
+
+    @Override
+    public void wipe() {
     }
 
 }

@@ -17,8 +17,11 @@
 
 package com.android.exchange.adapter;
 
+import com.android.email.provider.EmailContent.Account;
 import com.android.email.provider.EmailContent.Mailbox;
 import com.android.exchange.EasSyncService;
+
+import android.content.Context;
 
 import java.io.IOException;
 import java.io.InputStream;
@@ -30,6 +33,8 @@ import java.io.InputStream;
 public abstract class AbstractSyncAdapter {
     public Mailbox mMailbox;
     public EasSyncService mService;
+    public Context mContext;
+    public Account mAccount;
 
     // Create the data for local changes that need to be sent up to the server
     public abstract boolean sendLocalChanges(Serializer s, EasSyncService service)
@@ -45,6 +50,16 @@ public abstract class AbstractSyncAdapter {
     public AbstractSyncAdapter(Mailbox mailbox, EasSyncService service) {
         mMailbox = mailbox;
         mService = service;
+        mContext = service.mContext;
+        mAccount = service.mAccount;
+    }
+
+    void userLog(String ...strings) {
+        mService.userLog(strings);
+    }
+
+    void incrementChangeCount() {
+        mService.mChangeCount++;
     }
 }
 

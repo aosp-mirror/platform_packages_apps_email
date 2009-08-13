@@ -324,7 +324,7 @@ public class EmailSyncAdapter extends AbstractSyncAdapter {
                         Cursor c = getServerIdCursor(serverId, Message.ID_COLUMN_PROJECTION);
                         try {
                             if (c.moveToFirst()) {
-                                mService.userLog("Deleting " + serverId);
+                                userLog("Deleting ", serverId);
                                 deletes.add(c.getLong(Message.ID_COLUMNS_ID_COLUMN));
                             }
                         } finally {
@@ -363,7 +363,7 @@ public class EmailSyncAdapter extends AbstractSyncAdapter {
                         Cursor c = getServerIdCursor(serverId, Message.LIST_PROJECTION);
                         try {
                             if (c.moveToFirst()) {
-                                mService.userLog("Changing " + serverId);
+                                userLog("Changing ", serverId);
                                 oldRead = c.getInt(Message.LIST_READ_COLUMN) == Message.READ;
                                 oldFlag = c.getInt(Message.LIST_FAVORITE_COLUMN) == 1;
                                 id = c.getLong(Message.LIST_ID_COLUMN);
@@ -403,13 +403,13 @@ public class EmailSyncAdapter extends AbstractSyncAdapter {
             while (nextTag(Tags.SYNC_COMMANDS) != END) {
                 if (tag == Tags.SYNC_ADD) {
                     addParser(newEmails);
-                    mService.mChangeCount++;
+                    incrementChangeCount();
                 } else if (tag == Tags.SYNC_DELETE) {
                     deleteParser(deletedEmails);
-                    mService.mChangeCount++;
+                    incrementChangeCount();
                 } else if (tag == Tags.SYNC_CHANGE) {
                     changeParser(changedEmails);
-                    mService.mChangeCount++;
+                    incrementChangeCount();
                 } else
                     skipTag();
             }
@@ -453,10 +453,8 @@ public class EmailSyncAdapter extends AbstractSyncAdapter {
             synchronized (mService.getSynchronizer()) {
                 if (mService.isStopped()) return;
                 try {
-                    mService.mContext.getContentResolver()
-                        .applyBatch(EmailProvider.EMAIL_AUTHORITY, ops);
-                    mService.userLog(mMailbox.mDisplayName +
-                            " SyncKey saved as: " + mMailbox.mSyncKey);
+                    mContentResolver.applyBatch(EmailProvider.EMAIL_AUTHORITY, ops);
+                    userLog(mMailbox.mDisplayName, " SyncKey saved as: ", mMailbox.mSyncKey);
                 } catch (RemoteException e) {
                     // There is nothing to be done here; fail by returning null
                 } catch (OperationApplicationException e) {
@@ -525,8 +523,7 @@ public class EmailSyncAdapter extends AbstractSyncAdapter {
 
     @Override
     public boolean sendLocalChanges(Serializer s, EasSyncService service) throws IOException {
-        Context context = service.mContext;
-        ContentResolver cr = context.getContentResolver();
+        ContentResolver cr = mContext.getContentResolver();
 
         // Find any of our deleted items
         Cursor c = cr.query(Message.DELETED_CONTENT_URI, Message.LIST_PROJECTION,
@@ -553,7 +550,7 @@ public class EmailSyncAdapter extends AbstractSyncAdapter {
 
         // Find our trash mailbox, since deletions will have been moved there...
         long trashMailboxId =
-            Mailbox.findMailboxOfType(context, mMailbox.mAccountKey, Mailbox.TYPE_TRASH);
+            Mailbox.findMailboxOfType(mContext, mMailbox.mAccountKey, Mailbox.TYPE_TRASH);
 
         // Do the same now for updated items
         c = cr.query(Message.UPDATED_CONTENT_URI, Message.LIST_PROJECTION,

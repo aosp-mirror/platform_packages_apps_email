@@ -117,7 +117,7 @@ public class EasOutboxService extends EasSyncService {
         } catch (Exception e) {
             mExitStatus = EXIT_EXCEPTION;
         } finally {
-            userLog(mMailbox.mDisplayName + ": sync finished");
+            userLog(mMailbox.mDisplayName, ": sync finished");
             SyncManager.done(this);
         }
     }

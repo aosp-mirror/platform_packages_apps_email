@@ -127,7 +127,7 @@ public abstract class AbstractSyncParser extends Parser {
                     moreAvailable = true;
                 }
                 String newKey = getValue();
-                mService.userLog("Parsed key for " + mMailbox.mDisplayName + ": " + newKey);
+                userLog("Parsed key for ", mMailbox.mDisplayName, ": ", newKey);
                 mMailbox.mSyncKey = newKey;
                 // If we were pushing (i.e. auto-start), now we'll become ping-triggered
                 if (mMailbox.mSyncInterval == Mailbox.CHECK_INTERVAL_PUSH) {
@@ -161,7 +161,7 @@ public abstract class AbstractSyncParser extends Parser {
                     ContentValues cv = new ContentValues();
                     cv.put(MailboxColumns.SYNC_INTERVAL, Mailbox.CHECK_INTERVAL_PING);
                     mMailbox.update(mContext, cv);
-                    mService.userLog("Changes found to ping loop mailbox " + mMailbox.mDisplayName +
+                    userLog("Changes found to ping loop mailbox ", mMailbox.mDisplayName,
                             ": switch back to ping.");
                 }
             }
@@ -171,5 +171,11 @@ public abstract class AbstractSyncParser extends Parser {
         return moreAvailable;
     }
 
+    void userLog(String ...strings) {
+        mService.userLog(strings);
+    }
 
+    void userLog(String string, int num, String string2) {
+        mService.userLog(string, num, string2);
+    }
 }

@@ -203,16 +203,42 @@ public abstract class AbstractSyncService implements Runnable {
     }
 
     /**
-     * Convenience method to do user logging (i.e. connection activity).  Saves a bunch of
+     * Convenience methods to do user logging (i.e. connection activity).  Saves a bunch of
      * repetitive code.
-     *
-     * @param str the String to log
      */
-    public void userLog(String str) {
+    public void userLog(String string, int code, String string2) {
         if (Eas.USER_LOG) {
-            Log.i(TAG, str);
+            userLog(string + code + string2);
+        }
+    }
+
+    public void userLog(String string, int code) {
+        if (Eas.USER_LOG) {
+            userLog(string + code);
+        }
+    }
+
+    /**
+     * Standard logging for EAS.
+     * If user logging is active, we concatenate any arguments and log them using Log.d
+     * We also check for file logging, and log appropriately
+     * @param strings strings to concatenate and log
+     */
+    public void userLog(String ...strings) {
+        if (Eas.USER_LOG) {
+            String logText;
+            if (strings.length == 1) {
+                logText = strings[0];
+            } else {
+                StringBuilder sb = new StringBuilder(64);
+                for (String string: strings) {
+                    sb.append(string);
+                }
+                logText = sb.toString();
+            }
+            Log.d(TAG, logText);
             if (Eas.FILE_LOG) {
-                FileLogger.log(TAG, str);
+                FileLogger.log(TAG, logText);
             }
         }
     }

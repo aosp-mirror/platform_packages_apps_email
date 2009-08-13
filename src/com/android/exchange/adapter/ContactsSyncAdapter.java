@@ -579,7 +579,7 @@ public class ContactsSyncAdapter extends AbstractSyncAdapter {
                         Cursor c = getServerIdCursor(serverId);
                         try {
                             if (c.moveToFirst()) {
-                                mService.userLog("Deleting " + serverId);
+                                userLog("Deleting ", serverId);
                                 ops.delete(c.getLong(0));
                             }
                         } finally {
@@ -626,7 +626,7 @@ public class ContactsSyncAdapter extends AbstractSyncAdapter {
                                     if (entityIterator.hasNext()) {
                                         entity = entityIterator.next();
                                     }
-                                    mService.userLog("Changing contact " + serverId);
+                                    userLog("Changing contact ", serverId);
                                 } catch (RemoteException e) {
                                 }
                             }
@@ -649,13 +649,13 @@ public class ContactsSyncAdapter extends AbstractSyncAdapter {
             while (nextTag(Tags.SYNC_COMMANDS) != END) {
                 if (tag == Tags.SYNC_ADD) {
                     addParser(ops);
-                    mService.mChangeCount++;
+                    incrementChangeCount();
                 } else if (tag == Tags.SYNC_DELETE) {
                     deleteParser(ops);
-                    mService.mChangeCount++;
+                    incrementChangeCount();
                 } else if (tag == Tags.SYNC_CHANGE) {
                     changeParser(ops);
-                    mService.mChangeCount++;
+                    incrementChangeCount();
                 } else
                     skipTag();
             }
@@ -671,14 +671,14 @@ public class ContactsSyncAdapter extends AbstractSyncAdapter {
                     Uri u = ops.mResults[index].uri;
                     if (u != null) {
                         String idString = u.getLastPathSegment();
-                        mService.mContentResolver.update(RawContacts.CONTENT_URI, cv,
+                        mContentResolver.update(RawContacts.CONTENT_URI, cv,
                                 RawContacts._ID + "=" + idString, null);
                     }
                 }
             }
 
             // Update the sync key in the database
-            mService.userLog("Contacts SyncKey saved as: " + mMailbox.mSyncKey);
+            userLog("Contacts SyncKey saved as: ", mMailbox.mSyncKey);
             ContentValues cv = new ContentValues();
             cv.put(MailboxColumns.SYNC_KEY, mMailbox.mSyncKey);
             Mailbox.update(mContext, Mailbox.CONTENT_URI, mMailbox.mId, cv);
@@ -688,7 +688,7 @@ public class ContactsSyncAdapter extends AbstractSyncAdapter {
 
     private Uri uriWithAccount(Uri uri) {
         return uri.buildUpon()
-            .appendQueryParameter(RawContacts.ACCOUNT_NAME, mService.mAccount.mEmailAddress)
+            .appendQueryParameter(RawContacts.ACCOUNT_NAME, mAccount.mEmailAddress)
             .appendQueryParameter(RawContacts.ACCOUNT_TYPE, Eas.ACCOUNT_MANAGER_TYPE)
             .build();
     }
@@ -775,8 +775,8 @@ public class ContactsSyncAdapter extends AbstractSyncAdapter {
             synchronized (mService.getSynchronizer()) {
                 if (!mService.isStopped()) {
                     try {
-                        mService.userLog("Executing " + size() + " CPO's");
-                        mResults = mService.mContext.getContentResolver().applyBatch(
+                        mService.userLog("Executing ", size(), " CPO's");
+                        mResults = mContext.getContentResolver().applyBatch(
                                 ContactsContract.AUTHORITY, this);
                     } catch (RemoteException e) {
                         // There is nothing sensible to be done here
@@ -1026,12 +1026,6 @@ public class ContactsSyncAdapter extends AbstractSyncAdapter {
             // We're always going to add this; it's not worth trying to figure out whether the
             // picture is the same as the one stored.
             byte[] pic = Base64.decode(photo);
-//            Bitmap b = BitmapFactory.decodeByteArray (pic, 0, pic.length);
-//            if (b == null) {
-//                mService.userLog("Bitmap creation failed");
-//            } else {
-//                mService.userLog("W00t!  Bitmap creation worked!");
-//            }
             builder.withValue(Photo.PHOTO, pic);
             add(builder.build());
         }
@@ -1475,7 +1469,7 @@ public class ContactsSyncAdapter extends AbstractSyncAdapter {
                             // For now, the user can change the photo, but the change won't be
                             // uploaded.
                         } else {
-                            mService.userLog("Contacts upsync, unknown data: " + mimeType);
+                            userLog("Contacts upsync, unknown data: ", mimeType);
                         }
                     }
 

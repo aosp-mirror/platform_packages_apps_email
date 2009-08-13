@@ -49,7 +49,7 @@ public class PingParser extends Parser {
                 // Here we'll keep track of which mailboxes need syncing
                 String serverId = getValue();
                 syncList.add(serverId);
-                mService.userLog("Changes found in: " + serverId);
+                mService.userLog("Changes found in: ", serverId);
             } else {
                 skipTag();
             }
@@ -65,7 +65,7 @@ public class PingParser extends Parser {
         while (nextTag(START_DOCUMENT) != END_DOCUMENT) {
             if (tag == Tags.PING_STATUS) {
                 int status = getValueInt();
-                mService.userLog("Ping completed, status = " + status);
+                mService.userLog("Ping completed, status = ", status);
                 if (status == 2) {
                     // Status = 2 indicates changes in one folder or other
                     mService.userLog("Changes found");
