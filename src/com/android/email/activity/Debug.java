@@ -70,40 +70,32 @@ public class Debug extends Activity implements OnCheckedChangeListener {
     }
 
     public void onCheckedChanged(CompoundButton buttonView, boolean isChecked) {
-        int debugLogging = mPreferences.geteEnableDebugLogging() ? Eas.DEBUG_BIT : 0;
+        switch (buttonView.getId()) {
+            case R.id.debug_logging:
+                Email.DEBUG = isChecked;
+                mPreferences.setEnableDebugLogging(Email.DEBUG);
+                break;
+            case R.id.sensitive_logging:
+                Email.DEBUG_SENSITIVE = isChecked;
+                mPreferences.setEnableSensitiveLogging(Email.DEBUG_SENSITIVE);
+                break;
+            case R.id.exchange_logging:
+                mPreferences.setEnableExchangeLogging(isChecked);
+                break;
+            case R.id.exchange_file_logging:
+                mPreferences.setEnableExchangeFileLogging(isChecked);
+                if (!isChecked) {
+                    FileLogger.close();
+                }
+                break;
+        }
+
+        // Now rebuild "debug bits" and send to EAS service
+        int debugLogging = mPreferences.getEnableDebugLogging() ? Eas.DEBUG_BIT : 0;
         int exchangeLogging = mPreferences.getEnableExchangeLogging() ? Eas.DEBUG_EXCHANGE_BIT : 0;
         int fileLogging = mPreferences.getEnableExchangeFileLogging() ? Eas.DEBUG_FILE_BIT : 0;
-        int debugBits = debugLogging + exchangeLogging + fileLogging;
+        int debugBits = debugLogging | exchangeLogging | fileLogging;
 
-        if (buttonView.getId() == R.id.debug_logging) {
-            Email.DEBUG = isChecked;
-            mPreferences.setEnableDebugLogging(Email.DEBUG);
-            if (isChecked) {
-                debugBits |= Eas.DEBUG_BIT;
-            } else {
-                debugBits &= ~Eas.DEBUG_BIT;
-            }
-        } else if (buttonView.getId() == R.id.sensitive_logging) {
-            Email.DEBUG_SENSITIVE = isChecked;
-            mPreferences.setEnableSensitiveLogging(Email.DEBUG_SENSITIVE);
-        } else if (buttonView.getId() == R.id.exchange_logging) {
-            mPreferences.setEnableExchangeLogging(isChecked);
-            if (isChecked) {
-                debugBits |= Eas.DEBUG_EXCHANGE_BIT;
-            } else {
-                debugBits &= ~Eas.DEBUG_EXCHANGE_BIT;
-            }
-        } else if (buttonView.getId() == R.id.exchange_file_logging) {
-            if (!isChecked) {
-                FileLogger.close();
-            }
-            mPreferences.setEnableExchangeFileLogging(isChecked);
-            if (isChecked) {
-                debugBits |= Eas.DEBUG_FILE_BIT;
-            } else {
-                debugBits &= ~Eas.DEBUG_FILE_BIT;
-            }
-        }
         Controller.getInstance(getApplication()).serviceLogging(debugBits);
     }
 
