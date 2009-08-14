@@ -54,9 +54,10 @@ public class EasAuthenticatorService extends Service {
             //    app UI; we simply create the account and return the proper bundle
             if (options != null && options.containsKey(OPTIONS_PASSWORD)
                     && options.containsKey(OPTIONS_USERNAME)) {
-                AccountManager.get(EasAuthenticatorService.this).blockingAddAccountExplicitly(
-                        new Account(options.getString(OPTIONS_USERNAME), Eas.ACCOUNT_MANAGER_TYPE),
-                        options.getString(OPTIONS_PASSWORD), null);
+                final Account account = new Account(options.getString(OPTIONS_USERNAME),
+                        Eas.ACCOUNT_MANAGER_TYPE);
+                AccountManager.get(EasAuthenticatorService.this).addAccountExplicitly(
+                            account, options.getString(OPTIONS_PASSWORD), null);
                 Bundle b = new Bundle();
                 b.putString(Constants.ACCOUNT_NAME_KEY, options.getString(OPTIONS_USERNAME));
                 b.putString(Constants.ACCOUNT_TYPE_KEY, Eas.ACCOUNT_MANAGER_TYPE);

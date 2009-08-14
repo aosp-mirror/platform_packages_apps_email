@@ -81,7 +81,7 @@ public class ContactsSyncAdapterService extends Service {
         // Find the (EmailProvider) account associated with this email address
         Cursor accountCursor =
             cr.query(com.android.email.provider.EmailContent.Account.CONTENT_URI, ID_PROJECTION,
-                AccountColumns.EMAIL_ADDRESS + "=?", new String[] {account.mName}, null);
+                AccountColumns.EMAIL_ADDRESS + "=?", new String[] {account.name}, null);
         try {
             if (accountCursor.moveToFirst()) {
                 long accountId = accountCursor.getLong(0);
@@ -90,7 +90,7 @@ public class ContactsSyncAdapterService extends Service {
                         ACCOUNT_AND_TYPE_CONTACTS, new String[] {Long.toString(accountId)}, null);
                 try {
                     if (mailboxCursor.moveToFirst()) {
-                        Log.i(TAG, "Contact sync requested for " + account.mName);
+                        Log.i(TAG, "Contact sync requested for " + account.name);
                         // Ask for a sync from our sync manager
                         SyncManager.serviceRequest(mailboxCursor.getLong(0),
                                 SyncManager.SYNC_UPSYNC);
