@@ -203,7 +203,7 @@ public class Email extends Application {
     public void onCreate() {
         super.onCreate();
         Preferences prefs = Preferences.getPreferences(this);
-        DEBUG = prefs.geteEnableDebugLogging();
+        DEBUG = prefs.getEnableDebugLogging();
         DEBUG_SENSITIVE = prefs.getEnableSensitiveLogging();
 
         // Reset all accounts to default visible window
@@ -230,7 +230,7 @@ public class Email extends Application {
         BinaryTempFileBody.setTempDirectory(getCacheDir());
 
         // Enable logging in the EAS service, so it starts up as early as possible.
-        int debugLogging = prefs.geteEnableDebugLogging() ? Eas.DEBUG_BIT : 0;
+        int debugLogging = prefs.getEnableDebugLogging() ? Eas.DEBUG_BIT : 0;
         int exchangeLogging = prefs.getEnableExchangeLogging() ? Eas.DEBUG_EXCHANGE_BIT : 0;
         int fileLogging = prefs.getEnableExchangeFileLogging() ? Eas.DEBUG_FILE_BIT : 0;
         int debugBits = debugLogging + exchangeLogging + fileLogging;

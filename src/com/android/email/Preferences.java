@@ -22,12 +22,24 @@ import android.net.Uri;
 import android.util.Log;
 
 public class Preferences {
+
+    // Preferences file
+    private static final String PREFERENCES_FILE = "AndroidMail.Main";
+
+    // Preferences field names
+    private static final String ACCOUNT_UUIDS = "accountUuids";
+    private static final String DEFAULT_ACCOUNT_UUID = "defaultAccountUuid";
+    private static final String ENABLE_DEBUG_LOGGING = "enableDebugLogging";
+    private static final String ENABLE_SENSITIVE_LOGGING = "enableSensitiveLogging";
+    private static final String ENABLE_EXCHANGE_LOGGING = "enableExchangeLogging";
+    private static final String ENABLE_EXCHANGE_FILE_LOGGING = "enableExchangeFileLogging";
+
     private static Preferences preferences;
 
     SharedPreferences mSharedPreferences;
 
     private Preferences(Context context) {
-        mSharedPreferences = context.getSharedPreferences("AndroidMail.Main", Context.MODE_PRIVATE);
+        mSharedPreferences = context.getSharedPreferences(PREFERENCES_FILE, Context.MODE_PRIVATE);
     }
 
     /**
@@ -35,8 +47,6 @@ public class Preferences {
      * Activity that initialized it. Do we lose ability to read Preferences in
      * further Activities? Maybe this should be stored in the Application
      * context.
-     *
-     * @return
      */
     public static synchronized Preferences getPreferences(Context context) {
         if (preferences == null) {
@@ -48,11 +58,9 @@ public class Preferences {
     /**
      * Returns an array of the accounts on the system. If no accounts are
      * registered the method returns an empty array.
-     *
-     * @return
      */
     public Account[] getAccounts() {
-        String accountUuids = mSharedPreferences.getString("accountUuids", null);
+        String accountUuids = mSharedPreferences.getString(ACCOUNT_UUIDS, null);
         if (accountUuids == null || accountUuids.length() == 0) {
             return new Account[] {};
         }
@@ -76,7 +84,7 @@ public class Preferences {
         if (uuid == null) {
             return null;
         }
-        String accountUuids = mSharedPreferences.getString("accountUuids", null);
+        String accountUuids = mSharedPreferences.getString(ACCOUNT_UUIDS, null);
         if (accountUuids == null || accountUuids.length() == 0) {
             return null;
         }
@@ -93,11 +101,9 @@ public class Preferences {
      * Returns the Account marked as default. If no account is marked as default
      * the first account in the list is marked as default and then returned. If
      * there are no accounts on the system the method returns null.
-     *
-     * @return
      */
     public Account getDefaultAccount() {
-        String defaultAccountUuid = mSharedPreferences.getString("defaultAccountUuid", null);
+        String defaultAccountUuid = mSharedPreferences.getString(DEFAULT_ACCOUNT_UUID, null);
         Account defaultAccount = null;
         Account[] accounts = getAccounts();
         if (defaultAccountUuid != null) {
@@ -120,39 +126,39 @@ public class Preferences {
     }
 
     public void setDefaultAccount(Account account) {
-        mSharedPreferences.edit().putString("defaultAccountUuid", account.getUuid()).commit();
+        mSharedPreferences.edit().putString(DEFAULT_ACCOUNT_UUID, account.getUuid()).commit();
     }
 
     public void setEnableDebugLogging(boolean value) {
-        mSharedPreferences.edit().putBoolean("enableDebugLogging", value).commit();
+        mSharedPreferences.edit().putBoolean(ENABLE_DEBUG_LOGGING, value).commit();
     }
 
-    public boolean geteEnableDebugLogging() {
-        return mSharedPreferences.getBoolean("enableDebugLogging", false);
+    public boolean getEnableDebugLogging() {
+        return mSharedPreferences.getBoolean(ENABLE_DEBUG_LOGGING, false);
     }
 
     public void setEnableSensitiveLogging(boolean value) {
-        mSharedPreferences.edit().putBoolean("enableSensitiveLogging", value).commit();
+        mSharedPreferences.edit().putBoolean(ENABLE_SENSITIVE_LOGGING, value).commit();
     }
 
     public boolean getEnableSensitiveLogging() {
-        return mSharedPreferences.getBoolean("enableSensitiveLogging", false);
+        return mSharedPreferences.getBoolean(ENABLE_SENSITIVE_LOGGING, false);
     }
 
     public void setEnableExchangeLogging(boolean value) {
-        mSharedPreferences.edit().putBoolean("enableExchangeLogging", value).commit();
+        mSharedPreferences.edit().putBoolean(ENABLE_EXCHANGE_LOGGING, value).commit();
     }
 
     public boolean getEnableExchangeLogging() {
-        return mSharedPreferences.getBoolean("enableExchgangeLogging", false);
+        return mSharedPreferences.getBoolean(ENABLE_EXCHANGE_LOGGING, false);
     }
 
     public void setEnableExchangeFileLogging(boolean value) {
-        mSharedPreferences.edit().putBoolean("enableExchangeFileLogging", value).commit();
+        mSharedPreferences.edit().putBoolean(ENABLE_EXCHANGE_FILE_LOGGING, value).commit();
     }
 
     public boolean getEnableExchangeFileLogging() {
-        return mSharedPreferences.getBoolean("enableExchgangeFileLogging", false);
+        return mSharedPreferences.getBoolean(ENABLE_EXCHANGE_FILE_LOGGING, false);
     }
 
     public void save() {
