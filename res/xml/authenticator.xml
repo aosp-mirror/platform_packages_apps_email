@@ -22,6 +22,6 @@
 
 <account-authenticator xmlns:android="http://schemas.android.com/apk/res/android"
     android:accountType="com.android.exchange"
-    android:icon="@drawable/icon"
+    android:icon="@drawable/ic_exchange_accounts"
     android:label="@string/exchange_name"
 />
