@@ -31,6 +31,7 @@ import android.content.ContentUris;
 import android.content.Context;
 import android.content.Intent;
 import android.database.Cursor;
+import android.graphics.Typeface;
 import android.net.Uri;
 import android.os.AsyncTask;
 import android.os.Bundle;
@@ -258,6 +259,9 @@ public class MailboxList extends ListActivity implements OnItemClickListener, On
             case R.id.refresh:
                 onRefresh(info.id);
                 break;
+            case R.id.open:
+                onOpenMailbox(info.id);
+                break;
         }
         return super.onContextItemSelected(item);
     }
@@ -419,8 +423,8 @@ public class MailboxList extends ListActivity implements OnItemClickListener, On
         public void bindView(View view, Context context, Cursor cursor) {
             // TODO translation by mailbox type
             String text = cursor.getString(COLUMN_DISPLAY_NAME);
+            TextView nameView = (TextView) view.findViewById(R.id.mailbox_name);
             if (text != null) {
-                TextView nameView = (TextView) view.findViewById(R.id.mailbox_name);
                 nameView.setText(text);
             }
 
@@ -433,7 +437,9 @@ public class MailboxList extends ListActivity implements OnItemClickListener, On
             } else {
                 statusView.setVisibility(View.GONE);
             }
-
+            View chipView = view.findViewById(R.id.chip);
+            int chipResId = mColorChipResIds[(int)mAccountId % mColorChipResIds.length];
+            chipView.setBackgroundResource(chipResId);
             // TODO do we use a different count for special mailboxes (total count vs. unread)
             int count = -1;
             text = cursor.getString(COLUMN_UNREAD_COUNT);
@@ -443,9 +449,11 @@ public class MailboxList extends ListActivity implements OnItemClickListener, On
             TextView countView = (TextView) view.findViewById(R.id.new_message_count);
             // If the unread count is zero, not to show countView.
             if (count > 0) {
+                nameView.setTypeface(Typeface.DEFAULT_BOLD);
                 countView.setVisibility(View.VISIBLE);
                 countView.setText(text);
             } else {
+                nameView.setTypeface(Typeface.DEFAULT);
                 countView.setVisibility(View.GONE);
             }
 
