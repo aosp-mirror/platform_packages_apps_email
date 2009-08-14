@@ -90,6 +90,9 @@ public class SyncManager extends Service implements Runnable {
     private static final int MINUTES = 60*SECONDS;
     private static final int ONE_DAY_MINUTES = 1440;
 
+    private static final int SYNC_MANAGER_HEARTBEAT_TIME = 15*MINUTES;
+    private static final int CONNECTIVITY_WAIT_TIME = 2*MINUTES;
+
     // Sync hold constants for services with transient errors
     private static final int HOLD_DELAY_ESCALATION = 30*SECONDS;
     private static final int HOLD_DELAY_MAXIMUM = 3*MINUTES;
@@ -135,6 +138,8 @@ public class SyncManager extends Service implements Runnable {
 
     // We synchronize on this for all actions affecting the service and error maps
     private static Object sSyncToken = new Object();
+    // All threads can use this lock to wait for connectivity
+    public static Object sConnectivityLock = new Object();
 
     // Keeps track of running services (by mailbox id)
     private HashMap<Long, AbstractSyncService> mServiceMap =
@@ -552,6 +557,12 @@ public class SyncManager extends Service implements Runnable {
         return mBinder;
     }
 
+    static public void smLog(String str) {
+        if (INSTANCE != null) {
+            INSTANCE.log(str);
+        }
+    }
+
     protected void log(String str) {
         if (Eas.USER_LOG) {
             Log.d(TAG, str);
@@ -573,7 +584,6 @@ public class SyncManager extends Service implements Runnable {
             throw new IOException();
         }
         // If we've already got the id, return it
-
         if (INSTANCE.mDeviceId != null) {
             return INSTANCE.mDeviceId;
         }
@@ -597,10 +607,10 @@ public class SyncManager extends Service implements Runnable {
             }
         } catch (FileNotFoundException e) {
             // We'll just use the default below
-            Log.e(TAG, "Can't get device name");
+            Log.e(TAG, "Can't get device name!");
         } catch (IOException e) {
             // We'll just use the default below
-            Log.e(TAG, "Can't get device name");
+            Log.e(TAG, "Can't get device name!");
         }
         throw new IOException();
     }
@@ -627,17 +637,21 @@ public class SyncManager extends Service implements Runnable {
             log("Attempt to start SyncManager though already started before?");
         }
 
-        mDeviceId = android.provider.Settings.Secure.getString(getContentResolver(),
-                android.provider.Settings.Secure.ANDROID_ID);
-
-
+//        mDeviceId = android.provider.Settings.Secure.getString(getContentResolver(),
+//                android.provider.Settings.Secure.ANDROID_ID);
+        try {
+            mDeviceId = getDeviceId();
+        } catch (IOException e) {
+            // We can't run in this situation
+            throw new RuntimeException();
+        }
     }
 
     @Override
     public void onDestroy() {
-        log("!!! MaiLService onDestroy");
+        log("!!! SyncManager onDestroy");
         stopServices();
-        // Stop receivers and content observerse
+        // Stop receivers and content observers
         if (mConnectivityReceiver != null) {
             unregisterReceiver(mConnectivityReceiver);
         }
@@ -720,6 +734,7 @@ public class SyncManager extends Service implements Runnable {
         if (INSTANCE != null) {
             AccountObserver obs = INSTANCE.mAccountObserver;
             obs.stopAccountSyncs(acctId, false);
+            kick("reload folder list");
         }
     }
 
@@ -791,7 +806,7 @@ public class SyncManager extends Service implements Runnable {
             if (pi != null) {
                 AlarmManager alarmManager = (AlarmManager)getSystemService(Context.ALARM_SERVICE);
                 alarmManager.cancel(pi);
-                log("+Alarm cleared for " + alarmOwner(id));
+                //log("+Alarm cleared for " + alarmOwner(id));
                 sPendingIntents.remove(id);
             }
         }
@@ -809,7 +824,7 @@ public class SyncManager extends Service implements Runnable {
 
                 AlarmManager alarmManager = (AlarmManager)getSystemService(Context.ALARM_SERVICE);
                 alarmManager.set(AlarmManager.RTC_WAKEUP, System.currentTimeMillis() + millis, pi);
-                INSTANCE.log("+Alarm set for " + alarmOwner(id) + ", " + millis/1000 + "s");
+                //INSTANCE.log("+Alarm set for " + alarmOwner(id) + ", " + millis/1000 + "s");
             }
         }
     }
@@ -852,40 +867,47 @@ public class SyncManager extends Service implements Runnable {
         }
     }
 
+    private void releaseConnectivityLock(String reason) {
+        // Clear our sync error map when we get connected
+        mSyncErrorMap.clear();
+        synchronized (sConnectivityLock) {
+            sConnectivityLock.notifyAll();
+        }
+        kick(reason);
+    }
+
     public class ConnectivityReceiver extends BroadcastReceiver {
         @Override
         public void onReceive(Context context, Intent intent) {
             Bundle b = intent.getExtras();
             if (b != null) {
-                NetworkInfo a = (NetworkInfo)b.get("networkInfo");
-                String info = "CM Info for " + a.getTypeName();
+                NetworkInfo a = (NetworkInfo)b.get(ConnectivityManager.EXTRA_NETWORK_INFO);
+                String info = "Connectivity alert for " + a.getTypeName();
                 State state = a.getState();
                 if (state == State.CONNECTED) {
                     info += " CONNECTED";
-                    kick("connected");
-                    // Clear our sync error map when we get connected
-                    mSyncErrorMap.clear();
-                } else if (state == State.CONNECTING) {
-                    info += " CONNECTING";
+                    log(info);
+                    releaseConnectivityLock("connected");
                 } else if (state == State.DISCONNECTED) {
                     info += " DISCONNECTED";
-                    kick("disconnected");
-                } else if (state == State.DISCONNECTING) {
-                    info += " DISCONNECTING";
-                } else if (state == State.SUSPENDED) {
-                    info += " SUSPENDED";
-                } else if (state == State.UNKNOWN) {
-                    info += " UNKNOWN";
+                    a = (NetworkInfo)b.get(ConnectivityManager.EXTRA_OTHER_NETWORK_INFO);
+                    if (a != null && a.getState() == State.CONNECTED) {
+                        info += " (OTHER CONNECTED)";
+                        releaseConnectivityLock("disconnect/other");
+                        ConnectivityManager cm =
+                            (ConnectivityManager)getSystemService(Context.CONNECTIVITY_SERVICE);
+                        if (cm != null) {
+                            NetworkInfo i = cm.getActiveNetworkInfo();
+                            if (i == null || i.getState() != State.CONNECTED) {
+                                log("CM says we're connected, but no active info?");
+                            }
+                        }
+                    } else {
+                        log(info);
+                        kick("disconnected");
+                    }
                 }
-                log(": " + info);
             }
-        }
-    }
-
-    private void pause(int ms) {
-        try {
-            Thread.sleep(ms);
-        } catch (InterruptedException e) {
         }
     }
 
@@ -936,6 +958,38 @@ public class SyncManager extends Service implements Runnable {
         }
     }
 
+    private void waitForConnectivity() {
+        int cnt = 0;
+        while (!mStop) {
+            ConnectivityManager cm =
+                (ConnectivityManager)getSystemService(Context.CONNECTIVITY_SERVICE);
+            NetworkInfo info = cm.getActiveNetworkInfo();
+            if (info != null) {
+                log("NetworkInfo: " + info.getTypeName() + ", " + info.getState().name());
+                return;
+            } else {
+
+                // If we're waiting for the long haul, shut down running service threads
+                if (++cnt > 1) {
+                    stopServices();
+                }
+
+                // Wait until a network is connected, but let the device sleep
+                // We'll set an alarm just in case we don't get notified (bugs happen)
+                synchronized (sConnectivityLock) {
+                    runAsleep(SYNC_MANAGER_ID, CONNECTIVITY_WAIT_TIME+5*SECONDS);
+                    try {
+                        log("Connectivity lock...");
+                        sConnectivityLock.wait(CONNECTIVITY_WAIT_TIME);
+                        log("Connectivity lock released...");
+                    } catch (InterruptedException e) {
+                    }
+                    runAwake(SYNC_MANAGER_ID);
+                }
+            }
+        }
+    }
+
     public void run() {
         mStop = false;
 
@@ -963,51 +1017,35 @@ public class SyncManager extends Service implements Runnable {
         mConnectivityReceiver = new ConnectivityReceiver();
         registerReceiver(mConnectivityReceiver,
                 new IntentFilter(ConnectivityManager.CONNECTIVITY_ACTION));
-        ConnectivityManager cm =
-            (ConnectivityManager)getSystemService(Context.CONNECTIVITY_SERVICE);
 
         try {
             while (!mStop) {
-                // Get a wake lock first...
                 runAwake(SYNC_MANAGER_ID);
-                log("Looking for something to do...");
-                int cnt = 0;
-                while (!mStop) {
-                    NetworkInfo info = cm.getActiveNetworkInfo();
-                    if (info != null && info.isConnected()) {
-                        break;
-                    } else {
-                        if (cnt++ == 2) {
-                            stopServices();
+                waitForConnectivity();
+                mNextWaitReason = "Heartbeat";
+                long nextWait = checkMailboxes();
+                try {
+                    synchronized (INSTANCE) {
+                        if (nextWait < 0) {
+                            log("Negative wait? Setting to 1s");
+                            nextWait = 1*SECONDS;
                         }
-                        pause(10*SECONDS);
-                    }
-                }
-                if (!mStop) {
-                    mNextWaitReason = "Heartbeat";
-                    long nextWait = checkMailboxes();
-                    try {
-                        synchronized (INSTANCE) {
-                            if (nextWait < 0) {
-                                log("Negative wait? Setting to 1s");
-                                nextWait = 1*SECONDS;
-                            }
-                            if (nextWait > (30*SECONDS)) {
-                                runAsleep(SYNC_MANAGER_ID, nextWait - 1000);
-                            }
+                        if (nextWait > (30*SECONDS)) {
+                            runAsleep(SYNC_MANAGER_ID, nextWait - 1000);
+                        }
+                        if (nextWait != SYNC_MANAGER_HEARTBEAT_TIME) {
                             log("Next awake in " + (nextWait / 1000) + "s: " + mNextWaitReason);
-                            INSTANCE.wait(nextWait);
                         }
-                    } catch (InterruptedException e) {
-                        // Needs to be caught, but causes no problem
+                        INSTANCE.wait(nextWait);
                     }
-                } else {
-                    stopServices();
-                    log("Shutdown requested");
-                    return;
+                } catch (InterruptedException e) {
+                    // Needs to be caught, but causes no problem
                 }
-
             }
+            stopServices();
+            log("Shutdown requested");
+        } catch (Exception e) {
+            e.printStackTrace();
         } finally {
             log("Goodbye");
         }
@@ -1047,7 +1085,7 @@ public class SyncManager extends Service implements Runnable {
             }
         }
 
-        long nextWait = 10*MINUTES;
+        long nextWait = SYNC_MANAGER_HEARTBEAT_TIME;
         long now = System.currentTimeMillis();
         // Start up threads that need it...
         Cursor c = getContentResolver().query(Mailbox.CONTENT_URI,
@@ -1066,14 +1104,21 @@ public class SyncManager extends Service implements Runnable {
                 if (service == null) {
                     // Check whether we're in a hold (temporary or permanent)
                     SyncError syncError = mSyncErrorMap.get(mid);
-                    if (syncError != null && (syncError.fatal || now < syncError.holdEndTime)) {
-                        if (!syncError.fatal) {
+                    if (syncError != null) {
+                        // Nothing we can do about fatal errors
+                        if (syncError.fatal) continue;
+                        if (now < syncError.holdEndTime) {
+                            // If release time is earlier than next wait time,
+                            // move next wait time up to the release time
                             if (syncError.holdEndTime < (now + nextWait)) {
                                 nextWait = syncError.holdEndTime - now;
                                 mNextWaitReason = "Release hold";
                             }
+                            continue;
+                        } else {
+                            // The hold has ended; remove from the error map
+                            mSyncErrorMap.remove(mid);
                         }
-                        continue;
                     }
                     long freq = c.getInt(Mailbox.CONTENT_SYNC_INTERVAL_COLUMN);
                     if (freq == Mailbox.CHECK_INTERVAL_PUSH) {
@@ -1235,7 +1280,6 @@ public class SyncManager extends Service implements Runnable {
 
     static public AbstractSyncService startManualSync(long mailboxId, int reason, PartRequest req) {
         if (INSTANCE == null || INSTANCE.mServiceMap == null) return null;
-        INSTANCE.log("startManualSync");
         synchronized (sSyncToken) {
             if (INSTANCE.mServiceMap.get(mailboxId) == null) {
                 INSTANCE.mSyncErrorMap.remove(mailboxId);
@@ -1266,12 +1310,12 @@ public class SyncManager extends Service implements Runnable {
      */
     static public void kick(String reason) {
         if (INSTANCE != null) {
-            //if (reason != null) {
-            //    INSTANCE.log("Kick: " + reason);
-            //}
             synchronized (INSTANCE) {
                 INSTANCE.notify();
             }
+        }
+        synchronized (sConnectivityLock) {
+            sConnectivityLock.notify();
         }
     }
 

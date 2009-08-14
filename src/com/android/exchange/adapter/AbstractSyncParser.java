@@ -38,11 +38,11 @@ import java.io.InputStream;
  */
 public abstract class AbstractSyncParser extends Parser {
 
-    EasSyncService mService;
-    Mailbox mMailbox;
-    Account mAccount;
-    Context mContext;
-    ContentResolver mContentResolver;
+    protected EasSyncService mService;
+    protected Mailbox mMailbox;
+    protected Account mAccount;
+    protected Context mContext;
+    protected ContentResolver mContentResolver;
 
     public AbstractSyncParser(InputStream in, EasSyncService _service) throws IOException {
         super(in);
