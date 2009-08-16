@@ -19,6 +19,7 @@ package com.android.exchange;
 
 import com.android.email.R;
 import com.android.email.activity.AccountFolderList;
+import com.android.email.codec.binary.Base64;
 import com.android.email.mail.AuthenticationFailedException;
 import com.android.email.mail.MessagingException;
 import com.android.email.provider.EmailContent.Account;
@@ -37,11 +38,11 @@ import com.android.exchange.adapter.PingParser;
 import com.android.exchange.adapter.Serializer;
 import com.android.exchange.adapter.Tags;
 import com.android.exchange.adapter.Parser.EasParserException;
-import com.android.exchange.utility.Base64;
 
 import org.apache.http.Header;
 import org.apache.http.HttpEntity;
 import org.apache.http.HttpResponse;
+import org.apache.http.HttpStatus;
 import org.apache.http.client.HttpClient;
 import org.apache.http.client.methods.HttpOptions;
 import org.apache.http.client.methods.HttpPost;
@@ -61,16 +62,13 @@ import android.content.ContentValues;
 import android.content.Context;
 import android.content.Intent;
 import android.database.Cursor;
-import android.net.ConnectivityManager;
 import android.os.RemoteException;
 import android.util.Log;
 
-import java.io.ByteArrayInputStream;
 import java.io.File;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
-import java.net.HttpURLConnection;
 import java.net.URI;
 import java.net.URLEncoder;
 import java.util.ArrayList;
@@ -92,20 +90,41 @@ public class EasSyncService extends AbstractSyncService {
     private static final String WHERE_PUSH_HOLD_NOT_ACCOUNT_MAILBOX =
         MailboxColumns.ACCOUNT_KEY + "=? and " + MailboxColumns.SYNC_INTERVAL +
         '=' + Mailbox.CHECK_INTERVAL_PUSH_HOLD;
-
+    private static final String[] SYNC_STATUS_PROJECTION =
+        new String[] {MailboxColumns.ID, MailboxColumns.SYNC_STATUS};
     static private final int CHUNK_SIZE = 16*1024;
 
     static private final String PING_COMMAND = "Ping";
     static private final int COMMAND_TIMEOUT = 20*SECONDS;
-    static private final int PING_COMMAND_TIMEOUT = 20*MINUTES;
 
-    // For mobile, we use a 5 minute timeout (less a few seconds)
-    static private final int PING_HEARTBEAT_MOBILE = 295;
-    // For wifi, we use a 15 minute timeout
-    static private final int PING_HEARTBEAT_WIFI = 900;
+    /**
+     * We start with an 8 minute timeout, and increase/decrease by 3 minutes at a time.  There's
+     * no point having a timeout shorter than 5 minutes, I think; at that point, we can just let
+     * the ping exception out.  The maximum I use is 17 minutes, which is really an empirical
+     * choice; too long and we risk silent connection loss and loss of push for that period.  Too
+     * short and we lose efficiency/battery life.
+     *
+     * If we ever have to drop the ping timeout, we'll never increase it again.  There's no point
+     * going into hysteresis; the NAT timeout isn't going to change without a change in connection,
+     * which will cause the sync service to be restarted at the starting heartbeat and going through
+     * the process again.
+     *
+     * One issue we've got is that there's no foolproof way of knowing that we hit a NAT timeout,
+     * rather than some other disconnect.  In my experience, we see a particular IOException, but
+     * this might be too fragile an indicator, so we'll have to consider changes to this approach.
+     */
+    static private final int PING_MINUTES = 60; // in seconds
+    static private final int PING_FUDGE_LOW = 10;
+    static private final int PING_STARTING_HEARTBEAT = (8*PING_MINUTES)-PING_FUDGE_LOW;
+    static private final int PING_MIN_HEARTBEAT = (5*PING_MINUTES)-PING_FUDGE_LOW;
+    static private final int PING_MAX_HEARTBEAT = (17*PING_MINUTES)-PING_FUDGE_LOW;
+    static private final int PING_HEARTBEAT_INCREMENT = 3*PING_MINUTES;
+
+    static private final int PROTOCOL_PING_STATUS_COMPLETED = 1;
+    static private final int PROTOCOL_PING_STATUS_CHANGES_FOUND = 2;
 
     // Fallbacks (in minutes) for ping loop failures
-    static private final int MAX_PING_FAILURES = 2;
+    static private final int MAX_PING_FAILURES = 1;
     static private final int PING_FALLBACK_INBOX = 5;
     static private final int PING_FALLBACK_PIM = 30;
 
@@ -114,27 +133,25 @@ public class EasSyncService extends AbstractSyncService {
     public Double mProtocolVersionDouble;
     private String mDeviceId = null;
     private String mDeviceType = "Android";
-    AbstractSyncAdapter mTarget;
-    String mAuthString = null;
-    String mCmdString = null;
+    private String mAuthString = null;
+    private String mCmdString = null;
     public String mHostAddress;
     public String mUserName;
     public String mPassword;
-    String mDomain = null;
-    boolean mSentCommands;
-    boolean mIsIdle = false;
-    boolean mSsl = true;
-    public Context mContext;
+    private boolean mSsl = true;
     public ContentResolver mContentResolver;
-    String[] mBindArguments = new String[2];
-    InputStream mPendingPartInputStream = null;
-    HttpPost mPendingPost = null;
-    int mNetworkType;
-    int mPingHeartbeat;
+    private String[] mBindArguments = new String[2];
+    private ArrayList<String> mPingChangeList;
+    private HttpPost mPendingPost = null;
+    // The ping time (in seconds)
+    private int mPingHeartbeat = PING_STARTING_HEARTBEAT;
+    // The longest successful ping heartbeat
+    private int mPingHighWaterMark = 0;
+    // Whether we've ever lowered the heartbeat
+    private boolean mPingHeartbeatDropped = false;
 
     public EasSyncService(Context _context, Mailbox _mailbox) {
         super(_context, _mailbox);
-        mContext = _context;
         mContentResolver = _context.getContentResolver();
         HostAuth ha = HostAuth.restoreHostAuthWithId(_context, mAccount.mHostAuthKeyRecv);
         mSsl = (ha.mFlags & HostAuth.FLAG_SSL) != 0;
@@ -150,10 +167,12 @@ public class EasSyncService extends AbstractSyncService {
 
     @Override
     public void ping() {
-        userLog("We've been pinged!");
-        Object synchronizer = getSynchronizer();
-        synchronized (synchronizer) {
-            synchronizer.notify();
+        userLog("Alarm ping received!");
+        synchronized(getSynchronizer()) {
+            if (mPendingPost != null) {
+                userLog("Aborting pending POST!");
+                mPendingPost.abort();
+            }
         }
     }
 
@@ -167,15 +186,16 @@ public class EasSyncService extends AbstractSyncService {
         }
     }
 
-    @Override
-    public int getSyncStatus() {
-        return 0;
-    }
-
+    /**
+     * Determine whether an HTTP code represents an authentication error
+     * @param code the HTTP code returned by the server
+     * @return whether or not the code represents an authentication error
+     */
     private boolean isAuthError(int code) {
-        return (code == HttpURLConnection.HTTP_UNAUTHORIZED
-                || code == HttpURLConnection.HTTP_FORBIDDEN
-                || code == HttpURLConnection.HTTP_INTERNAL_ERROR);
+        return (code == HttpStatus.SC_UNAUTHORIZED
+                || code == HttpStatus.SC_FORBIDDEN
+//                || code == HttpStatus.SC_INTERNAL_SERVER_ERROR
+                );
     }
 
     @Override
@@ -193,7 +213,7 @@ public class EasSyncService extends AbstractSyncService {
             HttpResponse resp = svc.sendHttpClientOptions();
             int code = resp.getStatusLine().getStatusCode();
             userLog("Validation (OPTIONS) response: " + code);
-            if (code == HttpURLConnection.HTTP_OK) {
+            if (code == HttpStatus.SC_OK) {
                 // No exception means successful validation
                 userLog("Validation successful");
                 return;
@@ -278,7 +298,7 @@ public class EasSyncService extends AbstractSyncService {
 
         HttpResponse res = client.execute(method);
         int status = res.getStatusLine().getStatusCode();
-        if (status == HttpURLConnection.HTTP_OK) {
+        if (status == HttpStatus.SC_OK) {
             HttpEntity e = res.getEntity();
             int len = (int)e.getContentLength();
             String type = e.getContentType().getValue();
@@ -296,7 +316,6 @@ public class EasSyncService extends AbstractSyncService {
                 if (len > 0) {
                     try {
                         mPendingPartRequest = req;
-                        mPendingPartInputStream = is;
                         byte[] bytes = new byte[CHUNK_SIZE];
                         int length = len;
                         while (len > 0) {
@@ -309,7 +328,6 @@ public class EasSyncService extends AbstractSyncService {
                         }
                     } finally {
                         mPendingPartRequest = null;
-                        mPendingPartInputStream = null;
                     }
                 }
                 os.flush();
@@ -338,7 +356,7 @@ public class EasSyncService extends AbstractSyncService {
         String safeUserName = URLEncoder.encode(mUserName);
         if (mAuthString == null) {
             String cs = mUserName + ':' + mPassword;
-            mAuthString = "Basic " + Base64.encodeBytes(cs.getBytes());
+            mAuthString = "Basic " + new String(Base64.encodeBase64(cs.getBytes()));
             mCmdString = "&User=" + safeUserName + "&DeviceId=" + mDeviceId + "&DeviceType="
                     + mDeviceType;
         }
@@ -362,18 +380,40 @@ public class EasSyncService extends AbstractSyncService {
 
     private HttpClient getHttpClient(int timeout) {
         HttpParams params = new BasicHttpParams();
-        HttpConnectionParams.setConnectionTimeout(params, 10*SECONDS);
+        HttpConnectionParams.setConnectionTimeout(params, 15*SECONDS);
         HttpConnectionParams.setSoTimeout(params, timeout);
         return new DefaultHttpClient(params);
     }
 
     protected HttpResponse sendHttpClientPost(String cmd, byte[] bytes) throws IOException {
-        return sendHttpClientPost(cmd, new ByteArrayEntity(bytes));
+        return sendHttpClientPost(cmd, new ByteArrayEntity(bytes), COMMAND_TIMEOUT);
     }
 
     protected HttpResponse sendHttpClientPost(String cmd, HttpEntity entity) throws IOException {
-        HttpClient client =
-            getHttpClient(cmd.equals(PING_COMMAND) ? PING_COMMAND_TIMEOUT : COMMAND_TIMEOUT);
+        return sendHttpClientPost(cmd, entity, COMMAND_TIMEOUT);
+    }
+
+    protected HttpResponse sendPing(byte[] bytes, int pingHeartbeat) throws IOException {
+       int timeout = (pingHeartbeat+15)*SECONDS;
+       Thread.currentThread().setName(mAccount.mDisplayName + ": Ping");
+
+       if (Eas.USER_LOG) {
+           userLog("Sending ping, timeout: " + pingHeartbeat +
+                   "s, high water mark: " + mPingHighWaterMark + 's');
+       }
+
+       SyncManager.runAsleep(mMailboxId, timeout);
+       try {
+           HttpResponse res = sendHttpClientPost(PING_COMMAND, new ByteArrayEntity(bytes), timeout);
+           return res;
+       } finally {
+           SyncManager.runAwake(mMailboxId);
+       }
+    }
+
+    protected HttpResponse sendHttpClientPost(String cmd, HttpEntity entity, int timeout)
+            throws IOException {
+        HttpClient client = getHttpClient(timeout);
         String us = makeUriString(cmd, null);
         HttpPost method = new HttpPost(URI.create(us));
         if (cmd.startsWith("SendMail&")) {
@@ -422,11 +462,6 @@ public class EasSyncService extends AbstractSyncService {
      */
     public void runAccountMailbox() throws IOException, EasParserException {
         // Initialize exit status to success
-        mNetworkType = waitForConnectivity();
-        mPingHeartbeat = PING_HEARTBEAT_MOBILE;
-        if (mNetworkType == ConnectivityManager.TYPE_WIFI) {
-            mPingHeartbeat = PING_HEARTBEAT_WIFI;
-        }
         mExitStatus = EmailServiceStatus.SUCCESS;
         try {
             try {
@@ -464,7 +499,7 @@ public class EasSyncService extends AbstractSyncService {
                 HttpResponse resp = sendHttpClientOptions();
                 int code = resp.getStatusLine().getStatusCode();
                 userLog("OPTIONS response: ", code);
-                if (code == HttpURLConnection.HTTP_OK) {
+                if (code == HttpStatus.SC_OK) {
                     Header header = resp.getFirstHeader("ms-asprotocolversions");
                     String versions = header.getValue();
                     if (versions != null) {
@@ -504,7 +539,7 @@ public class EasSyncService extends AbstractSyncService {
                  HttpResponse resp = sendHttpClientPost("FolderSync", s.toByteArray());
                  if (mStop) break;
                  int code = resp.getStatusLine().getStatusCode();
-                 if (code == HttpURLConnection.HTTP_OK) {
+                 if (code == HttpStatus.SC_OK) {
                      HttpEntity entity = resp.getEntity();
                      int len = (int)entity.getContentLength();
                      if (len > 0) {
@@ -515,9 +550,8 @@ public class EasSyncService extends AbstractSyncService {
                              continue;
                          }
                      }
-                 } else if (code == HttpURLConnection.HTTP_UNAUTHORIZED ||
-                        code == HttpURLConnection.HTTP_FORBIDDEN) {
-                    mExitStatus = AbstractSyncService.EXIT_LOGIN_FAILURE;
+                 } else if (isAuthError(code)) {
+                    mExitStatus = EXIT_LOGIN_FAILURE;
                 } else {
                     userLog("FolderSync response error: ", code);
                 }
@@ -606,25 +640,72 @@ public class EasSyncService extends AbstractSyncService {
         }
     }
 
-    void runPingLoop() throws IOException, StaleFolderListException {
-        // Do push for all sync services here
-        ArrayList<Mailbox> pushBoxes = new ArrayList<Mailbox>();
-        long endTime = System.currentTimeMillis() + (30*MINUTES);
-        HashMap<Long, Integer> pingFailureMap = new HashMap<Long, Integer>();
+    /**
+     * Check the boxes reporting changes to see if there really were any...
+     * We do this because bugs in various Exchange servers can put us into a looping
+     * behavior by continually reporting changes in a mailbox, even when there aren't any.
+     *
+     * This behavior is seemingly random, and therefore we must code defensively by
+     * backing off of push behavior when it is detected.
+     *
+     * One known cause, on certain Exchange 2003 servers, is acknowledged by Microsoft, and the
+     * server hotfix for this case can be found at http://support.microsoft.com/kb/923282
+     */
 
-        while (System.currentTimeMillis() < endTime) {
+    void checkPingErrors(HashMap<String, Integer> errorMap) {
+        mBindArguments[0] = Long.toString(mAccount.mId);
+        for (String serverId: mPingChangeList) {
+            // Find the id and sync status for each box
+            mBindArguments[1] = serverId;
+            Cursor c = mContentResolver.query(Mailbox.CONTENT_URI, SYNC_STATUS_PROJECTION,
+                    WHERE_ACCOUNT_KEY_AND_SERVER_ID, mBindArguments, null);
+            try {
+                if (c.moveToFirst()) {
+                    String status = c.getString(1);
+                    int type = SyncManager.getStatusType(status);
+                    // This check should always be true...
+                    if (type == SyncManager.SYNC_PING) {
+                        int changeCount = SyncManager.getStatusChangeCount(status);
+                        if (changeCount > 0) {
+                            errorMap.remove(serverId);
+                        } else if (changeCount == 0) {
+                            // This means that a ping reported changes in error; we keep a count
+                            // of consecutive errors of this kind
+                            Integer failures = errorMap.get(serverId);
+                            if (failures == null) {
+                                errorMap.put(serverId, 1);
+                            } else if (failures > MAX_PING_FAILURES) {
+                                // We'll back off of push for this box
+                                pushFallback(c.getLong(0));
+                                return;
+                            } else {
+                                errorMap.put(serverId, failures + 1);
+                            }
+                        }
+                    }
+                }
+            } finally {
+                c.close();
+            }
+        }
+    }
+
+    void runPingLoop() throws IOException, StaleFolderListException {
+        int pingHeartbeat = mPingHeartbeat;
+
+        // Do push for all sync services here
+        long endTime = System.currentTimeMillis() + (30*MINUTES);
+        HashMap<String, Integer> pingErrorMap = new HashMap<String, Integer>();
+
+        while (System.currentTimeMillis() < endTime && !mStop) {
             // Count of pushable mailboxes
             int pushCount = 0;
             // Count of mailboxes that can be pushed right now
             int canPushCount = 0;
             Serializer s = new Serializer();
-            int code;
             Cursor c = mContentResolver.query(Mailbox.CONTENT_URI, Mailbox.CONTENT_PROJECTION,
                     MailboxColumns.ACCOUNT_KEY + '=' + mAccount.mId +
                     AND_FREQUENCY_PING_PUSH_AND_NOT_ACCOUNT_MAILBOX, null, null);
-
-            pushBoxes.clear();
-
             try {
                 // Loop through our pushed boxes seeing what is available to push
                 while (c.moveToNext()) {
@@ -642,45 +723,14 @@ public class EasSyncService extends AbstractSyncService {
                             continue;
                         }
 
-                        // Take a peek at this box's behavior last sync
-                        // We do this because some Exchange 2003 servers put themselves (and
-                        // therefore our client) into a "ping loop" in which the client is
-                        // continuously told of server changes, only to find that there aren't any.
-                        // This behavior is seemingly random, and we must code defensively by
-                        // backing off of push behavior when this is detected.
-                        // The server fix is at http://support.microsoft.com/kb/923282
-
-                        // Sync status is encoded as S<type>:<exitstatus>:<changes>
-                        String status = c.getString(Mailbox.CONTENT_SYNC_STATUS_COLUMN);
-                        int type = SyncManager.getStatusType(status);
-                        if (type == SyncManager.SYNC_PING) {
-                            int changeCount = SyncManager.getStatusChangeCount(status);
-                            if (changeCount > 0) {
-                                pingFailureMap.remove(mailboxId);
-                            } else if (changeCount == 0) {
-                                // This means that a ping failed; we'll keep track of this
-                                Integer failures = pingFailureMap.get(mailboxId);
-                                if (failures == null) {
-                                    pingFailureMap.put(mailboxId, 1);
-                                } else if (failures > MAX_PING_FAILURES) {
-                                    // Change all push/ping boxes (except account) to 5 minute sync
-                                    pushFallback(mailboxId);
-                                    return;
-                                } else {
-                                    pingFailureMap.put(mailboxId, failures + 1);
-                                }
-                            }
-                        }
-
                         if (canPushCount++ == 0) {
                             // Initialize the Ping command
                             s.start(Tags.PING_PING)
                                 .data(Tags.PING_HEARTBEAT_INTERVAL,
-                                        Integer.toString(mPingHeartbeat))
+                                        Integer.toString(pingHeartbeat))
                                 .start(Tags.PING_FOLDERS);
                         }
-                        // When we're ready for Calendar/Contacts, we will check folder type
-                        // TODO Save Calendar and Contacts!! Mark as not visible!
+
                         String folderClass = getTargetCollectionClassFromCursor(c);
                         s.start(Tags.PING_FOLDER)
                             .data(Tags.PING_ID, c.getString(Mailbox.CONTENT_SERVER_ID_COLUMN))
@@ -688,7 +738,6 @@ public class EasSyncService extends AbstractSyncService {
                             .end();
                         userLog("Ping ready for: ", folderClass, ", ", mailboxName, " (",
                                 c.getString(Mailbox.CONTENT_SERVER_ID_COLUMN), ")");
-                        pushBoxes.add(new Mailbox().restore(c));
                     } else if (pingStatus == SyncManager.PING_STATUS_RUNNING ||
                             pingStatus == SyncManager.PING_STATUS_WAITING) {
                         userLog(mailboxName, " not ready for ping");
@@ -706,48 +755,84 @@ public class EasSyncService extends AbstractSyncService {
                 // If we have some number that are ready for push, send Ping to the server
                 s.end().end().done();
 
-                Thread.currentThread().setName(mAccount.mDisplayName + ": Ping");
-                userLog("Sending ping, timeout: " + mPingHeartbeat + "s");
-
-                // Sleep for the heartbeat time plus a little bit of slack
-                SyncManager.runAsleep(mMailboxId, (mPingHeartbeat+15)*SECONDS);
-                HttpResponse res = sendHttpClientPost(PING_COMMAND, s.toByteArray());
-                SyncManager.runAwake(mMailboxId);
-
-                // Don't send request if we've been asked to stop
+                // If we've been stopped, this is a good time to return
                 if (mStop) return;
-                code = res.getStatusLine().getStatusCode();
 
-                userLog("Ping response: ", code);
+                try {
+                    // Send the ping, wrapped by appropriate timeout/alarm
+                    HttpResponse res = sendPing(s.toByteArray(), pingHeartbeat);
 
-                // Return immediately if we've been asked to stop
-                if (mStop) {
-                    userLog("Stopping pingLoop");
-                    return;
-                }
+                    int code = res.getStatusLine().getStatusCode();
+                    userLog("Ping response: ", code);
 
-                if (code == HttpURLConnection.HTTP_OK) {
-                    HttpEntity e = res.getEntity();
-                    int len = (int)e.getContentLength();
-                    InputStream is = res.getEntity().getContent();
-                    if (len > 0) {
-                        parsePingResult(is, mContentResolver);
-                    } else {
+                    // Return immediately if we've been asked to stop during the ping
+                    if (mStop) {
+                        userLog("Stopping pingLoop");
+                        return;
+                    }
+
+                    if (code == HttpStatus.SC_OK) {
+                        HttpEntity e = res.getEntity();
+                        int len = (int)e.getContentLength();
+                        InputStream is = res.getEntity().getContent();
+                        if (len > 0) {
+                            int status = parsePingResult(is, mContentResolver);
+                            // If our ping completed (status = 1), and we're not at the maximum,
+                            // try increasing timeout by two minutes
+                            if (status == PROTOCOL_PING_STATUS_COMPLETED &&
+                                    pingHeartbeat > mPingHighWaterMark) {
+                                userLog("Setting ping high water mark at: ", mPingHighWaterMark);
+                                mPingHighWaterMark = pingHeartbeat;
+                            }
+                            if (status == PROTOCOL_PING_STATUS_COMPLETED &&
+                                    pingHeartbeat < PING_MAX_HEARTBEAT &&
+                                    !mPingHeartbeatDropped) {
+                                pingHeartbeat += PING_HEARTBEAT_INCREMENT;
+                                if (pingHeartbeat > PING_MAX_HEARTBEAT) {
+                                    pingHeartbeat = PING_MAX_HEARTBEAT;
+                                }
+                                userLog("Increasing ping heartbeat to ", pingHeartbeat, "s");
+                            } else if (status == PROTOCOL_PING_STATUS_CHANGES_FOUND) {
+                                checkPingErrors(pingErrorMap);
+                            }
+                        } else {
+                            userLog("Ping returned empty result; throwing IOException");
+                            throw new IOException();
+                        }
+                    } else if (isAuthError(code)) {
+                        mExitStatus = EXIT_LOGIN_FAILURE;
+                        userLog("Authorization error during Ping: ", code);
                         throw new IOException();
                     }
-                } else if (isAuthError(code)) {
-                    mExitStatus = AbstractSyncService.EXIT_LOGIN_FAILURE;
-                    userLog("Authorization error during Ping: ", code);
-                    throw new IOException();
+                } catch (IOException e) {
+                    String msg = e.getMessage();
+                    // If we get the exception that is indicative of a NAT timeout and if we
+                    // haven't yet "fixed" the timeout, back off by two minutes and "fix" it
+                    if (msg != null && msg.contains("reset by peer")) {
+                        if (pingHeartbeat > PING_MIN_HEARTBEAT &&
+                                pingHeartbeat > mPingHighWaterMark) {
+                            pingHeartbeat -= PING_HEARTBEAT_INCREMENT;
+                            mPingHeartbeatDropped = true;
+                            if (pingHeartbeat < PING_MIN_HEARTBEAT) {
+                                pingHeartbeat = PING_MIN_HEARTBEAT;
+                            }
+                            userLog("Decreased ping heartbeat to ", pingHeartbeat, "s");
+                        }
+                    } else {
+                        userLog("IOException detected in runPingLoop: " +
+                                ((msg != null) ? msg : "no message"));
+                        throw e;
+                    }
                 }
             } else if (pushCount > 0) {
                 // If we want to Ping, but can't just yet, wait 10 seconds and try again
+                // No point giving up the wake lock for 10 seconds...
                 userLog("pingLoop waiting for: ", (pushCount - canPushCount), " box(es)");
                 sleep(10*SECONDS);
             } else {
                 // We've got nothing to do, so we'll check again in 30 minutes at which time
-                // we'll update the folder list.
-                SyncManager.runAsleep(mMailboxId, 30*MINUTES);
+                // we'll update the folder list.  Let the device sleep in the meantime...
+                SyncManager.runAsleep(mMailboxId, (30*MINUTES)+(15*SECONDS));
                 sleep(30*MINUTES);
                 SyncManager.runAwake(mMailboxId);
             }
@@ -769,8 +854,8 @@ public class EasSyncService extends AbstractSyncService {
             // True indicates some mailboxes need syncing...
             // syncList has the serverId's of the mailboxes...
             mBindArguments[0] = Long.toString(mAccount.mId);
-            ArrayList<String> syncList = pp.getSyncList();
-            for (String serverId: syncList) {
+            mPingChangeList = pp.getSyncList();
+            for (String serverId: mPingChangeList) {
                 mBindArguments[1] = serverId;
                 Cursor c = cr.query(Mailbox.CONTENT_URI, Mailbox.CONTENT_PROJECTION,
                         WHERE_ACCOUNT_KEY_AND_SERVER_ID, mBindArguments, null);
@@ -784,53 +869,7 @@ public class EasSyncService extends AbstractSyncService {
                 }
             }
         }
-        return pp.getSyncList().size();
-    }
-
-    ByteArrayInputStream readResponse(HttpURLConnection uc) throws IOException {
-        String encoding = uc.getHeaderField("Transfer-Encoding");
-        if (encoding == null) {
-            int len = uc.getHeaderFieldInt("Content-Length", 0);
-            if (len > 0) {
-                InputStream in = uc.getInputStream();
-                byte[] bytes = new byte[len];
-                int remain = len;
-                int offs = 0;
-                while (remain > 0) {
-                    int read = in.read(bytes, offs, remain);
-                    remain -= read;
-                    offs += read;
-                }
-                return new ByteArrayInputStream(bytes);
-            }
-        } else if (encoding.equalsIgnoreCase("chunked")) {
-            // TODO We don't handle this yet
-            return null;
-        }
-        return null;
-    }
-
-    String readResponseString(HttpURLConnection uc) throws IOException {
-        String encoding = uc.getHeaderField("Transfer-Encoding");
-        if (encoding == null) {
-            int len = uc.getHeaderFieldInt("Content-Length", 0);
-            if (len > 0) {
-                InputStream in = uc.getInputStream();
-                byte[] bytes = new byte[len];
-                int remain = len;
-                int offs = 0;
-                while (remain > 0) {
-                    int read = in.read(bytes, offs, remain);
-                    remain -= read;
-                    offs += read;
-                }
-                return new String(bytes);
-            }
-        } else if (encoding.equalsIgnoreCase("chunked")) {
-            // TODO We don't handle this yet
-            return null;
-        }
-        return null;
+        return pp.getSyncStatus();
     }
 
     private String getFilterType() {
@@ -870,12 +909,17 @@ public class EasSyncService extends AbstractSyncService {
      * @param target, an EasMailbox, EasContacts, or EasCalendar object
      */
     public void sync(AbstractSyncAdapter target) throws IOException {
-        mTarget = target;
         Mailbox mailbox = target.mMailbox;
 
         boolean moreAvailable = true;
         while (!mStop && moreAvailable) {
-            waitForConnectivity();
+            // If we have no connectivity, just exit cleanly.  SyncManager will start us up again
+            // when connectivity has returned
+            if (!hasConnectivity()) {
+                userLog("No connectivity in sync; finishing sync");
+                mExitStatus = EXIT_DONE;
+                return;
+            }
 
             while (true) {
                 PartRequest req = null;
@@ -917,10 +961,6 @@ public class EasSyncService extends AbstractSyncService {
             if (!className.equals("Contacts")) {
                 // Set the lookback appropriately (EAS calls this a "filter")
                 s.start(Tags.SYNC_OPTIONS).data(Tags.SYNC_FILTER_TYPE, getFilterType());
-                // No truncation in this version
-                //if (mProtocolVersionDouble < 12.0) {
-                //    s.data(Tags.SYNC_TRUNCATION, "7");
-                //}
                 options = true;
             }
             if (mProtocolVersionDouble >= 12.0) {
@@ -932,8 +972,6 @@ public class EasSyncService extends AbstractSyncService {
                     // HTML for email; plain text for everything else
                     .data(Tags.BASE_TYPE, (className.equals("Email") ? Eas.BODY_PREFERENCE_HTML
                             : Eas.BODY_PREFERENCE_TEXT))
-                // No truncation in this version
-                //.data(Tags.BASE_TRUNCATION_SIZE, Eas.DEFAULT_BODY_TRUNCATION_SIZE)
                     .end();
             }
             if (options) {
@@ -947,7 +985,7 @@ public class EasSyncService extends AbstractSyncService {
             userLog("Sync, deviceId = ", mDeviceId);
             HttpResponse resp = sendHttpClientPost("Sync", s.toByteArray());
             int code = resp.getStatusLine().getStatusCode();
-            if (code == HttpURLConnection.HTTP_OK) {
+            if (code == HttpStatus.SC_OK) {
                  InputStream is = resp.getEntity().getContent();
                 if (is != null) {
                     moreAvailable = target.parse(is, this);
@@ -956,11 +994,14 @@ public class EasSyncService extends AbstractSyncService {
             } else {
                 userLog("Sync response error: ", code);
                 if (isAuthError(code)) {
-                    mExitStatus = AbstractSyncService.EXIT_LOGIN_FAILURE;
+                    mExitStatus = EXIT_LOGIN_FAILURE;
+                } else {
+                    mExitStatus = EXIT_IO_ERROR;
                 }
                 return;
             }
         }
+        mExitStatus = EXIT_DONE;
     }
 
     /* (non-Javadoc)
@@ -1011,7 +1052,6 @@ public class EasSyncService extends AbstractSyncService {
                     sync(target);
                 } while (mRequestTime != 0);
             }
-            mExitStatus = EXIT_DONE;
         } catch (IOException e) {
             String message = e.getMessage();
             userLog("Caught IOException: ", ((message == null) ? "" : message));

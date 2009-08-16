@@ -23,6 +23,8 @@
 
 package com.android.exchange.adapter;
 
+import org.kxml2.wap.Wbxml;
+
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.io.OutputStream;

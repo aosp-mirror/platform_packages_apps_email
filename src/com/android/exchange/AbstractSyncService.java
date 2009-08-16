@@ -39,7 +39,7 @@ import java.util.ArrayList;
  */
 public abstract class AbstractSyncService implements Runnable {
 
-    public String TAG = "ProtocolService";
+    public String TAG = "AbstractSyncService";
 
     public static final String SUMMARY_PROTOCOL = "_SUMMARY_";
     public static final String SYNCED_PROTOCOL = "_SYNCING_";
@@ -59,18 +59,13 @@ public abstract class AbstractSyncService implements Runnable {
     public static final int EXIT_LOGIN_FAILURE = 2;
     public static final int EXIT_EXCEPTION = 3;
 
-    // Making SSL connections is so slow that I'd prefer that only one be
-    // executed at a time
-    // Kindly subclasses will synchronize on this before making an SSL
-    // connection
-    public static Object sslGovernorToken = new Object();
     public Mailbox mMailbox;
     protected long mMailboxId;
     protected Thread mThread;
     protected int mExitStatus = EXIT_EXCEPTION;
     protected String mMailboxName;
     public Account mAccount;
-    protected Context mContext;
+    public Context mContext;
     public int mChangeCount = 0;
     public int mSyncReason = 0;
     protected volatile boolean mStop = false;
@@ -107,16 +102,6 @@ public abstract class AbstractSyncService implements Runnable {
      */
     public abstract void validateAccount(String host, String userName, String password, int port,
             boolean ssl, Context context) throws MessagingException;
-
-    /**
-     * Sent by SyncManager to determine the state of a running sync This is
-     * currently unused
-     *
-     * @return status code
-     */
-    public int getSyncStatus() {
-        return 0;
-    }
 
     public AbstractSyncService(Context _context, Mailbox _mailbox) {
         mContext = _context;
@@ -255,45 +240,30 @@ public abstract class AbstractSyncService implements Runnable {
     }
 
     /**
-     * Implements a delay until there is some kind of network connectivity available. This method
-     * may be supplanted by functionality in SyncManager.
+     * Waits for up to 10 seconds for network connectivity; returns whether or not there is
+     * network connectivity.
      *
-     * @return the type of network connected to
+     * @return whether there is network connectivity
      */
-    public int waitForConnectivity() {
-        ConnectivityManager cm = (ConnectivityManager)mContext
-                .getSystemService(Context.CONNECTIVITY_SERVICE);
-        while (true) {
+    public boolean hasConnectivity() {
+        ConnectivityManager cm =
+            (ConnectivityManager)mContext.getSystemService(Context.CONNECTIVITY_SERVICE);
+        int tries = 0;
+        while (tries++ < 1) {
             NetworkInfo info = cm.getActiveNetworkInfo();
             if (info != null && info.isConnected()) {
                 DetailedState state = info.getDetailedState();
                 if (state == DetailedState.CONNECTED) {
-                    return info.getType();
-                } else {
-                    // TODO Happens sometimes; find out why...
-                    userLog("Not quite connected?  Pause 1 second");
+                    return true;
                 }
-                pause(1000);
-            } else {
-                userLog("Not connected; waiting 15 seconds");
-                pause(NETWORK_WAIT);
+            }
+            try {
+                Thread.sleep(10*SECONDS);
+            } catch (InterruptedException e) {
             }
         }
+        return false;
     }
-
-    /**
-     * Convenience method to generate a small wait
-     *
-     * @param ms time to wait in milliseconds
-     */
-    private void pause(int ms) {
-        try {
-            Thread.sleep(ms);
-        } catch (InterruptedException e) {
-        }
-    }
-
-    // What's below here is temporary
 
     /**
      * PartRequest handling (common functionality)
@@ -323,13 +293,10 @@ public abstract class AbstractSyncService implements Runnable {
         return null;
     }
 
-    // CancelPartRequest is sent in response to user input to stop a request
-    // (attachment load at this point)
-    // that is in progress. This will almost certainly require code overriding
-    // the base functionality, as
-    // sockets may need to be closed, etc. and this functionality will be
-    // service dependent. This returns
-    // the canceled PartRequest or null
+    // cancelPartRequest is sent in response to user input to stop an attachment load
+    // that is in progress. This will almost certainly require code overriding the base
+    // functionality, as sockets may need to be closed, etc. and this functionality will be
+    // service dependent. This returns the canceled PartRequest or null
     public PartRequest cancelPartRequest(long emailId, String part) {
         synchronized (mPartRequests) {
             PartRequest p = null;
