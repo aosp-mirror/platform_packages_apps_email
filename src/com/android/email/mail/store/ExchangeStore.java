@@ -34,9 +34,9 @@ import com.android.exchange.SyncManager;
 
 import android.accounts.AccountManager;
 import android.accounts.AuthenticatorException;
-import android.accounts.Future2;
-import android.accounts.Future2Callback;
 import android.accounts.OperationCanceledException;
+import android.accounts.AccountManagerCallback;
+import android.accounts.AccountManagerFuture;
 import android.content.Context;
 import android.os.Bundle;
 import android.os.RemoteException;
@@ -122,8 +122,8 @@ public class ExchangeStore extends Store {
         Bundle options = new Bundle();
         options.putString(EasAuthenticatorService.OPTIONS_USERNAME, acct.mEmailAddress);
         options.putString(EasAuthenticatorService.OPTIONS_PASSWORD, acct.mHostAuthRecv.mPassword);
-        Future2Callback callback = new Future2Callback() {
-            public void run(Future2 future) {
+        AccountManagerCallback<Bundle> callback = new AccountManagerCallback<Bundle>() {
+            public void run(AccountManagerFuture<Bundle> future) {
                 try {
                     Bundle bundle = future.getResult();
                     bundle.keySet();

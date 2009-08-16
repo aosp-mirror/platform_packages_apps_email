@@ -360,7 +360,7 @@ public class SyncManager extends Service implements Runnable {
                         android.accounts.Account acct =
                             new android.accounts.Account(Eas.ACCOUNT_MANAGER_TYPE,
                                     account.mEmailAddress);
-                        AccountManager.get(SyncManager.this).blockingRemoveAccount(acct);
+                        AccountManager.get(SyncManager.this).removeAccount(acct, null, null);
                     } else {
                         // See whether any of our accounts has changed sync interval or window
                         if (syncParametersChanged(account)) {
