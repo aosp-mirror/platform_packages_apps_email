@@ -477,8 +477,11 @@ public class EmailSyncAdapter extends AbstractSyncAdapter {
                         "You've got new mail!", pi);
                 boolean vibrate = ((mAccount.getFlags() & EmailContent.Account.FLAGS_VIBRATE) != 0);
                 String ringtone = mAccount.getRingtone();
-                notif.defaults = Notification.DEFAULT_LIGHTS;
+                notif.flags = Notification.FLAG_SHOW_LIGHTS;
                 notif.sound = TextUtils.isEmpty(ringtone) ? null : Uri.parse(ringtone);
+                notif.ledARGB = 0xFF00FF00;
+                notif.ledOnMS = 500;
+                notif.ledOffMS = 500;
                 if (vibrate) {
                     notif.defaults |= Notification.DEFAULT_VIBRATE;
                 }

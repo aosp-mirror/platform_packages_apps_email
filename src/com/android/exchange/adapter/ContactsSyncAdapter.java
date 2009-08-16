@@ -17,11 +17,11 @@
 
 package com.android.exchange.adapter;
 
+import com.android.email.codec.binary.Base64;
 import com.android.email.provider.EmailContent.Mailbox;
 import com.android.email.provider.EmailContent.MailboxColumns;
 import com.android.exchange.Eas;
 import com.android.exchange.EasSyncService;
-import com.android.exchange.utility.Base64;
 
 import android.content.ContentProviderOperation;
 import android.content.ContentProviderResult;
@@ -1025,7 +1025,7 @@ public class ContactsSyncAdapter extends AbstractSyncAdapter {
             SmartBuilder builder = createBuilder(entity, Photo.CONTENT_ITEM_TYPE, -1);
             // We're always going to add this; it's not worth trying to figure out whether the
             // picture is the same as the one stored.
-            byte[] pic = Base64.decode(photo);
+            byte[] pic = Base64.decodeBase64(photo.getBytes());
             builder.withValue(Photo.PHOTO, pic);
             add(builder.build());
         }

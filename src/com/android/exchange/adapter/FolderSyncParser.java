@@ -100,6 +100,7 @@ public class FolderSyncParser extends AbstractSyncParser {
     public boolean parse() throws IOException {
         int status;
         boolean res = false;
+        boolean resetFolders = false;
         if (nextTag(START_DOCUMENT) != Tags.FOLDER_FOLDER_SYNC)
             throw new IOException();
         while (nextTag(START_DOCUMENT) != END_DOCUMENT) {
@@ -115,6 +116,7 @@ public class FolderSyncParser extends AbstractSyncParser {
                         // Stop existing syncs and reconstruct _main
                         SyncManager.folderListReloaded(mAccountId);
                         res = true;
+                        resetFolders = true;
                     } else {
                         // Other errors are at the server, so let's throw an error that will
                         // cause this sync to be retried at a later time
@@ -131,7 +133,7 @@ public class FolderSyncParser extends AbstractSyncParser {
                 skipTag();
         }
         synchronized (mService.getSynchronizer()) {
-            if (!mService.isStopped()) {
+            if (!mService.isStopped() || resetFolders) {
                 ContentValues cv = new ContentValues();
                 cv.put(AccountColumns.SYNC_KEY, mAccount.mSyncKey);
                 mAccount.update(mContext, cv);

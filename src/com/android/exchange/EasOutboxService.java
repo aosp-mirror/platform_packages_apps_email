@@ -25,6 +25,7 @@ import com.android.email.provider.EmailContent.MessageColumns;
 import com.android.email.provider.EmailContent.SyncColumns;
 
 import org.apache.http.HttpResponse;
+import org.apache.http.HttpStatus;
 import org.apache.http.entity.InputStreamEntity;
 
 import android.content.ContentUris;
@@ -36,7 +37,6 @@ import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileOutputStream;
 import java.io.IOException;
-import java.net.HttpURLConnection;
 
 public class EasOutboxService extends EasSyncService {
 
@@ -74,7 +74,7 @@ public class EasOutboxService extends EasSyncService {
                 sendHttpClientPost("SendMail&SaveInSent=T", inputEntity);
             inputStream.close();
             int code = resp.getStatusLine().getStatusCode();
-            if (code == HttpURLConnection.HTTP_OK) {
+            if (code == HttpStatus.SC_OK) {
                 userLog("Deleting message...");
                 mContext.getContentResolver().delete(ContentUris.withAppendedId(
                         Message.CONTENT_URI, msgId), null, null);

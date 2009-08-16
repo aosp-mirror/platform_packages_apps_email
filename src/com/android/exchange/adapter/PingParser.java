@@ -31,16 +31,21 @@ import java.util.ArrayList;
  * by the sync server, which will sync the updated folder list.
  */
 public class PingParser extends Parser {
-    ArrayList<String> syncList = new ArrayList<String>();
-    EasSyncService mService;
+    private ArrayList<String> syncList = new ArrayList<String>();
+    private EasSyncService mService;
+    private int mSyncStatus = 0;
 
     public ArrayList<String> getSyncList() {
         return syncList;
     }
 
-    public PingParser(InputStream in, EasSyncService _service) throws IOException {
+    public int getSyncStatus() {
+        return mSyncStatus;
+    }
+
+    public PingParser(InputStream in, EasSyncService service) throws IOException {
         super(in);
-        mService = _service;
+        mService = service;
     }
 
     public void parsePingFolders(ArrayList<String> syncList) throws IOException {
@@ -65,10 +70,9 @@ public class PingParser extends Parser {
         while (nextTag(START_DOCUMENT) != END_DOCUMENT) {
             if (tag == Tags.PING_STATUS) {
                 int status = getValueInt();
+                mSyncStatus = status;
                 mService.userLog("Ping completed, status = ", status);
                 if (status == 2) {
-                    // Status = 2 indicates changes in one folder or other
-                    mService.userLog("Changes found");
                     res = true;
                 } else if (status == 7 || status == 4) {
                     // Status of 7 or 4 indicate a stale folder list
