@@ -32,7 +32,7 @@
         android:id="@+id/folder_icon"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:src="@drawable/expander_ic_folder_minimized"
+        android:src="@drawable/ic_list_folder"
         android:paddingLeft="2dip"/>
     <LinearLayout
         android:layout_width="0dip"
