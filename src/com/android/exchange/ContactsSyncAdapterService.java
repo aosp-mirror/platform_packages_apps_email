@@ -49,7 +49,7 @@ public class ContactsSyncAdapterService extends Service {
 
     private class SyncAdapterImpl extends AbstractThreadedSyncAdapter {
         public SyncAdapterImpl() {
-            super(ContactsSyncAdapterService.this);
+            super(ContactsSyncAdapterService.this, true /* autoInitialize */);
         }
 
         @Override
