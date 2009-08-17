@@ -20,6 +20,7 @@ import com.android.email.provider.EmailContent.Account;
 import com.android.email.provider.EmailContent.AccountColumns;
 import com.android.email.provider.EmailContent.Attachment;
 import com.android.email.provider.EmailContent.Body;
+import com.android.email.provider.EmailContent.BodyColumns;
 import com.android.email.provider.EmailContent.Mailbox;
 import com.android.email.provider.EmailContent.MailboxColumns;
 import com.android.email.provider.EmailContent.Message;
@@ -306,6 +307,81 @@ public class ProviderTests extends ProviderTestCase2<EmailProvider> {
         // make sure there are no accounts now
         numBoxes = EmailContent.count(mMockContext, Account.CONTENT_URI, null, null);
         assertEquals(0, numBoxes);
+    }
+
+    /**
+     * Test for Body.lookupBodyIdWithMessageId()
+     * Verifies that:
+     * - for a message without body, -1 is returned.
+     * - for a mesage with body, the id matches the one from loadBodyForMessageId.
+     */
+    public void testLookupBodyIdWithMessageId() {
+        final ContentResolver resolver = mMockContext.getContentResolver();
+        Account account1 = ProviderTestUtils.setupAccount("orphaned body", true, mMockContext);
+        long account1Id = account1.mId;
+        Mailbox box1 = ProviderTestUtils.setupMailbox("box1", account1Id, true, mMockContext);
+        long box1Id = box1.mId;
+
+        // 1. create message with no body, check that returned bodyId is -1
+        Message message1 = ProviderTestUtils.setupMessage("message1", account1Id, box1Id, false,
+                true, mMockContext);
+        long message1Id = message1.mId;
+        long bodyId1 = Body.lookupBodyIdWithMessageId(resolver, message1Id);
+        assertEquals(bodyId1, -1);
+
+        // 2. create message with body, check that returned bodyId is correct
+        Message message2 = ProviderTestUtils.setupMessage("message1", account1Id, box1Id, true,
+                true, mMockContext);
+        long message2Id = message2.mId;
+        long bodyId2 = Body.lookupBodyIdWithMessageId(resolver, message2Id);
+        Body body = loadBodyForMessageId(message2Id);
+        assertNotNull(body);
+        assertEquals(body.mId, bodyId2);
+    }
+
+    /**
+     * Test for Body.updateBodyWithMessageId().
+     * 1. - create message without body,
+     *    - update its body (set TEXT_CONTENT)
+     *    - check correct updated body is read back
+     *
+     * 2. - create message with body,
+     *    - update body (set TEXT_CONTENT)
+     *    - check correct updated body is read back
+     */
+    public void testUpdateBodyWithMessageId() {
+        Account account1 = ProviderTestUtils.setupAccount("orphaned body", true, mMockContext);
+        long account1Id = account1.mId;
+        Mailbox box1 = ProviderTestUtils.setupMailbox("box1", account1Id, true, mMockContext);
+        long box1Id = box1.mId;
+
+        final String textContent = "foobar some odd text";
+
+        ContentValues values = new ContentValues();
+        values.put(BodyColumns.TEXT_CONTENT, textContent);
+
+        // 1
+        Message message1 = ProviderTestUtils.setupMessage("message1", account1Id, box1Id, false,
+                true, mMockContext);
+        long message1Id = message1.mId;
+        Body body1 = loadBodyForMessageId(message1Id);
+        assertNull(body1);
+        Body.updateBodyWithMessageId(mMockContext, message1Id, values);
+        body1 = loadBodyForMessageId(message1Id);
+        assertNotNull(body1);
+        assertEquals(body1.mTextContent, textContent);
+
+        // 2
+        Message message2 = ProviderTestUtils.setupMessage("message1", account1Id, box1Id, true,
+                true, mMockContext);
+        long message2Id = message2.mId;
+        Body body2 = loadBodyForMessageId(message2Id);
+        assertNotNull(body2);
+        assertTrue(!body2.mTextContent.equals(textContent));
+        Body.updateBodyWithMessageId(mMockContext, message2Id, values);
+        body2 = loadBodyForMessageId(message1Id);
+        assertNotNull(body2);
+        assertEquals(body2.mTextContent, textContent);
     }
 
     /**
@@ -912,5 +988,16 @@ public class ProviderTests extends ProviderTestCase2<EmailProvider> {
         assertEquals(0, getUnreadCount(boxA.mId));
         assertEquals(1, getUnreadCount(boxB.mId));
         assertEquals(2, getUnreadCount(boxC.mId));
+    }
+
+    /**
+     * Test for EmailProvider.createIndex().
+     * Check that it returns exacly the same string as the one used previously for index creation.
+     */
+    public void testCreateIndex() {
+        String oldStr = "create index message_" + MessageColumns.TIMESTAMP
+            + " on " + Message.TABLE_NAME + " (" + MessageColumns.TIMESTAMP + ");";
+        String newStr = EmailProvider.createIndex(Message.TABLE_NAME, MessageColumns.TIMESTAMP);
+        assertEquals(newStr, oldStr);
     }
 }

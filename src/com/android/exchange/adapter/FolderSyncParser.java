@@ -18,6 +18,7 @@
 package com.android.exchange.adapter;
 
 import com.android.email.provider.EmailProvider;
+import com.android.email.provider.EmailContent;
 import com.android.email.provider.EmailContent.Account;
 import com.android.email.provider.EmailContent.AccountColumns;
 import com.android.email.provider.EmailContent.Mailbox;
@@ -146,7 +147,7 @@ public class FolderSyncParser extends AbstractSyncParser {
     private Cursor getServerIdCursor(String serverId) {
         mBindArguments[0] = serverId;
         mBindArguments[1] = mAccountIdAsString;
-        return mContentResolver.query(Mailbox.CONTENT_URI, new String[] {MailboxColumns.ID},
+        return mContentResolver.query(Mailbox.CONTENT_URI, EmailContent.ID_PROJECTION,
                 WHERE_SERVER_ID_AND_ACCOUNT, mBindArguments, null);
     }
 

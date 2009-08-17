@@ -286,7 +286,6 @@ public class Controller {
      * Send a message:
      * - move the message to Outbox (the message is assumed to be in Drafts).
      * - perform any necessary notification
-     * - do the work in a separate (non-UI) thread
      * @param messageId the id of the message to send
      */
     public void sendMessage(long messageId, long accountId) {
