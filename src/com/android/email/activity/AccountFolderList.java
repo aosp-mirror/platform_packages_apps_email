@@ -109,9 +109,6 @@ public class AccountFolderList extends ListActivity
         MailboxColumns.FLAG_VISIBLE, MailboxColumns.FLAGS
     };
 
-    private static final String UNREAD_COUNT_SELECTION =
-        MessageColumns.FLAG_READ + "= 0";
-
     private static final String FAVORITE_COUNT_SELECTION =
         MessageColumns.FLAG_FAVORITE + "= 1";
 
@@ -253,7 +250,7 @@ public class AccountFolderList extends ListActivity
         }
     }
 
-    private static int getCountByMailboxType(Context context, int type) {
+    private static int getUnreadCountByMailboxType(Context context, int type) {
         int count = 0;
         Cursor c = context.getContentResolver().query(Mailbox.CONTENT_URI,
                 MAILBOX_SUM_OF_UNREAD_COUNT_PROJECTION,
@@ -294,7 +291,7 @@ public class AccountFolderList extends ListActivity
         int count;
         RowBuilder row;
         // TYPE_INBOX
-        count = getCountByMailboxType(this, Mailbox.TYPE_INBOX);
+        count = getUnreadCountByMailboxType(this, Mailbox.TYPE_INBOX);
         if (count > 0) {
             row = childCursor.newRow();
             row.add(Long.valueOf(MessageList.QUERY_ALL_INBOXES));   // MAILBOX_COLUMN_ID = 0;
@@ -302,16 +299,6 @@ public class AccountFolderList extends ListActivity
             row.add(null);                                          // MAILBOX_ACCOUNT_KEY = 2;
             row.add(Integer.valueOf(Mailbox.TYPE_INBOX));           // MAILBOX_TYPE = 3;
             // This value is 0 because count doesn't the number of messages in INBOX
-            row.add(Integer.valueOf(0));                        // MAILBOX_UNREAD_COUNT = 4;
-        }
-        // TYPE_MAIL (UNREAD)
-        count = EmailContent.count(this, Message.CONTENT_URI, UNREAD_COUNT_SELECTION, null);
-        if (count > 0) {
-            row = childCursor.newRow();
-            row.add(Long.valueOf(MessageList.QUERY_ALL_UNREAD));    // MAILBOX_COLUMN_ID = 0;
-            row.add(getString(R.string.account_folder_list_summary_unread));// MAILBOX_DISPLAY_NAME
-            row.add(null);                                          // MAILBOX_ACCOUNT_KEY = 2;
-            row.add(Integer.valueOf(Mailbox.TYPE_MAIL));            // MAILBOX_TYPE = 3;
             row.add(Integer.valueOf(count));                        // MAILBOX_UNREAD_COUNT = 4;
         }
         // TYPE_MAIL (FAVORITES)
@@ -326,7 +313,7 @@ public class AccountFolderList extends ListActivity
             row.add(Integer.valueOf(count));                        // MAILBOX_UNREAD_COUNT = 4;
         }
         // TYPE_DRAFTS
-        count = getCountByMailboxType(this, Mailbox.TYPE_DRAFTS);
+        count = getUnreadCountByMailboxType(this, Mailbox.TYPE_DRAFTS);
         if (count > 0) {
             row = childCursor.newRow();
             row.add(Long.valueOf(MessageList.QUERY_ALL_DRAFTS));    // MAILBOX_COLUMN_ID = 0;
@@ -336,7 +323,7 @@ public class AccountFolderList extends ListActivity
             row.add(Integer.valueOf(count));                        // MAILBOX_UNREAD_COUNT = 4;
         }
         // TYPE_OUTBOX
-        count = getCountByMailboxType(this, Mailbox.TYPE_OUTBOX);
+        count = getUnreadCountByMailboxType(this, Mailbox.TYPE_OUTBOX);
         if (count > 0) {
             row = childCursor.newRow();
             row.add(Long.valueOf(MessageList.QUERY_ALL_OUTBOX));    // MAILBOX_COLUMN_ID = 0;
