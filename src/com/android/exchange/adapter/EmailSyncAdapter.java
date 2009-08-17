@@ -49,6 +49,7 @@ import android.webkit.MimeTypeMap;
 import java.io.IOException;
 import java.io.InputStream;
 import java.util.ArrayList;
+import java.util.Calendar;
 import java.util.GregorianCalendar;
 import java.util.TimeZone;
 
@@ -61,8 +62,10 @@ public class EmailSyncAdapter extends AbstractSyncAdapter {
     private static final int UPDATES_READ_COLUMN = 0;
     private static final int UPDATES_MAILBOX_KEY_COLUMN = 1;
     private static final int UPDATES_SERVER_ID_COLUMN = 2;
+    private static final int UPDATES_FLAG_COLUMN = 3;
     private static final String[] UPDATES_PROJECTION =
-        {MessageColumns.FLAG_READ, MessageColumns.MAILBOX_KEY, SyncColumns.SERVER_ID};
+        {MessageColumns.FLAG_READ, MessageColumns.MAILBOX_KEY, SyncColumns.SERVER_ID,
+            MessageColumns.FLAG_FAVORITE};
 
     String[] bindArguments = new String[2];
 
@@ -524,6 +527,36 @@ public class EmailSyncAdapter extends AbstractSyncAdapter {
         }
     }
 
+    private String formatTwo(int num) {
+        if (num < 10) {
+            return "0" + (char)('0' + num);
+        } else
+            return Integer.toString(num);
+    }
+
+    /**
+     * Create date/time in RFC8601 format.  Oddly enough, for calendar date/time, Microsoft uses
+     * a different format that excludes the punctuation (this is why I'm not putting this in a
+     * parent class)
+     */
+    public String formatDateTime(Calendar calendar) {
+        StringBuilder sb = new StringBuilder();
+        //YYYY-MM-DDTHH:MM:SS.MSSZ
+        sb.append(calendar.get(Calendar.YEAR));
+        sb.append('-');
+        sb.append(formatTwo(calendar.get(Calendar.MONTH) + 1));
+        sb.append('-');
+        sb.append(formatTwo(calendar.get(Calendar.DAY_OF_MONTH)));
+        sb.append('T');
+        sb.append(formatTwo(calendar.get(Calendar.HOUR_OF_DAY)));
+        sb.append(':');
+        sb.append(formatTwo(calendar.get(Calendar.MINUTE)));
+        sb.append(':');
+        sb.append(formatTwo(calendar.get(Calendar.SECOND)));
+        sb.append(".000Z");
+        return sb.toString();
+    }
+
     @Override
     public boolean sendLocalChanges(Serializer s, EasSyncService service) throws IOException {
         ContentResolver cr = mContext.getContentResolver();
@@ -589,23 +622,70 @@ public class EmailSyncAdapter extends AbstractSyncAdapter {
                         continue;
                     }
 
+                    boolean flagChange = false;
+                    boolean readChange = false;
+
+                    int flag = 0;
+
+                    // We can only send flag changes to the server in 12.0 or later
+                    if (mService.mProtocolVersionDouble >= 12.0) {
+                        flag = currentCursor.getInt(UPDATES_FLAG_COLUMN);
+                        if (flag != c.getInt(Message.LIST_FAVORITE_COLUMN)) {
+                            flagChange = true;
+                        }
+                    }
+
                     int read = currentCursor.getInt(UPDATES_READ_COLUMN);
                     if (read == c.getInt(Message.LIST_READ_COLUMN)) {
-                        // The read state hasn't really changed, so move on...
+                        readChange = true;
+                    }
+
+                    if (!flagChange && !readChange) {
+                        // In this case, we've got nothing to send to the server
                         continue;
                     }
+
                     if (first) {
                         s.start(Tags.SYNC_COMMANDS);
                         first = false;
                     }
-                    // Send the change to "read".  We'll do "flagged" here eventually as well
-                    // TODO Add support for flags here (EAS 12.0 and above)
-                    // Or is this not safe??
+                    // Send the change to "read" and "favorite" (flagged)
                     s.start(Tags.SYNC_CHANGE)
                         .data(Tags.SYNC_SERVER_ID, c.getString(Message.LIST_SERVER_ID_COLUMN))
-                        .start(Tags.SYNC_APPLICATION_DATA)
-                        .data(Tags.EMAIL_READ, Integer.toString(read))
-                        .end().end(); // SYNC_APPLICATION_DATA, SYNC_CHANGE
+                        .start(Tags.SYNC_APPLICATION_DATA);
+                    if (readChange) {
+                        s.data(Tags.EMAIL_READ, Integer.toString(read));
+                    }
+                    // "Flag" is a relatively complex concept in EAS 12.0 and above.  It is not only
+                    // the boolean "favorite" that we think of in Gmail, but it also represents a
+                    // follow up action, which can include a subject, start and due dates, and even
+                    // recurrences.  We don't support any of this as yet, but EAS 12.0 and higher
+                    // require that a flag contain a status, a type, and four date fields, two each
+                    // for start date and end (due) date.
+                    if (flagChange) {
+                        if (flag != 0) {
+                            // Status 2 = set flag
+                            s.start(Tags.EMAIL_FLAG).data(Tags.EMAIL_FLAG_STATUS, "2");
+                            // "FollowUp" is the standard type
+                            s.data(Tags.EMAIL_FLAG_TYPE, "FollowUp");
+                            long now = System.currentTimeMillis();
+                            Calendar calendar =
+                                GregorianCalendar.getInstance(TimeZone.getTimeZone("GMT"));
+                            calendar.setTimeInMillis(now);
+                            // Flags are required to have a start date and end date (duplicated)
+                            // First, we'll set the current date/time in GMT as the start time
+                            String utc = formatDateTime(calendar);
+                            s.data(Tags.TASK_START_DATE, utc).data(Tags.TASK_UTC_START_DATE, utc);
+                            // And then we'll use one week from today for completion date
+                            calendar.setTimeInMillis(now + 1*WEEKS);
+                            utc = formatDateTime(calendar);
+                            s.data(Tags.TASK_DUE_DATE, utc).data(Tags.TASK_UTC_DUE_DATE, utc);
+                            s.end();
+                        } else {
+                            s.tag(Tags.EMAIL_FLAG);
+                        }
+                    }
+                    s.end().end(); // SYNC_APPLICATION_DATA, SYNC_CHANGE
                 } finally {
                     currentCursor.close();
                 }

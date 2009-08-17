@@ -31,6 +31,13 @@ import java.io.InputStream;
  *
  */
 public abstract class AbstractSyncAdapter {
+
+    public static final int SECONDS = 1000;
+    public static final int MINUTES = SECONDS*60;
+    public static final int HOURS = MINUTES*60;
+    public static final int DAYS = HOURS*24;
+    public static final int WEEKS = DAYS*7;
+
     public Mailbox mMailbox;
     public EasSyncService mService;
     public Context mContext;

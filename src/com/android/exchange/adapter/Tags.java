@@ -39,6 +39,7 @@ public class Tags {
     public static final int MOVE = 0x05;
     public static final int GIE = 0x06;
     public static final int FOLDER = 0x07;
+    public static final int TASK = 0x09;
     public static final int CONTACTS2 = 0x0C;
     public static final int PING = 0x0D;
     public static final int GAL = 0x10;
@@ -277,6 +278,39 @@ public class Tags {
     public static final int EMAIL_FLAG_TYPE = EMAIL_PAGE + 0x3D;
     public static final int EMAIL_COMPLETE_TIME = EMAIL_PAGE + 0x3E;
 
+    public static final int TASK_PAGE = TASK << PAGE_SHIFT;
+    public static final int TASK_BODY = TASK_PAGE + 5;
+    public static final int TASK_BODY_SIZE = TASK_PAGE + 6;
+    public static final int TASK_BODY_TRUNCATED = TASK_PAGE + 7;
+    public static final int TASK_CATEGORIES = TASK_PAGE + 8;
+    public static final int TASK_CATEGORY = TASK_PAGE + 9;
+    public static final int TASK_COMPLETE = TASK_PAGE + 0xA;
+    public static final int TASK_DATE_COMPLETED = TASK_PAGE + 0xB;
+    public static final int TASK_DUE_DATE = TASK_PAGE + 0xC;
+    public static final int TASK_UTC_DUE_DATE = TASK_PAGE + 0xD;
+    public static final int TASK_IMPORTANCE = TASK_PAGE + 0xE;
+    public static final int TASK_RECURRENCE = TASK_PAGE + 0xF;
+    public static final int TASK_RECURRENCE_TYPE = TASK_PAGE + 0x10;
+    public static final int TASK_RECURRENCE_START = TASK_PAGE + 0x11;
+    public static final int TASK_RECURRENCE_UNTIL = TASK_PAGE + 0x12;
+    public static final int TASK_RECURRENCE_OCCURRENCES = TASK_PAGE + 0x13;
+    public static final int TASK_RECURRENCE_INTERVAL = TASK_PAGE + 0x14;
+    public static final int TASK_RECURRENCE_DAY_OF_MONTH = TASK_PAGE + 0x15;
+    public static final int TASK_RECURRENCE_DAY_OF_WEEK = TASK_PAGE + 0x16;
+    public static final int TASK_RECURRENCE_WEEK_OF_MONTH = TASK_PAGE + 0x17;
+    public static final int TASK_RECURRENCE_MONTH_OF_YEAR = TASK_PAGE + 0x18;
+    public static final int TASK_RECURRENCE_REGENERATE = TASK_PAGE + 0x19;
+    public static final int TASK_RECURRENCE_DEAD_OCCUR = TASK_PAGE + 0x1A;
+    public static final int TASK_REMINDER_SET = TASK_PAGE + 0x1B;
+    public static final int TASK_REMINDER_TIME = TASK_PAGE + 0x1C;
+    public static final int TASK_SENSITIVITY = TASK_PAGE + 0x1D;
+    public static final int TASK_START_DATE = TASK_PAGE + 0x1E;
+    public static final int TASK_UTC_START_DATE = TASK_PAGE + 0x1F;
+    public static final int TASK_SUBJECT = TASK_PAGE + 0x20;
+    public static final int COMPRESSED_RTF = TASK_PAGE + 0x21;
+    public static final int ORDINAL_DATE = TASK_PAGE + 0x22;
+    public static final int SUBORDINAL_DATE = TASK_PAGE + 0x23;
+
     public static final int MOVE_PAGE = MOVE << PAGE_SHIFT;
     public static final int MOVE_MOVE_ITEMS = MOVE_PAGE + 5;
     public static final int MOVE_MOVE = MOVE_PAGE + 6;
@@ -410,6 +444,13 @@ public class Tags {
         },
         {
             // 0x09 Tasks
+            "Body", "BodySize", "BodyTruncated", "Categories", "Category", "Complete",
+            "DateCompleted", "DueDate", "UTCDueDate", "Importance", "Recurrence", "RecurrenceType",
+            "RecurrenceStart", "RecurrenceUntil", "RecurrenceOccurrences", "RecurrenceInterval",
+            "RecurrenceDOM", "RecurrenceDOW", "RecurrenceWOM", "RecurrenceMOY",
+            "RecurrenceRegenerate", "RecurrenceDeadOccur", "ReminderSet", "ReminderTime",
+            "Sensitivity", "StartDate", "UTCStartDate", "Subject", "CompressedRTF", "OrdinalDate",
+            "SubordinalDate"
         },
         {
             // 0x0A ResolveRecipients
