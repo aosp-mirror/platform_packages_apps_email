@@ -49,11 +49,11 @@ public abstract class Sender {
             Class<?> c = Class.forName(className);
             // and invoke "newInstance" class method and instantiate sender object.
             java.lang.reflect.Method m =
-                c.getMethod("newInstance", String.class, Context.class);
-            o = m.invoke(null, uri, context);
+                c.getMethod("newInstance", Context.class, String.class);
+            o = m.invoke(null, context, uri);
         } catch (Exception e) {
             Log.d(Email.LOG_TAG, String.format(
-                    "exception %s invoking %s.newInstance.(String, Context) method for %s",
+                    "exception %s invoking %s.newInstance.(Context, String) method for %s",
                     e.toString(), className, uri));
             throw new MessagingException("can not instantiate Sender object for " + uri);
         }
