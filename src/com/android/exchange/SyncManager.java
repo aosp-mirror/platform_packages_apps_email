@@ -91,7 +91,7 @@ public class SyncManager extends Service implements Runnable {
     private static final int ONE_DAY_MINUTES = 1440;
 
     private static final int SYNC_MANAGER_HEARTBEAT_TIME = 15*MINUTES;
-    private static final int CONNECTIVITY_WAIT_TIME = 2*MINUTES;
+    private static final int CONNECTIVITY_WAIT_TIME = 10*MINUTES;
 
     // Sync hold constants for services with transient errors
     private static final int HOLD_DELAY_ESCALATION = 30*SECONDS;
