@@ -757,14 +757,13 @@ public class SyncManager extends Service implements Runnable {
             Boolean lock = mWakeLocks.get(id);
             if (lock == null) {
                 if (id > 0) {
-                    //INSTANCE.log("+WakeLock requested for " + alarmOwner(id));
+                    //log("+WakeLock requested for " + alarmOwner(id));
                 }
                 if (mWakeLock == null) {
-                    PowerManager pm = (PowerManager)INSTANCE
-                            .getSystemService(Context.POWER_SERVICE);
+                    PowerManager pm = (PowerManager)getSystemService(Context.POWER_SERVICE);
                     mWakeLock = pm.newWakeLock(PowerManager.PARTIAL_WAKE_LOCK, "MAIL_SERVICE");
                     mWakeLock.acquire();
-                    INSTANCE.log("+WAKE LOCK ACQUIRED");
+                    log("+WAKE LOCK ACQUIRED");
                 }
                 mWakeLocks.put(id, true);
                 //logLocks("Post-acquire of WakeLock for " + alarmOwner(id) + ": ");
@@ -777,7 +776,7 @@ public class SyncManager extends Service implements Runnable {
             Boolean lock = mWakeLocks.get(id);
             if (lock != null) {
                 if (id > 0) {
-                    //INSTANCE.log("+WakeLock not needed for " + alarmOwner(id));
+                    //log("+WakeLock not needed for " + alarmOwner(id));
                 }
                 mWakeLocks.remove(id);
                 if (mWakeLocks.isEmpty()) {
@@ -785,7 +784,7 @@ public class SyncManager extends Service implements Runnable {
                         mWakeLock.release();
                     }
                     mWakeLock = null;
-                    INSTANCE.log("+WAKE LOCK RELEASED");
+                    log("+WAKE LOCK RELEASED");
                 } else {
                     //logLocks("Post-release of WakeLock for " + alarmOwner(id) + ": ");
                 }
@@ -824,7 +823,7 @@ public class SyncManager extends Service implements Runnable {
 
                 AlarmManager alarmManager = (AlarmManager)getSystemService(Context.ALARM_SERVICE);
                 alarmManager.set(AlarmManager.RTC_WAKEUP, System.currentTimeMillis() + millis, pi);
-                //INSTANCE.log("+Alarm set for " + alarmOwner(id) + ", " + millis/1000 + "s");
+                //log("+Alarm set for " + alarmOwner(id) + ", " + millis/1000 + "s");
             }
         }
     }
@@ -1025,7 +1024,7 @@ public class SyncManager extends Service implements Runnable {
                 mNextWaitReason = "Heartbeat";
                 long nextWait = checkMailboxes();
                 try {
-                    synchronized (INSTANCE) {
+                    synchronized (this) {
                         if (nextWait < 0) {
                             log("Negative wait? Setting to 1s");
                             nextWait = 1*SECONDS;
@@ -1036,7 +1035,7 @@ public class SyncManager extends Service implements Runnable {
                         if (nextWait != SYNC_MANAGER_HEARTBEAT_TIME) {
                             log("Next awake in " + (nextWait / 1000) + "s: " + mNextWaitReason);
                         }
-                        INSTANCE.wait(nextWait);
+                        wait(nextWait);
                     }
                 } catch (InterruptedException e) {
                     // Needs to be caught, but causes no problem
@@ -1062,7 +1061,7 @@ public class SyncManager extends Service implements Runnable {
         ArrayList<Long> deletedMailboxes = new ArrayList<Long>();
         synchronized (sSyncToken) {
             for (long mailboxId: mServiceMap.keySet()) {
-                Mailbox m = Mailbox.restoreMailboxWithId(INSTANCE, mailboxId);
+                Mailbox m = Mailbox.restoreMailboxWithId(this, mailboxId);
                 if (m == null) {
                     deletedMailboxes.add(mailboxId);
                 }
