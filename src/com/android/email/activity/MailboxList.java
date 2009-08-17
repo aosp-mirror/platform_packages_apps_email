@@ -47,6 +47,7 @@ import android.view.ContextMenu.ContextMenuInfo;
 import android.view.View.OnClickListener;
 import android.widget.AdapterView;
 import android.widget.CursorAdapter;
+import android.widget.ImageView;
 import android.widget.ListView;
 import android.widget.TextView;
 import android.widget.AdapterView.OnItemClickListener;
@@ -409,6 +410,7 @@ public class MailboxList extends ListActivity implements OnItemClickListener, On
                 MailboxColumns.DISPLAY_NAME, MailboxColumns.UNREAD_COUNT, MailboxColumns.TYPE };
         private final int COLUMN_DISPLAY_NAME = 1;
         private final int COLUMN_UNREAD_COUNT = 2;
+        private final int COLUMN_TYPE = 3;
 
         Context mContext;
         private LayoutInflater mInflater;
@@ -456,7 +458,29 @@ public class MailboxList extends ListActivity implements OnItemClickListener, On
                 nameView.setTypeface(Typeface.DEFAULT);
                 countView.setVisibility(View.GONE);
             }
-
+            ImageView folderIcon = (ImageView) view.findViewById(R.id.folder_icon);
+            int type = cursor.getInt(COLUMN_TYPE);
+            int resId = -1;
+            switch (type) {
+                case Mailbox.TYPE_INBOX:
+                    resId = R.drawable.ic_list_inbox;
+                    break;
+                case Mailbox.TYPE_OUTBOX:
+                    resId = R.drawable.ic_list_outbox;
+                    break;
+                case Mailbox.TYPE_DRAFTS:
+                    resId = R.drawable.ic_list_drafts;
+                    break;
+                case Mailbox.TYPE_SENT:
+                    resId = R.drawable.ic_list_sent;
+                    break;
+                case Mailbox.TYPE_TRASH:
+                    resId = R.drawable.ic_list_trash;
+                default:
+                    resId = R.drawable.ic_list_folder;
+                    break;
+            }
+            folderIcon.setImageResource(resId);
         }
 
         @Override
