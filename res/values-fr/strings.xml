@@ -66,7 +66,7 @@
     <string name="special_mailbox_display_name_outbox" msgid="1884580655148530989">"Boîte d\'envoi"</string>
     <string name="special_mailbox_display_name_drafts" msgid="5919687165402808119">"Brouillons"</string>
     <string name="special_mailbox_display_name_trash" msgid="7042673673630272056">"Corbeille"</string>
-    <string name="special_mailbox_display_name_sent" msgid="3952772015118466625">"Élément envoyé"</string>
+    <string name="special_mailbox_display_name_sent" msgid="3952772015118466625">"Messages envoyés"</string>
     <string name="accounts_welcome" msgid="7365378109109495588">"Bienvenue dans le programme de configuration de votre messagerie électronique !"\n\n"Utilisez le compte de votre choix."\n\n"Les comptes de messagerie les plus courants peuvent être configurés en deux étapes !"</string>
     <string name="debug_version_fmt" msgid="6160213145745376955">"Version : <xliff:g id="VERSION">%s</xliff:g>"</string>
     <string name="debug_enable_debug_logging_label" msgid="2715742416050944774">"Activer la consignation supplémentaire des données de débogage ?"</string>

@@ -67,7 +67,7 @@
     <string name="special_mailbox_display_name_drafts" msgid="5919687165402808119">"Koncepty"</string>
     <string name="special_mailbox_display_name_trash" msgid="7042673673630272056">"Koš"</string>
     <string name="special_mailbox_display_name_sent" msgid="3952772015118466625">"Odeslaná pošta"</string>
-    <string name="accounts_welcome" msgid="7365378109109495588">"Vítá vás nastavení aplikace Email!"\n\n"V aplikaci Email můžete používat jakékoli e-mailové účty."\n\n"Nejznámější e-mailové účty lze nastavit ve dvou krocích!"</string>
+    <string name="accounts_welcome" msgid="7365378109109495588">"Vítejte v nastavení aplikace Email!"\n\n"V aplikaci Email můžete používat jakékoli e-mailové účty."\n\n"Většinu populárních e-mailových účtů lze nastavit jen ve dvou krocích!"</string>
     <string name="debug_version_fmt" msgid="6160213145745376955">"Verze: <xliff:g id="VERSION">%s</xliff:g>"</string>
     <string name="debug_enable_debug_logging_label" msgid="2715742416050944774">"Povolit zvláštní protokolování ladění?"</string>
     <string name="debug_enable_sensitive_logging_label" msgid="9010809457943556126">"Povolit protokolování ladění citlivých informací? (Může zobrazovat hesla v protokolech.)"</string>
@@ -129,18 +129,18 @@
     <string name="account_setup_incoming_imap_server_label" msgid="8685076830847734322">"Server IMAP"</string>
     <string name="account_setup_incoming_port_label" msgid="8214738923690447796">"Port"</string>
     <string name="account_setup_incoming_security_label" msgid="2110260791086007424">"Typ zabezpečení"</string>
-    <string name="account_setup_incoming_security_none_label" msgid="8300169413118264895">"Nic"</string>
+    <string name="account_setup_incoming_security_none_label" msgid="8300169413118264895">"Žádné"</string>
     <string name="account_setup_incoming_security_ssl_optional_label" msgid="8550650266852041870">"SSL (pokud je k dispozici)"</string>
     <string name="account_setup_incoming_security_ssl_label" msgid="1239685754472907538">"SSL (vždy)"</string>
-    <string name="account_setup_incoming_security_tls_optional_label" msgid="9140597901978722104">"TLS (je-li k dispozici)"</string>
+    <string name="account_setup_incoming_security_tls_optional_label" msgid="9140597901978722104">"TLS (pokud je k dispozici)"</string>
     <string name="account_setup_incoming_security_tls_label" msgid="8930532576790946912">"TLS (vždy)"</string>
-    <string name="account_setup_incoming_delete_policy_label" msgid="9213590134693857912">"Odstranit e-mail ze serveru"</string>
+    <string name="account_setup_incoming_delete_policy_label" msgid="9213590134693857912">"Mazat e-maily ze serveru"</string>
     <string name="account_setup_incoming_delete_policy_never_label" msgid="3222897501875871041">"Nikdy"</string>
     <string name="account_setup_incoming_delete_policy_7days_label" msgid="5091246829453195520">"Po 7 dnech"</string>
-    <string name="account_setup_incoming_delete_policy_delete_label" msgid="222216840911785631">"Při odstranění ze složky Doručená pošta"</string>
+    <string name="account_setup_incoming_delete_policy_delete_label" msgid="222216840911785631">"Při smazání z Doručené pošty"</string>
     <string name="account_setup_incoming_imap_path_prefix_label" msgid="401167247072926810">"Předpona cesty IMAP"</string>
     <string name="account_setup_incoming_imap_path_prefix_hint" msgid="9190845919067906033">"Nepovinné"</string>
-    <string name="account_setup_outgoing_title" msgid="7437215562885986394">"Nastavení odchozího serveru"</string>
+    <string name="account_setup_outgoing_title" msgid="7437215562885986394">"Nastavení serveru odchozí pošty"</string>
     <string name="account_setup_outgoing_smtp_server_label" msgid="6035137446691195177">"Server SMTP"</string>
     <string name="account_setup_outgoing_port_label" msgid="7573207437835827876">"Port"</string>
     <string name="account_setup_outgoing_security_label" msgid="911398071120720589">"Typ zabezpečení"</string>
