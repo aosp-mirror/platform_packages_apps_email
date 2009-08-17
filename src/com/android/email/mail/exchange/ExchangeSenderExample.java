@@ -41,7 +41,6 @@ public class ExchangeSenderExample extends Sender {
     /**
      * Factory method.
      */
-    @Override
     public static Sender newInstance(Context context, String uri) throws MessagingException {
         return new ExchangeSenderExample(context, uri);
     }
