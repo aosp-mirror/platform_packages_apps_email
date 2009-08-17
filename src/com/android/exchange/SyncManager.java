@@ -1044,14 +1044,12 @@ public class SyncManager extends Service implements Runnable {
             }
             stopServices();
             log("Shutdown requested");
-        } catch (Exception e) {
-            e.printStackTrace();
         } finally {
             log("Goodbye");
         }
 
         startService(new Intent(this, SyncManager.class));
-        throw new RuntimeException("MailService crash; please restart me...");
+        throw new RuntimeException("EAS SyncManager crash; please restart me...");
     }
 
     private void releaseMailbox(long mailboxId) {
