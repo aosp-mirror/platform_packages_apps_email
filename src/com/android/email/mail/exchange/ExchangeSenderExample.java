@@ -41,11 +41,12 @@ public class ExchangeSenderExample extends Sender {
     /**
      * Factory method.
      */
-    public static Sender newInstance(String uri, Context context) throws MessagingException {
-        return new ExchangeSenderExample(uri, context);
+    @Override
+    public static Sender newInstance(Context context, String uri) throws MessagingException {
+        return new ExchangeSenderExample(context, uri);
     }
 
-    private ExchangeSenderExample(String _uri, Context context) throws MessagingException {
+    private ExchangeSenderExample(Context context, String _uri) throws MessagingException {
         mContext = context;
 
         URI uri = null;
