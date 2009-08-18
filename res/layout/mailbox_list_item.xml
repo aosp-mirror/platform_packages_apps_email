@@ -63,8 +63,8 @@
         android:textAppearance="?android:attr/textAppearanceMedium"
         android:textColor="?android:attr/textColorPrimary"
         android:background="@drawable/text_box_light"
-        android:paddingLeft="10px"
-        android:paddingRight="10px"
-        android:minWidth="64px"
+        android:paddingLeft="10dip"
+        android:paddingRight="10dip"
+        android:minWidth="64dip"
         android:gravity="right" />
 </LinearLayout>

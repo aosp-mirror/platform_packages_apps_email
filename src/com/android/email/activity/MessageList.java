@@ -43,6 +43,7 @@ import android.net.Uri;
 import android.os.AsyncTask;
 import android.os.Bundle;
 import android.os.Handler;
+import android.util.Log;
 import android.view.ContextMenu;
 import android.view.LayoutInflater;
 import android.view.Menu;
@@ -57,6 +58,7 @@ import android.widget.AdapterView;
 import android.widget.CursorAdapter;
 import android.widget.ImageView;
 import android.widget.ListView;
+import android.widget.ProgressBar;
 import android.widget.TextView;
 import android.widget.Toast;
 import android.widget.AdapterView.OnItemClickListener;
@@ -101,6 +103,9 @@ public class MessageList extends ListActivity implements OnItemClickListener, On
     private MessageListHandler mHandler = new MessageListHandler();
     private Controller mController = Controller.getInstance(getApplication());
     private ControllerResults mControllerCallback = new ControllerResults();
+    private TextView mLeftTitle;
+    private TextView mRightTitle;
+    private ProgressBar mProgressIcon;
 
     private static final int[] mColorChipResIds = new int[] {
         R.drawable.appointment_indicator_leftside_1,
@@ -145,9 +150,9 @@ public class MessageList extends ListActivity implements OnItemClickListener, On
     };
 
     private static final int MAILBOX_DISPLAY_NAME_COLUMN_ID = 0;
-    private static final int MAILBOX_ACCOUNT_KEY_ID = 1;
+    private static final int MAILBOX_ACCOUNT_KEY_COLUMN_ID = 1;
     private static final String[] MAILBOX_NAME_PROJECTION = new String[] {
-            MailboxColumns.DISPLAY_NAME, MailboxColumns.ACCOUNT_KEY };
+            MailboxColumns.DISPLAY_NAME, MailboxColumns.ACCOUNT_KEY};
 
     private static final int ACCOUNT_DISPLAY_NAME_COLUMN_ID = 0;
     private static final String[] ACCOUNT_NAME_PROJECTION = new String[] {
@@ -223,14 +228,20 @@ public class MessageList extends ListActivity implements OnItemClickListener, On
     public void onCreate(Bundle icicle) {
         super.onCreate(icicle);
 
-        requestWindowFeature(Window.FEATURE_INDETERMINATE_PROGRESS);
-
+        requestWindowFeature(Window.FEATURE_CUSTOM_TITLE);
         setContentView(R.layout.message_list);
+        getWindow().setFeatureInt(Window.FEATURE_CUSTOM_TITLE,
+                R.layout.list_title);
+
         mListView = getListView();
         mMultiSelectPanel = findViewById(R.id.footer_organize);
         mReadUnreadButton = findViewById(R.id.btn_read_unread);
         mFavoriteButton = findViewById(R.id.btn_multi_favorite);
         mDeleteButton = findViewById(R.id.btn_multi_delete);
+
+        mLeftTitle = (TextView) findViewById(R.id.title_left_text);
+        mRightTitle = (TextView) findViewById(R.id.title_right_text);
+        mProgressIcon = (ProgressBar) findViewById(R.id.title_progress_icon);
 
         mReadUnreadButton.setOnClickListener(this);
         mFavoriteButton.setOnClickListener(this);
@@ -515,7 +526,7 @@ public class MessageList extends ListActivity implements OnItemClickListener, On
      * @param selectedSet The current list of selected items
      */
     private void onMultiToggleRead(Set<Long> selectedSet) {
-        int numChanged = toggleMultiple(selectedSet, new MultiToggleHelper() {
+        toggleMultiple(selectedSet, new MultiToggleHelper() {
 
             public boolean getField(long messageId, Cursor c) {
                 return c.getInt(MessageListAdapter.COLUMN_READ) == 0;
@@ -538,7 +549,7 @@ public class MessageList extends ListActivity implements OnItemClickListener, On
      * @param selectedSet The current list of selected items
      */
     private void onMultiToggleFavorite(Set<Long> selectedSet) {
-        int numChanged = toggleMultiple(selectedSet, new MultiToggleHelper() {
+        toggleMultiple(selectedSet, new MultiToggleHelper() {
 
             public boolean getField(long messageId, Cursor c) {
                 return c.getInt(MessageListAdapter.COLUMN_FAVORITE) != 0;
@@ -951,6 +962,20 @@ public class MessageList extends ListActivity implements OnItemClickListener, On
 
         @Override
         protected String[] doInBackground(Void... params) {
+            // Check special Mailboxes
+            if (mMailboxKey == MessageList.QUERY_ALL_INBOXES) {
+                return new String[] {null,
+                        getString(R.string.account_folder_list_summary_inbox)};
+            } else if (mMailboxKey == MessageList.QUERY_ALL_FAVORITES) {
+                return new String[] {null,
+                        getString(R.string.account_folder_list_summary_favorite)};
+            } else if (mMailboxKey == MessageList.QUERY_ALL_DRAFTS) {
+                return new String[] {null,
+                        getString(R.string.account_folder_list_summary_drafts)};
+            } else if (mMailboxKey == MessageList.QUERY_ALL_OUTBOX) {
+                return new String[] {null,
+                        getString(R.string.account_folder_list_summary_outbox)};
+            }
             String accountName = null;
             String mailboxName = null;
             String accountKey = null;
@@ -960,7 +985,7 @@ public class MessageList extends ListActivity implements OnItemClickListener, On
             try {
                 if (c.moveToFirst()) {
                     mailboxName = c.getString(MAILBOX_DISPLAY_NAME_COLUMN_ID);
-                    accountKey = c.getString(MAILBOX_ACCOUNT_KEY_ID);
+                    accountKey = c.getString(MAILBOX_ACCOUNT_KEY_COLUMN_ID);
                 }
             } finally {
                 c.close();
@@ -982,9 +1007,12 @@ public class MessageList extends ListActivity implements OnItemClickListener, On
 
         @Override
         protected void onPostExecute(String[] names) {
-            if (names[0] != null && names[1] != null) {
-                MessageList.this.setTitle(getString(R.string.message_list_title, names[0],
-                        names[1]));
+            Log.d("MessageList", "ACCOUNT:" + names[0] + "MAILBOX" + names[1]);
+            if (names[0] != null) {
+                mRightTitle.setText(names[0]);
+            }
+            if (names[1] != null) {
+                mLeftTitle.setText(names[1]);
             }
         }
     }
@@ -1001,7 +1029,11 @@ public class MessageList extends ListActivity implements OnItemClickListener, On
             switch (msg.what) {
                 case MSG_PROGRESS:
                     boolean visible = (msg.arg1 != 0);
-                    setProgressBarIndeterminateVisibility(visible);
+                    if (visible) {
+                        mProgressIcon.setVisibility(View.VISIBLE);
+                    } else {
+                        mProgressIcon.setVisibility(View.GONE);
+                    }
                     if (mListFooterProgress != null) {
                         mListFooterProgress.setVisibility(visible ? View.VISIBLE : View.GONE);
                     }
