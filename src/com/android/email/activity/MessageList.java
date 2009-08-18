@@ -28,8 +28,10 @@ import com.android.email.provider.EmailContent.Mailbox;
 import com.android.email.provider.EmailContent.MailboxColumns;
 import com.android.email.provider.EmailContent.Message;
 import com.android.email.provider.EmailContent.MessageColumns;
+import com.android.email.service.MailService;
 
 import android.app.ListActivity;
+import android.app.NotificationManager;
 import android.content.ContentUris;
 import android.content.Context;
 import android.content.Intent;
@@ -180,13 +182,15 @@ public class MessageList extends ListActivity implements OnItemClickListener, On
      * notifications.
      * 
      * @param context The caller's context (for generating an intent)
-     * @param accountId The account to open
-     * @param mailboxType the type of mailbox to open (e.g. @see EmailContent.Mailbox.TYPE_INBOX)
+     * @param accountId The account to open, or -1
+     * @param mailboxId the ID of the mailbox to open, or -1
+     * @param mailboxType the type of mailbox to open (e.g. @see Mailbox.TYPE_INBOX) or -1
      */
     public static Intent actionHandleAccountIntent(Context context, long accountId,
-            int mailboxType) {
+            long mailboxId, int mailboxType) {
         Intent intent = new Intent(context, MessageList.class);
         intent.putExtra(EXTRA_ACCOUNT_ID, accountId);
+        intent.putExtra(EXTRA_MAILBOX_ID, mailboxId);
         intent.putExtra(EXTRA_MAILBOX_TYPE, mailboxType);
         return intent;
     }
@@ -201,7 +205,7 @@ public class MessageList extends ListActivity implements OnItemClickListener, On
      */
     public static Intent actionHandleAccountUriIntent(Context context, long accountId,
             int mailboxType) {
-        Intent i = actionHandleAccountIntent(context, accountId, mailboxType);
+        Intent i = actionHandleAccountIntent(context, accountId, -1, mailboxType);
         i.removeExtra(EXTRA_ACCOUNT_ID);
         Uri uri = ContentUris.withAppendedId(Account.CONTENT_URI, accountId);
         i.setData(uri);
@@ -241,7 +245,7 @@ public class MessageList extends ListActivity implements OnItemClickListener, On
             // Specific mailbox ID was provided - go directly to it
             mSetTitleTask = new SetTitleTask(mMailboxId);
             mSetTitleTask.execute();
-            mLoadMessagesTask = new LoadMessagesTask(mMailboxId);
+            mLoadMessagesTask = new LoadMessagesTask(mMailboxId, -1);
             mLoadMessagesTask.execute();
         } else {
             long accountId = -1;
@@ -278,8 +282,11 @@ public class MessageList extends ListActivity implements OnItemClickListener, On
     public void onResume() {
         super.onResume();
         Controller.getInstance(getApplication()).addResultCallback(mControllerCallback);
-        
-        // TODO: may need to clear notifications here
+
+        // clear notifications here
+        NotificationManager notificationManager = (NotificationManager)
+                getSystemService(Context.NOTIFICATION_SERVICE);
+        notificationManager.cancel(MailService.NEW_MESSAGE_NOTIFICATION_ID);
     }
 
     @Override
@@ -410,12 +417,11 @@ public class MessageList extends ListActivity implements OnItemClickListener, On
 
     private void onRefresh() {
         // TODO: This needs to loop through all open mailboxes (there might be more than one)
-        // TODO: Should not be reading from DB in UI thread
+        // TODO: Should not be reading from DB in UI thread - need a cleaner way to get accountId
         if (mMailboxId >= 0) {
-            EmailContent.Mailbox mailbox =
-                    EmailContent.Mailbox.restoreMailboxWithId(this, mMailboxId);
+            Mailbox mailbox = Mailbox.restoreMailboxWithId(this, mMailboxId);
             Controller.getInstance(getApplication()).updateMailbox(
-                    mailbox.mAccountKey, mailbox, mControllerCallback);
+                    mailbox.mAccountKey, mMailboxId, mControllerCallback);
         }
     }
 
@@ -651,7 +657,7 @@ public class MessageList extends ListActivity implements OnItemClickListener, On
                 mMailboxId = mailboxId;
                 mSetTitleTask = new SetTitleTask(mMailboxId);
                 mSetTitleTask.execute();
-                mLoadMessagesTask = new LoadMessagesTask(mMailboxId);
+                mLoadMessagesTask = new LoadMessagesTask(mMailboxId, mAccountId);
                 mLoadMessagesTask.execute();
             }
         }
@@ -669,12 +675,14 @@ public class MessageList extends ListActivity implements OnItemClickListener, On
     private class LoadMessagesTask extends AsyncTask<Void, Void, Cursor> {
 
         private long mMailboxKey;
+        private long mAccountKey;
 
         /**
          * Special constructor to cache some local info
          */
-        public LoadMessagesTask(long mailboxKey) {
+        public LoadMessagesTask(long mailboxKey, long accountKey) {
             mMailboxKey = mailboxKey;
+            mAccountKey = accountKey;
         }
 
         @Override
@@ -742,6 +750,13 @@ public class MessageList extends ListActivity implements OnItemClickListener, On
             // TODO: remove this hack and only update at the right time
             if (cursor != null && cursor.getCount() == 0) {
                 onRefresh();
+            }
+
+            // Reset the "new messages" count in the service, since we're seeing them now
+            if (mMailboxKey == QUERY_ALL_INBOXES) {
+                MailService.resetNewMessageCount(-1);
+            } else if (mMailboxKey >= 0 && mAccountKey != -1) {
+                MailService.resetNewMessageCount(mAccountKey);
             }
         }
     }
@@ -866,8 +881,7 @@ public class MessageList extends ListActivity implements OnItemClickListener, On
                 int progress) {
             if (progress == 0) {
                 mHandler.progress(true);
-            }
-            else if (result != null || progress == 100) {
+            } else if (result != null || progress == 100) {
                 mHandler.progress(false);
                 if (mWaitForMailboxType != -1) {
                     if (result == null) {
@@ -880,17 +894,20 @@ public class MessageList extends ListActivity implements OnItemClickListener, On
         // TODO report errors into UI
         // TODO check accountKey and only react to relevant notifications
         public void updateMailboxCallback(MessagingException result, long accountKey,
-                long mailboxKey, int progress, int totalMessagesInMailbox, int numNewMessages) {
+                long mailboxKey, int progress, int numNewMessages) {
             if (progress == 0) {
                 mHandler.progress(true);
-            }
-            else if (result != null || progress == 100) {
+            } else if (result != null || progress == 100) {
                 mHandler.progress(false);
             }
         }
 
         public void loadAttachmentCallback(MessagingException result, long messageId,
                 long attachmentId, int progress) {
+        }
+
+        public void serviceCheckMailCallback(MessagingException result, long accountId,
+                long mailboxId, int progress, long tag) {
         }
     }
 

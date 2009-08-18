@@ -49,8 +49,6 @@ public class ExchangeStoreExample extends Store {
     private final ExchangeTransportExample mTransport;
     private final HashMap<String, Folder> mFolders = new HashMap<String, Folder>();
     
-    private boolean mPushModeRunning = false;
-
     /**
      * Factory method.
      */
@@ -120,30 +118,7 @@ public class ExchangeStoreExample extends Store {
                 getFolder(ExchangeTransportExample.FOLDER_INBOX),
         };
     }
-    
-    /**
-     * For a store that supports push mode, this is the API that enables it or disables it.
-     * The store should use this API to start or stop its persistent connection service or thread.
-     * 
-     * <p>Note, may be called multiple times, even after push mode has been started or stopped.
-     * 
-     * @param enablePushMode start or stop push mode delivery
-     */
-    @Override
-    public void enablePushModeDelivery(boolean enablePushMode) {
-        if (Config.LOGD && Email.DEBUG) {
-            if (enablePushMode && !mPushModeRunning) {
-                Log.d(Email.LOG_TAG, "start push mode");
-            } else if (!enablePushMode && mPushModeRunning) {
-                Log.d(Email.LOG_TAG, "stop push mode");
-            } else {
-                Log.d(Email.LOG_TAG, enablePushMode ?
-                        "push mode already started" : "push mode already stopped");
-            }
-        }
-        mPushModeRunning = enablePushMode;
-    }
-    
+
     /**
      * Get class of SettingActivity for this Store class.
      * @return Activity class that has class method actionEditIncomingSettings(). 

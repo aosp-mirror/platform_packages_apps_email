@@ -755,14 +755,14 @@ public class FolderMessageList extends ExpandableListActivity {
     private void doRefreshOpenMailbox() {
         if (this.mExpandedGroup != -1) {
             Cursor mailboxCursor = mNewAdapter.getGroup(mExpandedGroup);
-            EmailContent.Mailbox mailbox =
-                EmailContent.getContent(mailboxCursor, EmailContent.Mailbox.class);
-
-            if (mailbox != null) {
-                mHandler.progress(true);
-                Controller.getInstance(getApplication()).
-                        updateMailbox(mAccount.mId, mailbox, mControllerCallback);
-            }
+//            EmailContent.Mailbox mailbox =
+//                EmailContent.getContent(mailboxCursor, EmailContent.Mailbox.class);
+//
+//            if (mailbox != null) {
+//                mHandler.progress(true);
+//                Controller.getInstance(getApplication()).
+//                        updateMailbox(mAccount.mId, mailbox, mControllerCallback);
+//            }
         }
      }
 
@@ -778,12 +778,16 @@ public class FolderMessageList extends ExpandableListActivity {
         }
 
         public void updateMailboxCallback(MessagingException result, long accountKey,
-                long mailboxKey, int progress, int totalMessagesInMailbox, int numNewMessages) {
+                long mailboxKey, int progress, int numNewMessages) {
             mHandler.progress(false);
         }
 
         public void loadAttachmentCallback(MessagingException result, long messageId,
                 long attachmentId, int progress) {
+        }
+
+        public void serviceCheckMailCallback(MessagingException result, long accountId,
+                long mailboxId, int progress, long tag) {
         }
     }
 

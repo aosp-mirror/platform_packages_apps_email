@@ -20,14 +20,10 @@ import com.android.email.Controller;
 import com.android.email.Email;
 import com.android.email.EmailAddressAdapter;
 import com.android.email.EmailAddressValidator;
-import com.android.email.MessagingController;
 import com.android.email.R;
 import com.android.email.Utility;
 import com.android.email.mail.Address;
 import com.android.email.mail.MessagingException;
-import com.android.email.mail.Multipart;
-import com.android.email.mail.Part;
-import com.android.email.mail.Message.RecipientType;
 import com.android.email.mail.internet.EmailHtmlUtil;
 import com.android.email.mail.internet.MimeUtility;
 import com.android.email.provider.EmailContent;
@@ -56,7 +52,6 @@ import android.text.SpannableStringBuilder;
 import android.text.Spanned;
 import android.text.TextWatcher;
 import android.text.util.Rfc822Tokenizer;
-import android.util.Config;
 import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
@@ -72,7 +67,6 @@ import android.widget.LinearLayout;
 import android.widget.MultiAutoCompleteTextView;
 import android.widget.TextView;
 import android.widget.Toast;
-import android.widget.AutoCompleteTextView.Validator;
 
 import java.io.Serializable;
 import java.io.UnsupportedEncodingException;
@@ -1232,11 +1226,15 @@ public class MessageCompose extends Activity implements OnClickListener, OnFocus
         }
 
         public void updateMailboxCallback(MessagingException result, long accountId,
-                long mailboxId, int progress, int totalMessagesInMailbox, int numNewMessages) {
+                long mailboxId, int progress, int numNewMessages) {
         }
 
         public void loadAttachmentCallback(MessagingException result, long messageId,
                 long attachmentId, int progress) {
+        }
+
+        public void serviceCheckMailCallback(MessagingException result, long accountId,
+                long mailboxId, int progress, long tag) {
         }
     }
 

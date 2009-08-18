@@ -34,6 +34,7 @@ import com.android.email.mail.store.LocalStore.LocalFolder;
 import com.android.email.mail.store.LocalStore.LocalMessage;
 import com.android.email.mail.store.LocalStore.PendingCommand;
 import com.android.email.provider.EmailContent;
+import com.android.email.provider.EmailContent.Mailbox;
 import com.android.email.provider.EmailContent.MailboxColumns;
 import com.android.email.provider.EmailContent.MessageColumns;
 import com.android.email.provider.EmailContent.SyncColumns;
@@ -219,7 +220,9 @@ public class MessagingController implements Runnable {
      * @param listener
      * @throws MessagingException
      */
-    public void listFolders(final EmailContent.Account account, MessagingListener listener) {
+    public void listFolders(long accountId, MessagingListener listener) {
+        final EmailContent.Account account =
+                EmailContent.Account.restoreAccountWithId(mContext, accountId);
         mListeners.listFoldersStarted(account);
         put("listFolders", listener, new Runnable() {
             public void run() {
@@ -493,6 +496,7 @@ public class MessagingController implements Runnable {
     /**
      * Start foreground synchronization of the specified folder. This is called by
      * synchronizeMailbox or checkMail.
+     * TODO this should use ID's instead of fully-restored objects
      * @param account
      * @param folder
      * @param listener
@@ -528,49 +532,6 @@ public class MessagingController implements Runnable {
             mListeners.synchronizeMailboxFailed(account, folder, e);
         }
     }
-    
-    // TODO move all this to top
-/*
-        public static final int CONTENT_ID_COLUMN = 0;
-        public static final int CONTENT_DISPLAY_NAME_COLUMN = 1;
-        public static final int CONTENT_TIMESTAMP_COLUMN = 2;
-        public static final int CONTENT_SUBJECT_COLUMN = 3;
-        public static final int CONTENT_PREVIEW_COLUMN = 4;
-        public static final int CONTENT_FLAG_READ_COLUMN = 5;
-        public static final int CONTENT_FLAG_LOADED_COLUMN = 6;
-        public static final int CONTENT_FLAG_FAVORITE_COLUMN = 7;
-        public static final int CONTENT_FLAG_ATTACHMENT_COLUMN = 8;
-        public static final int CONTENT_FLAGS_COLUMN = 9;
-        public static final int CONTENT_TEXT_INFO_COLUMN = 10;
-        public static final int CONTENT_HTML_INFO_COLUMN = 11;
-        public static final int CONTENT_BODY_ID_COLUMN = 12;
-        public static final int CONTENT_SERVER_ID_COLUMN = 13;
-        public static final int CONTENT_CLIENT_ID_COLUMN = 14;
-        public static final int CONTENT_MESSAGE_ID_COLUMN = 15;
-        public static final int CONTENT_THREAD_ID_COLUMN = 16;
-        public static final int CONTENT_MAILBOX_KEY_COLUMN = 17;
-        public static final int CONTENT_ACCOUNT_KEY_COLUMN = 18;
-        public static final int CONTENT_REFERENCE_KEY_COLUMN = 19;
-        public static final int CONTENT_SENDER_LIST_COLUMN = 20;
-        public static final int CONTENT_FROM_LIST_COLUMN = 21;
-        public static final int CONTENT_TO_LIST_COLUMN = 22;
-        public static final int CONTENT_CC_LIST_COLUMN = 23;
-        public static final int CONTENT_BCC_LIST_COLUMN = 24;
-        public static final int CONTENT_REPLY_TO_COLUMN = 25;
-        public static final int CONTENT_SERVER_VERSION_COLUMN = 26;
-        public static final String[] CONTENT_PROJECTION = new String[] { 
-            RECORD_ID, MessageColumns.DISPLAY_NAME, MessageColumns.TIMESTAMP, 
-            MessageColumns.SUBJECT, MessageColumns.PREVIEW, MessageColumns.FLAG_READ,
-            MessageColumns.FLAG_LOADED, MessageColumns.FLAG_FAVORITE,
-            MessageColumns.FLAG_ATTACHMENT, MessageColumns.FLAGS, MessageColumns.TEXT_INFO,
-            MessageColumns.HTML_INFO, MessageColumns.BODY_ID, SyncColumns.SERVER_ID,
-            MessageColumns.CLIENT_ID, MessageColumns.MESSAGE_ID, MessageColumns.THREAD_ID,
-            MessageColumns.MAILBOX_KEY, MessageColumns.ACCOUNT_KEY, MessageColumns.REFERENCE_KEY,
-            MessageColumns.SENDER_LIST, MessageColumns.FROM_LIST, MessageColumns.TO_LIST,
-            MessageColumns.CC_LIST, MessageColumns.BCC_LIST, MessageColumns.REPLY_TO_LIST,
-            SyncColumns.SERVER_VERSION
-        };
-*/
 
     /**
      * Lightweight record for the first pass of message sync, where I'm just seeing if
@@ -1135,8 +1096,7 @@ public class MessagingController implements Runnable {
         return results;
         }
 
-        return new StoreSynchronizer.SyncResults(0, 0);
-
+        return new StoreSynchronizer.SyncResults(remoteMessageCount, newMessages.size());
     }
     
     private void queuePendingCommand(EmailContent.Account account, PendingCommand command) {
@@ -1710,6 +1670,9 @@ public class MessagingController implements Runnable {
 
     /**
      * Attempt to send any messages that are sitting in the Outbox.
+     * TODO rewrite for database not LocalStore
+     * TODO this should accept accountId, and probably be reworked in other ways
+     * 
      * @param account
      * @param listener
      */
@@ -1846,51 +1809,36 @@ public class MessagingController implements Runnable {
 
     /**
      * Checks mail for one or multiple accounts. If account is null all accounts
-     * are checked.
+     * are checked.  This entry point is for use by the mail checking service only, because it
+     * gives slightly different callbacks (so the service doesn't get confused by callbacks
+     * triggered by/for the foreground UI.
      *
-     * TODO:  There is no use case for "check all accounts".  Clean up this API to remove
-     * that case.  Callers can supply the appropriate list.
-     *
-     * TODO:  Better protection against a failure in account n, which should not prevent
-     * syncing account in accounts n+1 and beyond.
+     * TODO clean up the execution model which is unnecessarily threaded due to legacy code
      *
      * @param context
-     * @param accounts List of accounts to check, or null to check all accounts
+     * @param accountId the account to check
      * @param listener
      */
-    public void checkMail(final Context context, EmailContent.Account[] accounts,
-            final MessagingListener listener) {
-        /**
-         * Note:  The somewhat tortured logic here is to guarantee proper ordering of events:
-         *      listeners: checkMailStarted
-         *      account 1: list folders
-         *      account 1: sync messages
-         *      account 2: list folders
-         *      account 2: sync messages
-         *      ...
-         *      account n: list folders
-         *      account n: sync messages
-         *      listeners: checkMailFinished
-         */
-        mListeners.checkMailStarted(context, null); // TODO this needs to pass the actual array
-        if (accounts == null) {
-            // TODO eliminate this use case, implement, or ...?
-//            accounts = Preferences.getPreferences(context).getAccounts();
-        }
-        for (final EmailContent.Account account : accounts) {
-            listFolders(account, null);
+    public void checkMail(final long accountId, final long tag, final MessagingListener listener) {
+        mListeners.checkMailStarted(mContext, accountId, tag);
 
-            put("checkMail", listener, new Runnable() {
-                public void run() {
-                    sendPendingMessagesSynchronous(account);
-                    // TODO find mailbox # for inbox and sync it.
-//                    synchronizeMailboxSynchronous(account, Email.INBOX);
-                }
-            });
-        }
-        put("checkMailFinished", listener, new Runnable() {
+        // This puts the command on the queue (not synchronous)
+        listFolders(accountId, null);
+
+        // Put this on the queue as well so it follows listFolders
+        put("emptyTrash", listener, new Runnable() {
             public void run() {
-                mListeners.checkMailFinished(context, null); // TODO this needs to pass actual array
+             EmailContent.Account account =
+                    EmailContent.Account.restoreAccountWithId(mContext, accountId);
+            sendPendingMessagesSynchronous(account);
+            // find mailbox # for inbox and sync it.
+            // TODO we already know this in Controller, can we pass it in?
+            long inboxId = Mailbox.findMailboxOfType(mContext, accountId, Mailbox.TYPE_INBOX);
+            EmailContent.Mailbox mailbox =
+                EmailContent.Mailbox.restoreMailboxWithId(mContext, inboxId);
+            synchronizeMailboxSynchronous(account, mailbox);
+
+            mListeners.checkMailFinished(mContext, accountId, tag, inboxId);
             }
         });
     }
