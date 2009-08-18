@@ -32,7 +32,9 @@ import android.content.ContentValues;
 import android.content.Context;
 import android.database.Cursor;
 import android.net.Uri;
+import android.os.Bundle;
 import android.os.Environment;
+import android.os.Parcel;
 import android.test.ProviderTestCase2;
 
 import java.io.File;
@@ -75,6 +77,25 @@ public class ProviderTests extends ProviderTestCase2<EmailProvider> {
         Account account2 = EmailContent.Account.restoreAccountWithId(mMockContext, account1Id);
 
         ProviderTestUtils.assertAccountEqual("testAccountSave", account1, account2);
+    }
+
+    /**
+     * Simple test of account parceling.  The rather tortuous path is to ensure that the
+     * account is really flattened all the way down to a parcel and back.
+     */
+    public void testAccountParcel() {
+        Account account1 = ProviderTestUtils.setupAccount("parcel", false, mMockContext);
+        Bundle b = new Bundle();
+        b.putParcelable("account", account1);
+        Parcel p = Parcel.obtain();
+        b.writeToParcel(p, 0);
+        p.setDataPosition(0);       // rewind it for reading
+        Bundle b2 = new Bundle(Account.class.getClassLoader());
+        b2.readFromParcel(p);
+        Account account2 = (Account) b2.getParcelable("account");
+        p.recycle();
+
+        ProviderTestUtils.assertAccountEqual("testAccountParcel", account1, account2);
     }
 
     private final static String[] MAILBOX_UNREAD_COUNT_PROJECTION = new String [] {
