@@ -1025,7 +1025,8 @@ public class EasSyncService extends AbstractSyncService {
             userLog("Caught IOException: ", ((message == null) ? "" : message));
             mExitStatus = EXIT_IO_ERROR;
         } catch (Exception e) {
-            Log.e(TAG, "Uncaught exception in EasSyncService", e);
+            Log.e(TAG, "Uncaught exception in EasSyncService" + e);
+            userLog(e);
         } finally {
             if (!mStop) {
                 userLog(mMailbox.mDisplayName, ": sync finished");
