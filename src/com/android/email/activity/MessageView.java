@@ -25,10 +25,8 @@ import com.android.email.Utility;
 import com.android.email.mail.Address;
 import com.android.email.mail.MessagingException;
 import com.android.email.mail.Part;
-import com.android.email.mail.Message.RecipientType;
 import com.android.email.mail.internet.EmailHtmlUtil;
 import com.android.email.mail.internet.MimeUtility;
-import com.android.email.mail.store.LocalStore.LocalMessage;
 import com.android.email.provider.AttachmentProvider;
 import com.android.email.provider.EmailContent.Account;
 import com.android.email.provider.EmailContent.Attachment;
@@ -59,7 +57,6 @@ import android.provider.Contacts;
 import android.provider.Contacts.Intents;
 import android.provider.Contacts.People;
 import android.text.util.Regex;
-import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.Menu;
 import android.view.MenuItem;
@@ -1227,11 +1224,15 @@ public class MessageView extends Activity
         }
 
         public void updateMailboxCallback(MessagingException result, long accountId,
-                long mailboxId, int progress, int totalMessagesInMailbox, int numNewMessages) {
+                long mailboxId, int progress, int numNewMessages) {
         }
 
         public void updateMailboxListCallback(MessagingException result, long accountId,
                 int progress) {
+        }
+
+        public void serviceCheckMailCallback(MessagingException result, long accountId,
+                long mailboxId, int progress, long tag) {
         }
     }
 

@@ -41,7 +41,6 @@ import android.content.Context;
 import android.os.Bundle;
 import android.os.RemoteException;
 import android.text.TextUtils;
-import android.util.Config;
 import android.util.Log;
 
 import java.io.IOException;
@@ -63,8 +62,6 @@ public class ExchangeStore extends Store {
 
     private final ExchangeTransport mTransport;
     private final HashMap<String, Folder> mFolders = new HashMap<String, Folder>();
-
-    private boolean mPushModeRunning = false;
 
     /**
      * Factory method.
@@ -162,29 +159,6 @@ public class ExchangeStore extends Store {
         return new Folder[] {
                 getFolder(ExchangeTransport.FOLDER_INBOX),
         };
-    }
-
-    /**
-     * For a store that supports push mode, this is the API that enables it or disables it.
-     * The store should use this API to start or stop its persistent connection service or thread.
-     *
-     * <p>Note, may be called multiple times, even after push mode has been started or stopped.
-     *
-     * @param enablePushMode start or stop push mode delivery
-     */
-    @Override
-    public void enablePushModeDelivery(boolean enablePushMode) {
-        if (Config.LOGD && Email.DEBUG) {
-            if (enablePushMode && !mPushModeRunning) {
-                Log.d(Email.LOG_TAG, "start push mode");
-            } else if (!enablePushMode && mPushModeRunning) {
-                Log.d(Email.LOG_TAG, "stop push mode");
-            } else {
-                Log.d(Email.LOG_TAG, enablePushMode ?
-                        "push mode already started" : "push mode already stopped");
-            }
-        }
-        mPushModeRunning = enablePushMode;
     }
 
     /**

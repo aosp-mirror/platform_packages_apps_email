@@ -138,23 +138,18 @@ public class GroupMessagingListener extends MessagingListener {
     }
 
     @Override
-    synchronized public void checkMailStarted(Context context, EmailContent.Account account) {
+    synchronized public void checkMailStarted(Context context, long accountId, long tag) {
         for (MessagingListener l : mListeners) {
-            l.checkMailStarted(context, account);
+            l.checkMailStarted(context, accountId, tag);
         }
     }
 
     @Override
-    synchronized public void checkMailFinished(Context context, EmailContent.Account account) {
+    synchronized public void checkMailFinished(Context context, long accountId, long folderId,
+            long tag) {
         for (MessagingListener l : mListeners) {
-            l.checkMailFinished(context, account);
+            l.checkMailFinished(context, accountId, folderId, tag);
         }
-    }
-
-    @Override
-    synchronized public void checkMailFailed(Context context, EmailContent.Account account,
-            String reason) {
-        // TODO
     }
 
     @Override

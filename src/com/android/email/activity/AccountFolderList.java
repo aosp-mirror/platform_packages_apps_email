@@ -611,22 +611,33 @@ public class AccountFolderList extends ListActivity
     }
 
     /**
-     * Callback for async Controller results.  This is all a placeholder until we figure out the
-     * final way to do this.
+     * Callback for async Controller results.
      */
     private class ControllerResults implements Controller.Result {
         public void updateMailboxListCallback(MessagingException result, long accountKey,
                 int progress) {
-            mHandler.progress(false);
+            if (progress == 0) {
+                mHandler.progress(true);
+            } else if (result != null || progress == 100) {
+                mHandler.progress(false);
+            }
         }
 
         public void updateMailboxCallback(MessagingException result, long accountKey,
-                long mailboxKey, int progress, int totalMessagesInMailbox, int numNewMessages) {
-            mHandler.progress(false);
+                long mailboxKey, int progress, int numNewMessages) {
+            if (progress == 0) {
+                mHandler.progress(true);
+            } else if (result != null || progress == 100) {
+                mHandler.progress(false);
+            }
         }
 
         public void loadAttachmentCallback(MessagingException result, long messageId,
                 long attachmentId, int progress) {
+        }
+
+        public void serviceCheckMailCallback(MessagingException result, long accountId,
+                long mailboxId, int progress, long tag) {
         }
     }
 

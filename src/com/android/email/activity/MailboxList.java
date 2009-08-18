@@ -275,8 +275,7 @@ public class MailboxList extends ListActivity implements OnItemClickListener, On
         Controller controller = Controller.getInstance(getApplication());
         mHandler.progress(true);
         if (mailboxId >= 0) {
-            Mailbox mailbox = Mailbox.restoreMailboxWithId(this, mailboxId);
-            controller.updateMailbox(mAccountId, mailbox, mControllerCallback);
+            controller.updateMailbox(mAccountId, mailboxId, mControllerCallback);
         } else {
             controller.updateMailboxList(mAccountId, mControllerCallback);
         }
@@ -376,8 +375,7 @@ public class MailboxList extends ListActivity implements OnItemClickListener, On
             if (accountKey == mAccountId) {
                 if (progress == 0) {
                     mHandler.progress(true);
-                }
-                else if (result != null || progress == 100) {
+                } else if (result != null || progress == 100) {
                     mHandler.progress(false);
                 }
             }
@@ -385,12 +383,11 @@ public class MailboxList extends ListActivity implements OnItemClickListener, On
 
         // TODO report errors into UI
         public void updateMailboxCallback(MessagingException result, long accountKey,
-                long mailboxKey, int progress, int totalMessagesInMailbox, int numNewMessages) {
+                long mailboxKey, int progress, int numNewMessages) {
             if (accountKey == mAccountId) {
                 if (progress == 0) {
                     mHandler.progress(true);
-                }
-                else if (result != null || progress == 100) {
+                } else if (result != null || progress == 100) {
                     mHandler.progress(false);
                 }
             }
@@ -398,6 +395,10 @@ public class MailboxList extends ListActivity implements OnItemClickListener, On
 
         public void loadAttachmentCallback(MessagingException result, long messageId,
                 long attachmentId, int progress) {
+        }
+
+        public void serviceCheckMailCallback(MessagingException result, long accountId,
+                long mailboxId, int progress, long tag) {
         }
     }
 

@@ -472,7 +472,7 @@ public class EmailSyncAdapter extends AbstractSyncAdapter {
                 Notification notif = new Notification(R.drawable.stat_notify_email_generic,
                         mContext.getString(R.string.notification_new_title),
                         System.currentTimeMillis());
-                Intent i = MessageList.actionHandleAccountIntent(mContext, mAccount.mId,
+                Intent i = MessageList.actionHandleAccountIntent(mContext, mAccount.mId, -1,
                         Mailbox.TYPE_INBOX);
                 PendingIntent pi = PendingIntent.getActivity(mContext, 0, i, 0);
                 notif.setLatestEventInfo(mContext,

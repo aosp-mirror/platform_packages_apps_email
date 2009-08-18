@@ -71,13 +71,10 @@ public class MessagingListener {
             String message) {
     }
 
-    public void checkMailStarted(Context context, EmailContent.Account account) {
+    public void checkMailStarted(Context context, long accountId, long tag) {
     }
 
-    public void checkMailFinished(Context context, EmailContent.Account account) {
-    }
-
-    public void checkMailFailed(Context context, EmailContent.Account account, String reason) {
+    public void checkMailFinished(Context context, long accountId, long folderId, long tag) {
     }
 
     public void sendPendingMessagesCompleted(EmailContent.Account account) {
