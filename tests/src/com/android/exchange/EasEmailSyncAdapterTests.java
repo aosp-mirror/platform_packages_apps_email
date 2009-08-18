@@ -26,6 +26,8 @@ import android.test.AndroidTestCase;
 import java.io.ByteArrayInputStream;
 import java.io.IOException;
 import java.io.InputStream;
+import java.util.GregorianCalendar;
+import java.util.TimeZone;
 
 public class EasEmailSyncAdapterTests extends AndroidTestCase {
 
@@ -38,22 +40,32 @@ public class EasEmailSyncAdapterTests extends AndroidTestCase {
         return new ByteArrayInputStream(new byte[] {0, 0, 0, 0, 0});
     }
 
+    EasSyncService getTestService() {
+        Account account = new Account();
+        account.mId = -1;
+        Mailbox mailbox = new Mailbox();
+        mailbox.mId = -1;
+        EasSyncService service = new EasSyncService();
+        service.mContext = getContext();
+        service.mMailbox = mailbox;
+        service.mAccount = account;
+        return service;
+    }
+
+    EmailSyncAdapter getTestSyncAdapter() {
+        EasSyncService service = getTestService();
+        EmailSyncAdapter adapter = new EmailSyncAdapter(service.mMailbox, service);
+        return adapter;
+    }
+
     /**
      * Check functionality for getting mime type from a file name (using its extension)
      * The default for all unknown files is application/octet-stream
      */
     public void testGetMimeTypeFromFileName() throws IOException {
-        Mailbox mailbox = new Mailbox();
-        mailbox.mId = -1;
-        Account account = new Account();
-        account.mId = -1;
-        EasSyncService service = new EasSyncService();
-        service.mContext = getContext();
-        service.mMailbox = mailbox;
-        service.mAccount = account;
-        EmailSyncAdapter adapter = new EmailSyncAdapter(mailbox, service);
-        EasEmailSyncParser p;
-        p = adapter.new EasEmailSyncParser(getTestInputStream(), service);
+        EasSyncService service = getTestService();
+        EmailSyncAdapter adapter = new EmailSyncAdapter(service.mMailbox, service);
+        EasEmailSyncParser p = adapter.new EasEmailSyncParser(getTestInputStream(), service);
         // Test a few known types
         String mimeType = p.getMimeTypeFromFileName("foo.jpg");
         assertEquals("image/jpeg", mimeType);
@@ -71,5 +83,18 @@ public class EasEmailSyncAdapterTests extends AndroidTestCase {
         // And no name at all (null isn't a valid input)
         mimeType = p.getMimeTypeFromFileName("");
         assertEquals("application/octet-stream", mimeType);
+    }
+
+    public void testFormatDateTime() throws IOException {
+        EmailSyncAdapter adapter = getTestSyncAdapter();
+        GregorianCalendar calendar = new GregorianCalendar(TimeZone.getTimeZone("GMT"));
+        // Calendar is odd, months are zero based, so the first 11 below is December...
+        calendar.set(2008, 11, 11, 18, 19, 20);
+        String date = adapter.formatDateTime(calendar);
+        assertEquals("2008-12-11T18:19:20.000Z", date);
+        calendar.clear();
+        calendar.set(2012, 0, 2, 23, 0, 1);
+        date = adapter.formatDateTime(calendar);
+        assertEquals("2012-01-02T23:00:01.000Z", date);
     }
 }

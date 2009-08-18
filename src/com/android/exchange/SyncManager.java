@@ -1311,8 +1311,10 @@ public class SyncManager extends Service implements Runnable {
                 INSTANCE.notify();
             }
         }
-        synchronized (sConnectivityLock) {
-            sConnectivityLock.notify();
+        if (sConnectivityLock != null) {
+            synchronized (sConnectivityLock) {
+                sConnectivityLock.notify();
+            }
         }
     }
 
