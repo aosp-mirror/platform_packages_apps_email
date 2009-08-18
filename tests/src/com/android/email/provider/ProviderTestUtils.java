@@ -52,6 +52,7 @@ public class ProviderTestUtils extends Assert {
         account.mSenderName = name;
         account.mRingtoneUri = "content://ringtone-" + name;
         account.mProtocolVersion = "2.5" + name;
+        account.mNewMessageCount = 5 + name.length();
 
         if (saveIt) {
             account.save(context);
@@ -207,6 +208,8 @@ public class ProviderTestUtils extends Assert {
         assertEquals(caller + " mRingtoneUri", expect.mRingtoneUri, actual.mRingtoneUri);
         assertEquals(caller + " mProtocolVersion", expect.mProtocolVersion,
                 actual.mProtocolVersion);
+        assertEquals(caller + " mNewMessageCount", expect.mNewMessageCount,
+                actual.mNewMessageCount);
     }
 
     /**

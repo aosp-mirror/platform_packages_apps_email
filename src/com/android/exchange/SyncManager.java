@@ -665,9 +665,11 @@ public class SyncManager extends Service implements Runnable {
         clearAlarms();
 
         // Release our wake lock, if we have one
-        if (mWakeLock != null) {
-            mWakeLock.release();
-            mWakeLock = null;
+        synchronized (mWakeLocks) {
+            if (mWakeLock != null) {
+                mWakeLock.release();
+                mWakeLock = null;
+            }
         }
 
         sPendingIntents.clear();

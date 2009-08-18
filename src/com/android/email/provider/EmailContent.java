@@ -790,6 +790,8 @@ public abstract class EmailContent {
         public static final String RINGTONE_URI = "ringtoneUri";
         // Protocol version (arbitrary string, used by EAS currently)
         public static final String PROTOCOL_VERSION = "protocolVersion";
+        // The number of new messages (reported by the sync/download engines
+        public static final String NEW_MESSAGE_COUNT = "newMessageCount";
     }
 
     public static final class Account extends EmailContent implements AccountColumns, Parcelable {
@@ -825,6 +827,7 @@ public abstract class EmailContent {
         public String mSenderName;
         public String mRingtoneUri;
         public String mProtocolVersion;
+        public int mNewMessageCount;
 
         // Convenience for creating an account
         public transient HostAuth mHostAuthRecv;
@@ -844,6 +847,7 @@ public abstract class EmailContent {
         public static final int CONTENT_SENDER_NAME_COLUMN = 11;
         public static final int CONTENT_RINGTONE_URI_COLUMN = 12;
         public static final int CONTENT_PROTOCOL_VERSION_COLUMN = 13;
+        public static final int CONTENT_NEW_MESSAGE_COUNT_COLUMN = 14;
 
         public static final String[] CONTENT_PROJECTION = new String[] {
             RECORD_ID, AccountColumns.DISPLAY_NAME,
@@ -851,7 +855,8 @@ public abstract class EmailContent {
             AccountColumns.SYNC_INTERVAL, AccountColumns.HOST_AUTH_KEY_RECV,
             AccountColumns.HOST_AUTH_KEY_SEND, AccountColumns.FLAGS, AccountColumns.IS_DEFAULT,
             AccountColumns.COMPATIBILITY_UUID, AccountColumns.SENDER_NAME,
-            AccountColumns.RINGTONE_URI, AccountColumns.PROTOCOL_VERSION
+            AccountColumns.RINGTONE_URI, AccountColumns.PROTOCOL_VERSION,
+            AccountColumns.NEW_MESSAGE_COUNT
         };
 
         public static final int CONTENT_MAILBOX_TYPE_COLUMN = 1;
@@ -941,6 +946,7 @@ public abstract class EmailContent {
             mSenderName = cursor.getString(CONTENT_SENDER_NAME_COLUMN);
             mRingtoneUri = cursor.getString(CONTENT_RINGTONE_URI_COLUMN);
             mProtocolVersion = cursor.getString(CONTENT_PROTOCOL_VERSION_COLUMN);
+            mNewMessageCount = cursor.getInt(CONTENT_NEW_MESSAGE_COUNT_COLUMN);
             return this;
         }
 
@@ -1357,6 +1363,7 @@ public abstract class EmailContent {
             values.put(AccountColumns.SENDER_NAME, mSenderName);
             values.put(AccountColumns.RINGTONE_URI, mRingtoneUri);
             values.put(AccountColumns.PROTOCOL_VERSION, mProtocolVersion);
+            values.put(AccountColumns.NEW_MESSAGE_COUNT, mNewMessageCount);
             return values;
         }
 
@@ -1428,6 +1435,8 @@ public abstract class EmailContent {
             dest.writeString(mCompatibilityUuid);
             dest.writeString(mSenderName);
             dest.writeString(mRingtoneUri);
+            dest.writeString(mProtocolVersion);
+            dest.writeInt(mNewMessageCount);
 
             if (mHostAuthRecv != null) {
                 dest.writeByte((byte)1);
@@ -1462,6 +1471,8 @@ public abstract class EmailContent {
             mCompatibilityUuid = in.readString();
             mSenderName = in.readString();
             mRingtoneUri = in.readString();
+            mProtocolVersion = in.readString();
+            mNewMessageCount = in.readInt();
 
             mHostAuthRecv = null;
             if (in.readByte() == 1) {

@@ -55,18 +55,9 @@ public class EmailProvider extends ContentProvider {
     static final String DATABASE_NAME = "EmailProvider.db";
     static final String BODY_DATABASE_NAME = "EmailProviderBody.db";
 
-    // In these early versions, updating the database version will cause all tables to be deleted
-    // Obviously, we'll handle upgrades differently once things are a bit stable
-    // version 15: changed Address.pack() format.
-    // version 16: added protocolVersion column to Account
-    // version 17: prevent duplication of mailboxes with the same serverId
-    // version 18: renamed syncFrequency to syncInterval for Account and Mailbox
-    // version 19: added triggers to keep track of unreadCount by Mailbox
-    // version 20: changed type of EAS account mailbox, making old databases invalid for EAS
-    // version 21: fixed broken trigger linking account deletion to the deletion of its HostAuth's
-    // version 22: added syncStatus column to Mailbox
+    // Any changes to the database format *must* include update-in-place code.
 
-    public static final int DATABASE_VERSION = 22;
+    public static final int DATABASE_VERSION = 1;
     public static final int BODY_DATABASE_VERSION = 1;
 
     public static final String EMAIL_AUTHORITY = "com.android.email.provider";
@@ -383,7 +374,8 @@ public class EmailProvider extends ContentProvider {
             + AccountColumns.COMPATIBILITY_UUID + " text, "
             + AccountColumns.SENDER_NAME + " text, "
             + AccountColumns.RINGTONE_URI + " text, "
-            + AccountColumns.PROTOCOL_VERSION + " text"
+            + AccountColumns.PROTOCOL_VERSION + " text, "
+            + AccountColumns.NEW_MESSAGE_COUNT + " integer"
             + ");";
         db.execSQL("create table " + Account.TABLE_NAME + s);
         // Deleting an account deletes associated Mailboxes and HostAuth's
