@@ -476,6 +476,7 @@ public class MailboxList extends ListActivity implements OnItemClickListener, On
                     break;
                 case Mailbox.TYPE_TRASH:
                     resId = R.drawable.ic_list_trash;
+                    break;
                 default:
                     resId = R.drawable.ic_list_folder;
                     break;
