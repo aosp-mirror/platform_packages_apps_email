@@ -1043,31 +1043,15 @@ public class MessageView extends Activity
      * this implementation is incomplete, as it will fail to refresh properly if the message is
      * partially loaded at this time.
      */
-    private class LoadAttachmentsTask extends AsyncTask<Void, Void, Cursor> {
-
-        private long mId;
-
-        /**
-         * Special constructor to cache some local info
-         */
-        public LoadAttachmentsTask(long messageId) {
-            mId = messageId;
+    private class LoadAttachmentsTask extends AsyncTask<Long, Void, Attachment[]> {
+        @Override
+        protected Attachment[] doInBackground(Long... messageIds) {
+            return Attachment.restoreAttachmentsWithMessageId(MessageView.this, messageIds[0]);
         }
 
         @Override
-        protected Cursor doInBackground(Void... params) {
-            Uri uri = ContentUris.withAppendedId(Attachment.MESSAGE_ID_URI, mId);
-            return MessageView.this.managedQuery(
-                    uri,
-                    Attachment.CONTENT_PROJECTION,
-                    null, null, null);
-        }
-
-        @Override
-        protected void onPostExecute(Cursor cursor) {
-            while (cursor.moveToNext()) {
-                // load and capture one attachment
-                Attachment attachment = new Attachment().restore(cursor);
+        protected void onPostExecute(Attachment[] attachments) {
+            for (Attachment attachment : attachments) {
                 addAttachment(attachment);
             }
         }
@@ -1108,8 +1092,8 @@ public class MessageView extends Activity
         mLoadBodyTask.execute();
 
         // Ask for attachments
-        mLoadAttachmentsTask = new LoadAttachmentsTask(message.mId);
-        mLoadAttachmentsTask.execute();
+        mLoadAttachmentsTask = new LoadAttachmentsTask();
+        mLoadAttachmentsTask.execute(message.mId);
     }
 
     /**

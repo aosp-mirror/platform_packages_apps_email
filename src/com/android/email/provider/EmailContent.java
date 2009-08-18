@@ -1588,6 +1588,27 @@ public abstract class EmailContent {
         }
 
         /**
+         * Restore all the Attachments of a message given its messageId
+         */
+        public static Attachment[] restoreAttachmentsWithMessageId(Context context,
+                long messageId) {
+            Uri uri = ContentUris.withAppendedId(MESSAGE_ID_URI, messageId);
+            Cursor c = context.getContentResolver().query(uri, CONTENT_PROJECTION,
+                    null, null, null);
+            try {
+                int count = c.getCount();
+                Attachment[] attachments = new Attachment[count];
+                for (int i = 0; i < count; ++i) {
+                    c.moveToNext();
+                    attachments[i] = new Attachment().restore(c);
+                }
+                return attachments;
+            } finally {
+                c.close();
+            }
+        }
+
+        /**
          * Creates a unique file in the external store by appending a hyphen
          * and a number to the given filename.
          * @param filename

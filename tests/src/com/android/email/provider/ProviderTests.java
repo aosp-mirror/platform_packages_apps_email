@@ -285,6 +285,15 @@ public class ProviderTests extends ProviderTestCase2<EmailProvider> {
         } finally {
             c.close();
         }
+
+        // test EmailContent.restoreAttachmentsWitdMessageId()
+        Attachment[] attachments =
+            Attachment.restoreAttachmentsWithMessageId(mMockContext, message4Id);
+        int size = attachments.length;
+        assertEquals(3, size);
+        for (int i = 0; i < size; ++i) {
+            ProviderTestUtils.assertAttachmentEqual("save-message4", atts.get(i), attachments[i]);
+        }
     }
 
     /**
