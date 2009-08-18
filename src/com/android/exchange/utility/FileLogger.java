@@ -20,13 +20,13 @@ import android.content.Context;
 
 import java.io.FileWriter;
 import java.io.IOException;
+import java.io.PrintWriter;
 import java.util.Date;
 
 public class FileLogger {
     private static FileLogger LOGGER = null;
     private static FileWriter mLogWriter = null;
     public static String LOG_FILE_NAME = "/sdcard/emaillog.txt";
-    private static Object mLock = new Object();
 
     public synchronized static FileLogger getLogger (Context c) {
         LOGGER = new FileLogger();
@@ -34,12 +34,10 @@ public class FileLogger {
     }
 
     private FileLogger() {
-        synchronized (mLock) {
-            try {
-                mLogWriter = new FileWriter(LOG_FILE_NAME, true);
-            } catch (IOException e) {
-                // Doesn't matter
-            }
+        try {
+            mLogWriter = new FileWriter(LOG_FILE_NAME, true);
+        } catch (IOException e) {
+            // Doesn't matter
         }
     }
 
@@ -51,6 +49,15 @@ public class FileLogger {
                 // Doesn't matter
             }
             mLogWriter = null;
+        }
+    }
+
+    static public synchronized void log(Exception e) {
+        if (mLogWriter != null) {
+            log("Exception", "Stack trace follows...");
+            PrintWriter pw = new PrintWriter(mLogWriter);
+            e.printStackTrace(pw);
+            pw.flush();
         }
     }
 
@@ -87,14 +94,12 @@ public class FileLogger {
         sb.append("\r\n");
         String s = sb.toString();
 
-        synchronized (mLock) {
-            if (mLogWriter != null) {
-                try {
-                    mLogWriter.write(s);
-                    mLogWriter.flush();
-                } catch (IOException e) {
-                    // Doesn't matter
-                }
+        if (mLogWriter != null) {
+            try {
+                mLogWriter.write(s);
+                mLogWriter.flush();
+            } catch (IOException e) {
+                // Doesn't matter
             }
         }
     }

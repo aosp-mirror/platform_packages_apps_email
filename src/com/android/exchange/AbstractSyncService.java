@@ -203,6 +203,12 @@ public abstract class AbstractSyncService implements Runnable {
         }
     }
 
+    public void userLog(Exception e) {
+        if (Eas.FILE_LOG) {
+            FileLogger.log(e);
+        }
+    }
+
     /**
      * Standard logging for EAS.
      * If user logging is active, we concatenate any arguments and log them using Log.d
