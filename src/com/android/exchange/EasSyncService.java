@@ -17,8 +17,6 @@
 
 package com.android.exchange;
 
-import com.android.email.R;
-import com.android.email.activity.AccountFolderList;
 import com.android.email.codec.binary.Base64;
 import com.android.email.mail.AuthenticationFailedException;
 import com.android.email.mail.MessagingException;
@@ -53,14 +51,10 @@ import org.apache.http.params.BasicHttpParams;
 import org.apache.http.params.HttpConnectionParams;
 import org.apache.http.params.HttpParams;
 
-import android.app.Notification;
-import android.app.NotificationManager;
-import android.app.PendingIntent;
 import android.content.ContentResolver;
 import android.content.ContentUris;
 import android.content.ContentValues;
 import android.content.Context;
-import android.content.Intent;
 import android.database.Cursor;
 import android.os.RemoteException;
 import android.util.Log;
@@ -484,7 +478,7 @@ public class EasSyncService extends AbstractSyncService {
                 userLog("Initial FolderSync");
             }
 
-            // When we first start up, change all ping mailboxes to push.
+            // When we first start up, change all mailboxes to push.
             ContentValues cv = new ContentValues();
             cv.put(Mailbox.SYNC_INTERVAL, Mailbox.CHECK_INTERVAL_PUSH);
             if (mContentResolver.update(Mailbox.CONTENT_URI, cv,
@@ -602,42 +596,16 @@ public class EasSyncService extends AbstractSyncService {
     void pushFallback(long mailboxId) {
         Mailbox mailbox = Mailbox.restoreMailboxWithId(mContext, mailboxId);
         ContentValues cv = new ContentValues();
+        int mins = PING_FALLBACK_PIM;
         if (mailbox.mType == Mailbox.TYPE_INBOX) {
-            cv.put(Mailbox.SYNC_INTERVAL, PING_FALLBACK_INBOX);
-            errorLog("*** PING LOOP: Turning off push due to ping loop on inbox...");
-            mContentResolver.update(Mailbox.CONTENT_URI, cv,
-                    MailboxColumns.ACCOUNT_KEY + '=' + mAccount.mId
-                    + AND_FREQUENCY_PING_PUSH_AND_NOT_ACCOUNT_MAILBOX, null);
-            // Now, change the account as well
-            cv.clear();
-            cv.put(Account.SYNC_INTERVAL, PING_FALLBACK_INBOX);
-            mContentResolver.update(ContentUris.withAppendedId(Account.CONTENT_URI, mAccount.mId),
-                    cv, null, null);
-
-            // Let the SyncManager know that something's changed
-            SyncManager.kick("push fallback");
-
-            // TODO Discuss the best way to alert the user
-            // Alert the user about what we've done
-            NotificationManager nm = (NotificationManager)mContext
-                .getSystemService(Context.NOTIFICATION_SERVICE);
-            Notification note =
-                new Notification(R.drawable.stat_notify_email_generic,
-                        mContext.getString(R.string.notification_ping_loop_title),
-                        System.currentTimeMillis());
-            Intent i = new Intent(mContext, AccountFolderList.class);
-            PendingIntent pi = PendingIntent.getActivity(mContext, 0, i, 0);
-            note.setLatestEventInfo(mContext,
-                    mContext.getString(R.string.notification_ping_loop_title),
-                    mContext.getString(R.string.notification_ping_loop_text), pi);
-            nm.notify(Eas.EXCHANGE_ERROR_NOTIFICATION, note);
-        } else {
-            // Just change this box to sync every 10 minutes
-            cv.put(Mailbox.SYNC_INTERVAL, PING_FALLBACK_PIM);
-            mContentResolver.update(ContentUris.withAppendedId(Mailbox.CONTENT_URI, mailboxId),
-                    cv, null, null);
-            errorLog("*** PING LOOP: Backing off sync of " + mailbox.mDisplayName + " to 10 mins");
+            mins = PING_FALLBACK_INBOX;
         }
+        cv.put(Mailbox.SYNC_INTERVAL, mins);
+        mContentResolver.update(ContentUris.withAppendedId(Mailbox.CONTENT_URI, mailboxId),
+                cv, null, null);
+        errorLog("*** PING ERROR LOOP: Backing off sync of " + mailbox.mDisplayName + " to " +
+                mins + " mins");
+        SyncManager.kick("push fallback");
     }
 
     /**
