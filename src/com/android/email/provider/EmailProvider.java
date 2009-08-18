@@ -513,20 +513,15 @@ public class EmailProvider extends ContentProvider {
         mDatabase = helper.getWritableDatabase();
         if (mDatabase != null) {
             mDatabase.setLockingEnabled(true);
+            BodyDatabaseHelper bodyHelper = new BodyDatabaseHelper(context, BODY_DATABASE_NAME);
+            mBodyDatabase = bodyHelper.getWritableDatabase();
+            if (mBodyDatabase != null) {
+                mBodyDatabase.setLockingEnabled(true);
+                String bodyFileName = mBodyDatabase.getPath();
+                mDatabase.execSQL("attach \"" + bodyFileName + "\" as BodyDatabase");
+            }
         }
         return mDatabase;
-    }
-
-    public SQLiteDatabase getBodyDatabase(Context context) {
-        if (mBodyDatabase !=  null) {
-            return mBodyDatabase;
-        }
-        BodyDatabaseHelper helper = new BodyDatabaseHelper(context, BODY_DATABASE_NAME);
-        mBodyDatabase = helper.getWritableDatabase();
-        if (mBodyDatabase != null) {
-            mBodyDatabase.setLockingEnabled(true);
-        }
-        return mBodyDatabase;
     }
 
     private class BodyDatabaseHelper extends SQLiteOpenHelper {
@@ -587,8 +582,7 @@ public class EmailProvider extends ContentProvider {
         // If we're in a transaction already (which would happen during applyBatch), then the
         // body database is already attached to the email database and any attempt to use the
         // body database directly will result in a SQLiteException (the database is locked)
-        SQLiteDatabase db = ((match >= BODY_BASE) && !mInTransaction) ? getBodyDatabase(context)
-                : getDatabase(context);
+        SQLiteDatabase db = getDatabase(context);
         int table = match >> BASE_SHIFT;
         String id = "0";
         boolean messageDeletion = false;
@@ -612,20 +606,12 @@ public class EmailProvider extends ContentProvider {
                 case MESSAGE_ID:
                     // Handle lost Body records here, since this cannot be done in a trigger
                     // The process is:
-                    //  0) Open the body database (bootstrap step, if doesn't exist yet)
-                    //  1) Attach the Body database
-                    //  2) Begin a transaction, ensuring that both databases are affected atomically
-                    //  3) Do the requested deletion, with cascading deletions handled in triggers
-                    //  4) End the transaction, committing all changes atomically
-                    //  5) Detach the Body database
+                    //  1) Begin a transaction, ensuring that both databases are affected atomically
+                    //  2) Do the requested deletion, with cascading deletions handled in triggers
+                    //  3) End the transaction, committing all changes atomically
 
-                    // Note that batch operations always attach the body database, so we don't
-                    // do the database attach/detach or any transaction operations here
                     messageDeletion = true;
                     if (!mInTransaction) {
-                        getBodyDatabase(context);
-                        String bodyFileName = mBodyDatabase.getPath();
-                        db.execSQL("attach \"" + bodyFileName + "\" as BodyDatabase");
                         db.beginTransaction();
                     }
                     break;
@@ -680,7 +666,6 @@ public class EmailProvider extends ContentProvider {
             if (messageDeletion) {
                 if (!mInTransaction) {
                     db.endTransaction();
-                    db.execSQL("detach BodyDatabase");
                 }
             }
         }
@@ -732,8 +717,7 @@ public class EmailProvider extends ContentProvider {
         int match = sURIMatcher.match(uri);
         Context context = getContext();
         // See the comment at delete(), above
-        SQLiteDatabase db = ((match >= BODY_BASE) && !mInTransaction) ? getBodyDatabase(context)
-                : getDatabase(context);
+        SQLiteDatabase db = getDatabase(context);
         int table = match >> BASE_SHIFT;
         long id;
 
@@ -804,8 +788,7 @@ public class EmailProvider extends ContentProvider {
         int match = sURIMatcher.match(uri);
         Context context = getContext();
         // See the comment at delete(), above
-        SQLiteDatabase db = ((match >= BODY_BASE) && !mInTransaction) ? getBodyDatabase(context)
-                : getDatabase(context);
+        SQLiteDatabase db = getDatabase(context);
         int table = match >> BASE_SHIFT;
         String id;
 
@@ -879,8 +862,7 @@ public class EmailProvider extends ContentProvider {
         int match = sURIMatcher.match(uri);
         Context context = getContext();
         // See the comment at delete(), above
-        SQLiteDatabase db = ((match >= BODY_BASE) && !mInTransaction) ? getBodyDatabase(context)
-                : getDatabase(context);
+        SQLiteDatabase db = getDatabase(context);
         int table = match >> BASE_SHIFT;
         int result;
 
@@ -941,9 +923,6 @@ public class EmailProvider extends ContentProvider {
             throws OperationApplicationException {
         Context context = getContext();
         SQLiteDatabase db = getDatabase(context);
-        getBodyDatabase(context);
-        String bodyFileName = mBodyDatabase.getPath();
-        db.execSQL("attach \"" + bodyFileName + "\" as BodyDatabase");
         db.beginTransaction();
         mInTransaction = true;
         try {
@@ -953,7 +932,6 @@ public class EmailProvider extends ContentProvider {
         } finally {
             db.endTransaction();
             mInTransaction = false;
-            db.execSQL("detach BodyDatabase");
         }
     }
 }
