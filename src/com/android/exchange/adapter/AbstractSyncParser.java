@@ -105,7 +105,7 @@ public abstract class AbstractSyncParser extends Parser {
                         // Make this a push box through the first sync
                         // TODO Make frequency conditional on user settings!
                         mMailbox.mSyncInterval = Mailbox.CHECK_INTERVAL_PUSH;
-                        mService.errorLog("Bad sync key; RESET and delete contacts");
+                        mService.errorLog("Bad sync key; RESET and delete data");
                         wipe();
                         // Indicate there's more so that we'll start syncing again
                         moreAvailable = true;
