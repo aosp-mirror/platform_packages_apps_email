@@ -26,6 +26,7 @@ import org.kxml2.wap.Wbxml;
 import android.content.Context;
 import android.util.Log;
 
+import java.io.ByteArrayOutputStream;
 import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
 import java.io.IOException;
@@ -475,8 +476,7 @@ public abstract class Parser {
      * @throws IOException
      */
     private String readInlineString() throws IOException {
-        StringBuilder sb = new StringBuilder(256);
-
+        ByteArrayOutputStream outputStream = new ByteArrayOutputStream(256);
         while (true) {
             int i = read();
             if (i == 0) {
@@ -484,9 +484,11 @@ public abstract class Parser {
             } else if (i == EOF_BYTE) {
                 throw new EofException();
             }
-            sb.append((char)i);
+            outputStream.write(i);
         }
-        String res = sb.toString();
+        outputStream.flush();
+        String res = outputStream.toString("UTF-8");
+        outputStream.close();
         return res;
     }
 }
