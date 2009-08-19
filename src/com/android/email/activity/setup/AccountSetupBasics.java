@@ -175,9 +175,10 @@ public class AccountSetupBasics extends Activity
         Cursor c = getContentResolver().query(
                 Uri.withAppendedPath(Contacts.People.CONTENT_URI, "owner"), projection, null, null,
                 null);
-        if (c.getCount() > 0) {
-            c.moveToFirst();
-            name = c.getString(0);
+        if (c != null) {
+            if (c.moveToFirst()) {
+                name = c.getString(0);
+            }
             c.close();
         }
 
