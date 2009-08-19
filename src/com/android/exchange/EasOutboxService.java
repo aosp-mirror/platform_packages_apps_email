@@ -98,7 +98,8 @@ public class EasOutboxService extends EasSyncService {
 
     @Override
     public void run() {
-        mThread = Thread.currentThread();
+        setupService();
+
         File cacheDir = mContext.getCacheDir();
         try {
             Cursor c = mContext.getContentResolver().query(Message.CONTENT_URI,

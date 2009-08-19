@@ -186,10 +186,7 @@ public class EasSyncService extends AbstractSyncService {
      * @return whether or not the code represents an authentication error
      */
     private boolean isAuthError(int code) {
-        return (code == HttpStatus.SC_UNAUTHORIZED
-                || code == HttpStatus.SC_FORBIDDEN
-//                || code == HttpStatus.SC_INTERNAL_SERVER_ERROR
-                );
+        return ((code == HttpStatus.SC_UNAUTHORIZED) || (code == HttpStatus.SC_FORBIDDEN));
     }
 
     @Override
@@ -665,7 +662,7 @@ public class EasSyncService extends AbstractSyncService {
         long endTime = System.currentTimeMillis() + (30*MINUTES);
         HashMap<String, Integer> pingErrorMap = new HashMap<String, Integer>();
 
-        while (System.currentTimeMillis() < endTime && !mStop) {
+        while ((System.currentTimeMillis() < endTime) && !mStop) {
             // Count of pushable mailboxes
             int pushCount = 0;
             // Count of mailboxes that can be pushed right now
@@ -686,7 +683,7 @@ public class EasSyncService extends AbstractSyncService {
                     String mailboxName = c.getString(Mailbox.CONTENT_DISPLAY_NAME_COLUMN);
                     if (pingStatus == SyncManager.PING_STATUS_OK) {
                         String syncKey = c.getString(Mailbox.CONTENT_SYNC_KEY_COLUMN);
-                        if (syncKey == null || syncKey.equals("0")) {
+                        if ((syncKey == null) || syncKey.equals("0")) {
                             pushCount--;
                             continue;
                         }
@@ -706,8 +703,8 @@ public class EasSyncService extends AbstractSyncService {
                             .end();
                         userLog("Ping ready for: ", folderClass, ", ", mailboxName, " (",
                                 c.getString(Mailbox.CONTENT_SERVER_ID_COLUMN), ")");
-                    } else if (pingStatus == SyncManager.PING_STATUS_RUNNING ||
-                            pingStatus == SyncManager.PING_STATUS_WAITING) {
+                    } else if ((pingStatus == SyncManager.PING_STATUS_RUNNING) ||
+                            (pingStatus == SyncManager.PING_STATUS_WAITING)) {
                         userLog(mailboxName, " not ready for ping");
                     } else if (pingStatus == SyncManager.PING_STATUS_UNABLE) {
                         pushCount--;
@@ -719,7 +716,7 @@ public class EasSyncService extends AbstractSyncService {
                 c.close();
             }
 
-            if (canPushCount > 0 && (canPushCount == pushCount)) {
+            if ((canPushCount > 0) && (canPushCount == pushCount)) {
                 // If we have some number that are ready for push, send Ping to the server
                 s.end().end().done();
 
@@ -747,13 +744,13 @@ public class EasSyncService extends AbstractSyncService {
                             int status = parsePingResult(is, mContentResolver);
                             // If our ping completed (status = 1), and we're not at the maximum,
                             // try increasing timeout by two minutes
-                            if (status == PROTOCOL_PING_STATUS_COMPLETED &&
-                                    pingHeartbeat > mPingHighWaterMark) {
+                            if ((status == PROTOCOL_PING_STATUS_COMPLETED) &&
+                                    (pingHeartbeat > mPingHighWaterMark)) {
                                 userLog("Setting ping high water mark at: ", mPingHighWaterMark);
                                 mPingHighWaterMark = pingHeartbeat;
                             }
-                            if (status == PROTOCOL_PING_STATUS_COMPLETED &&
-                                    pingHeartbeat < PING_MAX_HEARTBEAT &&
+                            if ((status == PROTOCOL_PING_STATUS_COMPLETED) &&
+                                    (pingHeartbeat < PING_MAX_HEARTBEAT) &&
                                     !mPingHeartbeatDropped) {
                                 pingHeartbeat += PING_HEARTBEAT_INCREMENT;
                                 if (pingHeartbeat > PING_MAX_HEARTBEAT) {
@@ -776,9 +773,9 @@ public class EasSyncService extends AbstractSyncService {
                     String msg = e.getMessage();
                     // If we get the exception that is indicative of a NAT timeout and if we
                     // haven't yet "fixed" the timeout, back off by two minutes and "fix" it
-                    if (msg != null && msg.contains("reset by peer")) {
-                        if (pingHeartbeat > PING_MIN_HEARTBEAT &&
-                                pingHeartbeat > mPingHighWaterMark) {
+                    if ((msg != null) && msg.contains("reset by peer")) {
+                        if ((pingHeartbeat > PING_MIN_HEARTBEAT) &&
+                                (pingHeartbeat > mPingHighWaterMark)) {
                             pingHeartbeat -= PING_HEARTBEAT_INCREMENT;
                             mPingHeartbeatDropped = true;
                             if (pingHeartbeat < PING_MIN_HEARTBEAT) {
@@ -972,10 +969,11 @@ public class EasSyncService extends AbstractSyncService {
         mExitStatus = EXIT_DONE;
     }
 
-    /* (non-Javadoc)
-     * @see java.lang.Runnable#run()
-     */
-    public void run() {
+    protected void setupService() {
+        // Make sure account and mailbox are always the latest from the database
+        mAccount = Account.restoreAccountWithId(mContext, mAccount.mId);
+        mMailbox = Mailbox.restoreMailboxWithId(mContext, mMailbox.mId);
+
         mThread = Thread.currentThread();
         TAG = mThread.getName();
 
@@ -983,6 +981,13 @@ public class EasSyncService extends AbstractSyncService {
         mHostAddress = ha.mAddress;
         mUserName = ha.mLogin;
         mPassword = ha.mPassword;
+    }
+
+    /* (non-Javadoc)
+     * @see java.lang.Runnable#run()
+     */
+    public void run() {
+        setupService();
 
         try {
             SyncManager.callback().syncMailboxStatus(mMailboxId, EmailServiceStatus.IN_PROGRESS, 0);
@@ -990,13 +995,10 @@ public class EasSyncService extends AbstractSyncService {
             // Don't care if this fails
         }
 
-        // Make sure account and mailbox are always the latest from the database
-        mAccount = Account.restoreAccountWithId(mContext, mAccount.mId);
-        mMailbox = Mailbox.restoreMailboxWithId(mContext, mMailbox.mId);
         // Whether or not we're the account mailbox
         try {
             mDeviceId = SyncManager.getDeviceId();
-            if (mMailbox == null || mAccount == null) {
+            if ((mMailbox == null) || (mAccount == null)) {
                 return;
             } else if (mMailbox.mType == Mailbox.TYPE_EAS_ACCOUNT_MAILBOX) {
                 runAccountMailbox();
