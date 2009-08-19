@@ -458,11 +458,12 @@ public class Controller {
      *
      * @param attachmentId the attachment to load
      * @param messageId the owner message
+     * @param mailboxId the owner mailbox
      * @param accountId the owner account
      * @param callback the Controller callback by which results will be reported
      */
-    public void loadAttachment(long attachmentId, long messageId, long accountId,
-            final Result callback) {
+    public void loadAttachment(final long attachmentId, final long messageId, final long mailboxId,
+            final long accountId, final Result callback) {
 
         File saveToFile = AttachmentProvider.getAttachmentFilename(mContext,
                 accountId, attachmentId);
@@ -495,6 +496,13 @@ public class Controller {
             }
         } else {
             // MessagingController implementation
+            new Thread() {
+                @Override
+                public void run() {
+                    mLegacyController.loadAttachment(accountId, messageId, mailboxId, attachmentId,
+                            mLegacyListener);
+                }
+            }.start();
         }
     }
 
@@ -651,14 +659,14 @@ public class Controller {
         @Override
         public void synchronizeMailboxFailed(EmailContent.Account account,
                 EmailContent.Mailbox folder, Exception e) {
+            MessagingException me;
+            if (e instanceof MessagingException) {
+                me = (MessagingException) e;
+            } else {
+                me = new MessagingException(e.toString());
+            }
             synchronized (mListeners) {
                 for (Result l : mListeners) {
-                    MessagingException me;
-                    if (e instanceof MessagingException) {
-                        me = (MessagingException) e;
-                    } else {
-                        me = new MessagingException(e.toString());
-                    }
                     l.updateMailboxCallback(me, account.mId, folder.mId, 0, 0);
                 }
             }
@@ -678,6 +686,36 @@ public class Controller {
             synchronized (mListeners) {
                 for (Result l : mListeners) {
                     l.serviceCheckMailCallback(null, accountId, folderId, 100, tag);
+                }
+            }
+        }
+
+        @Override
+        public void loadAttachmentStarted(long accountId, long messageId, long attachmentId,
+                boolean requiresDownload) {
+            synchronized (mListeners) {
+                for (Result listener : mListeners) {
+                    listener.loadAttachmentCallback(null, messageId, attachmentId, 0);
+                }
+            }
+        }
+
+        @Override
+        public void loadAttachmentFinished(long accountId, long messageId, long attachmentId) {
+            synchronized (mListeners) {
+                for (Result listener : mListeners) {
+                    listener.loadAttachmentCallback(null, messageId, attachmentId, 100);
+                }
+            }
+        }
+
+        @Override
+        public void loadAttachmentFailed(long accountId, long messageId, long attachmentId,
+                String reason) {
+            synchronized (mListeners) {
+                for (Result listener : mListeners) {
+                    listener.loadAttachmentCallback(new MessagingException(reason),
+                            messageId, attachmentId, 0);
                 }
             }
         }

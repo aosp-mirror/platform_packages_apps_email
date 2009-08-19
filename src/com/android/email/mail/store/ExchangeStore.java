@@ -447,7 +447,11 @@ public class ExchangeStore extends Store {
             // TODO Implement this function
         }
 
-
+        @Override
+        public Message createMessage(String uid) {
+            // TODO Auto-generated method stub
+            return null;
+        }
     }
 
 

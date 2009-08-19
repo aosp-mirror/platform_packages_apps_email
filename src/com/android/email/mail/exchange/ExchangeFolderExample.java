@@ -164,5 +164,9 @@ public class ExchangeFolderExample extends Folder {
         // TODO Implement this function
     }
 
-
+    @Override
+    public Message createMessage(String uid) {
+        // TODO Auto-generated method stub
+        return null;
+    }
 }

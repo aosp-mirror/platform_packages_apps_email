@@ -16,9 +16,7 @@
 
 package com.android.email;
 
-import com.android.email.mail.Folder;
 import com.android.email.mail.Message;
-import com.android.email.mail.Part;
 import com.android.email.provider.EmailContent;
 
 import android.content.Context;
@@ -95,29 +93,23 @@ public class MessagingListener {
     }
 
     public void loadAttachmentStarted(
-            EmailContent.Account account,
-            Message message,
-            Part part,
-            Object tag,
-            boolean requiresDownload)
-    {
+            long accountId,
+            long messageId,
+            long attachmentId,
+            boolean requiresDownload) {
     }
 
     public void loadAttachmentFinished(
-            EmailContent.Account account,
-            Message message,
-            Part part,
-            Object tag)
-    {
+            long accountId,
+            long messageId,
+            long attachmentId) {
     }
 
     public void loadAttachmentFailed(
-            EmailContent.Account account,
-            Message message,
-            Part part,
-            Object tag,
-            String reason)
-    {
+            long accountId,
+            long messageId,
+            long attachmentId,
+            String reason) {
     }
 
     /**

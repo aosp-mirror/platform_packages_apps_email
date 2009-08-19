@@ -1090,6 +1090,11 @@ public class ImapStore extends Store {
             }
             return super.equals(o);
         }
+
+        @Override
+        public Message createMessage(String uid) throws MessagingException {
+            return new ImapMessage(uid, this);
+        }
     }
 
     /**

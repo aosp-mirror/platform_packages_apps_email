@@ -29,6 +29,7 @@ import com.android.email.mail.Store;
 import com.android.email.mail.Transport;
 import com.android.email.mail.Folder.OpenMode;
 import com.android.email.mail.internet.MimeMessage;
+import com.android.email.mail.store.ImapStore.ImapMessage;
 import com.android.email.mail.transport.LoggingInputStream;
 import com.android.email.mail.transport.MailTransport;
 
@@ -898,6 +899,11 @@ public class Pop3Store extends Store {
         // TODO this is deprecated, eventually discard
         public boolean isOpen() {
             return mTransport.isOpen();
+        }
+
+        @Override
+        public Message createMessage(String uid) throws MessagingException {
+            return new Pop3Message(uid, this);
         }
     }
 

@@ -232,10 +232,22 @@ public class LegacyConversions {
         localAttachment.save(context);
 
         // If an attachment body was actually provided, we need to write the file now
-        // TODO this should be separated so it can be reused for attachment downloads
+        saveAttachmentBody(context, part, localAttachment, localMessage.mAccountKey);
+
+        if (localMessage.mAttachments == null) {
+            localMessage.mAttachments = new ArrayList<Attachment>();
+        }
+        localMessage.mAttachments.add(localAttachment);
+        localMessage.mFlagAttachment = true;
+    }
+
+    /**
+     * Save the body part of a single attachment, to a file in the attachments directory.
+     */
+    public static void saveAttachmentBody(Context context, Part part, Attachment localAttachment,
+            long accountId) throws MessagingException, IOException {
         if (part.getBody() != null) {
             long attachmentId = localAttachment.mId;
-            long accountId = localMessage.mAccountKey;
 
             InputStream in = part.getBody().getInputStream();
 
@@ -265,11 +277,6 @@ public class LegacyConversions {
             Uri uri = ContentUris.withAppendedId(Attachment.CONTENT_URI, attachmentId);
             context.getContentResolver().update(uri, cv, null, null);
         }
-
-        if (localMessage.mAttachments == null) {
-            localMessage.mAttachments = new ArrayList<Attachment>();
-        }
-        localMessage.mAttachments.add(localAttachment);
-        localMessage.mFlagAttachment = true;
     }
+
 }
