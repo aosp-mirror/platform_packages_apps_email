@@ -120,6 +120,7 @@ public class SyncManager extends Service implements Runnable {
     protected static final String WHERE_IN_ACCOUNT_AND_PUSHABLE =
         MailboxColumns.ACCOUNT_KEY + "=? and type in (" + Mailbox.TYPE_INBOX + ','
         /*+ Mailbox.TYPE_CALENDAR + ','*/ + Mailbox.TYPE_CONTACTS + ')';
+    private static final String WHERE_MAILBOX_KEY = EmailContent.RECORD_ID + "=?";
 
     // Offsets into the syncStatus data for EAS that indicate type, exit status, and change count
     // The format is S<type_char>:<exit_char>:<change_count>
@@ -241,6 +242,19 @@ public class SyncManager extends Service implements Runnable {
         }
 
         public void startSync(long mailboxId) throws RemoteException {
+            if (INSTANCE == null) return;
+            Mailbox m = Mailbox.restoreMailboxWithId(INSTANCE, mailboxId);
+            if (m.mType == Mailbox.TYPE_OUTBOX) {
+                // We're using SERVER_ID to indicate an error condition (it has no other use for
+                // sent mail)  Upon request to sync the Outbox, we clear this so that all messages
+                // are candidates for sending.
+                ContentValues cv = new ContentValues();
+                cv.put(SyncColumns.SERVER_ID, 0);
+                INSTANCE.getContentResolver().update(Message.CONTENT_URI,
+                    cv, WHERE_MAILBOX_KEY, new String[] {Long.toString(mailboxId)});
+
+                kick("start outbox");
+            }
             startManualSync(mailboxId, SyncManager.SYNC_SERVICE_START_SYNC, null);
         }
 
@@ -335,8 +349,8 @@ public class SyncManager extends Service implements Runnable {
             account = Account.restoreAccountWithId(getContext(), accountId);
             for (Account oldAccount: mAccounts) {
                 if (oldAccount.mId == accountId) {
-                    return (oldAccount.mSyncInterval != account.mSyncInterval ||
-                            oldAccount.mSyncLookback != account.mSyncLookback);
+                    return oldAccount.mSyncInterval != account.mSyncInterval ||
+                            oldAccount.mSyncLookback != account.mSyncLookback;
                 }
             }
             // Really, we can't get here, but we don't want the compiler to complain
@@ -490,7 +504,7 @@ public class SyncManager extends Service implements Runnable {
         public void onChange(boolean selfChange) {
             INSTANCE.log("SyncedMessage changed: (re)setting alarm for 10s");
             alarmManager.set(AlarmManager.RTC_WAKEUP,
-                    System.currentTimeMillis() + (10*SECONDS), syncAlarmPendingIntent);
+                    System.currentTimeMillis() + 10*SECONDS, syncAlarmPendingIntent);
         }
     }
 
@@ -1031,11 +1045,11 @@ public class SyncManager extends Service implements Runnable {
                             log("Negative wait? Setting to 1s");
                             nextWait = 1*SECONDS;
                         }
-                        if (nextWait > (30*SECONDS)) {
+                        if (nextWait > 30*SECONDS) {
                             runAsleep(SYNC_MANAGER_ID, nextWait - 1000);
                         }
                         if (nextWait != SYNC_MANAGER_HEARTBEAT_TIME) {
-                            log("Next awake in " + (nextWait / 1000) + "s: " + mNextWaitReason);
+                            log("Next awake in " + nextWait / 1000 + "s: " + mNextWaitReason);
                         }
                         wait(nextWait);
                     }
@@ -1109,7 +1123,7 @@ public class SyncManager extends Service implements Runnable {
                         if (now < syncError.holdEndTime) {
                             // If release time is earlier than next wait time,
                             // move next wait time up to the release time
-                            if (syncError.holdEndTime < (now + nextWait)) {
+                            if (syncError.holdEndTime < now + nextWait) {
                                 nextWait = syncError.holdEndTime - now;
                                 mNextWaitReason = "Release hold";
                             }
