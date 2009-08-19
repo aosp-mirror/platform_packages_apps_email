@@ -754,9 +754,9 @@ public class MessageList extends ListActivity implements OnItemClickListener, On
 
             // Reset the "new messages" count in the service, since we're seeing them now
             if (mMailboxKey == QUERY_ALL_INBOXES) {
-                MailService.resetNewMessageCount(-1);
+                MailService.resetNewMessageCount(MessageList.this, -1);
             } else if (mMailboxKey >= 0 && mAccountKey != -1) {
-                MailService.resetNewMessageCount(mAccountKey);
+                MailService.resetNewMessageCount(MessageList.this, mAccountKey);
             }
         }
     }

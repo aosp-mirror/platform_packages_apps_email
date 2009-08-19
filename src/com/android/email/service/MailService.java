@@ -30,6 +30,7 @@ import android.app.NotificationManager;
 import android.app.PendingIntent;
 import android.app.Service;
 import android.content.ContentUris;
+import android.content.ContentValues;
 import android.content.Context;
 import android.content.Intent;
 import android.database.Cursor;
@@ -56,9 +57,12 @@ public class MailService extends Service {
         "com.android.email.intent.action.MAIL_SERVICE_RESCHEDULE";
     private static final String ACTION_CANCEL =
         "com.android.email.intent.action.MAIL_SERVICE_CANCEL";
+    private static final String ACTION_NOTIFY_MAIL =
+        "com.android.email.intent.action.MAIL_SERVICE_NOTIFY";
 
     private static final String EXTRA_CHECK_ACCOUNT = "com.android.email.intent.extra.ACCOUNT";
     private static final String EXTRA_ACCOUNT_INFO = "com.android.email.intent.extra.ACCOUNT_INFO";
+    private static final String EXTRA_MESSAGE_COUNT = "com.android.email.intent.extra.COUNT";
 
     private Controller.Result mControllerCallback = new ControllerResults();
 
@@ -69,6 +73,15 @@ public class MailService extends Service {
      */
     private static HashMap<Long,AccountSyncReport> mSyncReports =
         new HashMap<Long,AccountSyncReport>();
+
+    /**
+     * Simple template used for clearing new message count in accounts
+     */
+    static ContentValues mClearNewMessages;
+    static {
+        mClearNewMessages = new ContentValues();
+        mClearNewMessages.put(Account.NEW_MESSAGE_COUNT, 0);
+    }
 
     public static void actionReschedule(Context context) {
         Intent i = new Intent();
@@ -85,13 +98,12 @@ public class MailService extends Service {
     }
 
     /**
-     * Reset new message counts for one or all accounts
-     *
-     * TODO what about EAS service new message counts, where are they reset?
+     * Reset new message counts for one or all accounts.  This clears both our local copy and
+     * the values (if any) stored in the account records.
      *
      * @param accountId account to clear, or -1 for all accounts
      */
-    public static void resetNewMessageCount(long accountId) {
+    public static void resetNewMessageCount(Context context, long accountId) {
         synchronized (mSyncReports) {
             for (AccountSyncReport report : mSyncReports.values()) {
                 if (accountId == -1 || accountId == report.accountId) {
@@ -99,20 +111,30 @@ public class MailService extends Service {
                 }
             }
         }
+        // now do the database - all accounts, or just one of them
+        Uri uri;
+        if (accountId == -1) {
+            uri = Account.CONTENT_URI;
+        } else {
+            uri = ContentUris.withAppendedId(Account.CONTENT_URI, accountId);
+        }
+        context.getContentResolver().update(uri, mClearNewMessages, null, null);
     }
     
     /**
      * Entry point for asynchronous message services (e.g. push mode) to post notifications of new
-     * messages.  Note:  Although this is not a blocking call, it will start the MessagingController
-     * which will attempt to load the new messages.  So the Store should expect to be opened and
-     * fetched from shortly after making this call.
+     * messages.  This assumes that the push provider has already synced the messages into the
+     * appropriate database - this simply triggers the notification mechanism.
      * 
+     * @param context a context
      * @param accountId the id of the account that is reporting new messages
+     * @param newCount the number of new messages
      */
-    public static void actionNotifyNewMessages(Context context, long accountId) {
-        Intent i = new Intent(ACTION_CHECK_MAIL);
+    public static void actionNotifyNewMessages(Context context, long accountId, int newCount) {
+        Intent i = new Intent(ACTION_NOTIFY_MAIL);
         i.setClass(context, MailService.class);
         i.putExtra(EXTRA_CHECK_ACCOUNT, accountId);
+        i.putExtra(EXTRA_MESSAGE_COUNT, newCount);
         context.startService(i);
     }
 
@@ -122,11 +144,12 @@ public class MailService extends Service {
 
         // TODO this needs to be passed through the controller and back to us
         this.mStartId = startId;
+        String action = intent.getAction();
 
         Controller controller = Controller.getInstance(getApplication());
         controller.addResultCallback(mControllerCallback);
 
-        if (ACTION_CHECK_MAIL.equals(intent.getAction())) {
+        if (ACTION_CHECK_MAIL.equals(action)) {
             if (Config.LOGD && Email.DEBUG) {
                 Log.d(Email.LOG_TAG, "*** MailService: checking mail");
             }
@@ -146,23 +169,36 @@ public class MailService extends Service {
                 stopSelf(startId);
             }
         }
-        else if (ACTION_CANCEL.equals(intent.getAction())) {
+        else if (ACTION_CANCEL.equals(action)) {
             if (Config.LOGD && Email.DEBUG) {
                 Log.d(Email.LOG_TAG, "*** MailService: cancel");
             }
             cancel();
             stopSelf(startId);
         }
-        else if (ACTION_RESCHEDULE.equals(intent.getAction())) {
+        else if (ACTION_RESCHEDULE.equals(action)) {
             if (Config.LOGD && Email.DEBUG) {
                 Log.d(Email.LOG_TAG, "*** MailService: reschedule");
             }
             AlarmManager alarmManager = (AlarmManager)getSystemService(Context.ALARM_SERVICE);
             reschedule(alarmManager);
             stopSelf(startId);
+        } else if (ACTION_NOTIFY_MAIL.equals(action)) {
+            long accountId = intent.getLongExtra(EXTRA_CHECK_ACCOUNT, -1);
+            int newMessageCount = intent.getIntExtra(EXTRA_MESSAGE_COUNT, -1);
+            if (Config.LOGD && Email.DEBUG) {
+                Log.d(Email.LOG_TAG, "*** MailService: notify accountId=" + Long.toString(accountId)
+                        + " count=" + newMessageCount);
+            }
+            if (accountId != -1) {
+                updateAccountReport(accountId, newMessageCount);
+                notifyNewMessages(accountId);
+            }
+            stopSelf(startId);
         }
     }
 
+    @Override
     public IBinder onBind(Intent intent) {
         return null;
     }
@@ -273,6 +309,8 @@ public class MailService extends Service {
 
         String displayName;     // temporary, for debug logging
 
+
+        @Override
         public String toString() {
             return displayName + ": prevSync=" + prevSyncTime + " nextSync=" + nextSyncTime
                     + " numNew=" + numNewMessages;
