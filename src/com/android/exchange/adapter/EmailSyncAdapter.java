@@ -17,10 +17,7 @@
 
 package com.android.exchange.adapter;
 
-import com.android.email.R;
-import com.android.email.activity.MessageList;
 import com.android.email.mail.Address;
-import com.android.email.provider.EmailContent;
 import com.android.email.provider.EmailProvider;
 import com.android.email.provider.EmailContent.Account;
 import com.android.email.provider.EmailContent.Attachment;
@@ -32,20 +29,14 @@ import com.android.email.service.MailService;
 import com.android.exchange.Eas;
 import com.android.exchange.EasSyncService;
 
-import android.app.Notification;
-import android.app.NotificationManager;
-import android.app.PendingIntent;
 import android.content.ContentProviderOperation;
 import android.content.ContentResolver;
 import android.content.ContentUris;
 import android.content.ContentValues;
-import android.content.Context;
-import android.content.Intent;
 import android.content.OperationApplicationException;
 import android.database.Cursor;
 import android.net.Uri;
 import android.os.RemoteException;
-import android.text.TextUtils;
 import android.webkit.MimeTypeMap;
 
 import java.io.IOException;
@@ -112,6 +103,7 @@ public class EmailSyncAdapter extends AbstractSyncAdapter {
             while (nextTag(Tags.SYNC_APPLICATION_DATA) != END) {
                 switch (tag) {
                     case Tags.EMAIL_ATTACHMENTS:
+                    case Tags.BASE_ATTACHMENTS: // BASE_ATTACHMENTS is used in EAS 12.0 and up
                         attachmentsParser(atts, msg);
                         break;
                     case Tags.EMAIL_TO:
@@ -240,6 +232,19 @@ public class EmailSyncAdapter extends AbstractSyncAdapter {
             }
         }
 
+        private void attachmentsParser(ArrayList<Attachment> atts, Message msg) throws IOException {
+            while (nextTag(Tags.EMAIL_ATTACHMENTS) != END) {
+                switch (tag) {
+                    case Tags.EMAIL_ATTACHMENT:
+                    case Tags.BASE_ATTACHMENT:  // BASE_ATTACHMENT is used in EAS 12.0 and up
+                        attachmentParser(atts, msg);
+                        break;
+                    default:
+                        skipTag();
+                }
+            }
+        }
+
         private void attachmentParser(ArrayList<Attachment> atts, Message msg) throws IOException {
             String fileName = null;
             String length = null;
@@ -247,13 +252,17 @@ public class EmailSyncAdapter extends AbstractSyncAdapter {
 
             while (nextTag(Tags.EMAIL_ATTACHMENT) != END) {
                 switch (tag) {
+                    // We handle both EAS 2.5 and 12.0+ attachments here
                     case Tags.EMAIL_DISPLAY_NAME:
+                    case Tags.BASE_DISPLAY_NAME:
                         fileName = getValue();
                         break;
                     case Tags.EMAIL_ATT_NAME:
+                    case Tags.BASE_FILE_REFERENCE:
                         location = getValue();
                         break;
                     case Tags.EMAIL_ATT_SIZE:
+                    case Tags.BASE_ESTIMATED_DATA_SIZE:
                         length = getValue();
                         break;
                     default:
@@ -261,7 +270,7 @@ public class EmailSyncAdapter extends AbstractSyncAdapter {
                 }
             }
 
-            if (fileName != null && length != null && location != null) {
+            if ((fileName != null) && (length != null) && (location != null)) {
                 Attachment att = new Attachment();
                 att.mEncoding = "base64";
                 att.mSize = Long.parseLong(length);
@@ -286,7 +295,7 @@ public class EmailSyncAdapter extends AbstractSyncAdapter {
             String mimeType;
             int lastDot = fileName.lastIndexOf('.');
             String extension = null;
-            if (lastDot > 0 && lastDot < fileName.length() - 1) {
+            if ((lastDot > 0) && (lastDot < fileName.length() - 1)) {
                 extension = fileName.substring(lastDot + 1);
             }
             if (extension == null) {
@@ -299,18 +308,6 @@ public class EmailSyncAdapter extends AbstractSyncAdapter {
                 }
             }
             return mimeType;
-        }
-
-        private void attachmentsParser(ArrayList<Attachment> atts, Message msg) throws IOException {
-            while (nextTag(Tags.EMAIL_ATTACHMENTS) != END) {
-                switch (tag) {
-                    case Tags.EMAIL_ATTACHMENT:
-                        attachmentParser(atts, msg);
-                        break;
-                    default:
-                        skipTag();
-                }
-            }
         }
 
         private Cursor getServerIdCursor(String serverId, String[] projection) {
@@ -389,8 +386,8 @@ public class EmailSyncAdapter extends AbstractSyncAdapter {
                         skipTag();
                 }
             }
-            if ((read != null && !oldRead.equals(read)) ||
-                    (flag != null && !oldFlag.equals(flag))) {
+            if (((read != null) && !oldRead.equals(read)) ||
+                    ((flag != null) && !oldFlag.equals(flag))) {
                 changes.add(new ServerChange(id, read, flag));
             }
         }
