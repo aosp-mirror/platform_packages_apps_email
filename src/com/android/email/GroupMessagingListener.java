@@ -16,13 +16,13 @@
 
 package com.android.email;
 
-import com.android.email.provider.EmailContent;
 import com.android.email.mail.Message;
-import com.android.email.mail.Part;
+import com.android.email.provider.EmailContent;
+
 import android.content.Context;
 
-import java.util.concurrent.ConcurrentHashMap;
 import java.util.Set;
+import java.util.concurrent.ConcurrentHashMap;
 
 public class GroupMessagingListener extends MessagingListener {
     /* The synchronization of the methods in this class
@@ -192,36 +192,33 @@ public class GroupMessagingListener extends MessagingListener {
 
     @Override
     synchronized public void loadAttachmentStarted(
-            EmailContent.Account account,
-            Message message,
-            Part part,
-            Object tag,
+            long accountId,
+            long messageId,
+            long attachmentId,
             boolean requiresDownload) {
         for (MessagingListener l : mListeners) {
-            l.loadAttachmentStarted(account, message, part, tag, requiresDownload);
+            l.loadAttachmentStarted(accountId, messageId, attachmentId, requiresDownload);
         }
     }
 
     @Override
     synchronized public void loadAttachmentFinished(
-            EmailContent.Account account,
-            Message message,
-            Part part,
-            Object tag) {
+            long accountId,
+            long messageId,
+            long attachmentId) {
         for (MessagingListener l : mListeners) {
-            l.loadAttachmentFinished(account, message, part, tag);
+            l.loadAttachmentFinished(accountId, messageId, attachmentId);
         }
     }
 
     @Override
     synchronized public void loadAttachmentFailed(
-            EmailContent.Account account,
-            Message message,
-            Part part,
-            Object tag,
+            long accountId,
+            long messageId,
+            long attachmentId,
             String reason) {
         for (MessagingListener l : mListeners) {
-            l.loadAttachmentFailed(account, message, part, tag, reason);
+            l.loadAttachmentFailed(accountId, messageId, attachmentId, reason);
         }
     }
 

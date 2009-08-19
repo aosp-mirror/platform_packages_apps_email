@@ -24,7 +24,6 @@ import com.android.email.R;
 import com.android.email.Utility;
 import com.android.email.mail.Address;
 import com.android.email.mail.MessagingException;
-import com.android.email.mail.Part;
 import com.android.email.mail.internet.EmailHtmlUtil;
 import com.android.email.mail.internet.MimeUtility;
 import com.android.email.provider.AttachmentProvider;
@@ -669,7 +668,7 @@ public class MessageView extends Activity
         mLoadAttachmentName = attachment.name;
 
         Controller.getInstance(getApplication()).loadAttachment(attachment.attachmentId,
-                mMessageId, mAccountId, mControllerCallback);
+                mMessageId, mMessage.mMailboxKey, mAccountId, mControllerCallback);
     }
 
     private void onViewAttachment(AttachmentInfo attachment) {
@@ -678,7 +677,7 @@ public class MessageView extends Activity
         mLoadAttachmentName = attachment.name;
 
         Controller.getInstance(getApplication()).loadAttachment(attachment.attachmentId,
-                mMessageId, mAccountId, mControllerCallback);
+                mMessageId, mMessage.mMailboxKey, mAccountId, mControllerCallback);
     }
 
     private void onShowPictures() {
@@ -1389,29 +1388,29 @@ public class MessageView extends Activity
             });
         }
         
-        @Override
-        public void loadAttachmentStarted(Account account, com.android.email.mail.Message message,
-                Part part, Object tag, boolean requiresDownload) {
-            mHandler.setAttachmentsEnabled(false);
-            Object[] params = (Object[]) tag;
-//            mHandler.progress(true, ((AttachmentInfo) params[1]).name);
-            if (requiresDownload) {
-                mHandler.fetchingAttachment();
-            }
-        }
+//        @Override
+//        public void loadAttachmentStarted(Account account, com.android.email.mail.Message message,
+//                Part part, Object tag, boolean requiresDownload) {
+//            mHandler.setAttachmentsEnabled(false);
+//            Object[] params = (Object[]) tag;
+////            mHandler.progress(true, ((AttachmentInfo) params[1]).name);
+//            if (requiresDownload) {
+//                mHandler.fetchingAttachment();
+//            }
+//        }
 
-        @Override
-        public void loadAttachmentFinished(Account account, com.android.email.mail.Message message,
-                Part part, Object tag) {
-            mHandler.setAttachmentsEnabled(true);
+//        @Override
+//        public void loadAttachmentFinished(Account account, com.android.email.mail.Message message,
+//                Part part, Object tag) {
+//            mHandler.setAttachmentsEnabled(true);
 //            mHandler.progress(false, null);
 //            updateAttachmentThumbnail(part);
-
-            Object[] params = (Object[]) tag;
-            boolean download = (Boolean) params[0];
-            AttachmentInfo attachment = (AttachmentInfo) params[1];
-
-            if (download) {
+//
+//            Object[] params = (Object[]) tag;
+//            boolean download = (Boolean) params[0];
+//            AttachmentInfo attachment = (AttachmentInfo) params[1];
+//
+//            if (download) {
 //                try {
 //                    File file = createUniqueFile(Environment.getExternalStorageDirectory(),
 //                            attachment.name);
@@ -1430,8 +1429,8 @@ public class MessageView extends Activity
 //                catch (IOException ioe) {
 //                    mHandler.attachmentNotSaved();
 //                }
-            }
-            else {
+//            }
+//            else {
 //                try {
 //                    Uri uri = AttachmentProvider.resolveAttachmentIdToContentUri(
 //                            getContentResolver(), AttachmentProvider.getAttachmentUri(
@@ -1445,16 +1444,16 @@ public class MessageView extends Activity
 //                    // TODO: Add a proper warning message (and lots of upstream cleanup to prevent
 //                    // it from happening) in the next release.
 //                }
-            }
-        }
+//            }
+//        }
 
-        @Override
-        public void loadAttachmentFailed(Account account, com.android.email.mail.Message message, 
-                Part part, Object tag, String reason) {
-            mHandler.setAttachmentsEnabled(true);
-//            mHandler.progress(false, null);
-            mHandler.networkError();
-        }
+//        @Override
+//        public void loadAttachmentFailed(Account account, com.android.email.mail.Message message, 
+//                Part part, Object tag, String reason) {
+//            mHandler.setAttachmentsEnabled(true);
+////            mHandler.progress(false, null);
+//            mHandler.networkError();
+//        }
         
         /**
          * Safely load a URL for mMessageContentView, or drop it if the view is gone

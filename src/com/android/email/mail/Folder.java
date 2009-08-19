@@ -168,6 +168,11 @@ public abstract class Folder {
     }
 
     /**
+     * Create an empty message of the appropriate type for the Folder.
+     */
+    public abstract Message createMessage(String uid) throws MessagingException;
+
+    /**
      * Callback interface by which a Folder can read and write persistent data.
      * TODO This needs to be made more generic & flexible
      */

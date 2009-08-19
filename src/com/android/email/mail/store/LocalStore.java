@@ -1582,6 +1582,11 @@ public class LocalStore extends Store implements PersistentDataCallbacks {
             }
             
         }
+
+        @Override
+        public Message createMessage(String uid) throws MessagingException {
+            return new LocalMessage(uid, this);
+        }
     }
 
     public class LocalMessage extends MimeMessage {

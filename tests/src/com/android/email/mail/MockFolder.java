@@ -142,4 +142,10 @@ public class MockFolder extends Folder {
 
     }
 
+    @Override
+    public Message createMessage(String uid) throws MessagingException {
+        // TODO Auto-generated method stub
+        return null;
+    }
+
 }

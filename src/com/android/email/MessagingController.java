@@ -16,6 +16,7 @@
 
 package com.android.email;
 
+import com.android.email.mail.BodyPart;
 import com.android.email.mail.FetchProfile;
 import com.android.email.mail.Flag;
 import com.android.email.mail.Folder;
@@ -28,17 +29,24 @@ import com.android.email.mail.Store;
 import com.android.email.mail.StoreSynchronizer;
 import com.android.email.mail.Folder.FolderType;
 import com.android.email.mail.Folder.OpenMode;
+import com.android.email.mail.internet.MimeBodyPart;
+import com.android.email.mail.internet.MimeHeader;
+import com.android.email.mail.internet.MimeMultipart;
 import com.android.email.mail.internet.MimeUtility;
 import com.android.email.mail.store.LocalStore;
 import com.android.email.mail.store.LocalStore.LocalFolder;
 import com.android.email.mail.store.LocalStore.LocalMessage;
 import com.android.email.mail.store.LocalStore.PendingCommand;
+import com.android.email.provider.AttachmentProvider;
 import com.android.email.provider.EmailContent;
+import com.android.email.provider.EmailContent.Attachment;
+import com.android.email.provider.EmailContent.AttachmentColumns;
 import com.android.email.provider.EmailContent.Mailbox;
 import com.android.email.provider.EmailContent.MailboxColumns;
 import com.android.email.provider.EmailContent.MessageColumns;
 import com.android.email.provider.EmailContent.SyncColumns;
 
+import android.content.ContentResolver;
 import android.content.ContentUris;
 import android.content.ContentValues;
 import android.content.Context;
@@ -47,6 +55,7 @@ import android.net.Uri;
 import android.os.Process;
 import android.util.Log;
 
+import java.io.File;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Date;
@@ -94,6 +103,17 @@ public class MessagingController implements Runnable {
         "com.android.email.MessagingController.markRead";
     private static final String PENDING_COMMAND_APPEND =
         "com.android.email.MessagingController.append";
+
+    /**
+     * Projections & CVs used by pruneCachedAttachments
+     */
+    private static String[] PRUNE_ATTACHMENT_PROJECTION = new String[] {
+        AttachmentColumns.LOCATION
+    };
+    private static ContentValues PRUNE_ATTACHMENT_CV = new ContentValues();
+    static {
+        PRUNE_ATTACHMENT_CV.putNull(AttachmentColumns.CONTENT_URI);
+    }
 
     private static MessagingController inst = null;
     private BlockingQueue<Command> mCommands = new LinkedBlockingQueue<Command>();
@@ -869,93 +889,55 @@ public class MessagingController implements Runnable {
         remoteFolder.fetch(smallMessages.toArray(new Message[smallMessages.size()]), fp,
                 new MessageRetrievalListener() {
                     public void messageFinished(Message message, int number, int ofTotal) {
-                        try {
-                            EmailContent.Message localMessage = null;
-                            Cursor c = null;
-                            try {
-                                c = mContext.getContentResolver().query(
-                                        EmailContent.Message.CONTENT_URI,
-                                        EmailContent.Message.CONTENT_PROJECTION,
-                                        EmailContent.MessageColumns.ACCOUNT_KEY + "=?" +
-                                        " AND " + MessageColumns.MAILBOX_KEY + "=?" +
-                                        " AND " + SyncColumns.SERVER_ID + "=?",
-                                        new String[] {
-                                                String.valueOf(account.mId),
-                                                String.valueOf(folder.mId),
-                                                String.valueOf(message.getUid())
-                                        },
-                                        null);
-                                if (c.moveToNext()) {
-                                    localMessage = EmailContent.getContent(
-                                            c, EmailContent.Message.class);
-                                }
-                            } finally {
-                                if (c != null) {
-                                    c.close();
-                                }
-                            }
-                            if (localMessage == null) {
-                                Log.d(Email.LOG_TAG, "Could not retrieve message from db, UUID="
-                                        + message.getUid());
-                                return;
-                            }
-
-                            EmailContent.Body body = EmailContent.Body.restoreBodyWithId(
-                                    mContext, localMessage.mId);
-                            if (body == null) {
-                                body = new EmailContent.Body();
-                            }
-                            try {
-                                // Copy the fields that are available into the message object
-                                LegacyConversions.updateMessageFields(localMessage, message,
-                                        account.mId, folder.mId);
-
-                                // Now process body parts & attachments
-                                ArrayList<Part> viewables = new ArrayList<Part>();
-                                ArrayList<Part> attachments = new ArrayList<Part>();
-                                MimeUtility.collectParts(message, viewables, attachments);
-
-                                LegacyConversions.updateBodyFields(body, localMessage, viewables);
-
-                                // Commit the message & body to the local store immediately
-                                saveOrUpdate(localMessage);
-                                saveOrUpdate(body);
-
-                                // process (and save) attachments
-                                LegacyConversions.updateAttachments(mContext, localMessage,
-                                        attachments);
-
-                                // One last update of message with two updated flags
-                                localMessage.mFlagLoaded = EmailContent.Message.LOADED;
-
-                                ContentValues cv = new ContentValues();
-                                cv.put(EmailContent.MessageColumns.FLAG_ATTACHMENT,
-                                        localMessage.mFlagAttachment);
-                                cv.put(EmailContent.MessageColumns.FLAG_LOADED,
-                                        localMessage.mFlagLoaded);
-                                Uri uri = ContentUris.withAppendedId(
-                                        EmailContent.Message.CONTENT_URI, localMessage.mId);
-                                mContext.getContentResolver().update(uri, cv, null, null);
-
-                            } catch (MessagingException me) {
-                                Log.e(Email.LOG_TAG,
-                                        "Error while copying downloaded message." + me);
-                            }
-
-                        } catch (RuntimeException rte) {
-                            Log.e(Email.LOG_TAG,
-                                    "Error while storing downloaded message." + rte.toString());
-                        } catch (IOException ioe) {
-                            Log.e(Email.LOG_TAG,
-                                    "Error while storing attachment." + ioe.toString());
-                        }
+                        // Store the updated message locally and mark it fully loaded
+                        copyOneMessageToProvider(message, account, folder,
+                                EmailContent.Message.LOADED);
                     }
 
                     public void messageStarted(String uid, int number, int ofTotal) {
                     }
         });
 
-        // 14. Download large messages
+        // 14. Download large messages.  We ask the server to give us the message structure,
+        // but not all of the attachments.
+        fp.clear();
+        fp.add(FetchProfile.Item.STRUCTURE);
+        remoteFolder.fetch(largeMessages.toArray(new Message[largeMessages.size()]), fp, null);
+        for (Message message : largeMessages) {
+            if (message.getBody() == null) {
+                // POP doesn't support STRUCTURE mode, so we'll just do a partial download
+                // (hopefully enough to see some/all of the body) and mark the message for 
+                // further download.
+                fp.clear();
+                fp.add(FetchProfile.Item.BODY_SANE);
+                //  TODO a good optimization here would be to make sure that all Stores set
+                //  the proper size after this fetch and compare the before and after size. If
+                //  they equal we can mark this SYNCHRONIZED instead of PARTIALLY_SYNCHRONIZED
+                remoteFolder.fetch(new Message[] { message }, fp, null);
+
+                // Store the partially-loaded message and mark it partially loaded
+                copyOneMessageToProvider(message, account, folder,
+                        EmailContent.Message.PARTIALLY_LOADED);
+            } else {
+                // We have a structure to deal with, from which
+                // we can pull down the parts we want to actually store.
+                // Build a list of parts we are interested in. Text parts will be downloaded
+                // right now, attachments will be left for later.
+                ArrayList<Part> viewables = new ArrayList<Part>();
+                ArrayList<Part> attachments = new ArrayList<Part>();
+                MimeUtility.collectParts(message, viewables, attachments);
+                // Download the viewables immediately
+                for (Part part : viewables) {
+                    fp.clear();
+                    fp.add(part);
+                    // TODO what happens if the network connection dies? We've got partial
+                    // messages with incorrect status stored.
+                    remoteFolder.fetch(new Message[] { message }, fp, null);
+                }
+                // Store the updated message locally and mark it fully loaded
+                copyOneMessageToProvider(message, account, folder, EmailContent.Message.LOADED);
+            }
+        }
 
         // 15. Clean up and report results
 
@@ -964,46 +946,6 @@ public class MessagingController implements Runnable {
 
         // Original sync code.  Using for reference, will delete when done.
         if (false) {
-        /*
-         * Grab the content of the small messages first. This is going to
-         * be very fast and at very worst will be a single up of a few bytes and a single
-         * download of 625k.
-         */
-        fp = new FetchProfile();
-        fp.add(FetchProfile.Item.BODY);
-        remoteFolder.fetch(smallMessages.toArray(new Message[smallMessages.size()]),
-                fp, new MessageRetrievalListener() {
-            public void messageFinished(Message message, int number, int ofTotal) {
-//                try {
-//                    // Store the updated message locally
-//                    localFolder.appendMessages(new Message[] {
-//                        message
-//                    });
-//
-//                    Message localMessage = localFolder.getMessage(message.getUid());
-//
-//                    // Set a flag indicating this message has now be fully downloaded
-//                    localMessage.setFlag(Flag.X_DOWNLOADED_FULL, true);
-//
-//                    // Update the listener with what we've found
-//                    synchronized (mListeners) {
-//                        for (MessagingListener l : mListeners) {
-//                            l.synchronizeMailboxNewMessage(
-//                                    account,
-//                                    folder,
-//                                    localMessage);
-//                        }
-//                    }
-//                }
-//                catch (MessagingException me) {
-//
-//                }
-            }
-
-            public void messageStarted(String uid, int number, int ofTotal) {
-            }
-        });
-
         /*
          * Now do the large messages that require more round trips.
          */
@@ -1097,6 +1039,94 @@ public class MessagingController implements Runnable {
         }
 
         return new StoreSynchronizer.SyncResults(remoteMessageCount, newMessages.size());
+    }
+
+    /**
+     * Copy one downloaded message (which may have partially-loaded sections)
+     * into a provider message
+     *
+     * @param message the remote message we've just downloaded
+     * @param account the account it will be stored into
+     * @param folder the mailbox it will be stored into
+     * @param loadStatus when complete, the message will be marked with this status (e.g.
+     *        EmailContent.Message.LOADED)
+     */
+    private void copyOneMessageToProvider(Message message, EmailContent.Account account,
+            EmailContent.Mailbox folder, int loadStatus) {
+        try {
+            EmailContent.Message localMessage = null;
+            Cursor c = null;
+            try {
+                c = mContext.getContentResolver().query(
+                        EmailContent.Message.CONTENT_URI,
+                        EmailContent.Message.CONTENT_PROJECTION,
+                        EmailContent.MessageColumns.ACCOUNT_KEY + "=?" +
+                        " AND " + MessageColumns.MAILBOX_KEY + "=?" +
+                        " AND " + SyncColumns.SERVER_ID + "=?",
+                        new String[] {
+                                String.valueOf(account.mId),
+                                String.valueOf(folder.mId),
+                                String.valueOf(message.getUid())
+                        },
+                        null);
+                if (c.moveToNext()) {
+                    localMessage = EmailContent.getContent(c, EmailContent.Message.class);
+                }
+            } finally {
+                if (c != null) {
+                    c.close();
+                }
+            }
+            if (localMessage == null) {
+                Log.d(Email.LOG_TAG, "Could not retrieve message from db, UUID="
+                        + message.getUid());
+                return;
+            }
+
+            EmailContent.Body body = EmailContent.Body.restoreBodyWithMessageId(mContext,
+                    localMessage.mId);
+            if (body == null) {
+                body = new EmailContent.Body();
+            }
+            try {
+                // Copy the fields that are available into the message object
+                LegacyConversions.updateMessageFields(localMessage, message, account.mId,
+                        folder.mId);
+
+                // Now process body parts & attachments
+                ArrayList<Part> viewables = new ArrayList<Part>();
+                ArrayList<Part> attachments = new ArrayList<Part>();
+                MimeUtility.collectParts(message, viewables, attachments);
+
+                LegacyConversions.updateBodyFields(body, localMessage, viewables);
+
+                // Commit the message & body to the local store immediately
+                saveOrUpdate(localMessage);
+                saveOrUpdate(body);
+
+                // process (and save) attachments
+                LegacyConversions.updateAttachments(mContext, localMessage,
+                        attachments);
+
+                // One last update of message with two updated flags
+                localMessage.mFlagLoaded = loadStatus;
+
+                ContentValues cv = new ContentValues();
+                cv.put(EmailContent.MessageColumns.FLAG_ATTACHMENT, localMessage.mFlagAttachment);
+                cv.put(EmailContent.MessageColumns.FLAG_LOADED, localMessage.mFlagLoaded);
+                Uri uri = ContentUris.withAppendedId(EmailContent.Message.CONTENT_URI,
+                        localMessage.mId);
+                mContext.getContentResolver().update(uri, cv, null, null);
+
+            } catch (MessagingException me) {
+                Log.e(Email.LOG_TAG, "Error while copying downloaded message." + me);
+            }
+
+        } catch (RuntimeException rte) {
+            Log.e(Email.LOG_TAG, "Error while storing downloaded message." + rte.toString());
+        } catch (IOException ioe) {
+            Log.e(Email.LOG_TAG, "Error while storing attachment." + ioe.toString());
+        }
     }
     
     private void queuePendingCommand(EmailContent.Account account, PendingCommand command) {
@@ -1549,78 +1579,120 @@ public class MessagingController implements Runnable {
     }
 
     /**
-     * Attempts to load the attachment specified by part from the given account and message.
+     * Attempts to load the attachment specified by id from the given account and message.
      * @param account
      * @param message
      * @param part
      * @param listener
      */
-    public void loadAttachment(
-            final EmailContent.Account account,
-            final Message message,
-            final Part part,
-            final Object tag,
-            MessagingListener listener) {
-        /*
-         * Check if the attachment has already been downloaded. If it has there's no reason to
-         * download it, so we just tell the listener that it's ready to go.
-         */
-        try {
-            if (part.getBody() != null) {
-                mListeners.loadAttachmentStarted(account, message, part, tag, false);
-                mListeners.loadAttachmentFinished(account, message, part, tag);
-                return;
-            }
-        }
-        catch (MessagingException me) {
-            /*
-             * If the header isn't there the attachment isn't downloaded yet, so just continue
-             * on.
-             */
-        }
-
-        mListeners.loadAttachmentStarted(account, message, part, tag, true);
+    public void loadAttachment(final long accountId, final long messageId, final long mailboxId,
+            final long attachmentId, MessagingListener listener) {
+        mListeners.loadAttachmentStarted(accountId, messageId, attachmentId, true);
 
         put("loadAttachment", listener, new Runnable() {
             public void run() {
                 try {
-                    LocalStore localStore = (LocalStore) Store.getInstance(
-                            account.getLocalStoreUri(mContext), mContext, null);
-                    /*
-                     * We clear out any attachments already cached in the entire store and then
-                     * we update the passed in message to reflect that there are no cached
-                     * attachments. This is in support of limiting the account to having one
-                     * attachment downloaded at a time.
-                     */
-                    localStore.pruneCachedAttachments();
-                    ArrayList<Part> viewables = new ArrayList<Part>();
-                    ArrayList<Part> attachments = new ArrayList<Part>();
-                    MimeUtility.collectParts(message, viewables, attachments);
-                    for (Part attachment : attachments) {
-                        attachment.setBody(null);
-                    }
-                    Store remoteStore = Store.getInstance(account.getStoreUri(mContext), mContext,
-                            localStore.getPersistentCallbacks());
-                    LocalFolder localFolder =
-                        (LocalFolder) localStore.getFolder(message.getFolder().getName());
-                    Folder remoteFolder = remoteStore.getFolder(message.getFolder().getName());
-                    remoteFolder.open(OpenMode.READ_WRITE, localFolder.getPersistentCallbacks());
+                    // 1.  Pruning.  Policy is to have one downloaded attachment at a time,
+                    // per account, to reduce disk storage pressure.
+                    pruneCachedAttachments(accountId);
 
+                    // 2. Open the remote folder.
+                    // TODO all of these could be narrower projections
+                    EmailContent.Account account =
+                        EmailContent.Account.restoreAccountWithId(mContext, accountId);
+                    EmailContent.Mailbox mailbox =
+                        EmailContent.Mailbox.restoreMailboxWithId(mContext, mailboxId);
+                    EmailContent.Message message =
+                        EmailContent.Message.restoreMessageWithId(mContext, messageId);
+                    Attachment attachment =
+                        Attachment.restoreAttachmentWithId(mContext, attachmentId);
+
+                    Store remoteStore =
+                        Store.getInstance(account.getStoreUri(mContext), mContext, null);
+                    Folder remoteFolder = remoteStore.getFolder(mailbox.mDisplayName);
+                    remoteFolder.open(OpenMode.READ_WRITE, null);
+
+                    // 3. Generate a shell message in which to retrieve the attachment,
+                    // and a shell BodyPart for the attachment.  Then glue them together.
+                    Message storeMessage = remoteFolder.createMessage(message.mServerId);
+                    BodyPart storePart = new MimeBodyPart();
+                    storePart.setHeader(MimeHeader.HEADER_ANDROID_ATTACHMENT_STORE_DATA,
+                            attachment.mLocation);
+                    storePart.setHeader(MimeHeader.HEADER_CONTENT_TYPE,
+                            String.format("%s;\n name=\"%s\"",
+                            attachment.mMimeType,
+                            attachment.mFileName));
+                    // TODO is this always true for attachments?  I think we dropped the
+                    // true encoding along the way
+                    storePart.setHeader(MimeHeader.HEADER_CONTENT_TRANSFER_ENCODING, "base64");
+
+                    MimeMultipart multipart = new MimeMultipart();
+                    multipart.setSubType("mixed");
+                    multipart.addBodyPart(storePart);
+
+                    storeMessage.setHeader(MimeHeader.HEADER_CONTENT_TYPE, "multipart/mixed");
+                    storeMessage.setBody(multipart);
+
+                    // 4. Now ask for the attachment to be fetched
                     FetchProfile fp = new FetchProfile();
-                    fp.add(part);
-                    remoteFolder.fetch(new Message[] { message }, fp, null);
-                    localFolder.updateMessage((LocalMessage)message);
-                    localFolder.close(false);
-                    mListeners.loadAttachmentFinished(account, message, part, tag);
+                    fp.add(storePart);
+                    remoteFolder.fetch(new Message[] { storeMessage }, fp, null);
+
+                    // 5. Save the downloaded file and update the attachment as necessary
+                    LegacyConversions.saveAttachmentBody(mContext, storePart, attachment,
+                            accountId);
+
+                    // 6. Report success
+                    mListeners.loadAttachmentFinished(accountId, messageId, attachmentId);
                 }
                 catch (MessagingException me) {
-                    if (Email.LOGD) {
-                        Log.v(Email.LOG_TAG, "", me);
+                    if (Email.LOGD) Log.v(Email.LOG_TAG, "", me);
+                    mListeners.loadAttachmentFailed(accountId, messageId, attachmentId,
+                            me.getMessage());
+                } catch (IOException ioe) {
+                    Log.e(Email.LOG_TAG, "Error while storing attachment." + ioe.toString());
+                }
+            }});
+    }
+
+    /**
+     * Erase all stored attachments for a given account.  Rules:
+     *   1.  All files in attachment directory are up for deletion
+     *   2.  If filename does not match an known attachment id, it's deleted
+     *   3.  If the attachment has location data (implying that it's reloadable), it's deleted
+     */
+    /* package */ void pruneCachedAttachments(long accountId) {
+        ContentResolver resolver = mContext.getContentResolver();
+        File cacheDir = AttachmentProvider.getAttachmentDirectory(mContext, accountId);
+        for (File file : cacheDir.listFiles()) {
+            if (file.exists()) {
+                long id;
+                try {
+                    // the name of the file == the attachment id
+                    id = Long.valueOf(file.getName());
+                    Uri uri = ContentUris.withAppendedId(Attachment.CONTENT_URI, id);
+                    Cursor c = resolver.query(uri, PRUNE_ATTACHMENT_PROJECTION, null, null, null);
+                    try {
+                        if (c.moveToNext()) {
+                            // if there is no way to reload the attachment, don't delete it
+                            if (c.getString(0) == null) {
+                                continue;
+                            }
+                        }
+                    } finally {
+                        c.close();
                     }
-                    mListeners.loadAttachmentFailed(account, message, part, tag, me.getMessage());
+                    // Clear the content URI field since we're losing the attachment
+                    resolver.update(uri, PRUNE_ATTACHMENT_CV, null, null);
+                } catch (NumberFormatException nfe) {
+                    // ignore filename != number error, and just delete it anyway
+                }
+                // This file can be safely deleted
+                if (!file.delete()) {
+                    file.deleteOnExit();
                 }
             }
-        });
+        }
     }
 
     /**
