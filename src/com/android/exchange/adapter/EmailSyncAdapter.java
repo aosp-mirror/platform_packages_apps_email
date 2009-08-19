@@ -22,11 +22,13 @@ import com.android.email.activity.MessageList;
 import com.android.email.mail.Address;
 import com.android.email.provider.EmailContent;
 import com.android.email.provider.EmailProvider;
+import com.android.email.provider.EmailContent.Account;
 import com.android.email.provider.EmailContent.Attachment;
 import com.android.email.provider.EmailContent.Mailbox;
 import com.android.email.provider.EmailContent.Message;
 import com.android.email.provider.EmailContent.MessageColumns;
 import com.android.email.provider.EmailContent.SyncColumns;
+import com.android.email.service.MailService;
 import com.android.exchange.Eas;
 import com.android.exchange.EasSyncService;
 
@@ -465,31 +467,29 @@ public class EmailSyncAdapter extends AbstractSyncAdapter {
                 }
             }
 
-            // TODO Remove this temporary notification code
+            // TODO: This should be implemented using an "add to unread messages" URI,
+            // and then it could be handled in the previous section as just another "op"
+            int totalNewCount = 0;
             if (notifyCount > 0) {
-                NotificationManager notifMgr =
-                    (NotificationManager)mContext.getSystemService(Context.NOTIFICATION_SERVICE);
-                Notification notif = new Notification(R.drawable.stat_notify_email_generic,
-                        mContext.getString(R.string.notification_new_title),
-                        System.currentTimeMillis());
-                Intent i = MessageList.actionHandleAccountIntent(mContext, mAccount.mId, -1,
-                        Mailbox.TYPE_INBOX);
-                PendingIntent pi = PendingIntent.getActivity(mContext, 0, i, 0);
-                notif.setLatestEventInfo(mContext,
-                        mContext.getString(R.string.notification_new_title),
-                        "You've got new mail!", pi);
-                boolean vibrate = ((mAccount.getFlags() & EmailContent.Account.FLAGS_VIBRATE) != 0);
-                String ringtone = mAccount.getRingtone();
-                notif.flags = Notification.FLAG_SHOW_LIGHTS;
-                notif.sound = TextUtils.isEmpty(ringtone) ? null : Uri.parse(ringtone);
-                notif.ledARGB = 0xFF00FF00;
-                notif.ledOnMS = 500;
-                notif.ledOffMS = 500;
-                if (vibrate) {
-                    notif.defaults |= Notification.DEFAULT_VIBRATE;
+                Uri uri = ContentUris.withAppendedId(Account.CONTENT_URI, mAccount.mId);
+                Cursor c = mContentResolver.query(uri,
+                        new String[] { Account.NEW_MESSAGE_COUNT }, null, null, null);
+                try {
+                    if (c.moveToNext()) {
+                        int oldCount = c.getInt(0);
+                        ContentValues cv = new ContentValues();
+                        totalNewCount = oldCount + notifyCount;
+                        cv.put(Account.NEW_MESSAGE_COUNT, totalNewCount);
+                        mContentResolver.update(uri, cv, null, null);
+                    }
+                } finally {
+                    c.close();
                 }
-                notifMgr.notify(1, notif);
-             }
+            }
+
+            if (totalNewCount > 0) {
+                MailService.actionNotifyNewMessages(mContext, mAccount.mId, totalNewCount);
+            }
         }
     }
 
