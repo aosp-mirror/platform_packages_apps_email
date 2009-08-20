@@ -17,8 +17,8 @@
 
 package com.android.exchange.adapter;
 
-import com.android.email.provider.EmailProvider;
 import com.android.email.provider.EmailContent;
+import com.android.email.provider.EmailProvider;
 import com.android.email.provider.EmailContent.Account;
 import com.android.email.provider.EmailContent.AccountColumns;
 import com.android.email.provider.EmailContent.Mailbox;
@@ -238,7 +238,7 @@ public class FolderSyncParser extends AbstractSyncParser {
                 case CONTACTS_TYPE:
                     m.mType = Mailbox.TYPE_CONTACTS;
                     // TODO Frequency below should depend on settings
-                    //m.mSyncInterval = Mailbox.CHECK_INTERVAL_PUSH;
+                    m.mSyncInterval = Mailbox.CHECK_INTERVAL_PUSH;
                     break;
             }
 
