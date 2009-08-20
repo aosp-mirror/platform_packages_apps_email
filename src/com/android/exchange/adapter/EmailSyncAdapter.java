@@ -18,8 +18,10 @@
 package com.android.exchange.adapter;
 
 import com.android.email.mail.Address;
+import com.android.email.provider.EmailContent;
 import com.android.email.provider.EmailProvider;
 import com.android.email.provider.EmailContent.Account;
+import com.android.email.provider.EmailContent.AccountColumns;
 import com.android.email.provider.EmailContent.Attachment;
 import com.android.email.provider.EmailContent.Mailbox;
 import com.android.email.provider.EmailContent.Message;
@@ -464,28 +466,17 @@ public class EmailSyncAdapter extends AbstractSyncAdapter {
                 }
             }
 
-            // TODO: This should be implemented using an "add to unread messages" URI,
-            // and then it could be handled in the previous section as just another "op"
-            int totalNewCount = 0;
             if (notifyCount > 0) {
-                Uri uri = ContentUris.withAppendedId(Account.CONTENT_URI, mAccount.mId);
-                Cursor c = mContentResolver.query(uri,
-                        new String[] { Account.NEW_MESSAGE_COUNT }, null, null, null);
-                try {
-                    if (c.moveToNext()) {
-                        int oldCount = c.getInt(0);
-                        ContentValues cv = new ContentValues();
-                        totalNewCount = oldCount + notifyCount;
-                        cv.put(Account.NEW_MESSAGE_COUNT, totalNewCount);
-                        mContentResolver.update(uri, cv, null, null);
-                    }
-                } finally {
-                    c.close();
-                }
-            }
-
-            if (totalNewCount > 0) {
-                MailService.actionNotifyNewMessages(mContext, mAccount.mId, totalNewCount);
+                // Use the new atomic add URI in EmailProvider
+                // We could add this to the operations being done, but it's not strictly
+                // speaking necessary, as the previous batch preserves the integrity of the
+                // database, whereas this is purely for notification purposes, and is itself atomic
+                ContentValues cv = new ContentValues();
+                cv.put(EmailContent.FIELD_COLUMN_NAME, AccountColumns.NEW_MESSAGE_COUNT);
+                cv.put(EmailContent.ADD_COLUMN_NAME, notifyCount);
+                Uri uri = ContentUris.withAppendedId(Account.ADD_TO_FIELD_URI, mAccount.mId);
+                mContentResolver.update(uri, cv, null, null);
+                MailService.actionNotifyNewMessages(mContext, mAccount.mId);
             }
         }
     }

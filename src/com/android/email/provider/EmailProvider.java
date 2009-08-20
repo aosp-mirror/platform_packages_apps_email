@@ -66,11 +66,13 @@ public class EmailProvider extends ContentProvider {
     private static final int ACCOUNT = ACCOUNT_BASE;
     private static final int ACCOUNT_MAILBOXES = ACCOUNT_BASE + 1;
     private static final int ACCOUNT_ID = ACCOUNT_BASE + 2;
+    private static final int ACCOUNT_ID_ADD_TO_FIELD = ACCOUNT_BASE + 3;
 
     private static final int MAILBOX_BASE = 0x1000;
     private static final int MAILBOX = MAILBOX_BASE;
     private static final int MAILBOX_MESSAGES = MAILBOX_BASE + 1;
     private static final int MAILBOX_ID = MAILBOX_BASE + 2;
+    private static final int MAILBOX_ID_ADD_TO_FIELD = MAILBOX_BASE + 3;
 
     private static final int MESSAGE_BASE = 0x2000;
     private static final int MESSAGE = MESSAGE_BASE;
@@ -146,6 +148,8 @@ public class EmailProvider extends ContentProvider {
     private static final String DELETE_BODY = "delete from " + Body.TABLE_NAME +
         " where " + BodyColumns.MESSAGE_KEY + '=';
 
+    private static final String ID_EQUALS = EmailContent.RECORD_ID + "=?";
+
     static {
         // Email URI matching table
         UriMatcher matcher = sURIMatcher;
@@ -199,9 +203,13 @@ public class EmailProvider extends ContentProvider {
         // A specific hostauth
         matcher.addURI(EMAIL_AUTHORITY, "hostauth/#", HOSTAUTH_ID);
 
+        // Atomically a constant value to a particular field of a mailbox/account
+        matcher.addURI(EMAIL_AUTHORITY, "mailboxIdAddToField/#", MAILBOX_ID_ADD_TO_FIELD);
+        matcher.addURI(EMAIL_AUTHORITY, "accountIdAddToField/#", ACCOUNT_ID_ADD_TO_FIELD);
+
         /**
          * THIS URI HAS SPECIAL SEMANTICS
-         * ITS USE IS INDENTED FOR THE UI APPLICATION TO MARK CHANGES THAT NEED TO BE SYNCED BACK
+         * ITS USE IS INTENDED FOR THE UI APPLICATION TO MARK CHANGES THAT NEED TO BE SYNCED BACK
          * TO A SERVER VIA A SYNC ADAPTER
          */
         matcher.addURI(EMAIL_AUTHORITY, "syncedMessage/#", SYNCED_MESSAGE_ID);
@@ -876,7 +884,40 @@ public class EmailProvider extends ContentProvider {
             values.remove(MailboxColumns.UNREAD_COUNT);
         }
 
+        String id;
         switch (match) {
+            case MAILBOX_ID_ADD_TO_FIELD:
+            case ACCOUNT_ID_ADD_TO_FIELD:
+                if (!mInTransaction) {
+                    db.beginTransaction();
+                }
+                id = uri.getPathSegments().get(1);
+                String field = values.getAsString(EmailContent.FIELD_COLUMN_NAME);
+                Long add = values.getAsLong(EmailContent.ADD_COLUMN_NAME);
+                if (field == null || add == null) {
+                    throw new IllegalArgumentException("No field/add specified " + uri);
+                }
+                Cursor c = db.query(TABLE_NAMES[table],
+                        new String[] {EmailContent.RECORD_ID, field}, whereWithId(id, selection),
+                        selectionArgs, null, null, null);
+                try {
+                    result = 0;
+                    ContentValues cv = new ContentValues();
+                    String[] bind = new String[1];
+                    while (c.moveToNext()) {
+                        bind[0] = c.getString(0);
+                        long value = c.getLong(1) + add;
+                        cv.put(field, value);
+                        result = db.update(TABLE_NAMES[table], cv, ID_EQUALS, bind);
+                    }
+                } finally {
+                    c.close();
+                }
+                if (!mInTransaction) {
+                    db.setTransactionSuccessful();
+                    db.endTransaction();
+                }
+                break;
             case BODY_ID:
             case MESSAGE_ID:
             case SYNCED_MESSAGE_ID:
@@ -885,7 +926,7 @@ public class EmailProvider extends ContentProvider {
             case MAILBOX_ID:
             case ACCOUNT_ID:
             case HOSTAUTH_ID:
-                String id = uri.getPathSegments().get(1);
+                id = uri.getPathSegments().get(1);
                 if (match == SYNCED_MESSAGE_ID) {
                     // For synced messages, first copy the old message to the updated table
                     // Note the insert or ignore semantics, guaranteeing that only the first

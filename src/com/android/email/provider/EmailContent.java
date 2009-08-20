@@ -70,6 +70,9 @@ public abstract class EmailContent {
     };
     private static final int ID_PROJECTION_COLUMN = 0;
 
+    public static final String FIELD_COLUMN_NAME = "field";
+    public static final String ADD_COLUMN_NAME = "add";
+
     // Newly created objects get this id
     private static final int NOT_SAVED = -1;
     // The base Uri that this piece of content came from
@@ -275,7 +278,7 @@ public abstract class EmailContent {
          * If the message has no body, a new body is inserted for the message.
          * Warning: the argument "values" is modified by this method, setting MESSAGE_KEY.
          */
-        public static void updateBodyWithMessageId(Context context, long messageId, 
+        public static void updateBodyWithMessageId(Context context, long messageId,
                 ContentValues values) {
             ContentResolver resolver = context.getContentResolver();
             long bodyId = lookupBodyIdWithMessageId(resolver, messageId);
@@ -754,7 +757,6 @@ public abstract class EmailContent {
                             return b;
                         }
                     }
-
                 }
                 return null;
             }
@@ -797,7 +799,8 @@ public abstract class EmailContent {
     public static final class Account extends EmailContent implements AccountColumns, Parcelable {
         public static final String TABLE_NAME = "Account";
         public static final Uri CONTENT_URI = Uri.parse(EmailContent.CONTENT_URI + "/account");
-
+        public static final Uri ADD_TO_FIELD_URI =
+            Uri.parse(EmailContent.CONTENT_URI + "/accountIdAddToField");
 
         public final static int FLAGS_NOTIFY_NEW_MAIL = 1;
         public final static int FLAGS_VIBRATE = 2;
@@ -1750,6 +1753,8 @@ public abstract class EmailContent {
     public static final class Mailbox extends EmailContent implements SyncColumns, MailboxColumns {
         public static final String TABLE_NAME = "Mailbox";
         public static final Uri CONTENT_URI = Uri.parse(EmailContent.CONTENT_URI + "/mailbox");
+        public static final Uri ADD_TO_FIELD_URI =
+            Uri.parse(EmailContent.CONTENT_URI + "/mailboxIdAddToField");
 
         public String mDisplayName;
         public String mServerId;

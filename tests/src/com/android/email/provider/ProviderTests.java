@@ -445,7 +445,7 @@ public class ProviderTests extends ProviderTestCase2<EmailProvider> {
 
         // 3. delete first message
         resolver.delete(ContentUris.withAppendedId(Message.CONTENT_URI, message1Id), null, null);
-        
+
         // 4. verify body for second message wasn't deleted
         assertNotNull(loadBodyForMessageId(message2Id));
 
@@ -483,7 +483,6 @@ public class ProviderTests extends ProviderTestCase2<EmailProvider> {
                 true, mMockContext);
         long message2Id = message2.mId;
         //verify body is there
-        Body body = loadBodyForMessageId(message2Id);
         assertNotNull(loadBodyForMessageId(message2Id));
 
         // 3. delete first message
@@ -1029,5 +1028,35 @@ public class ProviderTests extends ProviderTestCase2<EmailProvider> {
             + " on " + Message.TABLE_NAME + " (" + MessageColumns.TIMESTAMP + ");";
         String newStr = EmailProvider.createIndex(Message.TABLE_NAME, MessageColumns.TIMESTAMP);
         assertEquals(newStr, oldStr);
+    }
+
+    public void testIdAddToField() {
+        ContentResolver cr = mMockContext.getContentResolver();
+        ContentValues cv = new ContentValues();
+
+        // Try changing the newMessageCount of an account
+        Account account = ProviderTestUtils.setupAccount("field-add", true, mMockContext);
+        int startCount = account.mNewMessageCount;
+        // "field" and "add" are the two required elements
+        cv.put(EmailContent.FIELD_COLUMN_NAME, AccountColumns.NEW_MESSAGE_COUNT);
+        cv.put(EmailContent.ADD_COLUMN_NAME, 17);
+        cr.update(ContentUris.withAppendedId(Account.ADD_TO_FIELD_URI, account.mId),
+                cv, null, null);
+        Account restoredAccount = Account.restoreAccountWithId(mMockContext, account.mId);
+        assertEquals(17 + startCount, restoredAccount.mNewMessageCount);
+        cv.put(EmailContent.ADD_COLUMN_NAME, -11);
+        cr.update(ContentUris.withAppendedId(Account.ADD_TO_FIELD_URI, account.mId),
+                cv, null, null);
+        restoredAccount = Account.restoreAccountWithId(mMockContext, account.mId);
+        assertEquals(17 - 11 + startCount, restoredAccount.mNewMessageCount);
+
+        // Now try with a mailbox
+        Mailbox boxA = ProviderTestUtils.setupMailbox("boxA", account.mId, true, mMockContext);
+        assertEquals(0, boxA.mUnreadCount);
+        cv.put(EmailContent.FIELD_COLUMN_NAME, MailboxColumns.UNREAD_COUNT);
+        cv.put(EmailContent.ADD_COLUMN_NAME, 11);
+        cr.update(ContentUris.withAppendedId(Mailbox.ADD_TO_FIELD_URI, boxA.mId), cv, null, null);
+        Mailbox restoredBoxA = Mailbox.restoreMailboxWithId(mMockContext, boxA.mId);
+        assertEquals(11, restoredBoxA.mUnreadCount);
     }
 }
