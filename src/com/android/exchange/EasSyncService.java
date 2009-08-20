@@ -185,7 +185,7 @@ public class EasSyncService extends AbstractSyncService {
      * @param code the HTTP code returned by the server
      * @return whether or not the code represents an authentication error
      */
-    private boolean isAuthError(int code) {
+    protected boolean isAuthError(int code) {
         return ((code == HttpStatus.SC_UNAUTHORIZED) || (code == HttpStatus.SC_FORBIDDEN));
     }
 

@@ -178,7 +178,7 @@ public class Controller {
         if (service != null) {
             // Service implementation
 //            try {
-                // TODO this isn't quite going to work, because we're going to get the 
+                // TODO this isn't quite going to work, because we're going to get the
                 // generic (UI) callbacks and not the ones we need to restart the ol' service.
                 // service.startSync(mailboxId, tag);
                 callback.serviceCheckMailCallback(null, accountId, mailboxId, 100, tag);
@@ -345,7 +345,7 @@ public class Controller {
 
     /**
      * Try to send all pending messages for a given account
-     * 
+     *
      * @param accountId the account for which to send messages (-1 for all accounts)
      * @param callback
      */
@@ -777,7 +777,8 @@ public class Controller {
             }
         }
 
-        public void sendMessageStatus(long messageId, int statusCode, int progress) {
+        public void sendMessageStatus(long messageId, String subject, int statusCode,
+                int progress) {
             // TODO Auto-generated method stub
 
         }
