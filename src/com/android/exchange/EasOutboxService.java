@@ -32,6 +32,7 @@ import android.content.ContentUris;
 import android.content.ContentValues;
 import android.content.Context;
 import android.database.Cursor;
+import android.os.RemoteException;
 
 import java.io.File;
 import java.io.FileInputStream;
@@ -49,6 +50,14 @@ public class EasOutboxService extends EasSyncService {
         mContext = _context;
     }
 
+    private void sendCallback(long msgId, String subject, int status) {
+        try {
+            SyncManager.callback().sendMessageStatus(msgId, subject, status, 0);
+        } catch (RemoteException e) {
+            // It's all good
+        }
+    }
+
     /**
      * Send a single message via EAS
      * Note that we mark messages SEND_FAILED when there is a permanent failure, rather than an
@@ -59,6 +68,7 @@ public class EasOutboxService extends EasSyncService {
      * @throws IOException
      */
     void sendMessage(File cacheDir, long msgId) throws IOException, MessagingException {
+        sendCallback(msgId, null, EmailServiceStatus.IN_PROGRESS);
         File tmpFile = File.createTempFile("eas_", "tmp", cacheDir);
         // Write the output to a temporary file
         try {
@@ -76,18 +86,29 @@ public class EasOutboxService extends EasSyncService {
             int code = resp.getStatusLine().getStatusCode();
             if (code == HttpStatus.SC_OK) {
                 userLog("Deleting message...");
+                // Yes it would be marginally faster to get only the subject, but it would also
+                // be more code; note, we need the subject for the callback below, since the
+                // message gets deleted just below.  This allows the UI to present the subject
+                // of the message in a Toast or other notification
+                Message msg = Message.restoreMessageWithId(mContext, msgId);
                 mContext.getContentResolver().delete(ContentUris.withAppendedId(
                         Message.CONTENT_URI, msgId), null, null);
+                sendCallback(-1, msg.mSubject, EmailServiceStatus.SUCCESS);
             } else {
-                // This case handles post-connection failures (i.e. errors coming back from the
-                // server)
-                // TODO Handle login failures?
                 ContentValues cv = new ContentValues();
                 cv.put(SyncColumns.SERVER_ID, SEND_FAILED);
                 Message.update(mContext, Message.CONTENT_URI, msgId, cv);
+                // TODO REMOTE_EXCEPTION is temporary; add better error codes
+                int result = EmailServiceStatus.REMOTE_EXCEPTION;
+                if (isAuthError(code)) {
+                    result = EmailServiceStatus.LOGIN_FAILED;
+                }
+                sendCallback(msgId, null, result);
             }
-            // TODO Implement the upcoming EmailServiceCallback for messageSent
-            // sendMessageResult(messageId, result);
+        } catch (IOException e) {
+            // We catch this just to send the callback
+            sendCallback(msgId, null, EmailServiceStatus.CONNECTION_ERROR);
+            throw e;
         } finally {
             // Clean up the temporary file
             if (tmpFile.exists()) {

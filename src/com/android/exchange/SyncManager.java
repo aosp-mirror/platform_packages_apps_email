@@ -203,11 +203,11 @@ public class SyncManager extends Service implements Runnable {
             }
         }
 
-        public void sendMessageStatus(long messageId, int statusCode, int progress)
+        public void sendMessageStatus(long messageId, String subject, int statusCode, int progress)
                 throws RemoteException {
             IEmailServiceCallback cb = INSTANCE == null ? null: INSTANCE.mCallback;
             if (cb != null) {
-                cb.sendMessageStatus(messageId, statusCode, progress);
+                cb.sendMessageStatus(messageId, subject, statusCode, progress);
             }
         }
 

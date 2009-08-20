@@ -64,5 +64,5 @@ oneway interface IEmailServiceCallback {
      * statusCode = 0 for OK, 1 for progress, other codes for error
      * progress = 0 for "start", 1..100 for optional progress reports
      */
-    void sendMessageStatus(long messageId, int statusCode, int progress);
+    void sendMessageStatus(long messageId, String subject, int statusCode, int progress);
 }
