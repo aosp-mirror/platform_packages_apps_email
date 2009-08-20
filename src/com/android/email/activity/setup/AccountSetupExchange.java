@@ -48,6 +48,7 @@ import java.net.URISyntaxException;
 public class AccountSetupExchange extends Activity implements OnClickListener {
     private static final String EXTRA_ACCOUNT = "account";
     private static final String EXTRA_MAKE_DEFAULT = "makeDefault";
+    private static final String EXTRA_EAS_FLOW = "easFlow";
 
     private EditText mUsernameView;
     private EditText mPasswordView;
@@ -60,10 +61,11 @@ public class AccountSetupExchange extends Activity implements OnClickListener {
     private boolean mMakeDefault;
 
     public static void actionIncomingSettings(Activity fromActivity, EmailContent.Account account,
-            boolean makeDefault) {
+            boolean makeDefault, boolean easFlowMode) {
         Intent i = new Intent(fromActivity, AccountSetupExchange.class);
         i.putExtra(EXTRA_ACCOUNT, account);
         i.putExtra(EXTRA_MAKE_DEFAULT, makeDefault);
+        i.putExtra(EXTRA_EAS_FLOW, easFlowMode);
         fromActivity.startActivity(i);
     }
 
@@ -217,7 +219,8 @@ public class AccountSetupExchange extends Activity implements OnClickListener {
                 finish();
             } else {
                 // Go directly to end - there is no 2nd screen for incoming settings
-                AccountSetupOptions.actionOptions(this, mAccount, mMakeDefault);
+                boolean easFlowMode = getIntent().getBooleanExtra(EXTRA_EAS_FLOW, false);
+                AccountSetupOptions.actionOptions(this, mAccount, mMakeDefault, easFlowMode);
                 finish();
             }
         }

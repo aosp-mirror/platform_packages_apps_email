@@ -28,6 +28,7 @@ import com.android.email.provider.EmailContent.Account;
 import android.app.Activity;
 import android.app.AlertDialog;
 import android.app.Dialog;
+import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.res.XmlResourceParser;
@@ -61,7 +62,10 @@ import java.net.URISyntaxException;
 public class AccountSetupBasics extends Activity
         implements OnClickListener, TextWatcher {
     private final static boolean ENTER_DEBUG_SCREEN = true;
+
     private final static String EXTRA_ACCOUNT = "com.android.email.AccountSetupBasics.account";
+    private final static String EXTRA_EAS_FLOW = "com.android.email.extra.eas_flow";
+
     private final static int DIALOG_NOTE = 1;
     private final static String STATE_KEY_PROVIDER =
         "com.android.email.AccountSetupBasics.provider";
@@ -77,12 +81,23 @@ public class AccountSetupBasics extends Activity
     private Button mManualSetupButton;
     private EmailContent.Account mAccount;
     private Provider mProvider;
+    private boolean mEasFlowMode;
 
     private EmailAddressValidator mEmailValidator = new EmailAddressValidator();
 
     public static void actionNewAccount(Activity fromActivity) {
         Intent i = new Intent(fromActivity, AccountSetupBasics.class);
         fromActivity.startActivity(i);
+    }
+
+    /**
+     * This creates an intent that can be used to start a self-contained account creation flow
+     * for exchange accounts.
+     */
+    public static Intent actionSetupExchangeIntent(Context context) {
+        Intent i = new Intent(context, AccountSetupBasics.class);
+        i.putExtra(EXTRA_EAS_FLOW, true);
+        return i;
     }
 
     @Override
@@ -117,6 +132,12 @@ public class AccountSetupBasics extends Activity
             if (c != null) {
                 c.close();
             }
+        }
+
+        mEasFlowMode = getIntent().getBooleanExtra(EXTRA_EAS_FLOW, false);
+        if (mEasFlowMode) {
+            mManualSetupButton.setVisibility(View.GONE);
+            // TODO: probably need different text here
         }
 
         if (savedInstanceState != null && savedInstanceState.containsKey(EXTRA_ACCOUNT)) {
@@ -297,6 +318,13 @@ public class AccountSetupBasics extends Activity
         }
     }
 
+    /**
+     * This is used in automatic setup mode to jump directly down to the names screen.
+     *
+     * NOTE:  With this organization, it is *not* possible to auto-create an exchange account,
+     * because certain necessary actions happen during AccountSetupOptions (which we are
+     * skipping here).
+     */
     @Override
     public void onActivityResult(int requestCode, int resultCode, Intent data) {
         if (resultCode == RESULT_OK) {
@@ -308,7 +336,7 @@ public class AccountSetupBasics extends Activity
             // From now on we'll only pass the accountId around.
             mAccount.save(this);
             Email.setServicesEnabled(this);
-            AccountSetupNames.actionSetNames(this, mAccount.mId);
+            AccountSetupNames.actionSetNames(this, mAccount.mId, false);
             finish();
         }
     }
@@ -352,7 +380,8 @@ public class AccountSetupBasics extends Activity
 */
         mAccount.setSyncInterval(DEFAULT_ACCOUNT_CHECK_INTERVAL);
 
-        AccountSetupAccountType.actionSelectAccountType(this, mAccount, mDefaultView.isChecked());
+        AccountSetupAccountType.actionSelectAccountType(this, mAccount, mDefaultView.isChecked(),
+                mEasFlowMode);
         finish();
     }
 

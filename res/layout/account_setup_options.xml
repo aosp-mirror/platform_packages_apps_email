@@ -52,6 +52,12 @@
         android:layout_height="wrap_content"
         android:layout_width="fill_parent"
         android:text="@string/account_setup_options_notify_label" />
+    <CheckBox
+        android:id="@+id/account_sync_contacts"
+        android:layout_height="wrap_content"
+        android:layout_width="fill_parent"
+        android:text="@string/account_setup_options_sync_contacts_label"
+        android:visibility="gone" />
     <View
         android:layout_width="fill_parent"
         android:layout_height="0px"

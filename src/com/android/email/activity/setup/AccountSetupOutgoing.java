@@ -257,7 +257,7 @@ public class AccountSetupOutgoing extends Activity implements OnClickListener,
                 }
                 finish();
             } else {
-                AccountSetupOptions.actionOptions(this, mAccount, mMakeDefault);
+                AccountSetupOptions.actionOptions(this, mAccount, mMakeDefault, false);
                 finish();
             }
         }

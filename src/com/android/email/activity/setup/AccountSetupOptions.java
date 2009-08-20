@@ -35,18 +35,22 @@ public class AccountSetupOptions extends Activity implements OnClickListener {
 
     private static final String EXTRA_ACCOUNT = "account";
     private static final String EXTRA_MAKE_DEFAULT = "makeDefault";
+    private static final String EXTRA_EAS_FLOW = "easFlow";
 
     private Spinner mCheckFrequencyView;
     private Spinner mSyncWindowView;
     private CheckBox mDefaultView;
     private CheckBox mNotifyView;
+    private CheckBox mSyncContactsView;
     private EmailContent.Account mAccount;
+    private boolean mEasFlowMode;
 
     public static void actionOptions(Activity fromActivity, EmailContent.Account account,
-            boolean makeDefault) {
+            boolean makeDefault, boolean easFlowMode) {
         Intent i = new Intent(fromActivity, AccountSetupOptions.class);
         i.putExtra(EXTRA_ACCOUNT, account);
         i.putExtra(EXTRA_MAKE_DEFAULT, makeDefault);
+        i.putExtra(EXTRA_EAS_FLOW, easFlowMode);
         fromActivity.startActivity(i);
     }
 
@@ -59,6 +63,7 @@ public class AccountSetupOptions extends Activity implements OnClickListener {
         mSyncWindowView = (Spinner) findViewById(R.id.account_sync_window);
         mDefaultView = (CheckBox)findViewById(R.id.account_default);
         mNotifyView = (CheckBox)findViewById(R.id.account_notify);
+        mSyncContactsView = (CheckBox) findViewById(R.id.account_sync_contacts);
 
         findViewById(R.id.next).setOnClickListener(this);
 
@@ -105,6 +110,14 @@ public class AccountSetupOptions extends Activity implements OnClickListener {
                 (mAccount.getFlags() & EmailContent.Account.FLAGS_NOTIFY_NEW_MAIL) != 0);
         SpinnerOption.setSpinnerOptionValue(mCheckFrequencyView, mAccount
                 .getSyncInterval());
+
+        // Setup any additional items to support EAS & EAS flow mode
+        mEasFlowMode = getIntent().getBooleanExtra(EXTRA_EAS_FLOW, false);
+        if ("eas".equals(info.mScheme)) {
+            // "also sync contacts" == "true"
+            mSyncContactsView.setVisibility(View.VISIBLE);
+            mSyncContactsView.setChecked(true);
+        }
     }
 
     private void onDone() {
@@ -121,14 +134,17 @@ public class AccountSetupOptions extends Activity implements OnClickListener {
             mAccount.setSyncLookback(window);
         }
         mAccount.setDefaultAccount(mDefaultView.isChecked());
-        // EAS needs a hook to store account information for use by AccountManager
-        if (!mAccount.isSaved() && mAccount.mHostAuthRecv != null
+
+        // Call EAS to store account information for use by AccountManager
+        if (!mAccount.isSaved()
+                && mAccount.mHostAuthRecv != null
                 && mAccount.mHostAuthRecv.mProtocol.equals("eas")) {
-            ExchangeStore.addSystemAccount(this, mAccount);
+            boolean alsoSyncContacts = mEasFlowMode && mSyncContactsView.isChecked();
+            ExchangeStore.addSystemAccount(this, mAccount, alsoSyncContacts);
         }
         AccountSettingsUtils.commitSettings(this, mAccount);
         Email.setServicesEnabled(this);
-        AccountSetupNames.actionSetNames(this, mAccount.mId);
+        AccountSetupNames.actionSetNames(this, mAccount.mId, mEasFlowMode);
         finish();
     }
 
