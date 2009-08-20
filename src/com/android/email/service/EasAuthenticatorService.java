@@ -27,10 +27,12 @@ import android.accounts.AccountManager;
 import android.accounts.Constants;
 import android.accounts.NetworkErrorException;
 import android.app.Service;
+import android.content.ContentResolver;
 import android.content.Context;
 import android.content.Intent;
 import android.os.Bundle;
 import android.os.IBinder;
+import android.provider.ContactsContract;
 
 /**
  * A very basic authenticator service for EAS.  At the moment, it has no UI hooks.  When called
@@ -40,6 +42,7 @@ import android.os.IBinder;
 public class EasAuthenticatorService extends Service {
     public static final String OPTIONS_USERNAME = "username";
     public static final String OPTIONS_PASSWORD = "password";
+    public static final String OPTIONS_CONTACTS_SYNC_ENABLED = "contacts";
 
     class EasAuthenticator extends AbstractAccountAuthenticator {
         public EasAuthenticator(Context context) {
@@ -59,6 +62,18 @@ public class EasAuthenticatorService extends Service {
                         Eas.ACCOUNT_MANAGER_TYPE);
                 AccountManager.get(EasAuthenticatorService.this).addAccountExplicitly(
                             account, options.getString(OPTIONS_PASSWORD), null);
+
+                // Set up contacts syncing.  SyncManager will use information from ContentResolver
+                // to determine syncability of Contacts for Exchange
+                boolean syncContacts = false;
+                if (options.containsKey(OPTIONS_CONTACTS_SYNC_ENABLED) &&
+                        options.getBoolean(OPTIONS_CONTACTS_SYNC_ENABLED)) {
+                    syncContacts = true;
+                }
+                ContentResolver.setIsSyncable(account,
+                        ContactsContract.AUTHORITY, syncContacts ? 1 : 0);
+                ContentResolver.setSyncAutomatically(account,
+                        ContactsContract.AUTHORITY, syncContacts);
 
                 // Make sure the SyncManager is running
                 Service service = EasAuthenticatorService.this;
