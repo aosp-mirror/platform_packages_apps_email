@@ -67,7 +67,8 @@ public class EasOutboxService extends EasSyncService {
      * @param msgId the _id of the message to send
      * @throws IOException
      */
-    void sendMessage(File cacheDir, long msgId) throws IOException, MessagingException {
+    int sendMessage(File cacheDir, long msgId) throws IOException, MessagingException {
+        int result;
         sendCallback(msgId, null, EmailServiceStatus.IN_PROGRESS);
         File tmpFile = File.createTempFile("eas_", "tmp", cacheDir);
         // Write the output to a temporary file
@@ -93,17 +94,19 @@ public class EasOutboxService extends EasSyncService {
                 Message msg = Message.restoreMessageWithId(mContext, msgId);
                 mContext.getContentResolver().delete(ContentUris.withAppendedId(
                         Message.CONTENT_URI, msgId), null, null);
+                result = EmailServiceStatus.SUCCESS;
                 sendCallback(-1, msg.mSubject, EmailServiceStatus.SUCCESS);
             } else {
                 ContentValues cv = new ContentValues();
                 cv.put(SyncColumns.SERVER_ID, SEND_FAILED);
                 Message.update(mContext, Message.CONTENT_URI, msgId, cv);
                 // TODO REMOTE_EXCEPTION is temporary; add better error codes
-                int result = EmailServiceStatus.REMOTE_EXCEPTION;
+                result = EmailServiceStatus.REMOTE_EXCEPTION;
                 if (isAuthError(code)) {
                     result = EmailServiceStatus.LOGIN_FAILED;
                 }
                 sendCallback(msgId, null, result);
+
             }
         } catch (IOException e) {
             // We catch this just to send the callback
@@ -115,6 +118,7 @@ public class EasOutboxService extends EasSyncService {
                 tmpFile.delete();
             }
         }
+        return result;
     }
 
     @Override
@@ -130,16 +134,27 @@ public class EasOutboxService extends EasSyncService {
                 while (c.moveToNext()) {
                     long msgId = c.getLong(0);
                     if (msgId != 0) {
-                        sendMessage(cacheDir, msgId);
+                        int result = sendMessage(cacheDir, msgId);
+                        // If there's an error, it should stop the service; we will distinguish
+                        // at least between login failures and everything else
+                        if (result == EmailServiceStatus.LOGIN_FAILED) {
+                            mExitStatus = EXIT_LOGIN_FAILURE;
+                            return;
+                        } else if (result == EmailServiceStatus.REMOTE_EXCEPTION) {
+                            mExitStatus = EXIT_EXCEPTION;
+                            return;
+                        }
                     }
                 }
             } finally {
                  c.close();
             }
+            mExitStatus = EXIT_DONE;
         } catch (Exception e) {
             mExitStatus = EXIT_EXCEPTION;
         } finally {
             userLog(mMailbox.mDisplayName, ": sync finished");
+            userLog("Outbox exited with status ", mExitStatus);
             SyncManager.done(this);
         }
     }
