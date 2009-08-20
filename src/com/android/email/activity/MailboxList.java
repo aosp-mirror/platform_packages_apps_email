@@ -291,7 +291,7 @@ public class MailboxList extends ListActivity implements OnItemClickListener, On
     }
 
     private void onOpenMailbox(long mailboxId) {
-        MessageList.actionHandleAccount(this, mailboxId, null, null);
+        MessageList.actionHandleMailbox(this, mailboxId);
     }
 
     private void onCompose() {

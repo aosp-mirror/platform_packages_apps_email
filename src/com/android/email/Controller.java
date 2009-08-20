@@ -344,6 +344,27 @@ public class Controller {
     }
 
     /**
+     * Try to send all pending messages for a given account
+     * 
+     * @param accountId the account for which to send messages (-1 for all accounts)
+     * @param callback
+     */
+    public void sendPendingMessages(long accountId, Result callback) {
+        //...
+    }
+
+    /**
+     * Increase the load count for a given mailbox, and trigger a refresh.  Applies only to
+     * IMAP and POP.
+     *
+     * @param mailboxId the mailbox
+     * @param callback
+     */
+    public void loadMoreMessages(long mailboxId, Result callback) {
+        //...
+    }
+
+    /**
      * @param messageId the id of message
      * @return the accountId corresponding to the given messageId, or -1 if not found.
      */
@@ -540,7 +561,7 @@ public class Controller {
      * TODO this should not require a full account, just an accountId
      * TODO this should use a cache because we'll be doing this a lot
      */
-    private boolean isMessagingController(EmailContent.Account account) {
+    public boolean isMessagingController(EmailContent.Account account) {
         Store.StoreInfo info =
             Store.StoreInfo.getStoreInfo(account.getStoreUri(mContext), mContext);
         String scheme = info.mScheme;

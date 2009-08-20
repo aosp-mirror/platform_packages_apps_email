@@ -244,7 +244,7 @@ public class AccountFolderList extends ListActivity
 
     public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
         if (mListAdapter.isMailbox(position)) {
-            MessageList.actionHandleAccount(this, id, null, null);
+            MessageList.actionHandleMailbox(this, id);
         } else if (mListAdapter.isAccount(position)) {
             MessageList.actionHandleAccount(this, id, Mailbox.TYPE_INBOX); 
         }

@@ -641,7 +641,7 @@ public class FolderMessageList extends ExpandableListActivity {
         // is slated for retirement anyway.
         Cursor groupCursor = mNewAdapter.getGroup(groupPosition);
         long mailboxKey = groupCursor.getLong(EmailContent.Mailbox.CONTENT_ID_COLUMN);
-        MessageList.actionHandleAccount(this, mailboxKey, null, null);
+        MessageList.actionHandleMailbox(this, mailboxKey);
         
 //        // We enforce viewing one folder at a time, so close the previously-opened folder
 //        if (mExpandedGroup != -1) {
