@@ -1047,7 +1047,7 @@ public class SyncManager extends Service implements Runnable {
         // We also observe synced messages to trigger upsyncs at the appropriate time
         mResolver.registerContentObserver(Mailbox.CONTENT_URI, false, mMailboxObserver);
         mResolver.registerContentObserver(Message.SYNCED_CONTENT_URI, true, mSyncedMessageObserver);
-        mResolver.registerContentObserver(Message.CONTENT_URI, false, mMessageObserver);
+        mResolver.registerContentObserver(Message.CONTENT_URI, true, mMessageObserver);
 
         mConnectivityReceiver = new ConnectivityReceiver();
         registerReceiver(mConnectivityReceiver,
