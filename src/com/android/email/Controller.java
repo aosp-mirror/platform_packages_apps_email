@@ -315,7 +315,8 @@ public class Controller {
     /**
      * Send a message:
      * - move the message to Outbox (the message is assumed to be in Drafts).
-     * - perform any necessary notification
+     * - EAS service will take it from there
+     * - trigger send for POP/IMAP
      * @param messageId the id of the message to send
      */
     public void sendMessage(long messageId, long accountId) {
@@ -340,7 +341,18 @@ public class Controller {
         Uri uri = ContentUris.withAppendedId(EmailContent.Message.CONTENT_URI, messageId);
         resolver.update(uri, cv, null, null);
 
-        // TODO: notifications
+        // for IMAP & POP only, (attempt to) send the message now
+        final EmailContent.Account account =
+                EmailContent.Account.restoreAccountWithId(mContext, accountId);
+        if (this.isMessagingController(account)) {
+            final long sentboxId = findOrCreateMailboxOfType(accountId, Mailbox.TYPE_SENT);
+            new Thread() {
+                @Override
+                public void run() {
+                    mLegacyController.sendPendingMessages(account, sentboxId, mLegacyListener);
+                }
+            }.start();
+        }
     }
 
     /**
@@ -350,7 +362,36 @@ public class Controller {
      * @param callback
      */
     public void sendPendingMessages(long accountId, Result callback) {
-        //...
+        // 1. make sure we even have an outbox, exit early if not
+        final long outboxId =
+            Mailbox.findMailboxOfType(mProviderContext, accountId, Mailbox.TYPE_OUTBOX);
+        if (outboxId == Mailbox.NO_MAILBOX) {
+            return;
+        }
+
+        // 2. dispatch as necessary
+        IEmailService service = getServiceForAccount(accountId);
+        if (service != null) {
+            // Service implementation
+            try {
+                service.startSync(outboxId);
+            } catch (RemoteException e) {
+                // TODO Change exception handling to be consistent with however this method
+                // is implemented for other protocols
+                Log.d("updateMailbox", "RemoteException" + e);
+            }
+        } else {
+            // MessagingController implementation
+            final EmailContent.Account account =
+                EmailContent.Account.restoreAccountWithId(mContext, accountId);
+            final long sentboxId = findOrCreateMailboxOfType(accountId, Mailbox.TYPE_SENT);
+            new Thread() {
+                @Override
+                public void run() {
+                    mLegacyController.sendPendingMessages(account, sentboxId, mLegacyListener);
+                }
+            }.start();
+        }
     }
 
     /**
@@ -622,6 +663,18 @@ public class Controller {
          */
         public void serviceCheckMailCallback(MessagingException result, long accountId,
                 long mailboxId, int progress, long tag);
+
+        /**
+         * Callback for sending pending messages.  This will be called once to start the
+         * group, multiple times for messages, and once to complete the group.
+         *
+         * @param result If null, the operation completed without error
+         * @param accountId The account being operated on
+         * @param messageId The being sent (may be unknown at start)
+         * @param progress 0 for "starting", 100 for complete
+         */
+        public void sendMailCallback(MessagingException result, long accountId,
+                long messageId, int progress);
     }
 
     /**
@@ -737,6 +790,40 @@ public class Controller {
                 for (Result listener : mListeners) {
                     listener.loadAttachmentCallback(new MessagingException(reason),
                             messageId, attachmentId, 0);
+                }
+            }
+        }
+
+        @Override
+        synchronized public void sendPendingMessagesStarted(long accountId, long messageId) {
+            synchronized (mListeners) {
+                for (Result listener : mListeners) {
+                    listener.sendMailCallback(null, accountId, messageId, 0);
+                }
+            }
+        }
+
+        @Override
+        synchronized public void sendPendingMessagesCompleted(long accountId) {
+            synchronized (mListeners) {
+                for (Result listener : mListeners) {
+                    listener.sendMailCallback(null, accountId, -1, 100);
+                }
+            }
+        }
+
+        @Override
+        synchronized public void sendPendingMessagesFailed(long accountId, long messageId,
+                Exception reason) {
+            MessagingException me;
+            if (reason instanceof MessagingException) {
+                me = (MessagingException) reason;
+            } else {
+                me = new MessagingException(reason.toString());
+            }
+            synchronized (mListeners) {
+                for (Result listener : mListeners) {
+                    listener.sendMailCallback(me, accountId, messageId, 0);
                 }
             }
         }

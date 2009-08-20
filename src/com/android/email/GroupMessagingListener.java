@@ -153,25 +153,24 @@ public class GroupMessagingListener extends MessagingListener {
     }
 
     @Override
-    synchronized public void sendPendingMessagesCompleted(EmailContent.Account account) {
+    synchronized public void sendPendingMessagesStarted(long accountId, long messageId) {
         for (MessagingListener l : mListeners) {
-            l.sendPendingMessagesCompleted(account);
+            l.sendPendingMessagesStarted(accountId, messageId);
         }
     }
 
     @Override
-    synchronized public void sendPendingMessagesFailed(EmailContent.Account account,
+    synchronized public void sendPendingMessagesCompleted(long accountId) {
+        for (MessagingListener l : mListeners) {
+            l.sendPendingMessagesCompleted(accountId);
+        }
+    }
+
+    @Override
+    synchronized public void sendPendingMessagesFailed(long accountId, long messageId,
             Exception reason) {
         for (MessagingListener l : mListeners) {
-            l.sendPendingMessagesFailed(account, reason);
-        }
-    }
-
-    @Override
-    synchronized public void sendPendingMessageFailed(EmailContent.Account account,
-            Message message, Exception reason) {
-        for (MessagingListener l : mListeners) {
-            l.sendPendingMessageFailed(account, message, reason);
+            l.sendPendingMessagesFailed(accountId, messageId, reason);
         }
     }
 

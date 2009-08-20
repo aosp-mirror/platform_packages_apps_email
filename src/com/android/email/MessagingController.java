@@ -1696,125 +1696,81 @@ public class MessagingController implements Runnable {
     }
 
     /**
-     * Stores the given message in the Outbox and starts a sendPendingMessages command to
-     * attempt to send the message.
-     * @param account
-     * @param message
-     * @param listener
-     */
-    public void sendMessage(final EmailContent.Account account, final Message message,
-            MessagingListener listener) {
-        try {
-            Store localStore = Store.getInstance(account.getLocalStoreUri(mContext), mContext,
-                    null);
-            LocalFolder localFolder =
-                (LocalFolder) localStore.getFolder(account.getOutboxFolderName(mContext));
-            localFolder.open(OpenMode.READ_WRITE, null);
-            localFolder.appendMessages(new Message[] {
-                message
-            });
-            Message localMessage = localFolder.getMessage(message.getUid());
-            localMessage.setFlag(Flag.X_DOWNLOADED_FULL, true);
-            localFolder.close(false);
-            sendPendingMessages(account, null);
-        }
-        catch (Exception e) {
-//            synchronized (mListeners) {
-//                for (MessagingListener l : mListeners) {
-//                    // TODO general failed
-//                }
-//            }
-        }
-    }
-
-    /**
      * Attempt to send any messages that are sitting in the Outbox.
      * @param account
      * @param listener
      */
-    public void sendPendingMessages(final EmailContent.Account account, MessagingListener listener) {
+    public void sendPendingMessages(final EmailContent.Account account, final long sentFolderId,
+            MessagingListener listener) {
         put("sendPendingMessages", listener, new Runnable() {
             public void run() {
-                sendPendingMessagesSynchronous(account);
+                sendPendingMessagesSynchronous(account, sentFolderId);
             }
         });
     }
 
     /**
      * Attempt to send any messages that are sitting in the Outbox.
-     * TODO rewrite for database not LocalStore
-     * TODO this should accept accountId, and probably be reworked in other ways
      * 
      * @param account
      * @param listener
      */
-    public void sendPendingMessagesSynchronous(final EmailContent.Account account) {
+    public void sendPendingMessagesSynchronous(final EmailContent.Account account,
+            long sentFolderId) {
+        // 1.  Loop through all messages in the account's outbox
+        long outboxId = Mailbox.findMailboxOfType(mContext, account.mId, Mailbox.TYPE_OUTBOX);
+        if (outboxId == Mailbox.NO_MAILBOX) {
+            return;
+        }
+        ContentResolver resolver = mContext.getContentResolver();
+        Cursor c = resolver.query(EmailContent.Message.CONTENT_URI,
+                EmailContent.Message.ID_COLUMN_PROJECTION,
+                EmailContent.Message.MAILBOX_KEY + "=?", new String[] { Long.toString(outboxId) },
+                null);
         try {
-            LocalStore localStore = (LocalStore) Store.getInstance(
-                    account.getLocalStoreUri(mContext), mContext, null);
-            Folder localFolder = localStore.getFolder(account.getOutboxFolderName(mContext));
-            if (!localFolder.exists()) {
+            // 2.  exit early
+            if (c.getCount() <= 0) {
                 return;
             }
-            localFolder.open(OpenMode.READ_WRITE, null);
-
-            Message[] localMessages = localFolder.getMessages(null);
-
-            /*
-             * The profile we will use to pull all of the content
-             * for a given local message into memory for sending.
-             */
-            FetchProfile fp = new FetchProfile();
-            fp.add(FetchProfile.Item.ENVELOPE);
-            fp.add(FetchProfile.Item.BODY);
-
-            LocalFolder localSentFolder =
-                (LocalFolder) localStore.getFolder(account.getSentFolderName(mContext));
-
-            // Determine if upload to "sent" folder is necessary
-            Store remoteStore = Store.getInstance(
-                    account.getStoreUri(mContext), mContext, localStore.getPersistentCallbacks());
-            boolean requireCopyMessageToSentFolder = remoteStore.requireCopyMessageToSentFolder();
-
+            // 3. do one-time setup of the Sender & other stuff
             Sender sender = Sender.getInstance(mContext, account.getSenderUri(mContext));
-            for (Message message : localMessages) {
+            Store remoteStore = Store.getInstance(account.getStoreUri(mContext), mContext, null);
+            boolean requireMoveMessageToSentFolder = remoteStore.requireCopyMessageToSentFolder();
+            ContentValues moveToSentValues = null;
+            if (requireMoveMessageToSentFolder) {
+                moveToSentValues = new ContentValues();
+                moveToSentValues.put(MessageColumns.MAILBOX_KEY, sentFolderId);
+            }
+
+            // 4.  loop through the available messages and send them
+            while (c.moveToNext()) {
+                long messageId = -1;
                 try {
-                    localFolder.fetch(new Message[] { message }, fp, null);
-                    try {
-                        // Send message using Sender
-                        message.setFlag(Flag.X_SEND_IN_PROGRESS, true);
-//                        sender.sendMessage(message);
-                        message.setFlag(Flag.X_SEND_IN_PROGRESS, false);
-
-                        // Upload to "sent" folder if not supported server-side
-                        if (requireCopyMessageToSentFolder) {
-                            localFolder.copyMessages(
-                                    new Message[] { message },localSentFolder, null);
-                            PendingCommand command = new PendingCommand();
-                            command.command = PENDING_COMMAND_APPEND;
-                            command.arguments =
-                                new String[] { localSentFolder.getName(), message.getUid() };
-                            queuePendingCommand(account, command);
-                            processPendingCommands(account);
-                        }
-
-                        // And delete from outbox
-                        message.setFlag(Flag.X_DESTROYED, true);
-                    }
-                    catch (Exception e) {
-                        message.setFlag(Flag.X_SEND_FAILED, true);
-                        mListeners.sendPendingMessageFailed(account, message, e);
-                    }
+                    messageId = c.getLong(0);
+                    mListeners.sendPendingMessagesStarted(account.mId, messageId);
+                    sender.sendMessage(messageId);
+                } catch (MessagingException me) {
+                    // report error for this message, but keep trying others
+                    mListeners.sendPendingMessagesFailed(account.mId, messageId, me);
+                    continue;
                 }
-                catch (Exception e) {
-                    mListeners.sendPendingMessageFailed(account, message, e);
+                // 5. move to sent, or delete
+                Uri uri = ContentUris.withAppendedId(EmailContent.Message.CONTENT_URI, messageId);
+                if (requireMoveMessageToSentFolder) {
+                    resolver.update(uri, moveToSentValues, null, null);
+                    // TODO: post for a pending upload
+                } else {
+                    AttachmentProvider.deleteAllAttachmentFiles(mContext, account.mId, messageId);
+                    resolver.delete(uri, null, null);
                 }
             }
-            localFolder.expunge();
-            mListeners.sendPendingMessagesCompleted(account);
-        }
-        catch (Exception e) {
-            mListeners.sendPendingMessagesFailed(account, e);
+            // 6. report completion/success
+            mListeners.sendPendingMessagesCompleted(account.mId);
+
+        } catch (MessagingException me) {
+            mListeners.sendPendingMessagesFailed(account.mId, -1, me);
+        } finally {
+            c.close();
         }
     }
 
@@ -1898,19 +1854,25 @@ public class MessagingController implements Runnable {
         listFolders(accountId, null);
 
         // Put this on the queue as well so it follows listFolders
-        put("emptyTrash", listener, new Runnable() {
+        put("checkMail", listener, new Runnable() {
             public void run() {
-             EmailContent.Account account =
+                // send any pending outbound messages.  note, there is a slight race condition
+                // here if we somehow don't have a sent folder, but this should never happen
+                // because the call to sendMessage() would have built one previously.
+                EmailContent.Account account =
                     EmailContent.Account.restoreAccountWithId(mContext, accountId);
-            sendPendingMessagesSynchronous(account);
-            // find mailbox # for inbox and sync it.
-            // TODO we already know this in Controller, can we pass it in?
-            long inboxId = Mailbox.findMailboxOfType(mContext, accountId, Mailbox.TYPE_INBOX);
-            EmailContent.Mailbox mailbox =
-                EmailContent.Mailbox.restoreMailboxWithId(mContext, inboxId);
-            synchronizeMailboxSynchronous(account, mailbox);
+                long sentboxId = Mailbox.findMailboxOfType(mContext, accountId, Mailbox.TYPE_SENT);
+                if (sentboxId != -1) {
+                    sendPendingMessagesSynchronous(account, sentboxId);
+                }
+                // find mailbox # for inbox and sync it.
+                // TODO we already know this in Controller, can we pass it in?
+                long inboxId = Mailbox.findMailboxOfType(mContext, accountId, Mailbox.TYPE_INBOX);
+                EmailContent.Mailbox mailbox =
+                    EmailContent.Mailbox.restoreMailboxWithId(mContext, inboxId);
+                synchronizeMailboxSynchronous(account, mailbox);
 
-            mListeners.checkMailFinished(mContext, accountId, tag, inboxId);
+                mListeners.checkMailFinished(mContext, accountId, tag, inboxId);
             }
         });
     }

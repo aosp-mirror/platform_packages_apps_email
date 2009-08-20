@@ -1217,6 +1217,10 @@ public class MessageView extends Activity
         public void serviceCheckMailCallback(MessagingException result, long accountId,
                 long mailboxId, int progress, long tag) {
         }
+
+        public void sendMailCallback(MessagingException result, long accountId, long messageId,
+                int progress) {
+        }
     }
 
     /**

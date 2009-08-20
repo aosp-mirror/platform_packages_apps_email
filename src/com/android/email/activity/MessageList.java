@@ -1094,6 +1094,18 @@ public class MessageList extends ListActivity implements OnItemClickListener, On
         public void serviceCheckMailCallback(MessagingException result, long accountId,
                 long mailboxId, int progress, long tag) {
         }
+
+        // TODO report errors into UI
+        public void sendMailCallback(MessagingException result, long accountId, long messageId,
+                int progress) {
+            if (mListFooterMode == LIST_FOOTER_MODE_SEND) {
+                if (progress == 0) {
+                    mHandler.progress(true);
+                } else if (result != null || progress == 100) {
+                    mHandler.progress(false);
+                }
+            }
+        }
     }
 
     /**
