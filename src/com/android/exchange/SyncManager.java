@@ -22,6 +22,7 @@ import com.android.email.provider.EmailContent;
 import com.android.email.provider.EmailContent.Account;
 import com.android.email.provider.EmailContent.Attachment;
 import com.android.email.provider.EmailContent.HostAuth;
+import com.android.email.provider.EmailContent.HostAuthColumns;
 import com.android.email.provider.EmailContent.Mailbox;
 import com.android.email.provider.EmailContent.MailboxColumns;
 import com.android.email.provider.EmailContent.Message;
@@ -121,6 +122,8 @@ public class SyncManager extends Service implements Runnable {
         MailboxColumns.ACCOUNT_KEY + "=? and type in (" + Mailbox.TYPE_INBOX + ','
         /*+ Mailbox.TYPE_CALENDAR + ','*/ + Mailbox.TYPE_CONTACTS + ')';
     private static final String WHERE_MAILBOX_KEY = EmailContent.RECORD_ID + "=?";
+    private static final String WHERE_PROTOCOL_EAS = HostAuthColumns.PROTOCOL + "=\"" +
+        AbstractSyncService.EAS_PROTOCOL + "\"";
 
     // Offsets into the syncStatus data for EAS that indicate type, exit status, and change count
     // The format is S<type_char>:<exit_char>:<change_count>
@@ -161,6 +164,8 @@ public class SyncManager extends Service implements Runnable {
     private SyncedMessageObserver mSyncedMessageObserver;
     private MessageObserver mMessageObserver;
     private Handler mHandler = new Handler();
+
+    private ContentResolver mResolver;
 
     // The singleton SyncManager object, with its thread and stop flag
     protected static SyncManager INSTANCE;
@@ -359,6 +364,8 @@ public class SyncManager extends Service implements Runnable {
 
         @Override
         public void onChange(boolean selfChange) {
+            maybeStartSyncManagerThread();
+
             // A change to the list requires us to scan for deletions (to stop running syncs)
             // At startup, we want to see what accounts exist and cache them
             AccountList currentAccounts = new AccountList();
@@ -566,11 +573,6 @@ public class SyncManager extends Service implements Runnable {
         }
     }
 
-    @Override
-    public IBinder onBind(Intent arg0) {
-        return mBinder;
-    }
-
     static public void smLog(String str) {
         if (INSTANCE != null) {
             INSTANCE.log(str);
@@ -630,40 +632,44 @@ public class SyncManager extends Service implements Runnable {
     }
 
     @Override
+    public IBinder onBind(Intent arg0) {
+        return mBinder;
+    }
+
+    @Override
     public void onCreate() {
         if (INSTANCE != null) {
             Log.d(TAG, "onCreate called on running SyncManager");
-            return;
-        }
-        INSTANCE = this;
-
-        mAccountObserver = new AccountObserver(mHandler);
-        mMailboxObserver = new MailboxObserver(mHandler);
-        mSyncedMessageObserver = new SyncedMessageObserver(mHandler);
-        mMessageObserver = new MessageObserver(mHandler);
-
-        // Start our thread...
-        if (sServiceThread == null || !sServiceThread.isAlive()) {
-            log(sServiceThread == null ? "Starting thread..." : "Restarting thread...");
-            sServiceThread = new Thread(this, "SyncManager");
-            sServiceThread.start();
         } else {
-            log("Attempt to start SyncManager though already started before?");
+            INSTANCE = this;
+            mAccountObserver = new AccountObserver(mHandler);
+            mMailboxObserver = new MailboxObserver(mHandler);
+            mSyncedMessageObserver = new SyncedMessageObserver(mHandler);
+            mMessageObserver = new MessageObserver(mHandler);
+
+            try {
+                mDeviceId = getDeviceId();
+            } catch (IOException e) {
+                // We can't run in this situation
+                throw new RuntimeException();
+            }
         }
 
-//        mDeviceId = android.provider.Settings.Secure.getString(getContentResolver(),
-//                android.provider.Settings.Secure.ANDROID_ID);
-        try {
-            mDeviceId = getDeviceId();
-        } catch (IOException e) {
-            // We can't run in this situation
-            throw new RuntimeException();
-        }
+        mResolver = getContentResolver();
+        mResolver.registerContentObserver(Account.CONTENT_URI, false, mAccountObserver);
+
+        maybeStartSyncManagerThread();
     }
 
     @Override
     public void onDestroy() {
         log("!!! SyncManager onDestroy");
+
+        // Cover the case in which we never really started (no EAS accounts)
+        if (INSTANCE == null) {
+            return;
+        }
+
         stopServices();
         // Stop receivers and content observers
         if (mConnectivityReceiver != null) {
@@ -689,6 +695,18 @@ public class SyncManager extends Service implements Runnable {
         sPendingIntents.clear();
 
         INSTANCE = null;
+    }
+
+    void maybeStartSyncManagerThread() {
+        // Start our thread...
+        // See if there are any EAS accounts; otherwise, just go away
+        if (EmailContent.count(this, HostAuth.CONTENT_URI, WHERE_PROTOCOL_EAS, null) > 0) {
+            if (sServiceThread == null || !sServiceThread.isAlive()) {
+                log(sServiceThread == null ? "Starting thread..." : "Restarting thread...");
+                sServiceThread = new Thread(this, "SyncManager");
+                sServiceThread.start();
+            }
+        }
     }
 
     static public void reloadFolderList(Context context, long accountId, boolean force) {
@@ -1023,11 +1041,9 @@ public class SyncManager extends Service implements Runnable {
         // Set up our observers; we need them to know when to start/stop various syncs based
         // on the insert/delete/update of mailboxes and accounts
         // We also observe synced messages to trigger upsyncs at the appropriate time
-        ContentResolver resolver = getContentResolver();
-        resolver.registerContentObserver(Account.CONTENT_URI, false, mAccountObserver);
-        resolver.registerContentObserver(Mailbox.CONTENT_URI, false, mMailboxObserver);
-        resolver.registerContentObserver(Message.SYNCED_CONTENT_URI, true, mSyncedMessageObserver);
-        resolver.registerContentObserver(Message.CONTENT_URI, false, mMessageObserver);
+        mResolver.registerContentObserver(Mailbox.CONTENT_URI, false, mMailboxObserver);
+        mResolver.registerContentObserver(Message.SYNCED_CONTENT_URI, true, mSyncedMessageObserver);
+        mResolver.registerContentObserver(Message.CONTENT_URI, false, mMessageObserver);
 
         mConnectivityReceiver = new ConnectivityReceiver();
         registerReceiver(mConnectivityReceiver,
