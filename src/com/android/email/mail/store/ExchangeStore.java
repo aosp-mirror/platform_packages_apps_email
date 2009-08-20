@@ -114,11 +114,13 @@ public class ExchangeStore extends Store {
         mTransport.checkSettings(mUri);
     }
 
-    static public void addSystemAccount(Context context, Account acct) {
-        // This code was taken from sample code in AccountsTester
+    static public void addSystemAccount(Context context, Account acct, boolean syncContacts) {
+        // Create a description of the new account
         Bundle options = new Bundle();
         options.putString(EasAuthenticatorService.OPTIONS_USERNAME, acct.mEmailAddress);
         options.putString(EasAuthenticatorService.OPTIONS_PASSWORD, acct.mHostAuthRecv.mPassword);
+        options.putBoolean(EasAuthenticatorService.OPTIONS_CONTACTS_SYNC_ENABLED, syncContacts);
+
         AccountManagerCallback<Bundle> callback = new AccountManagerCallback<Bundle>() {
             public void run(AccountManagerFuture<Bundle> future) {
                 try {

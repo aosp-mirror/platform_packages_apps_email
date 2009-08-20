@@ -41,29 +41,40 @@ public class AccountSetupAccountType extends Activity implements OnClickListener
 
     private static final String EXTRA_ACCOUNT = "account";
     private static final String EXTRA_MAKE_DEFAULT = "makeDefault";
+    private static final String EXTRA_EAS_FLOW = "easFlow";
 
     private Account mAccount;
     private boolean mMakeDefault;
 
     public static void actionSelectAccountType(Activity fromActivity, Account account, 
-            boolean makeDefault) {
+            boolean makeDefault, boolean easFlowMode) {
         Intent i = new Intent(fromActivity, AccountSetupAccountType.class);
         i.putExtra(EXTRA_ACCOUNT, account);
         i.putExtra(EXTRA_MAKE_DEFAULT, makeDefault);
+        i.putExtra(EXTRA_EAS_FLOW, easFlowMode);
         fromActivity.startActivity(i);
     }
 
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+
+        mAccount = (Account) getIntent().getParcelableExtra(EXTRA_ACCOUNT);
+        mMakeDefault = getIntent().getBooleanExtra(EXTRA_MAKE_DEFAULT, false);
+        boolean easFlowMode = getIntent().getBooleanExtra(EXTRA_EAS_FLOW, false);
+
+        // If we're in account setup flow mode, for EAS, skip this screen and "click" EAS
+        if (easFlowMode) {
+            onExchange(true);
+            return;
+        }
+
+        // Otherwise proceed into this screen
         setContentView(R.layout.account_setup_account_type);
         ((Button)findViewById(R.id.pop)).setOnClickListener(this);
         ((Button)findViewById(R.id.imap)).setOnClickListener(this);
         ((Button)findViewById(R.id.exchange)).setOnClickListener(this);
         
-        mAccount = (Account) getIntent().getParcelableExtra(EXTRA_ACCOUNT);
-        mMakeDefault = getIntent().getBooleanExtra(EXTRA_MAKE_DEFAULT, false);
-
         if (isExchangeAvailable()) {
             findViewById(R.id.exchange).setVisibility(View.VISIBLE);
         }
@@ -112,7 +123,7 @@ public class AccountSetupAccountType extends Activity implements OnClickListener
      * email address.  Also set the mail delete policy here, because there is no UI (for exchange),
      * and switch the default sync interval to "push".
      */
-    private void onExchange() {
+    private void onExchange(boolean easFlowMode) {
         try {
             URI uri = new URI(mAccount.getStoreUri(this));
             uri = new URI("eas+ssl+", uri.getUserInfo(), uri.getHost(), uri.getPort(),
@@ -129,7 +140,7 @@ public class AccountSetupAccountType extends Activity implements OnClickListener
         mAccount.setDeletePolicy(Account.DELETE_POLICY_ON_DELETE);
         mAccount.setSyncInterval(Account.CHECK_INTERVAL_PUSH);
         mAccount.setSyncLookback(1);
-        AccountSetupExchange.actionIncomingSettings(this, mAccount, mMakeDefault);
+        AccountSetupExchange.actionIncomingSettings(this, mAccount, mMakeDefault, easFlowMode);
         finish();
     }
     
@@ -195,7 +206,7 @@ public class AccountSetupAccountType extends Activity implements OnClickListener
                 onImap();
                 break;
             case R.id.exchange:
-                onExchange();
+                onExchange(false);
                 break;
         }
     }

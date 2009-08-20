@@ -37,15 +37,17 @@ import android.widget.EditText;
 
 public class AccountSetupNames extends Activity implements OnClickListener {
     private static final String EXTRA_ACCOUNT_ID = "accountId";
+    private static final String EXTRA_EAS_FLOW = "easFlow";
 
     private EditText mDescription;
     private EditText mName;
     private EmailContent.Account mAccount;
     private Button mDoneButton;
 
-    public static void actionSetNames(Activity fromActivity, long accountId) {
+    public static void actionSetNames(Activity fromActivity, long accountId, boolean easFlowMode) {
         Intent i = new Intent(fromActivity, AccountSetupNames.class);
         i.putExtra(EXTRA_ACCOUNT_ID, accountId);
+        i.putExtra(EXTRA_EAS_FLOW, easFlowMode);
         fromActivity.startActivity(i);
     }
 
@@ -99,6 +101,10 @@ public class AccountSetupNames extends Activity implements OnClickListener {
     }
 
     /**
+     * After having a chance to input the display names, we normally jump directly to the
+     * inbox for the new account.  However if we're in EAS flow mode (externally-launched
+     * account creation) we simply "pop" here which should return us to the Accounts activities.
+     *
      * TODO: Validator should also trim the description string before checking it.
      */
     private void onNext() {
@@ -111,7 +117,13 @@ public class AccountSetupNames extends Activity implements OnClickListener {
         cv.put(AccountColumns.DISPLAY_NAME, mAccount.getDisplayName());
         cv.put(AccountColumns.SENDER_NAME, name);
         mAccount.update(this, cv);
-        MessageList.actionHandleAccount(this, mAccount.mId, EmailContent.Mailbox.TYPE_INBOX);
+
+        // Exit or dispatch per flow mode
+        if (getIntent().getBooleanExtra(EXTRA_EAS_FLOW, false)) {
+            // do nothing - just pop off the activity stack
+        } else {
+            MessageList.actionHandleAccount(this, mAccount.mId, EmailContent.Mailbox.TYPE_INBOX);
+        }
         finish();
     }
 

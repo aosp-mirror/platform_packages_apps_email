@@ -89,7 +89,7 @@ public class EasAuthenticatorService extends Service {
             } else {
                 Bundle b = new Bundle();
                 Intent intent =
-                    new Intent(EasAuthenticatorService.this, AccountSetupBasics.class);
+                    AccountSetupBasics.actionSetupExchangeIntent(EasAuthenticatorService.this);
                 // Add extras that indicate this is an Exchange account creation
                 // So we'll skip the "account type" activity, and we'll use the response when
                 // we're done
