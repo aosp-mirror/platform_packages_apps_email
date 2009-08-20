@@ -22,6 +22,7 @@ import com.android.email.R;
 import com.android.email.activity.MessageList;
 import com.android.email.mail.MessagingException;
 import com.android.email.provider.EmailContent.Account;
+import com.android.email.provider.EmailContent.AccountColumns;
 import com.android.email.provider.EmailContent.Mailbox;
 
 import android.app.AlarmManager;
@@ -62,7 +63,9 @@ public class MailService extends Service {
 
     private static final String EXTRA_CHECK_ACCOUNT = "com.android.email.intent.extra.ACCOUNT";
     private static final String EXTRA_ACCOUNT_INFO = "com.android.email.intent.extra.ACCOUNT_INFO";
-    private static final String EXTRA_MESSAGE_COUNT = "com.android.email.intent.extra.COUNT";
+
+    private static final String[] NEW_MESSAGE_COUNT_PROJECTION =
+        new String[] {AccountColumns.NEW_MESSAGE_COUNT};
 
     private Controller.Result mControllerCallback = new ControllerResults();
 
@@ -120,21 +123,20 @@ public class MailService extends Service {
         }
         context.getContentResolver().update(uri, mClearNewMessages, null, null);
     }
-    
+
     /**
      * Entry point for asynchronous message services (e.g. push mode) to post notifications of new
      * messages.  This assumes that the push provider has already synced the messages into the
      * appropriate database - this simply triggers the notification mechanism.
-     * 
+     *
      * @param context a context
      * @param accountId the id of the account that is reporting new messages
      * @param newCount the number of new messages
      */
-    public static void actionNotifyNewMessages(Context context, long accountId, int newCount) {
+    public static void actionNotifyNewMessages(Context context, long accountId) {
         Intent i = new Intent(ACTION_NOTIFY_MAIL);
         i.setClass(context, MailService.class);
         i.putExtra(EXTRA_CHECK_ACCOUNT, accountId);
-        i.putExtra(EXTRA_MESSAGE_COUNT, newCount);
         context.startService(i);
     }
 
@@ -156,7 +158,7 @@ public class MailService extends Service {
             // If we have the data, restore the last-sync-times for each account
             // These are cached in the wakeup intent in case the process was killed.
             restoreSyncReports(intent);
-            
+
             // Sync a specific account if given
             long checkAccountId = intent.getLongExtra(EXTRA_CHECK_ACCOUNT, -1);
             if (checkAccountId != -1) {
@@ -185,7 +187,21 @@ public class MailService extends Service {
             stopSelf(startId);
         } else if (ACTION_NOTIFY_MAIL.equals(action)) {
             long accountId = intent.getLongExtra(EXTRA_CHECK_ACCOUNT, -1);
-            int newMessageCount = intent.getIntExtra(EXTRA_MESSAGE_COUNT, -1);
+            // Get the current new message count
+            Cursor c = getContentResolver().query(
+                    ContentUris.withAppendedId(Account.CONTENT_URI, accountId),
+                    NEW_MESSAGE_COUNT_PROJECTION, null, null, null);
+            int newMessageCount = 0;
+            try {
+                if (c.moveToFirst()) {
+                    newMessageCount = c.getInt(0);
+                } else {
+                    // If the account no longer exists, set to -1 (which is handled below)
+                    accountId = -1;
+                }
+            } finally {
+                c.close();
+            }
             if (Config.LOGD && Email.DEBUG) {
                 Log.d(Email.LOG_TAG, "*** MailService: notify accountId=" + Long.toString(accountId)
                         + " count=" + newMessageCount);
