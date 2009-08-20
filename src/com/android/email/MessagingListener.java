@@ -75,14 +75,13 @@ public class MessagingListener {
     public void checkMailFinished(Context context, long accountId, long folderId, long tag) {
     }
 
-    public void sendPendingMessagesCompleted(EmailContent.Account account) {
+    public void sendPendingMessagesStarted(long accountId, long messageId) {
     }
 
-    public void sendPendingMessagesFailed(EmailContent.Account account, Exception reason) {
+    public void sendPendingMessagesCompleted(long accountId) {
     }
 
-    public void sendPendingMessageFailed(EmailContent.Account account, Message message,
-            Exception reason) {
+    public void sendPendingMessagesFailed(long accountId, long messageId, Exception reason) {
     }
 
     public void emptyTrashCompleted(EmailContent.Account account) {

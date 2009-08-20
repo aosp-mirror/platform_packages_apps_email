@@ -65,10 +65,15 @@ public abstract class EmailContent {
     public static final String RECORD_ID = "_id";
 
     private static final String[] COUNT_COLUMNS = new String[]{"count(*)"};
+
+    /**
+     * This projection can be used with any of the EmailContent classes, when all you need
+     * is a list of id's.  Use ID_PROJECTION_COLUMN to access the row data.
+     */
     public static final String[] ID_PROJECTION = new String[] {
         RECORD_ID
     };
-    private static final int ID_PROJECTION_COLUMN = 0;
+    public static final int ID_PROJECTION_COLUMN = 0;
 
     public static final String FIELD_COLUMN_NAME = "field";
     public static final String ADD_COLUMN_NAME = "add";

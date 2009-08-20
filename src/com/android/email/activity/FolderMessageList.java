@@ -789,6 +789,10 @@ public class FolderMessageList extends ExpandableListActivity {
         public void serviceCheckMailCallback(MessagingException result, long accountId,
                 long mailboxId, int progress, long tag) {
         }
+
+        public void sendMailCallback(MessagingException result, long accountId, long messageId,
+                int progress) {
+        }
     }
 
     @Deprecated
@@ -1495,38 +1499,38 @@ public class FolderMessageList extends ExpandableListActivity {
                 onRefresh(false);
             }
 
-            @Override
-            public void sendPendingMessagesCompleted(EmailContent.Account account) {
-                if (!account.equals(mAccount)) {
-                    return;
-                }
-                mHandler.folderLoading(account.getOutboxFolderName(FolderMessageList.this), false);
-                mHandler.progress(false);
-                onRefresh(false);
-            }
-
-            @Override
-            public void sendPendingMessagesFailed(EmailContent.Account account, Exception reason) {
-                if (!account.equals(mAccount)) {
-                    return;
-                }
-                String outboxName = account.getOutboxFolderName(FolderMessageList.this);
-                mHandler.folderLoading(outboxName, false);
-                mHandler.progress(false);
-                mHandler.folderStatus(outboxName, reason.getMessage(), false);
-                onRefresh(false);
-            }
-
-            @Override
-            public void sendPendingMessageFailed(EmailContent.Account account, Message message,
-                    Exception reason) {
-                if (!account.equals(mAccount)) {
-                    return;
-                }
-                // TODO May we move failed message to draft folder?
-                //mHandler.removeMessageByUid(folder, message.getUid());
-                //mHandler.folderStatus(account.getOutboxFolderName(), reason.getMessage(), false);
-            }
+//            @Override
+//            public void sendPendingMessagesCompleted(EmailContent.Account account) {
+//                if (!account.equals(mAccount)) {
+//                    return;
+//                }
+//                mHandler.folderLoading(account.getOutboxFolderName(FolderMessageList.this), false);
+//                mHandler.progress(false);
+//                onRefresh(false);
+//            }
+//
+//            @Override
+//            public void sendPendingMessagesFailed(EmailContent.Account account, Exception reason) {
+//                if (!account.equals(mAccount)) {
+//                    return;
+//                }
+//                String outboxName = account.getOutboxFolderName(FolderMessageList.this);
+//                mHandler.folderLoading(outboxName, false);
+//                mHandler.progress(false);
+//                mHandler.folderStatus(outboxName, reason.getMessage(), false);
+//                onRefresh(false);
+//            }
+//
+//            @Override
+//            public void sendPendingMessageFailed(EmailContent.Account account, Message message,
+//                    Exception reason) {
+//                if (!account.equals(mAccount)) {
+//                    return;
+//                }
+//                // TODO May we move failed message to draft folder?
+//                //mHandler.removeMessageByUid(folder, message.getUid());
+//                //mHandler.folderStatus(account.getOutboxFolderName(), reason.getMessage(), false);
+//            }
 
             @Override
             public void messageUidChanged(EmailContent.Account account, String folder,

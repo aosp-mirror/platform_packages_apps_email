@@ -496,6 +496,10 @@ public class MailService extends Service {
                 stopSelf(serviceId);
             }
         }
+
+        public void sendMailCallback(MessagingException result, long accountId, long messageId,
+                int progress) {
+        }
     }
 
     /**

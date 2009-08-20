@@ -351,4 +351,29 @@ public class AttachmentProvider extends ContentProvider {
         }
         return attachmentUri;
     }
+
+    /**
+     * In support of deleting a message, find all attachments and delete associated attachment
+     * files.
+     * @param context
+     * @param accountId the account for the message
+     * @param messageId the message
+     */
+    public static void deleteAllAttachmentFiles(Context context, long accountId, long messageId) {
+        Uri uri = ContentUris.withAppendedId(Attachment.MESSAGE_ID_URI, messageId);
+        Cursor c = context.getContentResolver().query(uri, Attachment.ID_PROJECTION,
+                null, null, null);
+        try {
+            while (c.moveToNext()) {
+                long attachmentId = c.getLong(Attachment.ID_PROJECTION_COLUMN);
+                File attachmentFile = getAttachmentFilename(context, accountId, attachmentId);
+                // Note, delete() throws no exceptions for basic FS errors (e.g. file not found)
+                // it just returns false, which we ignore, and proceed to the next file.
+                // This entire loop is best-effort only.
+                attachmentFile.delete();
+            }
+        } finally {
+            c.close();
+        }
+    }
 }

@@ -400,6 +400,10 @@ public class MailboxList extends ListActivity implements OnItemClickListener, On
         public void serviceCheckMailCallback(MessagingException result, long accountId,
                 long mailboxId, int progress, long tag) {
         }
+
+        public void sendMailCallback(MessagingException result, long accountId, long messageId,
+                int progress) {
+        }
     }
 
     /**

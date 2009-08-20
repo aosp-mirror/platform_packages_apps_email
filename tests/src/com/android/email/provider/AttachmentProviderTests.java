@@ -415,6 +415,56 @@ public class AttachmentProviderTests extends ProviderTestCase2<AttachmentProvide
     }
 
     /**
+     * Test the functionality of deleting all attachment files for a given message.
+     */
+    public void testDeleteFiles() throws IOException {
+        Account account1 = ProviderTestUtils.setupAccount("attachment-query", false, mMockContext);
+        account1.mCompatibilityUuid = "test-UUID";
+        account1.save(mMockContext);
+        final long message1Id = 1;      // 1 attachment, 1 file
+        final long message2Id = 2;      // 2 attachments, 2 files
+        final long message3Id = 3;      // 1 attachment, missing file
+        final long message4Id = 4;      // no attachments
+
+        // Add attachment entries for various test messages
+        Attachment newAttachment1 = ProviderTestUtils.setupAttachment(message1Id, "file1", 100,
+                true, mMockContext);
+        Attachment newAttachment2 = ProviderTestUtils.setupAttachment(message2Id, "file2", 200,
+                true, mMockContext);
+        Attachment newAttachment3 = ProviderTestUtils.setupAttachment(message2Id, "file3", 100,
+                true, mMockContext);
+        Attachment newAttachment4 = ProviderTestUtils.setupAttachment(message3Id, "file4", 100,
+                true, mMockContext);
+
+        // Create test files
+        createAttachmentFile(account1, newAttachment1.mId);
+        createAttachmentFile(account1, newAttachment2.mId);
+        createAttachmentFile(account1, newAttachment3.mId);
+
+        // Confirm 3 attachment files found
+        File attachmentsDir = AttachmentProvider.getAttachmentDirectory(mMockContext, account1.mId);
+        assertEquals(3, attachmentsDir.listFiles().length);
+
+        // Command deletion of some files and check for results
+        
+        // Message 4 has no attachments so no files should be deleted
+        AttachmentProvider.deleteAllAttachmentFiles(mMockContext, account1.mId, message4Id);
+        assertEquals(3, attachmentsDir.listFiles().length);
+
+        // Message 3 has no attachment files so no files should be deleted
+        AttachmentProvider.deleteAllAttachmentFiles(mMockContext, account1.mId, message3Id);
+        assertEquals(3, attachmentsDir.listFiles().length);
+
+        // Message 2 has 2 attachment files so this should delete 2 files
+        AttachmentProvider.deleteAllAttachmentFiles(mMockContext, account1.mId, message2Id);
+        assertEquals(1, attachmentsDir.listFiles().length);
+
+        // Message 1 has 1 attachment file so this should delete the last file
+        AttachmentProvider.deleteAllAttachmentFiles(mMockContext, account1.mId, message1Id);
+        assertEquals(0, attachmentsDir.listFiles().length);
+    }
+
+    /**
      * Create an attachment by copying an image resource into a file.  Uses "real" resources
      * to get a real image from Email
      */
