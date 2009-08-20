@@ -28,6 +28,7 @@ import com.android.email.mail.internet.EmailHtmlUtil;
 import com.android.email.mail.internet.MimeUtility;
 import com.android.email.provider.EmailContent;
 import com.android.email.provider.EmailContent.Account;
+import com.android.email.provider.EmailContent.Attachment;
 import com.android.email.provider.EmailContent.Body;
 import com.android.email.provider.EmailContent.BodyColumns;
 import com.android.email.provider.EmailContent.Message;
@@ -71,8 +72,8 @@ import android.widget.Toast;
 import java.io.Serializable;
 import java.io.UnsupportedEncodingException;
 import java.net.URLDecoder;
-import java.util.ArrayList;
 import java.util.List;
+
 
 public class MessageCompose extends Activity implements OnClickListener, OnFocusChangeListener {
     private static final String ACTION_REPLY = "com.android.email.intent.action.REPLY";
@@ -82,9 +83,6 @@ public class MessageCompose extends Activity implements OnClickListener, OnFocus
 
     private static final String EXTRA_ACCOUNT_ID = "account_id";
     private static final String EXTRA_MESSAGE_ID = "message_id";
-
-    private static final String STATE_KEY_ATTACHMENTS =
-        "com.android.email.activity.MessageCompose.attachments";
     private static final String STATE_KEY_CC_SHOWN =
         "com.android.email.activity.MessageCompose.ccShown";
     private static final String STATE_KEY_BCC_SHOWN =
@@ -93,8 +91,6 @@ public class MessageCompose extends Activity implements OnClickListener, OnFocus
         "com.android.email.activity.MessageCompose.quotedTextShown";
     private static final String STATE_KEY_SOURCE_MESSAGE_PROCED =
         "com.android.email.activity.MessageCompose.stateKeySourceMessageProced";
-    private static final String STATE_KEY_DRAFT_UID =
-        "com.android.email.activity.MessageCompose.draftUid";
 
     private static final int MSG_PROGRESS_ON = 1;
     private static final int MSG_PROGRESS_OFF = 2;
@@ -135,6 +131,7 @@ public class MessageCompose extends Activity implements OnClickListener, OnFocus
     private Controller mController;
     private Listener mListener = new Listener();
     private boolean mDraftNeedsSaving;
+    private AsyncTask mLoadAttachmentsTask;
 
     private Handler mHandler = new Handler() {
         @Override
@@ -161,16 +158,6 @@ public class MessageCompose extends Activity implements OnClickListener, OnFocus
             }
         }
     };
-
-    /**
-     * Encapsulates known information about a single attachment.
-     */
-    private static class AttachmentInfo {
-        public String name;
-        public String contentType;
-        public long size;
-        public Uri uri;
-    }
 
     /**
      * Compose a new message using the given account. If account is -1 the default account
@@ -274,6 +261,21 @@ public class MessageCompose extends Activity implements OnClickListener, OnFocus
             } else {
                 mAccount = Account.restoreAccountWithId(this, Account.getDefaultAccountId(this));
             }
+            if (ACTION_EDIT_DRAFT.equals(action) && messageId != -1) {
+                mLoadAttachmentsTask = new AsyncTask<Long, Void, Attachment[]>() {
+                    @Override
+                    protected Attachment[] doInBackground(Long... messageIds) {
+                        return Attachment.restoreAttachmentsWithMessageId(MessageCompose.this, 
+                                messageIds[0]);
+                    }
+                    @Override
+                    protected void onPostExecute(Attachment[] attachments) {
+                        for (Attachment attachment : attachments) {
+                            addAttachment(attachment);
+                        }
+                    }
+                }.execute(messageId);
+            }
         }
 
         if (ACTION_REPLY.equals(action) || ACTION_REPLY_ALL.equals(action) ||
@@ -311,12 +313,16 @@ public class MessageCompose extends Activity implements OnClickListener, OnFocus
         super.onDestroy();
         mQuotedText.destroy();
         mQuotedText = null;
+        if (mLoadAttachmentsTask != null
+                && mLoadAttachmentsTask.getStatus() != AsyncTask.Status.FINISHED) {
+            mLoadAttachmentsTask.cancel(true);
+            mLoadAttachmentsTask = null;
+        }
     }
 
     /**
      * The framework handles most of the fields, but we need to handle stuff that we
      * dynamically show and hide:
-     * Attachment list,
      * Cc field,
      * Bcc field,
      * Quoted text,
@@ -325,32 +331,16 @@ public class MessageCompose extends Activity implements OnClickListener, OnFocus
     protected void onSaveInstanceState(Bundle outState) {
         super.onSaveInstanceState(outState);
         saveIfNeeded();
-        ArrayList<Uri> attachments = new ArrayList<Uri>();
-        for (int i = 0, count = mAttachments.getChildCount(); i < count; i++) {
-            View view = mAttachments.getChildAt(i);
-            AttachmentInfo attachment = (AttachmentInfo) view.getTag();
-            attachments.add(attachment.uri);
-        }
-        outState.putParcelableArrayList(STATE_KEY_ATTACHMENTS, attachments);
         outState.putBoolean(STATE_KEY_CC_SHOWN, mCcView.getVisibility() == View.VISIBLE);
         outState.putBoolean(STATE_KEY_BCC_SHOWN, mBccView.getVisibility() == View.VISIBLE);
         outState.putBoolean(STATE_KEY_QUOTED_TEXT_SHOWN,
                 mQuotedTextBar.getVisibility() == View.VISIBLE);
         outState.putBoolean(STATE_KEY_SOURCE_MESSAGE_PROCED, mSourceMessageProcessed);
-        // outState.putString(STATE_KEY_DRAFT_UID, mDraftUid);
     }
 
     @Override
     protected void onRestoreInstanceState(Bundle savedInstanceState) {
         super.onRestoreInstanceState(savedInstanceState);
-        ArrayList<Parcelable> attachments = 
-                savedInstanceState.getParcelableArrayList(STATE_KEY_ATTACHMENTS);
-        mAttachments.removeAllViews();
-        for (Parcelable p : attachments) {
-            Uri uri = (Uri) p;
-            addAttachment(uri);
-        }
-
         mCcView.setVisibility(savedInstanceState.getBoolean(STATE_KEY_CC_SHOWN) ?
                 View.VISIBLE : View.GONE);
         mBccView.setVisibility(savedInstanceState.getBoolean(STATE_KEY_BCC_SHOWN) ?
@@ -359,7 +349,6 @@ public class MessageCompose extends Activity implements OnClickListener, OnFocus
                 View.VISIBLE : View.GONE);
         mQuotedText.setVisibility(savedInstanceState.getBoolean(STATE_KEY_QUOTED_TEXT_SHOWN) ?
                 View.VISIBLE : View.GONE);
-        // mDraftUid = savedInstanceState.getString(STATE_KEY_DRAFT_UID);
         mDraftNeedsSaving = false;
     }
 
@@ -652,44 +641,16 @@ public class MessageCompose extends Activity implements OnClickListener, OnFocus
         message.mAccountKey = account.mId;
         message.mDisplayName = makeDisplayName(message.mTo, message.mCc, message.mBcc);
         message.mFlagLoaded = Message.LOADED;
-        // TODO: add attachments (as below)
     }
 
-//         TextBody body = new TextBody(text);
-//         if (mAttachments.getChildCount() > 0) {
-//             /*
-//              * The message has attachments that need to be included. First we add the part
-//              * containing the text that will be sent and then we include each attachment.
-//              */
-
-//             MimeMultipart mp;
-
-//             mp = new MimeMultipart();
-//             mp.addBodyPart(new MimeBodyPart(body, "text/plain"));
-
-//             for (int i = 0, count = mAttachments.getChildCount(); i < count; i++) {
-//                 Attachment attachment = (Attachment) mAttachments.getChildAt(i).getTag();
-//                 MimeBodyPart bp = new MimeBodyPart(
-//                         new LocalStore.LocalAttachmentBody(attachment.uri, getApplication()));
-//                 bp.setHeader(MimeHeader.HEADER_CONTENT_TYPE, String.format("%s;\n name=\"%s\"",
-//                         attachment.contentType,
-//                         attachment.name));
-//                 bp.setHeader(MimeHeader.HEADER_CONTENT_TRANSFER_ENCODING, "base64");
-//                 bp.setHeader(MimeHeader.HEADER_CONTENT_DISPOSITION,
-//                         String.format("attachment;\n filename=\"%s\"",
-//                         attachment.name));
-//                 mp.addBodyPart(bp);
-//             }
-
-//             message.setBody(mp);
-//         }
-//         else {
-//             /*
-//              * No attachments to include, just stick the text body in the message and call
-//              * it good.
-//              */
-//             message.setBody(body);
-//         }
+    private Attachment[] getAttachmentsFromUI() {
+        int count = mAttachments.getChildCount();
+        Attachment[] attachments = new Attachment[count];
+        for (int i = 0; i < count; ++i) {
+            attachments[i] = (Attachment) mAttachments.getChildAt(i).getTag();
+        }
+        return attachments;
+    }
 
     /**
      * Send or save a message:
@@ -714,11 +675,19 @@ public class MessageCompose extends Activity implements OnClickListener, OnFocus
                     values.put(BodyColumns.TEXT_CONTENT, mDraft.mText);
                     Body.updateBodyWithMessageId(MessageCompose.this, mDraft.mId, values);
                 } else {
-                    // saveToMailbox() is synchronous (in this same thread)
-                    // so that mDraft.mId is set upon return 
-                    // (needed by the sendMessage() that happens afterwards).
+                    // mDraft.mId is set upon return of saveToMailbox()
                     mController.saveToMailbox(mDraft, EmailContent.Mailbox.TYPE_DRAFTS);
                 }
+
+                // TODO: remove from DB the attachments that were removed from UI
+                for (Attachment attachment : getAttachmentsFromUI()) {
+                    if (!attachment.isSaved()) {
+                        // this attachment is new so save it to DB.
+                        attachment.mMessageKey = mDraft.mId;
+                        attachment.save(MessageCompose.this);
+                    }
+                }
+
                 if (send) {
                     mController.sendMessage(mDraft.mId, mDraft.mAccountKey);
                     // After a send it's no longer a draft; null it here just to be sure,
@@ -730,13 +699,14 @@ public class MessageCompose extends Activity implements OnClickListener, OnFocus
 
             @Override
             protected void onPostExecute(Void dummy) {
-                if (!send) {
-                    // Don't display the toast if the user is just changing the orientation
-                    if ((getChangingConfigurations() & ActivityInfo.CONFIG_ORIENTATION) == 0) {
-                        Toast.makeText(MessageCompose.this, getString(R.string.message_saved_toast),
-                                       Toast.LENGTH_LONG).show();
-                    }
-                }
+                // TODO: fix toast display for "saved as draft" if needed
+//                 if (!send) {
+//                     // Don't display the toast if the user is just changing the orientation
+//                     if ((getChangingConfigurations() & ActivityInfo.CONFIG_ORIENTATION) == 0) {
+//                         Toast.makeText(MessageCompose.this, getString(R.string.message_saved_toast),
+//                                        Toast.LENGTH_LONG).show();
+//                     }
+//                 }
             }
         }.execute();
     }
@@ -811,7 +781,7 @@ public class MessageCompose extends Activity implements OnClickListener, OnFocus
                 ACTIVITY_REQUEST_PICK_ATTACHMENT);
     }
 
-    private AttachmentInfo loadAttachmentInfo(Uri uri) {
+    private Attachment loadAttachmentInfo(Uri uri) {
         int size = -1;
         String name = null;
         ContentResolver contentResolver = getContentResolver();
@@ -837,18 +807,17 @@ public class MessageCompose extends Activity implements OnClickListener, OnFocus
             contentType = "";
         }
 
-        AttachmentInfo attachment = new AttachmentInfo();
-        attachment.name = name;
-        attachment.contentType = contentType;
-        attachment.size = size;
-        attachment.uri = uri;
+        Attachment attachment = new Attachment();
+        attachment.mFileName = name;
+        attachment.mContentUri = uri.toString();
+        attachment.mSize = size;
+        attachment.mMimeType = contentType;
         return attachment;
     }
 
-    private void addAttachment(Uri uri) {
-        AttachmentInfo attachment = loadAttachmentInfo(uri);
+    private void addAttachment(Attachment attachment) {
         // Before attaching the attachment, make sure it meets any other pre-attach criteria
-        if (attachment.size > Email.MAX_ATTACHMENT_UPLOAD_SIZE) {
+        if (attachment.mSize > Email.MAX_ATTACHMENT_UPLOAD_SIZE) {
             Toast.makeText(this, R.string.message_compose_attachment_size, Toast.LENGTH_LONG)
                     .show();
             return;
@@ -858,11 +827,15 @@ public class MessageCompose extends Activity implements OnClickListener, OnFocus
                 mAttachments, false);
         TextView nameView = (TextView)view.findViewById(R.id.attachment_name);
         ImageButton delete = (ImageButton)view.findViewById(R.id.attachment_delete);
-        nameView.setText(attachment.name);
+        nameView.setText(attachment.mFileName);
         delete.setOnClickListener(this);
         delete.setTag(view);
         view.setTag(attachment);
         mAttachments.addView(view);
+    }
+
+    private void addAttachment(Uri uri) {
+        addAttachment(loadAttachmentInfo(uri));
     }
 
     @Override
