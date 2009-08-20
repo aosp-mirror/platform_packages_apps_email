@@ -31,15 +31,18 @@ import com.android.email.provider.EmailContent.SyncColumns;
 import com.android.exchange.utility.FileLogger;
 
 import android.accounts.AccountManager;
+import android.accounts.OnAccountsUpdatedListener;
 import android.app.AlarmManager;
 import android.app.PendingIntent;
 import android.app.Service;
 import android.content.BroadcastReceiver;
 import android.content.ContentResolver;
+import android.content.ContentUris;
 import android.content.ContentValues;
 import android.content.Context;
 import android.content.Intent;
 import android.content.IntentFilter;
+import android.content.SyncStatusObserver;
 import android.database.ContentObserver;
 import android.database.Cursor;
 import android.net.ConnectivityManager;
@@ -54,6 +57,7 @@ import android.os.PowerManager;
 import android.os.RemoteCallbackList;
 import android.os.RemoteException;
 import android.os.PowerManager.WakeLock;
+import android.provider.ContactsContract;
 import android.util.Log;
 
 import java.io.BufferedReader;
@@ -163,6 +167,8 @@ public class SyncManager extends Service implements Runnable {
     private MailboxObserver mMailboxObserver;
     private SyncedMessageObserver mSyncedMessageObserver;
     private MessageObserver mMessageObserver;
+    private EasSyncStatusObserver mSyncStatusObserver;
+    private EasAccountsUpdatedListener mAccountsUpdatedListener = new EasAccountsUpdatedListener();
     private Handler mHandler = new Handler();
 
     private ContentResolver mResolver;
@@ -573,6 +579,23 @@ public class SyncManager extends Service implements Runnable {
         }
     }
 
+    public class EasSyncStatusObserver implements SyncStatusObserver {
+        public void onStatusChanged(int which) {
+            // We ignore the argument (we can only get called in one case - when settings change)
+            // TODO Go through each account and see if sync is enabled and/or automatic for
+            // the Contacts authority, and set syncInterval accordingly.  Then kick ourselves.
+            if (INSTANCE != null) {
+                checkPIMSyncSettings();
+            }
+        }
+    }
+
+    public class EasAccountsUpdatedListener implements OnAccountsUpdatedListener {
+       public void onAccountsUpdated(android.accounts.Account[] accounts) {
+           checkWithAccountManager();
+       }
+    }
+
     static public void smLog(String str) {
         if (INSTANCE != null) {
             INSTANCE.log(str);
@@ -646,7 +669,7 @@ public class SyncManager extends Service implements Runnable {
             mMailboxObserver = new MailboxObserver(mHandler);
             mSyncedMessageObserver = new SyncedMessageObserver(mHandler);
             mMessageObserver = new MessageObserver(mHandler);
-
+            mSyncStatusObserver = new EasSyncStatusObserver();
             try {
                 mDeviceId = getDeviceId();
             } catch (IOException e) {
@@ -900,6 +923,82 @@ public class SyncManager extends Service implements Runnable {
         }
     }
 
+    /**
+     * See if we need to change the syncInterval for any of our PIM mailboxes based on changes
+     * to settings in the AccountManager (sync settings).
+     * This code is called 1) when SyncManager starts, and 2) when SyncManager is running and there
+     * are changes made (this is detected via a SyncStatusObserver)
+     */
+    private void checkPIMSyncSettings() {
+        ContentValues cv = new ContentValues();
+        // For now, just Contacts
+        // First, walk through our list of accounts
+        List<Account> easAccounts = getAccountList();
+        for (Account easAccount: easAccounts) {
+            // Find the contacts mailbox
+            long contactsId =
+                Mailbox.findMailboxOfType(this, easAccount.mId, Mailbox.TYPE_CONTACTS);
+            // Presumably there is one, but if not, it's ok.  Just move on...
+            if (contactsId != Mailbox.NO_MAILBOX) {
+                // Create an AccountManager style Account
+                android.accounts.Account acct =
+                    new android.accounts.Account(easAccount.mEmailAddress,
+                            Eas.ACCOUNT_MANAGER_TYPE);
+                // Get the Contacts mailbox; this happens rarely so it's ok to get it all
+                Mailbox contacts = Mailbox.restoreMailboxWithId(this, contactsId);
+                int syncInterval = contacts.mSyncInterval;
+                // If we're syncable, look further...
+                if (ContentResolver.getIsSyncable(acct, ContactsContract.AUTHORITY) > 0) {
+                    // If we're supposed to sync automatically (push), set to push if it's not
+                    if (ContentResolver.getSyncAutomatically(acct, ContactsContract.AUTHORITY)) {
+                        if (syncInterval == Mailbox.CHECK_INTERVAL_NEVER || syncInterval > 0) {
+                            log("Sync setting: Contacts for " + acct.name + " changed to push");
+                            cv.put(MailboxColumns.SYNC_INTERVAL, Mailbox.CHECK_INTERVAL_PUSH);
+                        }
+                        // If we're NOT supposed to push, and we're not set up that way, change it
+                        } else if (syncInterval != Mailbox.CHECK_INTERVAL_NEVER) {
+                            log("Sync setting: Contacts for " + acct.name + " changed to manual");
+                            cv.put(MailboxColumns.SYNC_INTERVAL, Mailbox.CHECK_INTERVAL_NEVER);
+                    }
+                // If not, set it to never check
+                } else if (syncInterval != Mailbox.CHECK_INTERVAL_NEVER) {
+                    log("Sync setting: Contacts for " + acct.name + " changed to manual");
+                    cv.put(MailboxColumns.SYNC_INTERVAL, Mailbox.CHECK_INTERVAL_NEVER);
+                }
+
+                // If we've made a change, update the Mailbox, and kick
+                if (cv.containsKey(MailboxColumns.SYNC_INTERVAL)) {
+                    mResolver.update(ContentUris.withAppendedId(Mailbox.CONTENT_URI, contactsId),
+                            cv,null, null);
+                    kick("sync settings change");
+                }
+            }
+        }
+    }
+
+    private void checkWithAccountManager() {
+        android.accounts.Account[] accts =
+            AccountManager.get(this).getAccountsByType(Eas.ACCOUNT_MANAGER_TYPE);
+        List<Account> easAccounts = getAccountList();
+        for (Account easAccount: easAccounts) {
+            String accountName = easAccount.mEmailAddress;
+            boolean found = false;
+            for (android.accounts.Account acct: accts) {
+                if (acct.name.equalsIgnoreCase(accountName)) {
+                    found = true;
+                    break;
+                }
+            }
+            if (!found) {
+                // This account has been deleted in the AccountManager!
+                log("Account deleted in AccountManager; deleting from provider: " + accountName);
+                // TODO This will orphan downloaded attachments; need to handle this
+                mResolver.delete(ContentUris.withAppendedId(Account.CONTENT_URI, easAccount.mId),
+                        null, null);
+            }
+        }
+    }
+
     private void releaseConnectivityLock(String reason) {
         // Clear our sync error map when we get connected
         mSyncErrorMap.clear();
@@ -1048,10 +1147,17 @@ public class SyncManager extends Service implements Runnable {
         mResolver.registerContentObserver(Mailbox.CONTENT_URI, false, mMailboxObserver);
         mResolver.registerContentObserver(Message.SYNCED_CONTENT_URI, true, mSyncedMessageObserver);
         mResolver.registerContentObserver(Message.CONTENT_URI, true, mMessageObserver);
+        ContentResolver.addStatusChangeListener(ContentResolver.SYNC_OBSERVER_TYPE_SETTINGS,
+                mSyncStatusObserver);
+        AccountManager.get(this).addOnAccountsUpdatedListener(mAccountsUpdatedListener,
+                mHandler, true);
 
         mConnectivityReceiver = new ConnectivityReceiver();
         registerReceiver(mConnectivityReceiver,
                 new IntentFilter(ConnectivityManager.CONNECTIVITY_ACTION));
+
+        // See if any settings have changed while we weren't running...
+        checkPIMSyncSettings();
 
         try {
             while (!mStop) {
