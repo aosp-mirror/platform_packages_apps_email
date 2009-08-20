@@ -983,9 +983,13 @@ public class SyncManager extends Service implements Runnable {
             // Shut down all of those running services
             for (Long mailboxId : toStop) {
                 AbstractSyncService svc = mServiceMap.get(mailboxId);
-                log("Shutting down " + svc.mAccount.mDisplayName + '/' + svc.mMailbox.mDisplayName);
-                svc.stop();
-                svc.mThread.interrupt();
+                if (svc != null) {
+                    log("Stopping " + svc.mAccount.mDisplayName + '/' + svc.mMailbox.mDisplayName);
+                    svc.stop();
+                    if (svc.mThread != null) {
+                        svc.mThread.interrupt();
+                    }
+                }
                 releaseWakeLock(mailboxId);
             }
         }
