@@ -16,23 +16,18 @@
 
 package com.android.email.mail.store;
 
-import android.util.Log;
 import android.net.http.DomainNameChecker;
 
-import java.security.KeyStore;
-import java.security.NoSuchAlgorithmException;
-import java.security.KeyStoreException;
 import java.security.cert.X509Certificate;
 import java.security.cert.CertificateException;
 
 import javax.net.ssl.X509TrustManager;
-import javax.net.ssl.TrustManager;
+
+import org.apache.harmony.xnet.provider.jsse.SSLParameters;
 
 public final class TrustManagerFactory {
-    private static final String LOG_TAG = "TrustManagerFactory";
-
-    private static X509TrustManager sSecureTrustManager;
-    private static X509TrustManager sUnsecureTrustManager;
+    private static X509TrustManager sUnsecureTrustManager
+            = new SimpleX509TrustManager();
 
     private static class SimpleX509TrustManager implements X509TrustManager {
         public void checkClientTrusted(X509Certificate[] chain, String authType)
@@ -78,33 +73,12 @@ public final class TrustManagerFactory {
         }
     }
 
-    static {
-        try {
-            javax.net.ssl.TrustManagerFactory tmf = javax.net.ssl.TrustManagerFactory.getInstance("X509");
-            tmf.init((KeyStore) null);
-            TrustManager[] tms = tmf.getTrustManagers();
-            if (tms != null) {
-                for (TrustManager tm : tms) {
-                    if (tm instanceof X509TrustManager) {
-                        sSecureTrustManager = (X509TrustManager) tm;
-                        break;
-                    }
-                }
-            }
-        } catch (NoSuchAlgorithmException e) {
-            Log.e(LOG_TAG, "Unable to get X509 Trust Manager ", e);
-        } catch (KeyStoreException e) {
-            Log.e(LOG_TAG, "Key Store exception while initializing TrustManagerFactory ", e);
-        }
-
-        sUnsecureTrustManager = new SimpleX509TrustManager();
-    }
-
     private TrustManagerFactory() {
     }
 
     public static X509TrustManager get(String host, boolean secure) {
-        return secure ? new SecureX509TrustManager(sSecureTrustManager, host) :
-                sUnsecureTrustManager;
+        return secure ? new SecureX509TrustManager(
+                    SSLParameters.getDefaultTrustManager(), host) 
+                : sUnsecureTrustManager;
     }
 }
