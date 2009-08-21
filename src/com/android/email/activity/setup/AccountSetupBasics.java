@@ -190,6 +190,7 @@ public class AccountSetupBasics extends Activity
 
     private String getOwnerName() {
         String name = null;
+/* TODO figure out another way to get the owner name
         String projection[] = {
             ContactMethods.NAME
         };
@@ -202,6 +203,7 @@ public class AccountSetupBasics extends Activity
             }
             c.close();
         }
+*/
 
         if (name == null || name.length() == 0) {
             long defaultId = Account.getDefaultAccountId(this);
