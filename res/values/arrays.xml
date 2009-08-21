@@ -80,5 +80,42 @@
         <item>4</item>
         <item>5</item>
     </string-array>
-    
+
+    <string-array name="special_mailbox_display_names" translatable="false">
+        <!-- TYPE_INBOX = 0 -->
+        <item>@string/special_mailbox_display_name_inbox</item>
+        <!-- TYPE_MAIL = 1 -->
+        <item></item>
+        <!-- TYPE_PARENT = 2 -->
+        <item></item>
+        <!-- TYPE_OUTBOX = 3 -->
+        <item>@string/special_mailbox_display_name_junk</item>
+        <!-- TYPE_DRAFTS = 4 -->
+        <item>@string/special_mailbox_display_name_drafts</item>
+        <!-- TYPE_SENT = 5 -->
+        <item>@string/special_mailbox_display_name_sent</item>
+        <!-- TYPE_TRASH = 6 -->
+        <item>@string/special_mailbox_display_name_trash</item>
+        <!-- TYPE_JUNK = 7 -->
+        <item>@string/special_mailbox_display_name_junk</item>
+    </string-array>
+
+    <array name="special_mailbox_icons" translatable="false">
+        <!-- TYPE_INBOX = 0 -->
+        <item>@drawable/ic_list_inbox</item>
+        <!-- TYPE_MAIL = 1 -->
+        <item>@drawable/ic_list_folder</item>
+        <!-- TYPE_PARENT = 2 -->
+        <item>@drawable/ic_list_folder</item>
+        <!-- TYPE_OUTBOX = 3 -->
+        <item>@drawable/ic_list_outbox</item>
+        <!-- TYPE_DRAFTS = 4 -->
+        <item>@drawable/ic_list_drafts</item>
+        <!-- TYPE_SENT = 5 -->
+        <item>@drawable/ic_list_sent</item>
+        <!-- TYPE_TRASH = 6 -->
+        <item>@drawable/ic_list_trash</item>
+        <!-- TYPE_JUNK = 7 -->
+        <item></item>
+    </array>
 </resources>

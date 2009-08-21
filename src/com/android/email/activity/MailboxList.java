@@ -18,6 +18,7 @@ package com.android.email.activity;
 
 import com.android.email.Controller;
 import com.android.email.R;
+import com.android.email.Utility;
 import com.android.email.activity.setup.AccountSettings;
 import com.android.email.mail.MessagingException;
 import com.android.email.provider.EmailContent;
@@ -419,8 +420,12 @@ public class MailboxList extends ListActivity implements OnItemClickListener, On
 
         @Override
         public void bindView(View view, Context context, Cursor cursor) {
-            // TODO translation by mailbox type
-            String text = cursor.getString(COLUMN_DISPLAY_NAME);
+            int type = cursor.getInt(COLUMN_TYPE);
+            String text = Utility.FolderProperties.getInstance(context)
+                    .getDisplayName(type);
+            if (text == null) {
+                text = cursor.getString(COLUMN_DISPLAY_NAME);
+            }
             TextView nameView = (TextView) view.findViewById(R.id.mailbox_name);
             if (text != null) {
                 nameView.setText(text);
@@ -455,29 +460,8 @@ public class MailboxList extends ListActivity implements OnItemClickListener, On
                 countView.setVisibility(View.GONE);
             }
             ImageView folderIcon = (ImageView) view.findViewById(R.id.folder_icon);
-            int type = cursor.getInt(COLUMN_TYPE);
-            int resId = -1;
-            switch (type) {
-                case Mailbox.TYPE_INBOX:
-                    resId = R.drawable.ic_list_inbox;
-                    break;
-                case Mailbox.TYPE_OUTBOX:
-                    resId = R.drawable.ic_list_outbox;
-                    break;
-                case Mailbox.TYPE_DRAFTS:
-                    resId = R.drawable.ic_list_drafts;
-                    break;
-                case Mailbox.TYPE_SENT:
-                    resId = R.drawable.ic_list_sent;
-                    break;
-                case Mailbox.TYPE_TRASH:
-                    resId = R.drawable.ic_list_trash;
-                    break;
-                default:
-                    resId = R.drawable.ic_list_folder;
-                    break;
-            }
-            folderIcon.setImageResource(resId);
+            folderIcon.setImageDrawable(Utility.FolderProperties.getInstance(context)
+                    .getIconIds(type));
         }
 
         @Override
