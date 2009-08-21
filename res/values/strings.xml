@@ -378,6 +378,8 @@
     <string name="account_setup_options_default_label">Send email from this account by default.</string>
     <!-- In Account setup options & Account Settings screens, check box for new-mail notification -->
     <string name="account_setup_options_notify_label">Notify me when email arrives.</string>
+    <!-- In Account setup options & Account Settings screens, optional check box to also sync contacts -->
+    <string name="account_setup_options_sync_contacts_label">Sync contacts from this account.</string>
     <!-- Dialog title when "setup" could not finish -->
     <string name="account_setup_failed_dlg_title">Setup could not finish</string>
     <!-- In Account setup options screen, label for email check frequency selector -->
