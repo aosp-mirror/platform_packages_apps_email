@@ -49,6 +49,7 @@ import android.widget.AdapterView;
 import android.widget.CursorAdapter;
 import android.widget.ImageView;
 import android.widget.ListView;
+import android.widget.ProgressBar;
 import android.widget.TextView;
 import android.widget.AdapterView.OnItemClickListener;
 
@@ -62,10 +63,7 @@ public class MailboxList extends ListActivity implements OnItemClickListener, On
         + " AND " + MailboxColumns.FLAG_VISIBLE + "=1";
     // UI support
     private ListView mListView;
-    private TextView mAccountNameView;
-    private TextView mAccountStatusView;
-    private View mRefreshButton;
-    private View mProgress;
+    private ProgressBar mProgressIcon;
 
     private MailboxListAdapter mListAdapter;
     private MailboxListHandler mHandler = new MailboxListHandler();
@@ -115,16 +113,15 @@ public class MailboxList extends ListActivity implements OnItemClickListener, On
     public void onCreate(Bundle icicle) {
         super.onCreate(icicle);
 
-        requestWindowFeature(Window.FEATURE_NO_TITLE);
-
+        requestWindowFeature(Window.FEATURE_CUSTOM_TITLE);
         setContentView(R.layout.mailbox_list);
+        getWindow().setFeatureInt(Window.FEATURE_CUSTOM_TITLE,
+                R.layout.list_title);
+
+        // Custom TItle
+        mProgressIcon = (ProgressBar) findViewById(R.id.title_progress_icon);
+
         mListView = getListView();
-        findViewById(R.id.button_compose).setOnClickListener(this);
-        mRefreshButton = findViewById(R.id.button_refresh);
-        mRefreshButton.setOnClickListener(this);
-        mAccountNameView = (TextView) findViewById(R.id.account_name);
-        mAccountStatusView = (TextView) findViewById(R.id.account_status);
-        mProgress = findViewById(R.id.progress);
 
         mListView.setOnItemClickListener(this);
         mListView.setItemsCanFocus(false);
@@ -141,11 +138,7 @@ public class MailboxList extends ListActivity implements OnItemClickListener, On
             finish();
         }
 
-        // setup fat fitle - color chip, name, status, refresh/progress
-        int chipResId = mColorChipResIds[(int)mAccountId % mColorChipResIds.length];
-        findViewById(R.id.chip).setBackgroundResource(chipResId);
-        mAccountStatusView.setVisibility(View.GONE);
-        mProgress.setVisibility(View.GONE);
+        ((TextView)findViewById(R.id.title_left_text)).setText(R.string.mailbox_list_title);
 
         // Go to the database for the account name
         new AsyncTask<Void, Void, String>() {
@@ -171,7 +164,7 @@ public class MailboxList extends ListActivity implements OnItemClickListener, On
                     // something is wrong with this account
                     finish();
                 }
-                mAccountNameView.setText(result);
+                ((TextView)findViewById(R.id.title_right_text)).setText(result);
             }
 
         }.execute();
@@ -340,11 +333,9 @@ public class MailboxList extends ListActivity implements OnItemClickListener, On
                 case MSG_PROGRESS:
                     boolean showProgress = (msg.arg1 != 0);
                     if (showProgress) {
-                        mRefreshButton.setVisibility(View.GONE);
-                        mProgress.setVisibility(View.VISIBLE);
+                        mProgressIcon.setVisibility(View.VISIBLE);
                     } else {
-                        mRefreshButton.setVisibility(View.VISIBLE);
-                        mProgress.setVisibility(View.GONE);
+                        mProgressIcon.setVisibility(View.GONE);
                     }
                     break;
                 default:

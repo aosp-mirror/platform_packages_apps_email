@@ -59,6 +59,7 @@ import android.view.View.OnClickListener;
 import android.widget.AdapterView;
 import android.widget.CursorAdapter;
 import android.widget.ListView;
+import android.widget.ProgressBar;
 import android.widget.TextView;
 import android.widget.Toast;
 import android.widget.AdapterView.OnItemClickListener;
@@ -81,8 +82,7 @@ public class AccountFolderList extends ListActivity
     private EmailContent.Account mSelectedContextAccount;
 
     private ListView mListView;
-    private View mRefreshButton;
-    private View mProgress;
+    private ProgressBar mProgressIcon;
 
     AccountsAdapter mListAdapter;
 
@@ -157,9 +157,13 @@ public class AccountFolderList extends ListActivity
     public void onCreate(Bundle icicle) {
         super.onCreate(icicle);
 
-        requestWindowFeature(Window.FEATURE_NO_TITLE);
-
+        requestWindowFeature(Window.FEATURE_CUSTOM_TITLE);
         setContentView(R.layout.account_folder_list);
+        getWindow().setFeatureInt(Window.FEATURE_CUSTOM_TITLE,
+                R.layout.list_title);
+
+        mProgressIcon = (ProgressBar) findViewById(R.id.title_progress_icon);
+
         mListView = getListView();
         mListView.setItemsCanFocus(false);
         mListView.setScrollBarStyle(View.SCROLLBARS_OUTSIDE_INSET);
@@ -171,18 +175,10 @@ public class AccountFolderList extends ListActivity
             mSelectedContextAccount = (Account) icicle.getParcelable(ICICLE_SELECTED_ACCOUNT);
         }
 
-        // Set up fat title bar elements
-        findViewById(R.id.chip).setVisibility(View.GONE);
-        findViewById(R.id.button_compose).setOnClickListener(this);
-        mRefreshButton = findViewById(R.id.button_refresh);
-        mRefreshButton.setOnClickListener(this);
-        ((TextView) findViewById(R.id.account_name)).setText(R.string.accounts_title);
-        findViewById(R.id.account_status).setVisibility(View.GONE);
-        mProgress = findViewById(R.id.progress);
-        mProgress.setVisibility(View.GONE);
-
         // Called only for filling cache of specialMailboxDisplayName
         getSpecialMailboxDisplayName(this, 0);
+
+        ((TextView) findViewById(R.id.title_left_text)).setText(R.string.app_name);
 
         mLoadAccountsTask = (LoadAccountsTask) new LoadAccountsTask().execute();
     }
@@ -586,11 +582,9 @@ public class AccountFolderList extends ListActivity
                 case MSG_PROGRESS:
                     boolean showProgress = (msg.arg1 != 0);
                     if (showProgress) {
-                        mRefreshButton.setVisibility(View.GONE);
-                        mProgress.setVisibility(View.VISIBLE);
+                        mProgressIcon.setVisibility(View.VISIBLE);
                     } else {
-                        mRefreshButton.setVisibility(View.VISIBLE);
-                        mProgress.setVisibility(View.GONE);
+                        mProgressIcon.setVisibility(View.GONE);
                     }
                     break;
                 default:

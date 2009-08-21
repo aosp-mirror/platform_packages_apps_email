@@ -172,6 +172,9 @@
     <!-- The summary section entry in the AccountFolder list to display all outboxes -->
     <string name="account_folder_list_summary_outbox">Outbox</string>
 
+    <!-- Title of the screen that shows a list of mailboxes for an account -->
+    <string name="mailbox_list_title">Mailbox</string>
+
     <!-- Appears at the bottom of list of messages; user selects to load more messages from that folder. -->
     <string name="message_list_load_more_messages_action">Load more messages</string>
     <!-- Appears at the bottom of list of messages of outbox;
@@ -375,9 +378,6 @@
     <string name="account_setup_options_default_label">Send email from this account by default.</string>
     <!-- In Account setup options & Account Settings screens, check box for new-mail notification -->
     <string name="account_setup_options_notify_label">Notify me when email arrives.</string>
-    <!-- In Account setup options & Account Settings screens, optional check box to also sync
-         contacts -->
-    <string name="account_setup_options_sync_contacts_label">Sync contacts from this account.</string>
     <!-- Dialog title when "setup" could not finish -->
     <string name="account_setup_failed_dlg_title">Setup could not finish</string>
     <!-- In Account setup options screen, label for email check frequency selector -->
