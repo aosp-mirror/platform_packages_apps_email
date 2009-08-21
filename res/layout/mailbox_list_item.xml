@@ -25,8 +25,8 @@
     <View
         android:id="@+id/chip"
         android:background="@drawable/appointment_indicator_leftside_1"
-        android:layout_width="4px"
-        android:layout_height="56px"
+        android:layout_width="4dip"
+        android:layout_height="56dip"
         android:layout_centerVertical="true" />
     <ImageView
         android:id="@+id/folder_icon"

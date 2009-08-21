@@ -36,7 +36,7 @@
             android:textColor="?android:attr/textColorPrimary" />
         <View
             android:layout_width="fill_parent"
-            android:layout_height="0px"
+            android:layout_height="0dip"
             android:layout_weight="1" />
         <RelativeLayout
             android:layout_width="fill_parent"
