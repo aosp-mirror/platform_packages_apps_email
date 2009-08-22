@@ -18,86 +18,91 @@
     xmlns:android="http://schemas.android.com/apk/res/android"
     android:layout_width="fill_parent"
     android:layout_height="fill_parent"
-    android:scrollbarStyle="outsideInset">
+    android:fillViewport="true"
+    android:scrollbarStyle="outsideInset" >
+
     <LinearLayout
         android:layout_width="fill_parent"
         android:layout_height="fill_parent"
-        android:orientation="vertical">
-        <TextView
-            android:text="@string/account_setup_outgoing_smtp_server_label"
-            android:layout_height="wrap_content"
-            android:layout_width="fill_parent"
-            android:textAppearance="?android:attr/textAppearanceSmall"
-            android:textColor="?android:attr/textColorPrimary" />
-        <!-- Note: we use inputType=textUri as the closest approximation to a server name -->
-        <EditText
-            android:id="@+id/account_server"
-            android:inputType="textUri"
-            android:imeOptions="actionDone"
-            android:layout_height="wrap_content"
-            android:layout_width="fill_parent" />
-        <TextView
-            android:text="@string/account_setup_outgoing_port_label"
-            android:layout_height="wrap_content"
-            android:layout_width="fill_parent"
-            android:textAppearance="?android:attr/textAppearanceSmall"
-            android:textColor="?android:attr/textColorPrimary" />
-        <EditText
-            android:id="@+id/account_port"
-            android:inputType="number"
-            android:imeOptions="actionDone"
-            android:layout_height="wrap_content"
-            android:layout_width="fill_parent" />
-        <TextView
-            android:text="@string/account_setup_outgoing_security_label"
-            android:layout_height="wrap_content"
-            android:layout_width="fill_parent"
-            android:textAppearance="?android:attr/textAppearanceSmall"
-            android:textColor="?android:attr/textColorPrimary" />
-        <Spinner
-            android:id="@+id/account_security_type"
-            android:layout_height="wrap_content"
-            android:layout_width="fill_parent" />
-        <CheckBox
-            android:id="@+id/account_require_login"
-            android:layout_width="fill_parent"
-            android:layout_height="wrap_content"
-            android:text="@string/account_setup_outgoing_require_login_label" />
+        android:orientation="vertical" >
+
         <LinearLayout
-            android:id="@+id/account_require_login_settings"
             android:layout_width="fill_parent"
-            android:layout_height="fill_parent"
-            android:orientation="vertical"
-            android:visibility="gone">
+            android:layout_height="wrap_content"
+            android:layout_weight="1"
+            android:orientation="vertical" >
             <TextView
-                android:text="@string/account_setup_outgoing_username_label"
+                android:text="@string/account_setup_outgoing_smtp_server_label"
+                android:layout_height="wrap_content"
+                android:layout_width="fill_parent"
+                android:textAppearance="?android:attr/textAppearanceSmall"
+                android:textColor="?android:attr/textColorPrimary" />
+            <!-- Note: we use inputType=textUri as the closest approximation to a server name -->
+            <EditText
+                android:id="@+id/account_server"
+                android:inputType="textUri"
+                android:imeOptions="actionDone"
+                android:layout_height="wrap_content"
+                android:layout_width="fill_parent" />
+            <TextView
+                android:text="@string/account_setup_outgoing_port_label"
                 android:layout_height="wrap_content"
                 android:layout_width="fill_parent"
                 android:textAppearance="?android:attr/textAppearanceSmall"
                 android:textColor="?android:attr/textColorPrimary" />
             <EditText
-                android:id="@+id/account_username"
-                android:inputType="textEmailAddress"
+                android:id="@+id/account_port"
+                android:inputType="number"
                 android:imeOptions="actionDone"
                 android:layout_height="wrap_content"
                 android:layout_width="fill_parent" />
             <TextView
-                android:text="@string/account_setup_outgoing_password_label"
+                android:text="@string/account_setup_outgoing_security_label"
                 android:layout_height="wrap_content"
                 android:layout_width="fill_parent"
                 android:textAppearance="?android:attr/textAppearanceSmall"
                 android:textColor="?android:attr/textColorPrimary" />
-            <EditText
-                android:id="@+id/account_password"
-                android:inputType="textPassword"
-                android:imeOptions="actionDone"
+            <Spinner
+                android:id="@+id/account_security_type"
                 android:layout_height="wrap_content"
                 android:layout_width="fill_parent" />
+            <CheckBox
+                android:id="@+id/account_require_login"
+                android:layout_width="fill_parent"
+                android:layout_height="wrap_content"
+                android:text="@string/account_setup_outgoing_require_login_label" />
+            <LinearLayout
+                android:id="@+id/account_require_login_settings"
+                android:layout_width="fill_parent"
+                android:layout_height="fill_parent"
+                android:orientation="vertical"
+                android:visibility="gone">
+                <TextView
+                    android:text="@string/account_setup_outgoing_username_label"
+                    android:layout_height="wrap_content"
+                    android:layout_width="fill_parent"
+                    android:textAppearance="?android:attr/textAppearanceSmall"
+                    android:textColor="?android:attr/textColorPrimary" />
+                <EditText
+                    android:id="@+id/account_username"
+                    android:inputType="textEmailAddress"
+                    android:imeOptions="actionDone"
+                    android:layout_height="wrap_content"
+                    android:layout_width="fill_parent" />
+                <TextView
+                    android:text="@string/account_setup_outgoing_password_label"
+                    android:layout_height="wrap_content"
+                    android:layout_width="fill_parent"
+                    android:textAppearance="?android:attr/textAppearanceSmall"
+                    android:textColor="?android:attr/textColorPrimary" />
+                <EditText
+                    android:id="@+id/account_password"
+                    android:inputType="textPassword"
+                    android:imeOptions="actionDone"
+                    android:layout_height="wrap_content"
+                    android:layout_width="fill_parent" />
+            </LinearLayout>
         </LinearLayout>
-        <View
-            android:layout_width="fill_parent"
-            android:layout_height="0dip"
-            android:layout_weight="1" />
         <RelativeLayout
             android:layout_width="fill_parent"
             android:layout_height="54dip"
