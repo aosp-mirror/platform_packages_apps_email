@@ -161,6 +161,7 @@ public class SyncManager extends Service implements Runnable {
         new HashMap<Long, PendingIntent>();
     // The actual WakeLock obtained by SyncManager
     private WakeLock mWakeLock = null;
+    private static final AccountList EMPTY_ACCOUNT_LIST = new AccountList();
 
     // Observers that we use to look for changed mail-related data
     private AccountObserver mAccountObserver;
@@ -314,7 +315,7 @@ public class SyncManager extends Service implements Runnable {
         }
     };
 
-    class AccountList extends ArrayList<Account> {
+    static class AccountList extends ArrayList<Account> {
         private static final long serialVersionUID = 1L;
 
         public boolean contains(long id) {
@@ -545,7 +546,7 @@ public class SyncManager extends Service implements Runnable {
         if (INSTANCE != null) {
             return INSTANCE.mAccountObserver.mAccounts;
         } else {
-            return null;
+            return EMPTY_ACCOUNT_LIST;
         }
     }
 
