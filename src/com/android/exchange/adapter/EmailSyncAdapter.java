@@ -199,7 +199,7 @@ public class EmailSyncAdapter extends AbstractSyncAdapter {
             while (nextTag(Tags.EMAIL_FLAG) != END) {
                 switch (tag) {
                     case Tags.EMAIL_FLAG_STATUS:
-                        state = true;
+                        state = getValueInt() == 2;
                         break;
                     default:
                         skipTag();
