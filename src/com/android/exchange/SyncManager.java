@@ -1424,8 +1424,10 @@ public class SyncManager extends Service implements Runnable {
             if (INSTANCE.mServiceMap.get(mailboxId) == null) {
                 INSTANCE.mSyncErrorMap.remove(mailboxId);
                 Mailbox m = Mailbox.restoreMailboxWithId(INSTANCE, mailboxId);
-                INSTANCE.log("Starting sync for " + m.mDisplayName);
-                INSTANCE.startService(m, reason, req);
+                if (m != null) {
+                    INSTANCE.log("Starting sync for " + m.mDisplayName);
+                    INSTANCE.startService(m, reason, req);
+                }
             }
         }
         return INSTANCE.mServiceMap.get(mailboxId);
@@ -1458,17 +1460,6 @@ public class SyncManager extends Service implements Runnable {
             synchronized (sConnectivityLock) {
                 sConnectivityLock.notify();
             }
-        }
-    }
-
-    static public void kick(long mailboxId) {
-        if (INSTANCE == null) return;
-        Mailbox m = Mailbox.restoreMailboxWithId(INSTANCE, mailboxId);
-        int syncType = m.mSyncInterval;
-        if (syncType == Mailbox.CHECK_INTERVAL_PUSH) {
-            SyncManager.serviceRequestImmediate(mailboxId);
-        } else {
-            SyncManager.startManualSync(mailboxId, SYNC_KICK, null);
         }
     }
 
