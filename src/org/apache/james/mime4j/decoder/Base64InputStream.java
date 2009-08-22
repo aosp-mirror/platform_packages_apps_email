@@ -17,13 +17,14 @@
  * under the License.                                           *
  ****************************************************************/
 
+/**
+ * Modified to improve efficiency by Android   21-Aug-2009
+ */
+
 package org.apache.james.mime4j.decoder;
 
 import java.io.IOException;
 import java.io.InputStream;
-
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
 
 /**
  * Performs Base-64 decoding on an underlying stream.
@@ -32,11 +33,11 @@ import org.apache.commons.logging.LogFactory;
  * @version $Id: Base64InputStream.java,v 1.3 2004/11/29 13:15:47 ntherning Exp $
  */
 public class Base64InputStream extends InputStream {
-    private static Log log = LogFactory.getLog(Base64InputStream.class);
-
     private final InputStream s;
-    private final ByteQueue byteq = new ByteQueue(3);
-    private boolean done = false;
+    private int outCount = 0;
+    private int outIndex = 0;
+    private final int[] outputBuffer = new int[3];
+    private final byte[] inputBuffer = new byte[4];
 
     public Base64InputStream(InputStream s) {
         this.s = s;
@@ -47,23 +48,21 @@ public class Base64InputStream extends InputStream {
      * 
      * @throws IOException on I/O errors.
      */
+    @Override
     public void close() throws IOException {
         s.close();
     }
     
+    @Override
     public int read() throws IOException {
-        if (byteq.count() == 0) {
+        if (outIndex == outCount) {
             fillBuffer();
-            if (byteq.count() == 0) {
+            if (outIndex == outCount) {
                 return -1;
             }
         }
 
-        byte val = byteq.dequeue();
-        if (val >= 0)
-            return val;
-        else
-            return val & 0xFF;
+        return outputBuffer[outIndex++];
     }
 
     /**
@@ -72,29 +71,25 @@ public class Base64InputStream extends InputStream {
      * @throws IOException
      */
     private void fillBuffer() throws IOException {
-        byte[] data = new byte[4];
-        int pos = 0;
+        outCount = 0;
+        outIndex = 0;
+        int inCount = 0;
 
         int i;
-        while (!done) {
+        while (true) {
             switch (i = s.read()) {
                 case -1:
-                    if (pos > 0) {
-                        log.warn("Unexpected EOF in MIME parser, dropping " 
-                                + pos + " sextets");
-                    }
+                    // No more input - just return, let outputBuffer drain out, and be done
                     return;
                 case '=':
-                    decodeAndEnqueue(data, pos);
-                    done = true;
-                    break;
+                    decodeAndEnqueue(inCount);
+                    return;
                 default:
                     byte sX = TRANSLATION[i];
-                    if (sX < 0)
-                        continue;
-                    data[pos++] = sX;
-                    if (pos == data.length) {
-                        decodeAndEnqueue(data, pos);
+                    if (sX < 0) continue;
+                    inputBuffer[inCount++] = sX;
+                    if (inCount == 4) {
+                        decodeAndEnqueue(inCount);
                         return;
                     }
                     break;
@@ -102,24 +97,30 @@ public class Base64InputStream extends InputStream {
         }
     }
 
-    private void decodeAndEnqueue(byte[] data, int len) {
+    private void decodeAndEnqueue(int len) {
         int accum = 0;
-        accum |= data[0] << 18;
-        accum |= data[1] << 12;
-        accum |= data[2] << 6;
-        accum |= data[3];
+        accum |= inputBuffer[0] << 18;
+        accum |= inputBuffer[1] << 12;
+        accum |= inputBuffer[2] << 6;
+        accum |= inputBuffer[3];
 
-        byte b1 = (byte)(accum >>> 16);
-        byteq.enqueue(b1);
-
-        if (len > 2) {
-            byte b2 = (byte)((accum >>> 8) & 0xFF);
-            byteq.enqueue(b2);
-
-            if (len > 3) {
-                byte b3 = (byte)(accum & 0xFF);
-                byteq.enqueue(b3);
-            }
+        // There's a bit of duplicated code here because we want to have straight-through operation
+        // for the most common case of len==4
+        if (len == 4) {
+            outputBuffer[0] = (accum >> 16) & 0xFF;
+            outputBuffer[1] = (accum >> 8) & 0xFF;
+            outputBuffer[2] = (accum) & 0xFF;
+            outCount = 3;
+            return;
+        } else if (len == 3) {
+            outputBuffer[0] = (accum >> 16) & 0xFF;
+            outputBuffer[1] = (accum >> 8) & 0xFF;
+            outCount = 2;
+            return;
+        } else {    // len == 2
+            outputBuffer[0] = (accum >> 16) & 0xFF;
+            outCount = 1;
+            return;
         }
     }
 
