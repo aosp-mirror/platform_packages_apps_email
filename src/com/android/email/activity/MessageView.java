@@ -914,7 +914,8 @@ public class MessageView extends Activity
             return;
         }
         final String senderEmail = email;
-        
+
+/*
         new Thread() {
             @Override
             public void run() {
@@ -939,6 +940,7 @@ public class MessageView extends Activity
                 mHandler.setSenderPresence(presenceIcon);
             }
         }.start();
+*/
     }
     
     /**
