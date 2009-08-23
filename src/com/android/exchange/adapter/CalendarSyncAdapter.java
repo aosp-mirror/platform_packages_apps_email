@@ -39,18 +39,18 @@ public class CalendarSyncAdapter extends AbstractSyncAdapter {
     }
 
     @Override
-    public boolean sendLocalChanges(Serializer s, EasSyncService service) throws IOException {
+    public boolean sendLocalChanges(Serializer s) throws IOException {
         // TODO Auto-generated method stub
         return false;
     }
 
     @Override
-    public void cleanup(EasSyncService service) {
+    public void cleanup() {
         // TODO Auto-generated method stub
     }
 
     @Override
-    public boolean parse(InputStream is, EasSyncService service) throws IOException {
+    public boolean parse(InputStream is) throws IOException {
         // TODO Auto-generated method stub
         return false;
     }

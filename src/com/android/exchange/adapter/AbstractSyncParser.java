@@ -43,10 +43,12 @@ public abstract class AbstractSyncParser extends Parser {
     protected Account mAccount;
     protected Context mContext;
     protected ContentResolver mContentResolver;
+    protected AbstractSyncAdapter mAdapter;
 
-    public AbstractSyncParser(InputStream in, EasSyncService _service) throws IOException {
+    public AbstractSyncParser(InputStream in, AbstractSyncAdapter adapter) throws IOException {
         super(in);
-        mService = _service;
+        mAdapter = adapter;
+        mService = adapter.mService;
         mContext = mService.mContext;
         mContentResolver = mContext.getContentResolver();
         mMailbox = mService.mMailbox;
@@ -61,13 +63,15 @@ public abstract class AbstractSyncParser extends Parser {
 
     /**
      * Read, parse, and act on server responses
-     * Email doesn't have any, so this isn't yet implemented anywhere.  It will become abstract,
-     * in the near future, however.
      * @throws IOException
      */
-    public void responsesParser() throws IOException {
-        // Placeholder until needed; will become an abstract method
-    }
+    public abstract void responsesParser() throws IOException;
+
+    /**
+     * Commit any changes found during parsing
+     * @throws IOException
+     */
+    public abstract void commit() throws IOException;
 
     /**
      * Delete all records of this class in this account
@@ -101,7 +105,7 @@ public abstract class AbstractSyncParser extends Parser {
                     // Status = 3 means invalid sync key
                     if (status == 3) {
                         // Must delete all of the data and start over with syncKey of "0"
-                        mMailbox.mSyncKey = "0";
+                        mAdapter.setSyncKey("0", false);
                         // Make this a push box through the first sync
                         // TODO Make frequency conditional on user settings!
                         mMailbox.mSyncInterval = Mailbox.CHECK_INTERVAL_PUSH;
@@ -123,12 +127,12 @@ public abstract class AbstractSyncParser extends Parser {
             } else if (tag == Tags.SYNC_MORE_AVAILABLE) {
                 moreAvailable = true;
             } else if (tag == Tags.SYNC_SYNC_KEY) {
-                if (mMailbox.mSyncKey.equals("0")) {
+                if (mAdapter.getSyncKey().equals("0")) {
                     moreAvailable = true;
                 }
                 String newKey = getValue();
                 userLog("Parsed key for ", mMailbox.mDisplayName, ": ", newKey);
-                mMailbox.mSyncKey = newKey;
+                mAdapter.setSyncKey(newKey, true);
                 // If we were pushing (i.e. auto-start), now we'll become ping-triggered
                 if (mMailbox.mSyncInterval == Mailbox.CHECK_INTERVAL_PUSH) {
                     mMailbox.mSyncInterval = Mailbox.CHECK_INTERVAL_PING;
@@ -138,15 +142,15 @@ public abstract class AbstractSyncParser extends Parser {
            }
         }
 
+        // Commit any changes
+        commit();
+
         // If the sync interval has changed, or if no commands were parsed save the change
-        if (mMailbox.mSyncInterval != interval || mService.mChangeCount == 0) {
+        if (mMailbox.mSyncInterval != interval) {
             synchronized (mService.getSynchronizer()) {
                 if (!mService.isStopped()) {
                     // Make sure we save away the new syncFrequency
                     ContentValues cv = new ContentValues();
-                    if (mService.mChangeCount == 0) {
-                        cv.put(MailboxColumns.SYNC_KEY, mMailbox.mSyncKey);
-                    }
                     cv.put(MailboxColumns.SYNC_INTERVAL, mMailbox.mSyncInterval);
                     mMailbox.update(mContext, cv);
                 }

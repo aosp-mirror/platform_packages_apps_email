@@ -72,8 +72,8 @@ public class EmailSyncAdapter extends AbstractSyncAdapter {
     }
 
     @Override
-    public boolean parse(InputStream is, EasSyncService service) throws IOException {
-        EasEmailSyncParser p = new EasEmailSyncParser(is, service);
+    public boolean parse(InputStream is) throws IOException {
+        EasEmailSyncParser p = new EasEmailSyncParser(is, this);
         return p.parse();
     }
 
@@ -84,8 +84,12 @@ public class EmailSyncAdapter extends AbstractSyncAdapter {
 
         private String mMailboxIdAsString;
 
-        public EasEmailSyncParser(InputStream in, EasSyncService service) throws IOException {
-            super(in, service);
+        ArrayList<Message> newEmails = new ArrayList<Message>();
+        ArrayList<Long> deletedEmails = new ArrayList<Long>();
+        ArrayList<ServerChange> changedEmails = new ArrayList<ServerChange>();
+
+        public EasEmailSyncParser(InputStream in, EmailSyncAdapter adapter) throws IOException {
+            super(in, adapter);
             mMailboxIdAsString = Long.toString(mMailbox.mId);
         }
 
@@ -399,11 +403,6 @@ public class EmailSyncAdapter extends AbstractSyncAdapter {
          */
         @Override
         public void commandsParser() throws IOException {
-            ArrayList<Message> newEmails = new ArrayList<Message>();
-            ArrayList<Long> deletedEmails = new ArrayList<Long>();
-            ArrayList<ServerChange> changedEmails = new ArrayList<ServerChange>();
-            int notifyCount = 0;
-
             while (nextTag(Tags.SYNC_COMMANDS) != END) {
                 if (tag == Tags.SYNC_ADD) {
                     addParser(newEmails);
@@ -417,6 +416,15 @@ public class EmailSyncAdapter extends AbstractSyncAdapter {
                 } else
                     skipTag();
             }
+        }
+
+        @Override
+        public void responsesParser() throws IOException {
+        }
+
+        @Override
+        public void commit() throws IOException {
+            int notifyCount = 0;
 
             // Use a batch operation to handle the changes
             // TODO New mail notifications?  Who looks for these?
@@ -500,12 +508,12 @@ public class EmailSyncAdapter extends AbstractSyncAdapter {
     }
 
     @Override
-    public void cleanup(EasSyncService service) {
+    public void cleanup() {
         if (!mDeletedIdList.isEmpty() || !mUpdatedIdList.isEmpty()) {
             ArrayList<ContentProviderOperation> ops = new ArrayList<ContentProviderOperation>();
             addCleanupOps(ops);
             try {
-                service.mContext.getContentResolver()
+                mContext.getContentResolver()
                     .applyBatch(EmailProvider.EMAIL_AUTHORITY, ops);
             } catch (RemoteException e) {
                 // There is nothing to be done here; fail by returning null
@@ -546,7 +554,7 @@ public class EmailSyncAdapter extends AbstractSyncAdapter {
     }
 
     @Override
-    public boolean sendLocalChanges(Serializer s, EasSyncService service) throws IOException {
+    public boolean sendLocalChanges(Serializer s) throws IOException {
         ContentResolver cr = mContext.getContentResolver();
 
         // Find any of our deleted items

@@ -19,10 +19,10 @@ package com.android.exchange.adapter;
 
 import com.android.email.codec.binary.Base64;
 import com.android.email.provider.EmailContent.Mailbox;
-import com.android.email.provider.EmailContent.MailboxColumns;
 import com.android.exchange.Eas;
 import com.android.exchange.EasSyncService;
 
+import android.content.ContentProviderClient;
 import android.content.ContentProviderOperation;
 import android.content.ContentProviderResult;
 import android.content.ContentResolver;
@@ -37,9 +37,11 @@ import android.database.Cursor;
 import android.net.Uri;
 import android.os.RemoteException;
 import android.provider.ContactsContract;
+import android.provider.SyncStateContract;
 import android.provider.ContactsContract.Data;
 import android.provider.ContactsContract.Groups;
 import android.provider.ContactsContract.RawContacts;
+import android.provider.ContactsContract.SyncState;
 import android.provider.ContactsContract.CommonDataKinds.Email;
 import android.provider.ContactsContract.CommonDataKinds.GroupMembership;
 import android.provider.ContactsContract.CommonDataKinds.Im;
@@ -66,6 +68,7 @@ public class ContactsSyncAdapter extends AbstractSyncAdapter {
 
     private static final String TAG = "EasContactsSyncAdapter";
     private static final String SERVER_ID_SELECTION = RawContacts.SOURCE_ID + "=?";
+    private static final String CLIENT_ID_SELECTION = RawContacts.SYNC1 + "=?";
     private static final String[] ID_PROJECTION = new String[] {RawContacts._ID};
     private static final String[] GROUP_PROJECTION = new String[] {Groups.SOURCE_ID};
 
@@ -112,14 +115,69 @@ public class ContactsSyncAdapter extends AbstractSyncAdapter {
     ArrayList<Long> mDeletedIdList = new ArrayList<Long>();
     ArrayList<Long> mUpdatedIdList = new ArrayList<Long>();
 
+    android.accounts.Account mAccountManagerAccount;
+
     public ContactsSyncAdapter(Mailbox mailbox, EasSyncService service) {
         super(mailbox, service);
     }
 
     @Override
-    public boolean parse(InputStream is, EasSyncService service) throws IOException {
-        EasContactsSyncParser p = new EasContactsSyncParser(is, service);
+    public boolean parse(InputStream is) throws IOException {
+        EasContactsSyncParser p = new EasContactsSyncParser(is, this);
         return p.parse();
+    }
+
+    /**
+     * We get our SyncKey from ContactsProvider.  If there's not one, we set it to "0" (the reset
+     * state) and save that away.
+     */
+    @Override
+    public String getSyncKey() throws IOException {
+        ContentProviderClient client =
+            mService.mContentResolver.acquireContentProviderClient(ContactsContract.AUTHORITY_URI);
+        try {
+            byte[] data = SyncStateContract.Helpers.get(client,
+                    ContactsContract.SyncState.CONTENT_URI, getAccountManagerAccount());
+            if (data == null || data.length == 0) {
+                setSyncKey("0", false);
+                return "0";
+            } else {
+                String syncKey = new String(data);
+                userLog("SyncKey retrieved from ContactsProvider: " + syncKey);
+                return syncKey;
+            }
+        } catch (RemoteException e) {
+            throw new IOException("Can't get SyncKey from ContactsProvider");
+        }
+    }
+
+    /**
+     * We only need to set this when we're forced to make the SyncKey "0" (a reset).  In all other
+     * cases, the SyncKey is set within ContactOperations
+     */
+    @Override
+    public void setSyncKey(String syncKey, boolean inCommands) throws IOException {
+        if ("0".equals(syncKey) || !inCommands) {
+            ContentProviderClient client =
+                mService.mContentResolver
+                    .acquireContentProviderClient(ContactsContract.AUTHORITY_URI);
+            try {
+                SyncStateContract.Helpers.set(client, ContactsContract.SyncState.CONTENT_URI,
+                        getAccountManagerAccount(), syncKey.getBytes());
+                userLog("SyncKey set to ", syncKey, " in ContactsProvider");
+           } catch (RemoteException e) {
+                throw new IOException("Can't set SyncKey in ContactsProvider");
+            }
+        }
+        mMailbox.mSyncKey = syncKey;
+    }
+
+    public android.accounts.Account getAccountManagerAccount() {
+        if (mAccountManagerAccount == null) {
+            mAccountManagerAccount =
+                new android.accounts.Account(mAccount.mEmailAddress, Eas.ACCOUNT_MANAGER_TYPE);
+        }
+        return mAccountManagerAccount;
     }
 
     // YomiFirstName, YomiLastName, and YomiCompanyName are the names of EAS fields
@@ -211,9 +269,10 @@ public class ContactsSyncAdapter extends AbstractSyncAdapter {
         String[] mBindArgument = new String[1];
         String mMailboxIdAsString;
         Uri mAccountUri;
+        ContactOperations ops = new ContactOperations();
 
-        public EasContactsSyncParser(InputStream in, EasSyncService service) throws IOException {
-            super(in, service);
+        public EasContactsSyncParser(InputStream in, ContactsSyncAdapter adapter) throws IOException {
+            super(in, adapter);
             mAccountUri = uriWithAccount(RawContacts.CONTENT_URI);
         }
 
@@ -588,6 +647,12 @@ public class ContactsSyncAdapter extends AbstractSyncAdapter {
                     mBindArgument, null);
         }
 
+        private Cursor getClientIdCursor(String clientId) {
+            mBindArgument[0] = clientId;
+            return mContentResolver.query(mAccountUri, ID_PROJECTION, CLIENT_ID_SELECTION,
+                    mBindArgument, null);
+        }
+
         public void deleteParser(ContactOperations ops) throws IOException {
             while (nextTag(Tags.SYNC_DELETE) != END) {
                 switch (tag) {
@@ -663,7 +728,6 @@ public class ContactsSyncAdapter extends AbstractSyncAdapter {
 
         @Override
         public void commandsParser() throws IOException {
-            ContactOperations ops = new ContactOperations();
             while (nextTag(Tags.SYNC_COMMANDS) != END) {
                 if (tag == Tags.SYNC_ADD) {
                     addParser(ops);
@@ -677,6 +741,14 @@ public class ContactsSyncAdapter extends AbstractSyncAdapter {
                 } else
                     skipTag();
             }
+        }
+
+        @Override
+        public void commit() throws IOException {
+           // Save the syncKey here, using the Helper provider by Contacts provider
+            userLog("Contacts SyncKey saved as: ", mMailbox.mSyncKey);
+            ops.add(SyncStateContract.Helpers.newSetOperation(SyncState.CONTENT_URI,
+                    getAccountManagerAccount(), mMailbox.mSyncKey.getBytes()));
 
             // Execute these all at once...
             ops.execute();
@@ -694,12 +766,57 @@ public class ContactsSyncAdapter extends AbstractSyncAdapter {
                     }
                 }
             }
+        }
 
-            // Update the sync key in the database
-            userLog("Contacts SyncKey saved as: ", mMailbox.mSyncKey);
+        public void addResponsesParser() throws IOException {
+            String serverId = null;
+            String clientId = null;
             ContentValues cv = new ContentValues();
-            cv.put(MailboxColumns.SYNC_KEY, mMailbox.mSyncKey);
-            Mailbox.update(mContext, Mailbox.CONTENT_URI, mMailbox.mId, cv);
+            while (nextTag(Tags.SYNC_ADD) != END) {
+                switch (tag) {
+                    case Tags.SYNC_SERVER_ID:
+                        serverId = getValue();
+                        break;
+                    case Tags.SYNC_CLIENT_ID:
+                        clientId = getValue();
+                        break;
+                    case Tags.SYNC_STATUS:
+                        getValue();
+                        break;
+                    default:
+                        skipTag();
+                }
+            }
+
+            // This is theoretically impossible, but...
+            if (clientId == null || serverId == null) return;
+
+            Cursor c = getClientIdCursor(clientId);
+            try {
+                if (c.moveToFirst()) {
+                    cv.put(RawContacts.SOURCE_ID, serverId);
+                    cv.put(RawContacts.DIRTY, 0);
+                    ops.add(ContentProviderOperation.newUpdate(ContentUris
+                            .withAppendedId(RawContacts.CONTENT_URI, c.getLong(0)))
+                            .withValues(cv)
+                            .build());
+                    userLog("New contact " + clientId + " was given serverId: " + serverId);
+                }
+            } finally {
+                c.close();
+            }
+        }
+        @Override
+        public void responsesParser() throws IOException {
+            // Handle server responses here (for Add and Change)
+            while (nextTag(Tags.SYNC_RESPONSES) != END) {
+                if (tag == Tags.SYNC_ADD) {
+                    addResponsesParser();
+                } else if (tag == Tags.SYNC_CHANGE) {
+                    //changeResponsesParser();
+                } else
+                    skipTag();
+            }
         }
     }
 
@@ -1142,7 +1259,7 @@ public class ContactsSyncAdapter extends AbstractSyncAdapter {
     }
 
     @Override
-    public void cleanup(EasSyncService service) {
+    public void cleanup() {
         // Mark the changed contacts dirty = 0
         // TODO Put this in a single batch
         ContactOperations ops = new ContactOperations();
@@ -1190,8 +1307,9 @@ public class ContactsSyncAdapter extends AbstractSyncAdapter {
     }
 
     private void sendIm(Serializer s, ContentValues cv) throws IOException {
-        String value = cv.getAsString(Email.DATA);
-        switch (cv.getAsInteger(Email.TYPE)) {
+        String value = cv.getAsString(Im.DATA);
+        if (value == null) return;
+        switch (cv.getAsInteger(Im.TYPE)) {
             case TYPE_IM1:
                 s.data(Tags.CONTACTS2_IM_ADDRESS, value);
                 break;
@@ -1411,21 +1529,22 @@ public class ContactsSyncAdapter extends AbstractSyncAdapter {
     }
 
     @Override
-    public boolean sendLocalChanges(Serializer s, EasSyncService service) throws IOException {
+    public boolean sendLocalChanges(Serializer s) throws IOException {
         // First, let's find Contacts that have changed.
-        ContentResolver cr = service.mContentResolver;
+        ContentResolver cr = mService.mContentResolver;
         Uri uri = RawContacts.CONTENT_URI.buildUpon()
-                .appendQueryParameter(RawContacts.ACCOUNT_NAME, service.mAccount.mEmailAddress)
+                .appendQueryParameter(RawContacts.ACCOUNT_NAME, mAccount.mEmailAddress)
                 .appendQueryParameter(RawContacts.ACCOUNT_TYPE, Eas.ACCOUNT_MANAGER_TYPE)
                 .build();
 
-        if (service.mMailbox.mSyncKey.equals("0")) {
+        if (getSyncKey().equals("0")) {
             return false;
         }
 
         try {
             // Get them all atomically
             EntityIterator ei = cr.queryEntities(uri, RawContacts.DIRTY + "=1", null, null);
+            ContentValues cidValues = new ContentValues();
             try {
                 boolean first = true;
                 while (ei.hasNext()) {
@@ -1433,17 +1552,25 @@ public class ContactsSyncAdapter extends AbstractSyncAdapter {
                     // For each of these entities, create the change commands
                     ContentValues entityValues = entity.getEntityValues();
                     String serverId = entityValues.getAsString(RawContacts.SOURCE_ID);
-                    if (serverId == null) {
-                        // TODO Handle upload of new contacts
-                        continue;
-                    }
                     ArrayList<Integer> groupIds = new ArrayList<Integer>();
                     if (first) {
                         s.start(Tags.SYNC_COMMANDS);
                         first = false;
                     }
-                    s.start(Tags.SYNC_CHANGE).data(Tags.SYNC_SERVER_ID, serverId)
-                        .start(Tags.SYNC_APPLICATION_DATA);
+                    if (serverId == null) {
+                        // This is a new contact; create a clientId
+                        String clientId = "new_" + mMailbox.mId + '_' + System.currentTimeMillis();
+                        s.start(Tags.SYNC_ADD).data(Tags.SYNC_CLIENT_ID, clientId);
+                        // And save it in the raw contact
+                        cidValues.put(ContactsContract.RawContacts.SYNC1, clientId);
+                        cr.update(ContentUris.
+                                withAppendedId(ContactsContract.RawContacts.CONTENT_URI,
+                                        entityValues.getAsLong(ContactsContract.RawContacts._ID)),
+                                        cidValues, null, null);
+                    } else {
+                        s.start(Tags.SYNC_CHANGE).data(Tags.SYNC_SERVER_ID, serverId);
+                    }
+                    s.start(Tags.SYNC_APPLICATION_DATA);
                     // Write out the data here
                     for (NamedContentValues ncv: entity.getSubValues()) {
                         ContentValues cv = ncv.values;

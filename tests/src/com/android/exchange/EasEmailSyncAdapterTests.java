@@ -65,7 +65,7 @@ public class EasEmailSyncAdapterTests extends AndroidTestCase {
     public void testGetMimeTypeFromFileName() throws IOException {
         EasSyncService service = getTestService();
         EmailSyncAdapter adapter = new EmailSyncAdapter(service.mMailbox, service);
-        EasEmailSyncParser p = adapter.new EasEmailSyncParser(getTestInputStream(), service);
+        EasEmailSyncParser p = adapter.new EasEmailSyncParser(getTestInputStream(), adapter);
         // Test a few known types
         String mimeType = p.getMimeTypeFromFileName("foo.jpg");
         assertEquals("image/jpeg", mimeType);

@@ -29,6 +29,7 @@ import com.android.email.provider.EmailContent.Mailbox;
 import com.android.email.provider.EmailContent.MailboxColumns;
 import com.android.email.provider.EmailContent.Message;
 import com.android.exchange.adapter.AbstractSyncAdapter;
+import com.android.exchange.adapter.AccountSyncAdapter;
 import com.android.exchange.adapter.ContactsSyncAdapter;
 import com.android.exchange.adapter.EmailSyncAdapter;
 import com.android.exchange.adapter.FolderSyncParser;
@@ -536,7 +537,8 @@ public class EasSyncService extends AbstractSyncService {
                          InputStream is = entity.getContent();
                          // Returns true if we need to sync again
                          userLog("FolderSync, deviceId = ", mDeviceId);
-                         if (new FolderSyncParser(is, this).parse()) {
+                         if (new FolderSyncParser(is, new AccountSyncAdapter(mMailbox, this))
+                                 .parse()) {
                              continue;
                          }
                      }
@@ -901,22 +903,19 @@ public class EasSyncService extends AbstractSyncService {
             }
 
             Serializer s = new Serializer();
-            if (mailbox.mSyncKey == null) {
-                userLog("Mailbox syncKey RESET");
-                mailbox.mSyncKey = "0";
-            }
             String className = target.getCollectionName();
-            userLog("Sending ", className, " syncKey: ", mailbox.mSyncKey);
+            String syncKey = target.getSyncKey();
+            userLog("Sending ", className, " syncKey: ", syncKey);
             s.start(Tags.SYNC_SYNC)
                 .start(Tags.SYNC_COLLECTIONS)
                 .start(Tags.SYNC_COLLECTION)
                 .data(Tags.SYNC_CLASS, className)
-                .data(Tags.SYNC_SYNC_KEY, mailbox.mSyncKey)
+                .data(Tags.SYNC_SYNC_KEY, syncKey)
                 .data(Tags.SYNC_COLLECTION_ID, mailbox.mServerId)
                 .tag(Tags.SYNC_DELETES_AS_MOVES);
 
             // EAS doesn't like GetChanges if the syncKey is "0"; not documented
-            if (!mailbox.mSyncKey.equals("0")) {
+            if (!syncKey.equals("0")) {
                 s.tag(Tags.SYNC_GET_CHANGES);
             }
             s.data(Tags.SYNC_WINDOW_SIZE,
@@ -943,7 +942,7 @@ public class EasSyncService extends AbstractSyncService {
             }
 
             // Send our changes up to the server
-            target.sendLocalChanges(s, this);
+            target.sendLocalChanges(s);
 
             s.end().end().end().done();
             userLog("Sync, deviceId = ", mDeviceId);
@@ -952,8 +951,8 @@ public class EasSyncService extends AbstractSyncService {
             if (code == HttpStatus.SC_OK) {
                  InputStream is = resp.getEntity().getContent();
                 if (is != null) {
-                    moreAvailable = target.parse(is, this);
-                    target.cleanup(this);
+                    moreAvailable = target.parse(is);
+                    target.cleanup();
                 }
             } else {
                 userLog("Sync response error: ", code);
