@@ -141,8 +141,8 @@ public class MailService extends Service {
     }
 
     @Override
-    public void onStart(Intent intent, int startId) {
-        super.onStart(intent, startId);
+    public int onStartCommand(Intent intent, int flags, int startId) {
+        super.onStartCommand(intent, flags, startId);
 
         // TODO this needs to be passed through the controller and back to us
         this.mStartId = startId;
@@ -212,6 +212,11 @@ public class MailService extends Service {
             }
             stopSelf(startId);
         }
+        
+        // If we get killed will syncing, have the intent sent to us again.
+        // Evetually we should change to schedule the next alarm in this
+        // function, and return START_NOT_STICK from here.
+        return START_REDELIVER_INTENT;
     }
 
     @Override
