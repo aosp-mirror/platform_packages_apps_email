@@ -57,7 +57,7 @@ public class Serializer {
 
     public void done() throws IOException {
         if (depth != 0) {
-            throw new IOException();
+            throw new IOException("Done received with unclosed tags");
         }
         writeInteger(out, 0);
         out.write(buf.toByteArray());

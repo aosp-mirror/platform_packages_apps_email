@@ -203,7 +203,12 @@ public abstract class AbstractSyncService implements Runnable {
         }
     }
 
-    public void userLog(Exception e) {
+    public void userLog(String str, Exception e) {
+        if (Eas.USER_LOG) {
+            Log.e(TAG, str, e);
+        } else {
+            Log.e(TAG, str + e);
+        }
         if (Eas.FILE_LOG) {
             FileLogger.log(e);
         }

@@ -87,7 +87,7 @@ public abstract class AbstractSyncParser extends Parser {
 
         // If we're not at the top of the xml tree, throw an exception
         if (nextTag(START_DOCUMENT) != Tags.SYNC_SYNC) {
-            throw new IOException();
+            throw new EasParserException();
         }
         // Loop here through the remaining xml
         while (nextTag(START_DOCUMENT) != END_DOCUMENT) {
