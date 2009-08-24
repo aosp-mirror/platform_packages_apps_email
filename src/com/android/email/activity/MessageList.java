@@ -68,16 +68,6 @@ import java.util.HashSet;
 import java.util.Set;
 
 public class MessageList extends ListActivity implements OnItemClickListener, OnClickListener {
-
-    // Magic mailbox ID's
-    // NOTE:  This is a quick solution for merged mailboxes.  I would rather implement this
-    // with a more generic way of packaging and sharing queries between activities
-    public static final long QUERY_ALL_INBOXES = -2;
-    public static final long QUERY_ALL_UNREAD = -3;
-    public static final long QUERY_ALL_FAVORITES = -4;
-    public static final long QUERY_ALL_DRAFTS = -5;
-    public static final long QUERY_ALL_OUTBOX = -6;
-
     // Intent extras (internal to this activity)
     private static final String EXTRA_ACCOUNT_ID = "com.android.email.activity._ACCOUNT_ID";
     private static final String EXTRA_MAILBOX_TYPE = "com.android.email.activity.MAILBOX_TYPE";
@@ -138,12 +128,6 @@ public class MessageList extends ListActivity implements OnItemClickListener, On
     private FindMailboxTask mFindMailboxTask;
     private SetTitleTask mSetTitleTask;
     private SetFooterTask mSetFooterTask;
-
-    /**
-     * Reduced mailbox projection used to hunt for inboxes
-     * TODO: remove this and implement a custom URI
-     */
-    public final static int MAILBOX_FIND_INBOX_COLUMN_ID = 0;
 
     public final static String[] MAILBOX_FIND_INBOX_PROJECTION = new String[] {
         EmailContent.RECORD_ID, MailboxColumns.TYPE, MailboxColumns.FLAG_VISIBLE
@@ -491,7 +475,7 @@ public class MessageList extends ListActivity implements OnItemClickListener, On
         if (mailbox.mType == EmailContent.Mailbox.TYPE_DRAFTS) {
             MessageCompose.actionEditDraft(this, messageId);
         } else {
-            MessageView.actionView(this, messageId);
+            MessageView.actionView(this, messageId, mailboxId);
         }
     }
 
@@ -671,12 +655,14 @@ public class MessageList extends ListActivity implements OnItemClickListener, On
      */
     private void addFooterView(long mailboxId, long accountId, int mailboxType) {
         // first, look for shortcuts that don't need us to spin up a DB access task
-        if (mailboxId == QUERY_ALL_INBOXES || mailboxId == QUERY_ALL_UNREAD
-                || mailboxId == QUERY_ALL_FAVORITES || mailboxId == QUERY_ALL_DRAFTS) {
+        if (mailboxId == Mailbox.QUERY_ALL_INBOXES
+                || mailboxId == Mailbox.QUERY_ALL_UNREAD
+                || mailboxId == Mailbox.QUERY_ALL_FAVORITES
+                || mailboxId == Mailbox.QUERY_ALL_DRAFTS) {
             finishFooterView(LIST_FOOTER_MODE_REFRESH);
             return;
         }
-        if (mailboxId == QUERY_ALL_OUTBOX || mailboxType == Mailbox.TYPE_OUTBOX) {
+        if (mailboxId == Mailbox.QUERY_ALL_OUTBOX || mailboxType == Mailbox.TYPE_OUTBOX) {
             finishFooterView(LIST_FOOTER_MODE_SEND);
             return;
         }
@@ -879,60 +865,14 @@ public class MessageList extends ListActivity implements OnItemClickListener, On
 
         @Override
         protected Cursor doInBackground(Void... params) {
-            // Setup default selection & args, then add to it as necessary
-            StringBuilder selection = new StringBuilder(
-                    Message.FLAG_LOADED + "!=" + Message.NOT_LOADED + " AND ");
-            String[] selArgs = null;
-
-            if (mMailboxKey == QUERY_ALL_INBOXES || mMailboxKey == QUERY_ALL_DRAFTS ||
-                    mMailboxKey == QUERY_ALL_OUTBOX) {
-                // query for all mailboxes of type INBOX, DRAFTS, or OUTBOX
-                int type;
-                if (mMailboxKey == QUERY_ALL_INBOXES) {
-                    type = Mailbox.TYPE_INBOX;
-                } else if (mMailboxKey == QUERY_ALL_DRAFTS) {
-                    type = Mailbox.TYPE_DRAFTS;
-                } else {
-                    type = Mailbox.TYPE_OUTBOX;
-                }
-                StringBuilder inboxes = new StringBuilder();
-                Cursor c = MessageList.this.mResolver.query(
-                        Mailbox.CONTENT_URI,
-                        MAILBOX_FIND_INBOX_PROJECTION,
-                        MailboxColumns.TYPE + "=? AND " + MailboxColumns.FLAG_VISIBLE + "=1",
-                        new String[] { Integer.toString(type) }, null);
-                // build a long WHERE list
-                // TODO do this directly in the provider
-                while (c.moveToNext()) {
-                    if (inboxes.length() != 0) {
-                        inboxes.append(" OR ");
-                    }
-                    inboxes.append(MessageColumns.MAILBOX_KEY + "=");
-                    inboxes.append(c.getLong(MAILBOX_FIND_INBOX_COLUMN_ID));
-                }
-                c.close();
-                // This is a hack - if there were no matching mailboxes, the empty selection string
-                // would match *all* messages.  Instead, force a "non-matching" selection, which
-                // generates an empty Message cursor.
-                // TODO: handle this properly when we move the compound lookup into the provider
-                if (inboxes.length() == 0) {
-                    inboxes.append(Message.RECORD_ID + "=-1");
-                }
-                // make that the selection
-                selection.append(inboxes);
-            } else  if (mMailboxKey == QUERY_ALL_UNREAD) {
-                selection.append(Message.FLAG_READ + "=0");
-            } else if (mMailboxKey == QUERY_ALL_FAVORITES) {
-                selection.append(Message.FLAG_FAVORITE + "=1");
-            } else {
-                selection.append(MessageColumns.MAILBOX_KEY + "=?");
-                selArgs = new String[] { String.valueOf(mMailboxKey) };
-            }
-            return MessageList.this.managedQuery(
+            String selection = 
+                Utility.buildMailboxIdSelection(MessageList.this.mResolver, mMailboxKey);
+            Cursor c = MessageList.this.managedQuery(
                     EmailContent.Message.CONTENT_URI,
                     MessageList.this.mListAdapter.PROJECTION,
-                    selection.toString(), selArgs,
+                    selection, null,
                     EmailContent.MessageColumns.TIMESTAMP + " DESC");
+            return c;
         }
 
         @Override
@@ -945,7 +885,7 @@ public class MessageList extends ListActivity implements OnItemClickListener, On
             }
 
             // Reset the "new messages" count in the service, since we're seeing them now
-            if (mMailboxKey == QUERY_ALL_INBOXES) {
+            if (mMailboxKey == Mailbox.QUERY_ALL_INBOXES) {
                 MailService.resetNewMessageCount(MessageList.this, -1);
             } else if (mMailboxKey >= 0 && mAccountKey != -1) {
                 MailService.resetNewMessageCount(MessageList.this, mAccountKey);
@@ -964,16 +904,16 @@ public class MessageList extends ListActivity implements OnItemClickListener, On
         @Override
         protected String[] doInBackground(Void... params) {
             // Check special Mailboxes
-            if (mMailboxKey == MessageList.QUERY_ALL_INBOXES) {
+            if (mMailboxKey == Mailbox.QUERY_ALL_INBOXES) {
                 return new String[] {null,
                         getString(R.string.account_folder_list_summary_inbox)};
-            } else if (mMailboxKey == MessageList.QUERY_ALL_FAVORITES) {
+            } else if (mMailboxKey == Mailbox.QUERY_ALL_FAVORITES) {
                 return new String[] {null,
                         getString(R.string.account_folder_list_summary_favorite)};
-            } else if (mMailboxKey == MessageList.QUERY_ALL_DRAFTS) {
+            } else if (mMailboxKey == Mailbox.QUERY_ALL_DRAFTS) {
                 return new String[] {null,
                         getString(R.string.account_folder_list_summary_drafts)};
-            } else if (mMailboxKey == MessageList.QUERY_ALL_OUTBOX) {
+            } else if (mMailboxKey == Mailbox.QUERY_ALL_OUTBOX) {
                 return new String[] {null,
                         getString(R.string.account_folder_list_summary_outbox)};
             }

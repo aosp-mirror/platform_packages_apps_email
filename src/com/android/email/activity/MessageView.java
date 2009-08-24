@@ -27,6 +27,7 @@ import com.android.email.mail.MessagingException;
 import com.android.email.mail.internet.EmailHtmlUtil;
 import com.android.email.mail.internet.MimeUtility;
 import com.android.email.provider.AttachmentProvider;
+import com.android.email.provider.EmailContent;
 import com.android.email.provider.EmailContent.Account;
 import com.android.email.provider.EmailContent.Attachment;
 import com.android.email.provider.EmailContent.Body;
@@ -83,10 +84,7 @@ public class MessageView extends Activity
         implements OnClickListener {
     private static final String EXTRA_MESSAGE_ID = "com.android.email.MessageView_message_id";
     private static final String EXTRA_ACCOUNT_ID = "com.android.email.MessageView_account_id";
-    private static final String EXTRA_FOLDER = "com.android.email.MessageView_folder";
-    private static final String EXTRA_MESSAGE = "com.android.email.MessageView_message";
-    private static final String EXTRA_FOLDER_UIDS = "com.android.email.MessageView_folderUids";
-    private static final String EXTRA_NEXT = "com.android.email.MessageView_next";
+    private static final String EXTRA_MAILBOX_ID = "com.android.email.MessageView_mailbox_id";
     
     private static final String[] METHODS_WITH_PRESENCE_PROJECTION = new String[] {
         People.ContactMethods._ID,  // 0
@@ -127,6 +125,7 @@ public class MessageView extends Activity
     private long mAccountId;
     private Account mAccount;
     private long mMessageId;
+    private long mMailboxId;
     private Message mMessage;
 
     private LoadMessageTask mLoadMessageTask;
@@ -139,7 +138,6 @@ public class MessageView extends Activity
 
     private String mFolder;
     private String mMessageUid;
-    private Cursor mMessageListCursor;
 
     private java.text.DateFormat mDateFormat;
     private java.text.DateFormat mTimeFormat;
@@ -150,6 +148,11 @@ public class MessageView extends Activity
     private Listener mListener = new Listener();
     private MessageViewHandler mHandler = new MessageViewHandler();
     private ControllerResults mControllerCallback = new ControllerResults();
+
+    private View mPrevious;
+    private View mNext;
+    private LoadPrevNextTask mLoadPrevNextTask;
+    private Cursor mPrevNextCursor;
 
     class MessageViewHandler extends Handler {
         private static final int MSG_ATTACHMENT_PROGRESS = 2;
@@ -335,41 +338,60 @@ public class MessageView extends Activity
 
     /**
      * View a specific message found in the Email provider.
-     * 
-     * TODO: Find a way to pass a cursor so we can iterator prev/next as well
+     * @param messageId the message to view.
+     * @param mailboxId identifies the sequence of messages used for prev/next navigation.
      */
-    public static void actionView(Context context, long messageId) {
+    public static void actionView(Context context, long messageId, long mailboxId) {
         Intent i = new Intent(context, MessageView.class);
         i.putExtra(EXTRA_MESSAGE_ID, messageId);
+        i.putExtra(EXTRA_MAILBOX_ID, mailboxId);
         context.startActivity(i);
     }
 
-    @Deprecated
-    public static void actionView(Context context, long accountId,
-            String folder, String messageUid, ArrayList<String> folderUids) {
-        actionView(context, accountId, folder, messageUid, folderUids, null);
+    /**
+     * Re-init everything needed for changing message.
+     */
+    private void messageChanged() {
+        cancelAllTasks();
+        setTitle("");
+        mAttachments.setVisibility(View.GONE);
+        mAttachmentIcon.setVisibility(View.GONE);
+
+        // are the text clear below needed?
+        // likely they only add flicker as the new message is displayed quickly
+//         mSubjectView.setText(null);
+//         mFromView.setText(null);
+//         mTimeView.setText(null);
+//         mDateView.setText(null);
+//         mToView.setText(null);
+//         mCcView.setText(null);
+
+        // Start an AsyncTask to make a new cursor and load the message
+        mLoadMessageTask = new LoadMessageTask(mMessageId);
+        mLoadMessageTask.execute();
+        updatePrevNextArrows(mPrevNextCursor);
     }
 
-    @Deprecated
-    public static void actionView(Context context, long accountId,
-            String folder, String messageUid, ArrayList<String> folderUids, Bundle extras) {
-        Intent i = new Intent(context, MessageView.class);
-        i.putExtra(EXTRA_ACCOUNT_ID, accountId);
-        i.putExtra(EXTRA_FOLDER, folder);
-        i.putExtra(EXTRA_MESSAGE, messageUid);
-        i.putExtra(EXTRA_FOLDER_UIDS, folderUids);
-        if (extras != null) {
-            i.putExtras(extras);
+    private void updatePrevNextArrows(Cursor cursor) {
+        if (cursor != null) {
+            boolean hasPrev, hasNext;
+            if (cursor.isAfterLast() || cursor.isBeforeFirst()) {
+                // The cursor not being on a message means that the current message was not found.
+                // While this should not happen, simply disable prev/next arrows in that case.
+                hasPrev = hasNext = false;
+            } else {
+                hasPrev = !cursor.isFirst();
+                hasNext = !cursor.isLast();
+            }
+            mPrevious.setVisibility(hasPrev ? View.VISIBLE : View.GONE);
+            mNext.setVisibility(hasNext ? View.VISIBLE : View.GONE);
         }
-        context.startActivity(i);
-     }
+    }
 
     @Override
     public void onCreate(Bundle icicle) {
         super.onCreate(icicle);
-
         requestWindowFeature(Window.FEATURE_INDETERMINATE_PROGRESS);
-
         setContentView(R.layout.message_view);
 
         mSubjectView = (TextView) findViewById(R.id.subject);
@@ -385,14 +407,11 @@ public class MessageView extends Activity
         mFavoriteIcon = (ImageView) findViewById(R.id.favorite);
         mShowPicturesSection = findViewById(R.id.show_pictures_section);
         mSenderPresenceView = (ImageView) findViewById(R.id.presence);
-        mProgressDialog = new ProgressDialog(this);
-        mProgressDialog.setIndeterminate(true);
-        mProgressDialog.setProgressStyle(ProgressDialog.STYLE_SPINNER);
+        mNext = findViewById(R.id.next);
+        mPrevious = findViewById(R.id.previous);
 
-        mMessageContentView.setVerticalScrollBarEnabled(false);
-        mAttachments.setVisibility(View.GONE);
-        mAttachmentIcon.setVisibility(View.GONE);
-
+        mNext.setOnClickListener(this);
+        mPrevious.setOnClickListener(this);
         mFromView.setOnClickListener(this);
         mSenderPresenceView.setOnClickListener(this);
         mFavoriteIcon.setOnClickListener(this);
@@ -401,10 +420,13 @@ public class MessageView extends Activity
         findViewById(R.id.delete).setOnClickListener(this);
         findViewById(R.id.show_pictures).setOnClickListener(this);
 
+        mMessageContentView.setVerticalScrollBarEnabled(false);
         mMessageContentView.getSettings().setBlockNetworkImage(true);
         mMessageContentView.getSettings().setSupportZoom(false);
 
-        setTitle("");
+        mProgressDialog = new ProgressDialog(this);
+        mProgressDialog.setIndeterminate(true);
+        mProgressDialog.setProgressStyle(ProgressDialog.STYLE_SPINNER);
 
         mDateFormat = android.text.format.DateFormat.getDateFormat(this);   // short format
         mTimeFormat = android.text.format.DateFormat.getTimeFormat(this);   // 12/24 date format
@@ -414,37 +436,9 @@ public class MessageView extends Activity
 
         Intent intent = getIntent();
         mMessageId = intent.getLongExtra(EXTRA_MESSAGE_ID, -1);
-//        mAccountId = intent.getLongExtra(EXTRA_ACCOUNT_ID, -1);
-//        mAccount = EmailStore.Account.restoreAccountWithId(this, mAccountId);
-//        mFolder = intent.getStringExtra(EXTRA_FOLDER);
-//        mMessageUid = intent.getStringExtra(EXTRA_MESSAGE);
-        mMessageListCursor = null;  // TODO - pass message list cursor so we can prev/next
-
-        View next = findViewById(R.id.next);
-        View previous = findViewById(R.id.previous);
-        /*
-         * Next and Previous Message are not shown in landscape mode, so
-         * we need to check before we use them.
-         */
-        if (next != null && previous != null && mMessageListCursor != null) {
-            // TODO analyze based on cursor, not on a big nasty array
-            next.setVisibility(View.GONE);
-            previous.setVisibility(View.GONE);
-/*           
-            next.setOnClickListener(this);
-            previous.setOnClickListener(this);
-
-            findSurroundingMessagesUid();
-
-            previous.setVisibility(mPreviousMessageUid != null ? View.VISIBLE : View.GONE);
-            next.setVisibility(mNextMessageUid != null ? View.VISIBLE : View.GONE);
-
-            boolean goNext = intent.getBooleanExtra(EXTRA_NEXT, false);
-            if (goNext) {
-                next.requestFocus();
-            }
-*/
-        }
+        mMailboxId = intent.getLongExtra(EXTRA_MAILBOX_ID, -1);
+        messageChanged();
+    }
 
 /*
         MessagingController.getInstance(getApplication()).addListener(mListener);
@@ -463,10 +457,6 @@ public class MessageView extends Activity
             }
         }.start();
 */
-        // Start an AsyncTask to make a new cursor and load the message
-        mLoadMessageTask = new LoadMessageTask(mMessageId);
-        mLoadMessageTask.execute();
-    }
 
     @Override
     public void onResume() {
@@ -485,6 +475,23 @@ public class MessageView extends Activity
         Controller.getInstance(getApplication()).removeResultCallback(mControllerCallback);
     }
 
+    private static void cancelTask(AsyncTask task) {
+        if (task != null && task.getStatus() != AsyncTask.Status.FINISHED) {
+            task.cancel(true);
+        }
+    }
+
+    private void cancelAllTasks() {
+        cancelTask(mLoadMessageTask);
+        mLoadMessageTask = null;
+        cancelTask(mLoadBodyTask);
+        mLoadBodyTask = null;
+        cancelTask(mLoadAttachmentsTask);
+        mLoadAttachmentsTask = null;
+        cancelTask(mLoadPrevNextTask);
+        mLoadPrevNextTask = null;
+    }
+
     /**
      * We override onDestroy to make sure that the WebView gets explicitly destroyed.
      * Otherwise it can leak native references.
@@ -492,27 +499,15 @@ public class MessageView extends Activity
     @Override
     public void onDestroy() {
         super.onDestroy();
-
-        if (mLoadMessageTask != null
-                && mLoadMessageTask.getStatus() != AsyncTask.Status.FINISHED) {
-            mLoadMessageTask.cancel(true);
-            mLoadMessageTask = null;
-        }
-        if (mLoadBodyTask != null
-                && mLoadBodyTask.getStatus() != AsyncTask.Status.FINISHED) {
-            mLoadBodyTask.cancel(true);
-            mLoadBodyTask = null;
-        }
-        if (mLoadAttachmentsTask != null
-                && mLoadAttachmentsTask.getStatus() != AsyncTask.Status.FINISHED) {
-            mLoadAttachmentsTask.cancel(true);
-            mLoadAttachmentsTask = null;
-        }
-
+        cancelAllTasks();
         // This is synchronized because the listener accesses mMessageContentView from its thread
         synchronized (this) {
             mMessageContentView.destroy();
             mMessageContentView = null;
+        }
+        if (mPrevNextCursor != null) {
+            mPrevNextCursor.close();
+            mPrevNextCursor = null;
         }
     }
 
@@ -593,23 +588,23 @@ public class MessageView extends Activity
     }
 
     private boolean onNext() {
-        // TODO make this work using a cursor
-        return false;
-/*
-        Bundle extras = new Bundle(1);
-        extras.putBoolean(EXTRA_NEXT, true);
-        MessageView.actionView(this, mAccountId, mFolder, mNextMessageUid, mFolderUids, extras);
-        finish();
-*/
+        if (mPrevNextCursor != null && mPrevNextCursor.moveToNext()) {
+            mMessageId = mPrevNextCursor.getLong(0);
+            messageChanged();
+            return true;
+        } else {
+            return false;
+        }
     }
 
     private boolean onPrevious() {
-        // TODO make this work using a cursor
-        return false;
-/*
-        MessageView.actionView(this, mAccountId, mFolder, mPreviousMessageUid, mFolderUids);
-        finish();
-*/
+        if (mPrevNextCursor != null && mPrevNextCursor.moveToPrevious()) {
+            mMessageId = mPrevNextCursor.getLong(0);
+            messageChanged();
+            return true;
+        } else {
+            return false;
+        }
     }
 
     private void onMarkAsRead(boolean isRead) {
@@ -956,6 +951,41 @@ public class MessageView extends Activity
         mSenderPresenceView.setImageResource(presenceIconId);
     }
     
+
+    /**
+     * This task finds out the messageId for the previous and next message
+     * in the order given by mailboxId as used in MessageList.
+     *
+     * It generates the same cursor as the one used in MessageList (but with an id-only projection),
+     * scans through it until finds the current messageId, and takes the previous and next ids.
+     */
+    private class LoadPrevNextTask extends AsyncTask<Void, Void, Cursor> {
+        private long mLocalMailboxId;
+
+        public LoadPrevNextTask(long mailboxId) {
+            mLocalMailboxId = mailboxId;
+        }
+
+        @Override
+        protected Cursor doInBackground(Void... params) {
+            String selection =
+                Utility.buildMailboxIdSelection(getContentResolver(), mLocalMailboxId);
+            Cursor c = MessageView.this.managedQuery(EmailContent.Message.CONTENT_URI,
+                    EmailContent.ID_PROJECTION,
+                    selection, null,
+                    EmailContent.MessageColumns.TIMESTAMP + " DESC");
+            return c;
+        }
+
+        @Override
+        protected void onPostExecute(Cursor cursor) {
+            // position the cursor on the current message
+            while (cursor.moveToNext() && cursor.getLong(0) != mMessageId);
+            mPrevNextCursor = cursor;
+            updatePrevNextArrows(mPrevNextCursor);
+        }
+    }
+
     /**
      * Async task for loading a single message outside of the UI thread
      * 
@@ -1071,7 +1101,15 @@ public class MessageView extends Activity
         Message message = new Message().restore(cursor);
         mMessage = message;
         mAccountId = message.mAccountKey;
-        
+        if (mMailboxId == -1) {
+            mMailboxId = message.mMailboxKey;
+        }
+        // only start LoadPrevNextTask once
+        if (mPrevNextCursor == null) {
+            mLoadPrevNextTask = new LoadPrevNextTask(mMailboxId);
+            mLoadPrevNextTask.execute();
+        }
+
         mSubjectView.setText(message.mSubject);
         mFromView.setText(Address.toFriendly(Address.unpack(message.mFrom)));
         Date date = new Date(message.mTimeStamp);

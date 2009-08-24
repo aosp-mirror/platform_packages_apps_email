@@ -31,7 +31,19 @@
             android:layout_width="fill_parent"
             android:layout_height="0dip"
             android:layout_weight="1">
-
+            <!-- put invisible views for prev/next in order to not special-case the lanscape in code -->
+            <FrameLayout
+                 android:visibility="gone"
+                 android:layout_width="0dip"
+                 android:layout_height="0dip">
+                <View 
+                     android:id="@+id/previous"
+                     android:layout_width="0dip"
+                     android:layout_height="0dip" />
+                <View android:id="@+id/next"
+                      android:layout_width="0dip"
+                      android:layout_height="0dip" />
+            </FrameLayout>
             <include layout="@layout/message_view_header" />
 
         </LinearLayout>

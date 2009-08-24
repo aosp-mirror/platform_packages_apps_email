@@ -553,7 +553,7 @@ public class MailService extends Service {
                     R.plurals.notification_new_multi_account_fmt, accountsWithNewMessages,
                     accountsWithNewMessages);
             intent = MessageList.actionHandleAccountIntent(this,
-                    -1, MessageList.QUERY_ALL_INBOXES, -1);
+                    -1, Mailbox.QUERY_ALL_INBOXES, -1);
         }
 
         // prepare appropriate pending intent, set up notification, and send

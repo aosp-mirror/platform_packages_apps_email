@@ -16,6 +16,15 @@
 
 package com.android.email;
 
+import com.android.email.provider.EmailContent;
+import com.android.email.provider.EmailContent.Mailbox;
+import com.android.email.provider.EmailContent.MailboxColumns;
+import com.android.email.provider.EmailContent.Message;
+import com.android.email.provider.EmailContent.MessageColumns;
+
+import android.content.ContentResolver;
+import android.database.Cursor;
+
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
@@ -220,5 +229,48 @@ public class Utility {
 //                drawable.setAlpha(alpha);
 //            }
 //        }
+    }
+
+    // TODO: unit test this
+    public static String buildMailboxIdSelection(ContentResolver resolver, long mailboxId) {
+        // Setup default selection & args, then add to it as necessary
+        StringBuilder selection = new StringBuilder(
+                Message.FLAG_LOADED + "!=" + Message.NOT_LOADED + " AND ");
+        if (mailboxId == Mailbox.QUERY_ALL_INBOXES
+            || mailboxId == Mailbox.QUERY_ALL_DRAFTS
+            || mailboxId == Mailbox.QUERY_ALL_OUTBOX) {
+            // query for all mailboxes of type INBOX, DRAFTS, or OUTBOX
+            int type;
+            if (mailboxId == Mailbox.QUERY_ALL_INBOXES) {
+                type = Mailbox.TYPE_INBOX;
+            } else if (mailboxId == Mailbox.QUERY_ALL_DRAFTS) {
+                type = Mailbox.TYPE_DRAFTS;
+            } else {
+                type = Mailbox.TYPE_OUTBOX;
+            }
+            StringBuilder inboxes = new StringBuilder();
+            Cursor c = resolver.query(Mailbox.CONTENT_URI,
+                        EmailContent.ID_PROJECTION,
+                        MailboxColumns.TYPE + "=? AND " + MailboxColumns.FLAG_VISIBLE + "=1",
+                        new String[] { Integer.toString(type) }, null);
+            // build an IN (mailboxId, ...) list
+            // TODO do this directly in the provider
+            while (c.moveToNext()) {
+                if (inboxes.length() != 0) {
+                    inboxes.append(",");
+                }
+                inboxes.append(c.getLong(EmailContent.ID_PROJECTION_COLUMN));
+            }
+            c.close();
+            selection.append(MessageColumns.MAILBOX_KEY + " IN ");
+            selection.append("(").append(inboxes).append(")");
+        } else  if (mailboxId == Mailbox.QUERY_ALL_UNREAD) {
+            selection.append(Message.FLAG_READ + "=0");
+        } else if (mailboxId == Mailbox.QUERY_ALL_FAVORITES) {
+            selection.append(Message.FLAG_FAVORITE + "=1");
+        } else {
+            selection.append(MessageColumns.MAILBOX_KEY + "=" + mailboxId);
+        }
+        return selection.toString();
     }
 }

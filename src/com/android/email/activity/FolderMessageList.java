@@ -818,7 +818,8 @@ public class FolderMessageList extends ExpandableListActivity {
             for (MessageInfoHolder holder : folder.messages) {
                 folderUids.add(holder.uid);
             }
-            MessageView.actionView(this, mAccountId, folder.name, message.uid, folderUids);
+            // deprecated
+            // MessageView.actionView(this, mAccountId, folder.name, message.uid, folderUids);
         }
     }
 
@@ -841,7 +842,7 @@ public class FolderMessageList extends ExpandableListActivity {
             // TODO - save enough data to recreate the cursor, to enable prev/next in MessageView
             int messageIdColumn = messageCursor.getColumnIndex(EmailContent.RECORD_ID);
             long messageId = messageCursor.getLong(messageIdColumn);
-            MessageView.actionView(this, messageId);
+            MessageView.actionView(this, messageId, -1);
         }
 
     }

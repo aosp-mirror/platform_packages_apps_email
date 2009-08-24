@@ -1812,13 +1812,8 @@ public abstract class EmailContent {
         // Push-Hold indicates an EAS push or ping Mailbox shouldn't sync just yet
         public static final int CHECK_INTERVAL_PUSH_HOLD = -4;
 
-
         private static final String WHERE_TYPE_AND_ACCOUNT_KEY =
             MailboxColumns.TYPE + "=? and " + MailboxColumns.ACCOUNT_KEY + "=?";
-
-        public Mailbox() {
-            mBaseUri = CONTENT_URI;
-        }
 
         // Types of mailboxes.  The list is ordered to match a typical UI presentation, e.g.
         // placing the inbox at the top.
@@ -1851,6 +1846,19 @@ public abstract class EmailContent {
         public static final int FLAG_HAS_CHILDREN = 1<<0;
         public static final int FLAG_CHILDREN_VISIBLE = 1<<1;
         public static final int FLAG_CANT_PUSH = 1<<2;
+
+        // Magic mailbox ID's
+        // NOTE:  This is a quick solution for merged mailboxes.  I would rather implement this
+        // with a more generic way of packaging and sharing queries between activities
+        public static final long QUERY_ALL_INBOXES = -2;
+        public static final long QUERY_ALL_UNREAD = -3;
+        public static final long QUERY_ALL_FAVORITES = -4;
+        public static final long QUERY_ALL_DRAFTS = -5;
+        public static final long QUERY_ALL_OUTBOX = -6;
+
+        public Mailbox() {
+            mBaseUri = CONTENT_URI;
+        }
 
          /**
          * Restore a Mailbox from the database, given its unique id
