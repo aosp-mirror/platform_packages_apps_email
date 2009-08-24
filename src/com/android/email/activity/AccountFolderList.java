@@ -507,7 +507,9 @@ public class AccountFolderList extends ListActivity
         if (mListAdapter.isMailbox(menuInfo.position)) {
             // TODO is there any context menu for smart mailboxes?
         } else if (mListAdapter.isAccount(menuInfo.position)) {
-            menu.setHeaderTitle(R.string.accounts_context_menu_title);
+            Cursor c = (Cursor) mListView.getItemAtPosition(menuInfo.position);
+            String accountName = c.getString(Account.CONTENT_DISPLAY_NAME_COLUMN);
+            menu.setHeaderTitle(accountName);
             getMenuInflater().inflate(R.menu.account_folder_list_context, menu);
         }
     }

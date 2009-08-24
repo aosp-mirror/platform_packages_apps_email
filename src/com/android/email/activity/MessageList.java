@@ -377,12 +377,17 @@ public class MessageList extends ListActivity implements OnItemClickListener, On
     public void onCreateContextMenu(ContextMenu menu, View v, ContextMenuInfo menuInfo) {
         super.onCreateContextMenu(menu, v, menuInfo);
         // There is no context menu for the list footer
-        if (v != mListFooterView) {
+        if (v == mListFooterView) {
             return;
         }
 
         AdapterView.AdapterContextMenuInfo info = (AdapterView.AdapterContextMenuInfo) menuInfo;
         MessageListItem itemView = (MessageListItem) info.targetView;
+
+        Cursor c = (Cursor) mListView.getItemAtPosition(info.position);
+        String messageName = c.getString(MessageListAdapter.COLUMN_SUBJECT);
+
+        menu.setHeaderTitle(messageName);
 
         // TODO: There is no context menu for the outbox
         // TODO: There is probably a special context menu for the trash

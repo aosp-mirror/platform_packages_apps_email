@@ -239,9 +239,17 @@ public class MailboxList extends ListActivity implements OnItemClickListener, On
     }
 
     @Override
-    public void onCreateContextMenu(ContextMenu menu, View v, ContextMenuInfo menuInfo) {
-        super.onCreateContextMenu(menu, v, menuInfo);
+    public void onCreateContextMenu(ContextMenu menu, View v, ContextMenuInfo info) {
+        super.onCreateContextMenu(menu, v, info);
+        AdapterView.AdapterContextMenuInfo menuInfo = (AdapterView.AdapterContextMenuInfo) info;
+        Cursor c = (Cursor) mListView.getItemAtPosition(menuInfo.position);
+        String folderName = Utility.FolderProperties.getInstance(MailboxList.this)
+                .getDisplayName(Integer.valueOf(c.getString(mListAdapter.COLUMN_TYPE)));
+        if (folderName == null) {
+            folderName = c.getString(mListAdapter.COLUMN_DISPLAY_NAME);
+        }
 
+        menu.setHeaderTitle(folderName);
         getMenuInflater().inflate(R.menu.mailbox_list_context, menu);
     }
 
@@ -405,9 +413,9 @@ public class MailboxList extends ListActivity implements OnItemClickListener, On
 
         public final String[] PROJECTION = new String[] { MailboxColumns.ID,
                 MailboxColumns.DISPLAY_NAME, MailboxColumns.UNREAD_COUNT, MailboxColumns.TYPE };
-        private final int COLUMN_DISPLAY_NAME = 1;
-        private final int COLUMN_UNREAD_COUNT = 2;
-        private final int COLUMN_TYPE = 3;
+        public final int COLUMN_DISPLAY_NAME = 1;
+        public final int COLUMN_UNREAD_COUNT = 2;
+        public final int COLUMN_TYPE = 3;
 
         Context mContext;
         private LayoutInflater mInflater;
