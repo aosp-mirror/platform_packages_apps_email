@@ -513,7 +513,7 @@ public class EmailProvider extends ContentProvider {
     private SQLiteDatabase mBodyDatabase;
     private boolean mInTransaction = false;
 
-    public SQLiteDatabase getDatabase(Context context) {
+    public synchronized SQLiteDatabase getDatabase(Context context) {
         if (mDatabase !=  null) {
             return mDatabase;
         }
