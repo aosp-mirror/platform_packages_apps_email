@@ -63,7 +63,6 @@ import android.util.Log;
 import java.io.BufferedReader;
 import java.io.BufferedWriter;
 import java.io.File;
-import java.io.FileNotFoundException;
 import java.io.FileReader;
 import java.io.FileWriter;
 import java.io.IOException;
@@ -621,7 +620,7 @@ public class SyncManager extends Service implements Runnable {
      */
     static public synchronized String getDeviceId() throws IOException {
         if (INSTANCE == null) {
-            throw new IOException();
+            throw new IOException("No SyncManager instance");
         }
         // If we've already got the id, return it
         if (INSTANCE.mDeviceId != null) {
@@ -645,14 +644,9 @@ public class SyncManager extends Service implements Runnable {
                 w.close();
                 return id;
             }
-        } catch (FileNotFoundException e) {
-            // We'll just use the default below
-            Log.e(TAG, "Can't get device name!");
         } catch (IOException e) {
-            // We'll just use the default below
-            Log.e(TAG, "Can't get device name!");
         }
-        throw new IOException();
+        throw new IOException("Can't get device name");
     }
 
     @Override
@@ -704,6 +698,9 @@ public class SyncManager extends Service implements Runnable {
         resolver.unregisterContentObserver(mMailboxObserver);
         resolver.unregisterContentObserver(mSyncedMessageObserver);
         resolver.unregisterContentObserver(mMessageObserver);
+
+        // Don't leak the Intent associated with this listener
+        AccountManager.get(this).removeOnAccountsUpdatedListener(mAccountsUpdatedListener);
 
         // Clear pending alarms
         clearAlarms();
@@ -1286,7 +1283,8 @@ public class SyncManager extends Service implements Runnable {
                     }
                 } else {
                     Thread thread = service.mThread;
-                    if (thread != null && !thread.isAlive()) {
+                    // Look for threads that have died but aren't in an error state
+                    if (thread != null && !thread.isAlive() && !mSyncErrorMap.containsKey(mid)) {
                         releaseMailbox(mid);
                         // Restart this if necessary
                         if (nextWait > 3*SECONDS) {

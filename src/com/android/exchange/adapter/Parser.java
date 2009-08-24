@@ -116,6 +116,14 @@ public abstract class Parser {
 
     public class EasParserException extends IOException {
         private static final long serialVersionUID = 1L;
+
+        EasParserException() {
+            super("WBXML format error");
+        }
+
+        EasParserException(String reason) {
+            super(reason);
+        }
     }
 
     public boolean parse() throws IOException, EasException {

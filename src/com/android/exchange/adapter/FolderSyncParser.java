@@ -103,7 +103,7 @@ public class FolderSyncParser extends AbstractSyncParser {
         boolean res = false;
         boolean resetFolders = false;
         if (nextTag(START_DOCUMENT) != Tags.FOLDER_FOLDER_SYNC)
-            throw new IOException();
+            throw new EasParserException();
         while (nextTag(START_DOCUMENT) != END_DOCUMENT) {
             if (tag == Tags.FOLDER_STATUS) {
                 status = getValueInt();
@@ -122,7 +122,7 @@ public class FolderSyncParser extends AbstractSyncParser {
                         // Other errors are at the server, so let's throw an error that will
                         // cause this sync to be retried at a later time
                         mService.errorLog("Throwing IOException; will retry later");
-                        throw new IOException();
+                        throw new EasParserException("Folder status error");
                     }
                 }
             } else if (tag == Tags.FOLDER_SYNC_KEY) {

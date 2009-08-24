@@ -57,7 +57,6 @@ import android.content.ContentValues;
 import android.content.Context;
 import android.database.Cursor;
 import android.os.RemoteException;
-import android.util.Log;
 
 import java.io.File;
 import java.io.FileOutputStream;
@@ -1024,11 +1023,10 @@ public class EasSyncService extends AbstractSyncService {
             }
         } catch (IOException e) {
             String message = e.getMessage();
-            userLog("Caught IOException: ", ((message == null) ? "" : message));
+            userLog("Caught IOException: ", ((message == null) ? "No message" : message));
             mExitStatus = EXIT_IO_ERROR;
         } catch (Exception e) {
-            Log.e(TAG, "Uncaught exception in EasSyncService" + e);
-            userLog(e);
+            userLog("Uncaught exception in EasSyncService", e);
         } finally {
             if (!mStop) {
                 userLog(mMailbox.mDisplayName, ": sync finished");
