@@ -21,8 +21,10 @@ import com.android.email.mail.Store;
 import com.android.email.provider.AttachmentProvider;
 import com.android.email.provider.EmailContent;
 import com.android.email.provider.EmailContent.Account;
+import com.android.email.provider.EmailContent.AccountColumns;
 import com.android.email.provider.EmailContent.Attachment;
 import com.android.email.provider.EmailContent.Mailbox;
+import com.android.email.provider.EmailContent.MailboxColumns;
 import com.android.email.provider.EmailContent.Message;
 import com.android.email.service.EmailServiceProxy;
 import com.android.exchange.EmailServiceStatus;
@@ -395,14 +397,79 @@ public class Controller {
     }
 
     /**
+     * Reset visible limits for all accounts.
+     * For each account:
+     *   look up limit
+     *   write limit into all mailboxes for that account
+     */
+    public void resetVisibleLimits() {
+        new Thread() {
+            @Override
+            public void run() {
+                ContentResolver resolver = mContext.getContentResolver();
+                Cursor c = null;
+                try {
+                    c = resolver.query(
+                            Account.CONTENT_URI,
+                            Account.ID_PROJECTION,
+                            null, null, null);
+                    while (c.moveToNext()) {
+                        long accountId = c.getLong(Account.ID_PROJECTION_COLUMN);
+                        Account account = Account.restoreAccountWithId(mContext, accountId);
+                        if (account != null) {
+                            Store.StoreInfo info = Store.StoreInfo.getStoreInfo(
+                                    account.getStoreUri(mContext), mContext);
+                            if (info != null && info.mVisibleLimitDefault > 0) {
+                                int limit = info.mVisibleLimitDefault;
+                                ContentValues cv = new ContentValues();
+                                cv.put(MailboxColumns.VISIBLE_LIMIT, limit);
+                                resolver.update(Mailbox.CONTENT_URI, cv,
+                                        MailboxColumns.ACCOUNT_KEY + "=?",
+                                        new String[] { Long.toString(accountId) });
+                            }
+                        }
+                    }
+                } finally {
+                    c.close();
+                }
+            }
+        }.start();
+    }
+
+    /**
      * Increase the load count for a given mailbox, and trigger a refresh.  Applies only to
      * IMAP and POP.
      *
      * @param mailboxId the mailbox
      * @param callback
      */
-    public void loadMoreMessages(long mailboxId, Result callback) {
-        //...
+    public void loadMoreMessages(final long mailboxId, Result callback) {
+        new Thread() {
+            @Override
+            public void run() {
+                Mailbox mailbox = Mailbox.restoreMailboxWithId(mContext, mailboxId);
+                if (mailbox == null) {
+                    return;
+                }
+                Account account = Account.restoreAccountWithId(mContext, mailbox.mAccountKey);
+                if (account == null) {
+                    return;
+                }
+                Store.StoreInfo info = Store.StoreInfo.getStoreInfo(
+                        account.getStoreUri(mContext), mContext);
+                if (info != null && info.mVisibleLimitIncrement > 0) {
+                    // Use provider math to increment the field
+                    ContentValues cv = new ContentValues();;
+                    cv.put(EmailContent.FIELD_COLUMN_NAME, MailboxColumns.VISIBLE_LIMIT);
+                    cv.put(EmailContent.ADD_COLUMN_NAME, info.mVisibleLimitIncrement);
+                    Uri uri = ContentUris.withAppendedId(Mailbox.ADD_TO_FIELD_URI, mailboxId);
+                    mContext.getContentResolver().update(uri, cv, null, null);
+                    // Trigger a refresh using the new, longer limit
+                    mailbox.mVisibleLimit += info.mVisibleLimitIncrement;
+                    mLegacyController.synchronizeMailbox(account, mailbox, mLegacyListener);
+                }
+            }
+        }.start();
     }
 
     /**

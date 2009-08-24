@@ -207,21 +207,7 @@ public class Email extends Application {
         DEBUG_SENSITIVE = prefs.getEnableSensitiveLogging();
 
         // Reset all accounts to default visible window
-        Cursor c = null;
-        try {
-            c = getContentResolver().query(
-                    EmailContent.Account.CONTENT_URI,
-                    EmailContent.Account.CONTENT_PROJECTION,
-                    null, null, null);
-            while (c.moveToNext()) {
-                EmailContent.Account account = EmailContent.getContent(c, EmailContent.Account.class);
-                MessagingController.getInstance(this).resetVisibleLimits(account);
-            }
-        } finally {
-            if (c != null) {
-                c.close();
-            }
-        }
+        Controller.getInstance(this).resetVisibleLimits();
 
         /*
          * We have to give MimeMessage a temp directory because File.createTempFile(String, String)
