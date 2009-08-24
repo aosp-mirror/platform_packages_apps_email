@@ -797,6 +797,7 @@ public class MessageList extends ListActivity implements OnItemClickListener, On
                 break;
             case LIST_FOOTER_MODE_MORE:
                 onLoadMoreMessages();
+                break;
             case LIST_FOOTER_MODE_SEND:
                 onSendPendingMessages();
                 break;

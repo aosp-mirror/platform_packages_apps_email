@@ -448,50 +448,6 @@ public class MessagingController implements Runnable {
 */
 
     /**
-     * Increase the window size for a given mailbox, and load more from server.
-     */
-    public void loadMoreMessages(EmailContent.Account account, EmailContent.Mailbox folder,
-            MessagingListener listener) {
-
-        // TODO redo implementation
-/*
-        try {
-            Store.StoreInfo info = Store.StoreInfo.getStoreInfo(account.getStoreUri(mContext),
-                    mContext);
-            LocalStore localStore = (LocalStore) Store.getInstance(
-                    account.getLocalStoreUri(mContext), mContext, null);
-            LocalFolder localFolder = (LocalFolder) localStore.getFolder(folder);
-            int oldLimit = localFolder.getVisibleLimit();
-            if (oldLimit <= 0) {
-                oldLimit = info.mVisibleLimitDefault;
-            }
-            localFolder.setVisibleLimit(oldLimit + info.mVisibleLimitIncrement);
-            synchronizeMailbox(account, folder, listener);
-        }
-        catch (MessagingException me) {
-            throw new RuntimeException("Unable to set visible limit on folder", me);
-        }
-*/
-    }
-
-    public void resetVisibleLimits(EmailContent.Account account) {
-        try {
-            Store.StoreInfo info = Store.StoreInfo.getStoreInfo(account.getStoreUri(mContext),
-                    mContext);
-            // check for null to handle semi-initialized accounts created during unit tests
-            // store info should not be null in production scenarios
-            if (info != null) {
-                LocalStore localStore = (LocalStore) Store.getInstance(
-                        account.getLocalStoreUri(mContext), mContext, null);
-                localStore.resetVisibleLimits(info.mVisibleLimitDefault);
-            }
-        }
-        catch (MessagingException e) {
-            Log.e(Email.LOG_TAG, "Unable to reset visible limits", e);
-        }
-    }
-
-    /**
      * Start background synchronization of the specified folder.
      * @param account
      * @param folder
@@ -679,13 +635,11 @@ public class MessagingController implements Runnable {
         int remoteMessageCount = remoteFolder.getMessageCount();
 
         // 6. Determine the limit # of messages to download
-        // TODO decide where to persist the visible limit (account?) until we switch UI model
-        int visibleLimit = -1;  // localFolder.getVisibleLimit();
+        int visibleLimit = folder.mVisibleLimit;
         if (visibleLimit <= 0) {
             Store.StoreInfo info = Store.StoreInfo.getStoreInfo(account.getStoreUri(mContext),
                     mContext);
             visibleLimit = info.mVisibleLimitDefault;
-            // localFolder.setVisibleLimit(visibleLimit);
         }
 
         // 7.  Create a list of messages to download
