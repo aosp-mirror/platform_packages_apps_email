@@ -69,6 +69,24 @@ public class ContactsSyncAdapter extends AbstractSyncAdapter {
     private static final String[] ID_PROJECTION = new String[] {RawContacts._ID};
     private static final String[] GROUP_PROJECTION = new String[] {Groups.SOURCE_ID};
 
+    private static final int[] HOME_ADDRESS_TAGS = new int[] {Tags.CONTACTS_HOME_ADDRESS_CITY,
+        Tags.CONTACTS_HOME_ADDRESS_COUNTRY,
+        Tags.CONTACTS_HOME_ADDRESS_POSTAL_CODE,
+        Tags.CONTACTS_HOME_ADDRESS_STATE,
+        Tags.CONTACTS_HOME_ADDRESS_STREET};
+
+    private static final int[] WORK_ADDRESS_TAGS = new int[] {Tags.CONTACTS_BUSINESS_ADDRESS_CITY,
+        Tags.CONTACTS_BUSINESS_ADDRESS_COUNTRY,
+        Tags.CONTACTS_BUSINESS_ADDRESS_POSTAL_CODE,
+        Tags.CONTACTS_BUSINESS_ADDRESS_STATE,
+        Tags.CONTACTS_BUSINESS_ADDRESS_STREET};
+
+    private static final int[] OTHER_ADDRESS_TAGS = new int[] {Tags.CONTACTS_HOME_ADDRESS_CITY,
+        Tags.CONTACTS_OTHER_ADDRESS_COUNTRY,
+        Tags.CONTACTS_OTHER_ADDRESS_POSTAL_CODE,
+        Tags.CONTACTS_OTHER_ADDRESS_STATE,
+        Tags.CONTACTS_OTHER_ADDRESS_STREET};
+
     // Note: These constants are likely to change; they are internal to this class now, but
     // may end up in the provider.
     private static final int TYPE_EMAIL1 = 20;
@@ -1210,25 +1228,13 @@ public class ContactsSyncAdapter extends AbstractSyncAdapter {
     private void sendStructuredPostal(Serializer s, ContentValues cv) throws IOException {
         switch (cv.getAsInteger(StructuredPostal.TYPE)) {
             case StructuredPostal.TYPE_HOME:
-                sendOnePostal(s, cv, new int[] {Tags.CONTACTS_HOME_ADDRESS_CITY,
-                        Tags.CONTACTS_HOME_ADDRESS_COUNTRY,
-                        Tags.CONTACTS_HOME_ADDRESS_POSTAL_CODE,
-                        Tags.CONTACTS_HOME_ADDRESS_STATE,
-                        Tags.CONTACTS_HOME_ADDRESS_STREET});
+                sendOnePostal(s, cv, HOME_ADDRESS_TAGS);
                 break;
             case StructuredPostal.TYPE_WORK:
-                sendOnePostal(s, cv, new int[] {Tags.CONTACTS_BUSINESS_ADDRESS_CITY,
-                        Tags.CONTACTS_BUSINESS_ADDRESS_COUNTRY,
-                        Tags.CONTACTS_BUSINESS_ADDRESS_POSTAL_CODE,
-                        Tags.CONTACTS_BUSINESS_ADDRESS_STATE,
-                        Tags.CONTACTS_BUSINESS_ADDRESS_STREET});
+                sendOnePostal(s, cv, WORK_ADDRESS_TAGS);
                 break;
             case StructuredPostal.TYPE_OTHER:
-                sendOnePostal(s, cv, new int[] {Tags.CONTACTS_HOME_ADDRESS_CITY,
-                        Tags.CONTACTS_OTHER_ADDRESS_COUNTRY,
-                        Tags.CONTACTS_OTHER_ADDRESS_POSTAL_CODE,
-                        Tags.CONTACTS_OTHER_ADDRESS_STATE,
-                        Tags.CONTACTS_OTHER_ADDRESS_STREET});
+                sendOnePostal(s, cv, OTHER_ADDRESS_TAGS);
                 break;
             default:
                 break;
@@ -1427,6 +1433,10 @@ public class ContactsSyncAdapter extends AbstractSyncAdapter {
                     // For each of these entities, create the change commands
                     ContentValues entityValues = entity.getEntityValues();
                     String serverId = entityValues.getAsString(RawContacts.SOURCE_ID);
+                    if (serverId == null) {
+                        // TODO Handle upload of new contacts
+                        continue;
+                    }
                     ArrayList<Integer> groupIds = new ArrayList<Integer>();
                     if (first) {
                         s.start(Tags.SYNC_COMMANDS);
