@@ -290,7 +290,7 @@ public class AccountFolderList extends ListActivity
         count = getUnreadCountByMailboxType(this, Mailbox.TYPE_INBOX);
         if (count > 0) {
             row = childCursor.newRow();
-            row.add(Long.valueOf(MessageList.QUERY_ALL_INBOXES));   // MAILBOX_COLUMN_ID = 0;
+            row.add(Long.valueOf(Mailbox.QUERY_ALL_INBOXES));   // MAILBOX_COLUMN_ID = 0;
             row.add(getString(R.string.account_folder_list_summary_inbox)); // MAILBOX_DISPLAY_NAME
             row.add(null);                                          // MAILBOX_ACCOUNT_KEY = 2;
             row.add(Integer.valueOf(Mailbox.TYPE_INBOX));           // MAILBOX_TYPE = 3;
@@ -301,7 +301,7 @@ public class AccountFolderList extends ListActivity
         count = EmailContent.count(this, Message.CONTENT_URI, FAVORITE_COUNT_SELECTION, null);
         if (count > 0) {
             row = childCursor.newRow();
-            row.add(Long.valueOf(MessageList.QUERY_ALL_FAVORITES)); // MAILBOX_COLUMN_ID = 0;
+            row.add(Long.valueOf(Mailbox.QUERY_ALL_FAVORITES)); // MAILBOX_COLUMN_ID = 0;
             // MAILBOX_DISPLAY_NAME
             row.add(getString(R.string.account_folder_list_summary_favorite));
             row.add(null);                                          // MAILBOX_ACCOUNT_KEY = 2;
@@ -312,7 +312,7 @@ public class AccountFolderList extends ListActivity
         count = getUnreadCountByMailboxType(this, Mailbox.TYPE_DRAFTS);
         if (count > 0) {
             row = childCursor.newRow();
-            row.add(Long.valueOf(MessageList.QUERY_ALL_DRAFTS));    // MAILBOX_COLUMN_ID = 0;
+            row.add(Long.valueOf(Mailbox.QUERY_ALL_DRAFTS));    // MAILBOX_COLUMN_ID = 0;
             row.add(getString(R.string.account_folder_list_summary_drafts));// MAILBOX_DISPLAY_NAME
             row.add(null);                                          // MAILBOX_ACCOUNT_KEY = 2;
             row.add(Integer.valueOf(Mailbox.TYPE_DRAFTS));          // MAILBOX_TYPE = 3;
@@ -322,7 +322,7 @@ public class AccountFolderList extends ListActivity
         count = getUnreadCountByMailboxType(this, Mailbox.TYPE_OUTBOX);
         if (count > 0) {
             row = childCursor.newRow();
-            row.add(Long.valueOf(MessageList.QUERY_ALL_OUTBOX));    // MAILBOX_COLUMN_ID = 0;
+            row.add(Long.valueOf(Mailbox.QUERY_ALL_OUTBOX));    // MAILBOX_COLUMN_ID = 0;
             row.add(getString(R.string.account_folder_list_summary_outbox));// MAILBOX_DISPLAY_NAME
             row.add(null);                                          // MAILBOX_ACCOUNT_KEY = 2;
             row.add(Integer.valueOf(Mailbox.TYPE_OUTBOX));          // MAILBOX_TYPE = 3;
