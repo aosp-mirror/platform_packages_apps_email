@@ -26,7 +26,6 @@ import com.android.email.provider.EmailContent.Account;
 import com.android.email.provider.EmailContent.AccountColumns;
 import com.android.email.provider.EmailContent.Mailbox;
 import com.android.email.provider.EmailContent.MailboxColumns;
-import com.android.email.provider.EmailContent.Message;
 import com.android.email.provider.EmailContent.MessageColumns;
 import com.android.email.service.MailService;
 
@@ -55,6 +54,7 @@ import android.view.ContextMenu.ContextMenuInfo;
 import android.view.View.OnClickListener;
 import android.view.animation.AnimationUtils;
 import android.widget.AdapterView;
+import android.widget.Button;
 import android.widget.CursorAdapter;
 import android.widget.ImageView;
 import android.widget.ListView;
@@ -76,9 +76,9 @@ public class MessageList extends ListActivity implements OnItemClickListener, On
     // UI support
     private ListView mListView;
     private View mMultiSelectPanel;
-    private View mReadUnreadButton;
-    private View mFavoriteButton;
-    private View mDeleteButton;
+    private Button mReadUnreadButton;
+    private Button mFavoriteButton;
+    private Button mDeleteButton;
     private View mListFooterView;
     private TextView mListFooterText;
     private View mListFooterProgress;
@@ -221,9 +221,9 @@ public class MessageList extends ListActivity implements OnItemClickListener, On
 
         mListView = getListView();
         mMultiSelectPanel = findViewById(R.id.footer_organize);
-        mReadUnreadButton = findViewById(R.id.btn_read_unread);
-        mFavoriteButton = findViewById(R.id.btn_multi_favorite);
-        mDeleteButton = findViewById(R.id.btn_multi_delete);
+        mReadUnreadButton = (Button) findViewById(R.id.btn_read_unread);
+        mFavoriteButton = (Button) findViewById(R.id.btn_multi_favorite);
+        mDeleteButton = (Button) findViewById(R.id.btn_multi_delete);
 
         mLeftTitle = (TextView) findViewById(R.id.title_left_text);
         mRightTitle = (TextView) findViewById(R.id.title_right_text);
@@ -660,6 +660,33 @@ public class MessageList extends ListActivity implements OnItemClickListener, On
         return numChanged;
     }
 
+    private boolean testMultiple(Set<Long> selectedSet, int column_id) {
+        Cursor c = mListAdapter.getCursor();
+        c.moveToPosition(-1);
+        while (c.moveToNext()) {
+            long id = c.getInt(MessageListAdapter.COLUMN_ID);
+            if (selectedSet.contains(Long.valueOf(id))) {
+                if (c.getInt(column_id) != 0) {
+                    return true;
+                }
+            }
+        }
+        return false;
+    }
+
+    private void updateFooterButtonNames () {
+        if (testMultiple(mListAdapter.getSelectedSet(), MessageListAdapter.COLUMN_READ)) {
+            mReadUnreadButton.setText(R.string.unread_action);
+        } else {
+            mReadUnreadButton.setText(R.string.read_action);
+        }
+        if (testMultiple(mListAdapter.getSelectedSet(), MessageListAdapter.COLUMN_FAVORITE)) {
+            mFavoriteButton.setText(R.string.set_star_action);
+        } else {
+            mFavoriteButton.setText(R.string.remove_star_action);
+        }
+    }
+
     /**
      * Show or hide the panel of multi-select options
      */
@@ -668,11 +695,13 @@ public class MessageList extends ListActivity implements OnItemClickListener, On
             mMultiSelectPanel.setVisibility(View.VISIBLE);
             mMultiSelectPanel.startAnimation(
                     AnimationUtils.loadAnimation(this, R.anim.footer_appear));
-
         } else if (!show && mMultiSelectPanel.getVisibility() != View.GONE) {
             mMultiSelectPanel.setVisibility(View.GONE);
             mMultiSelectPanel.startAnimation(
                         AnimationUtils.loadAnimation(this, R.anim.footer_disappear));
+        }
+        if (show) {
+            updateFooterButtonNames();
         }
     }
 
