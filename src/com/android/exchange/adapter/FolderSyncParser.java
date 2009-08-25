@@ -24,7 +24,6 @@ import com.android.email.provider.EmailContent.AccountColumns;
 import com.android.email.provider.EmailContent.Mailbox;
 import com.android.email.provider.EmailContent.MailboxColumns;
 import com.android.exchange.Eas;
-import com.android.exchange.EasSyncService;
 import com.android.exchange.MockParserStream;
 import com.android.exchange.SyncManager;
 
@@ -88,8 +87,8 @@ public class FolderSyncParser extends AbstractSyncParser {
     private MockParserStream mMock = null;
     private String[] mBindArguments = new String[2];
 
-    public FolderSyncParser(InputStream in, EasSyncService service) throws IOException {
-        super(in, service);
+    public FolderSyncParser(InputStream in, AbstractSyncAdapter adapter) throws IOException {
+        super(in, adapter);
         mAccountId = mAccount.mId;
         mAccountIdAsString = Long.toString(mAccountId);
         if (in instanceof MockParserStream) {
@@ -330,12 +329,27 @@ public class FolderSyncParser extends AbstractSyncParser {
         }
     }
 
+    /**
+     * Not needed for FolderSync parsing; everything is done within changesParser
+     */
     @Override
     public void commandsParser() throws IOException {
     }
 
+    /**
+     * We don't need to implement commit() because all operations take place atomically within
+     * changesParser
+     */
+    @Override
+    public void commit() throws IOException {
+    }
+
     @Override
     public void wipe() {
+    }
+
+    @Override
+    public void responsesParser() throws IOException {
     }
 
 }

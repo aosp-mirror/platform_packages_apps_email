@@ -44,15 +44,15 @@ public abstract class AbstractSyncAdapter {
     public Account mAccount;
 
     // Create the data for local changes that need to be sent up to the server
-    public abstract boolean sendLocalChanges(Serializer s, EasSyncService service)
+    public abstract boolean sendLocalChanges(Serializer s)
         throws IOException;
     // Parse incoming data from the EAS server, creating, modifying, and deleting objects as
     // required through the EmailProvider
-    public abstract boolean parse(InputStream is, EasSyncService service)
+    public abstract boolean parse(InputStream is)
         throws IOException;
     // The name used to specify the collection type of the target (Email, Calendar, or Contacts)
     public abstract String getCollectionName();
-    public abstract void cleanup(EasSyncService service);
+    public abstract void cleanup();
 
     public AbstractSyncAdapter(Mailbox mailbox, EasSyncService service) {
         mMailbox = mailbox;
@@ -61,12 +61,29 @@ public abstract class AbstractSyncAdapter {
         mAccount = service.mAccount;
     }
 
-    void userLog(String ...strings) {
+    public void userLog(String ...strings) {
         mService.userLog(strings);
     }
 
-    void incrementChangeCount() {
+    public void incrementChangeCount() {
         mService.mChangeCount++;
+    }
+
+    /**
+     * Returns the current SyncKey; override if the SyncKey is stored elsewhere (as for Contacts)
+     * @return the current SyncKey for the Mailbox
+     * @throws IOException
+     */
+    public String getSyncKey() throws IOException {
+        if (mMailbox.mSyncKey == null) {
+            userLog("Reset SyncKey to 0");
+            mMailbox.mSyncKey = "0";
+        }
+        return mMailbox.mSyncKey;
+    }
+
+    public void setSyncKey(String syncKey, boolean inCommands) throws IOException {
+        mMailbox.mSyncKey = syncKey;
     }
 }
 
