@@ -21,7 +21,7 @@
     android:orientation="horizontal"
     android:gravity="center_vertical"
     android:paddingLeft="8dip"
-    android:paddingRight="8dip" >
+    android:paddingRight="8dip">
     <View
         android:id="@+id/chip"
         android:background="@drawable/appointment_indicator_leftside_1"
@@ -33,11 +33,10 @@
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:src="@drawable/ic_list_folder"
-        android:paddingLeft="2dip"/>
+        android:paddingLeft="2dip" />
     <LinearLayout
-        android:layout_width="0dip"
+        android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_weight="1"
         android:orientation="vertical"
         android:gravity="center_vertical"
         android:paddingLeft="4dip">
@@ -58,13 +57,6 @@
         android:id="@+id/new_message_count"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:ellipsize="end"
-        android:singleLine="true"
-        android:textAppearance="?android:attr/textAppearanceMedium"
-        android:textColor="?android:attr/textColorPrimary"
-        android:background="@drawable/text_box_light"
-        android:paddingLeft="10dip"
-        android:paddingRight="10dip"
-        android:minWidth="64dip"
-        android:gravity="right" />
+        android:layout_marginLeft="4dip"
+        style="@style/unreadCount"/>
 </LinearLayout>

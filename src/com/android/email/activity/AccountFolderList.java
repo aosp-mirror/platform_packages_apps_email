@@ -59,6 +59,7 @@ import android.view.ContextMenu.ContextMenuInfo;
 import android.view.View.OnClickListener;
 import android.widget.AdapterView;
 import android.widget.CursorAdapter;
+import android.widget.ImageView;
 import android.widget.ListView;
 import android.widget.ProgressBar;
 import android.widget.TextView;
@@ -116,6 +117,15 @@ public class AccountFolderList extends ListActivity
 
     private static final String[] MAILBOX_SUM_OF_UNREAD_COUNT_PROJECTION = new String [] {
         "sum(" + MailboxColumns.UNREAD_COUNT + ")"
+    };
+
+    private static final String MAILBOX_INBOX_SELECTION =
+        MailboxColumns.ACCOUNT_KEY + " =?" + " AND " + MailboxColumns.TYPE +" = "
+        + Mailbox.TYPE_INBOX;
+
+    private static final int MAILBOX_UNREAD_COUNT_COLUMN_UNREAD_COUNT = 0;
+    private static final String[] MAILBOX_UNREAD_COUNT_PROJECTION = new String [] {
+        MailboxColumns.UNREAD_COUNT
     };
 
     private static final int[] mColorChipResIds = new int[] {
@@ -681,8 +691,8 @@ public class AccountFolderList extends ListActivity
             // Invisible (not "gone") to maintain spacing
             view.findViewById(R.id.chip).setVisibility(View.INVISIBLE);
 
-            String text = Utility.FolderProperties.getInstance(context)
-                    .getDisplayName(cursor.getInt(MAILBOX_TYPE));
+            int type = cursor.getInt(MAILBOX_TYPE);
+            String text = Utility.FolderProperties.getInstance(context).getDisplayName(type);
             if (text == null) {
                 text = cursor.getString(MAILBOX_DISPLAY_NAME);
             }
@@ -701,7 +711,6 @@ public class AccountFolderList extends ListActivity
                 statusView.setVisibility(View.GONE);
             }
 
-            // TODO work out a way to report summary unread counts for merged mailboxes
             int count = -1;
             text = cursor.getString(MAILBOX_UNREAD_COUNT);
             if (text != null) {
@@ -715,8 +724,21 @@ public class AccountFolderList extends ListActivity
             } else {
                 countView.setVisibility(View.GONE);
             }
+            int id = cursor.getInt(MAILBOX_COLUMN_ID);
+            if (id == Mailbox.QUERY_ALL_FAVORITES
+                    || id == Mailbox.QUERY_ALL_DRAFTS
+                    || id == Mailbox.QUERY_ALL_OUTBOX) {
+                countView.setBackgroundResource(R.drawable.ind_sum);
+            } else {
+                countView.setBackgroundResource(R.drawable.ind_unread);
+            }
+            // Padding should be reset after setBackgroundResource
+            countView.setPadding(2, 0, 2, 0);
 
             view.findViewById(R.id.folder_button).setVisibility(View.GONE);
+            view.findViewById(R.id.folder_icon).setVisibility(View.VISIBLE);
+            ((ImageView)view.findViewById(R.id.folder_icon)).setImageDrawable(
+                    Utility.FolderProperties.getInstance(context).getIconIds(type));
         }
 
         private void bindAccountItem(View view, Context context, Cursor cursor, boolean isExpanded)
@@ -745,8 +767,23 @@ public class AccountFolderList extends ListActivity
                 emailView.setVisibility(View.VISIBLE);
             }
 
-            // TODO get unread count from Account
             int unreadMessageCount = 0;
+            Cursor c = context.getContentResolver().query(Mailbox.CONTENT_URI,
+                    MAILBOX_UNREAD_COUNT_PROJECTION,
+                    MAILBOX_INBOX_SELECTION,
+                    new String[] { String.valueOf(accountId) }, null);
+
+            try {
+                if (c.moveToFirst()) {
+                    String count = c.getString(MAILBOX_UNREAD_COUNT_COLUMN_UNREAD_COUNT);
+                    if (count != null) {
+                        unreadMessageCount = Integer.valueOf(count);
+                    }
+                }
+            } finally {
+                c.close();
+            }
+
             TextView countView = (TextView) view.findViewById(R.id.new_message_count);
             if (unreadMessageCount > 0) {
                 countView.setText(String.valueOf(unreadMessageCount));
@@ -754,7 +791,11 @@ public class AccountFolderList extends ListActivity
             } else {
                 countView.setVisibility(View.GONE);
             }
+            countView.setBackgroundResource(R.drawable.ind_unread);
+            // Padding should be reset after setBackgroundResource
+            countView.setPadding(2, 0, 2, 0);
 
+            view.findViewById(R.id.folder_icon).setVisibility(View.GONE);
             view.findViewById(R.id.folder_button).setVisibility(View.VISIBLE);
         }
 

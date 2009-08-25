@@ -474,6 +474,20 @@ public class MailboxList extends ListActivity implements OnItemClickListener, On
                 nameView.setTypeface(Typeface.DEFAULT);
                 countView.setVisibility(View.GONE);
             }
+            switch (type) {
+                case Mailbox.TYPE_DRAFTS:
+                case Mailbox.TYPE_OUTBOX:
+                case Mailbox.TYPE_SENT:
+                case Mailbox.TYPE_TRASH:
+                    countView.setBackgroundResource(R.drawable.ind_sum);
+                    break;
+                default:
+                    countView.setBackgroundResource(R.drawable.ind_unread);
+                    break;
+            }
+            // Padding should be reset after setBackgroundResource
+            countView.setPadding(2, 0, 2, 0);
+
             ImageView folderIcon = (ImageView) view.findViewById(R.id.folder_icon);
             folderIcon.setImageDrawable(Utility.FolderProperties.getInstance(context)
                     .getIconIds(type));
