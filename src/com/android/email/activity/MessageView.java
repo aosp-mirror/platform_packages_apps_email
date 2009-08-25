@@ -145,13 +145,15 @@ public class MessageView extends Activity
     private LoadPrevNextTask mLoadPrevNextTask;
     private Cursor mPrevNextCursor;
 
+    // contains the HTML body. Is used by LoadAttachmentTask to display inline images.
+    private String mHtmlText;
+
     class MessageViewHandler extends Handler {
         private static final int MSG_PROGRESS = 1;
         private static final int MSG_ATTACHMENT_PROGRESS = 2;
         private static final int MSG_LOAD_CONTENT_URI = 3;
         private static final int MSG_SET_ATTACHMENTS_ENABLED = 4;
         private static final int MSG_NETWORK_ERROR = 6;
-        private static final int MSG_SHOW_SHOW_PICTURES = 9;
         private static final int MSG_FETCHING_ATTACHMENT = 10;
         private static final int MSG_SET_SENDER_PRESENCE = 11;
         private static final int MSG_VIEW_ATTACHMENT_ERROR = 12;
@@ -191,9 +193,6 @@ public class MessageView extends Activity
                 case MSG_NETWORK_ERROR:
                     Toast.makeText(MessageView.this,
                             R.string.status_network_error, Toast.LENGTH_LONG).show();
-                    break;
-                case MSG_SHOW_SHOW_PICTURES:
-                    mShowPicturesSection.setVisibility(msg.arg1 == 1 ? View.VISIBLE : View.GONE);
                     break;
                 case MSG_FETCHING_ATTACHMENT:
                     Toast.makeText(MessageView.this,
@@ -251,12 +250,6 @@ public class MessageView extends Activity
 
         public void fetchingAttachment() {
             sendEmptyMessage(MSG_FETCHING_ATTACHMENT);
-        }
-
-        public void showShowPictures(boolean show) {
-            android.os.Message msg = android.os.Message.obtain(this, MSG_SHOW_SHOW_PICTURES);
-            msg.arg1 = show ? 1 : 0;
-            sendMessage(msg);
         }
         
         public void setSenderPresence(int presenceIconId) {
@@ -316,15 +309,6 @@ public class MessageView extends Activity
         setTitle("");
         mAttachments.setVisibility(View.GONE);
         mAttachmentIcon.setVisibility(View.GONE);
-
-        // are the text clear below needed?
-        // likely they only add flicker as the new message is displayed quickly
-//         mSubjectView.setText(null);
-//         mFromView.setText(null);
-//         mTimeView.setText(null);
-//         mDateView.setText(null);
-//         mToView.setText(null);
-//         mCcView.setText(null);
 
         // Start an AsyncTask to make a new cursor and load the message
         mLoadMessageTask = new LoadMessageTask(mMessageId, true);
@@ -1028,9 +1012,26 @@ public class MessageView extends Activity
 
         @Override
         protected void onPostExecute(Attachment[] attachments) {
+            boolean htmlChanged = false;
             for (Attachment attachment : attachments) {
-                addAttachment(attachment);
+                if (mHtmlText != null && attachment.mContentId != null
+                        && attachment.mContentUri != null) {
+                    // for html body, replace CID for inline images
+                    // Regexp which matches ' src="cid:contentId"'.
+                    String contentIdRe = 
+                        "\\s+(?i)src=\"cid(?-i):\\Q" + attachment.mContentId + "\\E\"";
+                    String srcContentUri = " src=\"" + attachment.mContentUri + "\"";
+                    mHtmlText = mHtmlText.replaceAll(contentIdRe, srcContentUri);
+                    htmlChanged = true;
+                } else {
+                    addAttachment(attachment);
+                }
             }
+            if (htmlChanged) {
+                mMessageContentView.loadDataWithBaseURL("email://", mHtmlText, "text/html", "utf-8",
+                                                        null);
+            }
+            mHtmlText = null;
         }
     }
 
@@ -1077,14 +1078,9 @@ public class MessageView extends Activity
             mController.loadMessageForView(message.mId, mControllerCallback);
         } else {
             mWaitForLoadMessageId = -1;
-
             // Ask for body
             mLoadBodyTask = new LoadBodyTask(message.mId);
             mLoadBodyTask.execute();
-
-            // Ask for attachments
-            mLoadAttachmentsTask = new LoadAttachmentsTask();
-            mLoadAttachmentsTask.execute(message.mId);
         }
     }
 
@@ -1096,6 +1092,9 @@ public class MessageView extends Activity
      * TODO deal with html vs text and many other issues
      */
     private void reloadBodyFromCursor(Cursor cursor) {
+        mHtmlText = null;
+        boolean hasImages = false;
+
         // TODO Remove this hack that forces some text to test the code
         String html = null;
         String text = null;
@@ -1155,14 +1154,17 @@ public class MessageView extends Activity
             sb.append("</body></html>");
             text = sb.toString();
         } else {
-            // TODO Clean this up later
-            // For example, enable the view images button
             text = html;
+            mHtmlText = html;
+            hasImages = IMG_TAG_START_REGEX.matcher(text).find();
         }
-       
-        if (mMessageContentView != null) {
-            mMessageContentView.loadDataWithBaseURL("email://", text, "text/html", "utf-8", null);
-        }
+
+        mShowPicturesSection.setVisibility(hasImages ? View.VISIBLE : View.GONE);
+        mMessageContentView.loadDataWithBaseURL("email://", text, "text/html", "utf-8", null);
+
+        // Ask for attachments after body
+        mLoadAttachmentsTask = new LoadAttachmentsTask();
+        mLoadAttachmentsTask.execute(mMessage.mId);
     }
 
     /**
