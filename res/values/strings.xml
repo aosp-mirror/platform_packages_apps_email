@@ -73,6 +73,8 @@
     <!-- Menu item -->
     <string name="remove_account_action">Remove account</string>
     <!-- Menu item -->
+    <string name="folders_action">Folders</string>
+    <!-- Menu item -->
     <string name="accounts_action">Accounts</string>
     <!-- Menu item -->
     <string name="mark_as_read_action">Mark as read</string>
