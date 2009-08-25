@@ -50,8 +50,10 @@ import android.provider.ContactsContract.CommonDataKinds.Note;
 import android.provider.ContactsContract.CommonDataKinds.Organization;
 import android.provider.ContactsContract.CommonDataKinds.Phone;
 import android.provider.ContactsContract.CommonDataKinds.Photo;
+import android.provider.ContactsContract.CommonDataKinds.Relation;
 import android.provider.ContactsContract.CommonDataKinds.StructuredName;
 import android.provider.ContactsContract.CommonDataKinds.StructuredPostal;
+import android.provider.ContactsContract.CommonDataKinds.Website;
 import android.text.util.Rfc822Token;
 import android.text.util.Rfc822Tokenizer;
 import android.util.Log;
@@ -180,18 +182,6 @@ public class ContactsSyncAdapter extends AbstractSyncAdapter {
         return mAccountManagerAccount;
     }
 
-    // YomiFirstName, YomiLastName, and YomiCompanyName are the names of EAS fields
-    // Yomi is a shortened form of yomigana, which is a Japanese phonetic rendering.
-    public static final class Yomi {
-        private Yomi() {}
-
-        /** MIME type used when storing this in data table. */
-        public static final String CONTENT_ITEM_TYPE = "vnd.android.cursor.item/eas_yomi";
-        public static final String FIRST_NAME = "data2";
-        public static final String LAST_NAME = "data3";
-        public static final String COMPANY_NAME = "data4";
-    }
-
     public static final class EasChildren {
         private EasChildren() {}
 
@@ -206,47 +196,33 @@ public class ContactsSyncAdapter extends AbstractSyncAdapter {
         String anniversary;
         String birthday;
         String fileAs;
-        String title;
-        String spouse;
-        String webpage;
 
             /** MIME type used when storing this in data table. */
         public static final String CONTENT_ITEM_TYPE = "vnd.android.cursor.item/eas_personal";
         public static final String ANNIVERSARY = "data2";
         public static final String BIRTHDAY = "data3";
         public static final String FILE_AS = "data4";
-        public static final String TITLE = "data5";
-        public static final String SPOUSE = "data6";
-        public static final String WEBPAGE = "data7";
 
         boolean hasData() {
-            return anniversary != null || birthday != null || fileAs != null || title != null
-                || spouse != null || webpage != null;
+            return anniversary != null || birthday != null || fileAs != null;
         }
     }
 
     public static final class EasBusiness {
-        String assistantName;
-        String department;
         String officeLocation;
-        String managerName;
         String customerId;
         String governmentId;
         String accountName;
 
         /** MIME type used when storing this in data table. */
         public static final String CONTENT_ITEM_TYPE = "vnd.android.cursor.item/eas_business";
-        public static final String ASSISTANT_NAME = "data2";
-        public static final String DEPARTMENT = "data3";
         public static final String OFFICE_LOCATION = "data4";
-        public static final String MANAGER_NAME = "data5";
         public static final String CUSTOMER_ID = "data6";
         public static final String GOVERNMENT_ID = "data7";
         public static final String ACCOUNT_NAME = "data8";
 
         boolean hasData() {
-            return assistantName != null || department != null || officeLocation != null
-                || managerName != null || customerId != null || governmentId != null
+            return officeLocation != null || customerId != null || governmentId != null
                 || accountName != null;
         }
     }
@@ -299,6 +275,7 @@ public class ContactsSyncAdapter extends AbstractSyncAdapter {
 
         public void addData(String serverId, ContactOperations ops, Entity entity)
                 throws IOException {
+            String prefix = null;
             String firstName = null;
             String lastName = null;
             String middleName = null;
@@ -308,6 +285,7 @@ public class ContactsSyncAdapter extends AbstractSyncAdapter {
             String yomiLastName = null;
             String yomiCompanyName = null;
             String title = null;
+            String department = null;
             Address home = new Address();
             Address work = new Address();
             Address other = new Address();
@@ -460,18 +438,25 @@ public class ContactsSyncAdapter extends AbstractSyncAdapter {
                         ops.addNickname(entity, getValue());
                         break;
 
-                    // EAS Business
                     case Tags.CONTACTS_ASSISTANT_NAME:
-                        business.assistantName = getValue();
-                        break;
-                    case Tags.CONTACTS_DEPARTMENT:
-                        business.department = getValue();
-                        break;
-                    case Tags.CONTACTS_OFFICE_LOCATION:
-                        business.officeLocation = getValue();
+                        ops.addRelation(entity, Relation.TYPE_ASSISTANT, getValue());
                         break;
                     case Tags.CONTACTS2_MANAGER_NAME:
-                        business.managerName = getValue();
+                        ops.addRelation(entity, Relation.TYPE_MANAGER, getValue());
+                        break;
+                    case Tags.CONTACTS_SPOUSE:
+                        ops.addRelation(entity, Relation.TYPE_SPOUSE, getValue());
+                        break;
+                    case Tags.CONTACTS_DEPARTMENT:
+                        department = getValue();
+                        break;
+                    case Tags.CONTACTS_TITLE:
+                        prefix = getValue();
+                        break;
+
+                    // EAS Business
+                    case Tags.CONTACTS_OFFICE_LOCATION:
+                        business.officeLocation = getValue();
                         break;
                     case Tags.CONTACTS2_CUSTOMER_ID:
                         business.customerId = getValue();
@@ -493,14 +478,8 @@ public class ContactsSyncAdapter extends AbstractSyncAdapter {
                     case Tags.CONTACTS_FILE_AS:
                         personal.fileAs = getValue();
                         break;
-                    case Tags.CONTACTS_TITLE:
-                        personal.title = getValue();
-                        break;
-                    case Tags.CONTACTS_SPOUSE:
-                        personal.spouse = getValue();
-                        break;
                     case Tags.CONTACTS_WEBPAGE:
-                        personal.webpage = getValue();
+                        ops.addWebpage(entity, getValue());
                         break;
 
                     case Tags.CONTACTS_PICTURE:
@@ -548,8 +527,8 @@ public class ContactsSyncAdapter extends AbstractSyncAdapter {
                 return;
             }
 
-            ops.addName(entity, firstName, lastName, middleName, suffix, name);
-            ops.addYomi(entity, yomiFirstName, yomiLastName, yomiCompanyName);
+            ops.addName(entity, prefix, firstName, lastName, middleName, suffix, name,
+                    yomiFirstName, yomiLastName);
             ops.addBusiness(entity, business);
             ops.addPersonal(entity, personal);
 
@@ -571,7 +550,8 @@ public class ContactsSyncAdapter extends AbstractSyncAdapter {
             }
 
             if (companyName != null) {
-                ops.addOrganization(entity, Organization.TYPE_WORK, companyName, title);
+                ops.addOrganization(entity, Organization.TYPE_WORK, companyName, title, department,
+                        yomiCompanyName);
             }
 
             if (entity != null) {
@@ -1077,13 +1057,17 @@ public class ContactsSyncAdapter extends AbstractSyncAdapter {
             add(builder.build());
         }
 
-        public void addName(Entity entity, String givenName, String familyName, String middleName,
-                String suffix, String displayName) {
+        public void addName(Entity entity, String prefix, String givenName, String familyName,
+                String middleName, String suffix, String displayName, String yomiFirstName,
+                String yomiLastName) {
             SmartBuilder builder = createBuilder(entity, StructuredName.CONTENT_ITEM_TYPE, -1);
             ContentValues cv = builder.cv;
             if (cv != null && cvCompareString(cv, StructuredName.GIVEN_NAME, givenName) &&
                     cvCompareString(cv, StructuredName.FAMILY_NAME, familyName) &&
                     cvCompareString(cv, StructuredName.MIDDLE_NAME, middleName) &&
+                    cvCompareString(cv, StructuredName.PREFIX, prefix) &&
+                    cvCompareString(cv, StructuredName.PHONETIC_GIVEN_NAME, yomiFirstName) &&
+                    cvCompareString(cv, StructuredName.PHONETIC_FAMILY_NAME, yomiLastName) &&
                     cvCompareString(cv, StructuredName.SUFFIX, suffix)) {
                 return;
             }
@@ -1091,20 +1075,9 @@ public class ContactsSyncAdapter extends AbstractSyncAdapter {
             builder.withValue(StructuredName.FAMILY_NAME, familyName);
             builder.withValue(StructuredName.MIDDLE_NAME, middleName);
             builder.withValue(StructuredName.SUFFIX, suffix);
-            add(builder.build());
-        }
-
-        public void addYomi(Entity entity, String firstName, String lastName, String companyName) {
-            SmartBuilder builder = createBuilder(entity, Yomi.CONTENT_ITEM_TYPE, -1);
-            ContentValues cv = builder.cv;
-            if (cv != null && cvCompareString(cv, Yomi.FIRST_NAME, firstName) &&
-                    cvCompareString(cv, Yomi.LAST_NAME, lastName) &&
-                    cvCompareString(cv, Yomi.COMPANY_NAME, companyName)) {
-                return;
-            }
-            builder.withValue(Yomi.FIRST_NAME, firstName);
-            builder.withValue(Yomi.LAST_NAME, lastName);
-            builder.withValue(Yomi.COMPANY_NAME, companyName);
+            builder.withValue(StructuredName.PHONETIC_GIVEN_NAME, yomiFirstName);
+            builder.withValue(StructuredName.PHONETIC_FAMILY_NAME, yomiLastName);
+            builder.withValue(StructuredName.PREFIX, prefix);
             add(builder.build());
         }
 
@@ -1113,10 +1086,7 @@ public class ContactsSyncAdapter extends AbstractSyncAdapter {
             ContentValues cv = builder.cv;
             if (cv != null && cvCompareString(cv, EasPersonal.ANNIVERSARY, personal.anniversary) &&
                     cvCompareString(cv, EasPersonal.BIRTHDAY, personal.birthday) &&
-                    cvCompareString(cv, EasPersonal.FILE_AS , personal.fileAs) &&
-                    cvCompareString(cv, EasPersonal.SPOUSE, personal.spouse) &&
-                    cvCompareString(cv, EasPersonal.TITLE, personal.title) &&
-                    cvCompareString(cv, EasPersonal.WEBPAGE, personal.webpage)) {
+                    cvCompareString(cv, EasPersonal.FILE_AS , personal.fileAs)) {
                 return;
             }
             if (!personal.hasData()) {
@@ -1125,9 +1095,6 @@ public class ContactsSyncAdapter extends AbstractSyncAdapter {
             builder.withValue(EasPersonal.BIRTHDAY, personal.birthday);
             builder.withValue(EasPersonal.FILE_AS, personal.fileAs);
             builder.withValue(EasPersonal.ANNIVERSARY, personal.anniversary);
-            builder.withValue(EasPersonal.SPOUSE, personal.spouse);
-            builder.withValue(EasPersonal.TITLE, personal.title);
-            builder.withValue(EasPersonal.WEBPAGE, personal.webpage);
             add(builder.build());
         }
 
@@ -1135,11 +1102,8 @@ public class ContactsSyncAdapter extends AbstractSyncAdapter {
             SmartBuilder builder = createBuilder(entity, EasPersonal.CONTENT_ITEM_TYPE, -1);
             ContentValues cv = builder.cv;
             if (cv != null && cvCompareString(cv, EasBusiness.ACCOUNT_NAME, business.accountName) &&
-                    cvCompareString(cv, EasBusiness.ASSISTANT_NAME, business.assistantName) &&
                     cvCompareString(cv, EasBusiness.CUSTOMER_ID, business.customerId) &&
-                    cvCompareString(cv, EasBusiness.DEPARTMENT, business.department) &&
                     cvCompareString(cv, EasBusiness.GOVERNMENT_ID, business.governmentId) &&
-                    cvCompareString(cv, EasBusiness.MANAGER_NAME, business.managerName) &&
                     cvCompareString(cv, EasBusiness.OFFICE_LOCATION, business.officeLocation)) {
                 return;
             }
@@ -1147,11 +1111,8 @@ public class ContactsSyncAdapter extends AbstractSyncAdapter {
                 return;
             }
             builder.withValue(EasBusiness.ACCOUNT_NAME, business.accountName);
-            builder.withValue(EasBusiness.ASSISTANT_NAME, business.assistantName);
             builder.withValue(EasBusiness.CUSTOMER_ID, business.customerId);
-            builder.withValue(EasBusiness.DEPARTMENT, business.department);
             builder.withValue(EasBusiness.GOVERNMENT_ID, business.governmentId);
-            builder.withValue(EasBusiness.MANAGER_NAME, business.managerName);
             builder.withValue(EasBusiness.OFFICE_LOCATION, business.officeLocation);
             add(builder.build());
         }
@@ -1173,6 +1134,28 @@ public class ContactsSyncAdapter extends AbstractSyncAdapter {
             }
             builder.withValue(Phone.TYPE, type);
             builder.withValue(Phone.NUMBER, phone);
+            add(builder.build());
+        }
+
+        public void addWebpage(Entity entity, String url) {
+            SmartBuilder builder = createBuilder(entity, Website.CONTENT_ITEM_TYPE, -1);
+            ContentValues cv = builder.cv;
+            if (cv != null && cvCompareString(cv, Website.URL, url)) {
+                return;
+            }
+            builder.withValue(Website.TYPE, Website.TYPE_WORK);
+            builder.withValue(Website.URL, url);
+            add(builder.build());
+        }
+
+        public void addRelation(Entity entity, int type, String value) {
+            SmartBuilder builder = createBuilder(entity, Relation.CONTENT_ITEM_TYPE, type);
+            ContentValues cv = builder.cv;
+            if (cv != null && cvCompareString(cv, Relation.DATA, value)) {
+                return;
+            }
+            builder.withValue(Relation.TYPE, type);
+            builder.withValue(Relation.DATA, value);
             add(builder.build());
         }
 
@@ -1220,16 +1203,21 @@ public class ContactsSyncAdapter extends AbstractSyncAdapter {
             add(builder.build());
         }
 
-        public void addOrganization(Entity entity, int type, String company, String title) {
+        public void addOrganization(Entity entity, int type, String company, String title,
+                String department, String yomiCompanyName) {
             SmartBuilder builder = createBuilder(entity, Organization.CONTENT_ITEM_TYPE, type);
             ContentValues cv = builder.cv;
             if (cv != null && cvCompareString(cv, Organization.COMPANY, company) &&
+                    cvCompareString(cv, Organization.PHONETIC_NAME, yomiCompanyName) &&
+                    cvCompareString(cv, Organization.DEPARTMENT, department) &&
                     cvCompareString(cv, Organization.TITLE, title)) {
                 return;
             }
             builder.withValue(Organization.TYPE, type);
             builder.withValue(Organization.COMPANY, company);
             builder.withValue(Organization.TITLE, title);
+            builder.withValue(Organization.DEPARTMENT, department);
+            builder.withValue(Organization.PHONETIC_NAME, yomiCompanyName);
             add(builder.build());
         }
 
@@ -1372,26 +1360,28 @@ public class ContactsSyncAdapter extends AbstractSyncAdapter {
         if (cv.containsKey(StructuredName.SUFFIX)) {
             s.data(Tags.CONTACTS_SUFFIX, cv.getAsString(StructuredName.SUFFIX));
         }
+        if (cv.containsKey(StructuredName.PHONETIC_GIVEN_NAME)) {
+            s.data(Tags.CONTACTS_YOMI_FIRST_NAME,
+                    cv.getAsString(StructuredName.PHONETIC_GIVEN_NAME));
+        }
+        if (cv.containsKey(StructuredName.PHONETIC_FAMILY_NAME)) {
+            s.data(Tags.CONTACTS_YOMI_LAST_NAME,
+                    cv.getAsString(StructuredName.PHONETIC_FAMILY_NAME));
+        }
+        if (cv.containsKey(StructuredName.PREFIX)) {
+            s.data(Tags.CONTACTS_TITLE, cv.getAsString(StructuredName.PREFIX));
+        }
     }
 
     private void sendBusiness(Serializer s, ContentValues cv) throws IOException {
         if (cv.containsKey(EasBusiness.ACCOUNT_NAME)) {
             s.data(Tags.CONTACTS2_ACCOUNT_NAME, cv.getAsString(EasBusiness.ACCOUNT_NAME));
         }
-        if (cv.containsKey(EasBusiness.ASSISTANT_NAME)) {
-            s.data(Tags.CONTACTS_ASSISTANT_NAME, cv.getAsString(EasBusiness.ASSISTANT_NAME));
-        }
         if (cv.containsKey(EasBusiness.CUSTOMER_ID)) {
             s.data(Tags.CONTACTS2_CUSTOMER_ID, cv.getAsString(EasBusiness.CUSTOMER_ID));
         }
-        if (cv.containsKey(EasBusiness.DEPARTMENT)) {
-            s.data(Tags.CONTACTS_DEPARTMENT, cv.getAsString(EasBusiness.DEPARTMENT));
-        }
         if (cv.containsKey(EasBusiness.GOVERNMENT_ID)) {
             s.data(Tags.CONTACTS2_GOVERNMENT_ID, cv.getAsString(EasBusiness.GOVERNMENT_ID));
-        }
-        if (cv.containsKey(EasBusiness.MANAGER_NAME)) {
-            s.data(Tags.CONTACTS2_MANAGER_NAME, cv.getAsString(EasBusiness.MANAGER_NAME));
         }
         if (cv.containsKey(EasBusiness.OFFICE_LOCATION)) {
             s.data(Tags.CONTACTS_OFFICE_LOCATION, cv.getAsString(EasBusiness.OFFICE_LOCATION));
@@ -1408,27 +1398,6 @@ public class ContactsSyncAdapter extends AbstractSyncAdapter {
         if (cv.containsKey(EasPersonal.FILE_AS)) {
             s.data(Tags.CONTACTS_FILE_AS, cv.getAsString(EasPersonal.FILE_AS));
         }
-        if (cv.containsKey(EasPersonal.SPOUSE)) {
-            s.data(Tags.CONTACTS_SPOUSE, cv.getAsString(EasPersonal.SPOUSE));
-        }
-        if (cv.containsKey(EasPersonal.TITLE)) {
-            s.data(Tags.CONTACTS_TITLE, cv.getAsString(EasPersonal.TITLE));
-        }
-        if (cv.containsKey(EasPersonal.WEBPAGE)) {
-            s.data(Tags.CONTACTS_WEBPAGE, cv.getAsString(EasPersonal.WEBPAGE));
-        }
-    }
-
-    private void sendYomi(Serializer s, ContentValues cv) throws IOException {
-        if (cv.containsKey(Yomi.FIRST_NAME)) {
-            s.data(Tags.CONTACTS_YOMI_FIRST_NAME, cv.getAsString(Yomi.FIRST_NAME));
-        }
-        if (cv.containsKey(Yomi.LAST_NAME)) {
-            s.data(Tags.CONTACTS_YOMI_LAST_NAME, cv.getAsString(Yomi.LAST_NAME));
-        }
-        if (cv.containsKey(Yomi.COMPANY_NAME)) {
-            s.data(Tags.CONTACTS_YOMI_COMPANY_NAME, cv.getAsString(Yomi.COMPANY_NAME));
-        }
     }
 
     private void sendOrganization(Serializer s, ContentValues cv) throws IOException {
@@ -1438,11 +1407,20 @@ public class ContactsSyncAdapter extends AbstractSyncAdapter {
         if (cv.containsKey(Organization.COMPANY)) {
             s.data(Tags.CONTACTS_COMPANY_NAME, cv.getAsString(Organization.COMPANY));
         }
+        if (cv.containsKey(Organization.DEPARTMENT)) {
+            s.data(Tags.CONTACTS_DEPARTMENT, cv.getAsString(Organization.DEPARTMENT));
+        }
     }
 
     private void sendNickname(Serializer s, ContentValues cv) throws IOException {
         if (cv.containsKey(Nickname.NAME)) {
             s.data(Tags.CONTACTS2_NICKNAME, cv.getAsString(Nickname.NAME));
+        }
+    }
+
+    private void sendWebpage(Serializer s, ContentValues cv) throws IOException {
+        if (cv.containsKey(Website.URL)) {
+            s.data(Tags.CONTACTS_WEBPAGE, cv.getAsString(Website.URL));
         }
     }
 
@@ -1528,6 +1506,23 @@ public class ContactsSyncAdapter extends AbstractSyncAdapter {
         }
     }
 
+    private void sendRelation(Serializer s, ContentValues cv) throws IOException {
+        String value = cv.getAsString(Relation.DATA);
+        switch (cv.getAsInteger(Relation.TYPE)) {
+            case Relation.TYPE_ASSISTANT:
+                s.data(Tags.CONTACTS_ASSISTANT_NAME, value);
+                break;
+            case Relation.TYPE_MANAGER:
+                s.data(Tags.CONTACTS2_MANAGER_NAME, value);
+                break;
+            case Relation.TYPE_SPOUSE:
+                s.data(Tags.CONTACTS_SPOUSE, value);
+                break;
+            default:
+                break;
+        }
+    }
+
     @Override
     public boolean sendLocalChanges(Serializer s) throws IOException {
         // First, let's find Contacts that have changed.
@@ -1583,13 +1578,15 @@ public class ContactsSyncAdapter extends AbstractSyncAdapter {
                             sendChildren(s, cv);
                         } else if (mimeType.equals(EasBusiness.CONTENT_ITEM_TYPE)) {
                             sendBusiness(s, cv);
+                        } else if (mimeType.equals(Website.CONTENT_ITEM_TYPE)) {
+                            sendWebpage(s, cv);
                         } else if (mimeType.equals(EasPersonal.CONTENT_ITEM_TYPE)) {
                             sendPersonal(s, cv);
                         } else if (mimeType.equals(Phone.CONTENT_ITEM_TYPE)) {
                             sendPhone(s, cv);
-                        } else if (mimeType.equals(Yomi.CONTENT_ITEM_TYPE)) {
-                            sendYomi(s, cv);
-                        } else if (mimeType.equals(StructuredName.CONTENT_ITEM_TYPE)) {
+                        } else if (mimeType.equals(Relation.CONTENT_ITEM_TYPE)) {
+                            sendRelation(s, cv);
+                       } else if (mimeType.equals(StructuredName.CONTENT_ITEM_TYPE)) {
                             sendStructuredName(s, cv);
                         } else if (mimeType.equals(StructuredPostal.CONTENT_ITEM_TYPE)) {
                             sendStructuredPostal(s, cv);
