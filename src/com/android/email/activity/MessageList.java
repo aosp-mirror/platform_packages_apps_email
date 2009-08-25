@@ -349,7 +349,11 @@ public class MessageList extends ListActivity implements OnItemClickListener, On
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {
         super.onCreateOptionsMenu(menu);
-        getMenuInflater().inflate(R.menu.message_list_option, menu);
+        if (mMailboxId < 0) {
+            getMenuInflater().inflate(R.menu.message_list_option_smart_folder, menu);
+        } else {
+            getMenuInflater().inflate(R.menu.message_list_option, menu);
+        }
         return true;
     }
     
@@ -358,6 +362,9 @@ public class MessageList extends ListActivity implements OnItemClickListener, On
         switch (item.getItemId()) {
             case R.id.refresh:
                 onRefresh();
+                return true;
+            case R.id.folders:
+                onFolders();
                 return true;
             case R.id.accounts:
                 onAccounts();
@@ -389,21 +396,21 @@ public class MessageList extends ListActivity implements OnItemClickListener, On
 
         menu.setHeaderTitle(messageName);
 
-        // TODO: There is no context menu for the outbox
         // TODO: There is probably a special context menu for the trash
-        // TODO: Should not be reading from DB in UI thread
-        EmailContent.Mailbox mailbox = EmailContent.Mailbox.restoreMailboxWithId(this,
-                itemView.mMailboxId);
+        Mailbox mailbox = Mailbox.restoreMailboxWithId(this, itemView.mMailboxId);
 
         switch (mailbox.mType) {
             case EmailContent.Mailbox.TYPE_DRAFTS:
-                getMenuInflater().inflate(R.menu.message_list_context, menu);
+                getMenuInflater().inflate(R.menu.message_list_context_drafts, menu);
                 break;
             case EmailContent.Mailbox.TYPE_OUTBOX:
+                getMenuInflater().inflate(R.menu.message_list_context_outbox, menu);
+                break;
+            case EmailContent.Mailbox.TYPE_TRASH:
+                getMenuInflater().inflate(R.menu.message_list_context_trash, menu);
                 break;
             default:
                 getMenuInflater().inflate(R.menu.message_list_context, menu);
-                getMenuInflater().inflate(R.menu.message_list_context_extra, menu);
                 // The default menu contains "mark as read".  If the message is read, change
                 // the menu text to "mark as unread."
                 if (itemView.mRead) {
@@ -427,13 +434,13 @@ public class MessageList extends ListActivity implements OnItemClickListener, On
                 onDelete(info.id, itemView.mAccountId);
                 break;
             case R.id.reply:
-                //onReply(holder);
+                onReply(itemView.mMessageId);
                 break;
             case R.id.reply_all:
-                //onReplyAll(holder);
+                onReplyAll(itemView.mMessageId);
                 break;
             case R.id.forward:
-                //onForward(holder);
+                onForward(itemView.mMessageId);
                 break;
             case R.id.mark_as_read:
                 onSetMessageRead(info.id, !itemView.mRead);
@@ -448,6 +455,15 @@ public class MessageList extends ListActivity implements OnItemClickListener, On
         if (mMailboxId >= 0) {
             Mailbox mailbox = Mailbox.restoreMailboxWithId(this, mMailboxId);
             mController.updateMailbox(mailbox.mAccountKey, mMailboxId, mControllerCallback);
+        }
+    }
+
+    private void onFolders() {
+        if (mMailboxId >= 0) {
+            // TODO smaller projection
+            Mailbox mailbox = Mailbox.restoreMailboxWithId(this, mMailboxId);
+            MailboxList.actionHandleAccount(this, mailbox.mAccountKey);
+            finish();
         }
     }
 
@@ -484,6 +500,18 @@ public class MessageList extends ListActivity implements OnItemClickListener, On
         } else {
             MessageView.actionView(this, messageId, mailboxId);
         }
+    }
+
+    private void onReply(long messageId) {
+        MessageCompose.actionReply(this, messageId, false);
+    }
+
+    private void onReplyAll(long messageId) {
+        MessageCompose.actionReply(this, messageId, true);
+    }
+
+    private void onForward(long messageId) {
+        MessageCompose.actionForward(this, messageId);
     }
 
     private void onLoadMoreMessages() {

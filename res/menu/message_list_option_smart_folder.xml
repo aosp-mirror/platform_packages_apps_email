@@ -14,7 +14,7 @@
      limitations under the License.
 -->
 
-<!-- This menu is shown when MessageList is viewing a regular mailbox. -->
+<!-- This menu is shown when MessageList is viewing a smart-folder mailbox. -->
 
 <menu xmlns:android="http://schemas.android.com/apk/res/android">
     <item android:id="@+id/refresh"
@@ -27,16 +27,8 @@
         android:title="@string/compose_action"
         android:icon="@*android:drawable/ic_menu_compose"
     />
-    <item android:id="@+id/folders"
-        android:title="@string/folders_action"
-        android:icon="@drawable/ic_list_folder"
-    />
     <item android:id="@+id/accounts"
         android:title="@string/accounts_action"
         android:icon="@*android:drawable/ic_menu_account_list"
-    />
-    <item android:id="@+id/account_settings"
-        android:title="@string/account_settings_action"
-        android:icon="@android:drawable/ic_menu_preferences"
     />
 </menu>
