@@ -702,6 +702,7 @@ public class SyncManager extends Service implements Runnable {
         // Don't leak the Intent associated with this listener
         if (mAccountsUpdatedListener != null) {
             AccountManager.get(this).removeOnAccountsUpdatedListener(mAccountsUpdatedListener);
+            mAccountsUpdatedListener = null;
         }
 
         // Clear pending alarms
