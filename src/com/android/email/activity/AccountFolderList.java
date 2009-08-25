@@ -19,6 +19,7 @@ package com.android.email.activity;
 import com.android.email.Controller;
 import com.android.email.Email;
 import com.android.email.R;
+import com.android.email.Utility;
 import com.android.email.activity.setup.AccountSettings;
 import com.android.email.activity.setup.AccountSetupBasics;
 import com.android.email.mail.MessagingException;
@@ -74,8 +75,6 @@ public class AccountFolderList extends ListActivity
             KeyEvent.KEYCODE_D, KeyEvent.KEYCODE_E, KeyEvent.KEYCODE_B, KeyEvent.KEYCODE_U,
             KeyEvent.KEYCODE_G
     };
-    private static String[] sSpecialMailboxDisplayNameListCache;
-
     private int mSecretKeyCodeIndex = 0;
 
     private static final String ICICLE_SELECTED_ACCOUNT = "com.android.email.selectedAccount";
@@ -174,9 +173,6 @@ public class AccountFolderList extends ListActivity
         if (icicle != null && icicle.containsKey(ICICLE_SELECTED_ACCOUNT)) {
             mSelectedContextAccount = (Account) icicle.getParcelable(ICICLE_SELECTED_ACCOUNT);
         }
-
-        // Called only for filling cache of specialMailboxDisplayName
-        getSpecialMailboxDisplayName(this, 0);
 
         ((TextView) findViewById(R.id.title_left_text)).setText(R.string.app_name);
 
@@ -329,46 +325,6 @@ public class AccountFolderList extends ListActivity
             row.add(Integer.valueOf(count));                        // MAILBOX_UNREAD_COUNT = 4;
         }
         return childCursor;
-    }
-
-    /**
-     * Returns localized name for special folders.
-     * @param context
-     * @param type The mailbox type of interest
-     * @return A localized name, or null if the mailbox is not special
-     */
-    private static String getSpecialMailboxDisplayName(Context context, int type) {
-        final int MAILBOX_TYPE_SIZE = 8;
-        if (sSpecialMailboxDisplayNameListCache == null) {
-            sSpecialMailboxDisplayNameListCache = new String[MAILBOX_TYPE_SIZE];
-            // TYPE_INBOX = 0
-            sSpecialMailboxDisplayNameListCache[0] = context.getString(
-                    R.string.special_mailbox_display_name_inbox);
-            // TYPE_MAIL = 1
-            sSpecialMailboxDisplayNameListCache[1] = null;
-            // TYPE_PARENT = 2
-            sSpecialMailboxDisplayNameListCache[2] = null;
-            // TYPE_DRAFTS = 3
-            sSpecialMailboxDisplayNameListCache[3] = context.getString(
-                    R.string.special_mailbox_display_name_drafts);
-            // TYPE_OUTBOX = 4
-            sSpecialMailboxDisplayNameListCache[4] = context.getString(
-                    R.string.special_mailbox_display_name_outbox);
-            // TYPE_SENT = 5
-            sSpecialMailboxDisplayNameListCache[5] = context.getString(
-                    R.string.special_mailbox_display_name_sent);
-            // TYPE_TRASH = 6
-            sSpecialMailboxDisplayNameListCache[6] = context.getString(
-                    R.string.special_mailbox_display_name_trash);
-            // TYPE_JUNK = 7
-            sSpecialMailboxDisplayNameListCache[7] = context.getString(
-                    R.string.special_mailbox_display_name_junk);
-        }
-        if (type >= MAILBOX_TYPE_SIZE) {
-            return null;
-        } else {
-            return sSpecialMailboxDisplayNameListCache[type];
-        }
     }
 
     /**
@@ -696,7 +652,8 @@ public class AccountFolderList extends ListActivity
             // Invisible (not "gone") to maintain spacing
             view.findViewById(R.id.chip).setVisibility(View.INVISIBLE);
 
-            String text = getSpecialMailboxDisplayName(context, cursor.getInt(MAILBOX_TYPE));
+            String text = Utility.FolderProperties.getInstance(context)
+                    .getDisplayName(cursor.getInt(MAILBOX_TYPE));
             if (text == null) {
                 text = cursor.getString(MAILBOX_DISPLAY_NAME);
             }

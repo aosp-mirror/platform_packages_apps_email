@@ -133,10 +133,12 @@ public class MessageList extends ListActivity implements OnItemClickListener, On
         EmailContent.RECORD_ID, MailboxColumns.TYPE, MailboxColumns.FLAG_VISIBLE
     };
 
-    private static final int MAILBOX_DISPLAY_NAME_COLUMN_ID = 0;
-    private static final int MAILBOX_ACCOUNT_KEY_COLUMN_ID = 1;
+    private static final int MAILBOX_NAME_COLUMN_ID = 0;
+    private static final int MAILBOX_NAME_COLUMN_ACCOUNT_KEY = 1;
+    private static final int MAILBOX_NAME_COLUMN_TYPE = 2;
     private static final String[] MAILBOX_NAME_PROJECTION = new String[] {
-            MailboxColumns.DISPLAY_NAME, MailboxColumns.ACCOUNT_KEY};
+            MailboxColumns.DISPLAY_NAME, MailboxColumns.ACCOUNT_KEY,
+            MailboxColumns.TYPE};
 
     private static final int ACCOUNT_DISPLAY_NAME_COLUMN_ID = 0;
     private static final String[] ACCOUNT_NAME_PROJECTION = new String[] {
@@ -925,8 +927,12 @@ public class MessageList extends ListActivity implements OnItemClickListener, On
                     new String[] { Long.toString(mMailboxKey) }, null);
             try {
                 if (c.moveToFirst()) {
-                    mailboxName = c.getString(MAILBOX_DISPLAY_NAME_COLUMN_ID);
-                    accountKey = c.getString(MAILBOX_ACCOUNT_KEY_COLUMN_ID);
+                    mailboxName = Utility.FolderProperties.getInstance(MessageList.this)
+                            .getDisplayName(c.getInt(MAILBOX_NAME_COLUMN_TYPE));
+                    if (mailboxName == null) {
+                        mailboxName = c.getString(MAILBOX_NAME_COLUMN_ID);
+                    }
+                    accountKey = c.getString(MAILBOX_NAME_COLUMN_ACCOUNT_KEY);
                 }
             } finally {
                 c.close();

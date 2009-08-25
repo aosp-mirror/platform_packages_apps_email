@@ -33,6 +33,9 @@ import java.util.Date;
 
 import com.android.email.codec.binary.Base64;
 
+import android.content.Context;
+import android.content.res.TypedArray;
+import android.graphics.drawable.Drawable;
 import android.text.Editable;
 import android.widget.TextView;
 
@@ -272,5 +275,65 @@ public class Utility {
             selection.append(MessageColumns.MAILBOX_KEY + "=" + mailboxId);
         }
         return selection.toString();
+    }
+
+    public static class FolderProperties {
+
+        private static FolderProperties sInstance;
+
+        // Caches for frequently accessed resources.
+        private String[] mSpecialMailbox = new String[] {};
+        private TypedArray mSpecialMailboxDrawable;
+        private Drawable mDefaultMailboxDrawable;
+
+        private FolderProperties(Context context) {
+            mSpecialMailbox = context.getResources().getStringArray(
+                    R.array.special_mailbox_display_names);
+            for (int i = 0; i < mSpecialMailbox.length; ++i) {
+                if ("".equals(mSpecialMailbox[i])) {
+                    // there is no localized name, so use the display name from the server
+                    mSpecialMailbox[i] = null;
+                }
+            }
+            mSpecialMailboxDrawable =
+                context.getResources().obtainTypedArray(R.array.special_mailbox_icons);
+            mDefaultMailboxDrawable =
+                context.getResources().getDrawable(R.drawable.ic_list_folder);
+        }
+
+        public static FolderProperties getInstance(Context context) {
+            if (sInstance == null) {
+                synchronized (FolderProperties.class) {
+                    if (sInstance == null) {
+                        sInstance = new FolderProperties(context);
+                    }
+                }
+            }
+            return sInstance;
+        }
+
+        /**
+         * Lookup names of localized special mailboxes
+         * @param type
+         * @return Localized strings
+         */
+        public String getDisplayName(int type) {
+            if (type < mSpecialMailbox.length) {
+                return mSpecialMailbox[type];
+            }
+            return null;
+        }
+
+        /**
+         * Lookup icons of special mailboxes
+         * @param type
+         * @return icon's drawable
+         */
+        public synchronized Drawable getIconIds(int type) {
+            if (type < mSpecialMailboxDrawable.length()) {
+                return mSpecialMailboxDrawable.getDrawable(type);
+            }
+            return mDefaultMailboxDrawable;
+        }
     }
 }
