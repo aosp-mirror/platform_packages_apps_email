@@ -578,9 +578,16 @@ public class MailService extends Service {
                 pending);
 
         notification.sound = ringtone;
-        notification.defaults = vibrate
-            ? Notification.DEFAULT_LIGHTS | Notification.DEFAULT_VIBRATE
-            : Notification.DEFAULT_LIGHTS;
+        // Use same code here as in Gmail and GTalk for vibration
+        if (vibrate) {
+            notification.defaults |= Notification.DEFAULT_VIBRATE;
+        }
+
+        // This code is identical to that used by Gmail and GTalk for notifications
+        notification.flags |= Notification.FLAG_SHOW_LIGHTS;
+        notification.ledARGB = 0xff00ff00;
+        notification.ledOnMS = 500;
+        notification.ledOffMS = 2000;
 
         NotificationManager notificationManager =
             (NotificationManager) getSystemService(Context.NOTIFICATION_SERVICE);
