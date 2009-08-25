@@ -168,7 +168,7 @@ public class SyncManager extends Service implements Runnable {
     private SyncedMessageObserver mSyncedMessageObserver;
     private MessageObserver mMessageObserver;
     private EasSyncStatusObserver mSyncStatusObserver;
-    private EasAccountsUpdatedListener mAccountsUpdatedListener = new EasAccountsUpdatedListener();
+    private EasAccountsUpdatedListener mAccountsUpdatedListener;
     private Handler mHandler = new Handler();
 
     private ContentResolver mResolver;
@@ -700,7 +700,9 @@ public class SyncManager extends Service implements Runnable {
         resolver.unregisterContentObserver(mMessageObserver);
 
         // Don't leak the Intent associated with this listener
-        AccountManager.get(this).removeOnAccountsUpdatedListener(mAccountsUpdatedListener);
+        if (mAccountsUpdatedListener != null) {
+            AccountManager.get(this).removeOnAccountsUpdatedListener(mAccountsUpdatedListener);
+        }
 
         // Clear pending alarms
         clearAlarms();
@@ -1147,6 +1149,7 @@ public class SyncManager extends Service implements Runnable {
         mResolver.registerContentObserver(Message.CONTENT_URI, true, mMessageObserver);
         ContentResolver.addStatusChangeListener(ContentResolver.SYNC_OBSERVER_TYPE_SETTINGS,
                 mSyncStatusObserver);
+        mAccountsUpdatedListener = new EasAccountsUpdatedListener();
         AccountManager.get(this).addOnAccountsUpdatedListener(mAccountsUpdatedListener,
                 mHandler, true);
 
