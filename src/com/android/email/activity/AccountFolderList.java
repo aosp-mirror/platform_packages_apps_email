@@ -226,7 +226,7 @@ public class AccountFolderList extends ListActivity
     public void onClick(View v) {
         switch (v.getId()) {
             case R.id.button_compose:
-                onCompose();
+                onCompose(-1);
                 break;
             case R.id.button_refresh:
                 onRefresh(-1);
@@ -379,10 +379,12 @@ public class AccountFolderList extends ListActivity
         }
     }
 
-    private void onCompose() {
-        long defaultAccountId = Account.getDefaultAccountId(this);
-        if (defaultAccountId != -1) {
-            MessageCompose.actionCompose(this, defaultAccountId);
+    private void onCompose(long accountId) {
+        if (accountId == -1) {
+            accountId = Account.getDefaultAccountId(this);
+        }
+        if (accountId != -1) {
+            MessageCompose.actionCompose(this, accountId);
         } else {
             onAddNewAccount();
         }
@@ -450,20 +452,35 @@ public class AccountFolderList extends ListActivity
             (AdapterView.AdapterContextMenuInfo) item.getMenuInfo();
 
         if (mListAdapter.isMailbox(menuInfo.position)) {
-            // TODO is there any context menu for smart mailboxes?
+            Cursor c = (Cursor) mListView.getItemAtPosition(menuInfo.position);
+            long id = c.getLong(MAILBOX_COLUMN_ID);
+            switch (item.getItemId()) {
+                case R.id.open_folder:
+                    MessageList.actionHandleMailbox(this, id);
+                    break;
+                case R.id.check_mail:
+                    onRefresh(-1);
+                    break;
+            }
             return false;
         } else if (mListAdapter.isAccount(menuInfo.position)) {
             Cursor c = (Cursor) mListView.getItemAtPosition(menuInfo.position);
             long accountId = c.getLong(Account.CONTENT_ID_COLUMN);
             switch (item.getItemId()) {
-                case R.id.delete_account:
-                    onDeleteAccount(accountId);
+                case R.id.open:
+                    MailboxList.actionHandleAccount(this, accountId);
+                    break;
+                case R.id.compose:
+                    onCompose(accountId);
+                    break;
+                case R.id.refresh_account:
+                    onRefresh(accountId);
                     break;
                 case R.id.edit_account:
                     onEditAccount(accountId);
                     break;
-                case R.id.refresh_account:
-                    onRefresh(accountId);
+                case R.id.delete_account:
+                    onDeleteAccount(accountId);
                     break;
             }
             return true;
@@ -481,7 +498,7 @@ public class AccountFolderList extends ListActivity
                 onRefresh(-1);
                 break;
             case R.id.compose:
-                onCompose();
+                onCompose(-1);
                 break;
             default:
                 return super.onOptionsItemSelected(item);
@@ -505,7 +522,10 @@ public class AccountFolderList extends ListActivity
         super.onCreateContextMenu(menu, v, info);
         AdapterView.AdapterContextMenuInfo menuInfo = (AdapterView.AdapterContextMenuInfo) info;
         if (mListAdapter.isMailbox(menuInfo.position)) {
-            // TODO is there any context menu for smart mailboxes?
+            Cursor c = (Cursor) mListView.getItemAtPosition(menuInfo.position);
+            String displayName = c.getString(Account.CONTENT_DISPLAY_NAME_COLUMN);
+            menu.setHeaderTitle(displayName);
+            getMenuInflater().inflate(R.menu.account_folder_list_smart_folder_context, menu);
         } else if (mListAdapter.isAccount(menuInfo.position)) {
             Cursor c = (Cursor) mListView.getItemAtPosition(menuInfo.position);
             String accountName = c.getString(Account.CONTENT_DISPLAY_NAME_COLUMN);
