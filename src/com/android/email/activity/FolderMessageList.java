@@ -782,6 +782,10 @@ public class FolderMessageList extends ExpandableListActivity {
             mHandler.progress(false);
         }
 
+        public void loadMessageForViewCallback(MessagingException result, long messageId,
+                int progress) {
+        }
+
         public void loadAttachmentCallback(MessagingException result, long messageId,
                 long attachmentId, int progress) {
         }

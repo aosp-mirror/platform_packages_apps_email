@@ -18,8 +18,6 @@ package com.android.email.activity;
 
 import com.android.email.Controller;
 import com.android.email.Email;
-import com.android.email.MessagingController;
-import com.android.email.MessagingListener;
 import com.android.email.R;
 import com.android.email.Utility;
 import com.android.email.mail.Address;
@@ -28,7 +26,6 @@ import com.android.email.mail.internet.EmailHtmlUtil;
 import com.android.email.mail.internet.MimeUtility;
 import com.android.email.provider.AttachmentProvider;
 import com.android.email.provider.EmailContent;
-import com.android.email.provider.EmailContent.Account;
 import com.android.email.provider.EmailContent.Attachment;
 import com.android.email.provider.EmailContent.Body;
 import com.android.email.provider.EmailContent.BodyColumns;
@@ -39,7 +36,6 @@ import org.apache.commons.io.IOUtils;
 import android.app.Activity;
 import android.app.ProgressDialog;
 import android.content.ActivityNotFoundException;
-import android.content.ContentUris;
 import android.content.Context;
 import android.content.Intent;
 import android.database.Cursor;
@@ -75,7 +71,6 @@ import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
-import java.util.ArrayList;
 import java.util.Date;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
@@ -83,7 +78,6 @@ import java.util.regex.Pattern;
 public class MessageView extends Activity
         implements OnClickListener {
     private static final String EXTRA_MESSAGE_ID = "com.android.email.MessageView_message_id";
-    private static final String EXTRA_ACCOUNT_ID = "com.android.email.MessageView_account_id";
     private static final String EXTRA_MAILBOX_ID = "com.android.email.MessageView_mailbox_id";
     
     private static final String[] METHODS_WITH_PRESENCE_PROJECTION = new String[] {
@@ -123,10 +117,10 @@ public class MessageView extends Activity
     private ProgressDialog mProgressDialog;
 
     private long mAccountId;
-    private Account mAccount;
     private long mMessageId;
     private long mMailboxId;
     private Message mMessage;
+    private long mWaitForLoadMessageId;
 
     private LoadMessageTask mLoadMessageTask;
     private LoadBodyTask mLoadBodyTask;
@@ -136,17 +130,14 @@ public class MessageView extends Activity
     private boolean mLoadAttachmentSave;    // if true, saving - if false, viewing
     private String mLoadAttachmentName;     // the display name
 
-    private String mFolder;
-    private String mMessageUid;
-
     private java.text.DateFormat mDateFormat;
     private java.text.DateFormat mTimeFormat;
 
     private Drawable mFavoriteIconOn;
     private Drawable mFavoriteIconOff;
 
-    private Listener mListener = new Listener();
     private MessageViewHandler mHandler = new MessageViewHandler();
+    private Controller mController;
     private ControllerResults mControllerCallback = new ControllerResults();
 
     private View mPrevious;
@@ -155,12 +146,11 @@ public class MessageView extends Activity
     private Cursor mPrevNextCursor;
 
     class MessageViewHandler extends Handler {
+        private static final int MSG_PROGRESS = 1;
         private static final int MSG_ATTACHMENT_PROGRESS = 2;
+        private static final int MSG_LOAD_CONTENT_URI = 3;
         private static final int MSG_SET_ATTACHMENTS_ENABLED = 4;
-        private static final int MSG_SET_HEADERS = 5;
         private static final int MSG_NETWORK_ERROR = 6;
-        private static final int MSG_ATTACHMENT_SAVED = 7;
-        private static final int MSG_ATTACHMENT_NOT_SAVED = 8;
         private static final int MSG_SHOW_SHOW_PICTURES = 9;
         private static final int MSG_FETCHING_ATTACHMENT = 10;
         private static final int MSG_SET_SENDER_PRESENCE = 11;
@@ -171,6 +161,9 @@ public class MessageView extends Activity
         @Override
         public void handleMessage(android.os.Message msg) {
             switch (msg.what) {
+                case MSG_PROGRESS:
+                    setProgressBarIndeterminateVisibility(msg.arg1 != 0);
+                    break;
                 case MSG_ATTACHMENT_PROGRESS:
                     boolean progress = (msg.arg1 != 0);
                     if (progress) {
@@ -183,6 +176,10 @@ public class MessageView extends Activity
                     }
                     setProgressBarIndeterminateVisibility(progress);
                     break;
+                case MSG_LOAD_CONTENT_URI:
+                    String uriString = (String) msg.obj;
+                    mMessageContentView.loadUrl(uriString);
+                    break;
                 case MSG_SET_ATTACHMENTS_ENABLED:
                     for (int i = 0, count = mAttachments.getChildCount(); i < count; i++) {
                         AttachmentInfo attachment =
@@ -191,30 +188,9 @@ public class MessageView extends Activity
                         attachment.downloadButton.setEnabled(msg.arg1 == 1);
                     }
                     break;
-                case MSG_SET_HEADERS:
-                    String[] values = (String[]) msg.obj;
-                    mSubjectView.setText(values[0]);
-                    mFromView.setText(values[1]);
-                    mTimeView.setText(values[2]);
-                    mDateView.setText(values[3]);
-                    mToView.setText(values[4]);
-                    mCcView.setText(values[5]);
-                    mCcContainerView.setVisibility((values[5] != null) ? View.VISIBLE : View.GONE);
-                    mAttachmentIcon.setVisibility(msg.arg1 == 1 ? View.VISIBLE : View.GONE);
-                    break;
                 case MSG_NETWORK_ERROR:
                     Toast.makeText(MessageView.this,
                             R.string.status_network_error, Toast.LENGTH_LONG).show();
-                    break;
-                case MSG_ATTACHMENT_SAVED:
-                    Toast.makeText(MessageView.this, String.format(
-                            getString(R.string.message_view_status_attachment_saved), msg.obj),
-                            Toast.LENGTH_LONG).show();
-                    break;
-                case MSG_ATTACHMENT_NOT_SAVED:
-                    Toast.makeText(MessageView.this,
-                            getString(R.string.message_view_status_attachment_not_saved),
-                            Toast.LENGTH_LONG).show();
                     break;
                 case MSG_SHOW_SHOW_PICTURES:
                     mShowPicturesSection.setVisibility(msg.arg1 == 1 ? View.VISIBLE : View.GONE);
@@ -251,25 +227,21 @@ public class MessageView extends Activity
             sendMessage(msg);
         }
 
-        public void setAttachmentsEnabled(boolean enabled) {
-            android.os.Message msg = new android.os.Message();
-            msg.what = MSG_SET_ATTACHMENTS_ENABLED;
-            msg.arg1 = enabled ? 1 : 0;
+        public void progress(boolean progress) {
+            android.os.Message msg = android.os.Message.obtain(this, MSG_PROGRESS);
+            msg.arg1 = progress ? 1 : 0;
             sendMessage(msg);
         }
 
-        public void setHeaders(
-                String subject,
-                String from,
-                String time,
-                String date,
-                String to,
-                String cc,
-                boolean hasAttachments) {
-            android.os.Message msg = new android.os.Message();
-            msg.what = MSG_SET_HEADERS;
-            msg.arg1 = hasAttachments ? 1 : 0;
-            msg.obj = new String[] { subject, from, time, date, to, cc };
+        public void loadContentUri(String uriString) {
+            android.os.Message msg = android.os.Message.obtain(this, MSG_LOAD_CONTENT_URI);
+            msg.obj = uriString;
+            sendMessage(msg);
+        }
+
+        public void setAttachmentsEnabled(boolean enabled) {
+            android.os.Message msg = android.os.Message.obtain(this, MSG_SET_ATTACHMENTS_ENABLED);
+            msg.arg1 = enabled ? 1 : 0;
             sendMessage(msg);
         }
 
@@ -277,24 +249,12 @@ public class MessageView extends Activity
             sendEmptyMessage(MSG_NETWORK_ERROR);
         }
 
-        public void attachmentSaved(String filename) {
-            android.os.Message msg = new android.os.Message();
-            msg.what = MSG_ATTACHMENT_SAVED;
-            msg.obj = filename;
-            sendMessage(msg);
-        }
-
-        public void attachmentNotSaved() {
-            sendEmptyMessage(MSG_ATTACHMENT_NOT_SAVED);
-        }
-
         public void fetchingAttachment() {
             sendEmptyMessage(MSG_FETCHING_ATTACHMENT);
         }
 
         public void showShowPictures(boolean show) {
-            android.os.Message msg = new android.os.Message();
-            msg.what = MSG_SHOW_SHOW_PICTURES;
+            android.os.Message msg = android.os.Message.obtain(this, MSG_SHOW_SHOW_PICTURES);
             msg.arg1 = show ? 1 : 0;
             sendMessage(msg);
         }
@@ -367,7 +327,7 @@ public class MessageView extends Activity
 //         mCcView.setText(null);
 
         // Start an AsyncTask to make a new cursor and load the message
-        mLoadMessageTask = new LoadMessageTask(mMessageId);
+        mLoadMessageTask = new LoadMessageTask(mMessageId, true);
         mLoadMessageTask.execute();
         updatePrevNextArrows(mPrevNextCursor);
     }
@@ -437,32 +397,17 @@ public class MessageView extends Activity
         Intent intent = getIntent();
         mMessageId = intent.getLongExtra(EXTRA_MESSAGE_ID, -1);
         mMailboxId = intent.getLongExtra(EXTRA_MAILBOX_ID, -1);
+
+        mController = Controller.getInstance(getApplication());
+
         messageChanged();
     }
-
-/*
-        MessagingController.getInstance(getApplication()).addListener(mListener);
-        new Thread() {
-            @Override
-            public void run() {
-                // TODO this is a spot that should be eventually handled by a MessagingController
-                // thread pool. We want it in a thread but it can't be blocked by the normal
-                // synchronization stuff in MC.
-                Process.setThreadPriority(Process.THREAD_PRIORITY_BACKGROUND);
-                MessagingController.getInstance(getApplication()).loadMessageForView(
-                        mAccount,
-                        mFolder,
-                        mMessageUid,
-                        mListener);
-            }
-        }.start();
-*/
 
     @Override
     public void onResume() {
         super.onResume();
-        Controller.getInstance(getApplication()).addResultCallback(mControllerCallback);
-        MessagingController.getInstance(getApplication()).addListener(mListener);
+        mWaitForLoadMessageId = -1;
+        mController.addResultCallback(mControllerCallback);
         if (mMessage != null) {
             startPresenceCheck();
         }
@@ -471,11 +416,10 @@ public class MessageView extends Activity
     @Override
     public void onPause() {
         super.onPause();
-        MessagingController.getInstance(getApplication()).removeListener(mListener);
-        Controller.getInstance(getApplication()).removeResultCallback(mControllerCallback);
+        mController.removeResultCallback(mControllerCallback);
     }
 
-    private static void cancelTask(AsyncTask task) {
+    private static void cancelTask(AsyncTask<?, ?, ?> task) {
         if (task != null && task.getStatus() != AsyncTask.Status.FINISHED) {
             task.cancel(true);
         }
@@ -513,8 +457,7 @@ public class MessageView extends Activity
 
     private void onDelete() {
         if (mMessage != null) {
-            Controller.getInstance(getApplication()).deleteMessage(
-                    mMessageId, mMessage.mAccountKey);
+            mController.deleteMessage(mMessageId, mMessage.mAccountKey);
             Toast.makeText(this, R.string.message_deleted_toast, Toast.LENGTH_SHORT).show();
 
             if (onPrevious()) {
@@ -562,7 +505,7 @@ public class MessageView extends Activity
 
             // Update provider
             mMessage.mFlagFavorite = newFavorite;
-            Controller.getInstance(getApplication()).setMessageFavorite(mMessageId, newFavorite);
+            mController.setMessageFavorite(mMessageId, newFavorite);
         }
     }
 
@@ -610,7 +553,7 @@ public class MessageView extends Activity
     private void onMarkAsRead(boolean isRead) {
         if (mMessage != null && mMessage.mFlagRead != isRead) {
             mMessage.mFlagRead = isRead;
-            Controller.getInstance(getApplication()).setMessageRead(mMessageId, isRead);
+            mController.setMessageRead(mMessageId, isRead);
         }
     }
 
@@ -662,8 +605,8 @@ public class MessageView extends Activity
         mLoadAttachmentSave = true;
         mLoadAttachmentName = attachment.name;
 
-        Controller.getInstance(getApplication()).loadAttachment(attachment.attachmentId,
-                mMessageId, mMessage.mMailboxKey, mAccountId, mControllerCallback);
+        mController.loadAttachment(attachment.attachmentId, mMessageId, mMessage.mMailboxKey,
+                mAccountId, mControllerCallback);
     }
 
     private void onViewAttachment(AttachmentInfo attachment) {
@@ -671,8 +614,8 @@ public class MessageView extends Activity
         mLoadAttachmentSave = false;
         mLoadAttachmentName = attachment.name;
 
-        Controller.getInstance(getApplication()).loadAttachment(attachment.attachmentId,
-                mMessageId, mMessage.mMailboxKey, mAccountId, mControllerCallback);
+        mController.loadAttachment(attachment.attachmentId, mMessageId, mMessage.mMailboxKey,
+                mAccountId, mControllerCallback);
     }
 
     private void onShowPictures() {
@@ -995,12 +938,14 @@ public class MessageView extends Activity
     private class LoadMessageTask extends AsyncTask<Void, Void, Cursor> {
         
         private long mId;
+        private boolean mOkToFetch;
         
         /**
          * Special constructor to cache some local info
          */
-        public LoadMessageTask(long messageId) {
+        public LoadMessageTask(long messageId, boolean okToFetch) {
             mId = messageId;
+            mOkToFetch = okToFetch;
         }
 
         @Override
@@ -1018,7 +963,7 @@ public class MessageView extends Activity
         @Override
         protected void onPostExecute(Cursor cursor) {
             if (cursor.moveToFirst()) {
-                reloadUiFromCursor(cursor);
+                reloadUiFromCursor(cursor, mOkToFetch);
             } else {
                 // toast?  why would this fail?
             }
@@ -1093,11 +1038,12 @@ public class MessageView extends Activity
      * Reload the UI from a provider cursor.  This must only be called from the UI thread.
      * 
      * @param cursor A cursor loaded from EmailStore.Message.
+     * @param okToFetch If true, and message is not fully loaded, it's OK to fetch from
+     * the network.  Use false to prevent looping here.
      * 
-     * TODO: attachments
      * TODO: trigger presence check
      */
-    private void reloadUiFromCursor(Cursor cursor) {
+    private void reloadUiFromCursor(Cursor cursor, boolean okToFetch) {
         Message message = new Message().restore(cursor);
         mMessage = message;
         mAccountId = message.mAccountKey;
@@ -1121,19 +1067,25 @@ public class MessageView extends Activity
         mAttachmentIcon.setVisibility(message.mAttachments != null ? View.VISIBLE : View.GONE);
         mFavoriteIcon.setImageDrawable(message.mFlagFavorite ? mFavoriteIconOn : mFavoriteIconOff);
 
-        // TODO: Handle partially-loaded email, as follows:
+        // Handle partially-loaded email, as follows:
         // 1. Check value of message.mFlagLoaded
         // 2. If != LOADED, ask controller to load it
         // 3. Controller callback (after loaded) should trigger LoadBodyTask & LoadAttachmentsTask
         // 4. Else start the loader tasks right away (message already loaded)
+        if (okToFetch && message.mFlagLoaded != Message.LOADED) {
+            mWaitForLoadMessageId = message.mId;
+            mController.loadMessageForView(message.mId, mControllerCallback);
+        } else {
+            mWaitForLoadMessageId = -1;
 
-        // Ask for body
-        mLoadBodyTask = new LoadBodyTask(message.mId);
-        mLoadBodyTask.execute();
+            // Ask for body
+            mLoadBodyTask = new LoadBodyTask(message.mId);
+            mLoadBodyTask.execute();
 
-        // Ask for attachments
-        mLoadAttachmentsTask = new LoadAttachmentsTask();
-        mLoadAttachmentsTask.execute(message.mId);
+            // Ask for attachments
+            mLoadAttachmentsTask = new LoadAttachmentsTask();
+            mLoadAttachmentsTask.execute(message.mId);
+        }
     }
 
     /**
@@ -1218,6 +1170,40 @@ public class MessageView extends Activity
      */
     class ControllerResults implements Controller.Result {
 
+        public void loadMessageForViewCallback(MessagingException result, long messageId,
+                int progress) {
+            if (messageId != MessageView.this.mMessageId
+                    || messageId != MessageView.this.mWaitForLoadMessageId) {
+                // We are not waiting for this message to load, so exit quickly
+                return;
+            }
+            if (result == null) {
+                switch (progress) {
+                    case 0:
+                        mHandler.progress(true);
+                        mHandler.loadContentUri("file:///android_asset/loading.html");
+                        break;
+                    case 100:
+                        mWaitForLoadMessageId = -1;
+                        mHandler.progress(false);
+                        // reload UI and reload everything else too
+                        // pass false to LoadMessageTask to prevent looping here
+                        cancelAllTasks();
+                        mLoadMessageTask = new LoadMessageTask(mMessageId, false);
+                        mLoadMessageTask.execute();
+                        break;
+                    default:
+                        // do nothing - we don't have a progress bar at this time
+                        break;
+                }
+            } else {
+                mWaitForLoadMessageId = -1;
+                mHandler.progress(false);
+                mHandler.networkError();
+                mHandler.loadContentUri("file:///android_asset/empty.html");
+            }
+        }
+
         public void loadAttachmentCallback(MessagingException result, long messageId,
                 long attachmentId, int progress) {
             if (messageId == MessageView.this.mMessageId) {
@@ -1263,46 +1249,10 @@ public class MessageView extends Activity
         }
     }
 
-    /**
-     * MessagingListener is the traditional form of callback used by the Email application; remote
-     * services (like Exchange) will use mServiceListener
-     *
-     * TODO: All of this needs to move to Controller
-     */
-    class Listener extends MessagingListener {
-        @Override
-        public void loadMessageForViewHeadersAvailable(Account account, String folder,
-                String uid, final com.android.email.mail.Message message) {
-//             MessageView.this.mOldMessage = message;
-//             try {
-//                 String subjectText = message.getSubject();
-//                 String fromText = Address.toFriendly(message.getFrom());
-//                 Date sentDate = message.getSentDate();
-//                 String timeText = mTimeFormat.format(sentDate);
-//                 String dateText = Utility.isDateToday(sentDate) ? null : 
-//                         mDateFormat.format(sentDate);
-//                 String toText = Address.toFriendly(message.getRecipients(RecipientType.TO));
-//                 String ccText = Address.toFriendly(message.getRecipients(RecipientType.CC));
-//                 boolean hasAttachments = ((LocalMessage) message).getAttachmentCount() > 0;
-//                 mHandler.setHeaders(subjectText,
-//                         fromText,
-//                         timeText,
-//                         dateText,
-//                         toText,
-//                         ccText,
-//                         hasAttachments);
-//                 startPresenceCheck();
-//             }
-//             catch (MessagingException me) {
-//                 if (Email.LOGD) {
-//                     Log.v(Email.LOG_TAG, "loadMessageForViewHeadersAvailable", me);
-//                 }
-//             }
-        }
 
-        @Override
-        public void loadMessageForViewBodyAvailable(Account account, String folder,
-                String uid, com.android.email.mail.Message message) {
+//        @Override
+//        public void loadMessageForViewBodyAvailable(Account account, String folder,
+//                String uid, com.android.email.mail.Message message) {
 //             MessageView.this.mOldMessage = message;
 //             try {
 //                 Part part = MimeUtility.findFirstPartByMimeType(mOldMessage, "text/html");
@@ -1381,140 +1331,11 @@ public class MessageView extends Activity
 //                     Log.v(Email.LOG_TAG, "loadMessageForViewBodyAvailable", e);
 //                 }
 //             }
-        }
-
-        @Override
-        public void loadMessageForViewFailed(Account account, String folder, String uid,
-                final String message) {
-            mHandler.post(new Runnable() {
-                public void run() {
-                    setProgressBarIndeterminateVisibility(false);
-                    mHandler.networkError();
-                    loadMessageContentUrl("file:///android_asset/empty.html");
-                }
-            });
-        }
-
-        @Override
-        public void loadMessageForViewFinished(Account account, String folder,
-                String uid, com.android.email.mail.Message message) {
-            mHandler.post(new Runnable() {
-                public void run() {
-                    setProgressBarIndeterminateVisibility(false);
-                }
-            });
-        }
-
-        @Override
-        public void loadMessageForViewStarted(Account account, String folder, String uid)
-                {
-            mHandler.post(new Runnable() {
-                public void run() {
-                    loadMessageContentUrl("file:///android_asset/loading.html");
-                    setProgressBarIndeterminateVisibility(true);
-                }
-            });
-        }
-        
-//        @Override
-//        public void loadAttachmentStarted(Account account, com.android.email.mail.Message message,
-//                Part part, Object tag, boolean requiresDownload) {
-//            mHandler.setAttachmentsEnabled(false);
-//            Object[] params = (Object[]) tag;
-////            mHandler.progress(true, ((AttachmentInfo) params[1]).name);
-//            if (requiresDownload) {
-//                mHandler.fetchingAttachment();
-//            }
 //        }
-
-//        @Override
-//        public void loadAttachmentFinished(Account account, com.android.email.mail.Message message,
-//                Part part, Object tag) {
-//            mHandler.setAttachmentsEnabled(true);
-//            mHandler.progress(false, null);
-//            updateAttachmentThumbnail(part);
-//
-//            Object[] params = (Object[]) tag;
-//            boolean download = (Boolean) params[0];
-//            AttachmentInfo attachment = (AttachmentInfo) params[1];
-//
-//            if (download) {
-//                try {
-//                    File file = createUniqueFile(Environment.getExternalStorageDirectory(),
-//                            attachment.name);
-//                    Uri uri = AttachmentProvider.resolveAttachmentIdToContentUri(
-//                            getContentResolver(), AttachmentProvider.getAttachmentUri(
-//                                    mAccount, attachment.part.getAttachmentId()));
-//                    InputStream in = getContentResolver().openInputStream(uri);
-//                    OutputStream out = new FileOutputStream(file);
-//                    IOUtils.copy(in, out);
-//                    out.flush();
-//                    out.close();
-//                    in.close();
-//                    mHandler.attachmentSaved(file.getName());
-//                    new MediaScannerNotifier(MessageView.this, file, mHandler);
-//                }
-//                catch (IOException ioe) {
-//                    mHandler.attachmentNotSaved();
-//                }
-//            }
-//            else {
-//                try {
-//                    Uri uri = AttachmentProvider.resolveAttachmentIdToContentUri(
-//                            getContentResolver(), AttachmentProvider.getAttachmentUri(
-//                                    mAccount, attachment.part.getAttachmentId()));
-//                    Intent intent = new Intent(Intent.ACTION_VIEW);
-//                    intent.setData(uri);
-//                    intent.addFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION);
-//                    startActivity(intent);
-//                } catch (ActivityNotFoundException e) {
-//                    mHandler.attachmentViewError();
-//                    // TODO: Add a proper warning message (and lots of upstream cleanup to prevent
-//                    // it from happening) in the next release.
-//                }
-//            }
-//        }
-
-//        @Override
-//        public void loadAttachmentFailed(Account account, com.android.email.mail.Message message, 
-//                Part part, Object tag, String reason) {
-//            mHandler.setAttachmentsEnabled(true);
-////            mHandler.progress(false, null);
-//            mHandler.networkError();
-//        }
-        
-        /**
-         * Safely load a URL for mMessageContentView, or drop it if the view is gone
-         * TODO this really should be moved into a handler message, avoiding the need
-         * for this synchronized() section
-         */
-        private void loadMessageContentUrl(String fileName) {
-            synchronized (MessageView.this) {
-                if (mMessageContentView != null) {
-                    mMessageContentView.loadUrl(fileName);
-                }
-            }
-        }
-        
-        /**
-         * Safely load text for mMessageContentView, or drop it if the view is gone
-         * TODO this really should be moved into a handler message, avoiding the need
-         * for this synchronized() section
-         */
-//         private void loadMessageContentText(String text) {
-//             synchronized (MessageView.this) {
-//                 if (mMessageContentView != null) {
-//                     mMessageContentView.loadDataWithBaseURL("email://", text, "text/html",
-//                             "utf-8", null);
-//                 }
-//             }
-//         }
-    }
 
     /**
      * Back in the UI thread, handle the final steps of downloading an attachment (view or save).
      *
-     * @param save If true, save to SD card.  If false, send view intent
      * @param attachmentId the attachment that was just downloaded
      */
     private void doFinishLoadAttachment(long attachmentId) {

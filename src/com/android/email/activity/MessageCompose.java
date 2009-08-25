@@ -1202,6 +1202,10 @@ public class MessageCompose extends Activity implements OnClickListener, OnFocus
                 long mailboxId, int progress, int numNewMessages) {
         }
 
+        public void loadMessageForViewCallback(MessagingException result, long messageId,
+                int progress) {
+        }
+
         public void loadAttachmentCallback(MessagingException result, long messageId,
                 long attachmentId, int progress) {
         }

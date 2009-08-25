@@ -469,6 +469,10 @@ public class MailService extends Service {
 
     class ControllerResults implements Controller.Result {
 
+        public void loadMessageForViewCallback(MessagingException result, long messageId,
+                int progress) {
+        }
+
         public void loadAttachmentCallback(MessagingException result, long messageId,
                 long attachmentId, int progress) {
         }

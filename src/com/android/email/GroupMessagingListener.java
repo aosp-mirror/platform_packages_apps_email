@@ -98,42 +98,23 @@ public class GroupMessagingListener extends MessagingListener {
     }
 
     @Override
-    synchronized public void loadMessageForViewStarted(EmailContent.Account account, String folder,
-                                                       String uid) {
+    synchronized public void loadMessageForViewStarted(long messageId) {
         for (MessagingListener l : mListeners) {
-            l.loadMessageForViewStarted(account, folder, uid);
+            l.loadMessageForViewStarted(messageId);
         }
     }
 
     @Override
-    synchronized public void loadMessageForViewHeadersAvailable(EmailContent.Account account,
-            String folder, String uid, Message message) {
+    synchronized public void loadMessageForViewFinished(long messageId) {
         for (MessagingListener l : mListeners) {
-            l.loadMessageForViewHeadersAvailable(account, folder, uid, message);
+            l.loadMessageForViewFinished(messageId);
         }
     }
 
     @Override
-    synchronized public void loadMessageForViewBodyAvailable(EmailContent.Account account,
-            String folder, String uid, Message message) {
+    synchronized public void loadMessageForViewFailed(long messageId, String message) {
         for (MessagingListener l : mListeners) {
-            l.loadMessageForViewBodyAvailable(account, folder, uid, message);
-        }
-    }
-
-    @Override
-    synchronized public void loadMessageForViewFinished(EmailContent.Account account,
-            String folder, String uid, Message message) {
-        for (MessagingListener l : mListeners) {
-            l.loadMessageForViewFinished(account, folder, uid, message);
-        }
-    }
-
-    @Override
-    synchronized public void loadMessageForViewFailed(EmailContent.Account account, String folder,
-            String uid, String message) {
-        for (MessagingListener l : mListeners) {
-            l.loadMessageForViewFailed(account, folder, uid, message);
+            l.loadMessageForViewFailed(messageId, message);
         }
     }
 

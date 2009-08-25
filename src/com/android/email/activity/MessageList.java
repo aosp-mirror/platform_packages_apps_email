@@ -1071,6 +1071,10 @@ public class MessageList extends ListActivity implements OnItemClickListener, On
             }
         }
 
+        public void loadMessageForViewCallback(MessagingException result, long messageId,
+                int progress) {
+        }
+
         public void loadAttachmentCallback(MessagingException result, long messageId,
                 long attachmentId, int progress) {
         }

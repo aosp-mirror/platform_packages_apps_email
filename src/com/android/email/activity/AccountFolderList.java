@@ -584,6 +584,10 @@ public class AccountFolderList extends ListActivity
             }
         }
 
+        public void loadMessageForViewCallback(MessagingException result, long messageId,
+                int progress) {
+        }
+
         public void loadAttachmentCallback(MessagingException result, long messageId,
                 long attachmentId, int progress) {
         }
