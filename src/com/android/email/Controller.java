@@ -21,11 +21,11 @@ import com.android.email.mail.Store;
 import com.android.email.provider.AttachmentProvider;
 import com.android.email.provider.EmailContent;
 import com.android.email.provider.EmailContent.Account;
-import com.android.email.provider.EmailContent.AccountColumns;
 import com.android.email.provider.EmailContent.Attachment;
 import com.android.email.provider.EmailContent.Mailbox;
 import com.android.email.provider.EmailContent.MailboxColumns;
 import com.android.email.provider.EmailContent.Message;
+import com.android.email.provider.EmailContent.MessageColumns;
 import com.android.email.service.EmailServiceProxy;
 import com.android.exchange.EmailServiceStatus;
 import com.android.exchange.IEmailService;
@@ -234,6 +234,45 @@ public class Controller {
             }.start();
         }
     }
+
+    /**
+     * Request that any final work necessary be done, to load a message.
+     *
+     * Note, this assumes that the caller has already checked message.mFlagLoaded and that
+     * additional work is needed.  There is no optimization here for a message which is already
+     * loaded.
+     *
+     * @param messageId the message to load
+     * @param callback the Controller callback by which results will be reported
+     */
+    public void loadMessageForView(final long messageId, final Result callback) {
+
+        // Split here for target type (Service or MessagingController)
+        IEmailService service = getServiceForMessage(messageId);
+        if (service != null) {
+            // There is no service implementation, so we'll just jam the value, log the error,
+            // and get out of here.
+            Uri uri = ContentUris.withAppendedId(Message.CONTENT_URI, messageId);
+            ContentValues cv = new ContentValues();
+            cv.put(MessageColumns.FLAG_LOADED, Message.LOADED);
+            mContext.getContentResolver().update(uri, cv, null, null);
+            Log.d(Email.LOG_TAG, "Unexpected loadMessageForView() for service-based message.");
+            synchronized (mListeners) {
+                for (Result listener : mListeners) {
+                    listener.loadMessageForViewCallback(null, messageId, 100);
+                }
+            }
+        } else {
+            // MessagingController implementation
+            new Thread() {
+                @Override
+                public void run() {
+                    mLegacyController.loadMessageForView(messageId, mLegacyListener);
+                }
+            }.start();
+        }
+    }
+
 
     /**
      * Saves the message to a mailbox of given type.
@@ -707,6 +746,16 @@ public class Controller {
                 long mailboxId, int progress, int numNewMessages);
 
         /**
+         * Callback for loadMessageForView
+         *
+         * @param result if null, the attachment completed - if non-null, terminating with failure
+         * @param messageId the message which contains the attachment
+         * @param progress 0 for "starting", 1..99 for updates (if needed in UI), 100 for complete
+         */
+        public void loadMessageForViewCallback(MessagingException result, long messageId,
+                int progress);
+
+        /**
          * Callback for loadAttachment
          *
          * @param result if null, the attachment completed - if non-null, terminating with failure
@@ -827,6 +876,34 @@ public class Controller {
             synchronized (mListeners) {
                 for (Result l : mListeners) {
                     l.serviceCheckMailCallback(null, accountId, folderId, 100, tag);
+                }
+            }
+        }
+
+        @Override
+        public void loadMessageForViewStarted(long messageId) {
+            synchronized (mListeners) {
+                for (Result listener : mListeners) {
+                    listener.loadMessageForViewCallback(null, messageId, 0);
+                }
+            }
+        }
+
+        @Override
+        public void loadMessageForViewFinished(long messageId) {
+            synchronized (mListeners) {
+                for (Result listener : mListeners) {
+                    listener.loadMessageForViewCallback(null, messageId, 100);
+                }
+            }
+        }
+
+        @Override
+        public void loadMessageForViewFailed(long messageId, String message) {
+            synchronized (mListeners) {
+                for (Result listener : mListeners) {
+                    listener.loadMessageForViewCallback(new MessagingException(message),
+                            messageId, 0);
                 }
             }
         }

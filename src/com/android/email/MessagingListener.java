@@ -50,23 +50,13 @@ public class MessagingListener {
             Exception e) {
     }
 
-    public void loadMessageForViewStarted(EmailContent.Account account, String folder, String uid) {
+    public void loadMessageForViewStarted(long messageId) {
     }
 
-    public void loadMessageForViewHeadersAvailable(EmailContent.Account account, String folder,
-            String uid, Message message) {
+    public void loadMessageForViewFinished(long messageId) {
     }
 
-    public void loadMessageForViewBodyAvailable(EmailContent.Account account, String folder,
-            String uid, Message message) {
-    }
-
-    public void loadMessageForViewFinished(EmailContent.Account account, String folder, String uid,
-            Message message) {
-    }
-
-    public void loadMessageForViewFailed(EmailContent.Account account, String folder, String uid,
-            String message) {
+    public void loadMessageForViewFailed(long messageId, String message) {
     }
 
     public void checkMailStarted(Context context, long accountId, long tag) {

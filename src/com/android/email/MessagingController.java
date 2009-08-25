@@ -1399,137 +1399,84 @@ public class MessagingController implements Runnable {
         }
     }
 
-    private void loadMessageForViewRemote(final EmailContent.Account account, final String folder,
-            final String uid, MessagingListener listener) {
+    /**
+     * Finiah loading a message that have been partially downloaded.
+     *
+     * @param messageId the message to load
+     * @param listener the callback by which results will be reported
+     */
+    public void loadMessageForView(final long messageId, MessagingListener listener) {
+        mListeners.loadMessageForViewStarted(messageId);
         put("loadMessageForViewRemote", listener, new Runnable() {
             public void run() {
                 try {
-                    LocalStore localStore = (LocalStore) Store.getInstance(
-                            account.getLocalStoreUri(mContext), mContext, null);
-                    LocalFolder localFolder = (LocalFolder) localStore.getFolder(folder);
-                    localFolder.open(OpenMode.READ_WRITE, null);
-
-                    Message message = localFolder.getMessage(uid);
-
-                    if (message.isSet(Flag.X_DOWNLOADED_FULL)) {
-                        /*
-                         * If the message has been synchronized since we were called we'll
-                         * just hand it back cause it's ready to go.
-                         */
-                        FetchProfile fp = new FetchProfile();
-                        fp.add(FetchProfile.Item.ENVELOPE);
-                        fp.add(FetchProfile.Item.BODY);
-                        localFolder.fetch(new Message[] { message }, fp, null);
-
-                        mListeners.loadMessageForViewBodyAvailable(account, folder, uid, message);
-                        mListeners.loadMessageForViewFinished(account, folder, uid, message);
-                        localFolder.close(false);
+                    // 1. Resample the message, in case it disappeared or synced while
+                    // this command was in queue
+                    EmailContent.Message message =
+                        EmailContent.Message.restoreMessageWithId(mContext, messageId);
+                    if (message == null) {
+                        mListeners.loadMessageForViewFailed(messageId, "Unknown message");
+                        return;
+                    }
+                    if (message.mFlagLoaded == EmailContent.Message.LOADED) {
+                        mListeners.loadMessageForViewFinished(messageId);
                         return;
                     }
 
-                    /*
-                     * At this point the message is not available, so we need to download it
-                     * fully if possible.
-                     */
+                    // 2. Open the remote folder.
+                    // TODO all of these could be narrower projections
+                    // TODO combine with common code in loadAttachment
+                    EmailContent.Account account =
+                        EmailContent.Account.restoreAccountWithId(mContext, message.mAccountKey);
+                    EmailContent.Mailbox mailbox =
+                        EmailContent.Mailbox.restoreMailboxWithId(mContext, message.mMailboxKey);
 
-                    Store remoteStore = Store.getInstance(account.getStoreUri(mContext), mContext,
-                            localStore.getPersistentCallbacks());
-                    Folder remoteFolder = remoteStore.getFolder(folder);
-                    remoteFolder.open(OpenMode.READ_WRITE, localFolder.getPersistentCallbacks());
+                    Store remoteStore =
+                        Store.getInstance(account.getStoreUri(mContext), mContext, null);
+                    Folder remoteFolder = remoteStore.getFolder(mailbox.mDisplayName);
+                    remoteFolder.open(OpenMode.READ_WRITE, null);
 
-                    // Get the remote message and fully download it (and save into local store)
+                    // 3. Not supported, because IMAP & POP don't use it: structure prefetch
+//                  if (remoteStore.requireStructurePrefetch()) {
+//                  // For remote stores that require it, prefetch the message structure.
+//                  FetchProfile fp = new FetchProfile();
+//                  fp.add(FetchProfile.Item.STRUCTURE);
+//                  localFolder.fetch(new Message[] { message }, fp, null);
+//
+//                  ArrayList<Part> viewables = new ArrayList<Part>();
+//                  ArrayList<Part> attachments = new ArrayList<Part>();
+//                  MimeUtility.collectParts(message, viewables, attachments);
+//                  fp.clear();
+//                  for (Part part : viewables) {
+//                      fp.add(part);
+//                  }
+//
+//                  remoteFolder.fetch(new Message[] { message }, fp, null);
+//
+//                  // Store the updated message locally
+//                  localFolder.updateMessage((LocalMessage)message);
 
-                    if (remoteStore.requireStructurePrefetch()) {
-                        // For remote stores that require it, prefetch the message structure.
-                        FetchProfile fp = new FetchProfile();
-                        fp.add(FetchProfile.Item.STRUCTURE);
-                        localFolder.fetch(new Message[] { message }, fp, null);
-
-                        ArrayList<Part> viewables = new ArrayList<Part>();
-                        ArrayList<Part> attachments = new ArrayList<Part>();
-                        MimeUtility.collectParts(message, viewables, attachments);
-                        fp.clear();
-                        for (Part part : viewables) {
-                            fp.add(part);
-                        }
-
-                        remoteFolder.fetch(new Message[] { message }, fp, null);
-
-                        // Store the updated message locally
-                        localFolder.updateMessage((LocalMessage)message);
-
-                    } else {
-                        // Most remote stores can directly obtain the message using only uid
-                        Message remoteMessage = remoteFolder.getMessage(uid);
-                        FetchProfile fp = new FetchProfile();
-                        fp.add(FetchProfile.Item.BODY);
-                        remoteFolder.fetch(new Message[] { remoteMessage }, fp, null);
-
-                        // Store the message locally
-                        localFolder.appendMessages(new Message[] { remoteMessage });
-                    }
-
-                    // Now obtain the local copy for further access & manipulation
-                    message = localFolder.getMessage(uid);
+                    // 4. Set up to download the entire message
+                    Message remoteMessage = remoteFolder.getMessage(message.mServerId);
                     FetchProfile fp = new FetchProfile();
                     fp.add(FetchProfile.Item.BODY);
-                    localFolder.fetch(new Message[] { message }, fp, null);
+                    remoteFolder.fetch(new Message[] { remoteMessage }, fp, null);
 
-                    // This is a view message request, so mark it read
-                    if (!message.isSet(Flag.SEEN)) {
-                        markMessageRead(account, folder, uid, true);
-                    }
+                    // 5. Write to provider
+                    copyOneMessageToProvider(remoteMessage, account, mailbox,
+                            EmailContent.Message.LOADED);
 
-                    // Mark that this message is now fully synched
-                    message.setFlag(Flag.X_DOWNLOADED_FULL, true);
+                    // 6. Notify UI
+                    mListeners.loadMessageForViewFinished(messageId);
 
-                    mListeners.loadMessageForViewBodyAvailable(account, folder, uid, message);
-                    mListeners.loadMessageForViewFinished(account, folder, uid, message);
-                    remoteFolder.close(false);
-                    localFolder.close(false);
-                }
-                catch (Exception e) {
-                    mListeners.loadMessageForViewFailed(account, folder, uid, e.getMessage());
+                } catch (MessagingException me) {
+                    if (Email.LOGD) Log.v(Email.LOG_TAG, "", me);
+                    mListeners.loadMessageForViewFailed(messageId, me.getMessage());
+                } catch (RuntimeException rte) {
+                    mListeners.loadMessageForViewFailed(messageId, rte.getMessage());
                 }
             }
         });
-    }
-
-    public void loadMessageForView(final EmailContent.Account account, final String folder,
-            final String uid, MessagingListener listener) {
-        mListeners.loadMessageForViewStarted(account, folder, uid);
-        try {
-            Store localStore = Store.getInstance(account.getLocalStoreUri(mContext), mContext,
-                    null);
-            LocalFolder localFolder = (LocalFolder) localStore.getFolder(folder);
-            localFolder.open(OpenMode.READ_WRITE, null);
-
-            Message message = localFolder.getMessage(uid);
-            mListeners.loadMessageForViewHeadersAvailable(account, folder, uid, message);
-            if (!message.isSet(Flag.X_DOWNLOADED_FULL)) {
-                loadMessageForViewRemote(account, folder, uid, listener);
-                localFolder.close(false);
-                return;
-            }
-
-            if (!message.isSet(Flag.SEEN)) {
-                markMessageRead(account, folder, uid, true);
-            }
-
-            FetchProfile fp = new FetchProfile();
-            fp.add(FetchProfile.Item.ENVELOPE);
-            fp.add(FetchProfile.Item.BODY);
-            localFolder.fetch(new Message[] {
-                message
-            }, fp, null);
-
-            mListeners.loadMessageForViewBodyAvailable(account, folder, uid, message);
-            mListeners.loadMessageForViewFinished(account, folder, uid, message);
-            localFolder.close(false);
-        }
-        catch (Exception e) {
-            mListeners.loadMessageForViewFailed(account, folder, uid, e.getMessage());
-        }
     }
 
     /**
