@@ -72,7 +72,7 @@ public class MessageList extends ListActivity implements OnItemClickListener, On
     private static final String EXTRA_ACCOUNT_ID = "com.android.email.activity._ACCOUNT_ID";
     private static final String EXTRA_MAILBOX_TYPE = "com.android.email.activity.MAILBOX_TYPE";
     private static final String EXTRA_MAILBOX_ID = "com.android.email.activity.MAILBOX_ID";
-    
+
     // UI support
     private ListView mListView;
     private View mMultiSelectPanel;
@@ -148,10 +148,10 @@ public class MessageList extends ListActivity implements OnItemClickListener, On
 
     /**
      * Open a specific mailbox.
-     * 
+     *
      * TODO This should just shortcut to a more generic version that can accept a list of
      * accounts/mailboxes (e.g. merged inboxes).
-     * 
+     *
      * @param context
      * @param id mailbox key
      */
@@ -163,7 +163,7 @@ public class MessageList extends ListActivity implements OnItemClickListener, On
 
     /**
      * Open a specific mailbox by account & type
-     * 
+     *
      * @param context The caller's context (for generating an intent)
      * @param accountId The account to open
      * @param mailboxType the type of mailbox to open (e.g. @see EmailContent.Mailbox.TYPE_INBOX)
@@ -178,7 +178,7 @@ public class MessageList extends ListActivity implements OnItemClickListener, On
     /**
      * Return an intent to open a specific mailbox by account & type.  It will also clear
      * notifications.
-     * 
+     *
      * @param context The caller's context (for generating an intent)
      * @param accountId The account to open, or -1
      * @param mailboxId the ID of the mailbox to open, or -1
@@ -345,7 +345,7 @@ public class MessageList extends ListActivity implements OnItemClickListener, On
                 break;
         }
     }
-    
+
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {
         super.onCreateOptionsMenu(menu);
@@ -356,7 +356,7 @@ public class MessageList extends ListActivity implements OnItemClickListener, On
         }
         return true;
     }
-    
+
     @Override
     public boolean onOptionsItemSelected(MenuItem item) {
         switch (item.getItemId()) {
@@ -541,7 +541,7 @@ public class MessageList extends ListActivity implements OnItemClickListener, On
     /**
      * Toggles a set read/unread states.  Note, the default behavior is "mark unread", so the
      * sense of the helper methods is "true=unread".
-     * 
+     *
      * @param selectedSet The current list of selected items
      */
     private void onMultiToggleRead(Set<Long> selectedSet) {
@@ -564,7 +564,7 @@ public class MessageList extends ListActivity implements OnItemClickListener, On
 
     /**
      * Toggles a set of favorites (stars)
-     * 
+     *
      * @param selectedSet The current list of selected items
      */
     private void onMultiToggleFavorite(Set<Long> selectedSet) {
@@ -620,7 +620,7 @@ public class MessageList extends ListActivity implements OnItemClickListener, On
     /**
      * Toggle multiple fields in a message, using the following logic:  If one or more fields
      * are "clear", then "set" them.  If all fields are "set", then "clear" them all.
-     * 
+     *
      * @param selectedSet the set of messages that are selected
      * @param helper functions to implement the specific getter & setter
      * @return the number of messages that were updated
@@ -714,7 +714,7 @@ public class MessageList extends ListActivity implements OnItemClickListener, On
      * Any push-mode account:  refresh
      * Any non-push-mode account:  load more
      * Any outbox (send again):
-     * 
+     *
      * @param mailboxId the ID of the mailbox
      */
     private void addFooterView(long mailboxId, long accountId, int mailboxType) {
@@ -856,14 +856,14 @@ public class MessageList extends ListActivity implements OnItemClickListener, On
 
     /**
      * Async task for finding a single mailbox by type (possibly even going to the network).
-     * 
+     *
      * This is much too complex, as implemented.  It uses this AsyncTask to check for a mailbox,
      * then (if not found) a Controller call to refresh mailboxes from the server, and a handler
      * to relaunch this task (a 2nd time) to read the results of the network refresh.  The core
      * problem is that we have two different non-UI-thread jobs (reading DB and reading network)
      * and two different paradigms for dealing with them.  Some unification would be needed here
      * to make this cleaner.
-     * 
+     *
      * TODO: If this problem spreads to other operations, find a cleaner way to handle it.
      */
     private class FindMailboxTask extends AsyncTask<Void, Void, Long> {
@@ -907,7 +907,7 @@ public class MessageList extends ListActivity implements OnItemClickListener, On
 
     /**
      * Async task for loading a single folder out of the UI thread
-     * 
+     *
      * The code here (for merged boxes) is a placeholder/hack and should be replaced.  Some
      * specific notes:
      * TODO:  Move the double query into a specialized URI that returns all inbox messages
@@ -929,7 +929,7 @@ public class MessageList extends ListActivity implements OnItemClickListener, On
 
         @Override
         protected Cursor doInBackground(Void... params) {
-            String selection = 
+            String selection =
                 Utility.buildMailboxIdSelection(MessageList.this.mResolver, mMailboxKey);
             Cursor c = MessageList.this.managedQuery(
                     EmailContent.Message.CONTENT_URI,
@@ -942,7 +942,7 @@ public class MessageList extends ListActivity implements OnItemClickListener, On
         @Override
         protected void onPostExecute(Cursor cursor) {
             MessageList.this.mListAdapter.changeCursor(cursor);
-            
+
             // TODO: remove this hack and only update at the right time
             if (cursor != null && cursor.getCount() == 0) {
                 onRefresh();
@@ -1081,7 +1081,7 @@ public class MessageList extends ListActivity implements OnItemClickListener, On
          * Called from any thread to look for a mailbox of a specific type.  This is designed
          * to be called from the Controller's MailboxList callback;  It instructs the async task
          * not to recurse, in case the mailbox is not found after this.
-         * 
+         *
          * See FindMailboxTask for more notes on this handler.
          */
         public void lookupMailboxType(long accountId, int mailboxType) {
@@ -1157,7 +1157,7 @@ public class MessageList extends ListActivity implements OnItemClickListener, On
      * This class implements the adapter for displaying messages based on cursors.
      */
     /* package */ class MessageListAdapter extends CursorAdapter {
-        
+
         public static final int COLUMN_ID = 0;
         public static final int COLUMN_MAILBOX_KEY = 1;
         public static final int COLUMN_ACCOUNT_KEY = 2;
@@ -1185,7 +1185,7 @@ public class MessageList extends ListActivity implements OnItemClickListener, On
         private java.text.DateFormat mDateFormat;
         private java.text.DateFormat mDayFormat;
         private java.text.DateFormat mTimeFormat;
-        
+
         private HashSet<Long> mChecked = new HashSet<Long>();
 
         public MessageListAdapter(Context context) {
@@ -1199,7 +1199,7 @@ public class MessageList extends ListActivity implements OnItemClickListener, On
             mFavoriteIconOff = resources.getDrawable(android.R.drawable.star_off);
             mSelectedIconOn = resources.getDrawable(R.drawable.btn_check_buttonless_on);
             mSelectedIconOff = resources.getDrawable(R.drawable.btn_check_buttonless_off);
-            
+
             mDateFormat = android.text.format.DateFormat.getDateFormat(context);    // short date
             mDayFormat = android.text.format.DateFormat.getDateFormat(context);     // TODO: day
             mTimeFormat = android.text.format.DateFormat.getTimeFormat(context);    // 12/24 time
@@ -1232,7 +1232,7 @@ public class MessageList extends ListActivity implements OnItemClickListener, On
 
             TextView fromView = (TextView) view.findViewById(R.id.from);
             String text = cursor.getString(COLUMN_DISPLAY_NAME);
-            if (text != null) fromView.setText(text);
+            fromView.setText(text);
 
             boolean hasAttachments = cursor.getInt(COLUMN_ATTACHMENTS) != 0;
             fromView.setCompoundDrawablesWithIntrinsicBounds(null, null,
@@ -1240,7 +1240,7 @@ public class MessageList extends ListActivity implements OnItemClickListener, On
 
             TextView subjectView = (TextView) view.findViewById(R.id.subject);
             text = cursor.getString(COLUMN_SUBJECT);
-            if (text != null) subjectView.setText(text);
+            subjectView.setText(text);
 
             // TODO ui spec suggests "time", "day", "date" - implement "day"
             TextView dateView = (TextView) view.findViewById(R.id.date);
