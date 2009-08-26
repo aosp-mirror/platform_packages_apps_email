@@ -517,19 +517,19 @@ public class MessagingController implements Runnable {
     private static class LocalMessageInfo {
         private static final int COLUMN_ID = 0;
         private static final int COLUMN_FLAG_READ = 1;
-        private static final int COLUMN_FLAG_LOADED = 2;
-        private static final int COLUMN_SERVER_ID = 3;
-        private static final int COLUMN_MAILBOX_KEY = 4;
-        private static final int COLUMN_ACCOUNT_KEY = 5;
+        private static final int COLUMN_FLAG_FAVORITE = 2;
+        private static final int COLUMN_FLAG_LOADED = 3;
+        private static final int COLUMN_SERVER_ID = 4;
         private static final String[] PROJECTION = new String[] {
             EmailContent.RECORD_ID,
-            MessageColumns.FLAG_READ, MessageColumns.FLAG_LOADED,
+            MessageColumns.FLAG_READ, MessageColumns.FLAG_FAVORITE, MessageColumns.FLAG_LOADED,
             SyncColumns.SERVER_ID, MessageColumns.MAILBOX_KEY, MessageColumns.ACCOUNT_KEY
         };
         
         int mCursorIndex;
         long mId;
         boolean mFlagRead;
+        boolean mFlagFavorite;
         int mFlagLoaded;
         String mServerId;
         
@@ -537,6 +537,7 @@ public class MessagingController implements Runnable {
             mCursorIndex = c.getPosition();
             mId = c.getLong(COLUMN_ID);
             mFlagRead = c.getInt(COLUMN_FLAG_READ) != 0;
+            mFlagFavorite = c.getInt(COLUMN_FLAG_FAVORITE) != 0;
             mFlagLoaded = c.getInt(COLUMN_FLAG_LOADED);
             mServerId = c.getString(COLUMN_SERVER_ID);
             // Note: mailbox key and account key not needed - they are projected for the SELECT
@@ -744,14 +745,18 @@ public class MessagingController implements Runnable {
         FetchProfile fp = new FetchProfile();
         fp.add(FetchProfile.Item.FLAGS);
         remoteFolder.fetch(remoteMessages, fp, null);
-        boolean remoteSupportsSeenFlag = false;
+        boolean remoteSupportsSeen = false;
+        boolean remoteSupportsFlagged = false;
         for (Flag flag : remoteFolder.getPermanentFlags()) {
             if (flag == Flag.SEEN) {
-                remoteSupportsSeenFlag = true;
+                remoteSupportsSeen = true;
+            }
+            if (flag == Flag.FLAGGED) {
+                remoteSupportsFlagged = true;
             }
         }
-        // Update the SEEN flag (if supported remotely - e.g. not for POP3)
-        if (remoteSupportsSeenFlag) {
+        // Update the SEEN & FLAGGED (star) flags (if supported remotely - e.g. not for POP3)
+        if (remoteSupportsSeen || remoteSupportsFlagged) {
             for (Message remoteMessage : remoteMessages) {
                 LocalMessageInfo localMessageInfo = localMessageMap.get(remoteMessage.getUid());
                 if (localMessageInfo == null) {
@@ -759,11 +764,16 @@ public class MessagingController implements Runnable {
                 }
                 boolean localSeen = localMessageInfo.mFlagRead;
                 boolean remoteSeen = remoteMessage.isSet(Flag.SEEN);
-                if (remoteSeen != localSeen) {
+                boolean newSeen = (remoteSupportsSeen && (remoteSeen != localSeen));
+                boolean localFlagged = localMessageInfo.mFlagFavorite;
+                boolean remoteFlagged = remoteMessage.isSet(Flag.FLAGGED);
+                boolean newFlagged = (remoteSupportsFlagged && (localFlagged != remoteFlagged));
+                if (newSeen || newFlagged) {
                     Uri uri = ContentUris.withAppendedId(
                             EmailContent.Message.CONTENT_URI, localMessageInfo.mId);
                     ContentValues updateValues = new ContentValues();
-                    updateValues.put(EmailContent.Message.FLAG_READ, remoteSeen ? 1 : 0);
+                    updateValues.put(EmailContent.Message.FLAG_READ, remoteSeen);
+                    updateValues.put(EmailContent.Message.FLAG_FAVORITE, remoteFlagged);
                     mContext.getContentResolver().update(uri, updateValues, null, null);
                 }
             }
