@@ -33,17 +33,12 @@ import com.android.exchange.Eas;
 import com.android.exchange.SyncManager;
 
 import android.accounts.AccountManager;
-import android.accounts.AuthenticatorException;
-import android.accounts.OperationCanceledException;
 import android.accounts.AccountManagerCallback;
-import android.accounts.AccountManagerFuture;
 import android.content.Context;
 import android.os.Bundle;
 import android.os.RemoteException;
 import android.text.TextUtils;
-import android.util.Log;
 
-import java.io.IOException;
 import java.net.URI;
 import java.net.URISyntaxException;
 import java.util.HashMap;
@@ -114,29 +109,14 @@ public class ExchangeStore extends Store {
         mTransport.checkSettings(mUri);
     }
 
-    static public void addSystemAccount(Context context, Account acct, boolean syncContacts) {
+    static public void addSystemAccount(Context context, Account acct, boolean syncContacts,
+            AccountManagerCallback<Bundle> callback) {
         // Create a description of the new account
         Bundle options = new Bundle();
         options.putString(EasAuthenticatorService.OPTIONS_USERNAME, acct.mEmailAddress);
         options.putString(EasAuthenticatorService.OPTIONS_PASSWORD, acct.mHostAuthRecv.mPassword);
         options.putBoolean(EasAuthenticatorService.OPTIONS_CONTACTS_SYNC_ENABLED, syncContacts);
 
-        AccountManagerCallback<Bundle> callback = new AccountManagerCallback<Bundle>() {
-            public void run(AccountManagerFuture<Bundle> future) {
-                try {
-                    Bundle bundle = future.getResult();
-                    bundle.keySet();
-                    Log.d(LOG_TAG, "account added: " + bundle);
-                } catch (OperationCanceledException e) {
-                    Log.d(LOG_TAG, "addAccount was canceled");
-                } catch (IOException e) {
-                    Log.d(LOG_TAG, "addAccount failed: " + e);
-                } catch (AuthenticatorException e) {
-                    Log.d(LOG_TAG, "addAccount failed: " + e);
-                }
-
-            }
-        };
         // Here's where we tell AccountManager about the new account.  The addAccount
         // method in AccountManager calls the addAccount method in our authenticator
         // service (EasAuthenticatorService)
