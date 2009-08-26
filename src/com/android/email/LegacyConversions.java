@@ -17,6 +17,7 @@
 package com.android.email;
 
 import com.android.email.mail.Address;
+import com.android.email.mail.Flag;
 import com.android.email.mail.Message;
 import com.android.email.mail.MessagingException;
 import com.android.email.mail.Part;
@@ -70,7 +71,7 @@ public class LegacyConversions {
             localMessage.mSubject = subject;
         }
 //        public String mPreview;
-//        public boolean mFlagRead = false;
+        localMessage.mFlagRead = message.isSet(Flag.SEEN);
 
         // Keep the message in the "unloaded" state until it has (at least) a display name.
         // This prevents early flickering of empty messages in POP download.
@@ -81,8 +82,7 @@ public class LegacyConversions {
                 localMessage.mFlagLoaded = EmailContent.Message.PARTIALLY_LOADED;
             }
         }
-        // TODO handle flags, favorites, and read/unread
-//        public boolean mFlagFavorite = false;
+        localMessage.mFlagFavorite = message.isSet(Flag.FLAGGED);
 //        public boolean mFlagAttachment = false;
 //        public int mFlags = 0;
 //

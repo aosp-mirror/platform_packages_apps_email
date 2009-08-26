@@ -84,7 +84,8 @@ public class ImapStore extends Store {
     public static final int CONNECTION_SECURITY_SSL_REQUIRED = 3;
     public static final int CONNECTION_SECURITY_SSL_OPTIONAL = 4;
 
-    private static final Flag[] PERMANENT_FLAGS = { Flag.DELETED, Flag.SEEN };
+    // TODO:  Flag.FLAGGED is only partially permanent - we can read, but we can't write back
+    private static final Flag[] PERMANENT_FLAGS = { Flag.DELETED, Flag.SEEN, Flag.FLAGGED };
 
     private Transport mRootTransport;
     private String mUsername;
