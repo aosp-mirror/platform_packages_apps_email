@@ -1242,7 +1242,7 @@ public abstract class EmailContent {
         @Override
         public int update(Context context, ContentValues cv) {
             if (cv.containsKey(AccountColumns.IS_DEFAULT) &&
-                    cv.getAsBoolean(AccountColumns.IS_DEFAULT)) {
+                    (cv.getAsInteger(AccountColumns.IS_DEFAULT) != 0)) {
                 ArrayList<ContentProviderOperation> ops = new ArrayList<ContentProviderOperation>();
                 ContentValues cv1 = new ContentValues();
                 cv1.put(AccountColumns.IS_DEFAULT, 0);
