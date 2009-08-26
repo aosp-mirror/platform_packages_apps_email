@@ -22,14 +22,24 @@ import com.android.email.mail.Store;
 import com.android.email.mail.store.ExchangeStore;
 import com.android.email.provider.EmailContent;
 
+import android.accounts.AccountManagerCallback;
+import android.accounts.AccountManagerFuture;
+import android.accounts.AuthenticatorException;
+import android.accounts.OperationCanceledException;
 import android.app.Activity;
+import android.app.AlertDialog;
+import android.content.DialogInterface;
 import android.content.Intent;
 import android.os.Bundle;
+import android.os.Handler;
+import android.util.Log;
 import android.view.View;
 import android.view.View.OnClickListener;
 import android.widget.ArrayAdapter;
 import android.widget.CheckBox;
 import android.widget.Spinner;
+
+import java.io.IOException;
 
 public class AccountSetupOptions extends Activity implements OnClickListener {
 
@@ -44,6 +54,7 @@ public class AccountSetupOptions extends Activity implements OnClickListener {
     private CheckBox mSyncContactsView;
     private EmailContent.Account mAccount;
     private boolean mEasFlowMode;
+    private Handler mHandler = new Handler();
 
     public static void actionOptions(Activity fromActivity, EmailContent.Account account,
             boolean makeDefault, boolean easFlowMode) {
@@ -69,7 +80,7 @@ public class AccountSetupOptions extends Activity implements OnClickListener {
 
         mAccount = (EmailContent.Account) getIntent().getParcelableExtra(EXTRA_ACCOUNT);
         boolean makeDefault = getIntent().getBooleanExtra(EXTRA_MAKE_DEFAULT, false);
-        
+
         // Generate spinner entries using XML arrays used by the preferences
         int frequencyValuesId;
         int frequencyEntriesId;
@@ -83,7 +94,7 @@ public class AccountSetupOptions extends Activity implements OnClickListener {
         }
         CharSequence[] frequencyValues = getResources().getTextArray(frequencyValuesId);
         CharSequence[] frequencyEntries = getResources().getTextArray(frequencyEntriesId);
-        
+
         // Now create the array used by the Spinner
         SpinnerOption[] checkFrequencies = new SpinnerOption[frequencyEntries.length];
         for (int i = 0; i < frequencyEntries.length; i++) {
@@ -96,7 +107,7 @@ public class AccountSetupOptions extends Activity implements OnClickListener {
         checkFrequenciesAdapter
                 .setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
         mCheckFrequencyView.setAdapter(checkFrequenciesAdapter);
-        
+
         if (info.mVisibleLimitDefault == -1) {
             enableEASSyncWindowSpinner();
         }
@@ -120,6 +131,55 @@ public class AccountSetupOptions extends Activity implements OnClickListener {
         }
     }
 
+    AccountManagerCallback<Bundle> mAccountManagerCallback = new AccountManagerCallback<Bundle>() {
+        public void run(AccountManagerFuture<Bundle> future) {
+            try {
+                Bundle bundle = future.getResult();
+                bundle.keySet();
+                mHandler.post(new Runnable() {
+                    public void run() {
+                        finishOnDone();
+                    }
+                });
+                return;
+            } catch (OperationCanceledException e) {
+                Log.d(Email.LOG_TAG, "addAccount was canceled");
+            } catch (IOException e) {
+                Log.d(Email.LOG_TAG, "addAccount failed: " + e);
+            } catch (AuthenticatorException e) {
+                Log.d(Email.LOG_TAG, "addAccount failed: " + e);
+            }
+            showErrorDialog(R.string.account_setup_failed_dlg_auth_message,
+                    R.string.system_account_create_failed);
+        }
+    };
+
+    private void showErrorDialog(final int msgResId, final Object... args) {
+        mHandler.post(new Runnable() {
+            public void run() {
+                new AlertDialog.Builder(AccountSetupOptions.this)
+                        .setIcon(android.R.drawable.ic_dialog_alert)
+                        .setTitle(getString(R.string.account_setup_failed_dlg_title))
+                        .setMessage(getString(msgResId, args))
+                        .setCancelable(true)
+                        .setPositiveButton(
+                                getString(R.string.account_setup_failed_dlg_edit_details_action),
+                                new DialogInterface.OnClickListener() {
+                                    public void onClick(DialogInterface dialog, int which) {
+                                       finish();
+                                    }
+                                })
+                        .show();
+            }
+        });
+    }
+    private void finishOnDone() {
+        AccountSettingsUtils.commitSettings(this, mAccount);
+        Email.setServicesEnabled(this);
+        AccountSetupNames.actionSetNames(this, mAccount.mId, mEasFlowMode);
+        finish();
+    }
+
     private void onDone() {
         mAccount.setDisplayName(mAccount.getEmailAddress());
         int newFlags = mAccount.getFlags() & ~(EmailContent.Account.FLAGS_NOTIFY_NEW_MAIL);
@@ -140,12 +200,11 @@ public class AccountSetupOptions extends Activity implements OnClickListener {
                 && mAccount.mHostAuthRecv != null
                 && mAccount.mHostAuthRecv.mProtocol.equals("eas")) {
             boolean alsoSyncContacts = mEasFlowMode && mSyncContactsView.isChecked();
-            ExchangeStore.addSystemAccount(this, mAccount, alsoSyncContacts);
-        }
-        AccountSettingsUtils.commitSettings(this, mAccount);
-        Email.setServicesEnabled(this);
-        AccountSetupNames.actionSetNames(this, mAccount.mId, mEasFlowMode);
-        finish();
+            ExchangeStore.addSystemAccount(this, mAccount,
+                    alsoSyncContacts, mAccountManagerCallback);
+        } else {
+            finishOnDone();
+       }
     }
 
     public void onClick(View v) {
@@ -155,7 +214,7 @@ public class AccountSetupOptions extends Activity implements OnClickListener {
                 break;
         }
     }
-    
+
     /**
      * Enable an additional spinner using the arrays normally handled by preferences
      */
@@ -169,7 +228,7 @@ public class AccountSetupOptions extends Activity implements OnClickListener {
                 R.array.account_settings_mail_window_values);
         CharSequence[] windowEntries = getResources().getTextArray(
                 R.array.account_settings_mail_window_entries);
-        
+
         // Now create the array used by the Spinner
         SpinnerOption[] windowOptions = new SpinnerOption[windowEntries.length];
         for (int i = 0; i < windowEntries.length; i++) {
@@ -182,7 +241,7 @@ public class AccountSetupOptions extends Activity implements OnClickListener {
         windowOptionsAdapter
                 .setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
         mSyncWindowView.setAdapter(windowOptionsAdapter);
-        
+
         SpinnerOption.setSpinnerOptionValue(mSyncWindowView, mAccount.getSyncLookback());
     }
 }
