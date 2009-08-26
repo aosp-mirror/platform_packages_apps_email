@@ -16,7 +16,7 @@
 
 package com.android.email;
 
-import static android.provider.Contacts.ContactMethods.CONTENT_EMAIL_URI;
+import android.provider.ContactsContract;
 import android.content.ContentResolver;
 import android.content.Context;
 import android.database.Cursor;
@@ -83,6 +83,8 @@ public class EmailAddressAdapter extends ResourceCursorAdapter {
             where = s.toString();
         }
 
-        return mContentResolver.query(CONTENT_EMAIL_URI, PROJECTION, where, null, SORT_ORDER);
+        return mContentResolver.query(
+            ContactsContract.CommonDataKinds.Email.CONTENT_FILTER_EMAIL_URI,
+            PROJECTION, where, null, SORT_ORDER);
     }
 }

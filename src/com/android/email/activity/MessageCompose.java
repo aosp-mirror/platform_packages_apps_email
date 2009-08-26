@@ -73,6 +73,8 @@ import java.io.Serializable;
 import java.io.UnsupportedEncodingException;
 import java.net.URLDecoder;
 import java.util.List;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 
 public class MessageCompose extends Activity implements OnClickListener, OnFocusChangeListener {
@@ -99,6 +101,9 @@ public class MessageCompose extends Activity implements OnClickListener, OnFocus
     private static final int MSG_DISCARDED_DRAFT = 6;
 
     private static final int ACTIVITY_REQUEST_PICK_ATTACHMENT = 1;
+
+    private static final Pattern PATTERN_START_OF_LINE = Pattern.compile("(?m)^");
+    private static final Pattern PATTERN_ENDLINE_CRLF = Pattern.compile("\r\n");
 
     private Account mAccount;
 
@@ -453,15 +458,16 @@ public class MessageCompose extends Activity implements OnClickListener, OnFocus
         EmailAddressAdapter addressAdapter = new EmailAddressAdapter(this);
         EmailAddressValidator addressValidator = new EmailAddressValidator();
 
-        mToView.setAdapter(addressAdapter);
+        // temporarilly disable setAdapter, see BUG 2077496
+        // mToView.setAdapter(addressAdapter);
         mToView.setTokenizer(new Rfc822Tokenizer());
         mToView.setValidator(addressValidator);
 
-        mCcView.setAdapter(addressAdapter);
+        // mCcView.setAdapter(addressAdapter);
         mCcView.setTokenizer(new Rfc822Tokenizer());
         mCcView.setValidator(addressValidator);
 
-        mBccView.setAdapter(addressAdapter);
+        // mBccView.setAdapter(addressAdapter);
         mBccView.setTokenizer(new Rfc822Tokenizer());
         mBccView.setValidator(addressValidator);
 
@@ -554,7 +560,7 @@ public class MessageCompose extends Activity implements OnClickListener, OnFocus
     /*
      * Takes care to append source info and text in a REPLY or FORWARD situation.
      */
-    private String buildBodyText(Message sourceMessage) {
+    /* package */ String buildBodyText(Message sourceMessage) {
         /*
          * Build the Body that will contain the text of the message. We'll decide where to
          * include it later.
@@ -564,13 +570,17 @@ public class MessageCompose extends Activity implements OnClickListener, OnFocus
 
         if (mQuotedTextBar.getVisibility() == View.VISIBLE && sourceMessage != null) {
             String quotedText = sourceMessage.mText;
-            // fix CR-LF line endings to LF-only needed by EditText.
-            quotedText = quotedText.replaceAll("\r\n", "\n");
+            if (quotedText != null) {
+                // fix CR-LF line endings to LF-only needed by EditText.
+                Matcher matcher = PATTERN_ENDLINE_CRLF.matcher(quotedText);
+                quotedText = matcher.replaceAll("\n");
+            }
             String fromAsString = Address.unpackToString(sourceMessage.mFrom);
             if (ACTION_REPLY.equals(action) || ACTION_REPLY_ALL.equals(action)) {
                 text += getString(R.string.message_compose_reply_header_fmt, fromAsString);
                 if (quotedText != null) {
-                    text += quotedText.replaceAll("(?m)^", ">");
+                    Matcher matcher = PATTERN_START_OF_LINE.matcher(quotedText);
+                    text += matcher.replaceAll(">");
                 }
             } else if (ACTION_FORWARD.equals(action)) {
                 String subject = sourceMessage.mSubject;
