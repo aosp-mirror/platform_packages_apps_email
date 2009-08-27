@@ -41,6 +41,7 @@ import android.provider.SyncStateContract;
 import android.provider.ContactsContract.Data;
 import android.provider.ContactsContract.Groups;
 import android.provider.ContactsContract.RawContacts;
+import android.provider.ContactsContract.Settings;
 import android.provider.ContactsContract.SyncState;
 import android.provider.ContactsContract.CommonDataKinds.Email;
 import android.provider.ContactsContract.CommonDataKinds.GroupMembership;
@@ -141,7 +142,14 @@ public class ContactsSyncAdapter extends AbstractSyncAdapter {
             byte[] data = SyncStateContract.Helpers.get(client,
                     ContactsContract.SyncState.CONTENT_URI, getAccountManagerAccount());
             if (data == null || data.length == 0) {
+                // Initialize the SyncKey
                 setSyncKey("0", false);
+                // Make sure ungrouped contacts for Exchange are defaultly visible
+                ContentValues cv = new ContentValues();
+                cv.put(Groups.ACCOUNT_NAME, mAccount.mEmailAddress);
+                cv.put(Groups.ACCOUNT_TYPE, Eas.ACCOUNT_MANAGER_TYPE);
+                cv.put(Settings.UNGROUPED_VISIBLE, true);
+                client.insert(Settings.CONTENT_URI, cv);
                 return "0";
             } else {
                 String syncKey = new String(data);
