@@ -221,6 +221,21 @@ public class MessageCompose extends Activity implements OnClickListener, OnFocus
         context.startActivity(i);
     }
 
+    private void setAccount(Intent intent) {
+        long accountId = intent.getLongExtra(EXTRA_ACCOUNT_ID, -1);
+        if (accountId == -1) {
+            accountId = Account.getDefaultAccountId(this);
+        }
+        if (accountId == -1) {
+            // There are no accounts set up. This should not have happened. Prompt the
+            // user to set up an account as an acceptable bailout.
+            AccountFolderList.actionShowAccounts(this);
+            finish();
+        } else {
+            mAccount = Account.restoreAccountWithId(this, accountId);
+        }
+    }
+
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -239,23 +254,12 @@ public class MessageCompose extends Activity implements OnClickListener, OnFocus
 
         Intent intent = getIntent();
         final String action = intent.getAction();
-        
+
         // Handle the various intents that launch the message composer
         if (Intent.ACTION_VIEW.equals(action) 
                 || Intent.ACTION_SENDTO.equals(action) 
                 || Intent.ACTION_SEND.equals(action)) {
-            // Check first for a valid account
-            long accountId = Account.getDefaultAccountId(this);
-            if (accountId == -1) {
-                // There are no accounts set up. This should not have happened. Prompt the
-                // user to set up an account as an acceptable bailout.
-                AccountFolderList.actionShowAccounts(this);
-                finish();
-                return;
-            } else {
-                mAccount = Account.restoreAccountWithId(this, accountId);
-            }
-
+            setAccount(intent);
             // Use the fields found in the Intent to prefill as much of the message as possible
             initFromIntent(intent);
         } else {
@@ -264,7 +268,7 @@ public class MessageCompose extends Activity implements OnClickListener, OnFocus
             if (messageId != -1) {
                 new LoadMessageTask().execute(messageId);
             } else {
-                mAccount = Account.restoreAccountWithId(this, Account.getDefaultAccountId(this));
+                setAccount(intent);
             }
             if (ACTION_EDIT_DRAFT.equals(action) && messageId != -1) {
                 mLoadAttachmentsTask = new AsyncTask<Long, Void, Attachment[]>() {
