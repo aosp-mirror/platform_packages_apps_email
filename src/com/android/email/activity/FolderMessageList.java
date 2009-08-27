@@ -893,13 +893,13 @@ public class FolderMessageList extends ExpandableListActivity {
     }
 
     private void onToggleRead(MessageInfoHolder holder) {
-        MessagingController.getInstance(getApplication()).markMessageRead(
-                mAccount,
-                holder.message.getFolder().getName(),
-                holder.uid,
-                !holder.read);
-        holder.read = !holder.read;
-        onRefresh(false);
+//        MessagingController.getInstance(getApplication()).markMessageRead(
+//                mAccount,
+//                holder.message.getFolder().getName(),
+//                holder.uid,
+//                !holder.read);
+//        holder.read = !holder.read;
+//        onRefresh(false);
     }
 
     @Override

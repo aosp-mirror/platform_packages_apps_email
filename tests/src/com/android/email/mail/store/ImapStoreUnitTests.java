@@ -121,12 +121,13 @@ public class ImapStoreUnitTests extends AndroidTestCase {
      * TODO: Test all of the small Folder functions.
      */
     public void testSmallFolderFunctions() throws MessagingException {
-        // getPermanentFlags() returns { Flag.DELETED, Flag.SEEN }
+        // getPermanentFlags() returns { Flag.DELETED, Flag.SEEN, Flag.FLAGGED }
         Flag[] flags = mFolder.getPermanentFlags();
-        assertEquals(2, flags.length);
+        assertEquals(3, flags.length);
         // TODO: Write flags into hashset and compare them to a hashset and compare them
         assertEquals(Flag.DELETED, flags[0]);
         assertEquals(Flag.SEEN, flags[1]);
+        assertEquals(Flag.FLAGGED, flags[2]);
     }
 
     /**
