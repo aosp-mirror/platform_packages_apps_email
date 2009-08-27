@@ -38,6 +38,7 @@ public class Base64InputStream extends InputStream {
     private int outIndex = 0;
     private final int[] outputBuffer = new int[3];
     private final byte[] inputBuffer = new byte[4];
+    private boolean done = false;
 
     public Base64InputStream(InputStream s) {
         this.s = s;
@@ -76,12 +77,15 @@ public class Base64InputStream extends InputStream {
         int inCount = 0;
 
         int i;
-        while (true) {
+        // "done" is needed for the two successive '=' at the end
+        while (!done) {
             switch (i = s.read()) {
                 case -1:
                     // No more input - just return, let outputBuffer drain out, and be done
                     return;
                 case '=':
+                    // once we meet the first '=', avoid reading the second '='
+                    done = true;
                     decodeAndEnqueue(inCount);
                     return;
                 default:
