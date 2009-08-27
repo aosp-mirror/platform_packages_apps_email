@@ -93,6 +93,10 @@ public abstract class AbstractSyncParser extends Parser {
         if (nextTag(START_DOCUMENT) != Tags.SYNC_SYNC) {
             throw new EasParserException();
         }
+
+        boolean mailboxUpdated = false;
+        ContentValues cv = new ContentValues();
+
         // Loop here through the remaining xml
         while (nextTag(START_DOCUMENT) != END_DOCUMENT) {
             if (tag == Tags.SYNC_COLLECTION || tag == Tags.SYNC_COLLECTIONS) {
@@ -132,7 +136,11 @@ public abstract class AbstractSyncParser extends Parser {
                 }
                 String newKey = getValue();
                 userLog("Parsed key for ", mMailbox.mDisplayName, ": ", newKey);
-                mAdapter.setSyncKey(newKey, true);
+                if (!newKey.equals(mMailbox.mSyncKey)) {
+                    mAdapter.setSyncKey(newKey, true);
+                    cv.put(MailboxColumns.SYNC_KEY, newKey);
+                    mailboxUpdated = true;
+                }
                 // If we were pushing (i.e. auto-start), now we'll become ping-triggered
                 if (mMailbox.mSyncInterval == Mailbox.CHECK_INTERVAL_PUSH) {
                     mMailbox.mSyncInterval = Mailbox.CHECK_INTERVAL_PING;
@@ -145,28 +153,23 @@ public abstract class AbstractSyncParser extends Parser {
         // Commit any changes
         commit();
 
-        // If the sync interval has changed, or if no commands were parsed save the change
+        // If the sync interval has changed, we need to save it
         if (mMailbox.mSyncInterval != interval) {
-            synchronized (mService.getSynchronizer()) {
-                if (!mService.isStopped()) {
-                    // Make sure we save away the new syncFrequency
-                    ContentValues cv = new ContentValues();
-                    cv.put(MailboxColumns.SYNC_INTERVAL, mMailbox.mSyncInterval);
-                    mMailbox.update(mContext, cv);
-                }
-            }
-        // If this box has backed off of push, and there were changes, try to change back to
-        // ping; it seems to help at times
+            cv.put(MailboxColumns.SYNC_INTERVAL, mMailbox.mSyncInterval);
+            mailboxUpdated = true;
+        // If there are changes, and we were bounced from push/ping, try again
         } else if (mService.mChangeCount > 0 &&
                 mAccount.mSyncInterval == Account.CHECK_INTERVAL_PUSH &&
                 mMailbox.mSyncInterval > 0) {
-            synchronized (mService.getSynchronizer()) {
+            userLog("Changes found to ping loop mailbox ", mMailbox.mDisplayName, ": will ping.");
+            cv.put(MailboxColumns.SYNC_INTERVAL, Mailbox.CHECK_INTERVAL_PING);
+            mailboxUpdated = true;
+        }
+
+        if (mailboxUpdated) {
+             synchronized (mService.getSynchronizer()) {
                 if (!mService.isStopped()) {
-                    ContentValues cv = new ContentValues();
-                    cv.put(MailboxColumns.SYNC_INTERVAL, Mailbox.CHECK_INTERVAL_PING);
-                    mMailbox.update(mContext, cv);
-                    userLog("Changes found to ping loop mailbox ", mMailbox.mDisplayName,
-                            ": switch back to ping.");
+                     mMailbox.update(mContext, cv);
                 }
             }
         }
