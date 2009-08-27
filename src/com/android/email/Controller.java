@@ -588,36 +588,57 @@ public class Controller {
     /**
      * Set/clear the unread status of a message
      *
+     * TODO db ops should not be in this thread. queue it up.
+     *
      * @param messageId the message to update
      * @param isRead the new value for the isRead flag
      */
-    public void setMessageRead(long messageId, boolean isRead) {
-        // TODO this should not be in this thread. queue it up.
-        // TODO Also, it needs to update the read/unread count in the mailbox
-        // TODO kick off service/messagingcontroller actions
-
+    public void setMessageRead(final long messageId, boolean isRead) {
         ContentValues cv = new ContentValues();
         cv.put(EmailContent.MessageColumns.FLAG_READ, isRead);
         Uri uri = ContentUris.withAppendedId(
                 EmailContent.Message.SYNCED_CONTENT_URI, messageId);
         mProviderContext.getContentResolver().update(uri, cv, null, null);
+
+        // Service runs automatically, MessagingController needs a kick
+        final Message message = Message.restoreMessageWithId(mContext, messageId);
+        Account account = Account.restoreAccountWithId(mContext, message.mAccountKey);
+        if (isMessagingController(account)) {
+            new Thread() {
+                @Override
+                public void run() {
+                    mLegacyController.processPendingCommands(message.mAccountKey);
+                }
+            }.start();
+        }
     }
 
     /**
      * Set/clear the favorite status of a message
      *
+     * TODO db ops should not be in this thread. queue it up.
+     *
      * @param messageId the message to update
      * @param isFavorite the new value for the isFavorite flag
      */
-    public void setMessageFavorite(long messageId, boolean isFavorite) {
-        // TODO this should not be in this thread. queue it up.
-        // TODO kick off service/messagingcontroller actions
-
+    public void setMessageFavorite(final long messageId, boolean isFavorite) {
         ContentValues cv = new ContentValues();
         cv.put(EmailContent.MessageColumns.FLAG_FAVORITE, isFavorite);
         Uri uri = ContentUris.withAppendedId(
                 EmailContent.Message.SYNCED_CONTENT_URI, messageId);
         mProviderContext.getContentResolver().update(uri, cv, null, null);
+
+        // Service runs automatically, MessagingController needs a kick
+        final Message message = Message.restoreMessageWithId(mContext, messageId);
+        Account account = Account.restoreAccountWithId(mContext, message.mAccountKey);
+        if (isMessagingController(account)) {
+            new Thread() {
+                @Override
+                public void run() {
+                    mLegacyController.processPendingCommands(message.mAccountKey);
+                }
+            }.start();
+        }
     }
 
     /**
@@ -688,6 +709,8 @@ public class Controller {
 
     /**
      * For a given account id, return a service proxy if applicable, or null.
+     *
+     * TODO this should use a cache because we'll be doing this a lot
      *
      * @param accountId the message of interest
      * @result service proxy, or null if n/a

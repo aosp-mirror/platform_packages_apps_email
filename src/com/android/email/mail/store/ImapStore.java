@@ -84,7 +84,6 @@ public class ImapStore extends Store {
     public static final int CONNECTION_SECURITY_SSL_REQUIRED = 3;
     public static final int CONNECTION_SECURITY_SSL_OPTIONAL = 4;
 
-    // TODO:  Flag.FLAGGED is only partially permanent - we can read, but we can't write back
     private static final Flag[] PERMANENT_FLAGS = { Flag.DELETED, Flag.SEEN, Flag.FLAGGED };
 
     private Transport mRootTransport;
@@ -1046,25 +1045,28 @@ public class ImapStore extends Store {
         public void setFlags(Message[] messages, Flag[] flags, boolean value)
                 throws MessagingException {
             checkOpen();
-            String[] uids = new String[messages.length];
+            StringBuilder uidList = new StringBuilder();
             for (int i = 0, count = messages.length; i < count; i++) {
-                uids[i] = messages[i].getUid();
+                if (i > 0) uidList.append(',');
+                uidList.append(messages[i].getUid());
             }
-            ArrayList<String> flagNames = new ArrayList<String>();
+
+            StringBuilder flagList = new StringBuilder();
             for (int i = 0, count = flags.length; i < count; i++) {
                 Flag flag = flags[i];
                 if (flag == Flag.SEEN) {
-                    flagNames.add("\\Seen");
-                }
-                else if (flag == Flag.DELETED) {
-                    flagNames.add("\\Deleted");
+                    flagList.append(" \\Seen");
+                } else if (flag == Flag.DELETED) {
+                    flagList.append(" \\Deleted");
+                } else if (flag == Flag.FLAGGED) {
+                    flagList.append(" \\Flagged");
                 }
             }
             try {
                 mConnection.executeSimpleCommand(String.format("UID STORE %s %sFLAGS.SILENT (%s)",
-                        Utility.combine(uids, ','),
+                        uidList,
                         value ? "+" : "-",
-                        Utility.combine(flagNames.toArray(new String[flagNames.size()]), ' ')));
+                        flagList.substring(1)));        // Remove the first space
             }
             catch (IOException ioe) {
                 throw ioExceptionHandler(mConnection, ioe);
