@@ -97,12 +97,8 @@ public class MessagingController implements Runnable {
      */
     private static final int MAX_SMALL_MESSAGE_SIZE = (25 * 1024);
 
-    private static final String PENDING_COMMAND_TRASH =
-        "com.android.email.MessagingController.trash";
-    private static final String PENDING_COMMAND_MARK_READ =
-        "com.android.email.MessagingController.markRead";
-    private static final String PENDING_COMMAND_APPEND =
-        "com.android.email.MessagingController.append";
+    private static Flag[] FLAG_LIST_SEEN = new Flag[] { Flag.SEEN };
+    private static Flag[] FLAG_LIST_FLAGGED = new Flag[] { Flag.FLAGGED };
 
     /**
      * Projections & CVs used by pruneCachedAttachments
@@ -1092,16 +1088,26 @@ public class MessagingController implements Runnable {
             Log.e(Email.LOG_TAG, "Error while storing attachment." + ioe.toString());
         }
     }
-    
-    private void queuePendingCommand(EmailContent.Account account, PendingCommand command) {
-        try {
-            LocalStore localStore = (LocalStore) Store.getInstance(
-                    account.getLocalStoreUri(mContext), mContext, null);
-            localStore.addPendingCommand(command);
-        }
-        catch (Exception e) {
-            throw new RuntimeException("Unable to enqueue pending command", e);
-        }
+
+    public void processPendingCommands(final long accountId) {
+        put("processPendingCommands", null, new Runnable() {
+            public void run() {
+                try {
+                    EmailContent.Account account =
+                        EmailContent.Account.restoreAccountWithId(mContext, accountId);
+                    processPendingCommandsSynchronous(account);
+                }
+                catch (MessagingException me) {
+                    if (Email.LOGD) {
+                        Log.v(Email.LOG_TAG, "processPendingCommands", me);
+                    }
+                    /*
+                     * Ignore any exceptions from the commands. Commands will be processed
+                     * on the next round.
+                     */
+                }
+            }
+        });
     }
 
     private void processPendingCommands(final EmailContent.Account account) {
@@ -1123,27 +1129,107 @@ public class MessagingController implements Runnable {
         });
     }
 
+    /**
+     * Find messages in the updated table that need to be written back to server.
+     *
+     * Handles:
+     *   Read/Unread
+     *   Flagged
+     * TODO:
+     *   Delete
+     *   Append
+     *   Move
+     *   
+     * TODO: tighter projections
+     *
+     * @param account the account to update
+     * @throws MessagingException
+     */
     private void processPendingCommandsSynchronous(EmailContent.Account account)
-            throws MessagingException {
-        LocalStore localStore = (LocalStore) Store.getInstance(
-                account.getLocalStoreUri(mContext), mContext, null);
-        ArrayList<PendingCommand> commands = localStore.getPendingCommands();
-        for (PendingCommand command : commands) {
-            /*
-             * We specifically do not catch any exceptions here. If a command fails it is
-             * most likely due to a server or IO error and it must be retried before any
-             * other command processes. This maintains the order of the commands.
-             */
-            if (PENDING_COMMAND_APPEND.equals(command.command)) {
-                processPendingAppend(command, account);
+           throws MessagingException {
+        ContentResolver resolver = mContext.getContentResolver();
+        String[] accountIdArgs = new String[] { Long.toString(account.mId) };
+        Cursor updates = resolver.query(EmailContent.Message.UPDATED_CONTENT_URI,
+                EmailContent.Message.CONTENT_PROJECTION,
+                EmailContent.MessageColumns.ACCOUNT_KEY + "=?", accountIdArgs,
+                EmailContent.MessageColumns.MAILBOX_KEY);
+        long lastMessageId = -1;
+        try {
+            // Defer setting up the store until we know we need to access it
+            Store remoteStore = null;
+            // Demand load mailbox (note order-by to reduce thrashing here
+            Mailbox mailbox = null;
+            // loop through messages marked as needing updates
+            while (updates.moveToNext()) {
+                boolean changeRead = false;
+                boolean changeFlagged = false;
+
+                EmailContent.Message oldMessage =
+                    EmailContent.getContent(updates, EmailContent.Message.class);
+                lastMessageId = oldMessage.mId;
+                EmailContent.Message newMessage =
+                    EmailContent.Message.restoreMessageWithId(mContext, oldMessage.mId);
+                if (newMessage != null) {
+                    changeRead = oldMessage.mFlagRead != newMessage.mFlagRead;
+                    changeFlagged = oldMessage.mFlagFavorite != newMessage.mFlagFavorite;
+                }
+
+                // Handle simple flag changes
+                if (changeRead || changeFlagged) {
+                    if (remoteStore == null) {
+                        remoteStore = Store.getInstance(account.getStoreUri(mContext), mContext,
+                                null);
+                    }
+                    if (mailbox == null || mailbox.mId != newMessage.mMailboxKey) {
+                        mailbox =
+                            Mailbox.restoreMailboxWithId(mContext, newMessage.mMailboxKey);
+                    }
+                    Folder remoteFolder = remoteStore.getFolder(mailbox.mDisplayName);
+                    if (remoteFolder.exists()) {
+                        remoteFolder.open(OpenMode.READ_WRITE, null);
+                        if (remoteFolder.getMode() == OpenMode.READ_WRITE) {
+                            // Finally, apply the changes to the message
+                            Message remoteMessage =
+                                remoteFolder.getMessage(newMessage.mServerId);
+                            if (remoteMessage != null) {
+                                if (Email.DEBUG) {
+                                    Log.d(Email.LOG_TAG,
+                                            "Update flags for msg id=" + newMessage.mId
+                                            + " read=" + newMessage.mFlagRead
+                                            + " flagged=" + newMessage.mFlagFavorite);
+                                }
+                                Message[] messages = new Message[] { remoteMessage };
+                                if (changeRead) {
+                                    remoteFolder.setFlags(messages,
+                                            FLAG_LIST_SEEN, newMessage.mFlagRead);
+                                }
+                                if (changeFlagged) {
+                                    remoteFolder.setFlags(messages,
+                                            FLAG_LIST_FLAGGED, newMessage.mFlagFavorite);
+                                }
+                            }
+                        }
+
+                    }
+                }
+
+                // TODO other changes!
+
+                // Finally, delete the update
+                Uri uri = ContentUris.withAppendedId(EmailContent.Message.UPDATED_CONTENT_URI,
+                        oldMessage.mId);
+                resolver.delete(uri, null, null);
             }
-            else if (PENDING_COMMAND_MARK_READ.equals(command.command)) {
-                processPendingMarkRead(command, account);
+
+        } catch (MessagingException me) {
+            // Presumably an error here is an account connection failure, so there is
+            // no point in continuing through the rest of the pending updates.
+            if (Email.DEBUG) {
+                Log.d(Email.LOG_TAG, "Unable to process pending update for id="
+                            + lastMessageId + ": " + me);
             }
-            else if (PENDING_COMMAND_TRASH.equals(command.command)) {
-                processPendingTrash(command, account);
-            }
-            localStore.removePendingCommand(command);
+        } finally {
+            updates.close();
         }
     }
 
@@ -1342,75 +1428,7 @@ public class MessagingController implements Runnable {
     }
 
     /**
-     * Processes a pending mark read or unread command.
-     *
-     * @param command arguments = (String folder, String uid, boolean read)
-     * @param account
-     */
-    private void processPendingMarkRead(PendingCommand command, EmailContent.Account account)
-            throws MessagingException {
-        String folder = command.arguments[0];
-        String uid = command.arguments[1];
-        boolean read = Boolean.parseBoolean(command.arguments[2]);
-
-        LocalStore localStore = (LocalStore) Store.getInstance(
-                account.getLocalStoreUri(mContext), mContext, null);
-        LocalFolder localFolder = (LocalFolder) localStore.getFolder(folder);
-
-        Store remoteStore = Store.getInstance(account.getStoreUri(mContext), mContext,
-                localStore.getPersistentCallbacks());
-        Folder remoteFolder = remoteStore.getFolder(folder);
-        if (!remoteFolder.exists()) {
-            return;
-        }
-        remoteFolder.open(OpenMode.READ_WRITE, localFolder.getPersistentCallbacks());
-        if (remoteFolder.getMode() != OpenMode.READ_WRITE) {
-            return;
-        }
-        Message remoteMessage = null;
-        if (!uid.startsWith("Local")
-                && !uid.contains("-")) {
-            remoteMessage = remoteFolder.getMessage(uid);
-        }
-        if (remoteMessage == null) {
-            return;
-        }
-        remoteMessage.setFlag(Flag.SEEN, read);
-    }
-
-    /**
-     * Mark the message with the given account, folder and uid either Seen or not Seen.
-     * @param account
-     * @param folder
-     * @param uid
-     * @param seen
-     */
-    public void markMessageRead(
-            final EmailContent.Account account,
-            final String folder,
-            final String uid,
-            final boolean seen) {
-        try {
-            Store localStore = Store.getInstance(account.getLocalStoreUri(mContext), mContext,
-                    null);
-            Folder localFolder = localStore.getFolder(folder);
-            localFolder.open(OpenMode.READ_WRITE, null);
-
-            Message message = localFolder.getMessage(uid);
-            message.setFlag(Flag.SEEN, seen);
-            PendingCommand command = new PendingCommand();
-            command.command = PENDING_COMMAND_MARK_READ;
-            command.arguments = new String[] { folder, uid, Boolean.toString(seen) };
-            queuePendingCommand(account, command);
-            processPendingCommands(account);
-        }
-        catch (MessagingException me) {
-            throw new RuntimeException(me);
-        }
-    }
-
-    /**
-     * Finiah loading a message that have been partially downloaded.
+     * Finish loading a message that have been partially downloaded.
      *
      * @param messageId the message to load
      * @param listener the callback by which results will be reported
@@ -1695,29 +1713,31 @@ public class MessagingController implements Runnable {
      */
     public void deleteMessage(final EmailContent.Account account, final String folder,
             final Message message, MessagingListener listener) {
-        if (folder.equals(account.getTrashFolderName(mContext))) {
-            return;
-        }
-        try {
-            Store localStore = Store.getInstance(account.getLocalStoreUri(mContext), mContext,
-                    null);
-            Folder localFolder = localStore.getFolder(folder);
-            Folder localTrashFolder = localStore.getFolder(account.getTrashFolderName(mContext));
+        // TODO rewrite using provider updates
 
-            localFolder.copyMessages(new Message[] { message }, localTrashFolder, null);
-            message.setFlag(Flag.DELETED, true);
-
-            if (account.getDeletePolicy() == Account.DELETE_POLICY_ON_DELETE) {
-                PendingCommand command = new PendingCommand();
-                command.command = PENDING_COMMAND_TRASH;
-                command.arguments = new String[] { folder, message.getUid() };
-                queuePendingCommand(account, command);
-                processPendingCommands(account);
-            }
-        }
-        catch (MessagingException me) {
-            throw new RuntimeException("Error deleting message from local store.", me);
-        }
+//        if (folder.equals(account.getTrashFolderName(mContext))) {
+//            return;
+//        }
+//        try {
+//            Store localStore = Store.getInstance(account.getLocalStoreUri(mContext), mContext,
+//                    null);
+//            Folder localFolder = localStore.getFolder(folder);
+//            Folder localTrashFolder = localStore.getFolder(account.getTrashFolderName(mContext));
+//
+//            localFolder.copyMessages(new Message[] { message }, localTrashFolder, null);
+//            message.setFlag(Flag.DELETED, true);
+//
+//            if (account.getDeletePolicy() == Account.DELETE_POLICY_ON_DELETE) {
+//                PendingCommand command = new PendingCommand();
+//                command.command = PENDING_COMMAND_TRASH;
+//                command.arguments = new String[] { folder, message.getUid() };
+//                queuePendingCommand(account, command);
+//                processPendingCommands(account);
+//            }
+//        }
+//        catch (MessagingException me) {
+//            throw new RuntimeException("Error deleting message from local store.", me);
+//        }
     }
 
     public void emptyTrash(final EmailContent.Account account, MessagingListener listener) {
@@ -1789,29 +1809,31 @@ public class MessagingController implements Runnable {
     }
 
     public void saveDraft(final EmailContent.Account account, final Message message) {
-        try {
-            Store localStore = Store.getInstance(account.getLocalStoreUri(mContext), mContext,
-                    null);
-            LocalFolder localFolder =
-                (LocalFolder) localStore.getFolder(account.getDraftsFolderName(mContext));
-            localFolder.open(OpenMode.READ_WRITE, null);
-            localFolder.appendMessages(new Message[] {
-                message
-            });
-            Message localMessage = localFolder.getMessage(message.getUid());
-            localMessage.setFlag(Flag.X_DOWNLOADED_FULL, true);
+        // TODO rewrite using provider upates
 
-            PendingCommand command = new PendingCommand();
-            command.command = PENDING_COMMAND_APPEND;
-            command.arguments = new String[] {
-                    localFolder.getName(),
-                    localMessage.getUid() };
-            queuePendingCommand(account, command);
-            processPendingCommands(account);
-        }
-        catch (MessagingException e) {
-            Log.e(Email.LOG_TAG, "Unable to save message as draft.", e);
-        }
+//        try {
+//            Store localStore = Store.getInstance(account.getLocalStoreUri(mContext), mContext,
+//                    null);
+//            LocalFolder localFolder =
+//                (LocalFolder) localStore.getFolder(account.getDraftsFolderName(mContext));
+//            localFolder.open(OpenMode.READ_WRITE, null);
+//            localFolder.appendMessages(new Message[] {
+//                message
+//            });
+//            Message localMessage = localFolder.getMessage(message.getUid());
+//            localMessage.setFlag(Flag.X_DOWNLOADED_FULL, true);
+//
+//            PendingCommand command = new PendingCommand();
+//            command.command = PENDING_COMMAND_APPEND;
+//            command.arguments = new String[] {
+//                    localFolder.getName(),
+//                    localMessage.getUid() };
+//            queuePendingCommand(account, command);
+//            processPendingCommands(account);
+//        }
+//        catch (MessagingException e) {
+//            Log.e(Email.LOG_TAG, "Unable to save message as draft.", e);
+//        }
     }
 
     private static class Command {
