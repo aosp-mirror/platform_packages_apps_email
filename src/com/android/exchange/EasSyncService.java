@@ -683,8 +683,10 @@ public class EasSyncService extends AbstractSyncService {
                     int pingStatus = SyncManager.pingStatus(mailboxId);
                     String mailboxName = c.getString(Mailbox.CONTENT_DISPLAY_NAME_COLUMN);
                     if (pingStatus == SyncManager.PING_STATUS_OK) {
+
                         String syncKey = c.getString(Mailbox.CONTENT_SYNC_KEY_COLUMN);
                         if ((syncKey == null) || syncKey.equals("0")) {
+                            // We can't push until the initial sync is done
                             pushCount--;
                             continue;
                         }
