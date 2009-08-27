@@ -1242,10 +1242,10 @@ public abstract class EmailContent {
         @Override
         public int update(Context context, ContentValues cv) {
             if (cv.containsKey(AccountColumns.IS_DEFAULT) &&
-                    (cv.getAsInteger(AccountColumns.IS_DEFAULT) != 0)) {
+                    cv.getAsBoolean(AccountColumns.IS_DEFAULT)) {
                 ArrayList<ContentProviderOperation> ops = new ArrayList<ContentProviderOperation>();
                 ContentValues cv1 = new ContentValues();
-                cv1.put(AccountColumns.IS_DEFAULT, 0);
+                cv1.put(AccountColumns.IS_DEFAULT, false);
                 // Clear the default flag in all accounts
                 ops.add(ContentProviderOperation.newUpdate(CONTENT_URI).withValues(cv1).build());
                 // Update this account
@@ -1366,7 +1366,7 @@ public abstract class EmailContent {
             values.put(AccountColumns.HOST_AUTH_KEY_RECV, mHostAuthKeyRecv);
             values.put(AccountColumns.HOST_AUTH_KEY_SEND, mHostAuthKeySend);
             values.put(AccountColumns.FLAGS, mFlags);
-            values.put(AccountColumns.IS_DEFAULT, mIsDefault ? 1 : 0);
+            values.put(AccountColumns.IS_DEFAULT, mIsDefault);
             values.put(AccountColumns.COMPATIBILITY_UUID, mCompatibilityUuid);
             values.put(AccountColumns.SENDER_NAME, mSenderName);
             values.put(AccountColumns.RINGTONE_URI, mRingtoneUri);
