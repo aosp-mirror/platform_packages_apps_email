@@ -156,26 +156,28 @@ public class SyncManager extends Service implements Runnable {
     // Keeps track of which services require a wake lock (by mailbox id)
     private HashMap<Long, Boolean> mWakeLocks = new HashMap<Long, Boolean>();
     // Keeps track of PendingIntents for mailbox alarms (by mailbox id)
-    static private HashMap<Long, PendingIntent> sPendingIntents =
-        new HashMap<Long, PendingIntent>();
+    private HashMap<Long, PendingIntent> mPendingIntents = new HashMap<Long, PendingIntent>();
     // The actual WakeLock obtained by SyncManager
     private WakeLock mWakeLock = null;
     private static final AccountList EMPTY_ACCOUNT_LIST = new AccountList();
 
     // Observers that we use to look for changed mail-related data
+    private Handler mHandler = new Handler();
     private AccountObserver mAccountObserver;
     private MailboxObserver mMailboxObserver;
     private SyncedMessageObserver mSyncedMessageObserver;
     private MessageObserver mMessageObserver;
     private EasSyncStatusObserver mSyncStatusObserver;
     private EasAccountsUpdatedListener mAccountsUpdatedListener;
-    private Handler mHandler = new Handler();
 
     private ContentResolver mResolver;
 
     // The singleton SyncManager object, with its thread and stop flag
     protected static SyncManager INSTANCE;
     private static Thread sServiceThread = null;
+    // Cached unique device id
+    private static String sDeviceId = null;
+
     private boolean mStop = false;
 
     // The reason for SyncManager's next wakeup call
@@ -183,9 +185,6 @@ public class SyncManager extends Service implements Runnable {
 
     // Receiver of connectivity broadcasts
     private ConnectivityReceiver mConnectivityReceiver = null;
-
-    // Cached unique device id
-    private String mDeviceId = null;
 
     // The callback sent in from the UI using setCallback
     private IEmailServiceCallback mCallback;
@@ -333,8 +332,6 @@ public class SyncManager extends Service implements Runnable {
 
         public AccountObserver(Handler handler) {
             super(handler);
-            Context context = getContext();
-
             // At startup, we want to see what EAS accounts exist and cache them
             Cursor c = getContentResolver().query(Account.CONTENT_URI, Account.CONTENT_PROJECTION,
                     null, null, null);
@@ -345,6 +342,7 @@ public class SyncManager extends Service implements Runnable {
             }
 
             // Create the account mailbox for any account that doesn't have one
+            Context context = getContext();
             for (Account account: mAccounts) {
                 int cnt = Mailbox.count(context, Mailbox.CONTENT_URI, "accountKey=" + account.mId,
                         null);
@@ -619,12 +617,10 @@ public class SyncManager extends Service implements Runnable {
      * it's available
      */
     static public synchronized String getDeviceId() throws IOException {
-        if (INSTANCE == null) {
+        if (sDeviceId != null) {
+            return sDeviceId;
+        } else  if (INSTANCE == null) {
             throw new IOException("No SyncManager instance");
-        }
-        // If we've already got the id, return it
-        if (INSTANCE.mDeviceId != null) {
-            return INSTANCE.mDeviceId;
         }
 
         // Otherwise, we'll read the id file or create one if it's not found
@@ -660,21 +656,20 @@ public class SyncManager extends Service implements Runnable {
             Log.d(TAG, "onCreate called on running SyncManager");
         } else {
             INSTANCE = this;
-            mAccountObserver = new AccountObserver(mHandler);
-            mMailboxObserver = new MailboxObserver(mHandler);
-            mSyncedMessageObserver = new SyncedMessageObserver(mHandler);
-            mMessageObserver = new MessageObserver(mHandler);
-            mSyncStatusObserver = new EasSyncStatusObserver();
             try {
-                mDeviceId = getDeviceId();
+                sDeviceId = getDeviceId();
             } catch (IOException e) {
                 // We can't run in this situation
                 throw new RuntimeException();
             }
+            mResolver = getContentResolver();
+            mAccountObserver = new AccountObserver(mHandler);
+            mResolver.registerContentObserver(Account.CONTENT_URI, false, mAccountObserver);
+            mMailboxObserver = new MailboxObserver(mHandler);
+            mSyncedMessageObserver = new SyncedMessageObserver(mHandler);
+            mMessageObserver = new MessageObserver(mHandler);
+            mSyncStatusObserver = new EasSyncStatusObserver();
         }
-
-        mResolver = getContentResolver();
-        mResolver.registerContentObserver(Account.CONTENT_URI, false, mAccountObserver);
 
         maybeStartSyncManagerThread();
     }
@@ -682,43 +677,6 @@ public class SyncManager extends Service implements Runnable {
     @Override
     public void onDestroy() {
         log("!!! SyncManager onDestroy");
-
-        // Cover the case in which we never really started (no EAS accounts)
-        if (INSTANCE == null) {
-            return;
-        }
-
-        stopServices();
-        // Stop receivers and content observers
-        if (mConnectivityReceiver != null) {
-            unregisterReceiver(mConnectivityReceiver);
-        }
-        ContentResolver resolver = getContentResolver();
-        resolver.unregisterContentObserver(mAccountObserver);
-        resolver.unregisterContentObserver(mMailboxObserver);
-        resolver.unregisterContentObserver(mSyncedMessageObserver);
-        resolver.unregisterContentObserver(mMessageObserver);
-
-        // Don't leak the Intent associated with this listener
-        if (mAccountsUpdatedListener != null) {
-            AccountManager.get(this).removeOnAccountsUpdatedListener(mAccountsUpdatedListener);
-            mAccountsUpdatedListener = null;
-        }
-
-        // Clear pending alarms
-        clearAlarms();
-
-        // Release our wake lock, if we have one
-        synchronized (mWakeLocks) {
-            if (mWakeLock != null) {
-                mWakeLock.release();
-                mWakeLock = null;
-            }
-        }
-
-        sPendingIntents.clear();
-
-        INSTANCE = null;
     }
 
     void maybeStartSyncManagerThread() {
@@ -858,26 +816,26 @@ public class SyncManager extends Service implements Runnable {
     }
 
     private void clearAlarm(long id) {
-        synchronized (sPendingIntents) {
-            PendingIntent pi = sPendingIntents.get(id);
+        synchronized (mPendingIntents) {
+            PendingIntent pi = mPendingIntents.get(id);
             if (pi != null) {
                 AlarmManager alarmManager = (AlarmManager)getSystemService(Context.ALARM_SERVICE);
                 alarmManager.cancel(pi);
                 //log("+Alarm cleared for " + alarmOwner(id));
-                sPendingIntents.remove(id);
+                mPendingIntents.remove(id);
             }
         }
     }
 
     private void setAlarm(long id, long millis) {
-        synchronized (sPendingIntents) {
-            PendingIntent pi = sPendingIntents.get(id);
+        synchronized (mPendingIntents) {
+            PendingIntent pi = mPendingIntents.get(id);
             if (pi == null) {
                 Intent i = new Intent(this, MailboxAlarmReceiver.class);
                 i.putExtra("mailbox", id);
                 i.setData(Uri.parse("Box" + id));
                 pi = PendingIntent.getBroadcast(this, 0, i, 0);
-                sPendingIntents.put(id, pi);
+                mPendingIntents.put(id, pi);
 
                 AlarmManager alarmManager = (AlarmManager)getSystemService(Context.ALARM_SERVICE);
                 alarmManager.set(AlarmManager.RTC_WAKEUP, System.currentTimeMillis() + millis, pi);
@@ -888,11 +846,11 @@ public class SyncManager extends Service implements Runnable {
 
     private void clearAlarms() {
         AlarmManager alarmManager = (AlarmManager)getSystemService(Context.ALARM_SERVICE);
-        synchronized (sPendingIntents) {
-            for (PendingIntent pi : sPendingIntents.values()) {
+        synchronized (mPendingIntents) {
+            for (PendingIntent pi : mPendingIntents.values()) {
                 alarmManager.cancel(pi);
             }
-            sPendingIntents.clear();
+            mPendingIntents.clear();
         }
     }
 
@@ -1188,11 +1146,44 @@ public class SyncManager extends Service implements Runnable {
             stopServices();
             log("Shutdown requested");
         } finally {
+            // Lots of cleanup here
+            // Stop our running syncs
+            stopServices();
+
+            // Stop receivers and content observers
+            if (mConnectivityReceiver != null) {
+                unregisterReceiver(mConnectivityReceiver);
+            }
+            ContentResolver resolver = getContentResolver();
+            resolver.unregisterContentObserver(mAccountObserver);
+            resolver.unregisterContentObserver(mMailboxObserver);
+            resolver.unregisterContentObserver(mSyncedMessageObserver);
+            resolver.unregisterContentObserver(mMessageObserver);
+
+            // Don't leak the Intent associated with this listener
+            if (mAccountsUpdatedListener != null) {
+                AccountManager.get(this).removeOnAccountsUpdatedListener(mAccountsUpdatedListener);
+                mAccountsUpdatedListener = null;
+            }
+
+            // Clear pending alarms and associated Intents
+            clearAlarms();
+
+            // Release our wake lock, if we have one
+            synchronized (mWakeLocks) {
+                if (mWakeLock != null) {
+                    mWakeLock.release();
+                    mWakeLock = null;
+                }
+            }
+
             log("Goodbye");
         }
 
-        startService(new Intent(this, SyncManager.class));
-        throw new RuntimeException("EAS SyncManager crash; please restart me...");
+        if (!mStop) {
+            // If this wasn't intentional, try to restart the service
+            throw new RuntimeException("EAS SyncManager crash; please restart me...");
+       }
     }
 
     private void releaseMailbox(long mailboxId) {
