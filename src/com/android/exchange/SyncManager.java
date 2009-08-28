@@ -655,6 +655,7 @@ public class SyncManager extends Service implements Runnable {
         if (INSTANCE != null) {
             Log.d(TAG, "onCreate called on running SyncManager");
         } else {
+            Log.d(TAG, "!!! EAS SyncManager started");
             INSTANCE = this;
             try {
                 sDeviceId = getDeviceId();
@@ -676,7 +677,7 @@ public class SyncManager extends Service implements Runnable {
 
     @Override
     public void onDestroy() {
-        log("!!! SyncManager onDestroy");
+        log("!!! EAS SyncManager destroyed");
     }
 
     void maybeStartSyncManagerThread() {
