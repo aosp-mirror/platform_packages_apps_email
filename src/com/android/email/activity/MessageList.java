@@ -941,6 +941,9 @@ public class MessageList extends ListActivity implements OnItemClickListener, On
 
         @Override
         protected void onPostExecute(Cursor cursor) {
+            if (cursor.isClosed()) {
+                return;
+            }
             MessageList.this.mListAdapter.changeCursor(cursor);
 
             // TODO: remove this hack and only update at the right time

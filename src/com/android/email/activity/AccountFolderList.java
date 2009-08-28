@@ -348,6 +348,9 @@ public class AccountFolderList extends ListActivity
 
         @Override
         protected void onPostExecute(Cursor[] cursors) {
+            if (cursors[1].isClosed()) {
+                return;
+            }
             mListAdapter = AccountsAdapter.getInstance(cursors[0], cursors[1],
                     AccountFolderList.this);
             mListView.setAdapter(mListAdapter);
