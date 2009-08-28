@@ -27,9 +27,9 @@ import android.app.Service;
 import android.content.AbstractThreadedSyncAdapter;
 import android.content.ContentProviderClient;
 import android.content.ContentResolver;
+import android.content.Context;
 import android.content.Intent;
 import android.content.SyncResult;
-import android.content.Context;
 import android.database.Cursor;
 import android.os.Bundle;
 import android.os.IBinder;
@@ -49,21 +49,25 @@ public class ContactsSyncAdapterService extends Service {
     }
 
     private static class SyncAdapterImpl extends AbstractThreadedSyncAdapter {
+        private Context mContext;
+
         public SyncAdapterImpl(Context context) {
             super(context, true /* autoInitialize */);
+            mContext = context;
         }
 
         @Override
         public void performSync(Account account, Bundle extras,
                 String authority, ContentProviderClient provider, SyncResult syncResult) {
             try {
-                ContactsSyncAdapterService.performSync(getContext(), account, extras,
+                ContactsSyncAdapterService.performSync(mContext, account, extras,
                         authority, provider, syncResult);
             } catch (OperationCanceledException e) {
             }
         }
     }
 
+    @Override
     public void onCreate() {
         super.onCreate();
         synchronized (sSyncAdapterLock) {
