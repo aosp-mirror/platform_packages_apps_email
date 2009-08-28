@@ -23,7 +23,12 @@
 
 package com.android.exchange.adapter;
 
+import com.android.exchange.Eas;
+import com.android.exchange.utility.FileLogger;
+
 import org.kxml2.wap.Wbxml;
+
+import android.util.Log;
 
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
@@ -31,6 +36,9 @@ import java.io.OutputStream;
 import java.util.Hashtable;
 
 public class Serializer {
+
+    private static final String TAG = "Serializer";
+    private static final boolean logging = false;    // DO NOT CHECK IN WITH THIS TRUE!
 
     private static final int NOT_PENDING = -1;
 
@@ -41,6 +49,7 @@ public class Serializer {
     int pendingTag = NOT_PENDING;
     int depth;
     String name;
+    String[] nameStack = new String[20];
 
     Hashtable<String, Object> tagTable = new Hashtable<String, Object>();
 
@@ -50,8 +59,20 @@ public class Serializer {
         super();
         try {
             startDocument();
+            //logging = Eas.PARSER_LOG;
         } catch (IOException e) {
             // Nothing to be done
+        }
+    }
+
+    void log(String str) {
+        int cr = str.indexOf('\n');
+        if (cr > 0) {
+            str = str.substring(0, cr);
+        }
+        Log.v(TAG, str);
+        if (Eas.FILE_LOG) {
+            FileLogger.log(TAG, str);
         }
     }
 
@@ -83,7 +104,11 @@ public class Serializer {
         }
 
         buf.write(degenerated ? tag : tag | 64);
-
+        if (logging) {
+            String name = Tags.pages[page][tag - 5];
+            nameStack[depth] = name;
+            log("<" + name + '>');
+        }
         pendingTag = NOT_PENDING;
     }
 
@@ -99,6 +124,9 @@ public class Serializer {
             checkPendingTag(true);
         } else {
             buf.write(Wbxml.END);
+            if (logging) {
+                log("</" + nameStack[depth] + '>');
+            }
         }
         depth--;
         return this;
@@ -130,10 +158,13 @@ public class Serializer {
         checkPendingTag(false);
         buf.write(Wbxml.STR_I);
         writeLiteralString(buf, text);
+        if (logging) {
+            log(text);
+        }
         return this;
     }
 
-    static void writeInteger(OutputStream out, int i) throws IOException {
+    void writeInteger(OutputStream out, int i) throws IOException {
         byte[] buf = new byte[5];
         int idx = 0;
 
@@ -146,6 +177,9 @@ public class Serializer {
             out.write(buf[--idx] | 0x80);
         }
         out.write(buf[0]);
+        if (logging) {
+            log(Integer.toString(i));
+        }
     }
 
     void writeLiteralString(OutputStream out, String s) throws IOException {
