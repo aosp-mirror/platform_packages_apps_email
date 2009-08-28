@@ -613,7 +613,8 @@ public class EmailSyncAdapter extends AbstractSyncAdapter {
                         }
                         // Send the command to delete this message
                         s.start(Tags.SYNC_DELETE)
-                            .data(Tags.SYNC_SERVER_ID, currentCursor.getString(UPDATES_SERVER_ID_COLUMN))
+                            .data(Tags.SYNC_SERVER_ID,
+                                    currentCursor.getString(UPDATES_SERVER_ID_COLUMN))
                             .end(); // SYNC_DELETE
                         continue;
                     }
@@ -632,7 +633,7 @@ public class EmailSyncAdapter extends AbstractSyncAdapter {
                     }
 
                     int read = currentCursor.getInt(UPDATES_READ_COLUMN);
-                    if (read == c.getInt(Message.LIST_READ_COLUMN)) {
+                    if (read != c.getInt(Message.LIST_READ_COLUMN)) {
                         readChange = true;
                     }
 
