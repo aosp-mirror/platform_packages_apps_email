@@ -29,14 +29,16 @@ import android.content.ContentProviderClient;
 import android.content.ContentResolver;
 import android.content.Intent;
 import android.content.SyncResult;
+import android.content.Context;
 import android.database.Cursor;
 import android.os.Bundle;
 import android.os.IBinder;
 import android.util.Log;
 
 public class ContactsSyncAdapterService extends Service {
-    private final String TAG = "EAS ContactsSyncAdapterService";
-    private final SyncAdapterImpl mSyncAdapter;
+    private static final String TAG = "EAS ContactsSyncAdapterService";
+    private static SyncAdapterImpl sSyncAdapter = null;
+    private static final Object sSyncAdapterLock = new Object();
 
     private static final String[] ID_PROJECTION = new String[] {EmailContent.RECORD_ID};
     private static final String ACCOUNT_AND_TYPE_CONTACTS =
@@ -44,28 +46,36 @@ public class ContactsSyncAdapterService extends Service {
 
     public ContactsSyncAdapterService() {
         super();
-        mSyncAdapter = new SyncAdapterImpl();
     }
 
-    private class SyncAdapterImpl extends AbstractThreadedSyncAdapter {
-        public SyncAdapterImpl() {
-            super(ContactsSyncAdapterService.this, true /* autoInitialize */);
+    private static class SyncAdapterImpl extends AbstractThreadedSyncAdapter {
+        public SyncAdapterImpl(Context context) {
+            super(context, true /* autoInitialize */);
         }
 
         @Override
         public void performSync(Account account, Bundle extras,
                 String authority, ContentProviderClient provider, SyncResult syncResult) {
             try {
-                ContactsSyncAdapterService.this.performSync(account, extras,
+                ContactsSyncAdapterService.performSync(getContext(), account, extras,
                         authority, provider, syncResult);
             } catch (OperationCanceledException e) {
             }
         }
     }
 
+    public void onCreate() {
+        super.onCreate();
+        synchronized (sSyncAdapterLock) {
+            if (sSyncAdapter == null) {
+                sSyncAdapter = new SyncAdapterImpl(getApplicationContext());
+            }
+        }
+    }
+
     @Override
     public IBinder onBind(Intent intent) {
-        return mSyncAdapter.getISyncAdapter().asBinder();
+        return sSyncAdapter.getISyncAdapter().asBinder();
     }
 
     /**
@@ -74,10 +84,10 @@ public class ContactsSyncAdapterService extends Service {
      * The missing piece at this point is integration with the push/ping mechanism in EAS; this will
      * be put in place at a later time.
      */
-    private void performSync(Account account, Bundle extras, String authority,
+    private static void performSync(Context context, Account account, Bundle extras, String authority,
             ContentProviderClient provider, SyncResult syncResult)
             throws OperationCanceledException {
-        ContentResolver cr = getContentResolver();
+        ContentResolver cr = context.getContentResolver();
         // Find the (EmailProvider) account associated with this email address
         Cursor accountCursor =
             cr.query(com.android.email.provider.EmailContent.Account.CONTENT_URI, ID_PROJECTION,
