@@ -218,7 +218,7 @@
     <string name="message_compose_attachment_size">File too large to attach.</string>
     <!-- Display name for composed message, indicating the destination of the message.
       e.g. "John and 2 others" -->
-    <string name="message_compose_display_name">%s and %d others</string>
+    <string name="message_compose_display_name"><xliff:g id="name" example="John">%1$s</xliff:g> and <xliff:g id="number" example="27">%2$d</xliff:g> others</string>
     <!-- Label for To field in read message view -->
     <string name="message_view_to_label">To:</string>
     <!-- Label for CC field in read message view -->
