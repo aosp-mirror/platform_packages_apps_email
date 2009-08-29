@@ -161,6 +161,12 @@
         </activity>
        <receiver android:name="com.android.exchange.EmailSyncAlarmReceiver"/>
        <receiver android:name="com.android.exchange.MailboxAlarmReceiver"/>
+       <receiver android:name="com.android.exchange.BootReceiver" android:enabled="true">
+             <intent-filter>
+                <action android:name="android.intent.action.BOOT_COMPLETED" />
+            </intent-filter>
+       </receiver>
+
        <receiver android:name=".service.BootReceiver"
               android:enabled="false"
               >
@@ -174,6 +180,7 @@
                 <action android:name="android.intent.action.DEVICE_STORAGE_OK" />
             </intent-filter>
         </receiver>
+
         <service
             android:name=".service.MailService"
             android:enabled="false"
