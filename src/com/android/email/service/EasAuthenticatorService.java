@@ -71,7 +71,7 @@ public class EasAuthenticatorService extends Service {
                     syncContacts = true;
                 }
                 ContentResolver.setIsSyncable(account,
-                        ContactsContract.AUTHORITY, syncContacts ? 1 : 0);
+                        ContactsContract.AUTHORITY, 1);
                 ContentResolver.setSyncAutomatically(account,
                         ContactsContract.AUTHORITY, syncContacts);
 

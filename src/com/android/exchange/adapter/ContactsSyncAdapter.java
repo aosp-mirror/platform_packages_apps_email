@@ -1107,7 +1107,7 @@ public class ContactsSyncAdapter extends AbstractSyncAdapter {
         }
 
         public void addBusiness(Entity entity, EasBusiness business) {
-            SmartBuilder builder = createBuilder(entity, EasPersonal.CONTENT_ITEM_TYPE, -1);
+            SmartBuilder builder = createBuilder(entity, EasBusiness.CONTENT_ITEM_TYPE, -1);
             ContentValues cv = builder.cv;
             if (cv != null && cvCompareString(cv, EasBusiness.ACCOUNT_NAME, business.accountName) &&
                     cvCompareString(cv, EasBusiness.CUSTOMER_ID, business.customerId) &&
@@ -1563,6 +1563,7 @@ public class ContactsSyncAdapter extends AbstractSyncAdapter {
                     if (serverId == null) {
                         // This is a new contact; create a clientId
                         String clientId = "new_" + mMailbox.mId + '_' + System.currentTimeMillis();
+                        userLog("Creating new contact with clientId: ", clientId);
                         s.start(Tags.SYNC_ADD).data(Tags.SYNC_CLIENT_ID, clientId);
                         // And save it in the raw contact
                         cidValues.put(ContactsContract.RawContacts.SYNC1, clientId);
@@ -1571,6 +1572,7 @@ public class ContactsSyncAdapter extends AbstractSyncAdapter {
                                         entityValues.getAsLong(ContactsContract.RawContacts._ID)),
                                         cidValues, null, null);
                     } else {
+                        userLog("Upsync change to contact with serverId: " + serverId);
                         s.start(Tags.SYNC_CHANGE).data(Tags.SYNC_SERVER_ID, serverId);
                     }
                     s.start(Tags.SYNC_APPLICATION_DATA);
@@ -1594,7 +1596,7 @@ public class ContactsSyncAdapter extends AbstractSyncAdapter {
                             sendPhone(s, cv);
                         } else if (mimeType.equals(Relation.CONTENT_ITEM_TYPE)) {
                             sendRelation(s, cv);
-                       } else if (mimeType.equals(StructuredName.CONTENT_ITEM_TYPE)) {
+                        } else if (mimeType.equals(StructuredName.CONTENT_ITEM_TYPE)) {
                             sendStructuredName(s, cv);
                         } else if (mimeType.equals(StructuredPostal.CONTENT_ITEM_TYPE)) {
                             sendStructuredPostal(s, cv);
