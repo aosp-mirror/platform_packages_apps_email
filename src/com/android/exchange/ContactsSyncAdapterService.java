@@ -31,8 +31,10 @@ import android.content.Context;
 import android.content.Intent;
 import android.content.SyncResult;
 import android.database.Cursor;
+import android.net.Uri;
 import android.os.Bundle;
 import android.os.IBinder;
+import android.provider.ContactsContract.RawContacts;
 import android.util.Log;
 
 public class ContactsSyncAdapterService extends Service {
@@ -88,10 +90,28 @@ public class ContactsSyncAdapterService extends Service {
      * The missing piece at this point is integration with the push/ping mechanism in EAS; this will
      * be put in place at a later time.
      */
-    private static void performSync(Context context, Account account, Bundle extras, String authority,
-            ContentProviderClient provider, SyncResult syncResult)
+    private static void performSync(Context context, Account account, Bundle extras,
+            String authority, ContentProviderClient provider, SyncResult syncResult)
             throws OperationCanceledException {
         ContentResolver cr = context.getContentResolver();
+        Log.i(TAG, "performSync");
+        if (extras.getBoolean(ContentResolver.SYNC_EXTRAS_UPLOAD)) {
+            Uri uri = RawContacts.CONTENT_URI.buildUpon()
+                .appendQueryParameter(RawContacts.ACCOUNT_NAME, account.name)
+                .appendQueryParameter(RawContacts.ACCOUNT_TYPE, Eas.ACCOUNT_MANAGER_TYPE)
+                .build();
+            Cursor c = cr.query(uri,
+                    new String[] {RawContacts._ID}, RawContacts.DIRTY + "=1", null, null);
+            try {
+                if (!c.moveToFirst()) {
+                    Log.i(TAG, "Upload sync; no changes");
+                    return;
+                }
+            } finally {
+                c.close();
+            }
+        }
+
         // Find the (EmailProvider) account associated with this email address
         Cursor accountCursor =
             cr.query(com.android.email.provider.EmailContent.Account.CONTENT_URI, ID_PROJECTION,
@@ -103,7 +123,7 @@ public class ContactsSyncAdapterService extends Service {
                 Cursor mailboxCursor = cr.query(Mailbox.CONTENT_URI, ID_PROJECTION,
                         ACCOUNT_AND_TYPE_CONTACTS, new String[] {Long.toString(accountId)}, null);
                 try {
-                    if (mailboxCursor.moveToFirst()) {
+                     if (mailboxCursor.moveToFirst()) {
                         Log.i(TAG, "Contact sync requested for " + account.name);
                         // Ask for a sync from our sync manager
                         SyncManager.serviceRequest(mailboxCursor.getLong(0),
