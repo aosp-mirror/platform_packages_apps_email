@@ -1257,14 +1257,22 @@ public class ContactsSyncAdapter extends AbstractSyncAdapter {
     @Override
     public void cleanup() {
         // Mark the changed contacts dirty = 0
-        // TODO Put this in a single batch
+        // Permanently delete the user deletions
         ContactOperations ops = new ContactOperations();
         for (Long id: mUpdatedIdList) {
             ops.add(ContentProviderOperation
                     .newUpdate(ContentUris.withAppendedId(RawContacts.CONTENT_URI, id))
                     .withValue(RawContacts.DIRTY, 0).build());
         }
-
+        for (Long id: mDeletedIdList) {
+            ops.add(ContentProviderOperation
+                    .newDelete(ContentUris.withAppendedId(RawContacts.CONTENT_URI, id)
+                            .buildUpon()
+                            .appendQueryParameter(ContactsContract.RawContacts.DELETE_PERMANENTLY,
+                                    "true")
+                            .build())
+                    .build());
+        }
         ops.execute();
     }
 
@@ -1558,6 +1566,7 @@ public class ContactsSyncAdapter extends AbstractSyncAdapter {
                     ArrayList<Integer> groupIds = new ArrayList<Integer>();
                     if (first) {
                         s.start(Tags.SYNC_COMMANDS);
+                        userLog("Sending Contacts changes to the server");
                         first = false;
                     }
                     if (serverId == null) {
@@ -1572,6 +1581,12 @@ public class ContactsSyncAdapter extends AbstractSyncAdapter {
                                         entityValues.getAsLong(ContactsContract.RawContacts._ID)),
                                         cidValues, null, null);
                     } else {
+                        if (entityValues.getAsInteger(RawContacts.DELETED) == 1) {
+                            userLog("Deleting contact with serverId: ", serverId);
+                            s.start(Tags.SYNC_DELETE).data(Tags.SYNC_SERVER_ID, serverId).end();
+                            mDeletedIdList.add(entityValues.getAsLong(RawContacts._ID));
+                            continue;
+                        }
                         userLog("Upsync change to contact with serverId: " + serverId);
                         s.start(Tags.SYNC_CHANGE).data(Tags.SYNC_SERVER_ID, serverId);
                     }
