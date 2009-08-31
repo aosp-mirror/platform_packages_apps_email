@@ -383,8 +383,8 @@ public class SyncManager extends Service implements Runnable {
                         stopAccountSyncs(account.mId, true);
                         // Delete this from AccountManager...
                         android.accounts.Account acct =
-                            new android.accounts.Account(Eas.ACCOUNT_MANAGER_TYPE,
-                                    account.mEmailAddress);
+                            new android.accounts.Account(account.mEmailAddress,
+                                    Eas.ACCOUNT_MANAGER_TYPE);
                         AccountManager.get(SyncManager.this).removeAccount(acct, null, null);
                     } else {
                         // See whether any of our accounts has changed sync interval or window
@@ -665,7 +665,7 @@ public class SyncManager extends Service implements Runnable {
             }
             mResolver = getContentResolver();
             mAccountObserver = new AccountObserver(mHandler);
-            mResolver.registerContentObserver(Account.CONTENT_URI, false, mAccountObserver);
+            mResolver.registerContentObserver(Account.CONTENT_URI, true, mAccountObserver);
             mMailboxObserver = new MailboxObserver(mHandler);
             mSyncedMessageObserver = new SyncedMessageObserver(mHandler);
             mMessageObserver = new MessageObserver(mHandler);
