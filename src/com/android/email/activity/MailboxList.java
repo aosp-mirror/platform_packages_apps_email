@@ -326,6 +326,9 @@ public class MailboxList extends ListActivity implements OnItemClickListener, On
 
         @Override
         protected void onPostExecute(Cursor cursor) {
+            if (cursor.isClosed()) {
+                return;
+            }
             MailboxList.this.mListAdapter.changeCursor(cursor);
         }
     }
