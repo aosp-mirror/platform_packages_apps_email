@@ -43,6 +43,7 @@ import android.database.Cursor;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.graphics.drawable.Drawable;
+import android.graphics.Rect;
 import android.media.MediaScannerConnection;
 import android.media.MediaScannerConnection.MediaScannerConnectionClient;
 import android.net.Uri;
@@ -53,6 +54,9 @@ import android.os.Handler;
 import android.provider.Contacts;
 import android.provider.Contacts.Intents;
 import android.provider.Contacts.People;
+import android.provider.ContactsContract;
+import android.provider.ContactsContract.Presence;
+import android.provider.ContactsContract.CommonDataKinds;
 import android.text.util.Regex;
 import android.view.LayoutInflater;
 import android.view.Menu;
@@ -80,12 +84,6 @@ public class MessageView extends Activity implements OnClickListener {
     private static final String EXTRA_MESSAGE_ID = "com.android.email.MessageView_message_id";
     private static final String EXTRA_MAILBOX_ID = "com.android.email.MessageView_mailbox_id";
     
-    private static final String[] METHODS_WITH_PRESENCE_PROJECTION = new String[] {
-        People.ContactMethods._ID,  // 0
-//        People.PRESENCE_STATUS,     // 1
-    };
-    private static final int METHODS_STATUS_COLUMN = 1;
-
     // Regex that matches start of img tag. '<(?i)img\s+'.
     private static final Pattern IMG_TAG_START_REGEX = Pattern.compile("<(?i)img\\s+");
     // Regex that matches Web URL protocol part as case insensitive.
@@ -96,6 +94,10 @@ public class MessageView extends Activity implements OnClickListener {
         Body.RECORD_ID, BodyColumns.MESSAGE_KEY,
         BodyColumns.HTML_CONTENT, BodyColumns.TEXT_CONTENT
     };
+    
+    private static final String[] PRESENCE_STATUS_PROJECTION =
+        new String[] { Presence.PRESENCE_STATUS };
+
     private static final int BODY_CONTENT_COLUMN_RECORD_ID = 0;
     private static final int BODY_CONTENT_COLUMN_MESSAGE_KEY = 1;
     private static final int BODY_CONTENT_COLUMN_HTML_CONTENT = 2;
@@ -125,6 +127,7 @@ public class MessageView extends Activity implements OnClickListener {
     private LoadMessageTask mLoadMessageTask;
     private LoadBodyTask mLoadBodyTask;
     private LoadAttachmentsTask mLoadAttachmentsTask;
+    private PresenceCheckTask mPresenceCheckTask;
 
     private long mLoadAttachmentId;         // the attachment being saved/viewed
     private boolean mLoadAttachmentSave;    // if true, saving - if false, viewing
@@ -156,7 +159,6 @@ public class MessageView extends Activity implements OnClickListener {
         private static final int MSG_SET_ATTACHMENTS_ENABLED = 4;
         private static final int MSG_NETWORK_ERROR = 6;
         private static final int MSG_FETCHING_ATTACHMENT = 10;
-        private static final int MSG_SET_SENDER_PRESENCE = 11;
         private static final int MSG_VIEW_ATTACHMENT_ERROR = 12;
         private static final int MSG_UPDATE_ATTACHMENT_ICON = 18;
         private static final int MSG_FINISH_LOAD_ATTACHMENT = 19;
@@ -199,9 +201,6 @@ public class MessageView extends Activity implements OnClickListener {
                     Toast.makeText(MessageView.this,
                             getString(R.string.message_view_fetching_attachment_toast),
                             Toast.LENGTH_SHORT).show();
-                    break;
-                case MSG_SET_SENDER_PRESENCE:
-                    updateSenderPresence(msg.arg1);
                     break;
                 case MSG_VIEW_ATTACHMENT_ERROR:
                     Toast.makeText(MessageView.this,
@@ -251,12 +250,6 @@ public class MessageView extends Activity implements OnClickListener {
 
         public void fetchingAttachment() {
             sendEmptyMessage(MSG_FETCHING_ATTACHMENT);
-        }
-        
-        public void setSenderPresence(int presenceIconId) {
-            android.os.Message
-                    .obtain(this, MSG_SET_SENDER_PRESENCE,  presenceIconId, 0)
-                    .sendToTarget();
         }
         
         public void attachmentViewError() {
@@ -405,6 +398,8 @@ public class MessageView extends Activity implements OnClickListener {
         mLoadAttachmentsTask = null;
         cancelTask(mLoadPrevNextTask);
         mLoadPrevNextTask = null;
+        cancelTask(mPresenceCheckTask);
+        mPresenceCheckTask = null;
     }
 
     /**
@@ -438,6 +433,14 @@ public class MessageView extends Activity implements OnClickListener {
         }
     }
     
+    private Rect getAbsoluteRect(View view) {
+        int[] location = new int[2];
+        view.getLocationOnScreen(location);
+        int x = location[0];
+        int y = location[1];
+        return new Rect(x, y, x + view.getWidth(), y + view.getHeight());
+    }
+
     private void onClickSender() {
         if (mMessage != null) {
             Address senderEmail = Address.unpackFirst(mMessage.mFrom);
@@ -457,6 +460,8 @@ public class MessageView extends Activity implements OnClickListener {
                     contactIntent.putExtra(Intents.Insert.NAME, senderPersonal);
                 }
 
+                contactIntent.putExtra(Intents.EXTRA_TARGET_RECT, 
+                        getAbsoluteRect(mSenderPresenceView));
                 startActivity(contactIntent);
             }
         }
@@ -866,7 +871,33 @@ public class MessageView extends Activity implements OnClickListener {
         mAttachments.addView(view);
         mAttachments.setVisibility(View.VISIBLE);
     }
-    
+
+    private class PresenceCheckTask extends AsyncTask<String, Void, Integer> {
+        @Override
+        protected Integer doInBackground(String... emails) {
+            Cursor cursor =
+                    getContentResolver().query(ContactsContract.Data.CONTENT_WITH_PRESENCE_URI,
+                    PRESENCE_STATUS_PROJECTION, CommonDataKinds.Email.DATA + "=?", emails, null);
+            if (cursor != null) {
+                try {
+                    if (cursor.moveToFirst()) {
+                        int status = cursor.getInt(0);
+                        int icon = Presence.getPresenceIconResourceId(status);
+                        return icon;
+                    }
+                } finally {
+                    cursor.close();
+                }
+            }
+            return 0;
+        }
+
+        @Override
+        protected void onPostExecute(Integer icon) {
+            updateSenderPresence(icon);
+        }
+    }
+
     /**
      * Launch a thread (because of cross-process DB lookup) to check presence of the sender of the
      * message.  When that thread completes, update the UI.
@@ -881,44 +912,18 @@ public class MessageView extends Activity implements OnClickListener {
      * sufficient.
      */
     private void startPresenceCheck() {
-        String email = null;        
         if (mMessage != null) {
             Address sender = Address.unpackFirst(mMessage.mFrom);
-            email = sender != null ? sender.getAddress() : null;
-        }
-
-        if (email == null) {
-            mHandler.setSenderPresence(0);
-            return;
-        }
-        final String senderEmail = email;
-
-/*
-        new Thread() {
-            @Override
-            public void run() {
-                Cursor methodsCursor = getContentResolver().query(
-                        Uri.withAppendedPath(Contacts.ContactMethods.CONTENT_URI, "with_presence"),
-                        METHODS_WITH_PRESENCE_PROJECTION,
-                        Contacts.ContactMethods.DATA + "=?",
-                        new String[]{ senderEmail },
-                        null);
-
-                int presenceIcon = 0;
-
-                if (methodsCursor != null) {
-                    if (methodsCursor.moveToFirst() && 
-                            !methodsCursor.isNull(METHODS_STATUS_COLUMN)) {
-//                        presenceIcon = Presence.getPresenceIconResourceId(
-//                                methodsCursor.getInt(METHODS_STATUS_COLUMN));
-                    }
-                    methodsCursor.close();
+            if (sender != null) {
+                String email = sender.getAddress();
+                if (email != null) {
+                    mPresenceCheckTask = new PresenceCheckTask();
+                    mPresenceCheckTask.execute(email);
+                    return;
                 }
-
-                mHandler.setSenderPresence(presenceIcon);
             }
-        }.start();
-*/
+        }
+        updateSenderPresence(0);
     }
     
     /**
@@ -1017,6 +1022,7 @@ public class MessageView extends Activity implements OnClickListener {
             } else {
                 // toast?  why would this fail?
             }
+            startPresenceCheck();
         }
     }
     
