@@ -208,14 +208,19 @@ public class FolderSyncParser extends AbstractSyncParser {
             m.mServerId = serverId;
             m.mAccountKey = mAccountId;
             m.mType = Mailbox.TYPE_MAIL;
+            // Note that all mailboxes default to checking "never" (i.e. manual sync only)
+            // We set specific intervals for inbox, contacts, and (eventually) calendar
             m.mSyncInterval = Mailbox.CHECK_INTERVAL_NEVER;
             switch (type) {
                 case INBOX_TYPE:
-                    m.mSyncInterval = Mailbox.CHECK_INTERVAL_PUSH;
                     m.mType = Mailbox.TYPE_INBOX;
+                    m.mSyncInterval = mAccount.mSyncInterval;
+                    break;
+                case CONTACTS_TYPE:
+                    m.mType = Mailbox.TYPE_CONTACTS;
+                    m.mSyncInterval = mAccount.mSyncInterval;
                     break;
                 case OUTBOX_TYPE:
-                    m.mSyncInterval = Mailbox.CHECK_INTERVAL_NEVER;
                     // TYPE_OUTBOX mailboxes are known by SyncManager to sync whenever they aren't
                     // empty.  The value of mSyncFrequency is ignored for this kind of mailbox.
                     m.mType = Mailbox.TYPE_OUTBOX;
@@ -231,13 +236,7 @@ public class FolderSyncParser extends AbstractSyncParser {
                     break;
                 case CALENDAR_TYPE:
                     m.mType = Mailbox.TYPE_CALENDAR;
-                    // TODO This could be push, depending on settings
                     // For now, no sync, since it's not yet implemented
-                    break;
-                case CONTACTS_TYPE:
-                    m.mType = Mailbox.TYPE_CONTACTS;
-                    // TODO Frequency below should depend on settings
-                    m.mSyncInterval = Mailbox.CHECK_INTERVAL_PUSH;
                     break;
             }
 

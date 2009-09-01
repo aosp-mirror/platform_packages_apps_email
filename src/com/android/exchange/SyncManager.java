@@ -389,20 +389,17 @@ public class SyncManager extends Service implements Runnable {
                     } else {
                         // See whether any of our accounts has changed sync interval or window
                         if (syncParametersChanged(account)) {
-                            // Here's one that has...
-                            INSTANCE.log("Account " + account.mDisplayName +
-                                    " changed; stopping running syncs...");
-                            // If account is push, set contacts and inbox to push
+                            // Set pushable boxes' sync interval to the sync interval of the Account
                             Account updatedAccount =
                                 Account.restoreAccountWithId(getContext(), account.mId);
-                            if (updatedAccount.mSyncInterval == Account.CHECK_INTERVAL_PUSH) {
-                                ContentValues cv = new ContentValues();
-                                cv.put(MailboxColumns.SYNC_INTERVAL, Mailbox.CHECK_INTERVAL_PUSH);
-                                getContext().getContentResolver().update(Mailbox.CONTENT_URI, cv,
-                                        WHERE_IN_ACCOUNT_AND_PUSHABLE,
-                                        new String[] {Long.toString(account.mId)});
-                            }
+                            ContentValues cv = new ContentValues();
+                            cv.put(MailboxColumns.SYNC_INTERVAL, updatedAccount.mSyncInterval);
+                            getContentResolver().update(Mailbox.CONTENT_URI, cv,
+                                    WHERE_IN_ACCOUNT_AND_PUSHABLE,
+                                    new String[] {Long.toString(account.mId)});
                             // Stop all current syncs; the appropriate ones will restart
+                            INSTANCE.log("Account " + account.mDisplayName +
+                                " changed; stop running syncs...");
                             stopAccountSyncs(account.mId, true);
                         }
                     }
