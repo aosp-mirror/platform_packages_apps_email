@@ -906,6 +906,9 @@ public class MessageView extends Activity
 
         @Override
         protected void onPostExecute(Cursor cursor) {
+            if (cursor.isClosed()) {
+                return;
+            }
             // position the cursor on the current message
             while (cursor.moveToNext() && cursor.getLong(0) != mMessageId);
             mPrevNextCursor = cursor;
@@ -946,6 +949,9 @@ public class MessageView extends Activity
         
         @Override
         protected void onPostExecute(Cursor cursor) {
+            if (cursor.isClosed()) {
+                return;
+            }
             if (cursor.moveToFirst()) {
                 reloadUiFromCursor(cursor, mOkToFetch);
             } else {
@@ -984,6 +990,9 @@ public class MessageView extends Activity
         
         @Override
         protected void onPostExecute(Cursor cursor) {
+            if (cursor.isClosed()) {
+                return;
+            }
             if (cursor.moveToFirst()) {
                 reloadBodyFromCursor(cursor);
             } else {
