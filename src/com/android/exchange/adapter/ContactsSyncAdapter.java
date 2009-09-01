@@ -262,23 +262,9 @@ public class ContactsSyncAdapter extends AbstractSyncAdapter {
 
         @Override
         public void wipe() {
-            // TODO Use the bulk delete when the CP supports it
-//            mContentResolver.delete(mAccountUri.buildUpon()
-//                    .appendQueryParameter(ContactsContract.RawContacts.DELETE_PERMANENTLY, "true")
-//                    .build(), null, null);
-            Cursor c = mContentResolver.query(mAccountUri, new String[] {"_id"}, null, null, null);
-            try {
-                while (c.moveToNext()) {
-                    long id = c.getLong(0);
-                    mContentResolver.delete(ContentUris
-                            .withAppendedId(mAccountUri, id)
-                            .buildUpon().appendQueryParameter(
-                                    ContactsContract.RawContacts.DELETE_PERMANENTLY, "true")
-                            .build(), null, null);
-                }
-            } finally {
-                c.close();
-            }
+            mContentResolver.delete(mAccountUri.buildUpon()
+                    .appendQueryParameter(ContactsContract.RawContacts.DELETE_PERMANENTLY, "true")
+                    .build(), null, null);
         }
 
         public void addData(String serverId, ContactOperations ops, Entity entity)
