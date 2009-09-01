@@ -19,10 +19,8 @@ package com.android.email.activity;
 import com.android.email.activity.setup.AccountSetupBasics;
 import com.android.email.provider.EmailContent.Account;
 import com.android.email.provider.EmailContent.Mailbox;
-import com.android.exchange.SyncManager;
 
 import android.app.Activity;
-import android.content.Intent;
 import android.database.Cursor;
 import android.os.Bundle;
 
@@ -42,10 +40,6 @@ public class Welcome extends Activity {
     public void onCreate(Bundle icicle) {
         super.onCreate(icicle);
 
-        // TODO Automatically start Exchange service, until we can base this on the existence of
-        // at least one Exchange account
-        startService(new Intent(this, SyncManager.class));
-        
         // Find out how many accounts we have, and if there's just one, go directly to it
         Cursor c = null;
         try {
