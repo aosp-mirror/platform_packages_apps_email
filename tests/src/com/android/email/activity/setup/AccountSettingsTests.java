@@ -32,19 +32,19 @@ import android.test.suitebuilder.annotation.MediumTest;
  */
 @MediumTest
 public class AccountSettingsTests extends ActivityInstrumentationTestCase2<AccountSettings> {
-    
+
     // Borrowed from AccountSettings
     private static final String EXTRA_ACCOUNT_ID = "account_id";
-    
+
     private long mAccountId;
     private EmailContent.Account mAccount;
 
     private Context mContext;
     private AccountSettings mActivity;
     private ListPreference mCheckFrequency;
-    
+
     private static final String PREFERENCE_FREQUENCY = "account_check_frequency";
-    
+
     public AccountSettingsTests() {
         super("com.android.email", AccountSettings.class);
     }
@@ -58,7 +58,7 @@ public class AccountSettingsTests extends ActivityInstrumentationTestCase2<Accou
 
         mContext = this.getInstrumentation().getTargetContext();
     }
-    
+
     /**
      * Delete any dummy accounts we set up for this test
      */
@@ -69,11 +69,11 @@ public class AccountSettingsTests extends ActivityInstrumentationTestCase2<Accou
                     EmailContent.Account.CONTENT_URI, mAccountId);
             mContext.getContentResolver().delete(uri, null, null);
         }
-        
+
         // must call last because it scrubs member variables
         super.tearDown();
     }
-    
+
     /**
      * Test that POP accounts aren't displayed with a push option
      */
@@ -81,13 +81,13 @@ public class AccountSettingsTests extends ActivityInstrumentationTestCase2<Accou
         Intent i = getTestIntent("Name", "pop3://user:password@server.com",
                 "smtp://user:password@server.com");
         this.setActivityIntent(i);
-        
+
         getActivityAndFields();
-        
+
         boolean hasPush = frequencySpinnerHasValue(EmailContent.Account.CHECK_INTERVAL_PUSH);
         assertFalse(hasPush);
     }
-        
+
     /**
      * Test that IMAP accounts aren't displayed with a push option
      */
@@ -95,33 +95,33 @@ public class AccountSettingsTests extends ActivityInstrumentationTestCase2<Accou
         Intent i = getTestIntent("Name", "imap://user:password@server.com",
                 "smtp://user:password@server.com");
         this.setActivityIntent(i);
-        
+
         getActivityAndFields();
-        
+
         boolean hasPush = frequencySpinnerHasValue(EmailContent.Account.CHECK_INTERVAL_PUSH);
         assertFalse(hasPush);
     }
-        
+
     /**
      * Test that EAS accounts are displayed with a push option
      */
     public void testPushOptionEAS() {
         // This test should only be run if EAS is supported
-        if (Store.StoreInfo.getStoreInfo("eas", this.getInstrumentation().getTargetContext()) 
+        if (Store.StoreInfo.getStoreInfo("eas", this.getInstrumentation().getTargetContext())
                 == null) {
             return;
         }
-            
+
         Intent i = getTestIntent("Name", "eas://user:password@server.com",
                 "eas://user:password@server.com");
         this.setActivityIntent(i);
-        
+
         getActivityAndFields();
-        
+
         boolean hasPush = frequencySpinnerHasValue(EmailContent.Account.CHECK_INTERVAL_PUSH);
         assertTrue(hasPush);
     }
-        
+
     /**
      * Get the activity (which causes it to be started, using our intent) and get the UI fields
      */
@@ -129,7 +129,7 @@ public class AccountSettingsTests extends ActivityInstrumentationTestCase2<Accou
         mActivity = getActivity();
         mCheckFrequency = (ListPreference) mActivity.findPreference(PREFERENCE_FREQUENCY);
     }
-    
+
     /**
      * Test the frequency values list for a particular value
      */
@@ -142,13 +142,15 @@ public class AccountSettingsTests extends ActivityInstrumentationTestCase2<Accou
         }
         return false;
     }
-    
+
     /**
      * Create an intent with the Account in it
      */
     private Intent getTestIntent(String name, String storeUri, String senderUri) {
         EmailContent.Account mAccount = new EmailContent.Account();
         mAccount.setSenderName(name);
+        // For EAS, at least, email address is required
+        mAccount.mEmailAddress = "user@server.com";
         mAccount.setStoreUri(mContext, storeUri);
         mAccount.setSenderUri(mContext, senderUri);
         mAccount.save(mContext);
@@ -158,5 +160,5 @@ public class AccountSettingsTests extends ActivityInstrumentationTestCase2<Accou
         i.putExtra(EXTRA_ACCOUNT_ID, mAccountId);
         return i;
     }
-    
+
 }
