@@ -70,7 +70,6 @@ public class LegacyConversions {
         if (subject != null) {
             localMessage.mSubject = subject;
         }
-//        public String mPreview;
         localMessage.mFlagRead = message.isSet(Flag.SEEN);
 
         // Keep the message in the "unloaded" state until it has (at least) a display name.
@@ -85,22 +84,16 @@ public class LegacyConversions {
         localMessage.mFlagFavorite = message.isSet(Flag.FLAGGED);
 //        public boolean mFlagAttachment = false;
 //        public int mFlags = 0;
-//
-//        public String mTextInfo;
-//        public String mHtmlInfo;
-//
+
         localMessage.mServerId = message.getUid();
 //        public int mServerIntId;
 //        public String mClientId;
 //        public String mMessageId;
-//        public String mThreadId;
-//
+
 //        public long mBodyKey;
         localMessage.mMailboxKey = mailboxId;
         localMessage.mAccountKey = accountId;
-//        public long mReferenceKey;
-//
-//        public String mSender;
+
         if (from != null && from.length > 0) {
             localMessage.mFrom = Address.pack(from);
         }
@@ -110,11 +103,11 @@ public class LegacyConversions {
         localMessage.mBcc = Address.pack(bcc);
         localMessage.mReplyTo = Address.pack(replyTo);
 
-//        public String mServerVersion;
-//
 //        public String mText;
 //        public String mHtml;
-//
+//        public String mTextReply;
+//        public String mHtmlReply;
+
 //        // Can be used while building messages, but is NOT saved by the Provider
 //        transient public ArrayList<Attachment> mAttachments = null;
 
@@ -123,8 +116,6 @@ public class LegacyConversions {
 
     /**
      * Copy body text (plain and/or HTML) from MimeMessage to provider Message
-     *
-     * TODO: Take a closer look at textInfo and deal with it if necessary.
      */
     public static boolean updateBodyFields(EmailContent.Body body,
             EmailContent.Message localMessage, ArrayList<Part> viewables)
@@ -151,11 +142,9 @@ public class LegacyConversions {
 
         // write the combined data to the body part
         if (sbText.length() != 0) {
-            localMessage.mTextInfo = "X;X;8;" + sbText.length()*2;
             body.mTextContent = sbText.toString();
         }
         if (sbHtml.length() != 0) {
-            localMessage.mHtmlInfo = "X;X;8;" + sbHtml.length()*2;
             body.mHtmlContent = sbHtml.toString();
         }
         return true;
@@ -166,8 +155,7 @@ public class LegacyConversions {
      *
      * @param context a context for file operations
      * @param localMessage the attachments will be built against this message
-     * @param message the original message from POP or IMAP, that may have attachments
-     * @return true if it succeeded
+     * @param attachments the attachments to add
      * @throws IOException
      */
     public static void updateAttachments(Context context, EmailContent.Message localMessage,
@@ -188,7 +176,6 @@ public class LegacyConversions {
      * @param context a context for file operations
      * @param localMessage the attachments will be built against this message
      * @param part a single attachment part from POP or IMAP
-     * @return true if it succeeded
      * @throws IOException
      */
     private static void addOneAttachment(Context context, EmailContent.Message localMessage,
@@ -217,7 +204,7 @@ public class LegacyConversions {
         // Get partId for unloaded IMAP attachments (if any)
         // This is only provided (and used) when we have structure but not the actual attachment
         String[] partIds = part.getHeader(MimeHeader.HEADER_ANDROID_ATTACHMENT_STORE_DATA);
-        String partId = partIds != null ? partIds[0] : null;;
+        String partId = partIds != null ? partIds[0] : null;
 
         localAttachment.mFileName = MimeUtility.getHeaderParameter(contentType, "name");
         localAttachment.mMimeType = part.getMimeType();

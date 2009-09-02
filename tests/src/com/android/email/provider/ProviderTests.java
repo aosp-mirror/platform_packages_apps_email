@@ -197,8 +197,12 @@ public class ProviderTests extends ProviderTestCase2<EmailProvider> {
         long message2Id = message2.mId;
         String text2 = message2.mText;
         String html2 = message2.mHtml;
+        String textReply2 = message2.mTextReply;
+        String htmlReply2 = message2.mHtmlReply;
         message2.mText = null;
         message2.mHtml = null;
+        message2.mTextReply = null;
+        message2.mHtmlReply = null;
         Message message2get = EmailContent.Message.restoreMessageWithId(mMockContext, message2Id);
         ProviderTestUtils.assertMessageEqual("testMessageSave", message2, message2get);
 
@@ -206,6 +210,8 @@ public class ProviderTests extends ProviderTestCase2<EmailProvider> {
         Body body2 = loadBodyForMessageId(message2Id);
         assertEquals("body text", text2, body2.mTextContent);
         assertEquals("body html", html2, body2.mHtmlContent);
+        assertEquals("reply text", textReply2, body2.mTextReply);
+        assertEquals("reply html", htmlReply2, body2.mHtmlReply);
 
         // Message with attachments and body
         Message message3 = ProviderTestUtils.setupMessage("message3", account1Id, box1Id, true,
@@ -386,9 +392,15 @@ public class ProviderTests extends ProviderTestCase2<EmailProvider> {
         long box1Id = box1.mId;
 
         final String textContent = "foobar some odd text";
+        final String htmlContent = "and some html";
+        final String textReply = "plain text reply";
+        final String htmlReply = "or the html reply";
 
         ContentValues values = new ContentValues();
         values.put(BodyColumns.TEXT_CONTENT, textContent);
+        values.put(BodyColumns.HTML_CONTENT, htmlContent);
+        values.put(BodyColumns.TEXT_REPLY, textReply);
+        values.put(BodyColumns.HTML_REPLY, htmlReply);
 
         // 1
         Message message1 = ProviderTestUtils.setupMessage("message1", account1Id, box1Id, false,
@@ -400,6 +412,9 @@ public class ProviderTests extends ProviderTestCase2<EmailProvider> {
         body1 = loadBodyForMessageId(message1Id);
         assertNotNull(body1);
         assertEquals(body1.mTextContent, textContent);
+        assertEquals(body1.mHtmlContent, htmlContent);
+        assertEquals(body1.mTextReply, textReply);
+        assertEquals(body1.mHtmlReply, htmlReply);
 
         // 2
         Message message2 = ProviderTestUtils.setupMessage("message1", account1Id, box1Id, true,
@@ -412,6 +427,9 @@ public class ProviderTests extends ProviderTestCase2<EmailProvider> {
         body2 = loadBodyForMessageId(message1Id);
         assertNotNull(body2);
         assertEquals(body2.mTextContent, textContent);
+        assertEquals(body2.mHtmlContent, htmlContent);
+        assertEquals(body2.mTextReply, textReply);
+        assertEquals(body2.mHtmlReply, htmlReply);
     }
 
     /**

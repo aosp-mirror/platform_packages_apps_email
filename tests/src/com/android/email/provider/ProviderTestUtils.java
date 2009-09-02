@@ -102,38 +102,31 @@ public class ProviderTestUtils extends Assert {
         message.mDisplayName = name;
         message.mTimeStamp = 1;
         message.mSubject = "subject " + name;
-        message.mPreview = "preview " + name;
         message.mFlagRead = true;
         message.mFlagLoaded = Message.NOT_LOADED;
         message.mFlagFavorite = true;
         message.mFlagAttachment = true;
         message.mFlags = 2;
 
-        message.mTextInfo = "textinfo " + name;
-        message.mHtmlInfo = "htmlinfo " + name;
-
         message.mServerId = "serverid " + name;
         message.mServerIntId = 0;
         message.mClientId = "clientid " + name;
         message.mMessageId = "messageid " + name;
-        message.mThreadId = "threadid " + name;
 
         message.mMailboxKey = mailboxId;
         message.mAccountKey = accountId;
-        message.mReferenceKey = 4;
 
-        message.mSender = "sender " + name;
         message.mFrom = "from " + name;
         message.mTo = "to " + name;
         message.mCc = "cc " + name;
         message.mBcc = "bcc " + name;
         message.mReplyTo = "replyto " + name;
 
-        message.mServerVersion = "serverversion " + name;
-
         if (addBody) {
             message.mText = "body text " + name;
             message.mHtml = "body html " + name;
+            message.mTextReply = "reply text " + name;
+            message.mHtmlReply = "reply html " + name;
         }
 
         if (saveIt) {
@@ -252,37 +245,30 @@ public class ProviderTestUtils extends Assert {
         assertEquals(caller + " mDisplayName", expect.mDisplayName, actual.mDisplayName);
         assertEquals(caller + " mTimeStamp", expect.mTimeStamp, actual.mTimeStamp);
         assertEquals(caller + " mSubject", expect.mSubject, actual.mSubject);
-        assertEquals(caller + " mPreview", expect.mPreview, actual.mPreview);
         assertEquals(caller + " mFlagRead = false", expect.mFlagRead, actual.mFlagRead);
         assertEquals(caller + " mFlagLoaded", expect.mFlagLoaded, actual.mFlagLoaded);
         assertEquals(caller + " mFlagFavorite", expect.mFlagFavorite, actual.mFlagFavorite);
         assertEquals(caller + " mFlagAttachment", expect.mFlagAttachment, actual.mFlagAttachment);
         assertEquals(caller + " mFlags", expect.mFlags, actual.mFlags);
 
-        assertEquals(caller + " mTextInfo", expect.mTextInfo, actual.mTextInfo);
-        assertEquals(caller + " mHtmlInfo", expect.mHtmlInfo, actual.mHtmlInfo);
-
         assertEquals(caller + " mServerId", expect.mServerId, actual.mServerId);
         assertEquals(caller + " mServerIntId", expect.mServerIntId, actual.mServerIntId);
         assertEquals(caller + " mClientId", expect.mClientId, actual.mClientId);
         assertEquals(caller + " mMessageId", expect.mMessageId, actual.mMessageId);
-        assertEquals(caller + " mThreadId", expect.mThreadId, actual.mThreadId);
 
         assertEquals(caller + " mMailboxKey", expect.mMailboxKey, actual.mMailboxKey);
         assertEquals(caller + " mAccountKey", expect.mAccountKey, actual.mAccountKey);
-        assertEquals(caller + " mReferenceKey", expect.mReferenceKey, actual.mReferenceKey);
 
-        assertEquals(caller + " mSender", expect.mSender, actual.mSender);
         assertEquals(caller + " mFrom", expect.mFrom, actual.mFrom);
         assertEquals(caller + " mTo", expect.mTo, actual.mTo);
         assertEquals(caller + " mCc", expect.mCc, actual.mCc);
         assertEquals(caller + " mBcc", expect.mBcc, actual.mBcc);
         assertEquals(caller + " mReplyTo", expect.mReplyTo, actual.mReplyTo);
 
-        assertEquals(caller + " mServerVersion", expect.mServerVersion, actual.mServerVersion);
-
         assertEquals(caller + " mText", expect.mText, actual.mText);
         assertEquals(caller + " mHtml", expect.mHtml, actual.mHtml);
+        assertEquals(caller + " mTextReply", expect.mTextReply, actual.mTextReply);
+        assertEquals(caller + " mHtmlReply", expect.mHtmlReply, actual.mHtmlReply);
     }
 
     /**
