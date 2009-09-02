@@ -169,17 +169,8 @@ public abstract class EmailContent {
 
     public interface SyncColumns {
         public static final String ID = "_id";
-        // source (account name and type) : foreign key into the AccountsProvider
-        public static final String ACCOUNT_KEY = "syncAccountKey";
         // source id (string) : the source's name of this item
         public static final String SERVER_ID = "syncServerId";
-        // source version (string) : the source's concept of the version of this item
-        public static final String SERVER_VERSION = "syncServerVersion";
-        // source sync data (string) : any other data needed to sync this item back to the source
-        public static final String DATA = "syncData";
-        // dirty count (boolean) : the number of times this item has changed since the last time it
-        // was synced to the server
-        public static final String DIRTY_COUNT = "syncDirtyCount";
     }
 
     public interface BodyColumns {
@@ -190,6 +181,10 @@ public abstract class EmailContent {
         public static final String HTML_CONTENT = "htmlContent";
         // The plain text content itself
         public static final String TEXT_CONTENT = "textContent";
+        // Replied-to or forwarded body (in html form)
+        public static final String HTML_REPLY = "htmlReply";
+        // Replied-to or forwarded body (in text form)
+        public static final String TEXT_REPLY = "textReply";
     }
 
     public static final class Body extends EmailContent implements BodyColumns {
@@ -201,8 +196,11 @@ public abstract class EmailContent {
         public static final int CONTENT_MESSAGE_KEY_COLUMN = 1;
         public static final int CONTENT_HTML_CONTENT_COLUMN = 2;
         public static final int CONTENT_TEXT_CONTENT_COLUMN = 3;
+        public static final int CONTENT_HTML_REPLY_COLUMN = 4;
+        public static final int CONTENT_TEXT_REPLY_COLUMN = 5;
         public static final String[] CONTENT_PROJECTION = new String[] {
-            RECORD_ID, BodyColumns.MESSAGE_KEY, BodyColumns.HTML_CONTENT, BodyColumns.TEXT_CONTENT
+            RECORD_ID, BodyColumns.MESSAGE_KEY, BodyColumns.HTML_CONTENT, BodyColumns.TEXT_CONTENT,
+            BodyColumns.HTML_REPLY, BodyColumns.TEXT_REPLY
         };
 
         public static final int TEXT_TEXT_COLUMN = 1;
@@ -220,6 +218,8 @@ public abstract class EmailContent {
         public long mMessageKey;
         public String mHtmlContent;
         public String mTextContent;
+        public String mHtmlReply;
+        public String mTextReply;
 
         public Body() {
             mBaseUri = CONTENT_URI;
@@ -233,6 +233,8 @@ public abstract class EmailContent {
             values.put(BodyColumns.MESSAGE_KEY, mMessageKey);
             values.put(BodyColumns.HTML_CONTENT, mHtmlContent);
             values.put(BodyColumns.TEXT_CONTENT, mTextContent);
+            values.put(BodyColumns.HTML_REPLY, mHtmlReply);
+            values.put(BodyColumns.TEXT_REPLY, mTextReply);
 
             return values;
         }
@@ -326,6 +328,8 @@ public abstract class EmailContent {
             mMessageKey = c.getLong(CONTENT_MESSAGE_KEY_COLUMN);
             mHtmlContent = c.getString(CONTENT_HTML_CONTENT_COLUMN);
             mTextContent = c.getString(CONTENT_TEXT_CONTENT_COLUMN);
+            mHtmlReply = c.getString(CONTENT_HTML_REPLY_COLUMN);
+            mTextReply = c.getString(CONTENT_TEXT_REPLY_COLUMN);
             return this;
         }
 
@@ -344,8 +348,6 @@ public abstract class EmailContent {
         public static final String TIMESTAMP = "timeStamp";
         // Message subject
         public static final String SUBJECT = "subject";
-        // A preview, as might be shown to the user in a message list
-        public static final String PREVIEW = "preview";
         // Boolean, unread = 0, read = 1 [INDEX]
         public static final String FLAG_READ = "flagRead";
         // Three state, unloaded = 0, loaded = 1, partially loaded (optional) = 2 [INDEX]
@@ -354,35 +356,22 @@ public abstract class EmailContent {
         public static final String FLAG_FAVORITE = "flagFavorite";
         // Boolean, no attachment = 0, attachment = 1
         public static final String FLAG_ATTACHMENT = "flagAttachment";
-        // Bit field, e.g. replied, deleted
+        // Bit field for flags which we'll not be selecting on
         public static final String FLAGS = "flags";
-
-        // Body related
-        // charset: U = us-ascii; 8 = utf-8; I = iso-8559-1; others literally (e.g. KOI8-R)
-        // encodings: B = base64; Q = quoted printable; X = none
-        // Information about the text part (if any) in form <location>;<encoding>;<charset>;<length>
-        public static final String TEXT_INFO = "textInfo";
-        // Information about the html part (if any) in form <location>;<encoding>;<charset>;<length>
-        public static final String HTML_INFO = "htmlInfo";
 
         // Sync related identifiers
         // Any client-required identifier
         public static final String CLIENT_ID = "clientId";
         // The message-id in the message's header
         public static final String MESSAGE_ID = "messageId";
-        // Thread identifier
-        public static final String THREAD_ID = "threadId";
 
         // References to other Email objects in the database
         // Foreign key to the Mailbox holding this message [INDEX]
         public static final String MAILBOX_KEY = "mailboxKey";
         // Foreign key to the Account holding this message
         public static final String ACCOUNT_KEY = "accountKey";
-        // Foreign key to a referenced Message (e.g. for a reply/forward)
-        public static final String REFERENCE_KEY = "referenceKey";
 
         // Address lists, packed with Address.pack()
-        public static final String SENDER_LIST = "senderList";
         public static final String FROM_LIST = "fromList";
         public static final String TO_LIST = "toList";
         public static final String CC_LIST = "ccList";
@@ -410,70 +399,57 @@ public abstract class EmailContent {
         public static final int CONTENT_DISPLAY_NAME_COLUMN = 1;
         public static final int CONTENT_TIMESTAMP_COLUMN = 2;
         public static final int CONTENT_SUBJECT_COLUMN = 3;
-        public static final int CONTENT_PREVIEW_COLUMN = 4;
-        public static final int CONTENT_FLAG_READ_COLUMN = 5;
-        public static final int CONTENT_FLAG_LOADED_COLUMN = 6;
-        public static final int CONTENT_FLAG_FAVORITE_COLUMN = 7;
-        public static final int CONTENT_FLAG_ATTACHMENT_COLUMN = 8;
-        public static final int CONTENT_FLAGS_COLUMN = 9;
-        public static final int CONTENT_TEXT_INFO_COLUMN = 10;
-        public static final int CONTENT_HTML_INFO_COLUMN = 11;
-        public static final int CONTENT_SERVER_ID_COLUMN = 12;
-        public static final int CONTENT_CLIENT_ID_COLUMN = 13;
-        public static final int CONTENT_MESSAGE_ID_COLUMN = 14;
-        public static final int CONTENT_THREAD_ID_COLUMN = 15;
-        public static final int CONTENT_MAILBOX_KEY_COLUMN = 16;
-        public static final int CONTENT_ACCOUNT_KEY_COLUMN = 17;
-        public static final int CONTENT_REFERENCE_KEY_COLUMN = 18;
-        public static final int CONTENT_SENDER_LIST_COLUMN = 19;
-        public static final int CONTENT_FROM_LIST_COLUMN = 20;
-        public static final int CONTENT_TO_LIST_COLUMN = 21;
-        public static final int CONTENT_CC_LIST_COLUMN = 22;
-        public static final int CONTENT_BCC_LIST_COLUMN = 23;
-        public static final int CONTENT_REPLY_TO_COLUMN = 24;
-        public static final int CONTENT_SERVER_VERSION_COLUMN = 25;
+        public static final int CONTENT_FLAG_READ_COLUMN = 4;
+        public static final int CONTENT_FLAG_LOADED_COLUMN = 5;
+        public static final int CONTENT_FLAG_FAVORITE_COLUMN = 6;
+        public static final int CONTENT_FLAG_ATTACHMENT_COLUMN = 7;
+        public static final int CONTENT_FLAGS_COLUMN = 8;
+        public static final int CONTENT_SERVER_ID_COLUMN = 9;
+        public static final int CONTENT_CLIENT_ID_COLUMN = 10;
+        public static final int CONTENT_MESSAGE_ID_COLUMN = 11;
+        public static final int CONTENT_MAILBOX_KEY_COLUMN = 12;
+        public static final int CONTENT_ACCOUNT_KEY_COLUMN = 13;
+        public static final int CONTENT_FROM_LIST_COLUMN = 14;
+        public static final int CONTENT_TO_LIST_COLUMN = 15;
+        public static final int CONTENT_CC_LIST_COLUMN = 16;
+        public static final int CONTENT_BCC_LIST_COLUMN = 17;
+        public static final int CONTENT_REPLY_TO_COLUMN = 18;
+
         public static final String[] CONTENT_PROJECTION = new String[] {
-            RECORD_ID, MessageColumns.DISPLAY_NAME, MessageColumns.TIMESTAMP,
-            MessageColumns.SUBJECT, MessageColumns.PREVIEW, MessageColumns.FLAG_READ,
+            RECORD_ID,
+            MessageColumns.DISPLAY_NAME, MessageColumns.TIMESTAMP,
+            MessageColumns.SUBJECT, MessageColumns.FLAG_READ,
             MessageColumns.FLAG_LOADED, MessageColumns.FLAG_FAVORITE,
-            MessageColumns.FLAG_ATTACHMENT, MessageColumns.FLAGS, MessageColumns.TEXT_INFO,
-            MessageColumns.HTML_INFO, SyncColumns.SERVER_ID,
-            MessageColumns.CLIENT_ID, MessageColumns.MESSAGE_ID, MessageColumns.THREAD_ID,
-            MessageColumns.MAILBOX_KEY, MessageColumns.ACCOUNT_KEY, MessageColumns.REFERENCE_KEY,
-            MessageColumns.SENDER_LIST, MessageColumns.FROM_LIST, MessageColumns.TO_LIST,
-            MessageColumns.CC_LIST, MessageColumns.BCC_LIST, MessageColumns.REPLY_TO_LIST,
-            SyncColumns.SERVER_VERSION
+            MessageColumns.FLAG_ATTACHMENT, MessageColumns.FLAGS,
+            SyncColumns.SERVER_ID, MessageColumns.CLIENT_ID,
+            MessageColumns.MESSAGE_ID, MessageColumns.MAILBOX_KEY,
+            MessageColumns.ACCOUNT_KEY, MessageColumns.FROM_LIST,
+            MessageColumns.TO_LIST, MessageColumns.CC_LIST,
+            MessageColumns.BCC_LIST, MessageColumns.REPLY_TO_LIST,
         };
 
         public static final int LIST_ID_COLUMN = 0;
         public static final int LIST_DISPLAY_NAME_COLUMN = 1;
         public static final int LIST_TIMESTAMP_COLUMN = 2;
         public static final int LIST_SUBJECT_COLUMN = 3;
-        public static final int LIST_PREVIEW_COLUMN = 4;
-        public static final int LIST_READ_COLUMN = 5;
-        public static final int LIST_LOADED_COLUMN = 6;
-        public static final int LIST_FAVORITE_COLUMN = 7;
-        public static final int LIST_ATTACHMENT_COLUMN = 8;
-        public static final int LIST_FLAGS_COLUMN = 9;
-        public static final int LIST_MAILBOX_KEY_COLUMN = 10;
-        public static final int LIST_ACCOUNT_KEY_COLUMN = 11;
-        public static final int LIST_SERVER_ID_COLUMN = 12;
+        public static final int LIST_READ_COLUMN = 4;
+        public static final int LIST_LOADED_COLUMN = 5;
+        public static final int LIST_FAVORITE_COLUMN = 6;
+        public static final int LIST_ATTACHMENT_COLUMN = 7;
+        public static final int LIST_FLAGS_COLUMN = 8;
+        public static final int LIST_MAILBOX_KEY_COLUMN = 9;
+        public static final int LIST_ACCOUNT_KEY_COLUMN = 10;
+        public static final int LIST_SERVER_ID_COLUMN = 11;
 
         // Public projection for common list columns
         public static final String[] LIST_PROJECTION = new String[] {
-            RECORD_ID, MessageColumns.DISPLAY_NAME, MessageColumns.TIMESTAMP,
-            MessageColumns.SUBJECT, MessageColumns.PREVIEW, MessageColumns.FLAG_READ,
+            RECORD_ID,
+            MessageColumns.DISPLAY_NAME, MessageColumns.TIMESTAMP,
+            MessageColumns.SUBJECT, MessageColumns.FLAG_READ,
             MessageColumns.FLAG_LOADED, MessageColumns.FLAG_FAVORITE,
-            MessageColumns.FLAG_ATTACHMENT, MessageColumns.FLAGS, MessageColumns.MAILBOX_KEY,
-            MessageColumns.ACCOUNT_KEY , SyncColumns.SERVER_ID
-        };
-
-        public static final int LOAD_BODY_ID_COLUMN = 0;
-        public static final int LOAD_BODY_SERVER_ID_COLUMN = 1;
-        public static final int LOAD_BODY_TEXT_INFO_COLUMN = 2;
-        public static final int LOAD_BODY_HTML_INFO_COLUMN  = 3;
-        public static final String[] LOAD_BODY_PROJECTION = new String[] {
-            RECORD_ID, SyncColumns.SERVER_ID, MessageColumns.TEXT_INFO, MessageColumns.HTML_INFO
+            MessageColumns.FLAG_ATTACHMENT, MessageColumns.FLAGS,
+            MessageColumns.MAILBOX_KEY, MessageColumns.ACCOUNT_KEY,
+            SyncColumns.SERVER_ID
         };
 
         public static final int ID_COLUMNS_ID_COLUMN = 0;
@@ -488,37 +464,30 @@ public abstract class EmailContent {
         public String mDisplayName;
         public long mTimeStamp;
         public String mSubject;
-        public String mPreview;
         public boolean mFlagRead = false;
         public int mFlagLoaded = 0;
         public boolean mFlagFavorite = false;
         public boolean mFlagAttachment = false;
         public int mFlags = 0;
 
-        public String mTextInfo;
-        public String mHtmlInfo;
-
         public String mServerId;
         public int mServerIntId;
         public String mClientId;
         public String mMessageId;
-        public String mThreadId;
 
         public long mMailboxKey;
         public long mAccountKey;
-        public long mReferenceKey;
 
-        public String mSender;
         public String mFrom;
         public String mTo;
         public String mCc;
         public String mBcc;
         public String mReplyTo;
 
-        public String mServerVersion;
-
         transient public String mText;
         transient public String mHtml;
+        transient public String mTextReply;
+        transient public String mHtmlReply;
 
         // Can be used while building messages, but is NOT saved by the Provider
         transient public ArrayList<Attachment> mAttachments = null;
@@ -543,15 +512,11 @@ public abstract class EmailContent {
             values.put(MessageColumns.DISPLAY_NAME, mDisplayName);
             values.put(MessageColumns.TIMESTAMP, mTimeStamp);
             values.put(MessageColumns.SUBJECT, mSubject);
-            values.put(MessageColumns.PREVIEW, mPreview);
             values.put(MessageColumns.FLAG_READ, mFlagRead);
             values.put(MessageColumns.FLAG_LOADED, mFlagLoaded);
             values.put(MessageColumns.FLAG_FAVORITE, mFlagFavorite);
             values.put(MessageColumns.FLAG_ATTACHMENT, mFlagAttachment);
             values.put(MessageColumns.FLAGS, mFlags);
-
-            values.put(MessageColumns.TEXT_INFO, mTextInfo);
-            values.put(MessageColumns.HTML_INFO, mHtmlInfo);
 
             if (mServerId != null) {
                 values.put(SyncColumns.SERVER_ID, mServerId);
@@ -561,20 +526,15 @@ public abstract class EmailContent {
 
             values.put(MessageColumns.CLIENT_ID, mClientId);
             values.put(MessageColumns.MESSAGE_ID, mMessageId);
-            values.put(MessageColumns.THREAD_ID, mThreadId);
 
             values.put(MessageColumns.MAILBOX_KEY, mMailboxKey);
             values.put(MessageColumns.ACCOUNT_KEY, mAccountKey);
-            values.put(MessageColumns.REFERENCE_KEY, mReferenceKey);
 
-            values.put(MessageColumns.SENDER_LIST, mSender);
             values.put(MessageColumns.FROM_LIST, mFrom);
             values.put(MessageColumns.TO_LIST, mTo);
             values.put(MessageColumns.CC_LIST, mCc);
             values.put(MessageColumns.BCC_LIST, mBcc);
             values.put(MessageColumns.REPLY_TO_LIST, mReplyTo);
-
-            values.put(SyncColumns.SERVER_VERSION, mServerVersion);
 
             return values;
         }
@@ -603,29 +563,22 @@ public abstract class EmailContent {
             mDisplayName = c.getString(CONTENT_DISPLAY_NAME_COLUMN);
             mTimeStamp = c.getLong(CONTENT_TIMESTAMP_COLUMN);
             mSubject = c.getString(CONTENT_SUBJECT_COLUMN);
-            mPreview = c.getString(CONTENT_PREVIEW_COLUMN);
             mFlagRead = c.getInt(CONTENT_FLAG_READ_COLUMN) == 1;
             mFlagLoaded = c.getInt(CONTENT_FLAG_LOADED_COLUMN);
             mFlagFavorite = c.getInt(CONTENT_FLAG_FAVORITE_COLUMN) == 1;
             mFlagAttachment = c.getInt(CONTENT_FLAG_ATTACHMENT_COLUMN) == 1;
             mFlags = c.getInt(CONTENT_FLAGS_COLUMN);
-            mTextInfo = c.getString(CONTENT_TEXT_INFO_COLUMN);
-            mHtmlInfo = c.getString(CONTENT_HTML_INFO_COLUMN);
             mServerId = c.getString(CONTENT_SERVER_ID_COLUMN);
             mServerIntId = c.getInt(CONTENT_SERVER_ID_COLUMN);
             mClientId = c.getString(CONTENT_CLIENT_ID_COLUMN);
             mMessageId = c.getString(CONTENT_MESSAGE_ID_COLUMN);
-            mThreadId = c.getString(CONTENT_THREAD_ID_COLUMN);
             mMailboxKey = c.getLong(CONTENT_MAILBOX_KEY_COLUMN);
             mAccountKey = c.getLong(CONTENT_ACCOUNT_KEY_COLUMN);
-            mReferenceKey = c.getLong(CONTENT_REFERENCE_KEY_COLUMN);
-            mSender = c.getString(CONTENT_SENDER_LIST_COLUMN);
             mFrom = c.getString(CONTENT_FROM_LIST_COLUMN);
             mTo = c.getString(CONTENT_TO_LIST_COLUMN);
             mCc = c.getString(CONTENT_CC_LIST_COLUMN);
             mBcc = c.getString(CONTENT_BCC_LIST_COLUMN);
             mReplyTo = c.getString(CONTENT_REPLY_TO_COLUMN);
-            mServerVersion = c.getString(CONTENT_SERVER_VERSION_COLUMN);
             return this;
         }
 
@@ -648,7 +601,7 @@ public abstract class EmailContent {
             // This logic is in place so I can (a) short circuit the expensive stuff when
             // possible, and (b) override (and throw) if anyone tries to call save() or update()
             // directly for Message, which are unsupported.
-            if (mText == null && mHtml == null &&
+            if (mText == null && mHtml == null && mTextReply == null && mHtmlReply == null &&
                     (mAttachments == null || mAttachments.isEmpty())) {
                 if (doSave) {
                     return super.save(context);
@@ -706,6 +659,12 @@ public abstract class EmailContent {
             if (mHtml != null) {
                 cv.put(Body.HTML_CONTENT, mHtml);
             }
+            if (mTextReply != null) {
+                cv.put(Body.TEXT_REPLY, mTextReply);
+            }
+            if (mHtmlReply != null) {
+                cv.put(Body.HTML_REPLY, mHtmlReply);
+            }
             b = ContentProviderOperation.newInsert(Body.CONTENT_URI);
             b.withValues(cv);
             ContentValues backValues = new ContentValues();
@@ -721,49 +680,6 @@ public abstract class EmailContent {
                         .withValueBackReference(Attachment.MESSAGE_KEY, messageBackValue)
                         .build());
                 }
-            }
-         }
-
-       // Text and Html information are stored as <location>;<encoding>;<charset>;<length>
-        // charset: U = us-ascii; 8 = utf-8; I = iso-8559-1; others literally (e.g. KOI8-R)
-        // encodings: B = base64; Q = quoted printable; X = none
-
-        public static final class BodyInfo {
-            public String mLocation;
-            public char mEncoding;
-            public String mCharset;
-            public long mLength;
-
-            static public BodyInfo expandFromTextOrHtmlInfo (String info) {
-                BodyInfo b = new BodyInfo();
-                int start = 0;
-                int next = info.indexOf(';');
-                if (next > 0) {
-                    b.mLocation = info.substring(start, next);
-                    start = next + 1;
-                    next = info.indexOf(';', start);
-                    if (next > 0) {
-                        b.mEncoding = info.charAt(start);
-                        start = next + 1;
-                        next = info.indexOf(';', start);
-                        if (next > 0) {
-                            String cs = info.substring(start, next);
-                            if (cs.equals("U")) {
-                                b.mCharset = "us-ascii";
-                            } else if (cs.equals("I")) {
-                                b.mCharset = "iso-8859-1";
-                            } else if (cs.equals("8")) {
-                                b.mCharset = "utf-8";
-                            } else {
-                                b.mCharset = cs;
-                            }
-                            start = next + 1;
-                            b.mLength = Integer.parseInt(info.substring(start));
-                            return b;
-                        }
-                    }
-                }
-                return null;
             }
         }
     }
@@ -1146,10 +1062,11 @@ public abstract class EmailContent {
         /**
          * For compatibility while converting to provider model, set the store URI
          *
-         * @param the new value
+         * @param context
+         * @param storeUri the new value
          */
         @Deprecated
-        public void setStoreUri(Context context, String senderUri) {
+        public void setStoreUri(Context context, String storeUri) {
             // reconstitute or create if necessary
             if (mHostAuthRecv == null) {
                 if (mHostAuthKeyRecv != 0) {
@@ -1160,14 +1077,15 @@ public abstract class EmailContent {
             }
 
             if (mHostAuthRecv != null) {
-                mHostAuthRecv.setStoreUri(senderUri);
+                mHostAuthRecv.setStoreUri(storeUri);
             }
         }
 
         /**
          * For compatibility while converting to provider model, set the sender URI
          *
-         * @param the new value
+         * @param context
+         * @param senderUri the new value
          */
         @Deprecated
         public void setSenderUri(Context context, String senderUri) {

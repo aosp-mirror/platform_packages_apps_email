@@ -161,7 +161,6 @@ public class EmailSyncAdapter extends AbstractSyncAdapter {
                     case Tags.EMAIL_BODY:
                         String text = getValue();
                         msg.mText = text;
-                        msg.mTextInfo = "X;X;8;" + text.length(); // location;encoding;charset;size
                         break;
                     default:
                         skipTag();
@@ -191,9 +190,6 @@ public class EmailSyncAdapter extends AbstractSyncAdapter {
                         skipTag();
                 }
             }
-
-            // Tell the provider that this is synced back
-            msg.mServerVersion = mMailbox.mSyncKey;
             emails.add(msg);
         }
 
@@ -228,12 +224,9 @@ public class EmailSyncAdapter extends AbstractSyncAdapter {
                 }
             }
             // We always ask for TEXT or HTML; there's no third option
-            String info = "X;X;8;" + body.length();
             if (bodyType.equals(Eas.BODY_PREFERENCE_HTML)) {
-                msg.mHtmlInfo = info;
                 msg.mHtml = body;
             } else {
-                msg.mTextInfo = info;
                 msg.mText = body;
             }
         }
@@ -419,11 +412,11 @@ public class EmailSyncAdapter extends AbstractSyncAdapter {
         }
 
         @Override
-        public void responsesParser() throws IOException {
+        public void responsesParser() {
         }
 
         @Override
-        public void commit() throws IOException {
+        public void commit() {
             int notifyCount = 0;
 
             // Use a batch operation to handle the changes
