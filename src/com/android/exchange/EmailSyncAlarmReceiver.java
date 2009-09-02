@@ -19,7 +19,6 @@ package com.android.exchange;
 
 import com.android.email.provider.EmailContent.Message;
 import com.android.email.provider.EmailContent.MessageColumns;
-import com.android.email.provider.EmailContent.SyncColumns;
 
 import android.content.BroadcastReceiver;
 import android.content.ContentResolver;
@@ -47,7 +46,7 @@ import java.util.ArrayList;
  *
  */
 public class EmailSyncAlarmReceiver extends BroadcastReceiver {
-    final String[] MAILBOX_DATA_PROJECTION = {MessageColumns.MAILBOX_KEY, SyncColumns.DATA};
+    final String[] MAILBOX_DATA_PROJECTION = {MessageColumns.MAILBOX_KEY};
     private static String TAG = "EmailSyncAlarm";
 
     @Override

@@ -57,8 +57,8 @@ public class EmailProvider extends ContentProvider {
 
     // Any changes to the database format *must* include update-in-place code.
 
-    public static final int DATABASE_VERSION = 1;
-    public static final int BODY_DATABASE_VERSION = 1;
+    public static final int DATABASE_VERSION = 2;
+    public static final int BODY_DATABASE_VERSION = 2;
 
     public static final String EMAIL_AUTHORITY = "com.android.email.provider";
 
@@ -249,21 +249,15 @@ public class EmailProvider extends ContentProvider {
         String messageColumns = MessageColumns.DISPLAY_NAME + " text, "
             + MessageColumns.TIMESTAMP + " integer, "
             + MessageColumns.SUBJECT + " text, "
-            + MessageColumns.PREVIEW + " text, "
             + MessageColumns.FLAG_READ + " integer, "
             + MessageColumns.FLAG_LOADED + " integer, "
             + MessageColumns.FLAG_FAVORITE + " integer, "
             + MessageColumns.FLAG_ATTACHMENT + " integer, "
             + MessageColumns.FLAGS + " integer, "
-            + MessageColumns.TEXT_INFO + " text, "
-            + MessageColumns.HTML_INFO + " text, "
             + MessageColumns.CLIENT_ID + " integer, "
             + MessageColumns.MESSAGE_ID + " text, "
-            + MessageColumns.THREAD_ID + " text, "
             + MessageColumns.MAILBOX_KEY + " integer, "
             + MessageColumns.ACCOUNT_KEY + " integer, "
-            + MessageColumns.REFERENCE_KEY + " integer, "
-            + MessageColumns.SENDER_LIST + " text, "
             + MessageColumns.FROM_LIST + " text, "
             + MessageColumns.TO_LIST + " text, "
             + MessageColumns.CC_LIST + " text, "
@@ -274,22 +268,14 @@ public class EmailProvider extends ContentProvider {
         // This String and the following String MUST have the same columns, except for the type
         // of those columns!
         String createString = " (" + EmailContent.RECORD_ID + " integer primary key autoincrement, "
-            + SyncColumns.ACCOUNT_KEY + " integer, "
             + SyncColumns.SERVER_ID + " integer, "
-            + SyncColumns.SERVER_VERSION + " integer, "
-            + SyncColumns.DATA + " text, "
-            + SyncColumns.DIRTY_COUNT + " integer, "
             + messageColumns;
 
         // For the updated and deleted tables, the id is assigned, but we do want to keep track
         // of the ORDER of updates using an autoincrement primary key.  We use the DATA column
         // at this point; it has no other function
         String altCreateString = " (" + EmailContent.RECORD_ID + " integer unique, "
-            + SyncColumns.ACCOUNT_KEY + " integer, "
             + SyncColumns.SERVER_ID + " integer, "
-            + SyncColumns.SERVER_VERSION + " integer, "
-            + SyncColumns.DATA + " integer primary key autoincrement, "
-            + SyncColumns.DIRTY_COUNT + " integer, "
             + messageColumns;
 
         // The three tables have the same schema
@@ -492,7 +478,9 @@ public class EmailProvider extends ContentProvider {
         String s = " (" + EmailContent.RECORD_ID + " integer primary key autoincrement, "
             + BodyColumns.MESSAGE_KEY + " integer, "
             + BodyColumns.HTML_CONTENT + " text, "
-            + BodyColumns.TEXT_CONTENT + " text"
+            + BodyColumns.TEXT_CONTENT + " text, "
+            + BodyColumns.HTML_REPLY + " text, "
+            + BodyColumns.TEXT_REPLY + " text"
             + ");";
         db.execSQL("create table " + Body.TABLE_NAME + s);
         db.execSQL(createIndex(Body.TABLE_NAME, BodyColumns.MESSAGE_KEY));
@@ -742,10 +730,6 @@ public class EmailProvider extends ContentProvider {
             case MAILBOX:
             case ACCOUNT:
             case HOSTAUTH:
-                // Make sure all new message records have dirty count of 0
-                if (match == MESSAGE) {
-                    values.put(SyncColumns.DIRTY_COUNT, 0);
-                }
                 id = db.insert(TABLE_NAMES[table], "foo", values);
                 resultUri = ContentUris.withAppendedId(uri, id);
                 break;

@@ -496,13 +496,10 @@ public class SyncManager extends Service implements Runnable {
     }
 
     class SyncedMessageObserver extends ContentObserver {
-        long maxChangedId = 0;
-        long maxDeletedId = 0;
         Intent syncAlarmIntent = new Intent(INSTANCE, EmailSyncAlarmReceiver.class);
         PendingIntent syncAlarmPendingIntent =
             PendingIntent.getBroadcast(INSTANCE, 0, syncAlarmIntent, 0);
         AlarmManager alarmManager = (AlarmManager)INSTANCE.getSystemService(Context.ALARM_SERVICE);
-        final String[] MAILBOX_DATA_PROJECTION = {MessageColumns.MAILBOX_KEY, SyncColumns.DATA};
 
         public SyncedMessageObserver(Handler handler) {
             super(handler);
