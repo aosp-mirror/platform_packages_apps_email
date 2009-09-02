@@ -20,49 +20,64 @@
     android:layout_height="?android:attr/listPreferredItemHeight"
     android:orientation="horizontal"
     android:gravity="center_vertical"
-    android:paddingRight="4dip" >
+    android:paddingRight="4dip">
     <View
         android:id="@+id/chip"
         android:background="@drawable/appointment_indicator_leftside_1"
         android:layout_width="4dip"
         android:layout_height="56dip"
         android:layout_centerVertical="true" />
+    <ImageView
+        android:id="@+id/folder_icon"
+        android:layout_width="30dip"
+        android:layout_height="30dip"
+        android:layout_alignParentRight="true"
+        android:layout_marginLeft="4dip"
+        android:layout_marginRight="4dip"
+        android:minWidth="30dip"
+        android:src="@drawable/ic_list_folder" />
     <LinearLayout
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_weight="1"
-        android:layout_marginLeft="8dip"
-        android:orientation="vertical"
-        android:gravity="center_vertical">
-        <TextView
-            android:id="@+id/name"
-            android:textAppearance="?android:attr/textAppearanceMedium"
-            android:textColor="?android:attr/textColorPrimary"
+        android:orientation="horizontal"
+        android:gravity="center_vertical"
+        android:layout_weight="1">
+        <LinearLayout
+            android:id="@+id/subject"
             android:layout_width="wrap_content"
-            android:layout_height="wrap_content" />
+            android:layout_height="wrap_content"
+            android:layout_marginLeft="8dip"
+            android:gravity="center_vertical"
+            android:orientation="vertical">
+            <TextView
+                android:id="@+id/name"
+                android:textAppearance="?android:attr/textAppearanceMedium"
+                android:textColor="?android:attr/textColorPrimary"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content" />
+            <TextView
+                android:id="@+id/status"
+                android:textAppearance="?android:attr/textAppearanceSmall"
+                android:textColor="?android:attr/textColorTertiary"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content" />
+        </LinearLayout>
         <TextView
-            android:id="@+id/status"
-            android:textAppearance="?android:attr/textAppearanceSmall"
-            android:textColor="?android:attr/textColorTertiary"
+            android:id="@+id/new_message_count"
             android:layout_width="wrap_content"
-            android:layout_height="wrap_content" />
+            android:layout_height="wrap_content"
+            android:layout_marginLeft="4dip"
+            style="@style/unreadCount"/>
     </LinearLayout>
-    <TextView
-        android:id="@+id/new_message_count"
-        android:ellipsize="end"
-        android:singleLine="true"
-        android:textAppearance="?android:attr/textAppearanceMedium"
-        android:textColor="?android:attr/textColorPrimary"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:background="@drawable/text_box_light"
-        android:paddingLeft="10dip"
-        android:paddingRight="10dip"
-        android:minWidth="64dip"
-        android:gravity="right" />
     <ImageView
         android:id="@+id/folder_button"
-        android:layout_width="30dip"
-        android:layout_height="30dip"
-        android:src="@drawable/expander_ic_folder" />
+        android:layout_width="40dip"
+        android:layout_height="40dip"
+        android:layout_alignParentRight="true"
+        android:layout_marginLeft="4dip"
+        android:layout_marginRight="4dip"
+        android:minWidth="30dip"
+        android:paddingTop="5dip"
+        android:paddingLeft="5dip"
+        android:src="@drawable/btn_folder"/>
 </com.android.email.activity.AccountFolderListItem>
