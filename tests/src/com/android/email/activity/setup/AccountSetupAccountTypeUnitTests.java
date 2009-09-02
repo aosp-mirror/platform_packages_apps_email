@@ -16,8 +16,10 @@
 
 package com.android.email.activity.setup;
 
+import com.android.email.R;
 import com.android.email.mail.Store;
 import com.android.email.provider.EmailContent;
+import com.android.email.provider.EmailContent.Account;
 
 import android.content.ContentUris;
 import android.content.Context;
@@ -25,13 +27,12 @@ import android.content.Intent;
 import android.net.Uri;
 import android.test.ActivityUnitTestCase;
 import android.test.suitebuilder.annotation.SmallTest;
+import android.view.View;
 
 import java.util.HashSet;
 
 /**
  * This is a series of unit tests for the AccountSetupAccountType class.
- * 
- * This is just unit tests of simple calls - the activity is not instantiated
  */
 @SmallTest
 public class AccountSetupAccountTypeUnitTests 
@@ -42,7 +43,7 @@ public class AccountSetupAccountTypeUnitTests
 
     Context mContext;
     
-    private HashSet<EmailContent.Account> mAccounts = new HashSet<EmailContent.Account>();
+    private HashSet<Account> mAccounts = new HashSet<Account>();
     
     public AccountSetupAccountTypeUnitTests() {
         super(AccountSetupAccountType.class);
@@ -60,9 +61,8 @@ public class AccountSetupAccountTypeUnitTests
      */
     @Override
     protected void tearDown() throws Exception {
-        for (EmailContent.Account account : mAccounts) {
-            Uri uri = ContentUris.withAppendedId(
-                    EmailContent.Account.CONTENT_URI, account.mId);
+        for (Account account : mAccounts) {
+            Uri uri = ContentUris.withAppendedId(Account.CONTENT_URI, account.mId);
             mContext.getContentResolver().delete(uri, null, null);
         }
         
@@ -94,12 +94,22 @@ public class AccountSetupAccountTypeUnitTests
         info.mAccountInstanceLimit = 2;
         assertFalse("limit, reached", activity.checkAccountInstanceLimit(info));
     }
-    
+
+    /**
+     * Confirm that EAS is presented (supported in this release)
+     */
+    public void testEasOffered() {
+        Account acct1 = createTestAccount("scheme1");
+        AccountSetupAccountType activity = startActivity(getTestIntent(acct1), null, null);
+        View exchangeButton = activity.findViewById(R.id.exchange);
+        assertEquals(View.VISIBLE, exchangeButton.getVisibility());
+    }
+
     /**
      * Create a dummy account with minimal fields
      */
-    private EmailContent.Account createTestAccount(String scheme) {
-        EmailContent.Account account = new EmailContent.Account();
+    private Account createTestAccount(String scheme) {
+        Account account = new Account();
         account.setStoreUri(mContext, scheme + "://user:pass@server.com:123");
         account.save(mContext);
         mAccounts.add(account);
