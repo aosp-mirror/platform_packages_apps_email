@@ -16,13 +16,8 @@
 
 package com.android.email.mail.store;
 
-import com.android.email.Email;
 import com.android.email.mail.AuthenticationFailedException;
-import com.android.email.mail.FetchProfile;
-import com.android.email.mail.Flag;
 import com.android.email.mail.Folder;
-import com.android.email.mail.Message;
-import com.android.email.mail.MessageRetrievalListener;
 import com.android.email.mail.MessagingException;
 import com.android.email.mail.Store;
 import com.android.email.mail.StoreSynchronizer;
@@ -44,25 +39,22 @@ import java.net.URISyntaxException;
 import java.util.HashMap;
 
 /**
- * This is a placeholder for use in Exchange implementations.  It is based on the notion of
- * lightweight adapter classes for Store, Folder, and Sender, and a common facade for the common
- * Transport code.
+ * Our Exchange service does not use the sender/store model.  This class exists for exactly two
+ * purposes, (1) to provide a hook for checking account connections, and (2) to return
+ * "AccountSetupExchange.class" for getSettingActivityClass().
  */
 public class ExchangeStore extends Store {
     public static final String LOG_TAG = "ExchangeStore";
 
-    private final Context mContext;
+    private Context mContext;
     private URI mUri;
-    private PersistentDataCallbacks mCallbacks;
-
     private final ExchangeTransport mTransport;
-    private final HashMap<String, Folder> mFolders = new HashMap<String, Folder>();
 
     /**
      * Factory method.
      */
     public static Store newInstance(String uri, Context context, PersistentDataCallbacks callbacks)
-    throws MessagingException {
+            throws MessagingException {
         return new ExchangeStore(uri, context, callbacks);
     }
 
@@ -71,7 +63,6 @@ public class ExchangeStore extends Store {
      *
      * @param _uri
      * @param application
-     * @throws MessagingException
      */
     private ExchangeStore(String _uri, Context context, PersistentDataCallbacks callbacks)
             throws MessagingException {
@@ -81,27 +72,8 @@ public class ExchangeStore extends Store {
         } catch (URISyntaxException e) {
             throw new MessagingException("Invalid uri for ExchangeStore");
         }
-        mCallbacks = callbacks;
-
-        String scheme = mUri.getScheme();
-        int connectionSecurity;
-        if (scheme.equals("eas")) {
-            connectionSecurity = ExchangeTransport.CONNECTION_SECURITY_NONE;
-        } else if (scheme.equals("eas+ssl+")) {
-            connectionSecurity = ExchangeTransport.CONNECTION_SECURITY_SSL_REQUIRED;
-        } else {
-            throw new MessagingException("Unsupported protocol");
-        }
 
         mTransport = ExchangeTransport.getInstance(mUri, context);
-    }
-
-    /**
-     * Retrieve the underlying transport.  Used primarily for testing.
-     * @return
-     */
-    /* package */ ExchangeTransport getTransport() {
-        return mTransport;
     }
 
     @Override
@@ -125,22 +97,13 @@ public class ExchangeStore extends Store {
     }
 
     @Override
-    public Folder getFolder(String name) throws MessagingException {
-        synchronized (mFolders) {
-            Folder folder = mFolders.get(name);
-            if (folder == null) {
-                folder = new ExchangeFolder(this, name);
-                mFolders.put(folder.getName(), folder);
-            }
-            return folder;
-        }
+    public Folder getFolder(String name) {
+        return null;
     }
 
     @Override
-    public Folder[] getPersonalNamespaces() throws MessagingException {
-        return new Folder[] {
-                getFolder(ExchangeTransport.FOLDER_INBOX),
-        };
+    public Folder[] getPersonalNamespaces() {
+        return null;
     }
 
     /**
@@ -185,12 +148,6 @@ public class ExchangeStore extends Store {
     }
 
     public static class ExchangeTransport {
-        public static final int CONNECTION_SECURITY_NONE = 0;
-        public static final int CONNECTION_SECURITY_SSL_REQUIRED = 1;
-
-        public static final String FOLDER_INBOX = Email.INBOX;
-
-        private static final String TAG = "ExchangeTransport";
         private final Context mContext;
 
         private String mHost;
@@ -278,164 +235,6 @@ public class ExchangeStore extends Store {
                 throw new MessagingException("Call to validate generated an exception", e);
             }
         }
-
-        /**
-         * Typical helper function:  Return existence of a given folder
-         */
-        public boolean isFolderAvailable(final String folder) {
-            return sFolderMap.containsKey(folder);
-        }
     }
-
-    public static class ExchangeFolder extends Folder {
-
-        private final ExchangeTransport mTransport;
-        @SuppressWarnings("unused")
-        private final ExchangeStore mStore;
-        @SuppressWarnings("unused")
-        private final String mName;
-
-        @SuppressWarnings("unused")
-        private PersistentDataCallbacks mPersistenceCallbacks;
-
-        public ExchangeFolder(ExchangeStore store, String name)
-                throws MessagingException {
-            mStore = store;
-            mTransport = store.getTransport();
-            mName = name;
-            if (!mTransport.isFolderAvailable(name)) {
-                throw new MessagingException("folder not supported: " + name);
-            }
-        }
-
-        @Override
-        public void appendMessages(Message[] messages) throws MessagingException {
-            // TODO Implement this function
-        }
-
-        @Override
-        public void close(boolean expunge) throws MessagingException {
-            mPersistenceCallbacks = null;
-            // TODO Implement this function
-        }
-
-        @Override
-        public void copyMessages(Message[] msgs, Folder folder, MessageUpdateCallbacks callbacks)
-                throws MessagingException {
-            // TODO Implement this function
-        }
-
-        @Override
-        public boolean create(FolderType type) throws MessagingException {
-            // TODO Implement this function
-            return false;
-        }
-
-        @Override
-        public void delete(boolean recurse) throws MessagingException {
-            // TODO Implement this function
-        }
-
-        @Override
-        public boolean exists() throws MessagingException {
-            // TODO Implement this function
-            return false;
-        }
-
-        @Override
-        public Message[] expunge() throws MessagingException {
-            // TODO Implement this function
-            return null;
-        }
-
-        @Override
-        public void fetch(Message[] messages, FetchProfile fp, MessageRetrievalListener listener)
-                throws MessagingException {
-            // TODO Implement this function
-        }
-
-        @Override
-        public Message getMessage(String uid) throws MessagingException {
-            // TODO Implement this function
-            return null;
-        }
-
-        @Override
-        public int getMessageCount() throws MessagingException {
-            // TODO Implement this function
-            return 0;
-        }
-
-        @Override
-        public Message[] getMessages(int start, int end, MessageRetrievalListener listener)
-                throws MessagingException {
-            // TODO Implement this function
-            return null;
-        }
-
-        @Override
-        public Message[] getMessages(MessageRetrievalListener listener) throws MessagingException {
-            // TODO Implement this function
-            return null;
-        }
-
-        @Override
-        public Message[] getMessages(String[] uids, MessageRetrievalListener listener)
-                throws MessagingException {
-            // TODO Implement this function
-            return null;
-        }
-
-        @Override
-        public OpenMode getMode() throws MessagingException {
-            // TODO Implement this function
-            return null;
-        }
-
-        @Override
-        public String getName() {
-            // TODO Implement this function
-            return null;
-        }
-
-        @Override
-        public Flag[] getPermanentFlags() throws MessagingException {
-            // TODO Implement this function
-            return null;
-        }
-
-        @Override
-        public int getUnreadMessageCount() throws MessagingException {
-            // TODO Implement this function
-            return 0;
-        }
-
-        @Override
-        public boolean isOpen() {
-            // TODO Implement this function
-            return false;
-        }
-
-        @Override
-        public void open(OpenMode mode, PersistentDataCallbacks callbacks)
-                throws MessagingException {
-            mPersistenceCallbacks = callbacks;
-            // TODO Implement this function
-        }
-
-        @Override
-        public void setFlags(Message[] messages, Flag[] flags, boolean value)
-                throws MessagingException {
-            // TODO Implement this function
-        }
-
-        @Override
-        public Message createMessage(String uid) {
-            // TODO Auto-generated method stub
-            return null;
-        }
-    }
-
-
 }
 
