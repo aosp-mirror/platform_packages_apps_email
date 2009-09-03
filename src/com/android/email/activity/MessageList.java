@@ -660,13 +660,20 @@ public class MessageList extends ListActivity implements OnItemClickListener, On
         return numChanged;
     }
 
-    private boolean testMultiple(Set<Long> selectedSet, int column_id) {
+    /**
+     * Test selected messages for showing appropriate labels
+     * @param selectedSet
+     * @param column_id
+     * @param defaultflag
+     * @return true when the specified flagged message is selected
+     */
+    private boolean testMultiple(Set<Long> selectedSet, int column_id, boolean defaultflag) {
         Cursor c = mListAdapter.getCursor();
         c.moveToPosition(-1);
         while (c.moveToNext()) {
             long id = c.getInt(MessageListAdapter.COLUMN_ID);
             if (selectedSet.contains(Long.valueOf(id))) {
-                if (c.getInt(column_id) != 0) {
+                if (c.getInt(column_id) == (defaultflag? 1 : 0)) {
                     return true;
                 }
             }
@@ -675,12 +682,15 @@ public class MessageList extends ListActivity implements OnItemClickListener, On
     }
 
     private void updateFooterButtonNames () {
-        if (testMultiple(mListAdapter.getSelectedSet(), MessageListAdapter.COLUMN_READ)) {
+        // Show "unread_action" when one or more read messages are selected.
+        if (testMultiple(mListAdapter.getSelectedSet(), MessageListAdapter.COLUMN_READ, true)) {
             mReadUnreadButton.setText(R.string.unread_action);
         } else {
             mReadUnreadButton.setText(R.string.read_action);
         }
-        if (testMultiple(mListAdapter.getSelectedSet(), MessageListAdapter.COLUMN_FAVORITE)) {
+        // Show "set_star_action" when one or more un-starred messages are selected.
+        if (testMultiple(mListAdapter.getSelectedSet(),
+                MessageListAdapter.COLUMN_FAVORITE, false)) {
             mFavoriteButton.setText(R.string.set_star_action);
         } else {
             mFavoriteButton.setText(R.string.remove_star_action);
