@@ -16,6 +16,12 @@
 
 package com.android.email;
 
+import com.android.email.provider.EmailContent.Mailbox;
+import com.android.email.R;
+import com.android.email.Utility;
+
+import android.content.Context;
+import android.test.AndroidTestCase;
 import android.test.suitebuilder.annotation.SmallTest;
 
 import junit.framework.TestCase;
@@ -25,7 +31,7 @@ import junit.framework.TestCase;
  * complete - no server(s) required.
  */
 @SmallTest
-public class UtilityUnitTests extends TestCase {
+public class UtilityUnitTests extends AndroidTestCase {
 
     /**
      * Tests of the IMAP quoting rules function.
@@ -41,5 +47,39 @@ public class UtilityUnitTests extends TestCase {
         // Quoting internal \ with \\
         assertEquals("\"ab\\\\cd\"", Utility.imapQuoted("ab\\cd"));
     }
-    
+    /**
+     * Tests of the syncronization of array and types of the display folder names
+     */
+    public void testGetDisplayName() {
+        Context context = getContext();
+        String expect, name;
+        expect = context.getString(R.string.special_mailbox_display_name_inbox);
+        name = Utility.FolderProperties.getInstance(context).getDisplayName(Mailbox.TYPE_INBOX);
+        assertEquals(expect, name);
+        expect = null;
+        name = Utility.FolderProperties.getInstance(context).getDisplayName(Mailbox.TYPE_MAIL);
+        assertEquals(expect, name);
+        expect = null;
+        name = Utility.FolderProperties.getInstance(context).getDisplayName(Mailbox.TYPE_PARENT);
+        assertEquals(expect, name);
+        expect = context.getString(R.string.special_mailbox_display_name_drafts);
+        name = Utility.FolderProperties.getInstance(context).getDisplayName(Mailbox.TYPE_DRAFTS);
+        assertEquals(expect, name);
+        expect = context.getString(R.string.special_mailbox_display_name_outbox);
+        name = Utility.FolderProperties.getInstance(context).getDisplayName(Mailbox.TYPE_OUTBOX);
+        assertEquals(expect, name);
+        expect = context.getString(R.string.special_mailbox_display_name_sent);
+        name = Utility.FolderProperties.getInstance(context).getDisplayName(Mailbox.TYPE_SENT);
+        assertEquals(expect, name);
+        expect = context.getString(R.string.special_mailbox_display_name_trash);
+        name = Utility.FolderProperties.getInstance(context).getDisplayName(Mailbox.TYPE_TRASH);
+        assertEquals(expect, name);
+        expect = context.getString(R.string.special_mailbox_display_name_junk);
+        name = Utility.FolderProperties.getInstance(context).getDisplayName(Mailbox.TYPE_JUNK);
+        assertEquals(expect, name);
+        // Testing illegal index
+        expect = null;
+        name = Utility.FolderProperties.getInstance(context).getDisplayName(8);
+        assertEquals(expect, name);
+    }
 }
