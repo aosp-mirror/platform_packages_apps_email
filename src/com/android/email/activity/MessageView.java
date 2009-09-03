@@ -366,9 +366,9 @@ public class MessageView extends Activity implements OnClickListener {
         if (mMessage != null) {
             startPresenceCheck();
 
-            // get a new next/prev cursor, but only if we already had one
+            // get a new next/prev cursor, but only if mailbox is set
             // (otherwise it's "too soon" and other pathways will cause it to be loaded)
-            if (mLoadPrevNextTask == null && mPrevNextCursor != null) {
+            if (mLoadPrevNextTask == null && mMailboxId != -1) {
                 mLoadPrevNextTask = new LoadPrevNextTask(mMailboxId);
                 mLoadPrevNextTask.execute();
             }
@@ -379,10 +379,14 @@ public class MessageView extends Activity implements OnClickListener {
     public void onPause() {
         super.onPause();
         mController.removeResultCallback(mControllerCallback);
-        // Manage the next/prev cursor
+        closePrevNextCursor();
+    }
+
+    private void closePrevNextCursor() {
         if (mPrevNextCursor != null) {
             mPrevNextCursor.unregisterContentObserver(mNextPrevObserver);
-            mPrevNextCursor.deactivate();
+            mPrevNextCursor.close();
+            mPrevNextCursor = null;
         }
     }
 
@@ -416,12 +420,7 @@ public class MessageView extends Activity implements OnClickListener {
             mMessageContentView.destroy();
             mMessageContentView = null;
         }
-        // Destroy the next/prev cursor if we're holding one
-        // Note, the observer was already unregistered in onPause()
-        if (mPrevNextCursor != null) {
-            mPrevNextCursor.close();
-            mPrevNextCursor = null;
-        }
+        // the next/prev cursor was closed in onPause()
     }
 
     private void onDelete() {
@@ -970,10 +969,7 @@ public class MessageView extends Activity implements OnClickListener {
                 return;
             }
             // replace the older cursor if there is one
-            if (mPrevNextCursor != null) {
-                mPrevNextCursor.unregisterContentObserver(MessageView.this.mNextPrevObserver);
-                mPrevNextCursor.close();
-            }
+            closePrevNextCursor();
             mPrevNextCursor = cursor;
             mPrevNextCursor.registerContentObserver(MessageView.this.mNextPrevObserver);
             repositionPrevNextCursor();
