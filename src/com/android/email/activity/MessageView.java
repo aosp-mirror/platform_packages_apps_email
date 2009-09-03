@@ -38,6 +38,7 @@ import android.app.ProgressDialog;
 import android.content.ActivityNotFoundException;
 import android.content.Context;
 import android.content.Intent;
+import android.database.ContentObserver;
 import android.database.Cursor;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
@@ -75,8 +76,7 @@ import java.util.Date;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
-public class MessageView extends Activity
-        implements OnClickListener {
+public class MessageView extends Activity implements OnClickListener {
     private static final String EXTRA_MESSAGE_ID = "com.android.email.MessageView_message_id";
     private static final String EXTRA_MAILBOX_ID = "com.android.email.MessageView_mailbox_id";
     
@@ -144,6 +144,7 @@ public class MessageView extends Activity
     private View mNext;
     private LoadPrevNextTask mLoadPrevNextTask;
     private Cursor mPrevNextCursor;
+    private ContentObserver mNextPrevObserver;
 
     // contains the HTML body. Is used by LoadAttachmentTask to display inline images.
     private String mHtmlText;
@@ -301,37 +302,6 @@ public class MessageView extends Activity
         context.startActivity(i);
     }
 
-    /**
-     * Re-init everything needed for changing message.
-     */
-    private void messageChanged() {
-        cancelAllTasks();
-        setTitle("");
-        mAttachments.setVisibility(View.GONE);
-        mAttachmentIcon.setVisibility(View.GONE);
-
-        // Start an AsyncTask to make a new cursor and load the message
-        mLoadMessageTask = new LoadMessageTask(mMessageId, true);
-        mLoadMessageTask.execute();
-        updatePrevNextArrows(mPrevNextCursor);
-    }
-
-    private void updatePrevNextArrows(Cursor cursor) {
-        if (cursor != null) {
-            boolean hasPrev, hasNext;
-            if (cursor.isAfterLast() || cursor.isBeforeFirst()) {
-                // The cursor not being on a message means that the current message was not found.
-                // While this should not happen, simply disable prev/next arrows in that case.
-                hasPrev = hasNext = false;
-            } else {
-                hasPrev = !cursor.isFirst();
-                hasNext = !cursor.isLast();
-            }
-            mPrevious.setVisibility(hasPrev ? View.VISIBLE : View.GONE);
-            mNext.setVisibility(hasNext ? View.VISIBLE : View.GONE);
-        }
-    }
-
     @Override
     public void onCreate(Bundle icicle) {
         super.onCreate(icicle);
@@ -384,6 +354,7 @@ public class MessageView extends Activity
 
         mController = Controller.getInstance(getApplication());
 
+        mNextPrevObserver = new NextPrevObserver(mHandler);
         messageChanged();
     }
 
@@ -394,6 +365,13 @@ public class MessageView extends Activity
         mController.addResultCallback(mControllerCallback);
         if (mMessage != null) {
             startPresenceCheck();
+
+            // get a new next/prev cursor, but only if we already had one
+            // (otherwise it's "too soon" and other pathways will cause it to be loaded)
+            if (mLoadPrevNextTask == null && mPrevNextCursor != null) {
+                mLoadPrevNextTask = new LoadPrevNextTask(mMailboxId);
+                mLoadPrevNextTask.execute();
+            }
         }
     }
 
@@ -401,6 +379,11 @@ public class MessageView extends Activity
     public void onPause() {
         super.onPause();
         mController.removeResultCallback(mControllerCallback);
+        // Manage the next/prev cursor
+        if (mPrevNextCursor != null) {
+            mPrevNextCursor.unregisterContentObserver(mNextPrevObserver);
+            mPrevNextCursor.deactivate();
+        }
     }
 
     private static void cancelTask(AsyncTask<?, ?, ?> task) {
@@ -433,6 +416,8 @@ public class MessageView extends Activity
             mMessageContentView.destroy();
             mMessageContentView = null;
         }
+        // Destroy the next/prev cursor if we're holding one
+        // Note, the observer was already unregistered in onPause()
         if (mPrevNextCursor != null) {
             mPrevNextCursor.close();
             mPrevNextCursor = null;
@@ -692,6 +677,78 @@ public class MessageView extends Activity
         return true;
     }
 
+    /**
+     * Re-init everything needed for changing message.
+     */
+    private void messageChanged() {
+        cancelAllTasks();
+        setTitle("");
+        mMessageContentView.loadUrl("file:///android_asset/empty.html");
+        mAttachments.removeAllViews();
+        mAttachments.setVisibility(View.GONE);
+        mAttachmentIcon.setVisibility(View.GONE);
+
+        // Start an AsyncTask to make a new cursor and load the message
+        mLoadMessageTask = new LoadMessageTask(mMessageId, true);
+        mLoadMessageTask.execute();
+        updatePrevNextArrows(mPrevNextCursor);
+    }
+
+    /**
+     * Reposition the next/prev cursor.  Finish() the activity if we are no longer
+     * in the list.  Update the UI arrows as appropriate.
+     */
+    private void repositionPrevNextCursor() {
+        // position the cursor on the current message
+        mPrevNextCursor.moveToPosition(-1);
+        while (mPrevNextCursor.moveToNext() && mPrevNextCursor.getLong(0) != mMessageId) {
+        }
+        if (mPrevNextCursor.isAfterLast()) {
+            // overshoot - get out now, the list is no longer valid
+            finish();
+        }
+        updatePrevNextArrows(mPrevNextCursor);
+    }
+
+    /**
+     * Based on the current position of the prev/next cursor, update the prev / next arrows.
+     */
+    private void updatePrevNextArrows(Cursor cursor) {
+        if (cursor != null) {
+            boolean hasPrev, hasNext;
+            if (cursor.isAfterLast() || cursor.isBeforeFirst()) {
+                // The cursor not being on a message means that the current message was not found.
+                // While this should not happen, simply disable prev/next arrows in that case.
+                hasPrev = hasNext = false;
+            } else {
+                hasPrev = !cursor.isFirst();
+                hasNext = !cursor.isLast();
+            }
+            mPrevious.setVisibility(hasPrev ? View.VISIBLE : View.GONE);
+            mNext.setVisibility(hasNext ? View.VISIBLE : View.GONE);
+        }
+    }
+
+    /**
+     * This observer is used to watch for external changes to the next/prev list
+     */
+    private class NextPrevObserver extends ContentObserver {
+
+        public NextPrevObserver(Handler handler) {
+            super(handler);
+        }
+
+        @Override
+        public void onChange(boolean selfChange) {
+            // get a new next/prev cursor, but only if we already had one
+            // (otherwise it's "too soon" and other pathways will cause it to be loaded)
+            if (mLoadPrevNextTask == null && mPrevNextCursor != null) {
+                mLoadPrevNextTask = new LoadPrevNextTask(mMailboxId);
+                mLoadPrevNextTask.execute();
+            }
+        }
+    }
+
     private Bitmap getPreviewIcon(AttachmentInfo attachment) {
         try {
             return BitmapFactory.decodeStream(
@@ -897,7 +954,7 @@ public class MessageView extends Activity
         protected Cursor doInBackground(Void... params) {
             String selection =
                 Utility.buildMailboxIdSelection(getContentResolver(), mLocalMailboxId);
-            Cursor c = MessageView.this.managedQuery(EmailContent.Message.CONTENT_URI,
+            Cursor c = getContentResolver().query(EmailContent.Message.CONTENT_URI,
                     EmailContent.ID_PROJECTION,
                     selection, null,
                     EmailContent.MessageColumns.TIMESTAMP + " DESC");
@@ -906,13 +963,20 @@ public class MessageView extends Activity
 
         @Override
         protected void onPostExecute(Cursor cursor) {
+            // remove the reference to ourselves so another one can be launched
+            MessageView.this.mLoadPrevNextTask = null;
+
             if (cursor.isClosed()) {
                 return;
             }
-            // position the cursor on the current message
-            while (cursor.moveToNext() && cursor.getLong(0) != mMessageId);
+            // replace the older cursor if there is one
+            if (mPrevNextCursor != null) {
+                mPrevNextCursor.unregisterContentObserver(MessageView.this.mNextPrevObserver);
+                mPrevNextCursor.close();
+            }
             mPrevNextCursor = cursor;
-            updatePrevNextArrows(mPrevNextCursor);
+            mPrevNextCursor.registerContentObserver(MessageView.this.mNextPrevObserver);
+            repositionPrevNextCursor();
         }
     }
 
@@ -1060,7 +1124,7 @@ public class MessageView extends Activity
         if (mMailboxId == -1) {
             mMailboxId = message.mMailboxKey;
         }
-        // only start LoadPrevNextTask once
+        // only start LoadPrevNextTask here if it's the first time
         if (mPrevNextCursor == null) {
             mLoadPrevNextTask = new LoadPrevNextTask(mMailboxId);
             mLoadPrevNextTask.execute();
