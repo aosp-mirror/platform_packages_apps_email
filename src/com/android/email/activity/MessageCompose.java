@@ -72,6 +72,7 @@ import android.widget.Toast;
 import java.io.Serializable;
 import java.io.UnsupportedEncodingException;
 import java.net.URLDecoder;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
@@ -104,6 +105,11 @@ public class MessageCompose extends Activity implements OnClickListener, OnFocus
 
     private static final Pattern PATTERN_START_OF_LINE = Pattern.compile("(?m)^");
     private static final Pattern PATTERN_ENDLINE_CRLF = Pattern.compile("\r\n");
+
+    private static final String[] ATTACHMENT_META_COLUMNS = {
+        OpenableColumns.DISPLAY_NAME,
+        OpenableColumns.SIZE
+    };
 
     private Account mAccount;
 
@@ -258,7 +264,8 @@ public class MessageCompose extends Activity implements OnClickListener, OnFocus
         // Handle the various intents that launch the message composer
         if (Intent.ACTION_VIEW.equals(action) 
                 || Intent.ACTION_SENDTO.equals(action) 
-                || Intent.ACTION_SEND.equals(action)) {
+                || Intent.ACTION_SEND.equals(action)
+                || Intent.ACTION_SEND_MULTIPLE.equals(action)) {
             setAccount(intent);
             // Use the fields found in the Intent to prefill as much of the message as possible
             initFromIntent(intent);
@@ -800,8 +807,7 @@ public class MessageCompose extends Activity implements OnClickListener, OnFocus
         String name = null;
         ContentResolver contentResolver = getContentResolver();
         Cursor metadataCursor = contentResolver.query(uri,
-                new String[]{ OpenableColumns.DISPLAY_NAME, OpenableColumns.SIZE },
-                null, null, null);
+                ATTACHMENT_META_COLUMNS, null, null, null);
         if (metadataCursor != null) {
             try {
                 if (metadataCursor.moveToFirst()) {
@@ -1018,6 +1024,23 @@ public class MessageCompose extends Activity implements OnClickListener, OnFocus
             if (stream != null && type != null) {
                 if (MimeUtility.mimeTypeMatches(type, Email.ACCEPTABLE_ATTACHMENT_SEND_TYPES)) {
                     addAttachment(stream);
+                }
+            }
+        }
+
+        if (Intent.ACTION_SEND_MULTIPLE.equals(intent.getAction()) 
+                && intent.hasExtra(Intent.EXTRA_STREAM)) {
+            ArrayList<Parcelable> list = intent.getParcelableArrayListExtra(Intent.EXTRA_STREAM);
+            if (list != null) {
+                for (Parcelable parcelable : list) {
+                    Uri uri = (Uri) parcelable;
+                    if (uri != null) {
+                        Attachment attachment = loadAttachmentInfo(uri);
+                        if (MimeUtility.mimeTypeMatches(attachment.mMimeType, 
+                                                        Email.ACCEPTABLE_ATTACHMENT_SEND_TYPES)) {
+                            addAttachment(attachment);
+                        }
+                    }
                 }
             }
         }
