@@ -1736,6 +1736,8 @@ public abstract class EmailContent {
         // Types of mailboxes.  The list is ordered to match a typical UI presentation, e.g.
         // placing the inbox at the top.
         // The "main" mailbox for the account, almost always referred to as "Inbox"
+        // Arrays of "special_mailbox_display_names" and "special_mailbox_icons" are depends on
+        // types Id of mailboxes.
         public static final int TYPE_INBOX = 0;
         // Types of mailboxes
         // Holds mail (generic)

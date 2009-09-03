@@ -329,7 +329,7 @@ public class Utility {
          * @param type
          * @return icon's drawable
          */
-        public synchronized Drawable getIconIds(int type) {
+        public Drawable getIconIds(int type) {
             if (type < mSpecialMailboxDrawable.length()) {
                 return mSpecialMailboxDrawable.getDrawable(type);
             }
