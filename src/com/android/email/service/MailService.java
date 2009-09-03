@@ -49,6 +49,7 @@ import java.util.HashMap;
 public class MailService extends Service {
     /** DO NOT CHECK IN "TRUE" */
     private static final boolean DEBUG_FORCE_QUICK_REFRESH = false;        // force 1-minute refresh
+    private static final String LOG_TAG = "Email-MailService";
 
     public static int NEW_MESSAGE_NOTIFICATION_ID = 1;
 
@@ -152,15 +153,15 @@ public class MailService extends Service {
         controller.addResultCallback(mControllerCallback);
 
         if (ACTION_CHECK_MAIL.equals(action)) {
-            if (Config.LOGD && Email.DEBUG) {
-                Log.d(Email.LOG_TAG, "*** MailService: checking mail");
-            }
             // If we have the data, restore the last-sync-times for each account
             // These are cached in the wakeup intent in case the process was killed.
             restoreSyncReports(intent);
 
             // Sync a specific account if given
             long checkAccountId = intent.getLongExtra(EXTRA_CHECK_ACCOUNT, -1);
+            if (Config.LOGD && Email.DEBUG) {
+                Log.d(LOG_TAG, "action: check mail for id=" + checkAccountId);
+            }
             if (checkAccountId != -1) {
                 // launch an account sync in the controller
                 syncOneAccount(controller, checkAccountId, startId);
@@ -173,14 +174,14 @@ public class MailService extends Service {
         }
         else if (ACTION_CANCEL.equals(action)) {
             if (Config.LOGD && Email.DEBUG) {
-                Log.d(Email.LOG_TAG, "*** MailService: cancel");
+                Log.d(LOG_TAG, "action: cancel");
             }
             cancel();
             stopSelf(startId);
         }
         else if (ACTION_RESCHEDULE.equals(action)) {
             if (Config.LOGD && Email.DEBUG) {
-                Log.d(Email.LOG_TAG, "*** MailService: reschedule");
+                Log.d(LOG_TAG, "action: reschedule");
             }
             AlarmManager alarmManager = (AlarmManager)getSystemService(Context.ALARM_SERVICE);
             reschedule(alarmManager);
@@ -203,7 +204,7 @@ public class MailService extends Service {
                 c.close();
             }
             if (Config.LOGD && Email.DEBUG) {
-                Log.d(Email.LOG_TAG, "*** MailService: notify accountId=" + Long.toString(accountId)
+                Log.d(LOG_TAG, "notify accountId=" + Long.toString(accountId)
                         + " count=" + newMessageCount);
             }
             if (accountId != -1) {
@@ -279,10 +280,15 @@ public class MailService extends Service {
 
             if (nextAccount == null) {
                 alarmMgr.cancel(pi);
-                Log.d(Email.LOG_TAG, "alarm cancel - no account to check");
+                if (Config.LOGD && Email.DEBUG) {
+                    Log.d(LOG_TAG, "reschedule: alarm cancel - no account to check");
+                }
             } else {
                 alarmMgr.set(AlarmManager.ELAPSED_REALTIME_WAKEUP, nextCheckTime, pi);
-                Log.d(Email.LOG_TAG, "alarm set at " + nextCheckTime + " for " + nextAccount);
+                if (Config.LOGD && Email.DEBUG) {
+                    Log.d(LOG_TAG, "reschedule: alarm set at " + nextCheckTime
+                            + " for " + nextAccount);
+                }
             }
         }
     }
@@ -418,7 +424,7 @@ public class MailService extends Service {
             AccountSyncReport report = mSyncReports.get(accountId);
             if (report == null) {
                 // discard result - there is no longer an account with this id
-                Log.d(Email.LOG_TAG, "No account to update for id=" + Long.toString(accountId));
+                Log.d(LOG_TAG, "No account to update for id=" + Long.toString(accountId));
                 return null;
             }
 
@@ -430,7 +436,9 @@ public class MailService extends Service {
             if (newCount != -1) {
                 report.numNewMessages = newCount;
             }
-            Log.d(Email.LOG_TAG, "update account " + report.toString());
+            if (Config.LOGD && Email.DEBUG) {
+                Log.d(LOG_TAG, "update account " + report.toString());
+            }
             return report;
         }
     }
@@ -448,7 +456,7 @@ public class MailService extends Service {
         synchronized (mSyncReports) {
             long[] accountInfo = restoreIntent.getLongArrayExtra(EXTRA_ACCOUNT_INFO);
             if (accountInfo == null) {
-                Log.d(Email.LOG_TAG, "no data in intent to restore");
+                Log.d(LOG_TAG, "no data in intent to restore");
                 return;
             }
             int accountInfoIndex = 0;
@@ -460,7 +468,9 @@ public class MailService extends Service {
                 if (report != null) {
                     if (report.prevSyncTime == 0) {
                         report.prevSyncTime = prevSync;
-                        Log.d(Email.LOG_TAG, "restore prev sync for account" + report);
+                        if (Config.LOGD && Email.DEBUG) {
+                            Log.d(LOG_TAG, "restore prev sync for account" + report);
+                        }
                     }
                 }
             }
@@ -479,6 +489,10 @@ public class MailService extends Service {
 
         public void updateMailboxCallback(MessagingException result, long accountId,
                 long mailboxId, int progress, int numNewMessages) {
+            if (Config.LOGD && Email.DEBUG) {
+                Log.d(LOG_TAG, "updateMailboxCallback result=" + result
+                        + " accountId=" + accountId);
+            }
             if (result == null) {
                 updateAccountReport(accountId, numNewMessages);
                 if (numNewMessages > 0) {
@@ -495,6 +509,10 @@ public class MailService extends Service {
 
         public void serviceCheckMailCallback(MessagingException result, long accountId,
                 long mailboxId, int progress, long tag) {
+            if (Config.LOGD && Email.DEBUG) {
+                Log.d(LOG_TAG, "serviceCheckMailCallback result=" + result
+                        + " accountId=" + accountId + " progress=" + progress);
+            }
             if (progress == 100) {
                 AlarmManager alarmManager = (AlarmManager)getSystemService(Context.ALARM_SERVICE);
                 reschedule(alarmManager);
