@@ -18,19 +18,19 @@ package com.android.email.activity.setup;
 
 import com.android.email.Account;
 import com.android.email.Preferences;
+import com.android.email.R;
 import com.android.email.mail.Store;
 
 import android.content.Context;
 import android.content.Intent;
 import android.test.ActivityUnitTestCase;
 import android.test.suitebuilder.annotation.SmallTest;
+import android.view.View;
 
 import java.util.HashSet;
 
 /**
  * This is a series of unit tests for the AccountSetupAccountType class.
- * 
- * This is just unit tests of simple calls - the activity is not instantiated
  */
 @SmallTest
 public class AccountSetupAccountTypeUnitTests 
@@ -91,13 +91,23 @@ public class AccountSetupAccountTypeUnitTests
         info.mAccountInstanceLimit = 2;
         assertFalse("limit, reached", activity.checkAccountInstanceLimit(info));
     }
-    
+
+    /**
+     * Confirm that EAS is not presented (not supported in this release)
+     */
+    public void testEasOffered() {
+        Account acct1 = createTestAccount("scheme1");
+        AccountSetupAccountType activity = startActivity(getTestIntent(acct1), null, null);
+        View exchangeButton = activity.findViewById(R.id.exchange);
+        assertEquals(View.GONE, exchangeButton.getVisibility());
+    }
+
     /**
      * Create a dummy account with minimal fields
      */
     private Account createTestAccount(String scheme) {
         Account account = new Account(mContext);
-        account.setStoreUri(scheme + "://user:pass@server.com:port");
+        account.setStoreUri(scheme + "://user:pass@server.com:999");
         account.save(mPreferences);
         mAccounts.add(account);
         return account;

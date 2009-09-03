@@ -18,6 +18,7 @@ package com.android.email.mail;
 
 import android.test.AndroidTestCase;
 import android.test.suitebuilder.annotation.SmallTest;
+import org.apache.james.mime4j.decoder.DecoderUtil;
 
 /**
  * This is a series of unit tests for the Address class.  These tests must be locally
@@ -52,6 +53,27 @@ public class AddressUnitTests extends AndroidTestCase {
         mAddress1 = new Address("address1", "personal1");
         mAddress2 = new Address("address2", "");
         mAddress3 = new Address("address3", null);
+    }
+
+    // see documentation of DecoderUtil.decodeEncodedWords() for details
+    private String padEncoded(String s) {
+        return "=?UTF-8?B?" + s + "?=";
+    }
+
+    /**
+     * Generate strings of incresing lenght by taking prefix substrings.
+     * For each of them, compare with the decoding of the precomputed base-64 encoding.
+     */
+    public void testBase64Decode() {
+        String testString = "xyza\0\"";
+        String base64Encoded[] = {"", "eA==", "eHk=", "eHl6", "eHl6YQ==", "eHl6YQA=", "eHl6YQAi"};
+        int len = testString.length();
+        for (int i = 1; i <= len; ++i) {
+            String encoded = padEncoded(base64Encoded[i]);
+            String decoded = DecoderUtil.decodeEncodedWords(encoded);
+            String prefix = testString.substring(0, i);
+            assertEquals(""+i, prefix, decoded);
+        }
     }
 
     /**
