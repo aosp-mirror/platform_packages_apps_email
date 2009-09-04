@@ -383,12 +383,12 @@ public class MessageList extends ListActivity implements OnItemClickListener, On
     @Override
     public void onCreateContextMenu(ContextMenu menu, View v, ContextMenuInfo menuInfo) {
         super.onCreateContextMenu(menu, v, menuInfo);
-        // There is no context menu for the list footer
-        if (v == mListFooterView) {
-            return;
-        }
 
         AdapterView.AdapterContextMenuInfo info = (AdapterView.AdapterContextMenuInfo) menuInfo;
+        // There is no context menu for the list footer
+        if (info.targetView == mListFooterView) {
+            return;
+        }
         MessageListItem itemView = (MessageListItem) info.targetView;
 
         Cursor c = (Cursor) mListView.getItemAtPosition(info.position);
