@@ -57,7 +57,7 @@ public class EmailProvider extends ContentProvider {
 
     // Any changes to the database format *must* include update-in-place code.
 
-    public static final int DATABASE_VERSION = 2;
+    public static final int DATABASE_VERSION = 3;
     public static final int BODY_DATABASE_VERSION = 2;
 
     public static final String EMAIL_AUTHORITY = "com.android.email.provider";
@@ -416,7 +416,7 @@ public class EmailProvider extends ContentProvider {
     static void createMailboxTable(SQLiteDatabase db) {
         String s = " (" + EmailContent.RECORD_ID + " integer primary key autoincrement, "
             + MailboxColumns.DISPLAY_NAME + " text, "
-            + MailboxColumns.SERVER_ID + " text unique on conflict replace, "
+            + MailboxColumns.SERVER_ID + " text, "
             + MailboxColumns.PARENT_SERVER_ID + " text, "
             + MailboxColumns.ACCOUNT_KEY + " integer, "
             + MailboxColumns.TYPE + " integer, "
