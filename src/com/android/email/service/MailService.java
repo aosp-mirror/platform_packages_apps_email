@@ -143,6 +143,9 @@ public class MailService extends Service {
 
     @Override
     public int onStartCommand(Intent intent, int flags, int startId) {
+        // Force Email debugging until we catch this in the act, fix the bug, and REMOVE THIS
+        Email.DEBUG = true;
+
         super.onStartCommand(intent, flags, startId);
 
         // TODO this needs to be passed through the controller and back to us
@@ -339,8 +342,8 @@ public class MailService extends Service {
 
         @Override
         public String toString() {
-            return displayName + ": prevSync=" + prevSyncTime + " nextSync=" + nextSyncTime
-                    + " numNew=" + numNewMessages;
+            return displayName + ": id=" + accountId + " prevSync=" + prevSyncTime
+                    + " nextSync=" + nextSyncTime + " numNew=" + numNewMessages;
         }
     }
 
@@ -352,6 +355,9 @@ public class MailService extends Service {
      *   of a single account (e.g if it was created after the original list population)
      */
     /* package */ void setupSyncReports(long accountId) {
+        if (Config.LOGD && Email.DEBUG) {
+            Log.d(LOG_TAG, "setupSyncReports: id=" + accountId);
+        }
         synchronized (mSyncReports) {
             if (accountId == -1) {
                 // -1 == reload the list if empty, otherwise exit immediately
@@ -403,6 +409,10 @@ public class MailService extends Service {
 
                     // TODO lookup # new in inbox
                     mSyncReports.put(report.accountId, report);
+
+                    if (Config.LOGD && Email.DEBUG) {
+                        Log.d(LOG_TAG, "setupSyncReports: new:" + report);
+                    }
                 }
             } finally {
                 c.close();
