@@ -69,24 +69,16 @@
                 android:imeOptions="actionDone"
                 android:layout_height="wrap_content"
                 android:layout_width="fill_parent" />
-            <TextView
-                android:text="@string/account_setup_exchange_domain_label"
-                android:layout_height="wrap_content"
-                android:layout_width="fill_parent"
-                android:textAppearance="?android:attr/textAppearanceSmall"
-                android:textColor="?android:attr/textColorPrimary" />
-            <EditText
-                android:id="@+id/account_domain"
-                android:hint="@string/account_setup_exchange_domain_hint"
-                inputType="text"
-                android:imeOptions="actionDone"
-                android:layout_height="wrap_content"
-                android:layout_width="fill_parent" />
             <CheckBox
                 android:id="@+id/account_ssl"
                 android:layout_height="wrap_content"
                 android:layout_width="fill_parent"
                 android:text="@string/account_setup_exchange_ssl_label" />
+            <CheckBox
+                android:id="@+id/account_trust_certificates"
+                android:layout_height="wrap_content"
+                android:layout_width="fill_parent"
+                android:text="@string/account_setup_exchange_trust_certificates_label" />
         </LinearLayout>
 
         <RelativeLayout

@@ -364,6 +364,8 @@
     <string name="account_setup_exchange_domain_hint">Enter domain here</string>
     <!-- On "Exchange" setup screen, the use-SSL checkbox label -->
     <string name="account_setup_exchange_ssl_label">Use secure connection (SSL)</string>
+    <!-- On "Exchange" setup screen, the trust ssl certificates checkbox label -->
+    <string name="account_setup_exchange_trust_certificates_label">Accept all SSL certificates</string>
 
     <!-- In Account setup options screen, Activity title -->
     <string name="account_setup_options_title">Account options</string>

@@ -46,6 +46,7 @@ import org.apache.http.client.HttpClient;
 import org.apache.http.client.methods.HttpOptions;
 import org.apache.http.client.methods.HttpPost;
 import org.apache.http.client.methods.HttpRequestBase;
+import org.apache.http.conn.ClientConnectionManager;
 import org.apache.http.entity.ByteArrayEntity;
 import org.apache.http.impl.client.DefaultHttpClient;
 import org.apache.http.params.BasicHttpParams;
@@ -65,11 +66,11 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.net.URI;
 import java.net.URLEncoder;
+import java.security.cert.CertificateException;
 import java.util.ArrayList;
 import java.util.HashMap;
 
 public class EasSyncService extends AbstractSyncService {
-
     private static final String EMAIL_WINDOW_SIZE = "5";
     public static final String PIM_WINDOW_SIZE = "20";
     private static final String WHERE_ACCOUNT_KEY_AND_SERVER_ID =
@@ -133,6 +134,7 @@ public class EasSyncService extends AbstractSyncService {
     public String mUserName;
     public String mPassword;
     private boolean mSsl = true;
+    private boolean mTrustSsl = false; 
     public ContentResolver mContentResolver;
     private String[] mBindArguments = new String[2];
     private ArrayList<String> mPingChangeList;
@@ -149,6 +151,7 @@ public class EasSyncService extends AbstractSyncService {
         mContentResolver = _context.getContentResolver();
         HostAuth ha = HostAuth.restoreHostAuthWithId(_context, mAccount.mHostAuthKeyRecv);
         mSsl = (ha.mFlags & HostAuth.FLAG_SSL) != 0;
+        mTrustSsl = (ha.mFlags & HostAuth.FLAG_TRUST_ALL_CERTIFICATES) != 0;
     }
 
     private EasSyncService(String prefix) {
@@ -191,7 +194,7 @@ public class EasSyncService extends AbstractSyncService {
 
     @Override
     public void validateAccount(String hostAddress, String userName, String password, int port,
-            boolean ssl, Context context) throws MessagingException {
+            boolean ssl, boolean trustCertificates, Context context) throws MessagingException {
         try {
             userLog("Testing EAS: ", hostAddress, ", ", userName, ", ssl = ", ssl ? "1" : "0");
             EasSyncService svc = new EasSyncService("%TestAccount%");
@@ -200,6 +203,7 @@ public class EasSyncService extends AbstractSyncService {
             svc.mUserName = userName;
             svc.mPassword = password;
             svc.mSsl = ssl;
+            svc.mTrustSsl = trustCertificates;
             svc.mDeviceId = SyncManager.getDeviceId();
             HttpResponse resp = svc.sendHttpClientOptions();
             int code = resp.getStatusLine().getStatusCode();
@@ -218,7 +222,12 @@ public class EasSyncService extends AbstractSyncService {
                 throw new MessagingException(MessagingException.IOERROR);
             }
         } catch (IOException e) {
-            userLog("IOException caught, reporting I/O error: ", e.getMessage());
+            Throwable cause = e.getCause();
+            if (cause != null && cause instanceof CertificateException) {
+                userLog("CertificateException caught: ", e.getMessage());
+                throw new MessagingException(MessagingException.GENERAL_SECURITY);
+            }
+            userLog("IOException caught: ", e.getMessage());
             throw new MessagingException(MessagingException.IOERROR);
         }
 
@@ -351,7 +360,7 @@ public class EasSyncService extends AbstractSyncService {
             mCmdString = "&User=" + safeUserName + "&DeviceId=" + mDeviceId + "&DeviceType="
                     + mDeviceType;
         }
-        String us = (mSsl ? "https" : "http") + "://" + mHostAddress +
+        String us = (mSsl ? (mTrustSsl ? "httpts" : "https") : "http") + "://" + mHostAddress +
             "/Microsoft-Server-ActiveSync";
         if (cmd != null) {
             us += "?Cmd=" + cmd + mCmdString;
@@ -369,11 +378,17 @@ public class EasSyncService extends AbstractSyncService {
         method.setHeader("User-Agent", mDeviceType + '/' + Eas.VERSION);
     }
 
+    private ClientConnectionManager getClientConnectionManager() {
+        return SyncManager.getClientConnectionManager();
+    }
+
     private HttpClient getHttpClient(int timeout) {
         HttpParams params = new BasicHttpParams();
         HttpConnectionParams.setConnectionTimeout(params, 15*SECONDS);
         HttpConnectionParams.setSoTimeout(params, timeout);
-        return new DefaultHttpClient(params);
+        HttpConnectionParams.setSocketBufferSize(params, 8192);
+        HttpClient client = new DefaultHttpClient(getClientConnectionManager(), params);
+        return client;
     }
 
     protected HttpResponse sendHttpClientPost(String cmd, byte[] bytes) throws IOException {

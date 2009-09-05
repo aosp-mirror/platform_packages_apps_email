@@ -184,12 +184,14 @@ public class EmailServiceProxy implements IEmailService {
     }
 
     public int validate(final String protocol, final String host, final String userName,
-            final String password, final int port, final boolean ssl) throws RemoteException {
+            final String password, final int port, final boolean ssl,
+            final boolean trustCertificates) throws RemoteException {
         setTask(new Runnable () {
             public void run() {
                 try {
                     if (mCallback != null) mService.setCallback(mCallback);
-                    mReturn = mService.validate(protocol, host, userName, password, port, ssl);
+                    mReturn = mService.validate(protocol, host, userName, password, port, ssl,
+                            trustCertificates);
                 } catch (RemoteException e) {
                 }
             }
