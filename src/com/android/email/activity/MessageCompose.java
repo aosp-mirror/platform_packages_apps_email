@@ -18,10 +18,8 @@ package com.android.email.activity;
 
 import com.android.email.Controller;
 import com.android.email.Email;
-import com.android.email.EmailAddressAdapter;
 import com.android.email.EmailAddressValidator;
 import com.android.email.R;
-import com.android.email.Utility;
 import com.android.email.mail.Address;
 import com.android.email.mail.MessagingException;
 import com.android.email.mail.internet.EmailHtmlUtil;
@@ -69,7 +67,6 @@ import android.widget.MultiAutoCompleteTextView;
 import android.widget.TextView;
 import android.widget.Toast;
 
-import java.io.Serializable;
 import java.io.UnsupportedEncodingException;
 import java.net.URLDecoder;
 import java.util.ArrayList;
@@ -263,8 +260,8 @@ public class MessageCompose extends Activity implements OnClickListener, OnFocus
         final String action = intent.getAction();
 
         // Handle the various intents that launch the message composer
-        if (Intent.ACTION_VIEW.equals(action) 
-                || Intent.ACTION_SENDTO.equals(action) 
+        if (Intent.ACTION_VIEW.equals(action)
+                || Intent.ACTION_SENDTO.equals(action)
                 || Intent.ACTION_SEND.equals(action)
                 || Intent.ACTION_SEND_MULTIPLE.equals(action)) {
             setAccount(intent);
@@ -282,7 +279,7 @@ public class MessageCompose extends Activity implements OnClickListener, OnFocus
                 mLoadAttachmentsTask = new AsyncTask<Long, Void, Attachment[]>() {
                     @Override
                     protected Attachment[] doInBackground(Long... messageIds) {
-                        return Attachment.restoreAttachmentsWithMessageId(MessageCompose.this, 
+                        return Attachment.restoreAttachmentsWithMessageId(MessageCompose.this,
                                 messageIds[0]);
                     }
                     @Override
@@ -432,6 +429,7 @@ public class MessageCompose extends Activity implements OnClickListener, OnFocus
                             if (!dotFound) {
                                 return null;
                             }
+
                             // we have found a comma-insert case.  now just do it
                             // in the least expensive way we can.
                             if (source instanceof Spanned) {
@@ -472,10 +470,10 @@ public class MessageCompose extends Activity implements OnClickListener, OnFocus
 
         mQuotedTextDelete.setOnClickListener(this);
 
-        EmailAddressAdapter addressAdapter = new EmailAddressAdapter(this);
+        // Temporarily disable addressAdapter, see BUG 2077496
+        // EmailAddressAdapter addressAdapter = new EmailAddressAdapter(this);
         EmailAddressValidator addressValidator = new EmailAddressValidator();
 
-        // temporarilly disable setAdapter, see BUG 2077496
         // mToView.setAdapter(addressAdapter);
         mToView.setTokenizer(new Rfc822Tokenizer());
         mToView.setValidator(addressValidator);
@@ -550,7 +548,7 @@ public class MessageCompose extends Activity implements OnClickListener, OnFocus
             addAddress(view, address.toString());
         }
     }
-    
+
     private void addAddresses(MultiAutoCompleteTextView view, String[] addresses) {
         if (addresses == null) {
             return;
@@ -744,7 +742,7 @@ public class MessageCompose extends Activity implements OnClickListener, OnFocus
         sendOrSaveMessage(false);
     }
 
-    /** 
+    /**
      * Checks whether all the email addresses listed in TO, CC, BCC are valid.
      */
     /* package */ boolean isAddressAllValid() {
@@ -898,7 +896,7 @@ public class MessageCompose extends Activity implements OnClickListener, OnFocus
                 break;
         }
     }
-    
+
     @Override
     public boolean onOptionsItemSelected(MenuItem item) {
         switch (item.getItemId()) {
@@ -963,22 +961,22 @@ public class MessageCompose extends Activity implements OnClickListener, OnFocus
 //             return true;
 //         }
 //     }
-    
+
     /**
-     * Fill all the widgets with the content found in the Intent Extra, if any.  
-     * 
+     * Fill all the widgets with the content found in the Intent Extra, if any.
+     *
      * Note that we don't actually check the intent action  (typically VIEW, SENDTO, or SEND).
      * There is enough overlap in the definitions that it makes more sense to simply check for
      * all available data and use as much of it as possible.
-     * 
+     *
      * With one exception:  EXTRA_STREAM is defined as only valid for ACTION_SEND.
-     * 
+     *
      * @param intent the launch intent
      */
     /* package */ void initFromIntent(Intent intent) {
-        
+
         // First, add values stored in top-level extras
-        
+
         String[] extraStrings = intent.getStringArrayExtra(Intent.EXTRA_EMAIL);
         if (extraStrings != null) {
             addAddresses(mToView, extraStrings);
@@ -1000,7 +998,7 @@ public class MessageCompose extends Activity implements OnClickListener, OnFocus
         // We'll take two courses here.  If it's mailto:, there is a specific set of rules
         // that define various optional fields.  However, for any other scheme, we'll simply
         // take the entire scheme-specific part and interpret it as a possible list of addresses.
-        
+
         final Uri dataUri = intent.getData();
         if (dataUri != null) {
             if ("mailto".equals(dataUri.getScheme())) {
@@ -1014,14 +1012,14 @@ public class MessageCompose extends Activity implements OnClickListener, OnFocus
         }
 
         // Next, fill in the plaintext (note, this will override mailto:?body=)
-        
+
         CharSequence text = intent.getCharSequenceExtra(Intent.EXTRA_TEXT);
         if (text != null) {
             mMessageContentView.setText(text);
         }
-        
+
         // Next, convert EXTRA_STREAM into an attachment
-        
+
         if (Intent.ACTION_SEND.equals(intent.getAction()) && intent.hasExtra(Intent.EXTRA_STREAM)) {
             String type = intent.getType();
             Uri stream = (Uri) intent.getParcelableExtra(Intent.EXTRA_STREAM);
@@ -1032,7 +1030,7 @@ public class MessageCompose extends Activity implements OnClickListener, OnFocus
             }
         }
 
-        if (Intent.ACTION_SEND_MULTIPLE.equals(intent.getAction()) 
+        if (Intent.ACTION_SEND_MULTIPLE.equals(intent.getAction())
                 && intent.hasExtra(Intent.EXTRA_STREAM)) {
             ArrayList<Parcelable> list = intent.getParcelableArrayListExtra(Intent.EXTRA_STREAM);
             if (list != null) {
@@ -1040,7 +1038,7 @@ public class MessageCompose extends Activity implements OnClickListener, OnFocus
                     Uri uri = (Uri) parcelable;
                     if (uri != null) {
                         Attachment attachment = loadAttachmentInfo(uri);
-                        if (MimeUtility.mimeTypeMatches(attachment.mMimeType, 
+                        if (MimeUtility.mimeTypeMatches(attachment.mMimeType,
                                                         Email.ACCEPTABLE_ATTACHMENT_SEND_TYPES)) {
                             addAttachment(attachment);
                         }
@@ -1048,9 +1046,9 @@ public class MessageCompose extends Activity implements OnClickListener, OnFocus
                 }
             }
         }
-        
+
         // Finally - expose fields that were filled in but are normally hidden, and set focus
-        
+
         if (mCcView.length() > 0) {
             mCcView.setVisibility(View.VISIBLE);
         }
@@ -1064,14 +1062,14 @@ public class MessageCompose extends Activity implements OnClickListener, OnFocus
     /**
      * When we are launched with an intent that includes a mailto: URI, we can actually
      * gather quite a few of our message fields from it.
-     * 
+     *
      * @mailToString the href (which must start with "mailto:").
      */
     private void initializeFromMailTo(String mailToString) {
-        
+
         // Chop up everything between mailto: and ? to find recipients
         int index = mailToString.indexOf("?");
-        int length = "mailto".length() + 1; 
+        int length = "mailto".length() + 1;
         String to;
         try {
             // Extract the recipient after mailto:
@@ -1121,12 +1119,68 @@ public class MessageCompose extends Activity implements OnClickListener, OnFocus
         if (text != null) {
             text = plainTextFlag ? EmailHtmlUtil.escapeCharacterToDisplay(text) : text;
             // TODO: re-enable EmailHtmlUtil.resolveInlineImage() for HTML
-            //    EmailHtmlUtil.resolveInlineImage(getContentResolver(), mAccount, 
+            //    EmailHtmlUtil.resolveInlineImage(getContentResolver(), mAccount,
             //                                     text, message, 0);
             mQuotedTextBar.setVisibility(View.VISIBLE);
             mQuotedText.setVisibility(View.VISIBLE);
             mQuotedText.loadDataWithBaseURL("email://", text, "text/html",
                                             "utf-8", null);
+        }
+    }
+
+    /**
+     * Given a packed address String, the address of our sending account, a view, and a list of
+     * addressees already added to other addressing views, adds unique addressees that don't
+     * match our address to the passed in view
+     */
+    private boolean safeAddAddresses(String addrs, String ourAddress,
+            MultiAutoCompleteTextView view, ArrayList<Address> addrList) {
+        boolean added = false;
+        for (Address address : Address.unpack(addrs)) {
+            // Don't send to ourselves or already-included addresses
+            if (!address.getAddress().equalsIgnoreCase(ourAddress) && !addrList.contains(address)) {
+                addrList.add(address);
+                addAddress(view, address.toString());
+                added = true;
+            }
+        }
+        return added;
+    }
+
+    /**
+     * Set up the to and cc views properly for the "reply" and "replyAll" cases.  What's important
+     * is that we not 1) send to ourselves, and 2) duplicate addressees.
+     * @param message the message we're replying to
+     * @param account the account we're sending from
+     * @param toView the "To" view
+     * @param ccView the "Cc" view
+     * @param replyAll whether this is a replyAll (vs a reply)
+     */
+    /*package*/ void setupAddressViews(Message message, Account account,
+            MultiAutoCompleteTextView toView, MultiAutoCompleteTextView ccView, boolean replyAll) {
+        /*
+         * If a reply-to was included with the message use that, otherwise use the from
+         * or sender address.
+         */
+        Address[] replyToAddresses = Address.unpack(message.mReplyTo);
+        if (replyToAddresses.length == 0) {
+            replyToAddresses = Address.unpack(message.mFrom);
+        }
+        addAddresses(mToView, replyToAddresses);
+
+        if (replyAll) {
+            // Keep a running list of addresses we're sending to
+            ArrayList<Address> allAddresses = new ArrayList<Address>();
+            String ourAddress = account.mEmailAddress;
+
+            for (Address address: replyToAddresses) {
+                allAddresses.add(address);
+            }
+
+            safeAddAddresses(message.mTo, ourAddress, mToView, allAddresses);
+            if (safeAddAddresses(message.mCc, ourAddress, mCcView, allAddresses)) {
+                mCcView.setVisibility(View.VISIBLE);
+            }
         }
     }
 
@@ -1141,39 +1195,14 @@ public class MessageCompose extends Activity implements OnClickListener, OnFocus
         mDraftNeedsSaving = true;
         final String subject = message.mSubject;
         if (ACTION_REPLY.equals(action) || ACTION_REPLY_ALL.equals(action)) {
+            setupAddressViews(message, account, mToView, mCcView, ACTION_REPLY_ALL.equals(action));
+
             if (subject != null && !subject.toLowerCase().startsWith("re:")) {
                 mSubjectView.setText("Re: " + subject);
             } else {
                 mSubjectView.setText(subject);
             }
 
-            /*
-             * If a reply-to was included with the message use that, otherwise use the from
-             * or sender address.
-             */
-            Address[] replyToAddresses = Address.unpack(message.mReplyTo);
-            if (replyToAddresses.length == 0) {
-                replyToAddresses = Address.unpack(message.mFrom);
-            }
-            addAddresses(mToView, replyToAddresses);
-
-            if (ACTION_REPLY_ALL.equals(action)) {
-                for (Address address : Address.unpack(message.mTo)) {
-                    if (!address.getAddress().equalsIgnoreCase(account.mEmailAddress)) {
-                        addAddress(mToView, address.toString());
-                    }
-                }
-                boolean makeCCVisible = false;
-                for (Address address : Address.unpack(message.mCc)) {
-                    if (!Utility.arrayContains(replyToAddresses, address)) {
-                        addAddress(mCcView, address.toString());
-                        makeCCVisible = true;
-                    }
-                }
-                if (makeCCVisible) {
-                    mCcView.setVisibility(View.VISIBLE);
-                }
-            }
             displayQuotedText(message);
         } else if (ACTION_FORWARD.equals(action)) {
             mSubjectView.setText(subject != null && !subject.toLowerCase().startsWith("fwd:") ?
@@ -1213,7 +1242,7 @@ public class MessageCompose extends Activity implements OnClickListener, OnFocus
     }
 
     /**
-     * In order to accelerate typing, position the cursor in the first empty field, 
+     * In order to accelerate typing, position the cursor in the first empty field,
      * or at the end of the body composition field if none are empty.  Typically, this will
      * play out as follows:
      *   Reply / Reply All - put cursor in the empty message body
@@ -1227,7 +1256,7 @@ public class MessageCompose extends Activity implements OnClickListener, OnFocus
             mSubjectView.requestFocus();
         } else {
             mMessageContentView.requestFocus();
-            // when selecting the message content, explicitly move IP to the end, so you can 
+            // when selecting the message content, explicitly move IP to the end, so you can
             // quickly resume typing into a draft
             int selection = mMessageContentView.length();
             mMessageContentView.setSelection(selection, selection);
