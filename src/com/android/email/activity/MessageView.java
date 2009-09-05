@@ -83,6 +83,9 @@ import java.util.regex.Pattern;
 public class MessageView extends Activity implements OnClickListener {
     private static final String EXTRA_MESSAGE_ID = "com.android.email.MessageView_message_id";
     private static final String EXTRA_MAILBOX_ID = "com.android.email.MessageView_mailbox_id";
+
+    // for saveInstanceState()
+    private static final String STATE_MESSAGE_ID = "messageId";
     
     // Regex that matches start of img tag. '<(?i)img\s+'.
     private static final Pattern IMG_TAG_START_REGEX = Pattern.compile("<(?i)img\\s+");
@@ -343,12 +346,23 @@ public class MessageView extends Activity implements OnClickListener {
 
         Intent intent = getIntent();
         mMessageId = intent.getLongExtra(EXTRA_MESSAGE_ID, -1);
+        if (icicle != null) {
+            mMessageId = icicle.getLong(STATE_MESSAGE_ID, mMessageId);
+        }
         mMailboxId = intent.getLongExtra(EXTRA_MAILBOX_ID, -1);
 
         mController = Controller.getInstance(getApplication());
 
         mNextPrevObserver = new NextPrevObserver(mHandler);
         messageChanged();
+    }
+
+    @Override
+    protected void onSaveInstanceState(Bundle state) {
+        super.onSaveInstanceState(state);
+        if (mMessageId != -1) {
+            state.putLong(STATE_MESSAGE_ID, mMessageId);
+        }
     }
 
     @Override
@@ -420,16 +434,17 @@ public class MessageView extends Activity implements OnClickListener {
 
     private void onDelete() {
         if (mMessage != null) {
-            mController.deleteMessage(mMessageId, mMessage.mAccountKey);
+            // the delete triggers mNextPrevObserver
+            // first move to prev/next before the actual delete
+            long messageIdToDelete = mMessageId;
+            boolean moved = onPrevious() || onNext();
+            mController.deleteMessage(messageIdToDelete, mMessage.mAccountKey);
             Toast.makeText(this, R.string.message_deleted_toast, Toast.LENGTH_SHORT).show();
-
-            if (onPrevious()) {
-                return;
+            if (!moved) {
+                // this generates a benign warning "Duplicate finish request" because
+                // repositionPrevNextCursor() will fail to reposition and do its own finish()
+                finish();
             }
-            if (onNext()) {
-                return;
-            }
-            finish();
         }
     }
     
@@ -508,19 +523,20 @@ public class MessageView extends Activity implements OnClickListener {
             mMessageId = mPrevNextCursor.getLong(0);
             messageChanged();
             return true;
-        } else {
-            return false;
         }
+        return false;
     }
 
     private boolean onPrevious() {
-        if (mPrevNextCursor != null && mPrevNextCursor.moveToPrevious()) {
+        // In some implementations, Cursor.moveToPrev() is reporting false even when it
+        // moves from position 0 to position -1.  So we'll guard that call here.
+        if (mPrevNextCursor != null && mPrevNextCursor.getPosition() > 0) {
+            mPrevNextCursor.moveToPrevious();
             mMessageId = mPrevNextCursor.getLong(0);
             messageChanged();
             return true;
-        } else {
-            return false;
         }
+        return false;
     }
 
     private void onMarkAsRead(boolean isRead) {
@@ -685,6 +701,9 @@ public class MessageView extends Activity implements OnClickListener {
      * Re-init everything needed for changing message.
      */
     private void messageChanged() {
+        if (Email.DEBUG) {
+            Email.log("MessageView: messageChanged to id=" + mMessageId);
+        }
         cancelAllTasks();
         setTitle("");
         mMessageContentView.loadUrl("file:///android_asset/empty.html");
@@ -703,6 +722,9 @@ public class MessageView extends Activity implements OnClickListener {
      * in the list.  Update the UI arrows as appropriate.
      */
     private void repositionPrevNextCursor() {
+        if (Email.DEBUG) {
+            Email.log("MessageView: reposition to id=" + mMessageId);
+        }
         // position the cursor on the current message
         mPrevNextCursor.moveToPosition(-1);
         while (mPrevNextCursor.moveToNext() && mPrevNextCursor.getLong(0) != mMessageId) {
