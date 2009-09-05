@@ -143,6 +143,7 @@ public class MessageCompose extends Activity implements OnClickListener, OnFocus
     private Listener mListener = new Listener();
     private boolean mDraftNeedsSaving;
     private AsyncTask mLoadAttachmentsTask;
+    private AsyncTask mSaveMessageTask;
 
     private Handler mHandler = new Handler() {
         @Override
@@ -320,6 +321,12 @@ public class MessageCompose extends Activity implements OnClickListener, OnFocus
         mController.removeResultCallback(mListener);
     }
 
+    private static void cancelTask(AsyncTask<?, ?, ?> task) {
+        if (task != null && task.getStatus() != AsyncTask.Status.FINISHED) {
+            task.cancel(true);
+        }
+    }
+
     /**
      * We override onDestroy to make sure that the WebView gets explicitly destroyed.
      * Otherwise it can leak native references.
@@ -329,11 +336,10 @@ public class MessageCompose extends Activity implements OnClickListener, OnFocus
         super.onDestroy();
         mQuotedText.destroy();
         mQuotedText = null;
-        if (mLoadAttachmentsTask != null
-                && mLoadAttachmentsTask.getStatus() != AsyncTask.Status.FINISHED) {
-            mLoadAttachmentsTask.cancel(true);
-            mLoadAttachmentsTask = null;
-        }
+        cancelTask(mLoadAttachmentsTask);
+        mLoadAttachmentsTask = null;
+        // don't cancel mSaveMessageTask, let it do its job to the end.
+        // cancelTask(mSaveMessageTask);
     }
 
     /**
@@ -617,7 +623,7 @@ public class MessageCompose extends Activity implements OnClickListener, OnFocus
         values.put(MessageColumns.SUBJECT, message.mSubject);
         values.put(MessageColumns.DISPLAY_NAME, message.mDisplayName);
         values.put(MessageColumns.FLAG_LOADED, message.mFlagLoaded);
-        // TODO: write body and update TEXT_INFO
+        values.put(MessageColumns.FLAG_ATTACHMENT, message.mFlagAttachment);
         return values;
     }
 
@@ -651,7 +657,8 @@ public class MessageCompose extends Activity implements OnClickListener, OnFocus
      * @param account the account (used to obtain From: address).
      * @param bodyText the body text.
      */
-    private void updateMessage(Message message, Account account, String bodyText) {
+    private void updateMessage(Message message, Account account, String bodyText,
+                               boolean hasAttachments) {
         message.mTimeStamp = System.currentTimeMillis();
         message.mFrom = new Address(account.getEmailAddress(), account.getSenderName()).pack();
         message.mTo = getPackedAddresses(mToView);
@@ -662,6 +669,7 @@ public class MessageCompose extends Activity implements OnClickListener, OnFocus
         message.mAccountKey = account.mId;
         message.mDisplayName = makeDisplayName(message.mTo, message.mCc, message.mBcc);
         message.mFlagLoaded = Message.LOADED;
+        message.mFlagAttachment = hasAttachments;
     }
 
     private Attachment[] getAttachmentsFromUI() {
@@ -684,50 +692,46 @@ public class MessageCompose extends Activity implements OnClickListener, OnFocus
         if (mDraft == null) {
             mDraft = new Message();
         }
-        updateMessage(mDraft, mAccount, buildBodyText(mSource));
+        final Attachment[] attachments = getAttachmentsFromUI();
+        updateMessage(mDraft, mAccount, buildBodyText(mSource), attachments.length > 0);
 
-        new AsyncTask<Void, Void, Void>() {
+        mSaveMessageTask = new AsyncTask<Void, Void, Void>() {
             @Override
             protected Void doInBackground(Void... params) {
-                final String action = getIntent().getAction();
-                if (mDraft.isSaved()) {
-                    mDraft.update(MessageCompose.this, getUpdateContentValues(mDraft));
-                    ContentValues values = new ContentValues();
-                    values.put(BodyColumns.TEXT_CONTENT, mDraft.mText);
-                    Body.updateBodyWithMessageId(MessageCompose.this, mDraft.mId, values);
-                } else {
-                    // mDraft.mId is set upon return of saveToMailbox()
-                    mController.saveToMailbox(mDraft, EmailContent.Mailbox.TYPE_DRAFTS);
-                }
-
-                // TODO: remove from DB the attachments that were removed from UI
-                for (Attachment attachment : getAttachmentsFromUI()) {
-                    if (!attachment.isSaved()) {
-                        // this attachment is new so save it to DB.
-                        attachment.mMessageKey = mDraft.mId;
-                        attachment.save(MessageCompose.this);
+                synchronized (mDraft) {
+                    if (mDraft.isSaved()) {
+                        mDraft.update(MessageCompose.this, getUpdateContentValues(mDraft));
+                        ContentValues values = new ContentValues();
+                        values.put(BodyColumns.TEXT_CONTENT, mDraft.mText);
+                        Body.updateBodyWithMessageId(MessageCompose.this, mDraft.mId, values);
+                    } else {
+                        // mDraft.mId is set upon return of saveToMailbox()
+                        mController.saveToMailbox(mDraft, EmailContent.Mailbox.TYPE_DRAFTS);
                     }
-                }
 
-                if (send) {
-                    mController.sendMessage(mDraft.mId, mDraft.mAccountKey);
-                    // After a send it's no longer a draft; null it here just to be sure,
-                    // although MessageCompose should just finish() anyway.
-                    mDraft = null;
+                    // TODO: remove from DB the attachments that were removed from UI
+                    for (Attachment attachment : attachments) {
+                        if (!attachment.isSaved()) {
+                            // this attachment is new so save it to DB.
+                            attachment.mMessageKey = mDraft.mId;
+                            attachment.save(MessageCompose.this);
+                        }
+                    }
+
+                    if (send) {
+                        mController.sendMessage(mDraft.mId, mDraft.mAccountKey);
+                    }
+                    return null;
                 }
-                return null;
             }
 
             @Override
             protected void onPostExecute(Void dummy) {
-                // TODO: fix toast display for "saved as draft" if needed
-//                 if (!send) {
-//                     // Don't display the toast if the user is just changing the orientation
-//                     if ((getChangingConfigurations() & ActivityInfo.CONFIG_ORIENTATION) == 0) {
-//                         Toast.makeText(MessageCompose.this, getString(R.string.message_saved_toast),
-//                                        Toast.LENGTH_LONG).show();
-//                     }
-//                 }
+                // Don't display the toast if the user is just changing the orientation
+                if (!send && (getChangingConfigurations() & ActivityInfo.CONFIG_ORIENTATION) == 0) {
+                    Toast.makeText(MessageCompose.this, R.string.message_saved_toast,
+                            Toast.LENGTH_LONG).show();
+                }
             }
         }.execute();
     }
