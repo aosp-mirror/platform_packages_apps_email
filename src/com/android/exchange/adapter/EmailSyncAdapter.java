@@ -295,7 +295,7 @@ public class EmailSyncAdapter extends AbstractSyncAdapter {
             int lastDot = fileName.lastIndexOf('.');
             String extension = null;
             if ((lastDot > 0) && (lastDot < fileName.length() - 1)) {
-                extension = fileName.substring(lastDot + 1);
+                extension = fileName.substring(lastDot + 1).toLowerCase();
             }
             if (extension == null) {
                 // A reasonable default for now.

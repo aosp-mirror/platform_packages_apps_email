@@ -69,6 +69,9 @@ public class EasEmailSyncAdapterTests extends AndroidTestCase {
         // Test a few known types
         String mimeType = p.getMimeTypeFromFileName("foo.jpg");
         assertEquals("image/jpeg", mimeType);
+        // Make sure this is case insensitive
+        mimeType = p.getMimeTypeFromFileName("foo.JPG");
+        assertEquals("image/jpeg", mimeType);
         mimeType = p.getMimeTypeFromFileName("this_is_a_weird_filename.gif");
         assertEquals("image/gif", mimeType);
         // Test an illegal file name ending with the extension prefix
