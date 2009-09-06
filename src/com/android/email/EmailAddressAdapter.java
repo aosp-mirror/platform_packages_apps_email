@@ -16,33 +16,32 @@
 
 package com.android.email;
 
-import android.provider.ContactsContract;
+import com.android.email.mail.Address;
+
 import android.content.ContentResolver;
 import android.content.Context;
 import android.database.Cursor;
-import android.database.DatabaseUtils;
-import android.provider.Contacts.ContactMethods;
-import android.provider.Contacts.People;
+import android.net.Uri;
+import android.provider.ContactsContract.Contacts;
+import android.provider.ContactsContract.Data;
+import android.provider.ContactsContract.CommonDataKinds.Email;
 import android.view.View;
 import android.widget.ResourceCursorAdapter;
 import android.widget.TextView;
 
-import com.android.email.mail.Address;
-
 public class EmailAddressAdapter extends ResourceCursorAdapter {
     public static final int NAME_INDEX = 1;
-
     public static final int DATA_INDEX = 2;
 
-    private static final String SORT_ORDER = People.TIMES_CONTACTED + " DESC, " + People.NAME;
+    private static final String SORT_ORDER =
+            Contacts.TIMES_CONTACTED + " DESC, " + Contacts.DISPLAY_NAME;
 
     private ContentResolver mContentResolver;
 
     private static final String[] PROJECTION = {
-            ContactMethods._ID, // 0
-            ContactMethods.NAME, // 1
-            ContactMethods.DATA
-    // 2
+        Data._ID,               // 0
+        Contacts.DISPLAY_NAME,  // 1
+        Email.DATA              // 2
     };
 
     public EmailAddressAdapter(Context context) {
@@ -68,23 +67,8 @@ public class EmailAddressAdapter extends ResourceCursorAdapter {
 
     @Override
     public Cursor runQueryOnBackgroundThread(CharSequence constraint) {
-        String where = null;
-
-        if (constraint != null) {
-            String filter = DatabaseUtils.sqlEscapeString(constraint.toString() + '%');
-
-            StringBuilder s = new StringBuilder();
-            s.append("(people.name LIKE ");
-            s.append(filter);
-            s.append(") OR (contact_methods.data LIKE ");
-            s.append(filter);
-            s.append(")");
-
-            where = s.toString();
-        }
-
-        return mContentResolver.query(
-            ContactsContract.CommonDataKinds.Email.CONTENT_FILTER_EMAIL_URI,
-            PROJECTION, where, null, SORT_ORDER);
+        String filter = constraint == null ? "" : constraint.toString();
+        Uri uri = Uri.withAppendedPath(Email.CONTENT_FILTER_URI, Uri.encode(filter));
+        return mContentResolver.query(uri, PROJECTION, null, null, SORT_ORDER);
     }
 }
