@@ -185,6 +185,8 @@ public abstract class EmailContent {
         public static final String HTML_REPLY = "htmlReply";
         // Replied-to or forwarded body (in text form)
         public static final String TEXT_REPLY = "textReply";
+        // Message id of the source (if this is a reply/forward)
+        public static final String SOURCE_MESSAGE_KEY = "sourceMessageKey";
     }
 
     public static final class Body extends EmailContent implements BodyColumns {
@@ -198,9 +200,10 @@ public abstract class EmailContent {
         public static final int CONTENT_TEXT_CONTENT_COLUMN = 3;
         public static final int CONTENT_HTML_REPLY_COLUMN = 4;
         public static final int CONTENT_TEXT_REPLY_COLUMN = 5;
+        public static final int CONTENT_SOURCE_KEY_COLUMN = 6;
         public static final String[] CONTENT_PROJECTION = new String[] {
             RECORD_ID, BodyColumns.MESSAGE_KEY, BodyColumns.HTML_CONTENT, BodyColumns.TEXT_CONTENT,
-            BodyColumns.HTML_REPLY, BodyColumns.TEXT_REPLY
+            BodyColumns.HTML_REPLY, BodyColumns.TEXT_REPLY, BodyColumns.SOURCE_MESSAGE_KEY
         };
 
         public static final int TEXT_TEXT_COLUMN = 1;
@@ -220,6 +223,7 @@ public abstract class EmailContent {
         public String mTextContent;
         public String mHtmlReply;
         public String mTextReply;
+        public long mSourceKey;
 
         public Body() {
             mBaseUri = CONTENT_URI;
@@ -235,6 +239,7 @@ public abstract class EmailContent {
             values.put(BodyColumns.TEXT_CONTENT, mTextContent);
             values.put(BodyColumns.HTML_REPLY, mHtmlReply);
             values.put(BodyColumns.TEXT_REPLY, mTextReply);
+            values.put(BodyColumns.SOURCE_MESSAGE_KEY, mSourceKey);
 
             return values;
         }
@@ -330,6 +335,7 @@ public abstract class EmailContent {
             mTextContent = c.getString(CONTENT_TEXT_CONTENT_COLUMN);
             mHtmlReply = c.getString(CONTENT_HTML_REPLY_COLUMN);
             mTextReply = c.getString(CONTENT_TEXT_REPLY_COLUMN);
+            mSourceKey = c.getLong(CONTENT_SOURCE_KEY_COLUMN);
             return this;
         }
 
@@ -484,21 +490,32 @@ public abstract class EmailContent {
         public String mBcc;
         public String mReplyTo;
 
+        // The following transient members may be used while building and manipulating messages, 
+        // but they are NOT persisted directly by EmailProvider
         transient public String mText;
         transient public String mHtml;
         transient public String mTextReply;
         transient public String mHtmlReply;
-
-        // Can be used while building messages, but is NOT saved by the Provider
+        transient public long mSourceKey;
         transient public ArrayList<Attachment> mAttachments = null;
 
+        // Values used in mFlagRead
         public static final int UNREAD = 0;
         public static final int READ = 1;
         public static final int DELETED = 2;
 
+        // Values used in mFlagLoaded
         public static final int NOT_LOADED = 0;
         public static final int LOADED = 1;
         public static final int PARTIALLY_LOADED = 2;
+
+        // Bits used in mFlags
+        // These three states are mutually exclusive, and indicate whether the message is an
+        // original, a reply, or a forward
+        public static final int FLAG_TYPE_ORIGINAL = 0;
+        public static final int FLAG_TYPE_REPLY = 1<<0;
+        public static final int FLAG_TYPE_FORWARD = 1<<1;
+        public static final int FLAG_TYPE_MASK = FLAG_TYPE_REPLY | FLAG_TYPE_FORWARD;
 
         public Message() {
             mBaseUri = CONTENT_URI;
@@ -664,6 +681,9 @@ public abstract class EmailContent {
             }
             if (mHtmlReply != null) {
                 cv.put(Body.HTML_REPLY, mHtmlReply);
+            }
+            if (mSourceKey != 0) {
+                cv.put(Body.SOURCE_MESSAGE_KEY, mSourceKey);
             }
             b = ContentProviderOperation.newInsert(Body.CONTENT_URI);
             b.withValues(cv);

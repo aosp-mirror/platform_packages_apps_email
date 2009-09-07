@@ -203,6 +203,7 @@ public class ProviderTests extends ProviderTestCase2<EmailProvider> {
         message2.mHtml = null;
         message2.mTextReply = null;
         message2.mHtmlReply = null;
+        message2.mSourceKey = 0;
         Message message2get = EmailContent.Message.restoreMessageWithId(mMockContext, message2Id);
         ProviderTestUtils.assertMessageEqual("testMessageSave", message2, message2get);
 
@@ -212,6 +213,7 @@ public class ProviderTests extends ProviderTestCase2<EmailProvider> {
         assertEquals("body html", html2, body2.mHtmlContent);
         assertEquals("reply text", textReply2, body2.mTextReply);
         assertEquals("reply html", htmlReply2, body2.mHtmlReply);
+        assertEquals("source key", message2.mMailboxKey, body2.mSourceKey);
 
         // Message with attachments and body
         Message message3 = ProviderTestUtils.setupMessage("message3", account1Id, box1Id, true,
@@ -401,6 +403,7 @@ public class ProviderTests extends ProviderTestCase2<EmailProvider> {
         values.put(BodyColumns.HTML_CONTENT, htmlContent);
         values.put(BodyColumns.TEXT_REPLY, textReply);
         values.put(BodyColumns.HTML_REPLY, htmlReply);
+        values.put(BodyColumns.SOURCE_MESSAGE_KEY, 17);
 
         // 1
         Message message1 = ProviderTestUtils.setupMessage("message1", account1Id, box1Id, false,
@@ -415,6 +418,7 @@ public class ProviderTests extends ProviderTestCase2<EmailProvider> {
         assertEquals(body1.mHtmlContent, htmlContent);
         assertEquals(body1.mTextReply, textReply);
         assertEquals(body1.mHtmlReply, htmlReply);
+        assertEquals(body1.mSourceKey, 17);
 
         // 2
         Message message2 = ProviderTestUtils.setupMessage("message1", account1Id, box1Id, true,
@@ -430,6 +434,7 @@ public class ProviderTests extends ProviderTestCase2<EmailProvider> {
         assertEquals(body2.mHtmlContent, htmlContent);
         assertEquals(body2.mTextReply, textReply);
         assertEquals(body2.mHtmlReply, htmlReply);
+        assertEquals(body2.mSourceKey, 17);
     }
 
     /**
