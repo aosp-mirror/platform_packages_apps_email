@@ -26,7 +26,6 @@ import com.android.email.provider.EmailContent.HostAuthColumns;
 import com.android.email.provider.EmailContent.Mailbox;
 import com.android.email.provider.EmailContent.MailboxColumns;
 import com.android.email.provider.EmailContent.Message;
-import com.android.email.provider.EmailContent.MessageColumns;
 import com.android.email.provider.EmailContent.SyncColumns;
 import com.android.exchange.utility.FileLogger;
 
@@ -667,6 +666,10 @@ public class SyncManager extends Service implements Runnable {
         }
 
         maybeStartSyncManagerThread();
+        if (sServiceThread == null) {
+            Log.d(TAG, "!!! EAS SyncManager stopping self");
+            stopSelf();
+        }
     }
 
     @Override
