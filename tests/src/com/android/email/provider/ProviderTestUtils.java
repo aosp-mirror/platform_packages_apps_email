@@ -127,6 +127,7 @@ public class ProviderTestUtils extends Assert {
             message.mHtml = "body html " + name;
             message.mTextReply = "reply text " + name;
             message.mHtmlReply = "reply html " + name;
+            message.mSourceKey = mailboxId;
         }
 
         if (saveIt) {
@@ -269,6 +270,7 @@ public class ProviderTestUtils extends Assert {
         assertEquals(caller + " mHtml", expect.mHtml, actual.mHtml);
         assertEquals(caller + " mTextReply", expect.mTextReply, actual.mTextReply);
         assertEquals(caller + " mHtmlReply", expect.mHtmlReply, actual.mHtmlReply);
+        assertEquals(caller + " mSourceKey", expect.mSourceKey, actual.mSourceKey);
     }
 
     /**
