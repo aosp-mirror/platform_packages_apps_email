@@ -42,8 +42,8 @@ import android.database.ContentObserver;
 import android.database.Cursor;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
-import android.graphics.drawable.Drawable;
 import android.graphics.Rect;
+import android.graphics.drawable.Drawable;
 import android.media.MediaScannerConnection;
 import android.media.MediaScannerConnection.MediaScannerConnectionClient;
 import android.net.Uri;
@@ -51,12 +51,9 @@ import android.os.AsyncTask;
 import android.os.Bundle;
 import android.os.Environment;
 import android.os.Handler;
-import android.provider.Contacts;
-import android.provider.Contacts.Intents;
-import android.provider.Contacts.People;
 import android.provider.ContactsContract;
-import android.provider.ContactsContract.Presence;
 import android.provider.ContactsContract.CommonDataKinds;
+import android.provider.ContactsContract.Presence;
 import android.text.util.Regex;
 import android.view.LayoutInflater;
 import android.view.Menu;
@@ -86,18 +83,18 @@ public class MessageView extends Activity implements OnClickListener {
 
     // for saveInstanceState()
     private static final String STATE_MESSAGE_ID = "messageId";
-    
+
     // Regex that matches start of img tag. '<(?i)img\s+'.
     private static final Pattern IMG_TAG_START_REGEX = Pattern.compile("<(?i)img\\s+");
     // Regex that matches Web URL protocol part as case insensitive.
     private static final Pattern WEB_URL_PROTOCOL = Pattern.compile("(?i)http|https://");
 
     // Support for LoadBodyTask
-    private static final String[] BODY_CONTENT_PROJECTION = new String[] { 
+    private static final String[] BODY_CONTENT_PROJECTION = new String[] {
         Body.RECORD_ID, BodyColumns.MESSAGE_KEY,
         BodyColumns.HTML_CONTENT, BodyColumns.TEXT_CONTENT
     };
-    
+
     private static final String[] PRESENCE_STATUS_PROJECTION =
         new String[] { Presence.PRESENCE_STATUS };
 
@@ -254,7 +251,7 @@ public class MessageView extends Activity implements OnClickListener {
         public void fetchingAttachment() {
             sendEmptyMessage(MSG_FETCHING_ATTACHMENT);
         }
-        
+
         public void attachmentViewError() {
             sendEmptyMessage(MSG_VIEW_ATTACHMENT_ERROR);
         }
@@ -447,7 +444,7 @@ public class MessageView extends Activity implements OnClickListener {
             }
         }
     }
-    
+
     private Rect getAbsoluteRect(View view) {
         int[] location = new int[2];
         view.getLocationOnScreen(location);
@@ -462,20 +459,20 @@ public class MessageView extends Activity implements OnClickListener {
             if (senderEmail != null) {
                 Uri contactUri = Uri.fromParts("mailto", senderEmail.getAddress(), null);
 
-                Intent contactIntent = new Intent(Contacts.Intents.SHOW_OR_CREATE_CONTACT);
+                Intent contactIntent = new Intent(ContactsContract.Intents.SHOW_OR_CREATE_CONTACT);
                 contactIntent.setData(contactUri);
 
-                // Pass along full E-mail string for possible create dialog  
-                contactIntent.putExtra(Contacts.Intents.EXTRA_CREATE_DESCRIPTION,
+                // Pass along full E-mail string for possible create dialog
+                contactIntent.putExtra(ContactsContract.Intents.EXTRA_CREATE_DESCRIPTION,
                                        senderEmail.toString());
 
                 // Only provide personal name hint if we have one
                 String senderPersonal = senderEmail.getPersonal();
                 if (senderPersonal != null) {
-                    contactIntent.putExtra(Intents.Insert.NAME, senderPersonal);
+                    contactIntent.putExtra(ContactsContract.Intents.Insert.NAME, senderPersonal);
                 }
 
-                contactIntent.putExtra(Intents.EXTRA_TARGET_RECT, 
+                contactIntent.putExtra(ContactsContract.Intents.EXTRA_TARGET_RECT,
                         getAbsoluteRect(mSenderPresenceView));
                 startActivity(contactIntent);
             }
@@ -649,7 +646,7 @@ public class MessageView extends Activity implements OnClickListener {
                 break;
         }
     }
-    
+
    @Override
     public boolean onOptionsItemSelected(MenuItem item) {
        boolean handled = handleMenuItem(item.getItemId());
@@ -662,7 +659,7 @@ public class MessageView extends Activity implements OnClickListener {
    /**
     * This is the core functionality of onOptionsItemSelected() but broken out and exposed
     * for testing purposes (because it's annoying to mock a MenuItem).
-    * 
+    *
     * @param menuItemId id that was clicked
     * @return true if handled here
     */
@@ -923,10 +920,10 @@ public class MessageView extends Activity implements OnClickListener {
     /**
      * Launch a thread (because of cross-process DB lookup) to check presence of the sender of the
      * message.  When that thread completes, update the UI.
-     * 
+     *
      * This must only be called when mMessage is null (it will hide presence indications) or when
      * mMessage has already seen its headers loaded.
-     * 
+     *
      * Note:  This is just a polling operation.  A more advanced solution would be to keep the
      * cursor open and respond to presence status updates (in the form of content change
      * notifications).  However, because presence changes fairly slowly compared to the duration
@@ -947,7 +944,7 @@ public class MessageView extends Activity implements OnClickListener {
         }
         updateSenderPresence(0);
     }
-    
+
     /**
      * Update the actual UI.  Must be called from main thread (or handler)
      * @param presenceIconId the presence of the sender, 0 for "unknown"
@@ -960,7 +957,7 @@ public class MessageView extends Activity implements OnClickListener {
         }
         mSenderPresenceView.setImageResource(presenceIconId);
     }
-    
+
 
     /**
      * This task finds out the messageId for the previous and next message
@@ -1005,15 +1002,15 @@ public class MessageView extends Activity implements OnClickListener {
 
     /**
      * Async task for loading a single message outside of the UI thread
-     * 
+     *
      * TODO: start and stop progress indicator
      * TODO: set up to listen for additional updates (cursor data changes)
      */
     private class LoadMessageTask extends AsyncTask<Void, Void, Cursor> {
-        
+
         private long mId;
         private boolean mOkToFetch;
-        
+
         /**
          * Special constructor to cache some local info
          */
@@ -1030,10 +1027,10 @@ public class MessageView extends Activity implements OnClickListener {
                     Message.RECORD_ID + "=?",
                     new String[] {
                             String.valueOf(mId)
-                            }, 
+                            },
                     null);
         }
-        
+
         @Override
         protected void onPostExecute(Cursor cursor) {
             if (cursor.isClosed()) {
@@ -1047,16 +1044,16 @@ public class MessageView extends Activity implements OnClickListener {
             startPresenceCheck();
         }
     }
-    
+
     /**
      * Async task for loading a single message body outside of the UI thread
-     * 
+     *
      * TODO: smarter loading of html vs. text
      */
     private class LoadBodyTask extends AsyncTask<Void, Void, Cursor> {
-        
+
         private long mId;
-        
+
         /**
          * Special constructor to cache some local info
          */
@@ -1072,10 +1069,10 @@ public class MessageView extends Activity implements OnClickListener {
                     Body.MESSAGE_KEY + "=?",
                     new String[] {
                             String.valueOf(mId)
-                            }, 
+                            },
                     null);
         }
-        
+
         @Override
         protected void onPostExecute(Cursor cursor) {
             if (cursor.isClosed()) {
@@ -1115,7 +1112,7 @@ public class MessageView extends Activity implements OnClickListener {
                         && attachment.mContentUri != null) {
                     // for html body, replace CID for inline images
                     // Regexp which matches ' src="cid:contentId"'.
-                    String contentIdRe = 
+                    String contentIdRe =
                         "\\s+(?i)src=\"cid(?-i):\\Q" + attachment.mContentId + "\\E\"";
                     String srcContentUri = " src=\"" + attachment.mContentUri + "\"";
                     mHtmlText = mHtmlText.replaceAll(contentIdRe, srcContentUri);
@@ -1134,11 +1131,11 @@ public class MessageView extends Activity implements OnClickListener {
 
     /**
      * Reload the UI from a provider cursor.  This must only be called from the UI thread.
-     * 
+     *
      * @param cursor A cursor loaded from EmailStore.Message.
      * @param okToFetch If true, and message is not fully loaded, it's OK to fetch from
      * the network.  Use false to prevent looping here.
-     * 
+     *
      * TODO: trigger presence check
      */
     private void reloadUiFromCursor(Cursor cursor, boolean okToFetch) {
@@ -1183,9 +1180,9 @@ public class MessageView extends Activity implements OnClickListener {
 
     /**
      * Reload the body from the provider cursor.  This must only be called from the UI thread.
-     * 
+     *
      * @param cursor
-     * 
+     *
      * TODO deal with html vs text and many other issues
      */
     private void reloadBodyFromCursor(Cursor cursor) {
@@ -1224,7 +1221,7 @@ public class MessageView extends Activity implements OnClickListener {
                     /*
                      * WEB_URL_PATTERN may match domain part of email address. To detect
                      * this false match, the character just before the matched string
-                     * should not be '@'. 
+                     * should not be '@'.
                      */
                     if (start == 0 || text.charAt(start - 1) != '@') {
                         String url = m.group();
@@ -1380,7 +1377,7 @@ public class MessageView extends Activity implements OnClickListener {
 //                                 /*
 //                                  * WEB_URL_PATTERN may match domain part of email address. To detect
 //                                  * this false match, the character just before the matched string
-//                                  * should not be '@'. 
+//                                  * should not be '@'.
 //                                  */
 //                                 if (start == 0 || text.charAt(start - 1) != '@') {
 //                                     String url = m.group();
@@ -1514,8 +1511,8 @@ public class MessageView extends Activity implements OnClickListener {
                     mContext.startActivity(intent);
                 }
             } catch (ActivityNotFoundException e) {
-                mHandler.attachmentViewError(); 
-                // TODO: Add a proper warning message (and lots of upstream cleanup to prevent 
+                mHandler.attachmentViewError();
+                // TODO: Add a proper warning message (and lots of upstream cleanup to prevent
                 // it from happening) in the next release.
             } finally {
                 mConnection.disconnect();
