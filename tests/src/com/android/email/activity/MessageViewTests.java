@@ -20,8 +20,6 @@ import com.android.email.Email;
 import com.android.email.MessagingController;
 import com.android.email.R;
 import com.android.email.mail.internet.BinaryTempFileBody;
-import com.android.email.provider.EmailContent;
-import com.android.email.provider.EmailContent.Account;
 
 import android.app.Application;
 import android.content.Context;
@@ -60,8 +58,6 @@ public class MessageViewTests
     private static final String FOLDER_NAME = "folder";
     private static final String MESSAGE_UID = "message_uid";
     
-    private EmailContent.Account mAccount;
-    private long mAccountId;
     private TextView mToView;
     private TextView mSubjectView;
     private WebView mMessageContentView;
@@ -76,9 +72,6 @@ public class MessageViewTests
         super.setUp();
 
         mContext = getInstrumentation().getTargetContext();
-        // Force assignment of a default account, and retrieve it
-        mAccountId = Account.getDefaultAccountId(mContext);
-        mAccount = Account.restoreAccountWithId(mContext, mAccountId);
         Email.setServicesEnabled(mContext);
         
         // setup an intent to spin up this activity with something useful
@@ -86,7 +79,7 @@ public class MessageViewTests
                 Arrays.asList(new String[]{ "why", "is", "java", "so", "ugly?" }));
         // Log.d("MessageViewTest", "--- folder:" + FOLDER_UIDS);
         Intent i = new Intent()
-            .putExtra(EXTRA_ACCOUNT_ID, mAccountId)
+            .putExtra(EXTRA_ACCOUNT_ID, -1)
             .putExtra(EXTRA_FOLDER, FOLDER_NAME)
             .putExtra(EXTRA_MESSAGE, MESSAGE_UID)
             .putStringArrayListExtra(EXTRA_FOLDER_UIDS, FOLDER_UIDS);
@@ -126,6 +119,10 @@ public class MessageViewTests
     public void testAttachmentWritePermissions() throws FileNotFoundException, IOException {
         File file = null;
         try {
+            // If there's no storage available, this test is moot
+            if (!Environment.getExternalStorageState().equals(Environment.MEDIA_MOUNTED)) {
+                return;
+            }
             file = MessageView.createUniqueFile(Environment.getExternalStorageDirectory(),
                     "write-test");
             OutputStream out = new FileOutputStream(file);
