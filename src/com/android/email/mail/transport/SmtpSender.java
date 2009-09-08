@@ -232,7 +232,7 @@ public class SmtpSender extends Sender {
             executeSimpleCommand("DATA");
             // TODO byte stuffing
             Rfc822Output.writeTo(mContext, messageId,
-                    new EOLConvertingOutputStream(mTransport.getOutputStream()));
+                    new EOLConvertingOutputStream(mTransport.getOutputStream()), true);
             executeSimpleCommand("\r\n.");
         } catch (IOException ioe) {
             throw new MessagingException("Unable to send message", ioe);

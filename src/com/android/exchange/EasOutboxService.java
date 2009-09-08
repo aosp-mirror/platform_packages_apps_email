@@ -19,7 +19,10 @@ package com.android.exchange;
 
 import com.android.email.mail.MessagingException;
 import com.android.email.mail.transport.Rfc822Output;
+import com.android.email.provider.EmailContent.Body;
+import com.android.email.provider.EmailContent.BodyColumns;
 import com.android.email.provider.EmailContent.Mailbox;
+import com.android.email.provider.EmailContent.MailboxColumns;
 import com.android.email.provider.EmailContent.Message;
 import com.android.email.provider.EmailContent.MessageColumns;
 import com.android.email.provider.EmailContent.SyncColumns;
@@ -38,16 +41,19 @@ import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileOutputStream;
 import java.io.IOException;
+import java.net.URLEncoder;
 
 public class EasOutboxService extends EasSyncService {
 
     public static final int SEND_FAILED = 1;
     public static final String MAILBOX_KEY_AND_NOT_SEND_FAILED =
         MessageColumns.MAILBOX_KEY + "=? and " + SyncColumns.SERVER_ID + "!=" + SEND_FAILED;
+    public static final String[] BODY_SOURCE_PROJECTION =
+        new String[] {BodyColumns.SOURCE_MESSAGE_KEY};
+    public static final String WHERE_MESSAGE_KEY = Body.MESSAGE_KEY + "=?";
 
     public EasOutboxService(Context _context, Mailbox _mailbox) {
         super(_context, _mailbox);
-        mContext = _context;
     }
 
     private void sendCallback(long msgId, String subject, int status) {
@@ -73,34 +79,70 @@ public class EasOutboxService extends EasSyncService {
         File tmpFile = File.createTempFile("eas_", "tmp", cacheDir);
         // Write the output to a temporary file
         try {
+            String[] cols = getRowColumns(Message.CONTENT_URI, msgId, MessageColumns.FLAGS,
+                    MessageColumns.SUBJECT);
+            int flags = Integer.parseInt(cols[0]);
+            String subject = cols[1];
+
+            boolean reply = (flags & Message.FLAG_TYPE_REPLY) != 0;
+            boolean forward = (flags & Message.FLAG_TYPE_FORWARD) != 0;
+            // The reference message and mailbox are called item and collection in EAS
+            String itemId = null;
+            String collectionId = null;
+            if (reply || forward) {
+                // First, we need to get the id of the reply/forward message
+                cols = getRowColumns(Body.CONTENT_URI, BODY_SOURCE_PROJECTION,
+                        WHERE_MESSAGE_KEY, new String[] {Long.toString(msgId)});
+                if (cols != null) {
+                    long refId = Long.parseLong(cols[0]);
+                    // Then, we need the serverId and mailboxKey of the message
+                    cols = getRowColumns(Message.CONTENT_URI, refId, SyncColumns.SERVER_ID,
+                            MessageColumns.MAILBOX_KEY);
+                    if (cols != null) {
+                        itemId = cols[0];
+                        long boxId = Long.parseLong(cols[1]);
+                        // Then, we need the serverId of the mailbox
+                        cols = getRowColumns(Mailbox.CONTENT_URI, boxId, MailboxColumns.SERVER_ID);
+                        if (cols != null) {
+                            collectionId = cols[0];
+                        }
+                    }
+                }
+            }
+
+            boolean smartSend = itemId != null && collectionId != null;
+
+            // Write the message in rfc822 format to the temporary file
             FileOutputStream fileStream = new FileOutputStream(tmpFile);
-            Rfc822Output.writeTo(mContext, msgId, fileStream);
+            Rfc822Output.writeTo(mContext, msgId, fileStream, !smartSend);
             fileStream.close();
-            // Now, get an input stream to our new file and create an entity with it
+
+            // Now, get an input stream to our temporary file and create an entity with it
             FileInputStream inputStream = new FileInputStream(tmpFile);
             InputStreamEntity inputEntity =
                 new InputStreamEntity(inputStream, tmpFile.length());
-            // Send the post to the server
-            HttpResponse resp =
-                sendHttpClientPost("SendMail&SaveInSent=T", inputEntity);
+
+            // Create the appropriate command and POST it to the server
+            String cmd = "SendMail&SaveInSent=T";
+            if (smartSend) {
+                cmd = reply ? "SmartReply" : "SmartForward";
+                cmd += "&ItemId=" + URLEncoder.encode(itemId, "UTF-8") + "&CollectionId=" 
+                    + URLEncoder.encode(collectionId, "UTF-8") + "&SaveInSent=T";
+            }
+            HttpResponse resp = sendHttpClientPost(cmd, inputEntity);
+
             inputStream.close();
             int code = resp.getStatusLine().getStatusCode();
             if (code == HttpStatus.SC_OK) {
                 userLog("Deleting message...");
-                // Yes it would be marginally faster to get only the subject, but it would also
-                // be more code; note, we need the subject for the callback below, since the
-                // message gets deleted just below.  This allows the UI to present the subject
-                // of the message in a Toast or other notification
-                Message msg = Message.restoreMessageWithId(mContext, msgId);
-                mContext.getContentResolver().delete(ContentUris.withAppendedId(
-                        Message.CONTENT_URI, msgId), null, null);
+                mContentResolver.delete(ContentUris.withAppendedId(Message.CONTENT_URI, msgId),
+                        null, null);
                 result = EmailServiceStatus.SUCCESS;
-                sendCallback(-1, msg.mSubject, EmailServiceStatus.SUCCESS);
+                sendCallback(-1, subject, EmailServiceStatus.SUCCESS);
             } else {
                 ContentValues cv = new ContentValues();
                 cv.put(SyncColumns.SERVER_ID, SEND_FAILED);
                 Message.update(mContext, Message.CONTENT_URI, msgId, cv);
-                // TODO REMOTE_EXCEPTION is temporary; add better error codes
                 result = EmailServiceStatus.REMOTE_EXCEPTION;
                 if (isAuthError(code)) {
                     result = EmailServiceStatus.LOGIN_FAILED;
@@ -127,6 +169,7 @@ public class EasOutboxService extends EasSyncService {
 
         File cacheDir = mContext.getCacheDir();
         try {
+            mDeviceId = SyncManager.getDeviceId();
             Cursor c = mContext.getContentResolver().query(Message.CONTENT_URI,
                     Message.ID_COLUMN_PROJECTION, MAILBOX_KEY_AND_NOT_SEND_FAILED,
                     new String[] {Long.toString(mMailbox.mId)}, null);
@@ -150,6 +193,8 @@ public class EasOutboxService extends EasSyncService {
                  c.close();
             }
             mExitStatus = EXIT_DONE;
+        } catch (IOException e) {
+            mExitStatus = EXIT_IO_ERROR;
         } catch (Exception e) {
             mExitStatus = EXIT_EXCEPTION;
         } finally {
