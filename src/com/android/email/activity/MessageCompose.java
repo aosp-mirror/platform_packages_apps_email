@@ -18,6 +18,7 @@ package com.android.email.activity;
 
 import com.android.email.Controller;
 import com.android.email.Email;
+import com.android.email.EmailAddressAdapter;
 import com.android.email.EmailAddressValidator;
 import com.android.email.R;
 import com.android.email.mail.Address;
@@ -470,19 +471,18 @@ public class MessageCompose extends Activity implements OnClickListener, OnFocus
 
         mQuotedTextDelete.setOnClickListener(this);
 
-        // Temporarily disable addressAdapter, see BUG 2077496
-        // EmailAddressAdapter addressAdapter = new EmailAddressAdapter(this);
+        EmailAddressAdapter addressAdapter = new EmailAddressAdapter(this);
         EmailAddressValidator addressValidator = new EmailAddressValidator();
 
-        // mToView.setAdapter(addressAdapter);
+        mToView.setAdapter(addressAdapter);
         mToView.setTokenizer(new Rfc822Tokenizer());
         mToView.setValidator(addressValidator);
 
-        // mCcView.setAdapter(addressAdapter);
+        mCcView.setAdapter(addressAdapter);
         mCcView.setTokenizer(new Rfc822Tokenizer());
         mCcView.setValidator(addressValidator);
 
-        // mBccView.setAdapter(addressAdapter);
+        mBccView.setAdapter(addressAdapter);
         mBccView.setTokenizer(new Rfc822Tokenizer());
         mBccView.setValidator(addressValidator);
 
