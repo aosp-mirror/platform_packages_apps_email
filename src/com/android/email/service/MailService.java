@@ -511,6 +511,9 @@ public class MailService extends Service {
             } else {
                 updateAccountReport(accountId, -1);
             }
+            if (result != null || progress == 100) {
+                Email.updateMailboxRefreshTime(mailboxId);
+            }
         }
 
         public void updateMailboxListCallback(MessagingException result, long accountId,

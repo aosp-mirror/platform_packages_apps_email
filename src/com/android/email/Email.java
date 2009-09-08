@@ -29,9 +29,11 @@ import android.content.ComponentName;
 import android.content.Context;
 import android.content.pm.PackageManager;
 import android.database.Cursor;
+import android.text.format.DateUtils;
 import android.util.Log;
 
 import java.io.File;
+import java.util.HashMap;
 
 public class Email extends Application {
     public static final String LOG_TAG = "Email";
@@ -138,6 +140,9 @@ public class Email extends Application {
      */
     public static final int MAX_ATTACHMENT_UPLOAD_SIZE = (5 * 1024 * 1024);
 
+    private static HashMap<Long, Long> sMailboxSyncTimes = new HashMap<Long, Long>();
+    private static final long UPDATE_INTERVAL = 5 * DateUtils.MINUTE_IN_MILLIS;
+
     /**
      * Called throughout the application when the number of accounts has changed. This method
      * enables or disables the Compose activity, the boot receiver and the service based on
@@ -151,7 +156,7 @@ public class Email extends Application {
                     EmailContent.Account.ID_PROJECTION,
                     null, null, null);
             boolean enable = c.getCount() > 0;
-            setServicesEnabled(context, c.getCount() > 0);
+            setServicesEnabled(context, enable);
         } finally {
             if (c != null) {
                 c.close();
@@ -229,5 +234,29 @@ public class Email extends Application {
      */
     public static void log(String message) {
         Log.d(LOG_TAG, message);
+    }
+
+    /**
+     * Update the time when the mailbox is refreshed
+     * @param mailboxId mailbox which need to be updated
+     */
+    public static void updateMailboxRefreshTime(long mailboxId) {
+        synchronized (sMailboxSyncTimes) {
+            sMailboxSyncTimes.put(mailboxId, System.currentTimeMillis());
+        }
+    }
+
+    /**
+     * Check if the mailbox is need to be refreshed
+     * @param mailboxId mailbox checked the need of refreshing
+     * @return the need of refreshing
+     */
+    public static boolean mailboxRequiresRefresh(long mailboxId) {
+        synchronized (sMailboxSyncTimes) {
+            return
+                !sMailboxSyncTimes.containsKey(mailboxId)
+                || (System.currentTimeMillis() - sMailboxSyncTimes.get(mailboxId)
+                        > UPDATE_INTERVAL);
+        }
     }
 }
