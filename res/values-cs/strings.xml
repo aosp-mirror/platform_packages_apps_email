@@ -15,191 +15,242 @@
 -->
 <resources xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:xliff="urn:oasis:names:tc:xliff:document:1.2">
-    <string name="read_attachment_label">"přečíst přílohy e-mailu"</string>
-    <string name="read_attachment_desc">"Umožňuje této aplikaci čtení e-mailových příloh."</string>
-    <string name="app_name">"E-mail"</string>
-    <string name="accounts_title">"Vaše účty"</string>
-    <string name="compose_title">"Nová"</string>
-    <string name="debug_title">"Ladění"</string>
-    <string name="next_action">"Další"</string>
-    <string name="okay_action">"OK"</string>
-    <string name="cancel_action">"Zrušit"</string>
-    <string name="send_action">"Odeslat"</string>
-    <string name="reply_action">"Odpovědět"</string>
-    <string name="reply_all_action">"Odpovědět všem"</string>
-    <string name="delete_action">"Smazat"</string>
-    <string name="forward_action">"Přeposlat"</string>
-    <string name="done_action">"Hotovo"</string>
-    <string name="discard_action">"Zrušit"</string>
-    <string name="save_draft_action">"Uložit jako koncept"</string>
-    <string name="refresh_action">"Obnovit"</string>
-    <string name="add_account_action">"Přidat účet"</string>
-    <string name="compose_action">"Nová"</string>
-    <string name="search_action">"Hledat"</string>
-    <string name="open_action">"Otevřít"</string>
-    <string name="account_settings_action">"Nastavení účtu"</string>
-    <string name="remove_account_action">"Odebrat účet"</string>
-    <string name="accounts_action">"Účty"</string>
-    <string name="mark_as_read_action">"Označit jako přečtené"</string>
-    <string name="mark_as_unread_action">"Označit jako nepřečtené"</string>
-    <string name="add_cc_bcc_action">"Přidat příjemce kopie/skryté kopie"</string>
-    <string name="add_attachment_action">"Připojit přílohu"</string>
-    <string name="dump_settings_action">"Nastavení výpisu"</string>
-    <string name="choose_attachment_dialog_title">"Výběr přílohy"</string>
-    <string name="accounts_context_menu_title">"Možnosti účtu"</string>
-    <string name="status_loading_more">"Načítání zpráv..."</string>
-    <string name="status_sending_messages">"Odesílání zpráv..."</string>
-    <string name="status_network_error">"Chyba připojení"</string>
-    <string name="status_sending_messages_failed">"Nový pokus o odeslání zpráv"</string>
-    <string name="status_loading_more_failed">"Opakovat načítání dalších zpráv"</string>
-    <string name="notification_new_title">"Nový e-mail"</string>
+    <string name="read_attachment_label" msgid="1300286008047638726">"přečíst přílohy e-mailu"</string>
+    <string name="read_attachment_desc" msgid="7594746717616308643">"Umožňuje této aplikaci čtení e-mailových příloh."</string>
+    <string name="app_name" msgid="5815426892327290362">"E-mail"</string>
+    <!-- no translation found for accounts_title (6622149231904649210) -->
+    <skip />
+    <string name="compose_title" msgid="427986915662706899">"Nová"</string>
+    <string name="debug_title" msgid="5175710493691536719">"Ladění"</string>
+    <string name="next_action" msgid="3931301986364184415">"Další"</string>
+    <string name="okay_action" msgid="8365197396795675617">"OK"</string>
+    <string name="cancel_action" msgid="6967435583794021865">"Zrušit"</string>
+    <string name="send_action" msgid="1729766205562446418">"Odeslat"</string>
+    <string name="reply_action" msgid="4262472229221507619">"Odpovědět"</string>
+    <string name="reply_all_action" msgid="6192179825726332152">"Odpovědět všem"</string>
+    <string name="delete_action" msgid="8421026208288857155">"Smazat"</string>
+    <string name="forward_action" msgid="669174181042344116">"Přeposlat"</string>
+    <string name="done_action" msgid="7497990549515580249">"Hotovo"</string>
+    <string name="discard_action" msgid="6532206074859505968">"Zrušit"</string>
+    <string name="save_draft_action" msgid="812855865552028622">"Uložit jako koncept"</string>
+    <!-- no translation found for read_unread_action (4721446664849165077) -->
+    <skip />
+    <!-- no translation found for read_action (8808106321114050437) -->
+    <skip />
+    <!-- no translation found for unread_action (3289668045268549517) -->
+    <skip />
+    <!-- no translation found for favorite_action (2911296685862420689) -->
+    <skip />
+    <!-- no translation found for set_star_action (2257228471455207274) -->
+    <skip />
+    <!-- no translation found for remove_star_action (7138942302684775768) -->
+    <skip />
+    <string name="refresh_action" msgid="5951383001436708175">"Obnovit"</string>
+    <string name="add_account_action" msgid="8835736309476033727">"Přidat účet"</string>
+    <string name="compose_action" msgid="4045702519637388045">"Nová"</string>
+    <string name="search_action" msgid="6325101454876682308">"Hledat"</string>
+    <string name="open_action" msgid="936766723989190816">"Otevřít"</string>
+    <string name="account_settings_action" msgid="4494079183315085171">"Nastavení účtu"</string>
+    <string name="remove_account_action" msgid="3789169090601376209">"Odebrat účet"</string>
+    <!-- no translation found for folders_action (7502431531355227666) -->
+    <skip />
+    <string name="accounts_action" msgid="901105887272231493">"Účty"</string>
+    <string name="mark_as_read_action" msgid="5031651846998842419">"Označit jako přečtené"</string>
+    <string name="mark_as_unread_action" msgid="3766298115778767554">"Označit jako nepřečtené"</string>
+    <string name="add_cc_bcc_action" msgid="5569074812077509737">"Přidat příjemce kopie/skryté kopie"</string>
+    <string name="add_attachment_action" msgid="2696013743130573897">"Připojit přílohu"</string>
+    <string name="dump_settings_action" msgid="4478192525236169829">"Nastavení výpisu"</string>
+    <string name="choose_attachment_dialog_title" msgid="81937507117528954">"Výběr přílohy"</string>
+    <string name="accounts_context_menu_title" msgid="1053701760934475027">"Možnosti účtu"</string>
+    <string name="status_loading_more" msgid="1580386959044617884">"Načítání zpráv..."</string>
+    <string name="status_sending_messages" msgid="3971880826111264523">"Odesílání zpráv..."</string>
+    <string name="status_network_error" msgid="6045933332005067021">"Chyba připojení"</string>
+    <string name="status_sending_messages_failed" msgid="7975009558738692407">"Nový pokus o odeslání zpráv"</string>
+    <string name="status_loading_more_failed" msgid="1629172047185323">"Opakovat načítání dalších zpráv"</string>
+    <string name="notification_new_title" msgid="2200257910380529139">"Nový e-mail"</string>
   <plurals name="notification_new_one_account_fmt">
-    <item quantity="one">"<xliff:g id="UNREAD_MESSAGE_COUNT">%d</xliff:g> nepřečtená zpráva (<xliff:g id="ACCOUNT">%s</xliff:g>)"</item>
-    <item quantity="few">"Nepřečtené zprávy: <xliff:g id="UNREAD_MESSAGE_COUNT">%d</xliff:g> (<xliff:g id="ACCOUNT">%s</xliff:g>)"</item>
-    <item quantity="other">"Nepřečtené zprávy: <xliff:g id="UNREAD_MESSAGE_COUNT">%d</xliff:g> (<xliff:g id="ACCOUNT">%s</xliff:g>)"</item>
+    <item quantity="one" msgid="3422945912787702191">"<xliff:g id="UNREAD_MESSAGE_COUNT">%d</xliff:g> nepřečtená zpráva (<xliff:g id="ACCOUNT">%s</xliff:g>)"</item>
+    <item quantity="few" msgid="6543078667692990869">"Nepřečtené zprávy: <xliff:g id="UNREAD_MESSAGE_COUNT">%d</xliff:g> (<xliff:g id="ACCOUNT">%s</xliff:g>)"</item>
+    <item quantity="other" msgid="6937673814351448076">"Nepřečtené zprávy: <xliff:g id="UNREAD_MESSAGE_COUNT">%d</xliff:g> (<xliff:g id="ACCOUNT">%s</xliff:g>)"</item>
   </plurals>
   <plurals name="notification_new_multi_account_fmt">
-    <item quantity="few">"v(e) <xliff:g id="NUMBER_ACCOUNTS">%d</xliff:g> účtech"</item>
-    <item quantity="other">"v(e) <xliff:g id="NUMBER_ACCOUNTS">%d</xliff:g> účtech"</item>
+    <item quantity="few" msgid="1991747245324120305">"v(e) <xliff:g id="NUMBER_ACCOUNTS">%d</xliff:g> účtech"</item>
+    <item quantity="other" msgid="2723797835410343458">"v(e) <xliff:g id="NUMBER_ACCOUNTS">%d</xliff:g> účtech"</item>
   </plurals>
-    <string name="special_mailbox_name_inbox">"Doručená pošta"</string>
-    <string name="special_mailbox_display_name_outbox">"Pošta k odeslání"</string>
-    <string name="special_mailbox_display_name_drafts">"Koncepty"</string>
-    <string name="special_mailbox_display_name_trash">"Koš"</string>
-    <string name="special_mailbox_display_name_sent">"Odeslaná pošta"</string>
-    <string name="accounts_welcome">"Vítá vás nastavení aplikace Email!"\n\n"V aplikaci Email můžete používat jakékoli e-mailové účty."\n\n"Nejznámější e-mailové účty lze nastavit ve dvou krocích!"</string>
-    <string name="debug_version_fmt">"Verze: <xliff:g id="VERSION">%s</xliff:g>"</string>
-    <string name="debug_enable_debug_logging_label">"Povolit zvláštní protokolování ladění?"</string>
-    <string name="debug_enable_sensitive_logging_label">"Povolit protokolování ladění citlivých informací? (Může zobrazovat hesla v protokolech.)"</string>
-    <string name="message_list_load_more_messages_action">"Načíst další zprávy"</string>
-    <string name="message_list_send_pending_messages_action">"Odeslat odchozí zprávy"</string>
-    <string name="message_compose_to_hint">"Komu"</string>
-    <string name="message_compose_cc_hint">"Kopie"</string>
-    <string name="message_compose_bcc_hint">"Skrytá kopie"</string>
-    <string name="message_compose_subject_hint">"Předmět"</string>
-    <string name="message_compose_body_hint">"Napsat e-mail"</string>
-    <string name="message_compose_fwd_header_fmt">\n\n"-------- Původní zpráva --------"\n"Předmět: <xliff:g id="SUBJECT">%s</xliff:g>"\n"Odesílatel: <xliff:g id="SENDER">%s</xliff:g>"\n"Komu: <xliff:g id="TO">%s</xliff:g>"\n"Kopie: <xliff:g id="CC_0">%s</xliff:g>"\n\n</string>
-    <string name="message_compose_reply_header_fmt">\n\n"<xliff:g id="SENDER">%s</xliff:g>napsal/a:"\n\n</string>
-    <string name="message_compose_quoted_text_label">"Text v uvozovkách"</string>
-    <string name="message_compose_error_no_recipients">"Je třeba přidat nejméně jednoho příjemce."</string>
-    <string name="message_compose_attachments_skipped_toast">"Některé přílohy nelze přeposlat, protože nebyly staženy."</string>
-    <string name="message_compose_attachment_size">"Soubor nelze připojit, protože je příliš velký."</string>
-    <string name="message_view_to_label">"Komu:"</string>
-    <string name="message_view_cc_label">"Kopie:"</string>
-    <string name="message_view_attachment_view_action">"Otevřít"</string>
-    <string name="message_view_attachment_download_action">"Uložit"</string>
-    <string name="message_view_status_attachment_saved">"Příloha byla uložena na SD kartu jako <xliff:g id="FILENAME">%s</xliff:g>."</string>
-    <string name="message_view_status_attachment_not_saved">"Nelze uložit přílohu na SD kartu."</string>
-    <string name="message_view_show_pictures_instructions">"Výběrem možnosti Zobrazit obrázky zobrazíte vnořené obrázky."</string>
-    <string name="message_view_show_pictures_action">"Zobrazit obrázky"</string>
-    <string name="message_view_fetching_attachment_toast">"Načítání přílohy"</string>
-    <string name="message_view_fetching_attachment_progress">"Načítání přílohy <xliff:g id="FILENAME">%s</xliff:g>"</string>
-    <string name="message_deleted_toast">"Zpráva byla smazána."</string>
-    <string name="message_discarded_toast">"Zpráva byla zrušena."</string>
-    <string name="message_saved_toast">"Zpráva byla uložena jako koncept."</string>
-    <string name="add_contact_dlg_title">"Přidat kontakt"</string>
-    <string name="add_contact_dlg_message_fmt">"Přidat „<xliff:g id="EMAIL">%s</xliff:g>“ do kontaktů"</string>
-    <string name="message_view_display_attachment_toast">"Tuto přílohu nelze zobrazit."</string>
-    <string name="account_setup_basics_title">"Nastavit e-mail"</string>
-    <string name="account_setup_basics_instructions">"Zadejte e-mailovou adresu účtu:"</string>
-    <string name="account_setup_basics_email_hint">"E-mailová adresa"</string>
-    <string name="account_setup_basics_password_hint">"Heslo"</string>
-    <string name="account_setup_basics_default_label">"Ve výchozím nastavení odesílat e-maily z tohoto účtu."</string>
-    <string name="account_setup_basics_manual_setup_action">"Ruční nastavení"</string>
-    <string name="account_setup_username_password_toast">"Zadejte platnou e-mailovou adresu a heslo."</string>
-    <string name="account_setup_check_settings_retr_info_msg">"Načítání informací o účtu..."</string>
-    <string name="account_setup_check_settings_check_incoming_msg">"Kontrola nastavení serveru příchozí pošty..."</string>
-    <string name="account_setup_check_settings_check_outgoing_msg">"Kontrola nastavení serveru odchozí pošty..."</string>
-    <string name="account_setup_check_settings_canceling_msg">"Probíhá zrušení..."</string>
-    <string name="account_setup_names_title">"Nastavit e-mail"</string>
-    <string name="account_setup_names_instructions">"Váš účet je nastaven, e-mail je na cestě!"</string>
-    <string name="account_setup_names_account_name_label">"Pojmenovat tento účet (nepovinné)"</string>
-    <string name="account_setup_names_user_name_label">"Vaše jméno (zobrazované v odchozích zprávách)"</string>
-    <string name="account_setup_account_type_title">"Přidat nový e-mailový účet"</string>
-    <string name="account_setup_account_type_instructions">"O jaký typ účtu se jedná?"</string>
-    <string name="account_setup_account_type_pop_action">"Účet POP3"</string>
-    <string name="account_setup_account_type_imap_action">"Účet IMAP"</string>
-    <string name="account_setup_account_type_exchange_action">"Exchange/ActiveSync"</string>
-    <string name="account_setup_incoming_title">"Nastavení serveru příchozí pošty"</string>
-    <string name="account_setup_incoming_username_label">"Uživatelské jméno"</string>
-    <string name="account_setup_incoming_password_label">"Heslo"</string>
-    <string name="account_setup_incoming_pop_server_label">"Server POP"</string>
-    <string name="account_setup_incoming_imap_server_label">"Server IMAP"</string>
-    <string name="account_setup_incoming_port_label">"Port"</string>
-    <string name="account_setup_incoming_security_label">"Typ zabezpečení"</string>
-    <string name="account_setup_incoming_security_none_label">"Nic"</string>
-    <string name="account_setup_incoming_security_ssl_optional_label">"SSL (pokud je k dispozici)"</string>
-    <string name="account_setup_incoming_security_ssl_label">"SSL (vždy)"</string>
-    <string name="account_setup_incoming_security_tls_optional_label">"TLS (je-li k dispozici)"</string>
-    <string name="account_setup_incoming_security_tls_label">"TLS (vždy)"</string>
-    <string name="account_setup_incoming_delete_policy_label">"Odstranit e-mail ze serveru"</string>
-    <string name="account_setup_incoming_delete_policy_never_label">"Nikdy"</string>
-    <string name="account_setup_incoming_delete_policy_7days_label">"Po 7 dnech"</string>
-    <string name="account_setup_incoming_delete_policy_delete_label">"Při odstranění ze složky Doručená pošta"</string>
-    <string name="account_setup_incoming_imap_path_prefix_label">"Předpona cesty IMAP"</string>
-    <string name="account_setup_incoming_imap_path_prefix_hint">"Nepovinné"</string>
-    <string name="account_setup_outgoing_title">"Nastavení odchozího serveru"</string>
-    <string name="account_setup_outgoing_smtp_server_label">"Server SMTP"</string>
-    <string name="account_setup_outgoing_port_label">"Port"</string>
-    <string name="account_setup_outgoing_security_label">"Typ zabezpečení"</string>
-    <string name="account_setup_outgoing_require_login_label">"Požadovat přihlášení"</string>
-    <string name="account_setup_outgoing_username_label">"Uživatelské jméno"</string>
-    <string name="account_setup_outgoing_password_label">"Heslo"</string>
-    <string name="account_setup_exchange_title">"Nastavení serveru Exchange"</string>
-    <string name="account_setup_exchange_server_label">"Exchange Server"</string>
-    <string name="account_setup_exchange_domain_label">"Doména"</string>
-    <string name="account_setup_exchange_domain_hint">"Sem zadejte doménu"</string>
-    <string name="account_setup_exchange_ssl_label">"Použít zabezpečené připojení (SSL)"</string>
-    <string name="account_setup_options_title">"Možnosti účtu"</string>
-    <string name="account_setup_options_mail_check_frequency_label">"Četnost kontrol e-mailů"</string>
-    <string name="account_setup_options_mail_check_frequency_never">"Nikdy"</string>
-    <string name="account_setup_options_mail_check_frequency_push">"Automaticky (v případě potřeby)"</string>
-    <string name="account_setup_options_mail_check_frequency_5min">"Každých 5 minut"</string>
-    <string name="account_setup_options_mail_check_frequency_10min">"Každých 10 minut"</string>
-    <string name="account_setup_options_mail_check_frequency_15min">"Každých 15 minut"</string>
-    <string name="account_setup_options_mail_check_frequency_30min">"Každých 30 minut"</string>
-    <string name="account_setup_options_mail_check_frequency_1hour">"Každou hodinu"</string>
-    <string name="account_setup_options_default_label">"Ve výchozím nastavení odesílat e-maily z tohoto účtu."</string>
-    <string name="account_setup_options_notify_label">"Upozornit mě na příchozí e-mail"</string>
-    <string name="account_setup_failed_dlg_title">"Nastavení nelze dokončit"</string>
-    <string name="account_setup_options_mail_window_label">"Množství k synchronizaci"</string>
-    <string name="account_setup_options_mail_window_1day">"Jeden den"</string>
-    <string name="account_setup_options_mail_window_3days">"Tři dny"</string>
-    <string name="account_setup_options_mail_window_1week">"Jeden týden"</string>
-    <string name="account_setup_options_mail_window_2weeks">"Dva týdny"</string>
-    <string name="account_setup_options_mail_window_1month">"Jeden měsíc"</string>
-    <string name="account_setup_options_mail_window_all">"Všechna pošta"</string>
-    <string name="account_setup_failed_dlg_auth_message">"Uživatelské jméno nebo heslo není správné"</string>
-    <string name="account_setup_failed_dlg_auth_message_fmt">"Uživatelské jméno nebo heslo není správné."\n"(<xliff:g id="ERROR">%s</xliff:g>)"</string>
-    <string name="account_setup_failed_dlg_certificate_message">"Nelze se bezpečně připojit k serveru."</string>
-    <string name="account_setup_failed_dlg_certificate_message_fmt">"Nelze se bezpečně připojit k serveru."\n"(<xliff:g id="ERROR">%s</xliff:g>)"</string>
-    <string name="account_setup_failed_dlg_server_message">"Nelze se připojit k serveru."</string>
-    <string name="account_setup_failed_dlg_server_message_fmt">"Nelze se připojit k serveru."\n"(<xliff:g id="ERROR">%s</xliff:g>)"</string>
-    <string name="account_setup_failed_tls_required">"Služba TLS je požadována, ale není podporována na serveru."</string>
-    <string name="account_setup_failed_auth_required">"Server nepodporuje metody ověření."</string>
-    <string name="account_setup_failed_security">"Nelze navázat připojení k serveru z důvodu chyby zabezpečení."</string>
-    <string name="account_setup_failed_ioerror">"Nelze navázat připojení k serveru."</string>
-    <string name="account_setup_failed_dlg_edit_details_action">"Upravit podrobnosti"</string>
-    <string name="account_settings_title_fmt">"Obecná nastavení"</string>
-    <string name="account_settings_default_label">"Výchozí účet"</string>
-    <string name="account_settings_default_summary">"Ve výchozím nastavení odesílat e-maily z tohoto účtu"</string>
-    <string name="account_settings_notify_label">"Upozornění na e-maily"</string>
-    <string name="account_settings_notify_summary">"Zobrazit upozornění na příchozí e-mail na stavovém řádku"</string>
-    <string name="account_settings_mail_check_frequency_label">"Četnost kontrol e-mailů"</string>
-    <string name="account_settings_incoming_label">"Nastavení příchozí pošty"</string>
-    <string name="account_settings_outgoing_label">"Nastavení odchozí pošty"</string>
-    <string name="account_settings_add_account_label">"Přidat další účet"</string>
-    <string name="account_settings_description_label">"Název účtu"</string>
-    <string name="account_settings_name_label">"Vaše jméno"</string>
-    <string name="account_settings_notifications">"Nastavení upozornění"</string>
-    <string name="account_settings_vibrate_enable">"Vibrovat"</string>
-    <string name="account_settings_vibrate_summary">"Při obdržení e-mailu také vibrovat"</string>
-    <string name="account_settings_ringtone">"Zvolit vyzváněcí tón"</string>
-    <string name="account_settings_servers">"Nastavení serveru"</string>
-    <string name="account_delete_dlg_title">"Odebrat účet"</string>
-    <string name="account_delete_dlg_instructions_fmt">"Účet <xliff:g id="ACCOUNT">%s</xliff:g> bude z aplikace Email odebrán."</string>
-    <string name="provider_note_yahoo">"Přístup do schránky není u některých poštovních účtů Yahoo! podporován. Pokud máte problémy s připojením, získáte další informace na webové stránce yahoo.com."</string>
-    <string name="provider_note_yahoo_uk">"Před nastavením tohoto e-mailového účtu přejděte na web Yahoo! a povolte u tohoto účtu e-mailový přístup POP3."</string>
-    <string name="provider_note_live">"Pouze některé účty typu Plus obsahují přístup POP umožňující připojení tohoto programu. Pokud se nemůžete přihlásit se správnou e-mailovou adresou a heslem, pravděpodobně nemáte placený účet Plus. Spusťte webový prohlížeč a vyhledejte přístup k těmto poštovním účtům."</string>
-    <string name="provider_note_t_online">"Před nastavením tohoto e-mailového účtu navštivte web T-Online a vytvořte heslo pro e-mailový přístup POP3."</string>
+    <string name="special_mailbox_name_inbox" msgid="6549604962520041083">"Doručená pošta"</string>
+    <!-- no translation found for special_mailbox_display_name_inbox (5698658177687000229) -->
+    <skip />
+    <string name="special_mailbox_display_name_outbox" msgid="1884580655148530989">"Pošta k odeslání"</string>
+    <string name="special_mailbox_display_name_drafts" msgid="5919687165402808119">"Koncepty"</string>
+    <string name="special_mailbox_display_name_trash" msgid="7042673673630272056">"Koš"</string>
+    <string name="special_mailbox_display_name_sent" msgid="3952772015118466625">"Odeslaná pošta"</string>
+    <!-- no translation found for special_mailbox_display_name_junk (4269251004068675867) -->
+    <skip />
+    <string name="debug_version_fmt" msgid="6160213145745376955">"Verze: <xliff:g id="VERSION">%s</xliff:g>"</string>
+    <string name="debug_enable_debug_logging_label" msgid="2715742416050944774">"Povolit zvláštní protokolování ladění?"</string>
+    <string name="debug_enable_sensitive_logging_label" msgid="9010809457943556126">"Povolit protokolování ladění citlivých informací? (Může zobrazovat hesla v protokolech.)"</string>
+    <!-- no translation found for debug_enable_exchange_logging_label (7152247709069992487) -->
+    <skip />
+    <!-- no translation found for debug_enable_exchange_file_logging_label (2264994303719050729) -->
+    <skip />
+    <!-- no translation found for account_folder_list_separator_accounts (7568820182396669244) -->
+    <skip />
+    <!-- no translation found for account_folder_list_summary_inbox (7518263761297423255) -->
+    <skip />
+    <!-- no translation found for account_folder_list_summary_unread (1200755158196002928) -->
+    <skip />
+    <!-- no translation found for account_folder_list_summary_favorite (3476887425137403925) -->
+    <skip />
+    <!-- no translation found for account_folder_list_summary_drafts (5514845993247300437) -->
+    <skip />
+    <!-- no translation found for account_folder_list_summary_outbox (3059836696049399377) -->
+    <skip />
+    <!-- no translation found for mailbox_list_title (8299608543467211089) -->
+    <skip />
+    <string name="message_list_load_more_messages_action" msgid="7428302707908825692">"Načíst další zprávy"</string>
+    <string name="message_list_send_pending_messages_action" msgid="9100624762133992435">"Odeslat odchozí zprávy"</string>
+    <!-- no translation found for message_list_title (6927798150197177235) -->
+    <skip />
+    <string name="message_compose_to_hint" msgid="2891895306418177013">"Komu"</string>
+    <string name="message_compose_cc_hint" msgid="8481884461031434144">"Kopie"</string>
+    <string name="message_compose_bcc_hint" msgid="9177337492358841680">"Skrytá kopie"</string>
+    <string name="message_compose_subject_hint" msgid="6993487234024160782">"Předmět"</string>
+    <string name="message_compose_body_hint" msgid="7575406246484103697">"Napsat e-mail"</string>
+    <string name="message_compose_fwd_header_fmt" msgid="5181300290654579434">\n\n"-------- Původní zpráva --------"\n"Předmět: <xliff:g id="SUBJECT">%s</xliff:g>"\n"Odesílatel: <xliff:g id="SENDER">%s</xliff:g>"\n"Komu: <xliff:g id="TO">%s</xliff:g>"\n"Kopie: <xliff:g id="CC_0">%s</xliff:g>"\n\n</string>
+    <string name="message_compose_reply_header_fmt" msgid="8815624773273454573">\n\n"<xliff:g id="SENDER">%s</xliff:g>napsal/a:"\n\n</string>
+    <string name="message_compose_quoted_text_label" msgid="5722467956990009520">"Text v uvozovkách"</string>
+    <string name="message_compose_error_no_recipients" msgid="4903715888250785486">"Je třeba přidat nejméně jednoho příjemce."</string>
+    <!-- no translation found for message_compose_error_invalid_email (1817633338629885643) -->
+    <skip />
+    <string name="message_compose_attachments_skipped_toast" msgid="5611815773808423460">"Některé přílohy nelze přeposlat, protože nebyly staženy."</string>
+    <string name="message_compose_attachment_size" msgid="4401081828287333647">"Soubor nelze připojit, protože je příliš velký."</string>
+    <!-- no translation found for message_compose_display_name (6415258924917140704) -->
+    <skip />
+    <string name="message_view_to_label" msgid="6485191743265527381">"Komu:"</string>
+    <string name="message_view_cc_label" msgid="6322992216371163122">"Kopie:"</string>
+    <string name="message_view_attachment_view_action" msgid="5353550848340829134">"Otevřít"</string>
+    <string name="message_view_attachment_download_action" msgid="7552530274014544406">"Uložit"</string>
+    <string name="message_view_status_attachment_saved" msgid="2802843795251453632">"Příloha byla uložena na SD kartu jako <xliff:g id="FILENAME">%s</xliff:g>."</string>
+    <string name="message_view_status_attachment_not_saved" msgid="5039599647697750874">"Nelze uložit přílohu na SD kartu."</string>
+    <string name="message_view_show_pictures_instructions" msgid="1156525837417031085">"Výběrem možnosti Zobrazit obrázky zobrazíte vnořené obrázky."</string>
+    <string name="message_view_show_pictures_action" msgid="5059936981743072545">"Zobrazit obrázky"</string>
+    <string name="message_view_fetching_attachment_toast" msgid="8812363375155391184">"Načítání přílohy"</string>
+    <string name="message_view_fetching_attachment_progress" msgid="8238550182655758164">"Načítání přílohy <xliff:g id="FILENAME">%s</xliff:g>"</string>
+    <string name="message_deleted_toast" msgid="1554845060991758649">"Zpráva byla smazána."</string>
+    <string name="message_discarded_toast" msgid="3891461729325584026">"Zpráva byla zrušena."</string>
+    <string name="message_saved_toast" msgid="8443125659172627665">"Zpráva byla uložena jako koncept."</string>
+    <string name="add_contact_dlg_title" msgid="7424641029188006580">"Přidat kontakt"</string>
+    <string name="add_contact_dlg_message_fmt" msgid="4470846346726847478">"Přidat „<xliff:g id="EMAIL">%s</xliff:g>“ do kontaktů"</string>
+    <string name="message_view_display_attachment_toast" msgid="6096315816776330821">"Tuto přílohu nelze zobrazit."</string>
+    <string name="account_setup_basics_title" msgid="3969856368228940980">"Nastavit e-mail"</string>
+    <!-- no translation found for accounts_welcome (269104894968296884) -->
+    <skip />
+    <!-- no translation found for account_setup_basics_instructions (2601015240806795328) -->
+    <skip />
+    <string name="account_setup_basics_email_hint" msgid="7414269319207261120">"E-mailová adresa"</string>
+    <string name="account_setup_basics_password_hint" msgid="410210049040536870">"Heslo"</string>
+    <string name="account_setup_basics_default_label" msgid="5924790142029806711">"Ve výchozím nastavení odesílat e-maily z tohoto účtu."</string>
+    <string name="account_setup_basics_manual_setup_action" msgid="8053852205391155912">"Ruční nastavení"</string>
+    <string name="account_setup_username_password_toast" msgid="4441448542557889481">"Zadejte platnou e-mailovou adresu a heslo."</string>
+    <string name="account_setup_check_settings_retr_info_msg" msgid="4121970450267725664">"Načítání informací o účtu..."</string>
+    <string name="account_setup_check_settings_check_incoming_msg" msgid="5356212700221438863">"Kontrola nastavení serveru příchozí pošty..."</string>
+    <string name="account_setup_check_settings_check_outgoing_msg" msgid="4033015234096725343">"Kontrola nastavení serveru odchozí pošty..."</string>
+    <string name="account_setup_check_settings_canceling_msg" msgid="5077315503721883906">"Probíhá zrušení..."</string>
+    <string name="account_setup_names_title" msgid="8875040521875381849">"Nastavit e-mail"</string>
+    <string name="account_setup_names_instructions" msgid="2880279273965835007">"Váš účet je nastaven, e-mail je na cestě!"</string>
+    <string name="account_setup_names_account_name_label" msgid="8033895024273259196">"Pojmenovat tento účet (nepovinné)"</string>
+    <string name="account_setup_names_user_name_label" msgid="8967410178488604770">"Vaše jméno (zobrazované v odchozích zprávách)"</string>
+    <string name="account_setup_account_type_title" msgid="6645576356752495504">"Přidat nový e-mailový účet"</string>
+    <string name="account_setup_account_type_instructions" msgid="114515540798408760">"O jaký typ účtu se jedná?"</string>
+    <string name="account_setup_account_type_pop_action" msgid="3958144865724586762">"Účet POP3"</string>
+    <string name="account_setup_account_type_imap_action" msgid="3471220237309488124">"Účet IMAP"</string>
+    <string name="account_setup_account_type_exchange_action" msgid="8193609147171666140">"Exchange/ActiveSync"</string>
+    <string name="account_setup_incoming_title" msgid="6862032674547580337">"Nastavení serveru příchozí pošty"</string>
+    <string name="account_setup_incoming_username_label" msgid="5700581386104070302">"Uživatelské jméno"</string>
+    <string name="account_setup_incoming_password_label" msgid="6365327603172559859">"Heslo"</string>
+    <string name="account_setup_incoming_pop_server_label" msgid="4917504440057879152">"Server POP"</string>
+    <string name="account_setup_incoming_imap_server_label" msgid="8685076830847734322">"Server IMAP"</string>
+    <string name="account_setup_incoming_port_label" msgid="8214738923690447796">"Port"</string>
+    <string name="account_setup_incoming_security_label" msgid="2110260791086007424">"Typ zabezpečení"</string>
+    <string name="account_setup_incoming_security_none_label" msgid="8300169413118264895">"Žádné"</string>
+    <string name="account_setup_incoming_security_ssl_optional_label" msgid="8550650266852041870">"SSL (pokud je k dispozici)"</string>
+    <string name="account_setup_incoming_security_ssl_label" msgid="1239685754472907538">"SSL (vždy)"</string>
+    <string name="account_setup_incoming_security_tls_optional_label" msgid="9140597901978722104">"TLS (pokud je k dispozici)"</string>
+    <string name="account_setup_incoming_security_tls_label" msgid="8930532576790946912">"TLS (vždy)"</string>
+    <string name="account_setup_incoming_delete_policy_label" msgid="9213590134693857912">"Mazat e-maily ze serveru"</string>
+    <string name="account_setup_incoming_delete_policy_never_label" msgid="3222897501875871041">"Nikdy"</string>
+    <string name="account_setup_incoming_delete_policy_7days_label" msgid="5091246829453195520">"Po 7 dnech"</string>
+    <string name="account_setup_incoming_delete_policy_delete_label" msgid="222216840911785631">"Při smazání z Doručené pošty"</string>
+    <string name="account_setup_incoming_imap_path_prefix_label" msgid="401167247072926810">"Předpona cesty IMAP"</string>
+    <string name="account_setup_incoming_imap_path_prefix_hint" msgid="9190845919067906033">"Nepovinné"</string>
+    <string name="account_setup_outgoing_title" msgid="7437215562885986394">"Nastavení serveru odchozí pošty"</string>
+    <string name="account_setup_outgoing_smtp_server_label" msgid="6035137446691195177">"Server SMTP"</string>
+    <string name="account_setup_outgoing_port_label" msgid="7573207437835827876">"Port"</string>
+    <string name="account_setup_outgoing_security_label" msgid="911398071120720589">"Typ zabezpečení"</string>
+    <string name="account_setup_outgoing_require_login_label" msgid="6371514297854287948">"Požadovat přihlášení"</string>
+    <string name="account_setup_outgoing_username_label" msgid="3309680794731596981">"Uživatelské jméno"</string>
+    <string name="account_setup_outgoing_password_label" msgid="227844585493317550">"Heslo"</string>
+    <string name="account_setup_exchange_title" msgid="247933841122558059">"Nastavení serveru Exchange"</string>
+    <string name="account_setup_exchange_server_label" msgid="5390359659749339317">"Exchange Server"</string>
+    <string name="account_setup_exchange_domain_label" msgid="3584668050727667045">"Doména"</string>
+    <string name="account_setup_exchange_domain_hint" msgid="350372033916025287">"Sem zadejte doménu"</string>
+    <string name="account_setup_exchange_ssl_label" msgid="6704105469083211236">"Použít zabezpečené připojení (SSL)"</string>
+    <string name="account_setup_options_title" msgid="8995162193118880993">"Možnosti účtu"</string>
+    <string name="account_setup_options_mail_check_frequency_label" msgid="4598023962234986194">"Četnost kontrol e-mailů"</string>
+    <string name="account_setup_options_mail_check_frequency_never" msgid="287951859480505416">"Nikdy"</string>
+    <string name="account_setup_options_mail_check_frequency_push" msgid="5934525907736008673">"Automaticky (v případě potřeby)"</string>
+    <string name="account_setup_options_mail_check_frequency_5min" msgid="6388939895878539307">"Každých 5 minut"</string>
+    <string name="account_setup_options_mail_check_frequency_10min" msgid="5344463157247877480">"Každých 10 minut"</string>
+    <string name="account_setup_options_mail_check_frequency_15min" msgid="5052776740089741793">"Každých 15 minut"</string>
+    <string name="account_setup_options_mail_check_frequency_30min" msgid="1097088928685931864">"Každých 30 minut"</string>
+    <string name="account_setup_options_mail_check_frequency_1hour" msgid="3767715356039692899">"Každou hodinu"</string>
+    <string name="account_setup_options_default_label" msgid="8869166381331276697">"Ve výchozím nastavení odesílat e-maily z tohoto účtu."</string>
+    <string name="account_setup_options_notify_label" msgid="1247525794828820038">"Upozornit mě na příchozí e-mail"</string>
+    <!-- no translation found for account_setup_options_sync_contacts_label (7467467090023434271) -->
+    <skip />
+    <string name="account_setup_failed_dlg_title" msgid="7827583313117521383">"Nastavení nelze dokončit"</string>
+    <string name="account_setup_options_mail_window_label" msgid="8764417340954006086">"Množství k synchronizaci"</string>
+    <string name="account_setup_options_mail_window_1day" msgid="3965715241135811407">"Jeden den"</string>
+    <string name="account_setup_options_mail_window_3days" msgid="736181102295878114">"Tři dny"</string>
+    <string name="account_setup_options_mail_window_1week" msgid="5639718031108023741">"Jeden týden"</string>
+    <string name="account_setup_options_mail_window_2weeks" msgid="4567049268124213035">"Dva týdny"</string>
+    <string name="account_setup_options_mail_window_1month" msgid="5846359669750047081">"Jeden měsíc"</string>
+    <string name="account_setup_options_mail_window_all" msgid="5383858972681926166">"Všechna pošta"</string>
+    <string name="account_setup_failed_dlg_auth_message" msgid="42827150104879570">"Uživatelské jméno nebo heslo není správné"</string>
+    <string name="account_setup_failed_dlg_auth_message_fmt" msgid="8598560266430207606">"Uživatelské jméno nebo heslo není správné."\n"(<xliff:g id="ERROR">%s</xliff:g>)"</string>
+    <string name="account_setup_failed_dlg_certificate_message" msgid="961843413600482906">"Nelze se bezpečně připojit k serveru."</string>
+    <string name="account_setup_failed_dlg_certificate_message_fmt" msgid="2609150986774736900">"Nelze se bezpečně připojit k serveru."\n"(<xliff:g id="ERROR">%s</xliff:g>)"</string>
+    <string name="account_setup_failed_dlg_server_message" msgid="1828270369532779265">"Nelze se připojit k serveru."</string>
+    <string name="account_setup_failed_dlg_server_message_fmt" msgid="5956976504788732779">"Nelze se připojit k serveru."\n"(<xliff:g id="ERROR">%s</xliff:g>)"</string>
+    <string name="account_setup_failed_tls_required" msgid="307030406688611327">"Služba TLS je požadována, ale není podporována na serveru."</string>
+    <string name="account_setup_failed_auth_required" msgid="1676242821459638150">"Server nepodporuje metody ověření."</string>
+    <string name="account_setup_failed_security" msgid="6142264248671379943">"Nelze navázat připojení k serveru z důvodu chyby zabezpečení."</string>
+    <string name="account_setup_failed_ioerror" msgid="7391458717708933095">"Nelze navázat připojení k serveru."</string>
+    <string name="account_setup_failed_dlg_edit_details_action" msgid="5355993309841479360">"Upravit podrobnosti"</string>
+    <string name="account_settings_title_fmt" msgid="1702058877284382340">"Obecná nastavení"</string>
+    <string name="account_settings_default_label" msgid="3575963379680943640">"Výchozí účet"</string>
+    <string name="account_settings_default_summary" msgid="1531901438624688482">"Ve výchozím nastavení odesílat e-maily z tohoto účtu"</string>
+    <string name="account_settings_notify_label" msgid="1630001017303007974">"Upozornění na e-maily"</string>
+    <string name="account_settings_notify_summary" msgid="6609224590300639887">"Zobrazit upozornění na příchozí e-mail na stavovém řádku"</string>
+    <string name="account_settings_mail_check_frequency_label" msgid="2067835530563849675">"Četnost kontrol e-mailů"</string>
+    <string name="account_settings_incoming_label" msgid="7858928031806297542">"Nastavení příchozí pošty"</string>
+    <string name="account_settings_outgoing_label" msgid="4464829249980026745">"Nastavení odchozí pošty"</string>
+    <string name="account_settings_add_account_label" msgid="63971622405360050">"Přidat další účet"</string>
+    <string name="account_settings_description_label" msgid="8894815221204511715">"Název účtu"</string>
+    <string name="account_settings_name_label" msgid="8186406122590008449">"Vaše jméno"</string>
+    <string name="account_settings_notifications" msgid="1042620094281375043">"Nastavení upozornění"</string>
+    <string name="account_settings_vibrate_enable" msgid="8045133290388856478">"Vibrovat"</string>
+    <string name="account_settings_vibrate_summary" msgid="3690631050585589365">"Při obdržení e-mailu také vibrovat"</string>
+    <string name="account_settings_ringtone" msgid="7922187231467500404">"Zvolit vyzváněcí tón"</string>
+    <string name="account_settings_servers" msgid="4925493817981624242">"Nastavení serveru"</string>
+    <string name="account_delete_dlg_title" msgid="6806087520856396608">"Odebrat účet"</string>
+    <string name="account_delete_dlg_instructions_fmt" msgid="8236846322040271280">"Účet <xliff:g id="ACCOUNT">%s</xliff:g> bude z aplikace Email odebrán."</string>
+    <string name="provider_note_yahoo" msgid="8762024183024261236">"Přístup do schránky není u některých poštovních účtů Yahoo! podporován. Pokud máte problémy s připojením, získáte další informace na webové stránce yahoo.com."</string>
+    <string name="provider_note_yahoo_uk" msgid="2055976404478603298">"Před nastavením tohoto e-mailového účtu přejděte na web Yahoo! a povolte u tohoto účtu e-mailový přístup POP3."</string>
+    <string name="provider_note_live" msgid="3584841823811425060">"Pouze některé účty typu Plus obsahují přístup POP umožňující připojení tohoto programu. Pokud se nemůžete přihlásit se správnou e-mailovou adresou a heslem, pravděpodobně nemáte placený účet Plus. Spusťte webový prohlížeč a vyhledejte přístup k těmto poštovním účtům."</string>
+    <string name="provider_note_t_online" msgid="1973701903400232774">"Před nastavením tohoto e-mailového účtu navštivte web T-Online a vytvořte heslo pro e-mailový přístup POP3."</string>
+    <!-- no translation found for exchange_name (4717956395304578039) -->
+    <skip />
+    <!-- no translation found for system_account_create_failed (4917162302393971752) -->
+    <skip />
 </resources>
