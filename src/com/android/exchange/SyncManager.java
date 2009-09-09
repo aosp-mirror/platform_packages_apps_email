@@ -18,6 +18,7 @@
 package com.android.exchange;
 
 import com.android.email.mail.MessagingException;
+import com.android.email.mail.store.TrustManagerFactory;
 import com.android.email.provider.EmailContent;
 import com.android.email.provider.EmailContent.Account;
 import com.android.email.provider.EmailContent.Attachment;
@@ -28,6 +29,19 @@ import com.android.email.provider.EmailContent.MailboxColumns;
 import com.android.email.provider.EmailContent.Message;
 import com.android.email.provider.EmailContent.SyncColumns;
 import com.android.exchange.utility.FileLogger;
+
+import org.apache.harmony.xnet.provider.jsse.SSLContextImpl;
+import org.apache.http.conn.ClientConnectionManager;
+import org.apache.http.conn.params.ConnManagerPNames;
+import org.apache.http.conn.params.ConnPerRoute;
+import org.apache.http.conn.routing.HttpRoute;
+import org.apache.http.conn.scheme.PlainSocketFactory;
+import org.apache.http.conn.scheme.Scheme;
+import org.apache.http.conn.scheme.SchemeRegistry;
+import org.apache.http.conn.ssl.SSLSocketFactory;
+import org.apache.http.impl.conn.tsccm.ThreadSafeClientConnManager;
+import org.apache.http.params.BasicHttpParams;
+import org.apache.http.params.HttpParams;
 
 import android.accounts.AccountManager;
 import android.accounts.OnAccountsUpdatedListener;
@@ -65,9 +79,15 @@ import java.io.File;
 import java.io.FileReader;
 import java.io.FileWriter;
 import java.io.IOException;
+import java.security.KeyManagementException;
+import java.security.NoSuchAlgorithmException;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
+
+import javax.net.ssl.SSLContext;
+import javax.net.ssl.TrustManager;
+import javax.net.ssl.X509TrustManager;
 
 /**
  * The SyncManager handles all aspects of starting, maintaining, and stopping the various sync
@@ -176,6 +196,8 @@ public class SyncManager extends Service implements Runnable {
     private static Thread sServiceThread = null;
     // Cached unique device id
     private static String sDeviceId = null;
+    // ConnectionManager that all EAS threads can use
+    private static ClientConnectionManager sClientConnectionManager = null;
 
     private boolean mStop = false;
 
@@ -240,10 +262,10 @@ public class SyncManager extends Service implements Runnable {
     private final IEmailService.Stub mBinder = new IEmailService.Stub() {
 
         public int validate(String protocol, String host, String userName, String password,
-                int port, boolean ssl) throws RemoteException {
+                int port, boolean ssl, boolean trustCertificates) throws RemoteException {
             try {
                 AbstractSyncService.validate(EasSyncService.class, host, userName, password, port,
-                        ssl, SyncManager.this);
+                        ssl, trustCertificates, SyncManager.this);
                 return MessagingException.NO_ERROR;
             } catch (MessagingException e) {
                 return e.getExceptionType();
@@ -670,6 +692,52 @@ public class SyncManager extends Service implements Runnable {
             Log.d(TAG, "!!! EAS SyncManager stopping self");
             stopSelf();
         }
+    }
+
+    static public ConnPerRoute sConnPerRoute = new ConnPerRoute() {
+        public int getMaxForRoute(HttpRoute route) {
+            return 8;
+        }
+    };
+
+    static public synchronized ClientConnectionManager getClientConnectionManager() {
+        if (sClientConnectionManager == null) {
+            // Create a registry for our three schemes; http and https will use built-in factories
+            SchemeRegistry registry = new SchemeRegistry();
+            registry.register(new Scheme("http",
+                    PlainSocketFactory.getSocketFactory(), 80));
+            registry.register(new Scheme("https", SSLSocketFactory.getSocketFactory(), 443));
+
+            // Create a new SSLSocketFactory for our "trusted ssl"
+            // Get the unsecure trust manager from the factory
+            X509TrustManager trustManager = TrustManagerFactory.get(null, false);
+            TrustManager[] trustManagers = new TrustManager[] {trustManager};
+            SSLContext sslcontext;
+            try {
+                sslcontext = SSLContext.getInstance("TLS");
+                sslcontext.init(null, trustManagers, null);
+                SSLContextImpl sslContext = new SSLContextImpl();
+                try {
+                    sslContext.engineInit(null, trustManagers, null, null, null);
+                } catch (KeyManagementException e) {
+                    throw new AssertionError(e);
+                }
+                // Ok, now make our factory
+                SSLSocketFactory sf = new SSLSocketFactory(sslContext.engineGetSocketFactory());
+                sf.setHostnameVerifier(SSLSocketFactory.ALLOW_ALL_HOSTNAME_VERIFIER);
+                // Register the httpts scheme with our factory
+                registry.register(new Scheme("httpts", sf, 443));
+                // And create a ccm with our registry
+                HttpParams params = new BasicHttpParams();
+                params.setIntParameter(ConnManagerPNames.MAX_TOTAL_CONNECTIONS, 25);
+                params.setParameter(ConnManagerPNames.MAX_CONNECTIONS_PER_ROUTE, sConnPerRoute);
+                sClientConnectionManager = new ThreadSafeClientConnManager(params, registry);
+            } catch (NoSuchAlgorithmException e2) {
+            } catch (KeyManagementException e1) {
+            }
+        }
+        // Null is a valid return result if we get an exception
+        return sClientConnectionManager;
     }
 
     @Override

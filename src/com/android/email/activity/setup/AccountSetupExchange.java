@@ -19,18 +19,20 @@ package com.android.email.activity.setup;
 import com.android.email.R;
 import com.android.email.Utility;
 import com.android.email.provider.EmailContent;
+import com.android.email.provider.EmailContent.Account;
 
 import android.app.Activity;
 import android.content.Intent;
 import android.os.Bundle;
 import android.text.Editable;
-import android.text.TextUtils;
 import android.text.TextWatcher;
 import android.view.View;
 import android.view.View.OnClickListener;
 import android.widget.Button;
 import android.widget.CheckBox;
+import android.widget.CompoundButton;
 import android.widget.EditText;
+import android.widget.CompoundButton.OnCheckedChangeListener;
 
 import java.net.URI;
 import java.net.URISyntaxException;
@@ -45,7 +47,8 @@ import java.net.URISyntaxException;
  *  User (login)
  *  Password
  */
-public class AccountSetupExchange extends Activity implements OnClickListener {
+public class AccountSetupExchange extends Activity implements OnClickListener, 
+        OnCheckedChangeListener {
     private static final String EXTRA_ACCOUNT = "account";
     private static final String EXTRA_MAKE_DEFAULT = "makeDefault";
     private static final String EXTRA_EAS_FLOW = "easFlow";
@@ -53,14 +56,14 @@ public class AccountSetupExchange extends Activity implements OnClickListener {
     private EditText mUsernameView;
     private EditText mPasswordView;
     private EditText mServerView;
-    private EditText mDomainView;
     private CheckBox mSslSecurityView;
+    private CheckBox mTrustCertificatesView;
 
     private Button mNextButton;
-    private EmailContent.Account mAccount;
+    private Account mAccount;
     private boolean mMakeDefault;
 
-    public static void actionIncomingSettings(Activity fromActivity, EmailContent.Account account,
+    public static void actionIncomingSettings(Activity fromActivity, Account account,
             boolean makeDefault, boolean easFlowMode) {
         Intent i = new Intent(fromActivity, AccountSetupExchange.class);
         i.putExtra(EXTRA_ACCOUNT, account);
@@ -69,7 +72,7 @@ public class AccountSetupExchange extends Activity implements OnClickListener {
         fromActivity.startActivity(i);
     }
 
-    public static void actionEditIncomingSettings(Activity fromActivity, EmailContent.Account account)
+    public static void actionEditIncomingSettings(Activity fromActivity, Account account)
             {
         Intent i = new Intent(fromActivity, AccountSetupExchange.class);
         i.setAction(Intent.ACTION_EDIT);
@@ -81,7 +84,7 @@ public class AccountSetupExchange extends Activity implements OnClickListener {
      * For now, we'll simply replicate outgoing, for the purpose of satisfying the 
      * account settings flow.
      */
-    public static void actionEditOutgoingSettings(Activity fromActivity, EmailContent.Account account)
+    public static void actionEditOutgoingSettings(Activity fromActivity, Account account)
             {
         Intent i = new Intent(fromActivity, AccountSetupExchange.class);
         i.setAction(Intent.ACTION_EDIT);
@@ -97,8 +100,9 @@ public class AccountSetupExchange extends Activity implements OnClickListener {
         mUsernameView = (EditText) findViewById(R.id.account_username);
         mPasswordView = (EditText) findViewById(R.id.account_password);
         mServerView = (EditText) findViewById(R.id.account_server);
-        mDomainView = (EditText) findViewById(R.id.account_domain);
         mSslSecurityView = (CheckBox) findViewById(R.id.account_ssl);
+        mSslSecurityView.setOnCheckedChangeListener(this);
+        mTrustCertificatesView = (CheckBox) findViewById(R.id.account_trust_certificates);
 
         mNextButton = (Button)findViewById(R.id.next);
         mNextButton.setOnClickListener(this);
@@ -121,7 +125,6 @@ public class AccountSetupExchange extends Activity implements OnClickListener {
         mUsernameView.addTextChangedListener(validationTextWatcher);
         mPasswordView.addTextChangedListener(validationTextWatcher);
         mServerView.addTextChangedListener(validationTextWatcher);
-        mDomainView.addTextChangedListener(validationTextWatcher);
 
         mAccount = (EmailContent.Account) getIntent().getParcelableExtra(EXTRA_ACCOUNT);
         mMakeDefault = getIntent().getBooleanExtra(EXTRA_MAKE_DEFAULT, false);
@@ -164,12 +167,10 @@ public class AccountSetupExchange extends Activity implements OnClickListener {
                 mServerView.setText(uri.getHost());
             }
             
-            String domain = uri.getPath();
-            if (!TextUtils.isEmpty(domain)) {
-                mDomainView.setText(domain.substring(1));
-            }
-            
-            mSslSecurityView.setChecked(uri.getScheme().contains("ssl"));
+            boolean ssl = uri.getScheme().contains("ssl");
+            mSslSecurityView.setChecked(ssl);
+            mTrustCertificatesView.setChecked(uri.getScheme().contains("tssl"));
+            mTrustCertificatesView.setVisibility(ssl ? View.VISIBLE : View.GONE);
 
         } catch (URISyntaxException use) {
             /*
@@ -233,15 +234,12 @@ public class AccountSetupExchange extends Activity implements OnClickListener {
      */
     private URI getUri() throws URISyntaxException {
         boolean sslRequired = mSslSecurityView.isChecked();
-        String scheme = sslRequired ? "eas+ssl+" : "eas";
+        boolean trustCertificates = mTrustCertificatesView.isChecked();
+        String scheme = (sslRequired) ? (trustCertificates ? "eas+tssl+" : "eas+ssl+") : "eas";
         String userInfo = mUsernameView.getText().toString().trim() + ":" + 
                 mPasswordView.getText().toString().trim();
         String host = mServerView.getText().toString().trim();
-        String domain = mDomainView.getText().toString().trim();
         String path = null;
-        if (domain.length() > 0) {
-            path = "/" + domain;
-        }
 
         URI uri = new URI(
                 scheme,
@@ -279,6 +277,12 @@ public class AccountSetupExchange extends Activity implements OnClickListener {
             case R.id.next:
                 onNext();
                 break;
+        }
+    }
+
+    public void onCheckedChanged(CompoundButton buttonView, boolean isChecked) {
+        if (buttonView.getId() == R.id.account_ssl) {
+            mTrustCertificatesView.setVisibility(isChecked ? View.VISIBLE : View.GONE);
         }
     }
 }

@@ -16,18 +16,17 @@
 
 package com.android.email.mail.store;
 
+import org.apache.harmony.xnet.provider.jsse.SSLParameters;
+
 import android.net.http.DomainNameChecker;
 
-import java.security.cert.X509Certificate;
 import java.security.cert.CertificateException;
+import java.security.cert.X509Certificate;
 
 import javax.net.ssl.X509TrustManager;
 
-import org.apache.harmony.xnet.provider.jsse.SSLParameters;
-
 public final class TrustManagerFactory {
-    private static X509TrustManager sUnsecureTrustManager
-            = new SimpleX509TrustManager();
+    private static X509TrustManager sUnsecureTrustManager = new SimpleX509TrustManager();
 
     private static class SimpleX509TrustManager implements X509TrustManager {
         public void checkClientTrusted(X509Certificate[] chain, String authType)
@@ -63,8 +62,7 @@ public final class TrustManagerFactory {
             mTrustManager.checkServerTrusted(chain, authType);
 
             if (!DomainNameChecker.match(chain[0], mHost)) {
-                throw new CertificateException("Certificate domain name does not match " 
-                        + mHost);
+                throw new CertificateException("Certificate domain name does not match " + mHost);
             }
         }
 
@@ -77,8 +75,7 @@ public final class TrustManagerFactory {
     }
 
     public static X509TrustManager get(String host, boolean secure) {
-        return secure ? new SecureX509TrustManager(
-                    SSLParameters.getDefaultTrustManager(), host) 
+        return secure ? new SecureX509TrustManager(SSLParameters.getDefaultTrustManager(), host) 
                 : sUnsecureTrustManager;
     }
 }
