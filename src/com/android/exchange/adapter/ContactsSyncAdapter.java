@@ -75,6 +75,8 @@ public class ContactsSyncAdapter extends AbstractSyncAdapter {
     private static final String[] ID_PROJECTION = new String[] {RawContacts._ID};
     private static final String[] GROUP_PROJECTION = new String[] {Groups.SOURCE_ID};
 
+    private static final String FOUND_DATA_ROW = "com.android.exchange.FOUND_ROW";
+
     private static final int[] HOME_ADDRESS_TAGS = new int[] {Tags.CONTACTS_HOME_ADDRESS_CITY,
         Tags.CONTACTS_HOME_ADDRESS_COUNTRY,
         Tags.CONTACTS_HOME_ADDRESS_POSTAL_CODE,
@@ -93,27 +95,19 @@ public class ContactsSyncAdapter extends AbstractSyncAdapter {
         Tags.CONTACTS_OTHER_ADDRESS_STATE,
         Tags.CONTACTS_OTHER_ADDRESS_STREET};
 
-    // Note: These constants are likely to change; they are internal to this class now, but
-    // may end up in the provider.
-    private static final int TYPE_EMAIL1 = 20;
-    private static final int TYPE_EMAIL2 = 21;
-    private static final int TYPE_EMAIL3 = 22;
+    private static final int MAX_IM_ROWS = 3;
+    private static final int MAX_EMAIL_ROWS = 3;
+    private static final String COMMON_DATA_ROW = Im.DATA;  // Could have been Email.DATA, etc.
 
-    // We'll split email into two columns, the one that Contacts uses (just for the email address
-    // portion, and another one (the one defined here) for the display name
-    //private static final String EMAIL_DISPLAY_NAME = Data.SYNC1;
+    private static final int[] IM_TAGS = new int[] {Tags.CONTACTS2_IM_ADDRESS,
+        Tags.CONTACTS2_IM_ADDRESS_2, Tags.CONTACTS2_IM_ADDRESS_3};
 
-    private static final int TYPE_IM1 = 23;
-    private static final int TYPE_IM2 = 24;
-    private static final int TYPE_IM3 = 25;
+    private static final int[] EMAIL_TAGS = new int[] {Tags.CONTACTS_EMAIL1_ADDRESS,
+        Tags.CONTACTS_EMAIL2_ADDRESS, Tags.CONTACTS_EMAIL3_ADDRESS};
 
     private static final int TYPE_WORK2 = 26;
     private static final int TYPE_HOME2 = 27;
-    private static final int TYPE_CAR = 28;
-    private static final int TYPE_COMPANY_MAIN = 29;
     private static final int TYPE_MMS = 30;
-    private static final int TYPE_RADIO = 31;
-    private static final int TYPE_ASSISTANT = 32;
 
     ArrayList<Long> mDeletedIdList = new ArrayList<Long>();
     ArrayList<Long> mUpdatedIdList = new ArrayList<Long>();
@@ -128,6 +122,11 @@ public class ContactsSyncAdapter extends AbstractSyncAdapter {
     public boolean parse(InputStream is) throws IOException {
         EasContactsSyncParser p = new EasContactsSyncParser(is, this);
         return p.parse();
+    }
+
+    interface UntypedRow {
+        public void addValues(RowBuilder builder);
+        public boolean isSameAs(String value);
     }
 
     /**
@@ -248,7 +247,50 @@ public class ContactsSyncAdapter extends AbstractSyncAdapter {
         }
     }
 
-    class EasContactsSyncParser extends AbstractSyncParser {
+    class EmailRow implements UntypedRow {
+        String email;
+        String displayName;
+
+        public EmailRow(String _email) {
+            Rfc822Token[] tokens = Rfc822Tokenizer.tokenize(_email);
+            // Can't happen, but belt & suspenders
+            if (tokens.length == 0) {
+                email = "";
+                displayName = "";
+            } else {
+                Rfc822Token token = tokens[0];
+                email = token.getAddress();
+                displayName = token.getName();
+            }
+        }
+
+        public void addValues(RowBuilder builder) {
+            builder.withValue(Email.DATA, email);
+            builder.withValue(Email.DISPLAY_NAME, displayName);
+        }
+
+        public boolean isSameAs(String value) {
+            return email.equalsIgnoreCase(value);
+        }
+    }
+
+    class ImRow implements UntypedRow {
+        String im;
+
+        public ImRow(String _im) {
+            im = _im;
+        }
+
+        public void addValues(RowBuilder builder) {
+            builder.withValue(Im.DATA, im);
+        }
+
+        public boolean isSameAs(String value) {
+            return im.equalsIgnoreCase(value);
+        }
+    }
+
+   class EasContactsSyncParser extends AbstractSyncParser {
 
         String[] mBindArgument = new String[1];
         String mMailboxIdAsString;
@@ -286,7 +328,8 @@ public class ContactsSyncAdapter extends AbstractSyncAdapter {
             EasBusiness business = new EasBusiness();
             EasPersonal personal = new EasPersonal();
             ArrayList<String> children = new ArrayList<String>();
-
+            ArrayList<UntypedRow> emails = new ArrayList<UntypedRow>();
+            ArrayList<UntypedRow> ims = new ArrayList<UntypedRow>();
             if (entity == null) {
                 ops.newContact(serverId);
             }
@@ -312,13 +355,9 @@ public class ContactsSyncAdapter extends AbstractSyncAdapter {
                         title = getValue();
                         break;
                     case Tags.CONTACTS_EMAIL1_ADDRESS:
-                        ops.addEmail(entity, TYPE_EMAIL1, getValue());
-                        break;
                     case Tags.CONTACTS_EMAIL2_ADDRESS:
-                        ops.addEmail(entity, TYPE_EMAIL2, getValue());
-                        break;
                     case Tags.CONTACTS_EMAIL3_ADDRESS:
-                        ops.addEmail(entity, TYPE_EMAIL3, getValue());
+                        emails.add(new EmailRow(getValue()));
                         break;
                     case Tags.CONTACTS_BUSINESS2_TELEPHONE_NUMBER:
                         ops.addPhone(entity, TYPE_WORK2, getValue());
@@ -333,7 +372,7 @@ public class ContactsSyncAdapter extends AbstractSyncAdapter {
                         ops.addPhone(entity, Phone.TYPE_FAX_WORK, getValue());
                         break;
                     case Tags.CONTACTS2_COMPANY_MAIN_PHONE:
-                        ops.addPhone(entity, TYPE_COMPANY_MAIN, getValue());
+                        ops.addPhone(entity, Phone.TYPE_COMPANY_MAIN, getValue());
                         break;
                     case Tags.CONTACTS_HOME_FAX_NUMBER:
                         ops.addPhone(entity, Phone.TYPE_FAX_HOME, getValue());
@@ -348,25 +387,21 @@ public class ContactsSyncAdapter extends AbstractSyncAdapter {
                         ops.addPhone(entity, Phone.TYPE_MOBILE, getValue());
                         break;
                     case Tags.CONTACTS_CAR_TELEPHONE_NUMBER:
-                        ops.addPhone(entity, TYPE_CAR, getValue());
+                        ops.addPhone(entity, Phone.TYPE_CAR, getValue());
                         break;
                     case Tags.CONTACTS_RADIO_TELEPHONE_NUMBER:
-                        ops.addPhone(entity, TYPE_RADIO, getValue());
+                        ops.addPhone(entity, Phone.TYPE_RADIO, getValue());
                         break;
                     case Tags.CONTACTS_PAGER_NUMBER:
                         ops.addPhone(entity, Phone.TYPE_PAGER, getValue());
                         break;
                     case Tags.CONTACTS_ASSISTANT_TELEPHONE_NUMBER:
-                        ops.addPhone(entity, TYPE_ASSISTANT, getValue());
+                        ops.addPhone(entity, Phone.TYPE_ASSISTANT, getValue());
                         break;
                     case Tags.CONTACTS2_IM_ADDRESS:
-                        ops.addIm(entity, TYPE_IM1, getValue());
-                        break;
                     case Tags.CONTACTS2_IM_ADDRESS_2:
-                        ops.addIm(entity, TYPE_IM2, getValue());
-                        break;
                     case Tags.CONTACTS2_IM_ADDRESS_3:
-                        ops.addIm(entity, TYPE_IM3, getValue());
+                        ims.add(new ImRow(getValue()));
                         break;
                     case Tags.CONTACTS_BUSINESS_ADDRESS_CITY:
                         work.city = getValue();
@@ -525,6 +560,9 @@ public class ContactsSyncAdapter extends AbstractSyncAdapter {
                     yomiFirstName, yomiLastName);
             ops.addBusiness(entity, business);
             ops.addPersonal(entity, personal);
+
+            ops.addUntyped(entity, emails, Email.CONTENT_ITEM_TYPE, MAX_EMAIL_ROWS);
+            ops.addUntyped(entity, ims, Im.CONTENT_ITEM_TYPE, MAX_IM_ROWS);
 
             if (!children.isEmpty()) {
                 ops.addChildren(entity, children);
@@ -809,25 +847,25 @@ public class ContactsSyncAdapter extends AbstractSyncAdapter {
      * see whether an update is even necessary.  The methods on SmartBuilder are delegated to
      * the Builder.
      */
-    private class SmartBuilder {
+    private class RowBuilder {
         Builder builder;
         ContentValues cv;
 
-        public SmartBuilder(Builder _builder) {
+        public RowBuilder(Builder _builder) {
             builder = _builder;
         }
 
-        public SmartBuilder(Builder _builder, NamedContentValues _ncv) {
+        public RowBuilder(Builder _builder, NamedContentValues _ncv) {
             builder = _builder;
             cv = _ncv.values;
         }
 
-        SmartBuilder withValues(ContentValues values) {
+        RowBuilder withValues(ContentValues values) {
             builder.withValues(values);
             return this;
         }
 
-        SmartBuilder withValueBackReference(String key, int previousResult) {
+        RowBuilder withValueBackReference(String key, int previousResult) {
             builder.withValueBackReference(key, previousResult);
             return this;
         }
@@ -836,7 +874,7 @@ public class ContactsSyncAdapter extends AbstractSyncAdapter {
             return builder.build();
         }
 
-        SmartBuilder withValue(String key, Object value) {
+        RowBuilder withValue(String key, Object value) {
             builder.withValue(key, value);
             return this;
         }
@@ -906,7 +944,7 @@ public class ContactsSyncAdapter extends AbstractSyncAdapter {
          * @param type the subtype (e.g. HOME, WORK, etc.)
          * @return the matching NCV or null if not found
          */
-        private NamedContentValues findExistingData(ArrayList<NamedContentValues> list,
+        private NamedContentValues findTypedData(ArrayList<NamedContentValues> list,
                 String contentItemType, int type, String stringType) {
             NamedContentValues result = null;
 
@@ -930,7 +968,40 @@ public class ContactsSyncAdapter extends AbstractSyncAdapter {
                 }
             }
 
-            // TODO Handle deleted items
+            // If we've found an existing data row, we'll delete it.  Any rows left at the
+            // end should be deleted...
+            if (result != null) {
+                list.remove(result);
+            }
+
+            // Return the row found (or null)
+            return result;
+        }
+
+        /**
+         * Given the list of NamedContentValues for an entity and a mime type
+         * gather all of the matching NCV's, returning them
+         * @param list the list of NCV's from the contact entity
+         * @param contentItemType the mime type we're looking for
+         * @param type the subtype (e.g. HOME, WORK, etc.)
+         * @return the matching NCVs
+         */
+        private ArrayList<NamedContentValues> findUntypedData(ArrayList<NamedContentValues> list,
+                String contentItemType) {
+            ArrayList<NamedContentValues> result = new ArrayList<NamedContentValues>();
+
+            // Loop through the ncv's, looking for an existing row
+            for (NamedContentValues namedContentValues: list) {
+                Uri uri = namedContentValues.uri;
+                ContentValues cv = namedContentValues.values;
+                if (Data.CONTENT_URI.equals(uri)) {
+                    String mimeType = cv.getAsString(Data.MIMETYPE);
+                    if (mimeType.equals(contentItemType)) {
+                        result.add(namedContentValues);
+                    }
+                }
+            }
+
             // If we've found an existing data row, we'll delete it.  Any rows left at the
             // end should be deleted...
             if (result != null) {
@@ -956,42 +1027,57 @@ public class ContactsSyncAdapter extends AbstractSyncAdapter {
          * @param stringType for groups, the name of the group (type will be ignored), or null
          * @return the created SmartBuilder
          */
-        public SmartBuilder createBuilder(Entity entity, String mimeType, int type) {
-            return createBuilder(entity, mimeType, type, null);
-        }
-
-        public SmartBuilder createBuilder(Entity entity, String mimeType, int type,
+        public RowBuilder createBuilder(Entity entity, String mimeType, int type,
                 String stringType) {
-            int contactId = mContactBackValue;
-            SmartBuilder builder = null;
+            RowBuilder builder = null;
 
             if (entity != null) {
                 NamedContentValues ncv =
-                    findExistingData(entity.getSubValues(), mimeType, type, stringType);
+                    findTypedData(entity.getSubValues(), mimeType, type, stringType);
                 if (ncv != null) {
-                    builder = new SmartBuilder(
+                    builder = new RowBuilder(
                             ContentProviderOperation
                                 .newUpdate(dataUriFromNamedContentValues(ncv)),
                             ncv);
-                } else {
-                    contactId = entity.getEntityValues().getAsInteger(RawContacts._ID);
                 }
             }
 
             if (builder == null) {
-                builder =
-                    new SmartBuilder(ContentProviderOperation.newInsert(Data.CONTENT_URI));
-                if (entity == null) {
-                    builder.withValueBackReference(Data.RAW_CONTACT_ID, contactId);
-                } else {
-                    builder.withValue(Data.RAW_CONTACT_ID, contactId);
-                }
-
-                builder.withValue(Data.MIMETYPE, mimeType);
+                builder = newRowBuilder(entity, mimeType);
             }
 
             // Return the appropriate builder (insert or update)
             // Caller will fill in the appropriate values; 4 MIMETYPE is already set
+            return builder;
+        }
+
+        private RowBuilder typedRowBuilder(Entity entity, String mimeType, int type) {
+            return createBuilder(entity, mimeType, type, null);
+        }
+
+        private RowBuilder untypedRowBuilder(Entity entity, String mimeType) {
+            return createBuilder(entity, mimeType, -1, null);
+        }
+
+        private RowBuilder newRowBuilder(Entity entity, String mimeType) {
+            // This is a new row; first get the contactId
+            // If the Contact is new, use the saved back value; otherwise the value in the entity
+            int contactId = mContactBackValue;
+            if (entity != null) {
+                contactId = entity.getEntityValues().getAsInteger(RawContacts._ID);
+            }
+
+            // Create an insert operation with the proper contactId reference
+            RowBuilder builder =
+                new RowBuilder(ContentProviderOperation.newInsert(Data.CONTENT_URI));
+            if (entity == null) {
+                builder.withValueBackReference(Data.RAW_CONTACT_ID, contactId);
+            } else {
+                builder.withValue(Data.RAW_CONTACT_ID, contactId);
+            }
+
+            // Set the mime type of the row
+            builder.withValue(Data.MIMETYPE, mimeType);
             return builder;
         }
 
@@ -1014,29 +1100,8 @@ public class ContactsSyncAdapter extends AbstractSyncAdapter {
             return false;
         }
 
-        public void addEmail(Entity entity, int type, String email) {
-            SmartBuilder builder = createBuilder(entity, Email.CONTENT_ITEM_TYPE, type);
-            Rfc822Token[] tokens = Rfc822Tokenizer.tokenize(email);
-            // Can't happen, but belt & suspenders
-            if (tokens.length == 0) {
-                return;
-            }
-            Rfc822Token token = tokens[0];
-            String addr = token.getAddress();
-            String name = token.getName();
-            ContentValues cv = builder.cv;
-            if (cv != null && cvCompareString(cv, Email.DATA, addr)
-                    && cvCompareString(cv, Email.DISPLAY_NAME, name)) {
-                return;
-            }
-            builder.withValue(Email.TYPE, type);
-            builder.withValue(Email.DATA, addr);
-            builder.withValue(Email.DISPLAY_NAME, name);
-            add(builder.build());
-        }
-
         public void addChildren(Entity entity, ArrayList<String> children) {
-            SmartBuilder builder = createBuilder(entity, EasChildren.CONTENT_ITEM_TYPE, -1);
+            RowBuilder builder = untypedRowBuilder(entity, EasChildren.CONTENT_ITEM_TYPE);
             int i = 0;
             for (String child: children) {
                 builder.withValue(EasChildren.ROWS[i++], child);
@@ -1045,7 +1110,7 @@ public class ContactsSyncAdapter extends AbstractSyncAdapter {
         }
 
         public void addGroup(Entity entity, String group) {
-            SmartBuilder builder =
+            RowBuilder builder =
                 createBuilder(entity, GroupMembership.CONTENT_ITEM_TYPE, -1, group);
             builder.withValue(GroupMembership.GROUP_SOURCE_ID, group);
             add(builder.build());
@@ -1054,7 +1119,7 @@ public class ContactsSyncAdapter extends AbstractSyncAdapter {
         public void addName(Entity entity, String prefix, String givenName, String familyName,
                 String middleName, String suffix, String displayName, String yomiFirstName,
                 String yomiLastName) {
-            SmartBuilder builder = createBuilder(entity, StructuredName.CONTENT_ITEM_TYPE, -1);
+            RowBuilder builder = untypedRowBuilder(entity, StructuredName.CONTENT_ITEM_TYPE);
             ContentValues cv = builder.cv;
             if (cv != null && cvCompareString(cv, StructuredName.GIVEN_NAME, givenName) &&
                     cvCompareString(cv, StructuredName.FAMILY_NAME, familyName) &&
@@ -1076,7 +1141,7 @@ public class ContactsSyncAdapter extends AbstractSyncAdapter {
         }
 
         public void addPersonal(Entity entity, EasPersonal personal) {
-            SmartBuilder builder = createBuilder(entity, EasPersonal.CONTENT_ITEM_TYPE, -1);
+            RowBuilder builder = untypedRowBuilder(entity, EasPersonal.CONTENT_ITEM_TYPE);
             ContentValues cv = builder.cv;
             if (cv != null && cvCompareString(cv, EasPersonal.ANNIVERSARY, personal.anniversary) &&
                     cvCompareString(cv, EasPersonal.BIRTHDAY, personal.birthday) &&
@@ -1093,7 +1158,7 @@ public class ContactsSyncAdapter extends AbstractSyncAdapter {
         }
 
         public void addBusiness(Entity entity, EasBusiness business) {
-            SmartBuilder builder = createBuilder(entity, EasBusiness.CONTENT_ITEM_TYPE, -1);
+            RowBuilder builder = untypedRowBuilder(entity, EasBusiness.CONTENT_ITEM_TYPE);
             ContentValues cv = builder.cv;
             if (cv != null && cvCompareString(cv, EasBusiness.ACCOUNT_NAME, business.accountName) &&
                     cvCompareString(cv, EasBusiness.CUSTOMER_ID, business.customerId) &&
@@ -1112,7 +1177,7 @@ public class ContactsSyncAdapter extends AbstractSyncAdapter {
         }
 
         public void addPhoto(Entity entity, String photo) {
-            SmartBuilder builder = createBuilder(entity, Photo.CONTENT_ITEM_TYPE, -1);
+            RowBuilder builder = untypedRowBuilder(entity, Photo.CONTENT_ITEM_TYPE);
             // We're always going to add this; it's not worth trying to figure out whether the
             // picture is the same as the one stored.
             byte[] pic = Base64.decodeBase64(photo.getBytes());
@@ -1121,7 +1186,7 @@ public class ContactsSyncAdapter extends AbstractSyncAdapter {
         }
 
         public void addPhone(Entity entity, int type, String phone) {
-            SmartBuilder builder = createBuilder(entity, Phone.CONTENT_ITEM_TYPE, type);
+            RowBuilder builder = typedRowBuilder(entity, Phone.CONTENT_ITEM_TYPE, type);
             ContentValues cv = builder.cv;
             if (cv != null && cvCompareString(cv, Phone.NUMBER, phone)) {
                 return;
@@ -1132,7 +1197,7 @@ public class ContactsSyncAdapter extends AbstractSyncAdapter {
         }
 
         public void addWebpage(Entity entity, String url) {
-            SmartBuilder builder = createBuilder(entity, Website.CONTENT_ITEM_TYPE, -1);
+            RowBuilder builder = untypedRowBuilder(entity, Website.CONTENT_ITEM_TYPE);
             ContentValues cv = builder.cv;
             if (cv != null && cvCompareString(cv, Website.URL, url)) {
                 return;
@@ -1143,7 +1208,7 @@ public class ContactsSyncAdapter extends AbstractSyncAdapter {
         }
 
         public void addRelation(Entity entity, int type, String value) {
-            SmartBuilder builder = createBuilder(entity, Relation.CONTENT_ITEM_TYPE, type);
+            RowBuilder builder = typedRowBuilder(entity, Relation.CONTENT_ITEM_TYPE, type);
             ContentValues cv = builder.cv;
             if (cv != null && cvCompareString(cv, Relation.DATA, value)) {
                 return;
@@ -1154,8 +1219,8 @@ public class ContactsSyncAdapter extends AbstractSyncAdapter {
         }
 
         public void addNickname(Entity entity, String name) {
-            SmartBuilder builder =
-                createBuilder(entity, Nickname.CONTENT_ITEM_TYPE, Nickname.TYPE_DEFAULT);
+            RowBuilder builder =
+                typedRowBuilder(entity, Nickname.CONTENT_ITEM_TYPE, Nickname.TYPE_DEFAULT);
             ContentValues cv = builder.cv;
             if (cv != null && cvCompareString(cv, Nickname.NAME, name)) {
                 return;
@@ -1167,7 +1232,7 @@ public class ContactsSyncAdapter extends AbstractSyncAdapter {
 
         public void addPostal(Entity entity, int type, String street, String city, String state,
                 String country, String code) {
-            SmartBuilder builder = createBuilder(entity, StructuredPostal.CONTENT_ITEM_TYPE,
+            RowBuilder builder = typedRowBuilder(entity, StructuredPostal.CONTENT_ITEM_TYPE,
                     type);
             ContentValues cv = builder.cv;
             if (cv != null && cvCompareString(cv, StructuredPostal.CITY, city) &&
@@ -1186,20 +1251,73 @@ public class ContactsSyncAdapter extends AbstractSyncAdapter {
             add(builder.build());
         }
 
-        public void addIm(Entity entity, int type, String account) {
-            SmartBuilder builder = createBuilder(entity, Im.CONTENT_ITEM_TYPE, type);
-            ContentValues cv = builder.cv;
-            if (cv != null && cvCompareString(cv, Im.DATA, account)) {
-                return;
+       /**
+         * We now are dealing with up to maxRows typeless rows of mimeType data.  We need to try to
+         * match them with existing rows; if there's a match, everything's great.  Otherwise, we
+         * either need to add a new row for the data, or we have to replace an existing one
+         * that no longer matches.  This is similar to the way Emails are handled.
+         */
+        public void addUntyped(Entity entity, ArrayList<UntypedRow> rows, String mimeType,
+                int maxRows) {
+            // Make a list of all same type rows in the existing entity
+            ArrayList<NamedContentValues> oldAccounts = new ArrayList<NamedContentValues>();
+            if (entity != null) {
+                oldAccounts = findUntypedData(entity.getSubValues(), mimeType);
             }
-            builder.withValue(Im.TYPE, type);
-            builder.withValue(Im.DATA, account);
-            add(builder.build());
+
+            // These will be rows needing replacement with new values
+            ArrayList<UntypedRow> rowsToReplace = new ArrayList<UntypedRow>();
+
+            // The count of existing rows
+            int numRows = oldAccounts.size();
+            for (UntypedRow row: rows) {
+                boolean found = false;
+                // If we already have this IM address, mark it
+                for (NamedContentValues ncv: oldAccounts) {
+                    ContentValues cv = ncv.values;
+                    String data = cv.getAsString(COMMON_DATA_ROW);
+                    if (row.isSameAs(data)) {
+                        cv.put(FOUND_DATA_ROW, true);
+                        found = true;
+                        break;
+                    }
+                }
+                if (!found) {
+                    // If we don't, there are two possibilities
+                    if (numRows < maxRows) {
+                        // If there are available rows, add a new one
+                        RowBuilder builder = newRowBuilder(entity, mimeType);
+                        row.addValues(builder);
+                        add(builder.build());
+                        numRows++;
+                    } else {
+                        // Otherwise, say we need to replace a row with this
+                        rowsToReplace.add(row);
+                    }
+                }
+            }
+
+            // Go through rows needing replacement
+            for (UntypedRow row: rowsToReplace) {
+                for (NamedContentValues ncv: oldAccounts) {
+                    ContentValues cv = ncv.values;
+                    // Find a row that hasn't been used (i.e. doesn't match current rows)
+                    if (!cv.containsKey(FOUND_DATA_ROW)) {
+                        // And update it
+                        RowBuilder builder = new RowBuilder(
+                                ContentProviderOperation
+                                    .newUpdate(dataUriFromNamedContentValues(ncv)),
+                                ncv);
+                        row.addValues(builder);
+                        add(builder.build());
+                    }
+                }
+            }
         }
 
         public void addOrganization(Entity entity, int type, String company, String title,
                 String department, String yomiCompanyName) {
-            SmartBuilder builder = createBuilder(entity, Organization.CONTENT_ITEM_TYPE, type);
+            RowBuilder builder = typedRowBuilder(entity, Organization.CONTENT_ITEM_TYPE, type);
             ContentValues cv = builder.cv;
             if (cv != null && cvCompareString(cv, Organization.COMPANY, company) &&
                     cvCompareString(cv, Organization.PHONETIC_NAME, yomiCompanyName) &&
@@ -1216,7 +1334,7 @@ public class ContactsSyncAdapter extends AbstractSyncAdapter {
         }
 
         public void addNote(Entity entity, String note) {
-            SmartBuilder builder = createBuilder(entity, Note.CONTENT_ITEM_TYPE, -1);
+            RowBuilder builder = typedRowBuilder(entity, Note.CONTENT_ITEM_TYPE, -1);
             ContentValues cv = builder.cv;
             if (note != null) {
                 note = note.replaceAll("\r\n", "\n");
@@ -1267,50 +1385,27 @@ public class ContactsSyncAdapter extends AbstractSyncAdapter {
         return "Contacts";
     }
 
-    private void sendEmail(Serializer s, ContentValues cv) throws IOException {
+    private void sendEmail(Serializer s, ContentValues cv, int count) throws IOException {
         // Get both parts of the email address (a newly created one in the UI won't have a name)
         String addr = cv.getAsString(Email.DATA);
         String name = cv.getAsString(Email.DISPLAY_NAME);
-        // Don't crash if we don't have a name
         if (name == null) {
-            name = "";
+            name = addr;
         }
-        String value = null;
-        // If there's no addr, just send an empty address (will delete it on the server)
-        // Otherwise compose it from name and addr
+        // Compose address from name and addr
         if (addr != null) {
-            value = '\"' + name + "\" <" + addr + '>';
-        }
-        switch (cv.getAsInteger(Email.TYPE)) {
-            case TYPE_EMAIL1:
-                s.data(Tags.CONTACTS_EMAIL1_ADDRESS, value);
-                break;
-            case TYPE_EMAIL2:
-                s.data(Tags.CONTACTS_EMAIL2_ADDRESS, value);
-                break;
-            case TYPE_EMAIL3:
-                s.data(Tags.CONTACTS_EMAIL3_ADDRESS, value);
-                break;
-            default:
-                break;
+            String value = '\"' + name + "\" <" + addr + '>';
+            if (count < MAX_EMAIL_ROWS) {
+                s.data(EMAIL_TAGS[count], value);
+            }
         }
     }
 
-    private void sendIm(Serializer s, ContentValues cv) throws IOException {
+    private void sendIm(Serializer s, ContentValues cv, int count) throws IOException {
         String value = cv.getAsString(Im.DATA);
         if (value == null) return;
-        switch (cv.getAsInteger(Im.TYPE)) {
-            case TYPE_IM1:
-                s.data(Tags.CONTACTS2_IM_ADDRESS, value);
-                break;
-            case TYPE_IM2:
-                s.data(Tags.CONTACTS2_IM_ADDRESS_2, value);
-                break;
-            case TYPE_IM3:
-                s.data(Tags.CONTACTS2_IM_ADDRESS_3, value);
-                break;
-            default:
-                break;
+        if (count < MAX_IM_ROWS) {
+            s.data(IM_TAGS[count], value);
         }
     }
 
@@ -1473,7 +1568,7 @@ public class ContactsSyncAdapter extends AbstractSyncAdapter {
             case Phone.TYPE_FAX_WORK:
                 s.data(Tags.CONTACTS_BUSINESS_FAX_NUMBER, value);
                 break;
-            case TYPE_COMPANY_MAIN:
+            case Phone.TYPE_COMPANY_MAIN:
                 s.data(Tags.CONTACTS2_COMPANY_MAIN_PHONE, value);
                 break;
             case Phone.TYPE_HOME:
@@ -1485,23 +1580,17 @@ public class ContactsSyncAdapter extends AbstractSyncAdapter {
             case Phone.TYPE_MOBILE:
                 s.data(Tags.CONTACTS_MOBILE_TELEPHONE_NUMBER, value);
                 break;
-            case TYPE_CAR:
+            case Phone.TYPE_CAR:
                 s.data(Tags.CONTACTS_CAR_TELEPHONE_NUMBER, value);
                 break;
             case Phone.TYPE_PAGER:
                 s.data(Tags.CONTACTS_PAGER_NUMBER, value);
                 break;
-            case TYPE_RADIO:
+            case Phone.TYPE_RADIO:
                 s.data(Tags.CONTACTS_RADIO_TELEPHONE_NUMBER, value);
                 break;
             case Phone.TYPE_FAX_HOME:
                 s.data(Tags.CONTACTS_HOME_FAX_NUMBER, value);
-                break;
-            case TYPE_EMAIL2:
-                s.data(Tags.CONTACTS_EMAIL2_ADDRESS, value);
-                break;
-            case TYPE_EMAIL3:
-                s.data(Tags.CONTACTS_EMAIL3_ADDRESS, value);
                 break;
             default:
                 break;
@@ -1583,11 +1672,13 @@ public class ContactsSyncAdapter extends AbstractSyncAdapter {
                     }
                     s.start(Tags.SYNC_APPLICATION_DATA);
                     // Write out the data here
+                    int imCount = 0;
+                    int emailCount = 0;
                     for (NamedContentValues ncv: entity.getSubValues()) {
                         ContentValues cv = ncv.values;
                         String mimeType = cv.getAsString(Data.MIMETYPE);
                         if (mimeType.equals(Email.CONTENT_ITEM_TYPE)) {
-                            sendEmail(s, cv);
+                            sendEmail(s, cv, emailCount++);
                         } else if (mimeType.equals(Nickname.CONTENT_ITEM_TYPE)) {
                             sendNickname(s, cv);
                         } else if (mimeType.equals(EasChildren.CONTENT_ITEM_TYPE)) {
@@ -1609,7 +1700,7 @@ public class ContactsSyncAdapter extends AbstractSyncAdapter {
                         } else if (mimeType.equals(Organization.CONTENT_ITEM_TYPE)) {
                             sendOrganization(s, cv);
                         } else if (mimeType.equals(Im.CONTENT_ITEM_TYPE)) {
-                            sendIm(s, cv);
+                            sendIm(s, cv, imCount++);
                         } else if (mimeType.equals(GroupMembership.CONTENT_ITEM_TYPE)) {
                             // We must gather these, and send them together (below)
                             groupIds.add(cv.getAsInteger(GroupMembership.GROUP_ROW_ID));
