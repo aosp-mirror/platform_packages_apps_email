@@ -101,7 +101,7 @@ public abstract class AbstractSyncService implements Runnable {
      * @throws MessagingException
      */
     public abstract void validateAccount(String host, String userName, String password, int port,
-            boolean ssl, Context context) throws MessagingException;
+            boolean ssl, boolean trustCertificates, Context context) throws MessagingException;
 
     public AbstractSyncService(Context _context, Mailbox _mailbox) {
         mContext = _context;
@@ -129,12 +129,13 @@ public abstract class AbstractSyncService implements Runnable {
      * @throws MessagingException
      */
     static public void validate(Class<? extends AbstractSyncService> klass, String host,
-            String userName, String password, int port, boolean ssl, Context context)
+            String userName, String password, int port, boolean ssl, boolean trustCertificates,
+            Context context)
             throws MessagingException {
         AbstractSyncService svc;
         try {
             svc = klass.newInstance();
-            svc.validateAccount(host, userName, password, port, ssl, context);
+            svc.validateAccount(host, userName, password, port, ssl, trustCertificates, context);
         } catch (IllegalAccessException e) {
             throw new MessagingException("internal error", e);
         } catch (InstantiationException e) {

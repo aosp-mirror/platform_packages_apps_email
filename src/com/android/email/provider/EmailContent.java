@@ -1916,6 +1916,7 @@ public abstract class EmailContent {
         public static final int FLAG_SSL = 1;
         public static final int FLAG_TLS = 2;
         public static final int FLAG_AUTHENTICATE = 4;
+        public static final int FLAG_TRUST_ALL_CERTIFICATES = 8;
 
         public String mProtocol;
         public String mAddress;
@@ -2013,7 +2014,9 @@ public abstract class EmailContent {
          */
         public String getStoreUri() {
             String security = "";
-            if ((mFlags & FLAG_SSL) != 0) {
+            if ((mFlags & FLAG_TRUST_ALL_CERTIFICATES) != 0) {
+                security = "+tssl+";
+            } else if ((mFlags & FLAG_SSL) != 0) {
                 security = "+ssl+";
             } else if ((mFlags & FLAG_TLS) != 0) {
                 security = "+tls+";
@@ -2068,10 +2071,15 @@ public abstract class EmailContent {
                 mProtocol = (schemeParts.length >= 1) ? schemeParts[0] : null;
                 boolean ssl = false;
                 boolean tls = false;
+                boolean tssl = false;
                 if (schemeParts.length >= 2) {
-                    if ("ssl".equals(schemeParts[1])) {
+                    String part1 = schemeParts[1];
+                    if ("tssl".equals(part1)) {
                         ssl = true;
-                    } else if ("tls".equals(schemeParts[1])) {
+                        tssl = true;
+                    } else if ("ssl".equals(part1)) {
+                        ssl = true;
+                    } else if ("tls".equals(part1)) {
                         tls = true;
                     }
                 }
@@ -2083,6 +2091,9 @@ public abstract class EmailContent {
                 if (tls) {
                     mFlags |= FLAG_TLS;
                 }
+                if (tssl) {
+                    mFlags |= FLAG_TRUST_ALL_CERTIFICATES;
+                }
 
                 mAddress = uri.getHost();
                 mPort = uri.getPort();
@@ -2092,11 +2103,11 @@ public abstract class EmailContent {
                     if ("pop3".equals(mProtocol)) {
                         mPort = ssl ? 995 : 110;
                     } else if ("imap".equals(mProtocol)) {
-                        mPort = ssl ? 993 : 143;
+                        mPort = ssl || tssl ? 993 : 143;
                     } else if ("eas".equals(mProtocol)) {
-                        mPort = ssl ? 443 : 80;
+                        mPort = ssl || tssl ? 443 : 80;
                     }  else if ("smtp".equals(mProtocol)) {
-                        mPort = ssl ? 465 : 25;
+                        mPort = ssl || tssl ? 465 : 25;
                     }
                 }
 

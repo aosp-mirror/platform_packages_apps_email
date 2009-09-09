@@ -21,7 +21,7 @@ import com.android.exchange.EmailContent;
 
 interface IEmailService {
     int validate(in String protocol, in String host, in String userName, in String password,
-        int port, boolean ssl) ;
+        int port, boolean ssl, boolean trustCertificates) ;
 
     void startSync(long mailboxId);
     void stopSync(long mailboxId);

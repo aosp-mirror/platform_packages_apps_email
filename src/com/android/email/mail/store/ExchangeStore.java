@@ -46,7 +46,6 @@ import java.util.HashMap;
 public class ExchangeStore extends Store {
     public static final String LOG_TAG = "ExchangeStore";
 
-    private Context mContext;
     private URI mUri;
     private final ExchangeTransport mTransport;
 
@@ -66,7 +65,6 @@ public class ExchangeStore extends Store {
      */
     private ExchangeStore(String _uri, Context context, PersistentDataCallbacks callbacks)
             throws MessagingException {
-        mContext = context;
         try {
             mUri = new URI(_uri);
         } catch (URISyntaxException e) {
@@ -157,14 +155,14 @@ public class ExchangeStore extends Store {
 
         private static HashMap<String, ExchangeTransport> sUriToInstanceMap =
             new HashMap<String, ExchangeTransport>();
-        private static final HashMap<String, Integer> sFolderMap = new HashMap<String, Integer>();
 
         /**
          * Public factory.  The transport should be a singleton (per Uri)
          */
         public synchronized static ExchangeTransport getInstance(URI uri, Context context)
         throws MessagingException {
-            if (!uri.getScheme().equals("eas") && !uri.getScheme().equals("eas+ssl+")) {
+            if (!uri.getScheme().equals("eas") && !uri.getScheme().equals("eas+ssl+") &&
+                    !uri.getScheme().equals("eas+tssl+")) {
                 throw new MessagingException("Invalid scheme");
             }
 
@@ -221,9 +219,11 @@ public class ExchangeStore extends Store {
         public void checkSettings(URI uri) throws MessagingException {
             setUri(uri);
             boolean ssl = uri.getScheme().contains("ssl+");
+            boolean tssl = uri.getScheme().contains("tssl+");
             try {
+                int port = ssl ? 443 : 80;
                 int result = new EmailServiceProxy(mContext, SyncManager.class)
-                    .validate("eas", mHost, mUsername, mPassword, ssl ? 443 : 80, ssl);
+                    .validate("eas", mHost, mUsername, mPassword, port, ssl, tssl);
                 if (result != MessagingException.NO_ERROR) {
                     if (result == MessagingException.AUTHENTICATION_FAILED) {
                         throw new AuthenticationFailedException("Authentication failed.");
