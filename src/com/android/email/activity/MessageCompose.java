@@ -672,12 +672,14 @@ public class MessageCompose extends Activity implements OnClickListener, OnFocus
         String action = getIntent().getAction();
         // Use the Intent to set flags saying this message is a reply or a forward and save the
         // unique id of the source message
-        if (ACTION_REPLY.equals(action) || ACTION_REPLY_ALL.equals(action)) {
-            message.mFlags |= Message.FLAG_TYPE_REPLY;
-            message.mSourceKey = mSource.mId;
-        } else if (ACTION_FORWARD.equals(action)) {
-            message.mFlags |= Message.FLAG_TYPE_FORWARD;
-            message.mSourceKey = mSource.mId;
+        if (mSource != null) {
+            if (ACTION_REPLY.equals(action) || ACTION_REPLY_ALL.equals(action)) {
+                message.mFlags |= Message.FLAG_TYPE_REPLY;
+                message.mSourceKey = mSource.mId;
+            } else if (ACTION_FORWARD.equals(action)) {
+                message.mFlags |= Message.FLAG_TYPE_FORWARD;
+                message.mSourceKey = mSource.mId;
+            }
         }
     }
 
