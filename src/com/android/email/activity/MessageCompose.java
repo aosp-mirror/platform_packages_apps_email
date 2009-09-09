@@ -622,6 +622,7 @@ public class MessageCompose extends Activity implements OnClickListener, OnFocus
         values.put(MessageColumns.DISPLAY_NAME, message.mDisplayName);
         values.put(MessageColumns.FLAG_LOADED, message.mFlagLoaded);
         values.put(MessageColumns.FLAG_ATTACHMENT, message.mFlagAttachment);
+        values.put(MessageColumns.FLAGS, message.mFlags);
         return values;
     }
 
@@ -668,6 +669,16 @@ public class MessageCompose extends Activity implements OnClickListener, OnFocus
         message.mDisplayName = makeDisplayName(message.mTo, message.mCc, message.mBcc);
         message.mFlagLoaded = Message.LOADED;
         message.mFlagAttachment = hasAttachments;
+        String action = getIntent().getAction();
+        // Use the Intent to set flags saying this message is a reply or a forward and save the
+        // unique id of the source message
+        if (ACTION_REPLY.equals(action) || ACTION_REPLY_ALL.equals(action)) {
+            message.mFlags |= Message.FLAG_TYPE_REPLY;
+            message.mSourceKey = mSource.mId;
+        } else if (ACTION_FORWARD.equals(action)) {
+            message.mFlags |= Message.FLAG_TYPE_FORWARD;
+            message.mSourceKey = mSource.mId;
+        }
     }
 
     private Attachment[] getAttachmentsFromUI() {

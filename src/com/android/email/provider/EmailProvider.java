@@ -56,9 +56,13 @@ public class EmailProvider extends ContentProvider {
     static final String BODY_DATABASE_NAME = "EmailProviderBody.db";
 
     // Any changes to the database format *must* include update-in-place code.
-
+    // Original version: 3
     public static final int DATABASE_VERSION = 3;
-    public static final int BODY_DATABASE_VERSION = 2;
+
+    // Any changes to the database format *must* include update-in-place code.
+    // Original version: 2
+    // Version 3: Add "sourceKey" column
+    public static final int BODY_DATABASE_VERSION = 3;
 
     public static final String EMAIL_AUTHORITY = "com.android.email.provider";
 
@@ -480,18 +484,26 @@ public class EmailProvider extends ContentProvider {
             + BodyColumns.HTML_CONTENT + " text, "
             + BodyColumns.TEXT_CONTENT + " text, "
             + BodyColumns.HTML_REPLY + " text, "
-            + BodyColumns.TEXT_REPLY + " text"
+            + BodyColumns.TEXT_REPLY + " text, "
+            + BodyColumns.SOURCE_MESSAGE_KEY + " text"
             + ");";
         db.execSQL("create table " + Body.TABLE_NAME + s);
         db.execSQL(createIndex(Body.TABLE_NAME, BodyColumns.MESSAGE_KEY));
     }
 
     static void upgradeBodyTable(SQLiteDatabase db, int oldVersion, int newVersion) {
-        try {
-            db.execSQL("drop table " + Body.TABLE_NAME);
-        } catch (SQLException e) {
-        }
-        createBodyTable(db);
+        if (oldVersion < 2) {
+            // Versions earlier than 2 require a wipe of the database
+            try {
+                db.execSQL("drop table " + Body.TABLE_NAME);
+                createBodyTable(db);
+            } catch (SQLException e) {
+            }
+        } else if (oldVersion == 2) {
+            Log.d(TAG, "Upgrading Body from v2 to v3");
+            db.execSQL("alter table " + Body.TABLE_NAME +
+                    " add " + Body.SOURCE_MESSAGE_KEY + " integer");
+         }
     }
 
     private final int mDatabaseVersion = DATABASE_VERSION;
