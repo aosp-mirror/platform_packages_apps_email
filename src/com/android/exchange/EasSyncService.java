@@ -808,10 +808,10 @@ public class EasSyncService extends AbstractSyncService {
                     }
                 }
             } else if (pushCount > 0) {
-                // If we want to Ping, but can't just yet, wait 10 seconds and try again
-                // No point giving up the wake lock for 10 seconds...
+                // If we want to Ping, but can't just yet, wait a little bit
+                // TODO Change sleep to wait and use notify from SyncManager when a sync ends
                 userLog("pingLoop waiting for: ", (pushCount - canPushCount), " box(es)");
-                sleep(10*SECONDS);
+                sleep(1*SECONDS);
             } else {
                 // We've got nothing to do, so we'll check again in 30 minutes at which time
                 // we'll update the folder list.  Let the device sleep in the meantime...
