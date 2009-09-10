@@ -868,11 +868,11 @@ public class FolderMessageList extends ExpandableListActivity {
     }
 
     private void onDelete(MessageInfoHolder holder) {
-        MessagingController.getInstance(getApplication()).deleteMessage(
-                mAccount,
-                holder.message.getFolder().getName(),
-                holder.message,
-                null);
+//        MessagingController.getInstance(getApplication()).deleteMessage(
+//                mAccount,
+//                holder.message.getFolder().getName(),
+//                holder.message,
+//                null);
         mAdapter.removeMessage(holder.message.getFolder().getName(), holder.uid);
         Toast.makeText(this, R.string.message_deleted_toast, Toast.LENGTH_SHORT).show();
     }
