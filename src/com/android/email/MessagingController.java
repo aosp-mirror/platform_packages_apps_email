@@ -41,6 +41,7 @@ import com.android.email.provider.AttachmentProvider;
 import com.android.email.provider.EmailContent;
 import com.android.email.provider.EmailContent.Attachment;
 import com.android.email.provider.EmailContent.AttachmentColumns;
+import com.android.email.provider.EmailContent.Body;
 import com.android.email.provider.EmailContent.Mailbox;
 import com.android.email.provider.EmailContent.MailboxColumns;
 import com.android.email.provider.EmailContent.MessageColumns;
@@ -280,6 +281,7 @@ public class MessagingController implements Runnable {
                         // Drops first, to make things smaller rather than larger
                         HashSet<String> localsToDrop = new HashSet<String>(localFolderNames);
                         localsToDrop.removeAll(remoteFolderNames);
+                        // TODO drop all attachment files too
                         for (String localNameToDrop : localsToDrop) {
                             LocalMailboxInfo localInfo = localFolders.get(localNameToDrop);
                             Uri uri = ContentUris.withAppendedId(
@@ -563,6 +565,7 @@ public class MessagingController implements Runnable {
             throws MessagingException {
 
         Log.d(Email.LOG_TAG, "*** synchronizeMailboxGeneric ***");
+        ContentResolver resolver = mContext.getContentResolver();
 
         // 1.  Get the message list from the local store and create an index of the uids
 
@@ -570,7 +573,7 @@ public class MessagingController implements Runnable {
         HashMap<String, LocalMessageInfo> localMessageMap = new HashMap<String, LocalMessageInfo>();
 
         try {
-            localUidCursor = mContext.getContentResolver().query(
+            localUidCursor = resolver.query(
                     EmailContent.Message.CONTENT_URI,
                     LocalMessageInfo.PROJECTION,
                     EmailContent.MessageColumns.ACCOUNT_KEY + "=?" +
@@ -660,14 +663,18 @@ public class MessagingController implements Runnable {
              * Get a list of the messages that are in the remote list but not on the
              * local store, or messages that are in the local store but failed to download
              * on the last sync. These are the new messages that we will download.
+             * Note, we also skip syncing messages which are flagged as "deleted message" sentinels,
+             * because they are locally deleted and we don't need or want the old message from
+             * the server.
              */
             for (Message message : remoteMessages) {
                 LocalMessageInfo localMessage = localMessageMap.get(message.getUid());
                 if (localMessage == null) {
                     newMessageCount++;
                 }
-                if (localMessage == null ||
-                        localMessage.mFlagLoaded != EmailContent.Message.LOADED) {
+                if (localMessage == null
+                        || (localMessage.mFlagLoaded == EmailContent.Message.FLAG_LOADED_UNLOADED)
+                        || (localMessage.mFlagLoaded == EmailContent.Message.FLAG_LOADED_PARTIAL)) {
                     unsyncedMessages.add(message);
                 }
             }
@@ -770,7 +777,7 @@ public class MessagingController implements Runnable {
                     ContentValues updateValues = new ContentValues();
                     updateValues.put(EmailContent.Message.FLAG_READ, remoteSeen);
                     updateValues.put(EmailContent.Message.FLAG_FAVORITE, remoteFlagged);
-                    mContext.getContentResolver().update(uri, updateValues, null, null);
+                    resolver.update(uri, updateValues, null, null);
                 }
             }
         }
@@ -805,7 +812,7 @@ public class MessagingController implements Runnable {
 //        Uri uri = ContentUris.withAppendedId(EmailContent.Mailbox.CONTENT_URI, folder.mId);
 //        ContentValues updateValues = new ContentValues();
 //        updateValues.put(EmailContent.Mailbox.UNREAD_COUNT, remoteUnreadMessageCount);
-//        mContext.getContentResolver().update(uri, updateValues, null, null);
+//        resolver.update(uri, updateValues, null, null);
 
         // 11. Remove any messages that are in the local store but no longer on the remote store.
 
@@ -814,9 +821,22 @@ public class MessagingController implements Runnable {
         for (String uidToDelete : localUidsToDelete) {
             LocalMessageInfo infoToDelete = localMessageMap.get(uidToDelete);
 
+            // Delete associated data (attachment files)
+            // Attachment & Body records are auto-deleted when we delete the Message record
+            AttachmentProvider.deleteAllAttachmentFiles(mContext, account.mId, infoToDelete.mId);
+
+            // Delete the message itself
             Uri uriToDelete = ContentUris.withAppendedId(
                     EmailContent.Message.CONTENT_URI, infoToDelete.mId);
-            mContext.getContentResolver().delete(uriToDelete, null, null);
+            resolver.delete(uriToDelete, null, null);
+
+            // Delete extra rows (e.g. synced or deleted)
+            Uri syncRowToDelete = ContentUris.withAppendedId(
+                    EmailContent.Message.UPDATED_CONTENT_URI, infoToDelete.mId);
+            resolver.delete(syncRowToDelete, null, null);
+            Uri deletERowToDelete = ContentUris.withAppendedId(
+                    EmailContent.Message.UPDATED_CONTENT_URI, infoToDelete.mId);
+            resolver.delete(deletERowToDelete, null, null);
         }
 
         // 12. Divide the unsynced messages into small & large (by size)
@@ -851,7 +871,7 @@ public class MessagingController implements Runnable {
                     public void messageFinished(Message message, int number, int ofTotal) {
                         // Store the updated message locally and mark it fully loaded
                         copyOneMessageToProvider(message, account, folder,
-                                EmailContent.Message.LOADED);
+                                EmailContent.Message.FLAG_LOADED_COMPLETE);
                     }
 
                     public void messageStarted(String uid, int number, int ofTotal) {
@@ -877,7 +897,7 @@ public class MessagingController implements Runnable {
 
                 // Store the partially-loaded message and mark it partially loaded
                 copyOneMessageToProvider(message, account, folder,
-                        EmailContent.Message.PARTIALLY_LOADED);
+                        EmailContent.Message.FLAG_LOADED_PARTIAL);
             } else {
                 // We have a structure to deal with, from which
                 // we can pull down the parts we want to actually store.
@@ -895,7 +915,8 @@ public class MessagingController implements Runnable {
                     remoteFolder.fetch(new Message[] { message }, fp, null);
                 }
                 // Store the updated message locally and mark it fully loaded
-                copyOneMessageToProvider(message, account, folder, EmailContent.Message.LOADED);
+                copyOneMessageToProvider(message, account, folder,
+                        EmailContent.Message.FLAG_LOADED_COMPLETE);
             }
         }
 
@@ -1135,14 +1156,15 @@ public class MessagingController implements Runnable {
      * Handles:
      *   Read/Unread
      *   Flagged
+     *   Move To Trash
      * TODO:
-     *   Delete
+     *   Empty trash
      *   Append
      *   Move
      *
      * TODO: tighter projections
      *
-     * @param account the account to update
+     * @param account the account to scan for pending actions
      * @throws MessagingException
      */
     private void processPendingCommandsSynchronous(EmailContent.Account account)
@@ -1157,10 +1179,11 @@ public class MessagingController implements Runnable {
         try {
             // Defer setting up the store until we know we need to access it
             Store remoteStore = null;
-            // Demand load mailbox (note order-by to reduce thrashing here
+            // Demand load mailbox (note order-by to reduce thrashing here)
             Mailbox mailbox = null;
             // loop through messages marked as needing updates
             while (updates.moveToNext()) {
+                boolean changeMoveToTrash = false;
                 boolean changeRead = false;
                 boolean changeFlagged = false;
 
@@ -1170,20 +1193,27 @@ public class MessagingController implements Runnable {
                 EmailContent.Message newMessage =
                     EmailContent.Message.restoreMessageWithId(mContext, oldMessage.mId);
                 if (newMessage != null) {
+                    if (mailbox == null || mailbox.mId != newMessage.mMailboxKey) {
+                        mailbox = Mailbox.restoreMailboxWithId(mContext, newMessage.mMailboxKey);
+                    }
+                    changeMoveToTrash = (oldMessage.mMailboxKey != newMessage.mMailboxKey)
+                            && (mailbox.mType == Mailbox.TYPE_TRASH);
                     changeRead = oldMessage.mFlagRead != newMessage.mFlagRead;
                     changeFlagged = oldMessage.mFlagFavorite != newMessage.mFlagFavorite;
                 }
 
-                // Handle simple flag changes
-                if (changeRead || changeFlagged) {
-                    if (remoteStore == null) {
-                        remoteStore = Store.getInstance(account.getStoreUri(mContext), mContext,
-                                null);
-                    }
-                    if (mailbox == null || mailbox.mId != newMessage.mMailboxKey) {
-                        mailbox =
-                            Mailbox.restoreMailboxWithId(mContext, newMessage.mMailboxKey);
-                    }
+                // Load the remote store if it will be needed
+                if (remoteStore == null && (changeMoveToTrash || changeRead || changeFlagged)) {
+                    remoteStore = Store.getInstance(account.getStoreUri(mContext), mContext, null);
+                }
+
+                // Dispatch here for specific change types
+                if (changeMoveToTrash) {
+                    // Move message to trash
+                    processPendingMoveToTrash(remoteStore, account, mailbox,
+                            oldMessage, newMessage);
+                } else if (changeRead || changeFlagged) {
+                    // Upsync changes to read or flagged
                     Folder remoteFolder = remoteStore.getFolder(mailbox.mDisplayName);
                     if (remoteFolder.exists()) {
                         remoteFolder.open(OpenMode.READ_WRITE, null);
@@ -1331,44 +1361,68 @@ public class MessagingController implements Runnable {
     /**
      * Process a pending trash message command.
      *
-     * @param command arguments = (String folder, String uid)
-     * @param account
-     * @throws MessagingException
+     * @param remoteStore the remote store we're working in
+     * @param account The account in which we are working
+     * @param newMailbox The local trash mailbox
+     * @param oldMessage The message copy that was saved in the updates shadow table
+     * @param newMessage The message that was moved to the mailbox
      */
-    private void processPendingTrash(PendingCommand command, final EmailContent.Account account)
-            throws MessagingException {
-        String folder = command.arguments[0];
-        String uid = command.arguments[1];
+    private void processPendingMoveToTrash(Store remoteStore,
+            EmailContent.Account account, Mailbox newMailbox, EmailContent.Message oldMessage,
+            final EmailContent.Message newMessage) throws MessagingException {
 
-        final LocalStore localStore = (LocalStore) Store.getInstance(
-                account.getLocalStoreUri(mContext), mContext, null);
-        LocalFolder localFolder = (LocalFolder) localStore.getFolder(folder);
+        // 1. Escape early if we can't find the local mailbox
+        // TODO smaller projection here
+        Mailbox oldMailbox = Mailbox.restoreMailboxWithId(mContext, oldMessage.mMailboxKey);
+        if (oldMailbox == null) {
+            // can't find old mailbox, it may have been deleted.  just return.
+            return;
+        }
+        // 2. We don't support delete-from-trash here
+        if (oldMailbox.mType == Mailbox.TYPE_TRASH) {
+            return;
+        }
 
-        Store remoteStore = Store.getInstance(account.getStoreUri(mContext), mContext,
-                localStore.getPersistentCallbacks());
-        Folder remoteFolder = remoteStore.getFolder(folder);
+        // 3. If DELETE_POLICY_NEVER, simply write back the deleted sentinel and return
+        //
+        // This sentinel takes the place of the server-side message, and locally "deletes" it
+        // by inhibiting future sync or display of the message.  It will eventually go out of
+        // scope when it becomes old, or is deleted on the server, and the regular sync code
+        // will clean it up for us.
+        if (account.getDeletePolicy() == Account.DELETE_POLICY_NEVER) {
+            EmailContent.Message sentinel = new EmailContent.Message();
+            sentinel.mAccountKey = oldMessage.mAccountKey;
+            sentinel.mMailboxKey = oldMessage.mMailboxKey;
+            sentinel.mFlagLoaded = EmailContent.Message.FLAG_LOADED_DELETED;
+            sentinel.mServerId = oldMessage.mServerId;
+            sentinel.save(mContext);
+
+            return;
+        }
+
+        // The rest of this method handles server-side deletion
+
+        // 4.  Find the remote mailbox (that we deleted from), and open it
+        Folder remoteFolder = remoteStore.getFolder(oldMailbox.mDisplayName);
         if (!remoteFolder.exists()) {
             return;
         }
-        remoteFolder.open(OpenMode.READ_WRITE, localFolder.getPersistentCallbacks());
+
+        remoteFolder.open(OpenMode.READ_WRITE, null);
         if (remoteFolder.getMode() != OpenMode.READ_WRITE) {
             remoteFolder.close(false);
             return;
         }
 
-        Message remoteMessage = null;
-        if (!uid.startsWith("Local")) {
-            remoteMessage = remoteFolder.getMessage(uid);
-        }
+        // 5. Find the remote original message
+        Message remoteMessage = remoteFolder.getMessage(oldMessage.mServerId);
         if (remoteMessage == null) {
             remoteFolder.close(false);
             return;
         }
 
-        Folder remoteTrashFolder = remoteStore.getFolder(account.getTrashFolderName(mContext));
-        /*
-         * Attempt to copy the remote message to the remote trash folder.
-         */
+        // 6. Find the remote trash folder, and create it if not found
+        Folder remoteTrashFolder = remoteStore.getFolder(newMailbox.mDisplayName);
         if (!remoteTrashFolder.exists()) {
             /*
              * If the remote trash folder doesn't exist we try to create it.
@@ -1376,14 +1430,13 @@ public class MessagingController implements Runnable {
             remoteTrashFolder.create(FolderType.HOLDS_MESSAGES);
         }
 
+        // 7.  Try to copy the message into the remote trash folder
+        // Note, this entire section will be skipped for POP3 because there's no remote trash
         if (remoteTrashFolder.exists()) {
             /*
              * Because remoteTrashFolder may be new, we need to explicitly open it
-             * and pass in the persistence callbacks.
              */
-            final LocalFolder localTrashFolder =
-                (LocalFolder) localStore.getFolder(account.getTrashFolderName(mContext));
-            remoteTrashFolder.open(OpenMode.READ_WRITE, localTrashFolder.getPersistentCallbacks());
+            remoteTrashFolder.open(OpenMode.READ_WRITE, null);
             if (remoteTrashFolder.getMode() != OpenMode.READ_WRITE) {
                 remoteFolder.close(false);
                 remoteTrashFolder.close(false);
@@ -1392,16 +1445,12 @@ public class MessagingController implements Runnable {
 
             remoteFolder.copyMessages(new Message[] { remoteMessage }, remoteTrashFolder,
                     new Folder.MessageUpdateCallbacks() {
-                public void onMessageUidChange(Message message, String newUid)
-                        throws MessagingException {
+                public void onMessageUidChange(Message message, String newUid) {
                     // update the UID in the local trash folder, because some stores will
                     // have to change it when copying to remoteTrashFolder
-                    LocalMessage localMessage =
-                        (LocalMessage) localTrashFolder.getMessage(message.getUid());
-                    if(localMessage != null) {
-                        localMessage.setUid(newUid);
-                        localTrashFolder.updateMessage(localMessage);
-                    }
+                    ContentValues cv = new ContentValues();
+                    cv.put(EmailContent.Message.SERVER_ID, newUid);
+                    mContext.getContentResolver().update(newMessage.getUri(), cv, null, null);
                 }
 
                 /**
@@ -1409,12 +1458,8 @@ public class MessagingController implements Runnable {
                  * deleted (e.g. it was already deleted from the server.)  In this case,
                  * attempt to delete the local copy as well.
                  */
-                public void onMessageNotFound(Message message) throws MessagingException {
-                    LocalMessage localMessage =
-                        (LocalMessage) localTrashFolder.getMessage(message.getUid());
-                    if (localMessage != null) {
-                        localMessage.setFlag(Flag.DELETED, true);
-                    }
+                public void onMessageNotFound(Message message) {
+                    mContext.getContentResolver().delete(newMessage.getUri(), null, null);
                 }
 
             }
@@ -1422,6 +1467,7 @@ public class MessagingController implements Runnable {
             remoteTrashFolder.close(false);
         }
 
+        // 8. Delete the message from the remote source folder
         remoteMessage.setFlag(Flag.DELETED, true);
         remoteFolder.expunge();
         remoteFolder.close(false);
@@ -1446,7 +1492,7 @@ public class MessagingController implements Runnable {
                         mListeners.loadMessageForViewFailed(messageId, "Unknown message");
                         return;
                     }
-                    if (message.mFlagLoaded == EmailContent.Message.LOADED) {
+                    if (message.mFlagLoaded == EmailContent.Message.FLAG_LOADED_COMPLETE) {
                         mListeners.loadMessageForViewFinished(messageId);
                         return;
                     }
@@ -1492,7 +1538,7 @@ public class MessagingController implements Runnable {
 
                     // 5. Write to provider
                     copyOneMessageToProvider(remoteMessage, account, mailbox,
-                            EmailContent.Message.LOADED);
+                            EmailContent.Message.FLAG_LOADED_COMPLETE);
 
                     // 6. Notify UI
                     mListeners.loadMessageForViewFinished(messageId);

@@ -617,6 +617,8 @@ public class EmailProvider extends ContentProvider {
                     //  1) Begin a transaction, ensuring that both databases are affected atomically
                     //  2) Do the requested deletion, with cascading deletions handled in triggers
                     //  3) End the transaction, committing all changes atomically
+                    //
+                    // Bodies are auto-deleted here;  Attachments are auto-deleted via trigger
 
                     messageDeletion = true;
                     if (!mInTransaction) {
@@ -645,6 +647,13 @@ public class EmailProvider extends ContentProvider {
                     result = db.delete(TABLE_NAMES[table], whereWithId(id, selection),
                             selectionArgs);
                     break;
+                case ATTACHMENTS_MESSAGE_ID:
+                    // All attachments for the given message
+                    id = uri.getPathSegments().get(2);
+                    result = db.delete(TABLE_NAMES[table],
+                            whereWith(Attachment.MESSAGE_KEY + "=" + id, selection), selectionArgs);
+                    break;
+
                 case BODY:
                 case MESSAGE:
                 case DELETED_MESSAGE:
@@ -655,6 +664,7 @@ public class EmailProvider extends ContentProvider {
                 case HOSTAUTH:
                     result = db.delete(TABLE_NAMES[table], selection, selectionArgs);
                     break;
+
                 default:
                     throw new IllegalArgumentException("Unknown URI " + uri);
             }
@@ -846,18 +856,32 @@ public class EmailProvider extends ContentProvider {
         sb.append("_id=");
         sb.append(id);
         if (selection != null) {
-            sb.append(" AND ");
+            sb.append(" AND (");
             sb.append(selection);
+            sb.append(')');
         }
         return sb.toString();
     }
 
+    /**
+     * Combine a locally-generated selection with a user-provided selection
+     *
+     * This introduces risk that the local selection might insert incorrect chars
+     * into the SQL, so use caution.
+     *
+     * @param where locally-generated selection, must not be null
+     * @param selection user-provided selection, may be null
+     * @return a single selection string
+     */
     private String whereWith(String where, String selection) {
-        StringBuilder sb = new StringBuilder(where);
-        if (selection != null) {
-            sb.append(" AND ");
-            sb.append(selection);
+        if (selection == null) {
+            return where;
         }
+        StringBuilder sb = new StringBuilder(where);
+        sb.append(" AND (");
+        sb.append(selection);
+        sb.append(')');
+
         return sb.toString();
     }
 

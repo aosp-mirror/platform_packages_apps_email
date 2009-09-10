@@ -601,20 +601,12 @@ public class AccountFolderList extends ListActivity
     private class ControllerResults implements Controller.Result {
         public void updateMailboxListCallback(MessagingException result, long accountKey,
                 int progress) {
-            if (progress == 0) {
-                mHandler.progress(true);
-            } else if (result != null || progress == 100) {
-                mHandler.progress(false);
-            }
+            updateProgress(result, progress);
         }
 
         public void updateMailboxCallback(MessagingException result, long accountKey,
                 long mailboxKey, int progress, int numNewMessages) {
-            if (progress == 0) {
-                mHandler.progress(true);
-            } else if (result != null || progress == 100) {
-                mHandler.progress(false);
-            }
+            updateProgress(result, progress);
         }
 
         public void loadMessageForViewCallback(MessagingException result, long messageId,
@@ -627,10 +619,19 @@ public class AccountFolderList extends ListActivity
 
         public void serviceCheckMailCallback(MessagingException result, long accountId,
                 long mailboxId, int progress, long tag) {
+            updateProgress(result, progress);
         }
 
         public void sendMailCallback(MessagingException result, long accountId, long messageId,
                 int progress) {
+        }
+
+        private void updateProgress(MessagingException result, int progress) {
+            if (result != null || progress == 100) {
+                mHandler.progress(false);
+            } else if (progress == 0) {
+                mHandler.progress(true);
+            }
         }
     }
 

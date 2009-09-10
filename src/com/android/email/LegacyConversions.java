@@ -74,11 +74,11 @@ public class LegacyConversions {
 
         // Keep the message in the "unloaded" state until it has (at least) a display name.
         // This prevents early flickering of empty messages in POP download.
-        if (localMessage.mFlagLoaded != EmailContent.Message.LOADED) {
+        if (localMessage.mFlagLoaded != EmailContent.Message.FLAG_LOADED_COMPLETE) {
             if (localMessage.mDisplayName == null || "".equals(localMessage.mDisplayName)) {
-                localMessage.mFlagLoaded = EmailContent.Message.NOT_LOADED;
+                localMessage.mFlagLoaded = EmailContent.Message.FLAG_LOADED_UNLOADED;
             } else {
-                localMessage.mFlagLoaded = EmailContent.Message.PARTIALLY_LOADED;
+                localMessage.mFlagLoaded = EmailContent.Message.FLAG_LOADED_PARTIAL;
             }
         }
         localMessage.mFlagFavorite = message.isSet(Flag.FLAGGED);

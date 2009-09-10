@@ -19,6 +19,7 @@ package com.android.email.provider;
 import com.android.email.provider.EmailContent.Account;
 import com.android.email.provider.EmailContent.AccountColumns;
 import com.android.email.provider.EmailContent.Attachment;
+import com.android.email.provider.EmailContent.AttachmentColumns;
 import com.android.email.provider.EmailContent.Body;
 import com.android.email.provider.EmailContent.BodyColumns;
 import com.android.email.provider.EmailContent.Mailbox;
@@ -199,6 +200,7 @@ public class ProviderTests extends ProviderTestCase2<EmailProvider> {
         String html2 = message2.mHtml;
         String textReply2 = message2.mTextReply;
         String htmlReply2 = message2.mHtmlReply;
+        long sourceKey2 = message2.mSourceKey;
         message2.mText = null;
         message2.mHtml = null;
         message2.mTextReply = null;
@@ -213,7 +215,7 @@ public class ProviderTests extends ProviderTestCase2<EmailProvider> {
         assertEquals("body html", html2, body2.mHtmlContent);
         assertEquals("reply text", textReply2, body2.mTextReply);
         assertEquals("reply html", htmlReply2, body2.mHtmlReply);
-        assertEquals("source key", message2.mMailboxKey, body2.mSourceKey);
+        assertEquals("source key", sourceKey2, body2.mSourceKey);
 
         // Message with attachments and body
         Message message3 = ProviderTestUtils.setupMessage("message3", account1Id, box1Id, true,
@@ -816,10 +818,78 @@ public class ProviderTests extends ProviderTestCase2<EmailProvider> {
     }
 
     /**
-     * TODO: Test cascaded delete message
-     * TODO: body
-     * TODO: attachments
+     * Test cascaded delete message
+     * Confirms that deleting a message will also delete its body & attachments
      */
+    public void testCascadeMessageDelete() {
+        Account account1 = ProviderTestUtils.setupAccount("message-cascade", true, mMockContext);
+        long account1Id = account1.mId;
+        Mailbox box1 = ProviderTestUtils.setupMailbox("box1", account1Id, true, mMockContext);
+        long box1Id = box1.mId;
+        
+        // Each message has a body, and also give each 2 attachments
+        Message message1 = ProviderTestUtils.setupMessage("message1", account1Id, box1Id, true,
+                false, mMockContext);
+        ArrayList<Attachment> atts = new ArrayList<Attachment>();
+        for (int i = 0; i < 2; i++) {
+            atts.add(ProviderTestUtils.setupAttachment(
+                    -1, expectedAttachmentNames[i], expectedAttachmentSizes[i],
+                    false, mMockContext));
+        }
+        message1.mAttachments = atts;
+        message1.save(mMockContext);
+        long message1Id = message1.mId;
+
+        Message message2 = ProviderTestUtils.setupMessage("message2", account1Id, box1Id, true,
+                false, mMockContext);
+        atts = new ArrayList<Attachment>();
+        for (int i = 0; i < 2; i++) {
+            atts.add(ProviderTestUtils.setupAttachment(
+                    -1, expectedAttachmentNames[i], expectedAttachmentSizes[i],
+                    false, mMockContext));
+        }
+        message2.mAttachments = atts;
+        message2.save(mMockContext);
+        long message2Id = message2.mId;
+
+        // Set up to test total counts of bodies & attachments for our test messages
+        String bodySelection = BodyColumns.MESSAGE_KEY + " IN (?,?)";
+        String attachmentSelection = AttachmentColumns.MESSAGE_KEY + " IN (?,?)";
+        String[] selArgs = new String[] { String.valueOf(message1Id), String.valueOf(message2Id) };
+        
+        // make sure there are two bodies
+        int numBodies = EmailContent.count(mMockContext, Body.CONTENT_URI, bodySelection, selArgs);
+        assertEquals(2, numBodies);
+
+        // make sure there are four attachments
+        int numAttachments = EmailContent.count(mMockContext, Attachment.CONTENT_URI,
+                attachmentSelection, selArgs);
+        assertEquals(4, numAttachments);
+
+        // now delete one of the messages
+        Uri uri = ContentUris.withAppendedId(Message.CONTENT_URI, message1Id);
+        mMockContext.getContentResolver().delete(uri, null, null);
+
+        // there should be one body and two attachments
+        numBodies = EmailContent.count(mMockContext, Body.CONTENT_URI, bodySelection, selArgs);
+        assertEquals(1, numBodies);
+
+        numAttachments = EmailContent.count(mMockContext, Attachment.CONTENT_URI,
+                attachmentSelection, selArgs);
+        assertEquals(2, numAttachments);
+
+        // now delete the other message
+        uri = ContentUris.withAppendedId(Message.CONTENT_URI, message2Id);
+        mMockContext.getContentResolver().delete(uri, null, null);
+
+        // make sure there are no bodies or attachments
+        numBodies = EmailContent.count(mMockContext, Body.CONTENT_URI, bodySelection, selArgs);
+        assertEquals(0, numBodies);
+
+        numAttachments = EmailContent.count(mMockContext, Attachment.CONTENT_URI,
+                attachmentSelection, selArgs);
+        assertEquals(0, numAttachments);
+    }
 
     /**
      * Test that our unique file name algorithm works as expected.  Since this test requires an
@@ -890,6 +960,40 @@ public class ProviderTests extends ProviderTestCase2<EmailProvider> {
             c.moveToNext();
             Attachment a2Get = EmailContent.getContent(c, Attachment.class);
             ProviderTestUtils.assertAttachmentEqual("getAttachByUri-2", a2, a2Get);
+        } finally {
+            c.close();
+        }
+    }
+
+    /**
+     * Test deleting attachments by message ID (using EmailContent.Attachment.MESSAGE_ID_URI)
+     */
+    public void testDeleteAttachmentByMessageIdUri() {
+        ContentResolver mockResolver = mMockContext.getContentResolver();
+
+        // Note, we don't strictly need accounts, mailboxes or messages to run this test.
+        ProviderTestUtils.setupAttachment(1, "a1", 100, true, mMockContext);
+        ProviderTestUtils.setupAttachment(1, "a2", 200, true, mMockContext);
+        Attachment a3 = ProviderTestUtils.setupAttachment(2, "a3", 300, true, mMockContext);
+        Attachment a4 = ProviderTestUtils.setupAttachment(2, "a4", 400, true, mMockContext);
+
+        // Delete all attachments for message id=1
+        Uri uri = ContentUris.withAppendedId(Attachment.MESSAGE_ID_URI, 1);
+        mockResolver.delete(uri, null, null);
+
+        // Read back all attachments and confirm that we have the expected remaining attachments
+        // (the attachments that are set for message id=2).  Note order-by size to simplify test.
+        Cursor c = mockResolver.query(Attachment.CONTENT_URI, Attachment.CONTENT_PROJECTION,
+                null, null, Attachment.SIZE);
+        assertEquals(2, c.getCount());
+
+        try {
+            c.moveToFirst();
+            Attachment a3Get = EmailContent.getContent(c, Attachment.class);
+            ProviderTestUtils.assertAttachmentEqual("getAttachByUri-3", a3, a3Get);
+            c.moveToNext();
+            Attachment a4Get = EmailContent.getContent(c, Attachment.class);
+            ProviderTestUtils.assertAttachmentEqual("getAttachByUri-4", a4, a4Get);
         } finally {
             c.close();
         }

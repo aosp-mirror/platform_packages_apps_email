@@ -376,11 +376,7 @@ public class MailboxList extends ListActivity implements OnItemClickListener, On
         public void updateMailboxListCallback(MessagingException result, long accountKey,
                 int progress) {
             if (accountKey == mAccountId) {
-                if (progress == 0) {
-                    mHandler.progress(true);
-                } else if (result != null || progress == 100) {
-                    mHandler.progress(false);
-                }
+                updateProgress(result, progress);
             }
         }
 
@@ -388,11 +384,7 @@ public class MailboxList extends ListActivity implements OnItemClickListener, On
         public void updateMailboxCallback(MessagingException result, long accountKey,
                 long mailboxKey, int progress, int numNewMessages) {
             if (accountKey == mAccountId) {
-                if (progress == 0) {
-                    mHandler.progress(true);
-                } else if (result != null || progress == 100) {
-                    mHandler.progress(false);
-                }
+                updateProgress(result, progress);
             }
         }
 
@@ -410,6 +402,17 @@ public class MailboxList extends ListActivity implements OnItemClickListener, On
 
         public void sendMailCallback(MessagingException result, long accountId, long messageId,
                 int progress) {
+            if (accountId == mAccountId) {
+                updateProgress(result, progress);
+            }
+        }
+
+        private void updateProgress(MessagingException result, int progress) {
+            if (result != null || progress == 100) {
+                mHandler.progress(false);
+            } else if (progress == 0) {
+                mHandler.progress(true);
+            }
         }
     }
 
