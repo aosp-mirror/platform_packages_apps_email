@@ -603,6 +603,7 @@ public class ContactsSyncAdapter extends AbstractSyncAdapter {
                 switch (tag) {
                     case Tags.CONTACTS_CATEGORY:
                         ops.addGroup(entity, getValue());
+                        break;
                     default:
                         skipTag();
                 }
