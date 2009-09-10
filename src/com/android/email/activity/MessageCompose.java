@@ -667,7 +667,7 @@ public class MessageCompose extends Activity implements OnClickListener, OnFocus
         message.mText = bodyText;
         message.mAccountKey = account.mId;
         message.mDisplayName = makeDisplayName(message.mTo, message.mCc, message.mBcc);
-        message.mFlagLoaded = Message.LOADED;
+        message.mFlagLoaded = Message.FLAG_LOADED_COMPLETE;
         message.mFlagAttachment = hasAttachments;
         String action = getIntent().getAction();
         // Use the Intent to set flags saying this message is a reply or a forward and save the

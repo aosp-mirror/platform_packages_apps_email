@@ -273,8 +273,7 @@ public abstract class EmailContent {
         /**
          * Returns the bodyId for the given messageId, or -1 if no body is found.
          */
-        /* package */
-        static long lookupBodyIdWithMessageId(ContentResolver resolver, long messageId) {
+        public static long lookupBodyIdWithMessageId(ContentResolver resolver, long messageId) {
             Cursor c = resolver.query(Body.CONTENT_URI, ID_PROJECTION,
                                       Body.MESSAGE_KEY + "=?",
                                       new String[] {Long.toString(messageId)}, null);
@@ -356,7 +355,7 @@ public abstract class EmailContent {
         public static final String SUBJECT = "subject";
         // Boolean, unread = 0, read = 1 [INDEX]
         public static final String FLAG_READ = "flagRead";
-        // Three state, unloaded = 0, loaded = 1, partially loaded (optional) = 2 [INDEX]
+        // Load state, see constants below (unloaded, partial, complete, deleted)
         public static final String FLAG_LOADED = "flagLoaded";
         // Boolean, unflagged = 0, flagged (favorite) = 1
         public static final String FLAG_FAVORITE = "flagFavorite";
@@ -471,7 +470,7 @@ public abstract class EmailContent {
         public long mTimeStamp;
         public String mSubject;
         public boolean mFlagRead = false;
-        public int mFlagLoaded = 0;
+        public int mFlagLoaded = FLAG_LOADED_UNLOADED;
         public boolean mFlagFavorite = false;
         public boolean mFlagAttachment = false;
         public int mFlags = 0;
@@ -502,12 +501,12 @@ public abstract class EmailContent {
         // Values used in mFlagRead
         public static final int UNREAD = 0;
         public static final int READ = 1;
-        public static final int DELETED = 2;
 
         // Values used in mFlagLoaded
-        public static final int NOT_LOADED = 0;
-        public static final int LOADED = 1;
-        public static final int PARTIALLY_LOADED = 2;
+        public static final int FLAG_LOADED_UNLOADED = 0;
+        public static final int FLAG_LOADED_COMPLETE = 1;
+        public static final int FLAG_LOADED_PARTIAL = 2;
+        public static final int FLAG_LOADED_DELETED = 3;
 
         // Bits used in mFlags
         // These three states are mutually exclusive, and indicate whether the message is an

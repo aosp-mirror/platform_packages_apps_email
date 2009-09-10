@@ -238,7 +238,9 @@ public class Utility {
     public static String buildMailboxIdSelection(ContentResolver resolver, long mailboxId) {
         // Setup default selection & args, then add to it as necessary
         StringBuilder selection = new StringBuilder(
-                Message.FLAG_LOADED + "!=" + Message.NOT_LOADED + " AND ");
+                MessageColumns.FLAG_LOADED + " IN ("
+                + Message.FLAG_LOADED_PARTIAL + "," + Message.FLAG_LOADED_COMPLETE
+                + ") AND ");
         if (mailboxId == Mailbox.QUERY_ALL_INBOXES
             || mailboxId == Mailbox.QUERY_ALL_DRAFTS
             || mailboxId == Mailbox.QUERY_ALL_OUTBOX) {

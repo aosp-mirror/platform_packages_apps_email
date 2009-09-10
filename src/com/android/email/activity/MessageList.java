@@ -1118,15 +1118,9 @@ public class MessageList extends ListActivity implements OnItemClickListener, On
         // TODO check accountKey and only react to relevant notifications
         public void updateMailboxListCallback(MessagingException result, long accountKey,
                 int progress) {
-            if (progress == 0) {
-                mHandler.progress(true);
-            } else if (result != null || progress == 100) {
-                mHandler.progress(false);
-                if (mWaitForMailboxType != -1) {
-                    if (result == null) {
-                        mHandler.lookupMailboxType(accountKey, mWaitForMailboxType);
-                    }
-                }
+            updateProgress(result, progress);
+            if (progress == 100) {
+                mHandler.lookupMailboxType(accountKey, mWaitForMailboxType);
             }
         }
 
@@ -1134,11 +1128,7 @@ public class MessageList extends ListActivity implements OnItemClickListener, On
         // TODO check accountKey and only react to relevant notifications
         public void updateMailboxCallback(MessagingException result, long accountKey,
                 long mailboxKey, int progress, int numNewMessages) {
-            if (progress == 0) {
-                mHandler.progress(true);
-            } else if (result != null || progress == 100) {
-                mHandler.progress(false);
-            }
+            updateProgress(result, progress);
         }
 
         public void loadMessageForViewCallback(MessagingException result, long messageId,
@@ -1157,11 +1147,15 @@ public class MessageList extends ListActivity implements OnItemClickListener, On
         public void sendMailCallback(MessagingException result, long accountId, long messageId,
                 int progress) {
             if (mListFooterMode == LIST_FOOTER_MODE_SEND) {
-                if (progress == 0) {
-                    mHandler.progress(true);
-                } else if (result != null || progress == 100) {
-                    mHandler.progress(false);
-                }
+                updateProgress(result, progress);
+            }
+        }
+
+        private void updateProgress(MessagingException result, int progress) {
+            if (result != null || progress == 100) {
+                mHandler.progress(false);
+            } else if (progress == 0) {
+                mHandler.progress(true);
             }
         }
     }
