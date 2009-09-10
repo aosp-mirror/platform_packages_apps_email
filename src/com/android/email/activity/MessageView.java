@@ -1167,7 +1167,7 @@ public class MessageView extends Activity implements OnClickListener {
         // 2. If != LOADED, ask controller to load it
         // 3. Controller callback (after loaded) should trigger LoadBodyTask & LoadAttachmentsTask
         // 4. Else start the loader tasks right away (message already loaded)
-        if (okToFetch && message.mFlagLoaded != Message.LOADED) {
+        if (okToFetch && message.mFlagLoaded != Message.FLAG_LOADED_COMPLETE) {
             mWaitForLoadMessageId = message.mId;
             mController.loadMessageForView(message.mId, mControllerCallback);
         } else {

@@ -103,7 +103,7 @@ public class ProviderTestUtils extends Assert {
         message.mTimeStamp = 1;
         message.mSubject = "subject " + name;
         message.mFlagRead = true;
-        message.mFlagLoaded = Message.NOT_LOADED;
+        message.mFlagLoaded = Message.FLAG_LOADED_UNLOADED;
         message.mFlagFavorite = true;
         message.mFlagAttachment = true;
         message.mFlags = 2;
@@ -127,7 +127,7 @@ public class ProviderTestUtils extends Assert {
             message.mHtml = "body html " + name;
             message.mTextReply = "reply text " + name;
             message.mHtmlReply = "reply html " + name;
-            message.mSourceKey = mailboxId;
+            message.mSourceKey = 1000;
         }
 
         if (saveIt) {

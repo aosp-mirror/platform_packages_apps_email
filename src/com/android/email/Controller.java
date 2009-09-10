@@ -254,7 +254,7 @@ public class Controller {
             // and get out of here.
             Uri uri = ContentUris.withAppendedId(Message.CONTENT_URI, messageId);
             ContentValues cv = new ContentValues();
-            cv.put(MessageColumns.FLAG_LOADED, Message.LOADED);
+            cv.put(MessageColumns.FLAG_LOADED, Message.FLAG_LOADED_COMPLETE);
             mContext.getContentResolver().update(uri, cv, null, null);
             Log.d(Email.LOG_TAG, "Unexpected loadMessageForView() for service-based message.");
             synchronized (mListeners) {
@@ -565,24 +565,20 @@ public class Controller {
         Uri uri = ContentUris.withAppendedId(EmailContent.Message.SYNCED_CONTENT_URI, messageId);
         resolver.update(uri, cv, null, null);
 
-        // 5.  Drop non-essential data for the message (e.g. attachments)
-        // TODO: find the actual files (if any, if loaded) & delete them
-        c = null;
-        try {
-            c = resolver.query(EmailContent.Attachment.CONTENT_URI,
-                    EmailContent.Attachment.CONTENT_PROJECTION,
-                    EmailContent.AttachmentColumns.MESSAGE_KEY + "=?",
-                    new String[] { Long.toString(messageId) }, null);
-            while (c.moveToNext()) {
-                // delete any associated storage
-                // delete row?
-            }
-        } finally {
-            if (c != null) c.close();
-        }
+        // 5.  Drop non-essential data for the message (e.g. attachment files)
+        AttachmentProvider.deleteAllAttachmentFiles(mContext, accountId, messageId);
 
-        // 6.  For IMAP/POP3 we may need to kick off an immediate delete (depends on acct settings)
-        // TODO write this
+        // 6.  Service runs automatically, MessagingController needs a kick
+        final Message message = Message.restoreMessageWithId(mContext, messageId);
+        Account account = Account.restoreAccountWithId(mContext, message.mAccountKey);
+        if (isMessagingController(account)) {
+            new Thread() {
+                @Override
+                public void run() {
+                    mLegacyController.processPendingCommands(message.mAccountKey);
+                }
+            }.start();
+        }
     }
 
     /**

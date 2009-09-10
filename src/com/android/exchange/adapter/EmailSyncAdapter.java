@@ -176,7 +176,7 @@ public class EmailSyncAdapter extends AbstractSyncAdapter {
             Message msg = new Message();
             msg.mAccountKey = mAccount.mId;
             msg.mMailboxKey = mMailbox.mId;
-            msg.mFlagLoaded = Message.LOADED;
+            msg.mFlagLoaded = Message.FLAG_LOADED_COMPLETE;
 
             while (nextTag(Tags.SYNC_ADD) != END) {
                 switch (tag) {

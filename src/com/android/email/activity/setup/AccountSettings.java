@@ -228,8 +228,12 @@ public class AccountSettings extends PreferenceActivity {
                     this, mAccount.mHostAuthKeyRecv);
             mAccount.mHostAuthSend = HostAuth.restoreHostAuthWithId(
                     this, mAccount.mHostAuthKeySend);
-            
-            // TODO write me.
+
+            // Because "delete policy" UI is on edit incoming settings, we have
+            // to refresh that as well.
+            Account refreshedAccount = Account.restoreAccountWithId(this, mAccount.mId);
+            mAccount.setDeletePolicy(refreshedAccount.getDeletePolicy());
+
             mAccountDirty = false;
         }
     }
