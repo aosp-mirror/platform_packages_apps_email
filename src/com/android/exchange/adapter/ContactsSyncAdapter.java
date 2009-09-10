@@ -1627,11 +1627,6 @@ public class ContactsSyncAdapter extends AbstractSyncAdapter {
             return false;
         }
 
-        // TODO REMOVE THIS HACK THAT PREVENTS UPLOAD BASED ON GSERVICES SETTING
-        if (android.provider.Settings.Gservices.getInt(cr, "contacts_v3_upsync_enabled", 0) == 0) {
-            return false;
-        }
-
         try {
             // Get them all atomically
             EntityIterator ei = cr.queryEntities(uri, RawContacts.DIRTY + "=1", null, null);
