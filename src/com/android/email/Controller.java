@@ -65,6 +65,12 @@ public class Controller {
     };
     private static int MESSAGEID_TO_ACCOUNTID_COLUMN_ACCOUNTID = 1;
 
+    private static String[] MESSAGEID_TO_MAILBOXID_PROJECTION = new String[] {
+        EmailContent.RECORD_ID,
+        EmailContent.MessageColumns.MAILBOX_KEY
+    };
+    private static int MESSAGEID_TO_MAILBOXID_COLUMN_MAILBOXID = 1;
+
     protected Controller(Context _context) {
         mContext = _context;
         mProviderContext = _context;
@@ -530,7 +536,7 @@ public class Controller {
     }
 
     /**
-     * Delete a single message by moving it to the trash.
+     * Delete a single message by moving it to the trash, or deleting it from the trash
      *
      * This function has no callback, no result reporting, because the desired outcome
      * is reflected entirely by changes to one or more cursors.
@@ -546,7 +552,6 @@ public class Controller {
         ContentResolver resolver = mProviderContext.getContentResolver();
 
         // 1.  Look up acct# for message we're deleting
-        Cursor c = null;
         if (accountId == -1) {
             accountId = lookupAccountForMessage(messageId);
         }
@@ -554,28 +559,46 @@ public class Controller {
             return;
         }
 
-        // 2. Confirm that there is a trash mailbox available
-        // 3.  If there's no trash mailbox, create one
-        // TODO: Does this need to be signaled explicitly to the sync engines?
+        // 2. Confirm that there is a trash mailbox available.  If not, create one
         long trashMailboxId = findOrCreateMailboxOfType(accountId, Mailbox.TYPE_TRASH);
 
-        // 4.  Change the mailbox key for the message we're "deleting"
-        ContentValues cv = new ContentValues();
-        cv.put(EmailContent.MessageColumns.MAILBOX_KEY, trashMailboxId);
-        Uri uri = ContentUris.withAppendedId(EmailContent.Message.SYNCED_CONTENT_URI, messageId);
-        resolver.update(uri, cv, null, null);
+        // 3.  Are we moving to trash or deleting?  It depends on where the message currently sits.
+        long sourceMailboxId = -1;
+        Cursor c = resolver.query(EmailContent.Message.CONTENT_URI,
+                MESSAGEID_TO_MAILBOXID_PROJECTION, EmailContent.RECORD_ID + "=?",
+                new String[] { Long.toString(messageId) }, null);
+        try {
+            sourceMailboxId = c.moveToFirst()
+                ? c.getLong(MESSAGEID_TO_MAILBOXID_COLUMN_MAILBOXID)
+                : -1;
+        } finally {
+            c.close();
+        }
 
-        // 5.  Drop non-essential data for the message (e.g. attachment files)
+        // 4.  Drop non-essential data for the message (e.g. attachment files)
         AttachmentProvider.deleteAllAttachmentFiles(mContext, accountId, messageId);
 
+        Uri uri = ContentUris.withAppendedId(EmailContent.Message.SYNCED_CONTENT_URI, messageId);
+
+        // 5. Perform "delete" as appropriate
+        if (sourceMailboxId == trashMailboxId) {
+            // 5a. Delete from trash
+            resolver.delete(uri, null, null);
+        } else {
+            // 5b. Move to trash
+            ContentValues cv = new ContentValues();
+            cv.put(EmailContent.MessageColumns.MAILBOX_KEY, trashMailboxId);
+            resolver.update(uri, cv, null, null);
+        }
+
         // 6.  Service runs automatically, MessagingController needs a kick
-        final Message message = Message.restoreMessageWithId(mContext, messageId);
-        Account account = Account.restoreAccountWithId(mContext, message.mAccountKey);
+        Account account = Account.restoreAccountWithId(mContext, accountId);
         if (isMessagingController(account)) {
+            final long syncAccountId = accountId;
             new Thread() {
                 @Override
                 public void run() {
-                    mLegacyController.processPendingCommands(message.mAccountKey);
+                    mLegacyController.processPendingActions(syncAccountId);
                 }
             }.start();
         }
@@ -603,7 +626,7 @@ public class Controller {
             new Thread() {
                 @Override
                 public void run() {
-                    mLegacyController.processPendingCommands(message.mAccountKey);
+                    mLegacyController.processPendingActions(message.mAccountKey);
                 }
             }.start();
         }
@@ -631,7 +654,7 @@ public class Controller {
             new Thread() {
                 @Override
                 public void run() {
-                    mLegacyController.processPendingCommands(message.mAccountKey);
+                    mLegacyController.processPendingActions(message.mAccountKey);
                 }
             }.start();
         }

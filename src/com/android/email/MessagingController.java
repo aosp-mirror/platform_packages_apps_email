@@ -473,13 +473,12 @@ public class MessagingController implements Runnable {
      * TODO this should use ID's instead of fully-restored objects
      * @param account
      * @param folder
-     * @param listener
      */
     private void synchronizeMailboxSynchronous(final EmailContent.Account account,
             final EmailContent.Mailbox folder) {
         mListeners.synchronizeMailboxStarted(account, folder);
         try {
-            processPendingCommandsSynchronous(account);
+            processPendingActionsSynchronous(account);
 
             StoreSynchronizer.SyncResults results;
 
@@ -1110,36 +1109,17 @@ public class MessagingController implements Runnable {
         }
     }
 
-    public void processPendingCommands(final long accountId) {
-        put("processPendingCommands", null, new Runnable() {
+    public void processPendingActions(final long accountId) {
+        put("processPendingActions", null, new Runnable() {
             public void run() {
                 try {
                     EmailContent.Account account =
                         EmailContent.Account.restoreAccountWithId(mContext, accountId);
-                    processPendingCommandsSynchronous(account);
+                    processPendingActionsSynchronous(account);
                 }
                 catch (MessagingException me) {
                     if (Email.LOGD) {
-                        Log.v(Email.LOG_TAG, "processPendingCommands", me);
-                    }
-                    /*
-                     * Ignore any exceptions from the commands. Commands will be processed
-                     * on the next round.
-                     */
-                }
-            }
-        });
-    }
-
-    private void processPendingCommands(final EmailContent.Account account) {
-        put("processPendingCommands", null, new Runnable() {
-            public void run() {
-                try {
-                    processPendingCommandsSynchronous(account);
-                }
-                catch (MessagingException me) {
-                    if (Email.LOGD) {
-                        Log.v(Email.LOG_TAG, "processPendingCommands", me);
+                        Log.v(Email.LOG_TAG, "processPendingActions", me);
                     }
                     /*
                      * Ignore any exceptions from the commands. Commands will be processed
@@ -1157,20 +1137,100 @@ public class MessagingController implements Runnable {
      *   Read/Unread
      *   Flagged
      *   Move To Trash
-     * TODO:
      *   Empty trash
+     * TODO:
      *   Append
      *   Move
-     *
-     * TODO: tighter projections
      *
      * @param account the account to scan for pending actions
      * @throws MessagingException
      */
-    private void processPendingCommandsSynchronous(EmailContent.Account account)
+    private void processPendingActionsSynchronous(EmailContent.Account account)
            throws MessagingException {
         ContentResolver resolver = mContext.getContentResolver();
         String[] accountIdArgs = new String[] { Long.toString(account.mId) };
+
+        // Handle deletes first, it's always better to get rid of things first
+        processPendingDeletesSynchronous(account, resolver, accountIdArgs);
+
+        // Now handle updates / upsyncs
+        processPendingUpdatesSynchronous(account, resolver, accountIdArgs);
+    }
+
+    /**
+     * Scan for messages that are in the Message_Deletes table, look for differences that
+     * we can deal with, and do the work.
+     *
+     * @param account
+     * @param resolver
+     * @param accountIdArgs
+     */
+    private void processPendingDeletesSynchronous(EmailContent.Account account,
+            ContentResolver resolver, String[] accountIdArgs) {
+        Cursor deletes = resolver.query(EmailContent.Message.DELETED_CONTENT_URI,
+                EmailContent.Message.CONTENT_PROJECTION,
+                EmailContent.MessageColumns.ACCOUNT_KEY + "=?", accountIdArgs,
+                EmailContent.MessageColumns.MAILBOX_KEY);
+        long lastMessageId = -1;
+        try {
+            // Defer setting up the store until we know we need to access it
+            Store remoteStore = null;
+            // Demand load mailbox (note order-by to reduce thrashing here)
+            Mailbox mailbox = null;
+            // loop through messages marked as deleted
+            while (deletes.moveToNext()) {
+                boolean deleteFromTrash = false;
+
+                EmailContent.Message oldMessage =
+                    EmailContent.getContent(deletes, EmailContent.Message.class);
+                lastMessageId = oldMessage.mId;
+
+                if (oldMessage != null) {
+                    if (mailbox == null || mailbox.mId != oldMessage.mMailboxKey) {
+                        mailbox = Mailbox.restoreMailboxWithId(mContext, oldMessage.mMailboxKey);
+                    }
+                    deleteFromTrash = mailbox.mType == Mailbox.TYPE_TRASH;
+                }
+
+                // Load the remote store if it will be needed
+                if (remoteStore == null && deleteFromTrash) {
+                    remoteStore = Store.getInstance(account.getStoreUri(mContext), mContext, null);
+                }
+
+                // Dispatch here for specific change types
+                if (deleteFromTrash) {
+                    // Move message to trash
+                    processPendingDeleteFromTrash(remoteStore, account, mailbox, oldMessage);
+                }
+
+                // Finally, delete the update
+                Uri uri = ContentUris.withAppendedId(EmailContent.Message.DELETED_CONTENT_URI,
+                        oldMessage.mId);
+                resolver.delete(uri, null, null);
+            }
+
+        } catch (MessagingException me) {
+            // Presumably an error here is an account connection failure, so there is
+            // no point in continuing through the rest of the pending updates.
+            if (Email.DEBUG) {
+                Log.d(Email.LOG_TAG, "Unable to process pending delete for id="
+                            + lastMessageId + ": " + me);
+            }
+        } finally {
+            deletes.close();
+        }
+    }
+
+    /**
+     * Scan for messages that are in the Message_Updates table, look for differences that
+     * we can deal with, and do the work.
+     *
+     * @param account
+     * @param resolver
+     * @param accountIdArgs
+     */
+    private void processPendingUpdatesSynchronous(EmailContent.Account account,
+            ContentResolver resolver, String[] accountIdArgs) {
         Cursor updates = resolver.query(EmailContent.Message.UPDATED_CONTENT_URI,
                 EmailContent.Message.CONTENT_PROJECTION,
                 EmailContent.MessageColumns.ACCOUNT_KEY + "=?", accountIdArgs,
@@ -1210,40 +1270,12 @@ public class MessagingController implements Runnable {
                 // Dispatch here for specific change types
                 if (changeMoveToTrash) {
                     // Move message to trash
-                    processPendingMoveToTrash(remoteStore, account, mailbox,
-                            oldMessage, newMessage);
+                    processPendingMoveToTrash(remoteStore, account, mailbox, oldMessage,
+                            newMessage);
                 } else if (changeRead || changeFlagged) {
-                    // Upsync changes to read or flagged
-                    Folder remoteFolder = remoteStore.getFolder(mailbox.mDisplayName);
-                    if (remoteFolder.exists()) {
-                        remoteFolder.open(OpenMode.READ_WRITE, null);
-                        if (remoteFolder.getMode() == OpenMode.READ_WRITE) {
-                            // Finally, apply the changes to the message
-                            Message remoteMessage =
-                                remoteFolder.getMessage(newMessage.mServerId);
-                            if (remoteMessage != null) {
-                                if (Email.DEBUG) {
-                                    Log.d(Email.LOG_TAG,
-                                            "Update flags for msg id=" + newMessage.mId
-                                            + " read=" + newMessage.mFlagRead
-                                            + " flagged=" + newMessage.mFlagFavorite);
-                                }
-                                Message[] messages = new Message[] { remoteMessage };
-                                if (changeRead) {
-                                    remoteFolder.setFlags(messages,
-                                            FLAG_LIST_SEEN, newMessage.mFlagRead);
-                                }
-                                if (changeFlagged) {
-                                    remoteFolder.setFlags(messages,
-                                            FLAG_LIST_FLAGGED, newMessage.mFlagFavorite);
-                                }
-                            }
-                        }
-
-                    }
+                    processPendingFlagChange(remoteStore, mailbox, changeRead, changeFlagged,
+                            newMessage);
                 }
-
-                // TODO other changes!
 
                 // Finally, delete the update
                 Uri uri = ContentUris.withAppendedId(EmailContent.Message.UPDATED_CONTENT_URI,
@@ -1264,97 +1296,41 @@ public class MessagingController implements Runnable {
     }
 
     /**
-     * Process a pending append message command. This command uploads a local message to the
-     * server, first checking to be sure that the server message is not newer than
-     * the local message. Once the local message is successfully processed it is deleted so
-     * that the server message will be synchronized down without an additional copy being
-     * created.
-     * TODO update the local message UID instead of deleteing it
+     * Upsync changes to read or flagged
      *
-     * @param command arguments = (String folder, String uid)
-     * @param account
-     * @throws MessagingException
+     * @param remoteStore
+     * @param mailbox
+     * @param changeRead
+     * @param changeFlagged
+     * @param newMessage
      */
-    private void processPendingAppend(PendingCommand command, EmailContent.Account account)
-            throws MessagingException {
-        String folder = command.arguments[0];
-        String uid = command.arguments[1];
-
-        LocalStore localStore = (LocalStore) Store.getInstance(
-                account.getLocalStoreUri(mContext), mContext, null);
-        LocalFolder localFolder = (LocalFolder) localStore.getFolder(folder);
-        LocalMessage localMessage = (LocalMessage) localFolder.getMessage(uid);
-
-        if (localMessage == null) {
+    private void processPendingFlagChange(Store remoteStore, Mailbox mailbox, boolean changeRead,
+            boolean changeFlagged, EmailContent.Message newMessage) throws MessagingException {
+        Folder remoteFolder = remoteStore.getFolder(mailbox.mDisplayName);
+        if (!remoteFolder.exists()) {
             return;
         }
-
-        Store remoteStore = Store.getInstance(account.getStoreUri(mContext), mContext,
-                localStore.getPersistentCallbacks());
-        Folder remoteFolder = remoteStore.getFolder(folder);
-        if (!remoteFolder.exists()) {
-            if (!remoteFolder.create(FolderType.HOLDS_MESSAGES)) {
-                return;
-            }
-        }
-        remoteFolder.open(OpenMode.READ_WRITE, localFolder.getPersistentCallbacks());
+        remoteFolder.open(OpenMode.READ_WRITE, null);
         if (remoteFolder.getMode() != OpenMode.READ_WRITE) {
             return;
         }
-
-        Message remoteMessage = null;
-        if (!localMessage.getUid().startsWith("Local")
-                && !localMessage.getUid().contains("-")) {
-            remoteMessage = remoteFolder.getMessage(localMessage.getUid());
-        }
-
+        // Finally, apply the changes to the message
+        Message remoteMessage = remoteFolder.getMessage(newMessage.mServerId);
         if (remoteMessage == null) {
-            /*
-             * If the message does not exist remotely we just upload it and then
-             * update our local copy with the new uid.
-             */
-            FetchProfile fp = new FetchProfile();
-            fp.add(FetchProfile.Item.BODY);
-            localFolder.fetch(new Message[] { localMessage }, fp, null);
-            String oldUid = localMessage.getUid();
-            remoteFolder.appendMessages(new Message[] { localMessage });
-            localFolder.changeUid(localMessage);
-            mListeners.messageUidChanged(account, folder, oldUid, localMessage.getUid());
+            return;
         }
-        else {
-            /*
-             * If the remote message exists we need to determine which copy to keep.
-             */
-            /*
-             * See if the remote message is newer than ours.
-             */
-            FetchProfile fp = new FetchProfile();
-            fp.add(FetchProfile.Item.ENVELOPE);
-            remoteFolder.fetch(new Message[] { remoteMessage }, fp, null);
-            Date localDate = localMessage.getInternalDate();
-            Date remoteDate = remoteMessage.getInternalDate();
-            if (remoteDate.compareTo(localDate) > 0) {
-                /*
-                 * If the remote message is newer than ours we'll just
-                 * delete ours and move on. A sync will get the server message
-                 * if we need to be able to see it.
-                 */
-                localMessage.setFlag(Flag.DELETED, true);
-            }
-            else {
-                /*
-                 * Otherwise we'll upload our message and then delete the remote message.
-                 */
-                fp.clear();
-                fp = new FetchProfile();
-                fp.add(FetchProfile.Item.BODY);
-                localFolder.fetch(new Message[] { localMessage }, fp, null);
-                String oldUid = localMessage.getUid();
-                remoteFolder.appendMessages(new Message[] { localMessage });
-                localFolder.changeUid(localMessage);
-                mListeners.messageUidChanged(account, folder, oldUid, localMessage.getUid());
-                remoteMessage.setFlag(Flag.DELETED, true);
-            }
+        if (Email.DEBUG) {
+            Log.d(Email.LOG_TAG,
+                    "Update flags for msg id=" + newMessage.mId
+                    + " read=" + newMessage.mFlagRead
+                    + " flagged=" + newMessage.mFlagFavorite);
+        }
+        Message[] messages = new Message[] { remoteMessage };
+        if (changeRead) {
+            remoteFolder.setFlags(messages, FLAG_LIST_SEEN, newMessage.mFlagRead);
+        }
+        if (changeFlagged) {
+            remoteFolder.setFlags(messages, FLAG_LIST_FLAGGED, newMessage.mFlagFavorite);
         }
     }
 
@@ -1471,6 +1447,143 @@ public class MessagingController implements Runnable {
         remoteMessage.setFlag(Flag.DELETED, true);
         remoteFolder.expunge();
         remoteFolder.close(false);
+    }
+
+    /**
+     * Process a pending trash message command.
+     *
+     * @param remoteStore the remote store we're working in
+     * @param account The account in which we are working
+     * @param oldMailbox The local trash mailbox
+     * @param oldMessage The message that was deleted from the trash
+     */
+    private void processPendingDeleteFromTrash(Store remoteStore,
+            EmailContent.Account account, Mailbox oldMailbox, EmailContent.Message oldMessage)
+            throws MessagingException {
+
+        // 1. We only support delete-from-trash here
+        if (oldMailbox.mType != Mailbox.TYPE_TRASH) {
+            return;
+        }
+
+        // 2.  Find the remote trash folder (that we are deleting from), and open it
+        Folder remoteTrashFolder = remoteStore.getFolder(oldMailbox.mDisplayName);
+        if (!remoteTrashFolder.exists()) {
+            return;
+        }
+
+        remoteTrashFolder.open(OpenMode.READ_WRITE, null);
+        if (remoteTrashFolder.getMode() != OpenMode.READ_WRITE) {
+            remoteTrashFolder.close(false);
+            return;
+        }
+
+        // 3. Find the remote original message
+        Message remoteMessage = remoteTrashFolder.getMessage(oldMessage.mServerId);
+        if (remoteMessage == null) {
+            remoteTrashFolder.close(false);
+            return;
+        }
+
+        // 4. Delete the message from the remote trash folder
+        remoteMessage.setFlag(Flag.DELETED, true);
+        remoteTrashFolder.expunge();
+        remoteTrashFolder.close(false);
+    }
+
+    /**
+     * Process a pending append message command. This command uploads a local message to the
+     * server, first checking to be sure that the server message is not newer than
+     * the local message. Once the local message is successfully processed it is deleted so
+     * that the server message will be synchronized down without an additional copy being
+     * created.
+     * TODO update the local message UID instead of deleteing it
+     *
+     * @param command arguments = (String folder, String uid)
+     * @param account
+     * @throws MessagingException
+     */
+    private void processPendingAppend(PendingCommand command, EmailContent.Account account)
+            throws MessagingException {
+        String folder = command.arguments[0];
+        String uid = command.arguments[1];
+
+        LocalStore localStore = (LocalStore) Store.getInstance(
+                account.getLocalStoreUri(mContext), mContext, null);
+        LocalFolder localFolder = (LocalFolder) localStore.getFolder(folder);
+        LocalMessage localMessage = (LocalMessage) localFolder.getMessage(uid);
+
+        if (localMessage == null) {
+            return;
+        }
+
+        Store remoteStore = Store.getInstance(account.getStoreUri(mContext), mContext,
+                localStore.getPersistentCallbacks());
+        Folder remoteFolder = remoteStore.getFolder(folder);
+        if (!remoteFolder.exists()) {
+            if (!remoteFolder.create(FolderType.HOLDS_MESSAGES)) {
+                return;
+            }
+        }
+        remoteFolder.open(OpenMode.READ_WRITE, localFolder.getPersistentCallbacks());
+        if (remoteFolder.getMode() != OpenMode.READ_WRITE) {
+            return;
+        }
+
+        Message remoteMessage = null;
+        if (!localMessage.getUid().startsWith("Local")
+                && !localMessage.getUid().contains("-")) {
+            remoteMessage = remoteFolder.getMessage(localMessage.getUid());
+        }
+
+        if (remoteMessage == null) {
+            /*
+             * If the message does not exist remotely we just upload it and then
+             * update our local copy with the new uid.
+             */
+            FetchProfile fp = new FetchProfile();
+            fp.add(FetchProfile.Item.BODY);
+            localFolder.fetch(new Message[] { localMessage }, fp, null);
+            String oldUid = localMessage.getUid();
+            remoteFolder.appendMessages(new Message[] { localMessage });
+            localFolder.changeUid(localMessage);
+            mListeners.messageUidChanged(account, folder, oldUid, localMessage.getUid());
+        }
+        else {
+            /*
+             * If the remote message exists we need to determine which copy to keep.
+             */
+            /*
+             * See if the remote message is newer than ours.
+             */
+            FetchProfile fp = new FetchProfile();
+            fp.add(FetchProfile.Item.ENVELOPE);
+            remoteFolder.fetch(new Message[] { remoteMessage }, fp, null);
+            Date localDate = localMessage.getInternalDate();
+            Date remoteDate = remoteMessage.getInternalDate();
+            if (remoteDate.compareTo(localDate) > 0) {
+                /*
+                 * If the remote message is newer than ours we'll just
+                 * delete ours and move on. A sync will get the server message
+                 * if we need to be able to see it.
+                 */
+                localMessage.setFlag(Flag.DELETED, true);
+            }
+            else {
+                /*
+                 * Otherwise we'll upload our message and then delete the remote message.
+                 */
+                fp.clear();
+                fp = new FetchProfile();
+                fp.add(FetchProfile.Item.BODY);
+                localFolder.fetch(new Message[] { localMessage }, fp, null);
+                String oldUid = localMessage.getUid();
+                remoteFolder.appendMessages(new Message[] { localMessage });
+                localFolder.changeUid(localMessage);
+                mListeners.messageUidChanged(account, folder, oldUid, localMessage.getUid());
+                remoteMessage.setFlag(Flag.DELETED, true);
+            }
+        }
     }
 
     /**
@@ -1750,69 +1863,6 @@ public class MessagingController implements Runnable {
         } finally {
             c.close();
         }
-    }
-
-    /**
-     * We do the local portion of this synchronously because other activities may have to make
-     * updates based on what happens here
-     * @param account
-     * @param folder
-     * @param message
-     * @param listener
-     */
-    public void deleteMessage(final EmailContent.Account account, final String folder,
-            final Message message, MessagingListener listener) {
-        // TODO rewrite using provider updates
-
-//        if (folder.equals(account.getTrashFolderName(mContext))) {
-//            return;
-//        }
-//        try {
-//            Store localStore = Store.getInstance(account.getLocalStoreUri(mContext), mContext,
-//                    null);
-//            Folder localFolder = localStore.getFolder(folder);
-//            Folder localTrashFolder = localStore.getFolder(account.getTrashFolderName(mContext));
-//
-//            localFolder.copyMessages(new Message[] { message }, localTrashFolder, null);
-//            message.setFlag(Flag.DELETED, true);
-//
-//            if (account.getDeletePolicy() == Account.DELETE_POLICY_ON_DELETE) {
-//                PendingCommand command = new PendingCommand();
-//                command.command = PENDING_COMMAND_TRASH;
-//                command.arguments = new String[] { folder, message.getUid() };
-//                queuePendingCommand(account, command);
-//                processPendingCommands(account);
-//            }
-//        }
-//        catch (MessagingException me) {
-//            throw new RuntimeException("Error deleting message from local store.", me);
-//        }
-    }
-
-    public void emptyTrash(final EmailContent.Account account, MessagingListener listener) {
-        put("emptyTrash", listener, new Runnable() {
-            public void run() {
-                // TODO IMAP
-                try {
-                    Store localStore = Store.getInstance(
-                            account.getLocalStoreUri(mContext), mContext, null);
-                    Folder localFolder = localStore.getFolder(account.getTrashFolderName(mContext));
-                    localFolder.open(OpenMode.READ_WRITE, null);
-                    Message[] messages = localFolder.getMessages(null);
-                    localFolder.setFlags(messages, new Flag[] {
-                        Flag.DELETED
-                    }, true);
-                    localFolder.close(true);
-                    mListeners.emptyTrashCompleted(account);
-                }
-                catch (Exception e) {
-                    // TODO
-                    if (Email.LOGD) {
-                        Log.v(Email.LOG_TAG, "emptyTrash");
-                    }
-                }
-            }
-        });
     }
 
     /**
