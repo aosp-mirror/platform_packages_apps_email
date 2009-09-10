@@ -199,7 +199,7 @@ public class AccountSetupOptions extends Activity implements OnClickListener {
         if (!mAccount.isSaved()
                 && mAccount.mHostAuthRecv != null
                 && mAccount.mHostAuthRecv.mProtocol.equals("eas")) {
-            boolean alsoSyncContacts = mEasFlowMode && mSyncContactsView.isChecked();
+            boolean alsoSyncContacts = mSyncContactsView.isChecked();
             ExchangeStore.addSystemAccount(this, mAccount,
                     alsoSyncContacts, mAccountManagerCallback);
         } else {
