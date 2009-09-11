@@ -1556,6 +1556,7 @@ public class ContactsSyncAdapter extends AbstractSyncAdapter {
 
     private void sendPhone(Serializer s, ContentValues cv) throws IOException {
         String value = cv.getAsString(Phone.NUMBER);
+        if (value == null) return;
         switch (cv.getAsInteger(Phone.TYPE)) {
             case TYPE_WORK2:
                 s.data(Tags.CONTACTS_BUSINESS2_TELEPHONE_NUMBER, value);
@@ -1600,6 +1601,7 @@ public class ContactsSyncAdapter extends AbstractSyncAdapter {
 
     private void sendRelation(Serializer s, ContentValues cv) throws IOException {
         String value = cv.getAsString(Relation.DATA);
+        if (value == null) return;
         switch (cv.getAsInteger(Relation.TYPE)) {
             case Relation.TYPE_ASSISTANT:
                 s.data(Tags.CONTACTS_ASSISTANT_NAME, value);
