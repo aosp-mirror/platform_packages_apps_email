@@ -19,7 +19,8 @@
         android:id="@+id/screen"
         android:orientation="horizontal"
         android:layout_width="fill_parent"
-        android:layout_height="fill_parent">
+        android:layout_height="fill_parent"
+        android:gravity="center_vertical">
 
     <TextView android:id="@+id/title_left_text"
             android:gravity="center_vertical|left"
@@ -44,6 +45,7 @@
             android:visibility="gone"
             android:minWidth="10dip"
             android:paddingRight="1dip"
+            android:layout_marginLeft="4dip"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"/>
 
