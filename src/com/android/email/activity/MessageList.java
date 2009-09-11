@@ -37,6 +37,7 @@ import android.content.Context;
 import android.content.Intent;
 import android.content.res.Resources;
 import android.database.Cursor;
+import android.graphics.Typeface;
 import android.graphics.drawable.Drawable;
 import android.net.Uri;
 import android.os.AsyncTask;
@@ -1234,20 +1235,18 @@ public class MessageList extends ListActivity implements OnItemClickListener, On
             View chipView = view.findViewById(R.id.chip);
             int chipResId = mColorChipResIds[(int)itemView.mAccountId % mColorChipResIds.length];
             chipView.setBackgroundResource(chipResId);
-            // TODO always display chip.  Use other indications (e.g. boldface) for read/unread
-            chipView.getBackground().setAlpha(itemView.mRead ? 100 : 255);
 
             TextView fromView = (TextView) view.findViewById(R.id.from);
             String text = cursor.getString(COLUMN_DISPLAY_NAME);
             fromView.setText(text);
 
-            boolean hasAttachments = cursor.getInt(COLUMN_ATTACHMENTS) != 0;
-            fromView.setCompoundDrawablesWithIntrinsicBounds(null, null,
-                    hasAttachments ? mAttachmentIcon : null, null);
-
             TextView subjectView = (TextView) view.findViewById(R.id.subject);
             text = cursor.getString(COLUMN_SUBJECT);
             subjectView.setText(text);
+
+            boolean hasAttachments = cursor.getInt(COLUMN_ATTACHMENTS) != 0;
+            subjectView.setCompoundDrawablesWithIntrinsicBounds(null, null,
+                    hasAttachments ? mAttachmentIcon : null, null);
 
             // TODO ui spec suggests "time", "day", "date" - implement "day"
             TextView dateView = (TextView) view.findViewById(R.id.date);
@@ -1259,6 +1258,18 @@ public class MessageList extends ListActivity implements OnItemClickListener, On
                 text = mDateFormat.format(date);
             }
             dateView.setText(text);
+
+            if (itemView.mRead) {
+                subjectView.setTypeface(Typeface.DEFAULT);
+                fromView.setTypeface(Typeface.DEFAULT);
+                view.setBackgroundDrawable(context.getResources().getDrawable(
+                        R.color.message_list_item_background_read));
+            } else {
+                subjectView.setTypeface(Typeface.DEFAULT_BOLD);
+                fromView.setTypeface(Typeface.DEFAULT_BOLD);
+                view.setBackgroundDrawable(context.getResources().getDrawable(
+                        R.color.message_list_item_background_unread));
+            }
 
             ImageView selectedView = (ImageView) view.findViewById(R.id.selected);
             selectedView.setImageDrawable(itemView.mSelected ? mSelectedIconOn : mSelectedIconOff);
