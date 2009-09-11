@@ -16,5 +16,6 @@
 
 <resources>
     <color name="folder_message_list_child_background">#3B3B3B</color>
-    <color name="message_list_item_background">#3B3B3B</color>
+    <color name="message_list_item_background_unread">#282828</color>
+    <color name="message_list_item_background_read">#3B3B3B</color>
 </resources>
