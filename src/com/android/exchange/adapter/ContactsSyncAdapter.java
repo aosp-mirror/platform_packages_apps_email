@@ -112,7 +112,9 @@ public class ContactsSyncAdapter extends AbstractSyncAdapter {
     ArrayList<Long> mDeletedIdList = new ArrayList<Long>();
     ArrayList<Long> mUpdatedIdList = new ArrayList<Long>();
 
-    android.accounts.Account mAccountManagerAccount;
+    private boolean mGroupsUsed = false;
+
+    private android.accounts.Account mAccountManagerAccount;
 
     public ContactsSyncAdapter(Mailbox mailbox, EasSyncService service) {
         super(mailbox, service);
@@ -522,13 +524,10 @@ public class ContactsSyncAdapter extends AbstractSyncAdapter {
                         ops.addNote(entity, getValue());
                         break;
 
-                    // TODO Handle Categories/Category
-                    // If we don't handle this properly, we'll lose the information if/when we
-                    // upload changes to the server!
                     case Tags.CONTACTS_CATEGORIES:
+                        mGroupsUsed = true;
                         categoriesParser(ops, entity);
                         break;
-
 
                     case Tags.CONTACTS_COMPRESSED_RTF:
                         // We don't use this, and it isn't necessary to upload, so we'll ignore it
@@ -1379,6 +1378,28 @@ public class ContactsSyncAdapter extends AbstractSyncAdapter {
                     .build());
         }
         ops.execute();
+        ContentResolver cr = mContext.getContentResolver();
+        if (mGroupsUsed) {
+            // Make sure the title column is set for all of our groups
+            // And that all of our groups are visible
+            // TODO Perhaps the visible part should only happen when the group is created, but
+            // this is fine for now.
+            Uri groupsUri = uriWithAccount(Groups.CONTENT_URI);
+            Cursor c = cr.query(groupsUri, new String[] {Groups.SOURCE_ID, Groups.TITLE},
+                    Groups.TITLE + " IS NULL", null, null);
+            ContentValues values = new ContentValues();
+            values.put(Groups.GROUP_VISIBLE, 1);
+            try {
+                while (c.moveToNext()) {
+                    String sourceId = c.getString(0);
+                    values.put(Groups.TITLE, sourceId);
+                    cr.update(uriWithAccount(groupsUri), values, Groups.SOURCE_ID + "=?",
+                            new String[] {sourceId});
+                }
+            } finally {
+                c.close();
+            }
+        }
     }
 
     @Override
