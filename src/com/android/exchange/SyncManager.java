@@ -117,8 +117,7 @@ public class SyncManager extends Service implements Runnable {
     private static final int CONNECTIVITY_WAIT_TIME = 10*MINUTES;
 
     // Sync hold constants for services with transient errors
-    private static final int HOLD_DELAY_ESCALATION = 30*SECONDS;
-    private static final int HOLD_DELAY_MAXIMUM = 3*MINUTES;
+    private static final int HOLD_DELAY_MAXIMUM = 4*MINUTES;
 
     // Reason codes when SyncManager.kick is called (mainly for debugging)
     // UI has changed data, requiring an upsync of changes
@@ -166,6 +165,7 @@ public class SyncManager extends Service implements Runnable {
     private static Object sSyncToken = new Object();
     // All threads can use this lock to wait for connectivity
     public static Object sConnectivityLock = new Object();
+    public static boolean sConnectivityHold = false;
 
     // Keeps track of running services (by mailbox id)
     private HashMap<Long, AbstractSyncService> mServiceMap =
@@ -203,6 +203,8 @@ public class SyncManager extends Service implements Runnable {
 
     // The reason for SyncManager's next wakeup call
     private String mNextWaitReason;
+    // Whether we have an unsatisfied "kick" pending
+    private boolean mKicked = false;
 
     // Receiver of connectivity broadcasts
     private ConnectivityReceiver mConnectivityReceiver = null;
@@ -572,21 +574,20 @@ public class SyncManager extends Service implements Runnable {
     class SyncError {
         int reason;
         boolean fatal = false;
-        long holdEndTime;
-        long holdDelay = 0;
+        long holdDelay = 15*SECONDS;
+        long holdEndTime = System.currentTimeMillis() + holdDelay;
 
         SyncError(int _reason, boolean _fatal) {
             reason = _reason;
             fatal = _fatal;
-            escalate();
         }
 
         /**
-         * We increase the hold on I/O errors in 30 second increments to 5 minutes
+         * We double the holdDelay from 15 seconds through 4 mins
          */
         void escalate() {
             if (holdDelay < HOLD_DELAY_MAXIMUM) {
-                holdDelay += HOLD_DELAY_ESCALATION;
+                holdDelay *= 2;
             }
             holdEndTime = System.currentTimeMillis() + holdDelay;
         }
@@ -1081,6 +1082,8 @@ public class SyncManager extends Service implements Runnable {
     }
 
     private void startService(Mailbox m, int reason, PartRequest req) {
+        // Don't sync if there's no connectivity
+        if (sConnectivityHold) return;
         synchronized (sSyncToken) {
             Account acct = Account.restoreAccountWithId(this, m.mAccountKey);
             if (acct != null) {
@@ -1126,7 +1129,7 @@ public class SyncManager extends Service implements Runnable {
                 (ConnectivityManager)getSystemService(Context.CONNECTIVITY_SERVICE);
             NetworkInfo info = cm.getActiveNetworkInfo();
             if (info != null) {
-                log("NetworkInfo: " + info.getTypeName() + ", " + info.getState().name());
+                //log("NetworkInfo: " + info.getTypeName() + ", " + info.getState().name());
                 return;
             } else {
 
@@ -1141,9 +1144,12 @@ public class SyncManager extends Service implements Runnable {
                     runAsleep(SYNC_MANAGER_ID, CONNECTIVITY_WAIT_TIME+5*SECONDS);
                     try {
                         log("Connectivity lock...");
+                        sConnectivityHold = true;
                         sConnectivityLock.wait(CONNECTIVITY_WAIT_TIME);
                         log("Connectivity lock released...");
                     } catch (InterruptedException e) {
+                    } finally {
+                        sConnectivityHold = false;
                     }
                     runAwake(SYNC_MANAGER_ID);
                 }
@@ -1193,20 +1199,29 @@ public class SyncManager extends Service implements Runnable {
                 long nextWait = checkMailboxes();
                 try {
                     synchronized (this) {
-                        if (nextWait < 0) {
-                            log("Negative wait? Setting to 1s");
-                            nextWait = 1*SECONDS;
+                        if (!mKicked) {
+                            if (nextWait < 0) {
+                                log("Negative wait? Setting to 1s");
+                                nextWait = 1*SECONDS;
+                            }
+                            if (nextWait > 30*SECONDS) {
+                                runAsleep(SYNC_MANAGER_ID, nextWait - 1000);
+                            }
+                            if (nextWait != SYNC_MANAGER_HEARTBEAT_TIME) {
+                                log("Next awake in " + nextWait / 1000 + "s: " + mNextWaitReason);
+                            }
+                            wait(nextWait);
                         }
-                        if (nextWait > 30*SECONDS) {
-                            runAsleep(SYNC_MANAGER_ID, nextWait - 1000);
-                        }
-                        if (nextWait != SYNC_MANAGER_HEARTBEAT_TIME) {
-                            log("Next awake in " + nextWait / 1000 + "s: " + mNextWaitReason);
-                        }
-                        wait(nextWait);
                     }
                 } catch (InterruptedException e) {
                     // Needs to be caught, but causes no problem
+                } finally {
+                    synchronized (this) {
+                        if (mKicked) {
+                            //log("Wait deferred due to kick");
+                            mKicked = false;
+                        }
+                    }
                 }
             }
             stopServices();
@@ -1314,8 +1329,8 @@ public class SyncManager extends Service implements Runnable {
                             }
                             continue;
                         } else {
-                            // The hold has ended; remove from the error map
-                            mSyncErrorMap.remove(mid);
+                            // Keep the error around, but clear the end time
+                            syncError.holdEndTime = 0;
                         }
                     }
                     long freq = c.getInt(Mailbox.CONTENT_SYNC_INTERVAL_COLUMN);
@@ -1512,6 +1527,7 @@ public class SyncManager extends Service implements Runnable {
     static public void kick(String reason) {
         if (INSTANCE != null) {
             synchronized (INSTANCE) {
+                INSTANCE.mKicked = true;
                 INSTANCE.notify();
             }
         }

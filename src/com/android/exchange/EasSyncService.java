@@ -551,7 +551,6 @@ public class EasSyncService extends AbstractSyncService {
                      if (len > 0) {
                          InputStream is = entity.getContent();
                          // Returns true if we need to sync again
-                         userLog("FolderSync, deviceId = ", mDeviceId);
                          if (new FolderSyncParser(is, new AccountSyncAdapter(mMailbox, this))
                                  .parse()) {
                              continue;
@@ -764,8 +763,8 @@ public class EasSyncService extends AbstractSyncService {
                             // try increasing timeout by two minutes
                             if ((status == PROTOCOL_PING_STATUS_COMPLETED) &&
                                     (pingHeartbeat > mPingHighWaterMark)) {
-                                userLog("Setting ping high water mark at: ", mPingHighWaterMark);
                                 mPingHighWaterMark = pingHeartbeat;
+                                userLog("Setting ping high water mark at: ", mPingHighWaterMark);
                             }
                             if ((status == PROTOCOL_PING_STATUS_COMPLETED) &&
                                     (pingHeartbeat < PING_MAX_HEARTBEAT) &&
@@ -962,7 +961,6 @@ public class EasSyncService extends AbstractSyncService {
             target.sendLocalChanges(s);
 
             s.end().end().end().done();
-            userLog("Sync, deviceId = ", mDeviceId);
             HttpResponse resp = sendHttpClientPost("Sync", s.toByteArray());
             int code = resp.getStatusLine().getStatusCode();
             if (code == HttpStatus.SC_OK) {
