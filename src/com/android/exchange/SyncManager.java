@@ -671,7 +671,7 @@ public class SyncManager extends Service implements Runnable {
         if (INSTANCE != null) {
             Log.d(TAG, "onCreate called on running SyncManager");
         } else {
-            Log.d(TAG, "!!! EAS SyncManager started");
+            Log.d(TAG, "!!! EAS SyncManager, onCreate");
             INSTANCE = this;
             try {
                 sDeviceId = getDeviceId();
@@ -687,11 +687,33 @@ public class SyncManager extends Service implements Runnable {
             mMessageObserver = new MessageObserver(mHandler);
             mSyncStatusObserver = new EasSyncStatusObserver();
         }
+    }
 
+    @Override
+    public int onStartCommand(Intent intent, int flags, int startId) {
+        Log.d(TAG, "!!! EAS SyncManager, onStartCommand");
         maybeStartSyncManagerThread();
         if (sServiceThread == null) {
-            Log.d(TAG, "!!! EAS SyncManager stopping self");
+            Log.d(TAG, "!!! EAS SyncManager, stopping self");
             stopSelf();
+        }
+        return Service.START_REDELIVER_INTENT;
+    }
+
+    @Override
+    public void onDestroy() {
+        Log.d(TAG, "!!! EAS SyncManager, onDestroy");
+    }
+
+    void maybeStartSyncManagerThread() {
+        // Start our thread...
+        // See if there are any EAS accounts; otherwise, just go away
+        if (EmailContent.count(this, HostAuth.CONTENT_URI, WHERE_PROTOCOL_EAS, null) > 0) {
+            if (sServiceThread == null || !sServiceThread.isAlive()) {
+                log(sServiceThread == null ? "Starting thread..." : "Restarting thread...");
+                sServiceThread = new Thread(this, "SyncManager");
+                sServiceThread.start();
+            }
         }
     }
 
@@ -739,23 +761,6 @@ public class SyncManager extends Service implements Runnable {
         }
         // Null is a valid return result if we get an exception
         return sClientConnectionManager;
-    }
-
-    @Override
-    public void onDestroy() {
-        log("!!! EAS SyncManager destroyed");
-    }
-
-    void maybeStartSyncManagerThread() {
-        // Start our thread...
-        // See if there are any EAS accounts; otherwise, just go away
-        if (EmailContent.count(this, HostAuth.CONTENT_URI, WHERE_PROTOCOL_EAS, null) > 0) {
-            if (sServiceThread == null || !sServiceThread.isAlive()) {
-                log(sServiceThread == null ? "Starting thread..." : "Restarting thread...");
-                sServiceThread = new Thread(this, "SyncManager");
-                sServiceThread.start();
-            }
-        }
     }
 
     static public void reloadFolderList(Context context, long accountId, boolean force) {
