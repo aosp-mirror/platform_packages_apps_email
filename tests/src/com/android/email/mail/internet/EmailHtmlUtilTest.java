@@ -26,6 +26,8 @@ import com.android.email.mail.store.LocalStore;
 import com.android.email.provider.EmailContent;
 import com.android.email.provider.EmailContent.Account;
 
+import android.content.ContentUris;
+import android.content.Context;
 import android.net.Uri;
 import android.test.AndroidTestCase;
 import android.test.suitebuilder.annotation.MediumTest;
@@ -41,6 +43,7 @@ import java.io.IOException;
 @MediumTest
 public class EmailHtmlUtilTest extends AndroidTestCase {
     private EmailContent.Account mAccount;
+    private long mCreatedAccountId = -1;
 
     private static final String textTags = "<b>Plain</b> &";
     private static final String textSpaces = "3 spaces   end.";
@@ -50,11 +53,33 @@ public class EmailHtmlUtilTest extends AndroidTestCase {
     protected void setUp() throws Exception {
         super.setUp();
         // Force assignment of a default account, and retrieve it
-        long accountId = Account.getDefaultAccountId(getContext());
-        mAccount = Account.restoreAccountWithId(getContext(), accountId);
+        Context context = getContext();
+
+        // Force assignment of a default account
+        long accountId = Account.getDefaultAccountId(context);
+        if (accountId == -1) {
+            Account account = new Account();
+            account.mSenderName = "Bob Sender";
+            account.mEmailAddress = "bob@sender.com";
+            account.save(context);
+            accountId = account.mId;
+            mCreatedAccountId = accountId;
+        }
+        Account.restoreAccountWithId(context, accountId);
 
         // This is needed for mime image bodypart.
         BinaryTempFileBody.setTempDirectory(getContext().getCacheDir());
+    }
+
+    @Override
+    protected void tearDown() throws Exception {
+        super.tearDown();
+        Context context = getContext();
+        // If we created an account, delete it here
+        if (mCreatedAccountId > -1) {
+            context.getContentResolver().delete(
+                    ContentUris.withAppendedId(Account.CONTENT_URI, mCreatedAccountId), null, null);
+        }
     }
 
     /**
