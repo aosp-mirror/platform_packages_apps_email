@@ -1351,7 +1351,8 @@ public class SyncManager extends Service implements Runnable {
                             syncError.holdEndTime = 0;
                         }
                     }
-                    long freq = c.getInt(Mailbox.CONTENT_SYNC_INTERVAL_COLUMN);
+
+                    // We handle a few types of mailboxes specially
                     int type = c.getInt(Mailbox.CONTENT_TYPE_COLUMN);
                     if (type == Mailbox.TYPE_CONTACTS) {
                         // See if "sync automatically" is set
@@ -1366,8 +1367,13 @@ public class SyncManager extends Service implements Runnable {
                                 continue;
                             }
                         }
+                    } else if (type == Mailbox.TYPE_TRASH) {
+                        continue;
                     }
-                    if (freq == Mailbox.CHECK_INTERVAL_PUSH) {
+
+                    // Otherwise, we use the sync interval
+                    long interval = c.getInt(Mailbox.CONTENT_SYNC_INTERVAL_COLUMN);
+                    if (interval == Mailbox.CHECK_INTERVAL_PUSH) {
                         Mailbox m = EmailContent.getContent(c, Mailbox.class);
                         startService(m, SYNC_PUSH, null);
                     } else if (type == Mailbox.TYPE_OUTBOX) {
@@ -1378,9 +1384,9 @@ public class SyncManager extends Service implements Runnable {
                             Mailbox m = EmailContent.getContent(c, Mailbox.class);
                             startService(new EasOutboxService(this, m), m);
                         }
-                    } else if (freq > 0 && freq <= ONE_DAY_MINUTES) {
+                    } else if (interval > 0 && interval <= ONE_DAY_MINUTES) {
                         long lastSync = c.getLong(Mailbox.CONTENT_SYNC_TIME_COLUMN);
-                        long toNextSync = freq*MINUTES - (now - lastSync);
+                        long toNextSync = interval*MINUTES - (now - lastSync);
                         if (toNextSync <= 0) {
                             Mailbox m = EmailContent.getContent(c, Mailbox.class);
                             startService(m, SYNC_SCHEDULED, null);
