@@ -347,6 +347,15 @@ public class SyncManager extends Service implements Runnable {
             }
             return false;
         }
+
+        public Account getById(long id) {
+            for (Account account: this) {
+                if (account.mId == id) {
+                    return account;
+                }
+            }
+            return null;
+        }
     }
 
     class AccountObserver extends ContentObserver {
@@ -562,6 +571,10 @@ public class SyncManager extends Service implements Runnable {
         } else {
             return EMPTY_ACCOUNT_LIST;
         }
+    }
+
+    private Account getAccountById(long accountId) {
+        return mAccountObserver.mAccounts.getById(accountId);
     }
 
     public class SyncStatus {
@@ -1339,10 +1352,25 @@ public class SyncManager extends Service implements Runnable {
                         }
                     }
                     long freq = c.getInt(Mailbox.CONTENT_SYNC_INTERVAL_COLUMN);
+                    int type = c.getInt(Mailbox.CONTENT_TYPE_COLUMN);
+                    if (type == Mailbox.TYPE_CONTACTS) {
+                        // See if "sync automatically" is set
+                        Account account = 
+                            getAccountById(c.getInt(Mailbox.CONTENT_ACCOUNT_KEY_COLUMN));
+                        if (account != null) {
+                            android.accounts.Account a =
+                                new android.accounts.Account(account.mEmailAddress,
+                                        Eas.ACCOUNT_MANAGER_TYPE);
+                            if (!ContentResolver.getSyncAutomatically(a,
+                                    ContactsContract.AUTHORITY)) {
+                                continue;
+                            }
+                        }
+                    }
                     if (freq == Mailbox.CHECK_INTERVAL_PUSH) {
                         Mailbox m = EmailContent.getContent(c, Mailbox.class);
                         startService(m, SYNC_PUSH, null);
-                    } else if (c.getInt(Mailbox.CONTENT_TYPE_COLUMN) == Mailbox.TYPE_OUTBOX) {
+                    } else if (type == Mailbox.TYPE_OUTBOX) {
                         int cnt = EmailContent.count(this, Message.CONTENT_URI,
                                 EasOutboxService.MAILBOX_KEY_AND_NOT_SEND_FAILED,
                                 new String[] {Long.toString(mid)});
