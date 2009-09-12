@@ -1020,9 +1020,9 @@ public class EasSyncService extends AbstractSyncService {
                 mAccount = Account.restoreAccountWithId(mContext, mAccount.mId);
                 mProtocolVersion = mAccount.mProtocolVersion;
                 mProtocolVersionDouble = Double.parseDouble(mProtocolVersion);
-                if (mMailbox.mType == Mailbox.TYPE_CONTACTS)
+                if (mMailbox.mType == Mailbox.TYPE_CONTACTS) {
                     target = new ContactsSyncAdapter(mMailbox, this);
-                else {
+                } else {
                     target = new EmailSyncAdapter(mMailbox, this);
                 }
                 // We loop here because someone might have put a request in while we were syncing
