@@ -145,6 +145,9 @@ public class SyncManager extends Service implements Runnable {
     private static final String WHERE_MAILBOX_KEY = EmailContent.RECORD_ID + "=?";
     private static final String WHERE_PROTOCOL_EAS = HostAuthColumns.PROTOCOL + "=\"" +
         AbstractSyncService.EAS_PROTOCOL + "\"";
+    private static final String WHERE_NOT_INTERVAL_NEVER_AND_ACCOUNT_KEY_IN =
+        MailboxColumns.SYNC_INTERVAL + "!=" + Mailbox.CHECK_INTERVAL_NEVER + " and " +
+            MailboxColumns.ACCOUNT_KEY + " in (";
 
     // Offsets into the syncStatus data for EAS that indicate type, exit status, and change count
     // The format is S<type_char>:<exit_char>:<change_count>
@@ -361,6 +364,7 @@ public class SyncManager extends Service implements Runnable {
     class AccountObserver extends ContentObserver {
         // mAccounts keeps track of Accounts that we care about (EAS for now)
         AccountList mAccounts = new AccountList();
+        String mAccountKeyList = null;
 
         public AccountObserver(Handler handler) {
             super(handler);
@@ -382,6 +386,29 @@ public class SyncManager extends Service implements Runnable {
                     addAccountMailbox(account.mId);
                 }
             }
+        }
+
+        /**
+         * Returns a String suitable for appending to a where clause that selects for all eas
+         * accounts.
+         * @return a String in the form "and accountKey in (a, b, c...)"
+         */
+        public String getMailboxWhere() {
+            if (mAccountKeyList == null) {
+                StringBuilder sb = new StringBuilder(WHERE_NOT_INTERVAL_NEVER_AND_ACCOUNT_KEY_IN);
+                boolean first = true;
+                for (Account account: mAccounts) {
+                    if (!first) {
+                        sb.append(',');
+                    } else {
+                        first = false;
+                    }
+                    sb.append(account.mId);
+                }
+                sb.append(')');
+                mAccountKeyList = sb.toString();
+            }
+            return mAccountKeyList;
         }
 
         private boolean syncParametersChanged(Account account) {
@@ -418,6 +445,7 @@ public class SyncManager extends Service implements Runnable {
                             new android.accounts.Account(account.mEmailAddress,
                                     Eas.ACCOUNT_MANAGER_TYPE);
                         AccountManager.get(SyncManager.this).removeAccount(acct, null, null);
+                        mAccountKeyList = null;
                     } else {
                         // See whether any of our accounts has changed sync interval or window
                         if (syncParametersChanged(account)) {
@@ -443,6 +471,7 @@ public class SyncManager extends Service implements Runnable {
                         // This is an addition; create our magic hidden mailbox...
                         addAccountMailbox(account.mId);
                         mAccounts.add(account);
+                        mAccountKeyList = null;
                     }
                 }
 
@@ -1318,18 +1347,14 @@ public class SyncManager extends Service implements Runnable {
 
         long nextWait = SYNC_MANAGER_HEARTBEAT_TIME;
         long now = System.currentTimeMillis();
-        // Start up threads that need it...
-        Cursor c = getContentResolver().query(Mailbox.CONTENT_URI,
-                Mailbox.CONTENT_PROJECTION, null, null, null);
+
+        // Start up threads that need it; use a query which finds eas mailboxes where the
+        // the sync interval is not "never".  This is the set of mailboxes that we control
+        Cursor c = getContentResolver().query(Mailbox.CONTENT_URI, Mailbox.CONTENT_PROJECTION,
+                mAccountObserver.getMailboxWhere(), null, null);
+
         try {
             while (c.moveToNext()) {
-                // TODO Could be much faster - just get cursor of
-                // ones we're watching...
-                long aid = c.getLong(Mailbox.CONTENT_ACCOUNT_KEY_COLUMN);
-                // Only check mailboxes for EAS accounts
-                if (!mAccountObserver.mAccounts.contains(aid)) {
-                    continue;
-                }
                 long mid = c.getLong(Mailbox.CONTENT_ID_COLUMN);
                 AbstractSyncService service = mServiceMap.get(mid);
                 if (service == null) {
