@@ -1334,9 +1334,8 @@ public class ContactsSyncAdapter extends AbstractSyncAdapter {
         public void addNote(Entity entity, String note) {
             RowBuilder builder = typedRowBuilder(entity, Note.CONTENT_ITEM_TYPE, -1);
             ContentValues cv = builder.cv;
-            if (note != null) {
-                note = note.replaceAll("\r\n", "\n");
-            }
+            if (note == null) return;
+            note = note.replaceAll("\r\n", "\n");
             if (cv != null && cvCompareString(cv, Note.NOTE, note)) {
                 return;
             }
