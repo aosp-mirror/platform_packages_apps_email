@@ -146,8 +146,9 @@ public class SyncManager extends Service implements Runnable {
     private static final String WHERE_PROTOCOL_EAS = HostAuthColumns.PROTOCOL + "=\"" +
         AbstractSyncService.EAS_PROTOCOL + "\"";
     private static final String WHERE_NOT_INTERVAL_NEVER_AND_ACCOUNT_KEY_IN =
-        MailboxColumns.SYNC_INTERVAL + "!=" + Mailbox.CHECK_INTERVAL_NEVER + " and " +
-            MailboxColumns.ACCOUNT_KEY + " in (";
+        "(" + MailboxColumns.TYPE + '=' + Mailbox.TYPE_OUTBOX
+        + " or " + MailboxColumns.SYNC_INTERVAL + "!=" + Mailbox.CHECK_INTERVAL_NEVER + ')'
+        + " and " + MailboxColumns.ACCOUNT_KEY + " in (";
 
     // Offsets into the syncStatus data for EAS that indicate type, exit status, and change count
     // The format is S<type_char>:<exit_char>:<change_count>
