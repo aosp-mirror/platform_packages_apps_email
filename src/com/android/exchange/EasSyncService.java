@@ -103,10 +103,6 @@ public class EasSyncService extends AbstractSyncService {
      * going into hysteresis; the NAT timeout isn't going to change without a change in connection,
      * which will cause the sync service to be restarted at the starting heartbeat and going through
      * the process again.
-     *
-     * One issue we've got is that there's no foolproof way of knowing that we hit a NAT timeout,
-     * rather than some other disconnect.  In my experience, we see a particular IOException, but
-     * this might be too fragile an indicator, so we'll have to consider changes to this approach.
      */
     static private final int PING_MINUTES = 60; // in seconds
     static private final int PING_FUDGE_LOW = 10;
@@ -114,6 +110,7 @@ public class EasSyncService extends AbstractSyncService {
     static private final int PING_MIN_HEARTBEAT = (5*PING_MINUTES)-PING_FUDGE_LOW;
     static private final int PING_MAX_HEARTBEAT = (17*PING_MINUTES)-PING_FUDGE_LOW;
     static private final int PING_HEARTBEAT_INCREMENT = 3*PING_MINUTES;
+    static private final int PING_FORCE_HEARTBEAT = 2*PING_MINUTES;
 
     static private final int PROTOCOL_PING_STATUS_COMPLETED = 1;
     static private final int PROTOCOL_PING_STATUS_CHANGES_FOUND = 2;
@@ -677,6 +674,8 @@ public class EasSyncService extends AbstractSyncService {
         long endTime = System.currentTimeMillis() + (30*MINUTES);
         HashMap<String, Integer> pingErrorMap = new HashMap<String, Integer>();
 
+        int pingWaitCount = 0;
+
         while ((System.currentTimeMillis() < endTime) && !mStop) {
             // Count of pushable mailboxes
             int pushCount = 0;
@@ -733,16 +732,25 @@ public class EasSyncService extends AbstractSyncService {
                 c.close();
             }
 
-            if ((canPushCount > 0) && (canPushCount == pushCount)) {
-                // If we have some number that are ready for push, send Ping to the server
+            // If we've waited 10 seconds or more, just ping with whatever boxes are ready
+            // But use a shorter than normal heartbeat
+            boolean forcePing = (pingWaitCount > 9);
+
+            if ((canPushCount > 0) && ((canPushCount == pushCount) || forcePing)) {
+                // If all pingable boxes are ready for push, send Ping to the server
                 s.end().end().done();
+                pingWaitCount = 0;
 
                 // If we've been stopped, this is a good time to return
                 if (mStop) return;
 
                 try {
                     // Send the ping, wrapped by appropriate timeout/alarm
-                    HttpResponse res = sendPing(s.toByteArray(), pingHeartbeat);
+                    if (forcePing) {
+                        userLog("Forcing ping after waiting for all boxes to be ready");
+                    }
+                    HttpResponse res =
+                        sendPing(s.toByteArray(), forcePing ? PING_FORCE_HEARTBEAT : pingHeartbeat);
 
                     int code = res.getStatusLine().getStatusCode();
                     userLog("Ping response: ", code);
@@ -759,21 +767,21 @@ public class EasSyncService extends AbstractSyncService {
                         InputStream is = res.getEntity().getContent();
                         if (len > 0) {
                             int status = parsePingResult(is, mContentResolver);
-                            // If our ping completed (status = 1), and we're not at the maximum,
-                            // try increasing timeout by two minutes
-                            if ((status == PROTOCOL_PING_STATUS_COMPLETED) &&
-                                    (pingHeartbeat > mPingHighWaterMark)) {
-                                mPingHighWaterMark = pingHeartbeat;
-                                userLog("Setting ping high water mark at: ", mPingHighWaterMark);
-                            }
-                            if ((status == PROTOCOL_PING_STATUS_COMPLETED) &&
-                                    (pingHeartbeat < PING_MAX_HEARTBEAT) &&
-                                    !mPingHeartbeatDropped) {
-                                pingHeartbeat += PING_HEARTBEAT_INCREMENT;
-                                if (pingHeartbeat > PING_MAX_HEARTBEAT) {
-                                    pingHeartbeat = PING_MAX_HEARTBEAT;
+                            // If our ping completed (status = 1), and we weren't forced and we're
+                            // not at the maximum, try increasing timeout by two minutes
+                            if (status == PROTOCOL_PING_STATUS_COMPLETED && !forcePing) {
+                                if (pingHeartbeat > mPingHighWaterMark) {
+                                    mPingHighWaterMark = pingHeartbeat;
+                                    userLog("Setting high water mark at: ", mPingHighWaterMark);
                                 }
-                                userLog("Increasing ping heartbeat to ", pingHeartbeat, "s");
+                                if ((pingHeartbeat < PING_MAX_HEARTBEAT) &&
+                                        !mPingHeartbeatDropped) {
+                                    pingHeartbeat += PING_HEARTBEAT_INCREMENT;
+                                    if (pingHeartbeat > PING_MAX_HEARTBEAT) {
+                                        pingHeartbeat = PING_MAX_HEARTBEAT;
+                                    }
+                                    userLog("Increasing ping heartbeat to ", pingHeartbeat, "s");
+                                }
                             } else if (status == PROTOCOL_PING_STATUS_CHANGES_FOUND) {
                                 checkPingErrors(pingErrorMap);
                             }
@@ -811,6 +819,7 @@ public class EasSyncService extends AbstractSyncService {
                 // TODO Change sleep to wait and use notify from SyncManager when a sync ends
                 userLog("pingLoop waiting for: ", (pushCount - canPushCount), " box(es)");
                 sleep(1*SECONDS);
+                pingWaitCount++;
             } else {
                 // We've got nothing to do, so we'll check again in 30 minutes at which time
                 // we'll update the folder list.  Let the device sleep in the meantime...
