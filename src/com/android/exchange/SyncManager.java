@@ -667,6 +667,14 @@ public class SyncManager extends Service implements Runnable {
         }
     }
 
+    protected void alwaysLog(String str) {
+        if (!Eas.USER_LOG) {
+            Log.d(TAG, str);
+        } else {
+            log(str);
+        }
+    }
+
     /**
      * EAS requires a unique device id, so that sync is possible from a variety of different
      * devices (e.g. the syncKey is specific to a device)  If we're on an emulator or some other
@@ -711,9 +719,9 @@ public class SyncManager extends Service implements Runnable {
     @Override
     public void onCreate() {
         if (INSTANCE != null) {
-            Log.d(TAG, "onCreate called on running SyncManager");
+            alwaysLog("onCreate called on running SyncManager");
         } else {
-            Log.d(TAG, "!!! EAS SyncManager, onCreate");
+            alwaysLog("!!! EAS SyncManager, onCreate");
             INSTANCE = this;
             try {
                 sDeviceId = getDeviceId();
@@ -733,10 +741,10 @@ public class SyncManager extends Service implements Runnable {
 
     @Override
     public int onStartCommand(Intent intent, int flags, int startId) {
-        Log.d(TAG, "!!! EAS SyncManager, onStartCommand");
+        alwaysLog("!!! EAS SyncManager, onStartCommand");
         maybeStartSyncManagerThread();
         if (sServiceThread == null) {
-            Log.d(TAG, "!!! EAS SyncManager, stopping self");
+            alwaysLog("!!! EAS SyncManager, stopping self");
             stopSelf();
         }
         return Service.START_REDELIVER_INTENT;
@@ -744,7 +752,7 @@ public class SyncManager extends Service implements Runnable {
 
     @Override
     public void onDestroy() {
-        Log.d(TAG, "!!! EAS SyncManager, onDestroy");
+        alwaysLog("!!! EAS SyncManager, onDestroy");
     }
 
     void maybeStartSyncManagerThread() {
@@ -980,9 +988,11 @@ public class SyncManager extends Service implements Runnable {
         INSTANCE.releaseWakeLock(id);
     }
 
-    static public void ping(long id) {
+    static public void ping(Context context, long id) {
         if (id < 0) {
             kick("ping SyncManager");
+        } else if (INSTANCE == null) {
+            context.startService(new Intent(context, SyncManager.class));
         } else {
             AbstractSyncService service = INSTANCE.mServiceMap.get(id);
             if (service != null) {

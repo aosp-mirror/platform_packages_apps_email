@@ -33,7 +33,7 @@ public class MailboxAlarmReceiver extends BroadcastReceiver {
         if (SyncManager.INSTANCE != null) {
             SyncManager.INSTANCE.log("Alarm received for: " + SyncManager.alarmOwner(mid));
         }
-        SyncManager.ping(mid);
+        SyncManager.ping(context, mid);
     }
 }
 
