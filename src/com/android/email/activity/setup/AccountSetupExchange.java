@@ -150,7 +150,8 @@ public class AccountSetupExchange extends Activity implements OnClickListener,
             }
 
             if (username != null) {
-                mUsernameView.setText(username);
+                // Add a backslash to the start of the username as an affordance
+                mUsernameView.setText("\\" + username);
             }
 
             if (password != null) {
@@ -236,8 +237,13 @@ public class AccountSetupExchange extends Activity implements OnClickListener,
         boolean sslRequired = mSslSecurityView.isChecked();
         boolean trustCertificates = mTrustCertificatesView.isChecked();
         String scheme = (sslRequired) ? (trustCertificates ? "eas+tssl+" : "eas+ssl+") : "eas";
-        String userInfo = mUsernameView.getText().toString().trim() + ":" + 
-                mPasswordView.getText().toString().trim();
+        String userName = mUsernameView.getText().toString().trim();
+        // Remove a leading backslash, if there is one, since we now automatically put one at
+        // the start of the username field
+        if (userName.startsWith("\\")) {
+            userName = userName.substring(1);
+        }
+        String userInfo = userName + ":" + mPasswordView.getText().toString().trim();
         String host = mServerView.getText().toString().trim();
         String path = null;
 

@@ -358,9 +358,11 @@
     <string name="account_setup_exchange_title">Exchange server settings</string>
     <!-- On "Exchange" setup screen, the name of the server -->
     <string name="account_setup_exchange_server_label">Exchange Server</string>
-    <!-- On "Exchange" setup screen, the domain name label -->
+    <!-- On "Exchange" setup screen, the domain\\username -->
+    <string name="account_setup_exchange_username_label">Domain\\Username</string>
+    <!-- Deprecated: On "Exchange" setup screen, the domain name label -->
     <string name="account_setup_exchange_domain_label">Domain</string>
-    <!-- On "Exchange" setup screen, the domain name hint -->
+    <!-- Deprecated: On "Exchange" setup screen, the domain name hint -->
     <string name="account_setup_exchange_domain_hint">Enter domain here</string>
     <!-- On "Exchange" setup screen, the use-SSL checkbox label -->
     <string name="account_setup_exchange_ssl_label">Use secure connection (SSL)</string>
