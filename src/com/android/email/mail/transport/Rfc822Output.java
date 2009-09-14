@@ -59,10 +59,14 @@ public class Rfc822Output {
     static final SimpleDateFormat mDateFormat =
         new SimpleDateFormat("EEE, dd MMM yyyy HH:mm:ss Z", Locale.US);
 
-    /*package*/ static String buildBodyText(Context context, Message message) {
-        int flags = message.mFlags;
+    /*package*/ static String buildBodyText(Context context, Message message,
+            boolean appendQuotedText) {
         Body body = Body.restoreBodyWithMessageId(context, message.mId);
         String text = body.mTextContent;
+
+        if (!appendQuotedText) {
+            return text;
+        }
 
         String quotedText = body.mTextReply;
         if (quotedText != null) {
@@ -71,6 +75,7 @@ public class Rfc822Output {
             quotedText = matcher.replaceAll("\n");
         }
         String fromAsString = Address.unpackToString(message.mFrom);
+        int flags = message.mFlags;
         if ((flags & Message.FLAG_TYPE_REPLY) != 0) {
             text += context.getString(R.string.message_compose_reply_header_fmt, fromAsString);
             if (quotedText != null) {
@@ -97,12 +102,12 @@ public class Rfc822Output {
      * @param context system context for accessing the provider
      * @param messageId the message to write out
      * @param out the output stream to write the message to
+     * @param appendQuotedText whether or not to append quoted text if this is a reply/forward
      *
-     * TODO is there anything in the flags fields we need to look at?
      * TODO alternative parts (e.g. text+html) are not supported here.
      */
-    public static void writeTo(Context context, long messageId, OutputStream out)
-            throws IOException, MessagingException {
+    public static void writeTo(Context context, long messageId, OutputStream out,
+            boolean appendQuotedText) throws IOException, MessagingException {
         Message message = Message.restoreMessageWithId(context, messageId);
         if (message == null) {
             // throw something?
@@ -129,7 +134,7 @@ public class Rfc822Output {
         writeAddressHeader(writer, "Reply-To", message.mReplyTo);
 
         // Analyze message and determine if we have multiparts
-        String text = buildBodyText(context, message);
+        String text = buildBodyText(context, message, appendQuotedText);
 
         Uri uri = ContentUris.withAppendedId(Attachment.MESSAGE_ID_URI, messageId);
         Cursor attachmentsCursor = context.getContentResolver().query(uri,

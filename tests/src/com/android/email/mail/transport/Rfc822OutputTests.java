@@ -34,18 +34,25 @@ public class Rfc822OutputTests extends AndroidTestCase {
     private static final String RECIPIENT_BCC = "recipient-bcc@android.com";
     private static final String SUBJECT = "This is the subject";
     private static final String BODY = "This is the body.  This is also the body.";
+    private static final String TEXT = "Here is some new text.";
     private static final String REPLY_BODY_SHORT = "\n\n" + SENDER + " wrote:\n\n";
     private static final String REPLY_BODY = REPLY_BODY_SHORT + ">" + BODY;
 
     // TODO Create more tests here.  Specifically, we should test to make sure that forward works
     // properly instead of just reply
 
+    // TODO Localize the following test, which will not work properly in other than English
+    // speaking locales!
+    
     /**
      * Test for buildBodyText().
      * Compare with expected values.
      * Also test the situation where the message has no body.
+     *
+     * WARNING: This test is NOT localized, so it will fail if run on a device in a
+     * non-English speaking locale!
      */
-    public void testBuildBodyText() {
+    public void testBuildBodyTextWithReply() {
         // Create the least necessary; sender, flags, and the body of the reply
         Message msg = new Message();
         msg.mText = "";
@@ -54,14 +61,39 @@ public class Rfc822OutputTests extends AndroidTestCase {
         msg.mTextReply = BODY;
         msg.save(getContext());
 
-        String body = Rfc822Output.buildBodyText(getContext(), msg);
+        String body = Rfc822Output.buildBodyText(getContext(), msg, true);
         assertEquals(REPLY_BODY, body);
 
         // Save a different message with no reply body (so we reset the id)
         msg.mId = -1;
         msg.mTextReply = null;
         msg.save(getContext());
-        body = Rfc822Output.buildBodyText(getContext(), msg);
+        body = Rfc822Output.buildBodyText(getContext(), msg, true);
         assertEquals(REPLY_BODY_SHORT, body);
+    }
+
+    /**
+     * Test for buildBodyText().
+     * Compare with expected values.
+     * Also test the situation where the message has no body.
+     */
+    public void testBuildBodyTextWithoutReply() {
+        // Create the least necessary; sender, flags, and the body of the reply
+        Message msg = new Message();
+        msg.mText = TEXT;
+        msg.mFrom = SENDER;
+        msg.mFlags = Message.FLAG_TYPE_REPLY;
+        msg.mTextReply = BODY;
+        msg.save(getContext());
+
+        String body = Rfc822Output.buildBodyText(getContext(), msg, false);
+        assertEquals(TEXT, body);
+
+        // Save a different message with no reply body (so we reset the id)
+        msg.mId = -1;
+        msg.mTextReply = null;
+        msg.save(getContext());
+        body = Rfc822Output.buildBodyText(getContext(), msg, false);
+        assertEquals(TEXT, body);
     }
  }
