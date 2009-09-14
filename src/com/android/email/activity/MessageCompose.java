@@ -72,8 +72,6 @@ import java.io.UnsupportedEncodingException;
 import java.net.URLDecoder;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.regex.Matcher;
-import java.util.regex.Pattern;
 
 
 public class MessageCompose extends Activity implements OnClickListener, OnFocusChangeListener {
@@ -100,9 +98,6 @@ public class MessageCompose extends Activity implements OnClickListener, OnFocus
     private static final int MSG_DISCARDED_DRAFT = 6;
 
     private static final int ACTIVITY_REQUEST_PICK_ATTACHMENT = 1;
-
-    private static final Pattern PATTERN_START_OF_LINE = Pattern.compile("(?m)^");
-    private static final Pattern PATTERN_ENDLINE_CRLF = Pattern.compile("\r\n");
 
     private static final String[] ATTACHMENT_META_COLUMNS = {
         OpenableColumns.DISPLAY_NAME,
@@ -572,45 +567,6 @@ public class MessageCompose extends Activity implements OnClickListener, OnFocus
         return addresses;
     }
 
-    /*
-     * Takes care to append source info and text in a REPLY or FORWARD situation.
-     */
-    /* package */ String buildBodyText(Message sourceMessage) {
-        /*
-         * Build the Body that will contain the text of the message. We'll decide where to
-         * include it later.
-         */
-        final String action = getIntent().getAction();
-        String text = mMessageContentView.getText().toString();
-
-        if (mQuotedTextBar.getVisibility() == View.VISIBLE && sourceMessage != null) {
-            String quotedText = sourceMessage.mText;
-            if (quotedText != null) {
-                // fix CR-LF line endings to LF-only needed by EditText.
-                Matcher matcher = PATTERN_ENDLINE_CRLF.matcher(quotedText);
-                quotedText = matcher.replaceAll("\n");
-            }
-            String fromAsString = Address.unpackToString(sourceMessage.mFrom);
-            if (ACTION_REPLY.equals(action) || ACTION_REPLY_ALL.equals(action)) {
-                text += getString(R.string.message_compose_reply_header_fmt, fromAsString);
-                if (quotedText != null) {
-                    Matcher matcher = PATTERN_START_OF_LINE.matcher(quotedText);
-                    text += matcher.replaceAll(">");
-                }
-            } else if (ACTION_FORWARD.equals(action)) {
-                String subject = sourceMessage.mSubject;
-                String to = Address.unpackToString(sourceMessage.mTo);
-                String cc = Address.unpackToString(sourceMessage.mCc);
-                text += getString(R.string.message_compose_fwd_header_fmt, subject, fromAsString,
-                                  to != null ? to : "", cc != null ? cc : "");
-                if (quotedText != null) {
-                    text += quotedText;
-                }
-            }
-        }
-        return text;
-    }
-
     private ContentValues getUpdateContentValues(Message message) {
         ContentValues values = new ContentValues();
         values.put(MessageColumns.TIMESTAMP, message.mTimeStamp);
@@ -656,15 +612,14 @@ public class MessageCompose extends Activity implements OnClickListener, OnFocus
      * @param account the account (used to obtain From: address).
      * @param bodyText the body text.
      */
-    private void updateMessage(Message message, Account account, String bodyText,
-                               boolean hasAttachments) {
+    private void updateMessage(Message message, Account account, boolean hasAttachments) {
         message.mTimeStamp = System.currentTimeMillis();
         message.mFrom = new Address(account.getEmailAddress(), account.getSenderName()).pack();
         message.mTo = getPackedAddresses(mToView);
         message.mCc = getPackedAddresses(mCcView);
         message.mBcc = getPackedAddresses(mBccView);
         message.mSubject = mSubjectView.getText().toString();
-        message.mText = bodyText;
+        message.mText = mMessageContentView.getText().toString();
         message.mAccountKey = account.mId;
         message.mDisplayName = makeDisplayName(message.mTo, message.mCc, message.mBcc);
         message.mFlagLoaded = Message.FLAG_LOADED_COMPLETE;
@@ -672,13 +627,19 @@ public class MessageCompose extends Activity implements OnClickListener, OnFocus
         String action = getIntent().getAction();
         // Use the Intent to set flags saying this message is a reply or a forward and save the
         // unique id of the source message
-        if (mSource != null) {
-            if (ACTION_REPLY.equals(action) || ACTION_REPLY_ALL.equals(action)) {
-                message.mFlags |= Message.FLAG_TYPE_REPLY;
+        if (mSource != null && mQuotedTextBar.getVisibility() == View.VISIBLE) {
+            if (ACTION_REPLY.equals(action) || ACTION_REPLY_ALL.equals(action)
+                    || ACTION_FORWARD.equals(action)) {
                 message.mSourceKey = mSource.mId;
-            } else if (ACTION_FORWARD.equals(action)) {
+                // Get the body of the source message here
+                // Note that the following commented line will be useful when we use HTML in replies
+                //message.mHtmlReply = mSource.mHtml;
+                message.mTextReply = mSource.mText;
+            }
+            if (ACTION_FORWARD.equals(action)) {
                 message.mFlags |= Message.FLAG_TYPE_FORWARD;
-                message.mSourceKey = mSource.mId;
+            } else {
+                message.mFlags |= Message.FLAG_TYPE_REPLY;
             }
         }
     }
@@ -704,7 +665,7 @@ public class MessageCompose extends Activity implements OnClickListener, OnFocus
             mDraft = new Message();
         }
         final Attachment[] attachments = getAttachmentsFromUI();
-        updateMessage(mDraft, mAccount, buildBodyText(mSource), attachments.length > 0);
+        updateMessage(mDraft, mAccount, attachments.length > 0);
 
         mSaveMessageTask = new AsyncTask<Void, Void, Void>() {
             @Override
@@ -714,6 +675,8 @@ public class MessageCompose extends Activity implements OnClickListener, OnFocus
                         mDraft.update(MessageCompose.this, getUpdateContentValues(mDraft));
                         ContentValues values = new ContentValues();
                         values.put(BodyColumns.TEXT_CONTENT, mDraft.mText);
+                        values.put(BodyColumns.TEXT_REPLY, mDraft.mTextReply);
+                        values.put(BodyColumns.HTML_REPLY, mDraft.mHtmlReply);
                         Body.updateBodyWithMessageId(MessageCompose.this, mDraft.mId, values);
                     } else {
                         // mDraft.mId is set upon return of saveToMailbox()

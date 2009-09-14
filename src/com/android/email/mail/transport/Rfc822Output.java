@@ -16,6 +16,7 @@
 
 package com.android.email.mail.transport;
 
+import com.android.email.R;
 import com.android.email.codec.binary.Base64;
 import com.android.email.codec.binary.Base64OutputStream;
 import com.android.email.mail.Address;
@@ -42,16 +43,52 @@ import java.io.Writer;
 import java.text.SimpleDateFormat;
 import java.util.Date;
 import java.util.Locale;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 /**
  * Utility class to output RFC 822 messages from provider email messages
  */
 public class Rfc822Output {
 
+    private static final Pattern PATTERN_START_OF_LINE = Pattern.compile("(?m)^");
+    private static final Pattern PATTERN_ENDLINE_CRLF = Pattern.compile("\r\n");
+
     // In MIME, en_US-like date format should be used. In other words "MMM" should be encoded to
     // "Jan", not the other localized format like "Ene" (meaning January in locale es).
     static final SimpleDateFormat mDateFormat =
         new SimpleDateFormat("EEE, dd MMM yyyy HH:mm:ss Z", Locale.US);
+
+    /*package*/ static String buildBodyText(Context context, Message message) {
+        int flags = message.mFlags;
+        Body body = Body.restoreBodyWithMessageId(context, message.mId);
+        String text = body.mTextContent;
+
+        String quotedText = body.mTextReply;
+        if (quotedText != null) {
+            // fix CR-LF line endings to LF-only needed by EditText.
+            Matcher matcher = PATTERN_ENDLINE_CRLF.matcher(quotedText);
+            quotedText = matcher.replaceAll("\n");
+        }
+        String fromAsString = Address.unpackToString(message.mFrom);
+        if ((flags & Message.FLAG_TYPE_REPLY) != 0) {
+            text += context.getString(R.string.message_compose_reply_header_fmt, fromAsString);
+            if (quotedText != null) {
+                Matcher matcher = PATTERN_START_OF_LINE.matcher(quotedText);
+                text += matcher.replaceAll(">");
+            }
+        } else if ((flags & Message.FLAG_TYPE_FORWARD) != 0) {
+            String subject = message.mSubject;
+            String to = Address.unpackToString(message.mTo);
+            String cc = Address.unpackToString(message.mCc);
+            text += context.getString(R.string.message_compose_fwd_header_fmt, subject,
+                    fromAsString, to != null ? to : "", cc != null ? cc : "");
+            if (quotedText != null) {
+                text += quotedText;
+            }
+        }
+        return text;
+    }
 
     /**
      * Write the entire message to an output stream.  This method provides buffering, so it is
@@ -92,7 +129,7 @@ public class Rfc822Output {
         writeAddressHeader(writer, "Reply-To", message.mReplyTo);
 
         // Analyze message and determine if we have multiparts
-        String text = Body.restoreBodyTextWithMessageId(context, messageId);
+        String text = buildBodyText(context, message);
 
         Uri uri = ContentUris.withAppendedId(Attachment.MESSAGE_ID_URI, messageId);
         Cursor attachmentsCursor = context.getContentResolver().query(uri,

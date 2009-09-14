@@ -164,36 +164,7 @@ public class MessageComposeInstrumentationTests
         assertEquals(0, mMessageView.length());
     }
 
-    /**
-     * Test for buildBodyText().
-     * Compare with expected values.
-     * Also test the situation where the message has no body.
-     */
-    public void testBuildBodyText() throws MessagingException, Throwable {
-        final Message message = buildTestMessage(RECIPIENT_TO, SENDER, SUBJECT, BODY);
-        Intent intent = new Intent(ACTION_REPLY);
-        final MessageCompose a = getActivity();
-        a.setIntent(intent);
-
-        runTestOnUiThread(new Runnable() {
-                public void run() {
-                    a.processSourceMessage(message, null);
-                    String body = a.buildBodyText(message);
-                    assertEquals(REPLY_BODY, body);
-                }
-            });
-
-        message.mText = null;
-        runTestOnUiThread(new Runnable() {
-                public void run() {
-                    a.processSourceMessage(message, null);
-                    String body = a.buildBodyText(message);
-                    assertEquals(REPLY_BODY_SHORT, body);
-                }
-            });
-    }
-
-    /**
+     /**
      * Test a couple of variations of processSourceMessage() for REPLY
      *   To = Reply-To or From:  (if REPLY)
      *   To = (Reply-To or From:) + To: + Cc:   (if REPLY_ALL)
