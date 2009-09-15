@@ -301,14 +301,12 @@ public class ContactsSyncAdapter extends AbstractSyncAdapter {
 
         public EasContactsSyncParser(InputStream in, ContactsSyncAdapter adapter) throws IOException {
             super(in, adapter);
-            mAccountUri = uriWithAccount(RawContacts.CONTENT_URI);
+            mAccountUri = uriWithAccountAndIsSyncAdapter(RawContacts.CONTENT_URI);
         }
 
         @Override
         public void wipe() {
-            mContentResolver.delete(mAccountUri.buildUpon()
-                    .appendQueryParameter(ContactsContract.RawContacts.DELETE_PERMANENTLY, "true")
-                    .build(), null, null);
+            mContentResolver.delete(mAccountUri, null, null);
         }
 
         public void addData(String serverId, ContactOperations ops, Entity entity)
@@ -831,10 +829,11 @@ public class ContactsSyncAdapter extends AbstractSyncAdapter {
     }
 
 
-    private Uri uriWithAccount(Uri uri) {
+    private Uri uriWithAccountAndIsSyncAdapter(Uri uri) {
         return uri.buildUpon()
             .appendQueryParameter(RawContacts.ACCOUNT_NAME, mAccount.mEmailAddress)
             .appendQueryParameter(RawContacts.ACCOUNT_TYPE, Eas.ACCOUNT_MANAGER_TYPE)
+            .appendQueryParameter(ContactsContract.CALLER_IS_SYNCADAPTER, "true")
             .build();
     }
 
@@ -897,7 +896,7 @@ public class ContactsSyncAdapter extends AbstractSyncAdapter {
 
         public void newContact(String serverId) {
             Builder builder = ContentProviderOperation
-                .newInsert(uriWithAccount(RawContacts.CONTENT_URI));
+                .newInsert(uriWithAccountAndIsSyncAdapter(RawContacts.CONTENT_URI));
             ContentValues values = new ContentValues();
             values.put(RawContacts.SOURCE_ID, serverId);
             builder.withValues(values);
@@ -910,8 +909,7 @@ public class ContactsSyncAdapter extends AbstractSyncAdapter {
             add(ContentProviderOperation
                     .newDelete(ContentUris.withAppendedId(RawContacts.CONTENT_URI, id)
                             .buildUpon()
-                            .appendQueryParameter(ContactsContract.RawContacts.DELETE_PERMANENTLY,
-                                    "true")
+                            .appendQueryParameter(ContactsContract.CALLER_IS_SYNCADAPTER, "true")
                             .build())
                     .build());
         }
@@ -1375,15 +1373,17 @@ public class ContactsSyncAdapter extends AbstractSyncAdapter {
         ContactOperations ops = new ContactOperations();
         for (Long id: mUpdatedIdList) {
             ops.add(ContentProviderOperation
-                    .newUpdate(ContentUris.withAppendedId(RawContacts.CONTENT_URI, id))
+                    .newUpdate(ContentUris.withAppendedId(RawContacts.CONTENT_URI, id)
+                            .buildUpon()
+                            .appendQueryParameter(ContactsContract.CALLER_IS_SYNCADAPTER, "true")
+                            .build())
                     .withValue(RawContacts.DIRTY, 0).build());
         }
         for (Long id: mDeletedIdList) {
             ops.add(ContentProviderOperation
                     .newDelete(ContentUris.withAppendedId(RawContacts.CONTENT_URI, id)
                             .buildUpon()
-                            .appendQueryParameter(ContactsContract.RawContacts.DELETE_PERMANENTLY,
-                                    "true")
+                            .appendQueryParameter(ContactsContract.CALLER_IS_SYNCADAPTER, "true")
                             .build())
                     .build());
         }
@@ -1394,7 +1394,7 @@ public class ContactsSyncAdapter extends AbstractSyncAdapter {
             // And that all of our groups are visible
             // TODO Perhaps the visible part should only happen when the group is created, but
             // this is fine for now.
-            Uri groupsUri = uriWithAccount(Groups.CONTENT_URI);
+            Uri groupsUri = uriWithAccountAndIsSyncAdapter(Groups.CONTENT_URI);
             Cursor c = cr.query(groupsUri, new String[] {Groups.SOURCE_ID, Groups.TITLE},
                     Groups.TITLE + " IS NULL", null, null);
             ContentValues values = new ContentValues();
@@ -1403,8 +1403,8 @@ public class ContactsSyncAdapter extends AbstractSyncAdapter {
                 while (c.moveToNext()) {
                     String sourceId = c.getString(0);
                     values.put(Groups.TITLE, sourceId);
-                    cr.update(uriWithAccount(groupsUri), values, Groups.SOURCE_ID + "=?",
-                            new String[] {sourceId});
+                    cr.update(uriWithAccountAndIsSyncAdapter(groupsUri), values,
+                            Groups.SOURCE_ID + "=?", new String[] {sourceId});
                 }
             } finally {
                 c.close();
