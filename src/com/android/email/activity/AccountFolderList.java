@@ -480,7 +480,7 @@ public class AccountFolderList extends ListActivity
             Cursor c = (Cursor) mListView.getItemAtPosition(menuInfo.position);
             long accountId = c.getLong(Account.CONTENT_ID_COLUMN);
             switch (item.getItemId()) {
-                case R.id.open:
+                case R.id.open_folder:
                     MailboxList.actionHandleAccount(this, accountId);
                     break;
                 case R.id.compose:
