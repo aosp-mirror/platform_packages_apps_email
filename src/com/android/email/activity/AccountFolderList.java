@@ -459,6 +459,19 @@ public class AccountFolderList extends ListActivity
             .create();
     }
 
+    /**
+     * Update a cached dialog with current values (e.g. account name)
+     */
+    @Override
+    public void onPrepareDialog(int id, Dialog dialog) {
+        switch (id) {
+            case DIALOG_REMOVE_ACCOUNT:
+                AlertDialog alert = (AlertDialog) dialog;
+                alert.setMessage(getString(R.string.account_delete_dlg_instructions_fmt,
+                        mSelectedContextAccount.getDisplayName()));
+        }
+    }
+
     @Override
     public boolean onContextItemSelected(MenuItem item) {
         AdapterView.AdapterContextMenuInfo menuInfo =

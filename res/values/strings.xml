@@ -271,6 +271,13 @@
     <!-- Toast when we can't build a URI from the given email & password -->
     <!-- Note, the error message in the toast is purposefully vague, because I *don't* know exactly what's wrong. -->
     <string name="account_setup_username_password_toast">Please type a valid email address and password.</string>
+    <!-- Title of dialog shown when a duplicate account is created -->
+    <string name="account_duplicate_dlg_title">Duplicate Account</string>
+    <!-- Message of dialog shown when a duplicate account is created.  The display name of
+         the duplicate account is displayed. -->
+    <string name="account_duplicate_dlg_message_fmt">
+        This login is already in use for the account \"<xliff:g id="duplicate">%s</xliff:g>\".
+    </string>
 
     <!-- Do Not Translate.  Activity Title for check-settings screen -->
     <string name="account_setup_check_settings_title"></string>

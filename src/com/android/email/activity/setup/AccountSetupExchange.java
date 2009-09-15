@@ -22,6 +22,9 @@ import com.android.email.provider.EmailContent;
 import com.android.email.provider.EmailContent.Account;
 
 import android.app.Activity;
+import android.app.AlertDialog;
+import android.app.Dialog;
+import android.content.DialogInterface;
 import android.content.Intent;
 import android.os.Bundle;
 import android.text.Editable;
@@ -53,6 +56,8 @@ public class AccountSetupExchange extends Activity implements OnClickListener,
     private static final String EXTRA_MAKE_DEFAULT = "makeDefault";
     private static final String EXTRA_EAS_FLOW = "easFlow";
 
+    private final static int DIALOG_DUPLICATE_ACCOUNT = 1;
+
     private EditText mUsernameView;
     private EditText mPasswordView;
     private EditText mServerView;
@@ -62,6 +67,8 @@ public class AccountSetupExchange extends Activity implements OnClickListener,
     private Button mNextButton;
     private Account mAccount;
     private boolean mMakeDefault;
+    private String mCacheLoginCredential;
+    private String mDuplicateAccountName;
 
     public static void actionIncomingSettings(Activity fromActivity, Account account,
             boolean makeDefault, boolean easFlowMode) {
@@ -190,6 +197,45 @@ public class AccountSetupExchange extends Activity implements OnClickListener,
     }
 
     /**
+     * Prepare a cached dialog with current values (e.g. account name)
+     */
+    @Override
+    public Dialog onCreateDialog(int id) {
+        switch (id) {
+            case DIALOG_DUPLICATE_ACCOUNT:
+                return new AlertDialog.Builder(this)
+                    .setIcon(android.R.drawable.ic_dialog_alert)
+                    .setTitle(R.string.account_duplicate_dlg_title)
+                    .setMessage(getString(R.string.account_duplicate_dlg_message_fmt,
+                            mDuplicateAccountName))
+                    .setPositiveButton(R.string.okay_action,
+                            new DialogInterface.OnClickListener() {
+                        public void onClick(DialogInterface dialog, int which) {
+                            dismissDialog(DIALOG_DUPLICATE_ACCOUNT);
+                        }
+                    })
+                    .create();
+        }
+        return null;
+    }
+
+    /**
+     * Update a cached dialog with current values (e.g. account name)
+     */
+    @Override
+    public void onPrepareDialog(int id, Dialog dialog) {
+        switch (id) {
+            case DIALOG_DUPLICATE_ACCOUNT:
+                if (mDuplicateAccountName != null) {
+                    AlertDialog alert = (AlertDialog) dialog;
+                    alert.setMessage(getString(R.string.account_duplicate_dlg_message_fmt,
+                            mDuplicateAccountName));
+                }
+                break;
+        }
+    }
+
+    /**
      * Check the values in the fields and decide if it makes sense to enable the "next" button
      * NOTE:  Does it make sense to extract & combine with similar code in AccountSetupIncoming? 
      */
@@ -243,6 +289,7 @@ public class AccountSetupExchange extends Activity implements OnClickListener,
         if (userName.startsWith("\\")) {
             userName = userName.substring(1);
         }
+        mCacheLoginCredential = userName;
         String userInfo = userName + ":" + mPasswordView.getText().toString().trim();
         String host = mServerView.getText().toString().trim();
         String path = null;
@@ -267,6 +314,15 @@ public class AccountSetupExchange extends Activity implements OnClickListener,
             URI uri = getUri();
             mAccount.setStoreUri(this, uri.toString());
             mAccount.setSenderUri(this, uri.toString());
+
+            // Stop here if the login credentials duplicate an existing account
+            // (unless they duplicate the existing account, as they of course will)
+            mDuplicateAccountName = Utility.findDuplicateAccount(this, mAccount.mId,
+                    uri.getHost(), mCacheLoginCredential);
+            if (mDuplicateAccountName != null) {
+                this.showDialog(DIALOG_DUPLICATE_ACCOUNT);
+                return;
+            }
         } catch (URISyntaxException use) {
             /*
              * It's unrecoverable if we cannot create a URI from components that

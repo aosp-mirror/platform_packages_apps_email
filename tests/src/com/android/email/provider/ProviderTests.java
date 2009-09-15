@@ -22,6 +22,7 @@ import com.android.email.provider.EmailContent.Attachment;
 import com.android.email.provider.EmailContent.AttachmentColumns;
 import com.android.email.provider.EmailContent.Body;
 import com.android.email.provider.EmailContent.BodyColumns;
+import com.android.email.provider.EmailContent.HostAuth;
 import com.android.email.provider.EmailContent.Mailbox;
 import com.android.email.provider.EmailContent.MailboxColumns;
 import com.android.email.provider.EmailContent.Message;
@@ -78,6 +79,34 @@ public class ProviderTests extends ProviderTestCase2<EmailProvider> {
         Account account2 = EmailContent.Account.restoreAccountWithId(mMockContext, account1Id);
 
         ProviderTestUtils.assertAccountEqual("testAccountSave", account1, account2);
+    }
+
+    /**
+     * Test simple account save/retrieve with predefined hostauth records
+     */
+    public void testAccountSaveHostAuth() {
+        Account account1 = ProviderTestUtils.setupAccount("account-hostauth", false, mMockContext);
+        // add hostauth data, which should be saved the first time
+        account1.mHostAuthRecv = ProviderTestUtils.setupHostAuth("account-hostauth-recv", -1, false,
+                mMockContext);
+        account1.mHostAuthSend = ProviderTestUtils.setupHostAuth("account-hostauth-send", -1, false,
+                mMockContext);
+        account1.save(mMockContext);
+        long account1Id = account1.mId;
+
+        // Confirm account reads back correctly
+        Account account1get = EmailContent.Account.restoreAccountWithId(mMockContext, account1Id);
+        ProviderTestUtils.assertAccountEqual("testAccountSave", account1, account1get);
+
+        // Confirm hostauth fields can be accessed & read back correctly
+        HostAuth hostAuth1get = EmailContent.HostAuth.restoreHostAuthWithId(mMockContext,
+                account1get.mHostAuthKeyRecv);
+        ProviderTestUtils.assertHostAuthEqual("testAccountSaveHostAuth-recv",
+                account1.mHostAuthRecv, hostAuth1get);
+        HostAuth hostAuth2get = EmailContent.HostAuth.restoreHostAuthWithId(mMockContext,
+                account1get.mHostAuthKeySend);
+        ProviderTestUtils.assertHostAuthEqual("testAccountSaveHostAuth-send",
+                account1.mHostAuthSend, hostAuth2get);
     }
 
     /**
