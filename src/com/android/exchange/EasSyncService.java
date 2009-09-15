@@ -131,7 +131,7 @@ public class EasSyncService extends AbstractSyncService {
     public String mUserName;
     public String mPassword;
     private boolean mSsl = true;
-    private boolean mTrustSsl = false; 
+    private boolean mTrustSsl = false;
     public ContentResolver mContentResolver;
     private String[] mBindArguments = new String[2];
     private ArrayList<String> mPingChangeList;
@@ -422,7 +422,7 @@ public class EasSyncService extends AbstractSyncService {
         String extra = null;
         boolean msg = false;
         if (cmd.startsWith("SmartForward&") || cmd.startsWith("SmartReply&")) {
-            int cmdLength = cmd.length() - 1;
+            int cmdLength = cmd.indexOf('&');
             extra = cmd.substring(cmdLength);
             cmd = cmd.substring(0, cmdLength);
             msg = true;
