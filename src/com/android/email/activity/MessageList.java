@@ -17,6 +17,7 @@
 package com.android.email.activity;
 
 import com.android.email.Controller;
+import com.android.email.Email;
 import com.android.email.R;
 import com.android.email.Utility;
 import com.android.email.activity.setup.AccountSettings;
@@ -146,6 +147,8 @@ public class MessageList extends ListActivity implements OnItemClickListener, On
             AccountColumns.DISPLAY_NAME };
 
     private static final String ID_SELECTION = EmailContent.RECORD_ID + "=?";
+
+    private Boolean mPushModeMailbox = null;
 
     /**
      * Open a specific mailbox.
@@ -296,6 +299,7 @@ public class MessageList extends ListActivity implements OnItemClickListener, On
         NotificationManager notificationManager = (NotificationManager)
                 getSystemService(Context.NOTIFICATION_SERVICE);
         notificationManager.cancel(MailService.NEW_MESSAGE_NOTIFICATION_ID);
+        autoRefreshStaleMailbox();
     }
 
     @Override
@@ -451,7 +455,6 @@ public class MessageList extends ListActivity implements OnItemClickListener, On
     }
 
     private void onRefresh() {
-        // TODO: This needs to loop through all open mailboxes (there might be more than one)
         // TODO: Should not be reading from DB in UI thread - need a cleaner way to get accountId
         if (mMailboxId >= 0) {
             Mailbox mailbox = Mailbox.restoreMailboxWithId(this, mMailboxId);
@@ -682,6 +685,16 @@ public class MessageList extends ListActivity implements OnItemClickListener, On
         return false;
     }
 
+    private void autoRefreshStaleMailbox() {
+        if ((mListAdapter.getCursor() == null) // Check if messages info is loaded
+                || (mPushModeMailbox != null && mPushModeMailbox) // Check the push mode
+                || (mMailboxId < 0) // Check if this mailbox is synthetic/combined
+                || !Email.mailboxRequiresRefresh(mMailboxId)) {
+            return;
+        }
+        onRefresh();
+    }
+
     private void updateFooterButtonNames () {
         // Show "unread_action" when one or more read messages are selected.
         if (testMultiple(mListAdapter.getSelectedSet(), MessageListAdapter.COLUMN_READ, true)) {
@@ -787,6 +800,7 @@ public class MessageList extends ListActivity implements OnItemClickListener, On
                 // This is inefficient but the best fix is not here but in isMessagingController
                 Account account = Account.restoreAccountWithId(MessageList.this, accountId);
                 if (account != null) {
+                    mPushModeMailbox = account.mSyncInterval == Account.CHECK_INTERVAL_PUSH;
                     if (MessageList.this.mController.isMessagingController(account)) {
                         return LIST_FOOTER_MODE_MORE;       // IMAP or POP
                     } else {
@@ -956,12 +970,7 @@ public class MessageList extends ListActivity implements OnItemClickListener, On
                 return;
             }
             MessageList.this.mListAdapter.changeCursor(cursor);
-
-            // TODO: remove this hack and only update at the right time
-            if (cursor != null && cursor.getCount() == 0) {
-                onRefresh();
-            }
-
+            autoRefreshStaleMailbox();
             // Reset the "new messages" count in the service, since we're seeing them now
             if (mMailboxKey == Mailbox.QUERY_ALL_INBOXES) {
                 MailService.resetNewMessageCount(MessageList.this, -1);
@@ -1129,6 +1138,9 @@ public class MessageList extends ListActivity implements OnItemClickListener, On
         // TODO check accountKey and only react to relevant notifications
         public void updateMailboxCallback(MessagingException result, long accountKey,
                 long mailboxKey, int progress, int numNewMessages) {
+            if (result != null || progress == 100) {
+                Email.updateMailboxRefreshTime(mMailboxId);
+            }
             updateProgress(result, progress);
         }
 

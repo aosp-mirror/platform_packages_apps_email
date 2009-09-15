@@ -780,6 +780,9 @@ public class FolderMessageList extends ExpandableListActivity {
         public void updateMailboxCallback(MessagingException result, long accountKey,
                 long mailboxKey, int progress, int numNewMessages) {
             mHandler.progress(false);
+            if (result != null || progress == 100) {
+                Email.updateMailboxRefreshTime(mailboxKey);
+            }
         }
 
         public void loadMessageForViewCallback(MessagingException result, long messageId,
