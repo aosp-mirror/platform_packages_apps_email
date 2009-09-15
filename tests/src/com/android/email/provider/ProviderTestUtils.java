@@ -18,6 +18,7 @@ package com.android.email.provider;
 
 import com.android.email.provider.EmailContent.Account;
 import com.android.email.provider.EmailContent.Attachment;
+import com.android.email.provider.EmailContent.HostAuth;
 import com.android.email.provider.EmailContent.Mailbox;
 import com.android.email.provider.EmailContent.Message;
 
@@ -44,8 +45,8 @@ public class ProviderTestUtils extends Assert {
         account.mSyncKey = "sync-key-" + name;
         account.mSyncLookback = 1;
         account.mSyncInterval = EmailContent.Account.CHECK_INTERVAL_NEVER;
-        account.mHostAuthKeyRecv = 2;
-        account.mHostAuthKeySend = 3;
+        account.mHostAuthKeyRecv = 0;
+        account.mHostAuthKeySend = 0;
         account.mFlags = 4;
         account.mIsDefault = true;
         account.mCompatibilityUuid = "test-uid-" + name;
@@ -58,6 +59,28 @@ public class ProviderTestUtils extends Assert {
             account.save(context);
         }
         return account;
+    }
+
+    /**
+     * Create a hostauth record for test purposes
+     */
+    public static HostAuth setupHostAuth(String name, long accountId, boolean saveIt,
+            Context context) {
+        HostAuth hostAuth = new HostAuth();
+
+        hostAuth.mProtocol = "protocol-" + name;
+        hostAuth.mAddress = "address-" + name;
+        hostAuth.mPort = 100;
+        hostAuth.mFlags = 200;
+        hostAuth.mLogin = "login-" + name;
+        hostAuth.mPassword = "password-" + name;
+        hostAuth.mDomain = "domain-" + name;
+        hostAuth.mAccountKey = accountId;
+
+        if (saveIt) {
+            hostAuth.save(context);
+        }
+        return hostAuth;
     }
 
     /**
@@ -204,6 +227,26 @@ public class ProviderTestUtils extends Assert {
                 actual.mProtocolVersion);
         assertEquals(caller + " mNewMessageCount", expect.mNewMessageCount,
                 actual.mNewMessageCount);
+    }
+
+    /**
+     * Compare two hostauth records for equality
+     */
+    public static void assertHostAuthEqual(String caller, HostAuth expect, HostAuth actual) {
+        if (expect == actual) {
+            return;
+        }
+
+        assertEmailContentEqual(caller, expect, actual);
+        assertEquals(caller + " mProtocol", expect.mProtocol, actual.mProtocol);
+        assertEquals(caller + " mAddress", expect.mAddress, actual.mAddress);
+        assertEquals(caller + " mPort", expect.mPort, actual.mPort);
+        assertEquals(caller + " mFlags", expect.mFlags, actual.mFlags);
+        assertEquals(caller + " mLogin", expect.mLogin, actual.mLogin);
+        assertEquals(caller + " mPassword", expect.mPassword, actual.mPassword);
+        assertEquals(caller + " mDomain", expect.mDomain, actual.mDomain);
+        // This field is dead and is not checked
+//      assertEquals(caller + " mAccountKey", expect.mAccountKey, actual.mAccountKey);
     }
 
     /**

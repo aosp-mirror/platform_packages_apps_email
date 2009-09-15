@@ -21,6 +21,9 @@ import com.android.email.Utility;
 import com.android.email.provider.EmailContent;
 
 import android.app.Activity;
+import android.app.AlertDialog;
+import android.app.Dialog;
+import android.content.DialogInterface;
 import android.content.Intent;
 import android.os.Bundle;
 import android.text.Editable;
@@ -55,6 +58,8 @@ public class AccountSetupIncoming extends Activity implements OnClickListener {
             "imap", "imap+ssl", "imap+ssl+", "imap+tls", "imap+tls+"
     };
 
+    private final static int DIALOG_DUPLICATE_ACCOUNT = 1;
+
     private int mAccountPorts[];
     private String mAccountSchemes[];
     private EditText mUsernameView;
@@ -67,6 +72,8 @@ public class AccountSetupIncoming extends Activity implements OnClickListener {
     private Button mNextButton;
     private EmailContent.Account mAccount;
     private boolean mMakeDefault;
+    private String mCacheLoginCredential;
+    private String mDuplicateAccountName;
 
     public static void actionIncomingSettings(Activity fromActivity, EmailContent.Account account,
             boolean makeDefault) {
@@ -255,6 +262,45 @@ public class AccountSetupIncoming extends Activity implements OnClickListener {
     }
 
     /**
+     * Prepare a cached dialog with current values (e.g. account name)
+     */
+    @Override
+    public Dialog onCreateDialog(int id) {
+        switch (id) {
+            case DIALOG_DUPLICATE_ACCOUNT:
+                return new AlertDialog.Builder(this)
+                    .setIcon(android.R.drawable.ic_dialog_alert)
+                    .setTitle(R.string.account_duplicate_dlg_title)
+                    .setMessage(getString(R.string.account_duplicate_dlg_message_fmt,
+                            mDuplicateAccountName))
+                    .setPositiveButton(R.string.okay_action,
+                            new DialogInterface.OnClickListener() {
+                        public void onClick(DialogInterface dialog, int which) {
+                            dismissDialog(DIALOG_DUPLICATE_ACCOUNT);
+                        }
+                    })
+                    .create();
+        }
+        return null;
+    }
+
+    /**
+     * Update a cached dialog with current values (e.g. account name)
+     */
+    @Override
+    public void onPrepareDialog(int id, Dialog dialog) {
+        switch (id) {
+            case DIALOG_DUPLICATE_ACCOUNT:
+                if (mDuplicateAccountName != null) {
+                    AlertDialog alert = (AlertDialog) dialog;
+                    alert.setMessage(getString(R.string.account_duplicate_dlg_message_fmt,
+                            mDuplicateAccountName));
+                }
+                break;
+        }
+    }
+
+    /**
      * Check the values in the fields and decide if it makes sense to enable the "next" button
      * NOTE:  Does it make sense to extract & combine with similar code in AccountSetupIncoming? 
      */
@@ -331,10 +377,11 @@ public class AccountSetupIncoming extends Activity implements OnClickListener {
         if (mAccountSchemes[securityType].startsWith("imap")) {
             path = "/" + mImapPathPrefixView.getText().toString().trim();
         }
+        String userName = mUsernameView.getText().toString().trim();
+        mCacheLoginCredential = userName;
         URI uri = new URI(
                 mAccountSchemes[securityType],
-                mUsernameView.getText().toString().trim() + ":" + 
-                        mPasswordView.getText().toString().trim(),
+                userName + ":" + mPasswordView.getText().toString().trim(),
                 mServerView.getText().toString().trim(),
                 Integer.parseInt(mPortView.getText().toString().trim()),
                 path, // path
@@ -348,6 +395,15 @@ public class AccountSetupIncoming extends Activity implements OnClickListener {
         try {
             URI uri = getUri();
             mAccount.setStoreUri(this, uri.toString());
+
+            // Stop here if the login credentials duplicate an existing account
+            // (unless they duplicate the existing account, as they of course will)
+            mDuplicateAccountName = Utility.findDuplicateAccount(this, mAccount.mId,
+                    uri.getHost(), mCacheLoginCredential);
+            if (mDuplicateAccountName != null) {
+                this.showDialog(DIALOG_DUPLICATE_ACCOUNT);
+                return;
+            }
         } catch (URISyntaxException use) {
             /*
              * It's unrecoverable if we cannot create a URI from components that

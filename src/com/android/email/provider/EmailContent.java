@@ -1904,7 +1904,7 @@ public abstract class EmailContent {
         static final String PASSWORD = "password";
         // A domain or path, if required (used in IMAP and EAS)
         static final String DOMAIN = "domain";
-        // Foreign key of the Account this is attached to
+        // DEPRECATED - Will not be set or stored
         static final String ACCOUNT_KEY = "accountKey";
     }
 
@@ -1924,7 +1924,7 @@ public abstract class EmailContent {
         public String mLogin;
         public String mPassword;
         public String mDomain;
-        public long mAccountKey;
+        public long mAccountKey;        // DEPRECATED - Will not be set or stored
 
         public static final int CONTENT_ID_COLUMN = 0;
         public static final int CONTENT_PROTOCOL_COLUMN = 1;
