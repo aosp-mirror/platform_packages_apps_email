@@ -540,7 +540,7 @@ public class ContactsSyncAdapter extends AbstractSyncAdapter {
             }
 
             // We must have first name, last name, or company name
-            String name;
+            String name = null;
             if (firstName != null || lastName != null) {
                 if (firstName == null) {
                     name = lastName;
@@ -551,8 +551,6 @@ public class ContactsSyncAdapter extends AbstractSyncAdapter {
                 }
             } else if (companyName != null) {
                 name = companyName;
-            } else {
-                return;
             }
 
             ops.addName(entity, prefix, firstName, lastName, middleName, suffix, name,
@@ -1342,6 +1340,19 @@ public class ContactsSyncAdapter extends AbstractSyncAdapter {
             if (cv != null && cvCompareString(cv, Note.NOTE, note)) {
                 return;
             }
+
+            // Reject notes with nothing in them.  Often, we get something from Outlook when
+            // nothing was ever entered.  Sigh.
+            int len = note.length();
+            int i = 0;
+            for (; i < len; i++) {
+                char c = note.charAt(i);
+                if (!Character.isWhitespace(c)) {
+                    break;
+                }
+            }
+            if (i == len) return;
+
             builder.withValue(Note.NOTE, note);
             add(builder.build());
         }
