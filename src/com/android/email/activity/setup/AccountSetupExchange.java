@@ -50,7 +50,7 @@ import java.net.URISyntaxException;
  *  User (login)
  *  Password
  */
-public class AccountSetupExchange extends Activity implements OnClickListener, 
+public class AccountSetupExchange extends Activity implements OnClickListener,
         OnCheckedChangeListener {
     private static final String EXTRA_ACCOUNT = "account";
     private static final String EXTRA_MAKE_DEFAULT = "makeDefault";
@@ -88,7 +88,7 @@ public class AccountSetupExchange extends Activity implements OnClickListener,
     }
 
     /**
-     * For now, we'll simply replicate outgoing, for the purpose of satisfying the 
+     * For now, we'll simply replicate outgoing, for the purpose of satisfying the
      * account settings flow.
      */
     public static void actionEditOutgoingSettings(Activity fromActivity, Account account)
@@ -174,7 +174,7 @@ public class AccountSetupExchange extends Activity implements OnClickListener,
             if (uri.getHost() != null) {
                 mServerView.setText(uri.getHost());
             }
-            
+
             boolean ssl = uri.getScheme().contains("ssl");
             mSslSecurityView.setChecked(ssl);
             mTrustCertificatesView.setChecked(uri.getScheme().contains("tssl"));
@@ -194,6 +194,11 @@ public class AccountSetupExchange extends Activity implements OnClickListener,
     public void onSaveInstanceState(Bundle outState) {
         super.onSaveInstanceState(outState);
         outState.putParcelable(EXTRA_ACCOUNT, mAccount);
+    }
+
+    private boolean usernameFieldValid(EditText usernameView) {
+        return Utility.requiredFieldValid(usernameView) &&
+            !usernameView.getText().toString().equals("\\");
     }
 
     /**
@@ -237,10 +242,10 @@ public class AccountSetupExchange extends Activity implements OnClickListener,
 
     /**
      * Check the values in the fields and decide if it makes sense to enable the "next" button
-     * NOTE:  Does it make sense to extract & combine with similar code in AccountSetupIncoming? 
+     * NOTE:  Does it make sense to extract & combine with similar code in AccountSetupIncoming?
      */
     private void validateFields() {
-        boolean enabled = Utility.requiredFieldValid(mUsernameView)
+        boolean enabled = usernameFieldValid(mUsernameView)
                 && Utility.requiredFieldValid(mPasswordView)
                 && Utility.requiredFieldValid(mServerView);
         if (enabled) {
@@ -273,9 +278,9 @@ public class AccountSetupExchange extends Activity implements OnClickListener,
             }
         }
     }
-    
+
     /**
-     * Attempt to create a URI from the fields provided.  Throws URISyntaxException if there's 
+     * Attempt to create a URI from the fields provided.  Throws URISyntaxException if there's
      * a problem with the user input.
      * @return a URI built from the account setup fields
      */
