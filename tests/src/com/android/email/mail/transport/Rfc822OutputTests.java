@@ -41,9 +41,12 @@ public class Rfc822OutputTests extends AndroidTestCase {
     // TODO Create more tests here.  Specifically, we should test to make sure that forward works
     // properly instead of just reply
 
+    // TODO Write test that ensures that bcc is handled properly (i.e. sent/not send depending
+    // on the flag passed to writeTo
+
     // TODO Localize the following test, which will not work properly in other than English
     // speaking locales!
-    
+
     /**
      * Test for buildBodyText().
      * Compare with expected values.
