@@ -41,7 +41,7 @@ import javax.net.ssl.SSLException;
  * This class handles all of the protocol-level aspects of sending messages via SMTP.
  */
 public class SmtpSender extends Sender {
-    
+
     public static final int CONNECTION_SECURITY_NONE = 0;
     public static final int CONNECTION_SECURITY_TLS_OPTIONAL = 1;
     public static final int CONNECTION_SECURITY_TLS_REQUIRED = 2;
@@ -160,7 +160,7 @@ public class SmtpSender extends Sender {
                      * Exim.
                      */
                     result = executeSimpleCommand("EHLO " + localHost);
-                } else if (mTransport.getSecurity() == 
+                } else if (mTransport.getSecurity() ==
                         Transport.CONNECTION_SECURITY_TLS_REQUIRED) {
                     if (Config.LOGD && Email.DEBUG) {
                         Log.d(Email.LOG_TAG, "TLS not supported but required");
@@ -232,7 +232,7 @@ public class SmtpSender extends Sender {
             executeSimpleCommand("DATA");
             // TODO byte stuffing
             Rfc822Output.writeTo(mContext, messageId,
-                    new EOLConvertingOutputStream(mTransport.getOutputStream()), true);
+                    new EOLConvertingOutputStream(mTransport.getOutputStream()), true, false);
             executeSimpleCommand("\r\n.");
         } catch (IOException ioe) {
             throw new MessagingException("Unable to send message", ioe);
@@ -240,8 +240,8 @@ public class SmtpSender extends Sender {
     }
 
     /**
-     * Close the protocol (and the transport below it).  
-     * 
+     * Close the protocol (and the transport below it).
+     *
      * MUST NOT return any exceptions.
      */
     @Override
@@ -253,24 +253,24 @@ public class SmtpSender extends Sender {
      * Send a single command and wait for a single response.  Handles responses that continue
      * onto multiple lines.  Throws MessagingException if response code is 4xx or 5xx.  All traffic
      * is logged (if debug logging is enabled) so do not use this function for user ID or password.
-     * 
+     *
      * @param command The command string to send to the server.
      * @return Returns the response string from the server.
      */
     private String executeSimpleCommand(String command) throws IOException, MessagingException {
         return executeSensitiveCommand(command, null);
     }
-    
+
     /**
      * Send a single command and wait for a single response.  Handles responses that continue
      * onto multiple lines.  Throws MessagingException if response code is 4xx or 5xx.
-     * 
+     *
      * @param command The command string to send to the server.
      * @param sensitiveReplacement If the command includes sensitive data (e.g. authentication)
      * please pass a replacement string here (for logging).
      * @return Returns the response string from the server.
      */
-    private String executeSensitiveCommand(String command, String sensitiveReplacement) 
+    private String executeSensitiveCommand(String command, String sensitiveReplacement)
             throws IOException, MessagingException {
         if (command != null) {
             mTransport.writeLine(command, sensitiveReplacement);
@@ -317,9 +317,9 @@ public class SmtpSender extends Sender {
         AuthenticationFailedException, IOException {
         try {
             executeSimpleCommand("AUTH LOGIN");
-            executeSensitiveCommand(new String(Base64.encodeBase64(username.getBytes())), 
+            executeSensitiveCommand(new String(Base64.encodeBase64(username.getBytes())),
                     "/username redacted/");
-            executeSensitiveCommand(new String(Base64.encodeBase64(password.getBytes())), 
+            executeSensitiveCommand(new String(Base64.encodeBase64(password.getBytes())),
                     "/password redacted/");
         }
         catch (MessagingException me) {

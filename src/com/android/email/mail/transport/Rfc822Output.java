@@ -110,7 +110,7 @@ public class Rfc822Output {
      * TODO alternative parts (e.g. text+html) are not supported here.
      */
     public static void writeTo(Context context, long messageId, OutputStream out,
-            boolean appendQuotedText) throws IOException, MessagingException {
+            boolean appendQuotedText, boolean sendBcc) throws IOException, MessagingException {
         Message message = Message.restoreMessageWithId(context, messageId);
         if (message == null) {
             // throw something?
@@ -130,10 +130,14 @@ public class Rfc822Output {
 
         writeHeader(writer, "Message-ID", message.mMessageId);
 
-        // Address fields.  Note, obviously, we skip bcc here
         writeAddressHeader(writer, "From", message.mFrom);
         writeAddressHeader(writer, "To", message.mTo);
         writeAddressHeader(writer, "Cc", message.mCc);
+        // Address fields.  Note that we skip bcc unless the sendBcc argument is true
+        // SMTP should NOT send bcc headers, but EAS must send it!
+        if (sendBcc) {
+            writeAddressHeader(writer, "Bcc", message.mBcc);
+        }
         writeAddressHeader(writer, "Reply-To", message.mReplyTo);
 
         // Analyze message and determine if we have multiparts
