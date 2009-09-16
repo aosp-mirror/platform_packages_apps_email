@@ -825,7 +825,11 @@ public class SyncManager extends Service implements Runnable {
             if (c.moveToFirst()) {
                 synchronized(sSyncToken) {
                     Mailbox m = new Mailbox().restore(c);
-                    String syncKey = m.mSyncKey;
+                    Account acct = Account.restoreAccountWithId(context, accountId);
+                    if (acct == null) {
+                        return;
+                    }
+                    String syncKey = acct.mSyncKey;
                     // No need to reload the list if we don't have one
                     if (!force && (syncKey == null || syncKey.equals("0"))) {
                         return;
@@ -1392,7 +1396,7 @@ public class SyncManager extends Service implements Runnable {
                     int type = c.getInt(Mailbox.CONTENT_TYPE_COLUMN);
                     if (type == Mailbox.TYPE_CONTACTS) {
                         // See if "sync automatically" is set
-                        Account account = 
+                        Account account =
                             getAccountById(c.getInt(Mailbox.CONTENT_ACCOUNT_KEY_COLUMN));
                         if (account != null) {
                             android.accounts.Account a =
