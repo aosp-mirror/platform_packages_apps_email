@@ -1275,12 +1275,12 @@ public class MessageList extends ListActivity implements OnItemClickListener, On
                 subjectView.setTypeface(Typeface.DEFAULT);
                 fromView.setTypeface(Typeface.DEFAULT);
                 view.setBackgroundDrawable(context.getResources().getDrawable(
-                        R.color.message_list_item_background_read));
+                        R.drawable.message_list_item_background_read));
             } else {
                 subjectView.setTypeface(Typeface.DEFAULT_BOLD);
                 fromView.setTypeface(Typeface.DEFAULT_BOLD);
                 view.setBackgroundDrawable(context.getResources().getDrawable(
-                        R.color.message_list_item_background_unread));
+                        R.drawable.message_list_item_background_unread));
             }
 
             ImageView selectedView = (ImageView) view.findViewById(R.id.selected);
