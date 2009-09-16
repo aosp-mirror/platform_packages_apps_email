@@ -271,22 +271,33 @@ public class Pop3Store extends Store {
                     throw new AuthenticationFailedException(null, me);
                 }
             } catch (IOException ioe) {
+                mTransport.close();
                 if (Config.LOGD && Email.DEBUG) {
                     Log.d(Email.LOG_TAG, ioe.toString());
                 }
                 throw new MessagingException(MessagingException.IOERROR, ioe.toString());
             }
 
+            Exception statException = null;
             try {
                 String response = executeSimpleCommand("STAT");
                 String[] parts = response.split(" ");
-                mMessageCount = Integer.parseInt(parts[1]);
-            }
-            catch (IOException ioe) {
-                if (Config.LOGD && Email.DEBUG) {
-                    Log.d(Email.LOG_TAG, ioe.toString());
+                if (parts.length < 2) {
+                    statException = new IOException();
+                } else {
+                    mMessageCount = Integer.parseInt(parts[1]);
                 }
-                throw new MessagingException("POP3 STAT", ioe);
+            } catch (IOException ioe) {
+                statException = ioe;
+            } catch (NumberFormatException nfe) {
+                statException = nfe;
+            }
+            if (statException != null) {
+                mTransport.close();
+                if (Config.LOGD && Email.DEBUG) {
+                    Log.d(Email.LOG_TAG, statException.toString());
+                }
+                throw new MessagingException("POP3 STAT", statException);
             }
             mUidToMsgMap.clear();
             mMsgNumToMsgMap.clear();
@@ -419,16 +430,19 @@ public class Pop3Store extends Store {
                     Pop3Message message = mMsgNumToMsgMap.get(msgNum);
                     if (message == null) {
                         String response = executeSimpleCommand("UIDL " + msgNum);
-                        parser.parseSingleLine(response);
+                        if (!parser.parseSingleLine(response)) {
+                            throw new IOException();
+                        }
                         message = new Pop3Message(parser.mUniqueId, this);
                         indexMessage(msgNum, message);
                     }
                 }
-            }
-            else {
+            } else {
                 String response = executeSimpleCommand("UIDL");
                 while ((response = mTransport.readLine()) != null) {
-                    parser.parseMultiLine(response);
+                    if (!parser.parseMultiLine(response)) {
+                        throw new IOException();
+                    }
                     if (parser.mEndOfMessage) {
                         break;
                     }
@@ -527,7 +541,11 @@ public class Pop3Store extends Store {
                 if (first == '+') {
                     String[] uidParts = response.split(" +");
                     if (uidParts.length >= 3) {
-                        mMessageNumber = Integer.parseInt(uidParts[1]);
+                        try {
+                            mMessageNumber = Integer.parseInt(uidParts[1]);
+                        } catch (NumberFormatException nfe) {
+                            return false;
+                        }
                         mUniqueId = uidParts[2];
                         mEndOfMessage = true;
                         return true;
@@ -558,7 +576,11 @@ public class Pop3Store extends Store {
                 } else {
                     String[] uidParts = response.split(" +");
                     if (uidParts.length >= 2) {
-                        mMessageNumber = Integer.parseInt(uidParts[0]);
+                        try {
+                            mMessageNumber = Integer.parseInt(uidParts[0]);
+                        } catch (NumberFormatException nfe) {
+                            return false;
+                        }
                         mUniqueId = uidParts[1];
                         mEndOfMessage = false;
                         return true;
@@ -608,8 +630,7 @@ public class Pop3Store extends Store {
                     // to be calling the listener below in the per-message loop.
                     fetchEnvelope(messages, null);
                 }
-            }
-            catch (IOException ioe) {
+            } catch (IOException ioe) {
                 mTransport.close();
                 if (Config.LOGD && Email.DEBUG) {
                     Log.d(Email.LOG_TAG, ioe.toString());
@@ -684,16 +705,19 @@ public class Pop3Store extends Store {
                     }
                     String response = executeSimpleCommand(String.format("LIST %d",
                             mUidToMsgNumMap.get(pop3Message.getUid())));
-                    String[] listParts = response.split(" ");
-                    int msgNum = Integer.parseInt(listParts[1]);
-                    int msgSize = Integer.parseInt(listParts[2]);
-                    pop3Message.setSize(msgSize);
+                    try {
+                        String[] listParts = response.split(" ");
+                        int msgNum = Integer.parseInt(listParts[1]);
+                        int msgSize = Integer.parseInt(listParts[2]);
+                        pop3Message.setSize(msgSize);
+                    } catch (NumberFormatException nfe) {
+                        throw new IOException();
+                    }
                     if (listener != null) {
                         listener.messageFinished(pop3Message, i, count);
                     }
                 }
-            }
-            else {
+            } else {
                 HashSet<String> msgUidIndex = new HashSet<String>();
                 for (Message message : messages) {
                     msgUidIndex.add(message.getUid());
@@ -704,10 +728,16 @@ public class Pop3Store extends Store {
                     if (response.equals(".")) {
                         break;
                     }
-                    String[] listParts = response.split(" ");
-                    int msgNum = Integer.parseInt(listParts[0]);
-                    int msgSize = Integer.parseInt(listParts[1]);
-                    Pop3Message pop3Message = mMsgNumToMsgMap.get(msgNum);
+                    Pop3Message pop3Message = null;
+                    int msgSize = 0;
+                    try {
+                        String[] listParts = response.split(" ");
+                        int msgNum = Integer.parseInt(listParts[0]);
+                        msgSize = Integer.parseInt(listParts[1]);
+                        pop3Message = mMsgNumToMsgMap.get(msgNum);
+                    } catch (NumberFormatException nfe) {
+                        throw new IOException();
+                    }
                     if (pop3Message != null && msgUidIndex.contains(pop3Message.getUid())) {
                         if (listener != null) {
                             listener.messageStarted(pop3Message.getUid(), i, count);
