@@ -910,7 +910,7 @@ public class MessageList extends ListActivity implements OnItemClickListener, On
         protected Long doInBackground(Void... params) {
             // See if we can find the requested mailbox in the DB.
             long mailboxId = Mailbox.findMailboxOfType(MessageList.this, mAccountId, mMailboxType);
-            if (mailboxId == -1 && mOkToRecurse) {
+            if (mailboxId == Mailbox.NO_MAILBOX && mOkToRecurse) {
                 // Not found - launch network lookup
                 mControllerCallback.mWaitForMailboxType = mMailboxType;
                 mController.updateMailboxList(mAccountId, mControllerCallback);
@@ -920,7 +920,7 @@ public class MessageList extends ListActivity implements OnItemClickListener, On
 
         @Override
         protected void onPostExecute(Long mailboxId) {
-            if (mailboxId != -1) {
+            if (mailboxId != Mailbox.NO_MAILBOX) {
                 mMailboxId = mailboxId;
                 mSetTitleTask = new SetTitleTask(mMailboxId);
                 mSetTitleTask.execute();

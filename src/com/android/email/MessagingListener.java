@@ -29,24 +29,24 @@ import android.content.Context;
  * changes in this class.
  */
 public class MessagingListener {
-    public void listFoldersStarted(EmailContent.Account account) {
+    public void listFoldersStarted(long accountId) {
     }
 
-    public void listFoldersFailed(EmailContent.Account account, String message) {
+    public void listFoldersFailed(long accountId, String message) {
     }
 
-    public void listFoldersFinished(EmailContent.Account account) {
+    public void listFoldersFinished(long accountId) {
     }
 
-    public void synchronizeMailboxStarted(EmailContent.Account account, EmailContent.Mailbox folder)
+    public void synchronizeMailboxStarted(long accountId, long mailboxId)
             {
     }
 
-    public void synchronizeMailboxFinished(EmailContent.Account account,
-            EmailContent.Mailbox folder, int totalMessagesInMailbox, int numNewMessages) {
+    public void synchronizeMailboxFinished(long accountId,
+            long mailboxId, int totalMessagesInMailbox, int numNewMessages) {
     }
 
-    public void synchronizeMailboxFailed(EmailContent.Account account, EmailContent.Mailbox folder,
+    public void synchronizeMailboxFailed(long accountId, long mailboxId,
             Exception e) {
     }
 
@@ -62,7 +62,7 @@ public class MessagingListener {
     public void checkMailStarted(Context context, long accountId, long tag) {
     }
 
-    public void checkMailFinished(Context context, long accountId, long folderId, long tag) {
+    public void checkMailFinished(Context context, long accountId, long mailboxId, long tag) {
     }
 
     public void sendPendingMessagesStarted(long accountId, long messageId) {
@@ -74,11 +74,7 @@ public class MessagingListener {
     public void sendPendingMessagesFailed(long accountId, long messageId, Exception reason) {
     }
 
-    public void emptyTrashCompleted(EmailContent.Account account) {
-    }
-
-    public void messageUidChanged(EmailContent.Account account, String folder,
-            String oldUid, String newUid) {
+    public void messageUidChanged(long accountId, long mailboxId, String oldUid, String newUid) {
     }
 
     public void loadAttachmentStarted(

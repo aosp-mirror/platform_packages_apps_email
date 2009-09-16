@@ -41,7 +41,6 @@ import com.android.email.provider.AttachmentProvider;
 import com.android.email.provider.EmailContent;
 import com.android.email.provider.EmailContent.Attachment;
 import com.android.email.provider.EmailContent.AttachmentColumns;
-import com.android.email.provider.EmailContent.Body;
 import com.android.email.provider.EmailContent.Mailbox;
 import com.android.email.provider.EmailContent.MailboxColumns;
 import com.android.email.provider.EmailContent.MessageColumns;
@@ -237,10 +236,13 @@ public class MessagingController implements Runnable {
      * @param listener
      * @throws MessagingException
      */
-    public void listFolders(long accountId, MessagingListener listener) {
+    public void listFolders(final long accountId, MessagingListener listener) {
         final EmailContent.Account account =
                 EmailContent.Account.restoreAccountWithId(mContext, accountId);
-        mListeners.listFoldersStarted(account);
+        if (account == null) {
+            return;
+        }
+        mListeners.listFoldersStarted(accountId);
         put("listFolders", listener, new Runnable() {
             public void run() {
                 Cursor localFolderCursor = null;
@@ -310,9 +312,9 @@ public class MessagingController implements Runnable {
                             box.save(mContext);
                         }
                     }
-                    mListeners.listFoldersFinished(account);
+                    mListeners.listFoldersFinished(accountId);
                 } catch (Exception e) {
-                    mListeners.listFoldersFailed(account, "");
+                    mListeners.listFoldersFailed(accountId, "");
                 } finally {
                     if (localFolderCursor != null) {
                         localFolderCursor.close();
@@ -397,55 +399,6 @@ public class MessagingController implements Runnable {
     }
 
     /**
-     * List the local message store for the given folder. This work is done
-     * synchronously.
-     *
-     * @param account
-     * @param folder
-     * @param listener
-     * @throws MessagingException
-     */
-/*
-    public void listLocalMessages(final EmailContent.Account account, final String folder,
-            MessagingListener listener) {
-        synchronized (mListeners) {
-            for (MessagingListener l : mListeners) {
-                l.listLocalMessagesStarted(account, folder);
-            }
-        }
-
-        try {
-            Store localStore = Store.getInstance(account.getLocalStoreUri(mContext), mContext,
-                    null);
-            Folder localFolder = localStore.getFolder(folder);
-            localFolder.open(OpenMode.READ_WRITE, null);
-            Message[] localMessages = localFolder.getMessages(null);
-            ArrayList<Message> messages = new ArrayList<Message>();
-            for (Message message : localMessages) {
-                if (!message.isSet(Flag.DELETED)) {
-                    messages.add(message);
-                }
-            }
-            synchronized (mListeners) {
-                for (MessagingListener l : mListeners) {
-                    l.listLocalMessages(account, folder, messages.toArray(new Message[0]));
-                }
-                for (MessagingListener l : mListeners) {
-                    l.listLocalMessagesFinished(account, folder);
-                }
-            }
-        }
-        catch (Exception e) {
-            synchronized (mListeners) {
-                for (MessagingListener l : mListeners) {
-                    l.listLocalMessagesFailed(account, folder, e.getMessage());
-                }
-            }
-        }
-    }
-*/
-
-    /**
      * Start background synchronization of the specified folder.
      * @param account
      * @param folder
@@ -459,7 +412,7 @@ public class MessagingController implements Runnable {
         if (folder.mType == EmailContent.Mailbox.TYPE_OUTBOX) {
             return;
         }
-        mListeners.synchronizeMailboxStarted(account, folder);
+        mListeners.synchronizeMailboxStarted(account.mId, folder.mId);
         put("synchronizeMailbox", listener, new Runnable() {
             public void run() {
                 synchronizeMailboxSynchronous(account, folder);
@@ -476,7 +429,7 @@ public class MessagingController implements Runnable {
      */
     private void synchronizeMailboxSynchronous(final EmailContent.Account account,
             final EmailContent.Mailbox folder) {
-        mListeners.synchronizeMailboxStarted(account, folder);
+        mListeners.synchronizeMailboxStarted(account.mId, folder.mId);
         try {
             processPendingActionsSynchronous(account);
 
@@ -494,15 +447,14 @@ public class MessagingController implements Runnable {
                 results = customSync.SynchronizeMessagesSynchronous(
                         account, folder, mListeners, mContext);
             }
-            mListeners.synchronizeMailboxFinished(account,
-                                                  folder,
+            mListeners.synchronizeMailboxFinished(account.mId, folder.mId,
                                                   results.mTotalMessages,
                                                   results.mNewMessages);
         } catch (MessagingException e) {
             if (Email.LOGD) {
                 Log.v(Email.LOG_TAG, "synchronizeMailbox", e);
             }
-            mListeners.synchronizeMailboxFailed(account, folder, e);
+            mListeners.synchronizeMailboxFailed(account.mId, folder.mId, e);
         }
     }
 
@@ -1115,6 +1067,9 @@ public class MessagingController implements Runnable {
                 try {
                     EmailContent.Account account =
                         EmailContent.Account.restoreAccountWithId(mContext, accountId);
+                    if (account == null) {
+                        return;
+                    }
                     processPendingActionsSynchronous(account);
                 }
                 catch (MessagingException me) {
@@ -1547,7 +1502,7 @@ public class MessagingController implements Runnable {
             String oldUid = localMessage.getUid();
             remoteFolder.appendMessages(new Message[] { localMessage });
             localFolder.changeUid(localMessage);
-            mListeners.messageUidChanged(account, folder, oldUid, localMessage.getUid());
+//            mListeners.messageUidChanged(account.mId, -1 folder.mId, oldUid, localMessage.getUid());
         }
         else {
             /*
@@ -1580,7 +1535,7 @@ public class MessagingController implements Runnable {
                 String oldUid = localMessage.getUid();
                 remoteFolder.appendMessages(new Message[] { localMessage });
                 localFolder.changeUid(localMessage);
-                mListeners.messageUidChanged(account, folder, oldUid, localMessage.getUid());
+//                mListeners.messageUidChanged(account.mId, folder.mId, oldUid, localMessage.getUid());
                 remoteMessage.setFlag(Flag.DELETED, true);
             }
         }
@@ -1617,6 +1572,10 @@ public class MessagingController implements Runnable {
                         EmailContent.Account.restoreAccountWithId(mContext, message.mAccountKey);
                     EmailContent.Mailbox mailbox =
                         EmailContent.Mailbox.restoreMailboxWithId(mContext, message.mMailboxKey);
+                    if (account == null || mailbox == null) {
+                        mListeners.loadMessageForViewFailed(messageId, "null account or mailbox");
+                        return;
+                    }
 
                     Store remoteStore =
                         Store.getInstance(account.getStoreUri(mContext), mContext, null);
@@ -1694,6 +1653,12 @@ public class MessagingController implements Runnable {
                         EmailContent.Message.restoreMessageWithId(mContext, messageId);
                     Attachment attachment =
                         Attachment.restoreAttachmentWithId(mContext, attachmentId);
+                    if (account == null || mailbox == null || message == null
+                            || attachment == null) {
+                        mListeners.loadAttachmentFailed(accountId, messageId, attachmentId,
+                                "Account, mailbox, message or attachment are null");
+                        return;
+                    }
 
                     Store remoteStore =
                         Store.getInstance(account.getStoreUri(mContext), mContext, null);
@@ -1889,19 +1854,26 @@ public class MessagingController implements Runnable {
                 // send any pending outbound messages.  note, there is a slight race condition
                 // here if we somehow don't have a sent folder, but this should never happen
                 // because the call to sendMessage() would have built one previously.
+                long inboxId = -1;
                 EmailContent.Account account =
                     EmailContent.Account.restoreAccountWithId(mContext, accountId);
-                long sentboxId = Mailbox.findMailboxOfType(mContext, accountId, Mailbox.TYPE_SENT);
-                if (sentboxId != -1) {
-                    sendPendingMessagesSynchronous(account, sentboxId);
+                if (account != null) {
+                    long sentboxId = Mailbox.findMailboxOfType(mContext, accountId,
+                            Mailbox.TYPE_SENT);
+                    if (sentboxId != Mailbox.NO_MAILBOX) {
+                        sendPendingMessagesSynchronous(account, sentboxId);
+                    }
+                    // find mailbox # for inbox and sync it.
+                    // TODO we already know this in Controller, can we pass it in?
+                    inboxId = Mailbox.findMailboxOfType(mContext, accountId, Mailbox.TYPE_INBOX);
+                    if (inboxId != Mailbox.NO_MAILBOX) {
+                        EmailContent.Mailbox mailbox =
+                            EmailContent.Mailbox.restoreMailboxWithId(mContext, inboxId);
+                        if (mailbox != null) {
+                            synchronizeMailboxSynchronous(account, mailbox);
+                        }
+                    }
                 }
-                // find mailbox # for inbox and sync it.
-                // TODO we already know this in Controller, can we pass it in?
-                long inboxId = Mailbox.findMailboxOfType(mContext, accountId, Mailbox.TYPE_INBOX);
-                EmailContent.Mailbox mailbox =
-                    EmailContent.Mailbox.restoreMailboxWithId(mContext, inboxId);
-                synchronizeMailboxSynchronous(account, mailbox);
-
                 mListeners.checkMailFinished(mContext, accountId, tag, inboxId);
             }
         });
