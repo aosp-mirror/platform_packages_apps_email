@@ -311,6 +311,7 @@ public class ContactsSyncAdapter extends AbstractSyncAdapter {
 
         public void addData(String serverId, ContactOperations ops, Entity entity)
                 throws IOException {
+            String fileAs = null;
             String prefix = null;
             String firstName = null;
             String lastName = null;
@@ -344,6 +345,9 @@ public class ContactsSyncAdapter extends AbstractSyncAdapter {
                         break;
                     case Tags.CONTACTS_MIDDLE_NAME:
                         middleName = getValue();
+                        break;
+                    case Tags.CONTACTS_FILE_AS:
+                        fileAs = getValue();
                         break;
                     case Tags.CONTACTS_SUFFIX:
                         suffix = getValue();
@@ -504,9 +508,6 @@ public class ContactsSyncAdapter extends AbstractSyncAdapter {
                     case Tags.CONTACTS_BIRTHDAY:
                         personal.birthday = getValue();
                         break;
-                    case Tags.CONTACTS_FILE_AS:
-                        personal.fileAs = getValue();
-                        break;
                     case Tags.CONTACTS_WEBPAGE:
                         ops.addWebpage(entity, getValue());
                         break;
@@ -552,7 +553,7 @@ public class ContactsSyncAdapter extends AbstractSyncAdapter {
             }
 
             ops.addName(entity, prefix, firstName, lastName, middleName, suffix, name,
-                    yomiFirstName, yomiLastName);
+                    yomiFirstName, yomiLastName, fileAs);
             ops.addBusiness(entity, business);
             ops.addPersonal(entity, personal);
 
@@ -1114,7 +1115,7 @@ public class ContactsSyncAdapter extends AbstractSyncAdapter {
 
         public void addName(Entity entity, String prefix, String givenName, String familyName,
                 String middleName, String suffix, String displayName, String yomiFirstName,
-                String yomiLastName) {
+                String yomiLastName, String fileAs) {
             RowBuilder builder = untypedRowBuilder(entity, StructuredName.CONTENT_ITEM_TYPE);
             ContentValues cv = builder.cv;
             if (cv != null && cvCompareString(cv, StructuredName.GIVEN_NAME, givenName) &&
@@ -1123,6 +1124,7 @@ public class ContactsSyncAdapter extends AbstractSyncAdapter {
                     cvCompareString(cv, StructuredName.PREFIX, prefix) &&
                     cvCompareString(cv, StructuredName.PHONETIC_GIVEN_NAME, yomiFirstName) &&
                     cvCompareString(cv, StructuredName.PHONETIC_FAMILY_NAME, yomiLastName) &&
+                    cvCompareString(cv, StructuredName.DISPLAY_NAME, fileAs) &&
                     cvCompareString(cv, StructuredName.SUFFIX, suffix)) {
                 return;
             }
@@ -1133,6 +1135,7 @@ public class ContactsSyncAdapter extends AbstractSyncAdapter {
             builder.withValue(StructuredName.PHONETIC_GIVEN_NAME, yomiFirstName);
             builder.withValue(StructuredName.PHONETIC_FAMILY_NAME, yomiLastName);
             builder.withValue(StructuredName.PREFIX, prefix);
+            builder.withValue(StructuredName.DISPLAY_NAME, fileAs);
             add(builder.build());
         }
 
@@ -1499,6 +1502,9 @@ public class ContactsSyncAdapter extends AbstractSyncAdapter {
         }
         if (cv.containsKey(StructuredName.PREFIX)) {
             s.data(Tags.CONTACTS_TITLE, cv.getAsString(StructuredName.PREFIX));
+        }
+        if (cv.containsKey(StructuredName.DISPLAY_NAME)) {
+            s.data(Tags.CONTACTS_FILE_AS, cv.getAsString(StructuredName.DISPLAY_NAME));
         }
     }
 
