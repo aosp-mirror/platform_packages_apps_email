@@ -32,7 +32,7 @@
             android:layout_weight="1"
             android:orientation="vertical" >
             <TextView
-                android:text="@string/account_setup_incoming_username_label"
+                android:text="@string/account_setup_exchange_username_label"
                 android:layout_height="wrap_content"
                 android:layout_width="fill_parent"
                 android:textAppearance="?android:attr/textAppearanceSmall"
