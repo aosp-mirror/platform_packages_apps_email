@@ -157,8 +157,12 @@ public class AccountSetupExchange extends Activity implements OnClickListener,
             }
 
             if (username != null) {
-                // Add a backslash to the start of the username as an affordance
-                mUsernameView.setText("\\" + username);
+                // Add a backslash to the start of the username, but only if the username has no
+                // backslash in it.
+                if (username.indexOf('\\') < 0) {
+                    username = "\\" + username;
+                }
+                mUsernameView.setText(username);
             }
 
             if (password != null) {
