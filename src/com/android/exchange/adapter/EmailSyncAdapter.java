@@ -316,8 +316,8 @@ public class EmailSyncAdapter extends AbstractSyncAdapter {
                     WHERE_SERVER_ID_AND_MAILBOX_KEY, bindArguments, null);
         }
 
-        private void deleteParser(ArrayList<Long> deletes) throws IOException {
-            while (nextTag(Tags.SYNC_DELETE) != END) {
+        private void deleteParser(ArrayList<Long> deletes, int entryTag) throws IOException {
+            while (nextTag(entryTag) != END) {
                 switch (tag) {
                     case Tags.SYNC_SERVER_ID:
                         String serverId = getValue();
@@ -400,8 +400,8 @@ public class EmailSyncAdapter extends AbstractSyncAdapter {
                 if (tag == Tags.SYNC_ADD) {
                     addParser(newEmails);
                     incrementChangeCount();
-                } else if (tag == Tags.SYNC_DELETE) {
-                    deleteParser(deletedEmails);
+                } else if (tag == Tags.SYNC_DELETE || tag == Tags.SYNC_SOFT_DELETE) {
+                    deleteParser(deletedEmails, tag);
                     incrementChangeCount();
                 } else if (tag == Tags.SYNC_CHANGE) {
                     changeParser(changedEmails);
