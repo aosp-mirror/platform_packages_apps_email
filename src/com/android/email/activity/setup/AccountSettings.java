@@ -23,8 +23,10 @@ import com.android.email.mail.Sender;
 import com.android.email.mail.Store;
 import com.android.email.provider.EmailContent.Account;
 import com.android.email.provider.EmailContent.HostAuth;
+import com.android.exchange.Eas;
 
 import android.app.Activity;
+import android.content.ContentResolver;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.os.Bundle;
@@ -35,6 +37,7 @@ import android.preference.Preference;
 import android.preference.PreferenceActivity;
 import android.preference.PreferenceCategory;
 import android.preference.RingtonePreference;
+import android.provider.ContactsContract;
 import android.util.Log;
 import android.view.KeyEvent;
 
@@ -53,6 +56,7 @@ public class AccountSettings extends PreferenceActivity {
     private static final String PREFERENCE_INCOMING = "incoming";
     private static final String PREFERENCE_OUTGOING = "outgoing";
     private static final String PREFERENCE_ADD_ACCOUNT = "add_account";
+    private static final String PREFERENCE_SYNC_CONTACTS = "account_sync_contacts";
 
     private long mAccountId;
     private Account mAccount;
@@ -66,6 +70,7 @@ public class AccountSettings extends PreferenceActivity {
     private CheckBoxPreference mAccountNotify;
     private CheckBoxPreference mAccountVibrate;
     private RingtonePreference mAccountRingtone;
+    private CheckBoxPreference mSyncContacts;
 
     /**
      * Display (and edit) settings for a specific account
@@ -81,8 +86,18 @@ public class AccountSettings extends PreferenceActivity {
         super.onCreate(savedInstanceState);
 
         Intent i = getIntent();
-        mAccountId = getIntent().getLongExtra(EXTRA_ACCOUNT_ID, -1);
+        mAccountId = i.getLongExtra(EXTRA_ACCOUNT_ID, -1);
         mAccount = Account.restoreAccountWithId(this, mAccountId);
+        if (mAccount == null) {
+            finish();
+            return;
+        }
+        mAccount.mHostAuthRecv = HostAuth.restoreHostAuthWithId(this, mAccount.mHostAuthKeyRecv);
+        mAccount.mHostAuthSend = HostAuth.restoreHostAuthWithId(this, mAccount.mHostAuthKeySend);
+        if (mAccount.mHostAuthRecv == null || mAccount.mHostAuthSend == null) {
+            finish();
+            return;
+        }
         mAccountDirty = false;
 
         addPreferencesFromResource(R.xml.account_settings_preferences);
@@ -113,9 +128,9 @@ public class AccountSettings extends PreferenceActivity {
                 return false;
             }
         });
-        
+
         mCheckFrequency = (ListPreference) findPreference(PREFERENCE_FREQUENCY);
-        
+
         // Before setting value, we may need to adjust the lists
         Store.StoreInfo info = Store.StoreInfo.getStoreInfo(mAccount.getStoreUri(this), this);
         if (info.mPushSupported) {
@@ -134,7 +149,7 @@ public class AccountSettings extends PreferenceActivity {
                 return false;
             }
         });
-        
+
         // Add check window preference
         mSyncWindow = null;
         if (info.mVisibleLimitDefault == -1) {
@@ -171,7 +186,7 @@ public class AccountSettings extends PreferenceActivity {
         prefs.edit().putString(PREFERENCE_RINGTONE, mAccount.getRingtone()).commit();
 
         mAccountVibrate = (CheckBoxPreference) findPreference(PREFERENCE_VIBRATE);
-        mAccountVibrate.setChecked(0 != 
+        mAccountVibrate.setChecked(0 !=
             (mAccount.getFlags() & Account.FLAGS_VIBRATE));
 
         findPreference(PREFERENCE_INCOMING).setOnPreferenceClickListener(
@@ -207,7 +222,20 @@ public class AccountSettings extends PreferenceActivity {
                     PREFERENCE_SERVER_CATERGORY);
             serverCategory.removePreference(prefOutgoing);
         }
-        
+
+        mSyncContacts = (CheckBoxPreference) findPreference(PREFERENCE_SYNC_CONTACTS);
+        if (mAccount.mHostAuthRecv.mProtocol.equals("eas")) {
+            String login = mAccount.mHostAuthRecv.mLogin;
+            android.accounts.Account acct =
+                new android.accounts.Account(login, Eas.ACCOUNT_MANAGER_TYPE);
+            mSyncContacts.setChecked(ContentResolver
+                    .getSyncAutomatically(acct, ContactsContract.AUTHORITY));
+        } else {
+            PreferenceCategory serverCategory = (PreferenceCategory) findPreference(
+                    PREFERENCE_SERVER_CATERGORY);
+            serverCategory.removePreference(mSyncContacts);
+        }
+
         findPreference(PREFERENCE_ADD_ACCOUNT).setOnPreferenceClickListener(
                 new Preference.OnPreferenceClickListener() {
                     public boolean onPreferenceClick(Preference preference) {
@@ -216,39 +244,41 @@ public class AccountSettings extends PreferenceActivity {
                     }
                 });
     }
-    
+
     @Override
     public void onResume() {
         super.onResume();
         if (mAccountDirty) {
-            // if we are coming back from editing incoming or outgoing settings, 
+            // if we are coming back from editing incoming or outgoing settings,
             // we need to refresh them here so we don't accidentally overwrite the
             // old values we're still holding here
-            mAccount.mHostAuthRecv = HostAuth.restoreHostAuthWithId(
-                    this, mAccount.mHostAuthKeyRecv);
-            mAccount.mHostAuthSend = HostAuth.restoreHostAuthWithId(
-                    this, mAccount.mHostAuthKeySend);
-
+            mAccount.mHostAuthRecv =
+                HostAuth.restoreHostAuthWithId(this, mAccount.mHostAuthKeyRecv);
+            mAccount.mHostAuthSend =
+                HostAuth.restoreHostAuthWithId(this, mAccount.mHostAuthKeySend);
             // Because "delete policy" UI is on edit incoming settings, we have
             // to refresh that as well.
             Account refreshedAccount = Account.restoreAccountWithId(this, mAccount.mId);
+            if (refreshedAccount == null || mAccount.mHostAuthRecv == null
+                    || mAccount.mHostAuthSend == null) {
+                finish();
+                return;
+            }
             mAccount.setDeletePolicy(refreshedAccount.getDeletePolicy());
-
             mAccountDirty = false;
         }
     }
 
     private void saveSettings() {
-        int newFlags = mAccount.getFlags() & 
+        int newFlags = mAccount.getFlags() &
                 ~(Account.FLAGS_NOTIFY_NEW_MAIL | Account.FLAGS_VIBRATE);
-        
+
         mAccount.setDefaultAccount(mAccountDefault.isChecked());
         mAccount.setDisplayName(mAccountDescription.getText());
         mAccount.setSenderName(mAccountName.getText());
         newFlags |= mAccountNotify.isChecked() ? Account.FLAGS_NOTIFY_NEW_MAIL : 0;
         mAccount.setSyncInterval(Integer.parseInt(mCheckFrequency.getValue()));
-        if (mSyncWindow != null)
-        {
+        if (mSyncWindow != null) {
             mAccount.setSyncLookback(Integer.parseInt(mSyncWindow.getValue()));
         }
         newFlags |= mAccountVibrate.isChecked() ? Account.FLAGS_VIBRATE : 0;
@@ -256,8 +286,16 @@ public class AccountSettings extends PreferenceActivity {
         mAccount.setRingtone(prefs.getString(PREFERENCE_RINGTONE, null));
         mAccount.setFlags(newFlags);
 
-        AccountSettingsUtils.commitSettings(this, mAccount);
-        Email.setServicesEnabled(this);
+        if (mAccount.mHostAuthRecv.mProtocol.equals("eas")) {
+            String login = mAccount.mHostAuthRecv.mLogin;
+            android.accounts.Account acct =
+                new android.accounts.Account(login, Eas.ACCOUNT_MANAGER_TYPE);
+            ContentResolver.setSyncAutomatically(acct, ContactsContract.AUTHORITY,
+                    mSyncContacts.isChecked());
+
+            AccountSettingsUtils.commitSettings(this, mAccount);
+            Email.setServicesEnabled(this);
+        }
     }
 
     @Override
