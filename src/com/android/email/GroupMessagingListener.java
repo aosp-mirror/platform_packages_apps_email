@@ -52,48 +52,46 @@ public class GroupMessagingListener extends MessagingListener {
     }
 
     @Override
-    synchronized public void listFoldersStarted(EmailContent.Account account) {
+    synchronized public void listFoldersStarted(long accountId) {
         for (MessagingListener l : mListeners) {
-            l.listFoldersStarted(account);
+            l.listFoldersStarted(accountId);
         }
     }
 
     @Override
-    synchronized public void listFoldersFailed(EmailContent.Account account, String message) {
+    synchronized public void listFoldersFailed(long accountId, String message) {
         for (MessagingListener l : mListeners) {
-            l.listFoldersFailed(account, message);
+            l.listFoldersFailed(accountId, message);
         }
     }
 
     @Override
-    synchronized public void listFoldersFinished(EmailContent.Account account) {
+    synchronized public void listFoldersFinished(long accountId) {
         for (MessagingListener l : mListeners) {
-            l.listFoldersFinished(account);
+            l.listFoldersFinished(accountId);
         }
     }
 
     @Override
-    synchronized public void synchronizeMailboxStarted(EmailContent.Account account, 
-                                                       EmailContent.Mailbox folder) {
+    synchronized public void synchronizeMailboxStarted(long accountId, long mailboxId) {
         for (MessagingListener l : mListeners) {
-            l.synchronizeMailboxStarted(account, folder);
+            l.synchronizeMailboxStarted(accountId, mailboxId);
         }
     }
 
     @Override
-    synchronized public void synchronizeMailboxFinished(EmailContent.Account account,
-            EmailContent.Mailbox folder, int totalMessagesInMailbox, int numNewMessages) {
+    synchronized public void synchronizeMailboxFinished(long accountId, long mailboxId,
+            int totalMessagesInMailbox, int numNewMessages) {
         for (MessagingListener l : mListeners) {
-            l.synchronizeMailboxFinished(account, folder, totalMessagesInMailbox, numNewMessages);
+            l.synchronizeMailboxFinished(accountId, mailboxId,
+                    totalMessagesInMailbox, numNewMessages);
         }
     }
 
     @Override
-    synchronized public void synchronizeMailboxFailed(EmailContent.Account account, 
-                                                      EmailContent.Mailbox folder,
-                                                      Exception e) {
+    synchronized public void synchronizeMailboxFailed(long accountId, long mailboxId, Exception e) {
         for (MessagingListener l : mListeners) {
-            l.synchronizeMailboxFailed(account, folder, e);
+            l.synchronizeMailboxFailed(accountId, mailboxId, e);
         }
     }
 
@@ -156,17 +154,10 @@ public class GroupMessagingListener extends MessagingListener {
     }
 
     @Override
-    synchronized public void emptyTrashCompleted(EmailContent.Account account) {
-        for (MessagingListener l : mListeners) {
-            l.emptyTrashCompleted(account);
-        }
-    }
-
-    @Override
-    synchronized public void messageUidChanged(EmailContent.Account account, String folder,
+    synchronized public void messageUidChanged(long accountId, long mailboxId,
             String oldUid, String newUid) {
         for (MessagingListener l : mListeners) {
-            l.messageUidChanged(account, folder, oldUid, newUid);
+            l.messageUidChanged(accountId, mailboxId, oldUid, newUid);
         }
     }
 

@@ -842,55 +842,53 @@ public class Controller {
     private class LegacyListener extends MessagingListener {
 
         @Override
-        public void listFoldersStarted(EmailContent.Account account) {
+        public void listFoldersStarted(long accountId) {
             synchronized (mListeners) {
                 for (Result l : mListeners) {
-                    l.updateMailboxListCallback(null, account.mId, 0);
+                    l.updateMailboxListCallback(null, accountId, 0);
                 }
             }
         }
 
         @Override
-        public void listFoldersFailed(EmailContent.Account account, String message) {
+        public void listFoldersFailed(long accountId, String message) {
             synchronized (mListeners) {
                 for (Result l : mListeners) {
-                    l.updateMailboxListCallback(new MessagingException(message), account.mId, 0);
+                    l.updateMailboxListCallback(new MessagingException(message), accountId, 0);
                 }
             }
         }
 
         @Override
-        public void listFoldersFinished(EmailContent.Account account) {
+        public void listFoldersFinished(long accountId) {
             synchronized (mListeners) {
                 for (Result l : mListeners) {
-                    l.updateMailboxListCallback(null, account.mId, 100);
+                    l.updateMailboxListCallback(null, accountId, 100);
                 }
             }
         }
 
         @Override
-        public void synchronizeMailboxStarted(EmailContent.Account account,
-                EmailContent.Mailbox folder) {
+        public void synchronizeMailboxStarted(long accountId, long mailboxId) {
             synchronized (mListeners) {
                 for (Result l : mListeners) {
-                    l.updateMailboxCallback(null, account.mId, folder.mId, 0, 0);
+                    l.updateMailboxCallback(null, accountId, mailboxId, 0, 0);
                 }
             }
         }
 
         @Override
-        public void synchronizeMailboxFinished(EmailContent.Account account,
-                EmailContent.Mailbox folder, int totalMessagesInMailbox, int numNewMessages) {
+        public void synchronizeMailboxFinished(long accountId, long mailboxId,
+                int totalMessagesInMailbox, int numNewMessages) {
             synchronized (mListeners) {
                 for (Result l : mListeners) {
-                    l.updateMailboxCallback(null, account.mId, folder.mId, 100, numNewMessages);
+                    l.updateMailboxCallback(null, accountId, mailboxId, 100, numNewMessages);
                 }
             }
         }
 
         @Override
-        public void synchronizeMailboxFailed(EmailContent.Account account,
-                EmailContent.Mailbox folder, Exception e) {
+        public void synchronizeMailboxFailed(long accountId, long mailboxId, Exception e) {
             MessagingException me;
             if (e instanceof MessagingException) {
                 me = (MessagingException) e;
@@ -899,7 +897,7 @@ public class Controller {
             }
             synchronized (mListeners) {
                 for (Result l : mListeners) {
-                    l.updateMailboxCallback(me, account.mId, folder.mId, 0, 0);
+                    l.updateMailboxCallback(me, accountId, mailboxId, 0, 0);
                 }
             }
         }

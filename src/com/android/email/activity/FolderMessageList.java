@@ -1375,33 +1375,33 @@ public class FolderMessageList extends ExpandableListActivity {
         private ArrayList<FolderInfoHolder> mFolders = new ArrayList<FolderInfoHolder>();
 
         private MessagingListener mListener = new MessagingListener() {
-            @Override
-            public void listFoldersStarted(EmailContent.Account account) {
-                if (!account.equals(mAccount)) {
-                    return;
-                }
-                mHandler.progress(true);
-            }
+//            @Override
+//            public void listFoldersStarted(EmailContent.Account account) {
+//                if (!account.equals(mAccount)) {
+//                    return;
+//                }
+//                mHandler.progress(true);
+//            }
 
-            @Override
-            public void listFoldersFailed(EmailContent.Account account, String message) {
-                if (!account.equals(mAccount)) {
-                    return;
-                }
-                mHandler.progress(false);
-                if (Email.LOGD) {
-                    Log.v(Email.LOG_TAG, "listFoldersFailed " + message);
-                }
-            }
+//            @Override
+//            public void listFoldersFailed(EmailContent.Account account, String message) {
+//                if (!account.equals(mAccount)) {
+//                    return;
+//                }
+//                mHandler.progress(false);
+//                if (Email.LOGD) {
+//                    Log.v(Email.LOG_TAG, "listFoldersFailed " + message);
+//                }
+//            }
 
-            @Override
-            public void listFoldersFinished(EmailContent.Account account) {
-                if (!account.equals(mAccount)) {
-                    return;
-                }
-                mHandler.progress(false);
-                mHandler.listFoldersFinished();
-            }
+//            @Override
+//            public void listFoldersFinished(EmailContent.Account account) {
+//                if (!account.equals(mAccount)) {
+//                    return;
+//                }
+//                mHandler.progress(false);
+//                mHandler.listFoldersFinished();
+//            }
 
 /*
             @Override
@@ -1441,71 +1441,71 @@ public class FolderMessageList extends ExpandableListActivity {
                 mHandler.synchronizeMessages(folder, messages);
             }
 */
-            @Override
-            public void synchronizeMailboxStarted(EmailContent.Account account,
-                    EmailContent.Mailbox folder) {
-                if (!account.equals(mAccount)) {
-                    return;
-                }
-                mHandler.progress(true);
-//                mHandler.folderLoading(folder, true);
-//                mHandler.folderStatus(folder, null, false);
-            }
+//            @Override
+//            public void synchronizeMailboxStarted(EmailContent.Account account,
+//                    EmailContent.Mailbox folder) {
+//                if (!account.equals(mAccount)) {
+//                    return;
+//                }
+//                mHandler.progress(true);
+////                mHandler.folderLoading(folder, true);
+////                mHandler.folderStatus(folder, null, false);
+//            }
 
-            @Override
-            public void synchronizeMailboxFinished(EmailContent.Account account,
-                    EmailContent.Mailbox folder, int totalMessagesInMailbox, int numNewMessages) {
-                if (!account.equals(mAccount)) {
-                    return;
-                }
-                mHandler.progress(false);
-//                mHandler.folderLoading(folder, false);
-//                mHandler.folderStatus(folder, null, false);
-                onRefresh(false);
-            }
+//            @Override
+//            public void synchronizeMailboxFinished(EmailContent.Account account,
+//                    EmailContent.Mailbox folder, int totalMessagesInMailbox, int numNewMessages) {
+//                if (!account.equals(mAccount)) {
+//                    return;
+//                }
+//                mHandler.progress(false);
+////                mHandler.folderLoading(folder, false);
+////                mHandler.folderStatus(folder, null, false);
+//                onRefresh(false);
+//            }
 
-            @Override
-            public void synchronizeMailboxFailed(EmailContent.Account account,
-                    EmailContent.Mailbox folder, Exception e) {
-                if (!account.equals(mAccount)) {
-                    return;
-                }
-                mHandler.progress(false);
-//                mHandler.folderLoading(folder, false);
-                // Use exception details to select a decent string
-                // TODO combine with very similar code in AccountSettingsCheckSetup
-                int id = R.string.status_network_error;
-                if (e instanceof AuthenticationFailedException) {
-                    id = R.string.account_setup_failed_dlg_auth_message;
-                } else if (e instanceof CertificateValidationException) {
-                    id = R.string.account_setup_failed_dlg_certificate_message;
-                } else if (e instanceof MessagingException) {
-                    MessagingException me = (MessagingException) e;
-                    switch (me.getExceptionType()) {
-                        case MessagingException.IOERROR:
-                            id = R.string.account_setup_failed_ioerror;
-                            break;
-                        case MessagingException.TLS_REQUIRED:
-                            id = R.string.account_setup_failed_tls_required;
-                            break;
-                        case MessagingException.AUTH_REQUIRED:
-                            id = R.string.account_setup_failed_auth_required;
-                            break;
-                        case MessagingException.GENERAL_SECURITY:
-                            id = R.string.account_setup_failed_security;
-                            break;
-                    }
-                }
-//                mHandler.folderStatus(folder, getString(id), true);
-            }
+//            @Override
+//            public void synchronizeMailboxFailed(EmailContent.Account account,
+//                    EmailContent.Mailbox folder, Exception e) {
+//                if (!account.equals(mAccount)) {
+//                    return;
+//                }
+//                mHandler.progress(false);
+////                mHandler.folderLoading(folder, false);
+//                // Use exception details to select a decent string
+//                // TODO combine with very similar code in AccountSettingsCheckSetup
+//                int id = R.string.status_network_error;
+//                if (e instanceof AuthenticationFailedException) {
+//                    id = R.string.account_setup_failed_dlg_auth_message;
+//                } else if (e instanceof CertificateValidationException) {
+//                    id = R.string.account_setup_failed_dlg_certificate_message;
+//                } else if (e instanceof MessagingException) {
+//                    MessagingException me = (MessagingException) e;
+//                    switch (me.getExceptionType()) {
+//                        case MessagingException.IOERROR:
+//                            id = R.string.account_setup_failed_ioerror;
+//                            break;
+//                        case MessagingException.TLS_REQUIRED:
+//                            id = R.string.account_setup_failed_tls_required;
+//                            break;
+//                        case MessagingException.AUTH_REQUIRED:
+//                            id = R.string.account_setup_failed_auth_required;
+//                            break;
+//                        case MessagingException.GENERAL_SECURITY:
+//                            id = R.string.account_setup_failed_security;
+//                            break;
+//                    }
+//                }
+////                mHandler.folderStatus(folder, getString(id), true);
+//            }
 
-            @Override
-            public void emptyTrashCompleted(EmailContent.Account account) {
-                if (!account.equals(mAccount)) {
-                    return;
-                }
-                onRefresh(false);
-            }
+//            @Override
+//            public void emptyTrashCompleted(EmailContent.Account account) {
+//                if (!account.equals(mAccount)) {
+//                    return;
+//                }
+//                onRefresh(false);
+//            }
 
 //            @Override
 //            public void sendPendingMessagesCompleted(EmailContent.Account account) {
@@ -1540,14 +1540,14 @@ public class FolderMessageList extends ExpandableListActivity {
 //                //mHandler.folderStatus(account.getOutboxFolderName(), reason.getMessage(), false);
 //            }
 
-            @Override
-            public void messageUidChanged(EmailContent.Account account, String folder,
-                    String oldUid, String newUid) {
-                if (!mAccount.equals(account)) {
-                    return;
-                }
-                mHandler.messageUidChanged(folder, oldUid, newUid);
-            }
+//            @Override
+//            public void messageUidChanged(EmailContent.Account account, String folder,
+//                    String oldUid, String newUid) {
+//                if (!mAccount.equals(account)) {
+//                    return;
+//                }
+//                mHandler.messageUidChanged(folder, oldUid, newUid);
+//            }
         };
 
         private Drawable mAttachmentIcon;
