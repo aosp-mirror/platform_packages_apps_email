@@ -606,6 +606,9 @@ public class AccountFolderList extends ListActivity
 
         public void updateMailboxCallback(MessagingException result, long accountKey,
                 long mailboxKey, int progress, int numNewMessages) {
+            if (result != null || progress == 100) {
+                Email.updateMailboxRefreshTime(mailboxKey);
+            }
             updateProgress(result, progress);
         }
 
