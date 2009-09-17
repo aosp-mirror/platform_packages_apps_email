@@ -30,7 +30,9 @@ import com.android.email.provider.EmailContent.MailboxColumns;
 import com.android.email.provider.EmailContent.Message;
 import com.android.email.provider.EmailContent.MessageColumns;
 import com.android.email.provider.EmailContent.SyncColumns;
+import com.android.exchange.Eas;
 
+import android.accounts.AccountManager;
 import android.content.ContentProvider;
 import android.content.ContentProviderOperation;
 import android.content.ContentProviderResult;
@@ -57,12 +59,14 @@ public class EmailProvider extends ContentProvider {
 
     // Any changes to the database format *must* include update-in-place code.
     // Original version: 3
-    public static final int DATABASE_VERSION = 3;
+    // Version 4: Database wipe required; changing AccountManager interface w/Exchange
+    public static final int DATABASE_VERSION = 4;
 
     // Any changes to the database format *must* include update-in-place code.
     // Original version: 2
     // Version 3: Add "sourceKey" column
-    public static final int BODY_DATABASE_VERSION = 3;
+    // Version 4: Database wipe required; changing AccountManager interface w/Exchange
+    public static final int BODY_DATABASE_VERSION = 4;
 
     public static final String EMAIL_AUTHORITY = "com.android.email.provider";
 
@@ -348,7 +352,7 @@ public class EmailProvider extends ContentProvider {
                 "; end");
    }
 
-    static void upgradeMessageTable(SQLiteDatabase db, int oldVersion, int newVersion) {
+    static void resetMessageTable(SQLiteDatabase db, int oldVersion, int newVersion) {
         try {
             db.execSQL("drop table " + Message.TABLE_NAME);
             db.execSQL("drop table " + Message.UPDATED_TABLE_NAME);
@@ -387,7 +391,7 @@ public class EmailProvider extends ContentProvider {
         "; end");
     }
 
-    static void upgradeAccountTable(SQLiteDatabase db, int oldVersion, int newVersion) {
+    static void resetAccountTable(SQLiteDatabase db, int oldVersion, int newVersion) {
         try {
             db.execSQL("drop table " +  Account.TABLE_NAME);
         } catch (SQLException e) {
@@ -409,7 +413,7 @@ public class EmailProvider extends ContentProvider {
         db.execSQL("create table " + HostAuth.TABLE_NAME + s);
     }
 
-    static void upgradeHostAuthTable(SQLiteDatabase db, int oldVersion, int newVersion) {
+    static void resetHostAuthTable(SQLiteDatabase db, int oldVersion, int newVersion) {
         try {
             db.execSQL("drop table " + HostAuth.TABLE_NAME);
         } catch (SQLException e) {
@@ -447,7 +451,7 @@ public class EmailProvider extends ContentProvider {
                 "; end");
     }
 
-    static void upgradeMailboxTable(SQLiteDatabase db, int oldVersion, int newVersion) {
+    static void resetMailboxTable(SQLiteDatabase db, int oldVersion, int newVersion) {
         try {
             db.execSQL("drop table " + Mailbox.TABLE_NAME);
         } catch (SQLException e) {
@@ -470,7 +474,7 @@ public class EmailProvider extends ContentProvider {
         db.execSQL(createIndex(Attachment.TABLE_NAME, AttachmentColumns.MESSAGE_KEY));
     }
 
-    static void upgradeAttachmentTable(SQLiteDatabase db, int oldVersion, int newVersion) {
+    static void resetAttachmentTable(SQLiteDatabase db, int oldVersion, int newVersion) {
         try {
             db.execSQL("drop table " + Attachment.TABLE_NAME);
         } catch (SQLException e) {
@@ -492,18 +496,13 @@ public class EmailProvider extends ContentProvider {
     }
 
     static void upgradeBodyTable(SQLiteDatabase db, int oldVersion, int newVersion) {
-        if (oldVersion < 2) {
-            // Versions earlier than 2 require a wipe of the database
+        if (oldVersion < 4) {
             try {
                 db.execSQL("drop table " + Body.TABLE_NAME);
                 createBodyTable(db);
             } catch (SQLException e) {
             }
-        } else if (oldVersion == 2) {
-            Log.d(TAG, "Upgrading Body from v2 to v3");
-            db.execSQL("alter table " + Body.TABLE_NAME +
-                    " add " + Body.SOURCE_MESSAGE_KEY + " integer");
-         }
+        }
     }
 
     private final int mDatabaseVersion = DATABASE_VERSION;
@@ -554,8 +553,11 @@ public class EmailProvider extends ContentProvider {
     }
 
     private class DatabaseHelper extends SQLiteOpenHelper {
+        Context mContext;
+
         DatabaseHelper(Context context, String name) {
             super(context, name, null, mDatabaseVersion);
+            mContext = context;
         }
 
         @Override
@@ -570,11 +572,20 @@ public class EmailProvider extends ContentProvider {
 
         @Override
         public void onUpgrade(SQLiteDatabase db, int oldVersion, int newVersion) {
-            upgradeMessageTable(db, oldVersion, newVersion);
-            upgradeAttachmentTable(db, oldVersion, newVersion);
-            upgradeMailboxTable(db, oldVersion, newVersion);
-            upgradeHostAuthTable(db, oldVersion, newVersion);
-            upgradeAccountTable(db, oldVersion, newVersion);
+            // For versions prior to 4, delete all data
+            // Versions >= 4 require that data be preserved!
+            if (oldVersion < 4) {
+                android.accounts.Account[] accounts =
+                    AccountManager.get(mContext).getAccountsByType(Eas.ACCOUNT_MANAGER_TYPE);
+                for (android.accounts.Account account: accounts) {
+                    AccountManager.get(mContext).removeAccount(account, null, null);
+                }
+                resetMessageTable(db, oldVersion, newVersion);
+                resetAttachmentTable(db, oldVersion, newVersion);
+                resetMailboxTable(db, oldVersion, newVersion);
+                resetHostAuthTable(db, oldVersion, newVersion);
+                resetAccountTable(db, oldVersion, newVersion);
+            }
         }
 
         @Override
