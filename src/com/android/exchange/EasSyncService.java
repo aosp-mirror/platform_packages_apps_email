@@ -518,7 +518,9 @@ public class EasSyncService extends AbstractSyncService {
                 int code = resp.getStatusLine().getStatusCode();
                 userLog("OPTIONS response: ", code);
                 if (code == HttpStatus.SC_OK) {
-                    Header header = resp.getFirstHeader("ms-asprotocolversions");
+                    Header header = resp.getFirstHeader("MS-ASProtocolCommands");
+                    userLog(header.getValue());
+                    header = resp.getFirstHeader("ms-asprotocolversions");
                     String versions = header.getValue();
                     if (versions != null) {
                         if (versions.contains("12.0")) {

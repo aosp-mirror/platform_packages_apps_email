@@ -41,7 +41,6 @@ import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileOutputStream;
 import java.io.IOException;
-import java.net.URLEncoder;
 
 public class EasOutboxService extends EasSyncService {
 
@@ -126,8 +125,7 @@ public class EasOutboxService extends EasSyncService {
             String cmd = "SendMail&SaveInSent=T";
             if (smartSend) {
                 cmd = reply ? "SmartReply" : "SmartForward";
-                cmd += "&ItemId=" + URLEncoder.encode(itemId, "UTF-8") + "&CollectionId="
-                    + URLEncoder.encode(collectionId, "UTF-8") + "&SaveInSent=T";
+                cmd += "&ItemId=" + itemId + "&CollectionId=" + collectionId + "&SaveInSent=T";
             }
             userLog("Send cmd: " + cmd);
             HttpResponse resp = sendHttpClientPost(cmd, inputEntity);
