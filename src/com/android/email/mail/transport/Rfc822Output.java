@@ -62,6 +62,9 @@ public class Rfc822Output {
     /*package*/ static String buildBodyText(Context context, Message message,
             boolean appendQuotedText) {
         Body body = Body.restoreBodyWithMessageId(context, message.mId);
+        if (body == null) {
+            return null;
+        }
         String text = body.mTextContent;
 
         if (!appendQuotedText) {
