@@ -57,15 +57,15 @@
     <!-- Menu item/button name -->
     <string name="read_unread_action">Read/Unread</string>
     <!-- Menu item/button name -->
-    <string name="read_action">Mark Read</string>
+    <string name="read_action">Mark read</string>
     <!-- Menu item/button name -->
-    <string name="unread_action">Mark Unread</string>
+    <string name="unread_action">Mark unread</string>
     <!-- Menu item/button name -->
     <string name="favorite_action">Favorite</string>
     <!-- Menu item/button name -->
-    <string name="set_star_action">Mark Star</string>
+    <string name="set_star_action">Add star</string>
     <!-- Menu item/button name -->
-    <string name="remove_star_action">Remove Star</string>
+    <string name="remove_star_action">Remove star</string>
     <!-- Menu item -->
     <string name="refresh_action">Refresh</string>
     <!-- Menu item -->
