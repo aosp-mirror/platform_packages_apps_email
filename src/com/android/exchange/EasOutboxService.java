@@ -114,7 +114,7 @@ public class EasOutboxService extends EasSyncService {
 
             // Write the message in rfc822 format to the temporary file
             FileOutputStream fileStream = new FileOutputStream(tmpFile);
-            Rfc822Output.writeTo(mContext, msgId, fileStream, !smartSend);
+            Rfc822Output.writeTo(mContext, msgId, fileStream, !smartSend, true);
             fileStream.close();
 
             // Now, get an input stream to our temporary file and create an entity with it
@@ -126,7 +126,7 @@ public class EasOutboxService extends EasSyncService {
             String cmd = "SendMail&SaveInSent=T";
             if (smartSend) {
                 cmd = reply ? "SmartReply" : "SmartForward";
-                cmd += "&ItemId=" + URLEncoder.encode(itemId, "UTF-8") + "&CollectionId=" 
+                cmd += "&ItemId=" + URLEncoder.encode(itemId, "UTF-8") + "&CollectionId="
                     + URLEncoder.encode(collectionId, "UTF-8") + "&SaveInSent=T";
             }
             HttpResponse resp = sendHttpClientPost(cmd, inputEntity);
