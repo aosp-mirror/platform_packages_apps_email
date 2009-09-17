@@ -18,7 +18,6 @@ package com.android.email.activity.setup;
 
 import com.android.email.Email;
 import com.android.email.EmailAddressValidator;
-import com.android.email.Preferences;
 import com.android.email.R;
 import com.android.email.Utility;
 import com.android.email.activity.Debug;
@@ -33,10 +32,7 @@ import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.res.XmlResourceParser;
 import android.database.Cursor;
-import android.net.Uri;
 import android.os.Bundle;
-import android.provider.Contacts;
-import android.provider.Contacts.People.ContactMethods;
 import android.text.Editable;
 import android.text.TextWatcher;
 import android.util.Log;
@@ -67,13 +63,14 @@ public class AccountSetupBasics extends Activity
     private final static String EXTRA_EAS_FLOW = "com.android.email.extra.eas_flow";
 
     private final static int DIALOG_NOTE = 1;
+    private final static int DIALOG_DUPLICATE_ACCOUNT = 2;
+
     private final static String STATE_KEY_PROVIDER =
         "com.android.email.AccountSetupBasics.provider";
 
     // NOTE: If you change this value, confirm that the new interval exists in arrays.xml
     private final static int DEFAULT_ACCOUNT_CHECK_INTERVAL = 15;
 
-    private Preferences mPrefs;
     private EditText mEmailView;
     private EditText mPasswordView;
     private CheckBox mDefaultView;
@@ -82,6 +79,7 @@ public class AccountSetupBasics extends Activity
     private EmailContent.Account mAccount;
     private Provider mProvider;
     private boolean mEasFlowMode;
+    private String mDuplicateAccountName;
 
     private EmailAddressValidator mEmailValidator = new EmailAddressValidator();
 
@@ -104,7 +102,6 @@ public class AccountSetupBasics extends Activity
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.account_setup_basics);
-        mPrefs = Preferences.getPreferences(this);
         mEmailView = (EditText)findViewById(R.id.account_email);
         mPasswordView = (EditText)findViewById(R.id.account_password);
         mDefaultView = (CheckBox)findViewById(R.id.account_default);
@@ -237,8 +234,43 @@ public class AccountSetupBasics extends Activity
                             null)
                     .create();
             }
+        } else if (id == DIALOG_DUPLICATE_ACCOUNT) {
+            return new AlertDialog.Builder(this)
+                .setIcon(android.R.drawable.ic_dialog_alert)
+                .setTitle(R.string.account_duplicate_dlg_title)
+                .setMessage(getString(R.string.account_duplicate_dlg_message_fmt,
+                        mDuplicateAccountName))
+                .setPositiveButton(R.string.okay_action,
+                        new DialogInterface.OnClickListener() {
+                    public void onClick(DialogInterface dialog, int which) {
+                        dismissDialog(DIALOG_DUPLICATE_ACCOUNT);
+                    }
+                })
+                .create();
         }
         return null;
+    }
+
+    /**
+     * Update a cached dialog with current values (e.g. account name)
+     */
+    @Override
+    public void onPrepareDialog(int id, Dialog dialog) {
+        switch (id) {
+            case DIALOG_NOTE:
+                if (mProvider != null && mProvider.note != null) {
+                    AlertDialog alert = (AlertDialog) dialog;
+                    alert.setMessage(mProvider.note);
+                }
+                break;
+            case DIALOG_DUPLICATE_ACCOUNT:
+                if (mDuplicateAccountName != null) {
+                    AlertDialog alert = (AlertDialog) dialog;
+                    alert.setMessage(getString(R.string.account_duplicate_dlg_message_fmt,
+                            mDuplicateAccountName));
+                }
+                break;
+        }
     }
 
     private void finishAutoSetup() {
@@ -269,6 +301,15 @@ public class AccountSetupBasics extends Activity
             outgoingUri = new URI(outgoingUriTemplate.getScheme(), outgoingUsername + ":"
                     + password, outgoingUriTemplate.getHost(), outgoingUriTemplate.getPort(),
                     outgoingUriTemplate.getPath(), null, null);
+
+            // Stop here if the login credentials duplicate an existing account
+            mDuplicateAccountName = Utility.findDuplicateAccount(this, -1,
+                    incomingUri.getHost(), incomingUsername);
+            if (mDuplicateAccountName != null) {
+                this.showDialog(DIALOG_DUPLICATE_ACCOUNT);
+                return;
+            }
+
         } catch (URISyntaxException use) {
             /*
              * If there is some problem with the URI we give up and go on to
