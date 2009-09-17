@@ -33,14 +33,14 @@
     <string name="discard_action" msgid="6532206074859505968">"Descartar"</string>
     <string name="save_draft_action" msgid="812855865552028622">"Salvar como rascunho"</string>
     <string name="read_unread_action" msgid="4721446664849165077">"Lidos/Não lidos"</string>
-    <!-- no translation found for read_action (8808106321114050437) -->
+    <!-- no translation found for read_action (4701484794504781686) -->
     <skip />
-    <!-- no translation found for unread_action (3289668045268549517) -->
+    <!-- no translation found for unread_action (6280399049357552826) -->
     <skip />
     <string name="favorite_action" msgid="2911296685862420689">"Favorito"</string>
-    <!-- no translation found for set_star_action (2257228471455207274) -->
+    <!-- no translation found for set_star_action (4660317166196258160) -->
     <skip />
-    <!-- no translation found for remove_star_action (7138942302684775768) -->
+    <!-- no translation found for remove_star_action (6689770999647007163) -->
     <skip />
     <string name="refresh_action" msgid="5951383001436708175">"Atualizar"</string>
     <string name="add_account_action" msgid="8835736309476033727">"Adicionar conta"</string>
@@ -49,8 +49,7 @@
     <string name="open_action" msgid="936766723989190816">"Abrir"</string>
     <string name="account_settings_action" msgid="4494079183315085171">"Configurações da conta"</string>
     <string name="remove_account_action" msgid="3789169090601376209">"Remover conta"</string>
-    <!-- no translation found for folders_action (7502431531355227666) -->
-    <skip />
+    <string name="folders_action" msgid="7502431531355227666">"Pastas"</string>
     <string name="accounts_action" msgid="901105887272231493">"Contas"</string>
     <string name="mark_as_read_action" msgid="5031651846998842419">"Marcar como lidas"</string>
     <string name="mark_as_unread_action" msgid="3766298115778767554">"Marcar como não lida"</string>
@@ -92,8 +91,7 @@
     <string name="account_folder_list_summary_favorite" msgid="3476887425137403925">"Favorito"</string>
     <string name="account_folder_list_summary_drafts" msgid="5514845993247300437">"Rascunhos"</string>
     <string name="account_folder_list_summary_outbox" msgid="3059836696049399377">"Caixa de saída"</string>
-    <!-- no translation found for mailbox_list_title (8299608543467211089) -->
-    <skip />
+    <string name="mailbox_list_title" msgid="8299608543467211089">"Caixa de correio"</string>
     <string name="message_list_load_more_messages_action" msgid="7428302707908825692">"Carregar mais mensagens"</string>
     <string name="message_list_send_pending_messages_action" msgid="9100624762133992435">"Enviar mensagens de saída"</string>
     <string name="message_list_title" msgid="6927798150197177235">"<xliff:g id="ACCOUNT">%s</xliff:g>: <xliff:g id="MAILBOX">%s</xliff:g>"</string>
@@ -109,8 +107,7 @@
     <string name="message_compose_error_invalid_email" msgid="1817633338629885643">"Alguns endereços de e-mail são inválidos."</string>
     <string name="message_compose_attachments_skipped_toast" msgid="5611815773808423460">"Alguns anexos não podem ser encaminhados pois o download deles não foi feito."</string>
     <string name="message_compose_attachment_size" msgid="4401081828287333647">"Arquivo muito grande para ser anexado."</string>
-    <!-- no translation found for message_compose_display_name (6415258924917140704) -->
-    <skip />
+    <string name="message_compose_display_name" msgid="6415258924917140704">"<xliff:g id="NAME">%1$s</xliff:g> e <xliff:g id="NUMBER">%2$d</xliff:g> outros"</string>
     <string name="message_view_to_label" msgid="6485191743265527381">"Para:"</string>
     <string name="message_view_cc_label" msgid="6322992216371163122">"Cc:"</string>
     <string name="message_view_attachment_view_action" msgid="5353550848340829134">"Abrir"</string>
@@ -135,6 +132,10 @@
     <string name="account_setup_basics_default_label" msgid="5924790142029806711">"Enviar e-mail desta conta por padrão."</string>
     <string name="account_setup_basics_manual_setup_action" msgid="8053852205391155912">"Configuração manual"</string>
     <string name="account_setup_username_password_toast" msgid="4441448542557889481">"Digite um endereço de e-mail e senha válidos."</string>
+    <!-- no translation found for account_duplicate_dlg_title (3176749833792312641) -->
+    <skip />
+    <!-- no translation found for account_duplicate_dlg_message_fmt (1920726613701479851) -->
+    <skip />
     <string name="account_setup_check_settings_retr_info_msg" msgid="4121970450267725664">"Recuperando informações sobre a conta"</string>
     <string name="account_setup_check_settings_check_incoming_msg" msgid="5356212700221438863">"Verificando as configurações de entrada do servidor..."</string>
     <string name="account_setup_check_settings_check_outgoing_msg" msgid="4033015234096725343">"Verificando as configurações de saída do servidor..."</string>
@@ -175,9 +176,13 @@
     <string name="account_setup_outgoing_password_label" msgid="227844585493317550">"Senha"</string>
     <string name="account_setup_exchange_title" msgid="247933841122558059">"Configurações do Exchange Server"</string>
     <string name="account_setup_exchange_server_label" msgid="5390359659749339317">"Exchange Server"</string>
+    <!-- no translation found for account_setup_exchange_username_label (6517176180828983060) -->
+    <skip />
     <string name="account_setup_exchange_domain_label" msgid="3584668050727667045">"Domínio"</string>
     <string name="account_setup_exchange_domain_hint" msgid="350372033916025287">"Insira o domínio aqui"</string>
     <string name="account_setup_exchange_ssl_label" msgid="6704105469083211236">"Usar conexão segura (SSL)"</string>
+    <!-- no translation found for account_setup_exchange_trust_certificates_label (6232880757633882678) -->
+    <skip />
     <string name="account_setup_options_title" msgid="8995162193118880993">"Opções da conta"</string>
     <string name="account_setup_options_mail_check_frequency_label" msgid="4598023962234986194">"Frequência de verificação de e-mail"</string>
     <string name="account_setup_options_mail_check_frequency_never" msgid="287951859480505416">"Nunca"</string>
@@ -189,8 +194,7 @@
     <string name="account_setup_options_mail_check_frequency_1hour" msgid="3767715356039692899">"De hora em hora"</string>
     <string name="account_setup_options_default_label" msgid="8869166381331276697">"Enviar e-mail desta conta por padrão."</string>
     <string name="account_setup_options_notify_label" msgid="1247525794828820038">"Receber notificação quando chegar um e-mail"</string>
-    <!-- no translation found for account_setup_options_sync_contacts_label (7467467090023434271) -->
-    <skip />
+    <string name="account_setup_options_sync_contacts_label" msgid="7467467090023434271">"Sincronizar contatos desta conta."</string>
     <string name="account_setup_failed_dlg_title" msgid="7827583313117521383">"A configuração não pode ser finalizada"</string>
     <string name="account_setup_options_mail_window_label" msgid="8764417340954006086">"Valor a ser sincronizado"</string>
     <string name="account_setup_options_mail_window_1day" msgid="3965715241135811407">"Um dia"</string>
@@ -222,6 +226,10 @@
     <string name="account_settings_description_label" msgid="8894815221204511715">"Nome da conta"</string>
     <string name="account_settings_name_label" msgid="8186406122590008449">"Seu nome"</string>
     <string name="account_settings_notifications" msgid="1042620094281375043">"Configurações de notificação"</string>
+    <!-- no translation found for account_settings_sync_contacts_enable (1369272986009573218) -->
+    <skip />
+    <!-- no translation found for account_settings_sync_contacts_summary (8901452720940015928) -->
+    <skip />
     <string name="account_settings_vibrate_enable" msgid="8045133290388856478">"Vibrar"</string>
     <string name="account_settings_vibrate_summary" msgid="3690631050585589365">"Vibrar também quando chegarem os e-mails"</string>
     <string name="account_settings_ringtone" msgid="7922187231467500404">"Selecionar toque"</string>
@@ -233,6 +241,5 @@
     <string name="provider_note_live" msgid="3584841823811425060">"Somente algumas contas \"Plus\" incluem o acesso POP permitindo que este programa seja conectado. Se não for possível fazer login com seu endereço de e-mail e senha corretos, você talvez não tenha uma conta \"Plus\" paga. Inicie o navegador da web para acessar estas contas de email."</string>
     <string name="provider_note_t_online" msgid="1973701903400232774">"Antes de configurar essa conta de e-mail, visite o site T-Online e crie uma senha para acessar email POP3."</string>
     <string name="exchange_name" msgid="4717956395304578039">"Exchange"</string>
-    <!-- no translation found for system_account_create_failed (4917162302393971752) -->
-    <skip />
+    <string name="system_account_create_failed" msgid="4917162302393971752">"O AccountManager não conseguiu criar a Conta. Tente novamente."</string>
 </resources>
