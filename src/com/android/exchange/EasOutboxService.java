@@ -129,6 +129,7 @@ public class EasOutboxService extends EasSyncService {
                 cmd += "&ItemId=" + URLEncoder.encode(itemId, "UTF-8") + "&CollectionId="
                     + URLEncoder.encode(collectionId, "UTF-8") + "&SaveInSent=T";
             }
+            userLog("Send cmd: " + cmd);
             HttpResponse resp = sendHttpClientPost(cmd, inputEntity);
 
             inputStream.close();
@@ -140,6 +141,7 @@ public class EasOutboxService extends EasSyncService {
                 result = EmailServiceStatus.SUCCESS;
                 sendCallback(-1, subject, EmailServiceStatus.SUCCESS);
             } else {
+                userLog("Message sending failed, code: " + code);
                 ContentValues cv = new ContentValues();
                 cv.put(SyncColumns.SERVER_ID, SEND_FAILED);
                 Message.update(mContext, Message.CONTENT_URI, msgId, cv);
@@ -196,6 +198,7 @@ public class EasOutboxService extends EasSyncService {
         } catch (IOException e) {
             mExitStatus = EXIT_IO_ERROR;
         } catch (Exception e) {
+            userLog("Exception caught in EasOutboxService", e);
             mExitStatus = EXIT_EXCEPTION;
         } finally {
             userLog(mMailbox.mDisplayName, ": sync finished");
