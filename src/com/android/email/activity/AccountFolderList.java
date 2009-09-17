@@ -753,6 +753,7 @@ public class AccountFolderList extends ListActivity
             countView.setPadding(2, 0, 2, 0);
 
             view.findViewById(R.id.folder_button).setVisibility(View.GONE);
+            view.findViewById(R.id.folder_separator).setVisibility(View.GONE);
             view.findViewById(R.id.folder_icon).setVisibility(View.VISIBLE);
             ((ImageView)view.findViewById(R.id.folder_icon)).setImageDrawable(
                     Utility.FolderProperties.getInstance(context).getIconIds(type));
@@ -814,6 +815,7 @@ public class AccountFolderList extends ListActivity
 
             view.findViewById(R.id.folder_icon).setVisibility(View.GONE);
             view.findViewById(R.id.folder_button).setVisibility(View.VISIBLE);
+            view.findViewById(R.id.folder_separator).setVisibility(View.VISIBLE);
         }
 
         @Override
