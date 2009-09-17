@@ -321,7 +321,7 @@ public class MailboxList extends ListActivity implements OnItemClickListener, On
                     MailboxList.this.mListAdapter.PROJECTION,
                     MAILBOX_SELECTION,
                     new String[] { String.valueOf(mAccountKey) },
-                    MailboxColumns.TYPE);
+                    MailboxColumns.TYPE + "," + MailboxColumns.DISPLAY_NAME);
         }
 
         @Override
