@@ -123,7 +123,7 @@ public class EasSyncService extends AbstractSyncService {
     // Reasonable default
     String mProtocolVersion = "2.5";
     public Double mProtocolVersionDouble;
-    private String mDeviceId = null;
+    protected String mDeviceId = null;
     private String mDeviceType = "Android";
     private String mAuthString = null;
     private String mCmdString = null;
@@ -417,9 +417,22 @@ public class EasSyncService extends AbstractSyncService {
     protected HttpResponse sendHttpClientPost(String cmd, HttpEntity entity, int timeout)
             throws IOException {
         HttpClient client = getHttpClient(timeout);
-        String us = makeUriString(cmd, null);
+
+        // Split the mail sending commands
+        String extra = null;
+        boolean msg = false;
+        if (cmd.startsWith("SmartForward&") || cmd.startsWith("SmartReply&")) {
+            int cmdLength = cmd.length() - 1;
+            extra = cmd.substring(cmdLength);
+            cmd = cmd.substring(0, cmdLength);
+            msg = true;
+        } else if (cmd.startsWith("SendMail&")) {
+            msg = true;
+        }
+
+        String us = makeUriString(cmd, extra);
         HttpPost method = new HttpPost(URI.create(us));
-        if (cmd.startsWith("SendMail&")) {
+        if (msg) {
             method.setHeader("Content-Type", "message/rfc822");
         } else {
             method.setHeader("Content-Type", "application/vnd.ms-sync.wbxml");
