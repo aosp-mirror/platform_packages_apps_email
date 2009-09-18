@@ -20,7 +20,6 @@
     android:layout_height="?android:attr/listPreferredItemHeight"
     android:orientation="horizontal"
     android:gravity="center_vertical"
-    android:paddingLeft="8dip"
     android:paddingRight="8dip">
     <View
         android:id="@+id/chip"
