@@ -36,6 +36,7 @@ import org.apache.commons.io.IOUtils;
 import android.app.Activity;
 import android.app.ProgressDialog;
 import android.content.ActivityNotFoundException;
+import android.content.ContentResolver;
 import android.content.Context;
 import android.content.Intent;
 import android.database.ContentObserver;
@@ -53,7 +54,9 @@ import android.os.Environment;
 import android.os.Handler;
 import android.provider.ContactsContract;
 import android.provider.ContactsContract.CommonDataKinds;
+import android.provider.ContactsContract.FastTrack;
 import android.provider.ContactsContract.Presence;
+import android.text.TextUtils;
 import android.text.util.Regex;
 import android.view.LayoutInflater;
 import android.view.Menu;
@@ -445,37 +448,45 @@ public class MessageView extends Activity implements OnClickListener {
         }
     }
 
-    private Rect getAbsoluteRect(View view) {
-        int[] location = new int[2];
-        view.getLocationOnScreen(location);
-        int x = location[0];
-        int y = location[1];
-        return new Rect(x, y, x + view.getWidth(), y + view.getHeight());
-    }
-
+    /**
+     * Handle clicks on sender, which shows {@link FastTrack} or prompts to add
+     * the sender as a contact.
+     */
     private void onClickSender() {
-        if (mMessage != null) {
-            Address senderEmail = Address.unpackFirst(mMessage.mFrom);
-            if (senderEmail != null) {
-                Uri contactUri = Uri.fromParts("mailto", senderEmail.getAddress(), null);
+        // Bail early if message or sender not present
+        if (mMessage == null) return;
 
-                Intent contactIntent = new Intent(ContactsContract.Intents.SHOW_OR_CREATE_CONTACT);
-                contactIntent.setData(contactUri);
+        final Address senderEmail = Address.unpackFirst(mMessage.mFrom);
+        if (senderEmail == null) return;
 
-                // Pass along full E-mail string for possible create dialog
-                contactIntent.putExtra(ContactsContract.Intents.EXTRA_CREATE_DESCRIPTION,
-                                       senderEmail.toString());
+        // First perform lookup query to find existing contact
+        final ContentResolver resolver = getContentResolver();
+        final String address = senderEmail.getAddress();
+        final Uri dataUri = Uri.withAppendedPath(CommonDataKinds.Email.CONTENT_FILTER_URI,
+                Uri.encode(address));
+        final Uri lookupUri = ContactsContract.Data.getContactLookupUri(resolver, dataUri);
 
-                // Only provide personal name hint if we have one
-                String senderPersonal = senderEmail.getPersonal();
-                if (senderPersonal != null) {
-                    contactIntent.putExtra(ContactsContract.Intents.Insert.NAME, senderPersonal);
-                }
+        if (lookupUri != null) {
+            // Found matching contact, trigger FastTrack
+            FastTrack.showFastTrack(this, mSenderPresenceView, lookupUri, FastTrack.MODE_MEDIUM,
+                    null);
+        } else {
+            // No matching contact, ask user to create one
+            final Uri mailUri = Uri.fromParts("mailto", address, null);
+            final Intent intent = new Intent(ContactsContract.Intents.SHOW_OR_CREATE_CONTACT,
+                    mailUri);
 
-                contactIntent.putExtra(ContactsContract.Intents.EXTRA_TARGET_RECT,
-                        getAbsoluteRect(mSenderPresenceView));
-                startActivity(contactIntent);
+            // Pass along full E-mail string for possible create dialog
+            intent.putExtra(ContactsContract.Intents.EXTRA_CREATE_DESCRIPTION,
+                    senderEmail.toString());
+
+            // Only provide personal name hint if we have one
+            final String senderPersonal = senderEmail.getPersonal();
+            if (!TextUtils.isEmpty(senderPersonal)) {
+                intent.putExtra(ContactsContract.Intents.Insert.NAME, senderPersonal);
             }
+
+            startActivity(intent);
         }
     }
 
