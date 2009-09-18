@@ -16,6 +16,7 @@
 
 package com.android.email;
 
+import com.android.email.mail.AuthenticationFailedException;
 import com.android.email.mail.MessagingException;
 import com.android.email.mail.Store;
 import com.android.email.provider.AttachmentProvider;
@@ -1022,7 +1023,7 @@ public class Controller {
 
         public void loadAttachmentStatus(long messageId, long attachmentId, int statusCode,
                 int progress) {
-            MessagingException result = null;
+            MessagingException result = mapStatusToException(statusCode);
             switch (statusCode) {
                 case EmailServiceStatus.SUCCESS:
                     progress = 100;
@@ -1037,9 +1038,6 @@ public class Controller {
                         return;
                     }
                     break;
-                default:
-                    result = new MessagingException(String.valueOf(statusCode));
-                break;
             }
             synchronized (mListeners) {
                 for (Result listener : mListeners) {
@@ -1055,7 +1053,7 @@ public class Controller {
         }
 
         public void syncMailboxListStatus(long accountId, int statusCode, int progress) {
-            MessagingException result= null;
+            MessagingException result = mapStatusToException(statusCode);
             switch (statusCode) {
                 case EmailServiceStatus.SUCCESS:
                     progress = 100;
@@ -1066,9 +1064,6 @@ public class Controller {
                         return;
                     }
                     break;
-                default:
-                    result = new MessagingException(String.valueOf(statusCode));
-                break;
             }
             synchronized(mListeners) {
                 for (Result listener : mListeners) {
@@ -1078,7 +1073,7 @@ public class Controller {
         }
 
         public void syncMailboxStatus(long mailboxId, int statusCode, int progress) {
-            MessagingException result= null;
+            MessagingException result = mapStatusToException(statusCode);
             switch (statusCode) {
                 case EmailServiceStatus.SUCCESS:
                     progress = 100;
@@ -1089,9 +1084,6 @@ public class Controller {
                         return;
                     }
                     break;
-                default:
-                    result = new MessagingException(String.valueOf(statusCode));
-                break;
             }
             // TODO where do we get "number of new messages" as well?
             // TODO should pass this back instead of looking it up here
@@ -1104,6 +1096,30 @@ public class Controller {
                 for (Result listener : mListeners) {
                     listener.updateMailboxCallback(result, accountId, mailboxId, progress, 0);
                 }
+            }
+        }
+
+        private MessagingException mapStatusToException(int statusCode) {
+            switch (statusCode) {
+                case EmailServiceStatus.SUCCESS:
+                case EmailServiceStatus.IN_PROGRESS:
+                    return null;
+
+                case EmailServiceStatus.LOGIN_FAILED:
+                    return new AuthenticationFailedException("");
+
+                case EmailServiceStatus.CONNECTION_ERROR:
+                    return new MessagingException(MessagingException.IOERROR);
+
+                case EmailServiceStatus.MESSAGE_NOT_FOUND:
+                case EmailServiceStatus.ATTACHMENT_NOT_FOUND:
+                case EmailServiceStatus.FOLDER_NOT_DELETED:
+                case EmailServiceStatus.FOLDER_NOT_RENAMED:
+                case EmailServiceStatus.FOLDER_NOT_CREATED:
+                case EmailServiceStatus.REMOTE_EXCEPTION:
+                    // TODO: define exception code(s) & UI string(s) for server-side errors
+                default:
+                    return new MessagingException(String.valueOf(statusCode));
             }
         }
     }

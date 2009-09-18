@@ -20,6 +20,8 @@ import com.android.email.Controller;
 import com.android.email.R;
 import com.android.email.Utility;
 import com.android.email.activity.setup.AccountSettings;
+import com.android.email.mail.AuthenticationFailedException;
+import com.android.email.mail.CertificateValidationException;
 import com.android.email.mail.MessagingException;
 import com.android.email.provider.EmailContent;
 import com.android.email.provider.EmailContent.Account;
@@ -46,6 +48,7 @@ import android.view.ViewGroup;
 import android.view.Window;
 import android.view.ContextMenu.ContextMenuInfo;
 import android.view.View.OnClickListener;
+import android.view.animation.AnimationUtils;
 import android.widget.AdapterView;
 import android.widget.CursorAdapter;
 import android.widget.ImageView;
@@ -62,9 +65,11 @@ public class MailboxList extends ListActivity implements OnItemClickListener, On
     private static final String MAILBOX_SELECTION = MailboxColumns.ACCOUNT_KEY + "=?"
         + " AND " + MailboxColumns.TYPE + "<" + Mailbox.TYPE_NOT_EMAIL
         + " AND " + MailboxColumns.FLAG_VISIBLE + "=1";
+
     // UI support
     private ListView mListView;
     private ProgressBar mProgressIcon;
+    private TextView mErrorBanner;
 
     private MailboxListAdapter mListAdapter;
     private MailboxListHandler mHandler = new MailboxListHandler();
@@ -119,10 +124,9 @@ public class MailboxList extends ListActivity implements OnItemClickListener, On
         getWindow().setFeatureInt(Window.FEATURE_CUSTOM_TITLE,
                 R.layout.list_title);
 
-        // Custom TItle
-        mProgressIcon = (ProgressBar) findViewById(R.id.title_progress_icon);
-
         mListView = getListView();
+        mProgressIcon = (ProgressBar) findViewById(R.id.title_progress_icon);
+        mErrorBanner = (TextView) findViewById(R.id.connection_error_text);
 
         mListView.setOnItemClickListener(this);
         mListView.setItemsCanFocus(false);
@@ -338,6 +342,7 @@ public class MailboxList extends ListActivity implements OnItemClickListener, On
      */
     class MailboxListHandler extends Handler {
         private static final int MSG_PROGRESS = 1;
+        private static final int MSG_ERROR_BANNER = 2;
 
         @Override
         public void handleMessage(android.os.Message msg) {
@@ -348,6 +353,26 @@ public class MailboxList extends ListActivity implements OnItemClickListener, On
                         mProgressIcon.setVisibility(View.VISIBLE);
                     } else {
                         mProgressIcon.setVisibility(View.GONE);
+                    }
+                    break;
+                case MSG_ERROR_BANNER:
+                    String message = (String) msg.obj;
+                    boolean isVisible = mErrorBanner.getVisibility() == View.VISIBLE;
+                    if (message != null) {
+                        mErrorBanner.setText(message);
+                        if (!isVisible) {
+                            mErrorBanner.setVisibility(View.VISIBLE);
+                            mErrorBanner.startAnimation(
+                                    AnimationUtils.loadAnimation(
+                                            MailboxList.this, R.anim.header_appear));
+                        }
+                    } else {
+                        if (isVisible) {
+                            mErrorBanner.setVisibility(View.GONE);
+                            mErrorBanner.startAnimation(
+                                    AnimationUtils.loadAnimation(
+                                            MailboxList.this, R.anim.header_disappear));
+                        }
                     }
                     break;
                 default:
@@ -365,6 +390,17 @@ public class MailboxList extends ListActivity implements OnItemClickListener, On
             msg.arg1 = progress ? 1 : 0;
             sendMessage(msg);
         }
+
+        /**
+         * Called from any thread to show or hide the connection error banner.
+         * @param message error text or null to hide the box
+         */
+        public void showErrorBanner(String message) {
+            android.os.Message msg = android.os.Message.obtain();
+            msg.what = MSG_ERROR_BANNER;
+            msg.obj = message;
+            sendMessage(msg);
+        }
     }
 
     /**
@@ -376,6 +412,7 @@ public class MailboxList extends ListActivity implements OnItemClickListener, On
         public void updateMailboxListCallback(MessagingException result, long accountKey,
                 int progress) {
             if (accountKey == mAccountId) {
+                updateBanner(result, progress);
                 updateProgress(result, progress);
             }
         }
@@ -384,6 +421,7 @@ public class MailboxList extends ListActivity implements OnItemClickListener, On
         public void updateMailboxCallback(MessagingException result, long accountKey,
                 long mailboxKey, int progress, int numNewMessages) {
             if (accountKey == mAccountId) {
+                updateBanner(result, progress);
                 updateProgress(result, progress);
             }
         }
@@ -403,6 +441,7 @@ public class MailboxList extends ListActivity implements OnItemClickListener, On
         public void sendMailCallback(MessagingException result, long accountId, long messageId,
                 int progress) {
             if (accountId == mAccountId) {
+                updateBanner(result, progress);
                 updateProgress(result, progress);
             }
         }
@@ -412,6 +451,44 @@ public class MailboxList extends ListActivity implements OnItemClickListener, On
                 mHandler.progress(false);
             } else if (progress == 0) {
                 mHandler.progress(true);
+            }
+        }
+
+        /**
+         * Show or hide the connection error banner, and convert the various MessagingException
+         * variants into localizable text.  There is hysteresis in the show/hide logic:  Once shown,
+         * the banner will remain visible until some progress is made on the connection.  The
+         * goal is to keep it from flickering during retries in a bad connection state.
+         *
+         * @param result
+         * @param progress
+         */
+        private void updateBanner(MessagingException result, int progress) {
+            if (result != null) {
+                int id = R.string.status_network_error;
+                if (result instanceof AuthenticationFailedException) {
+                    id = R.string.account_setup_failed_dlg_auth_message;
+                } else if (result instanceof CertificateValidationException) {
+                    id = R.string.account_setup_failed_dlg_certificate_message;
+                } else {
+                    switch (result.getExceptionType()) {
+                        case MessagingException.IOERROR:
+                            id = R.string.account_setup_failed_ioerror;
+                            break;
+                        case MessagingException.TLS_REQUIRED:
+                            id = R.string.account_setup_failed_tls_required;
+                            break;
+                        case MessagingException.AUTH_REQUIRED:
+                            id = R.string.account_setup_failed_auth_required;
+                            break;
+                        case MessagingException.GENERAL_SECURITY:
+                            id = R.string.account_setup_failed_security;
+                            break;
+                    }
+                }
+                mHandler.showErrorBanner(getString(id));
+            } else if (progress > 0) {
+                mHandler.showErrorBanner(null);
             }
         }
     }

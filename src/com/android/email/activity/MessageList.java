@@ -21,6 +21,8 @@ import com.android.email.Email;
 import com.android.email.R;
 import com.android.email.Utility;
 import com.android.email.activity.setup.AccountSettings;
+import com.android.email.mail.AuthenticationFailedException;
+import com.android.email.mail.CertificateValidationException;
 import com.android.email.mail.MessagingException;
 import com.android.email.provider.EmailContent;
 import com.android.email.provider.EmailContent.Account;
@@ -84,6 +86,7 @@ public class MessageList extends ListActivity implements OnItemClickListener, On
     private View mListFooterView;
     private TextView mListFooterText;
     private View mListFooterProgress;
+    private TextView mErrorBanner;
 
     private static final int LIST_FOOTER_MODE_NONE = 0;
     private static final int LIST_FOOTER_MODE_REFRESH = 1;
@@ -228,10 +231,10 @@ public class MessageList extends ListActivity implements OnItemClickListener, On
         mReadUnreadButton = (Button) findViewById(R.id.btn_read_unread);
         mFavoriteButton = (Button) findViewById(R.id.btn_multi_favorite);
         mDeleteButton = (Button) findViewById(R.id.btn_multi_delete);
-
         mLeftTitle = (TextView) findViewById(R.id.title_left_text);
         mRightTitle = (TextView) findViewById(R.id.title_right_text);
         mProgressIcon = (ProgressBar) findViewById(R.id.title_progress_icon);
+        mErrorBanner = (TextView) findViewById(R.id.connection_error_text);
 
         mReadUnreadButton.setOnClickListener(this);
         mFavoriteButton.setOnClickListener(this);
@@ -1055,6 +1058,7 @@ public class MessageList extends ListActivity implements OnItemClickListener, On
     class MessageListHandler extends Handler {
         private static final int MSG_PROGRESS = 1;
         private static final int MSG_LOOKUP_MAILBOX_TYPE = 2;
+        private static final int MSG_ERROR_BANNER = 3;
 
         @Override
         public void handleMessage(android.os.Message msg) {
@@ -1083,6 +1087,26 @@ public class MessageList extends ListActivity implements OnItemClickListener, On
                     int mailboxType = msg.arg1;
                     mFindMailboxTask = new FindMailboxTask(accountId, mailboxType, false);
                     mFindMailboxTask.execute();
+                    break;
+                case MSG_ERROR_BANNER:
+                    String message = (String) msg.obj;
+                    boolean isVisible = mErrorBanner.getVisibility() == View.VISIBLE;
+                    if (message != null) {
+                        mErrorBanner.setText(message);
+                        if (!isVisible) {
+                            mErrorBanner.setVisibility(View.VISIBLE);
+                            mErrorBanner.startAnimation(
+                                    AnimationUtils.loadAnimation(
+                                            MessageList.this, R.anim.header_appear));
+                        }
+                    } else {
+                        if (isVisible) {
+                            mErrorBanner.setVisibility(View.GONE);
+                            mErrorBanner.startAnimation(
+                                    AnimationUtils.loadAnimation(
+                                            MessageList.this, R.anim.header_disappear));
+                        }
+                    }
                     break;
                 default:
                     super.handleMessage(msg);
@@ -1114,6 +1138,17 @@ public class MessageList extends ListActivity implements OnItemClickListener, On
             msg.obj = Long.valueOf(accountId);
             sendMessage(msg);
         }
+
+        /**
+         * Called from any thread to show or hide the connection error banner.
+         * @param message error text or null to hide the box
+         */
+        public void showErrorBanner(String message) {
+            android.os.Message msg = android.os.Message.obtain();
+            msg.what = MSG_ERROR_BANNER;
+            msg.obj = message;
+            sendMessage(msg);
+        }
     }
 
     /**
@@ -1121,23 +1156,26 @@ public class MessageList extends ListActivity implements OnItemClickListener, On
      */
     private class ControllerResults implements Controller.Result {
 
+        // This is used to alter the connection banner operation for sending messages
+        MessagingException mSendMessageException;
+
         // These are preset for use by updateMailboxListCallback
         int mWaitForMailboxType = -1;
 
-        // TODO report errors into UI
         // TODO check accountKey and only react to relevant notifications
         public void updateMailboxListCallback(MessagingException result, long accountKey,
                 int progress) {
+            // no updateBanner here, we are only listing a single mailbox
             updateProgress(result, progress);
             if (progress == 100) {
                 mHandler.lookupMailboxType(accountKey, mWaitForMailboxType);
             }
         }
 
-        // TODO report errors into UI
         // TODO check accountKey and only react to relevant notifications
         public void updateMailboxCallback(MessagingException result, long accountKey,
                 long mailboxKey, int progress, int numNewMessages) {
+            updateBanner(result, progress, mailboxKey);
             if (result != null || progress == 100) {
                 Email.updateMailboxRefreshTime(mMailboxId);
             }
@@ -1156,10 +1194,30 @@ public class MessageList extends ListActivity implements OnItemClickListener, On
                 long mailboxId, int progress, long tag) {
         }
 
-        // TODO report errors into UI
+        /**
+         * We alter the updateBanner hysteresis here to capture any failures and handle
+         * them just once at the end.  This callback is overly overloaded:
+         *  result == null, messageId == -1, progress == 0:     start batch send
+         *  result == null, messageId == xx, progress == 0:     start sending one message
+         *  result == xxxx, messageId == xx, progress == 0;     failed sending one message
+         *  result == null, messageId == -1, progres == 100;    finish sending batch
+         */
         public void sendMailCallback(MessagingException result, long accountId, long messageId,
                 int progress) {
             if (mListFooterMode == LIST_FOOTER_MODE_SEND) {
+                // reset captured error when we start sending one or more messages
+                if (messageId == -1 && result == null && progress == 0) {
+                    mSendMessageException = null;
+                }
+                // capture first exception that comes along
+                if (result != null && mSendMessageException == null) {
+                    mSendMessageException = result;
+                }
+                // if we're completing the sequence, change the banner state
+                if (messageId == -1 && progress == 100) {
+                    updateBanner(mSendMessageException, progress, mMailboxId);
+                }
+                // always update the spinner, which has less state to worry about
                 updateProgress(result, progress);
             }
         }
@@ -1169,6 +1227,47 @@ public class MessageList extends ListActivity implements OnItemClickListener, On
                 mHandler.progress(false);
             } else if (progress == 0) {
                 mHandler.progress(true);
+            }
+        }
+
+        /**
+         * Show or hide the connection error banner, and convert the various MessagingException
+         * variants into localizable text.  There is hysteresis in the show/hide logic:  Once shown,
+         * the banner will remain visible until some progress is made on the connection.  The
+         * goal is to keep it from flickering during retries in a bad connection state.
+         *
+         * @param result
+         * @param progress
+         */
+        private void updateBanner(MessagingException result, int progress, long mailboxKey) {
+            if (mailboxKey != mMailboxId) {
+                return;
+            }
+            if (result != null) {
+                int id = R.string.status_network_error;
+                if (result instanceof AuthenticationFailedException) {
+                    id = R.string.account_setup_failed_dlg_auth_message;
+                } else if (result instanceof CertificateValidationException) {
+                    id = R.string.account_setup_failed_dlg_certificate_message;
+                } else {
+                    switch (result.getExceptionType()) {
+                        case MessagingException.IOERROR:
+                            id = R.string.account_setup_failed_ioerror;
+                            break;
+                        case MessagingException.TLS_REQUIRED:
+                            id = R.string.account_setup_failed_tls_required;
+                            break;
+                        case MessagingException.AUTH_REQUIRED:
+                            id = R.string.account_setup_failed_auth_required;
+                            break;
+                        case MessagingException.GENERAL_SECURITY:
+                            id = R.string.account_setup_failed_security;
+                            break;
+                    }
+                }
+                mHandler.showErrorBanner(getString(id));
+            } else if (progress > 0) {
+                mHandler.showErrorBanner(null);
             }
         }
     }
