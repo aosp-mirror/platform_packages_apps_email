@@ -24,4 +24,5 @@
     android:accountType="com.android.exchange"
     android:icon="@drawable/ic_exchange_accounts"
     android:label="@string/exchange_name"
+    android:accountPreferences="@xml/account_preferences"
 />

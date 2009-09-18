@@ -453,6 +453,8 @@
     <string name="account_settings_default_summary">Send email from this account by default</string>
     <!-- On Settings screen, setting option name -->
     <string name="account_settings_notify_label">Email notifications</string>
+    <!-- On Settings screen, summary line when called via AccountManager for Exchange accounts -->
+    <string name="account_settings_exchange_summary">Sync frequency, notifications, etc.</string>
     <!-- On Settings screen, setting summary text -->
     <string name="account_settings_notify_summary">Notify in status bar when email arrives</string>
     <!-- On Settings screen, setting option name and title of dialog box that opens -->
