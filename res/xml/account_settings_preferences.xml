@@ -95,11 +95,6 @@
             android:defaultValue="true"
             android:title="@string/account_settings_sync_contacts_enable"
             android:summary="@string/account_settings_sync_contacts_summary" />
-
-        <PreferenceScreen
-            android:key="add_account"
-            android:title="@string/account_settings_add_account_label" />
-
     </PreferenceCategory>
 
 </PreferenceScreen>
