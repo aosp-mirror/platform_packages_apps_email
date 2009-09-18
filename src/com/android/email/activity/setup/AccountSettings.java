@@ -94,7 +94,7 @@ public class AccountSettings extends PreferenceActivity {
         super.onCreate(savedInstanceState);
 
         Intent i = getIntent();
-        if (i.getAction().equals(ACTION_ACCOUNT_MANAGER_ENTRY)) {
+        if (ACTION_ACCOUNT_MANAGER_ENTRY.equals(i.getAction())) {
             // This case occurs if we're changing account settings from Settings -> Accounts
             setAccountIdFromAccountManagerIntent();
         } else {
