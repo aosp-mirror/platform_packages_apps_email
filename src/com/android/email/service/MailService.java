@@ -50,7 +50,7 @@ public class MailService extends Service {
     /** DO NOT CHECK IN "TRUE" */
     private static final boolean DEBUG_FORCE_QUICK_REFRESH = false;     // force 1-minute refresh
     /** DO NOT CHECK IN "TRUE" */
-    private static final boolean DEBUG_TAG_ALL_INTENTS = true;         // add tagging to intents
+    private static final boolean DEBUG_TAG_ALL_INTENTS = false;         // add tagging to intents
 
     private static final String LOG_TAG = "Email-MailService";
 
