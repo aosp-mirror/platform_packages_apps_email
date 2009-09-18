@@ -294,8 +294,8 @@ public class AccountSettings extends PreferenceActivity {
                     mSyncContacts.isChecked());
 
             AccountSettingsUtils.commitSettings(this, mAccount);
-            Email.setServicesEnabled(this);
         }
+        Email.setServicesEnabled(this);
     }
 
     @Override
