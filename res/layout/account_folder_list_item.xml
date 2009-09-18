@@ -71,7 +71,7 @@
     </LinearLayout>
     <View
         android:id="@+id/folder_separator"
-        android:background="@color/account_folder_list_item_background_read"
+        android:background="@color/account_folder_list_item_background_separator"
         android:layout_width="0.5dip"
         android:layout_height="40dip"
         android:layout_marginLeft="5dip" />
