@@ -1789,6 +1789,8 @@ public class MessagingController implements Runnable {
                 return;
             }
             // 3. do one-time setup of the Sender & other stuff
+            mListeners.sendPendingMessagesStarted(account.mId, -1);
+
             Sender sender = Sender.getInstance(mContext, account.getSenderUri(mContext));
             Store remoteStore = Store.getInstance(account.getStoreUri(mContext), mContext, null);
             boolean requireMoveMessageToSentFolder = remoteStore.requireCopyMessageToSentFolder();
