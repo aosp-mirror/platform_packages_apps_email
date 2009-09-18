@@ -48,7 +48,10 @@ import java.util.HashMap;
  */
 public class MailService extends Service {
     /** DO NOT CHECK IN "TRUE" */
-    private static final boolean DEBUG_FORCE_QUICK_REFRESH = false;        // force 1-minute refresh
+    private static final boolean DEBUG_FORCE_QUICK_REFRESH = false;     // force 1-minute refresh
+    /** DO NOT CHECK IN "TRUE" */
+    private static final boolean DEBUG_TAG_ALL_INTENTS = true;         // add tagging to intents
+
     private static final String LOG_TAG = "Email-MailService";
 
     public static int NEW_MESSAGE_NOTIFICATION_ID = 1;
@@ -64,12 +67,17 @@ public class MailService extends Service {
 
     private static final String EXTRA_CHECK_ACCOUNT = "com.android.email.intent.extra.ACCOUNT";
     private static final String EXTRA_ACCOUNT_INFO = "com.android.email.intent.extra.ACCOUNT_INFO";
+    private static final String EXTRA_DEBUG_TAG = "com.android.email.intent.extra.TAG";
+    private static final String EXTRA_DEBUG_WATCHDOG = "com.android.email.intent.extra.WATCHDOG";
+
+    private static final int WATCHDOG_DELAY = 10 * 60 * 1000;   // 10 minutes
 
     private static final String[] NEW_MESSAGE_COUNT_PROJECTION =
         new String[] {AccountColumns.NEW_MESSAGE_COUNT};
 
     private Controller.Result mControllerCallback = new ControllerResults();
 
+    private static int sDebugIntentTag = 1;
     private int mStartId;
 
     /**
@@ -155,22 +163,39 @@ public class MailService extends Service {
         Controller controller = Controller.getInstance(getApplication());
         controller.addResultCallback(mControllerCallback);
 
+        if (DEBUG_TAG_ALL_INTENTS) {
+            int tag = intent.getIntExtra(EXTRA_DEBUG_TAG, -1);
+            if (tag == -1) {
+                Log.d(LOG_TAG, "Intent Has No Tag");
+            } else {
+                Log.d(LOG_TAG, "Received intent tag=" + Integer.toString(tag));
+            }
+            if (intent.getBooleanExtra(EXTRA_DEBUG_WATCHDOG, false)) {
+                Log.d(LOG_TAG, "Received watchdog wakeup");
+            }
+        }
+
         if (ACTION_CHECK_MAIL.equals(action)) {
             // If we have the data, restore the last-sync-times for each account
             // These are cached in the wakeup intent in case the process was killed.
             restoreSyncReports(intent);
 
             // Sync a specific account if given
+            AlarmManager alarmManager = (AlarmManager)getSystemService(Context.ALARM_SERVICE);
             long checkAccountId = intent.getLongExtra(EXTRA_CHECK_ACCOUNT, -1);
             if (Config.LOGD && Email.DEBUG) {
                 Log.d(LOG_TAG, "action: check mail for id=" + checkAccountId);
             }
-            if (checkAccountId != -1) {
-                // launch an account sync in the controller
-                syncOneAccount(controller, checkAccountId, startId);
-            } else {
+            if (checkAccountId >= 0) {
+                setWatchdog(checkAccountId, alarmManager);
+            }
+            // if no account given, or the given account cannot be synced - reschedule
+            if (checkAccountId == -1 || !syncOneAccount(controller, checkAccountId, startId)) {
+                // Prevent runaway on the current account by pretending it updated
+                if (checkAccountId != -1) {
+                    updateAccountReport(checkAccountId, 0);
+                }
                 // Find next account to sync, and reschedule
-                AlarmManager alarmManager = (AlarmManager)getSystemService(Context.ALARM_SERVICE);
                 reschedule(alarmManager);
                 stopSelf(startId);
             }
@@ -186,6 +211,17 @@ public class MailService extends Service {
             if (Config.LOGD && Email.DEBUG) {
                 Log.d(LOG_TAG, "action: reschedule");
             }
+            // As a precaution, clear any outstanding Email notifications
+            // We could be smarter and only do this when the list of accounts changes,
+            // but that's an edge condition and this is much safer.
+            NotificationManager notificationManager =
+                (NotificationManager) getSystemService(Context.NOTIFICATION_SERVICE);
+            notificationManager.cancel(NEW_MESSAGE_NOTIFICATION_ID);
+
+            // When called externally, we refresh the sync reports table to pick up
+            // any changes in the account list or account settings
+            refreshSyncReports();
+            // Finally, scan for the next needing update, and set an alarm for it
             AlarmManager alarmManager = (AlarmManager)getSystemService(Context.ALARM_SERVICE);
             reschedule(alarmManager);
             stopSelf(startId);
@@ -217,10 +253,11 @@ public class MailService extends Service {
             stopSelf(startId);
         }
         
-        // If we get killed will syncing, have the intent sent to us again.
-        // Evetually we should change to schedule the next alarm in this
-        // function, and return START_NOT_STICK from here.
-        return START_REDELIVER_INTENT;
+        // Returning START_NOT_STICKY means that if a mail check is killed (e.g. due to memory
+        // pressure, there will be no explicit restart.  This is OK;  Note that we set a watchdog
+        // alarm before each mailbox check.  If the mailbox check never completes, the watchdog
+        // will fire and get things running again.
+        return START_NOT_STICKY;
     }
 
     @Override
@@ -236,8 +273,35 @@ public class MailService extends Service {
 
     private void cancel() {
         AlarmManager alarmMgr = (AlarmManager)getSystemService(Context.ALARM_SERVICE);
-        PendingIntent pi = createAlarmIntent(-1, null);
+        PendingIntent pi = createAlarmIntent(-1, null, false);
         alarmMgr.cancel(pi);
+    }
+
+    /**
+     * Refresh the sync reports, to pick up any changes in the account list or account settings.
+     */
+    private void refreshSyncReports() {
+        synchronized (mSyncReports) {
+            // Make shallow copy of sync reports so we can recover the prev sync times
+            HashMap<Long,AccountSyncReport> oldSyncReports =
+                new HashMap<Long,AccountSyncReport>(mSyncReports);
+
+            // Delete the sync reports to force a refresh from live account db data
+            mSyncReports.clear();
+            setupSyncReportsLocked(-1);
+
+            // Restore prev-sync & next-sync times for any reports in the new list
+            for (AccountSyncReport newReport : mSyncReports.values()) {
+                AccountSyncReport oldReport = oldSyncReports.get(newReport.accountId);
+                if (oldReport != null) {
+                    newReport.prevSyncTime = oldReport.prevSyncTime;
+                    if (newReport.syncInterval > 0 && newReport.prevSyncTime != 0) {
+                        newReport.nextSyncTime =
+                            newReport.prevSyncTime + (newReport.syncInterval * 1000 * 60);
+                    }
+                }
+            }
+        }
     }
 
     /**
@@ -262,13 +326,15 @@ public class MailService extends Service {
                 if (report.syncInterval <= 0) {                         // no timed checks - skip
                     continue;
                 }
+                long prevSyncTime = report.prevSyncTime;
+                long nextSyncTime = report.nextSyncTime;
+
                 // select next account to sync
-                if ((report.prevSyncTime == 0)                          // never checked
-                        || (report.nextSyncTime < timeNow)) {           // overdue
+                if ((prevSyncTime == 0) || (nextSyncTime < timeNow)) {  // never checked, or overdue
                     nextCheckTime = 0;
                     nextAccount = report;
-                } else if (report.nextSyncTime < nextCheckTime) {       // next to be checked
-                    nextCheckTime = report.nextSyncTime;
+                } else if (nextSyncTime < nextCheckTime) {              // next to be checked
+                    nextCheckTime = nextSyncTime;
                     nextAccount = report;
                 }
                 // collect last-sync-times for all accounts
@@ -277,9 +343,14 @@ public class MailService extends Service {
                 accountInfo[accountInfoIndex++] = report.prevSyncTime;
             }
 
+            // Clear out any unused elements in the array
+            while (accountInfoIndex < accountInfo.length) {
+                accountInfo[accountInfoIndex++] = -1;
+            }
+
             // set/clear alarm as needed
             long idToCheck = (nextAccount == null) ? -1 : nextAccount.accountId;
-            PendingIntent pi = createAlarmIntent(idToCheck, accountInfo);
+            PendingIntent pi = createAlarmIntent(idToCheck, accountInfo, false);
 
             if (nextAccount == null) {
                 alarmMgr.cancel(pi);
@@ -297,29 +368,59 @@ public class MailService extends Service {
     }
 
     /**
+     * Create a watchdog alarm and set it.  This is used in case a mail check fails (e.g. we are
+     * killed by the system due to memory pressure.)  Normally, a mail check will complete and
+     * the watchdog will be replaced by the call to reschedule().
+     * @param accountId the account we were trying to check
+     * @param alarmMgr system alarm manager
+     */
+    private void setWatchdog(long accountId, AlarmManager alarmMgr) {
+        PendingIntent pi = createAlarmIntent(accountId, null, true);
+        long timeNow = SystemClock.elapsedRealtime();
+        long nextCheckTime = timeNow + WATCHDOG_DELAY;
+        alarmMgr.set(AlarmManager.ELAPSED_REALTIME_WAKEUP, nextCheckTime, pi);
+    }
+
+    /**
      * Return a pending intent for use by this alarm.  Most of the fields must be the same
      * (in order for the intent to be recognized by the alarm manager) but the extras can
      * be different, and are passed in here as parameters.
      */
-    /* package */ PendingIntent createAlarmIntent(long checkId, long[] accountInfo) {
+    /* package */ PendingIntent createAlarmIntent(long checkId, long[] accountInfo,
+            boolean isWatchdog) {
         Intent i = new Intent();
         i.setClassName("com.android.email", "com.android.email.service.MailService");
         i.setAction(ACTION_CHECK_MAIL);
         i.putExtra(EXTRA_CHECK_ACCOUNT, checkId);
         i.putExtra(EXTRA_ACCOUNT_INFO, accountInfo);
-        PendingIntent pi = PendingIntent.getService(this, 0, i, 0);
+        if (DEBUG_TAG_ALL_INTENTS) {
+            synchronized (this) {
+                Log.d(LOG_TAG, "Make pendingintent with tag=" + Integer.toString(sDebugIntentTag));
+                i.putExtra(EXTRA_DEBUG_TAG, sDebugIntentTag++);
+            }
+        }
+        if (isWatchdog) {
+            i.putExtra(EXTRA_DEBUG_WATCHDOG, true);
+        }
+        PendingIntent pi = PendingIntent.getService(this, 0, i, PendingIntent.FLAG_UPDATE_CURRENT);
         return pi;
     }
 
     /**
      * Start a controller sync for a specific account
+     *
+     * @param controller The controller to do the sync work
+     * @param checkAccountId the account Id to try and check
+     * @param startId the id of this service launch
+     * @return true if mail checking has started, false if it could not (e.g. bad account id)
      */
-    private void syncOneAccount(Controller controller, long checkAccountId, int startId) {
+    private boolean syncOneAccount(Controller controller, long checkAccountId, int startId) {
         long inboxId = Mailbox.findMailboxOfType(this, checkAccountId, Mailbox.TYPE_INBOX);
         if (inboxId == Mailbox.NO_MAILBOX) {
-            // no inbox??  sync mailboxes
+            return false;
         } else {
             controller.serviceCheckMail(checkAccountId, inboxId, startId, mControllerCallback);
+            return true;
         }
     }
 
@@ -359,71 +460,78 @@ public class MailService extends Service {
             Log.d(LOG_TAG, "setupSyncReports: id=" + accountId);
         }
         synchronized (mSyncReports) {
-            if (accountId == -1) {
-                // -1 == reload the list if empty, otherwise exit immediately
-                if (mSyncReports.size() > 0) {
-                    return;
+            setupSyncReportsLocked(accountId);
+        }
+    }
+
+    /**
+     * Handle the work of setupSyncReports.  Must be synchronized on mSyncReports.
+     */
+    private void setupSyncReportsLocked(long accountId) {
+        if (accountId == -1) {
+            // -1 == reload the list if empty, otherwise exit immediately
+            if (mSyncReports.size() > 0) {
+                return;
+            }
+        } else {
+            // load a single account if it doesn't already have a sync record
+            if (mSyncReports.containsKey(accountId)) {
+                return;
+            }
+        }
+
+        // setup to add a single account or all accounts
+        Uri uri;
+        if (accountId == -1) {
+            uri = Account.CONTENT_URI;
+        } else {
+            uri = ContentUris.withAppendedId(Account.CONTENT_URI, accountId);
+        }
+
+        // TODO use a narrower projection here
+        Cursor c = getContentResolver().query(uri, Account.CONTENT_PROJECTION,
+                null, null, null);
+        try {
+            while (c.moveToNext()) {
+                AccountSyncReport report = new AccountSyncReport();
+                int syncInterval = c.getInt(Account.CONTENT_SYNC_INTERVAL_COLUMN);
+                int flags = c.getInt(Account.CONTENT_FLAGS_COLUMN);
+                String ringtoneString = c.getString(Account.CONTENT_RINGTONE_URI_COLUMN);
+
+                // For debugging only
+                if (DEBUG_FORCE_QUICK_REFRESH && syncInterval >= 0) {
+                    syncInterval = 1;
                 }
-            } else {
-                // load a single account if it doesn't already have a sync record
-                if (mSyncReports.containsKey(accountId)) {
-                    return;
+
+                report.accountId = c.getLong(Account.CONTENT_ID_COLUMN);
+                report.prevSyncTime = 0;
+                report.nextSyncTime = (syncInterval > 0) ? 0 : -1;  // 0 == ASAP -1 == no sync
+                report.numNewMessages = 0;
+
+                report.syncInterval = syncInterval;
+                report.notify = (flags & Account.FLAGS_NOTIFY_NEW_MAIL) != 0;
+                report.vibrate = (flags & Account.FLAGS_VIBRATE) != 0;
+                report.ringtoneUri = (ringtoneString == null) ? null
+                        : Uri.parse(ringtoneString);
+
+                report.displayName = c.getString(Account.CONTENT_DISPLAY_NAME_COLUMN);
+
+                // TODO lookup # new in inbox
+                mSyncReports.put(report.accountId, report);
+
+                if (Config.LOGD && Email.DEBUG) {
+                    Log.d(LOG_TAG, "setupSyncReports: new:" + report);
                 }
             }
-
-            // setup to add a single account or all accounts
-            Uri uri;
-            if (accountId == -1) {
-                uri = Account.CONTENT_URI;
-            } else {
-                uri = ContentUris.withAppendedId(Account.CONTENT_URI, accountId);
-            }
-
-            // TODO use a narrower projection here
-            Cursor c = getContentResolver().query(uri, Account.CONTENT_PROJECTION,
-                    null, null, null);
-            try {
-                while (c.moveToNext()) {
-                    AccountSyncReport report = new AccountSyncReport();
-                    int syncInterval = c.getInt(Account.CONTENT_SYNC_INTERVAL_COLUMN);
-                    int flags = c.getInt(Account.CONTENT_FLAGS_COLUMN);
-                    String ringtoneString = c.getString(Account.CONTENT_RINGTONE_URI_COLUMN);
-
-                    // For debugging only
-                    if (DEBUG_FORCE_QUICK_REFRESH && syncInterval >= 0) {
-                        syncInterval = 1;
-                    }
-
-                    report.accountId = c.getLong(Account.CONTENT_ID_COLUMN);
-                    report.prevSyncTime = 0;
-                    report.nextSyncTime = (syncInterval > 0) ? 0 : -1;  // 0 == ASAP -1 == no sync
-                    report.numNewMessages = 0;
-
-                    report.syncInterval = syncInterval;
-                    report.notify = (flags & Account.FLAGS_NOTIFY_NEW_MAIL) != 0;
-                    report.vibrate = (flags & Account.FLAGS_VIBRATE) != 0;
-                    report.ringtoneUri = (ringtoneString == null) ? null
-                                                                  : Uri.parse(ringtoneString);
-
-                    report.displayName = c.getString(Account.CONTENT_DISPLAY_NAME_COLUMN);
-
-                    // TODO lookup # new in inbox
-                    mSyncReports.put(report.accountId, report);
-
-                    if (Config.LOGD && Email.DEBUG) {
-                        Log.d(LOG_TAG, "setupSyncReports: new:" + report);
-                    }
-                }
-            } finally {
-                c.close();
-            }
+        } finally {
+            c.close();
         }
     }
 
     /**
      * Update list with a single account's sync times and unread count
      *
-     * @param accountId the account being udpated
+     * @param accountId the account being updated
      * @param newCount the number of new messages, or -1 if not being reported (don't update)
      * @return the report for the updated account, or null if it doesn't exist (e.g. deleted)
      */
@@ -478,6 +586,11 @@ public class MailService extends Service {
                 if (report != null) {
                     if (report.prevSyncTime == 0) {
                         report.prevSyncTime = prevSync;
+                        if (report.syncInterval > 0 && report.prevSyncTime != 0) {
+                            report.nextSyncTime =
+                                report.prevSyncTime + (report.syncInterval * 1000 * 60);
+                        }
+
                         if (Config.LOGD && Email.DEBUG) {
                             Log.d(LOG_TAG, "restore prev sync for account" + report);
                         }
@@ -503,15 +616,21 @@ public class MailService extends Service {
                 Log.d(LOG_TAG, "updateMailboxCallback result=" + result
                         + " accountId=" + accountId);
             }
-            if (result == null) {
-                updateAccountReport(accountId, numNewMessages);
-                if (numNewMessages > 0) {
-                    notifyNewMessages(accountId);
-                }
-            } else {
-                updateAccountReport(accountId, -1);
-            }
             if (result != null || progress == 100) {
+                // We only track the inbox here in the service - ignore other mailboxes
+                long inboxId = Mailbox.findMailboxOfType(MailService.this,
+                        accountId, Mailbox.TYPE_INBOX);
+                if (mailboxId == inboxId) {
+                    if (progress == 100) {
+                        updateAccountReport(accountId, numNewMessages);
+                        if (numNewMessages > 0) {
+                            notifyNewMessages(accountId);
+                        }
+                    } else {
+                        updateAccountReport(accountId, -1);
+                    }
+                }
+                // Call the global refresh tracker for all mailboxes
                 Email.updateMailboxRefreshTime(mailboxId);
             }
         }
@@ -526,7 +645,12 @@ public class MailService extends Service {
                 Log.d(LOG_TAG, "serviceCheckMailCallback result=" + result
                         + " accountId=" + accountId + " progress=" + progress);
             }
-            if (progress == 100) {
+            if (result != null || progress == 100) {
+                if (result != null) {
+                    // the checkmail ended in an error.  force an update of the refresh
+                    // time, so we don't just spin on this account
+                    updateAccountReport(accountId, -1);
+                }
                 AlarmManager alarmManager = (AlarmManager)getSystemService(Context.ALARM_SERVICE);
                 reschedule(alarmManager);
                 int serviceId = MailService.this.mStartId;
