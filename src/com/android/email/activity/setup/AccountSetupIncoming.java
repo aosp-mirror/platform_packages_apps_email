@@ -46,16 +46,16 @@ public class AccountSetupIncoming extends Activity implements OnClickListener {
     private static final String EXTRA_MAKE_DEFAULT = "makeDefault";
 
     private static final int popPorts[] = {
-            110, 995, 995, 110, 110
+            110, 995, 110
     };
     private static final String popSchemes[] = {
-            "pop3", "pop3+ssl", "pop3+ssl+", "pop3+tls", "pop3+tls+"
+            "pop3", "pop3+ssl+", "pop3+tls+"
     };
     private static final int imapPorts[] = {
-            143, 993, 993, 143, 143
+            143, 993, 143
     };
     private static final String imapSchemes[] = {
-            "imap", "imap+ssl", "imap+ssl+", "imap+tls", "imap+tls+"
+            "imap", "imap+ssl+", "imap+tls+"
     };
 
     private final static int DIALOG_DUPLICATE_ACCOUNT = 1;
@@ -109,13 +109,9 @@ public class AccountSetupIncoming extends Activity implements OnClickListener {
         mNextButton.setOnClickListener(this);
 
         SpinnerOption securityTypes[] = {
-                new SpinnerOption(0, getString(R.string.account_setup_incoming_security_none_label)),
-                new SpinnerOption(1,
-                        getString(R.string.account_setup_incoming_security_ssl_optional_label)),
-                new SpinnerOption(2, getString(R.string.account_setup_incoming_security_ssl_label)),
-                new SpinnerOption(3,
-                        getString(R.string.account_setup_incoming_security_tls_optional_label)),
-                new SpinnerOption(4, getString(R.string.account_setup_incoming_security_tls_label)),
+            new SpinnerOption(0, getString(R.string.account_setup_incoming_security_none_label)),
+            new SpinnerOption(1, getString(R.string.account_setup_incoming_security_ssl_label)),
+            new SpinnerOption(2, getString(R.string.account_setup_incoming_security_tls_label)),
         };
 
         SpinnerOption deletePolicies[] = {
