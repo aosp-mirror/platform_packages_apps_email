@@ -25,7 +25,7 @@
         android:id="@+id/chip"
         android:background="@drawable/appointment_indicator_leftside_1"
         android:layout_width="4dip"
-        android:layout_height="56dip"
+        android:layout_height="fill_parent"
         android:layout_centerVertical="true" />
     <ImageView
         android:id="@+id/folder_icon"
@@ -69,13 +69,17 @@
             android:layout_marginLeft="4dip"
             style="@style/unreadCount"/>
     </LinearLayout>
+    <View
+        android:id="@+id/folder_separator"
+        android:background="@color/account_folder_list_item_background_read"
+        android:layout_width="0.5dip"
+        android:layout_height="40dip"
+        android:layout_marginLeft="5dip" />
     <ImageView
         android:id="@+id/folder_button"
         android:layout_width="40dip"
         android:layout_height="40dip"
         android:layout_alignParentRight="true"
-        android:layout_marginLeft="4dip"
-        android:layout_marginRight="4dip"
         android:minWidth="30dip"
         android:paddingTop="5dip"
         android:paddingLeft="5dip"
