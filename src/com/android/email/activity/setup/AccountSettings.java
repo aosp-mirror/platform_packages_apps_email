@@ -22,13 +22,16 @@ import com.android.email.mail.MessagingException;
 import com.android.email.mail.Sender;
 import com.android.email.mail.Store;
 import com.android.email.provider.EmailContent.Account;
+import com.android.email.provider.EmailContent.AccountColumns;
 import com.android.email.provider.EmailContent.HostAuth;
+import com.android.email.provider.EmailContent.HostAuthColumns;
 import com.android.exchange.Eas;
 
 import android.app.Activity;
 import android.content.ContentResolver;
 import android.content.Intent;
 import android.content.SharedPreferences;
+import android.database.Cursor;
 import android.os.Bundle;
 import android.preference.CheckBoxPreference;
 import android.preference.EditTextPreference;
@@ -42,8 +45,6 @@ import android.util.Log;
 import android.view.KeyEvent;
 
 public class AccountSettings extends PreferenceActivity {
-    private static final String EXTRA_ACCOUNT_ID = "account_id";
-
     private static final String PREFERENCE_TOP_CATEGORY = "account_settings";
     private static final String PREFERENCE_DESCRIPTION = "account_description";
     private static final String PREFERENCE_NAME = "account_name";
@@ -55,10 +56,17 @@ public class AccountSettings extends PreferenceActivity {
     private static final String PREFERENCE_SERVER_CATERGORY = "account_servers";
     private static final String PREFERENCE_INCOMING = "incoming";
     private static final String PREFERENCE_OUTGOING = "outgoing";
-    private static final String PREFERENCE_ADD_ACCOUNT = "add_account";
     private static final String PREFERENCE_SYNC_CONTACTS = "account_sync_contacts";
 
-    private long mAccountId;
+    // NOTE: This string must match the one in res/xml/account_preferences.xml
+    public static final String ACTION_ACCOUNT_MANAGER_ENTRY = 
+        "com.android.email.activity.setup.ACCOUNT_MANAGER_ENTRY";
+    // NOTE: This constant should eventually be defined in android.accounts.Constants, but for
+    // now we define it here
+    private static final String ACCOUNT_MANAGER_EXTRA_ACCOUNT = "account";
+    private static final String EXTRA_ACCOUNT_ID = "account_id";
+    
+    private long mAccountId = -1;
     private Account mAccount;
     private boolean mAccountDirty;
 
@@ -86,14 +94,29 @@ public class AccountSettings extends PreferenceActivity {
         super.onCreate(savedInstanceState);
 
         Intent i = getIntent();
-        mAccountId = i.getLongExtra(EXTRA_ACCOUNT_ID, -1);
+        if (i.getAction().equals(ACTION_ACCOUNT_MANAGER_ENTRY)) {
+            // This case occurs if we're changing account settings from Settings -> Accounts
+            setAccountIdFromAccountManagerIntent();
+        } else {
+            // Otherwise, we're called from within the Email app and look for our extra
+            mAccountId = i.getLongExtra(EXTRA_ACCOUNT_ID, -1);
+        }
+
+        // If there's no accountId, we're done
+        if (mAccountId == -1) {
+            finish();
+            return;
+        }
+        
         mAccount = Account.restoreAccountWithId(this, mAccountId);
+        // Similarly, if the account has been deleted
         if (mAccount == null) {
             finish();
             return;
         }
         mAccount.mHostAuthRecv = HostAuth.restoreHostAuthWithId(this, mAccount.mHostAuthKeyRecv);
         mAccount.mHostAuthSend = HostAuth.restoreHostAuthWithId(this, mAccount.mHostAuthKeySend);
+        // Or if HostAuth's have been deleted
         if (mAccount.mHostAuthRecv == null || mAccount.mHostAuthSend == null) {
             finish();
             return;
@@ -235,16 +258,42 @@ public class AccountSettings extends PreferenceActivity {
                     PREFERENCE_SERVER_CATERGORY);
             serverCategory.removePreference(mSyncContacts);
         }
-
-        findPreference(PREFERENCE_ADD_ACCOUNT).setOnPreferenceClickListener(
-                new Preference.OnPreferenceClickListener() {
-                    public boolean onPreferenceClick(Preference preference) {
-                        onAddNewAccount();
-                        return true;
-                    }
-                });
     }
 
+    private void setAccountIdFromAccountManagerIntent() {
+        // First, get the AccountManager account that we've been ask to handle
+        android.accounts.Account acct = 
+            (android.accounts.Account)getIntent()
+                .getParcelableExtra(ACCOUNT_MANAGER_EXTRA_ACCOUNT);
+        // Find a HostAuth using eas and whose login is the name of the AccountManager account
+        Cursor c = getContentResolver().query(HostAuth.CONTENT_URI,
+                new String[] {HostAuthColumns.ID}, HostAuth.LOGIN + "=? AND "
+                    + HostAuthColumns.PROTOCOL + "=?",
+                new String[] {acct.name, "eas"}, null);
+        try {
+            if (c.moveToFirst()) {
+                // This gives us the HostAuth's id
+                String hostAuthId = c.getString(0);
+                // Now, find the EmailProvider Account for this HostAuth
+                Cursor ac = getContentResolver().query(Account.CONTENT_URI,
+                        new String[] {AccountColumns.ID},
+                        AccountColumns.HOST_AUTH_KEY_RECV + "=? OR "
+                        + AccountColumns.HOST_AUTH_KEY_SEND + "=?",
+                        new String[] {hostAuthId, hostAuthId}, null);
+                try {
+                    // And if we find one, set mAccountId accordingly
+                    if (ac.moveToFirst()) {
+                        mAccountId = ac.getLong(0);
+                    }
+                } finally {
+                    ac.close();
+                }
+            }
+        } finally {
+            c.close();
+        }
+    }
+    
     @Override
     public void onResume() {
         super.onResume();
@@ -338,10 +387,5 @@ public class AccountSettings extends PreferenceActivity {
         } catch (Exception e) {
             Log.d(Email.LOG_TAG, "Error while trying to invoke sender settings.", e);
         }
-    }
-
-    private void onAddNewAccount() {
-        AccountSetupBasics.actionNewAccount(this);
-        finish();
     }
 }
