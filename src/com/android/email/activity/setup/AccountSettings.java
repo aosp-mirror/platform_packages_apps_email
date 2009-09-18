@@ -59,13 +59,13 @@ public class AccountSettings extends PreferenceActivity {
     private static final String PREFERENCE_SYNC_CONTACTS = "account_sync_contacts";
 
     // NOTE: This string must match the one in res/xml/account_preferences.xml
-    public static final String ACTION_ACCOUNT_MANAGER_ENTRY = 
+    public static final String ACTION_ACCOUNT_MANAGER_ENTRY =
         "com.android.email.activity.setup.ACCOUNT_MANAGER_ENTRY";
     // NOTE: This constant should eventually be defined in android.accounts.Constants, but for
     // now we define it here
     private static final String ACCOUNT_MANAGER_EXTRA_ACCOUNT = "account";
     private static final String EXTRA_ACCOUNT_ID = "account_id";
-    
+
     private long mAccountId = -1;
     private Account mAccount;
     private boolean mAccountDirty;
@@ -107,7 +107,7 @@ public class AccountSettings extends PreferenceActivity {
             finish();
             return;
         }
-        
+
         mAccount = Account.restoreAccountWithId(this, mAccountId);
         // Similarly, if the account has been deleted
         if (mAccount == null) {
@@ -262,7 +262,7 @@ public class AccountSettings extends PreferenceActivity {
 
     private void setAccountIdFromAccountManagerIntent() {
         // First, get the AccountManager account that we've been ask to handle
-        android.accounts.Account acct = 
+        android.accounts.Account acct =
             (android.accounts.Account)getIntent()
                 .getParcelableExtra(ACCOUNT_MANAGER_EXTRA_ACCOUNT);
         // Find a HostAuth using eas and whose login is the name of the AccountManager account
@@ -293,7 +293,7 @@ public class AccountSettings extends PreferenceActivity {
             c.close();
         }
     }
-    
+
     @Override
     public void onResume() {
         super.onResume();
@@ -342,8 +342,8 @@ public class AccountSettings extends PreferenceActivity {
             ContentResolver.setSyncAutomatically(acct, ContactsContract.AUTHORITY,
                     mSyncContacts.isChecked());
 
-            AccountSettingsUtils.commitSettings(this, mAccount);
         }
+        AccountSettingsUtils.commitSettings(this, mAccount);
         Email.setServicesEnabled(this);
     }
 
