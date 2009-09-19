@@ -1168,8 +1168,9 @@ public class MessageView extends Activity implements OnClickListener {
         mTimeView.setText(mTimeFormat.format(date));
         mDateView.setText(Utility.isDateToday(date) ? null : mDateFormat.format(date));
         mToView.setText(Address.toFriendly(Address.unpack(message.mTo)));
-        mCcView.setText(Address.toFriendly(Address.unpack(message.mCc)));
-        mCcContainerView.setVisibility((message.mCc != null) ? View.VISIBLE : View.GONE);
+        String friendlyCc = Address.toFriendly(Address.unpack(message.mCc));
+        mCcView.setText(friendlyCc);
+        mCcContainerView.setVisibility((friendlyCc != null) ? View.VISIBLE : View.GONE);
         mAttachmentIcon.setVisibility(message.mAttachments != null ? View.VISIBLE : View.GONE);
         mFavoriteIcon.setImageDrawable(message.mFlagFavorite ? mFavoriteIconOn : mFavoriteIconOff);
 
