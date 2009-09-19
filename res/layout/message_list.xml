@@ -19,6 +19,9 @@
     android:orientation="vertical"
     android:layout_width="fill_parent"
     android:layout_height="fill_parent">
+
+    <include layout="@layout/connection_error_banner" />
+
     <ListView
         android:id="@android:id/list"
         android:layout_width="fill_parent"
