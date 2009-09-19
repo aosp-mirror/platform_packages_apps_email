@@ -60,13 +60,13 @@ public class EmailProvider extends ContentProvider {
     // Any changes to the database format *must* include update-in-place code.
     // Original version: 3
     // Version 4: Database wipe required; changing AccountManager interface w/Exchange
-    public static final int DATABASE_VERSION = 4;
+    public static final int DATABASE_VERSION = 5;
 
     // Any changes to the database format *must* include update-in-place code.
     // Original version: 2
     // Version 3: Add "sourceKey" column
     // Version 4: Database wipe required; changing AccountManager interface w/Exchange
-    public static final int BODY_DATABASE_VERSION = 4;
+    public static final int BODY_DATABASE_VERSION = 5;
 
     public static final String EMAIL_AUTHORITY = "com.android.email.provider";
 
@@ -496,7 +496,7 @@ public class EmailProvider extends ContentProvider {
     }
 
     static void upgradeBodyTable(SQLiteDatabase db, int oldVersion, int newVersion) {
-        if (oldVersion < 4) {
+        if (oldVersion < 5) {
             try {
                 db.execSQL("drop table " + Body.TABLE_NAME);
                 createBodyTable(db);
@@ -572,9 +572,9 @@ public class EmailProvider extends ContentProvider {
 
         @Override
         public void onUpgrade(SQLiteDatabase db, int oldVersion, int newVersion) {
-            // For versions prior to 4, delete all data
-            // Versions >= 4 require that data be preserved!
-            if (oldVersion < 4) {
+            // For versions prior to 5, delete all data
+            // Versions >= 5 require that data be preserved!
+            if (oldVersion < 5) {
                 android.accounts.Account[] accounts =
                     AccountManager.get(mContext).getAccountsByType(Eas.ACCOUNT_MANAGER_TYPE);
                 for (android.accounts.Account account: accounts) {
