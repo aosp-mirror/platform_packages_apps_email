@@ -443,7 +443,7 @@ public class SyncManager extends Service implements Runnable {
                         stopAccountSyncs(account.mId, true);
                         // Delete this from AccountManager...
                         android.accounts.Account acct =
-                            new android.accounts.Account(account.mHostAuthRecv.mLogin,
+                            new android.accounts.Account(account.mEmailAddress,
                                     Eas.ACCOUNT_MANAGER_TYPE);
                         AccountManager.get(SyncManager.this).removeAccount(acct, null, null);
                         mAccountKeyList = null;
@@ -1037,7 +1037,7 @@ public class SyncManager extends Service implements Runnable {
             if (contactsId != Mailbox.NO_MAILBOX) {
                 // Create an AccountManager style Account
                 android.accounts.Account acct =
-                    new android.accounts.Account(easAccount.mHostAuthRecv.mLogin,
+                    new android.accounts.Account(easAccount.mEmailAddress,
                             Eas.ACCOUNT_MANAGER_TYPE);
                 // Get the Contacts mailbox; this happens rarely so it's ok to get it all
                 Mailbox contacts = Mailbox.restoreMailboxWithId(this, contactsId);
@@ -1076,7 +1076,7 @@ public class SyncManager extends Service implements Runnable {
             AccountManager.get(this).getAccountsByType(Eas.ACCOUNT_MANAGER_TYPE);
         List<Account> easAccounts = getAccountList();
         for (Account easAccount: easAccounts) {
-            String accountName = easAccount.mHostAuthRecv.mLogin;
+            String accountName = easAccount.mEmailAddress;
             boolean found = false;
             for (android.accounts.Account acct: accts) {
                 if (acct.name.equalsIgnoreCase(accountName)) {
@@ -1407,7 +1407,7 @@ public class SyncManager extends Service implements Runnable {
                             getAccountById(c.getInt(Mailbox.CONTENT_ACCOUNT_KEY_COLUMN));
                         if (account != null) {
                             android.accounts.Account a =
-                                new android.accounts.Account(account.mHostAuthRecv.mLogin,
+                                new android.accounts.Account(account.mEmailAddress,
                                         Eas.ACCOUNT_MANAGER_TYPE);
                             if (!ContentResolver.getSyncAutomatically(a,
                                     ContactsContract.AUTHORITY)) {

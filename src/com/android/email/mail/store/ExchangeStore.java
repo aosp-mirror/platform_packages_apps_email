@@ -83,7 +83,7 @@ public class ExchangeStore extends Store {
             AccountManagerCallback<Bundle> callback) {
         // Create a description of the new account
         Bundle options = new Bundle();
-        options.putString(EasAuthenticatorService.OPTIONS_USERNAME, acct.mHostAuthRecv.mLogin);
+        options.putString(EasAuthenticatorService.OPTIONS_USERNAME, acct.mEmailAddress);
         options.putString(EasAuthenticatorService.OPTIONS_PASSWORD, acct.mHostAuthRecv.mPassword);
         options.putBoolean(EasAuthenticatorService.OPTIONS_CONTACTS_SYNC_ENABLED, syncContacts);
 
