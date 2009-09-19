@@ -151,7 +151,7 @@ public class ContactsSyncAdapter extends AbstractSyncAdapter {
                 setSyncKey("0", false);
                 // Make sure ungrouped contacts for Exchange are defaultly visible
                 ContentValues cv = new ContentValues();
-                cv.put(Groups.ACCOUNT_NAME, mService.mHostLogin);
+                cv.put(Groups.ACCOUNT_NAME, mAccount.mEmailAddress);
                 cv.put(Groups.ACCOUNT_TYPE, Eas.ACCOUNT_MANAGER_TYPE);
                 cv.put(Settings.UNGROUPED_VISIBLE, true);
                 client.insert(Settings.CONTENT_URI, cv);
@@ -190,7 +190,7 @@ public class ContactsSyncAdapter extends AbstractSyncAdapter {
     public android.accounts.Account getAccountManagerAccount() {
         if (mAccountManagerAccount == null) {
             mAccountManagerAccount =
-                new android.accounts.Account(mService.mHostLogin, Eas.ACCOUNT_MANAGER_TYPE);
+                new android.accounts.Account(mAccount.mEmailAddress, Eas.ACCOUNT_MANAGER_TYPE);
         }
         return mAccountManagerAccount;
     }
@@ -880,7 +880,7 @@ public class ContactsSyncAdapter extends AbstractSyncAdapter {
 
     private Uri uriWithAccountAndIsSyncAdapter(Uri uri) {
         return uri.buildUpon()
-            .appendQueryParameter(RawContacts.ACCOUNT_NAME, mService.mHostLogin)
+            .appendQueryParameter(RawContacts.ACCOUNT_NAME, mAccount.mEmailAddress)
             .appendQueryParameter(RawContacts.ACCOUNT_TYPE, Eas.ACCOUNT_MANAGER_TYPE)
             .appendQueryParameter(ContactsContract.CALLER_IS_SYNCADAPTER, "true")
             .build();
@@ -1724,7 +1724,7 @@ public class ContactsSyncAdapter extends AbstractSyncAdapter {
         // First, let's find Contacts that have changed.
         ContentResolver cr = mService.mContentResolver;
         Uri uri = RawContacts.CONTENT_URI.buildUpon()
-                .appendQueryParameter(RawContacts.ACCOUNT_NAME, mService.mHostLogin)
+                .appendQueryParameter(RawContacts.ACCOUNT_NAME, mAccount.mEmailAddress)
                 .appendQueryParameter(RawContacts.ACCOUNT_TYPE, Eas.ACCOUNT_MANAGER_TYPE)
                 .build();
 

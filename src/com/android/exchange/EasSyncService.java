@@ -133,7 +133,6 @@ public class EasSyncService extends AbstractSyncService {
     private boolean mSsl = true;
     private boolean mTrustSsl = false;
     public ContentResolver mContentResolver;
-    public String mHostLogin;
     private String[] mBindArguments = new String[2];
     private ArrayList<String> mPingChangeList;
     private HttpPost mPendingPost = null;
@@ -148,7 +147,6 @@ public class EasSyncService extends AbstractSyncService {
         super(_context, _mailbox);
         mContentResolver = _context.getContentResolver();
         HostAuth ha = HostAuth.restoreHostAuthWithId(_context, mAccount.mHostAuthKeyRecv);
-        mHostLogin = ha.mLogin;
         mSsl = (ha.mFlags & HostAuth.FLAG_SSL) != 0;
         mTrustSsl = (ha.mFlags & HostAuth.FLAG_TRUST_ALL_CERTIFICATES) != 0;
     }
