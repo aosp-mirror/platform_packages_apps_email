@@ -460,6 +460,7 @@ public class MessageList extends ListActivity implements OnItemClickListener, On
     private void onRefresh() {
         // TODO: Should not be reading from DB in UI thread - need a cleaner way to get accountId
         if (mMailboxId >= 0) {
+            Log.d("MessageList", "%%% onRefresh");
             Mailbox mailbox = Mailbox.restoreMailboxWithId(this, mMailboxId);
             mController.updateMailbox(mailbox.mAccountKey, mMailboxId, mControllerCallback);
         }
