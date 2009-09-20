@@ -165,7 +165,7 @@
     <!-- Checkbox label, shown only on debug screen -->
     <string name="debug_enable_sensitive_logging_label">Enable sensitive information debug logging? (May show passwords in logs.)</string>
     <!-- Checkbox label, shown only on debug screen -->
-    <string name="debug_enable_exchange_logging_label">Enable exchange debug logging?</string>
+    <string name="debug_enable_exchange_logging_label">Enable exchange parser logging? (Extremely verbose)</string>
     <!-- Checkbox label, shown only on debug screen -->
     <string name="debug_enable_exchange_file_logging_label">Enable exchange sd card logging?</string>
 

@@ -76,10 +76,7 @@ public class Eas {
             USER_LOG = (state & DEBUG_BIT) != 0;
             PARSER_LOG = (state & DEBUG_EXCHANGE_BIT) != 0;
             FILE_LOG = (state & DEBUG_FILE_BIT) != 0;
-            if (FILE_LOG) {
-                PARSER_LOG = true;
-                USER_LOG = true;
-            } else if (PARSER_LOG) {
+            if (FILE_LOG || PARSER_LOG) {
                 USER_LOG = true;
             }
             Log.d("Eas Debug", "Logging: " + (USER_LOG ? "User " : "") +
