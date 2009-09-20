@@ -111,6 +111,9 @@
     <string name="status_loading_more_failed">Retry loading more messages</string>
     <!-- Notification title in status bar -->
     <string name="notification_new_title">New email</string>
+    <!-- Dialog text when we are unable to load the message for display -->
+    <string name="error_loading_message_body">Unexpected error while loading message text.  Message
+        may be too large to view.</string>
 
     <!-- Notification message in notifications window when one account has
          one or more new messages; e.g, "279 unread (someone@google.com)". -->
