@@ -18,7 +18,6 @@ package com.android.email.service;
 
 import com.android.email.activity.setup.AccountSetupBasics;
 import com.android.exchange.Eas;
-import com.android.exchange.SyncManager;
 
 import android.accounts.AbstractAccountAuthenticator;
 import android.accounts.Account;
@@ -74,10 +73,6 @@ public class EasAuthenticatorService extends Service {
                         ContactsContract.AUTHORITY, 1);
                 ContentResolver.setSyncAutomatically(account,
                         ContactsContract.AUTHORITY, syncContacts);
-
-                // Make sure the SyncManager is running
-                Service service = EasAuthenticatorService.this;
-                service.startService(new Intent(service, SyncManager.class));
 
                 Bundle b = new Bundle();
                 b.putString(Constants.ACCOUNT_NAME_KEY, options.getString(OPTIONS_USERNAME));

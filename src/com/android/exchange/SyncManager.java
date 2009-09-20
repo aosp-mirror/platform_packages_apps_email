@@ -690,16 +690,22 @@ public class SyncManager extends Service implements Runnable {
      * This would work on a real device as well, but it would be better to use the "real" id if
      * it's available
      */
-    static public synchronized String getDeviceId() throws IOException {
+    static public String getDeviceId() throws IOException {
+        return getDeviceId(null);
+    }
+    
+    static public synchronized String getDeviceId(Context context) throws IOException {
         if (sDeviceId != null) {
             return sDeviceId;
-        } else  if (INSTANCE == null) {
-            throw new IOException("No SyncManager instance");
+        } else if (INSTANCE == null && context == null) {
+            throw new IOException("No context for getDeviceId");
+        } else if (context == null) {
+            context = INSTANCE;
         }
 
         // Otherwise, we'll read the id file or create one if it's not found
         try {
-            File f = INSTANCE.getFileStreamPath("deviceName");
+            File f = context.getFileStreamPath("deviceName");
             BufferedReader rdr = null;
             String id;
             if (f.exists() && f.canRead()) {
@@ -712,6 +718,7 @@ public class SyncManager extends Service implements Runnable {
                 id = "droid" + System.currentTimeMillis();
                 w.write(id);
                 w.close();
+                sDeviceId = id;
                 return id;
             }
         } catch (IOException e) {
@@ -726,17 +733,9 @@ public class SyncManager extends Service implements Runnable {
 
     @Override
     public void onCreate() {
-        if (INSTANCE != null) {
-            alwaysLog("onCreate called on running SyncManager");
-        } else {
-            alwaysLog("!!! EAS SyncManager, onCreate");
+        alwaysLog("!!! EAS SyncManager, onCreate");
+        if (INSTANCE == null) {
             INSTANCE = this;
-            try {
-                sDeviceId = getDeviceId();
-            } catch (IOException e) {
-                // We can't run in this situation
-                throw new RuntimeException();
-            }
             mResolver = getContentResolver();
             mAccountObserver = new AccountObserver(mHandler);
             mResolver.registerContentObserver(Account.CONTENT_URI, true, mAccountObserver);
@@ -744,6 +743,16 @@ public class SyncManager extends Service implements Runnable {
             mSyncedMessageObserver = new SyncedMessageObserver(mHandler);
             mMessageObserver = new MessageObserver(mHandler);
             mSyncStatusObserver = new EasSyncStatusObserver();
+        } else {
+            alwaysLog("!!! EAS SyncManager onCreated, but INSTANCE not null??");
+        }
+        if (sDeviceId == null) {
+            try {
+                getDeviceId(this);
+            } catch (IOException e) {
+                // We can't run in this situation
+                throw new RuntimeException();
+            }
         }
     }
 
@@ -755,12 +764,22 @@ public class SyncManager extends Service implements Runnable {
             alwaysLog("!!! EAS SyncManager, stopping self");
             stopSelf();
         }
-        return Service.START_REDELIVER_INTENT;
+        return Service.START_STICKY;
     }
 
     @Override
     public void onDestroy() {
         alwaysLog("!!! EAS SyncManager, onDestroy");
+        if (INSTANCE != null) {
+            INSTANCE = null;
+            mResolver.unregisterContentObserver(mAccountObserver);
+            mResolver = null;
+            mAccountObserver = null;
+            mMailboxObserver = null;
+            mSyncedMessageObserver = null;
+            mMessageObserver = null;
+            mSyncStatusObserver = null;
+        }
     }
 
     void maybeStartSyncManagerThread() {
