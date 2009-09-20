@@ -137,6 +137,7 @@ public class MessageCompose extends Activity implements OnClickListener, OnFocus
     private boolean mDraftNeedsSaving;
     private AsyncTask mLoadAttachmentsTask;
     private AsyncTask mSaveMessageTask;
+    private AsyncTask mLoadMessageTask;
 
     private Handler mHandler = new Handler() {
         @Override
@@ -267,7 +268,7 @@ public class MessageCompose extends Activity implements OnClickListener, OnFocus
             // Otherwise, handle the internal cases (Message Composer invoked from within app)
             long messageId = intent.getLongExtra(EXTRA_MESSAGE_ID, -1);
             if (messageId != -1) {
-                new LoadMessageTask().execute(messageId);
+                mLoadMessageTask = new LoadMessageTask().execute(messageId);
             } else {
                 setAccount(intent);
             }
@@ -331,6 +332,8 @@ public class MessageCompose extends Activity implements OnClickListener, OnFocus
         mQuotedText = null;
         cancelTask(mLoadAttachmentsTask);
         mLoadAttachmentsTask = null;
+        cancelTask(mLoadMessageTask);
+        mLoadMessageTask = null;
         // don't cancel mSaveMessageTask, let it do its job to the end.
         // cancelTask(mSaveMessageTask);
     }
@@ -517,7 +520,10 @@ public class MessageCompose extends Activity implements OnClickListener, OnFocus
             }
 
             mAccount = account;
-            processSourceMessage(message, mAccount);
+            // Make sure we only do this once (otherwise we'll duplicate addresses!)
+            if (!mSourceMessageProcessed) {
+                processSourceMessage(message, mAccount);
+            }
         }
     }
 
