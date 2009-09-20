@@ -27,6 +27,7 @@ import com.android.email.provider.EmailContent.Mailbox;
 import com.android.email.provider.EmailContent.Message;
 import com.android.email.provider.EmailContent.MessageColumns;
 import com.android.email.provider.EmailContent.SyncColumns;
+import com.android.email.service.MailService;
 import com.android.exchange.Eas;
 import com.android.exchange.EasSyncService;
 
@@ -476,7 +477,7 @@ public class EmailSyncAdapter extends AbstractSyncAdapter {
                 cv.put(EmailContent.ADD_COLUMN_NAME, notifyCount);
                 Uri uri = ContentUris.withAppendedId(Account.ADD_TO_FIELD_URI, mAccount.mId);
                 mContentResolver.update(uri, cv, null, null);
-                //MailService.actionNotifyNewMessages(mContext, mAccount.mId);
+                MailService.actionNotifyNewMessages(mContext, mAccount.mId);
             }
         }
     }
