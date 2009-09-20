@@ -24,7 +24,6 @@ import com.android.email.mail.Store;
 import com.android.email.provider.EmailContent.Account;
 import com.android.email.provider.EmailContent.AccountColumns;
 import com.android.email.provider.EmailContent.HostAuth;
-import com.android.email.provider.EmailContent.HostAuthColumns;
 import com.android.exchange.Eas;
 
 import android.app.Activity;
@@ -264,30 +263,14 @@ public class AccountSettings extends PreferenceActivity {
         // First, get the AccountManager account that we've been ask to handle
         android.accounts.Account acct =
             (android.accounts.Account)getIntent()
-                .getParcelableExtra(ACCOUNT_MANAGER_EXTRA_ACCOUNT);
-        // Find a HostAuth using eas and whose login is the name of the AccountManager account
-        Cursor c = getContentResolver().query(HostAuth.CONTENT_URI,
-                new String[] {HostAuthColumns.ID}, HostAuth.LOGIN + "=? AND "
-                    + HostAuthColumns.PROTOCOL + "=?",
-                new String[] {acct.name, "eas"}, null);
+            .getParcelableExtra(ACCOUNT_MANAGER_EXTRA_ACCOUNT);
+        // Find a HostAuth using eas and whose login is klthe name of the AccountManager account
+        Cursor c = getContentResolver().query(Account.CONTENT_URI,
+                new String[] {AccountColumns.ID}, AccountColumns.EMAIL_ADDRESS + "=?",
+                new String[] {acct.name}, null);
         try {
             if (c.moveToFirst()) {
-                // This gives us the HostAuth's id
-                String hostAuthId = c.getString(0);
-                // Now, find the EmailProvider Account for this HostAuth
-                Cursor ac = getContentResolver().query(Account.CONTENT_URI,
-                        new String[] {AccountColumns.ID},
-                        AccountColumns.HOST_AUTH_KEY_RECV + "=? OR "
-                        + AccountColumns.HOST_AUTH_KEY_SEND + "=?",
-                        new String[] {hostAuthId, hostAuthId}, null);
-                try {
-                    // And if we find one, set mAccountId accordingly
-                    if (ac.moveToFirst()) {
-                        mAccountId = ac.getLong(0);
-                    }
-                } finally {
-                    ac.close();
-                }
+                mAccountId = c.getLong(0);
             }
         } finally {
             c.close();
