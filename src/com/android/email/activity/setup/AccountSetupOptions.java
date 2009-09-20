@@ -177,6 +177,8 @@ public class AccountSetupOptions extends Activity implements OnClickListener {
         AccountSettingsUtils.commitSettings(this, mAccount);
         Email.setServicesEnabled(this);
         AccountSetupNames.actionSetNames(this, mAccount.mId, mEasFlowMode);
+        // Start up SyncManager (if it isn't already running)
+        startService(new Intent(getApplicationContext(), com.android.exchange.SyncManager.class));
         finish();
     }
 
