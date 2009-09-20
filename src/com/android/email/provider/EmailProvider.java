@@ -510,7 +510,6 @@ public class EmailProvider extends ContentProvider {
 
     private SQLiteDatabase mDatabase;
     private SQLiteDatabase mBodyDatabase;
-    private boolean mInTransaction = false;
 
     public synchronized SQLiteDatabase getDatabase(Context context) {
         if (mDatabase !=  null) {
@@ -632,9 +631,7 @@ public class EmailProvider extends ContentProvider {
                     // Bodies are auto-deleted here;  Attachments are auto-deleted via trigger
 
                     messageDeletion = true;
-                    if (!mInTransaction) {
-                        db.beginTransaction();
-                    }
+                    db.beginTransaction();
                     break;
             }
             switch (match) {
@@ -687,15 +684,11 @@ public class EmailProvider extends ContentProvider {
                     // Delete any orphaned Body records
                     db.execSQL(DELETE_ORPHAN_BODIES);
                 }
-                if (!mInTransaction) {
-                    db.setTransactionSuccessful();
-                }
+                db.setTransactionSuccessful();
             }
         } finally {
             if (messageDeletion) {
-                if (!mInTransaction) {
-                    db.endTransaction();
-                }
+                db.endTransaction();
             }
         }
         getContext().getContentResolver().notifyChange(uri, null);
@@ -919,9 +912,7 @@ public class EmailProvider extends ContentProvider {
         switch (match) {
             case MAILBOX_ID_ADD_TO_FIELD:
             case ACCOUNT_ID_ADD_TO_FIELD:
-                if (!mInTransaction) {
-                    db.beginTransaction();
-                }
+                db.beginTransaction();
                 id = uri.getPathSegments().get(1);
                 String field = values.getAsString(EmailContent.FIELD_COLUMN_NAME);
                 Long add = values.getAsLong(EmailContent.ADD_COLUMN_NAME);
@@ -944,10 +935,8 @@ public class EmailProvider extends ContentProvider {
                 } finally {
                     c.close();
                 }
-                if (!mInTransaction) {
-                    db.setTransactionSuccessful();
-                    db.endTransaction();
-                }
+                db.setTransactionSuccessful();
+                db.endTransaction();
                 break;
             case BODY_ID:
             case MESSAGE_ID:
@@ -996,14 +985,12 @@ public class EmailProvider extends ContentProvider {
         Context context = getContext();
         SQLiteDatabase db = getDatabase(context);
         db.beginTransaction();
-        mInTransaction = true;
         try {
             ContentProviderResult[] results = super.applyBatch(operations);
             db.setTransactionSuccessful();
             return results;
         } finally {
             db.endTransaction();
-            mInTransaction = false;
         }
     }
 }
