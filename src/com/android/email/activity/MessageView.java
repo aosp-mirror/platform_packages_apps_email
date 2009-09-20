@@ -43,7 +43,6 @@ import android.database.ContentObserver;
 import android.database.Cursor;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
-import android.graphics.Rect;
 import android.graphics.drawable.Drawable;
 import android.media.MediaScannerConnection;
 import android.media.MediaScannerConnection.MediaScannerConnectionClient;
@@ -58,6 +57,7 @@ import android.provider.ContactsContract.FastTrack;
 import android.provider.ContactsContract.Presence;
 import android.text.TextUtils;
 import android.text.util.Regex;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.Menu;
 import android.view.MenuItem;
@@ -160,6 +160,7 @@ public class MessageView extends Activity implements OnClickListener {
         private static final int MSG_ATTACHMENT_PROGRESS = 2;
         private static final int MSG_LOAD_CONTENT_URI = 3;
         private static final int MSG_SET_ATTACHMENTS_ENABLED = 4;
+        private static final int MSG_LOAD_BODY_ERROR = 5;
         private static final int MSG_NETWORK_ERROR = 6;
         private static final int MSG_FETCHING_ATTACHMENT = 10;
         private static final int MSG_VIEW_ATTACHMENT_ERROR = 12;
@@ -195,6 +196,10 @@ public class MessageView extends Activity implements OnClickListener {
                         attachment.viewButton.setEnabled(msg.arg1 == 1);
                         attachment.downloadButton.setEnabled(msg.arg1 == 1);
                     }
+                    break;
+                case MSG_LOAD_BODY_ERROR:
+                    Toast.makeText(MessageView.this,
+                            R.string.error_loading_message_body, Toast.LENGTH_LONG).show();
                     break;
                 case MSG_NETWORK_ERROR:
                     Toast.makeText(MessageView.this,
@@ -245,6 +250,10 @@ public class MessageView extends Activity implements OnClickListener {
             android.os.Message msg = android.os.Message.obtain(this, MSG_SET_ATTACHMENTS_ENABLED);
             msg.arg1 = enabled ? 1 : 0;
             sendMessage(msg);
+        }
+
+        public void loadBodyError() {
+            sendEmptyMessage(MSG_LOAD_BODY_ERROR);
         }
 
         public void networkError() {
@@ -1013,11 +1022,8 @@ public class MessageView extends Activity implements OnClickListener {
 
     /**
      * Async task for loading a single message outside of the UI thread
-     *
-     * TODO: start and stop progress indicator
-     * TODO: set up to listen for additional updates (cursor data changes)
      */
-    private class LoadMessageTask extends AsyncTask<Void, Void, Cursor> {
+    private class LoadMessageTask extends AsyncTask<Void, Void, Message> {
 
         private long mId;
         private boolean mOkToFetch;
@@ -1031,37 +1037,25 @@ public class MessageView extends Activity implements OnClickListener {
         }
 
         @Override
-        protected Cursor doInBackground(Void... params) {
-            return MessageView.this.managedQuery(
-                    Message.CONTENT_URI,
-                    Message.CONTENT_PROJECTION,
-                    Message.RECORD_ID + "=?",
-                    new String[] {
-                            String.valueOf(mId)
-                            },
-                    null);
+        protected Message doInBackground(Void... params) {
+            return Message.restoreMessageWithId(MessageView.this, mId);
         }
 
         @Override
-        protected void onPostExecute(Cursor cursor) {
-            if (cursor.isClosed()) {
+        protected void onPostExecute(Message message) {
+            if (message == null) {
+                finish();
                 return;
             }
-            if (cursor.moveToFirst()) {
-                reloadUiFromCursor(cursor, mOkToFetch);
-            } else {
-                // toast?  why would this fail?
-            }
+            reloadUiFromMessage(message, mOkToFetch);
             startPresenceCheck();
         }
     }
 
     /**
      * Async task for loading a single message body outside of the UI thread
-     *
-     * TODO: smarter loading of html vs. text
      */
-    private class LoadBodyTask extends AsyncTask<Void, Void, Cursor> {
+    private class LoadBodyTask extends AsyncTask<Void, Void, String[]> {
 
         private long mId;
 
@@ -1073,30 +1067,29 @@ public class MessageView extends Activity implements OnClickListener {
         }
 
         @Override
-        protected Cursor doInBackground(Void... params) {
-            return MessageView.this.managedQuery(
-                    Body.CONTENT_URI,
-                    BODY_CONTENT_PROJECTION,
-                    Body.MESSAGE_KEY + "=?",
-                    new String[] {
-                            String.valueOf(mId)
-                            },
-                    null);
+        protected String[] doInBackground(Void... params) {
+            try {
+                String text = null;
+                String html = Body.restoreBodyHtmlWithMessageId(MessageView.this, mId);
+                if (html == null) {
+                    text = Body.restoreBodyTextWithMessageId(MessageView.this, mId);
+                }
+                return new String[] { text, html };
+            } catch (RuntimeException re) {
+                // This catches SQLiteException as well as other RTE's we've seen from the
+                // database calls, such as IllegalStateException
+                Log.d(Email.LOG_TAG, "Exception while loading message body: " + re.toString());
+                mHandler.loadBodyError();
+                return new String[] { null, null };
+            }
         }
 
         @Override
-        protected void onPostExecute(Cursor cursor) {
-            if (cursor.isClosed()) {
+        protected void onPostExecute(String[] results) {
+            if (results == null) {
                 return;
             }
-            if (cursor.moveToFirst()) {
-                reloadBodyFromCursor(cursor);
-            } else {
-                // toast?  why would this fail?
-                reloadBodyFromCursor(null);     // hack to force text for display
-            }
-
-            // At this point it's fair to mark the message as "read"
+            reloadUiFromBody(results[0], results[1]);    // text, html
             onMarkAsRead(true);
         }
     }
@@ -1143,14 +1136,13 @@ public class MessageView extends Activity implements OnClickListener {
     /**
      * Reload the UI from a provider cursor.  This must only be called from the UI thread.
      *
-     * @param cursor A cursor loaded from EmailStore.Message.
+     * @param message A copy of the message loaded from the database
      * @param okToFetch If true, and message is not fully loaded, it's OK to fetch from
      * the network.  Use false to prevent looping here.
      *
      * TODO: trigger presence check
      */
-    private void reloadUiFromCursor(Cursor cursor, boolean okToFetch) {
-        Message message = new Message().restore(cursor);
+    private void reloadUiFromMessage(Message message, boolean okToFetch) {
         mMessage = message;
         mAccountId = message.mAccountKey;
         if (mMailboxId == -1) {
@@ -1193,40 +1185,26 @@ public class MessageView extends Activity implements OnClickListener {
     /**
      * Reload the body from the provider cursor.  This must only be called from the UI thread.
      *
-     * @param cursor
+     * @param bodyText text part
+     * @param bodyHtml html part
      *
      * TODO deal with html vs text and many other issues
      */
-    private void reloadBodyFromCursor(Cursor cursor) {
+    private void reloadUiFromBody(String bodyText, String bodyHtml) {
+        String text = null;
         mHtmlText = null;
         boolean hasImages = false;
 
-        // TODO Remove this hack that forces some text to test the code
-        String html = null;
-        String text = null;
-        if (cursor != null) {
-            // First try HTML; we'll show that if it exists...
-            html = cursor.getString(BODY_CONTENT_COLUMN_HTML_CONTENT);
-            if (html == null) {
-                text = cursor.getString(BODY_CONTENT_COLUMN_TEXT_CONTENT);
-            }
-        }
-
-        if (html == null) {
-            // This code is stolen from Listener.loadMessageForViewBodyAvailable
-            // And also escape special character, such as "<>&",
-            // to HTML escape sequence.
-            if (text == null) {
-                text = "";
-            }
-            text = EmailHtmlUtil.escapeCharacterToDisplay(text);
-
+        if (bodyHtml == null) {
+            text = bodyText;
             /*
-             * Linkify the plain text and convert it to HTML by replacing
-             * \r?\n with <br> and adding a html/body wrapper.
+             * Convert the plain text to HTML
              */
             StringBuffer sb = new StringBuffer("<html><body>");
             if (text != null) {
+                // Escape any inadvertent HTML in the text message
+                text = EmailHtmlUtil.escapeCharacterToDisplay(text);
+                // Find any embedded URL's and linkify
                 Matcher m = Regex.WEB_URL_PATTERN.matcher(text);
                 while (m.find()) {
                     int start = m.start();
@@ -1260,8 +1238,8 @@ public class MessageView extends Activity implements OnClickListener {
             sb.append("</body></html>");
             text = sb.toString();
         } else {
-            text = html;
-            mHtmlText = html;
+            text = bodyHtml;
+            mHtmlText = bodyHtml;
             hasImages = IMG_TAG_START_REGEX.matcher(text).find();
         }
 
