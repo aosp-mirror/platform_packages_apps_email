@@ -69,16 +69,18 @@ public class Rfc822Output {
         String text = body.mTextContent;
         String fromAsString = Address.unpackToString(message.mFrom);
         int flags = message.mFlags;
+        boolean isReply = (flags & Message.FLAG_TYPE_REPLY) != 0;
+        boolean isForward = (flags & Message.FLAG_TYPE_FORWARD) != 0;
 
         if (!appendQuotedText) {
             // appendQuotedText is set to false for use by SmartReply/SmartForward in EAS.
             // SmartReply doesn't appear to work properly, so we will still add the header into
-            // to the original message.
+            // the original message.
             // SmartForward doesn't put any kind of break between the original and the new text,
             // so we add a CRLF
-            if ((flags & Message.FLAG_TYPE_REPLY) != 0) {
+            if (isReply) {
                 text += context.getString(R.string.message_compose_reply_header_fmt, fromAsString);
-            } else {
+            } else if (isForward) {
                 text += "\r\n";
             }
             return text;
@@ -90,13 +92,13 @@ public class Rfc822Output {
             Matcher matcher = PATTERN_ENDLINE_CRLF.matcher(quotedText);
             quotedText = matcher.replaceAll("\n");
         }
-        if ((flags & Message.FLAG_TYPE_REPLY) != 0) {
+        if (isReply) {
             text += context.getString(R.string.message_compose_reply_header_fmt, fromAsString);
             if (quotedText != null) {
                 Matcher matcher = PATTERN_START_OF_LINE.matcher(quotedText);
                 text += matcher.replaceAll(">");
             }
-        } else if ((flags & Message.FLAG_TYPE_FORWARD) != 0) {
+        } else if (isForward) {
             String subject = message.mSubject;
             String to = Address.unpackToString(message.mTo);
             String cc = Address.unpackToString(message.mCc);
