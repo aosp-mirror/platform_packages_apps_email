@@ -90,13 +90,13 @@ public class Rfc822OutputTests extends AndroidTestCase {
         msg.save(getContext());
 
         String body = Rfc822Output.buildBodyText(getContext(), msg, false);
-        assertEquals(TEXT, body);
+        assertEquals(TEXT + REPLY_BODY_SHORT, body);
 
         // Save a different message with no reply body (so we reset the id)
         msg.mId = -1;
         msg.mTextReply = null;
         msg.save(getContext());
         body = Rfc822Output.buildBodyText(getContext(), msg, false);
-        assertEquals(TEXT, body);
+        assertEquals(TEXT + REPLY_BODY_SHORT, body);
     }
  }
