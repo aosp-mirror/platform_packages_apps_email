@@ -35,13 +35,22 @@
     <!-- Only required if a store implements push mail and needs to keep network open -->
     <uses-permission android:name="android.permission.WAKE_LOCK"/>
     <uses-permission android:name="android.permission.READ_PHONE_STATE"/>
-    
+
+    <!-- Grant permission to other apps to view attachments -->
     <permission android:name="com.android.email.permission.READ_ATTACHMENT"
                 android:permissionGroup="android.permission-group.MESSAGES"
                 android:protectionLevel="dangerous"
                 android:label="@string/read_attachment_label"
                 android:description="@string/read_attachment_desc"/>
     <uses-permission android:name="com.android.email.permission.READ_ATTACHMENT"/>
+
+    <!-- Grant permission to system apps to access provider (see provider below) -->
+    <permission android:name="com.android.email.permission.ACCESS_PROVIDER"
+                android:protectionLevel="signatureOrSystem"
+                android:label="@string/permission_access_provider_label"
+                android:description="@string/permission_access_provider_desc"/>
+    <uses-permission android:name="com.android.email.permission.ACCESS_PROVIDER"/>
+
     <application android:icon="@drawable/icon" android:label="@string/app_name"
         android:name="Email">
         <activity android:name=".activity.Welcome">
@@ -226,11 +235,14 @@
             android:grantUriPermissions="true"
             android:readPermission="com.android.email.permission.READ_ATTACHMENT"
             />
+
+        <!-- This provider MUST be protected by strict permissions, as granting access to
+             it exposes user passwords and other confidential information. -->
         <provider
             android:name=".provider.EmailProvider"
             android:authorities="com.android.email.provider"
             android:multiprocess="true"
-            android:grantUriPermissions="true"
+            android:permission="com.android.email.permission.ACCESS_PROVIDER"
             />
     </application>
 </manifest>
