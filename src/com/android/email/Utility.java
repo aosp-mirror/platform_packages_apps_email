@@ -293,8 +293,7 @@ public class Utility {
         private Drawable mDefaultMailboxDrawable;
 
         private FolderProperties(Context context) {
-            mSpecialMailbox = context.getResources().getStringArray(
-                    R.array.special_mailbox_display_names);
+            mSpecialMailbox = context.getResources().getStringArray(R.array.mailbox_display_names);
             for (int i = 0; i < mSpecialMailbox.length; ++i) {
                 if ("".equals(mSpecialMailbox[i])) {
                     // there is no localized name, so use the display name from the server
@@ -302,7 +301,7 @@ public class Utility {
                 }
             }
             mSpecialMailboxDrawable =
-                context.getResources().obtainTypedArray(R.array.special_mailbox_icons);
+                context.getResources().obtainTypedArray(R.array.mailbox_display_icons);
             mDefaultMailboxDrawable =
                 context.getResources().getDrawable(R.drawable.ic_list_folder);
         }

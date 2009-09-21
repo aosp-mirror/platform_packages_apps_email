@@ -107,12 +107,6 @@ public class Email extends Application {
     };
 
     /**
-     * The special name "INBOX" is used throughout the application to mean "Whatever folder
-     * the server refers to as the user's Inbox. Placed here to ease use.
-     */
-    public static final String INBOX = "INBOX";
-
-    /**
      * Specifies how many messages will be shown in a folder by default. This number is set
      * on each new folder and can be incremented with "Load more messages..." by the
      * VISIBLE_LIMIT_INCREMENT
