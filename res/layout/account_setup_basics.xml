@@ -31,8 +31,10 @@
             android:layout_weight="1"
             android:orientation="vertical" >
             <TextView
+                android:id="@+id/instructions"
                 android:layout_width="fill_parent"
                 android:layout_height="wrap_content"
+                android:layout_marginTop="10dip"
                 android:textSize="20sp"
                 android:text="@string/accounts_welcome"
                 android:textColor="?android:attr/textColorPrimary" />
@@ -40,12 +42,6 @@
                 android:layout_width="fill_parent"
                 android:layout_height="0dip"
                 android:layout_weight="1" />
-            <TextView
-                android:text="@string/account_setup_basics_instructions"
-                android:layout_height="wrap_content"
-                android:layout_width="fill_parent"
-                android:textAppearance="?android:attr/textAppearanceMedium"
-                android:textColor="?android:attr/textColorPrimary" />
             <EditText
                 android:id="@+id/account_email"
                 android:hint="@string/account_setup_basics_email_hint"

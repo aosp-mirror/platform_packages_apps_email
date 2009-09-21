@@ -267,9 +267,14 @@
     <!-- Title of screen when setting up new email account -->
     <string name="account_setup_basics_title">Set up email</string>
     <!-- On "Set up email" screen, enthusiastic welcome message. -->
-    <string name="accounts_welcome">Welcome to Email setup!\n\nUse any email account with Email.  Most popular email accounts can be set up in 2 steps!</string>
+    <string name="accounts_welcome">You can configure Email for most accounts in just a few steps.
+        </string>
+    <!-- On "Set up email" screen, enthusiastic welcome message (in EAS mode). -->
+    <string name="accounts_welcome_exchange">You can configure an Exchange account in just a few
+        steps.</string>
     <!-- On "Set up email" screen, brief instructions -->
-    <string name="account_setup_basics_instructions">To begin, type your email address and password:</string>
+    <!--  DEPRECATED - REMOVE -->
+    <string name="account_setup_basics_instructions"></string>
     <!-- On "Set up email" screen, hint for account email address text field -->
     <string name="account_setup_basics_email_hint">Email address</string>
     <!-- On "Set up email" screen, hint for account email password text field -->
@@ -317,7 +322,7 @@
     <!-- "Add new email account" screen, button name in response to what type of account this is -->
     <string name="account_setup_account_type_imap_action">IMAP account</string>
     <!-- "Add new email account" screen, button name in response to what type of account this is -->
-    <string name="account_setup_account_type_exchange_action">Exchange/ActiveSync</string>
+    <string name="account_setup_account_type_exchange_action">Exchange account</string>
     <!-- "Incoming server settings" screen, label for text field -->
     <string name="account_setup_incoming_title">Incoming server settings</string>
     <!-- "Incoming server settings" screen, label for text field -->
