@@ -16,6 +16,24 @@
 
 <resources xmlns:xliff="urn:oasis:names:tc:xliff:document:1.2">
 
+    <!-- Deprecated strings - Move the identifiers to this section, mark as DO NOT TRANSLATE,
+         and remove the actual text.  These will be removed in a bulk operation. -->
+    <!-- Do Not Translate.  Unused string. -->
+    <string name="special_mailbox_name_inbox"></string>
+    <!-- Do Not Translate.  Unused string. -->
+    <string name="special_mailbox_display_name_inbox"></string>
+    <!-- Do Not Translate.  Unused string. -->
+    <string name="special_mailbox_display_name_outbox"></string>
+    <!-- Do Not Translate.  Unused string. -->
+    <string name="special_mailbox_display_name_drafts"></string>
+    <!-- Do Not Translate.  Unused string. -->
+    <string name="special_mailbox_display_name_trash"></string>
+    <!-- Do Not Translate.  Unused string. -->
+    <string name="special_mailbox_display_name_sent"></string>
+    <!-- Do Not Translate.  Unused string. -->
+    <string name="special_mailbox_display_name_junk"></string>
+
+
     <!-- Permissions label for reading attachments -->
     <string name="read_attachment_label">Read Email attachments</string>
     <!-- Permissions description for reading attachments -->
@@ -144,29 +162,33 @@
         <item quantity="other">in <xliff:g id="number_accounts" example="10">%d</xliff:g> accounts</item>
     </plurals>
         
-
-    <!-- In the folder list view, the inbox will be displayed with this name -->
-    <string name="special_mailbox_name_inbox">Inbox</string>
+    <!-- The next set of strings are used server-side and must not be localized. -->
+    <!-- Do Not Translate.  This is the name of the "inbox" folder, on the server. -->
+    <string name="mailbox_name_server_inbox">Inbox</string>
     <!-- Do Not Translate.  This is the name of the "outbox" folder, on the server. -->
-    <string name="special_mailbox_name_outbox">Outbox</string>
+    <string name="mailbox_name_server_outbox">Outbox</string>
     <!-- Do Not Translate.  This is the name of the "drafts" folder, on the server. -->
-    <string name="special_mailbox_name_drafts">Drafts</string>
+    <string name="mailbox_name_server_drafts">Drafts</string>
     <!-- Do Not Translate.  This is the name of the "trash" folder, on the server. -->
-    <string name="special_mailbox_name_trash">Trash</string>
+    <string name="mailbox_name_server_trash">Trash</string>
     <!-- Do Not Translate.  This is the name of the "sent" folder, on the server. -->
-    <string name="special_mailbox_name_sent">Sent</string>
-    <!-- In the folder list view, the inbox will be displayed with this name -->
-    <string name="special_mailbox_display_name_inbox">Inbox</string>
-    <!-- In the folder list view, the outbox will be displayed with this name -->
-    <string name="special_mailbox_display_name_outbox">Outbox</string>
-    <!-- In the folder list view, the drafts will be displayed with this name -->
-    <string name="special_mailbox_display_name_drafts">Drafts</string>
-    <!-- In the folder list view, the trash will be displayed with this name -->
-    <string name="special_mailbox_display_name_trash">Trash</string>
-    <!-- In the folder list view, the sent will be displayed with this name -->
-    <string name="special_mailbox_display_name_sent">Sent</string>
-    <!-- In the folder list view, the junk will be displayed with this name -->
-    <string name="special_mailbox_display_name_junk">Junk</string>
+    <string name="mailbox_name_server_sent">Sent</string>
+    <!-- Do Not Translate.  This is the name of the "junk" folder, on the server. -->
+    <string name="mailbox_name_server_junk">Junk</string>
+
+    <!-- The next set of strings are used in local display and may be localized. -->
+    <!-- In the UI, the inbox will be displayed with this name -->
+    <string name="mailbox_name_display_inbox">Inbox</string>
+    <!-- In the UI, the outbox will be displayed with this name -->
+    <string name="mailbox_name_display_outbox">Outbox</string>
+    <!-- In the UI, the drafts will be displayed with this name -->
+    <string name="mailbox_name_display_drafts">Drafts</string>
+    <!-- In the UI, the trash will be displayed with this name -->
+    <string name="mailbox_name_display_trash">Trash</string>
+    <!-- In the UI, the sent will be displayed with this name -->
+    <string name="mailbox_name_display_sent">Sent</string>
+    <!-- In the UI, the junk will be displayed with this name -->
+    <string name="mailbox_name_display_junk">Junk</string>
 
     <!-- Version number, shown only on debug screen -->
     <string name="debug_version_fmt">Version: <xliff:g id="version">%s</xliff:g></string>

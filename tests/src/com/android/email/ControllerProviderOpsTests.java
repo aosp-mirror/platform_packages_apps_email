@@ -20,11 +20,14 @@ import com.android.email.provider.EmailContent;
 import com.android.email.provider.EmailProvider;
 import com.android.email.provider.ProviderTestUtils;
 import com.android.email.provider.EmailContent.Account;
+import com.android.email.provider.EmailContent.HostAuth;
 import com.android.email.provider.EmailContent.Mailbox;
 import com.android.email.provider.EmailContent.Message;
 
 import android.content.Context;
 import android.test.ProviderTestCase2;
+
+import java.util.Locale;
 
 /**
  * Tests of the Controller class that depend on the underlying provider.
@@ -69,10 +72,29 @@ public class ControllerProviderOpsTests extends ProviderTestCase2<EmailProvider>
         }
     }
 
-    public void testGetSpecialMailboxName() {
+    /**
+     * These are strings that should not change per locale.
+     */
+    public void testGetMailboxServerName() {
         Controller ct = new TestController(mProviderContext, mContext);
-        assertEquals("Outbox", ct.getSpecialMailboxDisplayName(Mailbox.TYPE_OUTBOX));
-        assertEquals("", ct.getSpecialMailboxDisplayName(-1));
+
+        assertEquals("", ct.getMailboxServerName(-1));
+
+        assertEquals("Inbox", ct.getMailboxServerName(Mailbox.TYPE_INBOX));
+        assertEquals("Outbox", ct.getMailboxServerName(Mailbox.TYPE_OUTBOX));
+        assertEquals("Trash", ct.getMailboxServerName(Mailbox.TYPE_TRASH));
+        assertEquals("Sent", ct.getMailboxServerName(Mailbox.TYPE_SENT));
+        assertEquals("Junk", ct.getMailboxServerName(Mailbox.TYPE_JUNK));
+
+        // Now try again with translation
+        Locale savedLocale = Locale.getDefault();
+        Locale.setDefault(Locale.FRANCE);
+        assertEquals("Inbox", ct.getMailboxServerName(Mailbox.TYPE_INBOX));
+        assertEquals("Outbox", ct.getMailboxServerName(Mailbox.TYPE_OUTBOX));
+        assertEquals("Trash", ct.getMailboxServerName(Mailbox.TYPE_TRASH));
+        assertEquals("Sent", ct.getMailboxServerName(Mailbox.TYPE_SENT));
+        assertEquals("Junk", ct.getMailboxServerName(Mailbox.TYPE_JUNK));
+        Locale.setDefault(savedLocale);
     }
 
     /**
@@ -207,8 +229,11 @@ public class ControllerProviderOpsTests extends ProviderTestCase2<EmailProvider>
      * Test read/unread flag
      */
     public void testReadUnread() {
-        // No account or mailbox needed for this test
-        long account1Id = 1;
+        Account account1 = ProviderTestUtils.setupAccount("read-unread", false, mProviderContext);
+        account1.mHostAuthRecv
+                = ProviderTestUtils.setupHostAuth("read-unread", 0, false, mProviderContext);
+        account1.save(mProviderContext);
+        long account1Id = account1.mId;
         long box1Id = 2;
 
         Message message1 =
@@ -233,8 +258,11 @@ public class ControllerProviderOpsTests extends ProviderTestCase2<EmailProvider>
      * Test favorites flag
      */
     public void testFavorites() {
-        // No account or mailbox needed for this test
-        long account1Id = 1;
+        Account account1 = ProviderTestUtils.setupAccount("favorites", false, mProviderContext);
+        account1.mHostAuthRecv
+                = ProviderTestUtils.setupHostAuth("favorites", 0, false, mProviderContext);
+        account1.save(mProviderContext);
+        long account1Id = account1.mId;
         long box1Id = 2;
 
         Message message1 =
