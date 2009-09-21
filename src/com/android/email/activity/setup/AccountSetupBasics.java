@@ -41,6 +41,7 @@ import android.view.View.OnClickListener;
 import android.widget.Button;
 import android.widget.CheckBox;
 import android.widget.EditText;
+import android.widget.TextView;
 import android.widget.Toast;
 
 import java.io.Serializable;
@@ -133,8 +134,11 @@ public class AccountSetupBasics extends Activity
 
         mEasFlowMode = getIntent().getBooleanExtra(EXTRA_EAS_FLOW, false);
         if (mEasFlowMode) {
+            // No need for manual button -> next is appropriate
             mManualSetupButton.setVisibility(View.GONE);
-            // TODO: probably need different text here
+            // Swap welcome text for EAS-specific text
+            TextView welcomeView = (TextView) findViewById(R.id.instructions);
+            welcomeView.setText(R.string.accounts_welcome_exchange);
         }
 
         if (savedInstanceState != null && savedInstanceState.containsKey(EXTRA_ACCOUNT)) {
