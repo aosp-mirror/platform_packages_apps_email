@@ -696,6 +696,9 @@ public class EasSyncService extends AbstractSyncService {
             int pushCount = 0;
             // Count of mailboxes that can be pushed right now
             int canPushCount = 0;
+            // Count of uninitialized boxes
+            int uninitCount = 0;
+            
             Serializer s = new Serializer();
             Cursor c = mContentResolver.query(Mailbox.CONTENT_URI, Mailbox.CONTENT_PROJECTION,
                     MailboxColumns.ACCOUNT_KEY + '=' + mAccount.mId +
@@ -716,6 +719,7 @@ public class EasSyncService extends AbstractSyncService {
                         if ((syncKey == null) || syncKey.equals("0")) {
                             // We can't push until the initial sync is done
                             pushCount--;
+                            uninitCount++;
                             continue;
                         }
 
@@ -835,6 +839,12 @@ public class EasSyncService extends AbstractSyncService {
                 userLog("pingLoop waiting for: ", (pushCount - canPushCount), " box(es)");
                 sleep(1*SECONDS);
                 pingWaitCount++;
+            } else if (uninitCount > 0) {
+                // In this case, we're doing an initial sync of at least one mailbox.  Since this
+                // is typically a one-time case, I'm ok with trying again every 10 seconds until
+                // we're in one of the other possible states.
+                userLog("pingLoop waiting for ", uninitCount, " box(es) to do an initial sync");
+                sleep(10*SECONDS);
             } else {
                 // We've got nothing to do, so we'll check again in 30 minutes at which time
                 // we'll update the folder list.  Let the device sleep in the meantime...
