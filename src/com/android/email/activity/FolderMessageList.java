@@ -1562,25 +1562,25 @@ public class FolderMessageList extends ExpandableListActivity {
         private void setSpecialFolderInfo(FolderInfoHolder holder) {
             String folderName = holder.name;
             holder.special = true;
-            if (folderName.equalsIgnoreCase(Email.INBOX)) {
-                holder.inbox = true;
-                holder.displayName = getString(R.string.special_mailbox_name_inbox);
-            } else if (folderName.equals(mAccount.getDraftsFolderName(FolderMessageList.this))) {
-                holder.drafts = true;
-                holder.displayName = getString(R.string.special_mailbox_display_name_drafts);
-            } else if (folderName.equals(mAccount.getOutboxFolderName(FolderMessageList.this))) {
-                holder.outbox = true;
-                holder.displayName = getString(R.string.special_mailbox_display_name_outbox);
-            } else if (folderName.equals(mAccount.getSentFolderName(FolderMessageList.this))) {
-                holder.sent = true;
-                holder.displayName = getString(R.string.special_mailbox_display_name_sent);
-            } else if (folderName.equals(mAccount.getTrashFolderName(FolderMessageList.this))) {
-                holder.trash = true;
-                holder.displayName = getString(R.string.special_mailbox_display_name_trash);
-            } else {
-                holder.special = false;
-                holder.displayName = folderName;
-            }
+//            if (folderName.equalsIgnoreCase(Email.INBOX)) {
+//                holder.inbox = true;
+//                holder.displayName = getString(R.string.special_mailbox_name_inbox);
+//            } else if (folderName.equals(mAccount.getDraftsFolderName(FolderMessageList.this))) {
+//                holder.drafts = true;
+//                holder.displayName = getString(R.string.special_mailbox_display_name_drafts);
+//            } else if (folderName.equals(mAccount.getOutboxFolderName(FolderMessageList.this))) {
+//                holder.outbox = true;
+//                holder.displayName = getString(R.string.special_mailbox_display_name_outbox);
+//            } else if (folderName.equals(mAccount.getSentFolderName(FolderMessageList.this))) {
+//                holder.sent = true;
+//                holder.displayName = getString(R.string.special_mailbox_display_name_sent);
+//            } else if (folderName.equals(mAccount.getTrashFolderName(FolderMessageList.this))) {
+//                holder.trash = true;
+//                holder.displayName = getString(R.string.special_mailbox_display_name_trash);
+//            } else {
+//                holder.special = false;
+//                holder.displayName = folderName;
+//            }
         }
 
         /**
@@ -1890,9 +1890,9 @@ public class FolderMessageList extends ExpandableListActivity {
         public int compareTo(FolderInfoHolder o) {
             String s1 = this.name;
             String s2 = o.name;
-            if (Email.INBOX.equalsIgnoreCase(s1)) {
+            if ("Inbox".equalsIgnoreCase(s1)) {
                 return -1;
-            } else if (Email.INBOX.equalsIgnoreCase(s2)) {
+            } else if ("Inbox".equalsIgnoreCase(s2)) {
                 return 1;
             } else
                 return s1.toUpperCase().compareTo(s2.toUpperCase());

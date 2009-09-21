@@ -262,7 +262,7 @@ public class Controller {
             Uri uri = ContentUris.withAppendedId(Message.CONTENT_URI, messageId);
             ContentValues cv = new ContentValues();
             cv.put(MessageColumns.FLAG_LOADED, Message.FLAG_LOADED_COMPLETE);
-            mContext.getContentResolver().update(uri, cv, null, null);
+            mProviderContext.getContentResolver().update(uri, cv, null, null);
             Log.d(Email.LOG_TAG, "Unexpected loadMessageForView() for service-based message.");
             synchronized (mListeners) {
                 for (Result listener : mListeners) {
@@ -292,7 +292,7 @@ public class Controller {
         long accountId = message.mAccountKey;
         long mailboxId = findOrCreateMailboxOfType(accountId, mailboxType);
         message.mMailboxKey = mailboxId;
-        message.save(mContext);
+        message.save(mProviderContext);
     }
 
     /**
@@ -312,27 +312,31 @@ public class Controller {
     }
 
     /**
+     * Returns the server-side name for a specific mailbox.
+     *
      * @param mailboxType the mailbox type
      * @return the resource string corresponding to the mailbox type, empty if not found.
      */
-    /* package */ String getSpecialMailboxDisplayName(int mailboxType) {
+    /* package */ String getMailboxServerName(int mailboxType) {
         int resId = -1;
         switch (mailboxType) {
             case Mailbox.TYPE_INBOX:
-                // TODO: there is no special_mailbox_display_name_inbox; why?
-                resId = R.string.special_mailbox_name_inbox;
+                resId = R.string.mailbox_name_server_inbox;
                 break;
             case Mailbox.TYPE_OUTBOX:
-                resId = R.string.special_mailbox_display_name_outbox;
+                resId = R.string.mailbox_name_server_outbox;
                 break;
             case Mailbox.TYPE_DRAFTS:
-                resId = R.string.special_mailbox_display_name_drafts;
+                resId = R.string.mailbox_name_server_drafts;
                 break;
             case Mailbox.TYPE_TRASH:
-                resId = R.string.special_mailbox_display_name_trash;
+                resId = R.string.mailbox_name_server_trash;
                 break;
             case Mailbox.TYPE_SENT:
-                resId = R.string.special_mailbox_display_name_sent;
+                resId = R.string.mailbox_name_server_sent;
+                break;
+            case Mailbox.TYPE_JUNK:
+                resId = R.string.mailbox_name_server_junk;
                 break;
         }
         return resId != -1 ? mContext.getString(resId) : "";
@@ -341,8 +345,6 @@ public class Controller {
     /**
      * Create a mailbox given the account and mailboxType.
      * TODO: Does this need to be signaled explicitly to the sync engines?
-     * As this method is only used internally ('private'), it does not
-     * validate its inputs (accountId and mailboxType).
      */
     /* package */ long createMailbox(long accountId, int mailboxType) {
         if (accountId < 0 || mailboxType < 0) {
@@ -355,7 +357,7 @@ public class Controller {
         box.mType = mailboxType;
         box.mSyncInterval = EmailContent.Account.CHECK_INTERVAL_NEVER;
         box.mFlagVisible = true;
-        box.mDisplayName = getSpecialMailboxDisplayName(mailboxType);
+        box.mDisplayName = getMailboxServerName(mailboxType);
         box.save(mProviderContext);
         return box.mId;
     }
@@ -391,7 +393,7 @@ public class Controller {
 
         // for IMAP & POP only, (attempt to) send the message now
         final EmailContent.Account account =
-                EmailContent.Account.restoreAccountWithId(mContext, accountId);
+                EmailContent.Account.restoreAccountWithId(mProviderContext, accountId);
         if (this.isMessagingController(account)) {
             final long sentboxId = findOrCreateMailboxOfType(accountId, Mailbox.TYPE_SENT);
             new Thread() {
@@ -431,7 +433,7 @@ public class Controller {
         } else {
             // MessagingController implementation
             final EmailContent.Account account =
-                EmailContent.Account.restoreAccountWithId(mContext, accountId);
+                EmailContent.Account.restoreAccountWithId(mProviderContext, accountId);
             final long sentboxId = findOrCreateMailboxOfType(accountId, Mailbox.TYPE_SENT);
             new Thread() {
                 @Override
@@ -452,7 +454,7 @@ public class Controller {
         new Thread() {
             @Override
             public void run() {
-                ContentResolver resolver = mContext.getContentResolver();
+                ContentResolver resolver = mProviderContext.getContentResolver();
                 Cursor c = null;
                 try {
                     c = resolver.query(
@@ -461,10 +463,10 @@ public class Controller {
                             null, null, null);
                     while (c.moveToNext()) {
                         long accountId = c.getLong(Account.ID_PROJECTION_COLUMN);
-                        Account account = Account.restoreAccountWithId(mContext, accountId);
+                        Account account = Account.restoreAccountWithId(mProviderContext, accountId);
                         if (account != null) {
                             Store.StoreInfo info = Store.StoreInfo.getStoreInfo(
-                                    account.getStoreUri(mContext), mContext);
+                                    account.getStoreUri(mProviderContext), mContext);
                             if (info != null && info.mVisibleLimitDefault > 0) {
                                 int limit = info.mVisibleLimitDefault;
                                 ContentValues cv = new ContentValues();
@@ -493,23 +495,24 @@ public class Controller {
         new Thread() {
             @Override
             public void run() {
-                Mailbox mailbox = Mailbox.restoreMailboxWithId(mContext, mailboxId);
+                Mailbox mailbox = Mailbox.restoreMailboxWithId(mProviderContext, mailboxId);
                 if (mailbox == null) {
                     return;
                 }
-                Account account = Account.restoreAccountWithId(mContext, mailbox.mAccountKey);
+                Account account = Account.restoreAccountWithId(mProviderContext,
+                        mailbox.mAccountKey);
                 if (account == null) {
                     return;
                 }
                 Store.StoreInfo info = Store.StoreInfo.getStoreInfo(
-                        account.getStoreUri(mContext), mContext);
+                        account.getStoreUri(mProviderContext), mContext);
                 if (info != null && info.mVisibleLimitIncrement > 0) {
                     // Use provider math to increment the field
                     ContentValues cv = new ContentValues();;
                     cv.put(EmailContent.FIELD_COLUMN_NAME, MailboxColumns.VISIBLE_LIMIT);
                     cv.put(EmailContent.ADD_COLUMN_NAME, info.mVisibleLimitIncrement);
                     Uri uri = ContentUris.withAppendedId(Mailbox.ADD_TO_FIELD_URI, mailboxId);
-                    mContext.getContentResolver().update(uri, cv, null, null);
+                    mProviderContext.getContentResolver().update(uri, cv, null, null);
                     // Trigger a refresh using the new, longer limit
                     mailbox.mVisibleLimit += info.mVisibleLimitIncrement;
                     mLegacyController.synchronizeMailbox(account, mailbox, mLegacyListener);
@@ -577,7 +580,7 @@ public class Controller {
         }
 
         // 4.  Drop non-essential data for the message (e.g. attachment files)
-        AttachmentProvider.deleteAllAttachmentFiles(mContext, accountId, messageId);
+        AttachmentProvider.deleteAllAttachmentFiles(mProviderContext, accountId, messageId);
 
         Uri uri = ContentUris.withAppendedId(EmailContent.Message.SYNCED_CONTENT_URI, messageId);
 
@@ -593,7 +596,7 @@ public class Controller {
         }
 
         // 6.  Service runs automatically, MessagingController needs a kick
-        Account account = Account.restoreAccountWithId(mContext, accountId);
+        Account account = Account.restoreAccountWithId(mProviderContext, accountId);
         if (isMessagingController(account)) {
             final long syncAccountId = accountId;
             new Thread() {
@@ -621,8 +624,8 @@ public class Controller {
         mProviderContext.getContentResolver().update(uri, cv, null, null);
 
         // Service runs automatically, MessagingController needs a kick
-        final Message message = Message.restoreMessageWithId(mContext, messageId);
-        Account account = Account.restoreAccountWithId(mContext, message.mAccountKey);
+        final Message message = Message.restoreMessageWithId(mProviderContext, messageId);
+        Account account = Account.restoreAccountWithId(mProviderContext, message.mAccountKey);
         if (isMessagingController(account)) {
             new Thread() {
                 @Override
@@ -649,8 +652,8 @@ public class Controller {
         mProviderContext.getContentResolver().update(uri, cv, null, null);
 
         // Service runs automatically, MessagingController needs a kick
-        final Message message = Message.restoreMessageWithId(mContext, messageId);
-        Account account = Account.restoreAccountWithId(mContext, message.mAccountKey);
+        final Message message = Message.restoreMessageWithId(mProviderContext, messageId);
+        Account account = Account.restoreAccountWithId(mProviderContext, message.mAccountKey);
         if (isMessagingController(account)) {
             new Thread() {
                 @Override
@@ -674,7 +677,7 @@ public class Controller {
     public void loadAttachment(final long attachmentId, final long messageId, final long mailboxId,
             final long accountId, final Result callback) {
 
-        File saveToFile = AttachmentProvider.getAttachmentFilename(mContext,
+        File saveToFile = AttachmentProvider.getAttachmentFilename(mProviderContext,
                 accountId, attachmentId);
         if (saveToFile.exists()) {
             // The attachment has already been downloaded, so we will just "pretend" to download it
@@ -753,7 +756,11 @@ public class Controller {
      */
     public boolean isMessagingController(EmailContent.Account account) {
         Store.StoreInfo info =
-            Store.StoreInfo.getStoreInfo(account.getStoreUri(mContext), mContext);
+            Store.StoreInfo.getStoreInfo(account.getStoreUri(mProviderContext), mContext);
+        // This null happens in testing.
+        if (info == null) {
+            return false;
+        }
         String scheme = info.mScheme;
 
         return ("pop3".equals(scheme) || "imap".equals(scheme));
@@ -1088,7 +1095,7 @@ public class Controller {
             // TODO where do we get "number of new messages" as well?
             // TODO should pass this back instead of looking it up here
             // TODO smaller projection
-            Mailbox mbx = Mailbox.restoreMailboxWithId(mContext, mailboxId);
+            Mailbox mbx = Mailbox.restoreMailboxWithId(mProviderContext, mailboxId);
             // The mailbox could have disappeared if the server commanded it
             if (mbx == null) return;
             long accountId = mbx.mAccountKey;

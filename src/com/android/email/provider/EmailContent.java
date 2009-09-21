@@ -1313,35 +1313,6 @@ public abstract class EmailContent {
         }
 
         /**
-         * TODO don't store these names in the account - just tag the folders
-         */
-        public String getDraftsFolderName(Context context) {
-            return context.getString(R.string.special_mailbox_name_drafts);
-        }
-
-        /**
-         * TODO don't store these names in the account - just tag the folders
-         */
-        public String getSentFolderName(Context context) {
-            return context.getString(R.string.special_mailbox_name_sent);
-        }
-
-        /**
-         * TODO don't store these names in the account - just tag the folders
-         */
-        public String getTrashFolderName(Context context) {
-            return context.getString(R.string.special_mailbox_name_trash);
-        }
-
-        /**
-         * TODO don't store these names in the account - just tag the folders
-         */
-        public String getOutboxFolderName(Context context) {
-            return context.getString(R.string.special_mailbox_name_outbox);
-        }
-
-
-        /**
          * Supports Parcelable
          */
         public int describeContents() {

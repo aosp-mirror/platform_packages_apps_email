@@ -114,6 +114,7 @@ public class MessagingController implements Runnable {
     private static MessagingController inst = null;
     private BlockingQueue<Command> mCommands = new LinkedBlockingQueue<Command>();
     private Thread mThread;
+    private final HashMap<String, Integer> mServerMailboxNames = new HashMap<String, Integer>();
 
     /**
      * All access to mListeners *must* be synchronized
@@ -124,6 +125,27 @@ public class MessagingController implements Runnable {
 
     protected MessagingController(Context _context) {
         mContext = _context;
+
+        // Create lookup table for server-side mailbox names
+        mServerMailboxNames.put(
+                mContext.getString(R.string.mailbox_name_server_inbox).toLowerCase(),
+                Mailbox.TYPE_INBOX);
+        mServerMailboxNames.put(
+                mContext.getString(R.string.mailbox_name_server_outbox).toLowerCase(),
+                Mailbox.TYPE_OUTBOX);
+        mServerMailboxNames.put(
+                mContext.getString(R.string.mailbox_name_server_drafts).toLowerCase(),
+                Mailbox.TYPE_DRAFTS);
+        mServerMailboxNames.put(
+                mContext.getString(R.string.mailbox_name_server_trash).toLowerCase(),
+                Mailbox.TYPE_TRASH);
+        mServerMailboxNames.put(
+                mContext.getString(R.string.mailbox_name_server_sent).toLowerCase(),
+                Mailbox.TYPE_SENT);
+        mServerMailboxNames.put(
+                mContext.getString(R.string.mailbox_name_server_junk).toLowerCase(),
+                Mailbox.TYPE_JUNK);
+
         mThread = new Thread(this);
         mThread.start();
     }
@@ -253,7 +275,6 @@ public class MessagingController implements Runnable {
                     Store store = Store.getInstance(account.getStoreUri(mContext), mContext, null);
 
                     Folder[] remoteFolders = store.getPersonalNamespaces();
-                    updateAccountFolderNames(account, remoteFolders);
 
                     HashSet<String> remoteFolderNames = new HashSet<String>();
                     for (int i = 0, count = remoteFolders.length; i < count; i++) {
@@ -333,69 +354,12 @@ public class MessagingController implements Runnable {
         if (mailboxName == null || mailboxName.length() == 0) {
             return EmailContent.Mailbox.TYPE_MAIL;
         }
-        if (mailboxName.equals(Email.INBOX)) {
-            return EmailContent.Mailbox.TYPE_INBOX;
+        String lowerCaseName = mailboxName.toLowerCase();
+        Integer type = mServerMailboxNames.get(lowerCaseName);
+        if (type != null) {
+            return type;
         }
-        if (mailboxName.equals(account.getTrashFolderName(mContext))) {
-            return EmailContent.Mailbox.TYPE_TRASH;
-        }
-        if (mailboxName.equals(account.getOutboxFolderName(mContext))) {
-            return EmailContent.Mailbox.TYPE_OUTBOX;
-        }
-        if (mailboxName.equals(account.getDraftsFolderName(mContext))) {
-            return EmailContent.Mailbox.TYPE_DRAFTS;
-        }
-        if (mailboxName.equals(account.getSentFolderName(mContext))) {
-            return EmailContent.Mailbox.TYPE_SENT;
-        }
-
         return EmailContent.Mailbox.TYPE_MAIL;
-    }
-
-    /**
-     * Asks the store for a list of server-specific folder names and, if provided, updates
-     * the account record for future getFolder() operations.
-     *
-     * NOTE:  Inbox is not queried, because we require it to be INBOX, and outbox is not
-     * queried, because outbox is local-only.
-     *
-     * TODO: Rewrite this to use simple folder tagging and none of this account nonsense
-     */
-    /* package */ void updateAccountFolderNames(EmailContent.Account account,
-            Folder[] remoteFolders) {
-        String trash = null;
-        String sent = null;
-        String drafts = null;
-
-        for (Folder folder : remoteFolders) {
-            Folder.FolderRole role = folder.getRole();
-            if (role == Folder.FolderRole.TRASH) {
-                trash = folder.getName();
-            } else if (role == Folder.FolderRole.SENT) {
-                sent = folder.getName();
-            } else if (role == Folder.FolderRole.DRAFTS) {
-                drafts = folder.getName();
-            }
-        }
-/*
-        // Do not update when null (defaults are already in place)
-        boolean commit = false;
-        if (trash != null && !trash.equals(account.getTrashFolderName(mContext))) {
-            account.setTrashFolderName(trash);
-            commit = true;
-        }
-        if (sent != null && !sent.equals(account.getSentFolderName(mContext))) {
-            account.setSentFolderName(sent);
-            commit = true;
-        }
-        if (drafts != null && !drafts.equals(account.getDraftsFolderName(mContext))) {
-            account.setDraftsFolderName(drafts);
-            commit = true;
-        }
-        if (commit) {
-            account.saveOrUpdate(mContext);
-        }
-*/
     }
 
     /**
@@ -566,9 +530,8 @@ public class MessagingController implements Runnable {
          * designed and on Imap folders during error conditions. This allows us
          * to treat Pop3 and Imap the same in this code.
          */
-        if (folder.equals(account.getTrashFolderName(mContext)) ||
-                folder.equals(account.getSentFolderName(mContext)) ||
-                folder.equals(account.getDraftsFolderName(mContext))) {
+        if (folder.mType == Mailbox.TYPE_TRASH || folder.mType == Mailbox.TYPE_SENT
+                || folder.mType == Mailbox.TYPE_DRAFTS) {
             if (!remoteFolder.exists()) {
                 if (!remoteFolder.create(FolderType.HOLDS_MESSAGES)) {
                     return new StoreSynchronizer.SyncResults(0, 0);
