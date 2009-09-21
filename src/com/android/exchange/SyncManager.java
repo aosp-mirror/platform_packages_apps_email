@@ -280,6 +280,13 @@ public class SyncManager extends Service implements Runnable {
 
         public void startSync(long mailboxId) throws RemoteException {
             if (INSTANCE == null) return;
+            // Get the service thread running if it isn't
+            // This is a stopgap for cases in which SyncManager died (due to a crash somewhere in
+            // com.android.email) and hasn't been restarted
+            // See the comment for onCreate for details
+            if (sServiceThread == null) {
+                startService(new Intent(INSTANCE, SyncManager.class));
+            }
             Mailbox m = Mailbox.restoreMailboxWithId(INSTANCE, mailboxId);
             if (m.mType == Mailbox.TYPE_OUTBOX) {
                 // We're using SERVER_ID to indicate an error condition (it has no other use for
@@ -731,6 +738,28 @@ public class SyncManager extends Service implements Runnable {
         return mBinder;
     }
 
+    /**
+     * Note that there are two ways the EAS SyncManager service can be created: 
+     *
+     * 1) as a background service instantiated via startService (which happens on boot, when the 
+     * first EAS account is created, etc), in which case the service thread is spun up, mailboxes 
+     * sync, etc. and
+     * 2) to execute an RPC call from the UI, in which case the background service will already be
+     * running most of the time (unless we're creating a first EAS account)
+     *
+     * If the running background service detects that there are no EAS accounts (on boot, if none
+     * were created, or afterward if the last remaining EAS account is deleted), it will call
+     * stopSelf() to terminate operation.
+     *
+     * The goal is to ensure that the background service is running at all times when there is at
+     * least one EAS account in existence
+     *
+     * Because there are edge cases in which our process can crash (typically, this has been seen
+     * in UI crashes, ANR's, etc.), it's possible for the UI to start up again without the
+     * background service having been started.  We explicitly try to start the service in Welcome
+     * (to handle the case of the app having been reloaded).  We also start the service on any
+     * startSync call (if it isn't already running)
+     */
     @Override
     public void onCreate() {
         alwaysLog("!!! EAS SyncManager, onCreate");
