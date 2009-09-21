@@ -36,8 +36,6 @@ import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.OutputStream;
-import java.util.ArrayList;
-import java.util.Arrays;
 
 /**
  * Various instrumentation tests for MessageCompose.  
@@ -49,15 +47,9 @@ public class MessageViewTests
         extends ActivityInstrumentationTestCase2<MessageView> {
     
     // copied from MessageView (could be package class)
-    private static final String EXTRA_ACCOUNT_ID = "com.android.email.MessageView_account_id";
-    private static final String EXTRA_FOLDER = "com.android.email.MessageView_folder";
-    private static final String EXTRA_MESSAGE = "com.android.email.MessageView_message";
-    private static final String EXTRA_FOLDER_UIDS = "com.android.email.MessageView_folderUids";
+    private static final String EXTRA_MESSAGE_ID = "com.android.email.MessageView_message_id";
+    private static final String EXTRA_MAILBOX_ID = "com.android.email.MessageView_mailbox_id";
 
-    // used by the mock controller
-    private static final String FOLDER_NAME = "folder";
-    private static final String MESSAGE_UID = "message_uid";
-    
     private TextView mToView;
     private TextView mSubjectView;
     private WebView mMessageContentView;
@@ -75,14 +67,10 @@ public class MessageViewTests
         Email.setServicesEnabled(mContext);
         
         // setup an intent to spin up this activity with something useful
-        ArrayList<String> FOLDER_UIDS = new ArrayList<String>(
-                Arrays.asList(new String[]{ "why", "is", "java", "so", "ugly?" }));
-        // Log.d("MessageViewTest", "--- folder:" + FOLDER_UIDS);
+        // Long.MIN_VALUE are sentinels to command MessageView to skip loading
         Intent i = new Intent()
-            .putExtra(EXTRA_ACCOUNT_ID, -1)
-            .putExtra(EXTRA_FOLDER, FOLDER_NAME)
-            .putExtra(EXTRA_MESSAGE, MESSAGE_UID)
-            .putStringArrayListExtra(EXTRA_FOLDER_UIDS, FOLDER_UIDS);
+            .putExtra(EXTRA_MESSAGE_ID, Long.MIN_VALUE)
+            .putExtra(EXTRA_MAILBOX_ID, Long.MIN_VALUE);
         this.setActivityIntent(i);
 
         // configure a mock controller
