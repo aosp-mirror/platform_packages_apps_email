@@ -124,6 +124,12 @@ public class ContactsSyncAdapter extends AbstractSyncAdapter {
         super(mailbox, service);
     }
 
+    static Uri addCallerIsSyncAdapterParameter(Uri uri) {
+        return uri.buildUpon()
+                .appendQueryParameter(ContactsContract.CALLER_IS_SYNCADAPTER, "true")
+                .build();
+    }
+
     @Override
     public boolean parse(InputStream is) throws IOException {
         EasContactsSyncParser p = new EasContactsSyncParser(is, this);
@@ -154,7 +160,7 @@ public class ContactsSyncAdapter extends AbstractSyncAdapter {
                 cv.put(Groups.ACCOUNT_NAME, mAccount.mEmailAddress);
                 cv.put(Groups.ACCOUNT_TYPE, Eas.ACCOUNT_MANAGER_TYPE);
                 cv.put(Settings.UNGROUPED_VISIBLE, true);
-                client.insert(Settings.CONTENT_URI, cv);
+                client.insert(addCallerIsSyncAdapterParameter(Settings.CONTENT_URI), cv);
                 return "0";
             } else {
                 String syncKey = new String(data);
@@ -615,7 +621,8 @@ public class ContactsSyncAdapter extends AbstractSyncAdapter {
                 for (NamedContentValues ncv: ncvList) {
                     // These rows need to be deleted...
                     Uri u = dataUriFromNamedContentValues(ncv);
-                    ops.add(ContentProviderOperation.newDelete(u).build());
+                    ops.add(ContentProviderOperation.newDelete(addCallerIsSyncAdapterParameter(u))
+                            .build());
                 }
             }
         }
@@ -796,7 +803,8 @@ public class ContactsSyncAdapter extends AbstractSyncAdapter {
                     Uri u = ops.mResults[index].uri;
                     if (u != null) {
                         String idString = u.getLastPathSegment();
-                        mContentResolver.update(RawContacts.CONTENT_URI, cv,
+                        mContentResolver.update(
+                                addCallerIsSyncAdapterParameter(RawContacts.CONTENT_URI), cv,
                                 RawContacts._ID + "=" + idString, null);
                     }
                 }
@@ -831,8 +839,10 @@ public class ContactsSyncAdapter extends AbstractSyncAdapter {
                 if (c.moveToFirst()) {
                     cv.put(RawContacts.SOURCE_ID, serverId);
                     cv.put(RawContacts.DIRTY, 0);
-                    ops.add(ContentProviderOperation.newUpdate(ContentUris
-                            .withAppendedId(RawContacts.CONTENT_URI, c.getLong(0)))
+                    ops.add(ContentProviderOperation.newUpdate(
+                            ContentUris.withAppendedId(
+                                    addCallerIsSyncAdapterParameter(RawContacts.CONTENT_URI),
+                                    c.getLong(0)))
                             .withValues(cv)
                             .build());
                     userLog("New contact " + clientId + " was given serverId: " + serverId);
@@ -1088,7 +1098,8 @@ public class ContactsSyncAdapter extends AbstractSyncAdapter {
                 if (ncv != null) {
                     builder = new RowBuilder(
                             ContentProviderOperation
-                                .newUpdate(dataUriFromNamedContentValues(ncv)),
+                                .newUpdate(addCallerIsSyncAdapterParameter(
+                                    dataUriFromNamedContentValues(ncv))),
                             ncv);
                 }
             }
@@ -1120,7 +1131,8 @@ public class ContactsSyncAdapter extends AbstractSyncAdapter {
 
             // Create an insert operation with the proper contactId reference
             RowBuilder builder =
-                new RowBuilder(ContentProviderOperation.newInsert(Data.CONTENT_URI));
+                new RowBuilder(ContentProviderOperation.newInsert(
+                        addCallerIsSyncAdapterParameter(Data.CONTENT_URI)));
             if (entity == null) {
                 builder.withValueBackReference(Data.RAW_CONTACT_ID, contactId);
             } else {
@@ -1363,7 +1375,8 @@ public class ContactsSyncAdapter extends AbstractSyncAdapter {
                         // And update it
                         RowBuilder builder = new RowBuilder(
                                 ContentProviderOperation
-                                    .newUpdate(dataUriFromNamedContentValues(ncv)),
+                                    .newUpdate(addCallerIsSyncAdapterParameter(
+                                        dataUriFromNamedContentValues(ncv))),
                                 ncv);
                         row.addValues(builder);
                         add(builder.build());
@@ -1726,6 +1739,7 @@ public class ContactsSyncAdapter extends AbstractSyncAdapter {
         Uri uri = RawContacts.CONTENT_URI.buildUpon()
                 .appendQueryParameter(RawContacts.ACCOUNT_NAME, mAccount.mEmailAddress)
                 .appendQueryParameter(RawContacts.ACCOUNT_TYPE, Eas.ACCOUNT_MANAGER_TYPE)
+                .appendQueryParameter(ContactsContract.CALLER_IS_SYNCADAPTER, "true")
                 .build();
 
         if (getSyncKey().equals("0")) {
@@ -1738,6 +1752,7 @@ public class ContactsSyncAdapter extends AbstractSyncAdapter {
             ContentValues cidValues = new ContentValues();
             try {
                 boolean first = true;
+                final Uri rawContactUri = addCallerIsSyncAdapterParameter(RawContacts.CONTENT_URI);
                 while (ei.hasNext()) {
                     Entity entity = ei.next();
                     // For each of these entities, create the change commands
@@ -1757,7 +1772,7 @@ public class ContactsSyncAdapter extends AbstractSyncAdapter {
                         // And save it in the raw contact
                         cidValues.put(ContactsContract.RawContacts.SYNC1, clientId);
                         cr.update(ContentUris.
-                                withAppendedId(ContactsContract.RawContacts.CONTENT_URI,
+                                withAppendedId(rawContactUri,
                                         entityValues.getAsLong(ContactsContract.RawContacts._ID)),
                                         cidValues, null, null);
                     } else {
