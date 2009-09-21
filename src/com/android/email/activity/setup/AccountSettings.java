@@ -247,9 +247,8 @@ public class AccountSettings extends PreferenceActivity {
 
         mSyncContacts = (CheckBoxPreference) findPreference(PREFERENCE_SYNC_CONTACTS);
         if (mAccount.mHostAuthRecv.mProtocol.equals("eas")) {
-            String login = mAccount.mHostAuthRecv.mLogin;
             android.accounts.Account acct =
-                new android.accounts.Account(login, Eas.ACCOUNT_MANAGER_TYPE);
+                new android.accounts.Account(mAccount.mEmailAddress, Eas.ACCOUNT_MANAGER_TYPE);
             mSyncContacts.setChecked(ContentResolver
                     .getSyncAutomatically(acct, ContactsContract.AUTHORITY));
         } else {
@@ -319,9 +318,8 @@ public class AccountSettings extends PreferenceActivity {
         mAccount.setFlags(newFlags);
 
         if (mAccount.mHostAuthRecv.mProtocol.equals("eas")) {
-            String login = mAccount.mHostAuthRecv.mLogin;
             android.accounts.Account acct =
-                new android.accounts.Account(login, Eas.ACCOUNT_MANAGER_TYPE);
+                new android.accounts.Account(mAccount.mEmailAddress, Eas.ACCOUNT_MANAGER_TYPE);
             ContentResolver.setSyncAutomatically(acct, ContactsContract.AUTHORITY,
                     mSyncContacts.isChecked());
 
