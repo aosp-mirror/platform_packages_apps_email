@@ -55,9 +55,13 @@ public class EmailSyncAlarmReceiver extends BroadcastReceiver {
         ArrayList<Long> mailboxesToNotify = new ArrayList<Long>();
         ContentResolver cr = context.getContentResolver();
         int messageCount = 0;
+        
+        // Get a selector for EAS accounts (we don't want to sync on changes to POP/IMAP messages)
+        String selector = SyncManager.getEasAccountSelector();
+        
         // Find all of the deletions
-        Cursor c = cr.query(Message.DELETED_CONTENT_URI, MAILBOX_DATA_PROJECTION,
-                null, null, null);
+        Cursor c = cr.query(Message.DELETED_CONTENT_URI, MAILBOX_DATA_PROJECTION, selector,
+               null, null);
         try {
             // Keep track of which mailboxes to notify; we'll only notify each one once
             while (c.moveToNext()) {
@@ -72,8 +76,8 @@ public class EmailSyncAlarmReceiver extends BroadcastReceiver {
         }
 
         // Now, find changed messages
-        c = cr.query(Message.UPDATED_CONTENT_URI, MAILBOX_DATA_PROJECTION,
-                null, null, null);
+        c = cr.query(Message.UPDATED_CONTENT_URI, MAILBOX_DATA_PROJECTION, selector,
+                null, null);
         try {
             // Keep track of which mailboxes to notify; we'll only notify each one once
             while (c.moveToNext()) {
