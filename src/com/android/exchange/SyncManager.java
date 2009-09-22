@@ -280,14 +280,7 @@ public class SyncManager extends Service implements Runnable {
         }
 
         public void startSync(long mailboxId) throws RemoteException {
-            if (INSTANCE == null) return;
-            // Get the service thread running if it isn't
-            // This is a stopgap for cases in which SyncManager died (due to a crash somewhere in
-            // com.android.email) and hasn't been restarted
-            // See the comment for onCreate for details
-            if (sServiceThread == null) {
-                startService(new Intent(INSTANCE, SyncManager.class));
-            }
+            checkSyncManagerServiceRunning();
             Mailbox m = Mailbox.restoreMailboxWithId(INSTANCE, mailboxId);
             if (m.mType == Mailbox.TYPE_OUTBOX) {
                 // We're using SERVER_ID to indicate an error condition (it has no other use for
@@ -858,6 +851,18 @@ public class SyncManager extends Service implements Runnable {
         }
     }
 
+    static void checkSyncManagerServiceRunning() {
+        // Get the service thread running if it isn't
+        // This is a stopgap for cases in which SyncManager died (due to a crash somewhere in
+        // com.android.email) and hasn't been restarted
+        // See the comment for onCreate for details
+        if (INSTANCE == null) return;
+        if (sServiceThread == null) {
+            INSTANCE.alwaysLog("!!! checkSyncManagerServiceRunning; starting service...");
+            INSTANCE.startService(new Intent(INSTANCE, SyncManager.class));
+        }
+    }
+    
     static public ConnPerRoute sConnPerRoute = new ConnPerRoute() {
         public int getMaxForRoute(HttpRoute route) {
             return 8;
@@ -1084,6 +1089,7 @@ public class SyncManager extends Service implements Runnable {
     }
 
     static public void ping(Context context, long id) {
+        checkSyncManagerServiceRunning();
         if (id < 0) {
             kick("ping SyncManager");
         } else if (INSTANCE == null) {
