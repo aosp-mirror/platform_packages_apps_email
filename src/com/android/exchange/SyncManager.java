@@ -1333,8 +1333,8 @@ public class SyncManager extends Service implements Runnable {
         ContentResolver.addStatusChangeListener(ContentResolver.SYNC_OBSERVER_TYPE_SETTINGS,
                 mSyncStatusObserver);
         mAccountsUpdatedListener = new EasAccountsUpdatedListener();
-        AccountManager.get(this).addOnAccountsUpdatedListener(mAccountsUpdatedListener,
-                mHandler, true);
+        AccountManager.get(getApplication())
+            .addOnAccountsUpdatedListener(mAccountsUpdatedListener, mHandler, true);
 
         mConnectivityReceiver = new ConnectivityReceiver();
         registerReceiver(mConnectivityReceiver,
