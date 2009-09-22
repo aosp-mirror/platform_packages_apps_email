@@ -149,6 +149,7 @@ public class SyncManager extends Service implements Runnable {
         "(" + MailboxColumns.TYPE + '=' + Mailbox.TYPE_OUTBOX
         + " or " + MailboxColumns.SYNC_INTERVAL + "!=" + Mailbox.CHECK_INTERVAL_NEVER + ')'
         + " and " + MailboxColumns.ACCOUNT_KEY + " in (";
+    private static final String ACCOUNT_KEY_IN = MailboxColumns.ACCOUNT_KEY + " in (";
 
     // Offsets into the syncStatus data for EAS that indicate type, exit status, and change count
     // The format is S<type_char>:<exit_char>:<change_count>
@@ -372,7 +373,8 @@ public class SyncManager extends Service implements Runnable {
     class AccountObserver extends ContentObserver {
         // mAccounts keeps track of Accounts that we care about (EAS for now)
         AccountList mAccounts = new AccountList();
-        String mAccountKeyList = null;
+        String mSyncableEasMailboxSelector = null;
+        String mEasAccountSelector = null;
 
         public AccountObserver(Handler handler) {
             super(handler);
@@ -397,12 +399,12 @@ public class SyncManager extends Service implements Runnable {
         }
 
         /**
-         * Returns a String suitable for appending to a where clause that selects for all eas
-         * accounts.
-         * @return a String in the form "and accountKey in (a, b, c...)"
+         * Returns a String suitable for appending to a where clause that selects for all syncable
+         * mailboxes in all eas accounts
+         * @return a complex selection string that is not to be cached
          */
-        public String getMailboxWhere() {
-            if (mAccountKeyList == null) {
+        public String getSyncableEasMailboxWhere() {
+            if (mSyncableEasMailboxSelector == null) {
                 StringBuilder sb = new StringBuilder(WHERE_NOT_INTERVAL_NEVER_AND_ACCOUNT_KEY_IN);
                 boolean first = true;
                 for (Account account: mAccounts) {
@@ -414,9 +416,32 @@ public class SyncManager extends Service implements Runnable {
                     sb.append(account.mId);
                 }
                 sb.append(')');
-                mAccountKeyList = sb.toString();
+                mSyncableEasMailboxSelector = sb.toString();
             }
-            return mAccountKeyList;
+            return mSyncableEasMailboxSelector;
+        }
+
+        /**
+         * Returns a String suitable for appending to a where clause that selects for all eas
+         * accounts.
+         * @return a String in the form "accountKey in (a, b, c...)" that is not to be cached
+         */
+        public String getAccountKeyWhere() {
+            if (mEasAccountSelector == null) {
+                StringBuilder sb = new StringBuilder(ACCOUNT_KEY_IN);
+                boolean first = true;
+                for (Account account: mAccounts) {
+                    if (!first) {
+                        sb.append(',');
+                    } else {
+                        first = false;
+                    }
+                    sb.append(account.mId);
+                }
+                sb.append(')');
+                mEasAccountSelector = sb.toString();
+            }
+            return mEasAccountSelector;
         }
 
         private boolean syncParametersChanged(Account account) {
@@ -453,7 +478,8 @@ public class SyncManager extends Service implements Runnable {
                             new android.accounts.Account(account.mEmailAddress,
                                     Eas.ACCOUNT_MANAGER_TYPE);
                         AccountManager.get(SyncManager.this).removeAccount(acct, null, null);
-                        mAccountKeyList = null;
+                        mSyncableEasMailboxSelector = null;
+                        mEasAccountSelector = null;
                     } else {
                         // See whether any of our accounts has changed sync interval or window
                         if (syncParametersChanged(account)) {
@@ -483,7 +509,8 @@ public class SyncManager extends Service implements Runnable {
                             HostAuth.restoreHostAuthWithId(getContext(), account.mHostAuthKeyRecv);
                         account.mHostAuthRecv = ha;
                         mAccounts.add(account);
-                        mAccountKeyList = null;
+                        mSyncableEasMailboxSelector = null;
+                        mEasAccountSelector = null;
                     }
                 }
 
@@ -614,6 +641,14 @@ public class SyncManager extends Service implements Runnable {
             return INSTANCE.mAccountObserver.mAccounts;
         } else {
             return EMPTY_ACCOUNT_LIST;
+        }
+    }
+
+    static public String getEasAccountSelector() {
+        if (INSTANCE != null) {
+            return INSTANCE.mAccountObserver.getAccountKeyWhere();
+        } else {
+            return null;
         }
     }
 
@@ -1421,7 +1456,7 @@ public class SyncManager extends Service implements Runnable {
         // Start up threads that need it; use a query which finds eas mailboxes where the
         // the sync interval is not "never".  This is the set of mailboxes that we control
         Cursor c = getContentResolver().query(Mailbox.CONTENT_URI, Mailbox.CONTENT_PROJECTION,
-                mAccountObserver.getMailboxWhere(), null, null);
+                mAccountObserver.getSyncableEasMailboxWhere(), null, null);
 
         try {
             while (c.moveToNext()) {
