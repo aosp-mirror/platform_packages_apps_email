@@ -16,18 +16,20 @@
 
 package com.android.email.service;
 
-import com.android.exchange.SyncManager;
+import com.android.email.Email;
 
 import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
 
 public class BootReceiver extends BroadcastReceiver {
+    @Override
     public void onReceive(Context context, Intent intent) {
         if (Intent.ACTION_BOOT_COMPLETED.equals(intent.getAction())) {
-            MailService.actionReschedule(context);
-            // TODO Remove when Exchange is running on its own
-            context.startService(new Intent(context, SyncManager.class));
+            // Returns true if there are any accounts
+            if (Email.setServicesEnabled(context)) {
+                MailService.actionReschedule(context);
+            }
         }
         else if (Intent.ACTION_DEVICE_STORAGE_LOW.equals(intent.getAction())) {
             MailService.actionCancel(context);
