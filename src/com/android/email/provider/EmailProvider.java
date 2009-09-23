@@ -60,12 +60,15 @@ public class EmailProvider extends ContentProvider {
     // Any changes to the database format *must* include update-in-place code.
     // Original version: 3
     // Version 4: Database wipe required; changing AccountManager interface w/Exchange
-    public static final int DATABASE_VERSION = 5;
+    // Version 5: Database wipe required; changing AccountManager interface w/Exchange
+    // Version 6: Adding Message.mServerTimeStamp column
+    public static final int DATABASE_VERSION = 6;
 
     // Any changes to the database format *must* include update-in-place code.
     // Original version: 2
     // Version 3: Add "sourceKey" column
     // Version 4: Database wipe required; changing AccountManager interface w/Exchange
+    // Version 5: Database wipe required; changing AccountManager interface w/Exchange
     public static final int BODY_DATABASE_VERSION = 5;
 
     public static final String EMAIL_AUTHORITY = "com.android.email.provider";
@@ -276,14 +279,16 @@ public class EmailProvider extends ContentProvider {
         // This String and the following String MUST have the same columns, except for the type
         // of those columns!
         String createString = " (" + EmailContent.RECORD_ID + " integer primary key autoincrement, "
-            + SyncColumns.SERVER_ID + " integer, "
+            + SyncColumns.SERVER_ID + " text, "
+            + SyncColumns.SERVER_TIMESTAMP + " integer, "
             + messageColumns;
 
         // For the updated and deleted tables, the id is assigned, but we do want to keep track
         // of the ORDER of updates using an autoincrement primary key.  We use the DATA column
         // at this point; it has no other function
         String altCreateString = " (" + EmailContent.RECORD_ID + " integer unique, "
-            + SyncColumns.SERVER_ID + " integer, "
+            + SyncColumns.SERVER_ID + " text, "
+            + SyncColumns.SERVER_TIMESTAMP + " integer, "
             + messageColumns;
 
         // The three tables have the same schema
@@ -505,9 +510,6 @@ public class EmailProvider extends ContentProvider {
         }
     }
 
-    private final int mDatabaseVersion = DATABASE_VERSION;
-    private final int mBodyDatabaseVersion = BODY_DATABASE_VERSION;
-
     private SQLiteDatabase mDatabase;
     private SQLiteDatabase mBodyDatabase;
 
@@ -532,7 +534,7 @@ public class EmailProvider extends ContentProvider {
 
     private class BodyDatabaseHelper extends SQLiteOpenHelper {
         BodyDatabaseHelper(Context context, String name) {
-            super(context, name, null, mBodyDatabaseVersion);
+            super(context, name, null, BODY_DATABASE_VERSION);
         }
 
         @Override
@@ -555,7 +557,7 @@ public class EmailProvider extends ContentProvider {
         Context mContext;
 
         DatabaseHelper(Context context, String name) {
-            super(context, name, null, mDatabaseVersion);
+            super(context, name, null, DATABASE_VERSION);
             mContext = context;
         }
 
@@ -584,6 +586,17 @@ public class EmailProvider extends ContentProvider {
                 resetMailboxTable(db, oldVersion, newVersion);
                 resetHostAuthTable(db, oldVersion, newVersion);
                 resetAccountTable(db, oldVersion, newVersion);
+                return;
+            }
+            if (oldVersion == 5) {
+                // Message Tables: Add SyncColumns.SERVER_TIMESTAMP
+                db.execSQL("alter table " + Message.TABLE_NAME
+                        + " add column " + SyncColumns.SERVER_TIMESTAMP + " integer" + ";");
+                db.execSQL("alter table " + Message.UPDATED_TABLE_NAME
+                        + " add column " + SyncColumns.SERVER_TIMESTAMP + " integer" + ";");
+                db.execSQL("alter table " + Message.DELETED_TABLE_NAME
+                        + " add column " + SyncColumns.SERVER_TIMESTAMP + " integer" + ";");
+                oldVersion = 6;
             }
         }
 

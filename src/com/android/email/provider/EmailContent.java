@@ -171,6 +171,8 @@ public abstract class EmailContent {
         public static final String ID = "_id";
         // source id (string) : the source's name of this item
         public static final String SERVER_ID = "syncServerId";
+        // source's timestamp (long) for this item
+        public static final String SERVER_TIMESTAMP = "syncServerTimeStamp";
     }
 
     public interface BodyColumns {
@@ -419,6 +421,7 @@ public abstract class EmailContent {
         public static final int CONTENT_CC_LIST_COLUMN = 16;
         public static final int CONTENT_BCC_LIST_COLUMN = 17;
         public static final int CONTENT_REPLY_TO_COLUMN = 18;
+        public static final int CONTENT_SERVER_TIMESTAMP_COLUMN = 19;
 
         public static final String[] CONTENT_PROJECTION = new String[] {
             RECORD_ID,
@@ -431,6 +434,7 @@ public abstract class EmailContent {
             MessageColumns.ACCOUNT_KEY, MessageColumns.FROM_LIST,
             MessageColumns.TO_LIST, MessageColumns.CC_LIST,
             MessageColumns.BCC_LIST, MessageColumns.REPLY_TO_LIST,
+            SyncColumns.SERVER_TIMESTAMP,
         };
 
         public static final int LIST_ID_COLUMN = 0;
@@ -476,7 +480,7 @@ public abstract class EmailContent {
         public int mFlags = 0;
 
         public String mServerId;
-        public int mServerIntId;
+        public long mServerTimeStamp;
         public String mClientId;
         public String mMessageId;
 
@@ -534,12 +538,8 @@ public abstract class EmailContent {
             values.put(MessageColumns.FLAG_ATTACHMENT, mFlagAttachment);
             values.put(MessageColumns.FLAGS, mFlags);
 
-            if (mServerId != null) {
-                values.put(SyncColumns.SERVER_ID, mServerId);
-            } else {
-                values.put(SyncColumns.SERVER_ID, mServerIntId);
-            }
-
+            values.put(SyncColumns.SERVER_ID, mServerId);
+            values.put(SyncColumns.SERVER_TIMESTAMP, mServerTimeStamp);
             values.put(MessageColumns.CLIENT_ID, mClientId);
             values.put(MessageColumns.MESSAGE_ID, mMessageId);
 
@@ -585,7 +585,7 @@ public abstract class EmailContent {
             mFlagAttachment = c.getInt(CONTENT_FLAG_ATTACHMENT_COLUMN) == 1;
             mFlags = c.getInt(CONTENT_FLAGS_COLUMN);
             mServerId = c.getString(CONTENT_SERVER_ID_COLUMN);
-            mServerIntId = c.getInt(CONTENT_SERVER_ID_COLUMN);
+            mServerTimeStamp = c.getLong(CONTENT_SERVER_TIMESTAMP_COLUMN);
             mClientId = c.getString(CONTENT_CLIENT_ID_COLUMN);
             mMessageId = c.getString(CONTENT_MESSAGE_ID_COLUMN);
             mMailboxKey = c.getLong(CONTENT_MAILBOX_KEY_COLUMN);

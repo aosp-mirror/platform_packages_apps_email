@@ -60,6 +60,7 @@ public class LegacyConversions {
         Address[] replyTo = message.getReplyTo();
         String subject = message.getSubject();
         Date sentDate = message.getSentDate();
+        Date internalDate = message.getInternalDate();
 
         if (from != null && from.length > 0) {
             localMessage.mDisplayName = from[0].toFriendly();
@@ -86,7 +87,9 @@ public class LegacyConversions {
 //        public int mFlags = 0;
 
         localMessage.mServerId = message.getUid();
-//        public int mServerIntId;
+        if (internalDate != null) {
+            localMessage.mServerTimeStamp = internalDate.getTime();
+        }
 //        public String mClientId;
 //        public String mMessageId;
 
