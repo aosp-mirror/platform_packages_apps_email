@@ -202,7 +202,9 @@ public class AccountSetupOptions extends Activity implements OnClickListener {
                 && mAccount.mHostAuthRecv != null
                 && mAccount.mHostAuthRecv.mProtocol.equals("eas")) {
             boolean alsoSyncContacts = mSyncContactsView.isChecked();
-            ExchangeStore.addSystemAccount(this, mAccount,
+            // NOTE: We must use the Application here, rather than the current context, because
+            // all future references to AccountManager will end up using the context passed in here!
+            ExchangeStore.addSystemAccount(getApplication(), mAccount,
                     alsoSyncContacts, mAccountManagerCallback);
         } else {
             finishOnDone();
