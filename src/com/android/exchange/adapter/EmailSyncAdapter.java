@@ -116,17 +116,11 @@ public class EmailSyncAdapter extends AbstractSyncAdapter {
                         msg.mTo = Address.pack(Address.parse(getValue()));
                         break;
                     case Tags.EMAIL_FROM:
-                        String from = getValue();
-                        String sender = from;
-                        int q = from.indexOf('\"');
-                        if (q >= 0) {
-                            int qq = from.indexOf('\"', q + 1);
-                            if (qq > 0) {
-                                sender = from.substring(q + 1, qq);
-                            }
+                        Address[] froms = Address.parse(getValue());
+                        if (froms != null && froms.length > 0) {
+                          msg.mDisplayName = froms[0].toFriendly();
                         }
-                        msg.mDisplayName = sender;
-                        msg.mFrom = Address.pack(Address.parse(from));
+                        msg.mFrom = Address.pack(froms);
                         break;
                     case Tags.EMAIL_CC:
                         msg.mCc = Address.pack(Address.parse(getValue()));
