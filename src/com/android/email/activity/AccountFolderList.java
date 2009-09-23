@@ -294,15 +294,12 @@ public class AccountFolderList extends ListActivity
         RowBuilder row;
         // TYPE_INBOX
         count = getUnreadCountByMailboxType(this, Mailbox.TYPE_INBOX);
-        if (count > 0) {
-            row = childCursor.newRow();
-            row.add(Long.valueOf(Mailbox.QUERY_ALL_INBOXES));   // MAILBOX_COLUMN_ID = 0;
-            row.add(getString(R.string.account_folder_list_summary_inbox)); // MAILBOX_DISPLAY_NAME
-            row.add(null);                                          // MAILBOX_ACCOUNT_KEY = 2;
-            row.add(Integer.valueOf(Mailbox.TYPE_INBOX));           // MAILBOX_TYPE = 3;
-            // This value is 0 because count doesn't the number of messages in INBOX
-            row.add(Integer.valueOf(count));                        // MAILBOX_UNREAD_COUNT = 4;
-        }
+        row = childCursor.newRow();
+        row.add(Long.valueOf(Mailbox.QUERY_ALL_INBOXES));   // MAILBOX_COLUMN_ID = 0;
+        row.add(getString(R.string.account_folder_list_summary_inbox)); // MAILBOX_DISPLAY_NAME
+        row.add(null);                                          // MAILBOX_ACCOUNT_KEY = 2;
+        row.add(Integer.valueOf(Mailbox.TYPE_INBOX));           // MAILBOX_TYPE = 3;
+        row.add(Integer.valueOf(count));                        // MAILBOX_UNREAD_COUNT = 4;
         // TYPE_MAIL (FAVORITES)
         count = EmailContent.count(this, Message.CONTENT_URI, FAVORITE_COUNT_SELECTION, null);
         if (count > 0) {
