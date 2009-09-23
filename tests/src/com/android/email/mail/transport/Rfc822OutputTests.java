@@ -62,6 +62,7 @@ public class Rfc822OutputTests extends AndroidTestCase {
         msg.mFrom = SENDER;
         msg.mFlags = Message.FLAG_TYPE_REPLY;
         msg.mTextReply = BODY;
+        msg.mIntroText = REPLY_BODY_SHORT;
         msg.save(getContext());
 
         String body = Rfc822Output.buildBodyText(getContext(), msg, true);
@@ -87,6 +88,7 @@ public class Rfc822OutputTests extends AndroidTestCase {
         msg.mFrom = SENDER;
         msg.mFlags = Message.FLAG_TYPE_REPLY;
         msg.mTextReply = BODY;
+        msg.mIntroText = REPLY_BODY_SHORT;
         msg.save(getContext());
 
         String body = Rfc822Output.buildBodyText(getContext(), msg, false);

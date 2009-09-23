@@ -16,8 +16,6 @@
 
 package com.android.email.provider;
 
-import com.android.email.R;
-
 import android.content.ContentProviderOperation;
 import android.content.ContentProviderResult;
 import android.content.ContentResolver;
@@ -189,6 +187,8 @@ public abstract class EmailContent {
         public static final String TEXT_REPLY = "textReply";
         // Message id of the source (if this is a reply/forward)
         public static final String SOURCE_MESSAGE_KEY = "sourceMessageKey";
+        // The text to be placed between a reply/forward response and the original message
+        public static final String INTRO_TEXT = "introText";
     }
 
     public static final class Body extends EmailContent implements BodyColumns {
@@ -203,9 +203,11 @@ public abstract class EmailContent {
         public static final int CONTENT_HTML_REPLY_COLUMN = 4;
         public static final int CONTENT_TEXT_REPLY_COLUMN = 5;
         public static final int CONTENT_SOURCE_KEY_COLUMN = 6;
+        public static final int CONTENT_INTRO_TEXT_COLUMN = 7;
         public static final String[] CONTENT_PROJECTION = new String[] {
             RECORD_ID, BodyColumns.MESSAGE_KEY, BodyColumns.HTML_CONTENT, BodyColumns.TEXT_CONTENT,
-            BodyColumns.HTML_REPLY, BodyColumns.TEXT_REPLY, BodyColumns.SOURCE_MESSAGE_KEY
+            BodyColumns.HTML_REPLY, BodyColumns.TEXT_REPLY, BodyColumns.SOURCE_MESSAGE_KEY,
+            BodyColumns.INTRO_TEXT
         };
 
         public static final int TEXT_TEXT_COLUMN = 1;
@@ -226,6 +228,7 @@ public abstract class EmailContent {
         public String mHtmlReply;
         public String mTextReply;
         public long mSourceKey;
+        public String mIntroText;
 
         public Body() {
             mBaseUri = CONTENT_URI;
@@ -242,7 +245,7 @@ public abstract class EmailContent {
             values.put(BodyColumns.HTML_REPLY, mHtmlReply);
             values.put(BodyColumns.TEXT_REPLY, mTextReply);
             values.put(BodyColumns.SOURCE_MESSAGE_KEY, mSourceKey);
-
+            values.put(BodyColumns.INTRO_TEXT, mIntroText);
             return values;
         }
 
@@ -337,6 +340,7 @@ public abstract class EmailContent {
             mHtmlReply = c.getString(CONTENT_HTML_REPLY_COLUMN);
             mTextReply = c.getString(CONTENT_TEXT_REPLY_COLUMN);
             mSourceKey = c.getLong(CONTENT_SOURCE_KEY_COLUMN);
+            mIntroText = c.getString(CONTENT_INTRO_TEXT_COLUMN);
             return this;
         }
 
@@ -501,6 +505,7 @@ public abstract class EmailContent {
         transient public String mHtmlReply;
         transient public long mSourceKey;
         transient public ArrayList<Attachment> mAttachments = null;
+        transient public String mIntroText;
 
         // Values used in mFlagRead
         public static final int UNREAD = 0;
@@ -683,6 +688,9 @@ public abstract class EmailContent {
             }
             if (mSourceKey != 0) {
                 cv.put(Body.SOURCE_MESSAGE_KEY, mSourceKey);
+            }
+            if (mIntroText != null) {
+                cv.put(Body.INTRO_TEXT, mIntroText);
             }
             b = ContentProviderOperation.newInsert(Body.CONTENT_URI);
             b.withValues(cv);

@@ -234,11 +234,13 @@ public class ProviderTests extends ProviderTestCase2<EmailProvider> {
         String textReply2 = message2.mTextReply;
         String htmlReply2 = message2.mHtmlReply;
         long sourceKey2 = message2.mSourceKey;
+        String introText2 = message2.mIntroText;
         message2.mText = null;
         message2.mHtml = null;
         message2.mTextReply = null;
         message2.mHtmlReply = null;
         message2.mSourceKey = 0;
+        message2.mIntroText = null;
         Message message2get = EmailContent.Message.restoreMessageWithId(mMockContext, message2Id);
         ProviderTestUtils.assertMessageEqual("testMessageSave", message2, message2get);
 
@@ -249,6 +251,7 @@ public class ProviderTests extends ProviderTestCase2<EmailProvider> {
         assertEquals("reply text", textReply2, body2.mTextReply);
         assertEquals("reply html", htmlReply2, body2.mHtmlReply);
         assertEquals("source key", sourceKey2, body2.mSourceKey);
+        assertEquals("intro text", introText2, body2.mIntroText);
 
         // Message with attachments and body
         Message message3 = ProviderTestUtils.setupMessage("message3", account1Id, box1Id, true,
@@ -432,6 +435,7 @@ public class ProviderTests extends ProviderTestCase2<EmailProvider> {
         final String htmlContent = "and some html";
         final String textReply = "plain text reply";
         final String htmlReply = "or the html reply";
+        final String introText = "fred wrote:";
 
         ContentValues values = new ContentValues();
         values.put(BodyColumns.TEXT_CONTENT, textContent);
@@ -439,6 +443,7 @@ public class ProviderTests extends ProviderTestCase2<EmailProvider> {
         values.put(BodyColumns.TEXT_REPLY, textReply);
         values.put(BodyColumns.HTML_REPLY, htmlReply);
         values.put(BodyColumns.SOURCE_MESSAGE_KEY, 17);
+        values.put(BodyColumns.INTRO_TEXT, introText);
 
         // 1
         Message message1 = ProviderTestUtils.setupMessage("message1", account1Id, box1Id, false,
@@ -454,6 +459,7 @@ public class ProviderTests extends ProviderTestCase2<EmailProvider> {
         assertEquals(body1.mTextReply, textReply);
         assertEquals(body1.mHtmlReply, htmlReply);
         assertEquals(body1.mSourceKey, 17);
+        assertEquals(body1.mIntroText, introText);
 
         // 2
         Message message2 = ProviderTestUtils.setupMessage("message1", account1Id, box1Id, true,
@@ -470,6 +476,7 @@ public class ProviderTests extends ProviderTestCase2<EmailProvider> {
         assertEquals(body2.mTextReply, textReply);
         assertEquals(body2.mHtmlReply, htmlReply);
         assertEquals(body2.mSourceKey, 17);
+        assertEquals(body2.mIntroText, introText);
     }
 
     /**
