@@ -140,9 +140,9 @@ public class Email extends Application {
     /**
      * Called throughout the application when the number of accounts has changed. This method
      * enables or disables the Compose activity, the boot receiver and the service based on
-     * whether any accounts are configured.
+     * whether any accounts are configured.   Returns true if there are any accounts configured.
      */
-    public static void setServicesEnabled(Context context) {
+    public static boolean setServicesEnabled(Context context) {
         Cursor c = null;
         try {
             c = context.getContentResolver().query(
@@ -151,6 +151,7 @@ public class Email extends Application {
                     null, null, null);
             boolean enable = c.getCount() > 0;
             setServicesEnabled(context, enable);
+            return enable;
         } finally {
             if (c != null) {
                 c.close();
