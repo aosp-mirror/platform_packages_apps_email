@@ -151,6 +151,7 @@ public class ProviderTestUtils extends Assert {
             message.mTextReply = "reply text " + name;
             message.mHtmlReply = "reply html " + name;
             message.mSourceKey = 400 + name.length();
+            message.mIntroText = "intro text " + name;
         }
 
         if (saveIt) {
@@ -314,6 +315,7 @@ public class ProviderTestUtils extends Assert {
         assertEquals(caller + " mTextReply", expect.mTextReply, actual.mTextReply);
         assertEquals(caller + " mHtmlReply", expect.mHtmlReply, actual.mHtmlReply);
         assertEquals(caller + " mSourceKey", expect.mSourceKey, actual.mSourceKey);
+        assertEquals(caller + " mIntroText", expect.mIntroText, actual.mIntroText);
     }
 
     /**

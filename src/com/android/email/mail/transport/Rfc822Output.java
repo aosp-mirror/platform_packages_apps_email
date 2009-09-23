@@ -16,7 +16,6 @@
 
 package com.android.email.mail.transport;
 
-import com.android.email.R;
 import com.android.email.codec.binary.Base64;
 import com.android.email.codec.binary.Base64OutputStream;
 import com.android.email.mail.Address;
@@ -67,11 +66,10 @@ public class Rfc822Output {
         }
 
         String text = body.mTextContent;
-        String fromAsString = Address.unpackToString(message.mFrom);
         int flags = message.mFlags;
         boolean isReply = (flags & Message.FLAG_TYPE_REPLY) != 0;
         boolean isForward = (flags & Message.FLAG_TYPE_FORWARD) != 0;
-
+        String intro = body.mIntroText == null ? "" : body.mIntroText;
         if (!appendQuotedText) {
             // appendQuotedText is set to false for use by SmartReply/SmartForward in EAS.
             // SmartReply doesn't appear to work properly, so we will still add the header into
@@ -79,7 +77,7 @@ public class Rfc822Output {
             // SmartForward doesn't put any kind of break between the original and the new text,
             // so we add a CRLF
             if (isReply) {
-                text += context.getString(R.string.message_compose_reply_header_fmt, fromAsString);
+                text += intro;
             } else if (isForward) {
                 text += "\r\n";
             }
@@ -93,17 +91,13 @@ public class Rfc822Output {
             quotedText = matcher.replaceAll("\n");
         }
         if (isReply) {
-            text += context.getString(R.string.message_compose_reply_header_fmt, fromAsString);
+            text += intro;
             if (quotedText != null) {
                 Matcher matcher = PATTERN_START_OF_LINE.matcher(quotedText);
                 text += matcher.replaceAll(">");
             }
         } else if (isForward) {
-            String subject = message.mSubject;
-            String to = Address.unpackToString(message.mTo);
-            String cc = Address.unpackToString(message.mCc);
-            text += context.getString(R.string.message_compose_fwd_header_fmt, subject,
-                    fromAsString, to != null ? to : "", cc != null ? cc : "");
+            text += intro;
             if (quotedText != null) {
                 text += quotedText;
             }
