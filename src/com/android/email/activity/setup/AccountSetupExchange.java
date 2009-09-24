@@ -267,10 +267,13 @@ public class AccountSetupExchange extends Activity implements OnClickListener,
     public void onActivityResult(int requestCode, int resultCode, Intent data) {
         if (resultCode == RESULT_OK) {
             if (Intent.ACTION_EDIT.equals(getIntent().getAction())) {
-                // TODO Review carefully to make sure this is bulletproof
                 if (mAccount.isSaved()) {
+                    // Account.update will NOT save the HostAuth's
                     mAccount.update(this, mAccount.toContentValues());
+                    mAccount.mHostAuthRecv.update(this, mAccount.mHostAuthRecv.toContentValues());
+                    mAccount.mHostAuthSend.update(this, mAccount.mHostAuthSend.toContentValues());
                 } else {
+                    // Account.save will save the HostAuth's
                     mAccount.save(this);
                 }
                 finish();

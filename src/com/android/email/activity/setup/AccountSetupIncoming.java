@@ -325,9 +325,9 @@ public class AccountSetupIncoming extends Activity implements OnClickListener {
     public void onActivityResult(int requestCode, int resultCode, Intent data) {
         if (resultCode == RESULT_OK) {
             if (Intent.ACTION_EDIT.equals(getIntent().getAction())) {
-                // TODO Review carefully to make sure this is bulletproof
                 if (mAccount.isSaved()) {
                     mAccount.update(this, mAccount.toContentValues());
+                    mAccount.mHostAuthRecv.update(this, mAccount.mHostAuthRecv.toContentValues());
                 } else {
                     mAccount.save(this);
                 }
