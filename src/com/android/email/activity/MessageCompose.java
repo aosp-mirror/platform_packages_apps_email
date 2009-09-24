@@ -335,7 +335,6 @@ public class MessageCompose extends Activity implements OnClickListener, OnFocus
         cancelTask(mLoadMessageTask);
         mLoadMessageTask = null;
         // don't cancel mSaveMessageTask, let it do its job to the end.
-        // cancelTask(mSaveMessageTask);
     }
 
     /**
@@ -505,6 +504,17 @@ public class MessageCompose extends Activity implements OnClickListener, OnFocus
                 // Body body = Body.restoreBodyWithMessageId(MessageCompose.this, message.mId);
                 message.mHtml = Body.restoreBodyHtmlWithMessageId(MessageCompose.this, message.mId);
                 message.mText = Body.restoreBodyTextWithMessageId(MessageCompose.this, message.mId);
+                boolean isEditDraft = ACTION_EDIT_DRAFT.equals(getIntent().getAction());
+                // the reply fields are only filled/used for Drafts.
+                if (isEditDraft) {
+                    message.mHtmlReply =
+                        Body.restoreHtmlReplyWithMessageId(MessageCompose.this, message.mId);
+                    message.mTextReply =
+                        Body.restoreTextReplyWithMessageId(MessageCompose.this, message.mId);
+                } else {
+                    message.mHtmlReply = null;
+                    message.mTextReply = null;
+                }
             } catch (RuntimeException e) {
                 Log.d(Email.LOG_TAG, "Exception while loading message body: " + e);
                 return null;
@@ -590,21 +600,6 @@ public class MessageCompose extends Activity implements OnClickListener, OnFocus
         return addresses;
     }
 
-    private ContentValues getUpdateContentValues(Message message) {
-        ContentValues values = new ContentValues();
-        values.put(MessageColumns.TIMESTAMP, message.mTimeStamp);
-        values.put(MessageColumns.FROM_LIST, message.mFrom);
-        values.put(MessageColumns.TO_LIST, message.mTo);
-        values.put(MessageColumns.CC_LIST, message.mCc);
-        values.put(MessageColumns.BCC_LIST, message.mBcc);
-        values.put(MessageColumns.SUBJECT, message.mSubject);
-        values.put(MessageColumns.DISPLAY_NAME, message.mDisplayName);
-        values.put(MessageColumns.FLAG_LOADED, message.mFlagLoaded);
-        values.put(MessageColumns.FLAG_ATTACHMENT, message.mFlagAttachment);
-        values.put(MessageColumns.FLAGS, message.mFlags);
-        return values;
-    }
-
     /*
      * Computes a short string indicating the destination of the message based on To, Cc, Bcc.
      * If only one address appears, returns the friendly form of that address.
@@ -628,6 +623,21 @@ public class MessageCompose extends Activity implements OnClickListener, OnFocus
             return friendly;
         }
         return this.getString(R.string.message_compose_display_name, friendly, nRecipients - 1);
+    }
+
+    private ContentValues getUpdateContentValues(Message message) {
+        ContentValues values = new ContentValues();
+        values.put(MessageColumns.TIMESTAMP, message.mTimeStamp);
+        values.put(MessageColumns.FROM_LIST, message.mFrom);
+        values.put(MessageColumns.TO_LIST, message.mTo);
+        values.put(MessageColumns.CC_LIST, message.mCc);
+        values.put(MessageColumns.BCC_LIST, message.mBcc);
+        values.put(MessageColumns.SUBJECT, message.mSubject);
+        values.put(MessageColumns.DISPLAY_NAME, message.mDisplayName);
+        values.put(MessageColumns.FLAG_LOADED, message.mFlagLoaded);
+        values.put(MessageColumns.FLAG_ATTACHMENT, message.mFlagAttachment);
+        values.put(MessageColumns.FLAGS, message.mFlags);
+        return values;
     }
 
     /**
@@ -1123,9 +1133,9 @@ public class MessageCompose extends Activity implements OnClickListener, OnFocus
     }
 
     // used by processSourceMessage()
-    private void displayQuotedText(Message message) {
-        boolean plainTextFlag = message.mHtml == null;
-        String text = plainTextFlag ? message.mText : message.mHtml;
+    private void displayQuotedText(String textBody, String htmlBody) {
+        boolean plainTextFlag = htmlBody == null;
+        String text = plainTextFlag ? textBody : htmlBody;
         if (text != null) {
             text = plainTextFlag ? EmailHtmlUtil.escapeCharacterToDisplay(text) : text;
             // TODO: re-enable EmailHtmlUtil.resolveInlineImage() for HTML
@@ -1213,11 +1223,11 @@ public class MessageCompose extends Activity implements OnClickListener, OnFocus
                 mSubjectView.setText(subject);
             }
 
-            displayQuotedText(message);
+            displayQuotedText(message.mText, message.mHtml);
         } else if (ACTION_FORWARD.equals(action)) {
             mSubjectView.setText(subject != null && !subject.toLowerCase().startsWith("fwd:") ?
                                  "Fwd: " + subject : subject);
-            displayQuotedText(message);
+            displayQuotedText(message.mText, message.mHtml);
             if (!mSourceMessageProcessed) {
                 // TODO: re-enable loadAttachments below
 //                 if (!loadAttachments(message, 0)) {
@@ -1238,9 +1248,8 @@ public class MessageCompose extends Activity implements OnClickListener, OnFocus
                 mBccView.setVisibility(View.VISIBLE);
             }
 
-            // TODO: why not the same text handling as in displayQuotedText() ?
             mMessageContentView.setText(message.mText);
-
+            displayQuotedText(message.mTextReply, message.mHtmlReply);
             if (!mSourceMessageProcessed) {
                 // TODO: re-enable loadAttachments
                 // loadAttachments(message, 0);
