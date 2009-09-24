@@ -90,6 +90,8 @@ public class MessageCompose extends Activity implements OnClickListener, OnFocus
         "com.android.email.activity.MessageCompose.quotedTextShown";
     private static final String STATE_KEY_SOURCE_MESSAGE_PROCED =
         "com.android.email.activity.MessageCompose.stateKeySourceMessageProced";
+    private static final String STATE_KEY_DRAFT_ID =
+        "com.android.email.activity.MessageCompose.draftId";
 
     private static final int MSG_PROGRESS_ON = 1;
     private static final int MSG_PROGRESS_OFF = 2;
@@ -106,11 +108,15 @@ public class MessageCompose extends Activity implements OnClickListener, OnFocus
 
     private Account mAccount;
 
-    // mDraft is null until the first save, afterwards it contains the last saved version.
-    private Message mDraft;
+    // mDraft has mId > 0 after the first draft save.
+    private Message mDraft = new Message();
 
     // mSource is only set for REPLY, REPLY_ALL and FORWARD, and contains the source message.
     private Message mSource;
+
+    // we use mAction instead of Intent.getAction() because sometimes we need to
+    // re-write the action to EDIT_DRAFT.
+    private String mAction;
 
     /**
      * Indicates that the source message has been processed at least once and should not
@@ -245,34 +251,41 @@ public class MessageCompose extends Activity implements OnClickListener, OnFocus
         mController = Controller.getInstance(getApplication());
         initViews();
 
+        long draftId = -1;
         if (savedInstanceState != null) {
-            /*
-             * This data gets used in onCreate, so grab it here instead of onRestoreIntstanceState
-             */
+            // This data gets used in onCreate, so grab it here instead of onRestoreIntstanceState
             mSourceMessageProcessed =
                 savedInstanceState.getBoolean(STATE_KEY_SOURCE_MESSAGE_PROCED, false);
+            draftId = savedInstanceState.getLong(STATE_KEY_DRAFT_ID, -1);
         }
 
         Intent intent = getIntent();
-        final String action = intent.getAction();
+        mAction = intent.getAction();
+
+        if (draftId != -1) {
+            // this means that we saved the draft earlier,
+            // so now we need to disregard the intent action and do
+            // EDIT_DRAFT instead.
+            mAction = ACTION_EDIT_DRAFT;
+        }
 
         // Handle the various intents that launch the message composer
-        if (Intent.ACTION_VIEW.equals(action)
-                || Intent.ACTION_SENDTO.equals(action)
-                || Intent.ACTION_SEND.equals(action)
-                || Intent.ACTION_SEND_MULTIPLE.equals(action)) {
+        if (Intent.ACTION_VIEW.equals(mAction)
+                || Intent.ACTION_SENDTO.equals(mAction)
+                || Intent.ACTION_SEND.equals(mAction)
+                || Intent.ACTION_SEND_MULTIPLE.equals(mAction)) {
             setAccount(intent);
             // Use the fields found in the Intent to prefill as much of the message as possible
             initFromIntent(intent);
         } else {
             // Otherwise, handle the internal cases (Message Composer invoked from within app)
-            long messageId = intent.getLongExtra(EXTRA_MESSAGE_ID, -1);
+            long messageId = draftId != -1 ? draftId : intent.getLongExtra(EXTRA_MESSAGE_ID, -1);
             if (messageId != -1) {
                 mLoadMessageTask = new LoadMessageTask().execute(messageId);
             } else {
                 setAccount(intent);
             }
-            if (ACTION_EDIT_DRAFT.equals(action) && messageId != -1) {
+            if (ACTION_EDIT_DRAFT.equals(mAction) && messageId != -1) {
                 mLoadAttachmentsTask = new AsyncTask<Long, Void, Attachment[]>() {
                     @Override
                     protected Attachment[] doInBackground(Long... messageIds) {
@@ -289,8 +302,8 @@ public class MessageCompose extends Activity implements OnClickListener, OnFocus
             }
         }
 
-        if (ACTION_REPLY.equals(action) || ACTION_REPLY_ALL.equals(action) ||
-                ACTION_FORWARD.equals(action) || ACTION_EDIT_DRAFT.equals(action)) {
+        if (ACTION_REPLY.equals(mAction) || ACTION_REPLY_ALL.equals(mAction) ||
+                ACTION_FORWARD.equals(mAction) || ACTION_EDIT_DRAFT.equals(mAction)) {
             /*
              * If we need to load the message we add ourself as a message listener here
              * so we can kick it off. Normally we add in onResume but we don't
@@ -300,6 +313,13 @@ public class MessageCompose extends Activity implements OnClickListener, OnFocus
             // TODO: signal the controller to load the message
         }
         updateTitle();
+    }
+
+    // needed for unit tests
+    @Override
+    public void setIntent(Intent intent) {
+        super.setIntent(intent);
+        mAction = intent.getAction();
     }
 
     @Override
@@ -347,7 +367,8 @@ public class MessageCompose extends Activity implements OnClickListener, OnFocus
     @Override
     protected void onSaveInstanceState(Bundle outState) {
         super.onSaveInstanceState(outState);
-        saveIfNeeded();
+        long draftId = getOrCreateDraftId();
+        outState.putLong(STATE_KEY_DRAFT_ID, draftId);
         outState.putBoolean(STATE_KEY_CC_SHOWN, mCcView.getVisibility() == View.VISIBLE);
         outState.putBoolean(STATE_KEY_BCC_SHOWN, mBccView.getVisibility() == View.VISIBLE);
         outState.putBoolean(STATE_KEY_QUOTED_TEXT_SHOWN,
@@ -504,7 +525,7 @@ public class MessageCompose extends Activity implements OnClickListener, OnFocus
                 // Body body = Body.restoreBodyWithMessageId(MessageCompose.this, message.mId);
                 message.mHtml = Body.restoreBodyHtmlWithMessageId(MessageCompose.this, message.mId);
                 message.mText = Body.restoreBodyTextWithMessageId(MessageCompose.this, message.mId);
-                boolean isEditDraft = ACTION_EDIT_DRAFT.equals(getIntent().getAction());
+                boolean isEditDraft = ACTION_EDIT_DRAFT.equals(mAction);
                 // the reply fields are only filled/used for Drafts.
                 if (isEditDraft) {
                     message.mHtmlReply =
@@ -535,15 +556,15 @@ public class MessageCompose extends Activity implements OnClickListener, OnFocus
             }
             final Message message = (Message) messageAndAccount[0];
             final Account account = (Account) messageAndAccount[1];
-            final String action = getIntent().getAction();
-            if (ACTION_EDIT_DRAFT.equals(action)) {
+
+            if (ACTION_EDIT_DRAFT.equals(mAction)) {
                 mDraft = message;
-            } else if (ACTION_REPLY.equals(action)
-                       || ACTION_REPLY_ALL.equals(action)
-                       || ACTION_FORWARD.equals(action)) {
+            } else if (ACTION_REPLY.equals(mAction)
+                       || ACTION_REPLY_ALL.equals(mAction)
+                       || ACTION_FORWARD.equals(mAction)) {
                 mSource = message;
             } else if (Email.LOGD) {
-                Email.log("Action " + action + " has unexpected EXTRA_MESSAGE_ID");
+                Email.log("Action " + mAction + " has unexpected EXTRA_MESSAGE_ID");
             }
 
             mAccount = account;
@@ -657,12 +678,11 @@ public class MessageCompose extends Activity implements OnClickListener, OnFocus
         message.mDisplayName = makeDisplayName(message.mTo, message.mCc, message.mBcc);
         message.mFlagLoaded = Message.FLAG_LOADED_COMPLETE;
         message.mFlagAttachment = hasAttachments;
-        String action = getIntent().getAction();
         // Use the Intent to set flags saying this message is a reply or a forward and save the
         // unique id of the source message
         if (mSource != null && mQuotedTextBar.getVisibility() == View.VISIBLE) {
-            if (ACTION_REPLY.equals(action) || ACTION_REPLY_ALL.equals(action)
-                    || ACTION_FORWARD.equals(action)) {
+            if (ACTION_REPLY.equals(mAction) || ACTION_REPLY_ALL.equals(mAction)
+                    || ACTION_FORWARD.equals(mAction)) {
                 message.mSourceKey = mSource.mId;
                 // Get the body of the source message here
                 // Note that the following commented line will be useful when we use HTML in replies
@@ -671,7 +691,7 @@ public class MessageCompose extends Activity implements OnClickListener, OnFocus
             }
 
             String fromAsString = Address.unpackToString(mSource.mFrom);
-            if (ACTION_FORWARD.equals(action)) {
+            if (ACTION_FORWARD.equals(mAction)) {
                 message.mFlags |= Message.FLAG_TYPE_FORWARD;
                 String subject = mSource.mSubject;
                 String to = Address.unpackToString(mSource.mTo);
@@ -696,6 +716,23 @@ public class MessageCompose extends Activity implements OnClickListener, OnFocus
         return attachments;
     }
 
+    /* This method does DB operations in UI thread because
+       the draftId is needed by onSaveInstanceState() which can't wait for it
+       to be saved in the background.
+       TODO: This will cause ANRs, so we need to find a better solution.
+    */
+    private long getOrCreateDraftId() {
+        synchronized (mDraft) {
+            if (mDraft.mId > 0) {
+                return mDraft.mId;
+            }
+            final Attachment[] attachments = getAttachmentsFromUI();
+            updateMessage(mDraft, mAccount, attachments.length > 0);
+            mController.saveToMailbox(mDraft, EmailContent.Mailbox.TYPE_DRAFTS);
+            return mDraft.mId;
+        }
+    }
+
     /**
      * Send or save a message:
      * - out of the UI thread
@@ -704,9 +741,6 @@ public class MessageCompose extends Activity implements OnClickListener, OnFocus
      * - when operation is complete, display toast
      */
     private void sendOrSaveMessage(final boolean send) {
-        if (mDraft == null) {
-            mDraft = new Message();
-        }
         final Attachment[] attachments = getAttachmentsFromUI();
         updateMessage(mDraft, mAccount, attachments.length > 0);
 
@@ -794,7 +828,7 @@ public class MessageCompose extends Activity implements OnClickListener, OnFocus
     }
 
     private void onDiscard() {
-        if (mDraft != null) {
+        if (mDraft.mId > 0) {
             mController.deleteMessage(mDraft.mId, mDraft.mAccountKey);
         }
         Toast.makeText(this, getString(R.string.message_discarded_toast), Toast.LENGTH_LONG).show();
@@ -1040,7 +1074,7 @@ public class MessageCompose extends Activity implements OnClickListener, OnFocus
 
         // Next, convert EXTRA_STREAM into an attachment
 
-        if (Intent.ACTION_SEND.equals(intent.getAction()) && intent.hasExtra(Intent.EXTRA_STREAM)) {
+        if (Intent.ACTION_SEND.equals(mAction) && intent.hasExtra(Intent.EXTRA_STREAM)) {
             String type = intent.getType();
             Uri stream = (Uri) intent.getParcelableExtra(Intent.EXTRA_STREAM);
             if (stream != null && type != null) {
@@ -1050,7 +1084,7 @@ public class MessageCompose extends Activity implements OnClickListener, OnFocus
             }
         }
 
-        if (Intent.ACTION_SEND_MULTIPLE.equals(intent.getAction())
+        if (Intent.ACTION_SEND_MULTIPLE.equals(mAction)
                 && intent.hasExtra(Intent.EXTRA_STREAM)) {
             ArrayList<Parcelable> list = intent.getParcelableArrayListExtra(Intent.EXTRA_STREAM);
             if (list != null) {
@@ -1211,20 +1245,18 @@ public class MessageCompose extends Activity implements OnClickListener, OnFocus
      */
     /* package */
     void processSourceMessage(Message message, Account account) {
-        final String action = getIntent().getAction();
         mDraftNeedsSaving = true;
         final String subject = message.mSubject;
-        if (ACTION_REPLY.equals(action) || ACTION_REPLY_ALL.equals(action)) {
-            setupAddressViews(message, account, mToView, mCcView, ACTION_REPLY_ALL.equals(action));
+        if (ACTION_REPLY.equals(mAction) || ACTION_REPLY_ALL.equals(mAction)) {
+            setupAddressViews(message, account, mToView, mCcView, ACTION_REPLY_ALL.equals(mAction));
 
             if (subject != null && !subject.toLowerCase().startsWith("re:")) {
                 mSubjectView.setText("Re: " + subject);
             } else {
                 mSubjectView.setText(subject);
             }
-
             displayQuotedText(message.mText, message.mHtml);
-        } else if (ACTION_FORWARD.equals(action)) {
+        } else if (ACTION_FORWARD.equals(mAction)) {
             mSubjectView.setText(subject != null && !subject.toLowerCase().startsWith("fwd:") ?
                                  "Fwd: " + subject : subject);
             displayQuotedText(message.mText, message.mHtml);
@@ -1234,7 +1266,7 @@ public class MessageCompose extends Activity implements OnClickListener, OnFocus
 //                     mHandler.sendEmptyMessage(MSG_SKIPPED_ATTACHMENTS);
 //                 }
             }
-        } else if (ACTION_EDIT_DRAFT.equals(action)) {
+        } else if (ACTION_EDIT_DRAFT.equals(mAction)) {
             mSubjectView.setText(subject);
             addAddresses(mToView, Address.unpack(message.mTo));
             Address[] cc = Address.unpack(message.mCc);
