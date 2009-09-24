@@ -245,10 +245,10 @@ public class AccountSetupOutgoing extends Activity implements OnClickListener,
     public void onActivityResult(int requestCode, int resultCode, Intent data) {
         if (resultCode == RESULT_OK) {
             if (Intent.ACTION_EDIT.equals(getIntent().getAction())) {
-                // TODO Review carefully to make sure this is bulletproof
                 if (mAccount.isSaved()) {
                     mAccount.update(this, mAccount.toContentValues());
-                } else {
+                    mAccount.mHostAuthSend.update(this, mAccount.mHostAuthSend.toContentValues());
+               } else {
                     mAccount.save(this);
                 }
                 finish();
