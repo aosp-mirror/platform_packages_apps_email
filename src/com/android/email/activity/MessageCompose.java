@@ -496,16 +496,33 @@ public class MessageCompose extends Activity implements OnClickListener, OnFocus
         @Override
         protected Object[] doInBackground(Long... messageIds) {
             Message message = Message.restoreMessageWithId(MessageCompose.this, messageIds[0]);
+            if (message == null) {
+                return null;
+            }
             long accountId = message.mAccountKey;
             Account account = Account.restoreAccountWithId(MessageCompose.this, accountId);
-            Body body = Body.restoreBodyWithMessageId(MessageCompose.this, message.mId);
-            message.mHtml = body.mHtmlContent;
-            message.mText = body.mTextContent;
+            try {
+                // Body body = Body.restoreBodyWithMessageId(MessageCompose.this, message.mId);
+                message.mHtml = Body.restoreBodyHtmlWithMessageId(MessageCompose.this, message.mId);
+                message.mText = Body.restoreBodyTextWithMessageId(MessageCompose.this, message.mId);
+            } catch (RuntimeException e) {
+                Log.d(Email.LOG_TAG, "Exception while loading message body: " + e);
+                return null;
+            }
             return new Object[]{message, account};
         }
 
         @Override
         protected void onPostExecute(Object[] messageAndAccount) {
+            if (messageAndAccount == null) {
+                // Something unexpected happened:
+                // the message or the body couldn't be loaded by SQLite.
+                // Bail out.
+                Toast.makeText(MessageCompose.this, R.string.error_loading_message_body,
+                               Toast.LENGTH_LONG).show();
+                finish();
+                return;
+            }
             final Message message = (Message) messageAndAccount[0];
             final Account account = (Account) messageAndAccount[1];
             final String action = getIntent().getAction();
