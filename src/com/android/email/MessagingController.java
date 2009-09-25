@@ -227,20 +227,23 @@ public class MessagingController implements Runnable {
         private static final int COLUMN_ID = 0;
         private static final int COLUMN_DISPLAY_NAME = 1;
         private static final int COLUMN_ACCOUNT_KEY = 2;
+        private static final int COLUMN_TYPE = 3;
 
         private static final String[] PROJECTION = new String[] {
             EmailContent.RECORD_ID,
-            MailboxColumns.DISPLAY_NAME, MailboxColumns.ACCOUNT_KEY,
+            MailboxColumns.DISPLAY_NAME, MailboxColumns.ACCOUNT_KEY, MailboxColumns.TYPE,
         };
 
         long mId;
         String mDisplayName;
         long mAccountKey;
+        int mType;
 
         public LocalMailboxInfo(Cursor c) {
             mId = c.getLong(COLUMN_ID);
             mDisplayName = c.getString(COLUMN_DISPLAY_NAME);
             mAccountKey = c.getLong(COLUMN_ACCOUNT_KEY);
+            mType = c.getInt(COLUMN_TYPE);
         }
     }
 
@@ -304,12 +307,24 @@ public class MessagingController implements Runnable {
                         // Drops first, to make things smaller rather than larger
                         HashSet<String> localsToDrop = new HashSet<String>(localFolderNames);
                         localsToDrop.removeAll(remoteFolderNames);
-                        // TODO drop all attachment files too
                         for (String localNameToDrop : localsToDrop) {
                             LocalMailboxInfo localInfo = localFolders.get(localNameToDrop);
-                            Uri uri = ContentUris.withAppendedId(
-                                    EmailContent.Mailbox.CONTENT_URI, localInfo.mId);
-                            mContext.getContentResolver().delete(uri, null, null);
+                            // Exclusion list - never delete local special folders, irrespective
+                            // of server-side existence.
+                            switch (localInfo.mType) {
+                                case Mailbox.TYPE_INBOX:
+                                case Mailbox.TYPE_DRAFTS:
+                                case Mailbox.TYPE_OUTBOX:
+                                case Mailbox.TYPE_SENT:
+                                case Mailbox.TYPE_TRASH:
+                                    break;
+                                default:
+                                    // TODO drop all attachment files too
+                                    Uri uri = ContentUris.withAppendedId(
+                                            EmailContent.Mailbox.CONTENT_URI, localInfo.mId);
+                                    mContext.getContentResolver().delete(uri, null, null);
+                                    break;
+                            }
                         }
 
                         // Now do the adds
