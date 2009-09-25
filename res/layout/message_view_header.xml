@@ -32,7 +32,8 @@
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:layout_marginRight="5dip"
-                android:baselineAlignBottom="true" />
+                android:baselineAlignBottom="true"
+                android:background="@drawable/fasttrack_presence_bg" />
             <TextView
                 android:id="@+id/from"
                 android:textAppearance="?android:attr/textAppearanceMedium"
