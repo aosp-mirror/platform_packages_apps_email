@@ -741,7 +741,7 @@ public class Controller {
     private IEmailService getServiceForAccount(long accountId) {
         // TODO make this more efficient, caching the account, MUCH smaller lookup here, etc.
         Account account = EmailContent.Account.restoreAccountWithId(mProviderContext, accountId);
-        if (isMessagingController(account)) {
+        if (account == null || isMessagingController(account)) {
             return null;
         } else {
             return new EmailServiceProxy(mContext, SyncManager.class, mServiceCallback);
@@ -755,6 +755,7 @@ public class Controller {
      * TODO this should use a cache because we'll be doing this a lot
      */
     public boolean isMessagingController(EmailContent.Account account) {
+        if (account == null) return false;
         Store.StoreInfo info =
             Store.StoreInfo.getStoreInfo(account.getStoreUri(mProviderContext), mContext);
         // This null happens in testing.
