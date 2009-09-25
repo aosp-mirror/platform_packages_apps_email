@@ -46,7 +46,6 @@ import android.net.Uri;
 import android.os.AsyncTask;
 import android.os.Bundle;
 import android.os.Handler;
-import android.util.Log;
 import android.view.ContextMenu;
 import android.view.LayoutInflater;
 import android.view.Menu;
@@ -76,6 +75,10 @@ public class MessageList extends ListActivity implements OnItemClickListener, On
     private static final String EXTRA_ACCOUNT_ID = "com.android.email.activity._ACCOUNT_ID";
     private static final String EXTRA_MAILBOX_TYPE = "com.android.email.activity.MAILBOX_TYPE";
     private static final String EXTRA_MAILBOX_ID = "com.android.email.activity.MAILBOX_ID";
+    private static final String STATE_SELECTED_ITEM_TOP =
+        "com.android.email.activity.MessageList.selectedItemTop";
+    private static final String STATE_SELECTED_POSITION =
+        "com.android.email.activity.MessageList.selectedPosition";
 
     // UI support
     private ListView mListView;
@@ -152,6 +155,8 @@ public class MessageList extends ListActivity implements OnItemClickListener, On
     private static final String ID_SELECTION = EmailContent.RECORD_ID + "=?";
 
     private Boolean mPushModeMailbox = null;
+    private int mSavedItemTop = 0;
+    private int mSavedItemPosition = -1;
 
     /**
      * Open a specific mailbox.
@@ -283,7 +288,6 @@ public class MessageList extends ListActivity implements OnItemClickListener, On
             }
             addFooterView(-1, accountId, mailboxType);
         }
-
         // TODO set title to "account > mailbox (#unread)"
     }
 
@@ -302,6 +306,7 @@ public class MessageList extends ListActivity implements OnItemClickListener, On
         NotificationManager notificationManager = (NotificationManager)
                 getSystemService(Context.NOTIFICATION_SERVICE);
         notificationManager.cancel(MailService.NEW_MESSAGE_NOTIFICATION_ID);
+        restoreListPosition();
         autoRefreshStaleMailbox();
     }
 
@@ -328,6 +333,42 @@ public class MessageList extends ListActivity implements OnItemClickListener, On
                 mSetFooterTask.getStatus() != SetTitleTask.Status.FINISHED) {
             mSetFooterTask.cancel(true);
             mSetFooterTask = null;
+        }
+    }
+
+    @Override
+    protected void onSaveInstanceState(Bundle outState) {
+        super.onSaveInstanceState(outState);
+        saveListPosition();
+        outState.putInt(STATE_SELECTED_POSITION, mSavedItemPosition);
+        outState.putInt(STATE_SELECTED_ITEM_TOP, mSavedItemTop);
+    }
+
+    @Override
+    protected void onRestoreInstanceState(Bundle savedInstanceState) {
+        super.onRestoreInstanceState(savedInstanceState);
+        mSavedItemTop = savedInstanceState.getInt(STATE_SELECTED_ITEM_TOP, 0);
+        mSavedItemPosition = savedInstanceState.getInt(STATE_SELECTED_POSITION, -1);
+    }
+
+    private void saveListPosition() {
+        mSavedItemPosition = getListView().getSelectedItemPosition();
+        if (mSavedItemPosition >= 0) {
+            mSavedItemTop = getListView().getSelectedView().getTop();
+        } else {
+            mSavedItemPosition = getListView().getFirstVisiblePosition();
+            if (mSavedItemPosition >= 0) {
+                mSavedItemTop = 0;
+                mSavedItemTop = getListView().getChildAt(0).getTop();
+            }
+        }
+    }
+
+    private void restoreListPosition() {
+        if (mSavedItemPosition >= 0 && mSavedItemPosition < getListView().getCount()) {
+            getListView().setSelectionFromTop(mSavedItemPosition, mSavedItemTop);
+            mSavedItemPosition = -1;
+            mSavedItemTop = 0;
         }
     }
 
@@ -460,7 +501,6 @@ public class MessageList extends ListActivity implements OnItemClickListener, On
     private void onRefresh() {
         // TODO: Should not be reading from DB in UI thread - need a cleaner way to get accountId
         if (mMailboxId >= 0) {
-            Log.d("MessageList", "%%% onRefresh");
             Mailbox mailbox = Mailbox.restoreMailboxWithId(this, mMailboxId);
             mController.updateMailbox(mailbox.mAccountKey, mMailboxId, mControllerCallback);
         }
@@ -974,6 +1014,9 @@ public class MessageList extends ListActivity implements OnItemClickListener, On
                 return;
             }
             MessageList.this.mListAdapter.changeCursor(cursor);
+            // changeCursor occurs the jumping of position in ListView, so it's need to restore
+            // the position;
+            restoreListPosition();
             autoRefreshStaleMailbox();
             // Reset the "new messages" count in the service, since we're seeing them now
             if (mMailboxKey == Mailbox.QUERY_ALL_INBOXES) {
@@ -1043,7 +1086,6 @@ public class MessageList extends ListActivity implements OnItemClickListener, On
 
         @Override
         protected void onPostExecute(String[] names) {
-            Log.d("MessageList", "ACCOUNT:" + names[0] + "MAILBOX" + names[1]);
             if (names[0] != null) {
                 mRightTitle.setText(names[0]);
             }
