@@ -46,7 +46,8 @@ public class EasOutboxService extends EasSyncService {
 
     public static final int SEND_FAILED = 1;
     public static final String MAILBOX_KEY_AND_NOT_SEND_FAILED =
-        MessageColumns.MAILBOX_KEY + "=? and " + SyncColumns.SERVER_ID + "!=" + SEND_FAILED;
+        MessageColumns.MAILBOX_KEY + "=? and (" + SyncColumns.SERVER_ID + " is null or " + 
+            SyncColumns.SERVER_ID + "!=" + SEND_FAILED + ')';
     public static final String[] BODY_SOURCE_PROJECTION =
         new String[] {BodyColumns.SOURCE_MESSAGE_KEY};
     public static final String WHERE_MESSAGE_KEY = Body.MESSAGE_KEY + "=?";
