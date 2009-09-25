@@ -59,6 +59,7 @@ import android.content.ContentValues;
 import android.content.Context;
 import android.database.Cursor;
 import android.os.RemoteException;
+import android.os.SystemClock;
 
 import java.io.File;
 import java.io.FileOutputStream;
@@ -684,7 +685,7 @@ public class EasSyncService extends AbstractSyncService {
 
     void runPingLoop() throws IOException, StaleFolderListException {
         int pingHeartbeat = mPingHeartbeat;
-
+        userLog("runPingLoop");
         // Do push for all sync services here
         long endTime = System.currentTimeMillis() + (30*MINUTES);
         HashMap<String, Integer> pingErrorMap = new HashMap<String, Integer>();
@@ -692,6 +693,7 @@ public class EasSyncService extends AbstractSyncService {
         int pingWaitCount = 0;
 
         while ((System.currentTimeMillis() < endTime) && !mStop) {
+            userLog("runPingLoop, top of loop, pingWaitCount = " + pingWaitCount);
             // Count of pushable mailboxes
             int pushCount = 0;
             // Count of mailboxes that can be pushed right now
@@ -756,6 +758,7 @@ public class EasSyncService extends AbstractSyncService {
             boolean forcePing = (pingWaitCount > 9);
 
             if ((canPushCount > 0) && ((canPushCount == pushCount) || forcePing)) {
+                userLog("runPingLoop, about to send ping, setting pingWaitCount = 0");
                 // If all pingable boxes are ready for push, send Ping to the server
                 s.end().end().done();
                 pingWaitCount = 0;
@@ -763,6 +766,7 @@ public class EasSyncService extends AbstractSyncService {
                 // If we've been stopped, this is a good time to return
                 if (mStop) return;
 
+                long pingTime = SystemClock.elapsedRealtime();
                 try {
                     // Send the ping, wrapped by appropriate timeout/alarm
                     if (forcePing) {
@@ -826,6 +830,11 @@ public class EasSyncService extends AbstractSyncService {
                                 pingHeartbeat = PING_MIN_HEARTBEAT;
                             }
                             userLog("Decreased ping heartbeat to ", pingHeartbeat, "s");
+                        } else if ((SystemClock.elapsedRealtime() - pingTime) < 2000) {
+                            userLog("NAT type IOException < 2 seconds; throwing IOException");
+                            throw e;
+                        } else {
+                            userLog("NAT type IOException > 2 seconds?");
                         }
                     } else {
                         userLog("IOException detected in runPingLoop: " +
@@ -836,9 +845,10 @@ public class EasSyncService extends AbstractSyncService {
             } else if (pushCount > 0) {
                 // If we want to Ping, but can't just yet, wait a little bit
                 // TODO Change sleep to wait and use notify from SyncManager when a sync ends
-                userLog("pingLoop waiting for: ", (pushCount - canPushCount), " box(es)");
                 sleep(1*SECONDS);
                 pingWaitCount++;
+                userLog("pingLoop waited for: ", (pushCount - canPushCount), " box(es), count = "
+                        + pingWaitCount);
             } else if (uninitCount > 0) {
                 // In this case, we're doing an initial sync of at least one mailbox.  Since this
                 // is typically a one-time case, I'm ok with trying again every 10 seconds until
