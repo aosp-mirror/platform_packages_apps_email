@@ -564,7 +564,10 @@ public class SyncManager extends Service implements Runnable {
                             AbstractSyncService svc = INSTANCE.mServiceMap.get(mid);
                             if (svc != null) {
                                 svc.stop();
-                                svc.mThread.interrupt();
+                                Thread t = svc.mThread;
+                                if (t != null) {
+                                    t.interrupt();
+                                }
                             }
                             deletedBoxes.add(mid);
                         }
