@@ -16,8 +16,8 @@
 
 <resources>
     <color name="folder_message_list_child_background">#3B3B3B</color>
-    <color name="message_list_item_background_unread">#333333</color>
-    <color name="message_list_item_background_read">#3B3B3B</color>
+    <color name="message_list_item_background_unread">#202020</color>
+    <color name="message_list_item_background_read">#333333</color>
     <color name="account_folder_list_item_separator">#303030</color>
     <color name="connection_error_banner">#fffff1a8</color>
 </resources>
