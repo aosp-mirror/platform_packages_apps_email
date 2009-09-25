@@ -70,6 +70,10 @@ public class ProviderTests extends ProviderTestCase2<EmailProvider> {
     }
 
     /**
+     * TODO: Database upgrade tests
+     */
+
+    /**
      * Test simple account save/retrieve
      */
     public void testAccountSave() {

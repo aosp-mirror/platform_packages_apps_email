@@ -123,7 +123,7 @@ public class ProviderTestUtils extends Assert {
         Message message = new Message();
 
         message.mDisplayName = name;
-        message.mTimeStamp = 1;
+        message.mTimeStamp = 100 + name.length();
         message.mSubject = "subject " + name;
         message.mFlagRead = true;
         message.mFlagLoaded = Message.FLAG_LOADED_UNLOADED;
@@ -132,7 +132,7 @@ public class ProviderTestUtils extends Assert {
         message.mFlags = 2;
 
         message.mServerId = "serverid " + name;
-        message.mServerIntId = 0;
+        message.mServerTimeStamp = 300 + name.length();
         message.mClientId = "clientid " + name;
         message.mMessageId = "messageid " + name;
 
@@ -150,7 +150,7 @@ public class ProviderTestUtils extends Assert {
             message.mHtml = "body html " + name;
             message.mTextReply = "reply text " + name;
             message.mHtmlReply = "reply html " + name;
-            message.mSourceKey = 1000;
+            message.mSourceKey = 400 + name.length();
         }
 
         if (saveIt) {
@@ -296,7 +296,7 @@ public class ProviderTestUtils extends Assert {
         assertEquals(caller + " mFlags", expect.mFlags, actual.mFlags);
 
         assertEquals(caller + " mServerId", expect.mServerId, actual.mServerId);
-        assertEquals(caller + " mServerIntId", expect.mServerIntId, actual.mServerIntId);
+        assertEquals(caller + " mServerTimeStamp", expect.mServerTimeStamp,actual.mServerTimeStamp);
         assertEquals(caller + " mClientId", expect.mClientId, actual.mClientId);
         assertEquals(caller + " mMessageId", expect.mMessageId, actual.mMessageId);
 
