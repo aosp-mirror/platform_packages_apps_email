@@ -69,7 +69,8 @@ public class EmailProvider extends ContentProvider {
     // Version 3: Add "sourceKey" column
     // Version 4: Database wipe required; changing AccountManager interface w/Exchange
     // Version 5: Database wipe required; changing AccountManager interface w/Exchange
-    public static final int BODY_DATABASE_VERSION = 5;
+    // Version 6: Adding Body.mIntroText column
+    public static final int BODY_DATABASE_VERSION = 6;
 
     public static final String EMAIL_AUTHORITY = "com.android.email.provider";
 
@@ -494,7 +495,8 @@ public class EmailProvider extends ContentProvider {
             + BodyColumns.TEXT_CONTENT + " text, "
             + BodyColumns.HTML_REPLY + " text, "
             + BodyColumns.TEXT_REPLY + " text, "
-            + BodyColumns.SOURCE_MESSAGE_KEY + " text"
+            + BodyColumns.SOURCE_MESSAGE_KEY + " text, "
+            + BodyColumns.INTRO_TEXT + " text"
             + ");";
         db.execSQL("create table " + Body.TABLE_NAME + s);
         db.execSQL(createIndex(Body.TABLE_NAME, BodyColumns.MESSAGE_KEY));
@@ -507,6 +509,15 @@ public class EmailProvider extends ContentProvider {
                 createBodyTable(db);
             } catch (SQLException e) {
             }
+        } else if (oldVersion == 5) {
+            try {
+                db.execSQL("alter table " + Body.TABLE_NAME
+                        + " add " + BodyColumns.INTRO_TEXT + " text");
+            } catch (SQLException e) {
+                // Shouldn't be needed unless we're debugging and interrupt the process
+                Log.w(TAG, "Exception upgrading EmailProviderBody.db from v5 to v6", e);
+            }
+            oldVersion = 6;
         }
     }
 
@@ -590,12 +601,17 @@ public class EmailProvider extends ContentProvider {
             }
             if (oldVersion == 5) {
                 // Message Tables: Add SyncColumns.SERVER_TIMESTAMP
-                db.execSQL("alter table " + Message.TABLE_NAME
-                        + " add column " + SyncColumns.SERVER_TIMESTAMP + " integer" + ";");
-                db.execSQL("alter table " + Message.UPDATED_TABLE_NAME
-                        + " add column " + SyncColumns.SERVER_TIMESTAMP + " integer" + ";");
-                db.execSQL("alter table " + Message.DELETED_TABLE_NAME
-                        + " add column " + SyncColumns.SERVER_TIMESTAMP + " integer" + ";");
+                try {
+                    db.execSQL("alter table " + Message.TABLE_NAME
+                            + " add column " + SyncColumns.SERVER_TIMESTAMP + " integer" + ";");
+                    db.execSQL("alter table " + Message.UPDATED_TABLE_NAME
+                            + " add column " + SyncColumns.SERVER_TIMESTAMP + " integer" + ";");
+                    db.execSQL("alter table " + Message.DELETED_TABLE_NAME
+                            + " add column " + SyncColumns.SERVER_TIMESTAMP + " integer" + ";");
+                } catch (SQLException e) {
+                    // Shouldn't be needed unless we're debugging and interrupt the process
+                    Log.w(TAG, "Exception upgrading EmailProvider.db from v5 to v6", e);
+                }
                 oldVersion = 6;
             }
         }

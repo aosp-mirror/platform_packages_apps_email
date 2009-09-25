@@ -642,10 +642,20 @@ public class MessageCompose extends Activity implements OnClickListener, OnFocus
                 //message.mHtmlReply = mSource.mHtml;
                 message.mTextReply = mSource.mText;
             }
+
+            String fromAsString = Address.unpackToString(mSource.mFrom);
             if (ACTION_FORWARD.equals(action)) {
                 message.mFlags |= Message.FLAG_TYPE_FORWARD;
+                String subject = mSource.mSubject;
+                String to = Address.unpackToString(mSource.mTo);
+                String cc = Address.unpackToString(mSource.mCc);
+                message.mIntroText =
+                    getString(R.string.message_compose_fwd_header_fmt, subject, fromAsString,
+                            to != null ? to : "", cc != null ? cc : "");
             } else {
                 message.mFlags |= Message.FLAG_TYPE_REPLY;
+                message.mIntroText =
+                    getString(R.string.message_compose_reply_header_fmt, fromAsString);
             }
         }
     }
@@ -683,6 +693,7 @@ public class MessageCompose extends Activity implements OnClickListener, OnFocus
                         values.put(BodyColumns.TEXT_CONTENT, mDraft.mText);
                         values.put(BodyColumns.TEXT_REPLY, mDraft.mTextReply);
                         values.put(BodyColumns.HTML_REPLY, mDraft.mHtmlReply);
+                        values.put(BodyColumns.INTRO_TEXT, mDraft.mIntroText);
                         Body.updateBodyWithMessageId(MessageCompose.this, mDraft.mId, values);
                     } else {
                         // mDraft.mId is set upon return of saveToMailbox()
