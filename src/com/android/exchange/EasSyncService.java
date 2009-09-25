@@ -1032,6 +1032,7 @@ public class EasSyncService extends AbstractSyncService {
         mMailbox = Mailbox.restoreMailboxWithId(mContext, mMailbox.mId);
 
         mThread = Thread.currentThread();
+        android.os.Process.setThreadPriority(android.os.Process.THREAD_PRIORITY_BACKGROUND);
         TAG = mThread.getName();
 
         HostAuth ha = HostAuth.restoreHostAuthWithId(mContext, mAccount.mHostAuthKeyRecv);
