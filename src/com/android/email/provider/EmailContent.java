@@ -210,14 +210,20 @@ public abstract class EmailContent {
             BodyColumns.INTRO_TEXT
         };
 
-        public static final int TEXT_TEXT_COLUMN = 1;
         public static final String[] TEXT_PROJECTION = new String[] {
             RECORD_ID, BodyColumns.TEXT_CONTENT
         };
 
-        public static final int HTML_HTML_COLUMN = 1;
         public static final String[] HTML_PROJECTION = new String[] {
             RECORD_ID, BodyColumns.HTML_CONTENT
+        };
+
+        public static final String[] HTML_REPLY_PROJECTION = new String[] {
+            RECORD_ID, BodyColumns.HTML_REPLY
+        };
+
+        public static final String[] TEXT_REPLY_PROJECTION = new String[] {
+            RECORD_ID, BodyColumns.TEXT_REPLY
         };
 
         public static final int COMMON_TEXT_COLUMN = 1;
@@ -328,6 +334,14 @@ public abstract class EmailContent {
 
         public static String restoreBodyHtmlWithMessageId(Context context, long messageId) {
             return restoreTextWithMessageId(context, messageId, Body.HTML_PROJECTION);
+        }
+
+        public static String restoreTextReplyWithMessageId(Context context, long messageId) {
+            return restoreTextWithMessageId(context, messageId, Body.TEXT_REPLY_PROJECTION);
+        }
+
+        public static String restoreHtmlReplyWithMessageId(Context context, long messageId) {
+            return restoreTextWithMessageId(context, messageId, Body.HTML_REPLY_PROJECTION);
         }
 
         @Override
