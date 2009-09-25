@@ -480,6 +480,28 @@ public class ProviderTests extends ProviderTestCase2<EmailProvider> {
     }
 
     /**
+     * Test body retrieve methods
+     */
+    public void testBodyRetrieve() {
+        // No account needed
+        // No mailbox needed
+        Message message1 = ProviderTestUtils.setupMessage("bodyretrieve", 1, 1, true,
+                true, mMockContext);
+        long messageId = message1.mId;
+
+        assertEquals(message1.mText,
+                Body.restoreBodyTextWithMessageId(mMockContext, messageId));
+        assertEquals(message1.mHtml,
+                Body.restoreBodyHtmlWithMessageId(mMockContext, messageId));
+        assertEquals(message1.mTextReply,
+                Body.restoreReplyTextWithMessageId(mMockContext, messageId));
+        assertEquals(message1.mHtmlReply,
+                Body.restoreReplyHtmlWithMessageId(mMockContext, messageId));
+        assertEquals(message1.mIntroText,
+                Body.restoreIntroTextWithMessageId(mMockContext, messageId));
+    }
+
+    /**
      * Test delete body.
      * 1. create message without body (message id 1)
      * 2. create message with body (message id 2. The body has _id 1 and messageKey 2).

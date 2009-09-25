@@ -19,132 +19,106 @@ package com.android.email.mail;
 public class MockFolder extends Folder {
 
     @Override
-    public void appendMessages(Message[] messages) throws MessagingException {
-        // TODO Auto-generated method stub
-
+    public void appendMessages(Message[] messages) {
     }
 
     @Override
-    public void close(boolean expunge) throws MessagingException {
-        // TODO Auto-generated method stub
-
+    public void close(boolean expunge) {
     }
 
     @Override
     public void copyMessages(Message[] msgs, Folder folder, 
-            MessageUpdateCallbacks callbacks) throws MessagingException {
-        // TODO Auto-generated method stub
-
+            MessageUpdateCallbacks callbacks) {
     }
 
     @Override
-    public boolean create(FolderType type) throws MessagingException {
-        // TODO Auto-generated method stub
+    public boolean canCreate(FolderType type) {
         return false;
     }
 
     @Override
-    public void delete(boolean recurse) throws MessagingException {
-        // TODO Auto-generated method stub
-
-    }
-
-    @Override
-    public boolean exists() throws MessagingException {
-        // TODO Auto-generated method stub
+    public boolean create(FolderType type) {
         return false;
     }
 
     @Override
-    public Message[] expunge() throws MessagingException {
-        // TODO Auto-generated method stub
+    public void delete(boolean recurse) {
+    }
+
+    @Override
+    public boolean exists() {
+        return false;
+    }
+
+    @Override
+    public Message[] expunge() {
         return null;
     }
 
     @Override
-    public void fetch(Message[] messages, FetchProfile fp, MessageRetrievalListener listener)
-            throws MessagingException {
-        // TODO Auto-generated method stub
-
+    public void fetch(Message[] messages, FetchProfile fp, MessageRetrievalListener listener) {
     }
 
     @Override
-    public Message getMessage(String uid) throws MessagingException {
-        // TODO Auto-generated method stub
+    public Message getMessage(String uid) {
         return null;
     }
 
     @Override
-    public int getMessageCount() throws MessagingException {
-        // TODO Auto-generated method stub
+    public int getMessageCount() {
         return 0;
     }
 
     @Override
-    public Message[] getMessages(int start, int end, MessageRetrievalListener listener)
-            throws MessagingException {
-        // TODO Auto-generated method stub
+    public Message[] getMessages(int start, int end, MessageRetrievalListener listener) {
         return null;
     }
 
     @Override
-    public Message[] getMessages(MessageRetrievalListener listener) throws MessagingException {
-        // TODO Auto-generated method stub
+    public Message[] getMessages(MessageRetrievalListener listener) {
         return null;
     }
 
     @Override
-    public Message[] getMessages(String[] uids, MessageRetrievalListener listener)
-            throws MessagingException {
-        // TODO Auto-generated method stub
+    public Message[] getMessages(String[] uids, MessageRetrievalListener listener) {
         return null;
     }
 
     @Override
-    public OpenMode getMode() throws MessagingException {
-        // TODO Auto-generated method stub
+    public OpenMode getMode() {
         return null;
     }
 
     @Override
     public String getName() {
-        // TODO Auto-generated method stub
         return null;
     }
 
     @Override
-    public Flag[] getPermanentFlags() throws MessagingException {
-        // TODO Auto-generated method stub
+    public Flag[] getPermanentFlags() {
         return null;
     }
 
     @Override
-    public int getUnreadMessageCount() throws MessagingException {
-        // TODO Auto-generated method stub
+    public int getUnreadMessageCount() {
         return 0;
     }
 
     @Override
     public boolean isOpen() {
-        // TODO Auto-generated method stub
         return false;
     }
 
     @Override
-    public void open(OpenMode mode, PersistentDataCallbacks callbacks) throws MessagingException {
-        // TODO Auto-generated method stub
-
+    public void open(OpenMode mode, PersistentDataCallbacks callbacks) {
     }
 
     @Override
-    public void setFlags(Message[] messages, Flag[] flags, boolean value) throws MessagingException {
-        // TODO Auto-generated method stub
-
+    public void setFlags(Message[] messages, Flag[] flags, boolean value) {
     }
 
     @Override
-    public Message createMessage(String uid) throws MessagingException {
-        // TODO Auto-generated method stub
+    public Message createMessage(String uid) {
         return null;
     }
 

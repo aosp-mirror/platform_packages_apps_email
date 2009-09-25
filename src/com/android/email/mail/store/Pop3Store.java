@@ -29,7 +29,6 @@ import com.android.email.mail.Store;
 import com.android.email.mail.Transport;
 import com.android.email.mail.Folder.OpenMode;
 import com.android.email.mail.internet.MimeMessage;
-import com.android.email.mail.store.ImapStore.ImapMessage;
 import com.android.email.mail.transport.LoggingInputStream;
 import com.android.email.mail.transport.MailTransport;
 
@@ -330,6 +329,11 @@ public class Pop3Store extends Store {
         @Override
         public String getName() {
             return mName;
+        }
+
+        // POP3 does not folder creation
+        public boolean canCreate(FolderType type) {
+            return false;
         }
 
         @Override

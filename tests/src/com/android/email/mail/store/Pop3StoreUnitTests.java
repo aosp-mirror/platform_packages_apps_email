@@ -236,11 +236,13 @@ public class Pop3StoreUnitTests extends AndroidTestCase {
             
         // getMode() returns OpenMode.READ_WRITE
         assertEquals(OpenMode.READ_WRITE, mFolder.getMode());
-        
-       // create() return false
+
+        // canCreate() && create() return false
+        assertFalse(mFolder.canCreate(FolderType.HOLDS_FOLDERS));
+        assertFalse(mFolder.canCreate(FolderType.HOLDS_MESSAGES));
         assertFalse(mFolder.create(FolderType.HOLDS_FOLDERS));
         assertFalse(mFolder.create(FolderType.HOLDS_MESSAGES));
-        
+
         // getUnreadMessageCount() always returns -1
         assertEquals(-1, mFolder.getUnreadMessageCount());
         

@@ -780,7 +780,7 @@ public class MessageList extends ListActivity implements OnItemClickListener, On
      *
      * Here are some rules (finish this list):
      *
-     * Any merged box (except send):  refresh
+     * Any merged, synced box (except send):  refresh
      * Any push-mode account:  refresh
      * Any non-push-mode account:  load more
      * Any outbox (send again):
@@ -791,9 +791,12 @@ public class MessageList extends ListActivity implements OnItemClickListener, On
         // first, look for shortcuts that don't need us to spin up a DB access task
         if (mailboxId == Mailbox.QUERY_ALL_INBOXES
                 || mailboxId == Mailbox.QUERY_ALL_UNREAD
-                || mailboxId == Mailbox.QUERY_ALL_FAVORITES
-                || mailboxId == Mailbox.QUERY_ALL_DRAFTS) {
+                || mailboxId == Mailbox.QUERY_ALL_FAVORITES) {
             finishFooterView(LIST_FOOTER_MODE_REFRESH);
+            return;
+        }
+        if (mailboxId == Mailbox.QUERY_ALL_DRAFTS || mailboxType == Mailbox.TYPE_DRAFTS) {
+            finishFooterView(LIST_FOOTER_MODE_NONE);
             return;
         }
         if (mailboxId == Mailbox.QUERY_ALL_OUTBOX || mailboxType == Mailbox.TYPE_OUTBOX) {
@@ -839,8 +842,11 @@ public class MessageList extends ListActivity implements OnItemClickListener, On
                     return LIST_FOOTER_MODE_NONE;
                 }
             }
-            if (mailboxType == Mailbox.TYPE_OUTBOX) {
-                return LIST_FOOTER_MODE_SEND;
+            switch (mailboxType) {
+                case Mailbox.TYPE_OUTBOX:
+                    return LIST_FOOTER_MODE_SEND;
+                case Mailbox.TYPE_DRAFTS:
+                    return LIST_FOOTER_MODE_NONE;
             }
             if (accountId != -1) {
                 // This is inefficient but the best fix is not here but in isMessagingController
