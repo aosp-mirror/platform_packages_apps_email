@@ -74,6 +74,19 @@ public abstract class Folder {
      */
     public abstract OpenMode getMode() throws MessagingException;
 
+    /**
+     * Reports if the Store is able to create folders of the given type.
+     * Does not actually attempt to create a folder.
+     * @param type
+     * @return true if can create, false if cannot create
+     */
+    public abstract boolean canCreate(FolderType type);
+
+    /**
+     * Attempt to create the given folder remotely using the given type.
+     * @param type
+     * @return true if created, false if cannot create (e.g. server side)
+     */
     public abstract boolean create(FolderType type) throws MessagingException;
 
     public abstract boolean exists() throws MessagingException;

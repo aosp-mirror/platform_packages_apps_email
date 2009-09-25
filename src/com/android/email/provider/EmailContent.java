@@ -195,7 +195,6 @@ public abstract class EmailContent {
         public static final String TABLE_NAME = "Body";
         public static final Uri CONTENT_URI = Uri.parse(EmailContent.CONTENT_URI + "/body");
 
-
         public static final int CONTENT_ID_COLUMN = 0;
         public static final int CONTENT_MESSAGE_KEY_COLUMN = 1;
         public static final int CONTENT_HTML_CONTENT_COLUMN = 2;
@@ -210,23 +209,22 @@ public abstract class EmailContent {
             BodyColumns.INTRO_TEXT
         };
 
-        public static final String[] TEXT_PROJECTION = new String[] {
+        public static final String[] COMMON_PROJECTION_TEXT = new String[] {
             RECORD_ID, BodyColumns.TEXT_CONTENT
         };
-
-        public static final String[] HTML_PROJECTION = new String[] {
+        public static final String[] COMMON_PROJECTION_HTML = new String[] {
             RECORD_ID, BodyColumns.HTML_CONTENT
         };
-
-        public static final String[] HTML_REPLY_PROJECTION = new String[] {
-            RECORD_ID, BodyColumns.HTML_REPLY
-        };
-
-        public static final String[] TEXT_REPLY_PROJECTION = new String[] {
+        public static final String[] COMMON_PROJECTION_REPLY_TEXT = new String[] {
             RECORD_ID, BodyColumns.TEXT_REPLY
         };
-
-        public static final int COMMON_TEXT_COLUMN = 1;
+        public static final String[] COMMON_PROJECTION_REPLY_HTML = new String[] {
+            RECORD_ID, BodyColumns.HTML_REPLY
+        };
+        public static final String[] COMMON_PROJECTION_INTRO = new String[] {
+            RECORD_ID, BodyColumns.INTRO_TEXT
+        };
+        public static final int COMMON_PROJECTION_COLUMN_TEXT = 1;
 
         public long mMessageKey;
         public String mHtmlContent;
@@ -240,7 +238,7 @@ public abstract class EmailContent {
             mBaseUri = CONTENT_URI;
         }
 
-         @Override
+        @Override
         public ContentValues toContentValues() {
             ContentValues values = new ContentValues();
 
@@ -255,39 +253,39 @@ public abstract class EmailContent {
             return values;
         }
 
-         private static Body restoreBodyWithCursor(Cursor cursor) {
-             try {
-                 if (cursor.moveToFirst()) {
-                     return getContent(cursor, Body.class);
-                 } else {
-                     return null;
-                 }
-             } finally {
-                 cursor.close();
-             }
-         }
+        private static Body restoreBodyWithCursor(Cursor cursor) {
+            try {
+                if (cursor.moveToFirst()) {
+                    return getContent(cursor, Body.class);
+                } else {
+                    return null;
+                }
+            } finally {
+                cursor.close();
+            }
+        }
 
-         public static Body restoreBodyWithId(Context context, long id) {
-             Uri u = ContentUris.withAppendedId(Body.CONTENT_URI, id);
-             Cursor c = context.getContentResolver().query(u, Body.CONTENT_PROJECTION,
-                     null, null, null);
-             return restoreBodyWithCursor(c);
-         }
+        public static Body restoreBodyWithId(Context context, long id) {
+            Uri u = ContentUris.withAppendedId(Body.CONTENT_URI, id);
+            Cursor c = context.getContentResolver().query(u, Body.CONTENT_PROJECTION,
+                    null, null, null);
+            return restoreBodyWithCursor(c);
+        }
 
-         public static Body restoreBodyWithMessageId(Context context, long messageId) {
-             Cursor c = context.getContentResolver().query(Body.CONTENT_URI,
-                     Body.CONTENT_PROJECTION, Body.MESSAGE_KEY + "=?",
-                     new String[] {Long.toString(messageId)}, null);
-             return restoreBodyWithCursor(c);
-         }
+        public static Body restoreBodyWithMessageId(Context context, long messageId) {
+            Cursor c = context.getContentResolver().query(Body.CONTENT_URI,
+                    Body.CONTENT_PROJECTION, Body.MESSAGE_KEY + "=?",
+                    new String[] {Long.toString(messageId)}, null);
+            return restoreBodyWithCursor(c);
+        }
 
         /**
          * Returns the bodyId for the given messageId, or -1 if no body is found.
          */
         public static long lookupBodyIdWithMessageId(ContentResolver resolver, long messageId) {
             Cursor c = resolver.query(Body.CONTENT_URI, ID_PROJECTION,
-                                      Body.MESSAGE_KEY + "=?",
-                                      new String[] {Long.toString(messageId)}, null);
+                    Body.MESSAGE_KEY + "=?",
+                    new String[] {Long.toString(messageId)}, null);
             try {
                 return c.moveToFirst() ? c.getLong(ID_PROJECTION_COLUMN) : -1;
             } finally {
@@ -313,13 +311,13 @@ public abstract class EmailContent {
             }
         }
 
-         private static String restoreTextWithMessageId(Context context, long messageId,
-                 String[] projection) {
+        private static String restoreTextWithMessageId(Context context, long messageId,
+                String[] projection) {
             Cursor c = context.getContentResolver().query(Body.CONTENT_URI, projection,
                     Body.MESSAGE_KEY + "=?", new String[] {Long.toString(messageId)}, null);
             try {
                 if (c.moveToFirst()) {
-                    return c.getString(COMMON_TEXT_COLUMN);
+                    return c.getString(COMMON_PROJECTION_COLUMN_TEXT);
                 } else {
                     return null;
                 }
@@ -329,19 +327,23 @@ public abstract class EmailContent {
         }
 
         public static String restoreBodyTextWithMessageId(Context context, long messageId) {
-            return restoreTextWithMessageId(context, messageId, Body.TEXT_PROJECTION);
+            return restoreTextWithMessageId(context, messageId, Body.COMMON_PROJECTION_TEXT);
         }
 
         public static String restoreBodyHtmlWithMessageId(Context context, long messageId) {
-            return restoreTextWithMessageId(context, messageId, Body.HTML_PROJECTION);
+            return restoreTextWithMessageId(context, messageId, Body.COMMON_PROJECTION_HTML);
         }
 
-        public static String restoreTextReplyWithMessageId(Context context, long messageId) {
-            return restoreTextWithMessageId(context, messageId, Body.TEXT_REPLY_PROJECTION);
+        public static String restoreReplyTextWithMessageId(Context context, long messageId) {
+            return restoreTextWithMessageId(context, messageId, Body.COMMON_PROJECTION_REPLY_TEXT);
         }
 
-        public static String restoreHtmlReplyWithMessageId(Context context, long messageId) {
-            return restoreTextWithMessageId(context, messageId, Body.HTML_REPLY_PROJECTION);
+        public static String restoreReplyHtmlWithMessageId(Context context, long messageId) {
+            return restoreTextWithMessageId(context, messageId, Body.COMMON_PROJECTION_REPLY_HTML);
+        }
+
+        public static String restoreIntroTextWithMessageId(Context context, long messageId) {
+            return restoreTextWithMessageId(context, messageId, Body.COMMON_PROJECTION_INTRO);
         }
 
         @Override
@@ -483,6 +485,12 @@ public abstract class EmailContent {
         public static final int ID_COLUMNS_SYNC_SERVER_ID = 1;
         public static final String[] ID_COLUMNS_PROJECTION = new String[] {
             RECORD_ID, SyncColumns.SERVER_ID
+        };
+
+        public static final int ID_MAILBOX_COLUMN_ID = 0;
+        public static final int ID_MAILBOX_COLUMN_MAILBOX_KEY = 1;
+        public static final String[] ID_MAILBOX_PROJECTION = new String[] {
+            RECORD_ID, MessageColumns.MAILBOX_KEY
         };
 
         public static final String[] ID_COLUMN_PROJECTION = new String[] { RECORD_ID };

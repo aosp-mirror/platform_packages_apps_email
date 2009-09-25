@@ -447,6 +447,11 @@ public class ImapStore extends Store {
             }
         }
 
+        // IMAP supports folder creation
+        public boolean canCreate(FolderType type) {
+            return true;
+        }
+
         public boolean create(FolderType type) throws MessagingException {
             /*
              * This method needs to operate in the unselected mode as well as the selected mode
@@ -1008,7 +1013,8 @@ public class ImapStore extends Store {
 
                     /*
                      * Try to find the UID of the message we just appended using the
-                     * Message-ID header.
+                     * Message-ID header.  If there are more than one response, take the
+                     * last one, as it's most likely he newest (the one we just uploaded).
                      */
                     String[] messageIdHeader = message.getHeader("Message-ID");
                     if (messageIdHeader == null || messageIdHeader.length == 0) {
@@ -1021,7 +1027,7 @@ public class ImapStore extends Store {
                     for (ImapResponse response1 : responses) {
                         if (response1.mTag == null && response1.get(0).equals("SEARCH")
                                 && response1.size() > 1) {
-                            message.setUid(response1.getString(1));
+                            message.setUid(response1.getString(response1.size()-1));
                         }
                     }
 
