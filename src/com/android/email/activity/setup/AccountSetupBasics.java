@@ -344,25 +344,23 @@ public class AccountSetupBasics extends Activity
     }
 
     private void onNext() {
-        String email = mEmailView.getText().toString().trim();
-        String[] emailParts = email.split("@");
-        String domain = emailParts[1].trim();
-        mProvider = findProviderForDomain(domain);
-        if (mProvider == null) {
-            /*
-             * We don't have default settings for this account, start the manual
-             * setup process.
-             */
-            onManualSetup();
-            return;
+        // If this is EAS flow, don't try to find a provider for the domain!
+        if (!mEasFlowMode) {
+            String email = mEmailView.getText().toString().trim();
+            String[] emailParts = email.split("@");
+            String domain = emailParts[1].trim();
+            mProvider = findProviderForDomain(domain);
+            if (mProvider != null) {
+                if (mProvider.note != null) {
+                    showDialog(DIALOG_NOTE);
+                } else {
+                    finishAutoSetup();
+                }
+                return;
+            }
         }
-
-        if (mProvider.note != null) {
-            showDialog(DIALOG_NOTE);
-        }
-        else {
-            finishAutoSetup();
-        }
+        // Can't use auto setup
+        onManualSetup();
     }
 
     /**
