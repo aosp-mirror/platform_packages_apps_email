@@ -359,7 +359,10 @@ public class MessageList extends ListActivity implements OnItemClickListener, On
             mSavedItemPosition = getListView().getFirstVisiblePosition();
             if (mSavedItemPosition >= 0) {
                 mSavedItemTop = 0;
-                mSavedItemTop = getListView().getChildAt(0).getTop();
+                View topChild = getListView().getChildAt(0);
+                if (topChild != null) {
+                    mSavedItemTop = topChild.getTop();
+                }
             }
         }
     }
