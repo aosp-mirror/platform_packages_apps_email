@@ -848,7 +848,7 @@ public class MessageList extends ListActivity implements OnItemClickListener, On
                     if (MessageList.this.mController.isMessagingController(account)) {
                         return LIST_FOOTER_MODE_MORE;       // IMAP or POP
                     } else {
-                        return LIST_FOOTER_MODE_REFRESH;    // EAS
+                        return LIST_FOOTER_MODE_NONE;    // EAS
                     }
                 }
             }
