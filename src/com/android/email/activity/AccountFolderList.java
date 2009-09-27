@@ -84,9 +84,9 @@ public class AccountFolderList extends ListActivity
     private ListView mListView;
     private ProgressBar mProgressIcon;
 
-    AccountsAdapter mListAdapter;
+    private AccountsAdapter mListAdapter;
 
-    LoadAccountsTask mLoadAccountsTask;
+    private LoadAccountsTask mLoadAccountsTask;
 
     private MessageListHandler mHandler = new MessageListHandler();
     private ControllerResults mControllerCallback = new ControllerResults();
@@ -337,10 +337,10 @@ public class AccountFolderList extends ListActivity
     /**
      * Async task to handle the accounts query outside of the UI thread
      */
-    private class LoadAccountsTask extends AsyncTask<Void, Void, Cursor[]> {
+    private class LoadAccountsTask extends AsyncTask<Void, Void, Object[]> {
 
         @Override
-        protected Cursor[] doInBackground(Void... params) {
+        protected Object[] doInBackground(Void... params) {
             // Create the summaries cursor
             Cursor c1 = getSummaryChildCursor();
 
@@ -349,17 +349,17 @@ public class AccountFolderList extends ListActivity
                     EmailContent.Account.CONTENT_URI,
                     EmailContent.Account.CONTENT_PROJECTION,
                     null, null, null);
-
-            return new Cursor[] { c1, c2 };
+            Long defaultAccount = Account.getDefaultAccountId(AccountFolderList.this);
+            return new Object[] { c1, c2 , defaultAccount};
         }
 
         @Override
-        protected void onPostExecute(Cursor[] cursors) {
-            if (cursors[1].isClosed()) {
+        protected void onPostExecute(Object[] params) {
+            if (params == null || ((Cursor)params[1]).isClosed()) {
                 return;
             }
-            mListAdapter = AccountsAdapter.getInstance(cursors[0], cursors[1],
-                    AccountFolderList.this);
+            mListAdapter = AccountsAdapter.getInstance((Cursor)params[0], (Cursor)params[1],
+                    AccountFolderList.this, (Long)params[2]);
             mListView.setAdapter(mListAdapter);
         }
     }
@@ -654,20 +654,23 @@ public class AccountFolderList extends ListActivity
         private LayoutInflater mInflater;
         private int mMailboxesCount;
         private int mSeparatorPosition;
+        long mDefaultAccountId;
 
         public static AccountsAdapter getInstance(Cursor mailboxesCursor, Cursor accountsCursor,
-                Context context) {
+                Context context, long defaultAccountId) {
             Cursor[] cursors = new Cursor[] { mailboxesCursor, accountsCursor };
             Cursor mc = new MergeCursor(cursors);
-            return new AccountsAdapter(mc, context, mailboxesCursor.getCount());
+            return new AccountsAdapter(mc, context, mailboxesCursor.getCount(), defaultAccountId);
         }
 
-        public AccountsAdapter(Cursor c, Context context, int mailboxesCount) {
+        public AccountsAdapter(Cursor c, Context context, int mailboxesCount,
+                long defaultAccountId) {
             super(context, c, true);
             mContext = context;
             mInflater = (LayoutInflater)context.getSystemService(Context.LAYOUT_INFLATER_SERVICE);
             mMailboxesCount = mailboxesCount;
             mSeparatorPosition = mailboxesCount;
+            mDefaultAccountId = defaultAccountId;
         }
 
         public boolean isMailbox(int position) {
@@ -751,6 +754,7 @@ public class AccountFolderList extends ListActivity
 
             view.findViewById(R.id.folder_button).setVisibility(View.GONE);
             view.findViewById(R.id.folder_separator).setVisibility(View.GONE);
+            view.findViewById(R.id.default_sender).setVisibility(View.GONE);
             view.findViewById(R.id.folder_icon).setVisibility(View.VISIBLE);
             ((ImageView)view.findViewById(R.id.folder_icon)).setImageDrawable(
                     Utility.FolderProperties.getInstance(context).getIconIds(type));
@@ -813,6 +817,11 @@ public class AccountFolderList extends ListActivity
             view.findViewById(R.id.folder_icon).setVisibility(View.GONE);
             view.findViewById(R.id.folder_button).setVisibility(View.VISIBLE);
             view.findViewById(R.id.folder_separator).setVisibility(View.VISIBLE);
+            if (accountId == mDefaultAccountId) {
+                view.findViewById(R.id.default_sender).setVisibility(View.VISIBLE);
+            } else {
+                view.findViewById(R.id.default_sender).setVisibility(View.GONE);
+            }
         }
 
         @Override

@@ -69,10 +69,17 @@
             android:layout_marginLeft="4dip"
             style="@style/unreadCount"/>
     </LinearLayout>
+    <ImageView
+        android:id="@+id/default_sender"
+        android:layout_width="12dip"
+        android:layout_height="12dip"
+        android:minWidth="12dip"
+        android:layout_margin="5dip"
+        android:src="@drawable/ind_default"/>
     <View
         android:id="@+id/folder_separator"
         android:background="@color/account_folder_list_item_separator"
-        android:layout_width="0.5dip"
+        android:layout_width="1dip"
         android:layout_height="40dip"
         android:layout_marginLeft="5dip" />
     <ImageView
