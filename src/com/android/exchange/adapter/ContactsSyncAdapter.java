@@ -1190,7 +1190,7 @@ public class ContactsSyncAdapter extends AbstractSyncAdapter {
                     cvCompareString(cv, StructuredName.PREFIX, prefix) &&
                     cvCompareString(cv, StructuredName.PHONETIC_GIVEN_NAME, yomiFirstName) &&
                     cvCompareString(cv, StructuredName.PHONETIC_FAMILY_NAME, yomiLastName) &&
-                    cvCompareString(cv, StructuredName.DISPLAY_NAME, fileAs) &&
+                    //cvCompareString(cv, StructuredName.DISPLAY_NAME, fileAs) &&
                     cvCompareString(cv, StructuredName.SUFFIX, suffix)) {
                 return;
             }
@@ -1201,7 +1201,7 @@ public class ContactsSyncAdapter extends AbstractSyncAdapter {
             builder.withValue(StructuredName.PHONETIC_GIVEN_NAME, yomiFirstName);
             builder.withValue(StructuredName.PHONETIC_FAMILY_NAME, yomiLastName);
             builder.withValue(StructuredName.PREFIX, prefix);
-            builder.withValue(StructuredName.DISPLAY_NAME, fileAs);
+            //builder.withValue(StructuredName.DISPLAY_NAME, fileAs);
             add(builder.build());
         }
 
