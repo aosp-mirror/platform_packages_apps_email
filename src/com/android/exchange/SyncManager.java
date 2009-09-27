@@ -310,6 +310,28 @@ public class SyncManager extends Service implements Runnable {
             reloadFolderList(SyncManager.this, accountId, false);
         }
 
+        public void hostChanged(long accountId) throws RemoteException {
+            if (INSTANCE != null) {
+                synchronized (INSTANCE.mSyncErrorMap) {
+                    // Go through the various error mailboxes
+                    for (long mailboxId: INSTANCE.mSyncErrorMap.keySet()) {
+                        SyncError error = INSTANCE.mSyncErrorMap.get(mailboxId);
+                        // If it's a login failure, look a little harder
+                        Mailbox m = Mailbox.restoreMailboxWithId(INSTANCE, mailboxId);
+                        // If it's for the account whose host has changed, clear the error
+                        if (m.mAccountKey == accountId) {
+                            error.fatal = false;
+                            error.holdEndTime = 0;
+                        }
+                    }
+                }
+                // Stop any running syncs
+                INSTANCE.stopAccountSyncs(accountId, true);
+                // Kick SyncManager
+                kick("host changed");
+            }
+        }
+
         public void setLogging(int on) throws RemoteException {
             Eas.setUserDebug(on);
         }
@@ -547,38 +569,6 @@ public class SyncManager extends Service implements Runnable {
             INSTANCE.log("Initializing account: " + acct.mDisplayName);
         }
 
-        private void stopAccountSyncs(long acctId, boolean includeAccountMailbox) {
-            synchronized (sSyncToken) {
-                List<Long> deletedBoxes = new ArrayList<Long>();
-                for (Long mid : INSTANCE.mServiceMap.keySet()) {
-                    Mailbox box = Mailbox.restoreMailboxWithId(INSTANCE, mid);
-                    if (box != null) {
-                        if (box.mAccountKey == acctId) {
-                            if (!includeAccountMailbox &&
-                                    box.mType == Mailbox.TYPE_EAS_ACCOUNT_MAILBOX) {
-                                AbstractSyncService svc = INSTANCE.mServiceMap.get(mid);
-                                if (svc != null) {
-                                    svc.stop();
-                                }
-                                continue;
-                            }
-                            AbstractSyncService svc = INSTANCE.mServiceMap.get(mid);
-                            if (svc != null) {
-                                svc.stop();
-                                Thread t = svc.mThread;
-                                if (t != null) {
-                                    t.interrupt();
-                                }
-                            }
-                            deletedBoxes.add(mid);
-                        }
-                    }
-                }
-                for (Long mid : deletedBoxes) {
-                    releaseMailbox(mid);
-                }
-            }
-        }
     }
 
     class MailboxObserver extends ContentObserver {
@@ -913,6 +903,39 @@ public class SyncManager extends Service implements Runnable {
         return sClientConnectionManager;
     }
 
+    private void stopAccountSyncs(long acctId, boolean includeAccountMailbox) {
+        synchronized (sSyncToken) {
+            List<Long> deletedBoxes = new ArrayList<Long>();
+            for (Long mid : INSTANCE.mServiceMap.keySet()) {
+                Mailbox box = Mailbox.restoreMailboxWithId(INSTANCE, mid);
+                if (box != null) {
+                    if (box.mAccountKey == acctId) {
+                        if (!includeAccountMailbox &&
+                                box.mType == Mailbox.TYPE_EAS_ACCOUNT_MAILBOX) {
+                            AbstractSyncService svc = INSTANCE.mServiceMap.get(mid);
+                            if (svc != null) {
+                                svc.stop();
+                            }
+                            continue;
+                        }
+                        AbstractSyncService svc = INSTANCE.mServiceMap.get(mid);
+                        if (svc != null) {
+                            svc.stop();
+                            Thread t = svc.mThread;
+                            if (t != null) {
+                                t.interrupt();
+                            }
+                        }
+                        deletedBoxes.add(mid);
+                    }
+                }
+            }
+            for (Long mid : deletedBoxes) {
+                releaseMailbox(mid);
+            }
+        }
+    }
+
     static public void reloadFolderList(Context context, long accountId, boolean force) {
         if (INSTANCE == null) return;
         Cursor c = context.getContentResolver().query(Mailbox.CONTENT_URI,
@@ -975,7 +998,7 @@ public class SyncManager extends Service implements Runnable {
     static public void folderListReloaded(long acctId) {
         if (INSTANCE != null) {
             AccountObserver obs = INSTANCE.mAccountObserver;
-            obs.stopAccountSyncs(acctId, false);
+            INSTANCE.stopAccountSyncs(acctId, false);
             kick("reload folder list");
         }
     }

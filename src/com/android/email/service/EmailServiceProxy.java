@@ -240,6 +240,17 @@ public class EmailServiceProxy implements IEmailService {
         });
     }
 
+    public void hostChanged(final long accountId) throws RemoteException {
+        setTask(new Runnable () {
+            public void run() {
+                try {
+                    mService.hostChanged(accountId);
+                } catch (RemoteException e) {
+                }
+            }
+        });
+    }
+
     public void loadMore(long messageId) throws RemoteException {
         // TODO Auto-generated method stub
     }
