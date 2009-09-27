@@ -1702,14 +1702,16 @@ public class MessagingController implements Runnable {
         }
 
         // 5. If requested, Best-effort to capture new "internaldate" from the server
-        if (updateInternalDate) {
+        if (updateInternalDate && message.mServerId != null) {
             try {
                 Message remoteMessage2 = remoteFolder.getMessage(message.mServerId);
-                FetchProfile fp2 = new FetchProfile();
-                fp2.add(FetchProfile.Item.ENVELOPE);
-                remoteFolder.fetch(new Message[] { remoteMessage2 }, fp2, null);
-                message.mServerTimeStamp = remoteMessage2.getInternalDate().getTime();
-                updateMessage = true;
+                if (remoteMessage2 != null) {
+                    FetchProfile fp2 = new FetchProfile();
+                    fp2.add(FetchProfile.Item.ENVELOPE);
+                    remoteFolder.fetch(new Message[] { remoteMessage2 }, fp2, null);
+                    message.mServerTimeStamp = remoteMessage2.getInternalDate().getTime();
+                    updateMessage = true;
+                }
             } catch (MessagingException me) {
                 // skip it - we can live without this
             }
