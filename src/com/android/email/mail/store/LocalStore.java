@@ -37,7 +37,6 @@ import com.android.email.mail.internet.MimeMessage;
 import com.android.email.mail.internet.MimeMultipart;
 import com.android.email.mail.internet.MimeUtility;
 import com.android.email.mail.internet.TextBody;
-import com.android.email.provider.AttachmentProvider;
 
 import org.apache.commons.io.IOUtils;
 
@@ -46,7 +45,6 @@ import android.content.Context;
 import android.database.Cursor;
 import android.database.sqlite.SQLiteDatabase;
 import android.net.Uri;
-import android.util.Config;
 import android.util.Log;
 
 import java.io.ByteArrayInputStream;
@@ -627,6 +625,12 @@ public class LocalStore extends Store implements PersistentDataCallbacks {
         @Override
         public boolean exists() throws MessagingException {
             return Utility.arrayContains(getPersonalNamespaces(), this);
+        }
+
+        // LocalStore supports folder creation
+        @Override
+        public boolean canCreate(FolderType type) {
+            return true;
         }
 
         @Override

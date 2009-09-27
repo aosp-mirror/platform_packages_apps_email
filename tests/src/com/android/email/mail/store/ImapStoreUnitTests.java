@@ -20,6 +20,7 @@ import com.android.email.mail.Flag;
 import com.android.email.mail.Folder;
 import com.android.email.mail.MessagingException;
 import com.android.email.mail.Transport;
+import com.android.email.mail.Folder.FolderType;
 import com.android.email.mail.Folder.OpenMode;
 import com.android.email.mail.internet.BinaryTempFileBody;
 import com.android.email.mail.transport.MockTransport;
@@ -128,6 +129,10 @@ public class ImapStoreUnitTests extends AndroidTestCase {
         assertEquals(Flag.DELETED, flags[0]);
         assertEquals(Flag.SEEN, flags[1]);
         assertEquals(Flag.FLAGGED, flags[2]);
+
+        // canCreate() returns true
+        assertTrue(mFolder.canCreate(FolderType.HOLDS_FOLDERS));
+        assertTrue(mFolder.canCreate(FolderType.HOLDS_MESSAGES));
     }
 
     /**

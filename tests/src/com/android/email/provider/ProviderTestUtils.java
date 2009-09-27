@@ -129,7 +129,7 @@ public class ProviderTestUtils extends Assert {
         message.mFlagLoaded = Message.FLAG_LOADED_UNLOADED;
         message.mFlagFavorite = true;
         message.mFlagAttachment = true;
-        message.mFlags = 2;
+        message.mFlags = 0;
 
         message.mServerId = "serverid " + name;
         message.mServerTimeStamp = 300 + name.length();

@@ -21,8 +21,13 @@ import com.android.email.mail.Flag;
 import com.android.email.mail.Message;
 import com.android.email.mail.MessagingException;
 import com.android.email.mail.Part;
+import com.android.email.mail.Message.RecipientType;
+import com.android.email.mail.internet.MimeBodyPart;
 import com.android.email.mail.internet.MimeHeader;
+import com.android.email.mail.internet.MimeMessage;
+import com.android.email.mail.internet.MimeMultipart;
 import com.android.email.mail.internet.MimeUtility;
+import com.android.email.mail.internet.TextBody;
 import com.android.email.provider.AttachmentProvider;
 import com.android.email.provider.EmailContent;
 import com.android.email.provider.EmailContent.Attachment;
@@ -34,6 +39,7 @@ import android.content.ContentUris;
 import android.content.ContentValues;
 import android.content.Context;
 import android.net.Uri;
+import android.util.Log;
 
 import java.io.File;
 import java.io.FileOutputStream;
@@ -45,8 +51,15 @@ import java.util.Date;
 public class LegacyConversions {
 
     /**
+     * Values for HEADER_ANDROID_BODY_QUOTED_PART to tag body parts
+     */
+    /* package */ static final String BODY_QUOTED_PART_REPLY = "quoted-reply";
+    /* package */ static final String BODY_QUOTED_PART_FORWARD = "quoted-forward";
+    /* package */ static final String BODY_QUOTED_PART_INTRO = "quoted-intro";
+
+    /**
      * Copy field-by-field from a "store" message to a "provider" message
-     * @param message The message we've just downloaded
+     * @param message The message we've just downloaded (must be a MimeMessage)
      * @param localMessage The message we'd like to write into the DB
      * @result true if dirty (changes were made)
      */
@@ -91,7 +104,7 @@ public class LegacyConversions {
             localMessage.mServerTimeStamp = internalDate.getTime();
         }
 //        public String mClientId;
-//        public String mMessageId;
+        localMessage.mMessageId = ((MimeMessage)message).getMessageId();
 
 //        public long mBodyKey;
         localMessage.mMailboxKey = mailboxId;
@@ -126,31 +139,88 @@ public class LegacyConversions {
 
         body.mMessageKey = localMessage.mId;
 
-        StringBuffer sbHtml = new StringBuffer();
-        StringBuffer sbText = new StringBuffer();
+        StringBuffer sbHtml = null;
+        StringBuffer sbText = null;
+        StringBuffer sbHtmlReply = null;
+        StringBuffer sbTextReply = null;
+        StringBuffer sbIntroText = null;
+
         for (Part viewable : viewables) {
             String text = MimeUtility.getTextFromPart(viewable);
-            if ("text/html".equalsIgnoreCase(viewable.getMimeType())) {
-                if (sbHtml.length() > 0) {
-                    sbHtml.append('\n');
+            String[] replyTags = viewable.getHeader(MimeHeader.HEADER_ANDROID_BODY_QUOTED_PART);
+            String replyTag = null;
+            if (replyTags != null && replyTags.length > 0) {
+                replyTag = replyTags[0];
+            }
+            // Deploy text as marked by the various tags
+            boolean isHtml = "text/html".equalsIgnoreCase(viewable.getMimeType());
+
+            if (replyTag != null) {
+                boolean isQuotedReply = BODY_QUOTED_PART_REPLY.equalsIgnoreCase(replyTag);
+                boolean isQuotedForward = BODY_QUOTED_PART_FORWARD.equalsIgnoreCase(replyTag);
+                boolean isQuotedIntro = BODY_QUOTED_PART_INTRO.equalsIgnoreCase(replyTag);
+
+                if (isQuotedReply || isQuotedForward) {
+                    if (isHtml) {
+                        sbHtmlReply = appendTextPart(sbHtmlReply, text);
+                    } else {
+                        sbTextReply = appendTextPart(sbTextReply, text);
+                    }
+                    // Set message flags as well
+                    localMessage.mFlags &= ~EmailContent.Message.FLAG_TYPE_MASK;
+                    localMessage.mFlags |= isQuotedReply
+                            ? EmailContent.Message.FLAG_TYPE_REPLY
+                            : EmailContent.Message.FLAG_TYPE_FORWARD;
+                    continue;
                 }
-                sbHtml.append(text);
+                if (isQuotedIntro) {
+                    sbIntroText = appendTextPart(sbIntroText, text);
+                    continue;
+                }
+            }
+
+            // Most of the time, just process regular body parts
+            if (isHtml) {
+                sbHtml = appendTextPart(sbHtml, text);
             } else {
-                if (sbText.length() > 0) {
-                    sbText.append('\n');
-                }
-                sbText.append(text);
+                sbText = appendTextPart(sbText, text);
             }
         }
 
         // write the combined data to the body part
-        if (sbText.length() != 0) {
+        if (sbText != null && sbText.length() != 0) {
             body.mTextContent = sbText.toString();
         }
-        if (sbHtml.length() != 0) {
+        if (sbHtml != null && sbHtml.length() != 0) {
             body.mHtmlContent = sbHtml.toString();
         }
+        if (sbHtmlReply != null && sbHtmlReply.length() != 0) {
+            body.mHtmlReply = sbHtmlReply.toString();
+        }
+        if (sbTextReply != null && sbTextReply.length() != 0) {
+            body.mTextReply = sbTextReply.toString();
+        }
+        if (sbIntroText != null && sbIntroText.length() != 0) {
+            body.mIntroText = sbIntroText.toString();
+        }
         return true;
+    }
+
+    /**
+     * Helper function to append text to a StringBuffer, creating it if necessary.
+     * Optimization:  The majority of the time we are *not* appending - we should have a path
+     * that deals with single strings.
+     */
+    private static StringBuffer appendTextPart(StringBuffer sb, String newText) {
+        if (sb == null) {
+            sb = new StringBuffer(newText);
+        } else {
+            if (sb.length() > 0) {
+                sb.append('\n');
+            }
+            sb.append(newText);
+        }
+        return sb;
     }
 
     /**
@@ -269,4 +339,116 @@ public class LegacyConversions {
         }
     }
 
+    /**
+     * Read a complete Provider message into a legacy message (for IMAP upload).  This
+     * is basically the equivalent of LocalFolder.getMessages() + LocalFolder.fetch().
+     */
+    public static Message makeMessage(Context context, EmailContent.Message localMessage)
+            throws MessagingException {
+        MimeMessage message = new MimeMessage();
+
+        // LocalFolder.getMessages() equivalent:  Copy message fields
+        message.setSubject(localMessage.mSubject == null ? "" : localMessage.mSubject);
+        Address[] from = Address.unpack(localMessage.mFrom);
+        if (from.length > 0) {
+            message.setFrom(from[0]);
+        }
+        message.setSentDate(new Date(localMessage.mTimeStamp));
+        message.setUid(localMessage.mServerId);
+        message.setFlag(Flag.DELETED,
+                localMessage.mFlagLoaded == EmailContent.Message.FLAG_LOADED_DELETED);
+        message.setFlag(Flag.SEEN, localMessage.mFlagRead);
+        message.setFlag(Flag.FLAGGED, localMessage.mFlagFavorite);
+//      message.setFlag(Flag.DRAFT, localMessage.mMailboxKey == draftMailboxKey);
+        message.setRecipients(RecipientType.TO, Address.unpack(localMessage.mTo));
+        message.setRecipients(RecipientType.CC, Address.unpack(localMessage.mCc));
+        message.setRecipients(RecipientType.BCC, Address.unpack(localMessage.mBcc));
+        message.setReplyTo(Address.unpack(localMessage.mReplyTo));
+        message.setInternalDate(new Date(localMessage.mServerTimeStamp));
+        message.setMessageId(localMessage.mMessageId);
+
+        // LocalFolder.fetch() equivalent: build body parts
+        message.setHeader(MimeHeader.HEADER_CONTENT_TYPE, "multipart/mixed");
+        MimeMultipart mp = new MimeMultipart();
+        mp.setSubType("mixed");
+        message.setBody(mp);
+
+        try {
+            addTextBodyPart(mp, "text/html", null,
+                    EmailContent.Body.restoreBodyHtmlWithMessageId(context, localMessage.mId));
+        } catch (RuntimeException rte) {
+            Log.d(Email.LOG_TAG, "Exception while reading html body " + rte.toString());
+        }
+
+        try {
+            addTextBodyPart(mp, "text/plain", null,
+                    EmailContent.Body.restoreBodyTextWithMessageId(context, localMessage.mId));
+        } catch (RuntimeException rte) {
+            Log.d(Email.LOG_TAG, "Exception while reading text body " + rte.toString());
+        }
+
+        boolean isReply = (localMessage.mFlags & EmailContent.Message.FLAG_TYPE_REPLY) != 0;
+        boolean isForward = (localMessage.mFlags & EmailContent.Message.FLAG_TYPE_FORWARD) != 0;
+
+        // If there is a quoted part (forwarding or reply), add the intro first, and then the
+        // rest of it.  If it is opened in some other viewer, it will (hopefully) be displayed in
+        // the same order as we've just set up the blocks:  composed text, intro, replied text
+        if (isReply || isForward) {
+            try {
+                addTextBodyPart(mp, "text/plain", BODY_QUOTED_PART_INTRO,
+                        EmailContent.Body.restoreIntroTextWithMessageId(context, localMessage.mId));
+            } catch (RuntimeException rte) {
+                Log.d(Email.LOG_TAG, "Exception while reading text reply " + rte.toString());
+            }
+
+            String replyTag = isReply ? BODY_QUOTED_PART_REPLY : BODY_QUOTED_PART_FORWARD;
+            try {
+                addTextBodyPart(mp, "text/html", replyTag,
+                        EmailContent.Body.restoreReplyHtmlWithMessageId(context, localMessage.mId));
+            } catch (RuntimeException rte) {
+                Log.d(Email.LOG_TAG, "Exception while reading html reply " + rte.toString());
+            }
+
+            try {
+                addTextBodyPart(mp, "text/plain", replyTag,
+                        EmailContent.Body.restoreReplyTextWithMessageId(context, localMessage.mId));
+            } catch (RuntimeException rte) {
+                Log.d(Email.LOG_TAG, "Exception while reading text reply " + rte.toString());
+            }
+        }
+
+        // Attachments
+        // TODO: Make sure we deal with these as structures and don't accidentally upload files
+//        Uri uri = ContentUris.withAppendedId(Attachment.MESSAGE_ID_URI, localMessage.mId);
+//        Cursor attachments = context.getContentResolver().query(uri, Attachment.CONTENT_PROJECTION,
+//                null, null, null);
+//        try {
+//
+//        } finally {
+//            attachments.close();
+//        }
+
+        return message;
+    }
+
+    /**
+     * Helper method to add a body part for a given type of text, if found
+     *
+     * @param mp The text body part will be added to this multipart
+     * @param contentType The content-type of the text being added
+     * @param quotedPartTag If non-null, HEADER_ANDROID_BODY_QUOTED_PART will be set to this value
+     * @param partText The text to add.  If null, nothing happens
+     */
+    private static void addTextBodyPart(MimeMultipart mp, String contentType, String quotedPartTag,
+            String partText) throws MessagingException {
+        if (partText == null) {
+            return;
+        }
+        TextBody body = new TextBody(partText);
+        MimeBodyPart bp = new MimeBodyPart(body, contentType);
+        if (quotedPartTag != null) {
+            bp.addHeader(MimeHeader.HEADER_ANDROID_BODY_QUOTED_PART, quotedPartTag);
+        }
+        mp.addBodyPart(bp);
+    }
 }

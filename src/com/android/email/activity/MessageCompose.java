@@ -36,6 +36,7 @@ import com.android.email.provider.EmailContent.MessageColumns;
 import android.app.Activity;
 import android.content.ActivityNotFoundException;
 import android.content.ContentResolver;
+import android.content.ContentUris;
 import android.content.ContentValues;
 import android.content.Context;
 import android.content.Intent;
@@ -529,9 +530,9 @@ public class MessageCompose extends Activity implements OnClickListener, OnFocus
                 // the reply fields are only filled/used for Drafts.
                 if (isEditDraft) {
                     message.mHtmlReply =
-                        Body.restoreHtmlReplyWithMessageId(MessageCompose.this, message.mId);
+                        Body.restoreReplyHtmlWithMessageId(MessageCompose.this, message.mId);
                     message.mTextReply =
-                        Body.restoreTextReplyWithMessageId(MessageCompose.this, message.mId);
+                        Body.restoreReplyTextWithMessageId(MessageCompose.this, message.mId);
                 } else {
                     message.mHtmlReply = null;
                     message.mTextReply = null;
@@ -749,7 +750,12 @@ public class MessageCompose extends Activity implements OnClickListener, OnFocus
             protected Void doInBackground(Void... params) {
                 synchronized (mDraft) {
                     if (mDraft.isSaved()) {
-                        mDraft.update(MessageCompose.this, getUpdateContentValues(mDraft));
+                        // Update the message
+                        Uri draftUri =
+                            ContentUris.withAppendedId(mDraft.SYNCED_CONTENT_URI, mDraft.mId);
+                        getContentResolver().update(draftUri, getUpdateContentValues(mDraft),
+                                null, null);
+                        // Update the body
                         ContentValues values = new ContentValues();
                         values.put(BodyColumns.TEXT_CONTENT, mDraft.mText);
                         values.put(BodyColumns.TEXT_REPLY, mDraft.mTextReply);
