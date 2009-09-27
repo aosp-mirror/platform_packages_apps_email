@@ -656,6 +656,7 @@ public class MessageCompose extends Activity implements OnClickListener, OnFocus
         values.put(MessageColumns.BCC_LIST, message.mBcc);
         values.put(MessageColumns.SUBJECT, message.mSubject);
         values.put(MessageColumns.DISPLAY_NAME, message.mDisplayName);
+        values.put(MessageColumns.FLAG_READ, message.mFlagRead);
         values.put(MessageColumns.FLAG_LOADED, message.mFlagLoaded);
         values.put(MessageColumns.FLAG_ATTACHMENT, message.mFlagAttachment);
         values.put(MessageColumns.FLAGS, message.mFlags);
@@ -677,6 +678,7 @@ public class MessageCompose extends Activity implements OnClickListener, OnFocus
         message.mText = mMessageContentView.getText().toString();
         message.mAccountKey = account.mId;
         message.mDisplayName = makeDisplayName(message.mTo, message.mCc, message.mBcc);
+        message.mFlagRead = true;
         message.mFlagLoaded = Message.FLAG_LOADED_COMPLETE;
         message.mFlagAttachment = hasAttachments;
         // Use the Intent to set flags saying this message is a reply or a forward and save the

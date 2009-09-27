@@ -987,13 +987,33 @@ public class ImapStore extends Store {
             checkOpen();
             try {
                 for (Message message : messages) {
+                    // Create output count
                     CountingOutputStream out = new CountingOutputStream();
                     EOLConvertingOutputStream eolOut = new EOLConvertingOutputStream(out);
                     message.writeTo(eolOut);
                     eolOut.flush();
+                    // Create flag list (most often this will be "\SEEN")
+                    String flagList = "";
+                    Flag[] flags = message.getFlags();
+                    if (flags.length > 0) {
+                        StringBuilder sb = new StringBuilder();
+                        for (int i = 0, count = flags.length; i < count; i++) {
+                            Flag flag = flags[i];
+                            if (flag == Flag.SEEN) {
+                                sb.append(" \\Seen");
+                            } else if (flag == Flag.FLAGGED) {
+                                sb.append(" \\Flagged");
+                            }
+                        }
+                        if (sb.length() > 0) {
+                            flagList = sb.substring(1);
+                        }
+                    }
+
                     mConnection.sendCommand(
-                            String.format("APPEND \"%s\" {%d}",
+                            String.format("APPEND \"%s\" (%s) {%d}",
                                     encodeFolderName(mName),
+                                    flagList,
                                     out.getCount()), false);
                     ImapResponse response;
                     do {
