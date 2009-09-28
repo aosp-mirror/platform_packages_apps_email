@@ -54,8 +54,9 @@ import android.os.Handler;
 import android.provider.Browser;
 import android.provider.ContactsContract;
 import android.provider.ContactsContract.CommonDataKinds;
+import android.provider.ContactsContract.Contacts;
 import android.provider.ContactsContract.FastTrack;
-import android.provider.ContactsContract.Presence;
+import android.provider.ContactsContract.StatusUpdates;
 import android.text.TextUtils;
 import android.text.util.Regex;
 import android.util.Log;
@@ -101,7 +102,7 @@ public class MessageView extends Activity implements OnClickListener {
     };
 
     private static final String[] PRESENCE_STATUS_PROJECTION =
-        new String[] { Presence.PRESENCE_STATUS };
+        new String[] { Contacts.CONTACT_PRESENCE };
 
     private static final int BODY_CONTENT_COLUMN_RECORD_ID = 0;
     private static final int BODY_CONTENT_COLUMN_MESSAGE_KEY = 1;
@@ -954,13 +955,13 @@ public class MessageView extends Activity implements OnClickListener {
         @Override
         protected Integer doInBackground(String... emails) {
             Cursor cursor =
-                    getContentResolver().query(ContactsContract.Data.CONTENT_WITH_PRESENCE_URI,
+                    getContentResolver().query(ContactsContract.Data.CONTENT_URI,
                     PRESENCE_STATUS_PROJECTION, CommonDataKinds.Email.DATA + "=?", emails, null);
             if (cursor != null) {
                 try {
                     if (cursor.moveToFirst()) {
                         int status = cursor.getInt(0);
-                        int icon = Presence.getPresenceIconResourceId(status);
+                        int icon = StatusUpdates.getPresenceIconResourceId(status);
                         return icon;
                     }
                 } finally {
