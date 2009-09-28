@@ -67,15 +67,21 @@ public class Email extends Application {
     public static final boolean LOGD = false;
 
     /**
-     * The MIME type(s) of attachments we're willing to send. At the moment it is not possible
-     * to open a chooser with a list of filter types, so the chooser is only opened with the first
-     * item in the list. The entire list will be used to filter down attachments that are added
-     * with Intent.ACTION_SEND.
+     * The MIME type(s) of attachments we're willing to send via attachments.
      *
-     * TODO: It should be legal to send anything requested by another app.  This would provide
-     * parity with Gmail's behavior.
+     * Any attachments may be added via Intents with Intent.ACTION_SEND or ACTION_SEND_MULTIPLE.
      */
-    public static final String[] ACCEPTABLE_ATTACHMENT_SEND_TYPES = new String[] {
+    public static final String[] ACCEPTABLE_ATTACHMENT_SEND_INTENT_TYPES = new String[] {
+        "*/*",
+    };
+
+    /**
+     * The MIME type(s) of attachments we're willing to send from the internal UI.
+     *
+     * NOTE:  At the moment it is not possible to open a chooser with a list of filter types, so
+     * the chooser is only opened with the first item in the list.
+     */
+    public static final String[] ACCEPTABLE_ATTACHMENT_SEND_UI_TYPES = new String[] {
         "image/*",
         "video/*",
     };
