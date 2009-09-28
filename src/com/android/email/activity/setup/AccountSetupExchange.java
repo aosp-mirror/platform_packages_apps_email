@@ -20,6 +20,8 @@ import com.android.email.R;
 import com.android.email.Utility;
 import com.android.email.provider.EmailContent;
 import com.android.email.provider.EmailContent.Account;
+import com.android.email.service.EmailServiceProxy;
+import com.android.exchange.SyncManager;
 
 import android.app.Activity;
 import android.app.AlertDialog;
@@ -27,6 +29,7 @@ import android.app.Dialog;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.os.Bundle;
+import android.os.RemoteException;
 import android.text.Editable;
 import android.text.TextWatcher;
 import android.view.View;
@@ -272,6 +275,15 @@ public class AccountSetupExchange extends Activity implements OnClickListener,
                     mAccount.update(this, mAccount.toContentValues());
                     mAccount.mHostAuthRecv.update(this, mAccount.mHostAuthRecv.toContentValues());
                     mAccount.mHostAuthSend.update(this, mAccount.mHostAuthSend.toContentValues());
+                    if (mAccount.mHostAuthRecv.mProtocol.equals("eas")) {
+                        // For EAS, notify SyncManager that the password has changed
+                        try {
+                            new EmailServiceProxy(this, SyncManager.class)
+                                .hostChanged(mAccount.mId);
+                        } catch (RemoteException e) {
+                            // Nothing to be done if this fails
+                        }
+                    }
                 } else {
                     // Account.save will save the HostAuth's
                     mAccount.save(this);
