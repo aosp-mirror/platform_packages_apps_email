@@ -190,7 +190,9 @@ public class MessageView extends Activity implements OnClickListener {
                     break;
                 case MSG_LOAD_CONTENT_URI:
                     String uriString = (String) msg.obj;
-                    mMessageContentView.loadUrl(uriString);
+                    if (mMessageContentView != null) {
+                        mMessageContentView.loadUrl(uriString);
+                    }
                     break;
                 case MSG_SET_ATTACHMENTS_ENABLED:
                     for (int i = 0, count = mAttachments.getChildCount(); i < count; i++) {
@@ -666,7 +668,9 @@ public class MessageView extends Activity implements OnClickListener {
 
     private void onShowPictures() {
         if (mMessage != null) {
-            mMessageContentView.getSettings().setBlockNetworkImage(false);
+            if (mMessageContentView != null) {
+                mMessageContentView.getSettings().setBlockNetworkImage(false);
+            }
             mShowPicturesSection.setVisibility(View.GONE);
         }
     }
@@ -763,7 +767,9 @@ public class MessageView extends Activity implements OnClickListener {
         }
         cancelAllTasks();
         setTitle("");
-        mMessageContentView.loadUrl("file:///android_asset/empty.html");
+        if (mMessageContentView != null) {
+            mMessageContentView.loadUrl("file:///android_asset/empty.html");
+        }
         mAttachments.removeAllViews();
         mAttachments.setVisibility(View.GONE);
         mAttachmentIcon.setVisibility(View.GONE);
@@ -1172,7 +1178,7 @@ public class MessageView extends Activity implements OnClickListener {
                     addAttachment(attachment);
                 }
             }
-            if (htmlChanged) {
+            if (htmlChanged && mMessageContentView != null) {
                 mMessageContentView.loadDataWithBaseURL("email://", mHtmlText, "text/html", "utf-8",
                                                         null);
             }
@@ -1291,7 +1297,9 @@ public class MessageView extends Activity implements OnClickListener {
         }
 
         mShowPicturesSection.setVisibility(hasImages ? View.VISIBLE : View.GONE);
-        mMessageContentView.loadDataWithBaseURL("email://", text, "text/html", "utf-8", null);
+        if (mMessageContentView != null) {
+            mMessageContentView.loadDataWithBaseURL("email://", text, "text/html", "utf-8", null);
+        }
 
         // Ask for attachments after body
         mLoadAttachmentsTask = new LoadAttachmentsTask();
