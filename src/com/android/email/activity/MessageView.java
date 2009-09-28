@@ -51,6 +51,7 @@ import android.os.AsyncTask;
 import android.os.Bundle;
 import android.os.Environment;
 import android.os.Handler;
+import android.provider.Browser;
 import android.provider.ContactsContract;
 import android.provider.ContactsContract.CommonDataKinds;
 import android.provider.ContactsContract.FastTrack;
@@ -65,6 +66,7 @@ import android.view.View;
 import android.view.Window;
 import android.view.View.OnClickListener;
 import android.webkit.WebView;
+import android.webkit.WebViewClient;
 import android.widget.Button;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
@@ -342,6 +344,7 @@ public class MessageView extends Activity implements OnClickListener {
         mMessageContentView.setVerticalScrollBarEnabled(false);
         mMessageContentView.getSettings().setBlockNetworkImage(true);
         mMessageContentView.getSettings().setSupportZoom(false);
+        mMessageContentView.setWebViewClient(new CustomWebViewClient());
 
         mProgressDialog = new ProgressDialog(this);
         mProgressDialog.setIndeterminate(true);
@@ -454,6 +457,42 @@ public class MessageView extends Activity implements OnClickListener {
                 // repositionPrevNextCursor() will fail to reposition and do its own finish()
                 finish();
             }
+        }
+    }
+
+    /**
+     * Overrides for various WebView behaviors.
+     */
+    private class CustomWebViewClient extends WebViewClient {
+        /**
+         * This is intended to mirror the operation of the original
+         * (see android.webkit.CallbackProxy) with one addition of intent flags
+         * "FLAG_ACTIVITY_CLEAR_WHEN_TASK_RESET".  This improves behavior when sublaunching
+         * other apps via embedded URI's.
+         *
+         * We also use this hook to catch "mailto:" links and handle them locally.
+         */
+        @Override
+        public boolean shouldOverrideUrlLoading(WebView view, String url) {
+            // hijack mailto: uri's and handle locally
+            if (url != null && url.toLowerCase().startsWith("mailto:")) {
+                return MessageCompose.actionCompose(MessageView.this, url, mAccountId);
+            }
+
+            // Handle most uri's via intent launch
+            boolean result = false;
+            Intent intent = new Intent(Intent.ACTION_VIEW, Uri.parse(url));
+            intent.addCategory(Intent.CATEGORY_BROWSABLE);
+            intent.putExtra(Browser.EXTRA_APPLICATION_ID, getPackageName());
+            intent.setFlags(Intent.FLAG_ACTIVITY_CLEAR_WHEN_TASK_RESET);
+            try {
+                startActivity(intent);
+                result = true;
+            } catch (ActivityNotFoundException ex) {
+                // If no application can handle the URL, assume that the
+                // caller can handle it.
+            }
+            return result;
         }
     }
 
