@@ -176,7 +176,7 @@ public class MessageCompose extends Activity implements OnClickListener, OnFocus
      * Compose a new message using the given account. If account is -1 the default account
      * will be used.
      * @param context
-     * @param account
+     * @param accountId
      */
     public static void actionCompose(Context context, long accountId) {
        try {
@@ -188,6 +188,30 @@ public class MessageCompose extends Activity implements OnClickListener, OnFocus
            // (The message composer might have been disabled)
            Email.log(anfe.toString());
        }
+    }
+
+    /**
+     * Compose a new message using a uri (mailto:) and a given account.  If account is -1 the
+     * default account will be used.
+     * @param context
+     * @param uriString
+     * @param accountId
+     * @return true if startActivity() succeeded
+     */
+    public static boolean actionCompose(Context context, String uriString, long accountId) {
+        try {
+            Intent i = new Intent(context, MessageCompose.class);
+            i.setAction(Intent.ACTION_SEND);
+            i.setData(Uri.parse(uriString));
+            i.putExtra(EXTRA_ACCOUNT_ID, accountId);
+            context.startActivity(i);
+            return true;
+        } catch (ActivityNotFoundException anfe) {
+            // Swallow it - this is usually a race condition, especially under automated test.
+            // (The message composer might have been disabled)
+            Email.log(anfe.toString());
+            return false;
+        }
     }
 
     /**
