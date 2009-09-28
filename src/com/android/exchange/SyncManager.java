@@ -519,6 +519,7 @@ public class SyncManager extends Service implements Runnable {
 
         private void collectEasAccounts(Cursor c, ArrayList<Account> accounts) {
             Context context = getContext();
+            if (context == null) return;
             while (c.moveToNext()) {
                 long hostAuthId = c.getLong(Account.CONTENT_HOST_AUTH_KEY_RECV_COLUMN);
                 if (hostAuthId > 0) {
