@@ -45,8 +45,9 @@ public class MessageListItem extends RelativeLayout {
     private int mCheckRight;
     private int mStarLeft;
 
-    private final static float CHECKMARK_PAD = 5.0F;
-    private final static float STAR_PAD = 5.0F;
+    // Padding to increase clickable areas on left & right of each list item
+    private final static float CHECKMARK_PAD = 10.0F;
+    private final static float STAR_PAD = 10.0F;
 
     public MessageListItem(Context context) {
         super(context);
