@@ -884,7 +884,7 @@ public class MessageCompose extends Activity implements OnClickListener, OnFocus
     private void onAddAttachment() {
         Intent i = new Intent(Intent.ACTION_GET_CONTENT);
         i.addCategory(Intent.CATEGORY_OPENABLE);
-        i.setType(Email.ACCEPTABLE_ATTACHMENT_SEND_TYPES[0]);
+        i.setType(Email.ACCEPTABLE_ATTACHMENT_SEND_UI_TYPES[0]);
         startActivityForResult(
                 Intent.createChooser(i, getString(R.string.choose_attachment_dialog_title)),
                 ACTIVITY_REQUEST_PICK_ATTACHMENT);
@@ -1110,7 +1110,8 @@ public class MessageCompose extends Activity implements OnClickListener, OnFocus
             String type = intent.getType();
             Uri stream = (Uri) intent.getParcelableExtra(Intent.EXTRA_STREAM);
             if (stream != null && type != null) {
-                if (MimeUtility.mimeTypeMatches(type, Email.ACCEPTABLE_ATTACHMENT_SEND_TYPES)) {
+                if (MimeUtility.mimeTypeMatches(type,
+                        Email.ACCEPTABLE_ATTACHMENT_SEND_INTENT_TYPES)) {
                     addAttachment(stream);
                 }
             }
@@ -1124,8 +1125,8 @@ public class MessageCompose extends Activity implements OnClickListener, OnFocus
                     Uri uri = (Uri) parcelable;
                     if (uri != null) {
                         Attachment attachment = loadAttachmentInfo(uri);
-                        if (MimeUtility.mimeTypeMatches(attachment.mMimeType,
-                                                        Email.ACCEPTABLE_ATTACHMENT_SEND_TYPES)) {
+                        if (MimeUtility.mimeTypeMatches(attachment.mMimeType, 
+                                Email.ACCEPTABLE_ATTACHMENT_SEND_INTENT_TYPES)) {
                             addAttachment(attachment);
                         }
                     }
