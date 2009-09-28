@@ -310,21 +310,6 @@ public class MessageCompose extends Activity implements OnClickListener, OnFocus
             } else {
                 setAccount(intent);
             }
-            if (ACTION_EDIT_DRAFT.equals(mAction) && messageId != -1) {
-                mLoadAttachmentsTask = new AsyncTask<Long, Void, Attachment[]>() {
-                    @Override
-                    protected Attachment[] doInBackground(Long... messageIds) {
-                        return Attachment.restoreAttachmentsWithMessageId(MessageCompose.this,
-                                messageIds[0]);
-                    }
-                    @Override
-                    protected void onPostExecute(Attachment[] attachments) {
-                        for (Attachment attachment : attachments) {
-                            addAttachment(attachment);
-                        }
-                    }
-                }.execute(messageId);
-            }
         }
 
         if (ACTION_REPLY.equals(mAction) || ACTION_REPLY_ALL.equals(mAction) ||
@@ -584,6 +569,21 @@ public class MessageCompose extends Activity implements OnClickListener, OnFocus
 
             if (ACTION_EDIT_DRAFT.equals(mAction)) {
                 mDraft = message;
+                mLoadAttachmentsTask = new AsyncTask<Long, Void, Attachment[]>() {
+                    @Override
+                    protected Attachment[] doInBackground(Long... messageIds) {
+                        return Attachment.restoreAttachmentsWithMessageId(MessageCompose.this,
+                                messageIds[0]);
+                    }
+                    @Override
+                    protected void onPostExecute(Attachment[] attachments) {
+                        if (attachments != null) {
+                            for (Attachment attachment : attachments) {
+                                addAttachment(attachment);
+                            }
+                        }
+                    }
+                }.execute(message.mId);
             } else if (ACTION_REPLY.equals(mAction)
                        || ACTION_REPLY_ALL.equals(mAction)
                        || ACTION_FORWARD.equals(mAction)) {
@@ -792,8 +792,6 @@ public class MessageCompose extends Activity implements OnClickListener, OnFocus
                         // mDraft.mId is set upon return of saveToMailbox()
                         mController.saveToMailbox(mDraft, EmailContent.Mailbox.TYPE_DRAFTS);
                     }
-
-                    // TODO: remove from DB the attachments that were removed from UI
                     for (Attachment attachment : attachments) {
                         if (!attachment.isSaved()) {
                             // this attachment is new so save it to DB.
@@ -967,13 +965,7 @@ public class MessageCompose extends Activity implements OnClickListener, OnFocus
                 onDiscard();
                 break;
             case R.id.attachment_delete:
-                /*
-                 * The view is the delete button, and we have previously set the tag of
-                 * the delete button to the view that owns it. We don't use parent because the
-                 * view is very complex and could change in the future.
-                 */
-                mAttachments.removeView((View) view.getTag());
-                mDraftNeedsSaving = true;
+                onDeleteAttachment(view);
                 break;
             case R.id.quoted_text_delete:
                 mQuotedTextBar.setVisibility(View.GONE);
@@ -981,6 +973,29 @@ public class MessageCompose extends Activity implements OnClickListener, OnFocus
                 mDraftNeedsSaving = true;
                 break;
         }
+    }
+
+    private void onDeleteAttachment(View delButtonView) {
+        /*
+         * The view is the delete button, and we have previously set the tag of
+         * the delete button to the view that owns it. We don't use parent because the
+         * view is very complex and could change in the future.
+         */
+        View attachmentView = (View) delButtonView.getTag();
+        Attachment attachment = (Attachment) attachmentView.getTag();
+        mAttachments.removeView(attachmentView);
+        if (attachment.isSaved()) {
+            // The following async task for deleting attachments:
+            // - can be started multiple times in parallel (to delete multiple attachments).
+            // - need not be interrupted on activity exit, instead should run to completion.
+            new AsyncTask<Long, Void, Void>() {
+                protected Void doInBackground(Long... attachmentIds) {
+                    mController.deleteAttachment(attachmentIds[0]);
+                    return null;
+                }
+            }.execute(attachment.mId);
+        }
+        mDraftNeedsSaving = true;
     }
 
     @Override

@@ -540,6 +540,16 @@ public class Controller {
     }
 
     /**
+     * Delete a single attachment entry from the DB given its id.
+     * Does not delete any eventual associated files. 
+     */
+    public void deleteAttachment(long attachmentId) {
+        ContentResolver resolver = mProviderContext.getContentResolver();
+        Uri uri = ContentUris.withAppendedId(Attachment.CONTENT_URI, attachmentId);
+        resolver.delete(uri, null, null);
+    }
+
+    /**
      * Delete a single message by moving it to the trash, or deleting it from the trash
      *
      * This function has no callback, no result reporting, because the desired outcome
