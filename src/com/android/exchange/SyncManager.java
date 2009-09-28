@@ -997,7 +997,6 @@ public class SyncManager extends Service implements Runnable {
      */
     static public void folderListReloaded(long acctId) {
         if (INSTANCE != null) {
-            AccountObserver obs = INSTANCE.mAccountObserver;
             INSTANCE.stopAccountSyncs(acctId, false);
             kick("reload folder list");
         }
