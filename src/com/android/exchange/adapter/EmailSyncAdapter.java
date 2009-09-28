@@ -544,6 +544,11 @@ public class EmailSyncAdapter extends AbstractSyncAdapter {
     public boolean sendLocalChanges(Serializer s) throws IOException {
         ContentResolver cr = mContext.getContentResolver();
 
+        // Never upsync from these folders
+        if (mMailbox.mType == Mailbox.TYPE_DRAFTS || mMailbox.mType == Mailbox.TYPE_OUTBOX) {
+            return false;
+        }
+
         // Find any of our deleted items
         Cursor c = cr.query(Message.DELETED_CONTENT_URI, Message.LIST_PROJECTION,
                 MessageColumns.MAILBOX_KEY + '=' + mMailbox.mId, null, null);
@@ -553,14 +558,16 @@ public class EmailSyncAdapter extends AbstractSyncAdapter {
         mDeletedIdList.clear();
         try {
             while (c.moveToNext()) {
-                if (first) {
+                String serverId = c.getString(Message.LIST_SERVER_ID_COLUMN);
+                // Keep going if there's no serverId
+                if (serverId == null) {
+                    continue;
+                } else if (first) {
                     s.start(Tags.SYNC_COMMANDS);
                     first = false;
                 }
                 // Send the command to delete this message
-                s.start(Tags.SYNC_DELETE)
-                    .data(Tags.SYNC_SERVER_ID, c.getString(Message.LIST_SERVER_ID_COLUMN))
-                    .end(); // SYNC_DELETE
+                s.start(Tags.SYNC_DELETE).data(Tags.SYNC_SERVER_ID, serverId).end();
                 mDeletedIdList.add(c.getLong(Message.LIST_ID_COLUMN));
             }
         } finally {
@@ -591,7 +598,11 @@ public class EmailSyncAdapter extends AbstractSyncAdapter {
                     if (!currentCursor.moveToFirst()) {
                          continue;
                     }
-
+                    // Keep going if there's no serverId
+                    String serverId = currentCursor.getString(UPDATES_SERVER_ID_COLUMN);
+                    if (serverId == null) {
+                        continue;
+                    }
                     // If the message is now in the trash folder, it has been deleted by the user
                     if (currentCursor.getLong(UPDATES_MAILBOX_KEY_COLUMN) == trashMailboxId) {
                          if (first) {
@@ -599,10 +610,7 @@ public class EmailSyncAdapter extends AbstractSyncAdapter {
                             first = false;
                         }
                         // Send the command to delete this message
-                        s.start(Tags.SYNC_DELETE)
-                            .data(Tags.SYNC_SERVER_ID,
-                                    currentCursor.getString(UPDATES_SERVER_ID_COLUMN))
-                            .end(); // SYNC_DELETE
+                        s.start(Tags.SYNC_DELETE).data(Tags.SYNC_SERVER_ID, serverId).end();
                         continue;
                     }
 
