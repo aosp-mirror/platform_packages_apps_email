@@ -679,8 +679,11 @@ public class ImapStore extends Store {
             for (Object o : fp) {
                 if (o instanceof Part) {
                     Part part = (Part) o;
-                    String partId = part.getHeader(MimeHeader.HEADER_ANDROID_ATTACHMENT_STORE_DATA)[0];
-                    fetchFields.add("BODY.PEEK[" + partId + "]");
+                    String[] partIds =
+                        part.getHeader(MimeHeader.HEADER_ANDROID_ATTACHMENT_STORE_DATA);
+                    if (partIds != null) {
+                        fetchFields.add("BODY.PEEK[" + partIds[0] + "]");
+                    }
                 }
             }
 
