@@ -544,7 +544,7 @@
     <string name="provider_note_t_online">Before setting up this email account, please visit the T-Online Web site and create a password for POP3 email access.</string>
 
     <!-- Name of Microsoft Exchange account type; used by AccountManager -->
-    <string name="exchange_name">Exchange</string>
+    <string name="exchange_name">Corporate</string>
 
 	<!-- Message that appears if the AccountManager cannot create the system Account -->
 	<string name="system_account_create_failed">The AccountManager could not create the Account; please try again.</string>
