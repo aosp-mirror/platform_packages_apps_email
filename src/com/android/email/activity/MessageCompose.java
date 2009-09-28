@@ -593,10 +593,7 @@ public class MessageCompose extends Activity implements OnClickListener, OnFocus
             }
 
             mAccount = account;
-            // Make sure we only do this once (otherwise we'll duplicate addresses!)
-            if (!mSourceMessageProcessed) {
-                processSourceMessage(message, mAccount);
-            }
+            processSourceMessage(message, mAccount);
         }
     }
 
@@ -1293,51 +1290,59 @@ public class MessageCompose extends Activity implements OnClickListener, OnFocus
      */
     /* package */
     void processSourceMessage(Message message, Account account) {
-        mDraftNeedsSaving = true;
-        final String subject = message.mSubject;
-        if (ACTION_REPLY.equals(mAction) || ACTION_REPLY_ALL.equals(mAction)) {
-            setupAddressViews(message, account, mToView, mCcView, ACTION_REPLY_ALL.equals(mAction));
-
-            if (subject != null && !subject.toLowerCase().startsWith("re:")) {
-                mSubjectView.setText("Re: " + subject);
-            } else {
-                mSubjectView.setText(subject);
-            }
-            displayQuotedText(message.mText, message.mHtml);
-        } else if (ACTION_FORWARD.equals(mAction)) {
-            mSubjectView.setText(subject != null && !subject.toLowerCase().startsWith("fwd:") ?
-                                 "Fwd: " + subject : subject);
-            displayQuotedText(message.mText, message.mHtml);
-            if (!mSourceMessageProcessed) {
+        // Make sure we only do this once (otherwise we'll duplicate addresses!)
+        if (!mSourceMessageProcessed) {
+            mDraftNeedsSaving = true;
+            final String subject = message.mSubject;
+            if (ACTION_REPLY.equals(mAction) || ACTION_REPLY_ALL.equals(mAction)) {
+                setupAddressViews(message, account, mToView, mCcView,
+                    ACTION_REPLY_ALL.equals(mAction));
+                if (subject != null && !subject.toLowerCase().startsWith("re:")) {
+                    mSubjectView.setText("Re: " + subject);
+                } else {
+                    mSubjectView.setText(subject);
+                }
+                displayQuotedText(message.mText, message.mHtml);
+            } else if (ACTION_FORWARD.equals(mAction)) {
+                mSubjectView.setText(subject != null && !subject.toLowerCase().startsWith("fwd:") ?
+                        "Fwd: " + subject : subject);
+                displayQuotedText(message.mText, message.mHtml);
                 // TODO: re-enable loadAttachments below
 //                 if (!loadAttachments(message, 0)) {
 //                     mHandler.sendEmptyMessage(MSG_SKIPPED_ATTACHMENTS);
 //                 }
-            }
-        } else if (ACTION_EDIT_DRAFT.equals(mAction)) {
-            mSubjectView.setText(subject);
-            addAddresses(mToView, Address.unpack(message.mTo));
-            Address[] cc = Address.unpack(message.mCc);
-            if (cc.length > 0) {
-                addAddresses(mCcView, cc);
-                mCcView.setVisibility(View.VISIBLE);
-            }
-            Address[] bcc = Address.unpack(message.mBcc);
-            if (bcc.length > 0) {
-                addAddresses(mBccView, bcc);
-                mBccView.setVisibility(View.VISIBLE);
-            }
+            } else if (ACTION_EDIT_DRAFT.equals(mAction)) {
+                mSubjectView.setText(subject);
+                addAddresses(mToView, Address.unpack(message.mTo));
+                Address[] cc = Address.unpack(message.mCc);
+                if (cc.length > 0) {
+                    addAddresses(mCcView, cc);
+                    mCcView.setVisibility(View.VISIBLE);
+                }
+                Address[] bcc = Address.unpack(message.mBcc);
+                if (bcc.length > 0) {
+                    addAddresses(mBccView, bcc);
+                    mBccView.setVisibility(View.VISIBLE);
+                }
 
-            mMessageContentView.setText(message.mText);
-            displayQuotedText(message.mTextReply, message.mHtmlReply);
-            if (!mSourceMessageProcessed) {
+                mMessageContentView.setText(message.mText);
                 // TODO: re-enable loadAttachments
                 // loadAttachments(message, 0);
+                mDraftNeedsSaving = false;
             }
-            mDraftNeedsSaving = false;
+            setNewMessageFocus();
+            mSourceMessageProcessed = true;
         }
-        setNewMessageFocus();
-        mSourceMessageProcessed = true;
+
+        /* The quoted text is displayed in a WebView whose content is not automatically
+         * saved/restored by onRestoreInstanceState(), so we need to *always* restore it here,
+         * regardless of the value of mSourceMessageProcessed.
+         * This only concerns EDIT_DRAFT because after a configuration change we're always
+         * in EDIT_DRAFT.
+         */
+        if (ACTION_EDIT_DRAFT.equals(mAction)) {
+            displayQuotedText(message.mTextReply, message.mHtmlReply);
+        }
     }
 
     /**
