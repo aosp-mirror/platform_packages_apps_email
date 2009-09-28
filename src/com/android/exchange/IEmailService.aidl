@@ -38,4 +38,6 @@ interface IEmailService {
     void setCallback(IEmailServiceCallback cb);
 
     void setLogging(int on);
+
+    void hostChanged(long accountId);
 }
