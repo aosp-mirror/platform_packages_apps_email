@@ -1397,12 +1397,14 @@ public class SyncManager extends Service implements Runnable {
             if (mConnectivityReceiver != null) {
                 unregisterReceiver(mConnectivityReceiver);
             }
-            ContentResolver resolver = getContentResolver();
-            resolver.unregisterContentObserver(mAccountObserver);
-            resolver.unregisterContentObserver(mMailboxObserver);
-            resolver.unregisterContentObserver(mSyncedMessageObserver);
-            resolver.unregisterContentObserver(mMessageObserver);
-
+            
+            if (INSTANCE != null) {
+                ContentResolver resolver = getContentResolver();
+                resolver.unregisterContentObserver(mAccountObserver);
+                resolver.unregisterContentObserver(mMailboxObserver);
+                resolver.unregisterContentObserver(mSyncedMessageObserver);
+                resolver.unregisterContentObserver(mMessageObserver);
+            }
             // Don't leak the Intent associated with this listener
             if (mAccountsUpdatedListener != null) {
                 AccountManager.get(this).removeOnAccountsUpdatedListener(mAccountsUpdatedListener);
