@@ -163,9 +163,7 @@ public class ContactsSyncAdapter extends AbstractSyncAdapter {
                 client.insert(addCallerIsSyncAdapterParameter(Settings.CONTENT_URI), cv);
                 return "0";
             } else {
-                String syncKey = new String(data);
-                userLog("SyncKey retrieved from ContactsProvider: " + syncKey);
-                return syncKey;
+                return new String(data);
             }
         } catch (RemoteException e) {
             throw new IOException("Can't get SyncKey from ContactsProvider");
@@ -977,9 +975,11 @@ public class ContactsSyncAdapter extends AbstractSyncAdapter {
             synchronized (mService.getSynchronizer()) {
                 if (!mService.isStopped()) {
                     try {
-                        mService.userLog("Executing ", size(), " CPO's");
-                        mResults = mContext.getContentResolver().applyBatch(
-                                ContactsContract.AUTHORITY, this);
+                        if (!isEmpty()) {
+                            mService.userLog("Executing ", size(), " CPO's");
+                            mResults = mContext.getContentResolver().applyBatch(
+                                    ContactsContract.AUTHORITY, this);
+                        }
                     } catch (RemoteException e) {
                         // There is nothing sensible to be done here
                         Log.e(TAG, "problem inserting contact during server update", e);
