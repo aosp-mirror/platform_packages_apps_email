@@ -1683,6 +1683,9 @@ public class ContactsSyncAdapter extends AbstractSyncAdapter {
             case Phone.TYPE_MMS:
                 s.data(Tags.CONTACTS2_MMS, value);
                 break;
+            case Phone.TYPE_ASSISTANT:
+                s.data(Tags.CONTACTS_ASSISTANT_TELEPHONE_NUMBER, value);
+                break;
             case Phone.TYPE_FAX_WORK:
                 s.data(Tags.CONTACTS_BUSINESS_FAX_NUMBER, value);
                 break;
