@@ -593,7 +593,7 @@ public class MessageCompose extends Activity implements OnClickListener, OnFocus
             }
 
             mAccount = account;
-            processSourceMessage(message, mAccount);
+            processSourceMessageGuarded(message, mAccount);
         }
     }
 
@@ -1283,54 +1283,10 @@ public class MessageCompose extends Activity implements OnClickListener, OnFocus
         }
     }
 
-    /**
-     * Pull out the parts of the now loaded source message and apply them to the new message
-     * depending on the type of message being composed.
-     * @param message
-     */
-    /* package */
-    void processSourceMessage(Message message, Account account) {
+    void processSourceMessageGuarded(Message message, Account account) {
         // Make sure we only do this once (otherwise we'll duplicate addresses!)
         if (!mSourceMessageProcessed) {
-            mDraftNeedsSaving = true;
-            final String subject = message.mSubject;
-            if (ACTION_REPLY.equals(mAction) || ACTION_REPLY_ALL.equals(mAction)) {
-                setupAddressViews(message, account, mToView, mCcView,
-                    ACTION_REPLY_ALL.equals(mAction));
-                if (subject != null && !subject.toLowerCase().startsWith("re:")) {
-                    mSubjectView.setText("Re: " + subject);
-                } else {
-                    mSubjectView.setText(subject);
-                }
-                displayQuotedText(message.mText, message.mHtml);
-            } else if (ACTION_FORWARD.equals(mAction)) {
-                mSubjectView.setText(subject != null && !subject.toLowerCase().startsWith("fwd:") ?
-                        "Fwd: " + subject : subject);
-                displayQuotedText(message.mText, message.mHtml);
-                // TODO: re-enable loadAttachments below
-//                 if (!loadAttachments(message, 0)) {
-//                     mHandler.sendEmptyMessage(MSG_SKIPPED_ATTACHMENTS);
-//                 }
-            } else if (ACTION_EDIT_DRAFT.equals(mAction)) {
-                mSubjectView.setText(subject);
-                addAddresses(mToView, Address.unpack(message.mTo));
-                Address[] cc = Address.unpack(message.mCc);
-                if (cc.length > 0) {
-                    addAddresses(mCcView, cc);
-                    mCcView.setVisibility(View.VISIBLE);
-                }
-                Address[] bcc = Address.unpack(message.mBcc);
-                if (bcc.length > 0) {
-                    addAddresses(mBccView, bcc);
-                    mBccView.setVisibility(View.VISIBLE);
-                }
-
-                mMessageContentView.setText(message.mText);
-                // TODO: re-enable loadAttachments
-                // loadAttachments(message, 0);
-                mDraftNeedsSaving = false;
-            }
-            setNewMessageFocus();
+            processSourceMessage(message, account);
             mSourceMessageProcessed = true;
         }
 
@@ -1343,6 +1299,54 @@ public class MessageCompose extends Activity implements OnClickListener, OnFocus
         if (ACTION_EDIT_DRAFT.equals(mAction)) {
             displayQuotedText(message.mTextReply, message.mHtmlReply);
         }
+    }
+
+    /**
+     * Pull out the parts of the now loaded source message and apply them to the new message
+     * depending on the type of message being composed.
+     * @param message
+     */
+    /* package */
+    void processSourceMessage(Message message, Account account) {
+        mDraftNeedsSaving = true;
+        final String subject = message.mSubject;
+        if (ACTION_REPLY.equals(mAction) || ACTION_REPLY_ALL.equals(mAction)) {
+            setupAddressViews(message, account, mToView, mCcView,
+                ACTION_REPLY_ALL.equals(mAction));
+            if (subject != null && !subject.toLowerCase().startsWith("re:")) {
+                mSubjectView.setText("Re: " + subject);
+            } else {
+                mSubjectView.setText(subject);
+            }
+            displayQuotedText(message.mText, message.mHtml);
+        } else if (ACTION_FORWARD.equals(mAction)) {
+            mSubjectView.setText(subject != null && !subject.toLowerCase().startsWith("fwd:") ?
+                    "Fwd: " + subject : subject);
+            displayQuotedText(message.mText, message.mHtml);
+                // TODO: re-enable loadAttachments below
+//                 if (!loadAttachments(message, 0)) {
+//                     mHandler.sendEmptyMessage(MSG_SKIPPED_ATTACHMENTS);
+//                 }
+        } else if (ACTION_EDIT_DRAFT.equals(mAction)) {
+            mSubjectView.setText(subject);
+            addAddresses(mToView, Address.unpack(message.mTo));
+            Address[] cc = Address.unpack(message.mCc);
+            if (cc.length > 0) {
+                addAddresses(mCcView, cc);
+                mCcView.setVisibility(View.VISIBLE);
+            }
+            Address[] bcc = Address.unpack(message.mBcc);
+            if (bcc.length > 0) {
+                addAddresses(mBccView, bcc);
+                mBccView.setVisibility(View.VISIBLE);
+            }
+
+            mMessageContentView.setText(message.mText);
+            // TODO: re-enable loadAttachments
+            // loadAttachments(message, 0);
+            mDraftNeedsSaving = false;
+        }
+        setNewMessageFocus();
     }
 
     /**
