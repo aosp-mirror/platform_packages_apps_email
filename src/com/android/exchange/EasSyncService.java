@@ -117,7 +117,7 @@ public class EasSyncService extends AbstractSyncService {
     static private final int PROTOCOL_PING_STATUS_CHANGES_FOUND = 2;
 
     // Fallbacks (in minutes) for ping loop failures
-    static private final int MAX_PING_FAILURES = 2;
+    static private final int MAX_PING_FAILURES = 1;
     static private final int PING_FALLBACK_INBOX = 5;
     static private final int PING_FALLBACK_PIM = 30;
 
@@ -398,7 +398,6 @@ public class EasSyncService extends AbstractSyncService {
     }
 
     protected HttpResponse sendPing(byte[] bytes, int pingHeartbeat) throws IOException {
-       int timeout = (pingHeartbeat+15)*SECONDS;
        Thread.currentThread().setName(mAccount.mDisplayName + ": Ping");
 
        if (Eas.USER_LOG) {
@@ -406,9 +405,12 @@ public class EasSyncService extends AbstractSyncService {
                    "s, high water mark: " + mPingHighWaterMark + 's');
        }
 
-       SyncManager.runAsleep(mMailboxId, timeout);
+       // We set a socket timeout somewhat larger than the pingHeartbeat (10 seconds)
+       // And we set an alarm 5 seconds after that (belt & suspenders)
+       SyncManager.runAsleep(mMailboxId, (pingHeartbeat+15)*SECONDS);
        try {
-           HttpResponse res = sendHttpClientPost(PING_COMMAND, new ByteArrayEntity(bytes), timeout);
+           HttpResponse res = sendHttpClientPost(PING_COMMAND,
+                   new ByteArrayEntity(bytes), (pingHeartbeat+10)*SECONDS);
            return res;
        } finally {
            SyncManager.runAwake(mMailboxId);
@@ -818,10 +820,12 @@ public class EasSyncService extends AbstractSyncService {
                         throw new IOException();
                     }
                 } catch (IOException e) {
-                    String msg = e.getMessage();
+                    String message = e.getMessage();
                     // If we get the exception that is indicative of a NAT timeout and if we
                     // haven't yet "fixed" the timeout, back off by two minutes and "fix" it
-                    if ((msg != null) && msg.contains("reset by peer")) {
+                    boolean hasMessage = message != null;
+                    userLog("IOException runPingLoop: " + (hasMessage ? message : "[no message]"));
+                    if (hasMessage && message.contains("reset by peer")) {
                         if ((pingHeartbeat > PING_MIN_HEARTBEAT) &&
                                 (pingHeartbeat > mPingHighWaterMark)) {
                             pingHeartbeat -= PING_HEARTBEAT_INCREMENT;
@@ -837,8 +841,6 @@ public class EasSyncService extends AbstractSyncService {
                             userLog("NAT type IOException > 2 seconds?");
                         }
                     } else {
-                        userLog("IOException detected in runPingLoop: " +
-                                ((msg != null) ? msg : "no message"));
                         throw e;
                     }
                 }
