@@ -213,12 +213,7 @@ public class AccountFolderList extends ListActivity
 
         Controller.getInstance(getApplication()).addResultCallback(mControllerCallback);
 
-        if (mLoadAccountsTask != null &&
-                mLoadAccountsTask.getStatus() != LoadAccountsTask.Status.FINISHED) {
-            mLoadAccountsTask.cancel(true);
-        }
-        mLoadAccountsTask = (LoadAccountsTask) new LoadAccountsTask().execute();
-
+        updateAccounts();
         // TODO: What updates do we need to auto-trigger, now that we have mailboxes in view?
     }
 
@@ -364,6 +359,14 @@ public class AccountFolderList extends ListActivity
         }
     }
 
+    private void updateAccounts() {
+        if (mLoadAccountsTask != null &&
+                mLoadAccountsTask.getStatus() != LoadAccountsTask.Status.FINISHED) {
+            mLoadAccountsTask.cancel(true);
+        }
+        mLoadAccountsTask = (LoadAccountsTask) new LoadAccountsTask().execute();
+    }
+
     private void onAddNewAccount() {
         AccountSetupBasics.actionNewAccount(this);
     }
@@ -446,6 +449,8 @@ public class AccountFolderList extends ListActivity
                         AccountSetupBasics.actionNewAccount(AccountFolderList.this);
                         finish();
                     }
+                    // Update unread counts and the default sender Id
+                    updateAccounts();
                 }
             })
             .setNegativeButton(R.string.cancel_action, new DialogInterface.OnClickListener() {
@@ -618,6 +623,9 @@ public class AccountFolderList extends ListActivity
                 long mailboxKey, int progress, int numNewMessages) {
             if (result != null || progress == 100) {
                 Email.updateMailboxRefreshTime(mailboxKey);
+            }
+            if (progress == 100) {
+                updateAccounts();
             }
             updateProgress(result, progress);
         }
