@@ -42,12 +42,6 @@ import javax.net.ssl.SSLException;
  */
 public class SmtpSender extends Sender {
 
-    public static final int CONNECTION_SECURITY_NONE = 0;
-    public static final int CONNECTION_SECURITY_TLS_OPTIONAL = 1;
-    public static final int CONNECTION_SECURITY_TLS_REQUIRED = 2;
-    public static final int CONNECTION_SECURITY_SSL_REQUIRED = 3;
-    public static final int CONNECTION_SECURITY_SSL_OPTIONAL = 4;
-
     Context mContext;
     private Transport mTransport;
     String mUsername;
@@ -62,11 +56,11 @@ public class SmtpSender extends Sender {
 
     /**
      * Allowed formats for the Uri:
-     * smtp://user:password@server:port CONNECTION_SECURITY_NONE
-     * smtp+tls://user:password@server:port CONNECTION_SECURITY_TLS_OPTIONAL
-     * smtp+tls+://user:password@server:port CONNECTION_SECURITY_TLS_REQUIRED
-     * smtp+ssl+://user:password@server:port CONNECTION_SECURITY_SSL_REQUIRED
-     * smtp+ssl://user:password@server:port CONNECTION_SECURITY_SSL_OPTIONAL
+     * smtp://user:password@server:port
+     * smtp+tls+://user:password@server:port
+     * smtp+tls+trustallcerts://user:password@server:port
+     * smtp+ssl+://user:password@server:port
+     * smtp+ssl+trustallcerts://user:password@server:port
      *
      * @param uriString the Uri containing information to configure this sender
      */
@@ -80,30 +74,24 @@ public class SmtpSender extends Sender {
         }
 
         String scheme = uri.getScheme();
-        int connectionSecurity = Transport.CONNECTION_SECURITY_NONE;
-        int defaultPort = -1;
-        if (scheme.equals("smtp")) {
-            connectionSecurity = CONNECTION_SECURITY_NONE;
-            defaultPort = 25;
-        } else if (scheme.equals("smtp+tls")) {
-            connectionSecurity = CONNECTION_SECURITY_TLS_OPTIONAL;
-            defaultPort = 25;
-        } else if (scheme.equals("smtp+tls+")) {
-            connectionSecurity = CONNECTION_SECURITY_TLS_REQUIRED;
-            defaultPort = 25;
-        } else if (scheme.equals("smtp+ssl+")) {
-            connectionSecurity = CONNECTION_SECURITY_SSL_REQUIRED;
-            defaultPort = 465;
-        } else if (scheme.equals("smtp+ssl")) {
-            connectionSecurity = CONNECTION_SECURITY_SSL_OPTIONAL;
-            defaultPort = 465;
-        } else {
+        if (scheme == null || !scheme.startsWith("smtp")) {
             throw new MessagingException("Unsupported protocol");
         }
+        // defaults, which can be changed by security modifiers
+        int connectionSecurity = Transport.CONNECTION_SECURITY_NONE;
+        int defaultPort = 587;
+        // check for security modifiers and apply changes
+        if (scheme.contains("+ssl")) {
+            connectionSecurity = Transport.CONNECTION_SECURITY_SSL;
+            defaultPort = 465;
+        } else if (scheme.contains("+tls")) {
+            connectionSecurity = Transport.CONNECTION_SECURITY_TLS;
+        }
+        boolean trustCertificates = scheme.contains("+trustallcerts");
 
         mTransport = new MailTransport("SMTP");
         mTransport.setUri(uri, defaultPort);
-        mTransport.setSecurity(connectionSecurity);
+        mTransport.setSecurity(connectionSecurity, trustCertificates);
 
         String[] userInfoParts = mTransport.getUserInfoParts();
         if (userInfoParts != null) {
@@ -160,8 +148,7 @@ public class SmtpSender extends Sender {
                      * Exim.
                      */
                     result = executeSimpleCommand("EHLO " + localHost);
-                } else if (mTransport.getSecurity() ==
-                        Transport.CONNECTION_SECURITY_TLS_REQUIRED) {
+                } else {
                     if (Config.LOGD && Email.DEBUG) {
                         Log.d(Email.LOG_TAG, "TLS not supported but required");
                     }

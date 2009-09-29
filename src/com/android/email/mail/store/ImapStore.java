@@ -78,11 +78,6 @@ import javax.net.ssl.SSLException;
  * </pre>
  */
 public class ImapStore extends Store {
-    public static final int CONNECTION_SECURITY_NONE = 0;
-    public static final int CONNECTION_SECURITY_TLS_OPTIONAL = 1;
-    public static final int CONNECTION_SECURITY_TLS_REQUIRED = 2;
-    public static final int CONNECTION_SECURITY_SSL_REQUIRED = 3;
-    public static final int CONNECTION_SECURITY_SSL_OPTIONAL = 4;
 
     private static final Flag[] PERMANENT_FLAGS = { Flag.DELETED, Flag.SEEN, Flag.FLAGGED };
 
@@ -118,11 +113,11 @@ public class ImapStore extends Store {
 
     /**
      * Allowed formats for the Uri:
-     * imap://user:password@server:port CONNECTION_SECURITY_NONE
-     * imap+tls://user:password@server:port CONNECTION_SECURITY_TLS_OPTIONAL
-     * imap+tls+://user:password@server:port CONNECTION_SECURITY_TLS_REQUIRED
-     * imap+ssl+://user:password@server:port CONNECTION_SECURITY_SSL_REQUIRED
-     * imap+ssl://user:password@server:port CONNECTION_SECURITY_SSL_OPTIONAL
+     * imap://user:password@server:port
+     * imap+tls+://user:password@server:port
+     * imap+tls+trustallcerts://user:password@server:port
+     * imap+ssl+://user:password@server:port
+     * imap+ssl+trustallcerts://user:password@server:port
      *
      * @param uriString the Uri containing information to configure this store
      */
@@ -135,30 +130,24 @@ public class ImapStore extends Store {
         }
 
         String scheme = uri.getScheme();
-        int connectionSecurity = Transport.CONNECTION_SECURITY_NONE;
-        int defaultPort = -1;
-        if (scheme.equals("imap")) {
-            connectionSecurity = CONNECTION_SECURITY_NONE;
-            defaultPort = 143;
-        } else if (scheme.equals("imap+tls")) {
-            connectionSecurity = CONNECTION_SECURITY_TLS_OPTIONAL;
-            defaultPort = 143;
-        } else if (scheme.equals("imap+tls+")) {
-            connectionSecurity = CONNECTION_SECURITY_TLS_REQUIRED;
-            defaultPort = 143;
-        } else if (scheme.equals("imap+ssl+")) {
-            connectionSecurity = CONNECTION_SECURITY_SSL_REQUIRED;
-            defaultPort = 993;
-        } else if (scheme.equals("imap+ssl")) {
-            connectionSecurity = CONNECTION_SECURITY_SSL_OPTIONAL;
-            defaultPort = 993;
-        } else {
+        if (scheme == null || !scheme.startsWith(STORE_SCHEME_IMAP)) {
             throw new MessagingException("Unsupported protocol");
         }
+        // defaults, which can be changed by security modifiers
+        int connectionSecurity = Transport.CONNECTION_SECURITY_NONE;
+        int defaultPort = 143;
+        // check for security modifiers and apply changes
+        if (scheme.contains("+ssl")) {
+            connectionSecurity = Transport.CONNECTION_SECURITY_SSL;
+            defaultPort = 993;
+        } else if (scheme.contains("+tls")) {
+            connectionSecurity = Transport.CONNECTION_SECURITY_TLS;
+        }
+        boolean trustCertificates = scheme.contains(STORE_SECURITY_TRUST_CERTIFICATES);
 
         mRootTransport = new MailTransport("IMAP");
         mRootTransport.setUri(uri, defaultPort);
-        mRootTransport.setSecurity(connectionSecurity);
+        mRootTransport.setSecurity(connectionSecurity, trustCertificates);
 
         String[] userInfoParts = mRootTransport.getUserInfoParts();
         if (userInfoParts != null) {
@@ -1171,8 +1160,7 @@ public class ImapStore extends Store {
                         mTransport.reopenTls();
                         mTransport.setSoTimeout(MailTransport.SOCKET_READ_TIMEOUT);
                         mParser = new ImapResponseParser(mTransport.getInputStream());
-                    } else if (mTransport.getSecurity() == 
-                            Transport.CONNECTION_SECURITY_TLS_REQUIRED) {
+                    } else {
                         if (Config.LOGD && Email.DEBUG) {
                             Log.d(Email.LOG_TAG, "TLS not supported but required");
                         }

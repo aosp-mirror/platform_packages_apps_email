@@ -44,6 +44,7 @@ public class MockTransport implements Transport {
     private boolean mOpen;
     private boolean mInputOpen;
     private int mConnectionSecurity;
+    private boolean mTrustCertificates;
     
     private ArrayList<String> mQueuedInput = new ArrayList<String>();
             
@@ -128,15 +129,17 @@ public class MockTransport implements Transport {
     }
 
     public boolean canTrySslSecurity() {
-        return (mConnectionSecurity == CONNECTION_SECURITY_SSL_REQUIRED
-                || mConnectionSecurity == CONNECTION_SECURITY_SSL_OPTIONAL);
+        return (mConnectionSecurity == CONNECTION_SECURITY_SSL);
     }
     
     public boolean canTryTlsSecurity() {
-        return (mConnectionSecurity == Transport.CONNECTION_SECURITY_TLS_OPTIONAL
-                || mConnectionSecurity == Transport.CONNECTION_SECURITY_TLS_REQUIRED);
+        return (mConnectionSecurity == Transport.CONNECTION_SECURITY_TLS);
     }
-    
+
+    public boolean canTrustAllCertificates() {
+        return mTrustCertificates;
+    }
+
     /**
      * This simulates a condition where the server has closed its side, causing 
      * reads to fail.
@@ -243,8 +246,9 @@ public class MockTransport implements Transport {
         SmtpSenderUnitTests.fail("reopenTls() not implemented");
     }
 
-    public void setSecurity(int connectionSecurity) {
+    public void setSecurity(int connectionSecurity, boolean trustAllCertificates) {
         mConnectionSecurity = connectionSecurity;
+        mTrustCertificates = trustAllCertificates;
     }
 
     public void setSoTimeout(int timeoutMilliseconds) /* throws SocketException */ {

@@ -172,7 +172,7 @@ public class ImapStoreUnitTests extends AndroidTestCase {
     private MockTransport openAndInjectMockTransport() {
         // Create mock transport and inject it into the ImapStore that's already set up
         MockTransport mockTransport = new MockTransport();
-        mockTransport.setSecurity(Transport.CONNECTION_SECURITY_NONE);
+        mockTransport.setSecurity(Transport.CONNECTION_SECURITY_NONE, false);
         mStore.setTransport(mockTransport);
         return mockTransport;
     }

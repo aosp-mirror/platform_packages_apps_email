@@ -32,7 +32,10 @@
     <string name="special_mailbox_display_name_sent"></string>
     <!-- Do Not Translate.  Unused string. -->
     <string name="special_mailbox_display_name_junk"></string>
-
+    <!-- Do Not Translate.  Unused string. -->
+    <string name="account_setup_incoming_security_ssl_optional_label"></string>
+    <!-- Do Not Translate.  Unused string. -->
+    <string name="account_setup_incoming_security_tls_optional_label"></string>
 
     <!-- Permissions label for reading attachments -->
     <string name="read_attachment_label">Read Email attachments</string>
@@ -362,13 +365,13 @@
     <!-- "Incoming server settings" screen, options for "Security type" pop-up menu -->
     <string name="account_setup_incoming_security_none_label">None</string>
     <!-- "Incoming server settings" screen, options for "Security type" pop-up menu -->
-    <string name="account_setup_incoming_security_ssl_optional_label">SSL (if available)</string>
+    <string name="account_setup_incoming_security_ssl_trust_certificates_label">SSL (Accept all certificates)</string>
     <!-- "Incoming server settings" screen, options for "Security type" pop-up menu -->
-    <string name="account_setup_incoming_security_ssl_label">SSL (always)</string>
+    <string name="account_setup_incoming_security_ssl_label">SSL</string>
     <!-- "Incoming server settings" screen, options for "Security type" pop-up menu -->
-    <string name="account_setup_incoming_security_tls_optional_label">TLS (if available)</string>
+    <string name="account_setup_incoming_security_tls_trust_certificates_label">TLS (Accept all certificates)</string>
     <!-- "Incoming server settings" screen, options for "Security type" pop-up menu -->
-    <string name="account_setup_incoming_security_tls_label">TLS (always)</string>
+    <string name="account_setup_incoming_security_tls_label">TLS</string>
     <!-- "Incoming server settings" screen, label for pop-up menu -->
     <string name="account_setup_incoming_delete_policy_label">Delete email from server</string>
     <!-- "Incoming server settings" screen, options in pop-up menu for Delete email from server: -->
