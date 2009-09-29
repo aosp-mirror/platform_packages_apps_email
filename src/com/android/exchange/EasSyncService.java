@@ -397,24 +397,12 @@ public class EasSyncService extends AbstractSyncService {
         return sendHttpClientPost(cmd, entity, COMMAND_TIMEOUT);
     }
 
-    protected HttpResponse sendPing(byte[] bytes, int pingHeartbeat) throws IOException {
+    protected HttpResponse sendPing(byte[] bytes, int heartbeat) throws IOException {
        Thread.currentThread().setName(mAccount.mDisplayName + ": Ping");
-
        if (Eas.USER_LOG) {
-           userLog("Sending ping, timeout: " + pingHeartbeat +
-                   "s, high water mark: " + mPingHighWaterMark + 's');
+           userLog("Send ping, timeout: " + heartbeat + "s, high: " + mPingHighWaterMark + 's');
        }
-
-       // We set a socket timeout somewhat larger than the pingHeartbeat (10 seconds)
-       // And we set an alarm 5 seconds after that (belt & suspenders)
-       SyncManager.runAsleep(mMailboxId, (pingHeartbeat+15)*SECONDS);
-       try {
-           HttpResponse res = sendHttpClientPost(PING_COMMAND,
-                   new ByteArrayEntity(bytes), (pingHeartbeat+10)*SECONDS);
-           return res;
-       } finally {
-           SyncManager.runAwake(mMailboxId);
-       }
+       return sendHttpClientPost(PING_COMMAND, new ByteArrayEntity(bytes), (heartbeat+5)*SECONDS);
     }
 
     protected HttpResponse sendHttpClientPost(String cmd, HttpEntity entity, int timeout)
@@ -444,11 +432,13 @@ public class EasSyncService extends AbstractSyncService {
         method.setEntity(entity);
         synchronized(getSynchronizer()) {
             mPendingPost = method;
+            SyncManager.runAsleep(mMailboxId, (timeout+10)*SECONDS);
         }
         try {
             return client.execute(method);
         } finally {
             synchronized(getSynchronizer()) {
+                SyncManager.runAwake(mMailboxId);
                 mPendingPost = null;
             }
         }
@@ -691,11 +681,11 @@ public class EasSyncService extends AbstractSyncService {
         // Do push for all sync services here
         long endTime = System.currentTimeMillis() + (30*MINUTES);
         HashMap<String, Integer> pingErrorMap = new HashMap<String, Integer>();
-
+        ArrayList<String> readyMailboxes = new ArrayList<String>();
+        ArrayList<String> notReadyMailboxes = new ArrayList<String>();
         int pingWaitCount = 0;
 
         while ((System.currentTimeMillis() < endTime) && !mStop) {
-            userLog("runPingLoop, top of loop, pingWaitCount = " + pingWaitCount);
             // Count of pushable mailboxes
             int pushCount = 0;
             // Count of mailboxes that can be pushed right now
@@ -707,6 +697,8 @@ public class EasSyncService extends AbstractSyncService {
             Cursor c = mContentResolver.query(Mailbox.CONTENT_URI, Mailbox.CONTENT_PROJECTION,
                     MailboxColumns.ACCOUNT_KEY + '=' + mAccount.mId +
                     AND_FREQUENCY_PING_PUSH_AND_NOT_ACCOUNT_MAILBOX, null, null);
+            notReadyMailboxes.clear();
+            readyMailboxes.clear();
             try {
                 // Loop through our pushed boxes seeing what is available to push
                 while (c.moveToNext()) {
@@ -740,11 +732,10 @@ public class EasSyncService extends AbstractSyncService {
                             .data(Tags.PING_ID, c.getString(Mailbox.CONTENT_SERVER_ID_COLUMN))
                             .data(Tags.PING_CLASS, folderClass)
                             .end();
-                        userLog("Ping ready for: ", folderClass, ", ", mailboxName, " (",
-                                c.getString(Mailbox.CONTENT_SERVER_ID_COLUMN), ")");
+                        readyMailboxes.add(mailboxName);
                     } else if ((pingStatus == SyncManager.PING_STATUS_RUNNING) ||
                             (pingStatus == SyncManager.PING_STATUS_WAITING)) {
-                        userLog(mailboxName, " not ready for ping");
+                        notReadyMailboxes.add(mailboxName);
                     } else if (pingStatus == SyncManager.PING_STATUS_UNABLE) {
                         pushCount--;
                         userLog(mailboxName, " in error state; ignore");
@@ -755,12 +746,20 @@ public class EasSyncService extends AbstractSyncService {
                 c.close();
             }
 
+            if (Eas.USER_LOG) {
+                if (!notReadyMailboxes.isEmpty()) {
+                    userLog("Ping not ready for: " + notReadyMailboxes);
+                }
+                if (!readyMailboxes.isEmpty()) {
+                    userLog("Ping ready for: " + readyMailboxes);
+                }
+            }
+            
             // If we've waited 10 seconds or more, just ping with whatever boxes are ready
             // But use a shorter than normal heartbeat
-            boolean forcePing = (pingWaitCount > 9);
+            boolean forcePing = !notReadyMailboxes.isEmpty() && (pingWaitCount > 5);
 
             if ((canPushCount > 0) && ((canPushCount == pushCount) || forcePing)) {
-                userLog("runPingLoop, about to send ping, setting pingWaitCount = 0");
                 // If all pingable boxes are ready for push, send Ping to the server
                 s.end().end().done();
                 pingWaitCount = 0;
@@ -844,34 +843,44 @@ public class EasSyncService extends AbstractSyncService {
                         throw e;
                     }
                 }
+            } else if (forcePing) {
+                // In this case, there aren't any boxes that are pingable, but there are boxes
+                // waiting (for IOExceptions)
+                userLog("pingLoop waiting 60s for any pingable boxes");
+                sleep(60*SECONDS, true);
             } else if (pushCount > 0) {
                 // If we want to Ping, but can't just yet, wait a little bit
                 // TODO Change sleep to wait and use notify from SyncManager when a sync ends
-                sleep(1*SECONDS);
+                sleep(2*SECONDS, false);
                 pingWaitCount++;
-                userLog("pingLoop waited for: ", (pushCount - canPushCount), " box(es), count = "
-                        + pingWaitCount);
+                //userLog("pingLoop waited 2s for: ", (pushCount - canPushCount), " box(es)");
             } else if (uninitCount > 0) {
                 // In this case, we're doing an initial sync of at least one mailbox.  Since this
                 // is typically a one-time case, I'm ok with trying again every 10 seconds until
                 // we're in one of the other possible states.
-                userLog("pingLoop waiting for ", uninitCount, " box(es) to do an initial sync");
-                sleep(10*SECONDS);
+                userLog("pingLoop waiting for initial sync of ", uninitCount, " box(es)");
+                sleep(10*SECONDS, true);
             } else {
                 // We've got nothing to do, so we'll check again in 30 minutes at which time
                 // we'll update the folder list.  Let the device sleep in the meantime...
-                SyncManager.runAsleep(mMailboxId, (30*MINUTES)+(15*SECONDS));
-                sleep(30*MINUTES);
-                SyncManager.runAwake(mMailboxId);
+                userLog("pingLoop sleeping for 30m");
+                sleep(30*MINUTES, true);
             }
         }
     }
 
-    void sleep(long ms) {
+    void sleep(long ms, boolean runAsleep) {
+        if (runAsleep) {
+            SyncManager.runAsleep(mMailboxId, ms+(5*SECONDS));
+        }
         try {
             Thread.sleep(ms);
         } catch (InterruptedException e) {
             // Doesn't matter whether we stop early; it's the thought that counts
+        } finally {
+            if (runAsleep) {
+                SyncManager.runAwake(mMailboxId);
+            }
         }
     }
 
