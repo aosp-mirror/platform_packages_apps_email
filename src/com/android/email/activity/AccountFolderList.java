@@ -301,7 +301,7 @@ public class AccountFolderList extends ListActivity
             row = childCursor.newRow();
             row.add(Long.valueOf(Mailbox.QUERY_ALL_FAVORITES)); // MAILBOX_COLUMN_ID = 0;
             // MAILBOX_DISPLAY_NAME
-            row.add(getString(R.string.account_folder_list_summary_favorite));
+            row.add(getString(R.string.account_folder_list_summary_starred));
             row.add(null);                                          // MAILBOX_ACCOUNT_KEY = 2;
             row.add(Integer.valueOf(Mailbox.TYPE_MAIL));            // MAILBOX_TYPE = 3;
             row.add(Integer.valueOf(count));                        // MAILBOX_UNREAD_COUNT = 4;
@@ -716,11 +716,7 @@ public class AccountFolderList extends ListActivity
             // Invisible (not "gone") to maintain spacing
             view.findViewById(R.id.chip).setVisibility(View.INVISIBLE);
 
-            int type = cursor.getInt(MAILBOX_TYPE);
-            String text = Utility.FolderProperties.getInstance(context).getDisplayName(type);
-            if (text == null) {
-                text = cursor.getString(MAILBOX_DISPLAY_NAME);
-            }
+            String text = cursor.getString(MAILBOX_DISPLAY_NAME);
             if (text != null) {
                 TextView nameView = (TextView) view.findViewById(R.id.name);
                 nameView.setText(text);
@@ -765,7 +761,7 @@ public class AccountFolderList extends ListActivity
             view.findViewById(R.id.default_sender).setVisibility(View.GONE);
             view.findViewById(R.id.folder_icon).setVisibility(View.VISIBLE);
             ((ImageView)view.findViewById(R.id.folder_icon)).setImageDrawable(
-                    Utility.FolderProperties.getInstance(context).getIconIds(type));
+                    Utility.FolderProperties.getInstance(context).getSummaryMailboxIconIds(id));
         }
 
         private void bindAccountItem(View view, Context context, Cursor cursor, boolean isExpanded)

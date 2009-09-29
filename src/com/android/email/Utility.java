@@ -291,6 +291,8 @@ public class Utility {
         private String[] mSpecialMailbox = new String[] {};
         private TypedArray mSpecialMailboxDrawable;
         private Drawable mDefaultMailboxDrawable;
+        private Drawable mSummaryStarredMailboxDrawable;
+        private Drawable mSummaryCombinedInboxDrawable;
 
         private FolderProperties(Context context) {
             mSpecialMailbox = context.getResources().getStringArray(R.array.mailbox_display_names);
@@ -304,6 +306,10 @@ public class Utility {
                 context.getResources().obtainTypedArray(R.array.mailbox_display_icons);
             mDefaultMailboxDrawable =
                 context.getResources().getDrawable(R.drawable.ic_list_folder);
+            mSummaryStarredMailboxDrawable =
+                context.getResources().getDrawable(R.drawable.ic_list_starred);
+            mSummaryCombinedInboxDrawable =
+                context.getResources().getDrawable(R.drawable.ic_list_combined_inbox);
         }
 
         public static FolderProperties getInstance(Context context) {
@@ -337,6 +343,19 @@ public class Utility {
         public Drawable getIconIds(int type) {
             if (type < mSpecialMailboxDrawable.length()) {
                 return mSpecialMailboxDrawable.getDrawable(type);
+            }
+            return mDefaultMailboxDrawable;
+        }
+
+        public Drawable getSummaryMailboxIconIds(long mailboxKey) {
+            if (mailboxKey == Mailbox.QUERY_ALL_INBOXES) {
+                return mSummaryCombinedInboxDrawable;
+            } else if (mailboxKey == Mailbox.QUERY_ALL_FAVORITES) {
+                return mSummaryStarredMailboxDrawable;
+            } else if (mailboxKey == Mailbox.QUERY_ALL_DRAFTS) {
+                return mSpecialMailboxDrawable.getDrawable(Mailbox.TYPE_DRAFTS);
+            } else if (mailboxKey == Mailbox.QUERY_ALL_OUTBOX) {
+                return mSpecialMailboxDrawable.getDrawable(Mailbox.TYPE_OUTBOX);
             }
             return mDefaultMailboxDrawable;
         }
