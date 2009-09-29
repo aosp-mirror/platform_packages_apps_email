@@ -49,8 +49,6 @@ import java.util.HashMap;
 public class MailService extends Service {
     /** DO NOT CHECK IN "TRUE" */
     private static final boolean DEBUG_FORCE_QUICK_REFRESH = false;     // force 1-minute refresh
-    /** DO NOT CHECK IN "TRUE" */
-    private static final boolean DEBUG_TAG_ALL_INTENTS = false;         // add tagging to intents
 
     private static final String LOG_TAG = "Email-MailService";
 
@@ -67,7 +65,6 @@ public class MailService extends Service {
 
     private static final String EXTRA_CHECK_ACCOUNT = "com.android.email.intent.extra.ACCOUNT";
     private static final String EXTRA_ACCOUNT_INFO = "com.android.email.intent.extra.ACCOUNT_INFO";
-    private static final String EXTRA_DEBUG_TAG = "com.android.email.intent.extra.TAG";
     private static final String EXTRA_DEBUG_WATCHDOG = "com.android.email.intent.extra.WATCHDOG";
 
     private static final int WATCHDOG_DELAY = 10 * 60 * 1000;   // 10 minutes
@@ -77,7 +74,6 @@ public class MailService extends Service {
 
     private Controller.Result mControllerCallback = new ControllerResults();
 
-    private static int sDebugIntentTag = 1;
     private int mStartId;
 
     /**
@@ -151,9 +147,6 @@ public class MailService extends Service {
 
     @Override
     public int onStartCommand(Intent intent, int flags, int startId) {
-        // Force Email debugging until we catch this in the act, fix the bug, and REMOVE THIS
-        Email.DEBUG = true;
-
         super.onStartCommand(intent, flags, startId);
 
         // TODO this needs to be passed through the controller and back to us
@@ -162,18 +155,6 @@ public class MailService extends Service {
 
         Controller controller = Controller.getInstance(getApplication());
         controller.addResultCallback(mControllerCallback);
-
-        if (DEBUG_TAG_ALL_INTENTS) {
-            int tag = intent.getIntExtra(EXTRA_DEBUG_TAG, -1);
-            if (tag == -1) {
-                Log.d(LOG_TAG, "Intent Has No Tag");
-            } else {
-                Log.d(LOG_TAG, "Received intent tag=" + Integer.toString(tag));
-            }
-            if (intent.getBooleanExtra(EXTRA_DEBUG_WATCHDOG, false)) {
-                Log.d(LOG_TAG, "Received watchdog wakeup");
-            }
-        }
 
         if (ACTION_CHECK_MAIL.equals(action)) {
             // If we have the data, restore the last-sync-times for each account
@@ -393,12 +374,6 @@ public class MailService extends Service {
         i.setAction(ACTION_CHECK_MAIL);
         i.putExtra(EXTRA_CHECK_ACCOUNT, checkId);
         i.putExtra(EXTRA_ACCOUNT_INFO, accountInfo);
-        if (DEBUG_TAG_ALL_INTENTS) {
-            synchronized (this) {
-                Log.d(LOG_TAG, "Make pendingintent with tag=" + Integer.toString(sDebugIntentTag));
-                i.putExtra(EXTRA_DEBUG_TAG, sDebugIntentTag++);
-            }
-        }
         if (isWatchdog) {
             i.putExtra(EXTRA_DEBUG_WATCHDOG, true);
         }
@@ -456,9 +431,6 @@ public class MailService extends Service {
      *   of a single account (e.g if it was created after the original list population)
      */
     /* package */ void setupSyncReports(long accountId) {
-        if (Config.LOGD && Email.DEBUG) {
-            Log.d(LOG_TAG, "setupSyncReports: id=" + accountId);
-        }
         synchronized (mSyncReports) {
             setupSyncReportsLocked(accountId);
         }
@@ -518,10 +490,6 @@ public class MailService extends Service {
 
                 // TODO lookup # new in inbox
                 mSyncReports.put(report.accountId, report);
-
-                if (Config.LOGD && Email.DEBUG) {
-                    Log.d(LOG_TAG, "setupSyncReports: new:" + report);
-                }
             }
         } finally {
             c.close();
@@ -590,10 +558,6 @@ public class MailService extends Service {
                             report.nextSyncTime =
                                 report.prevSyncTime + (report.syncInterval * 1000 * 60);
                         }
-
-                        if (Config.LOGD && Email.DEBUG) {
-                            Log.d(LOG_TAG, "restore prev sync for account" + report);
-                        }
                     }
                 }
             }
@@ -612,10 +576,6 @@ public class MailService extends Service {
 
         public void updateMailboxCallback(MessagingException result, long accountId,
                 long mailboxId, int progress, int numNewMessages) {
-            if (Config.LOGD && Email.DEBUG) {
-                Log.d(LOG_TAG, "updateMailboxCallback result=" + result
-                        + " accountId=" + accountId);
-            }
             if (result != null || progress == 100) {
                 // We only track the inbox here in the service - ignore other mailboxes
                 long inboxId = Mailbox.findMailboxOfType(MailService.this,
@@ -641,10 +601,6 @@ public class MailService extends Service {
 
         public void serviceCheckMailCallback(MessagingException result, long accountId,
                 long mailboxId, int progress, long tag) {
-            if (Config.LOGD && Email.DEBUG) {
-                Log.d(LOG_TAG, "serviceCheckMailCallback result=" + result
-                        + " accountId=" + accountId + " progress=" + progress);
-            }
             if (result != null || progress == 100) {
                 if (result != null) {
                     // the checkmail ended in an error.  force an update of the refresh
