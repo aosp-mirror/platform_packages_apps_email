@@ -2013,13 +2013,23 @@ public abstract class EmailContent {
          * @return a string in the form of a Uri, as used by the other parts of the email app
          */
         public String getStoreUri() {
-            String security = "";
-            if ((mFlags & FLAG_TRUST_ALL_CERTIFICATES) != 0) {
-                security = "+tssl+";
-            } else if ((mFlags & FLAG_SSL) != 0) {
-                security = "+ssl+";
-            } else if ((mFlags & FLAG_TLS) != 0) {
-                security = "+tls+";
+            String security;
+            switch (mFlags & (FLAG_SSL | FLAG_TLS | FLAG_TRUST_ALL_CERTIFICATES)) {
+                case FLAG_SSL:
+                    security = "+ssl+";
+                    break;
+                case FLAG_SSL | FLAG_TRUST_ALL_CERTIFICATES:
+                    security = "+ssl+trustallcerts";
+                    break;
+                case FLAG_TLS:
+                    security = "+tls+";
+                    break;
+                case FLAG_TLS | FLAG_TRUST_ALL_CERTIFICATES:
+                    security = "+tls+trustallcerts";
+                    break;
+                default:
+                    security = "";
+                    break;
             }
             String userInfo = null;
             if ((mFlags & FLAG_AUTHENTICATE) != 0) {
@@ -2067,32 +2077,25 @@ public abstract class EmailContent {
                     }
                 }
 
+                // Set protocol, security, and additional flags based on uri scheme
                 String[] schemeParts = uri.getScheme().split("\\+");
                 mProtocol = (schemeParts.length >= 1) ? schemeParts[0] : null;
+                mFlags &= ~(FLAG_SSL | FLAG_TLS | FLAG_TRUST_ALL_CERTIFICATES);
                 boolean ssl = false;
-                boolean tls = false;
-                boolean tssl = false;
                 if (schemeParts.length >= 2) {
                     String part1 = schemeParts[1];
-                    if ("tssl".equals(part1)) {
+                    if ("ssl".equals(part1)) {
                         ssl = true;
-                        tssl = true;
-                    } else if ("ssl".equals(part1)) {
-                        ssl = true;
+                        mFlags |= FLAG_SSL;
                     } else if ("tls".equals(part1)) {
-                        tls = true;
+                        mFlags |= FLAG_TLS;
                     }
-                }
-
-                mFlags &= ~(FLAG_SSL | FLAG_TLS);
-                if (ssl) {
-                    mFlags |= FLAG_SSL;
-                }
-                if (tls) {
-                    mFlags |= FLAG_TLS;
-                }
-                if (tssl) {
-                    mFlags |= FLAG_TRUST_ALL_CERTIFICATES;
+                    if (schemeParts.length >= 3) {
+                        String part2 = schemeParts[2];
+                        if ("trustallcerts".equals(part2)) {
+                            mFlags |= FLAG_TRUST_ALL_CERTIFICATES;
+                        }
+                    }
                 }
 
                 mAddress = uri.getHost();
@@ -2100,14 +2103,16 @@ public abstract class EmailContent {
                 if (mPort == -1) {
                     // infer port# from protocol + security
                     // SSL implies a different port - TLS runs in the "regular" port
+                    // TODO:  This really shouldn't be here - it should have been set up
+                    // in the account setup screens.
                     if ("pop3".equals(mProtocol)) {
                         mPort = ssl ? 995 : 110;
                     } else if ("imap".equals(mProtocol)) {
-                        mPort = ssl || tssl ? 993 : 143;
+                        mPort = ssl ? 993 : 143;
                     } else if ("eas".equals(mProtocol)) {
-                        mPort = ssl || tssl ? 443 : 80;
+                        mPort = ssl ? 443 : 80;
                     }  else if ("smtp".equals(mProtocol)) {
-                        mPort = ssl || tssl ? 465 : 25;
+                        mPort = ssl ? 465 : 587;
                     }
                 }
 

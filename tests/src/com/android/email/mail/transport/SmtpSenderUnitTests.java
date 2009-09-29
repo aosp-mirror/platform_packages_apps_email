@@ -371,7 +371,7 @@ public class SmtpSenderUnitTests extends ProviderTestCase2<EmailProvider> {
     private MockTransport openAndInjectMockTransport() {
         // Create mock transport and inject it into the SmtpSender that's already set up
         MockTransport mockTransport = new MockTransport();
-        mockTransport.setSecurity(Transport.CONNECTION_SECURITY_NONE);
+        mockTransport.setSecurity(Transport.CONNECTION_SECURITY_NONE, false);
         mSender.setTransport(mockTransport);
         return mockTransport;
     }

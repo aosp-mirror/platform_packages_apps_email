@@ -42,8 +42,13 @@ public abstract class Store {
      */
     public static final String STORE_SCHEME_IMAP = "imap";
     public static final String STORE_SCHEME_POP3 = "pop3";
+    public static final String STORE_SCHEME_EAS = "eas";
     public static final String STORE_SCHEME_LOCAL = "local";
-    
+
+    public static final String STORE_SECURITY_SSL = "+ssl";
+    public static final String STORE_SECURITY_TLS = "+tls";
+    public static final String STORE_SECURITY_TRUST_CERTIFICATES = "+trustallcerts";
+
     /**
      * A global suggestion to Store implementors on how much of the body
      * should be returned on FetchProfile.Item.BODY_SANE requests.

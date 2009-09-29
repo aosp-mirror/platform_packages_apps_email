@@ -184,7 +184,7 @@ public class AccountSetupExchange extends Activity implements OnClickListener,
 
             boolean ssl = uri.getScheme().contains("ssl");
             mSslSecurityView.setChecked(ssl);
-            mTrustCertificatesView.setChecked(uri.getScheme().contains("tssl"));
+            mTrustCertificatesView.setChecked(uri.getScheme().contains("trustallcerts"));
             mTrustCertificatesView.setVisibility(ssl ? View.VISIBLE : View.GONE);
 
         } catch (URISyntaxException use) {
@@ -306,7 +306,9 @@ public class AccountSetupExchange extends Activity implements OnClickListener,
     private URI getUri() throws URISyntaxException {
         boolean sslRequired = mSslSecurityView.isChecked();
         boolean trustCertificates = mTrustCertificatesView.isChecked();
-        String scheme = (sslRequired) ? (trustCertificates ? "eas+tssl+" : "eas+ssl+") : "eas";
+        String scheme = (sslRequired)
+                        ? (trustCertificates ? "eas+ssl+trustallcerts" : "eas+ssl+")
+                        : "eas";
         String userName = mUsernameView.getText().toString().trim();
         // Remove a leading backslash, if there is one, since we now automatically put one at
         // the start of the username field

@@ -167,6 +167,110 @@ public class ProviderTests extends ProviderTestCase2<EmailProvider> {
      */
 
     /**
+     * Test the various combinations of SSL, TLS, and trust-certificates encoded as Uris
+     */
+    public void testHostAuthSecurityUri() {
+        HostAuth ha = ProviderTestUtils.setupHostAuth("uri-security", 1, false, mMockContext);
+
+        final int MASK =
+            HostAuth.FLAG_SSL | HostAuth.FLAG_TLS | HostAuth.FLAG_TRUST_ALL_CERTIFICATES;
+
+        // Set various URIs and check the resulting flags
+        ha.setStoreUri("protocol://user:password@server:123");
+        assertEquals(0, ha.mFlags & MASK);
+        ha.setStoreUri("protocol+ssl+://user:password@server:123");
+        assertEquals(HostAuth.FLAG_SSL, ha.mFlags & MASK);
+        ha.setStoreUri("protocol+ssl+trustallcerts://user:password@server:123");
+        assertEquals(HostAuth.FLAG_SSL | HostAuth.FLAG_TRUST_ALL_CERTIFICATES, ha.mFlags & MASK);
+        ha.setStoreUri("protocol+tls+://user:password@server:123");
+        assertEquals(HostAuth.FLAG_TLS, ha.mFlags & MASK);
+        ha.setStoreUri("protocol+tls+trustallcerts://user:password@server:123");
+        assertEquals(HostAuth.FLAG_TLS | HostAuth.FLAG_TRUST_ALL_CERTIFICATES, ha.mFlags & MASK);
+
+        // Now check the retrival method (building URI from flags)
+        ha.mFlags &= ~MASK;
+        String uriString = ha.getStoreUri();
+        assertTrue(uriString.startsWith("protocol://"));
+        ha.mFlags |= HostAuth.FLAG_SSL;
+        uriString = ha.getStoreUri();
+        assertTrue(uriString.startsWith("protocol+ssl+://"));
+        ha.mFlags |= HostAuth.FLAG_TRUST_ALL_CERTIFICATES;
+        uriString = ha.getStoreUri();
+        assertTrue(uriString.startsWith("protocol+ssl+trustallcerts://"));
+        ha.mFlags &= ~MASK;
+        ha.mFlags |= HostAuth.FLAG_TLS;
+        uriString = ha.getStoreUri();
+        assertTrue(uriString.startsWith("protocol+tls+://"));
+        ha.mFlags |= HostAuth.FLAG_TRUST_ALL_CERTIFICATES;
+        uriString = ha.getStoreUri();
+        assertTrue(uriString.startsWith("protocol+tls+trustallcerts://"));
+    }
+
+    /**
+     * Test port assignments made from Uris
+     */
+    public void testHostAuthPortAssignments() {
+        HostAuth ha = ProviderTestUtils.setupHostAuth("uri-port", 1, false, mMockContext);
+
+        // Set various URIs and check the resulting flags
+        // Hardwired port
+        ha.setStoreUri("imap://user:password@server:123");
+        assertEquals(123, ha.mPort);
+        // Auto-assigned ports
+        ha.setStoreUri("imap://user:password@server");
+        assertEquals(143, ha.mPort);
+        ha.setStoreUri("imap+ssl://user:password@server");
+        assertEquals(993, ha.mPort);
+        ha.setStoreUri("imap+ssl+trustallcerts://user:password@server");
+        assertEquals(993, ha.mPort);
+        ha.setStoreUri("imap+tls://user:password@server");
+        assertEquals(143, ha.mPort);
+        ha.setStoreUri("imap+tls+trustallcerts://user:password@server");
+        assertEquals(143, ha.mPort);
+
+        // Hardwired port
+        ha.setStoreUri("pop3://user:password@server:123");
+        assertEquals(123, ha.mPort);
+        // Auto-assigned ports
+        ha.setStoreUri("pop3://user:password@server");
+        assertEquals(110, ha.mPort);
+        ha.setStoreUri("pop3+ssl://user:password@server");
+        assertEquals(995, ha.mPort);
+        ha.setStoreUri("pop3+ssl+trustallcerts://user:password@server");
+        assertEquals(995, ha.mPort);
+        ha.setStoreUri("pop3+tls://user:password@server");
+        assertEquals(110, ha.mPort);
+        ha.setStoreUri("pop3+tls+trustallcerts://user:password@server");
+        assertEquals(110, ha.mPort);
+
+        // Hardwired port
+        ha.setStoreUri("eas://user:password@server:123");
+        assertEquals(123, ha.mPort);
+        // Auto-assigned ports
+        ha.setStoreUri("eas://user:password@server");
+        assertEquals(80, ha.mPort);
+        ha.setStoreUri("eas+ssl://user:password@server");
+        assertEquals(443, ha.mPort);
+        ha.setStoreUri("eas+ssl+trustallcerts://user:password@server");
+        assertEquals(443, ha.mPort);
+
+        // Hardwired port
+        ha.setStoreUri("smtp://user:password@server:123");
+        assertEquals(123, ha.mPort);
+        // Auto-assigned ports
+        ha.setStoreUri("smtp://user:password@server");
+        assertEquals(587, ha.mPort);
+        ha.setStoreUri("smtp+ssl://user:password@server");
+        assertEquals(465, ha.mPort);
+        ha.setStoreUri("smtp+ssl+trustallcerts://user:password@server");
+        assertEquals(465, ha.mPort);
+        ha.setStoreUri("smtp+tls://user:password@server");
+        assertEquals(587, ha.mPort);
+        ha.setStoreUri("smtp+tls+trustallcerts://user:password@server");
+        assertEquals(587, ha.mPort);
+    }
+
+    /**
      * Test simple mailbox save/retrieve
      */
     public void testMailboxSave() {

@@ -69,6 +69,12 @@
             smtp+ssl+   SMTP with required SSL transport security.
                             If SSL is not available the connection fails.
 
+        To the above schemes you may also add "trustallcerts" to indicate that,
+        although link encryption is still required, "non-trusted" certificates may
+        will be excepted.  For example, "imap+ssl+trustallcerts" or
+        "smtp+tls+trustallcerts".  This should only used when necessary, as it
+        could allow a spoofed server to intercept password and mail.
+
         The URIs should be full templates for connection, including a port if
         the service uses a non-default port.  The default ports are as follows:
             imap        143     pop3        110     smtp        587
@@ -113,10 +119,12 @@
     </provider>
 
     <!-- USA -->
+    <!-- Note, AOL appears to support SSL on both sides, as well -->
     <provider id="aim" label="AIM" domain="aim.com">
         <incoming uri="imap://imap.aim.com" label="IMAP" username="$email" />
         <outgoing uri="smtp://smtp.aim.com" username="$email" />
     </provider>
+    <!-- Note, AOL appears to support SSL on both sides, as well -->
     <provider id="aol" label="AOL" domain="aol.com">
         <incoming uri="imap://imap.aol.com" label="IMAP" username="$email" />
         <outgoing uri="smtp://smtp.aol.com" username="$email" />
@@ -133,10 +141,9 @@
         <incoming uri="pop3+ssl+://pop.east.cox.net" username="$user" />
         <outgoing uri="smtp+ssl+://smtp.east.cox.net" username="$user" />
     </provider> 
-    <!-- Note: smtp.mac.com accepts TLS but the cert is untrusted -->
     <provider id="dotmac" label=".Mac" domain="mac.com">
         <incoming uri="imap+ssl+://mail.mac.com" username="$email" />
-        <outgoing uri="smtp://smtp.mac.com" username="$email" />
+        <outgoing uri="smtp+tls+trustallcerts://smtp.mac.com" username="$email" />
     </provider>
     <provider id="earthlink" label="Earthlink" domain="earthlink.net">
         <incoming uri="pop3://pop.earthlink.net" username="$email" />
@@ -162,10 +169,9 @@
         <outgoing uri="smtp+tls+://smtp.live.com" username="$email" />
     </provider>
     <!-- Note: Mac Mail.app sets IMAP to mail.mac.com, but it's the same server -->
-    <!-- Note: smtp.mac.com accepts TLS but the cert is untrusted -->
     <provider id="mobileme" label="MobileMe" domain="me.com">
         <incoming uri="imap+ssl+://mail.me.com" username="$email" />
-        <outgoing uri="smtp://smtp.me.com" username="$email" />
+        <outgoing uri="smtp+tls+trustallcerts://smtp.me.com" username="$email" />
     </provider>
     <provider id="netzero" label="NetZero" domain="netzero.com">
         <incoming uri="pop3://pop.netzero.com" username="$user" />

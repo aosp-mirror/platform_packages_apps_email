@@ -91,11 +91,11 @@ public class Pop3Store extends Store {
     }
 
     /**
-     * pop3://user:password@server:port CONNECTION_SECURITY_NONE
-     * pop3+tls://user:password@server:port CONNECTION_SECURITY_TLS_OPTIONAL
-     * pop3+tls+://user:password@server:port CONNECTION_SECURITY_TLS_REQUIRED
-     * pop3+ssl+://user:password@server:port CONNECTION_SECURITY_SSL_REQUIRED
-     * pop3+ssl://user:password@server:port CONNECTION_SECURITY_SSL_OPTIONAL
+     * pop3://user:password@server:port
+     * pop3+tls+://user:password@server:port
+     * pop3+tls+trustallcerts://user:password@server:port
+     * pop3+ssl+://user:password@server:port
+     * pop3+ssl+trustallcerts://user:password@server:port
      *
      * @param _uri
      */
@@ -108,30 +108,24 @@ public class Pop3Store extends Store {
         }
 
         String scheme = uri.getScheme();
-        int connectionSecurity = Transport.CONNECTION_SECURITY_NONE;
-        int defaultPort = -1;
-        if (scheme.equals(STORE_SCHEME_POP3)) {
-            connectionSecurity = Transport.CONNECTION_SECURITY_NONE;
-            defaultPort = 110;
-        } else if (scheme.equals(STORE_SCHEME_POP3 + "+tls")) {
-            connectionSecurity = Transport.CONNECTION_SECURITY_TLS_OPTIONAL;
-            defaultPort = 110;
-        } else if (scheme.equals(STORE_SCHEME_POP3 + "+tls+")) {
-            connectionSecurity = Transport.CONNECTION_SECURITY_TLS_REQUIRED;
-            defaultPort = 110;
-        } else if (scheme.equals(STORE_SCHEME_POP3 + "+ssl+")) {
-            connectionSecurity = Transport.CONNECTION_SECURITY_SSL_REQUIRED;
-            defaultPort = 995;
-        } else if (scheme.equals(STORE_SCHEME_POP3 + "+ssl")) {
-            connectionSecurity = Transport.CONNECTION_SECURITY_SSL_OPTIONAL;
-            defaultPort = 995;
-        } else {
+        if (scheme == null || !scheme.startsWith(STORE_SCHEME_POP3)) {
             throw new MessagingException("Unsupported protocol");
         }
-        
+        // defaults, which can be changed by security modifiers
+        int connectionSecurity = Transport.CONNECTION_SECURITY_NONE;
+        int defaultPort = 110;
+        // check for security modifiers and apply changes
+        if (scheme.contains("+ssl")) {
+            connectionSecurity = Transport.CONNECTION_SECURITY_SSL;
+            defaultPort = 995;
+        } else if (scheme.contains("+tls")) {
+            connectionSecurity = Transport.CONNECTION_SECURITY_TLS;
+        }
+        boolean trustCertificates = scheme.contains(STORE_SECURITY_TRUST_CERTIFICATES);
+
         mTransport = new MailTransport("POP3");
         mTransport.setUri(uri, defaultPort);
-        mTransport.setSecurity(connectionSecurity);
+        mTransport.setSecurity(connectionSecurity, trustCertificates);
 
         String[] userInfoParts = mTransport.getUserInfoParts();
         if (userInfoParts != null) {
@@ -251,8 +245,7 @@ public class Pop3Store extends Store {
                     if (mCapabilities.stls) {
                         executeSimpleCommand("STLS");
                         mTransport.reopenTls();
-                    } else if (mTransport.getSecurity() == 
-                            Transport.CONNECTION_SECURITY_TLS_REQUIRED) {
+                    } else {
                         if (Config.LOGD && Email.DEBUG) {
                             Log.d(Email.LOG_TAG, "TLS not supported but required");
                         }
