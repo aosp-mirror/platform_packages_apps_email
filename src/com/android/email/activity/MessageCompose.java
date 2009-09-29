@@ -142,6 +142,7 @@ public class MessageCompose extends Activity implements OnClickListener, OnFocus
     private Controller mController;
     private Listener mListener = new Listener();
     private boolean mDraftNeedsSaving;
+    private boolean mMessageLoaded;
     private AsyncTask mLoadAttachmentsTask;
     private AsyncTask mSaveMessageTask;
     private AsyncTask mLoadMessageTask;
@@ -292,6 +293,7 @@ public class MessageCompose extends Activity implements OnClickListener, OnFocus
             // so now we need to disregard the intent action and do
             // EDIT_DRAFT instead.
             mAction = ACTION_EDIT_DRAFT;
+            mDraft.mId = draftId;
         }
 
         // Handle the various intents that launch the message composer
@@ -302,6 +304,7 @@ public class MessageCompose extends Activity implements OnClickListener, OnFocus
             setAccount(intent);
             // Use the fields found in the Intent to prefill as much of the message as possible
             initFromIntent(intent);
+            mDraftNeedsSaving = true;
         } else {
             // Otherwise, handle the internal cases (Message Composer invoked from within app)
             long messageId = draftId != -1 ? draftId : intent.getLongExtra(EXTRA_MESSAGE_ID, -1);
@@ -378,7 +381,9 @@ public class MessageCompose extends Activity implements OnClickListener, OnFocus
     protected void onSaveInstanceState(Bundle outState) {
         super.onSaveInstanceState(outState);
         long draftId = getOrCreateDraftId();
-        outState.putLong(STATE_KEY_DRAFT_ID, draftId);
+        if (draftId != -1) {
+            outState.putLong(STATE_KEY_DRAFT_ID, draftId);
+        }
         outState.putBoolean(STATE_KEY_CC_SHOWN, mCcView.getVisibility() == View.VISIBLE);
         outState.putBoolean(STATE_KEY_BCC_SHOWN, mBccView.getVisibility() == View.VISIBLE);
         outState.putBoolean(STATE_KEY_QUOTED_TEXT_SHOWN,
@@ -594,6 +599,7 @@ public class MessageCompose extends Activity implements OnClickListener, OnFocus
 
             mAccount = account;
             processSourceMessageGuarded(message, mAccount);
+            mMessageLoaded = true;
         }
     }
 
@@ -750,6 +756,10 @@ public class MessageCompose extends Activity implements OnClickListener, OnFocus
             if (mDraft.mId > 0) {
                 return mDraft.mId;
             }
+            // don't save draft if the source message did not load yet 
+            if (!mMessageLoaded) {
+                return -1;
+            }
             final Attachment[] attachments = getAttachmentsFromUI();
             updateMessage(mDraft, mAccount, attachments.length > 0);
             mController.saveToMailbox(mDraft, EmailContent.Mailbox.TYPE_DRAFTS);
@@ -766,6 +776,10 @@ public class MessageCompose extends Activity implements OnClickListener, OnFocus
      */
     private void sendOrSaveMessage(final boolean send) {
         final Attachment[] attachments = getAttachmentsFromUI();
+        if (!mMessageLoaded) {
+            // early save, before the message was loaded: do nothing
+            return;
+        }
         updateMessage(mDraft, mAccount, attachments.length > 0);
 
         mSaveMessageTask = new AsyncTask<Void, Void, Void>() {
