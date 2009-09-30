@@ -315,7 +315,6 @@ public class MessageView extends Activity implements OnClickListener {
     @Override
     public void onCreate(Bundle icicle) {
         super.onCreate(icicle);
-        requestWindowFeature(Window.FEATURE_INDETERMINATE_PROGRESS);
         setContentView(R.layout.message_view);
 
         mSubjectView = (TextView) findViewById(R.id.subject);

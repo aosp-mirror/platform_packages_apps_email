@@ -19,6 +19,6 @@
 -->
 
 <selector xmlns:android="http://schemas.android.com/apk/res/android">
-    <item android:state_pressed="true" android:drawable="@drawable/btn_icon_bg_pressed" />
-    <item android:state_focused="true" android:drawable="@drawable/btn_icon_bg_focused" />
+    <item android:state_focused="true" android:drawable="@drawable/ic_btn_arrow_right_focus" />
+    <item android:drawable="@drawable/ic_btn_arrow_right_unselected" />
 </selector>
