@@ -157,6 +157,7 @@ public class MessageList extends ListActivity implements OnItemClickListener, On
     private Boolean mPushModeMailbox = null;
     private int mSavedItemTop = 0;
     private int mSavedItemPosition = -1;
+    private boolean mCanAutoRefresh = false;
 
     /**
      * Open a specific mailbox.
@@ -234,6 +235,7 @@ public class MessageList extends ListActivity implements OnItemClickListener, On
         getWindow().setFeatureInt(Window.FEATURE_CUSTOM_TITLE,
                 R.layout.list_title);
 
+        mCanAutoRefresh = true;
         mListView = getListView();
         mMultiSelectPanel = findViewById(R.id.footer_organize);
         mReadUnreadButton = (Button) findViewById(R.id.btn_read_unread);
@@ -753,11 +755,22 @@ public class MessageList extends ListActivity implements OnItemClickListener, On
         return false;
     }
 
+    /**
+     * Implements a timed refresh of "stale" mailboxes.  This should only happen when
+     * multiple conditions are true, including:
+     *   Only when the user explicitly opens the mailbox (not onResume, for example)
+     *   Only for real, non-push mailboxes
+     *   Only when the mailbox is "stale" (currently set to 5 minutes since last refresh)
+     */
     private void autoRefreshStaleMailbox() {
-        if ((mListAdapter.getCursor() == null) // Check if messages info is loaded
+        if (!mCanAutoRefresh
+                || (mListAdapter.getCursor() == null) // Check if messages info is loaded
                 || (mPushModeMailbox != null && mPushModeMailbox) // Check the push mode
-                || (mMailboxId < 0) // Check if this mailbox is synthetic/combined
-                || !Email.mailboxRequiresRefresh(mMailboxId)) {
+                || (mMailboxId < 0)) { // Check if this mailbox is synthetic/combined
+            return;
+        }
+        mCanAutoRefresh = false;
+        if (!Email.mailboxRequiresRefresh(mMailboxId)) {
             return;
         }
         onRefresh();
