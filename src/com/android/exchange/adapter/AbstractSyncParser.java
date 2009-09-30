@@ -153,6 +153,8 @@ public abstract class AbstractSyncParser extends Parser {
         // Commit any changes
         commit();
 
+        boolean abortSyncs = false;
+
         // If the sync interval has changed, we need to save it
         if (mMailbox.mSyncInterval != interval) {
             cv.put(MailboxColumns.SYNC_INTERVAL, mMailbox.mSyncInterval);
@@ -164,6 +166,7 @@ public abstract class AbstractSyncParser extends Parser {
             userLog("Changes found to ping loop mailbox ", mMailbox.mDisplayName, ": will ping.");
             cv.put(MailboxColumns.SYNC_INTERVAL, Mailbox.CHECK_INTERVAL_PING);
             mailboxUpdated = true;
+            abortSyncs = true;
         }
 
         if (mailboxUpdated) {
@@ -172,6 +175,11 @@ public abstract class AbstractSyncParser extends Parser {
                      mMailbox.update(mContext, cv);
                 }
             }
+        }
+
+        if (abortSyncs) {
+            userLog("Aborting account syncs due to mailbox change to ping...");
+            SyncManager.stopAccountSyncs(mAccount.mId);
         }
 
         // Let the caller know that there's more to do

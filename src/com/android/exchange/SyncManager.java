@@ -903,6 +903,12 @@ public class SyncManager extends Service implements Runnable {
         return sClientConnectionManager;
     }
 
+    public static void stopAccountSyncs(long acctId) {
+        if (INSTANCE != null) {
+            INSTANCE.stopAccountSyncs(acctId, true);
+        }
+    }
+
     private void stopAccountSyncs(long acctId, boolean includeAccountMailbox) {
         synchronized (sSyncToken) {
             List<Long> deletedBoxes = new ArrayList<Long>();
@@ -1548,14 +1554,24 @@ public class SyncManager extends Service implements Runnable {
                         }
                     } else if (interval > 0 && interval <= ONE_DAY_MINUTES) {
                         long lastSync = c.getLong(Mailbox.CONTENT_SYNC_TIME_COLUMN);
-                        long toNextSync = interval*MINUTES - (now - lastSync);
+                        long sinceLastSync = now - lastSync;
+                        if (sinceLastSync < 0) {
+                            log("WHOA! lastSync in the future for mailbox: " + mid);
+                            sinceLastSync = interval*MINUTES;
+                        }
+                        long toNextSync = interval*MINUTES - sinceLastSync;
+                        String name = c.getString(Mailbox.CONTENT_DISPLAY_NAME_COLUMN);
                         if (toNextSync <= 0) {
                             Mailbox m = EmailContent.getContent(c, Mailbox.class);
                             startService(m, SYNC_SCHEDULED, null);
                         } else if (toNextSync < nextWait) {
                             nextWait = toNextSync;
-                            mNextWaitReason = "Scheduled sync, "
-                                + c.getString(Mailbox.CONTENT_DISPLAY_NAME_COLUMN);
+                            if (Eas.USER_LOG) {
+                                log("Next sync for " + name + " in " + nextWait/1000 + "s");
+                            }
+                            mNextWaitReason = "Scheduled sync, " + name;
+                        } else if (Eas.USER_LOG) {
+                            log("Next sync for " + name + " in " + toNextSync/1000 + "s");
                         }
                     }
                 } else {
