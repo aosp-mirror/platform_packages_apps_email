@@ -1054,7 +1054,7 @@ public class MessageList extends ListActivity implements OnItemClickListener, On
                         getString(R.string.account_folder_list_summary_inbox)};
             } else if (mMailboxKey == Mailbox.QUERY_ALL_FAVORITES) {
                 return new String[] {null,
-                        getString(R.string.account_folder_list_summary_favorite)};
+                        getString(R.string.account_folder_list_summary_starred)};
             } else if (mMailboxKey == Mailbox.QUERY_ALL_DRAFTS) {
                 return new String[] {null,
                         getString(R.string.account_folder_list_summary_drafts)};
