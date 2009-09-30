@@ -99,6 +99,8 @@
     <!-- Menu item -->
     <string name="add_account_action">Add account</string>
     <!-- Menu item -->
+    <string name="deselect_all_action">Deselect all</string>
+    <!-- Menu item -->
     <string name="compose_action">Compose</string>
     <!-- Menu item/button name -->
     <string name="search_action">Search</string>
