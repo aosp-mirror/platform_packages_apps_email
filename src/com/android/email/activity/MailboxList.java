@@ -111,6 +111,7 @@ public class MailboxList extends ListActivity implements OnItemClickListener, On
      */
     public static void actionHandleAccount(Context context, long accountId) {
         Intent intent = new Intent(context, MailboxList.class);
+        intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
         intent.putExtra(EXTRA_ACCOUNT_ID, accountId);
         context.startActivity(intent);
     }

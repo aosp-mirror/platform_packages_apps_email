@@ -169,6 +169,7 @@ public class MessageList extends ListActivity implements OnItemClickListener, On
      */
     public static void actionHandleMailbox(Context context, long id) {
         Intent intent = new Intent(context, MessageList.class);
+        intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
         intent.putExtra(EXTRA_MAILBOX_ID, id);
         context.startActivity(intent);
     }
@@ -182,6 +183,7 @@ public class MessageList extends ListActivity implements OnItemClickListener, On
      */
     public static void actionHandleAccount(Context context, long accountId, int mailboxType) {
         Intent intent = new Intent(context, MessageList.class);
+        intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
         intent.putExtra(EXTRA_ACCOUNT_ID, accountId);
         intent.putExtra(EXTRA_MAILBOX_TYPE, mailboxType);
         context.startActivity(intent);
@@ -199,6 +201,7 @@ public class MessageList extends ListActivity implements OnItemClickListener, On
     public static Intent actionHandleAccountIntent(Context context, long accountId,
             long mailboxId, int mailboxType) {
         Intent intent = new Intent(context, MessageList.class);
+        intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
         intent.putExtra(EXTRA_ACCOUNT_ID, accountId);
         intent.putExtra(EXTRA_MAILBOX_ID, mailboxId);
         intent.putExtra(EXTRA_MAILBOX_TYPE, mailboxType);
