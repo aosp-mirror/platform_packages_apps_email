@@ -33,7 +33,7 @@
         android:layout_toRightOf="@id/chip"
         android:paddingTop="10dip"
         android:paddingLeft="4dip"
-        android:src="@drawable/btn_check_buttonless_off" />
+        android:src="@drawable/btn_check_buttonless_dark_off" />
     <!-- TODO: Remove the top padding hack and align to the subject baseline -->
     <ImageView
         android:id="@+id/favorite"
@@ -51,7 +51,6 @@
         android:ellipsize="end"
         android:singleLine="true"
         android:textAppearance="?android:attr/textAppearanceMedium"
-        android:textColor="?android:attr/textColorPrimary"
         android:paddingLeft="10dip"
         android:drawablePadding="4dip"
         android:paddingTop="12dip" />
@@ -60,7 +59,6 @@
         android:ellipsize="end"
         android:singleLine="true"
         android:textAppearance="?android:attr/textAppearanceSmall"
-        android:textColor="?android:attr/textColorPrimary"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_alignParentRight="true"
@@ -70,7 +68,6 @@
         android:ellipsize="end"
         android:singleLine="true"
         android:textAppearance="?android:attr/textAppearanceSmall"
-        android:textColor="?android:attr/textColorSecondary"
         android:layout_width="0dip"
         android:layout_height="wrap_content"
         android:layout_below="@id/from"

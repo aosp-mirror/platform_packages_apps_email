@@ -38,7 +38,10 @@ import android.content.ContentResolver;
 import android.content.ContentUris;
 import android.content.Context;
 import android.content.Intent;
+import android.content.res.ColorStateList;
 import android.content.res.Resources;
+import android.content.res.TypedArray;
+import android.content.res.Resources.Theme;
 import android.database.Cursor;
 import android.graphics.Typeface;
 import android.graphics.drawable.Drawable;
@@ -1387,6 +1390,9 @@ public class MessageList extends ListActivity implements OnItemClickListener, On
         private Drawable mSelectedIconOn;
         private Drawable mSelectedIconOff;
 
+        private ColorStateList mTextColorPrimary;
+        private ColorStateList mTextColorSecondary;
+
         private java.text.DateFormat mDateFormat;
         private java.text.DateFormat mDayFormat;
         private java.text.DateFormat mTimeFormat;
@@ -1400,10 +1406,17 @@ public class MessageList extends ListActivity implements OnItemClickListener, On
 
             Resources resources = context.getResources();
             mAttachmentIcon = resources.getDrawable(R.drawable.ic_mms_attachment_small);
-            mFavoriteIconOn = resources.getDrawable(android.R.drawable.star_on);
-            mFavoriteIconOff = resources.getDrawable(android.R.drawable.star_off);
-            mSelectedIconOn = resources.getDrawable(R.drawable.btn_check_buttonless_on);
-            mSelectedIconOff = resources.getDrawable(R.drawable.btn_check_buttonless_off);
+            mFavoriteIconOn = resources.getDrawable(R.drawable.btn_star_big_buttonless_dark_on);
+            mFavoriteIconOff = resources.getDrawable(R.drawable.btn_star_big_buttonless_dark_off);
+            mSelectedIconOn = resources.getDrawable(R.drawable.btn_check_buttonless_dark_on);
+            mSelectedIconOff = resources.getDrawable(R.drawable.btn_check_buttonless_dark_off);
+
+            Theme theme = context.getTheme();
+            TypedArray array;
+            array = theme.obtainStyledAttributes(new int[] { android.R.attr.textColorPrimary });
+            mTextColorPrimary = resources.getColorStateList(array.getResourceId(0, 0));
+            array = theme.obtainStyledAttributes(new int[] { android.R.attr.textColorSecondary });
+            mTextColorSecondary = resources.getColorStateList(array.getResourceId(0, 0));
 
             mDateFormat = android.text.format.DateFormat.getDateFormat(context);    // short date
             mDayFormat = android.text.format.DateFormat.getDateFormat(context);     // TODO: day
@@ -1459,11 +1472,13 @@ public class MessageList extends ListActivity implements OnItemClickListener, On
             if (itemView.mRead) {
                 subjectView.setTypeface(Typeface.DEFAULT);
                 fromView.setTypeface(Typeface.DEFAULT);
+                fromView.setTextColor(mTextColorSecondary);
                 view.setBackgroundDrawable(context.getResources().getDrawable(
                         R.drawable.message_list_item_background_read));
             } else {
                 subjectView.setTypeface(Typeface.DEFAULT_BOLD);
                 fromView.setTypeface(Typeface.DEFAULT_BOLD);
+                fromView.setTextColor(mTextColorPrimary);
                 view.setBackgroundDrawable(context.getResources().getDrawable(
                         R.drawable.message_list_item_background_unread));
             }

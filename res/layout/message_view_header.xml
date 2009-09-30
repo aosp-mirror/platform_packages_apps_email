@@ -132,7 +132,7 @@
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:layout_alignParentRight="true"
-                android:src="@android:drawable/star_off" />
+                android:src="@drawable/btn_star_big_buttonless_off" />
                 </LinearLayout>
     </LinearLayout>
     <LinearLayout
