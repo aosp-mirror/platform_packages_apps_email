@@ -413,6 +413,13 @@ public class MessageList extends ListActivity implements OnItemClickListener, On
     }
 
     @Override
+    public boolean onPrepareOptionsMenu(Menu menu) {
+        boolean showDeselect = mListAdapter.getSelectedSet().size() > 0;
+        menu.setGroupVisible(R.id.deselect_all_group, showDeselect);
+        return true;
+    }
+
+    @Override
     public boolean onOptionsItemSelected(MenuItem item) {
         switch (item.getItemId()) {
             case R.id.refresh:
@@ -429,6 +436,9 @@ public class MessageList extends ListActivity implements OnItemClickListener, On
                 return true;
             case R.id.account_settings:
                 onEditAccount();
+                return true;
+            case R.id.deselect_all:
+                onDeselectAll();
                 return true;
             default:
                 return super.onOptionsItemSelected(item);
@@ -543,6 +553,12 @@ public class MessageList extends ListActivity implements OnItemClickListener, On
 
     private void onEditAccount() {
         AccountSettings.actionSettings(this, lookupAccountIdFromMailboxId(mMailboxId));
+    }
+
+    private void onDeselectAll() {
+        mListAdapter.getSelectedSet().clear();
+        mListView.invalidateViews();
+        showMultiPanel(false);
     }
 
     private void onOpenMessage(long messageId, long mailboxId) {
