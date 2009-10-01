@@ -115,6 +115,9 @@ public class AccountFolderList extends ListActivity
     private static final String MAILBOX_TYPE_SELECTION =
         MailboxColumns.TYPE + " =?";
 
+    private static final String MAILBOX_ID_SELECTION =
+        MessageColumns.MAILBOX_KEY + " =?";
+
     private static final String[] MAILBOX_SUM_OF_UNREAD_COUNT_PROJECTION = new String [] {
         "sum(" + MailboxColumns.UNREAD_COUNT + ")"
     };
@@ -264,6 +267,26 @@ public class AccountFolderList extends ListActivity
         return count;
     }
 
+    private static int getCountByMailboxType(Context context, int type) {
+        int count = 0;
+        Cursor c = context.getContentResolver().query(Mailbox.CONTENT_URI,
+                EmailContent.ID_PROJECTION, MAILBOX_TYPE_SELECTION,
+                new String[] { String.valueOf(type) }, null);
+
+        try {
+            c.moveToPosition(-1);
+            while (c.moveToNext()) {
+                count += EmailContent.count(context, Message.CONTENT_URI,
+                        MAILBOX_ID_SELECTION,
+                        new String[] {
+                            String.valueOf(c.getLong(EmailContent.ID_PROJECTION_COLUMN)) });
+            }
+        } finally {
+            c.close();
+        }
+        return count;
+    }
+
     /**
      * Build the group and child cursors that support the summary views (aka "at a glance").
      * 
@@ -307,7 +330,7 @@ public class AccountFolderList extends ListActivity
             row.add(Integer.valueOf(count));                        // MAILBOX_UNREAD_COUNT = 4;
         }
         // TYPE_DRAFTS
-        count = getUnreadCountByMailboxType(this, Mailbox.TYPE_DRAFTS);
+        count = getCountByMailboxType(this, Mailbox.TYPE_DRAFTS);
         if (count > 0) {
             row = childCursor.newRow();
             row.add(Long.valueOf(Mailbox.QUERY_ALL_DRAFTS));    // MAILBOX_COLUMN_ID = 0;
@@ -317,7 +340,7 @@ public class AccountFolderList extends ListActivity
             row.add(Integer.valueOf(count));                        // MAILBOX_UNREAD_COUNT = 4;
         }
         // TYPE_OUTBOX
-        count = getUnreadCountByMailboxType(this, Mailbox.TYPE_OUTBOX);
+        count = getCountByMailboxType(this, Mailbox.TYPE_OUTBOX);
         if (count > 0) {
             row = childCursor.newRow();
             row.add(Long.valueOf(Mailbox.QUERY_ALL_OUTBOX));    // MAILBOX_COLUMN_ID = 0;
