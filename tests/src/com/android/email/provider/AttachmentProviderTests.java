@@ -22,6 +22,8 @@ import com.android.email.mail.store.LocalStore;
 import com.android.email.provider.AttachmentProvider.AttachmentProviderColumns;
 import com.android.email.provider.EmailContent.Account;
 import com.android.email.provider.EmailContent.Attachment;
+import com.android.email.provider.EmailContent.Mailbox;
+import com.android.email.provider.EmailContent.Message;
 
 import android.content.ContentResolver;
 import android.content.ContentValues;
@@ -463,6 +465,59 @@ public class AttachmentProviderTests extends ProviderTestCase2<AttachmentProvide
         AttachmentProvider.deleteAllAttachmentFiles(mMockContext, account1.mId, message1Id);
         assertEquals(0, attachmentsDir.listFiles().length);
     }
+
+    /**
+     * Test the functionality of deleting an entire mailbox's attachments.
+     */
+    public void testDeleteMailbox() throws IOException {
+        Account account1 = ProviderTestUtils.setupAccount("attach-mbox-del", false, mMockContext);
+        account1.mCompatibilityUuid = "test-UUID";
+        account1.save(mMockContext);
+        long account1Id = account1.mId;
+        Mailbox mailbox1 = ProviderTestUtils.setupMailbox("mbox1", account1Id, true, mMockContext);
+        long mailbox1Id = mailbox1.mId;
+        Mailbox mailbox2 = ProviderTestUtils.setupMailbox("mbox2", account1Id, true, mMockContext);
+        long mailbox2Id = mailbox2.mId;
+        
+        // two messages per mailbox, one w/attachments, one w/o attachments
+        Message message1a = ProviderTestUtils.setupMessage("msg1a", account1Id, mailbox1Id, false,
+                true, mMockContext);
+        Message message1b = ProviderTestUtils.setupMessage("msg1b", account1Id, mailbox1Id, false,
+                true, mMockContext);
+        Message message2a = ProviderTestUtils.setupMessage("msg2a", account1Id, mailbox2Id, false,
+                true, mMockContext);
+        Message message2b = ProviderTestUtils.setupMessage("msg2b", account1Id, mailbox2Id, false,
+                true, mMockContext);
+
+        // attachments on each of the "a" messages (3 on 1a, 1 on 1b)
+        Attachment newAttachment1 = ProviderTestUtils.setupAttachment(message1a.mId, "file1", 100,
+                true, mMockContext);
+        Attachment newAttachment2 = ProviderTestUtils.setupAttachment(message1a.mId, "file2", 200,
+                true, mMockContext);
+        Attachment newAttachment3 = ProviderTestUtils.setupAttachment(message1a.mId, "file3", 100,
+                true, mMockContext);
+        Attachment newAttachment4 = ProviderTestUtils.setupAttachment(message2a.mId, "file4", 100,
+                true, mMockContext);
+        
+        // Create test files
+        createAttachmentFile(account1, newAttachment1.mId);
+        createAttachmentFile(account1, newAttachment2.mId);
+        createAttachmentFile(account1, newAttachment3.mId);
+        createAttachmentFile(account1, newAttachment4.mId);
+
+        // Confirm four attachment files found
+        File attachmentsDir = AttachmentProvider.getAttachmentDirectory(mMockContext, account1.mId);
+        assertEquals(4, attachmentsDir.listFiles().length);
+
+        // Command the deletion of mailbox 1 - we should lose 3 attachment files
+        AttachmentProvider.deleteAllMailboxAttachmentFiles(mMockContext, account1Id, mailbox1Id);
+        assertEquals(1, attachmentsDir.listFiles().length);
+
+        // Command the deletion of mailbox 2 - we should lose 1 attachment file
+        AttachmentProvider.deleteAllMailboxAttachmentFiles(mMockContext, account1Id, mailbox2Id);
+        assertEquals(0, attachmentsDir.listFiles().length);
+    }
+    
 
     /**
      * Create an attachment by copying an image resource into a file.  Uses "real" resources

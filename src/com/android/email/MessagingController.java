@@ -321,7 +321,11 @@ public class MessagingController implements Runnable {
                                 case Mailbox.TYPE_TRASH:
                                     break;
                                 default:
-                                    // TODO drop all attachment files too
+                                    // Drop all attachment files related to this mailbox
+                                    AttachmentProvider.deleteAllMailboxAttachmentFiles(
+                                            mContext, accountId, localInfo.mId);
+                                    // Delete the mailbox.  Triggers will take care of
+                                    // related Message, Body and Attachment records. 
                                     Uri uri = ContentUris.withAppendedId(
                                             EmailContent.Mailbox.CONTENT_URI, localInfo.mId);
                                     mContext.getContentResolver().delete(uri, null, null);
