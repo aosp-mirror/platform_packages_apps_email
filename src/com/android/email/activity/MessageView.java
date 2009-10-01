@@ -55,7 +55,7 @@ import android.provider.Browser;
 import android.provider.ContactsContract;
 import android.provider.ContactsContract.CommonDataKinds;
 import android.provider.ContactsContract.Contacts;
-import android.provider.ContactsContract.FastTrack;
+import android.provider.ContactsContract.QuickContact;
 import android.provider.ContactsContract.StatusUpdates;
 import android.text.TextUtils;
 import android.text.util.Regex;
@@ -499,7 +499,7 @@ public class MessageView extends Activity implements OnClickListener {
     }
 
     /**
-     * Handle clicks on sender, which shows {@link FastTrack} or prompts to add
+     * Handle clicks on sender, which shows {@link QuickContact} or prompts to add
      * the sender as a contact.
      */
     private void onClickSender() {
@@ -517,8 +517,8 @@ public class MessageView extends Activity implements OnClickListener {
         final Uri lookupUri = ContactsContract.Data.getContactLookupUri(resolver, dataUri);
 
         if (lookupUri != null) {
-            // Found matching contact, trigger FastTrack
-            FastTrack.showFastTrack(this, mSenderPresenceView, lookupUri, FastTrack.MODE_MEDIUM,
+            // Found matching contact, trigger QuickContact
+            QuickContact.showQuickContact(this, mSenderPresenceView, lookupUri, QuickContact.MODE_MEDIUM,
                     null);
         } else {
             // No matching contact, ask user to create one
