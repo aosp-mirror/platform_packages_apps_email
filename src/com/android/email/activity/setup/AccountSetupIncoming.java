@@ -16,6 +16,7 @@
 
 package com.android.email.activity.setup;
 
+import com.android.email.Account;
 import com.android.email.R;
 import com.android.email.Utility;
 import com.android.email.provider.EmailContent;
@@ -119,11 +120,9 @@ public class AccountSetupIncoming extends Activity implements OnClickListener {
         };
 
         SpinnerOption deletePolicies[] = {
-                new SpinnerOption(0,
+                new SpinnerOption(Account.DELETE_POLICY_NEVER,
                         getString(R.string.account_setup_incoming_delete_policy_never_label)),
-                new SpinnerOption(1,
-                        getString(R.string.account_setup_incoming_delete_policy_7days_label)),
-                new SpinnerOption(2,
+                new SpinnerOption(Account.DELETE_POLICY_ON_DELETE,
                         getString(R.string.account_setup_incoming_delete_policy_delete_label)),
         };
 

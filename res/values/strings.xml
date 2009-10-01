@@ -33,6 +33,8 @@
     <!-- Do Not Translate.  Unused string. -->
     <string name="special_mailbox_display_name_junk"></string>
     <!-- Do Not Translate.  Unused string. -->
+    <string name="account_setup_incoming_delete_policy_7days_label"></string>
+    <!-- Do Not Translate.  Unused string. -->
     <string name="account_setup_incoming_security_ssl_optional_label"></string>
     <!-- Do Not Translate.  Unused string. -->
     <string name="account_setup_incoming_security_tls_optional_label"></string>
@@ -379,8 +381,6 @@
     <!-- "Incoming server settings" screen, options in pop-up menu for Delete email from server: -->
     <!-- "Incoming server settings" screen, options in pop-up menu for Delete email from server: -->
     <string name="account_setup_incoming_delete_policy_never_label">Never</string>
-    <!-- "Incoming server settings" screen, options in pop-up menu for Delete email from server: -->
-    <string name="account_setup_incoming_delete_policy_7days_label">After 7 days</string>
     <!-- "Incoming server settings" screen, options in pop-up menu for Delete email from server: -->
     <string name="account_setup_incoming_delete_policy_delete_label">When I delete from Inbox</string>
     

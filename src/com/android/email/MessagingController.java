@@ -1485,6 +1485,7 @@ public class MessagingController implements Runnable {
             sentinel.mAccountKey = oldMessage.mAccountKey;
             sentinel.mMailboxKey = oldMessage.mMailboxKey;
             sentinel.mFlagLoaded = EmailContent.Message.FLAG_LOADED_DELETED;
+            sentinel.mFlagRead = true;
             sentinel.mServerId = oldMessage.mServerId;
             sentinel.save(mContext);
 

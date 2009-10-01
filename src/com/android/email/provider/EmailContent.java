@@ -778,7 +778,7 @@ public abstract class EmailContent {
         public static final int FLAGS_DELETE_POLICY_SHIFT = 2;
 
         public static final int DELETE_POLICY_NEVER = 0;
-        public static final int DELETE_POLICY_7DAYS = 1;
+        public static final int DELETE_POLICY_7DAYS = 1;        // not supported
         public static final int DELETE_POLICY_ON_DELETE = 2;
 
         // Sentinel values for the mSyncInterval field of both Account records
