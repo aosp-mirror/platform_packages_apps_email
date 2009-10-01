@@ -76,6 +76,9 @@ public class ContactsSyncAdapter extends AbstractSyncAdapter {
     private static final String[] ID_PROJECTION = new String[] {RawContacts._ID};
     private static final String[] GROUP_PROJECTION = new String[] {Groups.SOURCE_ID};
 
+    private static final ArrayList<NamedContentValues> EMPTY_ARRAY_NAMEDCONTENTVALUES
+        = new ArrayList<NamedContentValues>();
+
     private static final String FOUND_DATA_ROW = "com.android.exchange.FOUND_ROW";
 
     private static final int[] HOME_ADDRESS_TAGS = new int[] {Tags.CONTACTS_HOME_ADDRESS_CITY,
@@ -1330,10 +1333,11 @@ public class ContactsSyncAdapter extends AbstractSyncAdapter {
         public void addUntyped(Entity entity, ArrayList<UntypedRow> rows, String mimeType,
                 int type, int maxRows) {
             // Make a list of all same type rows in the existing entity
-            ArrayList<NamedContentValues> oldValues = new ArrayList<NamedContentValues>();
-            ArrayList<NamedContentValues> entityValues = entity.getSubValues();
+            ArrayList<NamedContentValues> oldValues = EMPTY_ARRAY_NAMEDCONTENTVALUES;
+            ArrayList<NamedContentValues> entityValues = EMPTY_ARRAY_NAMEDCONTENTVALUES;
             if (entity != null) {
                 oldValues = findUntypedData(entityValues, type, mimeType);
+                entityValues = entity.getSubValues();
             }
 
             // These will be rows needing replacement with new values
