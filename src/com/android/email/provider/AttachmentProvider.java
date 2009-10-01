@@ -19,6 +19,8 @@ package com.android.email.provider;
 import com.android.email.mail.internet.MimeUtility;
 import com.android.email.provider.EmailContent.Attachment;
 import com.android.email.provider.EmailContent.AttachmentColumns;
+import com.android.email.provider.EmailContent.Message;
+import com.android.email.provider.EmailContent.MessageColumns;
 
 import android.content.ContentProvider;
 import android.content.ContentResolver;
@@ -371,6 +373,28 @@ public class AttachmentProvider extends ContentProvider {
                 // it just returns false, which we ignore, and proceed to the next file.
                 // This entire loop is best-effort only.
                 attachmentFile.delete();
+            }
+        } finally {
+            c.close();
+        }
+    }
+
+    /**
+     * In support of deleting a mailbox, find all messages and delete their attachments.
+     *
+     * @param context
+     * @param accountId the account for the mailbox
+     * @param mailboxId the mailbox for the messages
+     */
+    public static void deleteAllMailboxAttachmentFiles(Context context, long accountId,
+            long mailboxId) {
+        Cursor c = context.getContentResolver().query(Message.CONTENT_URI,
+                Message.ID_COLUMN_PROJECTION, MessageColumns.MAILBOX_KEY + "=?",
+                new String[] { Long.toString(mailboxId) }, null);
+        try {
+            while (c.moveToNext()) {
+                long messageId = c.getLong(Message.ID_PROJECTION_COLUMN);
+                deleteAllAttachmentFiles(context, accountId, messageId);
             }
         } finally {
             c.close();
