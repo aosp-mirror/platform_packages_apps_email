@@ -207,11 +207,11 @@
     <!-- The text in the small separator between smart folders and the accounts -->
     <string name="account_folder_list_separator_accounts">Accounts</string>
     <!-- The summary section entry in the AccountFolder list to display all inboxes -->
-    <string name="account_folder_list_summary_inbox">Inbox</string>
+    <string name="account_folder_list_summary_inbox">Combined Inbox</string>
     <!-- The summary section entry in the AccountFolder list to display all unread -->
     <string name="account_folder_list_summary_unread">Unread</string>
-    <!-- The summary section entry in the AccountFolder list to display all favorites -->
-    <string name="account_folder_list_summary_favorite">Favorite</string>
+    <!-- The summary section entry in the AccountFolder list to display all starred -->
+    <string name="account_folder_list_summary_starred">Starred</string>
     <!-- The summary section entry in the AccountFolder list to display all drafts -->
     <string name="account_folder_list_summary_drafts">Drafts</string>
     <!-- The summary section entry in the AccountFolder list to display all outboxes -->
