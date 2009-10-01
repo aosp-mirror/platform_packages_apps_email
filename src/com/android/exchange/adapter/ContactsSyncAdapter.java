@@ -43,8 +43,8 @@ import android.provider.ContactsContract.Groups;
 import android.provider.ContactsContract.RawContacts;
 import android.provider.ContactsContract.Settings;
 import android.provider.ContactsContract.SyncState;
-import android.provider.ContactsContract.CommonDataKinds.Birthday;
 import android.provider.ContactsContract.CommonDataKinds.Email;
+import android.provider.ContactsContract.CommonDataKinds.Event;
 import android.provider.ContactsContract.CommonDataKinds.GroupMembership;
 import android.provider.ContactsContract.CommonDataKinds.Im;
 import android.provider.ContactsContract.CommonDataKinds.Nickname;
@@ -1178,8 +1178,13 @@ public class ContactsSyncAdapter extends AbstractSyncAdapter {
 
         public void addBirthday(Entity entity, String birthday) {
             RowBuilder builder =
-                createBuilder(entity, Birthday.CONTENT_ITEM_TYPE, -1, birthday);
-            builder.withValue(Birthday.BIRTHDAY, birthday);
+                    typedRowBuilder(entity, Event.CONTENT_ITEM_TYPE, Event.TYPE_BIRTHDAY);
+            ContentValues cv = builder.cv;
+            if (cv != null && cvCompareString(cv, Event.START_DATE, birthday)) {
+                return;
+            }
+            builder.withValue(Event.START_DATE, birthday);
+            builder.withValue(Event.TYPE, Event.TYPE_BIRTHDAY);
             add(builder.build());
         }
 
@@ -1611,8 +1616,8 @@ public class ContactsSyncAdapter extends AbstractSyncAdapter {
     }
 
     private void sendBirthday(Serializer s, ContentValues cv) throws IOException {
-        if (cv.containsKey(Birthday.BIRTHDAY)) {
-            s.data(Tags.CONTACTS_BIRTHDAY, cv.getAsString(Birthday.BIRTHDAY));
+        if (cv.containsKey(Event.START_DATE)) {
+            s.data(Tags.CONTACTS_BIRTHDAY, cv.getAsString(Event.START_DATE));
         }
     }
 
@@ -1831,8 +1836,11 @@ public class ContactsSyncAdapter extends AbstractSyncAdapter {
                             sendOrganization(s, cv);
                         } else if (mimeType.equals(Im.CONTENT_ITEM_TYPE)) {
                             sendIm(s, cv, imCount++);
-                        } else if (mimeType.equals(Birthday.CONTENT_ITEM_TYPE)) {
-                            sendBirthday(s, cv);
+                        } else if (mimeType.equals(Event.CONTENT_ITEM_TYPE)) {
+                            Integer eventType = cv.getAsInteger(Event.TYPE);
+                            if (eventType != null && eventType.equals(Event.TYPE_BIRTHDAY)) {
+                                sendBirthday(s, cv);
+                            }
                         } else if (mimeType.equals(GroupMembership.CONTENT_ITEM_TYPE)) {
                             // We must gather these, and send them together (below)
                             groupIds.add(cv.getAsInteger(GroupMembership.GROUP_ROW_ID));
