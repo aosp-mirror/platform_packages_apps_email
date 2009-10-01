@@ -18,6 +18,7 @@
 package com.android.exchange.adapter;
 
 import com.android.email.mail.Address;
+import com.android.email.provider.AttachmentProvider;
 import com.android.email.provider.EmailContent;
 import com.android.email.provider.EmailProvider;
 import com.android.email.provider.EmailContent.Account;
@@ -425,6 +426,7 @@ public class EmailSyncAdapter extends AbstractSyncAdapter {
             for (Long id : deletedEmails) {
                 ops.add(ContentProviderOperation.newDelete(
                         ContentUris.withAppendedId(Message.CONTENT_URI, id)).build());
+                AttachmentProvider.deleteAllAttachmentFiles(mContext, mAccount.mId, id);
             }
             if (!changedEmails.isEmpty()) {
                 // Server wins in a conflict...
