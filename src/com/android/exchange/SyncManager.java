@@ -1313,7 +1313,7 @@ public class SyncManager extends Service implements Runnable {
                 (ConnectivityManager)getSystemService(Context.CONNECTIVITY_SERVICE);
             NetworkInfo info = cm.getActiveNetworkInfo();
             if (info != null) {
-                //log("NetworkInfo: " + info.getTypeName() + ", " + info.getState().name());
+                log("NetworkInfo: " + info.getTypeName() + ", " + info.getState().name());
                 return;
             } else {
 
@@ -1388,11 +1388,9 @@ public class SyncManager extends Service implements Runnable {
                                 log("Negative wait? Setting to 1s");
                                 nextWait = 1*SECONDS;
                             }
-                            if (nextWait > 30*SECONDS) {
-                                runAsleep(SYNC_MANAGER_ID, nextWait - 1000);
-                            }
-                            if (nextWait != SYNC_MANAGER_HEARTBEAT_TIME) {
+                            if (nextWait > 10*SECONDS) {
                                 log("Next awake in " + nextWait / 1000 + "s: " + mNextWaitReason);
+                                runAsleep(SYNC_MANAGER_ID, nextWait + 1000);
                             }
                             wait(nextWait);
                         }
@@ -1774,13 +1772,13 @@ public class SyncManager extends Service implements Runnable {
                     errorMap.remove(mailboxId);
                     break;
                 case AbstractSyncService.EXIT_IO_ERROR:
+                    Mailbox m = Mailbox.restoreMailboxWithId(INSTANCE, mailboxId);
                     if (syncError != null) {
                         syncError.escalate();
-                        INSTANCE.log("Mailbox " + mailboxId + " now held for "
-                                + syncError.holdDelay + "s");
+                        INSTANCE.log(m.mDisplayName + " now held for " + syncError.holdDelay + "s");
                     } else {
                         errorMap.put(mailboxId, INSTANCE.new SyncError(exitStatus, false));
-                        INSTANCE.log("Mailbox " + mailboxId + " added to syncErrorMap");
+                        INSTANCE.log(m.mDisplayName + " added to syncErrorMap, hold for 15s");
                     }
                     break;
                 case AbstractSyncService.EXIT_LOGIN_FAILURE:
