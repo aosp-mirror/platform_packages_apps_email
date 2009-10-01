@@ -668,6 +668,9 @@ public class AccountFolderList extends ListActivity
 
         public void sendMailCallback(MessagingException result, long accountId, long messageId,
                 int progress) {
+            if (progress == 100) {
+                updateAccounts();
+            }
         }
 
         private void updateProgress(MessagingException result, int progress) {
