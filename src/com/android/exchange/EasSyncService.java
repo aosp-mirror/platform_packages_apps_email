@@ -119,7 +119,7 @@ public class EasSyncService extends AbstractSyncService {
     // Fallbacks (in minutes) for ping loop failures
     static private final int MAX_PING_FAILURES = 1;
     static private final int PING_FALLBACK_INBOX = 5;
-    static private final int PING_FALLBACK_PIM = 30;
+    static private final int PING_FALLBACK_PIM = 25;
 
     // Reasonable default
     String mProtocolVersion = "2.5";
@@ -620,8 +620,7 @@ public class EasSyncService extends AbstractSyncService {
         cv.put(Mailbox.SYNC_INTERVAL, mins);
         mContentResolver.update(ContentUris.withAppendedId(Mailbox.CONTENT_URI, mailboxId),
                 cv, null, null);
-        errorLog("*** PING ERROR LOOP: Backing off sync of " + mailbox.mDisplayName + " to " +
-                mins + " mins");
+        errorLog("*** PING ERROR LOOP: Set " + mailbox.mDisplayName + " to " + mins + " min sync");
         SyncManager.kick("push fallback");
     }
 
