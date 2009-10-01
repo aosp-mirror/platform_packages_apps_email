@@ -49,6 +49,8 @@ import android.net.Uri;
 import android.os.AsyncTask;
 import android.os.Bundle;
 import android.os.Handler;
+import android.os.SystemClock;
+import android.util.Log;
 import android.view.ContextMenu;
 import android.view.LayoutInflater;
 import android.view.Menu;
@@ -72,6 +74,8 @@ import android.widget.AdapterView.OnItemClickListener;
 import java.util.Date;
 import java.util.HashSet;
 import java.util.Set;
+import java.util.Timer;
+import java.util.TimerTask;
 
 public class MessageList extends ListActivity implements OnItemClickListener, OnClickListener {
     // Intent extras (internal to this activity)
@@ -1393,6 +1397,20 @@ public class MessageList extends ListActivity implements OnItemClickListener, On
         private ColorStateList mTextColorPrimary;
         private ColorStateList mTextColorSecondary;
 
+        // Timer to control the refresh rate of the list
+        private final RefreshTimer mRefreshTimer = new RefreshTimer();
+        // Last time we allowed a refresh of the list
+        private long mLastRefreshTime = 0;
+        // How long we want to wait for refreshes (a good starting guess)
+        // I suspect this could be lowered down to even 1000 or so, but this seems ok for now
+        private static final long REFRESH_INTERVAL_MS = 2500;
+        private Runnable mRefreshRunnable = new Runnable() {
+            public void run() {
+                mDataValid = mCursor.requery();
+                notifyDataSetChanged();
+            }
+        };
+        
         private java.text.DateFormat mDateFormat;
         private java.text.DateFormat mDayFormat;
         private java.text.DateFormat mTimeFormat;
@@ -1400,7 +1418,7 @@ public class MessageList extends ListActivity implements OnItemClickListener, On
         private HashSet<Long> mChecked = new HashSet<Long>();
 
         public MessageListAdapter(Context context) {
-            super(context, null);
+            super(context, null, true);
             mContext = context;
             mInflater = (LayoutInflater)context.getSystemService(Context.LAYOUT_INFLATER_SERVICE);
 
@@ -1421,6 +1439,60 @@ public class MessageList extends ListActivity implements OnItemClickListener, On
             mDateFormat = android.text.format.DateFormat.getDateFormat(context);    // short date
             mDayFormat = android.text.format.DateFormat.getDateFormat(context);     // TODO: day
             mTimeFormat = android.text.format.DateFormat.getTimeFormat(context);    // 12/24 time
+        }
+
+        /**
+         * We override onContentChange to throttle the refresh, which can happen way too often
+         * on syncing a large list (up to many times per second).  This will prevent ANR's during
+         * initial sync and potentially at other times as well.
+         */
+        @Override
+        protected synchronized void onContentChanged() {
+            if (mCursor != null && !mCursor.isClosed()) {
+                long sinceRefresh = SystemClock.elapsedRealtime() - mLastRefreshTime;
+                mRefreshTimer.schedule(REFRESH_INTERVAL_MS - sinceRefresh);
+            }
+        }
+
+        class RefreshTimer extends Timer {
+            private TimerTask timerTask = null;
+
+            protected void clear() {
+                timerTask = null;
+            }
+
+            protected synchronized void schedule(long delay) {
+                if (timerTask != null) return;
+                if (delay < 0) {
+                    refreshList();
+                } else {
+                    timerTask = new RefreshTimerTask();
+                    schedule(timerTask, delay);
+                }
+            }
+        }
+
+        class RefreshTimerTask extends TimerTask {
+            @Override
+            public void run() {
+                refreshList();
+            }
+        }
+
+        /**
+         * Do the work of requerying the list and notifying the UI of changed data
+         * Make sure we call notifyDataSetChanged on the UI thread.
+         */
+        private synchronized void refreshList() {
+            if (mCursor != null && !mCursor.isClosed()) {
+                if (Email.LOGD) {
+                    Log.d("messageList", "refresh: "
+                            + (SystemClock.elapsedRealtime() - mLastRefreshTime) + "ms");
+                }
+                runOnUiThread(mRefreshRunnable);
+            }
+            mLastRefreshTime = SystemClock.elapsedRealtime();
+            mRefreshTimer.clear();
         }
 
         public Set<Long> getSelectedSet() {

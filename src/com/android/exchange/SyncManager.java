@@ -1791,7 +1791,7 @@ public class SyncManager extends Service implements Runnable {
                     Mailbox m = Mailbox.restoreMailboxWithId(INSTANCE, mailboxId);
                     if (syncError != null) {
                         syncError.escalate();
-                        INSTANCE.log(m.mDisplayName + " now held for " + syncError.holdDelay + "s");
+                        INSTANCE.log(m.mDisplayName + " held for " + syncError.holdDelay + "ms");
                     } else {
                         errorMap.put(mailboxId, INSTANCE.new SyncError(exitStatus, false));
                         INSTANCE.log(m.mDisplayName + " added to syncErrorMap, hold for 15s");
