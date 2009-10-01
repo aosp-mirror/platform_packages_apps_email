@@ -1330,20 +1330,21 @@ public class ContactsSyncAdapter extends AbstractSyncAdapter {
         public void addUntyped(Entity entity, ArrayList<UntypedRow> rows, String mimeType,
                 int type, int maxRows) {
             // Make a list of all same type rows in the existing entity
-            ArrayList<NamedContentValues> oldAccounts = new ArrayList<NamedContentValues>();
+            ArrayList<NamedContentValues> oldValues = new ArrayList<NamedContentValues>();
+            ArrayList<NamedContentValues> entityValues = entity.getSubValues();
             if (entity != null) {
-                oldAccounts = findUntypedData(entity.getSubValues(), type, mimeType);
+                oldValues = findUntypedData(entityValues, type, mimeType);
             }
 
             // These will be rows needing replacement with new values
             ArrayList<UntypedRow> rowsToReplace = new ArrayList<UntypedRow>();
 
             // The count of existing rows
-            int numRows = oldAccounts.size();
+            int numRows = oldValues.size();
             for (UntypedRow row: rows) {
                 boolean found = false;
-                // If we already have this IM address, mark it
-                for (NamedContentValues ncv: oldAccounts) {
+                // If we already have this row, mark it
+                for (NamedContentValues ncv: oldValues) {
                     ContentValues cv = ncv.values;
                     String data = cv.getAsString(COMMON_DATA_ROW);
                     int rowType = -1;
@@ -1352,6 +1353,8 @@ public class ContactsSyncAdapter extends AbstractSyncAdapter {
                     }
                     if (row.isSameAs(rowType, data)) {
                         cv.put(FOUND_DATA_ROW, true);
+                        // Remove this to indicate it's still being used
+                        entityValues.remove(ncv);
                         found = true;
                         break;
                     }
@@ -1373,7 +1376,7 @@ public class ContactsSyncAdapter extends AbstractSyncAdapter {
 
             // Go through rows needing replacement
             for (UntypedRow row: rowsToReplace) {
-                for (NamedContentValues ncv: oldAccounts) {
+                for (NamedContentValues ncv: oldValues) {
                     ContentValues cv = ncv.values;
                     // Find a row that hasn't been used (i.e. doesn't match current rows)
                     if (!cv.containsKey(FOUND_DATA_ROW)) {
