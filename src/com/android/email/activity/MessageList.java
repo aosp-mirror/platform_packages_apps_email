@@ -1152,6 +1152,7 @@ public class MessageList extends ListActivity implements OnItemClickListener, On
         private static final int MSG_PROGRESS = 1;
         private static final int MSG_LOOKUP_MAILBOX_TYPE = 2;
         private static final int MSG_ERROR_BANNER = 3;
+        private static final int MSG_REQUERY_LIST = 4;
 
         @Override
         public void handleMessage(android.os.Message msg) {
@@ -1201,6 +1202,9 @@ public class MessageList extends ListActivity implements OnItemClickListener, On
                         }
                     }
                     break;
+                case MSG_REQUERY_LIST:
+                    mListAdapter.doRequery();
+                    break;
                 default:
                     super.handleMessage(msg);
             }
@@ -1241,6 +1245,13 @@ public class MessageList extends ListActivity implements OnItemClickListener, On
             msg.what = MSG_ERROR_BANNER;
             msg.obj = message;
             sendMessage(msg);
+        }
+
+        /**
+         * Called from any thread to signal that the list adapter should requery and update.
+         */
+        public void requeryList() {
+            sendEmptyMessage(MSG_REQUERY_LIST);
         }
     }
 
@@ -1404,12 +1415,6 @@ public class MessageList extends ListActivity implements OnItemClickListener, On
         // How long we want to wait for refreshes (a good starting guess)
         // I suspect this could be lowered down to even 1000 or so, but this seems ok for now
         private static final long REFRESH_INTERVAL_MS = 2500;
-        private Runnable mRefreshRunnable = new Runnable() {
-            public void run() {
-                mDataValid = mCursor.requery();
-                notifyDataSetChanged();
-            }
-        };
         
         private java.text.DateFormat mDateFormat;
         private java.text.DateFormat mDayFormat;
@@ -1454,6 +1459,17 @@ public class MessageList extends ListActivity implements OnItemClickListener, On
             }
         }
 
+        /**
+         * Called in UI thread only, from Handler, to complete the requery that we
+         * intercepted in onContentChanged().
+         */
+        public void doRequery() {
+            if (mCursor != null && !mCursor.isClosed()) {
+                mDataValid = mCursor.requery();
+                notifyDataSetChanged();
+            }
+        }
+
         class RefreshTimer extends Timer {
             private TimerTask timerTask = null;
 
@@ -1484,13 +1500,11 @@ public class MessageList extends ListActivity implements OnItemClickListener, On
          * Make sure we call notifyDataSetChanged on the UI thread.
          */
         private synchronized void refreshList() {
-            if (mCursor != null && !mCursor.isClosed()) {
-                if (Email.LOGD) {
-                    Log.d("messageList", "refresh: "
-                            + (SystemClock.elapsedRealtime() - mLastRefreshTime) + "ms");
-                }
-                runOnUiThread(mRefreshRunnable);
+            if (Email.LOGD) {
+                Log.d("messageList", "refresh: "
+                        + (SystemClock.elapsedRealtime() - mLastRefreshTime) + "ms");
             }
+            mHandler.requeryList();
             mLastRefreshTime = SystemClock.elapsedRealtime();
             mRefreshTimer.clear();
         }
