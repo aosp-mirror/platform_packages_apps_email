@@ -547,9 +547,12 @@ public class MessageCompose extends Activity implements OnClickListener, OnFocus
                         Body.restoreReplyHtmlWithMessageId(MessageCompose.this, message.mId);
                     message.mTextReply =
                         Body.restoreReplyTextWithMessageId(MessageCompose.this, message.mId);
+                    message.mIntroText =
+                        Body.restoreIntroTextWithMessageId(MessageCompose.this, message.mId);
                 } else {
                     message.mHtmlReply = null;
                     message.mTextReply = null;
+                    message.mIntroText = null;
                 }
             } catch (RuntimeException e) {
                 Log.d(Email.LOG_TAG, "Exception while loading message body: " + e);
@@ -1000,6 +1003,7 @@ public class MessageCompose extends Activity implements OnClickListener, OnFocus
             // - can be started multiple times in parallel (to delete multiple attachments).
             // - need not be interrupted on activity exit, instead should run to completion.
             new AsyncTask<Long, Void, Void>() {
+                @Override
                 protected Void doInBackground(Long... attachmentIds) {
                     mController.deleteAttachment(attachmentIds[0]);
                     return null;
