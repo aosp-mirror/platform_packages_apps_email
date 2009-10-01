@@ -31,4 +31,10 @@
         android:title="@string/accounts_action"
         android:icon="@*android:drawable/ic_menu_account_list"
     />
+    <group android:id="@+id/deselect_all_group">
+        <item android:id="@+id/deselect_all"
+            android:title="@string/deselect_all_action"
+            android:icon="@drawable/ic_menu_email_deselect_mail"
+        />
+    </group>
 </menu>
