@@ -312,6 +312,9 @@ public class MessageCompose extends Activity implements OnClickListener, OnFocus
                 mLoadMessageTask = new LoadMessageTask().execute(messageId);
             } else {
                 setAccount(intent);
+                // Since this is a new message, we don't need to call LoadMessageTask.
+                // But we DO need to set mMessageLoaded to indicate the message can be sent
+                mMessageLoaded = true;
             }
         }
 
