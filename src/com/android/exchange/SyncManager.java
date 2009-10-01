@@ -1702,7 +1702,7 @@ public class SyncManager extends Service implements Runnable {
         if (error != null) {
             if (error.fatal) {
                 return PING_STATUS_UNABLE;
-            } else {
+            } else if (error.holdEndTime > 0) {
                 return PING_STATUS_WAITING;
             }
         }
