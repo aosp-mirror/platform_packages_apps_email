@@ -767,6 +767,7 @@ public class MessageView extends Activity implements OnClickListener {
         cancelAllTasks();
         setTitle("");
         if (mMessageContentView != null) {
+            mMessageContentView.scrollTo(0, 0);
             mMessageContentView.loadUrl("file:///android_asset/empty.html");
         }
         mAttachments.removeAllViews();
