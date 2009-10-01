@@ -48,11 +48,11 @@ public class AccountSetupOutgoing extends Activity implements OnClickListener,
     private static final String EXTRA_MAKE_DEFAULT = "makeDefault";
 
     private static final int smtpPorts[] = {
-            587, 465, 587
+            587, 465, 465, 587, 587
     };
 
     private static final String smtpSchemes[] = {
-            "smtp", "smtp+ssl+", "smtp+tls+"
+            "smtp", "smtp+ssl+", "smtp+ssl+trustallcerts", "smtp+tls+", "smtp+tls+trustallcerts"
     };
 
     private EditText mUsernameView;
@@ -100,9 +100,13 @@ public class AccountSetupOutgoing extends Activity implements OnClickListener,
         mRequireLoginView.setOnCheckedChangeListener(this);
 
         SpinnerOption securityTypes[] = {
-                new SpinnerOption(0, getString(R.string.account_setup_incoming_security_none_label)),
-                new SpinnerOption(1, getString(R.string.account_setup_incoming_security_ssl_label)),
-                new SpinnerOption(2, getString(R.string.account_setup_incoming_security_tls_label)),
+            new SpinnerOption(0, getString(R.string.account_setup_incoming_security_none_label)),
+            new SpinnerOption(1, getString(R.string.account_setup_incoming_security_ssl_label)),
+            new SpinnerOption(2, getString(
+                    R.string.account_setup_incoming_security_ssl_trust_certificates_label)),
+            new SpinnerOption(3, getString(R.string.account_setup_incoming_security_tls_label)),
+            new SpinnerOption(4, getString(
+                    R.string.account_setup_incoming_security_tls_trust_certificates_label)),
         };
 
         ArrayAdapter<SpinnerOption> securityTypesAdapter = new ArrayAdapter<SpinnerOption>(this,

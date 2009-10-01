@@ -162,7 +162,7 @@ public class ExchangeStore extends Store {
         public synchronized static ExchangeTransport getInstance(URI uri, Context context)
         throws MessagingException {
             if (!uri.getScheme().equals("eas") && !uri.getScheme().equals("eas+ssl+") &&
-                    !uri.getScheme().equals("eas+tssl+")) {
+                    !uri.getScheme().equals("eas+ssl+trustallcerts")) {
                 throw new MessagingException("Invalid scheme");
             }
 
@@ -218,8 +218,8 @@ public class ExchangeStore extends Store {
          */
         public void checkSettings(URI uri) throws MessagingException {
             setUri(uri);
-            boolean ssl = uri.getScheme().contains("ssl+");
-            boolean tssl = uri.getScheme().contains("tssl+");
+            boolean ssl = uri.getScheme().contains("+ssl");
+            boolean tssl = uri.getScheme().contains("+trustallcerts");
             try {
                 int port = ssl ? 443 : 80;
                 int result = new EmailServiceProxy(mContext, SyncManager.class)

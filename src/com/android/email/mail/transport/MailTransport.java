@@ -58,6 +58,7 @@ public class MailTransport implements Transport {
     private int mPort;
     private String[] mUserInfoParts;
     private int mConnectionSecurity;
+    private boolean mTrustCertificates;
 
     private Socket mSocket;
     private InputStream mIn;
@@ -88,6 +89,7 @@ public class MailTransport implements Transport {
             newObject.mUserInfoParts = mUserInfoParts.clone();
         }
         newObject.mConnectionSecurity = mConnectionSecurity;
+        newObject.mTrustCertificates = mTrustCertificates;
         return newObject;
     }
 
@@ -117,8 +119,9 @@ public class MailTransport implements Transport {
         return mPort;
     }
 
-    public void setSecurity(int connectionSecurity) {
+    public void setSecurity(int connectionSecurity, boolean trustAllCertificates) {
         mConnectionSecurity = connectionSecurity;
+        mTrustCertificates = trustAllCertificates;
     }
 
     public int getSecurity() {
@@ -126,15 +129,17 @@ public class MailTransport implements Transport {
     }
 
     public boolean canTrySslSecurity() {
-        return (mConnectionSecurity == CONNECTION_SECURITY_SSL_REQUIRED
-                || mConnectionSecurity == CONNECTION_SECURITY_SSL_OPTIONAL);
+        return mConnectionSecurity == CONNECTION_SECURITY_SSL;
     }
     
     public boolean canTryTlsSecurity() {
-        return (mConnectionSecurity == Transport.CONNECTION_SECURITY_TLS_OPTIONAL
-                || mConnectionSecurity == Transport.CONNECTION_SECURITY_TLS_REQUIRED);
+        return mConnectionSecurity == Transport.CONNECTION_SECURITY_TLS;
     }
     
+    public boolean canTrustAllCertificates() {
+        return mTrustCertificates;
+    }
+
     /**
      * Attempts to open a connection using the Uri supplied for connection parameters.  Will attempt
      * an SSL connection if indicated.
@@ -149,9 +154,8 @@ public class MailTransport implements Transport {
             SocketAddress socketAddress = new InetSocketAddress(getHost(), getPort());
             if (canTrySslSecurity()) {
                 SSLContext sslContext = SSLContext.getInstance("TLS");
-                final boolean secure = getSecurity() == Transport.CONNECTION_SECURITY_SSL_REQUIRED;
                 sslContext.init(null, new TrustManager[] {
-                        TrustManagerFactory.get(getHost(), secure)
+                        TrustManagerFactory.get(getHost(), !canTrustAllCertificates())
                 }, new SecureRandom());
                 mSocket = sslContext.getSocketFactory().createSocket();
             } else {
@@ -187,9 +191,8 @@ public class MailTransport implements Transport {
     public void reopenTls() throws MessagingException {
         try {
             SSLContext sslContext = SSLContext.getInstance("TLS");
-            boolean secure = getSecurity() == CONNECTION_SECURITY_TLS_REQUIRED;
             sslContext.init(null, new TrustManager[] {
-                    TrustManagerFactory.get(getHost(), secure)
+                    TrustManagerFactory.get(getHost(), !canTrustAllCertificates())
             }, new SecureRandom());
             mSocket = sslContext.getSocketFactory().createSocket(mSocket, getHost(), getPort(),
                     true);
@@ -197,6 +200,11 @@ public class MailTransport implements Transport {
             mIn = new BufferedInputStream(mSocket.getInputStream(), 1024);
             mOut = new BufferedOutputStream(mSocket.getOutputStream(), 512);
 
+        } catch (SSLException e) {
+            if (Config.LOGD && Email.DEBUG) {
+                Log.d(Email.LOG_TAG, e.toString());
+            }
+            throw new CertificateValidationException(e.getMessage(), e);
         } catch (GeneralSecurityException gse) {
             if (Config.LOGD && Email.DEBUG) {
                 Log.d(Email.LOG_TAG, gse.toString());
