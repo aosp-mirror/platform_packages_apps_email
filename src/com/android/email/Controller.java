@@ -391,10 +391,20 @@ public class Controller {
         Uri uri = ContentUris.withAppendedId(EmailContent.Message.CONTENT_URI, messageId);
         resolver.update(uri, cv, null, null);
 
-        // for IMAP & POP only, (attempt to) send the message now
-        final EmailContent.Account account =
-                EmailContent.Account.restoreAccountWithId(mProviderContext, accountId);
-        if (this.isMessagingController(account)) {
+        // Split here for target type (Service or MessagingController)
+        IEmailService service = getServiceForMessage(messageId);
+        if (service != null) {
+            // We just need to be sure the callback is installed, if this is the first call
+            // to the service.
+            try {
+                service.setCallback(mServiceCallback);
+            } catch (RemoteException re) {
+                // OK - not a critical callback here
+            }
+        } else {
+            // for IMAP & POP only, (attempt to) send the message now
+            final EmailContent.Account account =
+                    EmailContent.Account.restoreAccountWithId(mProviderContext, accountId);
             final long sentboxId = findOrCreateMailboxOfType(accountId, Mailbox.TYPE_SENT);
             new Thread() {
                 @Override
@@ -1064,10 +1074,37 @@ public class Controller {
             }
         }
 
+        /**
+         * Note, this is an incomplete implementation of this callback, because we are
+         * not getting things back from Service in quite the same way as from MessagingController.
+         * However, this is sufficient for basic "progress=100" notification that message send
+         * has just completed.
+         */
         public void sendMessageStatus(long messageId, String subject, int statusCode,
                 int progress) {
-            // TODO Auto-generated method stub
-
+//            Log.d(Email.LOG_TAG, "sendMessageStatus: messageId=" + messageId
+//                    + " statusCode=" + statusCode + " progress=" + progress);
+//            Log.d(Email.LOG_TAG, "sendMessageStatus: subject=" + subject);
+            long accountId = -1;        // This should be in the callback
+            MessagingException result = mapStatusToException(statusCode);
+            switch (statusCode) {
+                case EmailServiceStatus.SUCCESS:
+                    progress = 100;
+                    break;
+                case EmailServiceStatus.IN_PROGRESS:
+                    // discard progress reports that look like sentinels
+                    if (progress < 0 || progress >= 100) {
+                        return;
+                    }
+                    break;
+            }
+//            Log.d(Email.LOG_TAG, "result=" + result + " messageId=" + messageId
+//                    + " progress=" + progress);
+            synchronized(mListeners) {
+                for (Result listener : mListeners) {
+                    listener.sendMailCallback(result, accountId, messageId, progress);
+                }
+            }
         }
 
         public void syncMailboxListStatus(long accountId, int statusCode, int progress) {
