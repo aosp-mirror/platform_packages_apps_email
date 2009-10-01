@@ -355,8 +355,8 @@ public class MessageView extends Activity implements OnClickListener {
         mDateFormat = android.text.format.DateFormat.getDateFormat(this);   // short format
         mTimeFormat = android.text.format.DateFormat.getTimeFormat(this);   // 12/24 date format
 
-        mFavoriteIconOn = getResources().getDrawable(android.R.drawable.star_on);
-        mFavoriteIconOff = getResources().getDrawable(android.R.drawable.star_off);
+        mFavoriteIconOn = getResources().getDrawable(R.drawable.btn_star_big_buttonless_on);
+        mFavoriteIconOff = getResources().getDrawable(R.drawable.btn_star_big_buttonless_off);
 
         Intent intent = getIntent();
         mMessageId = intent.getLongExtra(EXTRA_MESSAGE_ID, -1);
