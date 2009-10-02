@@ -1065,8 +1065,16 @@ public class SyncManager extends Service implements Runnable {
     static public String alarmOwner(long id) {
         if (id == SYNC_MANAGER_ID) {
             return "SyncManager";
-        } else
-            return "Mailbox " + Long.toString(id);
+        } else {
+            String name = Long.toString(id);
+            if (Eas.USER_LOG && INSTANCE != null) {
+                Mailbox m = Mailbox.restoreMailboxWithId(INSTANCE, id);
+                if (m != null) {
+                    name = m.mDisplayName + '(' + m.mAccountKey + ')';
+                }
+            }
+            return "Mailbox " + name;
+        }
     }
 
     private void clearAlarm(long id) {
@@ -1075,7 +1083,7 @@ public class SyncManager extends Service implements Runnable {
             if (pi != null) {
                 AlarmManager alarmManager = (AlarmManager)getSystemService(Context.ALARM_SERVICE);
                 alarmManager.cancel(pi);
-                //log("+Alarm cleared for " + alarmOwner(id));
+                log("+Alarm cleared for " + alarmOwner(id));
                 mPendingIntents.remove(id);
             }
         }
@@ -1093,7 +1101,7 @@ public class SyncManager extends Service implements Runnable {
 
                 AlarmManager alarmManager = (AlarmManager)getSystemService(Context.ALARM_SERVICE);
                 alarmManager.set(AlarmManager.RTC_WAKEUP, System.currentTimeMillis() + millis, pi);
-                //log("+Alarm set for " + alarmOwner(id) + ", " + millis/1000 + "s");
+                log("+Alarm set for " + alarmOwner(id) + ", " + millis/1000 + "s");
             }
         }
     }
@@ -1319,7 +1327,7 @@ public class SyncManager extends Service implements Runnable {
                 (ConnectivityManager)getSystemService(Context.CONNECTIVITY_SERVICE);
             NetworkInfo info = cm.getActiveNetworkInfo();
             if (info != null) {
-                log("NetworkInfo: " + info.getTypeName() + ", " + info.getState().name());
+                //log("NetworkInfo: " + info.getTypeName() + ", " + info.getState().name());
                 return;
             } else {
 
@@ -1396,7 +1404,7 @@ public class SyncManager extends Service implements Runnable {
                             }
                             if (nextWait > 10*SECONDS) {
                                 log("Next awake in " + nextWait / 1000 + "s: " + mNextWaitReason);
-                                runAsleep(SYNC_MANAGER_ID, nextWait + 1000);
+                                runAsleep(SYNC_MANAGER_ID, nextWait + (3*SECONDS));
                             }
                             wait(nextWait);
                         }
