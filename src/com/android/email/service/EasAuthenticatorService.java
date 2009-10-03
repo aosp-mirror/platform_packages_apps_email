@@ -23,7 +23,6 @@ import android.accounts.AbstractAccountAuthenticator;
 import android.accounts.Account;
 import android.accounts.AccountAuthenticatorResponse;
 import android.accounts.AccountManager;
-import android.accounts.Constants;
 import android.accounts.NetworkErrorException;
 import android.app.Service;
 import android.content.ContentResolver;
@@ -75,8 +74,8 @@ public class EasAuthenticatorService extends Service {
                         ContactsContract.AUTHORITY, syncContacts);
 
                 Bundle b = new Bundle();
-                b.putString(Constants.ACCOUNT_NAME_KEY, options.getString(OPTIONS_USERNAME));
-                b.putString(Constants.ACCOUNT_TYPE_KEY, Eas.ACCOUNT_MANAGER_TYPE);
+                b.putString(AccountManager.KEY_ACCOUNT_NAME, options.getString(OPTIONS_USERNAME));
+                b.putString(AccountManager.KEY_ACCOUNT_TYPE, Eas.ACCOUNT_MANAGER_TYPE);
                 return b;
             // 2) The other case is that we're creating a new account from an Account manager
             //    activity.  In this case, we add an intent that will be used to gather the
@@ -88,23 +87,17 @@ public class EasAuthenticatorService extends Service {
                 // Add extras that indicate this is an Exchange account creation
                 // So we'll skip the "account type" activity, and we'll use the response when
                 // we're done
-                intent.putExtra(Constants.ACCOUNT_AUTHENTICATOR_RESPONSE_KEY, response);
-                b.putParcelable(Constants.INTENT_KEY, intent);
+                intent.putExtra(AccountManager.KEY_ACCOUNT_AUTHENTICATOR_RESPONSE, response);
+                b.putParcelable(AccountManager.KEY_INTENT, intent);
                 return b;
             }
         }
 
         @Override
-        public Bundle confirmCredentials(AccountAuthenticatorResponse response, Account account) {
+        public Bundle confirmCredentials(AccountAuthenticatorResponse response, Account account,
+                Bundle options) {
             // TODO Auto-generated method stub
             return null;
-        }
-
-        @Override
-        public boolean confirmPassword(AccountAuthenticatorResponse response, Account account,
-                String password) throws NetworkErrorException {
-            // TODO Auto-generated method stub
-            return false;
         }
 
         @Override
@@ -145,7 +138,7 @@ public class EasAuthenticatorService extends Service {
         String authenticatorIntent = "android.accounts.AccountAuthenticator";
 
         if (authenticatorIntent.equals(intent.getAction())) {
-            return new EasAuthenticator(this).getIAccountAuthenticator().asBinder();
+            return new EasAuthenticator(this).getIBinder();
         } else {
             return null;
         }
