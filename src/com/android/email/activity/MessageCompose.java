@@ -305,6 +305,7 @@ public class MessageCompose extends Activity implements OnClickListener, OnFocus
             // Use the fields found in the Intent to prefill as much of the message as possible
             initFromIntent(intent);
             mDraftNeedsSaving = true;
+            mMessageLoaded = true;
         } else {
             // Otherwise, handle the internal cases (Message Composer invoked from within app)
             long messageId = draftId != -1 ? draftId : intent.getLongExtra(EXTRA_MESSAGE_ID, -1);
