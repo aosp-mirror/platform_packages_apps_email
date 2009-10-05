@@ -353,9 +353,7 @@ public class EmailSyncAdapter extends AbstractSyncAdapter {
         private void changeParser(ArrayList<ServerChange> changes) throws IOException {
             String serverId = null;
             Boolean oldRead = false;
-            Boolean read = null;
             Boolean oldFlag = false;
-            Boolean flag = null;
             long id = 0;
             while (nextTag(Tags.SYNC_CHANGE) != END) {
                 switch (tag) {
@@ -373,13 +371,26 @@ public class EmailSyncAdapter extends AbstractSyncAdapter {
                             c.close();
                         }
                         break;
+                    case Tags.SYNC_APPLICATION_DATA:
+                        changeApplicationDataParser(changes, oldRead, oldFlag, id);
+                        break;
+                    default:
+                        skipTag();
+                }
+            }
+        }
+
+        private void changeApplicationDataParser(ArrayList<ServerChange> changes, Boolean oldRead,
+                Boolean oldFlag, long id) throws IOException {
+            Boolean read = null;
+            Boolean flag = null;
+            while (nextTag(Tags.SYNC_APPLICATION_DATA) != END) {
+                switch (tag) {
                     case Tags.EMAIL_READ:
                         read = getValueInt() == 1;
                         break;
                     case Tags.EMAIL_FLAG:
                         flag = flagParser();
-                        break;
-                    case Tags.SYNC_APPLICATION_DATA:
                         break;
                     default:
                         skipTag();
