@@ -199,14 +199,14 @@
 
     <!-- Version number, shown only on debug screen -->
     <string name="debug_version_fmt">Version: <xliff:g id="version">%s</xliff:g></string>
-    <!-- Checkbox label, shown only on debug screen -->
-    <string name="debug_enable_debug_logging_label">Enable extra debug logging?</string>
-    <!-- Checkbox label, shown only on debug screen -->
-    <string name="debug_enable_sensitive_logging_label">Enable sensitive information debug logging? (May show passwords in logs.)</string>
-    <!-- Checkbox label, shown only on debug screen -->
-    <string name="debug_enable_exchange_logging_label">Enable exchange parser logging? (Extremely verbose)</string>
-    <!-- Checkbox label, shown only on debug screen -->
-    <string name="debug_enable_exchange_file_logging_label">Enable exchange sd card logging?</string>
+    <!-- Do Not Translate.  Checkbox label, shown only on debug screen -->
+    <string name="debug_enable_debug_logging_label" translatable="false">Enable extra debug logging?</string>
+    <!-- Do Not Translate.  Checkbox label, shown only on debug screen -->
+    <string name="debug_enable_sensitive_logging_label" translatable="false">Enable sensitive information debug logging? (May show passwords in logs.)</string>
+    <!-- Do Not Translate.  Checkbox label, shown only on debug screen -->
+    <string name="debug_enable_exchange_logging_label" translatable="false">Enable exchange parser logging? (Extremely verbose)</string>
+    <!-- Do Not Translate.  Checkbox label, shown only on debug screen -->
+    <string name="debug_enable_exchange_file_logging_label" translatable="false">Enable exchange sd card logging?</string>
 
     <!-- The text in the small separator between smart folders and the accounts -->
     <string name="account_folder_list_separator_accounts">Accounts</string>
