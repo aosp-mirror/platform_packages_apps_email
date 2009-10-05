@@ -141,6 +141,8 @@ public class EasSyncService extends AbstractSyncService {
     private int mPingHighWaterMark = 0;
     // Whether we've ever lowered the heartbeat
     private boolean mPingHeartbeatDropped = false;
+    // Whether a POST was aborted due to watchdog timeout
+    private boolean mAborted = false;
 
     public EasSyncService(Context _context, Mailbox _mailbox) {
         super(_context, _mailbox);
@@ -164,6 +166,7 @@ public class EasSyncService extends AbstractSyncService {
         synchronized(getSynchronizer()) {
             if (mPendingPost != null) {
                 userLog("Aborting pending POST!");
+                mAborted = true;
                 mPendingPost.abort();
             }
         }
@@ -769,7 +772,8 @@ public class EasSyncService extends AbstractSyncService {
                     // haven't yet "fixed" the timeout, back off by two minutes and "fix" it
                     boolean hasMessage = message != null;
                     userLog("IOException runPingLoop: " + (hasMessage ? message : "[no message]"));
-                    if (hasMessage && message.contains("reset by peer")) {
+                    if (mAborted || (hasMessage && message.contains("reset by peer"))) {
+                        long pingLength = SystemClock.elapsedRealtime() - pingTime;
                         if ((pingHeartbeat > PING_MIN_HEARTBEAT) &&
                                 (pingHeartbeat > mPingHighWaterMark)) {
                             pingHeartbeat -= PING_HEARTBEAT_INCREMENT;
@@ -778,8 +782,8 @@ public class EasSyncService extends AbstractSyncService {
                                 pingHeartbeat = PING_MIN_HEARTBEAT;
                             }
                             userLog("Decreased ping heartbeat to ", pingHeartbeat, "s");
-                        } else if ((SystemClock.elapsedRealtime() - pingTime) < 2000) {
-                            userLog("NAT type IOException < 2 seconds; throwing IOException");
+                        } else if (mAborted || (pingLength < 2000)) {
+                            userLog("Abort or NAT type return < 2 seconds; throwing IOException");
                             throw e;
                         } else {
                             userLog("NAT type IOException > 2 seconds?");
