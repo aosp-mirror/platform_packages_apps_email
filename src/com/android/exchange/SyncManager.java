@@ -141,7 +141,7 @@ public class SyncManager extends Service implements Runnable {
         " IN (" + Mailbox.CHECK_INTERVAL_PING + ',' + Mailbox.CHECK_INTERVAL_PUSH + ')';
     protected static final String WHERE_IN_ACCOUNT_AND_PUSHABLE =
         MailboxColumns.ACCOUNT_KEY + "=? and type in (" + Mailbox.TYPE_INBOX + ','
-        /*+ Mailbox.TYPE_CALENDAR + ','*/ + Mailbox.TYPE_CONTACTS + ')';
+        + Mailbox.TYPE_EAS_ACCOUNT_MAILBOX + ',' + Mailbox.TYPE_CONTACTS + ')';
     private static final String WHERE_MAILBOX_KEY = EmailContent.RECORD_ID + "=?";
     private static final String WHERE_PROTOCOL_EAS = HostAuthColumns.PROTOCOL + "=\"" +
         AbstractSyncService.EAS_PROTOCOL + "\"";
