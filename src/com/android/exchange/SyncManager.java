@@ -44,7 +44,7 @@ import org.apache.http.params.BasicHttpParams;
 import org.apache.http.params.HttpParams;
 
 import android.accounts.AccountManager;
-import android.accounts.OnAccountsUpdatedListener;
+import android.accounts.OnAccountsUpdateListener;
 import android.app.AlarmManager;
 import android.app.PendingIntent;
 import android.app.Service;
@@ -683,7 +683,7 @@ public class SyncManager extends Service implements Runnable {
         }
     }
 
-    public class EasAccountsUpdatedListener implements OnAccountsUpdatedListener {
+    public class EasAccountsUpdatedListener implements OnAccountsUpdateListener {
        public void onAccountsUpdated(android.accounts.Account[] accounts) {
            checkWithAccountManager();
        }
