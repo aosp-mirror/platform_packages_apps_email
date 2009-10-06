@@ -527,7 +527,9 @@ public class MessageList extends ListActivity implements OnItemClickListener, On
         // TODO: Should not be reading from DB in UI thread - need a cleaner way to get accountId
         if (mMailboxId >= 0) {
             Mailbox mailbox = Mailbox.restoreMailboxWithId(this, mMailboxId);
-            mController.updateMailbox(mailbox.mAccountKey, mMailboxId, mControllerCallback);
+            if (mailbox != null) {
+                mController.updateMailbox(mailbox.mAccountKey, mMailboxId, mControllerCallback);
+            }
         }
     }
 
