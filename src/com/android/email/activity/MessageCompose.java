@@ -1235,7 +1235,11 @@ public class MessageCompose extends Activity implements OnClickListener, OnFocus
 
     // used by processSourceMessage()
     private void displayQuotedText(String textBody, String htmlBody) {
-        boolean plainTextFlag = htmlBody == null;
+        /* Use plain-text body if available, otherwise use HTML body.
+         * This matches the desired behavior for IMAP/POP where we only send plain-text,
+         * and for EAS which sends HTML and has no plain-text body.
+         */
+        boolean plainTextFlag = textBody != null;
         String text = plainTextFlag ? textBody : htmlBody;
         if (text != null) {
             text = plainTextFlag ? EmailHtmlUtil.escapeCharacterToDisplay(text) : text;
