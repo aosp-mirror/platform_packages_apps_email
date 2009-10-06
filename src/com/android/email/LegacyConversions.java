@@ -104,7 +104,17 @@ public class LegacyConversions {
             localMessage.mServerTimeStamp = internalDate.getTime();
         }
 //        public String mClientId;
-        localMessage.mMessageId = ((MimeMessage)message).getMessageId();
+
+        // Absorb a MessagingException here in the case of messages that were delivered without
+        // a proper message-id.  This is seen in some ISP's but it is non-fatal -- (we'll just use
+        // the locally-generated message-id.)
+        try {
+            localMessage.mMessageId = ((MimeMessage)message).getMessageId();
+        } catch (MessagingException me)  {
+            if (Email.DEBUG) {
+                Log.d(Email.LOG_TAG, "Missing message-id for UID=" + localMessage.mServerId);
+            }
+        }
 
 //        public long mBodyKey;
         localMessage.mMailboxKey = mailboxId;
