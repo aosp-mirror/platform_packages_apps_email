@@ -62,6 +62,9 @@ public class EmailSyncAdapter extends AbstractSyncAdapter {
     private static final String[] UPDATES_PROJECTION =
         {MessageColumns.FLAG_READ, MessageColumns.MAILBOX_KEY, SyncColumns.SERVER_ID,
             MessageColumns.FLAG_FAVORITE};
+
+    private static final int MESSAGE_ID_SUBJECT_ID_COLUMN = 0;
+    private static final int MESSAGE_ID_SUBJECT_SUBJECT_COLUMN = 1;
     private static final String[] MESSAGE_ID_SUBJECT_PROJECTION =
         new String[] { Message.RECORD_ID, MessageColumns.SUBJECT };
 
@@ -323,9 +326,10 @@ public class EmailSyncAdapter extends AbstractSyncAdapter {
                         Cursor c = getServerIdCursor(serverId, MESSAGE_ID_SUBJECT_PROJECTION);
                         try {
                             if (c.moveToFirst()) {
-                                deletes.add(c.getLong(0));
+                                deletes.add(c.getLong(MESSAGE_ID_SUBJECT_ID_COLUMN));
                                 if (Eas.USER_LOG) {
-                                    userLog("Deleting ", serverId + ", " + c.getString(1));
+                                    userLog("Deleting ", serverId + ", "
+                                            + c.getString(MESSAGE_ID_SUBJECT_SUBJECT_COLUMN));
                                 }
                             }
                         } finally {
