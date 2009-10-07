@@ -755,13 +755,16 @@ public class ImapStore extends Store {
                         for (Object o : fp) {
                             if (o instanceof Part) {
                                 Part part = (Part) o;
-                                InputStream bodyStream = fetchList.getLiteral(fetchList.size() - 1);
-                                String contentType = part.getContentType();
-                                String contentTransferEncoding = part.getHeader(
-                                        MimeHeader.HEADER_CONTENT_TRANSFER_ENCODING)[0];
-                                part.setBody(MimeUtility.decodeBody(
-                                        bodyStream,
-                                        contentTransferEncoding));
+                                if (part.getSize() > 0) {
+                                    InputStream bodyStream =
+                                        fetchList.getLiteral(fetchList.size() - 1);
+                                    String contentType = part.getContentType();
+                                    String contentTransferEncoding = part.getHeader(
+                                            MimeHeader.HEADER_CONTENT_TRANSFER_ENCODING)[0];
+                                    part.setBody(MimeUtility.decodeBody(
+                                            bodyStream,
+                                            contentTransferEncoding));
+                                }
                             }
                         }
 
@@ -1298,9 +1301,9 @@ public class ImapStore extends Store {
             super();
         }
 
-        public void setSize(int size) {
-            this.mSize = size;
-        }
+//        public void setSize(int size) {
+//            this.mSize = size;
+//        }
     }
 
     class ImapException extends MessagingException {
