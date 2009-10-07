@@ -59,7 +59,7 @@ public class ContactsSyncAdapterService extends Service {
         }
 
         @Override
-        public void performSync(Account account, Bundle extras,
+        public void onPerformSync(Account account, Bundle extras,
                 String authority, ContentProviderClient provider, SyncResult syncResult) {
             try {
                 ContactsSyncAdapterService.performSync(mContext, account, extras,
@@ -81,7 +81,7 @@ public class ContactsSyncAdapterService extends Service {
 
     @Override
     public IBinder onBind(Intent intent) {
-        return sSyncAdapter.getISyncAdapter().asBinder();
+        return sSyncAdapter.getSyncAdapterBinder();
     }
 
     /**
