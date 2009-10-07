@@ -29,6 +29,7 @@ import com.android.email.mail.MessageTestUtils.MultipartBuilder;
 import com.android.email.mail.internet.MimeHeader;
 import com.android.email.mail.internet.MimeMessage;
 import com.android.email.mail.internet.MimeUtility;
+import com.android.email.mail.internet.TextBody;
 import com.android.email.provider.EmailContent;
 import com.android.email.provider.EmailProvider;
 import com.android.email.provider.ProviderTestUtils;
@@ -42,6 +43,7 @@ import android.test.ProviderTestCase2;
 
 import java.io.IOException;
 import java.util.ArrayList;
+import java.util.Date;
 
 /**
  * Tests of the Legacy Conversions code (used by MessagingController).
@@ -54,6 +56,17 @@ import java.util.ArrayList;
  *   runtest -c com.android.email.LegacyConversionsTests email
  */
 public class LegacyConversionsTests extends ProviderTestCase2<EmailProvider> {
+
+    private static final String UID = "UID.12345678";
+    private static final String SENDER = "sender@android.com";
+    private static final String RECIPIENT_TO = "recipient-to@android.com";
+    private static final String RECIPIENT_CC = "recipient-cc@android.com";
+    private static final String RECIPIENT_BCC = "recipient-bcc@android.com";
+    private static final String REPLY_TO = "reply-to@android.com";
+    private static final String SUBJECT = "This is the subject";
+    private static final String BODY = "This is the body.  This is also the body.";
+    private static final String MESSAGE_ID = "Test-Message-ID";
+    private static final String MESSAGE_ID_2 = "Test-Message-ID-Second";
 
     EmailProvider mProvider;
     Context mProviderContext;
@@ -80,6 +93,83 @@ public class LegacyConversionsTests extends ProviderTestCase2<EmailProvider> {
      * TODO: basic Legacy -> Provider Body conversions
      * TODO: rainy day tests of all kinds
      */
+
+    /**
+     * Test basic conversion from Store message to Provider message
+     *
+     * TODO: Not a complete test of all fields, and some fields need special tests (e.g. flags)
+     * TODO: There are many special cases in the tested function, that need to be
+     * tested here as well.
+     */
+    public void testUpdateMessageFields() throws MessagingException {
+        MimeMessage message = buildTestMessage(RECIPIENT_TO, RECIPIENT_CC, RECIPIENT_BCC,
+                REPLY_TO, SENDER, SUBJECT, null);
+        EmailContent.Message localMessage = new EmailContent.Message();
+
+        boolean result = LegacyConversions.updateMessageFields(localMessage, message, 1, 1);
+        assertTrue(result);
+        checkProviderMessage("testUpdateMessageFields", message, localMessage);
+    }
+
+    /**
+     * Test basic conversion from Store message to Provider message, when the provider message
+     * does not have a proper message-id.
+     */
+    public void testUpdateMessageFieldsNoMessageId() throws MessagingException {
+        MimeMessage message = buildTestMessage(RECIPIENT_TO, RECIPIENT_CC, RECIPIENT_BCC,
+                REPLY_TO, SENDER, SUBJECT, null);
+        EmailContent.Message localMessage = new EmailContent.Message();
+
+        // If the source message-id is null, the target should be left as-is
+        localMessage.mMessageId = MESSAGE_ID_2;
+        message.removeHeader("Message-ID");
+
+        boolean result = LegacyConversions.updateMessageFields(localMessage, message, 1, 1);
+        assertTrue(result);
+        assertEquals(MESSAGE_ID_2, localMessage.mMessageId);
+    }
+
+    /**
+     * Build a lightweight Store message with simple field population
+     */
+    private MimeMessage buildTestMessage(String to, String cc, String bcc, String replyTo,
+            String sender, String subject, String content) throws MessagingException {
+        MimeMessage message = new MimeMessage();
+
+        if (to != null) {
+            Address[] addresses = Address.parse(to);
+            message.setRecipients(RecipientType.TO, addresses);
+        }
+        if (cc != null) {
+            Address[] addresses = Address.parse(cc);
+            message.setRecipients(RecipientType.CC, addresses);
+        }
+        if (bcc != null) {
+            Address[] addresses = Address.parse(bcc);
+            message.setRecipients(RecipientType.BCC, addresses);
+        }
+        if (replyTo != null) {
+            Address[] addresses = Address.parse(replyTo);
+            message.setReplyTo(addresses);
+        }
+        if (sender != null) {
+            Address[] addresses = Address.parse(sender);
+            message.setFrom(Address.parse(sender)[0]);
+        }
+        if (subject != null) {
+            message.setSubject(subject);
+        }
+        if (content != null) {
+            TextBody body = new TextBody(content);
+            message.setBody(body);
+        }
+
+        message.setUid(UID);
+        message.setSentDate(new Date());
+        message.setInternalDate(new Date());
+        message.setMessageId(MESSAGE_ID);
+        return message;
+    }
 
     /**
      * Sunny day test of adding attachments from an IMAP message.
@@ -219,16 +309,35 @@ public class LegacyConversionsTests extends ProviderTestCase2<EmailProvider> {
     }
 
     /**
-     * Check equality of a pair of converted message
+     * Check equality of a pair of converted messages
+     */
+    private void checkProviderMessage(String tag, Message expect, EmailContent.Message actual)
+            throws MessagingException {
+        assertEquals(tag, expect.getUid(), actual.mServerId);
+        assertEquals(tag, expect.getSubject(), actual.mSubject);
+        assertEquals(tag, Address.pack(expect.getFrom()), actual.mFrom);
+        assertEquals(tag, expect.getSentDate().getTime(), actual.mTimeStamp);
+        assertEquals(tag, Address.pack(expect.getRecipients(RecipientType.TO)), actual.mTo);
+        assertEquals(tag, Address.pack(expect.getRecipients(RecipientType.CC)), actual.mCc);
+        assertEquals(tag, ((MimeMessage)expect).getMessageId(), actual.mMessageId);
+        assertEquals(tag, expect.isSet(Flag.SEEN), actual.mFlagRead);
+        assertEquals(tag, expect.isSet(Flag.FLAGGED), actual.mFlagFavorite);
+    }
+
+        /**
+     * Check equality of a pair of converted messages
      */
     private void checkLegacyMessage(String tag, EmailContent.Message expect, Message actual)
             throws MessagingException {
         assertEquals(tag, expect.mServerId, actual.getUid());
+        assertEquals(tag, expect.mServerTimeStamp, actual.getInternalDate().getTime());
         assertEquals(tag, expect.mSubject, actual.getSubject());
         assertEquals(tag, expect.mFrom, Address.pack(actual.getFrom()));
         assertEquals(tag, expect.mTimeStamp, actual.getSentDate().getTime());
         assertEquals(tag, expect.mTo, Address.pack(actual.getRecipients(RecipientType.TO)));
         assertEquals(tag, expect.mCc, Address.pack(actual.getRecipients(RecipientType.CC)));
+        assertEquals(tag, expect.mBcc, Address.pack(actual.getRecipients(RecipientType.BCC)));
+        assertEquals(tag, expect.mReplyTo, Address.pack(actual.getReplyTo()));
         assertEquals(tag, expect.mMessageId, ((MimeMessage)actual).getMessageId());
         // check flags
         assertEquals(tag, expect.mFlagRead, actual.isSet(Flag.SEEN));
