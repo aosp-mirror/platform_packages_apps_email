@@ -134,6 +134,10 @@ public class MimeBodyPart extends BodyPart {
         return getMimeType().equals(mimeType);
     }
 
+    public void setSize(int size) {
+        this.mSize = size;
+    }
+
     public int getSize() throws MessagingException {
         return mSize;
     }
