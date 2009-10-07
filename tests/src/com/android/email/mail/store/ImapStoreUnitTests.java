@@ -16,24 +16,32 @@
 
 package com.android.email.mail.store;
 
+import com.android.email.mail.FetchProfile;
 import com.android.email.mail.Flag;
 import com.android.email.mail.Folder;
+import com.android.email.mail.Message;
 import com.android.email.mail.MessagingException;
+import com.android.email.mail.Part;
 import com.android.email.mail.Transport;
 import com.android.email.mail.Folder.FolderType;
 import com.android.email.mail.Folder.OpenMode;
 import com.android.email.mail.internet.BinaryTempFileBody;
+import com.android.email.mail.internet.MimeUtility;
 import com.android.email.mail.transport.MockTransport;
 
 import android.test.AndroidTestCase;
 import android.test.suitebuilder.annotation.SmallTest;
 
+import java.util.ArrayList;
 import java.util.Date;
 import java.util.Locale;
 
 /**
  * This is a series of unit tests for the ImapStore class.  These tests must be locally
  * complete - no server(s) required.
+ *
+ * To run these tests alone, use:
+ *   $ runtest -c com.android.email.mail.store.ImapStoreUnitTests email
  */
 @SmallTest
 public class ImapStoreUnitTests extends AndroidTestCase {
@@ -223,5 +231,57 @@ public class ImapStoreUnitTests extends AndroidTestCase {
         mFolder.open(OpenMode.READ_WRITE, null);
         int unreadCount = mFolder.getUnreadMessageCount();
         assertEquals("getUnreadMessageCount with literal string", 10, unreadCount);
+    }
+
+    /**
+     * Test for proper operations on servers that return "NIL" for empty message bodies.
+     */
+    public void testNilMessage() throws MessagingException {
+        MockTransport mock = openAndInjectMockTransport();
+        setupOpenFolder(mock);
+        mFolder.open(OpenMode.READ_WRITE, null);
+
+        // Prepare to pull structure and peek body text - this is like the "large message"
+        // loop in MessagingController.synchronizeMailboxGeneric()
+        FetchProfile fp = new FetchProfile();fp.clear();
+        fp.add(FetchProfile.Item.STRUCTURE);
+        Message message1 = mFolder.createMessage("1");
+        mock.expect("3 UID FETCH 1 \\(UID BODYSTRUCTURE\\)", new String[] {
+                "* 1 FETCH (UID 1 BODYSTRUCTURE (TEXT PLAIN NIL NIL NIL 7BIT 0 0 NIL NIL NIL))",
+                "3 OK SUCCESS"
+        });
+        mFolder.fetch(new Message[] { message1 }, fp, null);
+
+        // The expected result for an empty body is:
+        //   * 1 FETCH (UID 1 BODY[TEXT] {0})
+        // But some servers are returning NIL for the empty body:
+        //   * 1 FETCH (UID 1 BODY[TEXT] NIL)
+        // Because this breaks our little parser, fetch() skips over empty parts.
+        // The rest of this test is confirming that this is the case.
+
+        mock.expect("4 UID FETCH 1 \\(UID BODY.PEEK\\[TEXT\\]\\)", new String[] {
+                "* 1 FETCH (UID 1 BODY[TEXT] NIL)",
+                "4 OK SUCCESS"
+        });
+        ArrayList<Part> viewables = new ArrayList<Part>();
+        ArrayList<Part> attachments = new ArrayList<Part>();
+        MimeUtility.collectParts(message1, viewables, attachments);
+        assertTrue(viewables.size() == 1);
+        Part emptyBodyPart = viewables.get(0);
+        fp.clear();
+        fp.add(emptyBodyPart);
+        mFolder.fetch(new Message[] { message1 }, fp, null);
+
+        // If this wasn't working properly, there would be an attempted interpretation
+        // of the empty part's NIL and possibly a crash.
+
+        // If this worked properly, the "empty" body can now be retrieved
+        viewables = new ArrayList<Part>();
+        attachments = new ArrayList<Part>();
+        MimeUtility.collectParts(message1, viewables, attachments);
+        assertTrue(viewables.size() == 1);
+        emptyBodyPart = viewables.get(0);
+        String text = MimeUtility.getTextFromPart(emptyBodyPart);
+        assertNull(text);
     }
 }

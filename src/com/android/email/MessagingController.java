@@ -1866,7 +1866,8 @@ public class MessagingController implements Runnable {
                     // 3. Generate a shell message in which to retrieve the attachment,
                     // and a shell BodyPart for the attachment.  Then glue them together.
                     Message storeMessage = remoteFolder.createMessage(message.mServerId);
-                    BodyPart storePart = new MimeBodyPart();
+                    MimeBodyPart storePart = new MimeBodyPart();
+                    storePart.setSize((int)attachment.mSize);
                     storePart.setHeader(MimeHeader.HEADER_ANDROID_ATTACHMENT_STORE_DATA,
                             attachment.mLocation);
                     storePart.setHeader(MimeHeader.HEADER_CONTENT_TYPE,
