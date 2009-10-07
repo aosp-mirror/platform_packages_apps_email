@@ -123,6 +123,7 @@ public class MessageView extends Activity implements OnClickListener {
     private View mShowPicturesSection;
     private ImageView mSenderPresenceView;
     private ProgressDialog mProgressDialog;
+    private View mScrollView;
 
     private long mAccountId;
     private long mMessageId;
@@ -332,6 +333,7 @@ public class MessageView extends Activity implements OnClickListener {
         mSenderPresenceView = (ImageView) findViewById(R.id.presence);
         mNext = findViewById(R.id.next);
         mPrevious = findViewById(R.id.previous);
+        mScrollView = findViewById(R.id.scrollview);
 
         mNext.setOnClickListener(this);
         mPrevious.setOnClickListener(this);
@@ -770,6 +772,7 @@ public class MessageView extends Activity implements OnClickListener {
             mMessageContentView.scrollTo(0, 0);
             mMessageContentView.loadUrl("file:///android_asset/empty.html");
         }
+        mScrollView.scrollTo(0, 0);
         mAttachments.removeAllViews();
         mAttachments.setVisibility(View.GONE);
         mAttachmentIcon.setVisibility(View.GONE);
