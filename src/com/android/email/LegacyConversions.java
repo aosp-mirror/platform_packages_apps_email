@@ -222,7 +222,10 @@ public class LegacyConversions {
      * that deals with single strings.
      */
     private static StringBuffer appendTextPart(StringBuffer sb, String newText) {
-        if (sb == null) {
+        if (newText == null) {
+            return sb;
+        }
+        else if (sb == null) {
             sb = new StringBuffer(newText);
         } else {
             if (sb.length() > 0) {
