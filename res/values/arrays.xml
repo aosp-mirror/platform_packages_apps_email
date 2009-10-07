@@ -120,6 +120,6 @@
         <!-- TYPE_TRASH = 6 -->
         <item>@drawable/ic_list_trash</item>
         <!-- TYPE_JUNK = 7 -->
-        <item></item>
+        <item>@drawable/ic_list_spam</item>
     </array>
 </resources>

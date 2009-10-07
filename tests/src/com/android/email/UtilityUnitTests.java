@@ -17,14 +17,14 @@
 package com.android.email;
 
 import com.android.email.provider.EmailContent.Mailbox;
-import com.android.email.R;
-import com.android.email.Utility;
 
 import android.content.Context;
+import android.graphics.drawable.Drawable;
 import android.test.AndroidTestCase;
 import android.test.suitebuilder.annotation.SmallTest;
 
-import junit.framework.TestCase;
+import java.util.HashSet;
+import java.util.Set;
 
 /**
  * This is a series of unit tests for the Utility class.  These tests must be locally
@@ -82,5 +82,34 @@ public class UtilityUnitTests extends AndroidTestCase {
         expect = null;
         name = Utility.FolderProperties.getInstance(context).getDisplayName(8);
         assertEquals(expect, name);
+    }
+
+    /**
+     * Confirm that all of the special icons are available and unique
+     */
+    public void testSpecialIcons() {
+        Utility.FolderProperties fp = Utility.FolderProperties.getInstance(mContext);
+
+        // Make sure they're available
+        Drawable inbox = fp.getIconIds(Mailbox.TYPE_INBOX);
+        Drawable mail = fp.getIconIds(Mailbox.TYPE_MAIL);
+        Drawable parent = fp.getIconIds(Mailbox.TYPE_PARENT);
+        Drawable drafts = fp.getIconIds(Mailbox.TYPE_DRAFTS);
+        Drawable outbox = fp.getIconIds(Mailbox.TYPE_OUTBOX);
+        Drawable sent = fp.getIconIds(Mailbox.TYPE_SENT);
+        Drawable trash = fp.getIconIds(Mailbox.TYPE_TRASH);
+        Drawable junk = fp.getIconIds(Mailbox.TYPE_JUNK);
+
+        // Make sure they're unique
+        Set<Drawable> set = new HashSet<Drawable>();
+        set.add(inbox);
+        set.add(mail);
+        set.add(parent);
+        set.add(drafts);
+        set.add(outbox);
+        set.add(sent);
+        set.add(trash);
+        set.add(junk);
+        assertEquals(8, set.size());
     }
 }
