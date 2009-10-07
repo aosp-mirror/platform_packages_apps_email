@@ -520,8 +520,8 @@ public class MessageView extends Activity implements OnClickListener {
 
         if (lookupUri != null) {
             // Found matching contact, trigger QuickContact
-            QuickContact.showQuickContact(this, mSenderPresenceView, lookupUri, QuickContact.MODE_MEDIUM,
-                    null);
+            QuickContact.showQuickContact(this, mSenderPresenceView, lookupUri,
+                    QuickContact.MODE_LARGE, null);
         } else {
             // No matching contact, ask user to create one
             final Uri mailUri = Uri.fromParts("mailto", address, null);
