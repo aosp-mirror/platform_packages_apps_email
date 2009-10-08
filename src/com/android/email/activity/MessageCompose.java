@@ -537,7 +537,7 @@ public class MessageCompose extends Activity implements OnClickListener, OnFocus
         protected Object[] doInBackground(Long... messageIds) {
             Message message = Message.restoreMessageWithId(MessageCompose.this, messageIds[0]);
             if (message == null) {
-                return null;
+                return new Object[] {null, null};
             }
             long accountId = message.mAccountKey;
             Account account = Account.restoreAccountWithId(MessageCompose.this, accountId);
@@ -561,7 +561,7 @@ public class MessageCompose extends Activity implements OnClickListener, OnFocus
                 }
             } catch (RuntimeException e) {
                 Log.d(Email.LOG_TAG, "Exception while loading message body: " + e);
-                return null;
+                return new Object[] {null, null};
             }
             return new Object[]{message, account};
         }
@@ -569,6 +569,12 @@ public class MessageCompose extends Activity implements OnClickListener, OnFocus
         @Override
         protected void onPostExecute(Object[] messageAndAccount) {
             if (messageAndAccount == null) {
+                return;
+            }
+
+            final Message message = (Message) messageAndAccount[0];
+            final Account account = (Account) messageAndAccount[1];
+            if (message == null && account == null) {
                 // Something unexpected happened:
                 // the message or the body couldn't be loaded by SQLite.
                 // Bail out.
@@ -577,8 +583,6 @@ public class MessageCompose extends Activity implements OnClickListener, OnFocus
                 finish();
                 return;
             }
-            final Message message = (Message) messageAndAccount[0];
-            final Account account = (Account) messageAndAccount[1];
 
             if (ACTION_EDIT_DRAFT.equals(mAction)) {
                 mDraft = message;
@@ -590,10 +594,11 @@ public class MessageCompose extends Activity implements OnClickListener, OnFocus
                     }
                     @Override
                     protected void onPostExecute(Attachment[] attachments) {
-                        if (attachments != null) {
-                            for (Attachment attachment : attachments) {
-                                addAttachment(attachment);
-                            }
+                        if (attachments == null) {
+                            return;
+                        }
+                        for (Attachment attachment : attachments) {
+                            addAttachment(attachment);
                         }
                     }
                 }.execute(message.mId);
@@ -831,6 +836,9 @@ public class MessageCompose extends Activity implements OnClickListener, OnFocus
 
             @Override
             protected void onPostExecute(Void dummy) {
+                if (isCancelled()) {
+                    return;
+                }
                 // Don't display the toast if the user is just changing the orientation
                 if (!send && (getChangingConfigurations() & ActivityInfo.CONFIG_ORIENTATION) == 0) {
                     Toast.makeText(MessageCompose.this, R.string.message_saved_toast,
