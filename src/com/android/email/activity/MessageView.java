@@ -982,6 +982,9 @@ public class MessageView extends Activity implements OnClickListener {
 
         @Override
         protected void onPostExecute(Integer icon) {
+            if (icon == null) {
+                return;
+            }
             updateSenderPresence(icon);
         }
     }
@@ -1055,6 +1058,9 @@ public class MessageView extends Activity implements OnClickListener {
 
         @Override
         protected void onPostExecute(Cursor cursor) {
+            if (cursor == null) {
+                return;
+            }
             // remove the reference to ourselves so another one can be launched
             MessageView.this.mLoadPrevNextTask = null;
 
@@ -1097,6 +1103,19 @@ public class MessageView extends Activity implements OnClickListener {
 
         @Override
         protected void onPostExecute(Message message) {
+            /* doInBackground() may return null result (due to restoreMessageWithId())
+             * and in that situation we want to Activity.finish().
+             *
+             * OTOH we don't want to Activity.finish() for isCancelled() because this
+             * would introduce a surprise side-effect to task cancellation: every task
+             * cancelation would also result in finish().
+             *
+             * Right now LoadMesageTask is cancelled not only from onDestroy(),
+             * and it would be a bug to also finish() the activity in that situation.
+             */
+            if (isCancelled()) {
+                return;
+            }
             if (message == null) {
                 if (mId != Long.MIN_VALUE) {
                     finish();
@@ -1166,6 +1185,9 @@ public class MessageView extends Activity implements OnClickListener {
 
         @Override
         protected void onPostExecute(Attachment[] attachments) {
+            if (attachments == null) {
+                return;
+            }
             boolean htmlChanged = false;
             for (Attachment attachment : attachments) {
                 if (mHtmlText != null && attachment.mContentId != null
