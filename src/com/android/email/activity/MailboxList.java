@@ -102,6 +102,7 @@ public class MailboxList extends ListActivity implements OnItemClickListener, On
     // DB access
     private long mAccountId;
     private LoadMailboxesTask mLoadMailboxesTask;
+    private AsyncTask mLoadAccountNameTask;
 
     /**
      * Open a specific account.
@@ -147,7 +148,7 @@ public class MailboxList extends ListActivity implements OnItemClickListener, On
         ((TextView)findViewById(R.id.title_left_text)).setText(R.string.mailbox_list_title);
 
         // Go to the database for the account name
-        new AsyncTask<Void, Void, String>() {
+        mLoadAccountNameTask = new AsyncTask<Void, Void, String>() {
             @Override
             protected String doInBackground(Void... params) {
                 String result = null;
@@ -166,6 +167,13 @@ public class MailboxList extends ListActivity implements OnItemClickListener, On
  
             @Override
             protected void onPostExecute(String result) {
+                /* doInBackground() returns null if the account name can't be retrieved from DB.
+                 * so we can't use null test for cancellation, instead use isCancelled().
+                 */
+                if (isCancelled()) {
+                    return;
+                }
+                // result is null if account name can't be retrieved or query exception
                 if (result == null) {
                     // something is wrong with this account
                     finish();
@@ -198,6 +206,11 @@ public class MailboxList extends ListActivity implements OnItemClickListener, On
                 mLoadMailboxesTask.getStatus() != LoadMailboxesTask.Status.FINISHED) {
             mLoadMailboxesTask.cancel(true);
             mLoadMailboxesTask = null;
+        }
+        if (mLoadAccountNameTask != null &&
+                mLoadAccountNameTask.getStatus() != LoadMailboxesTask.Status.FINISHED) {
+            mLoadAccountNameTask.cancel(true);
+            mLoadAccountNameTask = null;
         }
     }
 
@@ -331,7 +344,7 @@ public class MailboxList extends ListActivity implements OnItemClickListener, On
 
         @Override
         protected void onPostExecute(Cursor cursor) {
-            if (cursor.isClosed()) {
+            if (cursor == null || cursor.isClosed()) {
                 return;
             }
             MailboxList.this.mListAdapter.changeCursor(cursor);
