@@ -1285,13 +1285,16 @@ public class SyncManager extends Service implements Runnable {
         synchronized (sSyncToken) {
             Account acct = Account.restoreAccountWithId(this, m.mAccountKey);
             if (acct != null) {
-                AbstractSyncService service;
-                service = new EasSyncService(this, m);
-                service.mSyncReason = reason;
-                if (req != null) {
-                    service.addPartRequest(req);
+                // Always make sure there's not a running instance of this service
+                AbstractSyncService service = mServiceMap.get(m.mId);
+                if (service == null) {
+                    service = new EasSyncService(this, m);
+                    service.mSyncReason = reason;
+                    if (req != null) {
+                        service.addPartRequest(req);
+                    }
+                    startService(service, m);
                 }
-                startService(service, m);
             }
         }
     }
@@ -1480,18 +1483,18 @@ public class SyncManager extends Service implements Runnable {
                     deletedMailboxes.add(mailboxId);
                 }
             }
-        }
-        // If so, stop them or remove them from the map
-        for (Long mailboxId: deletedMailboxes) {
-            AbstractSyncService svc = mServiceMap.get(mailboxId);
-            if (svc != null) {
-                boolean alive = svc.mThread.isAlive();
-                log("Deleted mailbox: " + svc.mMailboxName);
-                if (alive) {
-                    stopManualSync(mailboxId);
-                } else {
-                    log("Removing from serviceMap");
-                    releaseMailbox(mailboxId);
+            // If so, stop them or remove them from the map
+            for (Long mailboxId: deletedMailboxes) {
+                AbstractSyncService svc = mServiceMap.get(mailboxId);
+                if (svc != null) {
+                    boolean alive = svc.mThread.isAlive();
+                    log("Deleted mailbox: " + svc.mMailboxName);
+                    if (alive) {
+                        stopManualSync(mailboxId);
+                    } else {
+                        log("Removing from serviceMap");
+                        releaseMailbox(mailboxId);
+                    }
                 }
             }
         }
@@ -1507,7 +1510,10 @@ public class SyncManager extends Service implements Runnable {
         try {
             while (c.moveToNext()) {
                 long mid = c.getLong(Mailbox.CONTENT_ID_COLUMN);
-                AbstractSyncService service = mServiceMap.get(mid);
+                AbstractSyncService service = null;
+                synchronized (sSyncToken) {
+                    service = mServiceMap.get(mid);
+                }
                 if (service == null) {
                     // Check whether we're in a hold (temporary or permanent)
                     SyncError syncError = mSyncErrorMap.get(mid);
