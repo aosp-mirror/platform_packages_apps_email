@@ -292,6 +292,11 @@ public class SyncManager extends Service implements Runnable {
                     cv, WHERE_MAILBOX_KEY, new String[] {Long.toString(mailboxId)});
 
                 kick("start outbox");
+                // Outbox can't be synced in EAS
+                return;
+            } else if (m.mType == Mailbox.TYPE_DRAFTS) {
+                // Drafts can't be synced in EAS
+                return;
             }
             startManualSync(mailboxId, SyncManager.SYNC_SERVICE_START_SYNC, null);
         }
@@ -1139,6 +1144,11 @@ public class SyncManager extends Service implements Runnable {
             if (service != null) {
                 Mailbox m = Mailbox.restoreMailboxWithId(INSTANCE, id);
                 if (m != null) {
+                    // We ignore drafts completely (doesn't sync).  Changes in Outbox are handled
+                    // in the checkMailboxes loop, so we can ignore these pings.
+                    if (m.mType == Mailbox.TYPE_DRAFTS || m.mType == Mailbox.TYPE_OUTBOX) {
+                        return;
+                    }
                     service.mAccount = Account.restoreAccountWithId(INSTANCE, m.mAccountKey);
                     service.mMailbox = m;
                     service.ping();
@@ -1623,6 +1633,12 @@ public class SyncManager extends Service implements Runnable {
 
     static public void serviceRequest(long mailboxId, long ms, int reason) {
         if (INSTANCE == null) return;
+        Mailbox m = Mailbox.restoreMailboxWithId(INSTANCE, mailboxId);
+        // Never allow manual start of Drafts or Outbox via serviceRequest
+        if (m == null || m.mType == Mailbox.TYPE_DRAFTS || m.mType == Mailbox.TYPE_OUTBOX) {
+            INSTANCE.log("Ignoring serviceRequest for drafts/outbox");
+            return;
+        }
         try {
             AbstractSyncService service = INSTANCE.mServiceMap.get(mailboxId);
             if (service != null) {
