@@ -1215,6 +1215,9 @@ public class MessageList extends ListActivity implements OnItemClickListener, On
                     break;
                 case MSG_REQUERY_LIST:
                     mListAdapter.doRequery();
+                    if (mMultiSelectPanel.getVisibility() == View.VISIBLE) {
+                        updateFooterButtonNames();
+                    }
                     break;
                 default:
                     super.handleMessage(msg);
