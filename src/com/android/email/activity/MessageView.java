@@ -816,8 +816,8 @@ public class MessageView extends Activity implements OnClickListener {
                 hasPrev = !cursor.isFirst();
                 hasNext = !cursor.isLast();
             }
-            mPrevious.setVisibility(hasPrev ? View.VISIBLE : View.GONE);
-            mNext.setVisibility(hasNext ? View.VISIBLE : View.GONE);
+            mPrevious.setVisibility(hasPrev ? View.VISIBLE : View.INVISIBLE);
+            mNext.setVisibility(hasNext ? View.VISIBLE : View.INVISIBLE);
         }
     }
 
