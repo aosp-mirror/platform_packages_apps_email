@@ -111,7 +111,6 @@ public class EasSyncService extends AbstractSyncService {
     static private final int PING_HEARTBEAT_INCREMENT = 3*PING_MINUTES;
     static private final int PING_FORCE_HEARTBEAT = 2*PING_MINUTES;
 
-    static private final int PROTOCOL_PING_STATUS_UNAVAILABLE = -1;
     static private final int PROTOCOL_PING_STATUS_COMPLETED = 1;
 
     // Fallbacks (in minutes) for ping loop failures
