@@ -52,6 +52,12 @@ public class EasOutboxService extends EasSyncService {
         new String[] {BodyColumns.SOURCE_MESSAGE_KEY};
     public static final String WHERE_MESSAGE_KEY = Body.MESSAGE_KEY + "=?";
 
+    // This needs to be long enough to send the longest reasonable message, without being so long
+    // as to effectively "hang" sending of mail.  The standard 30 second timeout isn't long enough
+    // for pictures and the like.  For now, we'll use 15 minutes, in the knowledge that any socket
+    // failure would probably generate an Exception before timing out anyway
+    public static final int SEND_MAIL_TIMEOUT = 15*MINUTES;
+
     public EasOutboxService(Context _context, Mailbox _mailbox) {
         super(_context, _mailbox);
     }
@@ -129,7 +135,7 @@ public class EasOutboxService extends EasSyncService {
                 cmd += "&ItemId=" + itemId + "&CollectionId=" + collectionId + "&SaveInSent=T";
             }
             userLog("Send cmd: " + cmd);
-            HttpResponse resp = sendHttpClientPost(cmd, inputEntity);
+            HttpResponse resp = sendHttpClientPost(cmd, inputEntity, SEND_MAIL_TIMEOUT);
 
             inputStream.close();
             int code = resp.getStatusLine().getStatusCode();
@@ -167,7 +173,6 @@ public class EasOutboxService extends EasSyncService {
     @Override
     public void run() {
         setupService();
-
         File cacheDir = mContext.getCacheDir();
         try {
             mDeviceId = SyncManager.getDeviceId();
