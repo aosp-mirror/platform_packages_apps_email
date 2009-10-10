@@ -1628,6 +1628,15 @@ public class ContactsSyncAdapter extends AbstractSyncAdapter {
         }
     }
 
+    private void sendPhoto(Serializer s, ContentValues cv) throws IOException {
+        if (cv.containsKey(Photo.PHOTO)) {
+            byte[] bytes = cv.getAsByteArray(Photo.PHOTO);
+            byte[] encodedBytes = Base64.encodeBase64(bytes);
+            String pic = new String(encodedBytes);
+            s.data(Tags.CONTACTS_PICTURE, pic);
+        }
+    }
+
     private void sendOrganization(Serializer s, ContentValues cv) throws IOException {
         if (cv.containsKey(Organization.TITLE)) {
             s.data(Tags.CONTACTS_JOB_TITLE, cv.getAsString(Organization.TITLE));
@@ -1854,8 +1863,7 @@ public class ContactsSyncAdapter extends AbstractSyncAdapter {
                         } else if (mimeType.equals(Note.CONTENT_ITEM_TYPE)) {
                             sendNote(s, cv);
                         } else if (mimeType.equals(Photo.CONTENT_ITEM_TYPE)) {
-                            // For now, the user can change the photo, but the change won't be
-                            // uploaded.
+                            sendPhoto(s, cv);
                         } else {
                             userLog("Contacts upsync, unknown data: ", mimeType);
                         }
