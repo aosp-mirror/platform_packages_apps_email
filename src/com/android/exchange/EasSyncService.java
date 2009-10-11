@@ -414,6 +414,7 @@ public class EasSyncService extends AbstractSyncService {
     protected HttpResponse sendHttpClientPost(String cmd, HttpEntity entity, int timeout)
             throws IOException {
         HttpClient client = getHttpClient(timeout);
+        boolean sleepAllowed = cmd.equals(PING_COMMAND);
 
         // Split the mail sending commands
         String extra = null;
@@ -438,13 +439,17 @@ public class EasSyncService extends AbstractSyncService {
         method.setEntity(entity);
         synchronized(getSynchronizer()) {
             mPendingPost = method;
-            SyncManager.runAsleep(mMailboxId, timeout+(10*SECONDS));
+            if (sleepAllowed) {
+                SyncManager.runAsleep(mMailboxId, timeout+(10*SECONDS));
+            }
         }
         try {
             return client.execute(method);
         } finally {
             synchronized(getSynchronizer()) {
-                SyncManager.runAwake(mMailboxId);
+                if (sleepAllowed) {
+                    SyncManager.runAwake(mMailboxId);
+                }
                 mPendingPost = null;
             }
         }
