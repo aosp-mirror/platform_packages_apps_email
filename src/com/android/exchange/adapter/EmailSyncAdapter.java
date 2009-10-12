@@ -444,9 +444,13 @@ public class EmailSyncAdapter extends AbstractSyncAdapter {
                                 .build());
                 }
             }
+
+            // We only want to update the sync key here
+            ContentValues mailboxValues = new ContentValues();
+            mailboxValues.put(Mailbox.SYNC_KEY, mMailbox.mSyncKey);
             ops.add(ContentProviderOperation.newUpdate(
-                    ContentUris.withAppendedId(Mailbox.CONTENT_URI, mMailbox.mId)).withValues(
-                    mMailbox.toContentValues()).build());
+                    ContentUris.withAppendedId(Mailbox.CONTENT_URI, mMailbox.mId))
+                        .withValues(mailboxValues).build());
 
             addCleanupOps(ops);
 

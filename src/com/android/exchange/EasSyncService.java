@@ -86,8 +86,6 @@ public class EasSyncService extends AbstractSyncService {
     private static final String WHERE_PUSH_HOLD_NOT_ACCOUNT_MAILBOX =
         MailboxColumns.ACCOUNT_KEY + "=? and " + MailboxColumns.SYNC_INTERVAL +
         '=' + Mailbox.CHECK_INTERVAL_PUSH_HOLD;
-    private static final String[] SYNC_STATUS_PROJECTION =
-        new String[] {MailboxColumns.ID, MailboxColumns.SYNC_STATUS};
     static private final int CHUNK_SIZE = 16*1024;
 
     static private final String PING_COMMAND = "Ping";
@@ -113,8 +111,8 @@ public class EasSyncService extends AbstractSyncService {
     static private final int PING_HEARTBEAT_INCREMENT = 3*PING_MINUTES;
     static private final int PING_FORCE_HEARTBEAT = 2*PING_MINUTES;
 
+    static private final int PROTOCOL_PING_STATUS_UNAVAILABLE = -1;
     static private final int PROTOCOL_PING_STATUS_COMPLETED = 1;
-    static private final int PROTOCOL_PING_STATUS_CHANGES_FOUND = 2;
 
     // Fallbacks (in minutes) for ping loop failures
     static private final int MAX_PING_FAILURES = 1;
@@ -432,7 +430,7 @@ public class EasSyncService extends AbstractSyncService {
         method.setEntity(entity);
         synchronized(getSynchronizer()) {
             mPendingPost = method;
-            SyncManager.runAsleep(mMailboxId, (timeout+10)*SECONDS);
+            SyncManager.runAsleep(mMailboxId, timeout+(10*SECONDS));
         }
         try {
             return client.execute(method);
@@ -624,56 +622,6 @@ public class EasSyncService extends AbstractSyncService {
         SyncManager.kick("push fallback");
     }
 
-    /**
-     * Check the boxes reporting changes to see if there really were any...
-     * We do this because bugs in various Exchange servers can put us into a looping
-     * behavior by continually reporting changes in a mailbox, even when there aren't any.
-     *
-     * This behavior is seemingly random, and therefore we must code defensively by
-     * backing off of push behavior when it is detected.
-     *
-     * One known cause, on certain Exchange 2003 servers, is acknowledged by Microsoft, and the
-     * server hotfix for this case can be found at http://support.microsoft.com/kb/923282
-     */
-
-    void checkPingErrors(HashMap<String, Integer> errorMap) {
-        mBindArguments[0] = Long.toString(mAccount.mId);
-        for (String serverId: mPingChangeList) {
-            // Find the id and sync status for each box
-            mBindArguments[1] = serverId;
-            Cursor c = mContentResolver.query(Mailbox.CONTENT_URI, SYNC_STATUS_PROJECTION,
-                    WHERE_ACCOUNT_KEY_AND_SERVER_ID, mBindArguments, null);
-            try {
-                if (c.moveToFirst()) {
-                    String status = c.getString(1);
-                    int type = SyncManager.getStatusType(status);
-                    // This check should always be true...
-                    if (type == SyncManager.SYNC_PING) {
-                        int changeCount = SyncManager.getStatusChangeCount(status);
-                        if (changeCount > 0) {
-                            errorMap.remove(serverId);
-                        } else if (changeCount == 0) {
-                            // This means that a ping reported changes in error; we keep a count
-                            // of consecutive errors of this kind
-                            Integer failures = errorMap.get(serverId);
-                            if (failures == null) {
-                                errorMap.put(serverId, 1);
-                            } else if (failures > MAX_PING_FAILURES) {
-                                // We'll back off of push for this box
-                                pushFallback(c.getLong(0));
-                                return;
-                            } else {
-                                errorMap.put(serverId, failures + 1);
-                            }
-                        }
-                    }
-                }
-            } finally {
-                c.close();
-            }
-        }
-    }
-
     void runPingLoop() throws IOException, StaleFolderListException {
         int pingHeartbeat = mPingHeartbeat;
         userLog("runPingLoop");
@@ -683,7 +631,7 @@ public class EasSyncService extends AbstractSyncService {
         ArrayList<String> readyMailboxes = new ArrayList<String>();
         ArrayList<String> notReadyMailboxes = new ArrayList<String>();
         int pingWaitCount = 0;
-
+        
         while ((System.currentTimeMillis() < endTime) && !mStop) {
             // Count of pushable mailboxes
             int pushCount = 0;
@@ -789,10 +737,10 @@ public class EasSyncService extends AbstractSyncService {
                         int len = (int)e.getContentLength();
                         InputStream is = res.getEntity().getContent();
                         if (len > 0) {
-                            int status = parsePingResult(is, mContentResolver);
+                            int pingResult = parsePingResult(is, mContentResolver, pingErrorMap);
                             // If our ping completed (status = 1), and we weren't forced and we're
                             // not at the maximum, try increasing timeout by two minutes
-                            if (status == PROTOCOL_PING_STATUS_COMPLETED && !forcePing) {
+                            if (pingResult == PROTOCOL_PING_STATUS_COMPLETED && !forcePing) {
                                 if (pingHeartbeat > mPingHighWaterMark) {
                                     mPingHighWaterMark = pingHeartbeat;
                                     userLog("Setting high water mark at: ", mPingHighWaterMark);
@@ -805,8 +753,6 @@ public class EasSyncService extends AbstractSyncService {
                                     }
                                     userLog("Increasing ping heartbeat to ", pingHeartbeat, "s");
                                 }
-                            } else if (status == PROTOCOL_PING_STATUS_CHANGES_FOUND) {
-                                checkPingErrors(pingErrorMap);
                             }
                         } else {
                             userLog("Ping returned empty result; throwing IOException");
@@ -883,7 +829,8 @@ public class EasSyncService extends AbstractSyncService {
         }
     }
 
-    private int parsePingResult(InputStream is, ContentResolver cr)
+    private int parsePingResult(InputStream is, ContentResolver cr,
+            HashMap<String, Integer> errorMap)
         throws IOException, StaleFolderListException {
         PingParser pp = new PingParser(is, this);
         if (pp.parse()) {
@@ -897,6 +844,49 @@ public class EasSyncService extends AbstractSyncService {
                         WHERE_ACCOUNT_KEY_AND_SERVER_ID, mBindArguments, null);
                 try {
                     if (c.moveToFirst()) {
+
+                        /**
+                         * Check the boxes reporting changes to see if there really were any...
+                         * We do this because bugs in various Exchange servers can put us into a
+                         * looping behavior by continually reporting changes in a mailbox, even when
+                         * there aren't any.
+                         *
+                         * This behavior is seemingly random, and therefore we must code defensively
+                         * by backing off of push behavior when it is detected.
+                         *
+                         * One known cause, on certain Exchange 2003 servers, is acknowledged by
+                         * Microsoft, and the server hotfix for this case can be found at
+                         * http://support.microsoft.com/kb/923282
+                         */
+
+                        // Check the status of the last sync
+                        String status = c.getString(Mailbox.CONTENT_SYNC_STATUS_COLUMN);
+                        int type = SyncManager.getStatusType(status);
+                        // This check should always be true...
+                        if (type == SyncManager.SYNC_PING) {
+                            int changeCount = SyncManager.getStatusChangeCount(status);
+                            if (changeCount > 0) {
+                                errorMap.remove(serverId);
+                            } else if (changeCount == 0) {
+                                // This means that a ping reported changes in error; we keep a count
+                                // of consecutive errors of this kind
+                                String name = c.getString(Mailbox.CONTENT_DISPLAY_NAME_COLUMN);
+                                Integer failures = errorMap.get(serverId);
+                                if (failures == null) {
+                                    userLog("Last ping reported changes in error for: ", name);
+                                    errorMap.put(serverId, 1);
+                                } else if (failures > MAX_PING_FAILURES) {
+                                    // We'll back off of push for this box
+                                    pushFallback(c.getLong(Mailbox.CONTENT_ID_COLUMN));
+                                    continue;
+                                } else {
+                                    userLog("Last ping reported changes in error for: ", name);
+                                    errorMap.put(serverId, failures + 1);
+                                }
+                            }
+                        }
+
+                        // If there were no problems with previous sync, we'll start another one
                         SyncManager.startManualSync(c.getLong(Mailbox.CONTENT_ID_COLUMN),
                                 SyncManager.SYNC_PING, null);
                     }
@@ -975,7 +965,7 @@ public class EasSyncService extends AbstractSyncService {
             Serializer s = new Serializer();
             String className = target.getCollectionName();
             String syncKey = target.getSyncKey();
-            userLog("Sending ", className, " syncKey: ", syncKey);
+            userLog("sync, sending ", className, " syncKey: ", syncKey);
             s.start(Tags.SYNC_SYNC)
                 .start(Tags.SYNC_COLLECTIONS)
                 .start(Tags.SYNC_COLLECTION)
@@ -1022,6 +1012,8 @@ public class EasSyncService extends AbstractSyncService {
                 if (is != null) {
                     moreAvailable = target.parse(is);
                     target.cleanup();
+                } else {
+                    userLog("Empty input stream in sync command response");
                 }
             } else {
                 userLog("Sync response error: ", code);
@@ -1097,7 +1089,7 @@ public class EasSyncService extends AbstractSyncService {
             userLog("Uncaught exception in EasSyncService", e);
         } finally {
             if (!mStop) {
-                userLog(mMailbox.mDisplayName, ": sync finished");
+                userLog("Sync finished");
                 SyncManager.done(this);
                 // If this is the account mailbox, wake up SyncManager
                 // Because this box has a "push" interval, it will be restarted immediately
@@ -1125,15 +1117,17 @@ public class EasSyncService extends AbstractSyncService {
                     // Don't care if this fails
                 }
 
-                // Save the sync time and status
-                ContentValues cv = new ContentValues();
-                cv.put(Mailbox.SYNC_TIME, System.currentTimeMillis());
-                String s = "S" + mSyncReason + ':' + status + ':' + mChangeCount;
-                cv.put(Mailbox.SYNC_STATUS, s);
-                mContentResolver.update(ContentUris
-                        .withAppendedId(Mailbox.CONTENT_URI, mMailboxId), cv, null, null);
+                if (mExitStatus == EXIT_DONE) {
+                    // Save the sync time and status
+                    ContentValues cv = new ContentValues();
+                    cv.put(Mailbox.SYNC_TIME, System.currentTimeMillis());
+                    String s = "S" + mSyncReason + ':' + status + ':' + mChangeCount;
+                    cv.put(Mailbox.SYNC_STATUS, s);
+                    mContentResolver.update(ContentUris.withAppendedId(Mailbox.CONTENT_URI,
+                            mMailboxId), cv, null, null);
+                }
             } else {
-                userLog(mMailbox.mDisplayName, ": stopped thread finished.");
+                userLog("Stopped sync finished.");
             }
 
             // Make sure SyncManager knows about this
