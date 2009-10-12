@@ -148,6 +148,8 @@ public class MessageCompose extends Activity implements OnClickListener, OnFocus
     private AsyncTask mSaveMessageTask;
     private AsyncTask mLoadMessageTask;
 
+    private EmailAddressAdapter mAddressAdapter;
+
     private Handler mHandler = new Handler() {
         @Override
         public void handleMessage(android.os.Message msg) {
@@ -375,6 +377,11 @@ public class MessageCompose extends Activity implements OnClickListener, OnFocus
         cancelTask(mLoadMessageTask);
         mLoadMessageTask = null;
         // don't cancel mSaveMessageTask, let it do its job to the end.
+
+        // Make sure the adapter doesn't leak its cursor
+        if (mAddressAdapter != null) {
+            mAddressAdapter.changeCursor(null);
+        }
     }
 
     /**
@@ -511,18 +518,18 @@ public class MessageCompose extends Activity implements OnClickListener, OnFocus
 
         mQuotedTextDelete.setOnClickListener(this);
 
-        EmailAddressAdapter addressAdapter = new EmailAddressAdapter(this);
+        mAddressAdapter = new EmailAddressAdapter(this);
         EmailAddressValidator addressValidator = new EmailAddressValidator();
 
-        mToView.setAdapter(addressAdapter);
+        mToView.setAdapter(mAddressAdapter);
         mToView.setTokenizer(new Rfc822Tokenizer());
         mToView.setValidator(addressValidator);
 
-        mCcView.setAdapter(addressAdapter);
+        mCcView.setAdapter(mAddressAdapter);
         mCcView.setTokenizer(new Rfc822Tokenizer());
         mCcView.setValidator(addressValidator);
 
-        mBccView.setAdapter(addressAdapter);
+        mBccView.setAdapter(mAddressAdapter);
         mBccView.setTokenizer(new Rfc822Tokenizer());
         mBccView.setValidator(addressValidator);
 
