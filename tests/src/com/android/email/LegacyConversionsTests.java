@@ -26,6 +26,7 @@ import com.android.email.mail.Part;
 import com.android.email.mail.Message.RecipientType;
 import com.android.email.mail.MessageTestUtils.MessageBuilder;
 import com.android.email.mail.MessageTestUtils.MultipartBuilder;
+import com.android.email.mail.internet.MimeBodyPart;
 import com.android.email.mail.internet.MimeHeader;
 import com.android.email.mail.internet.MimeMessage;
 import com.android.email.mail.internet.MimeUtility;
@@ -169,6 +170,26 @@ public class LegacyConversionsTests extends ProviderTestCase2<EmailProvider> {
         message.setInternalDate(new Date());
         message.setMessageId(MESSAGE_ID);
         return message;
+    }
+
+    /**
+     * Basic test of body parts conversion from Store message to Provider message.
+     * This tests that a null body part simply results in null text, and does not crash
+     * or return "null".
+     *
+     * TODO very incomplete, there are many permutations to be explored
+     */
+    public void testUpdateBodyFieldsNullText() throws MessagingException {
+        EmailContent.Body localBody = new EmailContent.Body();
+        EmailContent.Message localMessage = new EmailContent.Message();
+        ArrayList<Part> viewables = new ArrayList<Part>();
+        Part emptyTextPart = new MimeBodyPart(null, "text/plain");
+        viewables.add(emptyTextPart);
+
+        // a "null" body part of type text/plain should result in a null mTextContent
+        boolean result = LegacyConversions.updateBodyFields(localBody, localMessage, viewables);
+        assertTrue(result);
+        assertNull(localBody.mTextContent);
     }
 
     /**
