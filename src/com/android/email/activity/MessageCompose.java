@@ -21,6 +21,7 @@ import com.android.email.Email;
 import com.android.email.EmailAddressAdapter;
 import com.android.email.EmailAddressValidator;
 import com.android.email.R;
+import com.android.email.Utility;
 import com.android.email.mail.Address;
 import com.android.email.mail.MessagingException;
 import com.android.email.mail.internet.EmailHtmlUtil;
@@ -703,6 +704,9 @@ public class MessageCompose extends Activity implements OnClickListener, OnFocus
      * @param bodyText the body text.
      */
     private void updateMessage(Message message, Account account, boolean hasAttachments) {
+        if (message.mMessageId == null || message.mMessageId.length() == 0) {
+            message.mMessageId = Utility.generateMessageId();
+        }
         message.mTimeStamp = System.currentTimeMillis();
         message.mFrom = new Address(account.getEmailAddress(), account.getSenderName()).pack();
         message.mTo = getPackedAddresses(mToView);
