@@ -69,6 +69,15 @@ public class EmailAddressAdapter extends ResourceCursorAdapter {
     public Cursor runQueryOnBackgroundThread(CharSequence constraint) {
         String filter = constraint == null ? "" : constraint.toString();
         Uri uri = Uri.withAppendedPath(Email.CONTENT_FILTER_URI, Uri.encode(filter));
-        return mContentResolver.query(uri, PROJECTION, null, null, SORT_ORDER);
+        Cursor c = mContentResolver.query(uri, PROJECTION, null, null, SORT_ORDER);
+        // To prevent expensive execution in the UI thread
+        // Cursors get lazily executed, so if you don't call anything on the cursor before
+        // returning it from the background thread you'll have a complied program for the cursor,
+        // but it won't have been executed to generate the data yet. Often the execution is more
+        // expensive than the compilation...
+        if (c != null) {
+            c.getCount();
+        }
+        return c;
     }
 }
