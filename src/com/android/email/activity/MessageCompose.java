@@ -307,6 +307,7 @@ public class MessageCompose extends Activity implements OnClickListener, OnFocus
             initFromIntent(intent);
             mDraftNeedsSaving = true;
             mMessageLoaded = true;
+            mSourceMessageProcessed = true;
         } else {
             // Otherwise, handle the internal cases (Message Composer invoked from within app)
             long messageId = draftId != -1 ? draftId : intent.getLongExtra(EXTRA_MESSAGE_ID, -1);
@@ -317,6 +318,7 @@ public class MessageCompose extends Activity implements OnClickListener, OnFocus
                 // Since this is a new message, we don't need to call LoadMessageTask.
                 // But we DO need to set mMessageLoaded to indicate the message can be sent
                 mMessageLoaded = true;
+                mSourceMessageProcessed = true;
             }
         }
 
