@@ -62,6 +62,9 @@ public class EmailSyncAdapter extends AbstractSyncAdapter {
     private static final String[] UPDATES_PROJECTION =
         {MessageColumns.FLAG_READ, MessageColumns.MAILBOX_KEY, SyncColumns.SERVER_ID,
             MessageColumns.FLAG_FAVORITE};
+    private static final String[] MESSAGE_ID_SUBJECT_PROJECTION =
+        new String[] { Message.RECORD_ID, MessageColumns.SUBJECT };
+
 
     String[] bindArguments = new String[2];
 
@@ -317,11 +320,13 @@ public class EmailSyncAdapter extends AbstractSyncAdapter {
                     case Tags.SYNC_SERVER_ID:
                         String serverId = getValue();
                         // Find the message in this mailbox with the given serverId
-                        Cursor c = getServerIdCursor(serverId, Message.ID_COLUMN_PROJECTION);
+                        Cursor c = getServerIdCursor(serverId, MESSAGE_ID_SUBJECT_PROJECTION);
                         try {
                             if (c.moveToFirst()) {
-                                userLog("Deleting ", serverId);
-                                deletes.add(c.getLong(Message.ID_COLUMNS_ID_COLUMN));
+                                deletes.add(c.getLong(0));
+                                if (Eas.USER_LOG) {
+                                    userLog("Deleting ", serverId + ", " + c.getString(1));
+                                }
                             }
                         } finally {
                             c.close();
