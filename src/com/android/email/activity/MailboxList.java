@@ -47,7 +47,6 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.view.Window;
 import android.view.ContextMenu.ContextMenuInfo;
-import android.view.View.OnClickListener;
 import android.view.animation.AnimationUtils;
 import android.widget.AdapterView;
 import android.widget.CursorAdapter;
@@ -57,7 +56,7 @@ import android.widget.ProgressBar;
 import android.widget.TextView;
 import android.widget.AdapterView.OnItemClickListener;
 
-public class MailboxList extends ListActivity implements OnItemClickListener, OnClickListener {
+public class MailboxList extends ListActivity implements OnItemClickListener {
 
     // Intent extras (internal to this activity)
     private static final String EXTRA_ACCOUNT_ID = "com.android.email.activity._ACCOUNT_ID";
@@ -216,17 +215,6 @@ public class MailboxList extends ListActivity implements OnItemClickListener, On
 
     public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
         onOpenMailbox(id);
-    }
-
-    public void onClick(View v) {
-        switch (v.getId()) {
-            case R.id.button_compose:
-                onCompose();
-                break;
-            case R.id.button_refresh:
-                onRefresh(-1);
-                break;
-        }
     }
 
     @Override
