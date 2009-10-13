@@ -209,6 +209,12 @@ public class EasSyncService extends AbstractSyncService {
             userLog("Validation (OPTIONS) response: " + code);
             if (code == HttpStatus.SC_OK) {
                 // No exception means successful validation
+                Header commands = resp.getFirstHeader("MS-ASProtocolCommands");
+                Header versions = resp.getFirstHeader("ms-asprotocolversions");
+                if (commands == null || versions == null) {
+                    userLog("OPTIONS response without commands or versions; reporting I/O error");
+                    throw new MessagingException(MessagingException.IOERROR);
+                }
                 userLog("Validation successful");
                 return;
             }
