@@ -15,8 +15,13 @@
 -->
 <resources xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:xliff="urn:oasis:names:tc:xliff:document:1.2">
-    <string name="read_attachment_label" msgid="1300286008047638726">"ler anexos de e-mail"</string>
+    <!-- no translation found for read_attachment_label (1162255191991555285) -->
+    <skip />
     <string name="read_attachment_desc" msgid="7594746717616308643">"Permite que esta aplicação leia os seus anexos de e-mail."</string>
+    <!-- no translation found for permission_access_provider_label (4274353114641168675) -->
+    <skip />
+    <!-- no translation found for permission_access_provider_desc (1513898266889541617) -->
+    <skip />
     <string name="app_name" msgid="5815426892327290362">"E-mail"</string>
     <string name="accounts_title" msgid="6622149231904649210">"E-mail"</string>
     <string name="compose_title" msgid="427986915662706899">"Redigir"</string>
@@ -44,6 +49,8 @@
     <skip />
     <string name="refresh_action" msgid="5951383001436708175">"Actualizar"</string>
     <string name="add_account_action" msgid="8835736309476033727">"Adicionar conta"</string>
+    <!-- no translation found for deselect_all_action (253663239459688238) -->
+    <skip />
     <string name="compose_action" msgid="4045702519637388045">"Redigir"</string>
     <string name="search_action" msgid="6325101454876682308">"Pesquisar"</string>
     <string name="open_action" msgid="936766723989190816">"Abrir"</string>
@@ -64,6 +71,8 @@
     <string name="status_sending_messages_failed" msgid="7975009558738692407">"Tentar enviar as mensagens novamente"</string>
     <string name="status_loading_more_failed" msgid="1629172047185323">"Tentar novamente carregar mais mensagens"</string>
     <string name="notification_new_title" msgid="2200257910380529139">"Novo e-mail"</string>
+    <!-- no translation found for error_loading_message_body (2265140604109272914) -->
+    <skip />
   <plurals name="notification_new_one_account_fmt">
     <item quantity="one" msgid="3422945912787702191">"<xliff:g id="UNREAD_MESSAGE_COUNT">%d</xliff:g> não lidas (<xliff:g id="ACCOUNT">%s</xliff:g>)"</item>
     <item quantity="few" msgid="6543078667692990869">"<xliff:g id="UNREAD_MESSAGE_COUNT">%d</xliff:g> não lidas (<xliff:g id="ACCOUNT">%s</xliff:g>)"</item>
@@ -73,22 +82,25 @@
     <item quantity="few" msgid="1991747245324120305">"em <xliff:g id="NUMBER_ACCOUNTS">%d</xliff:g> contas"</item>
     <item quantity="other" msgid="2723797835410343458">"em <xliff:g id="NUMBER_ACCOUNTS">%d</xliff:g> contas"</item>
   </plurals>
-    <string name="special_mailbox_name_inbox" msgid="6549604962520041083">"A Receber"</string>
-    <string name="special_mailbox_display_name_inbox" msgid="5698658177687000229">"Caixa de entrada"</string>
-    <string name="special_mailbox_display_name_outbox" msgid="1884580655148530989">"Caixa de saída"</string>
-    <string name="special_mailbox_display_name_drafts" msgid="5919687165402808119">"Rascunhos"</string>
-    <string name="special_mailbox_display_name_trash" msgid="7042673673630272056">"Lixo"</string>
-    <string name="special_mailbox_display_name_sent" msgid="3952772015118466625">"Enviada"</string>
-    <string name="special_mailbox_display_name_junk" msgid="4269251004068675867">"Correio electrónico não solicitado"</string>
+    <!-- no translation found for mailbox_name_display_inbox (3542327124749861736) -->
+    <skip />
+    <!-- no translation found for mailbox_name_display_outbox (2826214174661417662) -->
+    <skip />
+    <!-- no translation found for mailbox_name_display_drafts (4868718300700514319) -->
+    <skip />
+    <!-- no translation found for mailbox_name_display_trash (9139069064580630647) -->
+    <skip />
+    <!-- no translation found for mailbox_name_display_sent (3426058998191869523) -->
+    <skip />
+    <!-- no translation found for mailbox_name_display_junk (9046762505977999288) -->
+    <skip />
     <string name="debug_version_fmt" msgid="6160213145745376955">"Versão: <xliff:g id="VERSION">%s</xliff:g>"</string>
-    <string name="debug_enable_debug_logging_label" msgid="2715742416050944774">"Activar registo de depuração extra?"</string>
-    <string name="debug_enable_sensitive_logging_label" msgid="9010809457943556126">"Activar o registo de depuração de informação sensível? (Pode mostrar palavras-passe nos registos)."</string>
-    <string name="debug_enable_exchange_logging_label" msgid="7152247709069992487">"Activar envio do registo de depuração?"</string>
-    <string name="debug_enable_exchange_file_logging_label" msgid="2264994303719050729">"Activar o registo de trocas do cartão SD?"</string>
     <string name="account_folder_list_separator_accounts" msgid="7568820182396669244">"Contas"</string>
-    <string name="account_folder_list_summary_inbox" msgid="7518263761297423255">"Caixa de entrada"</string>
+    <!-- no translation found for account_folder_list_summary_inbox (5790553737870057607) -->
+    <skip />
     <string name="account_folder_list_summary_unread" msgid="1200755158196002928">"Não lida"</string>
-    <string name="account_folder_list_summary_favorite" msgid="3476887425137403925">"Favorito"</string>
+    <!-- no translation found for account_folder_list_summary_starred (3134312269246375723) -->
+    <skip />
     <string name="account_folder_list_summary_drafts" msgid="5514845993247300437">"Rascunhos"</string>
     <string name="account_folder_list_summary_outbox" msgid="3059836696049399377">"Caixa de saída"</string>
     <string name="mailbox_list_title" msgid="8299608543467211089">"Caixa de correio"</string>
@@ -125,8 +137,12 @@
     <string name="add_contact_dlg_message_fmt" msgid="4470846346726847478">"Adicionar \"<xliff:g id="EMAIL">%s</xliff:g>\" aos contactos"</string>
     <string name="message_view_display_attachment_toast" msgid="6096315816776330821">"Este anexo não pode ser apresentado."</string>
     <string name="account_setup_basics_title" msgid="3969856368228940980">"Configurar e-mail"</string>
-    <string name="accounts_welcome" msgid="269104894968296884">"Bem-vindo à configuração do E-mail!"\n\n"Utilize qualquer conta de e-mail com o E-mail. As contas de e-mail mais populares podem ser configuradas em 2 passos!"</string>
-    <string name="account_setup_basics_instructions" msgid="2601015240806795328">"Para começar, escreva o endereço de e-mail e a palavra-passe:"</string>
+    <!-- no translation found for accounts_welcome (5901437782383439370) -->
+    <skip />
+    <!-- no translation found for accounts_welcome_exchange (4414121583987233733) -->
+    <skip />
+    <!-- no translation found for account_setup_basics_instructions (3126077748322815504) -->
+    <skip />
     <string name="account_setup_basics_email_hint" msgid="7414269319207261120">"Endereço de e-mail"</string>
     <string name="account_setup_basics_password_hint" msgid="410210049040536870">"Palavra-passe"</string>
     <string name="account_setup_basics_default_label" msgid="5924790142029806711">"Enviar e-mail a partir desta conta por predefinição."</string>
@@ -148,7 +164,8 @@
     <string name="account_setup_account_type_instructions" msgid="114515540798408760">"Que tipo de conta é este?"</string>
     <string name="account_setup_account_type_pop_action" msgid="3958144865724586762">"Conta POP3"</string>
     <string name="account_setup_account_type_imap_action" msgid="3471220237309488124">"Conta IMAP"</string>
-    <string name="account_setup_account_type_exchange_action" msgid="8193609147171666140">"Exchange/ActiveSync"</string>
+    <!-- no translation found for account_setup_account_type_exchange_action (7424283706321767987) -->
+    <skip />
     <string name="account_setup_incoming_title" msgid="6862032674547580337">"Definições do servidor de recepção"</string>
     <string name="account_setup_incoming_username_label" msgid="5700581386104070302">"Nome de utilizador"</string>
     <string name="account_setup_incoming_password_label" msgid="6365327603172559859">"Palavra-passe"</string>
@@ -157,13 +174,16 @@
     <string name="account_setup_incoming_port_label" msgid="8214738923690447796">"Porta"</string>
     <string name="account_setup_incoming_security_label" msgid="2110260791086007424">"Tipo de segurança"</string>
     <string name="account_setup_incoming_security_none_label" msgid="8300169413118264895">"Nenhum"</string>
-    <string name="account_setup_incoming_security_ssl_optional_label" msgid="8550650266852041870">"SSL (se disponível)"</string>
-    <string name="account_setup_incoming_security_ssl_label" msgid="1239685754472907538">"SSL (sempre)"</string>
-    <string name="account_setup_incoming_security_tls_optional_label" msgid="9140597901978722104">"TLS (se disponível)"</string>
-    <string name="account_setup_incoming_security_tls_label" msgid="8930532576790946912">"TLS (sempre)"</string>
+    <!-- no translation found for account_setup_incoming_security_ssl_trust_certificates_label (3581382268191377346) -->
+    <skip />
+    <!-- no translation found for account_setup_incoming_security_ssl_label (8886698397743061682) -->
+    <skip />
+    <!-- no translation found for account_setup_incoming_security_tls_trust_certificates_label (1089227022489257055) -->
+    <skip />
+    <!-- no translation found for account_setup_incoming_security_tls_label (8638006172590036487) -->
+    <skip />
     <string name="account_setup_incoming_delete_policy_label" msgid="9213590134693857912">"Eliminar e-mail do servidor"</string>
     <string name="account_setup_incoming_delete_policy_never_label" msgid="3222897501875871041">"Nunca"</string>
-    <string name="account_setup_incoming_delete_policy_7days_label" msgid="5091246829453195520">"Após 7 dias"</string>
     <string name="account_setup_incoming_delete_policy_delete_label" msgid="222216840911785631">"Quando elimino da pasta A Receber"</string>
     <string name="account_setup_incoming_imap_path_prefix_label" msgid="401167247072926810">"Prefixo de caminho IMAP"</string>
     <string name="account_setup_incoming_imap_path_prefix_hint" msgid="9190845919067906033">"Opcional"</string>
@@ -218,6 +238,8 @@
     <string name="account_settings_default_label" msgid="3575963379680943640">"Conta predefinida"</string>
     <string name="account_settings_default_summary" msgid="1531901438624688482">"Enviar e-mail a partir desta conta por predefinição"</string>
     <string name="account_settings_notify_label" msgid="1630001017303007974">"Notificações de e-mail"</string>
+    <!-- no translation found for account_settings_exchange_summary (8498451479029626317) -->
+    <skip />
     <string name="account_settings_notify_summary" msgid="6609224590300639887">"Notificar na barra de estado quando chegar e-mail"</string>
     <string name="account_settings_mail_check_frequency_label" msgid="2067835530563849675">"Frequência de verificação de e-mail"</string>
     <string name="account_settings_incoming_label" msgid="7858928031806297542">"Definições de recepção"</string>
@@ -240,6 +262,7 @@
     <string name="provider_note_yahoo_uk" msgid="2055976404478603298">"Antes de configurar esta conta de e-mail, visite o Web site do Yahoo! e active o acesso de e-mail POP3 para esta conta."</string>
     <string name="provider_note_live" msgid="3584841823811425060">"Apenas algumas contas \"Plus\" incluem acesso POP, permitindo a ligação deste programa. Se não conseguir iniciar sessão com o seu endereço de e-mail e a palavra-passe correctos, é possível que não tenha uma conta \"Plus\" paga. Inicie o browser para obter acesso a essas contas de correio."</string>
     <string name="provider_note_t_online" msgid="1973701903400232774">"Antes de configurar esta conta de e-mail, visite o Web site T-Online e crie uma palavra-passe para o acesso a e-mail POP3."</string>
-    <string name="exchange_name" msgid="4717956395304578039">"Exchange"</string>
+    <!-- no translation found for exchange_name (1190783774800310346) -->
+    <skip />
     <string name="system_account_create_failed" msgid="4917162302393971752">"O Gestor de Contas não conseguiu criar a Conta; tente novamente."</string>
 </resources>
