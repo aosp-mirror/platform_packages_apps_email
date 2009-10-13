@@ -909,6 +909,9 @@ public class MessageList extends ListActivity implements OnItemClickListener, On
 
         @Override
         protected void onPostExecute(Integer listFooterMode) {
+            if (listFooterMode == null) {
+                return;
+            }
             finishFooterView(listFooterMode);
         }
     }
@@ -1016,6 +1019,9 @@ public class MessageList extends ListActivity implements OnItemClickListener, On
 
         @Override
         protected void onPostExecute(Long mailboxId) {
+            if (mailboxId == null) {
+                return;
+            }
             if (mailboxId != Mailbox.NO_MAILBOX) {
                 mMailboxId = mailboxId;
                 mSetTitleTask = new SetTitleTask(mMailboxId);
@@ -1062,7 +1068,7 @@ public class MessageList extends ListActivity implements OnItemClickListener, On
 
         @Override
         protected void onPostExecute(Cursor cursor) {
-            if (cursor.isClosed()) {
+            if (cursor == null || cursor.isClosed()) {
                 return;
             }
             MessageList.this.mListAdapter.changeCursor(cursor);
@@ -1138,6 +1144,9 @@ public class MessageList extends ListActivity implements OnItemClickListener, On
 
         @Override
         protected void onPostExecute(String[] names) {
+            if (names == null) {
+                return;
+            }
             if (names[0] != null) {
                 mRightTitle.setText(names[0]);
             }
