@@ -56,7 +56,6 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.view.Window;
 import android.view.ContextMenu.ContextMenuInfo;
-import android.view.View.OnClickListener;
 import android.widget.AdapterView;
 import android.widget.CursorAdapter;
 import android.widget.ImageView;
@@ -66,8 +65,7 @@ import android.widget.TextView;
 import android.widget.Toast;
 import android.widget.AdapterView.OnItemClickListener;
 
-public class AccountFolderList extends ListActivity
-        implements OnItemClickListener, OnClickListener {
+public class AccountFolderList extends ListActivity implements OnItemClickListener {
     private static final int DIALOG_REMOVE_ACCOUNT = 1;
     /**
      * Key codes used to open a debug settings screen.
@@ -228,17 +226,6 @@ public class AccountFolderList extends ListActivity
                 mLoadAccountsTask.getStatus() != LoadAccountsTask.Status.FINISHED) {
             mLoadAccountsTask.cancel(true);
             mLoadAccountsTask = null;
-        }
-    }
-
-    public void onClick(View v) {
-        switch (v.getId()) {
-            case R.id.button_compose:
-                onCompose(-1);
-                break;
-            case R.id.button_refresh:
-                onRefresh(-1);
-                break;
         }
     }
 
