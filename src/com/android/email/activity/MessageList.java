@@ -752,6 +752,9 @@ public class MessageList extends ListActivity implements OnItemClickListener, On
      */
     private boolean testMultiple(Set<Long> selectedSet, int column_id, boolean defaultflag) {
         Cursor c = mListAdapter.getCursor();
+        if (c == null || c.isClosed()) {
+            return false;
+        }
         c.moveToPosition(-1);
         while (c.moveToNext()) {
             long id = c.getInt(MessageListAdapter.COLUMN_ID);
