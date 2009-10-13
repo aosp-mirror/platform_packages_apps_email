@@ -15,218 +15,254 @@
 -->
 <resources xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:xliff="urn:oasis:names:tc:xliff:document:1.2">
-    <string name="read_attachment_label">"læs vedhæftede filer i e-mails"</string>
-    <string name="read_attachment_desc">"Tillader dette program at læse dine E-mail-vedhæftninger."</string>
-    <string name="app_name">"E-mail"</string>
-    <string name="accounts_title">"Dine konti"</string>
-    <string name="compose_title">"Skriv"</string>
-    <string name="debug_title">"Fejlretning"</string>
-    <string name="next_action">"Næste"</string>
-    <string name="okay_action">"OK"</string>
-    <string name="cancel_action">"Annuller"</string>
-    <string name="send_action">"Send"</string>
-    <string name="reply_action">"Svar"</string>
-    <string name="reply_all_action">"Svar alle"</string>
-    <string name="delete_action">"Slet"</string>
-    <string name="forward_action">"Videresend"</string>
-    <string name="done_action">"Færdig"</string>
-    <string name="discard_action">"Kassér"</string>
-    <string name="save_draft_action">"Gem som kladde"</string>
-    <string name="refresh_action">"Opdater"</string>
-    <string name="add_account_action">"Tilføj konto"</string>
-    <string name="compose_action">"Skriv"</string>
-    <string name="search_action">"Søg"</string>
-    <string name="open_action">"Åbn"</string>
-    <string name="account_settings_action">"Kontoindstillinger"</string>
-    <string name="remove_account_action">"Fjern konto"</string>
-    <string name="accounts_action">"Konti"</string>
-    <string name="mark_as_read_action">"Marker som læst"</string>
-    <string name="mark_as_unread_action">"Marker som ulæst"</string>
-    <string name="add_cc_bcc_action">"Tilføj Cc/Bcc"</string>
-    <string name="add_attachment_action">"Tilføj vedhæftet fil"</string>
-    <string name="dump_settings_action">"Kassér indstillinger"</string>
-    <!-- no translation found for choose_attachment_dialog_title (81937507117528954) -->
+    <!-- no translation found for read_attachment_label (1162255191991555285) -->
     <skip />
-    <string name="accounts_context_menu_title">"Kontovalgmuligheder"</string>
-    <string name="status_loading_more">"Indlæser beskeder ..."</string>
-    <!-- no translation found for status_sending_messages (3971880826111264523) -->
+    <string name="read_attachment_desc" msgid="7594746717616308643">"Tillader dette program at læse dine E-mail-vedhæftninger."</string>
+    <!-- no translation found for permission_access_provider_label (4274353114641168675) -->
     <skip />
-    <string name="status_network_error">"Forbindelsesfejl"</string>
-    <!-- no translation found for status_sending_messages_failed (7975009558738692407) -->
+    <!-- no translation found for permission_access_provider_desc (1513898266889541617) -->
     <skip />
-    <string name="status_loading_more_failed">"Prøv at indlæse beskeder igen"</string>
-    <string name="notification_new_title">"Ny e-mail"</string>
+    <string name="app_name" msgid="5815426892327290362">"E-mail"</string>
+    <string name="accounts_title" msgid="6622149231904649210">"E-mail"</string>
+    <string name="compose_title" msgid="427986915662706899">"Skriv"</string>
+    <string name="debug_title" msgid="5175710493691536719">"Fejlretning"</string>
+    <string name="next_action" msgid="3931301986364184415">"Næste"</string>
+    <string name="okay_action" msgid="8365197396795675617">"OK"</string>
+    <string name="cancel_action" msgid="6967435583794021865">"Annuller"</string>
+    <string name="send_action" msgid="1729766205562446418">"Send"</string>
+    <string name="reply_action" msgid="4262472229221507619">"Svar"</string>
+    <string name="reply_all_action" msgid="6192179825726332152">"Svar alle"</string>
+    <string name="delete_action" msgid="8421026208288857155">"Slet"</string>
+    <string name="forward_action" msgid="669174181042344116">"Videresend"</string>
+    <string name="done_action" msgid="7497990549515580249">"Færdig"</string>
+    <string name="discard_action" msgid="6532206074859505968">"Kassér"</string>
+    <string name="save_draft_action" msgid="812855865552028622">"Gem som kladde"</string>
+    <string name="read_unread_action" msgid="4721446664849165077">"Læst/ulæst"</string>
+    <!-- no translation found for read_action (4701484794504781686) -->
+    <skip />
+    <!-- no translation found for unread_action (6280399049357552826) -->
+    <skip />
+    <string name="favorite_action" msgid="2911296685862420689">"Favorit"</string>
+    <!-- no translation found for set_star_action (4660317166196258160) -->
+    <skip />
+    <!-- no translation found for remove_star_action (6689770999647007163) -->
+    <skip />
+    <string name="refresh_action" msgid="5951383001436708175">"Opdater"</string>
+    <string name="add_account_action" msgid="8835736309476033727">"Tilføj konto"</string>
+    <!-- no translation found for deselect_all_action (253663239459688238) -->
+    <skip />
+    <string name="compose_action" msgid="4045702519637388045">"Skriv"</string>
+    <string name="search_action" msgid="6325101454876682308">"Søg"</string>
+    <string name="open_action" msgid="936766723989190816">"Åbn"</string>
+    <string name="account_settings_action" msgid="4494079183315085171">"Kontoindstillinger"</string>
+    <string name="remove_account_action" msgid="3789169090601376209">"Fjern konto"</string>
+    <string name="folders_action" msgid="7502431531355227666">"Mapper"</string>
+    <string name="accounts_action" msgid="901105887272231493">"Konti"</string>
+    <string name="mark_as_read_action" msgid="5031651846998842419">"Marker som læst"</string>
+    <string name="mark_as_unread_action" msgid="3766298115778767554">"Marker som ulæst"</string>
+    <string name="add_cc_bcc_action" msgid="5569074812077509737">"Tilføj Cc/Bcc"</string>
+    <string name="add_attachment_action" msgid="2696013743130573897">"Tilføj vedhæftet fil"</string>
+    <string name="dump_settings_action" msgid="4478192525236169829">"Kassér indstillinger"</string>
+    <string name="choose_attachment_dialog_title" msgid="81937507117528954">"Vælg vedhæftet fil"</string>
+    <string name="accounts_context_menu_title" msgid="1053701760934475027">"Kontovalgmuligheder"</string>
+    <string name="status_loading_more" msgid="1580386959044617884">"Indlæser beskeder ..."</string>
+    <string name="status_sending_messages" msgid="3971880826111264523">"Sender beskeder ..."</string>
+    <string name="status_network_error" msgid="6045933332005067021">"Forbindelsesfejl"</string>
+    <string name="status_sending_messages_failed" msgid="7975009558738692407">"Prøv at sende beskeder igen"</string>
+    <string name="status_loading_more_failed" msgid="1629172047185323">"Prøv at indlæse beskeder igen"</string>
+    <string name="notification_new_title" msgid="2200257910380529139">"Ny e-mail"</string>
+    <!-- no translation found for error_loading_message_body (2265140604109272914) -->
+    <skip />
   <plurals name="notification_new_one_account_fmt">
-    <item quantity="one">"<xliff:g id="UNREAD_MESSAGE_COUNT">%d</xliff:g> ulæste (<xliff:g id="ACCOUNT">%s</xliff:g>)"</item>
-    <item quantity="few">"<xliff:g id="UNREAD_MESSAGE_COUNT">%d</xliff:g> ulæste (<xliff:g id="ACCOUNT">%s</xliff:g>)"</item>
-    <item quantity="other">"<xliff:g id="UNREAD_MESSAGE_COUNT">%d</xliff:g> ulæste (<xliff:g id="ACCOUNT">%s</xliff:g>)"</item>
+    <item quantity="one" msgid="3422945912787702191">"<xliff:g id="UNREAD_MESSAGE_COUNT">%d</xliff:g> ulæste (<xliff:g id="ACCOUNT">%s</xliff:g>)"</item>
+    <item quantity="few" msgid="6543078667692990869">"<xliff:g id="UNREAD_MESSAGE_COUNT">%d</xliff:g> ulæste (<xliff:g id="ACCOUNT">%s</xliff:g>)"</item>
+    <item quantity="other" msgid="6937673814351448076">"<xliff:g id="UNREAD_MESSAGE_COUNT">%d</xliff:g> ulæste (<xliff:g id="ACCOUNT">%s</xliff:g>)"</item>
   </plurals>
   <plurals name="notification_new_multi_account_fmt">
-    <item quantity="few">"i <xliff:g id="NUMBER_ACCOUNTS">%d</xliff:g> konti"</item>
-    <item quantity="other">"i <xliff:g id="NUMBER_ACCOUNTS">%d</xliff:g> konti"</item>
+    <item quantity="few" msgid="1991747245324120305">"i <xliff:g id="NUMBER_ACCOUNTS">%d</xliff:g> konti"</item>
+    <item quantity="other" msgid="2723797835410343458">"i <xliff:g id="NUMBER_ACCOUNTS">%d</xliff:g> konti"</item>
   </plurals>
-    <string name="special_mailbox_name_inbox">"Indbakke"</string>
-    <!-- no translation found for special_mailbox_display_name_outbox (1884580655148530989) -->
+    <!-- no translation found for mailbox_name_display_inbox (3542327124749861736) -->
     <skip />
-    <!-- no translation found for special_mailbox_display_name_drafts (5919687165402808119) -->
+    <!-- no translation found for mailbox_name_display_outbox (2826214174661417662) -->
     <skip />
-    <!-- no translation found for special_mailbox_display_name_trash (7042673673630272056) -->
+    <!-- no translation found for mailbox_name_display_drafts (4868718300700514319) -->
     <skip />
-    <!-- no translation found for special_mailbox_display_name_sent (3952772015118466625) -->
+    <!-- no translation found for mailbox_name_display_trash (9139069064580630647) -->
     <skip />
-    <string name="accounts_welcome">"Velkommen til E-mail-opsætning!"\n\n"Du kan bruge alle e-mail-konti med E-mail."\n\n"De mest populære e-mail-konti kan opsættes med 2 trin."</string>
-    <string name="debug_version_fmt">"Version: <xliff:g id="VERSION">%s</xliff:g>"</string>
-    <string name="debug_enable_debug_logging_label">"Aktiver ekstra fejlretningsregistrering?"</string>
-    <string name="debug_enable_sensitive_logging_label">"Aktiver fejlretningsregistrering af følsomme oplysninger? (Viser muligvis adgangskoder i logs)."</string>
-    <string name="message_list_load_more_messages_action">"Indlæs flere beskeder"</string>
-    <!-- no translation found for message_list_send_pending_messages_action (9100624762133992435) -->
+    <!-- no translation found for mailbox_name_display_sent (3426058998191869523) -->
     <skip />
-    <string name="message_compose_to_hint">"Til"</string>
-    <string name="message_compose_cc_hint">"Cc"</string>
-    <string name="message_compose_bcc_hint">"Bcc"</string>
-    <string name="message_compose_subject_hint">"Emne"</string>
-    <string name="message_compose_body_hint">"Skriv mail"</string>
-    <string name="message_compose_fwd_header_fmt">\n\n"-------- Oprindelig meddelelse --------"\n"Emne: <xliff:g id="SUBJECT">%s</xliff:g>"\n"Fra: <xliff:g id="SENDER">%s</xliff:g>"\n"Til: <xliff:g id="TO">%s</xliff:g>"\n"CC: <xliff:g id="CC_0">%s</xliff:g>"\n\n</string>
-    <string name="message_compose_reply_header_fmt">\n\n"<xliff:g id="SENDER">%s</xliff:g> skrev:"\n\n</string>
-    <string name="message_compose_quoted_text_label">"Citeret tekst"</string>
-    <string name="message_compose_error_no_recipients">"Du skal tilføje mindst en modtager."</string>
-    <string name="message_compose_attachments_skipped_toast">"Nogle vedhæftede filer kan ikke videresendes, fordi de ikke er blevet downloadet."</string>
-    <string name="message_compose_attachment_size">"Filen er for stor til at vedhæfte."</string>
-    <string name="message_view_to_label">"Til:"</string>
-    <string name="message_view_cc_label">"Cc:"</string>
-    <!-- no translation found for message_view_bcc_label (7577479221285310198) -->
+    <!-- no translation found for mailbox_name_display_junk (9046762505977999288) -->
     <skip />
-    <string name="message_view_attachment_view_action">"Åbn"</string>
-    <string name="message_view_attachment_download_action">"Gem"</string>
-    <string name="message_view_status_attachment_saved">"Vedhæftet fil er gemt til SD-kort som <xliff:g id="FILENAME">%s</xliff:g>."</string>
-    <string name="message_view_status_attachment_not_saved">"Den vedhæftede fil kunne ikke gemmes på SD-kortet."</string>
-    <string name="message_view_show_pictures_instructions">"Vælg \"Vis billeder\" for at vise indsatte billeder."</string>
-    <string name="message_view_show_pictures_action">"Vis billeder"</string>
-    <string name="message_view_fetching_attachment_toast">"Henter vedhæftet fil."</string>
-    <!-- no translation found for message_view_fetching_pictures_toast (922006271551499573) -->
+    <string name="debug_version_fmt" msgid="6160213145745376955">"Version: <xliff:g id="VERSION">%s</xliff:g>"</string>
+    <string name="account_folder_list_separator_accounts" msgid="7568820182396669244">"Konti"</string>
+    <!-- no translation found for account_folder_list_summary_inbox (5790553737870057607) -->
     <skip />
-    <!-- no translation found for message_view_fetching_attachment_progress (8238550182655758164) -->
+    <string name="account_folder_list_summary_unread" msgid="1200755158196002928">"Ulæste"</string>
+    <!-- no translation found for account_folder_list_summary_starred (3134312269246375723) -->
     <skip />
-    <string name="message_deleted_toast">"Besked slettet."</string>
-    <string name="message_discarded_toast">"Besked kasseret."</string>
-    <string name="message_saved_toast">"Beskeden er gemt som kladde."</string>
-    <string name="add_contact_dlg_title">"Tilføj kontaktperson"</string>
-    <string name="add_contact_dlg_message_fmt">"Føj \"<xliff:g id="EMAIL">%s</xliff:g>\" til kontaktpersoner"</string>
-    <string name="message_view_display_attachment_toast">"Denne vedhæftede fil kan ikke vises."</string>
-    <string name="account_setup_basics_title">"Opsæt e-mail"</string>
-    <string name="account_setup_basics_instructions">"Indtast din kontos e-mail-adresse"</string>
-    <string name="account_setup_basics_email_hint">"E-mail-adresse"</string>
-    <string name="account_setup_basics_password_hint">"Adgangskode"</string>
-    <string name="account_setup_basics_default_label">"Send e-mail fra denne konto som standard."</string>
-    <string name="account_setup_basics_manual_setup_action">"Manuel opsætning"</string>
-    <string name="account_setup_username_password_toast">"Indtast en gyldig e-mail-adresse og adgangskode."</string>
-    <string name="account_setup_check_settings_retr_info_msg">"Henter kontooplysninger ..."</string>
-    <string name="account_setup_check_settings_check_incoming_msg">"Kontrollerer indstillinger for indgående server ..."</string>
-    <string name="account_setup_check_settings_check_outgoing_msg">"Kontrollerer indstillinger for udgående server ..."</string>
-    <string name="account_setup_check_settings_canceling_msg">"Annullerer ..."</string>
-    <string name="account_setup_names_title">"Opsæt e-mail"</string>
-    <string name="account_setup_names_instructions">"Din konto er opsat, og der er e-mail på vej!"</string>
-    <string name="account_setup_names_account_name_label">"Giv kontoen et navn (valgfrit)"</string>
-    <string name="account_setup_names_user_name_label">"Dit navn (vist på udgående beskeder)"</string>
-    <string name="account_setup_account_type_title">"Tilføj ny e-mail-konto"</string>
-    <string name="account_setup_account_type_instructions">"Hvilken slags konto er dette?"</string>
-    <string name="account_setup_account_type_pop_action">"POP3-konto"</string>
-    <string name="account_setup_account_type_imap_action">"IMAP-konto"</string>
-    <!-- no translation found for account_setup_account_type_exchange_action (8193609147171666140) -->
+    <string name="account_folder_list_summary_drafts" msgid="5514845993247300437">"Kladder"</string>
+    <string name="account_folder_list_summary_outbox" msgid="3059836696049399377">"Udbakke"</string>
+    <string name="mailbox_list_title" msgid="8299608543467211089">"Postkasse"</string>
+    <string name="message_list_load_more_messages_action" msgid="7428302707908825692">"Indlæs flere beskeder"</string>
+    <string name="message_list_send_pending_messages_action" msgid="9100624762133992435">"Send udgående beskeder"</string>
+    <string name="message_list_title" msgid="6927798150197177235">"<xliff:g id="ACCOUNT">%s</xliff:g>: <xliff:g id="MAILBOX">%s</xliff:g>"</string>
+    <string name="message_compose_to_hint" msgid="2891895306418177013">"Til"</string>
+    <string name="message_compose_cc_hint" msgid="8481884461031434144">"Cc"</string>
+    <string name="message_compose_bcc_hint" msgid="9177337492358841680">"Bcc"</string>
+    <string name="message_compose_subject_hint" msgid="6993487234024160782">"Emne"</string>
+    <string name="message_compose_body_hint" msgid="7575406246484103697">"Skriv mail"</string>
+    <string name="message_compose_fwd_header_fmt" msgid="5181300290654579434">\n\n"-------- Oprindelig meddelelse --------"\n"Emne: <xliff:g id="SUBJECT">%s</xliff:g>"\n"Fra: <xliff:g id="SENDER">%s</xliff:g>"\n"Til: <xliff:g id="TO">%s</xliff:g>"\n"CC: <xliff:g id="CC_0">%s</xliff:g>"\n\n</string>
+    <string name="message_compose_reply_header_fmt" msgid="8815624773273454573">\n\n"<xliff:g id="SENDER">%s</xliff:g> skrev:"\n\n</string>
+    <string name="message_compose_quoted_text_label" msgid="5722467956990009520">"Citeret tekst"</string>
+    <string name="message_compose_error_no_recipients" msgid="4903715888250785486">"Du skal tilføje mindst en modtager."</string>
+    <string name="message_compose_error_invalid_email" msgid="1817633338629885643">"Nogle e-mail-adresser er ugyldige."</string>
+    <string name="message_compose_attachments_skipped_toast" msgid="5611815773808423460">"Nogle vedhæftede filer kan ikke videresendes, fordi de ikke er blevet downloadet."</string>
+    <string name="message_compose_attachment_size" msgid="4401081828287333647">"Filen er for stor til at vedhæfte."</string>
+    <string name="message_compose_display_name" msgid="6415258924917140704">"<xliff:g id="NAME">%1$s</xliff:g> og <xliff:g id="NUMBER">%2$d</xliff:g> andre"</string>
+    <string name="message_view_to_label" msgid="6485191743265527381">"Til:"</string>
+    <string name="message_view_cc_label" msgid="6322992216371163122">"Cc:"</string>
+    <string name="message_view_attachment_view_action" msgid="5353550848340829134">"Åbn"</string>
+    <string name="message_view_attachment_download_action" msgid="7552530274014544406">"Gem"</string>
+    <string name="message_view_status_attachment_saved" msgid="2802843795251453632">"Vedhæftet fil er gemt til SD-kort som <xliff:g id="FILENAME">%s</xliff:g>."</string>
+    <string name="message_view_status_attachment_not_saved" msgid="5039599647697750874">"Den vedhæftede fil kunne ikke gemmes på SD-kortet."</string>
+    <string name="message_view_show_pictures_instructions" msgid="1156525837417031085">"Vælg \"Vis billeder\" for at vise indsatte billeder."</string>
+    <string name="message_view_show_pictures_action" msgid="5059936981743072545">"Vis billeder"</string>
+    <string name="message_view_fetching_attachment_toast" msgid="8812363375155391184">"Henter vedhæftet fil."</string>
+    <string name="message_view_fetching_attachment_progress" msgid="8238550182655758164">"Henter vedhæftet fil <xliff:g id="FILENAME">%s</xliff:g>"</string>
+    <string name="message_deleted_toast" msgid="1554845060991758649">"Besked slettet."</string>
+    <string name="message_discarded_toast" msgid="3891461729325584026">"Besked kasseret."</string>
+    <string name="message_saved_toast" msgid="8443125659172627665">"Beskeden er gemt som kladde."</string>
+    <string name="add_contact_dlg_title" msgid="7424641029188006580">"Tilføj kontakt"</string>
+    <string name="add_contact_dlg_message_fmt" msgid="4470846346726847478">"Føj \"<xliff:g id="EMAIL">%s</xliff:g>\" til kontakter"</string>
+    <string name="message_view_display_attachment_toast" msgid="6096315816776330821">"Denne vedhæftede fil kan ikke vises."</string>
+    <string name="account_setup_basics_title" msgid="3969856368228940980">"Opsæt e-mail"</string>
+    <!-- no translation found for accounts_welcome (5901437782383439370) -->
     <skip />
-    <string name="account_setup_incoming_title">"Indstillinger for indgående server"</string>
-    <string name="account_setup_incoming_username_label">"Brugernavn"</string>
-    <string name="account_setup_incoming_password_label">"Adgangskode"</string>
-    <string name="account_setup_incoming_pop_server_label">"POP3-server"</string>
-    <string name="account_setup_incoming_imap_server_label">"IMAP-server"</string>
-    <string name="account_setup_incoming_port_label">"Port"</string>
-    <string name="account_setup_incoming_security_label">"Sikkerhedstype"</string>
-    <string name="account_setup_incoming_security_none_label">"Ingen"</string>
-    <string name="account_setup_incoming_security_ssl_optional_label">"SSL (hvis tilgængelig)"</string>
-    <string name="account_setup_incoming_security_ssl_label">"SSL (altid)"</string>
-    <string name="account_setup_incoming_security_tls_optional_label">"TLS (hvis tilgængeligt)"</string>
-    <string name="account_setup_incoming_security_tls_label">"TLS (altid)"</string>
-    <string name="account_setup_incoming_delete_policy_label">"Slet e-mail fra server"</string>
-    <string name="account_setup_incoming_delete_policy_never_label">"Aldrig"</string>
-    <string name="account_setup_incoming_delete_policy_7days_label">"Efter 7 dage"</string>
-    <string name="account_setup_incoming_delete_policy_delete_label">"Når jeg sletter fra Indbakke"</string>
-    <string name="account_setup_incoming_imap_path_prefix_label">"Præfiks for IMAP-sti"</string>
-    <string name="account_setup_incoming_imap_path_prefix_hint">"Valgfrit"</string>
-    <string name="account_setup_outgoing_title">"Indstillinger for udgående server"</string>
-    <string name="account_setup_outgoing_smtp_server_label">"SMTP-server"</string>
-    <string name="account_setup_outgoing_port_label">"Port"</string>
-    <string name="account_setup_outgoing_security_label">"Sikkerhedstype"</string>
-    <string name="account_setup_outgoing_require_login_label">"Kræver login"</string>
-    <string name="account_setup_outgoing_username_label">"Brugernavn"</string>
-    <string name="account_setup_outgoing_password_label">"Adgangskode"</string>
-    <!-- no translation found for account_setup_exchange_title (247933841122558059) -->
+    <!-- no translation found for accounts_welcome_exchange (4414121583987233733) -->
     <skip />
-    <!-- no translation found for account_setup_exchange_server_label (5390359659749339317) -->
+    <!-- no translation found for account_setup_basics_instructions (3126077748322815504) -->
     <skip />
-    <!-- no translation found for account_setup_exchange_domain_label (3584668050727667045) -->
+    <string name="account_setup_basics_email_hint" msgid="7414269319207261120">"E-mail-adresse"</string>
+    <string name="account_setup_basics_password_hint" msgid="410210049040536870">"Adgangskode"</string>
+    <string name="account_setup_basics_default_label" msgid="5924790142029806711">"Send e-mail fra denne konto som standard."</string>
+    <string name="account_setup_basics_manual_setup_action" msgid="8053852205391155912">"Manuel opsætning"</string>
+    <string name="account_setup_username_password_toast" msgid="4441448542557889481">"Indtast en gyldig e-mail-adresse og adgangskode."</string>
+    <!-- no translation found for account_duplicate_dlg_title (3176749833792312641) -->
     <skip />
-    <!-- no translation found for account_setup_exchange_domain_hint (350372033916025287) -->
+    <!-- no translation found for account_duplicate_dlg_message_fmt (1920726613701479851) -->
     <skip />
-    <!-- no translation found for account_setup_exchange_ssl_label (6704105469083211236) -->
+    <string name="account_setup_check_settings_retr_info_msg" msgid="4121970450267725664">"Henter kontooplysninger ..."</string>
+    <string name="account_setup_check_settings_check_incoming_msg" msgid="5356212700221438863">"Kontrollerer indstillinger for indgående server ..."</string>
+    <string name="account_setup_check_settings_check_outgoing_msg" msgid="4033015234096725343">"Kontrollerer indstillinger for udgående server ..."</string>
+    <string name="account_setup_check_settings_canceling_msg" msgid="5077315503721883906">"Annullerer ..."</string>
+    <string name="account_setup_names_title" msgid="8875040521875381849">"Opsæt e-mail"</string>
+    <string name="account_setup_names_instructions" msgid="2880279273965835007">"Din konto er opsat, og der er e-mail på vej!"</string>
+    <string name="account_setup_names_account_name_label" msgid="8033895024273259196">"Giv kontoen et navn (valgfrit)"</string>
+    <string name="account_setup_names_user_name_label" msgid="8967410178488604770">"Dit navn (vist på udgående beskeder)"</string>
+    <string name="account_setup_account_type_title" msgid="6645576356752495504">"Tilføj ny e-mail-konto"</string>
+    <string name="account_setup_account_type_instructions" msgid="114515540798408760">"Hvilken slags konto er dette?"</string>
+    <string name="account_setup_account_type_pop_action" msgid="3958144865724586762">"POP3-konto"</string>
+    <string name="account_setup_account_type_imap_action" msgid="3471220237309488124">"IMAP-konto"</string>
+    <!-- no translation found for account_setup_account_type_exchange_action (7424283706321767987) -->
     <skip />
-    <string name="account_setup_options_title">"Kontovalgmuligheder"</string>
-    <string name="account_setup_options_mail_check_frequency_label">"Kontrolfrekvens for e-mail"</string>
-    <string name="account_setup_options_mail_check_frequency_never">"Aldrig"</string>
-    <!-- no translation found for account_setup_options_mail_check_frequency_push (5934525907736008673) -->
+    <string name="account_setup_incoming_title" msgid="6862032674547580337">"Indstillinger for indgående server"</string>
+    <string name="account_setup_incoming_username_label" msgid="5700581386104070302">"Brugernavn"</string>
+    <string name="account_setup_incoming_password_label" msgid="6365327603172559859">"Adgangskode"</string>
+    <string name="account_setup_incoming_pop_server_label" msgid="4917504440057879152">"POP3-server"</string>
+    <string name="account_setup_incoming_imap_server_label" msgid="8685076830847734322">"IMAP-server"</string>
+    <string name="account_setup_incoming_port_label" msgid="8214738923690447796">"Port"</string>
+    <string name="account_setup_incoming_security_label" msgid="2110260791086007424">"Sikkerhedstype"</string>
+    <string name="account_setup_incoming_security_none_label" msgid="8300169413118264895">"Ingen"</string>
+    <!-- no translation found for account_setup_incoming_security_ssl_trust_certificates_label (3581382268191377346) -->
     <skip />
-    <string name="account_setup_options_mail_check_frequency_5min">"Hvert 5. minut"</string>
-    <string name="account_setup_options_mail_check_frequency_10min">"Hvert 10. minut"</string>
-    <string name="account_setup_options_mail_check_frequency_15min">"Hvert 15. minut"</string>
-    <string name="account_setup_options_mail_check_frequency_30min">"Hvert 30. minut"</string>
-    <string name="account_setup_options_mail_check_frequency_1hour">"Hver time"</string>
-    <string name="account_setup_options_default_label">"Send e-mail fra denne konto som standard."</string>
-    <string name="account_setup_options_notify_label">"Underret mig, når der kommer e-mail."</string>
-    <string name="account_setup_failed_dlg_title">"Opsætningen kunne ikke afsluttes"</string>
-    <!-- no translation found for account_setup_options_mail_window_label (8764417340954006086) -->
+    <!-- no translation found for account_setup_incoming_security_ssl_label (8886698397743061682) -->
     <skip />
-    <!-- no translation found for account_setup_options_mail_window_1day (3965715241135811407) -->
+    <!-- no translation found for account_setup_incoming_security_tls_trust_certificates_label (1089227022489257055) -->
     <skip />
-    <!-- no translation found for account_setup_options_mail_window_3days (736181102295878114) -->
+    <!-- no translation found for account_setup_incoming_security_tls_label (8638006172590036487) -->
     <skip />
-    <!-- no translation found for account_setup_options_mail_window_1week (5639718031108023741) -->
+    <string name="account_setup_incoming_delete_policy_label" msgid="9213590134693857912">"Slet e-mail fra server"</string>
+    <string name="account_setup_incoming_delete_policy_never_label" msgid="3222897501875871041">"Aldrig"</string>
+    <string name="account_setup_incoming_delete_policy_delete_label" msgid="222216840911785631">"Når jeg sletter fra Indbakke"</string>
+    <string name="account_setup_incoming_imap_path_prefix_label" msgid="401167247072926810">"Præfiks for IMAP-sti"</string>
+    <string name="account_setup_incoming_imap_path_prefix_hint" msgid="9190845919067906033">"Valgfrit"</string>
+    <string name="account_setup_outgoing_title" msgid="7437215562885986394">"Indstillinger for udgående server"</string>
+    <string name="account_setup_outgoing_smtp_server_label" msgid="6035137446691195177">"SMTP-server"</string>
+    <string name="account_setup_outgoing_port_label" msgid="7573207437835827876">"Port"</string>
+    <string name="account_setup_outgoing_security_label" msgid="911398071120720589">"Sikkerhedstype"</string>
+    <string name="account_setup_outgoing_require_login_label" msgid="6371514297854287948">"Kræver login"</string>
+    <string name="account_setup_outgoing_username_label" msgid="3309680794731596981">"Brugernavn"</string>
+    <string name="account_setup_outgoing_password_label" msgid="227844585493317550">"Adgangskode"</string>
+    <string name="account_setup_exchange_title" msgid="247933841122558059">"Indstillinger for Exchange-server"</string>
+    <string name="account_setup_exchange_server_label" msgid="5390359659749339317">"Exchange-server"</string>
+    <!-- no translation found for account_setup_exchange_username_label (6517176180828983060) -->
     <skip />
-    <!-- no translation found for account_setup_options_mail_window_2weeks (4567049268124213035) -->
+    <string name="account_setup_exchange_domain_label" msgid="3584668050727667045">"Domæne"</string>
+    <string name="account_setup_exchange_domain_hint" msgid="350372033916025287">"Indtast domæne her"</string>
+    <string name="account_setup_exchange_ssl_label" msgid="6704105469083211236">"Brug sikker forbindelse (SSL)"</string>
+    <!-- no translation found for account_setup_exchange_trust_certificates_label (6232880757633882678) -->
     <skip />
-    <!-- no translation found for account_setup_options_mail_window_1month (5846359669750047081) -->
+    <string name="account_setup_options_title" msgid="8995162193118880993">"Kontovalgmuligheder"</string>
+    <string name="account_setup_options_mail_check_frequency_label" msgid="4598023962234986194">"Kontrolfrekvens for e-mail"</string>
+    <string name="account_setup_options_mail_check_frequency_never" msgid="287951859480505416">"Aldrig"</string>
+    <string name="account_setup_options_mail_check_frequency_push" msgid="5934525907736008673">"Automatisk (Push)"</string>
+    <string name="account_setup_options_mail_check_frequency_5min" msgid="6388939895878539307">"Hvert 5. minut"</string>
+    <string name="account_setup_options_mail_check_frequency_10min" msgid="5344463157247877480">"Hvert 10. minut"</string>
+    <string name="account_setup_options_mail_check_frequency_15min" msgid="5052776740089741793">"Hvert 15. minut"</string>
+    <string name="account_setup_options_mail_check_frequency_30min" msgid="1097088928685931864">"Hvert 30. minut"</string>
+    <string name="account_setup_options_mail_check_frequency_1hour" msgid="3767715356039692899">"Hver time"</string>
+    <string name="account_setup_options_default_label" msgid="8869166381331276697">"Send e-mail fra denne konto som standard."</string>
+    <string name="account_setup_options_notify_label" msgid="1247525794828820038">"Underret mig, når der kommer e-mail."</string>
+    <string name="account_setup_options_sync_contacts_label" msgid="7467467090023434271">"Synkroniser kontaktpersoner fra denne konto."</string>
+    <string name="account_setup_failed_dlg_title" msgid="7827583313117521383">"Opsætningen kunne ikke afsluttes"</string>
+    <string name="account_setup_options_mail_window_label" msgid="8764417340954006086">"Mængde, der skal synkroniseres"</string>
+    <string name="account_setup_options_mail_window_1day" msgid="3965715241135811407">"En dag"</string>
+    <string name="account_setup_options_mail_window_3days" msgid="736181102295878114">"Tre dage"</string>
+    <string name="account_setup_options_mail_window_1week" msgid="5639718031108023741">"En uge"</string>
+    <string name="account_setup_options_mail_window_2weeks" msgid="4567049268124213035">"To uger"</string>
+    <string name="account_setup_options_mail_window_1month" msgid="5846359669750047081">"En måned"</string>
+    <string name="account_setup_options_mail_window_all" msgid="5383858972681926166">"Al mail"</string>
+    <string name="account_setup_failed_dlg_auth_message" msgid="42827150104879570">"Brugernavn eller adgangskode er forkert."</string>
+    <string name="account_setup_failed_dlg_auth_message_fmt" msgid="8598560266430207606">"Brugernavn eller adgangskode er forkert."\n"(<xliff:g id="ERROR">%s</xliff:g>)"</string>
+    <string name="account_setup_failed_dlg_certificate_message" msgid="961843413600482906">"Der kan ikke oprettes en sikker forbindelse til serveren."</string>
+    <string name="account_setup_failed_dlg_certificate_message_fmt" msgid="2609150986774736900">"Der kan ikke oprettes en sikker forbindelse til serveren."\n"(<xliff:g id="ERROR">%s</xliff:g>)"</string>
+    <string name="account_setup_failed_dlg_server_message" msgid="1828270369532779265">"Der kan ikke oprettes forbindelse til serveren."</string>
+    <string name="account_setup_failed_dlg_server_message_fmt" msgid="5956976504788732779">"Der kan ikke oprettes forbindelse til serveren."\n"(<xliff:g id="ERROR">%s</xliff:g>)"</string>
+    <string name="account_setup_failed_tls_required" msgid="307030406688611327">"TLS er påkrævet, men understøttes ikke af serveren."</string>
+    <string name="account_setup_failed_auth_required" msgid="1676242821459638150">"Godkendelsesmetoder understøttes ikke af serveren."</string>
+    <string name="account_setup_failed_security" msgid="6142264248671379943">"Der kunne ikke åbnes en forbindelse til serveren på grund af en sikkerhedsfejl."</string>
+    <string name="account_setup_failed_ioerror" msgid="7391458717708933095">"Der kunne ikke åbnes en forbindelse til serveren."</string>
+    <string name="account_setup_failed_dlg_edit_details_action" msgid="5355993309841479360">"Rediger detaljer"</string>
+    <string name="account_settings_title_fmt" msgid="1702058877284382340">"Generelle indstillinger"</string>
+    <string name="account_settings_default_label" msgid="3575963379680943640">"Standardkonto"</string>
+    <string name="account_settings_default_summary" msgid="1531901438624688482">"Send e-mail fra denne konto som standard"</string>
+    <string name="account_settings_notify_label" msgid="1630001017303007974">"E-mail-beskeder"</string>
+    <!-- no translation found for account_settings_exchange_summary (8498451479029626317) -->
     <skip />
-    <!-- no translation found for account_setup_options_mail_window_all (5383858972681926166) -->
+    <string name="account_settings_notify_summary" msgid="6609224590300639887">"Underret i statuslinjen, når der kommer en e-mail"</string>
+    <string name="account_settings_mail_check_frequency_label" msgid="2067835530563849675">"Kontrolfrekvens for e-mail"</string>
+    <string name="account_settings_incoming_label" msgid="7858928031806297542">"Indgående indstillinger"</string>
+    <string name="account_settings_outgoing_label" msgid="4464829249980026745">"Udgående indstillinger"</string>
+    <string name="account_settings_add_account_label" msgid="63971622405360050">"Tilføj en konto mere"</string>
+    <string name="account_settings_description_label" msgid="8894815221204511715">"Kontonavn"</string>
+    <string name="account_settings_name_label" msgid="8186406122590008449">"Dit navn"</string>
+    <string name="account_settings_notifications" msgid="1042620094281375043">"Meddelelsesindstillinger"</string>
+    <!-- no translation found for account_settings_sync_contacts_enable (1369272986009573218) -->
     <skip />
-    <string name="account_setup_failed_dlg_auth_message">"Brugernavn eller adgangskode er forkert."</string>
-    <string name="account_setup_failed_dlg_auth_message_fmt">"Brugernavn eller adgangskode er forkert."\n"(<xliff:g id="ERROR">%s</xliff:g>)"</string>
-    <string name="account_setup_failed_dlg_certificate_message">"Der kan ikke oprettes en sikker forbindelse til serveren."</string>
-    <string name="account_setup_failed_dlg_certificate_message_fmt">"Der kan ikke oprettes en sikker forbindelse til serveren."\n"(<xliff:g id="ERROR">%s</xliff:g>)"</string>
-    <string name="account_setup_failed_dlg_server_message">"Der kan ikke oprettes forbindelse til serveren."</string>
-    <string name="account_setup_failed_dlg_server_message_fmt">"Der kan ikke oprettes forbindelse til serveren."\n"(<xliff:g id="ERROR">%s</xliff:g>)"</string>
-    <string name="account_setup_failed_tls_required">"TLS er påkrævet, men understøttes ikke af serveren."</string>
-    <string name="account_setup_failed_auth_required">"Godkendelsesmetoder understøttes ikke af serveren."</string>
-    <string name="account_setup_failed_security">"Der kunne ikke åbnes en forbindelse til serveren på grund af en sikkerhedsfejl."</string>
-    <string name="account_setup_failed_ioerror">"Der kunne ikke åbnes en forbindelse til serveren."</string>
-    <string name="account_setup_failed_dlg_edit_details_action">"Rediger detaljer"</string>
-    <string name="account_settings_title_fmt">"Generelle indstillinger"</string>
-    <string name="account_settings_default_label">"Standardkonto"</string>
-    <string name="account_settings_default_summary">"Send e-mail fra denne konto som standard"</string>
-    <string name="account_settings_notify_label">"E-mail-beskeder"</string>
-    <string name="account_settings_notify_summary">"Underret i statuslinjen, når der kommer en e-mail"</string>
-    <string name="account_settings_mail_check_frequency_label">"Kontrolfrekvens for e-mail"</string>
-    <string name="account_settings_incoming_label">"Indgående indstillinger"</string>
-    <string name="account_settings_outgoing_label">"Udgående indstillinger"</string>
-    <string name="account_settings_add_account_label">"Tilføj en konto mere"</string>
-    <string name="account_settings_description_label">"Kontonavn"</string>
-    <string name="account_settings_name_label">"Dit navn"</string>
-    <string name="account_settings_notifications">"Meddelelsesindstillinger"</string>
-    <string name="account_settings_vibrate_enable">"Vibrer"</string>
-    <string name="account_settings_vibrate_summary">"Vibrer også, når der kommer e-mail"</string>
-    <string name="account_settings_ringtone">"Vælg ringetone"</string>
-    <string name="account_settings_servers">"Serverindstillinger"</string>
-    <string name="account_delete_dlg_title">"Fjern konto"</string>
-    <string name="account_delete_dlg_instructions_fmt">"Kontoen \"<xliff:g id="ACCOUNT">%s</xliff:g>\" fjernes fra E-mail."</string>
-    <string name="provider_note_yahoo">"Adgang til postkasse er ikke understøttet for nogle typer af Yahoo!-mailkonti. Hvis du har problemer med at oprette forbindelse, skal du gå til yahoo.com for at få flere oplysninger."</string>
-    <string name="provider_note_yahoo_uk">"Inden du sætter denne e-mail-konto op, skal du gå til Yahoo!-webstedet og aktivere POP3-e-mail-adgang for denne konto."</string>
-    <string name="provider_note_live">"Det er kun nogle \"Plus\"-konti, der indeholder POP-adgang, som tillader dette program at oprette forbindelse. Hvis du ikke er i stand til at logge ind med din rigtige e-mail-adresse og adgangskode, har du muligvis ikke en betalt \"Plus\"-konto. Start webbrowseren igen for at få adgang til disse mail-konti."</string>
-    <string name="provider_note_t_online">"Inden du opsætter denne e-mail-konto, skal du gå til T-Onlines websted og oprette en adgangskode for POP3-e-mail-adgang."</string>
+    <!-- no translation found for account_settings_sync_contacts_summary (8901452720940015928) -->
+    <skip />
+    <string name="account_settings_vibrate_enable" msgid="8045133290388856478">"Vibrer"</string>
+    <string name="account_settings_vibrate_summary" msgid="3690631050585589365">"Vibrer også, når der kommer e-mail"</string>
+    <string name="account_settings_ringtone" msgid="7922187231467500404">"Vælg ringetone"</string>
+    <string name="account_settings_servers" msgid="4925493817981624242">"Serverindstillinger"</string>
+    <string name="account_delete_dlg_title" msgid="6806087520856396608">"Fjern konto"</string>
+    <string name="account_delete_dlg_instructions_fmt" msgid="8236846322040271280">"Kontoen \"<xliff:g id="ACCOUNT">%s</xliff:g>\" fjernes fra E-mail."</string>
+    <string name="provider_note_yahoo" msgid="8762024183024261236">"Adgang til postkasse er ikke understøttet for nogle typer af Yahoo!-mailkonti. Hvis du har problemer med at oprette forbindelse, skal du gå til yahoo.com for at få flere oplysninger."</string>
+    <string name="provider_note_yahoo_uk" msgid="2055976404478603298">"Inden du sætter denne e-mail-konto op, skal du gå til Yahoo!-webstedet og aktivere POP3-e-mail-adgang for denne konto."</string>
+    <string name="provider_note_live" msgid="3584841823811425060">"Det er kun nogle \"Plus\"-konti, der indeholder POP-adgang, som tillader dette program at oprette forbindelse. Hvis du ikke er i stand til at logge ind med din rigtige e-mail-adresse og adgangskode, har du muligvis ikke en betalt \"Plus\"-konto. Start webbrowseren igen for at få adgang til disse mail-konti."</string>
+    <string name="provider_note_t_online" msgid="1973701903400232774">"Inden du opsætter denne e-mail-konto, skal du gå til T-Onlines websted og oprette en adgangskode for POP3-e-mail-adgang."</string>
+    <!-- no translation found for exchange_name (1190783774800310346) -->
+    <skip />
+    <string name="system_account_create_failed" msgid="4917162302393971752">"Kontoadministratoren kunne ikke oprette kontoen. Prøv igen."</string>
 </resources>
