@@ -994,26 +994,25 @@ public class EasSyncService extends AbstractSyncService {
             }
             s.data(Tags.SYNC_WINDOW_SIZE,
                     className.equals("Email") ? EMAIL_WINDOW_SIZE : PIM_WINDOW_SIZE);
-            boolean options = false;
+
+            // Handle options
+            s.start(Tags.SYNC_OPTIONS);
+            // Set the lookback appropriately (EAS calls this a "filter") for all but Contacts
             if (!className.equals("Contacts")) {
-                // Set the lookback appropriately (EAS calls this a "filter")
-                s.start(Tags.SYNC_OPTIONS).data(Tags.SYNC_FILTER_TYPE, getFilterType());
-                options = true;
+                s.data(Tags.SYNC_FILTER_TYPE, getFilterType());
             }
+            // Set the truncation amount for all classes
             if (mProtocolVersionDouble >= 12.0) {
-                if (!options) {
-                    options = true;
-                    s.start(Tags.SYNC_OPTIONS);
-                }
                 s.start(Tags.BASE_BODY_PREFERENCE)
                     // HTML for email; plain text for everything else
                     .data(Tags.BASE_TYPE, (className.equals("Email") ? Eas.BODY_PREFERENCE_HTML
-                            : Eas.BODY_PREFERENCE_TEXT))
+                        : Eas.BODY_PREFERENCE_TEXT))
+                    .data(Tags.BASE_TRUNCATION_SIZE, Eas.EAS12_TRUNCATION_SIZE)
                     .end();
+            } else {
+                s.data(Tags.SYNC_TRUNCATION, Eas.EAS2_5_TRUNCATION_SIZE);
             }
-            if (options) {
-                s.end();
-            }
+            s.end();
 
             // Send our changes up to the server
             target.sendLocalChanges(s);
