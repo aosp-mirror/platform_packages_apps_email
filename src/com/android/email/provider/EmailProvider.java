@@ -54,15 +54,25 @@ public class EmailProvider extends ContentProvider {
 
     private static final String TAG = "EmailProvider";
 
-    static final String DATABASE_NAME = "EmailProvider.db";
-    static final String BODY_DATABASE_NAME = "EmailProviderBody.db";
+    private static final String DATABASE_NAME = "EmailProvider.db";
+    private static final String BODY_DATABASE_NAME = "EmailProviderBody.db";
+
+    // Definitions for our queries looking for orphaned messages
+    private static final String[] ORPHANS_PROJECTION
+        = new String[] {MessageColumns.ID, MessageColumns.MAILBOX_KEY};
+    private static final int ORPHANS_ID = 0;
+    private static final int ORPHANS_MAILBOX_KEY = 1;
+
+    private static final String WHERE_ID = EmailContent.RECORD_ID + "=?";
 
     // Any changes to the database format *must* include update-in-place code.
     // Original version: 3
     // Version 4: Database wipe required; changing AccountManager interface w/Exchange
     // Version 5: Database wipe required; changing AccountManager interface w/Exchange
     // Version 6: Adding Message.mServerTimeStamp column
-    public static final int DATABASE_VERSION = 6;
+    // Version 7: Replace the mailbox_delete trigger with a version that removes orphaned messages
+    //            from the Message_Deletes and Message_Updates tables
+    public static final int DATABASE_VERSION = 7;
 
     // Any changes to the database format *must* include update-in-place code.
     // Original version: 2
@@ -162,6 +172,17 @@ public class EmailProvider extends ContentProvider {
 
     private static final String ID_EQUALS = EmailContent.RECORD_ID + "=?";
 
+    private static final String TRIGGER_MAILBOX_DELETE =
+        "create trigger mailbox_delete before delete on " + Mailbox.TABLE_NAME +
+        " begin" +
+        " delete from " + Message.TABLE_NAME +
+        "  where " + MessageColumns.MAILBOX_KEY + "=old." + EmailContent.RECORD_ID +
+        "; delete from " + Message.UPDATED_TABLE_NAME +
+        "  where " + MessageColumns.MAILBOX_KEY + "=old." + EmailContent.RECORD_ID +
+        "; delete from " + Message.DELETED_TABLE_NAME +
+        "  where " + MessageColumns.MAILBOX_KEY + "=old." + EmailContent.RECORD_ID +
+        "; end";
+    
     static {
         // Email URI matching table
         UriMatcher matcher = sURIMatcher;
@@ -450,11 +471,8 @@ public class EmailProvider extends ContentProvider {
                 + " on " + Mailbox.TABLE_NAME + " (" + MailboxColumns.SERVER_ID + ")");
         db.execSQL("create index mailbox_" + MailboxColumns.ACCOUNT_KEY
                 + " on " + Mailbox.TABLE_NAME + " (" + MailboxColumns.ACCOUNT_KEY + ")");
-        // Deleting a Mailbox deletes associated Messages
-        db.execSQL("create trigger mailbox_delete before delete on " + Mailbox.TABLE_NAME +
-                " begin delete from " + Message.TABLE_NAME +
-                "  where " + MessageColumns.MAILBOX_KEY + "=old." + EmailContent.RECORD_ID +
-                "; end");
+        // Deleting a Mailbox deletes associated Messages in all three tables
+        db.execSQL(TRIGGER_MAILBOX_DELETE);
     }
 
     static void resetMailboxTable(SQLiteDatabase db, int oldVersion, int newVersion) {
@@ -540,7 +558,65 @@ public class EmailProvider extends ContentProvider {
                 mDatabase.execSQL("attach \"" + bodyFileName + "\" as BodyDatabase");
             }
         }
+
+        // Check for any orphaned Messages in the updated/deleted tables
+        deleteOrphans(mDatabase, Message.UPDATED_TABLE_NAME);
+        deleteOrphans(mDatabase, Message.DELETED_TABLE_NAME);
+
         return mDatabase;
+    }
+
+    /*package*/ static SQLiteDatabase getReadableDatabase(Context context) {
+        DatabaseHelper helper = new EmailProvider().new DatabaseHelper(context, DATABASE_NAME);
+        return helper.getReadableDatabase();
+    }
+
+    /*package*/ static void deleteOrphans(SQLiteDatabase database, String tableName) {
+        if (database != null) {
+            // We'll look at all of the items in the table; there won't be many typically
+            Cursor c = database.query(tableName, ORPHANS_PROJECTION, null, null, null, null, null);
+            // Usually, there will be nothing in these tables, so make a quick check
+            try {
+                if (c.getCount() == 0) return;
+                ArrayList<Long> foundMailboxes = new ArrayList<Long>();
+                ArrayList<Long> notFoundMailboxes = new ArrayList<Long>();
+                ArrayList<Long> deleteList = new ArrayList<Long>();
+                String[] bindArray = new String[1];
+                while (c.moveToNext()) {
+                    // Get the mailbox key and see if we've already found this mailbox
+                    // If so, we're fine
+                    long mailboxId = c.getLong(ORPHANS_MAILBOX_KEY);
+                    // If we already know this mailbox doesn't exist, mark the message for deletion
+                    if (notFoundMailboxes.contains(mailboxId)) {
+                        deleteList.add(c.getLong(ORPHANS_ID));
+                    // If we don't know about this mailbox, we'll try to find it
+                    } else if (!foundMailboxes.contains(mailboxId)) {
+                        bindArray[0] = Long.toString(mailboxId);
+                        Cursor boxCursor = database.query(Mailbox.TABLE_NAME,
+                                Mailbox.ID_PROJECTION, WHERE_ID, bindArray, null, null, null);
+                        try {
+                            // If it exists, we'll add it to the "found" mailboxes
+                            if (boxCursor.moveToFirst()) {
+                                foundMailboxes.add(mailboxId);
+                            // Otherwise, we'll add to "not found" and mark the message for deletion
+                            } else {
+                                notFoundMailboxes.add(mailboxId);
+                                deleteList.add(c.getLong(ORPHANS_ID));
+                            }
+                        } finally {
+                            boxCursor.close();
+                        }
+                    }
+                }
+                // Now, delete the orphan messages
+                for (long messageId: deleteList) {
+                    bindArray[0] = Long.toString(messageId);
+                    database.delete(tableName, WHERE_ID, bindArray);
+                }
+            } finally {
+                c.close();
+            }
+        }
     }
 
     private class BodyDatabaseHelper extends SQLiteOpenHelper {
@@ -613,6 +689,12 @@ public class EmailProvider extends ContentProvider {
                     Log.w(TAG, "Exception upgrading EmailProvider.db from v5 to v6", e);
                 }
                 oldVersion = 6;
+            }
+            if (oldVersion == 6) {
+                // Use the newer mailbox_delete trigger
+                db.execSQL("delete trigger mailbox_delete;");
+                db.execSQL(TRIGGER_MAILBOX_DELETE);
+                oldVersion = 7;
             }
         }
 
@@ -779,6 +861,8 @@ public class EmailProvider extends ContentProvider {
         Uri resultUri = null;
 
         switch (match) {
+            case UPDATED_MESSAGE:
+            case DELETED_MESSAGE:
             case BODY:
             case MESSAGE:
             case ATTACHMENT:
@@ -787,6 +871,13 @@ public class EmailProvider extends ContentProvider {
             case HOSTAUTH:
                 id = db.insert(TABLE_NAMES[table], "foo", values);
                 resultUri = ContentUris.withAppendedId(uri, id);
+                // Clients shouldn't normally be adding rows to these tables, as they are
+                // maintained by triggers.  However, we need to be able to do this for unit
+                // testing, so we allow the insert and then throw the same exception that we
+                // would if this weren't allowed. 
+                if (match == UPDATED_MESSAGE || match == DELETED_MESSAGE) {
+                    throw new IllegalArgumentException("Unknown URL " + uri);
+                }
                 break;
             case MAILBOX_ID:
                 // This implies adding a message to a mailbox
