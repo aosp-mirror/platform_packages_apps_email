@@ -103,7 +103,7 @@
     <string name="add_contact_dlg_message_fmt" msgid="4470846346726847478">"将“<xliff:g id="EMAIL">%s</xliff:g>”添加到联系人"</string>
     <string name="message_view_display_attachment_toast" msgid="6096315816776330821">"该附件无法显示。"</string>
     <string name="account_setup_basics_title" msgid="3969856368228940980">"设置电子邮件"</string>
-    <string name="account_setup_basics_instructions" msgid="3580847367201161979">"输入您的帐户电子邮件地址："</string>
+    <string name="account_setup_basics_instructions" msgid="3580847367201161979">"输入您的帐户的电子邮件地址："</string>
     <string name="account_setup_basics_email_hint" msgid="7414269319207261120">"电子邮件地址"</string>
     <string name="account_setup_basics_password_hint" msgid="410210049040536870">"密码"</string>
     <string name="account_setup_basics_default_label" msgid="5924790142029806711">"默认情况下从此帐户发送电子邮件。"</string>
@@ -114,8 +114,8 @@
     <string name="account_setup_check_settings_check_outgoing_msg" msgid="4033015234096725343">"正在检查外发服务器设置..."</string>
     <string name="account_setup_check_settings_canceling_msg" msgid="5077315503721883906">"正在取消..."</string>
     <string name="account_setup_names_title" msgid="8875040521875381849">"设置电子邮件"</string>
-    <string name="account_setup_names_instructions" msgid="2880279273965835007">"您的帐户已设置，可以使用电子邮件了！"</string>
-    <string name="account_setup_names_account_name_label" msgid="8033895024273259196">"为此帐户创建名称（可选）"</string>
+    <string name="account_setup_names_instructions" msgid="2880279273965835007">"您已设置帐户，可以使用电子邮件程序了！"</string>
+    <string name="account_setup_names_account_name_label" msgid="8033895024273259196">"指定该帐户的名称（可选）"</string>
     <string name="account_setup_names_user_name_label" msgid="8967410178488604770">"您的姓名（显示在外发邮件上）"</string>
     <string name="account_setup_account_type_title" msgid="6645576356752495504">"添加新电子邮件帐户"</string>
     <string name="account_setup_account_type_instructions" msgid="114515540798408760">"这是什么类型的帐户？"</string>
@@ -163,7 +163,7 @@
     <string name="account_setup_options_mail_check_frequency_1hour" msgid="3767715356039692899">"每小时"</string>
     <string name="account_setup_options_default_label" msgid="8869166381331276697">"默认情况下从此帐户发送电子邮件。"</string>
     <string name="account_setup_options_notify_label" msgid="1247525794828820038">"收到电子邮件时通知我。"</string>
-    <string name="account_setup_failed_dlg_title" msgid="7827583313117521383">"设置无法完成"</string>
+    <string name="account_setup_failed_dlg_title" msgid="7827583313117521383">"无法完成设置"</string>
     <string name="account_setup_options_mail_window_label" msgid="8764417340954006086">"要同步的数量"</string>
     <string name="account_setup_options_mail_window_1day" msgid="3965715241135811407">"一天"</string>
     <string name="account_setup_options_mail_window_3days" msgid="736181102295878114">"三天"</string>
@@ -184,13 +184,13 @@
     <string name="account_setup_failed_dlg_edit_details_action" msgid="5355993309841479360">"编辑详情"</string>
     <string name="account_settings_title_fmt" msgid="1702058877284382340">"常规设置"</string>
     <string name="account_settings_default_label" msgid="3575963379680943640">"默认帐户"</string>
-    <string name="account_settings_default_summary" msgid="1531901438624688482">"默认情况下从此帐户发送电子邮件"</string>
+    <string name="account_settings_default_summary" msgid="1531901438624688482">"默认情况下用此帐户发送电子邮件"</string>
     <string name="account_settings_notify_label" msgid="1630001017303007974">"电子邮件通知"</string>
     <string name="account_settings_notify_summary" msgid="6609224590300639887">"收到电子邮件时在状态栏中显示通知"</string>
     <string name="account_settings_mail_check_frequency_label" msgid="2067835530563849675">"电子邮件检查频率"</string>
     <string name="account_settings_incoming_label" msgid="7858928031806297542">"接收设置"</string>
     <string name="account_settings_outgoing_label" msgid="4464829249980026745">"外发设置"</string>
-    <string name="account_settings_add_account_label" msgid="63971622405360050">"添加另一个帐户"</string>
+    <string name="account_settings_add_account_label" msgid="63971622405360050">"添加其他帐户"</string>
     <string name="account_settings_description_label" msgid="8894815221204511715">"帐户名称"</string>
     <string name="account_settings_name_label" msgid="8186406122590008449">"您的姓名"</string>
     <string name="account_settings_notifications" msgid="1042620094281375043">"通知设置"</string>

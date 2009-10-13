@@ -66,7 +66,7 @@
     <string name="special_mailbox_display_name_outbox" msgid="1884580655148530989">"Giden Kutusu"</string>
     <string name="special_mailbox_display_name_drafts" msgid="5919687165402808119">"Taslaklar"</string>
     <string name="special_mailbox_display_name_trash" msgid="7042673673630272056">"Çöp Kutusu"</string>
-    <string name="special_mailbox_display_name_sent" msgid="3952772015118466625">"Gönderildi"</string>
+    <string name="special_mailbox_display_name_sent" msgid="3952772015118466625">"Gönderilenler"</string>
     <string name="accounts_welcome" msgid="7365378109109495588">"E-posta kurulumuna hoş geldiniz!"\n\n"E-posta ile herhangi bir e-posta hesabını kullanın."\n\n"Birçok popüler e-posta hesabı 2 adımda ayarlanabilir!"</string>
     <string name="debug_version_fmt" msgid="6160213145745376955">"Sürüm: <xliff:g id="VERSION">%s</xliff:g>"</string>
     <string name="debug_enable_debug_logging_label" msgid="2715742416050944774">"Ekstra hata ayıklama kaydı etkinleştirilsin mi?"</string>

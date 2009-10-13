@@ -17,7 +17,7 @@
     xmlns:xliff="urn:oasis:names:tc:xliff:document:1.2">
     <string name="read_attachment_label" msgid="1300286008047638726">"ανάγνωση επισυνάψεων μηνύματος ηλεκτρονικού ταχυδρομείου"</string>
     <string name="read_attachment_desc" msgid="7594746717616308643">"Επιτρέπει σε αυτήν την εφαρμογή την ανάγνωση των επισυνάψεων των μηνυμάτων ηλεκτρονικού ταχυδρομείου."</string>
-    <string name="app_name" msgid="5815426892327290362">"Ηλεκτρονικό ταχυδρομείο"</string>
+    <string name="app_name" msgid="5815426892327290362">"Email"</string>
     <string name="accounts_title" msgid="7249537449234892146">"Οι λογαριασμοί σας"</string>
     <string name="compose_title" msgid="427986915662706899">"Σύνθεση"</string>
     <string name="debug_title" msgid="5175710493691536719">"Εντοπισμός σφαλμάτων"</string>

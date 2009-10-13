@@ -144,7 +144,7 @@
     <string name="account_setup_outgoing_smtp_server_label" msgid="6035137446691195177">"SMTP-tjener"</string>
     <string name="account_setup_outgoing_port_label" msgid="7573207437835827876">"Port"</string>
     <string name="account_setup_outgoing_security_label" msgid="911398071120720589">"Sikkerhetstype"</string>
-    <string name="account_setup_outgoing_require_login_label" msgid="6371514297854287948">"Krev pålogging."</string>
+    <string name="account_setup_outgoing_require_login_label" msgid="6371514297854287948">"Krev pålogging"</string>
     <string name="account_setup_outgoing_username_label" msgid="3309680794731596981">"Brukernavn"</string>
     <string name="account_setup_outgoing_password_label" msgid="227844585493317550">"Passord"</string>
     <string name="account_setup_exchange_title" msgid="247933841122558059">"Innstillinger for Exchange Server"</string>

@@ -42,7 +42,7 @@
     <string name="accounts_action" msgid="901105887272231493">"Konton"</string>
     <string name="mark_as_read_action" msgid="5031651846998842419">"Markera som läst"</string>
     <string name="mark_as_unread_action" msgid="3766298115778767554">"Markera som oläst"</string>
-    <string name="add_cc_bcc_action" msgid="5569074812077509737">"Lägg till kopia/heml. kop."</string>
+    <string name="add_cc_bcc_action" msgid="5569074812077509737">"Kopia/hemlig kopia"</string>
     <string name="add_attachment_action" msgid="2696013743130573897">"Lägg till bilaga"</string>
     <string name="dump_settings_action" msgid="4478192525236169829">"Inställningar för dumpar"</string>
     <string name="choose_attachment_dialog_title" msgid="81937507117528954">"Välj bilaga"</string>
