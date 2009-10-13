@@ -63,7 +63,10 @@ public class Eas {
     public static final String BODY_PREFERENCE_TEXT = "1";
     public static final String BODY_PREFERENCE_HTML = "2";
 
-    public static final String DEFAULT_BODY_TRUNCATION_SIZE = "50000";
+    // For EAS 12, we use HTML, so we want a larger size than in EAS 2.5
+    public static final String EAS12_TRUNCATION_SIZE = "200000";
+    // For EAS 2.5, truncation is a code; the largest is "7", which is 100k
+    public static final String EAS2_5_TRUNCATION_SIZE = "7";
 
     public static final int FOLDER_STATUS_OK = 1;
     public static final int FOLDER_STATUS_INVALID_KEY = 9;
