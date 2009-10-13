@@ -20,7 +20,11 @@
         android:layout_width="fill_parent"
         android:layout_height="wrap_content"
         android:orientation="vertical"
-        android:background="@drawable/ic_email_thread_open_top_default">
+        android:background="@drawable/header_card"
+        android:paddingTop="3dip"
+        android:paddingBottom="3dip"
+        android:paddingLeft="3dip"
+        android:paddingRight="6dip">
         <LinearLayout
             android:id="@+id/from_container"
             android:layout_width="fill_parent"
