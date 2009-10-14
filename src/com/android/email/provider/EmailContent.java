@@ -1657,6 +1657,12 @@ public abstract class EmailContent {
                 return new EmailContent.Attachment[size];
             }
         };
+
+        @Override
+        public String toString() {
+            return "[" + mFileName + ", " + mMimeType + ", " + mSize + ", " + mContentId + ", "
+                    + mContentUri + ", " + mMessageKey + ", " + mLocation + ", " + mEncoding + "]";
+        }
     }
 
     public interface MailboxColumns {
