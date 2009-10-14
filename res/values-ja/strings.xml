@@ -15,8 +15,13 @@
 -->
 <resources xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:xliff="urn:oasis:names:tc:xliff:document:1.2">
-    <string name="read_attachment_label" msgid="1300286008047638726">"メール添付ファイルの読み取り"</string>
+    <!-- no translation found for read_attachment_label (1162255191991555285) -->
+    <skip />
     <string name="read_attachment_desc" msgid="7594746717616308643">"Eメールの添付ファイルの読取表示をこのアプリケーションに許可します。"</string>
+    <!-- no translation found for permission_access_provider_label (4274353114641168675) -->
+    <skip />
+    <!-- no translation found for permission_access_provider_desc (1513898266889541617) -->
+    <skip />
     <string name="app_name" msgid="5815426892327290362">"メール"</string>
     <string name="accounts_title" msgid="6622149231904649210">"メール"</string>
     <string name="compose_title" msgid="427986915662706899">"作成"</string>
@@ -44,6 +49,8 @@
     <skip />
     <string name="refresh_action" msgid="5951383001436708175">"更新"</string>
     <string name="add_account_action" msgid="8835736309476033727">"アカウントを追加"</string>
+    <!-- no translation found for deselect_all_action (253663239459688238) -->
+    <skip />
     <string name="compose_action" msgid="4045702519637388045">"作成"</string>
     <string name="search_action" msgid="6325101454876682308">"検索"</string>
     <string name="open_action" msgid="936766723989190816">"開く"</string>
@@ -64,6 +71,8 @@
     <string name="status_sending_messages_failed" msgid="7975009558738692407">"メッセージを送信し直してください"</string>
     <string name="status_loading_more_failed" msgid="1629172047185323">"追加のメールを読み込み直す"</string>
     <string name="notification_new_title" msgid="2200257910380529139">"新着メール"</string>
+    <!-- no translation found for error_loading_message_body (2265140604109272914) -->
+    <skip />
   <plurals name="notification_new_one_account_fmt">
     <item quantity="one" msgid="3422945912787702191">"未読<xliff:g id="UNREAD_MESSAGE_COUNT">%d</xliff:g>件 (<xliff:g id="ACCOUNT">%s</xliff:g>)"</item>
     <item quantity="few" msgid="6543078667692990869">"未読<xliff:g id="UNREAD_MESSAGE_COUNT">%d</xliff:g>件 (<xliff:g id="ACCOUNT">%s</xliff:g>)"</item>
@@ -73,22 +82,25 @@
     <item quantity="few" msgid="1991747245324120305">"（<xliff:g id="NUMBER_ACCOUNTS">%d</xliff:g>個のアカウント）"</item>
     <item quantity="other" msgid="2723797835410343458">"（<xliff:g id="NUMBER_ACCOUNTS">%d</xliff:g>個のアカウント）"</item>
   </plurals>
-    <string name="special_mailbox_name_inbox" msgid="6549604962520041083">"受信トレイ"</string>
-    <string name="special_mailbox_display_name_inbox" msgid="5698658177687000229">"受信トレイ"</string>
-    <string name="special_mailbox_display_name_outbox" msgid="1884580655148530989">"送信トレイ"</string>
-    <string name="special_mailbox_display_name_drafts" msgid="5919687165402808119">"下書き"</string>
-    <string name="special_mailbox_display_name_trash" msgid="7042673673630272056">"ゴミ箱"</string>
-    <string name="special_mailbox_display_name_sent" msgid="3952772015118466625">"送信済み"</string>
-    <string name="special_mailbox_display_name_junk" msgid="4269251004068675867">"迷惑メール"</string>
+    <!-- no translation found for mailbox_name_display_inbox (3542327124749861736) -->
+    <skip />
+    <!-- no translation found for mailbox_name_display_outbox (2826214174661417662) -->
+    <skip />
+    <!-- no translation found for mailbox_name_display_drafts (4868718300700514319) -->
+    <skip />
+    <!-- no translation found for mailbox_name_display_trash (9139069064580630647) -->
+    <skip />
+    <!-- no translation found for mailbox_name_display_sent (3426058998191869523) -->
+    <skip />
+    <!-- no translation found for mailbox_name_display_junk (9046762505977999288) -->
+    <skip />
     <string name="debug_version_fmt" msgid="6160213145745376955">"バージョン: <xliff:g id="VERSION">%s</xliff:g>"</string>
-    <string name="debug_enable_debug_logging_label" msgid="2715742416050944774">"追加のデバッグログを有効にしますか？"</string>
-    <string name="debug_enable_sensitive_logging_label" msgid="9010809457943556126">"デバッグログに個人情報の記録を許可する (パスワードがログに表示されることがあります)"</string>
-    <string name="debug_enable_exchange_logging_label" msgid="7152247709069992487">"交換デバッグログを有効にしますか？"</string>
-    <string name="debug_enable_exchange_file_logging_label" msgid="2264994303719050729">"交換SDカードログを有効にしますか？"</string>
     <string name="account_folder_list_separator_accounts" msgid="7568820182396669244">"アカウント"</string>
-    <string name="account_folder_list_summary_inbox" msgid="7518263761297423255">"受信トレイ"</string>
+    <!-- no translation found for account_folder_list_summary_inbox (5790553737870057607) -->
+    <skip />
     <string name="account_folder_list_summary_unread" msgid="1200755158196002928">"未読"</string>
-    <string name="account_folder_list_summary_favorite" msgid="3476887425137403925">"お気に入り"</string>
+    <!-- no translation found for account_folder_list_summary_starred (3134312269246375723) -->
+    <skip />
     <string name="account_folder_list_summary_drafts" msgid="5514845993247300437">"下書き"</string>
     <string name="account_folder_list_summary_outbox" msgid="3059836696049399377">"送信トレイ"</string>
     <string name="mailbox_list_title" msgid="8299608543467211089">"メールボックス"</string>
@@ -125,8 +137,12 @@
     <string name="add_contact_dlg_message_fmt" msgid="4470846346726847478">"<xliff:g id="EMAIL">%s</xliff:g> を連絡先に追加する"</string>
     <string name="message_view_display_attachment_toast" msgid="6096315816776330821">"この添付ファイルは表示できません。"</string>
     <string name="account_setup_basics_title" msgid="3969856368228940980">"メールアカウントの登録"</string>
-    <string name="accounts_welcome" msgid="269104894968296884">"メールアカウントのセットアップ"\n\n"お好きなメールアカウントを登録してください。画面の手順に沿って簡単に追加できます。"</string>
-    <string name="account_setup_basics_instructions" msgid="2601015240806795328">"はじめに、メールアドレスとパスワードを入力してください:"</string>
+    <!-- no translation found for accounts_welcome (5901437782383439370) -->
+    <skip />
+    <!-- no translation found for accounts_welcome_exchange (4414121583987233733) -->
+    <skip />
+    <!-- no translation found for account_setup_basics_instructions (3126077748322815504) -->
+    <skip />
     <string name="account_setup_basics_email_hint" msgid="7414269319207261120">"メールアドレス"</string>
     <string name="account_setup_basics_password_hint" msgid="410210049040536870">"パスワード"</string>
     <string name="account_setup_basics_default_label" msgid="5924790142029806711">"いつもこのアカウントでメールを送信"</string>
@@ -148,7 +164,8 @@
     <string name="account_setup_account_type_instructions" msgid="114515540798408760">"このアカウントのタイプ"</string>
     <string name="account_setup_account_type_pop_action" msgid="3958144865724586762">"POP3アカウント"</string>
     <string name="account_setup_account_type_imap_action" msgid="3471220237309488124">"IMAPアカウント"</string>
-    <string name="account_setup_account_type_exchange_action" msgid="8193609147171666140">"Exchange/ActiveSync"</string>
+    <!-- no translation found for account_setup_account_type_exchange_action (7424283706321767987) -->
+    <skip />
     <string name="account_setup_incoming_title" msgid="6862032674547580337">"受信サーバーの設定"</string>
     <string name="account_setup_incoming_username_label" msgid="5700581386104070302">"ユーザー名"</string>
     <string name="account_setup_incoming_password_label" msgid="6365327603172559859">"パスワード"</string>
@@ -157,13 +174,16 @@
     <string name="account_setup_incoming_port_label" msgid="8214738923690447796">"ポート"</string>
     <string name="account_setup_incoming_security_label" msgid="2110260791086007424">"セキュリティの種類"</string>
     <string name="account_setup_incoming_security_none_label" msgid="8300169413118264895">"なし"</string>
-    <string name="account_setup_incoming_security_ssl_optional_label" msgid="8550650266852041870">"SSL（可能な場合）"</string>
-    <string name="account_setup_incoming_security_ssl_label" msgid="1239685754472907538">"SSL（常時）"</string>
-    <string name="account_setup_incoming_security_tls_optional_label" msgid="9140597901978722104">"TLS（可能な場合）"</string>
-    <string name="account_setup_incoming_security_tls_label" msgid="8930532576790946912">"TLS（常時）"</string>
+    <!-- no translation found for account_setup_incoming_security_ssl_trust_certificates_label (3581382268191377346) -->
+    <skip />
+    <!-- no translation found for account_setup_incoming_security_ssl_label (8886698397743061682) -->
+    <skip />
+    <!-- no translation found for account_setup_incoming_security_tls_trust_certificates_label (1089227022489257055) -->
+    <skip />
+    <!-- no translation found for account_setup_incoming_security_tls_label (8638006172590036487) -->
+    <skip />
     <string name="account_setup_incoming_delete_policy_label" msgid="9213590134693857912">"サーバーからメールを削除"</string>
     <string name="account_setup_incoming_delete_policy_never_label" msgid="3222897501875871041">"削除しない"</string>
-    <string name="account_setup_incoming_delete_policy_7days_label" msgid="5091246829453195520">"7日後"</string>
     <string name="account_setup_incoming_delete_policy_delete_label" msgid="222216840911785631">"受信トレイから削除したとき"</string>
     <string name="account_setup_incoming_imap_path_prefix_label" msgid="401167247072926810">"IMAPパスのプレフィックス"</string>
     <string name="account_setup_incoming_imap_path_prefix_hint" msgid="9190845919067906033">"省略可"</string>
@@ -218,6 +238,8 @@
     <string name="account_settings_default_label" msgid="3575963379680943640">"優先アカウントにする"</string>
     <string name="account_settings_default_summary" msgid="1531901438624688482">"いつもこのアカウントでメールを送信"</string>
     <string name="account_settings_notify_label" msgid="1630001017303007974">"メール着信通知"</string>
+    <!-- no translation found for account_settings_exchange_summary (8498451479029626317) -->
+    <skip />
     <string name="account_settings_notify_summary" msgid="6609224590300639887">"メール受信: ステータスバーで通知"</string>
     <string name="account_settings_mail_check_frequency_label" msgid="2067835530563849675">"新着メール自動確認"</string>
     <string name="account_settings_incoming_label" msgid="7858928031806297542">"受信設定"</string>
@@ -240,6 +262,7 @@
     <string name="provider_note_yahoo_uk" msgid="2055976404478603298">"このメールアカウントを設定する前に、Yahoo!サイトでこのアカウントのPOP3メールアクセスを有効にしてください。"</string>
     <string name="provider_note_live" msgid="3584841823811425060">"このプログラムでPOPアクセスが許可されているのは一部の「Plus」アカウントだけです。有料の「Plus」アカウントがなければ、正しいメールアドレスとパスワードを入力してもログインできません。これらのアカウントにはブラウザからアクセスしてください。"</string>
     <string name="provider_note_t_online" msgid="1973701903400232774">"このメールアカウントを設定する前にT-Onlineサイトにアクセスして、POP3メールアクセス用のパスワードを作成してください。"</string>
-    <string name="exchange_name" msgid="4717956395304578039">"Exchange"</string>
+    <!-- no translation found for exchange_name (1190783774800310346) -->
+    <skip />
     <string name="system_account_create_failed" msgid="4917162302393971752">"AccountManagerがアカウントを作成できませんでした。もう一度やり直してください。"</string>
 </resources>

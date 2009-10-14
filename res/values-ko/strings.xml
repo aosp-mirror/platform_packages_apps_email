@@ -15,8 +15,13 @@
 -->
 <resources xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:xliff="urn:oasis:names:tc:xliff:document:1.2">
-    <string name="read_attachment_label" msgid="1300286008047638726">"이메일 첨부파일 읽기"</string>
+    <!-- no translation found for read_attachment_label (1162255191991555285) -->
+    <skip />
     <string name="read_attachment_desc" msgid="7594746717616308643">"응용프로그램이 이메일 첨부파일을 읽도록 허용합니다."</string>
+    <!-- no translation found for permission_access_provider_label (4274353114641168675) -->
+    <skip />
+    <!-- no translation found for permission_access_provider_desc (1513898266889541617) -->
+    <skip />
     <string name="app_name" msgid="5815426892327290362">"이메일"</string>
     <string name="accounts_title" msgid="6622149231904649210">"이메일"</string>
     <string name="compose_title" msgid="427986915662706899">"편지쓰기"</string>
@@ -44,6 +49,8 @@
     <skip />
     <string name="refresh_action" msgid="5951383001436708175">"새로고침"</string>
     <string name="add_account_action" msgid="8835736309476033727">"계정 추가"</string>
+    <!-- no translation found for deselect_all_action (253663239459688238) -->
+    <skip />
     <string name="compose_action" msgid="4045702519637388045">"편지쓰기"</string>
     <string name="search_action" msgid="6325101454876682308">"검색"</string>
     <string name="open_action" msgid="936766723989190816">"열기"</string>
@@ -64,6 +71,8 @@
     <string name="status_sending_messages_failed" msgid="7975009558738692407">"메시지 전송 재시도 중"</string>
     <string name="status_loading_more_failed" msgid="1629172047185323">"추가 메시지 로드 재시도"</string>
     <string name="notification_new_title" msgid="2200257910380529139">"새 이메일"</string>
+    <!-- no translation found for error_loading_message_body (2265140604109272914) -->
+    <skip />
   <plurals name="notification_new_one_account_fmt">
     <item quantity="one" msgid="3422945912787702191">"읽지 않은 메일 <xliff:g id="UNREAD_MESSAGE_COUNT">%d</xliff:g>개(<xliff:g id="ACCOUNT">%s</xliff:g>)"</item>
     <item quantity="few" msgid="6543078667692990869">"읽지 않은 메일 <xliff:g id="UNREAD_MESSAGE_COUNT">%d</xliff:g>개(<xliff:g id="ACCOUNT">%s</xliff:g>)"</item>
@@ -73,22 +82,25 @@
     <item quantity="few" msgid="1991747245324120305">"<xliff:g id="NUMBER_ACCOUNTS">%d</xliff:g>개 계정"</item>
     <item quantity="other" msgid="2723797835410343458">"(<xliff:g id="NUMBER_ACCOUNTS">%d</xliff:g>개 계정)"</item>
   </plurals>
-    <string name="special_mailbox_name_inbox" msgid="6549604962520041083">"받은편지함"</string>
-    <string name="special_mailbox_display_name_inbox" msgid="5698658177687000229">"받은편지함"</string>
-    <string name="special_mailbox_display_name_outbox" msgid="1884580655148530989">"보낼편지함"</string>
-    <string name="special_mailbox_display_name_drafts" msgid="5919687165402808119">"임시보관함"</string>
-    <string name="special_mailbox_display_name_trash" msgid="7042673673630272056">"휴지통"</string>
-    <string name="special_mailbox_display_name_sent" msgid="3952772015118466625">"보낸편지함"</string>
-    <string name="special_mailbox_display_name_junk" msgid="4269251004068675867">"스팸"</string>
+    <!-- no translation found for mailbox_name_display_inbox (3542327124749861736) -->
+    <skip />
+    <!-- no translation found for mailbox_name_display_outbox (2826214174661417662) -->
+    <skip />
+    <!-- no translation found for mailbox_name_display_drafts (4868718300700514319) -->
+    <skip />
+    <!-- no translation found for mailbox_name_display_trash (9139069064580630647) -->
+    <skip />
+    <!-- no translation found for mailbox_name_display_sent (3426058998191869523) -->
+    <skip />
+    <!-- no translation found for mailbox_name_display_junk (9046762505977999288) -->
+    <skip />
     <string name="debug_version_fmt" msgid="6160213145745376955">"버전: <xliff:g id="VERSION">%s</xliff:g>"</string>
-    <string name="debug_enable_debug_logging_label" msgid="2715742416050944774">"별도의 디버그 로깅을 사용하시겠습니까?"</string>
-    <string name="debug_enable_sensitive_logging_label" msgid="9010809457943556126">"디버그 로깅 시 중요 정보 표시 여부(로그에 비밀번호가 표시될 수 있음)"</string>
-    <string name="debug_enable_exchange_logging_label" msgid="7152247709069992487">"디버그 로깅 교환을 사용하시겠습니까?"</string>
-    <string name="debug_enable_exchange_file_logging_label" msgid="2264994303719050729">"SD 카드 로깅 교환을 사용하시겠습니까?"</string>
     <string name="account_folder_list_separator_accounts" msgid="7568820182396669244">"계정"</string>
-    <string name="account_folder_list_summary_inbox" msgid="7518263761297423255">"받은편지함"</string>
+    <!-- no translation found for account_folder_list_summary_inbox (5790553737870057607) -->
+    <skip />
     <string name="account_folder_list_summary_unread" msgid="1200755158196002928">"읽지않음"</string>
-    <string name="account_folder_list_summary_favorite" msgid="3476887425137403925">"즐겨찾기"</string>
+    <!-- no translation found for account_folder_list_summary_starred (3134312269246375723) -->
+    <skip />
     <string name="account_folder_list_summary_drafts" msgid="5514845993247300437">"임시보관함"</string>
     <string name="account_folder_list_summary_outbox" msgid="3059836696049399377">"보낼편지함"</string>
     <string name="mailbox_list_title" msgid="8299608543467211089">"편지함"</string>
@@ -125,8 +137,12 @@
     <string name="add_contact_dlg_message_fmt" msgid="4470846346726847478">"\'<xliff:g id="EMAIL">%s</xliff:g>\'을(를) 주소록에 추가"</string>
     <string name="message_view_display_attachment_toast" msgid="6096315816776330821">"첨부파일을 표시할 수 없습니다."</string>
     <string name="account_setup_basics_title" msgid="3969856368228940980">"이메일 설정"</string>
-    <string name="accounts_welcome" msgid="269104894968296884">"이메일 설정에 오신 것을 환영합니다."\n\n"원하는 이메일 계정을 사용하세요. 가장 많이 사용하는 이메일 계정은 2단계 만에 설정할 수 있습니다."</string>
-    <string name="account_setup_basics_instructions" msgid="2601015240806795328">"시작하려면 이메일 주소와 비밀번호를 입력하세요."</string>
+    <!-- no translation found for accounts_welcome (5901437782383439370) -->
+    <skip />
+    <!-- no translation found for accounts_welcome_exchange (4414121583987233733) -->
+    <skip />
+    <!-- no translation found for account_setup_basics_instructions (3126077748322815504) -->
+    <skip />
     <string name="account_setup_basics_email_hint" msgid="7414269319207261120">"이메일 주소"</string>
     <string name="account_setup_basics_password_hint" msgid="410210049040536870">"비밀번호"</string>
     <string name="account_setup_basics_default_label" msgid="5924790142029806711">"이 계정에서 이메일을 보냅니다(기본값)."</string>
@@ -148,7 +164,8 @@
     <string name="account_setup_account_type_instructions" msgid="114515540798408760">"계정 유형이 무엇입니까?"</string>
     <string name="account_setup_account_type_pop_action" msgid="3958144865724586762">"POP3 계정"</string>
     <string name="account_setup_account_type_imap_action" msgid="3471220237309488124">"IMAP 계정"</string>
-    <string name="account_setup_account_type_exchange_action" msgid="8193609147171666140">"Exchange/ActiveSync"</string>
+    <!-- no translation found for account_setup_account_type_exchange_action (7424283706321767987) -->
+    <skip />
     <string name="account_setup_incoming_title" msgid="6862032674547580337">"수신 서버 설정"</string>
     <string name="account_setup_incoming_username_label" msgid="5700581386104070302">"사용자 이름"</string>
     <string name="account_setup_incoming_password_label" msgid="6365327603172559859">"비밀번호"</string>
@@ -157,13 +174,16 @@
     <string name="account_setup_incoming_port_label" msgid="8214738923690447796">"포트"</string>
     <string name="account_setup_incoming_security_label" msgid="2110260791086007424">"보안 유형"</string>
     <string name="account_setup_incoming_security_none_label" msgid="8300169413118264895">"없음"</string>
-    <string name="account_setup_incoming_security_ssl_optional_label" msgid="8550650266852041870">"SSL(제공되는 경우)"</string>
-    <string name="account_setup_incoming_security_ssl_label" msgid="1239685754472907538">"SSL(항상)"</string>
-    <string name="account_setup_incoming_security_tls_optional_label" msgid="9140597901978722104">"TLS(제공되는 경우)"</string>
-    <string name="account_setup_incoming_security_tls_label" msgid="8930532576790946912">"TLS(항상)"</string>
+    <!-- no translation found for account_setup_incoming_security_ssl_trust_certificates_label (3581382268191377346) -->
+    <skip />
+    <!-- no translation found for account_setup_incoming_security_ssl_label (8886698397743061682) -->
+    <skip />
+    <!-- no translation found for account_setup_incoming_security_tls_trust_certificates_label (1089227022489257055) -->
+    <skip />
+    <!-- no translation found for account_setup_incoming_security_tls_label (8638006172590036487) -->
+    <skip />
     <string name="account_setup_incoming_delete_policy_label" msgid="9213590134693857912">"서버에서 이메일 삭제"</string>
     <string name="account_setup_incoming_delete_policy_never_label" msgid="3222897501875871041">"안함"</string>
-    <string name="account_setup_incoming_delete_policy_7days_label" msgid="5091246829453195520">"7일 후"</string>
     <string name="account_setup_incoming_delete_policy_delete_label" msgid="222216840911785631">"받은편지함에서 삭제할 때"</string>
     <string name="account_setup_incoming_imap_path_prefix_label" msgid="401167247072926810">"IMAP 경로 접두어"</string>
     <string name="account_setup_incoming_imap_path_prefix_hint" msgid="9190845919067906033">"선택사항"</string>
@@ -218,6 +238,8 @@
     <string name="account_settings_default_label" msgid="3575963379680943640">"기본 계정"</string>
     <string name="account_settings_default_summary" msgid="1531901438624688482">"기본적으로 이 계정에서 이메일 전송"</string>
     <string name="account_settings_notify_label" msgid="1630001017303007974">"이메일 알림"</string>
+    <!-- no translation found for account_settings_exchange_summary (8498451479029626317) -->
+    <skip />
     <string name="account_settings_notify_summary" msgid="6609224590300639887">"이메일이 오면 상태 표시줄에 알림"</string>
     <string name="account_settings_mail_check_frequency_label" msgid="2067835530563849675">"이메일 확인 빈도"</string>
     <string name="account_settings_incoming_label" msgid="7858928031806297542">"수신 설정"</string>
@@ -240,6 +262,7 @@
     <string name="provider_note_yahoo_uk" msgid="2055976404478603298">"이메일 계정을 설정하기 전에 Yahoo! 웹사이트를 방문하여 이 계정에 대한 POP3 이메일 액세스를 사용하도록 설정하세요."</string>
     <string name="provider_note_live" msgid="3584841823811425060">"일부 \'Plus\' 계정에만 이 프로그램에 연결할 수 있는 POP 액세스 권한이 있습니다. 올바른 이메일 주소와 비밀번호를 입력해도 로그인이 되지 않으면 유료 \'Plus\' 계정이 없기 때문일 수 있습니다. 이러한 메일 계정에 액세스하려면 웹브라우저를 실행하세요."</string>
     <string name="provider_note_t_online" msgid="1973701903400232774">"이메일 계정을 설정하기 전에 T-온라인 웹사이트를 방문하고 POP3 이메일 액세스용 비밀번호를 만드세요."</string>
-    <string name="exchange_name" msgid="4717956395304578039">"Exchange"</string>
+    <!-- no translation found for exchange_name (1190783774800310346) -->
+    <skip />
     <string name="system_account_create_failed" msgid="4917162302393971752">"AccountManager가 계정을 만들 수 없습니다. 다시 시도해 보세요."</string>
 </resources>
