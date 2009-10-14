@@ -203,31 +203,7 @@ public class LegacyConversionsTests extends ProviderTestCase2<EmailProvider> {
                 "local-message", accountId, mailboxId, false, true, mProviderContext);
 
         // Prepare a legacy message with attachments
-        Part attachment1Part = MessageTestUtils.bodyPart("image/gif", null);
-        attachment1Part.setHeader(MimeHeader.HEADER_CONTENT_TYPE,
-                "image/gif;\n name=\"attachment1\"");
-        attachment1Part.setHeader(MimeHeader.HEADER_CONTENT_TRANSFER_ENCODING, "base64");
-        attachment1Part.setHeader(MimeHeader.HEADER_CONTENT_DISPOSITION,
-                "attachment;\n filename=\"attachment1\";\n size=100");
-        attachment1Part.setHeader(MimeHeader.HEADER_ANDROID_ATTACHMENT_STORE_DATA, "101");
-
-        Part attachment2Part = MessageTestUtils.bodyPart("image/jpg", null);
-        attachment2Part.setHeader(MimeHeader.HEADER_CONTENT_TYPE,
-                "image/jpg;\n name=\"attachment2\"");
-        attachment2Part.setHeader(MimeHeader.HEADER_CONTENT_TRANSFER_ENCODING, "base64");
-        attachment2Part.setHeader(MimeHeader.HEADER_CONTENT_DISPOSITION,
-                "attachment;\n filename=\"attachment2\";\n size=200");
-        attachment2Part.setHeader(MimeHeader.HEADER_ANDROID_ATTACHMENT_STORE_DATA, "102");
-
-        final Message legacyMessage = new MessageBuilder()
-            .setBody(new MultipartBuilder("multipart/mixed")
-                     .addBodyPart(MessageTestUtils.bodyPart("text/html", null))
-                     .addBodyPart(new MultipartBuilder("multipart/mixed")
-                             .addBodyPart((BodyPart)attachment1Part)
-                             .addBodyPart((BodyPart)attachment2Part)
-                             .buildBodyPart())
-                     .build())
-                .build();
+        final Message legacyMessage = prepareLegacyMessageWithAttachments(2);
 
         // Now, convert from legacy to provider and see what happens
         ArrayList<Part> viewables = new ArrayList<Part>();
@@ -244,9 +220,9 @@ public class LegacyConversionsTests extends ProviderTestCase2<EmailProvider> {
             while (c.moveToNext()) {
                 Attachment attachment = Attachment.getContent(c, Attachment.class);
                 if ("101".equals(attachment.mLocation)) {
-                    checkAttachment("attachment1Part", attachment1Part, attachment);
+                    checkAttachment("attachment1Part", attachments.get(0), attachment);
                 } else if ("102".equals(attachment.mLocation)) {
-                    checkAttachment("attachment2Part", attachment2Part, attachment);
+                    checkAttachment("attachment2Part", attachments.get(1), attachment);
                 } else {
                     fail("Unexpected attachment with location " + attachment.mLocation);
                 }
@@ -254,6 +230,93 @@ public class LegacyConversionsTests extends ProviderTestCase2<EmailProvider> {
         } finally {
             c.close();
         }
+    }
+
+    /**
+     * Test that attachments aren't re-added in the DB.  This supports the "partial download"
+     * nature of POP messages.
+     */
+    public void testAddDuplicateAttachments() throws MessagingException, IOException {
+        // Prepare a local message to add the attachments to
+        final long accountId = 1;
+        final long mailboxId = 1;
+        final EmailContent.Message localMessage = ProviderTestUtils.setupMessage(
+                "local-message", accountId, mailboxId, false, true, mProviderContext);
+
+        // Prepare a legacy message with attachments
+        Message legacyMessage = prepareLegacyMessageWithAttachments(2);
+
+        // Now, convert from legacy to provider and see what happens
+        ArrayList<Part> viewables = new ArrayList<Part>();
+        ArrayList<Part> attachments = new ArrayList<Part>();
+        MimeUtility.collectParts(legacyMessage, viewables, attachments);
+        LegacyConversions.updateAttachments(mProviderContext, localMessage, attachments);
+
+        // Confirm two attachment objects created
+        Uri uri = ContentUris.withAppendedId(Attachment.MESSAGE_ID_URI, localMessage.mId);
+        assertEquals(2, EmailContent.count(mProviderContext, uri, null, null));
+
+        // Now add the attachments again and confirm there are still only two
+        LegacyConversions.updateAttachments(mProviderContext, localMessage, attachments);
+        assertEquals(2, EmailContent.count(mProviderContext, uri, null, null));
+
+        // Now add a 3rd & 4th attachment and make sure the total is 4, not 2 or 6
+        legacyMessage = prepareLegacyMessageWithAttachments(4);
+        viewables = new ArrayList<Part>();
+        attachments = new ArrayList<Part>();
+        MimeUtility.collectParts(legacyMessage, viewables, attachments);
+        LegacyConversions.updateAttachments(mProviderContext, localMessage, attachments);
+        assertEquals(4, EmailContent.count(mProviderContext, uri, null, null));
+    }
+
+    /**
+     * Prepare a legacy message with 1+ attachments
+     */
+    private static Message prepareLegacyMessageWithAttachments(int numAttachments)
+            throws MessagingException {
+        // First, build one or more attachment parts
+        MultipartBuilder mpBuilder = new MultipartBuilder("multipart/mixed");
+        for (int i = 1; i <= numAttachments; ++i) {
+            BodyPart attachmentPart = MessageTestUtils.bodyPart("image/jpg", null);
+
+            // name=attachmentN size=N00 location=10N
+            attachmentPart.setHeader(MimeHeader.HEADER_CONTENT_TYPE,
+                    "image/jpg;\n name=\"attachment" + i + "\"");
+            attachmentPart.setHeader(MimeHeader.HEADER_CONTENT_TRANSFER_ENCODING, "base64");
+            attachmentPart.setHeader(MimeHeader.HEADER_CONTENT_DISPOSITION,
+                    "attachment;\n filename=\"attachment2\";\n size=" + i + "00");
+            attachmentPart.setHeader(MimeHeader.HEADER_ANDROID_ATTACHMENT_STORE_DATA, "10" + i);
+
+            mpBuilder.addBodyPart(attachmentPart);
+        }
+
+        // Now build a message with them
+        final Message legacyMessage = new MessageBuilder()
+            .setBody(new MultipartBuilder("multipart/mixed")
+                     .addBodyPart(MessageTestUtils.bodyPart("text/html", null))
+                     .addBodyPart(mpBuilder.buildBodyPart())
+                     .build())
+                .build();
+
+        return legacyMessage;
+    }
+
+    /**
+     * Test the stringInequal helper
+     */
+    public void testStringInequal() {
+        // Pairs that are "equal"
+        assertFalse(LegacyConversions.stringNotEqual(null, null));
+        assertFalse(LegacyConversions.stringNotEqual(null, ""));
+        assertFalse(LegacyConversions.stringNotEqual("", null));
+        assertFalse(LegacyConversions.stringNotEqual("", ""));
+        assertFalse(LegacyConversions.stringNotEqual("string-equal", "string-equal"));
+        // Pairs that are "inequal"
+        assertTrue(LegacyConversions.stringNotEqual(null, "string-inequal"));
+        assertTrue(LegacyConversions.stringNotEqual("", "string-inequal"));
+        assertTrue(LegacyConversions.stringNotEqual("string-inequal", null));
+        assertTrue(LegacyConversions.stringNotEqual("string-inequal", ""));
+        assertTrue(LegacyConversions.stringNotEqual("string-inequal-a", "string-inequal-b"));
     }
 
     /**
@@ -345,7 +408,7 @@ public class LegacyConversionsTests extends ProviderTestCase2<EmailProvider> {
         assertEquals(tag, expect.isSet(Flag.FLAGGED), actual.mFlagFavorite);
     }
 
-        /**
+    /**
      * Check equality of a pair of converted messages
      */
     private void checkLegacyMessage(String tag, EmailContent.Message expect, Message actual)
