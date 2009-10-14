@@ -38,6 +38,7 @@ import org.apache.commons.io.IOUtils;
 import android.content.ContentUris;
 import android.content.ContentValues;
 import android.content.Context;
+import android.database.Cursor;
 import android.net.Uri;
 import android.util.Log;
 
@@ -49,6 +50,9 @@ import java.util.ArrayList;
 import java.util.Date;
 
 public class LegacyConversions {
+
+    /** DO NOT CHECK IN "TRUE" */
+    private static final boolean DEBUG_ATTACHMENTS = false;
 
     /**
      * Values for HEADER_ANDROID_BODY_QUOTED_PART to tag body parts
@@ -255,8 +259,14 @@ public class LegacyConversions {
     /**
      * Add a single attachment part to the message
      *
-     * TODO: This will simply add to any existing attachments - could this ever happen?  If so,
-     * change it to find existing attachments and delete/merge them.
+     * This will skip adding attachments if they are already found in the attachments table.
+     * The heuristic for this will fail (false-positive) if two identical attachments are
+     * included in a single POP3 message.
+     * TODO: Fix that, by (elsewhere) simulating an mLocation value based on the attachments
+     * position within the list of multipart/mixed elements.  This would make every POP3 attachment
+     * unique, and might also simplify the code (since we could just look at the positions, and
+     * ignore the filename, etc.)
+     *
      * TODO: Take a closer look at encoding and deal with it if necessary.
      *
      * @param context a context for file operations
@@ -301,8 +311,44 @@ public class LegacyConversions {
         localAttachment.mLocation = partId;
         localAttachment.mEncoding = "B";        // TODO - convert other known encodings
 
+        if (DEBUG_ATTACHMENTS) {
+            Log.d(Email.LOG_TAG, "Add attachment " + localAttachment);
+        }
+
+        // To prevent duplication - do we already have a matching attachment?
+        // The fields we'll check for equality are:
+        //  mFileName, mMimeType, mContentId, mMessageKey, mLocation
+        // NOTE:  This will false-positive if you attach the exact same file, twice, to a POP3
+        // message.  We can live with that - you'll get one of the copies.
+        Uri uri = ContentUris.withAppendedId(Attachment.MESSAGE_ID_URI, localMessage.mId);
+        Cursor cursor = context.getContentResolver().query(uri, Attachment.CONTENT_PROJECTION,
+                null, null, null);
+        boolean attachmentFoundInDb = false;
+        try {
+            while (cursor.moveToNext()) {
+                Attachment dbAttachment = new Attachment().restore(cursor);
+                // We test each of the fields here (instead of in SQL) because they may be
+                // null, or may be strings.
+                if (stringNotEqual(dbAttachment.mFileName, localAttachment.mFileName)) continue;
+                if (stringNotEqual(dbAttachment.mMimeType, localAttachment.mMimeType)) continue;
+                if (stringNotEqual(dbAttachment.mContentId, localAttachment.mContentId)) continue;
+                if (stringNotEqual(dbAttachment.mLocation, localAttachment.mLocation)) continue;
+                // We found a match, so use the existing attachment id, and stop looking/looping
+                attachmentFoundInDb = true;
+                localAttachment.mId = dbAttachment.mId;
+                if (DEBUG_ATTACHMENTS) {
+                    Log.d(Email.LOG_TAG, "Skipped, found db attachment " + dbAttachment);
+                }
+                break;
+            }
+        } finally {
+            cursor.close();
+        }
+
         // Save the attachment (so far) in order to obtain an id
-        localAttachment.save(context);
+        if (!attachmentFoundInDb) {
+            localAttachment.save(context);
+        }
 
         // If an attachment body was actually provided, we need to write the file now
         saveAttachmentBody(context, part, localAttachment, localMessage.mAccountKey);
@@ -312,6 +358,17 @@ public class LegacyConversions {
         }
         localMessage.mAttachments.add(localAttachment);
         localMessage.mFlagAttachment = true;
+    }
+
+    /**
+     * Helper for addOneAttachment that compares two strings, deals with nulls, and treats
+     * nulls and empty strings as equal.
+     */
+    /* package */ static boolean stringNotEqual(String a, String b) {
+        if (a == null && b == null) return false;       // fast exit for two null strings
+        if (a == null) a = "";
+        if (b == null) b = "";
+        return !a.equals(b);
     }
 
     /**
