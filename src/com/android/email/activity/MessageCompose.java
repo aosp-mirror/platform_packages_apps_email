@@ -279,6 +279,7 @@ public class MessageCompose extends Activity implements OnClickListener, OnFocus
         setContentView(R.layout.message_compose);
         mController = Controller.getInstance(getApplication());
         initViews();
+        setDraftNeedsSaving(false);
 
         long draftId = -1;
         if (savedInstanceState != null) {
@@ -307,7 +308,7 @@ public class MessageCompose extends Activity implements OnClickListener, OnFocus
             setAccount(intent);
             // Use the fields found in the Intent to prefill as much of the message as possible
             initFromIntent(intent);
-            mDraftNeedsSaving = true;
+            setDraftNeedsSaving(true);
             mMessageLoaded = true;
             mSourceMessageProcessed = true;
         } else {
@@ -416,7 +417,12 @@ public class MessageCompose extends Activity implements OnClickListener, OnFocus
                 View.VISIBLE : View.GONE);
         mQuotedText.setVisibility(savedInstanceState.getBoolean(STATE_KEY_QUOTED_TEXT_SHOWN) ?
                 View.VISIBLE : View.GONE);
-        mDraftNeedsSaving = false;
+        setDraftNeedsSaving(false);
+    }
+
+    private void setDraftNeedsSaving(boolean needsSaving) {
+        mDraftNeedsSaving = needsSaving;
+        mSaveButton.setEnabled(needsSaving);
     }
 
     private void initViews() {
@@ -439,7 +445,7 @@ public class MessageCompose extends Activity implements OnClickListener, OnFocus
 
             public void onTextChanged(CharSequence s, int start,
                                           int before, int count) {
-                mDraftNeedsSaving = true;
+                setDraftNeedsSaving(true);
             }
 
             public void afterTextChanged(android.text.Editable s) { }
@@ -861,7 +867,7 @@ public class MessageCompose extends Activity implements OnClickListener, OnFocus
         if (!mDraftNeedsSaving) {
             return;
         }
-        mDraftNeedsSaving = false;
+        setDraftNeedsSaving(false);
         sendOrSaveMessage(false);
     }
 
@@ -891,7 +897,7 @@ public class MessageCompose extends Activity implements OnClickListener, OnFocus
                     Toast.LENGTH_LONG).show();
         } else {
             sendOrSaveMessage(true);
-            mDraftNeedsSaving = false;
+            setDraftNeedsSaving(false);
             finish();
         }
     }
@@ -901,7 +907,7 @@ public class MessageCompose extends Activity implements OnClickListener, OnFocus
             mController.deleteMessage(mDraft.mId, mDraft.mAccountKey);
         }
         Toast.makeText(this, getString(R.string.message_discarded_toast), Toast.LENGTH_LONG).show();
-        mDraftNeedsSaving = false;
+        setDraftNeedsSaving(false);
         finish();
     }
 
@@ -989,7 +995,7 @@ public class MessageCompose extends Activity implements OnClickListener, OnFocus
             return;
         }
         addAttachment(data.getData());
-        mDraftNeedsSaving = true;
+        setDraftNeedsSaving(true);
     }
 
     public void onClick(View view) {
@@ -1009,7 +1015,7 @@ public class MessageCompose extends Activity implements OnClickListener, OnFocus
             case R.id.quoted_text_delete:
                 mQuotedTextBar.setVisibility(View.GONE);
                 mQuotedText.setVisibility(View.GONE);
-                mDraftNeedsSaving = true;
+                setDraftNeedsSaving(true);
                 break;
         }
     }
@@ -1035,7 +1041,7 @@ public class MessageCompose extends Activity implements OnClickListener, OnFocus
                 }
             }.execute(attachment.mId);
         }
-        mDraftNeedsSaving = true;
+        setDraftNeedsSaving(true);
     }
 
     @Override
@@ -1198,7 +1204,7 @@ public class MessageCompose extends Activity implements OnClickListener, OnFocus
             mBccView.setVisibility(View.VISIBLE);
         }
         setNewMessageFocus();
-        mDraftNeedsSaving = false;
+        setDraftNeedsSaving(false);
     }
 
     /**
@@ -1355,7 +1361,7 @@ public class MessageCompose extends Activity implements OnClickListener, OnFocus
      */
     /* package */
     void processSourceMessage(Message message, Account account) {
-        mDraftNeedsSaving = true;
+        setDraftNeedsSaving(true);
         final String subject = message.mSubject;
         if (ACTION_REPLY.equals(mAction) || ACTION_REPLY_ALL.equals(mAction)) {
             setupAddressViews(message, account, mToView, mCcView,
@@ -1391,7 +1397,7 @@ public class MessageCompose extends Activity implements OnClickListener, OnFocus
             mMessageContentView.setText(message.mText);
             // TODO: re-enable loadAttachments
             // loadAttachments(message, 0);
-            mDraftNeedsSaving = false;
+            setDraftNeedsSaving(false);
         }
         setNewMessageFocus();
     }
