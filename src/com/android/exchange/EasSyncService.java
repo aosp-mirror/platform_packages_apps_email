@@ -299,7 +299,6 @@ public class EasSyncService extends AbstractSyncService {
         if (status == HttpStatus.SC_OK) {
             HttpEntity e = res.getEntity();
             int len = (int)e.getContentLength();
-            String type = e.getContentType().getValue();
             InputStream is = res.getEntity().getContent();
             File f = (req.destination != null)
                     ? new File(req.destination)
@@ -338,7 +337,6 @@ public class EasSyncService extends AbstractSyncService {
                             : "file://" + f.getAbsolutePath();
                     ContentValues cv = new ContentValues();
                     cv.put(AttachmentColumns.CONTENT_URI, contentUriString);
-                    cv.put(AttachmentColumns.MIME_TYPE, type);
                     att.update(mContext, cv);
                     doStatusCallback(msg.mId, att.mId, EmailServiceStatus.SUCCESS);
                 }
