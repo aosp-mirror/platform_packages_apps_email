@@ -140,7 +140,10 @@ public abstract class AbstractSyncParser extends Parser {
                     mAdapter.setSyncKey(newKey, true);
                     cv.put(MailboxColumns.SYNC_KEY, newKey);
                     mailboxUpdated = true;
-                }
+                } else if (moreAvailable) {
+                    userLog("!! SyncKey hasn't changed, setting moreAvailable = false");
+                    moreAvailable = false;
+                } 
                 // If we were pushing (i.e. auto-start), now we'll become ping-triggered
                 if (mMailbox.mSyncInterval == Mailbox.CHECK_INTERVAL_PUSH) {
                     mMailbox.mSyncInterval = Mailbox.CHECK_INTERVAL_PING;
