@@ -142,7 +142,7 @@ public class SyncManager extends Service implements Runnable {
     protected static final String WHERE_IN_ACCOUNT_AND_PUSHABLE =
         MailboxColumns.ACCOUNT_KEY + "=? and type in (" + Mailbox.TYPE_INBOX + ','
         + Mailbox.TYPE_EAS_ACCOUNT_MAILBOX + ',' + Mailbox.TYPE_CONTACTS + ')';
-    private static final String WHERE_MAILBOX_KEY = EmailContent.RECORD_ID + "=?";
+    private static final String WHERE_MAILBOX_KEY = Message.MAILBOX_KEY + "=?";
     private static final String WHERE_PROTOCOL_EAS = HostAuthColumns.PROTOCOL + "=\"" +
         AbstractSyncService.EAS_PROTOCOL + "\"";
     private static final String WHERE_NOT_INTERVAL_NEVER_AND_ACCOUNT_KEY_IN =
@@ -1147,6 +1147,10 @@ public class SyncManager extends Service implements Runnable {
                     // We ignore drafts completely (doesn't sync).  Changes in Outbox are handled
                     // in the checkMailboxes loop, so we can ignore these pings.
                     if (m.mType == Mailbox.TYPE_DRAFTS || m.mType == Mailbox.TYPE_OUTBOX) {
+                        String[] args = new String[] {Long.toString(m.mId)};
+                        ContentResolver resolver = INSTANCE.mResolver;
+                        resolver.delete(Message.DELETED_CONTENT_URI, WHERE_MAILBOX_KEY, args);
+                        resolver.delete(Message.UPDATED_CONTENT_URI, WHERE_MAILBOX_KEY, args);
                         return;
                     }
                     service.mAccount = Account.restoreAccountWithId(INSTANCE, m.mAccountKey);
