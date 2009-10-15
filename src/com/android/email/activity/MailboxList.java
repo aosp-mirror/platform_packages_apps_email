@@ -28,6 +28,8 @@ import com.android.email.provider.EmailContent.Account;
 import com.android.email.provider.EmailContent.AccountColumns;
 import com.android.email.provider.EmailContent.Mailbox;
 import com.android.email.provider.EmailContent.MailboxColumns;
+import com.android.email.provider.EmailContent.Message;
+import com.android.email.provider.EmailContent.MessageColumns;
 
 import android.app.ListActivity;
 import android.content.ContentUris;
@@ -64,6 +66,8 @@ public class MailboxList extends ListActivity implements OnItemClickListener {
     private static final String MAILBOX_SELECTION = MailboxColumns.ACCOUNT_KEY + "=?"
         + " AND " + MailboxColumns.TYPE + "<" + Mailbox.TYPE_NOT_EMAIL
         + " AND " + MailboxColumns.FLAG_VISIBLE + "=1";
+    private static final String MESSAGE_MAILBOX_ID_SELECTION =
+        MessageColumns.MAILBOX_KEY + "=?";
 
     // UI support
     private ListView mListView;
@@ -101,7 +105,13 @@ public class MailboxList extends ListActivity implements OnItemClickListener {
     // DB access
     private long mAccountId;
     private LoadMailboxesTask mLoadMailboxesTask;
-    private AsyncTask mLoadAccountNameTask;
+    private AsyncTask<Void, Void, String> mLoadAccountNameTask;
+    private MessageCountTask mMessageCountTask;
+
+    private long mDraftMailboxKey = -1;
+    private long mTrashMailboxKey = -1;
+    private int mUnreadCountDraft = 0;
+    private int mUnreadCountTrash = 0;
 
     /**
      * Open a specific account.
@@ -193,6 +203,7 @@ public class MailboxList extends ListActivity implements OnItemClickListener {
     public void onResume() {
         super.onResume();
         Controller.getInstance(getApplication()).addResultCallback(mControllerCallback);
+        updateMessageCount();
 
         // TODO: may need to clear notifications here
     }
@@ -210,6 +221,11 @@ public class MailboxList extends ListActivity implements OnItemClickListener {
                 mLoadAccountNameTask.getStatus() != LoadMailboxesTask.Status.FINISHED) {
             mLoadAccountNameTask.cancel(true);
             mLoadAccountNameTask = null;
+        }
+        if (mMessageCountTask != null &&
+                mMessageCountTask.getStatus() != MessageCountTask.Status.FINISHED) {
+            mMessageCountTask.cancel(true);
+            mMessageCountTask = null;
         }
     }
 
@@ -322,12 +338,27 @@ public class MailboxList extends ListActivity implements OnItemClickListener {
 
         @Override
         protected Cursor doInBackground(Void... params) {
-            return MailboxList.this.managedQuery(
+            Cursor c = MailboxList.this.managedQuery(
                     EmailContent.Mailbox.CONTENT_URI,
                     MailboxList.this.mListAdapter.PROJECTION,
                     MAILBOX_SELECTION,
                     new String[] { String.valueOf(mAccountKey) },
                     MailboxColumns.TYPE + "," + MailboxColumns.DISPLAY_NAME);
+            mDraftMailboxKey = -1;
+            mTrashMailboxKey = -1;
+            c.moveToPosition(-1);
+            while (c.moveToNext()) {
+                long mailboxId = c.getInt(mListAdapter.COLUMN_ID);
+                switch (c.getInt(mListAdapter.COLUMN_TYPE)) {
+                case Mailbox.TYPE_DRAFTS:
+                    mDraftMailboxKey = mailboxId;
+                    break;
+                case Mailbox.TYPE_TRASH:
+                    mTrashMailboxKey = mailboxId;
+                    break;
+                }
+            }
+            return c;
         }
 
         @Override
@@ -336,7 +367,69 @@ public class MailboxList extends ListActivity implements OnItemClickListener {
                 return;
             }
             MailboxList.this.mListAdapter.changeCursor(cursor);
+            updateMessageCount();
         }
+    }
+
+    private class MessageCountTask extends AsyncTask<Void, Void, int[]> {
+
+        @Override
+        protected int[] doInBackground(Void... params) {
+            int[] counts = new int[2];
+            if (mDraftMailboxKey != -1) {
+                counts[0] = EmailContent.count(MailboxList.this, Message.CONTENT_URI,
+                        MESSAGE_MAILBOX_ID_SELECTION,
+                        new String[] { String.valueOf(mDraftMailboxKey)});
+            } else {
+                counts[0] = -1;
+            }
+            if (mTrashMailboxKey != -1) {
+                counts[1] = EmailContent.count(MailboxList.this, Message.CONTENT_URI,
+                        MESSAGE_MAILBOX_ID_SELECTION,
+                        new String[] { String.valueOf(mTrashMailboxKey)});
+            } else {
+                counts[1] = -1;
+            }
+            return counts;
+        }
+
+        @Override
+        protected void onPostExecute(int[] counts) {
+            boolean countChanged = false;
+            if (counts == null) {
+                return;
+            }
+            if (counts[0] != -1) {
+                if (mUnreadCountDraft != counts[0]) {
+                    mUnreadCountDraft = counts[0];
+                    countChanged = true;
+                }
+            } else {
+                mUnreadCountDraft = 0;
+            }
+            if (counts[1] != -1) {
+                if (mUnreadCountTrash != counts[1]) {
+                    mUnreadCountTrash = counts[1];
+                    countChanged = true;
+                }
+            } else {
+                mUnreadCountTrash = 0;
+            }
+            if (countChanged) {
+                mListAdapter.notifyDataSetChanged();
+            }
+        }
+    }
+
+    private void updateMessageCount() {
+        if (mAccountId == -1 || mListAdapter.getCursor() == null) {
+            return;
+        }
+        if (mMessageCountTask != null
+                && mMessageCountTask.getStatus() != MessageCountTask.Status.FINISHED) {
+            mMessageCountTask.cancel(true);
+        }
+        mMessageCountTask = (MessageCountTask) new MessageCountTask().execute();
     }
 
     /**
@@ -502,6 +595,7 @@ public class MailboxList extends ListActivity implements OnItemClickListener {
 
         public final String[] PROJECTION = new String[] { MailboxColumns.ID,
                 MailboxColumns.DISPLAY_NAME, MailboxColumns.UNREAD_COUNT, MailboxColumns.TYPE };
+        public final int COLUMN_ID = 0;
         public final int COLUMN_DISPLAY_NAME = 1;
         public final int COLUMN_UNREAD_COUNT = 2;
         public final int COLUMN_TYPE = 3;
@@ -542,9 +636,21 @@ public class MailboxList extends ListActivity implements OnItemClickListener {
             chipView.setBackgroundResource(chipResId);
             // TODO do we use a different count for special mailboxes (total count vs. unread)
             int count = -1;
-            text = cursor.getString(COLUMN_UNREAD_COUNT);
-            if (text != null) {
-                count = Integer.valueOf(text);
+            switch (type) {
+                case Mailbox.TYPE_DRAFTS:
+                    count = mUnreadCountDraft;
+                    text = String.valueOf(count);
+                    break;
+                case Mailbox.TYPE_TRASH:
+                    count = mUnreadCountTrash;
+                    text = String.valueOf(count);
+                    break;
+                default:
+                    text = cursor.getString(COLUMN_UNREAD_COUNT);
+                    if (text != null) {
+                        count = Integer.valueOf(text);
+                    }
+                    break;
             }
             TextView countView = (TextView) view.findViewById(R.id.new_message_count);
             // If the unread count is zero, not to show countView.
