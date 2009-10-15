@@ -38,6 +38,9 @@
             android:layout_width="wrap_content"
             android:layout_height="fill_parent"
             android:textColor="#ffffffff"
+            android:shadowRadius="0.1"
+            android:shadowDy="1"
+            android:shadowColor="#ff000000"
             android:layout_weight="1" />
 
     <ProgressBar android:id="@+id/title_progress_icon"
