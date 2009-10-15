@@ -169,6 +169,7 @@ public class ProviderTests extends ProviderTestCase2<EmailProvider> {
     /**
      * Test the various combinations of SSL, TLS, and trust-certificates encoded as Uris
      */
+    @SuppressWarnings("deprecation")
     public void testHostAuthSecurityUri() {
         HostAuth ha = ProviderTestUtils.setupHostAuth("uri-security", 1, false, mMockContext);
 
@@ -209,6 +210,7 @@ public class ProviderTests extends ProviderTestCase2<EmailProvider> {
     /**
      * Test port assignments made from Uris
      */
+    @SuppressWarnings("deprecation")
     public void testHostAuthPortAssignments() {
         HostAuth ha = ProviderTestUtils.setupHostAuth("uri-port", 1, false, mMockContext);
 
@@ -656,7 +658,7 @@ public class ProviderTests extends ProviderTestCase2<EmailProvider> {
     public void testDeleteOrphanBodies() {
         final ContentResolver resolver = mMockContext.getContentResolver();
 
-        // Create account and twa mailboxes
+        // Create account and two mailboxes
         Account account1 = ProviderTestUtils.setupAccount("orphaned body", true, mMockContext);
         long account1Id = account1.mId;
         Mailbox box1 = ProviderTestUtils.setupMailbox("box1", account1Id, true, mMockContext);
@@ -684,6 +686,130 @@ public class ProviderTests extends ProviderTestCase2<EmailProvider> {
 
         // 5. verify body for second message wasn't deleted during "delete orphan bodies"
         assertNotNull(loadBodyForMessageId(message2Id));
+    }
+
+    /**
+     * Test delete orphan messages
+     * 1. create message without body (message id 1)
+     * 2. create message with body (message id 2. Body has _id 1 and messageKey 2).
+     * 3. delete first message.
+     * 4. delete some other mailbox -- this triggers delete orphan bodies.
+     * 5. verify that body for message 2 has not been deleted.
+     */
+     public void testDeleteOrphanMessages() {
+        final ContentResolver resolver = mMockContext.getContentResolver();
+        final Context context = mMockContext;
+
+        // Create account and two mailboxes
+        Account acct = ProviderTestUtils.setupAccount("orphaned body", true, context);
+        Mailbox box1 = ProviderTestUtils.setupMailbox("box1", acct.mId, true, context);
+        Mailbox box2 = ProviderTestUtils.setupMailbox("box2", acct.mId, true, context);
+
+        // Create 4 messages in box1
+        Message msg1_1 =
+            ProviderTestUtils.setupMessage("message1", acct.mId, box1.mId, false, true, context);
+        Message msg1_2 =
+            ProviderTestUtils.setupMessage("message2", acct.mId, box1.mId, false, true, context);
+        Message msg1_3 =
+            ProviderTestUtils.setupMessage("message3", acct.mId, box1.mId, false, true, context);
+        Message msg1_4 =
+            ProviderTestUtils.setupMessage("message4", acct.mId, box1.mId, false, true, context);
+
+        // Create 4 messages in box2
+        Message msg2_1 =
+            ProviderTestUtils.setupMessage("message1", acct.mId, box2.mId, false, true, context);
+        Message msg2_2 =
+            ProviderTestUtils.setupMessage("message2", acct.mId, box2.mId, false, true, context);
+        Message msg2_3 =
+            ProviderTestUtils.setupMessage("message3", acct.mId, box2.mId, false, true, context);
+        Message msg2_4 =
+            ProviderTestUtils.setupMessage("message4", acct.mId, box2.mId, false, true, context);
+
+        // Delete 2 from each mailbox
+        resolver.delete(ContentUris.withAppendedId(Message.SYNCED_CONTENT_URI, msg1_1.mId),
+                null, null);
+        resolver.delete(ContentUris.withAppendedId(Message.SYNCED_CONTENT_URI, msg1_2.mId),
+                null, null);
+        resolver.delete(ContentUris.withAppendedId(Message.SYNCED_CONTENT_URI, msg2_1.mId),
+                null, null);
+        resolver.delete(ContentUris.withAppendedId(Message.SYNCED_CONTENT_URI, msg2_2.mId),
+                null, null);
+
+        // There should be 4 items in the deleted item table
+        assertEquals(4, EmailContent.count(context, Message.DELETED_CONTENT_URI, null, null));
+
+        // Update 2 from each mailbox
+        ContentValues v = new ContentValues();
+        v.put(MessageColumns.DISPLAY_NAME, "--updated--");
+        resolver.update(ContentUris.withAppendedId(Message.SYNCED_CONTENT_URI, msg1_3.mId),
+                v, null, null);
+        resolver.update(ContentUris.withAppendedId(Message.SYNCED_CONTENT_URI, msg1_4.mId),
+                v, null, null);
+        resolver.update(ContentUris.withAppendedId(Message.SYNCED_CONTENT_URI, msg2_3.mId),
+                v, null, null);
+        resolver.update(ContentUris.withAppendedId(Message.SYNCED_CONTENT_URI, msg2_4.mId),
+                v, null, null);
+
+         // There should be 4 items in the updated item table
+        assertEquals(4, EmailContent.count(context, Message.UPDATED_CONTENT_URI, null, null));
+
+        // Manually add 2 messages from a "deleted" mailbox to deleted and updated tables
+        // Use a value > 2 for the deleted box id
+        long delBoxId = 10;
+        // Create 4 messages in the "deleted" mailbox
+        Message msgX_A =
+            ProviderTestUtils.setupMessage("messageA", acct.mId, delBoxId, false, false, context);
+        Message msgX_B =
+            ProviderTestUtils.setupMessage("messageB", acct.mId, delBoxId, false, false, context);
+        Message msgX_C =
+            ProviderTestUtils.setupMessage("messageC", acct.mId, delBoxId, false, false, context);
+        Message msgX_D =
+            ProviderTestUtils.setupMessage("messageD", acct.mId, delBoxId, false, false, context);
+
+        ContentValues cv;
+        // We have to assign id's manually because there are no autoincrement id's for these tables
+        // Start with an id that won't exist, since id's in these tables must be unique
+        long msgId = 10;
+        // It's illegal to manually insert these, so we need to catch the exception
+        // NOTE: The insert succeeds, and then throws the exception
+        try {
+            cv = msgX_A.toContentValues();
+            cv.put(EmailContent.RECORD_ID, msgId++);
+            resolver.insert(Message.DELETED_CONTENT_URI, cv);
+        } catch (IllegalArgumentException e) {
+        }
+        try {
+            cv = msgX_B.toContentValues();
+            cv.put(EmailContent.RECORD_ID, msgId++);
+            resolver.insert(Message.DELETED_CONTENT_URI, cv);
+        } catch (IllegalArgumentException e) {
+        }
+        try {
+            cv = msgX_C.toContentValues();
+            cv.put(EmailContent.RECORD_ID, msgId++);
+            resolver.insert(Message.UPDATED_CONTENT_URI, cv);
+        } catch (IllegalArgumentException e) {
+        }
+        try {
+            cv = msgX_D.toContentValues();
+            cv.put(EmailContent.RECORD_ID, msgId++);
+            resolver.insert(Message.UPDATED_CONTENT_URI, cv);
+        } catch (IllegalArgumentException e) {
+        }
+
+        // There should be 6 items in the deleted and updated tables
+        assertEquals(6, EmailContent.count(context, Message.UPDATED_CONTENT_URI, null, null));
+        assertEquals(6, EmailContent.count(context, Message.DELETED_CONTENT_URI, null, null));
+
+        // Delete the orphans
+        EmailProvider.deleteOrphans(EmailProvider.getReadableDatabase(context),
+                Message.DELETED_TABLE_NAME);
+        EmailProvider.deleteOrphans(EmailProvider.getReadableDatabase(context),
+                Message.UPDATED_TABLE_NAME);
+
+        // There should now be 4 messages in each of the deleted and updated tables again
+        assertEquals(4, EmailContent.count(context, Message.UPDATED_CONTENT_URI, null, null));
+        assertEquals(4, EmailContent.count(context, Message.DELETED_CONTENT_URI, null, null));
     }
 
     /**
@@ -961,10 +1087,16 @@ public class ProviderTests extends ProviderTestCase2<EmailProvider> {
         long account1Id = account1.mId;
         Mailbox box1 = ProviderTestUtils.setupMailbox("box1", account1Id, true, mMockContext);
         long box1Id = box1.mId;
-        /* Message message1 = */ ProviderTestUtils.setupMessage("message1", account1Id, box1Id,
+        Message message1 = ProviderTestUtils.setupMessage("message1", account1Id, box1Id,
                 false, true, mMockContext);
-        /* Message message2 = */ ProviderTestUtils.setupMessage("message2", account1Id, box1Id,
+        Message message2 = ProviderTestUtils.setupMessage("message2", account1Id, box1Id,
                 false, true, mMockContext);
+        Message message3 = ProviderTestUtils.setupMessage("message3", account1Id, box1Id,
+                false, true, mMockContext);
+        Message message4 = ProviderTestUtils.setupMessage("message4", account1Id, box1Id,
+                false, true, mMockContext);
+        ProviderTestUtils.setupMessage("message5", account1Id, box1Id, false, true, mMockContext);
+        ProviderTestUtils.setupMessage("message6", account1Id, box1Id, false, true, mMockContext);
 
         String selection = EmailContent.MessageColumns.ACCOUNT_KEY + "=? AND " +
                 EmailContent.MessageColumns.MAILBOX_KEY + "=?";
@@ -972,14 +1104,45 @@ public class ProviderTests extends ProviderTestCase2<EmailProvider> {
 
         // make sure there are two messages
         int numMessages = EmailContent.count(mMockContext, Message.CONTENT_URI, selection, selArgs);
+        assertEquals(6, numMessages);
+
+        ContentValues cv = new ContentValues();
+        cv.put(Message.SERVER_ID, "SERVER_ID");
+        ContentResolver resolver = mMockContext.getContentResolver();
+
+        // Update two messages
+        resolver.update(ContentUris.withAppendedId(Message.SYNCED_CONTENT_URI, message1.mId),
+                cv, null, null);
+        resolver.update(ContentUris.withAppendedId(Message.SYNCED_CONTENT_URI, message2.mId),
+                cv, null, null);
+        // Delete two messages
+        resolver.delete(ContentUris.withAppendedId(Message.SYNCED_CONTENT_URI, message3.mId),
+                null, null);
+        resolver.delete(ContentUris.withAppendedId(Message.SYNCED_CONTENT_URI, message4.mId),
+                null, null);
+
+        // There should now be two messages in updated/deleted, and 4 in messages
+        numMessages = EmailContent.count(mMockContext, Message.CONTENT_URI, selection, selArgs);
+        assertEquals(4, numMessages);
+        numMessages = EmailContent.count(mMockContext, Message.DELETED_CONTENT_URI, selection,
+                selArgs);
+        assertEquals(2, numMessages);
+        numMessages = EmailContent.count(mMockContext, Message.UPDATED_CONTENT_URI, selection,
+                selArgs);
         assertEquals(2, numMessages);
 
         // now delete the mailbox
         Uri uri = ContentUris.withAppendedId(Mailbox.CONTENT_URI, box1Id);
-        mMockContext.getContentResolver().delete(uri, null, null);
+        resolver.delete(uri, null, null);
 
-        // there should now be zero messages
+        // there should now be zero messages in all three tables
         numMessages = EmailContent.count(mMockContext, Message.CONTENT_URI, selection, selArgs);
+        assertEquals(0, numMessages);
+        numMessages = EmailContent.count(mMockContext, Message.DELETED_CONTENT_URI, selection,
+                selArgs);
+        assertEquals(0, numMessages);
+        numMessages = EmailContent.count(mMockContext, Message.UPDATED_CONTENT_URI, selection,
+                selArgs);
         assertEquals(0, numMessages);
     }
 
