@@ -373,47 +373,65 @@ public class AttachmentProviderTests extends ProviderTestCase2<AttachmentProvide
         afd.close();
     }
 
+    private Uri createAttachment(Account account, long messageId, String contentUriStr) {
+        // Add an attachment entry.
+        Attachment newAttachment = ProviderTestUtils.setupAttachment(messageId, "file", 100,
+                false, mMockContext);
+        newAttachment.mContentUri = contentUriStr;
+        long attachmentId = addAttachmentToDb(account, newAttachment);
+        Uri attachmentUri = AttachmentProvider.getAttachmentUri(account.mId, attachmentId);
+        return attachmentUri;
+    }
+
     /**
      * test resolveAttachmentIdToContentUri()
+     *  - without DB
      *  - not in DB
-     *  - in DB
+     *  - in DB, with not-null contentUri
+     *  - in DB, with null contentUri
      */
     public void testResolveAttachmentIdToContentUri() throws MessagingException {
         Account account1 = ProviderTestUtils.setupAccount("attachment-query", false, mMockContext);
         account1.mCompatibilityUuid = "test-UUID";
         account1.save(mMockContext);
         final long message1Id = 1;
-        long attachment1Id = 1;
-
-        // Note:  There is an implicit assumption in this test sequence that the first
-        // attachment we add will be id=1 and the 2nd will have id=2.  This could fail on
-        // a legitimate implementation.  Asserts below will catch this and fail the test
-        // if necessary.
-        Uri attachment1Uri = AttachmentProvider.getAttachmentUri(account1.mId, attachment1Id);
+        // We use attachmentId == 1 but any other id would do
+        final long attachment1Id = 1;
+        final Uri attachment1Uri = AttachmentProvider.getAttachmentUri(account1.mId, attachment1Id);
 
         // Test with no attached database - should return input
         Uri result = AttachmentProvider.resolveAttachmentIdToContentUri(
-                    mMockResolver, attachment1Uri);
+                mMockResolver, attachment1Uri);
         assertEquals(attachment1Uri, result);
+
+        setupAttachmentDatabase(account1);
 
         // Test with an attached database, but no attachment found - should return input
-        setupAttachmentDatabase(account1);
+        // We know that the attachmentId 1 does not exist because there are no attachments
+        // created at this point
         result = AttachmentProvider.resolveAttachmentIdToContentUri(
                 mMockResolver, attachment1Uri);
         assertEquals(attachment1Uri, result);
 
-        // Add an attachment entry.  Note, resolveAttachmentIdToContentUri() just uses
+        // Test with existing attachement and contentUri != null
+        // Note, resolveAttachmentIdToContentUri() just uses
         // the DB, and does not sample the files, so we won't bother creating the files
-        Attachment newAttachment1 = ProviderTestUtils.setupAttachment(message1Id, "file1", 100,
-                false, mMockContext);
-        newAttachment1.mContentUri = "file:///path/to/file";
-        attachment1Id = addAttachmentToDb(account1, newAttachment1);
-        assertEquals("Broken test:  Unexpected id assignment", 1, attachment1Id);
+        {
+            Uri attachmentUri = createAttachment(account1, message1Id, "file:///path/to/file");
+            Uri contentUri = AttachmentProvider.resolveAttachmentIdToContentUri(mMockResolver, 
+                    attachmentUri);
+            // When the attachment is found, return the stored content_uri value
+            assertEquals("file:///path/to/file", contentUri.toString());
+        }
 
-        // When the attachment is found, return the stored content_uri value
-        result = AttachmentProvider.resolveAttachmentIdToContentUri(
-                mMockResolver, attachment1Uri);
-        assertEquals("file:///path/to/file", result.toString());
+        // Test with existing attachement and contentUri == null
+        {
+            Uri attachmentUri = createAttachment(account1, message1Id, null);
+            Uri contentUri = AttachmentProvider.resolveAttachmentIdToContentUri(mMockResolver, 
+                    attachmentUri);
+            // When contentUri is null should return input
+            assertEquals(attachmentUri, contentUri);
+        }
     }
 
     /**
