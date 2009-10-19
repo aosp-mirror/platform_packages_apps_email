@@ -652,29 +652,31 @@ public class MailboxList extends ListActivity implements OnItemClickListener {
                     }
                     break;
             }
-            TextView countView = (TextView) view.findViewById(R.id.new_message_count);
+            TextView unreadCountView = (TextView) view.findViewById(R.id.new_message_count);
+            TextView allCountView = (TextView) view.findViewById(R.id.all_message_count);
             // If the unread count is zero, not to show countView.
             if (count > 0) {
                 nameView.setTypeface(Typeface.DEFAULT_BOLD);
-                countView.setVisibility(View.VISIBLE);
-                countView.setText(text);
-            } else {
-                nameView.setTypeface(Typeface.DEFAULT);
-                countView.setVisibility(View.GONE);
-            }
-            switch (type) {
+                switch (type) {
                 case Mailbox.TYPE_DRAFTS:
                 case Mailbox.TYPE_OUTBOX:
                 case Mailbox.TYPE_SENT:
                 case Mailbox.TYPE_TRASH:
-                    countView.setBackgroundResource(R.drawable.ind_sum);
+                    unreadCountView.setVisibility(View.GONE);
+                    allCountView.setVisibility(View.VISIBLE);
+                    allCountView.setText(text);
                     break;
                 default:
-                    countView.setBackgroundResource(R.drawable.ind_unread);
+                    allCountView.setVisibility(View.GONE);
+                    unreadCountView.setVisibility(View.VISIBLE);
+                    unreadCountView.setText(text);
                     break;
             }
-            // Padding should be reset after setBackgroundResource
-            countView.setPadding(2, 0, 2, 0);
+            } else {
+                nameView.setTypeface(Typeface.DEFAULT);
+                allCountView.setVisibility(View.GONE);
+                unreadCountView.setVisibility(View.GONE);
+            }
 
             ImageView folderIcon = (ImageView) view.findViewById(R.id.folder_icon);
             folderIcon.setImageDrawable(Utility.FolderProperties.getInstance(context)
