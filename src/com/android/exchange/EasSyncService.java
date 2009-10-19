@@ -295,7 +295,7 @@ public class EasSyncService extends AbstractSyncService {
         Attachment att = req.att;
         Message msg = Message.restoreMessageWithId(mContext, att.mMessageKey);
         doProgressCallback(msg.mId, att.mId, 0);
-        DefaultHttpClient client = new DefaultHttpClient();
+        HttpClient client = getHttpClient(COMMAND_TIMEOUT);
         String us = makeUriString("GetAttachment", "&AttachmentName=" + att.mLocation);
         HttpPost method = new HttpPost(URI.create(us));
         method.setHeader("Authorization", mAuthString);
