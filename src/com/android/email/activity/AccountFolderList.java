@@ -752,9 +752,9 @@ public class AccountFolderList extends ListActivity implements OnItemClickListen
             }
             TextView unreadCountView = (TextView) view.findViewById(R.id.new_message_count);
             TextView allCountView = (TextView) view.findViewById(R.id.all_message_count);
+            int id = cursor.getInt(MAILBOX_COLUMN_ID);
             // If the unread count is zero, not to show countView.
             if (count > 0) {
-                int id = cursor.getInt(MAILBOX_COLUMN_ID);
                 if (id == Mailbox.QUERY_ALL_FAVORITES
                         || id == Mailbox.QUERY_ALL_DRAFTS
                         || id == Mailbox.QUERY_ALL_OUTBOX) {
