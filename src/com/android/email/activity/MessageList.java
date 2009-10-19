@@ -579,9 +579,10 @@ public class MessageList extends ListActivity implements OnItemClickListener, On
         if (mailbox.mType == EmailContent.Mailbox.TYPE_DRAFTS) {
             MessageCompose.actionEditDraft(this, messageId);
         } else {
+            final boolean disableReply = (mailbox.mType == EmailContent.Mailbox.TYPE_TRASH);
             // WARNING: here we pass mMailboxId, which can be the negative id of a compound
             // mailbox, instead of the mailboxId of the particular message that is opened
-            MessageView.actionView(this, messageId, mMailboxId);
+            MessageView.actionView(this, messageId, mMailboxId, disableReply);
         }
     }
 

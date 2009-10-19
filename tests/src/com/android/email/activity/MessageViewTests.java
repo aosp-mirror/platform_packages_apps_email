@@ -26,8 +26,10 @@ import android.content.Context;
 import android.content.Intent;
 import android.os.Environment;
 import android.test.ActivityInstrumentationTestCase2;
+import android.test.UiThreadTest;
 import android.test.suitebuilder.annotation.LargeTest;
 import android.test.suitebuilder.annotation.Suppress;
+import android.view.View;
 import android.webkit.WebView;
 import android.widget.TextView;
 
@@ -154,6 +156,26 @@ public class MessageViewTests
         a.handleMenuItem(R.id.reply_all);
         a.handleMenuItem(R.id.forward);
         a.handleMenuItem(R.id.mark_as_unread);
+    }
+
+    /**
+     * Sets EXTRA_DISABLE_REPLY on the intent to true/false, and
+     * checks change in replyButton.isEnabled().
+     */
+    @UiThreadTest
+    public void testDisableReply() {
+        MessageView a = getActivity();
+        View replyButton = a.findViewById(R.id.reply);
+
+        Intent i = new Intent();
+        a.setIntent(i);
+        a.initFromIntent();
+        assertTrue(replyButton.isEnabled());
+
+        i.putExtra(MessageView.EXTRA_DISABLE_REPLY, true);
+        a.setIntent(i);
+        a.initFromIntent();
+        assertFalse(replyButton.isEnabled());
     }
 
     /**

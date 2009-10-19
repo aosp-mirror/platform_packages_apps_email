@@ -86,6 +86,7 @@ import java.util.regex.Pattern;
 public class MessageView extends Activity implements OnClickListener {
     private static final String EXTRA_MESSAGE_ID = "com.android.email.MessageView_message_id";
     private static final String EXTRA_MAILBOX_ID = "com.android.email.MessageView_mailbox_id";
+    /* package */ static final String EXTRA_DISABLE_REPLY = "com.android.email.MessageView_disable_reply";
 
     // for saveInstanceState()
     private static final String STATE_MESSAGE_ID = "messageId";
@@ -158,6 +159,9 @@ public class MessageView extends Activity implements OnClickListener {
 
     // contains the HTML body. Is used by LoadAttachmentTask to display inline images.
     private String mHtmlText;
+
+    // this is true when reply & forward are disabled, such as messages in the trash
+    private boolean mDisableReplyAndForward;
 
     class MessageViewHandler extends Handler {
         private static final int MSG_PROGRESS = 1;
@@ -305,12 +309,20 @@ public class MessageView extends Activity implements OnClickListener {
      * View a specific message found in the Email provider.
      * @param messageId the message to view.
      * @param mailboxId identifies the sequence of messages used for prev/next navigation.
+     * @param disableReplyAndForward set if reply/forward do not make sense for this message
+     *        (e.g. messages in Trash).
      */
-    public static void actionView(Context context, long messageId, long mailboxId) {
+    public static void actionView(Context context, long messageId, long mailboxId,
+            boolean disableReplyAndForward) {
         Intent i = new Intent(context, MessageView.class);
         i.putExtra(EXTRA_MESSAGE_ID, messageId);
         i.putExtra(EXTRA_MAILBOX_ID, mailboxId);
+        i.putExtra(EXTRA_DISABLE_REPLY, disableReplyAndForward);
         context.startActivity(i);
+    }
+
+    public static void actionView(Context context, long messageId, long mailboxId) {
+        actionView(context, messageId, mailboxId, false);
     }
 
     @Override
@@ -360,17 +372,26 @@ public class MessageView extends Activity implements OnClickListener {
         mFavoriteIconOn = getResources().getDrawable(R.drawable.btn_star_big_buttonless_on);
         mFavoriteIconOff = getResources().getDrawable(R.drawable.btn_star_big_buttonless_off);
 
-        Intent intent = getIntent();
-        mMessageId = intent.getLongExtra(EXTRA_MESSAGE_ID, -1);
+        initFromIntent();
         if (icicle != null) {
             mMessageId = icicle.getLong(STATE_MESSAGE_ID, mMessageId);
         }
-        mMailboxId = intent.getLongExtra(EXTRA_MAILBOX_ID, -1);
 
         mController = Controller.getInstance(getApplication());
 
         mNextPrevObserver = new NextPrevObserver(mHandler);
         messageChanged();
+    }
+
+    /* package */ void initFromIntent() {
+        Intent intent = getIntent();
+        mMessageId = intent.getLongExtra(EXTRA_MESSAGE_ID, -1);
+        mMailboxId = intent.getLongExtra(EXTRA_MAILBOX_ID, -1);
+        mDisableReplyAndForward = intent.getBooleanExtra(EXTRA_DISABLE_REPLY, false);
+        if (mDisableReplyAndForward) {
+            findViewById(R.id.reply).setEnabled(false);
+            findViewById(R.id.reply_all).setEnabled(false);
+        }
     }
 
     @Override
@@ -756,6 +777,11 @@ public class MessageView extends Activity implements OnClickListener {
     public boolean onCreateOptionsMenu(Menu menu) {
         super.onCreateOptionsMenu(menu);
         getMenuInflater().inflate(R.menu.message_view_option, menu);
+        if (mDisableReplyAndForward) {
+            menu.findItem(R.id.forward).setEnabled(false);
+            menu.findItem(R.id.reply).setEnabled(false);
+            menu.findItem(R.id.reply_all).setEnabled(false);
+        }
         return true;
     }
 
