@@ -750,24 +750,26 @@ public class AccountFolderList extends ListActivity implements OnItemClickListen
             if (text != null) {
                 count = Integer.valueOf(text);
             }
-            TextView countView = (TextView) view.findViewById(R.id.new_message_count);
+            TextView unreadCountView = (TextView) view.findViewById(R.id.new_message_count);
+            TextView allCountView = (TextView) view.findViewById(R.id.all_message_count);
             // If the unread count is zero, not to show countView.
             if (count > 0) {
-                countView.setVisibility(View.VISIBLE);
-                countView.setText(text);
+                int id = cursor.getInt(MAILBOX_COLUMN_ID);
+                if (id == Mailbox.QUERY_ALL_FAVORITES
+                        || id == Mailbox.QUERY_ALL_DRAFTS
+                        || id == Mailbox.QUERY_ALL_OUTBOX) {
+                    allCountView.setVisibility(View.GONE);
+                    unreadCountView.setVisibility(View.VISIBLE);
+                    unreadCountView.setText(text);
+                } else {
+                    unreadCountView.setVisibility(View.GONE);
+                    allCountView.setVisibility(View.VISIBLE);
+                    allCountView.setText(text);
+                }
             } else {
-                countView.setVisibility(View.GONE);
+                allCountView.setVisibility(View.GONE);
+                unreadCountView.setVisibility(View.GONE);
             }
-            int id = cursor.getInt(MAILBOX_COLUMN_ID);
-            if (id == Mailbox.QUERY_ALL_FAVORITES
-                    || id == Mailbox.QUERY_ALL_DRAFTS
-                    || id == Mailbox.QUERY_ALL_OUTBOX) {
-                countView.setBackgroundResource(R.drawable.ind_sum);
-            } else {
-                countView.setBackgroundResource(R.drawable.ind_unread);
-            }
-            // Padding should be reset after setBackgroundResource
-            countView.setPadding(2, 0, 2, 0);
 
             view.findViewById(R.id.folder_button).setVisibility(View.GONE);
             view.findViewById(R.id.folder_separator).setVisibility(View.GONE);
@@ -820,16 +822,14 @@ public class AccountFolderList extends ListActivity implements OnItemClickListen
                 c.close();
             }
 
-            TextView countView = (TextView) view.findViewById(R.id.new_message_count);
+            view.findViewById(R.id.all_message_count).setVisibility(View.GONE);
+            TextView unreadCountView = (TextView) view.findViewById(R.id.new_message_count);
             if (unreadMessageCount > 0) {
-                countView.setText(String.valueOf(unreadMessageCount));
-                countView.setVisibility(View.VISIBLE);
+                unreadCountView.setText(String.valueOf(unreadMessageCount));
+                unreadCountView.setVisibility(View.VISIBLE);
             } else {
-                countView.setVisibility(View.GONE);
+                unreadCountView.setVisibility(View.GONE);
             }
-            countView.setBackgroundResource(R.drawable.ind_unread);
-            // Padding should be reset after setBackgroundResource
-            countView.setPadding(2, 0, 2, 0);
 
             view.findViewById(R.id.folder_icon).setVisibility(View.GONE);
             view.findViewById(R.id.folder_button).setVisibility(View.VISIBLE);
