@@ -758,13 +758,13 @@ public class AccountFolderList extends ListActivity implements OnItemClickListen
                 if (id == Mailbox.QUERY_ALL_FAVORITES
                         || id == Mailbox.QUERY_ALL_DRAFTS
                         || id == Mailbox.QUERY_ALL_OUTBOX) {
-                    allCountView.setVisibility(View.GONE);
-                    unreadCountView.setVisibility(View.VISIBLE);
-                    unreadCountView.setText(text);
-                } else {
                     unreadCountView.setVisibility(View.GONE);
                     allCountView.setVisibility(View.VISIBLE);
                     allCountView.setText(text);
+                } else {
+                    allCountView.setVisibility(View.GONE);
+                    unreadCountView.setVisibility(View.VISIBLE);
+                    unreadCountView.setText(text);
                 }
             } else {
                 allCountView.setVisibility(View.GONE);
