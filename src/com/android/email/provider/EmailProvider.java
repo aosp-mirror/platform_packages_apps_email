@@ -182,7 +182,7 @@ public class EmailProvider extends ContentProvider {
         "; delete from " + Message.DELETED_TABLE_NAME +
         "  where " + MessageColumns.MAILBOX_KEY + "=old." + EmailContent.RECORD_ID +
         "; end";
-    
+
     static {
         // Email URI matching table
         UriMatcher matcher = sURIMatcher;
@@ -692,7 +692,7 @@ public class EmailProvider extends ContentProvider {
             }
             if (oldVersion == 6) {
                 // Use the newer mailbox_delete trigger
-                db.execSQL("delete trigger mailbox_delete;");
+                db.execSQL("drop trigger mailbox_delete;");
                 db.execSQL(TRIGGER_MAILBOX_DELETE);
                 oldVersion = 7;
             }
@@ -874,7 +874,7 @@ public class EmailProvider extends ContentProvider {
                 // Clients shouldn't normally be adding rows to these tables, as they are
                 // maintained by triggers.  However, we need to be able to do this for unit
                 // testing, so we allow the insert and then throw the same exception that we
-                // would if this weren't allowed. 
+                // would if this weren't allowed.
                 if (match == UPDATED_MESSAGE || match == DELETED_MESSAGE) {
                     throw new IllegalArgumentException("Unknown URL " + uri);
                 }
