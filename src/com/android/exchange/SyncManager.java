@@ -727,7 +727,7 @@ public class SyncManager extends Service implements Runnable {
     static public String getDeviceId() throws IOException {
         return getDeviceId(null);
     }
-    
+
     static public synchronized String getDeviceId(Context context) throws IOException {
         if (sDeviceId != null) {
             return sDeviceId;
@@ -766,10 +766,10 @@ public class SyncManager extends Service implements Runnable {
     }
 
     /**
-     * Note that there are two ways the EAS SyncManager service can be created: 
+     * Note that there are two ways the EAS SyncManager service can be created:
      *
-     * 1) as a background service instantiated via startService (which happens on boot, when the 
-     * first EAS account is created, etc), in which case the service thread is spun up, mailboxes 
+     * 1) as a background service instantiated via startService (which happens on boot, when the
+     * first EAS account is created, etc), in which case the service thread is spun up, mailboxes
      * sync, etc. and
      * 2) to execute an RPC call from the UI, in which case the background service will already be
      * running most of the time (unless we're creating a first EAS account)
@@ -835,6 +835,7 @@ public class SyncManager extends Service implements Runnable {
             mSyncedMessageObserver = null;
             mMessageObserver = null;
             mSyncStatusObserver = null;
+            mAccountsUpdatedListener = null;
         }
     }
 
@@ -861,7 +862,7 @@ public class SyncManager extends Service implements Runnable {
             INSTANCE.startService(new Intent(INSTANCE, SyncManager.class));
         }
     }
-    
+
     static public ConnPerRoute sConnPerRoute = new ConnPerRoute() {
         public int getMaxForRoute(HttpRoute route) {
             return 8;
@@ -1448,7 +1449,7 @@ public class SyncManager extends Service implements Runnable {
             if (mConnectivityReceiver != null) {
                 unregisterReceiver(mConnectivityReceiver);
             }
-            
+
             if (INSTANCE != null) {
                 ContentResolver resolver = getContentResolver();
                 resolver.unregisterContentObserver(mAccountObserver);
