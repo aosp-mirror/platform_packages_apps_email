@@ -1039,26 +1039,29 @@ public class EasSyncService extends AbstractSyncService {
         mExitStatus = EXIT_DONE;
     }
 
-    protected void setupService() {
+    protected boolean setupService() {
         // Make sure account and mailbox are always the latest from the database
         mAccount = Account.restoreAccountWithId(mContext, mAccount.mId);
+        if (mAccount == null) return false;
         mMailbox = Mailbox.restoreMailboxWithId(mContext, mMailbox.mId);
-
+        if (mMailbox == null) return false;
         mThread = Thread.currentThread();
         android.os.Process.setThreadPriority(android.os.Process.THREAD_PRIORITY_BACKGROUND);
         TAG = mThread.getName();
 
         HostAuth ha = HostAuth.restoreHostAuthWithId(mContext, mAccount.mHostAuthKeyRecv);
+        if (ha == null) return false;
         mHostAddress = ha.mAddress;
         mUserName = ha.mLogin;
         mPassword = ha.mPassword;
+        return true;
     }
 
     /* (non-Javadoc)
      * @see java.lang.Runnable#run()
      */
     public void run() {
-        setupService();
+        if (!setupService()) return;
 
         try {
             SyncManager.callback().syncMailboxStatus(mMailboxId, EmailServiceStatus.IN_PROGRESS, 0);
