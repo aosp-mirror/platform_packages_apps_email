@@ -677,7 +677,8 @@ public class MailService extends Service {
         }
 
         // prepare appropriate pending intent, set up notification, and send
-        PendingIntent pending = PendingIntent.getActivity(this, 0, intent, 0);
+        PendingIntent pending =
+            PendingIntent.getActivity(this, 0, intent, PendingIntent.FLAG_UPDATE_CURRENT);
 
         Notification notification = new Notification(
                 R.drawable.stat_notify_email_generic,
