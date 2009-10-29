@@ -152,7 +152,7 @@ public class FolderSyncParser extends AbstractSyncParser {
     }
 
     public void deleteParser(ArrayList<ContentProviderOperation> ops) throws IOException {
-        while (nextTag(Tags.SYNC_DELETE) != END) {
+        while (nextTag(Tags.FOLDER_DELETE) != END) {
             switch (tag) {
                 case Tags.FOLDER_SERVER_ID:
                     String serverId = getValue();
@@ -258,16 +258,62 @@ public class FolderSyncParser extends AbstractSyncParser {
         return;
     }
 
+    public void updateParser(ArrayList<ContentProviderOperation> ops) throws IOException {
+        String serverId = null;
+        String displayName = null;
+        String parentId = null;
+        while (nextTag(Tags.FOLDER_UPDATE) != END) {
+            switch (tag) {
+                case Tags.FOLDER_SERVER_ID:
+                    serverId = getValue();
+                    break;
+                case Tags.FOLDER_DISPLAY_NAME:
+                    displayName = getValue();
+                    break;
+                case Tags.FOLDER_PARENT_ID:
+                    parentId = getValue();
+                    break;
+                default:
+                    skipTag();
+                    break;
+            }
+        }
+        // We'll make a change if one of parentId or displayName are specified
+        // serverId is required, but let's be careful just the same
+        if (serverId != null && (displayName != null || parentId != null)) {
+            Cursor c = getServerIdCursor(serverId);
+            try {
+                // If we find the mailbox (using serverId), make the change
+                if (c.moveToFirst()) {
+                    userLog("Updating ", serverId);
+                    ContentValues cv = new ContentValues();
+                    if (displayName != null) {
+                        cv.put(Mailbox.DISPLAY_NAME, displayName);
+                    }
+                    if (parentId != null) {
+                        cv.put(Mailbox.PARENT_SERVER_ID, parentId);
+                    }
+                    ops.add(ContentProviderOperation.newUpdate(
+                            ContentUris.withAppendedId(Mailbox.CONTENT_URI,
+                                    c.getLong(0))).withValues(cv).build());
+                }
+            } finally {
+                c.close();
+            }
+        }
+    }
+
     public void changesParser() throws IOException {
         // Keep track of new boxes, deleted boxes, updated boxes
         ArrayList<ContentProviderOperation> ops = new ArrayList<ContentProviderOperation>();
 
         while (nextTag(Tags.FOLDER_CHANGES) != END) {
-            // TODO Handle FOLDER_CHANGE and FOLDER_DELETE
             if (tag == Tags.FOLDER_ADD) {
                 addParser(ops);
             } else if (tag == Tags.FOLDER_DELETE) {
                 deleteParser(ops);
+            } else if (tag == Tags.FOLDER_UPDATE) {
+                updateParser(ops);
             } else if (tag == Tags.FOLDER_COUNT) {
                 getValueInt();
             } else
