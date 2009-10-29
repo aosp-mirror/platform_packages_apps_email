@@ -699,7 +699,9 @@ public class Controller {
 
         File saveToFile = AttachmentProvider.getAttachmentFilename(mProviderContext,
                 accountId, attachmentId);
-        if (saveToFile.exists()) {
+        Attachment attachInfo = Attachment.restoreAttachmentWithId(mProviderContext, attachmentId);
+
+        if (saveToFile.exists() && attachInfo.mContentUri != null) {
             // The attachment has already been downloaded, so we will just "pretend" to download it
             synchronized (mListeners) {
                 for (Result listener : mListeners) {
@@ -711,8 +713,6 @@ public class Controller {
             }
             return;
         }
-
-        Attachment attachInfo = Attachment.restoreAttachmentWithId(mProviderContext, attachmentId);
 
         // Split here for target type (Service or MessagingController)
         IEmailService service = getServiceForMessage(messageId);
