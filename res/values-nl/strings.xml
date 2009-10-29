@@ -231,7 +231,7 @@
     <string name="account_settings_name_label" msgid="8186406122590008449">"Uw naam"</string>
     <string name="account_settings_notifications" msgid="1042620094281375043">"Instellingen voor meldingen"</string>
     <string name="account_settings_sync_contacts_enable" msgid="1369272986009573218">"Contacten synchroniseren"</string>
-    <string name="account_settings_sync_contacts_summary" msgid="8901452720940015928">"Contacten van dit account synchroniseren"</string>
+    <string name="account_settings_sync_contacts_summary" msgid="8901452720940015928">"Contacten van dit account eveneens synchroniseren"</string>
     <string name="account_settings_vibrate_enable" msgid="8045133290388856478">"Trillen"</string>
     <string name="account_settings_vibrate_summary" msgid="3690631050585589365">"Ook trillen bij ontvangst van e-mail"</string>
     <string name="account_settings_ringtone" msgid="7922187231467500404">"Beltoon selecteren"</string>
