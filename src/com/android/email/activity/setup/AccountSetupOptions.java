@@ -53,6 +53,7 @@ public class AccountSetupOptions extends Activity implements OnClickListener {
     private CheckBox mDefaultView;
     private CheckBox mNotifyView;
     private CheckBox mSyncContactsView;
+    private CheckBox mSyncCalendarView;
     private EmailContent.Account mAccount;
     private boolean mEasFlowMode;
     private Handler mHandler = new Handler();
@@ -76,6 +77,7 @@ public class AccountSetupOptions extends Activity implements OnClickListener {
         mDefaultView = (CheckBox)findViewById(R.id.account_default);
         mNotifyView = (CheckBox)findViewById(R.id.account_notify);
         mSyncContactsView = (CheckBox) findViewById(R.id.account_sync_contacts);
+        mSyncCalendarView = (CheckBox) findViewById(R.id.account_sync_calendar);
 
         findViewById(R.id.next).setOnClickListener(this);
 
@@ -129,6 +131,8 @@ public class AccountSetupOptions extends Activity implements OnClickListener {
             // "also sync contacts" == "true"
             mSyncContactsView.setVisibility(View.VISIBLE);
             mSyncContactsView.setChecked(true);
+            mSyncCalendarView.setVisibility(View.VISIBLE);
+            mSyncCalendarView.setChecked(true);
         }
     }
 
@@ -206,11 +210,12 @@ public class AccountSetupOptions extends Activity implements OnClickListener {
                 && mAccount.mHostAuthRecv != null
                 && mAccount.mHostAuthRecv.mProtocol.equals("eas")) {
             boolean alsoSyncContacts = mSyncContactsView.isChecked();
+            boolean alsoSyncCalendar = mSyncCalendarView.isChecked();
             // Set the incomplete flag here to avoid reconciliation issues in SyncManager (EAS)
             mAccount.mFlags |= Account.FLAGS_INCOMPLETE;
             AccountSettingsUtils.commitSettings(this, mAccount);
             ExchangeStore.addSystemAccount(getApplication(), mAccount,
-                    alsoSyncContacts, mAccountManagerCallback);
+                    alsoSyncContacts, alsoSyncCalendar, mAccountManagerCallback);
         } else {
             finishOnDone();
        }

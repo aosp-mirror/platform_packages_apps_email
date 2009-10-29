@@ -49,6 +49,7 @@ public class Account {
     public static final int BACKUP_FLAGS_IS_BACKUP = 1;
     public static final int BACKUP_FLAGS_SYNC_CONTACTS = 2;
     public static final int BACKUP_FLAGS_IS_DEFAULT = 4;
+    public static final int BACKUP_FLAGS_SYNC_CALENDAR = 8;
 
     // transient values - do not serialize
     private transient Preferences mPreferences;

@@ -38,8 +38,6 @@ import java.util.ArrayList;
  */
 public abstract class Parser {
 
-    private static final String TAG = "EasParser";
-
     // The following constants are Wbxml standard
     public static final int START_DOCUMENT = 0;
     public static final int DONE = 1;
@@ -52,6 +50,7 @@ public abstract class Parser {
     private static final int EOF_BYTE = -1;
     private boolean logging = false;
     private boolean capture = false;
+    private String logTag = "EAS Parser";
 
     private ArrayList<Integer> captureArray;
 
@@ -155,6 +154,16 @@ public abstract class Parser {
      */
     public void setDebug(boolean val) {
         logging = val;
+    }
+
+    /**
+     * Set the tag used for logging.  When debugging is on, every token is logged (Log.v) to
+     * the console.
+     *
+     * @param val the logging tag
+     */
+    public void setLoggingTag(String val) {
+        logTag = val;
     }
 
     /**
@@ -313,9 +322,9 @@ public abstract class Parser {
         if (cr > 0) {
             str = str.substring(0, cr);
         }
-        Log.v(TAG, str);
+        Log.v(logTag, str);
         if (Eas.FILE_LOG) {
-            FileLogger.log(TAG, str);
+            FileLogger.log(logTag, str);
         }
     }
 

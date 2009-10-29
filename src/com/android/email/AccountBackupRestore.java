@@ -26,6 +26,7 @@ import android.content.Context;
 import android.content.Intent;
 import android.database.Cursor;
 import android.os.Bundle;
+import android.provider.Calendar;
 import android.provider.ContactsContract;
 import android.util.Log;
 
@@ -115,6 +116,11 @@ public class AccountBackupRestore {
                     if (syncContacts) {
                         toAccount.mBackupFlags |= Account.BACKUP_FLAGS_SYNC_CONTACTS;
                     }
+                    boolean syncCalendar = ContentResolver.getSyncAutomatically(acct,
+                            Calendar.AUTHORITY);
+                    if (syncCalendar) {
+                        toAccount.mBackupFlags |= Account.BACKUP_FLAGS_SYNC_CALENDAR;
+                    }
                 }
 
                 // If this is the default account, mark it as such
@@ -176,9 +182,11 @@ public class AccountBackupRestore {
             // For exchange accounts, handle system account first, then save in provider
             if (toAccount.mHostAuthRecv.mProtocol.equals("eas")) {
                 // Recreate entry in Account Manager as well, if needed
-                // Set "sync contacts" mode as well, if needed
+                // Set "sync contacts/calendar" mode as well, if needed
                 boolean alsoSyncContacts =
                     (backupAccount.mBackupFlags & Account.BACKUP_FLAGS_SYNC_CONTACTS) != 0;
+                boolean alsoSyncCalendar =
+                    (backupAccount.mBackupFlags & Account.BACKUP_FLAGS_SYNC_CALENDAR) != 0;
 
                 // Use delete-then-add semantic to simplify handling of update-in-place
 //                AccountManagerFuture<Boolean> removeResult = ExchangeStore.removeSystemAccount(
@@ -197,8 +205,9 @@ public class AccountBackupRestore {
                 // NOTE: We must use the Application here, rather than the current context, because
                 // all future references to AccountManager will use the context passed in here
                 // TODO: Need to implement overwrite semantics for an already-installed account
-                AccountManagerFuture<Bundle> addAccountResult = ExchangeStore.addSystemAccount(
-                        context.getApplicationContext(), toAccount, alsoSyncContacts, null);
+                AccountManagerFuture<Bundle> addAccountResult =
+                     ExchangeStore.addSystemAccount(context.getApplicationContext(), toAccount,
+                             alsoSyncContacts, alsoSyncCalendar, null);
 //                try {
 //                    // This call blocks until addSystemAccount completes.  Result is not used.
 //                    addAccountResult.getResult();

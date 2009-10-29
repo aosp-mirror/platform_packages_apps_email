@@ -73,6 +73,4 @@ public class EasSyncServiceTests extends AndroidTestCase {
             }
         }
     }
-
-
 }

@@ -30,6 +30,7 @@ import android.content.Context;
 import android.content.Intent;
 import android.os.Bundle;
 import android.os.IBinder;
+import android.provider.Calendar;
 import android.provider.ContactsContract;
 
 /**
@@ -41,6 +42,7 @@ public class EasAuthenticatorService extends Service {
     public static final String OPTIONS_USERNAME = "username";
     public static final String OPTIONS_PASSWORD = "password";
     public static final String OPTIONS_CONTACTS_SYNC_ENABLED = "contacts";
+    public static final String OPTIONS_CALENDAR_SYNC_ENABLED = "calendar";
 
     class EasAuthenticator extends AbstractAccountAuthenticator {
         public EasAuthenticator(Context context) {
@@ -68,10 +70,18 @@ public class EasAuthenticatorService extends Service {
                         options.getBoolean(OPTIONS_CONTACTS_SYNC_ENABLED)) {
                     syncContacts = true;
                 }
-                ContentResolver.setIsSyncable(account,
-                        ContactsContract.AUTHORITY, 1);
-                ContentResolver.setSyncAutomatically(account,
-                        ContactsContract.AUTHORITY, syncContacts);
+                ContentResolver.setIsSyncable(account, ContactsContract.AUTHORITY, 1);
+                ContentResolver.setSyncAutomatically(account, ContactsContract.AUTHORITY,
+                        syncContacts);
+
+                // Set up calendar syncing, as above
+                boolean syncCalendar = false;
+                if (options.containsKey(OPTIONS_CALENDAR_SYNC_ENABLED) &&
+                        options.getBoolean(OPTIONS_CALENDAR_SYNC_ENABLED)) {
+                    syncCalendar = true;
+                }
+                ContentResolver.setIsSyncable(account, Calendar.AUTHORITY, 1);
+                ContentResolver.setSyncAutomatically(account, Calendar.AUTHORITY, syncCalendar);
 
                 Bundle b = new Bundle();
                 b.putString(AccountManager.KEY_ACCOUNT_NAME, options.getString(OPTIONS_USERNAME));

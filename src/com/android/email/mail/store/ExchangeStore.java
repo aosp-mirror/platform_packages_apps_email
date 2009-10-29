@@ -81,12 +81,13 @@ public class ExchangeStore extends Store {
     }
 
     static public AccountManagerFuture<Bundle> addSystemAccount(Context context, Account acct,
-            boolean syncContacts, AccountManagerCallback<Bundle> callback) {
+            boolean syncContacts, boolean syncCalendar, AccountManagerCallback<Bundle> callback) {
         // Create a description of the new account
         Bundle options = new Bundle();
         options.putString(EasAuthenticatorService.OPTIONS_USERNAME, acct.mEmailAddress);
         options.putString(EasAuthenticatorService.OPTIONS_PASSWORD, acct.mHostAuthRecv.mPassword);
         options.putBoolean(EasAuthenticatorService.OPTIONS_CONTACTS_SYNC_ENABLED, syncContacts);
+        options.putBoolean(EasAuthenticatorService.OPTIONS_CALENDAR_SYNC_ENABLED, syncCalendar);
 
         // Here's where we tell AccountManager about the new account.  The addAccount
         // method in AccountManager calls the addAccount method in our authenticator

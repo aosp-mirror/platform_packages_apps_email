@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2009 The Android Open Source Project
+ * Copyright (C) 2010 The Android Open Source Project
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -32,16 +32,14 @@ import android.content.ContentResolver;
 import android.content.ContentUris;
 import android.content.ContentValues;
 import android.content.Context;
-import android.test.ProviderTestCase2;
 
 import java.io.ByteArrayInputStream;
 import java.io.IOException;
-import java.io.InputStream;
 import java.util.ArrayList;
 import java.util.GregorianCalendar;
 import java.util.TimeZone;
 
-public class EmailSyncAdapterTests extends ProviderTestCase2<EmailProvider> {
+public class EmailSyncAdapterTests extends SyncAdapterTestCase {
 
     EmailProvider mProvider;
     Context mMockContext;
@@ -52,54 +50,7 @@ public class EmailSyncAdapterTests extends ProviderTestCase2<EmailProvider> {
     EasEmailSyncParser mSyncParser;
 
     public EmailSyncAdapterTests() {
-        super(EmailProvider.class, EmailProvider.EMAIL_AUTHORITY);
-    }
-
-    @Override
-    public void setUp() throws Exception {
-        super.setUp();
-        mMockContext = getMockContext();
-        mMockResolver = mMockContext.getContentResolver();
-    }
-
-    @Override
-    public void tearDown() throws Exception {
-        super.tearDown();
-    }
-
-    /**
-     * Create and return a short, simple InputStream that has at least four bytes, which is all
-     * that's required to initialize an EasParser (the parent class of EasEmailSyncParser)
-     * @return the InputStream
-     */
-    public InputStream getTestInputStream() {
-        return new ByteArrayInputStream(new byte[] {0, 0, 0, 0, 0});
-    }
-
-    EasSyncService getTestService() {
-        Account account = new Account();
-        account.mId = -1;
-        Mailbox mailbox = new Mailbox();
-        mailbox.mId = -1;
-        EasSyncService service = new EasSyncService();
-        service.mContext = mMockContext;
-        service.mMailbox = mailbox;
-        service.mAccount = account;
-        return service;
-    }
-
-    EasSyncService getTestService(Account account, Mailbox mailbox) {
-        EasSyncService service = new EasSyncService();
-        service.mContext = mMockContext;
-        service.mMailbox = mailbox;
-        service.mAccount = account;
-        return service;
-    }
-
-    EmailSyncAdapter getTestSyncAdapter() {
-        EasSyncService service = getTestService();
-        EmailSyncAdapter adapter = new EmailSyncAdapter(service.mMailbox, service);
-        return adapter;
+        super();
     }
 
     /**

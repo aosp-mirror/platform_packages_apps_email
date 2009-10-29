@@ -31,6 +31,7 @@ import com.android.email.provider.EmailContent.Message;
 import com.android.email.service.EmailServiceProxy;
 import com.android.exchange.adapter.AbstractSyncAdapter;
 import com.android.exchange.adapter.AccountSyncAdapter;
+import com.android.exchange.adapter.CalendarSyncAdapter;
 import com.android.exchange.adapter.ContactsSyncAdapter;
 import com.android.exchange.adapter.EmailSyncAdapter;
 import com.android.exchange.adapter.FolderSyncParser;
@@ -1306,7 +1307,7 @@ public class EasSyncService extends AbstractSyncService {
         return pp.getSyncStatus();
     }
 
-    private String getFilterType() {
+    private String getEmailFilter() {
         String filter = Eas.FILTER_1_WEEK;
         switch (mAccount.mSyncLookback) {
             case com.android.email.Account.SYNC_WINDOW_1_DAY: {
@@ -1403,8 +1404,11 @@ public class EasSyncService extends AbstractSyncService {
             // Handle options
             s.start(Tags.SYNC_OPTIONS);
             // Set the lookback appropriately (EAS calls this a "filter") for all but Contacts
-            if (!className.equals("Contacts")) {
-                s.data(Tags.SYNC_FILTER_TYPE, getFilterType());
+            if (className.equals("Email")) {
+                s.data(Tags.SYNC_FILTER_TYPE, getEmailFilter());
+            } else if (className.equals("Calendar")) {
+                // TODO Force one month for calendar until we can set this!
+                s.data(Tags.SYNC_FILTER_TYPE, Eas.FILTER_1_MONTH);
             }
             // Set the truncation amount for all classes
             if (mProtocolVersionDouble >= 12.0) {
@@ -1495,6 +1499,8 @@ public class EasSyncService extends AbstractSyncService {
                 AbstractSyncAdapter target;
                 if (mMailbox.mType == Mailbox.TYPE_CONTACTS) {
                     target = new ContactsSyncAdapter(mMailbox, this);
+                } else if (mMailbox.mType == Mailbox.TYPE_CALENDAR) {
+                    target = new CalendarSyncAdapter(mMailbox, this);
                 } else {
                     target = new EmailSyncAdapter(mMailbox, this);
                 }
