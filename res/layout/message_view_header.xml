@@ -36,7 +36,7 @@
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:layout_marginRight="5dip"
-                android:baselineAlignBottom="true"
+                android:layout_gravity="center_vertical"
                 android:background="@drawable/quickcontact_presence_bg" />
             <TextView
                 android:id="@+id/from"
