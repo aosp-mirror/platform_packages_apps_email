@@ -16,6 +16,7 @@
 
 package com.android.email.provider;
 
+import com.android.email.Email;
 import com.android.email.mail.internet.MimeUtility;
 import com.android.email.provider.EmailContent.Attachment;
 import com.android.email.provider.EmailContent.AttachmentColumns;
@@ -345,7 +346,12 @@ public class AttachmentProvider extends ContentProvider {
         if (c != null) {
             try {
                 if (c.moveToFirst()) {
-                    return Uri.parse(c.getString(0));
+                    final String strUri = c.getString(0);
+                    if (strUri != null) {
+                        return Uri.parse(strUri);
+                    } else {
+                        Email.log("AttachmentProvider: attachment with null contentUri");
+                    }
                 }
             } finally {
                 c.close();

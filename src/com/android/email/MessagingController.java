@@ -1837,9 +1837,20 @@ public class MessagingController implements Runnable {
         put("loadAttachment", listener, new Runnable() {
             public void run() {
                 try {
-                    // 1.  Pruning.  Policy is to have one downloaded attachment at a time,
-                    // per account, to reduce disk storage pressure.
-                    pruneCachedAttachments(accountId);
+                    //1. Check if the attachment is already here and return early in that case
+                    File saveToFile = AttachmentProvider.getAttachmentFilename(mContext, accountId,
+                            attachmentId);
+                    Attachment attachment =
+                        Attachment.restoreAttachmentWithId(mContext, attachmentId);
+                    if (attachment == null) {
+                        mListeners.loadAttachmentFailed(accountId, messageId, attachmentId,
+                                "Attachment is null");
+                        return;
+                    }
+                    if (saveToFile.exists() && attachment.mContentUri != null) {
+                        mListeners.loadAttachmentFinished(accountId, messageId, attachmentId);
+                        return;
+                    }
 
                     // 2. Open the remote folder.
                     // TODO all of these could be narrower projections
@@ -1849,14 +1860,16 @@ public class MessagingController implements Runnable {
                         EmailContent.Mailbox.restoreMailboxWithId(mContext, mailboxId);
                     EmailContent.Message message =
                         EmailContent.Message.restoreMessageWithId(mContext, messageId);
-                    Attachment attachment =
-                        Attachment.restoreAttachmentWithId(mContext, attachmentId);
-                    if (account == null || mailbox == null || message == null
-                            || attachment == null) {
+
+                    if (account == null || mailbox == null || message == null) {
                         mListeners.loadAttachmentFailed(accountId, messageId, attachmentId,
                                 "Account, mailbox, message or attachment are null");
                         return;
                     }
+
+                    // Pruning.  Policy is to have one downloaded attachment at a time,
+                    // per account, to reduce disk storage pressure.
+                    pruneCachedAttachments(accountId);
 
                     Store remoteStore =
                         Store.getInstance(account.getStoreUri(mContext), mContext, null);
