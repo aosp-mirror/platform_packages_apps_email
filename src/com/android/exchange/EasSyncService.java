@@ -295,12 +295,10 @@ public class EasSyncService extends AbstractSyncService {
         Attachment att = req.att;
         Message msg = Message.restoreMessageWithId(mContext, att.mMessageKey);
         doProgressCallback(msg.mId, att.mId, 0);
-        HttpClient client = getHttpClient(COMMAND_TIMEOUT);
-        String us = makeUriString("GetAttachment", "&AttachmentName=" + att.mLocation);
-        HttpPost method = new HttpPost(URI.create(us));
-        method.setHeader("Authorization", mAuthString);
 
-        HttpResponse res = client.execute(method);
+        String cmd = "GetAttachment&AttachmentName=" + att.mLocation;
+        HttpResponse res = sendHttpClientPost(cmd, null, COMMAND_TIMEOUT);
+
         int status = res.getStatusLine().getStatusCode();
         if (status == HttpStatus.SC_OK) {
             HttpEntity e = res.getEntity();
@@ -428,9 +426,11 @@ public class EasSyncService extends AbstractSyncService {
 
         String us = makeUriString(cmd, extra);
         HttpPost method = new HttpPost(URI.create(us));
+        // Send the proper Content-Type header
+        // If entity is null (e.g. for attachments), don't set this header
         if (msg) {
             method.setHeader("Content-Type", "message/rfc822");
-        } else {
+        } else if (entity != null) {
             method.setHeader("Content-Type", "application/vnd.ms-sync.wbxml");
         }
         setHeaders(method);
