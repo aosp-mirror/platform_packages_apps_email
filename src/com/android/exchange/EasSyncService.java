@@ -314,19 +314,44 @@ public class EasSyncService extends AbstractSyncService {
                     destDir.mkdirs();
                 }
                 FileOutputStream os = new FileOutputStream(f);
-                if (len > 0) {
+                // len > 0 means that Content-Length was set in the headers
+                // len < 0 means "chunked" transfer-encoding
+                if (len != 0) {
                     try {
                         mPendingPartRequest = req;
                         byte[] bytes = new byte[CHUNK_SIZE];
                         int length = len;
-                        while (len > 0) {
-                            int n = (len > CHUNK_SIZE ? CHUNK_SIZE : len);
-                            int read = is.read(bytes, 0, n);
+                        // Loop terminates 1) when EOF is reached or 2) if an IOException occurs
+                        // One of these is guaranteed to occur
+                        int totalRead = 0;
+                        userLog("Attachment content-length: ", len);
+                        while (true) {
+                            int read = is.read(bytes, 0, CHUNK_SIZE);
+
+                            // read < 0 means that EOF was reached
+                            if (read < 0) {
+                                userLog("Attachment load reached EOF, totalRead: ", totalRead);
+                                break;
+                            }
+
+                            // Keep track of how much we've read for progress callback
+                            totalRead += read;
+
+                            // Write these bytes out
                             os.write(bytes, 0, read);
-                            len -= read;
-                            int pct = ((length - len) * 100 / length);
-                            doProgressCallback(msg.mId, att.mId, pct);
-                        }
+
+                            // We can't report percentages if this is chunked; by definition, the
+                            // length of incoming data is unknown
+                            if (length > 0) {
+                                // Belt and suspenders check to prevent runaway reading
+                                if (totalRead > length) {
+                                    errorLog("totalRead is greater than attachment length?");
+                                    break;
+                                }
+                                int pct = (totalRead * 100 / length);
+                                doProgressCallback(msg.mId, att.mId, pct);
+                            }
+                       }
                     } finally {
                         mPendingPartRequest = null;
                     }
@@ -562,7 +587,7 @@ public class EasSyncService extends AbstractSyncService {
                  if (code == HttpStatus.SC_OK) {
                      HttpEntity entity = resp.getEntity();
                      int len = (int)entity.getContentLength();
-                     if (len > 0) {
+                     if (len != 0) {
                          InputStream is = entity.getContent();
                          // Returns true if we need to sync again
                          if (new FolderSyncParser(is, new AccountSyncAdapter(mMailbox, this))
@@ -747,7 +772,7 @@ public class EasSyncService extends AbstractSyncService {
                         HttpEntity e = res.getEntity();
                         int len = (int)e.getContentLength();
                         InputStream is = res.getEntity().getContent();
-                        if (len > 0) {
+                        if (len != 0) {
                             int pingResult = parsePingResult(is, mContentResolver, pingErrorMap);
                             // If our ping completed (status = 1), and we weren't forced and we're
                             // not at the maximum, try increasing timeout by two minutes
@@ -1019,7 +1044,7 @@ public class EasSyncService extends AbstractSyncService {
             HttpResponse resp = sendHttpClientPost("Sync", s.toByteArray());
             int code = resp.getStatusLine().getStatusCode();
             if (code == HttpStatus.SC_OK) {
-                 InputStream is = resp.getEntity().getContent();
+                InputStream is = resp.getEntity().getContent();
                 if (is != null) {
                     moreAvailable = target.parse(is);
                     target.cleanup();
