@@ -82,7 +82,7 @@
     <string name="debug_version_fmt" msgid="6160213145745376955">"Versión: <xliff:g id="VERSION">%s</xliff:g>"</string>
     <string name="debug_enable_debug_logging_label" msgid="2715742416050944774">"¿Deseas activar el registro de depuración adicional?"</string>
     <string name="debug_enable_sensitive_logging_label" msgid="9010809457943556126">"¿Deseas activar el registro de depuración de información confidencial? (puede mostrar contraseñas en los registros)."</string>
-    <string name="debug_enable_exchange_logging_label" msgid="8054457784052573080">"¿Deseas activar el acceso del analizador de intercambio? (extremadamente ampuloso)"</string>
+    <string name="debug_enable_exchange_logging_label" msgid="8054457784052573080">"¿Deseas activar el acceso del analizador de Exchange? (extremadamente ampuloso)"</string>
     <string name="debug_enable_exchange_file_logging_label" msgid="2264994303719050729">"¿Deseas activar el registro de tarjetas SD de Exchange?"</string>
     <string name="account_folder_list_separator_accounts" msgid="7568820182396669244">"Cuentas"</string>
     <string name="account_folder_list_summary_inbox" msgid="5790553737870057607">"Bandeja de entrada combinada"</string>
@@ -125,7 +125,7 @@
     <string name="message_view_display_attachment_toast" msgid="6096315816776330821">"No se puede mostrar este archivo adjunto."</string>
     <string name="account_setup_basics_title" msgid="3969856368228940980">"Configurar correo electrónico"</string>
     <string name="accounts_welcome" msgid="5901437782383439370">"Puedes configurar el correo electrónico de la mayoría de las cuentas en sólo algunos pasos."</string>
-    <string name="accounts_welcome_exchange" msgid="4414121583987233733">"Puedes configurar una cuenta de intercambio en sólo algunos pasos."</string>
+    <string name="accounts_welcome_exchange" msgid="4414121583987233733">"Puedes configurar una cuenta de Exchange en sólo algunos pasos."</string>
     <!-- no translation found for account_setup_basics_instructions (3126077748322815504) -->
     <skip />
     <string name="account_setup_basics_email_hint" msgid="7414269319207261120">"Dirección de correo electrónico"</string>
@@ -147,7 +147,7 @@
     <string name="account_setup_account_type_instructions" msgid="114515540798408760">"¿Qué tipo de cuenta es?"</string>
     <string name="account_setup_account_type_pop_action" msgid="3958144865724586762">"Cuenta POP3"</string>
     <string name="account_setup_account_type_imap_action" msgid="3471220237309488124">"Cuenta IMAP"</string>
-    <string name="account_setup_account_type_exchange_action" msgid="7424283706321767987">"Intercambiar cuenta"</string>
+    <string name="account_setup_account_type_exchange_action" msgid="7424283706321767987">"Cuenta de Exchange"</string>
     <string name="account_setup_incoming_title" msgid="6862032674547580337">"Configuración entrante de servidor"</string>
     <string name="account_setup_incoming_username_label" msgid="5700581386104070302">"Nombre de usuario"</string>
     <string name="account_setup_incoming_password_label" msgid="6365327603172559859">"Contraseña"</string>

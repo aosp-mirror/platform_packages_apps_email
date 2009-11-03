@@ -82,7 +82,7 @@
     <string name="debug_version_fmt" msgid="6160213145745376955">"Versión: <xliff:g id="VERSION">%s</xliff:g>"</string>
     <string name="debug_enable_debug_logging_label" msgid="2715742416050944774">"¿Deseas habilitar un registro adicional de depuración?"</string>
     <string name="debug_enable_sensitive_logging_label" msgid="9010809457943556126">"¿Deseas habilitar el registro de depuración de la información confidencial? (Es posible que se muestren las contraseñas en los registros)."</string>
-    <string name="debug_enable_exchange_logging_label" msgid="8054457784052573080">"¿Habilitar el intercambio de registros del analizador? (sumamente detallado)"</string>
+    <string name="debug_enable_exchange_logging_label" msgid="8054457784052573080">"¿Deseas activar el acceso del analizador de Exchange? (sumamente detallado)"</string>
     <string name="debug_enable_exchange_file_logging_label" msgid="2264994303719050729">"¿Deseas habilitar el intercambio de registros de la tarjeta SD?"</string>
     <string name="account_folder_list_separator_accounts" msgid="7568820182396669244">"Cuentas"</string>
     <string name="account_folder_list_summary_inbox" msgid="5790553737870057607">"Combinación de recibidos"</string>
