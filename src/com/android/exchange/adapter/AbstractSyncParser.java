@@ -87,6 +87,7 @@ public abstract class AbstractSyncParser extends Parser {
     public boolean parse() throws IOException {
         int status;
         boolean moreAvailable = false;
+        boolean newSyncKey = false;
         int interval = mMailbox.mSyncInterval;
 
         // If we're not at the top of the xml tree, throw an exception
@@ -140,10 +141,8 @@ public abstract class AbstractSyncParser extends Parser {
                     mAdapter.setSyncKey(newKey, true);
                     cv.put(MailboxColumns.SYNC_KEY, newKey);
                     mailboxUpdated = true;
-                } else if (moreAvailable) {
-                    userLog("!! SyncKey hasn't changed, setting moreAvailable = false");
-                    moreAvailable = false;
-                } 
+                    newSyncKey = true;
+                }
                 // If we were pushing (i.e. auto-start), now we'll become ping-triggered
                 if (mMailbox.mSyncInterval == Mailbox.CHECK_INTERVAL_PUSH) {
                     mMailbox.mSyncInterval = Mailbox.CHECK_INTERVAL_PING;
@@ -151,6 +150,12 @@ public abstract class AbstractSyncParser extends Parser {
            } else {
                 skipTag();
            }
+        }
+
+        // If we don't have a new sync key, ignore moreAvailable (or we'll loop)
+        if (moreAvailable && !newSyncKey) {
+            userLog("!! SyncKey hasn't changed, setting moreAvailable = false");
+            moreAvailable = false;
         }
 
         // Commit any changes
