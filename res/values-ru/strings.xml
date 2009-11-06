@@ -15,13 +15,10 @@
 -->
 <resources xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:xliff="urn:oasis:names:tc:xliff:document:1.2">
-    <!-- no translation found for read_attachment_label (1162255191991555285) -->
-    <skip />
+    <string name="read_attachment_label" msgid="1162255191991555285">"Открывать приложения к письмам"</string>
     <string name="read_attachment_desc" msgid="7594746717616308643">"Разрешить этой программе открывать приложения электронной почты."</string>
-    <!-- no translation found for permission_access_provider_label (4274353114641168675) -->
-    <skip />
-    <!-- no translation found for permission_access_provider_desc (1513898266889541617) -->
-    <skip />
+    <string name="permission_access_provider_label" msgid="4274353114641168675">"Получать доступ к данным провайдера электронной почты"</string>
+    <string name="permission_access_provider_desc" msgid="1513898266889541617">"Разрешает этому приложению доступ к базе данных программы электронной почты, включая полученные и отправленные письма, имена пользователей и пароли."</string>
     <string name="app_name" msgid="5815426892327290362">"Email"</string>
     <string name="accounts_title" msgid="6622149231904649210">"Эл. почта"</string>
     <string name="compose_title" msgid="427986915662706899">"Новое сообщение"</string>
@@ -38,19 +35,14 @@
     <string name="discard_action" msgid="6532206074859505968">"Удалить черновик"</string>
     <string name="save_draft_action" msgid="812855865552028622">"Сохранить черновик"</string>
     <string name="read_unread_action" msgid="4721446664849165077">"Прочитанные/Непрочитанные"</string>
-    <!-- no translation found for read_action (4701484794504781686) -->
-    <skip />
-    <!-- no translation found for unread_action (6280399049357552826) -->
-    <skip />
+    <string name="read_action" msgid="4701484794504781686">"Отметить как прочитанное"</string>
+    <string name="unread_action" msgid="6280399049357552826">"Отметить как непрочитанное"</string>
     <string name="favorite_action" msgid="2911296685862420689">"Избранное"</string>
-    <!-- no translation found for set_star_action (4660317166196258160) -->
-    <skip />
-    <!-- no translation found for remove_star_action (6689770999647007163) -->
-    <skip />
+    <string name="set_star_action" msgid="4660317166196258160">"Пометить"</string>
+    <string name="remove_star_action" msgid="6689770999647007163">"Снять пометку"</string>
     <string name="refresh_action" msgid="5951383001436708175">"Обновить"</string>
     <string name="add_account_action" msgid="8835736309476033727">"Добавить аккаунт"</string>
-    <!-- no translation found for deselect_all_action (253663239459688238) -->
-    <skip />
+    <string name="deselect_all_action" msgid="253663239459688238">"Снять все выделения"</string>
     <string name="compose_action" msgid="4045702519637388045">"Новое сообщение"</string>
     <string name="search_action" msgid="6325101454876682308">"Поиск"</string>
     <string name="open_action" msgid="936766723989190816">"Открыть"</string>
@@ -71,8 +63,7 @@
     <string name="status_sending_messages_failed" msgid="7975009558738692407">"Попытаться отправить сообщения повторно"</string>
     <string name="status_loading_more_failed" msgid="1629172047185323">"Попробуйте загрузить остальные сообщения еще раз"</string>
     <string name="notification_new_title" msgid="2200257910380529139">"Новое письмо"</string>
-    <!-- no translation found for error_loading_message_body (2265140604109272914) -->
-    <skip />
+    <string name="error_loading_message_body" msgid="2265140604109272914">"Непредвиденная ошибка при загрузке текста сообщения. Возможно, объем сообщения слишком велик."</string>
   <plurals name="notification_new_one_account_fmt">
     <item quantity="one" msgid="3422945912787702191">"Непрочитанных: <xliff:g id="UNREAD_MESSAGE_COUNT">%d</xliff:g> (<xliff:g id="ACCOUNT">%s</xliff:g>)"</item>
     <item quantity="few" msgid="6543078667692990869">"Непрочитанных: <xliff:g id="UNREAD_MESSAGE_COUNT">%d</xliff:g> (<xliff:g id="ACCOUNT">%s</xliff:g>)"</item>
@@ -82,25 +73,17 @@
     <item quantity="few" msgid="1991747245324120305">"в <xliff:g id="NUMBER_ACCOUNTS">%d</xliff:g> аккаунтах"</item>
     <item quantity="other" msgid="2723797835410343458">"в <xliff:g id="NUMBER_ACCOUNTS">%d</xliff:g> аккаунтах"</item>
   </plurals>
-    <!-- no translation found for mailbox_name_display_inbox (3542327124749861736) -->
-    <skip />
-    <!-- no translation found for mailbox_name_display_outbox (2826214174661417662) -->
-    <skip />
-    <!-- no translation found for mailbox_name_display_drafts (4868718300700514319) -->
-    <skip />
-    <!-- no translation found for mailbox_name_display_trash (9139069064580630647) -->
-    <skip />
-    <!-- no translation found for mailbox_name_display_sent (3426058998191869523) -->
-    <skip />
-    <!-- no translation found for mailbox_name_display_junk (9046762505977999288) -->
-    <skip />
+    <string name="mailbox_name_display_inbox" msgid="3542327124749861736">"Входящие"</string>
+    <string name="mailbox_name_display_outbox" msgid="2826214174661417662">"Исходящие"</string>
+    <string name="mailbox_name_display_drafts" msgid="4868718300700514319">"Черновики"</string>
+    <string name="mailbox_name_display_trash" msgid="9139069064580630647">"Корзина"</string>
+    <string name="mailbox_name_display_sent" msgid="3426058998191869523">"Отправленные"</string>
+    <string name="mailbox_name_display_junk" msgid="9046762505977999288">"Спам"</string>
     <string name="debug_version_fmt" msgid="6160213145745376955">"Версия: <xliff:g id="VERSION">%s</xliff:g>"</string>
     <string name="account_folder_list_separator_accounts" msgid="7568820182396669244">"Аккаунты"</string>
-    <!-- no translation found for account_folder_list_summary_inbox (5790553737870057607) -->
-    <skip />
+    <string name="account_folder_list_summary_inbox" msgid="5790553737870057607">"Все входящие"</string>
     <string name="account_folder_list_summary_unread" msgid="1200755158196002928">"Непрочитанные"</string>
-    <!-- no translation found for account_folder_list_summary_starred (3134312269246375723) -->
-    <skip />
+    <string name="account_folder_list_summary_starred" msgid="3134312269246375723">"Помеченные"</string>
     <string name="account_folder_list_summary_drafts" msgid="5514845993247300437">"Черновики"</string>
     <string name="account_folder_list_summary_outbox" msgid="3059836696049399377">"Исходящие"</string>
     <string name="mailbox_list_title" msgid="8299608543467211089">"Почтовый ящик"</string>
@@ -137,10 +120,8 @@
     <string name="add_contact_dlg_message_fmt" msgid="4470846346726847478">"Добавить <xliff:g id="EMAIL">%s</xliff:g> в контакты"</string>
     <string name="message_view_display_attachment_toast" msgid="6096315816776330821">"Это приложение нельзя просмотреть."</string>
     <string name="account_setup_basics_title" msgid="3969856368228940980">"Настройка электронной почты"</string>
-    <!-- no translation found for accounts_welcome (5901437782383439370) -->
-    <skip />
-    <!-- no translation found for accounts_welcome_exchange (4414121583987233733) -->
-    <skip />
+    <string name="accounts_welcome" msgid="5901437782383439370">"Программу Email можно легко настроить для большинства популярных почтовых служб."</string>
+    <string name="accounts_welcome_exchange" msgid="4414121583987233733">"Аккаунт Exchange легко настроить в несколько шагов."</string>
     <!-- no translation found for account_setup_basics_instructions (3126077748322815504) -->
     <skip />
     <string name="account_setup_basics_email_hint" msgid="7414269319207261120">"Адрес электронной почты"</string>
@@ -148,10 +129,8 @@
     <string name="account_setup_basics_default_label" msgid="5924790142029806711">"По умолчанию отправлять почту с этого аккаунта"</string>
     <string name="account_setup_basics_manual_setup_action" msgid="8053852205391155912">"Настройка вручную"</string>
     <string name="account_setup_username_password_toast" msgid="4441448542557889481">"Введите действительный адрес электронной почты и пароль."</string>
-    <!-- no translation found for account_duplicate_dlg_title (3176749833792312641) -->
-    <skip />
-    <!-- no translation found for account_duplicate_dlg_message_fmt (1920726613701479851) -->
-    <skip />
+    <string name="account_duplicate_dlg_title" msgid="3176749833792312641">"Копия аккаунта"</string>
+    <string name="account_duplicate_dlg_message_fmt" msgid="1920726613701479851">"Это имя пользователя уже используется в аккаунте <xliff:g id="DUPLICATE">%s</xliff:g>."</string>
     <string name="account_setup_check_settings_retr_info_msg" msgid="4121970450267725664">"Получение информации аккаунта..."</string>
     <string name="account_setup_check_settings_check_incoming_msg" msgid="5356212700221438863">"Проверка настроек сервера входящих сообщений..."</string>
     <string name="account_setup_check_settings_check_outgoing_msg" msgid="4033015234096725343">"Проверка настроек сервера исходящих сообщений..."</string>
@@ -164,8 +143,7 @@
     <string name="account_setup_account_type_instructions" msgid="114515540798408760">"Что это за аккаунт?"</string>
     <string name="account_setup_account_type_pop_action" msgid="3958144865724586762">"Аккаунт POP3"</string>
     <string name="account_setup_account_type_imap_action" msgid="3471220237309488124">"Аккаунт IMAP"</string>
-    <!-- no translation found for account_setup_account_type_exchange_action (7424283706321767987) -->
-    <skip />
+    <string name="account_setup_account_type_exchange_action" msgid="7424283706321767987">"Аккаунт Exchange"</string>
     <string name="account_setup_incoming_title" msgid="6862032674547580337">"Настройки сервера входящих сообщений"</string>
     <string name="account_setup_incoming_username_label" msgid="5700581386104070302">"Имя пользователя"</string>
     <string name="account_setup_incoming_password_label" msgid="6365327603172559859">"Пароль"</string>
@@ -174,14 +152,10 @@
     <string name="account_setup_incoming_port_label" msgid="8214738923690447796">"Порт"</string>
     <string name="account_setup_incoming_security_label" msgid="2110260791086007424">"Тип безопасности"</string>
     <string name="account_setup_incoming_security_none_label" msgid="8300169413118264895">"Нет"</string>
-    <!-- no translation found for account_setup_incoming_security_ssl_trust_certificates_label (3581382268191377346) -->
-    <skip />
-    <!-- no translation found for account_setup_incoming_security_ssl_label (8886698397743061682) -->
-    <skip />
-    <!-- no translation found for account_setup_incoming_security_tls_trust_certificates_label (1089227022489257055) -->
-    <skip />
-    <!-- no translation found for account_setup_incoming_security_tls_label (8638006172590036487) -->
-    <skip />
+    <string name="account_setup_incoming_security_ssl_trust_certificates_label" msgid="3581382268191377346">"SSL (принимать все сертификаты)"</string>
+    <string name="account_setup_incoming_security_ssl_label" msgid="8886698397743061682">"SSL"</string>
+    <string name="account_setup_incoming_security_tls_trust_certificates_label" msgid="1089227022489257055">"TLS (принимать все сертификаты)"</string>
+    <string name="account_setup_incoming_security_tls_label" msgid="8638006172590036487">"TLS"</string>
     <string name="account_setup_incoming_delete_policy_label" msgid="9213590134693857912">"Удалять сообщения с сервера"</string>
     <string name="account_setup_incoming_delete_policy_never_label" msgid="3222897501875871041">"Никогда"</string>
     <string name="account_setup_incoming_delete_policy_delete_label" msgid="222216840911785631">"При удалении из входящих"</string>
@@ -196,13 +170,11 @@
     <string name="account_setup_outgoing_password_label" msgid="227844585493317550">"Пароль"</string>
     <string name="account_setup_exchange_title" msgid="247933841122558059">"Настройки сервера Exchange"</string>
     <string name="account_setup_exchange_server_label" msgid="5390359659749339317">"Сервер Exchange"</string>
-    <!-- no translation found for account_setup_exchange_username_label (6517176180828983060) -->
-    <skip />
+    <string name="account_setup_exchange_username_label" msgid="6517176180828983060">"Домен\\Имя пользователя"</string>
     <string name="account_setup_exchange_domain_label" msgid="3584668050727667045">"Домен"</string>
     <string name="account_setup_exchange_domain_hint" msgid="350372033916025287">"Введите домен"</string>
     <string name="account_setup_exchange_ssl_label" msgid="6704105469083211236">"Использовать защищенное соединение (SSL)"</string>
-    <!-- no translation found for account_setup_exchange_trust_certificates_label (6232880757633882678) -->
-    <skip />
+    <string name="account_setup_exchange_trust_certificates_label" msgid="6232880757633882678">"Принимать все сертификаты SSL"</string>
     <string name="account_setup_options_title" msgid="8995162193118880993">"Параметры аккаунта"</string>
     <string name="account_setup_options_mail_check_frequency_label" msgid="4598023962234986194">"Частота проверки почты"</string>
     <string name="account_setup_options_mail_check_frequency_never" msgid="287951859480505416">"Никогда"</string>
@@ -238,8 +210,7 @@
     <string name="account_settings_default_label" msgid="3575963379680943640">"Аккаунт по умолчанию"</string>
     <string name="account_settings_default_summary" msgid="1531901438624688482">"По умолчанию отправлять почту с этого аккаунта"</string>
     <string name="account_settings_notify_label" msgid="1630001017303007974">"Уведомления о почте"</string>
-    <!-- no translation found for account_settings_exchange_summary (8498451479029626317) -->
-    <skip />
+    <string name="account_settings_exchange_summary" msgid="8498451479029626317">"Частота синхронизации, уведомления и другие настройки"</string>
     <string name="account_settings_notify_summary" msgid="6609224590300639887">"Сообщать о получении почты в строке состояния"</string>
     <string name="account_settings_mail_check_frequency_label" msgid="2067835530563849675">"Частота проверки почты"</string>
     <string name="account_settings_incoming_label" msgid="7858928031806297542">"Настройки входящих сообщений"</string>
@@ -248,10 +219,8 @@
     <string name="account_settings_description_label" msgid="8894815221204511715">"Название аккаунта"</string>
     <string name="account_settings_name_label" msgid="8186406122590008449">"Ваше имя"</string>
     <string name="account_settings_notifications" msgid="1042620094281375043">"Настройки уведомлений"</string>
-    <!-- no translation found for account_settings_sync_contacts_enable (1369272986009573218) -->
-    <skip />
-    <!-- no translation found for account_settings_sync_contacts_summary (8901452720940015928) -->
-    <skip />
+    <string name="account_settings_sync_contacts_enable" msgid="1369272986009573218">"Синхронизировать контакты"</string>
+    <string name="account_settings_sync_contacts_summary" msgid="8901452720940015928">"Также синхронизировать контакты из этого аккаунта"</string>
     <string name="account_settings_vibrate_enable" msgid="8045133290388856478">"Вибрация"</string>
     <string name="account_settings_vibrate_summary" msgid="3690631050585589365">"Вибрация при получении сообщения"</string>
     <string name="account_settings_ringtone" msgid="7922187231467500404">"Выбрать мелодию"</string>
@@ -262,7 +231,6 @@
     <string name="provider_note_yahoo_uk" msgid="2055976404478603298">"Прежде чем настраивать аккаунт, посетите веб-сайт Yahoo! и включите доступ к аккаунту по протоколу POP3."</string>
     <string name="provider_note_live" msgid="3584841823811425060">"Доступ по протоколу POP, позволяющий этой программе подключаться, разрешен только в некоторых аккаунтах Plus. Если вам не удается войти со своим адресом электронной почты и паролем, скорее всего, у вас бесплатный аккаунт (не Plus). Доступ к такому аккаунту возможен через браузер."</string>
     <string name="provider_note_t_online" msgid="1973701903400232774">"Прежде чем настраивать аккаунт электронной почты, посетите веб-сайт оператора связи и установите пароль для доступа к электронной почте по протоколу POP3."</string>
-    <!-- no translation found for exchange_name (1190783774800310346) -->
-    <skip />
+    <string name="exchange_name" msgid="1190783774800310346">"Корпоративный"</string>
     <string name="system_account_create_failed" msgid="4917162302393971752">"Менеджер аккаунта не может создать аккаунт, повторите попытку позже."</string>
 </resources>
