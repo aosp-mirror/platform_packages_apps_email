@@ -43,6 +43,8 @@ public class MessagingException extends Exception {
     public static final int AUTHENTICATION_FAILED = 5;
     /** Attempt to create duplicate account */
     public static final int DUPLICATE_ACCOUNT = 6;
+    /** Required security policies not supported */
+    public static final int SECURITY_POLICIES_REQUIRED = 7;
     
     protected int mExceptionType;
      
