@@ -214,6 +214,17 @@ public class EasSyncService extends AbstractSyncService {
                     userLog("OPTIONS response without commands or versions; reporting I/O error");
                     throw new MessagingException(MessagingException.IOERROR);
                 }
+
+                // Run second test here for provisioning failures...
+                Serializer s = new Serializer();
+                userLog("Try folder sync");
+                s.start(Tags.FOLDER_FOLDER_SYNC).start(Tags.FOLDER_SYNC_KEY).text("0")
+                    .end().end().done();
+                resp = svc.sendHttpClientPost("FolderSync", s.toByteArray());
+                code = resp.getStatusLine().getStatusCode();
+                if (code == HttpStatus.SC_FORBIDDEN) {
+                    throw new MessagingException(MessagingException.SECURITY_POLICIES_REQUIRED);
+                }
                 userLog("Validation successful");
                 return;
             }
