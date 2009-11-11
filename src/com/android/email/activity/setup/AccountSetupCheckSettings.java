@@ -166,6 +166,9 @@ public class AccountSetupCheckSettings extends Activity implements OnClickListen
                         case MessagingException.AUTH_REQUIRED:
                             id = R.string.account_setup_failed_auth_required;
                             break;
+                        case MessagingException.SECURITY_POLICIES_REQUIRED:
+                            id = R.string.account_setup_failed_security_policies_required;
+                            break;
                         case MessagingException.GENERAL_SECURITY:
                             id = R.string.account_setup_failed_security;
                             break;
