@@ -483,8 +483,8 @@
     <string name="account_setup_failed_security">Unable to open connection to server due to security error.</string>
     <!-- Additional diagnostic text when server connection failed due to io error (connection) -->
     <string name="account_setup_failed_ioerror">Unable to open connection to server.</string>
-    <!-- Additional diagnostic text when validation vailed due to required provisioning not being supported -->
-    <string name="account_setup_failed_security_policies_required">Security policies not supported. Please contact your IT department.</string>
+    <!-- Additional diagnostic text when validation failed due to required provisioning not being supported -->
+    <string name="account_setup_failed_security_policies_required">This Exchange ActiveSync server requires security features your phone does not support.</string>
 
     <!-- "Setup could not finish" dialog action button -->
     <string name="account_setup_failed_dlg_edit_details_action">Edit details</string>
