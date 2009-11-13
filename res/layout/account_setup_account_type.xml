@@ -31,6 +31,7 @@
         android:text="@string/account_setup_account_type_pop_action"
         android:layout_height="wrap_content"
         android:layout_width="150sp"
+        android:layout_marginTop="25dip"
         android:minWidth="@dimen/button_minWidth"
         android:layout_gravity="center_horizontal"
         />
@@ -39,6 +40,7 @@
         android:text="@string/account_setup_account_type_imap_action"
         android:layout_height="wrap_content"
         android:layout_width="150sp"
+        android:layout_marginTop="25dip"
         android:minWidth="@dimen/button_minWidth"
         android:layout_gravity="center_horizontal"
         />
@@ -47,6 +49,7 @@
         android:text="@string/account_setup_account_type_exchange_action"
         android:layout_height="wrap_content"
         android:layout_width="150sp"
+        android:layout_marginTop="25dip"
         android:minWidth="@dimen/button_minWidth"
         android:layout_gravity="center_horizontal"
         android:visibility="gone"

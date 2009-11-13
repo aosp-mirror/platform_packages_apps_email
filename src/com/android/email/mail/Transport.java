@@ -41,10 +41,8 @@ public interface Transport {
      * Connection security options for transport that supports SSL and/or TLS
      */
     public static final int CONNECTION_SECURITY_NONE = 0;
-    public static final int CONNECTION_SECURITY_TLS_OPTIONAL = 1;
-    public static final int CONNECTION_SECURITY_TLS_REQUIRED = 2;
-    public static final int CONNECTION_SECURITY_SSL_REQUIRED = 3;
-    public static final int CONNECTION_SECURITY_SSL_OPTIONAL = 4;
+    public static final int CONNECTION_SECURITY_SSL = 1;
+    public static final int CONNECTION_SECURITY_TLS = 2;
     
     /**
      * Get a new transport, using an existing one as a model.  The new transport is configured as if
@@ -81,8 +79,9 @@ public interface Transport {
     /**
      * Set the desired security mode for this connection.
      * @param connectionSecurity A value indicating the desired security mode.
+     * @param trustAllCertificates true to allow unverifiable certificates to be used
      */
-    public void setSecurity(int connectionSecurity);
+    public void setSecurity(int connectionSecurity, boolean trustAllCertificates);
     
     /**
      * @return Returns the desired security mode for this connection.
@@ -90,15 +89,20 @@ public interface Transport {
     public int getSecurity();
     
     /**
-     * @return true if the security mode indicates that SSL is possible (optional or required)
+     * @return true if the security mode indicates that SSL is possible
      */
     public boolean canTrySslSecurity();
     
     /**
-     * @return true if the security mode indicates that TLS is possible (optional or required)
+     * @return true if the security mode indicates that TLS is possible
      */
     public boolean canTryTlsSecurity();
-    
+
+    /**
+     * @return true if the security mode indicates that all certificates can be trusted
+     */
+    public boolean canTrustAllCertificates();
+
     /**
      * Set the socket timeout.
      * @param timeoutMilliseconds the read timeout value if greater than {@code 0}, or

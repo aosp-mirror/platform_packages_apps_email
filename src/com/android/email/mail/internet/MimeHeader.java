@@ -16,15 +16,14 @@
 
 package com.android.email.mail.internet;
 
+import com.android.email.Utility;
+import com.android.email.mail.MessagingException;
+
 import java.io.BufferedWriter;
 import java.io.IOException;
 import java.io.OutputStream;
 import java.io.OutputStreamWriter;
 import java.util.ArrayList;
-import java.util.regex.Pattern;
-
-import com.android.email.Utility;
-import com.android.email.mail.MessagingException;
 
 public class MimeHeader {
     /**
@@ -35,6 +34,10 @@ public class MimeHeader {
      * into the MIME data by LocalStore.fetch.
      */
     public static final String HEADER_ANDROID_ATTACHMENT_STORE_DATA = "X-Android-Attachment-StoreData";
+    /**
+     * Application specific header that is used to tag body parts for quoted/forwarded messages.
+     */
+    public static final String HEADER_ANDROID_BODY_QUOTED_PART = "X-Android-Body-Quoted-Part";
 
     public static final String HEADER_CONTENT_TYPE = "Content-Type";
     public static final String HEADER_CONTENT_TRANSFER_ENCODING = "Content-Transfer-Encoding";
@@ -142,5 +145,10 @@ public class MimeHeader {
         public String toString() {
             return name + "=" + value;
         }
+    }
+
+    @Override
+    public String toString() {
+        return (mFields == null) ? null : mFields.toString();
     }
 }

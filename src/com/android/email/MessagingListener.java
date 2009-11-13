@@ -16,11 +16,10 @@
 
 package com.android.email;
 
-import android.content.Context;
-
-import com.android.email.mail.Folder;
 import com.android.email.mail.Message;
-import com.android.email.mail.Part;
+import com.android.email.provider.EmailContent;
+
+import android.content.Context;
 
 /**
  * Defines the interface that MessagingController will use to callback to requesters. This class
@@ -30,125 +29,72 @@ import com.android.email.mail.Part;
  * changes in this class.
  */
 public class MessagingListener {
-    public void listFoldersStarted(Account account) {
+    public void listFoldersStarted(long accountId) {
     }
 
-    public void listFolders(Account account, Folder[] folders) {
+    public void listFoldersFailed(long accountId, String message) {
     }
 
-    public void listFoldersFailed(Account account, String message) {
+    public void listFoldersFinished(long accountId) {
     }
 
-    public void listFoldersFinished(Account account) {
+    public void synchronizeMailboxStarted(long accountId, long mailboxId)
+            {
     }
 
-    public void listLocalMessagesStarted(Account account, String folder) {
+    public void synchronizeMailboxFinished(long accountId,
+            long mailboxId, int totalMessagesInMailbox, int numNewMessages) {
     }
 
-    public void listLocalMessages(Account account, String folder, Message[] messages) {
+    public void synchronizeMailboxFailed(long accountId, long mailboxId,
+            Exception e) {
     }
 
-    public void listLocalMessagesFailed(Account account, String folder, String message) {
+    public void loadMessageForViewStarted(long messageId) {
     }
 
-    public void listLocalMessagesFinished(Account account, String folder) {
+    public void loadMessageForViewFinished(long messageId) {
     }
 
-    public void synchronizeMailboxStarted(Account account, String folder) {
+    public void loadMessageForViewFailed(long messageId, String message) {
     }
 
-    public void synchronizeMailboxNewMessage(Account account, String folder, Message message) {
+    public void checkMailStarted(Context context, long accountId, long tag) {
     }
 
-    public void synchronizeMailboxRemovedMessage(Account account, String folder,Message message) {
+    public void checkMailFinished(Context context, long accountId, long mailboxId, long tag) {
     }
 
-    public void synchronizeMailboxFinished(Account account, String folder,
-            int totalMessagesInMailbox, int numNewMessages) {
+    public void sendPendingMessagesStarted(long accountId, long messageId) {
     }
 
-    public void synchronizeMailboxFailed(Account account, String folder, Exception e) {
+    public void sendPendingMessagesCompleted(long accountId) {
     }
 
-    public void loadMessageForViewStarted(Account account, String folder, String uid) {
+    public void sendPendingMessagesFailed(long accountId, long messageId, Exception reason) {
     }
 
-    public void loadMessageForViewHeadersAvailable(Account account, String folder, String uid,
-            Message message) {
-    }
-
-    public void loadMessageForViewBodyAvailable(Account account, String folder, String uid,
-            Message message) {
-    }
-
-    public void loadMessageForViewFinished(Account account, String folder, String uid,
-            Message message) {
-    }
-
-    public void loadMessageForViewFailed(Account account, String folder, String uid, String message) {
-    }
-    
-    public void loadInlineImagesForViewStarted(Account account, Message message) {
-    }
-
-    public void loadInlineImagesForViewOneAvailable(Account account, Message message, Part part) {
-    }
-
-    public void loadInlineImagesForViewFinished(Account account, Message message) {
-    }
-
-    public void loadInlineImagesForViewFailed(Account account, Message message) {
-    }
-
-    public void checkMailStarted(Context context, Account account) {
-    }
-
-    public void checkMailFinished(Context context, Account account) {
-    }
-
-    public void checkMailFailed(Context context, Account account, String reason) {
-    }
-
-    public void sendPendingMessagesCompleted(Account account) {
-    }
-
-    public void sendPendingMessagesFailed(Account account, Exception reason) {
-    }
-
-    public void sendPendingMessageFailed(Account account, Message message, Exception reason) {
-    }
-
-    public void emptyTrashCompleted(Account account) {
-    }
-
-    public void messageUidChanged(Account account, String folder, String oldUid, String newUid) {
-
+    public void messageUidChanged(long accountId, long mailboxId, String oldUid, String newUid) {
     }
 
     public void loadAttachmentStarted(
-            Account account,
-            Message message,
-            Part part,
-            Object tag,
-            boolean requiresDownload)
-    {
+            long accountId,
+            long messageId,
+            long attachmentId,
+            boolean requiresDownload) {
     }
 
     public void loadAttachmentFinished(
-            Account account,
-            Message message,
-            Part part,
-            Object tag)
-    {
+            long accountId,
+            long messageId,
+            long attachmentId) {
     }
 
     public void loadAttachmentFailed(
-            Account account,
-            Message message,
-            Part part,
-            Object tag,
-            String reason)
-    {
+            long accountId,
+            long messageId,
+            long attachmentId,
+            String reason) {
     }
 
     /**

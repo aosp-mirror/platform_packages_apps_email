@@ -16,14 +16,14 @@
 
 package com.android.email.activity.setup;
 
-import com.android.email.Account;
-import com.android.email.Email;
-import com.android.email.Preferences;
 import com.android.email.R;
 import com.android.email.Utility;
-import com.android.email.activity.FolderMessageList;
+import com.android.email.activity.MessageList;
+import com.android.email.provider.EmailContent;
+import com.android.email.provider.EmailContent.AccountColumns;
 
 import android.app.Activity;
+import android.content.ContentValues;
 import android.content.Intent;
 import android.os.Bundle;
 import android.text.Editable;
@@ -36,19 +36,18 @@ import android.widget.Button;
 import android.widget.EditText;
 
 public class AccountSetupNames extends Activity implements OnClickListener {
-    private static final String EXTRA_ACCOUNT = "account";
+    private static final String EXTRA_ACCOUNT_ID = "accountId";
+    private static final String EXTRA_EAS_FLOW = "easFlow";
 
     private EditText mDescription;
-
     private EditText mName;
-
-    private Account mAccount;
-
+    private EmailContent.Account mAccount;
     private Button mDoneButton;
 
-    public static void actionSetNames(Activity fromActivity, Account account) {
+    public static void actionSetNames(Activity fromActivity, long accountId, boolean easFlowMode) {
         Intent i = new Intent(fromActivity, AccountSetupNames.class);
-        i.putExtra(EXTRA_ACCOUNT, account);
+        i.putExtra(EXTRA_ACCOUNT_ID, accountId);
+        i.putExtra(EXTRA_EAS_FLOW, easFlowMode);
         fromActivity.startActivity(i);
     }
 
@@ -76,7 +75,8 @@ public class AccountSetupNames extends Activity implements OnClickListener {
         
         mName.setKeyListener(TextKeyListener.getInstance(false, Capitalize.WORDS));
 
-        mAccount = (Account)getIntent().getSerializableExtra(EXTRA_ACCOUNT);
+        long accountId = getIntent().getLongExtra(EXTRA_ACCOUNT_ID, -1);
+        mAccount = EmailContent.Account.restoreAccountWithId(this, accountId);
 
         /*
          * Since this field is considered optional, we don't set this here. If
@@ -84,8 +84,8 @@ public class AccountSetupNames extends Activity implements OnClickListener {
          * just leave the saved value alone.
          */
         // mDescription.setText(mAccount.getDescription());
-        if (mAccount.getName() != null) {
-            mName.setText(mAccount.getName());
+        if (mAccount.getSenderName() != null) {
+            mName.setText(mAccount.getSenderName());
         }
         if (!Utility.requiredFieldValid(mName)) {
             mDoneButton.setEnabled(false);
@@ -101,15 +101,29 @@ public class AccountSetupNames extends Activity implements OnClickListener {
     }
 
     /**
+     * After having a chance to input the display names, we normally jump directly to the
+     * inbox for the new account.  However if we're in EAS flow mode (externally-launched
+     * account creation) we simply "pop" here which should return us to the Accounts activities.
+     *
      * TODO: Validator should also trim the description string before checking it.
      */
     private void onNext() {
         if (Utility.requiredFieldValid(mDescription)) {
-            mAccount.setDescription(mDescription.getText().toString());
+            mAccount.setDisplayName(mDescription.getText().toString());
         }
-        mAccount.setName(mName.getText().toString());
-        mAccount.save(Preferences.getPreferences(this));
-        FolderMessageList.actionHandleAccount(this, mAccount, Email.INBOX);
+        String name = mName.getText().toString();
+        mAccount.setSenderName(name);
+        ContentValues cv = new ContentValues();
+        cv.put(AccountColumns.DISPLAY_NAME, mAccount.getDisplayName());
+        cv.put(AccountColumns.SENDER_NAME, name);
+        mAccount.update(this, cv);
+
+        // Exit or dispatch per flow mode
+        if (getIntent().getBooleanExtra(EXTRA_EAS_FLOW, false)) {
+            // do nothing - just pop off the activity stack
+        } else {
+            MessageList.actionHandleAccount(this, mAccount.mId, EmailContent.Mailbox.TYPE_INBOX);
+        }
         finish();
     }
 

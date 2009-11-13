@@ -16,14 +16,44 @@
 
 <resources xmlns:xliff="urn:oasis:names:tc:xliff:document:1.2">
 
-    <!-- Permissions label -->
-    <string name="read_attachment_label">read Email attachments</string>
-    <!-- Permissions description -->
-    <string name="read_attachment_desc">Allows this application to read your Email attachments.</string>
+    <!-- Deprecated strings - Move the identifiers to this section, mark as DO NOT TRANSLATE,
+         and remove the actual text.  These will be removed in a bulk operation. -->
+    <!-- Do Not Translate.  Unused string. -->
+    <string name="special_mailbox_name_inbox"></string>
+    <!-- Do Not Translate.  Unused string. -->
+    <string name="special_mailbox_display_name_inbox"></string>
+    <!-- Do Not Translate.  Unused string. -->
+    <string name="special_mailbox_display_name_outbox"></string>
+    <!-- Do Not Translate.  Unused string. -->
+    <string name="special_mailbox_display_name_drafts"></string>
+    <!-- Do Not Translate.  Unused string. -->
+    <string name="special_mailbox_display_name_trash"></string>
+    <!-- Do Not Translate.  Unused string. -->
+    <string name="special_mailbox_display_name_sent"></string>
+    <!-- Do Not Translate.  Unused string. -->
+    <string name="special_mailbox_display_name_junk"></string>
+    <!-- Do Not Translate.  Unused string. -->
+    <string name="account_setup_incoming_delete_policy_7days_label"></string>
+    <!-- Do Not Translate.  Unused string. -->
+    <string name="account_setup_incoming_security_ssl_optional_label"></string>
+    <!-- Do Not Translate.  Unused string. -->
+    <string name="account_setup_incoming_security_tls_optional_label"></string>
+
+    <!-- Permissions label for reading attachments -->
+    <string name="read_attachment_label">Read Email attachments</string>
+    <!-- Permissions description for reading attachments -->
+    <string name="read_attachment_desc">Allows this application to read your Email
+        attachments.</string>
+    <!-- Permissions label for accessing the main provider -->
+    <string name="permission_access_provider_label">Access Email provider data</string>
+    <!-- Permissions description for accessing the main provider -->
+    <string name="permission_access_provider_desc">Allows this application to access your Email
+        database, including received messages, sent messages, usernames and passwords.</string>
+
     <!-- Name of application on Home screen -->
     <string name="app_name">Email</string>
     <!-- Title of Accounts screen -->
-    <string name="accounts_title">Your accounts</string>
+    <string name="accounts_title">Email</string>
     <!-- Title of compose screen -->
     <string name="compose_title">Compose</string>
     <!-- Title of debug screen -->
@@ -54,10 +84,24 @@
     <string name="discard_action">Discard</string>
     <!-- Menu item/button name -->
     <string name="save_draft_action">Save as draft</string>
+    <!-- Menu item/button name -->
+    <string name="read_unread_action">Read/Unread</string>
+    <!-- Menu item/button name -->
+    <string name="read_action">Mark read</string>
+    <!-- Menu item/button name -->
+    <string name="unread_action">Mark unread</string>
+    <!-- Menu item/button name -->
+    <string name="favorite_action">Favorite</string>
+    <!-- Menu item/button name -->
+    <string name="set_star_action">Add star</string>
+    <!-- Menu item/button name -->
+    <string name="remove_star_action">Remove star</string>
     <!-- Menu item -->
     <string name="refresh_action">Refresh</string>
     <!-- Menu item -->
     <string name="add_account_action">Add account</string>
+    <!-- Menu item -->
+    <string name="deselect_all_action">Deselect all</string>
     <!-- Menu item -->
     <string name="compose_action">Compose</string>
     <!-- Menu item/button name -->
@@ -68,6 +112,8 @@
     <string name="account_settings_action">Account settings</string>
     <!-- Menu item -->
     <string name="remove_account_action">Remove account</string>
+    <!-- Menu item -->
+    <string name="folders_action">Folders</string>
     <!-- Menu item -->
     <string name="accounts_action">Accounts</string>
     <!-- Menu item -->
@@ -97,6 +143,9 @@
     <string name="status_loading_more_failed">Retry loading more messages</string>
     <!-- Notification title in status bar -->
     <string name="notification_new_title">New email</string>
+    <!-- Dialog text when we are unable to load the message for display -->
+    <string name="error_loading_message_body">Unexpected error while loading message text.  Message
+        may be too large to view.</string>
 
     <!-- Notification message in notifications window when one account has
          one or more new messages; e.g, "279 unread (someone@google.com)". -->
@@ -120,27 +169,33 @@
         <item quantity="other">in <xliff:g id="number_accounts" example="10">%d</xliff:g> accounts</item>
     </plurals>
         
-
-    <!-- In the folder list view, the inbox will be displayed with this name -->
-    <string name="special_mailbox_name_inbox">Inbox</string>
+    <!-- The next set of strings are used server-side and must not be localized. -->
+    <!-- Do Not Translate.  This is the name of the "inbox" folder, on the server. -->
+    <string name="mailbox_name_server_inbox">Inbox</string>
     <!-- Do Not Translate.  This is the name of the "outbox" folder, on the server. -->
-    <string name="special_mailbox_name_outbox">Outbox</string>
+    <string name="mailbox_name_server_outbox">Outbox</string>
     <!-- Do Not Translate.  This is the name of the "drafts" folder, on the server. -->
-    <string name="special_mailbox_name_drafts">Drafts</string>
+    <string name="mailbox_name_server_drafts">Drafts</string>
     <!-- Do Not Translate.  This is the name of the "trash" folder, on the server. -->
-    <string name="special_mailbox_name_trash">Trash</string>
+    <string name="mailbox_name_server_trash">Trash</string>
     <!-- Do Not Translate.  This is the name of the "sent" folder, on the server. -->
-    <string name="special_mailbox_name_sent">Sent</string>
-    <!-- In the folder list view, the outbox will be displayed with this name -->
-    <string name="special_mailbox_display_name_outbox">Outbox</string>
-    <!-- In the folder list view, the drafts will be displayed with this name -->
-    <string name="special_mailbox_display_name_drafts">Drafts</string>
-    <!-- In the folder list view, the trash will be displayed with this name -->
-    <string name="special_mailbox_display_name_trash">Trash</string>
-    <!-- In the folder list view, the sent will be displayed with this name -->
-    <string name="special_mailbox_display_name_sent">Sent</string>
-    <!-- Text on screen when you don't have any external email accounts set up -->
-    <string name="accounts_welcome">Welcome to Email setup!\n\nUse any email account with Email.\n\nMost popular email accounts can be set up in 2 steps!</string>
+    <string name="mailbox_name_server_sent">Sent</string>
+    <!-- Do Not Translate.  This is the name of the "junk" folder, on the server. -->
+    <string name="mailbox_name_server_junk">Junk</string>
+
+    <!-- The next set of strings are used in local display and may be localized. -->
+    <!-- In the UI, the inbox will be displayed with this name -->
+    <string name="mailbox_name_display_inbox">Inbox</string>
+    <!-- In the UI, the outbox will be displayed with this name -->
+    <string name="mailbox_name_display_outbox">Outbox</string>
+    <!-- In the UI, the drafts will be displayed with this name -->
+    <string name="mailbox_name_display_drafts">Drafts</string>
+    <!-- In the UI, the trash will be displayed with this name -->
+    <string name="mailbox_name_display_trash">Trash</string>
+    <!-- In the UI, the sent will be displayed with this name -->
+    <string name="mailbox_name_display_sent">Sent</string>
+    <!-- In the UI, the junk will be displayed with this name -->
+    <string name="mailbox_name_display_junk">Junk</string>
 
     <!-- Version number, shown only on debug screen -->
     <string name="debug_version_fmt">Version: <xliff:g id="version">%s</xliff:g></string>
@@ -148,12 +203,34 @@
     <string name="debug_enable_debug_logging_label">Enable extra debug logging?</string>
     <!-- Checkbox label, shown only on debug screen -->
     <string name="debug_enable_sensitive_logging_label">Enable sensitive information debug logging? (May show passwords in logs.)</string>
+    <!-- Checkbox label, shown only on debug screen -->
+    <string name="debug_enable_exchange_logging_label">Enable exchange parser logging? (Extremely verbose)</string>
+    <!-- Checkbox label, shown only on debug screen -->
+    <string name="debug_enable_exchange_file_logging_label">Enable exchange sd card logging?</string>
+
+    <!-- The text in the small separator between smart folders and the accounts -->
+    <string name="account_folder_list_separator_accounts">Accounts</string>
+    <!-- The summary section entry in the AccountFolder list to display all inboxes -->
+    <string name="account_folder_list_summary_inbox">Combined Inbox</string>
+    <!-- The summary section entry in the AccountFolder list to display all unread -->
+    <string name="account_folder_list_summary_unread">Unread</string>
+    <!-- The summary section entry in the AccountFolder list to display all starred -->
+    <string name="account_folder_list_summary_starred">Starred</string>
+    <!-- The summary section entry in the AccountFolder list to display all drafts -->
+    <string name="account_folder_list_summary_drafts">Drafts</string>
+    <!-- The summary section entry in the AccountFolder list to display all outboxes -->
+    <string name="account_folder_list_summary_outbox">Outbox</string>
+
+    <!-- Title of the screen that shows a list of mailboxes for an account -->
+    <string name="mailbox_list_title">Mailbox</string>
 
     <!-- Appears at the bottom of list of messages; user selects to load more messages from that folder. -->
     <string name="message_list_load_more_messages_action">Load more messages</string>
     <!-- Appears at the bottom of list of messages of outbox;
          user selects to send pending messages. -->
     <string name="message_list_send_pending_messages_action">Send outgoing messages</string>
+    <!-- Appears at the title bar of list of messages. -->
+    <string name="message_list_title"><xliff:g id="account">%s</xliff:g>: <xliff:g id="mailbox">%s</xliff:g></string>
     <!-- Hint text in To field -->
     <string name="message_compose_to_hint">To</string>
     <!-- Hint text in Cc field -->
@@ -172,16 +249,19 @@
     <string name="message_compose_quoted_text_label">Quoted text</string>
     <!-- Toast that appears if you try to send with no recipients. -->
     <string name="message_compose_error_no_recipients">You must add at least one recipient.</string>
+    <!-- An address field contains invalid email addresses. -->
+    <string name="message_compose_error_invalid_email">Some email addresses are invalid.</string>
     <!-- Toast that appears in the context of forwarding a message with attachment(s) -->
     <string name="message_compose_attachments_skipped_toast">Some attachments cannot be forwarded because they have not downloaded.</string>
     <!-- Toast that appears when an attachment is too big to send. -->
     <string name="message_compose_attachment_size">File too large to attach.</string>
+    <!-- Display name for composed message, indicating the destination of the message.
+      e.g. "John and 2 others" -->
+    <string name="message_compose_display_name"><xliff:g id="name" example="John">%1$s</xliff:g> and <xliff:g id="number" example="27">%2$d</xliff:g> others</string>
     <!-- Label for To field in read message view -->
     <string name="message_view_to_label">To:</string>
     <!-- Label for CC field in read message view -->
     <string name="message_view_cc_label">Cc:</string>
-    <!-- Label for BCC field in read message view -->
-    <string name="message_view_bcc_label">Bcc:</string>
     <!-- Menu item -->
     <string name="message_view_attachment_view_action">Open</string>
     <!-- Button name -->
@@ -196,8 +276,6 @@
     <string name="message_view_show_pictures_action">Show pictures</string>
     <!-- Toast while fetching attachment -->
     <string name="message_view_fetching_attachment_toast">Fetching attachment.</string>
-    <!-- Appears progress dialog for fetching pictures -->
-    <string name="message_view_fetching_pictures_toast">Fetching images\u2026</string>
     <!-- Appears progress dialog for fetching attachment -->
     <string name="message_view_fetching_attachment_progress">Fetching attachment <xliff:g id="filename">%s</xliff:g></string>
     <!-- Toast shown briefly while deleting a message -->
@@ -217,8 +295,15 @@
 
     <!-- Title of screen when setting up new email account -->
     <string name="account_setup_basics_title">Set up email</string>
+    <!-- On "Set up email" screen, enthusiastic welcome message. -->
+    <string name="accounts_welcome">You can configure Email for most accounts in just a few steps.
+        </string>
+    <!-- On "Set up email" screen, enthusiastic welcome message (in EAS mode). -->
+    <string name="accounts_welcome_exchange">You can configure an Exchange account in just a few
+        steps.</string>
     <!-- On "Set up email" screen, brief instructions -->
-    <string name="account_setup_basics_instructions">Type your account email address:</string>
+    <!--  DEPRECATED - REMOVE -->
+    <string name="account_setup_basics_instructions"></string>
     <!-- On "Set up email" screen, hint for account email address text field -->
     <string name="account_setup_basics_email_hint">Email address</string>
     <!-- On "Set up email" screen, hint for account email password text field -->
@@ -230,6 +315,13 @@
     <!-- Toast when we can't build a URI from the given email & password -->
     <!-- Note, the error message in the toast is purposefully vague, because I *don't* know exactly what's wrong. -->
     <string name="account_setup_username_password_toast">Please type a valid email address and password.</string>
+    <!-- Title of dialog shown when a duplicate account is created -->
+    <string name="account_duplicate_dlg_title">Duplicate Account</string>
+    <!-- Message of dialog shown when a duplicate account is created.  The display name of
+         the duplicate account is displayed. -->
+    <string name="account_duplicate_dlg_message_fmt">
+        This login is already in use for the account \"<xliff:g id="duplicate">%s</xliff:g>\".
+    </string>
 
     <!-- Do Not Translate.  Activity Title for check-settings screen -->
     <string name="account_setup_check_settings_title"></string>
@@ -259,7 +351,7 @@
     <!-- "Add new email account" screen, button name in response to what type of account this is -->
     <string name="account_setup_account_type_imap_action">IMAP account</string>
     <!-- "Add new email account" screen, button name in response to what type of account this is -->
-    <string name="account_setup_account_type_exchange_action">Exchange/ActiveSync</string>
+    <string name="account_setup_account_type_exchange_action">Exchange account</string>
     <!-- "Incoming server settings" screen, label for text field -->
     <string name="account_setup_incoming_title">Incoming server settings</string>
     <!-- "Incoming server settings" screen, label for text field -->
@@ -277,20 +369,18 @@
     <!-- "Incoming server settings" screen, options for "Security type" pop-up menu -->
     <string name="account_setup_incoming_security_none_label">None</string>
     <!-- "Incoming server settings" screen, options for "Security type" pop-up menu -->
-    <string name="account_setup_incoming_security_ssl_optional_label">SSL (if available)</string>
+    <string name="account_setup_incoming_security_ssl_trust_certificates_label">SSL (Accept all certificates)</string>
     <!-- "Incoming server settings" screen, options for "Security type" pop-up menu -->
-    <string name="account_setup_incoming_security_ssl_label">SSL (always)</string>
+    <string name="account_setup_incoming_security_ssl_label">SSL</string>
     <!-- "Incoming server settings" screen, options for "Security type" pop-up menu -->
-    <string name="account_setup_incoming_security_tls_optional_label">TLS (if available)</string>
+    <string name="account_setup_incoming_security_tls_trust_certificates_label">TLS (Accept all certificates)</string>
     <!-- "Incoming server settings" screen, options for "Security type" pop-up menu -->
-    <string name="account_setup_incoming_security_tls_label">TLS (always)</string>
+    <string name="account_setup_incoming_security_tls_label">TLS</string>
     <!-- "Incoming server settings" screen, label for pop-up menu -->
     <string name="account_setup_incoming_delete_policy_label">Delete email from server</string>
     <!-- "Incoming server settings" screen, options in pop-up menu for Delete email from server: -->
     <!-- "Incoming server settings" screen, options in pop-up menu for Delete email from server: -->
     <string name="account_setup_incoming_delete_policy_never_label">Never</string>
-    <!-- "Incoming server settings" screen, options in pop-up menu for Delete email from server: -->
-    <string name="account_setup_incoming_delete_policy_7days_label">After 7 days</string>
     <!-- "Incoming server settings" screen, options in pop-up menu for Delete email from server: -->
     <string name="account_setup_incoming_delete_policy_delete_label">When I delete from Inbox</string>
     
@@ -317,12 +407,16 @@
     <string name="account_setup_exchange_title">Exchange server settings</string>
     <!-- On "Exchange" setup screen, the name of the server -->
     <string name="account_setup_exchange_server_label">Exchange Server</string>
-    <!-- On "Exchange" setup screen, the domain name label -->
+    <!-- On "Exchange" setup screen, the domain\\username -->
+    <string name="account_setup_exchange_username_label">Domain\\Username</string>
+    <!-- Deprecated: On "Exchange" setup screen, the domain name label -->
     <string name="account_setup_exchange_domain_label">Domain</string>
-    <!-- On "Exchange" setup screen, the domain name hint -->
+    <!-- Deprecated: On "Exchange" setup screen, the domain name hint -->
     <string name="account_setup_exchange_domain_hint">Enter domain here</string>
     <!-- On "Exchange" setup screen, the use-SSL checkbox label -->
     <string name="account_setup_exchange_ssl_label">Use secure connection (SSL)</string>
+    <!-- On "Exchange" setup screen, the trust ssl certificates checkbox label -->
+    <string name="account_setup_exchange_trust_certificates_label">Accept all SSL certificates</string>
 
     <!-- In Account setup options screen, Activity title -->
     <string name="account_setup_options_title">Account options</string>
@@ -347,6 +441,8 @@
     <string name="account_setup_options_default_label">Send email from this account by default.</string>
     <!-- In Account setup options & Account Settings screens, check box for new-mail notification -->
     <string name="account_setup_options_notify_label">Notify me when email arrives.</string>
+    <!-- In Account setup options screen, optional check box to also sync contacts -->
+    <string name="account_setup_options_sync_contacts_label">Sync contacts from this account.</string>
     <!-- Dialog title when "setup" could not finish -->
     <string name="account_setup_failed_dlg_title">Setup could not finish</string>
     <!-- In Account setup options screen, label for email check frequency selector -->
@@ -399,6 +495,8 @@
     <string name="account_settings_default_summary">Send email from this account by default</string>
     <!-- On Settings screen, setting option name -->
     <string name="account_settings_notify_label">Email notifications</string>
+    <!-- On Settings screen, summary line when called via AccountManager for Exchange accounts -->
+    <string name="account_settings_exchange_summary">Sync frequency, notifications, etc.</string>
     <!-- On Settings screen, setting summary text -->
     <string name="account_settings_notify_summary">Notify in status bar when email arrives</string>
     <!-- On Settings screen, setting option name and title of dialog box that opens -->
@@ -415,6 +513,12 @@
     <string name="account_settings_name_label">Your name</string>
     <!-- On Settings screen, section heading -->
     <string name="account_settings_notifications">Notification settings</string>
+
+    <!-- On settings screen, sync contacts check box label -->
+    <string name="account_settings_sync_contacts_enable">Sync contacts</string>
+    <!-- On settings screen, sync contacts summary text -->
+    <string name="account_settings_sync_contacts_summary">Also sync contacts from this account</string>
+
     <!-- On Settings screen, setting check box label -->
     <string name="account_settings_vibrate_enable">Vibrate</string>
     <!-- On Settings screen, setting summary text -->
@@ -443,4 +547,10 @@
         these mail accounts.</string>
     <!-- Message that appears when adding a T-Online account -->
     <string name="provider_note_t_online">Before setting up this email account, please visit the T-Online Web site and create a password for POP3 email access.</string>
+
+    <!-- Name of Microsoft Exchange account type; used by AccountManager -->
+    <string name="exchange_name">Corporate</string>
+
+	<!-- Message that appears if the AccountManager cannot create the system Account -->
+	<string name="system_account_create_failed">The AccountManager could not create the Account; please try again.</string>
 </resources>

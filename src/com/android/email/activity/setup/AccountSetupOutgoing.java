@@ -16,10 +16,9 @@
 
 package com.android.email.activity.setup;
 
-import com.android.email.Account;
-import com.android.email.Preferences;
 import com.android.email.R;
 import com.android.email.Utility;
+import com.android.email.provider.EmailContent;
 
 import android.app.Activity;
 import android.content.Intent;
@@ -49,11 +48,11 @@ public class AccountSetupOutgoing extends Activity implements OnClickListener,
     private static final String EXTRA_MAKE_DEFAULT = "makeDefault";
 
     private static final int smtpPorts[] = {
-            25, 465, 465, 25, 25
+            587, 465, 465, 587, 587
     };
 
     private static final String smtpSchemes[] = {
-            "smtp", "smtp+ssl", "smtp+ssl+", "smtp+tls", "smtp+tls+"
+            "smtp", "smtp+ssl+", "smtp+ssl+trustallcerts", "smtp+tls+", "smtp+tls+trustallcerts"
     };
 
     private EditText mUsernameView;
@@ -64,10 +63,10 @@ public class AccountSetupOutgoing extends Activity implements OnClickListener,
     private ViewGroup mRequireLoginSettingsView;
     private Spinner mSecurityTypeView;
     private Button mNextButton;
-    private Account mAccount;
+    private EmailContent.Account mAccount;
     private boolean mMakeDefault;
 
-    public static void actionOutgoingSettings(Activity fromActivity, Account account, 
+    public static void actionOutgoingSettings(Activity fromActivity, EmailContent.Account account, 
             boolean makeDefault) {
         Intent i = new Intent(fromActivity, AccountSetupOutgoing.class);
         i.putExtra(EXTRA_ACCOUNT, account);
@@ -75,7 +74,8 @@ public class AccountSetupOutgoing extends Activity implements OnClickListener,
         fromActivity.startActivity(i);
     }
 
-    public static void actionEditOutgoingSettings(Activity fromActivity, Account account) {
+    public static void actionEditOutgoingSettings(Activity fromActivity, EmailContent.Account account)
+            {
         Intent i = new Intent(fromActivity, AccountSetupOutgoing.class);
         i.setAction(Intent.ACTION_EDIT);
         i.putExtra(EXTRA_ACCOUNT, account);
@@ -100,13 +100,13 @@ public class AccountSetupOutgoing extends Activity implements OnClickListener,
         mRequireLoginView.setOnCheckedChangeListener(this);
 
         SpinnerOption securityTypes[] = {
-                new SpinnerOption(0, getString(R.string.account_setup_incoming_security_none_label)),
-                new SpinnerOption(1,
-                        getString(R.string.account_setup_incoming_security_ssl_optional_label)),
-                new SpinnerOption(2, getString(R.string.account_setup_incoming_security_ssl_label)),
-                new SpinnerOption(3,
-                        getString(R.string.account_setup_incoming_security_tls_optional_label)),
-                new SpinnerOption(4, getString(R.string.account_setup_incoming_security_tls_label)),
+            new SpinnerOption(0, getString(R.string.account_setup_incoming_security_none_label)),
+            new SpinnerOption(1, getString(R.string.account_setup_incoming_security_ssl_label)),
+            new SpinnerOption(2, getString(
+                    R.string.account_setup_incoming_security_ssl_trust_certificates_label)),
+            new SpinnerOption(3, getString(R.string.account_setup_incoming_security_tls_label)),
+            new SpinnerOption(4, getString(
+                    R.string.account_setup_incoming_security_tls_trust_certificates_label)),
         };
 
         ArrayAdapter<SpinnerOption> securityTypesAdapter = new ArrayAdapter<SpinnerOption>(this,
@@ -152,19 +152,20 @@ public class AccountSetupOutgoing extends Activity implements OnClickListener,
          */
         mPortView.setKeyListener(DigitsKeyListener.getInstance("0123456789"));
 
-        mAccount = (Account)getIntent().getSerializableExtra(EXTRA_ACCOUNT);
-        mMakeDefault = (boolean)getIntent().getBooleanExtra(EXTRA_MAKE_DEFAULT, false);
+        mAccount = (EmailContent.Account)getIntent().getParcelableExtra(EXTRA_ACCOUNT);
+        mMakeDefault = getIntent().getBooleanExtra(EXTRA_MAKE_DEFAULT, false);
 
         /*
          * If we're being reloaded we override the original account with the one
          * we saved
          */
         if (savedInstanceState != null && savedInstanceState.containsKey(EXTRA_ACCOUNT)) {
-            mAccount = (Account)savedInstanceState.getSerializable(EXTRA_ACCOUNT);
+            mAccount = (EmailContent.Account)savedInstanceState.getParcelable(EXTRA_ACCOUNT);
         }
 
         try {
-            URI uri = new URI(mAccount.getSenderUri());
+            // TODO this should be accessed directly via the HostAuth structure
+            URI uri = new URI(mAccount.getSenderUri(this));
             String username = null;
             String password = null;
             if (uri.getUserInfo() != null) {
@@ -212,7 +213,7 @@ public class AccountSetupOutgoing extends Activity implements OnClickListener,
     @Override
     public void onSaveInstanceState(Bundle outState) {
         super.onSaveInstanceState(outState);
-        outState.putSerializable(EXTRA_ACCOUNT, mAccount);
+        outState.putParcelable(EXTRA_ACCOUNT, mAccount);
     }
 
     /**
@@ -248,10 +249,15 @@ public class AccountSetupOutgoing extends Activity implements OnClickListener,
     public void onActivityResult(int requestCode, int resultCode, Intent data) {
         if (resultCode == RESULT_OK) {
             if (Intent.ACTION_EDIT.equals(getIntent().getAction())) {
-                mAccount.save(Preferences.getPreferences(this));
+                if (mAccount.isSaved()) {
+                    mAccount.update(this, mAccount.toContentValues());
+                    mAccount.mHostAuthSend.update(this, mAccount.mHostAuthSend.toContentValues());
+               } else {
+                    mAccount.save(this);
+                }
                 finish();
             } else {
-                AccountSetupOptions.actionOptions(this, mAccount, mMakeDefault);
+                AccountSetupOptions.actionOptions(this, mAccount, mMakeDefault, false);
                 finish();
             }
         }
@@ -281,8 +287,9 @@ public class AccountSetupOutgoing extends Activity implements OnClickListener,
 
     private void onNext() {       
         try {
+            // TODO this should be accessed directly via the HostAuth structure
             URI uri = getUri();
-            mAccount.setSenderUri(uri.toString());
+            mAccount.setSenderUri(this, uri.toString());
         } catch (URISyntaxException use) {
             /*
              * It's unrecoverable if we cannot create a URI from components that

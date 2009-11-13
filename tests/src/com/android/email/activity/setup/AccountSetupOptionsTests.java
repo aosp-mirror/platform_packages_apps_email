@@ -16,9 +16,9 @@
 
 package com.android.email.activity.setup;
 
-import com.android.email.Account;
 import com.android.email.R;
 import com.android.email.mail.Store;
+import com.android.email.provider.EmailContent;
 
 import android.content.Intent;
 import android.test.ActivityInstrumentationTestCase2;
@@ -32,6 +32,9 @@ import android.widget.SpinnerAdapter;
 @MediumTest
 public class AccountSetupOptionsTests 
         extends ActivityInstrumentationTestCase2<AccountSetupOptions> {
+
+    // borrowed from AccountSetupOptions
+    private static final String EXTRA_ACCOUNT = "account";
 
     private AccountSetupOptions mActivity;
     private Spinner mCheckFrequencyView;
@@ -49,7 +52,7 @@ public class AccountSetupOptionsTests
         
         getActivityAndFields();
         
-        boolean hasPush = frequencySpinnerHasValue(Account.CHECK_INTERVAL_PUSH);
+        boolean hasPush = frequencySpinnerHasValue(EmailContent.Account.CHECK_INTERVAL_PUSH);
         assertFalse(hasPush);
     }
         
@@ -62,7 +65,7 @@ public class AccountSetupOptionsTests
         
         getActivityAndFields();
         
-        boolean hasPush = frequencySpinnerHasValue(Account.CHECK_INTERVAL_PUSH);
+        boolean hasPush = frequencySpinnerHasValue(EmailContent.Account.CHECK_INTERVAL_PUSH);
         assertFalse(hasPush);
     }
         
@@ -81,7 +84,7 @@ public class AccountSetupOptionsTests
         
         getActivityAndFields();
         
-        boolean hasPush = frequencySpinnerHasValue(Account.CHECK_INTERVAL_PUSH);
+        boolean hasPush = frequencySpinnerHasValue(EmailContent.Account.CHECK_INTERVAL_PUSH);
         assertTrue(hasPush);
     }
         
@@ -112,11 +115,11 @@ public class AccountSetupOptionsTests
      * Create an intent with the Account in it
      */
     private Intent getTestIntent(String name, String storeUri) {
-        Account account = new Account(this.getInstrumentation().getTargetContext());
-        account.setName(name);
-        account.setStoreUri(storeUri);
+        EmailContent.Account account = new EmailContent.Account();
+        account.setSenderName(name);
+        account.setStoreUri(getInstrumentation().getTargetContext(), storeUri);
         Intent i = new Intent(Intent.ACTION_MAIN);
-        i.putExtra("account", account);     // AccountSetupNames.EXTRA_ACCOUNT == "account"
+        i.putExtra(EXTRA_ACCOUNT, account);
         return i;
     }
     
