@@ -42,8 +42,7 @@
     <string name="remove_star_action" msgid="6689770999647007163">"Ster verwijderen"</string>
     <string name="refresh_action" msgid="5951383001436708175">"Vernieuwen"</string>
     <string name="add_account_action" msgid="8835736309476033727">"Account toevoegen"</string>
-    <!-- no translation found for deselect_all_action (253663239459688238) -->
-    <skip />
+    <string name="deselect_all_action" msgid="253663239459688238">"Selectie van alle items ongedaan maken"</string>
     <string name="compose_action" msgid="4045702519637388045">"Opstellen"</string>
     <string name="search_action" msgid="6325101454876682308">"Zoeken"</string>
     <string name="open_action" msgid="936766723989190816">"Openen"</string>
@@ -86,11 +85,9 @@
     <string name="debug_enable_exchange_logging_label" msgid="8054457784052573080">"Gegevenslogs inschakelen voor Exchange-parser? (zeer uitgebreid)"</string>
     <string name="debug_enable_exchange_file_logging_label" msgid="2264994303719050729">"Logboek voor wisselen van SD-kaart maken?"</string>
     <string name="account_folder_list_separator_accounts" msgid="7568820182396669244">"Accounts"</string>
-    <!-- no translation found for account_folder_list_summary_inbox (5790553737870057607) -->
-    <skip />
+    <string name="account_folder_list_summary_inbox" msgid="5790553737870057607">"Gecombineerd Postvak IN"</string>
     <string name="account_folder_list_summary_unread" msgid="1200755158196002928">"Ongelezen"</string>
-    <!-- no translation found for account_folder_list_summary_starred (3134312269246375723) -->
-    <skip />
+    <string name="account_folder_list_summary_starred" msgid="3134312269246375723">"Met ster"</string>
     <string name="account_folder_list_summary_drafts" msgid="5514845993247300437">"Concepten"</string>
     <string name="account_folder_list_summary_outbox" msgid="3059836696049399377">"Postvak UIT"</string>
     <string name="mailbox_list_title" msgid="8299608543467211089">"Mailbox"</string>
@@ -159,14 +156,10 @@
     <string name="account_setup_incoming_port_label" msgid="8214738923690447796">"Poort"</string>
     <string name="account_setup_incoming_security_label" msgid="2110260791086007424">"Beveiligingstype"</string>
     <string name="account_setup_incoming_security_none_label" msgid="8300169413118264895">"Geen"</string>
-    <!-- no translation found for account_setup_incoming_security_ssl_trust_certificates_label (3581382268191377346) -->
-    <skip />
-    <!-- no translation found for account_setup_incoming_security_ssl_label (8886698397743061682) -->
-    <skip />
-    <!-- no translation found for account_setup_incoming_security_tls_trust_certificates_label (1089227022489257055) -->
-    <skip />
-    <!-- no translation found for account_setup_incoming_security_tls_label (8638006172590036487) -->
-    <skip />
+    <string name="account_setup_incoming_security_ssl_trust_certificates_label" msgid="3581382268191377346">"SSL (alle certificaten accepteren)"</string>
+    <string name="account_setup_incoming_security_ssl_label" msgid="8886698397743061682">"SSL"</string>
+    <string name="account_setup_incoming_security_tls_trust_certificates_label" msgid="1089227022489257055">"TLS (alle certificaten accepteren)"</string>
+    <string name="account_setup_incoming_security_tls_label" msgid="8638006172590036487">"TLS"</string>
     <string name="account_setup_incoming_delete_policy_label" msgid="9213590134693857912">"E-mail verwijderen van server"</string>
     <string name="account_setup_incoming_delete_policy_never_label" msgid="3222897501875871041">"Nooit"</string>
     <string name="account_setup_incoming_delete_policy_delete_label" msgid="222216840911785631">"Als ik verwijder uit mijn Postvak IN"</string>
@@ -216,6 +209,8 @@
     <string name="account_setup_failed_auth_required" msgid="1676242821459638150">"Verificatiemethoden worden niet ondersteund door de server."</string>
     <string name="account_setup_failed_security" msgid="6142264248671379943">"Kan geen verbinding maken met de server wegens een beveiligingsfout."</string>
     <string name="account_setup_failed_ioerror" msgid="7391458717708933095">"Kan geen verbinding met de server maken."</string>
+    <!-- no translation found for account_setup_failed_security_policies_required (3567420384516656976) -->
+    <skip />
     <string name="account_setup_failed_dlg_edit_details_action" msgid="5355993309841479360">"Details bewerken"</string>
     <string name="account_settings_title_fmt" msgid="1702058877284382340">"Algemene instellingen"</string>
     <string name="account_settings_default_label" msgid="3575963379680943640">"Standaardaccount"</string>

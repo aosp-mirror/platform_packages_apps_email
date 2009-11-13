@@ -209,6 +209,8 @@
     <string name="account_setup_failed_auth_required" msgid="1676242821459638150">"Les méthodes d\'authentification ne sont pas prises en charge par le serveur."</string>
     <string name="account_setup_failed_security" msgid="6142264248671379943">"Impossible d\'établir une connexion avec le serveur en raison d\'une erreur de sécurité."</string>
     <string name="account_setup_failed_ioerror" msgid="7391458717708933095">"Impossible d\'établir une connexion avec le serveur."</string>
+    <!-- no translation found for account_setup_failed_security_policies_required (3567420384516656976) -->
+    <skip />
     <string name="account_setup_failed_dlg_edit_details_action" msgid="5355993309841479360">"Modifier les infos"</string>
     <string name="account_settings_title_fmt" msgid="1702058877284382340">"Paramètres généraux"</string>
     <string name="account_settings_default_label" msgid="3575963379680943640">"Compte par défaut"</string>

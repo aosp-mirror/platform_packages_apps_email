@@ -209,6 +209,8 @@
     <string name="account_setup_failed_auth_required" msgid="1676242821459638150">"El servidor no admite los métodos de autenticación."</string>
     <string name="account_setup_failed_security" msgid="6142264248671379943">"No es posible iniciar la conexión al servidor debido a un error de seguridad."</string>
     <string name="account_setup_failed_ioerror" msgid="7391458717708933095">"No es posible iniciar la conexión a tu servidor."</string>
+    <!-- no translation found for account_setup_failed_security_policies_required (3567420384516656976) -->
+    <skip />
     <string name="account_setup_failed_dlg_edit_details_action" msgid="5355993309841479360">"Editar detalles"</string>
     <string name="account_settings_title_fmt" msgid="1702058877284382340">"Configuración general"</string>
     <string name="account_settings_default_label" msgid="3575963379680943640">"Cuenta predeterminada"</string>
