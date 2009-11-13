@@ -209,6 +209,8 @@
     <string name="account_setup_failed_auth_required" msgid="1676242821459638150">"I metodi di autenticazione non sono supportati dal server."</string>
     <string name="account_setup_failed_security" msgid="6142264248671379943">"Impossibile aprire la connessione al server a causa di un errore di protezione."</string>
     <string name="account_setup_failed_ioerror" msgid="7391458717708933095">"Impossibile aprire la connessione al server."</string>
+    <!-- no translation found for account_setup_failed_security_policies_required (3567420384516656976) -->
+    <skip />
     <string name="account_setup_failed_dlg_edit_details_action" msgid="5355993309841479360">"Modifica dettagli"</string>
     <string name="account_settings_title_fmt" msgid="1702058877284382340">"Impostazioni generali"</string>
     <string name="account_settings_default_label" msgid="3575963379680943640">"Account predefinito"</string>
