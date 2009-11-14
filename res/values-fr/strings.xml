@@ -55,7 +55,7 @@
     <string name="add_cc_bcc_action" msgid="5569074812077509737">"Ajouter Cc/CCi"</string>
     <string name="add_attachment_action" msgid="2696013743130573897">"Ajouter une pièce jointe"</string>
     <string name="dump_settings_action" msgid="4478192525236169829">"Paramètres d\'image mémoire"</string>
-    <string name="choose_attachment_dialog_title" msgid="81937507117528954">"Choisir·une·pièce·jointe"</string>
+    <string name="choose_attachment_dialog_title" msgid="81937507117528954">"Choisir une pièce jointe"</string>
     <string name="accounts_context_menu_title" msgid="1053701760934475027">"Options de compte"</string>
     <string name="status_loading_more" msgid="1580386959044617884">"Chargement des messages..."</string>
     <string name="status_sending_messages" msgid="3971880826111264523">"Envoi des messages en cours"</string>
@@ -209,15 +209,14 @@
     <string name="account_setup_failed_auth_required" msgid="1676242821459638150">"Les méthodes d\'authentification ne sont pas prises en charge par le serveur."</string>
     <string name="account_setup_failed_security" msgid="6142264248671379943">"Impossible d\'établir une connexion avec le serveur en raison d\'une erreur de sécurité."</string>
     <string name="account_setup_failed_ioerror" msgid="7391458717708933095">"Impossible d\'établir une connexion avec le serveur."</string>
-    <!-- no translation found for account_setup_failed_security_policies_required (3567420384516656976) -->
-    <skip />
+    <string name="account_setup_failed_security_policies_required" msgid="3567420384516656976">"Ce serveur Exchange ActiveSync nécessite des fonctionnalités de sécurité que votre téléphone ne prend pas en charge."</string>
     <string name="account_setup_failed_dlg_edit_details_action" msgid="5355993309841479360">"Modifier les infos"</string>
     <string name="account_settings_title_fmt" msgid="1702058877284382340">"Paramètres généraux"</string>
     <string name="account_settings_default_label" msgid="3575963379680943640">"Compte par défaut"</string>
     <string name="account_settings_default_summary" msgid="1531901438624688482">"Par défaut, envoyer les e-mails avec ce compte"</string>
     <string name="account_settings_notify_label" msgid="1630001017303007974">"Notifications d\'e-mails"</string>
     <string name="account_settings_exchange_summary" msgid="8498451479029626317">"Fréquence de synchronisation, notifications, etc."</string>
-    <string name="account_settings_notify_summary" msgid="6609224590300639887">"Afficher une notification dans la barre d\'état lors de la réception d\'un e-mail"</string>
+    <string name="account_settings_notify_summary" msgid="6609224590300639887">"Afficher notification dans barre d\'état lors de la réception d\'un e-mail"</string>
     <string name="account_settings_mail_check_frequency_label" msgid="2067835530563849675">"Fréquence de vérification"</string>
     <string name="account_settings_incoming_label" msgid="7858928031806297542">"Paramètres de réception"</string>
     <string name="account_settings_outgoing_label" msgid="4464829249980026745">"Paramètres d\'envoi"</string>

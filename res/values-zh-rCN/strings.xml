@@ -209,8 +209,7 @@
     <string name="account_setup_failed_auth_required" msgid="1676242821459638150">"服务器不支持身份验证方法。"</string>
     <string name="account_setup_failed_security" msgid="6142264248671379943">"由于安全错误，无法打开到服务器的连接。"</string>
     <string name="account_setup_failed_ioerror" msgid="7391458717708933095">"无法与服务器建立连接。"</string>
-    <!-- no translation found for account_setup_failed_security_policies_required (3567420384516656976) -->
-    <skip />
+    <string name="account_setup_failed_security_policies_required" msgid="3567420384516656976">"此 Exchange ActiveSync 服务器要求使用安全功能，但您的手机不支持这些功能。"</string>
     <string name="account_setup_failed_dlg_edit_details_action" msgid="5355993309841479360">"编辑详情"</string>
     <string name="account_settings_title_fmt" msgid="1702058877284382340">"常规设置"</string>
     <string name="account_settings_default_label" msgid="3575963379680943640">"默认帐户"</string>

@@ -52,7 +52,7 @@
     <string name="accounts_action" msgid="901105887272231493">"Účty"</string>
     <string name="mark_as_read_action" msgid="5031651846998842419">"Označit jako přečtené"</string>
     <string name="mark_as_unread_action" msgid="3766298115778767554">"Označit jako nepřečtené"</string>
-    <string name="add_cc_bcc_action" msgid="5569074812077509737">"Přidat příjemce kopie/skryté kopie"</string>
+    <string name="add_cc_bcc_action" msgid="5569074812077509737">"Přidat kopii/skrytou"</string>
     <string name="add_attachment_action" msgid="2696013743130573897">"Připojit přílohu"</string>
     <string name="dump_settings_action" msgid="4478192525236169829">"Nastavení výpisu"</string>
     <string name="choose_attachment_dialog_title" msgid="81937507117528954">"Výběr přílohy"</string>
@@ -209,8 +209,7 @@
     <string name="account_setup_failed_auth_required" msgid="1676242821459638150">"Server nepodporuje metody ověření."</string>
     <string name="account_setup_failed_security" msgid="6142264248671379943">"Nelze navázat připojení k serveru z důvodu chyby zabezpečení."</string>
     <string name="account_setup_failed_ioerror" msgid="7391458717708933095">"Nelze navázat připojení k serveru."</string>
-    <!-- no translation found for account_setup_failed_security_policies_required (3567420384516656976) -->
-    <skip />
+    <string name="account_setup_failed_security_policies_required" msgid="3567420384516656976">"Tento server Exchange ActiveSync vyžaduje funkce zabezpečení, které váš telefon nepodporuje."</string>
     <string name="account_setup_failed_dlg_edit_details_action" msgid="5355993309841479360">"Upravit podrobnosti"</string>
     <string name="account_settings_title_fmt" msgid="1702058877284382340">"Obecná nastavení"</string>
     <string name="account_settings_default_label" msgid="3575963379680943640">"Výchozí účet"</string>
@@ -230,7 +229,7 @@
     <string name="account_settings_vibrate_enable" msgid="8045133290388856478">"Vibrovat"</string>
     <string name="account_settings_vibrate_summary" msgid="3690631050585589365">"Při obdržení e-mailu také vibrovat"</string>
     <string name="account_settings_ringtone" msgid="7922187231467500404">"Zvolit vyzváněcí tón"</string>
-    <string name="account_settings_servers" msgid="4925493817981624242">"Nastavení serveru"</string>
+    <string name="account_settings_servers" msgid="4925493817981624242">"Nastavení serverů"</string>
     <string name="account_delete_dlg_title" msgid="6806087520856396608">"Odebrat účet"</string>
     <string name="account_delete_dlg_instructions_fmt" msgid="8236846322040271280">"Účet <xliff:g id="ACCOUNT">%s</xliff:g> bude z aplikace Email odebrán."</string>
     <string name="provider_note_yahoo" msgid="8762024183024261236">"Přístup do schránky není u některých poštovních účtů Yahoo! podporován. Pokud máte problémy s připojením, získáte další informace na webové stránce yahoo.com."</string>

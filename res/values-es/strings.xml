@@ -18,7 +18,7 @@
     <string name="read_attachment_label" msgid="1162255191991555285">"Leer los archivos adjuntos del mensaje"</string>
     <string name="read_attachment_desc" msgid="7594746717616308643">"Permite que esta aplicación lea los archivos adjuntos del correo electrónico."</string>
     <string name="permission_access_provider_label" msgid="4274353114641168675">"Acceder a los datos del proveedor de servicios de correo"</string>
-    <string name="permission_access_provider_desc" msgid="1513898266889541617">"Permite que la aplicación acceda a la base de datos de tu correo electrónico, incluidos los mensajes recibidos, los mensajes enviados, los nombre de usuario y las contraseñas."</string>
+    <string name="permission_access_provider_desc" msgid="1513898266889541617">"Permite que la aplicación acceda a la base de datos de tu correo electrónico, incluidos los mensajes recibidos, los mensajes enviados, los nombres de usuario y las contraseñas."</string>
     <string name="app_name" msgid="5815426892327290362">"Email"</string>
     <string name="accounts_title" msgid="6622149231904649210">"Correo electrónico"</string>
     <string name="compose_title" msgid="427986915662706899">"Redactar"</string>
@@ -51,7 +51,7 @@
     <string name="folders_action" msgid="7502431531355227666">"Carpetas"</string>
     <string name="accounts_action" msgid="901105887272231493">"Cuentas"</string>
     <string name="mark_as_read_action" msgid="5031651846998842419">"Marcar como leída"</string>
-    <string name="mark_as_unread_action" msgid="3766298115778767554">"Marcar como no leída"</string>
+    <string name="mark_as_unread_action" msgid="3766298115778767554">"Marcar como no leído"</string>
     <string name="add_cc_bcc_action" msgid="5569074812077509737">"Añadir Cc/CCO"</string>
     <string name="add_attachment_action" msgid="2696013743130573897">"Añadir archivo adjunto"</string>
     <string name="dump_settings_action" msgid="4478192525236169829">"Configuración de volcado"</string>
@@ -73,11 +73,11 @@
     <item quantity="few" msgid="1991747245324120305">"en <xliff:g id="NUMBER_ACCOUNTS">%d</xliff:g> cuentas"</item>
     <item quantity="other" msgid="2723797835410343458">"en <xliff:g id="NUMBER_ACCOUNTS">%d</xliff:g> cuentas"</item>
   </plurals>
-    <string name="mailbox_name_display_inbox" msgid="3542327124749861736">"Recibidos"</string>
+    <string name="mailbox_name_display_inbox" msgid="3542327124749861736">"Bandeja de entrada"</string>
     <string name="mailbox_name_display_outbox" msgid="2826214174661417662">"Enviados"</string>
     <string name="mailbox_name_display_drafts" msgid="4868718300700514319">"Borradores"</string>
     <string name="mailbox_name_display_trash" msgid="9139069064580630647">"Papelera"</string>
-    <string name="mailbox_name_display_sent" msgid="3426058998191869523">"Enviado"</string>
+    <string name="mailbox_name_display_sent" msgid="3426058998191869523">"Enviados"</string>
     <string name="mailbox_name_display_junk" msgid="9046762505977999288">"Correo basura"</string>
     <string name="debug_version_fmt" msgid="6160213145745376955">"Versión: <xliff:g id="VERSION">%s</xliff:g>"</string>
     <string name="debug_enable_debug_logging_label" msgid="2715742416050944774">"¿Deseas habilitar un registro adicional de depuración?"</string>
@@ -162,7 +162,7 @@
     <string name="account_setup_incoming_security_tls_label" msgid="8638006172590036487">"TLS"</string>
     <string name="account_setup_incoming_delete_policy_label" msgid="9213590134693857912">"Suprimir correo electrónico del servidor"</string>
     <string name="account_setup_incoming_delete_policy_never_label" msgid="3222897501875871041">"Nunca"</string>
-    <string name="account_setup_incoming_delete_policy_delete_label" msgid="222216840911785631">"Cuando suprimo algún mensaje de \"Recibidos\""</string>
+    <string name="account_setup_incoming_delete_policy_delete_label" msgid="222216840911785631">"Cuando suprimo algún mensaje de \"Bandeja de entrada\""</string>
     <string name="account_setup_incoming_imap_path_prefix_label" msgid="401167247072926810">"Prefijo de ruta IMAP"</string>
     <string name="account_setup_incoming_imap_path_prefix_hint" msgid="9190845919067906033">"Opcional"</string>
     <string name="account_setup_outgoing_title" msgid="7437215562885986394">"Configuración del servidor de salida"</string>
@@ -209,8 +209,7 @@
     <string name="account_setup_failed_auth_required" msgid="1676242821459638150">"El servidor no admite los métodos de autenticación."</string>
     <string name="account_setup_failed_security" msgid="6142264248671379943">"No se puede abrir la conexión con el servidor debido a un error de seguridad."</string>
     <string name="account_setup_failed_ioerror" msgid="7391458717708933095">"No se puede abrir la conexión con el servidor."</string>
-    <!-- no translation found for account_setup_failed_security_policies_required (3567420384516656976) -->
-    <skip />
+    <string name="account_setup_failed_security_policies_required" msgid="3567420384516656976">"Este servidor Exchange ActiveSync necesita funciones de seguridad que no son compatibles con el teléfono."</string>
     <string name="account_setup_failed_dlg_edit_details_action" msgid="5355993309841479360">"Editar detalles"</string>
     <string name="account_settings_title_fmt" msgid="1702058877284382340">"Configuración general"</string>
     <string name="account_settings_default_label" msgid="3575963379680943640">"Cuenta predeterminada"</string>
