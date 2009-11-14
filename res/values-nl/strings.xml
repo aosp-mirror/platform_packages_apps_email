@@ -209,8 +209,7 @@
     <string name="account_setup_failed_auth_required" msgid="1676242821459638150">"Verificatiemethoden worden niet ondersteund door de server."</string>
     <string name="account_setup_failed_security" msgid="6142264248671379943">"Kan geen verbinding maken met de server wegens een beveiligingsfout."</string>
     <string name="account_setup_failed_ioerror" msgid="7391458717708933095">"Kan geen verbinding met de server maken."</string>
-    <!-- no translation found for account_setup_failed_security_policies_required (3567420384516656976) -->
-    <skip />
+    <string name="account_setup_failed_security_policies_required" msgid="3567420384516656976">"Voor deze Exchange ActiveSync-server zijn beveiligingsfuncties nodig die uw telefoon niet ondersteunt."</string>
     <string name="account_setup_failed_dlg_edit_details_action" msgid="5355993309841479360">"Details bewerken"</string>
     <string name="account_settings_title_fmt" msgid="1702058877284382340">"Algemene instellingen"</string>
     <string name="account_settings_default_label" msgid="3575963379680943640">"Standaardaccount"</string>

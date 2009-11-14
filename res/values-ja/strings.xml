@@ -124,7 +124,7 @@
     <string name="add_contact_dlg_message_fmt" msgid="4470846346726847478">"<xliff:g id="EMAIL">%s</xliff:g> を連絡先に追加する"</string>
     <string name="message_view_display_attachment_toast" msgid="6096315816776330821">"この添付ファイルは表示できません。"</string>
     <string name="account_setup_basics_title" msgid="3969856368228940980">"メールアカウントの登録"</string>
-    <string name="accounts_welcome" msgid="5901437782383439370">"ほとんどのアカウントのメール設定は簡単な操作で完了します。"</string>
+    <string name="accounts_welcome" msgid="5901437782383439370">"ほとんどのメールアカウントを簡単な操作で設定できます。"</string>
     <string name="accounts_welcome_exchange" msgid="4414121583987233733">"Exchangeアカウントのメール設定は簡単な操作で完了します。"</string>
     <!-- no translation found for account_setup_basics_instructions (3126077748322815504) -->
     <skip />
@@ -209,8 +209,7 @@
     <string name="account_setup_failed_auth_required" msgid="1676242821459638150">"認証方法がサーバーでサポートされていません。"</string>
     <string name="account_setup_failed_security" msgid="6142264248671379943">"セキュリティエラーのためサーバーに接続できません。"</string>
     <string name="account_setup_failed_ioerror" msgid="7391458717708933095">"サーバーに接続できません。"</string>
-    <!-- no translation found for account_setup_failed_security_policies_required (3567420384516656976) -->
-    <skip />
+    <string name="account_setup_failed_security_policies_required" msgid="3567420384516656976">"このExchange ActiveSyncサーバーにはお使いの携帯端末でサポートされていないセキュリティ機能が必要です。"</string>
     <string name="account_setup_failed_dlg_edit_details_action" msgid="5355993309841479360">"設定を編集"</string>
     <string name="account_settings_title_fmt" msgid="1702058877284382340">"全般設定"</string>
     <string name="account_settings_default_label" msgid="3575963379680943640">"優先アカウントにする"</string>
