@@ -16,8 +16,8 @@
 
 package com.android.email.activity.setup;
 
-import com.android.email.Account;
 import com.android.email.R;
+import com.android.email.provider.EmailContent;
 
 import android.content.Intent;
 import android.test.ActivityInstrumentationTestCase2;
@@ -33,9 +33,11 @@ import android.widget.EditText;
 public class AccountSetupExchangeTests extends 
         ActivityInstrumentationTestCase2<AccountSetupExchange> {
 
+    // borrowed from AccountSetupExchange
+    private static final String EXTRA_ACCOUNT = "account";
+
     private AccountSetupExchange mActivity;
     private EditText mServerView;
-    private EditText mDomainView;
     private Button mNextButton;
     
     public AccountSetupExchangeTests() {
@@ -53,7 +55,7 @@ public class AccountSetupExchangeTests extends
         // This sets up a default URI which can be used by any of the test methods below.
         // Individual test methods can replace this with a custom URI if they wish
         // (except those that run on the UI thread - for them, it's too late to change it.)
-        Intent i = getTestIntent("eas://user:password@server.com/domain");
+        Intent i = getTestIntent("eas://user:password@server.com");
         setActivityIntent(i);
     }
     
@@ -61,17 +63,20 @@ public class AccountSetupExchangeTests extends
      * Test processing with a complete, good URI -> good fields
      */
     public void testGoodUri() {
-        Intent i = getTestIntent("eas://user:password@server.com/domain");
+        Intent i = getTestIntent("eas://user:password@server.com");
         setActivityIntent(i);
         getActivityAndFields();
         assertTrue(mNextButton.isEnabled());
     }
     
+    // TODO Add tests for valid usernames in eas
+    // They would be <name> or <name>\<domain> or <name>/<domain> or a valid email address
+
     /**
      * No user is not OK - not enabled
      */
     public void testBadUriNoUser() {
-        Intent i = getTestIntent("eas://:password@server.com/domain");
+        Intent i = getTestIntent("eas://:password@server.com");
         setActivityIntent(i);
         getActivityAndFields();
         assertFalse(mNextButton.isEnabled());
@@ -81,7 +86,7 @@ public class AccountSetupExchangeTests extends
      * No password is not OK - not enabled
      */
     public void testBadUriNoPassword() {
-        Intent i = getTestIntent("eas://user@server.com/domain");
+        Intent i = getTestIntent("eas://user@server.com");
         setActivityIntent(i);
         getActivityAndFields();
         assertFalse(mNextButton.isEnabled());
@@ -113,49 +118,6 @@ public class AccountSetupExchangeTests extends
         mServerView.setText("serv$er.com");
         assertFalse(mNextButton.isEnabled());
     }
-    
-    /**
-     * No EAS domain is OK - enabled
-     */
-    public void testBadUriNoDomain() {
-        Intent i = getTestIntent("eas://user:password@server.com");
-        setActivityIntent(i);
-        getActivityAndFields();
-        assertTrue(mNextButton.isEnabled());
-    }
-    
-    /**
-     * Test for non-standard but OK domain names
-     */
-    @UiThreadTest
-    public void testGoodDomainVariants() {
-        getActivityAndFields();
-        assertTrue(mNextButton.isEnabled());
-        
-        mDomainView.setText("  domain  ");
-        assertTrue(mNextButton.isEnabled());
-    }
-        
-    /**
-     * Test for non-empty but non-OK domain names
-     * 
-     * TODO:  These are tests that *should* fail but the code is not checking these cases
-     */
-    @UiThreadTest
-    public void disabled_testBadDomainVariants() {
-        getActivityAndFields();
-        assertTrue(mNextButton.isEnabled());
-        
-        mDomainView.setText("  ");
-        assertTrue(mNextButton.isEnabled());
-        
-        mDomainView.setText("do main");
-        assertFalse(mNextButton.isEnabled());
-    }
-    
-    /**
-     * TODO:  More tests of exchange-specific fields?
-     */
         
     /**
      * Get the activity (which causes it to be started, using our intent) and get the UI fields
@@ -163,7 +125,6 @@ public class AccountSetupExchangeTests extends
     private void getActivityAndFields() {
         mActivity = getActivity();
         mServerView = (EditText) mActivity.findViewById(R.id.account_server);
-        mDomainView = (EditText) mActivity.findViewById(R.id.account_domain);
         mNextButton = (Button) mActivity.findViewById(R.id.next);
     }
     
@@ -171,10 +132,10 @@ public class AccountSetupExchangeTests extends
      * Create an intent with the Account in it
      */
     private Intent getTestIntent(String storeUriString) {
-        Account account = new Account(this.getInstrumentation().getTargetContext());
-        account.setStoreUri(storeUriString);
+        EmailContent.Account account = new EmailContent.Account();
+        account.setStoreUri(getInstrumentation().getTargetContext(), storeUriString);
         Intent i = new Intent(Intent.ACTION_MAIN);
-        i.putExtra("account", account);     // AccountSetupNames.EXTRA_ACCOUNT == "account"
+        i.putExtra(EXTRA_ACCOUNT, account);
         return i;
     }
 

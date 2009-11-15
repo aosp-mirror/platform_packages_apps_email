@@ -37,4 +37,16 @@
     	android:layout_height="wrap_content"
     	android:text="@string/debug_enable_sensitive_logging_label"
     	/>
+    <CheckBox
+        android:id="@+id/exchange_logging"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="@string/debug_enable_exchange_logging_label"
+    />
+    <CheckBox
+        android:id="@+id/exchange_file_logging"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="@string/debug_enable_exchange_file_logging_label"
+    />
 </LinearLayout>	    

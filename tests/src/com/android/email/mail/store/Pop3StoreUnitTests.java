@@ -32,7 +32,6 @@ import com.android.email.mail.transport.MockTransport;
 
 import android.test.AndroidTestCase;
 import android.test.suitebuilder.annotation.SmallTest;
-import android.util.Log;
 
 /**
  * This is a series of unit tests for the POP3 Store class.  These tests must be locally
@@ -237,11 +236,13 @@ public class Pop3StoreUnitTests extends AndroidTestCase {
             
         // getMode() returns OpenMode.READ_WRITE
         assertEquals(OpenMode.READ_WRITE, mFolder.getMode());
-        
-       // create() return false
+
+        // canCreate() && create() return false
+        assertFalse(mFolder.canCreate(FolderType.HOLDS_FOLDERS));
+        assertFalse(mFolder.canCreate(FolderType.HOLDS_MESSAGES));
         assertFalse(mFolder.create(FolderType.HOLDS_FOLDERS));
         assertFalse(mFolder.create(FolderType.HOLDS_MESSAGES));
-        
+
         // getUnreadMessageCount() always returns -1
         assertEquals(-1, mFolder.getUnreadMessageCount());
         
@@ -356,22 +357,22 @@ public class Pop3StoreUnitTests extends AndroidTestCase {
      * things should happen:  We should see an intermediate failure that makes sense, and the next
      * operation should reopen properly.
      * 
-     * There are multiple versions of this test because we are simulating the steps of 
+     * There are multiple versions of this test because we are simulating the steps of
      * MessagingController.synchronizeMailboxSyncronous() and we will inject the failure a bit
      * further along in each case, to test various recovery points.
      * 
-     * This test confirms that Pop3Store needs to call close() in the IOExceptionHandler in 
-     * Pop3Folder.getMessages().
+     * This test confirms that Pop3Store needs to call close() in the IOExceptionHandler in
+     * Pop3Folder.getMessages(), due to a closure before the UIDL command completes.
      */
-    public void testCatchClosed1() throws MessagingException {
-        
+    public void testCatchClosed1a() throws MessagingException {
+
         MockTransport mockTransport = openAndInjectMockTransport();
-        
+
         openFolderWithMessage(mockTransport);
-        
+
         // cause the next sequence to fail on the readLine() calls
         mockTransport.closeInputStream();
-        
+
         // index the message(s) - it should fail, because our stream is broken
         try {
             setupUidlSequence(mockTransport, 1);
@@ -379,18 +380,102 @@ public class Pop3StoreUnitTests extends AndroidTestCase {
             assertEquals(1, messages.length);
             assertEquals(getSingleMessageUID(1), messages[0].getUid());
             fail("Broken stream should cause getMessages() to throw.");
-        }
-        catch(MessagingException me) {
+        } catch(MessagingException me) {
             // success
         }
-        
+
         // At this point the UI would display connection error, which is fine.  Now, the real
         // test is, can we recover?  So I'll just repeat the above steps, without the failure.
         // NOTE: everything from here down is copied from testOneUnread() and should be consolidated
-        
+
         // confirm that we're closed at this point
         assertFalse("folder should be 'closed' after an IOError", mFolder.isOpen());
-        
+
+        // and confirm that the next connection will be OK
+        checkOneUnread(mockTransport);
+    }
+
+    /**
+     * Test the scenario where the transport is "open" but not really (e.g. server closed).  Two
+     * things should happen:  We should see an intermediate failure that makes sense, and the next
+     * operation should reopen properly.
+     * 
+     * There are multiple versions of this test because we are simulating the steps of
+     * MessagingController.synchronizeMailboxSyncronous() and we will inject the failure a bit
+     * further along in each case, to test various recovery points.
+     * 
+     * This test confirms that Pop3Store needs to call close() in the IOExceptionHandler in
+     * Pop3Folder.getMessages(), due to non-numeric data in a multi-line UIDL.
+     */
+    public void testCatchClosed1b() throws MessagingException {
+
+        MockTransport mockTransport = openAndInjectMockTransport();
+
+        openFolderWithMessage(mockTransport);
+
+        // index the message(s) - it should fail, because our stream is broken
+        try {
+            // setupUidlSequence(mockTransport, 1);
+            mockTransport.expect("UIDL", "+OK sending UIDL list");
+            mockTransport.expect(null, "bad-data" + " " + "THE-UIDL");
+            mockTransport.expect(null, ".");
+
+            Message[] messages = mFolder.getMessages(1, 1, null);
+            fail("Bad UIDL should cause getMessages() to throw.");
+        } catch(MessagingException me) {
+            // success
+        }
+
+        // At this point the UI would display connection error, which is fine.  Now, the real
+        // test is, can we recover?  So I'll just repeat the above steps, without the failure.
+        // NOTE: everything from here down is copied from testOneUnread() and should be consolidated
+
+        // confirm that we're closed at this point
+        assertFalse("folder should be 'closed' after an IOError", mFolder.isOpen());
+
+        // and confirm that the next connection will be OK
+        checkOneUnread(mockTransport);
+    }
+
+    /**
+     * Test the scenario where the transport is "open" but not really (e.g. server closed).  Two
+     * things should happen:  We should see an intermediate failure that makes sense, and the next
+     * operation should reopen properly.
+     * 
+     * There are multiple versions of this test because we are simulating the steps of
+     * MessagingController.synchronizeMailboxSyncronous() and we will inject the failure a bit
+     * further along in each case, to test various recovery points.
+     * 
+     * This test confirms that Pop3Store needs to call close() in the IOExceptionHandler in
+     * Pop3Folder.getMessages(), due to non-numeric data in a single-line UIDL.
+     */
+    public void testCatchClosed1c() throws MessagingException {
+
+        MockTransport mockTransport = openAndInjectMockTransport();
+
+        // openFolderWithMessage(mockTransport);
+        setupOpenFolder(mockTransport, 6000, null);
+        mFolder.open(OpenMode.READ_ONLY, null);
+        assertEquals(6000, mFolder.getMessageCount());
+
+        // index the message(s) - it should fail, because our stream is broken
+        try {
+            // setupUidlSequence(mockTransport, 1);
+            mockTransport.expect("UIDL 1", "+OK " + "bad-data" + " " + "THE-UIDL");
+
+            Message[] messages = mFolder.getMessages(1, 1, null);
+            fail("Bad UIDL should cause getMessages() to throw.");
+        } catch(MessagingException me) {
+            // success
+        }
+
+        // At this point the UI would display connection error, which is fine.  Now, the real
+        // test is, can we recover?  So I'll just repeat the above steps, without the failure.
+        // NOTE: everything from here down is copied from testOneUnread() and should be consolidated
+
+        // confirm that we're closed at this point
+        assertFalse("folder should be 'closed' after an IOError", mFolder.isOpen());
+
         // and confirm that the next connection will be OK
         checkOneUnread(mockTransport);
     }
@@ -458,8 +543,40 @@ public class Pop3StoreUnitTests extends AndroidTestCase {
      * This test confirms that Pop3Store needs to call close() in the first IOExceptionHandler in 
      * Pop3Folder.fetch(), for a failure in the call to fetchEnvelope().
      */
-    public void testCatchClosed2a() {
-        // TODO cannot write this test until we can inject stream closures mid-sequence
+    public void testCatchClosed2a() throws MessagingException {
+        
+        MockTransport mockTransport = openAndInjectMockTransport();
+        
+        openFolderWithMessage(mockTransport);
+        
+        // index the message(s)
+        setupUidlSequence(mockTransport, 1);
+        Message[] messages = mFolder.getMessages(1, 1, null);
+        assertEquals(1, messages.length);
+        assertEquals(getSingleMessageUID(1), messages[0].getUid());         
+
+        // try the basic fetch of flags & envelope, but the LIST command fails
+        setupBrokenListSequence(mockTransport, 1);
+        try {
+            FetchProfile fp = new FetchProfile();
+            fp.add(FetchProfile.Item.FLAGS);
+            fp.add(FetchProfile.Item.ENVELOPE);
+            mFolder.fetch(messages, fp, null);
+            assertEquals(PER_MESSAGE_SIZE, messages[0].getSize());
+            fail("Broken stream should cause fetch() to throw.");
+        } catch(MessagingException me) {
+            // success
+        }
+
+        // At this point the UI would display connection error, which is fine.  Now, the real
+        // test is, can we recover?  So I'll just repeat the above steps, without the failure.
+        // NOTE: everything from here down is copied from testOneUnread() and should be consolidated
+        
+        // confirm that we're closed at this point
+        assertFalse("folder should be 'closed' after an IOError", mFolder.isOpen());
+        
+        // and confirm that the next connection will be OK
+        checkOneUnread(mockTransport);
     }
         
     /**
@@ -592,9 +709,43 @@ public class Pop3StoreUnitTests extends AndroidTestCase {
      * Pop3Store and/or Pop3Folder should be dealing with IOErrors.
      * 
      * This test confirms that Pop3Store needs to call close() in the second IOExceptionHandler in 
-     * Pop3Folder.open() (when it calls STAT).
+     * Pop3Folder.open() (when it calls STAT and the response is empty of garbagey).
      */
-    public void testCatchClosed6() {
+    public void testCatchClosed6a() throws MessagingException {
+        
+        MockTransport mockTransport = openAndInjectMockTransport();
+        
+        // like openFolderWithMessage(mockTransport) but with a broken STAT report (empty response)
+        setupOpenFolder(mockTransport, -1, null);
+        try {
+            mFolder.open(OpenMode.READ_ONLY, null);
+            fail("Broken STAT should cause open() to throw.");
+        } catch(MessagingException me) {
+            // success
+        }
+        
+        // At this point the UI would display connection error, which is fine.  Now, the real
+        // test is, can we recover?  So I'll try a new connection, without the failure.
+        
+        // confirm that we're closed at this point
+        assertFalse("folder should be 'closed' after an IOError", mFolder.isOpen());
+        
+        // and confirm that the next connection will be OK
+        checkOneUnread(mockTransport);
+    }
+        
+    /**
+     * Test the scenario where the transport is "open" but not really (e.g. server closed).  Two
+     * things should happen:  We should see an intermediate failure that makes sense, and the next
+     * operation should reopen properly.
+     * 
+     * There are multiple versions of this test because we have to check additional places where
+     * Pop3Store and/or Pop3Folder should be dealing with IOErrors.
+     * 
+     * This test confirms that Pop3Store needs to call close() in the second IOExceptionHandler in 
+     * Pop3Folder.open() (when it calls STAT, and there is no response at all).
+     */
+    public void testCatchClosed6b() throws MessagingException {
         // TODO cannot write this test until we can inject stream closures mid-sequence
     }
         
@@ -646,7 +797,7 @@ public class Pop3StoreUnitTests extends AndroidTestCase {
     private MockTransport openAndInjectMockTransport() {
         // Create mock transport and inject it into the POP3Store that's already set up
         MockTransport mockTransport = new MockTransport();
-        mockTransport.setSecurity(Transport.CONNECTION_SECURITY_NONE);
+        mockTransport.setSecurity(Transport.CONNECTION_SECURITY_NONE, false);
         mStore.setTransport(mockTransport);
         return mockTransport;
     }
@@ -707,12 +858,12 @@ public class Pop3StoreUnitTests extends AndroidTestCase {
         
         // TODO check body (if applicable)
     }
-    
+
     /**
      * Helper which stuffs the mock with enough strings to satisfy a call to Pop3Folder.open()
      * 
      * @param mockTransport the mock transport we're using
-     * @param statCount the number of messages to indicate in the STAT
+     * @param statCount the number of messages to indicate in the STAT, or -1 for broken STAT
      * @param capabilities if non-null, comma-separated list of capabilities
      */
     private void setupOpenFolder(MockTransport mockTransport, int statCount, String capabilities) {
@@ -726,11 +877,15 @@ public class Pop3StoreUnitTests extends AndroidTestCase {
         }
         mockTransport.expect("USER user", "+OK User name accepted");
         mockTransport.expect("PASS password", "+OK Logged in");
-        String stat = "+OK " + Integer.toString(statCount) + " " + 
-                Integer.toString(PER_MESSAGE_SIZE * statCount);
-        mockTransport.expect("STAT", stat);
+        if (statCount == -1) {
+            mockTransport.expect("STAT", "");
+        } else {
+            String stat = "+OK " + Integer.toString(statCount) + " "
+                    + Integer.toString(PER_MESSAGE_SIZE * statCount);
+            mockTransport.expect("STAT", stat);
+        }
     }
-    
+
     /**
      * Setup expects for a UIDL on a mailbox with 0 or more messages in it.
      * @param transport The mock transport to preload
@@ -743,7 +898,7 @@ public class Pop3StoreUnitTests extends AndroidTestCase {
         }
         transport.expect(null, ".");
     }
-    
+
     /**
      * Setup expects for a LIST on a mailbox with 0 or more messages in it.
      * @param transport The mock transport to preload
@@ -757,7 +912,21 @@ public class Pop3StoreUnitTests extends AndroidTestCase {
         }
         transport.expect(null, ".");
     }
-    
+
+    /**
+     * Setup expects for a LIST on a mailbox with 0 or more messages in it, except that
+     * this time the pipe fails, and we return empty lines.
+     * @param transport The mock transport to preload
+     * @param numMessages The number of messages to return from LIST.
+     */
+    private static void setupBrokenListSequence(MockTransport transport, int numMessages) {
+        transport.expect("LIST", "");
+        for (int msgNum = 1; msgNum <= numMessages; ++msgNum) {
+            transport.expect(null, "");
+        }
+        transport.expect(null, "");
+    }
+
     /**
      * Setup a single message to be retrieved.
      * 

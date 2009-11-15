@@ -16,13 +16,15 @@
 
 package com.android.email.activity.setup;
 
-import com.android.email.Account;
-import com.android.email.Preferences;
 import com.android.email.R;
 import com.android.email.mail.Store;
+import com.android.email.provider.EmailContent;
+import com.android.email.provider.EmailContent.Account;
 
+import android.content.ContentUris;
 import android.content.Context;
 import android.content.Intent;
+import android.net.Uri;
 import android.test.ActivityUnitTestCase;
 import android.test.suitebuilder.annotation.SmallTest;
 import android.view.View;
@@ -36,8 +38,10 @@ import java.util.HashSet;
 public class AccountSetupAccountTypeUnitTests 
         extends ActivityUnitTestCase<AccountSetupAccountType> {
 
+    // Borrowed from AccountSetupAccountType
+    private static final String EXTRA_ACCOUNT = "account";
+
     Context mContext;
-    private Preferences mPreferences;
     
     private HashSet<Account> mAccounts = new HashSet<Account>();
     
@@ -50,7 +54,6 @@ public class AccountSetupAccountTypeUnitTests
         super.setUp();
         
         mContext = this.getInstrumentation().getTargetContext();
-        mPreferences = Preferences.getPreferences(mContext);
     }
 
     /**
@@ -58,22 +61,22 @@ public class AccountSetupAccountTypeUnitTests
      */
     @Override
     protected void tearDown() throws Exception {
-        super.tearDown();
-        
-        if (mPreferences != null) {
-            for (Account account : mAccounts) {
-                account.delete(mPreferences);
-            }
+        for (Account account : mAccounts) {
+            Uri uri = ContentUris.withAppendedId(Account.CONTENT_URI, account.mId);
+            mContext.getContentResolver().delete(uri, null, null);
         }
+        
+        // must call last because it scrubs member variables
+        super.tearDown();
     }
     
     /**
      * Test store type limit enforcement
      */
     public void testStoreTypeLimits() {
-        Account acct1 = createTestAccount("scheme1");
-        Account acct2 = createTestAccount("scheme1");
-        Account acct3 = createTestAccount("scheme2");
+        EmailContent.Account acct1 = createTestAccount("scheme1");
+        EmailContent.Account acct2 = createTestAccount("scheme1");
+        EmailContent.Account acct3 = createTestAccount("scheme2");
         
         AccountSetupAccountType activity = startActivity(getTestIntent(acct1), null, null);
 
@@ -93,22 +96,22 @@ public class AccountSetupAccountTypeUnitTests
     }
 
     /**
-     * Confirm that EAS is not presented (not supported in this release)
+     * Confirm that EAS is presented (supported in this release)
      */
     public void testEasOffered() {
         Account acct1 = createTestAccount("scheme1");
         AccountSetupAccountType activity = startActivity(getTestIntent(acct1), null, null);
         View exchangeButton = activity.findViewById(R.id.exchange);
-        assertEquals(View.GONE, exchangeButton.getVisibility());
+        assertEquals(View.VISIBLE, exchangeButton.getVisibility());
     }
 
     /**
      * Create a dummy account with minimal fields
      */
     private Account createTestAccount(String scheme) {
-        Account account = new Account(mContext);
-        account.setStoreUri(scheme + "://user:pass@server.com:999");
-        account.save(mPreferences);
+        Account account = new Account();
+        account.setStoreUri(mContext, scheme + "://user:pass@server.com:123");
+        account.save(mContext);
         mAccounts.add(account);
         return account;
     }
@@ -116,9 +119,9 @@ public class AccountSetupAccountTypeUnitTests
     /**
      * Create an intent with the Account in it
      */
-    private Intent getTestIntent(Account account) {
+    private Intent getTestIntent(EmailContent.Account account) {
         Intent i = new Intent(Intent.ACTION_MAIN);
-        i.putExtra("account", account);     // AccountSetupNames.EXTRA_ACCOUNT == "account"
+        i.putExtra(EXTRA_ACCOUNT, account);
         return i;
     }
 

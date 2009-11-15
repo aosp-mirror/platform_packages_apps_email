@@ -89,10 +89,12 @@
             android:key="outgoing"
             android:title="@string/account_settings_outgoing_label" />
 
-        <PreferenceScreen
-            android:key="add_account"
-            android:title="@string/account_settings_add_account_label" />
-
+        <CheckBoxPreference
+            android:layout="?android:attr/preferenceLayoutChild"
+            android:key="account_sync_contacts"
+            android:defaultValue="true"
+            android:title="@string/account_settings_sync_contacts_enable"
+            android:summary="@string/account_settings_sync_contacts_summary" />
     </PreferenceCategory>
 
 </PreferenceScreen>

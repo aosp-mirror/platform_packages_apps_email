@@ -78,13 +78,8 @@ import javax.net.ssl.SSLException;
  * </pre>
  */
 public class ImapStore extends Store {
-    public static final int CONNECTION_SECURITY_NONE = 0;
-    public static final int CONNECTION_SECURITY_TLS_OPTIONAL = 1;
-    public static final int CONNECTION_SECURITY_TLS_REQUIRED = 2;
-    public static final int CONNECTION_SECURITY_SSL_REQUIRED = 3;
-    public static final int CONNECTION_SECURITY_SSL_OPTIONAL = 4;
 
-    private static final Flag[] PERMANENT_FLAGS = { Flag.DELETED, Flag.SEEN };
+    private static final Flag[] PERMANENT_FLAGS = { Flag.DELETED, Flag.SEEN, Flag.FLAGGED };
 
     private Transport mRootTransport;
     private String mUsername;
@@ -118,11 +113,11 @@ public class ImapStore extends Store {
 
     /**
      * Allowed formats for the Uri:
-     * imap://user:password@server:port CONNECTION_SECURITY_NONE
-     * imap+tls://user:password@server:port CONNECTION_SECURITY_TLS_OPTIONAL
-     * imap+tls+://user:password@server:port CONNECTION_SECURITY_TLS_REQUIRED
-     * imap+ssl+://user:password@server:port CONNECTION_SECURITY_SSL_REQUIRED
-     * imap+ssl://user:password@server:port CONNECTION_SECURITY_SSL_OPTIONAL
+     * imap://user:password@server:port
+     * imap+tls+://user:password@server:port
+     * imap+tls+trustallcerts://user:password@server:port
+     * imap+ssl+://user:password@server:port
+     * imap+ssl+trustallcerts://user:password@server:port
      *
      * @param uriString the Uri containing information to configure this store
      */
@@ -135,30 +130,24 @@ public class ImapStore extends Store {
         }
 
         String scheme = uri.getScheme();
-        int connectionSecurity = Transport.CONNECTION_SECURITY_NONE;
-        int defaultPort = -1;
-        if (scheme.equals("imap")) {
-            connectionSecurity = CONNECTION_SECURITY_NONE;
-            defaultPort = 143;
-        } else if (scheme.equals("imap+tls")) {
-            connectionSecurity = CONNECTION_SECURITY_TLS_OPTIONAL;
-            defaultPort = 143;
-        } else if (scheme.equals("imap+tls+")) {
-            connectionSecurity = CONNECTION_SECURITY_TLS_REQUIRED;
-            defaultPort = 143;
-        } else if (scheme.equals("imap+ssl+")) {
-            connectionSecurity = CONNECTION_SECURITY_SSL_REQUIRED;
-            defaultPort = 993;
-        } else if (scheme.equals("imap+ssl")) {
-            connectionSecurity = CONNECTION_SECURITY_SSL_OPTIONAL;
-            defaultPort = 993;
-        } else {
+        if (scheme == null || !scheme.startsWith(STORE_SCHEME_IMAP)) {
             throw new MessagingException("Unsupported protocol");
         }
+        // defaults, which can be changed by security modifiers
+        int connectionSecurity = Transport.CONNECTION_SECURITY_NONE;
+        int defaultPort = 143;
+        // check for security modifiers and apply changes
+        if (scheme.contains("+ssl")) {
+            connectionSecurity = Transport.CONNECTION_SECURITY_SSL;
+            defaultPort = 993;
+        } else if (scheme.contains("+tls")) {
+            connectionSecurity = Transport.CONNECTION_SECURITY_TLS;
+        }
+        boolean trustCertificates = scheme.contains(STORE_SECURITY_TRUST_CERTIFICATES);
 
         mRootTransport = new MailTransport("IMAP");
         mRootTransport.setUri(uri, defaultPort);
-        mRootTransport.setSecurity(connectionSecurity);
+        mRootTransport.setSecurity(connectionSecurity, trustCertificates);
 
         String[] userInfoParts = mRootTransport.getUserInfoParts();
         if (userInfoParts != null) {
@@ -447,6 +436,11 @@ public class ImapStore extends Store {
             }
         }
 
+        // IMAP supports folder creation
+        public boolean canCreate(FolderType type) {
+            return true;
+        }
+
         public boolean create(FolderType type) throws MessagingException {
             /*
              * This method needs to operate in the unselected mode as well as the selected mode
@@ -674,8 +668,11 @@ public class ImapStore extends Store {
             for (Object o : fp) {
                 if (o instanceof Part) {
                     Part part = (Part) o;
-                    String partId = part.getHeader(MimeHeader.HEADER_ANDROID_ATTACHMENT_STORE_DATA)[0];
-                    fetchFields.add("BODY.PEEK[" + partId + "]");
+                    String[] partIds =
+                        part.getHeader(MimeHeader.HEADER_ANDROID_ATTACHMENT_STORE_DATA);
+                    if (partIds != null) {
+                        fetchFields.add("BODY.PEEK[" + partIds[0] + "]");
+                    }
                 }
             }
 
@@ -738,7 +735,7 @@ public class ImapStore extends Store {
                                     parseBodyStructure(bs, message, "TEXT");
                                 }
                                 catch (MessagingException e) {
-                                    if (Config.LOGV) {
+                                    if (Email.LOGD) {
                                         Log.v(Email.LOG_TAG, "Error handling message", e);
                                     }
                                     message.setBody(null);
@@ -758,13 +755,16 @@ public class ImapStore extends Store {
                         for (Object o : fp) {
                             if (o instanceof Part) {
                                 Part part = (Part) o;
-                                InputStream bodyStream = fetchList.getLiteral(fetchList.size() - 1);
-                                String contentType = part.getContentType();
-                                String contentTransferEncoding = part.getHeader(
-                                        MimeHeader.HEADER_CONTENT_TRANSFER_ENCODING)[0];
-                                part.setBody(MimeUtility.decodeBody(
-                                        bodyStream,
-                                        contentTransferEncoding));
+                                if (part.getSize() > 0) {
+                                    InputStream bodyStream =
+                                        fetchList.getLiteral(fetchList.size() - 1);
+                                    String contentType = part.getContentType();
+                                    String contentTransferEncoding = part.getHeader(
+                                            MimeHeader.HEADER_CONTENT_TRANSFER_ENCODING)[0];
+                                    part.setBody(MimeUtility.decodeBody(
+                                            bodyStream,
+                                            contentTransferEncoding));
+                                }
                             }
                         }
 
@@ -982,13 +982,33 @@ public class ImapStore extends Store {
             checkOpen();
             try {
                 for (Message message : messages) {
+                    // Create output count
                     CountingOutputStream out = new CountingOutputStream();
                     EOLConvertingOutputStream eolOut = new EOLConvertingOutputStream(out);
                     message.writeTo(eolOut);
                     eolOut.flush();
+                    // Create flag list (most often this will be "\SEEN")
+                    String flagList = "";
+                    Flag[] flags = message.getFlags();
+                    if (flags.length > 0) {
+                        StringBuilder sb = new StringBuilder();
+                        for (int i = 0, count = flags.length; i < count; i++) {
+                            Flag flag = flags[i];
+                            if (flag == Flag.SEEN) {
+                                sb.append(" \\Seen");
+                            } else if (flag == Flag.FLAGGED) {
+                                sb.append(" \\Flagged");
+                            }
+                        }
+                        if (sb.length() > 0) {
+                            flagList = sb.substring(1);
+                        }
+                    }
+
                     mConnection.sendCommand(
-                            String.format("APPEND \"%s\" {%d}",
+                            String.format("APPEND \"%s\" (%s) {%d}",
                                     encodeFolderName(mName),
+                                    flagList,
                                     out.getCount()), false);
                     ImapResponse response;
                     do {
@@ -1008,7 +1028,8 @@ public class ImapStore extends Store {
 
                     /*
                      * Try to find the UID of the message we just appended using the
-                     * Message-ID header.
+                     * Message-ID header.  If there are more than one response, take the
+                     * last one, as it's most likely he newest (the one we just uploaded).
                      */
                     String[] messageIdHeader = message.getHeader("Message-ID");
                     if (messageIdHeader == null || messageIdHeader.length == 0) {
@@ -1021,7 +1042,7 @@ public class ImapStore extends Store {
                     for (ImapResponse response1 : responses) {
                         if (response1.mTag == null && response1.get(0).equals("SEARCH")
                                 && response1.size() > 1) {
-                            message.setUid(response1.getString(1));
+                            message.setUid(response1.getString(response1.size()-1));
                         }
                     }
 
@@ -1045,25 +1066,28 @@ public class ImapStore extends Store {
         public void setFlags(Message[] messages, Flag[] flags, boolean value)
                 throws MessagingException {
             checkOpen();
-            String[] uids = new String[messages.length];
+            StringBuilder uidList = new StringBuilder();
             for (int i = 0, count = messages.length; i < count; i++) {
-                uids[i] = messages[i].getUid();
+                if (i > 0) uidList.append(',');
+                uidList.append(messages[i].getUid());
             }
-            ArrayList<String> flagNames = new ArrayList<String>();
+
+            StringBuilder flagList = new StringBuilder();
             for (int i = 0, count = flags.length; i < count; i++) {
                 Flag flag = flags[i];
                 if (flag == Flag.SEEN) {
-                    flagNames.add("\\Seen");
-                }
-                else if (flag == Flag.DELETED) {
-                    flagNames.add("\\Deleted");
+                    flagList.append(" \\Seen");
+                } else if (flag == Flag.DELETED) {
+                    flagList.append(" \\Deleted");
+                } else if (flag == Flag.FLAGGED) {
+                    flagList.append(" \\Flagged");
                 }
             }
             try {
                 mConnection.executeSimpleCommand(String.format("UID STORE %s %sFLAGS.SILENT (%s)",
-                        Utility.combine(uids, ','),
+                        uidList,
                         value ? "+" : "-",
-                        Utility.combine(flagNames.toArray(new String[flagNames.size()]), ' ')));
+                        flagList.substring(1)));        // Remove the first space
             }
             catch (IOException ioe) {
                 throw ioExceptionHandler(mConnection, ioe);
@@ -1089,6 +1113,11 @@ public class ImapStore extends Store {
                 return ((ImapFolder)o).mName.equals(mName);
             }
             return super.equals(o);
+        }
+
+        @Override
+        public Message createMessage(String uid) throws MessagingException {
+            return new ImapMessage(uid, this);
         }
     }
 
@@ -1134,8 +1163,7 @@ public class ImapStore extends Store {
                         mTransport.reopenTls();
                         mTransport.setSoTimeout(MailTransport.SOCKET_READ_TIMEOUT);
                         mParser = new ImapResponseParser(mTransport.getInputStream());
-                    } else if (mTransport.getSecurity() == 
-                            Transport.CONNECTION_SECURITY_TLS_REQUIRED) {
+                    } else {
                         if (Config.LOGD && Email.DEBUG) {
                             Log.d(Email.LOG_TAG, "TLS not supported but required");
                         }
@@ -1273,9 +1301,9 @@ public class ImapStore extends Store {
             super();
         }
 
-        public void setSize(int size) {
-            this.mSize = size;
-        }
+//        public void setSize(int size) {
+//            this.mSize = size;
+//        }
     }
 
     class ImapException extends MessagingException {

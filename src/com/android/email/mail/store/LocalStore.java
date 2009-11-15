@@ -37,7 +37,6 @@ import com.android.email.mail.internet.MimeMessage;
 import com.android.email.mail.internet.MimeMultipart;
 import com.android.email.mail.internet.MimeUtility;
 import com.android.email.mail.internet.TextBody;
-import com.android.email.provider.AttachmentProvider;
 
 import org.apache.commons.io.IOUtils;
 
@@ -46,7 +45,6 @@ import android.content.Context;
 import android.database.Cursor;
 import android.database.sqlite.SQLiteDatabase;
 import android.net.Uri;
-import android.util.Config;
 import android.util.Log;
 
 import java.io.ByteArrayInputStream;
@@ -130,7 +128,7 @@ public class LocalStore extends Store implements PersistentDataCallbacks {
          *  TODO we should have more sophisticated way to upgrade database.
          */
         if (oldVersion != DB_VERSION) {
-            if (Config.LOGV) {
+            if (Email.LOGD) {
                 Log.v(Email.LOG_TAG, String.format("Upgrading database from %d to %d", 
                         oldVersion, DB_VERSION));
             }
@@ -379,23 +377,17 @@ public class LocalStore extends Store implements PersistentDataCallbacks {
                     try {
                         cursor = mDb.query(
                             "attachments",
-                            new String[] { "store_data", "mime_type", "content_id" },
+                            new String[] { "store_data" },
                             "id = ?",
                             new String[] { file.getName() },
                             null,
                             null,
                             null);
                         if (cursor.moveToNext()) {
-                            String storeData = cursor.getString(0);
-                            String mimeType = cursor.getString(1);
-                            String contentId = cursor.getString(2);
-                            boolean inlineImage = contentId != null
-                                && (mimeType != null && mimeType.startsWith("image/"));
-                            if (storeData == null || inlineImage) {
+                            if (cursor.getString(0) == null) {
                                 /*
                                  * If the attachment has no store data it is not recoverable, so
-                                 * we won't delete it.  And if the attachment is image and has
-                                 * content id, so we won't delete it because it is inline image.
+                                 * we won't delete it.
                                  */
                                 continue;
                             }
@@ -633,6 +625,12 @@ public class LocalStore extends Store implements PersistentDataCallbacks {
         @Override
         public boolean exists() throws MessagingException {
             return Utility.arrayContains(getPersonalNamespaces(), this);
+        }
+
+        // LocalStore supports folder creation
+        @Override
+        public boolean canCreate(FolderType type) {
+            return true;
         }
 
         @Override
@@ -1283,7 +1281,8 @@ public class LocalStore extends Store implements PersistentDataCallbacks {
                                 message.mId
                                 });
 
-                for (Part attachment : attachments) {
+                for (int i = 0, count = attachments.size(); i < count; i++) {
+                    Part attachment = attachments.get(i);
                     saveAttachment(message.mId, attachment, false);
                 }
             } catch (Exception e) {
@@ -1307,7 +1306,6 @@ public class LocalStore extends Store implements PersistentDataCallbacks {
 
             if ((!saveAsNew) && (attachment instanceof LocalAttachmentBodyPart)) {
                 attachmentId = ((LocalAttachmentBodyPart) attachment).getAttachmentId();
-                size = ((LocalAttachmentBodyPart) attachment).getSize();
             }
 
             if (attachment.getBody() != null) {
@@ -1351,9 +1349,6 @@ public class LocalStore extends Store implements PersistentDataCallbacks {
                         MimeHeader.HEADER_ANDROID_ATTACHMENT_STORE_DATA), ',');
 
             String name = MimeUtility.getHeaderParameter(attachment.getContentType(), "name");
-            if (name == null) {
-                name = MimeUtility.getHeaderParameter(attachment.getDisposition(), "filename");
-            }
             String contentId = attachment.getContentId();
 
             if (attachmentId == -1) {
@@ -1384,9 +1379,10 @@ public class LocalStore extends Store implements PersistentDataCallbacks {
             if (tempAttachmentFile != null) {
                 File attachmentFile = new File(mAttachmentsDir, Long.toString(attachmentId));
                 tempAttachmentFile.renameTo(attachmentFile);
-                contentUri = AttachmentProvider.getAttachmentUri(
-                        new File(mPath).getName(),
-                        attachmentId);
+                // Doing this requires knowing the account id
+//                contentUri = AttachmentProvider.getAttachmentUri(
+//                        new File(mPath).getName(),
+//                        attachmentId);
                 attachment.setBody(new LocalAttachmentBody(contentUri, mContext));
                 ContentValues cv = new ContentValues();
                 cv.put("content_uri", contentUri != null ? contentUri.toString() : null);
@@ -1589,6 +1585,11 @@ public class LocalStore extends Store implements PersistentDataCallbacks {
                 mDb.endTransaction();
             }
             
+        }
+
+        @Override
+        public Message createMessage(String uid) throws MessagingException {
+            return new LocalMessage(uid, this);
         }
     }
 

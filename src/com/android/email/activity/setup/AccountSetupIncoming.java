@@ -17,11 +17,14 @@
 package com.android.email.activity.setup;
 
 import com.android.email.Account;
-import com.android.email.Preferences;
 import com.android.email.R;
 import com.android.email.Utility;
+import com.android.email.provider.EmailContent;
 
 import android.app.Activity;
+import android.app.AlertDialog;
+import android.app.Dialog;
+import android.content.DialogInterface;
 import android.content.Intent;
 import android.os.Bundle;
 import android.text.Editable;
@@ -47,14 +50,16 @@ public class AccountSetupIncoming extends Activity implements OnClickListener {
             110, 995, 995, 110, 110
     };
     private static final String popSchemes[] = {
-            "pop3", "pop3+ssl", "pop3+ssl+", "pop3+tls", "pop3+tls+"
+            "pop3", "pop3+ssl+", "pop3+ssl+trustallcerts", "pop3+tls+", "pop3+tls+trustallcerts"
     };
     private static final int imapPorts[] = {
             143, 993, 993, 143, 143
     };
     private static final String imapSchemes[] = {
-            "imap", "imap+ssl", "imap+ssl+", "imap+tls", "imap+tls+"
+            "imap", "imap+ssl+", "imap+ssl+trustallcerts", "imap+tls+", "imap+tls+trustallcerts"
     };
+
+    private final static int DIALOG_DUPLICATE_ACCOUNT = 1;
 
     private int mAccountPorts[];
     private String mAccountSchemes[];
@@ -66,17 +71,21 @@ public class AccountSetupIncoming extends Activity implements OnClickListener {
     private Spinner mDeletePolicyView;
     private EditText mImapPathPrefixView;
     private Button mNextButton;
-    private Account mAccount;
+    private EmailContent.Account mAccount;
     private boolean mMakeDefault;
+    private String mCacheLoginCredential;
+    private String mDuplicateAccountName;
 
-    public static void actionIncomingSettings(Activity fromActivity, Account account, boolean makeDefault) {
+    public static void actionIncomingSettings(Activity fromActivity, EmailContent.Account account,
+            boolean makeDefault) {
         Intent i = new Intent(fromActivity, AccountSetupIncoming.class);
         i.putExtra(EXTRA_ACCOUNT, account);
         i.putExtra(EXTRA_MAKE_DEFAULT, makeDefault);
         fromActivity.startActivity(i);
     }
 
-    public static void actionEditIncomingSettings(Activity fromActivity, Account account) {
+    public static void actionEditIncomingSettings(Activity fromActivity, EmailContent.Account account)
+            {
         Intent i = new Intent(fromActivity, AccountSetupIncoming.class);
         i.setAction(Intent.ACTION_EDIT);
         i.putExtra(EXTRA_ACCOUNT, account);
@@ -101,21 +110,19 @@ public class AccountSetupIncoming extends Activity implements OnClickListener {
         mNextButton.setOnClickListener(this);
 
         SpinnerOption securityTypes[] = {
-                new SpinnerOption(0, getString(R.string.account_setup_incoming_security_none_label)),
-                new SpinnerOption(1,
-                        getString(R.string.account_setup_incoming_security_ssl_optional_label)),
-                new SpinnerOption(2, getString(R.string.account_setup_incoming_security_ssl_label)),
-                new SpinnerOption(3,
-                        getString(R.string.account_setup_incoming_security_tls_optional_label)),
-                new SpinnerOption(4, getString(R.string.account_setup_incoming_security_tls_label)),
+            new SpinnerOption(0, getString(R.string.account_setup_incoming_security_none_label)),
+            new SpinnerOption(1, getString(R.string.account_setup_incoming_security_ssl_label)),
+            new SpinnerOption(2, getString(
+                    R.string.account_setup_incoming_security_ssl_trust_certificates_label)),
+            new SpinnerOption(3, getString(R.string.account_setup_incoming_security_tls_label)),
+            new SpinnerOption(4, getString(
+                    R.string.account_setup_incoming_security_tls_trust_certificates_label)),
         };
 
         SpinnerOption deletePolicies[] = {
-                new SpinnerOption(0,
+                new SpinnerOption(Account.DELETE_POLICY_NEVER,
                         getString(R.string.account_setup_incoming_delete_policy_never_label)),
-                new SpinnerOption(1,
-                        getString(R.string.account_setup_incoming_delete_policy_7days_label)),
-                new SpinnerOption(2,
+                new SpinnerOption(Account.DELETE_POLICY_ON_DELETE,
                         getString(R.string.account_setup_incoming_delete_policy_delete_label)),
         };
 
@@ -168,7 +175,7 @@ public class AccountSetupIncoming extends Activity implements OnClickListener {
          */
         mPortView.setKeyListener(DigitsKeyListener.getInstance("0123456789"));
 
-        mAccount = (Account)getIntent().getSerializableExtra(EXTRA_ACCOUNT);
+        mAccount = (EmailContent.Account)getIntent().getParcelableExtra(EXTRA_ACCOUNT);
         mMakeDefault = getIntent().getBooleanExtra(EXTRA_MAKE_DEFAULT, false);
 
         /*
@@ -176,11 +183,12 @@ public class AccountSetupIncoming extends Activity implements OnClickListener {
          * we saved
          */
         if (savedInstanceState != null && savedInstanceState.containsKey(EXTRA_ACCOUNT)) {
-            mAccount = (Account)savedInstanceState.getSerializable(EXTRA_ACCOUNT);
+            mAccount = (EmailContent.Account)savedInstanceState.getParcelable(EXTRA_ACCOUNT);
         }
 
         try {
-            URI uri = new URI(mAccount.getStoreUri());
+            // TODO this should be accessed directly via the HostAuth structure
+            URI uri = new URI(mAccount.getStoreUri(this));
             String username = null;
             String password = null;
             if (uri.getUserInfo() != null) {
@@ -216,7 +224,7 @@ public class AccountSetupIncoming extends Activity implements OnClickListener {
                     mImapPathPrefixView.setText(uri.getPath().substring(1));
                 }
             } else {
-                throw new Error("Unknown account type: " + mAccount.getStoreUri());
+                throw new Error("Unknown account type: " + mAccount.getStoreUri(this));
             }
 
             for (int i = 0; i < mAccountSchemes.length; i++) {
@@ -249,7 +257,46 @@ public class AccountSetupIncoming extends Activity implements OnClickListener {
     @Override
     public void onSaveInstanceState(Bundle outState) {
         super.onSaveInstanceState(outState);
-        outState.putSerializable(EXTRA_ACCOUNT, mAccount);
+        outState.putParcelable(EXTRA_ACCOUNT, mAccount);
+    }
+
+    /**
+     * Prepare a cached dialog with current values (e.g. account name)
+     */
+    @Override
+    public Dialog onCreateDialog(int id) {
+        switch (id) {
+            case DIALOG_DUPLICATE_ACCOUNT:
+                return new AlertDialog.Builder(this)
+                    .setIcon(android.R.drawable.ic_dialog_alert)
+                    .setTitle(R.string.account_duplicate_dlg_title)
+                    .setMessage(getString(R.string.account_duplicate_dlg_message_fmt,
+                            mDuplicateAccountName))
+                    .setPositiveButton(R.string.okay_action,
+                            new DialogInterface.OnClickListener() {
+                        public void onClick(DialogInterface dialog, int which) {
+                            dismissDialog(DIALOG_DUPLICATE_ACCOUNT);
+                        }
+                    })
+                    .create();
+        }
+        return null;
+    }
+
+    /**
+     * Update a cached dialog with current values (e.g. account name)
+     */
+    @Override
+    public void onPrepareDialog(int id, Dialog dialog) {
+        switch (id) {
+            case DIALOG_DUPLICATE_ACCOUNT:
+                if (mDuplicateAccountName != null) {
+                    AlertDialog alert = (AlertDialog) dialog;
+                    alert.setMessage(getString(R.string.account_duplicate_dlg_message_fmt,
+                            mDuplicateAccountName));
+                }
+                break;
+        }
     }
 
     /**
@@ -281,7 +328,12 @@ public class AccountSetupIncoming extends Activity implements OnClickListener {
     public void onActivityResult(int requestCode, int resultCode, Intent data) {
         if (resultCode == RESULT_OK) {
             if (Intent.ACTION_EDIT.equals(getIntent().getAction())) {
-                mAccount.save(Preferences.getPreferences(this));
+                if (mAccount.isSaved()) {
+                    mAccount.update(this, mAccount.toContentValues());
+                    mAccount.mHostAuthRecv.update(this, mAccount.mHostAuthRecv.toContentValues());
+                } else {
+                    mAccount.save(this);
+                }
                 finish();
             } else {
                 /*
@@ -289,7 +341,7 @@ public class AccountSetupIncoming extends Activity implements OnClickListener {
                  * password the user just set for incoming.
                  */
                 try {
-                    URI oldUri = new URI(mAccount.getSenderUri());
+                    URI oldUri = new URI(mAccount.getSenderUri(this));
                     URI uri = new URI(
                             oldUri.getScheme(),
                             mUsernameView.getText().toString().trim() + ":" 
@@ -299,14 +351,13 @@ public class AccountSetupIncoming extends Activity implements OnClickListener {
                             null,
                             null,
                             null);
-                    mAccount.setSenderUri(uri.toString());
+                    mAccount.setSenderUri(this, uri.toString());
                 } catch (URISyntaxException use) {
                     /*
                      * If we can't set up the URL we just continue. It's only for
                      * convenience.
                      */
                 }
-
 
                 AccountSetupOutgoing.actionOutgoingSettings(this, mAccount, mMakeDefault);
                 finish();
@@ -325,10 +376,11 @@ public class AccountSetupIncoming extends Activity implements OnClickListener {
         if (mAccountSchemes[securityType].startsWith("imap")) {
             path = "/" + mImapPathPrefixView.getText().toString().trim();
         }
+        String userName = mUsernameView.getText().toString().trim();
+        mCacheLoginCredential = userName;
         URI uri = new URI(
                 mAccountSchemes[securityType],
-                mUsernameView.getText().toString().trim() + ":" + 
-                        mPasswordView.getText().toString().trim(),
+                userName + ":" + mPasswordView.getText().toString().trim(),
                 mServerView.getText().toString().trim(),
                 Integer.parseInt(mPortView.getText().toString().trim()),
                 path, // path
@@ -341,7 +393,16 @@ public class AccountSetupIncoming extends Activity implements OnClickListener {
     private void onNext() {
         try {
             URI uri = getUri();
-            mAccount.setStoreUri(uri.toString());
+            mAccount.setStoreUri(this, uri.toString());
+
+            // Stop here if the login credentials duplicate an existing account
+            // (unless they duplicate the existing account, as they of course will)
+            mDuplicateAccountName = Utility.findDuplicateAccount(this, mAccount.mId,
+                    uri.getHost(), mCacheLoginCredential);
+            if (mDuplicateAccountName != null) {
+                this.showDialog(DIALOG_DUPLICATE_ACCOUNT);
+                return;
+            }
         } catch (URISyntaxException use) {
             /*
              * It's unrecoverable if we cannot create a URI from components that

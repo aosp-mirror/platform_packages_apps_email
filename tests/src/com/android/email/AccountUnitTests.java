@@ -16,18 +16,9 @@
 
 package com.android.email;
 
-import com.android.email.mail.Store;
-
-import android.content.Context;
 import android.content.SharedPreferences;
 import android.test.AndroidTestCase;
 import android.test.suitebuilder.annotation.MediumTest;
-
-import java.io.ByteArrayInputStream;
-import java.io.ByteArrayOutputStream;
-import java.io.IOException;
-import java.io.ObjectInputStream;
-import java.io.ObjectOutputStream;
 
 /**
  * This is a series of unit tests for the Account class.

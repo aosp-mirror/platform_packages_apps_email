@@ -42,8 +42,13 @@ public abstract class Store {
      */
     public static final String STORE_SCHEME_IMAP = "imap";
     public static final String STORE_SCHEME_POP3 = "pop3";
+    public static final String STORE_SCHEME_EAS = "eas";
     public static final String STORE_SCHEME_LOCAL = "local";
-    
+
+    public static final String STORE_SECURITY_SSL = "+ssl";
+    public static final String STORE_SECURITY_TLS = "+tls";
+    public static final String STORE_SECURITY_TRUST_CERTIFICATES = "+trustallcerts";
+
     /**
      * A global suggestion to Store implementors on how much of the body
      * should be returned on FetchProfile.Item.BODY_SANE requests.
@@ -241,27 +246,6 @@ public abstract class Store {
     public abstract Folder[] getPersonalNamespaces() throws MessagingException;
     
     public abstract void checkSettings() throws MessagingException;
-    
-    /**
-     * Enable or disable push mode delivery for a given Store.  
-     * 
-     * <p>For protocols that do not support push mode, be sure that push="true" is not 
-     * set by the stores.xml definition file(s).  This function need not be implemented.
-     * 
-     * <p>For protocols that do support push mode, this will be called at startup (boot) time
-     * so that the Store can launch its own underlying connection service.  It will also be called
-     * any time the user changes the settings for the account (because the user may switch back
-     * to polling mode (or disable checking completely).
-     * 
-     * <p>This API will be called repeatedly, even after push mode has already been started or
-     * stopped.  Stores that support push mode should return quickly if the configuration has not
-     * changed.
-     * 
-     * @param enablePushMode start or stop push mode delivery
-     */
-    public void enablePushModeDelivery(boolean enablePushMode) {
-        // does nothing for non-push protocols
-    }
     
     /**
      * Delete Store and its corresponding resources.

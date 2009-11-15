@@ -16,13 +16,14 @@
 
 package com.android.email.activity.setup;
 
-import com.android.email.Account;
-import com.android.email.Preferences;
 import com.android.email.R;
 import com.android.email.mail.Store;
+import com.android.email.provider.EmailContent;
+import com.android.email.provider.EmailContent.Account;
 
 import android.app.Activity;
 import android.content.Intent;
+import android.database.Cursor;
 import android.os.Bundle;
 import android.view.View;
 import android.view.View.OnClickListener;
@@ -37,33 +38,43 @@ import java.net.URISyntaxException;
  * AccountSetupIncoming activity.
  */
 public class AccountSetupAccountType extends Activity implements OnClickListener {
-    private static final String EXTRA_ACCOUNT = "account";
 
+    private static final String EXTRA_ACCOUNT = "account";
     private static final String EXTRA_MAKE_DEFAULT = "makeDefault";
+    private static final String EXTRA_EAS_FLOW = "easFlow";
 
     private Account mAccount;
-
     private boolean mMakeDefault;
 
     public static void actionSelectAccountType(Activity fromActivity, Account account, 
-            boolean makeDefault) {
+            boolean makeDefault, boolean easFlowMode) {
         Intent i = new Intent(fromActivity, AccountSetupAccountType.class);
         i.putExtra(EXTRA_ACCOUNT, account);
         i.putExtra(EXTRA_MAKE_DEFAULT, makeDefault);
+        i.putExtra(EXTRA_EAS_FLOW, easFlowMode);
         fromActivity.startActivity(i);
     }
 
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+
+        mAccount = (Account) getIntent().getParcelableExtra(EXTRA_ACCOUNT);
+        mMakeDefault = getIntent().getBooleanExtra(EXTRA_MAKE_DEFAULT, false);
+        boolean easFlowMode = getIntent().getBooleanExtra(EXTRA_EAS_FLOW, false);
+
+        // If we're in account setup flow mode, for EAS, skip this screen and "click" EAS
+        if (easFlowMode) {
+            onExchange(true);
+            return;
+        }
+
+        // Otherwise proceed into this screen
         setContentView(R.layout.account_setup_account_type);
         ((Button)findViewById(R.id.pop)).setOnClickListener(this);
         ((Button)findViewById(R.id.imap)).setOnClickListener(this);
         ((Button)findViewById(R.id.exchange)).setOnClickListener(this);
         
-        mAccount = (Account)getIntent().getSerializableExtra(EXTRA_ACCOUNT);
-        mMakeDefault = (boolean)getIntent().getBooleanExtra(EXTRA_MAKE_DEFAULT, false);
-
         if (isExchangeAvailable()) {
             findViewById(R.id.exchange).setVisibility(View.VISIBLE);
         }
@@ -72,9 +83,9 @@ public class AccountSetupAccountType extends Activity implements OnClickListener
 
     private void onPop() {
         try {
-            URI uri = new URI(mAccount.getStoreUri());
+            URI uri = new URI(mAccount.getStoreUri(this));
             uri = new URI("pop3", uri.getUserInfo(), uri.getHost(), uri.getPort(), null, null, null);
-            mAccount.setStoreUri(uri.toString());
+            mAccount.setStoreUri(this, uri.toString());
         } catch (URISyntaxException use) {
             /*
              * This should not happen.
@@ -91,9 +102,9 @@ public class AccountSetupAccountType extends Activity implements OnClickListener
      */
     private void onImap() {
         try {
-            URI uri = new URI(mAccount.getStoreUri());
+            URI uri = new URI(mAccount.getStoreUri(this));
             uri = new URI("imap", uri.getUserInfo(), uri.getHost(), uri.getPort(), null, null, null);
-            mAccount.setStoreUri(uri.toString());
+            mAccount.setStoreUri(this, uri.toString());
         } catch (URISyntaxException use) {
             /*
              * This should not happen.
@@ -112,12 +123,13 @@ public class AccountSetupAccountType extends Activity implements OnClickListener
      * email address.  Also set the mail delete policy here, because there is no UI (for exchange),
      * and switch the default sync interval to "push".
      */
-    private void onExchange() {
+    private void onExchange(boolean easFlowMode) {
         try {
-            URI uri = new URI(mAccount.getStoreUri());
-            uri = new URI("eas", uri.getUserInfo(), uri.getHost(), uri.getPort(), null, null, null);
-            mAccount.setStoreUri(uri.toString());
-            mAccount.setSenderUri(uri.toString());
+            URI uri = new URI(mAccount.getStoreUri(this));
+            uri = new URI("eas+ssl+", uri.getUserInfo(), uri.getHost(), uri.getPort(),
+                    null, null, null);
+            mAccount.setStoreUri(this, uri.toString());
+            mAccount.setSenderUri(this, uri.toString());
         } catch (URISyntaxException use) {
             /*
              * This should not happen.
@@ -126,9 +138,9 @@ public class AccountSetupAccountType extends Activity implements OnClickListener
         }
         // TODO: Confirm correct delete policy for exchange
         mAccount.setDeletePolicy(Account.DELETE_POLICY_ON_DELETE);
-        mAccount.setAutomaticCheckIntervalMinutes(Account.CHECK_INTERVAL_PUSH);
-        mAccount.setSyncWindow(Account.SYNC_WINDOW_1_DAY);
-        AccountSetupExchange.actionIncomingSettings(this, mAccount, mMakeDefault);
+        mAccount.setSyncInterval(Account.CHECK_INTERVAL_PUSH);
+        mAccount.setSyncLookback(1);
+        AccountSetupExchange.actionIncomingSettings(this, mAccount, mMakeDefault, easFlowMode);
         finish();
     }
     
@@ -140,7 +152,7 @@ public class AccountSetupAccountType extends Activity implements OnClickListener
      */
     private boolean isExchangeAvailable() {
         try {
-            URI uri = new URI(mAccount.getStoreUri());
+            URI uri = new URI(mAccount.getStoreUri(this));
             uri = new URI("eas", uri.getUserInfo(), uri.getHost(), uri.getPort(), null, null, null);
             Store.StoreInfo storeInfo = Store.StoreInfo.getStoreInfo(uri.toString(), this);
             return (storeInfo != null && checkAccountInstanceLimit(storeInfo));
@@ -162,11 +174,22 @@ public class AccountSetupAccountType extends Activity implements OnClickListener
         
         // count existing accounts
         int currentAccountsCount = 0;
-        Account[] accounts = Preferences.getPreferences(this).getAccounts();
-        for (Account account : accounts) {
-            String storeUri = account.getStoreUri();
-            if (storeUri != null && storeUri.startsWith(storeInfo.mScheme)) {
-                currentAccountsCount++;
+        Cursor c = null;
+        try {
+            c = this.getContentResolver().query(
+                    Account.CONTENT_URI, 
+                    Account.CONTENT_PROJECTION,
+                    null, null, null);
+            while (c.moveToNext()) {
+                Account account = EmailContent.getContent(c, Account.class);
+                String storeUri = account.getStoreUri(this);
+                if (storeUri != null && storeUri.startsWith(storeInfo.mScheme)) {
+                    currentAccountsCount++;
+                }
+            }
+        } finally {
+            if (c != null) {
+                c.close();
             }
         }
         
@@ -183,7 +206,7 @@ public class AccountSetupAccountType extends Activity implements OnClickListener
                 onImap();
                 break;
             case R.id.exchange:
-                onExchange();
+                onExchange(false);
                 break;
         }
     }

@@ -80,5 +80,46 @@
         <item>4</item>
         <item>5</item>
     </string-array>
-    
+
+    <!-- Arrays "mailbox_display_names" and "mailbox_display_icons" MUST match the order
+         of the types of mailboxes defined in EmailContent -->
+    <string-array name="mailbox_display_names" translatable="false">
+        <!-- TYPE_INBOX = 0 -->
+        <item>@string/mailbox_name_display_inbox</item>
+        <!-- TYPE_MAIL = 1 -->
+        <item></item>
+        <!-- TYPE_PARENT = 2 -->
+        <item></item>
+        <!-- TYPE_DRAFTS = 3 -->
+        <item>@string/mailbox_name_display_drafts</item>
+        <!-- TYPE_OUTBOX = 4 -->
+        <item>@string/mailbox_name_display_outbox</item>
+        <!-- TYPE_SENT = 5 -->
+        <item>@string/mailbox_name_display_sent</item>
+        <!-- TYPE_TRASH = 6 -->
+        <item>@string/mailbox_name_display_trash</item>
+        <!-- TYPE_JUNK = 7 -->
+        <item>@string/mailbox_name_display_junk</item>
+    </string-array>
+
+    <!-- Arrays "mailbox_display_names" and "mailbox_display_icons" MUST match the order
+         of the types of mailboxes defined in EmailContent -->
+    <array name="mailbox_display_icons" translatable="false">
+        <!-- TYPE_INBOX = 0 -->
+        <item>@drawable/ic_list_inbox</item>
+        <!-- TYPE_MAIL = 1 -->
+        <item>@drawable/ic_list_folder</item>
+        <!-- TYPE_PARENT = 2 -->
+        <item>@drawable/ic_list_folder</item>
+        <!-- TYPE_DRAFTS = 3 -->
+        <item>@drawable/ic_list_drafts</item>
+        <!-- TYPE_OUTBOX = 4 -->
+        <item>@drawable/ic_list_outbox</item>
+        <!-- TYPE_SENT = 5 -->
+        <item>@drawable/ic_list_sent</item>
+        <!-- TYPE_TRASH = 6 -->
+        <item>@drawable/ic_list_trash</item>
+        <!-- TYPE_JUNK = 7 -->
+        <item>@drawable/ic_list_spam</item>
+    </array>
 </resources>

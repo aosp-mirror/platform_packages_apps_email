@@ -23,17 +23,34 @@
     <uses-permission android:name="android.permission.INTERNET"/>
     <uses-permission android:name="android.permission.VIBRATE"/>
     <uses-permission android:name="android.permission.WRITE_EXTERNAL_STORAGE" />
- 
+    <uses-permission android:name="android.permission.GET_ACCOUNTS" />
+    <uses-permission android:name="android.permission.MANAGE_ACCOUNTS" />
+    <uses-permission android:name="android.permission.AUTHENTICATE_ACCOUNTS" />
+    <uses-permission android:name="android.permission.READ_SYNC_SETTINGS" />
+    <uses-permission android:name="android.permission.WRITE_SYNC_SETTINGS" />
+
+    <!--  For EAS purposes; could be removed when EAS has a permanent home -->
+    <uses-permission android:name="android.permission.WRITE_CONTACTS"/>
+
     <!-- Only required if a store implements push mail and needs to keep network open -->
     <uses-permission android:name="android.permission.WAKE_LOCK"/>
     <uses-permission android:name="android.permission.READ_PHONE_STATE"/>
-    
+
+    <!-- Grant permission to other apps to view attachments -->
     <permission android:name="com.android.email.permission.READ_ATTACHMENT"
                 android:permissionGroup="android.permission-group.MESSAGES"
                 android:protectionLevel="dangerous"
                 android:label="@string/read_attachment_label"
                 android:description="@string/read_attachment_desc"/>
     <uses-permission android:name="com.android.email.permission.READ_ATTACHMENT"/>
+
+    <!-- Grant permission to system apps to access provider (see provider below) -->
+    <permission android:name="com.android.email.permission.ACCESS_PROVIDER"
+                android:protectionLevel="signatureOrSystem"
+                android:label="@string/permission_access_provider_label"
+                android:description="@string/permission_access_provider_desc"/>
+    <uses-permission android:name="com.android.email.permission.ACCESS_PROVIDER"/>
+
     <application android:icon="@drawable/icon" android:label="@string/app_name"
         android:name="Email">
         <activity android:name=".activity.Welcome">
@@ -44,9 +61,11 @@
             </intent-filter>
         </activity>
 
+        <!-- Must be exported in order for the AccountManager to launch it -->
         <activity
             android:name=".activity.setup.AccountSetupBasics"
             android:label="@string/account_setup_basics_title"
+            android:exported="true"
             >
         </activity>
         <activity
@@ -98,8 +117,7 @@
             android:label="@string/debug_title">
         </activity>
         <activity
-            android:name=".activity.Accounts"
-            android:label="@string/accounts_title"
+            android:name=".activity.AccountFolderList"
             android:launchMode="singleTop" >
         </activity>
         
@@ -115,12 +133,17 @@
         </activity>
         
         <activity
-            android:name=".activity.FolderMessageList">
+            android:name=".activity.MailboxList">
+        </activity>
+        
+        <activity
+            android:name=".activity.MessageList">
             <intent-filter>
                 <!-- This action is only to allow an entry point for launcher shortcuts -->
                 <action android:name="android.intent.action.MAIN" />
             </intent-filter>
         </activity>
+                
         <activity
             android:name=".activity.MessageView"
             android:theme="@android:style/Theme.NoTitleBar" >
@@ -139,15 +162,24 @@
             </intent-filter>
             <intent-filter android:label="@string/app_name">
                 <action android:name="android.intent.action.SEND" />
-                <data android:mimeType="text/plain" />
-                <data android:mimeType="image/*" />
-                <data android:mimeType="video/*" />
+                <data android:mimeType="*/*" />
+                <category android:name="android.intent.category.DEFAULT" />
+            </intent-filter>
+            <intent-filter android:label="@string/app_name">
+                <action android:name="android.intent.action.SEND_MULTIPLE" />
+                <data android:mimeType="*/*" />
                 <category android:name="android.intent.category.DEFAULT" />
             </intent-filter>
         </activity>
-        <receiver android:name=".service.BootReceiver"
-              android:enabled="false"
-              >
+       <receiver android:name="com.android.exchange.EmailSyncAlarmReceiver"/>
+       <receiver android:name="com.android.exchange.MailboxAlarmReceiver"/>
+       <receiver android:name="com.android.exchange.BootReceiver" android:enabled="true">
+             <intent-filter>
+                <action android:name="android.intent.action.BOOT_COMPLETED" />
+            </intent-filter>
+       </receiver>
+
+       <receiver android:name=".service.BootReceiver" android:enabled="true">
             <intent-filter>
                 <action android:name="android.intent.action.BOOT_COMPLETED" />
             </intent-filter>
@@ -158,17 +190,55 @@
                 <action android:name="android.intent.action.DEVICE_STORAGE_OK" />
             </intent-filter>
         </receiver>
+
         <service
             android:name=".service.MailService"
             android:enabled="false"
             >
         </service>
+        
+        <!--Required stanza to register the ContactsSyncAdapterService with SyncManager -->
+        <service 
+            android:name="com.android.exchange.ContactsSyncAdapterService" 
+        	android:exported="true">
+            <intent-filter>
+                <action android:name="android.content.SyncAdapter" />
+            </intent-filter>
+            <meta-data android:name="android.content.SyncAdapter"
+                       android:resource="@xml/syncadapter_contacts" />
+        </service>
+
+        <!-- Add android:process=":remote" below to enable SyncManager as a separate process -->
+        <service
+            android:name="com.android.exchange.SyncManager"
+            android:enabled="true"
+            >
+        </service>
+
+        <!--Required stanza to register the EasAuthenticatorService with AccountManager -->
+        <service android:name=".service.EasAuthenticatorService" android:exported="true">
+            <intent-filter>
+                <action android:name="android.accounts.AccountAuthenticator" />
+            </intent-filter>
+            <meta-data android:name="android.accounts.AccountAuthenticator"
+                       android:resource="@xml/authenticator" />
+        </service>
+
         <provider
             android:name=".provider.AttachmentProvider"
             android:authorities="com.android.email.attachmentprovider"
             android:multiprocess="true"
             android:grantUriPermissions="true"
             android:readPermission="com.android.email.permission.READ_ATTACHMENT"
+            />
+
+        <!-- This provider MUST be protected by strict permissions, as granting access to
+             it exposes user passwords and other confidential information. -->
+        <provider
+            android:name=".provider.EmailProvider"
+            android:authorities="com.android.email.provider"
+            android:multiprocess="true"
+            android:permission="com.android.email.permission.ACCESS_PROVIDER"
             />
     </application>
 </manifest>

@@ -16,47 +16,80 @@
 
 package com.android.email.service;
 
-import com.android.email.Account;
+import com.android.email.Controller;
 import com.android.email.Email;
-import com.android.email.MessagingController;
-import com.android.email.MessagingListener;
-import com.android.email.Preferences;
 import com.android.email.R;
-import com.android.email.activity.Accounts;
-import com.android.email.activity.FolderMessageList;
+import com.android.email.activity.MessageList;
 import com.android.email.mail.MessagingException;
-import com.android.email.mail.Store;
-import com.android.email.mail.store.LocalStore;
+import com.android.email.provider.EmailContent.Account;
+import com.android.email.provider.EmailContent.AccountColumns;
+import com.android.email.provider.EmailContent.Mailbox;
 
 import android.app.AlarmManager;
 import android.app.Notification;
 import android.app.NotificationManager;
 import android.app.PendingIntent;
 import android.app.Service;
+import android.content.ContentUris;
+import android.content.ContentValues;
 import android.content.Context;
 import android.content.Intent;
+import android.database.Cursor;
 import android.net.Uri;
 import android.os.IBinder;
 import android.os.SystemClock;
-import android.text.TextUtils;
 import android.util.Config;
 import android.util.Log;
 
-import java.util.ArrayList;
 import java.util.HashMap;
 
 /**
+ * Background service for refreshing non-push email accounts.
  */
 public class MailService extends Service {
-    private static final String ACTION_CHECK_MAIL = "com.android.email.intent.action.MAIL_SERVICE_WAKEUP";
-    private static final String ACTION_RESCHEDULE = "com.android.email.intent.action.MAIL_SERVICE_RESCHEDULE";
-    private static final String ACTION_CANCEL = "com.android.email.intent.action.MAIL_SERVICE_CANCEL";
-    
-    private static final String EXTRA_CHECK_ACCOUNT = "com.android.email.intent.extra.ACCOUNT";
+    /** DO NOT CHECK IN "TRUE" */
+    private static final boolean DEBUG_FORCE_QUICK_REFRESH = false;     // force 1-minute refresh
 
-    private Listener mListener = new Listener();
+    private static final String LOG_TAG = "Email-MailService";
+
+    public static int NEW_MESSAGE_NOTIFICATION_ID = 1;
+
+    private static final String ACTION_CHECK_MAIL =
+        "com.android.email.intent.action.MAIL_SERVICE_WAKEUP";
+    private static final String ACTION_RESCHEDULE =
+        "com.android.email.intent.action.MAIL_SERVICE_RESCHEDULE";
+    private static final String ACTION_CANCEL =
+        "com.android.email.intent.action.MAIL_SERVICE_CANCEL";
+    private static final String ACTION_NOTIFY_MAIL =
+        "com.android.email.intent.action.MAIL_SERVICE_NOTIFY";
+
+    private static final String EXTRA_CHECK_ACCOUNT = "com.android.email.intent.extra.ACCOUNT";
+    private static final String EXTRA_ACCOUNT_INFO = "com.android.email.intent.extra.ACCOUNT_INFO";
+    private static final String EXTRA_DEBUG_WATCHDOG = "com.android.email.intent.extra.WATCHDOG";
+
+    private static final int WATCHDOG_DELAY = 10 * 60 * 1000;   // 10 minutes
+
+    private static final String[] NEW_MESSAGE_COUNT_PROJECTION =
+        new String[] {AccountColumns.NEW_MESSAGE_COUNT};
+
+    private Controller.Result mControllerCallback = new ControllerResults();
 
     private int mStartId;
+
+    /**
+     * Access must be synchronized, because there are accesses from the Controller callback
+     */
+    private static HashMap<Long,AccountSyncReport> mSyncReports =
+        new HashMap<Long,AccountSyncReport>();
+
+    /**
+     * Simple template used for clearing new message count in accounts
+     */
+    static ContentValues mClearNewMessages;
+    static {
+        mClearNewMessages = new ContentValues();
+        mClearNewMessages.put(Account.NEW_MESSAGE_COUNT, 0);
+    }
 
     public static void actionReschedule(Context context) {
         Intent i = new Intent();
@@ -71,234 +104,605 @@ public class MailService extends Service {
         i.setAction(MailService.ACTION_CANCEL);
         context.startService(i);
     }
-    
+
+    /**
+     * Reset new message counts for one or all accounts.  This clears both our local copy and
+     * the values (if any) stored in the account records.
+     *
+     * @param accountId account to clear, or -1 for all accounts
+     */
+    public static void resetNewMessageCount(Context context, long accountId) {
+        synchronized (mSyncReports) {
+            for (AccountSyncReport report : mSyncReports.values()) {
+                if (accountId == -1 || accountId == report.accountId) {
+                    report.numNewMessages = 0;
+                }
+            }
+        }
+        // now do the database - all accounts, or just one of them
+        Uri uri;
+        if (accountId == -1) {
+            uri = Account.CONTENT_URI;
+        } else {
+            uri = ContentUris.withAppendedId(Account.CONTENT_URI, accountId);
+        }
+        context.getContentResolver().update(uri, mClearNewMessages, null, null);
+    }
+
     /**
      * Entry point for asynchronous message services (e.g. push mode) to post notifications of new
-     * messages.  Note:  Although this is not a blocking call, it will start the MessagingController
-     * which will attempt to load the new messages.  So the Store should expect to be opened and
-     * fetched from shortly after making this call.
-     * 
-     * @param storeUri the Uri of the store that is reporting new messages
+     * messages.  This assumes that the push provider has already synced the messages into the
+     * appropriate database - this simply triggers the notification mechanism.
+     *
+     * @param context a context
+     * @param accountId the id of the account that is reporting new messages
+     * @param newCount the number of new messages
      */
-    public static void actionNotifyNewMessages(Context context, String storeUri) {
-        Intent i = new Intent(ACTION_CHECK_MAIL);
+    public static void actionNotifyNewMessages(Context context, long accountId) {
+        Intent i = new Intent(ACTION_NOTIFY_MAIL);
         i.setClass(context, MailService.class);
-        i.putExtra(EXTRA_CHECK_ACCOUNT, storeUri);
+        i.putExtra(EXTRA_CHECK_ACCOUNT, accountId);
         context.startService(i);
     }
 
     @Override
-    public void onStart(Intent intent, int startId) {
-        super.onStart(intent, startId);
-        this.mStartId = startId;
+    public int onStartCommand(Intent intent, int flags, int startId) {
+        super.onStartCommand(intent, flags, startId);
 
-        MessagingController controller = MessagingController.getInstance(getApplication());
-        controller.addListener(mListener);
-        if (ACTION_CHECK_MAIL.equals(intent.getAction())) {
+        // TODO this needs to be passed through the controller and back to us
+        this.mStartId = startId;
+        String action = intent.getAction();
+
+        Controller controller = Controller.getInstance(getApplication());
+        controller.addResultCallback(mControllerCallback);
+
+        if (ACTION_CHECK_MAIL.equals(action)) {
+            // If we have the data, restore the last-sync-times for each account
+            // These are cached in the wakeup intent in case the process was killed.
+            restoreSyncReports(intent);
+
+            // Sync a specific account if given
+            AlarmManager alarmManager = (AlarmManager)getSystemService(Context.ALARM_SERVICE);
+            long checkAccountId = intent.getLongExtra(EXTRA_CHECK_ACCOUNT, -1);
             if (Config.LOGD && Email.DEBUG) {
-                Log.d(Email.LOG_TAG, "*** MailService: checking mail");
+                Log.d(LOG_TAG, "action: check mail for id=" + checkAccountId);
             }
-            // Only check mail for accounts that have enabled automatic checking.  There is still
-            // a bug here in that we check every enabled account, on every refresh - irrespective
-            // of that account's refresh frequency - but this fixes the worst case of checking 
-            // accounts that should not have been checked at all.
-            // Also note:  Due to the organization of this service, you must gather the accounts
-            // and make a single call to controller.checkMail().
-            
-            // TODO: Notification for single push account will fire up checks on all other
-            // accounts.  This needs to be cleaned up for better efficiency.
-            String specificStoreUri = intent.getStringExtra(EXTRA_CHECK_ACCOUNT);
-            
-            ArrayList<Account> accountsToCheck = new ArrayList<Account>();
-            for (Account account : Preferences.getPreferences(this).getAccounts()) {
-                int interval = account.getAutomaticCheckIntervalMinutes();
-                String storeUri = account.getStoreUri();
-                if (interval > 0 || (storeUri != null && storeUri.equals(specificStoreUri))) {
-                    accountsToCheck.add(account);
+            if (checkAccountId >= 0) {
+                setWatchdog(checkAccountId, alarmManager);
+            }
+            // if no account given, or the given account cannot be synced - reschedule
+            if (checkAccountId == -1 || !syncOneAccount(controller, checkAccountId, startId)) {
+                // Prevent runaway on the current account by pretending it updated
+                if (checkAccountId != -1) {
+                    updateAccountReport(checkAccountId, 0);
                 }
-                
-                // For each account, switch pushmail on or off
-                enablePushMail(account, interval == Account.CHECK_INTERVAL_PUSH);
+                // Find next account to sync, and reschedule
+                reschedule(alarmManager);
+                stopSelf(startId);
             }
-            Account[] accounts = accountsToCheck.toArray(new Account[accountsToCheck.size()]);
-            controller.checkMail(this, accounts, mListener);
         }
-        else if (ACTION_CANCEL.equals(intent.getAction())) {
+        else if (ACTION_CANCEL.equals(action)) {
             if (Config.LOGD && Email.DEBUG) {
-                Log.d(Email.LOG_TAG, "*** MailService: cancel");
+                Log.d(LOG_TAG, "action: cancel");
             }
             cancel();
             stopSelf(startId);
         }
-        else if (ACTION_RESCHEDULE.equals(intent.getAction())) {
+        else if (ACTION_RESCHEDULE.equals(action)) {
             if (Config.LOGD && Email.DEBUG) {
-                Log.d(Email.LOG_TAG, "*** MailService: reschedule");
+                Log.d(LOG_TAG, "action: reschedule");
             }
-            reschedule();
+            // As a precaution, clear any outstanding Email notifications
+            // We could be smarter and only do this when the list of accounts changes,
+            // but that's an edge condition and this is much safer.
+            NotificationManager notificationManager =
+                (NotificationManager) getSystemService(Context.NOTIFICATION_SERVICE);
+            notificationManager.cancel(NEW_MESSAGE_NOTIFICATION_ID);
+
+            // When called externally, we refresh the sync reports table to pick up
+            // any changes in the account list or account settings
+            refreshSyncReports();
+            // Finally, scan for the next needing update, and set an alarm for it
+            AlarmManager alarmManager = (AlarmManager)getSystemService(Context.ALARM_SERVICE);
+            reschedule(alarmManager);
+            stopSelf(startId);
+        } else if (ACTION_NOTIFY_MAIL.equals(action)) {
+            long accountId = intent.getLongExtra(EXTRA_CHECK_ACCOUNT, -1);
+            // Get the current new message count
+            Cursor c = getContentResolver().query(
+                    ContentUris.withAppendedId(Account.CONTENT_URI, accountId),
+                    NEW_MESSAGE_COUNT_PROJECTION, null, null, null);
+            int newMessageCount = 0;
+            try {
+                if (c.moveToFirst()) {
+                    newMessageCount = c.getInt(0);
+                } else {
+                    // If the account no longer exists, set to -1 (which is handled below)
+                    accountId = -1;
+                }
+            } finally {
+                c.close();
+            }
+            if (Config.LOGD && Email.DEBUG) {
+                Log.d(LOG_TAG, "notify accountId=" + Long.toString(accountId)
+                        + " count=" + newMessageCount);
+            }
+            if (accountId != -1) {
+                updateAccountReport(accountId, newMessageCount);
+                notifyNewMessages(accountId);
+            }
             stopSelf(startId);
         }
+        
+        // Returning START_NOT_STICKY means that if a mail check is killed (e.g. due to memory
+        // pressure, there will be no explicit restart.  This is OK;  Note that we set a watchdog
+        // alarm before each mailbox check.  If the mailbox check never completes, the watchdog
+        // will fire and get things running again.
+        return START_NOT_STICKY;
+    }
+
+    @Override
+    public IBinder onBind(Intent intent) {
+        return null;
     }
 
     @Override
     public void onDestroy() {
         super.onDestroy();
-        MessagingController.getInstance(getApplication()).removeListener(mListener);
+        Controller.getInstance(getApplication()).removeResultCallback(mControllerCallback);
     }
 
     private void cancel() {
         AlarmManager alarmMgr = (AlarmManager)getSystemService(Context.ALARM_SERVICE);
-        Intent i = new Intent();
-        i.setClassName("com.android.email", "com.android.email.service.MailService");
-        i.setAction(ACTION_CHECK_MAIL);
-        PendingIntent pi = PendingIntent.getService(this, 0, i, 0);
+        PendingIntent pi = createAlarmIntent(-1, null, false);
         alarmMgr.cancel(pi);
     }
 
-    private void reschedule() {
-        AlarmManager alarmMgr = (AlarmManager)getSystemService(Context.ALARM_SERVICE);
-        Intent i = new Intent();
-        i.setClassName("com.android.email", "com.android.email.service.MailService");
-        i.setAction(ACTION_CHECK_MAIL);
-        PendingIntent pi = PendingIntent.getService(this, 0, i, 0);
+    /**
+     * Refresh the sync reports, to pick up any changes in the account list or account settings.
+     */
+    private void refreshSyncReports() {
+        synchronized (mSyncReports) {
+            // Make shallow copy of sync reports so we can recover the prev sync times
+            HashMap<Long,AccountSyncReport> oldSyncReports =
+                new HashMap<Long,AccountSyncReport>(mSyncReports);
 
-        int shortestInterval = -1;
-        for (Account account : Preferences.getPreferences(this).getAccounts()) {
-            int interval = account.getAutomaticCheckIntervalMinutes();
-            if (interval > 0 && (interval < shortestInterval || shortestInterval == -1)) {
-                shortestInterval = interval;
-            }
-            enablePushMail(account, interval == Account.CHECK_INTERVAL_PUSH);
-        }
+            // Delete the sync reports to force a refresh from live account db data
+            mSyncReports.clear();
+            setupSyncReportsLocked(-1);
 
-        if (shortestInterval == -1) {
-            alarmMgr.cancel(pi);
-        }
-        else {
-            alarmMgr.set(AlarmManager.ELAPSED_REALTIME_WAKEUP, SystemClock.elapsedRealtime()
-                    + (shortestInterval * (60 * 1000)), pi);
-        }
-    }
-
-    public IBinder onBind(Intent intent) {
-        return null;
-    }
-
-    class Listener extends MessagingListener {
-        HashMap<Account, Integer> accountsWithNewMail = new HashMap<Account, Integer>();
-
-        // TODO this should be redone because account is usually null, not very interesting.
-        // I think it would make more sense to pass Account[] here in case anyone uses it
-        // In any case, it should be noticed that this is called once per cycle
-        @Override
-        public void checkMailStarted(Context context, Account account) {
-            accountsWithNewMail.clear();
-        }
-
-        // Called once per checked account
-        @Override
-        public void checkMailFailed(Context context, Account account, String reason) {
-            if (Config.LOGD && Email.DEBUG) {
-                Log.d(Email.LOG_TAG, "*** MailService: checkMailFailed: " + reason);
-            }
-            reschedule();
-            stopSelf(mStartId);
-        }
-
-        // Called once per checked account
-        @Override
-        public void synchronizeMailboxFinished(
-                Account account,
-                String folder,
-                int totalMessagesInMailbox,
-                int numNewMessages) {
-            if (Config.LOGD && Email.DEBUG) {
-                Log.d(Email.LOG_TAG, "*** MailService: synchronizeMailboxFinished: total=" + 
-                        totalMessagesInMailbox + " new=" + numNewMessages);
-            }
-            if (account.isNotifyNewMail() && numNewMessages > 0) {
-                accountsWithNewMail.put(account, numNewMessages);
-            }
-        }
-
-        // TODO this should be redone because account is usually null, not very interesting.
-        // I think it would make more sense to pass Account[] here in case anyone uses it
-        // In any case, it should be noticed that this is called once per cycle
-        @Override
-        public void checkMailFinished(Context context, Account account) {
-            if (Config.LOGD && Email.DEBUG) {
-                Log.d(Email.LOG_TAG, "*** MailService: checkMailFinished");
-            }
-            NotificationManager notifMgr = (NotificationManager)context
-                    .getSystemService(Context.NOTIFICATION_SERVICE);
-
-            if (accountsWithNewMail.size() > 0) {
-                Notification notif = new Notification(R.drawable.stat_notify_email_generic,
-                        getString(R.string.notification_new_title), System.currentTimeMillis());
-                boolean vibrate = false;
-                String ringtone = null;
-                if (accountsWithNewMail.size() > 1) {
-                    for (Account account1 : accountsWithNewMail.keySet()) {
-                        if (account1.isVibrate()) vibrate = true;
-                        ringtone = account1.getRingtone();
+            // Restore prev-sync & next-sync times for any reports in the new list
+            for (AccountSyncReport newReport : mSyncReports.values()) {
+                AccountSyncReport oldReport = oldSyncReports.get(newReport.accountId);
+                if (oldReport != null) {
+                    newReport.prevSyncTime = oldReport.prevSyncTime;
+                    if (newReport.syncInterval > 0 && newReport.prevSyncTime != 0) {
+                        newReport.nextSyncTime =
+                            newReport.prevSyncTime + (newReport.syncInterval * 1000 * 60);
                     }
-                    Intent i = new Intent(context, Accounts.class);
-                    PendingIntent pi = PendingIntent.getActivity(context, 0, i, 0);
-                    notif.setLatestEventInfo(context, getString(R.string.notification_new_title),
-                            getResources().
-                                getQuantityString(R.plurals.notification_new_multi_account_fmt,
-                                    accountsWithNewMail.size(),
-                                    accountsWithNewMail.size()), pi);
-                } else {
-                    Account account1 = accountsWithNewMail.keySet().iterator().next();
-                    int totalNewMails = accountsWithNewMail.get(account1);
-                    Intent i = FolderMessageList.actionHandleAccountIntent(context, account1, Email.INBOX);
-                    PendingIntent pi = PendingIntent.getActivity(context, 0, i, 0);
-                    notif.setLatestEventInfo(context, getString(R.string.notification_new_title),
-                            getResources().
-                                getQuantityString(R.plurals.notification_new_one_account_fmt,
-                                    totalNewMails, totalNewMails,
-                                    account1.getDescription()), pi);
-                    vibrate = account1.isVibrate();
-                    ringtone = account1.getRingtone();
                 }
-                notif.defaults = Notification.DEFAULT_LIGHTS;
-                notif.sound = TextUtils.isEmpty(ringtone) ? null : Uri.parse(ringtone);
-                if (vibrate) {
-                    notif.defaults |= Notification.DEFAULT_VIBRATE;
-                }
-                notifMgr.notify(1, notif);
             }
-
-            reschedule();
-            stopSelf(mStartId);
         }
     }
 
     /**
-     * For any account that wants push mail, get its Store and start the pushmail service.
-     * This function makes no attempt to optimize, so accounts may have push enabled (or disabled)
-     * repeatedly, and should handle this appropriately.
-     * 
-     * @param account the account that needs push delivery enabled
+     * Create and send an alarm with the entire list.  This also sends a list of known last-sync
+     * times with the alarm, so if we are killed between alarms, we don't lose this info.
+     *
+     * @param alarmMgr passed in so we can mock for testing.
      */
-    private void enablePushMail(Account account, boolean enable) {
-        try {
-            String localUri = account.getLocalStoreUri();
-            String storeUri = account.getStoreUri();
-            if (localUri != null && storeUri != null) {
-                LocalStore localStore = (LocalStore) Store.getInstance(
-                        localUri, this.getBaseContext(), null);
-                Store store = Store.getInstance(storeUri, this.getBaseContext(), 
-                        localStore.getPersistentCallbacks());
-                if (store != null) {
-                    store.enablePushModeDelivery(enable);
+    /* package */ void reschedule(AlarmManager alarmMgr) {
+        // restore the reports if lost
+        setupSyncReports(-1);
+        synchronized (mSyncReports) {
+            int numAccounts = mSyncReports.size();
+            long[] accountInfo = new long[numAccounts * 2];     // pairs of { accountId, lastSync }
+            int accountInfoIndex = 0;
+
+            long nextCheckTime = Long.MAX_VALUE;
+            AccountSyncReport nextAccount = null;
+            long timeNow = SystemClock.elapsedRealtime();
+
+            for (AccountSyncReport report : mSyncReports.values()) {
+                if (report.syncInterval <= 0) {                         // no timed checks - skip
+                    continue;
+                }
+                long prevSyncTime = report.prevSyncTime;
+                long nextSyncTime = report.nextSyncTime;
+
+                // select next account to sync
+                if ((prevSyncTime == 0) || (nextSyncTime < timeNow)) {  // never checked, or overdue
+                    nextCheckTime = 0;
+                    nextAccount = report;
+                } else if (nextSyncTime < nextCheckTime) {              // next to be checked
+                    nextCheckTime = nextSyncTime;
+                    nextAccount = report;
+                }
+                // collect last-sync-times for all accounts
+                // this is using pairs of {long,long} to simplify passing in a bundle
+                accountInfo[accountInfoIndex++] = report.accountId;
+                accountInfo[accountInfoIndex++] = report.prevSyncTime;
+            }
+
+            // Clear out any unused elements in the array
+            while (accountInfoIndex < accountInfo.length) {
+                accountInfo[accountInfoIndex++] = -1;
+            }
+
+            // set/clear alarm as needed
+            long idToCheck = (nextAccount == null) ? -1 : nextAccount.accountId;
+            PendingIntent pi = createAlarmIntent(idToCheck, accountInfo, false);
+
+            if (nextAccount == null) {
+                alarmMgr.cancel(pi);
+                if (Config.LOGD && Email.DEBUG) {
+                    Log.d(LOG_TAG, "reschedule: alarm cancel - no account to check");
+                }
+            } else {
+                alarmMgr.set(AlarmManager.ELAPSED_REALTIME_WAKEUP, nextCheckTime, pi);
+                if (Config.LOGD && Email.DEBUG) {
+                    Log.d(LOG_TAG, "reschedule: alarm set at " + nextCheckTime
+                            + " for " + nextAccount);
                 }
             }
-        } catch (MessagingException me) {
-            if (Config.LOGD && Email.DEBUG) {
-                Log.d(Email.LOG_TAG, "Failed to enable push mail for account" + account.getName() +
-                        " with exception " + me.toString());
+        }
+    }
+
+    /**
+     * Create a watchdog alarm and set it.  This is used in case a mail check fails (e.g. we are
+     * killed by the system due to memory pressure.)  Normally, a mail check will complete and
+     * the watchdog will be replaced by the call to reschedule().
+     * @param accountId the account we were trying to check
+     * @param alarmMgr system alarm manager
+     */
+    private void setWatchdog(long accountId, AlarmManager alarmMgr) {
+        PendingIntent pi = createAlarmIntent(accountId, null, true);
+        long timeNow = SystemClock.elapsedRealtime();
+        long nextCheckTime = timeNow + WATCHDOG_DELAY;
+        alarmMgr.set(AlarmManager.ELAPSED_REALTIME_WAKEUP, nextCheckTime, pi);
+    }
+
+    /**
+     * Return a pending intent for use by this alarm.  Most of the fields must be the same
+     * (in order for the intent to be recognized by the alarm manager) but the extras can
+     * be different, and are passed in here as parameters.
+     */
+    /* package */ PendingIntent createAlarmIntent(long checkId, long[] accountInfo,
+            boolean isWatchdog) {
+        Intent i = new Intent();
+        i.setClassName("com.android.email", "com.android.email.service.MailService");
+        i.setAction(ACTION_CHECK_MAIL);
+        i.putExtra(EXTRA_CHECK_ACCOUNT, checkId);
+        i.putExtra(EXTRA_ACCOUNT_INFO, accountInfo);
+        if (isWatchdog) {
+            i.putExtra(EXTRA_DEBUG_WATCHDOG, true);
+        }
+        PendingIntent pi = PendingIntent.getService(this, 0, i, PendingIntent.FLAG_UPDATE_CURRENT);
+        return pi;
+    }
+
+    /**
+     * Start a controller sync for a specific account
+     *
+     * @param controller The controller to do the sync work
+     * @param checkAccountId the account Id to try and check
+     * @param startId the id of this service launch
+     * @return true if mail checking has started, false if it could not (e.g. bad account id)
+     */
+    private boolean syncOneAccount(Controller controller, long checkAccountId, int startId) {
+        long inboxId = Mailbox.findMailboxOfType(this, checkAccountId, Mailbox.TYPE_INBOX);
+        if (inboxId == Mailbox.NO_MAILBOX) {
+            return false;
+        } else {
+            controller.serviceCheckMail(checkAccountId, inboxId, startId, mControllerCallback);
+            return true;
+        }
+    }
+
+    /**
+     * Note:  Times are relative to SystemClock.elapsedRealtime()
+     */
+    private static class AccountSyncReport {
+        long accountId;
+        long prevSyncTime;      // 0 == unknown
+        long nextSyncTime;      // 0 == ASAP  -1 == don't sync
+        int numNewMessages;
+
+        int syncInterval;
+        boolean notify;
+        boolean vibrate;
+        Uri ringtoneUri;
+
+        String displayName;     // temporary, for debug logging
+
+
+        @Override
+        public String toString() {
+            return displayName + ": id=" + accountId + " prevSync=" + prevSyncTime
+                    + " nextSync=" + nextSyncTime + " numNew=" + numNewMessages;
+        }
+    }
+
+    /**
+     * scan accounts to create a list of { acct, prev sync, next sync, #new }
+     * use this to create a fresh copy.  assumes all accounts need sync
+     *
+     * @param accountId -1 will rebuild the list if empty.  other values will force loading
+     *   of a single account (e.g if it was created after the original list population)
+     */
+    /* package */ void setupSyncReports(long accountId) {
+        synchronized (mSyncReports) {
+            setupSyncReportsLocked(accountId);
+        }
+    }
+
+    /**
+     * Handle the work of setupSyncReports.  Must be synchronized on mSyncReports.
+     */
+    private void setupSyncReportsLocked(long accountId) {
+        if (accountId == -1) {
+            // -1 == reload the list if empty, otherwise exit immediately
+            if (mSyncReports.size() > 0) {
+                return;
+            }
+        } else {
+            // load a single account if it doesn't already have a sync record
+            if (mSyncReports.containsKey(accountId)) {
+                return;
             }
         }
+
+        // setup to add a single account or all accounts
+        Uri uri;
+        if (accountId == -1) {
+            uri = Account.CONTENT_URI;
+        } else {
+            uri = ContentUris.withAppendedId(Account.CONTENT_URI, accountId);
+        }
+
+        // TODO use a narrower projection here
+        Cursor c = getContentResolver().query(uri, Account.CONTENT_PROJECTION,
+                null, null, null);
+        try {
+            while (c.moveToNext()) {
+                AccountSyncReport report = new AccountSyncReport();
+                int syncInterval = c.getInt(Account.CONTENT_SYNC_INTERVAL_COLUMN);
+                int flags = c.getInt(Account.CONTENT_FLAGS_COLUMN);
+                String ringtoneString = c.getString(Account.CONTENT_RINGTONE_URI_COLUMN);
+
+                // For debugging only
+                if (DEBUG_FORCE_QUICK_REFRESH && syncInterval >= 0) {
+                    syncInterval = 1;
+                }
+
+                report.accountId = c.getLong(Account.CONTENT_ID_COLUMN);
+                report.prevSyncTime = 0;
+                report.nextSyncTime = (syncInterval > 0) ? 0 : -1;  // 0 == ASAP -1 == no sync
+                report.numNewMessages = 0;
+
+                report.syncInterval = syncInterval;
+                report.notify = (flags & Account.FLAGS_NOTIFY_NEW_MAIL) != 0;
+                report.vibrate = (flags & Account.FLAGS_VIBRATE) != 0;
+                report.ringtoneUri = (ringtoneString == null) ? null
+                        : Uri.parse(ringtoneString);
+
+                report.displayName = c.getString(Account.CONTENT_DISPLAY_NAME_COLUMN);
+
+                // TODO lookup # new in inbox
+                mSyncReports.put(report.accountId, report);
+            }
+        } finally {
+            c.close();
+        }
+    }
+
+    /**
+     * Update list with a single account's sync times and unread count
+     *
+     * @param accountId the account being updated
+     * @param newCount the number of new messages, or -1 if not being reported (don't update)
+     * @return the report for the updated account, or null if it doesn't exist (e.g. deleted)
+     */
+    /* package */ AccountSyncReport updateAccountReport(long accountId, int newCount) {
+        // restore the reports if lost
+        setupSyncReports(accountId);
+        synchronized (mSyncReports) {
+            AccountSyncReport report = mSyncReports.get(accountId);
+            if (report == null) {
+                // discard result - there is no longer an account with this id
+                Log.d(LOG_TAG, "No account to update for id=" + Long.toString(accountId));
+                return null;
+            }
+
+            // report found - update it (note - editing the report while in-place in the hashmap)
+            report.prevSyncTime = SystemClock.elapsedRealtime();
+            if (report.syncInterval > 0) {
+                report.nextSyncTime = report.prevSyncTime + (report.syncInterval * 1000 * 60);
+            }
+            if (newCount != -1) {
+                report.numNewMessages = newCount;
+            }
+            if (Config.LOGD && Email.DEBUG) {
+                Log.d(LOG_TAG, "update account " + report.toString());
+            }
+            return report;
+        }
+    }
+
+    /**
+     * when we receive an alarm, update the account sync reports list if necessary
+     * this will be the case when if we have restarted the process and lost the data
+     * in the global.
+     *
+     * @param restoreIntent the intent with the list
+     */
+    /* package */ void restoreSyncReports(Intent restoreIntent) {
+        // restore the reports if lost
+        setupSyncReports(-1);
+        synchronized (mSyncReports) {
+            long[] accountInfo = restoreIntent.getLongArrayExtra(EXTRA_ACCOUNT_INFO);
+            if (accountInfo == null) {
+                Log.d(LOG_TAG, "no data in intent to restore");
+                return;
+            }
+            int accountInfoIndex = 0;
+            int accountInfoLimit = accountInfo.length;
+            while (accountInfoIndex < accountInfoLimit) {
+                long accountId = accountInfo[accountInfoIndex++];
+                long prevSync = accountInfo[accountInfoIndex++];
+                AccountSyncReport report = mSyncReports.get(accountId);
+                if (report != null) {
+                    if (report.prevSyncTime == 0) {
+                        report.prevSyncTime = prevSync;
+                        if (report.syncInterval > 0 && report.prevSyncTime != 0) {
+                            report.nextSyncTime =
+                                report.prevSyncTime + (report.syncInterval * 1000 * 60);
+                        }
+                    }
+                }
+            }
+        }
+    }
+
+    class ControllerResults implements Controller.Result {
+
+        public void loadMessageForViewCallback(MessagingException result, long messageId,
+                int progress) {
+        }
+
+        public void loadAttachmentCallback(MessagingException result, long messageId,
+                long attachmentId, int progress) {
+        }
+
+        public void updateMailboxCallback(MessagingException result, long accountId,
+                long mailboxId, int progress, int numNewMessages) {
+            if (result != null || progress == 100) {
+                // We only track the inbox here in the service - ignore other mailboxes
+                long inboxId = Mailbox.findMailboxOfType(MailService.this,
+                        accountId, Mailbox.TYPE_INBOX);
+                if (mailboxId == inboxId) {
+                    if (progress == 100) {
+                        updateAccountReport(accountId, numNewMessages);
+                        if (numNewMessages > 0) {
+                            notifyNewMessages(accountId);
+                        }
+                    } else {
+                        updateAccountReport(accountId, -1);
+                    }
+                }
+                // Call the global refresh tracker for all mailboxes
+                Email.updateMailboxRefreshTime(mailboxId);
+            }
+        }
+
+        public void updateMailboxListCallback(MessagingException result, long accountId,
+                int progress) {
+        }
+
+        public void serviceCheckMailCallback(MessagingException result, long accountId,
+                long mailboxId, int progress, long tag) {
+            if (result != null || progress == 100) {
+                if (result != null) {
+                    // the checkmail ended in an error.  force an update of the refresh
+                    // time, so we don't just spin on this account
+                    updateAccountReport(accountId, -1);
+                }
+                AlarmManager alarmManager = (AlarmManager)getSystemService(Context.ALARM_SERVICE);
+                reschedule(alarmManager);
+                int serviceId = MailService.this.mStartId;
+                if (tag != 0) {
+                    serviceId = (int) tag;
+                }
+                stopSelf(serviceId);
+            }
+        }
+
+        public void sendMailCallback(MessagingException result, long accountId, long messageId,
+                int progress) {
+        }
+    }
+
+    /**
+     * Prepare notifications for a given new account having received mail
+     * The notification is organized around the account that has the new mail (e.g. selecting
+     * the alert preferences) but the notification will include a summary if other
+     * accounts also have new mail.
+     */
+    private void notifyNewMessages(long accountId) {
+        boolean notify = false;
+        boolean vibrate = false;
+        Uri ringtone = null;
+        int accountsWithNewMessages = 0;
+        int numNewMessages = 0;
+        String reportName = null;
+        synchronized (mSyncReports) {
+            for (AccountSyncReport report : mSyncReports.values()) {
+                if (report.numNewMessages == 0) {
+                    continue;
+                }
+                numNewMessages += report.numNewMessages;
+                accountsWithNewMessages += 1;
+                if (report.accountId == accountId) {
+                    notify = report.notify;
+                    vibrate = report.vibrate;
+                    ringtone = report.ringtoneUri;
+                    reportName = report.displayName;
+                }
+            }
+        }
+        if (!notify) {
+            return;
+        }
+
+        // set up to post a notification
+        Intent intent;
+        String reportString;
+
+        if (accountsWithNewMessages == 1) {
+            // Prepare a report for a single account
+            // "12 unread (gmail)"
+            reportString = getResources().getQuantityString(
+                    R.plurals.notification_new_one_account_fmt, numNewMessages,
+                    numNewMessages, reportName);
+            intent = MessageList.actionHandleAccountIntent(this,
+                    accountId, -1, Mailbox.TYPE_INBOX);
+        } else {
+            // Prepare a report for multiple accounts
+            // "4 accounts"
+            reportString = getResources().getQuantityString(
+                    R.plurals.notification_new_multi_account_fmt, accountsWithNewMessages,
+                    accountsWithNewMessages);
+            intent = MessageList.actionHandleAccountIntent(this,
+                    -1, Mailbox.QUERY_ALL_INBOXES, -1);
+        }
+
+        // prepare appropriate pending intent, set up notification, and send
+        PendingIntent pending =
+            PendingIntent.getActivity(this, 0, intent, PendingIntent.FLAG_UPDATE_CURRENT);
+
+        Notification notification = new Notification(
+                R.drawable.stat_notify_email_generic,
+                getString(R.string.notification_new_title),
+                System.currentTimeMillis());
+        notification.setLatestEventInfo(this,
+                getString(R.string.notification_new_title),
+                reportString,
+                pending);
+
+        notification.sound = ringtone;
+        // Use same code here as in Gmail and GTalk for vibration
+        if (vibrate) {
+            notification.defaults |= Notification.DEFAULT_VIBRATE;
+        }
+
+        // This code is identical to that used by Gmail and GTalk for notifications
+        notification.flags |= Notification.FLAG_SHOW_LIGHTS;
+        notification.ledARGB = 0xff00ff00;
+        notification.ledOnMS = 500;
+        notification.ledOffMS = 2000;
+
+        NotificationManager notificationManager =
+            (NotificationManager) getSystemService(Context.NOTIFICATION_SERVICE);
+        notificationManager.notify(NEW_MESSAGE_NOTIFICATION_ID, notification);
     }
 }

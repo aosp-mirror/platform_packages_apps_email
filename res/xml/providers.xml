@@ -51,32 +51,35 @@
 
         Valid incoming uri schemes are:
             imap        IMAP with no transport security.
-            imap+tls    IMAP with optional TLS transport security.
-                            If TLS is not available the connection is made as "imap"
             imap+tls+   IMAP with required TLS transport security.
-                            If TLS is not available the conneciton fails.
+                            If TLS is not available the connection fails.
             imap+ssl+   IMAP with required SSL transport security.
                             If SSL is not available the connection fails.
 
             pop3        POP3 with no transport security.
-            pop3+tls    POP3 with optional TLS transport security.
-                            If TLS is not available the connection is made as "pop3"
             pop3+tls+   POP3 with required TLS transport security.
-                            If TLS is not available the conneciton fails.
+                            If TLS is not available the connection fails.
             pop3+ssl+   POP3 with required SSL transport security.
                             If SSL is not available the connection fails.
 
         Valid outgoing uri schemes are:
             smtp        SMTP with no transport security.
-            smtp+tls    SMTP with optional TLS transport security.
-                            If TLS is not available the connection is made as "smtp"
             smtp+tls+   SMTP with required TLS transport security.
-                            If TLS is not available the conneciton fails.
+                            If TLS is not available the connection fails.
             smtp+ssl+   SMTP with required SSL transport security.
                             If SSL is not available the connection fails.
 
+        To the above schemes you may also add "trustallcerts" to indicate that,
+        although link encryption is still required, "non-trusted" certificates may
+        will be excepted.  For example, "imap+ssl+trustallcerts" or
+        "smtp+tls+trustallcerts".  This should only used when necessary, as it
+        could allow a spoofed server to intercept password and mail.
+
         The URIs should be full templates for connection, including a port if
-        the service uses a non-default port.
+        the service uses a non-default port.  The default ports are as follows:
+            imap        143     pop3        110     smtp        587
+            imap+tls+   143     pop3+tls+   110     smtp+tls+   587
+            imap+ssl+   993     pop3+ssl+   995     smtp+ssl+   465
 
         The username attribute is used to supply a template for the username
         that will be presented to the server. This username is built from a
@@ -116,13 +119,15 @@
     </provider>
 
     <!-- USA -->
+    <!-- Note, AOL appears to support SSL on both sides, as well -->
     <provider id="aim" label="AIM" domain="aim.com">
         <incoming uri="imap://imap.aim.com" label="IMAP" username="$email" />
-        <outgoing uri="smtp://smtp.aim.com:587" username="$email" />
+        <outgoing uri="smtp://smtp.aim.com" username="$email" />
     </provider>
+    <!-- Note, AOL appears to support SSL on both sides, as well -->
     <provider id="aol" label="AOL" domain="aol.com">
         <incoming uri="imap://imap.aol.com" label="IMAP" username="$email" />
-        <outgoing uri="smtp://smtp.aol.com:587" username="$email" />
+        <outgoing uri="smtp://smtp.aol.com" username="$email" />
     </provider>
     <provider id="comcast" label="Comcast" domain="comcast.net">
         <incoming uri="pop3+ssl+://mail.comcast.net" username="$user" />
@@ -132,9 +137,13 @@
         <incoming uri="imap://imap.cs.com" username="$user" />
         <outgoing uri="smtp://smtp.cs.com" username="$user" />
     </provider>
+    <provider id="cox" label="Cox" domain="cox.net">
+        <incoming uri="pop3+ssl+://pop.east.cox.net" username="$user" />
+        <outgoing uri="smtp+ssl+://smtp.east.cox.net" username="$user" />
+    </provider> 
     <provider id="dotmac" label=".Mac" domain="mac.com">
-        <incoming uri="imap+tls://mail.mac.com" username="$email" />
-        <outgoing uri="smtp+tls://smtp.mac.com" username="$email" />
+        <incoming uri="imap+ssl+://mail.mac.com" username="$email" />
+        <outgoing uri="smtp+tls+trustallcerts://smtp.mac.com" username="$email" />
     </provider>
     <provider id="earthlink" label="Earthlink" domain="earthlink.net">
         <incoming uri="pop3://pop.earthlink.net" username="$email" />
@@ -159,9 +168,10 @@
         <incoming uri="pop3+ssl+://pop3.live.com"  username="$email" />
         <outgoing uri="smtp+tls+://smtp.live.com" username="$email" />
     </provider>
+    <!-- Note: Mac Mail.app sets IMAP to mail.mac.com, but it's the same server -->
     <provider id="mobileme" label="MobileMe" domain="me.com">
-        <incoming uri="imap+tls://mail.me.com" username="$email" />
-        <outgoing uri="smtp+tls://smtp.me.com" username="$email" />
+        <incoming uri="imap+ssl+://mail.me.com" username="$email" />
+        <outgoing uri="smtp+tls+trustallcerts://smtp.me.com" username="$email" />
     </provider>
     <provider id="netzero" label="NetZero" domain="netzero.com">
         <incoming uri="pop3://pop.netzero.com" username="$user" />
@@ -200,8 +210,8 @@
         <outgoing uri="smtp+ssl://mx.freenet.de" username="$email" />
     </provider>
     <provider id="gmx" label="GMX" domain="gmx.de">
-        <incoming uri="pop3+tls://pop.gmx.net" username="$email" />
-        <outgoing uri="smtp+tls://mail.gmx.net" username="$email" />
+        <incoming uri="pop3://pop.gmx.net" username="$email" />
+        <outgoing uri="smtp://mail.gmx.net" username="$email" />
     </provider>
     <provider id="T-Online" label="T-Online" domain="t-online.de" 
               note="@string/provider_note_t_online">
@@ -209,8 +219,8 @@
         <outgoing uri="smtp://smtpmail.t-online.de" username="$email" />
     </provider>
     <provider id="web.de" label="Web.de" domain="web.de">
-        <incoming uri="pop3+tls://pop3.web.de" username="$user" />
-        <outgoing uri="smtp+tls://smtp.web.de" username="$user" />
+        <incoming uri="pop3://pop3.web.de" username="$user" />
+        <outgoing uri="smtp://smtp.web.de" username="$user" />
     </provider>
 
     <!-- Netherlands -->
