@@ -16,6 +16,7 @@
 
 package com.android.email.activity;
 
+import com.android.common.Patterns;
 import com.android.email.Controller;
 import com.android.email.Email;
 import com.android.email.R;
@@ -58,7 +59,6 @@ import android.provider.ContactsContract.Contacts;
 import android.provider.ContactsContract.QuickContact;
 import android.provider.ContactsContract.StatusUpdates;
 import android.text.TextUtils;
-import android.text.util.Regex;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.Menu;
@@ -1309,7 +1309,7 @@ public class MessageView extends Activity implements OnClickListener {
                 // Escape any inadvertent HTML in the text message
                 text = EmailHtmlUtil.escapeCharacterToDisplay(text);
                 // Find any embedded URL's and linkify
-                Matcher m = Regex.WEB_URL_PATTERN.matcher(text);
+                Matcher m = Patterns.WEB_URL.matcher(text);
                 while (m.find()) {
                     int start = m.start();
                     /*
@@ -1326,7 +1326,7 @@ public class MessageView extends Activity implements OnClickListener {
                             // because WebView could follow only lower case protocol link.
                             link = proto.group().toLowerCase() + url.substring(proto.end());
                         } else {
-                            // Regex.WEB_URL_PATTERN matches URL without protocol part,
+                            // Patterns.WEB_URL matches URL without protocol part,
                             // so added default protocol to link.
                             link = "http://" + url;
                         }
@@ -1470,7 +1470,7 @@ public class MessageView extends Activity implements OnClickListener {
 //                          */
 //                         StringBuffer sb = new StringBuffer("<html><body>");
 //                         if (text != null) {
-//                             Matcher m = Regex.WEB_URL_PATTERN.matcher(text);
+//                             Matcher m = Patterns.WEB_URL.matcher(text);
 //                             while (m.find()) {
 //                                 int start = m.start();
 //                                 /*
@@ -1488,7 +1488,7 @@ public class MessageView extends Activity implements OnClickListener {
 //                                         link = proto.group().toLowerCase()
 //                                             + url.substring(proto.end());
 //                                     } else {
-//                                         // Regex.WEB_URL_PATTERN matches URL without protocol part,
+//                                         // Patterns.WEB_URL matches URL without protocol part,
 //                                         // so added default protocol to link.
 //                                         link = "http://" + url;
 //                                     }
