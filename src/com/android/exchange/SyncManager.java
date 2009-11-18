@@ -324,7 +324,10 @@ public class SyncManager extends Service implements Runnable {
                         // If it's a login failure, look a little harder
                         Mailbox m = Mailbox.restoreMailboxWithId(INSTANCE, mailboxId);
                         // If it's for the account whose host has changed, clear the error
-                        if (m.mAccountKey == accountId) {
+                        // If the mailbox is no longer around, remove the entry in the map
+                        if (m == null) {
+                            INSTANCE.mSyncErrorMap.remove(mailboxId);
+                        } else if (m.mAccountKey == accountId) {
                             error.fatal = false;
                             error.holdEndTime = 0;
                         }
