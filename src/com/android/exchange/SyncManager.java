@@ -294,8 +294,8 @@ public class SyncManager extends Service implements Runnable {
                 kick("start outbox");
                 // Outbox can't be synced in EAS
                 return;
-            } else if (m.mType == Mailbox.TYPE_DRAFTS) {
-                // Drafts can't be synced in EAS
+            } else if (m.mType == Mailbox.TYPE_DRAFTS || m.mType == Mailbox.TYPE_TRASH) {
+                // Drafts & Trash can't be synced in EAS
                 return;
             }
             startManualSync(mailboxId, SyncManager.SYNC_SERVICE_START_SYNC, null);
