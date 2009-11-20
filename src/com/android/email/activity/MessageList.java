@@ -604,8 +604,22 @@ public class MessageList extends ListActivity implements OnItemClickListener, On
     }
 
     private void onSendPendingMessages() {
-        long accountId = lookupAccountIdFromMailboxId(mMailboxId);
-        mController.sendPendingMessages(accountId, mControllerCallback);
+        if (mMailboxId == Mailbox.QUERY_ALL_OUTBOX) {
+            // For the combined Outbox, we loop through all accounts and send the messages
+            Cursor c = mResolver.query(Account.CONTENT_URI, Account.ID_PROJECTION,
+                    null, null, null);
+            try {
+                while (c.moveToNext()) {
+                    long accountId = c.getLong(Account.ID_PROJECTION_COLUMN);
+                    mController.sendPendingMessages(accountId, mControllerCallback);
+                }
+            } finally {
+                c.close();
+            }
+        } else {
+            long accountId = lookupAccountIdFromMailboxId(mMailboxId);
+            mController.sendPendingMessages(accountId, mControllerCallback);
+        }
     }
 
     private void onDelete(long messageId, long accountId) {
