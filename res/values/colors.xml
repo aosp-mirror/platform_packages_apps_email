@@ -15,8 +15,8 @@
 -->
 
 <resources>
-    <color name="message_list_item_background_unread">#363636</color>
-    <color name="message_list_item_background_read">#1a1a1a</color>
+    <color name="message_list_item_background_unread">#404040</color>
+    <color name="message_list_item_background_read">#000000</color>
     <color name="account_folder_list_item_separator">#303030</color>
     <color name="connection_error_banner">#fffff1a8</color>
 </resources>
