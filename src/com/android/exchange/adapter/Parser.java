@@ -21,8 +21,6 @@ import com.android.exchange.Eas;
 import com.android.exchange.EasException;
 import com.android.exchange.utility.FileLogger;
 
-import org.kxml2.wap.Wbxml;
-
 import android.content.Context;
 import android.util.Log;
 

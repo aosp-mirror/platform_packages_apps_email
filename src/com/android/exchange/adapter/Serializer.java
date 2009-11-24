@@ -26,8 +26,6 @@ package com.android.exchange.adapter;
 import com.android.exchange.Eas;
 import com.android.exchange.utility.FileLogger;
 
-import org.kxml2.wap.Wbxml;
-
 import android.util.Log;
 
 import java.io.ByteArrayOutputStream;
