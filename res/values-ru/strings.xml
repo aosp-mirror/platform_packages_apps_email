@@ -52,7 +52,7 @@
     <string name="accounts_action" msgid="901105887272231493">"Аккаунты"</string>
     <string name="mark_as_read_action" msgid="5031651846998842419">"Отметить как прочитанные"</string>
     <string name="mark_as_unread_action" msgid="3766298115778767554">"Отметить как непрочитанное"</string>
-    <string name="add_cc_bcc_action" msgid="5569074812077509737">"Добавить копию или скрытую копию"</string>
+    <string name="add_cc_bcc_action" msgid="5569074812077509737">"Добавить копию"</string>
     <string name="add_attachment_action" msgid="2696013743130573897">"Добавить приложение"</string>
     <string name="dump_settings_action" msgid="4478192525236169829">"Настройки дампа"</string>
     <string name="choose_attachment_dialog_title" msgid="81937507117528954">"Выбрать приложение"</string>
