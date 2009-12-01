@@ -86,6 +86,8 @@ public class MessageList extends ListActivity implements OnItemClickListener, On
         "com.android.email.activity.MessageList.selectedItemTop";
     private static final String STATE_SELECTED_POSITION =
         "com.android.email.activity.MessageList.selectedPosition";
+    private static final String STATE_CHECKED_ITEMS =
+        "com.android.email.activity.MessageList.checkedItems";
 
     // UI support
     private ListView mListView;
@@ -354,6 +356,14 @@ public class MessageList extends ListActivity implements OnItemClickListener, On
         saveListPosition();
         outState.putInt(STATE_SELECTED_POSITION, mSavedItemPosition);
         outState.putInt(STATE_SELECTED_ITEM_TOP, mSavedItemTop);
+        Set<Long> checkedset = mListAdapter.getSelectedSet();
+        long[] checkedarray = new long[checkedset.size()];
+        int i = 0;
+        for (Long l : checkedset) {
+            checkedarray[i] = l;
+            i++;
+        }
+        outState.putLongArray(STATE_CHECKED_ITEMS, checkedarray);
     }
 
     @Override
@@ -361,11 +371,15 @@ public class MessageList extends ListActivity implements OnItemClickListener, On
         super.onRestoreInstanceState(savedInstanceState);
         mSavedItemTop = savedInstanceState.getInt(STATE_SELECTED_ITEM_TOP, 0);
         mSavedItemPosition = savedInstanceState.getInt(STATE_SELECTED_POSITION, -1);
+        Set<Long> checkedset = mListAdapter.getSelectedSet();
+        for (long l: savedInstanceState.getLongArray(STATE_CHECKED_ITEMS)) {
+            checkedset.add(l);
+        }
     }
 
     private void saveListPosition() {
         mSavedItemPosition = getListView().getSelectedItemPosition();
-        if (mSavedItemPosition >= 0) {
+        if (mSavedItemPosition >= 0 && getListView().isSelected()) {
             mSavedItemTop = getListView().getSelectedView().getTop();
         } else {
             mSavedItemPosition = getListView().getFirstVisiblePosition();
@@ -1411,7 +1425,7 @@ public class MessageList extends ListActivity implements OnItemClickListener, On
     /**
      * This class implements the adapter for displaying messages based on cursors.
      */
-    /* package */ class MessageListAdapter extends CursorAdapter {
+    /* package */ public class MessageListAdapter extends CursorAdapter {
 
         public static final int COLUMN_ID = 0;
         public static final int COLUMN_MAILBOX_KEY = 1;
@@ -1449,7 +1463,6 @@ public class MessageList extends ListActivity implements OnItemClickListener, On
         private static final long REFRESH_INTERVAL_MS = 2500;
         
         private java.text.DateFormat mDateFormat;
-        private java.text.DateFormat mDayFormat;
         private java.text.DateFormat mTimeFormat;
 
         private HashSet<Long> mChecked = new HashSet<Long>();
@@ -1474,7 +1487,6 @@ public class MessageList extends ListActivity implements OnItemClickListener, On
             mTextColorSecondary = resources.getColorStateList(array.getResourceId(0, 0));
 
             mDateFormat = android.text.format.DateFormat.getDateFormat(context);    // short date
-            mDayFormat = android.text.format.DateFormat.getDateFormat(context);     // TODO: day
             mTimeFormat = android.text.format.DateFormat.getTimeFormat(context);    // 12/24 time
         }
 
