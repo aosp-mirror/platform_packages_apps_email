@@ -226,8 +226,8 @@
     <string name="account_settings_notifications" msgid="1042620094281375043">"Настройки уведомлений"</string>
     <string name="account_settings_sync_contacts_enable" msgid="1369272986009573218">"Синхронизировать контакты"</string>
     <string name="account_settings_sync_contacts_summary" msgid="8901452720940015928">"Также синхронизировать контакты из этого аккаунта"</string>
-    <string name="account_settings_vibrate_enable" msgid="8045133290388856478">"Вибрация"</string>
-    <string name="account_settings_vibrate_summary" msgid="3690631050585589365">"Вибрация при получении сообщения"</string>
+    <string name="account_settings_vibrate_enable" msgid="8045133290388856478">"Вибровызов"</string>
+    <string name="account_settings_vibrate_summary" msgid="3690631050585589365">"Вибросигнал при получении сообщения"</string>
     <string name="account_settings_ringtone" msgid="7922187231467500404">"Выбрать мелодию"</string>
     <string name="account_settings_servers" msgid="4925493817981624242">"Настройки сервера"</string>
     <string name="account_delete_dlg_title" msgid="6806087520856396608">"Удалить аккаунт"</string>
