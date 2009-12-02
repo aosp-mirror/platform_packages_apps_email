@@ -85,7 +85,11 @@ public class EmailServiceProxy implements IEmailService {
             if (DEBUG_PROXY) {
                 Log.v(TAG, "Service " + mClass.getSimpleName() + " connected");
             }
-            runTask();
+            // Run our task on a new thread
+            new Thread(new Runnable() {
+                public void run() {
+                    runTask();
+                }}).start();
         }
 
         public void onServiceDisconnected(ComponentName name) {
