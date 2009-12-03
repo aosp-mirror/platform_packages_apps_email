@@ -145,9 +145,6 @@
     <string name="account_setup_names_user_name_label" msgid="8967410178488604770">"您的姓名 (顯示於外寄郵件)"</string>
     <string name="account_setup_account_type_title" msgid="6645576356752495504">"新增電子郵件帳戶"</string>
     <string name="account_setup_account_type_instructions" msgid="114515540798408760">"帳戶類型為何？"</string>
-    <string name="account_setup_account_type_pop_action" msgid="3958144865724586762">"POP3 帳戶"</string>
-    <string name="account_setup_account_type_imap_action" msgid="3471220237309488124">"IMAP 帳戶"</string>
-    <string name="account_setup_account_type_exchange_action" msgid="7424283706321767987">"Exchange 帳戶"</string>
     <string name="account_setup_incoming_title" msgid="6862032674547580337">"收信伺服器設定"</string>
     <string name="account_setup_incoming_username_label" msgid="5700581386104070302">"使用者名稱"</string>
     <string name="account_setup_incoming_password_label" msgid="6365327603172559859">"密碼"</string>

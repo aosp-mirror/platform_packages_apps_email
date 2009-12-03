@@ -145,9 +145,6 @@
     <string name="account_setup_names_user_name_label" msgid="8967410178488604770">"Dit navn (vises på udgående beskeder)"</string>
     <string name="account_setup_account_type_title" msgid="6645576356752495504">"Tilføj ny e-mail-konto"</string>
     <string name="account_setup_account_type_instructions" msgid="114515540798408760">"Hvilken slags konto er dette?"</string>
-    <string name="account_setup_account_type_pop_action" msgid="3958144865724586762">"POP3-konto"</string>
-    <string name="account_setup_account_type_imap_action" msgid="3471220237309488124">"IMAP-konto"</string>
-    <string name="account_setup_account_type_exchange_action" msgid="7424283706321767987">"Exchange-konto"</string>
     <string name="account_setup_incoming_title" msgid="6862032674547580337">"Indstillinger for indgående server"</string>
     <string name="account_setup_incoming_username_label" msgid="5700581386104070302">"Brugernavn"</string>
     <string name="account_setup_incoming_password_label" msgid="6365327603172559859">"Adgangskode"</string>

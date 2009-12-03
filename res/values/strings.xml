@@ -346,12 +346,17 @@
     <string name="account_setup_account_type_title">Add new email account</string>
     <!-- "Add new email account" screen, text that appears on screen -->
     <string name="account_setup_account_type_instructions">What type of account is this?</string>
-    <!-- "Add new email account" screen, button name in response to what type of account this is -->
-    <string name="account_setup_account_type_pop_action">POP3 account</string>
-    <!-- "Add new email account" screen, button name in response to what type of account this is -->
-    <string name="account_setup_account_type_imap_action">IMAP account</string>
-    <!-- "Add new email account" screen, button name in response to what type of account this is -->
-    <string name="account_setup_account_type_exchange_action">Exchange account</string>
+
+    <!-- Do Not Translate. "Add new email account" screen, button name in response to what
+         type of account this is -->
+    <string name="account_setup_account_type_pop_action">POP3</string>
+    <!-- Do Not Translate. "Add new email account" screen, button name in response to what
+         type of account this is -->
+    <string name="account_setup_account_type_imap_action">IMAP</string>
+    <!-- Do Not Translate. "Add new email account" screen, button name in response to what
+         type of account this is -->
+    <string name="account_setup_account_type_exchange_action">Exchange</string>
+
     <!-- "Incoming server settings" screen, label for text field -->
     <string name="account_setup_incoming_title">Incoming server settings</string>
     <!-- "Incoming server settings" screen, label for text field -->
