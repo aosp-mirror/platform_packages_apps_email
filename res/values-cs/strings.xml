@@ -145,9 +145,6 @@
     <string name="account_setup_names_user_name_label" msgid="8967410178488604770">"Vaše jméno (zobrazované v odchozích zprávách)"</string>
     <string name="account_setup_account_type_title" msgid="6645576356752495504">"Přidat nový e-mailový účet"</string>
     <string name="account_setup_account_type_instructions" msgid="114515540798408760">"O jaký typ účtu se jedná?"</string>
-    <string name="account_setup_account_type_pop_action" msgid="3958144865724586762">"Účet POP3"</string>
-    <string name="account_setup_account_type_imap_action" msgid="3471220237309488124">"Účet IMAP"</string>
-    <string name="account_setup_account_type_exchange_action" msgid="7424283706321767987">"Účet Exchange"</string>
     <string name="account_setup_incoming_title" msgid="6862032674547580337">"Nastavení serveru příchozí pošty"</string>
     <string name="account_setup_incoming_username_label" msgid="5700581386104070302">"Uživatelské jméno"</string>
     <string name="account_setup_incoming_password_label" msgid="6365327603172559859">"Heslo"</string>
