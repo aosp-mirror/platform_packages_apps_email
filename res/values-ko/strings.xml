@@ -162,10 +162,6 @@
     <string name="account_setup_names_user_name_label" msgid="8967410178488604770">"이름(발신 메시지에 표시)"</string>
     <string name="account_setup_account_type_title" msgid="6645576356752495504">"새 이메일 계정 추가"</string>
     <string name="account_setup_account_type_instructions" msgid="114515540798408760">"계정 유형이 무엇입니까?"</string>
-    <string name="account_setup_account_type_pop_action" msgid="3958144865724586762">"POP3 계정"</string>
-    <string name="account_setup_account_type_imap_action" msgid="3471220237309488124">"IMAP 계정"</string>
-    <!-- no translation found for account_setup_account_type_exchange_action (7424283706321767987) -->
-    <skip />
     <string name="account_setup_incoming_title" msgid="6862032674547580337">"수신 서버 설정"</string>
     <string name="account_setup_incoming_username_label" msgid="5700581386104070302">"사용자 이름"</string>
     <string name="account_setup_incoming_password_label" msgid="6365327603172559859">"비밀번호"</string>
