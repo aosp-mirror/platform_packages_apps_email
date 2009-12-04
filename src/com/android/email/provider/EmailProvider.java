@@ -369,7 +369,7 @@ public class EmailProvider extends ContentProvider {
                 "; end");
 
         // Change a message's read state
-        db.execSQL("create trigger unread_message_read AFTER update of " +
+        db.execSQL("create trigger unread_message_read before update of " +
                 MessageColumns.FLAG_READ + " on " + Message.TABLE_NAME +
                 " when OLD." + MessageColumns.FLAG_READ + "!=NEW." + MessageColumns.FLAG_READ +
                 " begin update " + Mailbox.TABLE_NAME + " set " + MailboxColumns.UNREAD_COUNT +
@@ -408,7 +408,7 @@ public class EmailProvider extends ContentProvider {
             + ");";
         db.execSQL("create table " + Account.TABLE_NAME + s);
         // Deleting an account deletes associated Mailboxes and HostAuth's
-        db.execSQL("create trigger account_delete AFTER delete on " + Account.TABLE_NAME +
+        db.execSQL("create trigger account_delete before delete on " + Account.TABLE_NAME +
                 " begin delete from " + Mailbox.TABLE_NAME +
                 " where " + MailboxColumns.ACCOUNT_KEY + "=old." + EmailContent.RECORD_ID +
                 "; delete from " + HostAuth.TABLE_NAME +
