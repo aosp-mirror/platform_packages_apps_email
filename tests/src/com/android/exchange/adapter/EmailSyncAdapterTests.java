@@ -14,22 +14,50 @@
  * limitations under the License.
  */
 
-package com.android.exchange;
+package com.android.exchange.adapter;
 
+import com.android.email.provider.EmailContent;
+import com.android.email.provider.EmailProvider;
+import com.android.email.provider.ProviderTestUtils;
 import com.android.email.provider.EmailContent.Account;
+import com.android.email.provider.EmailContent.Body;
 import com.android.email.provider.EmailContent.Mailbox;
-import com.android.exchange.adapter.EmailSyncAdapter;
+import com.android.email.provider.EmailContent.Message;
+import com.android.exchange.EasSyncService;
 import com.android.exchange.adapter.EmailSyncAdapter.EasEmailSyncParser;
 
-import android.test.AndroidTestCase;
+import android.content.ContentResolver;
+import android.content.ContentUris;
+import android.content.ContentValues;
+import android.content.Context;
+import android.test.ProviderTestCase2;
 
 import java.io.ByteArrayInputStream;
 import java.io.IOException;
 import java.io.InputStream;
+import java.util.ArrayList;
 import java.util.GregorianCalendar;
 import java.util.TimeZone;
 
-public class EasEmailSyncAdapterTests extends AndroidTestCase {
+public class EmailSyncAdapterTests extends ProviderTestCase2<EmailProvider> {
+
+    EmailProvider mProvider;
+    Context mMockContext;
+
+    public EmailSyncAdapterTests() {
+        super(EmailProvider.class, EmailProvider.EMAIL_AUTHORITY);
+    }
+
+    @Override
+    public void setUp() throws Exception {
+        super.setUp();
+        mMockContext = getMockContext();
+    }
+
+    @Override
+    public void tearDown() throws Exception {
+        super.tearDown();
+    }
 
     /**
      * Create and return a short, simple InputStream that has at least four bytes, which is all
@@ -99,5 +127,69 @@ public class EasEmailSyncAdapterTests extends AndroidTestCase {
         calendar.set(2012, 0, 2, 23, 0, 1);
         date = adapter.formatDateTime(calendar);
         assertEquals("2012-01-02T23:00:01.000Z", date);
+    }
+
+    public void testSendDeletedItems() throws IOException {
+        EasSyncService service = getTestService();
+        EmailSyncAdapter adapter = new EmailSyncAdapter(service.mMailbox, service);
+        Serializer s = new Serializer();
+        ArrayList<Long> ids = new ArrayList<Long>();
+        ArrayList<Long> deletedIds = new ArrayList<Long>();
+
+        Context context = mMockContext;
+        adapter.mContext = context;
+        final ContentResolver resolver = context.getContentResolver();
+
+        // Create account and two mailboxes
+        Account acct = ProviderTestUtils.setupAccount("account", true, context);
+        adapter.mAccount = acct;
+        Mailbox box1 = ProviderTestUtils.setupMailbox("box1", acct.mId, true, context);
+        adapter.mMailbox = box1;
+
+        // Create 3 messages
+        Message msg1 =
+            ProviderTestUtils.setupMessage("message1", acct.mId, box1.mId, true, true, context);
+        ids.add(msg1.mId);
+        Message msg2 =
+            ProviderTestUtils.setupMessage("message2", acct.mId, box1.mId, true, true, context);
+        ids.add(msg2.mId);
+        Message msg3 =
+            ProviderTestUtils.setupMessage("message3", acct.mId, box1.mId, true, true, context);
+        ids.add(msg3.mId);
+        assertEquals(3, EmailContent.count(context, Message.CONTENT_URI, null, null));
+
+        // Delete them
+        for (long id: ids) {
+            resolver.delete(ContentUris.withAppendedId(Message.SYNCED_CONTENT_URI, id), null, null);
+        }
+
+        // Confirm that the messages are in the proper table
+        assertEquals(0, EmailContent.count(context, Message.CONTENT_URI, null, null));
+        assertEquals(3, EmailContent.count(context, Message.DELETED_CONTENT_URI, null, null));
+
+        // Call code to send deletions; the id's of the ones actually deleted will be in the
+        // deletedIds list
+        adapter.sendDeletedItems(s, deletedIds, true);
+        assertEquals(3, deletedIds.size());
+
+        // Clear this out for the next test
+        deletedIds.clear();
+
+        // Create a new message
+        Message msg4 =
+            ProviderTestUtils.setupMessage("message3", acct.mId, box1.mId, true, true, context);
+        assertEquals(1, EmailContent.count(context, Message.CONTENT_URI, null, null));
+        // Find the body for this message
+        Body body = Body.restoreBodyWithMessageId(context, msg4.mId);
+        // Set its source message to msg2's id
+        ContentValues values = new ContentValues();
+        values.put(Body.SOURCE_MESSAGE_KEY, msg2.mId);
+        body.update(context, values);
+
+        // Now send deletions again; this time only two should get deleted; msg2 should NOT be
+        // deleted as it's referenced by msg4
+        adapter.sendDeletedItems(s, deletedIds, true);
+        assertEquals(2, deletedIds.size());
+        assertFalse(deletedIds.contains(msg2.mId));
     }
 }
