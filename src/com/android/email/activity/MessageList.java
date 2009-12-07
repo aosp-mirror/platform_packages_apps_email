@@ -575,15 +575,28 @@ public class MessageList extends ListActivity implements OnItemClickListener, On
         }
         EmailContent.Mailbox mailbox =
             EmailContent.Mailbox.restoreMailboxWithId(this, mailboxId);
+        if (mailbox == null) {
+            return -2;
+        }
         return mailbox.mAccountKey;
     }
 
     private void onCompose() {
-        MessageCompose.actionCompose(this, lookupAccountIdFromMailboxId(mMailboxId));
+        long accountKey = lookupAccountIdFromMailboxId(mMailboxId);
+        if (accountKey > -2) {
+            MessageCompose.actionCompose(this, accountKey);
+        } else {
+            finish();
+        }
     }
 
     private void onEditAccount() {
-        AccountSettings.actionSettings(this, lookupAccountIdFromMailboxId(mMailboxId));
+        long accountKey = lookupAccountIdFromMailboxId(mMailboxId);
+        if (accountKey > -2) {
+            AccountSettings.actionSettings(this, accountKey);
+        } else {
+            finish();
+        }
     }
 
     private void onDeselectAll() {
@@ -638,8 +651,12 @@ public class MessageList extends ListActivity implements OnItemClickListener, On
                 c.close();
             }
         } else {
-            long accountId = lookupAccountIdFromMailboxId(mMailboxId);
-            mController.sendPendingMessages(accountId, mControllerCallback);
+            long accountKey = lookupAccountIdFromMailboxId(mMailboxId);
+            if (accountKey > -2) {
+                mController.sendPendingMessages(accountKey, mControllerCallback);
+            } else {
+                finish();
+            }
         }
     }
 
