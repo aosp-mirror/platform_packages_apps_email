@@ -189,7 +189,7 @@ public class MimeUtility {
         }
         String[] parts = unfold(header).split(";");
         if (name == null) {
-            return parts[0];
+            return parts[0].trim();
         }
         String lowerCaseName = name.toLowerCase();
         for (String part : parts) {
