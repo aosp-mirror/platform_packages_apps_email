@@ -1102,7 +1102,7 @@ public class ProviderTests extends ProviderTestCase2<EmailProvider> {
                 EmailContent.MessageColumns.MAILBOX_KEY + "=?";
         String[] selArgs = new String[] { String.valueOf(account1Id), String.valueOf(box1Id) };
 
-        // make sure there are two messages
+        // make sure there are six messages
         int numMessages = EmailContent.count(mMockContext, Message.CONTENT_URI, selection, selArgs);
         assertEquals(6, numMessages);
 
@@ -1514,5 +1514,125 @@ public class ProviderTests extends ProviderTestCase2<EmailProvider> {
         cr.update(ContentUris.withAppendedId(Mailbox.ADD_TO_FIELD_URI, boxA.mId), cv, null, null);
         Mailbox restoredBoxA = Mailbox.restoreMailboxWithId(mMockContext, boxA.mId);
         assertEquals(11, restoredBoxA.mUnreadCount);
+    }
+
+    public void testDatabaseCorruptionRecovery() {
+        final ContentResolver resolver = mMockContext.getContentResolver();
+        final Context context = mMockContext;
+
+        // Create account and two mailboxes
+        Account acct = ProviderTestUtils.setupAccount("acct1", true, context);
+        Mailbox box1 = ProviderTestUtils.setupMailbox("box1", acct.mId, true, context);
+
+        // Create 4 messages in box1 with bodies
+        ProviderTestUtils.setupMessage("message1", acct.mId, box1.mId, true, true, context);
+        ProviderTestUtils.setupMessage("message2", acct.mId, box1.mId, true, true, context);
+        ProviderTestUtils.setupMessage("message3", acct.mId, box1.mId, true, true, context);
+        ProviderTestUtils.setupMessage("message4", acct.mId, box1.mId, true, true, context);
+
+        // Confirm there are four messages
+        int count = EmailContent.count(mMockContext, Message.CONTENT_URI, null, null);
+        assertEquals(4, count);
+        // Confirm there are four bodies
+        count = EmailContent.count(mMockContext, Body.CONTENT_URI, null, null);
+        assertEquals(4, count);
+
+        // Find the EmailProvider.db file
+        File dbFile = mMockContext.getDatabasePath(EmailProvider.DATABASE_NAME);
+        // The EmailProvider.db database should exist (the provider creates it automatically)
+        assertTrue(dbFile != null);
+        assertTrue(dbFile.exists());
+        // Delete it, and confirm it is gone
+        assertTrue(dbFile.delete());
+        assertFalse(dbFile.exists());
+
+        // Find the EmailProviderBody.db file
+        dbFile = mMockContext.getDatabasePath(EmailProvider.BODY_DATABASE_NAME);
+        // The EmailProviderBody.db database should still exist
+        assertTrue(dbFile != null);
+        assertTrue(dbFile.exists());
+
+        // URI to uncache the databases
+        // This simulates the Provider starting up again (otherwise, it will still be pointing to
+        // the already opened files)
+        // Note that we only have access to the EmailProvider via the ContentResolver; therefore,
+        // we cannot directly call into the provider and use a URI for this
+        resolver.update(EmailProvider.INTEGRITY_CHECK_URI, null, null, null);
+
+        // TODO We should check for the deletion of attachment files once this is implemented in
+        // the provider
+        
+        // Explanation for what happens below...
+        // The next time the database is created by the provider, it will notice that there's
+        // already a EmailProviderBody.db file.  In this case, it will delete that database to
+        // ensure that both are in sync (and empty)
+
+        // Confirm there are no bodies
+        count = EmailContent.count(mMockContext, Body.CONTENT_URI, null, null);
+        assertEquals(0, count);
+
+        // Confirm there are no messages
+        count = EmailContent.count(mMockContext, Message.CONTENT_URI, null, null);
+        assertEquals(0, count);
+    }
+
+    public void testBodyDatabaseCorruptionRecovery() {
+        final ContentResolver resolver = mMockContext.getContentResolver();
+        final Context context = mMockContext;
+
+        // Create account and two mailboxes
+        Account acct = ProviderTestUtils.setupAccount("acct1", true, context);
+        Mailbox box1 = ProviderTestUtils.setupMailbox("box1", acct.mId, true, context);
+
+        // Create 4 messages in box1 with bodies
+        ProviderTestUtils.setupMessage("message1", acct.mId, box1.mId, true, true, context);
+        ProviderTestUtils.setupMessage("message2", acct.mId, box1.mId, true, true, context);
+        ProviderTestUtils.setupMessage("message3", acct.mId, box1.mId, true, true, context);
+        ProviderTestUtils.setupMessage("message4", acct.mId, box1.mId, true, true, context);
+
+        // Confirm there are four messages
+        int count = EmailContent.count(mMockContext, Message.CONTENT_URI, null, null);
+        assertEquals(4, count);
+        // Confirm there are four bodies
+        count = EmailContent.count(mMockContext, Body.CONTENT_URI, null, null);
+        assertEquals(4, count);
+
+        // Find the EmailProviderBody.db file
+        File dbFile = mMockContext.getDatabasePath(EmailProvider.BODY_DATABASE_NAME);
+        // The EmailProviderBody.db database should exist (the provider creates it automatically)
+        assertTrue(dbFile != null);
+        assertTrue(dbFile.exists());
+        // Delete it, and confirm it is gone
+        assertTrue(dbFile.delete());
+        assertFalse(dbFile.exists());
+
+        // Find the EmailProvider.db file
+        dbFile = mMockContext.getDatabasePath(EmailProvider.DATABASE_NAME);
+        // The EmailProviderBody.db database should still exist
+        assertTrue(dbFile != null);
+        assertTrue(dbFile.exists());
+
+        // URI to uncache the databases
+        // This simulates the Provider starting up again (otherwise, it will still be pointing to
+        // the already opened files)
+        // Note that we only have access to the EmailProvider via the ContentResolver; therefore,
+        // we cannot directly call into the provider and use a URI for this
+        resolver.update(EmailProvider.INTEGRITY_CHECK_URI, null, null, null);
+
+        // TODO We should check for the deletion of attachment files once this is implemented in
+        // the provider
+
+        // Explanation for what happens below...
+        // The next time the body database is created by the provider, it will notice that there's
+        // already a populated EmailProvider.db file.  In this case, it will delete that database to
+        // ensure that both are in sync (and empty)
+
+        // Confirm there are no messages
+        count = EmailContent.count(mMockContext, Message.CONTENT_URI, null, null);
+        assertEquals(0, count);
+
+        // Confirm there are no bodies
+        count = EmailContent.count(mMockContext, Body.CONTENT_URI, null, null);
+        assertEquals(0, count);
     }
 }
