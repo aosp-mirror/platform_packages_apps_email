@@ -290,7 +290,8 @@ public class SyncManager extends Service implements Runnable {
                 cv.put(SyncColumns.SERVER_ID, 0);
                 INSTANCE.getContentResolver().update(Message.CONTENT_URI,
                     cv, WHERE_MAILBOX_KEY, new String[] {Long.toString(mailboxId)});
-
+                // Clear the error state; the Outbox sync will be started from checkMailboxes
+                INSTANCE.mSyncErrorMap.remove(mailboxId);
                 kick("start outbox");
                 // Outbox can't be synced in EAS
                 return;
