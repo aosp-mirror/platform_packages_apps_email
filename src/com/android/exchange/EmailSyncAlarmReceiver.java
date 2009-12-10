@@ -50,8 +50,16 @@ public class EmailSyncAlarmReceiver extends BroadcastReceiver {
     private static String TAG = "EmailSyncAlarm";
 
     @Override
-    public void onReceive(Context context, Intent intent) {
+    public void onReceive(final Context context, Intent intent) {
         Log.v(TAG, "onReceive");
+        new Thread(new Runnable() {
+            public void run() {
+                handleReceive(context);
+            }
+        }).start();
+    }
+
+    private void handleReceive(Context context) {
         ArrayList<Long> mailboxesToNotify = new ArrayList<Long>();
         ContentResolver cr = context.getContentResolver();
         int messageCount = 0;
