@@ -17,23 +17,17 @@
 package com.android.email.activity;
 
 import com.android.email.Email;
-import com.android.email.R;
 import com.android.email.provider.EmailContent;
 import com.android.email.provider.EmailContent.MessageColumns;
 
-import android.app.Application;
-import android.app.ListActivity;
 import android.content.Context;
 import android.content.Intent;
-import android.database.Cursor;
 import android.database.CursorIndexOutOfBoundsException;
 import android.database.AbstractCursor;
 import android.database.SQLException;
 import android.os.Bundle;
 import android.test.ActivityInstrumentationTestCase2;
-import android.test.UiThreadTest;
 import android.test.suitebuilder.annotation.LargeTest;
-import android.widget.ListAdapter;
 import android.widget.CursorAdapter;
 
 import java.util.ArrayList;
@@ -53,17 +47,8 @@ public class MessageListUnitTests
     private static final String EXTRA_ACCOUNT_ID = "com.android.email.activity._ACCOUNT_ID";
     private static final String EXTRA_MAILBOX_TYPE = "com.android.email.activity.MAILBOX_TYPE";
     private static final String EXTRA_MAILBOX_ID = "com.android.email.activity.MAILBOX_ID";
-    private static final String STATE_SELECTED_ITEM_TOP =
-        "com.android.email.activity.MessageList.selectedItemTop";
-    private static final String STATE_SELECTED_POSITION =
-        "com.android.email.activity.MessageList.selectedPosition";
     private static final String STATE_CHECKED_ITEMS =
         "com.android.email.activity.MessageList.checkedItems";
-    public final String[] PROJECTION = new String[] {
-            EmailContent.RECORD_ID, MessageColumns.MAILBOX_KEY, MessageColumns.ACCOUNT_KEY,
-            MessageColumns.DISPLAY_NAME, MessageColumns.SUBJECT, MessageColumns.TIMESTAMP,
-            MessageColumns.FLAG_READ, MessageColumns.FLAG_FAVORITE, MessageColumns.FLAG_ATTACHMENT,
-    };
     private Context mContext;
     private MessageList mMessageList;
     private CursorAdapter mListAdapter;
@@ -127,7 +112,8 @@ public class MessageListUnitTests
                 addElement(7, Long.MIN_VALUE, Long.MIN_VALUE, "h", "H", 0, 0, 0, 0);
                 addElement(8, Long.MIN_VALUE, Long.MIN_VALUE, "i", "I", 0, 0, 0, 0);
                 addElement(9, Long.MIN_VALUE, Long.MIN_VALUE, "j", "J", 0, 0, 0, 0);
-                CustomCursor cc = new CustomCursor(mIDarray, PROJECTION, mRowsMap);
+                CustomCursor cc = new CustomCursor(mIDarray, MessageList.MESSAGE_PROJECTION,
+                        mRowsMap);
                 mListAdapter.changeCursor(cc);
             }
         });
@@ -169,84 +155,85 @@ public class MessageListUnitTests
         assertTrue(checkedset.contains(3L));
         assertTrue(checkedset.contains(5L));
     }
+
+    /**
+     * Mock Cursor for MessageList
+     */
+    static class CustomCursor extends AbstractCursor {
+        private final ArrayList<Long> mSortedIdList;
+        private final String[] mColumnNames;
+
+        public CustomCursor(ArrayList<Long> sortedIdList,
+                String[] columnNames,
+                HashMap<Long, Map<String, Object>> rows) {
+            mSortedIdList = sortedIdList;
+            mColumnNames = columnNames;
+            mUpdatedRows = rows;
+        }
+
+        @Override
+        public void close() {
+            super.close();
+        }
+
+        @Override
+        public String[] getColumnNames() {
+            return mColumnNames;
+        }
+
+        private Object getObject(int columnIndex) {
+            if (isClosed()) {
+                throw new SQLException("Already closed.");
+            }
+            int size = mSortedIdList.size();
+            if (mPos < 0 || mPos >= size) {
+                throw new CursorIndexOutOfBoundsException(mPos, size);
+            }
+            if (columnIndex < 0 || columnIndex >= getColumnCount()) {
+                return null;
+            }
+            return mUpdatedRows.get(mSortedIdList.get(mPos)).get(mColumnNames[columnIndex]);
+        }
+
+        @Override
+        public float getFloat(int columnIndex) {
+            return Float.valueOf(getObject(columnIndex).toString());
+        }
+
+        @Override
+        public double getDouble(int columnIndex) {
+            return Double.valueOf(getObject(columnIndex).toString());
+        }
+
+        @Override
+        public int getInt(int columnIndex) {
+            return Integer.valueOf(getObject(columnIndex).toString());
+        }
+
+        @Override
+        public long getLong(int columnIndex) {
+            return Long.valueOf(getObject(columnIndex).toString());
+        }
+
+        @Override
+        public short getShort(int columnIndex) {
+            return Short.valueOf(getObject(columnIndex).toString());
+        }
+
+        @Override
+        public String getString(int columnIndex) {
+            return String.valueOf(getObject(columnIndex));
+        }
+
+        @Override
+        public boolean isNull(int columnIndex) {
+            return getObject(columnIndex) == null;
+        }
+
+        @Override
+        public int getCount() {
+            return mSortedIdList.size();
+        }
+    }
 }
 
-/**
- * Mock Cursor for MessageList
- */
-class CustomCursor extends AbstractCursor {
-    private final ArrayList<Long> mSortedIdList;
-    private final String[] mColumnNames;
-
-    public CustomCursor(ArrayList<Long> sortedIdList,
-            String[] columnNames,
-            HashMap<Long, Map<String, Object>> rows) {
-        mSortedIdList = sortedIdList;
-        mColumnNames = columnNames;
-        mUpdatedRows = rows;
-    }
-
-    @Override
-    public void close() {
-        super.close();
-    }
-
-    @Override
-    public String[] getColumnNames() {
-        return mColumnNames;
-    }
-
-    private Object getObject(int columnIndex) {
-        if (isClosed()) {
-            throw new SQLException("Already closed.");
-        }
-        int size = mSortedIdList.size();
-        if (mPos < 0 || mPos >= size) {
-            throw new CursorIndexOutOfBoundsException(mPos, size);
-        }
-        if (columnIndex < 0 || columnIndex >= getColumnCount()) {
-            return null;
-        }
-        return mUpdatedRows.get(mSortedIdList.get(mPos)).get(mColumnNames[columnIndex]);
-    }
-
-    @Override
-    public float getFloat(int columnIndex) {
-        return Float.valueOf(getObject(columnIndex).toString());
-    }
-
-    @Override
-    public double getDouble(int columnIndex) {
-        return Double.valueOf(getObject(columnIndex).toString());
-    }
-
-    @Override
-    public int getInt(int columnIndex) {
-        return Integer.valueOf(getObject(columnIndex).toString());
-    }
-
-    @Override
-    public long getLong(int columnIndex) {
-        return Long.valueOf(getObject(columnIndex).toString());
-    }
-
-    @Override
-    public short getShort(int columnIndex) {
-        return Short.valueOf(getObject(columnIndex).toString());
-    }
-
-    @Override
-    public String getString(int columnIndex) {
-        return String.valueOf(getObject(columnIndex));
-    }
-
-    @Override
-    public boolean isNull(int columnIndex) {
-        return getObject(columnIndex) == null;
-    }
-
-    @Override
-    public int getCount() {
-        return mSortedIdList.size();
-    }
-}
