@@ -185,7 +185,9 @@ public abstract class EmailContent {
         public static final String HTML_REPLY = "htmlReply";
         // Replied-to or forwarded body (in text form)
         public static final String TEXT_REPLY = "textReply";
-        // Message id of the source (if this is a reply/forward)
+        // A reference to a message's unique id used in reply/forward.
+        // Protocol code can be expected to use this column in determining whether a message can be
+        // deleted safely (i.e. isn't referenced by other messages)
         public static final String SOURCE_MESSAGE_KEY = "sourceMessageKey";
         // The text to be placed between a reply/forward response and the original message
         public static final String INTRO_TEXT = "introText";
@@ -519,7 +521,7 @@ public abstract class EmailContent {
         public String mBcc;
         public String mReplyTo;
 
-        // The following transient members may be used while building and manipulating messages, 
+        // The following transient members may be used while building and manipulating messages,
         // but they are NOT persisted directly by EmailProvider
         transient public String mText;
         transient public String mHtml;
