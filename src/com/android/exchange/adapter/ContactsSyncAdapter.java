@@ -41,6 +41,7 @@ import android.provider.SyncStateContract;
 import android.provider.ContactsContract.Data;
 import android.provider.ContactsContract.Groups;
 import android.provider.ContactsContract.RawContacts;
+import android.provider.ContactsContract.RawContactsEntity;
 import android.provider.ContactsContract.Settings;
 import android.provider.ContactsContract.SyncState;
 import android.provider.ContactsContract.CommonDataKinds.Email;
@@ -741,16 +742,19 @@ public class ContactsSyncAdapter extends AbstractSyncAdapter {
                         try {
                             if (c.moveToFirst()) {
                                 // TODO Handle deleted individual rows...
+                                Uri uri = ContentUris.withAppendedId(
+                                        RawContacts.CONTENT_URI, c.getLong(0));
+                                uri = Uri.withAppendedPath(
+                                        uri, RawContacts.Entity.CONTENT_DIRECTORY);
+                                EntityIterator entityIterator = RawContacts.newEntityIterator(
+                                    mContentResolver.query(uri, null, null, null, null));
                                 try {
-                                    EntityIterator entityIterator =
-                                        mContentResolver.queryEntities(ContentUris
-                                            .withAppendedId(RawContacts.CONTENT_URI, c.getLong(0)),
-                                            null, null, null);
                                     if (entityIterator.hasNext()) {
                                         entity = entityIterator.next();
                                     }
                                     userLog("Changing contact ", serverId);
                                 } catch (RemoteException e) {
+                                    // TODO: log the fact that we failed to read the entity
                                 }
                             }
                         } finally {
@@ -1765,7 +1769,7 @@ public class ContactsSyncAdapter extends AbstractSyncAdapter {
     public boolean sendLocalChanges(Serializer s) throws IOException {
         // First, let's find Contacts that have changed.
         ContentResolver cr = mService.mContentResolver;
-        Uri uri = RawContacts.CONTENT_URI.buildUpon()
+        Uri uri = RawContactsEntity.CONTENT_URI.buildUpon()
                 .appendQueryParameter(RawContacts.ACCOUNT_NAME, mAccount.mEmailAddress)
                 .appendQueryParameter(RawContacts.ACCOUNT_TYPE, Eas.ACCOUNT_MANAGER_TYPE)
                 .appendQueryParameter(ContactsContract.CALLER_IS_SYNCADAPTER, "true")
@@ -1777,7 +1781,8 @@ public class ContactsSyncAdapter extends AbstractSyncAdapter {
 
         try {
             // Get them all atomically
-            EntityIterator ei = cr.queryEntities(uri, RawContacts.DIRTY + "=1", null, null);
+            EntityIterator ei = RawContacts.newEntityIterator(
+                    cr.query(uri, null, RawContacts.DIRTY + "=1", null, null));
             ContentValues cidValues = new ContentValues();
             try {
                 boolean first = true;
