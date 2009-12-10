@@ -44,18 +44,23 @@ import android.content.UriMatcher;
 import android.database.Cursor;
 import android.database.SQLException;
 import android.database.sqlite.SQLiteDatabase;
+import android.database.sqlite.SQLiteException;
 import android.database.sqlite.SQLiteOpenHelper;
 import android.net.Uri;
 import android.util.Log;
 
+import java.io.File;
 import java.util.ArrayList;
 
 public class EmailProvider extends ContentProvider {
 
     private static final String TAG = "EmailProvider";
 
-    private static final String DATABASE_NAME = "EmailProvider.db";
-    private static final String BODY_DATABASE_NAME = "EmailProviderBody.db";
+    protected static final String DATABASE_NAME = "EmailProvider.db";
+    protected static final String BODY_DATABASE_NAME = "EmailProviderBody.db";
+
+    public static final Uri INTEGRITY_CHECK_URI =
+        Uri.parse("content://" + EmailContent.AUTHORITY + "/integrityCheck");
 
     // Definitions for our queries looking for orphaned messages
     private static final String[] ORPHANS_PROJECTION
@@ -64,6 +69,8 @@ public class EmailProvider extends ContentProvider {
     private static final int ORPHANS_MAILBOX_KEY = 1;
 
     private static final String WHERE_ID = EmailContent.RECORD_ID + "=?";
+
+    private static final String[] COUNT_COLUMNS = new String[]{"count(*)"};
 
     // Any changes to the database format *must* include update-in-place code.
     // Original version: 3
@@ -543,9 +550,15 @@ public class EmailProvider extends ContentProvider {
     private SQLiteDatabase mBodyDatabase;
 
     public synchronized SQLiteDatabase getDatabase(Context context) {
-        if (mDatabase !=  null) {
+        // Always return the cached database, if we've got one
+        if (mDatabase != null) {
             return mDatabase;
         }
+
+        // Whenever we create or re-cache the databases, make sure that we haven't lost one
+        // to corruption
+        checkDatabases();
+
         DatabaseHelper helper = new DatabaseHelper(context, DATABASE_NAME);
         mDatabase = helper.getWritableDatabase();
         if (mDatabase != null) {
@@ -626,7 +639,7 @@ public class EmailProvider extends ContentProvider {
 
         @Override
         public void onCreate(SQLiteDatabase db) {
-            // Create all tables here; each class has its own method
+            Log.d(TAG, "Creating EmailProviderBody database");
             createBodyTable(db);
         }
 
@@ -650,6 +663,7 @@ public class EmailProvider extends ContentProvider {
 
         @Override
         public void onCreate(SQLiteDatabase db) {
+            Log.d(TAG, "Creating EmailProvider database");
             // Create all tables here; each class has its own method
             createMessageTable(db);
             createAttachmentTable(db);
@@ -797,6 +811,9 @@ public class EmailProvider extends ContentProvider {
                 }
                 db.setTransactionSuccessful();
             }
+        } catch (SQLiteException e) {
+            checkDatabases();
+            throw e;
         } finally {
             if (messageDeletion) {
                 db.endTransaction();
@@ -860,51 +877,56 @@ public class EmailProvider extends ContentProvider {
 
         Uri resultUri = null;
 
-        switch (match) {
-            case UPDATED_MESSAGE:
-            case DELETED_MESSAGE:
-            case BODY:
-            case MESSAGE:
-            case ATTACHMENT:
-            case MAILBOX:
-            case ACCOUNT:
-            case HOSTAUTH:
-                id = db.insert(TABLE_NAMES[table], "foo", values);
-                resultUri = ContentUris.withAppendedId(uri, id);
-                // Clients shouldn't normally be adding rows to these tables, as they are
-                // maintained by triggers.  However, we need to be able to do this for unit
-                // testing, so we allow the insert and then throw the same exception that we
-                // would if this weren't allowed.
-                if (match == UPDATED_MESSAGE || match == DELETED_MESSAGE) {
+        try {
+            switch (match) {
+                case UPDATED_MESSAGE:
+                case DELETED_MESSAGE:
+                case BODY:
+                case MESSAGE:
+                case ATTACHMENT:
+                case MAILBOX:
+                case ACCOUNT:
+                case HOSTAUTH:
+                    id = db.insert(TABLE_NAMES[table], "foo", values);
+                    resultUri = ContentUris.withAppendedId(uri, id);
+                    // Clients shouldn't normally be adding rows to these tables, as they are
+                    // maintained by triggers.  However, we need to be able to do this for unit
+                    // testing, so we allow the insert and then throw the same exception that we
+                    // would if this weren't allowed.
+                    if (match == UPDATED_MESSAGE || match == DELETED_MESSAGE) {
+                        throw new IllegalArgumentException("Unknown URL " + uri);
+                    }
+                    break;
+                case MAILBOX_ID:
+                    // This implies adding a message to a mailbox
+                    // Hmm, a problem here is that we can't link the account as well, so it must be
+                    // already in the values...
+                    id = Long.parseLong(uri.getPathSegments().get(1));
+                    values.put(MessageColumns.MAILBOX_KEY, id);
+                    resultUri = insert(Message.CONTENT_URI, values);
+                    break;
+                case MESSAGE_ID:
+                    // This implies adding an attachment to a message.
+                    id = Long.parseLong(uri.getPathSegments().get(1));
+                    values.put(AttachmentColumns.MESSAGE_KEY, id);
+                    resultUri = insert(Attachment.CONTENT_URI, values);
+                    break;
+                case ACCOUNT_ID:
+                    // This implies adding a mailbox to an account.
+                    id = Long.parseLong(uri.getPathSegments().get(1));
+                    values.put(MailboxColumns.ACCOUNT_KEY, id);
+                    resultUri = insert(Mailbox.CONTENT_URI, values);
+                    break;
+                case ATTACHMENTS_MESSAGE_ID:
+                    id = db.insert(TABLE_NAMES[table], "foo", values);
+                    resultUri = ContentUris.withAppendedId(Attachment.CONTENT_URI, id);
+                    break;
+                default:
                     throw new IllegalArgumentException("Unknown URL " + uri);
-                }
-                break;
-            case MAILBOX_ID:
-                // This implies adding a message to a mailbox
-                // Hmm, one problem here is that we can't link the account as well, so it must be
-                // already in the values...
-                id = Long.parseLong(uri.getPathSegments().get(1));
-                values.put(MessageColumns.MAILBOX_KEY, id);
-                resultUri = insert(Message.CONTENT_URI, values);
-                break;
-            case MESSAGE_ID:
-                // This implies adding an attachment to a message.
-                id = Long.parseLong(uri.getPathSegments().get(1));
-                values.put(AttachmentColumns.MESSAGE_KEY, id);
-                resultUri = insert(Attachment.CONTENT_URI, values);
-                break;
-            case ACCOUNT_ID:
-                // This implies adding a mailbox to an account.
-                id = Long.parseLong(uri.getPathSegments().get(1));
-                values.put(MailboxColumns.ACCOUNT_KEY, id);
-                resultUri = insert(Mailbox.CONTENT_URI, values);
-                break;
-            case ATTACHMENTS_MESSAGE_ID:
-                id = db.insert(TABLE_NAMES[table], "foo", values);
-                resultUri = ContentUris.withAppendedId(Attachment.CONTENT_URI, id);
-                break;
-            default:
-                throw new IllegalArgumentException("Unknown URL " + uri);
+            }
+        } catch (SQLiteException e) {
+            checkDatabases();
+            throw e;
         }
 
         // Notify with the base uri, not the new uri (nobody is watching a new record)
@@ -914,8 +936,36 @@ public class EmailProvider extends ContentProvider {
 
     @Override
     public boolean onCreate() {
-        // TODO Auto-generated method stub
+        checkDatabases();
         return false;
+    }
+
+    /**
+     * The idea here is that the two databases (EmailProvider.db and EmailProviderBody.db must
+     * always be in sync (i.e. there are two database or NO databases).  This code will delete
+     * any "orphan" database, so that both will be created together.  Note that an "orphan" database
+     * will exist after either of the individual databases is deleted due to data corruption.
+     */
+    public void checkDatabases() {
+        // Uncache the databases
+        if (mDatabase != null) {
+            mDatabase = null;
+        }
+        if (mBodyDatabase != null) {
+            mBodyDatabase = null;
+        }
+        // Look for orphans, and delete as necessary; these must always be in sync
+        File databaseFile = getContext().getDatabasePath(DATABASE_NAME);
+        File bodyFile = getContext().getDatabasePath(BODY_DATABASE_NAME);
+
+        // TODO Make sure attachments are deleted
+        if (databaseFile.exists() && !bodyFile.exists()) {
+            Log.w(TAG, "Deleting orphaned EmailProvider database...");
+            databaseFile.delete();
+        } else if (bodyFile.exists() && !databaseFile.exists()) {
+            Log.w(TAG, "Deleting orphaned EmailProviderBody database...");
+            bodyFile.delete();
+        }
     }
 
     @Override
@@ -934,39 +984,44 @@ public class EmailProvider extends ContentProvider {
             Log.v(TAG, "EmailProvider.query: uri=" + uri + ", match is " + match);
         }
 
-        switch (match) {
-            case BODY:
-            case MESSAGE:
-            case UPDATED_MESSAGE:
-            case DELETED_MESSAGE:
-            case ATTACHMENT:
-            case MAILBOX:
-            case ACCOUNT:
-            case HOSTAUTH:
-                c = db.query(TABLE_NAMES[table], projection,
-                        selection, selectionArgs, null, null, sortOrder);
-                break;
-            case BODY_ID:
-            case MESSAGE_ID:
-            case DELETED_MESSAGE_ID:
-            case UPDATED_MESSAGE_ID:
-            case ATTACHMENT_ID:
-            case MAILBOX_ID:
-            case ACCOUNT_ID:
-            case HOSTAUTH_ID:
-                id = uri.getPathSegments().get(1);
-                c = db.query(TABLE_NAMES[table], projection,
-                        whereWithId(id, selection), selectionArgs, null, null, sortOrder);
-                break;
-            case ATTACHMENTS_MESSAGE_ID:
-                // All attachments for the given message
-                id = uri.getPathSegments().get(2);
-                c = db.query(Attachment.TABLE_NAME, projection,
-                        whereWith(Attachment.MESSAGE_KEY + "=" + id, selection),
-                        selectionArgs, null, null, sortOrder);
-                break;
-            default:
-                throw new IllegalArgumentException("Unknown URI " + uri);
+        try {
+            switch (match) {
+                case BODY:
+                case MESSAGE:
+                case UPDATED_MESSAGE:
+                case DELETED_MESSAGE:
+                case ATTACHMENT:
+                case MAILBOX:
+                case ACCOUNT:
+                case HOSTAUTH:
+                    c = db.query(TABLE_NAMES[table], projection,
+                            selection, selectionArgs, null, null, sortOrder);
+                    break;
+                case BODY_ID:
+                case MESSAGE_ID:
+                case DELETED_MESSAGE_ID:
+                case UPDATED_MESSAGE_ID:
+                case ATTACHMENT_ID:
+                case MAILBOX_ID:
+                case ACCOUNT_ID:
+                case HOSTAUTH_ID:
+                    id = uri.getPathSegments().get(1);
+                    c = db.query(TABLE_NAMES[table], projection,
+                            whereWithId(id, selection), selectionArgs, null, null, sortOrder);
+                    break;
+                case ATTACHMENTS_MESSAGE_ID:
+                    // All attachments for the given message
+                    id = uri.getPathSegments().get(2);
+                    c = db.query(Attachment.TABLE_NAME, projection,
+                            whereWith(Attachment.MESSAGE_KEY + "=" + id, selection),
+                            selectionArgs, null, null, sortOrder);
+                    break;
+                default:
+                    throw new IllegalArgumentException("Unknown URI " + uri);
+            }
+        } catch (SQLiteException e) {
+            checkDatabases();
+            throw e;
         }
 
         if ((c != null) && !isTemporary()) {
@@ -1028,68 +1083,80 @@ public class EmailProvider extends ContentProvider {
             values.remove(MailboxColumns.UNREAD_COUNT);
         }
 
+        // Handle this special case the fastest possible way
+        if (uri == INTEGRITY_CHECK_URI) {
+            checkDatabases();
+            return 0;
+        }
+
         String id;
-        switch (match) {
-            case MAILBOX_ID_ADD_TO_FIELD:
-            case ACCOUNT_ID_ADD_TO_FIELD:
-                db.beginTransaction();
-                id = uri.getPathSegments().get(1);
-                String field = values.getAsString(EmailContent.FIELD_COLUMN_NAME);
-                Long add = values.getAsLong(EmailContent.ADD_COLUMN_NAME);
-                if (field == null || add == null) {
-                    throw new IllegalArgumentException("No field/add specified " + uri);
-                }
-                Cursor c = db.query(TABLE_NAMES[table],
-                        new String[] {EmailContent.RECORD_ID, field}, whereWithId(id, selection),
-                        selectionArgs, null, null, null);
-                try {
-                    result = 0;
-                    ContentValues cv = new ContentValues();
-                    String[] bind = new String[1];
-                    while (c.moveToNext()) {
-                        bind[0] = c.getString(0);
-                        long value = c.getLong(1) + add;
-                        cv.put(field, value);
-                        result = db.update(TABLE_NAMES[table], cv, ID_EQUALS, bind);
+        try {
+            switch (match) {
+                case MAILBOX_ID_ADD_TO_FIELD:
+                case ACCOUNT_ID_ADD_TO_FIELD:
+                    db.beginTransaction();
+                    id = uri.getPathSegments().get(1);
+                    String field = values.getAsString(EmailContent.FIELD_COLUMN_NAME);
+                    Long add = values.getAsLong(EmailContent.ADD_COLUMN_NAME);
+                    if (field == null || add == null) {
+                        throw new IllegalArgumentException("No field/add specified " + uri);
                     }
-                } finally {
-                    c.close();
-                }
-                db.setTransactionSuccessful();
-                db.endTransaction();
-                break;
-            case BODY_ID:
-            case MESSAGE_ID:
-            case SYNCED_MESSAGE_ID:
-            case UPDATED_MESSAGE_ID:
-            case ATTACHMENT_ID:
-            case MAILBOX_ID:
-            case ACCOUNT_ID:
-            case HOSTAUTH_ID:
-                id = uri.getPathSegments().get(1);
-                if (match == SYNCED_MESSAGE_ID) {
-                    // For synced messages, first copy the old message to the updated table
-                    // Note the insert or ignore semantics, guaranteeing that only the first
-                    // update will be reflected in the updated message table; therefore this row
-                    // will always have the "original" data
-                    db.execSQL(UPDATED_MESSAGE_INSERT + id);
-                } else if (match == MESSAGE_ID) {
-                    db.execSQL(UPDATED_MESSAGE_DELETE + id);
-                }
-                result = db.update(TABLE_NAMES[table], values, whereWithId(id, selection),
-                        selectionArgs);
-                break;
-            case BODY:
-            case MESSAGE:
-            case UPDATED_MESSAGE:
-            case ATTACHMENT:
-            case MAILBOX:
-            case ACCOUNT:
-            case HOSTAUTH:
-                result = db.update(TABLE_NAMES[table], values, selection, selectionArgs);
-                break;
-            default:
-                throw new IllegalArgumentException("Unknown URI " + uri);
+                    Cursor c = db.query(TABLE_NAMES[table],
+                            new String[] {EmailContent.RECORD_ID, field},
+                            whereWithId(id, selection),
+                            selectionArgs, null, null, null);
+                    try {
+                        result = 0;
+                        ContentValues cv = new ContentValues();
+                        String[] bind = new String[1];
+                        while (c.moveToNext()) {
+                            bind[0] = c.getString(0);
+                            long value = c.getLong(1) + add;
+                            cv.put(field, value);
+                            result = db.update(TABLE_NAMES[table], cv, ID_EQUALS, bind);
+                        }
+                    } finally {
+                        c.close();
+                    }
+                    db.setTransactionSuccessful();
+                    db.endTransaction();
+                    break;
+                case BODY_ID:
+                case MESSAGE_ID:
+                case SYNCED_MESSAGE_ID:
+                case UPDATED_MESSAGE_ID:
+                case ATTACHMENT_ID:
+                case MAILBOX_ID:
+                case ACCOUNT_ID:
+                case HOSTAUTH_ID:
+                    id = uri.getPathSegments().get(1);
+                    if (match == SYNCED_MESSAGE_ID) {
+                        // For synced messages, first copy the old message to the updated table
+                        // Note the insert or ignore semantics, guaranteeing that only the first
+                        // update will be reflected in the updated message table; therefore this row
+                        // will always have the "original" data
+                        db.execSQL(UPDATED_MESSAGE_INSERT + id);
+                    } else if (match == MESSAGE_ID) {
+                        db.execSQL(UPDATED_MESSAGE_DELETE + id);
+                    }
+                    result = db.update(TABLE_NAMES[table], values, whereWithId(id, selection),
+                            selectionArgs);
+                    break;
+                case BODY:
+                case MESSAGE:
+                case UPDATED_MESSAGE:
+                case ATTACHMENT:
+                case MAILBOX:
+                case ACCOUNT:
+                case HOSTAUTH:
+                    result = db.update(TABLE_NAMES[table], values, selection, selectionArgs);
+                    break;
+                default:
+                    throw new IllegalArgumentException("Unknown URI " + uri);
+            }
+        } catch (SQLiteException e) {
+            checkDatabases();
+            throw e;
         }
 
         getContext().getContentResolver().notifyChange(uri, null);
