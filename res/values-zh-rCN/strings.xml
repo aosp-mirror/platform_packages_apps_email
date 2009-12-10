@@ -121,7 +121,7 @@
     <string name="message_discarded_toast" msgid="3891461729325584026">"邮件已舍弃。"</string>
     <string name="message_saved_toast" msgid="8443125659172627665">"邮件已保存为草稿。"</string>
     <string name="add_contact_dlg_title" msgid="7424641029188006580">"添加联系人"</string>
-    <string name="add_contact_dlg_message_fmt" msgid="4470846346726847478">"将“<xliff:g id="EMAIL">%s</xliff:g>”添加到联系人"</string>
+    <string name="add_contact_dlg_message_fmt" msgid="4470846346726847478">"将 <xliff:g id="EMAIL">%s</xliff:g> 添加为联系人"</string>
     <string name="message_view_display_attachment_toast" msgid="6096315816776330821">"该附件无法显示。"</string>
     <string name="account_setup_basics_title" msgid="3969856368228940980">"设置电子邮件"</string>
     <string name="accounts_welcome" msgid="5901437782383439370">"您只需执行几个步骤，即可为大多数帐户配置电子邮件。"</string>
