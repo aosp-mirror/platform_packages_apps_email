@@ -168,6 +168,12 @@ public class MessageList extends ListActivity implements OnItemClickListener, On
     private int mSavedItemPosition = -1;
     private boolean mCanAutoRefresh = false;
 
+    /* package */ static final String[] MESSAGE_PROJECTION = new String[] {
+        EmailContent.RECORD_ID, MessageColumns.MAILBOX_KEY, MessageColumns.ACCOUNT_KEY,
+        MessageColumns.DISPLAY_NAME, MessageColumns.SUBJECT, MessageColumns.TIMESTAMP,
+        MessageColumns.FLAG_READ, MessageColumns.FLAG_FAVORITE, MessageColumns.FLAG_ATTACHMENT,
+    };
+
     /**
      * Open a specific mailbox.
      *
@@ -1091,10 +1097,8 @@ public class MessageList extends ListActivity implements OnItemClickListener, On
             String selection =
                 Utility.buildMailboxIdSelection(MessageList.this.mResolver, mMailboxKey);
             Cursor c = MessageList.this.managedQuery(
-                    EmailContent.Message.CONTENT_URI,
-                    MessageList.this.mListAdapter.PROJECTION,
-                    selection, null,
-                    EmailContent.MessageColumns.TIMESTAMP + " DESC");
+                    EmailContent.Message.CONTENT_URI, MESSAGE_PROJECTION,
+                    selection, null, EmailContent.MessageColumns.TIMESTAMP + " DESC");
             return c;
         }
 
@@ -1425,7 +1429,7 @@ public class MessageList extends ListActivity implements OnItemClickListener, On
     /**
      * This class implements the adapter for displaying messages based on cursors.
      */
-    /* package */ public class MessageListAdapter extends CursorAdapter {
+    /* package */ class MessageListAdapter extends CursorAdapter {
 
         public static final int COLUMN_ID = 0;
         public static final int COLUMN_MAILBOX_KEY = 1;
@@ -1436,12 +1440,6 @@ public class MessageList extends ListActivity implements OnItemClickListener, On
         public static final int COLUMN_READ = 6;
         public static final int COLUMN_FAVORITE = 7;
         public static final int COLUMN_ATTACHMENTS = 8;
-
-        public final String[] PROJECTION = new String[] {
-            EmailContent.RECORD_ID, MessageColumns.MAILBOX_KEY, MessageColumns.ACCOUNT_KEY,
-            MessageColumns.DISPLAY_NAME, MessageColumns.SUBJECT, MessageColumns.TIMESTAMP,
-            MessageColumns.FLAG_READ, MessageColumns.FLAG_FAVORITE, MessageColumns.FLAG_ATTACHMENT,
-        };
 
         Context mContext;
         private LayoutInflater mInflater;
