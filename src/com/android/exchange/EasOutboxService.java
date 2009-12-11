@@ -46,7 +46,7 @@ public class EasOutboxService extends EasSyncService {
 
     public static final int SEND_FAILED = 1;
     public static final String MAILBOX_KEY_AND_NOT_SEND_FAILED =
-        MessageColumns.MAILBOX_KEY + "=? and (" + SyncColumns.SERVER_ID + " is null or " + 
+        MessageColumns.MAILBOX_KEY + "=? and (" + SyncColumns.SERVER_ID + " is null or " +
             SyncColumns.SERVER_ID + "!=" + SEND_FAILED + ')';
     public static final String[] BODY_SOURCE_PROJECTION =
         new String[] {BodyColumns.SOURCE_MESSAGE_KEY};
@@ -150,9 +150,13 @@ public class EasOutboxService extends EasSyncService {
                 ContentValues cv = new ContentValues();
                 cv.put(SyncColumns.SERVER_ID, SEND_FAILED);
                 Message.update(mContext, Message.CONTENT_URI, msgId, cv);
-                result = EmailServiceStatus.REMOTE_EXCEPTION;
+                // We mark the result as SUCCESS on a non-auth failure since the message itself is
+                // already marked failed and we don't want to stop other messages from trying to
+                // send.
                 if (isAuthError(code)) {
                     result = EmailServiceStatus.LOGIN_FAILED;
+                } else {
+                    result = EmailServiceStatus.SUCCESS;
                 }
                 sendCallback(msgId, null, result);
 
