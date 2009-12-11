@@ -1090,6 +1090,10 @@ public class EasSyncService extends AbstractSyncService {
         mHostAddress = ha.mAddress;
         mUserName = ha.mLogin;
         mPassword = ha.mPassword;
+
+        // Set up our protocol version
+        mProtocolVersion = mAccount.mProtocolVersion;
+        mProtocolVersionDouble = Double.parseDouble(mProtocolVersion);
         return true;
     }
 
@@ -1114,8 +1118,6 @@ public class EasSyncService extends AbstractSyncService {
                 runAccountMailbox();
             } else {
                 AbstractSyncAdapter target;
-                mProtocolVersion = mAccount.mProtocolVersion;
-                mProtocolVersionDouble = Double.parseDouble(mProtocolVersion);
                 if (mMailbox.mType == Mailbox.TYPE_CONTACTS) {
                     target = new ContactsSyncAdapter(mMailbox, this);
                 } else {
