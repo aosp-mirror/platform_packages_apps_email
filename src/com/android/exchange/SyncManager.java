@@ -194,7 +194,7 @@ public class SyncManager extends Service implements Runnable {
     private EasSyncStatusObserver mSyncStatusObserver;
     private EasAccountsUpdatedListener mAccountsUpdatedListener;
 
-    private ContentResolver mResolver;
+    /*package*/ ContentResolver mResolver;
 
     // The singleton SyncManager object, with its thread and stop flag
     protected static SyncManager INSTANCE;
@@ -693,7 +693,8 @@ public class SyncManager extends Service implements Runnable {
 
     public class EasAccountsUpdatedListener implements OnAccountsUpdateListener {
        public void onAccountsUpdated(android.accounts.Account[] accounts) {
-           checkWithAccountManager();
+           reconcileAccountsWithAccountManager(INSTANCE, getAccountList(),
+                   AccountManager.get(INSTANCE).getAccountsByType(Eas.ACCOUNT_MANAGER_TYPE));
        }
     }
 
@@ -1218,25 +1219,52 @@ public class SyncManager extends Service implements Runnable {
         }
     }
 
-    private void checkWithAccountManager() {
-        android.accounts.Account[] accts =
-            AccountManager.get(this).getAccountsByType(Eas.ACCOUNT_MANAGER_TYPE);
-        List<Account> easAccounts = getAccountList();
-        for (Account easAccount: easAccounts) {
-            String accountName = easAccount.mEmailAddress;
+    /**
+     * Compare our account list (obtained from EmailProvider) with the account list owned by
+     * AccountManager.  If there are any orphans (an account in one list without a corresponding
+     * account in the other list), delete the orphan, as these must remain in sync.
+     *
+     * Note that the duplication of account information is caused by the Email application's
+     * incomplete integration with AccountManager.
+     */
+    /*package*/ void reconcileAccountsWithAccountManager(Context context,
+            List<Account> cachedEasAccounts, android.accounts.Account[] accountManagerAccounts) {
+        // First, look through our cached EAS Accounts (from EmailProvider) to make sure there's a
+        // corresponding AccountManager account
+        for (Account providerAccount: cachedEasAccounts) {
+            String providerAccountName = providerAccount.mEmailAddress;
             boolean found = false;
-            for (android.accounts.Account acct: accts) {
-                if (acct.name.equalsIgnoreCase(accountName)) {
+            for (android.accounts.Account accountManagerAccount: accountManagerAccounts) {
+                if (accountManagerAccount.name.equalsIgnoreCase(providerAccountName)) {
                     found = true;
                     break;
                 }
             }
             if (!found) {
                 // This account has been deleted in the AccountManager!
-                log("Account deleted in AccountManager; deleting from provider: " + accountName);
+                log("Account deleted in AccountManager; deleting from provider: " +
+                        providerAccountName);
                 // TODO This will orphan downloaded attachments; need to handle this
-                mResolver.delete(ContentUris.withAppendedId(Account.CONTENT_URI, easAccount.mId),
-                        null, null);
+                mResolver.delete(ContentUris.withAppendedId(Account.CONTENT_URI,
+                        providerAccount.mId), null, null);
+            }
+        }
+        // Now, look through AccountManager accounts to make sure we have a corresponding cached EAS
+        // account from EmailProvider
+        for (android.accounts.Account accountManagerAccount: accountManagerAccounts) {
+            String accountManagerAccountName = accountManagerAccount.name;
+            boolean found = false;
+            for (Account cachedEasAccount: cachedEasAccounts) {
+                if (cachedEasAccount.mEmailAddress.equalsIgnoreCase(accountManagerAccountName)) {
+                    found = true;
+                }
+            }
+            if (!found) {
+                // This account has been deleted from the EmailProvider database
+                log("Account deleted from provider; deleting from AccountManager: " +
+                        accountManagerAccountName);
+                // Delete the account
+                AccountManager.get(context).removeAccount(accountManagerAccount, null, null);
             }
         }
     }
