@@ -1093,7 +1093,9 @@ public class EasSyncService extends AbstractSyncService {
 
         // Set up our protocol version
         mProtocolVersion = mAccount.mProtocolVersion;
-        mProtocolVersionDouble = Double.parseDouble(mProtocolVersion);
+        if (mProtocolVersion != null) {
+            mProtocolVersionDouble = Double.parseDouble(mProtocolVersion);
+        }
         return true;
     }
 
