@@ -409,9 +409,9 @@
     <string name="account_setup_outgoing_password_label">Password</string>
     
     <!-- Title of "Exchange server settings" screen -->
-    <string name="account_setup_exchange_title">Exchange server settings</string>
+    <string name="account_setup_exchange_title">Server settings</string>
     <!-- On "Exchange" setup screen, the name of the server -->
-    <string name="account_setup_exchange_server_label">Exchange Server</string>
+    <string name="account_setup_exchange_server_label">Server</string>
     <!-- On "Exchange" setup screen, the domain\\username -->
     <string name="account_setup_exchange_username_label">Domain\\Username</string>
     <!-- Deprecated: On "Exchange" setup screen, the domain name label -->
