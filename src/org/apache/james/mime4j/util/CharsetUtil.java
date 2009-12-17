@@ -25,8 +25,10 @@ import java.nio.charset.UnsupportedCharsetException;
 import java.util.HashMap;
 import java.util.TreeSet;
 
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
+//BEGIN android-changed: Stubbing out logging
+import com.android.email.apacheloggingstub.Log;
+import com.android.email.apacheloggingstub.LogFactory;
+//END android-changed
 
 /**
  * Utility class for working with character sets. It is somewhat similar to

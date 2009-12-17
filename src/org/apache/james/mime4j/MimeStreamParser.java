@@ -24,8 +24,10 @@ import java.io.InputStream;
 import java.util.BitSet;
 import java.util.LinkedList;
 
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
+//BEGIN android-changed: Stubbing out logging
+import com.android.email.apacheloggingstub.Log;
+import com.android.email.apacheloggingstub.LogFactory;
+//END android-changed
 import org.apache.james.mime4j.decoder.Base64InputStream;
 import org.apache.james.mime4j.decoder.QuotedPrintableInputStream;
 
