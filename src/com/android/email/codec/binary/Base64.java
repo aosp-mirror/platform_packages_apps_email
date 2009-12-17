@@ -17,11 +17,6 @@
 
 package com.android.email.codec.binary;
 
-import org.apache.commons.codec.BinaryDecoder;
-import org.apache.commons.codec.BinaryEncoder;
-import org.apache.commons.codec.DecoderException;
-import org.apache.commons.codec.EncoderException;
-
 import java.io.UnsupportedEncodingException;
 import java.math.BigInteger;
 
@@ -38,7 +33,7 @@ import java.math.BigInteger;
  * @since 1.0-dev
  * @version $Id$
  */
-public class Base64 implements BinaryEncoder, BinaryDecoder {
+public class Base64 {
     /**
      * Chunk size per RFC 2045 section 6.8.
      *
