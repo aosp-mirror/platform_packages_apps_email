@@ -19,8 +19,10 @@
 
 package org.apache.james.mime4j.util;
 
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
+//BEGIN android-changed: Stubbing out logging
+import com.android.email.apacheloggingstub.Log;
+import com.android.email.apacheloggingstub.LogFactory;
+//END android-changed
 
 /**
  * 
