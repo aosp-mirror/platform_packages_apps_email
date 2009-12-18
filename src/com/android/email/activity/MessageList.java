@@ -981,7 +981,7 @@ public class MessageList extends ListActivity implements OnItemClickListener, On
         if (mListFooterMode != LIST_FOOTER_MODE_NONE) {
             mListFooterView = ((LayoutInflater) getSystemService(Context.LAYOUT_INFLATER_SERVICE))
                     .inflate(R.layout.message_list_item_footer, mListView, false);
-            mList.addFooterView(mListFooterView);
+            getListView().addFooterView(mListFooterView);
             setListAdapter(mListAdapter);
 
             mListFooterProgress = mListFooterView.findViewById(R.id.progress);
@@ -1512,7 +1512,8 @@ public class MessageList extends ListActivity implements OnItemClickListener, On
          */
         @Override
         protected synchronized void onContentChanged() {
-            if (mCursor != null && !mCursor.isClosed()) {
+            final Cursor cursor = getCursor();
+            if (cursor != null && !cursor.isClosed()) {
                 long sinceRefresh = SystemClock.elapsedRealtime() - mLastRefreshTime;
                 mRefreshTimer.schedule(REFRESH_INTERVAL_MS - sinceRefresh);
             }
@@ -1523,8 +1524,9 @@ public class MessageList extends ListActivity implements OnItemClickListener, On
          * intercepted in onContentChanged().
          */
         public void doRequery() {
-            if (mCursor != null && !mCursor.isClosed()) {
-                mDataValid = mCursor.requery();
+            final Cursor cursor = getCursor();
+            if (cursor != null && !cursor.isClosed()) {
+                mDataValid = cursor.requery();
                 notifyDataSetChanged();
             }
         }

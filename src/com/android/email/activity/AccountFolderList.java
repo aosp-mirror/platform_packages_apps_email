@@ -878,17 +878,18 @@ public class AccountFolderList extends ListActivity implements OnItemClickListen
                 return view;
             }
 
-            if (!mCursor.moveToPosition(getRealPosition(position))) {
+            final Cursor cursor = getCursor();
+            if (!cursor.moveToPosition(getRealPosition(position))) {
                 throw new IllegalStateException("cursor failed move to " + position);
             }
 
             View v;
             if (convertView == null) {
-                v = newView(mContext, mCursor, parent);
+                v = newView(mContext, cursor, parent);
             } else {
                 v = convertView;
             }
-            bindView(v, mContext, mCursor);
+            bindView(v, mContext, cursor);
             return v;
         }
 
