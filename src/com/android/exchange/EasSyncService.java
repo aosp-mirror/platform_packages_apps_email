@@ -40,6 +40,7 @@ import com.android.exchange.adapter.EmailSyncAdapter;
 import com.android.exchange.adapter.FolderSyncParser;
 import com.android.exchange.adapter.MeetingResponseParser;
 import com.android.exchange.adapter.PingParser;
+import com.android.exchange.adapter.ProvisionParser;
 import com.android.exchange.adapter.Serializer;
 import com.android.exchange.adapter.Tags;
 import com.android.exchange.adapter.Parser.EasParserException;
@@ -142,6 +143,9 @@ public class EasSyncService extends AbstractSyncService {
     static private final int PING_FALLBACK_INBOX = 5;
     static private final int PING_FALLBACK_PIM = 25;
 
+    // MSFT's custom HTTP result code indicating the need to provision
+    static private final int HTTP_NEED_PROVISIONING = 449;
+
     // Reasonable default
     public String mProtocolVersion = DEFAULT_PROTOCOL_VERSION;
     public Double mProtocolVersionDouble;
@@ -224,6 +228,19 @@ public class EasSyncService extends AbstractSyncService {
         return (code == HttpStatus.SC_UNAUTHORIZED) || (code == HttpStatus.SC_FORBIDDEN);
     }
 
+    private void setupProtocolVersion(EasSyncService service, Header versionHeader) {
+        String versions = versionHeader.getValue();
+        if (versions != null) {
+            if (versions.contains("12.0")) {
+                service.mProtocolVersion = "12.0";
+            }
+            service.mProtocolVersionDouble = Double.parseDouble(service.mProtocolVersion);
+            if (service.mAccount != null) {
+                service.mAccount.mProtocolVersion = service.mProtocolVersion;
+            }
+        }
+    }
+
     @Override
     public void validateAccount(String hostAddress, String userName, String password, int port,
             boolean ssl, boolean trustCertificates, Context context) throws MessagingException {
@@ -251,6 +268,9 @@ public class EasSyncService extends AbstractSyncService {
                     throw new MessagingException(MessagingException.IOERROR);
                 }
 
+                // Make sure we've got the right protocol version set up
+                setupProtocolVersion(svc, versions);
+
                 // Run second test here for provisioning failures...
                 Serializer s = new Serializer();
                 userLog("Try folder sync");
@@ -258,20 +278,17 @@ public class EasSyncService extends AbstractSyncService {
                     .end().end().done();
                 resp = svc.sendHttpClientPost("FolderSync", s.toByteArray());
                 code = resp.getStatusLine().getStatusCode();
-                if (code == HttpStatus.SC_FORBIDDEN) {
-                    throw new MessagingException(MessagingException.SECURITY_POLICIES_UNSUPPORTED);
+                // We'll get one of the following responses if policies are required by the server
+                if (code == HttpStatus.SC_FORBIDDEN || code == HTTP_NEED_PROVISIONING) {
+                    // Get the policies and see if we are able to support them
+                    if (svc.canProvision()) {
+                        // If so, send the advisory Exception (the account may be created later)
+                        throw new MessagingException(MessagingException.SECURITY_POLICIES_REQUIRED);
+                    } else
+                        // If not, send the unsupported Exception (the account won't be created)
+                        throw new MessagingException(
+                                MessagingException.SECURITY_POLICIES_UNSUPPORTED);
                 }
-                // PLACEHOLDER:  Replace the above simple check with a more sophisticated
-                // check of server-mandated security policy support.  There are three outcomes.
-                // 1.  As below, if no policies required, simply return here as-is.
-                // 2.  As above, if policies are required that we do not support, throw
-                //     MessagingException.SECURITY_POLICIES_UNSUPPORTED.  This is a validation
-                //     failure.
-                // 3.  New code:  If policies are required that we *do* support, throw
-                //     MessagingException.SECURITY_POLICIES_REQUIRED.  This is an advisory to the
-                //     UI that new policies will be required in order to use this account.
-                // See also:  isSupported(PolicySet policies)
-
                 userLog("Validation successful");
                 return;
             }
@@ -880,6 +897,29 @@ public class EasSyncService extends AbstractSyncService {
         } else {
             return "Email";
         }
+    }
+
+    // TODO This is Exchange 2007 only at this point
+    private boolean canProvision() throws IOException {
+        Serializer s = new Serializer();
+        s.start(Tags.PROVISION_PROVISION).start(Tags.PROVISION_POLICIES);
+        s.start(Tags.PROVISION_POLICY).data(Tags.PROVISION_POLICY_TYPE, "MS-EAS-Provisioning-WBXML")
+            .end().end().end().done();
+        HttpResponse resp = sendHttpClientPost("Provision", s.toByteArray());
+        int code = resp.getStatusLine().getStatusCode();
+        if (code == HttpStatus.SC_OK) {
+            InputStream is = resp.getEntity().getContent();
+            ProvisionParser pp = new ProvisionParser(is, this);
+            if (pp.parse()) {
+                // If true, we received policies from the server
+                // Retrieve them and write them to the framework
+                PolicySet ps = pp.getPolicySet();
+                if (SecurityPolicy.getInstance(mContext).isSupported(ps)) {
+                    return true;
+                }
+            }
+        }
+        return false;
     }
 
     /**
