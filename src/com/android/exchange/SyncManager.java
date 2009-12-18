@@ -1336,6 +1336,7 @@ public class SyncManager extends Service implements Runnable {
                 AbstractSyncService service = mServiceMap.get(m.mId);
                 if (service == null) {
                     service = new EasSyncService(this, m);
+                    if (!((EasSyncService)service).mIsValid) return;
                     service.mSyncReason = reason;
                     if (req != null) {
                         service.addPartRequest(req);
@@ -1533,7 +1534,10 @@ public class SyncManager extends Service implements Runnable {
             // If so, stop them or remove them from the map
             for (Long mailboxId: deletedMailboxes) {
                 AbstractSyncService svc = mServiceMap.get(mailboxId);
-                if (svc != null) {
+                if (svc == null || svc.mThread == null) {
+                    releaseMailbox(mailboxId);
+                    continue;
+                } else {
                     boolean alive = svc.mThread.isAlive();
                     log("Deleted mailbox: " + svc.mMailboxName);
                     if (alive) {
