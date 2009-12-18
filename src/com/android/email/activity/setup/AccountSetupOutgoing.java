@@ -297,7 +297,7 @@ public class AccountSetupOutgoing extends Activity implements OnClickListener,
              */
             throw new Error(use);
         }
-        AccountSetupCheckSettings.actionCheckSettings(this, mAccount, false, true);
+        AccountSetupCheckSettings.actionValidateSettings(this, mAccount, false, true);
     }
 
     public void onClick(View v) {

@@ -24,6 +24,7 @@ import android.content.ComponentName;
 import android.content.Context;
 import android.content.Intent;
 import android.content.ServiceConnection;
+import android.os.Bundle;
 import android.os.Debug;
 import android.os.IBinder;
 import android.os.RemoteException;
@@ -47,6 +48,9 @@ import android.util.Log;
 public class EmailServiceProxy implements IEmailService {
     private static final boolean DEBUG_PROXY = false; // DO NOT CHECK THIS IN SET TO TRUE
     private static final String TAG = "EmailServiceProxy";
+
+    public static final String AUTO_DISCOVER_BUNDLE_ERROR_CODE = "autodiscover_error_code";
+    public static final String AUTO_DISCOVER_BUNDLE_HOST_AUTH = "autodiscover_host_auth";
 
     private Context mContext;
     private Class<?> mClass;
@@ -206,6 +210,27 @@ public class EmailServiceProxy implements IEmailService {
         } else {
             Log.v(TAG, "validate returns " + mReturn);
             return (Integer)mReturn;
+        }
+    }
+
+    public Bundle autoDiscover(final String userName, final String password)
+            throws RemoteException {
+        setTask(new Runnable () {
+            public void run() {
+                try {
+                    if (mCallback != null) mService.setCallback(mCallback);
+                    mReturn = mService.autoDiscover(userName, password);
+                } catch (RemoteException e) {
+                }
+            }
+        });
+        waitForCompletion();
+        if (mReturn == null) {
+            return null;
+        } else {
+            Bundle bundle = (Bundle) mReturn;
+            Log.v(TAG, "autoDiscover returns " + bundle.getInt(AUTO_DISCOVER_BUNDLE_ERROR_CODE));
+            return bundle;
         }
     }
 

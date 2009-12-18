@@ -412,7 +412,7 @@ public class AccountSetupIncoming extends Activity implements OnClickListener {
         }
 
         mAccount.setDeletePolicy((Integer)((SpinnerOption)mDeletePolicyView.getSelectedItem()).value);
-        AccountSetupCheckSettings.actionCheckSettings(this, mAccount, true, false);
+        AccountSetupCheckSettings.actionValidateSettings(this, mAccount, true, false);
     }
 
     public void onClick(View v) {

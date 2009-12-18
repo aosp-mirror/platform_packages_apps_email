@@ -139,6 +139,9 @@ public class AccountSetupAccountType extends Activity implements OnClickListener
         mAccount.setSyncInterval(Account.CHECK_INTERVAL_PUSH);
         mAccount.setSyncLookback(1);
         AccountSetupExchange.actionIncomingSettings(this, mAccount, mMakeDefault, easFlowMode);
+        if (easFlowMode) {
+            finish();
+        }
     }
     
     /**

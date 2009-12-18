@@ -236,5 +236,20 @@ public class ExchangeStore extends Store {
             }
         }
     }
+
+    /**
+     * We handle AutoDiscover for Exchange 2007 (and later) here, wrapping the EmailService call.
+     * The service call returns a HostAuth and we return null if there was a service issue
+     */
+    @Override
+    public Bundle autoDiscover(Context context, String username, String password)
+            throws MessagingException {
+        try {
+            return new EmailServiceProxy(context, SyncManager.class)
+                .autoDiscover(username, password);
+        } catch (RemoteException e) {
+            return null;
+        }
+    }
 }
 
