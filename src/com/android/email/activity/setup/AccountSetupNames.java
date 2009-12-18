@@ -18,7 +18,6 @@ package com.android.email.activity.setup;
 
 import com.android.email.R;
 import com.android.email.Utility;
-import com.android.email.activity.MessageList;
 import com.android.email.provider.EmailContent;
 import com.android.email.provider.EmailContent.AccountColumns;
 
@@ -84,7 +83,7 @@ public class AccountSetupNames extends Activity implements OnClickListener {
          * just leave the saved value alone.
          */
         // mDescription.setText(mAccount.getDescription());
-        if (mAccount.getSenderName() != null) {
+        if (mAccount != null && mAccount.getSenderName() != null) {
             mName.setText(mAccount.getSenderName());
         }
         if (!Utility.requiredFieldValid(mName)) {
@@ -98,6 +97,17 @@ public class AccountSetupNames extends Activity implements OnClickListener {
     private void validateFields() {
         mDoneButton.setEnabled(Utility.requiredFieldValid(mName));
         Utility.setCompoundDrawablesAlpha(mDoneButton, mDoneButton.isEnabled() ? 255 : 128);
+    }
+
+    @Override
+    public void onBackPressed() {
+        boolean easFlowMode = getIntent().getBooleanExtra(EXTRA_EAS_FLOW, false);
+        if (easFlowMode) {
+            AccountSetupBasics.actionAccountCreateFinishedEas(this);
+        } else {
+            AccountSetupBasics.actionAccountCreateFinished(this, mAccount.mId);
+        }
+        finish();
     }
 
     /**
@@ -117,14 +127,7 @@ public class AccountSetupNames extends Activity implements OnClickListener {
         cv.put(AccountColumns.DISPLAY_NAME, mAccount.getDisplayName());
         cv.put(AccountColumns.SENDER_NAME, name);
         mAccount.update(this, cv);
-
-        // Exit or dispatch per flow mode
-        if (getIntent().getBooleanExtra(EXTRA_EAS_FLOW, false)) {
-            // do nothing - just pop off the activity stack
-        } else {
-            MessageList.actionHandleAccount(this, mAccount.mId, EmailContent.Mailbox.TYPE_INBOX);
-        }
-        finish();
+        onBackPressed();
     }
 
     public void onClick(View v) {

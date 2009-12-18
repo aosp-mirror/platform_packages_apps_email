@@ -38,6 +38,11 @@ import android.os.Bundle;
  */
 public class Welcome extends Activity {
 
+    public static void actionStart(Activity fromActivity) {
+        Intent i = new Intent(fromActivity, Welcome.class);
+        fromActivity.startActivity(i);
+    }
+
     @Override
     public void onCreate(Bundle icicle) {
         super.onCreate(icicle);
