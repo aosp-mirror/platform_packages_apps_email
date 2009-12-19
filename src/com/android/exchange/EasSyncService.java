@@ -141,12 +141,22 @@ public class EasSyncService extends AbstractSyncService {
     // Whether we've ever lowered the heartbeat
     private boolean mPingHeartbeatDropped = false;
     // Whether a POST was aborted due to watchdog timeout
-    private boolean mAborted = false;
+    private boolean mPostAborted = false;
+    // Whether or not the sync service is valid (usable)
+    public boolean mIsValid = true;
 
     public EasSyncService(Context _context, Mailbox _mailbox) {
         super(_context, _mailbox);
         mContentResolver = _context.getContentResolver();
+        if (mAccount == null) {
+            mIsValid = false;
+            return;
+        }
         HostAuth ha = HostAuth.restoreHostAuthWithId(_context, mAccount.mHostAuthKeyRecv);
+        if (ha == null) {
+            mIsValid = false;
+            return;
+        }
         mSsl = (ha.mFlags & HostAuth.FLAG_SSL) != 0;
         mTrustSsl = (ha.mFlags & HostAuth.FLAG_TRUST_ALL_CERTIFICATES) != 0;
     }
@@ -165,7 +175,7 @@ public class EasSyncService extends AbstractSyncService {
         synchronized(getSynchronizer()) {
             if (mPendingPost != null) {
                 userLog("Aborting pending POST!");
-                mAborted = true;
+                mPostAborted = true;
                 mPendingPost.abort();
             }
         }
@@ -816,7 +826,7 @@ public class EasSyncService extends AbstractSyncService {
                     // haven't yet "fixed" the timeout, back off by two minutes and "fix" it
                     boolean hasMessage = message != null;
                     userLog("IOException runPingLoop: " + (hasMessage ? message : "[no message]"));
-                    if (mAborted || (hasMessage && message.contains("reset by peer"))) {
+                    if (mPostAborted || (hasMessage && message.contains("reset by peer"))) {
                         long pingLength = SystemClock.elapsedRealtime() - pingTime;
                         if ((pingHeartbeat > PING_MIN_HEARTBEAT) &&
                                 (pingHeartbeat > mPingHighWaterMark)) {
@@ -826,7 +836,7 @@ public class EasSyncService extends AbstractSyncService {
                                 pingHeartbeat = PING_MIN_HEARTBEAT;
                             }
                             userLog("Decreased ping heartbeat to ", pingHeartbeat, "s");
-                        } else if (mAborted || (pingLength < 2000)) {
+                        } else if (mPostAborted || (pingLength < 2000)) {
                             userLog("Abort or NAT type return < 2 seconds; throwing IOException");
                             throw e;
                         } else {
