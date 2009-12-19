@@ -1426,7 +1426,7 @@ public class SyncManager extends Service implements Runnable {
         mResolver.registerContentObserver(Mailbox.CONTENT_URI, false, mMailboxObserver);
         mResolver.registerContentObserver(Message.SYNCED_CONTENT_URI, true, mSyncedMessageObserver);
         mResolver.registerContentObserver(Message.CONTENT_URI, true, mMessageObserver);
-        // TOOD SYNC_OBSERVER_TYPE_SETTINGS is hidden.  Waiting for b/2337197
+        // TODO SYNC_OBSERVER_TYPE_SETTINGS is hidden.  Waiting for b/2337197
         ContentResolver.addStatusChangeListener(ContentResolver.SYNC_OBSERVER_TYPE_SETTINGS,
                 mSyncStatusObserver);
         mAccountsUpdatedListener = new EasAccountsUpdatedListener();
