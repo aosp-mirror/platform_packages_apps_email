@@ -24,6 +24,7 @@ import com.android.email.provider.EmailProvider;
 import com.android.email.provider.EmailContent.Account;
 import com.android.email.provider.EmailContent.AccountColumns;
 import com.android.email.provider.EmailContent.Attachment;
+import com.android.email.provider.EmailContent.Body;
 import com.android.email.provider.EmailContent.Mailbox;
 import com.android.email.provider.EmailContent.Message;
 import com.android.email.provider.EmailContent.MessageColumns;
@@ -65,8 +66,10 @@ public class EmailSyncAdapter extends AbstractSyncAdapter {
     private static final String[] MESSAGE_ID_SUBJECT_PROJECTION =
         new String[] { Message.RECORD_ID, MessageColumns.SUBJECT };
 
+    private static final String WHERE_BODY_SOURCE_MESSAGE_KEY = Body.SOURCE_MESSAGE_KEY + "=?";
 
-    String[] bindArguments = new String[2];
+    String[] mBindArguments = new String[2];
+    String[] mBindArgument = new String[1];
 
     ArrayList<Long> mDeletedIdList = new ArrayList<Long>();
     ArrayList<Long> mUpdatedIdList = new ArrayList<Long>();
@@ -308,10 +311,10 @@ public class EmailSyncAdapter extends AbstractSyncAdapter {
         }
 
         private Cursor getServerIdCursor(String serverId, String[] projection) {
-            bindArguments[0] = serverId;
-            bindArguments[1] = mMailboxIdAsString;
+            mBindArguments[0] = serverId;
+            mBindArguments[1] = mMailboxIdAsString;
             return mContentResolver.query(Message.CONTENT_URI, projection,
-                    WHERE_SERVER_ID_AND_MAILBOX_KEY, bindArguments, null);
+                    WHERE_SERVER_ID_AND_MAILBOX_KEY, mBindArguments, null);
         }
 
         private void deleteParser(ArrayList<Long> deletes, int entryTag) throws IOException {
@@ -562,6 +565,68 @@ public class EmailSyncAdapter extends AbstractSyncAdapter {
         return sb.toString();
     }
 
+    /**
+     * Note that messages in the deleted database preserve the message's unique id; therefore, we
+     * can utilize this id to find references to the message.  The only reference situation at this
+     * point is in the Body table; it is when sending messages via SmartForward and SmartReply
+     */
+    private boolean messageReferenced(ContentResolver cr, long id) {
+        mBindArgument[0] = Long.toString(id);
+        // See if this id is referenced in a body
+        Cursor c = cr.query(Body.CONTENT_URI, Body.ID_PROJECTION, WHERE_BODY_SOURCE_MESSAGE_KEY,
+                mBindArgument, null);
+        try {
+            return c.moveToFirst();
+        } finally {
+            c.close();
+        }
+    }
+
+    /*private*/ /**
+     * Serialize commands to delete items from the server; as we find items to delete, add their
+     * id's to the deletedId's array
+     *
+     * @param s the Serializer we're using to create post data
+     * @param deletedIds ids whose deletions are being sent to the server
+     * @param first whether or not this is the first command being sent
+     * @return true if SYNC_COMMANDS hasn't been sent (false otherwise)
+     * @throws IOException
+     */
+    boolean sendDeletedItems(Serializer s, ArrayList<Long> deletedIds, boolean first)
+            throws IOException {
+        ContentResolver cr = mContext.getContentResolver();
+
+        // Find any of our deleted items
+        Cursor c = cr.query(Message.DELETED_CONTENT_URI, Message.LIST_PROJECTION,
+                MessageColumns.MAILBOX_KEY + '=' + mMailbox.mId, null, null);
+        // We keep track of the list of deleted item id's so that we can remove them from the
+        // deleted table after the server receives our command
+        deletedIds.clear();
+        try {
+            while (c.moveToNext()) {
+                String serverId = c.getString(Message.LIST_SERVER_ID_COLUMN);
+                // Keep going if there's no serverId
+                if (serverId == null) {
+                    continue;
+                // Also check if this message is referenced elsewhere
+                } else if (messageReferenced(cr, c.getLong(Message.CONTENT_ID_COLUMN))) {
+                    userLog("Postponing deletion of referenced message: ", serverId);
+                    continue;
+                } else if (first) {
+                    s.start(Tags.SYNC_COMMANDS);
+                    first = false;
+                }
+                // Send the command to delete this message
+                s.start(Tags.SYNC_DELETE).data(Tags.SYNC_SERVER_ID, serverId).end();
+                deletedIds.add(c.getLong(Message.LIST_ID_COLUMN));
+            }
+        } finally {
+            c.close();
+        }
+
+       return first;
+    }
+
     @Override
     public boolean sendLocalChanges(Serializer s) throws IOException {
         ContentResolver cr = mContext.getContentResolver();
@@ -571,37 +636,15 @@ public class EmailSyncAdapter extends AbstractSyncAdapter {
             return false;
         }
 
-        // Find any of our deleted items
-        Cursor c = cr.query(Message.DELETED_CONTENT_URI, Message.LIST_PROJECTION,
-                MessageColumns.MAILBOX_KEY + '=' + mMailbox.mId, null, null);
-        boolean first = true;
-        // We keep track of the list of deleted item id's so that we can remove them from the
-        // deleted table after the server receives our command
-        mDeletedIdList.clear();
-        try {
-            while (c.moveToNext()) {
-                String serverId = c.getString(Message.LIST_SERVER_ID_COLUMN);
-                // Keep going if there's no serverId
-                if (serverId == null) {
-                    continue;
-                } else if (first) {
-                    s.start(Tags.SYNC_COMMANDS);
-                    first = false;
-                }
-                // Send the command to delete this message
-                s.start(Tags.SYNC_DELETE).data(Tags.SYNC_SERVER_ID, serverId).end();
-                mDeletedIdList.add(c.getLong(Message.LIST_ID_COLUMN));
-            }
-        } finally {
-            c.close();
-        }
+        // This code is split out for unit testing purposes
+        boolean firstCommand = sendDeletedItems(s, mDeletedIdList, true);
 
         // Find our trash mailbox, since deletions will have been moved there...
         long trashMailboxId =
             Mailbox.findMailboxOfType(mContext, mMailbox.mAccountKey, Mailbox.TYPE_TRASH);
 
         // Do the same now for updated items
-        c = cr.query(Message.UPDATED_CONTENT_URI, Message.LIST_PROJECTION,
+        Cursor c = cr.query(Message.UPDATED_CONTENT_URI, Message.LIST_PROJECTION,
                 MessageColumns.MAILBOX_KEY + '=' + mMailbox.mId, null, null);
 
         // We keep track of the list of updated item id's as we did above with deleted items
@@ -627,9 +670,9 @@ public class EmailSyncAdapter extends AbstractSyncAdapter {
                     }
                     // If the message is now in the trash folder, it has been deleted by the user
                     if (currentCursor.getLong(UPDATES_MAILBOX_KEY_COLUMN) == trashMailboxId) {
-                         if (first) {
+                         if (firstCommand) {
                             s.start(Tags.SYNC_COMMANDS);
-                            first = false;
+                            firstCommand = false;
                         }
                         // Send the command to delete this message
                         s.start(Tags.SYNC_DELETE).data(Tags.SYNC_SERVER_ID, serverId).end();
@@ -659,9 +702,9 @@ public class EmailSyncAdapter extends AbstractSyncAdapter {
                         continue;
                     }
 
-                    if (first) {
+                    if (firstCommand) {
                         s.start(Tags.SYNC_COMMANDS);
-                        first = false;
+                        firstCommand = false;
                     }
                     // Send the change to "read" and "favorite" (flagged)
                     s.start(Tags.SYNC_CHANGE)
@@ -708,7 +751,7 @@ public class EmailSyncAdapter extends AbstractSyncAdapter {
             c.close();
         }
 
-        if (!first) {
+        if (!firstCommand) {
             s.end(); // SYNC_COMMANDS
         }
         return false;
