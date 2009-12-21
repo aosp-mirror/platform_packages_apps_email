@@ -1075,11 +1075,12 @@ public class EasSyncService extends AbstractSyncService {
         mExitStatus = EXIT_DONE;
     }
 
-    protected void setupService() {
+    protected boolean setupService() {
         // Make sure account and mailbox are always the latest from the database
         mAccount = Account.restoreAccountWithId(mContext, mAccount.mId);
+        if (mAccount == null) return false;
         mMailbox = Mailbox.restoreMailboxWithId(mContext, mMailbox.mId);
-
+        if (mMailbox == null) return false;
         mThread = Thread.currentThread();
         android.os.Process.setThreadPriority(android.os.Process.THREAD_PRIORITY_BACKGROUND);
         TAG = mThread.getName();
@@ -1088,13 +1089,20 @@ public class EasSyncService extends AbstractSyncService {
         mHostAddress = ha.mAddress;
         mUserName = ha.mLogin;
         mPassword = ha.mPassword;
+
+        // Set up our protocol version
+        mProtocolVersion = mAccount.mProtocolVersion;
+        if (mProtocolVersion != null) {
+            mProtocolVersionDouble = Double.parseDouble(mProtocolVersion);
+        }
+        return true;
     }
 
     /* (non-Javadoc)
      * @see java.lang.Runnable#run()
      */
     public void run() {
-        setupService();
+        if (!setupService()) return;
 
         try {
             SyncManager.callback().syncMailboxStatus(mMailboxId, EmailServiceStatus.IN_PROGRESS, 0);
@@ -1111,8 +1119,6 @@ public class EasSyncService extends AbstractSyncService {
                 runAccountMailbox();
             } else {
                 AbstractSyncAdapter target;
-                mProtocolVersion = mAccount.mProtocolVersion;
-                mProtocolVersionDouble = Double.parseDouble(mProtocolVersion);
                 if (mMailbox.mType == Mailbox.TYPE_CONTACTS) {
                     target = new ContactsSyncAdapter(mMailbox, this);
                 } else {
