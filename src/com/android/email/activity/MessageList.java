@@ -1524,11 +1524,7 @@ public class MessageList extends ListActivity implements OnItemClickListener, On
          * intercepted in onContentChanged().
          */
         public void doRequery() {
-            final Cursor cursor = getCursor();
-            if (cursor != null && !cursor.isClosed()) {
-                mDataValid = cursor.requery();
-                notifyDataSetChanged();
-            }
+            super.onContentChanged();
         }
 
         class RefreshTimer extends Timer {
