@@ -1274,9 +1274,10 @@ public class MessageCompose extends Activity implements OnClickListener, OnFocus
             //    EmailHtmlUtil.resolveInlineImage(getContentResolver(), mAccount,
             //                                     text, message, 0);
             mQuotedTextBar.setVisibility(View.VISIBLE);
-            mQuotedText.setVisibility(View.VISIBLE);
-            mQuotedText.loadDataWithBaseURL("email://", text, "text/html",
-                                            "utf-8", null);
+            if (mQuotedText != null) {
+                mQuotedText.setVisibility(View.VISIBLE);
+                mQuotedText.loadDataWithBaseURL("email://", text, "text/html", "utf-8", null);
+            }
         }
     }
 
