@@ -21,8 +21,10 @@ import com.android.email.EmailAddressValidator;
 import com.android.email.R;
 import com.android.email.Utility;
 import com.android.email.activity.Debug;
+import com.android.email.activity.MessageList;
 import com.android.email.provider.EmailContent;
 import com.android.email.provider.EmailContent.Account;
+import com.android.email.provider.EmailContent.Mailbox;
 
 import android.app.Activity;
 import android.app.AlertDialog;
@@ -61,7 +63,15 @@ public class AccountSetupBasics extends Activity
     private final static boolean ENTER_DEBUG_SCREEN = true;
 
     private final static String EXTRA_ACCOUNT = "com.android.email.AccountSetupBasics.account";
-    private final static String EXTRA_EAS_FLOW = "com.android.email.extra.eas_flow";
+    public final static String EXTRA_EAS_FLOW = "com.android.email.extra.eas_flow";
+
+    // Action asking us to return to our original caller (i.e. finish)
+    private static final String ACTION_RETURN_TO_CALLER =
+        "com.android.email.AccountSetupBasics.return";
+    // Action asking us to restart the task from the Welcome activity (which will figure out the
+    // right place to go) and finish
+    private static final String ACTION_START_AT_MESSAGE_LIST =
+        "com.android.email.AccountSetupBasics.messageList";
 
     private final static int DIALOG_NOTE = 1;
     private final static int DIALOG_DUPLICATE_ACCOUNT = 2;
@@ -99,9 +109,43 @@ public class AccountSetupBasics extends Activity
         return i;
     }
 
+    public static void actionAccountCreateFinishedEas(Activity fromActivity) {
+        Intent i= new Intent(fromActivity, AccountSetupBasics.class);
+        // If we're in the "eas flow" (from AccountManager), we want to return to the caller
+        // (in the settings app)
+        i.putExtra(AccountSetupBasics.ACTION_RETURN_TO_CALLER, true);
+        i.setFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
+        fromActivity.startActivity(i);
+    }
+
+    public static void actionAccountCreateFinished(Activity fromActivity, long accountId) {
+        Intent i= new Intent(fromActivity, AccountSetupBasics.class);
+        // If we're not in the "eas flow" (from AccountManager), we want to show the message list
+        // for the new inbox
+        i.putExtra(AccountSetupBasics.ACTION_START_AT_MESSAGE_LIST, accountId);
+        i.setFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
+        fromActivity.startActivity(i);
+    }
+
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+
+        Intent intent = getIntent();
+        if (intent.getBooleanExtra(ACTION_RETURN_TO_CALLER, false)) {
+            // Return to the caller who initiated account creation
+            finish();
+            return;
+        } else {
+            long accountId = intent.getLongExtra(ACTION_START_AT_MESSAGE_LIST, -1);
+            if (accountId >= 0) {
+                // Show the message list for the new account
+                MessageList.actionHandleAccount(this, accountId, Mailbox.TYPE_INBOX);
+                finish();
+                return;
+            }
+        }
+
         setContentView(R.layout.account_setup_basics);
         mEmailView = (EditText)findViewById(R.id.account_email);
         mPasswordView = (EditText)findViewById(R.id.account_password);
@@ -132,7 +176,7 @@ public class AccountSetupBasics extends Activity
             }
         }
 
-        mEasFlowMode = getIntent().getBooleanExtra(EXTRA_EAS_FLOW, false);
+        mEasFlowMode = intent.getBooleanExtra(EXTRA_EAS_FLOW, false);
         if (mEasFlowMode) {
             // No need for manual button -> next is appropriate
             mManualSetupButton.setVisibility(View.GONE);
@@ -427,7 +471,6 @@ public class AccountSetupBasics extends Activity
 
         AccountSetupAccountType.actionSelectAccountType(this, mAccount, mDefaultView.isChecked(),
                 mEasFlowMode);
-        finish();
     }
 
     public void onClick(View v) {
