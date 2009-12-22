@@ -151,11 +151,11 @@ public class MessageView extends Activity implements OnClickListener {
     private Controller mController;
     private ControllerResults mControllerCallback = new ControllerResults();
 
-    private View mPrevious;
-    private View mNext;
-    private LoadPrevNextTask mLoadPrevNextTask;
-    private Cursor mPrevNextCursor;
-    private ContentObserver mNextPrevObserver;
+    private View mMoveToNewer;
+    private View mMoveToOlder;
+    private LoadMessageListTask mLoadMessageListTask;
+    private Cursor mMessageListCursor;
+    private ContentObserver mCursorObserver;
 
     // contains the HTML body. Is used by LoadAttachmentTask to display inline images.
     private String mHtmlText;
@@ -308,7 +308,7 @@ public class MessageView extends Activity implements OnClickListener {
     /**
      * View a specific message found in the Email provider.
      * @param messageId the message to view.
-     * @param mailboxId identifies the sequence of messages used for prev/next navigation.
+     * @param mailboxId identifies the sequence of messages used for newer/older navigation.
      * @param disableReplyAndForward set if reply/forward do not make sense for this message
      *        (e.g. messages in Trash).
      */
@@ -343,12 +343,12 @@ public class MessageView extends Activity implements OnClickListener {
         mFavoriteIcon = (ImageView) findViewById(R.id.favorite);
         mShowPicturesSection = findViewById(R.id.show_pictures_section);
         mSenderPresenceView = (ImageView) findViewById(R.id.presence);
-        mNext = findViewById(R.id.next);
-        mPrevious = findViewById(R.id.previous);
+        mMoveToNewer = findViewById(R.id.moveToNewer);
+        mMoveToOlder = findViewById(R.id.moveToOlder);
         mScrollView = findViewById(R.id.scrollview);
 
-        mNext.setOnClickListener(this);
-        mPrevious.setOnClickListener(this);
+        mMoveToNewer.setOnClickListener(this);
+        mMoveToOlder.setOnClickListener(this);
         mFromView.setOnClickListener(this);
         mSenderPresenceView.setOnClickListener(this);
         mFavoriteIcon.setOnClickListener(this);
@@ -379,7 +379,19 @@ public class MessageView extends Activity implements OnClickListener {
 
         mController = Controller.getInstance(getApplication());
 
-        mNextPrevObserver = new NextPrevObserver(mHandler);
+        // This observer is used to watch for external changes to the message list
+        mCursorObserver = new ContentObserver(mHandler){
+                @Override
+                public void onChange(boolean selfChange) {
+                    // get a new message list cursor, but only if we already had one
+                    // (otherwise it's "too soon" and other pathways will cause it to be loaded)
+                    if (mLoadMessageListTask == null && mMessageListCursor != null) {
+                        mLoadMessageListTask = new LoadMessageListTask(mMailboxId);
+                        mLoadMessageListTask.execute();
+                    }
+                }
+            };
+
         messageChanged();
     }
 
@@ -410,11 +422,11 @@ public class MessageView extends Activity implements OnClickListener {
         if (mMessage != null) {
             startPresenceCheck();
 
-            // get a new next/prev cursor, but only if mailbox is set
+            // get a new message list cursor, but only if mailbox is set
             // (otherwise it's "too soon" and other pathways will cause it to be loaded)
-            if (mLoadPrevNextTask == null && mMailboxId != -1) {
-                mLoadPrevNextTask = new LoadPrevNextTask(mMailboxId);
-                mLoadPrevNextTask.execute();
+            if (mLoadMessageListTask == null && mMailboxId != -1) {
+                mLoadMessageListTask = new LoadMessageListTask(mMailboxId);
+                mLoadMessageListTask.execute();
             }
         }
     }
@@ -423,14 +435,14 @@ public class MessageView extends Activity implements OnClickListener {
     public void onPause() {
         super.onPause();
         mController.removeResultCallback(mControllerCallback);
-        closePrevNextCursor();
+        closeMessageListCursor();
     }
 
-    private void closePrevNextCursor() {
-        if (mPrevNextCursor != null) {
-            mPrevNextCursor.unregisterContentObserver(mNextPrevObserver);
-            mPrevNextCursor.close();
-            mPrevNextCursor = null;
+    private void closeMessageListCursor() {
+        if (mMessageListCursor != null) {
+            mMessageListCursor.unregisterContentObserver(mCursorObserver);
+            mMessageListCursor.close();
+            mMessageListCursor = null;
         }
     }
 
@@ -447,8 +459,8 @@ public class MessageView extends Activity implements OnClickListener {
         mLoadBodyTask = null;
         cancelTask(mLoadAttachmentsTask);
         mLoadAttachmentsTask = null;
-        cancelTask(mLoadPrevNextTask);
-        mLoadPrevNextTask = null;
+        cancelTask(mLoadMessageListTask);
+        mLoadMessageListTask = null;
         cancelTask(mPresenceCheckTask);
         mPresenceCheckTask = null;
     }
@@ -466,20 +478,20 @@ public class MessageView extends Activity implements OnClickListener {
             mMessageContentView.destroy();
             mMessageContentView = null;
         }
-        // the next/prev cursor was closed in onPause()
+        // the cursor was closed in onPause()
     }
 
     private void onDelete() {
         if (mMessage != null) {
-            // the delete triggers mNextPrevObserver
-            // first move to prev/next before the actual delete
+            // the delete triggers mCursorObserver
+            // first move to older/newer before the actual delete
             long messageIdToDelete = mMessageId;
-            boolean moved = onPrevious() || onNext();
+            boolean moved = moveToOlder() || moveToNewer();
             mController.deleteMessage(messageIdToDelete, mMessage.mAccountKey);
             Toast.makeText(this, R.string.message_deleted_toast, Toast.LENGTH_SHORT).show();
             if (!moved) {
                 // this generates a benign warning "Duplicate finish request" because
-                // repositionPrevNextCursor() will fail to reposition and do its own finish()
+                // repositionMessageListCursor() will fail to reposition and do its own finish()
                 finish();
             }
         }
@@ -599,21 +611,26 @@ public class MessageView extends Activity implements OnClickListener {
         }
     }
 
-    private boolean onNext() {
-        if (mPrevNextCursor != null && mPrevNextCursor.moveToNext()) {
-            mMessageId = mPrevNextCursor.getLong(0);
+    private boolean moveToOlder() {
+        // Guard with !isLast() because Cursor.moveToNext() returns false even as it moves
+        // from last to after-last.
+        if (mMessageListCursor != null
+                && !mMessageListCursor.isLast()
+                && mMessageListCursor.moveToNext()) {
+            mMessageId = mMessageListCursor.getLong(0);
             messageChanged();
             return true;
         }
         return false;
     }
 
-    private boolean onPrevious() {
-        // In some implementations, Cursor.moveToPrev() is reporting false even when it
-        // moves from position 0 to position -1.  So we'll guard that call here.
-        if (mPrevNextCursor != null && mPrevNextCursor.getPosition() > 0) {
-            mPrevNextCursor.moveToPrevious();
-            mMessageId = mPrevNextCursor.getLong(0);
+    private boolean moveToNewer() {
+        // Guard with !isFirst() because Cursor.moveToPrev() returns false even as it moves
+        // from first to before-first.
+        if (mMessageListCursor != null
+                && !mMessageListCursor.isFirst()
+                && mMessageListCursor.moveToPrevious()) {
+            mMessageId = mMessageListCursor.getLong(0);
             messageChanged();
             return true;
         }
@@ -715,11 +732,11 @@ public class MessageView extends Activity implements OnClickListener {
             case R.id.delete:
                 onDelete();
                 break;
-            case R.id.next:
-                onNext();
+            case R.id.moveToOlder:
+                moveToOlder();
                 break;
-            case R.id.previous:
-                onPrevious();
+            case R.id.moveToNewer:
+                moveToNewer();
                 break;
             case R.id.download:
                 onDownloadAttachment((AttachmentInfo) view.getTag());
@@ -806,64 +823,44 @@ public class MessageView extends Activity implements OnClickListener {
         // Start an AsyncTask to make a new cursor and load the message
         mLoadMessageTask = new LoadMessageTask(mMessageId, true);
         mLoadMessageTask.execute();
-        updatePrevNextArrows(mPrevNextCursor);
+        updateNavigationArrows(mMessageListCursor);
     }
 
     /**
-     * Reposition the next/prev cursor.  Finish() the activity if we are no longer
+     * Reposition the older/newer cursor.  Finish() the activity if we are no longer
      * in the list.  Update the UI arrows as appropriate.
      */
-    private void repositionPrevNextCursor() {
+    private void repositionMessageListCursor() {
         if (Email.DEBUG) {
             Email.log("MessageView: reposition to id=" + mMessageId);
         }
         // position the cursor on the current message
-        mPrevNextCursor.moveToPosition(-1);
-        while (mPrevNextCursor.moveToNext() && mPrevNextCursor.getLong(0) != mMessageId) {
+        mMessageListCursor.moveToPosition(-1);
+        while (mMessageListCursor.moveToNext() && mMessageListCursor.getLong(0) != mMessageId) {
         }
-        if (mPrevNextCursor.isAfterLast()) {
+        if (mMessageListCursor.isAfterLast()) {
             // overshoot - get out now, the list is no longer valid
             finish();
         }
-        updatePrevNextArrows(mPrevNextCursor);
+        updateNavigationArrows(mMessageListCursor);
     }
 
     /**
-     * Based on the current position of the prev/next cursor, update the prev / next arrows.
+     * Update the arrows based on the current position of the older/newer cursor.
      */
-    private void updatePrevNextArrows(Cursor cursor) {
+    private void updateNavigationArrows(Cursor cursor) {
         if (cursor != null) {
-            boolean hasPrev, hasNext;
+            boolean hasNewer, hasOlder;
             if (cursor.isAfterLast() || cursor.isBeforeFirst()) {
                 // The cursor not being on a message means that the current message was not found.
                 // While this should not happen, simply disable prev/next arrows in that case.
-                hasPrev = hasNext = false;
+                hasNewer = hasOlder = false;
             } else {
-                hasPrev = !cursor.isFirst();
-                hasNext = !cursor.isLast();
+                hasNewer = !cursor.isFirst();
+                hasOlder = !cursor.isLast();
             }
-            mPrevious.setVisibility(hasPrev ? View.VISIBLE : View.INVISIBLE);
-            mNext.setVisibility(hasNext ? View.VISIBLE : View.INVISIBLE);
-        }
-    }
-
-    /**
-     * This observer is used to watch for external changes to the next/prev list
-     */
-    private class NextPrevObserver extends ContentObserver {
-
-        public NextPrevObserver(Handler handler) {
-            super(handler);
-        }
-
-        @Override
-        public void onChange(boolean selfChange) {
-            // get a new next/prev cursor, but only if we already had one
-            // (otherwise it's "too soon" and other pathways will cause it to be loaded)
-            if (mLoadPrevNextTask == null && mPrevNextCursor != null) {
-                mLoadPrevNextTask = new LoadPrevNextTask(mMailboxId);
-                mLoadPrevNextTask.execute();
-            }
+            mMoveToNewer.setVisibility(hasNewer ? View.VISIBLE : View.INVISIBLE);
+            mMoveToOlder.setVisibility(hasOlder ? View.VISIBLE : View.INVISIBLE);
         }
     }
 
@@ -1064,10 +1061,10 @@ public class MessageView extends Activity implements OnClickListener {
      * It generates the same cursor as the one used in MessageList (but with an id-only projection),
      * scans through it until finds the current messageId, and takes the previous and next ids.
      */
-    private class LoadPrevNextTask extends AsyncTask<Void, Void, Cursor> {
+    private class LoadMessageListTask extends AsyncTask<Void, Void, Cursor> {
         private long mLocalMailboxId;
 
-        public LoadPrevNextTask(long mailboxId) {
+        public LoadMessageListTask(long mailboxId) {
             mLocalMailboxId = mailboxId;
         }
 
@@ -1088,16 +1085,16 @@ public class MessageView extends Activity implements OnClickListener {
                 return;
             }
             // remove the reference to ourselves so another one can be launched
-            MessageView.this.mLoadPrevNextTask = null;
+            MessageView.this.mLoadMessageListTask = null;
 
             if (cursor.isClosed()) {
                 return;
             }
             // replace the older cursor if there is one
-            closePrevNextCursor();
-            mPrevNextCursor = cursor;
-            mPrevNextCursor.registerContentObserver(MessageView.this.mNextPrevObserver);
-            repositionPrevNextCursor();
+            closeMessageListCursor();
+            mMessageListCursor = cursor;
+            mMessageListCursor.registerContentObserver(MessageView.this.mCursorObserver);
+            repositionMessageListCursor();
         }
     }
 
@@ -1252,10 +1249,10 @@ public class MessageView extends Activity implements OnClickListener {
         if (mMailboxId == -1) {
             mMailboxId = message.mMailboxKey;
         }
-        // only start LoadPrevNextTask here if it's the first time
-        if (mPrevNextCursor == null) {
-            mLoadPrevNextTask = new LoadPrevNextTask(mMailboxId);
-            mLoadPrevNextTask.execute();
+        // only start LoadMessageListTask here if it's the first time
+        if (mMessageListCursor == null) {
+            mLoadMessageListTask = new LoadMessageListTask(mMailboxId);
+            mLoadMessageListTask.execute();
         }
 
         mSubjectView.setText(message.mSubject);
