@@ -39,7 +39,7 @@
                 android:paddingTop="2dip"
                 android:background="#101010">
                 <ImageButton
-                    android:id="@+id/previous"
+                    android:id="@+id/moveToNewer"
                     android:layout_height="35dip"
                     android:layout_width="0dip"
                     android:layout_weight="1"
@@ -53,7 +53,7 @@
                     android:paddingBottom="0dip"
                      />
                 <ImageButton
-                    android:id="@+id/next"
+                    android:id="@+id/moveToOlder"
                     android:layout_height="35dip"
                     android:layout_width="0dip"
                     android:layout_weight="1"
