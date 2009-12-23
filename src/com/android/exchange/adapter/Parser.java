@@ -304,6 +304,10 @@ public abstract class Parser {
         tagTable = tagTables[0];
     }
 
+    /*package*/ void resetInput(InputStream in) {
+        this.in = in;
+    }
+    
     void log(String str) {
         int cr = str.indexOf('\n');
         if (cr > 0) {

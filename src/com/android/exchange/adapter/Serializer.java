@@ -54,12 +54,20 @@ public class Serializer {
     private int tagPage;
 
     public Serializer() {
+        this(true);
+    }
+
+    public Serializer(boolean startDocument) {
         super();
-        try {
-            startDocument();
-            //logging = Eas.PARSER_LOG;
-        } catch (IOException e) {
-            // Nothing to be done
+        if (startDocument) {
+            try {
+                startDocument();
+                //logging = Eas.PARSER_LOG;
+            } catch (IOException e) {
+                // Nothing to be done
+            }
+        } else {
+            out.write(0);
         }
     }
 

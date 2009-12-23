@@ -320,7 +320,7 @@ public class EmailSyncAdapter extends AbstractSyncAdapter {
                     WHERE_SERVER_ID_AND_MAILBOX_KEY, mBindArguments, null);
         }
 
-        private void deleteParser(ArrayList<Long> deletes, int entryTag) throws IOException {
+        /*package*/ void deleteParser(ArrayList<Long> deletes, int entryTag) throws IOException {
             while (nextTag(entryTag) != END) {
                 switch (tag) {
                     case Tags.SYNC_SERVER_ID:
@@ -357,7 +357,7 @@ public class EmailSyncAdapter extends AbstractSyncAdapter {
             }
         }
 
-        private void changeParser(ArrayList<ServerChange> changes) throws IOException {
+        /*package*/ void changeParser(ArrayList<ServerChange> changes) throws IOException {
             String serverId = null;
             Boolean oldRead = false;
             Boolean oldFlag = false;
