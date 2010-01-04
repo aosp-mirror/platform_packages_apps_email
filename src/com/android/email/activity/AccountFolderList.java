@@ -866,9 +866,9 @@ public class AccountFolderList extends ListActivity implements OnItemClickListen
          */
         @Override
         public View getView(int position, View convertView, ViewGroup parent) {
-            if (!mDataValid) {
-                throw new IllegalStateException("cursor invalid");
-            }
+            // The base class's getView() checks for mDataValid at the beginning, but we don't have
+            // to do that, because if the cursor is invalid getCount() returns 0, in which case this
+            // method wouldn't get called.
 
             // Handle the separator here - create & bind
             if (position == mSeparatorPosition) {
@@ -877,20 +877,7 @@ public class AccountFolderList extends ListActivity implements OnItemClickListen
                 view.setText(R.string.account_folder_list_separator_accounts);
                 return view;
             }
-
-            final Cursor cursor = getCursor();
-            if (!cursor.moveToPosition(getRealPosition(position))) {
-                throw new IllegalStateException("cursor failed move to " + position);
-            }
-
-            View v;
-            if (convertView == null) {
-                v = newView(mContext, cursor, parent);
-            } else {
-                v = convertView;
-            }
-            bindView(v, mContext, cursor);
-            return v;
+            return super.getView(getRealPosition(position), convertView, parent);
         }
 
         /**
@@ -915,7 +902,8 @@ public class AccountFolderList extends ListActivity implements OnItemClickListen
         @Override
         public int getCount() {
             int count = super.getCount();
-            if (mDataValid && (mSeparatorPosition != ListView.INVALID_POSITION)) {
+            if (count > 0 && (mSeparatorPosition != ListView.INVALID_POSITION)) {
+                // Increment for separator, if we have anything to show.
                 count += 1;
             }
             return count;
