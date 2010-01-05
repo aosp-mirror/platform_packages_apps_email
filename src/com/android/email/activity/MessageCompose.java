@@ -95,8 +95,6 @@ public class MessageCompose extends Activity implements OnClickListener, OnFocus
     private static final String STATE_KEY_DRAFT_ID =
         "com.android.email.activity.MessageCompose.draftId";
 
-    private static final int MSG_PROGRESS_ON = 1;
-    private static final int MSG_PROGRESS_OFF = 2;
     private static final int MSG_UPDATE_TITLE = 3;
     private static final int MSG_SKIPPED_ATTACHMENTS = 4;
     private static final int MSG_DISCARDED_DRAFT = 6;
@@ -139,6 +137,8 @@ public class MessageCompose extends Activity implements OnClickListener, OnFocus
     private View mQuotedTextBar;
     private ImageButton mQuotedTextDelete;
     private WebView mQuotedText;
+    private TextView mLeftTitle;
+    private TextView mRightTitle;
 
     private Controller mController;
     private Listener mListener = new Listener();
@@ -154,12 +154,6 @@ public class MessageCompose extends Activity implements OnClickListener, OnFocus
         @Override
         public void handleMessage(android.os.Message msg) {
             switch (msg.what) {
-                case MSG_PROGRESS_ON:
-                    setProgressBarIndeterminateVisibility(true);
-                    break;
-                case MSG_PROGRESS_OFF:
-                    setProgressBarIndeterminateVisibility(false);
-                    break;
                 case MSG_UPDATE_TITLE:
                     updateTitle();
                     break;
@@ -268,22 +262,31 @@ public class MessageCompose extends Activity implements OnClickListener, OnFocus
             AccountFolderList.actionShowAccounts(this);
             finish();
         } else {
-            mAccount = Account.restoreAccountWithId(this, accountId);
+            setAccount(Account.restoreAccountWithId(this, accountId));
+        }
+    }
+
+    private void setAccount(Account account) {
+        mAccount = account;
+        if (account != null) {
+            mRightTitle.setText(account.mDisplayName);
         }
     }
 
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        requestWindowFeature(Window.FEATURE_INDETERMINATE_PROGRESS);
+        requestWindowFeature(Window.FEATURE_CUSTOM_TITLE);
         setContentView(R.layout.message_compose);
+        getWindow().setFeatureInt(Window.FEATURE_CUSTOM_TITLE, R.layout.list_title);
+
         mController = Controller.getInstance(getApplication());
         initViews();
         setDraftNeedsSaving(false);
 
         long draftId = -1;
         if (savedInstanceState != null) {
-            // This data gets used in onCreate, so grab it here instead of onRestoreIntstanceState
+            // This data gets used in onCreate, so grab it here instead of onRestoreInstanceState
             mSourceMessageProcessed =
                 savedInstanceState.getBoolean(STATE_KEY_SOURCE_MESSAGE_PROCED, false);
             draftId = savedInstanceState.getLong(STATE_KEY_DRAFT_ID, -1);
@@ -438,6 +441,8 @@ public class MessageCompose extends Activity implements OnClickListener, OnFocus
         mQuotedTextBar = findViewById(R.id.quoted_text_bar);
         mQuotedTextDelete = (ImageButton)findViewById(R.id.quoted_text_delete);
         mQuotedText = (WebView)findViewById(R.id.quoted_text);
+        mLeftTitle = (TextView)findViewById(R.id.title_left_text);
+        mRightTitle = (TextView)findViewById(R.id.title_right_text);
 
         TextWatcher watcher = new TextWatcher() {
             public void beforeTextChanged(CharSequence s, int start,
@@ -625,7 +630,7 @@ public class MessageCompose extends Activity implements OnClickListener, OnFocus
                 Email.log("Action " + mAction + " has unexpected EXTRA_MESSAGE_ID");
             }
 
-            mAccount = account;
+            setAccount(account);
             processSourceMessageGuarded(message, mAccount);
             mMessageLoaded = true;
         }
@@ -633,9 +638,9 @@ public class MessageCompose extends Activity implements OnClickListener, OnFocus
 
     private void updateTitle() {
         if (mSubjectView.getText().length() == 0) {
-            setTitle(R.string.compose_title);
+            mLeftTitle.setText(R.string.compose_title);
         } else {
-            setTitle(mSubjectView.getText().toString());
+            mLeftTitle.setText(mSubjectView.getText().toString());
         }
     }
 
@@ -1453,37 +1458,4 @@ public class MessageCompose extends Activity implements OnClickListener, OnFocus
                 int progress) {
         }
     }
-
-//     class Listener extends MessagingListener {
-//         @Override
-//         public void loadMessageForViewStarted(Account account, String folder,
-//                 String uid) {
-//             mHandler.sendEmptyMessage(MSG_PROGRESS_ON);
-//         }
-
-//         @Override
-//         public void loadMessageForViewFinished(Account account, String folder,
-//                 String uid, Message message) {
-//             mHandler.sendEmptyMessage(MSG_PROGRESS_OFF);
-//         }
-
-//         @Override
-//         public void loadMessageForViewBodyAvailable(Account account, String folder,
-//                 String uid, final Message message) {
-//            // TODO: convert uid to EmailContent.Message and re-do what's below
-//             mSourceMessage = message;
-//             runOnUiThread(new Runnable() {
-//                 public void run() {
-//                     processSourceMessage(message);
-//                 }
-//             });
-//         }
-
-//         @Override
-//         public void loadMessageForViewFailed(Account account, String folder, String uid,
-//                 final String message) {
-//             mHandler.sendEmptyMessage(MSG_PROGRESS_OFF);
-//             // TODO show network error
-//         }
-//     }
 }
