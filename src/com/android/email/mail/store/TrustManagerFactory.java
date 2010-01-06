@@ -16,11 +16,11 @@
 
 package com.android.email.mail.store;
 
+import com.android.common.DomainNameValidator;
 import com.android.email.Email;
 
 import org.apache.harmony.xnet.provider.jsse.SSLParameters;
 
-import android.net.http.DomainNameChecker;
 import android.util.Log;
 
 import java.security.cert.CertificateException;
@@ -88,7 +88,7 @@ public final class TrustManagerFactory {
                 throw ce;
             }
 
-            if (!DomainNameChecker.match(chain[0], mHost)) {
+            if (!DomainNameValidator.match(chain[0], mHost)) {
                 logCertificates(chain, "Failed domain name", true);
                 throw new CertificateException("Certificate domain name does not match " + mHost);
             }
