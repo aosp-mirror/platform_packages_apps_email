@@ -30,7 +30,6 @@ import com.android.email.provider.EmailContent.Message;
 import com.android.email.provider.EmailContent.SyncColumns;
 import com.android.exchange.utility.FileLogger;
 
-import org.apache.harmony.xnet.provider.jsse.SSLContextImpl;
 import org.apache.http.conn.ClientConnectionManager;
 import org.apache.http.conn.params.ConnManagerPNames;
 import org.apache.http.conn.params.ConnPerRoute;
@@ -38,7 +37,6 @@ import org.apache.http.conn.routing.HttpRoute;
 import org.apache.http.conn.scheme.PlainSocketFactory;
 import org.apache.http.conn.scheme.Scheme;
 import org.apache.http.conn.scheme.SchemeRegistry;
-import org.apache.http.conn.ssl.SSLSocketFactory;
 import org.apache.http.impl.conn.tsccm.ThreadSafeClientConnManager;
 import org.apache.http.params.BasicHttpParams;
 import org.apache.http.params.HttpParams;
@@ -889,15 +887,13 @@ public class SyncManager extends Service implements Runnable {
             SSLContext sslcontext;
             try {
                 sslcontext = SSLContext.getInstance("TLS");
-                sslcontext.init(null, trustManagers, null);
-                SSLContextImpl sslContext = new SSLContextImpl();
                 try {
-                    sslContext.engineInit(null, trustManagers, null, null, null);
+                    sslcontext.init(null, trustManagers, null);
                 } catch (KeyManagementException e) {
                     throw new AssertionError(e);
                 }
                 // Ok, now make our factory
-                SSLSocketFactory sf = new SSLSocketFactory(sslContext.engineGetSocketFactory());
+                SSLSocketFactory sf = new SSLSocketFactory(sslcontext.getSocketFactory());
                 sf.setHostnameVerifier(SSLSocketFactory.ALLOW_ALL_HOSTNAME_VERIFIER);
                 // Register the httpts scheme with our factory
                 registry.register(new Scheme("httpts", sf, 443));
@@ -907,7 +903,6 @@ public class SyncManager extends Service implements Runnable {
                 params.setParameter(ConnManagerPNames.MAX_CONNECTIONS_PER_ROUTE, sConnPerRoute);
                 sClientConnectionManager = new ThreadSafeClientConnManager(params, registry);
             } catch (NoSuchAlgorithmException e2) {
-            } catch (KeyManagementException e1) {
             }
         }
         // Null is a valid return result if we get an exception
