@@ -144,8 +144,8 @@ public class MessageViewTests
         a.onClick(a.findViewById(R.id.reply));
         a.onClick(a.findViewById(R.id.reply_all));
         a.onClick(a.findViewById(R.id.delete));
-        a.onClick(a.findViewById(R.id.next));
-        a.onClick(a.findViewById(R.id.previous));
+        a.onClick(a.findViewById(R.id.moveToOlder));
+        a.onClick(a.findViewById(R.id.moveToNewer));
 //      a.onClick(a.findViewById(R.id.download));    // not revealed yet, so unfair test
 //      a.onClick(a.findViewById(R.id.view));        // not revealed yet, so unfair test
         a.onClick(a.findViewById(R.id.show_pictures));
