@@ -121,7 +121,7 @@
     <string name="message_view_display_attachment_toast" msgid="6096315816776330821">"No se puede mostrar este archivo adjunto."</string>
     <string name="account_setup_basics_title" msgid="3969856368228940980">"Configurar correo electrónico"</string>
     <string name="accounts_welcome" msgid="5901437782383439370">"Puedes configurar el correo electrónico de la mayoría de las cuentas en sólo algunos pasos."</string>
-    <string name="accounts_welcome_exchange" msgid="4414121583987233733">"Puedes configurar una cuenta de intercambio en sólo algunos pasos."</string>
+    <string name="accounts_welcome_exchange" msgid="4414121583987233733">"Puedes configurar una cuenta de Exchange en sólo algunos pasos."</string>
     <!-- no translation found for account_setup_basics_instructions (3126077748322815504) -->
     <skip />
     <string name="account_setup_basics_email_hint" msgid="7414269319207261120">"Dirección de correo electrónico"</string>
@@ -165,8 +165,10 @@
     <string name="account_setup_outgoing_require_login_label" msgid="6371514297854287948">"Requiere inicio de sesión."</string>
     <string name="account_setup_outgoing_username_label" msgid="3309680794731596981">"Nombre de usuario"</string>
     <string name="account_setup_outgoing_password_label" msgid="227844585493317550">"Contraseña"</string>
-    <string name="account_setup_exchange_title" msgid="247933841122558059">"Configuración del servidor Exchange"</string>
-    <string name="account_setup_exchange_server_label" msgid="5390359659749339317">"Servidor Exchange"</string>
+    <!-- no translation found for account_setup_exchange_title (2492853474738063453) -->
+    <skip />
+    <!-- no translation found for account_setup_exchange_server_label (795137797983360826) -->
+    <skip />
     <string name="account_setup_exchange_username_label" msgid="6517176180828983060">"Dominio\\Nombre de usuario"</string>
     <string name="account_setup_exchange_domain_label" msgid="3584668050727667045">"Dominio"</string>
     <string name="account_setup_exchange_domain_hint" msgid="350372033916025287">"Ingresa el dominio aquí"</string>
@@ -202,6 +204,7 @@
     <string name="account_setup_failed_auth_required" msgid="1676242821459638150">"El servidor no admite los métodos de autenticación."</string>
     <string name="account_setup_failed_security" msgid="6142264248671379943">"No es posible iniciar la conexión al servidor debido a un error de seguridad."</string>
     <string name="account_setup_failed_ioerror" msgid="7391458717708933095">"No es posible iniciar la conexión a tu servidor."</string>
+    <string name="account_setup_failed_security_policies_required" msgid="3567420384516656976">"Este servidor Exchange ActiveSync requiere funciones de seguridad no compatibles con tu teléfono."</string>
     <string name="account_setup_failed_dlg_edit_details_action" msgid="5355993309841479360">"Editar detalles"</string>
     <string name="account_settings_title_fmt" msgid="1702058877284382340">"Configuración general"</string>
     <string name="account_settings_default_label" msgid="3575963379680943640">"Cuenta predeterminada"</string>
@@ -220,7 +223,7 @@
     <string name="account_settings_sync_contacts_summary" msgid="8901452720940015928">"También sincronizar contactos desde esta cuenta"</string>
     <string name="account_settings_vibrate_enable" msgid="8045133290388856478">"Vibrar"</string>
     <string name="account_settings_vibrate_summary" msgid="3690631050585589365">"Vibrar también cuando llegue un mensaje de correo electrónico"</string>
-    <string name="account_settings_ringtone" msgid="7922187231467500404">"Seleccionar tono de llamada"</string>
+    <string name="account_settings_ringtone" msgid="7922187231467500404">"Selecc. tono de llam."</string>
     <string name="account_settings_servers" msgid="4925493817981624242">"Configuración del servidor"</string>
     <string name="account_delete_dlg_title" msgid="6806087520856396608">"Eliminar cuenta"</string>
     <string name="account_delete_dlg_instructions_fmt" msgid="8236846322040271280">"La cuenta \"<xliff:g id="ACCOUNT">%s</xliff:g>\" se eliminará de correo electrónico."</string>
