@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package com.android.email.apacheloggingstub;
+package org.apache.james.mime4j;
 
 /**
  * Empty stub for the apache logging library.

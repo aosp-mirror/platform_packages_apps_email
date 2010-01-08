@@ -22,11 +22,6 @@ package org.apache.james.mime4j;
 import java.util.HashMap;
 import java.util.Map;
 
-//BEGIN android-changed: Stubbing out logging
-import com.android.email.apacheloggingstub.Log;
-import com.android.email.apacheloggingstub.LogFactory;
-//END android-changed
-
 /**
  * Encapsulates the values of the MIME-specific header fields 
  * (which starts with <code>Content-</code>). 

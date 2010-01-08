@@ -20,8 +20,8 @@
 package org.apache.james.mime4j.field;
 
 //BEGIN android-changed: Stubbing out logging
-import com.android.email.apacheloggingstub.Log;
-import com.android.email.apacheloggingstub.LogFactory;
+import org.apache.james.mime4j.Log;
+import org.apache.james.mime4j.LogFactory;
 //END android-changed
 import org.apache.james.mime4j.field.address.AddressList;
 import org.apache.james.mime4j.field.address.MailboxList;
