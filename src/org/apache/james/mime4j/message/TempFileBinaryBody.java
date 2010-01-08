@@ -25,8 +25,8 @@ import java.io.OutputStream;
 
 import org.apache.commons.io.IOUtils;
 //BEGIN android-changed: Stubbing out logging
-import com.android.email.apacheloggingstub.Log;
-import com.android.email.apacheloggingstub.LogFactory;
+import org.apache.james.mime4j.Log;
+import org.apache.james.mime4j.LogFactory;
 //END android-changed
 import org.apache.james.mime4j.util.TempFile;
 import org.apache.james.mime4j.util.TempPath;

@@ -26,8 +26,8 @@ import java.util.HashMap;
 import java.util.Map;
 
 //BEGIN android-changed: Stubbing out logging
-import com.android.email.apacheloggingstub.Log;
-import com.android.email.apacheloggingstub.LogFactory;
+import org.apache.james.mime4j.Log;
+import org.apache.james.mime4j.LogFactory;
 //END android-changed
 import org.apache.james.mime4j.field.contenttype.parser.ContentTypeParser;
 import org.apache.james.mime4j.field.contenttype.parser.ParseException;
