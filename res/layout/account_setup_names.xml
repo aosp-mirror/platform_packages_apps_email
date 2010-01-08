@@ -15,31 +15,31 @@
 -->
 
 <ScrollView xmlns:android="http://schemas.android.com/apk/res/android"
-    android:layout_width="fill_parent"
-    android:layout_height="fill_parent"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
     android:fillViewport="true"
     android:scrollbarStyle="outsideInset" >
 
     <LinearLayout
-        android:layout_width="fill_parent"
-        android:layout_height="fill_parent"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
         android:orientation="vertical" >
 
         <LinearLayout
-            android:layout_width="fill_parent"
+            android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:layout_weight="1"
             android:orientation="vertical" >
             <TextView
                 android:text="@string/account_setup_names_instructions"
                 android:layout_height="wrap_content"
-                android:layout_width="fill_parent"
+                android:layout_width="match_parent"
                 android:textAppearance="?android:attr/textAppearanceMedium"
                 android:textColor="?android:attr/textColorPrimary" />
             <TextView
                 android:text="@string/account_setup_names_account_name_label"
                 android:layout_height="wrap_content"
-                android:layout_width="fill_parent"
+                android:layout_width="match_parent"
                 android:textAppearance="?android:attr/textAppearanceSmall"
                 android:textColor="?android:attr/textColorPrimary" />
             <EditText
@@ -47,11 +47,11 @@
                 android:inputType="textCapWords"
                 android:imeOptions="actionDone"
                 android:layout_height="wrap_content"
-                android:layout_width="fill_parent" />
+                android:layout_width="match_parent" />
             <TextView
                 android:text="@string/account_setup_names_user_name_label"
                 android:layout_height="wrap_content"
-                android:layout_width="fill_parent"
+                android:layout_width="match_parent"
                 android:textAppearance="?android:attr/textAppearanceSmall"
                 android:textColor="?android:attr/textColorPrimary" />
             <EditText
@@ -59,10 +59,10 @@
                 android:inputType="textPersonName"
                 android:imeOptions="actionDone"
                 android:layout_height="wrap_content"
-                android:layout_width="fill_parent" />
+                android:layout_width="match_parent" />
         </LinearLayout>
         <RelativeLayout
-            android:layout_width="fill_parent"
+            android:layout_width="match_parent"
             android:layout_height="54dip"
             android:background="@android:drawable/bottom_bar">
             <Button

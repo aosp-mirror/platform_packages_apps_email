@@ -15,31 +15,31 @@
 -->
 
 <ScrollView xmlns:android="http://schemas.android.com/apk/res/android"
-    android:layout_width="fill_parent"
-    android:layout_height="fill_parent"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
     android:fillViewport="true"
     android:scrollbarStyle="outsideInset" >
 
     <LinearLayout
-        android:layout_width="fill_parent"
-        android:layout_height="fill_parent"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
         android:orientation="vertical" >
 
         <LinearLayout
-            android:layout_width="fill_parent"
+            android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:layout_weight="1"
             android:orientation="vertical" >
             <TextView
                 android:id="@+id/instructions"
-                android:layout_width="fill_parent"
+                android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:layout_marginTop="10dip"
                 android:textSize="20sp"
                 android:text="@string/accounts_welcome"
                 android:textColor="?android:attr/textColorPrimary" />
             <View
-                android:layout_width="fill_parent"
+                android:layout_width="match_parent"
                 android:layout_height="0dip"
                 android:layout_weight="1" />
             <EditText
@@ -48,29 +48,29 @@
                 android:inputType="textEmailAddress"
                 android:imeOptions="actionNext"
                 android:layout_height="wrap_content"
-                android:layout_width="fill_parent" />
+                android:layout_width="match_parent" />
             <EditText
                 android:id="@+id/account_password"
                 android:hint="@string/account_setup_basics_password_hint"
                 android:inputType="textPassword"
                 android:imeOptions="actionDone"
                 android:layout_height="wrap_content"
-                android:layout_width="fill_parent"
+                android:layout_width="match_parent"
                 android:nextFocusDown="@+id/next" />
             <CheckBox
                 android:id="@+id/account_default"
                 android:layout_height="wrap_content"
-                android:layout_width="fill_parent"
+                android:layout_width="match_parent"
                 android:text="@string/account_setup_basics_default_label"
                 android:visibility="gone" />
             <View
-                android:layout_width="fill_parent"
+                android:layout_width="match_parent"
                 android:layout_height="0dip"
                 android:layout_weight="1" />
         </LinearLayout>
 
         <RelativeLayout
-            android:layout_width="fill_parent"
+            android:layout_width="match_parent"
             android:layout_height="54dip"
             android:background="@android:drawable/bottom_bar" >
             <Button

@@ -17,14 +17,14 @@
 <LinearLayout
     xmlns:android="http://schemas.android.com/apk/res/android"
     android:orientation="vertical"
-    android:layout_width="fill_parent"
-    android:layout_height="fill_parent">
+    android:layout_width="match_parent"
+    android:layout_height="match_parent">
 
     <include layout="@layout/connection_error_banner" />
 
     <ListView
         android:id="@android:id/list"
-        android:layout_width="fill_parent"
+        android:layout_width="match_parent"
         android:layout_height="0dip"
         android:layout_weight="1" />
 
@@ -32,7 +32,7 @@
     <LinearLayout android:id="@+id/footer_organize"
         android:orientation="horizontal"
         android:visibility="gone"
-        android:layout_width="fill_parent"
+        android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:paddingTop="5dip"
         android:paddingLeft="4dip"
@@ -43,20 +43,20 @@
         <Button
             android:id="@+id/btn_read_unread"
             android:layout_width="0dip"
-            android:layout_height="fill_parent"
+            android:layout_height="match_parent"
             android:layout_weight="1"
             android:text="@string/read_unread_action" />
 
         <Button
             android:id="@+id/btn_multi_favorite"
             android:layout_width="0dip"
-            android:layout_height="fill_parent"
+            android:layout_height="match_parent"
             android:layout_weight="1"
             android:text="@string/favorite_action" />
 
         <Button android:id="@+id/btn_multi_delete"
             android:layout_width="0dip"
-            android:layout_height="fill_parent"
+            android:layout_height="match_parent"
             android:layout_weight="1"
             android:text="@string/delete_action" />
 

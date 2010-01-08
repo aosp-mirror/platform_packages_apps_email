@@ -16,14 +16,14 @@
 
 <com.android.email.activity.MessageListItem
     xmlns:android="http://schemas.android.com/apk/res/android"
-    android:layout_width="fill_parent"
+    android:layout_width="match_parent"
     android:layout_height="?android:attr/listPreferredItemHeight"
     android:paddingRight="10dip">
     <View
         android:id="@+id/chip"
         android:background="@drawable/appointment_indicator_leftside_1"
         android:layout_width="4dip"
-        android:layout_height="fill_parent"
+        android:layout_height="match_parent"
         android:layout_centerVertical="true" />
     <!-- TODO: Remove the top padding hack and align to the subject baseline -->
     <ImageView

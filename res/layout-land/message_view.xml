@@ -17,19 +17,19 @@
 <LinearLayout
     xmlns:android="http://schemas.android.com/apk/res/android"
     android:orientation="vertical"
-    android:layout_width="fill_parent"
-    android:layout_height="fill_parent"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
     android:background="@android:color/white">
     <ScrollView
         android:id="@+id/scrollview"
-        android:layout_width="fill_parent"
+        android:layout_width="match_parent"
         android:layout_height="0dip"
         android:layout_weight="1"
         android:scrollbarStyle="outsideInset"
         android:fadingEdge="none">
         <LinearLayout
             android:orientation="vertical"
-            android:layout_width="fill_parent"
+            android:layout_width="match_parent"
             android:layout_height="0dip"
             android:layout_weight="1">
             <!-- put invisible views for prev/next in order to not special-case the lanscape in code -->
@@ -51,7 +51,7 @@
     </ScrollView>
     <LinearLayout
         android:orientation="horizontal"
-        android:layout_width="fill_parent"
+        android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:paddingTop="5dip"
         android:paddingLeft="4dip"
@@ -61,19 +61,19 @@
         <Button
             android:id="@+id/reply"
             android:text="@string/reply_action"
-            android:layout_height="fill_parent"
+            android:layout_height="match_parent"
             android:layout_width="0dip"
             android:layout_weight="1" />
         <Button
             android:id="@+id/reply_all"
             android:text="@string/reply_all_action"
-            android:layout_height="fill_parent"
+            android:layout_height="match_parent"
             android:layout_width="0dip"
             android:layout_weight="1" />
         <Button
             android:id="@+id/delete"
             android:text="@string/delete_action"
-            android:layout_height="fill_parent"
+            android:layout_height="match_parent"
             android:layout_width="0dip"
             android:layout_weight="1" />
     </LinearLayout>

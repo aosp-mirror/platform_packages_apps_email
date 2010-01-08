@@ -17,7 +17,7 @@
 <merge xmlns:android="http://schemas.android.com/apk/res/android">
     <!-- header area -->
     <LinearLayout
-        android:layout_width="fill_parent"
+        android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:orientation="vertical"
         android:background="@drawable/header_card"
@@ -27,7 +27,7 @@
         android:paddingRight="6dip">
         <LinearLayout
             android:id="@+id/from_container"
-            android:layout_width="fill_parent"
+            android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:baselineAligned="true" >
             <ImageView
@@ -67,7 +67,7 @@
         </LinearLayout>
         <LinearLayout
             android:id="@+id/to_container"
-            android:layout_width="fill_parent"
+            android:layout_width="match_parent"
             android:layout_height="wrap_content" >
             <TextView
                 android:textAppearance="?android:attr/textAppearanceSmall"
@@ -97,7 +97,7 @@
         </LinearLayout>
         <LinearLayout
             android:id="@+id/cc_container"
-            android:layout_width="fill_parent"
+            android:layout_width="match_parent"
             android:layout_height="wrap_content" >
             <TextView
                 android:textAppearance="?android:attr/textAppearanceSmall"
@@ -118,7 +118,7 @@
                 android:ellipsize="none" />
         </LinearLayout>
         <LinearLayout
-            android:layout_width="fill_parent"
+            android:layout_width="match_parent"
             android:layout_height="wrap_content" >
             <TextView
                 android:id="@+id/subject"
@@ -141,7 +141,7 @@
     </LinearLayout>
     <LinearLayout
         android:id="@+id/show_pictures_section"
-        android:layout_width="fill_parent"
+        android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:background="#ffefefef"
         android:layout_marginTop="6dip"
@@ -169,13 +169,13 @@
     <WebView
         android:id="@+id/message_content"
         android:layout_height="wrap_content"
-        android:layout_width="fill_parent"
+        android:layout_width="match_parent"
         android:background="#ffffff" />
     <!-- attachments area -->
     <LinearLayout
         android:id="@+id/attachments"
         android:orientation="vertical"
-        android:layout_width="fill_parent"
+        android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:padding="4dip"
         android:background="#ffffff">
