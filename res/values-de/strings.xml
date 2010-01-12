@@ -18,7 +18,7 @@
     <string name="read_attachment_label" msgid="1162255191991555285">"Anhänge lesen"</string>
     <string name="read_attachment_desc" msgid="7594746717616308643">"Erlaubt der Anwendung, Ihre Anhänge zu lesen."</string>
     <string name="permission_access_provider_label" msgid="4274353114641168675">"Auf Daten des E-Mail-Providers zugreifen"</string>
-    <string name="permission_access_provider_desc" msgid="1513898266889541617">"Erlaubt dieser Anwendung, auf Ihre E-Mail-Datenbank zuzugreifen, einschließlich erhaltener Nachrichten, gesendeter Nachrichten, Benutzernamen und Passwörtern."</string>
+    <string name="permission_access_provider_desc" msgid="1513898266889541617">"Erlaubt dieser Anwendung, auf Ihre E-Mail-Datenbank zuzugreifen, einschließlich erhaltener Nachrichten, gesendeter Nachrichten, Nutzernamen und Passwörtern."</string>
     <string name="app_name" msgid="5815426892327290362">"E-Mail"</string>
     <string name="accounts_title" msgid="6622149231904649210">"E-Mail"</string>
     <string name="compose_title" msgid="427986915662706899">"E-Mail schreiben"</string>
@@ -32,7 +32,7 @@
     <string name="delete_action" msgid="8421026208288857155">"Löschen"</string>
     <string name="forward_action" msgid="669174181042344116">"Weiterleiten"</string>
     <string name="done_action" msgid="7497990549515580249">"Fertig"</string>
-    <string name="discard_action" msgid="6532206074859505968">"Löschen"</string>
+    <string name="discard_action" msgid="6532206074859505968">"Verwerfen"</string>
     <string name="save_draft_action" msgid="812855865552028622">"Als Entwurf speichern"</string>
     <string name="read_unread_action" msgid="4721446664849165077">"Gelesen/ungelesen"</string>
     <string name="read_action" msgid="4701484794504781686">"Als gelesen markieren"</string>
@@ -145,9 +145,6 @@
     <string name="account_setup_names_user_name_label" msgid="8967410178488604770">"Ihr Name (wird für ausgehende Nachrichten angezeigt)"</string>
     <string name="account_setup_account_type_title" msgid="6645576356752495504">"Neues E-Mail-Konto hinzufügen"</string>
     <string name="account_setup_account_type_instructions" msgid="114515540798408760">"Um welchen Kontotyp handelt es sich hierbei?"</string>
-    <string name="account_setup_account_type_pop_action" msgid="3958144865724586762">"POP3-Konto"</string>
-    <string name="account_setup_account_type_imap_action" msgid="3471220237309488124">"IMAP-Konto"</string>
-    <string name="account_setup_account_type_exchange_action" msgid="7424283706321767987">"Exchange-Konto"</string>
     <string name="account_setup_incoming_title" msgid="6862032674547580337">"Einstellungen für Eingangsserver"</string>
     <string name="account_setup_incoming_username_label" msgid="5700581386104070302">"Nutzername"</string>
     <string name="account_setup_incoming_password_label" msgid="6365327603172559859">"Passwort"</string>
@@ -174,7 +171,7 @@
     <string name="account_setup_outgoing_password_label" msgid="227844585493317550">"Passwort"</string>
     <string name="account_setup_exchange_title" msgid="247933841122558059">"Exchange-Server-Einstellungen"</string>
     <string name="account_setup_exchange_server_label" msgid="5390359659749339317">"Exchange-Server"</string>
-    <string name="account_setup_exchange_username_label" msgid="6517176180828983060">"Domain-/Benutzername"</string>
+    <string name="account_setup_exchange_username_label" msgid="6517176180828983060">"Domain-/Nutzername"</string>
     <string name="account_setup_exchange_domain_label" msgid="3584668050727667045">"Domain"</string>
     <string name="account_setup_exchange_domain_hint" msgid="350372033916025287">"Domain hier eingeben"</string>
     <string name="account_setup_exchange_ssl_label" msgid="6704105469083211236">"Sichere Verbindung (SSL) verwenden"</string>
@@ -209,6 +206,7 @@
     <string name="account_setup_failed_auth_required" msgid="1676242821459638150">"Authentifizierungsmethoden nicht von Server unterstützt"</string>
     <string name="account_setup_failed_security" msgid="6142264248671379943">"Verbindung zu Server kann aufgrund eines Sicherheitsfehlers nicht geöffnet werden."</string>
     <string name="account_setup_failed_ioerror" msgid="7391458717708933095">"Verbindung zu Server kann nicht geöffnet werden"</string>
+    <string name="account_setup_failed_security_policies_required" msgid="3567420384516656976">"Für diesen Exchange ActiveSync-Server sind Sicherheitsfunktionen erforderlich, die von Ihrem Telefon nicht unterstützt werden."</string>
     <string name="account_setup_failed_dlg_edit_details_action" msgid="5355993309841479360">"Details bearbeiten"</string>
     <string name="account_settings_title_fmt" msgid="1702058877284382340">"Allgemeine Einstellungen"</string>
     <string name="account_settings_default_label" msgid="3575963379680943640">"Standardkonto"</string>

@@ -145,9 +145,6 @@
     <string name="account_setup_names_user_name_label" msgid="8967410178488604770">"Twoje nazwisko (wyświetlane w wiadomościach wychodzących)"</string>
     <string name="account_setup_account_type_title" msgid="6645576356752495504">"Dodaj nowe konto e-mail"</string>
     <string name="account_setup_account_type_instructions" msgid="114515540798408760">"Jakiego typu jest to konto?"</string>
-    <string name="account_setup_account_type_pop_action" msgid="3958144865724586762">"Konto POP3"</string>
-    <string name="account_setup_account_type_imap_action" msgid="3471220237309488124">"Konto IMAP"</string>
-    <string name="account_setup_account_type_exchange_action" msgid="7424283706321767987">"Konto Exchange"</string>
     <string name="account_setup_incoming_title" msgid="6862032674547580337">"Ustawienia serwera poczty przychodzącej"</string>
     <string name="account_setup_incoming_username_label" msgid="5700581386104070302">"Nazwa użytkownika"</string>
     <string name="account_setup_incoming_password_label" msgid="6365327603172559859">"Hasło"</string>
@@ -209,6 +206,7 @@
     <string name="account_setup_failed_auth_required" msgid="1676242821459638150">"Serwer nie obsługuje metod uwierzytelniania."</string>
     <string name="account_setup_failed_security" msgid="6142264248671379943">"Nie można nawiązać połączenia z serwerem z powodu błędu zabezpieczeń."</string>
     <string name="account_setup_failed_ioerror" msgid="7391458717708933095">"Nie można nawiązać połączenia z serwerem."</string>
+    <string name="account_setup_failed_security_policies_required" msgid="3567420384516656976">"Ten serwer Exchange ActiveSync wymaga funkcji zabezpieczeń, których Twój telefon nie obsługuje."</string>
     <string name="account_setup_failed_dlg_edit_details_action" msgid="5355993309841479360">"Edytuj szczegóły"</string>
     <string name="account_settings_title_fmt" msgid="1702058877284382340">"Ustawienia ogólne"</string>
     <string name="account_settings_default_label" msgid="3575963379680943640">"Domyślne konto"</string>
@@ -226,7 +224,7 @@
     <string name="account_settings_sync_contacts_enable" msgid="1369272986009573218">"Synchronizuj kontakty"</string>
     <string name="account_settings_sync_contacts_summary" msgid="8901452720940015928">"Synchronizuj również kontakty na tym koncie"</string>
     <string name="account_settings_vibrate_enable" msgid="8045133290388856478">"Wibracje"</string>
-    <string name="account_settings_vibrate_summary" msgid="3690631050585589365">"Sygnalizuj otrzymanie wiadomości e-mail wibracją"</string>
+    <string name="account_settings_vibrate_summary" msgid="3690631050585589365">"Sygnalizuj otrzymanie e-maila wibracją"</string>
     <string name="account_settings_ringtone" msgid="7922187231467500404">"Wybierz dzwonek"</string>
     <string name="account_settings_servers" msgid="4925493817981624242">"Ustawienia serwera"</string>
     <string name="account_delete_dlg_title" msgid="6806087520856396608">"Usuń konto"</string>

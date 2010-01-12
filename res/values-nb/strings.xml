@@ -145,9 +145,6 @@
     <string name="account_setup_names_user_name_label" msgid="8967410178488604770">"Navnet ditt (vises i utgående meldinger)"</string>
     <string name="account_setup_account_type_title" msgid="6645576356752495504">"Legg til ny e-postkonto"</string>
     <string name="account_setup_account_type_instructions" msgid="114515540798408760">"Hva slags konto er dette?"</string>
-    <string name="account_setup_account_type_pop_action" msgid="3958144865724586762">"POP3-konto"</string>
-    <string name="account_setup_account_type_imap_action" msgid="3471220237309488124">"IMAP-konto"</string>
-    <string name="account_setup_account_type_exchange_action" msgid="7424283706321767987">"Exchange/ActiveSync"</string>
     <string name="account_setup_incoming_title" msgid="6862032674547580337">"Tjenerinnstillinger for inngående e-post"</string>
     <string name="account_setup_incoming_username_label" msgid="5700581386104070302">"Brukernavn"</string>
     <string name="account_setup_incoming_password_label" msgid="6365327603172559859">"Passord"</string>
@@ -209,6 +206,7 @@
     <string name="account_setup_failed_auth_required" msgid="1676242821459638150">"Tjeneren støtter ikke de påkrevde autentiseringsmetodene."</string>
     <string name="account_setup_failed_security" msgid="6142264248671379943">"Kunne ikke koble til tjeneren på grunn av sikkerhetsfeil."</string>
     <string name="account_setup_failed_ioerror" msgid="7391458717708933095">"Kunne ikke koble til tjeneren."</string>
+    <string name="account_setup_failed_security_policies_required" msgid="3567420384516656976">"Denne tjeneren for Exchange ActiveSync krever sikkerhetsfunksjoner som denne telefonen ikke håndterer."</string>
     <string name="account_setup_failed_dlg_edit_details_action" msgid="5355993309841479360">"Rediger detaljer"</string>
     <string name="account_settings_title_fmt" msgid="1702058877284382340">"Generelle innstillinger"</string>
     <string name="account_settings_default_label" msgid="3575963379680943640">"Standardkonto"</string>

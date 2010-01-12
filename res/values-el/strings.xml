@@ -145,9 +145,6 @@
     <string name="account_setup_names_user_name_label" msgid="8967410178488604770">"Το όνομά σας (προβάλλεται στα εξερχόμενα μηνύματα)"</string>
     <string name="account_setup_account_type_title" msgid="6645576356752495504">"Προσθήκη νέου λογαριασμού ηλεκτρονικού ταχυδρομείου"</string>
     <string name="account_setup_account_type_instructions" msgid="114515540798408760">"Τι τύπος λογαριασμού είναι αυτός;"</string>
-    <string name="account_setup_account_type_pop_action" msgid="3958144865724586762">"Λογαριασμός POP3"</string>
-    <string name="account_setup_account_type_imap_action" msgid="3471220237309488124">"Λογαριασμός IMAP"</string>
-    <string name="account_setup_account_type_exchange_action" msgid="7424283706321767987">"Λογαριασμός Exchange"</string>
     <string name="account_setup_incoming_title" msgid="6862032674547580337">"Ρυθμίσεις διακομιστή εισερχομένων"</string>
     <string name="account_setup_incoming_username_label" msgid="5700581386104070302">"Όνομα χρήστη"</string>
     <string name="account_setup_incoming_password_label" msgid="6365327603172559859">"Κωδικός πρόσβασης"</string>
@@ -209,6 +206,7 @@
     <string name="account_setup_failed_auth_required" msgid="1676242821459638150">"Οι μέθοδοι ελέγχου ταυτότητας δεν υποστηρίζονται από τον διακομιστή."</string>
     <string name="account_setup_failed_security" msgid="6142264248671379943">"Δεν ήταν δυνατή η σύνδεση με τον διακομιστή επειδή προέκυψε σφάλμα ασφάλειας."</string>
     <string name="account_setup_failed_ioerror" msgid="7391458717708933095">"Δεν ήταν δυνατό το άνοιγμα σύνδεσης με τον διακομιστή."</string>
+    <string name="account_setup_failed_security_policies_required" msgid="3567420384516656976">"Για αυτόν τον διακομιστή Exchange ActiveSync απαιτούνται λειτουργίες ασφαλείας που δεν υποστηρίζονται από το τηλέφωνό σας."</string>
     <string name="account_setup_failed_dlg_edit_details_action" msgid="5355993309841479360">"Επεξεργασία λεπτομερειών"</string>
     <string name="account_settings_title_fmt" msgid="1702058877284382340">"Γενικές ρυθμίσεις"</string>
     <string name="account_settings_default_label" msgid="3575963379680943640">"Προεπιλεγμένος λογαριασμός"</string>

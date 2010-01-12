@@ -55,7 +55,7 @@
     <string name="add_cc_bcc_action" msgid="5569074812077509737">"Ajouter Cc/CCi"</string>
     <string name="add_attachment_action" msgid="2696013743130573897">"Ajouter une pièce jointe"</string>
     <string name="dump_settings_action" msgid="4478192525236169829">"Paramètres d\'image mémoire"</string>
-    <string name="choose_attachment_dialog_title" msgid="81937507117528954">"Choisir·une·pièce·jointe"</string>
+    <string name="choose_attachment_dialog_title" msgid="81937507117528954">"Choisir une pièce jointe"</string>
     <string name="accounts_context_menu_title" msgid="1053701760934475027">"Options de compte"</string>
     <string name="status_loading_more" msgid="1580386959044617884">"Chargement des messages..."</string>
     <string name="status_sending_messages" msgid="3971880826111264523">"Envoi des messages en cours"</string>
@@ -123,8 +123,8 @@
     <string name="add_contact_dlg_title" msgid="7424641029188006580">"Ajouter un contact"</string>
     <string name="add_contact_dlg_message_fmt" msgid="4470846346726847478">"Ajouter \"<xliff:g id="EMAIL">%s</xliff:g>\" aux contacts"</string>
     <string name="message_view_display_attachment_toast" msgid="6096315816776330821">"Impossible d\'afficher cette pièce jointe."</string>
-    <string name="account_setup_basics_title" msgid="3969856368228940980">"Configurer la messagerie électronique"</string>
-    <string name="accounts_welcome" msgid="5901437782383439370">"Configurez des e-mails pour la plupart des comptes en à peine quelques minutes."</string>
+    <string name="account_setup_basics_title" msgid="3969856368228940980">"Configuration de votre messagerie"</string>
+    <string name="accounts_welcome" msgid="5901437782383439370">"Configurez votre messagerie en quelques étapes simples. Compatible avec la plupart des comptes."</string>
     <string name="accounts_welcome_exchange" msgid="4414121583987233733">"Configurez un compte Exchange en un clin d\'œil."</string>
     <!-- no translation found for account_setup_basics_instructions (3126077748322815504) -->
     <skip />
@@ -139,15 +139,12 @@
     <string name="account_setup_check_settings_check_incoming_msg" msgid="5356212700221438863">"Vérification des paramètres de serveur entrant…"</string>
     <string name="account_setup_check_settings_check_outgoing_msg" msgid="4033015234096725343">"Vérification des paramètres de serveur sortant…"</string>
     <string name="account_setup_check_settings_canceling_msg" msgid="5077315503721883906">"Annulation..."</string>
-    <string name="account_setup_names_title" msgid="8875040521875381849">"Configurer la messagerie électronique"</string>
-    <string name="account_setup_names_instructions" msgid="2880279273965835007">"Votre compte est configuré et votre messagerie est active !"</string>
-    <string name="account_setup_names_account_name_label" msgid="8033895024273259196">"Donner un nom à ce compte (facultatif)"</string>
+    <string name="account_setup_names_title" msgid="8875040521875381849">"Configuration de votre messagerie"</string>
+    <string name="account_setup_names_instructions" msgid="2880279273965835007">"Votre compte est configuré et votre messagerie a été activée !"</string>
+    <string name="account_setup_names_account_name_label" msgid="8033895024273259196">"Nom du compte (facultatif)"</string>
     <string name="account_setup_names_user_name_label" msgid="8967410178488604770">"Votre nom (affiché sur les messages sortants)"</string>
     <string name="account_setup_account_type_title" msgid="6645576356752495504">"Ajouter un compte de messagerie"</string>
     <string name="account_setup_account_type_instructions" msgid="114515540798408760">"De quel type de compte s\'agit-il ?"</string>
-    <string name="account_setup_account_type_pop_action" msgid="3958144865724586762">"Compte POP3"</string>
-    <string name="account_setup_account_type_imap_action" msgid="3471220237309488124">"Compte IMAP"</string>
-    <string name="account_setup_account_type_exchange_action" msgid="7424283706321767987">"Compte Exchange"</string>
     <string name="account_setup_incoming_title" msgid="6862032674547580337">"Paramètres de serveur entrant"</string>
     <string name="account_setup_incoming_username_label" msgid="5700581386104070302">"Nom d\'utilisateur"</string>
     <string name="account_setup_incoming_password_label" msgid="6365327603172559859">"Mot de passe"</string>
@@ -209,13 +206,14 @@
     <string name="account_setup_failed_auth_required" msgid="1676242821459638150">"Les méthodes d\'authentification ne sont pas prises en charge par le serveur."</string>
     <string name="account_setup_failed_security" msgid="6142264248671379943">"Impossible d\'établir une connexion avec le serveur en raison d\'une erreur de sécurité."</string>
     <string name="account_setup_failed_ioerror" msgid="7391458717708933095">"Impossible d\'établir une connexion avec le serveur."</string>
+    <string name="account_setup_failed_security_policies_required" msgid="3567420384516656976">"Ce serveur Exchange ActiveSync nécessite des fonctionnalités de sécurité que votre téléphone ne prend pas en charge."</string>
     <string name="account_setup_failed_dlg_edit_details_action" msgid="5355993309841479360">"Modifier les infos"</string>
     <string name="account_settings_title_fmt" msgid="1702058877284382340">"Paramètres généraux"</string>
     <string name="account_settings_default_label" msgid="3575963379680943640">"Compte par défaut"</string>
     <string name="account_settings_default_summary" msgid="1531901438624688482">"Par défaut, envoyer les e-mails avec ce compte"</string>
-    <string name="account_settings_notify_label" msgid="1630001017303007974">"Notifications d\'e-mails"</string>
+    <string name="account_settings_notify_label" msgid="1630001017303007974">"Notifications"</string>
     <string name="account_settings_exchange_summary" msgid="8498451479029626317">"Fréquence de synchronisation, notifications, etc."</string>
-    <string name="account_settings_notify_summary" msgid="6609224590300639887">"Afficher une notification dans la barre d\'état lors de la réception d\'un e-mail"</string>
+    <string name="account_settings_notify_summary" msgid="6609224590300639887">"Afficher notification dans barre d\'état lors de la réception d\'un e-mail"</string>
     <string name="account_settings_mail_check_frequency_label" msgid="2067835530563849675">"Fréquence de vérification"</string>
     <string name="account_settings_incoming_label" msgid="7858928031806297542">"Paramètres de réception"</string>
     <string name="account_settings_outgoing_label" msgid="4464829249980026745">"Paramètres d\'envoi"</string>
@@ -227,7 +225,7 @@
     <string name="account_settings_sync_contacts_summary" msgid="8901452720940015928">"Synchroniser également les contacts issus de ce compte"</string>
     <string name="account_settings_vibrate_enable" msgid="8045133290388856478">"Vibreur"</string>
     <string name="account_settings_vibrate_summary" msgid="3690631050585589365">"Vibrer à la réception d\'un e-mail"</string>
-    <string name="account_settings_ringtone" msgid="7922187231467500404">"Sélectionner la sonnerie"</string>
+    <string name="account_settings_ringtone" msgid="7922187231467500404">"Sonnerie"</string>
     <string name="account_settings_servers" msgid="4925493817981624242">"Paramètres du serveur"</string>
     <string name="account_delete_dlg_title" msgid="6806087520856396608">"Supprimer le compte"</string>
     <string name="account_delete_dlg_instructions_fmt" msgid="8236846322040271280">"Le compte \"<xliff:g id="ACCOUNT">%s</xliff:g>\" va être supprimé de votre messagerie."</string>

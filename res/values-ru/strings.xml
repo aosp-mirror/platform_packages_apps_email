@@ -52,7 +52,7 @@
     <string name="accounts_action" msgid="901105887272231493">"Аккаунты"</string>
     <string name="mark_as_read_action" msgid="5031651846998842419">"Отметить как прочитанные"</string>
     <string name="mark_as_unread_action" msgid="3766298115778767554">"Отметить как непрочитанное"</string>
-    <string name="add_cc_bcc_action" msgid="5569074812077509737">"Добавить копию или скрытую копию"</string>
+    <string name="add_cc_bcc_action" msgid="5569074812077509737">"Добавить копию"</string>
     <string name="add_attachment_action" msgid="2696013743130573897">"Добавить приложение"</string>
     <string name="dump_settings_action" msgid="4478192525236169829">"Настройки дампа"</string>
     <string name="choose_attachment_dialog_title" msgid="81937507117528954">"Выбрать приложение"</string>
@@ -145,9 +145,6 @@
     <string name="account_setup_names_user_name_label" msgid="8967410178488604770">"Ваше имя (показывается в исходящих сообщениях)"</string>
     <string name="account_setup_account_type_title" msgid="6645576356752495504">"Добавить новый аккаунт электронной почты"</string>
     <string name="account_setup_account_type_instructions" msgid="114515540798408760">"Что это за аккаунт?"</string>
-    <string name="account_setup_account_type_pop_action" msgid="3958144865724586762">"Аккаунт POP3"</string>
-    <string name="account_setup_account_type_imap_action" msgid="3471220237309488124">"Аккаунт IMAP"</string>
-    <string name="account_setup_account_type_exchange_action" msgid="7424283706321767987">"Аккаунт Exchange"</string>
     <string name="account_setup_incoming_title" msgid="6862032674547580337">"Настройки сервера входящих сообщений"</string>
     <string name="account_setup_incoming_username_label" msgid="5700581386104070302">"Имя пользователя"</string>
     <string name="account_setup_incoming_password_label" msgid="6365327603172559859">"Пароль"</string>
@@ -209,6 +206,7 @@
     <string name="account_setup_failed_auth_required" msgid="1676242821459638150">"Методы аутентификации не поддерживаются сервером."</string>
     <string name="account_setup_failed_security" msgid="6142264248671379943">"Не удается установить соединение с сервером из-за ошибки безопасности."</string>
     <string name="account_setup_failed_ioerror" msgid="7391458717708933095">"Не удается установить соединение с сервером."</string>
+    <string name="account_setup_failed_security_policies_required" msgid="3567420384516656976">"Безопасность этого сервера Exchange ActiveSync обеспечивается с помощью средств, не поддерживаемых вашим телефоном."</string>
     <string name="account_setup_failed_dlg_edit_details_action" msgid="5355993309841479360">"Изменить сведения"</string>
     <string name="account_settings_title_fmt" msgid="1702058877284382340">"Общие настройки"</string>
     <string name="account_settings_default_label" msgid="3575963379680943640">"Аккаунт по умолчанию"</string>
@@ -225,8 +223,8 @@
     <string name="account_settings_notifications" msgid="1042620094281375043">"Настройки уведомлений"</string>
     <string name="account_settings_sync_contacts_enable" msgid="1369272986009573218">"Синхронизировать контакты"</string>
     <string name="account_settings_sync_contacts_summary" msgid="8901452720940015928">"Также синхронизировать контакты из этого аккаунта"</string>
-    <string name="account_settings_vibrate_enable" msgid="8045133290388856478">"Вибрация"</string>
-    <string name="account_settings_vibrate_summary" msgid="3690631050585589365">"Вибрация при получении сообщения"</string>
+    <string name="account_settings_vibrate_enable" msgid="8045133290388856478">"Вибровызов"</string>
+    <string name="account_settings_vibrate_summary" msgid="3690631050585589365">"Вибросигнал при получении сообщения"</string>
     <string name="account_settings_ringtone" msgid="7922187231467500404">"Выбрать мелодию"</string>
     <string name="account_settings_servers" msgid="4925493817981624242">"Настройки сервера"</string>
     <string name="account_delete_dlg_title" msgid="6806087520856396608">"Удалить аккаунт"</string>

@@ -145,9 +145,6 @@
     <string name="account_setup_names_user_name_label" msgid="8967410178488604770">"Il tuo nome (visualizzato nei messaggi in uscita)"</string>
     <string name="account_setup_account_type_title" msgid="6645576356752495504">"Aggiungi un nuovo account email"</string>
     <string name="account_setup_account_type_instructions" msgid="114515540798408760">"Di quale tipo di account si tratta?"</string>
-    <string name="account_setup_account_type_pop_action" msgid="3958144865724586762">"Account POP3"</string>
-    <string name="account_setup_account_type_imap_action" msgid="3471220237309488124">"Account IMAP"</string>
-    <string name="account_setup_account_type_exchange_action" msgid="7424283706321767987">"Account Exchange"</string>
     <string name="account_setup_incoming_title" msgid="6862032674547580337">"Impostazioni server della Posta in arrivo"</string>
     <string name="account_setup_incoming_username_label" msgid="5700581386104070302">"Nome utente"</string>
     <string name="account_setup_incoming_password_label" msgid="6365327603172559859">"Password"</string>
@@ -180,7 +177,7 @@
     <string name="account_setup_exchange_ssl_label" msgid="6704105469083211236">"Utilizza connessione sicura (SSL)"</string>
     <string name="account_setup_exchange_trust_certificates_label" msgid="6232880757633882678">"Accetta tutti i certificati SSL"</string>
     <string name="account_setup_options_title" msgid="8995162193118880993">"Opzioni account"</string>
-    <string name="account_setup_options_mail_check_frequency_label" msgid="4598023962234986194">"Frequenza di controllo email"</string>
+    <string name="account_setup_options_mail_check_frequency_label" msgid="4598023962234986194">"Frequenza contr. email"</string>
     <string name="account_setup_options_mail_check_frequency_never" msgid="287951859480505416">"Mai"</string>
     <string name="account_setup_options_mail_check_frequency_push" msgid="5934525907736008673">"Automatico (push)"</string>
     <string name="account_setup_options_mail_check_frequency_5min" msgid="6388939895878539307">"Ogni 5 minuti"</string>
@@ -209,6 +206,7 @@
     <string name="account_setup_failed_auth_required" msgid="1676242821459638150">"I metodi di autenticazione non sono supportati dal server."</string>
     <string name="account_setup_failed_security" msgid="6142264248671379943">"Impossibile aprire la connessione al server a causa di un errore di protezione."</string>
     <string name="account_setup_failed_ioerror" msgid="7391458717708933095">"Impossibile aprire la connessione al server."</string>
+    <string name="account_setup_failed_security_policies_required" msgid="3567420384516656976">"Per questo server Exchange ActiveSync sono richieste funzionalità di protezione non supportate dal tuo telefono."</string>
     <string name="account_setup_failed_dlg_edit_details_action" msgid="5355993309841479360">"Modifica dettagli"</string>
     <string name="account_settings_title_fmt" msgid="1702058877284382340">"Impostazioni generali"</string>
     <string name="account_settings_default_label" msgid="3575963379680943640">"Account predefinito"</string>
@@ -216,7 +214,7 @@
     <string name="account_settings_notify_label" msgid="1630001017303007974">"Notifiche email"</string>
     <string name="account_settings_exchange_summary" msgid="8498451479029626317">"Frequenza sincronizzazione, notifiche e altro."</string>
     <string name="account_settings_notify_summary" msgid="6609224590300639887">"Notifica sulla barra di stato l\'arrivo di email"</string>
-    <string name="account_settings_mail_check_frequency_label" msgid="2067835530563849675">"Frequenza di controllo email"</string>
+    <string name="account_settings_mail_check_frequency_label" msgid="2067835530563849675">"Frequenza contr. email"</string>
     <string name="account_settings_incoming_label" msgid="7858928031806297542">"Impost. posta in arrivo"</string>
     <string name="account_settings_outgoing_label" msgid="4464829249980026745">"Impost. posta in uscita"</string>
     <string name="account_settings_add_account_label" msgid="63971622405360050">"Aggiungi altro account"</string>

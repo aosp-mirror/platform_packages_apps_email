@@ -121,7 +121,7 @@
     <string name="message_discarded_toast" msgid="3891461729325584026">"邮件已舍弃。"</string>
     <string name="message_saved_toast" msgid="8443125659172627665">"邮件已保存为草稿。"</string>
     <string name="add_contact_dlg_title" msgid="7424641029188006580">"添加联系人"</string>
-    <string name="add_contact_dlg_message_fmt" msgid="4470846346726847478">"将“<xliff:g id="EMAIL">%s</xliff:g>”添加到联系人"</string>
+    <string name="add_contact_dlg_message_fmt" msgid="4470846346726847478">"将 <xliff:g id="EMAIL">%s</xliff:g> 添加为联系人"</string>
     <string name="message_view_display_attachment_toast" msgid="6096315816776330821">"该附件无法显示。"</string>
     <string name="account_setup_basics_title" msgid="3969856368228940980">"设置电子邮件"</string>
     <string name="accounts_welcome" msgid="5901437782383439370">"您只需执行几个步骤，即可为大多数帐户配置电子邮件。"</string>
@@ -145,9 +145,6 @@
     <string name="account_setup_names_user_name_label" msgid="8967410178488604770">"您的姓名（显示在外发邮件上）"</string>
     <string name="account_setup_account_type_title" msgid="6645576356752495504">"添加新电子邮件帐户"</string>
     <string name="account_setup_account_type_instructions" msgid="114515540798408760">"这是什么类型的帐户？"</string>
-    <string name="account_setup_account_type_pop_action" msgid="3958144865724586762">"POP3 帐户"</string>
-    <string name="account_setup_account_type_imap_action" msgid="3471220237309488124">"IMAP 帐户"</string>
-    <string name="account_setup_account_type_exchange_action" msgid="7424283706321767987">"Exchange 帐户"</string>
     <string name="account_setup_incoming_title" msgid="6862032674547580337">"接收服务器设置"</string>
     <string name="account_setup_incoming_username_label" msgid="5700581386104070302">"用户名"</string>
     <string name="account_setup_incoming_password_label" msgid="6365327603172559859">"密码"</string>
@@ -209,7 +206,8 @@
     <string name="account_setup_failed_auth_required" msgid="1676242821459638150">"服务器不支持身份验证方法。"</string>
     <string name="account_setup_failed_security" msgid="6142264248671379943">"由于安全错误，无法打开到服务器的连接。"</string>
     <string name="account_setup_failed_ioerror" msgid="7391458717708933095">"无法与服务器建立连接。"</string>
-    <string name="account_setup_failed_dlg_edit_details_action" msgid="5355993309841479360">"编辑详情"</string>
+    <string name="account_setup_failed_security_policies_required" msgid="3567420384516656976">"此 Exchange ActiveSync 服务器要求使用安全功能，但您的手机不支持这些功能。"</string>
+    <string name="account_setup_failed_dlg_edit_details_action" msgid="5355993309841479360">"修改设置"</string>
     <string name="account_settings_title_fmt" msgid="1702058877284382340">"常规设置"</string>
     <string name="account_settings_default_label" msgid="3575963379680943640">"默认帐户"</string>
     <string name="account_settings_default_summary" msgid="1531901438624688482">"默认情况下用此帐户发送电子邮件"</string>
