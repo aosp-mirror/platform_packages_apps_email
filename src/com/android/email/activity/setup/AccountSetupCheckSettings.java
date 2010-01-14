@@ -23,6 +23,7 @@ import com.android.email.mail.MessagingException;
 import com.android.email.mail.Sender;
 import com.android.email.mail.Store;
 import com.android.email.provider.EmailContent;
+import com.android.email.service.EmailServiceProxy;
 
 import android.app.Activity;
 import android.app.AlertDialog;
@@ -56,6 +57,15 @@ public class AccountSetupCheckSettings extends Activity implements OnClickListen
     private static final String EXTRA_ACCOUNT = "account";
     private static final String EXTRA_CHECK_INCOMING = "checkIncoming";
     private static final String EXTRA_CHECK_OUTGOING = "checkOutgoing";
+    private static final String EXTRA_AUTO_DISCOVER = "autoDiscover";
+    private static final String EXTRA_AUTO_DISCOVER_USERNAME = "userName";
+    private static final String EXTRA_AUTO_DISCOVER_PASSWORD = "password";
+
+    public static final int REQUEST_CODE_VALIDATE = 1;
+    public static final int REQUEST_CODE_AUTO_DISCOVER = 2;
+
+    // We'll define a special result code for AutoDiscover auth failures
+    public static final int RESULT_AUTO_DISCOVER_AUTH_FAILED = Activity.RESULT_FIRST_USER;
 
     private Handler mHandler = new Handler();
     private ProgressBar mProgressBar;
@@ -64,16 +74,39 @@ public class AccountSetupCheckSettings extends Activity implements OnClickListen
     private EmailContent.Account mAccount;
     private boolean mCheckIncoming;
     private boolean mCheckOutgoing;
+    private boolean mAutoDiscover;
     private boolean mCanceled;
     private boolean mDestroyed;
 
-    public static void actionCheckSettings(Activity fromActivity, EmailContent.Account account,
+    public static void actionValidateSettings(Activity fromActivity, EmailContent.Account account,
             boolean checkIncoming, boolean checkOutgoing) {
         Intent i = new Intent(fromActivity, AccountSetupCheckSettings.class);
         i.putExtra(EXTRA_ACCOUNT, account);
         i.putExtra(EXTRA_CHECK_INCOMING, checkIncoming);
         i.putExtra(EXTRA_CHECK_OUTGOING, checkOutgoing);
-        fromActivity.startActivityForResult(i, 1);
+        fromActivity.startActivityForResult(i, REQUEST_CODE_VALIDATE);
+    }
+
+    public static void actionAutoDiscover(Activity fromActivity, EmailContent.Account account,
+            String userName, String password) {
+        Intent i = new Intent(fromActivity, AccountSetupCheckSettings.class);
+        i.putExtra(EXTRA_ACCOUNT, account);
+        i.putExtra(EXTRA_AUTO_DISCOVER, true);
+        i.putExtra(EXTRA_AUTO_DISCOVER_USERNAME, userName);
+        i.putExtra(EXTRA_AUTO_DISCOVER_PASSWORD, password);
+        fromActivity.startActivityForResult(i, REQUEST_CODE_AUTO_DISCOVER);
+    }
+
+    /**
+     * We create this simple class so that showErrorDialog can differentiate between a regular
+     * auth error and an auth error during the autodiscover sequence and respond appropriately
+     */
+    private class AutoDiscoverAuthenticationException extends AuthenticationFailedException {
+        private static final long serialVersionUID = 1L;
+
+        public AutoDiscoverAuthenticationException(String message) {
+            super(message);
+        }
     }
 
     @Override
@@ -94,15 +127,52 @@ public class AccountSetupCheckSettings extends Activity implements OnClickListen
             return;
         }
 
-        mAccount = (EmailContent.Account) getIntent().getParcelableExtra(EXTRA_ACCOUNT);
-        mCheckIncoming = getIntent().getBooleanExtra(EXTRA_CHECK_INCOMING, false);
-        mCheckOutgoing = getIntent().getBooleanExtra(EXTRA_CHECK_OUTGOING, false);
+        final Intent intent = getIntent();
+        mAccount = (EmailContent.Account)intent.getParcelableExtra(EXTRA_ACCOUNT);
+        mCheckIncoming = intent.getBooleanExtra(EXTRA_CHECK_INCOMING, false);
+        mCheckOutgoing = intent.getBooleanExtra(EXTRA_CHECK_OUTGOING, false);
+        mAutoDiscover = intent.getBooleanExtra(EXTRA_AUTO_DISCOVER, false);
 
         new Thread() {
             @Override
             public void run() {
                 Process.setThreadPriority(Process.THREAD_PRIORITY_BACKGROUND);
                 try {
+                    if (mDestroyed) {
+                        return;
+                    }
+                    if (mCanceled) {
+                        finish();
+                        return;
+                    }
+                    if (mAutoDiscover) {
+                        String userName = intent.getStringExtra(EXTRA_AUTO_DISCOVER_USERNAME);
+                        String password = intent.getStringExtra(EXTRA_AUTO_DISCOVER_PASSWORD);
+                        Store store = Store.getInstance(
+                                mAccount.getStoreUri(AccountSetupCheckSettings.this),
+                                getApplication(), null);
+                        Bundle result = store.autoDiscover(AccountSetupCheckSettings.this,
+                                userName, password);
+                        // Result will be null if there was a remote exception
+                        // Otherwise, we can check the exception code and handle auth failed
+                        // Other errors will be ignored, and the user will be taken to manual
+                        // setup
+                        if (result != null) {
+                            int errorCode =
+                                result.getInt(EmailServiceProxy.AUTO_DISCOVER_BUNDLE_ERROR_CODE);
+                            if (errorCode == MessagingException.AUTHENTICATION_FAILED) {
+                                throw new AutoDiscoverAuthenticationException(null);
+                            } else if (errorCode != MessagingException.NO_ERROR) {
+                                return;
+                            }
+                            // The success case is here
+                            Intent resultIntent = new Intent();
+                            resultIntent.putExtra("HostAuth", result.getParcelable(
+                                    EmailServiceProxy.AUTO_DISCOVER_BUNDLE_HOST_AUTH));
+                            setResult(RESULT_OK, resultIntent);
+                            finish();
+                        }
+                    }
                     if (mDestroyed) {
                         return;
                     }
@@ -135,24 +205,23 @@ public class AccountSetupCheckSettings extends Activity implements OnClickListen
                     if (mDestroyed) {
                         return;
                     }
-                    if (mCanceled) {
-                        finish();
-                        return;
-                    }
                     setResult(RESULT_OK);
                     finish();
                 } catch (final AuthenticationFailedException afe) {
+                    // Could be two separate blocks (one for AutoDiscover) but this way we save
+                    // some code
                     String message = afe.getMessage();
-                    int id = (message == null) 
+                    int id = (message == null)
                             ? R.string.account_setup_failed_dlg_auth_message
                             : R.string.account_setup_failed_dlg_auth_message_fmt;
-                    showErrorDialog(id, message);
+                    showErrorDialog(afe instanceof AutoDiscoverAuthenticationException,
+                            id, message);
                 } catch (final CertificateValidationException cve) {
                     String message = cve.getMessage();
-                    int id = (message == null) 
+                    int id = (message == null)
                         ? R.string.account_setup_failed_dlg_certificate_message
                         : R.string.account_setup_failed_dlg_certificate_message_fmt;
-                    showErrorDialog(id, message);
+                    showErrorDialog(false, id, message);
                 } catch (final MessagingException me) {
                     int id;
                     String message = me.getMessage();
@@ -173,12 +242,12 @@ public class AccountSetupCheckSettings extends Activity implements OnClickListen
                             id = R.string.account_setup_failed_security;
                             break;
                         default:
-                            id = (message == null) 
+                            id = (message == null)
                                     ? R.string.account_setup_failed_dlg_server_message
-                                    : R.string.account_setup_failed_dlg_server_message_fmt;  
+                                    : R.string.account_setup_failed_dlg_server_message_fmt;
                             break;
                     }
-                    showErrorDialog(id, message);
+                    showErrorDialog(false, id, message);
                 }
             }
         }.start();
@@ -202,7 +271,13 @@ public class AccountSetupCheckSettings extends Activity implements OnClickListen
         });
     }
 
-    private void showErrorDialog(final int msgResId, final Object... args) {
+    /**
+     * The first argument here indicates whether we return an OK result or a cancelled result
+     * An OK result is used by Exchange to indicate a failed authentication via AutoDiscover
+     * In that case, we'll end up returning to the AccountSetupBasic screen
+     */
+    private void showErrorDialog(final boolean autoDiscoverAuthException, final int msgResId,
+            final Object... args) {
         mHandler.post(new Runnable() {
             public void run() {
                 if (mDestroyed) {
@@ -218,9 +293,9 @@ public class AccountSetupCheckSettings extends Activity implements OnClickListen
                                 getString(R.string.account_setup_failed_dlg_edit_details_action),
                                 new DialogInterface.OnClickListener() {
                                     public void onClick(DialogInterface dialog, int which) {
-                                        // while debugging connection logic, force a true result
-                                        // note, this will save possibly-bad settings
-                                        if (DBG_FORCE_RESULT_OK) {
+                                        if (autoDiscoverAuthException) {
+                                            setResult(RESULT_AUTO_DISCOVER_AUTH_FAILED);
+                                        } else if (DBG_FORCE_RESULT_OK) {
                                             setResult(RESULT_OK);
                                         }
                                         finish();

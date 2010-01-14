@@ -23,6 +23,7 @@ import org.xmlpull.v1.XmlPullParserException;
 
 import android.content.Context;
 import android.content.res.XmlResourceParser;
+import android.os.Bundle;
 import android.util.Log;
 
 import java.io.IOException;
@@ -283,5 +284,18 @@ public abstract class Store {
          * @return the data saved by the Store, or null if never set.
          */
         public String getPersistentString(String key, String defaultValue);
+    }
+
+    /**
+     * Handle discovery of account settings using only the user's email address and password
+     * @param context the context of the caller
+     * @param emailAddress the email address of the exchange user
+     * @param password the password of the exchange user
+     * @return a Bundle containing an error code and a HostAuth (if successful)
+     * @throws MessagingException
+     */
+    public Bundle autoDiscover(Context context, String emailAddress, String password)
+            throws MessagingException {
+        return null;
     }
 }

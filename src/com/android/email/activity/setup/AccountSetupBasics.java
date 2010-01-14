@@ -73,6 +73,9 @@ public class AccountSetupBasics extends Activity
     private static final String ACTION_START_AT_MESSAGE_LIST =
         "com.android.email.AccountSetupBasics.messageList";
 
+    private final static String EXTRA_USERNAME = "com.android.email.AccountSetupBasics.username";
+    private final static String EXTRA_PASSWORD = "com.android.email.AccountSetupBasics.password";
+
     private final static int DIALOG_NOTE = 1;
     private final static int DIALOG_DUPLICATE_ACCOUNT = 2;
 
@@ -96,6 +99,15 @@ public class AccountSetupBasics extends Activity
 
     public static void actionNewAccount(Activity fromActivity) {
         Intent i = new Intent(fromActivity, AccountSetupBasics.class);
+        fromActivity.startActivity(i);
+    }
+
+    public static void actionNewAccountWithCredentials(Activity fromActivity,
+            String username, String password, boolean easFlow) {
+        Intent i = new Intent(fromActivity, AccountSetupBasics.class);
+        i.putExtra(EXTRA_USERNAME, username);
+        i.putExtra(EXTRA_PASSWORD, password);
+        i.putExtra(EXTRA_EAS_FLOW, easFlow);
         fromActivity.startActivity(i);
     }
 
@@ -147,6 +159,7 @@ public class AccountSetupBasics extends Activity
         }
 
         setContentView(R.layout.account_setup_basics);
+
         mEmailView = (EditText)findViewById(R.id.account_email);
         mPasswordView = (EditText)findViewById(R.id.account_password);
         mDefaultView = (CheckBox)findViewById(R.id.account_default);
@@ -183,6 +196,13 @@ public class AccountSetupBasics extends Activity
             // Swap welcome text for EAS-specific text
             TextView welcomeView = (TextView) findViewById(R.id.instructions);
             welcomeView.setText(R.string.accounts_welcome_exchange);
+        }
+
+        if (intent.hasExtra(EXTRA_USERNAME)) {
+            mEmailView.setText(intent.getStringExtra(EXTRA_USERNAME));
+        }
+        if (intent.hasExtra(EXTRA_PASSWORD)) {
+            mPasswordView.setText(intent.getStringExtra(EXTRA_PASSWORD));
         }
 
         if (savedInstanceState != null && savedInstanceState.containsKey(EXTRA_ACCOUNT)) {
@@ -267,34 +287,34 @@ public class AccountSetupBasics extends Activity
         if (id == DIALOG_NOTE) {
             if (mProvider != null && mProvider.note != null) {
                 return new AlertDialog.Builder(this)
-                    .setIcon(android.R.drawable.ic_dialog_alert)
-                    .setTitle(android.R.string.dialog_alert_title)
-                    .setMessage(mProvider.note)
-                    .setPositiveButton(
-                            getString(R.string.okay_action),
-                            new DialogInterface.OnClickListener() {
-                                public void onClick(DialogInterface dialog, int which) {
-                                    finishAutoSetup();
-                                }
-                            })
-                    .setNegativeButton(
-                            getString(R.string.cancel_action),
-                            null)
-                    .create();
+                .setIcon(android.R.drawable.ic_dialog_alert)
+                .setTitle(android.R.string.dialog_alert_title)
+                .setMessage(mProvider.note)
+                .setPositiveButton(
+                        getString(R.string.okay_action),
+                        new DialogInterface.OnClickListener() {
+                            public void onClick(DialogInterface dialog, int which) {
+                                finishAutoSetup();
+                            }
+                        })
+                        .setNegativeButton(
+                                getString(R.string.cancel_action),
+                                null)
+                                .create();
             }
         } else if (id == DIALOG_DUPLICATE_ACCOUNT) {
             return new AlertDialog.Builder(this)
-                .setIcon(android.R.drawable.ic_dialog_alert)
-                .setTitle(R.string.account_duplicate_dlg_title)
-                .setMessage(getString(R.string.account_duplicate_dlg_message_fmt,
-                        mDuplicateAccountName))
-                .setPositiveButton(R.string.okay_action,
-                        new DialogInterface.OnClickListener() {
-                    public void onClick(DialogInterface dialog, int which) {
-                        dismissDialog(DIALOG_DUPLICATE_ACCOUNT);
-                    }
-                })
-                .create();
+            .setIcon(android.R.drawable.ic_dialog_alert)
+            .setTitle(R.string.account_duplicate_dlg_title)
+            .setMessage(getString(R.string.account_duplicate_dlg_message_fmt,
+                    mDuplicateAccountName))
+                    .setPositiveButton(R.string.okay_action,
+                            new DialogInterface.OnClickListener() {
+                        public void onClick(DialogInterface dialog, int which) {
+                            dismissDialog(DIALOG_DUPLICATE_ACCOUNT);
+                        }
+                    })
+                    .create();
         }
         return null;
     }
@@ -384,7 +404,7 @@ public class AccountSetupBasics extends Activity
             mAccount.setDeletePolicy(EmailContent.Account.DELETE_POLICY_ON_DELETE);
         }
         mAccount.setSyncInterval(DEFAULT_ACCOUNT_CHECK_INTERVAL);
-        AccountSetupCheckSettings.actionCheckSettings(this, mAccount, true, true);
+        AccountSetupCheckSettings.actionValidateSettings(this, mAccount, true, true);
     }
 
     private void onNext() {

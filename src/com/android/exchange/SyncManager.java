@@ -277,6 +277,10 @@ public class SyncManager extends Service implements Runnable {
             }
         }
 
+        public Bundle autoDiscover(String userName, String password) throws RemoteException {
+            return new EasSyncService().tryAutodiscover(userName, password);
+        }
+
         public void startSync(long mailboxId) throws RemoteException {
             checkSyncManagerServiceRunning();
             Mailbox m = Mailbox.restoreMailboxWithId(INSTANCE, mailboxId);

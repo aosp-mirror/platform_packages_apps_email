@@ -17,7 +17,8 @@
 package com.android.exchange;
 
 import com.android.exchange.IEmailServiceCallback;
-import com.android.exchange.EmailContent;
+import com.android.email.provider.EmailContent;
+import android.os.Bundle;
 
 interface IEmailService {
     int validate(in String protocol, in String host, in String userName, in String password,
@@ -40,4 +41,6 @@ interface IEmailService {
     void setLogging(int on);
 
     void hostChanged(long accountId);
+
+    Bundle autoDiscover(String userName, String password);
 }

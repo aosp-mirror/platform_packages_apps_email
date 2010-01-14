@@ -28,6 +28,7 @@ import com.android.email.provider.EmailContent.HostAuth;
 import com.android.email.provider.EmailContent.Mailbox;
 import com.android.email.provider.EmailContent.MailboxColumns;
 import com.android.email.provider.EmailContent.Message;
+import com.android.email.service.EmailServiceProxy;
 import com.android.exchange.adapter.AbstractSyncAdapter;
 import com.android.exchange.adapter.AccountSyncAdapter;
 import com.android.exchange.adapter.ContactsSyncAdapter;
@@ -42,25 +43,35 @@ import org.apache.http.Header;
 import org.apache.http.HttpEntity;
 import org.apache.http.HttpResponse;
 import org.apache.http.HttpStatus;
+import org.apache.http.client.ClientProtocolException;
 import org.apache.http.client.HttpClient;
 import org.apache.http.client.methods.HttpOptions;
 import org.apache.http.client.methods.HttpPost;
 import org.apache.http.client.methods.HttpRequestBase;
 import org.apache.http.conn.ClientConnectionManager;
 import org.apache.http.entity.ByteArrayEntity;
+import org.apache.http.entity.StringEntity;
 import org.apache.http.impl.client.DefaultHttpClient;
 import org.apache.http.params.BasicHttpParams;
 import org.apache.http.params.HttpConnectionParams;
 import org.apache.http.params.HttpParams;
+import org.xmlpull.v1.XmlPullParser;
+import org.xmlpull.v1.XmlPullParserException;
+import org.xmlpull.v1.XmlPullParserFactory;
+import org.xmlpull.v1.XmlSerializer;
 
 import android.content.ContentResolver;
 import android.content.ContentUris;
 import android.content.ContentValues;
 import android.content.Context;
 import android.database.Cursor;
+import android.os.Bundle;
 import android.os.RemoteException;
 import android.os.SystemClock;
+import android.util.Log;
+import android.util.Xml;
 
+import java.io.ByteArrayOutputStream;
 import java.io.File;
 import java.io.FileOutputStream;
 import java.io.IOException;
@@ -93,6 +104,11 @@ public class EasSyncService extends AbstractSyncService {
 
     // Define our default protocol version as 2.5 (Exchange 2003)
     static private final String DEFAULT_PROTOCOL_VERSION = "2.5";
+
+    static private final String AUTO_DISCOVER_SCHEMA_PREFIX =
+        "http://schemas.microsoft.com/exchange/autodiscover/mobilesync/";
+    static private final String AUTO_DISCOVER_PAGE = "/autodiscover/autodiscover.xml";
+    static private final int AUTO_DISCOVER_REDIRECT_CODE = 451;
 
     /**
      * We start with an 8 minute timeout, and increase/decrease by 3 minutes at a time.  There's
@@ -200,7 +216,7 @@ public class EasSyncService extends AbstractSyncService {
      * @return whether or not the code represents an authentication error
      */
     protected boolean isAuthError(int code) {
-        return ((code == HttpStatus.SC_UNAUTHORIZED) || (code == HttpStatus.SC_FORBIDDEN));
+        return (code == HttpStatus.SC_UNAUTHORIZED) || (code == HttpStatus.SC_FORBIDDEN);
     }
 
     @Override
@@ -259,6 +275,300 @@ public class EasSyncService extends AbstractSyncService {
             throw new MessagingException(MessagingException.IOERROR);
         }
 
+    }
+
+    /**
+     * Gets the redirect location from the HTTP headers and uses that to modify the HttpPost so that
+     * it can be reused
+     *
+     * @param resp the HttpResponse that indicates a redirect (451)
+     * @param post the HttpPost that was originally sent to the server
+     * @return the HttpPost, updated with the redirect location
+     */
+    private HttpPost getRedirect(HttpResponse resp, HttpPost post) {
+        Header locHeader = resp.getFirstHeader("X-MS-Location");
+        if (locHeader != null) {
+            String loc = locHeader.getValue();
+            // If we've gotten one and it shows signs of looking like an address, we try
+            // sending our request there
+            if (loc != null && loc.startsWith("http")) {
+                post.setURI(URI.create(loc));
+                return post;
+            }
+        }
+        return null;
+    }
+
+    /**
+     * Send the POST command to the autodiscover server, handling a redirect, if necessary, and
+     * return the HttpResponse
+     *
+     * @param client the HttpClient to be used for the request
+     * @param post the HttpPost we're going to send
+     * @return an HttpResponse from the original or redirect server
+     * @throws IOException on any IOException within the HttpClient code
+     * @throws MessagingException
+     */
+    private HttpResponse postAutodiscover(HttpClient client, HttpPost post)
+            throws IOException, MessagingException {
+        userLog("Posting autodiscover to: " + post.getURI());
+        HttpResponse resp = client.execute(post);
+        int code = resp.getStatusLine().getStatusCode();
+        // On a redirect, try the new location
+        if (code == AUTO_DISCOVER_REDIRECT_CODE) {
+            post = getRedirect(resp, post);
+            if (post != null) {
+                userLog("Posting autodiscover to redirect: " + post.getURI());
+                return client.execute(post);
+            }
+        } else if (isAuthError(code)) {
+            throw new MessagingException(MessagingException.AUTHENTICATION_FAILED);
+        } else if (code != HttpStatus.SC_OK) {
+            // We'll try the next address if this doesn't work
+            userLog("Code: " + code + ", throwing IOException");
+            throw new IOException();
+        }
+        return resp;
+    }
+
+    /**
+     * Use the Exchange 2007 AutoDiscover feature to try to retrieve server information using
+     * only an email address and the password
+     *
+     * @param userName the user's email address
+     * @param password the user's password
+     * @return a HostAuth ready to be saved in an Account or null (failure)
+     */
+    public Bundle tryAutodiscover(String userName, String password) throws RemoteException {
+        XmlSerializer s = Xml.newSerializer();
+        ByteArrayOutputStream os = new ByteArrayOutputStream(1024);
+        HostAuth hostAuth = new HostAuth();
+        Bundle bundle = new Bundle();
+        bundle.putInt(EmailServiceProxy.AUTO_DISCOVER_BUNDLE_ERROR_CODE,
+                MessagingException.NO_ERROR);
+        try {
+            // Build the XML document that's sent to the autodiscover server(s)
+            s.setOutput(os, "UTF-8");
+            s.startDocument("UTF-8", false);
+            s.startTag(null, "Autodiscover");
+            s.attribute(null, "xmlns", AUTO_DISCOVER_SCHEMA_PREFIX + "requestschema/2006");
+            s.startTag(null, "Request");
+            s.startTag(null, "EMailAddress").text(userName).endTag(null, "EMailAddress");
+            s.startTag(null, "AcceptableResponseSchema");
+            s.text(AUTO_DISCOVER_SCHEMA_PREFIX + "responseschema/2006");
+            s.endTag(null, "AcceptableResponseSchema");
+            s.endTag(null, "Request");
+            s.endTag(null, "Autodiscover");
+            s.endDocument();
+            String req = os.toString();
+
+            // Initialize the user name and password
+            mUserName = userName;
+            mPassword = password;
+            // Make sure the authentication string is created (mAuthString)
+            makeUriString("foo", null);
+
+            // Split out the domain name
+            int amp = userName.indexOf('@');
+            // The UI ensures that userName is a valid email address
+            if (amp < 0) {
+                throw new RemoteException();
+            }
+            String domain = userName.substring(amp + 1);
+
+            // There are up to four attempts here; the two URLs that we're supposed to try per the
+            // specification, and up to one redirect for each (handled in postAutodiscover)
+
+            // Try the domain first and see if we can get a response
+            HttpPost post = new HttpPost("https://" + domain + AUTO_DISCOVER_PAGE);
+            setHeaders(post);
+            post.setHeader("Content-Type", "text/xml");
+            post.setEntity(new StringEntity(req));
+            HttpClient client = getHttpClient(COMMAND_TIMEOUT);
+            HttpResponse resp;
+            try {
+                resp = postAutodiscover(client, post);
+            } catch (ClientProtocolException e1) {
+                return null;
+            } catch (IOException e1) {
+                // We catch the IOException here because we have an alternate address to try
+                post.setURI(URI.create("https://autodiscover." + domain + AUTO_DISCOVER_PAGE));
+                // If we fail here, we're out of options, so we let the outer try catch the
+                // IOException and return null
+                resp = postAutodiscover(client, post);
+            }
+
+            // Get the "final" code; if it's not 200, just return null
+            int code = resp.getStatusLine().getStatusCode();
+            userLog("Code: " + code);
+            if (code != HttpStatus.SC_OK) return null;
+
+            // At this point, we have a 200 response (SC_OK)
+            HttpEntity e = resp.getEntity();
+            InputStream is = e.getContent();
+            try {
+                // The response to Autodiscover is regular XML (not WBXML)
+                // If we ever get an error in this process, we'll just punt and return null
+                XmlPullParserFactory factory = XmlPullParserFactory.newInstance();
+                XmlPullParser parser = factory.newPullParser();
+                parser.setInput(is, "UTF-8");
+                int type = parser.getEventType();
+                if (type == XmlPullParser.START_DOCUMENT) {
+                    type = parser.next();
+                    if (type == XmlPullParser.START_TAG) {
+                        String name = parser.getName();
+                        if (name.equals("Autodiscover")) {
+                            hostAuth = new HostAuth();
+                            parseAutodiscover(parser, hostAuth);
+                            // On success, we'll have a server address and login
+                            if (hostAuth.mAddress != null && hostAuth.mLogin != null) {
+                                // Fill in the rest of the HostAuth
+                                hostAuth.mPassword = password;
+                                hostAuth.mPort = 443;
+                                hostAuth.mProtocol = "eas";
+                                hostAuth.mFlags =
+                                    HostAuth.FLAG_SSL | HostAuth.FLAG_AUTHENTICATE;
+                                bundle.putParcelable(
+                                        EmailServiceProxy.AUTO_DISCOVER_BUNDLE_HOST_AUTH, hostAuth);
+                            } else {
+                                bundle.putInt(EmailServiceProxy.AUTO_DISCOVER_BUNDLE_ERROR_CODE,
+                                        MessagingException.UNSPECIFIED_EXCEPTION);
+                            }
+                        }
+                    }
+                }
+            } catch (XmlPullParserException e1) {
+                // This would indicate an I/O error of some sort
+                // We will simply return null and user can configure manually
+            }
+        // There's no reason at all for exceptions to be thrown, and it's ok if so.
+        // We just won't do auto-discover; user can configure manually
+       } catch (IllegalArgumentException e) {
+             bundle.putInt(EmailServiceProxy.AUTO_DISCOVER_BUNDLE_ERROR_CODE,
+                     MessagingException.UNSPECIFIED_EXCEPTION);
+       } catch (IllegalStateException e) {
+            bundle.putInt(EmailServiceProxy.AUTO_DISCOVER_BUNDLE_ERROR_CODE,
+                    MessagingException.UNSPECIFIED_EXCEPTION);
+       } catch (IOException e) {
+            userLog("IOException in Autodiscover", e);
+            bundle.putInt(EmailServiceProxy.AUTO_DISCOVER_BUNDLE_ERROR_CODE,
+                    MessagingException.IOERROR);
+        } catch (MessagingException e) {
+            bundle.putInt(EmailServiceProxy.AUTO_DISCOVER_BUNDLE_ERROR_CODE,
+                    MessagingException.AUTHENTICATION_FAILED);
+        }
+        return bundle;
+    }
+
+    void parseServer(XmlPullParser parser, HostAuth hostAuth)
+            throws XmlPullParserException, IOException {
+        boolean mobileSync = false;
+        while (true) {
+            int type = parser.next();
+            if (type == XmlPullParser.END_TAG && parser.getName().equals("Server")) {
+                break;
+            } else if (type == XmlPullParser.START_TAG) {
+                String name = parser.getName();
+                if (name.equals("Type")) {
+                    if (parser.nextText().equals("MobileSync")) {
+                        mobileSync = true;
+                    }
+                } else if (mobileSync && name.equals("Url")) {
+                    String url = parser.nextText().toLowerCase();
+                    // This will look like https://<server address>/Microsoft-Server-ActiveSync
+                    // We need to extract the <server address>
+                    if (url.startsWith("https://") &&
+                            url.endsWith("/microsoft-server-activesync")) {
+                        int lastSlash = url.lastIndexOf('/');
+                        hostAuth.mAddress = url.substring(8, lastSlash);
+                        userLog("Autodiscover, server: " + hostAuth.mAddress);
+                    }
+                }
+            }
+        }
+    }
+
+    void parseSettings(XmlPullParser parser, HostAuth hostAuth)
+            throws XmlPullParserException, IOException {
+        while (true) {
+            int type = parser.next();
+            if (type == XmlPullParser.END_TAG && parser.getName().equals("Settings")) {
+                break;
+            } else if (type == XmlPullParser.START_TAG) {
+                String name = parser.getName();
+                if (name.equals("Server")) {
+                    parseServer(parser, hostAuth);
+                }
+            }
+        }
+    }
+
+    void parseAction(XmlPullParser parser, HostAuth hostAuth)
+            throws XmlPullParserException, IOException {
+        while (true) {
+            int type = parser.next();
+            if (type == XmlPullParser.END_TAG && parser.getName().equals("Action")) {
+                break;
+            } else if (type == XmlPullParser.START_TAG) {
+                String name = parser.getName();
+                if (name.equals("Error")) {
+                    // Should parse the error
+                } else if (name.equals("Redirect")) {
+                    Log.d(TAG, "Redirect: " + parser.nextText());
+                } else if (name.equals("Settings")) {
+                    parseSettings(parser, hostAuth);
+                }
+            }
+        }
+    }
+
+    void parseUser(XmlPullParser parser, HostAuth hostAuth)
+            throws XmlPullParserException, IOException {
+        while (true) {
+            int type = parser.next();
+            if (type == XmlPullParser.END_TAG && parser.getName().equals("User")) {
+                break;
+            } else if (type == XmlPullParser.START_TAG) {
+                String name = parser.getName();
+                if (name.equals("EMailAddress")) {
+                    String addr = parser.nextText();
+                    hostAuth.mLogin = addr;
+                    userLog("Autodiscover, login: " + addr);
+                } else if (name.equals("DisplayName")) {
+                    String dn = parser.nextText();
+                    userLog("Autodiscover, user: " + dn);
+                }
+            }
+        }
+    }
+
+    void parseResponse(XmlPullParser parser, HostAuth hostAuth)
+            throws XmlPullParserException, IOException {
+        while (true) {
+            int type = parser.next();
+            if (type == XmlPullParser.END_TAG && parser.getName().equals("Response")) {
+                break;
+            } else if (type == XmlPullParser.START_TAG) {
+                String name = parser.getName();
+                if (name.equals("User")) {
+                    parseUser(parser, hostAuth);
+                } else if (name.equals("Action")) {
+                    parseAction(parser, hostAuth);
+                }
+            }
+        }
+    }
+
+    void parseAutodiscover(XmlPullParser parser, HostAuth hostAuth)
+            throws XmlPullParserException, IOException {
+        while (true) {
+            int type = parser.nextTag();
+            if (type == XmlPullParser.END_TAG && parser.getName().equals("Autodiscover")) {
+                break;
+            } else if (type == XmlPullParser.START_TAG && parser.getName().equals("Response")) {
+                parseResponse(parser, hostAuth);
+            }
+        }
     }
 
     private void doStatusCallback(long messageId, long attachmentId, int status) {
@@ -372,7 +682,7 @@ public class EasSyncService extends AbstractSyncService {
                                     errorLog("totalRead is greater than attachment length?");
                                     break;
                                 }
-                                int pct = (totalRead * 100 / length);
+                                int pct = (totalRead * 100) / length;
                                 doProgressCallback(msg.mId, att.mId, pct);
                             }
                        }
@@ -721,7 +1031,6 @@ public class EasSyncService extends AbstractSyncService {
                     int pingStatus = SyncManager.pingStatus(mailboxId);
                     String mailboxName = c.getString(Mailbox.CONTENT_DISPLAY_NAME_COLUMN);
                     if (pingStatus == SyncManager.PING_STATUS_OK) {
-
                         String syncKey = c.getString(Mailbox.CONTENT_SYNC_KEY_COLUMN);
                         if ((syncKey == null) || syncKey.equals("0")) {
                             // We can't push until the initial sync is done
@@ -1156,7 +1465,7 @@ public class EasSyncService extends AbstractSyncService {
             }
         } catch (IOException e) {
             String message = e.getMessage();
-            userLog("Caught IOException: ", ((message == null) ? "No message" : message));
+            userLog("Caught IOException: ", (message == null) ? "No message" : message);
             mExitStatus = EXIT_IO_ERROR;
         } catch (Exception e) {
             userLog("Uncaught exception in EasSyncService", e);
