@@ -17,6 +17,7 @@
 package com.android.email.activity;
 
 import com.android.email.Controller;
+import com.android.email.Email;
 import com.android.email.R;
 import com.android.email.Utility;
 import com.android.email.activity.setup.AccountSettings;
@@ -515,6 +516,9 @@ public class MailboxList extends ListActivity implements OnItemClickListener {
         // TODO report errors into UI
         public void updateMailboxCallback(MessagingException result, long accountKey,
                 long mailboxKey, int progress, int numNewMessages) {
+            if (result != null || progress == 100) {
+                Email.updateMailboxRefreshTime(mailboxKey);
+            }
             if (accountKey == mAccountId) {
                 updateBanner(result, progress);
                 updateProgress(result, progress);

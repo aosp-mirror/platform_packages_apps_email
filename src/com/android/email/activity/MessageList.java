@@ -1348,7 +1348,7 @@ public class MessageList extends ListActivity implements OnItemClickListener, On
                 long mailboxKey, int progress, int numNewMessages) {
             updateBanner(result, progress, mailboxKey);
             if (result != null || progress == 100) {
-                Email.updateMailboxRefreshTime(mMailboxId);
+                Email.updateMailboxRefreshTime(mailboxKey);
             }
             updateProgress(result, progress);
         }
