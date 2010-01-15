@@ -115,7 +115,14 @@ public class EmailServiceProxy implements IEmailService {
             thread.join();
         } catch (InterruptedException e) {
         }
-        mContext.unbindService(mSyncManagerConnection);
+
+        try {
+            mContext.unbindService(mSyncManagerConnection);
+        } catch (IllegalArgumentException e) {
+            // This can happen if the user ended the activity that was using the service
+            // This is harmless, but we've got to catch it
+        }
+
         mDead = true;
         synchronized(mSyncManagerConnection) {
             if (DEBUG_PROXY) {

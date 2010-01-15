@@ -163,7 +163,8 @@ public class AccountSetupCheckSettings extends Activity implements OnClickListen
                             if (errorCode == MessagingException.AUTHENTICATION_FAILED) {
                                 throw new AutoDiscoverAuthenticationException(null);
                             } else if (errorCode != MessagingException.NO_ERROR) {
-                                return;
+                                setResult(RESULT_OK);
+                                finish();
                             }
                             // The success case is here
                             Intent resultIntent = new Intent();

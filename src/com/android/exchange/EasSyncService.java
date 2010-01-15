@@ -321,7 +321,9 @@ public class EasSyncService extends AbstractSyncService {
                 userLog("Posting autodiscover to redirect: " + post.getURI());
                 return client.execute(post);
             }
-        } else if (isAuthError(code)) {
+        } else if (code == HttpStatus.SC_UNAUTHORIZED) {
+            // 401 (Unauthorized) is for true auth errors when used in Autodiscover
+            // 403 (and others) we'll just punt on
             throw new MessagingException(MessagingException.AUTHENTICATION_FAILED);
         } else if (code != HttpStatus.SC_OK) {
             // We'll try the next address if this doesn't work
