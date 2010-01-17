@@ -21,6 +21,7 @@ import com.android.email.R;
 import com.android.email.mail.Store;
 import com.android.email.mail.store.ExchangeStore;
 import com.android.email.provider.EmailContent;
+import com.android.email.provider.EmailContent.Account;
 
 import android.accounts.AccountManagerCallback;
 import android.accounts.AccountManagerFuture;
@@ -173,7 +174,10 @@ public class AccountSetupOptions extends Activity implements OnClickListener {
             }
         });
     }
+
     private void finishOnDone() {
+        // Clear the incomplete flag now
+        mAccount.mFlags &= ~Account.FLAGS_INCOMPLETE;
         AccountSettingsUtils.commitSettings(this, mAccount);
         Email.setServicesEnabled(this);
         AccountSetupNames.actionSetNames(this, mAccount.mId, mEasFlowMode);
@@ -202,8 +206,9 @@ public class AccountSetupOptions extends Activity implements OnClickListener {
                 && mAccount.mHostAuthRecv != null
                 && mAccount.mHostAuthRecv.mProtocol.equals("eas")) {
             boolean alsoSyncContacts = mSyncContactsView.isChecked();
-            // NOTE: We must use the Application here, rather than the current context, because
-            // all future references to AccountManager will end up using the context passed in here!
+            // Set the incomplete flag here to avoid reconciliation issues in SyncManager (EAS)
+            mAccount.mFlags |= Account.FLAGS_INCOMPLETE;
+            AccountSettingsUtils.commitSettings(this, mAccount);
             ExchangeStore.addSystemAccount(getApplication(), mAccount,
                     alsoSyncContacts, mAccountManagerCallback);
         } else {

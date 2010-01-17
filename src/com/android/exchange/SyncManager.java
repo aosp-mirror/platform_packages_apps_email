@@ -496,7 +496,11 @@ public class SyncManager extends Service implements Runnable {
             try {
                 collectEasAccounts(c, currentAccounts);
                 for (Account account : mAccounts) {
-                    if (!currentAccounts.contains(account.mId)) {
+                    // Ignore accounts not fully created
+                    if ((account.mFlags & Account.FLAGS_INCOMPLETE) != 0) {
+                        log("Account observer noticed incomplete account; ignoring");
+                        continue;
+                    } else if (!currentAccounts.contains(account.mId)) {
                         // This is a deletion; shut down any account-related syncs
                         stopAccountSyncs(account.mId, true);
                         // Delete this from AccountManager...
@@ -518,8 +522,7 @@ public class SyncManager extends Service implements Runnable {
                                     WHERE_IN_ACCOUNT_AND_PUSHABLE,
                                     new String[] {Long.toString(account.mId)});
                             // Stop all current syncs; the appropriate ones will restart
-                            INSTANCE.log("Account " + account.mDisplayName +
-                                " changed; stop running syncs...");
+                            log("Account " + account.mDisplayName + " changed; stop syncs");
                             stopAccountSyncs(account.mId, true);
                         }
                     }
@@ -529,6 +532,7 @@ public class SyncManager extends Service implements Runnable {
                 for (Account account: currentAccounts) {
                     if (!mAccounts.contains(account.mId)) {
                         // This is an addition; create our magic hidden mailbox...
+                        log("Account observer found new account: " + account.mDisplayName);
                         addAccountMailbox(account.mId);
                         // Don't forget to cache the HostAuth
                         HostAuth ha =
@@ -1241,6 +1245,10 @@ public class SyncManager extends Service implements Runnable {
                 }
             }
             if (!found) {
+                if ((providerAccount.mFlags & Account.FLAGS_INCOMPLETE) != 0) {
+                    log("Account reconciler noticed incomplete account; ignoring");
+                    continue;
+                }
                 // This account has been deleted in the AccountManager!
                 log("Account deleted in AccountManager; deleting from provider: " +
                         providerAccountName);
