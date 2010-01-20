@@ -16,6 +16,7 @@
 
 package com.android.email.service;
 
+import com.android.email.AccountBackupRestore;
 import com.android.email.Controller;
 import com.android.email.Email;
 import com.android.email.R;
@@ -148,6 +149,9 @@ public class MailService extends Service {
     @Override
     public int onStartCommand(Intent intent, int flags, int startId) {
         super.onStartCommand(intent, flags, startId);
+
+        // Restore accounts, if it has not happened already
+        AccountBackupRestore.restoreAccountsIfNeeded(this);
 
         // TODO this needs to be passed through the controller and back to us
         this.mStartId = startId;

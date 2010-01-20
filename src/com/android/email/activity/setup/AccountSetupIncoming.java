@@ -17,6 +17,7 @@
 package com.android.email.activity.setup;
 
 import com.android.email.Account;
+import com.android.email.AccountBackupRestore;
 import com.android.email.R;
 import com.android.email.Utility;
 import com.android.email.provider.EmailContent;
@@ -334,6 +335,8 @@ public class AccountSetupIncoming extends Activity implements OnClickListener {
                 } else {
                     mAccount.save(this);
                 }
+                // Update the backup (side copy) of the accounts
+                AccountBackupRestore.backupAccounts(this);
                 finish();
             } else {
                 /*

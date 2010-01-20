@@ -16,6 +16,7 @@
 
 package com.android.email.activity.setup;
 
+import com.android.email.AccountBackupRestore;
 import com.android.email.provider.EmailContent;
 import com.android.email.provider.EmailContent.AccountColumns;
 
@@ -45,5 +46,7 @@ public class AccountSettingsUtils {
             cv.put(AccountColumns.SYNC_LOOKBACK, account.mSyncLookback);
             account.update(context, cv);
         }
+        // Update the backup (side copy) of the accounts
+        AccountBackupRestore.backupAccounts(context);
     }
 }

@@ -16,6 +16,7 @@
 
 package com.android.email.activity.setup;
 
+import com.android.email.AccountBackupRestore;
 import com.android.email.R;
 import com.android.email.Utility;
 import com.android.email.provider.EmailContent;
@@ -310,6 +311,8 @@ public class AccountSetupExchange extends Activity implements OnClickListener,
                         // Account.save will save the HostAuth's
                         mAccount.save(this);
                     }
+                    // Update the backup (side copy) of the accounts
+                    AccountBackupRestore.backupAccounts(this);
                     finish();
                 } else {
                     // Go directly to end - there is no 2nd screen for incoming settings

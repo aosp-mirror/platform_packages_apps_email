@@ -521,4 +521,84 @@ public class LegacyConversions {
         }
         mp.addBodyPart(bp);
     }
+
+    /**
+     * Conversion from provider account to legacy account
+     *
+     * Used for backup/restore.
+     *
+     * @param context application context
+     * @param fromAccount the provider account to be backed up (including transient hostauth's)
+     * @result a legacy Account object ready to be committed to preferences
+     */
+    /* package */ static Account makeLegacyAccount(Context context,
+            EmailContent.Account fromAccount) {
+        Account result = new Account(context);
+
+        result.setDescription(fromAccount.getDisplayName());
+        result.setEmail(fromAccount.getEmailAddress());
+        // fromAccount.mSyncKey - assume lost if restoring
+        result.setSyncWindow(fromAccount.getSyncLookback());
+        result.setAutomaticCheckIntervalMinutes(fromAccount.getSyncInterval());
+        // fromAccount.mHostAuthKeyRecv - id not saved; will be reassigned when restoring
+        // fromAccount.mHostAuthKeySend - id not saved; will be reassigned when restoring
+
+        // Provider Account flags, and how they are mapped.
+        //  FLAGS_NOTIFY_NEW_MAIL       -> mNotifyNewMail
+        //  FLAGS_VIBRATE               -> mVibrate
+        //  DELETE_POLICY_NEVER         -> mDeletePolicy
+        //  DELETE_POLICY_7DAYS
+        //  DELETE_POLICY_ON_DELETE
+        result.setNotifyNewMail(0 !=
+            (fromAccount.getFlags() & EmailContent.Account.FLAGS_NOTIFY_NEW_MAIL));
+        result.setVibrate(0 !=
+            (fromAccount.getFlags() & EmailContent.Account.FLAGS_VIBRATE));
+        result.setDeletePolicy(fromAccount.getDeletePolicy());
+
+        result.mUuid = fromAccount.getUuid();
+        result.setName(fromAccount.mSenderName);
+        result.setRingtone(fromAccount.mRingtoneUri);
+        result.mProtocolVersion = fromAccount.mProtocolVersion;
+        // int fromAccount.mNewMessageCount = will be reset on next sync
+
+        // Use the existing conversions from HostAuth <-> Uri
+        result.setStoreUri(fromAccount.getStoreUri(context));
+        result.setSenderUri(fromAccount.getSenderUri(context));
+
+        return result;
+    }
+
+    /**
+     * Conversion from legacy account to provider account
+     *
+     * Used for backup/restore and for account migration.
+     */
+    /* package */ static EmailContent.Account makeAccount(Context context, Account fromAccount) {
+
+        EmailContent.Account result = new EmailContent.Account();
+
+        result.setDisplayName(fromAccount.getDescription());
+        result.setEmailAddress(fromAccount.getEmail());
+        result.mSyncKey = "";
+        result.setSyncLookback(fromAccount.getSyncWindow());
+        result.setSyncInterval(fromAccount.getAutomaticCheckIntervalMinutes());
+        // result.mHostAuthKeyRecv
+        // result.mHostAuthKeySend;
+        int flags = 0;
+        if (fromAccount.isNotifyNewMail())  flags |= EmailContent.Account.FLAGS_NOTIFY_NEW_MAIL;
+        if (fromAccount.isVibrate())        flags |= EmailContent.Account.FLAGS_VIBRATE;
+        result.setFlags(flags);
+        result.setDeletePolicy(fromAccount.getDeletePolicy());
+        // result.setDefaultAccount();
+        result.mCompatibilityUuid = fromAccount.getUuid();
+        result.setSenderName(fromAccount.getName());
+        result.setRingtone(fromAccount.getRingtone());
+        result.mProtocolVersion = fromAccount.mProtocolVersion;
+        result.mNewMessageCount = 0;
+
+        result.setStoreUri(context, fromAccount.getStoreUri());
+        result.setSenderUri(context, fromAccount.getSenderUri());
+
+        return result;
+    }
 }

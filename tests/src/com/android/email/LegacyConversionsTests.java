@@ -16,6 +16,7 @@
 
 package com.android.email;
 
+import com.android.email.Account;
 import com.android.email.mail.Address;
 import com.android.email.mail.BodyPart;
 import com.android.email.mail.Flag;
@@ -65,13 +66,14 @@ public class LegacyConversionsTests extends ProviderTestCase2<EmailProvider> {
     private static final String RECIPIENT_BCC = "recipient-bcc@android.com";
     private static final String REPLY_TO = "reply-to@android.com";
     private static final String SUBJECT = "This is the subject";
-    private static final String BODY = "This is the body.  This is also the body.";
     private static final String MESSAGE_ID = "Test-Message-ID";
     private static final String MESSAGE_ID_2 = "Test-Message-ID-Second";
 
     EmailProvider mProvider;
     Context mProviderContext;
     Context mContext;
+    Account mLegacyAccount = null;
+    Preferences mPreferences = null;
 
     public LegacyConversionsTests() {
         super(EmailProvider.class, EmailProvider.EMAIL_AUTHORITY);
@@ -87,6 +89,9 @@ public class LegacyConversionsTests extends ProviderTestCase2<EmailProvider> {
     @Override
     public void tearDown() throws Exception {
         super.tearDown();
+        if (mLegacyAccount != null) {
+            mLegacyAccount.delete(mPreferences);
+        }
     }
 
     /**
@@ -155,7 +160,7 @@ public class LegacyConversionsTests extends ProviderTestCase2<EmailProvider> {
         }
         if (sender != null) {
             Address[] addresses = Address.parse(sender);
-            message.setFrom(Address.parse(sender)[0]);
+            message.setFrom(addresses[0]);
         }
         if (subject != null) {
             message.setSubject(subject);
@@ -479,5 +484,131 @@ public class LegacyConversionsTests extends ProviderTestCase2<EmailProvider> {
         // TODO Check the attachments
 
 //      cv.put("attachment_count", attachments.size());
+    }
+
+    /**
+     * Test conversion of a legacy account to a provider account
+     */
+    public void testMakeProviderAccount() throws MessagingException {
+
+        setupLegacyAccount("testMakeProviderAccount", true);
+        EmailContent.Account toAccount =
+            LegacyConversions.makeAccount(mProviderContext, mLegacyAccount);
+        checkProviderAccount("testMakeProviderAccount", mLegacyAccount, toAccount);
+    }
+
+    /**
+     * Test conversion of a provider account to a legacy account
+     */
+    public void testMakeLegacyAccount() throws MessagingException {
+        EmailContent.Account fromAccount = ProviderTestUtils.setupAccount("convert-to-legacy",
+                false, mProviderContext);
+        fromAccount.mHostAuthRecv =
+            ProviderTestUtils.setupHostAuth("legacy-recv", 0, false, mProviderContext);
+        fromAccount.mHostAuthSend =
+            ProviderTestUtils.setupHostAuth("legacy-send", 0, false, mProviderContext);
+        fromAccount.save(mProviderContext);
+
+        Account toAccount = LegacyConversions.makeLegacyAccount(mProviderContext, fromAccount);
+        checkLegacyAccount("testMakeLegacyAccount", fromAccount, toAccount);
+    }
+
+    /**
+     * Setup a legacy account in mLegacyAccount with many fields prefilled.
+     */
+    private void setupLegacyAccount(String name, boolean saveIt) {
+        // prefs & legacy account are saved for cleanup (it's stored in the real prefs file)
+        mPreferences = Preferences.getPreferences(mProviderContext);
+        mLegacyAccount = new Account(mProviderContext);
+
+        // fill in useful fields
+        mLegacyAccount.mUuid = "test-uid-" + name;
+        mLegacyAccount.mStoreUri = "store://test/" + name;
+        mLegacyAccount.mLocalStoreUri = "local://localhost/" + name;
+        mLegacyAccount.mSenderUri = "sender://test/" + name;
+        mLegacyAccount.mDescription = "description " + name;
+        mLegacyAccount.mName = "name " + name;
+        mLegacyAccount.mEmail = "email " + name;
+        mLegacyAccount.mAutomaticCheckIntervalMinutes = 100;
+        mLegacyAccount.mLastAutomaticCheckTime = 200;
+        mLegacyAccount.mNotifyNewMail = true;
+        mLegacyAccount.mDraftsFolderName = "drafts " + name;
+        mLegacyAccount.mSentFolderName = "sent " + name;
+        mLegacyAccount.mTrashFolderName = "trash " + name;
+        mLegacyAccount.mOutboxFolderName = "outbox " + name;
+        mLegacyAccount.mAccountNumber = 300;
+        mLegacyAccount.mVibrate = true;
+        mLegacyAccount.mRingtoneUri = "ringtone://test/" + name;
+        mLegacyAccount.mSyncWindow = 400;
+        mLegacyAccount.mBackupFlags = 0;
+        mLegacyAccount.mDeletePolicy = Account.DELETE_POLICY_NEVER;
+
+        if (saveIt) {
+            mLegacyAccount.save(mPreferences);
+        }
+    }
+
+    /**
+     * Compare a provider account to the legacy account it was created from
+     */
+    private void checkProviderAccount(String tag, Account expect, EmailContent.Account actual)
+            throws MessagingException {
+        assertEquals(tag + " description", expect.getDescription(), actual.mDisplayName);
+        assertEquals(tag + " email", expect.getEmail(), actual.mEmailAddress);
+        assertEquals(tag + " sync key", "", actual.mSyncKey);
+        assertEquals(tag + " lookback", expect.getSyncWindow(), actual.mSyncLookback);
+        assertEquals(tag + " sync intvl", expect.getAutomaticCheckIntervalMinutes(),
+                actual.mSyncInterval);
+        // These asserts are checking mHostAuthKeyRecv & mHostAuthKeySend
+        assertEquals(tag + " store", expect.getStoreUri(), actual.getStoreUri(mProviderContext));
+        assertEquals(tag + " sender", expect.getSenderUri(), actual.getSenderUri(mProviderContext));
+        // Synthesize & check flags
+        int expectFlags = 0;
+        if (expect.mNotifyNewMail) expectFlags |= EmailContent.Account.FLAGS_NOTIFY_NEW_MAIL;
+        if (expect.mVibrate) expectFlags |= EmailContent.Account.FLAGS_VIBRATE;
+        expectFlags |=
+            (expect.mDeletePolicy << EmailContent.Account.FLAGS_DELETE_POLICY_SHIFT)
+                & EmailContent.Account.FLAGS_DELETE_POLICY_MASK;
+        assertEquals(tag + " flags", expectFlags, actual.mFlags);
+        assertEquals(tag + " default", false, actual.mIsDefault);
+        assertEquals(tag + " uuid", expect.getUuid(), actual.mCompatibilityUuid);
+        assertEquals(tag + " name", expect.getName(), actual.mSenderName);
+        assertEquals(tag + " ringtone", expect.getRingtone(), actual.mRingtoneUri);
+        assertEquals(tag + " proto vers", expect.mProtocolVersion, actual.mProtocolVersion);
+        assertEquals(tag + " new count", 0, actual.mNewMessageCount);
+    }
+
+    /**
+     * Compare a legacy account to the provider account it was created from
+     */
+    private void checkLegacyAccount(String tag, EmailContent.Account expect, Account actual)
+            throws MessagingException {
+        int expectFlags = expect.getFlags();
+
+        assertEquals(tag + " uuid", expect.mCompatibilityUuid, actual.mUuid);
+        assertEquals(tag + " store", expect.getStoreUri(mProviderContext), actual.mStoreUri);
+        assertTrue(actual.mLocalStoreUri.startsWith("local://localhost"));
+        assertEquals(tag + " sender", expect.getSenderUri(mProviderContext), actual.mSenderUri);
+        assertEquals(tag + " description", expect.getDisplayName(), actual.mDescription);
+        assertEquals(tag + " name", expect.getSenderName(), actual.mName);
+        assertEquals(tag + " email", expect.getEmailAddress(), actual.mEmail);
+        assertEquals(tag + " checkintvl", expect.getSyncInterval(),
+                actual.mAutomaticCheckIntervalMinutes);
+        assertEquals(tag + " checktime", 0, actual.mLastAutomaticCheckTime);
+        assertEquals(tag + " notify",
+                (expectFlags & EmailContent.Account.FLAGS_NOTIFY_NEW_MAIL) != 0,
+                actual.mNotifyNewMail);
+        assertEquals(tag + " drafts", null, actual.mDraftsFolderName);
+        assertEquals(tag + " sent", null, actual.mSentFolderName);
+        assertEquals(tag + " trash", null, actual.mTrashFolderName);
+        assertEquals(tag + " outbox", null, actual.mOutboxFolderName);
+        assertEquals(tag + " acct #", -1, actual.mAccountNumber);
+        assertEquals(tag + " vibrate", (expectFlags & EmailContent.Account.FLAGS_VIBRATE) != 0,
+                actual.mVibrate);
+        assertEquals(tag + " ", expect.getRingtone(), actual.mRingtoneUri);
+        assertEquals(tag + " sync window", expect.getSyncLookback(), actual.mSyncWindow);
+        assertEquals(tag + " backup flags", 0, actual.mBackupFlags);
+        assertEquals(tag + " proto vers", expect.mProtocolVersion, actual.mProtocolVersion);
+        assertEquals(tag + " delete policy", expect.getDeletePolicy(), actual.getDeletePolicy());
     }
 }

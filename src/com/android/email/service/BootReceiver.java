@@ -16,6 +16,7 @@
 
 package com.android.email.service;
 
+import com.android.email.AccountBackupRestore;
 import com.android.email.Email;
 
 import android.content.BroadcastReceiver;
@@ -25,6 +26,9 @@ import android.content.Intent;
 public class BootReceiver extends BroadcastReceiver {
     @Override
     public void onReceive(Context context, Intent intent) {
+        // Restore accounts, if it has not happened already
+        AccountBackupRestore.restoreAccountsIfNeeded(context);
+
         if (Intent.ACTION_BOOT_COMPLETED.equals(intent.getAction())) {
             // Returns true if there are any accounts
             if (Email.setServicesEnabled(context)) {

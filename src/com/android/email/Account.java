@@ -22,7 +22,6 @@ import android.content.Context;
 import android.content.SharedPreferences;
 import android.net.Uri;
 
-import java.io.Serializable;
 import java.util.Arrays;
 import java.util.UUID;
 
@@ -30,7 +29,7 @@ import java.util.UUID;
  * Account stores all of the settings for a single account defined by the user. It is able to save
  * and delete itself given a Preferences to work with. Each account is defined by a UUID. 
  */
-public class Account implements Serializable {
+public class Account {
     public static final int DELETE_POLICY_NEVER = 0;
     public static final int DELETE_POLICY_7DAYS = 1;
     public static final int DELETE_POLICY_ON_DELETE = 2;
@@ -46,12 +45,11 @@ public class Account implements Serializable {
     public static final int SYNC_WINDOW_1_MONTH = 5;
     public static final int SYNC_WINDOW_ALL = 6;
 
-    /** 
-     * This should never be used for persistance, only for marshalling.
-     * TODO: Remove serializable (VERY SLOW) and replace with Parcelable
-     */
-    private static final long serialVersionUID = 1L;
-    
+    // These flags will never be seen in a "real" (legacy) account
+    public static final int BACKUP_FLAGS_IS_BACKUP = 1;
+    public static final int BACKUP_FLAGS_SYNC_CONTACTS = 2;
+    public static final int BACKUP_FLAGS_IS_DEFAULT = 4;
+
     // transient values - do not serialize
     private transient Preferences mPreferences;
 
@@ -74,6 +72,8 @@ public class Account implements Serializable {
     boolean mVibrate;
     String mRingtoneUri;
     int mSyncWindow;
+    int mBackupFlags;           // for account backups only
+    String mProtocolVersion;    // for account backups only
 
     /**
      * <pre>
@@ -88,6 +88,8 @@ public class Account implements Serializable {
      * All new fields should have named keys
      */
     private final String KEY_SYNC_WINDOW = ".syncWindow";
+    private final String KEY_BACKUP_FLAGS = ".backupFlags";
+    private final String KEY_PROTOCOL_VERSION = ".protocolVersion";
 
     public Account(Context context) {
         // TODO Change local store path to something readable / recognizable
@@ -99,6 +101,8 @@ public class Account implements Serializable {
         mVibrate = false;
         mRingtoneUri = "content://settings/system/notification_sound";
         mSyncWindow = SYNC_WINDOW_USER;       // IMAP & POP3
+        mBackupFlags = 0;
+        mProtocolVersion = null;
     }
 
     Account(Preferences preferences, String uuid) {
@@ -157,6 +161,10 @@ public class Account implements Serializable {
         
         mSyncWindow = preferences.mSharedPreferences.getInt(mUuid + KEY_SYNC_WINDOW, 
                 SYNC_WINDOW_USER);
+
+        mBackupFlags = preferences.mSharedPreferences.getInt(mUuid + KEY_BACKUP_FLAGS, 0);
+        mProtocolVersion = preferences.mSharedPreferences.getString(mUuid + KEY_PROTOCOL_VERSION,
+                null);
     }
 
     public String getUuid() {
@@ -252,6 +260,8 @@ public class Account implements Serializable {
         editor.remove(mUuid + ".vibrate");
         editor.remove(mUuid + ".ringtone");
         editor.remove(mUuid + KEY_SYNC_WINDOW);
+        editor.remove(mUuid + KEY_BACKUP_FLAGS);
+        editor.remove(mUuid + KEY_PROTOCOL_VERSION);
 
         // also delete any deprecated fields
         editor.remove(mUuid + ".transportUri");
@@ -315,6 +325,8 @@ public class Account implements Serializable {
         editor.putBoolean(mUuid + ".vibrate", mVibrate);
         editor.putString(mUuid + ".ringtone", mRingtoneUri);
         editor.putInt(mUuid + KEY_SYNC_WINDOW, mSyncWindow);
+        editor.putInt(mUuid + KEY_BACKUP_FLAGS, mBackupFlags);
+        editor.putString(mUuid + KEY_PROTOCOL_VERSION, mProtocolVersion);
         
         // The following fields are *not* written because they need to be more fine-grained
         // and not risk rewriting with old data.

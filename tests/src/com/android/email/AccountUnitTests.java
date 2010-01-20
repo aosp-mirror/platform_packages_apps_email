@@ -134,7 +134,37 @@ public class AccountUnitTests extends AndroidTestCase {
         storedPolicy = mPreferences.mSharedPreferences.getInt(mUuid + ".deletePolicy", -1);
         assertEquals(Account.DELETE_POLICY_ON_DELETE, storedPolicy);
     }
-    
+
+    /**
+     * Test new flags field (added only for backups - not used by real/legacy accounts)
+     */
+    public void testFlagsField() {
+        createTestAccount();
+        assertEquals(0, mAccount.mBackupFlags);
+        mAccount.save(mPreferences);
+        mAccount.mBackupFlags = -1;
+        mAccount.refresh(mPreferences);
+        assertEquals(0, mAccount.mBackupFlags);
+
+        mAccount.mBackupFlags = Account.BACKUP_FLAGS_IS_BACKUP;
+        mAccount.save(mPreferences);
+        mAccount.mBackupFlags = -1;
+        mAccount.refresh(mPreferences);
+        assertEquals(Account.BACKUP_FLAGS_IS_BACKUP, mAccount.mBackupFlags);
+
+        mAccount.mBackupFlags = Account.BACKUP_FLAGS_SYNC_CONTACTS;
+        mAccount.save(mPreferences);
+        mAccount.mBackupFlags = -1;
+        mAccount.refresh(mPreferences);
+        assertEquals(Account.BACKUP_FLAGS_SYNC_CONTACTS, mAccount.mBackupFlags);
+
+        mAccount.mBackupFlags = Account.BACKUP_FLAGS_IS_DEFAULT;
+        mAccount.save(mPreferences);
+        mAccount.mBackupFlags = -1;
+        mAccount.refresh(mPreferences);
+        assertEquals(Account.BACKUP_FLAGS_IS_DEFAULT, mAccount.mBackupFlags);
+    }
+
     /**
      * Create a dummy account with minimal fields
      */
