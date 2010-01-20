@@ -701,9 +701,7 @@ public class MailService extends Service {
 
         // This code is identical to that used by Gmail and GTalk for notifications
         notification.flags |= Notification.FLAG_SHOW_LIGHTS;
-        notification.ledARGB = 0xff00ff00;
-        notification.ledOnMS = 500;
-        notification.ledOffMS = 2000;
+        notification.defaults |= Notification.DEFAULT_LIGHTS;
 
         NotificationManager notificationManager =
             (NotificationManager) getSystemService(Context.NOTIFICATION_SERVICE);
