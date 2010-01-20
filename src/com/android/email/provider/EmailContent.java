@@ -1066,7 +1066,7 @@ public abstract class EmailContent {
          * with accounts set up by previous versions, because there are externals references
          * to the Uuid (e.g. desktop shortcuts).
          */
-        String getUuid() {
+        public String getUuid() {
             return mCompatibilityUuid;
         }
 

@@ -16,6 +16,7 @@
 
 package com.android.email.activity.setup;
 
+import com.android.email.AccountBackupRestore;
 import com.android.email.Email;
 import com.android.email.EmailAddressValidator;
 import com.android.email.R;
@@ -380,6 +381,8 @@ public class AccountSetupBasics extends Activity
             // At this point we write the Account object to the DB for the first time.
             // From now on we'll only pass the accountId around.
             mAccount.save(this);
+            // Update the backup (side copy) of the accounts
+            AccountBackupRestore.backupAccounts(this);
             Email.setServicesEnabled(this);
             AccountSetupNames.actionSetNames(this, mAccount.mId, false);
             finish();

@@ -16,7 +16,6 @@
 
 package com.android.email;
 
-import android.content.SharedPreferences;
 import android.net.Uri;
 import android.test.AndroidTestCase;
 import android.test.suitebuilder.annotation.SmallTest;
@@ -34,7 +33,6 @@ public class PreferencesUnitTests extends AndroidTestCase {
 
     private Preferences mPreferences;
     
-    private String mUuid;
     private Account mAccount;
     
     @Override
@@ -94,8 +92,6 @@ public class PreferencesUnitTests extends AndroidTestCase {
     private void createTestAccount() {
         mAccount = new Account(getContext());
         mAccount.save(mPreferences);
-        
-        mUuid = mAccount.getUuid();
     }
     
 }

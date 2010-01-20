@@ -29,6 +29,7 @@ import com.android.exchange.SyncManager;
 
 import android.accounts.AccountManager;
 import android.accounts.AccountManagerCallback;
+import android.accounts.AccountManagerFuture;
 import android.content.Context;
 import android.os.Bundle;
 import android.os.RemoteException;
@@ -79,8 +80,8 @@ public class ExchangeStore extends Store {
         mTransport.checkSettings(mUri);
     }
 
-    static public void addSystemAccount(Context context, Account acct, boolean syncContacts,
-            AccountManagerCallback<Bundle> callback) {
+    static public AccountManagerFuture<Bundle> addSystemAccount(Context context, Account acct,
+            boolean syncContacts, AccountManagerCallback<Bundle> callback) {
         // Create a description of the new account
         Bundle options = new Bundle();
         options.putString(EasAuthenticatorService.OPTIONS_USERNAME, acct.mEmailAddress);
@@ -90,8 +91,23 @@ public class ExchangeStore extends Store {
         // Here's where we tell AccountManager about the new account.  The addAccount
         // method in AccountManager calls the addAccount method in our authenticator
         // service (EasAuthenticatorService)
-        AccountManager.get(context).addAccount(Eas.ACCOUNT_MANAGER_TYPE, null, null,
+        return AccountManager.get(context).addAccount(Eas.ACCOUNT_MANAGER_TYPE, null, null,
                 options, null, callback, null);
+    }
+
+    /**
+     * Remove an account from the Account manager - see {@link AccountManager#removeAccount(
+     * android.accounts.Account, AccountManagerCallback, android.os.Handler)}.
+     *
+     * @param context context to use
+     * @param acct the account to remove
+     * @param callback async results callback - pass null to use blocking mode
+     */
+    static public AccountManagerFuture<Boolean> removeSystemAccount(Context context, Account acct,
+            AccountManagerCallback<Bundle> callback) {
+        android.accounts.Account systemAccount =
+            new android.accounts.Account(acct.mEmailAddress, Eas.ACCOUNT_MANAGER_TYPE);
+        return AccountManager.get(context).removeAccount(systemAccount, null, null);
     }
 
     @Override

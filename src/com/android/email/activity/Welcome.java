@@ -16,6 +16,7 @@
 
 package com.android.email.activity;
 
+import com.android.email.AccountBackupRestore;
 import com.android.email.activity.setup.AccountSetupBasics;
 import com.android.email.provider.EmailContent.Account;
 import com.android.email.provider.EmailContent.Mailbox;
@@ -41,6 +42,13 @@ public class Welcome extends Activity {
     @Override
     public void onCreate(Bundle icicle) {
         super.onCreate(icicle);
+
+        // Restore accounts, if it has not happened already
+        // NOTE:  This is blocking, which it should not be (in the UI thread)
+        // We're going to live with this for the short term and replace with something
+        // smarter.  Long-term fix:  Move this, and most of the code below, to an AsyncTask
+        // and do the DB work in a thread.  Then post handler to finish() as appropriate.
+        AccountBackupRestore.restoreAccountsIfNeeded(this);
 
         // Because the app could be reloaded (for debugging, etc.), we need to make sure that
         // SyncManager gets a chance to start.  There is no harm to starting it if it has already

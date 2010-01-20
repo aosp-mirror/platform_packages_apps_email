@@ -16,6 +16,7 @@
 
 package com.android.email.activity.setup;
 
+import com.android.email.AccountBackupRestore;
 import com.android.email.R;
 import com.android.email.Utility;
 import com.android.email.activity.MessageList;
@@ -117,6 +118,8 @@ public class AccountSetupNames extends Activity implements OnClickListener {
         cv.put(AccountColumns.DISPLAY_NAME, mAccount.getDisplayName());
         cv.put(AccountColumns.SENDER_NAME, name);
         mAccount.update(this, cv);
+        // Update the backup (side copy) of the accounts
+        AccountBackupRestore.backupAccounts(this);
 
         // Exit or dispatch per flow mode
         if (getIntent().getBooleanExtra(EXTRA_EAS_FLOW, false)) {
