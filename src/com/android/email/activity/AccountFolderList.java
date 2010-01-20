@@ -16,6 +16,7 @@
 
 package com.android.email.activity;
 
+import com.android.email.AccountBackupRestore;
 import com.android.email.Controller;
 import com.android.email.Email;
 import com.android.email.R;
@@ -460,6 +461,8 @@ public class AccountFolderList extends ListActivity
                         Uri uri = ContentUris.withAppendedId(
                                 EmailContent.Account.CONTENT_URI, mSelectedContextAccount.mId);
                         AccountFolderList.this.getContentResolver().delete(uri, null, null);
+                        // Update the backup (side copy) of the accounts
+                        AccountBackupRestore.backupAccounts(AccountFolderList.this);
                     } catch (Exception e) {
                             // Ignore
                     }

@@ -17,6 +17,7 @@
 
 package com.android.exchange;
 
+import com.android.email.AccountBackupRestore;
 import com.android.email.mail.MessagingException;
 import com.android.email.mail.store.TrustManagerFactory;
 import com.android.email.provider.EmailContent;
@@ -816,6 +817,10 @@ public class SyncManager extends Service implements Runnable {
     @Override
     public int onStartCommand(Intent intent, int flags, int startId) {
         alwaysLog("!!! EAS SyncManager, onStartCommand");
+
+        // Restore accounts, if it has not happened already
+        AccountBackupRestore.restoreAccountsIfNeeded(this);
+
         maybeStartSyncManagerThread();
         if (sServiceThread == null) {
             alwaysLog("!!! EAS SyncManager, stopping self");
