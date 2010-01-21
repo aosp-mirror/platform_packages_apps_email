@@ -74,6 +74,7 @@ public class Account {
     int mSyncWindow;
     int mBackupFlags;           // for account backups only
     String mProtocolVersion;    // for account backups only
+    int mSecurityFlags;         // for account backups only
 
     /**
      * <pre>
@@ -90,6 +91,7 @@ public class Account {
     private final String KEY_SYNC_WINDOW = ".syncWindow";
     private final String KEY_BACKUP_FLAGS = ".backupFlags";
     private final String KEY_PROTOCOL_VERSION = ".protocolVersion";
+    private final String KEY_SECURITY_FLAGS = ".securityFlags";
 
     public Account(Context context) {
         // TODO Change local store path to something readable / recognizable
@@ -103,6 +105,7 @@ public class Account {
         mSyncWindow = SYNC_WINDOW_USER;       // IMAP & POP3
         mBackupFlags = 0;
         mProtocolVersion = null;
+        mSecurityFlags = 0;
     }
 
     Account(Preferences preferences, String uuid) {
@@ -165,6 +168,7 @@ public class Account {
         mBackupFlags = preferences.mSharedPreferences.getInt(mUuid + KEY_BACKUP_FLAGS, 0);
         mProtocolVersion = preferences.mSharedPreferences.getString(mUuid + KEY_PROTOCOL_VERSION,
                 null);
+        mSecurityFlags = preferences.mSharedPreferences.getInt(mUuid + KEY_SECURITY_FLAGS, 0);
     }
 
     public String getUuid() {
@@ -262,6 +266,7 @@ public class Account {
         editor.remove(mUuid + KEY_SYNC_WINDOW);
         editor.remove(mUuid + KEY_BACKUP_FLAGS);
         editor.remove(mUuid + KEY_PROTOCOL_VERSION);
+        editor.remove(mUuid + KEY_SECURITY_FLAGS);
 
         // also delete any deprecated fields
         editor.remove(mUuid + ".transportUri");
@@ -327,6 +332,7 @@ public class Account {
         editor.putInt(mUuid + KEY_SYNC_WINDOW, mSyncWindow);
         editor.putInt(mUuid + KEY_BACKUP_FLAGS, mBackupFlags);
         editor.putString(mUuid + KEY_PROTOCOL_VERSION, mProtocolVersion);
+        editor.putInt(mUuid + KEY_SECURITY_FLAGS, mSecurityFlags);
         
         // The following fields are *not* written because they need to be more fine-grained
         // and not risk rewriting with old data.

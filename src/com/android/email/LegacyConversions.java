@@ -560,6 +560,7 @@ public class LegacyConversions {
         result.setRingtone(fromAccount.mRingtoneUri);
         result.mProtocolVersion = fromAccount.mProtocolVersion;
         // int fromAccount.mNewMessageCount = will be reset on next sync
+        result.mSecurityFlags = fromAccount.mSecurityFlags;
 
         // Use the existing conversions from HostAuth <-> Uri
         result.setStoreUri(fromAccount.getStoreUri(context));
@@ -599,6 +600,7 @@ public class LegacyConversions {
         result.setRingtone(fromAccount.getRingtone());
         result.mProtocolVersion = fromAccount.mProtocolVersion;
         result.mNewMessageCount = 0;
+        result.mSecurityFlags = fromAccount.mSecurityFlags;
 
         result.setStoreUri(context, fromAccount.getStoreUri());
         result.setSenderUri(context, fromAccount.getSenderUri());

@@ -322,6 +322,7 @@ public class AccountBackupRestoreTests extends ProviderTestCase2<EmailProvider> 
         backup.mBackupFlags = Account.BACKUP_FLAGS_IS_BACKUP;
         backup.mProtocolVersion = "proto version" + name;
         backup.mDeletePolicy = Account.DELETE_POLICY_NEVER;
+        backup.mSecurityFlags = 500;
         return backup;
     }
 }

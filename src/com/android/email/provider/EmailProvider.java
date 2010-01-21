@@ -79,7 +79,8 @@ public class EmailProvider extends ContentProvider {
     // Version 6: Adding Message.mServerTimeStamp column
     // Version 7: Replace the mailbox_delete trigger with a version that removes orphaned messages
     //            from the Message_Deletes and Message_Updates tables
-    public static final int DATABASE_VERSION = 7;
+    // Version 8: Add security flags column to accounts table
+    public static final int DATABASE_VERSION = 8;
 
     // Any changes to the database format *must* include update-in-place code.
     // Original version: 2
@@ -411,7 +412,8 @@ public class EmailProvider extends ContentProvider {
             + AccountColumns.SENDER_NAME + " text, "
             + AccountColumns.RINGTONE_URI + " text, "
             + AccountColumns.PROTOCOL_VERSION + " text, "
-            + AccountColumns.NEW_MESSAGE_COUNT + " integer"
+            + AccountColumns.NEW_MESSAGE_COUNT + " integer, "
+            + AccountColumns.SECURITY_FLAGS + " integer"
             + ");";
         db.execSQL("create table " + Account.TABLE_NAME + s);
         // Deleting an account deletes associated Mailboxes and HostAuth's
@@ -709,6 +711,17 @@ public class EmailProvider extends ContentProvider {
                 db.execSQL("drop trigger mailbox_delete;");
                 db.execSQL(TRIGGER_MAILBOX_DELETE);
                 oldVersion = 7;
+            }
+            if (oldVersion == 7) {
+                // add the security (provisioning) column
+                try {
+                    db.execSQL("alter table " + Account.TABLE_NAME
+                            + " add column " + AccountColumns.SECURITY_FLAGS + " integer" + ";");
+                } catch (SQLException e) {
+                    // Shouldn't be needed unless we're debugging and interrupt the process
+                    Log.w(TAG, "Exception upgrading EmailProvider.db from 7 to 8 " + e);
+                }
+                oldVersion = 8;
             }
         }
 

@@ -542,6 +542,7 @@ public class LegacyConversionsTests extends ProviderTestCase2<EmailProvider> {
         mLegacyAccount.mSyncWindow = 400;
         mLegacyAccount.mBackupFlags = 0;
         mLegacyAccount.mDeletePolicy = Account.DELETE_POLICY_NEVER;
+        mLegacyAccount.mSecurityFlags = 500;
 
         if (saveIt) {
             mLegacyAccount.save(mPreferences);
@@ -576,6 +577,7 @@ public class LegacyConversionsTests extends ProviderTestCase2<EmailProvider> {
         assertEquals(tag + " ringtone", expect.getRingtone(), actual.mRingtoneUri);
         assertEquals(tag + " proto vers", expect.mProtocolVersion, actual.mProtocolVersion);
         assertEquals(tag + " new count", 0, actual.mNewMessageCount);
+        assertEquals(tag + " security", expect.mSecurityFlags, actual.mSecurityFlags);
     }
 
     /**
@@ -610,5 +612,6 @@ public class LegacyConversionsTests extends ProviderTestCase2<EmailProvider> {
         assertEquals(tag + " backup flags", 0, actual.mBackupFlags);
         assertEquals(tag + " proto vers", expect.mProtocolVersion, actual.mProtocolVersion);
         assertEquals(tag + " delete policy", expect.getDeletePolicy(), actual.getDeletePolicy());
+        assertEquals(tag + " security", expect.mSecurityFlags, actual.mSecurityFlags);
     }
 }

@@ -766,6 +766,8 @@ public abstract class EmailContent {
         public static final String PROTOCOL_VERSION = "protocolVersion";
         // The number of new messages (reported by the sync/download engines
         public static final String NEW_MESSAGE_COUNT = "newMessageCount";
+        // Flags defining security (provisioning) requirements of this account
+        public static final String SECURITY_FLAGS = "securityFlags";
     }
 
     public static final class Account extends EmailContent implements AccountColumns, Parcelable {
@@ -790,6 +792,25 @@ public abstract class EmailContent {
 
         public static final int SYNC_WINDOW_USER = -1;
 
+        // Security (provisioning) flags
+            // bits 0..4: password length (0=no password required)
+        public static final int SECURITY_PASSWORD_LENGTH_MASK = 31;
+        public static final int SECURITY_PASSWORD_LENGTH_SHIFT = 0;
+            // bits 5..8: password mode
+        public static final int SECURITY_PASSWORD_MODE_MASK = 15 << 5;
+        public static final int SECURITY_PASSWORD_MODE_SIMPLE = 32;
+        public static final int SECURITY_PASSWORD_MODE_STRONG = 33;
+            // bits 9..13: password failures -> wipe device (0=disabled)
+        public static final int SECURITY_PASSWORD_MAX_FAILS_MASK = 31 << 9;
+        public static final int SECURITY_PASSWORD_MAX_FAILS_SHIFT = 9;
+            // bits 14..24: seconds to screen lock (0=not required)
+        public static final int SECURITY_SCREEN_LOCK_TIME_MASK = 2047 << 14;
+        public static final int SECURITY_SCREEN_LOCK_TIME_SHIFT = 14;
+            // bit 15: remote wipe capability required
+        public static final int SECURITY_REQUIRE_REMOTE_WIPE = 1 << 15;
+            // bit 16: encrypted storage required
+        public static final int SECURITY_REQUIRE_ENCRYPTED_STORAGE = 1 << 16;
+
         public String mDisplayName;
         public String mEmailAddress;
         public String mSyncKey;
@@ -804,6 +825,7 @@ public abstract class EmailContent {
         public String mRingtoneUri;
         public String mProtocolVersion;
         public int mNewMessageCount;
+        public int mSecurityFlags;
 
         // Convenience for creating an account
         public transient HostAuth mHostAuthRecv;
@@ -824,6 +846,7 @@ public abstract class EmailContent {
         public static final int CONTENT_RINGTONE_URI_COLUMN = 12;
         public static final int CONTENT_PROTOCOL_VERSION_COLUMN = 13;
         public static final int CONTENT_NEW_MESSAGE_COUNT_COLUMN = 14;
+        public static final int CONTENT_SECURITY_FLAGS_COLUMN = 15;
 
         public static final String[] CONTENT_PROJECTION = new String[] {
             RECORD_ID, AccountColumns.DISPLAY_NAME,
@@ -832,7 +855,7 @@ public abstract class EmailContent {
             AccountColumns.HOST_AUTH_KEY_SEND, AccountColumns.FLAGS, AccountColumns.IS_DEFAULT,
             AccountColumns.COMPATIBILITY_UUID, AccountColumns.SENDER_NAME,
             AccountColumns.RINGTONE_URI, AccountColumns.PROTOCOL_VERSION,
-            AccountColumns.NEW_MESSAGE_COUNT
+            AccountColumns.NEW_MESSAGE_COUNT, AccountColumns.SECURITY_FLAGS
         };
 
         public static final int CONTENT_MAILBOX_TYPE_COLUMN = 1;
@@ -923,6 +946,7 @@ public abstract class EmailContent {
             mRingtoneUri = cursor.getString(CONTENT_RINGTONE_URI_COLUMN);
             mProtocolVersion = cursor.getString(CONTENT_PROTOCOL_VERSION_COLUMN);
             mNewMessageCount = cursor.getInt(CONTENT_NEW_MESSAGE_COUNT_COLUMN);
+            mSecurityFlags = cursor.getInt(CONTENT_SECURITY_FLAGS_COLUMN);
             return this;
         }
 
@@ -1342,6 +1366,7 @@ public abstract class EmailContent {
             values.put(AccountColumns.RINGTONE_URI, mRingtoneUri);
             values.put(AccountColumns.PROTOCOL_VERSION, mProtocolVersion);
             values.put(AccountColumns.NEW_MESSAGE_COUNT, mNewMessageCount);
+            values.put(AccountColumns.SECURITY_FLAGS, mSecurityFlags);
             return values;
         }
 
@@ -1386,6 +1411,7 @@ public abstract class EmailContent {
             dest.writeString(mRingtoneUri);
             dest.writeString(mProtocolVersion);
             dest.writeInt(mNewMessageCount);
+            dest.writeInt(mSecurityFlags);
 
             if (mHostAuthRecv != null) {
                 dest.writeByte((byte)1);
@@ -1422,6 +1448,7 @@ public abstract class EmailContent {
             mRingtoneUri = in.readString();
             mProtocolVersion = in.readString();
             mNewMessageCount = in.readInt();
+            mSecurityFlags = in.readInt();
 
             mHostAuthRecv = null;
             if (in.readByte() == 1) {
