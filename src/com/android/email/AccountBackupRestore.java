@@ -49,9 +49,7 @@ public class AccountBackupRestore {
         new Thread() {
             @Override
             public void run() {
-                synchronized(AccountBackupRestore.class) {
-                    doBackupAccounts(context, Preferences.getPreferences(context));
-                }
+                doBackupAccounts(context, Preferences.getPreferences(context));
             }
         }.start();
     }
@@ -62,10 +60,7 @@ public class AccountBackupRestore {
      */
     public static void restoreAccountsIfNeeded(final Context context) {
         // Don't log here;  This is called often.
-        boolean restored;
-        synchronized(AccountBackupRestore.class) {
-            restored = doRestoreAccounts(context, Preferences.getPreferences(context));
-        }
+        boolean restored = doRestoreAccounts(context, Preferences.getPreferences(context));
         if (restored) {
             // after restoring accounts, register services appropriately
             Log.w(Email.LOG_TAG, "Register services after restoring accounts");
@@ -81,7 +76,8 @@ public class AccountBackupRestore {
      * @param context used to access the provider
      * @param preferences used to access the backups (provided separately for testability)
      */
-    /* package */ static void doBackupAccounts(Context context, Preferences preferences) {
+    /* package */ synchronized static void doBackupAccounts(Context context,
+            Preferences preferences) {
         // 1.  Wipe any existing backup accounts
         Account[] oldBackups = preferences.getAccounts();
         for (Account backup : oldBackups) {
@@ -91,6 +87,8 @@ public class AccountBackupRestore {
         // 2. Identify the default account (if any).  This is required because setting
         // the default account flag is lazy,and sometimes we don't have any flags set.  We'll
         // use this to make it explicit (see loop, below).
+        // This is also the quick check for "no accounts" (the only case in which the returned
+        // value is -1) and if so, we can exit immediately.
         long defaultAccountId = EmailContent.Account.getDefaultAccountId(context);
         if (defaultAccountId == -1) {
             return;
@@ -102,7 +100,7 @@ public class AccountBackupRestore {
         try {
             while (c.moveToNext()) {
                 EmailContent.Account fromAccount =
-                    EmailContent.getContent(c, EmailContent.Account.class);
+                        EmailContent.getContent(c, EmailContent.Account.class);
                 if (Email.DEBUG) {
                     Log.v(Email.LOG_TAG, "Backing up account:" + fromAccount.getDisplayName());
                 }
@@ -142,7 +140,8 @@ public class AccountBackupRestore {
      * @param preferences used to access the backups (provided separately for testability)
      * @return true if accounts were restored (meaning services should be restarted, etc.)
      */
-    /* package */ static boolean doRestoreAccounts(Context context, Preferences preferences) {
+    /* package */ synchronized static boolean doRestoreAccounts(Context context,
+            Preferences preferences) {
         boolean result = false;
 
         // 1. Quick check - if we have any accounts, get out
@@ -165,7 +164,7 @@ public class AccountBackupRestore {
                 continue;
             }
             // Restore the account
-            Log.v(Email.LOG_TAG, "Restoring account:" + backupAccount.getDescription());
+            Log.w(Email.LOG_TAG, "Restoring account:" + backupAccount.getDescription());
             EmailContent.Account toAccount =
                 LegacyConversions.makeAccount(context, backupAccount);
 
