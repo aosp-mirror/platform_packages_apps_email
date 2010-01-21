@@ -529,7 +529,7 @@ public class LegacyConversions {
      *
      * @param context application context
      * @param fromAccount the provider account to be backed up (including transient hostauth's)
-     * @result a legacy Account object ready to be committed to preferences
+     * @return a legacy Account object ready to be committed to preferences
      */
     /* package */ static Account makeLegacyAccount(Context context,
             EmailContent.Account fromAccount) {
@@ -572,6 +572,10 @@ public class LegacyConversions {
      * Conversion from legacy account to provider account
      *
      * Used for backup/restore and for account migration.
+     *
+     * @param context application context
+     * @param fromAccount the legacy account to convert to modern format
+     * @return an Account ready to be committed to provider
      */
     /* package */ static EmailContent.Account makeAccount(Context context, Account fromAccount) {
 
@@ -579,17 +583,17 @@ public class LegacyConversions {
 
         result.setDisplayName(fromAccount.getDescription());
         result.setEmailAddress(fromAccount.getEmail());
-        result.mSyncKey = "";
+        result.mSyncKey = null;
         result.setSyncLookback(fromAccount.getSyncWindow());
         result.setSyncInterval(fromAccount.getAutomaticCheckIntervalMinutes());
-        // result.mHostAuthKeyRecv
-        // result.mHostAuthKeySend;
+        // result.mHostAuthKeyRecv;     -- will be set when object is saved
+        // result.mHostAuthKeySend;     -- will be set when object is saved
         int flags = 0;
         if (fromAccount.isNotifyNewMail())  flags |= EmailContent.Account.FLAGS_NOTIFY_NEW_MAIL;
         if (fromAccount.isVibrate())        flags |= EmailContent.Account.FLAGS_VIBRATE;
         result.setFlags(flags);
         result.setDeletePolicy(fromAccount.getDeletePolicy());
-        // result.setDefaultAccount();
+        // result.setDefaultAccount();  -- will be set by caller, if neededf
         result.mCompatibilityUuid = fromAccount.getUuid();
         result.setSenderName(fromAccount.getName());
         result.setRingtone(fromAccount.getRingtone());

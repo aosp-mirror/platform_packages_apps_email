@@ -555,7 +555,7 @@ public class LegacyConversionsTests extends ProviderTestCase2<EmailProvider> {
             throws MessagingException {
         assertEquals(tag + " description", expect.getDescription(), actual.mDisplayName);
         assertEquals(tag + " email", expect.getEmail(), actual.mEmailAddress);
-        assertEquals(tag + " sync key", "", actual.mSyncKey);
+        assertEquals(tag + " sync key", null, actual.mSyncKey);
         assertEquals(tag + " lookback", expect.getSyncWindow(), actual.mSyncLookback);
         assertEquals(tag + " sync intvl", expect.getAutomaticCheckIntervalMinutes(),
                 actual.mSyncInterval);

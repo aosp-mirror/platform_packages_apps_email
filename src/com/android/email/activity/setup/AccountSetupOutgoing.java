@@ -253,7 +253,7 @@ public class AccountSetupOutgoing extends Activity implements OnClickListener,
                 if (mAccount.isSaved()) {
                     mAccount.update(this, mAccount.toContentValues());
                     mAccount.mHostAuthSend.update(this, mAccount.mHostAuthSend.toContentValues());
-               } else {
+                } else {
                     mAccount.save(this);
                 }
                 // Update the backup (side copy) of the accounts
