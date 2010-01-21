@@ -231,6 +231,7 @@ public class AccountBackupRestoreTests extends ProviderTestCase2<EmailProvider> 
                 } else {
                     fail("Unexpected restore account name=" + restored.getDisplayName());
                 }
+                checkRestoredTransientValues(restored);
             }
         } finally {
             c.close();
@@ -266,10 +267,25 @@ public class AccountBackupRestoreTests extends ProviderTestCase2<EmailProvider> 
                 } else {
                     fail("Unexpected restore account name=" + restored.getDisplayName());
                 }
+                checkRestoredTransientValues(restored);
             }
         } finally {
             c.close();
         }
+    }
+
+    /**
+     * Check a given restored account to make sure that transient (non-backed-up) values
+     * are initialized to reasonable values.
+     */
+    private void checkRestoredTransientValues(EmailContent.Account restored) {
+        // sync key == null
+        assertNull(restored.mSyncKey);
+        // hostauth id's are no longer zero or -1
+        assertTrue(restored.mHostAuthKeyRecv > 0);
+        assertTrue(restored.mHostAuthKeySend > 0);
+        // protocol version == null or non-empty string
+        assertTrue(restored.mProtocolVersion == null || restored.mProtocolVersion.length() > 0);
     }
 
     /**
