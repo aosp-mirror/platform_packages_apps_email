@@ -76,8 +76,8 @@ public abstract class AbstractSyncService implements Runnable {
     protected Object mSynchronizer = new Object();
 
     protected volatile long mRequestTime = 0;
-    protected ArrayList<PartRequest> mPartRequests = new ArrayList<PartRequest>();
-    protected PartRequest mPendingPartRequest = null;
+    protected ArrayList<Request> mRequests = new ArrayList<Request>();
+    protected PartRequest mPendingRequest = null;
 
     /**
      * Sent by SyncManager to request that the service stop itself cleanly
@@ -282,52 +282,21 @@ public abstract class AbstractSyncService implements Runnable {
     }
 
     /**
-     * PartRequest handling (common functionality)
-     * Can be overridden if desired, but IMAP/EAS both use the next three methods as-is
+     * Request handling (common functionality)
+     * Can be overridden if desired
      */
 
-    public void addPartRequest(PartRequest req) {
-        synchronized (mPartRequests) {
-            mPartRequests.add(req);
+    public void addRequest(Request req) {
+        synchronized (mRequests) {
+            mRequests.add(req);
             mRequestTime = System.currentTimeMillis();
         }
     }
 
-    public void removePartRequest(PartRequest req) {
-        synchronized (mPartRequests) {
-            mPartRequests.remove(req);
+    public void removeRequest(Request req) {
+        synchronized (mRequests) {
+            mRequests.remove(req);
         }
-    }
-
-    public PartRequest hasPartRequest(long emailId, String part) {
-        synchronized (mPartRequests) {
-            for (PartRequest pr : mPartRequests) {
-                if (pr.emailId == emailId && pr.loc.equals(part))
-                    return pr;
-            }
-        }
-        return null;
-    }
-
-    // cancelPartRequest is sent in response to user input to stop an attachment load
-    // that is in progress. This will almost certainly require code overriding the base
-    // functionality, as sockets may need to be closed, etc. and this functionality will be
-    // service dependent. This returns the canceled PartRequest or null
-    public PartRequest cancelPartRequest(long emailId, String part) {
-        synchronized (mPartRequests) {
-            PartRequest p = null;
-            for (PartRequest pr : mPartRequests) {
-                if (pr.emailId == emailId && pr.loc.equals(part)) {
-                    p = pr;
-                    break;
-                }
-            }
-            if (p != null) {
-                mPartRequests.remove(p);
-                return p;
-            }
-        }
-        return null;
     }
 
     /**

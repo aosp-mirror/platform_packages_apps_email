@@ -39,6 +39,7 @@ public class Tags {
     public static final int MOVE = 0x05;
     public static final int GIE = 0x06;
     public static final int FOLDER = 0x07;
+    public static final int MREQ = 0x08;
     public static final int TASK = 0x09;
     public static final int CONTACTS2 = 0x0C;
     public static final int PING = 0x0D;
@@ -217,6 +218,17 @@ public class Tags {
     public static final int FOLDER_FOLDER_SYNC = FOLDER_PAGE + 0x16;
     public static final int FOLDER_COUNT = FOLDER_PAGE + 0x17;
     public static final int FOLDER_VERSION = FOLDER_PAGE + 0x18;
+
+    public static final int MREQ_PAGE = MREQ << PAGE_SHIFT;
+    public static final int MREQ_CAL_ID = MREQ_PAGE + 5;
+    public static final int MREQ_COLLECTION_ID = MREQ_PAGE + 6;
+    public static final int MREQ_MEETING_RESPONSE = MREQ_PAGE + 7;
+    public static final int MREQ_REQ_ID = MREQ_PAGE + 8;
+    public static final int MREQ_REQUEST = MREQ_PAGE + 9;
+    public static final int MREQ_RESULT = MREQ_PAGE + 0xA;
+    public static final int MREQ_STATUS = MREQ_PAGE + 0xB;
+    public static final int MREQ_USER_RESPONSE = MREQ_PAGE + 0xC;
+    public static final int MREQ_VERSION = MREQ_PAGE + 0xD;
 
     public static final int EMAIL_PAGE = EMAIL << PAGE_SHIFT;
     public static final int EMAIL_ATTACHMENT = EMAIL_PAGE + 5;
@@ -441,6 +453,8 @@ public class Tags {
         },
         {
             // 0x08 MeetingResponse
+            "CalId", "CollectionId", "MeetingResponse", "ReqId", "Request",
+            "Result", "Status", "UserResponse", "Version"
         },
         {
             // 0x09 Tasks

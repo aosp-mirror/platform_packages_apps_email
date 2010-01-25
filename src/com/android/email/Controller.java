@@ -551,7 +551,7 @@ public class Controller {
 
     /**
      * Delete a single attachment entry from the DB given its id.
-     * Does not delete any eventual associated files. 
+     * Does not delete any eventual associated files.
      */
     public void deleteAttachment(long attachmentId) {
         ContentResolver resolver = mProviderContext.getContentResolver();
@@ -681,6 +681,29 @@ public class Controller {
                     mLegacyController.processPendingActions(message.mAccountKey);
                 }
             }.start();
+        }
+    }
+
+    /**
+     * Respond to a meeting invitation.
+     *
+     * @param messageId the id of the invitation being responded to
+     * @param response the code representing the response to the invitation
+     * @callback the Controller callback by which results will be reported (currently not defined)
+     */
+    public void sendMeetingResponse(final long messageId, final int response,
+            final Result callback) {
+         // Split here for target type (Service or MessagingController)
+        IEmailService service = getServiceForMessage(messageId);
+        if (service != null) {
+            // Service implementation
+            try {
+                service.sendMeetingResponse(messageId, response);
+            } catch (RemoteException e) {
+                // TODO Change exception handling to be consistent with however this method
+                // is implemented for other protocols
+                Log.e("onDownloadAttachment", "RemoteException", e);
+            }
         }
     }
 

@@ -166,6 +166,14 @@ public class EmailSyncAdapter extends AbstractSyncAdapter {
                         String text = getValue();
                         msg.mText = text;
                         break;
+                    case Tags.EMAIL_MESSAGE_CLASS:
+                        String messageClass = getValue();
+                        if (messageClass.equals("IPM.Schedule.Meeting.Request")) {
+                            msg.mFlags |= Message.FLAG_MEETING_INVITE;
+                        } else if (messageClass.equals("IPM.Schedule.Meeting.Canceled")) {
+                            msg.mFlags |= Message.FLAG_MEETING_CANCEL_NOTICE;
+                        }
+                        break;
                     default:
                         skipTag();
                 }
