@@ -1020,6 +1020,9 @@ public class MessageCompose extends Activity implements OnClickListener, OnFocus
             case R.id.quoted_text_delete:
                 mQuotedTextBar.setVisibility(View.GONE);
                 mQuotedText.setVisibility(View.GONE);
+                mDraft.mIntroText = null;
+                mDraft.mTextReply = null;
+                mDraft.mHtmlReply = null;
                 setDraftNeedsSaving(true);
                 break;
         }
