@@ -24,24 +24,21 @@ import com.android.email.provider.EmailContent.Attachment;
  * the attachment to be loaded, it also contains the callback to be used for status/progress
  * updates to the UI.
  */
-public class PartRequest {
-    public long timeStamp;
-    public long emailId;
-    public Attachment att;
-    public String destination;
-    public String contentUriString;
-    public String loc;
+public class PartRequest extends Request {
+    public Attachment mAttachment;
+    public String mDestination;
+    public String mContentUriString;
+    public String mLocation;
 
     public PartRequest(Attachment _att) {
-        timeStamp = System.currentTimeMillis();
-        emailId = _att.mMessageKey;
-        att = _att;
-        loc = att.mLocation;
+        mMessageId = _att.mMessageKey;
+        mAttachment = _att;
+        mLocation = mAttachment.mLocation;
     }
 
     public PartRequest(Attachment _att, String _destination, String _contentUriString) {
         this(_att);
-        destination = _destination;
-        contentUriString = _contentUriString;
+        mDestination = _destination;
+        mContentUriString = _contentUriString;
     }
 }

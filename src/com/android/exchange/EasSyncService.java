@@ -34,6 +34,7 @@ import com.android.exchange.adapter.AccountSyncAdapter;
 import com.android.exchange.adapter.ContactsSyncAdapter;
 import com.android.exchange.adapter.EmailSyncAdapter;
 import com.android.exchange.adapter.FolderSyncParser;
+import com.android.exchange.adapter.MeetingResponseParser;
 import com.android.exchange.adapter.PingParser;
 import com.android.exchange.adapter.Serializer;
 import com.android.exchange.adapter.Tags;
@@ -628,7 +629,7 @@ public class EasSyncService extends AbstractSyncService {
      * @throws IOException
      */
     protected void getAttachment(PartRequest req) throws IOException {
-        Attachment att = req.att;
+        Attachment att = req.mAttachment;
         Message msg = Message.restoreMessageWithId(mContext, att.mMessageKey);
         doProgressCallback(msg.mId, att.mId, 0);
 
@@ -640,9 +641,9 @@ public class EasSyncService extends AbstractSyncService {
             HttpEntity e = res.getEntity();
             int len = (int)e.getContentLength();
             InputStream is = res.getEntity().getContent();
-            File f = (req.destination != null)
-                    ? new File(req.destination)
-                    : createUniqueFileInternal(req.destination, att.mFileName);
+            File f = (req.mDestination != null)
+                    ? new File(req.mDestination)
+                    : createUniqueFileInternal(req.mDestination, att.mFileName);
             if (f != null) {
                 // Ensure that the target directory exists
                 File destDir = f.getParentFile();
@@ -654,7 +655,7 @@ public class EasSyncService extends AbstractSyncService {
                 // len < 0 means "chunked" transfer-encoding
                 if (len != 0) {
                     try {
-                        mPendingPartRequest = req;
+                        mPendingRequest = req;
                         byte[] bytes = new byte[CHUNK_SIZE];
                         int length = len;
                         // Loop terminates 1) when EOF is reached or 2) if an IOException occurs
@@ -689,7 +690,7 @@ public class EasSyncService extends AbstractSyncService {
                             }
                        }
                     } finally {
-                        mPendingPartRequest = null;
+                        mPendingRequest = null;
                     }
                 }
                 os.flush();
@@ -697,8 +698,8 @@ public class EasSyncService extends AbstractSyncService {
 
                 // EmailProvider will throw an exception if we try to update an unsaved attachment
                 if (att.isSaved()) {
-                    String contentUriString = (req.contentUriString != null)
-                            ? req.contentUriString
+                    String contentUriString = (req.mContentUriString != null)
+                            ? req.mContentUriString
                             : "file://" + f.getAbsolutePath();
                     ContentValues cv = new ContentValues();
                     cv.put(AttachmentColumns.CONTENT_URI, contentUriString);
@@ -708,6 +709,37 @@ public class EasSyncService extends AbstractSyncService {
             }
         } else {
             doStatusCallback(msg.mId, att.mId, EmailServiceStatus.MESSAGE_NOT_FOUND);
+        }
+    }
+
+    /**
+     * Responds to a meeting request.  The MeetingResponseRequest is basically our
+     * wrapper for the meetingResponse service call
+     * @param req the request (message id and response code)
+     * @throws IOException
+     */
+    protected void sendMeetingResponse(MeetingResponseRequest req) throws IOException {
+        Message msg = Message.restoreMessageWithId(mContext, req.mMessageId);
+        Serializer s = new Serializer();
+        s.start(Tags.MREQ_MEETING_RESPONSE).start(Tags.MREQ_REQUEST);
+        s.data(Tags.MREQ_USER_RESPONSE, Integer.toString(req.mResponse));
+        s.data(Tags.MREQ_COLLECTION_ID, Long.toString(msg.mMailboxKey));
+        s.data(Tags.MREQ_REQ_ID, msg.mServerId);
+        s.end().end().done();
+        HttpResponse res = sendHttpClientPost("MeetingResponse", s.toByteArray());
+        int status = res.getStatusLine().getStatusCode();
+        if (status == HttpStatus.SC_OK) {
+            HttpEntity e = res.getEntity();
+            int len = (int)e.getContentLength();
+            InputStream is = res.getEntity().getContent();
+            if (len != 0) {
+                new MeetingResponseParser(is, this).parse();
+            }
+        } else if (isAuthError(status)) {
+            throw new EasAuthenticationException();
+        } else {
+            userLog("Meeting response request failed, code: " + status);
+            throw new IOException();
         }
     }
 
@@ -1323,18 +1355,29 @@ public class EasSyncService extends AbstractSyncService {
                 return;
             }
 
+            // Now, handle various requests
             while (true) {
-                PartRequest req = null;
-                synchronized (mPartRequests) {
-                    if (mPartRequests.isEmpty()) {
+                Request req = null;
+                synchronized (mRequests) {
+                    if (mRequests.isEmpty()) {
                         break;
                     } else {
-                        req = mPartRequests.get(0);
+                        req = mRequests.get(0);
                     }
                 }
-                getAttachment(req);
-                synchronized(mPartRequests) {
-                    mPartRequests.remove(req);
+
+                // Our two request types are PartRequest (loading attachment) and
+                // MeetingResponseRequest (respond to a meeting request)
+                if (req instanceof PartRequest) {
+                    getAttachment((PartRequest)req);
+                } else if (req instanceof MeetingResponseRequest) {
+                    sendMeetingResponse((MeetingResponseRequest)req);
+                }
+
+                // If there's an exception handling the request, we'll throw it
+                // Otherwise, we remove the request
+                synchronized(mRequests) {
+                    mRequests.remove(req);
                 }
             }
 
@@ -1465,6 +1508,9 @@ public class EasSyncService extends AbstractSyncService {
                     sync(target);
                 } while (mRequestTime != 0);
             }
+        } catch (EasAuthenticationException e) {
+            userLog("Caught authentication error");
+            mExitStatus = EXIT_LOGIN_FAILURE;
         } catch (IOException e) {
             String message = e.getMessage();
             userLog("Caught IOException: ", (message == null) ? "No message" : message);

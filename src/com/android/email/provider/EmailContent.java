@@ -542,12 +542,18 @@ public abstract class EmailContent {
         public static final int FLAG_LOADED_DELETED = 3;
 
         // Bits used in mFlags
-        // These three states are mutually exclusive, and indicate whether the message is an
+        // The following three states are mutually exclusive, and indicate whether the message is an
         // original, a reply, or a forward
         public static final int FLAG_TYPE_ORIGINAL = 0;
         public static final int FLAG_TYPE_REPLY = 1<<0;
         public static final int FLAG_TYPE_FORWARD = 1<<1;
         public static final int FLAG_TYPE_MASK = FLAG_TYPE_REPLY | FLAG_TYPE_FORWARD;
+        // The following flags indicate messages that are determined to be meeting related
+        // (e.g. invites)
+        public static final int FLAG_MEETING_INVITE = 1<<2;
+        public static final int FLAG_MEETING_CANCEL_NOTICE = 1<<3;
+        public static final int FLAG_MEETING_MASK =
+            FLAG_MEETING_INVITE | FLAG_MEETING_CANCEL_NOTICE;
 
         public Message() {
             mBaseUri = CONTENT_URI;

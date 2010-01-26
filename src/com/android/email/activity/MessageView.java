@@ -31,6 +31,7 @@ import com.android.email.provider.EmailContent.Attachment;
 import com.android.email.provider.EmailContent.Body;
 import com.android.email.provider.EmailContent.BodyColumns;
 import com.android.email.provider.EmailContent.Message;
+import com.android.exchange.EmailServiceConstants;
 
 import org.apache.commons.io.IOUtils;
 
@@ -64,7 +65,6 @@ import android.view.LayoutInflater;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
-import android.view.Window;
 import android.view.View.OnClickListener;
 import android.webkit.WebView;
 import android.webkit.WebViewClient;
@@ -674,6 +674,16 @@ public class MessageView extends Activity implements OnClickListener {
             }
         }
         return null;
+    }
+
+    // NOTE
+    // This is a placeholder for code used to accept a meeting invitation, and would presumably
+    // be called in response to a button press or menu selection
+    // The appropriate EmailServiceConstant would be changed to implement "decline" and
+    // "tentative" responses
+    private void onAccept() {
+        mController.sendMeetingResponse(mMessageId, EmailServiceConstants.MEETING_REQUEST_ACCEPTED,
+                mControllerCallback);
     }
 
     private void onDownloadAttachment(AttachmentInfo attachment) {

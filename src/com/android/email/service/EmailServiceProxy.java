@@ -287,6 +287,18 @@ public class EmailServiceProxy implements IEmailService {
         });
     }
 
+    public void sendMeetingResponse(final long messageId, final int response) throws RemoteException {
+        setTask(new Runnable () {
+            public void run() {
+                try {
+                    if (mCallback != null) mService.setCallback(mCallback);
+                    mService.sendMeetingResponse(messageId, response);
+                } catch (RemoteException e) {
+                }
+            }
+        });
+    }
+
     public void loadMore(long messageId) throws RemoteException {
         // TODO Auto-generated method stub
     }

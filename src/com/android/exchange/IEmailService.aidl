@@ -43,4 +43,6 @@ interface IEmailService {
     void hostChanged(long accountId);
 
     Bundle autoDiscover(String userName, String password);
+
+    void sendMeetingResponse(long messageId, int response);
 }
