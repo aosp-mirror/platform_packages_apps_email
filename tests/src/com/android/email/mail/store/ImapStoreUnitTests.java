@@ -16,6 +16,7 @@
 
 package com.android.email.mail.store;
 
+import com.android.email.Email;
 import com.android.email.mail.FetchProfile;
 import com.android.email.mail.Flag;
 import com.android.email.mail.Folder;
@@ -31,9 +32,11 @@ import com.android.email.mail.transport.MockTransport;
 
 import android.test.AndroidTestCase;
 import android.test.suitebuilder.annotation.SmallTest;
+import android.util.Log;
 
 import java.util.ArrayList;
 import java.util.Date;
+import java.util.HashMap;
 import java.util.Locale;
 
 /**
@@ -80,6 +83,92 @@ public class ImapStoreUnitTests extends AndroidTestCase {
         // TODO: inject specific facts in the initial folder SELECT and check them here
     }
     
+    /**
+     * TODO: Test with SSL negotiation (faked)
+     * TODO: Test with SSL required but not supported
+     * TODO: Test with TLS negotiation (faked)
+     * TODO: Test with TLS required but not supported
+     * TODO: Test calling getMessageCount(), getMessages(), etc.
+     */
+
+    /**
+     * Test the generation of the IMAP ID keys
+     *
+     * Since this is build-specific, we mostly just ensure that the correct strings
+     * are being generated, and non-empty, and (if possible) look for expected formatting.
+     */
+    public void testImapId() {
+        String id = mStore.getImapId(getContext());
+        // Instead of a true tokenizer, we'll use double-quote as the split.
+        // We can's use " " because there may be spaces inside the values. 
+        String[] elements = id.split("\"");
+        HashMap<String, String> map = new HashMap<String, String>();
+        for (int i = 0; i < elements.length; ) {
+            // Because we split at quotes, we expect to find:
+            // [i] = null
+            // [i+1] = key
+            // [i+2] = one or more spaces
+            // [i+3] = value
+            map.put(elements[i+1], elements[i+3]);
+            i += 4;
+        }
+        
+        // Strings we'll expect to find:
+        //   name            Android package name of the program
+        //   os              "android"
+        //   os-version      "version; model; build-id"
+        //   vendor          Vendor of the client/server
+
+        String name = map.get("name");
+        assertEquals(getContext().getPackageName(), name);
+        String os = map.get("os");
+        assertEquals("android", os);
+        String osversion = map.get("os-version");
+        assertNotNull(osversion);
+        String vendor = map.get("vendor");
+        assertNotNull(vendor);
+    }
+
+    /**
+     * Test non-NIL server response to IMAP ID.  We should simply ignore it.
+     */
+    public void testServerId() throws MessagingException {
+        MockTransport mockTransport = openAndInjectMockTransport();
+        
+        // try to open it
+        setupOpenFolder(mockTransport, new String[] {
+                "* ID (\"name\" \"Cyrus\" \"version\" \"1.5\"" +
+                " \"os\" \"sunos\" \"os-version\" \"5.5\"" +
+                " \"support-url\" \"mailto:cyrus-bugs+@andrew.cmu.edu\")",
+                "1 OK"});
+        mFolder.open(OpenMode.READ_WRITE, null);
+    }
+
+    /**
+     * Test OK response to IMAP ID with crummy text afterwards too.
+     */
+    public void testImapIdOkParsing() throws MessagingException {
+        MockTransport mockTransport = openAndInjectMockTransport();
+        
+        // try to open it
+        setupOpenFolder(mockTransport, new String[] {
+                "* ID NIL",
+                "1 OK [ID] bad-char-%"});
+        mFolder.open(OpenMode.READ_WRITE, null);
+    }
+    
+    /**
+     * Test BAD response to IMAP ID - also with bad parser chars
+     */
+    public void testImapIdBad() throws MessagingException {
+        MockTransport mockTransport = openAndInjectMockTransport();
+        
+        // try to open it
+        setupOpenFolder(mockTransport, new String[] {
+                "1 BAD unknown command bad-char-%"});
+        mFolder.open(OpenMode.READ_WRITE, null);
+    }
+    
     /** 
      * Confirms that ImapList object correctly returns an appropriate Date object
      * without throwning MessagingException when getKeyedDate() is called.
@@ -111,14 +200,6 @@ public class ImapStoreUnitTests extends AndroidTestCase {
         // "01-Jan-2009 09:00:00 +0000" => 1230800400000L 
         assertEquals(1230800400000L, result.getTime());
     }
-    
-    /**
-     * TODO: Test with SSL negotiation (faked)
-     * TODO: Test with SSL required but not supported
-     * TODO: Test with TLS negotiation (faked)
-     * TODO: Test with TLS required but not supported
-     * TODO: Test calling getMessageCount(), getMessages(), etc.
-     */
     
     /**
      * TODO: Test the operation of checkSettings()
@@ -191,17 +272,29 @@ public class ImapStoreUnitTests extends AndroidTestCase {
      * @param mockTransport the mock transport we're using
      */
     private void setupOpenFolder(MockTransport mockTransport) {
+        setupOpenFolder(mockTransport, new String[] {
+                "* ID NIL", "1 OK"});
+    }
+    
+    /**
+     * Helper which stuffs the mock with enough strings to satisfy a call to ImapFolder.open()
+     * Also allows setting a custom IMAP ID.
+     * 
+     * @param mockTransport the mock transport we're using
+     */
+    private void setupOpenFolder(MockTransport mockTransport, String[] imapIdResponse) {
         mockTransport.expect(null, "* OK Imap 2000 Ready To Assist You");
-        mockTransport.expect("1 LOGIN user \"password\"", 
-                "1 OK user authenticated (Success)");
-        mockTransport.expect("2 SELECT \"INBOX\"", new String[] {
+        mockTransport.expect("1 ID \\(.*\\)", imapIdResponse);
+        mockTransport.expect("2 LOGIN user \"password\"", 
+                "2 OK user authenticated (Success)");
+        mockTransport.expect("3 SELECT \"INBOX\"", new String[] {
                 "* FLAGS (\\Answered \\Flagged \\Draft \\Deleted \\Seen)",
                 "* OK [PERMANENTFLAGS (\\Answered \\Flagged \\Draft \\Deleted \\Seen \\*)]",
                 "* 0 EXISTS",
                 "* 0 RECENT",
                 "* OK [UNSEEN 0]",
                 "* OK [UIDNEXT 1]",
-                "2 OK [READ-WRITE] INBOX selected. (Success)"});
+                "3 OK [READ-WRITE] INBOX selected. (Success)"});
     }
     
     /**
@@ -210,9 +303,9 @@ public class ImapStoreUnitTests extends AndroidTestCase {
     public void testGetUnreadMessageCountWithQuotedString() throws Exception {
         MockTransport mock = openAndInjectMockTransport();
         setupOpenFolder(mock);
-        mock.expect("3 STATUS \"INBOX\" \\(UNSEEN\\)", new String[] {
+        mock.expect("4 STATUS \"INBOX\" \\(UNSEEN\\)", new String[] {
                 "* STATUS \"INBOX\" (UNSEEN 2)",
-                "3 OK STATUS completed"});
+                "4 OK STATUS completed"});
         mFolder.open(OpenMode.READ_WRITE, null);
         int unreadCount = mFolder.getUnreadMessageCount();
         assertEquals("getUnreadMessageCount with quoted string", 2, unreadCount);
@@ -224,10 +317,10 @@ public class ImapStoreUnitTests extends AndroidTestCase {
     public void testGetUnreadMessageCountWithLiteralString() throws Exception {
         MockTransport mock = openAndInjectMockTransport();
         setupOpenFolder(mock);
-        mock.expect("3 STATUS \"INBOX\" \\(UNSEEN\\)", new String[] {
+        mock.expect("4 STATUS \"INBOX\" \\(UNSEEN\\)", new String[] {
                 "* STATUS {5}",
                 "INBOX (UNSEEN 10)",
-                "3 OK STATUS completed"});
+                "4 OK STATUS completed"});
         mFolder.open(OpenMode.READ_WRITE, null);
         int unreadCount = mFolder.getUnreadMessageCount();
         assertEquals("getUnreadMessageCount with literal string", 10, unreadCount);
@@ -246,9 +339,9 @@ public class ImapStoreUnitTests extends AndroidTestCase {
         FetchProfile fp = new FetchProfile();fp.clear();
         fp.add(FetchProfile.Item.STRUCTURE);
         Message message1 = mFolder.createMessage("1");
-        mock.expect("3 UID FETCH 1 \\(UID BODYSTRUCTURE\\)", new String[] {
+        mock.expect("4 UID FETCH 1 \\(UID BODYSTRUCTURE\\)", new String[] {
                 "* 1 FETCH (UID 1 BODYSTRUCTURE (TEXT PLAIN NIL NIL NIL 7BIT 0 0 NIL NIL NIL))",
-                "3 OK SUCCESS"
+                "4 OK SUCCESS"
         });
         mFolder.fetch(new Message[] { message1 }, fp, null);
 
@@ -259,9 +352,9 @@ public class ImapStoreUnitTests extends AndroidTestCase {
         // Because this breaks our little parser, fetch() skips over empty parts.
         // The rest of this test is confirming that this is the case.
 
-        mock.expect("4 UID FETCH 1 \\(UID BODY.PEEK\\[TEXT\\]\\)", new String[] {
+        mock.expect("5 UID FETCH 1 \\(UID BODY.PEEK\\[TEXT\\]\\)", new String[] {
                 "* 1 FETCH (UID 1 BODY[TEXT] NIL)",
-                "4 OK SUCCESS"
+                "5 OK SUCCESS"
         });
         ArrayList<Part> viewables = new ArrayList<Part>();
         ArrayList<Part> attachments = new ArrayList<Part>();

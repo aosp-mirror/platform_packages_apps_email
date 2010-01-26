@@ -42,6 +42,7 @@ import com.android.email.mail.transport.MailTransport;
 import com.beetstra.jutf7.CharsetProvider;
 
 import android.content.Context;
+import android.os.Build;
 import android.util.Config;
 import android.util.Log;
 
@@ -79,6 +80,9 @@ import javax.net.ssl.SSLException;
  */
 public class ImapStore extends Store {
 
+    // Always check in FALSE
+    private static final boolean DEBUG_FORCE_SEND_ID = false;
+
     private static final Flag[] PERMANENT_FLAGS = { Flag.DELETED, Flag.SEEN, Flag.FLAGGED };
 
     private Transport mRootTransport;
@@ -86,6 +90,8 @@ public class ImapStore extends Store {
     private String mPassword;
     private String mLoginPhrase;
     private String mPathPrefix;
+    private String mIdPhrase = null;
+    private static String sImapId = null;
 
     private LinkedList<ImapConnection> mConnections =
             new LinkedList<ImapConnection>();
@@ -108,7 +114,7 @@ public class ImapStore extends Store {
      */
     public static Store newInstance(String uri, Context context, PersistentDataCallbacks callbacks)
             throws MessagingException {
-        return new ImapStore(uri);
+        return new ImapStore(context, uri);
     }
 
     /**
@@ -121,7 +127,7 @@ public class ImapStore extends Store {
      *
      * @param uriString the Uri containing information to configure this store
      */
-    private ImapStore(String uriString) throws MessagingException {
+    private ImapStore(Context context, String uriString) throws MessagingException {
         URI uri;
         try {
             uri = new URI(uriString);
@@ -166,6 +172,15 @@ public class ImapStore extends Store {
         }
 
         mModifiedUtf7Charset = new CharsetProvider().charsetForName("X-RFC-3501");
+
+        // Assign user-agent string (for RFC2971 ID command)
+        String mUserAgent = getImapId(context);
+        if (mUserAgent != null) {
+            mIdPhrase = "ID (" + mUserAgent + ")";
+        } else if (DEBUG_FORCE_SEND_ID) {
+            mIdPhrase = "ID NIL";
+        }
+        // else: mIdPhrase = null, no ID will be emitted
     }
 
     /**
@@ -177,6 +192,73 @@ public class ImapStore extends Store {
     /* package */ void setTransport(Transport testTransport) {
         mRootTransport = testTransport;
     }
+
+    /**
+     * Return, or create and return, an string suitable for use in an IMAP ID message.
+     * This is constructed similarly to the way the browser sets up its user-agent strings.
+     * See RFC 2971 for more details.  The output of this command will be a series of key-value
+     * pairs delimited by spaces (there is no point in returning a structured result because
+     * this will be sent as-is to the IMAP server).  No tokens, parenthesis or "ID" are included,
+     * because some connections may append additional values.
+     *
+     * The following IMAP ID keys may be included:
+     *   name            Android package name of the program
+     *   os              "android"
+     *   os-version      "version; model; build-id"
+     *   vendor          Vendor of the client/server
+     *
+     * @return a String for use in an IMAP ID message.  
+     */
+    public String getImapId(Context context) {
+        synchronized (Email.class) {
+            if (sImapId == null) {
+                // "name" "com.android.email"
+                StringBuffer sb = new StringBuffer("\"name\" \"");
+                sb.append(context.getPackageName());
+                sb.append("\"");
+
+                // "os" "android"
+                sb.append(" \"os\" \"android\"");
+
+                // "os-version" "version; model; build-id"
+                sb.append(" \"os-version\" \"");
+                final String version = Build.VERSION.RELEASE;
+                if (version.length() > 0) {
+                    sb.append(version);
+                } else {
+                    // default to "1.0"
+                    sb.append("1.0");
+                }
+                // add the model (on release builds only)
+                if ("REL".equals(Build.VERSION.CODENAME)) {
+                    final String model = Build.MODEL;
+                    if (model.length() > 0) {
+                        sb.append("; ");
+                        sb.append(model);
+                    }
+                }
+                // add the build ID or build #
+                final String id = Build.ID;
+                if (id.length() > 0) {
+                    sb.append("; ");
+                    sb.append(id);
+                }
+                sb.append("\"");
+
+                // "vendor" "the vendor"
+                final String vendor = Build.MANUFACTURER;
+                if (vendor.length() > 0) {
+                    sb.append(" \"vendor\" \"");
+                    sb.append(vendor);
+                    sb.append("\"");
+                }
+                
+                sImapId = sb.toString();
+            }
+        }
+        return sImapId;
+    }
+
 
     @Override
     public Folder getFolder(String name) throws MessagingException {
@@ -190,7 +272,6 @@ public class ImapStore extends Store {
         }
         return folder;
     }
-
 
     @Override
     public Folder[] getPersonalNamespaces() throws MessagingException {
@@ -1168,6 +1249,22 @@ public class ImapStore extends Store {
                             Log.d(Email.LOG_TAG, "TLS not supported but required");
                         }
                         throw new MessagingException(MessagingException.TLS_REQUIRED);
+                    }
+                }
+
+                // Send user-agent in an RFC2971 ID command
+                if (mIdPhrase != null) {
+                    try {
+                        executeSimpleCommand(mIdPhrase);
+                    } catch (ImapException ie) {
+                        // Log for debugging, but this is not a fatal problem.
+                        if (Config.LOGD && Email.DEBUG) {
+                            Log.d(Email.LOG_TAG, ie.toString());
+                        }
+                    } catch (IOException ioe) {
+                        // Special case to handle malformed OK responses and ignore them.
+                        // A true IOException will recur on the following login steps
+                        // This can go away after the parser is fixed - see bug 2138981 for details
                     }
                 }
 
