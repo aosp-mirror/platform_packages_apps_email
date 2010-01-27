@@ -21,6 +21,7 @@ import com.android.email.Email;
 import com.android.email.EmailAddressValidator;
 import com.android.email.R;
 import com.android.email.Utility;
+import com.android.email.VendorPolicyLoader;
 import com.android.email.activity.Debug;
 import com.android.email.activity.MessageList;
 import com.android.email.provider.EmailContent;
@@ -196,7 +197,9 @@ public class AccountSetupBasics extends Activity
             mManualSetupButton.setVisibility(View.GONE);
             // Swap welcome text for EAS-specific text
             TextView welcomeView = (TextView) findViewById(R.id.instructions);
-            welcomeView.setText(R.string.accounts_welcome_exchange);
+            welcomeView.setText(VendorPolicyLoader.getInstance(this).useAlternateExchangeStrings()
+                    ? R.string.accounts_welcome_exchange_alternate
+                    : R.string.accounts_welcome_exchange);
         }
 
         if (intent.hasExtra(EXTRA_USERNAME)) {

@@ -301,6 +301,9 @@
     <!-- On "Set up email" screen, enthusiastic welcome message (in EAS mode). -->
     <string name="accounts_welcome_exchange">You can configure an Exchange account in just a few
         steps.</string>
+    <!-- On "Set up email" screen, enthusiastic welcome message (in EAS mode). -->
+    <string name="accounts_welcome_exchange_alternate">
+        You can configure an Exchange ActiveSync account in just a few steps.</string>
     <!-- On "Set up email" screen, brief instructions -->
     <!--  DEPRECATED - REMOVE -->
     <string name="account_setup_basics_instructions"></string>
@@ -356,6 +359,10 @@
     <!-- Do Not Translate. "Add new email account" screen, button name in response to what
          type of account this is -->
     <string name="account_setup_account_type_exchange_action">Exchange</string>
+    <!-- Do Not Translate. "Add new email account" screen, button name in
+         response to what type of account this is -->
+    <string name="account_setup_account_type_exchange_action_alternate">
+        Microsoft Exchange ActiveSync</string>
 
     <!-- "Incoming server settings" screen, label for text field -->
     <string name="account_setup_incoming_title">Incoming server settings</string>
