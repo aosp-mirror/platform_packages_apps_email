@@ -561,6 +561,7 @@ public class LegacyConversions {
         result.mProtocolVersion = fromAccount.mProtocolVersion;
         // int fromAccount.mNewMessageCount = will be reset on next sync
         result.mSecurityFlags = fromAccount.mSecurityFlags;
+        result.mSignature = fromAccount.mSignature;
 
         // Use the existing conversions from HostAuth <-> Uri
         result.setStoreUri(fromAccount.getStoreUri(context));
@@ -601,6 +602,8 @@ public class LegacyConversions {
         result.mProtocolVersion = fromAccount.mProtocolVersion;
         result.mNewMessageCount = 0;
         result.mSecurityFlags = fromAccount.mSecurityFlags;
+        result.mSecuritySyncKey = null;
+        result.mSignature = fromAccount.mSignature;
 
         result.setStoreUri(context, fromAccount.getStoreUri());
         result.setSenderUri(context, fromAccount.getSenderUri());

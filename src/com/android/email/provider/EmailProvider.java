@@ -80,7 +80,8 @@ public class EmailProvider extends ContentProvider {
     // Version 7: Replace the mailbox_delete trigger with a version that removes orphaned messages
     //            from the Message_Deletes and Message_Updates tables
     // Version 8: Add security flags column to accounts table
-    public static final int DATABASE_VERSION = 8;
+    // Version 9: Add security sync key and signature to accounts table
+    public static final int DATABASE_VERSION = 9;
 
     // Any changes to the database format *must* include update-in-place code.
     // Original version: 2
@@ -413,7 +414,9 @@ public class EmailProvider extends ContentProvider {
             + AccountColumns.RINGTONE_URI + " text, "
             + AccountColumns.PROTOCOL_VERSION + " text, "
             + AccountColumns.NEW_MESSAGE_COUNT + " integer, "
-            + AccountColumns.SECURITY_FLAGS + " integer"
+            + AccountColumns.SECURITY_FLAGS + " integer, "
+            + AccountColumns.SECURITY_SYNC_KEY + " text, "
+            + AccountColumns.SIGNATURE + " text "
             + ");";
         db.execSQL("create table " + Account.TABLE_NAME + s);
         // Deleting an account deletes associated Mailboxes and HostAuth's
@@ -722,6 +725,19 @@ public class EmailProvider extends ContentProvider {
                     Log.w(TAG, "Exception upgrading EmailProvider.db from 7 to 8 " + e);
                 }
                 oldVersion = 8;
+            }
+            if (oldVersion == 8) {
+                // accounts: add security sync key & user signature columns
+                try {
+                    db.execSQL("alter table " + Account.TABLE_NAME
+                            + " add column " + AccountColumns.SECURITY_SYNC_KEY + " text" + ";");
+                    db.execSQL("alter table " + Account.TABLE_NAME
+                            + " add column " + AccountColumns.SIGNATURE + " text" + ";");
+                } catch (SQLException e) {
+                    // Shouldn't be needed unless we're debugging and interrupt the process
+                    Log.w(TAG, "Exception upgrading EmailProvider.db from 8 to 9 " + e);
+                }
+                oldVersion = 9;
             }
         }
 

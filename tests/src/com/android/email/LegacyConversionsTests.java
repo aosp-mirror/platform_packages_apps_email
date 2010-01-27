@@ -543,6 +543,7 @@ public class LegacyConversionsTests extends ProviderTestCase2<EmailProvider> {
         mLegacyAccount.mBackupFlags = 0;
         mLegacyAccount.mDeletePolicy = Account.DELETE_POLICY_NEVER;
         mLegacyAccount.mSecurityFlags = 500;
+        mLegacyAccount.mSignature = "signature " + name;
 
         if (saveIt) {
             mLegacyAccount.save(mPreferences);
@@ -578,6 +579,8 @@ public class LegacyConversionsTests extends ProviderTestCase2<EmailProvider> {
         assertEquals(tag + " proto vers", expect.mProtocolVersion, actual.mProtocolVersion);
         assertEquals(tag + " new count", 0, actual.mNewMessageCount);
         assertEquals(tag + " security", expect.mSecurityFlags, actual.mSecurityFlags);
+        assertEquals(tag + " sec sync key", null, actual.mSecuritySyncKey);
+        assertEquals(tag + " signature", expect.mSignature, actual.mSignature);
     }
 
     /**
@@ -613,5 +616,6 @@ public class LegacyConversionsTests extends ProviderTestCase2<EmailProvider> {
         assertEquals(tag + " proto vers", expect.mProtocolVersion, actual.mProtocolVersion);
         assertEquals(tag + " delete policy", expect.getDeletePolicy(), actual.getDeletePolicy());
         assertEquals(tag + " security", expect.mSecurityFlags, actual.mSecurityFlags);
+        assertEquals(tag + " signature", expect.mSignature, actual.mSignature);
     }
 }

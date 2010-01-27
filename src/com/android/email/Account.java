@@ -75,6 +75,7 @@ public class Account {
     int mBackupFlags;           // for account backups only
     String mProtocolVersion;    // for account backups only
     int mSecurityFlags;         // for account backups only
+    String mSignature;          // for account backups only
 
     /**
      * <pre>
@@ -92,6 +93,7 @@ public class Account {
     private final String KEY_BACKUP_FLAGS = ".backupFlags";
     private final String KEY_PROTOCOL_VERSION = ".protocolVersion";
     private final String KEY_SECURITY_FLAGS = ".securityFlags";
+    private final String KEY_SIGNATURE = ".signature";
 
     public Account(Context context) {
         // TODO Change local store path to something readable / recognizable
@@ -106,6 +108,7 @@ public class Account {
         mBackupFlags = 0;
         mProtocolVersion = null;
         mSecurityFlags = 0;
+        mSignature = null;
     }
 
     Account(Preferences preferences, String uuid) {
@@ -169,6 +172,7 @@ public class Account {
         mProtocolVersion = preferences.mSharedPreferences.getString(mUuid + KEY_PROTOCOL_VERSION,
                 null);
         mSecurityFlags = preferences.mSharedPreferences.getInt(mUuid + KEY_SECURITY_FLAGS, 0);
+        mSignature = preferences.mSharedPreferences.getString(mUuid + KEY_SIGNATURE, null);
     }
 
     public String getUuid() {
@@ -267,6 +271,7 @@ public class Account {
         editor.remove(mUuid + KEY_BACKUP_FLAGS);
         editor.remove(mUuid + KEY_PROTOCOL_VERSION);
         editor.remove(mUuid + KEY_SECURITY_FLAGS);
+        editor.remove(mUuid + KEY_SIGNATURE);
 
         // also delete any deprecated fields
         editor.remove(mUuid + ".transportUri");
@@ -333,6 +338,7 @@ public class Account {
         editor.putInt(mUuid + KEY_BACKUP_FLAGS, mBackupFlags);
         editor.putString(mUuid + KEY_PROTOCOL_VERSION, mProtocolVersion);
         editor.putInt(mUuid + KEY_SECURITY_FLAGS, mSecurityFlags);
+        editor.putString(mUuid + KEY_SIGNATURE, mSignature);
         
         // The following fields are *not* written because they need to be more fine-grained
         // and not risk rewriting with old data.

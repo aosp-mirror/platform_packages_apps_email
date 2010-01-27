@@ -54,12 +54,9 @@ public class ProviderTestUtils extends Assert {
         account.mRingtoneUri = "content://ringtone-" + name;
         account.mProtocolVersion = "2.5" + name;
         account.mNewMessageCount = 5 + name.length();
-        account.mSecurityFlags = (6 << Account.SECURITY_PASSWORD_LENGTH_SHIFT)
-                | (7 << Account.SECURITY_PASSWORD_MAX_FAILS_SHIFT)
-                | (8 << Account.SECURITY_SCREEN_LOCK_TIME_SHIFT)
-                | Account.SECURITY_REQUIRE_REMOTE_WIPE
-                | Account.SECURITY_REQUIRE_ENCRYPTED_STORAGE;
-
+        account.mSecurityFlags = 7;
+        account.mSecuritySyncKey = "sec-sync-key-" + name;
+        account.mSignature = "signature-" + name;
         if (saveIt) {
             account.save(context);
         }
@@ -234,6 +231,9 @@ public class ProviderTestUtils extends Assert {
         assertEquals(caller + " mNewMessageCount", expect.mNewMessageCount,
                 actual.mNewMessageCount);
         assertEquals(caller + " mSecurityFlags", expect.mSecurityFlags, actual.mSecurityFlags);
+        assertEquals(caller + " mSecuritySyncKey", expect.mSecuritySyncKey,
+                actual.mSecuritySyncKey);
+        assertEquals(caller + " mSignature", expect.mSignature, actual.mSignature);
     }
 
     /**
