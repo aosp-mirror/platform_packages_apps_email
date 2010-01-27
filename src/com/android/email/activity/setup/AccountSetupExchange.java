@@ -58,9 +58,10 @@ import java.net.URISyntaxException;
  */
 public class AccountSetupExchange extends Activity implements OnClickListener,
         OnCheckedChangeListener {
-    private static final String EXTRA_ACCOUNT = "account";
+    /*package*/ static final String EXTRA_ACCOUNT = "account";
     private static final String EXTRA_MAKE_DEFAULT = "makeDefault";
     private static final String EXTRA_EAS_FLOW = "easFlow";
+    /*package*/ static final String EXTRA_DISABLE_AUTO_DISCOVER = "disableAutoDiscover";
 
     private final static int DIALOG_DUPLICATE_ACCOUNT = 1;
 
@@ -139,8 +140,9 @@ public class AccountSetupExchange extends Activity implements OnClickListener,
         mPasswordView.addTextChangedListener(validationTextWatcher);
         mServerView.addTextChangedListener(validationTextWatcher);
 
-        mAccount = (EmailContent.Account) getIntent().getParcelableExtra(EXTRA_ACCOUNT);
-        mMakeDefault = getIntent().getBooleanExtra(EXTRA_MAKE_DEFAULT, false);
+        Intent intent = getIntent();
+        mAccount = (EmailContent.Account) intent.getParcelableExtra(EXTRA_ACCOUNT);
+        mMakeDefault = intent.getBooleanExtra(EXTRA_MAKE_DEFAULT, false);
 
         /*
          * If we're being reloaded we override the original account with the one
@@ -202,9 +204,14 @@ public class AccountSetupExchange extends Activity implements OnClickListener,
 
         // If we've got a username and password and we're NOT editing, try autodiscover
         if (username != null && password != null &&
-                !Intent.ACTION_EDIT.equals(getIntent().getAction())) {
-            AccountSetupCheckSettings
-                .actionAutoDiscover(this, mAccount, mAccount.mEmailAddress, password);
+                !Intent.ACTION_EDIT.equals(intent.getAction())) {
+            // NOTE: Disabling AutoDiscover is only used in unit tests
+            boolean disableAutoDiscover =
+                intent.getBooleanExtra(EXTRA_DISABLE_AUTO_DISCOVER, false);
+            if (!disableAutoDiscover) {
+                AccountSetupCheckSettings
+                    .actionAutoDiscover(this, mAccount, mAccount.mEmailAddress, password);
+            }
         }
     }
 

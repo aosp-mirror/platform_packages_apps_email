@@ -30,11 +30,8 @@ import android.widget.EditText;
  * Tests of the basic UI logic in the Account Setup Incoming (IMAP / POP3) screen.
  */
 @MediumTest
-public class AccountSetupExchangeTests extends 
+public class AccountSetupExchangeTests extends
         ActivityInstrumentationTestCase2<AccountSetupExchange> {
-
-    // borrowed from AccountSetupExchange
-    private static final String EXTRA_ACCOUNT = "account";
 
     private AccountSetupExchange mActivity;
     private EditText mServerView;
@@ -135,7 +132,8 @@ public class AccountSetupExchangeTests extends
         EmailContent.Account account = new EmailContent.Account();
         account.setStoreUri(getInstrumentation().getTargetContext(), storeUriString);
         Intent i = new Intent(Intent.ACTION_MAIN);
-        i.putExtra(EXTRA_ACCOUNT, account);
+        i.putExtra(AccountSetupExchange.EXTRA_ACCOUNT, account);
+        i.putExtra(AccountSetupExchange.EXTRA_DISABLE_AUTO_DISCOVER, true);
         return i;
     }
 
