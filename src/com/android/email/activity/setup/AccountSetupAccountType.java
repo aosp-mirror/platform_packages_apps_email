@@ -17,6 +17,7 @@
 package com.android.email.activity.setup;
 
 import com.android.email.R;
+import com.android.email.VendorPolicyLoader;
 import com.android.email.mail.Store;
 import com.android.email.provider.EmailContent;
 import com.android.email.provider.EmailContent.Account;
@@ -73,10 +74,15 @@ public class AccountSetupAccountType extends Activity implements OnClickListener
         setContentView(R.layout.account_setup_account_type);
         ((Button)findViewById(R.id.pop)).setOnClickListener(this);
         ((Button)findViewById(R.id.imap)).setOnClickListener(this);
-        ((Button)findViewById(R.id.exchange)).setOnClickListener(this);
-        
+        final Button exchangeButton = ((Button)findViewById(R.id.exchange));
+        exchangeButton.setOnClickListener(this);
+
         if (isExchangeAvailable()) {
-            findViewById(R.id.exchange).setVisibility(View.VISIBLE);
+            exchangeButton.setVisibility(View.VISIBLE);
+            if (VendorPolicyLoader.getInstance(this).useAlternateExchangeStrings()) {
+                exchangeButton.setText(
+                        R.string.account_setup_account_type_exchange_action_alternate);
+            }
         }
         // TODO: Dynamic creation of buttons, instead of just hiding things we don't need
     }
@@ -115,7 +121,7 @@ public class AccountSetupAccountType extends Activity implements OnClickListener
         mAccount.setDeletePolicy(Account.DELETE_POLICY_ON_DELETE);
         AccountSetupIncoming.actionIncomingSettings(this, mAccount, mMakeDefault);
     }
-    
+
     /**
      * The user has selected an exchange account type.  Try to put together a URI using the entered
      * email address.  Also set the mail delete policy here, because there is no UI (for exchange),
@@ -143,10 +149,10 @@ public class AccountSetupAccountType extends Activity implements OnClickListener
             finish();
         }
     }
-    
+
     /**
      * Determine if we can show the "exchange" option
-     * 
+     *
      * TODO: This should be dynamic and data-driven for all account types, not just hardcoded
      * like this.
      */
@@ -160,7 +166,7 @@ public class AccountSetupAccountType extends Activity implements OnClickListener
             return false;
         }
     }
-    
+
     /**
      * If the optional store specifies a limit on the number of accounts, make sure that we
      * don't violate that limit.
@@ -171,7 +177,7 @@ public class AccountSetupAccountType extends Activity implements OnClickListener
         if (storeInfo.mAccountInstanceLimit < 0) {
             return true;
         }
-        
+
         // count existing accounts
         int currentAccountsCount = 0;
         Cursor c = null;
@@ -192,7 +198,7 @@ public class AccountSetupAccountType extends Activity implements OnClickListener
                 c.close();
             }
         }
-        
+
         // return true if we can accept another account
         return (currentAccountsCount < storeInfo.mAccountInstanceLimit);
     }
