@@ -350,7 +350,94 @@ public class MimeUtilityTest extends TestCase {
         gotText = MimeUtility.getTextFromPart(p);
         assertEquals(theText, gotText);
     }
-    // TODO: Tests of charset decoding in getTextFromPart()
+
+    /** Test for usage of Content-Type in getTextFromPart(Part part).
+     * 
+     * For example 'Content-Type: text/html; charset=utf-8'
+     * 
+     *  If the body part has no mime-type, refuses to parse content as text.
+     *  If the mime-type does not match text/*, it will not get parsed.
+     *  Then, the charset parameter is used, with a default of ASCII.
+     *
+     *  This test works by using a string that is valid Unicode, and is also
+     *  valid when decoded from UTF-8 bytes into Windows-1252 (so that
+     *  auto-detection is not possible), and checks that the correct conversion
+     *  was made, based on the Content-Type header.
+     *  
+     */
+    public void testContentTypeCharset() throws MessagingException {
+        final String UNICODE_EXPECT = "This is some happy unicode text \u263a";
+        // What you get if you encode to UTF-8 (\xe2\x98\xba) and reencode with Windows-1252
+        final String WINDOWS1252_EXPECT = "This is some happy unicode text \u00e2\u02dc\u00ba";
+        TextBody tb = new TextBody(UNICODE_EXPECT);
+        MimeBodyPart p = new MimeBodyPart();
+
+        String gotText, mimeType, charset;
+        // TEST 0: Standard Content-Type header; no extraneous spaces or fields
+        p.setBody(tb);
+        // We call setHeader after setBody, since setBody overwrites Content-Type
+        p.setHeader(MimeHeader.HEADER_CONTENT_TYPE, "text/html; charset=utf-8");
+        gotText = MimeUtility.getTextFromPart(p);
+        assertTrue(MimeUtility.mimeTypeMatches(p.getMimeType(), "text/html"));
+        assertEquals(UNICODE_EXPECT, gotText);
+
+        p.setBody(tb);
+        p.setHeader(MimeHeader.HEADER_CONTENT_TYPE, "text/html; charset=windows-1252");
+        gotText = MimeUtility.getTextFromPart(p);
+        assertTrue(MimeUtility.mimeTypeMatches(p.getMimeType(), "text/html"));
+        assertEquals(WINDOWS1252_EXPECT, gotText);
+
+        // TEST 1: Extra fields and quotes in Content-Type (from RFC 2045)
+        p.setBody(tb);
+        p.setHeader(MimeHeader.HEADER_CONTENT_TYPE,
+                    "text/html; prop1 = \"test\"; charset = \"utf-8\"; prop2 = \"test\"");
+        gotText = MimeUtility.getTextFromPart(p);
+        assertTrue(MimeUtility.mimeTypeMatches(p.getMimeType(), "text/html"));
+        assertEquals(UNICODE_EXPECT, gotText);
+
+        p.setBody(tb);
+        p.setHeader(MimeHeader.HEADER_CONTENT_TYPE,
+                    "text/html; prop1 = \"test\"; charset = \"windows-1252\"; prop2 = \"test\"");
+        gotText = MimeUtility.getTextFromPart(p);
+        assertTrue(MimeUtility.mimeTypeMatches(p.getMimeType(), "text/html"));
+        assertEquals(WINDOWS1252_EXPECT, gotText);
+
+        // TEST 2: Mixed case in Content-Type header:
+        // RFC 2045 says that content types, subtypes and parameter names
+        // are case-insensitive.
+
+        p.setBody(tb);
+        p.setHeader(MimeHeader.HEADER_CONTENT_TYPE, "TEXT/HtmL ; CHARseT=utf-8");
+        gotText = MimeUtility.getTextFromPart(p);
+        assertTrue(MimeUtility.mimeTypeMatches(p.getMimeType(), "text/html"));
+        assertEquals(UNICODE_EXPECT, gotText);
+
+        p.setBody(tb);
+        p.setHeader(MimeHeader.HEADER_CONTENT_TYPE, "TEXT/HtmL ; CHARseT=windows-1252");
+        gotText = MimeUtility.getTextFromPart(p);
+        assertTrue(MimeUtility.mimeTypeMatches(p.getMimeType(), "text/html"));
+        assertEquals(WINDOWS1252_EXPECT, gotText);
+
+        // TEST 3: Comments in Content-Type header field (from RFC 2045)
+        // Thunderbird permits comments after the end of a parameter, as in this example.
+        // Not something that I have seen in the real world outside RFC 2045.
+
+        p.setBody(tb);
+        p.setHeader(MimeHeader.HEADER_CONTENT_TYPE,
+                    "text/html; charset=utf-8 (Plain text)");
+        gotText = MimeUtility.getTextFromPart(p);
+        assertTrue(MimeUtility.mimeTypeMatches(p.getMimeType(), "text/html"));
+        // Note: This test does not pass.
+        //assertEquals(UNICODE_EXPECT, gotText);
+
+        p.setBody(tb);
+        p.setHeader(MimeHeader.HEADER_CONTENT_TYPE,
+                    "text/html; charset=windows-1252 (Plain text)");
+        gotText = MimeUtility.getTextFromPart(p);
+        assertTrue(MimeUtility.mimeTypeMatches(p.getMimeType(), "text/html"));
+        // Note: These tests does not pass.
+        //assertEquals(WINDOWS1252_EXPECT, gotText);
+    }
     
     /** Tests for various aspects of mimeTypeMatches(String mimeType, String matchAgainst) */
     public void testMimeTypeMatches() {

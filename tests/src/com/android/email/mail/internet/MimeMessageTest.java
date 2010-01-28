@@ -24,7 +24,9 @@ import com.android.email.mail.Message.RecipientType;
 import android.test.suitebuilder.annotation.SmallTest;
 import android.test.suitebuilder.annotation.MediumTest;
 
+import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
+import java.io.IOException;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.Date;
@@ -420,5 +422,48 @@ public class MimeMessageTest extends TestCase {
         }
     }
     
+    /**
+     * Test for parsing headers with extra whitespace and commennts.
+     *
+     * The lines up to Content-Type were copied directly out of RFC 2822
+     * "Section A.5. White space, comments, and other oddities"
+     */
+    public void testWhiteSpace() throws MessagingException, IOException {
+        String entireMessage =
+            "From: Pete(A wonderful \\) chap) <pete(his account)@silly.test(his host)>\r\n"+
+            "To:A Group(Some people)\r\n"+
+            "     :Chris Jones <c@(Chris's host.)public.example>,\r\n"+
+            "         joe@example.org,\r\n"+
+            "  John <jdoe@one.test> (my dear friend); (the end of the group)\r\n"+
+            "Cc:(Empty list)(start)Undisclosed recipients  :(nobody(that I know))  ;\r\n"+
+            "Date: Thu,\r\n"+
+            "      13\r\n"+
+            "        Feb\r\n"+
+            "          1969\r\n"+
+            "      23:32\r\n"+
+            "               -0330 (Newfoundland Time)\r\n"+
+            "Message-ID:              <testabcd.1234@silly.test>\r\n"+
+            "Content-Type:                \r\n"+
+            "          TEXT/hTML \r\n"+
+            "       ; x-blah=\"y-blah\" ; \r\n"+
+            "       CHARSET=\"us-ascii\" ; (comment)\r\n"+
+            "\r\n"+
+            "<html><body>Testing.</body></html>\r\n";
+        MimeMessage mm = null;
+        mm = new MimeMessage(new ByteArrayInputStream(
+            entireMessage.getBytes("us-ascii")));
+        assertTrue(mm.getMimeType(), MimeUtility.mimeTypeMatches("text/html",mm.getMimeType()));
+        assertEquals(new Date(-27723480000L),mm.getSentDate());
+        assertEquals("<testabcd.1234@silly.test>",mm.getMessageId());
+        Address[] toAddresses = mm.getRecipients(MimeMessage.RecipientType.TO);
+        assertEquals("joe@example.org", toAddresses[1].getAddress());
+        assertEquals("jdoe@one.test", toAddresses[2].getAddress());
+
+
+        // Note: The parentheses in the middle of email addresses are not removed.
+        //assertEquals("c@public.example", toAddresses[0].getAddress());
+        //assertEquals("pete@silly.test",mm.getFrom()[0].getAddress());
+    }
+
     // TODO more test for writeTo()
 }
