@@ -574,6 +574,8 @@
 
     <!-- Name of Microsoft Exchange account type; used by AccountManager -->
     <string name="exchange_name">Corporate</string>
+    <!-- Name of Microsoft Exchange account type; used by AccountManager -->
+    <string name="exchange_name_alternate">Microsoft Exchange ActiveSync</string>
 
 	<!-- Message that appears if the AccountManager cannot create the system Account -->
 	<string name="system_account_create_failed">The AccountManager could not create the Account; please try again.</string>

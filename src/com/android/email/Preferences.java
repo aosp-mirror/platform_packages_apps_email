@@ -36,6 +36,7 @@ public class Preferences {
     private static final String ENABLE_EXCHANGE_LOGGING = "enableExchangeLogging";
     private static final String ENABLE_EXCHANGE_FILE_LOGGING = "enableExchangeFileLogging";
     private static final String DEVICE_UID = "deviceUID";
+    private static final String ONE_TIME_INITIALIZATION_PROGRESS = "oneTimeInitializationProgress";
 
     private static Preferences preferences;
 
@@ -176,6 +177,14 @@ public class Preferences {
              mSharedPreferences.edit().putString(DEVICE_UID, result).commit();
          }
          return result;
+    }
+
+    public int getOneTimeInitializationProgress() {
+        return mSharedPreferences.getInt(ONE_TIME_INITIALIZATION_PROGRESS, 0);
+    }
+
+    public void setOneTimeInitializationProgress(int progress) {
+        mSharedPreferences.edit().putInt(ONE_TIME_INITIALIZATION_PROGRESS, progress).commit();
     }
 
     public void save() {

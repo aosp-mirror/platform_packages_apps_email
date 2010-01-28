@@ -207,6 +207,15 @@
             </intent-filter>
         </receiver>
         
+        <receiver
+            android:name=".OneTimeInitializer"
+            android:enabled="true"
+            >
+            <intent-filter>
+                <action android:name="android.intent.action.BOOT_COMPLETED" />
+            </intent-filter>
+        </receiver>
+
         <service
             android:name=".service.MailService"
             android:enabled="false"
@@ -243,12 +252,35 @@
         </service>
 
         <!--Required stanza to register the EasAuthenticatorService with AccountManager -->
-        <service android:name=".service.EasAuthenticatorService" android:exported="true">
+        <service
+            android:name=".service.EasAuthenticatorService"
+            android:exported="true"
+            android:enabled="true"
+            >
             <intent-filter>
                 <action android:name="android.accounts.AccountAuthenticator" />
             </intent-filter>
-            <meta-data android:name="android.accounts.AccountAuthenticator"
-                       android:resource="@xml/authenticator" />
+            <meta-data
+                android:name="android.accounts.AccountAuthenticator"
+                android:resource="@xml/authenticator"
+                />
+        </service>
+        <!--
+            EasAuthenticatorService with the altenative label.  Disabled by default,
+            and OneTimeInitializer enables it if the vendor policy tells so.
+        -->
+        <service
+            android:name=".service.EasAuthenticatorServiceAlternate"
+            android:exported="true"
+            android:enabled="false"
+            >
+            <intent-filter>
+                <action android:name="android.accounts.AccountAuthenticator" />
+            </intent-filter>
+            <meta-data
+                android:name="android.accounts.AccountAuthenticator"
+                android:resource="@xml/authenticator_alternate"
+                />
         </service>
 
         <provider
