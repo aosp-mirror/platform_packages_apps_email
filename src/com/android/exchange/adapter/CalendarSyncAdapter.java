@@ -191,6 +191,8 @@ public class CalendarSyncAdapter extends AbstractSyncAdapter {
 
             boolean firstTag = true;
             long eventId = -1;
+            long startTime = -1;
+            long endTime = -1;
             while (nextTag(Tags.SYNC_APPLICATION_DATA) != END) {
                 if (update && firstTag) {
                     // Find the event that's being updated
@@ -253,12 +255,12 @@ public class CalendarSyncAdapter extends AbstractSyncAdapter {
                         }
                         break;
                     case Tags.CALENDAR_START_TIME:
-                        long startTime = CalendarUtilities.parseDateTime(getValue());
+                        startTime = CalendarUtilities.parseDateTime(getValue());
                         cv.put(Events.DTSTART, startTime);
                         cv.put(Events.ORIGINAL_INSTANCE_TIME, startTime);
                         break;
                     case Tags.CALENDAR_END_TIME:
-                        cv.put(Events.DTEND, CalendarUtilities.parseDateTime(getValue()));
+                        endTime = CalendarUtilities.parseDateTime(getValue());
                         break;
                     case Tags.CALENDAR_EXCEPTIONS:
                         exceptionsParser(ops, cv);
@@ -306,6 +308,19 @@ public class CalendarSyncAdapter extends AbstractSyncAdapter {
                     default:
                         skipTag();
                 }
+            }
+
+            // If there's no recurrence, set DTEND to the end time
+            if (!cv.containsKey(Events.RRULE)) {
+                cv.put(Events.DTEND, endTime);
+                cv.put(Events.LAST_DATE, endTime);
+            }
+
+            // Set the DURATION using rfc2445
+            if (allDayEvent != 0) {
+                cv.put(Events.DURATION, "P1D");
+            } else {
+                cv.put(Events.DURATION, "P" + ((endTime - startTime) / MINUTES) + "M");
             }
 
             // Put the real event in the proper place in the ops ArrayList
@@ -447,6 +462,8 @@ public class CalendarSyncAdapter extends AbstractSyncAdapter {
             if (!cv.containsKey(Events.DTEND)) {
                 cv.put(Events.DTEND, parentCv.getAsLong(Events.DTEND));
             }
+            // TODO See if this is necessary
+            //cv.put(Events.LAST_DATE, cv.getAsLong(Events.DTEND));
 
             ops.newException(cv);
         }
