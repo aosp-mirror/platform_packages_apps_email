@@ -24,6 +24,7 @@ import com.android.exchange.Eas;
 import com.android.exchange.utility.FileLogger;
 
 import android.app.Activity;
+import android.content.Context;
 import android.os.Bundle;
 import android.view.Menu;
 import android.view.MenuItem;
@@ -90,13 +91,7 @@ public class Debug extends Activity implements OnCheckedChangeListener {
                 break;
         }
 
-        // Now rebuild "debug bits" and send to EAS service
-        int debugLogging = mPreferences.getEnableDebugLogging() ? Eas.DEBUG_BIT : 0;
-        int exchangeLogging = mPreferences.getEnableExchangeLogging() ? Eas.DEBUG_EXCHANGE_BIT : 0;
-        int fileLogging = mPreferences.getEnableExchangeFileLogging() ? Eas.DEBUG_FILE_BIT : 0;
-        int debugBits = debugLogging | exchangeLogging | fileLogging;
-
-        Controller.getInstance(getApplication()).serviceLogging(debugBits);
+        updateLoggingFlags(this);
     }
 
     @Override
@@ -116,4 +111,15 @@ public class Debug extends Activity implements OnCheckedChangeListener {
         return true;
     }
 
+    /**
+     * Load enabled debug flags from the preferences and upadte the EAS debug flag.
+     */
+    public static void updateLoggingFlags(Context context) {
+        Preferences prefs = Preferences.getPreferences(context);
+        int debugLogging = prefs.getEnableDebugLogging() ? Eas.DEBUG_BIT : 0;
+        int exchangeLogging = prefs.getEnableExchangeLogging() ? Eas.DEBUG_EXCHANGE_BIT : 0;
+        int fileLogging = prefs.getEnableExchangeFileLogging() ? Eas.DEBUG_FILE_BIT : 0;
+        int debugBits = debugLogging | exchangeLogging | fileLogging;
+        Controller.getInstance(context).serviceLogging(debugBits);
+    }
 }
