@@ -31,7 +31,7 @@ import com.android.email.provider.EmailContent.Attachment;
 import com.android.email.provider.EmailContent.Body;
 import com.android.email.provider.EmailContent.BodyColumns;
 import com.android.email.provider.EmailContent.Message;
-import com.android.exchange.EmailServiceConstants;
+import com.android.email.service.EmailServiceConstants;
 
 import org.apache.commons.io.IOUtils;
 
