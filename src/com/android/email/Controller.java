@@ -28,9 +28,9 @@ import com.android.email.provider.EmailContent.MailboxColumns;
 import com.android.email.provider.EmailContent.Message;
 import com.android.email.provider.EmailContent.MessageColumns;
 import com.android.email.service.EmailServiceProxy;
-import com.android.exchange.EmailServiceStatus;
-import com.android.exchange.IEmailService;
-import com.android.exchange.IEmailServiceCallback;
+import com.android.email.service.EmailServiceStatus;
+import com.android.email.service.IEmailService;
+import com.android.email.service.IEmailServiceCallback;
 import com.android.exchange.SyncManager;
 
 import android.content.ContentResolver;

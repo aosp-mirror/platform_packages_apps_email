@@ -29,6 +29,8 @@ import com.android.email.provider.EmailContent.Mailbox;
 import com.android.email.provider.EmailContent.MailboxColumns;
 import com.android.email.provider.EmailContent.Message;
 import com.android.email.provider.EmailContent.SyncColumns;
+import com.android.email.service.IEmailService;
+import com.android.email.service.IEmailServiceCallback;
 import com.android.exchange.utility.FileLogger;
 
 import org.apache.http.conn.ClientConnectionManager;

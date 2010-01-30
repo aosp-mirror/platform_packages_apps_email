@@ -14,10 +14,9 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.android.exchange;
+package com.android.email.service;
 
-import com.android.exchange.IEmailServiceCallback;
-import com.android.email.provider.EmailContent;
+import com.android.email.service.IEmailServiceCallback;
 import android.os.Bundle;
 
 interface IEmailService {

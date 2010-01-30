@@ -15,7 +15,7 @@
  * limitations under the License.
  */
 
-package com.android.exchange;
+package com.android.email.service;
 
 oneway interface IEmailServiceCallback {
     /*

@@ -17,8 +17,6 @@
 package com.android.email.service;
 
 import com.android.email.mail.MessagingException;
-import com.android.exchange.IEmailService;
-import com.android.exchange.IEmailServiceCallback;
 
 import android.content.ComponentName;
 import android.content.Context;
