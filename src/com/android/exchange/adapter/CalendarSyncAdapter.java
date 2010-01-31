@@ -21,6 +21,7 @@ import com.android.email.provider.EmailContent.Mailbox;
 import com.android.exchange.Eas;
 import com.android.exchange.EasSyncService;
 import com.android.exchange.utility.CalendarUtilities;
+import com.android.exchange.utility.Duration;
 
 import android.content.ContentProviderOperation;
 import android.content.ContentProviderResult;
@@ -34,6 +35,7 @@ import android.content.Entity.NamedContentValues;
 import android.database.Cursor;
 import android.net.Uri;
 import android.os.RemoteException;
+import android.pim.DateException;
 import android.provider.Calendar;
 import android.provider.Calendar.Attendees;
 import android.provider.Calendar.Calendars;
@@ -47,6 +49,7 @@ import android.util.Log;
 import java.io.IOException;
 import java.io.InputStream;
 import java.util.ArrayList;
+import java.util.StringTokenizer;
 import java.util.TimeZone;
 
 /**
@@ -68,6 +71,8 @@ public class CalendarSyncAdapter extends AbstractSyncAdapter {
     private static final String CALENDAR_SELECTION =
         Calendars._SYNC_ACCOUNT + "=? AND " + Calendars._SYNC_ACCOUNT_TYPE + "=?";
     private static final int CALENDAR_SELECTION_ID = 0;
+
+    private static final String CATEGORY_TOKENIZER_DELIMITER = "\\";
 
     private static final ContentProviderOperation PLACEHOLDER_OPERATION =
         ContentProviderOperation.newInsert(Uri.EMPTY).build();
@@ -173,7 +178,10 @@ public class CalendarSyncAdapter extends AbstractSyncAdapter {
 
         @Override
         public void wipe() {
-            mContentResolver.delete(mAccountUri, null, null);
+            // Delete the calendar associated with this account
+            // TODO Make sure the Events, etc. are also deleted
+            mContentResolver.delete(Calendars.CONTENT_URI, CALENDAR_SELECTION,
+                    new String[] {mAccount.mEmailAddress, Eas.ACCOUNT_MANAGER_TYPE});
         }
 
         public void addEvent(CalendarOperations ops, String serverId, boolean update)
@@ -243,9 +251,6 @@ public class CalendarSyncAdapter extends AbstractSyncAdapter {
                     case Tags.CALENDAR_BODY:
                         cv.put(Events.DESCRIPTION, getValue());
                         break;
-                    case Tags.CALENDAR_CATEGORIES:
-                        categoriesParser(ops);
-                        break;
                     case Tags.CALENDAR_TIME_ZONE:
                         TimeZone tz = CalendarUtilities.parseTimeZone(getValue());
                         if (tz != null) {
@@ -255,12 +260,12 @@ public class CalendarSyncAdapter extends AbstractSyncAdapter {
                         }
                         break;
                     case Tags.CALENDAR_START_TIME:
-                        startTime = CalendarUtilities.parseDateTime(getValue());
+                        startTime = CalendarUtilities.parseDateTimeToMillis(getValue());
                         cv.put(Events.DTSTART, startTime);
                         cv.put(Events.ORIGINAL_INSTANCE_TIME, startTime);
                         break;
                     case Tags.CALENDAR_END_TIME:
-                        endTime = CalendarUtilities.parseDateTime(getValue());
+                        endTime = CalendarUtilities.parseDateTimeToMillis(getValue());
                         break;
                     case Tags.CALENDAR_EXCEPTIONS:
                         exceptionsParser(ops, cv);
@@ -284,26 +289,32 @@ public class CalendarSyncAdapter extends AbstractSyncAdapter {
                     case Tags.CALENDAR_SENSITIVITY:
                         cv.put(Events.VISIBILITY, encodeVisibility(getValueInt()));
                         break;
-                    case Tags.CALENDAR_UID:
-                        ops.newExtendedProperty("uid", getValue());
-                        break;
                     case Tags.CALENDAR_ORGANIZER_NAME:
                         organizerName = getValue();
+                        break;
+                    case Tags.CALENDAR_REMINDER_MINS_BEFORE:
+                        ops.newReminder(getValueInt());
+                        cv.put(Events.HAS_ALARM, 1);
+                        break;
+                    // The following are fields we should save (for changes), though they don't
+                    // relate to data used by CalendarProvider at this point
+                    case Tags.CALENDAR_UID:
+                        ops.newExtendedProperty("uid", getValue());
                         break;
                     case Tags.CALENDAR_DTSTAMP:
                         ops.newExtendedProperty("dtstamp", getValue());
                         break;
                     case Tags.CALENDAR_MEETING_STATUS:
-                        // TODO Try to fit this into Calendar scheme
                         ops.newExtendedProperty("meeting_status", getValue());
                         break;
                     case Tags.CALENDAR_BUSY_STATUS:
-                        // TODO Try to fit this into Calendar scheme
                         ops.newExtendedProperty("busy_status", getValue());
                         break;
-                    case Tags.CALENDAR_REMINDER_MINS_BEFORE:
-                        ops.newReminder(getValueInt());
-                        cv.put(Events.HAS_ALARM, 1);
+                    case Tags.CALENDAR_CATEGORIES:
+                        String categories = categoriesParser(ops);
+                        if (categories.length() > 0) {
+                            ops.newExtendedProperty("categories", categories);
+                        }
                         break;
                     default:
                         skipTag();
@@ -399,7 +410,7 @@ public class CalendarSyncAdapter extends AbstractSyncAdapter {
                 switch (tag) {
                     case Tags.CALENDAR_EXCEPTION_START_TIME:
                         cv.put(Events.ORIGINAL_INSTANCE_TIME,
-                                CalendarUtilities.parseDateTime(getValue()));
+                                CalendarUtilities.parseDateTimeToMillis(getValue()));
                         break;
                     case Tags.CALENDAR_EXCEPTION_IS_DELETED:
                         if (getValueInt() == 1) {
@@ -416,10 +427,10 @@ public class CalendarSyncAdapter extends AbstractSyncAdapter {
                         cv.put(Events.DESCRIPTION, getValue());
                         break;
                     case Tags.CALENDAR_START_TIME:
-                        cv.put(Events.DTSTART, CalendarUtilities.parseDateTime(getValue()));
+                        cv.put(Events.DTSTART, CalendarUtilities.parseDateTimeToMillis(getValue()));
                         break;
                     case Tags.CALENDAR_END_TIME:
-                        cv.put(Events.DTEND, CalendarUtilities.parseDateTime(getValue()));
+                        cv.put(Events.DTEND, CalendarUtilities.parseDateTimeToMillis(getValue()));
                         break;
                     case Tags.CALENDAR_LOCATION:
                         cv.put(Events.EVENT_LOCATION, getValue());
@@ -500,15 +511,20 @@ public class CalendarSyncAdapter extends AbstractSyncAdapter {
             }
         }
 
-        private void categoriesParser(CalendarOperations ops) throws IOException {
+        private String categoriesParser(CalendarOperations ops) throws IOException {
+            StringBuilder categories = new StringBuilder();
             while (nextTag(Tags.CALENDAR_CATEGORIES) != END) {
                 switch (tag) {
                     case Tags.CALENDAR_CATEGORY:
-                        // TODO Handle categories
+                        // TODO Handle categories (there's no similar concept for gdata AFAIK)
+                        // We need to save them and spit them back when we update the event
+                        categories.append(getValue());
+                        categories.append(CATEGORY_TOKENIZER_DELIMITER);
                     default:
                         skipTag();
                 }
             }
+            return categories.toString();
         }
 
         private String attendeesParser(CalendarOperations ops, String organizerName,
@@ -918,10 +934,20 @@ public class CalendarSyncAdapter extends AbstractSyncAdapter {
                 boolean first = true;
                 while (ei.hasNext()) {
                     Entity entity = ei.next();
-                    String clientId = null;
+                    String clientId = "uid_" + mMailbox.mId + '_' + System.currentTimeMillis();
+
                     // For each of these entities, create the change commands
                     ContentValues entityValues = entity.getEntityValues();
                     String serverId = entityValues.getAsString(Events._SYNC_ID);
+
+                    // EAS 2.5 needs: BusyStatus DtStamp EndTime Sensitivity StartTime TimeZone UID
+                    // We can generate all but what we're testing for below
+                    if (!entityValues.containsKey(Events.DTSTART)
+                            || !entityValues.containsKey(Events.DURATION)) {
+                        continue;
+                    }
+                    // TODO Handle BusyStatus for EAS 2.5
+                    // What should it be??
 
                     // Ignore exceptions (will have Events.ORIGINAL_EVENT)
 
@@ -932,7 +958,6 @@ public class CalendarSyncAdapter extends AbstractSyncAdapter {
                     }
                     if (serverId == null) {
                         // This is a new event; create a clientId
-                        clientId = "new_" + mMailbox.mId + '_' + System.currentTimeMillis();
                         userLog("Creating new event with clientId: ", clientId);
                         s.start(Tags.SYNC_ADD).data(Tags.SYNC_CLIENT_ID, clientId);
                         // And save it in the Event as the local id
@@ -963,29 +988,41 @@ public class CalendarSyncAdapter extends AbstractSyncAdapter {
                         s.data(Tags.CALENDAR_ALL_DAY_EVENT,
                                 entityValues.getAsInteger(Events.ALL_DAY).toString());
                     }
-                    if (entityValues.containsKey(Events.DTSTART)) {
-                        long startTime = entityValues.getAsLong(Events.DTSTART);
-                        s.data(Tags.CALENDAR_START_TIME,
-                                CalendarUtilities.millisToEasDateTime(startTime));
+
+                    long startTime = entityValues.getAsLong(Events.DTSTART);
+                    s.data(Tags.CALENDAR_START_TIME,
+                            CalendarUtilities.millisToEasDateTime(startTime));
+                    // Convert this into millis and add it to DTSTART for DTEND
+                    // We'll use 1 hour as a default
+                    long durationMillis = HOURS;
+                    Duration duration = new Duration();
+                    try {
+                        duration.parse(entityValues.getAsString(Events.DURATION));
+                    } catch (DateException e) {
+                        // Can't do much about this; use the default (1 hour)
                     }
+                    s.data(Tags.CALENDAR_END_TIME,
+                            CalendarUtilities.millisToEasDateTime(startTime + durationMillis));
                     if (entityValues.containsKey(Events.DTEND)) {
-                        long endTime = entityValues.getAsLong(Events.DTEND);
-                        s.data(Tags.CALENDAR_END_TIME,
-                                CalendarUtilities.millisToEasDateTime(endTime));
+                        // TODO Use this to determine last date; it's NOT the same as EAS DTEND
+                        //long endTime = entityValues.getAsLong(Events.DTEND);
+                        //s.data(Tags.CALENDAR_END_TIME,
+                        //        CalendarUtilities.millisToEasDateTime(endTime));
                     }
                     s.data(Tags.CALENDAR_DTSTAMP,
                             CalendarUtilities.millisToEasDateTime(System.currentTimeMillis()));
 
-                    // Our clientId (for new calendar items) is used for UID
-                    if (clientId != null) {
-                        s.data(Tags.CALENDAR_UID, clientId);
-                    }
-
+                    // A time zone is required in all EAS events; we'll use the default if none
+                    // is set.
+                    String timeZoneName;
                     if (entityValues.containsKey(Events.EVENT_TIMEZONE)) {
-                        String timeZoneName = entityValues.getAsString(Events.EVENT_TIMEZONE);
-                        String x = CalendarUtilities.timeZoneToTZIString(timeZoneName);
-                        s.data(Tags.CALENDAR_TIME_ZONE, x);
+                        timeZoneName = entityValues.getAsString(Events.EVENT_TIMEZONE);
+                    } else {
+                        timeZoneName = TimeZone.getDefault().getID();
                     }
+                    String x = CalendarUtilities.timeZoneToTZIString(timeZoneName);
+                    s.data(Tags.CALENDAR_TIME_ZONE, x);
+
                     if (entityValues.containsKey(Events.EVENT_LOCATION)) {
                         s.data(Tags.CALENDAR_LOCATION,
                                 entityValues.getAsString(Events.EVENT_LOCATION));
@@ -1011,6 +1048,13 @@ public class CalendarSyncAdapter extends AbstractSyncAdapter {
                     if (entityValues.containsKey(Events.VISIBILITY)) {
                         s.data(Tags.CALENDAR_SENSITIVITY,
                                 decodeVisibility(entityValues.getAsInteger(Events.VISIBILITY)));
+                    } else {
+                        // Private if not set
+                        s.data(Tags.CALENDAR_SENSITIVITY, "1");
+                    }
+                    if (entityValues.containsKey(Events.RRULE)) {
+                        CalendarUtilities.recurrenceFromRrule(
+                                entityValues.getAsString(Events.RRULE), startTime, s);
                     }
 
                     // Handle associated data EXCEPT for attendees, which have to be grouped
@@ -1020,10 +1064,26 @@ public class CalendarSyncAdapter extends AbstractSyncAdapter {
                         ContentValues ncvValues = ncv.values;
                         if (ncvUri.equals(ExtendedProperties.CONTENT_URI)) {
                             if (ncvValues.containsKey("uid")) {
-                                s.data(Tags.CALENDAR_UID, ncvValues.getAsString("uid"));
+                                clientId = ncvValues.getAsString("uid");
+                                s.data(Tags.CALENDAR_UID, clientId);
                             }
                             if (ncvValues.containsKey("dtstamp")) {
                                 s.data(Tags.CALENDAR_DTSTAMP, ncvValues.getAsString("dtstamp"));
+                            }
+                            if (ncvValues.containsKey("categories")) {
+                                // Send all the categories back to the server
+                                // We've saved them as a String of delimited tokens
+                                String categories = ncvValues.getAsString("categories");
+                                StringTokenizer st =
+                                    new StringTokenizer(categories, CATEGORY_TOKENIZER_DELIMITER);
+                                if (st.countTokens() > 0) {
+                                    s.start(Tags.CALENDAR_CATEGORIES);
+                                    while (st.hasMoreTokens()) {
+                                        String category = st.nextToken();
+                                        s.data(Tags.CALENDAR_CATEGORY, category);
+                                    }
+                                    s.end();
+                                }
                             }
                         } else if (ncvUri.equals(Reminders.CONTENT_URI)) {
                             if (ncvValues.containsKey(Reminders.MINUTES)) {
@@ -1032,6 +1092,10 @@ public class CalendarSyncAdapter extends AbstractSyncAdapter {
                             }
                         }
                     }
+
+                    // We've got to send a UID.  If the event is new, we've generated one; if not,
+                    // we should have gotten one from extended properties.
+                    s.data(Tags.CALENDAR_UID, clientId);
 
                     // Handle attendee data here; keep track of organizer and stream it afterward
                     boolean hasAttendees = false;
@@ -1078,27 +1142,9 @@ public class CalendarSyncAdapter extends AbstractSyncAdapter {
                     if (organizerName != null) {
                         s.data(Tags.CALENDAR_ORGANIZER_NAME, organizerName);
                     }
-//                    case Tags.CALENDAR_CATEGORIES:
-//                        categoriesParser(ops);
-//                        break;
 //                    case Tags.CALENDAR_EXCEPTIONS:
 //                        exceptionsParser(ops, cv);
 //                        break;
-//                    case Tags.CALENDAR_RECURRENCE:
-//                        String rrule = recurrenceParser(ops);
-//                        if (rrule != null) {
-//                            cv.put(Events.RRULE, rrule);
-//                        }
-//                        break;
-//                    case Tags.CALENDAR_MEETING_STATUS:
-//                        // TODO Try to fit this into Calendar scheme
-//                        ops.newExtendedProperty("meeting_status", getValue());
-//                        break;
-//                    case Tags.CALENDAR_BUSY_STATUS:
-//                        // TODO Try to fit this into Calendar scheme
-//                        ops.newExtendedProperty("busy_status", getValue());
-//                        break;
-
                     s.end().end(); // ApplicationData & Change
                     mUpdatedIdList.add(entityValues.getAsLong(Events._ID));
                 }

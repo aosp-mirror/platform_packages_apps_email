@@ -17,11 +17,14 @@
 package com.android.exchange.utility;
 
 import com.android.exchange.Eas;
+import com.android.exchange.adapter.Serializer;
+import com.android.exchange.adapter.Tags;
 
 import org.bouncycastle.util.encoders.Base64;
 
 import android.util.Log;
 
+import java.io.IOException;
 import java.util.Calendar;
 import java.util.Date;
 import java.util.GregorianCalendar;
@@ -318,7 +321,7 @@ public class CalendarUtilities {
      * @param DateTime string from Exchange server
      * @return the time in milliseconds (since Jan 1, 1970)
      */
-     static public long parseDateTime(String date) {
+     static public long parseDateTimeToMillis(String date) {
         // Format for calendar date strings is 20090211T180303Z
         GregorianCalendar cal = new GregorianCalendar(Integer.parseInt(date.substring(0, 4)),
                 Integer.parseInt(date.substring(4, 6)) - 1, Integer.parseInt(date.substring(6, 8)),
@@ -327,6 +330,21 @@ public class CalendarUtilities {
         cal.setTimeZone(TimeZone.getTimeZone("GMT"));
         return cal.getTimeInMillis();
     }
+
+     /**
+      * Generate a GregorianCalendar from a date string that represents a date/time in GMT
+      * @param DateTime string from Exchange server
+      * @return the GregorianCalendar
+      */
+      static public GregorianCalendar parseDateTimeToCalendar(String date) {
+         // Format for calendar date strings is 20090211T180303Z
+         GregorianCalendar cal = new GregorianCalendar(Integer.parseInt(date.substring(0, 4)),
+                 Integer.parseInt(date.substring(4, 6)) - 1, Integer.parseInt(date.substring(6, 8)),
+                 Integer.parseInt(date.substring(9, 11)), Integer.parseInt(date.substring(11, 13)),
+                 Integer.parseInt(date.substring(13, 15)));
+         cal.setTimeZone(TimeZone.getTimeZone("GMT"));
+         return cal;
+     }
 
      static String formatTwo(int num) {
          if (num <= 12) {
@@ -376,6 +394,116 @@ public class CalendarUtilities {
             dom = -1;
         }
         rrule.append(";BYMONTHDAY=" + dom);
+    }
+
+    static String generateEasDayOfWeek(String dow) {
+        int bit = 1;
+        for (String token: sDayTokens) {
+            if (dow.equals(token)) {
+                break;
+            } else {
+                bit <<= 1;
+            }
+        }
+        return Integer.toString(bit);
+    }
+
+    static String tokenFromRrule(String rrule, String token) {
+        int start = rrule.indexOf(token);
+        if (start < 0) return null;
+        int len = rrule.length();
+        start += token.length();
+        int end = start;
+        char c;
+        do {
+            c = rrule.charAt(end++);
+            if (!Character.isLetterOrDigit(c) || (end == len)) {
+                if (end == len) end++;
+                return rrule.substring(start, end -1);
+            }
+         } while (true);
+    }
+
+    /**
+     * Write recurrence information to EAS based on the RRULE in CalendarProvider
+     * @param rrule the RRULE, from CalendarProvider
+     * @param startTime, the DTSTART of this Event
+     * @param s the Serializer we're using to write WBXML data
+     * @throws IOException
+     */
+    // NOTE: For the moment, we're only parsing recurrence types that are supported by the
+    // Calendar app UI, which is a small subset of possible recurrence types
+    // This code must be updated when the Calendar adds new functionality
+    static public void recurrenceFromRrule(String rrule, long startTime, Serializer s)
+            throws IOException {
+        Log.d("RRULE", "rule: " + rrule);
+        String freq = tokenFromRrule(rrule, "FREQ=");
+        // If there's no FREQ=X, then we don't write a recurrence
+        // Note that we duplicate s.start(Tags.CALENDAR_RECURRENCE); s.end(); to prevent the
+        // possibility of writing out a partial recurrence stanza
+        if (freq != null) {
+            if (freq.equals("DAILY")) {
+                s.start(Tags.CALENDAR_RECURRENCE);
+                s.data(Tags.CALENDAR_RECURRENCE_TYPE, "0");
+                s.data(Tags.CALENDAR_RECURRENCE_INTERVAL, "1");
+                s.end();
+            } else if (freq.equals("WEEKLY")) {
+                s.start(Tags.CALENDAR_RECURRENCE);
+                s.data(Tags.CALENDAR_RECURRENCE_TYPE, "1");
+                s.data(Tags.CALENDAR_RECURRENCE_INTERVAL, "1");
+                // Requires a day of week (whereas RRULE does not)
+                String byDay = tokenFromRrule(rrule, "BYDAY=");
+                if (byDay != null) {
+                    s.data(Tags.CALENDAR_RECURRENCE_DAYOFWEEK, generateEasDayOfWeek(byDay));
+                }
+                s.end();
+            } else if (freq.equals("MONTHLY")) {
+                String byMonthDay = tokenFromRrule(rrule, "BYMONTHDAY=");
+                if (byMonthDay != null) {
+                    // The nth day of the month
+                    s.start(Tags.CALENDAR_RECURRENCE);
+                    s.data(Tags.CALENDAR_RECURRENCE_TYPE, "2");
+                    s.data(Tags.CALENDAR_RECURRENCE_DAYOFMONTH, byMonthDay);
+                    s.end();
+                } else {
+                    String byDay = tokenFromRrule(rrule, "BYDAY=");
+                    String bareByDay;
+                    if (byDay != null) {
+                        // This can be 1WE (1st Wednesday) or -1FR (last Friday)
+                        int wom = byDay.charAt(0);
+                        if (wom == '-') {
+                            // -1 is the only legal case (last week) Use "5" for EAS
+                            wom = 5;
+                            bareByDay = byDay.substring(2);
+                        } else {
+                            wom = wom - '0';
+                            bareByDay = byDay.substring(1);
+                        }
+                        s.start(Tags.CALENDAR_RECURRENCE);
+                        s.data(Tags.CALENDAR_RECURRENCE_TYPE, "3");
+                        s.data(Tags.CALENDAR_RECURRENCE_WEEKOFMONTH, Integer.toString(wom));
+                        s.data(Tags.CALENDAR_RECURRENCE_DAYOFWEEK, generateEasDayOfWeek(bareByDay));
+                        s.end();
+                    }
+                }
+            } else if (freq.equals("YEARLY")) {
+                String byMonth = tokenFromRrule(rrule, "BYMONTH=");
+                String byMonthDay = tokenFromRrule(rrule, "BYMONTHDAY=");
+                if (byMonth == null || byMonthDay == null) {
+                    // Calculate the month and day from the startDate
+                    GregorianCalendar cal = new GregorianCalendar();
+                    cal.setTimeInMillis(startTime);
+                    cal.setTimeZone(TimeZone.getDefault());
+                    byMonth = Integer.toString(cal.get(Calendar.MONTH) + 1);
+                    byMonthDay = Integer.toString(cal.get(Calendar.DAY_OF_MONTH));
+                }
+                s.start(Tags.CALENDAR_RECURRENCE);
+                s.data(Tags.CALENDAR_RECURRENCE_TYPE, "5");
+                s.data(Tags.CALENDAR_RECURRENCE_DAYOFMONTH, byMonthDay);
+                s.data(Tags.CALENDAR_RECURRENCE_MONTHOFYEAR, byMonth);
+                s.end();
+             }
+        }
     }
 
     static public String rruleFromRecurrence(int type, int occurrences, int interval, int dow,

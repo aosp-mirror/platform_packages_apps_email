@@ -254,7 +254,7 @@ public class FolderSyncParser extends AbstractSyncParser {
                     cv.put(Calendars.SELECTED, 1);
                     cv.put(Calendars.HIDDEN, 0);
                     // TODO Find out how to set color!!
-                    cv.put(Calendars.COLOR, -14069085 /* blue */);
+                    cv.put(Calendars.COLOR, 0xFF228B22 /*green*/);
                     cv.put(Calendars.TIMEZONE, Time.getCurrentTimezone());
                     cv.put(Calendars.ACCESS_LEVEL, Calendars.OWNER_ACCESS);
                     cv.put(Calendars.OWNER_ACCOUNT, mAccount.mEmailAddress);
