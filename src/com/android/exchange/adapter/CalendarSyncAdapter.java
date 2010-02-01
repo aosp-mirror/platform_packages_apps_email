@@ -209,7 +209,6 @@ public class CalendarSyncAdapter extends AbstractSyncAdapter {
         public EasCalendarSyncParser(InputStream in, CalendarSyncAdapter adapter)
                 throws IOException {
             super(in, adapter);
-            setDebug(true);
             setLoggingTag("CalendarParser");
             mAccountUri = Events.CONTENT_URI;
         }
