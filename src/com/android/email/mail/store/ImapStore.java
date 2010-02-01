@@ -17,7 +17,10 @@
 package com.android.email.mail.store;
 
 import com.android.email.Email;
+import com.android.email.Preferences;
 import com.android.email.Utility;
+import com.android.email.VendorPolicyLoader;
+import com.android.email.codec.binary.Base64;
 import com.android.email.mail.AuthenticationFailedException;
 import com.android.email.mail.CertificateValidationException;
 import com.android.email.mail.FetchProfile;
@@ -43,6 +46,7 @@ import com.beetstra.jutf7.CharsetProvider;
 
 import android.content.Context;
 import android.os.Build;
+import android.telephony.TelephonyManager;
 import android.util.Config;
 import android.util.Log;
 
@@ -54,12 +58,15 @@ import java.net.URISyntaxException;
 import java.nio.ByteBuffer;
 import java.nio.CharBuffer;
 import java.nio.charset.Charset;
+import java.security.MessageDigest;
+import java.security.NoSuchAlgorithmException;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.LinkedHashSet;
 import java.util.LinkedList;
 import java.util.List;
+import java.util.regex.Pattern;
 
 import javax.net.ssl.SSLException;
 
@@ -174,7 +181,7 @@ public class ImapStore extends Store {
         mModifiedUtf7Charset = new CharsetProvider().charsetForName("X-RFC-3501");
 
         // Assign user-agent string (for RFC2971 ID command)
-        String mUserAgent = getImapId(context);
+        String mUserAgent = getImapId(context, mUsername, mRootTransport.getHost());
         if (mUserAgent != null) {
             mIdPhrase = "ID (" + mUserAgent + ")";
         } else if (DEBUG_FORCE_SEND_ID) {
@@ -202,61 +209,142 @@ public class ImapStore extends Store {
      * because some connections may append additional values.
      *
      * The following IMAP ID keys may be included:
-     *   name            Android package name of the program
-     *   os              "android"
-     *   os-version      "version; model; build-id"
-     *   vendor          Vendor of the client/server
+     *   name                   Android package name of the program
+     *   os                     "android"
+     *   os-version             "version; model; build-id"
+     *   vendor                 Vendor of the client/server
+     *   x-android-device-model Model (only revealed if release build)
+     *   x-android-net-operator Mobile network operator (if known)
+     *   AGUID                  A device+account UID
      *
+     * In addition, a vendor policy .apk can append key/value pairs.
+     *
+     * @param userName the username of the account
+     * @param host the host (server) of the account
      * @return a String for use in an IMAP ID message.  
      */
-    public String getImapId(Context context) {
-        synchronized (Email.class) {
+    public String getImapId(Context context, String userName, String host) {
+        // The first section is global to all IMAP connections, and generates the fixed
+        // values in any IMAP ID message
+        synchronized (ImapStore.class) {
             if (sImapId == null) {
-                // "name" "com.android.email"
-                StringBuffer sb = new StringBuffer("\"name\" \"");
-                sb.append(context.getPackageName());
-                sb.append("\"");
+                String networkOperator = TelephonyManager.getDefault().getNetworkOperatorName();
+                if (networkOperator == null) networkOperator = "";
 
-                // "os" "android"
-                sb.append(" \"os\" \"android\"");
-
-                // "os-version" "version; model; build-id"
-                sb.append(" \"os-version\" \"");
-                final String version = Build.VERSION.RELEASE;
-                if (version.length() > 0) {
-                    sb.append(version);
-                } else {
-                    // default to "1.0"
-                    sb.append("1.0");
-                }
-                // add the model (on release builds only)
-                if ("REL".equals(Build.VERSION.CODENAME)) {
-                    final String model = Build.MODEL;
-                    if (model.length() > 0) {
-                        sb.append("; ");
-                        sb.append(model);
-                    }
-                }
-                // add the build ID or build #
-                final String id = Build.ID;
-                if (id.length() > 0) {
-                    sb.append("; ");
-                    sb.append(id);
-                }
-                sb.append("\"");
-
-                // "vendor" "the vendor"
-                final String vendor = Build.MANUFACTURER;
-                if (vendor.length() > 0) {
-                    sb.append(" \"vendor\" \"");
-                    sb.append(vendor);
-                    sb.append("\"");
-                }
-                
-                sImapId = sb.toString();
+                sImapId = makeCommonImapId(context.getPackageName(), Build.VERSION.RELEASE,
+                        Build.VERSION.CODENAME, Build.MODEL, Build.ID, Build.MANUFACTURER,
+                        networkOperator);
             }
         }
-        return sImapId;
+
+        // This section is per Store, and adds in a dynamic elements like UID's.
+        // We don't cache the result of this work, because the caller does anyway.
+        StringBuilder id = new StringBuilder(sImapId);
+
+        // Optionally add any vendor-supplied id keys
+        String vendorId =
+            VendorPolicyLoader.getInstance(context).getImapIdValues(userName, host, null);
+        if (vendorId != null) {
+            id.append(' ');
+            id.append(vendorId);
+        }
+
+        // Generate a UID that mixes a "stable" device UID with the email address
+        try {
+            String devUID = Preferences.getPreferences(context).getDeviceUID();
+            MessageDigest messageDigest;
+            messageDigest = MessageDigest.getInstance("SHA-1");
+            messageDigest.update(userName.getBytes());
+            messageDigest.update(devUID.getBytes());
+            byte[] uid = messageDigest.digest();
+            String hexUid = new String(new Base64().encode(uid));
+            id.append(" \"AGUID\" \"");
+            id.append(hexUid);
+            id.append('\"');
+        } catch (NoSuchAlgorithmException e) {
+            Log.d(Email.LOG_TAG, "couldn't obtain SHA-1 hash for device UID");
+        }
+        return id.toString();
+    }
+
+    /**
+     * Helper function that actually builds the static part of the IMAP ID string.  This is
+     * separated from getImapId for testability.  There is no escaping or encoding in IMAP ID so
+     * any rogue chars must be filtered here.
+     *
+     * @param packageName context.getPackageName()
+     * @param version Build.VERSION.RELEASE
+     * @param codeName Build.VERSION.CODENAME
+     * @param model Build.MODEL
+     * @param id Build.ID
+     * @param vendor Build.MANUFACTURER
+     * @param networkOperator TelephonyManager.getNetworkOperatorName()
+     * @return the static (never changes) portion of the IMAP ID
+     */
+    /* package */ String makeCommonImapId(String packageName, String version,
+            String codeName, String model, String id, String vendor, String networkOperator) {
+
+        // Before building up IMAP ID string, pre-filter the input strings for "legal" chars
+        // This is using a fairly arbitrary char set intended to pass through most reasonable
+        // version, model, and vendor strings: a-z A-Z 0-9 - _ + = ; : . , / <space>
+        // The most important thing is *not* to pass parens, quotes, or CRLF, which would break
+        // the format of the IMAP ID list.
+        Pattern p = Pattern.compile("[^a-zA-Z0-9-_\\+=;:\\.,/ ]");
+        packageName = p.matcher(packageName).replaceAll("");
+        version = p.matcher(version).replaceAll("");
+        codeName = p.matcher(codeName).replaceAll("");
+        model = p.matcher(model).replaceAll("");
+        id = p.matcher(id).replaceAll("");
+        vendor = p.matcher(vendor).replaceAll("");
+        networkOperator = p.matcher(networkOperator).replaceAll("");
+
+        // "name" "com.android.email"
+        StringBuffer sb = new StringBuffer("\"name\" \"");
+        sb.append(packageName);
+        sb.append("\"");
+
+        // "os" "android"
+        sb.append(" \"os\" \"android\"");
+
+        // "os-version" "version; build-id"
+        sb.append(" \"os-version\" \"");
+        if (version.length() > 0) {
+            sb.append(version);
+        } else {
+            // default to "1.0"
+            sb.append("1.0");
+        }
+        // add the build ID or build #
+        if (id.length() > 0) {
+            sb.append("; ");
+            sb.append(id);
+        }
+        sb.append("\"");
+
+        // "vendor" "the vendor"
+        if (vendor.length() > 0) {
+            sb.append(" \"vendor\" \"");
+            sb.append(vendor);
+            sb.append("\"");
+        }
+
+        // "x-android-device-model" the device model (on release builds only)
+        if ("REL".equals(codeName)) {
+            if (model.length() > 0) {
+                sb.append(" \"x-android-device-model\" \"");
+                sb.append(model);
+                sb.append("\"");
+            }
+        }
+
+        // "x-android-mobile-net-operator" "name of network operator"
+        if (networkOperator.length() > 0) {
+            sb.append(" \"x-android-mobile-net-operator\" \"");
+            sb.append(networkOperator);
+            sb.append("\"");
+        }
+
+        return sb.toString();
     }
 
 

@@ -16,7 +16,6 @@
 
 package com.android.email.mail.store;
 
-import com.android.email.Email;
 import com.android.email.mail.FetchProfile;
 import com.android.email.mail.Flag;
 import com.android.email.mail.Folder;
@@ -31,8 +30,8 @@ import com.android.email.mail.internet.MimeUtility;
 import com.android.email.mail.transport.MockTransport;
 
 import android.test.AndroidTestCase;
+import android.test.MoreAsserts;
 import android.test.suitebuilder.annotation.SmallTest;
-import android.util.Log;
 
 import java.util.ArrayList;
 import java.util.Date;
@@ -93,40 +92,121 @@ public class ImapStoreUnitTests extends AndroidTestCase {
 
     /**
      * Test the generation of the IMAP ID keys
-     *
-     * Since this is build-specific, we mostly just ensure that the correct strings
-     * are being generated, and non-empty, and (if possible) look for expected formatting.
      */
-    public void testImapId() {
-        String id = mStore.getImapId(getContext());
+    public void testImapIdBasic() {
+        // First test looks at operation of the outer API - we don't control any of the
+        // values;  Just look for basic results.
+
+        // Strings we'll expect to find:
+        //   name            Android package name of the program
+        //   os              "android"
+        //   os-version      "version; build-id"
+        //   vendor          Vendor of the client/server
+        //   x-android-device-model Model (Optional, so not tested here)
+        //   x-android-net-operator Carrier (Unreliable, so not tested here)
+        //   AGUID           A device+account UID
+        String id = mStore.getImapId(getContext(), "user-name", "host-name");
+        HashMap<String, String> map = tokenizeImapId(id);
+        assertEquals(getContext().getPackageName(), map.get("name"));
+        assertEquals("android", map.get("os"));
+        assertNotNull(map.get("os-version"));
+        assertNotNull(map.get("vendor"));
+        assertNotNull(map.get("AGUID"));
+
+        // Next, use the inner API to confirm operation of a couple of
+        // variants for release and non-release devices.
+
+        // simple API check - non-REL codename, non-empty version
+        id = mStore.makeCommonImapId("packageName", "version", "codeName",
+                "model", "id", "vendor", "network-operator");
+        map = tokenizeImapId(id);
+        assertEquals("packageName", map.get("name"));
+        assertEquals("android", map.get("os"));
+        assertEquals("version; id", map.get("os-version"));
+        assertEquals("vendor", map.get("vendor"));
+        assertEquals(null, map.get("x-android-device-model"));
+        assertEquals("network-operator", map.get("x-android-mobile-net-operator"));
+        assertEquals(null, map.get("AGUID"));
+
+        // simple API check - codename is REL, so use model name.
+        // also test empty version => 1.0 and empty network operator
+        id = mStore.makeCommonImapId("packageName", "", "REL",
+                "model", "id", "vendor", "");
+        map = tokenizeImapId(id);
+        assertEquals("packageName", map.get("name"));
+        assertEquals("android", map.get("os"));
+        assertEquals("1.0; id", map.get("os-version"));
+        assertEquals("vendor", map.get("vendor"));
+        assertEquals("model", map.get("x-android-device-model"));
+        assertEquals(null, map.get("x-android-mobile-net-operator"));
+        assertEquals(null, map.get("AGUID"));
+    }
+
+    /**
+     * Test of the internal generator for IMAP ID strings, specifically looking for proper
+     * filtering of illegal values.  This is required because we cannot necessarily trust
+     * the external sources of some of this data (e.g. release labels).
+     *
+     * The (somewhat arbitrary) legal values are:  a-z A-Z 0-9 - _ + = ; : . , / <space>
+     * The most important goal of the filters is to keep out control chars, (, ), and "
+     */
+    public void testImapIdFiltering() {
+        String id = mStore.makeCommonImapId("abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ",
+                "0123456789", "codeName",
+                "model", "-_+=;:.,// ",
+                "v(e)n\"d\ro\nr",           // look for bad chars stripped out, leaving OK chars
+                "()\"");                    // look for bad chars stripped out, leaving nothing
+        HashMap<String, String> map = tokenizeImapId(id);
+
+        assertEquals("abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ", map.get("name"));
+        assertEquals("0123456789; -_+=;:.,// ", map.get("os-version"));
+        assertEquals("vendor", map.get("vendor"));
+        assertNull(map.get("x-android-mobile-net-operator"));
+    }
+
+    /**
+     * Test that IMAP ID uid's are per-username
+     */
+    public void testImapIdDeviceId() throws MessagingException {
+        ImapStore store1a = (ImapStore) ImapStore.newInstance("imap://user1:password@server:999",
+                getContext(), null);
+        ImapStore store1b = (ImapStore) ImapStore.newInstance("imap://user1:password@server:999",
+                getContext(), null);
+        ImapStore store2 = (ImapStore) ImapStore.newInstance("imap://user2:password@server:999",
+                getContext(), null);
+
+        String id1a = mStore.getImapId(getContext(), "user1", "host-name");
+        String id1b = mStore.getImapId(getContext(), "user1", "host-name");
+        String id2 = mStore.getImapId(getContext(), "user2", "host-name");
+
+        String uid1a = tokenizeImapId(id1a).get("AGUID");
+        String uid1b = tokenizeImapId(id1b).get("AGUID");
+        String uid2 = tokenizeImapId(id2).get("AGUID");
+
+        assertEquals(uid1a, uid1b);
+        MoreAsserts.assertNotEqual(uid1a, uid2);
+    }
+
+    /**
+     * Helper to break an IMAP ID string into keys & values
+     * @param id the IMAP Id string (the part inside the parens)
+     * @return a map of key/value pairs
+     */
+    private HashMap<String, String> tokenizeImapId(String id) {
         // Instead of a true tokenizer, we'll use double-quote as the split.
         // We can's use " " because there may be spaces inside the values. 
         String[] elements = id.split("\"");
         HashMap<String, String> map = new HashMap<String, String>();
         for (int i = 0; i < elements.length; ) {
             // Because we split at quotes, we expect to find:
-            // [i] = null
+            // [i] = null or one or more spaces
             // [i+1] = key
             // [i+2] = one or more spaces
             // [i+3] = value
             map.put(elements[i+1], elements[i+3]);
             i += 4;
         }
-        
-        // Strings we'll expect to find:
-        //   name            Android package name of the program
-        //   os              "android"
-        //   os-version      "version; model; build-id"
-        //   vendor          Vendor of the client/server
-
-        String name = map.get("name");
-        assertEquals(getContext().getPackageName(), name);
-        String os = map.get("os");
-        assertEquals("android", os);
-        String osversion = map.get("os-version");
-        assertNotNull(osversion);
-        String vendor = map.get("vendor");
-        assertNotNull(vendor);
+        return map;
     }
 
     /**

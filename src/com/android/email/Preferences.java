@@ -21,6 +21,8 @@ import android.content.SharedPreferences;
 import android.net.Uri;
 import android.util.Log;
 
+import java.util.UUID;
+
 public class Preferences {
 
     // Preferences file
@@ -33,6 +35,7 @@ public class Preferences {
     private static final String ENABLE_SENSITIVE_LOGGING = "enableSensitiveLogging";
     private static final String ENABLE_EXCHANGE_LOGGING = "enableExchangeLogging";
     private static final String ENABLE_EXCHANGE_FILE_LOGGING = "enableExchangeFileLogging";
+    private static final String DEVICE_UID = "deviceUID";
 
     private static Preferences preferences;
 
@@ -159,6 +162,20 @@ public class Preferences {
 
     public boolean getEnableExchangeFileLogging() {
         return mSharedPreferences.getBoolean(ENABLE_EXCHANGE_FILE_LOGGING, false);
+    }
+
+    /**
+     * Generate a new "device UID".  This is local to Email app only, to prevent possibility
+     * of correlation with any other user activities in any other apps.
+     * @return a persistent, unique ID
+     */
+    public synchronized String getDeviceUID() {
+         String result = mSharedPreferences.getString(DEVICE_UID, null);
+         if (result == null) {
+             result = UUID.randomUUID().toString();
+             mSharedPreferences.edit().putString(DEVICE_UID, result).commit();
+         }
+         return result;
     }
 
     public void save() {

@@ -16,6 +16,8 @@
 
 package com.android.email;
 
+import com.android.email.activity.setup.AccountSetupBasics.Provider;
+
 import android.content.Context;
 import android.content.pm.ApplicationInfo;
 import android.content.pm.PackageManager.NameNotFoundException;
@@ -23,6 +25,8 @@ import android.os.Bundle;
 import android.util.Log;
 
 import java.lang.reflect.Method;
+import java.net.URI;
+import java.net.URISyntaxException;
 
 /**
  * A bridge class to the email vendor policy apk.
@@ -40,7 +44,19 @@ public class VendorPolicyLoader {
     private static final String GET_POLICY_METHOD = "getPolicy";
     private static final Class<?>[] ARGS = new Class<?>[] {String.class, Bundle.class};
 
+    // call keys and i/o bundle keys
+    // when there is only one parameter or return value, use call key
     private static final String USE_ALTERNATE_EXCHANGE_STRINGS = "useAlternateExchangeStrings";
+    private static final String GET_IMAP_ID = "getImapId";
+    private static final String GET_IMAP_ID_USER = "getImapId.user";
+    private static final String GET_IMAP_ID_HOST = "getImapId.host";
+    private static final String GET_IMAP_ID_CAPA = "getImapId.capabilities";
+    private static final String FIND_PROVIDER = "findProvider";
+    private static final String FIND_PROVIDER_IN_URI = "findProvider.inUri";
+    private static final String FIND_PROVIDER_IN_USER = "findProvider.inUser";
+    private static final String FIND_PROVIDER_OUT_URI = "findProvider.outUri";
+    private static final String FIND_PROVIDER_OUT_USER = "findProvider.outUser";
+    private static final String FIND_PROVIDER_NOTE = "findProvider.note";
 
     /** Singleton instance */
     private static VendorPolicyLoader sInstance;
@@ -120,9 +136,77 @@ public class VendorPolicyLoader {
 
     /**
      * Returns true if alternate exchange descriptive text is required.
+     *
+     * Vendor function:
+     *  Select: USE_ALTERNATE_EXCHANGE_STRINGS
+     *  Params: none
+     *  Result: USE_ALTERNATE_EXCHANGE_STRINGS (boolean)
      */
     public boolean useAlternateExchangeStrings() {
         return getPolicy(USE_ALTERNATE_EXCHANGE_STRINGS, null)
                 .getBoolean(USE_ALTERNATE_EXCHANGE_STRINGS, false);
+    }
+
+    /**
+     * Returns additional key/value pairs for the IMAP ID string.
+     *
+     * Vendor function:
+     *  Select: GET_IMAP_ID
+     *  Params: GET_IMAP_ID_USER (String)
+     *          GET_IMAP_ID_HOST (String)
+     *          GET_IMAP_ID_CAPABILITIES (String)
+     *  Result: GET_IMAP_ID (String)
+     *
+     * @param userName the server that is being contacted (e.g. "imap.server.com")
+     * @param host the server that is being contacted (e.g. "imap.server.com")
+     * @param reported capabilities, if known.  null is OK
+     * @return zero or more key/value pairs, quoted and delimited by spaces.  If there is
+     * nothing to add, return null.
+     */
+    public String getImapIdValues(String userName, String host, String capabilities) {
+        Bundle params = new Bundle();
+        params.putString(GET_IMAP_ID_USER, userName);
+        params.putString(GET_IMAP_ID_HOST, host);
+        params.putString(GET_IMAP_ID_CAPA, capabilities);
+        String result = getPolicy(GET_IMAP_ID, params).getString(GET_IMAP_ID);
+        return result;
+    }
+
+    /**
+     * Returns provider setup information for a given email address
+     *
+     * Vendor function:
+     *  Select: FIND_PROVIDER
+     *  Param:  FIND_PROVIDER (String)
+     *  Result: FIND_PROVIDER_IN_URI
+     *          FIND_PROVIDER_IN_USER
+     *          FIND_PROVIDER_OUT_URI
+     *          FIND_PROVIDER_OUT_USER
+     *          FIND_PROVIDER_NOTE
+     *
+     * @param domain The domain portion of the user's email address
+     * @return suitable Provider definition, or null if no match found
+     */
+    public Provider findProviderForDomain(String domain) {
+        Bundle params = new Bundle();
+        params.putString(FIND_PROVIDER, domain);
+        Bundle out = getPolicy(FIND_PROVIDER, params);
+        if (out != null) {
+            try {
+                Provider p = new Provider();
+                p.id = null;
+                p.label = null;
+                p.domain = domain;
+                p.incomingUriTemplate = new URI(out.getString(FIND_PROVIDER_IN_URI));
+                p.incomingUsernameTemplate = out.getString(FIND_PROVIDER_IN_USER);
+                p.outgoingUriTemplate = new URI(out.getString(FIND_PROVIDER_OUT_URI));
+                p.outgoingUsernameTemplate = out.getString(FIND_PROVIDER_OUT_USER);
+                p.note = out.getString(FIND_PROVIDER_NOTE);
+                return p;
+            } catch (URISyntaxException e) {
+                Log.d(Email.LOG_TAG, "uri exception while vendor policy loads " + domain);
+            }
+        }
+        return null;
     }
 }

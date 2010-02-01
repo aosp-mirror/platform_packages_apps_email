@@ -534,8 +534,9 @@ public class AccountSetupBasics extends Activity
 
     /**
      * Search the list of known Email providers looking for one that matches the user's email
-     * domain.  We look in providers_product.xml first, followed by the entries in
-     * platform providers.xml.  This provides a nominal override capability.
+     * domain.  We check for vendor supplied values first, then we look in providers_product.xml
+     * first, finally by the entries in platform providers.xml.  This provides a nominal override
+     * capability.
      *
      * A match is defined as any provider entry for which the "domain" attribute matches.
      *
@@ -543,7 +544,10 @@ public class AccountSetupBasics extends Activity
      * @return suitable Provider definition, or null if no match found
      */
     private Provider findProviderForDomain(String domain) {
-        Provider p = findProviderForDomain(domain, R.xml.providers_product);
+        Provider p = VendorPolicyLoader.getInstance(this).findProviderForDomain(domain);
+        if (p == null) {
+            p = findProviderForDomain(domain, R.xml.providers_product);
+        }
         if (p == null) {
             p = findProviderForDomain(domain, R.xml.providers);
         }
@@ -597,23 +601,16 @@ public class AccountSetupBasics extends Activity
         return null;
     }
 
-    static class Provider implements Serializable {
+    public static class Provider implements Serializable {
         private static final long serialVersionUID = 8511656164616538989L;
 
         public String id;
-
         public String label;
-
         public String domain;
-
         public URI incomingUriTemplate;
-
         public String incomingUsernameTemplate;
-
         public URI outgoingUriTemplate;
-
         public String outgoingUsernameTemplate;
-
         public String note;
     }
 }

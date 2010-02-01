@@ -20,6 +20,8 @@ import android.content.Context;
 import android.os.Bundle;
 import android.test.AndroidTestCase;
 
+import java.util.HashMap;
+
 public class VendorPolicyLoaderTest extends AndroidTestCase {
     /**
      * Test for the case where the helper package doesn't exist.
@@ -86,7 +88,7 @@ public class VendorPolicyLoaderTest extends AndroidTestCase {
         assertNull(MockVendorPolicy.passedPolicy);
     }
 
-    public static class MockVendorPolicy {
+    private static class MockVendorPolicy {
         public static String passedPolicy;
         public static Bundle passedBundle;
         public static Bundle mockResult;
@@ -95,6 +97,42 @@ public class VendorPolicyLoaderTest extends AndroidTestCase {
             passedPolicy = operation;
             passedBundle = args;
             return mockResult;
+        }
+    }
+
+    /**
+     * Test that any vendor policy that happens to be installed returns legal values
+     * for getImapIdValues() per its API.
+     * 
+     * Note, in most cases very little will happen in this test, because there is
+     * no vendor policy package.  Most of this test exists to test a vendor policy
+     * package itself, to make sure that its API returns reasonable values.
+     */
+    public void testGetImapIdValues() {
+        VendorPolicyLoader pl = VendorPolicyLoader.getInstance(getContext());
+        String id = pl.getImapIdValues("user-name", "server.yahoo.com",
+                "IMAP4rev1 STARTTLS AUTH=GSSAPI");
+        // null is a reasonable result
+        if (id == null) return;
+
+        // if non-null, basic sanity checks on format
+        assertEquals("\"", id.charAt(0));
+        assertEquals("\"", id.charAt(id.length()-1));
+        // see if we can break it up properly
+        String[] elements = id.split("\"");
+        assertEquals(0, elements.length % 4);
+        for (int i = 0; i < elements.length; ) {
+            // Because we split at quotes, we expect to find:
+            // [i] = null or one or more spaces
+            // [i+1] = key
+            // [i+2] = one or more spaces
+            // [i+3] = value
+            // Here are some incomplete checks of the above
+            assertTrue(elements[i] == null || elements[i].startsWith(" "));
+            assertTrue(elements[i+1].charAt(0) != ' ');
+            assertTrue(elements[i+2].startsWith(" "));
+            assertTrue(elements[i+3].charAt(0) != ' ');
+            i += 4;            
         }
     }
 }
