@@ -682,8 +682,8 @@ public class EmailProvider extends ContentProvider {
             // For versions prior to 5, delete all data
             // Versions >= 5 require that data be preserved!
             if (oldVersion < 5) {
-                android.accounts.Account[] accounts =
-                    AccountManager.get(mContext).getAccountsByType(Eas.ACCOUNT_MANAGER_TYPE);
+                android.accounts.Account[] accounts = AccountManager.get(mContext)
+                        .getAccountsByType(Email.EXCHANGE_ACCOUNT_MANAGER_TYPE);
                 for (android.accounts.Account account: accounts) {
                     AccountManager.get(mContext).removeAccount(account, null, null);
                 }

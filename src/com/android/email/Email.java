@@ -144,6 +144,8 @@ public class Email extends Application {
     private static HashMap<Long, Long> sMailboxSyncTimes = new HashMap<Long, Long>();
     private static final long UPDATE_INTERVAL = 5 * DateUtils.MINUTE_IN_MILLIS;
 
+    public static final String EXCHANGE_ACCOUNT_MANAGER_TYPE = "com.android.exchange";
+
     /**
      * Called throughout the application when the number of accounts has changed. This method
      * enables or disables the Compose activity, the boot receiver and the service based on

@@ -16,6 +16,7 @@
 
 package com.android.email.service;
 
+import com.android.email.Email;
 import com.android.email.activity.setup.AccountSetupBasics;
 import com.android.exchange.Eas;
 
@@ -59,7 +60,7 @@ public class EasAuthenticatorService extends Service {
             if (options != null && options.containsKey(OPTIONS_PASSWORD)
                     && options.containsKey(OPTIONS_USERNAME)) {
                 final Account account = new Account(options.getString(OPTIONS_USERNAME),
-                        Eas.ACCOUNT_MANAGER_TYPE);
+                        Email.EXCHANGE_ACCOUNT_MANAGER_TYPE);
                 AccountManager.get(EasAuthenticatorService.this).addAccountExplicitly(
                             account, options.getString(OPTIONS_PASSWORD), null);
 
@@ -85,7 +86,7 @@ public class EasAuthenticatorService extends Service {
 
                 Bundle b = new Bundle();
                 b.putString(AccountManager.KEY_ACCOUNT_NAME, options.getString(OPTIONS_USERNAME));
-                b.putString(AccountManager.KEY_ACCOUNT_TYPE, Eas.ACCOUNT_MANAGER_TYPE);
+                b.putString(AccountManager.KEY_ACCOUNT_TYPE, Email.EXCHANGE_ACCOUNT_MANAGER_TYPE);
                 return b;
             // 2) The other case is that we're creating a new account from an Account manager
             //    activity.  In this case, we add an intent that will be used to gather the

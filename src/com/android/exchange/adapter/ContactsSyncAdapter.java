@@ -163,7 +163,7 @@ public class ContactsSyncAdapter extends AbstractSyncAdapter {
                 // Make sure ungrouped contacts for Exchange are defaultly visible
                 ContentValues cv = new ContentValues();
                 cv.put(Groups.ACCOUNT_NAME, mAccount.mEmailAddress);
-                cv.put(Groups.ACCOUNT_TYPE, Eas.ACCOUNT_MANAGER_TYPE);
+                cv.put(Groups.ACCOUNT_TYPE, com.android.email.Email.EXCHANGE_ACCOUNT_MANAGER_TYPE);
                 cv.put(Settings.UNGROUPED_VISIBLE, true);
                 client.insert(addCallerIsSyncAdapterParameter(Settings.CONTENT_URI), cv);
                 return "0";
@@ -198,8 +198,8 @@ public class ContactsSyncAdapter extends AbstractSyncAdapter {
 
     public android.accounts.Account getAccountManagerAccount() {
         if (mAccountManagerAccount == null) {
-            mAccountManagerAccount =
-                new android.accounts.Account(mAccount.mEmailAddress, Eas.ACCOUNT_MANAGER_TYPE);
+            mAccountManagerAccount = new android.accounts.Account(mAccount.mEmailAddress,
+                    com.android.email.Email.EXCHANGE_ACCOUNT_MANAGER_TYPE);
         }
         return mAccountManagerAccount;
     }
@@ -893,7 +893,8 @@ public class ContactsSyncAdapter extends AbstractSyncAdapter {
     private Uri uriWithAccountAndIsSyncAdapter(Uri uri) {
         return uri.buildUpon()
             .appendQueryParameter(RawContacts.ACCOUNT_NAME, mAccount.mEmailAddress)
-            .appendQueryParameter(RawContacts.ACCOUNT_TYPE, Eas.ACCOUNT_MANAGER_TYPE)
+            .appendQueryParameter(RawContacts.ACCOUNT_TYPE,
+                    com.android.email.Email.EXCHANGE_ACCOUNT_MANAGER_TYPE)
             .appendQueryParameter(ContactsContract.CALLER_IS_SYNCADAPTER, "true")
             .build();
     }
@@ -1771,7 +1772,8 @@ public class ContactsSyncAdapter extends AbstractSyncAdapter {
         ContentResolver cr = mService.mContentResolver;
         Uri uri = RawContactsEntity.CONTENT_URI.buildUpon()
                 .appendQueryParameter(RawContacts.ACCOUNT_NAME, mAccount.mEmailAddress)
-                .appendQueryParameter(RawContacts.ACCOUNT_TYPE, Eas.ACCOUNT_MANAGER_TYPE)
+                .appendQueryParameter(RawContacts.ACCOUNT_TYPE,
+                        com.android.email.Email.EXCHANGE_ACCOUNT_MANAGER_TYPE)
                 .appendQueryParameter(ContactsContract.CALLER_IS_SYNCADAPTER, "true")
                 .build();
 
@@ -1879,7 +1881,7 @@ public class ContactsSyncAdapter extends AbstractSyncAdapter {
                     for (ContentValues cv: emailValues) {
                         sendEmail(s, cv, emailCount++, displayName);
                     }
-                    
+
                     // Now, we'll send up groups, if any
                     if (!groupIds.isEmpty()) {
                         boolean groupFirst = true;

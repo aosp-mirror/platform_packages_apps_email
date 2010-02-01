@@ -17,6 +17,7 @@
 
 package com.android.exchange.adapter;
 
+import com.android.email.Email;
 import com.android.email.provider.EmailContent.Mailbox;
 import com.android.exchange.Eas;
 import com.android.exchange.EasSyncService;
@@ -86,7 +87,7 @@ public class CalendarSyncAdapter extends AbstractSyncAdapter {
 
     private static final ContentProviderOperation PLACEHOLDER_OPERATION =
         ContentProviderOperation.newInsert(Uri.EMPTY).build();
-    
+
     private static final Uri sEventsUri = asSyncAdapter(Events.CONTENT_URI);
     private static final Uri sAttendeesUri = asSyncAdapter(Attendees.CONTENT_URI);
     private static final Uri sExtendedPropertiesUri = asSyncAdapter(ExtendedProperties.CONTENT_URI);
@@ -103,7 +104,7 @@ public class CalendarSyncAdapter extends AbstractSyncAdapter {
 
         Cursor c = mService.mContentResolver.query(Calendars.CONTENT_URI,
                 new String[] {Calendars._ID}, CALENDAR_SELECTION,
-                new String[] {mAccount.mEmailAddress, Eas.ACCOUNT_MANAGER_TYPE}, null);
+                new String[] {mAccount.mEmailAddress, Email.EXCHANGE_ACCOUNT_MANAGER_TYPE}, null);
         try {
             if (c.moveToFirst()) {
                 mCalendarId = c.getLong(CALENDAR_SELECTION_ID);
@@ -131,7 +132,7 @@ public class CalendarSyncAdapter extends AbstractSyncAdapter {
         EasCalendarSyncParser p = new EasCalendarSyncParser(is, this);
         return p.parse();
     }
-    
+
     static Uri asSyncAdapter(Uri uri) {
         return uri.buildUpon().appendQueryParameter(Calendar.CALLER_IS_SYNCADAPTER, "true").build();
     }
@@ -194,7 +195,8 @@ public class CalendarSyncAdapter extends AbstractSyncAdapter {
     public android.accounts.Account getAccountManagerAccount() {
         if (mAccountManagerAccount == null) {
             mAccountManagerAccount =
-                new android.accounts.Account(mAccount.mEmailAddress, Eas.ACCOUNT_MANAGER_TYPE);
+                new android.accounts.Account(mAccount.mEmailAddress,
+                        Email.EXCHANGE_ACCOUNT_MANAGER_TYPE);
         }
         return mAccountManagerAccount;
     }
@@ -218,7 +220,7 @@ public class CalendarSyncAdapter extends AbstractSyncAdapter {
             // Delete the calendar associated with this account
             // TODO Make sure the Events, etc. are also deleted
             mContentResolver.delete(Calendars.CONTENT_URI, CALENDAR_SELECTION,
-                    new String[] {mAccount.mEmailAddress, Eas.ACCOUNT_MANAGER_TYPE});
+                    new String[] {mAccount.mEmailAddress, Email.EXCHANGE_ACCOUNT_MANAGER_TYPE});
         }
 
         public void addEvent(CalendarOperations ops, String serverId, boolean update)
@@ -226,7 +228,7 @@ public class CalendarSyncAdapter extends AbstractSyncAdapter {
             ContentValues cv = new ContentValues();
             cv.put(Events.CALENDAR_ID, mCalendarId);
             cv.put(Events._SYNC_ACCOUNT, mAccount.mEmailAddress);
-            cv.put(Events._SYNC_ACCOUNT_TYPE, Eas.ACCOUNT_MANAGER_TYPE);
+            cv.put(Events._SYNC_ACCOUNT_TYPE, Email.EXCHANGE_ACCOUNT_MANAGER_TYPE);
             cv.put(Events._SYNC_ID, serverId);
 
             int allDayEvent = 0;
@@ -429,7 +431,7 @@ public class CalendarSyncAdapter extends AbstractSyncAdapter {
             ContentValues cv = new ContentValues();
             cv.put(Events.CALENDAR_ID, mCalendarId);
             cv.put(Events._SYNC_ACCOUNT, mAccount.mEmailAddress);
-            cv.put(Events._SYNC_ACCOUNT_TYPE, Eas.ACCOUNT_MANAGER_TYPE);
+            cv.put(Events._SYNC_ACCOUNT_TYPE, Email.EXCHANGE_ACCOUNT_MANAGER_TYPE);
 
             // It appears that these values have to be copied from the parent if they are to appear
             // Note that they can be overridden below

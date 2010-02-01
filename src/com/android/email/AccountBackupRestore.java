@@ -110,7 +110,7 @@ public class AccountBackupRestore {
                 // Determine if contacts are also synced, and if so, record that
                 if (fromAccount.mHostAuthRecv.mProtocol.equals("eas")) {
                     android.accounts.Account acct = new android.accounts.Account(
-                            fromAccount.mEmailAddress, Eas.ACCOUNT_MANAGER_TYPE);
+                            fromAccount.mEmailAddress, Email.EXCHANGE_ACCOUNT_MANAGER_TYPE);
                     boolean syncContacts = ContentResolver.getSyncAutomatically(acct,
                             ContactsContract.AUTHORITY);
                     if (syncContacts) {

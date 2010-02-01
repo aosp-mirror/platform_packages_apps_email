@@ -38,7 +38,6 @@ public class Eas {
     public static final int DEBUG_FILE_BIT = 4;
 
     public static final String VERSION = "0.3";
-    public static final String ACCOUNT_MANAGER_TYPE = "com.android.exchange";
     public static final String ACCOUNT_MAILBOX = "__eas";
 
     // From EAS spec
