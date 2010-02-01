@@ -197,7 +197,12 @@ public class AccountSetupBasics extends Activity
             mManualSetupButton.setVisibility(View.GONE);
             // Swap welcome text for EAS-specific text
             TextView welcomeView = (TextView) findViewById(R.id.instructions);
-            welcomeView.setText(VendorPolicyLoader.getInstance(this).useAlternateExchangeStrings()
+            final boolean alternateStrings =
+                    VendorPolicyLoader.getInstance(this).useAlternateExchangeStrings();
+            setTitle(alternateStrings
+                    ? R.string.account_setup_basics_exchange_title_alternate
+                    : R.string.account_setup_basics_exchange_title);
+            welcomeView.setText(alternateStrings
                     ? R.string.accounts_welcome_exchange_alternate
                     : R.string.accounts_welcome_exchange);
         }

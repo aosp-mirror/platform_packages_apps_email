@@ -295,6 +295,12 @@
 
     <!-- Title of screen when setting up new email account -->
     <string name="account_setup_basics_title">Set up email</string>
+    <!-- Title of the screen when adding exchange account -->
+    <string name="account_setup_basics_exchange_title">
+        Add an Exchange account</string>
+    <!-- Title of the screen when adding exchange account -->
+    <string name="account_setup_basics_exchange_title_alternate">
+        Add an Exchange ActiveSync account</string>
     <!-- On "Set up email" screen, enthusiastic welcome message. -->
     <string name="accounts_welcome">You can configure Email for most accounts in just a few steps.
         </string>
