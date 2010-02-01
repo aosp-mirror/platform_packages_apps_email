@@ -23,6 +23,7 @@ import com.android.exchange.EasSyncService;
 import com.android.exchange.utility.CalendarUtilities;
 import com.android.exchange.utility.Duration;
 
+import android.content.ContentProviderClient;
 import android.content.ContentProviderOperation;
 import android.content.ContentProviderResult;
 import android.content.ContentResolver;
@@ -37,12 +38,14 @@ import android.net.Uri;
 import android.os.RemoteException;
 import android.pim.DateException;
 import android.provider.Calendar;
+import android.provider.SyncStateContract;
 import android.provider.Calendar.Attendees;
 import android.provider.Calendar.Calendars;
 import android.provider.Calendar.Events;
 import android.provider.Calendar.EventsEntity;
 import android.provider.Calendar.ExtendedProperties;
 import android.provider.Calendar.Reminders;
+import android.provider.Calendar.SyncState;
 import android.provider.ContactsContract.RawContacts;
 import android.util.Log;
 
@@ -61,12 +64,19 @@ public class CalendarSyncAdapter extends AbstractSyncAdapter {
     private static final String TAG = "EasCalendarSyncAdapter";
     // Since exceptions will have the same _SYNC_ID as the original event we have to check that
     // there's no original event when finding an item by _SYNC_ID
-    private static final String SERVER_ID_SELECTION = Events._SYNC_ID + "=? AND " +
+    private static final String SERVER_ID = Events._SYNC_ID + "=? AND " +
         Events.ORIGINAL_EVENT + " ISNULL";
+    private static final String DIRTY_TOP_LEVEL =
+        Events._SYNC_DIRTY + "=1 AND " + Events.ORIGINAL_EVENT + " ISNULL";
+    private static final String DIRTY_EXCEPTION =
+        Events._SYNC_DIRTY + "=1 AND " + Events.ORIGINAL_EVENT + " NOTNULL";
+    private static final String DIRTY_IN_CALENDAR =
+        Events._SYNC_DIRTY + "=1 AND " + Events.CALENDAR_ID + "=?";
     private static final String CLIENT_ID_SELECTION = Events._SYNC_LOCAL_ID + "=?";
     private static final String ATTENDEES_EXCEPT_ORGANIZER = Attendees.EVENT_ID + "=? AND " +
         Attendees.ATTENDEE_RELATIONSHIP + "!=" + Attendees.RELATIONSHIP_ORGANIZER;
     private static final String[] ID_PROJECTION = new String[] {Events._ID};
+    private static final String[] ORIGINAL_EVENT_PROJECTION = new String[] {Events.ORIGINAL_EVENT};
 
     private static final String CALENDAR_SELECTION =
         Calendars._SYNC_ACCOUNT + "=? AND " + Calendars._SYNC_ACCOUNT_TYPE + "=?";
@@ -138,19 +148,47 @@ public class CalendarSyncAdapter extends AbstractSyncAdapter {
     }
 
     /**
-     * We will eventually get our SyncKey from CalendarProvider.
+     * We get our SyncKey from CalendarProvider.  If there's not one, we set it to "0" (the reset
+     * state) and save that away.
      */
     @Override
     public String getSyncKey() throws IOException {
-        return super.getSyncKey();
+        ContentProviderClient client =
+            mService.mContentResolver.acquireContentProviderClient(Calendar.CONTENT_URI);
+        try {
+            byte[] data = SyncStateContract.Helpers.get(client,
+                    asSyncAdapter(Calendar.SyncState.CONTENT_URI), getAccountManagerAccount());
+            if (data == null || data.length == 0) {
+                // Initialize the SyncKey
+                setSyncKey("0", false);
+                return "0";
+            } else {
+                return new String(data);
+            }
+        } catch (RemoteException e) {
+            throw new IOException("Can't get SyncKey from ContactsProvider");
+        }
     }
 
     /**
-     * We will eventually set our SyncKey in CalendarProvider
+     * We only need to set this when we're forced to make the SyncKey "0" (a reset).  In all other
+     * cases, the SyncKey is set within Calendar
      */
     @Override
     public void setSyncKey(String syncKey, boolean inCommands) throws IOException {
-        super.setSyncKey(syncKey, inCommands);
+        if ("0".equals(syncKey) || !inCommands) {
+            ContentProviderClient client =
+                mService.mContentResolver
+                    .acquireContentProviderClient(Calendar.CONTENT_URI);
+            try {
+                SyncStateContract.Helpers.set(client, asSyncAdapter(Calendar.SyncState.CONTENT_URI),
+                        getAccountManagerAccount(), syncKey.getBytes());
+                userLog("SyncKey set to ", syncKey, " in CalendarProvider");
+           } catch (RemoteException e) {
+                throw new IOException("Can't set SyncKey in CalendarProvider");
+            }
+        }
+        mMailbox.mSyncKey = syncKey;
     }
 
     public android.accounts.Account getAccountManagerAccount() {
@@ -393,7 +431,6 @@ public class CalendarSyncAdapter extends AbstractSyncAdapter {
             cv.put(Events.CALENDAR_ID, mCalendarId);
             cv.put(Events._SYNC_ACCOUNT, mAccount.mEmailAddress);
             cv.put(Events._SYNC_ACCOUNT_TYPE, Eas.ACCOUNT_MANAGER_TYPE);
-            cv.put(Events._SYNC_ID, parentCv.getAsString(Events._SYNC_ID));
 
             // It appears that these values have to be copied from the parent if they are to appear
             // Note that they can be overridden below
@@ -637,7 +674,7 @@ public class CalendarSyncAdapter extends AbstractSyncAdapter {
 
         private Cursor getServerIdCursor(String serverId) {
             mBindArgument[0] = serverId;
-            return mContentResolver.query(mAccountUri, ID_PROJECTION, SERVER_ID_SELECTION,
+            return mContentResolver.query(mAccountUri, ID_PROJECTION, SERVER_ID,
                     mBindArgument, null);
         }
 
@@ -669,16 +706,6 @@ public class CalendarSyncAdapter extends AbstractSyncAdapter {
             }
         }
 
-        class ServerChange {
-            long id;
-            boolean read;
-
-            ServerChange(long _id, boolean _read) {
-                id = _id;
-                read = _read;
-            }
-        }
-
         /**
          * A change is handled as a delete (including all exceptions) and an add
          * This isn't as efficient as attempting to traverse the original and all of its exceptions,
@@ -694,6 +721,7 @@ public class CalendarSyncAdapter extends AbstractSyncAdapter {
                         serverId = getValue();
                         break;
                     case Tags.SYNC_APPLICATION_DATA:
+                        userLog("Changing " + serverId);
                         addEvent(ops, serverId, true);
                         break;
                     default:
@@ -722,15 +750,19 @@ public class CalendarSyncAdapter extends AbstractSyncAdapter {
         @Override
         public void commit() throws IOException {
             userLog("Calendar SyncKey saved as: ", mMailbox.mSyncKey);
-            // Save the syncKey here, using the Helper provider by Contacts provider
-            //ops.add(SyncStateContract.Helpers.newSetOperation(SyncState.CONTENT_URI,
-            //        getAccountManagerAccount(), mMailbox.mSyncKey.getBytes()));
+            // Save the syncKey here, using the Helper provider by Calendar provider
+            mOps.add(SyncStateContract.Helpers.newSetOperation(SyncState.CONTENT_URI,
+                    getAccountManagerAccount(), mMailbox.mSyncKey.getBytes()));
 
             // Execute these all at once...
             mOps.execute();
 
             if (mOps.mResults != null) {
-                // Clear dirty flag if necessary...
+                // Clear dirty flags for Events sent to server
+                ContentValues cv = new ContentValues();
+                cv.put(Events._SYNC_DIRTY, 0);
+                mContentResolver.update(sEventsUri, cv, DIRTY_IN_CALENDAR,
+                        new String[] {Long.toString(mCalendarId)});
             }
         }
 
@@ -913,6 +945,194 @@ public class CalendarSyncAdapter extends AbstractSyncAdapter {
         return Integer.toString(easVisibility);
     }
 
+    private void sendEvent(Entity entity, String clientId, Serializer s)
+            throws IOException {
+        // Serialize for EAS here
+        // Set uid with the client id we created
+        // 1) Serialize the top-level event
+        // 2) Serialize attendees and reminders from subvalues
+        // 3) Look for exceptions and serialize with the top-level event
+        ContentValues entityValues = entity.getEntityValues();
+        boolean isException = (clientId == null);
+
+        if (entityValues.containsKey(Events.ALL_DAY)) {
+            s.data(Tags.CALENDAR_ALL_DAY_EVENT,
+                    entityValues.getAsInteger(Events.ALL_DAY).toString());
+        }
+
+        long startTime = entityValues.getAsLong(Events.DTSTART);
+        s.data(Tags.CALENDAR_START_TIME,
+                CalendarUtilities.millisToEasDateTime(startTime));
+
+        if (!entityValues.containsKey(Events.DURATION)) {
+            if (entityValues.containsKey(Events.DTEND)) {
+                s.data(Tags.CALENDAR_END_TIME, CalendarUtilities.millisToEasDateTime(
+                        entityValues.getAsLong(Events.DTEND)));
+            }
+        } else {
+            // Convert this into millis and add it to DTSTART for DTEND
+            // We'll use 1 hour as a default
+            long durationMillis = HOURS;
+            Duration duration = new Duration();
+            try {
+                duration.parse(entityValues.getAsString(Events.DURATION));
+            } catch (DateException e) {
+                // Can't do much about this; use the default (1 hour)
+            }
+            s.data(Tags.CALENDAR_END_TIME,
+                    CalendarUtilities.millisToEasDateTime(startTime + durationMillis));
+        }
+
+        s.data(Tags.CALENDAR_DTSTAMP,
+                CalendarUtilities.millisToEasDateTime(System.currentTimeMillis()));
+
+        if (entityValues.containsKey(Events.EVENT_LOCATION)) {
+            s.data(Tags.CALENDAR_LOCATION,
+                    entityValues.getAsString(Events.EVENT_LOCATION));
+        }
+        if (entityValues.containsKey(Events.TITLE)) {
+            s.data(Tags.CALENDAR_SUBJECT, entityValues.getAsString(Events.TITLE));
+        }
+
+        if (entityValues.containsKey(Events.VISIBILITY)) {
+            s.data(Tags.CALENDAR_SENSITIVITY,
+                    decodeVisibility(entityValues.getAsInteger(Events.VISIBILITY)));
+        } else {
+            // Private if not set
+            s.data(Tags.CALENDAR_SENSITIVITY, "1");
+        }
+
+        if (!isException) {
+            // A time zone is required in all EAS events; we'll use the default if none
+            // is set.
+            String timeZoneName;
+            if (entityValues.containsKey(Events.EVENT_TIMEZONE)) {
+                timeZoneName = entityValues.getAsString(Events.EVENT_TIMEZONE);
+            } else {
+                timeZoneName = TimeZone.getDefault().getID();
+            }
+            String x = CalendarUtilities.timeZoneToTZIString(timeZoneName);
+            s.data(Tags.CALENDAR_TIME_ZONE, x);
+
+            if (entityValues.containsKey(Events.DESCRIPTION)) {
+                String desc = entityValues.getAsString(Events.DESCRIPTION);
+                if (mService.mProtocolVersionDouble >= 12.0) {
+                    s.start(Tags.BASE_BODY);
+                    s.data(Tags.BASE_TYPE, "1");
+                    s.data(Tags.BASE_DATA, desc);
+                    s.end();
+                } else {
+                    s.data(Tags.CALENDAR_BODY, desc);
+                }
+            }
+
+            if (entityValues.containsKey(Events.ORGANIZER)) {
+                s.data(Tags.CALENDAR_ORGANIZER_EMAIL,
+                        entityValues.getAsString(Events.ORGANIZER));
+            }
+
+            if (entityValues.containsKey(Events.RRULE)) {
+                CalendarUtilities.recurrenceFromRrule(
+                        entityValues.getAsString(Events.RRULE), startTime, s);
+            }
+
+            // Handle associated data EXCEPT for attendees, which have to be grouped
+            ArrayList<NamedContentValues> subValues = entity.getSubValues();
+            for (NamedContentValues ncv: subValues) {
+                Uri ncvUri = ncv.uri;
+                ContentValues ncvValues = ncv.values;
+                if (ncvUri.equals(ExtendedProperties.CONTENT_URI)) {
+                    if (ncvValues.containsKey("uid")) {
+                        clientId = ncvValues.getAsString("uid");
+                        s.data(Tags.CALENDAR_UID, clientId);
+                    }
+                    if (ncvValues.containsKey("dtstamp")) {
+                        s.data(Tags.CALENDAR_DTSTAMP, ncvValues.getAsString("dtstamp"));
+                    }
+                    if (ncvValues.containsKey("categories")) {
+                        // Send all the categories back to the server
+                        // We've saved them as a String of delimited tokens
+                        String categories = ncvValues.getAsString("categories");
+                        StringTokenizer st =
+                            new StringTokenizer(categories, CATEGORY_TOKENIZER_DELIMITER);
+                        if (st.countTokens() > 0) {
+                            s.start(Tags.CALENDAR_CATEGORIES);
+                            while (st.hasMoreTokens()) {
+                                String category = st.nextToken();
+                                s.data(Tags.CALENDAR_CATEGORY, category);
+                            }
+                            s.end();
+                        }
+                    }
+                } else if (ncvUri.equals(Reminders.CONTENT_URI)) {
+                    if (ncvValues.containsKey(Reminders.MINUTES)) {
+                        s.data(Tags.CALENDAR_REMINDER_MINS_BEFORE,
+                                ncvValues.getAsString(Reminders.MINUTES));
+                    }
+                }
+            }
+
+            // We've got to send a UID.  If the event is new, we've generated one; if not,
+            // we should have gotten one from extended properties.
+            s.data(Tags.CALENDAR_UID, clientId);
+
+            // Handle attendee data here; keep track of organizer and stream it afterward
+            boolean hasAttendees = false;
+            String organizerName = null;
+            for (NamedContentValues ncv: subValues) {
+                Uri ncvUri = ncv.uri;
+                ContentValues ncvValues = ncv.values;
+                if (ncvUri.equals(Attendees.CONTENT_URI)) {
+                    if (ncvValues.containsKey(Attendees.ATTENDEE_RELATIONSHIP)) {
+                        int relationship =
+                            ncvValues.getAsInteger(Attendees.ATTENDEE_RELATIONSHIP);
+                        // Organizer isn't among attendees in EAS
+                        if (relationship == Attendees.RELATIONSHIP_ORGANIZER) {
+                            if (ncvValues.containsKey(Attendees.ATTENDEE_NAME)) {
+                                // Remember this; we can't insert it into the stream in
+                                // the middle of attendees
+                                organizerName =
+                                    ncvValues.getAsString(Attendees.ATTENDEE_NAME);
+                            }
+                            continue;
+                        }
+                        if (!hasAttendees) {
+                            s.start(Tags.CALENDAR_ATTENDEES);
+                            hasAttendees = true;
+                        }
+                        s.start(Tags.CALENDAR_ATTENDEE);
+                        if (ncvValues.containsKey(Attendees.ATTENDEE_NAME)) {
+                            s.data(Tags.CALENDAR_ATTENDEE_NAME,
+                                    ncvValues.getAsString(Attendees.ATTENDEE_NAME));
+                        }
+                        if (ncvValues.containsKey(Attendees.ATTENDEE_EMAIL)) {
+                            s.data(Tags.CALENDAR_ATTENDEE_EMAIL,
+                                    ncvValues.getAsString(Attendees.ATTENDEE_EMAIL));
+                        }
+                        s.data(Tags.CALENDAR_ATTENDEE_TYPE, "1"); // Required
+                        s.end(); // Attendee
+                    }
+                    // If there's no relationship, we can't create this for EAS
+                }
+            }
+            if (hasAttendees) {
+                s.end();  // Attendees
+            }
+            if (organizerName != null) {
+                s.data(Tags.CALENDAR_ORGANIZER_NAME, organizerName);
+            }
+        } else {
+            // TODO Add reminders to exceptions (allow them to be specified!)
+            if (entityValues.containsKey(Events.ORIGINAL_INSTANCE_TIME)) {
+                s.data(Tags.CALENDAR_EXCEPTION_START_TIME,
+                        CalendarUtilities.millisToEasDateTime(entityValues.getAsLong(
+                                Events.ORIGINAL_INSTANCE_TIME)));
+            } else {
+                // Illegal; what should we do?
+            }
+        }
+    }
+
     @Override
     public boolean sendLocalChanges(Serializer s) throws IOException {
         ContentResolver cr = mService.mContentResolver;
@@ -925,15 +1145,31 @@ public class CalendarSyncAdapter extends AbstractSyncAdapter {
         }
 
         try {
-            // TODO This just handles NEW events at the moment
-            // Cheap way to handle changes would be to delete/add
-            EntityIterator ei = EventsEntity.newEntityIterator(
-                    cr.query(uri, null, Events._SYNC_ID + " ISNULL", null, null), cr);
+            // We've got to handle exceptions as part of the parent when changes occur, so we need
+            // to find new/changed exceptions and mark the parent dirty
+            Cursor c = cr.query(Events.CONTENT_URI, ORIGINAL_EVENT_PROJECTION, DIRTY_EXCEPTION,
+                    null, null);
+            try {
+                ContentValues cv = new ContentValues();
+                cv.put(Events._SYNC_DIRTY, 1);
+                // Mark the parent dirty in this loop
+                while (c.moveToNext()) {
+                    String serverId = c.getString(0);
+                    cr.update(asSyncAdapter(Events.CONTENT_URI), cv, SERVER_ID,
+                             new String[] {serverId});
+                }
+            } finally {
+                c.close();
+            }
+
+            // Now we can go through dirty top-level events and send them back to the server
+            EntityIterator eventIterator = EventsEntity.newEntityIterator(
+                    cr.query(uri, null, DIRTY_TOP_LEVEL, null, null), cr);
             ContentValues cidValues = new ContentValues();
             try {
                 boolean first = true;
-                while (ei.hasNext()) {
-                    Entity entity = ei.next();
+                while (eventIterator.hasNext()) {
+                    Entity entity = eventIterator.next();
                     String clientId = "uid_" + mMailbox.mId + '_' + System.currentTimeMillis();
 
                     // For each of these entities, create the change commands
@@ -949,8 +1185,6 @@ public class CalendarSyncAdapter extends AbstractSyncAdapter {
                     // TODO Handle BusyStatus for EAS 2.5
                     // What should it be??
 
-                    // Ignore exceptions (will have Events.ORIGINAL_EVENT)
-
                     if (first) {
                         s.start(Tags.SYNC_COMMANDS);
                         userLog("Sending Calendar changes to the server");
@@ -962,7 +1196,6 @@ public class CalendarSyncAdapter extends AbstractSyncAdapter {
                         s.start(Tags.SYNC_ADD).data(Tags.SYNC_CLIENT_ID, clientId);
                         // And save it in the Event as the local id
                         cidValues.put(Events._SYNC_LOCAL_ID, clientId);
-                        // TODO sync adapter!
                         cr.update(ContentUris.
                                 withAppendedId(uri,
                                         entityValues.getAsLong(Events._ID)),
@@ -978,173 +1211,29 @@ public class CalendarSyncAdapter extends AbstractSyncAdapter {
                         s.start(Tags.SYNC_CHANGE).data(Tags.SYNC_SERVER_ID, serverId);
                     }
                     s.start(Tags.SYNC_APPLICATION_DATA);
+                    sendEvent(entity, clientId, s);
 
-                    // Serialize for EAS here
-                    // Set uid with the client id we created
-                    // 1) Serialize the top-level event
-                    // 2) Serialize attendees and reminders from subvalues
-                    // 3) Look for exceptions and serialize with the top-level event
-                    if (entityValues.containsKey(Events.ALL_DAY)) {
-                        s.data(Tags.CALENDAR_ALL_DAY_EVENT,
-                                entityValues.getAsInteger(Events.ALL_DAY).toString());
-                    }
-
-                    long startTime = entityValues.getAsLong(Events.DTSTART);
-                    s.data(Tags.CALENDAR_START_TIME,
-                            CalendarUtilities.millisToEasDateTime(startTime));
-                    // Convert this into millis and add it to DTSTART for DTEND
-                    // We'll use 1 hour as a default
-                    long durationMillis = HOURS;
-                    Duration duration = new Duration();
-                    try {
-                        duration.parse(entityValues.getAsString(Events.DURATION));
-                    } catch (DateException e) {
-                        // Can't do much about this; use the default (1 hour)
-                    }
-                    s.data(Tags.CALENDAR_END_TIME,
-                            CalendarUtilities.millisToEasDateTime(startTime + durationMillis));
-                    if (entityValues.containsKey(Events.DTEND)) {
-                        // TODO Use this to determine last date; it's NOT the same as EAS DTEND
-                        //long endTime = entityValues.getAsLong(Events.DTEND);
-                        //s.data(Tags.CALENDAR_END_TIME,
-                        //        CalendarUtilities.millisToEasDateTime(endTime));
-                    }
-                    s.data(Tags.CALENDAR_DTSTAMP,
-                            CalendarUtilities.millisToEasDateTime(System.currentTimeMillis()));
-
-                    // A time zone is required in all EAS events; we'll use the default if none
-                    // is set.
-                    String timeZoneName;
-                    if (entityValues.containsKey(Events.EVENT_TIMEZONE)) {
-                        timeZoneName = entityValues.getAsString(Events.EVENT_TIMEZONE);
-                    } else {
-                        timeZoneName = TimeZone.getDefault().getID();
-                    }
-                    String x = CalendarUtilities.timeZoneToTZIString(timeZoneName);
-                    s.data(Tags.CALENDAR_TIME_ZONE, x);
-
-                    if (entityValues.containsKey(Events.EVENT_LOCATION)) {
-                        s.data(Tags.CALENDAR_LOCATION,
-                                entityValues.getAsString(Events.EVENT_LOCATION));
-                    }
-                    if (entityValues.containsKey(Events.TITLE)) {
-                        s.data(Tags.CALENDAR_SUBJECT, entityValues.getAsString(Events.TITLE));
-                    }
-                    if (entityValues.containsKey(Events.DESCRIPTION)) {
-                        String desc = entityValues.getAsString(Events.DESCRIPTION);
-                        if (mService.mProtocolVersionDouble >= 12.0) {
-                            s.start(Tags.BASE_BODY);
-                            s.data(Tags.BASE_TYPE, "1");
-                            s.data(Tags.BASE_DATA, desc);
-                            s.end();
-                        } else {
-                            s.data(Tags.CALENDAR_BODY, desc);
+                    // Now, the hard part; find exceptions for this event
+                    if (serverId != null) {
+                        EntityIterator exceptionIterator = EventsEntity.newEntityIterator(
+                                cr.query(uri, null, Events.ORIGINAL_EVENT + "=?",
+                                        new String[] {serverId}, null), cr);
+                        boolean exFirst = true;
+                        while (exceptionIterator.hasNext()) {
+                            Entity exceptionEntity = exceptionIterator.next();
+                            if (exFirst) {
+                                s.start(Tags.CALENDAR_EXCEPTIONS);
+                                exFirst = false;
+                            }
+                            s.start(Tags.CALENDAR_EXCEPTION);
+                            sendEvent(exceptionEntity, null, s);
+                            s.end(); // EXCEPTION
                         }
-                    }
-                    if (entityValues.containsKey(Events.ORGANIZER)) {
-                        s.data(Tags.CALENDAR_ORGANIZER_EMAIL,
-                                entityValues.getAsString(Events.ORGANIZER));
-                    }
-                    if (entityValues.containsKey(Events.VISIBILITY)) {
-                        s.data(Tags.CALENDAR_SENSITIVITY,
-                                decodeVisibility(entityValues.getAsInteger(Events.VISIBILITY)));
-                    } else {
-                        // Private if not set
-                        s.data(Tags.CALENDAR_SENSITIVITY, "1");
-                    }
-                    if (entityValues.containsKey(Events.RRULE)) {
-                        CalendarUtilities.recurrenceFromRrule(
-                                entityValues.getAsString(Events.RRULE), startTime, s);
-                    }
-
-                    // Handle associated data EXCEPT for attendees, which have to be grouped
-                    ArrayList<NamedContentValues> subValues = entity.getSubValues();
-                    for (NamedContentValues ncv: subValues) {
-                        Uri ncvUri = ncv.uri;
-                        ContentValues ncvValues = ncv.values;
-                        if (ncvUri.equals(ExtendedProperties.CONTENT_URI)) {
-                            if (ncvValues.containsKey("uid")) {
-                                clientId = ncvValues.getAsString("uid");
-                                s.data(Tags.CALENDAR_UID, clientId);
-                            }
-                            if (ncvValues.containsKey("dtstamp")) {
-                                s.data(Tags.CALENDAR_DTSTAMP, ncvValues.getAsString("dtstamp"));
-                            }
-                            if (ncvValues.containsKey("categories")) {
-                                // Send all the categories back to the server
-                                // We've saved them as a String of delimited tokens
-                                String categories = ncvValues.getAsString("categories");
-                                StringTokenizer st =
-                                    new StringTokenizer(categories, CATEGORY_TOKENIZER_DELIMITER);
-                                if (st.countTokens() > 0) {
-                                    s.start(Tags.CALENDAR_CATEGORIES);
-                                    while (st.hasMoreTokens()) {
-                                        String category = st.nextToken();
-                                        s.data(Tags.CALENDAR_CATEGORY, category);
-                                    }
-                                    s.end();
-                                }
-                            }
-                        } else if (ncvUri.equals(Reminders.CONTENT_URI)) {
-                            if (ncvValues.containsKey(Reminders.MINUTES)) {
-                                s.data(Tags.CALENDAR_REMINDER_MINS_BEFORE,
-                                        ncvValues.getAsString(Reminders.MINUTES));
-                            }
+                        if (!exFirst) {
+                            s.end(); // EXCEPTIONS
                         }
                     }
 
-                    // We've got to send a UID.  If the event is new, we've generated one; if not,
-                    // we should have gotten one from extended properties.
-                    s.data(Tags.CALENDAR_UID, clientId);
-
-                    // Handle attendee data here; keep track of organizer and stream it afterward
-                    boolean hasAttendees = false;
-                    String organizerName = null;
-                    for (NamedContentValues ncv: subValues) {
-                        Uri ncvUri = ncv.uri;
-                        ContentValues ncvValues = ncv.values;
-                        if (ncvUri.equals(Attendees.CONTENT_URI)) {
-                            if (ncvValues.containsKey(Attendees.ATTENDEE_RELATIONSHIP)) {
-                                int relationship =
-                                    ncvValues.getAsInteger(Attendees.ATTENDEE_RELATIONSHIP);
-                                // Organizer isn't among attendees in EAS
-                                if (relationship == Attendees.RELATIONSHIP_ORGANIZER) {
-                                    if (ncvValues.containsKey(Attendees.ATTENDEE_NAME)) {
-                                        // Remember this; we can't insert it into the stream in
-                                        // the middle of attendees
-                                        organizerName =
-                                            ncvValues.getAsString(Attendees.ATTENDEE_NAME);
-                                    }
-                                    continue;
-                                }
-                                if (!hasAttendees) {
-                                    s.start(Tags.CALENDAR_ATTENDEES);
-                                    hasAttendees = true;
-                                }
-                                s.start(Tags.CALENDAR_ATTENDEE);
-                                if (ncvValues.containsKey(Attendees.ATTENDEE_NAME)) {
-                                    s.data(Tags.CALENDAR_ATTENDEE_NAME,
-                                            ncvValues.getAsString(Attendees.ATTENDEE_NAME));
-                                }
-                                if (ncvValues.containsKey(Attendees.ATTENDEE_EMAIL)) {
-                                    s.data(Tags.CALENDAR_ATTENDEE_EMAIL,
-                                            ncvValues.getAsString(Attendees.ATTENDEE_EMAIL));
-                                }
-                                s.data(Tags.CALENDAR_ATTENDEE_TYPE, "1"); // Required
-                                s.end(); // Attendee
-                            }
-                            // If there's no relationship, we can't create this for EAS
-                        }
-                    }
-                    if (hasAttendees) {
-                        s.end();  // Attendees
-                    }
-                    if (organizerName != null) {
-                        s.data(Tags.CALENDAR_ORGANIZER_NAME, organizerName);
-                    }
-//                    case Tags.CALENDAR_EXCEPTIONS:
-//                        exceptionsParser(ops, cv);
-//                        break;
                     s.end().end(); // ApplicationData & Change
                     mUpdatedIdList.add(entityValues.getAsLong(Events._ID));
                 }
@@ -1152,7 +1241,7 @@ public class CalendarSyncAdapter extends AbstractSyncAdapter {
                     s.end(); // Commands
                 }
             } finally {
-                ei.close();
+                eventIterator.close();
             }
         } catch (RemoteException e) {
             Log.e(TAG, "Could not read dirty events.");
