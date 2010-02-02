@@ -577,4 +577,11 @@
 
 	<!-- Message that appears if the AccountManager cannot create the system Account -->
 	<string name="system_account_create_failed">The AccountManager could not create the Account; please try again.</string>
+
+    <!-- Strings that support the DeviceAdmin / DevicePolicyManager API -->
+    <!-- Name of the DeviceAdmin (seen in settings - anywhere else?) -->
+    <string name="device_admin_label">Email Device Administrator</string>
+    <!-- Long-form description of the DeviceAdmin (seen in settings - anywhere else?) -->
+    <string name="device_admin_description">Email Device Administrator - Long Description</string>
+    
 </resources>

@@ -19,6 +19,8 @@ package com.android.email;
 import com.android.email.provider.EmailContent.Account;
 
 import android.app.DeviceAdmin;
+import android.app.DevicePolicyManager;
+import android.content.ComponentName;
 import android.content.Context;
 import android.content.Intent;
 import android.database.Cursor;
@@ -28,8 +30,18 @@ import android.database.Cursor;
  */
 public class SecurityPolicy {
 
+    /** STOPSHIP - ok to check in true for now, but must be false for shipping */
+    /** DO NOT CHECK IN WHILE 'true' */
+    private static final boolean DEBUG_ALWAYS_ACTIVE = true;
+
     private static SecurityPolicy sInstance = null;
     private Context mContext;
+    private DevicePolicyManager mDPM;
+    private ComponentName mAdminName;
+    private PolicySet mAggregatePolicy;
+
+    private static final PolicySet NO_POLICY_SET =
+            new PolicySet(0, PolicySet.PASSWORD_MODE_NONE, 0, 0, false);
 
     /**
      * This projection on Account is for scanning/reading 
@@ -41,6 +53,15 @@ public class SecurityPolicy {
     // Note, this handles the NULL case to deal with older accounts where the column was added
     private static final String WHERE_ACCOUNT_SECURITY_NONZERO =
         Account.SECURITY_FLAGS + " IS NOT NULL AND " + Account.SECURITY_FLAGS + "!=0";
+
+   /**
+    * These are hardcoded limits based on knowledge of the current DevicePolicyManager
+    * and screen lock mechanisms.  Wherever possible, these should be replaced with queries of
+    * dynamic capabilities of the device (e.g. what password modes are supported?)
+    */
+   private static final int LIMIT_MIN_PASSWORD_LENGTH = 16;
+   private static final int LIMIT_PASSWORD_MODE = PolicySet.PASSWORD_MODE_STRONG;
+   private static final int LIMIT_SCREENLOCK_TIME = PolicySet.SCREEN_LOCK_TIME_MAX;
 
     /**
      * Get the security policy instance
@@ -57,6 +78,9 @@ public class SecurityPolicy {
      */
     private SecurityPolicy(Context context) {
         mContext = context;
+        mDPM = null;
+        mAdminName = new ComponentName(context, PolicyAdmin.class);
+        mAggregatePolicy = null;
     }
 
     /**
@@ -76,7 +100,8 @@ public class SecurityPolicy {
      *  max screen lock time        take the min
      *  require remote wipe         take the max (logical or)
      * 
-     * @return a policy representing the strongest aggregate, or null if none are defined
+     * @return a policy representing the strongest aggregate.  If no policy sets are defined,
+     * a lightweight "nothing required" policy will be returned.  Never null.
      */
     /* package */ PolicySet computeAggregatePolicy() {
         boolean policiesFound = false;
@@ -117,39 +142,107 @@ public class SecurityPolicy {
             return new PolicySet(minPasswordLength, passwordMode, maxPasswordFails,
                     maxScreenLockTime, requireRemoteWipe);
         } else {
-            return null;
+            return NO_POLICY_SET;
         }
     }
 
     /**
-     * Query used to determine if a given policy is "possible" (irrespective of current
+     * Get the dpm.  This mainly allows us to make some utility calls without it, for testing.
+     */
+    private synchronized DevicePolicyManager getDPM() {
+        if (mDPM == null) {
+            mDPM = (DevicePolicyManager) mContext.getSystemService(Context.DEVICE_POLICY_SERVICE);
+        }
+        return mDPM;
+    }
+
+    /**
+     * API: Query used to determine if a given policy is "possible" (irrespective of current
      * device state.  This is used when creating new accounts.
      *
-     * TO BE IMPLEMENTED
+     * TODO: This is hardcoded based on knowledge of the current DevicePolicyManager
+     * and screen lock mechanisms.  It would be nice to replace these tests with something
+     * more dynamic.
      *
      * @param policies the policies requested
      * @return true if the policies are supported, false if not supported
      */
     public boolean isSupported(PolicySet policies) {
+        if (policies.mMinPasswordLength > LIMIT_MIN_PASSWORD_LENGTH) {
+            return false;
+        }
+        if (policies.mPasswordMode > LIMIT_PASSWORD_MODE ) {
+            return false;
+        }
+        // No limit on password fail count
+        if (policies.mMaxScreenLockTime > LIMIT_SCREENLOCK_TIME ) {
+            return false;
+        }
+        // No limit on remote wipe capable
+
         return true;
     }
 
     /**
-     * Query used to determine if a given policy is "active" (the device is operating at
-     * the required security level).  This is used when creating new accounts.
-     *
-     * TO BE IMPLEMENTED
+     * API: Report that policies may have been updated due to rewriting values in an Account.
+     */
+    public synchronized void updatePolicies() {
+        mAggregatePolicy = null;
+    }
+
+    /**
+     * API: Query used to determine if a given policy is "active" (the device is operating at
+     * the required security level).  This is used when creating new accounts.  This method
+     * is for queries only, and does not trigger any change in device state.
      *
      * @param policies the policies requested
      * @return true if the policies are active, false if not active
      */
     public boolean isActive(PolicySet policies) {
-        return true;
+        DevicePolicyManager dpm = getDPM();
+        if (dpm.isAdminActive(mAdminName)) {
+            // check each policy
+            PolicySet aggregate;
+            synchronized (this) {
+                if (mAggregatePolicy == null) {
+                    mAggregatePolicy = computeAggregatePolicy();
+                }
+                aggregate = mAggregatePolicy;
+            }
+            // quick check for the "empty set" of no policies
+            if (aggregate == NO_POLICY_SET) {
+                return true;
+            }
+            // check each policy explicitly
+            if (aggregate.mMinPasswordLength > 0) {
+                if (dpm.getPasswordMinimumLength(mAdminName) < aggregate.mMinPasswordLength) {
+                    return false;
+                }
+            }
+            if (aggregate.mPasswordMode > 0) {
+                if (dpm.getPasswordQuality(mAdminName) < aggregate.getDPManagerPasswordMode()) {
+                    return false;
+                }
+                if (!dpm.isActivePasswordSufficient()) {
+                    return false;
+                }
+            }
+            if (aggregate.mMaxScreenLockTime > 0) {
+                // Note, we use seconds, dpm uses milliseconds
+                if (dpm.getMaximumTimeToLock(mAdminName) > aggregate.mMaxScreenLockTime * 1000) {
+                    return false;
+                }
+            }
+            // password failures are counted locally - no test required here
+            // no check required for remote wipe (it's supported, if we're the admin)
+        }
+        // return false, not active - unless debugging enabled
+        return DEBUG_ALWAYS_ACTIVE;
     }
 
     /**
      * Sync service should call this any time a sync fails due to isActive() returning false.
-     * This will kick off the acquire-admin-state process and/or increase the security level.
+     * This will kick off the notify-acquire-admin-state process and/or increase the security level.
      * The caller needs to write the required policies into this account before making this call.
      *
      * @param accountId the account for which sync cannot proceed
@@ -196,7 +289,7 @@ public class SecurityPolicy {
          * @param minPasswordLength (0=not enforced)
          * @param passwordMode
          * @param maxPasswordFails (0=not enforced)
-         * @param maxScreenLockTime (0=not enforced)
+         * @param maxScreenLockTime in seconds (0=not enforced)
          * @param requireRemoteWipe
          */
         public PolicySet(int minPasswordLength, int passwordMode, int maxPasswordFails,
@@ -243,6 +336,20 @@ public class SecurityPolicy {
             mMaxScreenLockTime =
                 (flags & SCREEN_LOCK_TIME_MASK) >> SCREEN_LOCK_TIME_SHIFT;
             mRequireRemoteWipe = 0 != (flags & REQUIRE_REMOTE_WIPE);
+        }
+
+        /**
+         * Helper to map DevicePolicyManager password modes to our internal encoding.
+         */
+        public int getDPManagerPasswordMode() {
+            switch (mPasswordMode) {
+                case PASSWORD_MODE_SIMPLE:
+                    return DevicePolicyManager.PASSWORD_QUALITY_NUMERIC;
+                case PASSWORD_MODE_STRONG:
+                    return DevicePolicyManager.PASSWORD_QUALITY_ALPHANUMERIC;
+                default:
+                    return DevicePolicyManager .PASSWORD_QUALITY_UNSPECIFIED;
+            }
         }
 
         /**

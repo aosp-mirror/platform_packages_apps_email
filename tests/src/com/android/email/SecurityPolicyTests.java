@@ -25,6 +25,7 @@ import com.android.email.provider.EmailContent.AccountColumns;
 import android.content.ContentUris;
 import android.content.ContentValues;
 import android.content.Context;
+import android.content.ContextWrapper;
 import android.net.Uri;
 import android.test.ProviderTestCase2;
 import android.test.suitebuilder.annotation.MediumTest;
@@ -38,6 +39,9 @@ public class SecurityPolicyTests extends ProviderTestCase2<EmailProvider> {
 
     private Context mMockContext;
 
+    private static final PolicySet EMPTY_POLICY_SET =
+        new PolicySet(0, PolicySet.PASSWORD_MODE_NONE, 0, 0, false);
+
     public SecurityPolicyTests() {
         super(EmailProvider.class, EmailProvider.EMAIL_AUTHORITY);
     }
@@ -46,7 +50,7 @@ public class SecurityPolicyTests extends ProviderTestCase2<EmailProvider> {
     protected void setUp() throws Exception {
         super.setUp();
 
-        mMockContext = getMockContext();
+        mMockContext = new MockContext2(getMockContext(), this.mContext);
     }
 
     /**
@@ -55,6 +59,24 @@ public class SecurityPolicyTests extends ProviderTestCase2<EmailProvider> {
     @Override
     protected void tearDown() throws Exception {
         super.tearDown();
+    }
+
+    /**
+     * Private context wrapper used to add back getPackageName() for these tests
+     */
+    private static class MockContext2 extends ContextWrapper {
+
+        private final Context mRealContext;
+
+        public MockContext2(Context mockContext, Context realContext) {
+            super(mockContext);
+            mRealContext = realContext;
+        }
+
+        @Override
+        public String getPackageName() {
+            return mRealContext.getPackageName();
+        }
     }
 
     /**
@@ -72,17 +94,17 @@ public class SecurityPolicyTests extends ProviderTestCase2<EmailProvider> {
     public void testAggregator() {
         SecurityPolicy sp = getSecurityPolicy();
 
-        // with no accounts, should return null
-        assertNull(sp.computeAggregatePolicy());
+        // with no accounts, should return empty set
+        assertTrue(EMPTY_POLICY_SET.equals(sp.computeAggregatePolicy()));
 
-        // with accounts having no security, return null
+        // with accounts having no security, empty set
         Account a1 = ProviderTestUtils.setupAccount("no-sec-1", false, mMockContext);
         a1.mSecurityFlags = 0;
         a1.save(mMockContext);
         Account a2 = ProviderTestUtils.setupAccount("no-sec-2", false, mMockContext);
         a2.mSecurityFlags = 0;
         a2.save(mMockContext);
-        assertNull(sp.computeAggregatePolicy());
+        assertTrue(EMPTY_POLICY_SET.equals(sp.computeAggregatePolicy()));
 
         // with a single account in security mode, should return same security as in account
         PolicySet p3in = new PolicySet(10, PolicySet.PASSWORD_MODE_SIMPLE, 15, 16, false);
@@ -142,7 +164,7 @@ public class SecurityPolicyTests extends ProviderTestCase2<EmailProvider> {
         Account a2 = ProviderTestUtils.setupAccount("no-sec-2", false, mMockContext);
         a2.mSecurityFlags = 0;
         a2.save(mMockContext);
-        assertNull(sp.computeAggregatePolicy());
+        assertTrue(EMPTY_POLICY_SET.equals(sp.computeAggregatePolicy()));
     }
 
     /**
