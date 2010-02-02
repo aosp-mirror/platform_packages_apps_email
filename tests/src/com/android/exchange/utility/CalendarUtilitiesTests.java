@@ -64,6 +64,23 @@ public class CalendarUtilitiesTests extends AndroidTestCase {
         assertEquals("Israel Standard Time", tz.getDisplayName());
     }
 
+    public void testGenerateEasDayOfWeek() {
+        String byDay = "TU;WE;SA";
+        assertEquals("76", CalendarUtilities.generateEasDayOfWeek(byDay));
+        byDay = "MO;TU;WE;TH;FR";
+        assertEquals("62", CalendarUtilities.generateEasDayOfWeek(byDay));
+        byDay = "SU";
+        assertEquals("1", CalendarUtilities.generateEasDayOfWeek(byDay));
+    }
+
+    public void testTokenFromRrule() {
+        String rrule = "FREQ=DAILY;INTERVAL=1;BYDAY=WE,TH,SA;BYMONTHDAY=17";
+        assertEquals("DAILY", CalendarUtilities.tokenFromRrule(rrule, "FREQ="));
+        assertEquals("1", CalendarUtilities.tokenFromRrule(rrule, "INTERVAL="));
+        assertEquals("17", CalendarUtilities.tokenFromRrule(rrule, "BYMONTHDAY="));
+        assertNull(CalendarUtilities.tokenFromRrule(rrule, "UNTIL="));
+    }
+
 // TODO In progress
 //    public void testParseTimeZone() {
 //        GregorianCalendar cal = getTestCalendar(parsedTimeZone, dstStart);
