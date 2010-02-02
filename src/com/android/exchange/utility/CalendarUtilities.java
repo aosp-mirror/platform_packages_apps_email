@@ -14,6 +14,12 @@
  * limitations under the License.
  */
 
+/**
+ * Tests of EAS Calendar Utilities
+ * You can run this entire test case with:
+ *   runtest -c com.android.exchange.utility.CalendarUtilitiesTests email
+ */
+
 package com.android.exchange.utility;
 
 import com.android.exchange.Eas;
@@ -396,16 +402,22 @@ public class CalendarUtilities {
         rrule.append(";BYMONTHDAY=" + dom);
     }
 
+    /**
+     * Generate the String version of the EAS integer for a given BYDAY value in an rrule
+     * @param dow the BYDAY value of the rrule
+     * @return the String version of the EAS value of these days
+     */
     static String generateEasDayOfWeek(String dow) {
+        int bits = 0;
         int bit = 1;
         for (String token: sDayTokens) {
-            if (dow.equals(token)) {
-                break;
-            } else {
-                bit <<= 1;
+            // If we can find the day in the dow String, add the bit to our bits value
+            if (dow.indexOf(token) >= 0) {
+                bits |= bit;
             }
+            bit <<= 1;
         }
-        return Integer.toString(bit);
+        return Integer.toString(bits);
     }
 
     static String tokenFromRrule(String rrule, String token) {
