@@ -96,11 +96,11 @@ public class VendorPolicyLoader {
             method = clazz.getMethod(GET_POLICY_METHOD, ARGS);
         } catch (NameNotFoundException ignore) {
             // Package not found -- it's okay.
-            // Should be caught in isSystemPackage(), except in unit tests.
-        } catch (Exception e) { // NoSuchMethodException/ClassNotFoundException
-            // Package found but the class or method not found, or got a RuntimeException (e.g.
-            // SecurityException).  Most probably a problem, but we proceed as if the package
-            // doesn't exist.
+        } catch (ClassNotFoundException ignore) {
+            // Class not found -- it's okay.
+        } catch (NoSuchMethodException ignore) {
+            // Method not found -- it's okay.
+        } catch (RuntimeException e) {
             Log.w(Email.LOG_TAG, "VendorPolicyLoader: " + e);
         }
         mPolicyMethod = method;
@@ -191,7 +191,7 @@ public class VendorPolicyLoader {
         Bundle params = new Bundle();
         params.putString(FIND_PROVIDER, domain);
         Bundle out = getPolicy(FIND_PROVIDER, params);
-        if (out != null) {
+        if (out != null && !out.isEmpty()) {
             try {
                 Provider p = new Provider();
                 p.id = null;

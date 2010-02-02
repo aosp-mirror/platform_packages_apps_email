@@ -16,11 +16,13 @@
 
 package com.android.email;
 
+import com.android.email.activity.setup.AccountSetupBasics.Provider;
+
 import android.content.Context;
 import android.os.Bundle;
 import android.test.AndroidTestCase;
 
-import java.util.HashMap;
+import java.net.URI;
 
 public class VendorPolicyLoaderTest extends AndroidTestCase {
     /**
@@ -134,5 +136,26 @@ public class VendorPolicyLoaderTest extends AndroidTestCase {
             assertTrue(elements[i+3].charAt(0) != ' ');
             i += 4;            
         }
+    }
+
+    /**
+     * Test that findProviderForDomain() returns legal values, or functions properly when
+     * none is installed.
+     */
+    public void testFindProviderForDomain() {
+        VendorPolicyLoader pl = VendorPolicyLoader.getInstance(getContext());
+        Provider p = pl.findProviderForDomain("yahoo.com");
+        // null is a reasonable result (none installed)
+        if (p == null) return;
+
+        // if non-null, basic sanity checks on format
+        assertNull(p.id);
+        assertNull(p.label);
+        assertEquals("yahoo.com", p.domain);
+        assertNotNull(p.incomingUriTemplate);
+        assertNotNull(p.incomingUsernameTemplate);
+        assertNotNull(p.outgoingUriTemplate);
+        assertNotNull(p.outgoingUsernameTemplate);
+        assertTrue(p.note == null || p.note.length() > 0);  // no empty string
     }
 }
