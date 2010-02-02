@@ -23,7 +23,6 @@ import com.android.exchange.Eas;
 import android.accounts.AccountManagerFuture;
 import android.content.ContentResolver;
 import android.content.Context;
-import android.content.Intent;
 import android.database.Cursor;
 import android.os.Bundle;
 import android.provider.Calendar;
@@ -66,8 +65,7 @@ public class AccountBackupRestore {
             // after restoring accounts, register services appropriately
             Log.w(Email.LOG_TAG, "Register services after restoring accounts");
             Email.setServicesEnabled(context);
-            context.startService(new Intent(context.getApplicationContext(),
-                    com.android.exchange.SyncManager.class));
+            ExchangeUtils.startExchangeService(context);
         }
     }
 

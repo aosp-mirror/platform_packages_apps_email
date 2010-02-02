@@ -50,9 +50,9 @@ public class EmailServiceProxy implements IEmailService {
     public static final String AUTO_DISCOVER_BUNDLE_ERROR_CODE = "autodiscover_error_code";
     public static final String AUTO_DISCOVER_BUNDLE_HOST_AUTH = "autodiscover_host_auth";
 
-    private Context mContext;
-    private Class<?> mClass;
-    private IEmailServiceCallback mCallback;
+    private final Context mContext;
+    private final Class<?> mClass;
+    private final IEmailServiceCallback mCallback;
     private Runnable mRunnable;
     private ServiceConnection mSyncManagerConnection = new EmailServiceConnection ();
     private IEmailService mService = null;
@@ -61,21 +61,16 @@ public class EmailServiceProxy implements IEmailService {
     private boolean mDead = false;
 
     public EmailServiceProxy(Context _context, Class<?> _class) {
-        mContext = _context;
-        mClass = _class;
-        // Proxy calls have a timeout, and this can cause failures while debugging due to the
-        // far slower execution speed.  In particular, validate calls fail regularly with ssl
-        // connections at the default timeout (30 seconds)
-        if (Debug.isDebuggerConnected()) {
-            mTimeout <<= 2;
-        }
+        this(_context, _class, null);
     }
 
     public EmailServiceProxy(Context _context, Class<?> _class, IEmailServiceCallback _callback) {
         mContext = _context;
         mClass = _class;
         mCallback = _callback;
-        // See comment above
+        // Proxy calls have a timeout, and this can cause failures while debugging due to the
+        // far slower execution speed.  In particular, validate calls fail regularly with ssl
+        // connections at the default timeout (30 seconds)
         if (Debug.isDebuggerConnected()) {
             mTimeout <<= 2;
         }

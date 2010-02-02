@@ -17,6 +17,7 @@
 package com.android.email.mail.store;
 
 import com.android.email.Email;
+import com.android.email.ExchangeUtils;
 import com.android.email.mail.AuthenticationFailedException;
 import com.android.email.mail.Folder;
 import com.android.email.mail.MessagingException;
@@ -24,9 +25,7 @@ import com.android.email.mail.Store;
 import com.android.email.mail.StoreSynchronizer;
 import com.android.email.provider.EmailContent.Account;
 import com.android.email.service.EasAuthenticatorService;
-import com.android.email.service.EmailServiceProxy;
 import com.android.exchange.Eas;
-import com.android.exchange.SyncManager;
 
 import android.accounts.AccountManager;
 import android.accounts.AccountManagerCallback;
@@ -240,7 +239,7 @@ public class ExchangeStore extends Store {
             boolean tssl = uri.getScheme().contains("+trustallcerts");
             try {
                 int port = ssl ? 443 : 80;
-                int result = new EmailServiceProxy(mContext, SyncManager.class)
+                int result = ExchangeUtils.getExchangeEmailService(mContext, null)
                     .validate("eas", mHost, mUsername, mPassword, port, ssl, tssl);
                 if (result != MessagingException.NO_ERROR) {
                     if (result == MessagingException.AUTHENTICATION_FAILED) {
@@ -263,11 +262,10 @@ public class ExchangeStore extends Store {
     public Bundle autoDiscover(Context context, String username, String password)
             throws MessagingException {
         try {
-            return new EmailServiceProxy(context, SyncManager.class)
+            return ExchangeUtils.getExchangeEmailService(context, null)
                 .autoDiscover(username, password);
         } catch (RemoteException e) {
             return null;
         }
     }
 }
-
