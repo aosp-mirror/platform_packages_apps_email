@@ -157,14 +157,16 @@ public class AccountSetupAccountType extends Activity implements OnClickListener
      * like this.
      */
     private boolean isExchangeAvailable() {
+        //EXCHANGE-REMOVE-SECTION-START
         try {
             URI uri = new URI(mAccount.getStoreUri(this));
             uri = new URI("eas", uri.getUserInfo(), uri.getHost(), uri.getPort(), null, null, null);
             Store.StoreInfo storeInfo = Store.StoreInfo.getStoreInfo(uri.toString(), this);
             return (storeInfo != null && checkAccountInstanceLimit(storeInfo));
         } catch (URISyntaxException e) {
-            return false;
         }
+        //EXCHANGE-REMOVE-SECTION-END
+        return false;
     }
 
     /**

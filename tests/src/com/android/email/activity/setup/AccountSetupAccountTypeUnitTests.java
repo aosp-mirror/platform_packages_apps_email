@@ -35,16 +35,16 @@ import java.util.HashSet;
  * This is a series of unit tests for the AccountSetupAccountType class.
  */
 @SmallTest
-public class AccountSetupAccountTypeUnitTests 
+public class AccountSetupAccountTypeUnitTests
         extends ActivityUnitTestCase<AccountSetupAccountType> {
 
     // Borrowed from AccountSetupAccountType
     private static final String EXTRA_ACCOUNT = "account";
 
     Context mContext;
-    
+
     private HashSet<Account> mAccounts = new HashSet<Account>();
-    
+
     public AccountSetupAccountTypeUnitTests() {
         super(AccountSetupAccountType.class);
       }
@@ -52,7 +52,7 @@ public class AccountSetupAccountTypeUnitTests
     @Override
     protected void setUp() throws Exception {
         super.setUp();
-        
+
         mContext = this.getInstrumentation().getTargetContext();
     }
 
@@ -65,11 +65,11 @@ public class AccountSetupAccountTypeUnitTests
             Uri uri = ContentUris.withAppendedId(Account.CONTENT_URI, account.mId);
             mContext.getContentResolver().delete(uri, null, null);
         }
-        
+
         // must call last because it scrubs member variables
         super.tearDown();
     }
-    
+
     /**
      * Test store type limit enforcement
      */
@@ -77,7 +77,7 @@ public class AccountSetupAccountTypeUnitTests
         EmailContent.Account acct1 = createTestAccount("scheme1");
         EmailContent.Account acct2 = createTestAccount("scheme1");
         EmailContent.Account acct3 = createTestAccount("scheme2");
-        
+
         AccountSetupAccountType activity = startActivity(getTestIntent(acct1), null, null);
 
         // Test with no limit
@@ -85,24 +85,30 @@ public class AccountSetupAccountTypeUnitTests
         info.mAccountInstanceLimit = -1;
         info.mScheme = "scheme1";
         assertTrue("no limit", activity.checkAccountInstanceLimit(info));
-        
+
         // Test with limit, but not reached
         info.mAccountInstanceLimit = 3;
         assertTrue("limit, but not reached", activity.checkAccountInstanceLimit(info));
-        
+
         // Test with limit, reached
         info.mAccountInstanceLimit = 2;
         assertFalse("limit, reached", activity.checkAccountInstanceLimit(info));
     }
 
     /**
-     * Confirm that EAS is presented (supported in this release)
+     * Confirm that EAS is presented, when supported.
      */
     public void testEasOffered() {
         Account acct1 = createTestAccount("scheme1");
         AccountSetupAccountType activity = startActivity(getTestIntent(acct1), null, null);
         View exchangeButton = activity.findViewById(R.id.exchange);
-        assertEquals(View.VISIBLE, exchangeButton.getVisibility());
+
+        int expected = View.GONE; // Default is hidden
+        //EXCHANGE-REMOVE-SECTION-START
+        expected = View.VISIBLE; // Will be visible if supported.
+        //EXCHANGE-REMOVE-SECTION-END
+
+        assertEquals(expected, exchangeButton.getVisibility());
     }
 
     /**
@@ -115,7 +121,7 @@ public class AccountSetupAccountTypeUnitTests
         mAccounts.add(account);
         return account;
     }
-    
+
     /**
      * Create an intent with the Account in it
      */

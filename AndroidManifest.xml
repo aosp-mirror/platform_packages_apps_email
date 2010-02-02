@@ -85,11 +85,13 @@
             android:label="@string/account_setup_outgoing_title"
             >
         </activity>
+        <!--EXCHANGE-REMOVE-SECTION-START-->
         <activity
             android:name=".activity.setup.AccountSetupExchange"
             android:label="@string/account_setup_exchange_title"
             >
         </activity>
+        <!--EXCHANGE-REMOVE-SECTION-END-->
         <activity
             android:name=".activity.setup.AccountSetupOptions"
             android:label="@string/account_setup_options_title"
@@ -173,6 +175,7 @@
                 <category android:name="android.intent.category.DEFAULT" />
             </intent-filter>
         </activity>
+        <!--EXCHANGE-REMOVE-SECTION-START-->
        <receiver android:name="com.android.exchange.EmailSyncAlarmReceiver"/>
        <receiver android:name="com.android.exchange.MailboxAlarmReceiver"/>
        <receiver android:name="com.android.exchange.BootReceiver" android:enabled="true">
@@ -180,6 +183,7 @@
                 <action android:name="android.intent.action.BOOT_COMPLETED" />
             </intent-filter>
        </receiver>
+        <!--EXCHANGE-REMOVE-SECTION-END-->
 
        <receiver android:name=".service.BootReceiver" android:enabled="true">
             <intent-filter>
@@ -222,6 +226,7 @@
             >
         </service>
         
+        <!--EXCHANGE-REMOVE-SECTION-START-->
         <!--Required stanza to register the ContactsSyncAdapterService with SyncManager -->
         <service 
             android:name="com.android.exchange.ContactsSyncAdapterService" 
@@ -282,6 +287,7 @@
                 android:resource="@xml/authenticator_alternate"
                 />
         </service>
+        <!--EXCHANGE-REMOVE-SECTION-END-->
 
         <provider
             android:name=".provider.AttachmentProvider"

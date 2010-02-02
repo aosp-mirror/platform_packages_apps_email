@@ -18,7 +18,6 @@ package com.android.email.service;
 
 import com.android.email.Email;
 import com.android.email.activity.setup.AccountSetupBasics;
-import com.android.exchange.Eas;
 
 import android.accounts.AbstractAccountAuthenticator;
 import android.accounts.Account;

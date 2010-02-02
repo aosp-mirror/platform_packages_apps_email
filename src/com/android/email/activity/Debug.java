@@ -53,21 +53,24 @@ public class Debug extends Activity implements OnCheckedChangeListener {
         mVersionView = (TextView)findViewById(R.id.version);
         mEnableDebugLoggingView = (CheckBox)findViewById(R.id.debug_logging);
         mEnableSensitiveLoggingView = (CheckBox)findViewById(R.id.sensitive_logging);
-        mEnableExchangeLoggingView = (CheckBox)findViewById(R.id.exchange_logging);
-        mEnableExchangeFileLoggingView = (CheckBox)findViewById(R.id.exchange_file_logging);
 
         mEnableDebugLoggingView.setOnCheckedChangeListener(this);
         mEnableSensitiveLoggingView.setOnCheckedChangeListener(this);
-        mEnableExchangeLoggingView.setOnCheckedChangeListener(this);
-        mEnableExchangeFileLoggingView.setOnCheckedChangeListener(this);
 
         mVersionView.setText(String.format(getString(R.string.debug_version_fmt).toString(),
                 getString(R.string.build_number)));
 
         mEnableDebugLoggingView.setChecked(Email.DEBUG);
         mEnableSensitiveLoggingView.setChecked(Email.DEBUG_SENSITIVE);
+
+        //EXCHANGE-REMOVE-SECTION-START
+        mEnableExchangeLoggingView = (CheckBox)findViewById(R.id.exchange_logging);
+        mEnableExchangeFileLoggingView = (CheckBox)findViewById(R.id.exchange_file_logging);
+        mEnableExchangeLoggingView.setOnCheckedChangeListener(this);
+        mEnableExchangeFileLoggingView.setOnCheckedChangeListener(this);
         mEnableExchangeLoggingView.setChecked(Eas.USER_LOG);
         mEnableExchangeFileLoggingView.setChecked(Eas.FILE_LOG);
+        //EXCHANGE-REMOVE-SECTION-END
     }
 
     public void onCheckedChanged(CompoundButton buttonView, boolean isChecked) {
@@ -80,6 +83,7 @@ public class Debug extends Activity implements OnCheckedChangeListener {
                 Email.DEBUG_SENSITIVE = isChecked;
                 mPreferences.setEnableSensitiveLogging(Email.DEBUG_SENSITIVE);
                 break;
+            //EXCHANGE-REMOVE-SECTION-START
             case R.id.exchange_logging:
                 mPreferences.setEnableExchangeLogging(isChecked);
                 break;
@@ -89,6 +93,7 @@ public class Debug extends Activity implements OnCheckedChangeListener {
                     FileLogger.close();
                 }
                 break;
+            //EXCHANGE-REMOVE-SECTION-END
         }
 
         updateLoggingFlags(this);
@@ -115,11 +120,13 @@ public class Debug extends Activity implements OnCheckedChangeListener {
      * Load enabled debug flags from the preferences and upadte the EAS debug flag.
      */
     public static void updateLoggingFlags(Context context) {
+        //EXCHANGE-REMOVE-SECTION-START
         Preferences prefs = Preferences.getPreferences(context);
         int debugLogging = prefs.getEnableDebugLogging() ? Eas.DEBUG_BIT : 0;
         int exchangeLogging = prefs.getEnableExchangeLogging() ? Eas.DEBUG_EXCHANGE_BIT : 0;
         int fileLogging = prefs.getEnableExchangeFileLogging() ? Eas.DEBUG_FILE_BIT : 0;
         int debugBits = debugLogging | exchangeLogging | fileLogging;
         Controller.getInstance(context).serviceLogging(debugBits);
+        //EXCHANGE-REMOVE-SECTION-END
     }
 }

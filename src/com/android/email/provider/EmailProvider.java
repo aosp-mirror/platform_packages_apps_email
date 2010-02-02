@@ -30,7 +30,6 @@ import com.android.email.provider.EmailContent.MailboxColumns;
 import com.android.email.provider.EmailContent.Message;
 import com.android.email.provider.EmailContent.MessageColumns;
 import com.android.email.provider.EmailContent.SyncColumns;
-import com.android.exchange.Eas;
 
 import android.accounts.AccountManager;
 import android.content.ContentProvider;

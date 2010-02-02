@@ -18,7 +18,6 @@ package com.android.email;
 
 import com.android.email.mail.store.ExchangeStore;
 import com.android.email.provider.EmailContent;
-import com.android.exchange.Eas;
 
 import android.accounts.AccountManagerFuture;
 import android.content.ContentResolver;

@@ -23,7 +23,6 @@ import com.android.email.mail.internet.BinaryTempFileBody;
 import com.android.email.provider.EmailContent;
 import com.android.email.service.BootReceiver;
 import com.android.email.service.MailService;
-import com.android.exchange.Eas;
 
 import android.app.Application;
 import android.content.ComponentName;

@@ -16,6 +16,7 @@
 
 package com.android.email;
 
+import com.android.email.mail.MessagingException;
 import com.android.email.service.EmailServiceProxy;
 import com.android.email.service.IEmailService;
 import com.android.email.service.IEmailServiceCallback;
@@ -23,6 +24,9 @@ import com.android.exchange.SyncManager;
 
 import android.content.Context;
 import android.content.Intent;
+import android.os.Bundle;
+import android.os.IBinder;
+import android.os.RemoteException;
 
 /**
  * Utility functions for Exchange support.
@@ -32,7 +36,9 @@ public class ExchangeUtils {
      * Starts the service for Exchange, if supported.
      */
     public static void startExchangeService(Context context) {
+        //EXCHANGE-REMOVE-SECTION-START
         context.startService(new Intent(context, SyncManager.class));
+        //EXCHANGE-REMOVE-SECTION-END
     }
 
     /**
@@ -44,7 +50,80 @@ public class ExchangeUtils {
      */
     public static IEmailService getExchangeEmailService(Context context,
             IEmailServiceCallback callback) {
-        // TODO Return an empty IEmailService impl if exchange support is removed
-        return new EmailServiceProxy(context, SyncManager.class, callback);
+        IEmailService ret = null;
+        //EXCHANGE-REMOVE-SECTION-START
+        ret = new EmailServiceProxy(context, SyncManager.class, callback);
+        //EXCHANGE-REMOVE-SECTION-END
+        if (ret == null) {
+            ret = NullEmailService.INSTANCE;
+        }
+        return ret;
+    }
+
+    /**
+     * An empty {@link IEmailService} implementation which is used instead of
+     * {@link com.android.exchange.SyncManager} on the build with no exchange support.
+     *
+     * <p>In theory, the service in question isn't used on the no-exchange-support build,
+     * because we won't have any exchange accounts in that case, so we wouldn't have to have this
+     * class.  However, there are a few places we do use the service even if there's no exchange
+     * accounts (e.g. setLogging), so this class is added for safety and simplicity.
+     */
+    private static class NullEmailService implements IEmailService {
+        public static final NullEmailService INSTANCE = new NullEmailService();
+
+        public Bundle autoDiscover(String userName, String password) throws RemoteException {
+            return Bundle.EMPTY;
+        }
+
+        public boolean createFolder(long accountId, String name) throws RemoteException {
+            return false;
+        }
+
+        public boolean deleteFolder(long accountId, String name) throws RemoteException {
+            return false;
+        }
+
+        public void hostChanged(long accountId) throws RemoteException {
+        }
+
+        public void loadAttachment(long attachmentId, String destinationFile,
+                String contentUriString) throws RemoteException {
+        }
+
+        public void loadMore(long messageId) throws RemoteException {
+        }
+
+        public boolean renameFolder(long accountId, String oldName, String newName)
+                throws RemoteException {
+            return false;
+        }
+
+        public void sendMeetingResponse(long messageId, int response) throws RemoteException {
+        }
+
+        public void setCallback(IEmailServiceCallback cb) throws RemoteException {
+        }
+
+        public void setLogging(int on) throws RemoteException {
+        }
+
+        public void startSync(long mailboxId) throws RemoteException {
+        }
+
+        public void stopSync(long mailboxId) throws RemoteException {
+        }
+
+        public void updateFolderList(long accountId) throws RemoteException {
+        }
+
+        public int validate(String protocol, String host, String userName, String password,
+                int port, boolean ssl, boolean trustCertificates) throws RemoteException {
+            return MessagingException.UNSPECIFIED_EXCEPTION;
+        }
+
+        public IBinder asBinder() {
+            return null;
+        }
     }
 }

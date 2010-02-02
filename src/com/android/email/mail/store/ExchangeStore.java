@@ -25,7 +25,6 @@ import com.android.email.mail.Store;
 import com.android.email.mail.StoreSynchronizer;
 import com.android.email.provider.EmailContent.Account;
 import com.android.email.service.EasAuthenticatorService;
-import com.android.exchange.Eas;
 
 import android.accounts.AccountManager;
 import android.accounts.AccountManagerCallback;

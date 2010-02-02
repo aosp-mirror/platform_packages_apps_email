@@ -37,17 +37,19 @@ import android.widget.EditText;
 @MediumTest
 public class AccountSetupExchangeTests extends
         ActivityInstrumentationTestCase2<AccountSetupExchange> {
-
+    //EXCHANGE-REMOVE-SECTION-START
     private AccountSetupExchange mActivity;
     private EditText mServerView;
     private Button mNextButton;
     private CheckBox mSslRequiredCheckbox;
     private CheckBox mTrustAllCertificatesCheckbox;
-    
+    //EXCHANGE-REMOVE-SECTION-END
+
     public AccountSetupExchangeTests() {
         super("com.android.email", AccountSetupExchange.class);
     }
 
+    //EXCHANGE-REMOVE-SECTION-START
     /**
      * Common setup code for all tests.  Sets up a default launch intent, which some tests
      * will use (others will override).
@@ -62,7 +64,7 @@ public class AccountSetupExchangeTests extends
         Intent i = getTestIntent("eas://user:password@server.com");
         setActivityIntent(i);
     }
-    
+
     /**
      * Test processing with a complete, good URI -> good fields
      */
@@ -72,7 +74,7 @@ public class AccountSetupExchangeTests extends
         getActivityAndFields();
         assertTrue(mNextButton.isEnabled());
     }
-    
+
     // TODO Add tests for valid usernames in eas
     // They would be <name> or <name>\<domain> or <name>/<domain> or a valid email address
 
@@ -85,7 +87,7 @@ public class AccountSetupExchangeTests extends
         getActivityAndFields();
         assertFalse(mNextButton.isEnabled());
     }
-    
+
     /**
      * No password is not OK - not enabled
      */
@@ -95,7 +97,7 @@ public class AccountSetupExchangeTests extends
         getActivityAndFields();
         assertFalse(mNextButton.isEnabled());
     }
-    
+
     /**
      * Test for non-standard but OK server names
      */
@@ -103,11 +105,11 @@ public class AccountSetupExchangeTests extends
     public void testGoodServerVariants() {
         getActivityAndFields();
         assertTrue(mNextButton.isEnabled());
-        
+
         mServerView.setText("  server.com  ");
         assertTrue(mNextButton.isEnabled());
     }
-        
+
     /**
      * Test for non-empty but non-OK server names
      */
@@ -115,10 +117,10 @@ public class AccountSetupExchangeTests extends
     public void testBadServerVariants() {
         getActivityAndFields();
         assertTrue(mNextButton.isEnabled());
-        
+
         mServerView.setText("  ");
         assertFalse(mNextButton.isEnabled());
-        
+
         mServerView.setText("serv$er.com");
         assertFalse(mNextButton.isEnabled());
     }
@@ -161,7 +163,7 @@ public class AccountSetupExchangeTests extends
     /**
      * TODO: Directly test validateFields() checking boolean result
      */
-        
+
     /**
      * Get the activity (which causes it to be started, using our intent) and get the UI fields
      */
@@ -173,7 +175,7 @@ public class AccountSetupExchangeTests extends
         mTrustAllCertificatesCheckbox =
             (CheckBox) mActivity.findViewById(R.id.account_trust_certificates);
     }
-    
+
     /**
      * Create an intent with the Account in it
      */
@@ -185,5 +187,5 @@ public class AccountSetupExchangeTests extends
         i.putExtra(AccountSetupExchange.EXTRA_DISABLE_AUTO_DISCOVER, true);
         return i;
     }
-
+    //EXCHANGE-REMOVE-SECTION-END
 }
