@@ -17,13 +17,12 @@
 package com.android.email.activity.setup;
 
 import com.android.email.AccountBackupRestore;
+import com.android.email.ExchangeUtils;
 import com.android.email.R;
 import com.android.email.Utility;
 import com.android.email.provider.EmailContent;
 import com.android.email.provider.EmailContent.Account;
 import com.android.email.provider.EmailContent.HostAuth;
-import com.android.email.service.EmailServiceProxy;
-import com.android.exchange.SyncManager;
 
 import android.app.Activity;
 import android.app.AlertDialog;
@@ -308,7 +307,7 @@ public class AccountSetupExchange extends Activity implements OnClickListener,
                         if (mAccount.mHostAuthRecv.mProtocol.equals("eas")) {
                             // For EAS, notify SyncManager that the password has changed
                             try {
-                                new EmailServiceProxy(this, SyncManager.class)
+                                ExchangeUtils.getExchangeEmailService(this, null)
                                     .hostChanged(mAccount.mId);
                             } catch (RemoteException e) {
                                 // Nothing to be done if this fails

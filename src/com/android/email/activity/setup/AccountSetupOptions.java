@@ -17,6 +17,7 @@
 package com.android.email.activity.setup;
 
 import com.android.email.Email;
+import com.android.email.ExchangeUtils;
 import com.android.email.R;
 import com.android.email.mail.Store;
 import com.android.email.mail.store.ExchangeStore;
@@ -186,7 +187,7 @@ public class AccountSetupOptions extends Activity implements OnClickListener {
         Email.setServicesEnabled(this);
         AccountSetupNames.actionSetNames(this, mAccount.mId, mEasFlowMode);
         // Start up SyncManager (if it isn't already running)
-        startService(new Intent(getApplicationContext(), com.android.exchange.SyncManager.class));
+        ExchangeUtils.startExchangeService(this);
         finish();
     }
 

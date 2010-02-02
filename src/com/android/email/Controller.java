@@ -27,11 +27,9 @@ import com.android.email.provider.EmailContent.Mailbox;
 import com.android.email.provider.EmailContent.MailboxColumns;
 import com.android.email.provider.EmailContent.Message;
 import com.android.email.provider.EmailContent.MessageColumns;
-import com.android.email.service.EmailServiceProxy;
 import com.android.email.service.EmailServiceStatus;
 import com.android.email.service.IEmailService;
 import com.android.email.service.IEmailServiceCallback;
-import com.android.exchange.SyncManager;
 
 import android.content.ContentResolver;
 import android.content.ContentUris;
@@ -136,8 +134,7 @@ public class Controller {
      * Generally this should be called by anybody who changes Email.DEBUG
      */
     public void serviceLogging(int debugEnabled) {
-        IEmailService service =
-            new EmailServiceProxy(mContext, SyncManager.class, mServiceCallback);
+        IEmailService service = ExchangeUtils.getExchangeEmailService(mContext, mServiceCallback);
         try {
             service.setLogging(debugEnabled);
         } catch (RemoteException e) {
@@ -787,7 +784,7 @@ public class Controller {
         if (account == null || isMessagingController(account)) {
             return null;
         } else {
-            return new EmailServiceProxy(mContext, SyncManager.class, mServiceCallback);
+            return ExchangeUtils.getExchangeEmailService(mContext, mServiceCallback);
         }
     }
 

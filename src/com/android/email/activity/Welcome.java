@@ -17,10 +17,10 @@
 package com.android.email.activity;
 
 import com.android.email.AccountBackupRestore;
+import com.android.email.ExchangeUtils;
 import com.android.email.activity.setup.AccountSetupBasics;
 import com.android.email.provider.EmailContent.Account;
 import com.android.email.provider.EmailContent.Mailbox;
-import com.android.exchange.SyncManager;
 
 import android.app.Activity;
 import android.content.Intent;
@@ -59,7 +59,7 @@ public class Welcome extends Activity {
         // SyncManager gets a chance to start.  There is no harm to starting it if it has already
         // been started
         // TODO More completely separate SyncManager from Email app
-        startService(new Intent(this, SyncManager.class));
+        ExchangeUtils.startExchangeService(this);
 
         // Find out how many accounts we have, and if there's just one, go directly to it
         Cursor c = null;
