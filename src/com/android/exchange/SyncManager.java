@@ -18,6 +18,7 @@
 package com.android.exchange;
 
 import com.android.email.AccountBackupRestore;
+import com.android.email.Email;
 import com.android.email.mail.MessagingException;
 import com.android.email.mail.store.TrustManagerFactory;
 import com.android.email.provider.EmailContent;
@@ -512,7 +513,7 @@ public class SyncManager extends Service implements Runnable {
                         // Delete this from AccountManager...
                         android.accounts.Account acct =
                             new android.accounts.Account(account.mEmailAddress,
-                                    Eas.ACCOUNT_MANAGER_TYPE);
+                                    Email.EXCHANGE_ACCOUNT_MANAGER_TYPE);
                         AccountManager.get(SyncManager.this).removeAccount(acct, null, null);
                         mSyncableEasMailboxSelector = null;
                         mEasAccountSelector = null;
@@ -707,7 +708,8 @@ public class SyncManager extends Service implements Runnable {
     public class EasAccountsUpdatedListener implements OnAccountsUpdateListener {
        public void onAccountsUpdated(android.accounts.Account[] accounts) {
            reconcileAccountsWithAccountManager(INSTANCE, getAccountList(),
-                   AccountManager.get(INSTANCE).getAccountsByType(Eas.ACCOUNT_MANAGER_TYPE));
+                   AccountManager.get(INSTANCE).getAccountsByType(
+                           Email.EXCHANGE_ACCOUNT_MANAGER_TYPE));
        }
     }
 
@@ -1200,7 +1202,7 @@ public class SyncManager extends Service implements Runnable {
                 // Create an AccountManager style Account
                 android.accounts.Account acct =
                     new android.accounts.Account(easAccount.mEmailAddress,
-                            Eas.ACCOUNT_MANAGER_TYPE);
+                            Email.EXCHANGE_ACCOUNT_MANAGER_TYPE);
                 // Get the Contacts mailbox; this happens rarely so it's ok to get it all
                 Mailbox contacts = Mailbox.restoreMailboxWithId(this, contactsId);
                 int syncInterval = contacts.mSyncInterval;
@@ -1612,7 +1614,7 @@ public class SyncManager extends Service implements Runnable {
                         if (account != null) {
                             android.accounts.Account a =
                                 new android.accounts.Account(account.mEmailAddress,
-                                        Eas.ACCOUNT_MANAGER_TYPE);
+                                        Email.EXCHANGE_ACCOUNT_MANAGER_TYPE);
                             if (!ContentResolver.getSyncAutomatically(a,
                                     ContactsContract.AUTHORITY)) {
                                 continue;

@@ -17,6 +17,7 @@
 
 package com.android.exchange.adapter;
 
+import com.android.email.Email;
 import com.android.email.provider.AttachmentProvider;
 import com.android.email.provider.EmailContent;
 import com.android.email.provider.EmailProvider;
@@ -249,7 +250,7 @@ public class FolderSyncParser extends AbstractSyncParser {
                     // TODO How will this change if the user changes his account display name?
                     cv.put(Calendars.DISPLAY_NAME, mAccount.mDisplayName);
                     cv.put(Calendars._SYNC_ACCOUNT, mAccount.mEmailAddress);
-                    cv.put(Calendars._SYNC_ACCOUNT_TYPE, Eas.ACCOUNT_MANAGER_TYPE);
+                    cv.put(Calendars._SYNC_ACCOUNT_TYPE, Email.EXCHANGE_ACCOUNT_MANAGER_TYPE);
                     cv.put(Calendars.SYNC_EVENTS, 1);
                     cv.put(Calendars.SELECTED, 1);
                     cv.put(Calendars.HIDDEN, 0);

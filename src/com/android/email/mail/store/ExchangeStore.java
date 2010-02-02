@@ -16,6 +16,7 @@
 
 package com.android.email.mail.store;
 
+import com.android.email.Email;
 import com.android.email.mail.AuthenticationFailedException;
 import com.android.email.mail.Folder;
 import com.android.email.mail.MessagingException;
@@ -92,8 +93,8 @@ public class ExchangeStore extends Store {
         // Here's where we tell AccountManager about the new account.  The addAccount
         // method in AccountManager calls the addAccount method in our authenticator
         // service (EasAuthenticatorService)
-        return AccountManager.get(context).addAccount(Eas.ACCOUNT_MANAGER_TYPE, null, null,
-                options, null, callback, null);
+        return AccountManager.get(context).addAccount(Email.EXCHANGE_ACCOUNT_MANAGER_TYPE,
+                null, null, options, null, callback, null);
     }
 
     /**
@@ -107,7 +108,7 @@ public class ExchangeStore extends Store {
     static public AccountManagerFuture<Boolean> removeSystemAccount(Context context, Account acct,
             AccountManagerCallback<Bundle> callback) {
         android.accounts.Account systemAccount =
-            new android.accounts.Account(acct.mEmailAddress, Eas.ACCOUNT_MANAGER_TYPE);
+            new android.accounts.Account(acct.mEmailAddress, Email.EXCHANGE_ACCOUNT_MANAGER_TYPE);
         return AccountManager.get(context).removeAccount(systemAccount, null, null);
     }
 

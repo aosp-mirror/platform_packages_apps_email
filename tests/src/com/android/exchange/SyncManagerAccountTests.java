@@ -17,6 +17,7 @@
 
 package com.android.exchange;
 
+import com.android.email.Email;
 import com.android.email.provider.EmailContent;
 import com.android.email.provider.EmailProvider;
 import com.android.email.provider.ProviderTestUtils;
@@ -63,7 +64,7 @@ public class SyncManagerAccountTests extends ProviderTestCase2<EmailProvider> {
     }
 
     private android.accounts.Account makeAccountManagerAccount(String username) {
-        return new android.accounts.Account(username, Eas.ACCOUNT_MANAGER_TYPE);
+        return new android.accounts.Account(username, Email.EXCHANGE_ACCOUNT_MANAGER_TYPE);
     }
 
     private void createAccountManagerAccount(String username) {
@@ -105,7 +106,7 @@ public class SyncManagerAccountTests extends ProviderTestCase2<EmailProvider> {
 
     private void deleteTemporaryAccountManagerAccounts(Context context) {
         android.accounts.Account[] accountManagerAccounts =
-            AccountManager.get(context).getAccountsByType(Eas.ACCOUNT_MANAGER_TYPE);
+                AccountManager.get(context).getAccountsByType(Email.EXCHANGE_ACCOUNT_MANAGER_TYPE);
         for (android.accounts.Account accountManagerAccount: accountManagerAccounts) {
             if (accountManagerAccount.name.startsWith(TEST_ACCOUNT_PREFIX) &&
                     accountManagerAccount.name.endsWith(TEST_ACCOUNT_SUFFIX)) {
@@ -135,7 +136,7 @@ public class SyncManagerAccountTests extends ProviderTestCase2<EmailProvider> {
         // Check that they're set up properly
         assertEquals(3, EmailContent.count(mMockContext, Account.CONTENT_URI, null, null));
         android.accounts.Account[] accountManagerAccounts =
-            AccountManager.get(context).getAccountsByType(Eas.ACCOUNT_MANAGER_TYPE);
+                AccountManager.get(context).getAccountsByType(Email.EXCHANGE_ACCOUNT_MANAGER_TYPE);
         assertEquals(3, accountManagerAccounts.length);
 
         // Delete account "2" from AccountManager
@@ -145,7 +146,7 @@ public class SyncManagerAccountTests extends ProviderTestCase2<EmailProvider> {
 
         // Confirm it's deleted
         accountManagerAccounts =
-            AccountManager.get(context).getAccountsByType(Eas.ACCOUNT_MANAGER_TYPE);
+                AccountManager.get(context).getAccountsByType(Email.EXCHANGE_ACCOUNT_MANAGER_TYPE);
         assertEquals(2, accountManagerAccounts.length);
 
         // Run the reconciler
@@ -169,8 +170,8 @@ public class SyncManagerAccountTests extends ProviderTestCase2<EmailProvider> {
                 makeSyncManagerAccountList(), accountManagerAccounts);
 
         // There should now be only one AccountManager account
-        accountManagerAccounts =
-            AccountManager.get(getContext()).getAccountsByType(Eas.ACCOUNT_MANAGER_TYPE);
+        accountManagerAccounts = AccountManager.get(getContext()).getAccountsByType(
+                Email.EXCHANGE_ACCOUNT_MANAGER_TYPE);
         assertEquals(1, accountManagerAccounts.length);
         // ... and it should be account "3"
         assertEquals(getTestAccountEmailAddress("3"), accountManagerAccounts[0].name);

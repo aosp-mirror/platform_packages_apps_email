@@ -16,6 +16,7 @@
 
 package com.android.exchange;
 
+import com.android.email.Email;
 import com.android.email.provider.EmailContent;
 import com.android.email.provider.EmailContent.AccountColumns;
 import com.android.email.provider.EmailContent.Mailbox;
@@ -98,7 +99,7 @@ public class ContactsSyncAdapterService extends Service {
         if (extras.getBoolean(ContentResolver.SYNC_EXTRAS_UPLOAD)) {
             Uri uri = RawContacts.CONTENT_URI.buildUpon()
                 .appendQueryParameter(RawContacts.ACCOUNT_NAME, account.name)
-                .appendQueryParameter(RawContacts.ACCOUNT_TYPE, Eas.ACCOUNT_MANAGER_TYPE)
+                .appendQueryParameter(RawContacts.ACCOUNT_TYPE, Email.EXCHANGE_ACCOUNT_MANAGER_TYPE)
                 .build();
             Cursor c = cr.query(uri,
                     new String[] {RawContacts._ID}, RawContacts.DIRTY + "=1", null, null);
