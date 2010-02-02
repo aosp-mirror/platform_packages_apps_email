@@ -95,12 +95,12 @@ public class VendorPolicyLoader {
             clazz = classLoader.loadClass(className);
             method = clazz.getMethod(GET_POLICY_METHOD, ARGS);
         } catch (NameNotFoundException ignore) {
-            // Package not found -- it's okay.
-        } catch (ClassNotFoundException ignore) {
-            // Class not found -- it's okay.
-        } catch (NoSuchMethodException ignore) {
-            // Method not found -- it's okay.
-        } catch (RuntimeException e) {
+            // Package not found -- it's okay - there's no policy .apk found, which is OK
+        } catch (ClassNotFoundException e) {
+            // Class not found -- probably not OK, but let's not crash here
+            Log.w(Email.LOG_TAG, "VendorPolicyLoader: " + e);
+        } catch (NoSuchMethodException e) {
+            // Method not found -- probably not OK, but let's not crash here
             Log.w(Email.LOG_TAG, "VendorPolicyLoader: " + e);
         }
         mPolicyMethod = method;
@@ -159,7 +159,7 @@ public class VendorPolicyLoader {
      *
      * @param userName the server that is being contacted (e.g. "imap.server.com")
      * @param host the server that is being contacted (e.g. "imap.server.com")
-     * @param reported capabilities, if known.  null is OK
+     * @param capabilities reported capabilities, if known.  null is OK
      * @return zero or more key/value pairs, quoted and delimited by spaces.  If there is
      * nothing to add, return null.
      */
@@ -182,7 +182,11 @@ public class VendorPolicyLoader {
      *          FIND_PROVIDER_IN_USER
      *          FIND_PROVIDER_OUT_URI
      *          FIND_PROVIDER_OUT_USER
-     *          FIND_PROVIDER_NOTE
+     *          FIND_PROVIDER_NOTE (optional - null is OK)
+     *
+     * Note, if we get this far, we expect "correct" results from the policy method.  But throwing
+     * checked exceptions requires a bunch of upstream changes, so we're going to catch them here
+     * and add logging.  Other exceptions may escape here (such as null pointers) to fail fast.
      *
      * @param domain The domain portion of the user's email address
      * @return suitable Provider definition, or null if no match found
