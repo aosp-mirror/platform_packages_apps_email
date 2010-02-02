@@ -40,6 +40,7 @@ public class AccountSettingsUtils {
             cv.put(AccountColumns.IS_DEFAULT, account.mIsDefault);
             cv.put(AccountColumns.DISPLAY_NAME, account.getDisplayName());
             cv.put(AccountColumns.SENDER_NAME, account.getSenderName());
+            cv.put(AccountColumns.SIGNATURE, account.getSignature());
             cv.put(AccountColumns.SYNC_INTERVAL, account.mSyncInterval);
             cv.put(AccountColumns.RINGTONE_URI, account.mRingtoneUri);
             cv.put(AccountColumns.FLAGS, account.mFlags);

@@ -997,6 +997,15 @@ public abstract class EmailContent {
             mSenderName = name;
         }
 
+        public String getSignature() {
+            return mSignature;
+        }
+
+        public void setSignature(String signature) {
+            mSignature = signature;
+        }
+
+
         /**
          * @return the minutes per check (for polling)
          * TODO define sentinel values for "never", "push", etc.  See Account.java

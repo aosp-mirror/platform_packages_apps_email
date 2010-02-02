@@ -46,6 +46,7 @@ public class AccountSettings extends PreferenceActivity {
     private static final String PREFERENCE_TOP_CATEGORY = "account_settings";
     private static final String PREFERENCE_DESCRIPTION = "account_description";
     private static final String PREFERENCE_NAME = "account_name";
+    private static final String PREFERENCE_SIGNATURE = "account_signature";
     private static final String PREFERENCE_FREQUENCY = "account_check_frequency";
     private static final String PREFERENCE_DEFAULT = "account_default";
     private static final String PREFERENCE_NOTIFY = "account_notify";
@@ -70,6 +71,7 @@ public class AccountSettings extends PreferenceActivity {
 
     private EditTextPreference mAccountDescription;
     private EditTextPreference mAccountName;
+    private EditTextPreference mAccountSignature;
     private ListPreference mCheckFrequency;
     private ListPreference mSyncWindow;
     private CheckBoxPreference mAccountDefault;
@@ -149,6 +151,23 @@ public class AccountSettings extends PreferenceActivity {
                 return false;
             }
         });
+
+        mAccountSignature = (EditTextPreference) findPreference(PREFERENCE_SIGNATURE);
+        mAccountSignature.setSummary(mAccount.getSignature());
+        mAccountSignature.setText(mAccount.getSignature());
+        mAccountSignature.setOnPreferenceChangeListener(
+                new Preference.OnPreferenceChangeListener() {
+                    public boolean onPreferenceChange(Preference preference, Object newValue) {
+                        String summary = newValue.toString();
+                        if (summary == null || summary.length() == 0) {
+                            mAccountSignature.setSummary(R.string.account_settings_signature_hint);
+                        } else {
+                            mAccountSignature.setSummary(summary);
+                        }
+                        mAccountSignature.setText(summary);
+                        return false;
+                    }
+                });
 
         mCheckFrequency = (ListPreference) findPreference(PREFERENCE_FREQUENCY);
 
@@ -306,6 +325,7 @@ public class AccountSettings extends PreferenceActivity {
         mAccount.setDefaultAccount(mAccountDefault.isChecked());
         mAccount.setDisplayName(mAccountDescription.getText());
         mAccount.setSenderName(mAccountName.getText());
+        mAccount.setSignature(mAccountSignature.getText());
         newFlags |= mAccountNotify.isChecked() ? Account.FLAGS_NOTIFY_NEW_MAIL : 0;
         mAccount.setSyncInterval(Integer.parseInt(mCheckFrequency.getValue()));
         if (mSyncWindow != null) {

@@ -535,6 +535,10 @@
     <string name="account_settings_description_label">Account name</string>
     <!-- On Settings screen, setting option name -->
     <string name="account_settings_name_label">Your name</string>
+    <!-- On Settings screen, setting option name -->
+    <string name="account_settings_signature_label">Signature</string>
+    <!-- On Settings screen, setting option name -->
+    <string name="account_settings_signature_hint">Append text to messages you send</string>
     <!-- On Settings screen, section heading -->
     <string name="account_settings_notifications">Notification settings</string>
 
