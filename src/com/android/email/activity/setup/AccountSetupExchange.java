@@ -54,6 +54,30 @@ import java.net.URISyntaxException;
  *  Requires SSL?
  *  User (login)
  *  Password
+ *
+ * There are two primary paths through this activity:
+ *   Edit existing:
+ *     Load existing values from account into fields
+ *     When user clicks 'next':
+ *       Confirm not a duplicate account
+ *       Try new values (check settings)
+ *       If new values are OK:
+ *         Write new values (save to provider)
+ *         finish() (pop to previous)
+ *
+ *   Creating New:
+ *     Try Auto-discover to get details from server
+ *     If Auto-discover reports an authentication failure:
+ *       finish() (pop to previous, to re-enter username & password)
+ *     If Auto-discover succeeds:
+ *       write server's account details into account
+ *     Load values from account into fields
+ *     Confirm not a duplicate account
+ *     Try new values (check settings)
+ *     If new values are OK:
+ *       Write new values (save to provider)
+ *       Proceed to options screen
+ *       finish() (removes self from back stack)
  */
 public class AccountSetupExchange extends Activity implements OnClickListener,
         OnCheckedChangeListener {
@@ -151,57 +175,12 @@ public class AccountSetupExchange extends Activity implements OnClickListener,
             mAccount = (EmailContent.Account) savedInstanceState.getParcelable(EXTRA_ACCOUNT);
         }
 
-        String username = null;
-        String password = null;
-
-        try {
-            URI uri = new URI(mAccount.getStoreUri(this));
-            if (uri.getUserInfo() != null) {
-                String[] userInfoParts = uri.getUserInfo().split(":", 2);
-                username = userInfoParts[0];
-                if (userInfoParts.length > 1) {
-                    password = userInfoParts[1];
-                }
-            }
-
-            if (username != null) {
-                // Add a backslash to the start of the username, but only if the username has no
-                // backslash in it.
-                if (username.indexOf('\\') < 0) {
-                    username = "\\" + username;
-                }
-                mUsernameView.setText(username);
-            }
-
-            if (password != null) {
-                mPasswordView.setText(password);
-            }
-
-            if (uri.getScheme().startsWith("eas")) {
-                // any other setup from mAccount can go here
-            } else {
-                throw new Error("Unknown account type: " + mAccount.getStoreUri(this));
-            }
-
-            if (uri.getHost() != null) {
-                mServerView.setText(uri.getHost());
-            }
-
-            boolean ssl = uri.getScheme().contains("ssl");
-            mSslSecurityView.setChecked(ssl);
-            mTrustCertificatesView.setChecked(uri.getScheme().contains("trustallcerts"));
-            mTrustCertificatesView.setVisibility(ssl ? View.VISIBLE : View.GONE);
-
-        } catch (URISyntaxException use) {
-            /*
-             * We should always be able to parse our own settings.
-             */
-            throw new Error(use);
-        }
-
+        loadFields(mAccount);
         validateFields();
 
         // If we've got a username and password and we're NOT editing, try autodiscover
+        String username = mAccount.mHostAuthRecv.mLogin;
+        String password = mAccount.mHostAuthRecv.mPassword;
         if (username != null && password != null &&
                 !Intent.ACTION_EDIT.equals(intent.getAction())) {
             // NOTE: Disabling AutoDiscover is only used in unit tests
@@ -265,10 +244,47 @@ public class AccountSetupExchange extends Activity implements OnClickListener,
     }
 
     /**
+     * Copy mAccount's values into UI fields
+     */
+    /* package */ void loadFields(Account account) {
+        HostAuth hostAuth = account.mHostAuthRecv;
+
+        String userName = hostAuth.mLogin;
+        if (userName != null) {
+            // Add a backslash to the start of the username, but only if the username has no
+            // backslash in it.
+            if (userName.indexOf('\\') < 0) {
+                userName = "\\" + userName;
+            }
+            mUsernameView.setText(userName);
+        }
+
+        if (hostAuth.mPassword != null) {
+            mPasswordView.setText(hostAuth.mPassword);
+        }
+
+        String protocol = hostAuth.mProtocol;
+        if (protocol == null && !protocol.startsWith("eas")) {
+            throw new Error("Unknown account type: " + account.getStoreUri(this));
+        }
+
+        if (hostAuth.mAddress != null) {
+            mServerView.setText(hostAuth.mAddress);
+        }
+
+        boolean ssl = 0 != (hostAuth.mFlags & HostAuth.FLAG_SSL);
+        boolean trustCertificates = 0 != (hostAuth.mFlags & HostAuth.FLAG_TRUST_ALL_CERTIFICATES);
+        mSslSecurityView.setChecked(ssl);
+        mTrustCertificatesView.setChecked(trustCertificates);
+        mTrustCertificatesView.setVisibility(ssl ? View.VISIBLE : View.GONE);
+    }
+
+    /**
      * Check the values in the fields and decide if it makes sense to enable the "next" button
      * NOTE:  Does it make sense to extract & combine with similar code in AccountSetupIncoming?
+     * @return true if all fields are valid, false if fields are incomplete
      */
-    private void validateFields() {
+    private boolean validateFields() {
         boolean enabled = usernameFieldValid(mUsernameView)
                 && Utility.requiredFieldValid(mPasswordView)
                 && Utility.requiredFieldValid(mServerView);
@@ -281,6 +297,7 @@ public class AccountSetupExchange extends Activity implements OnClickListener,
         }
         mNextButton.setEnabled(enabled);
         Utility.setCompoundDrawablesAlpha(mNextButton, enabled ? 255 : 128);
+        return enabled;
     }
 
     private void doOptions() {
@@ -326,22 +343,30 @@ public class AccountSetupExchange extends Activity implements OnClickListener,
                 }
             }
         } else if (requestCode == AccountSetupCheckSettings.REQUEST_CODE_AUTO_DISCOVER) {
-            // The idea here is that it only matters if we've gotten a HostAuth back from the
-            // autodiscover service call.  In all other cases, we can ignore the result
+            // If authentication failed, exit immediately (to re-enter credentials)
+            if (resultCode == AccountSetupCheckSettings.RESULT_AUTO_DISCOVER_AUTH_FAILED) {
+                finish();
+                return;
+            }
+
+            // If data was returned, populate the account, populate the UI fields, and proceed
+            // directly into account validation (to confirm the provided details actually work)
             if (data != null) {
                 Parcelable p = data.getParcelableExtra("HostAuth");
                 if (p != null) {
                     HostAuth hostAuth = (HostAuth)p;
                     mAccount.mHostAuthSend = hostAuth;
                     mAccount.mHostAuthRecv = hostAuth;
-                    doOptions();
+                    loadFields(mAccount);
+                    if (validateFields()) {
+                        // "click" next to launch server verification
+                        onNext();
+                    }
                 }
-            // If we've got an auth failed, we need to go back to the basic screen
-            // Otherwise, we just continue on with the Exchange setup screen
-            } else if (resultCode == AccountSetupCheckSettings.RESULT_AUTO_DISCOVER_AUTH_FAILED) {
-                finish();
             }
-         }
+            // Otherwise, we'll fall through into the regular setup UI, with some fields
+            // pre-filled, and the user can do whatever they need to do.
+        }
     }
 
     /**

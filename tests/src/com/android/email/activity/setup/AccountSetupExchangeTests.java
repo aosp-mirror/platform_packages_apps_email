@@ -18,12 +18,17 @@ package com.android.email.activity.setup;
 
 import com.android.email.R;
 import com.android.email.provider.EmailContent;
+import com.android.email.provider.ProviderTestUtils;
+import com.android.email.provider.EmailContent.Account;
+import com.android.email.provider.EmailContent.HostAuth;
 
 import android.content.Intent;
 import android.test.ActivityInstrumentationTestCase2;
 import android.test.UiThreadTest;
 import android.test.suitebuilder.annotation.MediumTest;
+import android.view.View;
 import android.widget.Button;
+import android.widget.CheckBox;
 import android.widget.EditText;
 
 /**
@@ -36,6 +41,8 @@ public class AccountSetupExchangeTests extends
     private AccountSetupExchange mActivity;
     private EditText mServerView;
     private Button mNextButton;
+    private CheckBox mSslRequiredCheckbox;
+    private CheckBox mTrustAllCertificatesCheckbox;
     
     public AccountSetupExchangeTests() {
         super("com.android.email", AccountSetupExchange.class);
@@ -115,6 +122,45 @@ public class AccountSetupExchangeTests extends
         mServerView.setText("serv$er.com");
         assertFalse(mNextButton.isEnabled());
     }
+
+    /**
+     * Test aspects of loadFields()
+     *
+     * TODO: More cases
+     */
+    @UiThreadTest
+    public void testLoadFields() {
+        // The default URI has no SSL and no "trust"
+        getActivityAndFields();
+        assertFalse(mSslRequiredCheckbox.isChecked());
+        assertFalse(mTrustAllCertificatesCheckbox.isChecked());
+        assertFalse(mTrustAllCertificatesCheckbox.getVisibility() == View.VISIBLE);
+
+        // Setup host auth with variants of SSL enabled and check.  This also enables the
+        // "trust certificates" checkbox (not checked, but visible now).
+        Account account =
+            ProviderTestUtils.setupAccount("account", false, mActivity.getBaseContext());
+        account.mHostAuthRecv =
+            ProviderTestUtils.setupHostAuth("hostauth", 1, false, mActivity.getBaseContext());
+        account.mHostAuthRecv.mFlags |= HostAuth.FLAG_SSL;
+        account.mHostAuthRecv.mFlags &= ~HostAuth.FLAG_TRUST_ALL_CERTIFICATES;
+        mActivity.loadFields(account);
+        assertTrue(mSslRequiredCheckbox.isChecked());
+        assertFalse(mTrustAllCertificatesCheckbox.isChecked());
+        assertTrue(mTrustAllCertificatesCheckbox.getVisibility() == View.VISIBLE);
+
+        // Setup host auth with variants of SSL enabled and check.  This also enables the
+        // "trust certificates" checkbox (not checked, but visible now).
+        account.mHostAuthRecv.mFlags |= HostAuth.FLAG_TRUST_ALL_CERTIFICATES;
+        mActivity.loadFields(account);
+        assertTrue(mSslRequiredCheckbox.isChecked());
+        assertTrue(mTrustAllCertificatesCheckbox.isChecked());
+        assertTrue(mTrustAllCertificatesCheckbox.getVisibility() == View.VISIBLE);
+    }
+
+    /**
+     * TODO: Directly test validateFields() checking boolean result
+     */
         
     /**
      * Get the activity (which causes it to be started, using our intent) and get the UI fields
@@ -123,6 +169,9 @@ public class AccountSetupExchangeTests extends
         mActivity = getActivity();
         mServerView = (EditText) mActivity.findViewById(R.id.account_server);
         mNextButton = (Button) mActivity.findViewById(R.id.next);
+        mSslRequiredCheckbox = (CheckBox) mActivity.findViewById(R.id.account_ssl);
+        mTrustAllCertificatesCheckbox =
+            (CheckBox) mActivity.findViewById(R.id.account_trust_certificates);
     }
     
     /**
