@@ -112,10 +112,6 @@ public class CalendarSyncAdapter extends AbstractSyncAdapter {
         } finally {
             c.close();
         }
-
-        if (mCalendarId == -1) {
-            mCalendarId = Long.parseLong(mailbox.mSyncStatus);
-        }
     }
 
     @Override
@@ -291,7 +287,7 @@ public class CalendarSyncAdapter extends AbstractSyncAdapter {
                         cv.put(Events.DESCRIPTION, getValue());
                         break;
                     case Tags.CALENDAR_TIME_ZONE:
-                        TimeZone tz = CalendarUtilities.parseTimeZone(getValue());
+                        TimeZone tz = CalendarUtilities.tziStringToTimeZone(getValue());
                         if (tz != null) {
                             cv.put(Events.EVENT_TIMEZONE, tz.getID());
                         } else {
@@ -653,6 +649,8 @@ public class CalendarSyncAdapter extends AbstractSyncAdapter {
                 }
             }
 
+            // Handle null data without error
+            if (body == null) return "";
             // Remove \r's from any body text
             return body.replace("\r\n", "\n");
         }
@@ -1012,7 +1010,7 @@ public class CalendarSyncAdapter extends AbstractSyncAdapter {
             } else {
                 timeZoneName = TimeZone.getDefault().getID();
             }
-            String x = CalendarUtilities.timeZoneToTZIString(timeZoneName);
+            String x = CalendarUtilities.timeZoneToTziString(TimeZone.getTimeZone(timeZoneName));
             s.data(Tags.CALENDAR_TIME_ZONE, x);
 
             if (entityValues.containsKey(Events.DESCRIPTION)) {
@@ -1180,7 +1178,8 @@ public class CalendarSyncAdapter extends AbstractSyncAdapter {
                     // EAS 2.5 needs: BusyStatus DtStamp EndTime Sensitivity StartTime TimeZone UID
                     // We can generate all but what we're testing for below
                     if (!entityValues.containsKey(Events.DTSTART)
-                            || !entityValues.containsKey(Events.DURATION)) {
+                            || (!entityValues.containsKey(Events.DURATION) &&
+                                    !entityValues.containsKey(Events.DTEND))) {
                         continue;
                     }
                     // TODO Handle BusyStatus for EAS 2.5

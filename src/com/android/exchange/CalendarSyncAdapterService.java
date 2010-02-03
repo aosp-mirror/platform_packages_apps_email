@@ -98,7 +98,7 @@ public class CalendarSyncAdapterService extends Service {
         }
         if (extras.getBoolean(ContentResolver.SYNC_EXTRAS_UPLOAD)) {
             Cursor c = cr.query(Events.CONTENT_URI,
-                    new String[] {Events._ID}, Events._SYNC_ID+ " ISNULL", null, null);
+                    new String[] {Events._ID}, Events._SYNC_DIRTY + "=1", null, null);
             try {
                 if (!c.moveToFirst()) {
                     if (logging) {
