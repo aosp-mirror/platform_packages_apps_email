@@ -14,12 +14,6 @@
  * limitations under the License.
  */
 
-/**
- * Tests of EAS Calendar Utilities
- * You can run this entire test case with:
- *   runtest -c com.android.exchange.utility.CalendarUtilitiesTests email
- */
-
 package com.android.exchange.utility;
 
 import com.android.exchange.Eas;
@@ -45,6 +39,7 @@ public class CalendarUtilities {
     static final int SECONDS = 1000;
     static final int MINUTES = SECONDS*60;
     static final int HOURS = MINUTES*60;
+    static final long DAYS = HOURS*24;
 
     // NOTE All Microsoft data structures are little endian
 
@@ -87,6 +82,8 @@ public class CalendarUtilities {
 
     // TimeZone cache; we parse/decode as little as possible, because the process is quite slow
     private static HashMap<String, TimeZone> sTimeZoneCache = new HashMap<String, TimeZone>();
+    // TZI string cache; we keep around our encoded TimeZoneInformation strings
+    private static HashMap<TimeZone, String> sTziStringCache = new HashMap<TimeZone, String>();
 
     // There is no type 4 (thus, the "")
     static final String[] sTypeToFreq =
@@ -97,6 +94,9 @@ public class CalendarUtilities {
 
     static final String[] sTwoCharacterNumbers =
         new String[] {"00", "01", "02", "03", "04", "05", "06", "07", "08", "09", "10", "11", "12"};
+
+    static final int sCurrentYear = new GregorianCalendar().get(Calendar.YEAR);
+    static final TimeZone sGmtTimeZone = TimeZone.getTimeZone("GMT");
 
     // Return a 4-byte long from a byte array (little endian)
     static int getLong(byte[] bytes, int offset) {
@@ -134,6 +134,28 @@ public class CalendarUtilities {
         int hour;
         int minute;
     }
+
+    // Write SYSTEMTIME data into a byte array (this will either be for the standard or daylight
+    // transition)
+    static void putTimeInMillisIntoSystemTime(byte[] bytes, int offset, long millis) {
+        GregorianCalendar cal = new GregorianCalendar(TimeZone.getDefault());
+        // Round to the next highest minute; we always write seconds as zero
+        cal.setTimeInMillis(millis + 30*SECONDS);
+
+        // MSFT months are 1 based; TimeZone is 0 based
+        setWord(bytes, offset + MSFT_SYSTEMTIME_MONTH, cal.get(Calendar.MONTH) + 1);
+        // MSFT day of week starts w/ Sunday = 0; TimeZone starts w/ Sunday = 1
+        setWord(bytes, offset + MSFT_SYSTEMTIME_DAY_OF_WEEK, cal.get(Calendar.DAY_OF_WEEK) - 1);
+
+        // Get the "day" in TimeZone format
+        int wom = cal.get(Calendar.DAY_OF_WEEK_IN_MONTH);
+        // 5 means "last" in MSFT land; for TimeZone, it's -1
+        setWord(bytes, offset + MSFT_SYSTEMTIME_DAY, wom < 0 ? 5 : wom);
+
+        // Turn hours/minutes into ms from midnight (per TimeZone)
+        setWord(bytes, offset + MSFT_SYSTEMTIME_HOUR, cal.get(Calendar.HOUR));
+        setWord(bytes, offset + MSFT_SYSTEMTIME_MINUTE, cal.get(Calendar.MINUTE));
+     }
 
     // Build a TimeZoneDate structure from a SYSTEMTIME within a byte array at a given offset
     static TimeZoneDate getTimeZoneDateFromSystemTime(byte[] bytes, int offset) {
@@ -195,7 +217,7 @@ public class CalendarUtilities {
      */
     static GregorianCalendar getCheckCalendar(TimeZone timeZone, TimeZoneDate tzd) {
         GregorianCalendar testCalendar = new GregorianCalendar(timeZone);
-        testCalendar.set(GregorianCalendar.YEAR, 2009);
+        testCalendar.set(GregorianCalendar.YEAR, sCurrentYear);
         testCalendar.set(GregorianCalendar.MONTH, tzd.month);
         testCalendar.set(GregorianCalendar.DAY_OF_WEEK, tzd.dayOfWeek);
         testCalendar.set(GregorianCalendar.DAY_OF_WEEK_IN_MONTH, tzd.day);
@@ -205,20 +227,146 @@ public class CalendarUtilities {
     }
 
     /**
+     * Find a standard/daylight transition between a start time and an end time
+     * @param tz a TimeZone
+     * @param startTime the start time for the test
+     * @param endTime the end time for the test
+     * @param startInDaylightTime whether daylight time is in effect at the startTime
+     * @return the time in millis of the first transition, or 0 if none
+     */
+    static private long findTransition(TimeZone tz, long startTime, long endTime,
+            boolean startInDaylightTime) {
+        long startingEndTime = endTime;
+        Date date = null;
+        while ((endTime - startTime) > MINUTES) {
+            long checkTime = ((startTime + endTime) / 2) + 1;
+            date = new Date(checkTime);
+            if (tz.inDaylightTime(date) != startInDaylightTime) {
+                endTime = checkTime;
+            } else {
+                startTime = checkTime;
+            }
+        }
+        if (endTime == startingEndTime) {
+            // Really, this shouldn't happen
+            return 0;
+        }
+        return startTime;
+    }
+
+    /**
+     * Return a Base64 representation of a MSFT TIME_ZONE_INFORMATION structure from a TimeZone
+     * that might be found in an Event; use cached result, if possible
+     * @param tz the TimeZone
+     * @return the Base64 String representing a Microsoft TIME_ZONE_INFORMATION element
+     */
+    static public String timeZoneToTziString(TimeZone tz) {
+        String tziString = sTziStringCache.get(tz);
+        if (tziString != null) {
+            if (Eas.USER_LOG) {
+                Log.d(TAG, "TZI string for " + tz.getDisplayName() + " found in cache.");
+            }
+            return tziString;
+        }
+        tziString = timeZoneToTziStringImpl(tz);
+        sTziStringCache.put(tz, tziString);
+        return tziString;
+    }
+
+    /**
+     * Calculate the Base64 representation of a MSFT TIME_ZONE_INFORMATION structure from a TimeZone
+     * that might be found in an Event.  Since the internal representation of the TimeZone is hidden
+     * from us we'll find the DST transitions and build the structure from that information
+     * @param tz the TimeZone
+     * @return the Base64 String representing a Microsoft TIME_ZONE_INFORMATION element
+     */
+    static public String timeZoneToTziStringImpl(TimeZone tz) {
+        String tziString;
+        long time = System.currentTimeMillis();
+        byte[] tziBytes = new byte[MSFT_TIME_ZONE_SIZE];
+        int standardBias = - tz.getRawOffset();
+        standardBias /= 60*SECONDS;
+        setLong(tziBytes, MSFT_TIME_ZONE_BIAS_OFFSET, standardBias);
+        // If this time zone has daylight savings time, we need to do a bunch more work
+        if (tz.useDaylightTime()) {
+            long standardTransition = 0;
+            long daylightTransition = 0;
+            GregorianCalendar cal = new GregorianCalendar();
+            cal.set(sCurrentYear, Calendar.JANUARY, 1, 0, 0, 0);
+            cal.setTimeZone(tz);
+            long startTime = cal.getTimeInMillis();
+            // Calculate rough end of year; no need to do the calculation
+            long endOfYearTime = startTime + 365*DAYS;
+            Date date = new Date(startTime);
+            boolean startInDaylightTime = tz.inDaylightTime(date);
+            // Find the first transition, and store
+            startTime = findTransition(tz, startTime, endOfYearTime, startInDaylightTime);
+            if (startInDaylightTime) {
+                standardTransition = startTime;
+            } else {
+                daylightTransition = startTime;
+            }
+            // Find the second transition, and store
+            startTime = findTransition(tz, startTime, endOfYearTime, !startInDaylightTime);
+            if (startInDaylightTime) {
+                daylightTransition = startTime;
+            } else {
+                standardTransition = startTime;
+            }
+            if (standardTransition != 0 && daylightTransition != 0) {
+                putTimeInMillisIntoSystemTime(tziBytes, MSFT_TIME_ZONE_STANDARD_DATE_OFFSET,
+                        standardTransition);
+                putTimeInMillisIntoSystemTime(tziBytes, MSFT_TIME_ZONE_DAYLIGHT_DATE_OFFSET,
+                        daylightTransition);
+                int dstOffset = tz.getDSTSavings();
+                setLong(tziBytes, MSFT_TIME_ZONE_DAYLIGHT_BIAS_OFFSET, - dstOffset / MINUTES);
+            }
+        }
+        // TODO Use a more efficient Base64 API
+        byte[] tziEncodedBytes = Base64.encode(tziBytes);
+        tziString = new String(tziEncodedBytes);
+        if (Eas.USER_LOG) {
+            Log.d(TAG, "Calculated TZI String for " + tz.getDisplayName() + " in " +
+                    (System.currentTimeMillis() - time) + "ms");
+        }
+        return tziString;
+    }
+
+    /**
      * Given a String as directly read from EAS, returns a TimeZone corresponding to that String
      * @param timeZoneString the String read from the server
      * @return the TimeZone, or TimeZone.getDefault() if not found
      */
-    static public TimeZone parseTimeZone(String timeZoneString) {
+    static public TimeZone tziStringToTimeZone(String timeZoneString) {
         // If we have this time zone cached, use that value and return
         TimeZone timeZone = sTimeZoneCache.get(timeZoneString);
         if (timeZone != null) {
             if (Eas.USER_LOG) {
-                Log.d(TAG, "TimeZone " + timeZone.getID() + " in cache: " + timeZone.getDisplayName());
+                Log.d(TAG, " Using cached TimeZone " + timeZone.getDisplayName());
             }
-            return timeZone;
+        } else {
+            timeZone = tziStringToTimeZoneImpl(timeZoneString);
+            if (timeZone == null) {
+                // If we don't find a match, we just return the current TimeZone.  In theory, this
+                // shouldn't be happening...
+                Log.w(TAG, "TimeZone not found using default: " + timeZoneString);
+                timeZone = TimeZone.getDefault();
+            }
+            sTimeZoneCache.put(timeZoneString, timeZone);
         }
+        return timeZone;
+    }
 
+    /**
+     * Given a String as directly read from EAS, tries to find a TimeZone in the database of all
+     * time zones that corresponds to that String.
+     * @param timeZoneString the String read from the server
+     * @return the TimeZone, or TimeZone.getDefault() if not found
+     */
+    static public TimeZone tziStringToTimeZoneImpl(String timeZoneString) {
+        TimeZone timeZone = null;
+        // TODO Remove after we're comfortable with performance
+        long time = System.currentTimeMillis();
         // First, we need to decode the base64 string
         byte[] timeZoneBytes = Base64.decode(timeZoneString);
 
@@ -245,13 +393,12 @@ public class CalendarUtilities {
                 if (Eas.USER_LOG) {
                     Log.d(TAG, "TimeZone without DST found by offset: " + dn);
                 }
-                return timeZone;
             } else {
-                TimeZoneDate dstStart =	getTimeZoneDateFromSystemTime(timeZoneBytes,
+                TimeZoneDate dstStart = getTimeZoneDateFromSystemTime(timeZoneBytes,
                         MSFT_TIME_ZONE_DAYLIGHT_DATE_OFFSET);
                 // See comment above for bias...
                 long dstSavings =
-                    -1 * getLong(timeZoneBytes, MSFT_TIME_ZONE_DAYLIGHT_BIAS_OFFSET) * 60*SECONDS;
+                    -1 * getLong(timeZoneBytes, MSFT_TIME_ZONE_DAYLIGHT_BIAS_OFFSET) * MINUTES;
 
                 // We'll go through each time zone to find one with the same DST transitions and
                 // savings length
@@ -265,20 +412,23 @@ public class CalendarUtilities {
                     // of dst.  That's the best we can do for now, since there's no other info
                     // provided by EAS (i.e. we can't get dynamic transitions, etc.)
 
+                    int testSavingsMinutes = timeZone.getDSTSavings() / MINUTES;
+                    int errorBoundsMinutes = (testSavingsMinutes * 2) + 1;
+
                     // Check start DST transition
                     GregorianCalendar testCalendar = getCheckCalendar(timeZone, dstStart);
-                    testCalendar.add(GregorianCalendar.MINUTE, -1);
+                    testCalendar.add(GregorianCalendar.MINUTE, - errorBoundsMinutes);
                     Date before = testCalendar.getTime();
-                    testCalendar.add(GregorianCalendar.MINUTE, 2);
+                    testCalendar.add(GregorianCalendar.MINUTE, 2*errorBoundsMinutes);
                     Date after = testCalendar.getTime();
                     if (timeZone.inDaylightTime(before)) continue;
                     if (!timeZone.inDaylightTime(after)) continue;
 
                     // Check end DST transition
                     testCalendar = getCheckCalendar(timeZone, dstEnd);
-                    testCalendar.add(GregorianCalendar.HOUR, -2);
+                    testCalendar.add(GregorianCalendar.MINUTE, - errorBoundsMinutes);
                     before = testCalendar.getTime();
-                    testCalendar.add(GregorianCalendar.HOUR, 2);
+                    testCalendar.add(GregorianCalendar.MINUTE, 2*errorBoundsMinutes);
                     after = testCalendar.getTime();
                     if (!timeZone.inDaylightTime(before)) continue;
                     if (timeZone.inDaylightTime(after)) continue;
@@ -288,38 +438,16 @@ public class CalendarUtilities {
 
                     // If we're here, it's the right time zone, modulo dynamic DST
                     String dn = timeZone.getDisplayName();
-                    sTimeZoneCache.put(timeZoneString, timeZone);
+                    // TODO Remove timing when we're comfortable with performance
                     if (Eas.USER_LOG) {
-                        Log.d(TAG, "TimeZone found by rules: " + dn);
+                        Log.d(TAG, "TimeZone found by rules: " + dn + " in " +
+                                (System.currentTimeMillis() - time) + "ms");
                     }
-                    return timeZone;
+                    break;
                 }
             }
         }
-        // If we don't find a match, we just return the current TimeZone.  In theory, this
-        // shouldn't be happening...
-        Log.w(TAG, "TimeZone not found with bias = " + bias + ", using default.");
-        return TimeZone.getDefault();
-    }
-
-    /**
-     * Generate a Base64 representation of a MSFT TIME_ZONE_INFORMATION structure from a TimeZone
-     * ID that might be found in an Event.  For now, we'll just use the standard bias, and we'll
-     * tackle DST later
-     * @param name the name of the TimeZone
-     * @return the Base64 String representing a Microsoft TIME_ZONE_INFORMATION element
-     */
-    static public String timeZoneToTZIString(String name) {
-        // TODO Handle DST (ugh)
-        TimeZone tz = TimeZone.getTimeZone(name);
-        byte[] tziBytes = new byte[MSFT_TIME_ZONE_SIZE];
-
-        int standardBias = - tz.getRawOffset();
-        standardBias /= 60*SECONDS;
-        setLong(tziBytes, MSFT_TIME_ZONE_BIAS_OFFSET, standardBias);
-
-        byte[] tziEncodedBytes = Base64.encode(tziBytes);
-        return new String(tziEncodedBytes);
+        return timeZone;
     }
 
     /**
@@ -327,7 +455,7 @@ public class CalendarUtilities {
      * @param DateTime string from Exchange server
      * @return the time in milliseconds (since Jan 1, 1970)
      */
-     static public long parseDateTimeToMillis(String date) {
+    static public long parseDateTimeToMillis(String date) {
         // Format for calendar date strings is 20090211T180303Z
         GregorianCalendar cal = new GregorianCalendar(Integer.parseInt(date.substring(0, 4)),
                 Integer.parseInt(date.substring(4, 6)) - 1, Integer.parseInt(date.substring(6, 8)),
@@ -337,44 +465,57 @@ public class CalendarUtilities {
         return cal.getTimeInMillis();
     }
 
-     /**
-      * Generate a GregorianCalendar from a date string that represents a date/time in GMT
-      * @param DateTime string from Exchange server
-      * @return the GregorianCalendar
-      */
-      static public GregorianCalendar parseDateTimeToCalendar(String date) {
-         // Format for calendar date strings is 20090211T180303Z
-         GregorianCalendar cal = new GregorianCalendar(Integer.parseInt(date.substring(0, 4)),
-                 Integer.parseInt(date.substring(4, 6)) - 1, Integer.parseInt(date.substring(6, 8)),
-                 Integer.parseInt(date.substring(9, 11)), Integer.parseInt(date.substring(11, 13)),
-                 Integer.parseInt(date.substring(13, 15)));
-         cal.setTimeZone(TimeZone.getTimeZone("GMT"));
-         return cal;
-     }
+    /**
+     * Generate a GregorianCalendar from a date string that represents a date/time in GMT
+     * @param DateTime string from Exchange server
+     * @return the GregorianCalendar
+     */
+    static public GregorianCalendar parseDateTimeToCalendar(String date) {
+        // Format for calendar date strings is 20090211T180303Z
+        GregorianCalendar cal = new GregorianCalendar(Integer.parseInt(date.substring(0, 4)),
+                Integer.parseInt(date.substring(4, 6)) - 1, Integer.parseInt(date.substring(6, 8)),
+                Integer.parseInt(date.substring(9, 11)), Integer.parseInt(date.substring(11, 13)),
+                Integer.parseInt(date.substring(13, 15)));
+        cal.setTimeZone(TimeZone.getTimeZone("GMT"));
+        return cal;
+    }
 
-     static String formatTwo(int num) {
-         if (num <= 12) {
-             return sTwoCharacterNumbers[num];
-         } else
-             return Integer.toString(num);
-     }
+    static String formatTwo(int num) {
+        if (num <= 12) {
+            return sTwoCharacterNumbers[num];
+        } else
+            return Integer.toString(num);
+    }
 
-     static public String millisToEasDateTime(long millis) {
-         StringBuilder sb = new StringBuilder();
-         GregorianCalendar cal = new GregorianCalendar(TimeZone.getTimeZone("GMT"));
-         cal.setTimeInMillis(millis);
-         sb.append(cal.get(Calendar.YEAR));
-         sb.append(formatTwo(cal.get(Calendar.MONTH) + 1));
-         sb.append(formatTwo(cal.get(Calendar.DAY_OF_MONTH)));
-         sb.append('T');
-         sb.append(formatTwo(cal.get(Calendar.HOUR_OF_DAY)));
-         sb.append(formatTwo(cal.get(Calendar.MINUTE)));
-         sb.append(formatTwo(cal.get(Calendar.SECOND)));
-         sb.append('Z');
-         return sb.toString();
-     }
+    /**
+     * Generate an EAS formatted date/time string based on GMT. See below for details.
+     */
+    static public String millisToEasDateTime(long millis) {
+        return millisToEasDateTime(millis, sGmtTimeZone);
+    }
 
-     static void addByDay(StringBuilder rrule, int dow, int wom) {
+    /**
+     * Generate an EAS formatted local date/time string from a time and a time zone
+     * @param millis a time in milliseconds
+     * @param tz a time zone
+     * @return an EAS formatted string indicating the date/time in the given time zone
+     */
+    static public String millisToEasDateTime(long millis, TimeZone tz) {
+        StringBuilder sb = new StringBuilder();
+        GregorianCalendar cal = new GregorianCalendar(tz);
+        cal.setTimeInMillis(millis);
+        sb.append(cal.get(Calendar.YEAR));
+        sb.append(formatTwo(cal.get(Calendar.MONTH) + 1));
+        sb.append(formatTwo(cal.get(Calendar.DAY_OF_MONTH)));
+        sb.append('T');
+        sb.append(formatTwo(cal.get(Calendar.HOUR_OF_DAY)));
+        sb.append(formatTwo(cal.get(Calendar.MINUTE)));
+        sb.append(formatTwo(cal.get(Calendar.SECOND)));
+        sb.append('Z');
+        return sb.toString();
+    }
+
+    static void addByDay(StringBuilder rrule, int dow, int wom) {
         rrule.append(";BYDAY=");
         boolean addComma = false;
         for (int i = 0; i < 7; i++) {
@@ -420,6 +561,12 @@ public class CalendarUtilities {
         return Integer.toString(bits);
     }
 
+    /**
+     * Extract the value of a token in an RRULE string
+     * @param rrule an RRULE string
+     * @param token a token to look for in the RRULE
+     * @return the value of that token
+     */
     static String tokenFromRrule(String rrule, String token) {
         int start = rrule.indexOf(token);
         if (start < 0) return null;
@@ -433,7 +580,7 @@ public class CalendarUtilities {
                 if (end == len) end++;
                 return rrule.substring(start, end -1);
             }
-         } while (true);
+        } while (true);
     }
 
     /**
@@ -447,7 +594,7 @@ public class CalendarUtilities {
     // Calendar app UI, which is a small subset of possible recurrence types
     // This code must be updated when the Calendar adds new functionality
     static public void recurrenceFromRrule(String rrule, long startTime, Serializer s)
-            throws IOException {
+    throws IOException {
         Log.d("RRULE", "rule: " + rrule);
         String freq = tokenFromRrule(rrule, "FREQ=");
         // If there's no FREQ=X, then we don't write a recurrence
@@ -514,10 +661,22 @@ public class CalendarUtilities {
                 s.data(Tags.CALENDAR_RECURRENCE_DAYOFMONTH, byMonthDay);
                 s.data(Tags.CALENDAR_RECURRENCE_MONTHOFYEAR, byMonth);
                 s.end();
-             }
+            }
         }
     }
 
+    /**
+     * Build an RRULE String from EAS recurrence information
+     * @param type the type of recurrence
+     * @param occurrences how many recurrences (instances)
+     * @param interval the interval between recurrences
+     * @param dow day of the week
+     * @param dom day of the month
+     * @param wom week of the month
+     * @param moy month of the year
+     * @param until the last recurrence time
+     * @return a valid RRULE String
+     */
     static public String rruleFromRecurrence(int type, int occurrences, int interval, int dow,
             int dom, int wom, int moy, String until) {
         StringBuilder rrule = new StringBuilder("FREQ=" + sTypeToFreq[type]);

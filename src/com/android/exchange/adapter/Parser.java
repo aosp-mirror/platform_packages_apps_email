@@ -51,6 +51,9 @@ public abstract class Parser {
     private boolean logging = false;
     private boolean capture = false;
     private String logTag = "EAS Parser";
+    
+    // Where tags start in a page
+    private static final int TAG_BASE = 5;
 
     private ArrayList<Integer> captureArray;
 
@@ -199,6 +202,13 @@ public abstract class Parser {
     public String getValue() throws IOException {
         // The false argument tells getNext to return the value as a String
         getNext(false);
+        // This means there was no value given, just <Foo/>; we'll return empty string for now
+        if (type == END) {
+            if (logging) {
+                log("No value for tag: " + tagTable[startTag - TAG_BASE]);
+            }
+            return "";
+        }
         // Save the value
         String val = text;
         // Read the next token; it had better be the end of the current tag
@@ -220,6 +230,9 @@ public abstract class Parser {
    public int getValueInt() throws IOException {
         // The true argument to getNext indicates the desire for an integer return value
         getNext(true);
+        if (type == END) {
+            return 0;
+        }
         // Save the value
         int val = num;
         // Read the next token; it had better be the end of the current tag
@@ -394,7 +407,7 @@ public abstract class Parser {
                     text = readInlineString();
                 }
                 if (logging) {
-                    name = tagTable[startTag - 5];
+                    name = tagTable[startTag - TAG_BASE];
                     log(name + ": " + (asInt ? Integer.toString(num) : text));
                 }
                 break;
@@ -408,7 +421,7 @@ public abstract class Parser {
                 noContent = (id & 0x40) == 0;
                 depth++;
                 if (logging) {
-                    name = tagTable[startTag - 5];
+                    name = tagTable[startTag - TAG_BASE];
                     //log('<' + name + '>');
                     nameArray[depth] = name;
                 }
