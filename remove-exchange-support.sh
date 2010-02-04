@@ -15,7 +15,7 @@
 # limitations under the License.
 
 #
-# Run this script to remove Exchange support from the Email application.
+# You can remove exchange by running this script.
 #
 
 set -e # fail fast
