@@ -545,7 +545,13 @@
     <!-- On settings screen, sync contacts check box label -->
     <string name="account_settings_sync_contacts_enable">Sync contacts</string>
     <!-- On settings screen, sync contacts summary text -->
-    <string name="account_settings_sync_contacts_summary">Also sync contacts from this account</string>
+    <string name="account_settings_sync_contacts_summary">Also sync contacts from this account
+        </string>
+    <!-- On settings screen, sync calendar check box label -->
+        <string name="account_settings_sync_calendar_enable">Sync calendar</string>
+    <!-- On settings screen, sync calendar summary text -->
+    <string name="account_settings_sync_calendar_summary">Also sync calendar from this account
+        </string>
 
     <!-- On Settings screen, setting check box label -->
     <string name="account_settings_vibrate_enable">Vibrate</string>

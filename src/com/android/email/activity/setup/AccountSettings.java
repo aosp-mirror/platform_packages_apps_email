@@ -38,6 +38,7 @@ import android.preference.Preference;
 import android.preference.PreferenceActivity;
 import android.preference.PreferenceCategory;
 import android.preference.RingtonePreference;
+import android.provider.Calendar;
 import android.provider.ContactsContract;
 import android.util.Log;
 import android.view.KeyEvent;
@@ -56,6 +57,7 @@ public class AccountSettings extends PreferenceActivity {
     private static final String PREFERENCE_INCOMING = "incoming";
     private static final String PREFERENCE_OUTGOING = "outgoing";
     private static final String PREFERENCE_SYNC_CONTACTS = "account_sync_contacts";
+    private static final String PREFERENCE_SYNC_CALENDAR = "account_sync_calendar";
 
     // NOTE: This string must match the one in res/xml/account_preferences.xml
     public static final String ACTION_ACCOUNT_MANAGER_ENTRY =
@@ -79,6 +81,7 @@ public class AccountSettings extends PreferenceActivity {
     private CheckBoxPreference mAccountVibrate;
     private RingtonePreference mAccountRingtone;
     private CheckBoxPreference mSyncContacts;
+    private CheckBoxPreference mSyncCalendar;
 
     /**
      * Display (and edit) settings for a specific account
@@ -264,15 +267,19 @@ public class AccountSettings extends PreferenceActivity {
         }
 
         mSyncContacts = (CheckBoxPreference) findPreference(PREFERENCE_SYNC_CONTACTS);
+        mSyncCalendar = (CheckBoxPreference) findPreference(PREFERENCE_SYNC_CALENDAR);
         if (mAccount.mHostAuthRecv.mProtocol.equals("eas")) {
             android.accounts.Account acct = new android.accounts.Account(mAccount.mEmailAddress,
                     Email.EXCHANGE_ACCOUNT_MANAGER_TYPE);
             mSyncContacts.setChecked(ContentResolver
                     .getSyncAutomatically(acct, ContactsContract.AUTHORITY));
+            mSyncCalendar.setChecked(ContentResolver
+                    .getSyncAutomatically(acct, Calendar.AUTHORITY));
         } else {
             PreferenceCategory serverCategory = (PreferenceCategory) findPreference(
                     PREFERENCE_SERVER_CATERGORY);
             serverCategory.removePreference(mSyncContacts);
+            serverCategory.removePreference(mSyncCalendar);
         }
     }
 
@@ -341,6 +348,8 @@ public class AccountSettings extends PreferenceActivity {
                     Email.EXCHANGE_ACCOUNT_MANAGER_TYPE);
             ContentResolver.setSyncAutomatically(acct, ContactsContract.AUTHORITY,
                     mSyncContacts.isChecked());
+            ContentResolver.setSyncAutomatically(acct, Calendar.AUTHORITY,
+                    mSyncCalendar.isChecked());
 
         }
         AccountSettingsUtils.commitSettings(this, mAccount);
