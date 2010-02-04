@@ -307,66 +307,96 @@ public class AccountSetupExchange extends Activity implements OnClickListener,
     }
 
     /**
-     * We can get here two ways, either by validate returning or by autodiscover returning.
+     * There are three cases handled here, so we split out into separate sections.
+     * 1.  Validate existing account (edit)
+     * 2.  Validate new account
+     * 3.  Autodiscover for new account
+     *
+     * For each case, there are two or more paths for success or failure.
      */
     @Override
     public void onActivityResult(int requestCode, int resultCode, Intent data) {
         if (requestCode == AccountSetupCheckSettings.REQUEST_CODE_VALIDATE) {
-            if (resultCode == RESULT_OK) {
-                if (Intent.ACTION_EDIT.equals(getIntent().getAction())) {
-                    if (mAccount.isSaved()) {
-                        // Account.update will NOT save the HostAuth's
-                        mAccount.update(this, mAccount.toContentValues());
-                        mAccount.mHostAuthRecv.update(this,
-                                mAccount.mHostAuthRecv.toContentValues());
-                        mAccount.mHostAuthSend.update(this,
-                                mAccount.mHostAuthSend.toContentValues());
-                        if (mAccount.mHostAuthRecv.mProtocol.equals("eas")) {
-                            // For EAS, notify SyncManager that the password has changed
-                            try {
-                                ExchangeUtils.getExchangeEmailService(this, null)
-                                    .hostChanged(mAccount.mId);
-                            } catch (RemoteException e) {
-                                // Nothing to be done if this fails
-                            }
-                        }
-                    } else {
-                        // Account.save will save the HostAuth's
-                        mAccount.save(this);
-                    }
-                    // Update the backup (side copy) of the accounts
-                    AccountBackupRestore.backupAccounts(this);
-                    finish();
-                } else {
-                    // Go directly to end - there is no 2nd screen for incoming settings
-                    doOptions();
-                }
+            if (Intent.ACTION_EDIT.equals(getIntent().getAction())) {
+                doActivityResultValidateExistingAccount(resultCode, data);
+            } else {
+                doActivityResultValidateNewAccount(resultCode, data);
             }
         } else if (requestCode == AccountSetupCheckSettings.REQUEST_CODE_AUTO_DISCOVER) {
-            // If authentication failed, exit immediately (to re-enter credentials)
-            if (resultCode == AccountSetupCheckSettings.RESULT_AUTO_DISCOVER_AUTH_FAILED) {
-                finish();
-                return;
-            }
+            doActivityResultAutoDiscoverNewAccount(resultCode, data);
+        }
+    }
 
-            // If data was returned, populate the account, populate the UI fields, and proceed
-            // directly into account validation (to confirm the provided details actually work)
-            if (data != null) {
-                Parcelable p = data.getParcelableExtra("HostAuth");
-                if (p != null) {
-                    HostAuth hostAuth = (HostAuth)p;
-                    mAccount.mHostAuthSend = hostAuth;
-                    mAccount.mHostAuthRecv = hostAuth;
-                    loadFields(mAccount);
-                    if (validateFields()) {
-                        // "click" next to launch server verification
-                        onNext();
+    /**
+     * Process activity result when validating existing account
+     */
+    private void doActivityResultValidateExistingAccount(int resultCode, Intent data) {
+        if (resultCode == RESULT_OK) {
+            if (mAccount.isSaved()) {
+                // Account.update will NOT save the HostAuth's
+                mAccount.update(this, mAccount.toContentValues());
+                mAccount.mHostAuthRecv.update(this,
+                        mAccount.mHostAuthRecv.toContentValues());
+                mAccount.mHostAuthSend.update(this,
+                        mAccount.mHostAuthSend.toContentValues());
+                if (mAccount.mHostAuthRecv.mProtocol.equals("eas")) {
+                    // For EAS, notify SyncManager that the password has changed
+                    try {
+                        ExchangeUtils.getExchangeEmailService(this, null)
+                        .hostChanged(mAccount.mId);
+                    } catch (RemoteException e) {
+                        // Nothing to be done if this fails
                     }
                 }
+            } else {
+                // Account.save will save the HostAuth's
+                mAccount.save(this);
             }
-            // Otherwise, we'll fall through into the regular setup UI, with some fields
-            // pre-filled, and the user can do whatever they need to do.
+            // Update the backup (side copy) of the accounts
+            AccountBackupRestore.backupAccounts(this);
+            finish();
         }
+        // else (resultCode not OK) - just return into this activity for further editing
+    }
+
+    /**
+     * Process activity result when validating new account
+     */
+    private void doActivityResultValidateNewAccount(int resultCode, Intent data) {
+        if (resultCode == RESULT_OK) {
+            // Go directly to next screen
+            doOptions();
+        } else if (resultCode == AccountSetupCheckSettings.RESULT_SECURITY_REQUIRED_USER_CANCEL) {
+            finish();
+        }
+        // else (resultCode not OK) - just return into this activity for further editing
+    }
+
+    /**
+     * Process activity result when validating new account
+     */
+    private void doActivityResultAutoDiscoverNewAccount(int resultCode, Intent data) {
+        // If authentication failed, exit immediately (to re-enter credentials)
+        if (resultCode == AccountSetupCheckSettings.RESULT_AUTO_DISCOVER_AUTH_FAILED) {
+            finish();
+            return;
+        }
+
+        // If data was returned, populate the account & populate the UI fields and validate it
+        if (data != null) {
+            Parcelable p = data.getParcelableExtra("HostAuth");
+            if (p != null) {
+                HostAuth hostAuth = (HostAuth)p;
+                mAccount.mHostAuthSend = hostAuth;
+                mAccount.mHostAuthRecv = hostAuth;
+                loadFields(mAccount);
+                if (validateFields()) {
+                    // "click" next to launch server verification
+                    onNext();
+                }
+            }
+        }
+        // Otherwise, proceed into this activity for manual setup
     }
 
     /**

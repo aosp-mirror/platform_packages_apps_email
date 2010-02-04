@@ -19,25 +19,7 @@
     <!-- Deprecated strings - Move the identifiers to this section, mark as DO NOT TRANSLATE,
          and remove the actual text.  These will be removed in a bulk operation. -->
     <!-- Do Not Translate.  Unused string. -->
-    <string name="special_mailbox_name_inbox"></string>
-    <!-- Do Not Translate.  Unused string. -->
-    <string name="special_mailbox_display_name_inbox"></string>
-    <!-- Do Not Translate.  Unused string. -->
-    <string name="special_mailbox_display_name_outbox"></string>
-    <!-- Do Not Translate.  Unused string. -->
-    <string name="special_mailbox_display_name_drafts"></string>
-    <!-- Do Not Translate.  Unused string. -->
-    <string name="special_mailbox_display_name_trash"></string>
-    <!-- Do Not Translate.  Unused string. -->
-    <string name="special_mailbox_display_name_sent"></string>
-    <!-- Do Not Translate.  Unused string. -->
-    <string name="special_mailbox_display_name_junk"></string>
-    <!-- Do Not Translate.  Unused string. -->
-    <string name="account_setup_incoming_delete_policy_7days_label"></string>
-    <!-- Do Not Translate.  Unused string. -->
-    <string name="account_setup_incoming_security_ssl_optional_label"></string>
-    <!-- Do Not Translate.  Unused string. -->
-    <string name="account_setup_incoming_security_tls_optional_label"></string>
+    <string name="account_setup_failed_security_policies_required"></string>
 
     <!-- Permissions label for reading attachments -->
     <string name="read_attachment_label">Read Email attachments</string>
@@ -505,8 +487,20 @@
     <string name="account_setup_failed_security">Unable to open connection to server due to security error.</string>
     <!-- Additional diagnostic text when server connection failed due to io error (connection) -->
     <string name="account_setup_failed_ioerror">Unable to open connection to server.</string>
-    <!-- Additional diagnostic text when validation failed due to required provisioning not being supported -->
-    <string name="account_setup_failed_security_policies_required">This Exchange ActiveSync server requires security features your phone does not support.</string>
+
+    <!-- Dialog title when validation requires security provisioning (e.g. support
+         for device lock PIN, or remote wipe.) and we ask the user permission before continuing -->
+    <string name="account_setup_security_required_title">Remote security administration</string>
+    <!-- Additional diagnostic text when validation requires security provisioning (e.g. support
+         for device lock PIN, or remote wipe.) and we ask the user permission before continuing. -->
+    <string name="account_setup_security_policies_required_fmt">
+         The server <xliff:g id="server">%s</xliff:g> requires that you allow it to remotely control
+         some security features of your phone.  Do you wish to finish setting up this account?
+         </string>
+    <!-- Additional diagnostic text when validation failed due to required provisioning not
+         being supported -->
+    <string name="account_setup_failed_security_policies_unsupported">
+         This server requires security features your phone does not support.</string>
 
     <!-- "Setup could not finish" dialog action button -->
     <string name="account_setup_failed_dlg_edit_details_action">Edit details</string>

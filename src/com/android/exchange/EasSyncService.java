@@ -257,8 +257,19 @@ public class EasSyncService extends AbstractSyncService {
                 resp = svc.sendHttpClientPost("FolderSync", s.toByteArray());
                 code = resp.getStatusLine().getStatusCode();
                 if (code == HttpStatus.SC_FORBIDDEN) {
-                    throw new MessagingException(MessagingException.SECURITY_POLICIES_REQUIRED);
+                    throw new MessagingException(MessagingException.SECURITY_POLICIES_UNSUPPORTED);
                 }
+                // PLACEHOLDER:  Replace the above simple check with a more sophisticated
+                // check of server-mandated security policy support.  There are three outcomes.
+                // 1.  As below, if no policies required, simply return here as-is.
+                // 2.  As above, if policies are required that we do not support, throw
+                //     MessagingException.SECURITY_POLICIES_UNSUPPORTED.  This is a validation
+                //     failure.
+                // 3.  New code:  If policies are required that we *do* support, throw
+                //     MessagingException.SECURITY_POLICIES_REQUIRED.  This is an advisory to the
+                //     UI that new policies will be required in order to use this account.
+                // See also:  isSupported(PolicySet policies)
+
                 userLog("Validation successful");
                 return;
             }

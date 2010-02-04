@@ -99,6 +99,7 @@ public class AccountSetupAccountType extends Activity implements OnClickListener
             throw new Error(use);
         }
         AccountSetupIncoming.actionIncomingSettings(this, mAccount, mMakeDefault);
+        finish();
     }
 
     /**
@@ -120,6 +121,7 @@ public class AccountSetupAccountType extends Activity implements OnClickListener
         // for it. This logic needs to be followed in the auto setup flow as well.
         mAccount.setDeletePolicy(Account.DELETE_POLICY_ON_DELETE);
         AccountSetupIncoming.actionIncomingSettings(this, mAccount, mMakeDefault);
+        finish();
     }
 
     /**
@@ -145,9 +147,7 @@ public class AccountSetupAccountType extends Activity implements OnClickListener
         mAccount.setSyncInterval(Account.CHECK_INTERVAL_PUSH);
         mAccount.setSyncLookback(1);
         AccountSetupExchange.actionIncomingSettings(this, mAccount, mMakeDefault, easFlowMode);
-        if (easFlowMode) {
-            finish();
-        }
+        finish();
     }
 
     /**

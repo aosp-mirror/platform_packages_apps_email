@@ -64,8 +64,9 @@ public class AccountSetupCheckSettings extends Activity implements OnClickListen
     public static final int REQUEST_CODE_VALIDATE = 1;
     public static final int REQUEST_CODE_AUTO_DISCOVER = 2;
 
-    // We'll define a special result code for AutoDiscover auth failures
+    // We'll define special result codes for certain types of connection results
     public static final int RESULT_AUTO_DISCOVER_AUTH_FAILED = Activity.RESULT_FIRST_USER;
+    public static final int RESULT_SECURITY_REQUIRED_USER_CANCEL = Activity.RESULT_FIRST_USER + 1;
 
     private Handler mHandler = new Handler();
     private ProgressBar mProgressBar;
@@ -224,9 +225,16 @@ public class AccountSetupCheckSettings extends Activity implements OnClickListen
                         : R.string.account_setup_failed_dlg_certificate_message_fmt;
                     showErrorDialog(false, id, message);
                 } catch (final MessagingException me) {
+                    int exceptionType = me.getExceptionType();
+                    // Check for non-fatal errors first
+                    if (exceptionType == MessagingException.SECURITY_POLICIES_REQUIRED) {
+                        showSecurityRequiredDialog();
+                        return;
+                    }
+                    // Handle fatal errors
                     int id;
                     String message = me.getMessage();
-                    switch (me.getExceptionType()) {
+                    switch (exceptionType) {
                         case MessagingException.IOERROR:
                             id = R.string.account_setup_failed_ioerror;
                             break;
@@ -236,8 +244,8 @@ public class AccountSetupCheckSettings extends Activity implements OnClickListen
                         case MessagingException.AUTH_REQUIRED:
                             id = R.string.account_setup_failed_auth_required;
                             break;
-                        case MessagingException.SECURITY_POLICIES_REQUIRED:
-                            id = R.string.account_setup_failed_security_policies_required;
+                        case MessagingException.SECURITY_POLICIES_UNSUPPORTED:
+                            id = R.string.account_setup_failed_security_policies_unsupported;
                             break;
                         case MessagingException.GENERAL_SECURITY:
                             id = R.string.account_setup_failed_security;
@@ -299,6 +307,49 @@ public class AccountSetupCheckSettings extends Activity implements OnClickListen
                                         } else if (DBG_FORCE_RESULT_OK) {
                                             setResult(RESULT_OK);
                                         }
+                                        finish();
+                                    }
+                                })
+                        .show();
+            }
+        });
+    }
+
+    /**
+     * Display a dialog asking the user if they are willing to accept control by the remote
+     * server.  This converts the MessagingException.SECURITY_POLICIES_REQUIRED exception into an
+     * Activity result of RESULT_OK, thus hiding the exception from the caller entirely.
+     *
+     * TODO: Perhaps use stronger button names than "OK" and "Cancel" (e.g. "Allow" / "Deny")
+     */
+    private void showSecurityRequiredDialog() {
+        mHandler.post(new Runnable() {
+            public void run() {
+                if (mDestroyed) {
+                    return;
+                }
+                mProgressBar.setIndeterminate(false);
+                String host = mAccount.mHostAuthRecv.mAddress;
+                Object[] args = new String[] { host };
+                new AlertDialog.Builder(AccountSetupCheckSettings.this)
+                        .setIcon(android.R.drawable.ic_dialog_alert)
+                        .setTitle(getString(R.string.account_setup_security_required_title))
+                        .setMessage(getString(
+                                R.string.account_setup_security_policies_required_fmt, args))
+                        .setCancelable(true)
+                        .setPositiveButton(
+                                getString(R.string.okay_action),
+                                new DialogInterface.OnClickListener() {
+                                    public void onClick(DialogInterface dialog, int which) {
+                                        setResult(RESULT_OK);
+                                        finish();
+                                    }
+                                })
+                        .setNegativeButton(
+                                getString(R.string.cancel_action),
+                                new DialogInterface.OnClickListener() {
+                                    public void onClick(DialogInterface dialog, int which) {
+                                        setResult(RESULT_SECURITY_REQUIRED_USER_CANCEL);
                                         finish();
                                     }
                                 })
