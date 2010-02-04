@@ -1854,6 +1854,7 @@ public class SyncManager extends Service implements Runnable {
                     break;
                 case AbstractSyncService.EXIT_IO_ERROR:
                     Mailbox m = Mailbox.restoreMailboxWithId(INSTANCE, mailboxId);
+                    if (m == null) return;
                     if (syncError != null) {
                         syncError.escalate();
                         INSTANCE.log(m.mDisplayName + " held for " + syncError.holdDelay + "ms");
