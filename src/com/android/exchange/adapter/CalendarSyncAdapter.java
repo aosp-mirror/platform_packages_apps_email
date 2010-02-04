@@ -19,7 +19,6 @@ package com.android.exchange.adapter;
 
 import com.android.email.Email;
 import com.android.email.provider.EmailContent.Mailbox;
-import com.android.exchange.Eas;
 import com.android.exchange.EasSyncService;
 import com.android.exchange.utility.CalendarUtilities;
 import com.android.exchange.utility.Duration;
@@ -440,11 +439,13 @@ public class CalendarSyncAdapter extends AbstractSyncAdapter {
             // TODO Make sure calendar knows this isn't globally unique!!
             cv.put(Events.ORIGINAL_EVENT, parentCv.getAsString(Events._SYNC_ID));
 
+            String exceptionStartTime = "_noStartTime";
             while (nextTag(Tags.SYNC_APPLICATION_DATA) != END) {
                 switch (tag) {
                     case Tags.CALENDAR_EXCEPTION_START_TIME:
+                        exceptionStartTime = getValue();
                         cv.put(Events.ORIGINAL_INSTANCE_TIME,
-                                CalendarUtilities.parseDateTimeToMillis(getValue()));
+                                CalendarUtilities.parseDateTimeToMillis(exceptionStartTime));
                         break;
                     case Tags.CALENDAR_EXCEPTION_IS_DELETED:
                         if (getValueInt() == 1) {
@@ -500,6 +501,10 @@ public class CalendarSyncAdapter extends AbstractSyncAdapter {
                         skipTag();
                 }
             }
+
+            // We need a _sync_id, but it can't be the parent's id, so we generate one
+            cv.put(Events._SYNC_ID, parentCv.getAsString(Events._SYNC_ID) + '_' +
+                    exceptionStartTime);
 
             if (!cv.containsKey(Events.DTSTART)) {
                 cv.put(Events.DTSTART, parentCv.getAsLong(Events.DTSTART));
