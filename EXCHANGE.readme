@@ -1,0 +1,11 @@
+Exchange support in the Email application can be removed.  In order to do so,
+run the remove-exchange-support.sh script and rebuild the application.  In case
+the script doesn't work, here's how to do it manually.
+
+1. Remove everything under src/com/android/exchange/ and
+   tests/src/com/android/exchange/.
+2. Check all the *.xml and *.java files, and remove all the lines surrounded by
+   EXCHANGE-REMOVE-SECTION-START and EXCHANGE-REMOVE-SECTION-END.
+3. Check all the *.java files and remove all imports from com.android.exchange
+   and its subpackages.
+
