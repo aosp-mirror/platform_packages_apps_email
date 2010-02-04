@@ -114,30 +114,6 @@ public class MessageList extends ListActivity implements OnItemClickListener, On
     private TextView mRightTitle;
     private ProgressBar mProgressIcon;
 
-    private static final int[] mColorChipResIds = new int[] {
-        R.drawable.appointment_indicator_leftside_1,
-        R.drawable.appointment_indicator_leftside_2,
-        R.drawable.appointment_indicator_leftside_3,
-        R.drawable.appointment_indicator_leftside_4,
-        R.drawable.appointment_indicator_leftside_5,
-        R.drawable.appointment_indicator_leftside_6,
-        R.drawable.appointment_indicator_leftside_7,
-        R.drawable.appointment_indicator_leftside_8,
-        R.drawable.appointment_indicator_leftside_9,
-        R.drawable.appointment_indicator_leftside_10,
-        R.drawable.appointment_indicator_leftside_11,
-        R.drawable.appointment_indicator_leftside_12,
-        R.drawable.appointment_indicator_leftside_13,
-        R.drawable.appointment_indicator_leftside_14,
-        R.drawable.appointment_indicator_leftside_15,
-        R.drawable.appointment_indicator_leftside_16,
-        R.drawable.appointment_indicator_leftside_17,
-        R.drawable.appointment_indicator_leftside_18,
-        R.drawable.appointment_indicator_leftside_19,
-        R.drawable.appointment_indicator_leftside_20,
-        R.drawable.appointment_indicator_leftside_21,
-    };
-
     // DB access
     private ContentResolver mResolver;
     private long mMailboxId;
@@ -1586,8 +1562,7 @@ public class MessageList extends ListActivity implements OnItemClickListener, On
 
             // Load the UI
             View chipView = view.findViewById(R.id.chip);
-            int chipResId = mColorChipResIds[(int)itemView.mAccountId % mColorChipResIds.length];
-            chipView.setBackgroundResource(chipResId);
+            chipView.setBackgroundResource(Email.getAccountColorResourceId(itemView.mAccountId));
 
             TextView fromView = (TextView) view.findViewById(R.id.from);
             String text = cursor.getString(COLUMN_DISPLAY_NAME);

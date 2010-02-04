@@ -145,6 +145,44 @@ public class Email extends Application {
 
     public static final String EXCHANGE_ACCOUNT_MANAGER_TYPE = "com.android.exchange";
 
+    // The color chip resources and the RGB color values in the array below must be kept in sync
+    private static final int[] ACCOUNT_COLOR_CHIP_RES_IDS = new int[] {
+        R.drawable.appointment_indicator_leftside_1,
+        R.drawable.appointment_indicator_leftside_2,
+        R.drawable.appointment_indicator_leftside_3,
+        R.drawable.appointment_indicator_leftside_4,
+        R.drawable.appointment_indicator_leftside_5,
+        R.drawable.appointment_indicator_leftside_6,
+        R.drawable.appointment_indicator_leftside_7,
+        R.drawable.appointment_indicator_leftside_8,
+        R.drawable.appointment_indicator_leftside_9,
+        R.drawable.appointment_indicator_leftside_10,
+        R.drawable.appointment_indicator_leftside_11,
+        R.drawable.appointment_indicator_leftside_12,
+        R.drawable.appointment_indicator_leftside_13,
+        R.drawable.appointment_indicator_leftside_14,
+        R.drawable.appointment_indicator_leftside_15,
+        R.drawable.appointment_indicator_leftside_16,
+        R.drawable.appointment_indicator_leftside_17,
+        R.drawable.appointment_indicator_leftside_18,
+        R.drawable.appointment_indicator_leftside_19,
+        R.drawable.appointment_indicator_leftside_20,
+        R.drawable.appointment_indicator_leftside_21,
+    };
+
+    private static final int[] ACCOUNT_COLOR_CHIP_RGBS = new int[] {0x6aad08, 0xe24c7f, 0xed8500,
+        0x3b6dd3, 0x29ad9c, 0x6e38d1, 0x31649b, 0x309363, 0x109918, 0xcc3431, 0xacad18, 0xd4ad00,
+        0x9b449b, 0xe56021, 0xa46c6a, 0x8a6a8a, 0x60738b, 0x7082ab, 0x518987, 0x813149, 0xb48d59
+    };
+
+    public static int getAccountColorResourceId(long accountId) {
+        return ACCOUNT_COLOR_CHIP_RES_IDS[(int)accountId % ACCOUNT_COLOR_CHIP_RES_IDS.length];
+    }
+    
+    public static int getAccountColor(long accountId) {
+        return ACCOUNT_COLOR_CHIP_RGBS[(int)accountId % ACCOUNT_COLOR_CHIP_RGBS.length];
+    }
+
     /**
      * Called throughout the application when the number of accounts has changed. This method
      * enables or disables the Compose activity, the boot receiver and the service based on
