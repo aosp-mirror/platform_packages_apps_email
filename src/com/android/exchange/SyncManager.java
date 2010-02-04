@@ -768,7 +768,7 @@ public class SyncManager extends Service implements Runnable {
                 return id;
             } else if (f.createNewFile()) {
                 BufferedWriter w = new BufferedWriter(new FileWriter(f), 128);
-                id = "droid" + System.currentTimeMillis();
+                id = "android" + System.currentTimeMillis();
                 w.write(id);
                 w.close();
                 sDeviceId = id;

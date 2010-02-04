@@ -234,7 +234,9 @@ public class EasSyncService extends AbstractSyncService {
             svc.mPassword = password;
             svc.mSsl = ssl;
             svc.mTrustSsl = trustCertificates;
-            svc.mDeviceId = SyncManager.getDeviceId();
+            // We mustn't use the "real" device id or we'll screw up current accounts
+            // Any string will do, but we'll go for "validate"
+            svc.mDeviceId = "validate";
             HttpResponse resp = svc.sendHttpClientOptions();
             int code = resp.getStatusLine().getStatusCode();
             userLog("Validation (OPTIONS) response: " + code);
