@@ -990,36 +990,29 @@ public class CalendarSyncAdapter extends AbstractSyncAdapter {
         s.data(Tags.CALENDAR_DTSTAMP,
                 CalendarUtilities.millisToEasDateTime(System.currentTimeMillis()));
 
-        if (entityValues.containsKey(Events.EVENT_LOCATION)) {
-            s.data(Tags.CALENDAR_LOCATION,
-                    entityValues.getAsString(Events.EVENT_LOCATION));
-        }
-        if (entityValues.containsKey(Events.TITLE)) {
-            s.data(Tags.CALENDAR_SUBJECT, entityValues.getAsString(Events.TITLE));
-        }
+        s.writeStringValue(entityValues, Events.EVENT_LOCATION, Tags.CALENDAR_LOCATION);
+        s.writeStringValue(entityValues, Events.TITLE, Tags.CALENDAR_SUBJECT);
 
-        if (entityValues.containsKey(Events.VISIBILITY)) {
-            s.data(Tags.CALENDAR_SENSITIVITY,
-                    decodeVisibility(entityValues.getAsInteger(Events.VISIBILITY)));
+        Integer visibility = entityValues.getAsInteger(Events.VISIBILITY);
+        if (visibility != null) {
+            s.data(Tags.CALENDAR_SENSITIVITY, decodeVisibility(visibility));
         } else {
-            // Private if not set
+            // Default to private if not set
             s.data(Tags.CALENDAR_SENSITIVITY, "1");
         }
 
         if (!isException) {
-            // A time zone is required in all EAS events; we'll use the default if none
-            // is set.
-            String timeZoneName;
-            if (entityValues.containsKey(Events.EVENT_TIMEZONE)) {
-                timeZoneName = entityValues.getAsString(Events.EVENT_TIMEZONE);
-            } else {
+            // A time zone is required in all EAS events; we'll use the default if none is set
+            String timeZoneName = entityValues.getAsString(Events.EVENT_TIMEZONE);
+            if (timeZoneName == null) {
                 timeZoneName = TimeZone.getDefault().getID();
             }
-            String x = CalendarUtilities.timeZoneToTziString(TimeZone.getTimeZone(timeZoneName));
-            s.data(Tags.CALENDAR_TIME_ZONE, x);
+            String timeZone = CalendarUtilities.timeZoneToTziString(
+                    TimeZone.getTimeZone(timeZoneName));
+            s.data(Tags.CALENDAR_TIME_ZONE, timeZone);
 
-            if (entityValues.containsKey(Events.DESCRIPTION)) {
-                String desc = entityValues.getAsString(Events.DESCRIPTION);
+            String desc = entityValues.getAsString(Events.DESCRIPTION);
+            if (desc != null) {
                 if (mService.mProtocolVersionDouble >= 12.0) {
                     s.start(Tags.BASE_BODY);
                     s.data(Tags.BASE_TYPE, "1");
@@ -1030,14 +1023,11 @@ public class CalendarSyncAdapter extends AbstractSyncAdapter {
                 }
             }
 
-            if (entityValues.containsKey(Events.ORGANIZER)) {
-                s.data(Tags.CALENDAR_ORGANIZER_EMAIL,
-                        entityValues.getAsString(Events.ORGANIZER));
-            }
+            s.writeStringValue(entityValues, Events.ORGANIZER, Tags.CALENDAR_ORGANIZER_EMAIL);
 
-            if (entityValues.containsKey(Events.RRULE)) {
-                CalendarUtilities.recurrenceFromRrule(
-                        entityValues.getAsString(Events.RRULE), startTime, s);
+            String rrule = entityValues.getAsString(Events.RRULE);
+            if (rrule != null) {
+                CalendarUtilities.recurrenceFromRrule(rrule, startTime, s);
             }
 
             // Handle associated data EXCEPT for attendees, which have to be grouped
@@ -1046,17 +1036,16 @@ public class CalendarSyncAdapter extends AbstractSyncAdapter {
                 Uri ncvUri = ncv.uri;
                 ContentValues ncvValues = ncv.values;
                 if (ncvUri.equals(ExtendedProperties.CONTENT_URI)) {
-                    if (ncvValues.containsKey("uid")) {
-                        clientId = ncvValues.getAsString("uid");
+                    String uid = ncvValues.getAsString("uid");
+                    if (uid != null) {
+                        clientId = uid;
                         s.data(Tags.CALENDAR_UID, clientId);
                     }
-                    if (ncvValues.containsKey("dtstamp")) {
-                        s.data(Tags.CALENDAR_DTSTAMP, ncvValues.getAsString("dtstamp"));
-                    }
-                    if (ncvValues.containsKey("categories")) {
+                    s.writeStringValue(ncvValues, "dtstamp", Tags.CALENDAR_DTSTAMP);
+                    String categories = ncvValues.getAsString("categories");
+                    if (categories != null) {
                         // Send all the categories back to the server
                         // We've saved them as a String of delimited tokens
-                        String categories = ncvValues.getAsString("categories");
                         StringTokenizer st =
                             new StringTokenizer(categories, CATEGORY_TOKENIZER_DELIMITER);
                         if (st.countTokens() > 0) {
@@ -1069,10 +1058,8 @@ public class CalendarSyncAdapter extends AbstractSyncAdapter {
                         }
                     }
                 } else if (ncvUri.equals(Reminders.CONTENT_URI)) {
-                    if (ncvValues.containsKey(Reminders.MINUTES)) {
-                        s.data(Tags.CALENDAR_REMINDER_MINS_BEFORE,
-                                ncvValues.getAsString(Reminders.MINUTES));
-                    }
+                    s.writeStringValue(ncvValues, Reminders.MINUTES,
+                            Tags.CALENDAR_REMINDER_MINS_BEFORE);
                 }
             }
 
@@ -1087,17 +1074,11 @@ public class CalendarSyncAdapter extends AbstractSyncAdapter {
                 Uri ncvUri = ncv.uri;
                 ContentValues ncvValues = ncv.values;
                 if (ncvUri.equals(Attendees.CONTENT_URI)) {
-                    if (ncvValues.containsKey(Attendees.ATTENDEE_RELATIONSHIP)) {
-                        int relationship =
-                            ncvValues.getAsInteger(Attendees.ATTENDEE_RELATIONSHIP);
+                    Integer relationship = ncvValues.getAsInteger(Attendees.ATTENDEE_RELATIONSHIP);
+                    if (relationship != null) {
                         // Organizer isn't among attendees in EAS
                         if (relationship == Attendees.RELATIONSHIP_ORGANIZER) {
-                            if (ncvValues.containsKey(Attendees.ATTENDEE_NAME)) {
-                                // Remember this; we can't insert it into the stream in
-                                // the middle of attendees
-                                organizerName =
-                                    ncvValues.getAsString(Attendees.ATTENDEE_NAME);
-                            }
+                            organizerName = ncvValues.getAsString(Attendees.ATTENDEE_NAME);
                             continue;
                         }
                         if (!hasAttendees) {
@@ -1105,14 +1086,10 @@ public class CalendarSyncAdapter extends AbstractSyncAdapter {
                             hasAttendees = true;
                         }
                         s.start(Tags.CALENDAR_ATTENDEE);
-                        if (ncvValues.containsKey(Attendees.ATTENDEE_NAME)) {
-                            s.data(Tags.CALENDAR_ATTENDEE_NAME,
-                                    ncvValues.getAsString(Attendees.ATTENDEE_NAME));
-                        }
-                        if (ncvValues.containsKey(Attendees.ATTENDEE_EMAIL)) {
-                            s.data(Tags.CALENDAR_ATTENDEE_EMAIL,
-                                    ncvValues.getAsString(Attendees.ATTENDEE_EMAIL));
-                        }
+                        s.writeStringValue(ncvValues, Attendees.ATTENDEE_NAME,
+                                Tags.CALENDAR_ATTENDEE_NAME);
+                        s.writeStringValue(ncvValues, Attendees.ATTENDEE_EMAIL,
+                                Tags.CALENDAR_ATTENDEE_EMAIL);
                         s.data(Tags.CALENDAR_ATTENDEE_TYPE, "1"); // Required
                         s.end(); // Attendee
                     }
@@ -1127,10 +1104,10 @@ public class CalendarSyncAdapter extends AbstractSyncAdapter {
             }
         } else {
             // TODO Add reminders to exceptions (allow them to be specified!)
-            if (entityValues.containsKey(Events.ORIGINAL_INSTANCE_TIME)) {
+            Long originalTime = entityValues.getAsLong(Events.ORIGINAL_INSTANCE_TIME);
+            if (originalTime != null) {
                 s.data(Tags.CALENDAR_EXCEPTION_START_TIME,
-                        CalendarUtilities.millisToEasDateTime(entityValues.getAsLong(
-                                Events.ORIGINAL_INSTANCE_TIME)));
+                        CalendarUtilities.millisToEasDateTime(originalTime));
             } else {
                 // Illegal; what should we do?
             }

@@ -26,6 +26,7 @@ package com.android.exchange.adapter;
 import com.android.exchange.Eas;
 import com.android.exchange.utility.FileLogger;
 
+import android.content.ContentValues;
 import android.util.Log;
 
 import java.io.ByteArrayOutputStream;
@@ -192,5 +193,12 @@ public class Serializer {
         byte[] data = s.getBytes("UTF-8");
         out.write(data);
         out.write(0);
+    }
+
+    void writeStringValue (ContentValues cv, String key, int tag) throws IOException {
+        String value = cv.getAsString(key);
+        if (value != null) {
+            data(tag, value);
+        }
     }
 }
