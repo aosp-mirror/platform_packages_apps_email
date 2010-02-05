@@ -53,7 +53,8 @@ public class MailService extends Service {
 
     private static final String LOG_TAG = "Email-MailService";
 
-    public static int NEW_MESSAGE_NOTIFICATION_ID = 1;
+    public static int NOTIFICATION_ID_NEW_MESSAGES = 1;
+    public static int NOTIFICATION_ID_SECURITY_NEEDED = 2;
 
     private static final String ACTION_CHECK_MAIL =
         "com.android.email.intent.action.MAIL_SERVICE_WAKEUP";
@@ -201,7 +202,7 @@ public class MailService extends Service {
             // but that's an edge condition and this is much safer.
             NotificationManager notificationManager =
                 (NotificationManager) getSystemService(Context.NOTIFICATION_SERVICE);
-            notificationManager.cancel(NEW_MESSAGE_NOTIFICATION_ID);
+            notificationManager.cancel(NOTIFICATION_ID_NEW_MESSAGES);
 
             // When called externally, we refresh the sync reports table to pick up
             // any changes in the account list or account settings
@@ -705,6 +706,6 @@ public class MailService extends Service {
 
         NotificationManager notificationManager =
             (NotificationManager) getSystemService(Context.NOTIFICATION_SERVICE);
-        notificationManager.notify(NEW_MESSAGE_NOTIFICATION_ID, notification);
+        notificationManager.notify(NOTIFICATION_ID_NEW_MESSAGES, notification);
     }
 }

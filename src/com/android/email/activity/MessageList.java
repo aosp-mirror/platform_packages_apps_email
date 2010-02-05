@@ -325,7 +325,7 @@ public class MessageList extends ListActivity implements OnItemClickListener, On
         // clear notifications here
         NotificationManager notificationManager = (NotificationManager)
                 getSystemService(Context.NOTIFICATION_SERVICE);
-        notificationManager.cancel(MailService.NEW_MESSAGE_NOTIFICATION_ID);
+        notificationManager.cancel(MailService.NOTIFICATION_ID_NEW_MESSAGES);
         restoreListPosition();
         autoRefreshStaleMailbox();
     }

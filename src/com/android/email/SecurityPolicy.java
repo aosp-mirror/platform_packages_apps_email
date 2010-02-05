@@ -16,29 +16,48 @@
 
 package com.android.email;
 
+import com.android.email.activity.setup.AccountSecurity;
+import com.android.email.provider.EmailContent;
 import com.android.email.provider.EmailContent.Account;
+import com.android.email.provider.EmailContent.AccountColumns;
+import com.android.email.service.MailService;
 
 import android.app.DeviceAdmin;
 import android.app.DevicePolicyManager;
+import android.app.Notification;
+import android.app.NotificationManager;
+import android.app.PendingIntent;
 import android.content.ComponentName;
+import android.content.ContentValues;
 import android.content.Context;
 import android.content.Intent;
 import android.database.Cursor;
+import android.net.Uri;
 
 /**
  * Utility functions to support reading and writing security policies
+ *
+ * STOPSHIP - these TODO items are all part of finishing the feature
+ * TODO: When user sets password, and conditions are now satisfied, restart syncs
+ * TODO: When accounts are deleted, reduce policy and/or give up admin status
+ * TODO: Provide a way to check for policy issues at synchronous times such as entering
+ *       message list or folder list.
+ * TODO: Implement local wipe after failed passwords
+ *
  */
 public class SecurityPolicy {
 
     /** STOPSHIP - ok to check in true for now, but must be false for shipping */
     /** DO NOT CHECK IN WHILE 'true' */
-    private static final boolean DEBUG_ALWAYS_ACTIVE = true;
+    private static final boolean DEBUG_ALWAYS_ACTIVE = false;
 
     private static SecurityPolicy sInstance = null;
     private Context mContext;
     private DevicePolicyManager mDPM;
     private ComponentName mAdminName;
     private PolicySet mAggregatePolicy;
+    private boolean mNotificationActive;
+    private boolean mAdminEnabled;
 
     private static final PolicySet NO_POLICY_SET =
             new PolicySet(0, PolicySet.PASSWORD_MODE_NONE, 0, 0, false);
@@ -81,6 +100,7 @@ public class SecurityPolicy {
         mDPM = null;
         mAdminName = new ComponentName(context, PolicyAdmin.class);
         mAggregatePolicy = null;
+        mNotificationActive = false;
     }
 
     /**
@@ -119,12 +139,8 @@ public class SecurityPolicy {
                 int flags = c.getInt(ACCOUNT_SECURITY_COLUMN_FLAGS);
                 if (flags != 0) {
                     PolicySet p = new PolicySet(flags);
-                    if (p.mMinPasswordLength > 0) {
-                        minPasswordLength = Math.max(p.mMinPasswordLength, minPasswordLength);
-                    }
-                    if (p.mPasswordMode > 0) {
-                        passwordMode  = Math.max(p.mPasswordMode, passwordMode);
-                    }
+                    minPasswordLength = Math.max(p.mMinPasswordLength, minPasswordLength);
+                    passwordMode  = Math.max(p.mPasswordMode, passwordMode);
                     if (p.mMaxPasswordFails > 0) {
                         maxPasswordFails = Math.min(p.mMaxPasswordFails, maxPasswordFails);
                     }
@@ -139,6 +155,12 @@ public class SecurityPolicy {
             c.close();
         }
         if (policiesFound) {
+            // final cleanup pass converts any untouched min/max values to zero (not specified)
+            if (minPasswordLength == Integer.MIN_VALUE) minPasswordLength = 0;
+            if (passwordMode == Integer.MIN_VALUE) passwordMode = 0;
+            if (maxPasswordFails == Integer.MAX_VALUE) maxPasswordFails = 0;
+            if (maxScreenLockTime == Integer.MAX_VALUE) maxScreenLockTime = 0;
+
             return new PolicySet(minPasswordLength, passwordMode, maxPasswordFails,
                     maxScreenLockTime, requireRemoteWipe);
         } else {
@@ -185,51 +207,58 @@ public class SecurityPolicy {
 
     /**
      * API: Report that policies may have been updated due to rewriting values in an Account.
+     * @param accountId the account that has been updated
      */
-    public synchronized void updatePolicies() {
+    public synchronized void updatePolicies(long accountId) {
         mAggregatePolicy = null;
     }
 
     /**
      * API: Query used to determine if a given policy is "active" (the device is operating at
-     * the required security level).  This is used when creating new accounts.  This method
-     * is for queries only, and does not trigger any change in device state.
+     * the required security level).
      *
-     * @param policies the policies requested
+     * This can be used when syncing a specific account, by passing a specific set of policies
+     * for that account.  Or, it can be used at any time to compare the device
+     * state against the aggregate set of device policies stored in all accounts.
+     *
+     * This method is for queries only, and does not trigger any change in device state.
+     *
+     * @param policies the policies requested, or null to check aggregate stored policies
      * @return true if the policies are active, false if not active
      */
     public boolean isActive(PolicySet policies) {
         DevicePolicyManager dpm = getDPM();
         if (dpm.isAdminActive(mAdminName)) {
-            // check each policy
-            PolicySet aggregate;
-            synchronized (this) {
-                if (mAggregatePolicy == null) {
-                    mAggregatePolicy = computeAggregatePolicy();
+            // select aggregate set if needed
+            if (policies == null) {
+                synchronized (this) {
+                    if (mAggregatePolicy == null) {
+                        mAggregatePolicy = computeAggregatePolicy();
+                    }
+                    policies = mAggregatePolicy;
                 }
-                aggregate = mAggregatePolicy;
             }
             // quick check for the "empty set" of no policies
-            if (aggregate == NO_POLICY_SET) {
+            if (policies == NO_POLICY_SET) {
                 return true;
             }
             // check each policy explicitly
-            if (aggregate.mMinPasswordLength > 0) {
-                if (dpm.getPasswordMinimumLength(mAdminName) < aggregate.mMinPasswordLength) {
+            if (policies.mMinPasswordLength > 0) {
+                if (dpm.getPasswordMinimumLength(mAdminName) < policies.mMinPasswordLength) {
                     return false;
                 }
             }
-            if (aggregate.mPasswordMode > 0) {
-                if (dpm.getPasswordQuality(mAdminName) < aggregate.getDPManagerPasswordMode()) {
+            if (policies.mPasswordMode > 0) {
+                if (dpm.getPasswordQuality(mAdminName) < policies.getDPManagerPasswordQuality()) {
                     return false;
                 }
                 if (!dpm.isActivePasswordSufficient()) {
                     return false;
                 }
             }
-            if (aggregate.mMaxScreenLockTime > 0) {
+            if (policies.mMaxScreenLockTime > 0) {
                 // Note, we use seconds, dpm uses milliseconds
-                if (dpm.getMaximumTimeToLock(mAdminName) > aggregate.mMaxScreenLockTime * 1000) {
+                if (dpm.getMaximumTimeToLock(mAdminName) > policies.mMaxScreenLockTime * 1000) {
                     return false;
                 }
             }
@@ -241,14 +270,101 @@ public class SecurityPolicy {
     }
 
     /**
-     * Sync service should call this any time a sync fails due to isActive() returning false.
+     * Set the requested security level based on the aggregate set of requests
+     */
+    public void setActivePolicies() {
+        DevicePolicyManager dpm = getDPM();
+        if (dpm.isAdminActive(mAdminName)) {
+            // compute aggregate set if needed
+            PolicySet policies;
+            synchronized (this) {
+                if (mAggregatePolicy == null) {
+                    mAggregatePolicy = computeAggregatePolicy();
+                }
+                policies = mAggregatePolicy;
+            }
+            // set each policy in the policy manager
+            // password mode & length
+            dpm.setPasswordQuality(mAdminName, policies.getDPManagerPasswordQuality());
+            dpm.setPasswordMinimumLength(mAdminName, policies.mMinPasswordLength);
+            // screen lock time
+            dpm.setMaximumTimeToLock(mAdminName, policies.mMaxScreenLockTime * 1000);
+            // local wipe (failed passwords limit)
+            dpm.setMaximumFailedPasswordsForWipe(mAdminName, policies.mMaxPasswordFails);
+        }
+    }
+
+    /**
+     * API: Sync service should call this any time a sync fails due to isActive() returning false.
      * This will kick off the notify-acquire-admin-state process and/or increase the security level.
      * The caller needs to write the required policies into this account before making this call.
+     * Should not be called from UI thread - uses DB lookups to prepare new notifications
      *
      * @param accountId the account for which sync cannot proceed
      */
     public void policiesRequired(long accountId) {
-        // implement....
+        synchronized (this) {
+            if (mNotificationActive) {
+                // no need to do anything - we've already been notified, and we've already
+                // put up a notification
+                return;
+            } else {
+                // Prepare & post a notification
+                // record that we're watching this one
+                mNotificationActive = true;
+            }
+        }
+        // At this point, we will put up a notification
+        Account account = EmailContent.Account.restoreAccountWithId(mContext, accountId);
+
+        String tickerText = mContext.getString(R.string.security_notification_ticker_fmt,
+                account.getDisplayName());
+        String contentTitle = mContext.getString(R.string.security_notification_content_title);
+        String contentText = account.getDisplayName();
+        String ringtoneString = account.getRingtone();
+        Uri ringTone = (ringtoneString == null) ? null : Uri.parse(ringtoneString);
+        boolean vibrate = 0 != (account.mFlags & Account.FLAGS_VIBRATE);
+
+        Intent intent = AccountSecurity.actionUpdateSecurityIntent(mContext, accountId);
+        PendingIntent pending =
+            PendingIntent.getActivity(mContext, 0, intent, PendingIntent.FLAG_UPDATE_CURRENT);
+
+        Notification notification = new Notification(R.drawable.stat_notify_email_generic,
+                tickerText, System.currentTimeMillis());
+        notification.setLatestEventInfo(mContext, contentTitle, contentText, pending);
+
+        // Use the account's notification rules for sound & vibrate (but always notify)
+        notification.sound = ringTone;
+        if (vibrate) {
+            notification.defaults |= Notification.DEFAULT_VIBRATE;
+        }
+        notification.flags |= Notification.FLAG_SHOW_LIGHTS;
+        notification.defaults |= Notification.DEFAULT_LIGHTS;
+
+        NotificationManager notificationManager =
+            (NotificationManager) mContext.getSystemService(Context.NOTIFICATION_SERVICE);
+        notificationManager.notify(MailService.NOTIFICATION_ID_SECURITY_NEEDED, notification);
+    }
+
+    /**
+     * Called from the notification's intent receiver to register that the notification can be
+     * cleared now.
+     */
+    public synchronized void clearNotification(long accountId) {
+        NotificationManager notificationManager =
+            (NotificationManager) mContext.getSystemService(Context.NOTIFICATION_SERVICE);
+        notificationManager.cancel(MailService.NOTIFICATION_ID_SECURITY_NEEDED);
+        mNotificationActive = false;
+    }
+
+    /**
+     * API: Remote wipe (from server).  This is final, there is no confirmation.
+     */
+    public void remoteWipe(long accountId) {
+        DevicePolicyManager dpm = getDPM();
+        if (dpm.isAdminActive(mAdminName)) {
+            dpm.wipeData(0);
+        }
     }
 
     /**
@@ -291,9 +407,10 @@ public class SecurityPolicy {
          * @param maxPasswordFails (0=not enforced)
          * @param maxScreenLockTime in seconds (0=not enforced)
          * @param requireRemoteWipe
+         * @throws IllegalArgumentException when any arguments are outside of legal ranges.
          */
         public PolicySet(int minPasswordLength, int passwordMode, int maxPasswordFails,
-                int maxScreenLockTime, boolean requireRemoteWipe) {
+                int maxScreenLockTime, boolean requireRemoteWipe) throws IllegalArgumentException {
             if (minPasswordLength > PASSWORD_LENGTH_MAX) {
                 throw new IllegalArgumentException("password length");
             }
@@ -339,9 +456,9 @@ public class SecurityPolicy {
         }
 
         /**
-         * Helper to map DevicePolicyManager password modes to our internal encoding.
+         * Helper to map our internal encoding to DevicePolicyManager password modes.
          */
-        public int getDPManagerPasswordMode() {
+        public int getDPManagerPasswordQuality() {
             switch (mPasswordMode) {
                 case PASSWORD_MODE_SIMPLE:
                     return DevicePolicyManager.PASSWORD_QUALITY_NUMERIC;
@@ -355,11 +472,32 @@ public class SecurityPolicy {
         /**
          * Record flags (and a sync key for the flags) into an Account
          * Note: the hash code is defined as the encoding used in Account
+         *
          * @param account to write the values mSecurityFlags and mSecuritySyncKey
          * @param syncKey the value to write into the account's mSecuritySyncKey
+         * @param update if true, also writes the account back to the provider (updating only
+         *  the fields changed by this API)
+         * @param context a context for writing to the provider
+         * @return true if the actual policies changed, false if no change (note, sync key
+         *  does not affect this)
          */
-        public void writeAccount(Account account, String syncKey) {
-          account.mSecurityFlags = hashCode();
+        public boolean writeAccount(Account account, String syncKey, boolean update,
+                Context context) {
+            int newFlags = hashCode();
+            boolean dirty = (newFlags != account.mSecurityFlags);
+            account.mSecurityFlags = newFlags;
+            account.mSecuritySyncKey = syncKey;
+            if (update) {
+                if (account.isSaved()) {
+                    ContentValues cv = new ContentValues();
+                    cv.put(AccountColumns.SECURITY_FLAGS, account.mSecurityFlags);
+                    cv.put(AccountColumns.SECURITY_SYNC_KEY, account.mSecuritySyncKey);
+                    account.update(context, cv);
+                } else {
+                    account.save(context);
+                }
+            }
+            return dirty;
         }
 
         @Override
@@ -400,19 +538,47 @@ public class SecurityPolicy {
     }
 
     /**
-     * Device Policy administrator.  This is primarily a listener for device state changes.
+     * If we are not the active device admin, try to become so.
+     *
+     * @return true if we are already active, false if we are not
      */
-    private static class PolicyAdmin extends DeviceAdmin {
+    public boolean isActiveAdmin() {
+        DevicePolicyManager dpm = getDPM();
+        return dpm.isAdminActive(mAdminName);
+    }
 
-        boolean mEnabled = false;
+    /**
+     * Report admin component name - for making calls into device policy manager
+     */
+    public ComponentName getAdminComponent() {
+        return mAdminName;
+    }
+
+    /**
+     * Internal handler for enabled/disabled transitions.  Handles DeviceAdmin.onEnabled and
+     * and DeviceAdmin.onDisabled.
+     */
+    private void onAdminEnabled(boolean isEnabled) {
+        if (isEnabled && !mAdminEnabled) {
+            // TODO: transition to enabled state
+        } else if (!isEnabled && mAdminEnabled) {
+            // TODO: transition to disabled state
+        }
+        mAdminEnabled = isEnabled;
+    }
+
+    /**
+     * Device Policy administrator.  This is primarily a listener for device state changes.
+     * Note:  This is instantiated by incoming messages.
+     */
+    public static class PolicyAdmin extends DeviceAdmin {
 
         /**
          * Called after the administrator is first enabled.
          */
         @Override
         public void onEnabled(Context context, Intent intent) {
-            mEnabled = true;
-            // do something
+            SecurityPolicy.getInstance(context).onAdminEnabled(true);
         }
         
         /**
@@ -420,8 +586,7 @@ public class SecurityPolicy {
          */
         @Override
         public void onDisabled(Context context, Intent intent) {
-            mEnabled = false;
-            // do something
+            SecurityPolicy.getInstance(context).onAdminEnabled(false);
         }
         
         /**

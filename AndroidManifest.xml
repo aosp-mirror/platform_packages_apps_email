@@ -115,6 +115,11 @@
             android:label="@string/account_settings_action"
             >
         </activity>
+        <activity
+            android:name=".activity.setup.AccountSecurity"
+            android.label="@string/account_security_title"
+            >
+        </activity>
 
         <activity
             android:name=".activity.Debug"

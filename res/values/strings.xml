@@ -502,6 +502,19 @@
     <string name="account_setup_failed_security_policies_unsupported">
          This server requires security features your phone does not support.</string>
 
+    <!-- Notification ticker  when device security required -->
+    <string name="security_notification_ticker_fmt">
+            Account \"<xliff:g id="account">%s</xliff:g>\" requires security settings update.
+    </string>
+    <!-- Notification content title when device security required -->
+    <string name="security_notification_content_title">Update Security Settings</string>
+    <!-- Title of the activity that dispatches changes to device security.  Not normally seen. -->
+    <string name="account_security_title">Device Security</string>
+    <!-- Additional diagnostic text when the email app asserts control of the phone. -->
+    <string name="account_security_policy_explanation_fmt">
+         The server <xliff:g id="server">%s</xliff:g> requires that you allow it to remotely control
+         some security features of your phone.</string>
+
     <!-- "Setup could not finish" dialog action button -->
     <string name="account_setup_failed_dlg_edit_details_action">Edit details</string>
     <!-- On Settings screen, section heading -->
@@ -585,9 +598,9 @@
 	<string name="system_account_create_failed">The AccountManager could not create the Account; please try again.</string>
 
     <!-- Strings that support the DeviceAdmin / DevicePolicyManager API -->
-    <!-- Name of the DeviceAdmin (seen in settings - anywhere else?) -->
-    <string name="device_admin_label">Email Device Administrator</string>
-    <!-- Long-form description of the DeviceAdmin (seen in settings - anywhere else?) -->
-    <string name="device_admin_description">Email Device Administrator - Long Description</string>
-    
+    <!-- Name of the DeviceAdmin (seen in settings & in user confirmation screen) -->
+    <string name="device_admin_label">Email</string>
+    <!-- Long-form description of the DeviceAdmin (2nd line in settings & in user conf. screen) -->
+    <string name="device_admin_description">Enables server-specified security policies</string>
+
 </resources>

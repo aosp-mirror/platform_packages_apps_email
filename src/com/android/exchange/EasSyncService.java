@@ -17,6 +17,8 @@
 
 package com.android.exchange;
 
+import com.android.email.SecurityPolicy;
+import com.android.email.SecurityPolicy.PolicySet;
 import com.android.email.codec.binary.Base64;
 import com.android.email.mail.AuthenticationFailedException;
 import com.android.email.mail.MessagingException;
@@ -964,25 +966,40 @@ public class EasSyncService extends AbstractSyncService {
             }
 
             while (!mStop) {
-                 userLog("Sending Account syncKey: ", mAccount.mSyncKey);
-                 Serializer s = new Serializer();
-                 s.start(Tags.FOLDER_FOLDER_SYNC).start(Tags.FOLDER_SYNC_KEY)
-                     .text(mAccount.mSyncKey).end().end().done();
-                 HttpResponse resp = sendHttpClientPost("FolderSync", s.toByteArray());
-                 if (mStop) break;
-                 int code = resp.getStatusLine().getStatusCode();
-                 if (code == HttpStatus.SC_OK) {
-                     HttpEntity entity = resp.getEntity();
-                     int len = (int)entity.getContentLength();
-                     if (len != 0) {
-                         InputStream is = entity.getContent();
-                         // Returns true if we need to sync again
-                         if (new FolderSyncParser(is, new AccountSyncAdapter(mMailbox, this))
-                                 .parse()) {
-                             continue;
-                         }
-                     }
-                 } else if (isAuthError(code)) {
+                userLog("Sending Account syncKey: ", mAccount.mSyncKey);
+                Serializer s = new Serializer();
+                s.start(Tags.FOLDER_FOLDER_SYNC).start(Tags.FOLDER_SYNC_KEY)
+                .text(mAccount.mSyncKey).end().end().done();
+                HttpResponse resp = sendHttpClientPost("FolderSync", s.toByteArray());
+                if (mStop) break;
+                int code = resp.getStatusLine().getStatusCode();
+                if (code == HttpStatus.SC_OK) {
+                    HttpEntity entity = resp.getEntity();
+                    int len = (int)entity.getContentLength();
+                    if (len != 0) {
+                        InputStream is = entity.getContent();
+                        // Returns true if we need to sync again
+                        if (new FolderSyncParser(is, new AccountSyncAdapter(mMailbox, this))
+                        .parse()) {
+                            continue;
+                        }
+                    }
+                    // // EVERYTHING IN THE code==403 BLOCK IS PLACEHOLDER/SAMPLE CODE
+                } else if (code == 403) { // security error
+                    // Reality: Find out from server what policies are required
+                    // Fake: Hardcode the policies
+                    SecurityPolicy sp = SecurityPolicy.getInstance(mContext);
+                    PolicySet ps = new PolicySet(4, PolicySet.PASSWORD_MODE_SIMPLE, 0, 0, true);
+                    // Update the account
+                    if (ps.writeAccount(mAccount, "securitySyncKey", true, mContext)) {
+                        sp.updatePolicies(mAccount.mId);
+                    }
+                    // Notify that we are blocked because of policies
+                    sp.policiesRequired(mAccount.mId);
+                    // and exit (don't sync in this condition)
+                    mExitStatus = EXIT_LOGIN_FAILURE;
+                    // END PLACEHOLDER CODE
+                } else if (isAuthError(code)) {
                     mExitStatus = EXIT_LOGIN_FAILURE;
                 } else {
                     userLog("FolderSync response error: ", code);

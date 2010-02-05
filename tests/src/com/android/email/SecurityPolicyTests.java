@@ -107,13 +107,20 @@ public class SecurityPolicyTests extends ProviderTestCase2<EmailProvider> {
         assertTrue(EMPTY_POLICY_SET.equals(sp.computeAggregatePolicy()));
 
         // with a single account in security mode, should return same security as in account
-        PolicySet p3in = new PolicySet(10, PolicySet.PASSWORD_MODE_SIMPLE, 15, 16, false);
+        // first test with partially-populated policies
         Account a3 = ProviderTestUtils.setupAccount("sec-3", false, mMockContext);
-        p3in.writeAccount(a3, null);
-        a3.save(mMockContext);
-        PolicySet p3out = sp.computeAggregatePolicy();
-        assertNotNull(p3out);
-        assertEquals(p3in, p3out);
+        PolicySet p3ain = new PolicySet(10, PolicySet.PASSWORD_MODE_SIMPLE, 0, 0, false);
+        p3ain.writeAccount(a3, null, true, mMockContext);
+        PolicySet p3aout = sp.computeAggregatePolicy();
+        assertNotNull(p3aout);
+        assertEquals(p3ain, p3aout);
+
+        // Repeat that test with fully-populated policies
+        PolicySet p3bin = new PolicySet(10, PolicySet.PASSWORD_MODE_SIMPLE, 15, 16, false);
+        p3bin.writeAccount(a3, null, true, mMockContext);
+        PolicySet p3bout = sp.computeAggregatePolicy();
+        assertNotNull(p3bout);
+        assertEquals(p3bin, p3bout);
 
         // add another account which mixes it up (some fields will change, others will not)
         // pw length and pw mode - max logic - will change because larger #s here
@@ -121,8 +128,7 @@ public class SecurityPolicyTests extends ProviderTestCase2<EmailProvider> {
         // wipe required - OR logic - will *not* change here because false
         PolicySet p4in = new PolicySet(20, PolicySet.PASSWORD_MODE_STRONG, 25, 26, false);
         Account a4 = ProviderTestUtils.setupAccount("sec-4", false, mMockContext);
-        p4in.writeAccount(a4, null);
-        a4.save(mMockContext);
+        p4in.writeAccount(a4, null, true, mMockContext);
         PolicySet p4out = sp.computeAggregatePolicy();
         assertNotNull(p4out);
         assertEquals(20, p4out.mMinPasswordLength);
@@ -137,8 +143,7 @@ public class SecurityPolicyTests extends ProviderTestCase2<EmailProvider> {
         // wipe required - OR logic - will change here because true
         PolicySet p5in = new PolicySet(4, PolicySet.PASSWORD_MODE_NONE, 5, 6, true);
         Account a5 = ProviderTestUtils.setupAccount("sec-5", false, mMockContext);
-        p5in.writeAccount(a5, null);
-        a5.save(mMockContext);
+        p5in.writeAccount(a5, null, true, mMockContext);
         PolicySet p5out = sp.computeAggregatePolicy();
         assertNotNull(p5out);
         assertEquals(20, p5out.mMinPasswordLength);
@@ -217,7 +222,7 @@ public class SecurityPolicyTests extends ProviderTestCase2<EmailProvider> {
         PolicySet p1 = new PolicySet(1, PolicySet.PASSWORD_MODE_STRONG, 3, 4, true);
         Account a = new Account();
         final String SYNC_KEY = "test_sync_key";
-        p1.writeAccount(a, SYNC_KEY);
+        p1.writeAccount(a, SYNC_KEY, false, null);
         PolicySet p2 = new PolicySet(a);
         assertEquals(p1, p2);
     }
