@@ -43,6 +43,7 @@ public class Tags {
     public static final int TASK = 0x09;
     public static final int CONTACTS2 = 0x0C;
     public static final int PING = 0x0D;
+    public static final int PROVISION = 0x0E;
     public static final int GAL = 0x10;
     public static final int BASE = 0x11;
 
@@ -345,7 +346,6 @@ public class Tags {
     public static final int CONTACTS2_NICKNAME = CONTACTS2_PAGE + 0xD;
     public static final int CONTACTS2_MMS = CONTACTS2_PAGE + 0xE;
 
-    // The Ping constants are used by EasSyncService, and need to be public
     public static final int PING_PAGE = PING << PAGE_SHIFT;
     public static final int PING_PING = PING_PAGE + 5;
     public static final int PING_AUTD_STATE = PING_PAGE + 6;
@@ -356,6 +356,66 @@ public class Tags {
     public static final int PING_ID = PING_PAGE + 0xB;
     public static final int PING_CLASS = PING_PAGE + 0xC;
     public static final int PING_MAX_FOLDERS = PING_PAGE + 0xD;
+
+    public static final int PROVISION_PAGE = PROVISION << PAGE_SHIFT;
+    // EAS 2.5
+    public static final int PROVISION_PROVISION = PROVISION_PAGE + 5;
+    public static final int PROVISION_POLICIES = PROVISION_PAGE + 6;
+    public static final int PROVISION_POLICY = PROVISION_PAGE + 7;
+    public static final int PROVISION_POLICY_TYPE = PROVISION_PAGE + 8;
+    public static final int PROVISION_POLICY_KEY = PROVISION_PAGE + 9;
+    public static final int PROVISION_DATA = PROVISION_PAGE + 0xA;
+    public static final int PROVISION_STATUS = PROVISION_PAGE + 0xB;
+    public static final int PROVISION_REMOTE_WIPE = PROVISION_PAGE + 0xC;
+    // EAS 12.0
+    public static final int PROVISION_EAS_PROVISION_DOC = PROVISION_PAGE + 0xD;
+    public static final int PROVISION_DEVICE_PASSWORD_ENABLED = PROVISION_PAGE + 0xE;
+    public static final int PROVISION_ALPHA_DEVICE_PASSWORD_ENABLED = PROVISION_PAGE + 0xF;
+    public static final int PROVISION_DEVICE_ENCRYPTION_ENABLED = PROVISION_PAGE + 0x10;
+    public static final int PROVISION_PASSWORD_RECOVERY_ENABLED = PROVISION_PAGE + 0x11;
+    public static final int PROVISION_ATTACHMENTS_ENABLED = PROVISION_PAGE + 0x13;
+    public static final int PROVISION_MIN_DEVICE_PASSWORD_LENGTH = PROVISION_PAGE + 0x14;
+    public static final int PROVISION_MAX_INACTIVITY_TIME_DEVICE_LOCK = PROVISION_PAGE + 0x15;
+    public static final int PROVISION_MAX_DEVICE_PASSWORD_FAILED_ATTEMPTS = PROVISION_PAGE + 0x16;
+    public static final int PROVISION_MAX_ATTACHMENT_SIZE = PROVISION_PAGE + 0x17;
+    public static final int PROVISION_ALLOW_SIMPLE_DEVICE_PASSWORD = PROVISION_PAGE + 0x18;
+    public static final int PROVISION_DEVICE_PASSWORD_EXPIRATION = PROVISION_PAGE + 0x19;
+    public static final int PROVISION_DEVICE_PASSWORD_HISTORY = PROVISION_PAGE + 0x1A;
+    public static final int PROVISION_MAX_SUPPORTED_TAG = PROVISION_DEVICE_PASSWORD_HISTORY;
+
+    // EAS 12.1
+    public static final int PROVISION_ALLOW_STORAGE_CARD = PROVISION_PAGE + 0x1B;
+    public static final int PROVISION_ALLOW_CAMERA = PROVISION_PAGE + 0x1C;
+    public static final int PROVISION_REQUIRE_DEVICE_ENCRYPTION = PROVISION_PAGE + 0x1D;
+    public static final int PROVISION_ALLOW_UNSIGNED_APPLICATIONS = PROVISION_PAGE + 0x1E;
+    public static final int PROVISION_ALLOW_UNSIGNED_INSTALLATION_PACKAGES = PROVISION_PAGE + 0x1F;
+    public static final int PROVISION_MIN_DEVICE_PASSWORD_COMPLEX_CHARS = PROVISION_PAGE + 0x20;
+    public static final int PROVISION_ALLOW_WIFI = PROVISION_PAGE + 0x21;
+    public static final int PROVISION_ALLOW_TEXT_MESSAGING = PROVISION_PAGE + 0x22;
+    public static final int PROVISION_ALLOW_POP_IMAP_EMAIL = PROVISION_PAGE + 0x23;
+    public static final int PROVISION_ALLOW_BLUETOOTH = PROVISION_PAGE + 0x24;
+    public static final int PROVISION_ALLOW_IRDA = PROVISION_PAGE + 0x25;
+    public static final int PROVISION_REQUIRE_MANUAL_SYNC_WHEN_ROAMING = PROVISION_PAGE + 0x26;
+    public static final int PROVISION_ALLOW_DESKTOP_SYNC = PROVISION_PAGE + 0x27;
+    public static final int PROVISION_MAX_CALENDAR_AGE_FILTER = PROVISION_PAGE + 0x28;
+    public static final int PROVISION_ALLOW_HTML_EMAIL = PROVISION_PAGE + 0x29;
+    public static final int PROVISION_MAX_EMAIL_AGE_FILTER = PROVISION_PAGE + 0x2A;
+    public static final int PROVISION_MAX_EMAIL_BODY_TRUNCATION_SIZE = PROVISION_PAGE + 0x2B;
+    public static final int PROVISION_MAX_EMAIL_HTML_BODY_TRUNCATION_SIZE = PROVISION_PAGE + 0x2C;
+    public static final int PROVISION_REQUIRE_SIGNED_SMIME_MESSAGES = PROVISION_PAGE + 0x2D;
+    public static final int PROVISION_REQUIRE_ENCRYPTED_SMIME_MESSAGES = PROVISION_PAGE + 0x2E;
+    public static final int PROVISION_REQUIRE_SIGNED_SMIME_ALGORITHM = PROVISION_PAGE + 0x2F;
+    public static final int PROVISION_REQUIRE_ENCRYPTION_SMIME_ALGORITHM = PROVISION_PAGE + 0x30;
+    public static final int PROVISION_ALLOW_SMIME_ENCRYPTION_NEGOTIATION = PROVISION_PAGE + 0x31;
+    public static final int PROVISION_ALLOW_SMIME_SOFT_CERTS = PROVISION_PAGE + 0x32;
+    public static final int PROVISION_ALLOW_BROWSER = PROVISION_PAGE + 0x33;
+    public static final int PROVISION_ALLOW_CONSUMER_EMAIL = PROVISION_PAGE + 0x34;
+    public static final int PROVISION_ALLOW_REMOTE_DESKTOP = PROVISION_PAGE + 0x35;
+    public static final int PROVISION_ALLOW_INTERNET_SHARING = PROVISION_PAGE + 0x36;
+    public static final int PROVISION_UNAPPROVED_IN_ROM_APPLICATION_LIST = PROVISION_PAGE + 0x37;
+    public static final int PROVISION_APPLICATION_NAME = PROVISION_PAGE + 0x38;
+    public static final int PROVISION_APPROVED_APPLICATION_LIST = PROVISION_PAGE + 0x39;
+    public static final int PROVISION_HASH = PROVISION_PAGE + 0x3A;
 
     public static final int BASE_PAGE = BASE << PAGE_SHIFT;
     public static final int BASE_BODY_PREFERENCE = BASE_PAGE + 5;
@@ -487,7 +547,8 @@ public class Tags {
             "Provision", "Policies", "Policy", "PolicyType", "PolicyKey", "Data", "ProvisionStatus",
             "RemoteWipe", "EASProvidionDoc", "DevicePasswordEnabled",
             "AlphanumericDevicePasswordRequired",
-            "DeviceEncryptionEnabled", "-unused-", "AttachmentsEnabled", "MinDevicePasswordLength",
+            "DeviceEncryptionEnabled", "PasswordRecoveryEnabled", "-unused-", "AttachmentsEnabled",
+            "MinDevicePasswordLength",
             "MaxInactivityTimeDeviceLock", "MaxDevicePasswordFailedAttempts", "MaxAttachmentSize",
             "AllowSimpleDevicePassword", "DevicePasswordExpiration", "DevicePasswordHistory",
             "AllowStorageCard", "AllowCamera", "RequireDeviceEncryption",
