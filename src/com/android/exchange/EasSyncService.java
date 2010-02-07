@@ -228,6 +228,15 @@ public class EasSyncService extends AbstractSyncService {
         return (code == HttpStatus.SC_UNAUTHORIZED) || (code == HttpStatus.SC_FORBIDDEN);
     }
 
+    /**
+     * Determine whether an HTTP code represents a provisioning error
+     * @param code the HTTP code returned by the server
+     * @return whether or not the code represents an provisioning error
+     */
+    protected boolean isProvisionError(int code) {
+        return (code == HTTP_NEED_PROVISIONING) || (code == HttpStatus.SC_FORBIDDEN);
+    }
+
     private void setupProtocolVersion(EasSyncService service, Header versionHeader) {
         String versions = versionHeader.getValue();
         if (versions != null) {
@@ -281,7 +290,7 @@ public class EasSyncService extends AbstractSyncService {
                 // We'll get one of the following responses if policies are required by the server
                 if (code == HttpStatus.SC_FORBIDDEN || code == HTTP_NEED_PROVISIONING) {
                     // Get the policies and see if we are able to support them
-                    if (svc.canProvision()) {
+                    if (svc.canProvision() != null) {
                         // If so, send the advisory Exception (the account may be created later)
                         throw new MessagingException(MessagingException.SECURITY_POLICIES_REQUIRED);
                     } else
@@ -418,7 +427,7 @@ public class EasSyncService extends AbstractSyncService {
 
             // Try the domain first and see if we can get a response
             HttpPost post = new HttpPost("https://" + domain + AUTO_DISCOVER_PAGE);
-            setHeaders(post);
+            setHeaders(post, false);
             post.setHeader("Content-Type", "text/xml");
             post.setEntity(new StringEntity(req));
             HttpClient client = getHttpClient(COMMAND_TIMEOUT);
@@ -798,11 +807,23 @@ public class EasSyncService extends AbstractSyncService {
         return us;
     }
 
-    private void setHeaders(HttpRequestBase method) {
+    /**
+     * Set standard HTTP headers, using a policy key if required
+     * @param method the method we are going to send
+     * @param usePolicyKey whether or not a policy key should be sent in the headers
+     */
+    private void setHeaders(HttpRequestBase method, boolean usePolicyKey) {
         method.setHeader("Authorization", mAuthString);
         method.setHeader("MS-ASProtocolVersion", mProtocolVersion);
         method.setHeader("Connection", "keep-alive");
         method.setHeader("User-Agent", mDeviceType + '/' + Eas.VERSION);
+        if (usePolicyKey && (mAccount != null)) {
+            String key = mAccount.mSecuritySyncKey;
+            if (key == null || key.length() == 0) {
+                return;
+            }
+            method.setHeader("X-MS-PolicyKey", key);
+        }
     }
 
     private ClientConnectionManager getClientConnectionManager() {
@@ -860,7 +881,7 @@ public class EasSyncService extends AbstractSyncService {
         } else if (entity != null) {
             method.setHeader("Content-Type", "application/vnd.ms-sync.wbxml");
         }
-        setHeaders(method);
+        setHeaders(method, !cmd.equals(PING_COMMAND));
         method.setEntity(entity);
         synchronized(getSynchronizer()) {
             mPendingPost = method;
@@ -884,7 +905,7 @@ public class EasSyncService extends AbstractSyncService {
         HttpClient client = getHttpClient(COMMAND_TIMEOUT);
         String us = makeUriString("OPTIONS", null);
         HttpOptions method = new HttpOptions(URI.create(us));
-        setHeaders(method);
+        setHeaders(method, false);
         return client.execute(method);
     }
 
@@ -899,8 +920,55 @@ public class EasSyncService extends AbstractSyncService {
         }
     }
 
+    /**
+     * Negotiate provisioning with the server.  First, get policies form the server and see if
+     * the policies are supported by the device.  Then, write the policies to the account and
+     * tell SecurityPolicy that we have policies in effect.  Finally, see if those policies are
+     * active; if so, acknowledge the policies to the server and get a final policy key that we
+     * use in future EAS commands and write this key to the account.
+     * @return whether or not provisioning has been successful
+     * @throws IOException
+     */
+    private boolean tryProvision() throws IOException {
+        // First, see if provisioning is even possible, i.e. do we support the policies required
+        // by the server
+        ProvisionParser pp = canProvision();
+        if (pp != null) {
+            SecurityPolicy sp = SecurityPolicy.getInstance(mContext);
+            // Get the policies from ProvisionParser
+            PolicySet ps = pp.getPolicySet();
+            // Update the account with a null policyKey (the key we've gotten is
+            // temporary and cannot be used for syncing)
+            if (ps.writeAccount(mAccount, null, true, mContext)) {
+                sp.updatePolicies(mAccount.mId);
+            }
+            // See if the policies are currently in force
+            if (sp.isActive(ps)) {
+                // If they are, acknowledge the policies to the server and get the final policy
+                // key
+                String policyKey = acknowledgeProvision(pp.getPolicyKey());
+                if (policyKey != null) {
+                    // Write the final policy key to the Account and say we've been successful
+                    ps.writeAccount(mAccount, policyKey, true, mContext);
+                    return true;
+                }
+            } else {
+                // Notify that we are blocked because of policies
+                sp.policiesRequired(mAccount.mId);
+            }
+        }
+        return false;
+    }
+
     // TODO This is Exchange 2007 only at this point
-    private boolean canProvision() throws IOException {
+    /**
+     * Obtain a set of policies from the server and determine whether those policies are supported
+     * by the device.
+     * @return the ProvisionParser (holds policies and key) if we receive policies and they are
+     * supported by the device; null otherwise
+     * @throws IOException
+     */
+    private ProvisionParser canProvision() throws IOException {
         Serializer s = new Serializer();
         s.start(Tags.PROVISION_PROVISION).start(Tags.PROVISION_POLICIES);
         s.start(Tags.PROVISION_POLICY).data(Tags.PROVISION_POLICY_TYPE, "MS-EAS-Provisioning-WBXML")
@@ -911,15 +979,48 @@ public class EasSyncService extends AbstractSyncService {
             InputStream is = resp.getEntity().getContent();
             ProvisionParser pp = new ProvisionParser(is, this);
             if (pp.parse()) {
-                // If true, we received policies from the server
-                // Retrieve them and write them to the framework
+                // If true, we received policies from the server; see if they are supported by
+                // the framework; if so, return the ProvisionParser containing the policy set and
+                // temporary key
                 PolicySet ps = pp.getPolicySet();
                 if (SecurityPolicy.getInstance(mContext).isSupported(ps)) {
-                    return true;
+                    return pp;
                 }
             }
         }
-        return false;
+        // On failures, simply return null
+        return null;
+    }
+
+    // TODO This is Exchange 2007 only at this point
+    /**
+     * Acknowledge that we support the policies provided by the server, and that these policies
+     * are in force.
+     * @param tempKey the initial (temporary) policy key sent by the server
+     * @return the final policy key, which can be used for syncing
+     * @throws IOException
+     */
+    private String acknowledgeProvision(String tempKey) throws IOException {
+        Serializer s = new Serializer();
+        s.start(Tags.PROVISION_PROVISION).start(Tags.PROVISION_POLICIES);
+        s.start(Tags.PROVISION_POLICY);
+        s.data(Tags.PROVISION_POLICY_TYPE, "MS-EAS-Provisioning-WBXML");
+        s.data(Tags.PROVISION_POLICY_KEY, tempKey);
+        s.data(Tags.PROVISION_STATUS, "1");
+        s.end();
+        s.end().end().done();
+        HttpResponse resp = sendHttpClientPost("Provision", s.toByteArray());
+        int code = resp.getStatusLine().getStatusCode();
+        if (code == HttpStatus.SC_OK) {
+            InputStream is = resp.getEntity().getContent();
+            ProvisionParser pp = new ProvisionParser(is, this);
+            if (pp.parse()) {
+                // Return the final polic key from the ProvisionParser
+                return pp.getPolicyKey();
+            }
+        }
+        // On failures, return null
+        return null;
     }
 
     /**
@@ -1009,7 +1110,7 @@ public class EasSyncService extends AbstractSyncService {
                 userLog("Sending Account syncKey: ", mAccount.mSyncKey);
                 Serializer s = new Serializer();
                 s.start(Tags.FOLDER_FOLDER_SYNC).start(Tags.FOLDER_SYNC_KEY)
-                .text(mAccount.mSyncKey).end().end().done();
+                    .text(mAccount.mSyncKey).end().end().done();
                 HttpResponse resp = sendHttpClientPost("FolderSync", s.toByteArray());
                 if (mStop) break;
                 int code = resp.getStatusLine().getStatusCode();
@@ -1020,27 +1121,21 @@ public class EasSyncService extends AbstractSyncService {
                         InputStream is = entity.getContent();
                         // Returns true if we need to sync again
                         if (new FolderSyncParser(is, new AccountSyncAdapter(mMailbox, this))
-                        .parse()) {
+                                .parse()) {
                             continue;
                         }
                     }
-                    // // EVERYTHING IN THE code==403 BLOCK IS PLACEHOLDER/SAMPLE CODE
-                } else if (code == 403) { // security error
-                    // Reality: Find out from server what policies are required
-                    // Fake: Hardcode the policies
-                    SecurityPolicy sp = SecurityPolicy.getInstance(mContext);
-                    PolicySet ps = new PolicySet(4, PolicySet.PASSWORD_MODE_SIMPLE, 0, 0, true);
-                    // Update the account
-                    if (ps.writeAccount(mAccount, "securitySyncKey", true, mContext)) {
-                        sp.updatePolicies(mAccount.mId);
+                } else if (isProvisionError(code)) {
+                    // If the sync error is a provisioning failure (perhaps the policies changed),
+                    // let's try the provisining procedure
+                    if (!tryProvision()) {
+                        // Set the appropriate failure status
+                        mExitStatus = EXIT_SECURITY_FAILURE;
+                        return;
                     }
-                    // Notify that we are blocked because of policies
-                    sp.policiesRequired(mAccount.mId);
-                    // and exit (don't sync in this condition)
-                    mExitStatus = EXIT_LOGIN_FAILURE;
-                    // END PLACEHOLDER CODE
                 } else if (isAuthError(code)) {
                     mExitStatus = EXIT_LOGIN_FAILURE;
+                    return;
                 } else {
                     userLog("FolderSync response error: ", code);
                 }
@@ -1510,7 +1605,12 @@ public class EasSyncService extends AbstractSyncService {
                 }
             } else {
                 userLog("Sync response error: ", code);
-                if (isAuthError(code)) {
+                if (isProvisionError(code)) {
+                    if (!tryProvision()) {
+                        mExitStatus = EXIT_SECURITY_FAILURE;
+                        return;
+                    }
+                } else if (isAuthError(code)) {
                     mExitStatus = EXIT_LOGIN_FAILURE;
                 } else {
                     mExitStatus = EXIT_IO_ERROR;
@@ -1615,6 +1715,9 @@ public class EasSyncService extends AbstractSyncService {
                         break;
                     case EXIT_LOGIN_FAILURE:
                         status = EmailServiceStatus.LOGIN_FAILED;
+                        break;
+                    case EXIT_SECURITY_FAILURE:
+                        status = EmailServiceStatus.SECURITY_FAILURE;
                         break;
                     default:
                         status = EmailServiceStatus.REMOTE_EXCEPTION;

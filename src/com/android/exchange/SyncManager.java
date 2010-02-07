@@ -477,23 +477,10 @@ public class SyncManager extends Service implements Runnable {
             return mEasAccountSelector;
         }
 
-        private boolean syncParametersChanged(Account account) {
-            long accountId = account.mId;
-            // Reload account from database to get its current state
-            account = Account.restoreAccountWithId(getContext(), accountId);
-            for (Account oldAccount: mAccounts) {
-                if (oldAccount.mId == accountId) {
-                    return oldAccount.mSyncInterval != account.mSyncInterval ||
-                            oldAccount.mSyncLookback != account.mSyncLookback;
-                }
-            }
-            // Really, we can't get here, but we don't want the compiler to complain
-            return false;
-        }
-
         @Override
         public void onChange(boolean selfChange) {
             maybeStartSyncManagerThread();
+            Context context = getContext();
 
             // A change to the list requires us to scan for deletions (to stop running syncs)
             // At startup, we want to see what accounts exist and cache them
@@ -518,11 +505,11 @@ public class SyncManager extends Service implements Runnable {
                         mSyncableEasMailboxSelector = null;
                         mEasAccountSelector = null;
                     } else {
-                        // See whether any of our accounts has changed sync interval or window
-                        if (syncParametersChanged(account)) {
+                        // An account has changed
+                        Account updatedAccount = Account.restoreAccountWithId(context, account.mId);
+                        if (account.mSyncInterval != updatedAccount.mSyncInterval ||
+                                account.mSyncLookback != updatedAccount.mSyncLookback) {
                             // Set pushable boxes' sync interval to the sync interval of the Account
-                            Account updatedAccount =
-                                Account.restoreAccountWithId(getContext(), account.mId);
                             ContentValues cv = new ContentValues();
                             cv.put(MailboxColumns.SYNC_INTERVAL, updatedAccount.mSyncInterval);
                             getContentResolver().update(Mailbox.CONTENT_URI, cv,
@@ -532,6 +519,12 @@ public class SyncManager extends Service implements Runnable {
                             log("Account " + account.mDisplayName + " changed; stop syncs");
                             stopAccountSyncs(account.mId, true);
                         }
+                        // TODO Check here for security hold in mFlags
+
+                        // Put current values into our cached account
+                        account.mSyncInterval = updatedAccount.mSyncInterval;
+                        account.mSyncLookback = updatedAccount.mSyncLookback;
+                        account.mFlags = updatedAccount.mFlags;
                     }
                 }
 
@@ -1852,6 +1845,7 @@ public class SyncManager extends Service implements Runnable {
                     }
                     errorMap.remove(mailboxId);
                     break;
+                // I/O errors get retried at increasing intervals
                 case AbstractSyncService.EXIT_IO_ERROR:
                     Mailbox m = Mailbox.restoreMailboxWithId(INSTANCE, mailboxId);
                     if (m == null) return;
@@ -1863,6 +1857,8 @@ public class SyncManager extends Service implements Runnable {
                         INSTANCE.log(m.mDisplayName + " added to syncErrorMap, hold for 15s");
                     }
                     break;
+                // These errors are not retried automatically
+                case AbstractSyncService.EXIT_SECURITY_FAILURE:
                 case AbstractSyncService.EXIT_LOGIN_FAILURE:
                 case AbstractSyncService.EXIT_EXCEPTION:
                     errorMap.put(mailboxId, INSTANCE.new SyncError(exitStatus, true));

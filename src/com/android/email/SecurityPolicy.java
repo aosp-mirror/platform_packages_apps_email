@@ -49,7 +49,8 @@ public class SecurityPolicy {
 
     /** STOPSHIP - ok to check in true for now, but must be false for shipping */
     /** DO NOT CHECK IN WHILE 'true' */
-    private static final boolean DEBUG_ALWAYS_ACTIVE = false;
+    // Until everything is connected, allow syncs to work
+    private static final boolean DEBUG_ALWAYS_ACTIVE = true;
 
     private static SecurityPolicy sInstance = null;
     private Context mContext;
