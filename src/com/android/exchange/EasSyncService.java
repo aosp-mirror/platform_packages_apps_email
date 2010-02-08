@@ -17,9 +17,9 @@
 
 package com.android.exchange;
 
-import com.android.email.SecurityPolicy;
+import com.android.common.Base64;
 import com.android.email.SecurityPolicy.PolicySet;
-import com.android.email.codec.binary.Base64;
+import com.android.email.SecurityPolicy;
 import com.android.email.mail.AuthenticationFailedException;
 import com.android.email.mail.MessagingException;
 import com.android.email.provider.EmailContent.Account;
@@ -39,11 +39,11 @@ import com.android.exchange.adapter.ContactsSyncAdapter;
 import com.android.exchange.adapter.EmailSyncAdapter;
 import com.android.exchange.adapter.FolderSyncParser;
 import com.android.exchange.adapter.MeetingResponseParser;
+import com.android.exchange.adapter.Parser.EasParserException;
 import com.android.exchange.adapter.PingParser;
 import com.android.exchange.adapter.ProvisionParser;
 import com.android.exchange.adapter.Serializer;
 import com.android.exchange.adapter.Tags;
-import com.android.exchange.adapter.Parser.EasParserException;
 
 import org.apache.http.Header;
 import org.apache.http.HttpEntity;
@@ -792,7 +792,7 @@ public class EasSyncService extends AbstractSyncService {
         String safeUserName = URLEncoder.encode(mUserName);
         if (mAuthString == null) {
             String cs = mUserName + ':' + mPassword;
-            mAuthString = "Basic " + new String(Base64.encodeBase64(cs.getBytes()));
+            mAuthString = "Basic " + Base64.encodeToString(cs.getBytes(), Base64.NO_WRAP);
             mCmdString = "&User=" + safeUserName + "&DeviceId=" + mDeviceId + "&DeviceType="
                     + mDeviceType;
         }
@@ -1206,7 +1206,7 @@ public class EasSyncService extends AbstractSyncService {
         ArrayList<String> readyMailboxes = new ArrayList<String>();
         ArrayList<String> notReadyMailboxes = new ArrayList<String>();
         int pingWaitCount = 0;
-        
+
         while ((System.currentTimeMillis() < endTime) && !mStop) {
             // Count of pushable mailboxes
             int pushCount = 0;
@@ -1214,7 +1214,7 @@ public class EasSyncService extends AbstractSyncService {
             int canPushCount = 0;
             // Count of uninitialized boxes
             int uninitCount = 0;
-            
+
             Serializer s = new Serializer();
             Cursor c = mContentResolver.query(Mailbox.CONTENT_URI, Mailbox.CONTENT_PROJECTION,
                     MailboxColumns.ACCOUNT_KEY + '=' + mAccount.mId +
@@ -1275,7 +1275,7 @@ public class EasSyncService extends AbstractSyncService {
                     userLog("Ping ready for: " + readyMailboxes);
                 }
             }
-            
+
             // If we've waited 10 seconds or more, just ping with whatever boxes are ready
             // But use a shorter than normal heartbeat
             boolean forcePing = !notReadyMailboxes.isEmpty() && (pingWaitCount > 5);

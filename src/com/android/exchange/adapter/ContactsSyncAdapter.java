@@ -17,7 +17,7 @@
 
 package com.android.exchange.adapter;
 
-import com.android.email.codec.binary.Base64;
+import com.android.common.Base64;
 import com.android.email.provider.EmailContent.Mailbox;
 import com.android.exchange.Eas;
 import com.android.exchange.EasSyncService;
@@ -1258,7 +1258,7 @@ public class ContactsSyncAdapter extends AbstractSyncAdapter {
             RowBuilder builder = untypedRowBuilder(entity, Photo.CONTENT_ITEM_TYPE);
             // We're always going to add this; it's not worth trying to figure out whether the
             // picture is the same as the one stored.
-            byte[] pic = Base64.decodeBase64(photo.getBytes());
+            byte[] pic = Base64.decode(photo, Base64.DEFAULT);
             builder.withValue(Photo.PHOTO, pic);
             add(builder.build());
         }
@@ -1636,8 +1636,7 @@ public class ContactsSyncAdapter extends AbstractSyncAdapter {
     private void sendPhoto(Serializer s, ContentValues cv) throws IOException {
         if (cv.containsKey(Photo.PHOTO)) {
             byte[] bytes = cv.getAsByteArray(Photo.PHOTO);
-            byte[] encodedBytes = Base64.encodeBase64(bytes);
-            String pic = new String(encodedBytes);
+            String pic = Base64.encodeToString(bytes, Base64.NO_WRAP);
             s.data(Tags.CONTACTS_PICTURE, pic);
         }
     }

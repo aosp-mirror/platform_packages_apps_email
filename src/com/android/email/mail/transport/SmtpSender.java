@@ -16,8 +16,8 @@
 
 package com.android.email.mail.transport;
 
+import com.android.common.Base64;
 import com.android.email.Email;
-import com.android.email.codec.binary.Base64;
 import com.android.email.mail.Address;
 import com.android.email.mail.AuthenticationFailedException;
 import com.android.email.mail.CertificateValidationException;
@@ -304,9 +304,11 @@ public class SmtpSender extends Sender {
         AuthenticationFailedException, IOException {
         try {
             executeSimpleCommand("AUTH LOGIN");
-            executeSensitiveCommand(new String(Base64.encodeBase64(username.getBytes())),
+            executeSensitiveCommand(
+                    Base64.encodeToString(username.getBytes(), Base64.NO_WRAP),
                     "/username redacted/");
-            executeSensitiveCommand(new String(Base64.encodeBase64(password.getBytes())),
+            executeSensitiveCommand(
+                    Base64.encodeToString(password.getBytes(), Base64.NO_WRAP),
                     "/password redacted/");
         }
         catch (MessagingException me) {
@@ -320,7 +322,7 @@ public class SmtpSender extends Sender {
     private void saslAuthPlain(String username, String password) throws MessagingException,
             AuthenticationFailedException, IOException {
         byte[] data = ("\000" + username + "\000" + password).getBytes();
-        data = new Base64().encode(data);
+        data = Base64.encode(data, Base64.NO_WRAP);
         try {
             executeSensitiveCommand("AUTH PLAIN " + new String(data), "AUTH PLAIN /redacted/");
         }

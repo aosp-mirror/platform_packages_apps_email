@@ -16,16 +16,15 @@
 
 package com.android.email.mail.internet;
 
+import com.android.common.Base64;
+import com.android.email.mail.Body;
+import com.android.email.mail.MessagingException;
+
 import java.io.ByteArrayInputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
 import java.io.UnsupportedEncodingException;
-
-
-import com.android.email.codec.binary.Base64;
-import com.android.email.mail.Body;
-import com.android.email.mail.MessagingException;
 
 public class TextBody implements Body {
     String mBody;
@@ -36,11 +35,11 @@ public class TextBody implements Body {
 
     public void writeTo(OutputStream out) throws IOException, MessagingException {
         byte[] bytes = mBody.getBytes("UTF-8");
-        out.write(Base64.encodeBase64Chunked(bytes));
+        out.write(Base64.encode(bytes, Base64.CRLF));
     }
-    
+
     /**
-     * Get the text of the body in it's unencoded format. 
+     * Get the text of the body in it's unencoded format.
      * @return
      */
     public String getText() {

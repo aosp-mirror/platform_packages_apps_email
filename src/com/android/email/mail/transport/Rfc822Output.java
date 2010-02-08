@@ -16,7 +16,7 @@
 
 package com.android.email.mail.transport;
 
-import com.android.email.codec.binary.Base64;
+import com.android.common.Base64;
 import com.android.email.codec.binary.Base64OutputStream;
 import com.android.email.mail.Address;
 import com.android.email.mail.MessagingException;
@@ -323,6 +323,6 @@ public class Rfc822Output {
         writer.write("\r\n");
         byte[] bytes = text.getBytes("UTF-8");
         writer.flush();
-        out.write(Base64.encodeBase64Chunked(bytes));
+        out.write(Base64.encode(bytes, Base64.CRLF));
     }
 }
