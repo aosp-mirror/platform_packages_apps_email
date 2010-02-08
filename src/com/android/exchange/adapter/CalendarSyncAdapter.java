@@ -52,6 +52,7 @@ import android.util.Log;
 import java.io.IOException;
 import java.io.InputStream;
 import java.util.ArrayList;
+import java.util.GregorianCalendar;
 import java.util.StringTokenizer;
 import java.util.TimeZone;
 
@@ -360,10 +361,17 @@ public class CalendarSyncAdapter extends AbstractSyncAdapter {
                 cv.put(Events.DTEND, endTime);
                 cv.put(Events.LAST_DATE, endTime);
             }
-
             // Set the DURATION using rfc2445
+            // For all day events, make sure hour, minute, and second are zero for DTSTART
             if (allDayEvent != 0) {
                 cv.put(Events.DURATION, "P1D");
+                GregorianCalendar cal = new GregorianCalendar(TimeZone.getTimeZone("GMT"));
+                cal.setTimeInMillis(startTime);
+                cal.set(GregorianCalendar.HOUR_OF_DAY, 0);
+                cal.set(GregorianCalendar.MINUTE, 0);
+                cal.set(GregorianCalendar.SECOND, 0);
+                cv.put(Events.DTSTART, cal.getTimeInMillis());
+                cv.put(Events.ORIGINAL_INSTANCE_TIME, cal.getTimeInMillis());
             } else {
                 cv.put(Events.DURATION, "P" + ((endTime - startTime) / MINUTES) + "M");
             }
