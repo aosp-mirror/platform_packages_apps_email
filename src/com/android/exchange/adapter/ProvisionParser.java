@@ -51,7 +51,7 @@ public class ProvisionParser extends Parser {
         int passwordMode = PolicySet.PASSWORD_MODE_NONE;
         int maxPasswordFails = 0;
         int maxScreenLockTime = 0;
-        boolean canSupport = false;
+        boolean canSupport = true;
 
         while (nextTag(Tags.PROVISION_EAS_PROVISION_DOC) != END) {
             switch (tag) {
@@ -122,9 +122,6 @@ public class ProvisionParser extends Parser {
     public void parsePolicy() throws IOException {
         while (nextTag(Tags.PROVISION_POLICY) != END) {
             switch (tag) {
-                case Tags.PROVISION_POLICIES:
-                    parsePolicies();
-                    break;
                 case Tags.PROVISION_POLICY_TYPE:
                     mService.userLog("Policy type: ", getValue());
                     break;
@@ -167,7 +164,7 @@ public class ProvisionParser extends Parser {
                     break;
                 case Tags.PROVISION_POLICIES:
                     parsePolicies();
-                    return (mPolicySet != null);
+                    return (mPolicySet != null || mPolicyKey != null);
                 default:
                     skipTag();
             }

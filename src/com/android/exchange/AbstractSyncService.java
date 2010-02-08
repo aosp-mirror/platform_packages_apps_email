@@ -62,6 +62,7 @@ public abstract class AbstractSyncService implements Runnable {
     public static final int EXIT_IO_ERROR = 1;
     public static final int EXIT_LOGIN_FAILURE = 2;
     public static final int EXIT_EXCEPTION = 3;
+    public static final int EXIT_SECURITY_FAILURE = 4;
 
     public Mailbox mMailbox;
     protected long mMailboxId;
