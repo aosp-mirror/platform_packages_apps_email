@@ -43,8 +43,6 @@ import android.net.Uri;
  * TODO: When accounts are deleted, reduce policy and/or give up admin status
  * TODO: Provide a way to check for policy issues at synchronous times such as entering
  *       message list or folder list.
- * TODO: Implement local wipe after failed passwords
- *
  */
 public class SecurityPolicy {
 
@@ -630,6 +628,8 @@ public class SecurityPolicy {
     /**
      * Device Policy administrator.  This is primarily a listener for device state changes.
      * Note:  This is instantiated by incoming messages.
+     * Note:  We do not implement onPasswordFailed() because the default behavior of the
+     *        DevicePolicyManager - complete local wipe after 'n' failures - is sufficient.
      */
     public static class PolicyAdmin extends DeviceAdmin {
 
@@ -655,14 +655,6 @@ public class SecurityPolicy {
         @Override
         public void onPasswordChanged(Context context, Intent intent) {
             SecurityPolicy.getInstance(context).clearAccountHoldFlags();
-        }
-        
-        /**
-         * Called after the user has failed at entering their current password.
-         */
-        @Override
-        public void onPasswordFailed(Context context, Intent intent) {
-            // do something
         }
     }
 }
