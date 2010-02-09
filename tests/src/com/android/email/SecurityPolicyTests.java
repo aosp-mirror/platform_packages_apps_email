@@ -242,4 +242,57 @@ public class SecurityPolicyTests extends ProviderTestCase2<EmailProvider> {
         assertFalse(p2.hashCode() == p3.hashCode());
     }
 
+    /**
+     * Test the API to set/clear policy hold flags in an account
+     */
+    public void testSetClearHoldFlag() {
+        SecurityPolicy sp = getSecurityPolicy();
+
+        Account a1 = ProviderTestUtils.setupAccount("holdflag-1", false, mMockContext);
+        a1.mFlags = Account.FLAGS_NOTIFY_NEW_MAIL;
+        a1.save(mMockContext);
+        Account a2 = ProviderTestUtils.setupAccount("holdflag-2", false, mMockContext);
+        a2.mFlags = Account.FLAGS_VIBRATE | Account.FLAGS_SECURITY_HOLD;
+        a2.save(mMockContext);
+
+        // confirm clear until set
+        Account a1a = Account.restoreAccountWithId(mMockContext, a1.mId);
+        assertEquals(Account.FLAGS_NOTIFY_NEW_MAIL, a1a.mFlags);
+        sp.setAccountHoldFlag(a1, true);
+        assertEquals(Account.FLAGS_NOTIFY_NEW_MAIL | Account.FLAGS_SECURITY_HOLD, a1.mFlags);
+        Account a1b = Account.restoreAccountWithId(mMockContext, a1.mId);
+        assertEquals(Account.FLAGS_NOTIFY_NEW_MAIL | Account.FLAGS_SECURITY_HOLD, a1b.mFlags);
+
+        // confirm set until cleared
+        Account a2a = Account.restoreAccountWithId(mMockContext, a2.mId);
+        assertEquals(Account.FLAGS_VIBRATE | Account.FLAGS_SECURITY_HOLD, a2a.mFlags);
+        sp.setAccountHoldFlag(a2, false);
+        assertEquals(Account.FLAGS_VIBRATE, a2.mFlags);
+        Account a2b = Account.restoreAccountWithId(mMockContext, a2.mId);
+        assertEquals(Account.FLAGS_VIBRATE, a2b.mFlags);
+    }
+
+    /**
+     * Test the API to clear all policy hold flags in all accounts)
+     */
+    public void testClearHoldFlags() {
+        SecurityPolicy sp = getSecurityPolicy();
+
+        Account a1 = ProviderTestUtils.setupAccount("holdflag-1", false, mMockContext);
+        a1.mFlags = Account.FLAGS_NOTIFY_NEW_MAIL;
+        a1.save(mMockContext);
+        Account a2 = ProviderTestUtils.setupAccount("holdflag-2", false, mMockContext);
+        a2.mFlags = Account.FLAGS_VIBRATE | Account.FLAGS_SECURITY_HOLD;
+        a2.save(mMockContext);
+
+        // bulk clear
+        sp.clearAccountHoldFlags();
+
+        // confirm new values as expected - no hold flags; other flags unmolested
+        Account a1a = Account.restoreAccountWithId(mMockContext, a1.mId);
+        assertEquals(Account.FLAGS_NOTIFY_NEW_MAIL, a1a.mFlags);
+        Account a2a = Account.restoreAccountWithId(mMockContext, a2.mId);
+        assertEquals(Account.FLAGS_VIBRATE, a2a.mFlags);
+    }
+    
 }

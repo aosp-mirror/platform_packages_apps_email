@@ -28,6 +28,8 @@ import android.app.Notification;
 import android.app.NotificationManager;
 import android.app.PendingIntent;
 import android.content.ComponentName;
+import android.content.ContentResolver;
+import android.content.ContentUris;
 import android.content.ContentValues;
 import android.content.Context;
 import android.content.Intent;
@@ -38,7 +40,6 @@ import android.net.Uri;
  * Utility functions to support reading and writing security policies
  *
  * STOPSHIP - these TODO items are all part of finishing the feature
- * TODO: When user sets password, and conditions are now satisfied, restart syncs
  * TODO: When accounts are deleted, reduce policy and/or give up admin status
  * TODO: Provide a way to check for policy issues at synchronous times such as entering
  *       message list or folder list.
@@ -50,7 +51,7 @@ public class SecurityPolicy {
     /** STOPSHIP - ok to check in true for now, but must be false for shipping */
     /** DO NOT CHECK IN WHILE 'true' */
     // Until everything is connected, allow syncs to work
-    private static final boolean DEBUG_ALWAYS_ACTIVE = true;
+    private static final boolean DEBUG_ALWAYS_ACTIVE = false;
 
     private static SecurityPolicy sInstance = null;
     private Context mContext;
@@ -67,12 +68,22 @@ public class SecurityPolicy {
      * This projection on Account is for scanning/reading 
      */
     private static final String[] ACCOUNT_SECURITY_PROJECTION = new String[] {
-        Account.RECORD_ID, Account.SECURITY_FLAGS
+        AccountColumns.ID, AccountColumns.SECURITY_FLAGS
     };
     private static final int ACCOUNT_SECURITY_COLUMN_FLAGS = 1;
     // Note, this handles the NULL case to deal with older accounts where the column was added
     private static final String WHERE_ACCOUNT_SECURITY_NONZERO =
         Account.SECURITY_FLAGS + " IS NOT NULL AND " + Account.SECURITY_FLAGS + "!=0";
+
+    /**
+     * This projection on Account is for clearing the "security hold" column.  Also includes
+     * the security flags column, so we can use it for selecting.
+     */
+    private static final String[] ACCOUNT_FLAGS_PROJECTION = new String[] {
+        AccountColumns.ID, AccountColumns.FLAGS, AccountColumns.SECURITY_FLAGS
+    };
+    private static final int ACCOUNT_FLAGS_COLUMN_ID = 0;
+    private static final int ACCOUNT_FLAGS_COLUMN_FLAGS = 1;
 
    /**
     * These are hardcoded limits based on knowledge of the current DevicePolicyManager
@@ -265,6 +276,9 @@ public class SecurityPolicy {
             }
             // password failures are counted locally - no test required here
             // no check required for remote wipe (it's supported, if we're the admin)
+
+            // making it this far means we passed!
+            return true;
         }
         // return false, not active - unless debugging enabled
         return DEBUG_ALWAYS_ACTIVE;
@@ -296,6 +310,46 @@ public class SecurityPolicy {
     }
 
     /**
+     * API: Set/Clear the "hold" flag in any account.  This flag serves a dual purpose:
+     * Setting it gives us an indication that it was blocked, and clearing it gives EAS a
+     * signal to try syncing again.
+     */
+    public void setAccountHoldFlag(Account account, boolean newState) {
+        if (newState) {
+            account.mFlags |= Account.FLAGS_SECURITY_HOLD;
+        } else {
+            account.mFlags &= ~Account.FLAGS_SECURITY_HOLD;
+        }
+        ContentValues cv = new ContentValues();
+        cv.put(AccountColumns.FLAGS, account.mFlags);
+        account.update(mContext, cv);
+    }
+
+    /**
+     * Clear all account hold flags that are set.  This will trigger watchers, and in particular
+     * will cause EAS to try and resync the account(s).
+     */
+    public void clearAccountHoldFlags() {
+        ContentResolver resolver = mContext.getContentResolver();
+        Cursor c = resolver.query(Account.CONTENT_URI, ACCOUNT_FLAGS_PROJECTION,
+                WHERE_ACCOUNT_SECURITY_NONZERO, null, null);
+        try {
+            while (c.moveToNext()) {
+                int flags = c.getInt(ACCOUNT_FLAGS_COLUMN_FLAGS);
+                if (0 != (flags & Account.FLAGS_SECURITY_HOLD)) {
+                    ContentValues cv = new ContentValues();
+                    cv.put(AccountColumns.FLAGS, flags & ~Account.FLAGS_SECURITY_HOLD);
+                    long accountId = c.getLong(ACCOUNT_FLAGS_COLUMN_ID);
+                    Uri uri = ContentUris.withAppendedId(Account.CONTENT_URI, accountId);
+                    resolver.update(uri, cv, null, null);
+                }
+            }
+        } finally {
+            c.close();
+        }
+    }
+
+    /**
      * API: Sync service should call this any time a sync fails due to isActive() returning false.
      * This will kick off the notify-acquire-admin-state process and/or increase the security level.
      * The caller needs to write the required policies into this account before making this call.
@@ -304,6 +358,12 @@ public class SecurityPolicy {
      * @param accountId the account for which sync cannot proceed
      */
     public void policiesRequired(long accountId) {
+        Account account = EmailContent.Account.restoreAccountWithId(mContext, accountId);
+
+        // Mark the account as "on hold".
+        setAccountHoldFlag(account, true);
+
+        // Put up a notification (unless there already is one)
         synchronized (this) {
             if (mNotificationActive) {
                 // no need to do anything - we've already been notified, and we've already
@@ -316,7 +376,6 @@ public class SecurityPolicy {
             }
         }
         // At this point, we will put up a notification
-        Account account = EmailContent.Account.restoreAccountWithId(mContext, accountId);
 
         String tickerText = mContext.getString(R.string.security_notification_ticker_fmt,
                 account.getDisplayName());
@@ -595,7 +654,7 @@ public class SecurityPolicy {
          */
         @Override
         public void onPasswordChanged(Context context, Intent intent) {
-            // do something
+            SecurityPolicy.getInstance(context).clearAccountHoldFlags();
         }
         
         /**

@@ -118,12 +118,14 @@ public class AccountSecurity extends Activity {
         SecurityPolicy sp = SecurityPolicy.getInstance(this);
         // check current security level - if sufficient, we're done!
         if (sp.isActive(null)) {
+            sp.clearAccountHoldFlags();
             return;
         }
         // set current security level
         sp.setActivePolicies();
         // check current security level - if sufficient, we're done!
         if (sp.isActive(null)) {
+            sp.clearAccountHoldFlags();
             return;
         }
         // if not sufficient, launch the activity to have the user set a new password.

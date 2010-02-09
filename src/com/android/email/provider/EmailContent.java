@@ -791,6 +791,7 @@ public abstract class EmailContent {
         public static final int FLAGS_DELETE_POLICY_MASK = 4+8;
         public static final int FLAGS_DELETE_POLICY_SHIFT = 2;
         public static final int FLAGS_INCOMPLETE = 16;
+        public static final int FLAGS_SECURITY_HOLD = 32;
 
         public static final int DELETE_POLICY_NEVER = 0;
         public static final int DELETE_POLICY_7DAYS = 1;        // not supported
