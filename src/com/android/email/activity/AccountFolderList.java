@@ -20,6 +20,7 @@ import com.android.email.AccountBackupRestore;
 import com.android.email.Controller;
 import com.android.email.Email;
 import com.android.email.R;
+import com.android.email.SecurityPolicy;
 import com.android.email.Utility;
 import com.android.email.activity.setup.AccountSettings;
 import com.android.email.activity.setup.AccountSetupBasics;
@@ -426,6 +427,8 @@ public class AccountFolderList extends ListActivity implements OnItemClickListen
                         AccountFolderList.this.getContentResolver().delete(uri, null, null);
                         // Update the backup (side copy) of the accounts
                         AccountBackupRestore.backupAccounts(AccountFolderList.this);
+                        // Release or relax device administration, if relevant
+                        SecurityPolicy.getInstance(AccountFolderList.this).reducePolicies();
                     } catch (Exception e) {
                             // Ignore
                     }

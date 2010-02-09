@@ -19,6 +19,7 @@ package com.android.exchange;
 
 import com.android.email.AccountBackupRestore;
 import com.android.email.Email;
+import com.android.email.SecurityPolicy;
 import com.android.email.mail.MessagingException;
 import com.android.email.mail.store.TrustManagerFactory;
 import com.android.email.provider.EmailContent;
@@ -1283,9 +1284,10 @@ public class SyncManager extends Service implements Runnable {
                 accountsDeleted = true;
             }
         }
-        // If we changed the list of accounts, refresh the backup
+        // If we changed the list of accounts, refresh the backup & security settings
         if (accountsDeleted) {
             AccountBackupRestore.backupAccounts(getContext());
+            SecurityPolicy.getInstance(context).reducePolicies();
         }
     }
 

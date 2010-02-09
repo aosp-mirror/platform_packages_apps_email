@@ -35,6 +35,7 @@ import android.content.Context;
 import android.content.Intent;
 import android.database.Cursor;
 import android.net.Uri;
+import android.util.Log;
 
 /**
  * Utility functions to support reading and writing security policies
@@ -179,6 +180,16 @@ public class SecurityPolicy {
     }
 
     /**
+     * Return updated aggregate policy, from cached value if possible
+     */
+    public synchronized PolicySet getAggregatePolicy() {
+        if (mAggregatePolicy == null) {
+            mAggregatePolicy = computeAggregatePolicy();
+        }
+        return mAggregatePolicy;
+    }
+
+    /**
      * Get the dpm.  This mainly allows us to make some utility calls without it, for testing.
      */
     private synchronized DevicePolicyManager getDPM() {
@@ -217,10 +228,21 @@ public class SecurityPolicy {
 
     /**
      * API: Report that policies may have been updated due to rewriting values in an Account.
-     * @param accountId the account that has been updated
+     * @param accountId the account that has been updated, -1 if unknown/deleted
      */
     public synchronized void updatePolicies(long accountId) {
         mAggregatePolicy = null;
+    }
+
+    /**
+     * API: Report that policies may have been updated *and* the caller vouches that the
+     * change is a reduction in policies.  This forces an immediate change to device state.
+     * Typically used when deleting accounts, although we may use it for server-side policy
+     * rollbacks.
+     */
+    public void reducePolicies() {
+        updatePolicies(-1);
+        setActivePolicies();
     }
 
     /**
@@ -237,21 +259,16 @@ public class SecurityPolicy {
      * @return true if the policies are active, false if not active
      */
     public boolean isActive(PolicySet policies) {
+        // select aggregate set if needed
+        if (policies == null) {
+            policies = getAggregatePolicy();
+        }
+        // quick check for the "empty set" of no policies
+        if (policies == NO_POLICY_SET) {
+            return true;
+        }
         DevicePolicyManager dpm = getDPM();
         if (dpm.isAdminActive(mAdminName)) {
-            // select aggregate set if needed
-            if (policies == null) {
-                synchronized (this) {
-                    if (mAggregatePolicy == null) {
-                        mAggregatePolicy = computeAggregatePolicy();
-                    }
-                    policies = mAggregatePolicy;
-                }
-            }
-            // quick check for the "empty set" of no policies
-            if (policies == NO_POLICY_SET) {
-                return true;
-            }
             // check each policy explicitly
             if (policies.mMinPasswordLength > 0) {
                 if (dpm.getPasswordMinimumLength(mAdminName) < policies.mMinPasswordLength) {
@@ -283,19 +300,18 @@ public class SecurityPolicy {
     }
 
     /**
-     * Set the requested security level based on the aggregate set of requests
+     * Set the requested security level based on the aggregate set of requests.
+     * If the set is empty, we release our device administration.  If the set is non-empty,
+     * we only proceed if we are already active as an admin.
      */
     public void setActivePolicies() {
         DevicePolicyManager dpm = getDPM();
-        if (dpm.isAdminActive(mAdminName)) {
-            // compute aggregate set if needed
-            PolicySet policies;
-            synchronized (this) {
-                if (mAggregatePolicy == null) {
-                    mAggregatePolicy = computeAggregatePolicy();
-                }
-                policies = mAggregatePolicy;
-            }
+        // compute aggregate set of policies
+        PolicySet policies = getAggregatePolicy();
+        // if empty set, detach from policy manager
+        if (policies == NO_POLICY_SET) {
+            dpm.removeActiveAdmin(mAdminName);
+        } else if (dpm.isAdminActive(mAdminName)) {
             // set each policy in the policy manager
             // password mode & length
             dpm.setPasswordQuality(mAdminName, policies.getDPManagerPasswordQuality());
@@ -416,12 +432,15 @@ public class SecurityPolicy {
     }
 
     /**
-     * API: Remote wipe (from server).  This is final, there is no confirmation.
+     * API: Remote wipe (from server).  This is final, there is no confirmation.  It will only
+     * return to the caller if there is an unexpected failure.
      */
-    public void remoteWipe(long accountId) {
+    public void remoteWipe() {
         DevicePolicyManager dpm = getDPM();
         if (dpm.isAdminActive(mAdminName)) {
             dpm.wipeData(0);
+        } else {
+            Log.d(Email.LOG_TAG, "Could not remote wipe because not device admin.");
         }
     }
 

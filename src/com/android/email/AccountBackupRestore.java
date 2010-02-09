@@ -63,6 +63,9 @@ public class AccountBackupRestore {
         if (restored) {
             // after restoring accounts, register services appropriately
             Log.w(Email.LOG_TAG, "Register services after restoring accounts");
+            // update security profile 
+            SecurityPolicy.getInstance(context).updatePolicies(-1);
+            // enable/disable other email services as necessary
             Email.setServicesEnabled(context);
             ExchangeUtils.startExchangeService(context);
         }
