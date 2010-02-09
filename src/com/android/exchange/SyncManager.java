@@ -1220,6 +1220,7 @@ public class SyncManager extends Service implements Runnable {
         android.accounts.Account[] accts =
             AccountManager.get(this).getAccountsByType(Eas.ACCOUNT_MANAGER_TYPE);
         List<Account> easAccounts = getAccountList();
+        boolean accountsDeleted = false;
         for (Account easAccount: easAccounts) {
             String accountName = easAccount.mEmailAddress;
             boolean found = false;
@@ -1231,11 +1232,17 @@ public class SyncManager extends Service implements Runnable {
             }
             if (!found) {
                 // This account has been deleted in the AccountManager!
-                log("Account deleted in AccountManager; deleting from provider: " + accountName);
+                alwaysLog("Account deleted in AccountManager; deleting from provider: " +
+                        accountName);
                 // TODO This will orphan downloaded attachments; need to handle this
                 mResolver.delete(ContentUris.withAppendedId(Account.CONTENT_URI, easAccount.mId),
                         null, null);
+                accountsDeleted = true;
             }
+        }
+        // If we changed the list of accounts, refresh the backup
+        if (accountsDeleted) {
+            AccountBackupRestore.backupAccounts(getContext());
         }
     }
 
