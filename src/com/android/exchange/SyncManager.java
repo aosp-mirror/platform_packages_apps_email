@@ -179,7 +179,7 @@ public class SyncManager extends Service implements Runnable {
     private HashMap<Long, AbstractSyncService> mServiceMap =
         new HashMap<Long, AbstractSyncService>();
     // Keeps track of services whose last sync ended with an error (by mailbox id)
-    private HashMap<Long, SyncError> mSyncErrorMap = new HashMap<Long, SyncError>();
+    /*package*/ HashMap<Long, SyncError> mSyncErrorMap = new HashMap<Long, SyncError>();
     // Keeps track of which services require a wake lock (by mailbox id)
     private HashMap<Long, Boolean> mWakeLocks = new HashMap<Long, Boolean>();
     // Keeps track of PendingIntents for mailbox alarms (by mailbox id)
@@ -325,20 +325,25 @@ public class SyncManager extends Service implements Runnable {
 
         public void hostChanged(long accountId) throws RemoteException {
             if (INSTANCE != null) {
-                synchronized (INSTANCE.mSyncErrorMap) {
+                synchronized (sSyncToken) {
+                    HashMap<Long, SyncError> syncErrorMap = INSTANCE.mSyncErrorMap;
+                    ArrayList<Long> deletedMailboxes = new ArrayList<Long>();
                     // Go through the various error mailboxes
-                    for (long mailboxId: INSTANCE.mSyncErrorMap.keySet()) {
-                        SyncError error = INSTANCE.mSyncErrorMap.get(mailboxId);
+                    for (long mailboxId: syncErrorMap.keySet()) {
+                        SyncError error = syncErrorMap.get(mailboxId);
                         // If it's a login failure, look a little harder
                         Mailbox m = Mailbox.restoreMailboxWithId(INSTANCE, mailboxId);
                         // If it's for the account whose host has changed, clear the error
                         // If the mailbox is no longer around, remove the entry in the map
                         if (m == null) {
-                            INSTANCE.mSyncErrorMap.remove(mailboxId);
+                            deletedMailboxes.add(mailboxId);
                         } else if (m.mAccountKey == accountId) {
                             error.fatal = false;
                             error.holdEndTime = 0;
                         }
+                    }
+                    for (long mailboxId: deletedMailboxes) {
+                        syncErrorMap.remove(mailboxId);
                     }
                 }
                 // Stop any running syncs
@@ -478,6 +483,10 @@ public class SyncManager extends Service implements Runnable {
             return mEasAccountSelector;
         }
 
+        private boolean onSecurityHold(Account account) {
+            return (account.mFlags & Account.FLAGS_SECURITY_HOLD) != 0;
+        }
+
         @Override
         public void onChange(boolean selfChange) {
             maybeStartSyncManagerThread();
@@ -520,7 +529,12 @@ public class SyncManager extends Service implements Runnable {
                             log("Account " + account.mDisplayName + " changed; stop syncs");
                             stopAccountSyncs(account.mId, true);
                         }
-                        // TODO Check here for security hold in mFlags
+
+                        // See if this account is no longer on security hold
+                        if (onSecurityHold(account) && !onSecurityHold(updatedAccount)) {
+                            releaseSyncHolds(SyncManager.this,
+                                    AbstractSyncService.EXIT_SECURITY_FAILURE, account);
+                        }
 
                         // Put current values into our cached account
                         account.mSyncInterval = updatedAccount.mSyncInterval;
@@ -685,6 +699,40 @@ public class SyncManager extends Service implements Runnable {
                 holdDelay *= 2;
             }
             holdEndTime = System.currentTimeMillis() + holdDelay;
+        }
+    }
+
+    /**
+     * Release a specific type of hold (the reason) for the specified Account; if the account
+     * is null, mailboxes from all accounts with the specified hold will be released
+     * @param reason the reason for the SyncError (AbstractSyncService.EXIT_XXX)
+     * @param account an Account whose mailboxes should be released (or all if null)
+     */
+    /*package*/ void releaseSyncHolds(Context context, int reason, Account account) {
+        releaseSyncHoldsImpl(context, reason, account);
+        kick("security release");
+    }
+
+    private void releaseSyncHoldsImpl(Context context, int reason, Account account) {
+        synchronized(sSyncToken) {
+            ArrayList<Long> releaseList = new ArrayList<Long>();
+            for (long mailboxId: mSyncErrorMap.keySet()) {
+                if (account != null) {
+                    Mailbox m = Mailbox.restoreMailboxWithId(context, mailboxId);
+                    if (m == null) {
+                        releaseList.add(mailboxId);
+                    } else if (m.mAccountKey != account.mId) {
+                        continue;
+                    }
+                }
+                SyncError error = mSyncErrorMap.get(mailboxId);
+                if (error.reason == reason) {
+                    releaseList.add(mailboxId);
+                }
+            }
+            for (long mailboxId: releaseList) {
+                mSyncErrorMap.remove(mailboxId);
+            }
         }
     }
 
@@ -1292,8 +1340,8 @@ public class SyncManager extends Service implements Runnable {
     }
 
     private void releaseConnectivityLock(String reason) {
-        // Clear our sync error map when we get connected
-        mSyncErrorMap.clear();
+        // Clear i/o error holds for all accounts
+        releaseSyncHolds(this, AbstractSyncService.EXIT_IO_ERROR, null);
         synchronized (sConnectivityLock) {
             sConnectivityLock.notifyAll();
         }

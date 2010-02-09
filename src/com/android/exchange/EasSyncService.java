@@ -18,8 +18,8 @@
 package com.android.exchange;
 
 import com.android.common.Base64;
-import com.android.email.SecurityPolicy.PolicySet;
 import com.android.email.SecurityPolicy;
+import com.android.email.SecurityPolicy.PolicySet;
 import com.android.email.mail.AuthenticationFailedException;
 import com.android.email.mail.MessagingException;
 import com.android.email.provider.EmailContent.Account;
@@ -39,11 +39,11 @@ import com.android.exchange.adapter.ContactsSyncAdapter;
 import com.android.exchange.adapter.EmailSyncAdapter;
 import com.android.exchange.adapter.FolderSyncParser;
 import com.android.exchange.adapter.MeetingResponseParser;
-import com.android.exchange.adapter.Parser.EasParserException;
 import com.android.exchange.adapter.PingParser;
 import com.android.exchange.adapter.ProvisionParser;
 import com.android.exchange.adapter.Serializer;
 import com.android.exchange.adapter.Tags;
+import com.android.exchange.adapter.Parser.EasParserException;
 
 import org.apache.http.Header;
 import org.apache.http.HttpEntity;
@@ -952,6 +952,19 @@ public class EasSyncService extends AbstractSyncService {
                     ps.writeAccount(mAccount, policyKey, true, mContext);
                     return true;
                 }
+            } else if (pp.getRemoteWipe()) {
+                // We've gotten a remote wipe command
+                // First, we've got to acknowledge it; wrap the wipe in try/catch so that at
+                // least we wipe the device.
+                try {
+                    acknowledgeRemoteWipe(pp.getPolicyKey());
+                } catch (Exception e) {
+                    // Because remote wipe is such a high priority task, we don't want to
+                    // circumvent it if there's an exception in acknowledgment
+                }
+                // Then, tell SecurityPolicy to wipe the device
+                sp.remoteWipe();
+                return false;
             } else {
                 // Notify that we are blocked because of policies
                 sp.policiesRequired(mAccount.mId);
@@ -1000,15 +1013,28 @@ public class EasSyncService extends AbstractSyncService {
      * @return the final policy key, which can be used for syncing
      * @throws IOException
      */
+    private void acknowledgeRemoteWipe(String tempKey) throws IOException {
+        acknowledgeProvisionImpl(tempKey, true);
+    }
+
     private String acknowledgeProvision(String tempKey) throws IOException {
+        return acknowledgeProvisionImpl(tempKey, false);
+    }
+
+    private String acknowledgeProvisionImpl(String tempKey, boolean remoteWipe) throws IOException {
         Serializer s = new Serializer();
         s.start(Tags.PROVISION_PROVISION).start(Tags.PROVISION_POLICIES);
         s.start(Tags.PROVISION_POLICY);
         s.data(Tags.PROVISION_POLICY_TYPE, "MS-EAS-Provisioning-WBXML");
         s.data(Tags.PROVISION_POLICY_KEY, tempKey);
         s.data(Tags.PROVISION_STATUS, "1");
-        s.end();
-        s.end().end().done();
+        if (remoteWipe) {
+            s.start(Tags.PROVISION_REMOTE_WIPE);
+            s.data(Tags.PROVISION_STATUS, "1");
+            s.end();
+        }
+        s.end(); // PROVISION_POLICY
+        s.end().end().done(); // PROVISION_POLICIES, PROVISION_PROVISION
         HttpResponse resp = sendHttpClientPost("Provision", s.toByteArray());
         int code = resp.getStatusLine().getStatusCode();
         if (code == HttpStatus.SC_OK) {

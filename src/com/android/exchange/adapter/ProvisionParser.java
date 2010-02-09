@@ -31,6 +31,7 @@ public class ProvisionParser extends Parser {
     private EasSyncService mService;
     PolicySet mPolicySet = null;
     String mPolicyKey = null;
+    boolean mRemoteWipe = false;
 
     public ProvisionParser(InputStream in, EasSyncService service) throws IOException {
         super(in);
@@ -44,6 +45,10 @@ public class ProvisionParser extends Parser {
 
     public String getPolicyKey() {
         return mPolicyKey;
+    }
+
+    public boolean getRemoteWipe() {
+        return mRemoteWipe;
     }
 
     public void parseProvisionDoc() throws IOException {
@@ -165,6 +170,10 @@ public class ProvisionParser extends Parser {
                 case Tags.PROVISION_POLICIES:
                     parsePolicies();
                     return (mPolicySet != null || mPolicyKey != null);
+                case Tags.PROVISION_REMOTE_WIPE:
+                    // Indicate remote wipe command received
+                    mRemoteWipe = true;
+                    break;
                 default:
                     skipTag();
             }
