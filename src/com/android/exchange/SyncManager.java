@@ -1240,6 +1240,7 @@ public class SyncManager extends Service implements Runnable {
             List<Account> cachedEasAccounts, android.accounts.Account[] accountManagerAccounts) {
         // First, look through our cached EAS Accounts (from EmailProvider) to make sure there's a
         // corresponding AccountManager account
+        boolean accountsDeleted = false;
         for (Account providerAccount: cachedEasAccounts) {
             String providerAccountName = providerAccount.mEmailAddress;
             boolean found = false;
@@ -1255,11 +1256,12 @@ public class SyncManager extends Service implements Runnable {
                     continue;
                 }
                 // This account has been deleted in the AccountManager!
-                log("Account deleted in AccountManager; deleting from provider: " +
+                alwaysLog("Account deleted in AccountManager; deleting from provider: " +
                         providerAccountName);
                 // TODO This will orphan downloaded attachments; need to handle this
                 mResolver.delete(ContentUris.withAppendedId(Account.CONTENT_URI,
                         providerAccount.mId), null, null);
+                accountsDeleted = true;
             }
         }
         // Now, look through AccountManager accounts to make sure we have a corresponding cached EAS
@@ -1274,11 +1276,16 @@ public class SyncManager extends Service implements Runnable {
             }
             if (!found) {
                 // This account has been deleted from the EmailProvider database
-                log("Account deleted from provider; deleting from AccountManager: " +
+                alwaysLog("Account deleted from provider; deleting from AccountManager: " +
                         accountManagerAccountName);
                 // Delete the account
                 AccountManager.get(context).removeAccount(accountManagerAccount, null, null);
+                accountsDeleted = true;
             }
+        }
+        // If we changed the list of accounts, refresh the backup
+        if (accountsDeleted) {
+            AccountBackupRestore.backupAccounts(getContext());
         }
     }
 
