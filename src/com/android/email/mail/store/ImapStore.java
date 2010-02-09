@@ -16,11 +16,11 @@
 
 package com.android.email.mail.store;
 
+import com.android.common.Base64;
 import com.android.email.Email;
 import com.android.email.Preferences;
 import com.android.email.Utility;
 import com.android.email.VendorPolicyLoader;
-import com.android.email.codec.binary.Base64;
 import com.android.email.mail.AuthenticationFailedException;
 import com.android.email.mail.CertificateValidationException;
 import com.android.email.mail.FetchProfile;
@@ -167,7 +167,7 @@ public class ImapStore extends Store {
             mUsername = userInfoParts[0];
             if (userInfoParts.length > 1) {
                 mPassword = userInfoParts[1];
-                
+
                 // build the LOGIN string once (instead of over-and-over again.)
                 // apply the quoting here around the built-up password
                 mLoginPhrase = "LOGIN " + mUsername + " " + Utility.imapQuoted(mPassword);
@@ -191,8 +191,8 @@ public class ImapStore extends Store {
     }
 
     /**
-     * For testing only.  Injects a different root transport (it will be copied using 
-     * newInstanceWithConfiguration() each time IMAP sets up a new channel).  The transport 
+     * For testing only.  Injects a different root transport (it will be copied using
+     * newInstanceWithConfiguration() each time IMAP sets up a new channel).  The transport
      * should already be set up and ready to use.  Do not use for real code.
      * @param testTransport The Transport to inject and use for all future communication.
      */
@@ -221,7 +221,7 @@ public class ImapStore extends Store {
      *
      * @param userName the username of the account
      * @param host the host (server) of the account
-     * @return a String for use in an IMAP ID message.  
+     * @return a String for use in an IMAP ID message.
      */
     public String getImapId(Context context, String userName, String host) {
         // The first section is global to all IMAP connections, and generates the fixed
@@ -257,7 +257,7 @@ public class ImapStore extends Store {
             messageDigest.update(userName.getBytes());
             messageDigest.update(devUID.getBytes());
             byte[] uid = messageDigest.digest();
-            String hexUid = new String(new Base64().encode(uid));
+            String hexUid = Base64.encodeToString(uid, Base64.NO_WRAP);
             id.append(" \"AGUID\" \"");
             id.append(hexUid);
             id.append('\"');
@@ -644,7 +644,7 @@ public class ImapStore extends Store {
         }
 
         @Override
-        public void copyMessages(Message[] messages, Folder folder, 
+        public void copyMessages(Message[] messages, Folder folder,
                 MessageUpdateCallbacks callbacks) throws MessagingException {
             checkOpen();
             String[] uids = new String[messages.length];
@@ -822,7 +822,7 @@ public class ImapStore extends Store {
             if (fp.contains(FetchProfile.Item.ENVELOPE)) {
                 fetchFields.add("INTERNALDATE");
                 fetchFields.add("RFC822.SIZE");
-                fetchFields.add("BODY.PEEK[HEADER.FIELDS " + 
+                fetchFields.add("BODY.PEEK[HEADER.FIELDS " +
                         "(date subject from content-type to cc message-id)]");
             }
             if (fp.contains(FetchProfile.Item.STRUCTURE)) {
@@ -1310,7 +1310,7 @@ public class ImapStore extends Store {
                 if (mTransport == null) {
                     mTransport = mRootTransport.newInstanceWithConfiguration();
                 }
-                
+
                 mTransport.open();
                 mTransport.setSoTimeout(MailTransport.SOCKET_READ_TIMEOUT);
 
@@ -1405,10 +1405,10 @@ public class ImapStore extends Store {
         /**
          * Send a single command to the server.  The command will be preceded by an IMAP command
          * tag and followed by \r\n (caller need not supply them).
-         * 
+         *
          * @param command The command to send to the server
          * @param sensitive If true, the command will not be logged
-         * @return Returns the command tag that was sent 
+         * @return Returns the command tag that was sent
          */
         public String sendCommand(String command, boolean sensitive)
             throws MessagingException, IOException {

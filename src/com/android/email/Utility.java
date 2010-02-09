@@ -16,7 +16,7 @@
 
 package com.android.email;
 
-import com.android.email.provider.EmailContent;
+import com.android.common.Base64;
 import com.android.email.provider.EmailContent.Account;
 import com.android.email.provider.EmailContent.AccountColumns;
 import com.android.email.provider.EmailContent.HostAuth;
@@ -25,23 +25,21 @@ import com.android.email.provider.EmailContent.Mailbox;
 import com.android.email.provider.EmailContent.MailboxColumns;
 import com.android.email.provider.EmailContent.Message;
 import com.android.email.provider.EmailContent.MessageColumns;
+import com.android.email.provider.EmailContent;
 
 import android.content.ContentResolver;
+import android.content.Context;
+import android.content.res.TypedArray;
 import android.database.Cursor;
+import android.graphics.drawable.Drawable;
+import android.text.Editable;
+import android.widget.TextView;
 
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.io.UnsupportedEncodingException;
 import java.util.Date;
-
-import com.android.email.codec.binary.Base64;
-
-import android.content.Context;
-import android.content.res.TypedArray;
-import android.graphics.drawable.Drawable;
-import android.text.Editable;
-import android.widget.TextView;
 
 public class Utility {
     public final static String readInputStream(InputStream in, String encoding) throws IOException {
@@ -91,7 +89,7 @@ public class Utility {
         if (encoded == null) {
             return null;
         }
-        byte[] decoded = new Base64().decode(encoded.getBytes());
+        byte[] decoded = Base64.decode(encoded, Base64.DEFAULT);
         return new String(decoded);
     }
 
@@ -99,8 +97,7 @@ public class Utility {
         if (s == null) {
             return s;
         }
-        byte[] encoded = new Base64().encode(s.getBytes());
-        return new String(encoded);
+        return Base64.encodeToString(s.getBytes(), Base64.NO_WRAP);
     }
 
     public static boolean requiredFieldValid(TextView view) {
@@ -114,9 +111,9 @@ public class Utility {
     /**
      * Ensures that the given string starts and ends with the double quote character. The string is not modified in any way except to add the
      * double quote character to start and end if it's not already there.
-     * 
+     *
      * TODO: Rename this, because "quoteString()" can mean so many different things.
-     * 
+     *
      * sample -> "sample"
      * "sample" -> "sample"
      * ""sample"" -> "sample"
@@ -139,37 +136,37 @@ public class Utility {
             return s;
         }
     }
-    
+
     /**
-     * Apply quoting rules per IMAP RFC, 
+     * Apply quoting rules per IMAP RFC,
      * quoted          = DQUOTE *QUOTED-CHAR DQUOTE
      * QUOTED-CHAR     = <any TEXT-CHAR except quoted-specials> / "\" quoted-specials
      * quoted-specials = DQUOTE / "\"
-     * 
+     *
      * This is used primarily for IMAP login, but might be useful elsewhere.
-     * 
+     *
      * NOTE:  Not very efficient - you may wish to preflight this, or perhaps it should check
      * for trouble chars before calling the replace functions.
-     * 
+     *
      * @param s The string to be quoted.
      * @return A copy of the string, having undergone quoting as described above
      */
     public static String imapQuoted(String s) {
-        
+
         // First, quote any backslashes by replacing \ with \\
         // regex Pattern:  \\    (Java string const = \\\\)
         // Substitute:     \\\\  (Java string const = \\\\\\\\)
         String result = s.replaceAll("\\\\", "\\\\\\\\");
-        
+
         // Then, quote any double-quotes by replacing " with \"
         // regex Pattern:  "    (Java string const = \")
         // Substitute:     \\"  (Java string const = \\\\\")
         result = result.replaceAll("\"", "\\\\\"");
-        
+
         // return string with quotes around it
         return "\"" + result + "\"";
     }
-    
+
     /**
      * A fast version of  URLDecoder.decode() that works only with UTF-8 and does only two
      * allocations. This version is around 3x as fast as the standard one and I'm using it

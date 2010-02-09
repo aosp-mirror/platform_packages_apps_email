@@ -33,7 +33,7 @@ import java.math.BigInteger;
  * @since 1.0-dev
  * @version $Id$
  */
-public class Base64 {
+/* package */ class Base64 {
     /**
      * Chunk size per RFC 2045 section 6.8.
      *
