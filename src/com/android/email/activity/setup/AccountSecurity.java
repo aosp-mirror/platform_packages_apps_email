@@ -25,7 +25,6 @@ import android.app.DevicePolicyManager;
 import android.content.Context;
 import android.content.Intent;
 import android.os.Bundle;
-import android.util.Log;
 
 /**
  * Psuedo-activity (no UI) to bootstrap the user up to a higher desired security level.  This

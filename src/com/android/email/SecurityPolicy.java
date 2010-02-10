@@ -38,19 +38,10 @@ import android.net.Uri;
 import android.util.Log;
 
 /**
- * Utility functions to support reading and writing security policies
- *
- * STOPSHIP - these TODO items are all part of finishing the feature
- * TODO: When accounts are deleted, reduce policy and/or give up admin status
- * TODO: Provide a way to check for policy issues at synchronous times such as entering
- *       message list or folder list.
+ * Utility functions to support reading and writing security policies, and handshaking the device
+ * into and out of various security states.
  */
 public class SecurityPolicy {
-
-    /** STOPSHIP - ok to check in true for now, but must be false for shipping */
-    /** DO NOT CHECK IN WHILE 'true' */
-    // Until everything is connected, allow syncs to work
-    private static final boolean DEBUG_ALWAYS_ACTIVE = false;
 
     private static SecurityPolicy sInstance = null;
     private Context mContext;
@@ -295,8 +286,8 @@ public class SecurityPolicy {
             // making it this far means we passed!
             return true;
         }
-        // return false, not active - unless debugging enabled
-        return DEBUG_ALWAYS_ACTIVE;
+        // return false, not active
+        return false;
     }
 
     /**
