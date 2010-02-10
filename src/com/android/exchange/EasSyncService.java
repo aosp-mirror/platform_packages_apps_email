@@ -942,20 +942,10 @@ public class EasSyncService extends AbstractSyncService {
             if (ps.writeAccount(mAccount, null, true, mContext)) {
                 sp.updatePolicies(mAccount.mId);
             }
-            // See if the policies are currently in force
-            if (sp.isActive(ps)) {
-                // If they are, acknowledge the policies to the server and get the final policy
-                // key
-                String policyKey = acknowledgeProvision(pp.getPolicyKey());
-                if (policyKey != null) {
-                    // Write the final policy key to the Account and say we've been successful
-                    ps.writeAccount(mAccount, policyKey, true, mContext);
-                    return true;
-                }
-            } else if (pp.getRemoteWipe()) {
+            if (pp.getRemoteWipe()) {
                 // We've gotten a remote wipe command
-                // First, we've got to acknowledge it; wrap the wipe in try/catch so that at
-                // least we wipe the device.
+                // First, we've got to acknowledge it, but wrap the wipe in try/catch so that
+                // we wipe the device regardless of any errors in acknowledgment
                 try {
                     acknowledgeRemoteWipe(pp.getPolicyKey());
                 } catch (Exception e) {
@@ -965,6 +955,15 @@ public class EasSyncService extends AbstractSyncService {
                 // Then, tell SecurityPolicy to wipe the device
                 sp.remoteWipe();
                 return false;
+            } else if (sp.isActive(ps)) {
+                // See if the required policies are in force; if they are, acknowledge the policies
+                // to the server and get the final policy key
+                String policyKey = acknowledgeProvision(pp.getPolicyKey());
+                if (policyKey != null) {
+                    // Write the final policy key to the Account and say we've been successful
+                    ps.writeAccount(mAccount, policyKey, true, mContext);
+                    return true;
+                }
             } else {
                 // Notify that we are blocked because of policies
                 sp.policiesRequired(mAccount.mId);
