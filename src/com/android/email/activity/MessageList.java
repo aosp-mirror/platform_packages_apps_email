@@ -32,6 +32,7 @@ import com.android.email.provider.EmailContent.MailboxColumns;
 import com.android.email.provider.EmailContent.MessageColumns;
 import com.android.email.service.MailService;
 
+import android.app.Activity;
 import android.app.ListActivity;
 import android.app.NotificationManager;
 import android.content.ContentResolver;
@@ -111,7 +112,6 @@ public class MessageList extends ListActivity implements OnItemClickListener, On
     private Controller mController = Controller.getInstance(getApplication());
     private ControllerResults mControllerCallback = new ControllerResults();
     private TextView mLeftTitle;
-    private TextView mRightTitle;
     private ProgressBar mProgressIcon;
 
     // DB access
@@ -220,11 +220,7 @@ public class MessageList extends ListActivity implements OnItemClickListener, On
     @Override
     public void onCreate(Bundle icicle) {
         super.onCreate(icicle);
-
-        requestWindowFeature(Window.FEATURE_CUSTOM_TITLE);
         setContentView(R.layout.message_list);
-        getWindow().setFeatureInt(Window.FEATURE_CUSTOM_TITLE,
-                R.layout.list_title);
 
         mCanAutoRefresh = true;
         mListView = getListView();
@@ -233,13 +229,13 @@ public class MessageList extends ListActivity implements OnItemClickListener, On
         mFavoriteButton = (Button) findViewById(R.id.btn_multi_favorite);
         mDeleteButton = (Button) findViewById(R.id.btn_multi_delete);
         mLeftTitle = (TextView) findViewById(R.id.title_left_text);
-        mRightTitle = (TextView) findViewById(R.id.title_right_text);
         mProgressIcon = (ProgressBar) findViewById(R.id.title_progress_icon);
         mErrorBanner = (TextView) findViewById(R.id.connection_error_text);
 
         mReadUnreadButton.setOnClickListener(this);
         mFavoriteButton.setOnClickListener(this);
         mDeleteButton.setOnClickListener(this);
+        ((Button) findViewById(R.id.account_title_button)).setOnClickListener(this);
 
         mListView.setOnItemClickListener(this);
         mListView.setItemsCanFocus(false);
@@ -402,6 +398,9 @@ public class MessageList extends ListActivity implements OnItemClickListener, On
                 break;
             case R.id.btn_multi_delete:
                 onMultiDelete(mListAdapter.getSelectedSet());
+                break;
+            case R.id.account_title_button:
+                onAccounts();
                 break;
         }
     }
@@ -1114,7 +1113,7 @@ public class MessageList extends ListActivity implements OnItemClickListener, On
         }
     }
 
-    private class SetTitleTask extends AsyncTask<Void, Void, String[]> {
+    private class SetTitleTask extends AsyncTask<Void, Void, Object[]> {
 
         private long mMailboxKey;
 
@@ -1123,21 +1122,22 @@ public class MessageList extends ListActivity implements OnItemClickListener, On
         }
 
         @Override
-        protected String[] doInBackground(Void... params) {
+        protected Object[] doInBackground(Void... params) {
             // Check special Mailboxes
+            int resIdSpecialMailbox = 0;
             if (mMailboxKey == Mailbox.QUERY_ALL_INBOXES) {
-                return new String[] {null,
-                        getString(R.string.account_folder_list_summary_inbox)};
+                resIdSpecialMailbox = R.string.account_folder_list_summary_inbox;
             } else if (mMailboxKey == Mailbox.QUERY_ALL_FAVORITES) {
-                return new String[] {null,
-                        getString(R.string.account_folder_list_summary_starred)};
+                resIdSpecialMailbox = R.string.account_folder_list_summary_starred;
             } else if (mMailboxKey == Mailbox.QUERY_ALL_DRAFTS) {
-                return new String[] {null,
-                        getString(R.string.account_folder_list_summary_drafts)};
+                resIdSpecialMailbox = R.string.account_folder_list_summary_drafts;
             } else if (mMailboxKey == Mailbox.QUERY_ALL_OUTBOX) {
-                return new String[] {null,
-                        getString(R.string.account_folder_list_summary_outbox)};
+                resIdSpecialMailbox = R.string.account_folder_list_summary_outbox;
             }
+            if (resIdSpecialMailbox != 0) {
+                return new Object[] {null, getString(resIdSpecialMailbox), 0};
+            }
+
             String accountName = null;
             String mailboxName = null;
             String accountKey = null;
@@ -1168,20 +1168,38 @@ public class MessageList extends ListActivity implements OnItemClickListener, On
                     c.close();
                 }
             }
-            return new String[] {accountName, mailboxName};
+            int nAccounts = EmailContent.count(MessageList.this, Account.CONTENT_URI, null, null);
+            return new Object[] {accountName, mailboxName, nAccounts};
         }
 
         @Override
-        protected void onPostExecute(String[] names) {
-            if (names == null) {
+        protected void onPostExecute(Object[] result) {
+            if (result == null) {
                 return;
             }
-            if (names[0] != null) {
-                mRightTitle.setText(names[0]);
+
+            final int nAccounts = (Integer) result[2];
+            if (result[0] != null) {
+                setTitleAccountName((String) result[0], nAccounts > 1);
             }
-            if (names[1] != null) {
-                mLeftTitle.setText(names[1]);
+
+            if (result[1] != null) {
+                mLeftTitle.setText((String) result[1]);
             }
+        }
+    }
+
+    private void setTitleAccountName(String accountName, boolean showAccountsButton) {
+        TextView accountsButton = (TextView) findViewById(R.id.account_title_button);
+        TextView textPlain = (TextView) findViewById(R.id.title_right_text);
+        if (showAccountsButton) {
+            accountsButton.setVisibility(View.VISIBLE);
+            textPlain.setVisibility(View.GONE);
+            accountsButton.setText(accountName);
+        } else {
+            accountsButton.setVisibility(View.GONE);
+            textPlain.setVisibility(View.VISIBLE);
+            textPlain.setText(accountName);
         }
     }
 

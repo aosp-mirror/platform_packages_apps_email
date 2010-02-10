@@ -32,6 +32,7 @@ import com.android.email.provider.EmailContent.MailboxColumns;
 import com.android.email.provider.EmailContent.Message;
 import com.android.email.provider.EmailContent.MessageColumns;
 
+import android.app.Activity;
 import android.app.ListActivity;
 import android.content.ContentUris;
 import android.content.Context;
@@ -47,11 +48,13 @@ import android.view.LayoutInflater;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
+import android.view.View.OnClickListener;
 import android.view.ViewGroup;
 import android.view.Window;
 import android.view.ContextMenu.ContextMenuInfo;
 import android.view.animation.AnimationUtils;
 import android.widget.AdapterView;
+import android.widget.Button;
 import android.widget.CursorAdapter;
 import android.widget.ImageView;
 import android.widget.ListView;
@@ -59,7 +62,7 @@ import android.widget.ProgressBar;
 import android.widget.TextView;
 import android.widget.AdapterView.OnItemClickListener;
 
-public class MailboxList extends ListActivity implements OnItemClickListener {
+public class MailboxList extends ListActivity implements OnItemClickListener, OnClickListener {
 
     // Intent extras (internal to this activity)
     private static final String EXTRA_ACCOUNT_ID = "com.android.email.activity._ACCOUNT_ID";
@@ -82,7 +85,7 @@ public class MailboxList extends ListActivity implements OnItemClickListener {
     // DB access
     private long mAccountId;
     private LoadMailboxesTask mLoadMailboxesTask;
-    private AsyncTask<Void, Void, String> mLoadAccountNameTask;
+    private AsyncTask<Void, Void, Object[]> mLoadAccountNameTask;
     private MessageCountTask mMessageCountTask;
 
     private long mDraftMailboxKey = -1;
@@ -106,11 +109,7 @@ public class MailboxList extends ListActivity implements OnItemClickListener {
     @Override
     public void onCreate(Bundle icicle) {
         super.onCreate(icicle);
-
-        requestWindowFeature(Window.FEATURE_CUSTOM_TITLE);
         setContentView(R.layout.mailbox_list);
-        getWindow().setFeatureInt(Window.FEATURE_CUSTOM_TITLE,
-                R.layout.list_title);
 
         mListView = getListView();
         mProgressIcon = (ProgressBar) findViewById(R.id.title_progress_icon);
@@ -123,6 +122,8 @@ public class MailboxList extends ListActivity implements OnItemClickListener {
         mListAdapter = new MailboxListAdapter(this);
         setListAdapter(mListAdapter);
 
+        ((Button) findViewById(R.id.account_title_button)).setOnClickListener(this);
+
         mAccountId = getIntent().getLongExtra(EXTRA_ACCOUNT_ID, -1);
         if (mAccountId != -1) {
             mLoadMailboxesTask = new LoadMailboxesTask(mAccountId);
@@ -134,37 +135,38 @@ public class MailboxList extends ListActivity implements OnItemClickListener {
         ((TextView)findViewById(R.id.title_left_text)).setText(R.string.mailbox_list_title);
 
         // Go to the database for the account name
-        mLoadAccountNameTask = new AsyncTask<Void, Void, String>() {
+        mLoadAccountNameTask = new AsyncTask<Void, Void, Object[]>() {
             @Override
-            protected String doInBackground(Void... params) {
-                String result = null;
+            protected Object[] doInBackground(Void... params) {
+                String accountName = null;
                 Uri uri = ContentUris.withAppendedId(Account.CONTENT_URI, mAccountId);
                 Cursor c = MailboxList.this.getContentResolver().query(
                         uri, new String[] { AccountColumns.DISPLAY_NAME }, null, null, null);
                 try {
                     if (c.moveToFirst()) {
-                        result = c.getString(0);
+                        accountName = c.getString(0);
                     }
                 } finally {
                     c.close();
                 }
-                return result;
+                int nAccounts = EmailContent.count(MailboxList.this, Account.CONTENT_URI, null, null);
+                return new Object[] {accountName, nAccounts};
             }
  
             @Override
-            protected void onPostExecute(String result) {
-                /* doInBackground() returns null if the account name can't be retrieved from DB.
-                 * so we can't use null test for cancellation, instead use isCancelled().
-                 */
-                if (isCancelled()) {
+            protected void onPostExecute(Object[] result) {
+                if (result == null) {
                     return;
                 }
-                // result is null if account name can't be retrieved or query exception
-                if (result == null) {
+                final String accountName = (String) result[0];
+                // accountName is null if account name can't be retrieved or query exception
+                if (accountName == null) {
                     // something is wrong with this account
                     finish();
                 }
-                ((TextView)findViewById(R.id.title_right_text)).setText(result);
+
+                final int nAccounts = (Integer) result[1];
+                setTitleAccountName(accountName, nAccounts > 1);
             }
 
         }.execute();
@@ -203,6 +205,14 @@ public class MailboxList extends ListActivity implements OnItemClickListener {
                 mMessageCountTask.getStatus() != MessageCountTask.Status.FINISHED) {
             mMessageCountTask.cancel(true);
             mMessageCountTask = null;
+        }
+    }
+
+    public void onClick(View v) {
+        switch (v.getId()) {
+        case R.id.account_title_button:
+            onAccounts();
+            break;
         }
     }
 
@@ -297,6 +307,20 @@ public class MailboxList extends ListActivity implements OnItemClickListener {
 
     private void onCompose() {
         MessageCompose.actionCompose(this, mAccountId);
+    }
+
+    private void setTitleAccountName(String accountName, boolean showAccountsButton) {
+        TextView accountsButton = (TextView) findViewById(R.id.account_title_button);
+        TextView textPlain = (TextView) findViewById(R.id.title_right_text);
+        if (showAccountsButton) {
+            accountsButton.setVisibility(View.VISIBLE);
+            textPlain.setVisibility(View.GONE);
+            accountsButton.setText(accountName);
+        } else {
+            accountsButton.setVisibility(View.GONE);
+            textPlain.setVisibility(View.VISIBLE);
+            textPlain.setText(accountName);
+        }
     }
 
     /**

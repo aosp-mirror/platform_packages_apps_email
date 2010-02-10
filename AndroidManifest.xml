@@ -148,11 +148,13 @@
         </activity>
         
         <activity
-            android:name=".activity.MailboxList">
+            android:name=".activity.MailboxList"
+            android:theme="@style/ThemeNoTitleBar">
         </activity>
         
         <activity
-            android:name=".activity.MessageList">
+            android:name=".activity.MessageList"
+            android:theme="@style/ThemeNoTitleBar">
             <intent-filter>
                 <!-- This action is only to allow an entry point for launcher shortcuts -->
                 <action android:name="android.intent.action.MAIN" />
