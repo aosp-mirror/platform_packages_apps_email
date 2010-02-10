@@ -16,6 +16,17 @@
 
 package com.android.email.mail.internet;
 
+import com.android.common.Base64;
+import com.android.common.Base64OutputStream;
+import com.android.email.Email;
+import com.android.email.mail.Body;
+import com.android.email.mail.MessagingException;
+
+import org.apache.commons.io.IOUtils;
+
+import android.util.Config;
+import android.util.Log;
+
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileOutputStream;
@@ -23,16 +34,6 @@ import java.io.FilterInputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
-
-import org.apache.commons.io.IOUtils;
-
-import android.util.Config;
-import android.util.Log;
-
-import com.android.email.Email;
-import com.android.email.codec.binary.Base64OutputStream;
-import com.android.email.mail.Body;
-import com.android.email.mail.MessagingException;
 
 /**
  * A Body that is backed by a temp file. The Body exposes a getOutputStream method that allows
@@ -82,7 +83,8 @@ public class BinaryTempFileBody implements Body {
 
     public void writeTo(OutputStream out) throws IOException, MessagingException {
         InputStream in = getInputStream();
-        Base64OutputStream base64Out = new Base64OutputStream(out);
+        Base64OutputStream base64Out = new Base64OutputStream(
+            out, Base64.CRLF | Base64.NO_CLOSE);
         IOUtils.copy(in, base64Out);
         base64Out.close();
         mFile.delete();

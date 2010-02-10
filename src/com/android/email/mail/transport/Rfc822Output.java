@@ -17,7 +17,7 @@
 package com.android.email.mail.transport;
 
 import com.android.common.Base64;
-import com.android.email.codec.binary.Base64OutputStream;
+import com.android.common.Base64OutputStream;
 import com.android.email.mail.Address;
 import com.android.email.mail.MessagingException;
 import com.android.email.mail.internet.MimeUtility;
@@ -225,10 +225,18 @@ public class Rfc822Output {
             inStream = context.getContentResolver().openInputStream(fileUri);
             // switch to output stream for base64 text output
             writer.flush();
-            Base64OutputStream base64Out = new Base64OutputStream(out);
+            Base64OutputStream base64Out = new Base64OutputStream(
+                out, Base64.CRLF | Base64.NO_CLOSE);
             // copy base64 data and close up
             IOUtils.copy(inStream, base64Out);
             base64Out.close();
+
+            // The old Base64OutputStream wrote an extra CRLF after
+            // the output.  It's not required by the base-64 spec; not
+            // sure if it's required by RFC 822 or not.
+            out.write('\r');
+            out.write('\n');
+            out.flush();
         }
         catch (FileNotFoundException fnfe) {
             // Ignore this - empty file is OK

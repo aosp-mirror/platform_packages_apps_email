@@ -16,21 +16,22 @@
 
 package com.android.email.mail.store;
 
+import com.android.common.Base64;
+import com.android.common.Base64OutputStream;
 import com.android.email.Email;
 import com.android.email.Utility;
-import com.android.email.codec.binary.Base64OutputStream;
 import com.android.email.mail.Address;
 import com.android.email.mail.Body;
 import com.android.email.mail.FetchProfile;
 import com.android.email.mail.Flag;
 import com.android.email.mail.Folder;
+import com.android.email.mail.Message.RecipientType;
 import com.android.email.mail.Message;
 import com.android.email.mail.MessageRetrievalListener;
 import com.android.email.mail.MessagingException;
 import com.android.email.mail.Part;
-import com.android.email.mail.Store;
-import com.android.email.mail.Message.RecipientType;
 import com.android.email.mail.Store.PersistentDataCallbacks;
+import com.android.email.mail.Store;
 import com.android.email.mail.internet.MimeBodyPart;
 import com.android.email.mail.internet.MimeHeader;
 import com.android.email.mail.internet.MimeMessage;
@@ -69,7 +70,7 @@ import java.util.UUID;
 public class LocalStore extends Store implements PersistentDataCallbacks {
     /**
      * History of database revisions.
-     * 
+     *
      * db version   Shipped in  Notes
      * ----------   ----------  -----
      *      18      pre-1.0     Development versions.  No upgrade path.
@@ -82,9 +83,9 @@ public class LocalStore extends Store implements PersistentDataCallbacks {
      *                          columns to message table.
      *      24      -           Added x_headers to messages table.
      */
-    
+
     private static final int DB_VERSION = 24;
-    
+
     private static final Flag[] PERMANENT_FLAGS = { Flag.DELETED, Flag.X_DESTROYED, Flag.SEEN };
 
     private String mPath;
@@ -123,13 +124,13 @@ public class LocalStore extends Store implements PersistentDataCallbacks {
         }
         mDb = SQLiteDatabase.openOrCreateDatabase(mPath, null);
         int oldVersion = mDb.getVersion();
-  
+
         /*
          *  TODO we should have more sophisticated way to upgrade database.
          */
         if (oldVersion != DB_VERSION) {
             if (Email.LOGD) {
-                Log.v(Email.LOG_TAG, String.format("Upgrading database from %d to %d", 
+                Log.v(Email.LOG_TAG, String.format("Upgrading database from %d to %d",
                         oldVersion, DB_VERSION));
             }
             if (oldVersion < 18) {
@@ -157,7 +158,7 @@ public class LocalStore extends Store implements PersistentDataCallbacks {
                 mDb.execSQL("DROP TABLE IF EXISTS pending_commands");
                 mDb.execSQL("CREATE TABLE pending_commands " +
                         "(id INTEGER PRIMARY KEY, command TEXT, arguments TEXT)");
-                
+
                 addRemoteStoreDataTable();
 
                 addFolderDeleteTrigger();
@@ -170,14 +171,14 @@ public class LocalStore extends Store implements PersistentDataCallbacks {
                 if (oldVersion < 19) {
                     /**
                      * Upgrade 18 to 19:  add message_id to messages table
-                     */ 
+                     */
                     mDb.execSQL("ALTER TABLE messages ADD COLUMN message_id TEXT;");
                     mDb.setVersion(19);
                 }
                 if (oldVersion < 20) {
                     /**
                      * Upgrade 19 to 20:  add content_id to attachments table
-                     */ 
+                     */
                     mDb.execSQL("ALTER TABLE attachments ADD COLUMN content_id TEXT;");
                     mDb.setVersion(20);
                 }
@@ -235,7 +236,7 @@ public class LocalStore extends Store implements PersistentDataCallbacks {
             mAttachmentsDir.mkdirs();
         }
     }
-    
+
     /**
      * Common code to add the remote_store_data table
      */
@@ -246,7 +247,7 @@ public class LocalStore extends Store implements PersistentDataCallbacks {
                 "UNIQUE (folder_id, data_key) ON CONFLICT REPLACE" +
                 ")");
     }
-    
+
     /**
      * Common code to add folder delete trigger
      */
@@ -255,19 +256,19 @@ public class LocalStore extends Store implements PersistentDataCallbacks {
         mDb.execSQL("CREATE TRIGGER delete_folder "
                 + "BEFORE DELETE ON folders "
                 + "BEGIN "
-                    + "DELETE FROM messages WHERE old.id = folder_id; " 
-                    + "DELETE FROM remote_store_data WHERE old.id = folder_id; " 
+                    + "DELETE FROM messages WHERE old.id = folder_id; "
+                    + "DELETE FROM remote_store_data WHERE old.id = folder_id; "
                 + "END;");
     }
-    
+
     /**
      * When upgrading from 22 to 23, we have to move any flags "X_DOWNLOADED_FULL" or
      * "X_DOWNLOADED_PARTIAL" or "DELETED" from the old string-based storage to their own columns.
-     * 
+     *
      * Note:  Caller should open a db transaction around this
      */
     private void migrateMessageFlags() {
-        Cursor cursor = mDb.query("messages", 
+        Cursor cursor = mDb.query("messages",
                 new String[] { "id", "flags" },
                 null, null, null, null, null);
         try {
@@ -431,7 +432,7 @@ public class LocalStore extends Store implements PersistentDataCallbacks {
 
     /**
      * Set the visible limit for all folders in a given store.
-     * 
+     *
      * @param visibleLimit the value to write to all folders.  -1 may also be used as a marker.
      */
     public void resetVisibleLimits(int visibleLimit) {
@@ -509,7 +510,7 @@ public class LocalStore extends Store implements PersistentDataCallbacks {
             return sb.toString();
         }
     }
-    
+
     /**
      * LocalStore-only function to get the callbacks API
      */
@@ -524,7 +525,7 @@ public class LocalStore extends Store implements PersistentDataCallbacks {
     public void setPersistentString(String key, String value) {
         setPersistentString(-1, key, value);
     }
-    
+
     /**
      * Common implementation of getPersistentString
      * @param folderId The id of the associated folder, or -1 for "store" values
@@ -583,7 +584,7 @@ public class LocalStore extends Store implements PersistentDataCallbacks {
         public long getId() {
             return mFolderId;
         }
-        
+
         /**
          * This is just used by the internal callers
          */
@@ -592,7 +593,7 @@ public class LocalStore extends Store implements PersistentDataCallbacks {
         }
 
         @Override
-        public void open(OpenMode mode, PersistentDataCallbacks callbacks) 
+        public void open(OpenMode mode, PersistentDataCallbacks callbacks)
                 throws MessagingException {
             if (isOpen()) {
                 return;
@@ -674,7 +675,7 @@ public class LocalStore extends Store implements PersistentDataCallbacks {
 
         /**
          * Return number of messages based on the state of the flags.
-         * 
+         *
          * @param setFlags The flags that should be set for a message to be selected (null ok)
          * @param clearFlags The flags that should be clear for a message to be selected (null ok)
          * @return The number of messages matching the desired flag states.
@@ -685,7 +686,7 @@ public class LocalStore extends Store implements PersistentDataCallbacks {
             StringBuilder sql = new StringBuilder("SELECT COUNT(*) FROM messages WHERE ");
             buildFlagPredicates(sql, setFlags, clearFlags);
             sql.append("messages.folder_id = ?");
-            
+
             open(OpenMode.READ_WRITE);
             Cursor cursor = null;
             try {
@@ -782,7 +783,7 @@ public class LocalStore extends Store implements PersistentDataCallbacks {
                     MimeMultipart mp = new MimeMultipart();
                     mp.setSubType("mixed");
                     localMessage.setBody(mp);
-                    
+
                     // If fetching the body, retrieve html & plaintext from DB.
                     // If fetching structure, simply build placeholders for them.
                     if (fp.contains(FetchProfile.Item.BODY)) {
@@ -885,7 +886,7 @@ public class LocalStore extends Store implements PersistentDataCallbacks {
         /**
          * The columns to select when calling populateMessageFromGetMessageCursor()
          */
-        private final String POPULATE_MESSAGE_SELECT_COLUMNS = 
+        private final String POPULATE_MESSAGE_SELECT_COLUMNS =
             "subject, sender_list, date, uid, flags, id, to_list, cc_list, " +
             "bcc_list, reply_to_list, attachment_count, internal_date, message_id, " +
             "store_flag_1, store_flag_2, flag_downloaded_full, flag_downloaded_partial, " +
@@ -893,7 +894,7 @@ public class LocalStore extends Store implements PersistentDataCallbacks {
 
         /**
          * Populate a message from a cursor with the following columns:
-         * 
+         *
          * 0    subject
          * 1    from address
          * 2    date (long)
@@ -965,7 +966,7 @@ public class LocalStore extends Store implements PersistentDataCallbacks {
             try {
                 cursor = mDb.rawQuery(
                         "SELECT " + POPULATE_MESSAGE_SELECT_COLUMNS +
-                        " FROM messages" + 
+                        " FROM messages" +
                         " WHERE uid = ? AND folder_id = ?",
                         new String[] {
                                 message.getUid(), Long.toString(mFolderId)
@@ -992,7 +993,7 @@ public class LocalStore extends Store implements PersistentDataCallbacks {
                 cursor = mDb.rawQuery(
                         "SELECT " + POPULATE_MESSAGE_SELECT_COLUMNS +
                         " FROM messages" +
-                        " WHERE folder_id = ?", 
+                        " WHERE folder_id = ?",
                         new String[] {
                                 Long.toString(mFolderId)
                         });
@@ -1025,10 +1026,10 @@ public class LocalStore extends Store implements PersistentDataCallbacks {
             }
             return messages.toArray(new Message[] {});
         }
-        
+
         /**
          * Return a set of messages based on the state of the flags.
-         * 
+         *
          * @param setFlags The flags that should be set for a message to be selected (null ok)
          * @param clearFlags The flags that should be clear for a message to be selected (null ok)
          * @param listener
@@ -1036,7 +1037,7 @@ public class LocalStore extends Store implements PersistentDataCallbacks {
          * @throws MessagingException
          */
         @Override
-        public Message[] getMessages(Flag[] setFlags, Flag[] clearFlags, 
+        public Message[] getMessages(Flag[] setFlags, Flag[] clearFlags,
                 MessageRetrievalListener listener) throws MessagingException {
             // Generate WHERE clause based on flags observed
             StringBuilder sql = new StringBuilder(
@@ -1045,10 +1046,10 @@ public class LocalStore extends Store implements PersistentDataCallbacks {
                     " WHERE ");
             buildFlagPredicates(sql, setFlags, clearFlags);
             sql.append("folder_id = ?");
-            
+
             open(OpenMode.READ_WRITE);
             ArrayList<Message> messages = new ArrayList<Message>();
-            
+
             Cursor cursor = null;
             try {
                 cursor = mDb.rawQuery(
@@ -1070,7 +1071,7 @@ public class LocalStore extends Store implements PersistentDataCallbacks {
 
             return messages.toArray(new Message[] {});
         }
-        
+
         /*
          * Build SQL where predicates expression from set and clear flag arrays.
          */
@@ -1203,9 +1204,9 @@ public class LocalStore extends Store implements PersistentDataCallbacks {
                     cv.put("message_id", ((MimeMessage)message).getMessageId());
                     cv.put("store_flag_1", makeFlagNumeric(message, Flag.X_STORE_1));
                     cv.put("store_flag_2", makeFlagNumeric(message, Flag.X_STORE_2));
-                    cv.put("flag_downloaded_full", 
+                    cv.put("flag_downloaded_full",
                             makeFlagNumeric(message, Flag.X_DOWNLOADED_FULL));
-                    cv.put("flag_downloaded_partial", 
+                    cv.put("flag_downloaded_partial",
                             makeFlagNumeric(message, Flag.X_DOWNLOADED_PARTIAL));
                     cv.put("flag_deleted", makeFlagNumeric(message, Flag.DELETED));
                     cv.put("x_headers", ((MimeMessage) message).getExtendedHeaders());
@@ -1291,7 +1292,7 @@ public class LocalStore extends Store implements PersistentDataCallbacks {
                                 makeFlagNumeric(message, Flag.X_DOWNLOADED_PARTIAL),
                                 makeFlagNumeric(message, Flag.DELETED),
                                 message.getExtendedHeaders(),
-                                
+
                                 message.mId
                                 });
 
@@ -1520,7 +1521,7 @@ public class LocalStore extends Store implements PersistentDataCallbacks {
                 }
             }
         }
-        
+
         /**
          * Support for local persistence for our remote stores.
          * Will open the folder if necessary.
@@ -1539,12 +1540,12 @@ public class LocalStore extends Store implements PersistentDataCallbacks {
         }
 
         /**
-         * Transactionally combine a key/value and a complete message flags flip.  Used 
+         * Transactionally combine a key/value and a complete message flags flip.  Used
          * for setting sync bits in messages.
-         * 
+         *
          * Note:  Not all flags are supported here and can only be changed with Message.setFlag().
          * For example, Flag.DELETED has side effects (removes attachments).
-         * 
+         *
          * @param key
          * @param value
          * @param setFlags
@@ -1558,7 +1559,7 @@ public class LocalStore extends Store implements PersistentDataCallbacks {
                 if (key != null) {
                     setPersistentString(key, value);
                 }
-                
+
                 // take care of flags
                 ContentValues cv = new ContentValues();
                 if (setFlags != null) {
@@ -1591,14 +1592,14 @@ public class LocalStore extends Store implements PersistentDataCallbacks {
                         }
                     }
                 }
-                mDb.update("messages", cv, 
+                mDb.update("messages", cv,
                         "folder_id = ?", new String[] { Long.toString(mFolderId) });
-                
+
                 mDb.setTransactionSuccessful();
             } finally {
                 mDb.endTransaction();
             }
-            
+
         }
 
         @Override
@@ -1725,8 +1726,8 @@ public class LocalStore extends Store implements PersistentDataCallbacks {
         StringBuilder sb = null;
         boolean nonEmpty = false;
         for (Flag flag : Flag.values()) {
-            if (flag != Flag.X_STORE_1 && flag != Flag.X_STORE_2 && 
-                    flag != Flag.X_DOWNLOADED_FULL && flag != Flag.X_DOWNLOADED_PARTIAL && 
+            if (flag != Flag.X_STORE_1 && flag != Flag.X_STORE_2 &&
+                    flag != Flag.X_DOWNLOADED_FULL && flag != Flag.X_DOWNLOADED_PARTIAL &&
                     flag != Flag.DELETED &&
                     message.isSet(flag)) {
                 if (sb == null) {
@@ -1741,7 +1742,7 @@ public class LocalStore extends Store implements PersistentDataCallbacks {
         }
         return (sb == null) ? null : sb.toString();
     }
-    
+
     /**
      * Convert flags to numeric form (0 or 1) for database storage.
      * @param message The message containing the flag of interest
@@ -1805,7 +1806,8 @@ public class LocalStore extends Store implements PersistentDataCallbacks {
 
         public void writeTo(OutputStream out) throws IOException, MessagingException {
             InputStream in = getInputStream();
-            Base64OutputStream base64Out = new Base64OutputStream(out);
+            Base64OutputStream base64Out = new Base64OutputStream(
+                out, Base64.CRLF | Base64.NO_CLOSE);
             IOUtils.copy(in, base64Out);
             base64Out.close();
         }
@@ -1814,7 +1816,7 @@ public class LocalStore extends Store implements PersistentDataCallbacks {
             return mUri;
         }
     }
-    
+
     /**
      * LocalStore does not have SettingActivity.
      */
