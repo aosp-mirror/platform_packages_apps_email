@@ -40,32 +40,32 @@ import junit.framework.TestCase;
  */
 @SmallTest
 public class MimeMessageTest extends TestCase {
-    
+
     /** up arrow, down arrow, left arrow, right arrow */
     private final String SHORT_UNICODE = "\u2191\u2193\u2190\u2192";
     private final String SHORT_UNICODE_ENCODED = "=?UTF-8?B?4oaR4oaT4oaQ4oaS?=";
-    
+
     /** a string without any unicode */
     private final String SHORT_PLAIN = "abcd";
-    
+
     /** longer unicode strings */
-    private final String LONG_UNICODE_16 = SHORT_UNICODE + SHORT_UNICODE + 
+    private final String LONG_UNICODE_16 = SHORT_UNICODE + SHORT_UNICODE +
             SHORT_UNICODE + SHORT_UNICODE;
-    private final String LONG_UNICODE_64 = LONG_UNICODE_16 + LONG_UNICODE_16 + 
+    private final String LONG_UNICODE_64 = LONG_UNICODE_16 + LONG_UNICODE_16 +
             LONG_UNICODE_16 + LONG_UNICODE_16;
 
     /** longer plain strings (with fold points) */
     private final String LONG_PLAIN_16 = "abcdefgh ijklmno";
-    private final String LONG_PLAIN_64 = 
+    private final String LONG_PLAIN_64 =
         LONG_PLAIN_16 + LONG_PLAIN_16 + LONG_PLAIN_16 + LONG_PLAIN_16;
-    private final String LONG_PLAIN_256 = 
+    private final String LONG_PLAIN_256 =
         LONG_PLAIN_64 + LONG_PLAIN_64 + LONG_PLAIN_64 + LONG_PLAIN_64;
 
     // TODO: more tests.
-    
+
     /**
      * Confirms that setSentDate() correctly set the "Date" header of a Mime message.
-     * 
+     *
      * We tries a same test twice using two locales, Locale.US and the other, since
      * MimeMessage depends on the date formatter, which may emit wrong date format
      * in the locale other than Locale.US.
@@ -76,14 +76,14 @@ public class MimeMessageTest extends TestCase {
     public void testSetSentDate() throws MessagingException, ParseException {
         Locale savedLocale = Locale.getDefault();
         Locale.setDefault(Locale.US);
-        doTestSetSentDate();        
+        doTestSetSentDate();
         Locale.setDefault(Locale.JAPAN);
-        doTestSetSentDate();        
+        doTestSetSentDate();
         Locale.setDefault(savedLocale);
     }
-    
+
     private void doTestSetSentDate() throws MessagingException, ParseException {
-        // "Thu, 01 Jan 2009 09:00:00 +0000" => 1230800400000L 
+        // "Thu, 01 Jan 2009 09:00:00 +0000" => 1230800400000L
         long expectedTime = 1230800400000L;
         Date date = new Date(expectedTime);
         MimeMessage message = new MimeMessage();
@@ -93,16 +93,16 @@ public class MimeMessageTest extends TestCase {
         // Explicitly specify the locale so that the object does not depend on the default
         // locale.
         SimpleDateFormat format = new SimpleDateFormat("EEE, dd MMM yyyy HH:mm:ss Z", Locale.US);
-        
+
         Date result = format.parse(headers[0]);
         assertEquals(expectedTime, result.getTime());
     }
-    
+
     /**
      * Simple tests of the new "Message-ID" header
      */
     public void testMessageId() throws MessagingException {
-        
+
         // Test 1.  Every message gets a default and unique message-id
         MimeMessage message1 = new MimeMessage();
         MimeMessage message2 = new MimeMessage();
@@ -111,12 +111,12 @@ public class MimeMessageTest extends TestCase {
         assertNotNull(id1);
         assertNotNull(id2);
         assertFalse("Message-ID should be unique", id1.equals(id2));
-        
+
         // Test 2.  Set and get using API
         final String testId1 = "test-message-id-one";
         message1.setMessageId(testId1);
         assertEquals("set and get Message-ID", testId1, message1.getMessageId());
-        
+
         // Test 3.  Should only be one Message-ID per message
         final String testId2 = "test-message-id-two";
         message2.setMessageId(testId1);
@@ -142,7 +142,7 @@ public class MimeMessageTest extends TestCase {
         message.setHeader(MimeHeader.HEADER_CONTENT_ID, "<" + cid1 + ">");
         assertEquals(cid1, message.getContentId());
     }
-    
+
     /**
      * Confirm that setSubject() works with plain strings
      */
@@ -150,20 +150,20 @@ public class MimeMessageTest extends TestCase {
         MimeMessage message = new MimeMessage();
 
         message.setSubject(SHORT_PLAIN);
-        
+
         // test 1: readback
         assertEquals("plain subjects", SHORT_PLAIN, message.getSubject());
-        
+
         // test 2: raw readback is not escaped
         String rawHeader = message.getFirstHeader("Subject");
         assertEquals("plain subject not encoded", -1, rawHeader.indexOf("=?"));
-        
+
         // test 3: long subject (shouldn't fold)
         message.setSubject(LONG_PLAIN_64);
         rawHeader = message.getFirstHeader("Subject");
         String[] split = rawHeader.split("\r\n");
         assertEquals("64 shouldn't fold", 1, split.length);
-        
+
         // test 4: very long subject (should fold)
         message.setSubject(LONG_PLAIN_256);
         rawHeader = message.getFirstHeader("Subject");
@@ -175,7 +175,7 @@ public class MimeMessageTest extends TestCase {
             assertFalse("split lines are not encoded", trimmed.startsWith("=?"));
         }
     }
-    
+
     /**
      * Confirm that setSubject() works with unicode strings
      */
@@ -183,29 +183,29 @@ public class MimeMessageTest extends TestCase {
         MimeMessage message = new MimeMessage();
 
         message.setSubject(SHORT_UNICODE);
-        
+
         // test 1: readback in unicode
         assertEquals("unicode readback", SHORT_UNICODE, message.getSubject());
-        
+
         // test 2: raw readback is escaped
         String rawHeader = message.getFirstHeader("Subject");
         assertEquals("raw readback", SHORT_UNICODE_ENCODED, rawHeader);
     }
-    
+
     /**
      * Confirm folding operations on unicode subjects
      */
     public void testSetLongSubject() throws MessagingException {
         MimeMessage message = new MimeMessage();
-        
+
         // test 1: long unicode - readback in unicode
         message.setSubject(LONG_UNICODE_16);
         assertEquals("unicode readback 16", LONG_UNICODE_16, message.getSubject());
-        
+
         // test 2: longer unicode (will fold)
         message.setSubject(LONG_UNICODE_64);
         assertEquals("unicode readback 64", LONG_UNICODE_64, message.getSubject());
-        
+
         // test 3: check folding & encoding
         String rawHeader = message.getFirstHeader("Subject");
         String[] split = rawHeader.split("\r\n");
@@ -213,11 +213,11 @@ public class MimeMessageTest extends TestCase {
         for (String s : split) {
             assertTrue("split lines max length 78", s.length() <= 76);  // 76+\r\n = 78
             String trimmed = s.trim();
-            assertTrue("split lines are encoded", 
+            assertTrue("split lines are encoded",
                     trimmed.startsWith("=?") && trimmed.endsWith("?="));
         }
     }
-    
+
     /**
      * Test for encoding address field.
      */
@@ -229,34 +229,34 @@ public class MimeMessageTest extends TestCase {
         Address quotedName = new Address("bigG@dom5.net", "big \"G\"");
         Address utf16Name = new Address("<address6@co.jp>", "\"\u65E5\u672C\u8A9E\"");
         Address utf32Name = new Address("<address8@ne.jp>", "\uD834\uDF01\uD834\uDF46");
-        
+
         MimeMessage message = new MimeMessage();
-        
+
         message.setFrom(noName1);
         message.setRecipient(RecipientType.TO, noName2);
         message.setRecipients(RecipientType.CC, new Address[] { simpleName, dquoteName });
         message.setReplyTo(new Address[] { quotedName, utf16Name, utf32Name });
-        
+
         String[] from = message.getHeader("From");
         String[] to = message.getHeader("To");
         String[] cc = message.getHeader("Cc");
         String[] replyTo = message.getHeader("Reply-to");
-        
-        assertEquals("from address count", 1, from.length); 
+
+        assertEquals("from address count", 1, from.length);
         assertEquals("no name 1", "noname1@dom1.com", from[0]);
-        
-        assertEquals("to address count", 1, to.length); 
+
+        assertEquals("to address count", 1, to.length);
         assertEquals("no name 2", "noname2@dom2.com", to[0]);
-        
+
         // folded.
-        assertEquals("cc address count", 1, cc.length); 
+        assertEquals("cc address count", 1, cc.length);
         assertEquals("simple name & double quoted name",
                 "simple long and long long name <address3@dom3.org>, \"name,4,long long\r\n"
                 + " name\" <address4@dom4.org>",
                 cc[0]);
-        
+
         // folded and encoded.
-        assertEquals("reply-to address count", 1, replyTo.length); 
+        assertEquals("reply-to address count", 1, replyTo.length);
         assertEquals("quoted name & encoded name",
                 "\"big \\\"G\\\"\" <bigG@dom5.net>, =?UTF-8?B?5pel5pys6Kqe?=\r\n"
                 + " <address6@co.jp>, =?UTF-8?B?8J2MgfCdjYY=?= <address8@ne.jp>",
@@ -268,7 +268,7 @@ public class MimeMessageTest extends TestCase {
      */
     public void testParsingAddressField() throws MessagingException {
         MimeMessage message = new MimeMessage();
-        
+
         message.setHeader("From", "noname1@dom1.com");
         message.setHeader("To", "<noname2@dom2.com>");
         // folded.
@@ -276,32 +276,32 @@ public class MimeMessageTest extends TestCase {
                 "simple name <address3@dom3.org>,\r\n"
                 + " \"name,4\" <address4@dom4.org>");
         // folded and encoded.
-        message.setHeader("Reply-to", 
+        message.setHeader("Reply-to",
                 "\"big \\\"G\\\"\" <bigG@dom5.net>,\r\n"
                 + " =?UTF-8?B?5pel5pys6Kqe?=\r\n"
                 + " <address6@co.jp>,\n"
                 + " \"=?UTF-8?B?8J2MgfCdjYY=?=\" <address8@ne.jp>");
-        
+
         Address[] from = message.getFrom();
         Address[] to = message.getRecipients(RecipientType.TO);
         Address[] cc = message.getRecipients(RecipientType.CC);
         Address[] replyTo = message.getReplyTo();
-        
-        assertEquals("from address count", 1, from.length); 
+
+        assertEquals("from address count", 1, from.length);
         assertEquals("no name 1 address", "noname1@dom1.com", from[0].getAddress());
         assertNull("no name 1 name", from[0].getPersonal());
-        
-        assertEquals("to address count", 1, to.length); 
+
+        assertEquals("to address count", 1, to.length);
         assertEquals("no name 2 address", "noname2@dom2.com", to[0].getAddress());
         assertNull("no name 2 name", to[0].getPersonal());
 
-        assertEquals("cc address count", 2, cc.length); 
+        assertEquals("cc address count", 2, cc.length);
         assertEquals("simple name address", "address3@dom3.org", cc[0].getAddress());
         assertEquals("simple name name", "simple name", cc[0].getPersonal());
         assertEquals("double quoted name address", "address4@dom4.org", cc[1].getAddress());
         assertEquals("double quoted name name", "name,4", cc[1].getPersonal());
 
-        assertEquals("reply-to address count", 3, replyTo.length); 
+        assertEquals("reply-to address count", 3, replyTo.length);
         assertEquals("quoted name address", "bigG@dom5.net", replyTo[0].getAddress());
         assertEquals("quoted name name", "big \"G\"", replyTo[0].getPersonal());
         assertEquals("utf-16 name address", "address6@co.jp", replyTo[1].getAddress());
@@ -309,7 +309,7 @@ public class MimeMessageTest extends TestCase {
         assertEquals("utf-32 name address", "address8@ne.jp", replyTo[2].getAddress());
         assertEquals("utf-32 name name", "\uD834\uDF01\uD834\uDF46", replyTo[2].getPersonal());
     }
-    
+
     /*
      * Test setting & getting store-specific flags
      */
@@ -342,9 +342,9 @@ public class MimeMessageTest extends TestCase {
      */
     public void testExtendedHeader() throws MessagingException {
         MimeMessage message = new MimeMessage();
-        
+
         assertNull("non existent header", message.getExtendedHeader("X-Non-Existent"));
-        
+
         message.setExtendedHeader("X-Header1", "value1");
         message.setExtendedHeader("X-Header2", "value2\n value3\r\n value4\r\n");
         assertEquals("simple value", "value1",
@@ -352,14 +352,14 @@ public class MimeMessageTest extends TestCase {
         assertEquals("multi line value", "value2 value3 value4",
                 message.getExtendedHeader("X-Header2"));
         assertNull("non existent header 2", message.getExtendedHeader("X-Non-Existent"));
-        
+
         message.setExtendedHeader("X-Header1", "value4");
         assertEquals("over written value", "value4", message.getExtendedHeader("X-Header1"));
-        
+
         message.setExtendedHeader("X-Header1", null);
         assertNull("remove header", message.getExtendedHeader("X-Header1"));
     }
-    
+
     /*
      * Test for setExtendedHeaders() and getExtendedheaders()
      */
@@ -371,11 +371,11 @@ public class MimeMessageTest extends TestCase {
         assertNull("null headers", message.getExtendedHeaders());
         message.setExtendedHeaders("");
         assertNull("empty headers", message.getExtendedHeaders());
-        
+
         message.setExtendedHeaders("X-Header1: value1\r\n");
         assertEquals("header 1 value", "value1", message.getExtendedHeader("X-Header1"));
         assertEquals("header 1", "X-Header1: value1\r\n", message.getExtendedHeaders());
-        
+
         message.setExtendedHeaders(null);
         message.setExtendedHeader("X-Header2", "value2");
         message.setExtendedHeader("X-Header3",  "value3\n value4\r\n value5\r\n");
@@ -394,19 +394,19 @@ public class MimeMessageTest extends TestCase {
                 "X-Header2: value2\r\n",
                 message.getExtendedHeaders());
     }
-    
+
     /*
      * Test for writeTo(), only for header part.
      */
     public void testWriteToHeader() throws Exception {
         MimeMessage message = new MimeMessage();
-        
+
         message.setHeader("Header1", "value1");
         message.setHeader(MimeHeader.HEADER_ANDROID_ATTACHMENT_STORE_DATA, "value2");
         message.setExtendedHeader("X-Header3", "value3");
         message.setHeader("Header4", "value4");
         message.setExtendedHeader("X-Header5", "value5");
-        
+
         ByteArrayOutputStream out = new ByteArrayOutputStream();
         message.writeTo(out);
         out.close();
@@ -421,7 +421,7 @@ public class MimeMessageTest extends TestCase {
             assertEquals("output byte["+i+"]", expected[i], actual[i]);
         }
     }
-    
+
     /**
      * Test for parsing headers with extra whitespace and commennts.
      *
@@ -463,6 +463,47 @@ public class MimeMessageTest extends TestCase {
         // Note: The parentheses in the middle of email addresses are not removed.
         //assertEquals("c@public.example", toAddresses[0].getAddress());
         //assertEquals("pete@silly.test",mm.getFrom()[0].getAddress());
+    }
+
+    /**
+     * Confirm parser doesn't crash when seeing "Undisclosed recipients:;".
+     */
+    public void testUndisclosedRecipients() throws MessagingException, IOException {
+        String entireMessage =
+            "To:Undisclosed recipients:;\r\n"+
+            "Cc:Undisclosed recipients:;\r\n"+
+            "Bcc:Undisclosed recipients:;\r\n"+
+            "\r\n";
+        MimeMessage mm = null;
+        mm = new MimeMessage(new ByteArrayInputStream(
+            entireMessage.getBytes("us-ascii")));
+
+        assertEquals(0, mm.getRecipients(MimeMessage.RecipientType.TO).length);
+        assertEquals(0, mm.getRecipients(MimeMessage.RecipientType.CC).length);
+        assertEquals(0, mm.getRecipients(MimeMessage.RecipientType.BCC).length);
+    }
+
+    /**
+     * Confirm parser doesn't crash when seeing invalid headers/addresses.
+     */
+    public void testInvalidHeaders() throws MessagingException, IOException {
+        String entireMessage =
+            "To:\r\n"+
+            "Cc:!invalid!address!, a@b.com\r\n"+
+            "Bcc:Undisclosed recipients;\r\n"+ // no colon at the end
+            "invalid header\r\n"+
+            "Message-ID:<testabcd.1234@silly.test>\r\n"+
+            "\r\n"+
+            "Testing\r\n";
+        MimeMessage mm = null;
+        mm = new MimeMessage(new ByteArrayInputStream(
+            entireMessage.getBytes("us-ascii")));
+
+        assertEquals(0, mm.getRecipients(MimeMessage.RecipientType.TO).length);
+        assertEquals(1, mm.getRecipients(MimeMessage.RecipientType.CC).length);
+        assertEquals("a@b.com", mm.getRecipients(MimeMessage.RecipientType.CC)[0].getAddress());
+        assertEquals(0, mm.getRecipients(MimeMessage.RecipientType.BCC).length);
+        assertEquals("<testabcd.1234@silly.test>",mm.getMessageId());
     }
 
     // TODO more test for writeTo()
