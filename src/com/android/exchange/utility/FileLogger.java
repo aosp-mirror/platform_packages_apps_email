@@ -17,6 +17,7 @@
 package com.android.exchange.utility;
 
 import android.content.Context;
+import android.os.Environment;
 
 import java.io.FileWriter;
 import java.io.IOException;
@@ -26,7 +27,8 @@ import java.util.Date;
 public class FileLogger {
     private static FileLogger LOGGER = null;
     private static FileWriter mLogWriter = null;
-    public static String LOG_FILE_NAME = "/sdcard/emaillog.txt";
+    public static String LOG_FILE_NAME =
+        Environment.getExternalStorageDirectory() + "/emaillog.txt";
 
     public synchronized static FileLogger getLogger (Context c) {
         LOGGER = new FileLogger();
