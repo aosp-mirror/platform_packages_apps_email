@@ -1625,6 +1625,7 @@ public class SyncManager extends Service implements Runnable {
 
         // Start up threads that need it; use a query which finds eas mailboxes where the
         // the sync interval is not "never".  This is the set of mailboxes that we control
+        if (mAccountObserver == null) return nextWait;
         Cursor c = getContentResolver().query(Mailbox.CONTENT_URI, Mailbox.CONTENT_PROJECTION,
                 mAccountObserver.getSyncableEasMailboxWhere(), null, null);
 
