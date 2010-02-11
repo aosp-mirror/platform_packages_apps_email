@@ -19,6 +19,11 @@ import com.android.email.SecurityPolicy;
 import com.android.email.SecurityPolicy.PolicySet;
 import com.android.exchange.EasSyncService;
 
+import org.xmlpull.v1.XmlPullParser;
+import org.xmlpull.v1.XmlPullParserException;
+import org.xmlpull.v1.XmlPullParserFactory;
+
+import java.io.ByteArrayInputStream;
 import java.io.IOException;
 import java.io.InputStream;
 
@@ -51,7 +56,7 @@ public class ProvisionParser extends Parser {
         return mRemoteWipe;
     }
 
-    public void parseProvisionDoc() throws IOException {
+    public void parseProvisionDocWbxml() throws IOException {
         int minPasswordLength = 0;
         int passwordMode = PolicySet.PASSWORD_MODE_NONE;
         int maxPasswordFails = 0;
@@ -114,10 +119,149 @@ public class ProvisionParser extends Parser {
         }
     }
 
+    class ShadowPolicySet {
+        int mMinPasswordLength = 0;
+        int mPasswordMode = PolicySet.PASSWORD_MODE_NONE;
+        int mMaxPasswordFails = 0;
+        int mMaxScreenLockTime = 0;
+    }
+
+    public void parseProvisionDocXml(String doc) throws IOException {
+        ShadowPolicySet sps = new ShadowPolicySet();
+
+        try {
+            XmlPullParserFactory factory = XmlPullParserFactory.newInstance();
+            XmlPullParser parser = factory.newPullParser();
+            parser.setInput(new ByteArrayInputStream(doc.getBytes()), "UTF-8");
+            int type = parser.getEventType();
+            if (type == XmlPullParser.START_DOCUMENT) {
+                type = parser.next();
+                if (type == XmlPullParser.START_TAG) {
+                    String tagName = parser.getName();
+                    if (tagName.equals("wap-provisioningdoc")) {
+                        parseWapProvisioningDoc(parser, sps);
+                    }
+                }
+            }
+        } catch (XmlPullParserException e) {
+           throw new IOException();
+        }
+
+        mPolicySet = new PolicySet(sps.mMinPasswordLength, sps.mPasswordMode, sps.mMaxPasswordFails,
+                sps.mMaxScreenLockTime, true);
+    }
+
+    /**
+     * Return true if password is required; otherwise false.
+     */
+    boolean parseSecurityPolicy(XmlPullParser parser, ShadowPolicySet sps)
+            throws XmlPullParserException, IOException {
+        boolean passwordRequired = true;
+        while (true) {
+            int type = parser.nextTag();
+            if (type == XmlPullParser.END_TAG && parser.getName().equals("characteristic")) {
+                break;
+            } else if (type == XmlPullParser.START_TAG) {
+                String tagName = parser.getName();
+                if (tagName.equals("parm")) {
+                    String name = parser.getAttributeValue(null, "name");
+                    if (name.equals("4131")) {
+                        String value = parser.getAttributeValue(null, "value");
+                        if (value.equals("1")) {
+                            passwordRequired = false;
+                        }
+                    }
+                }
+            }
+        }
+        return passwordRequired;
+    }
+
+    void parseCharacteristic(XmlPullParser parser, ShadowPolicySet sps)
+            throws XmlPullParserException, IOException {
+        boolean enforceInactivityTimer = true;
+        while (true) {
+            int type = parser.nextTag();
+            if (type == XmlPullParser.END_TAG && parser.getName().equals("characteristic")) {
+                break;
+            } else if (type == XmlPullParser.START_TAG) {
+                if (parser.getName().equals("parm")) {
+                    String name = parser.getAttributeValue(null, "name");
+                    String value = parser.getAttributeValue(null, "value");
+                    if (name.equals("AEFrequencyValue")) {
+                        if (enforceInactivityTimer) {
+                            if (value.equals("0")) {
+                                sps.mMaxScreenLockTime = 1;
+                            } else {
+                                sps.mMaxScreenLockTime = 60*Integer.parseInt(value);
+                            }
+                        }
+                    } else if (name.equals("AEFrequencyType")) {
+                        // "0" here means we don't enforce an inactivity timeout
+                        if (value.equals("0")) {
+                            enforceInactivityTimer = false;
+                        }
+                    } else if (name.equals("DeviceWipeThreshold")) {
+                        sps.mMaxPasswordFails = Integer.parseInt(value);
+                    } else if (name.equals("CodewordFrequency")) {
+                        // Ignore; has no meaning for us
+                    } else if (name.equals("MinimumPasswordLength")) {
+                        sps.mMinPasswordLength = Integer.parseInt(value);
+                    } else if (name.equals("PasswordComplexity")) {
+                        if (value.equals("0")) {
+                            sps.mPasswordMode = PolicySet.PASSWORD_MODE_STRONG;
+                        } else {
+                            sps.mPasswordMode = PolicySet.PASSWORD_MODE_SIMPLE;
+                        }
+                    }
+                }
+            }
+        }
+    }
+
+    void parseRegistry(XmlPullParser parser, ShadowPolicySet sps)
+            throws XmlPullParserException, IOException {
+      while (true) {
+          int type = parser.nextTag();
+          if (type == XmlPullParser.END_TAG && parser.getName().equals("characteristic")) {
+              break;
+          } else if (type == XmlPullParser.START_TAG) {
+              String name = parser.getName();
+              if (name.equals("characteristic")) {
+                  parseCharacteristic(parser, sps);
+              }
+          }
+      }
+    }
+
+    void parseWapProvisioningDoc(XmlPullParser parser, ShadowPolicySet sps)
+            throws XmlPullParserException, IOException {
+        while (true) {
+            int type = parser.nextTag();
+            if (type == XmlPullParser.END_TAG && parser.getName().equals("wap-provisioningdoc")) {
+                break;
+            } else if (type == XmlPullParser.START_TAG) {
+                String name = parser.getName();
+                if (name.equals("characteristic")) {
+                    String atype = parser.getAttributeValue(null, "type");
+                    if (atype.equals("SecurityPolicy")) {
+                        // If a password isn't required, stop here
+                        if (!parseSecurityPolicy(parser, sps)) {
+                            return;
+                        }
+                    } else if (atype.equals("Registry")) {
+                        parseRegistry(parser, sps);
+                        return;
+                    }
+                }
+            }
+        }
+    }
+
     public void parseProvisionData() throws IOException {
         while (nextTag(Tags.PROVISION_DATA) != END) {
             if (tag == Tags.PROVISION_EAS_PROVISION_DOC) {
-                parseProvisionDoc();
+                parseProvisionDocWbxml();
             } else {
                 skipTag();
             }
@@ -125,10 +269,12 @@ public class ProvisionParser extends Parser {
     }
 
     public void parsePolicy() throws IOException {
+        String policyType = null;
         while (nextTag(Tags.PROVISION_POLICY) != END) {
             switch (tag) {
                 case Tags.PROVISION_POLICY_TYPE:
-                    mService.userLog("Policy type: ", getValue());
+                    policyType = getValue();
+                    mService.userLog("Policy type: ", policyType);
                     break;
                 case Tags.PROVISION_POLICY_KEY:
                     mPolicyKey = getValue();
@@ -137,7 +283,13 @@ public class ProvisionParser extends Parser {
                     mService.userLog("Policy status: ", getValue());
                     break;
                 case Tags.PROVISION_DATA:
-                    parseProvisionData();
+                    if (policyType.equalsIgnoreCase(EasSyncService.EAS_2_POLICY_TYPE)) {
+                        // Parse the old style XML document
+                        parseProvisionDocXml(getValue());
+                    } else {
+                        // Parse the newer WBXML data
+                        parseProvisionData();
+                    }
                     break;
                 default:
                     skipTag();
