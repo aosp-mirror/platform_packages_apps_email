@@ -573,6 +573,10 @@
     <!-- Message of Remove account confirmation dialog box -->
     <string name="account_delete_dlg_instructions_fmt">The account \"<xliff:g id="account">%s</xliff:g>\" will be removed from Email.</string>
 
+    <!-- Title of Upgrade Accounts activity -->
+    <string name="upgrade_accounts_title">Upgrade accounts</string>
+    <string name="upgrade_accounts_error">Unable to upgrade account</string>
+
     <!-- Message that appears when user adds a Yahoo mail account. This alert has no title. -->
     <string name="provider_note_yahoo">Mailbox access is not supported for some types of
         Yahoo! mail accounts.  If you have trouble connecting, visit yahoo.com for more

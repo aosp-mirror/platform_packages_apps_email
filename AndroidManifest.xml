@@ -55,14 +55,20 @@
 
     <application android:icon="@drawable/icon" android:label="@string/app_name"
         android:name="Email">
-        <activity android:name=".activity.Welcome">
+        <activity
+            android:name=".activity.Welcome">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
                 <category android:name="android.intent.category.DEFAULT" />
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
         </activity>
-
+        <activity
+            android:name=".activity.UpgradeAccounts"
+            android:label="@string/upgrade_accounts_title"
+            android:theme="@android:style/Theme.NoTitleBar"
+            android:configChanges="keyboardHidden|orientation" >
+        </activity>
         <!-- Must be exported in order for the AccountManager to launch it -->
         <activity
             android:name=".activity.setup.AccountSetupBasics"

@@ -579,7 +579,7 @@ public class LegacyConversions {
      * @param fromAccount the legacy account to convert to modern format
      * @return an Account ready to be committed to provider
      */
-    /* package */ static EmailContent.Account makeAccount(Context context, Account fromAccount) {
+    public static EmailContent.Account makeAccount(Context context, Account fromAccount) {
 
         EmailContent.Account result = new EmailContent.Account();
 

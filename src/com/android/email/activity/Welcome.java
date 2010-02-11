@@ -16,13 +16,16 @@
 
 package com.android.email.activity;
 
+import com.android.email.Account;
 import com.android.email.AccountBackupRestore;
 import com.android.email.ExchangeUtils;
+import com.android.email.Preferences;
 import com.android.email.activity.setup.AccountSetupBasics;
-import com.android.email.provider.EmailContent.Account;
+import com.android.email.provider.EmailContent;
 import com.android.email.provider.EmailContent.Mailbox;
 
 import android.app.Activity;
+import android.content.Context;
 import android.content.Intent;
 import android.database.Cursor;
 import android.os.Bundle;
@@ -39,6 +42,9 @@ import android.os.Bundle;
  */
 public class Welcome extends Activity {
 
+    /** DO NOT CHECK IN AS 'TRUE' - DEVELOPMENT ONLY */
+    private static final boolean DEBUG_FORCE_UPGRADES = false;
+
     public static void actionStart(Activity fromActivity) {
         Intent i = new Intent(fromActivity, Welcome.class);
         fromActivity.startActivity(i);
@@ -47,6 +53,14 @@ public class Welcome extends Activity {
     @Override
     public void onCreate(Bundle icicle) {
         super.onCreate(icicle);
+
+        // Quickly check for bulk upgrades (from older app versions) and switch to the
+        // upgrade activity if necessary
+        if (bulkUpgradesRequired(this, Preferences.getPreferences(this))) {
+            UpgradeAccounts.actionStart(this);
+            finish();
+            return;
+        }
 
         // Restore accounts, if it has not happened already
         // NOTE:  This is blocking, which it should not be (in the UI thread)
@@ -65,8 +79,8 @@ public class Welcome extends Activity {
         Cursor c = null;
         try {
             c = getContentResolver().query(
-                    Account.CONTENT_URI,
-                    Account.ID_PROJECTION,
+                    EmailContent.Account.CONTENT_URI,
+                    EmailContent.Account.ID_PROJECTION,
                     null, null, null);
             switch (c.getCount()) {
                 case 0:
@@ -74,7 +88,7 @@ public class Welcome extends Activity {
                     break;
                 case 1:
                     c.moveToFirst();
-                    long accountId = c.getLong(Account.CONTENT_ID_COLUMN);
+                    long accountId = c.getLong(EmailContent.Account.CONTENT_ID_COLUMN);
                     MessageList.actionHandleAccount(this, accountId, Mailbox.TYPE_INBOX);
                     break;
                 default:
@@ -89,5 +103,43 @@ public class Welcome extends Activity {
 
         // In all cases, do not return to this activity
         finish();
+    }
+
+    /**
+     * Test for bulk upgrades and return true if necessary
+     * 
+     * TODO should be in an AsyncTask since it has DB ops
+     *
+     * @return true if upgrades required (old accounts exit).  false otherwise.
+     */
+    /* package */ boolean bulkUpgradesRequired(Context context, Preferences preferences) {
+        if (DEBUG_FORCE_UPGRADES) {
+            // build at least one fake account
+            Account fake = new Account(this);
+            fake.setDescription("Fake Account");
+            fake.setEmail("user@gmail.com");
+            fake.setName("First Last");
+            fake.setSenderUri("smtp://user:password@smtp.gmail.com");
+            fake.setStoreUri("imap://user:password@imap.gmail.com");
+            fake.save(preferences);
+            return true;
+        }
+
+        // 1. Get list of legacy accounts and look for any non-backup entries
+        Account[] legacyAccounts = preferences.getAccounts();
+        if (legacyAccounts.length == 0) {
+            return false;
+        }
+
+        // 2. Look at the first legacy account and decide what to do
+        // We only need to look at the first:  If it's not a backup account, then it's a true
+        // legacy account, and there are one or more accounts needing upgrade.  If it is a backup
+        // account, then we know for sure that there are no legacy accounts (backup deletes all
+        // old accounts, and indicates that "modern" code has already run on this device.)
+        if (0 != (legacyAccounts[0].getBackupFlags() & Account.BACKUP_FLAGS_IS_BACKUP)) {
+            return false;
+        } else {
+            return true; 
+        }
     }
 }

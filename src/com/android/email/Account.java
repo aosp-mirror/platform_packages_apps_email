@@ -450,6 +450,14 @@ public class Account {
         mSyncWindow = window;
     }
 
+    public int getBackupFlags() {
+        return mBackupFlags;
+    }
+
+    public void setBackupFlags(int flags) {
+        mBackupFlags = flags;
+    }
+
     @Override
     public boolean equals(Object o) {
         if (o instanceof Account) {

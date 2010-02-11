@@ -366,6 +366,20 @@ public class LocalStore extends Store implements PersistentDataCallbacks {
     }
 
     /**
+     * Report # of attachments (for migration estimates only - catches all exceptions and
+     * just returns zero)
+     */
+    public int getStoredAttachmentCount() {
+        try{
+            File[] attachments = mAttachmentsDir.listFiles();
+            return attachments.length;
+        }
+        catch (Exception e) {
+            return 0;
+        }
+    }
+
+    /**
      * Deletes all cached attachments for the entire store.
      */
     public void pruneCachedAttachments() throws MessagingException {
