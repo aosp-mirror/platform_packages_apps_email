@@ -17,7 +17,6 @@
 package com.android.exchange.adapter;
 
 import com.android.email.provider.EmailContent;
-import com.android.email.provider.EmailProvider;
 import com.android.email.provider.ProviderTestUtils;
 import com.android.email.provider.EmailContent.Account;
 import com.android.email.provider.EmailContent.Body;
@@ -28,10 +27,8 @@ import com.android.exchange.EasSyncService;
 import com.android.exchange.adapter.EmailSyncAdapter.EasEmailSyncParser;
 import com.android.exchange.adapter.EmailSyncAdapter.EasEmailSyncParser.ServerChange;
 
-import android.content.ContentResolver;
 import android.content.ContentUris;
 import android.content.ContentValues;
-import android.content.Context;
 
 import java.io.ByteArrayInputStream;
 import java.io.IOException;
@@ -40,14 +37,6 @@ import java.util.GregorianCalendar;
 import java.util.TimeZone;
 
 public class EmailSyncAdapterTests extends SyncAdapterTestCase {
-
-    EmailProvider mProvider;
-    Context mMockContext;
-    ContentResolver mMockResolver;
-    Mailbox mMailbox;
-    Account mAccount;
-    EmailSyncAdapter mSyncAdapter;
-    EasEmailSyncParser mSyncParser;
 
     public EmailSyncAdapterTests() {
         super();
