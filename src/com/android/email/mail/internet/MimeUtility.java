@@ -23,10 +23,11 @@ import com.android.email.mail.Message;
 import com.android.email.mail.MessagingException;
 import com.android.email.mail.Multipart;
 import com.android.email.mail.Part;
+import com.android.common.Base64;
+import com.android.common.Base64InputStream;
 
 import org.apache.commons.io.IOUtils;
 import org.apache.james.mime4j.codec.EncoderUtil;
-import org.apache.james.mime4j.decoder.Base64InputStream;
 import org.apache.james.mime4j.decoder.DecoderUtil;
 import org.apache.james.mime4j.decoder.QuotedPrintableInputStream;
 import org.apache.james.mime4j.util.CharsetUtil;
@@ -42,9 +43,9 @@ import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 public class MimeUtility {
-    
+
     private final static Pattern PATTERN_CR_OR_LF = Pattern.compile("\r|\n");
-    
+
     /**
      * Replace sequences of CRLF+WSP with WSP.  Tries to preserve original string
      * object whenever possible.
@@ -78,14 +79,14 @@ public class MimeUtility {
     public static String foldAndEncode(String s) {
         return s;
     }
-    
+
     /**
      * INTERIM version of foldAndEncode that will be used only by Subject: headers.
      * This is safer than implementing foldAndEncode() (see above) and risking unknown damage
      * to other headers.
-     * 
+     *
      * TODO: Copy this code to foldAndEncode(), get rid of this function, confirm all working OK.
-     * 
+     *
      * @param s original string to encode and fold
      * @param usedCharacters number of characters already used up by header name
 
@@ -93,20 +94,20 @@ public class MimeUtility {
      */
     public static String foldAndEncode2(String s, int usedCharacters) {
         // james.mime4j.codec.EncoderUtil.java
-        // encode:  encodeIfNecessary(text, usage, numUsedInHeaderName) 
+        // encode:  encodeIfNecessary(text, usage, numUsedInHeaderName)
         // Usage.TEXT_TOKENlooks like the right thing for subjects
         // use WORD_ENTITY for address/names
-        
-        String encoded = EncoderUtil.encodeIfNecessary(s, EncoderUtil.Usage.TEXT_TOKEN, 
+
+        String encoded = EncoderUtil.encodeIfNecessary(s, EncoderUtil.Usage.TEXT_TOKEN,
                 usedCharacters);
 
         return fold(encoded, usedCharacters);
     }
-    
+
     /**
      * INTERIM:  From newer version of org.apache.james (but we don't want to import
      * the entire MimeUtil class).
-     * 
+     *
      * Splits the specified string into a multiple-line representation with
      * lines no longer than 76 characters (because the line might contain
      * encoded words; see <a href='http://www.faqs.org/rfcs/rfc2047.html'>RFC
@@ -114,7 +115,7 @@ public class MimeUtility {
      * longer than 76 characters a line break is inserted at the whitespace
      * character following the sequence resulting in a line longer than 76
      * characters.
-     * 
+     *
      * @param s
      *            string to split.
      * @param usedCharacters
@@ -154,7 +155,7 @@ public class MimeUtility {
     /**
      * INTERIM:  From newer version of org.apache.james (but we don't want to import
      * the entire MimeUtil class).
-     * 
+     *
      * Search for whitespace.
      */
     private static int indexOfWsp(String s, int fromIndex) {
@@ -173,10 +174,10 @@ public class MimeUtility {
      * field the entire field is returned. Otherwise the named parameter is
      * searched for in a case insensitive fashion and returned. If the parameter
      * cannot be found the method returns null.
-     * 
+     *
      * TODO: quite inefficient with the inner trimming & splitting.
      * TODO: Also has a latent bug: uses "startsWith" to match the name, which can false-positive.
-     * TODO: The doc says that for a null name you get the first param, but you get the header. 
+     * TODO: The doc says that for a null name you get the first param, but you get the header.
      *    Should probably just fix the doc, but if other code assumes that behavior, fix the code.
      *
      * @param header
@@ -310,22 +311,22 @@ public class MimeUtility {
     /**
      * Returns true if the given mimeType matches the matchAgainst specification.  The comparison
      * ignores case and the matchAgainst string may include "*" for a wildcard (e.g. "image/*").
-     * 
+     *
      * @param mimeType A MIME type to check.
      * @param matchAgainst A MIME type to check against. May include wildcards.
      * @return true if the mimeType matches
      */
     public static boolean mimeTypeMatches(String mimeType, String matchAgainst) {
-        Pattern p = Pattern.compile(matchAgainst.replaceAll("\\*", "\\.\\*"), 
+        Pattern p = Pattern.compile(matchAgainst.replaceAll("\\*", "\\.\\*"),
                 Pattern.CASE_INSENSITIVE);
         return p.matcher(mimeType).matches();
     }
 
     /**
-     * Returns true if the given mimeType matches any of the matchAgainst specifications.  The 
-     * comparison ignores case and the matchAgainst strings may include "*" for a wildcard 
+     * Returns true if the given mimeType matches any of the matchAgainst specifications.  The
+     * comparison ignores case and the matchAgainst strings may include "*" for a wildcard
      * (e.g. "image/*").
-     * 
+     *
      * @param mimeType A MIME type to check.
      * @param matchAgainst An array of MIME types to check against. May include wildcards.
      * @return true if the mimeType matches any of the matchAgainst strings
@@ -354,7 +355,7 @@ public class MimeUtility {
                 in = new QuotedPrintableInputStream(in);
             }
             else if ("base64".equalsIgnoreCase(contentTransferEncoding)) {
-                in = new Base64InputStream(in);
+                in = new Base64InputStream(in, Base64.DEFAULT);
             }
         }
 
