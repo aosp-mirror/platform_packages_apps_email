@@ -79,7 +79,7 @@ public class CalendarSyncAdapter extends AbstractSyncAdapter {
     private static final String[] ID_PROJECTION = new String[] {Events._ID};
     private static final String[] ORIGINAL_EVENT_PROJECTION = new String[] {Events.ORIGINAL_EVENT};
 
-    private static final String CALENDAR_SELECTION =
+    public static final String CALENDAR_SELECTION =
         Calendars._SYNC_ACCOUNT + "=? AND " + Calendars._SYNC_ACCOUNT_TYPE + "=?";
     private static final int CALENDAR_SELECTION_ID = 0;
 
