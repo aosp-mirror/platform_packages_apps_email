@@ -44,7 +44,7 @@ public class AccountSetupNamesTests extends ActivityInstrumentationTestCase2<Acc
     private Button mDoneButton;
     
     public AccountSetupNamesTests() {
-        super("com.android.email", AccountSetupNames.class);
+        super(AccountSetupNames.class);
     }
 
     /**

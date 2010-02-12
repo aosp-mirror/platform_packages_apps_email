@@ -41,7 +41,7 @@ public class AccountSetupIncomingTests extends
     private Button mNextButton;
     
     public AccountSetupIncomingTests() {
-        super("com.android.email", AccountSetupIncoming.class);
+        super(AccountSetupIncoming.class);
     }
 
     /**

@@ -47,7 +47,7 @@ public class AccountSettingsTests extends ActivityInstrumentationTestCase2<Accou
     private static final String PREFERENCE_FREQUENCY = "account_check_frequency";
 
     public AccountSettingsTests() {
-        super("com.android.email", AccountSettings.class);
+        super(AccountSettings.class);
     }
 
     /**

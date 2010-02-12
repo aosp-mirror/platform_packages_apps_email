@@ -56,7 +56,7 @@ public class MessageListUnitTests
     private ArrayList<Long> mIDarray;
 
     public MessageListUnitTests() {
-        super("com.android.email", MessageList.class);
+        super(MessageList.class);
     }
 
     @Override

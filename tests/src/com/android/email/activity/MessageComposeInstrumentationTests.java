@@ -105,7 +105,7 @@ public class MessageComposeInstrumentationTests
     private static final String ACTION_EDIT_DRAFT = "com.android.email.intent.action.EDIT_DRAFT";
 
     public MessageComposeInstrumentationTests() {
-        super("com.android.email", MessageCompose.class);
+        super(MessageCompose.class);
     }
 
     /*

@@ -40,7 +40,7 @@ public class AccountSetupOptionsTests
     private Spinner mCheckFrequencyView;
     
     public AccountSetupOptionsTests() {
-        super("com.android.email", AccountSetupOptions.class);
+        super(AccountSetupOptions.class);
     }
 
     /**

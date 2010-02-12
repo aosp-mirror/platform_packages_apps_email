@@ -46,7 +46,7 @@ public class AccountSetupExchangeTests extends
     //EXCHANGE-REMOVE-SECTION-END
 
     public AccountSetupExchangeTests() {
-        super("com.android.email", AccountSetupExchange.class);
+        super(AccountSetupExchange.class);
     }
 
     //EXCHANGE-REMOVE-SECTION-START

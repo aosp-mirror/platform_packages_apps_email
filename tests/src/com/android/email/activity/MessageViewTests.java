@@ -58,7 +58,7 @@ public class MessageViewTests
     private Context mContext;
     
     public MessageViewTests() {
-        super("com.android.email", MessageView.class);
+        super(MessageView.class);
     }
 
     @Override
