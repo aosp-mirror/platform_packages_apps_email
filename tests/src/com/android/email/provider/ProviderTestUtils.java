@@ -90,13 +90,18 @@ public class ProviderTestUtils extends Assert {
      */
     public static Mailbox setupMailbox(String name, long accountId, boolean saveIt,
             Context context) {
+        return setupMailbox(name, accountId, saveIt, context, Mailbox.TYPE_MAIL);
+    }
+
+    public static Mailbox setupMailbox(String name, long accountId, boolean saveIt,
+            Context context, int type) {
         Mailbox box = new Mailbox();
 
         box.mDisplayName = name;
         box.mServerId = "serverid-" + name;
         box.mParentServerId = "parent-serverid-" + name;
         box.mAccountKey = accountId;
-        box.mType = Mailbox.TYPE_MAIL;
+        box.mType = type;
         box.mDelimiter = 1;
         box.mSyncKey = "sync-key-" + name;
         box.mSyncLookback = 2;

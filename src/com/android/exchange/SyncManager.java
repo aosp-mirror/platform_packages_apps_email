@@ -33,6 +33,7 @@ import com.android.email.provider.EmailContent.Message;
 import com.android.email.provider.EmailContent.SyncColumns;
 import com.android.email.service.IEmailService;
 import com.android.email.service.IEmailServiceCallback;
+import com.android.exchange.adapter.CalendarSyncAdapter;
 import com.android.exchange.utility.FileLogger;
 
 import org.apache.http.conn.ClientConnectionManager;
@@ -73,7 +74,9 @@ import android.os.PowerManager;
 import android.os.RemoteCallbackList;
 import android.os.RemoteException;
 import android.os.PowerManager.WakeLock;
+import android.provider.Calendar;
 import android.provider.ContactsContract;
+import android.provider.Calendar.Calendars;
 import android.util.Log;
 
 import java.io.BufferedReader;
@@ -144,7 +147,8 @@ public class SyncManager extends Service implements Runnable {
         " IN (" + Mailbox.CHECK_INTERVAL_PING + ',' + Mailbox.CHECK_INTERVAL_PUSH + ')';
     protected static final String WHERE_IN_ACCOUNT_AND_PUSHABLE =
         MailboxColumns.ACCOUNT_KEY + "=? and type in (" + Mailbox.TYPE_INBOX + ','
-        + Mailbox.TYPE_EAS_ACCOUNT_MAILBOX + ',' + Mailbox.TYPE_CONTACTS + ')';
+        + Mailbox.TYPE_EAS_ACCOUNT_MAILBOX + ',' + Mailbox.TYPE_CONTACTS + ','
+        + Mailbox.TYPE_CALENDAR + ')';
     private static final String WHERE_MAILBOX_KEY = Message.MAILBOX_KEY + "=?";
     private static final String WHERE_PROTOCOL_EAS = HostAuthColumns.PROTOCOL + "=\"" +
         AbstractSyncService.EAS_PROTOCOL + "\"";
@@ -196,6 +200,9 @@ public class SyncManager extends Service implements Runnable {
     private MessageObserver mMessageObserver;
     private EasSyncStatusObserver mSyncStatusObserver;
     private EasAccountsUpdatedListener mAccountsUpdatedListener;
+
+    private HashMap<Long, CalendarObserver> mCalendarObservers =
+        new HashMap<Long, CalendarObserver>();
 
     /*package*/ ContentResolver mResolver;
 
@@ -601,7 +608,113 @@ public class SyncManager extends Service implements Runnable {
 
     }
 
-    class MailboxObserver extends ContentObserver {
+    /**
+     * Register a specific Calendar's data observer; we need to recognize when the SYNC_EVENTS
+     * column has changed (when sync has turned off or on)
+     * @param account the Account whose Calendar we're observing
+     */
+    private void registerCalendarObserver(Account account) {
+        // Get a new observer
+        CalendarObserver observer = new CalendarObserver(mHandler, account);
+        if (observer.mCalendarId != 0) {
+            // If we find the Calendar (and we'd better) register it and store it in the map
+            mCalendarObservers.put(observer.mCalendarId, observer);
+            mResolver.registerContentObserver(
+                    ContentUris.withAppendedId(Calendars.CONTENT_URI, observer.mCalendarId), false,
+                    observer);
+        }
+    }
+
+    /**
+     * Unregister all CalendarObserver's
+     */
+    private void unregisterCalendarObservers() {
+        for (CalendarObserver observer: mCalendarObservers.values()) {
+            mResolver.unregisterContentObserver(observer);
+        }
+        mCalendarObservers.clear();
+    }
+
+    private class CalendarObserver extends ContentObserver {
+        long mAccountId;
+        long mCalendarId;
+        long mSyncEvents;
+        String mAccountName;
+
+        public CalendarObserver(Handler handler, Account account) {
+            super(handler);
+            mAccountId = account.mId;
+            mAccountName = account.mEmailAddress;
+
+            // Find the Calendar for this account
+            Cursor c = mResolver.query(Calendars.CONTENT_URI,
+                    new String[] {Calendars._ID, Calendars.SYNC_EVENTS},
+                    CalendarSyncAdapter.CALENDAR_SELECTION,
+                    new String[] {account.mEmailAddress, Email.EXCHANGE_ACCOUNT_MANAGER_TYPE},
+                    null);
+            // Save its id and its sync events status
+            try {
+                if (c.moveToFirst()) {
+                    mCalendarId = c.getLong(0);
+                    mSyncEvents = c.getLong(1);
+                }
+            } finally {
+                c.close();
+            }
+            
+        }
+
+        @Override
+        public void onChange(boolean selfChange) {
+            // See if the user has changed syncing of our calendar
+            if (!selfChange) {
+                Cursor c = mResolver.query(Calendars.CONTENT_URI,
+                        new String[] {Calendars.SYNC_EVENTS}, Calendars._ID + "=?",
+                        new String[] {Long.toString(mCalendarId)}, null);
+                // Get its sync events; if it's changed, we've got work to do
+                try {
+                    if (c.moveToFirst()) {
+                        long newSyncEvents = c.getLong(0);
+                        if (newSyncEvents != mSyncEvents) {
+                            // The user has changed sync state; let SyncManager know
+                            android.accounts.Account account =
+                                new android.accounts.Account(mAccountName,
+                                        Email.EXCHANGE_ACCOUNT_MANAGER_TYPE);
+                            ContentResolver.setSyncAutomatically(account, Calendar.AUTHORITY,
+                                    newSyncEvents != 0);
+                            if (newSyncEvents == 0) {
+                                // For some reason, CalendarProvider deletes all Events in this
+                                // case; this means that we have to reset our sync key
+                                Mailbox mailbox = Mailbox.restoreMailboxOfType(INSTANCE, mAccountId,
+                                        Mailbox.TYPE_CALENDAR);
+                                EasSyncService service = new EasSyncService(INSTANCE, mailbox);
+                                CalendarSyncAdapter adapter =
+                                    new CalendarSyncAdapter(mailbox, service);
+                                try {
+                                    adapter.setSyncKey("0", false);
+                                } catch (IOException e) {
+                                    // The provider can't be reached; nothing to be done
+                                }
+                                ContentValues cv = new ContentValues();
+                                cv.put(Mailbox.SYNC_KEY, "0");
+                                mResolver.update(ContentUris.withAppendedId(Mailbox.CONTENT_URI,
+                                        mailbox.mId), cv, null, null);
+
+                                // TODO Stop sync in progress??
+                            }
+
+                            // Save away the new value
+                            mSyncEvents = newSyncEvents;
+                        }
+                    }
+                } finally {
+                    c.close();
+                }
+            }
+        }
+    }
+
+    private class MailboxObserver extends ContentObserver {
         public MailboxObserver(Handler handler) {
             super(handler);
         }
@@ -615,7 +728,7 @@ public class SyncManager extends Service implements Runnable {
         }
     }
 
-    class SyncedMessageObserver extends ContentObserver {
+    private class SyncedMessageObserver extends ContentObserver {
         Intent syncAlarmIntent = new Intent(INSTANCE, EmailSyncAlarmReceiver.class);
         PendingIntent syncAlarmPendingIntent =
             PendingIntent.getBroadcast(INSTANCE, 0, syncAlarmIntent, 0);
@@ -633,7 +746,7 @@ public class SyncManager extends Service implements Runnable {
         }
     }
 
-    class MessageObserver extends ContentObserver {
+    private class MessageObserver extends ContentObserver {
 
         public MessageObserver(Handler handler) {
             super(handler);
@@ -680,7 +793,7 @@ public class SyncManager extends Service implements Runnable {
         static public final int IDLE = 3;
     }
 
-    class SyncError {
+    /*package*/ class SyncError {
         int reason;
         boolean fatal = false;
         long holdDelay = 15*SECONDS;
@@ -739,8 +852,6 @@ public class SyncManager extends Service implements Runnable {
     public class EasSyncStatusObserver implements SyncStatusObserver {
         public void onStatusChanged(int which) {
             // We ignore the argument (we can only get called in one case - when settings change)
-            // TODO Go through each account and see if sync is enabled and/or automatic for
-            // the Contacts authority, and set syncInterval accordingly.  Then kick ourselves.
             if (INSTANCE != null) {
                 checkPIMSyncSettings();
             }
@@ -894,6 +1005,7 @@ public class SyncManager extends Service implements Runnable {
         if (INSTANCE != null) {
             INSTANCE = null;
             mResolver.unregisterContentObserver(mAccountObserver);
+            unregisterCalendarObservers();
             mResolver = null;
             mAccountObserver = null;
             mMailboxObserver = null;
@@ -1076,27 +1188,10 @@ public class SyncManager extends Service implements Runnable {
         }
     }
 
-//    private void logLocks(String str) {
-//        StringBuilder sb = new StringBuilder(str);
-//        boolean first = true;
-//        for (long id: mWakeLocks.keySet()) {
-//            if (!first) {
-//                sb.append(", ");
-//            } else {
-//                first = false;
-//            }
-//            sb.append(id);
-//        }
-//        log(sb.toString());
-//    }
-
     private void acquireWakeLock(long id) {
         synchronized (mWakeLocks) {
             Boolean lock = mWakeLocks.get(id);
             if (lock == null) {
-                if (id > 0) {
-                    //log("+WakeLock requested for " + alarmOwner(id));
-                }
                 if (mWakeLock == null) {
                     PowerManager pm = (PowerManager)getSystemService(Context.POWER_SERVICE);
                     mWakeLock = pm.newWakeLock(PowerManager.PARTIAL_WAKE_LOCK, "MAIL_SERVICE");
@@ -1104,8 +1199,7 @@ public class SyncManager extends Service implements Runnable {
                     log("+WAKE LOCK ACQUIRED");
                 }
                 mWakeLocks.put(id, true);
-                //logLocks("Post-acquire of WakeLock for " + alarmOwner(id) + ": ");
-            }
+             }
         }
     }
 
@@ -1113,9 +1207,6 @@ public class SyncManager extends Service implements Runnable {
         synchronized (mWakeLocks) {
             Boolean lock = mWakeLocks.get(id);
             if (lock != null) {
-                if (id > 0) {
-                    //log("+WakeLock not needed for " + alarmOwner(id));
-                }
                 mWakeLocks.remove(id);
                 if (mWakeLocks.isEmpty()) {
                     if (mWakeLock != null) {
@@ -1124,7 +1215,6 @@ public class SyncManager extends Service implements Runnable {
                     mWakeLock = null;
                     log("+WAKE LOCK RELEASED");
                 } else {
-                    //logLocks("Post-release of WakeLock for " + alarmOwner(id) + ": ");
                 }
             }
         }
@@ -1230,50 +1320,55 @@ public class SyncManager extends Service implements Runnable {
      * This code is called 1) when SyncManager starts, and 2) when SyncManager is running and there
      * are changes made (this is detected via a SyncStatusObserver)
      */
-    private void checkPIMSyncSettings() {
+    private void updatePIMSyncSettings(Account providerAccount, int mailboxType, String authority) {
         ContentValues cv = new ContentValues();
-        // For now, just Contacts
-        // First, walk through our list of accounts
-        List<Account> easAccounts = getAccountList();
-        for (Account easAccount: easAccounts) {
-            // Find the contacts mailbox
-            long contactsId =
-                Mailbox.findMailboxOfType(this, easAccount.mId, Mailbox.TYPE_CONTACTS);
-            // Presumably there is one, but if not, it's ok.  Just move on...
-            if (contactsId != Mailbox.NO_MAILBOX) {
-                // Create an AccountManager style Account
-                android.accounts.Account acct =
-                    new android.accounts.Account(easAccount.mEmailAddress,
-                            Email.EXCHANGE_ACCOUNT_MANAGER_TYPE);
-                // Get the Contacts mailbox; this happens rarely so it's ok to get it all
-                Mailbox contacts = Mailbox.restoreMailboxWithId(this, contactsId);
-                int syncInterval = contacts.mSyncInterval;
-                // If we're syncable, look further...
-                if (ContentResolver.getIsSyncable(acct, ContactsContract.AUTHORITY) > 0) {
-                    // If we're supposed to sync automatically (push), set to push if it's not
-                    if (ContentResolver.getSyncAutomatically(acct, ContactsContract.AUTHORITY)) {
-                        if (syncInterval == Mailbox.CHECK_INTERVAL_NEVER || syncInterval > 0) {
-                            log("Sync setting: Contacts for " + acct.name + " changed to push");
-                            cv.put(MailboxColumns.SYNC_INTERVAL, Mailbox.CHECK_INTERVAL_PUSH);
-                        }
-                        // If we're NOT supposed to push, and we're not set up that way, change it
-                        } else if (syncInterval != Mailbox.CHECK_INTERVAL_NEVER) {
-                            log("Sync setting: Contacts for " + acct.name + " changed to manual");
-                            cv.put(MailboxColumns.SYNC_INTERVAL, Mailbox.CHECK_INTERVAL_NEVER);
+        long mailboxId =
+            Mailbox.findMailboxOfType(this, providerAccount.mId, mailboxType);
+        // Presumably there is one, but if not, it's ok.  Just move on...
+        if (mailboxId != Mailbox.NO_MAILBOX) {
+            // Create an AccountManager style Account
+            android.accounts.Account acct =
+                new android.accounts.Account(providerAccount.mEmailAddress,
+                        Email.EXCHANGE_ACCOUNT_MANAGER_TYPE);
+            // Get the mailbox; this happens rarely so it's ok to get it all
+            Mailbox mailbox = Mailbox.restoreMailboxWithId(this, mailboxId);
+            int syncInterval = mailbox.mSyncInterval;
+            // If we're syncable, look further...
+            if (ContentResolver.getIsSyncable(acct, authority) > 0) {
+                // If we're supposed to sync automatically (push), set to push if it's not
+                if (ContentResolver.getSyncAutomatically(acct, authority)) {
+                    if (syncInterval == Mailbox.CHECK_INTERVAL_NEVER || syncInterval > 0) {
+                        log("Sync for " + mailbox.mDisplayName + " in " + acct.name + ": push");
+                        cv.put(MailboxColumns.SYNC_INTERVAL, Mailbox.CHECK_INTERVAL_PUSH);
                     }
-                // If not, set it to never check
+                    // If we're NOT supposed to push, and we're not set up that way, change it
                 } else if (syncInterval != Mailbox.CHECK_INTERVAL_NEVER) {
-                    log("Sync setting: Contacts for " + acct.name + " changed to manual");
+                    log("Sync for " + mailbox.mDisplayName + " in " + acct.name + ": manual");
                     cv.put(MailboxColumns.SYNC_INTERVAL, Mailbox.CHECK_INTERVAL_NEVER);
                 }
-
-                // If we've made a change, update the Mailbox, and kick
-                if (cv.containsKey(MailboxColumns.SYNC_INTERVAL)) {
-                    mResolver.update(ContentUris.withAppendedId(Mailbox.CONTENT_URI, contactsId),
-                            cv,null, null);
-                    kick("sync settings change");
-                }
+                // If not, set it to never check
+            } else if (syncInterval != Mailbox.CHECK_INTERVAL_NEVER) {
+                log("Sync for " + mailbox.mDisplayName + " in " + acct.name + ": manual");
+                cv.put(MailboxColumns.SYNC_INTERVAL, Mailbox.CHECK_INTERVAL_NEVER);
             }
+
+            // If we've made a change, update the Mailbox, and kick
+            if (cv.containsKey(MailboxColumns.SYNC_INTERVAL)) {
+                mResolver.update(ContentUris.withAppendedId(Mailbox.CONTENT_URI, mailboxId),
+                        cv,null, null);
+                kick("sync settings change");
+            }
+        }
+    }
+
+    /**
+     * Make our sync settings match those of AccountManager
+     */
+    private void checkPIMSyncSettings() {
+        List<Account> easAccounts = getAccountList();
+        for (Account easAccount: easAccounts) {
+            updatePIMSyncSettings(easAccount, Mailbox.TYPE_CONTACTS, ContactsContract.AUTHORITY);
+            updatePIMSyncSettings(easAccount, Mailbox.TYPE_CALENDAR, Calendar.AUTHORITY);
         }
     }
 
@@ -1559,6 +1654,7 @@ public class SyncManager extends Service implements Runnable {
                 resolver.unregisterContentObserver(mMailboxObserver);
                 resolver.unregisterContentObserver(mSyncedMessageObserver);
                 resolver.unregisterContentObserver(mMessageObserver);
+                unregisterCalendarObservers();
             }
             // Don't leak the Intent associated with this listener
             if (mAccountsUpdatedListener != null) {
@@ -1658,16 +1754,27 @@ public class SyncManager extends Service implements Runnable {
 
                     // We handle a few types of mailboxes specially
                     int type = c.getInt(Mailbox.CONTENT_TYPE_COLUMN);
-                    if (type == Mailbox.TYPE_CONTACTS) {
-                        // See if "sync automatically" is set
+                    if (type == Mailbox.TYPE_CONTACTS || type == Mailbox.TYPE_CALENDAR) {
+                        // Get the right authority for the mailbox
+                        String authority;
                         Account account =
                             getAccountById(c.getInt(Mailbox.CONTENT_ACCOUNT_KEY_COLUMN));
                         if (account != null) {
+                            if (type == Mailbox.TYPE_CONTACTS) {
+                                authority = ContactsContract.AUTHORITY;
+                            } else {
+                                authority = Calendar.AUTHORITY;
+                                if (!mCalendarObservers.containsKey(account.mId)){
+                                    // Make sure we have an observer for this Calendar, as
+                                    // we need to be able to detect sync state changes, sigh
+                                    registerCalendarObserver(account);
+                                }
+                            }
                             android.accounts.Account a =
                                 new android.accounts.Account(account.mEmailAddress,
                                         Email.EXCHANGE_ACCOUNT_MANAGER_TYPE);
-                            if (!ContentResolver.getSyncAutomatically(a,
-                                    ContactsContract.AUTHORITY)) {
+                            // See if "sync automatically" is set; if not, punt
+                            if (!ContentResolver.getSyncAutomatically(a, authority)) {
                                 continue;
                             }
                         }

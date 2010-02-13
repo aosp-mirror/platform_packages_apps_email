@@ -1635,4 +1635,72 @@ public class ProviderTests extends ProviderTestCase2<EmailProvider> {
         count = EmailContent.count(mMockContext, Body.CONTENT_URI, null, null);
         assertEquals(0, count);
     }
+
+    public void testFindMailboxOfType() {
+        final Context context = mMockContext;
+
+        // Create two accounts and a variety of mailbox types
+        Account acct1 = ProviderTestUtils.setupAccount("acct1", true, context);
+        Mailbox acct1Inbox =
+            ProviderTestUtils.setupMailbox("Inbox1", acct1.mId, true, context, Mailbox.TYPE_INBOX);
+        Mailbox acct1Calendar
+        = ProviderTestUtils.setupMailbox("Cal1", acct1.mId, true, context, Mailbox.TYPE_CALENDAR);
+        Mailbox acct1Contacts =
+            ProviderTestUtils.setupMailbox("Con1", acct1.mId, true, context, Mailbox.TYPE_CONTACTS);
+        Account acct2 = ProviderTestUtils.setupAccount("acct1", true, context);
+        Mailbox acct2Inbox =
+            ProviderTestUtils.setupMailbox("Inbox2", acct2.mId, true, context, Mailbox.TYPE_INBOX);
+        Mailbox acct2Calendar =
+            ProviderTestUtils.setupMailbox("Cal2", acct2.mId, true, context, Mailbox.TYPE_CALENDAR);
+        Mailbox acct2Contacts =
+            ProviderTestUtils.setupMailbox("Con2", acct2.mId, true, context, Mailbox.TYPE_CONTACTS);
+
+        // Check that we can find them by type
+        assertEquals(acct1Inbox.mId,
+                Mailbox.findMailboxOfType(context, acct1.mId, Mailbox.TYPE_INBOX));
+        assertEquals(acct2Inbox.mId,
+                Mailbox.findMailboxOfType(context, acct2.mId, Mailbox.TYPE_INBOX));
+        assertEquals(acct1Calendar.mId,
+                Mailbox.findMailboxOfType(context, acct1.mId, Mailbox.TYPE_CALENDAR));
+        assertEquals(acct2Calendar.mId,
+                Mailbox.findMailboxOfType(context, acct2.mId, Mailbox.TYPE_CALENDAR));
+        assertEquals(acct1Contacts.mId,
+                Mailbox.findMailboxOfType(context, acct1.mId, Mailbox.TYPE_CONTACTS));
+        assertEquals(acct2Contacts.mId,
+                Mailbox.findMailboxOfType(context, acct2.mId, Mailbox.TYPE_CONTACTS));
+    }
+
+    public void testRestoreMailboxOfType() {
+        final Context context = mMockContext;
+
+        // Create two accounts and a variety of mailbox types
+        Account acct1 = ProviderTestUtils.setupAccount("acct1", true, context);
+        Mailbox acct1Inbox =
+            ProviderTestUtils.setupMailbox("Inbox1", acct1.mId, true, context, Mailbox.TYPE_INBOX);
+        Mailbox acct1Calendar
+        = ProviderTestUtils.setupMailbox("Cal1", acct1.mId, true, context, Mailbox.TYPE_CALENDAR);
+        Mailbox acct1Contacts =
+            ProviderTestUtils.setupMailbox("Con1", acct1.mId, true, context, Mailbox.TYPE_CONTACTS);
+        Account acct2 = ProviderTestUtils.setupAccount("acct1", true, context);
+        Mailbox acct2Inbox =
+            ProviderTestUtils.setupMailbox("Inbox2", acct2.mId, true, context, Mailbox.TYPE_INBOX);
+        Mailbox acct2Calendar =
+            ProviderTestUtils.setupMailbox("Cal2", acct2.mId, true, context, Mailbox.TYPE_CALENDAR);
+        Mailbox acct2Contacts =
+            ProviderTestUtils.setupMailbox("Con2", acct2.mId, true, context, Mailbox.TYPE_CONTACTS);
+
+        // Check that we can find them by type
+        ProviderTestUtils.assertMailboxEqual("testRestoreMailboxOfType", acct1Inbox,
+                Mailbox.restoreMailboxOfType(context, acct1.mId, Mailbox.TYPE_INBOX));
+        ProviderTestUtils.assertMailboxEqual("testRestoreMailboxOfType", acct2Inbox,
+                Mailbox.restoreMailboxOfType(context, acct2.mId, Mailbox.TYPE_INBOX));
+        ProviderTestUtils.assertMailboxEqual("testRestoreMailboxOfType", acct1Calendar,
+                Mailbox.restoreMailboxOfType(context, acct1.mId, Mailbox.TYPE_CALENDAR));
+        ProviderTestUtils.assertMailboxEqual("testRestoreMailboxOfType", acct2Calendar,
+                Mailbox.restoreMailboxOfType(context, acct2.mId, Mailbox.TYPE_CALENDAR));
+        ProviderTestUtils.assertMailboxEqual("testRestoreMailboxOfType", acct1Contacts,
+                Mailbox.restoreMailboxOfType(context, acct1.mId, Mailbox.TYPE_CONTACTS));
+        ProviderTestUtils.assertMailboxEqual("testRestoreMailboxOfType", acct2Contacts,
+                Mailbox.restoreMailboxOfType(context, acct2.mId, Mailbox.TYPE_CONTACTS));
+    }
 }

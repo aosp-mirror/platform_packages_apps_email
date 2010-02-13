@@ -1937,6 +1937,17 @@ public abstract class EmailContent {
             }
             return mailboxId;
         }
+
+        /**
+         * Convenience method that returns the mailbox found using the method above
+         */
+        public static Mailbox restoreMailboxOfType(Context context, long accountId, int type) {
+            long mailboxId = findMailboxOfType(context, accountId, type);
+            if (mailboxId != Mailbox.NO_MAILBOX) {
+                return Mailbox.restoreMailboxWithId(context, mailboxId);
+            }
+            return null;
+        }
     }
 
     public interface HostAuthColumns {
