@@ -375,7 +375,7 @@ public class MailService extends Service {
     /* package */ PendingIntent createAlarmIntent(long checkId, long[] accountInfo,
             boolean isWatchdog) {
         Intent i = new Intent();
-        i.setClassName("com.android.email", "com.android.email.service.MailService");
+        i.setClass(this, MailService.class);
         i.setAction(ACTION_CHECK_MAIL);
         i.putExtra(EXTRA_CHECK_ACCOUNT, checkId);
         i.putExtra(EXTRA_ACCOUNT_INFO, accountInfo);
