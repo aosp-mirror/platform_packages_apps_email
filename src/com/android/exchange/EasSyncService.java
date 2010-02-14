@@ -17,7 +17,6 @@
 
 package com.android.exchange;
 
-import com.android.common.Base64;
 import com.android.email.SecurityPolicy;
 import com.android.email.SecurityPolicy.PolicySet;
 import com.android.email.mail.AuthenticationFailedException;
@@ -39,11 +38,11 @@ import com.android.exchange.adapter.ContactsSyncAdapter;
 import com.android.exchange.adapter.EmailSyncAdapter;
 import com.android.exchange.adapter.FolderSyncParser;
 import com.android.exchange.adapter.MeetingResponseParser;
+import com.android.exchange.adapter.Parser.EasParserException;
 import com.android.exchange.adapter.PingParser;
 import com.android.exchange.adapter.ProvisionParser;
 import com.android.exchange.adapter.Serializer;
 import com.android.exchange.adapter.Tags;
-import com.android.exchange.adapter.Parser.EasParserException;
 
 import org.apache.http.Header;
 import org.apache.http.HttpEntity;
@@ -76,6 +75,7 @@ import android.os.RemoteException;
 import android.os.SystemClock;
 import android.util.Log;
 import android.util.Xml;
+import android.util.base64.Base64;
 
 import java.io.ByteArrayOutputStream;
 import java.io.File;

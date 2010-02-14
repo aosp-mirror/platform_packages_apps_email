@@ -23,8 +23,6 @@ import com.android.email.mail.Message;
 import com.android.email.mail.MessagingException;
 import com.android.email.mail.Multipart;
 import com.android.email.mail.Part;
-import com.android.common.Base64;
-import com.android.common.Base64InputStream;
 
 import org.apache.commons.io.IOUtils;
 import org.apache.james.mime4j.codec.EncoderUtil;
@@ -33,6 +31,8 @@ import org.apache.james.mime4j.decoder.QuotedPrintableInputStream;
 import org.apache.james.mime4j.util.CharsetUtil;
 
 import android.util.Log;
+import android.util.base64.Base64;
+import android.util.base64.Base64InputStream;
 
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;

@@ -16,7 +16,7 @@
 
 package com.android.email;
 
-import com.android.common.Base64;
+import com.android.email.provider.EmailContent;
 import com.android.email.provider.EmailContent.Account;
 import com.android.email.provider.EmailContent.AccountColumns;
 import com.android.email.provider.EmailContent.HostAuth;
@@ -25,7 +25,6 @@ import com.android.email.provider.EmailContent.Mailbox;
 import com.android.email.provider.EmailContent.MailboxColumns;
 import com.android.email.provider.EmailContent.Message;
 import com.android.email.provider.EmailContent.MessageColumns;
-import com.android.email.provider.EmailContent;
 
 import android.content.ContentResolver;
 import android.content.Context;
@@ -33,6 +32,7 @@ import android.content.res.TypedArray;
 import android.database.Cursor;
 import android.graphics.drawable.Drawable;
 import android.text.Editable;
+import android.util.base64.Base64;
 import android.widget.TextView;
 
 import java.io.IOException;

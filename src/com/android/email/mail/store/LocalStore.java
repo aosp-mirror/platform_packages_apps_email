@@ -16,8 +16,6 @@
 
 package com.android.email.mail.store;
 
-import com.android.common.Base64;
-import com.android.common.Base64OutputStream;
 import com.android.email.Email;
 import com.android.email.Utility;
 import com.android.email.mail.Address;
@@ -25,13 +23,13 @@ import com.android.email.mail.Body;
 import com.android.email.mail.FetchProfile;
 import com.android.email.mail.Flag;
 import com.android.email.mail.Folder;
-import com.android.email.mail.Message.RecipientType;
 import com.android.email.mail.Message;
+import com.android.email.mail.Message.RecipientType;
 import com.android.email.mail.MessageRetrievalListener;
 import com.android.email.mail.MessagingException;
 import com.android.email.mail.Part;
-import com.android.email.mail.Store.PersistentDataCallbacks;
 import com.android.email.mail.Store;
+import com.android.email.mail.Store.PersistentDataCallbacks;
 import com.android.email.mail.internet.MimeBodyPart;
 import com.android.email.mail.internet.MimeHeader;
 import com.android.email.mail.internet.MimeMessage;
@@ -47,6 +45,8 @@ import android.database.Cursor;
 import android.database.sqlite.SQLiteDatabase;
 import android.net.Uri;
 import android.util.Log;
+import android.util.base64.Base64;
+import android.util.base64.Base64OutputStream;
 
 import java.io.ByteArrayInputStream;
 import java.io.File;

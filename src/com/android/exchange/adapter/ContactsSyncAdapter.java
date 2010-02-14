@@ -17,33 +17,25 @@
 
 package com.android.exchange.adapter;
 
-import com.android.common.Base64;
 import com.android.email.provider.EmailContent.Mailbox;
 import com.android.exchange.Eas;
 import com.android.exchange.EasSyncService;
 
 import android.content.ContentProviderClient;
 import android.content.ContentProviderOperation;
+import android.content.ContentProviderOperation.Builder;
 import android.content.ContentProviderResult;
 import android.content.ContentResolver;
 import android.content.ContentUris;
 import android.content.ContentValues;
 import android.content.Entity;
+import android.content.Entity.NamedContentValues;
 import android.content.EntityIterator;
 import android.content.OperationApplicationException;
-import android.content.ContentProviderOperation.Builder;
-import android.content.Entity.NamedContentValues;
 import android.database.Cursor;
 import android.net.Uri;
 import android.os.RemoteException;
 import android.provider.ContactsContract;
-import android.provider.SyncStateContract;
-import android.provider.ContactsContract.Data;
-import android.provider.ContactsContract.Groups;
-import android.provider.ContactsContract.RawContacts;
-import android.provider.ContactsContract.RawContactsEntity;
-import android.provider.ContactsContract.Settings;
-import android.provider.ContactsContract.SyncState;
 import android.provider.ContactsContract.CommonDataKinds.Email;
 import android.provider.ContactsContract.CommonDataKinds.Event;
 import android.provider.ContactsContract.CommonDataKinds.GroupMembership;
@@ -57,9 +49,17 @@ import android.provider.ContactsContract.CommonDataKinds.Relation;
 import android.provider.ContactsContract.CommonDataKinds.StructuredName;
 import android.provider.ContactsContract.CommonDataKinds.StructuredPostal;
 import android.provider.ContactsContract.CommonDataKinds.Website;
+import android.provider.ContactsContract.Data;
+import android.provider.ContactsContract.Groups;
+import android.provider.ContactsContract.RawContacts;
+import android.provider.ContactsContract.RawContactsEntity;
+import android.provider.ContactsContract.Settings;
+import android.provider.ContactsContract.SyncState;
+import android.provider.SyncStateContract;
 import android.text.util.Rfc822Token;
 import android.text.util.Rfc822Tokenizer;
 import android.util.Log;
+import android.util.base64.Base64;
 
 import java.io.IOException;
 import java.io.InputStream;

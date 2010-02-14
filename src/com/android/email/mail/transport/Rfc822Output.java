@@ -16,8 +16,6 @@
 
 package com.android.email.mail.transport;
 
-import com.android.common.Base64;
-import com.android.common.Base64OutputStream;
 import com.android.email.mail.Address;
 import com.android.email.mail.MessagingException;
 import com.android.email.mail.internet.MimeUtility;
@@ -31,6 +29,8 @@ import android.content.ContentUris;
 import android.content.Context;
 import android.database.Cursor;
 import android.net.Uri;
+import android.util.base64.Base64;
+import android.util.base64.Base64OutputStream;
 
 import java.io.BufferedOutputStream;
 import java.io.FileNotFoundException;

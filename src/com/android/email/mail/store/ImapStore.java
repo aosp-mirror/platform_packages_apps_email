@@ -16,7 +16,6 @@
 
 package com.android.email.mail.store;
 
-import com.android.common.Base64;
 import com.android.email.Email;
 import com.android.email.Preferences;
 import com.android.email.Utility;
@@ -49,6 +48,7 @@ import android.os.Build;
 import android.telephony.TelephonyManager;
 import android.util.Config;
 import android.util.Log;
+import android.util.base64.Base64;
 
 import java.io.IOException;
 import java.io.InputStream;

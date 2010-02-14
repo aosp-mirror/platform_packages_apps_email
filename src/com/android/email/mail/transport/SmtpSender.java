@@ -16,7 +16,6 @@
 
 package com.android.email.mail.transport;
 
-import com.android.common.Base64;
 import com.android.email.Email;
 import com.android.email.mail.Address;
 import com.android.email.mail.AuthenticationFailedException;
@@ -29,6 +28,7 @@ import com.android.email.provider.EmailContent.Message;
 import android.content.Context;
 import android.util.Config;
 import android.util.Log;
+import android.util.base64.Base64;
 
 import java.io.IOException;
 import java.net.InetAddress;

@@ -16,8 +16,6 @@
 
 package com.android.email.mail.internet;
 
-import com.android.common.Base64;
-import com.android.common.Base64OutputStream;
 import com.android.email.Email;
 import com.android.email.mail.Body;
 import com.android.email.mail.MessagingException;
@@ -26,6 +24,8 @@ import org.apache.commons.io.IOUtils;
 
 import android.util.Config;
 import android.util.Log;
+import android.util.base64.Base64;
+import android.util.base64.Base64OutputStream;
 
 import java.io.File;
 import java.io.FileInputStream;
