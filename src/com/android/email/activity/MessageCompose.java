@@ -52,6 +52,7 @@ import android.provider.OpenableColumns;
 import android.text.InputFilter;
 import android.text.SpannableStringBuilder;
 import android.text.Spanned;
+import android.text.TextUtils;
 import android.text.TextWatcher;
 import android.text.util.Rfc822Tokenizer;
 import android.util.Log;
@@ -326,6 +327,7 @@ public class MessageCompose extends Activity implements OnClickListener, OnFocus
                 mMessageLoaded = true;
                 mSourceMessageProcessed = true;
             }
+            setInitialComposeText(null, (mAccount != null) ? mAccount.mSignature : null);
         }
 
         if (ACTION_REPLY.equals(mAction) || ACTION_REPLY_ALL.equals(mAction) ||
@@ -549,6 +551,7 @@ public class MessageCompose extends Activity implements OnClickListener, OnFocus
         mSaveButton.setOnClickListener(this);
 
         mSubjectView.setOnFocusChangeListener(this);
+        mMessageContentView.setOnFocusChangeListener(this);
     }
 
     // TODO: is there any way to unify this with MessageView.LoadMessageTask?
@@ -647,6 +650,11 @@ public class MessageCompose extends Activity implements OnClickListener, OnFocus
     public void onFocusChange(View view, boolean focused) {
         if (!focused) {
             updateTitle();
+        } else {
+            switch (view.getId()) {
+                case R.id.message_content:
+                    setMessageContentSelection((mAccount != null) ? mAccount.mSignature : null);
+            }
         }
     }
 
@@ -1118,6 +1126,25 @@ public class MessageCompose extends Activity implements OnClickListener, OnFocus
 //     }
 
     /**
+     * Set a message body and a signature when the Activity is launched.
+     *
+     * @param text the message body
+     */
+    /* package */ void setInitialComposeText(CharSequence text, String signature) {
+        int textLength = 0;
+        if (text != null) {
+            mMessageContentView.append(text);
+            textLength = text.length();
+        }
+        if (!TextUtils.isEmpty(signature)) {
+            if (textLength == 0 || text.charAt(textLength - 1) != '\n') {
+                mMessageContentView.append("\n");
+            }
+            mMessageContentView.append(signature);
+        }
+    }
+
+    /**
      * Fill all the widgets with the content found in the Intent Extra, if any.
      *
      * Note that we don't actually check the intent action  (typically VIEW, SENDTO, or SEND).
@@ -1170,7 +1197,7 @@ public class MessageCompose extends Activity implements OnClickListener, OnFocus
 
         CharSequence text = intent.getCharSequenceExtra(Intent.EXTRA_TEXT);
         if (text != null) {
-            mMessageContentView.setText(text);
+            setInitialComposeText(text, null);
         }
 
         // Next, convert EXTRA_STREAM into an attachment
@@ -1260,7 +1287,7 @@ public class MessageCompose extends Activity implements OnClickListener, OnFocus
 
         List<String> body = uri.getQueryParameters("body");
         if (body.size() > 0) {
-            mMessageContentView.setText(body.get(0));
+            setInitialComposeText(body.get(0), (mAccount != null) ? mAccount.mSignature : null);
         }
     }
 
@@ -1412,6 +1439,34 @@ public class MessageCompose extends Activity implements OnClickListener, OnFocus
     }
 
     /**
+     * Set a cursor to the end of a body except a signature
+     */
+    /* package */ void setMessageContentSelection(String signature) {
+        // when selecting the message content, explicitly move IP to the end of the message,
+        // so you can quickly resume typing into a draft
+        int selection = mMessageContentView.length();
+        if (!TextUtils.isEmpty(signature)) {
+            int signatureLength = signature.length();
+            int estimatedSelection = selection - signatureLength;
+            if (estimatedSelection >= 0) {
+                CharSequence text = mMessageContentView.getText();
+                int i = 0;
+                while (i < signatureLength
+                       && text.charAt(estimatedSelection + i) == signature.charAt(i)) {
+                    ++i;
+                }
+                if (i == signatureLength) {
+                    selection = estimatedSelection;
+                    while (selection > 0 && text.charAt(selection - 1) == '\n') {
+                        --selection;
+                    }
+                }
+            }
+        }
+        mMessageContentView.setSelection(selection, selection);
+    }
+
+    /**
      * In order to accelerate typing, position the cursor in the first empty field,
      * or at the end of the body composition field if none are empty.  Typically, this will
      * play out as follows:
@@ -1426,10 +1481,7 @@ public class MessageCompose extends Activity implements OnClickListener, OnFocus
             mSubjectView.requestFocus();
         } else {
             mMessageContentView.requestFocus();
-            // when selecting the message content, explicitly move IP to the end, so you can
-            // quickly resume typing into a draft
-            int selection = mMessageContentView.length();
-            mMessageContentView.setSelection(selection, selection);
+            setMessageContentSelection((mAccount != null) ? mAccount.mSignature : null);
         }
     }
 

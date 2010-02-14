@@ -50,6 +50,7 @@ public class MessageComposeInstrumentationTests
     private EditText mSubjectView;
     private EditText mMessageView;
     private long mCreatedAccountId = -1;
+    private String mSignature;
 
     private static final String SENDER = "sender@android.com";
     private static final String REPLYTO = "replyto@android.com";
@@ -60,6 +61,7 @@ public class MessageComposeInstrumentationTests
     private static final String BODY = "This is the body.  This is also the body.";
     private static final String REPLY_BODY_SHORT = "\n\n" + SENDER + " wrote:\n\n";
     private static final String REPLY_BODY = REPLY_BODY_SHORT + ">" + BODY;
+    private static final String SIGNATURE = "signature";
 
     private static final String FROM = "Fred From <from@google.com>";
     private static final String TO1 = "First To <first.to@google.com>";
@@ -126,7 +128,8 @@ public class MessageComposeInstrumentationTests
             accountId = account.mId;
             mCreatedAccountId = accountId;
         }
-        Account.restoreAccountWithId(context, accountId);
+        Account account = Account.restoreAccountWithId(context, accountId);
+        mSignature = account.getSignature();
         Email.setServicesEnabled(context);
 
         Intent intent = new Intent(Intent.ACTION_VIEW);
@@ -183,7 +186,7 @@ public class MessageComposeInstrumentationTests
         runTestOnUiThread(new Runnable() {
             public void run() {
                 a.processSourceMessage(message, null);
-                checkFields(SENDER + ", ", null, null, "Re: " + SUBJECT, null);
+                checkFields(SENDER + ", ", null, null, "Re: " + SUBJECT, null, null);
                 checkFocused(mMessageView);
             }
         });
@@ -195,7 +198,7 @@ public class MessageComposeInstrumentationTests
             public void run() {
                 resetViews();
                 a.processSourceMessage(message, null);
-                checkFields(REPLYTO + ", ", null, null, "Re: " + SUBJECT, null);
+                checkFields(REPLYTO + ", ", null, null, "Re: " + SUBJECT, null, null);
                 checkFocused(mMessageView);
             }
         });
@@ -214,7 +217,7 @@ public class MessageComposeInstrumentationTests
         runTestOnUiThread(new Runnable() {
             public void run() {
                 a.processSourceMessage(message, null);
-                checkFields(UTF16_SENDER + ", ", null, null, "Re: " + UTF16_SUBJECT, null);
+                checkFields(UTF16_SENDER + ", ", null, null, "Re: " + UTF16_SUBJECT, null, null);
                 checkFocused(mMessageView);
             }
         });
@@ -226,7 +229,7 @@ public class MessageComposeInstrumentationTests
             public void run() {
                 resetViews();
                 a.processSourceMessage(message, null);
-                checkFields(UTF16_REPLYTO + ", ", null, null, "Re: " + UTF16_SUBJECT, null);
+                checkFields(UTF16_REPLYTO + ", ", null, null, "Re: " + UTF16_SUBJECT, null, null);
                 checkFocused(mMessageView);
             }
         });
@@ -245,7 +248,7 @@ public class MessageComposeInstrumentationTests
         runTestOnUiThread(new Runnable() {
             public void run() {
                 a.processSourceMessage(message, null);
-                checkFields(UTF32_SENDER + ", ", null, null, "Re: " + UTF32_SUBJECT, null);
+                checkFields(UTF32_SENDER + ", ", null, null, "Re: " + UTF32_SUBJECT, null, null);
                 checkFocused(mMessageView);
             }
         });
@@ -257,7 +260,7 @@ public class MessageComposeInstrumentationTests
             public void run() {
                 resetViews();
                 a.processSourceMessage(message, null);
-                checkFields(UTF32_REPLYTO + ", ", null, null, "Re: " + UTF32_SUBJECT, null);
+                checkFields(UTF32_REPLYTO + ", ", null, null, "Re: " + UTF32_SUBJECT, null, null);
                 checkFocused(mMessageView);
             }
         });
@@ -278,7 +281,7 @@ public class MessageComposeInstrumentationTests
         runTestOnUiThread(new Runnable() {
             public void run() {
                 a.processSourceMessage(message, null);
-                checkFields(null, null, null, "Fwd: " + SUBJECT, null);
+                checkFields(null, null, null, "Fwd: " + SUBJECT, null, null);
                 checkFocused(mToView);
             }
         });
@@ -303,7 +306,7 @@ public class MessageComposeInstrumentationTests
         runTestOnUiThread(new Runnable() {
             public void run() {
                 a.processSourceMessage(message, null);
-                checkFields(RECIPIENT_TO + ", ", null, null, SUBJECT, BODY);
+                checkFields(RECIPIENT_TO + ", ", null, null, SUBJECT, BODY, null);
                 checkFocused(mMessageView);
             }
         });
@@ -316,7 +319,7 @@ public class MessageComposeInstrumentationTests
             public void run() {
                 resetViews();
                 a.processSourceMessage(message, null);
-                checkFields(RECIPIENT_TO + ", ", null, null, null, BODY);
+                checkFields(RECIPIENT_TO + ", ", null, null, null, BODY, null);
                 checkFocused(mSubjectView);
             }
         });
@@ -339,7 +342,7 @@ public class MessageComposeInstrumentationTests
             public void run() {
                 a.processSourceMessage(message, null);
                 checkFields(UTF16_RECIPIENT_TO + ", ",
-                        null, null, UTF16_SUBJECT, UTF16_BODY);
+                        null, null, UTF16_SUBJECT, UTF16_BODY, null);
                 checkFocused(mMessageView);
             }
         });
@@ -352,7 +355,7 @@ public class MessageComposeInstrumentationTests
             public void run() {
                 resetViews();
                 a.processSourceMessage(message, null);
-                checkFields(UTF16_RECIPIENT_TO + ", ", null, null, null, UTF16_BODY);
+                checkFields(UTF16_RECIPIENT_TO + ", ", null, null, null, UTF16_BODY, null);
                 checkFocused(mSubjectView);
             }
         });
@@ -375,7 +378,7 @@ public class MessageComposeInstrumentationTests
             public void run() {
                 a.processSourceMessage(message, null);
                 checkFields(UTF32_RECIPIENT_TO + ", ",
-                        null, null, UTF32_SUBJECT, UTF32_BODY);
+                        null, null, UTF32_SUBJECT, UTF32_BODY, null);
                 checkFocused(mMessageView);
             }
         });
@@ -388,7 +391,7 @@ public class MessageComposeInstrumentationTests
             public void run() {
                 resetViews();
                 a.processSourceMessage(message, null);
-                checkFields(UTF32_RECIPIENT_TO + ", ", null, null, null, UTF32_BODY);
+                checkFields(UTF32_RECIPIENT_TO + ", ", null, null, null, UTF32_BODY, null);
                 checkFocused(mSubjectView);
             }
         });
@@ -555,7 +558,7 @@ public class MessageComposeInstrumentationTests
         runTestOnUiThread(new Runnable() {
             public void run() {
                 a.initFromIntent(i2);
-                checkFields(RECIPIENT_TO + ", ", RECIPIENT_CC, RECIPIENT_BCC, SUBJECT, null);
+                checkFields(RECIPIENT_TO + ", ", RECIPIENT_CC, RECIPIENT_BCC, SUBJECT, null, null);
                 checkFocused(mMessageView);
             }
         });
@@ -579,7 +582,7 @@ public class MessageComposeInstrumentationTests
             public void run() {
                 a.initFromIntent(i2);
                 checkFields(UTF16_RECIPIENT_TO + ", ",
-                        UTF16_RECIPIENT_CC, UTF16_RECIPIENT_BCC, UTF16_SUBJECT, null);
+                        UTF16_RECIPIENT_CC, UTF16_RECIPIENT_BCC, UTF16_SUBJECT, null, null);
                 checkFocused(mMessageView);
             }
         });
@@ -603,7 +606,7 @@ public class MessageComposeInstrumentationTests
             public void run() {
                 a.initFromIntent(i2);
                 checkFields(UTF32_RECIPIENT_TO + ", ",
-                        UTF32_RECIPIENT_CC, UTF32_RECIPIENT_BCC, UTF32_SUBJECT, null);
+                        UTF32_RECIPIENT_CC, UTF32_RECIPIENT_BCC, UTF32_SUBJECT, null, null);
                 checkFocused(mMessageView);
             }
         });
@@ -625,7 +628,7 @@ public class MessageComposeInstrumentationTests
         runTestOnUiThread(new Runnable() {
             public void run() {
                 a.initFromIntent(i2);
-                checkFields(null, null, null, null, BODY);
+                checkFields(null, null, null, null, BODY, null);
                 checkFocused(mToView);
             }
         });
@@ -649,7 +652,7 @@ public class MessageComposeInstrumentationTests
         runTestOnUiThread(new Runnable() {
             public void run() {
                 a.initFromIntent(i2);
-                checkFields(RECIPIENT_TO + ", ", null, null, "This is the subject", null);
+                checkFields(RECIPIENT_TO + ", ", null, null, "This is the subject", null, null);
                 checkFocused(mMessageView);
             }
         });
@@ -670,8 +673,10 @@ public class MessageComposeInstrumentationTests
      * @param bcc expected value (null = it must be empty)
      * @param subject expected value (null = it must be empty)
      * @param content expected value (null = it must be empty)
+     * @param signature expected value (null = it must be empty)
      */
-    private void checkFields(String to, String cc, String bcc, String subject, String content) {
+    private void checkFields(String to, String cc, String bcc, String subject, String content,
+            String signature) {
         String toText = mToView.getText().toString();
         if (to == null) {
             assertEquals(0, toText.length());
@@ -690,6 +695,13 @@ public class MessageComposeInstrumentationTests
         if (content == null) {
             assertEquals(0, contentText.length());
         } else {
+            if (signature != null) {
+                int textLength = content.length();
+                if (textLength == 0 || content.charAt(textLength - 1) != '\n') {
+                    content += "\n";
+                }
+                content += signature;
+            }
             assertEquals(content, contentText);
         }
     }
@@ -779,6 +791,49 @@ public class MessageComposeInstrumentationTests
         assertNotNull(mToView.getError());
         assertFalse(messageCompose.isAddressAllValid());
         assertEquals("a@b.c, foo, ", mToView.getText().toString());
+    }
+
+    /**
+     * Check message and selection with/without signature.
+     */
+    public void testSetInitialComposeTextAndSelection() throws MessagingException, Throwable {
+        final Message msg = buildTestMessage(null, null, null, BODY);
+        final Intent intent = new Intent(ACTION_EDIT_DRAFT);
+        final Account account = new Account();
+        final MessageCompose a = getActivity();
+        a.setIntent(intent);
+
+        runTestOnUiThread(new Runnable() {
+            public void run() {
+                resetViews();
+                a.setInitialComposeText(BODY, SIGNATURE);
+                checkFields(null, null, null, null, BODY, SIGNATURE);
+                a.setMessageContentSelection(SIGNATURE);
+                assertEquals(BODY.length(), mMessageView.getSelectionStart());
+            }
+        });
+
+        runTestOnUiThread(new Runnable() {
+            public void run() {
+                resetViews();
+                a.setInitialComposeText(BODY, null);
+                checkFields(null, null, null, null, BODY, null);
+                a.setMessageContentSelection(null);
+                assertEquals(BODY.length(), mMessageView.getSelectionStart());
+            }
+        });
+
+        runTestOnUiThread(new Runnable() {
+            public void run() {
+                resetViews();
+                final String body2 = BODY + "\n\na\n\n";
+                a.setInitialComposeText(body2, SIGNATURE);
+                checkFields(null, null, null, null, body2, SIGNATURE);
+                a.setMessageContentSelection(SIGNATURE);
+                assertEquals(BODY.length() + 3, mMessageView.getSelectionStart());
+            }
+        });
+
     }
 
     /**
