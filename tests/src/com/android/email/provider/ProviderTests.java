@@ -605,6 +605,8 @@ public class ProviderTests extends ProviderTestCase2<EmailProvider> {
                 Body.restoreReplyHtmlWithMessageId(mMockContext, messageId));
         assertEquals(message1.mIntroText,
                 Body.restoreIntroTextWithMessageId(mMockContext, messageId));
+        assertEquals(message1.mSourceKey,
+                Body.restoreBodySourceKey(mMockContext, messageId));
     }
 
     /**

@@ -577,6 +577,8 @@ public class MessageCompose extends Activity implements OnClickListener, OnFocus
                         Body.restoreReplyTextWithMessageId(MessageCompose.this, message.mId);
                     message.mIntroText =
                         Body.restoreIntroTextWithMessageId(MessageCompose.this, message.mId);
+                    message.mSourceKey = Body.restoreBodySourceKey(MessageCompose.this,
+                                                                   message.mId);
                 } else {
                     message.mHtmlReply = null;
                     message.mTextReply = null;
@@ -759,8 +761,7 @@ public class MessageCompose extends Activity implements OnClickListener, OnFocus
                     || ACTION_FORWARD.equals(mAction)) {
                 message.mSourceKey = mSource.mId;
                 // Get the body of the source message here
-                // Note that the following commented line will be useful when we use HTML in replies
-                //message.mHtmlReply = mSource.mHtml;
+                message.mHtmlReply = mSource.mHtml;
                 message.mTextReply = mSource.mText;
             }
 
@@ -842,6 +843,7 @@ public class MessageCompose extends Activity implements OnClickListener, OnFocus
                         values.put(BodyColumns.TEXT_REPLY, mDraft.mTextReply);
                         values.put(BodyColumns.HTML_REPLY, mDraft.mHtmlReply);
                         values.put(BodyColumns.INTRO_TEXT, mDraft.mIntroText);
+                        values.put(BodyColumns.SOURCE_MESSAGE_KEY, mDraft.mSourceKey);
                         Body.updateBodyWithMessageId(MessageCompose.this, mDraft.mId, values);
                     } else {
                         // mDraft.mId is set upon return of saveToMailbox()
@@ -1031,6 +1033,7 @@ public class MessageCompose extends Activity implements OnClickListener, OnFocus
                 mDraft.mIntroText = null;
                 mDraft.mTextReply = null;
                 mDraft.mHtmlReply = null;
+                mDraft.mSourceKey = 0;
                 setDraftNeedsSaving(true);
                 break;
         }

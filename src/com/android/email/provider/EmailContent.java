@@ -228,6 +228,9 @@ public abstract class EmailContent {
         };
         public static final int COMMON_PROJECTION_COLUMN_TEXT = 1;
 
+        private static final String[] PROJECTION_SOURCE_KEY =
+            new String[] { BodyColumns.SOURCE_MESSAGE_KEY };
+
         public long mMessageKey;
         public String mHtmlContent;
         public String mTextContent;
@@ -310,6 +313,21 @@ public abstract class EmailContent {
             } else {
                 final Uri uri = ContentUris.withAppendedId(CONTENT_URI, bodyId);
                 resolver.update(uri, values, null, null);
+            }
+        }
+
+        public static long restoreBodySourceKey(Context context, long messageId) {
+            Cursor c = context.getContentResolver().query(Body.CONTENT_URI,
+                    Body.PROJECTION_SOURCE_KEY,
+                    Body.MESSAGE_KEY + "=?", new String[] {Long.toString(messageId)}, null);
+            try {
+                if (c.moveToFirst()) {
+                    return c.getLong(0);
+                } else {
+                    return 0;
+                }
+            } finally {
+                c.close();
             }
         }
 
