@@ -92,6 +92,16 @@ public class CalendarUtilitiesTests extends AndroidTestCase {
         assertNull(CalendarUtilities.tokenFromRrule(rrule, "UNTIL="));
     }
 
+    public void testRecurrenceUntilToEasUntil() {
+        // Test full format
+        assertEquals("YYYY-MM-DDTHH:MM:SS.000Z",
+                CalendarUtilities.recurrenceUntilToEasUntil("YYYYMMDDTHHMMSSZ"));
+        // Test date only format
+        assertEquals("YYYY-MM-DDT00:00:00.000Z",
+                CalendarUtilities.recurrenceUntilToEasUntil("YYYYMMDD"));
+    }
+
+
     // Tests in progress...
 
 //    public void testTimeZoneToTziString() {

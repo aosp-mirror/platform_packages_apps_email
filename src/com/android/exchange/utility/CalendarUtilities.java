@@ -584,6 +584,40 @@ public class CalendarUtilities {
     }
 
     /**
+     * Reformat an RRULE style UNTIL to an EAS style until
+     */
+    static String recurrenceUntilToEasUntil(String until) {
+        StringBuilder sb = new StringBuilder();
+        sb.append(until.substring(0, 4));
+        sb.append('-');
+        sb.append(until.substring(4, 6));
+        sb.append('-');
+        if (until.length() == 8) {
+            sb.append(until.substring(6, 8));
+            sb.append("T00:00:00");
+
+        } else {
+            sb.append(until.substring(6, 11));
+            sb.append(':');
+            sb.append(until.substring(11, 13));
+            sb.append(':');
+            sb.append(until.substring(13, 15));
+        }
+        sb.append(".000Z");
+        return sb.toString();
+    }
+
+    /**
+     * Convenience method to add "until" to an EAS calendar stream
+     */
+    static void addUntil(String rrule, Serializer s) throws IOException {
+        String until = tokenFromRrule(rrule, "UNTIL=");
+        if (until != null) {
+            s.data(Tags.CALENDAR_RECURRENCE_UNTIL, recurrenceUntilToEasUntil(until));
+        }
+    }
+
+    /**
      * Write recurrence information to EAS based on the RRULE in CalendarProvider
      * @param rrule the RRULE, from CalendarProvider
      * @param startTime, the DTSTART of this Event
@@ -615,6 +649,7 @@ public class CalendarUtilities {
                 if (byDay != null) {
                     s.data(Tags.CALENDAR_RECURRENCE_DAYOFWEEK, generateEasDayOfWeek(byDay));
                 }
+                addUntil(rrule, s);
                 s.end();
             } else if (freq.equals("MONTHLY")) {
                 String byMonthDay = tokenFromRrule(rrule, "BYMONTHDAY=");
@@ -623,6 +658,7 @@ public class CalendarUtilities {
                     s.start(Tags.CALENDAR_RECURRENCE);
                     s.data(Tags.CALENDAR_RECURRENCE_TYPE, "2");
                     s.data(Tags.CALENDAR_RECURRENCE_DAYOFMONTH, byMonthDay);
+                    addUntil(rrule, s);
                     s.end();
                 } else {
                     String byDay = tokenFromRrule(rrule, "BYDAY=");
@@ -642,6 +678,7 @@ public class CalendarUtilities {
                         s.data(Tags.CALENDAR_RECURRENCE_TYPE, "3");
                         s.data(Tags.CALENDAR_RECURRENCE_WEEKOFMONTH, Integer.toString(wom));
                         s.data(Tags.CALENDAR_RECURRENCE_DAYOFWEEK, generateEasDayOfWeek(bareByDay));
+                        addUntil(rrule, s);
                         s.end();
                     }
                 }
@@ -660,6 +697,7 @@ public class CalendarUtilities {
                 s.data(Tags.CALENDAR_RECURRENCE_TYPE, "5");
                 s.data(Tags.CALENDAR_RECURRENCE_DAYOFMONTH, byMonthDay);
                 s.data(Tags.CALENDAR_RECURRENCE_MONTHOFYEAR, byMonth);
+                addUntil(rrule, s);
                 s.end();
             }
         }
@@ -717,10 +755,8 @@ public class CalendarUtilities {
         }
 
         // UNTIL comes last
-        // TODO Add UNTIL code
         if (until != null) {
-            // *** until probably needs reformatting
-            //rrule.append(";UNTIL=" + until);
+            rrule.append(";UNTIL=" + until);
         }
 
         return rrule.toString();
