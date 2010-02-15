@@ -488,7 +488,8 @@ public class MessageView extends Activity implements OnClickListener {
             long messageIdToDelete = mMessageId;
             boolean moved = moveToOlder() || moveToNewer();
             mController.deleteMessage(messageIdToDelete, mMessage.mAccountKey);
-            Toast.makeText(this, R.string.message_deleted_toast, Toast.LENGTH_SHORT).show();
+            Toast.makeText(this, getResources().getQuantityString(R.plurals.message_deleted_toast,
+                    1), Toast.LENGTH_SHORT).show();
             if (!moved) {
                 // this generates a benign warning "Duplicate finish request" because
                 // repositionMessageListCursor() will fail to reposition and do its own finish()

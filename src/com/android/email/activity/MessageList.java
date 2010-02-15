@@ -32,7 +32,6 @@ import com.android.email.provider.EmailContent.MailboxColumns;
 import com.android.email.provider.EmailContent.MessageColumns;
 import com.android.email.service.MailService;
 
-import android.app.Activity;
 import android.app.ListActivity;
 import android.app.NotificationManager;
 import android.content.ContentResolver;
@@ -58,7 +57,6 @@ import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
-import android.view.Window;
 import android.view.ContextMenu.ContextMenuInfo;
 import android.view.View.OnClickListener;
 import android.view.animation.AnimationUtils;
@@ -637,7 +635,8 @@ public class MessageList extends ListActivity implements OnItemClickListener, On
 
     private void onDelete(long messageId, long accountId) {
         mController.deleteMessage(messageId, accountId);
-        Toast.makeText(this, R.string.message_deleted_toast, Toast.LENGTH_SHORT).show();
+        Toast.makeText(this, getResources().getQuantityString(
+                R.plurals.message_deleted_toast, 1), Toast.LENGTH_SHORT).show();
     }
 
     private void onSetMessageRead(long messageId, boolean newRead) {
@@ -701,8 +700,8 @@ public class MessageList extends ListActivity implements OnItemClickListener, On
         for (Long id : cloneSet) {
             mController.deleteMessage(id, -1);
         }
-        // TODO: count messages and show "n messages deleted"
-        Toast.makeText(this, R.string.message_deleted_toast, Toast.LENGTH_SHORT).show();
+        Toast.makeText(this, getResources().getQuantityString(
+                R.plurals.message_deleted_toast, cloneSet.size()), Toast.LENGTH_SHORT).show();
         selectedSet.clear();
         showMultiPanel(false);
     }

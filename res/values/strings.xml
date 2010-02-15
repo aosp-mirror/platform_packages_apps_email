@@ -150,7 +150,7 @@
         <!-- Case of plural number of accounts with unread messages. -->
         <item quantity="other">in <xliff:g id="number_accounts" example="10">%d</xliff:g> accounts</item>
     </plurals>
-        
+
     <!-- The next set of strings are used server-side and must not be localized. -->
     <!-- Do Not Translate.  This is the name of the "inbox" folder, on the server. -->
     <string name="mailbox_name_server_inbox">Inbox</string>
@@ -261,7 +261,10 @@
     <!-- Appears progress dialog for fetching attachment -->
     <string name="message_view_fetching_attachment_progress">Fetching attachment <xliff:g id="filename">%s</xliff:g></string>
     <!-- Toast shown briefly while deleting a message -->
-    <string name="message_deleted_toast">Message deleted.</string>
+    <plurals name="message_deleted_toast">
+        <item quantity="one">Message <xliff:g id="deleted.">deleted.</xliff:g></item>
+        <item quantity="other">Messages <xliff:g id="deleted.">deleted.</xliff:g></item>
+    </plurals>
     <!-- Toast shown briefly while deleting an unsent (draft) message -->
     <string name="message_discarded_toast">Message discarded.</string>
     <!-- Toast shown briefly while saving a draft -->
