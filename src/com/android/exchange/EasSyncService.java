@@ -1098,7 +1098,9 @@ public class EasSyncService extends AbstractSyncService {
             }
 
             // Determine our protocol version, if we haven't already and save it in the Account
-            if (mAccount.mProtocolVersion == null) {
+            // Also re-check protocol version at least once a day (in case of upgrade)
+            if (mAccount.mProtocolVersion == null ||
+                    ((System.currentTimeMillis() - mMailbox.mSyncTime) > DAYS)) {
                 userLog("Determine EAS protocol version");
                 HttpResponse resp = sendHttpClientOptions();
                 int code = resp.getStatusLine().getStatusCode();
@@ -1116,8 +1118,13 @@ public class EasSyncService extends AbstractSyncService {
                         mAccount.mProtocolVersion = mProtocolVersion;
                         // Save the protocol version
                         cv.clear();
+                        // Save the protocol version in the account
                         cv.put(Account.PROTOCOL_VERSION, mProtocolVersion);
                         mAccount.update(mContext, cv);
+                        cv.clear();
+                        // Save the sync time of the account mailbox to current time
+                        cv.put(Mailbox.SYNC_TIME, System.currentTimeMillis());
+                        mMailbox.update(mContext, cv);
                         userLog(versions);
                         userLog("Using version ", mProtocolVersion);
                     } else {
