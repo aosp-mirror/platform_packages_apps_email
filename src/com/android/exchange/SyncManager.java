@@ -21,7 +21,7 @@ import com.android.email.AccountBackupRestore;
 import com.android.email.Email;
 import com.android.email.SecurityPolicy;
 import com.android.email.mail.MessagingException;
-import com.android.email.mail.store.TrustManagerFactory;
+import com.android.email.mail.transport.SSLUtils;
 import com.android.email.provider.EmailContent;
 import com.android.email.provider.EmailContent.Account;
 import com.android.email.provider.EmailContent.Attachment;
@@ -1054,30 +1054,16 @@ public class SyncManager extends Service implements Runnable {
                     PlainSocketFactory.getSocketFactory(), 80));
             registry.register(new Scheme("https", SSLSocketFactory.getSocketFactory(), 443));
 
-            // Create a new SSLSocketFactory for our "trusted ssl"
-            // Get the unsecure trust manager from the factory
-            X509TrustManager trustManager = TrustManagerFactory.get(null, false);
-            TrustManager[] trustManagers = new TrustManager[] {trustManager};
-            SSLContext sslcontext;
-            try {
-                sslcontext = SSLContext.getInstance("TLS");
-                try {
-                    sslcontext.init(null, trustManagers, null);
-                } catch (KeyManagementException e) {
-                    throw new AssertionError(e);
-                }
-                // Ok, now make our factory
-                SSLSocketFactory sf = new SSLSocketFactory(sslcontext.getSocketFactory());
-                sf.setHostnameVerifier(SSLSocketFactory.ALLOW_ALL_HOSTNAME_VERIFIER);
-                // Register the httpts scheme with our factory
-                registry.register(new Scheme("httpts", sf, 443));
-                // And create a ccm with our registry
-                HttpParams params = new BasicHttpParams();
-                params.setIntParameter(ConnManagerPNames.MAX_TOTAL_CONNECTIONS, 25);
-                params.setParameter(ConnManagerPNames.MAX_CONNECTIONS_PER_ROUTE, sConnPerRoute);
-                sClientConnectionManager = new ThreadSafeClientConnManager(params, registry);
-            } catch (NoSuchAlgorithmException e2) {
-            }
+            // Use "insecure" socket factory.
+            SSLSocketFactory sf = new SSLSocketFactory(SSLUtils.getSSLSocketFactory(true));
+            sf.setHostnameVerifier(SSLSocketFactory.ALLOW_ALL_HOSTNAME_VERIFIER);
+            // Register the httpts scheme with our factory
+            registry.register(new Scheme("httpts", sf, 443));
+            // And create a ccm with our registry
+            HttpParams params = new BasicHttpParams();
+            params.setIntParameter(ConnManagerPNames.MAX_TOTAL_CONNECTIONS, 25);
+            params.setParameter(ConnManagerPNames.MAX_CONNECTIONS_PER_ROUTE, sConnPerRoute);
+            sClientConnectionManager = new ThreadSafeClientConnManager(params, registry);
         }
         // Null is a valid return result if we get an exception
         return sClientConnectionManager;

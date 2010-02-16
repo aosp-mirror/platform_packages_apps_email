@@ -20,7 +20,6 @@ import com.android.email.Email;
 import com.android.email.mail.CertificateValidationException;
 import com.android.email.mail.MessagingException;
 import com.android.email.mail.Transport;
-import com.android.email.mail.store.TrustManagerFactory;
 
 import android.util.Config;
 import android.util.Log;
@@ -153,11 +152,7 @@ public class MailTransport implements Transport {
         try {
             SocketAddress socketAddress = new InetSocketAddress(getHost(), getPort());
             if (canTrySslSecurity()) {
-                SSLContext sslContext = SSLContext.getInstance("TLS");
-                sslContext.init(null, new TrustManager[] {
-                        TrustManagerFactory.get(getHost(), !canTrustAllCertificates())
-                }, new SecureRandom());
-                mSocket = sslContext.getSocketFactory().createSocket();
+                mSocket = SSLUtils.getSSLSocketFactory(canTrustAllCertificates()).createSocket();
             } else {
                 mSocket = new Socket();
             }
@@ -170,11 +165,6 @@ public class MailTransport implements Transport {
                 Log.d(Email.LOG_TAG, e.toString());
             }
             throw new CertificateValidationException(e.getMessage(), e);
-        } catch (GeneralSecurityException gse) {
-            if (Config.LOGD && Email.DEBUG) {
-                Log.d(Email.LOG_TAG, gse.toString());
-            }
-            throw new MessagingException(MessagingException.GENERAL_SECURITY, gse.toString());
         } catch (IOException ioe) {
             if (Config.LOGD && Email.DEBUG) {
                 Log.d(Email.LOG_TAG, ioe.toString());
@@ -190,12 +180,8 @@ public class MailTransport implements Transport {
      */
     public void reopenTls() throws MessagingException {
         try {
-            SSLContext sslContext = SSLContext.getInstance("TLS");
-            sslContext.init(null, new TrustManager[] {
-                    TrustManagerFactory.get(getHost(), !canTrustAllCertificates())
-            }, new SecureRandom());
-            mSocket = sslContext.getSocketFactory().createSocket(mSocket, getHost(), getPort(),
-                    true);
+            mSocket = SSLUtils.getSSLSocketFactory(canTrustAllCertificates())
+                    .createSocket(mSocket, getHost(), getPort(), true);
             mSocket.setSoTimeout(SOCKET_READ_TIMEOUT);
             mIn = new BufferedInputStream(mSocket.getInputStream(), 1024);
             mOut = new BufferedOutputStream(mSocket.getOutputStream(), 512);
@@ -205,11 +191,6 @@ public class MailTransport implements Transport {
                 Log.d(Email.LOG_TAG, e.toString());
             }
             throw new CertificateValidationException(e.getMessage(), e);
-        } catch (GeneralSecurityException gse) {
-            if (Config.LOGD && Email.DEBUG) {
-                Log.d(Email.LOG_TAG, gse.toString());
-            }
-            throw new MessagingException(MessagingException.GENERAL_SECURITY, gse.toString());
         } catch (IOException ioe) {
             if (Config.LOGD && Email.DEBUG) {
                 Log.d(Email.LOG_TAG, ioe.toString());
