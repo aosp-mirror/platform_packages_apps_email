@@ -294,5 +294,47 @@ public class SecurityPolicyTests extends ProviderTestCase2<EmailProvider> {
         Account a2a = Account.restoreAccountWithId(mMockContext, a2.mId);
         assertEquals(Account.FLAGS_VIBRATE, a2a.mFlags);
     }
-    
+
+    /**
+     * Test the response to disabling DeviceAdmin status
+     */
+    public void testDisableAdmin() {
+        Account a1 = ProviderTestUtils.setupAccount("disable-1", false, mMockContext);
+        PolicySet p1 = new PolicySet(10, PolicySet.PASSWORD_MODE_SIMPLE, 0, 0, false);
+        p1.writeAccount(a1, "sync-key-1", true, mMockContext);
+
+        Account a2 = ProviderTestUtils.setupAccount("disable-2", false, mMockContext);
+        PolicySet p2 = new PolicySet(20, PolicySet.PASSWORD_MODE_STRONG, 25, 26, false);
+        p2.writeAccount(a2, "sync-key-2", true, mMockContext);
+
+        Account a3 = ProviderTestUtils.setupAccount("disable-3", false, mMockContext);
+        a3.mSecurityFlags = 0;
+        a3.mSecuritySyncKey = null;
+        a3.save(mMockContext);
+
+        SecurityPolicy sp = getSecurityPolicy();
+
+        // Confirm that "enabling" device admin does not change security status (flags & sync key)
+        PolicySet before = sp.getAggregatePolicy();
+        sp.onAdminEnabled(true);        // "enabled" should not change anything
+        PolicySet after1 = sp.getAggregatePolicy();
+        assertEquals(before, after1);
+        Account a1a = Account.restoreAccountWithId(mMockContext, a1.mId);
+        assertNotNull(a1a.mSecuritySyncKey);
+        Account a2a = Account.restoreAccountWithId(mMockContext, a2.mId);
+        assertNotNull(a2a.mSecuritySyncKey);
+        Account a3a = Account.restoreAccountWithId(mMockContext, a3.mId);
+        assertNull(a3a.mSecuritySyncKey);
+
+        // Revoke device admin status.  In the accounts we set up, security values should be reset
+        sp.onAdminEnabled(false);        // "disabled" should clear policies
+        PolicySet after2 = sp.getAggregatePolicy();
+        assertEquals(SecurityPolicy.NO_POLICY_SET, after2);
+        Account a1b = Account.restoreAccountWithId(mMockContext, a1.mId);
+        assertNull(a1b.mSecuritySyncKey);
+        Account a2b = Account.restoreAccountWithId(mMockContext, a2.mId);
+        assertNull(a2b.mSecuritySyncKey);
+        Account a3b = Account.restoreAccountWithId(mMockContext, a3.mId);
+        assertNull(a3b.mSecuritySyncKey);
+    }
 }

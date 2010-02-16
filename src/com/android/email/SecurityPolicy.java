@@ -51,7 +51,7 @@ public class SecurityPolicy {
     private boolean mNotificationActive;
     private boolean mAdminEnabled;
 
-    private static final PolicySet NO_POLICY_SET =
+    /* package */ static final PolicySet NO_POLICY_SET =
             new PolicySet(0, PolicySet.PASSWORD_MODE_NONE, 0, 0, false);
 
     /**
@@ -626,11 +626,18 @@ public class SecurityPolicy {
      * Internal handler for enabled/disabled transitions.  Handles DeviceAdmin.onEnabled and
      * and DeviceAdmin.onDisabled.
      */
-    private void onAdminEnabled(boolean isEnabled) {
+    /* package */ void onAdminEnabled(boolean isEnabled) {
         if (isEnabled && !mAdminEnabled) {
             // TODO: transition to enabled state
         } else if (!isEnabled && mAdminEnabled) {
-            // TODO: transition to disabled state
+            // transition to disabled state
+            // Response:  clear *all* security state information from the accounts, forcing
+            // them back to the initial configurations requiring policy administration
+            ContentValues cv = new ContentValues();
+            cv.put(AccountColumns.SECURITY_FLAGS, 0);
+            cv.putNull(AccountColumns.SECURITY_SYNC_KEY);
+            mContext.getContentResolver().update(Account.CONTENT_URI, cv, null, null);
+            updatePolicies(-1);
         }
         mAdminEnabled = isEnabled;
     }
