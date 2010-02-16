@@ -152,6 +152,8 @@ public class ProviderTestUtils extends Assert {
         message.mBcc = "bcc " + name;
         message.mReplyTo = "replyto " + name;
 
+        message.mMeetingInfo = "123" + accountId + mailboxId + name.length();
+
         if (addBody) {
             message.mText = "body text " + name;
             message.mHtml = "body html " + name;
@@ -320,6 +322,8 @@ public class ProviderTestUtils extends Assert {
         assertEquals(caller + " mCc", expect.mCc, actual.mCc);
         assertEquals(caller + " mBcc", expect.mBcc, actual.mBcc);
         assertEquals(caller + " mReplyTo", expect.mReplyTo, actual.mReplyTo);
+
+        assertEquals(caller + " mMeetingInfo", expect.mMeetingInfo, actual.mMeetingInfo);
 
         assertEquals(caller + " mText", expect.mText, actual.mText);
         assertEquals(caller + " mHtml", expect.mHtml, actual.mHtml);

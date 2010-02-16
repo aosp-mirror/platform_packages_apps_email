@@ -451,6 +451,21 @@ public class CalendarUtilities {
     }
 
     /**
+     * Generate a time in milliseconds from an email date string that represents a date/time in GMT
+     * @param Email style DateTime string from Exchange server
+     * @return the time in milliseconds (since Jan 1, 1970)
+     */
+    static public long parseEmailDateTimeToMillis(String date) {
+        // Format for email date strings is 2010-02-23T16:00:00.000Z
+        GregorianCalendar cal = new GregorianCalendar(Integer.parseInt(date.substring(0, 4)),
+                Integer.parseInt(date.substring(5, 7)) - 1, Integer.parseInt(date.substring(8, 10)),
+                Integer.parseInt(date.substring(11, 13)), Integer.parseInt(date.substring(14, 16)),
+                Integer.parseInt(date.substring(17, 19)));
+        cal.setTimeZone(TimeZone.getTimeZone("GMT"));
+        return cal.getTimeInMillis();
+    }
+
+    /**
      * Generate a time in milliseconds from a date string that represents a date/time in GMT
      * @param DateTime string from Exchange server
      * @return the time in milliseconds (since Jan 1, 1970)

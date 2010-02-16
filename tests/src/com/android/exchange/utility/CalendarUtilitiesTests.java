@@ -18,6 +18,8 @@ package com.android.exchange.utility;
 
 import android.test.AndroidTestCase;
 
+import java.util.Calendar;
+import java.util.GregorianCalendar;
 import java.util.TimeZone;
 
 /**
@@ -101,6 +103,35 @@ public class CalendarUtilitiesTests extends AndroidTestCase {
                 CalendarUtilities.recurrenceUntilToEasUntil("YYYYMMDD"));
     }
 
+    public void testParseEmailDateTimeToMillis(String date) {
+        // Format for email date strings is 2010-02-23T16:00:00.000Z
+        String dateString = "2010-02-23T15:16:17.000Z";
+        long dateTime = CalendarUtilities.parseEmailDateTimeToMillis(dateString);
+        GregorianCalendar cal = new GregorianCalendar();
+        cal.setTimeInMillis(dateTime);
+        cal.setTimeZone(TimeZone.getTimeZone("GMT"));
+        assertEquals(cal.get(Calendar.YEAR), 2010);
+        assertEquals(cal.get(Calendar.MONTH), 1);  // 0 based
+        assertEquals(cal.get(Calendar.DAY_OF_MONTH), 23);
+        assertEquals(cal.get(Calendar.HOUR_OF_DAY), 16);
+        assertEquals(cal.get(Calendar.MINUTE), 16);
+        assertEquals(cal.get(Calendar.SECOND), 17);
+    }
+
+    public void testParseDateTimeToMillis(String date) {
+        // Format for calendar date strings is 20100223T160000000Z
+        String dateString = "20100223T151617000Z";
+        long dateTime = CalendarUtilities.parseDateTimeToMillis(dateString);
+        GregorianCalendar cal = new GregorianCalendar();
+        cal.setTimeInMillis(dateTime);
+        cal.setTimeZone(TimeZone.getTimeZone("GMT"));
+        assertEquals(cal.get(Calendar.YEAR), 2010);
+        assertEquals(cal.get(Calendar.MONTH), 1);  // 0 based
+        assertEquals(cal.get(Calendar.DAY_OF_MONTH), 23);
+        assertEquals(cal.get(Calendar.HOUR_OF_DAY), 16);
+        assertEquals(cal.get(Calendar.MINUTE), 16);
+        assertEquals(cal.get(Calendar.SECOND), 17);
+    }
 
     // Tests in progress...
 

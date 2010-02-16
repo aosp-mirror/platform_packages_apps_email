@@ -80,7 +80,8 @@ public class EmailProvider extends ContentProvider {
     //            from the Message_Deletes and Message_Updates tables
     // Version 8: Add security flags column to accounts table
     // Version 9: Add security sync key and signature to accounts table
-    public static final int DATABASE_VERSION = 9;
+    // Version 10: Add meeting info to message table
+    public static final int DATABASE_VERSION = 10;
 
     // Any changes to the database format *must* include update-in-place code.
     // Original version: 2
@@ -303,7 +304,8 @@ public class EmailProvider extends ContentProvider {
             + MessageColumns.TO_LIST + " text, "
             + MessageColumns.CC_LIST + " text, "
             + MessageColumns.BCC_LIST + " text, "
-            + MessageColumns.REPLY_TO_LIST + " text"
+            + MessageColumns.REPLY_TO_LIST + " text, "
+            + MessageColumns.MEETING_INFO + " text"
             + ");";
 
         // This String and the following String MUST have the same columns, except for the type
@@ -737,6 +739,21 @@ public class EmailProvider extends ContentProvider {
                     Log.w(TAG, "Exception upgrading EmailProvider.db from 8 to 9 " + e);
                 }
                 oldVersion = 9;
+            }
+            if (oldVersion == 9) {
+                // Message: add meeting info column into Message tables
+                try {
+                    db.execSQL("alter table " + Message.TABLE_NAME
+                            + " add column " + MessageColumns.MEETING_INFO + " text" + ";");
+                    db.execSQL("alter table " + Message.UPDATED_TABLE_NAME
+                            + " add column " + MessageColumns.MEETING_INFO + " text" + ";");
+                    db.execSQL("alter table " + Message.DELETED_TABLE_NAME
+                            + " add column " + MessageColumns.MEETING_INFO + " text" + ";");
+                } catch (SQLException e) {
+                    // Shouldn't be needed unless we're debugging and interrupt the process
+                    Log.w(TAG, "Exception upgrading EmailProvider.db from 9 to 10 " + e);
+                }
+                oldVersion = 10;
             }
         }
 
