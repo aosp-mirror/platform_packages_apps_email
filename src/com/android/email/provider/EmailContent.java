@@ -406,6 +406,9 @@ public abstract class EmailContent {
         public static final String CC_LIST = "ccList";
         public static final String BCC_LIST = "bccList";
         public static final String REPLY_TO_LIST = "replyToList";
+
+        // Meeting invitation related information (for now, start time in ms)
+        public static final String MEETING_INFO = "meetingInfo";
     }
 
     public static final class Message extends EmailContent implements SyncColumns, MessageColumns {
@@ -444,6 +447,7 @@ public abstract class EmailContent {
         public static final int CONTENT_BCC_LIST_COLUMN = 17;
         public static final int CONTENT_REPLY_TO_COLUMN = 18;
         public static final int CONTENT_SERVER_TIMESTAMP_COLUMN = 19;
+        public static final int CONTENT_MEETING_INFO_COLUMN = 20;
 
         public static final String[] CONTENT_PROJECTION = new String[] {
             RECORD_ID,
@@ -456,7 +460,7 @@ public abstract class EmailContent {
             MessageColumns.ACCOUNT_KEY, MessageColumns.FROM_LIST,
             MessageColumns.TO_LIST, MessageColumns.CC_LIST,
             MessageColumns.BCC_LIST, MessageColumns.REPLY_TO_LIST,
-            SyncColumns.SERVER_TIMESTAMP,
+            SyncColumns.SERVER_TIMESTAMP, MessageColumns.MEETING_INFO
         };
 
         public static final int LIST_ID_COLUMN = 0;
@@ -520,6 +524,9 @@ public abstract class EmailContent {
         public String mCc;
         public String mBcc;
         public String mReplyTo;
+
+        // For now, just the start time of a meeting invite, in ms
+        public String mMeetingInfo;
 
         // The following transient members may be used while building and manipulating messages,
         // but they are NOT persisted directly by EmailProvider
@@ -587,6 +594,8 @@ public abstract class EmailContent {
             values.put(MessageColumns.BCC_LIST, mBcc);
             values.put(MessageColumns.REPLY_TO_LIST, mReplyTo);
 
+            values.put(MessageColumns.MEETING_INFO, mMeetingInfo);
+
             return values;
         }
 
@@ -630,6 +639,7 @@ public abstract class EmailContent {
             mCc = c.getString(CONTENT_CC_LIST_COLUMN);
             mBcc = c.getString(CONTENT_BCC_LIST_COLUMN);
             mReplyTo = c.getString(CONTENT_REPLY_TO_COLUMN);
+            mMeetingInfo = c.getString(CONTENT_MEETING_INFO_COLUMN);
             return this;
         }
 

@@ -32,6 +32,7 @@ import com.android.email.provider.EmailContent.SyncColumns;
 import com.android.email.service.MailService;
 import com.android.exchange.Eas;
 import com.android.exchange.EasSyncService;
+import com.android.exchange.utility.CalendarUtilities;
 
 import android.content.ContentProviderOperation;
 import android.content.ContentResolver;
@@ -139,16 +140,7 @@ public class EmailSyncAdapter extends AbstractSyncAdapter {
                         msg.mReplyTo = Address.pack(Address.parse(getValue()));
                         break;
                     case Tags.EMAIL_DATE_RECEIVED:
-                        String date = getValue();
-                        // 2009-02-11T18:03:03.627Z
-                        GregorianCalendar cal = new GregorianCalendar();
-                        cal.set(Integer.parseInt(date.substring(0, 4)), Integer.parseInt(date
-                                .substring(5, 7)) - 1, Integer.parseInt(date.substring(8, 10)),
-                                Integer.parseInt(date.substring(11, 13)), Integer.parseInt(date
-                                        .substring(14, 16)), Integer.parseInt(date
-                                                .substring(17, 19)));
-                        cal.setTimeZone(TimeZone.getTimeZone("GMT"));
-                        msg.mTimeStamp = cal.getTimeInMillis();
+                        msg.mTimeStamp = CalendarUtilities.parseEmailDateTimeToMillis(getValue());
                         break;
                     case Tags.EMAIL_SUBJECT:
                         msg.mSubject = getValue();
@@ -174,6 +166,9 @@ public class EmailSyncAdapter extends AbstractSyncAdapter {
                             msg.mFlags |= Message.FLAG_MEETING_CANCEL_NOTICE;
                         }
                         break;
+                    case Tags.EMAIL_MEETING_REQUEST:
+                        meetingRequestParser(msg);
+                        break;
                     default:
                         skipTag();
                 }
@@ -181,6 +176,43 @@ public class EmailSyncAdapter extends AbstractSyncAdapter {
 
             if (atts.size() > 0) {
                 msg.mAttachments = atts;
+            }
+        }
+
+        private void meetingRequestParser(Message msg) throws IOException {
+            while (nextTag(Tags.EMAIL_MEETING_REQUEST) != END) {
+                switch (tag) {
+                    case Tags.EMAIL_START_TIME:
+                        // For now, we'll just save the time in millis as a String
+                        msg.mMeetingInfo =
+                            Long.toString(CalendarUtilities.parseEmailDateTimeToMillis(getValue()));
+                        break;
+                    case Tags.EMAIL_CATEGORIES:
+                        nullParser();
+                        break;
+                    case Tags.EMAIL_RECURRENCES:
+                        recurrencesParser();
+                        break;
+                    default:
+                        skipTag();
+                }
+            }
+        }
+
+        private void nullParser() throws IOException {
+            while (nextTag(Tags.EMAIL_CATEGORIES) != END) {
+                skipTag();
+            }
+        }
+
+        private void recurrencesParser() throws IOException {
+            while (nextTag(Tags.EMAIL_RECURRENCES) != END) {
+                switch (tag) {
+                    case Tags.EMAIL_RECURRENCE:
+                        nullParser();
+                    default:
+                        skipTag();
+                }
             }
         }
 
