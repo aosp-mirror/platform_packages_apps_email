@@ -116,6 +116,9 @@ public class EasSyncService extends AbstractSyncService {
     static private final String AUTO_DISCOVER_PAGE = "/autodiscover/autodiscover.xml";
     static private final int AUTO_DISCOVER_REDIRECT_CODE = 451;
 
+    static public final String EAS_12_POLICY_TYPE = "MS-EAS-Provisioning-WBXML";
+    static public final String EAS_2_POLICY_TYPE = "MS-WAP-Provisioning-XML";
+
     /**
      * We start with an 8 minute timeout, and increase/decrease by 3 minutes at a time.  There's
      * no point having a timeout shorter than 5 minutes, I think; at that point, we can just let
@@ -972,6 +975,10 @@ public class EasSyncService extends AbstractSyncService {
         return false;
     }
 
+    private String getPolicyType() {
+        return (mProtocolVersionDouble >= 12.0) ? EAS_12_POLICY_TYPE : EAS_2_POLICY_TYPE;
+    }
+
     // TODO This is Exchange 2007 only at this point
     /**
      * Obtain a set of policies from the server and determine whether those policies are supported
@@ -983,7 +990,7 @@ public class EasSyncService extends AbstractSyncService {
     private ProvisionParser canProvision() throws IOException {
         Serializer s = new Serializer();
         s.start(Tags.PROVISION_PROVISION).start(Tags.PROVISION_POLICIES);
-        s.start(Tags.PROVISION_POLICY).data(Tags.PROVISION_POLICY_TYPE, "MS-EAS-Provisioning-WBXML")
+        s.start(Tags.PROVISION_POLICY).data(Tags.PROVISION_POLICY_TYPE, getPolicyType())
             .end().end().end().done();
         HttpResponse resp = sendHttpClientPost("Provision", s.toByteArray());
         int code = resp.getStatusLine().getStatusCode();
@@ -1024,7 +1031,10 @@ public class EasSyncService extends AbstractSyncService {
         Serializer s = new Serializer();
         s.start(Tags.PROVISION_PROVISION).start(Tags.PROVISION_POLICIES);
         s.start(Tags.PROVISION_POLICY);
-        s.data(Tags.PROVISION_POLICY_TYPE, "MS-EAS-Provisioning-WBXML");
+
+        // Use the proper policy type, depending on EAS version
+        s.data(Tags.PROVISION_POLICY_TYPE, getPolicyType());
+
         s.data(Tags.PROVISION_POLICY_KEY, tempKey);
         s.data(Tags.PROVISION_STATUS, "1");
         if (remoteWipe) {
