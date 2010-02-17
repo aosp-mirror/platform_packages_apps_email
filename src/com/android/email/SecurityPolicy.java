@@ -22,7 +22,7 @@ import com.android.email.provider.EmailContent.Account;
 import com.android.email.provider.EmailContent.AccountColumns;
 import com.android.email.service.MailService;
 
-import android.app.DeviceAdmin;
+import android.app.DeviceAdminReceiver;
 import android.app.DevicePolicyManager;
 import android.app.Notification;
 import android.app.NotificationManager;
@@ -648,7 +648,7 @@ public class SecurityPolicy {
      * Note:  We do not implement onPasswordFailed() because the default behavior of the
      *        DevicePolicyManager - complete local wipe after 'n' failures - is sufficient.
      */
-    public static class PolicyAdmin extends DeviceAdmin {
+    public static class PolicyAdmin extends DeviceAdminReceiver {
 
         /**
          * Called after the administrator is first enabled.
