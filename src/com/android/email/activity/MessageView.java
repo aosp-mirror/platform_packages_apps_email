@@ -122,6 +122,7 @@ public class MessageView extends Activity implements OnClickListener {
     private ImageView mAttachmentIcon;
     private ImageView mFavoriteIcon;
     private View mShowPicturesSection;
+    private View mInviteSection;
     private ImageView mSenderPresenceView;
     private ProgressDialog mProgressDialog;
     private View mScrollView;
@@ -342,6 +343,7 @@ public class MessageView extends Activity implements OnClickListener {
         mAttachmentIcon = (ImageView) findViewById(R.id.attachment);
         mFavoriteIcon = (ImageView) findViewById(R.id.favorite);
         mShowPicturesSection = findViewById(R.id.show_pictures_section);
+        mInviteSection = findViewById(R.id.invite_section);
         mSenderPresenceView = (ImageView) findViewById(R.id.presence);
         mMoveToNewer = findViewById(R.id.moveToNewer);
         mMoveToOlder = findViewById(R.id.moveToOlder);
@@ -356,6 +358,9 @@ public class MessageView extends Activity implements OnClickListener {
         findViewById(R.id.reply_all).setOnClickListener(this);
         findViewById(R.id.delete).setOnClickListener(this);
         findViewById(R.id.show_pictures).setOnClickListener(this);
+        findViewById(R.id.accept).setOnClickListener(this);
+        findViewById(R.id.maybe).setOnClickListener(this);
+        findViewById(R.id.decline).setOnClickListener(this);
 
         mMessageContentView.setVerticalScrollBarEnabled(false);
         mMessageContentView.getSettings().setBlockNetworkImage(true);
@@ -677,14 +682,11 @@ public class MessageView extends Activity implements OnClickListener {
         return null;
     }
 
-    // NOTE
-    // This is a placeholder for code used to accept a meeting invitation, and would presumably
-    // be called in response to a button press or menu selection
-    // The appropriate EmailServiceConstant would be changed to implement "decline" and
-    // "tentative" responses
-    private void onAccept() {
-        mController.sendMeetingResponse(mMessageId, EmailServiceConstants.MEETING_REQUEST_ACCEPTED,
-                mControllerCallback);
+    /**
+     * Send a service message indicating that a meeting invite button has been clicked.
+     */
+    private void onAccept(int response) {
+        mController.sendMeetingResponse(mMessageId, response, mControllerCallback);
     }
 
     private void onDownloadAttachment(AttachmentInfo attachment) {
@@ -757,6 +759,15 @@ public class MessageView extends Activity implements OnClickListener {
                 break;
             case R.id.show_pictures:
                 onShowPictures();
+                break;
+            case R.id.accept:
+                onAccept(EmailServiceConstants.MEETING_REQUEST_ACCEPTED);
+                break;
+            case R.id.maybe:
+                onAccept(EmailServiceConstants.MEETING_REQUEST_TENTATIVE);
+                break;
+            case R.id.decline:
+                onAccept(EmailServiceConstants.MEETING_REQUEST_DECLINED);
                 break;
         }
     }
@@ -1277,6 +1288,8 @@ public class MessageView extends Activity implements OnClickListener {
         mCcContainerView.setVisibility((friendlyCc != null) ? View.VISIBLE : View.GONE);
         mAttachmentIcon.setVisibility(message.mAttachments != null ? View.VISIBLE : View.GONE);
         mFavoriteIcon.setImageDrawable(message.mFlagFavorite ? mFavoriteIconOn : mFavoriteIconOff);
+        mInviteSection.setVisibility(!TextUtils.isEmpty(message.mMeetingInfo) ?
+                View.VISIBLE : View.GONE);
 
         // Handle partially-loaded email, as follows:
         // 1. Check value of message.mFlagLoaded

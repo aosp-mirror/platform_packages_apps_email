@@ -166,6 +166,7 @@
             android:text="@string/message_view_show_pictures_action" />
     </LinearLayout>
     <!-- content area -->
+    <include layout="@layout/message_view_invitation" />
     <WebView
         android:id="@+id/message_content"
         android:layout_height="wrap_content"
