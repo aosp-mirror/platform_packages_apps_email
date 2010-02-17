@@ -38,11 +38,11 @@ import com.android.exchange.adapter.ContactsSyncAdapter;
 import com.android.exchange.adapter.EmailSyncAdapter;
 import com.android.exchange.adapter.FolderSyncParser;
 import com.android.exchange.adapter.MeetingResponseParser;
-import com.android.exchange.adapter.Parser.EasParserException;
 import com.android.exchange.adapter.PingParser;
 import com.android.exchange.adapter.ProvisionParser;
 import com.android.exchange.adapter.Serializer;
 import com.android.exchange.adapter.Tags;
+import com.android.exchange.adapter.Parser.EasParserException;
 
 import org.apache.http.Header;
 import org.apache.http.HttpEntity;
@@ -765,11 +765,15 @@ public class EasSyncService extends AbstractSyncService {
      * @throws IOException
      */
     protected void sendMeetingResponse(MeetingResponseRequest req) throws IOException {
+        // Retrieve the message and mailbox; punt if either are null
         Message msg = Message.restoreMessageWithId(mContext, req.mMessageId);
+        if (msg == null) return;
+        Mailbox mailbox = Mailbox.restoreMailboxWithId(mContext, msg.mMailboxKey);
+        if (mailbox == null) return;
         Serializer s = new Serializer();
         s.start(Tags.MREQ_MEETING_RESPONSE).start(Tags.MREQ_REQUEST);
         s.data(Tags.MREQ_USER_RESPONSE, Integer.toString(req.mResponse));
-        s.data(Tags.MREQ_COLLECTION_ID, Long.toString(msg.mMailboxKey));
+        s.data(Tags.MREQ_COLLECTION_ID, mailbox.mServerId);
         s.data(Tags.MREQ_REQ_ID, msg.mServerId);
         s.end().end().done();
         HttpResponse res = sendHttpClientPost("MeetingResponse", s.toByteArray());
