@@ -123,6 +123,10 @@
             android:name=".activity.setup.AccountSettings"
             android:label="@string/account_settings_action"
             >
+            <intent-filter>
+                <action android:name="com.android.email.activity.setup.ACCOUNT_MANAGER_ENTRY" />
+                <category android:name="android.intent.category.DEFAULT" />
+            </intent-filter>
         </activity>
         <activity
             android:name=".activity.setup.AccountSecurity"
