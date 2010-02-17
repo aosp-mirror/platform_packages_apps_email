@@ -260,6 +260,14 @@
     <string name="message_view_fetching_attachment_toast">Fetching attachment.</string>
     <!-- Appears progress dialog for fetching attachment -->
     <string name="message_view_fetching_attachment_progress">Fetching attachment <xliff:g id="filename">%s</xliff:g></string>
+    <!-- String shown with a calendar invitation. -->
+    <string name="message_view_invite_text">Accept invitation?</string>
+    <!-- Button text: Calendar invitation: Accept -->
+    <string name="message_view_invite_accept">Accept</string>
+    <!-- Button text: Calendar invitation: Maybe -->
+    <string name="message_view_invite_maybe">Maybe</string>
+    <!-- Button text: Calendar invitation: Decline -->
+    <string name="message_view_invite_decline">Decline</string>
     <!-- Toast shown briefly while deleting a message -->
     <plurals name="message_deleted_toast">
         <item quantity="one">Message <xliff:g id="deleted.">deleted.</xliff:g></item>
