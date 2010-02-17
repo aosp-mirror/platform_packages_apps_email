@@ -1,0 +1,20 @@
+# keep names that are used by reflection.
+-keep class com.android.email.provider.EmailContent$Account
+-keepclasseswithmembers class * {
+  public static void actionEditIncomingSettings(android.app.Activity, com.android.email.provider.EmailContent$Account);
+}
+
+-keepclasseswithmembers class * {
+  public static void actionEditOutgoingSettings(android.app.Activity, com.android.email.provider.EmailContent$Account);
+}
+
+-keepclasseswithmembers class * {
+  public *** newInstance(android.content.Context, java.lang.String);
+}
+
+-keep class com.android.email.mail.Store$PersistentDataCallbacks
+-keepclasseswithmembers class * {
+  public *** newInstance(java.lang.String, android.content.Context, com.android.email.mail.Store$PersistentDataCallbacks);
+}
+
+-keep class * extends org.apache.james.mime4j.util.TempStorage
