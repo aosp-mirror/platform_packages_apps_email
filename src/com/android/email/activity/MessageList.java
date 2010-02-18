@@ -847,11 +847,12 @@ public class MessageList extends ListActivity implements OnItemClickListener, On
     }
 
     private void updateListPosition () {
+        int listViewHeight = getListView().getHeight();
         if (mListAdapter.getSelectedSet().size() == 1 && mFirstSelectedItemPosition >= 0
                 && mFirstSelectedItemPosition < getListView().getCount()
-                && getListView().getHeight() < mFirstSelectedItemTop) {
+                && listViewHeight < mFirstSelectedItemTop) {
             getListView().setSelectionFromTop(mFirstSelectedItemPosition,
-                    getListView().getHeight() - mFirstSelectedItemHeight);
+                    listViewHeight - mFirstSelectedItemHeight);
         }
     }
 
