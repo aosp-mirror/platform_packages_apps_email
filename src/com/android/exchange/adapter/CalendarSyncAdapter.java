@@ -1083,7 +1083,9 @@ public class CalendarSyncAdapter extends AbstractSyncAdapter {
                 ContentValues ncvValues = ncv.values;
                 if (ncvUri.equals(Attendees.CONTENT_URI)) {
                     Integer relationship = ncvValues.getAsInteger(Attendees.ATTENDEE_RELATIONSHIP);
-                    if (relationship != null) {
+                    // If there's no relationship, we can't create this for EAS
+                    // Similarly, we need an attendee email for each invitee
+                    if (relationship != null && ncvValues.containsKey(Attendees.ATTENDEE_EMAIL)) {
                         // Organizer isn't among attendees in EAS
                         if (relationship == Attendees.RELATIONSHIP_ORGANIZER) {
                             organizerName = ncvValues.getAsString(Attendees.ATTENDEE_NAME);
@@ -1094,14 +1096,17 @@ public class CalendarSyncAdapter extends AbstractSyncAdapter {
                             hasAttendees = true;
                         }
                         s.start(Tags.CALENDAR_ATTENDEE);
-                        s.writeStringValue(ncvValues, Attendees.ATTENDEE_NAME,
-                                Tags.CALENDAR_ATTENDEE_NAME);
+                        String attendeeName = ncvValues.getAsString(Attendees.ATTENDEE_NAME);
+                        if (attendeeName == null) {
+                            attendeeName = ncvValues.getAsString(Attendees.ATTENDEE_EMAIL);
+                        }
+                        s.data(Tags.CALENDAR_ATTENDEE_NAME, attendeeName);
                         s.writeStringValue(ncvValues, Attendees.ATTENDEE_EMAIL,
                                 Tags.CALENDAR_ATTENDEE_EMAIL);
                         s.data(Tags.CALENDAR_ATTENDEE_TYPE, "1"); // Required
                         s.end(); // Attendee
+                        // Don't send status (disallowed for upload)
                     }
-                    // If there's no relationship, we can't create this for EAS
                 }
             }
             if (hasAttendees) {
