@@ -59,7 +59,9 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.view.ContextMenu.ContextMenuInfo;
 import android.view.View.OnClickListener;
+import android.view.animation.Animation;
 import android.view.animation.AnimationUtils;
+import android.view.animation.Animation.AnimationListener;
 import android.widget.AdapterView;
 import android.widget.Button;
 import android.widget.CursorAdapter;
@@ -76,7 +78,8 @@ import java.util.Set;
 import java.util.Timer;
 import java.util.TimerTask;
 
-public class MessageList extends ListActivity implements OnItemClickListener, OnClickListener {
+public class MessageList extends ListActivity implements OnItemClickListener, OnClickListener,
+        AnimationListener {
     // Intent extras (internal to this activity)
     private static final String EXTRA_ACCOUNT_ID = "com.android.email.activity._ACCOUNT_ID";
     private static final String EXTRA_MAILBOX_TYPE = "com.android.email.activity.MAILBOX_TYPE";
@@ -140,6 +143,9 @@ public class MessageList extends ListActivity implements OnItemClickListener, On
     private Boolean mPushModeMailbox = null;
     private int mSavedItemTop = 0;
     private int mSavedItemPosition = -1;
+    private int mFirstSelectedItemTop = 0;
+    private int mFirstSelectedItemPosition = -1;
+    private int mFirstSelectedItemHeight = -1;
     private boolean mCanAutoRefresh = false;
 
     /* package */ static final String[] MESSAGE_PROJECTION = new String[] {
@@ -401,6 +407,16 @@ public class MessageList extends ListActivity implements OnItemClickListener, On
                 onAccounts();
                 break;
         }
+    }
+
+    public void onAnimationEnd(Animation animation) {
+        updateListPosition();
+    }
+
+    public void onAnimationRepeat(Animation animation) {
+    }
+
+    public void onAnimationStart(Animation animation) {
     }
 
     @Override
@@ -830,14 +846,24 @@ public class MessageList extends ListActivity implements OnItemClickListener, On
         }
     }
 
+    private void updateListPosition () {
+        if (mListAdapter.getSelectedSet().size() == 1 && mFirstSelectedItemPosition >= 0
+                && mFirstSelectedItemPosition < getListView().getCount()
+                && getListView().getHeight() < mFirstSelectedItemTop) {
+            getListView().setSelectionFromTop(mFirstSelectedItemPosition,
+                    getListView().getHeight() - mFirstSelectedItemHeight);
+        }
+    }
+
     /**
      * Show or hide the panel of multi-select options
      */
     private void showMultiPanel(boolean show) {
         if (show && mMultiSelectPanel.getVisibility() != View.VISIBLE) {
             mMultiSelectPanel.setVisibility(View.VISIBLE);
-            mMultiSelectPanel.startAnimation(
-                    AnimationUtils.loadAnimation(this, R.anim.footer_appear));
+            Animation animation = AnimationUtils.loadAnimation(this, R.anim.footer_appear);
+            animation.setAnimationListener(this);
+            mMultiSelectPanel.startAnimation(animation);
         } else if (!show && mMultiSelectPanel.getVisibility() != View.GONE) {
             mMultiSelectPanel.setVisibility(View.GONE);
             mMultiSelectPanel.startAnimation(
@@ -1646,6 +1672,13 @@ public class MessageList extends ListActivity implements OnItemClickListener, On
                 mChecked.add(id);
             } else {
                 mChecked.remove(id);
+            }
+            if (mChecked.size() == 1 && newSelected) {
+                mFirstSelectedItemPosition = getListView().getPositionForView(itemView);
+                mFirstSelectedItemTop = itemView.getBottom();
+                mFirstSelectedItemHeight = itemView.getHeight();
+            } else {
+                mFirstSelectedItemPosition = -1;
             }
 
             MessageList.this.showMultiPanel(mChecked.size() > 0);
