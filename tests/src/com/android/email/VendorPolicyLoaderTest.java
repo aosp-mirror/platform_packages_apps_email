@@ -22,8 +22,6 @@ import android.content.Context;
 import android.os.Bundle;
 import android.test.AndroidTestCase;
 
-import java.net.URI;
-
 public class VendorPolicyLoaderTest extends AndroidTestCase {
     /**
      * Test for the case where the helper package doesn't exist.
@@ -49,7 +47,7 @@ public class VendorPolicyLoaderTest extends AndroidTestCase {
      */
     public void testGetPolicy() {
         // Because MockVendorPolicy lives in a non-system apk, we need to skip the system-apk check.
-        VendorPolicyLoader pl = new VendorPolicyLoader(getContext(), "com.android.email.tests",
+        VendorPolicyLoader pl = new VendorPolicyLoader(getContext(), getContext().getPackageName(),
                 MockVendorPolicy.class.getName(), true);
 
         // Prepare result
