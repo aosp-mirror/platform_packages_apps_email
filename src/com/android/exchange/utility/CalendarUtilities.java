@@ -16,12 +16,20 @@
 
 package com.android.exchange.utility;
 
+import com.android.email.Email;
+import com.android.email.provider.EmailContent.Account;
+import com.android.email.provider.EmailContent.Mailbox;
 import com.android.exchange.Eas;
+import com.android.exchange.EasSyncService;
 import com.android.exchange.adapter.Serializer;
 import com.android.exchange.adapter.Tags;
 
 import org.bouncycastle.util.encoders.Base64;
 
+import android.content.ContentValues;
+import android.net.Uri;
+import android.provider.Calendar.Calendars;
+import android.text.format.Time;
 import android.util.Log;
 
 import java.io.IOException;
@@ -775,5 +783,39 @@ public class CalendarUtilities {
         }
 
         return rrule.toString();
+    }
+
+    /**
+     * Create a Calendar in CalendarProvider to which synced Events will be linked
+     * @param service the sync service requesting Calendar creation
+     * @param account the account being synced
+     * @param mailbox the Exchange mailbox for the calendar
+     * @return the unique id of the Calendar
+     */
+    static public long createCalendar(EasSyncService service, Account account, Mailbox mailbox) {
+        // Create a Calendar object
+        ContentValues cv = new ContentValues();
+        // TODO How will this change if the user changes his account display name?
+        cv.put(Calendars.DISPLAY_NAME, account.mDisplayName);
+        cv.put(Calendars._SYNC_ACCOUNT, account.mEmailAddress);
+        cv.put(Calendars._SYNC_ACCOUNT_TYPE, Email.EXCHANGE_ACCOUNT_MANAGER_TYPE);
+        cv.put(Calendars.SYNC_EVENTS, 1);
+        cv.put(Calendars.SELECTED, 1);
+        cv.put(Calendars.HIDDEN, 0);
+        // TODO Coordinate account colors w/ Calendar, if possible
+        // Make Email account color opaque
+        cv.put(Calendars.COLOR, 0xFF000000 | Email.getAccountColor(account.mId));
+        cv.put(Calendars.TIMEZONE, Time.getCurrentTimezone());
+        cv.put(Calendars.ACCESS_LEVEL, Calendars.OWNER_ACCESS);
+        cv.put(Calendars.OWNER_ACCOUNT, account.mEmailAddress);
+
+        Uri uri = service.mContentResolver.insert(Calendars.CONTENT_URI, cv);
+        // We save the id of the calendar into mSyncStatus
+        if (uri != null) {
+            String stringId = uri.getPathSegments().get(1);
+            mailbox.mSyncStatus = stringId;
+            return Long.parseLong(stringId);
+        }
+        return -1;
     }
 }

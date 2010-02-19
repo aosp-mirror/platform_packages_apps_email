@@ -17,7 +17,6 @@
 
 package com.android.exchange.adapter;
 
-import com.android.email.Email;
 import com.android.email.provider.AttachmentProvider;
 import com.android.email.provider.EmailContent;
 import com.android.email.provider.EmailProvider;
@@ -34,10 +33,7 @@ import android.content.ContentUris;
 import android.content.ContentValues;
 import android.content.OperationApplicationException;
 import android.database.Cursor;
-import android.net.Uri;
 import android.os.RemoteException;
-import android.provider.Calendar.Calendars;
-import android.text.format.Time;
 
 import java.io.IOException;
 import java.io.InputStream;
@@ -244,28 +240,6 @@ public class FolderSyncParser extends AbstractSyncParser {
                 case CALENDAR_TYPE:
                     m.mType = Mailbox.TYPE_CALENDAR;
                     m.mSyncInterval = mAccount.mSyncInterval;
-
-                    // Create a Calendar object
-                    ContentValues cv = new ContentValues();
-                    // TODO How will this change if the user changes his account display name?
-                    cv.put(Calendars.DISPLAY_NAME, mAccount.mDisplayName);
-                    cv.put(Calendars._SYNC_ACCOUNT, mAccount.mEmailAddress);
-                    cv.put(Calendars._SYNC_ACCOUNT_TYPE, Email.EXCHANGE_ACCOUNT_MANAGER_TYPE);
-                    cv.put(Calendars.SYNC_EVENTS, 1);
-                    cv.put(Calendars.SELECTED, 1);
-                    cv.put(Calendars.HIDDEN, 0);
-                    // TODO Coordinate account colors w/ Calendar, if possible
-                    // Make Email account color opaque
-                    cv.put(Calendars.COLOR, 0xFF000000 | Email.getAccountColor(mAccountId));
-                    cv.put(Calendars.TIMEZONE, Time.getCurrentTimezone());
-                    cv.put(Calendars.ACCESS_LEVEL, Calendars.OWNER_ACCESS);
-                    cv.put(Calendars.OWNER_ACCOUNT, mAccount.mEmailAddress);
-
-                    Uri uri = mService.mContentResolver.insert(Calendars.CONTENT_URI, cv);
-                    // We save the id of the calendar into mSyncStatus
-                    if (uri != null) {
-                        m.mSyncStatus = uri.getPathSegments().get(1);
-                    }
                     break;
             }
 

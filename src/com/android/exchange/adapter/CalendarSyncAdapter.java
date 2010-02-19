@@ -108,6 +108,8 @@ public class CalendarSyncAdapter extends AbstractSyncAdapter {
         try {
             if (c.moveToFirst()) {
                 mCalendarId = c.getLong(CALENDAR_SELECTION_ID);
+            } else {
+                mCalendarId = CalendarUtilities.createCalendar(mService, mAccount, mMailbox);
             }
         } finally {
             c.close();
