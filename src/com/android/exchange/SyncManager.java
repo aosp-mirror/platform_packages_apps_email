@@ -48,7 +48,10 @@ import org.apache.http.params.BasicHttpParams;
 import org.apache.http.params.HttpParams;
 
 import android.accounts.AccountManager;
+import android.accounts.AccountManagerFuture;
+import android.accounts.AuthenticatorException;
 import android.accounts.OnAccountsUpdateListener;
+import android.accounts.OperationCanceledException;
 import android.app.AlarmManager;
 import android.app.PendingIntent;
 import android.app.Service;
@@ -85,15 +88,9 @@ import java.io.File;
 import java.io.FileReader;
 import java.io.FileWriter;
 import java.io.IOException;
-import java.security.KeyManagementException;
-import java.security.NoSuchAlgorithmException;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
-
-import javax.net.ssl.SSLContext;
-import javax.net.ssl.TrustManager;
-import javax.net.ssl.X509TrustManager;
 
 /**
  * The SyncManager handles all aspects of starting, maintaining, and stopping the various sync
@@ -858,12 +855,24 @@ public class SyncManager extends Service implements Runnable {
         }
     }
 
+    /**
+     * The reconciler (which is called from this listener) can make blocking calls back into
+     * the account manager.  So, in this callback we spin up a worker thread to call the
+     * reconciler.
+     */
     public class EasAccountsUpdatedListener implements OnAccountsUpdateListener {
-       public void onAccountsUpdated(android.accounts.Account[] accounts) {
-           reconcileAccountsWithAccountManager(INSTANCE, getAccountList(),
-                   AccountManager.get(INSTANCE).getAccountsByType(
-                           Email.EXCHANGE_ACCOUNT_MANAGER_TYPE));
-       }
+        public void onAccountsUpdated(android.accounts.Account[] accounts) {
+            new Thread() {
+                @Override
+                public void run() {
+                    android.accounts.Account[] accountMgrList = AccountManager.get(INSTANCE)
+                            .getAccountsByType(Email.EXCHANGE_ACCOUNT_MANAGER_TYPE);
+                    AccountList providerList = getAccountList();
+                    reconcileAccountsWithAccountManager(INSTANCE,
+                            providerList, accountMgrList, false, mResolver);
+                }
+            }.start();
+        }
     }
 
     static public void smLog(String str) {
@@ -1365,9 +1374,19 @@ public class SyncManager extends Service implements Runnable {
      *
      * Note that the duplication of account information is caused by the Email application's
      * incomplete integration with AccountManager.
+     *
+     * This function may not be called from the main/UI thread, because it makes blocking calls
+     * into the account manager.
+     *
+     * @param context The context in which to operate
+     * @param cachedEasAccounts the exchange provider accounts to work from
+     * @param accountManagerAccounts The account manager accounts to work from
+     * @param blockExternalChanges FOR TESTING ONLY - block backups, security changes, etc.
+     * @param resolver the content resolver for making provider updates (injected for testability)
      */
-    /*package*/ void reconcileAccountsWithAccountManager(Context context,
-            List<Account> cachedEasAccounts, android.accounts.Account[] accountManagerAccounts) {
+    void reconcileAccountsWithAccountManager(Context context,
+            List<Account> cachedEasAccounts, android.accounts.Account[] accountManagerAccounts,
+            boolean blockExternalChanges, ContentResolver resolver) {
         // First, look through our cached EAS Accounts (from EmailProvider) to make sure there's a
         // corresponding AccountManager account
         boolean accountsDeleted = false;
@@ -1389,7 +1408,7 @@ public class SyncManager extends Service implements Runnable {
                 alwaysLog("Account deleted in AccountManager; deleting from provider: " +
                         providerAccountName);
                 // TODO This will orphan downloaded attachments; need to handle this
-                mResolver.delete(ContentUris.withAppendedId(Account.CONTENT_URI,
+                resolver.delete(ContentUris.withAppendedId(Account.CONTENT_URI,
                         providerAccount.mId), null, null);
                 accountsDeleted = true;
             }
@@ -1409,13 +1428,26 @@ public class SyncManager extends Service implements Runnable {
                 alwaysLog("Account deleted from provider; deleting from AccountManager: " +
                         accountManagerAccountName);
                 // Delete the account
-                AccountManager.get(context).removeAccount(accountManagerAccount, null, null);
+                AccountManagerFuture<Boolean> blockingResult;
+                blockingResult = AccountManager.get(context)
+                        .removeAccount(accountManagerAccount, null, null);
+                try {
+                    // Note: All of the potential errors from removeAccount() are simply logged
+                    // here, as there is nothing to actually do about them.
+                    blockingResult.getResult();
+                } catch (OperationCanceledException e) {
+                    Log.d(Email.LOG_TAG, e.toString());
+                } catch (AuthenticatorException e) {
+                    Log.d(Email.LOG_TAG, e.toString());
+                } catch (IOException e) {
+                    Log.d(Email.LOG_TAG, e.toString());
+                }
                 accountsDeleted = true;
             }
         }
         // If we changed the list of accounts, refresh the backup & security settings
-        if (accountsDeleted) {
-            AccountBackupRestore.backupAccounts(getContext());
+        if (!blockExternalChanges && accountsDeleted) {
+            AccountBackupRestore.backupAccounts(context);
             SecurityPolicy.getInstance(context).reducePolicies();
         }
     }

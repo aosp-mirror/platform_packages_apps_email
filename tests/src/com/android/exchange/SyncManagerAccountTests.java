@@ -38,12 +38,12 @@ import android.test.ProviderTestCase2;
 
 import java.io.IOException;
 import java.util.HashMap;
+import java.util.HashSet;
 
 /**
  * You can run this entire test case with:
  *   runtest -c com.android.exchange.SyncManagerAccountTests email
  */
-
 public class SyncManagerAccountTests extends ProviderTestCase2<EmailProvider> {
 
     private static final String TEST_ACCOUNT_PREFIX = "__test";
@@ -83,7 +83,7 @@ public class SyncManagerAccountTests extends ProviderTestCase2<EmailProvider> {
     private Account setupProviderAndAccountManagerAccount(String username) {
         // Note that setupAccount creates the email address username@android.com, so that's what
         // we need to use for the account manager
-        createAccountManagerAccount(username + "@android.com");
+        createAccountManagerAccount(username + TEST_ACCOUNT_SUFFIX);
         return ProviderTestUtils.setupAccount(username, true, mMockContext);
     }
 
@@ -131,10 +131,75 @@ public class SyncManagerAccountTests extends ProviderTestCase2<EmailProvider> {
         return TEST_ACCOUNT_PREFIX + name + TEST_ACCOUNT_SUFFIX;
     }
 
+    /**
+     * Confirm that the test below is functional (and non-destructive) when there are
+     * prexisting (non-test) accounts in the account manager.
+     */
+    public void testTestReconcileAccounts() {
+        Account firstAccount = null;
+        final String TEST_USER_ACCOUNT = "__user_account_test_1";
+        Context context = getContext();
+        try {
+            // Note:  Unlike calls to setupProviderAndAccountManagerAccount(), we are creating
+            // *real* accounts here (not in the mock provider)
+            createAccountManagerAccount(TEST_USER_ACCOUNT + TEST_ACCOUNT_SUFFIX);
+            firstAccount = ProviderTestUtils.setupAccount(TEST_USER_ACCOUNT, true, context);
+            // Now run the test with the "user" accounts in place
+            testReconcileAccounts();
+        } finally {
+            if (firstAccount != null) {
+                boolean firstAccountFound = false;
+                // delete the provider account
+                context.getContentResolver().delete(firstAccount.getUri(), null, null);
+                // delete the account manager account
+                android.accounts.Account[] accountManagerAccounts = AccountManager.get(context)
+                        .getAccountsByType(Email.EXCHANGE_ACCOUNT_MANAGER_TYPE);
+                for (android.accounts.Account accountManagerAccount: accountManagerAccounts) {
+                    if ((TEST_USER_ACCOUNT + TEST_ACCOUNT_SUFFIX)
+                            .equals(accountManagerAccount.name)) {
+                        deleteAccountManagerAccount(context, accountManagerAccount);
+                        firstAccountFound = true;
+                    }
+                }
+                assertTrue(firstAccountFound);
+            }
+        }
+    }
+
+    /**
+     * Helper to retrieve account manager accounts *and* remove any preexisting accounts
+     * from the list, to "hide" them from the reconciler.
+     */
+    private android.accounts.Account[] getAccountManagerAccounts(Context context,
+            android.accounts.Account[] baseline) {
+        android.accounts.Account[] rawList =
+            AccountManager.get(context).getAccountsByType(Email.EXCHANGE_ACCOUNT_MANAGER_TYPE);
+        if (baseline.length == 0) {
+            return rawList;
+        }
+        HashSet<android.accounts.Account> set = new HashSet<android.accounts.Account>();
+        for (android.accounts.Account addAccount : rawList) {
+            set.add(addAccount);
+        }
+        for (android.accounts.Account removeAccount : baseline) {
+            set.remove(removeAccount);
+        }
+        return set.toArray(new android.accounts.Account[0]);
+    }
+
+    /**
+     * Note, there is some inherent risk in this test, as it creates *real* accounts in the
+     * system (it cannot use the mock context with the Account Manager).
+     */
     public void testReconcileAccounts() {
         // Note that we can't use mMockContext for AccountManager interactions, as it isn't a fully
         // functional Context.
         Context context = getContext();
+
+        // Capture the baseline (account manager accounts) so we can measure the changes
+        // we're making, irrespective of the number of actual accounts, and not destroy them
+        android.accounts.Account[] baselineAccounts =
+            AccountManager.get(context).getAccountsByType(Email.EXCHANGE_ACCOUNT_MANAGER_TYPE);
 
         // Set up three accounts, both in AccountManager and in EmailProvider
         Account firstAccount = setupProviderAndAccountManagerAccount(getTestAccountName("1"));
@@ -144,7 +209,7 @@ public class SyncManagerAccountTests extends ProviderTestCase2<EmailProvider> {
         // Check that they're set up properly
         assertEquals(3, EmailContent.count(mMockContext, Account.CONTENT_URI, null, null));
         android.accounts.Account[] accountManagerAccounts =
-            AccountManager.get(context).getAccountsByType(Email.EXCHANGE_ACCOUNT_MANAGER_TYPE);
+                getAccountManagerAccounts(context, baselineAccounts);
         assertEquals(3, accountManagerAccounts.length);
 
         // Delete account "2" from AccountManager
@@ -153,8 +218,7 @@ public class SyncManagerAccountTests extends ProviderTestCase2<EmailProvider> {
         deleteAccountManagerAccount(context, removedAccount);
 
         // Confirm it's deleted
-        accountManagerAccounts =
-            AccountManager.get(context).getAccountsByType(Email.EXCHANGE_ACCOUNT_MANAGER_TYPE);
+        accountManagerAccounts = getAccountManagerAccounts(context, baselineAccounts);
         assertEquals(2, accountManagerAccounts.length);
 
         // Run the reconciler
@@ -162,7 +226,7 @@ public class SyncManagerAccountTests extends ProviderTestCase2<EmailProvider> {
         ContentResolver resolver = mMockContext.getContentResolver();
         syncManager.mResolver = resolver;
         syncManager.reconcileAccountsWithAccountManager(context,
-                makeSyncManagerAccountList(), accountManagerAccounts);
+                makeSyncManagerAccountList(), accountManagerAccounts, true, resolver);
 
         // There should now be only two EmailProvider accounts
         assertEquals(2, EmailContent.count(mMockContext, Account.CONTENT_URI, null, null));
@@ -175,11 +239,10 @@ public class SyncManagerAccountTests extends ProviderTestCase2<EmailProvider> {
 
         // Run the reconciler
         syncManager.reconcileAccountsWithAccountManager(context,
-                makeSyncManagerAccountList(), accountManagerAccounts);
+                makeSyncManagerAccountList(), accountManagerAccounts, true, resolver);
 
         // There should now be only one AccountManager account
-        accountManagerAccounts = AccountManager.get(getContext()).getAccountsByType(
-                Email.EXCHANGE_ACCOUNT_MANAGER_TYPE);
+        accountManagerAccounts = getAccountManagerAccounts(context, baselineAccounts);
         assertEquals(1, accountManagerAccounts.length);
         // ... and it should be account "3"
         assertEquals(getTestAccountEmailAddress("3"), accountManagerAccounts[0].name);
