@@ -1,0 +1,155 @@
+# keep names that are used by reflection.
+-keep class com.android.email.provider.EmailContent$Account
+-keepclasseswithmembers class * {
+  public static void actionEditIncomingSettings(android.app.Activity, com.android.email.provider.EmailContent$Account);
+}
+
+-keepclasseswithmembers class * {
+  public static void actionEditOutgoingSettings(android.app.Activity, com.android.email.provider.EmailContent$Account);
+}
+
+-keepclasseswithmembers class * {
+  public *** newInstance(android.content.Context, java.lang.String);
+}
+
+-keep class com.android.email.mail.Store$PersistentDataCallbacks {
+  *** getPersistentString(...);
+  *** setPersistentString(...);
+}
+
+-keepclasseswithmembers class * {
+  public *** newInstance(java.lang.String, android.content.Context, com.android.email.mail.Store$PersistentDataCallbacks);
+}
+
+-keep class * extends org.apache.james.mime4j.util.TempStorage
+
+
+# Keep names that are used only by unit tests
+
+-keepclasseswithmembers class com.android.email.GroupMessagingListener {
+  *** removeListener(com.android.email.MessagingListener);
+}
+
+-keepclasseswithmembers class com.android.email.Controller {
+  *** setProviderContext(android.content.Context);
+}
+
+-keepclasseswithmembers class com.android.email.mail.Address {
+  <init>(...);
+  *** parseAndPack(java.lang.String);
+  *** legacyUnpack(java.lang.String);
+}
+
+-keepclasseswithmembers class com.android.email.SecurityPolicy {
+  *** setContext(android.content.Context);
+}
+
+-keepclasseswithmembers class com.android.email.SecurityPolicy$PolicySet {
+  <init>(...);
+}
+
+-keepclasseswithmembers class com.android.email.MessagingController {
+  *** injectMockController(com.android.email.MessagingController);
+}
+
+-keepclasseswithmembers class com.android.email.provider.EmailProvider {
+  *** getReadableDatabase(android.content.Context);
+}
+
+-keepclasseswithmembers class com.android.email.provider.EmailContent$Attachment {
+  *** createUniqueFile(java.lang.String);
+}
+
+-keepclasseswithmembers class com.android.email.Account {
+  *** getContentUri();
+}
+
+-keepclasseswithmembers class com.android.email.Preferences {
+  *** getAccountByContentUri(android.net.Uri);
+}
+
+-keep class com.android.email.mail.Message$RecipientType
+
+-keepclasseswithmembers class com.android.email.mail.Message {
+  *** setRecipient(...);
+}
+
+-keepclasseswithmembers class com.android.email.mail.internet.MimeMessage {
+  <init>(...);
+  *** getExtendedHeader(java.lang.String);
+  *** setExtendedHeader(java.lang.String, java.lang.String);
+}
+
+-keep class com.android.email.mail.Part
+
+-keepclasseswithmembers class com.android.email.mail.internet.MimeUtility {
+  *** foldAndEncode(...);
+  *** findPartByContentId(...);
+  *** findFirstPartByMimeType(...);
+}
+
+-keepclasseswithmembers class com.android.email.mail.transport.SmtpSender {
+  *** setTransport(com.android.email.mail.Transport);
+}
+
+-keepclasseswithmembers class com.android.email.mail.Store {
+  *** requireStructurePrefetch();
+}
+
+-keepclasseswithmembers class com.android.email.mail.store.ImapStore {
+  *** setTransport(com.android.email.mail.Transport);
+}
+
+-keepclasseswithmembers class com.android.email.mail.store.ImapStore$ImapFolder {
+  *** getUnreadMessageCount(...);
+  *** getRole(...);
+}
+
+-keepclasseswithmembers class com.android.email.mail.store.LocalStore {
+  *** resetVisibleLimits(...);
+  *** getPersistentCallbacks(...);
+  *** getPersistentString(...);
+  *** setPersistentString(...);
+}
+
+-keepclasseswithmembers class com.android.email.mail.store.LocalStore$LocalFolder {
+  *** updateMessage(...);
+  *** getMessages(...);
+  *** getPersistentCallbacks(...);
+  *** getVisibleLimit(...);
+  *** setVisibleLimit(...);
+  *** getId(...);
+  *** getPersistentString(...);
+}
+
+-keepclasseswithmembers class com.android.email.mail.store.Pop3Store {
+  *** setTransport(com.android.email.mail.Transport);
+}
+
+-keepclasseswithmembers class com.android.email.mail.store.Pop3Store$Pop3Folder {
+  *** getUnreadMessageCount(...);
+  *** isOpen(...);
+}
+
+-keepclasseswithmembers class com.android.email.mail.Folder {
+  *** getUnreadMessageCount(...);
+  *** delete(...);
+  *** getRole(...);
+}
+
+-keep class com.android.email.mail.Folder$FolderRole
+
+-keepclasseswithmembers class com.android.email.mail.Folder$PersistentDataCallbacks {
+  *** getPersistentString(...);
+  *** setPersistentString(...);
+  *** setPersistentStringAndMessageFlags(...);
+}
+
+-keep class com.android.email.mail.MessageRetrievalListener
+
+-keepclasseswithmembers class com.android.exchange.adapter.Parser {
+  *** resetInput(...);
+}
+
+-keep class com.android.email.mail.Flag
+
