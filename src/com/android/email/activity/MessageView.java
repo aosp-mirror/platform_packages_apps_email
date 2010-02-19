@@ -166,7 +166,11 @@ public class MessageView extends Activity implements OnClickListener {
     private ContentObserver mCursorObserver;
 
     // contains the HTML body. Is used by LoadAttachmentTask to display inline images.
-    private String mHtmlText;
+    // is null most of the time, is used transiently to pass info to LoadAttachementTask
+    private String mHtmlTextRaw;
+
+    // contains the HTML content as set in WebView.
+    private String mHtmlTextWebView;
 
     // this is true when reply & forward are disabled, such as messages in the trash
     private boolean mDisableReplyAndForward;
@@ -376,7 +380,7 @@ public class MessageView extends Activity implements OnClickListener {
         findViewById(R.id.invite_link).setOnClickListener(this);
 
         mMessageContentView.setVerticalScrollBarEnabled(false);
-        mMessageContentView.getSettings().setBlockNetworkImage(true);
+        mMessageContentView.getSettings().setBlockNetworkLoads(true);
         mMessageContentView.getSettings().setSupportZoom(false);
         mMessageContentView.setWebViewClient(new CustomWebViewClient());
 
@@ -742,7 +746,11 @@ public class MessageView extends Activity implements OnClickListener {
     private void onShowPictures() {
         if (mMessage != null) {
             if (mMessageContentView != null) {
-                mMessageContentView.getSettings().setBlockNetworkImage(false);
+                mMessageContentView.getSettings().setBlockNetworkLoads(false);
+                if (mHtmlTextWebView != null) {
+                    mMessageContentView.loadDataWithBaseURL("email://", mHtmlTextWebView,
+                                                            "text/html", "utf-8", null);
+                }
             }
             mShowPicturesSection.setVisibility(View.GONE);
         }
@@ -1278,24 +1286,25 @@ public class MessageView extends Activity implements OnClickListener {
             }
             boolean htmlChanged = false;
             for (Attachment attachment : attachments) {
-                if (mHtmlText != null && attachment.mContentId != null
+                if (mHtmlTextRaw != null && attachment.mContentId != null
                         && attachment.mContentUri != null) {
                     // for html body, replace CID for inline images
                     // Regexp which matches ' src="cid:contentId"'.
                     String contentIdRe =
                         "\\s+(?i)src=\"cid(?-i):\\Q" + attachment.mContentId + "\\E\"";
                     String srcContentUri = " src=\"" + attachment.mContentUri + "\"";
-                    mHtmlText = mHtmlText.replaceAll(contentIdRe, srcContentUri);
+                    mHtmlTextRaw = mHtmlTextRaw.replaceAll(contentIdRe, srcContentUri);
                     htmlChanged = true;
                 } else {
                     addAttachment(attachment);
                 }
             }
+            mHtmlTextWebView = mHtmlTextRaw;
+            mHtmlTextRaw = null;
             if (htmlChanged && mMessageContentView != null) {
-                mMessageContentView.loadDataWithBaseURL("email://", mHtmlText, "text/html", "utf-8",
-                                                        null);
+                mMessageContentView.loadDataWithBaseURL("email://", mHtmlTextWebView,
+                                                        "text/html", "utf-8", null);
             }
-            mHtmlText = null;
         }
     }
 
@@ -1361,7 +1370,7 @@ public class MessageView extends Activity implements OnClickListener {
      */
     private void reloadUiFromBody(String bodyText, String bodyHtml) {
         String text = null;
-        mHtmlText = null;
+        mHtmlTextRaw = null;
         boolean hasImages = false;
 
         if (bodyHtml == null) {
@@ -1408,7 +1417,7 @@ public class MessageView extends Activity implements OnClickListener {
             text = sb.toString();
         } else {
             text = bodyHtml;
-            mHtmlText = bodyHtml;
+            mHtmlTextRaw = bodyHtml;
             hasImages = IMG_TAG_START_REGEX.matcher(text).find();
         }
 
