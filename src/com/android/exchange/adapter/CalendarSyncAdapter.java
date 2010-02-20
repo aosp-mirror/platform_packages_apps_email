@@ -18,7 +18,9 @@
 package com.android.exchange.adapter;
 
 import com.android.email.Email;
+import com.android.email.provider.EmailContent;
 import com.android.email.provider.EmailContent.Mailbox;
+import com.android.exchange.EasOutboxService;
 import com.android.exchange.EasSyncService;
 import com.android.exchange.utility.CalendarUtilities;
 import com.android.exchange.utility.Duration;
@@ -55,6 +57,7 @@ import java.util.ArrayList;
 import java.util.GregorianCalendar;
 import java.util.StringTokenizer;
 import java.util.TimeZone;
+import java.util.UUID;
 
 /**
  * Sync adapter class for EAS calendars
@@ -337,7 +340,7 @@ public class CalendarSyncAdapter extends AbstractSyncAdapter {
                     // The following are fields we should save (for changes), though they don't
                     // relate to data used by CalendarProvider at this point
                     case Tags.CALENDAR_UID:
-                        ops.newExtendedProperty("uid", getValue());
+                        cv.put(Events._SYNC_LOCAL_ID, getValue());
                         break;
                     case Tags.CALENDAR_DTSTAMP:
                         ops.newExtendedProperty("dtstamp", getValue());
@@ -813,8 +816,11 @@ public class CalendarSyncAdapter extends AbstractSyncAdapter {
             try {
                 if (c.moveToFirst()) {
                     cv.put(Events._SYNC_ID, serverId);
+                    cv.put(Events._SYNC_LOCAL_ID, clientId);
+                    long id = c.getLong(0);
+                    // Write the serverId into the Event
                     mOps.add(ContentProviderOperation.newUpdate(
-                            ContentUris.withAppendedId(sEventsUri, c.getLong(0)))
+                            ContentUris.withAppendedId(sEventsUri, id))
                                     .withValues(cv)
                                     .build());
                     userLog("New event " + clientId + " was given serverId: " + serverId);
@@ -958,7 +964,7 @@ public class CalendarSyncAdapter extends AbstractSyncAdapter {
         return Integer.toString(easVisibility);
     }
 
-    private void sendEvent(Entity entity, String clientId, Serializer s)
+    private boolean sendEvent(Entity entity, String clientId, Serializer s)
             throws IOException {
         // Serialize for EAS here
         // Set uid with the client id we created
@@ -967,15 +973,15 @@ public class CalendarSyncAdapter extends AbstractSyncAdapter {
         // 3) Look for exceptions and serialize with the top-level event
         ContentValues entityValues = entity.getEntityValues();
         boolean isException = (clientId == null);
+        boolean hasAttendees = false;
 
         if (entityValues.containsKey(Events.ALL_DAY)) {
-            s.data(Tags.CALENDAR_ALL_DAY_EVENT,
-                    entityValues.getAsInteger(Events.ALL_DAY).toString());
+            Integer ade = entityValues.getAsInteger(Events.ALL_DAY);
+            s.data(Tags.CALENDAR_ALL_DAY_EVENT, ade.toString());
         }
 
         long startTime = entityValues.getAsLong(Events.DTSTART);
-        s.data(Tags.CALENDAR_START_TIME,
-                CalendarUtilities.millisToEasDateTime(startTime));
+        s.data(Tags.CALENDAR_START_TIME, CalendarUtilities.millisToEasDateTime(startTime));
 
         if (!entityValues.containsKey(Events.DURATION)) {
             if (entityValues.containsKey(Events.DTEND)) {
@@ -1045,11 +1051,6 @@ public class CalendarSyncAdapter extends AbstractSyncAdapter {
                 Uri ncvUri = ncv.uri;
                 ContentValues ncvValues = ncv.values;
                 if (ncvUri.equals(ExtendedProperties.CONTENT_URI)) {
-                    String uid = ncvValues.getAsString("uid");
-                    if (uid != null) {
-                        clientId = uid;
-                        s.data(Tags.CALENDAR_UID, clientId);
-                    }
                     s.writeStringValue(ncvValues, "dtstamp", Tags.CALENDAR_DTSTAMP);
                     String categories = ncvValues.getAsString("categories");
                     if (categories != null) {
@@ -1077,7 +1078,6 @@ public class CalendarSyncAdapter extends AbstractSyncAdapter {
             s.data(Tags.CALENDAR_UID, clientId);
 
             // Handle attendee data here; keep track of organizer and stream it afterward
-            boolean hasAttendees = false;
             String organizerName = null;
             for (NamedContentValues ncv: subValues) {
                 Uri ncvUri = ncv.uri;
@@ -1097,17 +1097,16 @@ public class CalendarSyncAdapter extends AbstractSyncAdapter {
                             hasAttendees = true;
                         }
                         s.start(Tags.CALENDAR_ATTENDEE);
+                        String attendeeEmail = ncvValues.getAsString(Attendees.ATTENDEE_EMAIL);
                         String attendeeName = ncvValues.getAsString(Attendees.ATTENDEE_NAME);
                         if (attendeeName == null) {
-                            attendeeName = ncvValues.getAsString(Attendees.ATTENDEE_EMAIL);
+                            attendeeName = attendeeEmail;
                         }
                         s.data(Tags.CALENDAR_ATTENDEE_NAME, attendeeName);
-                        s.writeStringValue(ncvValues, Attendees.ATTENDEE_EMAIL,
-                                Tags.CALENDAR_ATTENDEE_EMAIL);
+                        s.data(Tags.CALENDAR_ATTENDEE_EMAIL, attendeeEmail);
                         s.data(Tags.CALENDAR_ATTENDEE_TYPE, "1"); // Required
                         s.end(); // Attendee
-                        // Don't send status (disallowed for upload)
-                    }
+                     }
                 }
             }
             if (hasAttendees) {
@@ -1126,6 +1125,8 @@ public class CalendarSyncAdapter extends AbstractSyncAdapter {
                 // Illegal; what should we do?
             }
         }
+
+        return hasAttendees;
     }
 
     @Override
@@ -1165,7 +1166,7 @@ public class CalendarSyncAdapter extends AbstractSyncAdapter {
                 boolean first = true;
                 while (eventIterator.hasNext()) {
                     Entity entity = eventIterator.next();
-                    String clientId = "uid_" + mMailbox.mId + '_' + System.currentTimeMillis();
+                    String clientId = UUID.randomUUID().toString();
 
                     // For each of these entities, create the change commands
                     ContentValues entityValues = entity.getEntityValues();
@@ -1173,9 +1174,11 @@ public class CalendarSyncAdapter extends AbstractSyncAdapter {
 
                     // EAS 2.5 needs: BusyStatus DtStamp EndTime Sensitivity StartTime TimeZone UID
                     // We can generate all but what we're testing for below
+                    String organizerEmail = entityValues.getAsString(Events.ORGANIZER);
                     if (!entityValues.containsKey(Events.DTSTART)
                             || (!entityValues.containsKey(Events.DURATION) &&
-                                    !entityValues.containsKey(Events.DTEND))) {
+                                    !entityValues.containsKey(Events.DTEND))
+                                    || organizerEmail == null) {
                         continue;
                     }
                     // TODO Handle BusyStatus for EAS 2.5
@@ -1186,16 +1189,14 @@ public class CalendarSyncAdapter extends AbstractSyncAdapter {
                         userLog("Sending Calendar changes to the server");
                         first = false;
                     }
+                    long eventId = entityValues.getAsLong(Events._ID);
                     if (serverId == null) {
                         // This is a new event; create a clientId
                         userLog("Creating new event with clientId: ", clientId);
                         s.start(Tags.SYNC_ADD).data(Tags.SYNC_CLIENT_ID, clientId);
                         // And save it in the Event as the local id
                         cidValues.put(Events._SYNC_LOCAL_ID, clientId);
-                        cr.update(ContentUris.
-                                withAppendedId(uri,
-                                        entityValues.getAsLong(Events._ID)),
-                                        cidValues, null, null);
+                        cr.update(ContentUris.withAppendedId(uri, eventId), cidValues, null, null);
                     } else {
                         if (entityValues.getAsInteger(Events.DELETED) == 1) {
                             userLog("Deleting event with serverId: ", serverId);
@@ -1207,7 +1208,8 @@ public class CalendarSyncAdapter extends AbstractSyncAdapter {
                         s.start(Tags.SYNC_CHANGE).data(Tags.SYNC_SERVER_ID, serverId);
                     }
                     s.start(Tags.SYNC_APPLICATION_DATA);
-                    sendEvent(entity, clientId, s);
+
+                    boolean hasAttendees = sendEvent(entity, clientId, s);
 
                     // Now, the hard part; find exceptions for this event
                     if (serverId != null) {
@@ -1232,6 +1234,17 @@ public class CalendarSyncAdapter extends AbstractSyncAdapter {
 
                     s.end().end(); // ApplicationData & Change
                     mUpdatedIdList.add(entityValues.getAsLong(Events._ID));
+
+                    // Send the meeting invite if there are attendees and we're the organizer
+                    if (hasAttendees && organizerEmail.equalsIgnoreCase(mAccount.mEmailAddress)) {
+                        EmailContent.Message msg =
+                            CalendarUtilities.createMessageForEventId(cr, eventId,
+                                    EmailContent.Message.FLAG_OUTGOING_MEETING_INVITE, clientId,
+                                    mAccount);
+                        if (msg != null) {
+                            EasOutboxService.sendMessage(mContext, mAccount.mId, msg);
+                        }
+                    }
                 }
                 if (!first) {
                     s.end(); // Commands

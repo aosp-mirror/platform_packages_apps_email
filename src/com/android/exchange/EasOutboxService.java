@@ -215,4 +215,19 @@ public class EasOutboxService extends EasSyncService {
             SyncManager.done(this);
         }
     }
+
+    /**
+     * Convenience method for adding a Message to an account's outbox
+     * @param context the context of the caller
+     * @param accountId the accountId for the sending account
+     * @param msg the message to send
+     */
+    public static void sendMessage(Context context, long accountId, Message msg) {
+        Mailbox mailbox = Mailbox.restoreMailboxOfType(context, accountId, Mailbox.TYPE_OUTBOX);
+        if (mailbox != null) {
+            msg.mMailboxKey = mailbox.mId;
+            msg.mAccountKey = accountId;
+            msg.save(context);
+        }
+    }
 }

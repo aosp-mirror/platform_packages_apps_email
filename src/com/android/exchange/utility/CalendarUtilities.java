@@ -17,21 +17,37 @@
 package com.android.exchange.utility;
 
 import com.android.email.Email;
+import com.android.email.mail.Address;
+import com.android.email.provider.EmailContent;
 import com.android.email.provider.EmailContent.Account;
+import com.android.email.provider.EmailContent.Attachment;
 import com.android.email.provider.EmailContent.Mailbox;
+import com.android.email.provider.EmailContent.Message;
 import com.android.exchange.Eas;
 import com.android.exchange.EasSyncService;
 import com.android.exchange.adapter.Serializer;
 import com.android.exchange.adapter.Tags;
 
+import android.content.ContentResolver;
+import android.content.ContentUris;
 import android.content.ContentValues;
+import android.content.Entity;
+import android.content.EntityIterator;
+import android.content.Entity.NamedContentValues;
 import android.net.Uri;
+import android.os.RemoteException;
+import android.provider.Calendar.Attendees;
 import android.provider.Calendar.Calendars;
+import android.provider.Calendar.Events;
+import android.provider.Calendar.EventsEntity;
+import android.provider.Calendar.Reminders;
 import android.text.format.Time;
 import android.util.Log;
 import android.util.base64.Base64;
 
 import java.io.IOException;
+import java.text.ParseException;
+import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.Date;
 import java.util.GregorianCalendar;
@@ -104,6 +120,15 @@ public class CalendarUtilities {
 
     static final int sCurrentYear = new GregorianCalendar().get(Calendar.YEAR);
     static final TimeZone sGmtTimeZone = TimeZone.getTimeZone("GMT");
+
+    private static final String ICALENDAR_ATTENDEE_INVITE =
+        "ATTENDEE;ROLE=REQ-PARTICIPANT;PARTSTAT=NEEDS-ACTION;RSVP=TRUE";
+    private static final String ICALENDAR_ATTENDEE_ACCEPT =
+        "ATTENDEE;ROLE=REQ-PARTICIPANT;PARTSTAT=ACCEPTED";
+    private static final String ICALENDAR_ATTENDEE_DECLINE =
+        "ATTENDEE;ROLE=REQ-PARTICIPANT;PARTSTAT=DECLINED";
+    private static final String ICALENDAR_ATTENDEE_TENTATIVE =
+        "ATTENDEE;ROLE=REQ-PARTICIPANT;PARTSTAT=TENTATIVE";
 
     // Return a 4-byte long from a byte array (little endian)
     static int getLong(byte[] bytes, int offset) {
@@ -202,19 +227,6 @@ public class CalendarUtilities {
 
         return tzd;
     }
-
-    // Return a String from within a byte array at the given offset with max characters
-    // Unused for now, but might be helpful for debugging
-    //    String getString(byte[] bytes, int offset, int max) {
-    //    	StringBuilder sb = new StringBuilder();
-    //    	while (max-- > 0) {
-    //    		int b = bytes[offset];
-    //    		if (b == 0) break;
-    //    		sb.append((char)b);
-    //    		offset += 2;
-    //    	}
-    //    	return sb.toString();
-    //    }
 
     /**
      * Build a GregorianCalendar, based on a time zone and TimeZoneDate.
@@ -646,7 +658,7 @@ public class CalendarUtilities {
      * @throws IOException
      */
     // NOTE: For the moment, we're only parsing recurrence types that are supported by the
-    // Calendar app UI, which is a small subset of possible recurrence types
+    // Calendar app UI, which is a subset of possible recurrence types
     // This code must be updated when the Calendar adds new functionality
     static public void recurrenceFromRrule(String rrule, long startTime, Serializer s)
     throws IOException {
@@ -815,5 +827,255 @@ public class CalendarUtilities {
             return Long.parseLong(stringId);
         }
         return -1;
+    }
+
+    /**
+     * Create a Message for an (Event) Entity
+     * @param entity the Entity for the Event (as might be retrieved by CalendarProvider)
+     * @param messageFlag the Message.FLAG_XXX constant indicating the type of email to be sent
+     * @param the unique id of this Event, or null if it can be retrieved from the Event
+     * @param the user's account
+     * @return a Message with many fields pre-filled (more later)
+     */
+    static public EmailContent.Message createMessageForEntity(Entity entity, int messageFlag,
+            String uid, Account account) {
+        // TODO Handle exceptions; will be a nightmare
+        // TODO Cries out for unit test
+        ContentValues entityValues = entity.getEntityValues();
+
+        EmailContent.Message msg = new EmailContent.Message();
+        msg.mFlags = messageFlag;
+        msg.mTimeStamp = System.currentTimeMillis();
+
+        String method;
+        if (messageFlag == EmailContent.Message.FLAG_OUTGOING_MEETING_INVITE) {
+            method = "REQUEST";
+        } else {
+            method = "REPLY";
+        }
+
+        // Create our iCalendar writer and start generating tags
+        SimpleIcsWriter ics = new SimpleIcsWriter();
+        ics.writeTag("BEGIN", "VCALENDAR");
+        ics.writeTag("METHOD", method);
+        ics.writeTag("PRODID", "AndroidEmail");
+        ics.writeTag("VERSION", "2.0");
+        ics.writeTag("BEGIN", "VEVENT");
+        ics.writeTag("CLASS", "PUBLIC");
+        ics.writeTag("STATUS", "CONFIRMED");
+        ics.writeTag("TRANSP", "OPAQUE"); // What Exchange uses
+        ics.writeTag("PRIORITY", "5");  // 1 to 9, 5 = medium
+        ics.writeTag("SEQUENCE", "0");
+        if (uid == null) {
+            uid = entityValues.getAsString(Events._SYNC_LOCAL_ID);
+        }
+        if (uid != null) {
+            ics.writeTag("UID", uid);
+        }
+
+        if (entityValues.containsKey(Events.ALL_DAY)) {
+            Integer ade = entityValues.getAsInteger(Events.ALL_DAY);
+            ics.writeTag("X-MICROSOFT-CDO-ALLDAYEVENT", ade == 0 ? "FALSE" : "TRUE");
+        }
+
+        long startTime = entityValues.getAsLong(Events.DTSTART);
+        ics.writeTag("DTSTART", CalendarUtilities.millisToEasDateTime(startTime));
+
+        if (!entityValues.containsKey(Events.DURATION)) {
+            if (entityValues.containsKey(Events.DTEND)) {
+                ics.writeTag("DTEND", CalendarUtilities.millisToEasDateTime(
+                        entityValues.getAsLong(Events.DTEND)));
+            }
+        } else {
+            // Convert this into millis and add it to DTSTART for DTEND
+            // We'll use 1 hour as a default
+            long durationMillis = HOURS;
+            Duration duration = new Duration();
+            try {
+                duration.parse(entityValues.getAsString(Events.DURATION));
+            } catch (ParseException e) {
+                // We'll use the default in this case
+            }
+            ics.writeTag("DTEND",
+                    CalendarUtilities.millisToEasDateTime(startTime + durationMillis));
+        }
+
+        ics.writeTag("DTSTAMP", CalendarUtilities.millisToEasDateTime(System.currentTimeMillis()));
+
+        if (entityValues.containsKey(Events.EVENT_LOCATION)) {
+            ics.writeTag("LOCATION", entityValues.getAsString(Events.EVENT_LOCATION));
+        }
+        String title = entityValues.getAsString(Events.TITLE);
+        if (title != null) {
+            ics.writeTag("SUMMARY", title);
+            // TODO Add to strings.xml
+            msg.mSubject = "Invitation" + ": " +  title;
+        } else {
+            msg.mSubject = "Invitation";
+        }
+
+        // TODO Handle time zone
+
+        String desc = entityValues.getAsString(Events.DESCRIPTION);
+        if (desc != null) {
+            // TODO Do we need to create something (like we'll do with the email)?
+            ics.writeTag("DESCRIPTION", desc);
+            msg.mText = "Boilerplate" + "\n\n" + desc;
+        } else {
+            msg.mText = "Boilerplate";
+        }
+
+        String rrule = entityValues.getAsString(Events.RRULE);
+        if (rrule != null) {
+            ics.writeTag("RRULE", rrule);
+        }
+
+        // Handle associated data EXCEPT for attendees, which have to be grouped
+        ArrayList<NamedContentValues> subValues = entity.getSubValues();
+        for (NamedContentValues ncv: subValues) {
+            Uri ncvUri = ncv.uri;
+            if (ncvUri.equals(Reminders.CONTENT_URI)) {
+                // TODO Consider sending out alarm information in the meeting request, although
+                // it's not obviously appropriate (i.e. telling the user what alarm to use)
+                // This should be for REQUEST only
+                // Here's what the VALARM would look like:
+                //                  BEGIN:VALARM
+                //                  ACTION:DISPLAY
+                //                  DESCRIPTION:REMINDER
+                //                  TRIGGER;RELATED=START:-PT15M
+                //                  END:VALARM
+            }
+        }
+
+        // Handle attendee data here; keep track of organizer and stream it afterward
+        String organizerName = null;
+        String organizerEmail = null;
+        ArrayList<Address> toList = new ArrayList<Address>();
+        for (NamedContentValues ncv: subValues) {
+            Uri ncvUri = ncv.uri;
+            ContentValues ncvValues = ncv.values;
+            if (ncvUri.equals(Attendees.CONTENT_URI)) {
+                Integer relationship =
+                    ncvValues.getAsInteger(Attendees.ATTENDEE_RELATIONSHIP);
+                // If there's no relationship, we can't create this for EAS
+                // Similarly, we need an attendee email for each invitee
+                if (relationship != null &&
+                        ncvValues.containsKey(Attendees.ATTENDEE_EMAIL)) {
+                    // Organizer isn't among attendees in EAS
+                    if (relationship == Attendees.RELATIONSHIP_ORGANIZER) {
+                        organizerName = ncvValues.getAsString(Attendees.ATTENDEE_NAME);
+                        organizerEmail = ncvValues.getAsString(Attendees.ATTENDEE_EMAIL);
+                        continue;
+                    }
+                    String attendeeEmail = ncvValues.getAsString(Attendees.ATTENDEE_EMAIL);
+                    String attendeeName = ncvValues.getAsString(Attendees.ATTENDEE_NAME);
+                    // This shouldn't be possible, but allow for it
+                    if (attendeeEmail == null) continue;
+
+                    if (messageFlag == Message.FLAG_OUTGOING_MEETING_INVITE) {
+                        String icalTag = ICALENDAR_ATTENDEE_INVITE;
+                        if (attendeeName != null) {
+                            icalTag += ";CN=" + attendeeName;
+                        }
+                        ics.writeTag(icalTag, "MAILTO:" + attendeeEmail);
+                        toList.add(attendeeName == null ? new Address(attendeeEmail) :
+                            new Address(attendeeEmail, attendeeName));
+                    } else if (attendeeEmail.equalsIgnoreCase(account.mEmailAddress)) {
+                        String icalTag = null;
+                        switch (messageFlag) {
+                            case Message.FLAG_OUTGOING_MEETING_ACCEPT:
+                                icalTag = ICALENDAR_ATTENDEE_ACCEPT;
+                                break;
+                            case Message.FLAG_OUTGOING_MEETING_DECLINE:
+                                icalTag = ICALENDAR_ATTENDEE_DECLINE;
+                                break;
+                            case Message.FLAG_OUTGOING_MEETING_TENTATIVE:
+                                icalTag = ICALENDAR_ATTENDEE_TENTATIVE;
+                                break;
+                        }
+                        if (icalTag != null) {
+                            if (attendeeName != null) {
+                                icalTag += ";CN=" + attendeeName;
+                            }
+                            ics.writeTag(icalTag, "MAILTO:" + attendeeEmail);
+                        }
+                    }
+                }
+            }
+        }
+
+        // Create the organizer tag for ical
+        if (organizerEmail != null) {
+            String icalTag = "ORGANIZER";
+            // We should be able to find this, assuming the Email is the user's email
+            // TODO Find this in the account
+            if (organizerName != null) {
+                icalTag += ";CN=" + organizerName;
+            }
+            ics.writeTag(icalTag, "MAILTO:" + organizerEmail);
+            if (method.equals("REPLY")) {
+                toList.add(organizerName == null ? new Address(organizerEmail) :
+                    new Address(organizerEmail, organizerName));
+            }
+        }
+
+        // If we have no "to" list, we're done
+        if (toList.isEmpty()) return null;
+        // Write out the "to" list
+        Address[] toArray = new Address[toList.size()];
+        int i = 0;
+        for (Address address: toList) {
+            toArray[i++] = address;
+        }
+        msg.mTo = Address.pack(toArray);
+
+        ics.writeTag("END", "VEVENT");
+        ics.writeTag("END", "VCALENDAR");
+        ics.flush();
+        ics.close();
+
+        // Create the ics attachment using the "content" field
+        Attachment att = new Attachment();
+        att.mContent = ics.toString();
+        att.mMimeType = "text/calendar; method=" + method;
+        att.mFileName = "invite.ics";
+        att.mSize = att.mContent.length();
+        // We don't send content-disposition with this attachment
+        att.mFlags = Attachment.FLAG_SUPPRESS_DISPOSITION;
+
+        // Add the attachment to the message
+        msg.mAttachments = new ArrayList<Attachment>();
+        msg.mAttachments.add(att);
+
+        // Return the new Message to caller
+        return msg;
+    }
+
+    /**
+     * Create a Message for an Event that can be retrieved from CalendarProvider by its unique id
+     * @param cr a content resolver that can be used to query for the Event
+     * @param eventId the unique id of the Event
+     * @param messageFlag the Message.FLAG_XXX constant indicating the type of email to be sent
+     * @param the unique id of this Event, or null if it can be retrieved from the Event
+     * @param the user's account
+     * @return a Message with many fields pre-filled (more later)
+     * @throws RemoteException if there is an issue retrieving the Event from CalendarProvider
+     */
+    static public EmailContent.Message createMessageForEventId(ContentResolver cr, long eventId,
+            int messageFlag, String uid, Account account) throws RemoteException {
+        EntityIterator eventIterator =
+            EventsEntity.newEntityIterator(
+                    cr.query(ContentUris.withAppendedId(Events.CONTENT_URI.buildUpon()
+                            .appendQueryParameter(android.provider.Calendar.CALLER_IS_SYNCADAPTER,
+                            "true").build(), eventId), null, null, null, null), cr);
+        try {
+            while (eventIterator.hasNext()) {
+                Entity entity = eventIterator.next();
+                return createMessageForEntity(entity, messageFlag, uid, account);
+            }
+        } finally {
+            eventIterator.close();
+        }
+        return null;
     }
 }
