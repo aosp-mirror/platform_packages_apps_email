@@ -881,7 +881,7 @@ public class SyncManager extends Service implements Runnable {
         }
     }
 
-    protected void log(String str) {
+    protected static void log(String str) {
         if (Eas.USER_LOG) {
             Log.d(TAG, str);
             if (Eas.FILE_LOG) {
@@ -890,7 +890,7 @@ public class SyncManager extends Service implements Runnable {
         }
     }
 
-    protected void alwaysLog(String str) {
+    protected static void alwaysLog(String str) {
         if (!Eas.USER_LOG) {
             Log.d(TAG, str);
         } else {
@@ -1384,7 +1384,7 @@ public class SyncManager extends Service implements Runnable {
      * @param blockExternalChanges FOR TESTING ONLY - block backups, security changes, etc.
      * @param resolver the content resolver for making provider updates (injected for testability)
      */
-    void reconcileAccountsWithAccountManager(Context context,
+    /* package */ static void reconcileAccountsWithAccountManager(Context context,
             List<Account> cachedEasAccounts, android.accounts.Account[] accountManagerAccounts,
             boolean blockExternalChanges, ContentResolver resolver) {
         // First, look through our cached EAS Accounts (from EmailProvider) to make sure there's a
@@ -1428,19 +1428,18 @@ public class SyncManager extends Service implements Runnable {
                 alwaysLog("Account deleted from provider; deleting from AccountManager: " +
                         accountManagerAccountName);
                 // Delete the account
-                AccountManagerFuture<Boolean> blockingResult;
-                blockingResult = AccountManager.get(context)
+                AccountManagerFuture<Boolean> blockingResult = AccountManager.get(context)
                         .removeAccount(accountManagerAccount, null, null);
                 try {
                     // Note: All of the potential errors from removeAccount() are simply logged
                     // here, as there is nothing to actually do about them.
                     blockingResult.getResult();
                 } catch (OperationCanceledException e) {
-                    Log.d(Email.LOG_TAG, e.toString());
+                    Log.w(Email.LOG_TAG, e.toString());
                 } catch (AuthenticatorException e) {
-                    Log.d(Email.LOG_TAG, e.toString());
+                    Log.w(Email.LOG_TAG, e.toString());
                 } catch (IOException e) {
-                    Log.d(Email.LOG_TAG, e.toString());
+                    Log.w(Email.LOG_TAG, e.toString());
                 }
                 accountsDeleted = true;
             }
