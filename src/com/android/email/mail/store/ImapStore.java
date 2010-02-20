@@ -228,7 +228,9 @@ public class ImapStore extends Store {
         // values in any IMAP ID message
         synchronized (ImapStore.class) {
             if (sImapId == null) {
-                String networkOperator = TelephonyManager.getDefault().getNetworkOperatorName();
+                TelephonyManager tm =
+                        (TelephonyManager) context.getSystemService(Context.TELEPHONY_SERVICE);
+                String networkOperator = tm.getNetworkOperatorName();
                 if (networkOperator == null) networkOperator = "";
 
                 sImapId = makeCommonImapId(context.getPackageName(), Build.VERSION.RELEASE,
