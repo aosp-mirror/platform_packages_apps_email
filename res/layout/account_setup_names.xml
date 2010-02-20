@@ -49,6 +49,7 @@
                 android:layout_height="wrap_content"
                 android:layout_width="match_parent" />
             <TextView
+                android:id="@+id/account_name_label"
                 android:text="@string/account_setup_names_user_name_label"
                 android:layout_height="wrap_content"
                 android:layout_width="match_parent"

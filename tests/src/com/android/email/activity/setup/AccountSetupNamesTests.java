@@ -18,6 +18,7 @@ package com.android.email.activity.setup;
 
 import com.android.email.R;
 import com.android.email.provider.EmailContent;
+import com.android.email.provider.EmailContent.HostAuth;
 
 import android.content.ContentUris;
 import android.content.Context;
@@ -42,7 +43,7 @@ public class AccountSetupNamesTests extends ActivityInstrumentationTestCase2<Acc
     private Context mContext;
     private AccountSetupNames mActivity;
     private Button mDoneButton;
-    
+
     public AccountSetupNamesTests() {
         super(AccountSetupNames.class);
     }
@@ -56,7 +57,7 @@ public class AccountSetupNamesTests extends ActivityInstrumentationTestCase2<Acc
 
         mContext = this.getInstrumentation().getTargetContext();
     }
-    
+
     /**
      * Delete any dummy accounts we set up for this test
      */
@@ -67,35 +68,47 @@ public class AccountSetupNamesTests extends ActivityInstrumentationTestCase2<Acc
                     EmailContent.Account.CONTENT_URI, mAccountId);
             mContext.getContentResolver().delete(uri, null, null);
         }
-        
+
         // must call last because it scrubs member variables
         super.tearDown();
     }
-    
+
     /**
      * Test a "good" account name (enables the button)
      */
     public void testGoodAccountName() {
-        Intent i = getTestIntent("GoodName");
+        Intent i = getTestIntent("imap", "GoodName");
         this.setActivityIntent(i);
-        
+
         getActivityAndFields();
-        
+
         assertTrue(mDoneButton.isEnabled());
     }
-    
+
     /**
      * Test a "bad" account name (disables the button)
      */
     public void testBadAccountName() {
-        Intent i = getTestIntent("");
+        Intent i = getTestIntent("imap", "");
         this.setActivityIntent(i);
-        
+
         getActivityAndFields();
-        
+
         assertFalse(mDoneButton.isEnabled());
     }
-    
+
+    /**
+     * Test a "bad" account name (disables the button)
+     */
+    public void testEasAccountName() {
+        Intent i = getTestIntent("eas", "");
+        this.setActivityIntent(i);
+
+        getActivityAndFields();
+
+        assertTrue(mDoneButton.isEnabled());
+    }
+
     /**
      * Get the activity (which causes it to be started, using our intent) and get the UI fields
      */
@@ -103,13 +116,17 @@ public class AccountSetupNamesTests extends ActivityInstrumentationTestCase2<Acc
         mActivity = getActivity();
         mDoneButton = (Button) mActivity.findViewById(R.id.done);
     }
-    
+
     /**
-     * Create an intent with the Account in it
+     * Create an intent with the Account in it, using protocol as the protocol and name as the
+     * user's sender name
      */
-    private Intent getTestIntent(String name) {
+    private Intent getTestIntent(String protocol, String name) {
         mAccount = new EmailContent.Account();
         mAccount.setSenderName(name);
+        HostAuth hostAuth = new HostAuth();
+        hostAuth.mProtocol = protocol;
+        mAccount.mHostAuthRecv = hostAuth;
         mAccount.save(mContext);
         mAccountId = mAccount.mId;
 
@@ -117,5 +134,4 @@ public class AccountSetupNamesTests extends ActivityInstrumentationTestCase2<Acc
         i.putExtra(EXTRA_ACCOUNT_ID, mAccountId);
         return i;
     }
-    
 }
