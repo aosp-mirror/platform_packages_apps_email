@@ -228,6 +228,7 @@ public class CalendarSyncAdapter extends AbstractSyncAdapter {
             cv.put(Events._SYNC_ACCOUNT, mAccount.mEmailAddress);
             cv.put(Events._SYNC_ACCOUNT_TYPE, Email.EXCHANGE_ACCOUNT_MANAGER_TYPE);
             cv.put(Events._SYNC_ID, serverId);
+            cv.put(Events.HAS_ATTENDEE_DATA, 1);
 
             int allDayEvent = 0;
             String organizerName = null;
@@ -280,7 +281,7 @@ public class CalendarSyncAdapter extends AbstractSyncAdapter {
                         break;
                     case Tags.CALENDAR_ATTENDEES:
                         // If eventId >= 0, this is an update; otherwise, a new Event
-                        attendeesParser(ops, organizerName, organizerEmail, eventId);
+                        attendeesParser(ops, eventId);
                         break;
                     case Tags.BASE_BODY:
                         cv.put(Events.DESCRIPTION, bodyParser());
@@ -355,6 +356,24 @@ public class CalendarSyncAdapter extends AbstractSyncAdapter {
                         break;
                     default:
                         skipTag();
+                }
+            }
+
+            // Handle the organizer (who IS an attendee on device, but NOT in EAS)
+            if (organizerName != null || organizerEmail != null) {
+                ContentValues attendeeCv = new ContentValues();
+                if (organizerName != null) {
+                    attendeeCv.put(Attendees.ATTENDEE_NAME, organizerName);
+                }
+                if (organizerEmail != null) {
+                    attendeeCv.put(Attendees.ATTENDEE_EMAIL, organizerEmail);
+                }
+                attendeeCv.put(Attendees.ATTENDEE_RELATIONSHIP, Attendees.RELATIONSHIP_ORGANIZER);
+                attendeeCv.put(Attendees.ATTENDEE_TYPE, Attendees.TYPE_REQUIRED);
+                if (eventId < 0) {
+                    ops.newAttendee(attendeeCv);
+                } else {
+                    ops.updatedAttendee(attendeeCv, eventId);
                 }
             }
 
@@ -576,26 +595,7 @@ public class CalendarSyncAdapter extends AbstractSyncAdapter {
             return categories.toString();
         }
 
-        private String attendeesParser(CalendarOperations ops, String organizerName,
-                String organizerEmail, long eventId) throws IOException {
-            String body = null;
-            // First, handle the organizer (who IS an attendee on device, but NOT in EAS)
-            if (organizerName != null || organizerEmail != null) {
-                ContentValues cv = new ContentValues();
-                if (organizerName != null) {
-                    cv.put(Attendees.ATTENDEE_NAME, organizerName);
-                }
-                if (organizerEmail != null) {
-                    cv.put(Attendees.ATTENDEE_EMAIL, organizerEmail);
-                }
-                cv.put(Attendees.ATTENDEE_RELATIONSHIP, Attendees.RELATIONSHIP_ORGANIZER);
-                cv.put(Attendees.ATTENDEE_TYPE, Attendees.TYPE_REQUIRED);
-                if (eventId < 0) {
-                    ops.newAttendee(cv);
-                } else {
-                    ops.updatedAttendee(cv, eventId);
-                }
-            }
+        private void attendeesParser(CalendarOperations ops, long eventId) throws IOException {
             while (nextTag(Tags.CALENDAR_ATTENDEES) != END) {
                 switch (tag) {
                     case Tags.CALENDAR_ATTENDEE:
@@ -605,7 +605,6 @@ public class CalendarSyncAdapter extends AbstractSyncAdapter {
                         skipTag();
                 }
             }
-            return body;
         }
 
         private void attendeeParser(CalendarOperations ops, long eventId) throws IOException {
