@@ -573,12 +573,23 @@ public abstract class EmailContent {
         public static final int FLAG_TYPE_REPLY = 1<<0;
         public static final int FLAG_TYPE_FORWARD = 1<<1;
         public static final int FLAG_TYPE_MASK = FLAG_TYPE_REPLY | FLAG_TYPE_FORWARD;
-        // The following flags indicate messages that are determined to be meeting related
-        // (e.g. invites)
-        public static final int FLAG_MEETING_INVITE = 1<<2;
-        public static final int FLAG_MEETING_CANCEL_NOTICE = 1<<3;
-        public static final int FLAG_MEETING_MASK =
-            FLAG_MEETING_INVITE | FLAG_MEETING_CANCEL_NOTICE;
+        // The following flags indicate messages that are determined to be incoming meeting related
+        // (e.g. invites from others)
+        public static final int FLAG_INCOMING_MEETING_INVITE = 1<<2;
+        public static final int FLAG_INCOMING_MEETING_CANCEL = 1<<3;
+        public static final int FLAG_INCOMING_MEETING_MASK =
+            FLAG_INCOMING_MEETING_INVITE | FLAG_INCOMING_MEETING_CANCEL;
+        // The following flags indicate messages that are outgoing and meeting related
+        // (e.g. invites TO others)
+        public static final int FLAG_OUTGOING_MEETING_INVITE = 1<<4;
+        public static final int FLAG_OUTGOING_MEETING_CANCEL = 1<<5;
+        public static final int FLAG_OUTGOING_MEETING_ACCEPT = 1<<6;
+        public static final int FLAG_OUTGOING_MEETING_DECLINE = 1<<7;
+        public static final int FLAG_OUTGOING_MEETING_TENTATIVE = 1<<8;
+        public static final int FLAG_OUTGOING_MEETING_MASK =
+            FLAG_OUTGOING_MEETING_INVITE | FLAG_OUTGOING_MEETING_CANCEL |
+            FLAG_OUTGOING_MEETING_ACCEPT | FLAG_OUTGOING_MEETING_DECLINE |
+            FLAG_OUTGOING_MEETING_TENTATIVE;
 
         public Message() {
             mBaseUri = CONTENT_URI;
@@ -1543,6 +1554,10 @@ public abstract class EmailContent {
         public static final String LOCATION = "location";
         // The transfer encoding of the attachment
         public static final String ENCODING = "encoding";
+        // Content that is actually contained in the Attachment row
+        public static final String CONTENT = "content";
+        // Flags
+        public static final String FLAGS = "flags";
     }
 
     public static final class Attachment extends EmailContent implements AttachmentColumns {
@@ -1560,6 +1575,8 @@ public abstract class EmailContent {
         public long mMessageKey;
         public String mLocation;
         public String mEncoding;
+        public String mContent;
+        public int mFlags;
 
         public static final int CONTENT_ID_COLUMN = 0;
         public static final int CONTENT_FILENAME_COLUMN = 1;
@@ -1570,11 +1587,18 @@ public abstract class EmailContent {
         public static final int CONTENT_MESSAGE_ID_COLUMN = 6;
         public static final int CONTENT_LOCATION_COLUMN = 7;
         public static final int CONTENT_ENCODING_COLUMN = 8;
+        public static final int CONTENT_CONTENT_COLUMN = 9;
+        public static final int CONTENT_FLAGS_COLUMN = 10;
         public static final String[] CONTENT_PROJECTION = new String[] {
             RECORD_ID, AttachmentColumns.FILENAME, AttachmentColumns.MIME_TYPE,
             AttachmentColumns.SIZE, AttachmentColumns.CONTENT_ID, AttachmentColumns.CONTENT_URI,
-            AttachmentColumns.MESSAGE_KEY, AttachmentColumns.LOCATION, AttachmentColumns.ENCODING
+            AttachmentColumns.MESSAGE_KEY, AttachmentColumns.LOCATION, AttachmentColumns.ENCODING,
+            AttachmentColumns.CONTENT, AttachmentColumns.FLAGS
         };
+
+        // Bits used in mFlags
+        // Instruct RFC822 output code to supress "content-disposition".  Used for calendar invites.
+        public static final int FLAG_SUPPRESS_DISPOSITION = 1<<0;
 
         /**
          * no public constructor since this is a utility class
@@ -1672,6 +1696,8 @@ public abstract class EmailContent {
             mMessageKey = cursor.getLong(CONTENT_MESSAGE_ID_COLUMN);
             mLocation = cursor.getString(CONTENT_LOCATION_COLUMN);
             mEncoding = cursor.getString(CONTENT_ENCODING_COLUMN);
+            mContent = cursor.getString(CONTENT_CONTENT_COLUMN);
+            mFlags = cursor.getInt(CONTENT_FLAGS_COLUMN);
             return this;
         }
 
@@ -1686,6 +1712,8 @@ public abstract class EmailContent {
             values.put(AttachmentColumns.MESSAGE_KEY, mMessageKey);
             values.put(AttachmentColumns.LOCATION, mLocation);
             values.put(AttachmentColumns.ENCODING, mEncoding);
+            values.put(AttachmentColumns.CONTENT, mContent);
+            values.put(AttachmentColumns.FLAGS, mFlags);
             return values;
         }
 
@@ -1704,6 +1732,8 @@ public abstract class EmailContent {
             dest.writeLong(mMessageKey);
             dest.writeString(mLocation);
             dest.writeString(mEncoding);
+            dest.writeString(mContent);
+            dest.writeInt(mFlags);
         }
 
         public Attachment(Parcel in) {
@@ -1717,6 +1747,8 @@ public abstract class EmailContent {
             mMessageKey = in.readLong();
             mLocation = in.readString();
             mEncoding = in.readString();
+            mContent = in.readString();
+            mFlags = in.readInt();
          }
 
         public static final Parcelable.Creator<EmailContent.Attachment> CREATOR
@@ -1733,7 +1765,8 @@ public abstract class EmailContent {
         @Override
         public String toString() {
             return "[" + mFileName + ", " + mMimeType + ", " + mSize + ", " + mContentId + ", "
-                    + mContentUri + ", " + mMessageKey + ", " + mLocation + ", " + mEncoding + "]";
+                    + mContentUri + ", " + mMessageKey + ", " + mLocation + ", " + mEncoding  + ", "
+                    + mContent + ", " + mFlags + "]";
         }
     }
 

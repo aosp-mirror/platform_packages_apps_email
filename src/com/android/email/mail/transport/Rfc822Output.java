@@ -33,6 +33,7 @@ import android.util.base64.Base64;
 import android.util.base64.Base64OutputStream;
 
 import java.io.BufferedOutputStream;
+import java.io.ByteArrayInputStream;
 import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.io.InputStream;
@@ -210,19 +211,28 @@ public class Rfc822Output {
         writeHeader(writer, "Content-Type",
                 attachment.mMimeType + ";\n name=\"" + attachment.mFileName + "\"");
         writeHeader(writer, "Content-Transfer-Encoding", "base64");
-        writeHeader(writer, "Content-Disposition",
-                "attachment;"
-                + "\n filename=\"" + attachment.mFileName + "\";"
-                + "\n size=" + Long.toString(attachment.mSize));
+        // Most attachments (real files) will send Content-Disposition.  The suppression option
+        // is used when sending calendar invites.
+        if ((attachment.mFlags & Attachment.FLAG_SUPPRESS_DISPOSITION) == 0) {
+            writeHeader(writer, "Content-Disposition",
+                    "attachment;"
+                    + "\n filename=\"" + attachment.mFileName + "\";"
+                    + "\n size=" + Long.toString(attachment.mSize));
+        }
         writeHeader(writer, "Content-ID", attachment.mContentId);
         writer.append("\r\n");
 
         // Set up input stream and write it out via base64
         InputStream inStream = null;
         try {
-            // try to open the file
-            Uri fileUri = Uri.parse(attachment.mContentUri);
-            inStream = context.getContentResolver().openInputStream(fileUri);
+            // Use content, if provided; otherwise, use the contentUri
+            if (attachment.mContent != null) {
+                inStream = new ByteArrayInputStream(attachment.mContent.getBytes());
+            } else {
+                // try to open the file
+                Uri fileUri = Uri.parse(attachment.mContentUri);
+                inStream = context.getContentResolver().openInputStream(fileUri);
+            }
             // switch to output stream for base64 text output
             writer.flush();
             Base64OutputStream base64Out = new Base64OutputStream(
