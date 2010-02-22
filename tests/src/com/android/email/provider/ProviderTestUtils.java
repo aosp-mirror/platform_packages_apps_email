@@ -190,6 +190,8 @@ public class ProviderTestUtils extends Assert {
         att.mMimeType = "mimeType " + fileName;
         att.mLocation = "location " + fileName;
         att.mEncoding = "encoding " + fileName;
+        att.mContent = "content " + fileName;
+        att.mFlags = 0;
         if (saveIt) {
             att.save(context);
         }
@@ -352,5 +354,7 @@ public class ProviderTestUtils extends Assert {
         assertEquals(caller + " mMimeType", expect.mMimeType, actual.mMimeType);
         assertEquals(caller + " mLocation", expect.mLocation, actual.mLocation);
         assertEquals(caller + " mEncoding", expect.mEncoding, actual.mEncoding);
+        assertEquals(caller + " mContent", expect.mContent, actual.mContent);
+        assertEquals(caller + " mFlags", expect.mFlags, actual.mFlags);
     }
 }

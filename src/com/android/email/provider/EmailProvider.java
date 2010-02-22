@@ -69,8 +69,6 @@ public class EmailProvider extends ContentProvider {
 
     private static final String WHERE_ID = EmailContent.RECORD_ID + "=?";
 
-    private static final String[] COUNT_COLUMNS = new String[]{"count(*)"};
-
     // Any changes to the database format *must* include update-in-place code.
     // Original version: 3
     // Version 4: Database wipe required; changing AccountManager interface w/Exchange
@@ -81,7 +79,8 @@ public class EmailProvider extends ContentProvider {
     // Version 8: Add security flags column to accounts table
     // Version 9: Add security sync key and signature to accounts table
     // Version 10: Add meeting info to message table
-    public static final int DATABASE_VERSION = 10;
+    // Version 11: Add content and flags to attachment table
+    public static final int DATABASE_VERSION = 11;
 
     // Any changes to the database format *must* include update-in-place code.
     // Original version: 2
@@ -505,7 +504,9 @@ public class EmailProvider extends ContentProvider {
             + AttachmentColumns.CONTENT_URI + " text, "
             + AttachmentColumns.MESSAGE_KEY + " integer, "
             + AttachmentColumns.LOCATION + " text, "
-            + AttachmentColumns.ENCODING + " text"
+            + AttachmentColumns.ENCODING + " text, "
+            + AttachmentColumns.CONTENT + " text, "
+            + AttachmentColumns.FLAGS + " integer"
             + ");";
         db.execSQL("create table " + Attachment.TABLE_NAME + s);
         db.execSQL(createIndex(Attachment.TABLE_NAME, AttachmentColumns.MESSAGE_KEY));
@@ -754,6 +755,19 @@ public class EmailProvider extends ContentProvider {
                     Log.w(TAG, "Exception upgrading EmailProvider.db from 9 to 10 " + e);
                 }
                 oldVersion = 10;
+            }
+            if (oldVersion == 10) {
+                // Attachment: add content and flags columns
+                try {
+                    db.execSQL("alter table " + Attachment.TABLE_NAME
+                            + " add column " + AttachmentColumns.CONTENT + " text" + ";");
+                    db.execSQL("alter table " + Attachment.TABLE_NAME
+                            + " add column " + AttachmentColumns.FLAGS + " integer" + ";");
+                } catch (SQLException e) {
+                    // Shouldn't be needed unless we're debugging and interrupt the process
+                    Log.w(TAG, "Exception upgrading EmailProvider.db from 10 to 11 " + e);
+                }
+                oldVersion = 11;
             }
         }
 
