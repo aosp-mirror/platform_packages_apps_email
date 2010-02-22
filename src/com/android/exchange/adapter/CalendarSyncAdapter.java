@@ -36,7 +36,6 @@ import android.content.Entity.NamedContentValues;
 import android.database.Cursor;
 import android.net.Uri;
 import android.os.RemoteException;
-import android.pim.DateException;
 import android.provider.Calendar;
 import android.provider.SyncStateContract;
 import android.provider.Calendar.Attendees;
@@ -51,6 +50,7 @@ import android.util.Log;
 
 import java.io.IOException;
 import java.io.InputStream;
+import java.text.ParseException;
 import java.util.ArrayList;
 import java.util.GregorianCalendar;
 import java.util.StringTokenizer;
@@ -989,7 +989,7 @@ public class CalendarSyncAdapter extends AbstractSyncAdapter {
             Duration duration = new Duration();
             try {
                 duration.parse(entityValues.getAsString(Events.DURATION));
-            } catch (DateException e) {
+            } catch (ParseException e) {
                 // Can't do much about this; use the default (1 hour)
             }
             s.data(Tags.CALENDAR_END_TIME,

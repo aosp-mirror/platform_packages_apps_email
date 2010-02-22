@@ -15,8 +15,7 @@
 
 package com.android.exchange.utility;
 
-import android.pim.DateException;
-
+import java.text.ParseException;
 import java.util.Calendar;
 
 /**
@@ -39,7 +38,7 @@ public class Duration {
      * Parse according to RFC2445 ss4.3.6.  (It's actually a little loose with
      * its parsing, for better or for worse)
      */
-    public void parse(String str) throws DateException {
+    public void parse(String str) throws ParseException {
         sign = 1;
         weeks = 0;
         days = 0;
@@ -69,9 +68,9 @@ public class Duration {
 
         c = str.charAt(index);
         if (c != 'P') {
-            throw new DateException (
+            throw new ParseException (
                     "Duration.parse(str='" + str + "') expected 'P' at index="
-                    + index);
+                    + index, index);
         }
         index++;
 
@@ -98,9 +97,9 @@ public class Duration {
                 n = 0;
             } else if (c == 'T') {
             } else {
-                throw new DateException (
+                throw new ParseException (
                         "Duration.parse(str='" + str + "') unexpected char '"
-                        + c + "' at index=" + index);
+                        + c + "' at index=" + index, index);
             }
         }
     }

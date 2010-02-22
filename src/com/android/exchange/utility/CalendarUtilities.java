@@ -24,13 +24,12 @@ import com.android.exchange.EasSyncService;
 import com.android.exchange.adapter.Serializer;
 import com.android.exchange.adapter.Tags;
 
-import org.bouncycastle.util.encoders.Base64;
-
 import android.content.ContentValues;
 import android.net.Uri;
 import android.provider.Calendar.Calendars;
 import android.text.format.Time;
 import android.util.Log;
+import android.util.base64.Base64;
 
 import java.io.IOException;
 import java.util.Calendar;
@@ -330,8 +329,7 @@ public class CalendarUtilities {
                 setLong(tziBytes, MSFT_TIME_ZONE_DAYLIGHT_BIAS_OFFSET, - dstOffset / MINUTES);
             }
         }
-        // TODO Use a more efficient Base64 API
-        byte[] tziEncodedBytes = Base64.encode(tziBytes);
+        byte[] tziEncodedBytes = Base64.encode(tziBytes, Base64.NO_WRAP);
         tziString = new String(tziEncodedBytes);
         if (Eas.USER_LOG) {
             Log.d(TAG, "Calculated TZI String for " + tz.getDisplayName() + " in " +
@@ -376,7 +374,7 @@ public class CalendarUtilities {
         // TODO Remove after we're comfortable with performance
         long time = System.currentTimeMillis();
         // First, we need to decode the base64 string
-        byte[] timeZoneBytes = Base64.decode(timeZoneString);
+        byte[] timeZoneBytes = Base64.decode(timeZoneString, Base64.DEFAULT);
 
         // Then, we get the bias (similar to a rawOffset); for TimeZone, we need ms
         // but EAS gives us minutes, so do the conversion.  Note that EAS is the bias that's added
