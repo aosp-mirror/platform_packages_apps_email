@@ -222,10 +222,8 @@ public class SyncManagerAccountTests extends ProviderTestCase2<EmailProvider> {
         assertEquals(2, accountManagerAccounts.length);
 
         // Run the reconciler
-        SyncManager syncManager = new SyncManager();
         ContentResolver resolver = mMockContext.getContentResolver();
-        syncManager.mResolver = resolver;
-        syncManager.reconcileAccountsWithAccountManager(context,
+        SyncManager.reconcileAccountsWithAccountManager(context,
                 makeSyncManagerAccountList(), accountManagerAccounts, true, resolver);
 
         // There should now be only two EmailProvider accounts
@@ -238,7 +236,7 @@ public class SyncManagerAccountTests extends ProviderTestCase2<EmailProvider> {
         assertEquals(1, EmailContent.count(mMockContext, Account.CONTENT_URI, null, null));
 
         // Run the reconciler
-        syncManager.reconcileAccountsWithAccountManager(context,
+        SyncManager.reconcileAccountsWithAccountManager(context,
                 makeSyncManagerAccountList(), accountManagerAccounts, true, resolver);
 
         // There should now be only one AccountManager account

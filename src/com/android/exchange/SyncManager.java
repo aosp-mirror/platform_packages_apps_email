@@ -201,7 +201,7 @@ public class SyncManager extends Service implements Runnable {
     private HashMap<Long, CalendarObserver> mCalendarObservers =
         new HashMap<Long, CalendarObserver>();
 
-    /*package*/ ContentResolver mResolver;
+    private ContentResolver mResolver;
 
     // The singleton SyncManager object, with its thread and stop flag
     protected static SyncManager INSTANCE;
