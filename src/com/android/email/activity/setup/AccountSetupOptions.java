@@ -59,6 +59,9 @@ public class AccountSetupOptions extends Activity implements OnClickListener {
     private boolean mEasFlowMode;
     private Handler mHandler = new Handler();
 
+    /** Default sync window for new EAS accounts */
+    private static final int SYNC_WINDOW_EAS_DEFAULT = com.android.email.Account.SYNC_WINDOW_3_DAYS;
+
     public static void actionOptions(Activity fromActivity, EmailContent.Account account,
             boolean makeDefault, boolean easFlowMode) {
         Intent i = new Intent(fromActivity, AccountSetupOptions.class);
@@ -246,9 +249,13 @@ public class AccountSetupOptions extends Activity implements OnClickListener {
 
         // Now create the array used by the Spinner
         SpinnerOption[] windowOptions = new SpinnerOption[windowEntries.length];
+        int defaultIndex = -1;
         for (int i = 0; i < windowEntries.length; i++) {
-            windowOptions[i] = new SpinnerOption(
-                    Integer.valueOf(windowValues[i].toString()), windowEntries[i].toString());
+            final int value = Integer.valueOf(windowValues[i].toString());
+            windowOptions[i] = new SpinnerOption(value, windowEntries[i].toString());
+            if (value == SYNC_WINDOW_EAS_DEFAULT) {
+                defaultIndex = i;
+            }
         }
 
         ArrayAdapter<SpinnerOption> windowOptionsAdapter = new ArrayAdapter<SpinnerOption>(this,
@@ -258,5 +265,8 @@ public class AccountSetupOptions extends Activity implements OnClickListener {
         mSyncWindowView.setAdapter(windowOptionsAdapter);
 
         SpinnerOption.setSpinnerOptionValue(mSyncWindowView, mAccount.getSyncLookback());
+        if (defaultIndex >= 0) {
+            mSyncWindowView.setSelection(defaultIndex);
+        }
     }
 }
