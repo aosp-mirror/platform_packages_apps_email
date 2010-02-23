@@ -16,6 +16,7 @@
 package com.android.exchange.utility;
 
 import java.io.CharArrayWriter;
+import java.io.IOException;
 
 public class SimpleIcsWriter extends CharArrayWriter {
     public static final int MAX_LINE_LENGTH = 75;
@@ -34,12 +35,12 @@ public class SimpleIcsWriter extends CharArrayWriter {
     }
 
     @Override
-    public void write(String str) {
+    public void write(String str) throws IOException {
         int len = str.length();
         // Handle the simple case here to avoid unnecessary looping
         if (mLineCount + len < MAX_LINE_LENGTH) {
             mLineCount += len;
-            write(str);
+            super.write(str);
             return;
         }
         for (int i = 0; i < len; i++, mLineCount++) {
@@ -53,7 +54,7 @@ public class SimpleIcsWriter extends CharArrayWriter {
         }
     }
 
-    public void writeTag(String name, String value) {
+    public void writeTag(String name, String value) throws IOException {
         write(name);
         write(":");
         write(value);
