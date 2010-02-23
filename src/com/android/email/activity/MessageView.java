@@ -1288,7 +1288,8 @@ public class MessageView extends Activity implements OnClickListener {
         mCcContainerView.setVisibility((friendlyCc != null) ? View.VISIBLE : View.GONE);
         mAttachmentIcon.setVisibility(message.mAttachments != null ? View.VISIBLE : View.GONE);
         mFavoriteIcon.setImageDrawable(message.mFlagFavorite ? mFavoriteIconOn : mFavoriteIconOff);
-        mInviteSection.setVisibility(!TextUtils.isEmpty(message.mMeetingInfo) ?
+        // Show the message invite section if we're an incoming meeting invitation only
+        mInviteSection.setVisibility((message.mFlags & Message.FLAG_INCOMING_MEETING_INVITE) != 0 ?
                 View.VISIBLE : View.GONE);
 
         // Handle partially-loaded email, as follows:
