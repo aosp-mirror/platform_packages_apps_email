@@ -15,6 +15,8 @@
 
 package com.android.exchange.utility;
 
+import java.io.IOException;
+
 import junit.framework.TestCase;
 
 /**
@@ -35,7 +37,7 @@ public class SimpleIcsWriterTests extends TestCase {
     private final String expectedSecondLineBreak =
         string80Chars.charAt(SimpleIcsWriter.MAX_LINE_LENGTH - 1) + SimpleIcsWriter.LINE_BREAK;
 
-    public void testWriter() {
+    public void testWriter() throws IOException {
         // Sanity test on constant strings
         assertEquals(63, string63Chars.length());
         assertEquals(80, string80Chars.length());
