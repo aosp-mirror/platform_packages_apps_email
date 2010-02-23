@@ -840,8 +840,6 @@ public abstract class EmailContent {
         public static final int CHECK_INTERVAL_NEVER = -1;
         public static final int CHECK_INTERVAL_PUSH = -2;
 
-        public static final int SYNC_WINDOW_USER = -1;
-
         public String mDisplayName;
         public String mEmailAddress;
         public String mSyncKey;
@@ -1066,7 +1064,8 @@ public abstract class EmailContent {
         }
 
         /**
-         * @return the sync lookback window in # of days
+         * @return One of the {@code Account.SYNC_WINDOW_*} constants that represents the sync
+         *     lookback window.
          * TODO define sentinel values for "all", "1 month", etc.  See Account.java
          */
         public int getSyncLookback() {
@@ -1074,12 +1073,12 @@ public abstract class EmailContent {
         }
 
         /**
-         * Set the sync lookback window in # of days.  Be sure to call save() to commit to database.
+         * Set the sync lookback window.  Be sure to call save() to commit to database.
          * TODO define sentinel values for "all", "1 month", etc.  See Account.java
-         * @param days number of days to look back for syncing messages
+         * @param value One of the {@code Account.SYNC_WINDOW_*} constants
          */
-        public void setSyncLookback(int days) {
-            mSyncLookback = days;
+        public void setSyncLookback(int value) {
+            mSyncLookback = value;
         }
 
         /**
