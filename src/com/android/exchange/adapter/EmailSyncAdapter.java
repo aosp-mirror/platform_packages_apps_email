@@ -18,6 +18,8 @@
 package com.android.exchange.adapter;
 
 import com.android.email.mail.Address;
+import com.android.email.mail.MeetingInfo;
+import com.android.email.mail.PackedString;
 import com.android.email.provider.AttachmentProvider;
 import com.android.email.provider.EmailContent;
 import com.android.email.provider.EmailProvider;
@@ -42,6 +44,7 @@ import android.content.OperationApplicationException;
 import android.database.Cursor;
 import android.net.Uri;
 import android.os.RemoteException;
+import android.util.base64.Base64;
 import android.webkit.MimeTypeMap;
 
 import java.io.IOException;
@@ -179,13 +182,45 @@ public class EmailSyncAdapter extends AbstractSyncAdapter {
             }
         }
 
+        /**
+         * Set up the meetingInfo field in the message with various pieces of information gleaned
+         * from MeetingRequest tags.  This information will be used later to generate an appropriate
+         * reply email if the user chooses to respond
+         * @param msg the Message being built
+         * @throws IOException
+         */
         private void meetingRequestParser(Message msg) throws IOException {
+            PackedString.Builder packedString = new PackedString.Builder();
             while (nextTag(Tags.EMAIL_MEETING_REQUEST) != END) {
                 switch (tag) {
+                    case Tags.EMAIL_DTSTAMP:
+                        packedString.put(MeetingInfo.MEETING_DTSTAMP, getValue());
+                        break;
                     case Tags.EMAIL_START_TIME:
-                        // For now, we'll just save the time in millis as a String
-                        msg.mMeetingInfo =
-                            Long.toString(CalendarUtilities.parseEmailDateTimeToMillis(getValue()));
+                        packedString.put(MeetingInfo.MEETING_DTSTART, getValue());
+                        break;
+                    case Tags.EMAIL_END_TIME:
+                        packedString.put(MeetingInfo.MEETING_DTEND, getValue());
+                        break;
+                    case Tags.EMAIL_ORGANIZER:
+                        packedString.put(MeetingInfo.MEETING_ORGANIZER_EMAIL, getValue());
+                        break;
+                    case Tags.EMAIL_LOCATION:
+                        packedString.put(MeetingInfo.MEETING_LOCATION, getValue());
+                        break;
+                    case Tags.EMAIL_GLOBAL_OBJID:
+                        // This is lovely; the unique id is a base64 encoded hex string
+                        String guid = getValue();
+                        StringBuilder sb = new StringBuilder();
+                        // First get the decoded base64
+                        byte[] bytes = Base64.decode(guid, Base64.DEFAULT);
+                        // Then go through the bytes and write out the hex values as characters
+                        for (byte b: bytes) {
+                            int unsignedByte = (b < 0) ? b + 256 : b;
+                            sb.append("0123456789ABCDEF".charAt(unsignedByte >> 4));
+                            sb.append("0123456789ABCDEF".charAt(unsignedByte & 0xF));
+                        }
+                        packedString.put(MeetingInfo.MEETING_UID, sb.toString());
                         break;
                     case Tags.EMAIL_CATEGORIES:
                         nullParser();
@@ -197,6 +232,10 @@ public class EmailSyncAdapter extends AbstractSyncAdapter {
                         skipTag();
                 }
             }
+            if (msg.mSubject != null) {
+                packedString.put(MeetingInfo.MEETING_TITLE, msg.mSubject);
+            }
+            msg.mMeetingInfo = packedString.toString();
         }
 
         private void nullParser() throws IOException {

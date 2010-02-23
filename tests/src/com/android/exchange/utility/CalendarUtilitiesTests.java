@@ -16,6 +16,16 @@
 
 package com.android.exchange.utility;
 
+import com.android.email.R;
+import com.android.email.mail.Address;
+import com.android.email.provider.EmailContent.Account;
+import com.android.email.provider.EmailContent.Attachment;
+import com.android.email.provider.EmailContent.Message;
+
+import android.content.ContentValues;
+import android.content.Entity;
+import android.provider.Calendar.Attendees;
+import android.provider.Calendar.Events;
 import android.test.AndroidTestCase;
 
 import java.util.Calendar;
@@ -95,7 +105,7 @@ public class CalendarUtilitiesTests extends AndroidTestCase {
     }
 
     public void testRecurrenceUntilToEasUntil() {
-        // Test full format
+        // Test full formatCC
         assertEquals("YYYY-MM-DDTHH:MM:SS.000Z",
                 CalendarUtilities.recurrenceUntilToEasUntil("YYYYMMDDTHHMMSSZ"));
         // Test date only format
@@ -131,6 +141,72 @@ public class CalendarUtilitiesTests extends AndroidTestCase {
         assertEquals(cal.get(Calendar.HOUR_OF_DAY), 16);
         assertEquals(cal.get(Calendar.MINUTE), 16);
         assertEquals(cal.get(Calendar.SECOND), 17);
+    }
+
+    public void testCreateMessageForEntity_Reply() {
+        // Create an Entity for an Event
+        ContentValues entityValues = new ContentValues();
+        Entity entity = new Entity(entityValues);
+
+        // Set up values for the Event
+        String attendee = "attendee@server.com";
+        String organizer = "organizer@server.com";
+        String location = "Meeting Location";
+        String title = "Discuss Unit Tests";
+
+        // Fill in times, location, title, and organizer
+        entityValues.put("DTSTAMP",
+                CalendarUtilities.convertEmailDateTimeToCalendarDateTime("2010-04-05T14:30:51Z"));
+        entityValues.put(Events.DTSTART,
+                CalendarUtilities.parseEmailDateTimeToMillis("2010-04-12T18:30:00Z"));
+        entityValues.put(Events.DTEND,
+                CalendarUtilities.parseEmailDateTimeToMillis("2010-04-12T19:30:00Z"));
+        entityValues.put(Events.EVENT_LOCATION, location);
+        entityValues.put(Events.TITLE, title);
+        entityValues.put(Events.ORGANIZER, organizer);
+
+        // Add the attendee
+        ContentValues attendeeValues = new ContentValues();
+        attendeeValues.put(Attendees.ATTENDEE_RELATIONSHIP, Attendees.RELATIONSHIP_ATTENDEE);
+        attendeeValues.put(Attendees.ATTENDEE_EMAIL, attendee);
+        entity.addSubValue(Attendees.CONTENT_URI, attendeeValues);
+
+        // Add the organizer
+        ContentValues organizerValues = new ContentValues();
+        organizerValues.put(Attendees.ATTENDEE_RELATIONSHIP, Attendees.RELATIONSHIP_ORGANIZER);
+        organizerValues.put(Attendees.ATTENDEE_EMAIL, organizer);
+        entity.addSubValue(Attendees.CONTENT_URI, organizerValues);
+
+        String uid = "31415926535";
+        Account account = new Account();
+
+        // The attendee is responding
+        account.mEmailAddress = attendee;
+
+        // Create the outgoing message
+        Message msg = CalendarUtilities.createMessageForEntity(mContext, entity,
+                Message.FLAG_OUTGOING_MEETING_ACCEPT, uid, account);
+
+        // First, we should have a message
+        assertNotNull(msg);
+
+        // Now check some of the fields of the message
+        assertEquals(Address.pack(new Address[] {new Address(organizer)}), msg.mTo);
+        String accept = getContext().getResources().getString(R.string.meeting_accepted);
+        assertEquals(accept + ": " + title, msg.mSubject);
+
+        // And make sure we have an attachment
+        assertNotNull(msg.mAttachments);
+        assertEquals(1, msg.mAttachments.size());
+        Attachment att = msg.mAttachments.get(0);
+        // And that the attachment has the correct elements
+        assertEquals("invite.ics", att.mFileName);
+        assertEquals(Attachment.FLAG_SUPPRESS_DISPOSITION,
+                att.mFlags & Attachment.FLAG_SUPPRESS_DISPOSITION);
+        assertEquals("text/calendar; method=REPLY", att.mMimeType);
+        assertNotNull(att.mContent);
+
+        //TODO Check the contents of the attachment using an iCalendar parser
     }
 
     // Tests in progress...

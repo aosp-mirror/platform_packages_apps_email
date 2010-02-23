@@ -17,6 +17,7 @@
 package com.android.exchange.utility;
 
 import com.android.email.Email;
+import com.android.email.R;
 import com.android.email.mail.Address;
 import com.android.email.provider.EmailContent;
 import com.android.email.provider.EmailContent.Account;
@@ -31,6 +32,7 @@ import com.android.exchange.adapter.Tags;
 import android.content.ContentResolver;
 import android.content.ContentUris;
 import android.content.ContentValues;
+import android.content.Context;
 import android.content.Entity;
 import android.content.EntityIterator;
 import android.content.Entity.NamedContentValues;
@@ -454,7 +456,7 @@ public class CalendarUtilities {
                     // Check that the savings are the same
                     if (dstSavings != timeZone.getDSTSavings()) continue;
 
-                    // If we're here, it's the right time zone, modulo dynamic DST
+                    // If we're here, it's the right time zone
                     String dn = timeZone.getDisplayName();
                     // TODO Remove timing when we're comfortable with performance
                     if (Eas.USER_LOG) {
@@ -511,6 +513,13 @@ public class CalendarUtilities {
                 Integer.parseInt(date.substring(13, 15)));
         cal.setTimeZone(TimeZone.getTimeZone("GMT"));
         return cal;
+    }
+
+    static public String convertEmailDateTimeToCalendarDateTime(String date) {
+        // Format for email date strings is 2010-02-23T16:00:00.000Z
+        // Format for calendar date strings is 2010-02-23T160000Z
+       return date.substring(0, 4) + date.substring(5, 7) + date.substring(8, 13) +
+           date.substring(14, 16) + date.substring(17, 19) + 'Z';
     }
 
     static String formatTwo(int num) {
@@ -837,11 +846,12 @@ public class CalendarUtilities {
      * @param the user's account
      * @return a Message with many fields pre-filled (more later)
      */
-    static public EmailContent.Message createMessageForEntity(Entity entity, int messageFlag,
-            String uid, Account account) {
+    static public EmailContent.Message createMessageForEntity(Context context, Entity entity,
+            int messageFlag, String uid, Account account) {
         // TODO Handle exceptions; will be a nightmare
         // TODO Cries out for unit test
         ContentValues entityValues = entity.getEntityValues();
+        ArrayList<NamedContentValues> subValues = entity.getSubValues();
 
         EmailContent.Message msg = new EmailContent.Message();
         msg.mFlags = messageFlag;
@@ -854,10 +864,9 @@ public class CalendarUtilities {
             method = "REPLY";
         }
 
-        // Create our iCalendar writer and start generating tags
-        SimpleIcsWriter ics;
         try {
-            ics = new SimpleIcsWriter();
+            // Create our iCalendar writer and start generating tags
+            SimpleIcsWriter ics = new SimpleIcsWriter();
             ics.writeTag("BEGIN", "VCALENDAR");
             ics.writeTag("METHOD", method);
             ics.writeTag("PRODID", "AndroidEmail");
@@ -875,13 +884,18 @@ public class CalendarUtilities {
                 ics.writeTag("UID", uid);
             }
 
-            if (entityValues.containsKey(Events.ALL_DAY)) {
-                Integer ade = entityValues.getAsInteger(Events.ALL_DAY);
-                ics.writeTag("X-MICROSOFT-CDO-ALLDAYEVENT", ade == 0 ? "FALSE" : "TRUE");
+            if (entityValues.containsKey("DTSTAMP")) {
+                ics.writeTag("DTSTAMP", entityValues.getAsString("DTSTAMP"));
+            } else {
+                ics.writeTag("DTSTAMP",
+                        CalendarUtilities.millisToEasDateTime(System.currentTimeMillis()));
             }
 
+
             long startTime = entityValues.getAsLong(Events.DTSTART);
-            ics.writeTag("DTSTART", CalendarUtilities.millisToEasDateTime(startTime));
+            if (startTime != 0) {
+                ics.writeTag("DTSTART", CalendarUtilities.millisToEasDateTime(startTime));
+            }
 
             if (!entityValues.containsKey(Events.DURATION)) {
                 if (entityValues.containsKey(Events.DTEND)) {
@@ -902,51 +916,68 @@ public class CalendarUtilities {
                         CalendarUtilities.millisToEasDateTime(startTime + durationMillis));
             }
 
-            ics.writeTag("DTSTAMP",
-                    CalendarUtilities.millisToEasDateTime(System.currentTimeMillis()));
-
             if (entityValues.containsKey(Events.EVENT_LOCATION)) {
                 ics.writeTag("LOCATION", entityValues.getAsString(Events.EVENT_LOCATION));
             }
+
+            int titleId = 0;
+            switch (messageFlag) {
+                case Message.FLAG_OUTGOING_MEETING_INVITE:
+                    titleId = R.string.meeting_invitation;
+                    break;
+                case Message.FLAG_OUTGOING_MEETING_ACCEPT:
+                    titleId = R.string.meeting_accepted;
+                    break;
+                case Message.FLAG_OUTGOING_MEETING_DECLINE:
+                    titleId = R.string.meeting_declined;
+                    break;
+                case Message.FLAG_OUTGOING_MEETING_TENTATIVE:
+                    titleId = R.string.meeting_tentative;
+                    break;
+            }
             String title = entityValues.getAsString(Events.TITLE);
-            if (title != null) {
-                ics.writeTag("SUMMARY", title);
-                // TODO Add to strings.xml
-                msg.mSubject = "Invitation" + ": " +  title;
-            } else {
-                msg.mSubject = "Invitation";
+            if (title == null) {
+                title = "";
             }
+            ics.writeTag("SUMMARY", title);
+            msg.mSubject = context.getResources().getString(titleId, title);
 
-            // TODO Handle time zone
+            if (method.equals("REQUEST")) {
+                if (entityValues.containsKey(Events.ALL_DAY)) {
+                    Integer ade = entityValues.getAsInteger(Events.ALL_DAY);
+                    ics.writeTag("X-MICROSOFT-CDO-ALLDAYEVENT", ade == 0 ? "FALSE" : "TRUE");
+                }
 
-            String desc = entityValues.getAsString(Events.DESCRIPTION);
-            if (desc != null) {
-                // TODO Do we need to create something (like we'll do with the email)?
-                ics.writeTag("DESCRIPTION", desc);
-                msg.mText = "Boilerplate" + "\n\n" + desc;
-            } else {
-                msg.mText = "Boilerplate";
-            }
+                // TODO Handle time zone
 
-            String rrule = entityValues.getAsString(Events.RRULE);
-            if (rrule != null) {
-                ics.writeTag("RRULE", rrule);
-            }
+                String desc = entityValues.getAsString(Events.DESCRIPTION);
+                if (desc != null) {
+                    // TODO Do we add some description of the event here?
+                    ics.writeTag("DESCRIPTION", desc);
+                    msg.mText = desc;
+                } else {
+                    msg.mText = "";
+                }
 
-            // Handle associated data EXCEPT for attendees, which have to be grouped
-            ArrayList<NamedContentValues> subValues = entity.getSubValues();
-            for (NamedContentValues ncv: subValues) {
-                Uri ncvUri = ncv.uri;
-                if (ncvUri.equals(Reminders.CONTENT_URI)) {
-                    // TODO Consider sending out alarm information in the meeting request, although
-                    // it's not obviously appropriate (i.e. telling the user what alarm to use)
-                    // This should be for REQUEST only
-                    // Here's what the VALARM would look like:
-                    //                  BEGIN:VALARM
-                    //                  ACTION:DISPLAY
-                    //                  DESCRIPTION:REMINDER
-                    //                  TRIGGER;RELATED=START:-PT15M
-                    //                  END:VALARM
+                String rrule = entityValues.getAsString(Events.RRULE);
+                if (rrule != null) {
+                    ics.writeTag("RRULE", rrule);
+                }
+
+                // Handle associated data EXCEPT for attendees, which have to be grouped
+                for (NamedContentValues ncv: subValues) {
+                    Uri ncvUri = ncv.uri;
+                    if (ncvUri.equals(Reminders.CONTENT_URI)) {
+                        // TODO Consider sending alarm information in the meeting request, though
+                        // it's not obviously appropriate (i.e. telling the user what alarm to use)
+                        // This should be for REQUEST only
+                        // Here's what the VALARM would look like:
+                        //                  BEGIN:VALARM
+                        //                  ACTION:DISPLAY
+                        //                  DESCRIPTION:REMINDER
+                        //                  TRIGGER;RELATED=START:-PT15M
+                        //                  END:VALARM
+                    }
                 }
             }
 
@@ -1036,23 +1067,23 @@ public class CalendarUtilities {
             ics.writeTag("END", "VCALENDAR");
             ics.flush();
             ics.close();
-        } catch (IOException e) {;;
-            Log.w(TAG, "IOException creating message for Event");
+
+            // Create the ics attachment using the "content" field
+            Attachment att = new Attachment();
+            att.mContent = ics.toString();
+            att.mMimeType = "text/calendar; method=" + method;
+            att.mFileName = "invite.ics";
+            att.mSize = att.mContent.length();
+            // We don't send content-disposition with this attachment
+            att.mFlags = Attachment.FLAG_SUPPRESS_DISPOSITION;
+
+            // Add the attachment to the message
+            msg.mAttachments = new ArrayList<Attachment>();
+            msg.mAttachments.add(att);
+        } catch (IOException e) {
+            Log.w(TAG, "IOException in createMessageForEntity");
             return null;
         }
-
-        // Create the ics attachment using the "content" field
-        Attachment att = new Attachment();
-        att.mContent = ics.toString();
-        att.mMimeType = "text/calendar; method=" + method;
-        att.mFileName = "invite.ics";
-        att.mSize = att.mContent.length();
-        // We don't send content-disposition with this attachment
-        att.mFlags = Attachment.FLAG_SUPPRESS_DISPOSITION;
-
-        // Add the attachment to the message
-        msg.mAttachments = new ArrayList<Attachment>();
-        msg.mAttachments.add(att);
 
         // Return the new Message to caller
         return msg;
@@ -1068,8 +1099,9 @@ public class CalendarUtilities {
      * @return a Message with many fields pre-filled (more later)
      * @throws RemoteException if there is an issue retrieving the Event from CalendarProvider
      */
-    static public EmailContent.Message createMessageForEventId(ContentResolver cr, long eventId,
+    static public EmailContent.Message createMessageForEventId(Context context, long eventId,
             int messageFlag, String uid, Account account) throws RemoteException {
+        ContentResolver cr = context.getContentResolver();
         EntityIterator eventIterator =
             EventsEntity.newEntityIterator(
                     cr.query(ContentUris.withAppendedId(Events.CONTENT_URI.buildUpon()
@@ -1078,7 +1110,7 @@ public class CalendarUtilities {
         try {
             while (eventIterator.hasNext()) {
                 Entity entity = eventIterator.next();
-                return createMessageForEntity(entity, messageFlag, uid, account);
+                return createMessageForEntity(context, entity, messageFlag, uid, account);
             }
         } finally {
             eventIterator.close();

@@ -19,8 +19,11 @@ package com.android.exchange;
 
 import com.android.email.SecurityPolicy;
 import com.android.email.SecurityPolicy.PolicySet;
+import com.android.email.mail.Address;
 import com.android.email.mail.AuthenticationFailedException;
+import com.android.email.mail.MeetingInfo;
 import com.android.email.mail.MessagingException;
+import com.android.email.mail.PackedString;
 import com.android.email.provider.EmailContent.Account;
 import com.android.email.provider.EmailContent.AccountColumns;
 import com.android.email.provider.EmailContent.Attachment;
@@ -43,6 +46,7 @@ import com.android.exchange.adapter.ProvisionParser;
 import com.android.exchange.adapter.Serializer;
 import com.android.exchange.adapter.Tags;
 import com.android.exchange.adapter.Parser.EasParserException;
+import com.android.exchange.utility.CalendarUtilities;
 
 import org.apache.http.Header;
 import org.apache.http.HttpEntity;
@@ -69,10 +73,13 @@ import android.content.ContentResolver;
 import android.content.ContentUris;
 import android.content.ContentValues;
 import android.content.Context;
+import android.content.Entity;
 import android.database.Cursor;
 import android.os.Bundle;
 import android.os.RemoteException;
 import android.os.SystemClock;
+import android.provider.Calendar.Attendees;
+import android.provider.Calendar.Events;
 import android.util.Log;
 import android.util.Xml;
 import android.util.base64.Base64;
@@ -759,6 +766,69 @@ public class EasSyncService extends AbstractSyncService {
     }
 
     /**
+     * Send an email responding to a Message that has been marked as a meeting request.  The message
+     * will consist a little bit of event information and an iCalendar attachment
+     * @param msg the meeting request email
+     */
+    private void sendMeetingResponseMail(Message msg) {
+        // Get the meeting information; we'd better have some...
+        PackedString meetingInfo = new PackedString(msg.mMeetingInfo);
+        if (meetingInfo == null) return;
+
+        // This will come as "First Last" <box@server.blah>, so we use Address to
+        // parse it into parts; we only need the email address part for the ics file
+        Address[] addrs = Address.parse(meetingInfo.get(MeetingInfo.MEETING_ORGANIZER_EMAIL));
+        // It shouldn't be possible, but handle it anyway
+        if (addrs.length != 1) return;
+        String organizerEmail = addrs[0].getAddress();
+
+        String dtStamp = meetingInfo.get(MeetingInfo.MEETING_DTSTAMP);
+        String dtStart = meetingInfo.get(MeetingInfo.MEETING_DTSTART);
+        String dtEnd = meetingInfo.get(MeetingInfo.MEETING_DTEND);
+
+        // What we're doing here is to create an Entity that looks like an Event as it would be
+        // stored by CalendarProvider
+        ContentValues entityValues = new ContentValues();
+        Entity entity = new Entity(entityValues);
+
+        // Fill in times, location, title, and organizer
+        entityValues.put("DTSTAMP",
+                CalendarUtilities.convertEmailDateTimeToCalendarDateTime(dtStamp));
+        entityValues.put(Events.DTSTART,
+                CalendarUtilities.parseEmailDateTimeToMillis(dtStart));
+        entityValues.put(Events.DTEND, CalendarUtilities.parseEmailDateTimeToMillis(dtEnd));
+        entityValues.put(Events.EVENT_LOCATION, meetingInfo.get(MeetingInfo.MEETING_LOCATION));
+        entityValues.put(Events.TITLE, meetingInfo.get(MeetingInfo.MEETING_TITLE));
+        entityValues.put(Events.ORGANIZER, organizerEmail);
+
+        // Add ourselves as an attendee, using our account email address
+        ContentValues attendeeValues = new ContentValues();
+        attendeeValues.put(Attendees.ATTENDEE_RELATIONSHIP,
+                Attendees.RELATIONSHIP_ATTENDEE);
+        attendeeValues.put(Attendees.ATTENDEE_EMAIL, mAccount.mEmailAddress);
+        entity.addSubValue(Attendees.CONTENT_URI, attendeeValues);
+
+        // Add the organizer
+        ContentValues organizerValues = new ContentValues();
+        organizerValues.put(Attendees.ATTENDEE_RELATIONSHIP,
+                Attendees.RELATIONSHIP_ORGANIZER);
+        organizerValues.put(Attendees.ATTENDEE_EMAIL, organizerEmail);
+        entity.addSubValue(Attendees.CONTENT_URI, organizerValues);
+
+        // Create a message from the Entity we've built.  The message will have fields like
+        // to, subject, date, and text filled in.  There will also be an "inline" attachment
+        // which is in iCalendar format
+        Message outgoingMsg =
+            CalendarUtilities.createMessageForEntity(mContext, entity,
+                    Message.FLAG_OUTGOING_MEETING_ACCEPT,
+                    meetingInfo.get(MeetingInfo.MEETING_UID), mAccount);
+        // Assuming we got a message back (we might not if the event has been deleted), send it
+        if (outgoingMsg != null) {
+            EasOutboxService.sendMessage(mContext, mAccount.mId, outgoingMsg);
+        }
+    }
+
+    /**
      * Responds to a meeting request.  The MeetingResponseRequest is basically our
      * wrapper for the meetingResponse service call
      * @param req the request (message id and response code)
@@ -784,6 +854,7 @@ public class EasSyncService extends AbstractSyncService {
             InputStream is = res.getEntity().getContent();
             if (len != 0) {
                 new MeetingResponseParser(is, this).parse();
+                sendMeetingResponseMail(msg);
             }
         } else if (isAuthError(status)) {
             throw new EasAuthenticationException();

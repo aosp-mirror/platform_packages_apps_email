@@ -1238,7 +1238,7 @@ public class CalendarSyncAdapter extends AbstractSyncAdapter {
                     // Send the meeting invite if there are attendees and we're the organizer
                     if (hasAttendees && organizerEmail.equalsIgnoreCase(mAccount.mEmailAddress)) {
                         EmailContent.Message msg =
-                            CalendarUtilities.createMessageForEventId(cr, eventId,
+                            CalendarUtilities.createMessageForEventId(mContext, eventId,
                                     EmailContent.Message.FLAG_OUTGOING_MEETING_INVITE, clientId,
                                     mAccount);
                         if (msg != null) {
