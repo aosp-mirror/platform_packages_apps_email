@@ -20,6 +20,32 @@
          and remove the actual text.  These will be removed in a bulk operation. -->
     <!-- Do Not Translate.  Unused string. -->
     <string name="account_setup_failed_security_policies_required"></string>
+    <!-- Do Not Translate.  Unused string. -->
+    <string name="account_folder_list_summary_unread"></string>    
+    <!-- Do Not Translate.  Unused string. -->
+    <string name="account_settings_add_account_label"></string>
+    <!-- Do Not Translate.  Unused string. -->
+    <string name="account_setup_basics_instructions"></string>
+    <!-- Do Not Translate.  Unused string. -->
+    <string name="account_setup_exchange_domain_hint"></string>
+    <!-- Do Not Translate.  Unused string. -->
+    <string name="account_setup_exchange_domain_label"></string>
+    <!-- Do Not Translate.  Unused string. -->
+    <string name="account_setup_options_mail_window_all"></string>
+    <!-- Do Not Translate.  Unused string. -->
+    <string name="accounts_context_menu_title"></string>
+    <!-- Do Not Translate.  Unused string. -->
+    <string name="accounts_title"></string>
+    <!-- Do Not Translate.  Unused string. -->
+    <string name="add_contact_dlg_message_fmt"></string>
+    <!-- Do Not Translate.  Unused string. -->
+    <string name="add_contact_dlg_title"></string>
+    <!-- Do Not Translate.  Unused string. -->
+    <string name="message_list_title"></string>
+    <!-- Do Not Translate.  Unused string. -->
+    <string name="status_loading_more_failed"></string>
+    <!-- Do Not Translate.  Unused string. -->
+    <string name="status_sending_messages_failed"></string>
 
     <!-- Permissions label for reading attachments -->
     <string name="read_attachment_label">Read Email attachments</string>
@@ -34,8 +60,6 @@
 
     <!-- Name of application on Home screen -->
     <string name="app_name">Email</string>
-    <!-- Title of Accounts screen -->
-    <string name="accounts_title">Email</string>
     <!-- Title of compose screen -->
     <string name="compose_title">Compose</string>
     <!-- Title of debug screen -->
@@ -110,8 +134,6 @@
     <string name="dump_settings_action">Dump settings</string>
     <!-- Appears in choose attachment dialog title -->
     <string name="choose_attachment_dialog_title">Choose attachment</string>
-    <!-- Title of account context menu -->
-    <string name="accounts_context_menu_title">Account options</string>
     <!-- Appears in message list view while messages are being loaded -->
     <string name="status_loading_more">Loading messages\u2026</string>
     <!-- Appears in message list view of outbox while messages are being sent -->
@@ -119,10 +141,6 @@
     <!-- Appears in message list view when there's a network error. -->
     <!-- Also appears in a toast, in the message viewer, when there's a network error. -->
     <string name="status_network_error">Connection error</string>
-    <!-- Appears in message list view when error when trying to "Load more messages". -->
-    <string name="status_sending_messages_failed">Retry sending messages</string>
-    <!-- Appears in message list view when error when trying to "Load more messages". -->
-    <string name="status_loading_more_failed">Retry loading more messages</string>
     <!-- Notification title in status bar -->
     <string name="notification_new_title">New email</string>
     <!-- Dialog text when we are unable to load the message for display -->
@@ -194,8 +212,6 @@
     <string name="account_folder_list_separator_accounts">Accounts</string>
     <!-- The summary section entry in the AccountFolder list to display all inboxes -->
     <string name="account_folder_list_summary_inbox">Combined Inbox</string>
-    <!-- The summary section entry in the AccountFolder list to display all unread -->
-    <string name="account_folder_list_summary_unread">Unread</string>
     <!-- The summary section entry in the AccountFolder list to display all starred -->
     <string name="account_folder_list_summary_starred">Starred</string>
     <!-- The summary section entry in the AccountFolder list to display all drafts -->
@@ -211,8 +227,6 @@
     <!-- Appears at the bottom of list of messages of outbox;
          user selects to send pending messages. -->
     <string name="message_list_send_pending_messages_action">Send outgoing messages</string>
-    <!-- Appears at the title bar of list of messages. -->
-    <string name="message_list_title"><xliff:g id="account">%s</xliff:g>: <xliff:g id="mailbox">%s</xliff:g></string>
     <!-- Hint text in To field -->
     <string name="message_compose_to_hint">To</string>
     <!-- Hint text in Cc field -->
@@ -277,12 +291,6 @@
     <string name="message_discarded_toast">Message discarded.</string>
     <!-- Toast shown briefly while saving a draft -->
     <string name="message_saved_toast">Message saved as draft.</string>
-    <!-- Dialog title when prompting before creating a contact from incoming email -->
-    <string name="add_contact_dlg_title">Add Contact</string>
-    <!-- Dialog message when prompting before creating a contact from incoming email.  Includes
-         the email address, e.g. "Add xyz@foo.com to contacts" -->
-    <string name="add_contact_dlg_message_fmt">Add \"<xliff:g id="email">%s</xliff:g>\" to contacts
-        </string>
     <!-- String that is displayed when the attachment could not be displayed. -->
     <string name="message_view_display_attachment_toast">This attachment cannot be displayed.</string>
 
@@ -303,9 +311,6 @@
     <!-- On "Set up email" screen, enthusiastic welcome message (in EAS mode). -->
     <string name="accounts_welcome_exchange_alternate">
         You can configure an Exchange ActiveSync account in just a few steps.</string>
-    <!-- On "Set up email" screen, brief instructions -->
-    <!--  DEPRECATED - REMOVE -->
-    <string name="account_setup_basics_instructions"></string>
     <!-- On "Set up email" screen, hint for account email address text field -->
     <string name="account_setup_basics_email_hint">Email address</string>
     <!-- On "Set up email" screen, hint for account email password text field -->
@@ -420,10 +425,6 @@
     <string name="account_setup_exchange_server_label">Server</string>
     <!-- On "Exchange" setup screen, the domain\\username -->
     <string name="account_setup_exchange_username_label">Domain\\Username</string>
-    <!-- Deprecated: On "Exchange" setup screen, the domain name label -->
-    <string name="account_setup_exchange_domain_label">Domain</string>
-    <!-- Deprecated: On "Exchange" setup screen, the domain name hint -->
-    <string name="account_setup_exchange_domain_hint">Enter domain here</string>
     <!-- On "Exchange" setup screen, the use-SSL checkbox label -->
     <string name="account_setup_exchange_ssl_label">Use secure connection (SSL)</string>
     <!-- On "Exchange" setup screen, the trust ssl certificates checkbox label -->
@@ -472,8 +473,6 @@
     <string name="account_setup_options_mail_window_2weeks">Two weeks</string>
     <!-- In account setup options & account settings screens (exchange), sync window length  -->
     <string name="account_setup_options_mail_window_1month">One month</string>
-    <!-- In account setup options & account settings screens (exchange), sync window length  -->
-    <string name="account_setup_options_mail_window_all">All mail</string>
 
     <!-- "Setup could not finish" dialog text; e.g., Username or password incorrect -->
     <string name="account_setup_failed_dlg_auth_message">Username or password incorrect.</string> 
@@ -547,8 +546,6 @@
     <string name="account_settings_incoming_label">Incoming settings</string>
     <!-- On Settings screen, setting option name -->
     <string name="account_settings_outgoing_label">Outgoing settings</string>
-    <!-- On Settings screen, setting option name -->
-    <string name="account_settings_add_account_label">Add another account</string>
     <!-- On Settings screen, setting option name -->
     <string name="account_settings_description_label">Account name</string>
     <!-- On Settings screen, setting option name -->
