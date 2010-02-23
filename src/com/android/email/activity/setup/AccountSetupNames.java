@@ -22,6 +22,7 @@ import com.android.email.Utility;
 import com.android.email.provider.EmailContent;
 import com.android.email.provider.EmailContent.Account;
 import com.android.email.provider.EmailContent.AccountColumns;
+import com.android.email.provider.EmailContent.HostAuth;
 
 import android.app.Activity;
 import android.content.ContentUris;
@@ -48,6 +49,7 @@ public class AccountSetupNames extends Activity implements OnClickListener {
     private EditText mName;
     private Account mAccount;
     private Button mDoneButton;
+    private boolean mEasAccount = false;
 
     private CheckAccountStateTask mCheckAccountStateTask;
 
@@ -89,7 +91,22 @@ public class AccountSetupNames extends Activity implements OnClickListener {
 
         long accountId = getIntent().getLongExtra(EXTRA_ACCOUNT_ID, -1);
         mAccount = EmailContent.Account.restoreAccountWithId(this, accountId);
+        // Shouldn't happen, but it could
+        if (mAccount == null) {
+            onBackPressed();
+        }
+        // Get the hostAuth for receiving
+        HostAuth hostAuth = HostAuth.restoreHostAuthWithId(this, mAccount.mHostAuthKeyRecv);
+        if (hostAuth == null) {
+            onBackPressed();
+        }
 
+        // Remember whether we're an EAS account, since it doesn't require the user name field
+        mEasAccount = hostAuth.mProtocol.equals("eas");
+        if (mEasAccount) {
+            mName.setVisibility(View.GONE);
+            findViewById(R.id.account_name_label).setVisibility(View.GONE);
+        }
         /*
          * Since this field is considered optional, we don't set this here. If
          * the user fills in a value we'll reset the current value, otherwise we
@@ -99,9 +116,9 @@ public class AccountSetupNames extends Activity implements OnClickListener {
         if (mAccount != null && mAccount.getSenderName() != null) {
             mName.setText(mAccount.getSenderName());
         }
-        if (!Utility.requiredFieldValid(mName)) {
-            mDoneButton.setEnabled(false);
-        }
+
+        // Make sure the "done" button is in the proper state
+        validateFields();
     }
 
     @Override
@@ -119,7 +136,9 @@ public class AccountSetupNames extends Activity implements OnClickListener {
      * TODO: Validator should also trim the name string before checking it.
      */
     private void validateFields() {
-        mDoneButton.setEnabled(Utility.requiredFieldValid(mName));
+        if (!mEasAccount) {
+            mDoneButton.setEnabled(Utility.requiredFieldValid(mName));
+        }
         Utility.setCompoundDrawablesAlpha(mDoneButton, mDoneButton.isEnabled() ? 255 : 128);
     }
 
