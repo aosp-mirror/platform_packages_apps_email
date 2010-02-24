@@ -1982,8 +1982,9 @@ public class SyncManager extends Service implements Runnable {
      * Wake up SyncManager to check for mailboxes needing service
      */
     static public void kick(String reason) {
-        if (INSTANCE != null) {
+       if (INSTANCE != null) {
             synchronized (INSTANCE) {
+                INSTANCE.log("Kick: " + reason);
                 INSTANCE.mKicked = true;
                 INSTANCE.notify();
             }
