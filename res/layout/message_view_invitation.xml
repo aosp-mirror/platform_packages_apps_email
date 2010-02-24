@@ -14,52 +14,120 @@
      limitations under the License.
 -->
 
-<RelativeLayout
+<LinearLayout
     xmlns:android="http://schemas.android.com/apk/res/android"
     android:id="@+id/invite_section"
+    android:orientation="vertical"
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
     android:background="@drawable/text_box"
-    android:gravity="center_vertical" 
-    android:visibility="gone" >
-    <TextView
-        android:id="@+id/invite_info"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:layout_marginLeft="6dip"
-        android:singleLine="true"
-        android:ellipsize="end"
-        android:text="@string/message_view_invite_text"
-        android:textColor="?android:attr/textColorPrimaryInverse"
-        android:layout_alignParentTop="true" />
-    <Button
-        android:id="@+id/decline"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        style="?android:attr/buttonStyleSmall"
-        android:text="@string/message_view_invite_decline"
-        android:singleLine="true"
-        android:layout_alignParentRight="true"
-        android:layout_below="@id/invite_info"
-        android:layout_marginTop="6dip" />
-    <Button
-        android:id="@+id/maybe"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        style="?android:attr/buttonStyleSmall"
-        android:text="@string/message_view_invite_maybe"
-        android:singleLine="true"
-        android:layout_toLeftOf="@id/decline"
-        android:layout_below="@id/invite_info"
-        android:layout_marginTop="6dip" />
-    <Button
-        android:id="@+id/accept"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        style="?android:attr/buttonStyleSmall"
-        android:text="@string/message_view_invite_accept"
-        android:singleLine="true"
-        android:layout_toLeftOf="@id/maybe"
-        android:layout_below="@id/invite_info"
-        android:layout_marginTop="6dip" />
-</RelativeLayout>
+    android:visibility="gone"
+    >
+
+    <RelativeLayout
+         android:id="@+id/invite_link"
+         android:layout_width="match_parent"
+         android:layout_height="wrap_content"
+         android:gravity="center_vertical"
+         >
+
+        <TextView
+             android:layout_width="wrap_content"
+             android:layout_height="wrap_content"
+             android:singleLine="true"
+             android:ellipsize="end"
+             android:text="@string/message_view_invite_title"
+             android:textColor="?android:attr/textColorPrimaryInverse"
+             android:drawableLeft="@drawable/ic_event_email"
+             android:layout_marginLeft="6dip"
+             android:layout_alignParentLeft="true"
+             android:gravity="center_vertical"
+             />
+
+        <TextView
+             android:layout_width="wrap_content"
+             android:layout_height="wrap_content"
+             android:singleLine="true"
+             android:ellipsize="end"
+             android:text="@string/message_view_invite_view"
+             android:textColor="?android:attr/textColorPrimaryInverse"
+             android:layout_marginRight="6dip"
+             android:layout_alignParentRight="true"
+             android:gravity="center_vertical"
+             android:layout_gravity="center_vertical"
+             />
+    </RelativeLayout>
+
+    <View
+         android:layout_width="match_parent"
+         android:layout_height="1px"
+         android:background="#ff808080"
+         />
+
+    <LinearLayout
+         android:layout_width="match_parent"
+         android:layout_height="wrap_content"
+         android:orientation="horizontal"
+         android:gravity="center_vertical"
+         android:layout_margin="2dip"
+         >
+
+        <TextView
+             android:id="@+id/invite_info"
+             android:layout_width="wrap_content"
+             android:layout_height="wrap_content"
+             android:layout_weight="1"
+             android:layout_marginLeft="6dip"
+             android:layout_marginRight="6dip"
+             android:singleLine="true"
+             android:ellipsize="end"
+             android:text="@string/message_view_invite_text"
+             android:textColor="?android:attr/textColorPrimaryInverse"
+             />
+
+        <TextView
+             android:id="@+id/accept"
+             android:layout_width="wrap_content"
+             android:layout_height="wrap_content"
+             android:layout_weight="1"
+             android:layout_marginRight="6dip"
+             android:text="@string/message_view_invite_accept"
+             android:singleLine="true"
+             android:textColor="?android:attr/textColorPrimaryInverse"
+             android:drawableLeft="@drawable/btn_invite_yes"
+             android:gravity="center_vertical"
+             />
+
+        <TextView
+             android:id="@+id/maybe"
+             android:layout_width="wrap_content"
+             android:layout_height="wrap_content"
+             android:layout_weight="1"
+             android:layout_marginRight="6dip"
+             android:text="@string/message_view_invite_maybe"
+             android:singleLine="true"
+             android:textColor="?android:attr/textColorPrimaryInverse"
+             android:drawableLeft="@drawable/btn_invite_maybe"
+             android:gravity="center_vertical"
+             />
+
+        <TextView
+             android:id="@+id/decline"
+             android:layout_width="wrap_content"
+             android:layout_height="wrap_content"
+             android:layout_weight="1"
+             android:text="@string/message_view_invite_decline"
+             android:singleLine="true"
+             android:textColor="?android:attr/textColorPrimaryInverse"
+             android:drawableLeft="@drawable/btn_invite_no"
+             android:gravity="center_vertical"
+             />
+
+        <View
+             android:layout_width="0dip"
+             android:layout_height="0dip"
+             android:layout_weight="5"
+             />
+
+    </LinearLayout>
+</LinearLayout>
