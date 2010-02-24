@@ -59,6 +59,8 @@ public class OneTimeInitializer extends BroadcastReceiver {
                 setComponentEnabled(context, EasAuthenticatorServiceAlternate.class, true);
                 setComponentEnabled(context, EasAuthenticatorService.class, false);
             }
+
+            ExchangeUtils.enableEasCalendarSync(context);
         }
 
         // If we need other initializations in the future...

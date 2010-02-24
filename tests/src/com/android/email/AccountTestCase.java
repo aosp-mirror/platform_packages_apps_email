@@ -24,7 +24,6 @@ import android.accounts.AccountManager;
 import android.accounts.AccountManagerFuture;
 import android.accounts.AuthenticatorException;
 import android.accounts.OperationCanceledException;
-import android.content.Context;
 import android.database.Cursor;
 import android.test.ProviderTestCase2;
 
@@ -40,8 +39,13 @@ public abstract class AccountTestCase extends ProviderTestCase2<EmailProvider> {
     protected static final String TEST_ACCOUNT_PREFIX = "__test";
     protected static final String TEST_ACCOUNT_SUFFIX = "@android.com";
 
-    public AccountTestCase(Class<EmailProvider> providerClass, String providerAuthority) {
-        super(providerClass, providerAuthority);
+    public AccountTestCase() {
+        super(EmailProvider.class, EmailProvider.EMAIL_AUTHORITY);
+    }
+
+    protected android.accounts.Account[] getExchangeAccounts() {
+        return AccountManager.get(getContext())
+                .getAccountsByType(Email.EXCHANGE_ACCOUNT_MANAGER_TYPE);
     }
 
     protected android.accounts.Account makeAccountManagerAccount(String username) {
@@ -74,9 +78,9 @@ public abstract class AccountTestCase extends ProviderTestCase2<EmailProvider> {
         return accountList;
     }
 
-    protected void deleteAccountManagerAccount(Context context, android.accounts.Account account) {
+    protected void deleteAccountManagerAccount(android.accounts.Account account) {
         AccountManagerFuture<Boolean> future =
-            AccountManager.get(context).removeAccount(account, null, null);
+            AccountManager.get(getContext()).removeAccount(account, null, null);
         try {
             future.getResult();
         } catch (OperationCanceledException e) {
@@ -85,13 +89,11 @@ public abstract class AccountTestCase extends ProviderTestCase2<EmailProvider> {
         }
     }
 
-    protected void deleteTemporaryAccountManagerAccounts(Context context) {
-        android.accounts.Account[] accountManagerAccounts =
-                AccountManager.get(context).getAccountsByType(Email.EXCHANGE_ACCOUNT_MANAGER_TYPE);
-        for (android.accounts.Account accountManagerAccount: accountManagerAccounts) {
+    protected void deleteTemporaryAccountManagerAccounts() {
+        for (android.accounts.Account accountManagerAccount: getExchangeAccounts()) {
             if (accountManagerAccount.name.startsWith(TEST_ACCOUNT_PREFIX) &&
                     accountManagerAccount.name.endsWith(TEST_ACCOUNT_SUFFIX)) {
-                deleteAccountManagerAccount(context, accountManagerAccount);
+                deleteAccountManagerAccount(accountManagerAccount);
             }
         }
     }
@@ -109,10 +111,9 @@ public abstract class AccountTestCase extends ProviderTestCase2<EmailProvider> {
      * Helper to retrieve account manager accounts *and* remove any preexisting accounts
      * from the list, to "hide" them from the reconciler.
      */
-    protected android.accounts.Account[] getAccountManagerAccounts(Context context,
+    protected android.accounts.Account[] getAccountManagerAccounts(
             android.accounts.Account[] baseline) {
-        android.accounts.Account[] rawList =
-            AccountManager.get(context).getAccountsByType(Email.EXCHANGE_ACCOUNT_MANAGER_TYPE);
+        android.accounts.Account[] rawList = getExchangeAccounts();
         if (baseline.length == 0) {
             return rawList;
         }

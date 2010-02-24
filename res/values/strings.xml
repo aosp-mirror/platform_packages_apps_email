@@ -644,4 +644,8 @@
     <!-- Long-form description of the DeviceAdmin (2nd line in settings & in user conf. screen) -->
     <string name="device_admin_description">Enables server-specified security policies</string>
 
+    <!-- Notification message in notifications window when calendar sync is
+         automatically enabled for pre-existing Exchange accounts on upgrade -->
+    <string name="notification_exchange_calendar_added">Exchange calendar added</string>
+
 </resources>

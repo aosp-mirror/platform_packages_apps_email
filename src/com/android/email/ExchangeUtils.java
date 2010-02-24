@@ -20,6 +20,7 @@ import com.android.email.mail.MessagingException;
 import com.android.email.service.EmailServiceProxy;
 import com.android.email.service.IEmailService;
 import com.android.email.service.IEmailServiceCallback;
+import com.android.exchange.CalendarSyncEnabler;
 import com.android.exchange.SyncManager;
 
 import android.content.Context;
@@ -58,6 +59,15 @@ public class ExchangeUtils {
             ret = NullEmailService.INSTANCE;
         }
         return ret;
+    }
+
+    /**
+     * Enable calendar sync for all the existing exchange accounts, and post a notification if any.
+     */
+    public static void enableEasCalendarSync(Context context) {
+        //EXCHANGE-REMOVE-SECTION-START
+        new CalendarSyncEnabler(context).enableEasCalendarSync();
+        //EXCHANGE-REMOVE-SECTION-END
     }
 
     /**

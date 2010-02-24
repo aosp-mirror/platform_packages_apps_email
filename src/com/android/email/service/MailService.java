@@ -55,6 +55,7 @@ public class MailService extends Service {
 
     public static int NOTIFICATION_ID_NEW_MESSAGES = 1;
     public static int NOTIFICATION_ID_SECURITY_NEEDED = 2;
+    public static int NOTIFICATION_ID_EXCHANGE_CALENDAR_ADDED = 3;
 
     private static final String ACTION_CHECK_MAIL =
         "com.android.email.intent.action.MAIL_SERVICE_WAKEUP";

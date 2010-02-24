@@ -43,7 +43,7 @@ public class SyncManagerAccountTests extends AccountTestCase {
     Context mMockContext;
 
     public SyncManagerAccountTests() {
-        super(EmailProvider.class, EmailProvider.EMAIL_AUTHORITY);
+        super();
     }
 
     @Override
@@ -51,14 +51,14 @@ public class SyncManagerAccountTests extends AccountTestCase {
         super.setUp();
         mMockContext = getMockContext();
         // Delete any test accounts we might have created earlier
-        deleteTemporaryAccountManagerAccounts(getContext());
+        deleteTemporaryAccountManagerAccounts();
     }
 
     @Override
     public void tearDown() throws Exception {
         super.tearDown();
         // Delete any test accounts we might have created earlier
-        deleteTemporaryAccountManagerAccounts(getContext());
+        deleteTemporaryAccountManagerAccounts();
     }
 
     /**
@@ -87,7 +87,7 @@ public class SyncManagerAccountTests extends AccountTestCase {
                 for (android.accounts.Account accountManagerAccount: accountManagerAccounts) {
                     if ((TEST_USER_ACCOUNT + TEST_ACCOUNT_SUFFIX)
                             .equals(accountManagerAccount.name)) {
-                        deleteAccountManagerAccount(context, accountManagerAccount);
+                        deleteAccountManagerAccount(accountManagerAccount);
                         firstAccountFound = true;
                     }
                 }
@@ -118,16 +118,16 @@ public class SyncManagerAccountTests extends AccountTestCase {
         // Check that they're set up properly
         assertEquals(3, EmailContent.count(mMockContext, Account.CONTENT_URI, null, null));
         android.accounts.Account[] accountManagerAccounts =
-                getAccountManagerAccounts(context, baselineAccounts);
+                getAccountManagerAccounts(baselineAccounts);
         assertEquals(3, accountManagerAccounts.length);
 
         // Delete account "2" from AccountManager
         android.accounts.Account removedAccount =
             makeAccountManagerAccount(getTestAccountEmailAddress("2"));
-        deleteAccountManagerAccount(context, removedAccount);
+        deleteAccountManagerAccount(removedAccount);
 
         // Confirm it's deleted
-        accountManagerAccounts = getAccountManagerAccounts(context, baselineAccounts);
+        accountManagerAccounts = getAccountManagerAccounts(baselineAccounts);
         assertEquals(2, accountManagerAccounts.length);
 
         // Run the reconciler
@@ -149,7 +149,7 @@ public class SyncManagerAccountTests extends AccountTestCase {
                 makeSyncManagerAccountList(), accountManagerAccounts, true, resolver);
 
         // There should now be only one AccountManager account
-        accountManagerAccounts = getAccountManagerAccounts(context, baselineAccounts);
+        accountManagerAccounts = getAccountManagerAccounts(baselineAccounts);
         assertEquals(1, accountManagerAccounts.length);
         // ... and it should be account "3"
         assertEquals(getTestAccountEmailAddress("3"), accountManagerAccounts[0].name);
