@@ -854,8 +854,10 @@ public class ImapStore extends Store {
                     if (response.mTag == null && response.get(1).equals("FETCH")) {
                         ImapList fetchList = (ImapList)response.getKeyedValue("FETCH");
                         String uid = fetchList.getKeyedString("UID");
+                        if (uid == null) continue;
 
                         Message message = messageMap.get(uid);
+                        if (message == null) continue;
 
                         if (listener != null) {
                             listener.messageStarted(uid, messageNumber++, messageMap.size());

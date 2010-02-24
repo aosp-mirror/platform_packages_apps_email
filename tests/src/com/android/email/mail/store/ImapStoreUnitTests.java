@@ -487,4 +487,38 @@ public class ImapStoreUnitTests extends AndroidTestCase {
         String text = MimeUtility.getTextFromPart(emptyBodyPart);
         assertNull(text);
     }
+
+    /**
+     * Confirm the IMAP parser won't crash when seeing an excess FETCH response line without UID.
+     *
+     * <p>We've observed that the secure.emailsrvr.com email server returns an excess FETCH response
+     * for a UID FETCH command.  These excess responses doesn't have the UID field in it, even
+     * though we request, which led the response parser to crash.  We fixed it by ignoring response
+     * lines that don't have UID.  This test is to make sure this case.
+     */
+    public void testExcessFetchResult() throws MessagingException {
+        MockTransport mock = openAndInjectMockTransport();
+        setupOpenFolder(mock);
+        mFolder.open(OpenMode.READ_WRITE, null);
+
+        // Create a message, and make sure it's not "SEEN".
+        Message message1 = mFolder.createMessage("1");
+        assertFalse(message1.isSet(Flag.SEEN));
+
+        FetchProfile fp = new FetchProfile();
+        fp.clear();
+        fp.add(FetchProfile.Item.FLAGS);
+        mock.expect(getNextTag(false) + " UID FETCH 1 \\(UID FLAGS\\)",
+                new String[] {
+                "* 1 FETCH (UID 1 FLAGS (\\Seen))",
+                "* 2 FETCH (FLAGS (\\Seen))",
+                getNextTag(true) + " OK SUCCESS"
+        });
+
+        // Shouldn't crash
+        mFolder.fetch(new Message[] { message1 }, fp, null);
+
+        // And the message is "SEEN".
+        assertTrue(message1.isSet(Flag.SEEN));
+    }
 }
