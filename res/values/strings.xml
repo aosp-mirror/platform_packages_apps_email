@@ -284,8 +284,8 @@
     <string name="message_view_invite_decline">Decline</string>
     <!-- Toast shown briefly while deleting a message -->
     <plurals name="message_deleted_toast">
-        <item quantity="one">Message <xliff:g id="deleted.">deleted.</xliff:g></item>
-        <item quantity="other">Messages <xliff:g id="deleted.">deleted.</xliff:g></item>
+        <item quantity="one">Message deleted.</item>
+        <item quantity="other">Messages deleted.</item>
     </plurals>
     <!-- Toast shown briefly while deleting an unsent (draft) message -->
     <string name="message_discarded_toast">Message discarded.</string>
