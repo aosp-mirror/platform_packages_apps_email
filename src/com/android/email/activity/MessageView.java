@@ -16,7 +16,6 @@
 
 package com.android.email.activity;
 
-import com.android.common.Patterns;
 import com.android.email.Controller;
 import com.android.email.Email;
 import com.android.email.R;
@@ -61,6 +60,7 @@ import android.provider.ContactsContract.QuickContact;
 import android.provider.ContactsContract.StatusUpdates;
 import android.text.TextUtils;
 import android.util.Log;
+import android.util.Patterns;
 import android.view.LayoutInflater;
 import android.view.Menu;
 import android.view.MenuItem;
