@@ -591,6 +591,7 @@ public class CalendarSyncAdapter extends AbstractSyncAdapter {
                         // We need to save them and spit them back when we update the event
                         categories.append(getValue());
                         categories.append(CATEGORY_TOKENIZER_DELIMITER);
+                        break;
                     default:
                         skipTag();
                 }
