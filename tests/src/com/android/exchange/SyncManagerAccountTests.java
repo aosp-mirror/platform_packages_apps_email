@@ -17,37 +17,27 @@
 
 package com.android.exchange;
 
+import com.android.email.AccountTestCase;
 import com.android.email.Email;
 import com.android.email.provider.EmailContent;
 import com.android.email.provider.EmailProvider;
 import com.android.email.provider.ProviderTestUtils;
 import com.android.email.provider.EmailContent.Account;
 import com.android.email.provider.EmailContent.Mailbox;
-import com.android.exchange.SyncManager.AccountList;
 import com.android.exchange.SyncManager.SyncError;
 
 import android.accounts.AccountManager;
-import android.accounts.AccountManagerFuture;
-import android.accounts.AuthenticatorException;
-import android.accounts.OperationCanceledException;
 import android.content.ContentResolver;
 import android.content.ContentUris;
 import android.content.Context;
-import android.database.Cursor;
-import android.test.ProviderTestCase2;
 
-import java.io.IOException;
 import java.util.HashMap;
-import java.util.HashSet;
 
 /**
  * You can run this entire test case with:
  *   runtest -c com.android.exchange.SyncManagerAccountTests email
  */
-public class SyncManagerAccountTests extends ProviderTestCase2<EmailProvider> {
-
-    private static final String TEST_ACCOUNT_PREFIX = "__test";
-    private static final String TEST_ACCOUNT_SUFFIX = "@android.com";
+public class SyncManagerAccountTests extends AccountTestCase {
 
     EmailProvider mProvider;
     Context mMockContext;
@@ -69,66 +59,6 @@ public class SyncManagerAccountTests extends ProviderTestCase2<EmailProvider> {
         super.tearDown();
         // Delete any test accounts we might have created earlier
         deleteTemporaryAccountManagerAccounts(getContext());
-    }
-
-    private android.accounts.Account makeAccountManagerAccount(String username) {
-        return new android.accounts.Account(username, Email.EXCHANGE_ACCOUNT_MANAGER_TYPE);
-    }
-
-    private void createAccountManagerAccount(String username) {
-        final android.accounts.Account account = makeAccountManagerAccount(username);
-        AccountManager.get(getContext()).addAccountExplicitly(account, "password", null);
-    }
-
-    private Account setupProviderAndAccountManagerAccount(String username) {
-        // Note that setupAccount creates the email address username@android.com, so that's what
-        // we need to use for the account manager
-        createAccountManagerAccount(username + TEST_ACCOUNT_SUFFIX);
-        return ProviderTestUtils.setupAccount(username, true, mMockContext);
-    }
-
-    private AccountList makeSyncManagerAccountList() {
-        AccountList accountList = new AccountList();
-        Cursor c = mMockContext.getContentResolver().query(Account.CONTENT_URI,
-                Account.CONTENT_PROJECTION, null, null, null);
-        try {
-            while (c.moveToNext()) {
-                accountList.add(new Account().restore(c));
-            }
-        } finally {
-            c.close();
-        }
-        return accountList;
-    }
-
-    private void deleteAccountManagerAccount(Context context, android.accounts.Account account) {
-        AccountManagerFuture<Boolean> future =
-            AccountManager.get(context).removeAccount(account, null, null);
-        try {
-            future.getResult();
-        } catch (OperationCanceledException e) {
-        } catch (AuthenticatorException e) {
-        } catch (IOException e) {
-        }
-    }
-
-    private void deleteTemporaryAccountManagerAccounts(Context context) {
-        android.accounts.Account[] accountManagerAccounts =
-                AccountManager.get(context).getAccountsByType(Email.EXCHANGE_ACCOUNT_MANAGER_TYPE);
-        for (android.accounts.Account accountManagerAccount: accountManagerAccounts) {
-            if (accountManagerAccount.name.startsWith(TEST_ACCOUNT_PREFIX) &&
-                    accountManagerAccount.name.endsWith(TEST_ACCOUNT_SUFFIX)) {
-                deleteAccountManagerAccount(context, accountManagerAccount);
-            }
-        }
-    }
-
-    private String getTestAccountName(String name) {
-        return TEST_ACCOUNT_PREFIX + name;
-    }
-
-    private String getTestAccountEmailAddress(String name) {
-        return TEST_ACCOUNT_PREFIX + name + TEST_ACCOUNT_SUFFIX;
     }
 
     /**
@@ -164,27 +94,6 @@ public class SyncManagerAccountTests extends ProviderTestCase2<EmailProvider> {
                 assertTrue(firstAccountFound);
             }
         }
-    }
-
-    /**
-     * Helper to retrieve account manager accounts *and* remove any preexisting accounts
-     * from the list, to "hide" them from the reconciler.
-     */
-    private android.accounts.Account[] getAccountManagerAccounts(Context context,
-            android.accounts.Account[] baseline) {
-        android.accounts.Account[] rawList =
-            AccountManager.get(context).getAccountsByType(Email.EXCHANGE_ACCOUNT_MANAGER_TYPE);
-        if (baseline.length == 0) {
-            return rawList;
-        }
-        HashSet<android.accounts.Account> set = new HashSet<android.accounts.Account>();
-        for (android.accounts.Account addAccount : rawList) {
-            set.add(addAccount);
-        }
-        for (android.accounts.Account removeAccount : baseline) {
-            set.remove(removeAccount);
-        }
-        return set.toArray(new android.accounts.Account[0]);
     }
 
     /**
