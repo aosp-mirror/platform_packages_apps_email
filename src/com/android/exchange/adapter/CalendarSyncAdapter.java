@@ -70,10 +70,12 @@ public class CalendarSyncAdapter extends AbstractSyncAdapter {
     // there's no original event when finding an item by _SYNC_ID
     private static final String SERVER_ID = Events._SYNC_ID + "=? AND " +
         Events.ORIGINAL_EVENT + " ISNULL";
-    private static final String DIRTY_TOP_LEVEL =
-        Events._SYNC_DIRTY + "=1 AND " + Events.ORIGINAL_EVENT + " ISNULL";
-    private static final String DIRTY_EXCEPTION =
-        Events._SYNC_DIRTY + "=1 AND " + Events.ORIGINAL_EVENT + " NOTNULL";
+    private static final String DIRTY_TOP_LEVEL_IN_CALENDAR =
+        Events._SYNC_DIRTY + "=1 AND " + Events.ORIGINAL_EVENT + " ISNULL AND " +
+        Events.CALENDAR_ID + "=?";
+    private static final String DIRTY_EXCEPTION_IN_CALENDAR =
+        Events._SYNC_DIRTY + "=1 AND " + Events.ORIGINAL_EVENT + " NOTNULL AND " +
+        Events.CALENDAR_ID + "=?";
     private static final String DIRTY_IN_CALENDAR =
         Events._SYNC_DIRTY + "=1 AND " + Events.CALENDAR_ID + "=?";
     private static final String CLIENT_ID_SELECTION = Events._SYNC_LOCAL_ID + "=?";
@@ -102,6 +104,8 @@ public class CalendarSyncAdapter extends AbstractSyncAdapter {
     private ArrayList<Long> mDeletedIdList = new ArrayList<Long>();
     private ArrayList<Long> mUpdatedIdList = new ArrayList<Long>();
 
+    private String[] mCalendarIdArgument;
+
     public CalendarSyncAdapter(Mailbox mailbox, EasSyncService service) {
         super(mailbox, service);
 
@@ -114,6 +118,7 @@ public class CalendarSyncAdapter extends AbstractSyncAdapter {
             } else {
                 mCalendarId = CalendarUtilities.createCalendar(mService, mAccount, mMailbox);
             }
+            mCalendarIdArgument = new String[] {Long.toString(mCalendarId)};
         } finally {
             c.close();
         }
@@ -976,6 +981,24 @@ public class CalendarSyncAdapter extends AbstractSyncAdapter {
         boolean isException = (clientId == null);
         boolean hasAttendees = false;
 
+        if (!isException) {
+            // A time zone is required in all EAS events; we'll use the default if none is set
+            // Exchange 2003 seems to require this first... :-)
+            String timeZoneName = entityValues.getAsString(Events.EVENT_TIMEZONE);
+            if (timeZoneName == null) {
+                timeZoneName = TimeZone.getDefault().getID();
+            }
+            String timeZone = CalendarUtilities.timeZoneToTziString(
+                    TimeZone.getTimeZone(timeZoneName));
+            s.data(Tags.CALENDAR_TIME_ZONE, timeZone);
+        }
+
+        if (mService.mProtocolVersionDouble < 12.0) {
+            // We need BusyStatus for 2.5, so we'll send "busy", which is what OWA does.
+            // Calendar doesn't support free/busy yet
+            s.data(Tags.CALENDAR_BUSY_STATUS, "2");
+        }
+
         if (entityValues.containsKey(Events.ALL_DAY)) {
             Integer ade = entityValues.getAsInteger(Events.ALL_DAY);
             s.data(Tags.CALENDAR_ALL_DAY_EVENT, ade.toString());
@@ -1018,15 +1041,6 @@ public class CalendarSyncAdapter extends AbstractSyncAdapter {
         }
 
         if (!isException) {
-            // A time zone is required in all EAS events; we'll use the default if none is set
-            String timeZoneName = entityValues.getAsString(Events.EVENT_TIMEZONE);
-            if (timeZoneName == null) {
-                timeZoneName = TimeZone.getDefault().getID();
-            }
-            String timeZone = CalendarUtilities.timeZoneToTziString(
-                    TimeZone.getTimeZone(timeZoneName));
-            s.data(Tags.CALENDAR_TIME_ZONE, timeZone);
-
             String desc = entityValues.getAsString(Events.DESCRIPTION);
             if (desc != null) {
                 if (mService.mProtocolVersionDouble >= 12.0) {
@@ -1105,7 +1119,9 @@ public class CalendarSyncAdapter extends AbstractSyncAdapter {
                         }
                         s.data(Tags.CALENDAR_ATTENDEE_NAME, attendeeName);
                         s.data(Tags.CALENDAR_ATTENDEE_EMAIL, attendeeEmail);
-                        s.data(Tags.CALENDAR_ATTENDEE_TYPE, "1"); // Required
+                        if (mService.mProtocolVersionDouble >= 12.0) {
+                            s.data(Tags.CALENDAR_ATTENDEE_TYPE, "1"); // Required
+                        }
                         s.end(); // Attendee
                      }
                 }
@@ -1144,8 +1160,8 @@ public class CalendarSyncAdapter extends AbstractSyncAdapter {
         try {
             // We've got to handle exceptions as part of the parent when changes occur, so we need
             // to find new/changed exceptions and mark the parent dirty
-            Cursor c = cr.query(Events.CONTENT_URI, ORIGINAL_EVENT_PROJECTION, DIRTY_EXCEPTION,
-                    null, null);
+            Cursor c = cr.query(Events.CONTENT_URI, ORIGINAL_EVENT_PROJECTION,
+                    DIRTY_EXCEPTION_IN_CALENDAR, mCalendarIdArgument, null);
             try {
                 ContentValues cv = new ContentValues();
                 cv.put(Events._SYNC_DIRTY, 1);
@@ -1161,14 +1177,14 @@ public class CalendarSyncAdapter extends AbstractSyncAdapter {
 
             // Now we can go through dirty top-level events and send them back to the server
             EntityIterator eventIterator = EventsEntity.newEntityIterator(
-                    cr.query(uri, null, DIRTY_TOP_LEVEL, null, null), cr);
+                    cr.query(uri, null, DIRTY_TOP_LEVEL_IN_CALENDAR,
+                            mCalendarIdArgument, null), cr);
             ContentValues cidValues = new ContentValues();
             try {
                 boolean first = true;
                 while (eventIterator.hasNext()) {
                     Entity entity = eventIterator.next();
                     String clientId = UUID.randomUUID().toString();
-
                     // For each of these entities, create the change commands
                     ContentValues entityValues = entity.getEntityValues();
                     String serverId = entityValues.getAsString(Events._SYNC_ID);
@@ -1182,8 +1198,6 @@ public class CalendarSyncAdapter extends AbstractSyncAdapter {
                                     || organizerEmail == null) {
                         continue;
                     }
-                    // TODO Handle BusyStatus for EAS 2.5
-                    // What should it be??
 
                     if (first) {
                         s.start(Tags.SYNC_COMMANDS);
