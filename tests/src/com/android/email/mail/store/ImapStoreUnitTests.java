@@ -51,6 +51,8 @@ public class ImapStoreUnitTests extends AndroidTestCase {
     /* These values are provided by setUp() */
     private ImapStore mStore = null;
     private ImapStore.ImapFolder mFolder = null;
+
+    private int mNextTag;
     
     /**
      * Setup code.  We generate a lightweight ImapStore and ImapStore.ImapFolder.
@@ -105,7 +107,7 @@ public class ImapStoreUnitTests extends AndroidTestCase {
         //   x-android-device-model Model (Optional, so not tested here)
         //   x-android-net-operator Carrier (Unreliable, so not tested here)
         //   AGUID           A device+account UID
-        String id = mStore.getImapId(getContext(), "user-name", "host-name");
+        String id = mStore.getImapId(getContext(), "user-name", "host-name", "IMAP4rev1 STARTTLS");
         HashMap<String, String> map = tokenizeImapId(id);
         assertEquals(getContext().getPackageName(), map.get("name"));
         assertEquals("android", map.get("os"));
@@ -175,9 +177,9 @@ public class ImapStoreUnitTests extends AndroidTestCase {
         ImapStore store2 = (ImapStore) ImapStore.newInstance("imap://user2:password@server:999",
                 getContext(), null);
 
-        String id1a = mStore.getImapId(getContext(), "user1", "host-name");
-        String id1b = mStore.getImapId(getContext(), "user1", "host-name");
-        String id2 = mStore.getImapId(getContext(), "user2", "host-name");
+        String id1a = mStore.getImapId(getContext(), "user1", "host-name", "IMAP4rev1");
+        String id1b = mStore.getImapId(getContext(), "user1", "host-name", "IMAP4rev1");
+        String id2 = mStore.getImapId(getContext(), "user2", "host-name", "IMAP4rev1");
 
         String uid1a = tokenizeImapId(id1a).get("AGUID");
         String uid1b = tokenizeImapId(id1b).get("AGUID");
@@ -220,7 +222,7 @@ public class ImapStoreUnitTests extends AndroidTestCase {
                 "* ID (\"name\" \"Cyrus\" \"version\" \"1.5\"" +
                 " \"os\" \"sunos\" \"os-version\" \"5.5\"" +
                 " \"support-url\" \"mailto:cyrus-bugs+@andrew.cmu.edu\")",
-                "1 OK"});
+                "OK"});
         mFolder.open(OpenMode.READ_WRITE, null);
     }
 
@@ -233,7 +235,7 @@ public class ImapStoreUnitTests extends AndroidTestCase {
         // try to open it
         setupOpenFolder(mockTransport, new String[] {
                 "* ID NIL",
-                "1 OK [ID] bad-char-%"});
+                "OK [ID] bad-char-%"});
         mFolder.open(OpenMode.READ_WRITE, null);
     }
     
@@ -245,7 +247,7 @@ public class ImapStoreUnitTests extends AndroidTestCase {
         
         // try to open it
         setupOpenFolder(mockTransport, new String[] {
-                "1 BAD unknown command bad-char-%"});
+                "BAD unknown command bad-char-%"});
         mFolder.open(OpenMode.READ_WRITE, null);
     }
     
@@ -342,6 +344,7 @@ public class ImapStoreUnitTests extends AndroidTestCase {
         // Create mock transport and inject it into the ImapStore that's already set up
         MockTransport mockTransport = new MockTransport();
         mockTransport.setSecurity(Transport.CONNECTION_SECURITY_NONE, false);
+        mockTransport.setMockHost("mock.server.com");
         mStore.setTransport(mockTransport);
         return mockTransport;
     }
@@ -353,28 +356,55 @@ public class ImapStoreUnitTests extends AndroidTestCase {
      */
     private void setupOpenFolder(MockTransport mockTransport) {
         setupOpenFolder(mockTransport, new String[] {
-                "* ID NIL", "1 OK"});
+                "* ID NIL", "OK"});
     }
     
     /**
      * Helper which stuffs the mock with enough strings to satisfy a call to ImapFolder.open()
      * Also allows setting a custom IMAP ID.
+     *
+     * Also sets mNextTag, an int, which is useful if there are additional commands to inject.
      * 
      * @param mockTransport the mock transport we're using
+     * @param imapIdResponse the expected series of responses to the IMAP ID command.  Non-final
+     *      lines should be tagged with *.  The final response should be untagged (the correct
+     *      tag will be added at runtime).
+     * @return the next tag# to use
      */
     private void setupOpenFolder(MockTransport mockTransport, String[] imapIdResponse) {
+        // Fix the tag # of the ID response
+        String last = imapIdResponse[imapIdResponse.length-1];
+        last = "2 " + last;
+        imapIdResponse[imapIdResponse.length-1] = last;
+        // inject boilerplate commands that match our typical login
         mockTransport.expect(null, "* OK Imap 2000 Ready To Assist You");
-        mockTransport.expect("1 ID \\(.*\\)", imapIdResponse);
-        mockTransport.expect("2 LOGIN user \"password\"", 
-                "2 OK user authenticated (Success)");
-        mockTransport.expect("3 SELECT \"INBOX\"", new String[] {
+        mockTransport.expect("1 CAPABILITY", new String[] {
+                "* CAPABILITY IMAP4rev1 STARTTLS AUTH=GSSAPI LOGINDISABLED",
+                "1 OK CAPABILITY completed"});
+        mockTransport.expect("2 ID \\(.*\\)", imapIdResponse);
+        mockTransport.expect("3 LOGIN user \"password\"", 
+                "3 OK user authenticated (Success)");
+        mockTransport.expect("4 SELECT \"INBOX\"", new String[] {
                 "* FLAGS (\\Answered \\Flagged \\Draft \\Deleted \\Seen)",
                 "* OK [PERMANENTFLAGS (\\Answered \\Flagged \\Draft \\Deleted \\Seen \\*)]",
                 "* 0 EXISTS",
                 "* 0 RECENT",
                 "* OK [UNSEEN 0]",
                 "* OK [UIDNEXT 1]",
-                "3 OK [READ-WRITE] INBOX selected. (Success)"});
+                "4 OK [READ-WRITE] INBOX selected. (Success)"});
+        mNextTag = 5;
+    }
+
+    /**
+     * Return a tag for use in setting up expect strings.  Typically this is called in pairs,
+     * first as getNextTag(false) when emitting the command, then as getNextTag(true) when
+     * emitting the final line of the expected response.
+     * @param advance true to increment mNextTag for the subsequence command
+     * @return a string containing the current tag
+     */
+    public String getNextTag(boolean advance)  {
+        if (advance) ++mNextTag;
+        return Integer.toString(mNextTag);
     }
     
     /**
@@ -383,9 +413,9 @@ public class ImapStoreUnitTests extends AndroidTestCase {
     public void testGetUnreadMessageCountWithQuotedString() throws Exception {
         MockTransport mock = openAndInjectMockTransport();
         setupOpenFolder(mock);
-        mock.expect("4 STATUS \"INBOX\" \\(UNSEEN\\)", new String[] {
+        mock.expect(getNextTag(false) + " STATUS \"INBOX\" \\(UNSEEN\\)", new String[] {
                 "* STATUS \"INBOX\" (UNSEEN 2)",
-                "4 OK STATUS completed"});
+                getNextTag(true) + " OK STATUS completed"});
         mFolder.open(OpenMode.READ_WRITE, null);
         int unreadCount = mFolder.getUnreadMessageCount();
         assertEquals("getUnreadMessageCount with quoted string", 2, unreadCount);
@@ -397,10 +427,10 @@ public class ImapStoreUnitTests extends AndroidTestCase {
     public void testGetUnreadMessageCountWithLiteralString() throws Exception {
         MockTransport mock = openAndInjectMockTransport();
         setupOpenFolder(mock);
-        mock.expect("4 STATUS \"INBOX\" \\(UNSEEN\\)", new String[] {
+        mock.expect(getNextTag(false) + " STATUS \"INBOX\" \\(UNSEEN\\)", new String[] {
                 "* STATUS {5}",
                 "INBOX (UNSEEN 10)",
-                "4 OK STATUS completed"});
+                getNextTag(true) + " OK STATUS completed"});
         mFolder.open(OpenMode.READ_WRITE, null);
         int unreadCount = mFolder.getUnreadMessageCount();
         assertEquals("getUnreadMessageCount with literal string", 10, unreadCount);
@@ -419,9 +449,9 @@ public class ImapStoreUnitTests extends AndroidTestCase {
         FetchProfile fp = new FetchProfile();fp.clear();
         fp.add(FetchProfile.Item.STRUCTURE);
         Message message1 = mFolder.createMessage("1");
-        mock.expect("4 UID FETCH 1 \\(UID BODYSTRUCTURE\\)", new String[] {
+        mock.expect(getNextTag(false) + " UID FETCH 1 \\(UID BODYSTRUCTURE\\)", new String[] {
                 "* 1 FETCH (UID 1 BODYSTRUCTURE (TEXT PLAIN NIL NIL NIL 7BIT 0 0 NIL NIL NIL))",
-                "4 OK SUCCESS"
+                getNextTag(true) + " OK SUCCESS"
         });
         mFolder.fetch(new Message[] { message1 }, fp, null);
 
@@ -432,9 +462,9 @@ public class ImapStoreUnitTests extends AndroidTestCase {
         // Because this breaks our little parser, fetch() skips over empty parts.
         // The rest of this test is confirming that this is the case.
 
-        mock.expect("5 UID FETCH 1 \\(UID BODY.PEEK\\[TEXT\\]\\)", new String[] {
+        mock.expect(getNextTag(false) + " UID FETCH 1 \\(UID BODY.PEEK\\[TEXT\\]\\)", new String[] {
                 "* 1 FETCH (UID 1 BODY[TEXT] NIL)",
-                "5 OK SUCCESS"
+                getNextTag(true) + " OK SUCCESS"
         });
         ArrayList<Part> viewables = new ArrayList<Part>();
         ArrayList<Part> attachments = new ArrayList<Part>();

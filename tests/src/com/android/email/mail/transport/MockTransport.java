@@ -45,6 +45,7 @@ public class MockTransport implements Transport {
     private boolean mInputOpen;
     private int mConnectionSecurity;
     private boolean mTrustCertificates;
+    private String mHost;
     
     private ArrayList<String> mQueuedInput = new ArrayList<String>();
             
@@ -162,9 +163,16 @@ public class MockTransport implements Transport {
         mPairs.clear();
     }
 
+    /**
+     * This is a test function (not part of the interface) and is used to set up a result
+     * value for getHost(), if needed for the test.
+     */
+    public void setMockHost(String host) {
+        mHost = host;
+    }
+
     public String getHost() {
-        SmtpSenderUnitTests.fail("getHost() not implemented");
-        return null;
+        return mHost;
     }
 
     public InputStream getInputStream() {
