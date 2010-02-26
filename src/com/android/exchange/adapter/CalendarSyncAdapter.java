@@ -20,6 +20,7 @@ package com.android.exchange.adapter;
 import com.android.email.Email;
 import com.android.email.provider.EmailContent;
 import com.android.email.provider.EmailContent.Mailbox;
+import com.android.email.provider.EmailContent.Message;
 import com.android.exchange.EasOutboxService;
 import com.android.exchange.EasSyncService;
 import com.android.exchange.utility.CalendarUtilities;
@@ -1184,10 +1185,16 @@ public class CalendarSyncAdapter extends AbstractSyncAdapter {
                 boolean first = true;
                 while (eventIterator.hasNext()) {
                     Entity entity = eventIterator.next();
-                    String clientId = UUID.randomUUID().toString();
+
                     // For each of these entities, create the change commands
                     ContentValues entityValues = entity.getEntityValues();
                     String serverId = entityValues.getAsString(Events._SYNC_ID);
+
+                    // Find our uid in the entity; otherwise create one
+                    String clientId = entityValues.getAsString(Events._SYNC_LOCAL_ID);
+                    if (clientId == null) {
+                        clientId = UUID.randomUUID().toString();
+                    }
 
                     // EAS 2.5 needs: BusyStatus DtStamp EndTime Sensitivity StartTime TimeZone UID
                     // We can generate all but what we're testing for below
@@ -1251,13 +1258,54 @@ public class CalendarSyncAdapter extends AbstractSyncAdapter {
                     mUpdatedIdList.add(entityValues.getAsLong(Events._ID));
 
                     // Send the meeting invite if there are attendees and we're the organizer
-                    if (hasAttendees && organizerEmail.equalsIgnoreCase(mAccount.mEmailAddress)) {
+                    boolean selfOrganizer = organizerEmail.equalsIgnoreCase(mAccount.mEmailAddress);
+                    if (hasAttendees && selfOrganizer) {
                         EmailContent.Message msg =
                             CalendarUtilities.createMessageForEventId(mContext, eventId,
                                     EmailContent.Message.FLAG_OUTGOING_MEETING_INVITE, clientId,
                                     mAccount);
                         if (msg != null) {
                             EasOutboxService.sendMessage(mContext, mAccount.mId, msg);
+                        }
+                    } else if (!selfOrganizer) {
+                        // If we're not the organizer, see if we've changed our attendee status
+                        int currentStatus = entityValues.getAsInteger(Events.SELF_ATTENDEE_STATUS);
+                        String adapterData = entityValues.getAsString(Events.SYNC_ADAPTER_DATA);
+                        int syncStatus = Attendees.ATTENDEE_STATUS_NONE;
+                        if (adapterData != null) {
+                            syncStatus = Integer.parseInt(adapterData);
+                        }
+                        if ((currentStatus != syncStatus) &&
+                                (currentStatus != Attendees.ATTENDEE_STATUS_NONE)) {
+                            // If so, send a meeting reply
+                            int messageFlag = 0;
+                            switch (currentStatus) {
+                                case Attendees.ATTENDEE_STATUS_ACCEPTED:
+                                    messageFlag = Message.FLAG_OUTGOING_MEETING_ACCEPT;
+                                    break;
+                                case Attendees.ATTENDEE_STATUS_DECLINED:
+                                    messageFlag = Message.FLAG_OUTGOING_MEETING_DECLINE;
+                                    break;
+                                case Attendees.ATTENDEE_STATUS_TENTATIVE:
+                                    messageFlag = Message.FLAG_OUTGOING_MEETING_TENTATIVE;
+                                    break;
+                            }
+                            // Make sure we have a valid status (messageFlag should never be zero)
+                            if (messageFlag != 0) {
+                                // Save away the new status
+                                cidValues.clear();
+                                cidValues.put(Events.SYNC_ADAPTER_DATA,
+                                        Integer.toString(currentStatus));
+                                cr.update(ContentUris.withAppendedId(uri, eventId), cidValues, null,
+                                        null);
+                                // Send mail to the organizer advising of the new status
+                                EmailContent.Message msg =
+                                    CalendarUtilities.createMessageForEventId(mContext, eventId,
+                                            messageFlag, clientId, mAccount);
+                                if (msg != null) {
+                                    EasOutboxService.sendMessage(mContext, mAccount.mId, msg);
+                                }
+                            }
                         }
                     }
                 }
