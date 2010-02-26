@@ -92,6 +92,7 @@ public class ImapStore extends Store {
 
     private static final Flag[] PERMANENT_FLAGS = { Flag.DELETED, Flag.SEEN, Flag.FLAGGED };
 
+    private Context mContext;
     private Transport mRootTransport;
     private String mUsername;
     private String mPassword;
@@ -135,6 +136,7 @@ public class ImapStore extends Store {
      * @param uriString the Uri containing information to configure this store
      */
     private ImapStore(Context context, String uriString) throws MessagingException {
+        mContext = context;
         URI uri;
         try {
             uri = new URI(uriString);
@@ -179,15 +181,6 @@ public class ImapStore extends Store {
         }
 
         mModifiedUtf7Charset = new CharsetProvider().charsetForName("X-RFC-3501");
-
-        // Assign user-agent string (for RFC2971 ID command)
-        String mUserAgent = getImapId(context, mUsername, mRootTransport.getHost());
-        if (mUserAgent != null) {
-            mIdPhrase = "ID (" + mUserAgent + ")";
-        } else if (DEBUG_FORCE_SEND_ID) {
-            mIdPhrase = "ID NIL";
-        }
-        // else: mIdPhrase = null, no ID will be emitted
     }
 
     /**
@@ -221,9 +214,10 @@ public class ImapStore extends Store {
      *
      * @param userName the username of the account
      * @param host the host (server) of the account
+     * @param capability the capabilities string from the server
      * @return a String for use in an IMAP ID message.
      */
-    public String getImapId(Context context, String userName, String host) {
+    public String getImapId(Context context, String userName, String host, String capability) {
         // The first section is global to all IMAP connections, and generates the fixed
         // values in any IMAP ID message
         synchronized (ImapStore.class) {
@@ -245,7 +239,7 @@ public class ImapStore extends Store {
 
         // Optionally add any vendor-supplied id keys
         String vendorId =
-            VendorPolicyLoader.getInstance(context).getImapIdValues(userName, host, null);
+            VendorPolicyLoader.getInstance(context).getImapIdValues(userName, host, capability);
         if (vendorId != null) {
             id.append(' ');
             id.append(vendorId);
@@ -1321,13 +1315,15 @@ public class ImapStore extends Store {
                 // BANNER
                 mParser.readResponse();
 
+                // CAPABILITY
+                List<ImapResponse> response = executeSimpleCommand("CAPABILITY");
+                if (response.size() != 2) {
+                    throw new MessagingException("Invalid CAPABILITY response received");
+                }
+                String capabilities = response.get(0).toString();
+
                 if (mTransport.canTryTlsSecurity()) {
-                    // CAPABILITY
-                    List<ImapResponse> responses = executeSimpleCommand("CAPABILITY");
-                    if (responses.size() != 2) {
-                        throw new MessagingException("Invalid CAPABILITY response received");
-                    }
-                    if (responses.get(0).contains("STARTTLS")) {
+                    if (capabilities.contains("STARTTLS")) {
                         // STARTTLS
                         executeSimpleCommand("STARTTLS");
 
@@ -1341,6 +1337,16 @@ public class ImapStore extends Store {
                         throw new MessagingException(MessagingException.TLS_REQUIRED);
                     }
                 }
+
+                // Assign user-agent string (for RFC2971 ID command)
+                String mUserAgent = getImapId(mContext, mUsername, mRootTransport.getHost(),
+                        capabilities);
+                if (mUserAgent != null) {
+                    mIdPhrase = "ID (" + mUserAgent + ")";
+                } else if (DEBUG_FORCE_SEND_ID) {
+                    mIdPhrase = "ID NIL";
+                }
+                // else: mIdPhrase = null, no ID will be emitted
 
                 // Send user-agent in an RFC2971 ID command
                 if (mIdPhrase != null) {
