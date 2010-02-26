@@ -21,6 +21,7 @@ import com.android.email.Email;
 import com.android.email.R;
 import com.android.email.Utility;
 import com.android.email.mail.Address;
+import com.android.email.mail.MeetingInfo;
 import com.android.email.mail.MessagingException;
 import com.android.email.mail.internet.EmailHtmlUtil;
 import com.android.email.mail.internet.MimeUtility;
@@ -126,6 +127,12 @@ public class MessageView extends Activity implements OnClickListener {
     private ImageView mSenderPresenceView;
     private ProgressDialog mProgressDialog;
     private View mScrollView;
+
+    // calendar meeting invite answers
+    private TextView mMeetingYes;
+    private TextView mMeetingMaybe;
+    private TextView mMeetingNo;
+    private int mPreviousMeetingResponse = -1;
 
     private long mAccountId;
     private long mMessageId;
@@ -358,9 +365,15 @@ public class MessageView extends Activity implements OnClickListener {
         findViewById(R.id.reply_all).setOnClickListener(this);
         findViewById(R.id.delete).setOnClickListener(this);
         findViewById(R.id.show_pictures).setOnClickListener(this);
-        findViewById(R.id.accept).setOnClickListener(this);
-        findViewById(R.id.maybe).setOnClickListener(this);
-        findViewById(R.id.decline).setOnClickListener(this);
+
+        mMeetingYes = (TextView) findViewById(R.id.accept);
+        mMeetingMaybe = (TextView) findViewById(R.id.maybe);
+        mMeetingNo = (TextView) findViewById(R.id.decline);
+
+        mMeetingYes.setOnClickListener(this);
+        mMeetingMaybe.setOnClickListener(this);
+        mMeetingNo.setOnClickListener(this);
+        findViewById(R.id.invite_link).setOnClickListener(this);
 
         mMessageContentView.setVerticalScrollBarEnabled(false);
         mMessageContentView.getSettings().setBlockNetworkImage(true);
@@ -685,8 +698,16 @@ public class MessageView extends Activity implements OnClickListener {
     /**
      * Send a service message indicating that a meeting invite button has been clicked.
      */
-    private void onAccept(int response) {
-        mController.sendMeetingResponse(mMessageId, response, mControllerCallback);
+    private void onAccept(int response, int toastResId) {
+        // do not send twice in a row the same response
+        if (mPreviousMeetingResponse != response) {
+            mController.sendMeetingResponse(mMessageId, response, mControllerCallback);
+            mPreviousMeetingResponse = response;
+        }
+        Toast.makeText(this, toastResId, Toast.LENGTH_SHORT).show();
+        if (!moveToOlder() && !moveToNewer()) {
+            finish(); // if this is the single message, move up to message-list.
+        }
     }
 
     private void onDownloadAttachment(AttachmentInfo attachment) {
@@ -761,13 +782,35 @@ public class MessageView extends Activity implements OnClickListener {
                 onShowPictures();
                 break;
             case R.id.accept:
-                onAccept(EmailServiceConstants.MEETING_REQUEST_ACCEPTED);
+                onAccept(EmailServiceConstants.MEETING_REQUEST_ACCEPTED,
+                         R.string.message_view_invite_toast_yes);
                 break;
             case R.id.maybe:
-                onAccept(EmailServiceConstants.MEETING_REQUEST_TENTATIVE);
+                onAccept(EmailServiceConstants.MEETING_REQUEST_TENTATIVE,
+                         R.string.message_view_invite_toast_maybe);
                 break;
             case R.id.decline:
-                onAccept(EmailServiceConstants.MEETING_REQUEST_DECLINED);
+                onAccept(EmailServiceConstants.MEETING_REQUEST_DECLINED,
+                         R.string.message_view_invite_toast_no);
+                break;
+            case R.id.invite_link:
+                /*
+                String startTime =
+                    new PackedString(mMessage.mMeetingInfo).get(MeetingInfo.MEETING_DTSTART);
+                if (startTime != null) {
+                    long millis = CalendarUtilities.parseEmailDateTimeToMillis(startTime);
+                }
+                */
+                try {
+                    long epochTimeMillis = Long.valueOf(mMessage.mMeetingInfo);
+                    Uri uri = Uri.parse("content://com.android.calendar/time/" + epochTimeMillis);
+                    Intent intent = new Intent(Intent.ACTION_VIEW);
+                    intent.setData(uri);
+                    intent.putExtra("VIEW", "DAY");
+                    startActivity(intent);
+                } catch (NumberFormatException e) {
+                    Email.log("meetingInfo format " + mMessage.mMeetingInfo + ' ' + e);
+                }
                 break;
         }
     }

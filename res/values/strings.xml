@@ -274,14 +274,26 @@
     <string name="message_view_fetching_attachment_toast">Fetching attachment.</string>
     <!-- Appears progress dialog for fetching attachment -->
     <string name="message_view_fetching_attachment_progress">Fetching attachment <xliff:g id="filename">%s</xliff:g></string>
+    <!-- Calendar invitation, link to calendar.
+         Preserve the chevron (unicode &#xbb;) untranslated -->
+    <string name="message_view_invite_view">View in Calendar &#xbb;</string>
     <!-- String shown with a calendar invitation. -->
-    <string name="message_view_invite_text">Accept invitation?</string>
-    <!-- Button text: Calendar invitation: Accept -->
-    <string name="message_view_invite_accept">Accept</string>
-    <!-- Button text: Calendar invitation: Maybe -->
-    <string name="message_view_invite_maybe">Maybe</string>
-    <!-- Button text: Calendar invitation: Decline -->
-    <string name="message_view_invite_decline">Decline</string>
+    <string name="message_view_invite_title">Calendar Invite</string>
+    <!-- String shown with a calendar invitation. -->
+    <string name="message_view_invite_text">Going?</string>
+    <!-- Button text: Calendar invitation: Accept. The leading space is used for spacing -->
+    <string name="message_view_invite_accept">" Yes"</string>
+    <!-- Button text: Calendar invitation: Maybe. The leading space is used for spacing -->
+    <string name="message_view_invite_maybe">" Maybe"</string>
+    <!-- Button text: Calendar invitation: Decline. The leading space is used for spacing -->
+    <string name="message_view_invite_decline">" No"</string>
+    <!-- Toast shown following a meeting invite reply, accepted -->
+    <string name="message_view_invite_toast_yes">You have accepted this invitation</string>
+    <!-- Toast shown following a meeting invite reply, maybe -->
+    <string name="message_view_invite_toast_maybe">
+        You have replied \"maybe\" to this invitation</string>
+    <!-- Toast shown following a meeting invite reply, declined -->
+    <string name="message_view_invite_toast_no">You have declined this invitation</string>
     <!-- Toast shown briefly while deleting a message -->
     <plurals name="message_deleted_toast">
         <item quantity="one">Message deleted.</item>
