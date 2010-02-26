@@ -590,6 +590,8 @@ public abstract class EmailContent {
             FLAG_OUTGOING_MEETING_INVITE | FLAG_OUTGOING_MEETING_CANCEL |
             FLAG_OUTGOING_MEETING_ACCEPT | FLAG_OUTGOING_MEETING_DECLINE |
             FLAG_OUTGOING_MEETING_TENTATIVE;
+        public static final int FLAG_OUTGOING_MEETING_REQUEST_MASK =
+            FLAG_OUTGOING_MEETING_INVITE | FLAG_OUTGOING_MEETING_CANCEL;
 
         public Message() {
             mBaseUri = CONTENT_URI;

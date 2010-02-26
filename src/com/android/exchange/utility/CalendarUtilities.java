@@ -858,7 +858,7 @@ public class CalendarUtilities {
         msg.mTimeStamp = System.currentTimeMillis();
 
         String method;
-        if (messageFlag == EmailContent.Message.FLAG_OUTGOING_MEETING_INVITE) {
+        if ((messageFlag & EmailContent.Message.FLAG_OUTGOING_MEETING_REQUEST_MASK) != 0) {
             method = "REQUEST";
         } else {
             method = "REPLY";
@@ -934,14 +934,18 @@ public class CalendarUtilities {
                 case Message.FLAG_OUTGOING_MEETING_TENTATIVE:
                     titleId = R.string.meeting_tentative;
                     break;
+                case Message.FLAG_OUTGOING_MEETING_CANCEL:
+                    titleId = R.string.meeting_canceled;
+                    break;
             }
             String title = entityValues.getAsString(Events.TITLE);
             if (title == null) {
                 title = "";
             }
             ics.writeTag("SUMMARY", title);
-            msg.mSubject = context.getResources().getString(titleId, title);
-
+            if (titleId != 0) {
+                msg.mSubject = context.getResources().getString(titleId, title);
+            }
             if (method.equals("REQUEST")) {
                 if (entityValues.containsKey(Events.ALL_DAY)) {
                     Integer ade = entityValues.getAsInteger(Events.ALL_DAY);
@@ -1006,7 +1010,7 @@ public class CalendarUtilities {
                         // This shouldn't be possible, but allow for it
                         if (attendeeEmail == null) continue;
 
-                        if (messageFlag == Message.FLAG_OUTGOING_MEETING_INVITE) {
+                        if ((messageFlag & Message.FLAG_OUTGOING_MEETING_REQUEST_MASK) != 0) {
                             String icalTag = ICALENDAR_ATTENDEE_INVITE;
                             if (attendeeName != null) {
                                 icalTag += ";CN=" + attendeeName;

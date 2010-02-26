@@ -634,6 +634,10 @@
          and the title of the meeting (i.e. the title of the meeting becomes part of the subject of
          the message that's sent) -->
     <string name="meeting_tentative">Tentative: <xliff:g id="subject">%s</xliff:g></string>
+    <!-- Message subject for a canceled meeting email.  This is followed by a colon
+         and the title of the meeting (i.e. the title of the meeting becomes part of the subject of
+         the message that's sent) -->
+    <string name="meeting_canceled">Canceled: <xliff:g id="subject">%s</xliff:g></string>
 
 	<!-- Message that appears if the AccountManager cannot create the system Account -->
 	<string name="system_account_create_failed">The AccountManager could not create the Account; please try again.</string>

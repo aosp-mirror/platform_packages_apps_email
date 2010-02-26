@@ -103,6 +103,7 @@ public class CalendarSyncAdapter extends AbstractSyncAdapter {
 
     private ArrayList<Long> mDeletedIdList = new ArrayList<Long>();
     private ArrayList<Long> mUpdatedIdList = new ArrayList<Long>();
+    private ArrayList<Long> mSendCancelIdList = new ArrayList<Long>();
 
     private String[] mCalendarIdArgument;
 
@@ -772,6 +773,23 @@ public class CalendarSyncAdapter extends AbstractSyncAdapter {
             mOps.add(SyncStateContract.Helpers.newSetOperation(SyncState.CONTENT_URI,
                     mAccountManagerAccount, mMailbox.mSyncKey.getBytes()));
 
+            // We need to send cancellations now, because the Event won't exist after the commit
+            for (long eventId: mSendCancelIdList) {
+                EmailContent.Message msg;
+                try {
+                    msg = CalendarUtilities.createMessageForEventId(mContext, eventId,
+                            EmailContent.Message.FLAG_OUTGOING_MEETING_CANCEL, null,
+                            mAccount);
+                } catch (RemoteException e) {
+                    // Nothing to do here; the Event may no longer exist
+                    continue;
+                }
+                if (msg != null) {
+                    EasOutboxService.sendMessage(mContext, mAccount.mId, msg);
+                }
+            }
+            mSendCancelIdList.clear();
+
             // Execute these all at once...
             mOps.execute();
 
@@ -781,6 +799,13 @@ public class CalendarSyncAdapter extends AbstractSyncAdapter {
                 cv.put(Events._SYNC_DIRTY, 0);
                 mContentResolver.update(sEventsUri, cv, DIRTY_IN_CALENDAR,
                         new String[] {Long.toString(mCalendarId)});
+                // Send meeting cancelation notices
+                // Really delete the events...
+                for (long eventId: mDeletedIdList) {
+                    mContentResolver.delete(ContentUris.withAppendedId(sEventsUri, eventId),
+                            null, null);
+                }
+                mDeletedIdList.clear();
             }
         }
 
@@ -1218,7 +1243,11 @@ public class CalendarSyncAdapter extends AbstractSyncAdapter {
                         if (entityValues.getAsInteger(Events.DELETED) == 1) {
                             userLog("Deleting event with serverId: ", serverId);
                             s.start(Tags.SYNC_DELETE).data(Tags.SYNC_SERVER_ID, serverId).end();
-                            mDeletedIdList.add(entityValues.getAsLong(Events._ID));
+                            mDeletedIdList.add(eventId);
+                            if (entityValues.getAsString(Events.ORGANIZER)
+                                    .equalsIgnoreCase(mAccount.mEmailAddress)) {
+                                mSendCancelIdList.add(eventId);
+                            }
                             continue;
                         }
                         userLog("Upsync change to event with serverId: " + serverId);
