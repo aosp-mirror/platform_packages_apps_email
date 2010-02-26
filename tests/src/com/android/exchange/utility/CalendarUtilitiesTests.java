@@ -29,6 +29,7 @@ import android.provider.Calendar.Events;
 import android.test.AndroidTestCase;
 
 import java.util.Calendar;
+import java.util.Date;
 import java.util.GregorianCalendar;
 import java.util.TimeZone;
 
@@ -192,8 +193,8 @@ public class CalendarUtilitiesTests extends AndroidTestCase {
 
         // Now check some of the fields of the message
         assertEquals(Address.pack(new Address[] {new Address(organizer)}), msg.mTo);
-        String accept = getContext().getResources().getString(R.string.meeting_accepted);
-        assertEquals(accept + ": " + title, msg.mSubject);
+        String accept = getContext().getResources().getString(R.string.meeting_accepted, title);
+        assertEquals(accept, msg.mSubject);
 
         // And make sure we have an attachment
         assertNotNull(msg.mAttachments);
@@ -209,9 +210,143 @@ public class CalendarUtilitiesTests extends AndroidTestCase {
         //TODO Check the contents of the attachment using an iCalendar parser
     }
 
-    // Tests in progress...
+    public void testUtcOffsetString() {
+        assertEquals(CalendarUtilities.utcOffsetString(540), "+0900");
+        assertEquals(CalendarUtilities.utcOffsetString(-480), "-0800");
+        assertEquals(CalendarUtilities.utcOffsetString(0), "+0000");
+    }
+    public void testFindTransitionDate() {
+        // We'll find some transitions and make sure that we're properly in or out of daylight time
+        // on either side of the transition.
+        // Use CST for testing (any other will do as well, as long as it has DST)
+        TimeZone tz = TimeZone.getTimeZone("US/Central");
+        // Get a calendar at January 1st of the current year
+        GregorianCalendar calendar = new GregorianCalendar(tz);
+        calendar.set(CalendarUtilities.sCurrentYear, Calendar.JANUARY, 1);
+        // Get start and end times at start and end of year
+        long startTime = calendar.getTimeInMillis();
+        long endTime = startTime + (365*CalendarUtilities.DAYS);
+        // Find the first transition
+        GregorianCalendar transitionCalendar =
+            CalendarUtilities.findTransitionDate(tz, startTime, endTime, false);
+        long transitionTime = transitionCalendar.getTimeInMillis();
+        // Before should be in standard time; after in daylight time
+        Date beforeDate = new Date(transitionTime - CalendarUtilities.HOURS);
+        Date afterDate = new Date(transitionTime + CalendarUtilities.HOURS);
+        assertFalse(tz.inDaylightTime(beforeDate));
+        assertTrue(tz.inDaylightTime(afterDate));
 
-//    public void testTimeZoneToTziString() {
+        // Find the next one...
+        transitionCalendar = CalendarUtilities.findTransitionDate(tz, transitionTime +
+                CalendarUtilities.DAYS, endTime, true);
+        transitionTime = transitionCalendar.getTimeInMillis();
+        // This time, Before should be in daylight time; after in standard time
+        beforeDate = new Date(transitionTime - CalendarUtilities.HOURS);
+        afterDate = new Date(transitionTime + CalendarUtilities.HOURS);
+        assertTrue(tz.inDaylightTime(beforeDate));
+        assertFalse(tz.inDaylightTime(afterDate));
+
+        // Captain Renault: What in heaven's name brought you to Casablanca?
+        // Rick: My health. I came to Casablanca for the waters.
+        // Also, they have no daylight savings time
+        tz = TimeZone.getTimeZone("Africa/Casablanca");
+        // Get a calendar at January 1st of the current year
+        calendar = new GregorianCalendar(tz);
+        calendar.set(CalendarUtilities.sCurrentYear, Calendar.JANUARY, 1);
+        // Get start and end times at start and end of year
+        startTime = calendar.getTimeInMillis();
+        endTime = startTime + (365*CalendarUtilities.DAYS);
+        // Find the first transition
+        transitionCalendar = CalendarUtilities.findTransitionDate(tz, startTime, endTime, false);
+        // There had better not be one
+        assertNull(transitionCalendar);
+    }
+
+    public void testRruleFromRecurrence() {
+        // Every Monday for 2 weeks
+        String rrule = CalendarUtilities.rruleFromRecurrence(
+                1 /*Weekly*/, 2 /*Occurrences*/, 1 /*Interval*/, 2 /*Monday*/, 0, 0, 0, null);
+        assertEquals("FREQ=WEEKLY;INTERVAL=1;COUNT=2;BYDAY=MO", rrule);
+        // Every Tuesday and Friday
+        rrule = CalendarUtilities.rruleFromRecurrence(
+                1 /*Weekly*/, 0 /*Occurrences*/, 0 /*Interval*/, 36 /*Tue&Fri*/, 0, 0, 0, null);
+        assertEquals("FREQ=WEEKLY;BYDAY=TU,FR", rrule);
+        // The last Saturday of the month
+        rrule = CalendarUtilities.rruleFromRecurrence(
+                3 /*Monthly/DayofWeek*/, 0, 0, 64 /*Sat*/, 0, 5 /*Last*/, 0, null);
+        assertEquals("FREQ=MONTHLY;BYDAY=-1SA", rrule);
+        // The third Wednesday and Thursday of the month
+        rrule = CalendarUtilities.rruleFromRecurrence(
+                3 /*Monthly/DayofWeek*/, 0, 0, 24 /*Wed&Thu*/, 0, 3 /*3rd*/, 0, null);
+        assertEquals("FREQ=MONTHLY;BYDAY=3WE,3TH", rrule);
+        // The 14th of the every month
+        rrule = CalendarUtilities.rruleFromRecurrence(
+                2 /*Monthly/Date*/, 0, 0, 0, 14 /*14th*/, 0, 0, null);
+        assertEquals("FREQ=MONTHLY;BYMONTHDAY=14", rrule);
+        // Every 31st of October
+        rrule = CalendarUtilities.rruleFromRecurrence(
+                5 /*Yearly/Date*/, 0, 0, 0, 31 /*31st*/, 0, 10 /*October*/, null);
+        assertEquals("FREQ=YEARLY;BYMONTHDAY=31;BYMONTH=10", rrule);
+        // The first Tuesday of June
+        rrule = CalendarUtilities.rruleFromRecurrence(
+                6 /*Yearly/Month/DayOfWeek*/, 0, 0, 4 /*Tue*/, 0, 1 /*1st*/, 6 /*June*/, null);
+        assertEquals("FREQ=YEARLY;BYDAY=1TU;BYMONTH=6", rrule);
+    }
+
+    // TODO Planned unit tests; some of these exist in primitive form below
+
+    // testFindNextTransition
+    // testTimeZoneToVTimezone
+    // testRecurrenceFromRrule
+    // testTimeZoneToTziStringImpl
+    // testGetDSTCalendars
+    // testMillisToVCalendarTime
+    // testMillisToEasDateTime
+
+//  public void testTimeZoneToVTimezone() throws IOException {
+//      TimeZone tz = TimeZone.getDefault();
+//      SimpleIcsWriter writer = new SimpleIcsWriter();
+//      CalendarUtilities.timeZoneToVTimezone(tz, writer);
+//
+//      tz = TimeZone.getTimeZone("Asia/Jerusalem");
+//      if (tz != null) {
+//          writer = new SimpleIcsWriter();
+//          CalendarUtilities.timeZoneToVTimezone(tz, writer);
+//      }
+//
+//      String str = writer.toString();
+//      assertNotNull(str);
+//      int rule = 0;
+//      int nodst = 0;
+//      int norule = 0;
+//      ArrayList<String> norulelist = new ArrayList<String>();
+//      for (String tzs: TimeZone.getAvailableIDs()) {
+//          tz = TimeZone.getTimeZone(tzs);
+//          writer = new SimpleIcsWriter();
+//          CalendarUtilities.timeZoneToVTimezone(tz, writer);
+//          String vc = writer.toString();
+//          boolean hasRule = vc.indexOf("RRULE") > 0;
+//          if (hasRule) {
+//              rule++;
+//          } else if (tz.useDaylightTime()) {
+//              norule++;
+//              norulelist.add(tz.getID());
+//          } else {
+//              nodst++;
+//          }
+//          System.err.println(tz.getID() + ": " + (hasRule ? "Found Rule" : tz.useDaylightTime() ? "No rule" : "No DST"));
+//      }
+//      System.err.println("Rule: " + rule + ", No DST: " + nodst + ", No rule: " + norule);
+//      for (String nr: norulelist) {
+//          System.err.println("No rule: " + nr);
+//          writer = new SimpleIcsWriter();
+//          CalendarUtilities.timeZoneToVTimezone(TimeZone.getTimeZone(nr), writer);
+//          System.err.println(writer.toString());
+//      }
+//  }
+
+//    public void testTimeZoneToTziStringImpl() {
+//        String x = CalendarUtilities.timeZoneToTziStringImpl(TimeZone.getDefault());
 //        for (String timeZoneId: TimeZone.getAvailableIDs()) {
 //            TimeZone timeZone = TimeZone.getTimeZone(timeZoneId);
 //            if (timeZone != null) {
@@ -221,6 +356,7 @@ public class CalendarUtilitiesTests extends AndroidTestCase {
 //            }
 //        }
 //     }
+
 //    public void testParseTimeZone() {
 //        GregorianCalendar cal = getTestCalendar(parsedTimeZone, dstStart);
 //        cal.add(GregorianCalendar.MINUTE, -1);

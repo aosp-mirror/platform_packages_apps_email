@@ -123,14 +123,12 @@ public class CalendarUtilities {
     static final int sCurrentYear = new GregorianCalendar().get(Calendar.YEAR);
     static final TimeZone sGmtTimeZone = TimeZone.getTimeZone("GMT");
 
+    private static final String ICALENDAR_ATTENDEE = "ATTENDEE;ROLE=REQ-PARTICIPANT;PARTSTAT=";
     private static final String ICALENDAR_ATTENDEE_INVITE =
-        "ATTENDEE;ROLE=REQ-PARTICIPANT;PARTSTAT=NEEDS-ACTION;RSVP=TRUE";
-    private static final String ICALENDAR_ATTENDEE_ACCEPT =
-        "ATTENDEE;ROLE=REQ-PARTICIPANT;PARTSTAT=ACCEPTED";
-    private static final String ICALENDAR_ATTENDEE_DECLINE =
-        "ATTENDEE;ROLE=REQ-PARTICIPANT;PARTSTAT=DECLINED";
-    private static final String ICALENDAR_ATTENDEE_TENTATIVE =
-        "ATTENDEE;ROLE=REQ-PARTICIPANT;PARTSTAT=TENTATIVE";
+        ICALENDAR_ATTENDEE + "NEEDS-ACTION;RSVP=TRUE";
+    private static final String ICALENDAR_ATTENDEE_ACCEPT = ICALENDAR_ATTENDEE + "ACCEPTED";
+    private static final String ICALENDAR_ATTENDEE_DECLINE = ICALENDAR_ATTENDEE + "DECLINED";
+    private static final String ICALENDAR_ATTENDEE_TENTATIVE = ICALENDAR_ATTENDEE + "TENTATIVE";
 
     // Return a 4-byte long from a byte array (little endian)
     static int getLong(byte[] bytes, int offset) {
@@ -167,6 +165,19 @@ public class CalendarUtilities {
         int time;
         int hour;
         int minute;
+    }
+
+    static void putRuleIntoTimeZoneInformation(byte[] bytes, int offset, RRule rrule, int hour,
+            int minute) {
+        // MSFT months are 1 based, same as RRule
+        setWord(bytes, offset + MSFT_SYSTEMTIME_MONTH, rrule.month);
+        // MSFT day of week starts w/ Sunday = 0; RRule starts w/ Sunday = 1
+        setWord(bytes, offset + MSFT_SYSTEMTIME_DAY_OF_WEEK, rrule.dayOfWeek - 1);
+        // 5 means "last" in MSFT land; for RRule, it's -1
+        setWord(bytes, offset + MSFT_SYSTEMTIME_DAY, rrule.week < 0 ? 5 : rrule.week);
+        // Turn hours/minutes into ms from midnight (per TimeZone)
+        setWord(bytes, offset + MSFT_SYSTEMTIME_HOUR, hour);
+        setWord(bytes, offset + MSFT_SYSTEMTIME_MINUTE, minute);
     }
 
     // Write SYSTEMTIME data into a byte array (this will either be for the standard or daylight
@@ -248,17 +259,19 @@ public class CalendarUtilities {
     }
 
     /**
-     * Find a standard/daylight transition between a start time and an end time
-     * @param tz a TimeZone
+     * Return a GregorianCalendar representing the first standard/daylight transition between a
+     * start time and an end time in the given time zone
+     * @param tz a TimeZone the time zone in which we're looking for transitions
      * @param startTime the start time for the test
      * @param endTime the end time for the test
      * @param startInDaylightTime whether daylight time is in effect at the startTime
-     * @return the time in millis of the first transition, or 0 if none
+     * @return a GregorianCalendar representing the transition or null if none
      */
-    static private long findTransition(TimeZone tz, long startTime, long endTime,
+    static /*package*/ GregorianCalendar findTransitionDate(TimeZone tz, long startTime, long endTime,
             boolean startInDaylightTime) {
         long startingEndTime = endTime;
         Date date = null;
+        // We'll keep splitting the difference until we're within a minute
         while ((endTime - startTime) > MINUTES) {
             long checkTime = ((startTime + endTime) / 2) + 1;
             date = new Date(checkTime);
@@ -268,11 +281,24 @@ public class CalendarUtilities {
                 startTime = checkTime;
             }
         }
+
+        // If these are the same, we're really messed up; return null
         if (endTime == startingEndTime) {
-            // Really, this shouldn't happen
-            return 0;
+            return null;
         }
-        return startTime;
+
+        // Set up our calendar
+        GregorianCalendar calendar = new GregorianCalendar(tz);
+        calendar.setTimeInMillis(startInDaylightTime ? startTime : endTime);
+        int min = calendar.get(Calendar.MINUTE);
+        if (min == 59) {
+            // If we're at XX:59:ZZ, round up to the next minute
+            calendar.add(Calendar.SECOND, 60 - calendar.get(Calendar.SECOND));
+        } else if (min == 0) {
+            // If we're at XX:00:ZZ, round down to the minute
+           calendar.add(Calendar.SECOND, -calendar.get(Calendar.SECOND));
+        }
+        return calendar;
     }
 
     /**
@@ -295,6 +321,300 @@ public class CalendarUtilities {
     }
 
     /**
+     * A class for storing RRULE information.  The RRULE members can be accessed individually or
+     * an RRULE string can be created with toString()
+     */
+    static class RRule {
+        static final int RRULE_NONE = 0;
+        static final int RRULE_DAY_WEEK = 1;
+        static final int RRULE_DATE = 2;
+
+        int type;
+        int dayOfWeek;
+        int week;
+        int month;
+        int date;
+
+        /**
+         * Create an RRULE based on month and date
+         * @param _month the month (1 = JAN, 12 = DEC)
+         * @param _date the date in the month (1-31)
+         */
+        RRule(int _month, int _date) {
+            type = RRULE_DATE;
+            month = _month;
+            date = _date;
+        }
+
+        /**
+         * Create an RRULE based on month, day of week, and week #
+         * @param _month the month (1 = JAN, 12 = DEC)
+         * @param _dayOfWeek the day of the week (1 = SU, 7 = SA)
+         * @param _week the week in the month (1-5 or -1 for last)
+         */
+        RRule(int _month, int _dayOfWeek, int _week) {
+            type = RRULE_DAY_WEEK;
+            month = _month;
+            dayOfWeek = _dayOfWeek;
+            week = _week;
+        }
+
+        @Override
+        public String toString() {
+            if (type == RRULE_DAY_WEEK) {
+                return "FREQ=YEARLY;BYMONTH=" + month + ";BYDAY=" + week +
+                    sDayTokens[dayOfWeek - 1];
+            } else {
+                return "FREQ=YEARLY;BYMONTH=" + month + ";BYMONTHDAY=" + date;
+            }
+       }
+    }
+
+    /**
+     * Generate an RRULE string for an array of GregorianCalendars, if possible.  For now, we are
+     * only looking for rules based on the same date in a month or a specific instance of a day of
+     * the week in a month (e.g. 2nd Tuesday or last Friday).  Indeed, these are the only kinds of
+     * rules used in the current tzinfo database.
+     * @param calendars an array of GregorianCalendar, set to a series of transition times in
+     * consecutive years starting with the current year
+     * @return an RRULE or null if none could be inferred from the calendars
+     */
+    static private RRule inferRRuleFromCalendars(GregorianCalendar[] calendars) {
+        // Let's see if we can make a rule about these
+        GregorianCalendar calendar = calendars[0];
+        if (calendar == null) return null;
+        int month = calendar.get(Calendar.MONTH);
+        int date = calendar.get(Calendar.DAY_OF_MONTH);
+        int dayOfWeek = calendar.get(Calendar.DAY_OF_WEEK);
+        int week = calendar.get(Calendar.DAY_OF_WEEK_IN_MONTH);
+        int maxWeek = calendar.getActualMaximum(Calendar.DAY_OF_WEEK_IN_MONTH);
+        boolean dateRule = false;
+        boolean dayOfWeekRule = false;
+        for (int i = 1; i < calendars.length; i++) {
+            GregorianCalendar cal = calendars[i];
+            if (cal == null) return null;
+            // If it's not the same month, there's no rule
+            if (cal.get(Calendar.MONTH) != month) {
+                return null;
+            } else if (dayOfWeek == cal.get(Calendar.DAY_OF_WEEK)) {
+                // Ok, it seems to be the same day of the week
+                if (dateRule) {
+                    return null;
+                }
+                dayOfWeekRule = true;
+                int thisWeek = cal.get(Calendar.DAY_OF_WEEK_IN_MONTH);
+                if (week != thisWeek) {
+                    if (week < 0 || week == maxWeek) {
+                        int thisMaxWeek = cal.getActualMaximum(Calendar.DAY_OF_WEEK_IN_MONTH);
+                        if (thisWeek == thisMaxWeek) {
+                            // We'll use -1 (i.e. last) week
+                            week = -1;
+                            continue;
+                        }
+                    }
+                    return null;
+                }
+            } else if (date == cal.get(Calendar.DAY_OF_MONTH)) {
+                // Maybe the same day of the month?
+                if (dayOfWeekRule) {
+                    return null;
+                }
+                dateRule = true;
+            } else {
+                return null;
+            }
+        }
+
+        if (dateRule) {
+            return new RRule(month + 1, date);
+        }
+        // sDayTokens is 0 based (SU = 0); Calendar days of week are 1 based (SU = 1)
+        // iCalendar months are 1 based; Calendar months are 0 based
+        // So we adjust these when building the string
+        return new RRule(month + 1, dayOfWeek, week);
+    }
+
+    /**
+     * Generate an rfc2445 utcOffset from minutes offset from GMT
+     * These look like +0800 or -0100
+     * @param offsetMinutes minutes offset from GMT (east is positive, west is negative
+     * @return a utcOffset
+     */
+    static /*package*/ String utcOffsetString(int offsetMinutes) {
+        StringBuilder sb = new StringBuilder();
+        int hours = offsetMinutes / 60;
+        if (hours < 0) {
+            sb.append('-');
+            hours = 0 - hours;
+        } else {
+            sb.append('+');
+        }
+        int minutes = offsetMinutes % 60;
+        if (hours < 10) {
+            sb.append('0');
+        }
+        sb.append(hours);
+        if (minutes < 10) {
+            sb.append('0');
+        }
+        sb.append(minutes);
+        return sb.toString();
+    }
+
+    /**
+     * Fill the passed in GregorianCalendars arrays with DST transition information for this and
+     * the following years (based on the length of the arrays)
+     * @param tz the time zone
+     * @param toDaylightCalendars an array of GregorianCalendars, one for each year, representing
+     * the transition to daylight time
+     * @param toStandardCalendars an array of GregorianCalendars, one for each year, representing
+     * the transition to standard time
+     * @return true if transitions could be found for all years, false otherwise
+     */
+    static boolean getDSTCalendars(TimeZone tz, GregorianCalendar[] toDaylightCalendars,
+            GregorianCalendar[] toStandardCalendars) {
+        // We'll use the length of the arrays to determine how many years to check
+        int maxYears = toDaylightCalendars.length;
+        if (toStandardCalendars.length != maxYears) {
+            return false;
+        }
+        // Get the transitions for this year and the next few years
+        for (int i = 0; i < maxYears; i++) {
+            GregorianCalendar cal = new GregorianCalendar(tz);
+            cal.set(sCurrentYear + i, Calendar.JANUARY, 1, 0, 0, 0);
+            long startTime = cal.getTimeInMillis();
+            // Calculate end of year; no need to be insanely precise
+            long endOfYearTime = startTime + (365*DAYS) + (DAYS>>2);
+            Date date = new Date(startTime);
+            boolean startInDaylightTime = tz.inDaylightTime(date);
+            // Find the first transition, and store
+            cal = findTransitionDate(tz, startTime, endOfYearTime, startInDaylightTime);
+            if (cal == null) {
+                return false;
+            } else if (startInDaylightTime) {
+                toStandardCalendars[i] = cal;
+            } else {
+                toDaylightCalendars[i] = cal;
+            }
+            // Find the second transition, and store
+            cal = findTransitionDate(tz, startTime, endOfYearTime, !startInDaylightTime);
+            if (cal == null) {
+                return false;
+            } else if (startInDaylightTime) {
+                toDaylightCalendars[i] = cal;
+            } else {
+                toStandardCalendars[i] = cal;
+            }
+        }
+        return true;
+    }
+
+    /**
+     * Write out the STANDARD block of VTIMEZONE and end the VTIMEZONE
+     * @param writer the SimpleIcsWriter we're using
+     * @param tz the time zone
+     * @param offsetString the offset string in VTIMEZONE format (e.g. +0800)
+     * @throws IOException
+     */
+    static private void writeNoDST(SimpleIcsWriter writer, TimeZone tz, String offsetString)
+            throws IOException {
+        writer.writeTag("BEGIN", "STANDARD");
+        writer.writeTag("TZOFFSETFROM", offsetString);
+        writer.writeTag("TZOFFSETTO", offsetString);
+        // Might as well use start of epoch for start date
+        writer.writeTag("DTSTART", millisToEasDateTime(0L));
+        writer.writeTag("END", "STANDARD");
+        writer.writeTag("END", "VTIMEZONE");
+    }
+
+    /** Write a VTIMEZONE block for a given TimeZone into a SimpleIcsWriter
+     * @param tz the TimeZone to be used in the conversion
+     * @param writer the SimpleIcsWriter to be used
+     * @throws IOException
+     */
+    static public void timeZoneToVTimezone(TimeZone tz, SimpleIcsWriter writer)
+            throws IOException {
+        // We'll use these regardless of whether there's DST in this time zone or not
+        int rawOffsetMinutes = tz.getRawOffset() / MINUTES;
+        String standardOffsetString = utcOffsetString(rawOffsetMinutes);
+
+        // Preamble for all of our VTIMEZONEs
+        writer.writeTag("BEGIN", "VTIMEZONE");
+        writer.writeTag("TZID", tz.getID());
+        writer.writeTag("X-LIC-LOCATION", tz.getDisplayName());
+
+        // Simplest case is no daylight time
+        if (!tz.useDaylightTime()) {
+            writeNoDST(writer, tz, standardOffsetString);
+            return;
+        }
+
+        int maxYears = 3;
+        GregorianCalendar[] toDaylightCalendars = new GregorianCalendar[maxYears];
+        GregorianCalendar[] toStandardCalendars = new GregorianCalendar[maxYears];
+        if (!getDSTCalendars(tz, toDaylightCalendars, toStandardCalendars)) {
+            writeNoDST(writer, tz, standardOffsetString);
+            return;
+        }
+        // Try to find a rule to cover these yeras
+        RRule daylightRule = inferRRuleFromCalendars(toDaylightCalendars);
+        RRule standardRule = inferRRuleFromCalendars(toStandardCalendars);
+        String daylightOffsetString =
+            utcOffsetString(rawOffsetMinutes + (tz.getDSTSavings() / MINUTES));
+        // We'll use RRULE's if we found both
+        // Otherwise we write the first as DTSTART and the others as RDATE
+        boolean hasRule = daylightRule != null && standardRule != null;
+
+        // Write the DAYLIGHT block
+        writer.writeTag("BEGIN", "DAYLIGHT");
+        writer.writeTag("TZOFFSETFROM", standardOffsetString);
+        writer.writeTag("TZOFFSETTO", daylightOffsetString);
+        writer.writeTag("DTSTART",
+                millisToVCalendarTime(toDaylightCalendars[0].getTimeInMillis(), tz, true));
+        if (hasRule) {
+            writer.writeTag("RRULE", daylightRule.toString());
+        } else {
+            for (int i = 1; i < maxYears; i++) {
+                writer.writeTag("RDATE", millisToVCalendarTime(
+                        toDaylightCalendars[i].getTimeInMillis(), tz, true));
+            }
+        }
+        writer.writeTag("END", "DAYLIGHT");
+        // Write the STANDARD block
+        writer.writeTag("BEGIN", "STANDARD");
+        writer.writeTag("TZOFFSETFROM", daylightOffsetString);
+        writer.writeTag("TZOFFSETTO", standardOffsetString);
+        writer.writeTag("DTSTART",
+                millisToVCalendarTime(toStandardCalendars[0].getTimeInMillis(), tz, false));
+        if (hasRule) {
+            writer.writeTag("RRULE", standardRule.toString());
+        } else {
+            for (int i = 1; i < maxYears; i++) {
+                writer.writeTag("RDATE", millisToVCalendarTime(
+                        toStandardCalendars[i].getTimeInMillis(), tz, true));
+            }
+        }
+        writer.writeTag("END", "STANDARD");
+        // And we're done
+        writer.writeTag("END", "VTIMEZONE");
+    }
+
+    /**
+     * Find the next transition to occur (i.e. after the current date/time)
+     * @param transitions calendars representing transitions to/from DST
+     * @return millis for the first transition after the current date/time
+     */
+    static private long findNextTransition(long startingMillis, GregorianCalendar[] transitions) {
+        for (GregorianCalendar transition: transitions) {
+            long transitionMillis = transition.getTimeInMillis();
+            if (transitionMillis > startingMillis) {
+                return transitionMillis;
+            }
+        }
+        return 0;
+    }
+
+    /**
      * Calculate the Base64 representation of a MSFT TIME_ZONE_INFORMATION structure from a TimeZone
      * that might be found in an Event.  Since the internal representation of the TimeZone is hidden
      * from us we'll find the DST transitions and build the structure from that information
@@ -303,52 +623,52 @@ public class CalendarUtilities {
      */
     static public String timeZoneToTziStringImpl(TimeZone tz) {
         String tziString;
-        long time = System.currentTimeMillis();
         byte[] tziBytes = new byte[MSFT_TIME_ZONE_SIZE];
         int standardBias = - tz.getRawOffset();
         standardBias /= 60*SECONDS;
         setLong(tziBytes, MSFT_TIME_ZONE_BIAS_OFFSET, standardBias);
-        // If this time zone has daylight savings time, we need to do a bunch more work
+        // If this time zone has daylight savings time, we need to do more work
         if (tz.useDaylightTime()) {
-            long standardTransition = 0;
-            long daylightTransition = 0;
-            GregorianCalendar cal = new GregorianCalendar();
-            cal.set(sCurrentYear, Calendar.JANUARY, 1, 0, 0, 0);
-            cal.setTimeZone(tz);
-            long startTime = cal.getTimeInMillis();
-            // Calculate rough end of year; no need to do the calculation
-            long endOfYearTime = startTime + 365*DAYS;
-            Date date = new Date(startTime);
-            boolean startInDaylightTime = tz.inDaylightTime(date);
-            // Find the first transition, and store
-            startTime = findTransition(tz, startTime, endOfYearTime, startInDaylightTime);
-            if (startInDaylightTime) {
-                standardTransition = startTime;
-            } else {
-                daylightTransition = startTime;
+            GregorianCalendar[] toDaylightCalendars = new GregorianCalendar[3];
+            GregorianCalendar[] toStandardCalendars = new GregorianCalendar[3];
+            // See if we can get transitions for a few years; if not, we can't generate DST info
+            // for this time zone
+            if (getDSTCalendars(tz, toDaylightCalendars, toStandardCalendars)) {
+                // Try to find a rule to cover these years
+                RRule daylightRule = inferRRuleFromCalendars(toDaylightCalendars);
+                RRule standardRule = inferRRuleFromCalendars(toStandardCalendars);
+                if ((daylightRule != null) && (daylightRule.type == RRule.RRULE_DAY_WEEK) &&
+                        (standardRule != null) && (standardRule.type == RRule.RRULE_DAY_WEEK)) {
+                    // We need both rules and they have to be DAY/WEEK type
+                    // Write month, day of week, week, hour, minute
+                    putRuleIntoTimeZoneInformation(tziBytes, MSFT_TIME_ZONE_STANDARD_DATE_OFFSET,
+                            standardRule,
+                            toStandardCalendars[0].get(Calendar.HOUR),
+                            toStandardCalendars[0].get(Calendar.MINUTE));
+                    putRuleIntoTimeZoneInformation(tziBytes, MSFT_TIME_ZONE_DAYLIGHT_DATE_OFFSET,
+                            daylightRule,
+                            toDaylightCalendars[0].get(Calendar.HOUR),
+                            toDaylightCalendars[0].get(Calendar.MINUTE));
+                } else {
+                    // If there's no rule, we'll use the first transition to standard/to daylight
+                    // And indicate that it's just for this year...
+                    long now = System.currentTimeMillis();
+                    long standardTransition = findNextTransition(now, toStandardCalendars);
+                    long daylightTransition = findNextTransition(now, toDaylightCalendars);
+                    // If we can't find transitions, we can't do DST
+                    if (standardTransition != 0 && daylightTransition != 0) {
+                        putTimeInMillisIntoSystemTime(tziBytes, MSFT_TIME_ZONE_STANDARD_DATE_OFFSET,
+                                standardTransition);
+                        putTimeInMillisIntoSystemTime(tziBytes, MSFT_TIME_ZONE_DAYLIGHT_DATE_OFFSET,
+                                daylightTransition);
+                    }
+                }
             }
-            // Find the second transition, and store
-            startTime = findTransition(tz, startTime, endOfYearTime, !startInDaylightTime);
-            if (startInDaylightTime) {
-                daylightTransition = startTime;
-            } else {
-                standardTransition = startTime;
-            }
-            if (standardTransition != 0 && daylightTransition != 0) {
-                putTimeInMillisIntoSystemTime(tziBytes, MSFT_TIME_ZONE_STANDARD_DATE_OFFSET,
-                        standardTransition);
-                putTimeInMillisIntoSystemTime(tziBytes, MSFT_TIME_ZONE_DAYLIGHT_DATE_OFFSET,
-                        daylightTransition);
-                int dstOffset = tz.getDSTSavings();
-                setLong(tziBytes, MSFT_TIME_ZONE_DAYLIGHT_BIAS_OFFSET, - dstOffset / MINUTES);
-            }
+            int dstOffset = tz.getDSTSavings();
+            setLong(tziBytes, MSFT_TIME_ZONE_DAYLIGHT_BIAS_OFFSET, - dstOffset / MINUTES);
         }
         byte[] tziEncodedBytes = Base64.encode(tziBytes, Base64.NO_WRAP);
         tziString = new String(tziEncodedBytes);
-        if (Eas.USER_LOG) {
-            Log.d(TAG, "Calculated TZI String for " + tz.getDisplayName() + " in " +
-                    (System.currentTimeMillis() - time) + "ms");
-        }
         return tziString;
     }
 
@@ -385,8 +705,6 @@ public class CalendarUtilities {
      */
     static public TimeZone tziStringToTimeZoneImpl(String timeZoneString) {
         TimeZone timeZone = null;
-        // TODO Remove after we're comfortable with performance
-        long time = System.currentTimeMillis();
         // First, we need to decode the base64 string
         byte[] timeZoneBytes = Base64.decode(timeZoneString, Base64.DEFAULT);
 
@@ -455,14 +773,6 @@ public class CalendarUtilities {
 
                     // Check that the savings are the same
                     if (dstSavings != timeZone.getDSTSavings()) continue;
-
-                    // If we're here, it's the right time zone
-                    String dn = timeZone.getDisplayName();
-                    // TODO Remove timing when we're comfortable with performance
-                    if (Eas.USER_LOG) {
-                        Log.d(TAG, "TimeZone found by rules: " + dn + " in " +
-                                (System.currentTimeMillis() - time) + "ms");
-                    }
                     break;
                 }
             }
@@ -553,7 +863,38 @@ public class CalendarUtilities {
         sb.append(formatTwo(cal.get(Calendar.HOUR_OF_DAY)));
         sb.append(formatTwo(cal.get(Calendar.MINUTE)));
         sb.append(formatTwo(cal.get(Calendar.SECOND)));
-        sb.append('Z');
+        if (tz == sGmtTimeZone) {
+            sb.append('Z');
+        }
+        return sb.toString();
+    }
+
+    /**
+     * Generate a date/time string suitable for VTIMEZONE, the format is YYYYMMDDTHHMMSS
+     * @param millis a time in milliseconds
+     * @param tz a time zone
+     * @param dst whether we're entering daylight time
+     */
+    static public String millisToVCalendarTime(long millis, TimeZone tz, boolean dst) {
+        StringBuilder sb = new StringBuilder();
+        GregorianCalendar cal = new GregorianCalendar(tz);
+        cal.setTimeInMillis(millis);
+        sb.append(cal.get(Calendar.YEAR));
+        sb.append(formatTwo(cal.get(Calendar.MONTH) + 1));
+        sb.append(formatTwo(cal.get(Calendar.DAY_OF_MONTH)));
+        sb.append('T');
+        // If we're entering daylight time, go back an hour to compensate for the singularity
+        if (dst && (tz.getDSTSavings() == HOURS)) {
+            int hour = cal.get(Calendar.HOUR_OF_DAY);
+            if (hour > 0) {
+                hour--;
+            }
+            sb.append(formatTwo(hour));
+        } else {
+            sb.append(formatTwo(cal.get(Calendar.HOUR_OF_DAY)));
+        }
+        sb.append(formatTwo(cal.get(Calendar.MINUTE)));
+        sb.append(formatTwo(cal.get(Calendar.SECOND)));
         return sb.toString();
     }
 
@@ -781,16 +1122,18 @@ public class CalendarUtilities {
             case 3: // MONTHLY (on the nth day)
                 if (dow > 0) addByDay(rrule, dow, wom);
                 break;
-            case 5: // YEARLY
+            case 5: // YEARLY (specific day)
                 if (dom > 0) addByMonthDay(rrule, dom);
                 if (moy > 0) {
-                    // TODO MAKE SURE WE'RE 1 BASED
                     rrule.append(";BYMONTH=" + moy);
                 }
                 break;
-            case 6: // YEARLY (on the nth day)
+            case 6: // YEARLY
                 if (dow > 0) addByDay(rrule, dow, wom);
-                if (moy > 0) addByMonthDay(rrule, dow);
+                if (dom > 0) addByMonthDay(rrule, dom);
+                if (moy > 0) {
+                    rrule.append(";BYMONTH=" + moy);
+                }
                 break;
             default:
                 break;
@@ -871,12 +1214,22 @@ public class CalendarUtilities {
             ics.writeTag("METHOD", method);
             ics.writeTag("PRODID", "AndroidEmail");
             ics.writeTag("VERSION", "2.0");
+
+            // Our default vcalendar time zone is UTC, but this will change (below) if we're
+            // sending a recurring event, in which case we use local time
+            TimeZone vCalendarTimeZone = sGmtTimeZone;
+            String vCalendarTimeZoneSuffix = "";
+
+            // If we're inviting people and the meeting is recurring, we need to send our time zone
+            // information and make sure to send DTSTART/DTEND in local time
+            if (method.equals("REQUEST")  && entityValues.containsKey(Events.RRULE)) {
+                vCalendarTimeZone = TimeZone.getDefault();
+                // Write the VTIMEZONE block to the writer
+                timeZoneToVTimezone(vCalendarTimeZone, ics);
+                vCalendarTimeZoneSuffix = ";TZID=" + vCalendarTimeZone.getID();
+            }
+
             ics.writeTag("BEGIN", "VEVENT");
-            ics.writeTag("CLASS", "PUBLIC");
-            ics.writeTag("STATUS", "CONFIRMED");
-            ics.writeTag("TRANSP", "OPAQUE"); // What Exchange uses
-            ics.writeTag("PRIORITY", "5");  // 1 to 9, 5 = medium
-            ics.writeTag("SEQUENCE", "0");
             if (uid == null) {
                 uid = entityValues.getAsString(Events._SYNC_DATA);
             }
@@ -891,16 +1244,17 @@ public class CalendarUtilities {
                         CalendarUtilities.millisToEasDateTime(System.currentTimeMillis()));
             }
 
-
             long startTime = entityValues.getAsLong(Events.DTSTART);
             if (startTime != 0) {
-                ics.writeTag("DTSTART", CalendarUtilities.millisToEasDateTime(startTime));
+                ics.writeTag("DTSTART" + vCalendarTimeZoneSuffix,
+                        CalendarUtilities.millisToEasDateTime(startTime, vCalendarTimeZone));
             }
 
             if (!entityValues.containsKey(Events.DURATION)) {
                 if (entityValues.containsKey(Events.DTEND)) {
-                    ics.writeTag("DTEND", CalendarUtilities.millisToEasDateTime(
-                            entityValues.getAsLong(Events.DTEND)));
+                    ics.writeTag("DTEND" + vCalendarTimeZoneSuffix,
+                            CalendarUtilities.millisToEasDateTime(
+                                    entityValues.getAsLong(Events.DTEND), vCalendarTimeZone));
                 }
             } else {
                 // Convert this into millis and add it to DTSTART for DTEND
@@ -912,8 +1266,9 @@ public class CalendarUtilities {
                 } catch (ParseException e) {
                     // We'll use the default in this case
                 }
-                ics.writeTag("DTEND",
-                        CalendarUtilities.millisToEasDateTime(startTime + durationMillis));
+                ics.writeTag("DTEND" + vCalendarTimeZoneSuffix,
+                        CalendarUtilities.millisToEasDateTime(
+                                startTime + durationMillis, vCalendarTimeZone));
             }
 
             if (entityValues.containsKey(Events.EVENT_LOCATION)) {
@@ -951,8 +1306,6 @@ public class CalendarUtilities {
                     Integer ade = entityValues.getAsInteger(Events.ALL_DAY);
                     ics.writeTag("X-MICROSOFT-CDO-ALLDAYEVENT", ade == 0 ? "FALSE" : "TRUE");
                 }
-
-                // TODO Handle time zone
 
                 String desc = entityValues.getAsString(Events.DESCRIPTION);
                 if (desc != null) {
@@ -1067,6 +1420,11 @@ public class CalendarUtilities {
             }
             msg.mTo = Address.pack(toArray);
 
+            ics.writeTag("CLASS", "PUBLIC");
+            ics.writeTag("STATUS", "CONFIRMED");
+            ics.writeTag("TRANSP", "OPAQUE"); // What Exchange uses
+            ics.writeTag("PRIORITY", "5");  // 1 to 9, 5 = medium
+            ics.writeTag("SEQUENCE", entityValues.getAsString(Events._SYNC_VERSION));
             ics.writeTag("END", "VEVENT");
             ics.writeTag("END", "VCALENDAR");
             ics.flush();

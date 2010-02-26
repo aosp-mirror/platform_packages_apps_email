@@ -1238,6 +1238,7 @@ public class CalendarSyncAdapter extends AbstractSyncAdapter {
                         s.start(Tags.SYNC_ADD).data(Tags.SYNC_CLIENT_ID, clientId);
                         // And save it in the Event as the local id
                         cidValues.put(Events._SYNC_DATA, clientId);
+                        cidValues.put(Events._SYNC_VERSION, "0");
                         cr.update(ContentUris.withAppendedId(uri, eventId), cidValues, null, null);
                     } else {
                         if (entityValues.getAsInteger(Events.DELETED) == 1) {
@@ -1251,6 +1252,26 @@ public class CalendarSyncAdapter extends AbstractSyncAdapter {
                             continue;
                         }
                         userLog("Upsync change to event with serverId: " + serverId);
+                        // Get the current version
+                        String version = entityValues.getAsString(Events._SYNC_VERSION);
+                        // This should never be null, but catch this error anyway
+                        // Version should be "0" when we create the event, so use that
+                        if (version == null) {
+                            version = "0";
+                        } else {
+                            // Increment and save
+                            try {
+                                version = Integer.toString((Integer.parseInt(version) + 1));
+                            } catch (Exception e) {
+                                // Handle the case in which someone writes a non-integer here;
+                                // shouldn't happen, but we don't want to kill the sync for his
+                                version = "0";
+                            }
+                        }
+                        cidValues.put(Events._SYNC_VERSION, version);
+                        // Also save in entityValues so that we send it this time around
+                        entityValues.put(Events._SYNC_VERSION, version);
+                        cr.update(ContentUris.withAppendedId(uri, eventId), cidValues, null, null);
                         s.start(Tags.SYNC_CHANGE).data(Tags.SYNC_SERVER_ID, serverId);
                     }
                     s.start(Tags.SYNC_APPLICATION_DATA);
@@ -1289,6 +1310,7 @@ public class CalendarSyncAdapter extends AbstractSyncAdapter {
                                     EmailContent.Message.FLAG_OUTGOING_MEETING_INVITE, clientId,
                                     mAccount);
                         if (msg != null) {
+                            userLog("Sending invitation to ", msg.mTo);
                             EasOutboxService.sendMessage(mContext, mAccount.mId, msg);
                         }
                     } else if (!selfOrganizer) {
@@ -1327,6 +1349,7 @@ public class CalendarSyncAdapter extends AbstractSyncAdapter {
                                     CalendarUtilities.createMessageForEventId(mContext, eventId,
                                             messageFlag, clientId, mAccount);
                                 if (msg != null) {
+                                    userLog("Sending invitation reply to " + msg.mTo);
                                     EasOutboxService.sendMessage(mContext, mAccount.mId, msg);
                                 }
                             }

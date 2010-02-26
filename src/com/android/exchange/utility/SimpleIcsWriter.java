@@ -55,6 +55,8 @@ public class SimpleIcsWriter extends CharArrayWriter {
     }
 
     public void writeTag(String name, String value) throws IOException {
+        // Belt and suspenders here; don't crash on null value.  Use something innocuous
+        if (value == null) value = "0";
         write(name);
         write(":");
         write(value);
