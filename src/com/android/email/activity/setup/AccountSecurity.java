@@ -21,7 +21,7 @@ import com.android.email.SecurityPolicy;
 import com.android.email.provider.EmailContent.Account;
 
 import android.app.Activity;
-import android.app.DevicePolicyManager;
+import android.app.admin.DevicePolicyManager;
 import android.content.Context;
 import android.content.Intent;
 import android.os.Bundle;
