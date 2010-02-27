@@ -20,7 +20,6 @@
     <string name="permission_access_provider_label" msgid="4274353114641168675">"存取電子郵件供應商資料"</string>
     <string name="permission_access_provider_desc" msgid="1513898266889541617">"允許此應用程式存取您的電子郵件資料庫，包括已接收郵件、已傳送郵件、使用者名稱和密碼。"</string>
     <string name="app_name" msgid="5815426892327290362">"電子郵件"</string>
-    <string name="accounts_title" msgid="6622149231904649210">"電子郵件"</string>
     <string name="compose_title" msgid="427986915662706899">"撰寫郵件"</string>
     <string name="debug_title" msgid="5175710493691536719">"偵錯"</string>
     <string name="next_action" msgid="3931301986364184415">"下一步"</string>
@@ -56,12 +55,9 @@
     <string name="add_attachment_action" msgid="2696013743130573897">"新增附件"</string>
     <string name="dump_settings_action" msgid="4478192525236169829">"傾印設定"</string>
     <string name="choose_attachment_dialog_title" msgid="81937507117528954">"選擇附件"</string>
-    <string name="accounts_context_menu_title" msgid="1053701760934475027">"帳戶選項"</string>
     <string name="status_loading_more" msgid="1580386959044617884">"正在載入郵件..."</string>
     <string name="status_sending_messages" msgid="3971880826111264523">"正在傳送訊息..."</string>
     <string name="status_network_error" msgid="6045933332005067021">"連線錯誤"</string>
-    <string name="status_sending_messages_failed" msgid="7975009558738692407">"正在重新傳送訊息"</string>
-    <string name="status_loading_more_failed" msgid="1629172047185323">"重新載入更多郵件"</string>
     <string name="notification_new_title" msgid="2200257910380529139">"新郵件"</string>
     <string name="error_loading_message_body" msgid="2265140604109272914">"載入郵件文字時發生未預期的錯誤，郵件可能過大以致於無法檢視。"</string>
   <plurals name="notification_new_one_account_fmt">
@@ -82,14 +78,12 @@
     <string name="debug_version_fmt" msgid="6160213145745376955">"版本：<xliff:g id="VERSION">%s</xliff:g>"</string>
     <string name="account_folder_list_separator_accounts" msgid="7568820182396669244">"帳戶"</string>
     <string name="account_folder_list_summary_inbox" msgid="5790553737870057607">"合併的收件匣"</string>
-    <string name="account_folder_list_summary_unread" msgid="1200755158196002928">"未讀取"</string>
     <string name="account_folder_list_summary_starred" msgid="3134312269246375723">"已加星號"</string>
     <string name="account_folder_list_summary_drafts" msgid="5514845993247300437">"草稿"</string>
     <string name="account_folder_list_summary_outbox" msgid="3059836696049399377">"寄件匣"</string>
     <string name="mailbox_list_title" msgid="8299608543467211089">"信箱"</string>
     <string name="message_list_load_more_messages_action" msgid="7428302707908825692">"載入更多郵件"</string>
     <string name="message_list_send_pending_messages_action" msgid="9100624762133992435">"傳送寄出訊息"</string>
-    <string name="message_list_title" msgid="6927798150197177235">"<xliff:g id="ACCOUNT">%s</xliff:g>：<xliff:g id="MAILBOX">%s</xliff:g>"</string>
     <string name="message_compose_to_hint" msgid="2891895306418177013">"收件者"</string>
     <string name="message_compose_cc_hint" msgid="8481884461031434144">"副本"</string>
     <string name="message_compose_bcc_hint" msgid="9177337492358841680">"密件副本"</string>
@@ -113,16 +107,37 @@
     <string name="message_view_show_pictures_action" msgid="5059936981743072545">"顯示圖片"</string>
     <string name="message_view_fetching_attachment_toast" msgid="8812363375155391184">"正在取得附件。"</string>
     <string name="message_view_fetching_attachment_progress" msgid="8238550182655758164">"正在擷取附件 <xliff:g id="FILENAME">%s</xliff:g>"</string>
-    <string name="message_deleted_toast" msgid="1554845060991758649">"已刪除郵件。"</string>
+    <!-- no translation found for message_view_invite_view (6256018854688891069) -->
+    <skip />
+    <!-- no translation found for message_view_invite_title (5024473745902772299) -->
+    <skip />
+    <!-- no translation found for message_view_invite_text (1212799906603873708) -->
+    <skip />
+    <!-- no translation found for message_view_invite_accept (744546668021679819) -->
+    <skip />
+    <!-- no translation found for message_view_invite_maybe (7555189462441562318) -->
+    <skip />
+    <!-- no translation found for message_view_invite_decline (6119797303297149463) -->
+    <skip />
+    <!-- no translation found for message_view_invite_toast_yes (1900593767157209498) -->
+    <skip />
+    <!-- no translation found for message_view_invite_toast_maybe (8324044318669610540) -->
+    <skip />
+    <!-- no translation found for message_view_invite_toast_no (7511491076936887064) -->
+    <skip />
+    <!-- no translation found for message_deleted_toast:one (710742672464447084) -->
+    <!-- no translation found for message_deleted_toast:other (6574961322865652255) -->
     <string name="message_discarded_toast" msgid="3891461729325584026">"已捨棄郵件。"</string>
     <string name="message_saved_toast" msgid="8443125659172627665">"已儲存郵件草稿。"</string>
-    <string name="add_contact_dlg_title" msgid="7424641029188006580">"新增聯絡人"</string>
-    <string name="add_contact_dlg_message_fmt" msgid="4470846346726847478">"將「<xliff:g id="EMAIL">%s</xliff:g>」新增為聯絡人"</string>
     <string name="message_view_display_attachment_toast" msgid="6096315816776330821">"無法顯示此附件。"</string>
     <string name="account_setup_basics_title" msgid="3969856368228940980">"設定電子郵件"</string>
+    <!-- no translation found for account_setup_basics_exchange_title (1147638872869594157) -->
+    <skip />
+    <!-- no translation found for account_setup_basics_exchange_title_alternate (4980422714586153809) -->
+    <skip />
     <string name="accounts_welcome" msgid="5901437782383439370">"只要幾個步驟，就可以為絕大多數的帳戶設定好電子郵件。"</string>
     <string name="accounts_welcome_exchange" msgid="4414121583987233733">"只要幾個步驟，就可以設定 Exchange 帳戶。"</string>
-    <!-- no translation found for account_setup_basics_instructions (3126077748322815504) -->
+    <!-- no translation found for accounts_welcome_exchange_alternate (1324339567986452000) -->
     <skip />
     <string name="account_setup_basics_email_hint" msgid="7414269319207261120">"電子郵件地址"</string>
     <string name="account_setup_basics_password_hint" msgid="410210049040536870">"密碼"</string>
@@ -165,13 +180,9 @@
     <string name="account_setup_outgoing_require_login_label" msgid="6371514297854287948">"必須登入。"</string>
     <string name="account_setup_outgoing_username_label" msgid="3309680794731596981">"使用者名稱"</string>
     <string name="account_setup_outgoing_password_label" msgid="227844585493317550">"密碼"</string>
-    <!-- no translation found for account_setup_exchange_title (2492853474738063453) -->
-    <skip />
-    <!-- no translation found for account_setup_exchange_server_label (795137797983360826) -->
-    <skip />
+    <string name="account_setup_exchange_title" msgid="2492853474738063453">"伺服器設定"</string>
+    <string name="account_setup_exchange_server_label" msgid="795137797983360826">"伺服器"</string>
     <string name="account_setup_exchange_username_label" msgid="6517176180828983060">"網域\\使用者名稱"</string>
-    <string name="account_setup_exchange_domain_label" msgid="3584668050727667045">"網域"</string>
-    <string name="account_setup_exchange_domain_hint" msgid="350372033916025287">"在此輸入網域"</string>
     <string name="account_setup_exchange_ssl_label" msgid="6704105469083211236">"使用安全連線 (SSL)"</string>
     <string name="account_setup_exchange_trust_certificates_label" msgid="6232880757633882678">"接受所有安全資料傳輸層 (SSL) 憑證"</string>
     <string name="account_setup_options_title" msgid="8995162193118880993">"帳戶選項"</string>
@@ -186,6 +197,8 @@
     <string name="account_setup_options_default_label" msgid="8869166381331276697">"設為傳送電子郵件的預設帳戶。"</string>
     <string name="account_setup_options_notify_label" msgid="1247525794828820038">"收到電子郵件時通知我。"</string>
     <string name="account_setup_options_sync_contacts_label" msgid="7467467090023434271">"同步處理此帳戶的聯絡人。"</string>
+    <!-- no translation found for account_setup_options_sync_calendar_label (3195979658426293931) -->
+    <skip />
     <string name="account_setup_failed_dlg_title" msgid="7827583313117521383">"無法完成設定"</string>
     <string name="account_setup_options_mail_window_label" msgid="8764417340954006086">"同步數量"</string>
     <string name="account_setup_options_mail_window_1day" msgid="3965715241135811407">"1 天"</string>
@@ -193,7 +206,6 @@
     <string name="account_setup_options_mail_window_1week" msgid="5639718031108023741">"1 週"</string>
     <string name="account_setup_options_mail_window_2weeks" msgid="4567049268124213035">"2 週"</string>
     <string name="account_setup_options_mail_window_1month" msgid="5846359669750047081">"1 個月"</string>
-    <string name="account_setup_options_mail_window_all" msgid="5383858972681926166">"所有郵件"</string>
     <string name="account_setup_failed_dlg_auth_message" msgid="42827150104879570">"使用者名稱或密碼不正確。"</string>
     <string name="account_setup_failed_dlg_auth_message_fmt" msgid="8598560266430207606">"使用者名稱或密碼不正確。"\n"(<xliff:g id="ERROR">%s</xliff:g>)"</string>
     <string name="account_setup_failed_dlg_certificate_message" msgid="961843413600482906">"無法安全地連線至伺服器。"</string>
@@ -204,7 +216,20 @@
     <string name="account_setup_failed_auth_required" msgid="1676242821459638150">"伺服器不支援這些驗證方法。"</string>
     <string name="account_setup_failed_security" msgid="6142264248671379943">"發生安全性錯誤，無法連線至伺服器。"</string>
     <string name="account_setup_failed_ioerror" msgid="7391458717708933095">"無法連線至伺服器。"</string>
-    <string name="account_setup_failed_security_policies_required" msgid="3567420384516656976">"您的手機不支援這個 Exchange ActiveSync 伺服器所需的安全性功能。"</string>
+    <!-- no translation found for account_setup_security_required_title (1850321535870447468) -->
+    <skip />
+    <!-- no translation found for account_setup_security_policies_required_fmt (8146309611870795951) -->
+    <skip />
+    <!-- no translation found for account_setup_failed_security_policies_unsupported (4093832822988053758) -->
+    <skip />
+    <!-- no translation found for security_notification_ticker_fmt (1108023476125276507) -->
+    <skip />
+    <!-- no translation found for security_notification_content_title (8096231937552848281) -->
+    <skip />
+    <!-- no translation found for account_security_title (4441470647344315196) -->
+    <skip />
+    <!-- no translation found for account_security_policy_explanation_fmt (5153981166755002718) -->
+    <skip />
     <string name="account_setup_failed_dlg_edit_details_action" msgid="5355993309841479360">"請編輯資料"</string>
     <string name="account_settings_title_fmt" msgid="1702058877284382340">"一般設定"</string>
     <string name="account_settings_default_label" msgid="3575963379680943640">"預設帳戶"</string>
@@ -215,22 +240,49 @@
     <string name="account_settings_mail_check_frequency_label" msgid="2067835530563849675">"檢查電子郵件的頻率"</string>
     <string name="account_settings_incoming_label" msgid="7858928031806297542">"內收設定"</string>
     <string name="account_settings_outgoing_label" msgid="4464829249980026745">"外寄設定"</string>
-    <string name="account_settings_add_account_label" msgid="63971622405360050">"新增其他帳戶"</string>
     <string name="account_settings_description_label" msgid="8894815221204511715">"帳戶名稱"</string>
     <string name="account_settings_name_label" msgid="8186406122590008449">"您的姓名"</string>
+    <!-- no translation found for account_settings_signature_label (4091969938785803201) -->
+    <skip />
+    <!-- no translation found for account_settings_signature_hint (7262183168962779403) -->
+    <skip />
     <string name="account_settings_notifications" msgid="1042620094281375043">"通知設定"</string>
     <string name="account_settings_sync_contacts_enable" msgid="1369272986009573218">"同步處理聯絡人"</string>
     <string name="account_settings_sync_contacts_summary" msgid="8901452720940015928">"也同步處理此帳戶的聯絡人"</string>
+    <!-- no translation found for account_settings_sync_calendar_enable (6855333393468628003) -->
+    <skip />
+    <!-- no translation found for account_settings_sync_calendar_summary (2456010694443333450) -->
+    <skip />
     <string name="account_settings_vibrate_enable" msgid="8045133290388856478">"震動"</string>
     <string name="account_settings_vibrate_summary" msgid="3690631050585589365">"收到電子郵件時震動提醒"</string>
     <string name="account_settings_ringtone" msgid="7922187231467500404">"選取鈴聲"</string>
     <string name="account_settings_servers" msgid="4925493817981624242">"伺服器設定"</string>
     <string name="account_delete_dlg_title" msgid="6806087520856396608">"移除帳戶"</string>
     <string name="account_delete_dlg_instructions_fmt" msgid="8236846322040271280">"系統將從 [電子郵件] 中移除帳戶「<xliff:g id="ACCOUNT">%s</xliff:g>」。"</string>
+    <!-- no translation found for upgrade_accounts_title (5444140226380754014) -->
+    <skip />
+    <!-- no translation found for upgrade_accounts_error (7241661832029255715) -->
+    <skip />
     <string name="provider_note_yahoo" msgid="8762024183024261236">"系統不支援某些類型的 Yahoo! 郵件帳戶信箱。如果您無法順利連線，請前往 yahoo.com 以瞭解詳情。"</string>
     <string name="provider_note_yahoo_uk" msgid="2055976404478603298">"在設定此電子郵件帳戶前，請先造訪 Yahoo! 網站，並啟用帳戶的 POP3 電子郵件收發功能。"</string>
     <string name="provider_note_live" msgid="3584841823811425060">"只有部分包含 POP 存取功能的「Plus」帳戶能與這個程式連線。如果您輸入的電子郵件地址和密碼無誤，卻仍無法登入，表示您可能尚未購買「Plus」帳戶。請啟動網頁瀏覽器，以存取這些電子郵件帳戶。"</string>
     <string name="provider_note_t_online" msgid="1973701903400232774">"在設定此電子郵件帳戶前，請先造訪 T-Online 網站，並設定 POP3 電子郵件收發功能的密碼。"</string>
     <string name="exchange_name" msgid="1190783774800310346">"公司"</string>
+    <!-- no translation found for exchange_name_alternate (5772529644749041052) -->
+    <skip />
+    <!-- no translation found for meeting_invitation (352782347335101484) -->
+    <skip />
+    <!-- no translation found for meeting_accepted (8796609373330400268) -->
+    <skip />
+    <!-- no translation found for meeting_declined (6707617183246608552) -->
+    <skip />
+    <!-- no translation found for meeting_tentative (8250995722130443785) -->
+    <skip />
     <string name="system_account_create_failed" msgid="4917162302393971752">"AccountManager 無法建立帳戶，請再試一次。"</string>
+    <!-- no translation found for device_admin_label (8680224994637869414) -->
+    <skip />
+    <!-- no translation found for device_admin_description (426727923791430306) -->
+    <skip />
+    <!-- no translation found for notification_exchange_calendar_added (6823659622379350159) -->
+    <skip />
 </resources>

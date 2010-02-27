@@ -20,7 +20,6 @@
     <string name="permission_access_provider_label" msgid="4274353114641168675">"Přístup k datům poskytovatele e-mailu"</string>
     <string name="permission_access_provider_desc" msgid="1513898266889541617">"Povoluje této aplikaci přístup do databáze aplikace Email, včetně přijatých a odeslaných zpráv, uživatelských jmen a hesel."</string>
     <string name="app_name" msgid="5815426892327290362">"E-mail"</string>
-    <string name="accounts_title" msgid="6622149231904649210">"E-mail"</string>
     <string name="compose_title" msgid="427986915662706899">"Nová"</string>
     <string name="debug_title" msgid="5175710493691536719">"Ladění"</string>
     <string name="next_action" msgid="3931301986364184415">"Další"</string>
@@ -56,12 +55,9 @@
     <string name="add_attachment_action" msgid="2696013743130573897">"Připojit přílohu"</string>
     <string name="dump_settings_action" msgid="4478192525236169829">"Nastavení výpisu"</string>
     <string name="choose_attachment_dialog_title" msgid="81937507117528954">"Výběr přílohy"</string>
-    <string name="accounts_context_menu_title" msgid="1053701760934475027">"Možnosti účtu"</string>
     <string name="status_loading_more" msgid="1580386959044617884">"Načítání zpráv..."</string>
     <string name="status_sending_messages" msgid="3971880826111264523">"Odesílání zpráv..."</string>
     <string name="status_network_error" msgid="6045933332005067021">"Chyba připojení"</string>
-    <string name="status_sending_messages_failed" msgid="7975009558738692407">"Nový pokus o odeslání zpráv"</string>
-    <string name="status_loading_more_failed" msgid="1629172047185323">"Opakovat načítání dalších zpráv"</string>
     <string name="notification_new_title" msgid="2200257910380529139">"Nový e-mail"</string>
     <string name="error_loading_message_body" msgid="2265140604109272914">"Během načítání textu zprávy došlo k neočekávané chybě. Zpráva je možná příliš velká a proto ji nelze zobrazit."</string>
   <plurals name="notification_new_one_account_fmt">
@@ -82,14 +78,12 @@
     <string name="debug_version_fmt" msgid="6160213145745376955">"Verze: <xliff:g id="VERSION">%s</xliff:g>"</string>
     <string name="account_folder_list_separator_accounts" msgid="7568820182396669244">"Účty"</string>
     <string name="account_folder_list_summary_inbox" msgid="5790553737870057607">"Všechny složky Doručená pošta"</string>
-    <string name="account_folder_list_summary_unread" msgid="1200755158196002928">"Nepřečtené"</string>
     <string name="account_folder_list_summary_starred" msgid="3134312269246375723">"Označené hvězdičkou"</string>
     <string name="account_folder_list_summary_drafts" msgid="5514845993247300437">"Koncepty"</string>
     <string name="account_folder_list_summary_outbox" msgid="3059836696049399377">"Pošta k odeslání"</string>
     <string name="mailbox_list_title" msgid="8299608543467211089">"E-mailová schránka"</string>
     <string name="message_list_load_more_messages_action" msgid="7428302707908825692">"Načíst další zprávy"</string>
     <string name="message_list_send_pending_messages_action" msgid="9100624762133992435">"Odeslat odchozí zprávy"</string>
-    <string name="message_list_title" msgid="6927798150197177235">"<xliff:g id="ACCOUNT">%s</xliff:g>: <xliff:g id="MAILBOX">%s</xliff:g>"</string>
     <string name="message_compose_to_hint" msgid="2891895306418177013">"Komu"</string>
     <string name="message_compose_cc_hint" msgid="8481884461031434144">"Kopie"</string>
     <string name="message_compose_bcc_hint" msgid="9177337492358841680">"Skrytá kopie"</string>
@@ -113,17 +107,35 @@
     <string name="message_view_show_pictures_action" msgid="5059936981743072545">"Zobrazit obrázky"</string>
     <string name="message_view_fetching_attachment_toast" msgid="8812363375155391184">"Načítání přílohy"</string>
     <string name="message_view_fetching_attachment_progress" msgid="8238550182655758164">"Načítání přílohy <xliff:g id="FILENAME">%s</xliff:g>"</string>
-    <string name="message_deleted_toast" msgid="1554845060991758649">"Zpráva byla smazána."</string>
+    <!-- no translation found for message_view_invite_view (6256018854688891069) -->
+    <skip />
+    <!-- no translation found for message_view_invite_title (5024473745902772299) -->
+    <skip />
+    <!-- no translation found for message_view_invite_text (1212799906603873708) -->
+    <skip />
+    <!-- no translation found for message_view_invite_accept (744546668021679819) -->
+    <skip />
+    <!-- no translation found for message_view_invite_maybe (7555189462441562318) -->
+    <skip />
+    <!-- no translation found for message_view_invite_decline (6119797303297149463) -->
+    <skip />
+    <!-- no translation found for message_view_invite_toast_yes (1900593767157209498) -->
+    <skip />
+    <!-- no translation found for message_view_invite_toast_maybe (8324044318669610540) -->
+    <skip />
+    <!-- no translation found for message_view_invite_toast_no (7511491076936887064) -->
+    <skip />
+    <!-- no translation found for message_deleted_toast:one (710742672464447084) -->
+    <!-- no translation found for message_deleted_toast:other (6574961322865652255) -->
     <string name="message_discarded_toast" msgid="3891461729325584026">"Zpráva byla zrušena."</string>
     <string name="message_saved_toast" msgid="8443125659172627665">"Zpráva byla uložena jako koncept."</string>
-    <string name="add_contact_dlg_title" msgid="7424641029188006580">"Přidat kontakt"</string>
-    <string name="add_contact_dlg_message_fmt" msgid="4470846346726847478">"Přidat „<xliff:g id="EMAIL">%s</xliff:g>“ do kontaktů"</string>
     <string name="message_view_display_attachment_toast" msgid="6096315816776330821">"Tuto přílohu nelze zobrazit."</string>
     <string name="account_setup_basics_title" msgid="3969856368228940980">"Nastavit e-mail"</string>
+    <string name="account_setup_basics_exchange_title" msgid="1147638872869594157">"Přidat účet Exchange"</string>
+    <string name="account_setup_basics_exchange_title_alternate" msgid="4980422714586153809">"Přidat účet Exchange ActiveSync"</string>
     <string name="accounts_welcome" msgid="5901437782383439370">"Většinu e-mailových účtů můžete nakonfigurovat v několika snadných krocích."</string>
     <string name="accounts_welcome_exchange" msgid="4414121583987233733">"Účet Exchange můžete nakonfigurovat v několika snadných krocích."</string>
-    <!-- no translation found for account_setup_basics_instructions (3126077748322815504) -->
-    <skip />
+    <string name="accounts_welcome_exchange_alternate" msgid="1324339567986452000">"Účet služby Exchange ActiveSync můžete nakonfigurovat v několika snadných krocích."</string>
     <string name="account_setup_basics_email_hint" msgid="7414269319207261120">"E-mailová adresa"</string>
     <string name="account_setup_basics_password_hint" msgid="410210049040536870">"Heslo"</string>
     <string name="account_setup_basics_default_label" msgid="5924790142029806711">"Ve výchozím nastavení odesílat e-maily z tohoto účtu."</string>
@@ -165,13 +177,9 @@
     <string name="account_setup_outgoing_require_login_label" msgid="6371514297854287948">"Požadovat přihlášení"</string>
     <string name="account_setup_outgoing_username_label" msgid="3309680794731596981">"Uživatelské jméno"</string>
     <string name="account_setup_outgoing_password_label" msgid="227844585493317550">"Heslo"</string>
-    <!-- no translation found for account_setup_exchange_title (2492853474738063453) -->
-    <skip />
-    <!-- no translation found for account_setup_exchange_server_label (795137797983360826) -->
-    <skip />
+    <string name="account_setup_exchange_title" msgid="2492853474738063453">"Nastavení serveru"</string>
+    <string name="account_setup_exchange_server_label" msgid="795137797983360826">"Server"</string>
     <string name="account_setup_exchange_username_label" msgid="6517176180828983060">"Doména\\Uživatelské jméno"</string>
-    <string name="account_setup_exchange_domain_label" msgid="3584668050727667045">"Doména"</string>
-    <string name="account_setup_exchange_domain_hint" msgid="350372033916025287">"Sem zadejte doménu"</string>
     <string name="account_setup_exchange_ssl_label" msgid="6704105469083211236">"Použít zabezpečené připojení (SSL)"</string>
     <string name="account_setup_exchange_trust_certificates_label" msgid="6232880757633882678">"Přijímat všechny certifikáty protokolu SSL"</string>
     <string name="account_setup_options_title" msgid="8995162193118880993">"Možnosti účtu"</string>
@@ -186,6 +194,7 @@
     <string name="account_setup_options_default_label" msgid="8869166381331276697">"Ve výchozím nastavení odesílat e-maily z tohoto účtu."</string>
     <string name="account_setup_options_notify_label" msgid="1247525794828820038">"Upozornit mě na příchozí e-mail"</string>
     <string name="account_setup_options_sync_contacts_label" msgid="7467467090023434271">"Synchronizovat kontakty z tohoto účtu."</string>
+    <string name="account_setup_options_sync_calendar_label" msgid="3195979658426293931">"Synchronizovat kalendář z tohoto účtu."</string>
     <string name="account_setup_failed_dlg_title" msgid="7827583313117521383">"Nastavení nelze dokončit"</string>
     <string name="account_setup_options_mail_window_label" msgid="8764417340954006086">"Množství k synchronizaci"</string>
     <string name="account_setup_options_mail_window_1day" msgid="3965715241135811407">"Jeden den"</string>
@@ -193,7 +202,6 @@
     <string name="account_setup_options_mail_window_1week" msgid="5639718031108023741">"Jeden týden"</string>
     <string name="account_setup_options_mail_window_2weeks" msgid="4567049268124213035">"Dva týdny"</string>
     <string name="account_setup_options_mail_window_1month" msgid="5846359669750047081">"Jeden měsíc"</string>
-    <string name="account_setup_options_mail_window_all" msgid="5383858972681926166">"Všechna pošta"</string>
     <string name="account_setup_failed_dlg_auth_message" msgid="42827150104879570">"Uživatelské jméno nebo heslo není správné"</string>
     <string name="account_setup_failed_dlg_auth_message_fmt" msgid="8598560266430207606">"Uživatelské jméno nebo heslo není správné."\n"(<xliff:g id="ERROR">%s</xliff:g>)"</string>
     <string name="account_setup_failed_dlg_certificate_message" msgid="961843413600482906">"Nelze se bezpečně připojit k serveru."</string>
@@ -204,7 +212,13 @@
     <string name="account_setup_failed_auth_required" msgid="1676242821459638150">"Server nepodporuje metody ověření."</string>
     <string name="account_setup_failed_security" msgid="6142264248671379943">"Nelze navázat připojení k serveru z důvodu chyby zabezpečení."</string>
     <string name="account_setup_failed_ioerror" msgid="7391458717708933095">"Nelze navázat připojení k serveru."</string>
-    <string name="account_setup_failed_security_policies_required" msgid="3567420384516656976">"Tento server Exchange ActiveSync vyžaduje funkce zabezpečení, které váš telefon nepodporuje."</string>
+    <string name="account_setup_security_required_title" msgid="1850321535870447468">"Vzdálená správa zabezpečení"</string>
+    <string name="account_setup_security_policies_required_fmt" msgid="8146309611870795951">"Server <xliff:g id="SERVER">%s</xliff:g> žádá o povolení, aby mohl vzdáleně ovládat některé funkce zabezpečení vašeho telefonu. Chcete dokončit nastavení tohoto účtu?"</string>
+    <string name="account_setup_failed_security_policies_unsupported" msgid="4093832822988053758">"Tento server vyžaduje funkce zabezpečení, které váš telefon nepodporuje."</string>
+    <string name="security_notification_ticker_fmt" msgid="1108023476125276507">"Účet <xliff:g id="ACCOUNT">%s</xliff:g> požaduje aktualizaci nastavení zabezpečení."</string>
+    <string name="security_notification_content_title" msgid="8096231937552848281">"Aktualizace nastavení zabezpečení"</string>
+    <string name="account_security_title" msgid="4441470647344315196">"Zabezpečení zařízení"</string>
+    <string name="account_security_policy_explanation_fmt" msgid="5153981166755002718">"Server <xliff:g id="SERVER">%s</xliff:g> žádá o povolení, aby mohl vzdáleně ovládat některé funkce zabezpečení vašeho telefonu."</string>
     <string name="account_setup_failed_dlg_edit_details_action" msgid="5355993309841479360">"Upravit podrobnosti"</string>
     <string name="account_settings_title_fmt" msgid="1702058877284382340">"Obecná nastavení"</string>
     <string name="account_settings_default_label" msgid="3575963379680943640">"Výchozí účet"</string>
@@ -215,22 +229,40 @@
     <string name="account_settings_mail_check_frequency_label" msgid="2067835530563849675">"Četnost kontrol e-mailů"</string>
     <string name="account_settings_incoming_label" msgid="7858928031806297542">"Nastavení příchozí pošty"</string>
     <string name="account_settings_outgoing_label" msgid="4464829249980026745">"Nastavení odchozí pošty"</string>
-    <string name="account_settings_add_account_label" msgid="63971622405360050">"Přidat další účet"</string>
     <string name="account_settings_description_label" msgid="8894815221204511715">"Název účtu"</string>
     <string name="account_settings_name_label" msgid="8186406122590008449">"Vaše jméno"</string>
+    <string name="account_settings_signature_label" msgid="4091969938785803201">"Podpis"</string>
+    <string name="account_settings_signature_hint" msgid="7262183168962779403">"Připojit text k odesílaným zprávám"</string>
     <string name="account_settings_notifications" msgid="1042620094281375043">"Nastavení upozornění"</string>
     <string name="account_settings_sync_contacts_enable" msgid="1369272986009573218">"Synchronizovat kontakty"</string>
     <string name="account_settings_sync_contacts_summary" msgid="8901452720940015928">"Synchronizovat kontakty také z tohoto účtu"</string>
+    <string name="account_settings_sync_calendar_enable" msgid="6855333393468628003">"Synchronizovat kalendář"</string>
+    <string name="account_settings_sync_calendar_summary" msgid="2456010694443333450">"Synchronizovat kalendář také z tohoto účtu"</string>
     <string name="account_settings_vibrate_enable" msgid="8045133290388856478">"Vibrovat"</string>
     <string name="account_settings_vibrate_summary" msgid="3690631050585589365">"Při obdržení e-mailu také vibrovat"</string>
     <string name="account_settings_ringtone" msgid="7922187231467500404">"Zvolit vyzváněcí tón"</string>
     <string name="account_settings_servers" msgid="4925493817981624242">"Nastavení serverů"</string>
     <string name="account_delete_dlg_title" msgid="6806087520856396608">"Odebrat účet"</string>
     <string name="account_delete_dlg_instructions_fmt" msgid="8236846322040271280">"Účet <xliff:g id="ACCOUNT">%s</xliff:g> bude z aplikace Email odebrán."</string>
+    <string name="upgrade_accounts_title" msgid="5444140226380754014">"Upgradovat účty"</string>
+    <string name="upgrade_accounts_error" msgid="7241661832029255715">"Účet nelze upgradovat"</string>
     <string name="provider_note_yahoo" msgid="8762024183024261236">"Přístup do schránky není u některých poštovních účtů Yahoo! podporován. Pokud máte problémy s připojením, získáte další informace na webové stránce yahoo.com."</string>
     <string name="provider_note_yahoo_uk" msgid="2055976404478603298">"Před nastavením tohoto e-mailového účtu přejděte na web Yahoo! a povolte u tohoto účtu e-mailový přístup POP3."</string>
     <string name="provider_note_live" msgid="3584841823811425060">"Pouze některé účty typu Plus obsahují přístup POP umožňující připojení tohoto programu. Pokud se nemůžete přihlásit se správnou e-mailovou adresou a heslem, pravděpodobně nemáte placený účet Plus. Spusťte webový prohlížeč a vyhledejte přístup k těmto poštovním účtům."</string>
     <string name="provider_note_t_online" msgid="1973701903400232774">"Před nastavením tohoto e-mailového účtu navštivte web T-Online a vytvořte heslo pro e-mailový přístup POP3."</string>
     <string name="exchange_name" msgid="1190783774800310346">"Firemní"</string>
+    <string name="exchange_name_alternate" msgid="5772529644749041052">"Microsoft Exchange ActiveSync"</string>
+    <!-- no translation found for meeting_invitation (352782347335101484) -->
+    <skip />
+    <!-- no translation found for meeting_accepted (8796609373330400268) -->
+    <skip />
+    <!-- no translation found for meeting_declined (6707617183246608552) -->
+    <skip />
+    <!-- no translation found for meeting_tentative (8250995722130443785) -->
+    <skip />
     <string name="system_account_create_failed" msgid="4917162302393971752">"Správci účtů se nepodařilo vytvořit účet. Zkuste to prosím znovu."</string>
+    <string name="device_admin_label" msgid="8680224994637869414">"E-mail"</string>
+    <string name="device_admin_description" msgid="426727923791430306">"Povoluje zásady zabezpečení určené serverem"</string>
+    <!-- no translation found for notification_exchange_calendar_added (6823659622379350159) -->
+    <skip />
 </resources>

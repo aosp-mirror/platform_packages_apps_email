@@ -20,7 +20,6 @@
     <string name="permission_access_provider_label" msgid="4274353114641168675">"Acceder a los datos del proveedor de correo electrónico"</string>
     <string name="permission_access_provider_desc" msgid="1513898266889541617">"Permite que esta aplicación acceda a la base de datos de tu correo electrónico, incluidos los mensajes recibidos, los mensajes enviados, los nombres de usuario y las contraseñas."</string>
     <string name="app_name" msgid="5815426892327290362">"Correo electrónico"</string>
-    <string name="accounts_title" msgid="6622149231904649210">"Correo electrónico"</string>
     <string name="compose_title" msgid="427986915662706899">"Redactar"</string>
     <string name="debug_title" msgid="5175710493691536719">"Depurar"</string>
     <string name="next_action" msgid="3931301986364184415">"Siguiente"</string>
@@ -56,12 +55,9 @@
     <string name="add_attachment_action" msgid="2696013743130573897">"Agregar archivo adjunto"</string>
     <string name="dump_settings_action" msgid="4478192525236169829">"Configuración de descarga"</string>
     <string name="choose_attachment_dialog_title" msgid="81937507117528954">"Seleccionar archivo adjunto"</string>
-    <string name="accounts_context_menu_title" msgid="1053701760934475027">"Opciones de cuenta"</string>
     <string name="status_loading_more" msgid="1580386959044617884">"Cargando mensajes..."</string>
     <string name="status_sending_messages" msgid="3971880826111264523">"Enviando mensajes..."</string>
     <string name="status_network_error" msgid="6045933332005067021">"Error de conexión"</string>
-    <string name="status_sending_messages_failed" msgid="7975009558738692407">"Intenta nuevamente enviar los mensajes"</string>
-    <string name="status_loading_more_failed" msgid="1629172047185323">"Intentar nuevamente cargando más mensajes"</string>
     <string name="notification_new_title" msgid="2200257910380529139">"Correo electrónico nuevo"</string>
     <string name="error_loading_message_body" msgid="2265140604109272914">"Se ha producido un error inesperado al cargar el texto del mensaje. El mensaje puede ser demasiado largo para ver."</string>
   <plurals name="notification_new_one_account_fmt">
@@ -82,14 +78,12 @@
     <string name="debug_version_fmt" msgid="6160213145745376955">"Versión: <xliff:g id="VERSION">%s</xliff:g>"</string>
     <string name="account_folder_list_separator_accounts" msgid="7568820182396669244">"Cuentas"</string>
     <string name="account_folder_list_summary_inbox" msgid="5790553737870057607">"Bandeja de entrada combinada"</string>
-    <string name="account_folder_list_summary_unread" msgid="1200755158196002928">"No leídos"</string>
     <string name="account_folder_list_summary_starred" msgid="3134312269246375723">"Marcado con asterisco"</string>
     <string name="account_folder_list_summary_drafts" msgid="5514845993247300437">"Borradores"</string>
     <string name="account_folder_list_summary_outbox" msgid="3059836696049399377">"Bandeja de salida"</string>
     <string name="mailbox_list_title" msgid="8299608543467211089">"Casilla de correo"</string>
     <string name="message_list_load_more_messages_action" msgid="7428302707908825692">"Cargar más mensajes"</string>
     <string name="message_list_send_pending_messages_action" msgid="9100624762133992435">"Enviar mensajes de salida"</string>
-    <string name="message_list_title" msgid="6927798150197177235">"<xliff:g id="ACCOUNT">%s</xliff:g>: <xliff:g id="MAILBOX">%s</xliff:g>"</string>
     <string name="message_compose_to_hint" msgid="2891895306418177013">"Para"</string>
     <string name="message_compose_cc_hint" msgid="8481884461031434144">"CC"</string>
     <string name="message_compose_bcc_hint" msgid="9177337492358841680">"CCO"</string>
@@ -113,17 +107,35 @@
     <string name="message_view_show_pictures_action" msgid="5059936981743072545">"Mostrar imágenes"</string>
     <string name="message_view_fetching_attachment_toast" msgid="8812363375155391184">"Extrayendo archivo adjunto."</string>
     <string name="message_view_fetching_attachment_progress" msgid="8238550182655758164">"Extrayendo archivo adjunto<xliff:g id="FILENAME">%s</xliff:g>"</string>
-    <string name="message_deleted_toast" msgid="1554845060991758649">"Mensaje suprimido."</string>
+    <!-- no translation found for message_view_invite_view (6256018854688891069) -->
+    <skip />
+    <!-- no translation found for message_view_invite_title (5024473745902772299) -->
+    <skip />
+    <!-- no translation found for message_view_invite_text (1212799906603873708) -->
+    <skip />
+    <!-- no translation found for message_view_invite_accept (744546668021679819) -->
+    <skip />
+    <!-- no translation found for message_view_invite_maybe (7555189462441562318) -->
+    <skip />
+    <!-- no translation found for message_view_invite_decline (6119797303297149463) -->
+    <skip />
+    <!-- no translation found for message_view_invite_toast_yes (1900593767157209498) -->
+    <skip />
+    <!-- no translation found for message_view_invite_toast_maybe (8324044318669610540) -->
+    <skip />
+    <!-- no translation found for message_view_invite_toast_no (7511491076936887064) -->
+    <skip />
+    <!-- no translation found for message_deleted_toast:one (710742672464447084) -->
+    <!-- no translation found for message_deleted_toast:other (6574961322865652255) -->
     <string name="message_discarded_toast" msgid="3891461729325584026">"Mensaje descartado."</string>
     <string name="message_saved_toast" msgid="8443125659172627665">"Mensaje guardado como borrador."</string>
-    <string name="add_contact_dlg_title" msgid="7424641029188006580">"Agregar contacto"</string>
-    <string name="add_contact_dlg_message_fmt" msgid="4470846346726847478">"Agregar \"<xliff:g id="EMAIL">%s</xliff:g>\" a los contactos"</string>
     <string name="message_view_display_attachment_toast" msgid="6096315816776330821">"No se puede mostrar este archivo adjunto."</string>
     <string name="account_setup_basics_title" msgid="3969856368228940980">"Configurar correo electrónico"</string>
+    <string name="account_setup_basics_exchange_title" msgid="1147638872869594157">"Agregar una cuenta de Exchange"</string>
+    <string name="account_setup_basics_exchange_title_alternate" msgid="4980422714586153809">"Agregar una cuenta de Exchange ActiveSync"</string>
     <string name="accounts_welcome" msgid="5901437782383439370">"Puedes configurar el correo electrónico de la mayoría de las cuentas en sólo algunos pasos."</string>
     <string name="accounts_welcome_exchange" msgid="4414121583987233733">"Puedes configurar una cuenta de Exchange en sólo algunos pasos."</string>
-    <!-- no translation found for account_setup_basics_instructions (3126077748322815504) -->
-    <skip />
+    <string name="accounts_welcome_exchange_alternate" msgid="1324339567986452000">"Puedes configurar una cuenta de Exchange ActiveSync en sólo algunos pasos."</string>
     <string name="account_setup_basics_email_hint" msgid="7414269319207261120">"Dirección de correo electrónico"</string>
     <string name="account_setup_basics_password_hint" msgid="410210049040536870">"Contraseña"</string>
     <string name="account_setup_basics_default_label" msgid="5924790142029806711">"Enviar mensaje de correo electrónico desde esta cuenta de forma predeterminada."</string>
@@ -165,13 +177,9 @@
     <string name="account_setup_outgoing_require_login_label" msgid="6371514297854287948">"Requiere inicio de sesión."</string>
     <string name="account_setup_outgoing_username_label" msgid="3309680794731596981">"Nombre de usuario"</string>
     <string name="account_setup_outgoing_password_label" msgid="227844585493317550">"Contraseña"</string>
-    <!-- no translation found for account_setup_exchange_title (2492853474738063453) -->
-    <skip />
-    <!-- no translation found for account_setup_exchange_server_label (795137797983360826) -->
-    <skip />
+    <string name="account_setup_exchange_title" msgid="2492853474738063453">"Configuración del servidor"</string>
+    <string name="account_setup_exchange_server_label" msgid="795137797983360826">"Servidor"</string>
     <string name="account_setup_exchange_username_label" msgid="6517176180828983060">"Dominio\\Nombre de usuario"</string>
-    <string name="account_setup_exchange_domain_label" msgid="3584668050727667045">"Dominio"</string>
-    <string name="account_setup_exchange_domain_hint" msgid="350372033916025287">"Ingresa el dominio aquí"</string>
     <string name="account_setup_exchange_ssl_label" msgid="6704105469083211236">"Utilizar conexión segura (SSL)"</string>
     <string name="account_setup_exchange_trust_certificates_label" msgid="6232880757633882678">"Aceptar todos los certificados SSL"</string>
     <string name="account_setup_options_title" msgid="8995162193118880993">"Opciones de cuenta"</string>
@@ -186,6 +194,7 @@
     <string name="account_setup_options_default_label" msgid="8869166381331276697">"Enviar mensaje de correo electrónico desde esta cuenta de forma predeterminada."</string>
     <string name="account_setup_options_notify_label" msgid="1247525794828820038">"Notificarme cuando llegue un mensaje de correo electrónico."</string>
     <string name="account_setup_options_sync_contacts_label" msgid="7467467090023434271">"Sincronizar contactos desde esta cuenta"</string>
+    <string name="account_setup_options_sync_calendar_label" msgid="3195979658426293931">"Sincroniza el calendario desde esta cuenta"</string>
     <string name="account_setup_failed_dlg_title" msgid="7827583313117521383">"No se ha podido finalizar la configuración"</string>
     <string name="account_setup_options_mail_window_label" msgid="8764417340954006086">"Monto para sincronizar"</string>
     <string name="account_setup_options_mail_window_1day" msgid="3965715241135811407">"Un día"</string>
@@ -193,7 +202,6 @@
     <string name="account_setup_options_mail_window_1week" msgid="5639718031108023741">"Una semana"</string>
     <string name="account_setup_options_mail_window_2weeks" msgid="4567049268124213035">"Dos semanas"</string>
     <string name="account_setup_options_mail_window_1month" msgid="5846359669750047081">"Un mes"</string>
-    <string name="account_setup_options_mail_window_all" msgid="5383858972681926166">"Todos los mensajes de correo"</string>
     <string name="account_setup_failed_dlg_auth_message" msgid="42827150104879570">"Nombre de usuario o contraseña incorrecta."</string>
     <string name="account_setup_failed_dlg_auth_message_fmt" msgid="8598560266430207606">"Nombre de usuario o contraseña incorrecta."\n"(<xliff:g id="ERROR">%s</xliff:g>)"</string>
     <string name="account_setup_failed_dlg_certificate_message" msgid="961843413600482906">"No se puede conectar de forma segura al servidor."</string>
@@ -204,7 +212,13 @@
     <string name="account_setup_failed_auth_required" msgid="1676242821459638150">"El servidor no admite los métodos de autenticación."</string>
     <string name="account_setup_failed_security" msgid="6142264248671379943">"No es posible iniciar la conexión al servidor debido a un error de seguridad."</string>
     <string name="account_setup_failed_ioerror" msgid="7391458717708933095">"No es posible iniciar la conexión a tu servidor."</string>
-    <string name="account_setup_failed_security_policies_required" msgid="3567420384516656976">"Este servidor Exchange ActiveSync requiere funciones de seguridad no compatibles con tu teléfono."</string>
+    <string name="account_setup_security_required_title" msgid="1850321535870447468">"Administración de seguridad remota"</string>
+    <string name="account_setup_security_policies_required_fmt" msgid="8146309611870795951">"El servidor <xliff:g id="SERVER">%s</xliff:g> requiere tu permiso para controlar de forma remota algunas funciones de seguridad en tu teléfono. ¿Deseas finalizar la configuración de esta cuenta?"</string>
+    <string name="account_setup_failed_security_policies_unsupported" msgid="4093832822988053758">"Este servidor requiere funciones de seguridad que no son compatibles con tu teléfono."</string>
+    <string name="security_notification_ticker_fmt" msgid="1108023476125276507">"La cuenta \"<xliff:g id="ACCOUNT">%s</xliff:g>\" requiere que se actualice la configuración de seguridad."</string>
+    <string name="security_notification_content_title" msgid="8096231937552848281">"Actualizar la configuración de seguridad"</string>
+    <string name="account_security_title" msgid="4441470647344315196">"Dispositivo de seguridad"</string>
+    <string name="account_security_policy_explanation_fmt" msgid="5153981166755002718">"El servidor <xliff:g id="SERVER">%s</xliff:g> requiere tu permiso para controlar de forma remota algunas funciones de seguridad en tu teléfono."</string>
     <string name="account_setup_failed_dlg_edit_details_action" msgid="5355993309841479360">"Editar detalles"</string>
     <string name="account_settings_title_fmt" msgid="1702058877284382340">"Configuración general"</string>
     <string name="account_settings_default_label" msgid="3575963379680943640">"Cuenta predeterminada"</string>
@@ -215,22 +229,40 @@
     <string name="account_settings_mail_check_frequency_label" msgid="2067835530563849675">"Frecuencia de verificación de correo electrónico"</string>
     <string name="account_settings_incoming_label" msgid="7858928031806297542">"Configuración entrante"</string>
     <string name="account_settings_outgoing_label" msgid="4464829249980026745">"Configuración saliente"</string>
-    <string name="account_settings_add_account_label" msgid="63971622405360050">"Agregar otra cuenta"</string>
     <string name="account_settings_description_label" msgid="8894815221204511715">"Nombre de la cuenta"</string>
     <string name="account_settings_name_label" msgid="8186406122590008449">"Tu nombre"</string>
+    <string name="account_settings_signature_label" msgid="4091969938785803201">"Firma"</string>
+    <string name="account_settings_signature_hint" msgid="7262183168962779403">"Agrega texto a los mensajes que envíes"</string>
     <string name="account_settings_notifications" msgid="1042620094281375043">"Configuración de notificación"</string>
     <string name="account_settings_sync_contacts_enable" msgid="1369272986009573218">"Sincronizar contactos"</string>
     <string name="account_settings_sync_contacts_summary" msgid="8901452720940015928">"También sincronizar contactos desde esta cuenta"</string>
+    <string name="account_settings_sync_calendar_enable" msgid="6855333393468628003">"Sincronizar calendario"</string>
+    <string name="account_settings_sync_calendar_summary" msgid="2456010694443333450">"También sincronizar el calendario desde esta cuenta"</string>
     <string name="account_settings_vibrate_enable" msgid="8045133290388856478">"Vibrar"</string>
     <string name="account_settings_vibrate_summary" msgid="3690631050585589365">"Vibrar también cuando llegue un mensaje de correo electrónico"</string>
     <string name="account_settings_ringtone" msgid="7922187231467500404">"Selecc. tono de llam."</string>
     <string name="account_settings_servers" msgid="4925493817981624242">"Configuración del servidor"</string>
     <string name="account_delete_dlg_title" msgid="6806087520856396608">"Eliminar cuenta"</string>
     <string name="account_delete_dlg_instructions_fmt" msgid="8236846322040271280">"La cuenta \"<xliff:g id="ACCOUNT">%s</xliff:g>\" se eliminará de correo electrónico."</string>
+    <string name="upgrade_accounts_title" msgid="5444140226380754014">"Actualizar cuentas"</string>
+    <string name="upgrade_accounts_error" msgid="7241661832029255715">"No es posible actualizar la cuenta."</string>
     <string name="provider_note_yahoo" msgid="8762024183024261236">"No se admite el acceso al buzón en algunos tipos de cuentas de correo de Yahoo!. Si tienes problemas para conectarte, visita yahoo.com para obtener más información."</string>
     <string name="provider_note_yahoo_uk" msgid="2055976404478603298">"Antes de configurar esta cuenta de correo electrónico, visita el sitio web de Yahoo! y activa el acceso de correo electrónico POP3 para esta cuenta."</string>
     <string name="provider_note_live" msgid="3584841823811425060">"Sólo algunas cuentas \"Plus\" incluyen el acceso POP, que permite que este programa se conecte. Si no puedes acceder con tu dirección de correo electrónico y contraseña correcta, es posible que no tengas una cuenta \"Plus\" paga. Inicia el navegador web para acceder a estas cuentas de correo."</string>
     <string name="provider_note_t_online" msgid="1973701903400232774">"Antes de configurar esta cuenta de correo electrónico, visita el sitio web de T-Online y crea una contraseña para el acceso de correo electrónico POP3."</string>
     <string name="exchange_name" msgid="1190783774800310346">"Corporativo"</string>
+    <string name="exchange_name_alternate" msgid="5772529644749041052">"Microsoft Exchange ActiveSync"</string>
+    <!-- no translation found for meeting_invitation (352782347335101484) -->
+    <skip />
+    <!-- no translation found for meeting_accepted (8796609373330400268) -->
+    <skip />
+    <!-- no translation found for meeting_declined (6707617183246608552) -->
+    <skip />
+    <!-- no translation found for meeting_tentative (8250995722130443785) -->
+    <skip />
     <string name="system_account_create_failed" msgid="4917162302393971752">"El Administrador de cuenta no pudo crear la Cuenta; vuelve a intentarlo."</string>
+    <string name="device_admin_label" msgid="8680224994637869414">"Correo electrónico"</string>
+    <string name="device_admin_description" msgid="426727923791430306">"Habilita las políticas de seguridad específicas según el servidor."</string>
+    <!-- no translation found for notification_exchange_calendar_added (6823659622379350159) -->
+    <skip />
 </resources>
