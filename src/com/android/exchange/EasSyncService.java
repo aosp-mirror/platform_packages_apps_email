@@ -1249,6 +1249,9 @@ public class EasSyncService extends AbstractSyncService {
                         // Set the appropriate failure status
                         mExitStatus = EXIT_SECURITY_FAILURE;
                         return;
+                    } else {
+                        // If we succeeded, try again...
+                        continue;
                     }
                 } else if (isAuthError(code)) {
                     mExitStatus = EXIT_LOGIN_FAILURE;
