@@ -23,6 +23,7 @@ import com.android.email.Utility;
 import com.android.email.mail.Address;
 import com.android.email.mail.MeetingInfo;
 import com.android.email.mail.MessagingException;
+import com.android.email.mail.PackedString;
 import com.android.email.mail.internet.EmailHtmlUtil;
 import com.android.email.mail.internet.MimeUtility;
 import com.android.email.provider.AttachmentProvider;
@@ -32,6 +33,7 @@ import com.android.email.provider.EmailContent.Body;
 import com.android.email.provider.EmailContent.BodyColumns;
 import com.android.email.provider.EmailContent.Message;
 import com.android.email.service.EmailServiceConstants;
+import com.android.exchange.utility.CalendarUtilities;
 
 import org.apache.commons.io.IOUtils;
 
@@ -802,22 +804,17 @@ public class MessageView extends Activity implements OnClickListener {
                          R.string.message_view_invite_toast_no);
                 break;
             case R.id.invite_link:
-                /*
                 String startTime =
                     new PackedString(mMessage.mMeetingInfo).get(MeetingInfo.MEETING_DTSTART);
                 if (startTime != null) {
-                    long millis = CalendarUtilities.parseEmailDateTimeToMillis(startTime);
-                }
-                */
-                try {
-                    long epochTimeMillis = Long.valueOf(mMessage.mMeetingInfo);
+                    long epochTimeMillis = CalendarUtilities.parseEmailDateTimeToMillis(startTime);
                     Uri uri = Uri.parse("content://com.android.calendar/time/" + epochTimeMillis);
                     Intent intent = new Intent(Intent.ACTION_VIEW);
                     intent.setData(uri);
                     intent.putExtra("VIEW", "DAY");
                     startActivity(intent);
-                } catch (NumberFormatException e) {
-                    Email.log("meetingInfo format " + mMessage.mMeetingInfo + ' ' + e);
+                } else {
+                    Email.log("meetingInfo without DTSTART " + mMessage.mMeetingInfo);
                 }
                 break;
         }
