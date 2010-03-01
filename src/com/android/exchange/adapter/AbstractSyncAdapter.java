@@ -17,6 +17,7 @@
 
 package com.android.exchange.adapter;
 
+import com.android.email.Email;
 import com.android.email.provider.EmailContent.Account;
 import com.android.email.provider.EmailContent.Mailbox;
 import com.android.exchange.EasSyncService;
@@ -42,6 +43,7 @@ public abstract class AbstractSyncAdapter {
     public EasSyncService mService;
     public Context mContext;
     public Account mAccount;
+    public final android.accounts.Account mAccountManagerAccount;
 
     // Create the data for local changes that need to be sent up to the server
     public abstract boolean sendLocalChanges(Serializer s)
@@ -53,12 +55,15 @@ public abstract class AbstractSyncAdapter {
     // The name used to specify the collection type of the target (Email, Calendar, or Contacts)
     public abstract String getCollectionName();
     public abstract void cleanup();
+    public abstract boolean isSyncable();
 
     public AbstractSyncAdapter(Mailbox mailbox, EasSyncService service) {
         mMailbox = mailbox;
         mService = service;
         mContext = service.mContext;
         mAccount = service.mAccount;
+        mAccountManagerAccount = new android.accounts.Account(mAccount.mEmailAddress,
+                Email.EXCHANGE_ACCOUNT_MANAGER_TYPE);
     }
 
     public void userLog(String ...strings) {

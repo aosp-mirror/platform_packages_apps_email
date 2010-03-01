@@ -31,4 +31,8 @@ public class AccountSyncAdapter extends AbstractSyncAdapter {
         return false;
     }
 
+    @Override
+    public boolean isSyncable() {
+        return true;
+    }
 }
