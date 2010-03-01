@@ -249,6 +249,7 @@ public class EmailSyncAdapter extends AbstractSyncAdapter {
                 switch (tag) {
                     case Tags.EMAIL_RECURRENCE:
                         nullParser();
+                        break;
                     default:
                         skipTag();
                 }
