@@ -28,6 +28,7 @@ import android.app.PendingIntent;
 import android.content.ContentResolver;
 import android.content.Context;
 import android.content.Intent;
+import android.net.Uri;
 import android.provider.Calendar;
 import android.provider.ContactsContract;
 import android.util.Log;
@@ -93,12 +94,9 @@ public class CalendarSyncEnabler {
      *     be shown on the notification.
      */
     /* package for testing */ void showNotification(String emailAddresses) {
-        // TODO We don't have an intent to launch calendar yet.  Change it when we have.
-        Intent calendarIntent = new Intent().setAction("TODO.change.this.to.launch.calendar");
-
         // Launch Calendar app when clicked.
         PendingIntent launchCalendarPendingIntent = PendingIntent.getActivity(mContext, 0,
-                calendarIntent, 0);
+                createLaunchCalendarIntent(), 0);
 
         String tickerText = mContext.getString(R.string.notification_exchange_calendar_added);
         Notification n = new Notification(R.drawable.stat_notify_calendar,
@@ -109,5 +107,10 @@ public class CalendarSyncEnabler {
         NotificationManager nm =
                 (NotificationManager) mContext.getSystemService(Context.NOTIFICATION_SERVICE);
         nm.notify(MailService.NOTIFICATION_ID_EXCHANGE_CALENDAR_ADDED, n);
+    }
+
+    /** @return {@link Intent} to launch the Calendar app. */
+    private Intent createLaunchCalendarIntent() {
+        return new Intent(Intent.ACTION_VIEW, Uri.parse("content://com.android.calendar/time"));
     }
 }
