@@ -1642,6 +1642,12 @@ public class EasSyncService extends AbstractSyncService {
                 return;
             }
 
+            // Every time through the loop we check to see if we're still syncable
+            if (!target.isSyncable()) {
+                mExitStatus = EXIT_DONE;
+                return;
+            }
+
             // Now, handle various requests
             while (true) {
                 Request req = null;

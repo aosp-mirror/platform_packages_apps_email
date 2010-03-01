@@ -99,7 +99,6 @@ public class CalendarSyncAdapter extends AbstractSyncAdapter {
     private static final Uri sExtendedPropertiesUri = asSyncAdapter(ExtendedProperties.CONTENT_URI);
     private static final Uri sRemindersUri = asSyncAdapter(Reminders.CONTENT_URI);
 
-    private android.accounts.Account mAccountManagerAccount;
     private long mCalendarId = -1;
 
     private ArrayList<Long> mDeletedIdList = new ArrayList<Long>();
@@ -135,6 +134,11 @@ public class CalendarSyncAdapter extends AbstractSyncAdapter {
     }
 
     @Override
+    public boolean isSyncable() {
+        return ContentResolver.getSyncAutomatically(mAccountManagerAccount, Calendar.AUTHORITY);
+    }
+
+    @Override
     public boolean parse(InputStream is) throws IOException {
         EasCalendarSyncParser p = new EasCalendarSyncParser(is, this);
         return p.parse();
@@ -165,7 +169,7 @@ public class CalendarSyncAdapter extends AbstractSyncAdapter {
             mService.mContentResolver.acquireContentProviderClient(Calendar.CONTENT_URI);
         try {
             byte[] data = SyncStateContract.Helpers.get(client,
-                    asSyncAdapter(Calendar.SyncState.CONTENT_URI), getAccountManagerAccount());
+                    asSyncAdapter(Calendar.SyncState.CONTENT_URI), mAccountManagerAccount);
             if (data == null || data.length == 0) {
                 // Initialize the SyncKey
                 setSyncKey("0", false);
@@ -190,22 +194,13 @@ public class CalendarSyncAdapter extends AbstractSyncAdapter {
                     .acquireContentProviderClient(Calendar.CONTENT_URI);
             try {
                 SyncStateContract.Helpers.set(client, asSyncAdapter(Calendar.SyncState.CONTENT_URI),
-                        getAccountManagerAccount(), syncKey.getBytes());
+                        mAccountManagerAccount, syncKey.getBytes());
                 userLog("SyncKey set to ", syncKey, " in CalendarProvider");
            } catch (RemoteException e) {
                 throw new IOException("Can't set SyncKey in CalendarProvider");
             }
         }
         mMailbox.mSyncKey = syncKey;
-    }
-
-    public android.accounts.Account getAccountManagerAccount() {
-        if (mAccountManagerAccount == null) {
-            mAccountManagerAccount =
-                new android.accounts.Account(mAccount.mEmailAddress,
-                        Email.EXCHANGE_ACCOUNT_MANAGER_TYPE);
-        }
-        return mAccountManagerAccount;
     }
 
     class EasCalendarSyncParser extends AbstractSyncParser {
@@ -775,7 +770,7 @@ public class CalendarSyncAdapter extends AbstractSyncAdapter {
             userLog("Calendar SyncKey saved as: ", mMailbox.mSyncKey);
             // Save the syncKey here, using the Helper provider by Calendar provider
             mOps.add(SyncStateContract.Helpers.newSetOperation(SyncState.CONTENT_URI,
-                    getAccountManagerAccount(), mMailbox.mSyncKey.getBytes()));
+                    mAccountManagerAccount, mMailbox.mSyncKey.getBytes()));
 
             // Execute these all at once...
             mOps.execute();

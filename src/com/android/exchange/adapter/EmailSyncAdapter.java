@@ -91,6 +91,11 @@ public class EmailSyncAdapter extends AbstractSyncAdapter {
         return p.parse();
     }
 
+    @Override
+    public boolean isSyncable() {
+        return true;
+    }
+
     public class EasEmailSyncParser extends AbstractSyncParser {
 
         private static final String WHERE_SERVER_ID_AND_MAILBOX_KEY =

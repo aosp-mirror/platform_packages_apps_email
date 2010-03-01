@@ -23,19 +23,26 @@ import com.android.exchange.EasSyncService;
 
 import android.content.ContentProviderClient;
 import android.content.ContentProviderOperation;
-import android.content.ContentProviderOperation.Builder;
 import android.content.ContentProviderResult;
 import android.content.ContentResolver;
 import android.content.ContentUris;
 import android.content.ContentValues;
 import android.content.Entity;
-import android.content.Entity.NamedContentValues;
 import android.content.EntityIterator;
 import android.content.OperationApplicationException;
+import android.content.ContentProviderOperation.Builder;
+import android.content.Entity.NamedContentValues;
 import android.database.Cursor;
 import android.net.Uri;
 import android.os.RemoteException;
 import android.provider.ContactsContract;
+import android.provider.SyncStateContract;
+import android.provider.ContactsContract.Data;
+import android.provider.ContactsContract.Groups;
+import android.provider.ContactsContract.RawContacts;
+import android.provider.ContactsContract.RawContactsEntity;
+import android.provider.ContactsContract.Settings;
+import android.provider.ContactsContract.SyncState;
 import android.provider.ContactsContract.CommonDataKinds.Email;
 import android.provider.ContactsContract.CommonDataKinds.Event;
 import android.provider.ContactsContract.CommonDataKinds.GroupMembership;
@@ -49,13 +56,6 @@ import android.provider.ContactsContract.CommonDataKinds.Relation;
 import android.provider.ContactsContract.CommonDataKinds.StructuredName;
 import android.provider.ContactsContract.CommonDataKinds.StructuredPostal;
 import android.provider.ContactsContract.CommonDataKinds.Website;
-import android.provider.ContactsContract.Data;
-import android.provider.ContactsContract.Groups;
-import android.provider.ContactsContract.RawContacts;
-import android.provider.ContactsContract.RawContactsEntity;
-import android.provider.ContactsContract.Settings;
-import android.provider.ContactsContract.SyncState;
-import android.provider.SyncStateContract;
 import android.text.util.Rfc822Token;
 import android.text.util.Rfc822Tokenizer;
 import android.util.Log;
@@ -123,8 +123,6 @@ public class ContactsSyncAdapter extends AbstractSyncAdapter {
 
     private boolean mGroupsUsed = false;
 
-    private android.accounts.Account mAccountManagerAccount;
-
     public ContactsSyncAdapter(Mailbox mailbox, EasSyncService service) {
         super(mailbox, service);
     }
@@ -133,6 +131,12 @@ public class ContactsSyncAdapter extends AbstractSyncAdapter {
         return uri.buildUpon()
                 .appendQueryParameter(ContactsContract.CALLER_IS_SYNCADAPTER, "true")
                 .build();
+    }
+
+    @Override
+    public boolean isSyncable() {
+        return ContentResolver.getSyncAutomatically(
+                mAccountManagerAccount, ContactsContract.AUTHORITY);
     }
 
     @Override
@@ -156,7 +160,7 @@ public class ContactsSyncAdapter extends AbstractSyncAdapter {
             mService.mContentResolver.acquireContentProviderClient(ContactsContract.AUTHORITY_URI);
         try {
             byte[] data = SyncStateContract.Helpers.get(client,
-                    ContactsContract.SyncState.CONTENT_URI, getAccountManagerAccount());
+                    ContactsContract.SyncState.CONTENT_URI, mAccountManagerAccount);
             if (data == null || data.length == 0) {
                 // Initialize the SyncKey
                 setSyncKey("0", false);
@@ -187,21 +191,13 @@ public class ContactsSyncAdapter extends AbstractSyncAdapter {
                     .acquireContentProviderClient(ContactsContract.AUTHORITY_URI);
             try {
                 SyncStateContract.Helpers.set(client, ContactsContract.SyncState.CONTENT_URI,
-                        getAccountManagerAccount(), syncKey.getBytes());
+                        mAccountManagerAccount, syncKey.getBytes());
                 userLog("SyncKey set to ", syncKey, " in ContactsProvider");
            } catch (RemoteException e) {
                 throw new IOException("Can't set SyncKey in ContactsProvider");
             }
         }
         mMailbox.mSyncKey = syncKey;
-    }
-
-    public android.accounts.Account getAccountManagerAccount() {
-        if (mAccountManagerAccount == null) {
-            mAccountManagerAccount = new android.accounts.Account(mAccount.mEmailAddress,
-                    com.android.email.Email.EXCHANGE_ACCOUNT_MANAGER_TYPE);
-        }
-        return mAccountManagerAccount;
     }
 
     public static final class EasChildren {
@@ -792,7 +788,7 @@ public class ContactsSyncAdapter extends AbstractSyncAdapter {
            // Save the syncKey here, using the Helper provider by Contacts provider
             userLog("Contacts SyncKey saved as: ", mMailbox.mSyncKey);
             ops.add(SyncStateContract.Helpers.newSetOperation(SyncState.CONTENT_URI,
-                    getAccountManagerAccount(), mMailbox.mSyncKey.getBytes()));
+                    mAccountManagerAccount, mMailbox.mSyncKey.getBytes()));
 
             // Execute these all at once...
             ops.execute();
