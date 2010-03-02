@@ -28,6 +28,8 @@ LOCAL_JAVA_STATIC_LIBRARIES := android-common
 
 LOCAL_PACKAGE_NAME := Email
 
+LOCAL_PROGUARD_FLAGS := -include $(LOCAL_PATH)/proguard.flags
+
 include $(BUILD_PACKAGE)
 
 # additionally, build unit tests in a separate .apk
