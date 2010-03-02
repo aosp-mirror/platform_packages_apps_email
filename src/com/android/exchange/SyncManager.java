@@ -615,7 +615,7 @@ public class SyncManager extends Service implements Runnable {
         CalendarObserver observer = new CalendarObserver(mHandler, account);
         if (observer.mCalendarId != 0) {
             // If we find the Calendar (and we'd better) register it and store it in the map
-            mCalendarObservers.put(observer.mCalendarId, observer);
+            mCalendarObservers.put(account.mId, observer);
             mResolver.registerContentObserver(
                     ContentUris.withAppendedId(Calendars.CONTENT_URI, observer.mCalendarId), false,
                     observer);
