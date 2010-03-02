@@ -1109,9 +1109,11 @@ public class CalendarSyncAdapter extends AbstractSyncAdapter {
                 }
             }
 
-            // We've got to send a UID.  If the event is new, we've generated one; if not,
-            // we should have gotten one from extended properties.
-            s.data(Tags.CALENDAR_UID, clientId);
+            // We've got to send a UID, unless this is an exception.  If the event is new, we've
+            // generated one; if not, we should have gotten one from extended properties.
+            if (clientId != null) {
+                s.data(Tags.CALENDAR_UID, clientId);
+            }
 
             // Handle attendee data here; keep track of organizer and stream it afterward
             String organizerName = null;
