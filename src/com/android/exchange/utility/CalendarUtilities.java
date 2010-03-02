@@ -780,51 +780,6 @@ public class CalendarUtilities {
         return timeZone;
     }
 
-    /**
-     * Generate a time in milliseconds from an email date string that represents a date/time in GMT
-     * @param Email style DateTime string from Exchange server
-     * @return the time in milliseconds (since Jan 1, 1970)
-     */
-    static public long parseEmailDateTimeToMillis(String date) {
-        // Format for email date strings is 2010-02-23T16:00:00.000Z
-        GregorianCalendar cal = new GregorianCalendar(Integer.parseInt(date.substring(0, 4)),
-                Integer.parseInt(date.substring(5, 7)) - 1, Integer.parseInt(date.substring(8, 10)),
-                Integer.parseInt(date.substring(11, 13)), Integer.parseInt(date.substring(14, 16)),
-                Integer.parseInt(date.substring(17, 19)));
-        cal.setTimeZone(TimeZone.getTimeZone("GMT"));
-        return cal.getTimeInMillis();
-    }
-
-    /**
-     * Generate a time in milliseconds from a date string that represents a date/time in GMT
-     * @param DateTime string from Exchange server
-     * @return the time in milliseconds (since Jan 1, 1970)
-     */
-    static public long parseDateTimeToMillis(String date) {
-        // Format for calendar date strings is 20090211T180303Z
-        GregorianCalendar cal = new GregorianCalendar(Integer.parseInt(date.substring(0, 4)),
-                Integer.parseInt(date.substring(4, 6)) - 1, Integer.parseInt(date.substring(6, 8)),
-                Integer.parseInt(date.substring(9, 11)), Integer.parseInt(date.substring(11, 13)),
-                Integer.parseInt(date.substring(13, 15)));
-        cal.setTimeZone(TimeZone.getTimeZone("GMT"));
-        return cal.getTimeInMillis();
-    }
-
-    /**
-     * Generate a GregorianCalendar from a date string that represents a date/time in GMT
-     * @param DateTime string from Exchange server
-     * @return the GregorianCalendar
-     */
-    static public GregorianCalendar parseDateTimeToCalendar(String date) {
-        // Format for calendar date strings is 20090211T180303Z
-        GregorianCalendar cal = new GregorianCalendar(Integer.parseInt(date.substring(0, 4)),
-                Integer.parseInt(date.substring(4, 6)) - 1, Integer.parseInt(date.substring(6, 8)),
-                Integer.parseInt(date.substring(9, 11)), Integer.parseInt(date.substring(11, 13)),
-                Integer.parseInt(date.substring(13, 15)));
-        cal.setTimeZone(TimeZone.getTimeZone("GMT"));
-        return cal;
-    }
-
     static public String convertEmailDateTimeToCalendarDateTime(String date) {
         // Format for email date strings is 2010-02-23T16:00:00.000Z
         // Format for calendar date strings is 2010-02-23T160000Z

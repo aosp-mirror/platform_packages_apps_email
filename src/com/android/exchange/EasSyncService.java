@@ -19,6 +19,7 @@ package com.android.exchange;
 
 import com.android.email.SecurityPolicy;
 import com.android.email.SecurityPolicy.PolicySet;
+import com.android.email.Utility;
 import com.android.email.mail.Address;
 import com.android.email.mail.AuthenticationFailedException;
 import com.android.email.mail.MeetingInfo;
@@ -794,9 +795,8 @@ public class EasSyncService extends AbstractSyncService {
         // Fill in times, location, title, and organizer
         entityValues.put("DTSTAMP",
                 CalendarUtilities.convertEmailDateTimeToCalendarDateTime(dtStamp));
-        entityValues.put(Events.DTSTART,
-                CalendarUtilities.parseEmailDateTimeToMillis(dtStart));
-        entityValues.put(Events.DTEND, CalendarUtilities.parseEmailDateTimeToMillis(dtEnd));
+        entityValues.put(Events.DTSTART, Utility.parseEmailDateTimeToMillis(dtStart));
+        entityValues.put(Events.DTEND, Utility.parseEmailDateTimeToMillis(dtEnd));
         entityValues.put(Events.EVENT_LOCATION, meetingInfo.get(MeetingInfo.MEETING_LOCATION));
         entityValues.put(Events.TITLE, meetingInfo.get(MeetingInfo.MEETING_TITLE));
         entityValues.put(Events.ORGANIZER, organizerEmail);

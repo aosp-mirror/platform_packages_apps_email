@@ -17,6 +17,7 @@
 
 package com.android.exchange.adapter;
 
+import com.android.email.Utility;
 import com.android.email.mail.Address;
 import com.android.email.mail.MeetingInfo;
 import com.android.email.mail.PackedString;
@@ -148,7 +149,7 @@ public class EmailSyncAdapter extends AbstractSyncAdapter {
                         msg.mReplyTo = Address.pack(Address.parse(getValue()));
                         break;
                     case Tags.EMAIL_DATE_RECEIVED:
-                        msg.mTimeStamp = CalendarUtilities.parseEmailDateTimeToMillis(getValue());
+                        msg.mTimeStamp = Utility.parseEmailDateTimeToMillis(getValue());
                         break;
                     case Tags.EMAIL_SUBJECT:
                         msg.mSubject = getValue();

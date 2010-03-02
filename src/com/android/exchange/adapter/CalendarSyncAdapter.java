@@ -21,6 +21,7 @@ import com.android.email.Email;
 import com.android.email.provider.EmailContent;
 import com.android.email.provider.EmailContent.Mailbox;
 import com.android.email.provider.EmailContent.Message;
+import com.android.email.Utility;
 import com.android.exchange.EasOutboxService;
 import com.android.exchange.EasSyncService;
 import com.android.exchange.utility.CalendarUtilities;
@@ -303,12 +304,12 @@ public class CalendarSyncAdapter extends AbstractSyncAdapter {
                         }
                         break;
                     case Tags.CALENDAR_START_TIME:
-                        startTime = CalendarUtilities.parseDateTimeToMillis(getValue());
+                        startTime = Utility.parseDateTimeToMillis(getValue());
                         cv.put(Events.DTSTART, startTime);
                         cv.put(Events.ORIGINAL_INSTANCE_TIME, startTime);
                         break;
                     case Tags.CALENDAR_END_TIME:
-                        endTime = CalendarUtilities.parseDateTimeToMillis(getValue());
+                        endTime = Utility.parseDateTimeToMillis(getValue());
                         break;
                     case Tags.CALENDAR_EXCEPTIONS:
                         exceptionsParser(ops, cv);
@@ -479,7 +480,7 @@ public class CalendarSyncAdapter extends AbstractSyncAdapter {
                     case Tags.CALENDAR_EXCEPTION_START_TIME:
                         exceptionStartTime = getValue();
                         cv.put(Events.ORIGINAL_INSTANCE_TIME,
-                                CalendarUtilities.parseDateTimeToMillis(exceptionStartTime));
+                                Utility.parseDateTimeToMillis(exceptionStartTime));
                         break;
                     case Tags.CALENDAR_EXCEPTION_IS_DELETED:
                         if (getValueInt() == 1) {
@@ -496,10 +497,10 @@ public class CalendarSyncAdapter extends AbstractSyncAdapter {
                         cv.put(Events.DESCRIPTION, getValue());
                         break;
                     case Tags.CALENDAR_START_TIME:
-                        cv.put(Events.DTSTART, CalendarUtilities.parseDateTimeToMillis(getValue()));
+                        cv.put(Events.DTSTART, Utility.parseDateTimeToMillis(getValue()));
                         break;
                     case Tags.CALENDAR_END_TIME:
-                        cv.put(Events.DTEND, CalendarUtilities.parseDateTimeToMillis(getValue()));
+                        cv.put(Events.DTEND, Utility.parseDateTimeToMillis(getValue()));
                         break;
                     case Tags.CALENDAR_LOCATION:
                         cv.put(Events.EVENT_LOCATION, getValue());

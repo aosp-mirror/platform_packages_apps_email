@@ -33,7 +33,6 @@ import com.android.email.provider.EmailContent.Body;
 import com.android.email.provider.EmailContent.BodyColumns;
 import com.android.email.provider.EmailContent.Message;
 import com.android.email.service.EmailServiceConstants;
-import com.android.exchange.utility.CalendarUtilities;
 
 import org.apache.commons.io.IOUtils;
 
@@ -807,7 +806,7 @@ public class MessageView extends Activity implements OnClickListener {
                 String startTime =
                     new PackedString(mMessage.mMeetingInfo).get(MeetingInfo.MEETING_DTSTART);
                 if (startTime != null) {
-                    long epochTimeMillis = CalendarUtilities.parseEmailDateTimeToMillis(startTime);
+                    long epochTimeMillis = Utility.parseEmailDateTimeToMillis(startTime);
                     Uri uri = Uri.parse("content://com.android.calendar/time/" + epochTimeMillis);
                     Intent intent = new Intent(Intent.ACTION_VIEW);
                     intent.setData(uri);

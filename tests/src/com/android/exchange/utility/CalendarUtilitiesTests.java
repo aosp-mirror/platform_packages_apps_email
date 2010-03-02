@@ -21,6 +21,7 @@ import com.android.email.mail.Address;
 import com.android.email.provider.EmailContent.Account;
 import com.android.email.provider.EmailContent.Attachment;
 import com.android.email.provider.EmailContent.Message;
+import com.android.email.Utility;
 
 import android.content.ContentValues;
 import android.content.Entity;
@@ -122,7 +123,7 @@ public class CalendarUtilitiesTests extends AndroidTestCase {
     public void testParseEmailDateTimeToMillis(String date) {
         // Format for email date strings is 2010-02-23T16:00:00.000Z
         String dateString = "2010-02-23T15:16:17.000Z";
-        long dateTime = CalendarUtilities.parseEmailDateTimeToMillis(dateString);
+        long dateTime = Utility.parseEmailDateTimeToMillis(dateString);
         GregorianCalendar cal = new GregorianCalendar();
         cal.setTimeInMillis(dateTime);
         cal.setTimeZone(TimeZone.getTimeZone("GMT"));
@@ -137,7 +138,7 @@ public class CalendarUtilitiesTests extends AndroidTestCase {
     public void testParseDateTimeToMillis(String date) {
         // Format for calendar date strings is 20100223T160000000Z
         String dateString = "20100223T151617000Z";
-        long dateTime = CalendarUtilities.parseDateTimeToMillis(dateString);
+        long dateTime = Utility.parseDateTimeToMillis(dateString);
         GregorianCalendar cal = new GregorianCalendar();
         cal.setTimeInMillis(dateTime);
         cal.setTimeZone(TimeZone.getTimeZone("GMT"));
@@ -161,9 +162,9 @@ public class CalendarUtilitiesTests extends AndroidTestCase {
         entityValues.put("DTSTAMP",
                 CalendarUtilities.convertEmailDateTimeToCalendarDateTime("2010-04-05T14:30:51Z"));
         entityValues.put(Events.DTSTART,
-                CalendarUtilities.parseEmailDateTimeToMillis("2010-04-12T18:30:00Z"));
+                Utility.parseEmailDateTimeToMillis("2010-04-12T18:30:00Z"));
         entityValues.put(Events.DTEND,
-                CalendarUtilities.parseEmailDateTimeToMillis("2010-04-12T19:30:00Z"));
+                Utility.parseEmailDateTimeToMillis("2010-04-12T19:30:00Z"));
         entityValues.put(Events.EVENT_LOCATION, location);
         entityValues.put(Events.TITLE, title);
         entityValues.put(Events.ORGANIZER, organizer);

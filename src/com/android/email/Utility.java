@@ -40,6 +40,8 @@ import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.io.UnsupportedEncodingException;
 import java.util.Date;
+import java.util.GregorianCalendar;
+import java.util.TimeZone;
 
 public class Utility {
     public final static String readInputStream(InputStream in, String encoding) throws IOException {
@@ -419,4 +421,41 @@ public class Utility {
         return sb.toString();
     }
 
+    /**
+     * Generate a time in milliseconds from a date string that represents a date/time in GMT
+     * @param DateTime date string in format 20090211T180303Z (rfc2445, iCalendar).
+     * @return the time in milliseconds (since Jan 1, 1970)
+     */
+    public static long parseDateTimeToMillis(String date) {
+        GregorianCalendar cal = parseDateTimeToCalendar(date);
+        return cal.getTimeInMillis();
+    }
+
+    /**
+     * Generate a GregorianCalendar from a date string that represents a date/time in GMT
+     * @param DateTime date string in format 20090211T180303Z (rfc2445, iCalendar).
+     * @return the GregorianCalendar
+     */
+    public static GregorianCalendar parseDateTimeToCalendar(String date) {
+        GregorianCalendar cal = new GregorianCalendar(Integer.parseInt(date.substring(0, 4)),
+                Integer.parseInt(date.substring(4, 6)) - 1, Integer.parseInt(date.substring(6, 8)),
+                Integer.parseInt(date.substring(9, 11)), Integer.parseInt(date.substring(11, 13)),
+                Integer.parseInt(date.substring(13, 15)));
+        cal.setTimeZone(TimeZone.getTimeZone("GMT"));
+        return cal;
+    }
+
+    /**
+     * Generate a time in milliseconds from an email date string that represents a date/time in GMT
+     * @param Email style DateTime string in format 2010-02-23T16:00:00.000Z (ISO 8601, rfc3339)
+     * @return the time in milliseconds (since Jan 1, 1970)
+     */
+    public static long parseEmailDateTimeToMillis(String date) {
+        GregorianCalendar cal = new GregorianCalendar(Integer.parseInt(date.substring(0, 4)),
+                Integer.parseInt(date.substring(5, 7)) - 1, Integer.parseInt(date.substring(8, 10)),
+                Integer.parseInt(date.substring(11, 13)), Integer.parseInt(date.substring(14, 16)),
+                Integer.parseInt(date.substring(17, 19)));
+        cal.setTimeZone(TimeZone.getTimeZone("GMT"));
+        return cal.getTimeInMillis();
+    }
 }
