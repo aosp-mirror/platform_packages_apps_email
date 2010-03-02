@@ -146,6 +146,9 @@ public class Serializer {
     }
 
     public Serializer data(int tag, String value) throws IOException {
+        if (value == null) {
+            Log.e(TAG, "Writing null data for tag: " + tag);
+        }
         start(tag);
         text(value);
         end();
@@ -162,6 +165,9 @@ public class Serializer {
     }
 
     public Serializer text(String text) throws IOException {
+        if (text == null) {
+            Log.e(TAG, "Writing null text for pending tag: " + pendingTag);
+        }
         checkPendingTag(false);
         buf.write(Wbxml.STR_I);
         writeLiteralString(buf, text);
