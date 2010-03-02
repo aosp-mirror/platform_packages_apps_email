@@ -878,7 +878,7 @@ public class CalendarUtilities {
             ics.writeTag("PRIORITY", "5");  // 1 to 9, 5 = medium
             ics.writeTag("SEQUENCE", "0");
             if (uid == null) {
-                uid = entityValues.getAsString(Events._SYNC_LOCAL_ID);
+                uid = entityValues.getAsString(Events._SYNC_DATA);
             }
             if (uid != null) {
                 ics.writeTag("UID", uid);

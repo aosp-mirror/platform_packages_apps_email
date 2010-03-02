@@ -79,7 +79,7 @@ public class CalendarSyncAdapter extends AbstractSyncAdapter {
         Events.CALENDAR_ID + "=?";
     private static final String DIRTY_IN_CALENDAR =
         Events._SYNC_DIRTY + "=1 AND " + Events.CALENDAR_ID + "=?";
-    private static final String CLIENT_ID_SELECTION = Events._SYNC_LOCAL_ID + "=?";
+    private static final String CLIENT_ID_SELECTION = Events._SYNC_DATA + "=?";
     private static final String ATTENDEES_EXCEPT_ORGANIZER = Attendees.EVENT_ID + "=? AND " +
         Attendees.ATTENDEE_RELATIONSHIP + "!=" + Attendees.RELATIONSHIP_ORGANIZER;
     private static final String[] ID_PROJECTION = new String[] {Events._ID};
@@ -341,7 +341,7 @@ public class CalendarSyncAdapter extends AbstractSyncAdapter {
                     // The following are fields we should save (for changes), though they don't
                     // relate to data used by CalendarProvider at this point
                     case Tags.CALENDAR_UID:
-                        cv.put(Events._SYNC_LOCAL_ID, getValue());
+                        cv.put(Events._SYNC_DATA, getValue());
                         break;
                     case Tags.CALENDAR_DTSTAMP:
                         ops.newExtendedProperty("dtstamp", getValue());
@@ -818,7 +818,7 @@ public class CalendarSyncAdapter extends AbstractSyncAdapter {
             try {
                 if (c.moveToFirst()) {
                     cv.put(Events._SYNC_ID, serverId);
-                    cv.put(Events._SYNC_LOCAL_ID, clientId);
+                    cv.put(Events._SYNC_DATA, clientId);
                     long id = c.getLong(0);
                     // Write the serverId into the Event
                     mOps.add(ContentProviderOperation.newUpdate(
@@ -1186,7 +1186,7 @@ public class CalendarSyncAdapter extends AbstractSyncAdapter {
                     String serverId = entityValues.getAsString(Events._SYNC_ID);
 
                     // Find our uid in the entity; otherwise create one
-                    String clientId = entityValues.getAsString(Events._SYNC_LOCAL_ID);
+                    String clientId = entityValues.getAsString(Events._SYNC_DATA);
                     if (clientId == null) {
                         clientId = UUID.randomUUID().toString();
                     }
@@ -1212,7 +1212,7 @@ public class CalendarSyncAdapter extends AbstractSyncAdapter {
                         userLog("Creating new event with clientId: ", clientId);
                         s.start(Tags.SYNC_ADD).data(Tags.SYNC_CLIENT_ID, clientId);
                         // And save it in the Event as the local id
-                        cidValues.put(Events._SYNC_LOCAL_ID, clientId);
+                        cidValues.put(Events._SYNC_DATA, clientId);
                         cr.update(ContentUris.withAppendedId(uri, eventId), cidValues, null, null);
                     } else {
                         if (entityValues.getAsInteger(Events.DELETED) == 1) {
