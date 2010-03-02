@@ -157,8 +157,8 @@ public class AccountShortcutPicker extends ListActivity implements OnItemClickLi
     private void setupShortcut(Account account) {
         // First, set up the shortcut intent.
 
-        Intent shortcutIntent = MessageList.actionHandleAccountUriIntent(this,
-                account.mId, Mailbox.TYPE_INBOX);
+        Intent shortcutIntent = MessageList.createAccountIntentForShortcut(
+                this, account, Mailbox.TYPE_INBOX);
 
         // Then, set up the container intent (the response to the caller)
 

@@ -670,16 +670,14 @@ public class MailService extends Service {
             reportString = getResources().getQuantityString(
                     R.plurals.notification_new_one_account_fmt, numNewMessages,
                     numNewMessages, reportName);
-            intent = MessageList.actionHandleAccountIntent(this,
-                    accountId, -1, Mailbox.TYPE_INBOX);
+            intent = MessageList.createIntent(this, accountId, -1, Mailbox.TYPE_INBOX);
         } else {
             // Prepare a report for multiple accounts
             // "4 accounts"
             reportString = getResources().getQuantityString(
                     R.plurals.notification_new_multi_account_fmt, accountsWithNewMessages,
                     accountsWithNewMessages);
-            intent = MessageList.actionHandleAccountIntent(this,
-                    -1, Mailbox.QUERY_ALL_INBOXES, -1);
+            intent = MessageList.createIntent(this, -1, Mailbox.QUERY_ALL_INBOXES, -1);
         }
 
         // prepare appropriate pending intent, set up notification, and send
