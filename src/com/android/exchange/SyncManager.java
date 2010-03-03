@@ -649,16 +649,17 @@ public class SyncManager extends Service implements Runnable {
                     CalendarSyncAdapter.CALENDAR_SELECTION,
                     new String[] {account.mEmailAddress, Email.EXCHANGE_ACCOUNT_MANAGER_TYPE},
                     null);
-            // Save its id and its sync events status
-            try {
-                if (c.moveToFirst()) {
-                    mCalendarId = c.getLong(0);
-                    mSyncEvents = c.getLong(1);
+            if (c != null) {
+                // Save its id and its sync events status
+                try {
+                    if (c.moveToFirst()) {
+                        mCalendarId = c.getLong(0);
+                        mSyncEvents = c.getLong(1);
+                    }
+                } finally {
+                    c.close();
                 }
-            } finally {
-                c.close();
             }
-            
         }
 
         @Override
@@ -668,25 +669,25 @@ public class SyncManager extends Service implements Runnable {
                 Cursor c = mResolver.query(Calendars.CONTENT_URI,
                         new String[] {Calendars.SYNC_EVENTS}, Calendars._ID + "=?",
                         new String[] {Long.toString(mCalendarId)}, null);
+                if (c == null) return;
                 // Get its sync events; if it's changed, we've got work to do
                 try {
                     if (c.moveToFirst()) {
                         long newSyncEvents = c.getLong(0);
                         if (newSyncEvents != mSyncEvents) {
                             // The user has changed sync state; let SyncManager know
-                            android.accounts.Account account =
-                                new android.accounts.Account(mAccountName,
-                                        Email.EXCHANGE_ACCOUNT_MANAGER_TYPE);
+                            android.accounts.Account account = new android.accounts.Account(
+                                    mAccountName, Email.EXCHANGE_ACCOUNT_MANAGER_TYPE);
                             ContentResolver.setSyncAutomatically(account, Calendar.AUTHORITY,
                                     newSyncEvents != 0);
                             if (newSyncEvents == 0) {
                                 // For some reason, CalendarProvider deletes all Events in this
                                 // case; this means that we have to reset our sync key
-                                Mailbox mailbox = Mailbox.restoreMailboxOfType(INSTANCE, mAccountId,
-                                        Mailbox.TYPE_CALENDAR);
+                                Mailbox mailbox = Mailbox.restoreMailboxOfType(INSTANCE,
+                                        mAccountId, Mailbox.TYPE_CALENDAR);
                                 EasSyncService service = new EasSyncService(INSTANCE, mailbox);
-                                CalendarSyncAdapter adapter =
-                                    new CalendarSyncAdapter(mailbox, service);
+                                CalendarSyncAdapter adapter = new CalendarSyncAdapter(mailbox,
+                                        service);
                                 try {
                                     adapter.setSyncKey("0", false);
                                 } catch (IOException e) {
@@ -694,8 +695,8 @@ public class SyncManager extends Service implements Runnable {
                                 }
                                 ContentValues cv = new ContentValues();
                                 cv.put(Mailbox.SYNC_KEY, "0");
-                                mResolver.update(ContentUris.withAppendedId(Mailbox.CONTENT_URI,
-                                        mailbox.mId), cv, null, null);
+                                mResolver.update(ContentUris.withAppendedId(
+                                        Mailbox.CONTENT_URI, mailbox.mId), cv, null, null);
 
                                 // TODO Stop sync in progress??
                             }
