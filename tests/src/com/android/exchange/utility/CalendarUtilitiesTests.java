@@ -28,9 +28,14 @@ import android.provider.Calendar.Attendees;
 import android.provider.Calendar.Events;
 import android.test.AndroidTestCase;
 
+import java.io.BufferedReader;
+import java.io.IOException;
+import java.io.StringReader;
+import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.Date;
 import java.util.GregorianCalendar;
+import java.util.HashMap;
 import java.util.TimeZone;
 
 /**
@@ -144,16 +149,13 @@ public class CalendarUtilitiesTests extends AndroidTestCase {
         assertEquals(cal.get(Calendar.SECOND), 17);
     }
 
-    public void testCreateMessageForEntity_Reply() {
+    private Entity setupTestEventEntity(String organizer, String attendee, String title) {
         // Create an Entity for an Event
         ContentValues entityValues = new ContentValues();
         Entity entity = new Entity(entityValues);
 
         // Set up values for the Event
-        String attendee = "attendee@server.com";
-        String organizer = "organizer@server.com";
         String location = "Meeting Location";
-        String title = "Discuss Unit Tests";
 
         // Fill in times, location, title, and organizer
         entityValues.put("DTSTAMP",
@@ -165,6 +167,7 @@ public class CalendarUtilitiesTests extends AndroidTestCase {
         entityValues.put(Events.EVENT_LOCATION, location);
         entityValues.put(Events.TITLE, title);
         entityValues.put(Events.ORGANIZER, organizer);
+        entityValues.put(Events._SYNC_DATA, "31415926535");
 
         // Add the attendee
         ContentValues attendeeValues = new ContentValues();
@@ -177,12 +180,22 @@ public class CalendarUtilitiesTests extends AndroidTestCase {
         organizerValues.put(Attendees.ATTENDEE_RELATIONSHIP, Attendees.RELATIONSHIP_ORGANIZER);
         organizerValues.put(Attendees.ATTENDEE_EMAIL, organizer);
         entity.addSubValue(Attendees.CONTENT_URI, organizerValues);
+        return entity;
+    }
 
-        String uid = "31415926535";
+    public void testCreateMessageForEntity_Reply() {
+        // Set up the "event"
+        String attendee = "attendee@server.com";
+        String organizer = "organizer@server.com";
+        String title = "Discuss Unit Tests";
+        Entity entity = setupTestEventEntity(organizer, attendee, title);
+
+        // Create a dummy account for the attendee
         Account account = new Account();
-
-        // The attendee is responding
         account.mEmailAddress = attendee;
+
+        // The uid is required, but can be anything
+        String uid = "31415926535";
 
         // Create the outgoing message
         Message msg = CalendarUtilities.createMessageForEntity(mContext, entity,
@@ -210,11 +223,72 @@ public class CalendarUtilitiesTests extends AndroidTestCase {
         //TODO Check the contents of the attachment using an iCalendar parser
     }
 
+    public void testCreateMessageForEntity_Invite() throws IOException {
+        // Set up the "event"
+        String attendee = "attendee@server.com";
+        String organizer = "organizer@server.com";
+        String title = "Discuss Unit Tests";
+        Entity entity = setupTestEventEntity(organizer, attendee, title);
+
+        // Create a dummy account for the attendee
+        Account account = new Account();
+        account.mEmailAddress = organizer;
+
+        // The uid is required, but can be anything
+        String uid = "31415926535";
+
+        // Create the outgoing message
+        Message msg = CalendarUtilities.createMessageForEntity(mContext, entity,
+                Message.FLAG_OUTGOING_MEETING_INVITE, uid, account);
+
+        // First, we should have a message
+        assertNotNull(msg);
+
+        // Now check some of the fields of the message
+        assertEquals(Address.pack(new Address[] {new Address(attendee)}), msg.mTo);
+        String accept = getContext().getResources().getString(R.string.meeting_invitation, title);
+        assertEquals(accept, msg.mSubject);
+
+        // And make sure we have an attachment
+        assertNotNull(msg.mAttachments);
+        assertEquals(1, msg.mAttachments.size());
+        Attachment att = msg.mAttachments.get(0);
+        // And that the attachment has the correct elements
+        assertEquals("invite.ics", att.mFileName);
+        assertEquals(Attachment.FLAG_SUPPRESS_DISPOSITION,
+                att.mFlags & Attachment.FLAG_SUPPRESS_DISPOSITION);
+        assertEquals("text/calendar; method=REQUEST", att.mMimeType);
+        assertNotNull(att.mContent);
+
+
+        // We'll check the contents of the ics file here
+        BlockHash vcalendar = parseIcsContent(att.mContent);
+        assertNotNull(vcalendar);
+
+        // We should have a VCALENDAR with a REQUEST method
+        assertEquals("VCALENDAR", vcalendar.name);
+        assertEquals("REQUEST", vcalendar.get("METHOD"));
+
+        // We should have one block under VCALENDAR
+        assertEquals(1, vcalendar.blocks.size());
+        BlockHash vevent = vcalendar.blocks.get(0);
+        // It's a VEVENT with the following fields
+        assertEquals("VEVENT", vevent.name);
+        assertEquals("MAILTO:" + organizer, vevent.get("ORGANIZER"));
+        assertEquals("Meeting Location", vevent.get("LOCATION"));
+        assertEquals("0", vevent.get("SEQUENCE"));
+        assertEquals("Discuss Unit Tests", vevent.get("SUMMARY"));
+        assertEquals(uid, vevent.get("UID"));
+        assertEquals("MAILTO:" + attendee,
+                vevent.get("ATTENDEE;ROLE=REQ-PARTICIPANT;PARTSTAT=NEEDS-ACTION;RSVP=TRUE"));
+    }
+
     public void testUtcOffsetString() {
         assertEquals(CalendarUtilities.utcOffsetString(540), "+0900");
         assertEquals(CalendarUtilities.utcOffsetString(-480), "-0800");
         assertEquals(CalendarUtilities.utcOffsetString(0), "+0000");
     }
+
     public void testFindTransitionDate() {
         // We'll find some transitions and make sure that we're properly in or out of daylight time
         // on either side of the transition.
@@ -291,6 +365,92 @@ public class CalendarUtilitiesTests extends AndroidTestCase {
         rrule = CalendarUtilities.rruleFromRecurrence(
                 6 /*Yearly/Month/DayOfWeek*/, 0, 0, 4 /*Tue*/, 0, 1 /*1st*/, 6 /*June*/, null);
         assertEquals("FREQ=YEARLY;BYDAY=1TU;BYMONTH=6", rrule);
+    }
+
+    /**
+     * For debugging purposes, to help keep track of parsing errors.
+     */
+    private class UnterminatedBlockException extends IOException {
+        private static final long serialVersionUID = 1L;
+        UnterminatedBlockException(String name) {
+            super(name);
+        }
+    }
+
+    /**
+     * A lightweight representation of block object containing a hash of individual values and an
+     * array of inner blocks.  The object is build by pulling elements from a BufferedReader.
+     * NOTE: Multiple values of a given field are not supported.  We'd see this with ATTENDEEs, for
+     * example, and possibly RDATEs in VTIMEZONEs without an RRULE; these cases will be handled
+     * at a later time.
+     */
+    private class BlockHash {
+        String name;
+        HashMap<String, String> hash = new HashMap<String, String>();
+        ArrayList<BlockHash> blocks = new ArrayList<BlockHash>();
+
+        BlockHash (String _name, BufferedReader reader) throws IOException {
+            name = _name;
+            String lastField = null;
+            int lastLength = 0;
+            String lastValue = null;
+            while (true) {
+                // Get a line; we're done if it's null
+                String line = reader.readLine();
+                if (line == null) {
+                    throw new UnterminatedBlockException(name);
+                }
+                int length = line.length();
+                if (length == 0) {
+                    // We shouldn't ever see an empty line
+                    throw new IllegalArgumentException();
+                }
+                // A line starting with tab after a 75 character line is a continuation
+                if (line.charAt(0) == '\t' && lastLength == SimpleIcsWriter.MAX_LINE_LENGTH) {
+                    // Remember the line and length
+                    lastValue = line.substring(1);
+                    lastLength = line.length();
+                    // Save the concatenation of old and new values
+                    hash.put(lastField, hash.get(lastField) + lastValue);
+                    continue;
+                }
+                // Find the field delimiter
+                int pos = line.indexOf(':');
+                // If not found, or at EOL, this is a bad ics
+                if (pos < 0 || pos >= length) {
+                    throw new IllegalArgumentException();
+                }
+                // Remember the field, value, and length
+                lastField = line.substring(0, pos);
+                lastValue = line.substring(pos + 1);
+                if (lastField.equals("BEGIN")) {
+                    blocks.add(new BlockHash(lastValue, reader));
+                    continue;
+                } else if (lastField.equals("END")) {
+                    if (!lastValue.equals(name)) {
+                        throw new UnterminatedBlockException(name);
+                    }
+                    break;
+                }
+
+                lastLength = line.length();
+                // Save it away and continue
+                hash.put(lastField, lastValue);
+            }
+        }
+
+        String get(String field) {
+            return hash.get(field);
+        }
+    }
+
+    private BlockHash parseIcsContent(String s) throws IOException {
+        BufferedReader reader = new BufferedReader(new StringReader(s));
+        String line = reader.readLine();
+        if (!line.equals("BEGIN:VCALENDAR")) {
+            throw new IllegalArgumentException();
+        }
+        return new BlockHash("VCALENDAR", reader);
     }
 
     // TODO Planned unit tests; some of these exist in primitive form below
