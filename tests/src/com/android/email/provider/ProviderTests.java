@@ -167,6 +167,16 @@ public class ProviderTests extends ProviderTestCase2<EmailProvider> {
         return Account.CONTENT_URI.buildUpon().appendEncodedPath("" + account.mId).build();
     }
 
+    public void testAccountIsValidId() {
+        final Account account1 = ProviderTestUtils.setupAccount("account-1", true, mMockContext);
+        final Account account2 = ProviderTestUtils.setupAccount("account-2", true, mMockContext);
+
+        assertTrue(Account.isValidId(mMockContext, account1.mId));
+        assertTrue(Account.isValidId(mMockContext, account2.mId));
+
+        assertFalse(Account.isValidId(mMockContext, 1234567)); // Some random ID
+    }
+
     private final static String[] MAILBOX_UNREAD_COUNT_PROJECTION = new String [] {
         MailboxColumns.UNREAD_COUNT
     };

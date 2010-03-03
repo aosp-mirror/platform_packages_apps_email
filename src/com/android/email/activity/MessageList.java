@@ -250,9 +250,6 @@ public class MessageList extends ListActivity implements OnItemClickListener, On
      * Show the appropriate account/mailbox specified by an {@link Intent}.
      */
     private void selectAccountAndMailbox(Intent intent) {
-
-        // TODO if we don't know the specified mailbox/account, move to the welcome screen.
-
         mMailboxId = intent.getLongExtra(EXTRA_MAILBOX_ID, -1);
         if (mMailboxId != -1) {
             // Specific mailbox ID was provided - go directly to it
@@ -1046,9 +1043,10 @@ public class MessageList extends ListActivity implements OnItemClickListener, On
      */
     private class FindMailboxTask extends AsyncTask<Void, Void, Long> {
 
-        private long mAccountId;
-        private int mMailboxType;
-        private boolean mOkToRecurse;
+        private final long mAccountId;
+        private final int mMailboxType;
+        private final boolean mOkToRecurse;
+        private boolean showWelcomeActivity;
 
         /**
          * Special constructor to cache some local info
@@ -1063,26 +1061,38 @@ public class MessageList extends ListActivity implements OnItemClickListener, On
         protected Long doInBackground(Void... params) {
             // See if we can find the requested mailbox in the DB.
             long mailboxId = Mailbox.findMailboxOfType(MessageList.this, mAccountId, mMailboxType);
-            if (mailboxId == Mailbox.NO_MAILBOX && mOkToRecurse) {
-                // Not found - launch network lookup
-                mControllerCallback.mWaitForMailboxType = mMailboxType;
-                mController.updateMailboxList(mAccountId, mControllerCallback);
+            if (mailboxId == Mailbox.NO_MAILBOX) {
+                // Mailbox not found.  Does the account really exists?
+                final boolean accountExists = Account.isValidId(MessageList.this, mAccountId);
+                if (accountExists && mOkToRecurse) {
+                    // launch network lookup
+                    mControllerCallback.mWaitForMailboxType = mMailboxType;
+                    mController.updateMailboxList(mAccountId, mControllerCallback);
+                } else {
+                    // We don't want to do the network lookup, or the account doesn't exist in the
+                    // first place.
+                    showWelcomeActivity = true;
+                }
             }
             return mailboxId;
         }
 
         @Override
         protected void onPostExecute(Long mailboxId) {
-            if (mailboxId == null) {
+            if (showWelcomeActivity) {
+                // Let the Welcome activity show the default screen.
+                Welcome.actionStart(MessageList.this);
+                finish();
                 return;
             }
-            if (mailboxId != Mailbox.NO_MAILBOX) {
-                mMailboxId = mailboxId;
-                mSetTitleTask = new SetTitleTask(mMailboxId);
-                mSetTitleTask.execute();
-                mLoadMessagesTask = new LoadMessagesTask(mMailboxId, mAccountId);
-                mLoadMessagesTask.execute();
+            if (mailboxId == null || mailboxId == Mailbox.NO_MAILBOX) {
+                return;
             }
+            mMailboxId = mailboxId;
+            mSetTitleTask = new SetTitleTask(mMailboxId);
+            mSetTitleTask.execute();
+            mLoadMessagesTask = new LoadMessagesTask(mMailboxId, mAccountId);
+            mLoadMessagesTask.execute();
         }
     }
 

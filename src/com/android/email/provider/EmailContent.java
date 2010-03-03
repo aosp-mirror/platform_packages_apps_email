@@ -1339,6 +1339,23 @@ public abstract class EmailContent {
         }
 
         /**
+         * @return true if an {@code accountId} is assigned to any existing account.
+         */
+        public static boolean isValidId(Context context, long accountId) {
+            Cursor cursor = context.getContentResolver().query(
+                    ContentUris.withAppendedId(CONTENT_URI, accountId), ID_PROJECTION,
+                    null, null, null);
+            try {
+                if (cursor.moveToFirst()) {
+                    return true;
+                }
+            } finally {
+                cursor.close();
+            }
+            return false; // Not found.
+        }
+
+        /**
          * Override update to enforce a single default account, and do it atomically
          */
         @Override
