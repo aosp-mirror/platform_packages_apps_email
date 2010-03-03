@@ -34,6 +34,7 @@ import java.io.File;
 import java.net.URI;
 import java.net.URISyntaxException;
 import java.util.ArrayList;
+import java.util.List;
 import java.util.UUID;
 
 
@@ -909,6 +910,8 @@ public abstract class EmailContent {
         public static final String UNREAD_COUNT_SELECTION =
             MessageColumns.MAILBOX_KEY + " =? and " + MessageColumns.FLAG_READ + "= 0";
 
+        public static final String UUID_SELECTION = AccountColumns.COMPATIBILITY_UUID + " =?";
+
         /**
          * This projection is for searching for the default account
          */
@@ -1260,6 +1263,63 @@ public abstract class EmailContent {
                 cursor.close();
             }
             return -1;
+        }
+
+        /**
+         * @return {@link Uri} to this {@link Account} in the
+         * {@code content://com.android.email.provider/account/UUID} format, which is safe to use
+         * for desktop shortcuts.
+         *
+         * <p>We don't want to store _id in shortcuts, because
+         * {@link com.android.email.AccountBackupRestore} won't preserve it.
+         */
+        public Uri getShortcutSafeUri() {
+            return CONTENT_URI.buildUpon().appendEncodedPath(mCompatibilityUuid).build();
+        }
+
+        /**
+         * Parse {@link Uri} in the {@code content://com.android.email.provider/account/ID} format
+         * where ID = account id (used on Eclair, Android 2.0-2.1) or UUID, and return _id of
+         * the {@link Account} associated with it.
+         *
+         * @param context context to access DB
+         * @param uri URI of interest
+         * @return _id of the {@link Account} associated with ID, or -1 if none found.
+         */
+        public static long getAccountIdFromShortcutSafeUri(Context context, Uri uri) {
+            // Make sure the URI is in the correct format.
+            if (!"content".equals(uri.getScheme())
+                    || !EmailContent.AUTHORITY.equals(uri.getAuthority())) {
+                return -1;
+            }
+
+            final List<String> ps = uri.getPathSegments();
+            if (ps.size() != 2 || !"account".equals(ps.get(0))) {
+                return -1;
+            }
+
+            // Now get the ID part.
+            final String id = ps.get(1);
+
+            // First, see if ID can be parsed as long.  (Eclair-style)
+            // (UUIDs have '-' in them, so they are always non-parsable.)
+            try {
+                return Long.parseLong(id);
+            } catch (NumberFormatException ok) {
+                // OK, it's not a long.  Continue...
+            }
+
+            // Now id is a UUId.
+            Cursor cursor = context.getContentResolver().query(CONTENT_URI, ID_PROJECTION,
+                    UUID_SELECTION, new String[] {id}, null);
+            try {
+                if (cursor.moveToFirst()) {
+                    return cursor.getLong(0);   // column 0 is id
+                }
+            } finally {
+                cursor.close();
+            }
+            return -1; // Not found.
         }
 
         /**

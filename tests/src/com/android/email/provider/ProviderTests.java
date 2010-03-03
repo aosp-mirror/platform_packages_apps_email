@@ -37,6 +37,7 @@ import android.net.Uri;
 import android.os.Bundle;
 import android.os.Environment;
 import android.os.Parcel;
+import android.test.MoreAsserts;
 import android.test.ProviderTestCase2;
 
 import java.io.File;
@@ -130,6 +131,40 @@ public class ProviderTests extends ProviderTestCase2<EmailProvider> {
         p.recycle();
 
         ProviderTestUtils.assertAccountEqual("testAccountParcel", account1, account2);
+    }
+
+    /**
+     * Test for {@link Account#getShortcutSafeUri()} and
+     * {@link Account#getAccountIdForShortcutSafeUri}.
+     */
+    public void testAccountShortcutSafeUri() {
+        final Account account1 = ProviderTestUtils.setupAccount("account-1", true, mMockContext);
+        final Account account2 = ProviderTestUtils.setupAccount("account-2", true, mMockContext);
+        final long account1Id = account1.mId;
+        final long account2Id = account2.mId;
+
+        final Uri uri1 = account1.getShortcutSafeUri();
+        final Uri uri2 = account2.getShortcutSafeUri();
+
+        // Check the path part of the URIs.
+        MoreAsserts.assertEquals(new String[] {"account", account1.mCompatibilityUuid},
+                uri1.getPathSegments().toArray());
+        MoreAsserts.assertEquals(new String[] {"account", account2.mCompatibilityUuid},
+                uri2.getPathSegments().toArray());
+
+        assertEquals(account1Id, Account.getAccountIdFromShortcutSafeUri(mMockContext, uri1));
+        assertEquals(account2Id, Account.getAccountIdFromShortcutSafeUri(mMockContext, uri2));
+
+        // Test for the Eclair(2.0-2.1) style URI.
+        assertEquals(account1Id, Account.getAccountIdFromShortcutSafeUri(mMockContext,
+                getEclairStyleShortcutUri(account1)));
+        assertEquals(account2Id, Account.getAccountIdFromShortcutSafeUri(mMockContext,
+                getEclairStyleShortcutUri(account2)));
+    }
+
+    private static Uri getEclairStyleShortcutUri(Account account) {
+        // We used _id instead of UUID only on Eclair(2.0-2.1).
+        return Account.CONTENT_URI.buildUpon().appendEncodedPath("" + account.mId).build();
     }
 
     private final static String[] MAILBOX_UNREAD_COUNT_PROJECTION = new String [] {

@@ -164,10 +164,7 @@ public class MessageList extends ListActivity implements OnItemClickListener, On
      * @param id mailbox key
      */
     public static void actionHandleMailbox(Context context, long id) {
-        Intent intent = new Intent(context, MessageList.class);
-        intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
-        intent.putExtra(EXTRA_MAILBOX_ID, id);
-        context.startActivity(intent);
+        context.startActivity(createIntent(context, -1, id, -1));
     }
 
     /**
@@ -178,46 +175,39 @@ public class MessageList extends ListActivity implements OnItemClickListener, On
      * @param mailboxType the type of mailbox to open (e.g. @see EmailContent.Mailbox.TYPE_INBOX)
      */
     public static void actionHandleAccount(Context context, long accountId, int mailboxType) {
-        Intent intent = new Intent(context, MessageList.class);
-        intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
-        intent.putExtra(EXTRA_ACCOUNT_ID, accountId);
-        intent.putExtra(EXTRA_MAILBOX_TYPE, mailboxType);
-        context.startActivity(intent);
+        context.startActivity(createIntent(context, accountId, -1, mailboxType));
     }
 
     /**
-     * Return an intent to open a specific mailbox by account & type.  It will also clear
-     * notifications.
+     * Return an intent to open a specific mailbox by account & type.
      *
      * @param context The caller's context (for generating an intent)
      * @param accountId The account to open, or -1
      * @param mailboxId the ID of the mailbox to open, or -1
      * @param mailboxType the type of mailbox to open (e.g. @see Mailbox.TYPE_INBOX) or -1
      */
-    public static Intent actionHandleAccountIntent(Context context, long accountId,
-            long mailboxId, int mailboxType) {
+    public static Intent createIntent(Context context, long accountId, long mailboxId,
+            int mailboxType) {
         Intent intent = new Intent(context, MessageList.class);
         intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
-        intent.putExtra(EXTRA_ACCOUNT_ID, accountId);
-        intent.putExtra(EXTRA_MAILBOX_ID, mailboxId);
-        intent.putExtra(EXTRA_MAILBOX_TYPE, mailboxType);
+        if (accountId != -1) intent.putExtra(EXTRA_ACCOUNT_ID, accountId);
+        if (mailboxId != -1) intent.putExtra(EXTRA_MAILBOX_ID, mailboxId);
+        if (mailboxType != -1) intent.putExtra(EXTRA_MAILBOX_TYPE, mailboxType);
         return intent;
     }
 
     /**
-     * Used for generating lightweight (Uri-only) intents.
+     * Create and return an intent for a desktop shortcut for an account.
      *
      * @param context Calling context for building the intent
-     * @param accountId The account of interest
+     * @param account The account of interest
      * @param mailboxType The folder name to open (typically Mailbox.TYPE_INBOX)
      * @return an Intent which can be used to view that account
      */
-    public static Intent actionHandleAccountUriIntent(Context context, long accountId,
+    public static Intent createAccountIntentForShortcut(Context context, Account account,
             int mailboxType) {
-        Intent i = actionHandleAccountIntent(context, accountId, -1, mailboxType);
-        i.removeExtra(EXTRA_ACCOUNT_ID);
-        Uri uri = ContentUris.withAppendedId(Account.CONTENT_URI, accountId);
-        i.setData(uri);
+        Intent i = createIntent(context, -1, -1, mailboxType);
+        i.setData(account.getShortcutSafeUri());
         return i;
     }
 
@@ -252,9 +242,18 @@ public class MessageList extends ListActivity implements OnItemClickListener, On
 
         // TODO extend this to properly deal with multiple mailboxes, cursor, etc.
 
-        // Select 'by id' or 'by type' or 'by uri' mode and launch appropriate queries
+        // Show the appropriate account/mailbox specified by an {@link Intent}.
+        selectAccountAndMailbox(getIntent());
+    }
 
-        mMailboxId = getIntent().getLongExtra(EXTRA_MAILBOX_ID, -1);
+    /**
+     * Show the appropriate account/mailbox specified by an {@link Intent}.
+     */
+    private void selectAccountAndMailbox(Intent intent) {
+
+        // TODO if we don't know the specified mailbox/account, move to the welcome screen.
+
+        mMailboxId = intent.getLongExtra(EXTRA_MAILBOX_ID, -1);
         if (mMailboxId != -1) {
             // Specific mailbox ID was provided - go directly to it
             mSetTitleTask = new SetTitleTask(mMailboxId);
@@ -263,22 +262,19 @@ public class MessageList extends ListActivity implements OnItemClickListener, On
             mLoadMessagesTask.execute();
             addFooterView(mMailboxId, -1, -1);
         } else {
-            long accountId = -1;
-            int mailboxType = getIntent().getIntExtra(EXTRA_MAILBOX_TYPE, Mailbox.TYPE_INBOX);
-            Uri uri = getIntent().getData();
-            if (uri != null
-                    && "content".equals(uri.getScheme())
-                    && EmailContent.AUTHORITY.equals(uri.getAuthority())) {
+            int mailboxType = intent.getIntExtra(EXTRA_MAILBOX_TYPE, Mailbox.TYPE_INBOX);
+            Uri uri = intent.getData();
+            // TODO Possible ANR.  getAccountIdFromShortcutSafeUri accesses DB.
+            long accountId = (uri == null) ? -1
+                    : Account.getAccountIdFromShortcutSafeUri(this, uri);
+
+            if (accountId != -1) {
                 // A content URI was provided - try to look up the account
-                String accountIdString = uri.getPathSegments().get(1);
-                if (accountIdString != null) {
-                    accountId = Long.parseLong(accountIdString);
-                }
                 mFindMailboxTask = new FindMailboxTask(accountId, mailboxType, false);
                 mFindMailboxTask.execute();
             } else {
                 // Go by account id + type
-                accountId = getIntent().getLongExtra(EXTRA_ACCOUNT_ID, -1);
+                accountId = intent.getLongExtra(EXTRA_ACCOUNT_ID, -1);
                 mFindMailboxTask = new FindMailboxTask(accountId, mailboxType, true);
                 mFindMailboxTask.execute();
             }
@@ -886,6 +882,8 @@ public class MessageList extends ListActivity implements OnItemClickListener, On
      * Any outbox (send again):
      *
      * @param mailboxId the ID of the mailbox
+     * @param accountId the ID of the account
+     * @param mailboxType {@code Mailbox.TYPE_} constant, or -1
      */
     private void addFooterView(long mailboxId, long accountId, int mailboxType) {
         // first, look for shortcuts that don't need us to spin up a DB access task
