@@ -78,6 +78,10 @@ import java.net.URISyntaxException;
  *       Write new values (save to provider)
  *       Proceed to options screen
  *       finish() (removes self from back stack)
+ *
+ * NOTE: The manifest for this activity has it ignore config changes, because
+ * we don't want to restart on every orientation - this would launch autodiscover again.
+ * Do not attempt to define orientation-specific resources, they won't be loaded.
  */
 public class AccountSetupExchange extends Activity implements OnClickListener,
         OnCheckedChangeListener {
@@ -264,7 +268,7 @@ public class AccountSetupExchange extends Activity implements OnClickListener,
         }
 
         String protocol = hostAuth.mProtocol;
-        if (protocol == null && !protocol.startsWith("eas")) {
+        if (protocol == null || !protocol.startsWith("eas")) {
             throw new Error("Unknown account type: " + account.getStoreUri(this));
         }
 

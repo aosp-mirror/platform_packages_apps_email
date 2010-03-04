@@ -21,12 +21,15 @@ import com.android.email.Email;
 import com.android.email.LegacyConversions;
 import com.android.email.Preferences;
 import com.android.email.R;
+import com.android.email.activity.setup.AccountSettingsUtils;
+import com.android.email.activity.setup.AccountSettingsUtils.Provider;
 import com.android.email.mail.Folder;
 import com.android.email.mail.MessagingException;
 import com.android.email.mail.Store;
 import com.android.email.mail.store.LocalStore;
 import com.android.email.provider.EmailContent;
 import com.android.email.provider.EmailContent.AccountColumns;
+import com.android.email.provider.EmailContent.HostAuth;
 
 import android.app.Activity;
 import android.app.ListActivity;
@@ -46,15 +49,23 @@ import android.widget.ListView;
 import android.widget.ProgressBar;
 import android.widget.TextView;
 
+import java.net.URI;
+import java.net.URISyntaxException;
+
 /**
  * This activity will be used whenever we have a large/slow bulk upgrade operation.
  *
  * Note: It's preferable to check for "accounts needing upgrade" before launching this
  * activity, so as to not waste time before every launch.
  *
- * TODO: Disable orientation changes, to keep the activity from restarting on rotation.  This is
- *       set in the manifest but for some reason it's not working.
+ * Note:  This activity is set (in the manifest) to disregard configuration changes (e.g. rotation).
+ * This allows it to continue through without restarting.
+ * Do not attempt to define orientation-specific resources, they won't be loaded.
+ *
  * TODO: More work on actual conversions
+ * TODO: Confirm from donut sources the right way to ID the drafts, outbox, sent folders in IMAP
+ * TODO: Smarter cleanup of SSL/TLS situation, since certificates may be bad (see design spec)
+ * TODO: Trigger refresh after upgrade
  */
 public class UpgradeAccounts extends ListActivity implements OnClickListener {
 
@@ -240,7 +251,7 @@ public class UpgradeAccounts extends ListActivity implements OnClickListener {
                     mListView.invalidateViews();        // find a less annoying way to do that
                     break;
                 case MSG_INC_PROGRESS:
-                    mLegacyAccounts[msg.arg1].progress++;
+                    mLegacyAccounts[msg.arg1].progress += msg.arg2;
                     mListView.invalidateViews();        // find a less annoying way to do that
                     break;
                 case MSG_ERROR:
@@ -270,9 +281,15 @@ public class UpgradeAccounts extends ListActivity implements OnClickListener {
         }
 
         public void incProgress(int accountNum) {
+            incProgress(accountNum, 1);
+        }
+
+        public void incProgress(int accountNum, int incrementBy) {
+            if (incrementBy == 0) return;
             android.os.Message msg = android.os.Message.obtain();
             msg.what = MSG_INC_PROGRESS;
             msg.arg1 = accountNum;
+            msg.arg2 = incrementBy;
             sendMessage(msg);
         }
 
@@ -311,10 +328,10 @@ public class UpgradeAccounts extends ListActivity implements OnClickListener {
                 UpgradeAccounts.this.mHandler.setMaxProgress(i, estimate);
             }
             
-            // Step 2:  Clean out IMAP accounts
+            // Step 2:  Scrub accounts, deleting anything we're not keeping to reclaim disk space
             for (int i = 0; i < mAccountInfo.length; i++) {
                 if (mAccountInfo[i].error == null) {
-                    cleanImapAccount(mContext, mAccountInfo[i].account, i, handler);
+                    scrubAccount(mContext, mAccountInfo[i].account, i, handler);
                 }
             }
 
@@ -370,25 +387,52 @@ public class UpgradeAccounts extends ListActivity implements OnClickListener {
     }
 
     /**
-     * Clean out an IMAP account.  Anything we can reload from server, we delete.  This seems
-     * drastic, but it greatly reduces the risk of running out of disk space by copying everything.
+     * Clean out an account.
+     *
+     * For IMAP:  Anything we can reload from server, we delete.  This reduces the risk of running
+     * out of disk space by copying everything.
+     * For POP: Delete the trash folder (which we won't bring forward).
      */
-    /* package */ void cleanImapAccount(Context context, Account account, int accountNum,
+    /* package */ static void scrubAccount(Context context, Account account, int accountNum,
             UIHandler handler) {
         String storeUri = account.getStoreUri();
-        if (!storeUri.startsWith(Store.STORE_SCHEME_IMAP)) {
-            return;
+        boolean isImap = storeUri.startsWith(Store.STORE_SCHEME_IMAP);
+
+        try {
+            Store store = LocalStore.newInstance(account.getLocalStoreUri(), context, null);
+            Folder[] folders = store.getPersonalNamespaces();
+            for (Folder folder : folders) {
+                folder.open(Folder.OpenMode.READ_ONLY, null);
+                String folderName = folder.getName();
+                if ("drafts".equalsIgnoreCase(folderName)) {
+                    // do not delete drafts
+                } else if ("outbox".equalsIgnoreCase(folderName)) {
+                    // do not delete outbox
+                } else if ("sent".equalsIgnoreCase(folderName)) {
+                    // do not delete sent
+                } else if (isImap || "trash".equalsIgnoreCase(folderName)) {
+                    Log.d(Email.LOG_TAG, "Scrub " + account.getDescription() + "." + folderName);
+                    // for all other folders, delete the folder (and its messages & attachments)
+                    int messageCount = folder.getMessageCount();
+                    folder.delete(true);
+                    if (handler != null) {
+                        handler.incProgress(accountNum, 1 + messageCount);
+                    }
+                }
+            }
+            int pruned = ((LocalStore)store).pruneCachedAttachments();
+            if (handler != null) {
+                handler.incProgress(accountNum, pruned);
+            }
+        } catch (MessagingException e) {
+            Log.d(Email.LOG_TAG, "Exception while cleaning IMAP account " + e);
         }
-        if (handler != null) {
-            handler.incProgress(accountNum);
-        }
-        
     }
     
     /**
      * Copy an account.
      */
-    /* package */ void copyAccount(Context context, Account account, int accountNum,
+    /* package */ static void copyAccount(Context context, Account account, int accountNum,
             UIHandler handler) {
         // If already exists- just skip it
         int existCount = EmailContent.count(context, EmailContent.Account.CONTENT_URI,
@@ -402,6 +446,7 @@ public class UpgradeAccounts extends ListActivity implements OnClickListener {
         }
         // Create the new account and write it
         EmailContent.Account newAccount = LegacyConversions.makeAccount(context, account);
+        cleanupConnections(context, newAccount, account);
         newAccount.save(context);
         if (handler != null) {
             handler.incProgress(accountNum);
@@ -415,7 +460,8 @@ public class UpgradeAccounts extends ListActivity implements OnClickListener {
     /**
      * Delete an account
      */
-    /* package */ void deleteAccountStore(Context context, Account account, UIHandler handler) {
+    /* package */ static void deleteAccountStore(Context context, Account account,
+            UIHandler handler) {
         try {
             Store store = LocalStore.newInstance(account.getLocalStoreUri(), context, null);
             store.delete();
@@ -427,4 +473,73 @@ public class UpgradeAccounts extends ListActivity implements OnClickListener {
         }
     }
 
+    /**
+     * Cleanup SSL, TLS, etc for each converted account.
+     */
+    /* package */ static void cleanupConnections(Context context, EmailContent.Account newAccount,
+            Account account) {
+        // 1. Look up provider for this email address
+        String email = newAccount.mEmailAddress;
+        int atSignPos = email.lastIndexOf('@');
+        String domain = email.substring(atSignPos + 1);
+        Provider p = AccountSettingsUtils.findProviderForDomain(context, domain);
+
+        // 2. If provider found, just use its settings (overriding what user had)
+        // This is drastic but most reliable.  Note:  This also benefits from newer provider
+        // data that might be found in a vendor policy module.
+        if (p != null) {
+            // Incoming
+            try {
+                URI incomingUriTemplate = p.incomingUriTemplate;
+                String incomingUsername = newAccount.mHostAuthRecv.mLogin;
+                String incomingPassword = newAccount.mHostAuthRecv.mPassword;
+                URI incomingUri = new URI(incomingUriTemplate.getScheme(), incomingUsername + ":"
+                        + incomingPassword, incomingUriTemplate.getHost(),
+                        incomingUriTemplate.getPort(), incomingUriTemplate.getPath(), null, null);
+                newAccount.mHostAuthRecv.setStoreUri(incomingUri.toString());
+            } catch (URISyntaxException e) {
+                // Ignore - just use the data we copied across (for better or worse)
+            }
+            // Outgoing
+            try {
+                URI outgoingUriTemplate = p.outgoingUriTemplate;
+                String outgoingUsername = newAccount.mHostAuthSend.mLogin;
+                String outgoingPassword = newAccount.mHostAuthSend.mPassword;
+                URI outgoingUri = new URI(outgoingUriTemplate.getScheme(), outgoingUsername + ":"
+                        + outgoingPassword, outgoingUriTemplate.getHost(),
+                        outgoingUriTemplate.getPort(), outgoingUriTemplate.getPath(), null, null);
+                newAccount.mHostAuthSend.setStoreUri(outgoingUri.toString());
+            } catch (URISyntaxException e) {
+                // Ignore - just use the data we copied across (for better or worse)
+            }
+            Log.d(Email.LOG_TAG, "Rewriting connection details for " + account.getDescription());
+            return;
+        }
+
+        // 3. Otherwise, use simple heuristics to adjust connection and attempt to keep it
+        //    reliable.  NOTE:  These are the "legacy" ssl/tls encodings, not the ones in
+        //    the current provider.
+        newAccount.mHostAuthRecv.mFlags |= HostAuth.FLAG_TRUST_ALL_CERTIFICATES;
+        String receiveUri = account.getStoreUri();
+        if (receiveUri.contains("+ssl+")) {
+            // non-optional SSL - keep as is, with trust all
+        } else if (receiveUri.contains("+ssl")) {
+            // optional SSL - TBD
+        } else if (receiveUri.contains("+tls+")) {
+            // non-optional TLS - keep as is, with trust all
+        } else if (receiveUri.contains("+tls")) {
+            // optional TLS - TBD
+        }
+        newAccount.mHostAuthSend.mFlags |= HostAuth.FLAG_TRUST_ALL_CERTIFICATES;
+        String sendUri = account.getSenderUri();
+        if (sendUri.contains("+ssl+")) {
+            // non-optional SSL - keep as is, with trust all
+        } else if (sendUri.contains("+ssl")) {
+            // optional SSL - TBD
+        } else if (sendUri.contains("+tls+")) {
+            // non-optional TLS - keep as is, with trust all
+        } else if (sendUri.contains("+tls")) {
+            // optional TLS - TBD
+        }
+    }
 }

@@ -95,9 +95,12 @@
             >
         </activity>
         <!--EXCHANGE-REMOVE-SECTION-START-->
+        <!-- This activity ignores configuration changes (e.g. rotation) so that it will
+             not make multiple calls to AccountSetupCheckSettings. -->
         <activity
             android:name=".activity.setup.AccountSetupExchange"
             android:label="@string/account_setup_exchange_title"
+            android:configChanges="keyboardHidden|orientation"
             >
         </activity>
         <!--EXCHANGE-REMOVE-SECTION-END-->
