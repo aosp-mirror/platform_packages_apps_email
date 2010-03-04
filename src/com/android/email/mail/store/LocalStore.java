@@ -383,7 +383,8 @@ public class LocalStore extends Store implements PersistentDataCallbacks {
     /**
      * Deletes all cached attachments for the entire store.
      */
-    public void pruneCachedAttachments() throws MessagingException {
+    public int pruneCachedAttachments() throws MessagingException {
+        int prunedCount = 0;
         File[] files = mAttachmentsDir.listFiles();
         for (File file : files) {
             if (file.exists()) {
@@ -426,8 +427,10 @@ public class LocalStore extends Store implements PersistentDataCallbacks {
                 if (!file.delete()) {
                     file.deleteOnExit();
                 }
+                prunedCount++;
             }
         }
+        return prunedCount;
     }
 
     /**

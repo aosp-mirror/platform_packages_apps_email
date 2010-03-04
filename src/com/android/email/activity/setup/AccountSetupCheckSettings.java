@@ -16,6 +16,7 @@
 
 package com.android.email.activity.setup;
 
+import com.android.email.Email;
 import com.android.email.R;
 import com.android.email.mail.AuthenticationFailedException;
 import com.android.email.mail.CertificateValidationException;
@@ -32,6 +33,7 @@ import android.content.Intent;
 import android.os.Bundle;
 import android.os.Handler;
 import android.os.Process;
+import android.util.Log;
 import android.view.View;
 import android.view.View.OnClickListener;
 import android.widget.Button;
@@ -42,8 +44,9 @@ import android.widget.TextView;
  * Checks the given settings to make sure that they can be used to send and
  * receive mail.
  *
- * XXX NOTE: The manifest for this app has it ignore config changes, because
+ * XXX NOTE: The manifest for this activity has it ignore config changes, because
  * it doesn't correctly deal with restarting while its thread is running.
+ * Do not attempt to define orientation-specific resources, they won't be loaded.
  */
 public class AccountSetupCheckSettings extends Activity implements OnClickListener {
     
@@ -149,6 +152,7 @@ public class AccountSetupCheckSettings extends Activity implements OnClickListen
                     if (mAutoDiscover) {
                         String userName = intent.getStringExtra(EXTRA_AUTO_DISCOVER_USERNAME);
                         String password = intent.getStringExtra(EXTRA_AUTO_DISCOVER_PASSWORD);
+                        Log.d(Email.LOG_TAG, "Begin auto-discover for " + userName);
                         Store store = Store.getInstance(
                                 mAccount.getStoreUri(AccountSetupCheckSettings.this),
                                 getApplication(), null);
@@ -173,7 +177,9 @@ public class AccountSetupCheckSettings extends Activity implements OnClickListen
                                     EmailServiceProxy.AUTO_DISCOVER_BUNDLE_HOST_AUTH));
                             setResult(RESULT_OK, resultIntent);
                             finish();
-                        }
+                            // auto-discover is never combined with other ops, so exit now
+                            return;
+                       }
                     }
                     if (mDestroyed) {
                         return;
@@ -183,6 +189,7 @@ public class AccountSetupCheckSettings extends Activity implements OnClickListen
                         return;
                     }
                     if (mCheckIncoming) {
+                        Log.d(Email.LOG_TAG, "Begin check of incoming email settings");
                         setMessage(R.string.account_setup_check_settings_check_incoming_msg);
                         Store store = Store.getInstance(
                                 mAccount.getStoreUri(AccountSetupCheckSettings.this),
@@ -197,6 +204,7 @@ public class AccountSetupCheckSettings extends Activity implements OnClickListen
                         return;
                     }
                     if (mCheckOutgoing) {
+                        Log.d(Email.LOG_TAG, "Begin check of outgoing email settings");
                         setMessage(R.string.account_setup_check_settings_check_outgoing_msg);
                         Sender sender = Sender.getInstance(getApplication(),
                                 mAccount.getSenderUri(AccountSetupCheckSettings.this));
