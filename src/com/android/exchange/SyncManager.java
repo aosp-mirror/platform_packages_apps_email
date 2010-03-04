@@ -1192,7 +1192,7 @@ public class SyncManager extends Service implements Runnable {
                     PowerManager pm = (PowerManager)getSystemService(Context.POWER_SERVICE);
                     mWakeLock = pm.newWakeLock(PowerManager.PARTIAL_WAKE_LOCK, "MAIL_SERVICE");
                     mWakeLock.acquire();
-                    log("+WAKE LOCK ACQUIRED");
+                    //log("+WAKE LOCK ACQUIRED");
                 }
                 mWakeLocks.put(id, true);
              }
@@ -1209,7 +1209,7 @@ public class SyncManager extends Service implements Runnable {
                         mWakeLock.release();
                     }
                     mWakeLock = null;
-                    log("+WAKE LOCK RELEASED");
+                    //log("+WAKE LOCK RELEASED");
                 } else {
                 }
             }
@@ -1237,7 +1237,7 @@ public class SyncManager extends Service implements Runnable {
             if (pi != null) {
                 AlarmManager alarmManager = (AlarmManager)getSystemService(Context.ALARM_SERVICE);
                 alarmManager.cancel(pi);
-                log("+Alarm cleared for " + alarmOwner(id));
+                //log("+Alarm cleared for " + alarmOwner(id));
                 mPendingIntents.remove(id);
             }
         }
@@ -1255,7 +1255,7 @@ public class SyncManager extends Service implements Runnable {
 
                 AlarmManager alarmManager = (AlarmManager)getSystemService(Context.ALARM_SERVICE);
                 alarmManager.set(AlarmManager.RTC_WAKEUP, System.currentTimeMillis() + millis, pi);
-                log("+Alarm set for " + alarmOwner(id) + ", " + millis/1000 + "s");
+                //log("+Alarm set for " + alarmOwner(id) + ", " + millis/1000 + "s");
             }
         }
     }
@@ -1984,7 +1984,7 @@ public class SyncManager extends Service implements Runnable {
     static public void kick(String reason) {
        if (INSTANCE != null) {
             synchronized (INSTANCE) {
-                INSTANCE.log("Kick: " + reason);
+                //INSTANCE.log("Kick: " + reason);
                 INSTANCE.mKicked = true;
                 INSTANCE.notify();
             }
