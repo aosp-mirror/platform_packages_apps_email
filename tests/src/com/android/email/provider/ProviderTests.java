@@ -175,6 +175,8 @@ public class ProviderTests extends ProviderTestCase2<EmailProvider> {
         assertTrue(Account.isValidId(mMockContext, account2.mId));
 
         assertFalse(Account.isValidId(mMockContext, 1234567)); // Some random ID
+        assertFalse(Account.isValidId(mMockContext, -1));
+        assertFalse(Account.isValidId(mMockContext, -500));
     }
 
     private final static String[] MAILBOX_UNREAD_COUNT_PROJECTION = new String [] {

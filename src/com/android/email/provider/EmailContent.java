@@ -74,6 +74,8 @@ public abstract class EmailContent {
     };
     public static final int ID_PROJECTION_COLUMN = 0;
 
+    private static final String ID_SELECTION = RECORD_ID + " =?";
+
     public static final String FIELD_COLUMN_NAME = "field";
     public static final String ADD_COLUMN_NAME = "add";
 
@@ -1342,9 +1344,8 @@ public abstract class EmailContent {
          * @return true if an {@code accountId} is assigned to any existing account.
          */
         public static boolean isValidId(Context context, long accountId) {
-            Cursor cursor = context.getContentResolver().query(
-                    ContentUris.withAppendedId(CONTENT_URI, accountId), ID_PROJECTION,
-                    null, null, null);
+            Cursor cursor = context.getContentResolver().query(CONTENT_URI, ID_PROJECTION,
+                    ID_SELECTION, new String[] {"" + accountId}, null);
             try {
                 if (cursor.moveToFirst()) {
                     return true;
