@@ -107,6 +107,13 @@ public class MessageCompose extends Activity implements OnClickListener, OnFocus
         OpenableColumns.SIZE
     };
 
+    // Is set while the draft is saved by a background thread.
+    // Is static in order to be shared between the two activity instances
+    // on orientation change.
+    private static boolean sSaveInProgress = false;
+    // lock and condition for sSaveInProgress
+    private static final Object sSaveInProgressCondition = new Object();
+
     private Account mAccount;
 
     // mDraft has mId > 0 after the first draft save.
@@ -558,6 +565,15 @@ public class MessageCompose extends Activity implements OnClickListener, OnFocus
     private class LoadMessageTask extends AsyncTask<Long, Void, Object[]> {
         @Override
         protected Object[] doInBackground(Long... messageIds) {
+            synchronized (sSaveInProgressCondition) {
+                while (sSaveInProgress) {
+                    try {
+                        sSaveInProgressCondition.wait();
+                    } catch (InterruptedException e) {
+                        // ignore & retry loop
+                    }
+                }
+            }
             Message message = Message.restoreMessageWithId(MessageCompose.this, messageIds[0]);
             if (message == null) {
                 return new Object[] {null, null};
@@ -827,6 +843,10 @@ public class MessageCompose extends Activity implements OnClickListener, OnFocus
         }
         updateMessage(mDraft, mAccount, attachments.length > 0);
 
+        synchronized (sSaveInProgressCondition) {
+            sSaveInProgress = true;
+        }
+
         mSaveMessageTask = new AsyncTask<Void, Void, Void>() {
             @Override
             protected Void doInBackground(Void... params) {
@@ -866,6 +886,10 @@ public class MessageCompose extends Activity implements OnClickListener, OnFocus
 
             @Override
             protected void onPostExecute(Void dummy) {
+                synchronized (sSaveInProgressCondition) {
+                    sSaveInProgress = false;
+                    sSaveInProgressCondition.notify();
+                }
                 if (isCancelled()) {
                     return;
                 }
