@@ -37,7 +37,7 @@ import java.util.Hashtable;
 public class Serializer {
 
     private static final String TAG = "Serializer";
-    private static final boolean logging = false;    // DO NOT CHECK IN WITH THIS TRUE!
+    private boolean logging = false;    // DO NOT CHECK IN WITH THIS TRUE!
 
     private static final int NOT_PENDING = -1;
 
@@ -56,6 +56,11 @@ public class Serializer {
 
     public Serializer() {
         this(true);
+    }
+
+    public Serializer(boolean startDocument, boolean _logging) {
+        this(true);
+        logging = _logging;
     }
 
     public Serializer(boolean startDocument) {
@@ -203,7 +208,7 @@ public class Serializer {
 
     void writeStringValue (ContentValues cv, String key, int tag) throws IOException {
         String value = cv.getAsString(key);
-        if (value != null) {
+        if (value != null && value.length() > 0) {
             data(tag, value);
         }
     }
