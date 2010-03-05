@@ -18,8 +18,8 @@
 package com.android.exchange;
 
 import com.android.email.SecurityPolicy;
-import com.android.email.SecurityPolicy.PolicySet;
 import com.android.email.Utility;
+import com.android.email.SecurityPolicy.PolicySet;
 import com.android.email.mail.Address;
 import com.android.email.mail.AuthenticationFailedException;
 import com.android.email.mail.MeetingInfo;

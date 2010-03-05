@@ -18,10 +18,10 @@
 package com.android.exchange.adapter;
 
 import com.android.email.Email;
+import com.android.email.Utility;
 import com.android.email.provider.EmailContent;
 import com.android.email.provider.EmailContent.Mailbox;
 import com.android.email.provider.EmailContent.Message;
-import com.android.email.Utility;
 import com.android.exchange.EasOutboxService;
 import com.android.exchange.EasSyncService;
 import com.android.exchange.utility.CalendarUtilities;
@@ -1064,7 +1064,7 @@ public class CalendarSyncAdapter extends AbstractSyncAdapter {
 
         if (!isException) {
             String desc = entityValues.getAsString(Events.DESCRIPTION);
-            if (desc != null) {
+            if (desc != null && desc.length() > 0) {
                 if (mService.mProtocolVersionDouble >= 12.0) {
                     s.start(Tags.BASE_BODY);
                     s.data(Tags.BASE_TYPE, "1");
