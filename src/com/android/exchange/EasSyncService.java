@@ -1507,6 +1507,9 @@ public class EasSyncService extends AbstractSyncService {
                 sleep(30*MINUTES, true);
             }
         }
+
+        // Save away the current heartbeat
+        mPingHeartbeat = pingHeartbeat;
     }
 
     void sleep(long ms, boolean runAsleep) {
