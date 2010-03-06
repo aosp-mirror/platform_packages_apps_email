@@ -1286,6 +1286,20 @@ public class SyncManager extends Service implements Runnable {
         }
     }
 
+    static public void clearWatchdogAlarm(long id) {
+        SyncManager syncManager = INSTANCE;
+        if (syncManager != null) {
+            syncManager.clearAlarm(id);
+        }
+    }
+
+    static public void setWatchdogAlarm(long id, long millis) {
+        SyncManager syncManager = INSTANCE;
+        if (syncManager != null) {
+            syncManager.setAlarm(id, millis);
+        }
+    }
+
     static public void alert(Context context, long id) {
         SyncManager syncManager = INSTANCE;
         checkSyncManagerServiceRunning();
