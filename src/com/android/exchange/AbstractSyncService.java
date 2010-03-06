@@ -45,9 +45,6 @@ public abstract class AbstractSyncService implements Runnable {
 
     public String TAG = "AbstractSyncService";
 
-    public static final String SUMMARY_PROTOCOL = "_SUMMARY_";
-    public static final String SYNCED_PROTOCOL = "_SYNCING_";
-    public static final String MOVE_FAVORITES_PROTOCOL = "_MOVE_FAVORITES_";
     public static final int SECONDS = 1000;
     public static final int MINUTES = 60*SECONDS;
     public static final int HOURS = 60*MINUTES;
@@ -56,7 +53,6 @@ public abstract class AbstractSyncService implements Runnable {
     public static final int CONNECT_TIMEOUT = 30*SECONDS;
     public static final int NETWORK_WAIT = 15*SECONDS;
 
-    public static final String IMAP_PROTOCOL = "imap";
     public static final String EAS_PROTOCOL = "eas";
     public static final int EXIT_DONE = 0;
     public static final int EXIT_IO_ERROR = 1;
@@ -86,10 +82,17 @@ public abstract class AbstractSyncService implements Runnable {
     public abstract void stop();
 
     /**
-     * Sent by SyncManager to indicate a user request requiring service has been
-     * added to the service's pending request queue
+     * Sent by SyncManager to indicate that an alarm has fired for this service.  Typically, this
+     * means that a network operation has timed out.  The service is NOT stopped, but service
+     * behavior is not otherwise defined (i.e. it's service dependent)
      */
-    public abstract void ping();
+    public abstract void alarm();
+
+    /**
+     * Sent by SyncManager to request that the service reset itself cleanly; the meaning of this
+     * operation is service dependent.
+     */
+    public abstract void reset();
 
     /**
      * Called to validate an account; abstract to allow each protocol to do what

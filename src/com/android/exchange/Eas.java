@@ -38,7 +38,7 @@ public class Eas {
     public static final int DEBUG_FILE_BIT = 4;
 
     public static final String VERSION = "0.3";
-    public static final String ACCOUNT_MAILBOX = "__eas";
+    public static final String ACCOUNT_MAILBOX_PREFIX = "__eas";
 
     // From EAS spec
     //                Mail Cal

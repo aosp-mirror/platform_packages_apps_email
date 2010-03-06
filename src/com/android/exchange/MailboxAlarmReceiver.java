@@ -30,10 +30,8 @@ public class MailboxAlarmReceiver extends BroadcastReceiver {
     @Override
     public void onReceive(Context context, Intent intent) {
         long mid = intent.getLongExtra("mailbox", -1);
-        if (SyncManager.INSTANCE != null) {
-            SyncManager.INSTANCE.log("Alarm received for: " + SyncManager.alarmOwner(mid));
-        }
-        SyncManager.ping(context, mid);
+        SyncManager.log("Alarm received for: " + SyncManager.alarmOwner(mid));
+        SyncManager.alert(context, mid);
     }
 }
 

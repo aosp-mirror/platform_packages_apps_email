@@ -179,8 +179,10 @@ public class EasSyncService extends AbstractSyncService {
     private int mPingHighWaterMark = 0;
     // Whether we've ever lowered the heartbeat
     private boolean mPingHeartbeatDropped = false;
-    // Whether a POST was aborted due to watchdog timeout
+    // Whether a POST was aborted due to alarm (watchdog alarm)
     private boolean mPostAborted = false;
+    // Whether a POST was aborted due to reset
+    private boolean mPostReset = false;
     // Whether or not the sync service is valid (usable)
     public boolean mIsValid = true;
 
@@ -209,13 +211,40 @@ public class EasSyncService extends AbstractSyncService {
     }
 
     @Override
-    public void ping() {
-        userLog("Alarm ping received!");
+    public void alarm() {
         synchronized(getSynchronizer()) {
             if (mPendingPost != null) {
-                userLog("Aborting pending POST!");
+                URI uri = mPendingPost.getURI();
+                if (uri != null) {
+                    String query = uri.getQuery();
+                    if (query == null) {
+                        query = "POST";
+                    }
+                    userLog("Alert, aborting " + query);
+                } else {
+                    userLog("Alert, no URI?");
+                }
                 mPostAborted = true;
                 mPendingPost.abort();
+            } else {
+                userLog("Alert, no pending POST");
+            }
+        }
+    }
+
+    @Override
+    public void reset() {
+        synchronized(getSynchronizer()) {
+            if (mPendingPost != null) {
+                URI uri = mPendingPost.getURI();
+                if (uri != null) {
+                    String query = uri.getQuery();
+                    if (query.startsWith("Cmd=Ping")) {
+                        userLog("Reset, aborting Ping");
+                        mPostReset = true;
+                        mPendingPost.abort();
+                    }
+                }
             }
         }
     }
@@ -1404,6 +1433,8 @@ public class EasSyncService extends AbstractSyncService {
                 // If all pingable boxes are ready for push, send Ping to the server
                 s.end().end().done();
                 pingWaitCount = 0;
+                mPostReset = false;
+                mPostAborted = false;
 
                 // If we've been stopped, this is a good time to return
                 if (mStop) return;
@@ -1463,7 +1494,10 @@ public class EasSyncService extends AbstractSyncService {
                     // haven't yet "fixed" the timeout, back off by two minutes and "fix" it
                     boolean hasMessage = message != null;
                     userLog("IOException runPingLoop: " + (hasMessage ? message : "[no message]"));
-                    if (mPostAborted || (hasMessage && message.contains("reset by peer"))) {
+                    if (mPostReset) {
+                        // Nothing to do in this case; this is SyncManager telling us to try another
+                        // ping.
+                    } else if (mPostAborted || (hasMessage && message.contains("reset by peer"))) {
                         long pingLength = SystemClock.elapsedRealtime() - pingTime;
                         if ((pingHeartbeat > PING_MIN_HEARTBEAT) &&
                                 (pingHeartbeat > mPingHighWaterMark)) {
@@ -1473,7 +1507,14 @@ public class EasSyncService extends AbstractSyncService {
                                 pingHeartbeat = PING_MIN_HEARTBEAT;
                             }
                             userLog("Decreased ping heartbeat to ", pingHeartbeat, "s");
-                        } else if (mPostAborted || (pingLength < 2000)) {
+                        } else if (mPostAborted) {
+                            // There's no point in throwing here; this can happen in two cases
+                            // 1) An alarm, which indicates minutes without activity; no sense
+                            //    backing off
+                            // 2) SyncManager abort, due to sync of mailbox.  Again, we want to
+                            //    keep on trying to ping
+                            userLog("Ping aborted; retry");
+                        } else if (pingLength < 2000) {
                             userLog("Abort or NAT type return < 2 seconds; throwing IOException");
                             throw e;
                         } else {

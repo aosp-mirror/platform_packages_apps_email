@@ -265,7 +265,7 @@ public class SyncManager extends Service implements Runnable {
             if (cb != null) {
                 cb.syncMailboxStatus(mailboxId, statusCode, progress);
             } else if (INSTANCE != null) {
-                INSTANCE.log("orphan syncMailboxStatus, id=" + mailboxId + " status=" + statusCode);
+                log("orphan syncMailboxStatus, id=" + mailboxId + " status=" + statusCode);
             }
         }
     };
@@ -593,14 +593,14 @@ public class SyncManager extends Service implements Runnable {
         private void addAccountMailbox(long acctId) {
             Account acct = Account.restoreAccountWithId(getContext(), acctId);
             Mailbox main = new Mailbox();
-            main.mDisplayName = Eas.ACCOUNT_MAILBOX;
-            main.mServerId = Eas.ACCOUNT_MAILBOX + System.nanoTime();
+            main.mDisplayName = Eas.ACCOUNT_MAILBOX_PREFIX;
+            main.mServerId = Eas.ACCOUNT_MAILBOX_PREFIX + System.nanoTime();
             main.mAccountKey = acct.mId;
             main.mType = Mailbox.TYPE_EAS_ACCOUNT_MAILBOX;
             main.mSyncInterval = Mailbox.CHECK_INTERVAL_PUSH;
             main.mFlagVisible = false;
             main.save(getContext());
-            INSTANCE.log("Initializing account: " + acct.mDisplayName);
+            log("Initializing account: " + acct.mDisplayName);
         }
 
     }
@@ -738,7 +738,7 @@ public class SyncManager extends Service implements Runnable {
 
         @Override
         public void onChange(boolean selfChange) {
-            INSTANCE.log("SyncedMessage changed: (re)setting alarm for 10s");
+            log("SyncedMessage changed: (re)setting alarm for 10s");
             alarmManager.set(AlarmManager.RTC_WAKEUP,
                     System.currentTimeMillis() + 10*SECONDS, syncAlarmPendingIntent);
         }
@@ -873,12 +873,6 @@ public class SyncManager extends Service implements Runnable {
                             providerList, accountMgrList, false, mResolver);
                 }
             }.start();
-        }
-    }
-
-    static public void smLog(String str) {
-        if (INSTANCE != null) {
-            INSTANCE.log(str);
         }
     }
 
@@ -1045,7 +1039,7 @@ public class SyncManager extends Service implements Runnable {
         // See the comment for onCreate for details
         if (INSTANCE == null) return;
         if (sServiceThread == null) {
-            INSTANCE.alwaysLog("!!! checkSyncManagerServiceRunning; starting service...");
+            alwaysLog("!!! checkSyncManagerServiceRunning; starting service...");
             INSTANCE.startService(new Intent(INSTANCE, SyncManager.class));
         }
     }
@@ -1145,7 +1139,7 @@ public class SyncManager extends Service implements Runnable {
                     context.getContentResolver().update(Mailbox.CONTENT_URI, cv,
                             WHERE_PUSH_OR_PING_NOT_ACCOUNT_MAILBOX,
                             new String[] {Long.toString(accountId)});
-                    INSTANCE.log("Set push/ping boxes to push/hold");
+                    log("Set push/ping boxes to push/hold");
 
                     long id = m.mId;
                     AbstractSyncService svc = INSTANCE.mServiceMap.get(id);
@@ -1282,7 +1276,7 @@ public class SyncManager extends Service implements Runnable {
         INSTANCE.releaseWakeLock(id);
     }
 
-    static public void ping(Context context, long id) {
+    static public void alert(Context context, long id) {
         checkSyncManagerServiceRunning();
         if (id < 0) {
             kick("ping SyncManager");
@@ -1304,7 +1298,7 @@ public class SyncManager extends Service implements Runnable {
                     }
                     service.mAccount = Account.restoreAccountWithId(INSTANCE, m.mAccountKey);
                     service.mMailbox = m;
-                    service.ping();
+                    service.alarm();
                 }
             }
         }
@@ -1496,7 +1490,13 @@ public class SyncManager extends Service implements Runnable {
         }
     }
 
-    private void startService(AbstractSyncService service, Mailbox m) {
+    /**
+     * Starts a service thread and enters it into the service map
+     * This is the point of instantiation of all sync threads
+     * @param service the service to start
+     * @param m the Mailbox on which the service will operate
+     */
+    private void startServiceThread(AbstractSyncService service, Mailbox m) {
         synchronized (sSyncToken) {
             String mailboxName = m.mDisplayName;
             String accountName = service.mAccount.mDisplayName;
@@ -1505,10 +1505,30 @@ public class SyncManager extends Service implements Runnable {
             thread.start();
             mServiceMap.put(m.mId, service);
             runAwake(m.mId);
+            if (!m.mServerId.startsWith(Eas.ACCOUNT_MAILBOX_PREFIX)) {
+                stopPing(m.mAccountKey);
+            }
         }
     }
 
-    private void startService(Mailbox m, int reason, Request req) {
+    /**
+     * Stop any ping in progress for the given account
+     * @param accountId
+     */
+    private void stopPing(long accountId) {
+        // Go through our active mailboxes looking for the right one
+        for (long mailboxId: mServiceMap.keySet()) {
+            Mailbox m = Mailbox.restoreMailboxWithId(this, mailboxId);
+            if (m.mAccountKey == accountId &&
+                    m.mServerId.startsWith(Eas.ACCOUNT_MAILBOX_PREFIX)) {
+                // Here's our account mailbox; reset him (stopping pings)
+                AbstractSyncService svc = mServiceMap.get(mailboxId);
+                svc.reset();
+            }
+        }
+    }
+
+    private void requestSync(Mailbox m, int reason, Request req) {
         // Don't sync if there's no connectivity
         if (sConnectivityHold) return;
         synchronized (sSyncToken) {
@@ -1523,13 +1543,13 @@ public class SyncManager extends Service implements Runnable {
                     if (req != null) {
                         service.addRequest(req);
                     }
-                    startService(service, m);
+                    startServiceThread(service, m);
                 }
             }
         }
     }
 
-    private void stopServices() {
+    private void stopServiceThreads() {
         synchronized (sSyncToken) {
             ArrayList<Long> toStop = new ArrayList<Long>();
 
@@ -1566,7 +1586,7 @@ public class SyncManager extends Service implements Runnable {
 
                 // If we're waiting for the long haul, shut down running service threads
                 if (++cnt > 1) {
-                    stopServices();
+                    stopServiceThreads();
                 }
 
                 // Wait until a network is connected, but let the device sleep
@@ -1653,12 +1673,12 @@ public class SyncManager extends Service implements Runnable {
                     }
                 }
             }
-            stopServices();
+            stopServiceThreads();
             log("Shutdown requested");
         } finally {
             // Lots of cleanup here
             // Stop our running syncs
-            stopServices();
+            stopServiceThreads();
 
             // Stop receivers and content observers
             if (mConnectivityReceiver != null) {
@@ -1803,14 +1823,14 @@ public class SyncManager extends Service implements Runnable {
                     long interval = c.getInt(Mailbox.CONTENT_SYNC_INTERVAL_COLUMN);
                     if (interval == Mailbox.CHECK_INTERVAL_PUSH) {
                         Mailbox m = EmailContent.getContent(c, Mailbox.class);
-                        startService(m, SYNC_PUSH, null);
+                        requestSync(m, SYNC_PUSH, null);
                     } else if (type == Mailbox.TYPE_OUTBOX) {
                         int cnt = EmailContent.count(this, Message.CONTENT_URI,
                                 EasOutboxService.MAILBOX_KEY_AND_NOT_SEND_FAILED,
                                 new String[] {Long.toString(mid)});
                         if (cnt > 0) {
                             Mailbox m = EmailContent.getContent(c, Mailbox.class);
-                            startService(new EasOutboxService(this, m), m);
+                            startServiceThread(new EasOutboxService(this, m), m);
                         }
                     } else if (interval > 0 && interval <= ONE_DAY_MINUTES) {
                         long lastSync = c.getLong(Mailbox.CONTENT_SYNC_TIME_COLUMN);
@@ -1823,7 +1843,7 @@ public class SyncManager extends Service implements Runnable {
                         String name = c.getString(Mailbox.CONTENT_DISPLAY_NAME_COLUMN);
                         if (toNextSync <= 0) {
                             Mailbox m = EmailContent.getContent(c, Mailbox.class);
-                            startService(m, SYNC_SCHEDULED, null);
+                            requestSync(m, SYNC_SCHEDULED, null);
                         } else if (toNextSync < nextWait) {
                             nextWait = toNextSync;
                             if (Eas.USER_LOG) {
@@ -1850,7 +1870,7 @@ public class SyncManager extends Service implements Runnable {
                             long timeToRequest = requestTime - now;
                             if (service instanceof AbstractSyncService && timeToRequest <= 0) {
                                 service.mRequestTime = 0;
-                                service.ping();
+                                service.alarm();
                             } else if (requestTime > 0 && timeToRequest < nextWait) {
                                 if (timeToRequest < 11*MINUTES) {
                                     nextWait = timeToRequest < 250 ? 250 : timeToRequest;
@@ -1957,7 +1977,7 @@ public class SyncManager extends Service implements Runnable {
                 Mailbox m = Mailbox.restoreMailboxWithId(INSTANCE, mailboxId);
                 if (m != null) {
                     INSTANCE.log("Starting sync for " + m.mDisplayName);
-                    INSTANCE.startService(m, reason, req);
+                    INSTANCE.requestSync(m, reason, req);
                 }
             }
         }
