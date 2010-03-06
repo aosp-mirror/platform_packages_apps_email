@@ -220,9 +220,6 @@ public class SyncManager extends Service implements Runnable {
 
     // Receiver of connectivity broadcasts
     private ConnectivityReceiver mConnectivityReceiver = null;
-    private ConnectivityManager mConnectivityManager =
-        (ConnectivityManager)getSystemService(Context.CONNECTIVITY_SERVICE);
-
 
     // The callback sent in from the UI using setCallback
     private IEmailServiceCallback mCallback;
@@ -1483,18 +1480,8 @@ public class SyncManager extends Service implements Runnable {
                     releaseConnectivityLock("connected");
                 } else if (state == State.DISCONNECTED) {
                     info += " DISCONNECTED";
-                    a = (NetworkInfo)b.get(ConnectivityManager.EXTRA_OTHER_NETWORK_INFO);
-                    if (a != null && a.getState() == State.CONNECTED) {
-                        info += " (OTHER CONNECTED)";
-                        releaseConnectivityLock("disconnect/other");
-                        NetworkInfo i = mConnectivityManager.getActiveNetworkInfo();
-                        if (i == null || i.getState() != State.CONNECTED) {
-                            log("CM says we're connected, but no active info?");
-                        }
-                    } else {
-                        log(info);
-                        kick("disconnected");
-                    }
+                    log(info);
+                    kick("disconnected");
                 }
             }
         }
@@ -1586,7 +1573,9 @@ public class SyncManager extends Service implements Runnable {
     private void waitForConnectivity() {
         int cnt = 0;
         while (!mStop) {
-            NetworkInfo info = mConnectivityManager.getActiveNetworkInfo();
+            ConnectivityManager cm =
+                (ConnectivityManager)this.getSystemService(Context.CONNECTIVITY_SERVICE);
+            NetworkInfo info = cm.getActiveNetworkInfo();
             if (info != null) {
                 //log("NetworkInfo: " + info.getTypeName() + ", " + info.getState().name());
                 return;
