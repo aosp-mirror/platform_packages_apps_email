@@ -1002,6 +1002,7 @@ public class CalendarSyncAdapter extends AbstractSyncAdapter {
         ContentValues entityValues = entity.getEntityValues();
         boolean isException = (clientId == null);
         boolean hasAttendees = false;
+        boolean isChange = entityValues.containsKey(Events._SYNC_ID);
 
         if (!isException) {
             // A time zone is required in all EAS events; we'll use the default if none is set
@@ -1075,7 +1076,11 @@ public class CalendarSyncAdapter extends AbstractSyncAdapter {
                 }
             }
 
-            s.writeStringValue(entityValues, Events.ORGANIZER, Tags.CALENDAR_ORGANIZER_EMAIL);
+            // We only write organizer email if the event is new (not a change)
+            // Exchange 2003 will reject upsyncs of changed events with organizer email
+            if (!isChange) {
+                s.writeStringValue(entityValues, Events.ORGANIZER, Tags.CALENDAR_ORGANIZER_EMAIL);
+            }
 
             String rrule = entityValues.getAsString(Events.RRULE);
             if (rrule != null) {
@@ -1153,7 +1158,10 @@ public class CalendarSyncAdapter extends AbstractSyncAdapter {
             if (hasAttendees) {
                 s.end();  // Attendees
             }
-            if (organizerName != null) {
+
+            // We only write organizer name if the event is new (not a change)
+            // Exchange 2003 will reject upsyncs of changed events with organizer name
+            if (!isChange && organizerName != null) {
                 s.data(Tags.CALENDAR_ORGANIZER_NAME, organizerName);
             }
         } else {
