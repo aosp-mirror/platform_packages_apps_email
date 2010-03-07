@@ -60,6 +60,7 @@ import java.util.GregorianCalendar;
 import java.util.StringTokenizer;
 import java.util.TimeZone;
 import java.util.UUID;
+import java.util.Map.Entry;
 
 /**
  * Sync adapter class for EAS calendars
@@ -240,6 +241,7 @@ public class CalendarSyncAdapter extends AbstractSyncAdapter {
             String organizerName = null;
             String organizerEmail = null;
             int eventOffset = -1;
+            int deleteOffset = -1;
 
             boolean firstTag = true;
             long eventId = -1;
@@ -268,11 +270,15 @@ public class CalendarSyncAdapter extends AbstractSyncAdapter {
                         } else {
                             // Otherwise, delete the original event and recreate it
                             userLog("Changing (delete/add) event ", serverId);
-                            ops.delete(id);
+                            deleteOffset = ops.newDelete(id);
                             // Add a placeholder event so that associated tables can reference
                             // this as a back reference.  We add the event at the end of the method
                             eventOffset = ops.newEvent(PLACEHOLDER_OPERATION);
                         }
+                    } else {
+                        // The changed item isn't found. We'll treat this as a new item
+                        eventOffset = ops.newEvent(PLACEHOLDER_OPERATION);
+                        userLog(TAG, "Changed item not found; treating as new.");
                     }
                 } else if (firstTag) {
                     // Add a placeholder event so that associated tables can reference
@@ -405,9 +411,44 @@ public class CalendarSyncAdapter extends AbstractSyncAdapter {
 
             // Put the real event in the proper place in the ops ArrayList
             if (eventOffset >= 0) {
-                ops.set(eventOffset, ContentProviderOperation
-                        .newInsert(sEventsUri).withValues(cv).build());
+                if (isValidEventValues(cv, update)) {
+                    ops.set(eventOffset, ContentProviderOperation
+                            .newInsert(sEventsUri).withValues(cv).build());
+                } else {
+                    // If we can't add this event (it's invalid), remove all of the inserts
+                    // we've built for it
+                    int cnt = ops.mCount - eventOffset;
+                    userLog(TAG, "Removing " + cnt + " inserts from mOps");
+                    for (int i = 0; i < cnt; i++) {
+                        ops.remove(eventOffset);
+                    }
+                    ops.mCount = eventOffset;
+                    // If this is a change, we need to also remove the deletion that comes
+                    // before the addition
+                    if (deleteOffset >= 0) {
+                        ops.remove(deleteOffset);
+                        userLog(TAG, "Removing deletion from mOps");
+                        ops.mCount = deleteOffset;
+                    }
+                }
             }
+        }
+
+        private boolean isValidEventValues(ContentValues cv, boolean update) {
+            // Do a sanity check on this set of values
+            // At the very least, we must get DTSTART and _SYNC_DATA (uid)
+            // If it's invalid, log the columns we've got (will help debugging)
+            if (!cv.containsKey(Events.DTSTART) || !cv.containsKey(Events._SYNC_DATA)) {
+                userLog(TAG, (update ? "Changed" : "New") + " event invalid; skipping");
+                StringBuilder sb = new StringBuilder("Columns: ");
+                for (Entry<String, Object> entry: cv.valueSet()) {
+                    sb.append(entry.getKey());
+                    sb.append(' ');
+                }
+                userLog(TAG, sb.toString());
+                return false;
+            }
+            return true;
         }
 
         private String recurrenceParser(CalendarOperations ops) throws IOException {
@@ -895,7 +936,7 @@ public class CalendarSyncAdapter extends AbstractSyncAdapter {
 
     private class CalendarOperations extends ArrayList<ContentProviderOperation> {
         private static final long serialVersionUID = 1L;
-        private int mCount = 0;
+        public int mCount = 0;
         private ContentProviderResult[] mResults = null;
         private int mEventStart = 0;
 
@@ -910,6 +951,12 @@ public class CalendarSyncAdapter extends AbstractSyncAdapter {
             mEventStart = mCount;
             add(op);
             return mEventStart;
+        }
+
+        public int newDelete(long id) {
+            int offset = mCount;
+            delete(id);
+            return offset;
         }
 
         public void newAttendee(ContentValues cv) {
