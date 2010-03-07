@@ -220,6 +220,8 @@ public class SyncManager extends Service implements Runnable {
 
     // Receiver of connectivity broadcasts
     private ConnectivityReceiver mConnectivityReceiver = null;
+    private ConnectivityReceiver mBackgroundDataSettingReceiver = null;
+    private volatile boolean mBackgroundData = true;
 
     // The callback sent in from the UI using setCallback
     private IEmailServiceCallback mCallback;
@@ -1483,19 +1485,36 @@ public class SyncManager extends Service implements Runnable {
     public class ConnectivityReceiver extends BroadcastReceiver {
         @Override
         public void onReceive(Context context, Intent intent) {
-            Bundle b = intent.getExtras();
-            if (b != null) {
-                NetworkInfo a = (NetworkInfo)b.get(ConnectivityManager.EXTRA_NETWORK_INFO);
-                String info = "Connectivity alert for " + a.getTypeName();
-                State state = a.getState();
-                if (state == State.CONNECTED) {
-                    info += " CONNECTED";
-                    log(info);
-                    releaseConnectivityLock("connected");
-                } else if (state == State.DISCONNECTED) {
-                    info += " DISCONNECTED";
-                    log(info);
-                    kick("disconnected");
+            if (intent.getAction().equals(ConnectivityManager.CONNECTIVITY_ACTION)) {
+                Bundle b = intent.getExtras();
+                if (b != null) {
+                    NetworkInfo a = (NetworkInfo)b.get(ConnectivityManager.EXTRA_NETWORK_INFO);
+                    String info = "Connectivity alert for " + a.getTypeName();
+                    State state = a.getState();
+                    if (state == State.CONNECTED) {
+                        info += " CONNECTED";
+                        log(info);
+                        releaseConnectivityLock("connected");
+                    } else if (state == State.DISCONNECTED) {
+                        info += " DISCONNECTED";
+                        log(info);
+                        kick("disconnected");
+                    }
+                }
+            } else if (intent.getAction().equals(
+                    ConnectivityManager.ACTION_BACKGROUND_DATA_SETTING_CHANGED)) {
+                ConnectivityManager cm = (ConnectivityManager)SyncManager.this
+                    .getSystemService(Context.CONNECTIVITY_SERVICE);
+                mBackgroundData = cm.getBackgroundDataSetting();
+                // If background data is now on, we want to kick SyncManager
+                if (mBackgroundData) {
+                    kick("background data on");
+                    log("Background data on; restart syncs");
+                // Otherwise, stop all syncs
+                } else {
+                    log("Background data off: stop all syncs");
+                    for (Account account: SyncManager.getAccountList())
+                        SyncManager.stopAccountSyncs(account.mId);
                 }
             }
         }
@@ -1646,9 +1665,17 @@ public class SyncManager extends Service implements Runnable {
         AccountManager.get(getApplication())
             .addOnAccountsUpdatedListener(mAccountsUpdatedListener, mHandler, true);
 
+        // Set up receivers for ConnectivityManager
         mConnectivityReceiver = new ConnectivityReceiver();
         registerReceiver(mConnectivityReceiver,
                 new IntentFilter(ConnectivityManager.CONNECTIVITY_ACTION));
+        mBackgroundDataSettingReceiver = new ConnectivityReceiver();
+        registerReceiver(mBackgroundDataSettingReceiver,
+                 new IntentFilter(ConnectivityManager.ACTION_BACKGROUND_DATA_SETTING_CHANGED));
+        // Save away background data setting; we'll keep track of it with the receiver
+        ConnectivityManager cm =
+            (ConnectivityManager)getSystemService(Context.CONNECTIVITY_SERVICE);
+        mBackgroundData = cm.getBackgroundDataSetting();
 
         // See if any settings have changed while we weren't running...
         checkPIMSyncSettings();
@@ -1694,6 +1721,9 @@ public class SyncManager extends Service implements Runnable {
             // Stop receivers and content observers
             if (mConnectivityReceiver != null) {
                 unregisterReceiver(mConnectivityReceiver);
+            }
+            if (mBackgroundDataSettingReceiver != null) {
+                unregisterReceiver(mBackgroundDataSettingReceiver);
             }
 
             if (INSTANCE != null) {
@@ -1773,6 +1803,11 @@ public class SyncManager extends Service implements Runnable {
         Cursor c = getContentResolver().query(Mailbox.CONTENT_URI, Mailbox.CONTENT_PROJECTION,
                 mAccountObserver.getSyncableEasMailboxWhere(), null, null);
 
+        // Contacts/Calendar obey this setting from ContentResolver
+        // Mail is on its own schedule
+        boolean masterAutoSync = ContentResolver.getMasterSyncAutomatically();
+        ConnectivityManager cm =
+            (ConnectivityManager)getSystemService(Context.CONNECTIVITY_SERVICE);
         try {
             while (c.moveToNext()) {
                 long mid = c.getLong(Mailbox.CONTENT_ID_COLUMN);
@@ -1781,6 +1816,15 @@ public class SyncManager extends Service implements Runnable {
                     service = mServiceMap.get(mid);
                 }
                 if (service == null) {
+                    // We handle a few types of mailboxes specially
+                    int type = c.getInt(Mailbox.CONTENT_TYPE_COLUMN);
+
+                    // If background data is off, we only sync Outbox
+                    // Manual syncs are initiated elsewhere, so they will continue to be respected
+                    if (!mBackgroundData && type != Mailbox.TYPE_OUTBOX) {
+                        continue;
+                    }
+
                     // Check whether we're in a hold (temporary or permanent)
                     SyncError syncError = mSyncErrorMap.get(mid);
                     if (syncError != null) {
@@ -1800,9 +1844,11 @@ public class SyncManager extends Service implements Runnable {
                         }
                     }
 
-                    // We handle a few types of mailboxes specially
-                    int type = c.getInt(Mailbox.CONTENT_TYPE_COLUMN);
                     if (type == Mailbox.TYPE_CONTACTS || type == Mailbox.TYPE_CALENDAR) {
+                        // We don't sync these automatically if master auto sync is off
+                        if (!masterAutoSync) {
+                            continue;
+                        }
                         // Get the right authority for the mailbox
                         String authority;
                         Account account =
