@@ -2094,6 +2094,18 @@ public class SyncManager extends Service implements Runnable {
     }
 
     /**
+     * Tell SyncManager to remove the mailbox from the map of mailboxes with sync errors
+     * @param mailboxId the id of the mailbox
+     */
+    static public void removeFromSyncErrorMap(long mailboxId) {
+        SyncManager syncManager = INSTANCE;
+        if (syncManager == null) return;
+        synchronized(sSyncToken) {
+            syncManager.mSyncErrorMap.remove(mailboxId);
+        }
+    }
+
+    /**
      * Sent by services indicating that their thread is finished; action depends on the exitStatus
      * of the service.
      *

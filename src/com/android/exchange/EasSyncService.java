@@ -1463,6 +1463,8 @@ public class EasSyncService extends AbstractSyncService {
                     }
 
                     if (code == HttpStatus.SC_OK) {
+                        // Make sure to clear out any pending sync errors
+                        SyncManager.removeFromSyncErrorMap(mMailboxId);
                         HttpEntity e = res.getEntity();
                         int len = (int)e.getContentLength();
                         InputStream is = res.getEntity().getContent();
