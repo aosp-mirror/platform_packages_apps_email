@@ -39,6 +39,7 @@ import com.android.email.mail.internet.MimeUtility;
 import com.android.email.mail.store.ImapResponseParser.ImapList;
 import com.android.email.mail.store.ImapResponseParser.ImapResponse;
 import com.android.email.mail.transport.CountingOutputStream;
+import com.android.email.mail.transport.DiscourseLogger;
 import com.android.email.mail.transport.EOLConvertingOutputStream;
 import com.android.email.mail.transport.MailTransport;
 import com.beetstra.jutf7.CharsetProvider;
@@ -791,8 +792,20 @@ public class ImapStore extends Store {
             return messages.toArray(new Message[] {});
         }
 
+        @Override
         public void fetch(Message[] messages, FetchProfile fp, MessageRetrievalListener listener)
                 throws MessagingException {
+            try {
+                fetchInternal(messages, fp, listener);
+            } catch (RuntimeException e) { // Probably a parser error.
+                Log.w(Email.LOG_TAG, "Exception detected: " + e.getMessage());
+                mConnection.logLastDiscourse();
+                throw e;
+            }
+        }
+
+        public void fetchInternal(Message[] messages, FetchProfile fp,
+                MessageRetrievalListener listener) throws MessagingException {
             if (messages == null || messages.length == 0) {
                 return;
             }
@@ -1292,9 +1305,13 @@ public class ImapStore extends Store {
      * A cacheable class that stores the details for a single IMAP connection.
      */
     class ImapConnection {
+        private static final String IMAP_DEDACTED_LOG = "[IMAP command redacted]";
         private Transport mTransport;
         private ImapResponseParser mParser;
         private int mNextCommandTag;
+        /** # of command/response lines to log upon crash. */
+        private static final int DISCOURSE_LOGGER_SIZE = 64;
+        private final DiscourseLogger mDiscourse = new DiscourseLogger(DISCOURSE_LOGGER_SIZE);
 
         public void open() throws IOException, MessagingException {
             if (mTransport != null && mTransport.isOpen()) {
@@ -1312,7 +1329,7 @@ public class ImapStore extends Store {
                 mTransport.open();
                 mTransport.setSoTimeout(MailTransport.SOCKET_READ_TIMEOUT);
 
-                mParser = new ImapResponseParser(mTransport.getInputStream());
+                mParser = new ImapResponseParser(mTransport.getInputStream(), mDiscourse);
 
                 // BANNER
                 mParser.readResponse();
@@ -1331,7 +1348,8 @@ public class ImapStore extends Store {
 
                         mTransport.reopenTls();
                         mTransport.setSoTimeout(MailTransport.SOCKET_READ_TIMEOUT);
-                        mParser = new ImapResponseParser(mTransport.getInputStream());
+                        mParser = new ImapResponseParser(mTransport.getInputStream(),
+                                mDiscourse);
                     } else {
                         if (Config.LOGD && Email.DEBUG) {
                             Log.d(Email.LOG_TAG, "TLS not supported but required");
@@ -1425,7 +1443,8 @@ public class ImapStore extends Store {
             open();
             String tag = Integer.toString(mNextCommandTag++);
             String commandToSend = tag + " " + command;
-            mTransport.writeLine(commandToSend, sensitive ? "[IMAP command redacted]" : null);
+            mTransport.writeLine(commandToSend, sensitive ? IMAP_DEDACTED_LOG : null);
+            mDiscourse.addSentCommand(sensitive ? IMAP_DEDACTED_LOG : commandToSend);
             return tag;
         }
 
@@ -1463,6 +1482,11 @@ public class ImapStore extends Store {
                 throw new ImapException(response.toString(), response.getAlertText());
             }
             return responses;
+        }
+
+        /** @see ImapResponseParser#logLastDiscourse() */
+        public void logLastDiscourse() {
+            mDiscourse.logLastDiscourse();
         }
     }
 

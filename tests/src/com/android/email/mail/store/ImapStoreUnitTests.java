@@ -27,6 +27,7 @@ import com.android.email.mail.Folder.FolderType;
 import com.android.email.mail.Folder.OpenMode;
 import com.android.email.mail.internet.BinaryTempFileBody;
 import com.android.email.mail.internet.MimeUtility;
+import com.android.email.mail.transport.DiscourseLogger;
 import com.android.email.mail.transport.MockTransport;
 
 import android.test.AndroidTestCase;
@@ -272,7 +273,7 @@ public class ImapStoreUnitTests extends AndroidTestCase {
     }
     
     private void doTestImapList() throws MessagingException {
-        ImapResponseParser parser = new ImapResponseParser(null);
+        ImapResponseParser parser = new ImapResponseParser(null, new DiscourseLogger(4));
         ImapResponseParser.ImapList list = parser.new ImapList();
         String key = "key";
         String date = "01-Jan-2009 01:00:00 -0800";

@@ -20,6 +20,7 @@ import com.android.email.Email;
 import com.android.email.FixedLengthInputStream;
 import com.android.email.PeekableInputStream;
 import com.android.email.mail.MessagingException;
+import com.android.email.mail.transport.DiscourseLogger;
 import com.android.email.mail.transport.LoggingInputStream;
 
 import android.util.Config;
@@ -40,49 +41,98 @@ public class ImapResponseParser {
     // mDateTimeFormat is used only for parsing IMAP's FETCH ENVELOPE command, in which
     // en_US-like date format is used like "01-Jan-2009 11:20:39 -0800", so this should be
     // handled by Locale.US
-    SimpleDateFormat mDateTimeFormat = new SimpleDateFormat("dd-MMM-yyyy HH:mm:ss Z", Locale.US);
-    PeekableInputStream mIn;
-    InputStream mActiveLiteral;
+    private final SimpleDateFormat mDateTimeFormat =
+            new SimpleDateFormat("dd-MMM-yyyy HH:mm:ss Z", Locale.US);
+    private final PeekableInputStream mIn;
+    private InputStream mActiveLiteral;
 
-    public ImapResponseParser(InputStream in) {
+    /**
+     * To log network activities when the parser crashes.
+     *
+     * <p>We log all bytes received from the server, except for the part sent as literals.
+     */
+    private final DiscourseLogger mDiscourseLogger;
+
+    public ImapResponseParser(InputStream in, DiscourseLogger discourseLogger) {
         if (DEBUG_LOG_RAW_STREAM && Config.LOGD && Email.DEBUG) {
             in = new LoggingInputStream(in);
         }
         this.mIn = new PeekableInputStream(in);
+        mDiscourseLogger = discourseLogger;
+    }
+
+    /**
+     * Read and return one byte from {@link #mIn}, and put it in {@link #mDiscourseLogger}.
+     * Return -1 when EOF.
+     */
+    private int readByte() throws IOException {
+        int ret = mIn.read();
+        if (ret != -1) {
+            mDiscourseLogger.addReceivedByte(ret);
+        }
+        return ret;
     }
 
     /**
      * Reads the next response available on the stream and returns an
      * ImapResponse object that represents it.
-     *
-     * @return
-     * @throws IOException
+     * @return the parsed {@link ImapResponse} object.
      */
     public ImapResponse readResponse() throws IOException {
-        ImapResponse response = new ImapResponse();
-        if (mActiveLiteral != null) {
-            while (mActiveLiteral.read() != -1)
-                ;
-            mActiveLiteral = null;
-        }
-        int ch = mIn.peek();
-        if (ch == '*') {
-            parseUntaggedResponse();
-            readTokens(response);
-        } else if (ch == '+') {
-            response.mCommandContinuationRequested =
-                    parseCommandContinuationRequest();
-            readTokens(response);
-        } else {
-            response.mTag = parseTaggedResponse();
-            readTokens(response);
-        }
-        if (Config.LOGD) {
-            if (Email.DEBUG) {
-                Log.d(Email.LOG_TAG, "<<< " + response.toString());
+        try {
+            ImapResponse response = new ImapResponse();
+            if (mActiveLiteral != null) {
+                while (mActiveLiteral.read() != -1)
+                    ;
+                mActiveLiteral = null;
             }
+            int ch = mIn.peek();
+            if (ch == '*') {
+                parseUntaggedResponse();
+                readTokens(response);
+            } else if (ch == '+') {
+                response.mCommandContinuationRequested =
+                        parseCommandContinuationRequest();
+                readTokens(response);
+            } else {
+                response.mTag = parseTaggedResponse();
+                readTokens(response);
+            }
+            if (Config.LOGD) {
+                if (Email.DEBUG) {
+                    Log.d(Email.LOG_TAG, "<<< " + response.toString());
+                }
+            }
+            return response;
+        } catch (RuntimeException e) {
+            // Parser crash -- log network activities.
+            onParseError(e);
+            throw e;
+        } catch (IOException e) {
+            // Network error, or received an unexpected char.
+            onParseError(e);
+            throw e;
         }
-        return response;
+    }
+
+    private void onParseError(Exception e) {
+        // Read a few more bytes, so that the log will contain some more context, even if the parser
+        // crashes in the middle of a response.
+        // This also makes sure the byte in question will be logged, no matter where it crashes.
+        // e.g. when parseAtom() peeks and finds at an unexpected char, it throws an exception
+        // before actually reading it.
+        // However, we don't want to read too much, because then it may get into an email message.
+        try {
+            for (int i = 0; i < 4; i++) {
+                int b = readByte();
+                if (b == -1 || b == '\n') {
+                    break;
+                }
+            }
+        } catch (IOException ignore) {
+        }
+        Log.w(Email.LOG_TAG, "Exception detected: " + e.getMessage());
+        mDiscourseLogger.logLastDiscourse();
     }
 
     private void readTokens(ImapResponse response) throws IOException {
@@ -215,7 +265,7 @@ public class ImapResponseParser {
                 }
                 return sb.toString();
             } else {
-                sb.append((char)mIn.read());
+                sb.append((char)readByte());
             }
         }
     }
@@ -251,7 +301,7 @@ public class ImapResponseParser {
     private String readStringUntil(char end) throws IOException {
         StringBuffer sb = new StringBuffer();
         int ch;
-        while ((ch = mIn.read()) != -1) {
+        while ((ch = readByte()) != -1) {
             if (ch == end) {
                 return sb.toString();
             } else {
@@ -266,7 +316,7 @@ public class ImapResponseParser {
 
     private int expect(char ch) throws IOException {
         int d;
-        if ((d = mIn.read()) != ch) {
+        if ((d = readByte()) != ch) {
             if (d == -1 && Config.LOGD && Email.DEBUG) {
                 Log.d(Email.LOG_TAG, "expect(): end of stream reached");
             }

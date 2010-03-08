@@ -19,6 +19,7 @@ package com.android.email.mail.store;
 import com.android.email.FixedLengthInputStream;
 import com.android.email.mail.store.ImapResponseParser.ImapList;
 import com.android.email.mail.store.ImapResponseParser.ImapResponse;
+import com.android.email.mail.transport.DiscourseLogger;
 
 import android.test.AndroidTestCase;
 import android.test.suitebuilder.annotation.SmallTest;
@@ -45,7 +46,7 @@ public class ImapResponseParserUnitTests extends AndroidTestCase {
                 + "INBOX (UNSEEN 10)\r\n"
                 + "101 OK STATUS completed\r\n")
                 .getBytes());
-        ImapResponseParser parser = new ImapResponseParser(is);
+        ImapResponseParser parser = new ImapResponseParser(is, new DiscourseLogger(4));
         
         ImapResponse line1 = parser.readResponse();
         assertNull("Line 1 tag", line1.mTag);
