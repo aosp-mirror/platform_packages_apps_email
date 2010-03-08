@@ -26,7 +26,7 @@ import java.util.Date;
 
 public class FileLogger {
     private static FileLogger LOGGER = null;
-    private static FileWriter mLogWriter = null;
+    private static FileWriter sLogWriter = null;
     public static String LOG_FILE_NAME =
         Environment.getExternalStorageDirectory() + "/emaillog.txt";
 
@@ -37,27 +37,27 @@ public class FileLogger {
 
     private FileLogger() {
         try {
-            mLogWriter = new FileWriter(LOG_FILE_NAME, true);
+            sLogWriter = new FileWriter(LOG_FILE_NAME, true);
         } catch (IOException e) {
             // Doesn't matter
         }
     }
 
     static public synchronized void close() {
-        if (mLogWriter != null) {
+        if (sLogWriter != null) {
             try {
-                mLogWriter.close();
+                sLogWriter.close();
             } catch (IOException e) {
                 // Doesn't matter
             }
-            mLogWriter = null;
+            sLogWriter = null;
         }
     }
 
     static public synchronized void log(Exception e) {
-        if (mLogWriter != null) {
+        if (sLogWriter != null) {
             log("Exception", "Stack trace follows...");
-            PrintWriter pw = new PrintWriter(mLogWriter);
+            PrintWriter pw = new PrintWriter(sLogWriter);
             e.printStackTrace(pw);
             pw.flush();
         }
@@ -96,12 +96,20 @@ public class FileLogger {
         sb.append("\r\n");
         String s = sb.toString();
 
-        if (mLogWriter != null) {
+        if (sLogWriter != null) {
             try {
-                mLogWriter.write(s);
-                mLogWriter.flush();
+                sLogWriter.write(s);
+                sLogWriter.flush();
             } catch (IOException e) {
-                // Doesn't matter
+                // Something might have happened to the sdcard
+                if (Environment.MEDIA_MOUNTED.equals(Environment.getExternalStorageState())) {
+                    // If the card is mounted and we can create the writer, retry
+                    LOGGER = new FileLogger();
+                    if (sLogWriter != null) {
+                        log("FileLogger", "Exception writing log; recreating...");
+                        log(prefix, str);
+                    }
+                }
             }
         }
     }
