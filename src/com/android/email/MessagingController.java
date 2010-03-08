@@ -116,7 +116,6 @@ public class MessagingController implements Runnable {
     private static MessagingController inst = null;
     private BlockingQueue<Command> mCommands = new LinkedBlockingQueue<Command>();
     private Thread mThread;
-    private final HashMap<String, Integer> mServerMailboxNames = new HashMap<String, Integer>();
 
     /**
      * All access to mListeners *must* be synchronized
@@ -127,26 +126,6 @@ public class MessagingController implements Runnable {
 
     protected MessagingController(Context _context) {
         mContext = _context;
-
-        // Create lookup table for server-side mailbox names
-        mServerMailboxNames.put(
-                mContext.getString(R.string.mailbox_name_server_inbox).toLowerCase(),
-                Mailbox.TYPE_INBOX);
-        mServerMailboxNames.put(
-                mContext.getString(R.string.mailbox_name_server_outbox).toLowerCase(),
-                Mailbox.TYPE_OUTBOX);
-        mServerMailboxNames.put(
-                mContext.getString(R.string.mailbox_name_server_drafts).toLowerCase(),
-                Mailbox.TYPE_DRAFTS);
-        mServerMailboxNames.put(
-                mContext.getString(R.string.mailbox_name_server_trash).toLowerCase(),
-                Mailbox.TYPE_TRASH);
-        mServerMailboxNames.put(
-                mContext.getString(R.string.mailbox_name_server_sent).toLowerCase(),
-                Mailbox.TYPE_SENT);
-        mServerMailboxNames.put(
-                mContext.getString(R.string.mailbox_name_server_junk).toLowerCase(),
-                Mailbox.TYPE_JUNK);
 
         mThread = new Thread(this);
         mThread.start();
@@ -341,7 +320,8 @@ public class MessagingController implements Runnable {
                             // box.mServerId;
                             // box.mParentServerId;
                             box.mAccountKey = account.mId;
-                            box.mType = inferMailboxTypeFromName(account, remoteNameToAdd);
+                            box.mType = LegacyConversions.inferMailboxTypeFromName(
+                                    mContext, remoteNameToAdd);
                             // box.mDelimiter;
                             // box.mSyncKey;
                             // box.mSyncLookback;
@@ -364,23 +344,6 @@ public class MessagingController implements Runnable {
                 }
             }
         });
-    }
-
-    /**
-     * Temporarily:  Infer mailbox type from mailbox name.  This should probably be
-     * mutated into something that the stores can provide directly, instead of the two-step
-     * where we scan and report.
-     */
-    public int inferMailboxTypeFromName(EmailContent.Account account, String mailboxName) {
-        if (mailboxName == null || mailboxName.length() == 0) {
-            return EmailContent.Mailbox.TYPE_MAIL;
-        }
-        String lowerCaseName = mailboxName.toLowerCase();
-        Integer type = mServerMailboxNames.get(lowerCaseName);
-        if (type != null) {
-            return type;
-        }
-        return EmailContent.Mailbox.TYPE_MAIL;
     }
 
     /**
@@ -1025,7 +988,7 @@ public class MessagingController implements Runnable {
 
                 // process (and save) attachments
                 LegacyConversions.updateAttachments(mContext, localMessage,
-                        attachments);
+                        attachments, false);
 
                 // One last update of message with two updated flags
                 localMessage.mFlagLoaded = loadStatus;

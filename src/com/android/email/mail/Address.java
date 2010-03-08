@@ -25,6 +25,8 @@ import android.text.TextUtils;
 import android.text.util.Rfc822Token;
 import android.text.util.Rfc822Tokenizer;
 
+import java.io.UnsupportedEncodingException;
+import java.net.URLEncoder;
 import java.util.ArrayList;
 import java.util.regex.Pattern;
 
@@ -439,7 +441,7 @@ public class Address {
      * as found in LocalStore (Donut; db version up to 24).
      * @See unpack()
      */
-    /* package */ static Address[] legacyUnpack(String addressList) {
+    public static Address[] legacyUnpack(String addressList) {
         if (addressList == null || addressList.length() == 0) {
             return new Address[] { };
         }
@@ -470,5 +472,36 @@ public class Address {
             pairStartIndex = pairEndIndex + 1;
         }
         return addresses.toArray(new Address[] { });
+    }
+
+    /**
+     * Legacy pack() used for writing to old data (migration),
+     * as found in LocalStore (Donut; db version up to 24).
+     * @See unpack()
+     */
+    public static String legacyPack(Address[] addresses) {
+        if (addresses == null) {
+            return null;
+        } else if (addresses.length == 0) {
+            return "";
+        }
+        StringBuffer sb = new StringBuffer();
+        for (int i = 0, count = addresses.length; i < count; i++) {
+            Address address = addresses[i];
+            try {
+                sb.append(URLEncoder.encode(address.getAddress(), "UTF-8"));
+                if (address.getPersonal() != null) {
+                    sb.append(';');
+                    sb.append(URLEncoder.encode(address.getPersonal(), "UTF-8"));
+                }
+                if (i < count - 1) {
+                    sb.append(',');
+                }
+            }
+            catch (UnsupportedEncodingException uee) {
+                return null;
+            }
+        }
+        return sb.toString();
     }
 }

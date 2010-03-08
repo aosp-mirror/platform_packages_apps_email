@@ -921,7 +921,7 @@ public class LocalStore extends Store implements PersistentDataCallbacks {
         private void populateMessageFromGetMessageCursor(LocalMessage message, Cursor cursor)
                 throws MessagingException{
             message.setSubject(cursor.getString(0) == null ? "" : cursor.getString(0));
-            Address[] from = Address.unpack(cursor.getString(1));
+            Address[] from = Address.legacyUnpack(cursor.getString(1));
             if (from.length > 0) {
                 message.setFrom(from[0]);
             }
@@ -938,10 +938,10 @@ public class LocalStore extends Store implements PersistentDataCallbacks {
                 }
             }
             message.mId = cursor.getLong(5);
-            message.setRecipients(RecipientType.TO, Address.unpack(cursor.getString(6)));
-            message.setRecipients(RecipientType.CC, Address.unpack(cursor.getString(7)));
-            message.setRecipients(RecipientType.BCC, Address.unpack(cursor.getString(8)));
-            message.setReplyTo(Address.unpack(cursor.getString(9)));
+            message.setRecipients(RecipientType.TO, Address.legacyUnpack(cursor.getString(6)));
+            message.setRecipients(RecipientType.CC, Address.legacyUnpack(cursor.getString(7)));
+            message.setRecipients(RecipientType.BCC, Address.legacyUnpack(cursor.getString(8)));
+            message.setReplyTo(Address.legacyUnpack(cursor.getString(9)));
             message.mAttachmentCount = cursor.getInt(10);
             message.setInternalDate(new Date(cursor.getLong(11)));
             message.setMessageId(cursor.getString(12));
@@ -1190,17 +1190,18 @@ public class LocalStore extends Store implements PersistentDataCallbacks {
                     ContentValues cv = new ContentValues();
                     cv.put("uid", message.getUid());
                     cv.put("subject", message.getSubject());
-                    cv.put("sender_list", Address.pack(message.getFrom()));
+                    cv.put("sender_list", Address.legacyPack(message.getFrom()));
                     cv.put("date", message.getSentDate() == null
                             ? System.currentTimeMillis() : message.getSentDate().getTime());
                     cv.put("flags", makeFlagsString(message));
                     cv.put("folder_id", mFolderId);
-                    cv.put("to_list", Address.pack(message.getRecipients(RecipientType.TO)));
-                    cv.put("cc_list", Address.pack(message.getRecipients(RecipientType.CC)));
-                    cv.put("bcc_list", Address.pack(message.getRecipients(RecipientType.BCC)));
+                    cv.put("to_list", Address.legacyPack(message.getRecipients(RecipientType.TO)));
+                    cv.put("cc_list", Address.legacyPack(message.getRecipients(RecipientType.CC)));
+                    cv.put("bcc_list", Address.legacyPack(
+                            message.getRecipients(RecipientType.BCC)));
                     cv.put("html_content", sbHtml.length() > 0 ? sbHtml.toString() : null);
                     cv.put("text_content", sbText.length() > 0 ? sbText.toString() : null);
-                    cv.put("reply_to_list", Address.pack(message.getReplyTo()));
+                    cv.put("reply_to_list", Address.legacyPack(message.getReplyTo()));
                     cv.put("attachment_count", attachments.size());
                     cv.put("internal_date",  message.getInternalDate() == null
                             ? System.currentTimeMillis() : message.getInternalDate().getTime());
@@ -1272,21 +1273,21 @@ public class LocalStore extends Store implements PersistentDataCallbacks {
                         new Object[] {
                                 message.getUid(),
                                 message.getSubject(),
-                                Address.pack(message.getFrom()),
+                                Address.legacyPack(message.getFrom()),
                                 message.getSentDate() == null ? System
                                         .currentTimeMillis() : message.getSentDate()
                                         .getTime(),
                                 makeFlagsString(message),
                                 mFolderId,
-                                Address.pack(message
+                                Address.legacyPack(message
                                         .getRecipients(RecipientType.TO)),
-                                Address.pack(message
+                                Address.legacyPack(message
                                         .getRecipients(RecipientType.CC)),
-                                Address.pack(message
+                                Address.legacyPack(message
                                         .getRecipients(RecipientType.BCC)),
                                 sbHtml.length() > 0 ? sbHtml.toString() : null,
                                 sbText.length() > 0 ? sbText.toString() : null,
-                                Address.pack(message.getReplyTo()),
+                                Address.legacyPack(message.getReplyTo()),
                                 attachments.size(),
                                 message.getMessageId(),
                                 makeFlagNumeric(message, Flag.X_STORE_1),

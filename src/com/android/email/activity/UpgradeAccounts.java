@@ -23,13 +23,18 @@ import com.android.email.Preferences;
 import com.android.email.R;
 import com.android.email.activity.setup.AccountSettingsUtils;
 import com.android.email.activity.setup.AccountSettingsUtils.Provider;
+import com.android.email.mail.FetchProfile;
 import com.android.email.mail.Folder;
+import com.android.email.mail.Message;
 import com.android.email.mail.MessagingException;
+import com.android.email.mail.Part;
 import com.android.email.mail.Store;
+import com.android.email.mail.internet.MimeUtility;
 import com.android.email.mail.store.LocalStore;
 import com.android.email.provider.EmailContent;
 import com.android.email.provider.EmailContent.AccountColumns;
 import com.android.email.provider.EmailContent.HostAuth;
+import com.android.email.provider.EmailContent.Mailbox;
 
 import android.app.Activity;
 import android.app.ListActivity;
@@ -49,8 +54,11 @@ import android.widget.ListView;
 import android.widget.ProgressBar;
 import android.widget.TextView;
 
+import java.io.IOException;
 import java.net.URI;
 import java.net.URISyntaxException;
+import java.util.ArrayList;
+import java.util.HashSet;
 
 /**
  * This activity will be used whenever we have a large/slow bulk upgrade operation.
@@ -62,10 +70,11 @@ import java.net.URISyntaxException;
  * This allows it to continue through without restarting.
  * Do not attempt to define orientation-specific resources, they won't be loaded.
  *
- * TODO: More work on actual conversions
- * TODO: Confirm from donut sources the right way to ID the drafts, outbox, sent folders in IMAP
+ * TODO: Finish actual conversions
+ * TODO: POP3 inbox needs to handle local-delete sentinels
+ * TODO: Read pending events and convert them to things like updates or deletes in the DB
  * TODO: Smarter cleanup of SSL/TLS situation, since certificates may be bad (see design spec)
- * TODO: Trigger refresh after upgrade
+ * TODO: Close db (add to LocalStore) since we're getting so many DB warnings here
  */
 public class UpgradeAccounts extends ListActivity implements OnClickListener {
 
@@ -335,20 +344,44 @@ public class UpgradeAccounts extends ListActivity implements OnClickListener {
                 }
             }
 
-            // Step 3:  Copy accounts (and delete old accounts)
+            // Step 3:  Copy accounts (and delete old accounts).  POP accounts first.
             for (int i = 0; i < mAccountInfo.length; i++) {
-                if (mAccountInfo[i].error == null) {
-                    copyAccount(mContext, mAccountInfo[i].account, i, handler);
-                }
-                deleteAccountStore(mContext, mAccountInfo[i].account, handler);
-                mAccountInfo[i].account.delete(mPreferences);
-                
-                // reset the progress indicator to mark account "complete" (in case est was wrong)
-                UpgradeAccounts.this.mHandler.setMaxProgress(i, 100);
-                UpgradeAccounts.this.mHandler.setProgress(i, 100);
+                AccountInfo info = mAccountInfo[i];
+                copyAndDeleteAccount(info, i, handler, Store.STORE_SCHEME_POP3);
+            }
+            // IMAP accounts next.
+            for (int i = 0; i < mAccountInfo.length; i++) {
+                AccountInfo info = mAccountInfo[i];
+                copyAndDeleteAccount(info, i, handler, Store.STORE_SCHEME_IMAP);
             }
 
+            // Step 4:  Enable app-wide features such as composer, and start mail service(s)
+            Email.setServicesEnabled(mContext);
+
             return null;
+        }
+
+        /**
+         * Copy and delete one account (helper for doInBackground).  Can select accounts by type
+         * to force conversion of one or another type only.
+         */
+        private void copyAndDeleteAccount(AccountInfo info, int i, UIHandler handler, String type) {
+            if (type != null) {
+                String storeUri = info.account.getStoreUri();
+                boolean isType = storeUri.startsWith(type);
+                if (!isType) {
+                    return;         // skip this account
+                }
+            }
+            if (info.error == null) {
+                copyAccount(mContext, info.account, i, handler);
+            }
+            deleteAccountStore(mContext, info.account, handler);
+            info.account.delete(mPreferences);
+
+            // reset the progress indicator to mark account "complete" (in case est was wrong)
+            handler.setMaxProgress(i, 100);
+            handler.setProgress(i, 100);
         }
 
         @Override
@@ -377,6 +410,7 @@ public class UpgradeAccounts extends ListActivity implements OnClickListener {
                 Folder folder = folders[i];
                 folder.open(Folder.OpenMode.READ_ONLY, null);
                 estimate += folder.getMessageCount();
+                folder.close(false);
             }
             estimate += ((LocalStore)store).getStoredAttachmentCount();
         
@@ -419,6 +453,7 @@ public class UpgradeAccounts extends ListActivity implements OnClickListener {
                         handler.incProgress(accountNum, 1 + messageCount);
                     }
                 }
+                folder.close(false);
             }
             int pruned = ((LocalStore)store).pruneCachedAttachments();
             if (handler != null) {
@@ -428,7 +463,17 @@ public class UpgradeAccounts extends ListActivity implements OnClickListener {
             Log.d(Email.LOG_TAG, "Exception while cleaning IMAP account " + e);
         }
     }
-    
+
+    private static class FolderConversion {
+        final Folder folder;
+        final EmailContent.Mailbox mailbox;
+
+        public FolderConversion(Folder _folder, EmailContent.Mailbox _mailbox) {
+            folder = _folder;
+            mailbox = _mailbox;
+        }
+    }
+
     /**
      * Copy an account.
      */
@@ -452,9 +497,147 @@ public class UpgradeAccounts extends ListActivity implements OnClickListener {
             handler.incProgress(accountNum);
         }
         
-        // TODO folders
-        // TODO messages
-        // TODO attachments
+        // copy the folders, making a set of them as we go, and recording a few that we
+        // need to process first (highest priority for saving the messages)
+        HashSet<FolderConversion> conversions = new HashSet<FolderConversion>();
+        FolderConversion drafts = null;
+        FolderConversion outbox = null;
+        FolderConversion sent = null;
+        try {
+            Store store = LocalStore.newInstance(account.getLocalStoreUri(), context, null);
+            Folder[] folders = store.getPersonalNamespaces();
+            for (Folder folder : folders) {
+                String folderName = null;
+                try {
+                    folder.open(Folder.OpenMode.READ_ONLY, null);
+                    folderName = folder.getName();
+                    Log.d(Email.LOG_TAG, "Copy " + account.getDescription() + "." + folderName);
+                    EmailContent.Mailbox mailbox =
+                        LegacyConversions.makeMailbox(context, newAccount, folder);
+                    mailbox.save(context);
+                    if (handler != null) {
+                        handler.incProgress(accountNum);
+                    }
+                    folder.close(false);
+                    // Now record the conversion, to come back and do the messages
+                    FolderConversion conversion = new FolderConversion(folder, mailbox);
+                    conversions.add(conversion);
+                    switch (mailbox.mType) {
+                        case Mailbox.TYPE_DRAFTS:
+                            drafts = conversion;
+                            break;
+                        case Mailbox.TYPE_OUTBOX:
+                            outbox = conversion;
+                            break;
+                        case Mailbox.TYPE_SENT:
+                            sent = conversion;
+                            break;
+                    }
+                } catch (MessagingException e) {
+                    // We make a best-effort attempt at each folder, so even if this one fails,
+                    // we'll try to keep going.
+                    Log.d(Email.LOG_TAG, "Exception copying folder " + folderName + ": " + e);
+                    if (handler != null) {
+                        handler.error(context.getString(R.string.upgrade_accounts_error));
+                    }
+                }
+            }
+        } catch (MessagingException e) {
+            Log.d(Email.LOG_TAG, "Exception while copying folders " + e);
+            // Couldn't copy folders at all
+            if (handler != null) {
+                handler.error(context.getString(R.string.upgrade_accounts_error));
+            }
+        }
+
+        // copy the messages, starting with the most critical folders, and then doing the rest
+        // outbox & drafts are the most important, as they don't exist anywhere else
+        if (outbox != null) {
+            copyMessages(context, outbox, true, newAccount.mId, accountNum, handler);
+            conversions.remove(outbox);
+        }
+        if (drafts != null) {
+            copyMessages(context, drafts, true, newAccount.mId, accountNum, handler);
+            conversions.remove(drafts);
+        }
+        if (sent != null) {
+            copyMessages(context, sent, true, newAccount.mId, accountNum, handler);
+            conversions.remove(outbox);
+        }
+        // Now handle any remaining folders
+        for (FolderConversion conversion : conversions) {
+            copyMessages(context, conversion, false, newAccount.mId, accountNum, handler);
+        }
+    }
+
+    /**
+     * Copy all messages in a given folder
+     *
+     * @param context a system context
+     * @param conversion a folder->mailbox conversion record
+     * @param localAttachments true if the attachments refer to local data (to be sent)
+     * @param newAccountId the id of the newly-created account
+     * @param accountNum the UI list # of the account
+     * @param handler the handler for updating the UI
+     */
+    /* package */ static void copyMessages(Context context, FolderConversion conversion,
+            boolean localAttachments, long newAccountId, int accountNum, UIHandler handler) {
+        try {
+            conversion.folder.open(Folder.OpenMode.READ_ONLY, null);
+            Message[] oldMessages = conversion.folder.getMessages(null);
+            for (Message oldMessage : oldMessages) {
+                Exception e = null;
+                try {
+                    // load message data from legacy Store
+                    FetchProfile fp = new FetchProfile();
+                    fp.add(FetchProfile.Item.ENVELOPE);
+                    fp.add(FetchProfile.Item.BODY);
+                    conversion.folder.fetch(new Message[] { oldMessage }, fp, null);
+                    // convert message (headers)
+                    EmailContent.Message newMessage = new EmailContent.Message();
+                    LegacyConversions.updateMessageFields(newMessage, oldMessage, newAccountId,
+                            conversion.mailbox.mId);
+                    // convert body (text)
+                    EmailContent.Body newBody = new EmailContent.Body();
+                    ArrayList<Part> viewables = new ArrayList<Part>();
+                    ArrayList<Part> attachments = new ArrayList<Part>();
+                    MimeUtility.collectParts(oldMessage, viewables, attachments);
+                    LegacyConversions.updateBodyFields(newBody, newMessage, viewables);
+                    // commit changes so far so we have real id's
+                    newMessage.save(context);
+                    newBody.save(context);
+                    // convert attachments
+                    if (localAttachments) {
+                        // These are references to local data, and should create records only
+                        // (e.g. the content URI).  No files should be created.
+                        LegacyConversions.updateAttachments(context, newMessage, attachments, true);
+                    } else {
+                        // TODO handle downloaded attachments
+                    }
+                    // done
+                    if (handler != null) {
+                        handler.incProgress(accountNum);
+                    }
+                } catch (MessagingException me) {
+                    e = me;
+                } catch (IOException ioe) {
+                    e = ioe;
+                }
+                if (e != null) {
+                    Log.d(Email.LOG_TAG, "Exception copying message " + oldMessage.getSubject()
+                            + ": "+ e);
+                    if (handler != null) {
+                        handler.error(context.getString(R.string.upgrade_accounts_error));
+                    }
+                }
+            }
+        } catch (MessagingException e) {
+            // Couldn't copy messages at all
+            Log.d(Email.LOG_TAG, "Exception while copying messages " + e);
+            if (handler != null) {
+                handler.error(context.getString(R.string.upgrade_accounts_error));
+            }
+        }
     }
 
     /**

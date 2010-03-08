@@ -17,7 +17,9 @@
 package com.android.email;
 
 import com.android.email.mail.Address;
+import com.android.email.mail.Body;
 import com.android.email.mail.Flag;
+import com.android.email.mail.Folder;
 import com.android.email.mail.Message;
 import com.android.email.mail.MessagingException;
 import com.android.email.mail.Part;
@@ -28,10 +30,12 @@ import com.android.email.mail.internet.MimeMessage;
 import com.android.email.mail.internet.MimeMultipart;
 import com.android.email.mail.internet.MimeUtility;
 import com.android.email.mail.internet.TextBody;
+import com.android.email.mail.store.LocalStore;
 import com.android.email.provider.AttachmentProvider;
 import com.android.email.provider.EmailContent;
 import com.android.email.provider.EmailContent.Attachment;
 import com.android.email.provider.EmailContent.AttachmentColumns;
+import com.android.email.provider.EmailContent.Mailbox;
 
 import org.apache.commons.io.IOUtils;
 
@@ -40,6 +44,7 @@ import android.content.ContentValues;
 import android.content.Context;
 import android.database.Cursor;
 import android.net.Uri;
+import android.provider.OpenableColumns;
 import android.util.Log;
 
 import java.io.File;
@@ -48,11 +53,16 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.util.ArrayList;
 import java.util.Date;
+import java.util.HashMap;
 
 public class LegacyConversions {
 
     /** DO NOT CHECK IN "TRUE" */
     private static final boolean DEBUG_ATTACHMENTS = false;
+
+    /** Used for mapping folder names to type codes (e.g. inbox, drafts, trash) */
+    private static final HashMap<String, Integer>
+            sServerMailboxNames = new HashMap<String, Integer>();
 
     /**
      * Values for HEADER_ANDROID_BODY_QUOTED_PART to tag body parts
@@ -60,6 +70,15 @@ public class LegacyConversions {
     /* package */ static final String BODY_QUOTED_PART_REPLY = "quoted-reply";
     /* package */ static final String BODY_QUOTED_PART_FORWARD = "quoted-forward";
     /* package */ static final String BODY_QUOTED_PART_INTRO = "quoted-intro";
+
+    /**
+     * Standard columns for querying content providers
+     */
+    private static final String[] ATTACHMENT_META_COLUMNS_PROJECTION = {
+        OpenableColumns.DISPLAY_NAME,
+        OpenableColumns.SIZE
+    };
+    private static final int ATTACHMENT_META_COLUMNS_SIZE = 1;
 
     /**
      * Copy field-by-field from a "store" message to a "provider" message
@@ -246,13 +265,14 @@ public class LegacyConversions {
      * @param context a context for file operations
      * @param localMessage the attachments will be built against this message
      * @param attachments the attachments to add
+     * @param upgrading if true, we are upgrading a local account - handle attachments differently
      * @throws IOException
      */
     public static void updateAttachments(Context context, EmailContent.Message localMessage,
-            ArrayList<Part> attachments) throws MessagingException, IOException {
+            ArrayList<Part> attachments, boolean upgrading) throws MessagingException, IOException {
         localMessage.mAttachments = null;
         for (Part attachmentPart : attachments) {
-            addOneAttachment(context, localMessage, attachmentPart);
+            addOneAttachment(context, localMessage, attachmentPart, upgrading);
         }
     }
 
@@ -272,10 +292,11 @@ public class LegacyConversions {
      * @param context a context for file operations
      * @param localMessage the attachments will be built against this message
      * @param part a single attachment part from POP or IMAP
+     * @param upgrading true if upgrading a local account - handle attachments differently
      * @throws IOException
      */
     private static void addOneAttachment(Context context, EmailContent.Message localMessage,
-            Part part) throws MessagingException, IOException {
+            Part part, boolean upgrading) throws MessagingException, IOException {
 
         Attachment localAttachment = new Attachment();
 
@@ -287,13 +308,53 @@ public class LegacyConversions {
             name = MimeUtility.getHeaderParameter(contentDisposition, "filename");
         }
 
-        // Try to pull size from disposition (if not downloaded)
+        // Select the URI for the new attachments.  For attachments downloaded by the legacy
+        // IMAP/POP code, this is not determined yet, so is null (it will be rewritten below,
+        // or later, when the actual attachment file is created.)
+        //
+        // When upgrading older local accounts, the URI represents a local asset (e.g. a photo)
+        // so we need to preserve the URI.
+        // TODO This works for outgoing messages, where the URI does not change.  May need
+        // additional logic to handle the case of rewriting URI for received attachments.
+        Uri contentUri = null;
+        String contentUriString = null;
+        if (upgrading) {
+            Body body = part.getBody();
+            if (body instanceof LocalStore.LocalAttachmentBody) {
+                LocalStore.LocalAttachmentBody localBody = (LocalStore.LocalAttachmentBody) body;
+                contentUri = localBody.getContentUri();
+                if (contentUri != null) {
+                    contentUriString = contentUri.toString();
+                }
+            }
+        }
+
+        // Find size, if available, via a number of techniques:
         long size = 0;
-        String disposition = part.getDisposition();
-        if (disposition != null) {
-            String s = MimeUtility.getHeaderParameter(disposition, "size");
-            if (s != null) {
-                size = Long.parseLong(s);
+        if (upgrading) {
+            // If upgrading a legacy account, the size must be recaptured from the data source
+            if (contentUri != null) {
+                Cursor metadataCursor = context.getContentResolver().query(contentUri,
+                        ATTACHMENT_META_COLUMNS_PROJECTION, null, null, null);
+                if (metadataCursor != null) {
+                    try {
+                        if (metadataCursor.moveToFirst()) {
+                            size = metadataCursor.getInt(ATTACHMENT_META_COLUMNS_SIZE);
+                        }
+                    } finally {
+                        metadataCursor.close();
+                    }
+                }
+            }
+            // TODO: a downloaded legacy attachment - see if the above code works
+        } else {
+            // Incoming attachment: Try to pull size from disposition (if not downloaded yet)
+            String disposition = part.getDisposition();
+            if (disposition != null) {
+                String s = MimeUtility.getHeaderParameter(disposition, "size");
+                if (s != null) {
+                    size = Long.parseLong(s);
+                }
             }
         }
 
@@ -306,7 +367,7 @@ public class LegacyConversions {
         localAttachment.mMimeType = part.getMimeType();
         localAttachment.mSize = size;           // May be reset below if file handled
         localAttachment.mContentId = part.getContentId();
-        localAttachment.mContentUri = null;     // Will be set when file is saved
+        localAttachment.mContentUri = contentUriString;
         localAttachment.mMessageKey = localMessage.mId;
         localAttachment.mLocation = partId;
         localAttachment.mEncoding = "B";        // TODO - convert other known encodings
@@ -351,7 +412,9 @@ public class LegacyConversions {
         }
 
         // If an attachment body was actually provided, we need to write the file now
-        saveAttachmentBody(context, part, localAttachment, localMessage.mAccountKey);
+        if (!upgrading) {
+            saveAttachmentBody(context, part, localAttachment, localMessage.mAccountKey);
+        }
 
         if (localMessage.mAttachments == null) {
             localMessage.mAttachments = new ArrayList<Attachment>();
@@ -609,5 +672,74 @@ public class LegacyConversions {
         result.setSenderUri(context, fromAccount.getSenderUri());
 
         return result;
+    }
+
+    /**
+     * Conversion from legacy folder to provider mailbox.  Used for account migration.
+     * Note: Many mailbox fields are unused in IMAP & POP accounts.
+     *
+     * @param context application context
+     * @param toAccount the provider account that this folder will be associated with
+     * @param fromFolder the legacy folder to convert to modern format
+     * @return an Account ready to be committed to provider
+     */
+    public static EmailContent.Mailbox makeMailbox(Context context, EmailContent.Account toAccount,
+            Folder fromFolder) throws MessagingException {
+        EmailContent.Mailbox result = new EmailContent.Mailbox();
+
+        result.mDisplayName = fromFolder.getName();
+        // result.mServerId
+        // result.mParentServerId
+        result.mAccountKey = toAccount.mId;
+        result.mType = inferMailboxTypeFromName(context, fromFolder.getName());
+        // result.mDelimiter
+        // result.mSyncKey
+        // result.mSyncLookback
+        // result.mSyncInterval
+        result.mSyncTime = 0;
+        result.mUnreadCount = fromFolder.getUnreadMessageCount();
+        result.mFlagVisible = true;
+        result.mFlags = 0;
+        result.mVisibleLimit = Email.VISIBLE_LIMIT_DEFAULT;
+        // result.mSyncStatus
+
+        return result;
+    }
+
+    /**
+     * Infer mailbox type from mailbox name.  Used by MessagingController (for live folder sync)
+     * and for legacy account upgrades.
+     */
+    public static synchronized int inferMailboxTypeFromName(Context context, String mailboxName) {
+        if (sServerMailboxNames.size() == 0) {
+            // preload the hashmap, one time only
+            sServerMailboxNames.put(
+                    context.getString(R.string.mailbox_name_server_inbox).toLowerCase(),
+                    Mailbox.TYPE_INBOX);
+            sServerMailboxNames.put(
+                    context.getString(R.string.mailbox_name_server_outbox).toLowerCase(),
+                    Mailbox.TYPE_OUTBOX);
+            sServerMailboxNames.put(
+                    context.getString(R.string.mailbox_name_server_drafts).toLowerCase(),
+                    Mailbox.TYPE_DRAFTS);
+            sServerMailboxNames.put(
+                    context.getString(R.string.mailbox_name_server_trash).toLowerCase(),
+                    Mailbox.TYPE_TRASH);
+            sServerMailboxNames.put(
+                    context.getString(R.string.mailbox_name_server_sent).toLowerCase(),
+                    Mailbox.TYPE_SENT);
+            sServerMailboxNames.put(
+                    context.getString(R.string.mailbox_name_server_junk).toLowerCase(),
+                    Mailbox.TYPE_JUNK);
+        }
+        if (mailboxName == null || mailboxName.length() == 0) {
+            return EmailContent.Mailbox.TYPE_MAIL;
+        }
+        String lowerCaseName = mailboxName.toLowerCase();
+        Integer type = sServerMailboxNames.get(lowerCaseName);
+        if (type != null) {
+            return type;
+        }
+        return EmailContent.Mailbox.TYPE_MAIL;
     }
 }

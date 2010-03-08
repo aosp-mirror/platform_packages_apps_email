@@ -56,7 +56,7 @@ import java.util.HashSet;
 @MediumTest
 public class LocalStoreUnitTests extends AndroidTestCase {
     
-    private static final String dbName = "com.android.email.mail.store.LocalStoreUnitTests.db";
+    public static final String DB_NAME = "com.android.email.mail.store.LocalStoreUnitTests.db";
 
     private static final String SENDER = "sender@android.com";
     private static final String RECIPIENT_TO = "recipient-to@android.com";
@@ -85,7 +85,7 @@ public class LocalStoreUnitTests extends AndroidTestCase {
         
         // These are needed so we can get at the inner classes
         // Create a dummy database (be sure to delete it in tearDown())
-        mLocalStoreUri = "local://localhost/" + getContext().getDatabasePath(dbName);
+        mLocalStoreUri = "local://localhost/" + getContext().getDatabasePath(DB_NAME);
         
         mStore = (LocalStore) LocalStore.newInstance(mLocalStoreUri, getContext(), null);
         mFolder = (LocalStore.LocalFolder) mStore.getFolder(FOLDER_NAME);
