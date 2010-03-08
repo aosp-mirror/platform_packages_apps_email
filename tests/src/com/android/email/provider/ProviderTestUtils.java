@@ -68,9 +68,17 @@ public class ProviderTestUtils extends Assert {
      */
     public static HostAuth setupHostAuth(String name, long accountId, boolean saveIt,
             Context context) {
+        return setupHostAuth("protocol", name, accountId, saveIt, context);
+    }
+
+    /**
+     * Create a hostauth record for test purposes
+     */
+    public static HostAuth setupHostAuth(String protocol, String name, long accountId,
+            boolean saveIt, Context context) {
         HostAuth hostAuth = new HostAuth();
 
-        hostAuth.mProtocol = "protocol-" + name;
+        hostAuth.mProtocol = protocol + "-" + name;
         hostAuth.mAddress = "address-" + name;
         hostAuth.mPort = 100;
         hostAuth.mFlags = 200;
