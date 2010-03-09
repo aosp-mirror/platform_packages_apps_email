@@ -104,7 +104,7 @@ public class CalendarSyncAdapter extends AbstractSyncAdapter {
     private long mCalendarId = -1;
 
     private ArrayList<Long> mDeletedIdList = new ArrayList<Long>();
-    private ArrayList<Long> mUpdatedIdList = new ArrayList<Long>();
+    private ArrayList<Long> mUploadedIdList = new ArrayList<Long>();
     private ArrayList<Long> mSendCancelIdList = new ArrayList<Long>();
 
     private String[] mCalendarIdArgument;
@@ -836,18 +836,24 @@ public class CalendarSyncAdapter extends AbstractSyncAdapter {
             mOps.execute();
 
             if (mOps.mResults != null) {
-                // Clear dirty flags for Events sent to server
-                ContentValues cv = new ContentValues();
-                cv.put(Events._SYNC_DIRTY, 0);
-                mContentResolver.update(sEventsUri, cv, DIRTY_IN_CALENDAR,
-                        new String[] {Long.toString(mCalendarId)});
-                // Send meeting cancelation notices
-                // Really delete the events...
-                for (long eventId: mDeletedIdList) {
-                    mContentResolver.delete(ContentUris.withAppendedId(sEventsUri, eventId),
-                            null, null);
+                // Clear dirty flags for updates sent to server
+                if (!mUploadedIdList.isEmpty())  {
+                    ContentValues cv = new ContentValues();
+                    cv.put(Events._SYNC_DIRTY, 0);
+                    for (long eventId: mUploadedIdList) {
+                        mContentResolver.update(ContentUris.withAppendedId(sEventsUri, eventId), cv,
+                                null, null);
+                    }
+                    mUploadedIdList.clear();
                 }
-                mDeletedIdList.clear();
+                // Delete events marked for deletion
+                if (!mDeletedIdList.isEmpty()) {
+                    for (long eventId: mDeletedIdList) {
+                        mContentResolver.delete(ContentUris.withAppendedId(sEventsUri, eventId),
+                                null, null);
+                    }
+                    mDeletedIdList.clear();
+                }
             }
         }
 
@@ -1364,7 +1370,7 @@ public class CalendarSyncAdapter extends AbstractSyncAdapter {
                     }
 
                     s.end().end(); // ApplicationData & Change
-                    mUpdatedIdList.add(entityValues.getAsLong(Events._ID));
+                    mUploadedIdList.add(eventId);
 
                     // Send the meeting invite if there are attendees and we're the organizer
                     boolean selfOrganizer = organizerEmail.equalsIgnoreCase(mAccount.mEmailAddress);
