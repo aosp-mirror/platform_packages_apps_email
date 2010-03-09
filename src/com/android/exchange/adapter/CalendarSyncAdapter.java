@@ -1220,6 +1220,12 @@ public class CalendarSyncAdapter extends AbstractSyncAdapter {
             } else {
                 // Illegal; what should we do?
             }
+
+            // Send exception deleted flag if necessary
+            Integer eventStatus = entityValues.getAsInteger(Events.STATUS);
+            if (eventStatus != null && eventStatus.equals(Events.STATUS_CANCELED)) {
+                s.data(Tags.CALENDAR_EXCEPTION_IS_DELETED, "1");
+            }
         }
 
         return hasAttendees;
