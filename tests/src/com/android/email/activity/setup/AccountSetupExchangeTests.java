@@ -142,8 +142,8 @@ public class AccountSetupExchangeTests extends
         // "trust certificates" checkbox (not checked, but visible now).
         Account account =
             ProviderTestUtils.setupAccount("account", false, mActivity.getBaseContext());
-        account.mHostAuthRecv =
-            ProviderTestUtils.setupHostAuth("hostauth", 1, false, mActivity.getBaseContext());
+        account.mHostAuthRecv = ProviderTestUtils.setupHostAuth(
+                "eas", "hostauth", 1, false, mActivity.getBaseContext());
         account.mHostAuthRecv.mFlags |= HostAuth.FLAG_SSL;
         account.mHostAuthRecv.mFlags &= ~HostAuth.FLAG_TRUST_ALL_CERTIFICATES;
         mActivity.loadFields(account);
