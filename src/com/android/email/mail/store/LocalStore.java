@@ -97,8 +97,8 @@ public class LocalStore extends Store implements PersistentDataCallbacks {
     /**
      * Static named constructor.
      */
-    public static Store newInstance(String uri, Context context, PersistentDataCallbacks callbacks)
-            throws MessagingException {
+    public static LocalStore newInstance(String uri, Context context,
+            PersistentDataCallbacks callbacks) throws MessagingException {
         return new LocalStore(uri, context);
     }
 
@@ -333,6 +333,20 @@ public class LocalStore extends Store implements PersistentDataCallbacks {
 
     @Override
     public void checkSettings() throws MessagingException {
+    }
+
+    /**
+     * Local store only:  Allow it to be closed.  This is necessary for the account upgrade process
+     * because we open and close each database a few times as we proceed.
+     */
+    public void close() {
+        try {
+            mDb.close();
+            mDb = null;
+        } catch (Exception e) {
+            // Log and discard.  This is best-effort, and database finalizers will try again.
+            Log.d(Email.LOG_TAG, "Caught exception while closing localstore db: " + e);
+        }
     }
 
     /**

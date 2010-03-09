@@ -24,6 +24,7 @@ import com.android.email.R;
 import com.android.email.activity.setup.AccountSettingsUtils;
 import com.android.email.activity.setup.AccountSettingsUtils.Provider;
 import com.android.email.mail.FetchProfile;
+import com.android.email.mail.Flag;
 import com.android.email.mail.Folder;
 import com.android.email.mail.Message;
 import com.android.email.mail.MessagingException;
@@ -70,11 +71,8 @@ import java.util.HashSet;
  * This allows it to continue through without restarting.
  * Do not attempt to define orientation-specific resources, they won't be loaded.
  *
- * TODO: Finish actual conversions
- * TODO: POP3 inbox needs to handle local-delete sentinels
  * TODO: Read pending events and convert them to things like updates or deletes in the DB
  * TODO: Smarter cleanup of SSL/TLS situation, since certificates may be bad (see design spec)
- * TODO: Close db (add to LocalStore) since we're getting so many DB warnings here
  */
 public class UpgradeAccounts extends ListActivity implements OnClickListener {
 
@@ -84,6 +82,10 @@ public class UpgradeAccounts extends ListActivity implements OnClickListener {
     private ListView mListView;
     private Button mProceedButton;
     private ConversionTask mConversionTask;
+
+    // These are used to hold off restart of this activity while worker is still busy
+    private static final Object sConversionInProgress = new Object();
+    private static boolean sConversionHasRun = false;
     
     /** This projection is for looking up accounts by their legacy UUID */
     private static final String WHERE_ACCOUNT_UUID_IS = AccountColumns.COMPATIBILITY_UUID + "=?";
@@ -98,7 +100,12 @@ public class UpgradeAccounts extends ListActivity implements OnClickListener {
         super.onCreate(icicle);
 
         Preferences p = Preferences.getPreferences(this);
-        loadAccountInfoArray(p.getAccounts());
+        Account[] legacyAccounts = p.getAccounts();
+        if (legacyAccounts.length == 0) {
+            finish();
+            return;
+        }
+        loadAccountInfoArray(legacyAccounts);
 
         Log.d(Email.LOG_TAG, "*** Preparing to upgrade " +
                 Integer.toString(mLegacyAccounts.length) + " accounts");
@@ -126,8 +133,18 @@ public class UpgradeAccounts extends ListActivity implements OnClickListener {
 
         if (mConversionTask != null &&
                 mConversionTask.getStatus() != ConversionTask.Status.FINISHED) {
-            mConversionTask.cancel(true);
+            mConversionTask.cancel(false);
             mConversionTask = null;
+        }
+    }
+
+    /**
+     * Stopgap measure to prevent monkey or zealous user from exiting while we're still at work.
+     */
+    @Override
+    public void onBackPressed() {
+        if (!mProceedButton.isEnabled()) {
+            finish();
         }
     }
 
@@ -330,33 +347,44 @@ public class UpgradeAccounts extends ListActivity implements OnClickListener {
 
         @Override
         protected Void doInBackground(Void... params) {
-            UIHandler handler = UpgradeAccounts.this.mHandler;
-            // Step 1:  Analyze accounts and generate progress max values
-            for (int i = 0; i < mAccountInfo.length; i++) {
-                int estimate = UpgradeAccounts.estimateWork(mContext, mAccountInfo[i].account);
-                UpgradeAccounts.this.mHandler.setMaxProgress(i, estimate);
-            }
-            
-            // Step 2:  Scrub accounts, deleting anything we're not keeping to reclaim disk space
-            for (int i = 0; i < mAccountInfo.length; i++) {
-                if (mAccountInfo[i].error == null) {
-                    scrubAccount(mContext, mAccountInfo[i].account, i, handler);
+            // Globally synchronize this entire block to prevent it from running in multiple
+            // threads.  this is used in case we wind up relaunching during a conversion.
+            // If this is anything but the first thread, sConversionHasRun will be set and we'll
+            // exit immediately when it's all over.
+            synchronized (sConversionInProgress) {
+                if (sConversionHasRun) {
+                    return null;
                 }
-            }
+                sConversionHasRun = true;
 
-            // Step 3:  Copy accounts (and delete old accounts).  POP accounts first.
-            for (int i = 0; i < mAccountInfo.length; i++) {
-                AccountInfo info = mAccountInfo[i];
-                copyAndDeleteAccount(info, i, handler, Store.STORE_SCHEME_POP3);
-            }
-            // IMAP accounts next.
-            for (int i = 0; i < mAccountInfo.length; i++) {
-                AccountInfo info = mAccountInfo[i];
-                copyAndDeleteAccount(info, i, handler, Store.STORE_SCHEME_IMAP);
-            }
+                UIHandler handler = UpgradeAccounts.this.mHandler;
+                // Step 1:  Analyze accounts and generate progress max values
+                for (int i = 0; i < mAccountInfo.length; i++) {
+                    int estimate = UpgradeAccounts.estimateWork(mContext, mAccountInfo[i].account);
+                    UpgradeAccounts.this.mHandler.setMaxProgress(i, estimate);
+                }
 
-            // Step 4:  Enable app-wide features such as composer, and start mail service(s)
-            Email.setServicesEnabled(mContext);
+                // Step 2:  Scrub accounts, deleting anything we're not keeping to reclaim storage
+                for (int i = 0; i < mAccountInfo.length; i++) {
+                    if (mAccountInfo[i].error == null) {
+                        scrubAccount(mContext, mAccountInfo[i].account, i, handler);
+                    }
+                }
+
+                // Step 3:  Copy accounts (and delete old accounts).  POP accounts first.
+                for (int i = 0; i < mAccountInfo.length; i++) {
+                    AccountInfo info = mAccountInfo[i];
+                    copyAndDeleteAccount(info, i, handler, Store.STORE_SCHEME_POP3);
+                }
+                // IMAP accounts next.
+                for (int i = 0; i < mAccountInfo.length; i++) {
+                    AccountInfo info = mAccountInfo[i];
+                    copyAndDeleteAccount(info, i, handler, Store.STORE_SCHEME_IMAP);
+                }
+
+                // Step 4:  Enable app-wide features such as composer, and start mail service(s)
+                Email.setServicesEnabled(mContext);
+            }
 
             return null;
         }
@@ -379,9 +407,8 @@ public class UpgradeAccounts extends ListActivity implements OnClickListener {
             deleteAccountStore(mContext, info.account, handler);
             info.account.delete(mPreferences);
 
-            // reset the progress indicator to mark account "complete" (in case est was wrong)
-            handler.setMaxProgress(i, 100);
-            handler.setProgress(i, 100);
+            // jam the progress indicator to mark account "complete" (in case est was wrong)
+            handler.setProgress(i, Integer.MAX_VALUE);
         }
 
         @Override
@@ -403,7 +430,7 @@ public class UpgradeAccounts extends ListActivity implements OnClickListener {
     /* package */ static int estimateWork(Context context, Account account) {
         int estimate = 1;         // account
         try {
-            Store store = LocalStore.newInstance(account.getLocalStoreUri(), context, null);
+            LocalStore store = LocalStore.newInstance(account.getLocalStoreUri(), context, null);
             Folder[] folders = store.getPersonalNamespaces();
             estimate += folders.length;
             for (int i = 0; i < folders.length; i++) {
@@ -412,8 +439,8 @@ public class UpgradeAccounts extends ListActivity implements OnClickListener {
                 estimate += folder.getMessageCount();
                 folder.close(false);
             }
-            estimate += ((LocalStore)store).getStoredAttachmentCount();
-        
+            estimate += store.getStoredAttachmentCount();
+            store.close();
         } catch (MessagingException e) {
             Log.d(Email.LOG_TAG, "Exception while estimating account size " + e);
         }
@@ -433,7 +460,7 @@ public class UpgradeAccounts extends ListActivity implements OnClickListener {
         boolean isImap = storeUri.startsWith(Store.STORE_SCHEME_IMAP);
 
         try {
-            Store store = LocalStore.newInstance(account.getLocalStoreUri(), context, null);
+            LocalStore store = LocalStore.newInstance(account.getLocalStoreUri(), context, null);
             Folder[] folders = store.getPersonalNamespaces();
             for (Folder folder : folders) {
                 folder.open(Folder.OpenMode.READ_ONLY, null);
@@ -455,10 +482,11 @@ public class UpgradeAccounts extends ListActivity implements OnClickListener {
                 }
                 folder.close(false);
             }
-            int pruned = ((LocalStore)store).pruneCachedAttachments();
+            int pruned = store.pruneCachedAttachments();
             if (handler != null) {
                 handler.incProgress(accountNum, pruned);
             }
+            store.close();
         } catch (MessagingException e) {
             Log.d(Email.LOG_TAG, "Exception while cleaning IMAP account " + e);
         }
@@ -503,8 +531,9 @@ public class UpgradeAccounts extends ListActivity implements OnClickListener {
         FolderConversion drafts = null;
         FolderConversion outbox = null;
         FolderConversion sent = null;
+        LocalStore store = null;
         try {
-            Store store = LocalStore.newInstance(account.getLocalStoreUri(), context, null);
+            store = LocalStore.newInstance(account.getLocalStoreUri(), context, null);
             Folder[] folders = store.getPersonalNamespaces();
             for (Folder folder : folders) {
                 String folderName = null;
@@ -542,31 +571,37 @@ public class UpgradeAccounts extends ListActivity implements OnClickListener {
                     }
                 }
             }
+
+            // copy the messages, starting with the most critical folders, and then doing the rest
+            // outbox & drafts are the most important, as they don't exist anywhere else.  we also
+            // process local (outgoing) attachments here
+            if (outbox != null) {
+                copyMessages(context, outbox, true, newAccount, accountNum, handler);
+                conversions.remove(outbox);
+            }
+            if (drafts != null) {
+                copyMessages(context, drafts, true, newAccount, accountNum, handler);
+                conversions.remove(drafts);
+            }
+            if (sent != null) {
+                copyMessages(context, sent, true, newAccount, accountNum, handler);
+                conversions.remove(outbox);
+            }
+            // Now handle any remaining folders.  For incoming folders we skip attachments, as they
+            // can be reloaded from the server.
+            for (FolderConversion conversion : conversions) {
+                copyMessages(context, conversion, false, newAccount, accountNum, handler);
+            }
         } catch (MessagingException e) {
             Log.d(Email.LOG_TAG, "Exception while copying folders " + e);
             // Couldn't copy folders at all
             if (handler != null) {
                 handler.error(context.getString(R.string.upgrade_accounts_error));
             }
-        }
-
-        // copy the messages, starting with the most critical folders, and then doing the rest
-        // outbox & drafts are the most important, as they don't exist anywhere else
-        if (outbox != null) {
-            copyMessages(context, outbox, true, newAccount.mId, accountNum, handler);
-            conversions.remove(outbox);
-        }
-        if (drafts != null) {
-            copyMessages(context, drafts, true, newAccount.mId, accountNum, handler);
-            conversions.remove(drafts);
-        }
-        if (sent != null) {
-            copyMessages(context, sent, true, newAccount.mId, accountNum, handler);
-            conversions.remove(outbox);
-        }
-        // Now handle any remaining folders
-        for (FolderConversion conversion : conversions) {
-            copyMessages(context, conversion, false, newAccount.mId, accountNum, handler);
+        } finally {
+            if (store != null) {
+                store.close();
+            }
         }
     }
 
@@ -581,8 +616,11 @@ public class UpgradeAccounts extends ListActivity implements OnClickListener {
      * @param handler the handler for updating the UI
      */
     /* package */ static void copyMessages(Context context, FolderConversion conversion,
-            boolean localAttachments, long newAccountId, int accountNum, UIHandler handler) {
+            boolean localAttachments, EmailContent.Account newAccount, int accountNum,
+            UIHandler handler) {
         try {
+            boolean makeDeleteSentinels = (conversion.mailbox.mType == Mailbox.TYPE_INBOX) &&
+                    (newAccount.getDeletePolicy() == EmailContent.Account.DELETE_POLICY_NEVER);
             conversion.folder.open(Folder.OpenMode.READ_ONLY, null);
             Message[] oldMessages = conversion.folder.getMessages(null);
             for (Message oldMessage : oldMessages) {
@@ -593,26 +631,38 @@ public class UpgradeAccounts extends ListActivity implements OnClickListener {
                     fp.add(FetchProfile.Item.ENVELOPE);
                     fp.add(FetchProfile.Item.BODY);
                     conversion.folder.fetch(new Message[] { oldMessage }, fp, null);
-                    // convert message (headers)
                     EmailContent.Message newMessage = new EmailContent.Message();
-                    LegacyConversions.updateMessageFields(newMessage, oldMessage, newAccountId,
-                            conversion.mailbox.mId);
-                    // convert body (text)
-                    EmailContent.Body newBody = new EmailContent.Body();
-                    ArrayList<Part> viewables = new ArrayList<Part>();
-                    ArrayList<Part> attachments = new ArrayList<Part>();
-                    MimeUtility.collectParts(oldMessage, viewables, attachments);
-                    LegacyConversions.updateBodyFields(newBody, newMessage, viewables);
-                    // commit changes so far so we have real id's
-                    newMessage.save(context);
-                    newBody.save(context);
-                    // convert attachments
-                    if (localAttachments) {
-                        // These are references to local data, and should create records only
-                        // (e.g. the content URI).  No files should be created.
-                        LegacyConversions.updateAttachments(context, newMessage, attachments, true);
+                    if (makeDeleteSentinels && oldMessage.isSet(Flag.DELETED)) {
+                        // Special case for POP3 locally-deleted messages.
+                        // Creates a local "deleted message sentinel" which hides the message
+                        // Echos provider code in MessagingController.processPendingMoveToTrash()
+                        newMessage.mAccountKey = newAccount.mId;
+                        newMessage.mMailboxKey = conversion.mailbox.mId;
+                        newMessage.mFlagLoaded = EmailContent.Message.FLAG_LOADED_DELETED;
+                        newMessage.mFlagRead = true;
+                        newMessage.mServerId = oldMessage.getUid();
+                        newMessage.save(context);
                     } else {
-                        // TODO handle downloaded attachments
+                        // Main case for converting real messages with bodies & attachments
+                        // convert message (headers)
+                        LegacyConversions.updateMessageFields(newMessage, oldMessage,
+                                newAccount.mId, conversion.mailbox.mId);
+                        // convert body (text)
+                        EmailContent.Body newBody = new EmailContent.Body();
+                        ArrayList<Part> viewables = new ArrayList<Part>();
+                        ArrayList<Part> attachments = new ArrayList<Part>();
+                        MimeUtility.collectParts(oldMessage, viewables, attachments);
+                        LegacyConversions.updateBodyFields(newBody, newMessage, viewables);
+                        // commit changes so far so we have real id's
+                        newMessage.save(context);
+                        newBody.save(context);
+                        // convert attachments
+                        if (localAttachments) {
+                            // These are references to local data, and should create records only
+                            // (e.g. the content URI).  No files should be created.
+                            LegacyConversions.updateAttachments(context, newMessage, attachments,
+                                    true);
+                        }
                     }
                     // done
                     if (handler != null) {
@@ -632,8 +682,9 @@ public class UpgradeAccounts extends ListActivity implements OnClickListener {
                 }
             }
         } catch (MessagingException e) {
-            // Couldn't copy messages at all
-            Log.d(Email.LOG_TAG, "Exception while copying messages " + e);
+            // Couldn't copy folder at all
+            Log.d(Email.LOG_TAG, "Exception while copying messages in " +
+                    conversion.folder.toString() + ": " + e);
             if (handler != null) {
                 handler.error(context.getString(R.string.upgrade_accounts_error));
             }
@@ -648,6 +699,7 @@ public class UpgradeAccounts extends ListActivity implements OnClickListener {
         try {
             Store store = LocalStore.newInstance(account.getLocalStoreUri(), context, null);
             store.delete();
+            // delete() closes the store
         } catch (MessagingException e) {
             Log.d(Email.LOG_TAG, "Exception while deleting account " + e);
             if (handler != null) {
