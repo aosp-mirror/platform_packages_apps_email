@@ -66,14 +66,11 @@ public class SyncAdapterTestCase extends ProviderTestCase2<EmailProvider> {
 
     EasSyncService getTestService() {
         Account account = new Account();
+        account.mEmailAddress = "__test__@android.com";
         account.mId = -1;
         Mailbox mailbox = new Mailbox();
         mailbox.mId = -1;
-        EasSyncService service = new EasSyncService();
-        service.mContext = mMockContext;
-        service.mMailbox = mailbox;
-        service.mAccount = account;
-        return service;
+        return getTestService(account, mailbox);
     }
 
     EasSyncService getTestService(Account account, Mailbox mailbox) {
