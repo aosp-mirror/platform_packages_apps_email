@@ -638,6 +638,26 @@
          and the title of the meeting (i.e. the title of the meeting becomes part of the subject of
          the message that's sent) -->
     <string name="meeting_canceled">Canceled: <xliff:g id="subject">%s</xliff:g></string>
+    <!-- Message subject for an updated meeting email.  This is followed by a colon
+         and the title of the meeting (i.e. the title of the meeting becomes part of the subject of
+         the message that's sent) -->
+    <string name="meeting_updated">Updated: <xliff:g id="subject">%s</xliff:g></string>
+
+    <!-- Indicate when a meeting takes place.  This is presented in in bullet form, as
+         in, "When: xxx" followed by "Where: xxx" -->
+    <string name="meeting_when">When: </string>
+    <!--  Indicate where a meeting takes place.  This is presented in in bullet form, as
+         in, "When: xxx" followed by "Where: xxx" -->
+    <string name="meeting_where">Where: </string>
+
+    <!-- Used as the body text of a message reporting to an attendee that a specific instance
+         of a recurring meeting has been canceled -->
+    <string name="exception_cancel">This event has been canceled
+         for: <xliff:g id="date">%s</xliff:g></string>
+    <!-- Used as the body text of a message reporting to an attendee that a specific instance
+         of a recurring meeting has been changed -->
+    <string name="exception_updated">The details of this event have been changed
+         for: <xliff:g id="date">%s</xliff:g></string>
 
 	<!-- Message that appears if the AccountManager cannot create the system Account -->
 	<string name="system_account_create_failed">The AccountManager could not create the Account; please try again.</string>
