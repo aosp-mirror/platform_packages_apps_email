@@ -131,10 +131,9 @@ public class MimeHeader {
         writer.flush();
     }
 
-    class Field {
-        String name;
-
-        String value;
+    private static class Field {
+        final String name;
+        final String value;
 
         public Field(String name, String value) {
             this.name = name;

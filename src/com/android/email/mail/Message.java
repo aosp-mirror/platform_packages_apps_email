@@ -26,7 +26,7 @@ public abstract class Message implements Part, Body {
 
     protected String mUid;
 
-    protected HashSet<Flag> mFlags = new HashSet<Flag>();
+    private HashSet<Flag> mFlags = null;
 
     protected Date mInternalDate;
 
@@ -93,24 +93,35 @@ public abstract class Message implements Part, Body {
 
     public abstract void removeHeader(String name) throws MessagingException;
 
+    // Always use these instead of getHeader("Message-ID") or setHeader("Message-ID");
+    public abstract void setMessageId(String messageId) throws MessagingException;
+    public abstract String getMessageId() throws MessagingException;
+
     public abstract void setBody(Body body) throws MessagingException;
 
     public boolean isMimeType(String mimeType) throws MessagingException {
         return getContentType().startsWith(mimeType);
     }
 
+    private HashSet<Flag> getFlagSet() {
+        if (mFlags == null) {
+            mFlags = new HashSet<Flag>();
+        }
+        return mFlags;
+    }
+
     /*
      * TODO Refactor Flags at some point to be able to store user defined flags. 
      */
     public Flag[] getFlags() {
-        return mFlags.toArray(new Flag[] {});
+        return getFlagSet().toArray(new Flag[] {});
     }
 
     public void setFlag(Flag flag, boolean set) throws MessagingException {
         if (set) {
-            mFlags.add(flag);
+            getFlagSet().add(flag);
         } else {
-            mFlags.remove(flag);
+            getFlagSet().remove(flag);
         }
     }
 
@@ -126,7 +137,7 @@ public abstract class Message implements Part, Body {
     }
 
     public boolean isSet(Flag flag) {
-        return mFlags.contains(flag);
+        return getFlagSet().contains(flag);
     }
 
     public abstract void saveChanges() throws MessagingException;

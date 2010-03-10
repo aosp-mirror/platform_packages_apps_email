@@ -1198,11 +1198,10 @@ public class ImapStore extends Store {
                      * Message-ID header.  If there are more than one response, take the
                      * last one, as it's most likely he newest (the one we just uploaded).
                      */
-                    String[] messageIdHeader = message.getHeader("Message-ID");
-                    if (messageIdHeader == null || messageIdHeader.length == 0) {
+                    String messageId = message.getMessageId();
+                    if (messageId == null || messageId.length() == 0) {
                         continue;
                     }
-                    String messageId = messageIdHeader[0];
                     List<ImapResponse> responses =
                         mConnection.executeSimpleCommand(
                                 String.format("UID SEARCH (HEADER MESSAGE-ID %s)", messageId));
@@ -1230,6 +1229,7 @@ public class ImapStore extends Store {
             return null;
         }
 
+        @Override
         public void setFlags(Message[] messages, Flag[] flags, boolean value)
                 throws MessagingException {
             checkOpen();

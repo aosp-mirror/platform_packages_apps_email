@@ -1651,6 +1651,7 @@ public class LocalStore extends Store implements PersistentDataCallbacks {
             return mId;
         }
 
+        @Override
         public void setFlag(Flag flag, boolean set) throws MessagingException {
             if (flag == Flag.DELETED && set) {
                 /*

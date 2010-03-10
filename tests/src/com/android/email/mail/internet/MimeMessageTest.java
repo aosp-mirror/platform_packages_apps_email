@@ -61,8 +61,6 @@ public class MimeMessageTest extends TestCase {
     private final String LONG_PLAIN_256 =
         LONG_PLAIN_64 + LONG_PLAIN_64 + LONG_PLAIN_64 + LONG_PLAIN_64;
 
-    // TODO: more tests.
-
     /**
      * Confirms that setSentDate() correctly set the "Date" header of a Mime message.
      *
@@ -397,6 +395,7 @@ public class MimeMessageTest extends TestCase {
 
     /*
      * Test for writeTo(), only for header part.
+     * NOTE:  This test is fragile because it assumes headers will be written in a specific order
      */
     public void testWriteToHeader() throws Exception {
         MimeMessage message = new MimeMessage();
@@ -410,9 +409,10 @@ public class MimeMessageTest extends TestCase {
         ByteArrayOutputStream out = new ByteArrayOutputStream();
         message.writeTo(out);
         out.close();
-        String expectedString = "Message-ID: " + message.getMessageId() + "\r\n" +
+        String expectedString =
                 "Header1: value1\r\n" +
                 "Header4: value4\r\n" +
+                "Message-ID: " + message.getMessageId() + "\r\n" +
                 "\r\n";
         byte[] expected = expectedString.getBytes();
         byte[] actual = out.toByteArray();

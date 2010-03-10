@@ -33,7 +33,6 @@ import org.apache.james.mime4j.field.Field;
 import android.text.TextUtils;
 
 import java.io.BufferedWriter;
-import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
@@ -49,28 +48,31 @@ import java.util.regex.Pattern;
  * RFC 2045 style headers.
  */
 public class MimeMessage extends Message {
-    protected MimeHeader mHeader = new MimeHeader();
-    protected MimeHeader mExtendedHeader;
+    private MimeHeader mHeader;
+    private MimeHeader mExtendedHeader;
     
     // NOTE:  The fields here are transcribed out of headers, and values stored here will supercede
     // the values found in the headers.  Use caution to prevent any out-of-phase errors.  In
     // particular, any adds/changes/deletes here must be echoed by changes in the parse() function.
-    protected Address[] mFrom;
-    protected Address[] mTo;
-    protected Address[] mCc;
-    protected Address[] mBcc;
-    protected Address[] mReplyTo;
-    protected Date mSentDate;
+    private Address[] mFrom;
+    private Address[] mTo;
+    private Address[] mCc;
+    private Address[] mBcc;
+    private Address[] mReplyTo;
+    private Date mSentDate;
+    private Body mBody;
+    protected int mSize;
+
+    // Shared random source for generating local message-id values
+    private static java.util.Random sRandom = new java.util.Random();
     
     // In MIME, en_US-like date format should be used. In other words "MMM" should be encoded to
     // "Jan", not the other localized format like "Ene" (meaning January in locale es).
     // This conversion is used when generating outgoing MIME messages. Incoming MIME date
     // headers are parsed by org.apache.james.mime4j.field.DateTimeField which does not have any
     // localization code.
-    protected SimpleDateFormat mDateFormat = 
+    private static final SimpleDateFormat DATE_FORMAT =
         new SimpleDateFormat("EEE, dd MMM yyyy HH:mm:ss Z", Locale.US);
-    protected Body mBody;
-    protected int mSize;
 
     // regex that matches content id surrounded by "<>" optionally.
     private static final Pattern REMOVE_OPTIONAL_BRACKETS = Pattern.compile("^<?([^>]+)>?$");
@@ -78,24 +80,22 @@ public class MimeMessage extends Message {
     private static final Pattern END_OF_LINE = Pattern.compile("\r?\n");
 
     public MimeMessage() {
-        /*
-         * Every new messages gets a Message-ID
-         */
-        try {
-            // TODO: This is wasteful, since we overwrite it on incoming or locally-read messages.
-            // Should only generate it on as-needed basis.
-            setMessageId(generateMessageId());
-        }
-        catch (MessagingException me) {
-            throw new RuntimeException("Unable to create MimeMessage", me);
-        }
+        mHeader = null;
     }
 
+    /**
+     * Generate a local message id.  This is only used when none has been assigned, and is
+     * installed lazily.  Any remote (typically server-assigned) message id takes precedence.
+     * @return a long, locally-generated message-ID value
+     */
     private String generateMessageId() {
         StringBuffer sb = new StringBuffer();
         sb.append("<");
         for (int i = 0; i < 24; i++) {
-            sb.append(Integer.toString((int)(Math.random() * 35), 36));
+            // We'll use a 5-bit range (0..31)
+            int value = sRandom.nextInt() & 31;
+            char c = "0123456789abcdefghijklmnopqrstuv".charAt(value);
+            sb.append(c);
         }
         sb.append(".");
         sb.append(Long.toString(System.currentTimeMillis()));
@@ -117,7 +117,7 @@ public class MimeMessage extends Message {
     protected void parse(InputStream in) throws IOException, MessagingException {
         // Before parsing the input stream, clear all local fields that may be superceded by
         // the new incoming message.
-        mHeader.clear();
+        getMimeHeaders().clear();
         mFrom = null;
         mTo = null;
         mCc = null;
@@ -129,6 +129,17 @@ public class MimeMessage extends Message {
         MimeStreamParser parser = new MimeStreamParser();
         parser.setContentHandler(new MimeMessageBuilder());
         parser.parse(new EOLConvertingInputStream(in));
+    }
+
+    /**
+     * Return the internal mHeader value, with very lazy initialization.
+     * The goal is to save memory by not creating the headers until needed.
+     */
+    private MimeHeader getMimeHeaders() {
+        if (mHeader == null) {
+            mHeader = new MimeHeader();
+        }
+        return mHeader;
     }
 
     public Date getReceivedDate() throws MessagingException {
@@ -149,7 +160,7 @@ public class MimeMessage extends Message {
     }
 
     public void setSentDate(Date sentDate) throws MessagingException {
-        setHeader("Date", mDateFormat.format(sentDate));
+        setHeader("Date", DATE_FORMAT.format(sentDate));
         this.mSentDate = sentDate;
     }
 
@@ -305,23 +316,25 @@ public class MimeMessage extends Message {
      * @param messageId the new Message-ID value
      * @throws MessagingException
      */
+    @Override
     public void setMessageId(String messageId) throws MessagingException {
         setHeader("Message-ID", messageId);
     }
     
     /**
-     * Get the mime "Message-ID" header.  Note, this field is preset (randomly) in every new 
-     * message, so it should never return null.
+     * Get the mime "Message-ID" header.  This value will be preloaded with a locally-generated
+     * random ID, if the value has not previously been set.
      * @return the Message-ID header string
      * @throws MessagingException
      */
+    @Override
     public String getMessageId() throws MessagingException {
-        String[] headers = getHeader("Message-ID");
-        if (headers != null) {
-            // There should really only be one Message-ID here
-            return headers[0];
+        String messageId = getFirstHeader("Message-ID");
+        if (messageId == null) {
+            messageId = generateMessageId();
+            setMessageId(messageId);
         }
-        throw new MessagingException("A message was found without a Message-ID header");
+        return messageId;
     }
 
     public void saveChanges() throws MessagingException {
@@ -348,23 +361,23 @@ public class MimeMessage extends Message {
     }
 
     protected String getFirstHeader(String name) throws MessagingException {
-        return mHeader.getFirstHeader(name);
+        return getMimeHeaders().getFirstHeader(name);
     }
 
     public void addHeader(String name, String value) throws MessagingException {
-        mHeader.addHeader(name, value);
+        getMimeHeaders().addHeader(name, value);
     }
 
     public void setHeader(String name, String value) throws MessagingException {
-        mHeader.setHeader(name, value);
+        getMimeHeaders().setHeader(name, value);
     }
 
     public String[] getHeader(String name) throws MessagingException {
-        return mHeader.getHeader(name);
+        return getMimeHeaders().getHeader(name);
     }
 
     public void removeHeader(String name) throws MessagingException {
-        mHeader.removeHeader(name);
+        getMimeHeaders().removeHeader(name);
     }
 
     /**
@@ -443,7 +456,9 @@ public class MimeMessage extends Message {
      */
     public void writeTo(OutputStream out) throws IOException, MessagingException {
         BufferedWriter writer = new BufferedWriter(new OutputStreamWriter(out), 1024);
-        mHeader.writeTo(out);
+        // Force creation of local message-id
+        getMessageId();
+        getMimeHeaders().writeTo(out);
         // mExtendedHeader will not be write out to external output stream,
         // because it is intended to internal use.
         writer.write("\r\n");
