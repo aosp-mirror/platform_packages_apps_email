@@ -80,6 +80,7 @@ import android.os.PowerManager.WakeLock;
 import android.provider.Calendar;
 import android.provider.ContactsContract;
 import android.provider.Calendar.Calendars;
+import android.provider.Calendar.Events;
 import android.util.Log;
 
 import java.io.BufferedReader;
@@ -154,6 +155,7 @@ public class SyncManager extends Service implements Runnable {
         + " or " + MailboxColumns.SYNC_INTERVAL + "!=" + Mailbox.CHECK_INTERVAL_NEVER + ')'
         + " and " + MailboxColumns.ACCOUNT_KEY + " in (";
     private static final String ACCOUNT_KEY_IN = MailboxColumns.ACCOUNT_KEY + " in (";
+    private static final String WHERE_CALENDAR_ID = Events.CALENDAR_ID + "=?";
 
     // Offsets into the syncStatus data for EAS that indicate type, exit status, and change count
     // The format is S<type_char>:<exit_char>:<change_count>
@@ -685,8 +687,9 @@ public class SyncManager extends Service implements Runnable {
                             ContentResolver.setSyncAutomatically(account, Calendar.AUTHORITY,
                                     newSyncEvents != 0);
                             if (newSyncEvents == 0) {
-                                // For some reason, CalendarProvider deletes all Events in this
-                                // case; this means that we have to reset our sync key
+                                // When sync of a calendar is disabled, we're supposed to delete
+                                // all events in the calendar; this means we should first reset our
+                                // sync key to 0
                                 Mailbox mailbox = Mailbox.restoreMailboxOfType(INSTANCE,
                                         mAccountId, Mailbox.TYPE_CALENDAR);
                                 EasSyncService service = new EasSyncService(INSTANCE, mailbox);
@@ -697,11 +700,14 @@ public class SyncManager extends Service implements Runnable {
                                 } catch (IOException e) {
                                     // The provider can't be reached; nothing to be done
                                 }
+                                // Reset the sync key locally in the Mailbox
                                 ContentValues cv = new ContentValues();
                                 cv.put(Mailbox.SYNC_KEY, "0");
                                 mResolver.update(ContentUris.withAppendedId(
                                         Mailbox.CONTENT_URI, mailbox.mId), cv, null, null);
-
+                                // Delete all events in this calendar
+                                mResolver.delete(Events.CONTENT_URI, WHERE_CALENDAR_ID,
+                                        new String[] {Long.toString(mCalendarId)});
                                 // TODO Stop sync in progress??
                             }
 
