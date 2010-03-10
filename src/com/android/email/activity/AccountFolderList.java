@@ -28,6 +28,7 @@ import com.android.email.mail.MessagingException;
 import com.android.email.mail.Store;
 import com.android.email.provider.EmailContent;
 import com.android.email.provider.EmailContent.Account;
+import com.android.email.provider.EmailContent.AccountColumns;
 import com.android.email.provider.EmailContent.Mailbox;
 import com.android.email.provider.EmailContent.MailboxColumns;
 import com.android.email.provider.EmailContent.Message;
@@ -39,6 +40,7 @@ import android.app.Dialog;
 import android.app.ListActivity;
 import android.app.NotificationManager;
 import android.content.ContentUris;
+import android.content.ContentValues;
 import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
@@ -68,6 +70,8 @@ import android.widget.TextView;
 import android.widget.Toast;
 import android.widget.AdapterView.OnItemClickListener;
 
+import java.util.ArrayList;
+
 public class AccountFolderList extends ListActivity implements OnItemClickListener {
     private static final int DIALOG_REMOVE_ACCOUNT = 1;
     /**
@@ -88,6 +92,7 @@ public class AccountFolderList extends ListActivity implements OnItemClickListen
     private AccountsAdapter mListAdapter;
 
     private LoadAccountsTask mLoadAccountsTask;
+    private DeleteAccountTask mDeleteAccountTask;
 
     private MessageListHandler mHandler = new MessageListHandler();
     private ControllerResults mControllerCallback = new ControllerResults();
@@ -206,6 +211,11 @@ public class AccountFolderList extends ListActivity implements OnItemClickListen
             mLoadAccountsTask.cancel(true);
             mLoadAccountsTask = null;
         }
+        if (mDeleteAccountTask != null &&
+                mDeleteAccountTask.getStatus() != DeleteAccountTask.Status.FINISHED) {
+            mDeleteAccountTask.cancel(false); // false == allow the cancel to run to completion
+            mDeleteAccountTask = null;
+        }
     }
 
     public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
@@ -256,7 +266,7 @@ public class AccountFolderList extends ListActivity implements OnItemClickListen
     /**
      * Build the group and child cursors that support the summary views (aka "at a glance").
      * 
-     * This is a placeholder implementation with significant problems that need to be addressed:
+     * This is a placeholder implementation with signifiあcant problems that need to be addressed:
      *
      * TODO: We should only show summary mailboxes if they are non-empty.  So there needs to be
      * a more dynamic child-cursor here, probably listening for update notifications on a number
@@ -322,7 +332,6 @@ public class AccountFolderList extends ListActivity implements OnItemClickListen
      * Async task to handle the accounts query outside of the UI thread
      */
     private class LoadAccountsTask extends AsyncTask<Void, Void, Object[]> {
-
         @Override
         protected Object[] doInBackground(Void... params) {
             // Create the summaries cursor
@@ -331,8 +340,7 @@ public class AccountFolderList extends ListActivity implements OnItemClickListen
             // TODO use a custom projection and don't have to sample all of these columns
             Cursor c2 = AccountFolderList.this.managedQuery(
                     EmailContent.Account.CONTENT_URI,
-                    EmailContent.Account.CONTENT_PROJECTION,
-                    null, null, null);
+                    EmailContent.Account.CONTENT_PROJECTION, null, null, null);
             Long defaultAccount = Account.getDefaultAccountId(AccountFolderList.this);
             return new Object[] { c1, c2 , defaultAccount};
         }
@@ -345,6 +353,44 @@ public class AccountFolderList extends ListActivity implements OnItemClickListen
             mListAdapter = AccountsAdapter.getInstance((Cursor)params[0], (Cursor)params[1],
                     AccountFolderList.this, (Long)params[2]);
             mListView.setAdapter(mListAdapter);
+        }
+    }
+
+    private class DeleteAccountTask extends AsyncTask<Void, Void, Void> {
+        private long mAccountId;
+        private String mAccountUri;
+
+        public DeleteAccountTask(long accountId, String accountUri) {
+            mAccountId = accountId;
+            mAccountUri = accountUri;
+        }
+
+        @Override
+        protected Void doInBackground(Void... params) {
+            try {
+                // Delete Remote store at first.
+                Store.getInstance(mAccountUri, getApplication(), null).delete();
+                // Remove the Store instance from cache.
+                Store.removeInstance(mAccountUri);
+                Uri uri = ContentUris.withAppendedId(
+                        EmailContent.Account.CONTENT_URI, mAccountId);
+                AccountFolderList.this.getContentResolver().delete(uri, null, null);
+                // Update the backup (side copy) of the accounts
+                AccountBackupRestore.backupAccounts(AccountFolderList.this);
+                // Release or relax device administration, if relevant
+                SecurityPolicy.getInstance(AccountFolderList.this).reducePolicies();
+            } catch (Exception e) {
+                    // Ignore
+            }
+            Email.setServicesEnabled(AccountFolderList.this);
+            return null;
+        }
+
+        @Override
+        protected void onPostExecute(Void v) {
+            if (!isCancelled()) {
+                updateAccounts();
+            }
         }
     }
 
@@ -415,39 +461,20 @@ public class AccountFolderList extends ListActivity implements OnItemClickListen
             .setPositiveButton(R.string.okay_action, new DialogInterface.OnClickListener() {
                 public void onClick(DialogInterface dialog, int whichButton) {
                     dismissDialog(DIALOG_REMOVE_ACCOUNT);
-                    try {
-                        // Clear notifications, which may become stale here
-                        NotificationManager notificationManager = (NotificationManager)
-                                getSystemService(Context.NOTIFICATION_SERVICE);
-                        notificationManager.cancel(MailService.NOTIFICATION_ID_NEW_MESSAGES);
-                        // Delete Remote store at first.
-                        Store.getInstance(
-                                mSelectedContextAccount.getStoreUri(AccountFolderList.this),
-                                getApplication(), null).delete();
-                        // Remove the Store instance from cache.
-                        Store.removeInstance(mSelectedContextAccount.getStoreUri(
-                                AccountFolderList.this));
-                        Uri uri = ContentUris.withAppendedId(
-                                EmailContent.Account.CONTENT_URI, mSelectedContextAccount.mId);
-                        AccountFolderList.this.getContentResolver().delete(uri, null, null);
-                        // Update the backup (side copy) of the accounts
-                        AccountBackupRestore.backupAccounts(AccountFolderList.this);
-                        // Release or relax device administration, if relevant
-                        SecurityPolicy.getInstance(AccountFolderList.this).reducePolicies();
-                    } catch (Exception e) {
-                            // Ignore
-                    }
-                    Email.setServicesEnabled(AccountFolderList.this);
-
-                    // Jump to account setup if the last/only account was deleted
+                    // Clear notifications, which may become stale here
+                    NotificationManager notificationManager = (NotificationManager)
+                            getSystemService(Context.NOTIFICATION_SERVICE);
+                    notificationManager.cancel(MailService.NOTIFICATION_ID_NEW_MESSAGES);
                     int numAccounts = EmailContent.count(AccountFolderList.this,
                             Account.CONTENT_URI, null, null);
-                    if (numAccounts == 0) {
+                    mListAdapter.addOnDeletingAccount(mSelectedContextAccount.mId);
+                    mDeleteAccountTask = (DeleteAccountTask) new DeleteAccountTask(
+                            mSelectedContextAccount.mId,
+                            mSelectedContextAccount.getStoreUri(AccountFolderList.this)).execute();
+                    if (numAccounts == 1) {
                         AccountSetupBasics.actionNewAccount(AccountFolderList.this);
                         finish();
                     }
-                    // Update unread counts and the default sender Id
-                    updateAccounts();
                 }
             })
             .setNegativeButton(R.string.cancel_action, new DialogInterface.OnClickListener() {
@@ -663,6 +690,7 @@ public class AccountFolderList extends ListActivity implements OnItemClickListen
         private int mMailboxesCount;
         private int mSeparatorPosition;
         long mDefaultAccountId;
+        ArrayList<Long> mOnDeletingAccounts = new ArrayList<Long>();
 
         public static AccountsAdapter getInstance(Cursor mailboxesCursor, Cursor accountsCursor,
                 Context context, long defaultAccountId) {
@@ -687,6 +715,14 @@ public class AccountFolderList extends ListActivity implements OnItemClickListen
 
         public boolean isAccount(int position) {
             return position >= mMailboxesCount;
+        }
+
+        public void addOnDeletingAccount(long accountId) {
+            mOnDeletingAccounts.add(accountId);
+        }
+
+        public boolean isOnDeletingAccountView(long accountId) {
+            return mOnDeletingAccounts.contains(accountId);
         }
 
         /**
@@ -879,7 +915,14 @@ public class AccountFolderList extends ListActivity implements OnItemClickListen
          */
         @Override
         public boolean isEnabled(int position) {
-            return position != mSeparatorPosition;
+            if (position == mSeparatorPosition) {
+                return false;
+            } else if (isAccount(position)) {
+                Long id = ((MergeCursor)getItem(position)).getLong(Account.CONTENT_ID_COLUMN);
+                return !isOnDeletingAccountView(id);
+            } else {
+                return true;
+            }
         }
 
         /**

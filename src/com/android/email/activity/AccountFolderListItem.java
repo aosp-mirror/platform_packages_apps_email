@@ -66,6 +66,10 @@ public class AccountFolderListItem extends LinearLayout {
      */
     @Override
     public boolean onTouchEvent(MotionEvent event) {
+        if (mAdapter.isOnDeletingAccountView(mAccountId)) {
+            return true;
+        }
+
         // Short-circuit all of this for list items w/o folder buttons
         if (!mHasFolderButton) {
             return super.onTouchEvent(event);
