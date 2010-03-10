@@ -36,6 +36,7 @@ import android.content.Context;
 import android.content.Entity;
 import android.content.EntityIterator;
 import android.content.Entity.NamedContentValues;
+import android.content.res.Resources;
 import android.net.Uri;
 import android.os.RemoteException;
 import android.provider.Calendar.Attendees;
@@ -48,6 +49,7 @@ import android.util.Log;
 import android.util.base64.Base64;
 
 import java.io.IOException;
+import java.text.DateFormat;
 import java.text.ParseException;
 import java.util.ArrayList;
 import java.util.Calendar;
@@ -1139,6 +1141,37 @@ public class CalendarUtilities {
         return -1;
     }
 
+    static public String buildMessageTextFromEntityValues(Context context,
+            ContentValues entityValues, StringBuilder sb) {
+        if (sb == null) {
+            sb = new StringBuilder();
+        }
+        Resources resources = context.getResources();
+        Date date = new Date(entityValues.getAsLong(Events.DTSTART));
+        String dateTimeString = DateFormat.getDateTimeInstance().format(date);
+        // TODO: Add more detail to message text
+        // Right now, we're using.. When: Tuesday, March 5th at 2:00pm
+        // What we're missing is the duration and any recurrence information.  So this should be
+        // more like... When: Tuesdays, starting March 5th from 2:00pm - 3:00pm
+        // This would require code to build complex strings, and it will have to wait
+        sb.append(resources.getString(R.string.meeting_when, dateTimeString));
+        String location = null;
+        if (entityValues.containsKey(Events.EVENT_LOCATION)) {
+            location = entityValues.getAsString(Events.EVENT_LOCATION);
+            if (location != null) {
+                sb.append("\n");
+                sb.append(resources.getString(R.string.meeting_where, location));
+            }
+        }
+        // If there's a description for this event, append it
+        String desc = entityValues.getAsString(Events.DESCRIPTION);
+        if (desc != null) {
+            sb.append("\n--\n");
+            sb.append(desc);
+        }
+        return sb.toString();
+    }
+
     /**
      * Create a Message for an (Event) Entity
      * @param entity the Entity for the Event (as might be retrieved by CalendarProvider)
@@ -1149,10 +1182,9 @@ public class CalendarUtilities {
      */
     static public EmailContent.Message createMessageForEntity(Context context, Entity entity,
             int messageFlag, String uid, Account account) {
-        // TODO Handle exceptions; will be a nightmare
-        // TODO Cries out for unit test
         ContentValues entityValues = entity.getEntityValues();
         ArrayList<NamedContentValues> subValues = entity.getSubValues();
+        boolean isException = entityValues.containsKey(Events.ORIGINAL_EVENT);
 
         EmailContent.Message msg = new EmailContent.Message();
         msg.mFlags = messageFlag;
@@ -1208,6 +1240,14 @@ public class CalendarUtilities {
                         CalendarUtilities.millisToEasDateTime(startTime, vCalendarTimeZone));
             }
 
+            // If this is an Exception, we send the recurrence-id, which is just the original
+            // instance time
+            if (isException) {
+                long originalTime = entityValues.getAsLong(Events.ORIGINAL_INSTANCE_TIME);
+                ics.writeTag("RECURRENCE-ID" + vCalendarTimeZoneSuffix,
+                        CalendarUtilities.millisToEasDateTime(originalTime, vCalendarTimeZone));
+            }
+
             if (!entityValues.containsKey(Events.DURATION)) {
                 if (entityValues.containsKey(Events.DTEND)) {
                     ics.writeTag("DTEND" + vCalendarTimeZoneSuffix,
@@ -1229,14 +1269,25 @@ public class CalendarUtilities {
                                 startTime + durationMillis, vCalendarTimeZone));
             }
 
+            String location = null;
             if (entityValues.containsKey(Events.EVENT_LOCATION)) {
-                ics.writeTag("LOCATION", entityValues.getAsString(Events.EVENT_LOCATION));
+                location = entityValues.getAsString(Events.EVENT_LOCATION);
+                ics.writeTag("LOCATION", location);
+            }
+
+            String sequence = entityValues.getAsString(Events._SYNC_VERSION);
+            if (sequence == null) {
+                sequence = "0";
             }
 
             int titleId = 0;
             switch (messageFlag) {
                 case Message.FLAG_OUTGOING_MEETING_INVITE:
-                    titleId = R.string.meeting_invitation;
+                    if (sequence.equals("0")) {
+                        titleId = R.string.meeting_invitation;
+                    } else {
+                        titleId = R.string.meeting_updated;
+                    }
                     break;
                 case Message.FLAG_OUTGOING_MEETING_ACCEPT:
                     titleId = R.string.meeting_accepted;
@@ -1251,13 +1302,14 @@ public class CalendarUtilities {
                     titleId = R.string.meeting_canceled;
                     break;
             }
+            Resources resources = context.getResources();
             String title = entityValues.getAsString(Events.TITLE);
             if (title == null) {
                 title = "";
             }
             ics.writeTag("SUMMARY", title);
             if (titleId != 0) {
-                msg.mSubject = context.getResources().getString(titleId, title);
+                msg.mSubject = resources.getString(titleId, title);
             }
             if (method.equals("REQUEST")) {
                 if (entityValues.containsKey(Events.ALL_DAY)) {
@@ -1265,14 +1317,29 @@ public class CalendarUtilities {
                     ics.writeTag("X-MICROSOFT-CDO-ALLDAYEVENT", ade == 0 ? "FALSE" : "TRUE");
                 }
 
-                String desc = entityValues.getAsString(Events.DESCRIPTION);
-                if (desc != null) {
-                    // TODO Do we add some description of the event here?
-                    ics.writeTag("DESCRIPTION", desc);
-                    msg.mText = desc;
-                } else {
-                    msg.mText = "";
+                // Build the text for the message, starting with an initial line describing the
+                // exception
+                StringBuilder sb = new StringBuilder();
+                if (isException) {
+                    // Add the line, depending on whether this is a cancellation or update
+                    Date date = new Date(entityValues.getAsLong(Events.ORIGINAL_INSTANCE_TIME));
+                    String dateString = DateFormat.getDateInstance().format(date);
+                    if (titleId == R.string.meeting_canceled) {
+                        sb.append(resources.getString(R.string.exception_cancel, dateString));
+                    } else {
+                        sb.append(resources.getString(R.string.exception_updated, dateString));
+                    }
+                    sb.append("\n\n");
                 }
+                String text =
+                    CalendarUtilities.buildMessageTextFromEntityValues(context, entityValues, sb);
+
+                    // If we've got anything here, write it into the ics file
+                if (text.length() > 0) {
+                    ics.writeTag("DESCRIPTION", text);
+                }
+                // And store the message text
+                msg.mText = text;
 
                 String rrule = entityValues.getAsString(Events.RRULE);
                 if (rrule != null) {
@@ -1379,10 +1446,11 @@ public class CalendarUtilities {
             msg.mTo = Address.pack(toArray);
 
             ics.writeTag("CLASS", "PUBLIC");
-            ics.writeTag("STATUS", "CONFIRMED");
+            ics.writeTag("STATUS", (messageFlag == Message.FLAG_OUTGOING_MEETING_CANCEL) ?
+                    "CANCELLED" : "CONFIRMED");
             ics.writeTag("TRANSP", "OPAQUE"); // What Exchange uses
             ics.writeTag("PRIORITY", "5");  // 1 to 9, 5 = medium
-            ics.writeTag("SEQUENCE", entityValues.getAsString(Events._SYNC_VERSION));
+            ics.writeTag("SEQUENCE", sequence);
             ics.writeTag("END", "VEVENT");
             ics.writeTag("END", "VCALENDAR");
             ics.flush();

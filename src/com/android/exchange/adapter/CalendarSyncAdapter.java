@@ -73,19 +73,18 @@ public class CalendarSyncAdapter extends AbstractSyncAdapter {
     // there's no original event when finding an item by _SYNC_ID
     private static final String SERVER_ID = Events._SYNC_ID + "=? AND " +
         Events.ORIGINAL_EVENT + " ISNULL";
-    private static final String DIRTY_TOP_LEVEL_IN_CALENDAR =
-        Events._SYNC_DIRTY + "=1 AND " + Events.ORIGINAL_EVENT + " ISNULL AND " +
-        Events.CALENDAR_ID + "=?";
+    private static final String DIRTY_OR_MARKED_TOP_LEVEL_IN_CALENDAR =
+        "(" + Events._SYNC_DIRTY + "=1 OR " + Events._SYNC_MARK + "= 1) AND " +
+        Events.ORIGINAL_EVENT + " ISNULL AND " + Events.CALENDAR_ID + "=?";
     private static final String DIRTY_EXCEPTION_IN_CALENDAR =
         Events._SYNC_DIRTY + "=1 AND " + Events.ORIGINAL_EVENT + " NOTNULL AND " +
         Events.CALENDAR_ID + "=?";
-    private static final String DIRTY_IN_CALENDAR =
-        Events._SYNC_DIRTY + "=1 AND " + Events.CALENDAR_ID + "=?";
     private static final String CLIENT_ID_SELECTION = Events._SYNC_DATA + "=?";
     private static final String ATTENDEES_EXCEPT_ORGANIZER = Attendees.EVENT_ID + "=? AND " +
         Attendees.ATTENDEE_RELATIONSHIP + "!=" + Attendees.RELATIONSHIP_ORGANIZER;
     private static final String[] ID_PROJECTION = new String[] {Events._ID};
-    private static final String[] ORIGINAL_EVENT_PROJECTION = new String[] {Events.ORIGINAL_EVENT};
+    private static final String[] ORIGINAL_EVENT_PROJECTION =
+        new String[] {Events.ORIGINAL_EVENT, Events._ID};
 
     public static final String CALENDAR_SELECTION =
         Calendars._SYNC_ACCOUNT + "=? AND " + Calendars._SYNC_ACCOUNT_TYPE + "=?";
@@ -836,10 +835,11 @@ public class CalendarSyncAdapter extends AbstractSyncAdapter {
             mOps.execute();
 
             if (mOps.mResults != null) {
-                // Clear dirty flags for updates sent to server
+                // Clear dirty and mark flags for updates sent to server
                 if (!mUploadedIdList.isEmpty())  {
                     ContentValues cv = new ContentValues();
                     cv.put(Events._SYNC_DIRTY, 0);
+                    cv.put(Events._SYNC_MARK, 0);
                     for (long eventId: mUploadedIdList) {
                         mContentResolver.update(ContentUris.withAppendedId(sEventsUri, eventId), cv,
                                 null, null);
@@ -1043,6 +1043,12 @@ public class CalendarSyncAdapter extends AbstractSyncAdapter {
                 break;
         }
         return Integer.toString(easVisibility);
+    }
+
+    private int getInt(ContentValues cv, String column) {
+        Integer i = cv.getAsInteger(column);
+        if (i == null) return 0;
+        return i;
     }
 
     private boolean sendEvent(Entity entity, String clientId, Serializer s)
@@ -1263,9 +1269,6 @@ public class CalendarSyncAdapter extends AbstractSyncAdapter {
     @Override
     public boolean sendLocalChanges(Serializer s) throws IOException {
         ContentResolver cr = mService.mContentResolver;
-        Uri uri = Events.CONTENT_URI.buildUpon()
-                .appendQueryParameter(Calendar.CALLER_IS_SYNCADAPTER, "true")
-                .build();
 
         if (getSyncKey().equals("0")) {
             return false;
@@ -1274,24 +1277,37 @@ public class CalendarSyncAdapter extends AbstractSyncAdapter {
         try {
             // We've got to handle exceptions as part of the parent when changes occur, so we need
             // to find new/changed exceptions and mark the parent dirty
+            ArrayList<Long> orphanedExceptions = new ArrayList<Long>();
             Cursor c = cr.query(Events.CONTENT_URI, ORIGINAL_EVENT_PROJECTION,
                     DIRTY_EXCEPTION_IN_CALENDAR, mCalendarIdArgument, null);
             try {
                 ContentValues cv = new ContentValues();
-                cv.put(Events._SYNC_DIRTY, 1);
-                // Mark the parent dirty in this loop
+                // We use _sync_mark here to distinguish dirty parents from parents with dirty
+                // exceptions
+                cv.put(Events._SYNC_MARK, 1);
                 while (c.moveToNext()) {
+                    // Mark the parents of dirty exceptions
                     String serverId = c.getString(0);
-                    cr.update(asSyncAdapter(Events.CONTENT_URI), cv, SERVER_ID,
-                             new String[] {serverId});
+                    int cnt = cr.update(sEventsUri, cv, SERVER_ID, new String[] {serverId});
+                    // Keep track of any orphaned exceptions
+                    if (cnt == 0) {
+                        orphanedExceptions.add(c.getLong(1));
+                    }
                 }
             } finally {
                 c.close();
             }
 
-            // Now we can go through dirty top-level events and send them back to the server
+           // Delete any orphaned exceptions
+            for (long orphan: orphanedExceptions) {
+                userLog(TAG, "Deleted orphaned exception: " + orphan);
+                cr.delete(ContentUris.withAppendedId(sEventsUri, orphan), null, null);
+            }
+            orphanedExceptions.clear();
+
+            // Now we can go through dirty/marked top-level events and send them back to the server
             EntityIterator eventIterator = EventsEntity.newEntityIterator(
-                    cr.query(uri, null, DIRTY_TOP_LEVEL_IN_CALENDAR,
+                    cr.query(sEventsUri, null, DIRTY_OR_MARKED_TOP_LEVEL_IN_CALENDAR,
                             mCalendarIdArgument, null), cr);
             ContentValues cidValues = new ContentValues();
             try {
@@ -1332,7 +1348,8 @@ public class CalendarSyncAdapter extends AbstractSyncAdapter {
                         // And save it in the Event as the local id
                         cidValues.put(Events._SYNC_DATA, clientId);
                         cidValues.put(Events._SYNC_VERSION, "0");
-                        cr.update(ContentUris.withAppendedId(uri, eventId), cidValues, null, null);
+                        cr.update(ContentUris.withAppendedId(sEventsUri, eventId), cidValues,
+                                null, null);
                     } else {
                         if (entityValues.getAsInteger(Events.DELETED) == 1) {
                             userLog("Deleting event with serverId: ", serverId);
@@ -1364,7 +1381,8 @@ public class CalendarSyncAdapter extends AbstractSyncAdapter {
                         cidValues.put(Events._SYNC_VERSION, version);
                         // Also save in entityValues so that we send it this time around
                         entityValues.put(Events._SYNC_VERSION, version);
-                        cr.update(ContentUris.withAppendedId(uri, eventId), cidValues, null, null);
+                        cr.update(ContentUris.withAppendedId(sEventsUri, eventId), cidValues,
+                                null, null);
                         s.start(Tags.SYNC_CHANGE).data(Tags.SYNC_SERVER_ID, serverId);
                     }
                     s.start(Tags.SYNC_APPLICATION_DATA);
@@ -1373,18 +1391,57 @@ public class CalendarSyncAdapter extends AbstractSyncAdapter {
 
                     // Now, the hard part; find exceptions for this event
                     if (serverId != null) {
-                        EntityIterator exceptionIterator = EventsEntity.newEntityIterator(
-                                cr.query(uri, null, Events.ORIGINAL_EVENT + "=?",
+                        EntityIterator exIterator = EventsEntity.newEntityIterator(
+                                cr.query(sEventsUri, null, Events.ORIGINAL_EVENT + "=?",
                                         new String[] {serverId}, null), cr);
                         boolean exFirst = true;
-                        while (exceptionIterator.hasNext()) {
-                            Entity exceptionEntity = exceptionIterator.next();
+                        while (exIterator.hasNext()) {
+                            Entity exEntity = exIterator.next();
                             if (exFirst) {
                                 s.start(Tags.CALENDAR_EXCEPTIONS);
                                 exFirst = false;
                             }
                             s.start(Tags.CALENDAR_EXCEPTION);
-                            sendEvent(exceptionEntity, null, s);
+                            sendEvent(exEntity, null, s);
+                            ContentValues exValues = exEntity.getEntityValues();
+                            if (getInt(exValues, Events._SYNC_DIRTY) == 1) {
+                                // This is a new/updated exception, so we've got to notify our
+                                // attendees about it
+                                long exEventId = exValues.getAsLong(Events._ID);
+                                int flag;
+                                if (getInt(exValues, Events.STATUS) == Events.STATUS_CANCELED) {
+                                    // Add the eventId of the exception to the proper list, so that
+                                    // the dirty bit is cleared or the event is deleted after the
+                                    // sync has completed
+                                    mDeletedIdList.add(exEventId);
+                                    flag = Message.FLAG_OUTGOING_MEETING_CANCEL;
+                                } else {
+                                    mUploadedIdList.add(exEventId);
+                                    flag = Message.FLAG_OUTGOING_MEETING_INVITE;
+                                }
+
+                                // Copy subvalues into the exception; otherwise, we won't see the
+                                // attendees when preparing the message
+                                for (NamedContentValues ncv: entity.getSubValues()) {
+                                    exEntity.addSubValue(ncv.uri, ncv.values);
+                                }
+                                // Copy version so the ics attachment shows the proper sequence #
+                                exValues.put(Events._SYNC_VERSION,
+                                        entityValues.getAsString(Events._SYNC_VERSION));
+                                // Copy location so that it's included in the outgoing email
+                                if (entityValues.containsKey(Events.EVENT_LOCATION)) {
+                                    exValues.put(Events.EVENT_LOCATION,
+                                        entityValues.getAsString(Events.EVENT_LOCATION));
+                                }
+
+                                Message msg =
+                                    CalendarUtilities.createMessageForEntity(mContext,
+                                            exEntity, flag, clientId, mAccount);
+                                if (msg != null) {
+                                    userLog("Sending exception update to " + msg.mTo);
+                                    EasOutboxService.sendMessage(mContext, mAccount.mId, msg);
+                                }
+                            }
                             s.end(); // EXCEPTION
                         }
                         if (!exFirst) {
@@ -1395,9 +1452,13 @@ public class CalendarSyncAdapter extends AbstractSyncAdapter {
                     s.end().end(); // ApplicationData & Change
                     mUploadedIdList.add(eventId);
 
-                    // Send the meeting invite if there are attendees and we're the organizer
+                    // Send the meeting invite if there are attendees and we're the organizer AND
+                    // if the Event itself is dirty (we might be syncing only because an exception
+                    // is dirty, in which case we DON'T send email about the Event
                     boolean selfOrganizer = organizerEmail.equalsIgnoreCase(mAccount.mEmailAddress);
-                    if (hasAttendees && selfOrganizer) {
+
+                    if (hasAttendees && selfOrganizer &&
+                            (getInt(entityValues, Events._SYNC_DIRTY) == 1)) {
                         EmailContent.Message msg =
                             CalendarUtilities.createMessageForEventId(mContext, eventId,
                                     EmailContent.Message.FLAG_OUTGOING_MEETING_INVITE, clientId,
@@ -1435,8 +1496,8 @@ public class CalendarSyncAdapter extends AbstractSyncAdapter {
                                 cidValues.clear();
                                 cidValues.put(Events.SYNC_ADAPTER_DATA,
                                         Integer.toString(currentStatus));
-                                cr.update(ContentUris.withAppendedId(uri, eventId), cidValues, null,
-                                        null);
+                                cr.update(ContentUris.withAppendedId(sEventsUri, eventId),
+                                        cidValues, null, null);
                                 // Send mail to the organizer advising of the new status
                                 EmailContent.Message msg =
                                     CalendarUtilities.createMessageForEventId(mContext, eventId,
