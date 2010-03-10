@@ -645,10 +645,10 @@
 
     <!-- Indicate when a meeting takes place.  This is presented in in bullet form, as
          in, "When: xxx" followed by "Where: xxx" -->
-    <string name="meeting_when">When: </string>
+    <string name="meeting_when">When: <xliff:g id="when">%s</xliff:g></string>
     <!--  Indicate where a meeting takes place.  This is presented in in bullet form, as
          in, "When: xxx" followed by "Where: xxx" -->
-    <string name="meeting_where">Where: </string>
+    <string name="meeting_where">Where: <xliff:g id="where">%s</xliff:g></string>
 
     <!-- Used as the body text of a message reporting to an attendee that a specific instance
          of a recurring meeting has been canceled -->
