@@ -128,15 +128,11 @@ public class LegacyConversions {
         }
 //        public String mClientId;
 
-        // Absorb a MessagingException here in the case of messages that were delivered without
-        // a proper message-id.  This is seen in some ISP's but it is non-fatal -- (we'll just use
-        // the locally-generated message-id.)
-        try {
-            localMessage.mMessageId = ((MimeMessage)message).getMessageId();
-        } catch (MessagingException me)  {
-            if (Email.DEBUG) {
-                Log.d(Email.LOG_TAG, "Missing message-id for UID=" + localMessage.mServerId);
-            }
+        // Only replace the local message-id if a new one was found.  This is seen in some ISP's
+        // which may deliver messages w/o a message-id header.
+        String messageId = ((MimeMessage)message).getMessageId();
+        if (messageId != null) {
+            localMessage.mMessageId = messageId;
         }
 
 //        public long mBodyKey;
