@@ -1057,15 +1057,17 @@ public class CalendarSyncAdapter extends AbstractSyncAdapter {
         boolean hasAttendees = false;
         boolean isChange = entityValues.containsKey(Events._SYNC_ID);
 
+        // Get the event's time zone
+        String timeZoneName = entityValues.getAsString(Events.EVENT_TIMEZONE);
+        if (timeZoneName == null) {
+            timeZoneName = TimeZone.getDefault().getID();
+        }
+        TimeZone eventTimeZone = TimeZone.getTimeZone(timeZoneName);
+
         if (!isException) {
             // A time zone is required in all EAS events; we'll use the default if none is set
             // Exchange 2003 seems to require this first... :-)
-            String timeZoneName = entityValues.getAsString(Events.EVENT_TIMEZONE);
-            if (timeZoneName == null) {
-                timeZoneName = TimeZone.getDefault().getID();
-            }
-            String timeZone = CalendarUtilities.timeZoneToTziString(
-                    TimeZone.getTimeZone(timeZoneName));
+            String timeZone = CalendarUtilities.timeZoneToTziString(eventTimeZone);
             s.data(Tags.CALENDAR_TIME_ZONE, timeZone);
         }
 
@@ -1075,31 +1077,52 @@ public class CalendarSyncAdapter extends AbstractSyncAdapter {
             s.data(Tags.CALENDAR_BUSY_STATUS, "2");
         }
 
+        boolean allDay = false;
         if (entityValues.containsKey(Events.ALL_DAY)) {
             Integer ade = entityValues.getAsInteger(Events.ALL_DAY);
+            if (ade != 0) {
+                allDay = true;
+            }
             s.data(Tags.CALENDAR_ALL_DAY_EVENT, ade.toString());
         }
 
         long startTime = entityValues.getAsLong(Events.DTSTART);
-        s.data(Tags.CALENDAR_START_TIME, CalendarUtilities.millisToEasDateTime(startTime));
-
-        if (!entityValues.containsKey(Events.DURATION)) {
-            if (entityValues.containsKey(Events.DTEND)) {
-                s.data(Tags.CALENDAR_END_TIME, CalendarUtilities.millisToEasDateTime(
-                        entityValues.getAsLong(Events.DTEND)));
-            }
-        } else {
-            // Convert this into millis and add it to DTSTART for DTEND
-            // We'll use 1 hour as a default
-            long durationMillis = HOURS;
-            Duration duration = new Duration();
-            try {
-                duration.parse(entityValues.getAsString(Events.DURATION));
-            } catch (ParseException e) {
-                // Can't do much about this; use the default (1 hour)
-            }
+        if (allDay) {
+            // Calendar uses GMT for all day events
+            GregorianCalendar gmtCal = new GregorianCalendar(TimeZone.getTimeZone("GMT"));
+            gmtCal.setTimeInMillis(startTime);
+            // This calendar must be in the event's time zone
+            GregorianCalendar allDayCal = new GregorianCalendar(eventTimeZone);
+            // Set a new calendar with correct y/m/d, but h/m/s set to zero
+            allDayCal.set(gmtCal.get(GregorianCalendar.YEAR), gmtCal.get(GregorianCalendar.MONTH),
+                    gmtCal.get(GregorianCalendar.DATE), 0, 0, 0);
+            // Use this as the start time
+            s.data(Tags.CALENDAR_START_TIME,
+                    CalendarUtilities.millisToEasDateTime(allDayCal.getTimeInMillis()));
+            // Use a day later as the end time
+            allDayCal.add(GregorianCalendar.DATE, 1);
             s.data(Tags.CALENDAR_END_TIME,
-                    CalendarUtilities.millisToEasDateTime(startTime + durationMillis));
+                    CalendarUtilities.millisToEasDateTime(allDayCal.getTimeInMillis()));
+         } else {
+            s.data(Tags.CALENDAR_START_TIME, CalendarUtilities.millisToEasDateTime(startTime));
+            if (!entityValues.containsKey(Events.DURATION)) {
+                if (entityValues.containsKey(Events.DTEND)) {
+                    s.data(Tags.CALENDAR_END_TIME, CalendarUtilities.millisToEasDateTime(
+                            entityValues.getAsLong(Events.DTEND)));
+                }
+            } else {
+                // Convert this into millis and add it to DTSTART for DTEND
+                // We'll use 1 hour as a default
+                long durationMillis = HOURS;
+                Duration duration = new Duration();
+                try {
+                    duration.parse(entityValues.getAsString(Events.DURATION));
+                } catch (ParseException e) {
+                    // Can't do much about this; use the default (1 hour)
+                }
+                s.data(Tags.CALENDAR_END_TIME,
+                        CalendarUtilities.millisToEasDateTime(startTime + durationMillis));
+            }
         }
 
         s.data(Tags.CALENDAR_DTSTAMP,
