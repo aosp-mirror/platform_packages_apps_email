@@ -681,17 +681,15 @@ public class SyncManager extends Service implements Runnable {
                     if (c.moveToFirst()) {
                         long newSyncEvents = c.getLong(0);
                         if (newSyncEvents != mSyncEvents) {
-                            // The user has changed sync state; let SyncManager know
-                            android.accounts.Account account = new android.accounts.Account(
-                                    mAccountName, Email.EXCHANGE_ACCOUNT_MANAGER_TYPE);
-                            ContentResolver.setSyncAutomatically(account, Calendar.AUTHORITY,
-                                    newSyncEvents != 0);
+                            Mailbox mailbox = Mailbox.restoreMailboxOfType(INSTANCE,
+                                    mAccountId, Mailbox.TYPE_CALENDAR);
+                            // Sanity check for mailbox deletion
+                            if (mailbox == null) return;
+                            ContentValues cv = new ContentValues();
                             if (newSyncEvents == 0) {
                                 // When sync of a calendar is disabled, we're supposed to delete
                                 // all events in the calendar; this means we should first reset our
                                 // sync key to 0
-                                Mailbox mailbox = Mailbox.restoreMailboxOfType(INSTANCE,
-                                        mAccountId, Mailbox.TYPE_CALENDAR);
                                 EasSyncService service = new EasSyncService(INSTANCE, mailbox);
                                 CalendarSyncAdapter adapter = new CalendarSyncAdapter(mailbox,
                                         service);
@@ -700,16 +698,21 @@ public class SyncManager extends Service implements Runnable {
                                 } catch (IOException e) {
                                     // The provider can't be reached; nothing to be done
                                 }
-                                // Reset the sync key locally in the Mailbox
-                                ContentValues cv = new ContentValues();
+                                // Reset the sync key locally in the Mailbox and set it not to sync
                                 cv.put(Mailbox.SYNC_KEY, "0");
-                                mResolver.update(ContentUris.withAppendedId(
-                                        Mailbox.CONTENT_URI, mailbox.mId), cv, null, null);
+                                cv.put(Mailbox.SYNC_INTERVAL, Mailbox.CHECK_INTERVAL_NEVER);
                                 // Delete all events in this calendar
                                 mResolver.delete(Events.CONTENT_URI, WHERE_CALENDAR_ID,
                                         new String[] {Long.toString(mCalendarId)});
                                 // TODO Stop sync in progress??
+                            } else {
+                                // Set sync back to push
+                                cv.put(Mailbox.SYNC_INTERVAL, Mailbox.CHECK_INTERVAL_PUSH);
                             }
+
+                            // Update the calendar mailbox with new settings
+                            mResolver.update(ContentUris.withAppendedId(
+                                    Mailbox.CONTENT_URI, mailbox.mId), cv, null, null);
 
                             // Save away the new value
                             mSyncEvents = newSyncEvents;
@@ -1812,8 +1815,6 @@ public class SyncManager extends Service implements Runnable {
         // Contacts/Calendar obey this setting from ContentResolver
         // Mail is on its own schedule
         boolean masterAutoSync = ContentResolver.getMasterSyncAutomatically();
-        ConnectivityManager cm =
-            (ConnectivityManager)getSystemService(Context.CONNECTIVITY_SERVICE);
         try {
             while (c.moveToNext()) {
                 long mid = c.getLong(Mailbox.CONTENT_ID_COLUMN);
