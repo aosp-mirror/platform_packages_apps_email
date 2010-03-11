@@ -503,7 +503,21 @@ public class MimeMessageTest extends TestCase {
         assertEquals(1, mm.getRecipients(MimeMessage.RecipientType.CC).length);
         assertEquals("a@b.com", mm.getRecipients(MimeMessage.RecipientType.CC)[0].getAddress());
         assertEquals(0, mm.getRecipients(MimeMessage.RecipientType.BCC).length);
-        assertEquals("<testabcd.1234@silly.test>",mm.getMessageId());
+        assertEquals("<testabcd.1234@silly.test>", mm.getMessageId());
+    }
+
+    /**
+     * Confirm parser w/o a message-id inhibits a local message-id from being generated
+     */
+    public void testParseNoMessageId() throws MessagingException, IOException {
+        String entireMessage =
+            "To: user@domain.com\r\n" +
+            "\r\n" +
+            "Testing\r\n";
+        MimeMessage mm = null;
+        mm = new MimeMessage(new ByteArrayInputStream(entireMessage.getBytes("us-ascii")));
+
+        assertNull(mm.getMessageId());
     }
 
     // TODO more test for writeTo()

@@ -44,8 +44,11 @@ import java.util.Stack;
 import java.util.regex.Pattern;
 
 /**
- * An implementation of Message that stores all of it's metadata in RFC 822 and
+ * An implementation of Message that stores all of its metadata in RFC 822 and
  * RFC 2045 style headers.
+ *
+ * NOTE:  Automatic generation of a local message-id is becoming unwieldy and should be removed.
+ * It would be better to simply do it explicitly on local creation of new outgoing messages.
  */
 public class MimeMessage extends Message {
     private MimeHeader mHeader;
@@ -62,6 +65,7 @@ public class MimeMessage extends Message {
     private Date mSentDate;
     private Body mBody;
     protected int mSize;
+    private boolean mInhibitLocalMessageId = false;
 
     // Shared random source for generating local message-id values
     private static java.util.Random sRandom = new java.util.Random();
@@ -118,6 +122,7 @@ public class MimeMessage extends Message {
         // Before parsing the input stream, clear all local fields that may be superceded by
         // the new incoming message.
         getMimeHeaders().clear();
+        mInhibitLocalMessageId = true;
         mFrom = null;
         mTo = null;
         mCc = null;
@@ -323,14 +328,14 @@ public class MimeMessage extends Message {
     
     /**
      * Get the mime "Message-ID" header.  This value will be preloaded with a locally-generated
-     * random ID, if the value has not previously been set.
-     * @return the Message-ID header string
-     * @throws MessagingException
+     * random ID, if the value has not previously been set.  Local generation can be inhibited/
+     * overridden by explicitly clearing the headers, removing the message-id header, etc.
+     * @return the Message-ID header string, or null if explicitly has been set to null
      */
     @Override
     public String getMessageId() throws MessagingException {
         String messageId = getFirstHeader("Message-ID");
-        if (messageId == null) {
+        if (messageId == null && !mInhibitLocalMessageId) {
             messageId = generateMessageId();
             setMessageId(messageId);
         }
@@ -378,6 +383,9 @@ public class MimeMessage extends Message {
 
     public void removeHeader(String name) throws MessagingException {
         getMimeHeaders().removeHeader(name);
+        if ("Message-ID".equalsIgnoreCase(name)) {
+            mInhibitLocalMessageId = true;
+        }
     }
 
     /**
