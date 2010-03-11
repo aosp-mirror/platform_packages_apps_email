@@ -22,7 +22,7 @@ public class SimpleIcsWriter extends CharArrayWriter {
     public static final int MAX_LINE_LENGTH = 75;
     public static final int LINE_BREAK_LENGTH = 3;
     public static final String LINE_BREAK = "\r\n\t";
-    int mLineCount = 0;
+    int mColumnCount = 0;
 
     public SimpleIcsWriter() {
         super();
@@ -31,26 +31,33 @@ public class SimpleIcsWriter extends CharArrayWriter {
     private void newLine() {
         write('\r');
         write('\n');
-        mLineCount = 0;
+        mColumnCount = 0;
     }
 
     @Override
     public void write(String str) throws IOException {
         int len = str.length();
-        // Handle the simple case here to avoid unnecessary looping
-        if (mLineCount + len < MAX_LINE_LENGTH) {
-            mLineCount += len;
-            super.write(str);
-            return;
-        }
-        for (int i = 0; i < len; i++, mLineCount++) {
-            if (mLineCount == MAX_LINE_LENGTH) {
+        for (int i = 0; i < len; i++, mColumnCount++) {
+            if (mColumnCount == MAX_LINE_LENGTH) {
                 write('\r');
                 write('\n');
                 write('\t');
-                mLineCount = 0;
+                // Line count will get immediately incremented to one (the tab)
+                mColumnCount = 0;
             }
-            write(str.charAt(i));
+            char c = str.charAt(i);
+            if (c == '\r') {
+                // Ignore CR
+                mColumnCount--;
+                continue;
+            } else if (c == '\n') {
+                // On LF, set to -1, which will immediately get incremented to zero
+                write("\\");
+                write("n");
+                mColumnCount = -1;
+                continue;
+            }
+            write(c);
         }
     }
 

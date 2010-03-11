@@ -37,6 +37,14 @@ public class SimpleIcsWriterTests extends TestCase {
     private final String expectedSecondLineBreak =
         string80Chars.charAt(SimpleIcsWriter.MAX_LINE_LENGTH - 1) + SimpleIcsWriter.LINE_BREAK;
 
+    public void testCrlf() throws IOException {
+        SimpleIcsWriter w = new SimpleIcsWriter();
+        w.writeTag("TAG", "A\r\nB\nC\r\nD");
+        String str = w.toString();
+        // Make sure \r's are stripped and that \n is turned into two chars, \ and n
+        assertEquals("TAG:A\\nB\\nC\\nD\r\n", str);
+    }
+
     public void testWriter() throws IOException {
         // Sanity test on constant strings
         assertEquals(63, string63Chars.length());
@@ -49,7 +57,7 @@ public class SimpleIcsWriterTests extends TestCase {
         w.writeTag(tag11Chars, string63Chars + string80Chars);
 
         // We should always end a tag on a new line
-        assertEquals(0, w.mLineCount);
+        assertEquals(0, w.mColumnCount);
 
         // Get the final string
         String str = w.toString();
