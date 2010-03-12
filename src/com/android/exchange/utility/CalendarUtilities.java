@@ -1119,6 +1119,9 @@ public class CalendarUtilities {
         cv.put(Calendars.SYNC_EVENTS, 1);
         cv.put(Calendars.SELECTED, 1);
         cv.put(Calendars.HIDDEN, 0);
+        // Don't show attendee status if we're the organizer
+        cv.put(Calendars.ORGANIZER_CAN_RESPOND, 0);
+
         // TODO Coordinate account colors w/ Calendar, if possible
         // Make Email account color opaque
         cv.put(Calendars.COLOR, 0xFF000000 | Email.getAccountColor(account.mId));
