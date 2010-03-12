@@ -16,6 +16,7 @@
 
 package com.android.email.provider;
 
+import com.android.email.Utility;
 import com.android.email.provider.EmailContent.Account;
 import com.android.email.provider.EmailContent.Attachment;
 import com.android.email.provider.EmailContent.HostAuth;
@@ -23,6 +24,7 @@ import com.android.email.provider.EmailContent.Mailbox;
 import com.android.email.provider.EmailContent.Message;
 
 import android.content.Context;
+import android.test.MoreAsserts;
 
 import junit.framework.Assert;
 
@@ -200,6 +202,7 @@ public class ProviderTestUtils extends Assert {
         att.mEncoding = "encoding " + fileName;
         att.mContent = "content " + fileName;
         att.mFlags = 0;
+        att.mContentBytes = Utility.toUtf8("content " + fileName);
         if (saveIt) {
             att.save(context);
         }
@@ -364,5 +367,7 @@ public class ProviderTestUtils extends Assert {
         assertEquals(caller + " mEncoding", expect.mEncoding, actual.mEncoding);
         assertEquals(caller + " mContent", expect.mContent, actual.mContent);
         assertEquals(caller + " mFlags", expect.mFlags, actual.mFlags);
+        MoreAsserts.assertEquals(caller + " mContentBytes",
+                expect.mContentBytes, actual.mContentBytes);
     }
 }

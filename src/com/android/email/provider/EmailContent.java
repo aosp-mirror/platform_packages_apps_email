@@ -1633,10 +1633,12 @@ public abstract class EmailContent {
         public static final String LOCATION = "location";
         // The transfer encoding of the attachment
         public static final String ENCODING = "encoding";
-        // Content that is actually contained in the Attachment row
+        // Not currently used
         public static final String CONTENT = "content";
         // Flags
         public static final String FLAGS = "flags";
+        // Content that is actually contained in the Attachment row
+        public static final String CONTENT_BYTES = "content_bytes";
     }
 
     public static final class Attachment extends EmailContent implements AttachmentColumns {
@@ -1654,8 +1656,9 @@ public abstract class EmailContent {
         public long mMessageKey;
         public String mLocation;
         public String mEncoding;
-        public String mContent;
+        public String mContent; // Not currently used
         public int mFlags;
+        public byte[] mContentBytes;
 
         public static final int CONTENT_ID_COLUMN = 0;
         public static final int CONTENT_FILENAME_COLUMN = 1;
@@ -1666,13 +1669,14 @@ public abstract class EmailContent {
         public static final int CONTENT_MESSAGE_ID_COLUMN = 6;
         public static final int CONTENT_LOCATION_COLUMN = 7;
         public static final int CONTENT_ENCODING_COLUMN = 8;
-        public static final int CONTENT_CONTENT_COLUMN = 9;
+        public static final int CONTENT_CONTENT_COLUMN = 9; // Not currently used
         public static final int CONTENT_FLAGS_COLUMN = 10;
+        public static final int CONTENT_CONTENT_BYTES_COLUMN = 11;
         public static final String[] CONTENT_PROJECTION = new String[] {
             RECORD_ID, AttachmentColumns.FILENAME, AttachmentColumns.MIME_TYPE,
             AttachmentColumns.SIZE, AttachmentColumns.CONTENT_ID, AttachmentColumns.CONTENT_URI,
             AttachmentColumns.MESSAGE_KEY, AttachmentColumns.LOCATION, AttachmentColumns.ENCODING,
-            AttachmentColumns.CONTENT, AttachmentColumns.FLAGS
+            AttachmentColumns.CONTENT, AttachmentColumns.FLAGS, AttachmentColumns.CONTENT_BYTES
         };
 
         // Bits used in mFlags
@@ -1777,6 +1781,7 @@ public abstract class EmailContent {
             mEncoding = cursor.getString(CONTENT_ENCODING_COLUMN);
             mContent = cursor.getString(CONTENT_CONTENT_COLUMN);
             mFlags = cursor.getInt(CONTENT_FLAGS_COLUMN);
+            mContentBytes = cursor.getBlob(CONTENT_CONTENT_BYTES_COLUMN);
             return this;
         }
 
@@ -1793,6 +1798,7 @@ public abstract class EmailContent {
             values.put(AttachmentColumns.ENCODING, mEncoding);
             values.put(AttachmentColumns.CONTENT, mContent);
             values.put(AttachmentColumns.FLAGS, mFlags);
+            values.put(AttachmentColumns.CONTENT_BYTES, mContentBytes);
             return values;
         }
 
@@ -1813,6 +1819,12 @@ public abstract class EmailContent {
             dest.writeString(mEncoding);
             dest.writeString(mContent);
             dest.writeInt(mFlags);
+            if (mContentBytes == null) {
+                dest.writeInt(-1);
+            } else {
+                dest.writeInt(mContentBytes.length);
+                dest.writeByteArray(mContentBytes);
+            }
         }
 
         public Attachment(Parcel in) {
@@ -1828,6 +1840,13 @@ public abstract class EmailContent {
             mEncoding = in.readString();
             mContent = in.readString();
             mFlags = in.readInt();
+            final int contentBytesLen = in.readInt();
+            if (contentBytesLen == -1) {
+                mContentBytes = null;
+            } else {
+                mContentBytes = new byte[contentBytesLen];
+                in.readByteArray(mContentBytes);
+            }
          }
 
         public static final Parcelable.Creator<EmailContent.Attachment> CREATOR
@@ -1845,7 +1864,7 @@ public abstract class EmailContent {
         public String toString() {
             return "[" + mFileName + ", " + mMimeType + ", " + mSize + ", " + mContentId + ", "
                     + mContentUri + ", " + mMessageKey + ", " + mLocation + ", " + mEncoding  + ", "
-                    + mContent + ", " + mFlags + "]";
+                    + mFlags + ", " + mContentBytes + "]";
         }
     }
 

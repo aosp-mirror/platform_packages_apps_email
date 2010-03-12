@@ -21,6 +21,7 @@ import com.android.email.provider.EmailContent.Mailbox;
 import android.content.Context;
 import android.graphics.drawable.Drawable;
 import android.test.AndroidTestCase;
+import android.test.MoreAsserts;
 import android.test.suitebuilder.annotation.SmallTest;
 
 import java.util.HashSet;
@@ -111,5 +112,16 @@ public class UtilityUnitTests extends AndroidTestCase {
         set.add(trash);
         set.add(junk);
         assertEquals(8, set.size());
+    }
+
+
+    /** Test for {@link Utility#toUtf8} and {@link Utility#fromUtf8} */
+    public void testUtf8() {
+        assertNull(Utility.toUtf8(null));
+        MoreAsserts.assertEquals(new byte[] {}, Utility.toUtf8(""));
+        MoreAsserts.assertEquals(TestUtils.b('a'), Utility.toUtf8("a"));
+        MoreAsserts.assertEquals(TestUtils.b('A', 'B', 'C'), Utility.toUtf8("ABC"));
+        MoreAsserts.assertEquals(TestUtils.b(0xE6, 0x97, 0xA5, 0xE6, 0x9C, 0xAC, 0xE8, 0xAA, 0x9E),
+                Utility.toUtf8("\u65E5\u672C\u8A9E"));
     }
 }

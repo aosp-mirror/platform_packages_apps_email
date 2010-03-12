@@ -18,6 +18,7 @@ package com.android.exchange.utility;
 
 import com.android.email.Email;
 import com.android.email.R;
+import com.android.email.Utility;
 import com.android.email.mail.Address;
 import com.android.email.provider.EmailContent;
 import com.android.email.provider.EmailContent.Account;
@@ -1458,10 +1459,13 @@ public class CalendarUtilities {
 
             // Create the ics attachment using the "content" field
             Attachment att = new Attachment();
-            att.mContent = ics.toString();
+
+            // TODO UTF-8 conversion should be done in SimpleIcsWriter, as it should count line
+            // length for folding in bytes in UTF-8.
+            att.mContentBytes = Utility.toUtf8(ics.toString());
             att.mMimeType = "text/calendar; method=" + method;
             att.mFileName = "invite.ics";
-            att.mSize = att.mContent.length();
+            att.mSize = att.mContentBytes.length;
             // We don't send content-disposition with this attachment
             att.mFlags = Attachment.FLAG_SUPPRESS_DISPOSITION;
 

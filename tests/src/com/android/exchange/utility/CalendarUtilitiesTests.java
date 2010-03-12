@@ -18,6 +18,7 @@ package com.android.exchange.utility;
 
 import com.android.email.R;
 import com.android.email.Utility;
+import com.android.email.TestUtils;
 import com.android.email.mail.Address;
 import com.android.email.provider.EmailContent.Account;
 import com.android.email.provider.EmailContent.Attachment;
@@ -231,7 +232,8 @@ public class CalendarUtilitiesTests extends AndroidTestCase {
         assertEquals(Attachment.FLAG_SUPPRESS_DISPOSITION,
                 att.mFlags & Attachment.FLAG_SUPPRESS_DISPOSITION);
         assertEquals("text/calendar; method=REPLY", att.mMimeType);
-        assertNotNull(att.mContent);
+        assertNotNull(att.mContentBytes);
+        assertEquals(att.mSize, att.mContentBytes.length);
 
         //TODO Check the contents of the attachment using an iCalendar parser
     }
@@ -271,10 +273,11 @@ public class CalendarUtilitiesTests extends AndroidTestCase {
         assertEquals(Attachment.FLAG_SUPPRESS_DISPOSITION,
                 att.mFlags & Attachment.FLAG_SUPPRESS_DISPOSITION);
         assertEquals("text/calendar; method=REQUEST", att.mMimeType);
-        assertNotNull(att.mContent);
+        assertNotNull(att.mContentBytes);
+        assertEquals(att.mSize, att.mContentBytes.length);
 
         // We'll check the contents of the ics file here
-        BlockHash vcalendar = parseIcsContent(att.mContent);
+        BlockHash vcalendar = parseIcsContent(att.mContentBytes);
         assertNotNull(vcalendar);
 
         // We should have a VCALENDAR with a REQUEST method
@@ -338,10 +341,10 @@ public class CalendarUtilitiesTests extends AndroidTestCase {
         assertEquals(Attachment.FLAG_SUPPRESS_DISPOSITION,
                 att.mFlags & Attachment.FLAG_SUPPRESS_DISPOSITION);
         assertEquals("text/calendar; method=REQUEST", att.mMimeType);
-        assertNotNull(att.mContent);
+        assertNotNull(att.mContentBytes);
 
         // We'll check the contents of the ics file here
-        BlockHash vcalendar = parseIcsContent(att.mContent);
+        BlockHash vcalendar = parseIcsContent(att.mContentBytes);
         assertNotNull(vcalendar);
 
         // We should have a VCALENDAR with a REQUEST method
@@ -537,8 +540,8 @@ public class CalendarUtilitiesTests extends AndroidTestCase {
         }
     }
 
-    private BlockHash parseIcsContent(String s) throws IOException {
-        BufferedReader reader = new BufferedReader(new StringReader(s));
+    private BlockHash parseIcsContent(byte[] bytes) throws IOException {
+        BufferedReader reader = new BufferedReader(new StringReader(TestUtils.fromUtf8(bytes)));
         String line = reader.readLine();
         if (!line.equals("BEGIN:VCALENDAR")) {
             throw new IllegalArgumentException();

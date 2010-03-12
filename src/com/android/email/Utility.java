@@ -32,6 +32,7 @@ import android.content.res.TypedArray;
 import android.database.Cursor;
 import android.graphics.drawable.Drawable;
 import android.text.Editable;
+import android.util.Log;
 import android.util.base64.Base64;
 import android.widget.TextView;
 
@@ -39,11 +40,16 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.io.UnsupportedEncodingException;
+import java.nio.ByteBuffer;
+import java.nio.CharBuffer;
+import java.nio.charset.Charset;
 import java.util.Date;
 import java.util.GregorianCalendar;
 import java.util.TimeZone;
 
 public class Utility {
+    public static final Charset UTF_8 = Charset.forName("UTF-8");
+
     public final static String readInputStream(InputStream in, String encoding) throws IOException {
         InputStreamReader reader = new InputStreamReader(in, encoding);
         StringBuffer sb = new StringBuffer();
@@ -457,5 +463,16 @@ public class Utility {
                 Integer.parseInt(date.substring(17, 19)));
         cal.setTimeZone(TimeZone.getTimeZone("GMT"));
         return cal.getTimeInMillis();
+    }
+
+    /** Converts a String to UTF-8 */
+    public static byte[] toUtf8(String s) {
+        if (s == null) {
+            return null;
+        }
+        final ByteBuffer buffer = UTF_8.encode(CharBuffer.wrap(s));
+        final byte[] bytes = new byte[buffer.limit()];
+        buffer.get(bytes);
+        return bytes;
     }
 }

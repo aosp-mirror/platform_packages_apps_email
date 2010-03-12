@@ -226,8 +226,8 @@ public class Rfc822Output {
         InputStream inStream = null;
         try {
             // Use content, if provided; otherwise, use the contentUri
-            if (attachment.mContent != null) {
-                inStream = new ByteArrayInputStream(attachment.mContent.getBytes());
+            if (attachment.mContentBytes != null) {
+                inStream = new ByteArrayInputStream(attachment.mContentBytes);
             } else {
                 // try to open the file
                 Uri fileUri = Uri.parse(attachment.mContentUri);

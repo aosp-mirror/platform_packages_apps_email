@@ -80,7 +80,8 @@ public class EmailProvider extends ContentProvider {
     // Version 9: Add security sync key and signature to accounts table
     // Version 10: Add meeting info to message table
     // Version 11: Add content and flags to attachment table
-    public static final int DATABASE_VERSION = 11;
+    // Version 12: Add content_bytes to attachment table. content is deprecated.
+    public static final int DATABASE_VERSION = 12;
 
     // Any changes to the database format *must* include update-in-place code.
     // Original version: 2
@@ -506,7 +507,8 @@ public class EmailProvider extends ContentProvider {
             + AttachmentColumns.LOCATION + " text, "
             + AttachmentColumns.ENCODING + " text, "
             + AttachmentColumns.CONTENT + " text, "
-            + AttachmentColumns.FLAGS + " integer"
+            + AttachmentColumns.FLAGS + " integer, "
+            + AttachmentColumns.CONTENT_BYTES + " blob"
             + ");";
         db.execSQL("create table " + Attachment.TABLE_NAME + s);
         db.execSQL(createIndex(Attachment.TABLE_NAME, AttachmentColumns.MESSAGE_KEY));
@@ -768,6 +770,17 @@ public class EmailProvider extends ContentProvider {
                     Log.w(TAG, "Exception upgrading EmailProvider.db from 10 to 11 " + e);
                 }
                 oldVersion = 11;
+            }
+            if (oldVersion == 11) {
+                // Attachment: add content_bytes
+                try {
+                    db.execSQL("alter table " + Attachment.TABLE_NAME
+                            + " add column " + AttachmentColumns.CONTENT_BYTES + " blob" + ";");
+                } catch (SQLException e) {
+                    // Shouldn't be needed unless we're debugging and interrupt the process
+                    Log.w(TAG, "Exception upgrading EmailProvider.db from 11 to 12 " + e);
+                }
+                oldVersion = 12;
             }
         }
 
