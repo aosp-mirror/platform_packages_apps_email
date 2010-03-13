@@ -246,6 +246,11 @@ public class CalendarSyncAdapter extends AbstractSyncAdapter {
             long eventId = -1;
             long startTime = -1;
             long endTime = -1;
+
+            // Keep track of the attendees; exceptions will need them
+            ArrayList<ContentValues> attendeeValues = null;
+            int reminderMins = -1;
+
             while (nextTag(Tags.SYNC_APPLICATION_DATA) != END) {
                 if (update && firstTag) {
                     // Find the event that's being updated
@@ -292,7 +297,7 @@ public class CalendarSyncAdapter extends AbstractSyncAdapter {
                         break;
                     case Tags.CALENDAR_ATTENDEES:
                         // If eventId >= 0, this is an update; otherwise, a new Event
-                        attendeesParser(ops, eventId);
+                        attendeeValues = attendeesParser(ops, eventId);
                         break;
                     case Tags.BASE_BODY:
                         cv.put(Events.DESCRIPTION, bodyParser());
@@ -317,7 +322,7 @@ public class CalendarSyncAdapter extends AbstractSyncAdapter {
                         endTime = Utility.parseDateTimeToMillis(getValue());
                         break;
                     case Tags.CALENDAR_EXCEPTIONS:
-                        exceptionsParser(ops, cv);
+                        exceptionsParser(ops, cv, attendeeValues, reminderMins);
                         break;
                     case Tags.CALENDAR_LOCATION:
                         cv.put(Events.EVENT_LOCATION, getValue());
@@ -342,7 +347,8 @@ public class CalendarSyncAdapter extends AbstractSyncAdapter {
                         organizerName = getValue();
                         break;
                     case Tags.CALENDAR_REMINDER_MINS_BEFORE:
-                        ops.newReminder(getValueInt());
+                        reminderMins = getValueInt();
+                        ops.newReminder(reminderMins);
                         cv.put(Events.HAS_ALARM, 1);
                         break;
                     // The following are fields we should save (for changes), though they don't
@@ -496,8 +502,8 @@ public class CalendarSyncAdapter extends AbstractSyncAdapter {
                     dow, dom, wom, moy, until);
         }
 
-        private void exceptionParser(CalendarOperations ops, ContentValues parentCv)
-                throws IOException {
+        private void exceptionParser(CalendarOperations ops, ContentValues parentCv,
+                ArrayList<ContentValues> attendeeValues, int reminderMins) throws IOException {
             ContentValues cv = new ContentValues();
             cv.put(Events.CALENDAR_ID, mCalendarId);
             cv.put(Events._SYNC_ACCOUNT, mAccount.mEmailAddress);
@@ -507,8 +513,10 @@ public class CalendarSyncAdapter extends AbstractSyncAdapter {
             // Note that they can be overridden below
             cv.put(Events.ORGANIZER, parentCv.getAsString(Events.ORGANIZER));
             cv.put(Events.TITLE, parentCv.getAsString(Events.TITLE));
-            cv.put(Events.DESCRIPTION, parentCv.getAsBoolean(Events.DESCRIPTION));
+            cv.put(Events.DESCRIPTION, parentCv.getAsString(Events.DESCRIPTION));
             cv.put(Events.ORIGINAL_ALL_DAY, parentCv.getAsInteger(Events.ALL_DAY));
+            cv.put(Events.EVENT_LOCATION, parentCv.getAsString(Events.EVENT_LOCATION));
+            cv.put(Events.VISIBILITY, parentCv.getAsString(Events.VISIBILITY));
 
             // This column is the key that links the exception to the serverId
             // TODO Make sure calendar knows this isn't globally unique!!
@@ -587,10 +595,18 @@ public class CalendarSyncAdapter extends AbstractSyncAdapter {
             if (!cv.containsKey(Events.DTEND)) {
                 cv.put(Events.DTEND, parentCv.getAsLong(Events.DTEND));
             }
-            // TODO See if this is necessary
-            //cv.put(Events.LAST_DATE, cv.getAsLong(Events.DTEND));
 
+            // Add the exception insert
+            int exceptionStart = ops.mCount;
             ops.newException(cv);
+            // Also add the attendees, because they need to be copied over from the parent event
+            for (ContentValues attValues: attendeeValues) {
+                ops.newAttendee(attValues, exceptionStart);
+            }
+            // And add the parent's reminder value
+            if (reminderMins > 0) {
+                ops.newReminder(reminderMins, exceptionStart);
+            }
         }
 
         private int encodeVisibility(int easVisibility) {
@@ -612,12 +628,12 @@ public class CalendarSyncAdapter extends AbstractSyncAdapter {
             return visibility;
         }
 
-        private void exceptionsParser(CalendarOperations ops, ContentValues cv)
-                throws IOException {
+        private void exceptionsParser(CalendarOperations ops, ContentValues cv,
+                ArrayList<ContentValues> attendeeValues, int reminderMins) throws IOException {
             while (nextTag(Tags.CALENDAR_EXCEPTIONS) != END) {
                 switch (tag) {
                     case Tags.CALENDAR_EXCEPTION:
-                        exceptionParser(ops, cv);
+                        exceptionParser(ops, cv, attendeeValues, reminderMins);
                         break;
                     default:
                         skipTag();
@@ -642,19 +658,23 @@ public class CalendarSyncAdapter extends AbstractSyncAdapter {
             return categories.toString();
         }
 
-        private void attendeesParser(CalendarOperations ops, long eventId) throws IOException {
+        private ArrayList<ContentValues> attendeesParser(CalendarOperations ops, long eventId)
+                throws IOException {
+            ArrayList<ContentValues> attendeeValues = new ArrayList<ContentValues>();
             while (nextTag(Tags.CALENDAR_ATTENDEES) != END) {
                 switch (tag) {
                     case Tags.CALENDAR_ATTENDEE:
-                        attendeeParser(ops, eventId);
+                        attendeeValues.add(attendeeParser(ops, eventId));
                         break;
                     default:
                         skipTag();
                 }
             }
+            return attendeeValues;
         }
 
-        private void attendeeParser(CalendarOperations ops, long eventId) throws IOException {
+        private ContentValues attendeeParser(CalendarOperations ops, long eventId)
+                throws IOException {
             ContentValues cv = new ContentValues();
             while (nextTag(Tags.CALENDAR_ATTENDEE) != END) {
                 switch (tag) {
@@ -696,6 +716,7 @@ public class CalendarSyncAdapter extends AbstractSyncAdapter {
             } else {
                 ops.updatedAttendee(cv, eventId);
             }
+            return cv;
         }
 
         private String bodyParser() throws IOException {
@@ -966,10 +987,14 @@ public class CalendarSyncAdapter extends AbstractSyncAdapter {
         }
 
         public void newAttendee(ContentValues cv) {
+            newAttendee(cv, mEventStart);
+        }
+
+        public void newAttendee(ContentValues cv, int eventStart) {
             add(ContentProviderOperation
                     .newInsert(sAttendeesUri)
                     .withValues(cv)
-                    .withValueBackReference(Attendees.EVENT_ID, mEventStart)
+                    .withValueBackReference(Attendees.EVENT_ID, eventStart)
                     .build());
         }
 
@@ -991,13 +1016,17 @@ public class CalendarSyncAdapter extends AbstractSyncAdapter {
                     .build());
         }
 
-        public void newReminder(int mins) {
+        public void newReminder(int mins, int eventStart) {
             add(ContentProviderOperation
                     .newInsert(sRemindersUri)
                     .withValue(Reminders.MINUTES, mins)
                     .withValue(Reminders.METHOD, Reminders.METHOD_DEFAULT)
-                    .withValueBackReference(ExtendedProperties.EVENT_ID, mEventStart)
+                    .withValueBackReference(ExtendedProperties.EVENT_ID, eventStart)
                     .build());
+        }
+
+        public void newReminder(int mins) {
+            newReminder(mins, mEventStart);
         }
 
         public void delete(long id) {
