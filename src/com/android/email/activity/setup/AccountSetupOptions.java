@@ -58,6 +58,7 @@ public class AccountSetupOptions extends Activity implements OnClickListener {
     private EmailContent.Account mAccount;
     private boolean mEasFlowMode;
     private Handler mHandler = new Handler();
+    private boolean mDonePressed = false;
 
     /** Default sync window for new EAS accounts */
     private static final int SYNC_WINDOW_EAS_DEFAULT = com.android.email.Account.SYNC_WINDOW_3_DAYS;
@@ -228,7 +229,13 @@ public class AccountSetupOptions extends Activity implements OnClickListener {
     public void onClick(View v) {
         switch (v.getId()) {
             case R.id.next:
-                onDone();
+                // Don't allow this more than once (Exchange accounts call an async method
+                // before finish()'ing the Activity, which allows this code to potentially be
+                // executed multiple times
+                if (!mDonePressed) {
+                    onDone();
+                    mDonePressed = true;
+                }
                 break;
         }
     }
