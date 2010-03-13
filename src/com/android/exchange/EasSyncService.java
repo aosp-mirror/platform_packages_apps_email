@@ -41,12 +41,14 @@ import com.android.exchange.adapter.CalendarSyncAdapter;
 import com.android.exchange.adapter.ContactsSyncAdapter;
 import com.android.exchange.adapter.EmailSyncAdapter;
 import com.android.exchange.adapter.FolderSyncParser;
+import com.android.exchange.adapter.GalParser;
 import com.android.exchange.adapter.MeetingResponseParser;
 import com.android.exchange.adapter.PingParser;
 import com.android.exchange.adapter.ProvisionParser;
 import com.android.exchange.adapter.Serializer;
 import com.android.exchange.adapter.Tags;
 import com.android.exchange.adapter.Parser.EasParserException;
+import com.android.exchange.provider.GalResult;
 import com.android.exchange.utility.CalendarUtilities;
 
 import org.apache.http.Header;
@@ -655,6 +657,56 @@ public class EasSyncService extends AbstractSyncService {
                 parseResponse(parser, hostAuth);
             }
         }
+    }
+
+    /**
+     * Contact the GAL and obtain a list of matching accounts
+     * @param context caller's context
+     * @param accountId the account Id to search
+     * @param filter the characters entered so far
+     * @return a result record
+     *
+     * TODO: shorter timeout for interactive lookup
+     * TODO: make watchdog actually work (it doesn't understand our service w/Mailbox == 0)
+     * TODO: figure out why sendHttpClientPost() hangs - possibly pool exhaustion
+     */
+    static public GalResult searchGal(Context context, long accountId, String filter)
+    {
+        Account acct = SyncManager.getAccountList().getById(accountId);
+        if (acct != null) {
+            HostAuth ha = HostAuth.restoreHostAuthWithId(context, acct.mHostAuthKeyRecv);
+            try {
+                EasSyncService svc = new EasSyncService("%GalLookupk%");
+                svc.mContext = context;
+                svc.mHostAddress = ha.mAddress;
+                svc.mUserName = ha.mLogin;
+                svc.mPassword = ha.mPassword;
+                svc.mSsl = (ha.mFlags & HostAuth.FLAG_SSL) != 0;
+                svc.mTrustSsl = (ha.mFlags & HostAuth.FLAG_TRUST_ALL_CERTIFICATES) != 0;
+                svc.mDeviceId = SyncManager.getDeviceId();
+                Serializer s = new Serializer();
+                s.start(Tags.SEARCH_SEARCH).start(Tags.SEARCH_STORE);
+                s.data(Tags.SEARCH_NAME, "GAL").data(Tags.SEARCH_QUERY, filter);
+                s.start(Tags.SEARCH_OPTIONS);
+                s.data(Tags.SEARCH_RANGE, "0-19");
+                s.end().end().end().done();
+                svc.userLog("GAL lookup starting for " + ha.mAddress);
+                HttpResponse resp = svc.sendHttpClientPost("Search", s.toByteArray());
+                int code = resp.getStatusLine().getStatusCode();
+                svc.userLog("GAL lookup returned " + code);
+                if (code == HttpStatus.SC_OK) {
+                    InputStream is = resp.getEntity().getContent();
+                    GalParser gp = new GalParser(is, svc);
+                    if (gp.parse()) {
+                        svc.userLog("GAL lookup successful for " + ha.mAddress);
+                        return gp.getGalResult();
+                    }
+                }
+            } catch (IOException e) {
+                // GAL is non-critical; we'll just go on
+            }
+        }
+        return null;
     }
 
     private void doStatusCallback(long messageId, long attachmentId, int status) {

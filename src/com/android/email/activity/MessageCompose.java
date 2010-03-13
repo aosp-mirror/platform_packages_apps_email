@@ -33,6 +33,7 @@ import com.android.email.provider.EmailContent.Body;
 import com.android.email.provider.EmailContent.BodyColumns;
 import com.android.email.provider.EmailContent.Message;
 import com.android.email.provider.EmailContent.MessageColumns;
+import com.android.exchange.provider.GalEmailAddressAdapter;
 
 import android.app.Activity;
 import android.content.ActivityNotFoundException;
@@ -156,7 +157,9 @@ public class MessageCompose extends Activity implements OnClickListener, OnFocus
     private AsyncTask mSaveMessageTask;
     private AsyncTask mLoadMessageTask;
 
-    private EmailAddressAdapter mAddressAdapter;
+    private EmailAddressAdapter mAddressAdapterTo;
+    private EmailAddressAdapter mAddressAdapterCc;
+    private EmailAddressAdapter mAddressAdapterBcc;
 
     private Handler mHandler = new Handler() {
         @Override
@@ -278,6 +281,9 @@ public class MessageCompose extends Activity implements OnClickListener, OnFocus
         mAccount = account;
         if (account != null) {
             mRightTitle.setText(account.mDisplayName);
+            mAddressAdapterTo.setAccount(account);
+            mAddressAdapterCc.setAccount(account);
+            mAddressAdapterBcc.setAccount(account);
         }
     }
 
@@ -391,9 +397,15 @@ public class MessageCompose extends Activity implements OnClickListener, OnFocus
         mLoadMessageTask = null;
         // don't cancel mSaveMessageTask, let it do its job to the end.
 
-        // Make sure the adapter doesn't leak its cursor
-        if (mAddressAdapter != null) {
-            mAddressAdapter.changeCursor(null);
+        // TODO Make sure the three adapters don't leak their internal cursors
+        if (mAddressAdapterTo != null) {
+            mAddressAdapterTo.changeCursor(null);
+        }
+        if (mAddressAdapterCc != null) {
+            mAddressAdapterCc.changeCursor(null);
+        }
+        if (mAddressAdapterBcc != null) {
+            mAddressAdapterBcc.changeCursor(null);
         }
     }
 
@@ -538,18 +550,18 @@ public class MessageCompose extends Activity implements OnClickListener, OnFocus
 
         mQuotedTextDelete.setOnClickListener(this);
 
-        mAddressAdapter = new EmailAddressAdapter(this);
         EmailAddressValidator addressValidator = new EmailAddressValidator();
 
-        mToView.setAdapter(mAddressAdapter);
+        setupAddressAdapters();
+        mToView.setAdapter(mAddressAdapterTo);
         mToView.setTokenizer(new Rfc822Tokenizer());
         mToView.setValidator(addressValidator);
 
-        mCcView.setAdapter(mAddressAdapter);
+        mCcView.setAdapter(mAddressAdapterCc);
         mCcView.setTokenizer(new Rfc822Tokenizer());
         mCcView.setValidator(addressValidator);
 
-        mBccView.setAdapter(mAddressAdapter);
+        mBccView.setAdapter(mAddressAdapterBcc);
         mBccView.setTokenizer(new Rfc822Tokenizer());
         mBccView.setValidator(addressValidator);
 
@@ -559,6 +571,26 @@ public class MessageCompose extends Activity implements OnClickListener, OnFocus
 
         mSubjectView.setOnFocusChangeListener(this);
         mMessageContentView.setOnFocusChangeListener(this);
+    }
+
+    /**
+     * Set up address auto-completion adapters.
+     */
+    @SuppressWarnings("all")
+    private void setupAddressAdapters() {
+        /* EXCHANGE-REMOVE-SECTION-START */
+        if (true) {
+            mAddressAdapterTo = new GalEmailAddressAdapter(this, mToView);
+            mAddressAdapterCc = new GalEmailAddressAdapter(this, mCcView);
+            mAddressAdapterBcc = new GalEmailAddressAdapter(this, mBccView);
+        } else {
+            /* EXCHANGE-REMOVE-SECTION-END */
+            mAddressAdapterTo = new EmailAddressAdapter(this);
+            mAddressAdapterCc = new EmailAddressAdapter(this);
+            mAddressAdapterBcc = new EmailAddressAdapter(this);
+            /* EXCHANGE-REMOVE-SECTION-START */
+        }
+        /* EXCHANGE-REMOVE-SECTION-END */
     }
 
     // TODO: is there any way to unify this with MessageView.LoadMessageTask?
@@ -817,7 +849,7 @@ public class MessageCompose extends Activity implements OnClickListener, OnFocus
             if (mDraft.mId > 0) {
                 return mDraft.mId;
             }
-            // don't save draft if the source message did not load yet 
+            // don't save draft if the source message did not load yet
             if (!mMessageLoaded) {
                 return -1;
             }
@@ -1248,7 +1280,7 @@ public class MessageCompose extends Activity implements OnClickListener, OnFocus
                     Uri uri = (Uri) parcelable;
                     if (uri != null) {
                         Attachment attachment = loadAttachmentInfo(uri);
-                        if (MimeUtility.mimeTypeMatches(attachment.mMimeType, 
+                        if (MimeUtility.mimeTypeMatches(attachment.mMimeType,
                                 Email.ACCEPTABLE_ATTACHMENT_SEND_INTENT_TYPES)) {
                             addAttachment(attachment);
                         }

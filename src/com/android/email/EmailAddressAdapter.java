@@ -17,6 +17,7 @@
 package com.android.email;
 
 import com.android.email.mail.Address;
+import com.android.email.provider.EmailContent.Account;
 
 import android.content.ContentResolver;
 import android.content.Context;
@@ -30,15 +31,16 @@ import android.widget.ResourceCursorAdapter;
 import android.widget.TextView;
 
 public class EmailAddressAdapter extends ResourceCursorAdapter {
+    public static final int ID_INDEX = 0;
     public static final int NAME_INDEX = 1;
     public static final int DATA_INDEX = 2;
 
-    private static final String SORT_ORDER =
+    protected static final String SORT_ORDER =
             Contacts.TIMES_CONTACTED + " DESC, " + Contacts.DISPLAY_NAME;
 
-    private ContentResolver mContentResolver;
+    protected ContentResolver mContentResolver;
 
-    private static final String[] PROJECTION = {
+    protected static final String[] PROJECTION = {
         Data._ID,               // 0
         Contacts.DISPLAY_NAME,  // 1
         Email.DATA              // 2
@@ -58,7 +60,7 @@ public class EmailAddressAdapter extends ResourceCursorAdapter {
     }
 
     @Override
-    public final void bindView(View view, Context context, Cursor cursor) {
+    public void bindView(View view, Context context, Cursor cursor) {
         TextView text1 = (TextView)view.findViewById(R.id.text1);
         TextView text2 = (TextView)view.findViewById(R.id.text2);
         text1.setText(cursor.getString(NAME_INDEX));
@@ -80,4 +82,10 @@ public class EmailAddressAdapter extends ResourceCursorAdapter {
         }
         return c;
     }
+
+    /**
+     * Set the account when known.  Not used for generic contacts lookup;  Use when
+     * linking lookup to specific account.
+     */
+    public void setAccount(Account account) { }
 }

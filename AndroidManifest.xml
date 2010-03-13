@@ -328,5 +328,17 @@
             android:multiprocess="true"
             android:permission="com.android.email.permission.ACCESS_PROVIDER"
             />
+
+        <!--EXCHANGE-REMOVE-SECTION-START-->
+        <!-- In this release, GAL information is used locally only, so we used the same
+             strict permissions. -->
+        <provider
+            android:name="com.android.exchange.provider.ExchangeProvider"
+            android:authorities="com.android.exchange.provider"
+            android:multiprocess="true"
+            android:permission="com.android.email.permission.ACCESS_PROVIDER"
+            />
+        <!--EXCHANGE-REMOVE-SECTION-END-->
+
     </application>
 </manifest>

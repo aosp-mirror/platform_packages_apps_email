@@ -44,6 +44,7 @@ public class Tags {
     public static final int CONTACTS2 = 0x0C;
     public static final int PING = 0x0D;
     public static final int PROVISION = 0x0E;
+    public static final int SEARCH = 0x0F;
     public static final int GAL = 0x10;
     public static final int BASE = 0x11;
 
@@ -86,7 +87,6 @@ public class Tags {
     public static final int SYNC_WAIT = SYNC_PAGE + 0x24;
     public static final int SYNC_LIMIT = SYNC_PAGE + 0x25;
     public static final int SYNC_PARTIAL = SYNC_PAGE + 0x26;
-
 
     public static final int GIE_PAGE = GIE << PAGE_SHIFT;
     public static final int GIE_GET_ITEM_ESTIMATE = GIE_PAGE + 5;
@@ -357,6 +357,46 @@ public class Tags {
     public static final int PING_CLASS = PING_PAGE + 0xC;
     public static final int PING_MAX_FOLDERS = PING_PAGE + 0xD;
 
+    public static final int SEARCH_PAGE = SEARCH << PAGE_SHIFT;
+    public static final int SEARCH_SEARCH = SEARCH_PAGE + 5;
+    public static final int SEARCH_STORES = SEARCH_PAGE + 6;
+    public static final int SEARCH_STORE = SEARCH_PAGE + 7;
+    public static final int SEARCH_NAME = SEARCH_PAGE + 8;
+    public static final int SEARCH_QUERY = SEARCH_PAGE + 9;
+    public static final int SEARCH_OPTIONS = SEARCH_PAGE + 0xA;
+    public static final int SEARCH_RANGE = SEARCH_PAGE + 0xB;
+    public static final int SEARCH_STATUS = SEARCH_PAGE + 0xC;
+    public static final int SEARCH_RESPONSE = SEARCH_PAGE + 0xD;
+    public static final int SEARCH_RESULT = SEARCH_PAGE + 0xE;
+    public static final int SEARCH_PROPERTIES = SEARCH_PAGE + 0xF;
+    public static final int SEARCH_TOTAL = SEARCH_PAGE + 0x10;
+    public static final int SEARCH_EQUAL_TO = SEARCH_PAGE + 0x11;
+    public static final int SEARCH_VALUE = SEARCH_PAGE + 0x12;
+    public static final int SEARCH_AND = SEARCH_PAGE + 0x13;
+    public static final int SEARCH_OR = SEARCH_PAGE + 0x14;
+    public static final int SEARCH_FREE_TEXT = SEARCH_PAGE + 0x15;
+    public static final int SEARCH_SUBSTRING_OP = SEARCH_PAGE + 0x16;
+    public static final int SEARCH_DEEP_TRAVERSAL = SEARCH_PAGE + 0x17;
+    public static final int SEARCH_LONG_ID = SEARCH_PAGE + 0x18;
+    public static final int SEARCH_REBUILD_RESULTS = SEARCH_PAGE + 0x19;
+    public static final int SEARCH_LESS_THAN = SEARCH_PAGE + 0x1A;
+    public static final int SEARCH_GREATER_THAN = SEARCH_PAGE + 0x1B;
+    public static final int SEARCH_SCHEMA = SEARCH_PAGE + 0x1C;
+    public static final int SEARCH_SUPPORTED = SEARCH_PAGE + 0x1D;
+
+    public static final int GAL_PAGE = GAL << PAGE_SHIFT;
+    public static final int GAL_DISPLAY_NAME = GAL_PAGE + 5;
+    public static final int GAL_PHONE = GAL_PAGE + 6;
+    public static final int GAL_OFFICE = GAL_PAGE + 7;
+    public static final int GAL_TITLE = GAL_PAGE + 8;
+    public static final int GAL_COMPANY = GAL_PAGE + 9;
+    public static final int GAL_ALIAS = GAL_PAGE + 0xA;
+    public static final int GAL_FIRST_NAME = GAL_PAGE + 0xB;
+    public static final int GAL_LAST_NAME = GAL_PAGE + 0xC;
+    public static final int GAL_HOME_PHONE = GAL_PAGE + 0xD;
+    public static final int GAL_MOBILE_PHONE = GAL_PAGE + 0xE;
+    public static final int GAL_EMAIL_ADDRESS = GAL_PAGE + 0xF;
+
     public static final int PROVISION_PAGE = PROVISION << PAGE_SHIFT;
     // EAS 2.5
     public static final int PROVISION_PROVISION = PROVISION_PAGE + 5;
@@ -566,6 +606,11 @@ public class Tags {
         },
         {
             // 0x0F Search
+            "Search", "Stores", "Store", "Name", "Query",
+            "Options", "Range", "Status", "Response", "Result",
+            "Properties", "Total", "EqualTo", "Value", "And",
+            "Or", "FreeText", "SubstringOp", "DeepTraversal", "LongId",
+            "RebuildResults", "LessThan", "GreateerThan", "Schema", "Supported"
         },
         {
             // 0x10 Gal
