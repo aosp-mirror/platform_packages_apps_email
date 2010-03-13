@@ -274,7 +274,7 @@ public class CalendarSyncAdapter extends AbstractSyncAdapter {
                         } else {
                             // Otherwise, delete the original event and recreate it
                             userLog("Changing (delete/add) event ", serverId);
-                            deleteOffset = ops.newDelete(id);
+                            deleteOffset = ops.newDelete(id, serverId);
                             // Add a placeholder event so that associated tables can reference
                             // this as a back reference.  We add the event at the end of the method
                             eventOffset = ops.newEvent(PLACEHOLDER_OPERATION);
@@ -431,8 +431,11 @@ public class CalendarSyncAdapter extends AbstractSyncAdapter {
                     // If this is a change, we need to also remove the deletion that comes
                     // before the addition
                     if (deleteOffset >= 0) {
+                        // Remove the deletion
                         ops.remove(deleteOffset);
-                        userLog(TAG, "Removing deletion from mOps");
+                        // And the deletion of exceptions
+                        ops.remove(deleteOffset);
+                        userLog(TAG, "Removing deletion ops from mOps");
                         ops.mCount = deleteOffset;
                     }
                 }
@@ -775,7 +778,7 @@ public class CalendarSyncAdapter extends AbstractSyncAdapter {
                         try {
                             if (c.moveToFirst()) {
                                 userLog("Deleting ", serverId);
-                                ops.delete(c.getLong(0));
+                                ops.delete(c.getLong(0), serverId);
                             }
                         } finally {
                             c.close();
@@ -980,9 +983,9 @@ public class CalendarSyncAdapter extends AbstractSyncAdapter {
             return mEventStart;
         }
 
-        public int newDelete(long id) {
+        public int newDelete(long id, String serverId) {
             int offset = mCount;
-            delete(id);
+            delete(id, serverId);
             return offset;
         }
 
@@ -1029,9 +1032,13 @@ public class CalendarSyncAdapter extends AbstractSyncAdapter {
             newReminder(mins, mEventStart);
         }
 
-        public void delete(long id) {
+        public void delete(long id, String syncId) {
             add(ContentProviderOperation
                     .newDelete(ContentUris.withAppendedId(sEventsUri, id)).build());
+            // Delete the exceptions for this Event (CalendarProvider doesn't do this)
+            add(ContentProviderOperation
+                    .newDelete(sEventsUri).withSelection(Events.ORIGINAL_EVENT + "=?",
+                            new String[] {syncId}).build());
         }
 
         public void execute() {
