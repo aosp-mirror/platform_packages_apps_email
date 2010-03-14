@@ -1207,6 +1207,8 @@ public class CalendarSyncAdapter extends AbstractSyncAdapter {
 
             // Handle associated data EXCEPT for attendees, which have to be grouped
             ArrayList<NamedContentValues> subValues = entity.getSubValues();
+            // The earliest of the reminders for this Event; we can only send one reminder...
+            int earliestReminder = -1;
             for (NamedContentValues ncv: subValues) {
                 Uri ncvUri = ncv.uri;
                 ContentValues ncvValues = ncv.values;
@@ -1228,9 +1230,23 @@ public class CalendarSyncAdapter extends AbstractSyncAdapter {
                         }
                     }
                 } else if (ncvUri.equals(Reminders.CONTENT_URI)) {
-                    s.writeStringValue(ncvValues, Reminders.MINUTES,
-                            Tags.CALENDAR_REMINDER_MINS_BEFORE);
+                    Integer mins = ncvValues.getAsInteger(Reminders.MINUTES);
+                    if (mins != null) {
+                        // -1 means "default", which for Exchange, is 30
+                        if (mins < 0) {
+                            mins = 30;
+                        }
+                        // Save this away if it's the earliest reminder (greatest minutes)
+                        if (mins > earliestReminder) {
+                            earliestReminder = mins;
+                        }
+                    }
                 }
+            }
+
+            // If we have a reminder, send it to the server
+            if (earliestReminder >= 0) {
+                s.data(Tags.CALENDAR_REMINDER_MINS_BEFORE, Integer.toString(earliestReminder));
             }
 
             // We've got to send a UID, unless this is an exception.  If the event is new, we've
