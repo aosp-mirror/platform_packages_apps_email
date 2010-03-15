@@ -327,6 +327,9 @@ public class MessageView extends Activity implements OnClickListener {
      */
     public static void actionView(Context context, long messageId, long mailboxId,
             boolean disableReplyAndForward) {
+        if (messageId < 0) {
+            throw new IllegalArgumentException("MessageView invalid messageId " + messageId);
+        }
         Intent i = new Intent(context, MessageView.class);
         i.putExtra(EXTRA_MESSAGE_ID, messageId);
         i.putExtra(EXTRA_MAILBOX_ID, mailboxId);
