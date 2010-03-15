@@ -299,6 +299,7 @@ public class SyncManager extends Service implements Runnable {
             if (syncManager == null) return;
             checkSyncManagerServiceRunning();
             Mailbox m = Mailbox.restoreMailboxWithId(syncManager, mailboxId);
+            if (m == null) return;
             if (m.mType == Mailbox.TYPE_OUTBOX) {
                 // We're using SERVER_ID to indicate an error condition (it has no other use for
                 // sent mail)  Upon request to sync the Outbox, we clear this so that all messages
@@ -1358,6 +1359,7 @@ public class SyncManager extends Service implements Runnable {
                         Email.EXCHANGE_ACCOUNT_MANAGER_TYPE);
             // Get the mailbox; this happens rarely so it's ok to get it all
             Mailbox mailbox = Mailbox.restoreMailboxWithId(this, mailboxId);
+            if (mailbox == null) return;
             int syncInterval = mailbox.mSyncInterval;
             // If we're syncable, look further...
             if (ContentResolver.getIsSyncable(acct, authority) > 0) {
@@ -1558,11 +1560,13 @@ public class SyncManager extends Service implements Runnable {
         // Go through our active mailboxes looking for the right one
         for (long mailboxId: mServiceMap.keySet()) {
             Mailbox m = Mailbox.restoreMailboxWithId(this, mailboxId);
-            if (m.mAccountKey == accountId &&
-                    m.mServerId.startsWith(Eas.ACCOUNT_MAILBOX_PREFIX)) {
-                // Here's our account mailbox; reset him (stopping pings)
-                AbstractSyncService svc = mServiceMap.get(mailboxId);
-                svc.reset();
+            if (m != null) {
+                if (m.mAccountKey == accountId &&
+                        m.mServerId.startsWith(Eas.ACCOUNT_MAILBOX_PREFIX)) {
+                    // Here's our account mailbox; reset him (stopping pings)
+                    AbstractSyncService svc = mServiceMap.get(mailboxId);
+                    svc.reset();
+                }
             }
         }
     }
