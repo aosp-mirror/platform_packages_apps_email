@@ -649,6 +649,9 @@
     <!--  Indicate where a meeting takes place.  This is presented in in bullet form, as
          in, "When: xxx" followed by "Where: xxx" -->
     <string name="meeting_where">Where: <xliff:g id="where">%s</xliff:g></string>
+    <!--  Indicate that a meeting is recurring.  This would normally be presented after
+         "When: xxx", e.g. "When: Tue, Mar 10, 2010 at 2:30pm (recurring)" -->
+    <string name="meeting_recurring"><xliff:g id="eventdate" example="Tue, Mar 10, 2010 at 2:30 pm">%s</xliff:g> (recurring)</string>
 
     <!-- Used as the body text of a message reporting to an attendee that a specific instance
          of a recurring meeting has been canceled -->
