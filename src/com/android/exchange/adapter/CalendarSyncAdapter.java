@@ -248,7 +248,7 @@ public class CalendarSyncAdapter extends AbstractSyncAdapter {
             long endTime = -1;
 
             // Keep track of the attendees; exceptions will need them
-            ArrayList<ContentValues> attendeeValues = null;
+            ArrayList<ContentValues> attendeeValues = new ArrayList<ContentValues>();
             int reminderMins = -1;
 
             while (nextTag(Tags.SYNC_APPLICATION_DATA) != END) {
@@ -603,8 +603,10 @@ public class CalendarSyncAdapter extends AbstractSyncAdapter {
             int exceptionStart = ops.mCount;
             ops.newException(cv);
             // Also add the attendees, because they need to be copied over from the parent event
-            for (ContentValues attValues: attendeeValues) {
-                ops.newAttendee(attValues, exceptionStart);
+            if (attendeeValues != null) {
+                for (ContentValues attValues: attendeeValues) {
+                    ops.newAttendee(attValues, exceptionStart);
+                }
             }
             // And add the parent's reminder value
             if (reminderMins > 0) {
