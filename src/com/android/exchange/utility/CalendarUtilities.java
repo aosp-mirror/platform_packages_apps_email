@@ -917,7 +917,7 @@ public class CalendarUtilities {
         char c;
         do {
             c = rrule.charAt(end++);
-            if (!Character.isLetterOrDigit(c) || (end == len)) {
+            if ((c == ';') || (end == len)) {
                 if (end == len) end++;
                 return rrule.substring(start, end -1);
             }

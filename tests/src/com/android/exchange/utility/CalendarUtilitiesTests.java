@@ -17,8 +17,8 @@
 package com.android.exchange.utility;
 
 import com.android.email.R;
-import com.android.email.Utility;
 import com.android.email.TestUtils;
+import com.android.email.Utility;
 import com.android.email.mail.Address;
 import com.android.email.provider.EmailContent.Account;
 import com.android.email.provider.EmailContent.Attachment;
@@ -93,11 +93,11 @@ public class CalendarUtilitiesTests extends AndroidTestCase {
     }
 
     public void testGenerateEasDayOfWeek() {
-        String byDay = "TU;WE;SA";
+        String byDay = "TU,WE,SA";
         // TU = 4, WE = 8; SA = 64;
         assertEquals("76", CalendarUtilities.generateEasDayOfWeek(byDay));
         // MO = 2, TU = 4; WE = 8; TH = 16; FR = 32
-        byDay = "MO;TU;WE;TH;FR";
+        byDay = "MO,TU,WE,TH,FR";
         assertEquals("62", CalendarUtilities.generateEasDayOfWeek(byDay));
         // SU = 1
         byDay = "SU";
@@ -109,6 +109,7 @@ public class CalendarUtilitiesTests extends AndroidTestCase {
         assertEquals("DAILY", CalendarUtilities.tokenFromRrule(rrule, "FREQ="));
         assertEquals("1", CalendarUtilities.tokenFromRrule(rrule, "INTERVAL="));
         assertEquals("17", CalendarUtilities.tokenFromRrule(rrule, "BYMONTHDAY="));
+        assertEquals("WE,TH,SA", CalendarUtilities.tokenFromRrule(rrule, "BYDAY="));
         assertNull(CalendarUtilities.tokenFromRrule(rrule, "UNTIL="));
     }
 
