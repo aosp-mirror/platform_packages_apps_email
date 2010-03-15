@@ -1392,7 +1392,7 @@ public class CalendarUtilities {
                         if ((messageFlag & Message.FLAG_OUTGOING_MEETING_REQUEST_MASK) != 0) {
                             String icalTag = ICALENDAR_ATTENDEE_INVITE;
                             if (attendeeName != null) {
-                                icalTag += ";CN=" + attendeeName;
+                                icalTag += ";CN=" + SimpleIcsWriter.quoteParamValue(attendeeName);
                             }
                             ics.writeTag(icalTag, "MAILTO:" + attendeeEmail);
                             toList.add(attendeeName == null ? new Address(attendeeEmail) :

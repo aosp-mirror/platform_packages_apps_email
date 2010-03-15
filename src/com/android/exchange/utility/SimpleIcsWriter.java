@@ -69,4 +69,17 @@ public class SimpleIcsWriter extends CharArrayWriter {
         write(value);
         newLine();
     }
+
+    /**
+     * Quote a param-value string, according to RFC 5545, section 3.1
+     */
+    public static String quoteParamValue(String paramValue) {
+        if (paramValue == null) {
+            return null;
+        }
+        // Wrap with double quotes.  You can't put double-quotes itself in it, so remove them first.
+        // We can be smarter -- e.g. we don't have to wrap an empty string with dquotes -- but
+        // we don't have to.
+        return "\"" + paramValue.replace("\"", "") + "\"";
+    }
 }
