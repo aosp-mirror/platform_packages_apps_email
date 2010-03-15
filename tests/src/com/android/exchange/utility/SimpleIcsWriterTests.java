@@ -65,4 +65,13 @@ public class SimpleIcsWriterTests extends TestCase {
         assertEquals(SimpleIcsWriter.MAX_LINE_LENGTH + SimpleIcsWriter.LINE_BREAK_LENGTH +
                 (SimpleIcsWriter.MAX_LINE_LENGTH - 1), str.indexOf(expectedSecondLineBreak));
     }
+
+    public void testQuoteParamValue() {
+        assertNull(SimpleIcsWriter.quoteParamValue(null));
+        assertEquals("\"\"", SimpleIcsWriter.quoteParamValue(""));
+        assertEquals("\"a\"", SimpleIcsWriter.quoteParamValue("a"));
+        assertEquals("\"\"", SimpleIcsWriter.quoteParamValue("\""));
+        assertEquals("\"abc\"", SimpleIcsWriter.quoteParamValue("abc"));
+        assertEquals("\"abc\"", SimpleIcsWriter.quoteParamValue("a\"b\"c"));
+    }
 }
