@@ -1,12 +1,12 @@
 <?xml version="1.0" encoding="utf-8"?>
-<!-- Copyright (C) 2008 The Android Open Source Project
+<!-- Copyright (C) 2010 The Android Open Source Project
 
      Licensed under the Apache License, Version 2.0 (the "License");
      you may not use this file except in compliance with the License.
      You may obtain a copy of the License at
-  
+
           http://www.apache.org/licenses/LICENSE-2.0
-  
+
      Unless required by applicable law or agreed to in writing, software
      distributed under the License is distributed on an "AS IS" BASIS,
      WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
@@ -14,34 +14,32 @@
      limitations under the License.
 -->
 
+<!-- TODO: proper style/theme based layout -->
 <RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
     android:layout_width="match_parent"
-    android:layout_height="50dip"
+    android:layout_height="20dip"
     android:orientation="horizontal"
     android:layout_centerVertical="true"
-    android:layout_gravity="center_vertical">
+    android:background="#FF777777" >
+
     <TextView android:id="@+id/text1"
-        android:textColor="?android:attr/textColorPrimaryInverse"
-        android:textAppearance="?android:attr/textAppearanceMedium"
+        android:textColor="#FFFFFFFF"
+        android:textAppearance="?android:attr/textAppearanceSmall"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_alignParentLeft="true"
         android:layout_centerVertical="true"
-        android:gravity="center_vertical"
         android:paddingLeft="6dip"
         android:singleLine="true"
         android:ellipsize="end"
         />
-    <TextView android:id="@+id/text2"
-        android:textColor="?android:attr/textColorSecondaryInverse"
-        android:textAppearance="?android:attr/textAppearanceSmall"
+    <ProgressBar android:id="@+id/progress"
+        style="?android:attr/progressBarStyleSmallTitle"
+        android:minWidth="10dip"
+        android:paddingRight="4dip"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_toRightOf="@id/text1"
+        android:layout_alignParentRight="true"
         android:layout_centerVertical="true"
-        android:gravity="center_vertical"
-        android:paddingLeft="6dip"
-        android:singleLine="true"
-        android:ellipsize="end"
         />
 </RelativeLayout>

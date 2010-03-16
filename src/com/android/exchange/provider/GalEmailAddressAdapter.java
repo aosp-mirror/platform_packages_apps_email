@@ -27,28 +27,35 @@ import android.database.MatrixCursor;
 import android.database.MergeCursor;
 import android.net.Uri;
 import android.util.Log;
+import android.view.LayoutInflater;
 import android.view.View;
-import android.widget.AutoCompleteTextView;
+import android.view.ViewGroup;
+import android.widget.ListView;
 import android.widget.TextView;
 
 public class GalEmailAddressAdapter extends EmailAddressAdapter {
     private static final String TAG = "GalAdapter";
     // Don't run GAL query until there are 3 characters typed
     private static final int MINIMUM_GAL_CONSTRAINT_LENGTH = 3;
-    // Tag in the placeholder
-    public static final String SEARCHING_TAG = "_SEARCHING_";
 
-    Activity mActivity;
-    AutoCompleteTextView mAutoCompleteTextView;
-    Account mAccount;
-    boolean mAccountHasGal;
+    private Activity mActivity;
+    private Account mAccount;
+    private boolean mAccountHasGal;
+    private String mAccountEmailDomain;
+    private LayoutInflater mInflater;
 
-    public GalEmailAddressAdapter(Activity activity, AutoCompleteTextView actv) {
+    // Local variables to track status of the search
+    private int mSeparatorPosition;
+    private int mSeparatorDisplayCount;
+    private int mSeparatorTotalCount;
+
+    public GalEmailAddressAdapter(Activity activity) {
         super(activity);
         mActivity = activity;
-        mAutoCompleteTextView = actv;
         mAccount = null;
         mAccountHasGal = false;
+        mSeparatorPosition = ListView.INVALID_POSITION;
+        mInflater = (LayoutInflater) activity.getSystemService(Context.LAYOUT_INFLATER_SERVICE);
     }
 
     /**
@@ -59,16 +66,8 @@ public class GalEmailAddressAdapter extends EmailAddressAdapter {
     public void setAccount(Account account) {
         mAccount = account;
         mAccountHasGal = false;
-    }
-
-    /**
-     * TODO: This should be the general purpose placeholder
-     * TODO: String (possibly with account name)
-     */
-    public static Cursor getProgressCursor() {
-        MatrixCursor c = new MatrixCursor(ExchangeProvider.GAL_PROJECTION);
-        c.newRow().add(ExchangeProvider.GAL_START_ID).add("Searching ").add(SEARCHING_TAG);
-        return c;
+        int finalSplit = mAccount.mEmailAddress.lastIndexOf('@');
+        mAccountEmailDomain = mAccount.mEmailAddress.substring(finalSplit + 1);
     }
 
     /**
@@ -97,70 +96,214 @@ public class GalEmailAddressAdapter extends EmailAddressAdapter {
             checkGalAccount(mAccount);
         }
         // Get the cursor from ContactsProvider
-        Cursor initialCursor = super.runQueryOnBackgroundThread(constraint);
-        // If we don't have an account or we don't have a constraint that's long enough, just return
-        if (mAccountHasGal &&
-                constraint != null && constraint.length() >= MINIMUM_GAL_CONSTRAINT_LENGTH) {
-            // Note that the "progress" line could (should) be implemented as a header rather than
-            // as a row in the list. The current implementation is placeholder.
-            MergeCursor mc =
-                new MergeCursor(new Cursor[] {initialCursor, getProgressCursor()});
-            // We need another copy of the original cursor for our MergeCursor
-            // because changeCursor closes the original!
-            // TODO: Avoid this - getting the contacts cursor twice is bad news.
-            // We're probably not handling the filter UI properly.
-            final Cursor contactsCursor = super.runQueryOnBackgroundThread(constraint);
-            new Thread(new Runnable() {
-                public void run() {
-                    // Uri format is account/constraint/timestamp
-                    Uri galUri =
-                        ExchangeProvider.GAL_URI.buildUpon()
-                            .appendPath(Long.toString(mAccount.mId))
-                            .appendPath(constraint.toString())
-                            .appendPath(((Long)System.currentTimeMillis()).toString()).build();
-                    Log.d(TAG, "Query: " + galUri);
-                    // Use ExchangeProvider to get the results of the GAL query
-                    final Cursor galCursor =
-                        mContentResolver.query(galUri, ExchangeProvider.GAL_PROJECTION,
-                                null, null, null);
-                    // A null cursor means that our query has been superceded by a later one
-                    if (galCursor == null) return;
-                    // We need to change cursors on the UI thread
-                    mActivity.runOnUiThread(new Runnable() {
-                        public void run() {
-                            // Create a new cursor putting together local and GAL results and
-                            // use it in the adapter
-                            MergeCursor mergeCursor =
-                                new MergeCursor(new Cursor[] {contactsCursor, galCursor});
-                            changeCursor(mergeCursor);
-                            // Call AutoCompleteTextView's onFilterComplete method with count
-                            mAutoCompleteTextView.onFilterComplete(mergeCursor.getCount());
-                        }});
-                }}).start();
-            return mc;
+        Cursor contactsCursor = super.runQueryOnBackgroundThread(constraint);
+        mSeparatorPosition = ListView.INVALID_POSITION;
+        // If we don't have a GAL  account or we don't have a constraint that's long enough,
+        // just return the raw contactsCursor
+        if (!mAccountHasGal ||
+                constraint == null || constraint.length() < MINIMUM_GAL_CONSTRAINT_LENGTH) {
+            return contactsCursor;
         }
-        // Return right away with the ContactsProvider result
-        return initialCursor;
+
+        // Strategy for handling dynamic GAL lookup.
+        //  1. Create cursor that we can use now (and update later)
+        //  2. Return it immediately
+        //  3. Spawn a thread that will update the cursor when results arrive or search fails
+
+        final MatrixCursor matrixCursor = new MatrixCursor(ExchangeProvider.GAL_PROJECTION);
+        final MyMergeCursor mergedResultCursor =
+            new MyMergeCursor(new Cursor[] {contactsCursor, matrixCursor});
+        mSeparatorPosition = contactsCursor.getCount();
+        mSeparatorDisplayCount = -1;
+        mSeparatorTotalCount = -1;
+        new Thread(new Runnable() {
+            public void run() {
+                // Uri format is account/constraint
+                Uri galUri =
+                    ExchangeProvider.GAL_URI.buildUpon()
+                        .appendPath(Long.toString(mAccount.mId))
+                        .appendPath(constraint.toString()).build();
+                Log.d(TAG, "Query: " + galUri);
+                // Use ExchangeProvider to get the results of the GAL query
+                final Cursor galCursor =
+                    mContentResolver.query(galUri, ExchangeProvider.GAL_PROJECTION,
+                            null, null, null);
+                // There are three result cases to handle here.
+                //  1. matrixCursor is closed - this means the UI no longer cares about us
+                //  2. gal cursor is null or empty - remove separator and exit
+                //  3. gal cursor has results - update separator and add results to matrix cursor
+
+                // Case 1: The merged cursor has already been dropped, (e.g. results superceded)
+                if (mergedResultCursor.isClosed()) {
+                    return;
+                }
+
+                // Cases 2 & 3 have UI aspects, so do them in the UI thread
+                mActivity.runOnUiThread(new Runnable() {
+                    public void run() {
+                        // Case 1:  (final re-check):  Merged cursor already dropped
+                        if (mergedResultCursor.isClosed()) {
+                            return;
+                        }
+
+                        // Case 2:  Gal cursor is null or empty
+                        if (galCursor == null || galCursor.getCount() == 0) {
+                            mSeparatorPosition = ListView.INVALID_POSITION;
+                            GalEmailAddressAdapter.this.notifyDataSetChanged();
+                            return;
+                        }
+
+                        // Case 3: Real results
+                        galCursor.moveToPosition(-1);
+                        while (galCursor.moveToNext()) {
+                            MatrixCursor.RowBuilder rb = matrixCursor.newRow();
+                            rb.add(galCursor.getLong(ExchangeProvider.GAL_COLUMN_ID));
+                            rb.add(galCursor.getString(ExchangeProvider.GAL_COLUMN_DISPLAYNAME));
+                            rb.add(galCursor.getString(ExchangeProvider.GAL_COLUMN_DATA));
+                        }
+                        // Replace the separator text with "totals"
+                        mSeparatorDisplayCount = galCursor.getCount();
+                        mSeparatorTotalCount =
+                            galCursor.getExtras().getInt(ExchangeProvider.EXTRAS_TOTAL_RESULTS);
+                        // Notify UI that the cursor changed
+                        GalEmailAddressAdapter.this.notifyDataSetChanged();
+                    }});
+            }}).start();
+        return mergedResultCursor;
     }
 
-    // TODO - we cannot assume that contacts ID's will not overlap with GAL_START_ID
-    // need to do this in a different way, based on more direct knowledge of our cursor
+    /*
+     * The following series of overrides insert the separator between contacts & GAL contacts
+     * TODO: extract most of this into a CursorAdapter superclass, and share with AccountFolderList
+     */
+
+    /**
+     * Prevents the separator view from recycling into the other views
+     */
     @Override
-    public final void bindView(View view, Context context, Cursor cursor) {
-        if (cursor.getLong(ID_INDEX) == ExchangeProvider.GAL_START_ID) {
-            ((TextView)view.findViewById(R.id.account)).setText(cursor.getString(NAME_INDEX));
-            view.findViewById(R.id.status_divider).setVisibility(View.VISIBLE);
-            view.findViewById(R.id.address).setVisibility(View.GONE);
-            view.findViewById(R.id.progress).setVisibility(
-                    cursor.getString(DATA_INDEX).equals(SEARCHING_TAG) ?
-                            View.VISIBLE : View.GONE);
+    public int getItemViewType(int position) {
+        if (position == mSeparatorPosition) {
+            return IGNORE_ITEM_VIEW_TYPE;
+        }
+        return super.getItemViewType(position);
+    }
+
+    /**
+     * Injects the separator view when required
+     */
+    @Override
+    public View getView(int position, View convertView, ViewGroup parent) {
+        // The base class's getView() checks for mDataValid at the beginning, but we don't have
+        // to do that, because if the cursor is invalid getCount() returns 0, in which case this
+        // method wouldn't get called.
+
+        // Handle the separator here - create & bind
+        if (position == mSeparatorPosition) {
+            View separator;
+            separator = mInflater.inflate(R.layout.recipient_dropdown_separator, parent, false);
+            TextView text1 = (TextView) separator.findViewById(R.id.text1);
+            View progress = separator.findViewById(R.id.progress);
+            // TODO replace this logic with proper formatting
+            if (mSeparatorDisplayCount == -1) {
+                text1.setText("Searching " + mAccountEmailDomain);
+                progress.setVisibility(View.VISIBLE);
+            } else {
+                if (mSeparatorDisplayCount == mSeparatorTotalCount) {
+                    text1.setText(mSeparatorDisplayCount + " results from " + mAccountEmailDomain);
+                } else {
+                    text1.setText("First " + mSeparatorTotalCount + " results from " +
+                            mAccountEmailDomain);
+                }
+                progress.setVisibility(View.GONE);
+            }
+            return separator;
+        }
+        return super.getView(getRealPosition(position), convertView, parent);
+    }
+
+    /**
+     * Forces navigation to skip over the separator
+     */
+    @Override
+    public boolean areAllItemsEnabled() {
+        return false;
+    }
+
+    /**
+     * Forces navigation to skip over the separator
+     */
+    @Override
+    public boolean isEnabled(int position) {
+        return position != mSeparatorPosition;
+    }
+
+    /**
+     * Adjusts list count to include separator
+     */
+    @Override
+    public int getCount() {
+        int count = super.getCount();
+        if (mSeparatorPosition != ListView.INVALID_POSITION) {
+            // Increment for separator, if we have anything to show.
+            count += 1;
+        }
+        return count;
+    }
+
+    /**
+     * Converts list position to cursor position
+     */
+    private int getRealPosition(int pos) {
+        if (mSeparatorPosition == ListView.INVALID_POSITION) {
+            // No separator, identity map
+            return pos;
+        } else if (pos <= mSeparatorPosition) {
+            // Before or at the separator, identity map
+            return pos;
         } else {
-            ((TextView)view.findViewById(R.id.text1)).setText(cursor.getString(NAME_INDEX));
-            ((TextView)view.findViewById(R.id.text2)).setText(cursor.getString(DATA_INDEX));
-            view.findViewById(R.id.address).setVisibility(View.VISIBLE);
-            view.findViewById(R.id.status_divider).setVisibility(View.GONE);
+            // After the separator, remove 1 from the pos to get the real underlying pos
+            return pos - 1;
         }
     }
 
+    /**
+     * Returns the item using external position numbering (no separator)
+     */
+    @Override
+    public Object getItem(int pos) {
+        return super.getItem(getRealPosition(pos));
+    }
 
+    /**
+     * Returns the item id using external position numbering (no separator)
+     */
+    @Override
+    public long getItemId(int pos) {
+        if (pos == mSeparatorPosition) {
+            return View.NO_ID;
+        }
+        return super.getItemId(getRealPosition(pos));
+    }
+
+    /**
+     * Lightweight override of MergeCursor.  Synchronizes "mClosed" / "isClosed()" so we
+     * can safely check if it has been closed, in the threading jumble of our adapter.
+     */
+    private static class MyMergeCursor extends MergeCursor {
+
+        public MyMergeCursor(Cursor[] cursors) {
+            super(cursors);
+            mClosed = false;
+        }
+
+        @Override
+        public synchronized void close() {
+            super.close();
+        }
+
+        @Override
+        public synchronized boolean isClosed() {
+            return super.isClosed();
+        }
+    }
 }

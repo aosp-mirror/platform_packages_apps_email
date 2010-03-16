@@ -25,6 +25,7 @@ import android.content.UriMatcher;
 import android.database.Cursor;
 import android.database.MatrixCursor;
 import android.net.Uri;
+import android.os.Bundle;
 import android.util.Log;
 
 /**
@@ -37,16 +38,17 @@ public class ExchangeProvider extends ContentProvider {
     public static final String EXCHANGE_AUTHORITY = "com.android.exchange.provider";
     public static final Uri GAL_URI = Uri.parse("content://" + EXCHANGE_AUTHORITY + "/gal/");
 
-    public static final long GAL_START_ID = 0x1000000L;
-
     private static final int GAL_BASE = 0;
     private static final int GAL_FILTER = GAL_BASE;
+
     public static final String[] GAL_PROJECTION = new String[] {"_id", "displayName", "data"};
+    public static final int GAL_COLUMN_ID = 0;
+    public static final int GAL_COLUMN_DISPLAYNAME = 1;
+    public static final int GAL_COLUMN_DATA = 2;
+
+    public static final String EXTRAS_TOTAL_RESULTS = "com.android.exchange.provider.TOTAL_RESULTS";
 
     private static final UriMatcher sURIMatcher = new UriMatcher(UriMatcher.NO_MATCH);
-    // We use the time stamp to suppress GAL results for queries that have been superceded by newer
-    // ones (i.e. we only respond to the most recent query)
-    public static long sQueryTimeStamp = 0;
 
     static {
         // Exchange URI matching table
@@ -54,8 +56,7 @@ public class ExchangeProvider extends ContentProvider {
         // The URI for GAL lookup contains three user-supplied parameters in the path:
         // 1) the account id of the Exchange account
         // 2) the constraint (filter) text
-        // 3) a time stamp for the request
-        matcher.addURI(EXCHANGE_AUTHORITY, "gal/*/*/*", GAL_FILTER);
+        matcher.addURI(EXCHANGE_AUTHORITY, "gal/*/*", GAL_FILTER);
     }
 
     private static void addGalDataRow(MatrixCursor mc, long id, String name, String address) {
@@ -70,42 +71,27 @@ public class ExchangeProvider extends ContentProvider {
             case GAL_FILTER:
                 long accountId = -1;
                 // Pull out our parameters
-                MatrixCursor c = new MatrixCursor(GAL_PROJECTION);
+                MatrixCursorExtras c = new MatrixCursorExtras(GAL_PROJECTION);
                 String accountIdString = uri.getPathSegments().get(1);
                 String filter = uri.getPathSegments().get(2);
-                String time = uri.getPathSegments().get(3);
-                // Make sure we get a valid time; otherwise throw an exception
+                // Make sure we get a valid id; otherwise throw an exception
                 try {
                     accountId = Long.parseLong(accountIdString);
-                    sQueryTimeStamp = Long.parseLong(time);
                 } catch (NumberFormatException e) {
                     throw new IllegalArgumentException("Illegal value in URI");
                 }
                 // Get results from the Exchange account
-                long timeStamp = sQueryTimeStamp;
                 GalResult galResult = EasSyncService.searchGal(getContext(), accountId, filter);
-                // If we have a more recent query in process, ignore the result
-                if (timeStamp != sQueryTimeStamp) {
-                    Log.d(TAG, "Ignoring result from query: " + uri);
-                    return null;
-                } else if (galResult != null) {
-                    // TODO: None of the UI row should be communicated here- use
-                    // cursor metadata or other method.
+                if (galResult != null) {
                     int count = galResult.galData.size();
                     Log.d(TAG, "Query returned " + count + " result(s)");
-                    String header = (count == 0) ? "No results" : (count == 1) ? "1 result" :
-                        count + " results";
-                    if (galResult.total != count) {
-                        header += " (of " + galResult.total + ")";
-                    }
-                    addGalDataRow(c, GAL_START_ID, header, "");
-                    int i = 1;
                     for (GalData data : galResult.galData) {
-                        // TODO Don't get the constant from Email app...
-                        addGalDataRow(c, data._id | GAL_START_ID + i, data.displayName,
-                                data.emailAddress);
-                        i++;
+                        addGalDataRow(c, data._id, data.displayName, data.emailAddress);
                     }
+                    // Use cursor side channel to report metadata
+                    final Bundle bundle = new Bundle();
+                    bundle.putInt(EXTRAS_TOTAL_RESULTS, galResult.total);
+                    c.setExtras(bundle);
                 }
                 return c;
             default:
@@ -136,5 +122,27 @@ public class ExchangeProvider extends ContentProvider {
     @Override
     public int update(Uri uri, ContentValues values, String selection, String[] selectionArgs) {
         return -1;
+    }
+
+    /**
+     * A simple extension to MatrixCursor that supports extras
+     */
+    private static class MatrixCursorExtras extends MatrixCursor {
+
+        private Bundle mExtras;
+
+        public MatrixCursorExtras(String[] columnNames) {
+            super(columnNames);
+            mExtras = null;
+        }
+
+        public void setExtras(Bundle extras) {
+            mExtras = extras;
+        }
+
+        @Override
+        public Bundle getExtras() {
+            return mExtras;
+        }
     }
 }
