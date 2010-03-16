@@ -580,9 +580,9 @@ public class MessageCompose extends Activity implements OnClickListener, OnFocus
     private void setupAddressAdapters() {
         /* EXCHANGE-REMOVE-SECTION-START */
         if (true) {
-            mAddressAdapterTo = new GalEmailAddressAdapter(this, mToView);
-            mAddressAdapterCc = new GalEmailAddressAdapter(this, mCcView);
-            mAddressAdapterBcc = new GalEmailAddressAdapter(this, mBccView);
+            mAddressAdapterTo = new GalEmailAddressAdapter(this);
+            mAddressAdapterCc = new GalEmailAddressAdapter(this);
+            mAddressAdapterBcc = new GalEmailAddressAdapter(this);
         } else {
             /* EXCHANGE-REMOVE-SECTION-END */
             mAddressAdapterTo = new EmailAddressAdapter(this);
