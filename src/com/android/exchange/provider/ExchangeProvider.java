@@ -26,15 +26,12 @@ import android.database.Cursor;
 import android.database.MatrixCursor;
 import android.net.Uri;
 import android.os.Bundle;
-import android.util.Log;
 
 /**
  * ExchangeProvider provides real-time data from the Exchange server; at the moment, it is used
  * solely to provide GAL (Global Address Lookup) service to email address adapters
  */
 public class ExchangeProvider extends ContentProvider {
-    public static final String TAG = "ExchangeProvider";
-
     public static final String EXCHANGE_AUTHORITY = "com.android.exchange.provider";
     public static final Uri GAL_URI = Uri.parse("content://" + EXCHANGE_AUTHORITY + "/gal/");
 
@@ -83,8 +80,6 @@ public class ExchangeProvider extends ContentProvider {
                 // Get results from the Exchange account
                 GalResult galResult = EasSyncService.searchGal(getContext(), accountId, filter);
                 if (galResult != null) {
-                    int count = galResult.galData.size();
-                    Log.d(TAG, "Query returned " + count + " result(s)");
                     for (GalData data : galResult.galData) {
                         addGalDataRow(c, data._id, data.displayName, data.emailAddress);
                     }

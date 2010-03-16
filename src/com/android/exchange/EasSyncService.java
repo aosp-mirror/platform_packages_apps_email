@@ -100,6 +100,9 @@ import java.util.ArrayList;
 import java.util.HashMap;
 
 public class EasSyncService extends AbstractSyncService {
+    // STOPSHIP - DO NOT RELEASE AS 'TRUE'
+    public static final boolean DEBUG_GAL_SERVICE = true;
+
     private static final String EMAIL_WINDOW_SIZE = "5";
     public static final String PIM_WINDOW_SIZE = "5";
     private static final String WHERE_ACCOUNT_KEY_AND_SERVER_ID =
@@ -676,8 +679,8 @@ public class EasSyncService extends AbstractSyncService {
         Account acct = SyncManager.getAccountList().getById(accountId);
         if (acct != null) {
             HostAuth ha = HostAuth.restoreHostAuthWithId(context, acct.mHostAuthKeyRecv);
+            EasSyncService svc = new EasSyncService("%GalLookupk%");
             try {
-                EasSyncService svc = new EasSyncService("%GalLookupk%");
                 svc.mContext = context;
                 svc.mHostAddress = ha.mAddress;
                 svc.mUserName = ha.mLogin;
@@ -689,22 +692,26 @@ public class EasSyncService extends AbstractSyncService {
                 s.start(Tags.SEARCH_SEARCH).start(Tags.SEARCH_STORE);
                 s.data(Tags.SEARCH_NAME, "GAL").data(Tags.SEARCH_QUERY, filter);
                 s.start(Tags.SEARCH_OPTIONS);
-                s.data(Tags.SEARCH_RANGE, "0-19");
+                s.data(Tags.SEARCH_RANGE, "0-19");  // Return 0..20 results
                 s.end().end().end().done();
-                svc.userLog("GAL lookup starting for " + ha.mAddress);
+                if (DEBUG_GAL_SERVICE) svc.userLog("GAL lookup starting for " + ha.mAddress);
                 HttpResponse resp = svc.sendHttpClientPost("Search", s.toByteArray());
                 int code = resp.getStatusLine().getStatusCode();
-                svc.userLog("GAL lookup returned " + code);
                 if (code == HttpStatus.SC_OK) {
                     InputStream is = resp.getEntity().getContent();
                     GalParser gp = new GalParser(is, svc);
                     if (gp.parse()) {
-                        svc.userLog("GAL lookup successful for " + ha.mAddress);
+                        if (DEBUG_GAL_SERVICE) svc.userLog("GAL lookup OK for " + ha.mAddress);
                         return gp.getGalResult();
+                    } else {
+                        if (DEBUG_GAL_SERVICE) svc.userLog("GAL lookup returned no matches");
                     }
+                } else {
+                    svc.userLog("GAL lookup returned " + code);
                 }
             } catch (IOException e) {
                 // GAL is non-critical; we'll just go on
+                svc.userLog("GAL lookup exception " + e);
             }
         }
         return null;

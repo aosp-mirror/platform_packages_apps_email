@@ -15,6 +15,7 @@
 
 package com.android.exchange.provider;
 
+import com.android.email.Email;
 import com.android.email.EmailAddressAdapter;
 import com.android.email.R;
 import com.android.email.provider.EmailContent.Account;
@@ -33,8 +34,13 @@ import android.view.ViewGroup;
 import android.widget.ListView;
 import android.widget.TextView;
 
+/**
+ * TODO: Use real format strings, get rid of all hardcoded strings
+ */
 public class GalEmailAddressAdapter extends EmailAddressAdapter {
-    private static final String TAG = "GalAdapter";
+    // STOPSHIP - DO NOT RELEASE AS 'TRUE'
+    private static final boolean DEBUG_GAL_LOG = true;
+
     // Don't run GAL query until there are 3 characters typed
     private static final int MINIMUM_GAL_CONSTRAINT_LENGTH = 3;
 
@@ -45,7 +51,6 @@ public class GalEmailAddressAdapter extends EmailAddressAdapter {
     private LayoutInflater mInflater;
 
     // Local variables to track status of the search
-    private int mSeparatorPosition;
     private int mSeparatorDisplayCount;
     private int mSeparatorTotalCount;
 
@@ -54,7 +59,6 @@ public class GalEmailAddressAdapter extends EmailAddressAdapter {
         mActivity = activity;
         mAccount = null;
         mAccountHasGal = false;
-        mSeparatorPosition = ListView.INVALID_POSITION;
         mInflater = (LayoutInflater) activity.getSystemService(Context.LAYOUT_INFLATER_SERVICE);
     }
 
@@ -95,13 +99,16 @@ public class GalEmailAddressAdapter extends EmailAddressAdapter {
         if (mAccount != null && mAccountHasGal == false) {
             checkGalAccount(mAccount);
         }
-        // Get the cursor from ContactsProvider
+
+        // Get the cursor from ContactsProvider, and set up to exit immediately, returning it
         Cursor contactsCursor = super.runQueryOnBackgroundThread(constraint);
-        mSeparatorPosition = ListView.INVALID_POSITION;
         // If we don't have a GAL  account or we don't have a constraint that's long enough,
         // just return the raw contactsCursor
-        if (!mAccountHasGal ||
-                constraint == null || constraint.length() < MINIMUM_GAL_CONSTRAINT_LENGTH) {
+        if (!mAccountHasGal || constraint == null) {
+            return contactsCursor;
+        }
+        final String constraintString = constraint.toString().trim();
+        if (constraintString.length() < MINIMUM_GAL_CONSTRAINT_LENGTH) {
             return contactsCursor;
         }
 
@@ -113,7 +120,7 @@ public class GalEmailAddressAdapter extends EmailAddressAdapter {
         final MatrixCursor matrixCursor = new MatrixCursor(ExchangeProvider.GAL_PROJECTION);
         final MyMergeCursor mergedResultCursor =
             new MyMergeCursor(new Cursor[] {contactsCursor, matrixCursor});
-        mSeparatorPosition = contactsCursor.getCount();
+        mergedResultCursor.setSeparatorPosition(contactsCursor.getCount());
         mSeparatorDisplayCount = -1;
         mSeparatorTotalCount = -1;
         new Thread(new Runnable() {
@@ -122,8 +129,10 @@ public class GalEmailAddressAdapter extends EmailAddressAdapter {
                 Uri galUri =
                     ExchangeProvider.GAL_URI.buildUpon()
                         .appendPath(Long.toString(mAccount.mId))
-                        .appendPath(constraint.toString()).build();
-                Log.d(TAG, "Query: " + galUri);
+                        .appendPath(constraintString).build();
+                if (DEBUG_GAL_LOG) {
+                    Log.d(Email.LOG_TAG, "Query: " + galUri);
+                }
                 // Use ExchangeProvider to get the results of the GAL query
                 final Cursor galCursor =
                     mContentResolver.query(galUri, ExchangeProvider.GAL_PROJECTION,
@@ -135,6 +144,9 @@ public class GalEmailAddressAdapter extends EmailAddressAdapter {
 
                 // Case 1: The merged cursor has already been dropped, (e.g. results superceded)
                 if (mergedResultCursor.isClosed()) {
+                    if (DEBUG_GAL_LOG) {
+                        Log.d(Email.LOG_TAG, "Drop result (cursor closed, bg thread)");
+                    }
                     return;
                 }
 
@@ -143,12 +155,18 @@ public class GalEmailAddressAdapter extends EmailAddressAdapter {
                     public void run() {
                         // Case 1:  (final re-check):  Merged cursor already dropped
                         if (mergedResultCursor.isClosed()) {
+                            if (DEBUG_GAL_LOG) {
+                                Log.d(Email.LOG_TAG, "Drop result (cursor closed, ui thread)");
+                            }
                             return;
                         }
 
                         // Case 2:  Gal cursor is null or empty
                         if (galCursor == null || galCursor.getCount() == 0) {
-                            mSeparatorPosition = ListView.INVALID_POSITION;
+                            if (DEBUG_GAL_LOG) {
+                                Log.d(Email.LOG_TAG, "Drop empty result");
+                            }
+                            mergedResultCursor.setSeparatorPosition(ListView.INVALID_POSITION);
                             GalEmailAddressAdapter.this.notifyDataSetChanged();
                             return;
                         }
@@ -166,6 +184,9 @@ public class GalEmailAddressAdapter extends EmailAddressAdapter {
                         mSeparatorTotalCount =
                             galCursor.getExtras().getInt(ExchangeProvider.EXTRAS_TOTAL_RESULTS);
                         // Notify UI that the cursor changed
+                        if (DEBUG_GAL_LOG) {
+                            Log.d(Email.LOG_TAG, "Notify result, added=" + mSeparatorDisplayCount);
+                        }
                         GalEmailAddressAdapter.this.notifyDataSetChanged();
                     }});
             }}).start();
@@ -178,11 +199,24 @@ public class GalEmailAddressAdapter extends EmailAddressAdapter {
      */
 
     /**
+     * Get the separator position, which is tucked into the cursor to deal with threading.
+     * Result is invalid for any other cursor types (e.g. the raw contacts cursor)
+     */
+    private int getSeparatorPosition() {
+        Cursor c = this.getCursor();
+        if (c instanceof MyMergeCursor) {
+            return ((MyMergeCursor)c).getSeparatorPosition();
+        } else {
+            return ListView.INVALID_POSITION;
+        }
+    }
+
+    /**
      * Prevents the separator view from recycling into the other views
      */
     @Override
     public int getItemViewType(int position) {
-        if (position == mSeparatorPosition) {
+        if (position == getSeparatorPosition()) {
             return IGNORE_ITEM_VIEW_TYPE;
         }
         return super.getItemViewType(position);
@@ -198,7 +232,7 @@ public class GalEmailAddressAdapter extends EmailAddressAdapter {
         // method wouldn't get called.
 
         // Handle the separator here - create & bind
-        if (position == mSeparatorPosition) {
+        if (position == getSeparatorPosition()) {
             View separator;
             separator = mInflater.inflate(R.layout.recipient_dropdown_separator, parent, false);
             TextView text1 = (TextView) separator.findViewById(R.id.text1);
@@ -211,7 +245,7 @@ public class GalEmailAddressAdapter extends EmailAddressAdapter {
                 if (mSeparatorDisplayCount == mSeparatorTotalCount) {
                     text1.setText(mSeparatorDisplayCount + " results from " + mAccountEmailDomain);
                 } else {
-                    text1.setText("First " + mSeparatorTotalCount + " results from " +
+                    text1.setText("First " + mSeparatorDisplayCount + " results from " +
                             mAccountEmailDomain);
                 }
                 progress.setVisibility(View.GONE);
@@ -234,7 +268,7 @@ public class GalEmailAddressAdapter extends EmailAddressAdapter {
      */
     @Override
     public boolean isEnabled(int position) {
-        return position != mSeparatorPosition;
+        return position != getSeparatorPosition();
     }
 
     /**
@@ -243,7 +277,7 @@ public class GalEmailAddressAdapter extends EmailAddressAdapter {
     @Override
     public int getCount() {
         int count = super.getCount();
-        if (mSeparatorPosition != ListView.INVALID_POSITION) {
+        if (getSeparatorPosition() != ListView.INVALID_POSITION) {
             // Increment for separator, if we have anything to show.
             count += 1;
         }
@@ -254,10 +288,11 @@ public class GalEmailAddressAdapter extends EmailAddressAdapter {
      * Converts list position to cursor position
      */
     private int getRealPosition(int pos) {
-        if (mSeparatorPosition == ListView.INVALID_POSITION) {
+        int separatorPosition = getSeparatorPosition();
+        if (separatorPosition == ListView.INVALID_POSITION) {
             // No separator, identity map
             return pos;
-        } else if (pos <= mSeparatorPosition) {
+        } else if (pos <= separatorPosition) {
             // Before or at the separator, identity map
             return pos;
         } else {
@@ -279,7 +314,7 @@ public class GalEmailAddressAdapter extends EmailAddressAdapter {
      */
     @Override
     public long getItemId(int pos) {
-        if (pos == mSeparatorPosition) {
+        if (pos == getSeparatorPosition()) {
             return View.NO_ID;
         }
         return super.getItemId(getRealPosition(pos));
@@ -288,22 +323,38 @@ public class GalEmailAddressAdapter extends EmailAddressAdapter {
     /**
      * Lightweight override of MergeCursor.  Synchronizes "mClosed" / "isClosed()" so we
      * can safely check if it has been closed, in the threading jumble of our adapter.
+     * Also holds the separator position, so it can be tracked with the cursor itself and avoid
+     * errors when multiple cursors are in flight.
      */
     private static class MyMergeCursor extends MergeCursor {
+
+        private int mSeparatorPosition;
 
         public MyMergeCursor(Cursor[] cursors) {
             super(cursors);
             mClosed = false;
+            mSeparatorPosition = ListView.INVALID_POSITION;
         }
 
         @Override
         public synchronized void close() {
             super.close();
+            if (DEBUG_GAL_LOG) {
+                Log.d(Email.LOG_TAG, "Closing MyMergeCursor");
+            }
         }
 
         @Override
         public synchronized boolean isClosed() {
             return super.isClosed();
+        }
+
+        void setSeparatorPosition(int newPos) {
+            mSeparatorPosition = newPos;
+        }
+
+        int getSeparatorPosition() {
+            return mSeparatorPosition;
         }
     }
 }
