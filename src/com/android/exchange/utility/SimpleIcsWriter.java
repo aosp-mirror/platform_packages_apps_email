@@ -15,59 +15,98 @@
 
 package com.android.exchange.utility;
 
-import java.io.CharArrayWriter;
+import com.android.email.Utility;
+
+import android.text.TextUtils;
+
+import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 
-public class SimpleIcsWriter extends CharArrayWriter {
-    public static final int MAX_LINE_LENGTH = 75;
-    public static final int LINE_BREAK_LENGTH = 3;
-    public static final String LINE_BREAK = "\r\n\t";
-    int mColumnCount = 0;
+/**
+ * Class to generate iCalender object (*.ics) per RFC 5545.
+ */
+public class SimpleIcsWriter {
+    private static final int MAX_LINE_LENGTH = 75; // In bytes, excluding CRLF
+    private static final int CHAR_MAX_BYTES_IN_UTF8 = 4;  // Used to be 6, but RFC3629 limited it.
+    private final ByteArrayOutputStream mOut = new ByteArrayOutputStream();
 
     public SimpleIcsWriter() {
-        super();
     }
 
-    private void newLine() {
-        write('\r');
-        write('\n');
-        mColumnCount = 0;
-    }
-
-    @Override
-    public void write(String str) throws IOException {
-        int len = str.length();
-        for (int i = 0; i < len; i++, mColumnCount++) {
-            if (mColumnCount == MAX_LINE_LENGTH) {
-                write('\r');
-                write('\n');
-                write('\t');
-                // Line count will get immediately incremented to one (the tab)
-                mColumnCount = 0;
+    /**
+     * Low level method to write a line, performing line-folding if necessary.
+     */
+    /* package for testing */ void writeLine(String string) {
+        int numBytes = 0;
+        for (byte b : Utility.toUtf8(string)) {
+            // Fold it when necessary.
+            // To make it simple, we assume all chars are 4 bytes.
+            // If not (and usually it's not), we end up wrapping earlier than necessary, but that's
+            // completely fine.
+            if (numBytes > (MAX_LINE_LENGTH - CHAR_MAX_BYTES_IN_UTF8)
+                    && Utility.isFirstUtf8Byte(b)) { // Only wrappable if it's before the first byte
+                mOut.write((byte) '\r');
+                mOut.write((byte) '\n');
+                mOut.write((byte) '\t');
+                numBytes = 1; // for TAB
             }
-            char c = str.charAt(i);
-            if (c == '\r') {
-                // Ignore CR
-                mColumnCount--;
-                continue;
-            } else if (c == '\n') {
-                // On LF, set to -1, which will immediately get incremented to zero
-                write("\\");
-                write("n");
-                mColumnCount = -1;
-                continue;
-            }
-            write(c);
+            mOut.write(b);
+            numBytes++;
         }
+        mOut.write((byte) '\r');
+        mOut.write((byte) '\n');
     }
 
-    public void writeTag(String name, String value) throws IOException {
+    /**
+     * Write a tag with a value.
+     */
+    public void writeTag(String name, String value) {
         // Belt and suspenders here; don't crash on null value.  Use something innocuous
-        if (value == null) value = "0";
-        write(name);
-        write(":");
-        write(value);
-        newLine();
+        if (TextUtils.isEmpty(value)) {
+            value = "0";
+        }
+
+        // The following properties take a TEXT value, which need to be escaped.
+        // (These property names should be all interned, so using equals() should be faster than
+        // using a hash table.)
+
+        // TODO make constants for these literals
+        if ("CALSCALE".equals(name)
+                || "METHOD".equals(name)
+                || "PRODID".equals(name)
+                || "VERSION".equals(name)
+                || "CATEGORIES".equals(name)
+                || "CLASS".equals(name)
+                || "COMMENT".equals(name)
+                || "DESCRIPTION".equals(name)
+                || "LOCATION".equals(name)
+                || "RESOURCES".equals(name)
+                || "STATUS".equals(name)
+                || "SUMMARY".equals(name)
+                || "TRANSP".equals(name)
+                || "TZID".equals(name)
+                || "TZNAME".equals(name)
+                || "CONTACT".equals(name)
+                || "RELATED-TO".equals(name)
+                || "UID".equals(name)
+                || "ACTION".equals(name)
+                || "REQUEST-STATUS".equals(name)
+                || "X-LIC-LOCATION".equals(name)
+                ) {
+            value = escapeTextValue(value);
+        }
+        writeLine(name + ":" + value);
+    }
+
+    /**
+     * @return the entire iCalendar invitation object.
+     */
+    public byte[] getBytes() {
+        try {
+            mOut.flush();
+        } catch (IOException wonthappen) {
+        }
+        return mOut.toByteArray();
     }
 
     /**
@@ -77,9 +116,32 @@ public class SimpleIcsWriter extends CharArrayWriter {
         if (paramValue == null) {
             return null;
         }
-        // Wrap with double quotes.  You can't put double-quotes itself in it, so remove them first.
-        // We can be smarter -- e.g. we don't have to wrap an empty string with dquotes -- but
-        // we don't have to.
-        return "\"" + paramValue.replace("\"", "") + "\"";
+        // Wrap with double quotes.
+        // The spec doesn't allow putting double-quotes in a param value, so let's use single quotes
+        // as a substitute.
+        // It's not the smartest implementation.  e.g. we don't have to wrap an empty string with
+        // double quotes.  But it works.
+        return "\"" + paramValue.replace("\"", "'") + "\"";
+    }
+
+    /**
+     * Escape a TEXT value per RFC 5545 section 3.3.11
+     */
+    /* package for testing */ static String escapeTextValue(String s) {
+        StringBuilder sb = new StringBuilder(s.length());
+        for (int i = 0; i < s.length(); i++) {
+            char ch = s.charAt(i);
+            if (ch == '\n') {
+                sb.append("\\n");
+            } else if (ch == '\r') {
+                // Remove CR
+            } else if (ch == ',' || ch == ';' || ch == '\\') {
+                sb.append('\\');
+                sb.append(ch);
+            } else {
+                sb.append(ch);
+            }
+        }
+        return sb.toString();
     }
 }

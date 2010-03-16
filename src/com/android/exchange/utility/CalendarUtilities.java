@@ -1418,7 +1418,8 @@ public class CalendarUtilities {
                             }
                             if (icalTag != null) {
                                 if (attendeeName != null) {
-                                    icalTag += ";CN=" + attendeeName;
+                                    icalTag += ";CN="
+                                            + SimpleIcsWriter.quoteParamValue(attendeeName);
                                 }
                                 ics.writeTag(icalTag, "MAILTO:" + attendeeEmail);
                             }
@@ -1433,7 +1434,7 @@ public class CalendarUtilities {
                 // We should be able to find this, assuming the Email is the user's email
                 // TODO Find this in the account
                 if (organizerName != null) {
-                    icalTag += ";CN=" + organizerName;
+                    icalTag += ";CN=" + SimpleIcsWriter.quoteParamValue(organizerName);
                 }
                 ics.writeTag(icalTag, "MAILTO:" + organizerEmail);
                 if (method.equals("REPLY")) {
@@ -1460,15 +1461,10 @@ public class CalendarUtilities {
             ics.writeTag("SEQUENCE", sequence);
             ics.writeTag("END", "VEVENT");
             ics.writeTag("END", "VCALENDAR");
-            ics.flush();
-            ics.close();
 
             // Create the ics attachment using the "content" field
             Attachment att = new Attachment();
-
-            // TODO UTF-8 conversion should be done in SimpleIcsWriter, as it should count line
-            // length for folding in bytes in UTF-8.
-            att.mContentBytes = Utility.toUtf8(ics.toString());
+            att.mContentBytes = ics.getBytes();
             att.mMimeType = "text/calendar; method=" + method;
             att.mFileName = "invite.ics";
             att.mSize = att.mContentBytes.length;

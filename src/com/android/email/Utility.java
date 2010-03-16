@@ -32,7 +32,6 @@ import android.content.res.TypedArray;
 import android.database.Cursor;
 import android.graphics.drawable.Drawable;
 import android.text.Editable;
-import android.util.Log;
 import android.util.base64.Base64;
 import android.widget.TextView;
 
@@ -474,5 +473,13 @@ public class Utility {
         final byte[] bytes = new byte[buffer.limit()];
         buffer.get(bytes);
         return bytes;
+    }
+
+    /**
+     * @return true if the input is the first (or only) byte in a UTF-8 character
+     */
+    public static boolean isFirstUtf8Byte(byte b) {
+        // If the top 2 bits is '10', it's not a first byte.
+        return (b & 0xc0) != 0x80;
     }
 }

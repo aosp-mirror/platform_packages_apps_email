@@ -124,4 +124,22 @@ public class UtilityUnitTests extends AndroidTestCase {
         MoreAsserts.assertEquals(TestUtils.b(0xE6, 0x97, 0xA5, 0xE6, 0x9C, 0xAC, 0xE8, 0xAA, 0x9E),
                 Utility.toUtf8("\u65E5\u672C\u8A9E"));
     }
+
+    public void testIsFirstUtf8Byte() {
+        // 1 byte in UTF-8.
+        checkIsFirstUtf8Byte("0"); // First 2 bits: 00
+        checkIsFirstUtf8Byte("A"); // First 2 bits: 01
+
+        checkIsFirstUtf8Byte("\u00A2"); // 2 bytes in UTF-8.
+        checkIsFirstUtf8Byte("\u20AC"); // 3 bytes in UTF-8.
+        checkIsFirstUtf8Byte("\uD852\uDF62"); // 4 bytes in UTF-8.  (surrogate pair)
+    }
+
+    private void checkIsFirstUtf8Byte(String aChar) {
+        byte[] bytes = Utility.toUtf8(aChar);
+        assertTrue("0", Utility.isFirstUtf8Byte(bytes[0]));
+        for (int i = 1; i < bytes.length; i++) {
+            assertFalse(Integer.toString(i), Utility.isFirstUtf8Byte(bytes[i]));
+        }
+    }
 }

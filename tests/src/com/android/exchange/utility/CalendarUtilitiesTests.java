@@ -499,8 +499,8 @@ public class CalendarUtilitiesTests extends AndroidTestCase {
                     // We shouldn't ever see an empty line
                     throw new IllegalArgumentException();
                 }
-                // A line starting with tab after a 75 character line is a continuation
-                if (line.charAt(0) == '\t' && lastLength == SimpleIcsWriter.MAX_LINE_LENGTH) {
+                // A line starting with tab is a continuation
+                if (line.charAt(0) == '\t') {
                     // Remember the line and length
                     lastValue = line.substring(1);
                     lastLength = line.length();
