@@ -1798,7 +1798,14 @@ public class EasSyncService extends AbstractSyncService {
             }
 
             Serializer s = new Serializer();
+
             String className = target.getCollectionName();
+
+            // STOPSHIP Remove the following if statement; temporary logging for Calendar sync
+            if (className.equals("Calendar")) {
+                s = new Serializer(true, true);
+            }
+
             String syncKey = target.getSyncKey();
             userLog("sync, sending ", className, " syncKey: ", syncKey);
             s.start(Tags.SYNC_SYNC)
