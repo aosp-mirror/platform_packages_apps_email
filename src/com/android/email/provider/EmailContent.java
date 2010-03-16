@@ -1680,8 +1680,10 @@ public abstract class EmailContent {
         };
 
         // Bits used in mFlags
-        // Instruct RFC822 output code to supress "content-disposition".  Used for calendar invites.
-        public static final int FLAG_SUPPRESS_DISPOSITION = 1<<0;
+        // Instruct Rfc822Output to 1) not use Content-Disposition and 2) use multipart/alternative
+        // with this attachment.  This is only valid if there is one and only one attachment and
+        // that attachment has this flag set
+        public static final int FLAG_ICS_ALTERNATIVE_PART = 1<<0;
 
         /**
          * no public constructor since this is a utility class

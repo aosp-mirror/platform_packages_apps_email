@@ -233,8 +233,8 @@ public class CalendarUtilitiesTests extends AndroidTestCase {
         Attachment att = msg.mAttachments.get(0);
         // And that the attachment has the correct elements
         assertEquals("invite.ics", att.mFileName);
-        assertEquals(Attachment.FLAG_SUPPRESS_DISPOSITION,
-                att.mFlags & Attachment.FLAG_SUPPRESS_DISPOSITION);
+        assertEquals(Attachment.FLAG_ICS_ALTERNATIVE_PART,
+                att.mFlags & Attachment.FLAG_ICS_ALTERNATIVE_PART);
         assertEquals("text/calendar; method=REPLY", att.mMimeType);
         assertNotNull(att.mContentBytes);
         assertEquals(att.mSize, att.mContentBytes.length);
@@ -272,8 +272,8 @@ public class CalendarUtilitiesTests extends AndroidTestCase {
         Attachment att = msg.mAttachments.get(0);
         // And that the attachment has the correct elements
         assertEquals("invite.ics", att.mFileName);
-        assertEquals(Attachment.FLAG_SUPPRESS_DISPOSITION,
-                att.mFlags & Attachment.FLAG_SUPPRESS_DISPOSITION);
+        assertEquals(Attachment.FLAG_ICS_ALTERNATIVE_PART,
+                att.mFlags & Attachment.FLAG_ICS_ALTERNATIVE_PART);
         assertEquals("text/calendar; method=REQUEST", att.mMimeType);
         assertNotNull(att.mContentBytes);
         assertEquals(att.mSize, att.mContentBytes.length);
@@ -337,8 +337,8 @@ public class CalendarUtilitiesTests extends AndroidTestCase {
         Attachment att = msg.mAttachments.get(0);
         // And that the attachment has the correct elements
         assertEquals("invite.ics", att.mFileName);
-        assertEquals(Attachment.FLAG_SUPPRESS_DISPOSITION,
-                att.mFlags & Attachment.FLAG_SUPPRESS_DISPOSITION);
+        assertEquals(Attachment.FLAG_ICS_ALTERNATIVE_PART,
+                att.mFlags & Attachment.FLAG_ICS_ALTERNATIVE_PART);
         assertEquals("text/calendar; method=REQUEST", att.mMimeType);
         assertNotNull(att.mContentBytes);
 
