@@ -703,7 +703,7 @@ public class MessageView extends Activity implements OnClickListener {
     /**
      * Send a service message indicating that a meeting invite button has been clicked.
      */
-    private void onAccept(int response, int toastResId) {
+    private void onRespond(int response, int toastResId) {
         // do not send twice in a row the same response
         if (mPreviousMeetingResponse != response) {
             mController.sendMeetingResponse(mMessageId, response, mControllerCallback);
@@ -791,15 +791,15 @@ public class MessageView extends Activity implements OnClickListener {
                 onShowPictures();
                 break;
             case R.id.accept:
-                onAccept(EmailServiceConstants.MEETING_REQUEST_ACCEPTED,
+                onRespond(EmailServiceConstants.MEETING_REQUEST_ACCEPTED,
                          R.string.message_view_invite_toast_yes);
                 break;
             case R.id.maybe:
-                onAccept(EmailServiceConstants.MEETING_REQUEST_TENTATIVE,
+                onRespond(EmailServiceConstants.MEETING_REQUEST_TENTATIVE,
                          R.string.message_view_invite_toast_maybe);
                 break;
             case R.id.decline:
-                onAccept(EmailServiceConstants.MEETING_REQUEST_DECLINED,
+                onRespond(EmailServiceConstants.MEETING_REQUEST_DECLINED,
                          R.string.message_view_invite_toast_no);
                 break;
             case R.id.invite_link:

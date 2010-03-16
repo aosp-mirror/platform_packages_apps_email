@@ -33,6 +33,7 @@ import com.android.email.provider.EmailContent.HostAuth;
 import com.android.email.provider.EmailContent.Mailbox;
 import com.android.email.provider.EmailContent.MailboxColumns;
 import com.android.email.provider.EmailContent.Message;
+import com.android.email.service.EmailServiceConstants;
 import com.android.email.service.EmailServiceProxy;
 import com.android.email.service.EmailServiceStatus;
 import com.android.exchange.adapter.AbstractSyncAdapter;
@@ -852,7 +853,7 @@ public class EasSyncService extends AbstractSyncService {
      * will consist a little bit of event information and an iCalendar attachment
      * @param msg the meeting request email
      */
-    private void sendMeetingResponseMail(Message msg) {
+    private void sendMeetingResponseMail(Message msg, int response) {
         // Get the meeting information; we'd better have some...
         PackedString meetingInfo = new PackedString(msg.mMeetingInfo);
         if (meetingInfo == null) return;
@@ -899,9 +900,21 @@ public class EasSyncService extends AbstractSyncService {
         // Create a message from the Entity we've built.  The message will have fields like
         // to, subject, date, and text filled in.  There will also be an "inline" attachment
         // which is in iCalendar format
+        int flag;
+        switch(response) {
+            case EmailServiceConstants.MEETING_REQUEST_ACCEPTED:
+                flag = Message.FLAG_OUTGOING_MEETING_ACCEPT;
+                break;
+            case EmailServiceConstants.MEETING_REQUEST_DECLINED:
+                flag = Message.FLAG_OUTGOING_MEETING_DECLINE;
+                break;
+            case EmailServiceConstants.MEETING_REQUEST_TENTATIVE:
+            default:
+                flag = Message.FLAG_OUTGOING_MEETING_TENTATIVE;
+                break;
+        }
         Message outgoingMsg =
-            CalendarUtilities.createMessageForEntity(mContext, entity,
-                    Message.FLAG_OUTGOING_MEETING_ACCEPT,
+            CalendarUtilities.createMessageForEntity(mContext, entity, flag,
                     meetingInfo.get(MeetingInfo.MEETING_UID), mAccount);
         // Assuming we got a message back (we might not if the event has been deleted), send it
         if (outgoingMsg != null) {
@@ -935,7 +948,7 @@ public class EasSyncService extends AbstractSyncService {
             InputStream is = res.getEntity().getContent();
             if (len != 0) {
                 new MeetingResponseParser(is, this).parse();
-                sendMeetingResponseMail(msg);
+                sendMeetingResponseMail(msg, req.mResponse);
             }
         } else if (isAuthError(status)) {
             throw new EasAuthenticationException();
