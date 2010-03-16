@@ -1149,20 +1149,22 @@ public class CalendarSyncAdapter extends AbstractSyncAdapter {
                     CalendarUtilities.millisToEasDateTime(allDayCal.getTimeInMillis()));
          } else {
             s.data(Tags.CALENDAR_START_TIME, CalendarUtilities.millisToEasDateTime(startTime));
-            if (!entityValues.containsKey(Events.DURATION)) {
-                if (entityValues.containsKey(Events.DTEND)) {
-                    s.data(Tags.CALENDAR_END_TIME, CalendarUtilities.millisToEasDateTime(
-                            entityValues.getAsLong(Events.DTEND)));
-                }
+            // If we've got DTEND, we use it
+            if (entityValues.containsKey(Events.DTEND)) {
+                s.data(Tags.CALENDAR_END_TIME, CalendarUtilities.millisToEasDateTime(
+                        entityValues.getAsLong(Events.DTEND)));
             } else {
-                // Convert this into millis and add it to DTSTART for DTEND
-                // We'll use 1 hour as a default
+                // Convert duration into millis and add it to DTSTART for DTEND
+                // We'll use 1 hour as a default (if there's no duration specified or if the parse
+                // of the duration fails)
                 long durationMillis = HOURS;
-                Duration duration = new Duration();
-                try {
-                    duration.parse(entityValues.getAsString(Events.DURATION));
-                } catch (ParseException e) {
-                    // Can't do much about this; use the default (1 hour)
+                if (entityValues.containsKey(Events.DURATION)) {
+                    Duration duration = new Duration();
+                    try {
+                        duration.parse(entityValues.getAsString(Events.DURATION));
+                    } catch (ParseException e) {
+                        // Can't do much about this; use the default (1 hour)
+                    }
                 }
                 s.data(Tags.CALENDAR_END_TIME,
                         CalendarUtilities.millisToEasDateTime(startTime + durationMillis));
