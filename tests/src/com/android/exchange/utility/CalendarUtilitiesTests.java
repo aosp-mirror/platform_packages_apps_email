@@ -26,6 +26,7 @@ import com.android.email.provider.EmailContent.Message;
 
 import android.content.ContentValues;
 import android.content.Entity;
+import android.content.res.Resources;
 import android.provider.Calendar.Attendees;
 import android.provider.Calendar.Events;
 import android.test.AndroidTestCase;
@@ -33,6 +34,7 @@ import android.test.AndroidTestCase;
 import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.StringReader;
+import java.text.DateFormat;
 import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.Date;
@@ -65,6 +67,9 @@ public class CalendarUtilitiesTests extends AndroidTestCase {
         "4AEAAFAAYQBjAGkAZgBpAGMAIABTAHQAYQBuAGQAYQByAGQAIABUAGkAbQBlAAAAAAAAAAAAAAAAAAAAAAAA" +
         "AAAAAAAAAAsAAAABAAIAAAAAAAAAAAAAAFAAYQBjAGkAZgBpAGMAIABEAGEAeQBsAGkAZwBoAHQAIABUAGkA" +
         "bQBlAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAMAAAACAAIAAAAAAAAAxP///w==";
+
+    private static final String ORGANIZER = "organizer@server.com";
+    private static final String ATTENDEE = "attendee@server.com";
 
     public void testGetSet() {
         byte[] bytes = new byte[] {0, 1, 2, 3, 4, 5, 6, 7};
@@ -200,14 +205,12 @@ public class CalendarUtilitiesTests extends AndroidTestCase {
 
     public void testCreateMessageForEntity_Reply() {
         // Set up the "event"
-        String attendee = "attendee@server.com";
-        String organizer = "organizer@server.com";
         String title = "Discuss Unit Tests";
-        Entity entity = setupTestEventEntity(organizer, attendee, title);
+        Entity entity = setupTestEventEntity(ORGANIZER, ATTENDEE, title);
 
         // Create a dummy account for the attendee
         Account account = new Account();
-        account.mEmailAddress = attendee;
+        account.mEmailAddress = ATTENDEE;
 
         // The uid is required, but can be anything
         String uid = "31415926535";
@@ -220,7 +223,7 @@ public class CalendarUtilitiesTests extends AndroidTestCase {
         assertNotNull(msg);
 
         // Now check some of the fields of the message
-        assertEquals(Address.pack(new Address[] {new Address(organizer)}), msg.mTo);
+        assertEquals(Address.pack(new Address[] {new Address(ORGANIZER)}), msg.mTo);
         String accept = getContext().getResources().getString(R.string.meeting_accepted, title);
         assertEquals(accept, msg.mSubject);
 
@@ -241,14 +244,12 @@ public class CalendarUtilitiesTests extends AndroidTestCase {
 
     public void testCreateMessageForEntity_Invite() throws IOException {
         // Set up the "event"
-        String attendee = "attendee@server.com";
-        String organizer = "organizer@server.com";
         String title = "Discuss Unit Tests";
-        Entity entity = setupTestEventEntity(organizer, attendee, title);
+        Entity entity = setupTestEventEntity(ORGANIZER, ATTENDEE, title);
 
         // Create a dummy account for the attendee
         Account account = new Account();
-        account.mEmailAddress = organizer;
+        account.mEmailAddress = ORGANIZER;
 
         // The uid is required, but can be anything
         String uid = "31415926535";
@@ -261,7 +262,7 @@ public class CalendarUtilitiesTests extends AndroidTestCase {
         assertNotNull(msg);
 
         // Now check some of the fields of the message
-        assertEquals(Address.pack(new Address[] {new Address(attendee)}), msg.mTo);
+        assertEquals(Address.pack(new Address[] {new Address(ATTENDEE)}), msg.mTo);
         String accept = getContext().getResources().getString(R.string.meeting_invitation, title);
         assertEquals(accept, msg.mSubject);
 
@@ -290,21 +291,18 @@ public class CalendarUtilitiesTests extends AndroidTestCase {
         BlockHash vevent = vcalendar.blocks.get(0);
         // It's a VEVENT with the following fields
         assertEquals("VEVENT", vevent.name);
-        assertEquals("MAILTO:" + organizer, vevent.get("ORGANIZER"));
         assertEquals("Meeting Location", vevent.get("LOCATION"));
         assertEquals("0", vevent.get("SEQUENCE"));
         assertEquals("Discuss Unit Tests", vevent.get("SUMMARY"));
         assertEquals(uid, vevent.get("UID"));
-        assertEquals("MAILTO:" + attendee,
+        assertEquals("MAILTO:" + ATTENDEE,
                 vevent.get("ATTENDEE;ROLE=REQ-PARTICIPANT;PARTSTAT=NEEDS-ACTION;RSVP=TRUE"));
     }
 
     public void testCreateMessageForEntity_Exception_Cancel() throws IOException {
         // Set up the "exception"...
-        String attendee = "attendee@server.com";
-        String organizer = "organizer@server.com";
         String title = "Discuss Unit Tests";
-        Entity entity = setupTestExceptionEntity(organizer, attendee, title);
+        Entity entity = setupTestExceptionEntity(ORGANIZER, ATTENDEE, title);
         
         ContentValues entityValues = entity.getEntityValues();
         // Mark the Exception as dirty
@@ -316,7 +314,7 @@ public class CalendarUtilitiesTests extends AndroidTestCase {
 
         // Create a dummy account for the attendee
         Account account = new Account();
-        account.mEmailAddress = organizer;
+        account.mEmailAddress = ORGANIZER;
 
         // The uid is required, but can be anything
         String uid = "31415926535";
@@ -329,7 +327,7 @@ public class CalendarUtilitiesTests extends AndroidTestCase {
         assertNotNull(msg);
 
         // Now check some of the fields of the message
-        assertEquals(Address.pack(new Address[] {new Address(attendee)}), msg.mTo);
+        assertEquals(Address.pack(new Address[] {new Address(ATTENDEE)}), msg.mTo);
         String accept = getContext().getResources().getString(R.string.meeting_invitation, title);
         assertEquals(accept, msg.mSubject);
 
@@ -366,12 +364,11 @@ public class CalendarUtilitiesTests extends AndroidTestCase {
         BlockHash vevent = vcalendar.blocks.get(1);
         // It's a VEVENT with the following fields
         assertEquals("VEVENT", vevent.name);
-        assertEquals("MAILTO:" + organizer, vevent.get("ORGANIZER"));
         assertEquals("Meeting Location", vevent.get("LOCATION"));
         assertEquals("0", vevent.get("SEQUENCE"));
         assertEquals("Discuss Unit Tests", vevent.get("SUMMARY"));
         assertEquals(uid, vevent.get("UID"));
-        assertEquals("MAILTO:" + attendee,
+        assertEquals("MAILTO:" + ATTENDEE,
                 vevent.get("ATTENDEE;ROLE=REQ-PARTICIPANT;PARTSTAT=NEEDS-ACTION;RSVP=TRUE"));
         long originalTime = entityValues.getAsLong(Events.ORIGINAL_INSTANCE_TIME);
         assertNotSame(0, originalTime);
@@ -548,6 +545,34 @@ public class CalendarUtilitiesTests extends AndroidTestCase {
             throw new IllegalArgumentException();
         }
         return new BlockHash("VCALENDAR", reader);
+    }
+
+    public void testBuildMessageTextFromEntityValues() {
+        // Set up a test event
+        String title = "Event Title";
+        Entity entity = setupTestEventEntity(ORGANIZER, ATTENDEE, title);
+        ContentValues entityValues = entity.getEntityValues();
+
+        // Save this away; we'll use it a few times below
+        Resources resources = mContext.getResources();
+        Date date = new Date(entityValues.getAsLong(Events.DTSTART));
+        String dateTimeString = DateFormat.getDateTimeInstance().format(date);
+
+        // Get the text for this message
+        StringBuilder sb = new StringBuilder();
+        CalendarUtilities.buildMessageTextFromEntityValues(mContext, entityValues, sb);
+        String text = sb.toString();
+        // We'll just check the when and where
+        assertTrue(text.contains(resources.getString(R.string.meeting_when, dateTimeString)));
+        String location = entityValues.getAsString(Events.EVENT_LOCATION);
+        assertTrue(text.contains(resources.getString(R.string.meeting_where, location)));
+
+        // Make this event recurring
+        entity.getEntityValues().put(Events.RRULE, "FREQ=WEEKLY;BYDAY=MO");
+        sb = new StringBuilder();
+        CalendarUtilities.buildMessageTextFromEntityValues(mContext, entityValues, sb);
+        text = sb.toString();
+        assertTrue(text.contains(resources.getString(R.string.meeting_recurring, dateTimeString)));
     }
 
     // TODO Planned unit tests; some of these exist in primitive form below
