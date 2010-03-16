@@ -1155,7 +1155,13 @@ public class CalendarUtilities {
         // What we're missing is the duration and any recurrence information.  So this should be
         // more like... When: Tuesdays, starting March 5th from 2:00pm - 3:00pm
         // This would require code to build complex strings, and it will have to wait
-        sb.append(resources.getString(R.string.meeting_when, dateTimeString));
+        // For now, we'll just use the meeting_recurring string
+        if (!entityValues.containsKey(Events.ORIGINAL_EVENT) &&
+                entityValues.containsKey(Events.RRULE)) {
+            sb.append(resources.getString(R.string.meeting_recurring, dateTimeString));
+        } else {
+            sb.append(resources.getString(R.string.meeting_when, dateTimeString));
+        }
         String location = null;
         if (entityValues.containsKey(Events.EVENT_LOCATION)) {
             location = entityValues.getAsString(Events.EVENT_LOCATION);
