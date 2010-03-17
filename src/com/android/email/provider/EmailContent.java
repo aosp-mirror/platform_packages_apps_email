@@ -831,11 +831,12 @@ public abstract class EmailContent {
             Uri.parse(EmailContent.CONTENT_URI + "/accountIdAddToField");
 
         public final static int FLAGS_NOTIFY_NEW_MAIL = 1;
-        public final static int FLAGS_VIBRATE = 2;
+        public final static int FLAGS_VIBRATE_ALWAYS = 2;
         public static final int FLAGS_DELETE_POLICY_MASK = 4+8;
         public static final int FLAGS_DELETE_POLICY_SHIFT = 2;
         public static final int FLAGS_INCOMPLETE = 16;
         public static final int FLAGS_SECURITY_HOLD = 32;
+        public static final int FLAGS_VIBRATE_WHEN_SILENT = 64;
 
         public static final int DELETE_POLICY_NEVER = 0;
         public static final int DELETE_POLICY_7DAYS = 1;        // not supported
@@ -1091,7 +1092,8 @@ public abstract class EmailContent {
         /**
          * @return the flags for this account
          * @see #FLAGS_NOTIFY_NEW_MAIL
-         * @see #FLAGS_VIBRATE
+         * @see #FLAGS_VIBRATE_ALWAYS
+         * @see #FLAGS_VIBRATE_WHEN_SILENT
          */
         public int getFlags() {
             return mFlags;
@@ -1100,7 +1102,8 @@ public abstract class EmailContent {
         /**
          * Set the flags for this account
          * @see #FLAGS_NOTIFY_NEW_MAIL
-         * @see #FLAGS_VIBRATE
+         * @see #FLAGS_VIBRATE_ALWAYS
+         * @see #FLAGS_VIBRATE_WHEN_SILENT
          * @param newFlags the new value for the flags
          */
         public void setFlags(int newFlags) {

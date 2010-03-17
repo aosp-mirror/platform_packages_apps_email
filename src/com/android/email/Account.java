@@ -70,7 +70,8 @@ public class Account {
     String mTrashFolderName;
     String mOutboxFolderName;
     int mAccountNumber;
-    boolean mVibrate;
+    boolean mVibrate;           // true: Always vibrate. false: Only when mVibrateWhenSilent.
+    boolean mVibrateWhenSilent; // true: Vibrate even if !mVibrate. False: Require mVibrate.
     String mRingtoneUri;
     int mSyncWindow;
     int mBackupFlags;           // for account backups only
@@ -95,6 +96,7 @@ public class Account {
     private final String KEY_PROTOCOL_VERSION = ".protocolVersion";
     private final String KEY_SECURITY_FLAGS = ".securityFlags";
     private final String KEY_SIGNATURE = ".signature";
+    private final String KEY_VIBRATE_WHEN_SILENT = ".vibrateWhenSilent";
 
     public Account(Context context) {
         // TODO Change local store path to something readable / recognizable
@@ -104,6 +106,7 @@ public class Account {
         mAccountNumber = -1;
         mNotifyNewMail = true;
         mVibrate = false;
+        mVibrateWhenSilent = false;
         mRingtoneUri = "content://settings/system/notification_sound";
         mSyncWindow = SYNC_WINDOW_USER;       // IMAP & POP3
         mBackupFlags = 0;
@@ -163,6 +166,8 @@ public class Account {
                 "Outbox");
         mAccountNumber = preferences.mSharedPreferences.getInt(mUuid + ".accountNumber", 0);
         mVibrate = preferences.mSharedPreferences.getBoolean(mUuid + ".vibrate", false);
+        mVibrateWhenSilent = preferences.mSharedPreferences.getBoolean(mUuid +
+                KEY_VIBRATE_WHEN_SILENT, false);
         mRingtoneUri = preferences.mSharedPreferences.getString(mUuid  + ".ringtone", 
                 "content://settings/system/notification_sound");
         
@@ -228,6 +233,14 @@ public class Account {
         mVibrate = vibrate;
     }
 
+    public boolean isVibrateWhenSilent() {
+        return mVibrateWhenSilent;
+    }
+
+    public void setVibrateWhenSilent(boolean vibrateWhenSilent) {
+        mVibrateWhenSilent = vibrateWhenSilent;
+    }
+
     public String getRingtone() {
         return mRingtoneUri;
     }
@@ -267,6 +280,7 @@ public class Account {
         editor.remove(mUuid + ".outboxFolderName");
         editor.remove(mUuid + ".accountNumber");
         editor.remove(mUuid + ".vibrate");
+        editor.remove(mUuid + KEY_VIBRATE_WHEN_SILENT);
         editor.remove(mUuid + ".ringtone");
         editor.remove(mUuid + KEY_SYNC_WINDOW);
         editor.remove(mUuid + KEY_BACKUP_FLAGS);
@@ -334,6 +348,7 @@ public class Account {
         editor.putString(mUuid + ".outboxFolderName", mOutboxFolderName);
         editor.putInt(mUuid + ".accountNumber", mAccountNumber);
         editor.putBoolean(mUuid + ".vibrate", mVibrate);
+        editor.putBoolean(mUuid + KEY_VIBRATE_WHEN_SILENT, mVibrateWhenSilent);
         editor.putString(mUuid + ".ringtone", mRingtoneUri);
         editor.putInt(mUuid + KEY_SYNC_WINDOW, mSyncWindow);
         editor.putInt(mUuid + KEY_BACKUP_FLAGS, mBackupFlags);

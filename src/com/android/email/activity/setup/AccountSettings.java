@@ -51,13 +51,18 @@ public class AccountSettings extends PreferenceActivity {
     private static final String PREFERENCE_FREQUENCY = "account_check_frequency";
     private static final String PREFERENCE_DEFAULT = "account_default";
     private static final String PREFERENCE_NOTIFY = "account_notify";
-    private static final String PREFERENCE_VIBRATE = "account_vibrate";
+    private static final String PREFERENCE_VIBRATE_WHEN = "account_settings_vibrate_when";
     private static final String PREFERENCE_RINGTONE = "account_ringtone";
     private static final String PREFERENCE_SERVER_CATERGORY = "account_servers";
     private static final String PREFERENCE_INCOMING = "incoming";
     private static final String PREFERENCE_OUTGOING = "outgoing";
     private static final String PREFERENCE_SYNC_CONTACTS = "account_sync_contacts";
     private static final String PREFERENCE_SYNC_CALENDAR = "account_sync_calendar";
+
+    // These strings must match account_settings_vibrate_when_* strings in strings.xml
+    private static final String PREFERENCE_VALUE_VIBRATE_WHEN_ALWAYS = "always";
+    private static final String PREFERENCE_VALUE_VIBRATE_WHEN_SILENT = "silent";
+    private static final String PREFERENCE_VALUE_VIBRATE_WHEN_NEVER = "never";
 
     // NOTE: This string must match the one in res/xml/account_preferences.xml
     public static final String ACTION_ACCOUNT_MANAGER_ENTRY =
@@ -78,7 +83,7 @@ public class AccountSettings extends PreferenceActivity {
     private ListPreference mSyncWindow;
     private CheckBoxPreference mAccountDefault;
     private CheckBoxPreference mAccountNotify;
-    private CheckBoxPreference mAccountVibrate;
+    private ListPreference mAccountVibrateWhen;
     private RingtonePreference mAccountRingtone;
     private CheckBoxPreference mSyncContacts;
     private CheckBoxPreference mSyncCalendar;
@@ -228,9 +233,13 @@ public class AccountSettings extends PreferenceActivity {
         SharedPreferences prefs = mAccountRingtone.getPreferenceManager().getSharedPreferences();
         prefs.edit().putString(PREFERENCE_RINGTONE, mAccount.getRingtone()).commit();
 
-        mAccountVibrate = (CheckBoxPreference) findPreference(PREFERENCE_VIBRATE);
-        mAccountVibrate.setChecked(0 !=
-            (mAccount.getFlags() & Account.FLAGS_VIBRATE));
+        mAccountVibrateWhen = (ListPreference) findPreference(PREFERENCE_VIBRATE_WHEN);
+        boolean flagsVibrate = 0 != (mAccount.getFlags() & Account.FLAGS_VIBRATE_ALWAYS);
+        boolean flagsVibrateSilent = 0 != (mAccount.getFlags() & Account.FLAGS_VIBRATE_WHEN_SILENT);
+        mAccountVibrateWhen.setValue(
+                flagsVibrate ? PREFERENCE_VALUE_VIBRATE_WHEN_ALWAYS :
+                flagsVibrateSilent ? PREFERENCE_VALUE_VIBRATE_WHEN_SILENT :
+                    PREFERENCE_VALUE_VIBRATE_WHEN_NEVER);
 
         findPreference(PREFERENCE_INCOMING).setOnPreferenceClickListener(
                 new Preference.OnPreferenceClickListener() {
@@ -327,7 +336,8 @@ public class AccountSettings extends PreferenceActivity {
 
     private void saveSettings() {
         int newFlags = mAccount.getFlags() &
-                ~(Account.FLAGS_NOTIFY_NEW_MAIL | Account.FLAGS_VIBRATE);
+                ~(Account.FLAGS_NOTIFY_NEW_MAIL |
+                        Account.FLAGS_VIBRATE_ALWAYS | Account.FLAGS_VIBRATE_WHEN_SILENT);
 
         mAccount.setDefaultAccount(mAccountDefault.isChecked());
         mAccount.setDisplayName(mAccountDescription.getText());
@@ -338,7 +348,11 @@ public class AccountSettings extends PreferenceActivity {
         if (mSyncWindow != null) {
             mAccount.setSyncLookback(Integer.parseInt(mSyncWindow.getValue()));
         }
-        newFlags |= mAccountVibrate.isChecked() ? Account.FLAGS_VIBRATE : 0;
+        if (mAccountVibrateWhen.getValue().equals(PREFERENCE_VALUE_VIBRATE_WHEN_ALWAYS)) {
+            newFlags |= Account.FLAGS_VIBRATE_ALWAYS;
+        } else if (mAccountVibrateWhen.getValue().equals(PREFERENCE_VALUE_VIBRATE_WHEN_SILENT)) {
+            newFlags |= Account.FLAGS_VIBRATE_WHEN_SILENT;
+        }
         SharedPreferences prefs = mAccountRingtone.getPreferenceManager().getSharedPreferences();
         mAccount.setRingtone(prefs.getString(PREFERENCE_RINGTONE, null));
         mAccount.setFlags(newFlags);

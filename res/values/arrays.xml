@@ -81,6 +81,23 @@
         <item>5</item>
     </string-array>
 
+    <!-- The vibrate notification modes -->
+    <string-array name="account_settings_vibrate_when_entries">
+        <!-- Always -->
+        <item>@string/account_settings_vibrate_when_always</item>
+        <!-- Only when the phone is in Silent mode -->
+        <item>@string/account_settings_vibrate_when_silent</item>
+        <!-- Never -->
+        <item>@string/account_settings_vibrate_when_never</item>
+    </string-array>
+
+    <!-- The vibrate notification values -->
+    <string-array translatable="false" name="account_settings_vibrate_when_values">
+        <item>always</item>
+        <item>silent</item>
+        <item>never</item>
+    </string-array>
+
     <!-- Arrays "mailbox_display_names" and "mailbox_display_icons" MUST match the order
          of the types of mailboxes defined in EmailContent -->
     <string-array name="mailbox_display_names" translatable="false">

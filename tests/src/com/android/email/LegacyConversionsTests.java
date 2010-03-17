@@ -650,6 +650,7 @@ public class LegacyConversionsTests extends ProviderTestCase2<EmailProvider> {
         mLegacyAccount.mOutboxFolderName = "outbox " + name;
         mLegacyAccount.mAccountNumber = 300;
         mLegacyAccount.mVibrate = true;
+        mLegacyAccount.mVibrateWhenSilent = false;
         mLegacyAccount.mRingtoneUri = "ringtone://test/" + name;
         mLegacyAccount.mSyncWindow = 400;
         mLegacyAccount.mBackupFlags = 0;
@@ -679,7 +680,9 @@ public class LegacyConversionsTests extends ProviderTestCase2<EmailProvider> {
         // Synthesize & check flags
         int expectFlags = 0;
         if (expect.mNotifyNewMail) expectFlags |= EmailContent.Account.FLAGS_NOTIFY_NEW_MAIL;
-        if (expect.mVibrate) expectFlags |= EmailContent.Account.FLAGS_VIBRATE;
+        if (expect.mVibrate) expectFlags |= EmailContent.Account.FLAGS_VIBRATE_ALWAYS;
+        if (expect.mVibrateWhenSilent)
+            expectFlags |= EmailContent.Account.FLAGS_VIBRATE_WHEN_SILENT;
         expectFlags |=
             (expect.mDeletePolicy << EmailContent.Account.FLAGS_DELETE_POLICY_SHIFT)
                 & EmailContent.Account.FLAGS_DELETE_POLICY_MASK;
@@ -720,8 +723,12 @@ public class LegacyConversionsTests extends ProviderTestCase2<EmailProvider> {
         assertEquals(tag + " trash", null, actual.mTrashFolderName);
         assertEquals(tag + " outbox", null, actual.mOutboxFolderName);
         assertEquals(tag + " acct #", -1, actual.mAccountNumber);
-        assertEquals(tag + " vibrate", (expectFlags & EmailContent.Account.FLAGS_VIBRATE) != 0,
+        assertEquals(tag + " vibrate",
+                (expectFlags & EmailContent.Account.FLAGS_VIBRATE_ALWAYS) != 0,
                 actual.mVibrate);
+        assertEquals(tag + " vibrateSilent",
+                (expectFlags & EmailContent.Account.FLAGS_VIBRATE_WHEN_SILENT) != 0,
+                actual.mVibrateWhenSilent);
         assertEquals(tag + " ", expect.getRingtone(), actual.mRingtoneUri);
         assertEquals(tag + " sync window", expect.getSyncLookback(), actual.mSyncWindow);
         assertEquals(tag + " backup flags", 0, actual.mBackupFlags);
