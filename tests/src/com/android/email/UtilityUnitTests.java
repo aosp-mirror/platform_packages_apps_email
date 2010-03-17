@@ -142,4 +142,12 @@ public class UtilityUnitTests extends AndroidTestCase {
             assertFalse(Integer.toString(i), Utility.isFirstUtf8Byte(bytes[i]));
         }
     }
+
+    public void testByteToHex() {
+        for (int i = 0; i <= 0xFF; i++) {
+            String hex = Utility.byteToHex((byte) i);
+            assertEquals("val=" + i, 2, hex.length());
+            assertEquals("val=" + i, i, Integer.parseInt(hex, 16));
+        }
+    }
 }

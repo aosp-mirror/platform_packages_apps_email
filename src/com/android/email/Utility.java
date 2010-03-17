@@ -482,4 +482,15 @@ public class Utility {
         // If the top 2 bits is '10', it's not a first byte.
         return (b & 0xc0) != 0x80;
     }
+
+    public static String byteToHex(int b) {
+        return byteToHex(new StringBuilder(), b).toString();
+    }
+
+    public static StringBuilder byteToHex(StringBuilder sb, int b) {
+        b &= 0xFF;
+        sb.append("0123456789ABCDEF".charAt(b >> 4));
+        sb.append("0123456789ABCDEF".charAt(b & 0xF));
+        return sb;
+    }
 }
