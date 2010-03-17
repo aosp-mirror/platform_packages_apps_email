@@ -35,7 +35,7 @@ import android.widget.ListView;
 import android.widget.TextView;
 
 /**
- * TODO: Use real format strings, get rid of all hardcoded strings
+ * Email Address adapter that performs asynchronous GAL lookups.
  */
 public class GalEmailAddressAdapter extends EmailAddressAdapter {
     // STOPSHIP - DO NOT RELEASE AS 'TRUE'
@@ -237,19 +237,25 @@ public class GalEmailAddressAdapter extends EmailAddressAdapter {
             separator = mInflater.inflate(R.layout.recipient_dropdown_separator, parent, false);
             TextView text1 = (TextView) separator.findViewById(R.id.text1);
             View progress = separator.findViewById(R.id.progress);
-            // TODO replace this logic with proper formatting
+            String bannerText;
             if (mSeparatorDisplayCount == -1) {
-                text1.setText("Searching " + mAccountEmailDomain);
+                // Display "Searching <account>..."
+                bannerText = mContext.getString(R.string.gal_searching_fmt, mAccountEmailDomain);
                 progress.setVisibility(View.VISIBLE);
             } else {
                 if (mSeparatorDisplayCount == mSeparatorTotalCount) {
-                    text1.setText(mSeparatorDisplayCount + " results from " + mAccountEmailDomain);
+                    // Display "x results from <account>"
+                    bannerText = mContext.getResources().getQuantityString(
+                            R.plurals.gal_completed_fmt, mSeparatorDisplayCount,
+                            mSeparatorDisplayCount, mAccountEmailDomain);
                 } else {
-                    text1.setText("First " + mSeparatorDisplayCount + " results from " +
-                            mAccountEmailDomain);
+                    // Display "First x results from <account>"
+                    bannerText = mContext.getString(R.string.gal_completed_limited_fmt,
+                            mSeparatorDisplayCount, mAccountEmailDomain);
                 }
                 progress.setVisibility(View.GONE);
             }
+            text1.setText(bannerText);
             return separator;
         }
         return super.getView(getRealPosition(position), convertView, parent);
