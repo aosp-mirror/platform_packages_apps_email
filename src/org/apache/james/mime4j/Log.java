@@ -16,6 +16,8 @@
 
 package org.apache.james.mime4j;
 
+import com.android.email.Email;
+
 /**
  * Empty stub for the apache logging library.
  */
@@ -24,62 +26,89 @@ public class Log {
     }
 
     public boolean isDebugEnabled() {
-        return false;
+        return Email.LOGD;
     }
 
     public boolean isErrorEnabled() {
-        return false;
+        return true;
     }
 
     public boolean isFatalEnabled() {
-        return false;
+        return true;
     }
 
     public boolean isInfoEnabled() {
-        return false;
+        return Email.LOGD;
     }
 
     public boolean isTraceEnabled() {
-        return false;
+        return Email.LOGD;
     }
 
     public boolean isWarnEnabled() {
-        return false;
+        return true;
     }
 
     public void trace(Object message) {
+        if (!isTraceEnabled()) return;
+        android.util.Log.v(Email.LOG_TAG, toString(message, null));
     }
 
     public void trace(Object message, Throwable t) {
+        if (!isTraceEnabled()) return;
+        android.util.Log.v(Email.LOG_TAG, toString(message, t));
     }
 
     public void debug(Object message) {
+        if (!isDebugEnabled()) return;
+        android.util.Log.d(Email.LOG_TAG, toString(message, null));
     }
 
     public void debug(Object message, Throwable t) {
+        if (!isDebugEnabled()) return;
+        android.util.Log.d(Email.LOG_TAG, toString(message, t));
     }
 
     public void info(Object message) {
+        if (!isInfoEnabled()) return;
+        android.util.Log.i(Email.LOG_TAG, toString(message, null));
     }
 
     public void info(Object message, Throwable t) {
+        if (!isInfoEnabled()) return;
+        android.util.Log.i(Email.LOG_TAG, toString(message, t));
     }
 
     public void warn(Object message) {
+        android.util.Log.w(Email.LOG_TAG, toString(message, null));
     }
 
     public void warn(Object message, Throwable t) {
+        android.util.Log.w(Email.LOG_TAG, toString(message, t));
     }
 
     public void error(Object message) {
+        android.util.Log.e(Email.LOG_TAG, toString(message, null));
     }
 
     public void error(Object message, Throwable t) {
+        android.util.Log.e(Email.LOG_TAG, toString(message, t));
     }
 
     public void fatal(Object message) {
+        android.util.Log.e(Email.LOG_TAG, toString(message, null));
     }
 
     public void fatal(Object message, Throwable t) {
+        android.util.Log.e(Email.LOG_TAG, toString(message, t));
+    }
+
+    private static String toString(Object o, Throwable t) {
+        String m = (o == null) ? "(null)" : o.toString();
+        if (t == null) {
+            return m;
+        } else {
+            return m + " " + t.getMessage();
+        }
     }
 }
