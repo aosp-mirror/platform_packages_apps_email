@@ -32,6 +32,7 @@ import com.android.email.provider.EmailContent.Mailbox;
 import com.android.email.provider.EmailContent.MailboxColumns;
 import com.android.email.provider.EmailContent.Message;
 import com.android.email.provider.EmailContent.MessageColumns;
+import com.android.email.service.MailService;
 
 import android.app.AlertDialog;
 import android.app.Dialog;
@@ -415,6 +416,10 @@ public class AccountFolderList extends ListActivity implements OnItemClickListen
                 public void onClick(DialogInterface dialog, int whichButton) {
                     dismissDialog(DIALOG_REMOVE_ACCOUNT);
                     try {
+                        // Clear notifications, which may become stale here
+                        NotificationManager notificationManager = (NotificationManager)
+                                getSystemService(Context.NOTIFICATION_SERVICE);
+                        notificationManager.cancel(MailService.NOTIFICATION_ID_NEW_MESSAGES);
                         // Delete Remote store at first.
                         Store.getInstance(
                                 mSelectedContextAccount.getStoreUri(AccountFolderList.this),
