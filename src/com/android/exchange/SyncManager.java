@@ -702,8 +702,13 @@ public class SyncManager extends Service implements Runnable {
                                 // Reset the sync key locally in the Mailbox and set it not to sync
                                 cv.put(Mailbox.SYNC_KEY, "0");
                                 cv.put(Mailbox.SYNC_INTERVAL, Mailbox.CHECK_INTERVAL_NEVER);
-                                // Delete all events in this calendar
-                                mResolver.delete(Events.CONTENT_URI, WHERE_CALENDAR_ID,
+                                // Delete all events in this calendar using the sync adapter
+                                // parameter so that the deletion is only local
+                                Uri eventsAsSyncAdapter =
+                                    Events.CONTENT_URI.buildUpon()
+                                        .appendQueryParameter(Calendar.CALLER_IS_SYNCADAPTER,
+                                                "true").build();
+                                mResolver.delete(eventsAsSyncAdapter, WHERE_CALENDAR_ID,
                                         new String[] {Long.toString(mCalendarId)});
                                 // TODO Stop sync in progress??
                             } else {
