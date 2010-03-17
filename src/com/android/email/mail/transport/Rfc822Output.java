@@ -156,11 +156,13 @@ public class Rfc822Output {
                 Attachment.CONTENT_PROJECTION, null, null, null);
 
         try {
-            boolean mixedParts = attachmentsCursor.getCount() > 0;
-            String mixedBoundary = null;
+            int attachmentCount = attachmentsCursor.getCount();
+            boolean multipart = attachmentCount > 0;
+            String multipartBoundary = null;
+            String multipartType = "mixed";
 
             // Simplified case for no multipart - just emit text and be done.
-            if (!mixedParts) {
+            if (!multipart) {
                 if (text != null) {
                     writeTextWithHeaders(writer, stream, text);
                 } else {
@@ -169,31 +171,41 @@ public class Rfc822Output {
             } else {
                 // continue with multipart headers, then into multipart body
                 writeHeader(writer, "MIME-Version", "1.0");
+                multipartBoundary = "--_com.android.email_" + System.nanoTime();
 
-                mixedBoundary = "--_com.android.email_" + System.nanoTime();
+                // Move to the first attachment; this must succeed because multipart is true
+                attachmentsCursor.moveToFirst();
+                if (attachmentCount == 1) {
+                    // If we've got one attachment and it's an ics "attachment", we want to send
+                    // this as multipart/alternative instead of multipart/mixed
+                    int flags = attachmentsCursor.getInt(Attachment.CONTENT_FLAGS_COLUMN);
+                    if ((flags & Attachment.FLAG_ICS_ALTERNATIVE_PART) != 0) {
+                        multipartType = "alternative";
+                    }
+                }
+
                 writeHeader(writer, "Content-Type",
-                        "multipart/mixed; boundary=\"" + mixedBoundary + "\"");
-
+                        "multipart/" + multipartType + "; boundary=\"" + multipartBoundary + "\"");
                 // Finish headers and prepare for body section(s)
                 writer.write("\r\n");
 
                 // first multipart element is the body
                 if (text != null) {
-                    writeBoundary(writer, mixedBoundary, false);
+                    writeBoundary(writer, multipartBoundary, false);
                     writeTextWithHeaders(writer, stream, text);
                 }
 
-                // Write out the attachments
-                while (attachmentsCursor.moveToNext()) {
-                    writeBoundary(writer, mixedBoundary, false);
+                // Write out the attachments until we run out
+                do {
+                    writeBoundary(writer, multipartBoundary, false);
                     Attachment attachment =
                         Attachment.getContent(attachmentsCursor, Attachment.class);
                     writeOneAttachment(context, writer, stream, attachment);
                     writer.write("\r\n");
-                }
+                } while (attachmentsCursor.moveToNext());
 
                 // end of multipart section
-                writeBoundary(writer, mixedBoundary, true);
+                writeBoundary(writer, multipartBoundary, true);
             }
         } finally {
             attachmentsCursor.close();
@@ -213,7 +225,7 @@ public class Rfc822Output {
         writeHeader(writer, "Content-Transfer-Encoding", "base64");
         // Most attachments (real files) will send Content-Disposition.  The suppression option
         // is used when sending calendar invites.
-        if ((attachment.mFlags & Attachment.FLAG_SUPPRESS_DISPOSITION) == 0) {
+        if ((attachment.mFlags & Attachment.FLAG_ICS_ALTERNATIVE_PART) == 0) {
             writeHeader(writer, "Content-Disposition",
                     "attachment;"
                     + "\n filename=\"" + attachment.mFileName + "\";"

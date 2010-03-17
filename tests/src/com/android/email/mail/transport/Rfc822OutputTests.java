@@ -16,9 +16,26 @@
 
 package com.android.email.mail.transport;
 
+import com.android.email.mail.MessagingException;
+import com.android.email.provider.EmailProvider;
+import com.android.email.provider.EmailContent.Attachment;
 import com.android.email.provider.EmailContent.Message;
 
-import android.test.AndroidTestCase;
+import org.apache.james.mime4j.field.Field;
+import org.apache.james.mime4j.message.Body;
+import org.apache.james.mime4j.message.Entity;
+import org.apache.james.mime4j.message.Header;
+import org.apache.james.mime4j.message.Multipart;
+
+import android.content.Context;
+import android.test.ProviderTestCase2;
+
+import java.io.ByteArrayInputStream;
+import java.io.ByteArrayOutputStream;
+import java.io.IOException;
+import java.util.ArrayList;
+import java.util.List;
+
 
 /**
  * Tests of the Rfc822Output (used for sending mail)
@@ -26,7 +43,7 @@ import android.test.AndroidTestCase;
  * You can run this entire test case with:
  *   runtest -c com.android.email.mail.transport.Rfc822OutputTests email
  */
-public class Rfc822OutputTests extends AndroidTestCase {
+public class Rfc822OutputTests extends ProviderTestCase2<EmailProvider> {
     private static final String SENDER = "sender@android.com";
     private static final String REPLYTO = "replyto@android.com";
     private static final String RECIPIENT_TO = "recipient-to@android.com";
@@ -37,6 +54,18 @@ public class Rfc822OutputTests extends AndroidTestCase {
     private static final String TEXT = "Here is some new text.";
     private static final String REPLY_BODY_SHORT = "\n\n" + SENDER + " wrote:\n\n";
     private static final String REPLY_BODY = REPLY_BODY_SHORT + ">" + BODY;
+
+    private Context mMockContext;
+
+    public Rfc822OutputTests () {
+        super(EmailProvider.class, EmailProvider.EMAIL_AUTHORITY);
+    }
+
+    @Override
+    public void setUp() throws Exception {
+        super.setUp();
+        mMockContext = getMockContext();
+    }
 
     // TODO Create more tests here.  Specifically, we should test to make sure that forward works
     // properly instead of just reply
@@ -63,16 +92,16 @@ public class Rfc822OutputTests extends AndroidTestCase {
         msg.mFlags = Message.FLAG_TYPE_REPLY;
         msg.mTextReply = BODY;
         msg.mIntroText = REPLY_BODY_SHORT;
-        msg.save(getContext());
+        msg.save(mMockContext);
 
-        String body = Rfc822Output.buildBodyText(getContext(), msg, true);
+        String body = Rfc822Output.buildBodyText(mMockContext, msg, true);
         assertEquals(REPLY_BODY, body);
 
         // Save a different message with no reply body (so we reset the id)
         msg.mId = -1;
         msg.mTextReply = null;
-        msg.save(getContext());
-        body = Rfc822Output.buildBodyText(getContext(), msg, true);
+        msg.save(mMockContext);
+        body = Rfc822Output.buildBodyText(mMockContext, msg, true);
         assertEquals(REPLY_BODY_SHORT, body);
     }
 
@@ -89,16 +118,126 @@ public class Rfc822OutputTests extends AndroidTestCase {
         msg.mFlags = Message.FLAG_TYPE_REPLY;
         msg.mTextReply = BODY;
         msg.mIntroText = REPLY_BODY_SHORT;
-        msg.save(getContext());
+        msg.save(mMockContext);
 
-        String body = Rfc822Output.buildBodyText(getContext(), msg, false);
+        String body = Rfc822Output.buildBodyText(mMockContext, msg, false);
         assertEquals(TEXT + REPLY_BODY_SHORT, body);
 
         // Save a different message with no reply body (so we reset the id)
         msg.mId = -1;
         msg.mTextReply = null;
-        msg.save(getContext());
-        body = Rfc822Output.buildBodyText(getContext(), msg, false);
+        msg.save(mMockContext);
+        body = Rfc822Output.buildBodyText(mMockContext, msg, false);
         assertEquals(TEXT + REPLY_BODY_SHORT, body);
     }
- }
+
+    public void testWriteToText() throws IOException, MessagingException {
+        // Create a simple text message
+        Message msg = new Message();
+        msg.mText = TEXT;
+        msg.mFrom = SENDER;
+        // Save this away
+        msg.save(mMockContext);
+
+        // Write out an Rfc822 message
+        ByteArrayOutputStream byteStream = new ByteArrayOutputStream();
+        Rfc822Output.writeTo(mMockContext, msg.mId, byteStream, false, false);
+
+        // Get the message and create a mime4j message from it
+        // We'll take advantage of its parsing capabilities
+        ByteArrayInputStream messageInputStream =
+            new ByteArrayInputStream(byteStream.toByteArray());
+        org.apache.james.mime4j.message.Message mimeMessage =
+            new org.apache.james.mime4j.message.Message(messageInputStream);
+
+        // Make sure its structure is correct
+        assertFalse(mimeMessage.isMultipart());
+        assertEquals("text/plain", mimeMessage.getMimeType());
+    }
+
+    @SuppressWarnings("unchecked")
+    public void testWriteToAlternativePart() throws IOException, MessagingException {
+        // Create a message with alternative part
+        Message msg = new Message();
+        msg.mText = TEXT;
+        msg.mFrom = SENDER;
+        msg.mAttachments = new ArrayList<Attachment>();
+        // Attach a meeting invitation, which needs to be sent as multipart/alternative
+        Attachment att = new Attachment();
+        att.mContentBytes = "__CONTENT__".getBytes("UTF-8");
+        att.mFlags = Attachment.FLAG_ICS_ALTERNATIVE_PART;
+        att.mMimeType = "text/calendar";
+        att.mFileName = "invite.ics";
+        msg.mAttachments.add(att);
+        // Save this away
+        msg.save(mMockContext);
+
+        // Write out an Rfc822 message
+        ByteArrayOutputStream byteStream = new ByteArrayOutputStream();
+        Rfc822Output.writeTo(mMockContext, msg.mId, byteStream, false, false);
+
+        // Get the message and create a mime4j message from it
+        // We'll take advantage of its parsing capabilities
+        ByteArrayInputStream messageInputStream =
+            new ByteArrayInputStream(byteStream.toByteArray());
+        org.apache.james.mime4j.message.Message mimeMessage =
+            new org.apache.james.mime4j.message.Message(messageInputStream);
+
+        // Make sure its structure is correct
+        assertTrue(mimeMessage.isMultipart());
+        Header header = mimeMessage.getHeader();
+        Field contentType = header.getField("content-type");
+        assertTrue(contentType.getBody().contains("multipart/alternative"));
+        Multipart multipart = (Multipart)mimeMessage.getBody();
+        List<Body> partList = multipart.getBodyParts();
+        assertEquals(2, partList.size());
+        Entity part = (Entity)partList.get(0);
+        assertEquals("text/plain", part.getMimeType());
+        part = (Entity)partList.get(1);
+        assertEquals("text/calendar", part.getMimeType());
+        header = part.getHeader();
+        assertNull(header.getField("content-disposition"));
+    }
+
+    public void testWriteToMixedPart() throws IOException, MessagingException {
+        // Create a message with a mixed part
+        Message msg = new Message();
+        msg.mText = TEXT;
+        msg.mFrom = SENDER;
+        msg.mAttachments = new ArrayList<Attachment>();
+        // Attach a simple html "file"
+        Attachment att = new Attachment();
+        att.mContentBytes = "<html>Hi</html>".getBytes("UTF-8");
+        att.mMimeType = "text/html";
+        att.mFileName = "test.html";
+        msg.mAttachments.add(att);
+        // Save this away
+        msg.save(mMockContext);
+
+        // Write out an Rfc822 message
+        ByteArrayOutputStream byteStream = new ByteArrayOutputStream();
+        Rfc822Output.writeTo(mMockContext, msg.mId, byteStream, false, false);
+
+        // Get the message and create a mime4j message from it
+        // We'll take advantage of its parsing capabilities
+        ByteArrayInputStream messageInputStream =
+            new ByteArrayInputStream(byteStream.toByteArray());
+        org.apache.james.mime4j.message.Message mimeMessage =
+            new org.apache.james.mime4j.message.Message(messageInputStream);
+
+        // Make sure its structure is correct
+        assertTrue(mimeMessage.isMultipart());
+        Header header = mimeMessage.getHeader();
+        Field contentType = header.getField("content-type");
+        assertTrue(contentType.getBody().contains("multipart/mixed"));
+        Multipart multipart = (Multipart)mimeMessage.getBody();
+        List<Body> partList = multipart.getBodyParts();
+        assertEquals(2, partList.size());
+        Entity part = (Entity)partList.get(0);
+        assertEquals("text/plain", part.getMimeType());
+        part = (Entity)partList.get(1);
+        assertEquals("text/html", part.getMimeType());
+        header = part.getHeader();
+        assertNotNull(header.getField("content-disposition"));
+    }
+}

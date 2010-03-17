@@ -1469,7 +1469,7 @@ public class CalendarUtilities {
             att.mFileName = "invite.ics";
             att.mSize = att.mContentBytes.length;
             // We don't send content-disposition with this attachment
-            att.mFlags = Attachment.FLAG_SUPPRESS_DISPOSITION;
+            att.mFlags = Attachment.FLAG_ICS_ALTERNATIVE_PART;
 
             // Add the attachment to the message
             msg.mAttachments = new ArrayList<Attachment>();
