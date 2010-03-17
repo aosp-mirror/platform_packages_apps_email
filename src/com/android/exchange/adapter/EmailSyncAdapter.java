@@ -222,9 +222,7 @@ public class EmailSyncAdapter extends AbstractSyncAdapter {
                         byte[] bytes = Base64.decode(guid, Base64.DEFAULT);
                         // Then go through the bytes and write out the hex values as characters
                         for (byte b: bytes) {
-                            int unsignedByte = (b < 0) ? b + 256 : b;
-                            sb.append("0123456789ABCDEF".charAt(unsignedByte >> 4));
-                            sb.append("0123456789ABCDEF".charAt(unsignedByte & 0xF));
+                            Utility.byteToHex(sb, b);
                         }
                         packedString.put(MeetingInfo.MEETING_UID, sb.toString());
                         break;

@@ -17,9 +17,11 @@
 package com.android.email.mail.transport;
 
 import com.android.email.Email;
+import com.android.email.Utility;
 
 import android.util.Log;
 
+import java.io.FilterInputStream;
 import java.io.IOException;
 import java.io.InputStream;
 
@@ -29,19 +31,25 @@ import java.io.InputStream;
  * 
  * Use of this class *MUST* be restricted to logging-enabled situations only.
  */
-public class LoggingInputStream extends InputStream {
-
-    InputStream mIn;
-    StringBuilder mSb;
-    boolean mBufferDirty;
-    
-    private final String LINE_TAG = "RAW ";
+public class LoggingInputStream extends FilterInputStream {
+    private StringBuilder mSb;
+    private boolean mDumpEmptyLines;
+    private final String mTag;
 
     public LoggingInputStream(InputStream in) {
-        super();
-        mIn = in;
-        mSb = new StringBuilder(LINE_TAG);
-        mBufferDirty = false;
+        this(in, "RAW", false);
+    }
+
+    public LoggingInputStream(InputStream in, String tag, boolean dumpEmptyLines) {
+        super(in);
+        mTag = tag + " ";
+        mDumpEmptyLines = dumpEmptyLines;
+        initBuffer();
+        Log.d(Email.LOG_TAG, mTag + "dump start");
+    }
+
+    private void initBuffer() {
+        mSb = new StringBuilder(mTag);
     }
 
     /**
@@ -49,7 +57,7 @@ public class LoggingInputStream extends InputStream {
      */
     @Override
     public int read() throws IOException {
-        int oneByte = mIn.read();
+        int oneByte = super.read();
         logRaw(oneByte);
         return oneByte;
     }
@@ -59,10 +67,10 @@ public class LoggingInputStream extends InputStream {
      */
     @Override
     public int read(byte[] b, int offset, int length) throws IOException {
-        int bytesRead = mIn.read(b, offset, length);
+        int bytesRead = super.read(b, offset, length);
         int copyBytes = bytesRead;
         while (copyBytes > 0) {
-            logRaw((char)b[offset]);
+            logRaw(b[offset] & 0xFF);
             copyBytes--;
             offset++;
         }
@@ -74,15 +82,29 @@ public class LoggingInputStream extends InputStream {
      * Write and clear the buffer
      */
     private void logRaw(int oneByte) {
-        if (oneByte == '\r' || oneByte == '\n') {          
-            if (mBufferDirty) {
-                Log.d(Email.LOG_TAG, mSb.toString());
-                mSb = new StringBuilder(LINE_TAG);
-                mBufferDirty = false;
-            }
-        } else {
+        if (oneByte == '\r') {
+            // Don't log.
+        } else if (oneByte == '\n') {
+            flushLog();
+        } else if (0x20 <= oneByte && oneByte <= 0x7e) { // Printable ASCII.
             mSb.append((char)oneByte);
-            mBufferDirty = true;
+        } else {
+            // email protocols are supposed to be all 7bits, but there are wrong implementations
+            // that do send 8 bit characters...
+            mSb.append("\\x" + Utility.byteToHex(oneByte));
         }
+    }
+
+    private void flushLog() {
+        if (mDumpEmptyLines || (mSb.length() > mTag.length())) {
+            Log.d(Email.LOG_TAG, mSb.toString());
+            initBuffer();
+        }
+    }
+
+    @Override
+    public void close() throws IOException {
+        super.close();
+        flushLog();
     }
 }

@@ -19,13 +19,16 @@
 
 package org.apache.james.mime4j;
 
+import com.android.email.Email;
+import com.android.email.mail.transport.LoggingInputStream;
+
+import org.apache.james.mime4j.decoder.Base64InputStream;
+import org.apache.james.mime4j.decoder.QuotedPrintableInputStream;
+
 import java.io.IOException;
 import java.io.InputStream;
 import java.util.BitSet;
 import java.util.LinkedList;
-
-import org.apache.james.mime4j.decoder.Base64InputStream;
-import org.apache.james.mime4j.decoder.QuotedPrintableInputStream;
 
 /**
  * <p>
@@ -49,7 +52,10 @@ import org.apache.james.mime4j.decoder.QuotedPrintableInputStream;
  */
 public class MimeStreamParser {
     private static final Log log = LogFactory.getLog(MimeStreamParser.class);
-    
+
+    // STOPSHIP - DO NOT RELEASE AS 'TRUE'
+    private static final boolean DEBUG_LOG_MESSAGE = false;
+
     private static BitSet fieldChars = null;
     
     private RootInputStream rootStream = null;
@@ -80,6 +86,9 @@ public class MimeStreamParser {
      * @throws IOException on I/O errors.
      */
     public void parse(InputStream is) throws IOException {
+        if (DEBUG_LOG_MESSAGE && Email.DEBUG) {
+            is = new LoggingInputStream(is, "MIME", true);
+        }
         rootStream = new RootInputStream(is);
         parseMessage(rootStream);
     }
