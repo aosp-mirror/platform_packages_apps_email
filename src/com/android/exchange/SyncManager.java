@@ -682,6 +682,7 @@ public class SyncManager extends Service implements Runnable {
                     if (c.moveToFirst()) {
                         long newSyncEvents = c.getLong(0);
                         if (newSyncEvents != mSyncEvents) {
+                            log("_sync_events changed for calendar in " + mAccountName);
                             Mailbox mailbox = Mailbox.restoreMailboxOfType(INSTANCE,
                                     mAccountId, Mailbox.TYPE_CALENDAR);
                             // Sanity check for mailbox deletion
@@ -689,8 +690,11 @@ public class SyncManager extends Service implements Runnable {
                             ContentValues cv = new ContentValues();
                             if (newSyncEvents == 0) {
                                 // When sync of a calendar is disabled, we're supposed to delete
-                                // all events in the calendar; this means we should first reset our
-                                // sync key to 0
+                                // all events in the calendar
+                                log("Deleting events and setting syncKey to 0 for " + mAccountName);
+                                // First, stop any sync that's ongoing
+                                stopManualSync(mailbox.mId);
+                                // Set the syncKey to 0 (reset)
                                 EasSyncService service = new EasSyncService(INSTANCE, mailbox);
                                 CalendarSyncAdapter adapter = new CalendarSyncAdapter(mailbox,
                                         service);
@@ -710,10 +714,10 @@ public class SyncManager extends Service implements Runnable {
                                                 "true").build();
                                 mResolver.delete(eventsAsSyncAdapter, WHERE_CALENDAR_ID,
                                         new String[] {Long.toString(mCalendarId)});
-                                // TODO Stop sync in progress??
                             } else {
                                 // Set sync back to push
                                 cv.put(Mailbox.SYNC_INTERVAL, Mailbox.CHECK_INTERVAL_PUSH);
+                                kick("calendar sync changed");
                             }
 
                             // Update the calendar mailbox with new settings
