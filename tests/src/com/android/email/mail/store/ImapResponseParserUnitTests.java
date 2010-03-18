@@ -25,6 +25,7 @@ import android.test.AndroidTestCase;
 import android.test.suitebuilder.annotation.SmallTest;
 
 import java.io.ByteArrayInputStream;
+import java.io.IOException;
 
 /**
  * This is a series of unit tests for the ImapStore class.  These tests must be locally
@@ -52,6 +53,8 @@ public class ImapResponseParserUnitTests extends AndroidTestCase {
         assertNull("Line 1 tag", line1.mTag);
         assertTrue("Line 1 completed", line1.completed());
         assertEquals("Line 1 count", 3, line1.size());
+        Object line1list = line1.get(2);
+        assertEquals("Line 1 list count", 2, ((ImapList)line1list).size());
         
         ImapResponse line2 = parser.readResponse();
         assertEquals("Line 2 tag", "100", line2.mTag);
@@ -83,5 +86,49 @@ public class ImapResponseParserUnitTests extends AndroidTestCase {
         assertEquals("Line 5 tag", "101", line5.mTag);
         assertTrue("Line 5 completed", line5.completed());
         assertEquals("Line 5 count", 3, line5.size());
+    }
+
+    /**
+     * Test for parsing expansion resp-text in OK or related responses
+     */
+    public void testParseResponseText() throws Exception {
+        ByteArrayInputStream is = new ByteArrayInputStream(
+                ("101 OK STATUS completed\r\n"
+                + "102 OK [APPENDUID 2 238257] APPEND completed\r\n")
+                .getBytes());
+        ImapResponseParser parser = new ImapResponseParser(is, new DiscourseLogger(4));
+
+        ImapResponse line1 = parser.readResponse();
+        assertEquals("101", line1.mTag);
+        assertTrue(line1.completed());
+        assertEquals(3, line1.size());  // "OK STATUS COMPLETED"
+
+        ImapResponse line2 = parser.readResponse();
+        assertEquals("102", line2.mTag);
+        assertTrue(line2.completed());
+        assertEquals(4, line2.size());  // "OK [APPENDUID 2 238257] APPEND completed"
+        Object responseList = line2.get(1);
+        assertEquals(3, ((ImapList)responseList).size());
+    }
+
+    /**
+     * Test special parser of [ALERT] responses
+     */
+    public void testAlertText() throws IOException {
+        ByteArrayInputStream is = new ByteArrayInputStream(
+                ("* OK [AlErT] system going down\r\n"
+                + "* OK [ALERT]\r\n"
+                + "* OK [SOME-OTHER-TAG]\r\n")
+                .getBytes());
+        ImapResponseParser parser = new ImapResponseParser(is, new DiscourseLogger(4));
+
+        ImapResponse line1 = parser.readResponse();
+        assertEquals("system going down", line1.getAlertText());
+
+        ImapResponse line2 = parser.readResponse();
+        assertEquals("", line2.getAlertText());
+
+        ImapResponse line3 = parser.readResponse();
+        assertNull(line3.getAlertText());
     }
 }

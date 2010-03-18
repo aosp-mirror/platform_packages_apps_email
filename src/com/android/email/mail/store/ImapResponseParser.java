@@ -41,7 +41,7 @@ public class ImapResponseParser {
     // mDateTimeFormat is used only for parsing IMAP's FETCH ENVELOPE command, in which
     // en_US-like date format is used like "01-Jan-2009 11:20:39 -0800", so this should be
     // handled by Locale.US
-    private final SimpleDateFormat mDateTimeFormat =
+    private final static SimpleDateFormat DATE_TIME_FORMAT =
             new SimpleDateFormat("dd-MMM-yyyy HH:mm:ss Z", Locale.US);
     private final PeekableInputStream mIn;
     private InputStream mActiveLiteral;
@@ -163,7 +163,7 @@ public class ImapResponseParser {
     public Object readToken() throws IOException {
         while (true) {
             Object token = parseToken();
-            if (token == null || !token.equals(")")) {
+            if (token == null || !(token.equals(")") || token.equals("]"))) {
                 return token;
             }
         }
@@ -178,10 +178,15 @@ public class ImapResponseParser {
         while (true) {
             int ch = mIn.peek();
             if (ch == '(') {
-                return parseList();
+                return parseList('(', ")");
             } else if (ch == ')') {
                 expect(')');
                 return ")";
+            } else if (ch == '[') {
+                return parseList('[', "]");
+            } else if (ch == ']') {
+                expect(']');
+                return "]";
             } else if (ch == '"') {
                 return parseQuoted();
             } else if (ch == '{') {
@@ -220,8 +225,14 @@ public class ImapResponseParser {
         return tag;
     }
 
-    private ImapList parseList() throws IOException {
-        expect('(');
+    /**
+     * @param opener The char that the list opens with
+     * @param closer The char that ends the list
+     * @return a list object containing the elements of the list
+     * @throws IOException
+     */
+    private ImapList parseList(char opener, String closer) throws IOException {
+        expect(opener);
         ImapList list = new ImapList();
         Object token;
         while (true) {
@@ -231,7 +242,7 @@ public class ImapResponseParser {
             } else if (token instanceof InputStream) {
                 list.add(token);
                 break;
-            } else if (token.equals(")")) {
+            } else if (token.equals(closer)) {
                 break;
             } else {
                 list.add(token);
@@ -251,9 +262,11 @@ public class ImapResponseParser {
                 }
                 throw new IOException("parseAtom(): end of stream reached");
             } else if (ch == '(' || ch == ')' || ch == '{' || ch == ' ' ||
-            // docs claim that flags are \ atom but atom isn't supposed to
+                    // ']' is not part of atom (it's in resp-specials)
+                    ch == ']' ||
+                    // docs claim that flags are \ atom but atom isn't supposed to
                     // contain
-                    // * and some falgs contain *
+                    // * and some flags contain *
                     // ch == '%' || ch == '*' ||
                     ch == '%' ||
                     // TODO probably should not allow \ and should recognize
@@ -335,8 +348,29 @@ public class ImapResponseParser {
             return (ImapList)get(index);
         }
 
+        /** Safe version of getList() */
+        public ImapList getListOrNull(int index) {
+            Object list = get(index);
+            if (list instanceof ImapList) {
+                return (ImapList) list;
+            } else {
+                return null;
+            }
+        }
+
         public String getString(int index) {
             return (String)get(index);
+        }
+
+        /** Safe version of getString() */
+        public String getStringOrNull(int index) {
+            if (index < size()) {
+                Object string = get(index);
+                if (string instanceof String) {
+                    return (String) string;
+                }
+            }
+            return null;
         }
 
         public InputStream getLiteral(int index) {
@@ -349,7 +383,7 @@ public class ImapResponseParser {
 
         public Date getDate(int index) throws MessagingException {
             try {
-                return mDateTimeFormat.parse(getString(index));
+                return DATE_TIME_FORMAT.parse(getString(index));
             } catch (ParseException pe) {
                 throw new MessagingException("Unable to parse IMAP datetime", pe);
             }
@@ -386,7 +420,7 @@ public class ImapResponseParser {
                 if (value == null) {
                     return null;
                 }
-                return mDateTimeFormat.parse(value);
+                return DATE_TIME_FORMAT.parse(value);
             } catch (ParseException pe) {
                 throw new MessagingException("Unable to parse IMAP datetime", pe);
             }
@@ -447,17 +481,25 @@ public class ImapResponseParser {
             return true;
         }
 
+        // Convert * [ALERT] blah blah blah into "blah blah blah"
         public String getAlertText() {
-            if (size() > 1 && "[ALERT]".equals(getString(1))) {
-                StringBuffer sb = new StringBuffer();
-                for (int i = 2, count = size(); i < count; i++) {
-                    sb.append(get(i).toString());
-                    sb.append(' ');
+            if (size() > 1) {
+                ImapList alertList = this.getListOrNull(1);
+                if (alertList != null) {
+                    String responseCode = alertList.getStringOrNull(0);
+                    if ("ALERT".equalsIgnoreCase(responseCode)) {
+                        StringBuffer sb = new StringBuffer();
+                        for (int i = 2, count = size(); i < count; i++) {
+                            if (i > 2) {
+                                sb.append(' ');
+                            }
+                            sb.append(get(i).toString());
+                        }
+                        return sb.toString();
+                    }
                 }
-                return sb.toString();
-            } else {
-                return null;
             }
+            return null;
         }
 
         public String toString() {

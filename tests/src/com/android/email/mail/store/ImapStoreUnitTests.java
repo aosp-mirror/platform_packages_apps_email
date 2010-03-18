@@ -223,7 +223,7 @@ public class ImapStoreUnitTests extends AndroidTestCase {
                 "* ID (\"name\" \"Cyrus\" \"version\" \"1.5\"" +
                 " \"os\" \"sunos\" \"os-version\" \"5.5\"" +
                 " \"support-url\" \"mailto:cyrus-bugs+@andrew.cmu.edu\")",
-                "OK"});
+                "OK"}, "READ-WRITE");
         mFolder.open(OpenMode.READ_WRITE, null);
     }
 
@@ -236,7 +236,7 @@ public class ImapStoreUnitTests extends AndroidTestCase {
         // try to open it
         setupOpenFolder(mockTransport, new String[] {
                 "* ID NIL",
-                "OK [ID] bad-char-%"});
+                "OK [ID] bad-char-%"}, "READ-WRITE");
         mFolder.open(OpenMode.READ_WRITE, null);
     }
     
@@ -248,7 +248,7 @@ public class ImapStoreUnitTests extends AndroidTestCase {
         
         // try to open it
         setupOpenFolder(mockTransport, new String[] {
-                "BAD unknown command bad-char-%"});
+                "BAD unknown command bad-char-%"}, "READ-WRITE");
         mFolder.open(OpenMode.READ_WRITE, null);
     }
     
@@ -349,30 +349,41 @@ public class ImapStoreUnitTests extends AndroidTestCase {
         mStore.setTransport(mockTransport);
         return mockTransport;
     }
-    
+
     /**
      * Helper which stuffs the mock with enough strings to satisfy a call to ImapFolder.open()
-     * 
+     *
      * @param mockTransport the mock transport we're using
      */
     private void setupOpenFolder(MockTransport mockTransport) {
-        setupOpenFolder(mockTransport, new String[] {
-                "* ID NIL", "OK"});
+        setupOpenFolder(mockTransport, "READ-WRITE");
     }
-    
+
+    /**
+     * Helper which stuffs the mock with enough strings to satisfy a call to ImapFolder.open()
+     *
+     * @param mockTransport the mock transport we're using
+     */
+    private void setupOpenFolder(MockTransport mockTransport, String readWriteMode) {
+        setupOpenFolder(mockTransport, new String[] {
+                "* ID NIL", "OK"}, readWriteMode);
+    }
+
     /**
      * Helper which stuffs the mock with enough strings to satisfy a call to ImapFolder.open()
      * Also allows setting a custom IMAP ID.
      *
      * Also sets mNextTag, an int, which is useful if there are additional commands to inject.
-     * 
+     *
      * @param mockTransport the mock transport we're using
      * @param imapIdResponse the expected series of responses to the IMAP ID command.  Non-final
      *      lines should be tagged with *.  The final response should be untagged (the correct
      *      tag will be added at runtime).
+     * @param "READ-WRITE" or "READ-ONLY"
      * @return the next tag# to use
      */
-    private void setupOpenFolder(MockTransport mockTransport, String[] imapIdResponse) {
+    private void setupOpenFolder(MockTransport mockTransport, String[] imapIdResponse,
+            String readWriteMode) {
         // Fix the tag # of the ID response
         String last = imapIdResponse[imapIdResponse.length-1];
         last = "2 " + last;
@@ -392,7 +403,7 @@ public class ImapStoreUnitTests extends AndroidTestCase {
                 "* 0 RECENT",
                 "* OK [UNSEEN 0]",
                 "* OK [UIDNEXT 1]",
-                "4 OK [READ-WRITE] INBOX selected. (Success)"});
+                "4 OK [" + readWriteMode + "] INBOX selected. (Success)"});
         mNextTag = 5;
     }
 
@@ -407,7 +418,29 @@ public class ImapStoreUnitTests extends AndroidTestCase {
         if (advance) ++mNextTag;
         return Integer.toString(mNextTag);
     }
-    
+
+    /**
+     * Test that servers reporting READ-WRITE mode are parsed properly
+     * Note: the READ_WRITE mode passed to folder.open() does not affect the test
+     */
+    public void testReadWrite() throws MessagingException {
+        MockTransport mock = openAndInjectMockTransport();
+        setupOpenFolder(mock, "READ-WRITE");
+        mFolder.open(OpenMode.READ_WRITE, null);
+        assertEquals(OpenMode.READ_WRITE, mFolder.getMode());
+    }
+
+    /**
+     * Test that servers reporting READ-ONLY mode are parsed properly
+     * Note: the READ_ONLY mode passed to folder.open() does not affect the test
+     */
+    public void testReadOnly() throws MessagingException {
+        MockTransport mock = openAndInjectMockTransport();
+        setupOpenFolder(mock, "READ-ONLY");
+        mFolder.open(OpenMode.READ_ONLY, null);
+        assertEquals(OpenMode.READ_ONLY, mFolder.getMode());
+    }
+
     /**
      * Test for getUnreadMessageCount with quoted string in the middle of response.
      */
