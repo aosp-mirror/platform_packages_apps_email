@@ -604,14 +604,17 @@ public class LegacyConversions {
 
         // Provider Account flags, and how they are mapped.
         //  FLAGS_NOTIFY_NEW_MAIL       -> mNotifyNewMail
-        //  FLAGS_VIBRATE               -> mVibrate
+        //  FLAGS_VIBRATE_ALWAYS        -> mVibrate
+        //  FLAGS_VIBRATE_WHEN_SILENT   -> mVibrateWhenSilent
         //  DELETE_POLICY_NEVER         -> mDeletePolicy
         //  DELETE_POLICY_7DAYS
         //  DELETE_POLICY_ON_DELETE
         result.setNotifyNewMail(0 !=
             (fromAccount.getFlags() & EmailContent.Account.FLAGS_NOTIFY_NEW_MAIL));
         result.setVibrate(0 !=
-            (fromAccount.getFlags() & EmailContent.Account.FLAGS_VIBRATE));
+            (fromAccount.getFlags() & EmailContent.Account.FLAGS_VIBRATE_ALWAYS));
+        result.setVibrateWhenSilent(0 !=
+            (fromAccount.getFlags() & EmailContent.Account.FLAGS_VIBRATE_WHEN_SILENT));
         result.setDeletePolicy(fromAccount.getDeletePolicy());
 
         result.mUuid = fromAccount.getUuid();
@@ -651,7 +654,9 @@ public class LegacyConversions {
         // result.mHostAuthKeySend;     -- will be set when object is saved
         int flags = 0;
         if (fromAccount.isNotifyNewMail())  flags |= EmailContent.Account.FLAGS_NOTIFY_NEW_MAIL;
-        if (fromAccount.isVibrate())        flags |= EmailContent.Account.FLAGS_VIBRATE;
+        if (fromAccount.isVibrate())        flags |= EmailContent.Account.FLAGS_VIBRATE_ALWAYS;
+        if (fromAccount.isVibrateWhenSilent())
+            flags |= EmailContent.Account.FLAGS_VIBRATE_WHEN_SILENT;
         result.setFlags(flags);
         result.setDeletePolicy(fromAccount.getDeletePolicy());
         // result.setDefaultAccount();  -- will be set by caller, if neededf

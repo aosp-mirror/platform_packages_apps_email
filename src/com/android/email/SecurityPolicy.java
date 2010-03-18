@@ -34,6 +34,7 @@ import android.content.ContentValues;
 import android.content.Context;
 import android.content.Intent;
 import android.database.Cursor;
+import android.media.AudioManager;
 import android.net.Uri;
 import android.util.Log;
 
@@ -388,7 +389,8 @@ public class SecurityPolicy {
         String contentText = account.getDisplayName();
         String ringtoneString = account.getRingtone();
         Uri ringTone = (ringtoneString == null) ? null : Uri.parse(ringtoneString);
-        boolean vibrate = 0 != (account.mFlags & Account.FLAGS_VIBRATE);
+        boolean vibrate = 0 != (account.mFlags & Account.FLAGS_VIBRATE_ALWAYS);
+        boolean vibrateWhenSilent = 0 != (account.mFlags & Account.FLAGS_VIBRATE_WHEN_SILENT);
 
         Intent intent = AccountSecurity.actionUpdateSecurityIntent(mContext, accountId);
         PendingIntent pending =
@@ -399,8 +401,13 @@ public class SecurityPolicy {
         notification.setLatestEventInfo(mContext, contentTitle, contentText, pending);
 
         // Use the account's notification rules for sound & vibrate (but always notify)
+        AudioManager audioManager =
+            (AudioManager) mContext.getSystemService(Context.AUDIO_SERVICE);
+        boolean nowSilent =
+            audioManager.getRingerMode() == AudioManager.RINGER_MODE_VIBRATE;
         notification.sound = ringTone;
-        if (vibrate) {
+
+        if (vibrate || (vibrateWhenSilent && nowSilent)) {
             notification.defaults |= Notification.DEFAULT_VIBRATE;
         }
         notification.flags |= Notification.FLAG_SHOW_LIGHTS;

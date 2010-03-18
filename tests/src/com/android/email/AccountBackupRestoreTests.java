@@ -317,6 +317,7 @@ public class AccountBackupRestoreTests extends ProviderTestCase2<EmailProvider> 
         backup.mOutboxFolderName = "outbox " + name;
         backup.mAccountNumber = 300;
         backup.mVibrate = true;
+        backup.mVibrateWhenSilent = false;
         backup.mRingtoneUri = "ringtone://test/" + name;
         backup.mSyncWindow = 400;
         backup.mBackupFlags = Account.BACKUP_FLAGS_IS_BACKUP;

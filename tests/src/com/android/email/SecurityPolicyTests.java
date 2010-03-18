@@ -252,7 +252,7 @@ public class SecurityPolicyTests extends ProviderTestCase2<EmailProvider> {
         a1.mFlags = Account.FLAGS_NOTIFY_NEW_MAIL;
         a1.save(mMockContext);
         Account a2 = ProviderTestUtils.setupAccount("holdflag-2", false, mMockContext);
-        a2.mFlags = Account.FLAGS_VIBRATE | Account.FLAGS_SECURITY_HOLD;
+        a2.mFlags = Account.FLAGS_VIBRATE_ALWAYS | Account.FLAGS_SECURITY_HOLD;
         a2.save(mMockContext);
 
         // confirm clear until set
@@ -265,11 +265,11 @@ public class SecurityPolicyTests extends ProviderTestCase2<EmailProvider> {
 
         // confirm set until cleared
         Account a2a = Account.restoreAccountWithId(mMockContext, a2.mId);
-        assertEquals(Account.FLAGS_VIBRATE | Account.FLAGS_SECURITY_HOLD, a2a.mFlags);
+        assertEquals(Account.FLAGS_VIBRATE_ALWAYS | Account.FLAGS_SECURITY_HOLD, a2a.mFlags);
         sp.setAccountHoldFlag(a2, false);
-        assertEquals(Account.FLAGS_VIBRATE, a2.mFlags);
+        assertEquals(Account.FLAGS_VIBRATE_ALWAYS, a2.mFlags);
         Account a2b = Account.restoreAccountWithId(mMockContext, a2.mId);
-        assertEquals(Account.FLAGS_VIBRATE, a2b.mFlags);
+        assertEquals(Account.FLAGS_VIBRATE_ALWAYS, a2b.mFlags);
     }
 
     /**
@@ -282,7 +282,7 @@ public class SecurityPolicyTests extends ProviderTestCase2<EmailProvider> {
         a1.mFlags = Account.FLAGS_NOTIFY_NEW_MAIL;
         a1.save(mMockContext);
         Account a2 = ProviderTestUtils.setupAccount("holdflag-2", false, mMockContext);
-        a2.mFlags = Account.FLAGS_VIBRATE | Account.FLAGS_SECURITY_HOLD;
+        a2.mFlags = Account.FLAGS_VIBRATE_ALWAYS | Account.FLAGS_SECURITY_HOLD;
         a2.save(mMockContext);
 
         // bulk clear
@@ -292,7 +292,7 @@ public class SecurityPolicyTests extends ProviderTestCase2<EmailProvider> {
         Account a1a = Account.restoreAccountWithId(mMockContext, a1.mId);
         assertEquals(Account.FLAGS_NOTIFY_NEW_MAIL, a1a.mFlags);
         Account a2a = Account.restoreAccountWithId(mMockContext, a2.mId);
-        assertEquals(Account.FLAGS_VIBRATE, a2a.mFlags);
+        assertEquals(Account.FLAGS_VIBRATE_ALWAYS, a2a.mFlags);
     }
 
     /**

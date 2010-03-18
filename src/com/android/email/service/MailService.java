@@ -36,6 +36,7 @@ import android.content.ContentValues;
 import android.content.Context;
 import android.content.Intent;
 import android.database.Cursor;
+import android.media.AudioManager;
 import android.net.Uri;
 import android.os.IBinder;
 import android.os.SystemClock;
@@ -417,6 +418,7 @@ public class MailService extends Service {
         int syncInterval;
         boolean notify;
         boolean vibrate;
+        boolean vibrateWhenSilent;
         Uri ringtoneUri;
 
         String displayName;     // temporary, for debug logging
@@ -488,7 +490,8 @@ public class MailService extends Service {
 
                 report.syncInterval = syncInterval;
                 report.notify = (flags & Account.FLAGS_NOTIFY_NEW_MAIL) != 0;
-                report.vibrate = (flags & Account.FLAGS_VIBRATE) != 0;
+                report.vibrate = (flags & Account.FLAGS_VIBRATE_ALWAYS) != 0;
+                report.vibrateWhenSilent = (flags & Account.FLAGS_VIBRATE_WHEN_SILENT) != 0;
                 report.ringtoneUri = (ringtoneString == null) ? null
                         : Uri.parse(ringtoneString);
 
@@ -637,6 +640,7 @@ public class MailService extends Service {
     private void notifyNewMessages(long accountId) {
         boolean notify = false;
         boolean vibrate = false;
+        boolean vibrateWhenSilent = false;
         Uri ringtone = null;
         int accountsWithNewMessages = 0;
         int numNewMessages = 0;
@@ -651,6 +655,7 @@ public class MailService extends Service {
                 if (report.accountId == accountId) {
                     notify = report.notify;
                     vibrate = report.vibrate;
+                    vibrateWhenSilent = report.vibrateWhenSilent;
                     ringtone = report.ringtoneUri;
                     reportName = report.displayName;
                 }
@@ -694,8 +699,11 @@ public class MailService extends Service {
                 pending);
 
         notification.sound = ringtone;
+        AudioManager audioManager = (AudioManager) getSystemService(Context.AUDIO_SERVICE);
+        boolean nowSilent = audioManager.getRingerMode() != AudioManager.RINGER_MODE_NORMAL;
+
         // Use same code here as in Gmail and GTalk for vibration
-        if (vibrate) {
+        if (vibrate || (vibrateWhenSilent && nowSilent)) {
             notification.defaults |= Notification.DEFAULT_VIBRATE;
         }
 

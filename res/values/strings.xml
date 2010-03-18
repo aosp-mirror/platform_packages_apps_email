@@ -580,10 +580,20 @@
     <string name="account_settings_sync_calendar_summary">Also sync calendar from this account
         </string>
 
-    <!-- On Settings screen, setting check box label -->
-    <string name="account_settings_vibrate_enable">Vibrate</string>
-    <!-- On Settings screen, setting summary text -->
-    <string name="account_settings_vibrate_summary">Also vibrate when email arrives</string>
+    <!-- On Settings screen, vibrate pop-up menu label -->
+    <string name="account_settings_vibrate_when_label">Vibrate</string>
+    <!-- On Settings screen, vibrate pop-up menu summary text -->
+    <string name="account_settings_vibrate_when_summary">Also vibrate when email arrives</string>
+    <!-- On Settings screen, vibrate pop-up menu option "always" text -->
+    <string name="account_settings_vibrate_when_always">Always</string>
+    <!-- On Settings screen, vibrate pop-up menu option "silent" text -->
+    <string name="account_settings_vibrate_when_silent">Only when silent</string>
+    <!-- On Settings screen, vibrate pop-up menu option "never" text -->
+    <string name="account_settings_vibrate_when_never">Never</string>
+
+    <!-- Dialog title for the Vibrate dialog -->
+    <string name="account_settings_vibrate_when_dlg_title">Vibrate</string>
+
     <!-- On Settings screen, setting option name -->
     <string name="account_settings_ringtone">Select ringtone</string>
     <!-- On Settings screen, section heading -->
