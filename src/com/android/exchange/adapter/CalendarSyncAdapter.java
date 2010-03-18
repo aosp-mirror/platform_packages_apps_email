@@ -689,15 +689,20 @@ public class CalendarSyncAdapter extends AbstractSyncAdapter {
                     case Tags.CALENDAR_ATTENDEE_NAME:
                         cv.put(Attendees.ATTENDEE_NAME, getValue());
                         break;
-                    case Tags.CALENDAR_ATTENDEE_STATUS:
-                        int status = getValueInt();
-                        cv.put(Attendees.ATTENDEE_STATUS,
-                                (status == 2) ? Attendees.ATTENDEE_STATUS_TENTATIVE :
-                                (status == 3) ? Attendees.ATTENDEE_STATUS_ACCEPTED :
-                                (status == 4) ? Attendees.ATTENDEE_STATUS_DECLINED :
-                                (status == 5) ? Attendees.ATTENDEE_STATUS_INVITED :
-                                    Attendees.ATTENDEE_STATUS_NONE);
-                        break;
+                    // We'll ignore attendee status for now; it's not obvious how to do this
+                    // consistently even with Exchange 2007 (with Exchange 2003, attendee status
+                    // isn't handled at all).
+                    // TODO: Investigate a consistent and accurate method of tracking attendee
+                    // status, though it might turn out not to be possible
+//                    case Tags.CALENDAR_ATTENDEE_STATUS:
+//                        int status = getValueInt();
+//                        cv.put(Attendees.ATTENDEE_STATUS,
+//                                (status == 2) ? Attendees.ATTENDEE_STATUS_TENTATIVE :
+//                                (status == 3) ? Attendees.ATTENDEE_STATUS_ACCEPTED :
+//                                (status == 4) ? Attendees.ATTENDEE_STATUS_DECLINED :
+//                                (status == 5) ? Attendees.ATTENDEE_STATUS_INVITED :
+//                                    Attendees.ATTENDEE_STATUS_NONE);
+//                        break;
                     case Tags.CALENDAR_ATTENDEE_TYPE:
                         int type = Attendees.TYPE_NONE;
                         // EAS types: 1 = req'd, 2 = opt, 3 = resource
