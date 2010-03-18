@@ -518,13 +518,15 @@ public class ImapStore extends Store {
                 for (ImapResponse response : responses) {
                     if (response.mTag == null && response.get(1).equals("EXISTS")) {
                         mMessageCount = response.getNumber(0);
-                    }
-                    else if (response.mTag != null && response.size() >= 2) {
-                        if ("[READ-ONLY]".equalsIgnoreCase(response.getString(1))) {
-                            mMode = OpenMode.READ_ONLY;
-                        }
-                        else if ("[READ-WRITE]".equalsIgnoreCase(response.getString(1))) {
-                            mMode = OpenMode.READ_WRITE;
+                    } else if (response.mTag != null) {
+                        ImapList responseList = response.getListOrNull(1);
+                        if (responseList != null) {
+                            String atom = responseList.getStringOrNull(0);
+                            if ("READ-ONLY".equalsIgnoreCase(atom)) {
+                                mMode = OpenMode.READ_ONLY;
+                            } else if ("READ-WRITE".equalsIgnoreCase(atom)) {
+                                mMode = OpenMode.READ_WRITE;
+                            }
                         }
                     }
                 }
@@ -1204,12 +1206,23 @@ public class ImapStore extends Store {
                             handleUntaggedResponse(response);
                         }
                         while (response.more());
-                    } while(response.mTag == null);
+                    } while (response.mTag == null);
+                    /*
+                     * Try to recover the UID of the message from an APPENDUID response.
+                     * e.g. 11 OK [APPENDUID 2 238268] APPEND completed
+                     */
+                    ImapList appendList = response.getListOrNull(1);
+                    if (appendList != null && appendList.size() == 3 &&
+                            "APPENDUID".equalsIgnoreCase(appendList.getString(0))) {
+                        String serverUid = appendList.getString(2);
+                        message.setUid(serverUid);
+                        continue;
+                    }
 
                     /*
                      * Try to find the UID of the message we just appended using the
                      * Message-ID header.  If there are more than one response, take the
-                     * last one, as it's most likely he newest (the one we just uploaded).
+                     * last one, as it's most likely the newest (the one we just uploaded).
                      */
                     String messageId = message.getMessageId();
                     if (messageId == null || messageId.length() == 0) {
