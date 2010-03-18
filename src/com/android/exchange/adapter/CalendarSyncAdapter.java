@@ -91,6 +91,7 @@ public class CalendarSyncAdapter extends AbstractSyncAdapter {
     private static final int CALENDAR_SELECTION_ID = 0;
 
     private static final String CATEGORY_TOKENIZER_DELIMITER = "\\";
+    private static final String ATTENDEE_TOKENIZER_DELIMITER = CATEGORY_TOKENIZER_DELIMITER;
 
     private static final ContentProviderOperation PLACEHOLDER_OPERATION =
         ContentProviderOperation.newInsert(Uri.EMPTY).build();
@@ -392,6 +393,16 @@ public class CalendarSyncAdapter extends AbstractSyncAdapter {
                 } else {
                     ops.updatedAttendee(attendeeCv, eventId);
                 }
+            }
+
+            // Store email addresses of attendees (in a tokenizable string) in ExtendedProperties
+            if (attendeeValues.size() > 0) {
+                StringBuilder sb = new StringBuilder();
+                for (ContentValues attendee: attendeeValues) {
+                    sb.append(attendee.getAsString(Attendees.ATTENDEE_EMAIL));
+                    sb.append(ATTENDEE_TOKENIZER_DELIMITER);
+                }
+                ops.newExtendedProperty("attendees", sb.toString());
             }
 
             // If there's no recurrence, set DTEND to the end time
@@ -1094,7 +1105,7 @@ public class CalendarSyncAdapter extends AbstractSyncAdapter {
         return i;
     }
 
-    private boolean sendEvent(Entity entity, String clientId, Serializer s)
+    private void sendEvent(Entity entity, String clientId, Serializer s)
             throws IOException {
         // Serialize for EAS here
         // Set uid with the client id we created
@@ -1323,8 +1334,6 @@ public class CalendarSyncAdapter extends AbstractSyncAdapter {
                 s.data(Tags.CALENDAR_EXCEPTION_IS_DELETED, "1");
             }
         }
-
-        return hasAttendees;
     }
 
     @Override
@@ -1448,7 +1457,7 @@ public class CalendarSyncAdapter extends AbstractSyncAdapter {
                     }
                     s.start(Tags.SYNC_APPLICATION_DATA);
 
-                    boolean hasAttendees = sendEvent(entity, clientId, s);
+                    sendEvent(entity, clientId, s);
 
                     // Now, the hard part; find exceptions for this event
                     if (serverId != null) {
@@ -1515,10 +1524,10 @@ public class CalendarSyncAdapter extends AbstractSyncAdapter {
 
                     // Send the meeting invite if there are attendees and we're the organizer AND
                     // if the Event itself is dirty (we might be syncing only because an exception
-                    // is dirty, in which case we DON'T send email about the Event
+                    // is dirty, in which case we DON'T send email about the Event)
                     boolean selfOrganizer = organizerEmail.equalsIgnoreCase(mAccount.mEmailAddress);
 
-                    if (hasAttendees && selfOrganizer &&
+                    if (selfOrganizer &&
                             (getInt(entityValues, Events._SYNC_DIRTY) == 1)) {
                         EmailContent.Message msg =
                             CalendarUtilities.createMessageForEventId(mContext, eventId,
@@ -1527,6 +1536,84 @@ public class CalendarSyncAdapter extends AbstractSyncAdapter {
                         if (msg != null) {
                             userLog("Sending invitation to ", msg.mTo);
                             EasOutboxService.sendMessage(mContext, mAccount.mId, msg);
+                        }
+                        // Retrieve our tokenized string of attendee email addresses
+                        String attendeeString = null;
+                        for (NamedContentValues ncv: entity.getSubValues()) {
+                            if (ncv.uri.equals(ExtendedProperties.CONTENT_URI)) {
+                                String propertyName =
+                                    ncv.values.getAsString(ExtendedProperties.NAME);
+                                if (propertyName.equals("attendees")) {
+                                    attendeeString =
+                                        ncv.values.getAsString(ExtendedProperties.VALUE);
+                                    break;
+                                }
+                            }
+                        }
+                        // Make a list out of them, if we have any
+                        ArrayList<String> originalAttendeeList = new ArrayList<String>();
+                        if (attendeeString != null) {
+                            StringTokenizer st =
+                                new StringTokenizer(attendeeString, ATTENDEE_TOKENIZER_DELIMITER);
+                            while (st.hasMoreTokens()) {
+                                originalAttendeeList.add(st.nextToken());
+                            }
+                        }
+                        StringBuilder newTokenizedAttendees = new StringBuilder();
+                        // See if any attendees have been dropped and while we're at it, build
+                        // an updated String with tokenized attendee addresses
+                        for (NamedContentValues ncv: entity.getSubValues()) {
+                            if (ncv.uri.equals(Attendees.CONTENT_URI)) {
+                                String attendeeEmail =
+                                    ncv.values.getAsString(Attendees.ATTENDEE_EMAIL);
+                                // Remove all found attendees
+                                originalAttendeeList.remove(attendeeEmail);
+                                newTokenizedAttendees.append(attendeeEmail);
+                                newTokenizedAttendees.append(ATTENDEE_TOKENIZER_DELIMITER);
+                            }
+                        }
+                        // Update extended properties with the new attendee list, if we have one
+                        // Otherwise, create one (this would be the case for Events created on
+                        // device or "legacy" events (before this code was added)
+                        ContentValues cv = new ContentValues();
+                        cv.put(ExtendedProperties.VALUE, newTokenizedAttendees.toString());
+                        if (attendeeString != null) {
+                            // Now, we have to find the id of this row in ExtendedProperties
+                            Cursor epCursor = cr.query(ExtendedProperties.CONTENT_URI,
+                                    new String[] {ExtendedProperties._ID},
+                                    ExtendedProperties.EVENT_ID + "=? AND name=\"attendees\"",
+                                    new String[] {Long.toString(eventId)}, null);
+                            if (epCursor != null) {
+                                try {
+                                    // There's no reason this should fail (after all, we found it
+                                    // in the subValues; if it's gone, though, that's fine
+                                    if (epCursor.moveToFirst()) {
+                                        cr.update(ContentUris.withAppendedId(
+                                                ExtendedProperties.CONTENT_URI,
+                                                epCursor.getLong(0)), cv, null, null);
+                                    }
+                                } finally {
+                                    epCursor.close();
+                                }
+                            }
+                        } else {
+                            // If there wasn't an "attendees" property, insert one
+                            cv.put(ExtendedProperties.NAME, "attendees");
+                            cv.put(ExtendedProperties.EVENT_ID, eventId);
+                            cr.insert(ExtendedProperties.CONTENT_URI, cv);
+                        }
+                        // Whoever is left has been removed from the attendee list; send them
+                        // a cancellation
+                        for (String removedAttendee: originalAttendeeList) {
+                            // Send a cancellation message to each of them
+                            msg = CalendarUtilities.createMessageForEventId(mContext, eventId,
+                                    Message.FLAG_OUTGOING_MEETING_CANCEL, clientId, mAccount);
+                            if (msg != null) {
+                                // Just send it to the removed attendee
+                                msg.mTo = removedAttendee;
+                                userLog("Sending cancellation to removed attendee " + msg.mTo);
+                                EasOutboxService.sendMessage(mContext, mAccount.mId, msg);
+                            }
                         }
                     } else if (!selfOrganizer) {
                         // If we're not the organizer, see if we've changed our attendee status
