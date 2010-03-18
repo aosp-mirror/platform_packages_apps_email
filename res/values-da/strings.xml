@@ -1,18 +1,19 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<!-- Copyright (C) 2009 The Android Open Source Project
+<!--  Copyright (C) 2008 The Android Open Source Project
 
      Licensed under the Apache License, Version 2.0 (the "License");
      you may not use this file except in compliance with the License.
      You may obtain a copy of the License at
-
+  
           http://www.apache.org/licenses/LICENSE-2.0
-
+  
      Unless required by applicable law or agreed to in writing, software
      distributed under the License is distributed on an "AS IS" BASIS,
      WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
      See the License for the specific language governing permissions and
      limitations under the License.
--->
+ -->
+
 <resources xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:xliff="urn:oasis:names:tc:xliff:document:1.2">
     <string name="read_attachment_label" msgid="1162255191991555285">"Læs vedhæftede filer i e-mails"</string>
@@ -107,26 +108,19 @@
     <string name="message_view_show_pictures_action" msgid="5059936981743072545">"Vis billeder"</string>
     <string name="message_view_fetching_attachment_toast" msgid="8812363375155391184">"Henter vedhæftet fil."</string>
     <string name="message_view_fetching_attachment_progress" msgid="8238550182655758164">"Henter den vedhæftede fil <xliff:g id="FILENAME">%s</xliff:g>"</string>
-    <!-- no translation found for message_view_invite_view (6256018854688891069) -->
-    <skip />
-    <!-- no translation found for message_view_invite_title (5024473745902772299) -->
-    <skip />
-    <!-- no translation found for message_view_invite_text (1212799906603873708) -->
-    <skip />
-    <!-- no translation found for message_view_invite_accept (744546668021679819) -->
-    <skip />
-    <!-- no translation found for message_view_invite_maybe (7555189462441562318) -->
-    <skip />
-    <!-- no translation found for message_view_invite_decline (6119797303297149463) -->
-    <skip />
-    <!-- no translation found for message_view_invite_toast_yes (1900593767157209498) -->
-    <skip />
-    <!-- no translation found for message_view_invite_toast_maybe (8324044318669610540) -->
-    <skip />
-    <!-- no translation found for message_view_invite_toast_no (7511491076936887064) -->
-    <skip />
-    <!-- no translation found for message_deleted_toast:one (710742672464447084) -->
-    <!-- no translation found for message_deleted_toast:other (6574961322865652255) -->
+    <string name="message_view_invite_view" msgid="6256018854688891069">"Vis i Kalender »"</string>
+    <string name="message_view_invite_title" msgid="5024473745902772299">"Kalenderinvitation"</string>
+    <string name="message_view_invite_text" msgid="1212799906603873708">"Skal du med?"</string>
+    <string name="message_view_invite_accept" msgid="744546668021679819">" Ja"</string>
+    <string name="message_view_invite_maybe" msgid="7555189462441562318">" Måske"</string>
+    <string name="message_view_invite_decline" msgid="6119797303297149463">" Nej"</string>
+    <string name="message_view_invite_toast_yes" msgid="1900593767157209498">"Du har accepteret denne invitation"</string>
+    <string name="message_view_invite_toast_maybe" msgid="8324044318669610540">"Du har svaret \"måske\" til denne invitation"</string>
+    <string name="message_view_invite_toast_no" msgid="7511491076936887064">"Du har afvist denne invitation"</string>
+  <plurals name="message_deleted_toast">
+    <item quantity="one" msgid="710742672464447084">"Beskeden er slettet."</item>
+    <item quantity="other" msgid="6574961322865652255">"Beskederne er slettet."</item>
+  </plurals>
     <string name="message_discarded_toast" msgid="3891461729325584026">"Beskeden er kasseret."</string>
     <string name="message_saved_toast" msgid="8443125659172627665">"Beskeden er gemt som kladde."</string>
     <string name="message_view_display_attachment_toast" msgid="6096315816776330821">"Denne vedhæftede fil kan ikke vises."</string>
@@ -252,17 +246,31 @@
     <string name="provider_note_t_online" msgid="1973701903400232774">"Inden du konfigurerer denne e-mail-konto, skal du gå til T-Onlines websted og oprette en adgangskode for POP3-e-mail-adgang."</string>
     <string name="exchange_name" msgid="1190783774800310346">"Virksomhed"</string>
     <string name="exchange_name_alternate" msgid="5772529644749041052">"Microsoft Exchange ActiveSync"</string>
-    <!-- no translation found for meeting_invitation (352782347335101484) -->
+    <string name="meeting_invitation" msgid="352782347335101484">"Invitation: <xliff:g id="SUBJECT">%s</xliff:g>"</string>
+    <string name="meeting_accepted" msgid="8796609373330400268">"Accepteret: <xliff:g id="SUBJECT">%s</xliff:g>"</string>
+    <string name="meeting_declined" msgid="6707617183246608552">"Afvist: <xliff:g id="SUBJECT">%s</xliff:g>"</string>
+    <string name="meeting_tentative" msgid="8250995722130443785">"Foreløbig: <xliff:g id="SUBJECT">%s</xliff:g>"</string>
+    <string name="meeting_canceled" msgid="3949893881872084244">"Annulleret: <xliff:g id="SUBJECT">%s</xliff:g>"</string>
+    <!-- no translation found for meeting_updated (8529675857361702860) -->
     <skip />
-    <!-- no translation found for meeting_accepted (8796609373330400268) -->
+    <!-- no translation found for meeting_when (2765696159697448656) -->
     <skip />
-    <!-- no translation found for meeting_declined (6707617183246608552) -->
+    <!-- no translation found for meeting_where (5992367535856553079) -->
     <skip />
-    <!-- no translation found for meeting_tentative (8250995722130443785) -->
+    <!-- no translation found for meeting_recurring (3134262212606714023) -->
+    <skip />
+    <!-- no translation found for exception_cancel (6160117429428313805) -->
+    <skip />
+    <!-- no translation found for exception_updated (3397583105901142050) -->
     <skip />
     <string name="system_account_create_failed" msgid="4917162302393971752">"Kontoadministratoren kunne ikke oprette kontoen. Prøv igen."</string>
     <string name="device_admin_label" msgid="8680224994637869414">"E-mail"</string>
     <string name="device_admin_description" msgid="426727923791430306">"Muliggør serverspecifikke sikkerhedspolitikker"</string>
-    <!-- no translation found for notification_exchange_calendar_added (6823659622379350159) -->
+    <string name="notification_exchange_calendar_added" msgid="6823659622379350159">"Exchange-kalender er tilføjet"</string>
+    <!-- no translation found for gal_searching_fmt (6140450617663543464) -->
+    <skip />
+    <!-- no translation found for gal_completed_fmt:one (7496785524617037642) -->
+    <!-- no translation found for gal_completed_fmt:other (7816121892960632123) -->
+    <!-- no translation found for gal_completed_limited_fmt (2343791690766047585) -->
     <skip />
 </resources>
