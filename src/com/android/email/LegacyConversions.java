@@ -300,7 +300,7 @@ public class LegacyConversions {
         String contentType = MimeUtility.unfoldAndDecode(part.getContentType());
         String name = MimeUtility.getHeaderParameter(contentType, "name");
         if (name == null) {
-            String contentDisposition = MimeUtility.unfoldAndDecode(part.getContentType());
+            String contentDisposition = MimeUtility.unfoldAndDecode(part.getDisposition());
             name = MimeUtility.getHeaderParameter(contentDisposition, "filename");
         }
 
@@ -359,7 +359,7 @@ public class LegacyConversions {
         String[] partIds = part.getHeader(MimeHeader.HEADER_ANDROID_ATTACHMENT_STORE_DATA);
         String partId = partIds != null ? partIds[0] : null;
 
-        localAttachment.mFileName = MimeUtility.getHeaderParameter(contentType, "name");
+        localAttachment.mFileName = name;
         localAttachment.mMimeType = part.getMimeType();
         localAttachment.mSize = size;           // May be reset below if file handled
         localAttachment.mContentId = part.getContentId();

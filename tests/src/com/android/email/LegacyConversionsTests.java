@@ -203,18 +203,31 @@ public class LegacyConversionsTests extends ProviderTestCase2<EmailProvider> {
     }
 
     /**
-     * Sunny day test of adding attachments from an IMAP message.
+     * Sunny day test of adding attachments from an IMAP/POP message.
      */
     public void testAddAttachments() throws MessagingException, IOException {
         // Prepare a local message to add the attachments to
         final long accountId = 1;
         final long mailboxId = 1;
+
+        // test 1: legacy message using content-type:name style for name
         final EmailContent.Message localMessage = ProviderTestUtils.setupMessage(
                 "local-message", accountId, mailboxId, false, true, mProviderContext);
+        final Message legacyMessage = prepareLegacyMessageWithAttachments(2, false, false);
+        convertAndCheckcheckAddedAttachments(localMessage, legacyMessage);
 
-        // Prepare a legacy message with attachments
-        final Message legacyMessage = prepareLegacyMessageWithAttachments(2, false);
+        // test 2: legacy message using content-disposition:filename style for name
+        final EmailContent.Message localMessage2 = ProviderTestUtils.setupMessage(
+                "local-message", accountId, mailboxId, false, true, mProviderContext);
+        final Message legacyMessage2 = prepareLegacyMessageWithAttachments(2, false, true);
+        convertAndCheckcheckAddedAttachments(localMessage2, legacyMessage2);
+    }
 
+    /**
+     * Helper for testAddAttachments
+     */
+    private void convertAndCheckcheckAddedAttachments(final EmailContent.Message localMessage,
+            final Message legacyMessage) throws MessagingException, IOException {
         // Now, convert from legacy to provider and see what happens
         ArrayList<Part> viewables = new ArrayList<Part>();
         ArrayList<Part> attachments = new ArrayList<Part>();
@@ -254,7 +267,7 @@ public class LegacyConversionsTests extends ProviderTestCase2<EmailProvider> {
                 "local-message", accountId, mailboxId, false, true, mProviderContext);
 
         // Prepare a legacy message with attachments
-        Message legacyMessage = prepareLegacyMessageWithAttachments(2, false);
+        Message legacyMessage = prepareLegacyMessageWithAttachments(2, false, false);
 
         // Now, convert from legacy to provider and see what happens
         ArrayList<Part> viewables = new ArrayList<Part>();
@@ -271,7 +284,7 @@ public class LegacyConversionsTests extends ProviderTestCase2<EmailProvider> {
         assertEquals(2, EmailContent.count(mProviderContext, uri, null, null));
 
         // Now add a 3rd & 4th attachment and make sure the total is 4, not 2 or 6
-        legacyMessage = prepareLegacyMessageWithAttachments(4, false);
+        legacyMessage = prepareLegacyMessageWithAttachments(4, false, false);
         viewables = new ArrayList<Part>();
         attachments = new ArrayList<Part>();
         MimeUtility.collectParts(legacyMessage, viewables, attachments);
@@ -290,7 +303,7 @@ public class LegacyConversionsTests extends ProviderTestCase2<EmailProvider> {
                 "local-upgrade", accountId, mailboxId, false, true, mProviderContext);
 
         // Prepare a legacy message with attachments
-        final Message legacyMessage = prepareLegacyMessageWithAttachments(2, true);
+        final Message legacyMessage = prepareLegacyMessageWithAttachments(2, true, false);
 
         // Now, convert from legacy to provider and see what happens
         ArrayList<Part> viewables = new ArrayList<Part>();
@@ -330,35 +343,43 @@ public class LegacyConversionsTests extends ProviderTestCase2<EmailProvider> {
      * Prepare a legacy message with 1+ attachments
      * @param numAttachments how many attachments to add
      * @param localData if true, attachments are "local" data.  false = "remote" (from server)
+     * @param filenameInDisposition False: attachment names are sent as content-type:name.  True:
+     *          attachment names are sent as content-disposition:filename.
      */
-    private Message prepareLegacyMessageWithAttachments(int numAttachments, boolean localData)
-            throws MessagingException {
+    private Message prepareLegacyMessageWithAttachments(int numAttachments, boolean localData,
+            boolean filenameInDisposition) throws MessagingException {
         // First, build one or more attachment parts
         MultipartBuilder mpBuilder = new MultipartBuilder("multipart/mixed");
         for (int i = 1; i <= numAttachments; ++i) {
+            // construct parameter parts for content-type:name or content-disposition:filename.
+            String name = "";
+            String filename = "";
+            String quotedName = "\"test-attachment-" + i + "\"";
+            if (filenameInDisposition) {
+                filename = ";\n filename=" + quotedName;
+            } else {
+                name = ";\n name=" + quotedName;
+            }
             if (localData) {
                 // generate an attachment that was generated by legacy code (e.g. donut)
                 // for test of upgrading accounts in place
                 // This creator models the code in legacy MessageCompose
                 Uri uri = Uri.parse("content://test/attachment/" + i);
-                String quotedName = "\"test-attachment-" + i + "\"";
                 MimeBodyPart bp = new MimeBodyPart(
                         new LocalStore.LocalAttachmentBody(uri, mProviderContext));
-                bp.setHeader(MimeHeader.HEADER_CONTENT_TYPE, "image/jpg;\n name=" + quotedName);
+                bp.setHeader(MimeHeader.HEADER_CONTENT_TYPE, "image/jpg" + name);
                 bp.setHeader(MimeHeader.HEADER_CONTENT_TRANSFER_ENCODING, "base64");
-                bp.setHeader(MimeHeader.HEADER_CONTENT_DISPOSITION,
-                        "attachment;\n filename=" + quotedName);
+                bp.setHeader(MimeHeader.HEADER_CONTENT_DISPOSITION, "attachment" + filename);
                 mpBuilder.addBodyPart(bp);
             } else {
                 // generate an attachment that came from a server
                 BodyPart attachmentPart = MessageTestUtils.bodyPart("image/jpg", null);
 
                 // name=attachmentN size=N00 location=10N
-                attachmentPart.setHeader(MimeHeader.HEADER_CONTENT_TYPE,
-                        "image/jpg;\n name=\"attachment" + i + "\"");
+                attachmentPart.setHeader(MimeHeader.HEADER_CONTENT_TYPE, "image/jpg" + name);
                 attachmentPart.setHeader(MimeHeader.HEADER_CONTENT_TRANSFER_ENCODING, "base64");
                 attachmentPart.setHeader(MimeHeader.HEADER_CONTENT_DISPOSITION,
-                        "attachment;\n filename=\"attachment2\";\n size=" + i + "00");
+                        "attachment" + filename +  ";\n size=" + i + "00");
                 attachmentPart.setHeader(MimeHeader.HEADER_ANDROID_ATTACHMENT_STORE_DATA, "10" + i);
 
                 mpBuilder.addBodyPart(attachmentPart);
@@ -403,14 +424,18 @@ public class LegacyConversionsTests extends ProviderTestCase2<EmailProvider> {
     private void checkAttachment(String tag, Part expected, EmailContent.Attachment actual)
             throws MessagingException {
         String contentType = MimeUtility.unfoldAndDecode(expected.getContentType());
-        String expectedName = MimeUtility.getHeaderParameter(contentType, "name");
-        assertEquals(tag, expectedName, actual.mFileName);
+        String contentTypeName = MimeUtility.getHeaderParameter(contentType, "name");
         assertEquals(tag, expected.getMimeType(), actual.mMimeType);
         String disposition = expected.getDisposition();
         String sizeString = MimeUtility.getHeaderParameter(disposition, "size");
+        String dispositionFilename = MimeUtility.getHeaderParameter(disposition, "filename");
         long expectedSize = (sizeString != null) ? Long.parseLong(sizeString) : 0;
         assertEquals(tag, expectedSize, actual.mSize);
         assertEquals(tag, expected.getContentId(), actual.mContentId);
+
+        // filename is either content-type:name or content-disposition:filename
+        String expectedName = (contentTypeName != null) ? contentTypeName : dispositionFilename;
+        assertEquals(tag, expectedName, actual.mFileName);
 
         // content URI either both null or both matching
         String expectedUriString = null;
