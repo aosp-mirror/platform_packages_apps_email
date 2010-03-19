@@ -321,15 +321,15 @@ public class CalendarUtilitiesTests extends AndroidTestCase {
 
         // Create the outgoing message
         Message msg = CalendarUtilities.createMessageForEntity(mContext, entity,
-                Message.FLAG_OUTGOING_MEETING_INVITE, uid, account);
+                Message.FLAG_OUTGOING_MEETING_CANCEL, uid, account);
 
         // First, we should have a message
         assertNotNull(msg);
 
         // Now check some of the fields of the message
         assertEquals(Address.pack(new Address[] {new Address(ATTENDEE)}), msg.mTo);
-        String accept = getContext().getResources().getString(R.string.meeting_invitation, title);
-        assertEquals(accept, msg.mSubject);
+        String cancel = getContext().getResources().getString(R.string.meeting_canceled, title);
+        assertEquals(cancel, msg.mSubject);
 
         // And make sure we have an attachment
         assertNotNull(msg.mAttachments);
@@ -369,7 +369,7 @@ public class CalendarUtilitiesTests extends AndroidTestCase {
         assertEquals("Discuss Unit Tests", vevent.get("SUMMARY"));
         assertEquals(uid, vevent.get("UID"));
         assertEquals("MAILTO:" + ATTENDEE,
-                vevent.get("ATTENDEE;ROLE=REQ-PARTICIPANT;PARTSTAT=NEEDS-ACTION;RSVP=TRUE"));
+                vevent.get("ATTENDEE;ROLE=REQ-PARTICIPANT"));
         long originalTime = entityValues.getAsLong(Events.ORIGINAL_INSTANCE_TIME);
         assertNotSame(0, originalTime);
         // For an exception, RECURRENCE-ID is critical
