@@ -266,7 +266,7 @@ public class AccountFolderList extends ListActivity implements OnItemClickListen
     /**
      * Build the group and child cursors that support the summary views (aka "at a glance").
      * 
-     * This is a placeholder implementation with signifiあcant problems that need to be addressed:
+     * This is a placeholder implementation with significant problems that need to be addressed:
      *
      * TODO: We should only show summary mailboxes if they are non-empty.  So there needs to be
      * a more dynamic child-cursor here, probably listening for update notifications on a number
