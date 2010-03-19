@@ -18,7 +18,6 @@ package com.android.exchange.utility;
 
 import com.android.email.Email;
 import com.android.email.R;
-import com.android.email.Utility;
 import com.android.email.mail.Address;
 import com.android.email.provider.EmailContent;
 import com.android.email.provider.EmailContent.Account;
@@ -1370,7 +1369,7 @@ public class CalendarUtilities {
                 }
             }
 
-            // Handle attendee data here; keep track of organizer and stream it afterward
+            // Handle attendee data here; determine "to" list and add ATTENDEE tags to ics
             String organizerName = null;
             String organizerEmail = null;
             ArrayList<Address> toList = new ArrayList<Address>();
