@@ -125,12 +125,16 @@ public class CalendarUtilities {
     static final int sCurrentYear = new GregorianCalendar().get(Calendar.YEAR);
     static final TimeZone sGmtTimeZone = TimeZone.getTimeZone("GMT");
 
-    private static final String ICALENDAR_ATTENDEE = "ATTENDEE;ROLE=REQ-PARTICIPANT;PARTSTAT=";
-    private static final String ICALENDAR_ATTENDEE_INVITE =
-        ICALENDAR_ATTENDEE + "NEEDS-ACTION;RSVP=TRUE";
-    private static final String ICALENDAR_ATTENDEE_ACCEPT = ICALENDAR_ATTENDEE + "ACCEPTED";
-    private static final String ICALENDAR_ATTENDEE_DECLINE = ICALENDAR_ATTENDEE + "DECLINED";
-    private static final String ICALENDAR_ATTENDEE_TENTATIVE = ICALENDAR_ATTENDEE + "TENTATIVE";
+    private static final String ICALENDAR_ATTENDEE = "ATTENDEE;ROLE=REQ-PARTICIPANT";
+    static final String ICALENDAR_ATTENDEE_CANCEL = ICALENDAR_ATTENDEE;
+    static final String ICALENDAR_ATTENDEE_INVITE =
+        ICALENDAR_ATTENDEE + ";PARTSTAT=NEEDS-ACTION;RSVP=TRUE";
+    static final String ICALENDAR_ATTENDEE_ACCEPT =
+        ICALENDAR_ATTENDEE + ";PARTSTAT=ACCEPTED";
+    static final String ICALENDAR_ATTENDEE_DECLINE =
+        ICALENDAR_ATTENDEE + ";PARTSTAT=DECLINED";
+    static final String ICALENDAR_ATTENDEE_TENTATIVE =
+        ICALENDAR_ATTENDEE + ";PARTSTAT=TENTATIVE";
 
     // Return a 4-byte long from a byte array (little endian)
     static int getLong(byte[] bytes, int offset) {
@@ -1396,6 +1400,9 @@ public class CalendarUtilities {
 
                         if ((messageFlag & Message.FLAG_OUTGOING_MEETING_REQUEST_MASK) != 0) {
                             String icalTag = ICALENDAR_ATTENDEE_INVITE;
+                            if ((messageFlag & Message.FLAG_OUTGOING_MEETING_CANCEL) != 0) {
+                                icalTag = ICALENDAR_ATTENDEE_CANCEL;
+                            }
                             if (attendeeName != null) {
                                 icalTag += ";CN=" + SimpleIcsWriter.quoteParamValue(attendeeName);
                             }
