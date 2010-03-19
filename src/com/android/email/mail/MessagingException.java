@@ -47,6 +47,8 @@ public class MessagingException extends Exception {
     public static final int SECURITY_POLICIES_REQUIRED = 7;
    /** Required security policies not supported */
     public static final int SECURITY_POLICIES_UNSUPPORTED = 8;
+   /** The protocol (or protocol version) isn't supported */
+    public static final int PROTOCOL_VERSION_UNSUPPORTED = 9;
     
     protected int mExceptionType;
      

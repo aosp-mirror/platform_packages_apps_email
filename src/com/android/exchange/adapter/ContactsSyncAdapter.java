@@ -1669,7 +1669,7 @@ public class ContactsSyncAdapter extends AbstractSyncAdapter {
             // EAS won't accept note data with raw newline characters
             String note = cv.getAsString(Note.NOTE).replaceAll("\n", "\r\n");
             // Format of upsync data depends on protocol version
-            if (mService.mProtocolVersionDouble >= 12.0) {
+            if (mService.mProtocolVersionDouble >= Eas.SUPPORTED_PROTOCOL_EX2007_DOUBLE) {
                 s.start(Tags.BASE_BODY);
                 s.data(Tags.BASE_TYPE, Eas.BODY_PREFERENCE_TEXT).data(Tags.BASE_DATA, note);
                 s.end();

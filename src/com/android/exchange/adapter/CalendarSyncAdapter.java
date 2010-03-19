@@ -22,6 +22,7 @@ import com.android.email.Utility;
 import com.android.email.provider.EmailContent;
 import com.android.email.provider.EmailContent.Mailbox;
 import com.android.email.provider.EmailContent.Message;
+import com.android.exchange.Eas;
 import com.android.exchange.EasOutboxService;
 import com.android.exchange.EasSyncService;
 import com.android.exchange.utility.CalendarUtilities;
@@ -1131,7 +1132,7 @@ public class CalendarSyncAdapter extends AbstractSyncAdapter {
             s.data(Tags.CALENDAR_TIME_ZONE, timeZone);
         }
 
-        if (mService.mProtocolVersionDouble < 12.0) {
+        if (mService.mProtocolVersionDouble < Eas.SUPPORTED_PROTOCOL_EX2007_DOUBLE) {
             // We need BusyStatus for 2.5, so we'll send "busy", which is what OWA does.
             // Calendar doesn't support free/busy yet
             s.data(Tags.CALENDAR_BUSY_STATUS, "2");
@@ -1204,7 +1205,7 @@ public class CalendarSyncAdapter extends AbstractSyncAdapter {
         if (!isException) {
             String desc = entityValues.getAsString(Events.DESCRIPTION);
             if (desc != null && desc.length() > 0) {
-                if (mService.mProtocolVersionDouble >= 12.0) {
+                if (mService.mProtocolVersionDouble >= Eas.SUPPORTED_PROTOCOL_EX2007_DOUBLE) {
                     s.start(Tags.BASE_BODY);
                     s.data(Tags.BASE_TYPE, "1");
                     s.data(Tags.BASE_DATA, desc);
@@ -1302,7 +1303,8 @@ public class CalendarSyncAdapter extends AbstractSyncAdapter {
                         }
                         s.data(Tags.CALENDAR_ATTENDEE_NAME, attendeeName);
                         s.data(Tags.CALENDAR_ATTENDEE_EMAIL, attendeeEmail);
-                        if (mService.mProtocolVersionDouble >= 12.0) {
+                        if (mService.mProtocolVersionDouble >=
+                                Eas.SUPPORTED_PROTOCOL_EX2007_DOUBLE) {
                             s.data(Tags.CALENDAR_ATTENDEE_TYPE, "1"); // Required
                         }
                         s.end(); // Attendee

@@ -122,9 +122,6 @@ public class EasSyncService extends AbstractSyncService {
     static private final String PING_COMMAND = "Ping";
     static private final int COMMAND_TIMEOUT = 20*SECONDS;
 
-    // Define our default protocol version as 2.5 (Exchange 2003)
-    static private final String DEFAULT_PROTOCOL_VERSION = "2.5";
-
     static private final String AUTO_DISCOVER_SCHEMA_PREFIX =
         "http://schemas.microsoft.com/exchange/autodiscover/mobilesync/";
     static private final String AUTO_DISCOVER_PAGE = "/autodiscover/autodiscover.xml";
@@ -164,7 +161,7 @@ public class EasSyncService extends AbstractSyncService {
     static private final int HTTP_NEED_PROVISIONING = 449;
 
     // Reasonable default
-    public String mProtocolVersion = DEFAULT_PROTOCOL_VERSION;
+    public String mProtocolVersion = Eas.DEFAULT_PROTOCOL_VERSION;
     public Double mProtocolVersionDouble;
     protected String mDeviceId = null;
     private String mDeviceType = "Android";
@@ -283,15 +280,31 @@ public class EasSyncService extends AbstractSyncService {
         return (code == HTTP_NEED_PROVISIONING) || (code == HttpStatus.SC_FORBIDDEN);
     }
 
-    private void setupProtocolVersion(EasSyncService service, Header versionHeader) {
-        String versions = versionHeader.getValue();
-        if (versions != null) {
-            if (versions.contains("12.0")) {
-                service.mProtocolVersion = "12.0";
+    private void setupProtocolVersion(EasSyncService service, Header versionHeader)
+            throws MessagingException {
+        // The string is a comma separated list of EAS versions in ascending order
+        // e.g. 1.0,2.0,2.5,12.0,12.1
+        String supportedVersions = versionHeader.getValue();
+        userLog("Server supports versions: ", supportedVersions);
+        String[] supportedVersionsArray = supportedVersions.split(",");
+        String ourVersion = null;
+        // Find the most recent version we support
+        for (String version: supportedVersionsArray) {
+            if (version.equals(Eas.SUPPORTED_PROTOCOL_EX2003) ||
+                    version.equals(Eas.SUPPORTED_PROTOCOL_EX2007)) {
+                ourVersion = version;
             }
-            service.mProtocolVersionDouble = Double.parseDouble(service.mProtocolVersion);
+        }
+        // If we don't support any of the servers supported versions, throw an exception here
+        // This will cause validation to fail
+        if (ourVersion == null) {
+            Log.w(TAG, "No supported EAS versions: " + supportedVersions);
+            throw new MessagingException(MessagingException.PROTOCOL_VERSION_UNSUPPORTED);
+        } else {
+            service.mProtocolVersion = ourVersion;
+            service.mProtocolVersionDouble = Double.parseDouble(ourVersion);
             if (service.mAccount != null) {
-                service.mAccount.mProtocolVersion = service.mProtocolVersion;
+                service.mAccount.mProtocolVersion = ourVersion;
             }
         }
     }
@@ -1157,7 +1170,8 @@ public class EasSyncService extends AbstractSyncService {
     }
 
     private String getPolicyType() {
-        return (mProtocolVersionDouble >= 12.0) ? EAS_12_POLICY_TYPE : EAS_2_POLICY_TYPE;
+        return (mProtocolVersionDouble >=
+            Eas.SUPPORTED_PROTOCOL_EX2007_DOUBLE) ? EAS_12_POLICY_TYPE : EAS_2_POLICY_TYPE;
     }
 
     // TODO This is Exchange 2007 only at this point
@@ -1290,29 +1304,23 @@ public class EasSyncService extends AbstractSyncService {
                     Header header = resp.getFirstHeader("MS-ASProtocolCommands");
                     userLog(header.getValue());
                     header = resp.getFirstHeader("ms-asprotocolversions");
-                    String versions = header.getValue();
-                    if (versions != null) {
-                        if (versions.contains("12.0")) {
-                            mProtocolVersion = "12.0";
-                        }
-                        mProtocolVersionDouble = Double.parseDouble(mProtocolVersion);
-                        mAccount.mProtocolVersion = mProtocolVersion;
-                        // Save the protocol version
-                        cv.clear();
-                        // Save the protocol version in the account
-                        cv.put(Account.PROTOCOL_VERSION, mProtocolVersion);
-                        mAccount.update(mContext, cv);
-                        cv.clear();
-                        // Save the sync time of the account mailbox to current time
-                        cv.put(Mailbox.SYNC_TIME, System.currentTimeMillis());
-                        mMailbox.update(mContext, cv);
-                        userLog(versions);
-                        userLog("Using version ", mProtocolVersion);
-                    } else {
-                        errorLog("No protocol versions in OPTIONS response");
+                    try {
+                        setupProtocolVersion(this, header);
+                    } catch (MessagingException e) {
+                        // Since we've already validated, this can't really happen
+                        // But if it does, we'll rethrow this...
                         throw new IOException();
                     }
-                } else {
+                    // Save the protocol version
+                    cv.clear();
+                    // Save the protocol version in the account
+                    cv.put(Account.PROTOCOL_VERSION, mProtocolVersion);
+                    mAccount.update(mContext, cv);
+                    cv.clear();
+                    // Save the sync time of the account mailbox to current time
+                    cv.put(Mailbox.SYNC_TIME, System.currentTimeMillis());
+                    mMailbox.update(mContext, cv);
+                 } else {
                     errorLog("OPTIONS command failed; throwing IOException");
                     throw new IOException();
                 }
@@ -1833,7 +1841,7 @@ public class EasSyncService extends AbstractSyncService {
                 s.data(Tags.SYNC_FILTER_TYPE, Eas.FILTER_1_MONTH);
             }
             // Set the truncation amount for all classes
-            if (mProtocolVersionDouble >= 12.0) {
+            if (mProtocolVersionDouble >= Eas.SUPPORTED_PROTOCOL_EX2007_DOUBLE) {
                 s.start(Tags.BASE_BODY_PREFERENCE)
                     // HTML for email; plain text for everything else
                     .data(Tags.BASE_TYPE, (className.equals("Email") ? Eas.BODY_PREFERENCE_HTML
@@ -1897,7 +1905,7 @@ public class EasSyncService extends AbstractSyncService {
         mProtocolVersion = mAccount.mProtocolVersion;
         // If it hasn't been set up, start with default version
         if (mProtocolVersion == null) {
-            mProtocolVersion = DEFAULT_PROTOCOL_VERSION;
+            mProtocolVersion = Eas.DEFAULT_PROTOCOL_VERSION;
         }
         mProtocolVersionDouble = Double.parseDouble(mProtocolVersion);
         return true;
