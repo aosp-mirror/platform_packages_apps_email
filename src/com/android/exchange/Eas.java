@@ -40,6 +40,13 @@ public class Eas {
     public static final String VERSION = "0.3";
     public static final String ACCOUNT_MAILBOX_PREFIX = "__eas";
 
+    // Define our default protocol version as 2.5 (Exchange 2003)
+    public static final String SUPPORTED_PROTOCOL_EX2003 = "2.5";
+    public static final double SUPPORTED_PROTOCOL_EX2003_DOUBLE = 2.5;
+    public static final String SUPPORTED_PROTOCOL_EX2007 = "12.0";
+    public static final double SUPPORTED_PROTOCOL_EX2007_DOUBLE = 12.0;
+    public static final String DEFAULT_PROTOCOL_VERSION = SUPPORTED_PROTOCOL_EX2003;
+
     // From EAS spec
     //                Mail Cal
     // 0 No filter    Yes  Yes

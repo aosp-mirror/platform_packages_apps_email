@@ -773,7 +773,7 @@ public class EmailSyncAdapter extends AbstractSyncAdapter {
                     int flag = 0;
 
                     // We can only send flag changes to the server in 12.0 or later
-                    if (mService.mProtocolVersionDouble >= 12.0) {
+                    if (mService.mProtocolVersionDouble >= Eas.SUPPORTED_PROTOCOL_EX2007_DOUBLE) {
                         flag = currentCursor.getInt(UPDATES_FLAG_COLUMN);
                         if (flag != c.getInt(Message.LIST_FAVORITE_COLUMN)) {
                             flagChange = true;
