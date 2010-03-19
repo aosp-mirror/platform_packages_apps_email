@@ -1321,31 +1321,38 @@ public class SyncManager extends Service implements Runnable {
         }
     }
 
-    static public void alert(Context context, long id) {
-        SyncManager syncManager = INSTANCE;
+    static public void alert(Context context, final long id) {
+        final SyncManager syncManager = INSTANCE;
         checkSyncManagerServiceRunning();
         if (id < 0) {
             kick("ping SyncManager");
         } else if (syncManager == null) {
             context.startService(new Intent(context, SyncManager.class));
         } else {
-            AbstractSyncService service = syncManager.mServiceMap.get(id);
+            final AbstractSyncService service = syncManager.mServiceMap.get(id);
             if (service != null) {
-                Mailbox m = Mailbox.restoreMailboxWithId(syncManager, id);
-                if (m != null) {
-                    // We ignore drafts completely (doesn't sync).  Changes in Outbox are handled
-                    // in the checkMailboxes loop, so we can ignore these pings.
-                    if (m.mType == Mailbox.TYPE_DRAFTS || m.mType == Mailbox.TYPE_OUTBOX) {
-                        String[] args = new String[] {Long.toString(m.mId)};
-                        ContentResolver resolver = INSTANCE.mResolver;
-                        resolver.delete(Message.DELETED_CONTENT_URI, WHERE_MAILBOX_KEY, args);
-                        resolver.delete(Message.UPDATED_CONTENT_URI, WHERE_MAILBOX_KEY, args);
-                        return;
-                    }
-                    service.mAccount = Account.restoreAccountWithId(INSTANCE, m.mAccountKey);
-                    service.mMailbox = m;
-                    service.alarm();
-                }
+                // Handle alerts in a background thread, as we are typically called from a
+                // broadcast receiver, and are therefore running in the UI thread
+                new Thread(new Runnable() {
+                   public void run() {
+                       Mailbox m = Mailbox.restoreMailboxWithId(syncManager, id);
+                       if (m != null) {
+                           // We ignore drafts completely (doesn't sync).  Changes in Outbox are
+                           // handled in the checkMailboxes loop, so we can ignore these pings.
+                           if (m.mType == Mailbox.TYPE_DRAFTS || m.mType == Mailbox.TYPE_OUTBOX) {
+                               String[] args = new String[] {Long.toString(m.mId)};
+                               ContentResolver resolver = INSTANCE.mResolver;
+                               resolver.delete(Message.DELETED_CONTENT_URI, WHERE_MAILBOX_KEY,
+                                       args);
+                               resolver.delete(Message.UPDATED_CONTENT_URI, WHERE_MAILBOX_KEY,
+                                       args);
+                               return;
+                           }
+                           service.mAccount = Account.restoreAccountWithId(INSTANCE, m.mAccountKey);
+                           service.mMailbox = m;
+                           service.alarm();
+                       }
+                    }}).start();
             }
         }
     }
