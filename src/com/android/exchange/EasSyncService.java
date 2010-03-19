@@ -1419,6 +1419,9 @@ public class EasSyncService extends AbstractSyncService {
 
     void pushFallback(long mailboxId) {
         Mailbox mailbox = Mailbox.restoreMailboxWithId(mContext, mailboxId);
+        if (mailbox == null) {
+            return;
+        }
         ContentValues cv = new ContentValues();
         int mins = PING_FALLBACK_PIM;
         if (mailbox.mType == Mailbox.TYPE_INBOX) {

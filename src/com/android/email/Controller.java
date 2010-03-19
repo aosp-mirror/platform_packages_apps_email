@@ -233,6 +233,9 @@ public class Controller {
                         EmailContent.Account.restoreAccountWithId(mProviderContext, accountId);
                     Mailbox mailbox =
                         EmailContent.Mailbox.restoreMailboxWithId(mProviderContext, mailboxId);
+                    if (account == null || mailbox == null) {
+                        return;
+                    }
                     mLegacyController.synchronizeMailbox(account, mailbox, mLegacyListener);
                 }
             }.start();

@@ -474,6 +474,9 @@ public class MessageList extends ListActivity implements OnItemClickListener, On
 
         // TODO: There is probably a special context menu for the trash
         Mailbox mailbox = Mailbox.restoreMailboxWithId(this, itemView.mMailboxId);
+        if (mailbox == null) {
+            return;
+        }
 
         switch (mailbox.mType) {
             case EmailContent.Mailbox.TYPE_DRAFTS:
@@ -539,8 +542,10 @@ public class MessageList extends ListActivity implements OnItemClickListener, On
         if (mMailboxId >= 0) {
             // TODO smaller projection
             Mailbox mailbox = Mailbox.restoreMailboxWithId(this, mMailboxId);
-            MailboxList.actionHandleAccount(this, mailbox.mAccountKey);
-            finish();
+            if (mailbox != null) {
+                MailboxList.actionHandleAccount(this, mailbox.mAccountKey);
+                finish();
+            }
         }
     }
 
@@ -590,6 +595,9 @@ public class MessageList extends ListActivity implements OnItemClickListener, On
     private void onOpenMessage(long messageId, long mailboxId) {
         // TODO: Should not be reading from DB in UI thread
         EmailContent.Mailbox mailbox = EmailContent.Mailbox.restoreMailboxWithId(this, mailboxId);
+        if (mailbox == null) {
+            return;
+        }
 
         if (mailbox.mType == EmailContent.Mailbox.TYPE_DRAFTS) {
             MessageCompose.actionEditDraft(this, messageId);
