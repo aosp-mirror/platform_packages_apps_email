@@ -356,6 +356,13 @@ public class EasSyncService extends AbstractSyncService {
                         // If not, send the unsupported Exception (the account won't be created)
                         throw new MessagingException(
                                 MessagingException.SECURITY_POLICIES_UNSUPPORTED);
+                } else if (code == HttpStatus.SC_NOT_FOUND) {
+                    // We get a 404 from OWA addresses (which are NOT EAS addresses)
+                    throw new MessagingException(MessagingException.PROTOCOL_VERSION_UNSUPPORTED);
+                } else if (code != HttpStatus.SC_OK) {
+                    // Fail generically with anything other than success
+                    userLog("Unexpected response for FolderSync: ", code);
+                    throw new MessagingException(MessagingException.UNSPECIFIED_EXCEPTION);
                 }
                 userLog("Validation successful");
                 return;
