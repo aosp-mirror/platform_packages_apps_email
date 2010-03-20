@@ -30,6 +30,7 @@ import android.content.res.Resources;
 import android.provider.Calendar.Attendees;
 import android.provider.Calendar.Events;
 import android.test.AndroidTestCase;
+import android.util.Log;
 
 import java.io.BufferedReader;
 import java.io.IOException;
@@ -575,59 +576,52 @@ public class CalendarUtilitiesTests extends AndroidTestCase {
         assertTrue(text.contains(resources.getString(R.string.meeting_recurring, dateTimeString)));
     }
 
+    /**
+     * Sanity test for time zone generation.  Most important, make sure that we can run through
+     * all of the time zones without generating an exception.  Second, make sure that we're finding
+     * rules for at least 90% of time zones that use daylight time (empirically, it's more like
+     * 95%).  Log those without rules.
+     * @throws IOException
+     */
+    public void testTimeZoneToVTimezone() throws IOException {
+        SimpleIcsWriter writer = new SimpleIcsWriter();
+        int rule = 0;
+        int nodst = 0;
+        int norule = 0;
+        ArrayList<String> norulelist = new ArrayList<String>();
+        for (String tzs: TimeZone.getAvailableIDs()) {
+            TimeZone tz = TimeZone.getTimeZone(tzs);
+            writer = new SimpleIcsWriter();
+            CalendarUtilities.timeZoneToVTimezone(tz, writer);
+            String vc = writer.toString();
+            boolean hasRule = vc.indexOf("RRULE") > 0;
+            if (hasRule) {
+                rule++;
+            } else if (tz.useDaylightTime()) {
+                norule++;
+                norulelist.add(tz.getID());
+            } else {
+                nodst++;
+            }
+        }
+        assertTrue(norule < rule/10);
+        Log.d("TimeZoneGeneration",
+                "Rule: " + rule + ", No DST: " + nodst + ", No rule: " + norule);
+        for (String nr: norulelist) {
+            Log.d("TimeZoneGeneration", "No rule: " + nr);
+        }
+    }
+
     // TODO Planned unit tests; some of these exist in primitive form below
 
     // testFindNextTransition
-    // testTimeZoneToVTimezone
     // testRecurrenceFromRrule
     // testTimeZoneToTziStringImpl
     // testGetDSTCalendars
     // testMillisToVCalendarTime
     // testMillisToEasDateTime
 
-//  public void testTimeZoneToVTimezone() throws IOException {
-//      TimeZone tz = TimeZone.getDefault();
-//      SimpleIcsWriter writer = new SimpleIcsWriter();
-//      CalendarUtilities.timeZoneToVTimezone(tz, writer);
-//
-//      tz = TimeZone.getTimeZone("Asia/Jerusalem");
-//      if (tz != null) {
-//          writer = new SimpleIcsWriter();
-//          CalendarUtilities.timeZoneToVTimezone(tz, writer);
-//      }
-//
-//      String str = writer.toString();
-//      assertNotNull(str);
-//      int rule = 0;
-//      int nodst = 0;
-//      int norule = 0;
-//      ArrayList<String> norulelist = new ArrayList<String>();
-//      for (String tzs: TimeZone.getAvailableIDs()) {
-//          tz = TimeZone.getTimeZone(tzs);
-//          writer = new SimpleIcsWriter();
-//          CalendarUtilities.timeZoneToVTimezone(tz, writer);
-//          String vc = writer.toString();
-//          boolean hasRule = vc.indexOf("RRULE") > 0;
-//          if (hasRule) {
-//              rule++;
-//          } else if (tz.useDaylightTime()) {
-//              norule++;
-//              norulelist.add(tz.getID());
-//          } else {
-//              nodst++;
-//          }
-//          System.err.println(tz.getID() + ": " + (hasRule ? "Found Rule" : tz.useDaylightTime() ? "No rule" : "No DST"));
-//      }
-//      System.err.println("Rule: " + rule + ", No DST: " + nodst + ", No rule: " + norule);
-//      for (String nr: norulelist) {
-//          System.err.println("No rule: " + nr);
-//          writer = new SimpleIcsWriter();
-//          CalendarUtilities.timeZoneToVTimezone(TimeZone.getTimeZone(nr), writer);
-//          System.err.println(writer.toString());
-//      }
-//  }
-
-//    public void testTimeZoneToTziStringImpl() {
+    //    public void testTimeZoneToTziStringImpl() {
 //        String x = CalendarUtilities.timeZoneToTziStringImpl(TimeZone.getDefault());
 //        for (String timeZoneId: TimeZone.getAvailableIDs()) {
 //            TimeZone timeZone = TimeZone.getTimeZone(timeZoneId);
@@ -657,3 +651,9 @@ public class CalendarUtilitiesTests extends AndroidTestCase {
 //        if (parsedTimeZone.inDaylightTime(a)) userLog("ERROR IN TIME ZONE CONTROL!");
 //    }
 }
+//        b = cal.getTime();
+//        cal.add(GregorianCalendar.HOUR, 2);
+//        a = cal.getTime();
+//        if (!parsedTimeZone.inDaylightTime(b)) userLog("ERROR IN TIME ZONE CONTROL");
+//        if (parsedTimeZone.inDaylightTime(a)) userLog("ERROR IN TIME ZONE CONTROL!");
+//    }
