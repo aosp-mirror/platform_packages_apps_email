@@ -186,9 +186,8 @@ public class CalendarUtilities {
         setWord(bytes, offset + MSFT_SYSTEMTIME_MINUTE, minute);
     }
 
-    // Write SYSTEMTIME data into a byte array (this will either be for the standard or daylight
-    // transition)
-    static void putTimeInMillisIntoSystemTime(byte[] bytes, int offset, long millis) {
+    // Write a transition time into SYSTEMTIME data (via an offset into a byte array)
+    static void putTransitionMillisIntoSystemTime(byte[] bytes, int offset, long millis) {
         GregorianCalendar cal = new GregorianCalendar(TimeZone.getDefault());
         // Round to the next highest minute; we always write seconds as zero
         cal.setTimeInMillis(millis + 30*SECONDS);
@@ -204,8 +203,8 @@ public class CalendarUtilities {
         setWord(bytes, offset + MSFT_SYSTEMTIME_DAY, wom < 0 ? 5 : wom);
 
         // Turn hours/minutes into ms from midnight (per TimeZone)
-        setWord(bytes, offset + MSFT_SYSTEMTIME_HOUR, cal.get(Calendar.HOUR));
-        setWord(bytes, offset + MSFT_SYSTEMTIME_MINUTE, cal.get(Calendar.MINUTE));
+        setWord(bytes, offset + MSFT_SYSTEMTIME_HOUR, getTrueTransitionHour(cal));
+        setWord(bytes, offset + MSFT_SYSTEMTIME_MINUTE, getTrueTransitionMinute(cal));
      }
 
     // Build a TimeZoneDate structure from a SYSTEMTIME within a byte array at a given offset
@@ -273,15 +272,17 @@ public class CalendarUtilities {
      * @param startInDaylightTime whether daylight time is in effect at the startTime
      * @return a GregorianCalendar representing the transition or null if none
      */
-    static /*package*/ GregorianCalendar findTransitionDate(TimeZone tz, long startTime, long endTime,
-            boolean startInDaylightTime) {
+    static /*package*/ GregorianCalendar findTransitionDate(TimeZone tz, long startTime,
+            long endTime, boolean startInDaylightTime) {
         long startingEndTime = endTime;
         Date date = null;
+
         // We'll keep splitting the difference until we're within a minute
         while ((endTime - startTime) > MINUTES) {
             long checkTime = ((startTime + endTime) / 2) + 1;
             date = new Date(checkTime);
-            if (tz.inDaylightTime(date) != startInDaylightTime) {
+            boolean inDaylightTime = tz.inDaylightTime(date);
+            if (inDaylightTime != startInDaylightTime) {
                 endTime = checkTime;
             } else {
                 startTime = checkTime;
@@ -293,17 +294,9 @@ public class CalendarUtilities {
             return null;
         }
 
-        // Set up our calendar
+        // Set up our calendar and return it
         GregorianCalendar calendar = new GregorianCalendar(tz);
-        calendar.setTimeInMillis(startInDaylightTime ? startTime : endTime);
-        int min = calendar.get(Calendar.MINUTE);
-        if (min == 59) {
-            // If we're at XX:59:ZZ, round up to the next minute
-            calendar.add(Calendar.SECOND, 60 - calendar.get(Calendar.SECOND));
-        } else if (min == 0) {
-            // If we're at XX:00:ZZ, round down to the minute
-           calendar.add(Calendar.SECOND, -calendar.get(Calendar.SECOND));
-        }
+        calendar.setTimeInMillis(startTime);
         return calendar;
     }
 
@@ -576,12 +569,13 @@ public class CalendarUtilities {
         writer.writeTag("TZOFFSETFROM", standardOffsetString);
         writer.writeTag("TZOFFSETTO", daylightOffsetString);
         writer.writeTag("DTSTART",
-                millisToVCalendarTime(toDaylightCalendars[0].getTimeInMillis(), tz, true));
+                transitionMillisToVCalendarTime(
+                        toDaylightCalendars[0].getTimeInMillis(), tz, true));
         if (hasRule) {
             writer.writeTag("RRULE", daylightRule.toString());
         } else {
             for (int i = 1; i < maxYears; i++) {
-                writer.writeTag("RDATE", millisToVCalendarTime(
+                writer.writeTag("RDATE", transitionMillisToVCalendarTime(
                         toDaylightCalendars[i].getTimeInMillis(), tz, true));
             }
         }
@@ -591,12 +585,13 @@ public class CalendarUtilities {
         writer.writeTag("TZOFFSETFROM", daylightOffsetString);
         writer.writeTag("TZOFFSETTO", standardOffsetString);
         writer.writeTag("DTSTART",
-                millisToVCalendarTime(toStandardCalendars[0].getTimeInMillis(), tz, false));
+                transitionMillisToVCalendarTime(
+                        toStandardCalendars[0].getTimeInMillis(), tz, false));
         if (hasRule) {
             writer.writeTag("RRULE", standardRule.toString());
         } else {
             for (int i = 1; i < maxYears; i++) {
-                writer.writeTag("RDATE", millisToVCalendarTime(
+                writer.writeTag("RDATE", transitionMillisToVCalendarTime(
                         toStandardCalendars[i].getTimeInMillis(), tz, true));
             }
         }
@@ -649,12 +644,12 @@ public class CalendarUtilities {
                     // Write month, day of week, week, hour, minute
                     putRuleIntoTimeZoneInformation(tziBytes, MSFT_TIME_ZONE_STANDARD_DATE_OFFSET,
                             standardRule,
-                            toStandardCalendars[0].get(Calendar.HOUR),
-                            toStandardCalendars[0].get(Calendar.MINUTE));
+                            getTrueTransitionHour(toStandardCalendars[0]),
+                            getTrueTransitionMinute(toStandardCalendars[0]));
                     putRuleIntoTimeZoneInformation(tziBytes, MSFT_TIME_ZONE_DAYLIGHT_DATE_OFFSET,
                             daylightRule,
-                            toDaylightCalendars[0].get(Calendar.HOUR),
-                            toDaylightCalendars[0].get(Calendar.MINUTE));
+                            getTrueTransitionHour(toDaylightCalendars[0]),
+                            getTrueTransitionMinute(toDaylightCalendars[0]));
                 } else {
                     // If there's no rule, we'll use the first transition to standard/to daylight
                     // And indicate that it's just for this year...
@@ -663,10 +658,10 @@ public class CalendarUtilities {
                     long daylightTransition = findNextTransition(now, toDaylightCalendars);
                     // If we can't find transitions, we can't do DST
                     if (standardTransition != 0 && daylightTransition != 0) {
-                        putTimeInMillisIntoSystemTime(tziBytes, MSFT_TIME_ZONE_STANDARD_DATE_OFFSET,
-                                standardTransition);
-                        putTimeInMillisIntoSystemTime(tziBytes, MSFT_TIME_ZONE_DAYLIGHT_DATE_OFFSET,
-                                daylightTransition);
+                        putTransitionMillisIntoSystemTime(tziBytes,
+                                MSFT_TIME_ZONE_STANDARD_DATE_OFFSET, standardTransition);
+                        putTransitionMillisIntoSystemTime(tziBytes,
+                                MSFT_TIME_ZONE_DAYLIGHT_DATE_OFFSET, daylightTransition);
                     }
                 }
             }
@@ -831,12 +826,47 @@ public class CalendarUtilities {
     }
 
     /**
-     * Generate a date/time string suitable for VTIMEZONE, the format is YYYYMMDDTHHMMSS
-     * @param millis a time in milliseconds
+     * Return the true minute at which a transition occurs
+     * Our transition time should be the in the minute BEFORE the transition
+     * If this minute is 59, set minute to 0 and increment the hour
+     * NOTE: We don't want to add a minute and retrieve minute/hour from the Calendar, because
+     * Calendar time will itself be influenced by the transition!  So adding 1 minute to
+     * 01:59 (assume PST->PDT) will become 03:00, which isn't what we want (we want 02:00)
+     *
+     * @param calendar the calendar holding the transition date/time
+     * @return the true minute of the transition
+     */
+    static public int getTrueTransitionMinute(GregorianCalendar calendar) {
+        int minute = calendar.get(Calendar.MINUTE);
+        if (minute == 59) {
+            minute = 0;
+        }
+        return minute;
+    }
+
+    /**
+     * Return the true hour at which a transition occurs
+     * See description for getTrueTransitionMinute, above
+     * @param calendar the calendar holding the transition date/time
+     * @return the true hour of the transition
+     */
+    static public int getTrueTransitionHour(GregorianCalendar calendar) {
+        int hour = calendar.get(Calendar.HOUR_OF_DAY);
+        hour++;
+        if (hour == 24) {
+            hour = 0;
+        }
+        return hour;
+    }
+
+    /**
+     * Generate a date/time string suitable for VTIMEZONE from a transition time in millis
+     * The format is YYYYMMDDTHHMMSS
+     * @param millis a transition time in milliseconds
      * @param tz a time zone
      * @param dst whether we're entering daylight time
      */
-    static public String millisToVCalendarTime(long millis, TimeZone tz, boolean dst) {
+    static public String transitionMillisToVCalendarTime(long millis, TimeZone tz, boolean dst) {
         StringBuilder sb = new StringBuilder();
         GregorianCalendar cal = new GregorianCalendar(tz);
         cal.setTimeInMillis(millis);
@@ -844,18 +874,9 @@ public class CalendarUtilities {
         sb.append(formatTwo(cal.get(Calendar.MONTH) + 1));
         sb.append(formatTwo(cal.get(Calendar.DAY_OF_MONTH)));
         sb.append('T');
-        // If we're entering daylight time, go back an hour to compensate for the singularity
-        if (dst && (tz.getDSTSavings() == HOURS)) {
-            int hour = cal.get(Calendar.HOUR_OF_DAY);
-            if (hour > 0) {
-                hour--;
-            }
-            sb.append(formatTwo(hour));
-        } else {
-            sb.append(formatTwo(cal.get(Calendar.HOUR_OF_DAY)));
-        }
-        sb.append(formatTwo(cal.get(Calendar.MINUTE)));
-        sb.append(formatTwo(cal.get(Calendar.SECOND)));
+        sb.append(formatTwo(getTrueTransitionHour(cal)));
+        sb.append(formatTwo(getTrueTransitionMinute(cal)));
+        sb.append(formatTwo(0));
         return sb.toString();
     }
 

@@ -487,7 +487,6 @@ public class CalendarUtilitiesTests extends AndroidTestCase {
         BlockHash (String _name, BufferedReader reader) throws IOException {
             name = _name;
             String lastField = null;
-            int lastLength = 0;
             String lastValue = null;
             while (true) {
                 // Get a line; we're done if it's null
@@ -504,7 +503,6 @@ public class CalendarUtilitiesTests extends AndroidTestCase {
                 if (line.charAt(0) == '\t') {
                     // Remember the line and length
                     lastValue = line.substring(1);
-                    lastLength = line.length();
                     // Save the concatenation of old and new values
                     hash.put(lastField, hash.get(lastField) + lastValue);
                     continue;
@@ -528,7 +526,6 @@ public class CalendarUtilitiesTests extends AndroidTestCase {
                     break;
                 }
 
-                lastLength = line.length();
                 // Save it away and continue
                 hash.put(lastField, lastValue);
             }
