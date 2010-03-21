@@ -21,6 +21,7 @@ import android.text.TextUtils;
 
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
+import java.io.UnsupportedEncodingException;
 
 /**
  * Class to generate iCalender object (*.ics) per RFC 5545.
@@ -61,9 +62,9 @@ public class SimpleIcsWriter {
      * Write a tag with a value.
      */
     public void writeTag(String name, String value) {
-        // Belt and suspenders here; don't crash on null value.  Use something innocuous
+        // Belt and suspenders here; don't crash on null value; just return
         if (TextUtils.isEmpty(value)) {
-            value = "0";
+            return;
         }
 
         // The following properties take a TEXT value, which need to be escaped.
@@ -96,6 +97,18 @@ public class SimpleIcsWriter {
             value = escapeTextValue(value);
         }
         writeLine(name + ":" + value);
+    }
+
+    /**
+     * For debugging
+     */
+    @Override
+    public String toString() {
+        try {
+            return new String(getBytes(), "UTF-8");
+        } catch (UnsupportedEncodingException wonthappen) {
+        }
+        return null;
     }
 
     /**
