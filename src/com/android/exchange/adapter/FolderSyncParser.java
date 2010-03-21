@@ -20,7 +20,6 @@ package com.android.exchange.adapter;
 import com.android.email.provider.AttachmentProvider;
 import com.android.email.provider.EmailContent;
 import com.android.email.provider.EmailProvider;
-import com.android.email.provider.EmailContent.Account;
 import com.android.email.provider.EmailContent.AccountColumns;
 import com.android.email.provider.EmailContent.Mailbox;
 import com.android.email.provider.EmailContent.MailboxColumns;
@@ -334,12 +333,7 @@ public class FolderSyncParser extends AbstractSyncParser {
             if (!ops.isEmpty() && !mService.isStopped()) {
                 userLog("Applying ", ops.size(), " mailbox operations.");
 
-                // Then, we create an update for the account (most importantly, updating the syncKey)
-                ops.add(ContentProviderOperation.newUpdate(
-                        ContentUris.withAppendedId(Account.CONTENT_URI, mAccountId)).withValues(
-                                mAccount.toContentValues()).build());
-
-                // Finally, we execute the batch
+                // Execute the batch
                 try {
                     mContentResolver.applyBatch(EmailProvider.EMAIL_AUTHORITY, ops);
                     userLog("New Account SyncKey: ", mAccount.mSyncKey);
