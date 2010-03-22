@@ -45,8 +45,6 @@ public class SimpleIcsWriterTests extends TestCase {
         final String actual = TestUtils.fromUtf8(ics.getBytes());
 
         assertEquals(
-                "TAG1:0" + CRLF +
-                "TAG2:0" + CRLF +
                 "TAG3:xyz" + CRLF +
                 "SUMMARY:TEST-TEST\\,\\;\\n\\\\TEST" + CRLF + // escaped
                 "SUMMARY2:TEST-TEST,;\r\n\\TEST" + CRLF // not escaped
