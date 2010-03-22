@@ -157,3 +157,15 @@
   <init>(...);
   *** get(...);
 }
+
+-keep class org.apache.james.mime4j.field.Field {
+  *** getBody(...);
+}
+
+# The following classes are used only by unit tests.
+# We should move them into tests/ if possible.
+
+-keep class org.apache.james.mime4j.message.Message {
+  *;
+}
+
