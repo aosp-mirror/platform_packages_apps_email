@@ -673,64 +673,70 @@ public class SyncManager extends Service implements Runnable {
         public void onChange(boolean selfChange) {
             // See if the user has changed syncing of our calendar
             if (!selfChange) {
-                Cursor c = mResolver.query(Calendars.CONTENT_URI,
-                        new String[] {Calendars.SYNC_EVENTS}, Calendars._ID + "=?",
-                        new String[] {Long.toString(mCalendarId)}, null);
-                if (c == null) return;
-                // Get its sync events; if it's changed, we've got work to do
-                try {
-                    if (c.moveToFirst()) {
-                        long newSyncEvents = c.getLong(0);
-                        if (newSyncEvents != mSyncEvents) {
-                            log("_sync_events changed for calendar in " + mAccountName);
-                            Mailbox mailbox = Mailbox.restoreMailboxOfType(INSTANCE,
-                                    mAccountId, Mailbox.TYPE_CALENDAR);
-                            // Sanity check for mailbox deletion
-                            if (mailbox == null) return;
-                            ContentValues cv = new ContentValues();
-                            if (newSyncEvents == 0) {
-                                // When sync of a calendar is disabled, we're supposed to delete
-                                // all events in the calendar
-                                log("Deleting events and setting syncKey to 0 for " + mAccountName);
-                                // First, stop any sync that's ongoing
-                                stopManualSync(mailbox.mId);
-                                // Set the syncKey to 0 (reset)
-                                EasSyncService service = new EasSyncService(INSTANCE, mailbox);
-                                CalendarSyncAdapter adapter = new CalendarSyncAdapter(mailbox,
-                                        service);
-                                try {
-                                    adapter.setSyncKey("0", false);
-                                } catch (IOException e) {
-                                    // The provider can't be reached; nothing to be done
+                new Thread(new Runnable() {
+                    public void run() {
+                        Cursor c = mResolver.query(Calendars.CONTENT_URI,
+                                new String[] {Calendars.SYNC_EVENTS}, Calendars._ID + "=?",
+                                new String[] {Long.toString(mCalendarId)}, null);
+                        if (c == null) return;
+                        // Get its sync events; if it's changed, we've got work to do
+                        try {
+                            if (c.moveToFirst()) {
+                                long newSyncEvents = c.getLong(0);
+                                if (newSyncEvents != mSyncEvents) {
+                                    log("_sync_events changed for calendar in " + mAccountName);
+                                    Mailbox mailbox = Mailbox.restoreMailboxOfType(INSTANCE,
+                                            mAccountId, Mailbox.TYPE_CALENDAR);
+                                    // Sanity check for mailbox deletion
+                                    if (mailbox == null) return;
+                                    ContentValues cv = new ContentValues();
+                                    if (newSyncEvents == 0) {
+                                        // When sync is disabled, we're supposed to delete
+                                        // all events in the calendar
+                                        log("Deleting events and setting syncKey to 0 for " +
+                                                mAccountName);
+                                        // First, stop any sync that's ongoing
+                                        stopManualSync(mailbox.mId);
+                                        // Set the syncKey to 0 (reset)
+                                        EasSyncService service =
+                                            new EasSyncService(INSTANCE, mailbox);
+                                        CalendarSyncAdapter adapter =
+                                            new CalendarSyncAdapter(mailbox, service);
+                                        try {
+                                            adapter.setSyncKey("0", false);
+                                        } catch (IOException e) {
+                                            // The provider can't be reached; nothing to be done
+                                        }
+                                        // Reset the sync key locally
+                                        cv.put(Mailbox.SYNC_KEY, "0");
+                                        cv.put(Mailbox.SYNC_INTERVAL, Mailbox.CHECK_INTERVAL_NEVER);
+                                        // Delete all events in this calendar using the sync adapter
+                                        // parameter so that the deletion is only local
+                                        Uri eventsAsSyncAdapter =
+                                            Events.CONTENT_URI.buildUpon()
+                                            .appendQueryParameter(
+                                                    Calendar.CALLER_IS_SYNCADAPTER, "true")
+                                                    .build();
+                                        mResolver.delete(eventsAsSyncAdapter, WHERE_CALENDAR_ID,
+                                                new String[] {Long.toString(mCalendarId)});
+                                    } else {
+                                        // Set sync back to push
+                                        cv.put(Mailbox.SYNC_INTERVAL, Mailbox.CHECK_INTERVAL_PUSH);
+                                        kick("calendar sync changed");
+                                    }
+
+                                    // Update the calendar mailbox with new settings
+                                    mResolver.update(ContentUris.withAppendedId(
+                                            Mailbox.CONTENT_URI, mailbox.mId), cv, null, null);
+
+                                    // Save away the new value
+                                    mSyncEvents = newSyncEvents;
                                 }
-                                // Reset the sync key locally in the Mailbox and set it not to sync
-                                cv.put(Mailbox.SYNC_KEY, "0");
-                                cv.put(Mailbox.SYNC_INTERVAL, Mailbox.CHECK_INTERVAL_NEVER);
-                                // Delete all events in this calendar using the sync adapter
-                                // parameter so that the deletion is only local
-                                Uri eventsAsSyncAdapter =
-                                    Events.CONTENT_URI.buildUpon()
-                                        .appendQueryParameter(Calendar.CALLER_IS_SYNCADAPTER,
-                                                "true").build();
-                                mResolver.delete(eventsAsSyncAdapter, WHERE_CALENDAR_ID,
-                                        new String[] {Long.toString(mCalendarId)});
-                            } else {
-                                // Set sync back to push
-                                cv.put(Mailbox.SYNC_INTERVAL, Mailbox.CHECK_INTERVAL_PUSH);
-                                kick("calendar sync changed");
                             }
-
-                            // Update the calendar mailbox with new settings
-                            mResolver.update(ContentUris.withAppendedId(
-                                    Mailbox.CONTENT_URI, mailbox.mId), cv, null, null);
-
-                            // Save away the new value
-                            mSyncEvents = newSyncEvents;
+                        } finally {
+                            c.close();
                         }
-                    }
-                } finally {
-                    c.close();
-                }
+                    }}).start();
             }
         }
     }
