@@ -29,6 +29,7 @@ import com.android.email.provider.EmailContent.Account;
 import com.android.email.provider.EmailContent.AccountColumns;
 import com.android.email.provider.EmailContent.Mailbox;
 import com.android.email.provider.EmailContent.MailboxColumns;
+import com.android.email.provider.EmailContent.Message;
 import com.android.email.provider.EmailContent.MessageColumns;
 import com.android.email.service.MailService;
 
@@ -152,6 +153,7 @@ public class MessageList extends ListActivity implements OnItemClickListener, On
         EmailContent.RECORD_ID, MessageColumns.MAILBOX_KEY, MessageColumns.ACCOUNT_KEY,
         MessageColumns.DISPLAY_NAME, MessageColumns.SUBJECT, MessageColumns.TIMESTAMP,
         MessageColumns.FLAG_READ, MessageColumns.FLAG_FAVORITE, MessageColumns.FLAG_ATTACHMENT,
+        MessageColumns.FLAGS,
     };
 
     /**
@@ -1493,10 +1495,12 @@ public class MessageList extends ListActivity implements OnItemClickListener, On
         public static final int COLUMN_READ = 6;
         public static final int COLUMN_FAVORITE = 7;
         public static final int COLUMN_ATTACHMENTS = 8;
+        public static final int COLUMN_FLAGS = 9;
 
         Context mContext;
         private LayoutInflater mInflater;
         private Drawable mAttachmentIcon;
+        private Drawable mInvitationIcon;
         private Drawable mFavoriteIconOn;
         private Drawable mFavoriteIconOff;
         private Drawable mSelectedIconOn;
@@ -1525,6 +1529,7 @@ public class MessageList extends ListActivity implements OnItemClickListener, On
 
             Resources resources = context.getResources();
             mAttachmentIcon = resources.getDrawable(R.drawable.ic_mms_attachment_small);
+            mInvitationIcon = resources.getDrawable(R.drawable.ic_calendar_event_small);
             mFavoriteIconOn = resources.getDrawable(R.drawable.btn_star_big_buttonless_dark_on);
             mFavoriteIconOff = resources.getDrawable(R.drawable.btn_star_big_buttonless_dark_off);
             mSelectedIconOn = resources.getDrawable(R.drawable.btn_check_buttonless_dark_on);
@@ -1632,9 +1637,13 @@ public class MessageList extends ListActivity implements OnItemClickListener, On
             text = cursor.getString(COLUMN_SUBJECT);
             subjectView.setText(text);
 
+            boolean hasInvitation =
+                        (cursor.getInt(COLUMN_FLAGS) & Message.FLAG_INCOMING_MEETING_INVITE) != 0;
             boolean hasAttachments = cursor.getInt(COLUMN_ATTACHMENTS) != 0;
-            subjectView.setCompoundDrawablesWithIntrinsicBounds(null, null,
-                    hasAttachments ? mAttachmentIcon : null, null);
+            Drawable icon =
+                    hasInvitation ? mInvitationIcon
+                    : hasAttachments ? mAttachmentIcon : null;
+            subjectView.setCompoundDrawablesWithIntrinsicBounds(null, null, icon, null);
 
             // TODO ui spec suggests "time", "day", "date" - implement "day"
             TextView dateView = (TextView) view.findViewById(R.id.date);

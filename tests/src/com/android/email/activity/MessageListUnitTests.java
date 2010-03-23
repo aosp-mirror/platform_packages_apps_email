@@ -18,6 +18,7 @@ package com.android.email.activity;
 
 import com.android.email.Email;
 import com.android.email.provider.EmailContent;
+import com.android.email.provider.EmailContent.Message;
 import com.android.email.provider.EmailContent.MessageColumns;
 
 import android.content.Context;
@@ -78,7 +79,8 @@ public class MessageListUnitTests
      * Add a dummy message to the data map
      */
     private void addElement(long id, long mailboxKey, long accountKey, String displayName,
-            String subject, long timestamp, int flagRead, int flagFavorite, int flagAttachment) {
+            String subject, long timestamp, int flagRead, int flagFavorite, int flagAttachment,
+            int flags) {
         HashMap<String, Object> emap = new HashMap<String, Object>();
         emap.put(EmailContent.RECORD_ID, id);
         emap.put(MessageColumns.MAILBOX_KEY, mailboxKey);
@@ -89,6 +91,7 @@ public class MessageListUnitTests
         emap.put(MessageColumns.FLAG_READ, flagRead);
         emap.put(MessageColumns.FLAG_FAVORITE, flagFavorite);
         emap.put(MessageColumns.FLAG_ATTACHMENT, flagAttachment);
+        emap.put(MessageColumns.FLAGS, flags);
         mRowsMap.put(id, emap);
         mIDarray.add(id);
     }
@@ -102,16 +105,17 @@ public class MessageListUnitTests
                 mListAdapter = (CursorAdapter)mMessageList.getListAdapter();
                 mRowsMap = new HashMap<Long, Map<String, Object>>(0);
                 mIDarray = new ArrayList<Long>(0);
-                addElement(0, Long.MIN_VALUE, Long.MIN_VALUE, "a", "A", 0, 0, 0, 0);
-                addElement(1, Long.MIN_VALUE, Long.MIN_VALUE, "b", "B", 0, 0, 0, 0);
-                addElement(2, Long.MIN_VALUE, Long.MIN_VALUE, "c", "C", 0, 0, 0, 0);
-                addElement(3, Long.MIN_VALUE, Long.MIN_VALUE, "d", "D", 0, 0, 0, 0);
-                addElement(4, Long.MIN_VALUE, Long.MIN_VALUE, "e", "E", 0, 0, 0, 0);
-                addElement(5, Long.MIN_VALUE, Long.MIN_VALUE, "f", "F", 0, 0, 0, 0);
-                addElement(6, Long.MIN_VALUE, Long.MIN_VALUE, "g", "G", 0, 0, 0, 0);
-                addElement(7, Long.MIN_VALUE, Long.MIN_VALUE, "h", "H", 0, 0, 0, 0);
-                addElement(8, Long.MIN_VALUE, Long.MIN_VALUE, "i", "I", 0, 0, 0, 0);
-                addElement(9, Long.MIN_VALUE, Long.MIN_VALUE, "j", "J", 0, 0, 0, 0);
+                final int FIMI = Message.FLAG_INCOMING_MEETING_INVITE;
+                addElement(0, Long.MIN_VALUE, Long.MIN_VALUE, "a", "A", 0, 0, 0, 0, 0);
+                addElement(1, Long.MIN_VALUE, Long.MIN_VALUE, "b", "B", 0, 0, 0, 0, 0);
+                addElement(2, Long.MIN_VALUE, Long.MIN_VALUE, "c", "C", 0, 0, 0, 0, 0);
+                addElement(3, Long.MIN_VALUE, Long.MIN_VALUE, "d", "D", 0, 0, 0, 0, FIMI);
+                addElement(4, Long.MIN_VALUE, Long.MIN_VALUE, "e", "E", 0, 0, 0, 0, 0);
+                addElement(5, Long.MIN_VALUE, Long.MIN_VALUE, "f", "F", 0, 0, 0, 0, 0);
+                addElement(6, Long.MIN_VALUE, Long.MIN_VALUE, "g", "G", 0, 0, 0, 0, 0);
+                addElement(7, Long.MIN_VALUE, Long.MIN_VALUE, "h", "H", 0, 0, 0, 0, 0);
+                addElement(8, Long.MIN_VALUE, Long.MIN_VALUE, "i", "I", 0, 0, 0, 0, 0);
+                addElement(9, Long.MIN_VALUE, Long.MIN_VALUE, "j", "J", 0, 0, 0, 0, 0);
                 CustomCursor cc = new CustomCursor(mIDarray, MessageList.MESSAGE_PROJECTION,
                         mRowsMap);
                 mListAdapter.changeCursor(cc);
