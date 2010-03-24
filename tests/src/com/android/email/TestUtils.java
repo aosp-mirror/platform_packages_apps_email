@@ -16,8 +16,7 @@
 
 package com.android.email;
 
-import java.nio.ByteBuffer;
-import java.nio.CharBuffer;
+import android.test.MoreAsserts;
 
 import junit.framework.TestCase;
 
@@ -37,21 +36,9 @@ public class TestUtils extends TestCase /* It tests itself */ {
         return ret;
     }
 
-    /** Converts a String from UTF-8 */
-    public static String fromUtf8(byte[] b) {
-        if (b == null) {
-            return null;
-        }
-        final CharBuffer cb = Utility.UTF_8.decode(ByteBuffer.wrap(b));
-        return new String(cb.array(), 0, cb.length());
-    }
-
-    public void testUtf8() {
-        assertNull(fromUtf8(null));
-        assertEquals("", fromUtf8(new byte[] {}));
-        assertEquals("a", fromUtf8(b('a')));
-        assertEquals("ABC", fromUtf8(b('A', 'B', 'C')));
-        assertEquals("\u65E5\u672C\u8A9E",
-                fromUtf8(b(0xE6, 0x97, 0xA5, 0xE6, 0x9C, 0xAC, 0xE8, 0xAA, 0x9E)));
+    public void testB() {
+        assertNull(b(null));
+        MoreAsserts.assertEquals(new byte[] {}, b());
+        MoreAsserts.assertEquals(new byte[] {1, 2, (byte) 0xff}, b(1, 2, 0xff));
     }
 }

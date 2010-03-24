@@ -475,6 +475,15 @@ public class Utility {
         return bytes;
     }
 
+    /** Build a String from UTF-8 bytes */
+    public static String fromUtf8(byte[] b) {
+        if (b == null) {
+            return null;
+        }
+        final CharBuffer cb = Utility.UTF_8.decode(ByteBuffer.wrap(b));
+        return new String(cb.array(), 0, cb.length());
+    }
+
     /**
      * @return true if the input is the first (or only) byte in a UTF-8 character
      */

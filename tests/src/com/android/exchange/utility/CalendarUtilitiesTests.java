@@ -537,7 +537,7 @@ public class CalendarUtilitiesTests extends AndroidTestCase {
     }
 
     private BlockHash parseIcsContent(byte[] bytes) throws IOException {
-        BufferedReader reader = new BufferedReader(new StringReader(TestUtils.fromUtf8(bytes)));
+        BufferedReader reader = new BufferedReader(new StringReader(Utility.fromUtf8(bytes)));
         String line = reader.readLine();
         if (!line.equals("BEGIN:VCALENDAR")) {
             throw new IllegalArgumentException();

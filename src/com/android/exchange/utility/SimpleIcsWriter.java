@@ -104,11 +104,7 @@ public class SimpleIcsWriter {
      */
     @Override
     public String toString() {
-        try {
-            return new String(getBytes(), "UTF-8");
-        } catch (UnsupportedEncodingException wonthappen) {
-        }
-        return null;
+        return Utility.fromUtf8(getBytes());
     }
 
     /**

@@ -114,15 +114,26 @@ public class UtilityUnitTests extends AndroidTestCase {
         assertEquals(8, set.size());
     }
 
+    private static byte[] b(int... array) {
+        return TestUtils.b(array);
+    }
 
-    /** Test for {@link Utility#toUtf8} and {@link Utility#fromUtf8} */
-    public void testUtf8() {
+    public void testToUtf8() {
         assertNull(Utility.toUtf8(null));
         MoreAsserts.assertEquals(new byte[] {}, Utility.toUtf8(""));
-        MoreAsserts.assertEquals(TestUtils.b('a'), Utility.toUtf8("a"));
-        MoreAsserts.assertEquals(TestUtils.b('A', 'B', 'C'), Utility.toUtf8("ABC"));
-        MoreAsserts.assertEquals(TestUtils.b(0xE6, 0x97, 0xA5, 0xE6, 0x9C, 0xAC, 0xE8, 0xAA, 0x9E),
+        MoreAsserts.assertEquals(b('a'), Utility.toUtf8("a"));
+        MoreAsserts.assertEquals(b('A', 'B', 'C'), Utility.toUtf8("ABC"));
+        MoreAsserts.assertEquals(b(0xE6, 0x97, 0xA5, 0xE6, 0x9C, 0xAC, 0xE8, 0xAA, 0x9E),
                 Utility.toUtf8("\u65E5\u672C\u8A9E"));
+    }
+
+    public void testFromUtf8() {
+        assertNull(Utility.fromUtf8(null));
+        assertEquals("", Utility.fromUtf8(new byte[] {}));
+        assertEquals("a", Utility.fromUtf8(b('a')));
+        assertEquals("ABC", Utility.fromUtf8(b('A', 'B', 'C')));
+        assertEquals("\u65E5\u672C\u8A9E",
+                Utility.fromUtf8(b(0xE6, 0x97, 0xA5, 0xE6, 0x9C, 0xAC, 0xE8, 0xAA, 0x9E)));
     }
 
     public void testIsFirstUtf8Byte() {

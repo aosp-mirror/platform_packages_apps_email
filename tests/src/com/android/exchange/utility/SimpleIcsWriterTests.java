@@ -16,6 +16,7 @@
 package com.android.exchange.utility;
 
 import com.android.email.TestUtils;
+import com.android.email.Utility;
 
 import junit.framework.TestCase;
 
@@ -42,7 +43,7 @@ public class SimpleIcsWriterTests extends TestCase {
         ics.writeTag("TAG3", "xyz");
         ics.writeTag("SUMMARY", "TEST-TEST,;\r\n\\TEST");
         ics.writeTag("SUMMARY2", "TEST-TEST,;\r\n\\TEST");
-        final String actual = TestUtils.fromUtf8(ics.getBytes());
+        final String actual = Utility.fromUtf8(ics.getBytes());
 
         assertEquals(
                 "TAG3:xyz" + CRLF +
@@ -96,7 +97,7 @@ public class SimpleIcsWriterTests extends TestCase {
 
         // If we're splitting up a UTF-8 character, fromUtf8() won't restore it correctly.
         // If it becomes the same as input, we're doing the right thing.
-        final String actual = TestUtils.fromUtf8(bytes);
+        final String actual = Utility.fromUtf8(bytes);
         final String unfolded = actual.replace("\r\n\t", "");
         assertEquals("input=" + input, input + "\r\n", unfolded);
     }
