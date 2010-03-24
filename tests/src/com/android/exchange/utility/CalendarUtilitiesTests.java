@@ -60,14 +60,30 @@ public class CalendarUtilitiesTests extends AndroidTestCase {
     // Not all time zones are appropriate for testing.  For example, ISRAEL_STANDARD_TIME cannot be
     // used because DST is determined from year to year in a non-standard way (related to the lunar
     // calendar); therefore, the test would only work during the year in which it was created
-    private static final String INDIA_STANDARD_TIME =
+
+    // This time zone has no DST
+    private static final String ASIA_CALCUTTA_TIME =
         "tv7//0kAbgBkAGkAYQAgAFMAdABhAG4AZABhAHIAZAAgAFQAaQBtAGUAAAAAAAAAAAAAAAAAAAAAAAAAAAAA" +
         "AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAEkAbgBkAGkAYQAgAEQAYQB5AGwAaQBnAGgAdAAgAFQAaQBtAGUA" +
         "AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA==";
-    private static final String PACIFIC_STANDARD_TIME =
+
+    // This time zone is equivalent to PST and uses DST
+    private static final String AMERICA_DAWSON_TIME =
         "4AEAAFAAYQBjAGkAZgBpAGMAIABTAHQAYQBuAGQAYQByAGQAIABUAGkAbQBlAAAAAAAAAAAAAAAAAAAAAAAA" +
         "AAAAAAAAAAsAAAABAAIAAAAAAAAAAAAAAFAAYQBjAGkAZgBpAGMAIABEAGEAeQBsAGkAZwBoAHQAIABUAGkA" +
         "bQBlAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAMAAAACAAIAAAAAAAAAxP///w==";
+
+    // Test a southern hemisphere time zone w/ DST
+    private static final String AUSTRALIA_ACT_TIME =
+        "qP3//0EAVQBTACAARQBhAHMAdABlAHIAbgAgAFMAdABhAG4AZABhAHIAZAAgAFQAaQBtAGUAAAAAAAAAAAAA" +
+        "AAAAAAAAAAQAAAABAAMAAAAAAAAAAAAAAEEAVQBTACAARQBhAHMAdABlAHIAbgAgAEQAYQB5AGwAaQBnAGgA" +
+        "dAAgAFQAaQBtAGUAAAAAAAAAAAAAAAAAAAAAAAoAAAABAAIAAAAAAAAAxP///w==";
+
+    // Test a european time zone w/ DST
+    private static final String EUROPE_MOSCOW_TIME =
+        "TP///1IAdQBzAHMAaQBhAG4AIABTAHQAYQBuAGQAYQByAGQAIABUAGkAbQBlAAAAAAAAAAAAAAAAAAAAAAAA" +
+        "AAAAAAAAAAoAAAAFAAMAAAAAAAAAAAAAAFIAdQBzAHMAaQBhAG4AIABEAGEAeQBsAGkAZwBoAHQAIABUAGkA" +
+        "bQBlAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAMAAAAFAAIAAAAAAAAAxP///w==";
 
     private static final String ORGANIZER = "organizer@server.com";
     private static final String ATTENDEE = "attendee@server.com";
@@ -92,10 +108,14 @@ public class CalendarUtilitiesTests extends AndroidTestCase {
     }
 
     public void testParseTimeZoneEndToEnd() {
-        TimeZone tz = CalendarUtilities.tziStringToTimeZone(PACIFIC_STANDARD_TIME);
-        assertEquals("Pacific Standard Time", tz.getDisplayName());
-        tz = CalendarUtilities.tziStringToTimeZone(INDIA_STANDARD_TIME);
-        assertEquals("India Standard Time", tz.getDisplayName());
+        TimeZone tz = CalendarUtilities.tziStringToTimeZone(AMERICA_DAWSON_TIME);
+        assertEquals("America/Dawson", tz.getID());
+        tz = CalendarUtilities.tziStringToTimeZone(ASIA_CALCUTTA_TIME);
+        assertEquals("Asia/Calcutta", tz.getID());
+        tz = CalendarUtilities.tziStringToTimeZone(AUSTRALIA_ACT_TIME);
+        assertEquals("Australia/ACT", tz.getID());
+        tz = CalendarUtilities.tziStringToTimeZone(EUROPE_MOSCOW_TIME);
+        assertEquals("Europe/Moscow", tz.getID());
     }
 
     public void testGenerateEasDayOfWeek() {

@@ -252,7 +252,7 @@ public class CalendarUtilities {
      * @param tzd the TimeZoneDate we're interested in
      * @return a GregorianCalendar with the given time zone and date
      */
-    static GregorianCalendar getCheckCalendar(TimeZone timeZone, TimeZoneDate tzd) {
+    static long getMillisAtTimeZoneDateTransition(TimeZone timeZone, TimeZoneDate tzd) {
         GregorianCalendar testCalendar = new GregorianCalendar(timeZone);
         testCalendar.set(GregorianCalendar.YEAR, sCurrentYear);
         testCalendar.set(GregorianCalendar.MONTH, tzd.month);
@@ -260,7 +260,8 @@ public class CalendarUtilities {
         testCalendar.set(GregorianCalendar.DAY_OF_WEEK_IN_MONTH, tzd.day);
         testCalendar.set(GregorianCalendar.HOUR_OF_DAY, tzd.hour);
         testCalendar.set(GregorianCalendar.MINUTE, tzd.minute);
-        return testCalendar;
+        testCalendar.set(GregorianCalendar.SECOND, 0);
+        return testCalendar.getTimeInMillis();
     }
 
     /**
@@ -272,7 +273,7 @@ public class CalendarUtilities {
      * @param startInDaylightTime whether daylight time is in effect at the startTime
      * @return a GregorianCalendar representing the transition or null if none
      */
-    static /*package*/ GregorianCalendar findTransitionDate(TimeZone tz, long startTime,
+    static GregorianCalendar findTransitionDate(TimeZone tz, long startTime,
             long endTime, boolean startInDaylightTime) {
         long startingEndTime = endTime;
         Date date = null;
@@ -378,7 +379,7 @@ public class CalendarUtilities {
      * consecutive years starting with the current year
      * @return an RRULE or null if none could be inferred from the calendars
      */
-    static private RRule inferRRuleFromCalendars(GregorianCalendar[] calendars) {
+    static RRule inferRRuleFromCalendars(GregorianCalendar[] calendars) {
         // Let's see if we can make a rule about these
         GregorianCalendar calendar = calendars[0];
         if (calendar == null) return null;
@@ -439,7 +440,7 @@ public class CalendarUtilities {
      * @param offsetMinutes minutes offset from GMT (east is positive, west is negative
      * @return a utcOffset
      */
-    static /*package*/ String utcOffsetString(int offsetMinutes) {
+    static String utcOffsetString(int offsetMinutes) {
         StringBuilder sb = new StringBuilder();
         int hours = offsetMinutes / 60;
         if (hours < 0) {
@@ -531,7 +532,7 @@ public class CalendarUtilities {
      * @param writer the SimpleIcsWriter to be used
      * @throws IOException
      */
-    static public void timeZoneToVTimezone(TimeZone tz, SimpleIcsWriter writer)
+    static void timeZoneToVTimezone(TimeZone tz, SimpleIcsWriter writer)
             throws IOException {
         // We'll use these regardless of whether there's DST in this time zone or not
         int rawOffsetMinutes = tz.getRawOffset() / MINUTES;
@@ -605,7 +606,7 @@ public class CalendarUtilities {
      * @param transitions calendars representing transitions to/from DST
      * @return millis for the first transition after the current date/time
      */
-    static private long findNextTransition(long startingMillis, GregorianCalendar[] transitions) {
+    static long findNextTransition(long startingMillis, GregorianCalendar[] transitions) {
         for (GregorianCalendar transition: transitions) {
             long transitionMillis = transition.getTimeInMillis();
             if (transitionMillis > startingMillis) {
@@ -622,7 +623,7 @@ public class CalendarUtilities {
      * @param tz the TimeZone
      * @return the Base64 String representing a Microsoft TIME_ZONE_INFORMATION element
      */
-    static public String timeZoneToTziStringImpl(TimeZone tz) {
+    static String timeZoneToTziStringImpl(TimeZone tz) {
         String tziString;
         byte[] tziBytes = new byte[MSFT_TIME_ZONE_SIZE];
         int standardBias = - tz.getRawOffset();
@@ -702,9 +703,9 @@ public class CalendarUtilities {
      * Given a String as directly read from EAS, tries to find a TimeZone in the database of all
      * time zones that corresponds to that String.
      * @param timeZoneString the String read from the server
-     * @return the TimeZone, or TimeZone.getDefault() if not found
+     * @return the TimeZone, or null if not found
      */
-    static public TimeZone tziStringToTimeZoneImpl(String timeZoneString) {
+    static TimeZone tziStringToTimeZoneImpl(String timeZoneString) {
         TimeZone timeZone = null;
         // First, we need to decode the base64 string
         byte[] timeZoneBytes = Base64.decode(timeZoneString, Base64.DEFAULT);
@@ -732,6 +733,7 @@ public class CalendarUtilities {
                 if (Eas.USER_LOG) {
                     Log.d(TAG, "TimeZone without DST found by offset: " + dn);
                 }
+                return timeZone;
             } else {
                 TimeZoneDate dstStart = getTimeZoneDateFromSystemTime(timeZoneBytes,
                         MSFT_TIME_ZONE_DAYLIGHT_DATE_OFFSET);
@@ -751,39 +753,34 @@ public class CalendarUtilities {
                     // of dst.  That's the best we can do for now, since there's no other info
                     // provided by EAS (i.e. we can't get dynamic transitions, etc.)
 
-                    int testSavingsMinutes = timeZone.getDSTSavings() / MINUTES;
-                    int errorBoundsMinutes = (testSavingsMinutes * 2) + 1;
-
-                    // Check start DST transition
-                    GregorianCalendar testCalendar = getCheckCalendar(timeZone, dstStart);
-                    testCalendar.add(GregorianCalendar.MINUTE, - errorBoundsMinutes);
-                    Date before = testCalendar.getTime();
-                    testCalendar.add(GregorianCalendar.MINUTE, 2*errorBoundsMinutes);
-                    Date after = testCalendar.getTime();
+                    // Check one minute before and after DST start transition
+                    long millisAtTransition = getMillisAtTimeZoneDateTransition(timeZone, dstStart);
+                    Date before = new Date(millisAtTransition - MINUTES);
+                    Date after = new Date(millisAtTransition + MINUTES);
                     if (timeZone.inDaylightTime(before)) continue;
                     if (!timeZone.inDaylightTime(after)) continue;
 
-                    // Check end DST transition
-                    testCalendar = getCheckCalendar(timeZone, dstEnd);
-                    testCalendar.add(GregorianCalendar.MINUTE, - errorBoundsMinutes);
-                    before = testCalendar.getTime();
-                    testCalendar.add(GregorianCalendar.MINUTE, 2*errorBoundsMinutes);
-                    after = testCalendar.getTime();
+                    // Check one minute before and after DST end transition
+                    millisAtTransition = getMillisAtTimeZoneDateTransition(timeZone, dstEnd);
+                    // Note that we need to subtract an extra hour here, because we end up with
+                    // gaining an hour in the transition BACK to standard time
+                    before = new Date(millisAtTransition - (dstSavings + MINUTES));
+                    after = new Date(millisAtTransition + MINUTES);
                     if (!timeZone.inDaylightTime(before)) continue;
                     if (timeZone.inDaylightTime(after)) continue;
 
                     // Check that the savings are the same
                     if (dstSavings != timeZone.getDSTSavings()) continue;
-                    break;
+                    return timeZone;
                 }
             }
         }
-        return timeZone;
+        return null;
     }
 
     static public String convertEmailDateTimeToCalendarDateTime(String date) {
         // Format for email date strings is 2010-02-23T16:00:00.000Z
-        // Format for calendar date strings is 2010-02-23T160000Z
+        // Format for calendar date strings is 20100223T160000Z
        return date.substring(0, 4) + date.substring(5, 7) + date.substring(8, 13) +
            date.substring(14, 16) + date.substring(17, 19) + 'Z';
     }
@@ -836,7 +833,7 @@ public class CalendarUtilities {
      * @param calendar the calendar holding the transition date/time
      * @return the true minute of the transition
      */
-    static public int getTrueTransitionMinute(GregorianCalendar calendar) {
+    static int getTrueTransitionMinute(GregorianCalendar calendar) {
         int minute = calendar.get(Calendar.MINUTE);
         if (minute == 59) {
             minute = 0;
@@ -850,7 +847,7 @@ public class CalendarUtilities {
      * @param calendar the calendar holding the transition date/time
      * @return the true hour of the transition
      */
-    static public int getTrueTransitionHour(GregorianCalendar calendar) {
+    static int getTrueTransitionHour(GregorianCalendar calendar) {
         int hour = calendar.get(Calendar.HOUR_OF_DAY);
         hour++;
         if (hour == 24) {
@@ -866,7 +863,7 @@ public class CalendarUtilities {
      * @param tz a time zone
      * @param dst whether we're entering daylight time
      */
-    static public String transitionMillisToVCalendarTime(long millis, TimeZone tz, boolean dst) {
+    static String transitionMillisToVCalendarTime(long millis, TimeZone tz, boolean dst) {
         StringBuilder sb = new StringBuilder();
         GregorianCalendar cal = new GregorianCalendar(tz);
         cal.setTimeInMillis(millis);
@@ -993,7 +990,7 @@ public class CalendarUtilities {
     // Calendar app UI, which is a subset of possible recurrence types
     // This code must be updated when the Calendar adds new functionality
     static public void recurrenceFromRrule(String rrule, long startTime, Serializer s)
-    throws IOException {
+            throws IOException {
         Log.d("RRULE", "rule: " + rrule);
         String freq = tokenFromRrule(rrule, "FREQ=");
         // If there's no FREQ=X, then we don't write a recurrence
@@ -1261,14 +1258,13 @@ public class CalendarUtilities {
             if (entityValues.containsKey("DTSTAMP")) {
                 ics.writeTag("DTSTAMP", entityValues.getAsString("DTSTAMP"));
             } else {
-                ics.writeTag("DTSTAMP",
-                        CalendarUtilities.millisToEasDateTime(System.currentTimeMillis()));
+                ics.writeTag("DTSTAMP", millisToEasDateTime(System.currentTimeMillis()));
             }
 
             long startTime = entityValues.getAsLong(Events.DTSTART);
             if (startTime != 0) {
                 ics.writeTag("DTSTART" + vCalendarTimeZoneSuffix,
-                        CalendarUtilities.millisToEasDateTime(startTime, vCalendarTimeZone));
+                        millisToEasDateTime(startTime, vCalendarTimeZone));
             }
 
             // If this is an Exception, we send the recurrence-id, which is just the original
@@ -1276,13 +1272,13 @@ public class CalendarUtilities {
             if (isException) {
                 long originalTime = entityValues.getAsLong(Events.ORIGINAL_INSTANCE_TIME);
                 ics.writeTag("RECURRENCE-ID" + vCalendarTimeZoneSuffix,
-                        CalendarUtilities.millisToEasDateTime(originalTime, vCalendarTimeZone));
+                        millisToEasDateTime(originalTime, vCalendarTimeZone));
             }
 
             if (!entityValues.containsKey(Events.DURATION)) {
                 if (entityValues.containsKey(Events.DTEND)) {
                     ics.writeTag("DTEND" + vCalendarTimeZoneSuffix,
-                            CalendarUtilities.millisToEasDateTime(
+                            millisToEasDateTime(
                                     entityValues.getAsLong(Events.DTEND), vCalendarTimeZone));
                 }
             } else {
@@ -1296,7 +1292,7 @@ public class CalendarUtilities {
                     // We'll use the default in this case
                 }
                 ics.writeTag("DTEND" + vCalendarTimeZoneSuffix,
-                        CalendarUtilities.millisToEasDateTime(
+                        millisToEasDateTime(
                                 startTime + durationMillis, vCalendarTimeZone));
             }
 
