@@ -161,4 +161,13 @@ public class UtilityUnitTests extends AndroidTestCase {
             assertEquals("val=" + i, i, Integer.parseInt(hex, 16));
         }
     }
+
+    public void testReplaceBareLfWithCrlf() {
+        assertEquals("", Utility.replaceBareLfWithCrlf(""));
+        assertEquals("", Utility.replaceBareLfWithCrlf("\r"));
+        assertEquals("\r\n", Utility.replaceBareLfWithCrlf("\r\n"));
+        assertEquals("\r\n", Utility.replaceBareLfWithCrlf("\n"));
+        assertEquals("\r\n\r\n\r\n", Utility.replaceBareLfWithCrlf("\n\n\n"));
+        assertEquals("A\r\nB\r\nC\r\nD", Utility.replaceBareLfWithCrlf("A\nB\r\nC\nD"));
+    }
 }
