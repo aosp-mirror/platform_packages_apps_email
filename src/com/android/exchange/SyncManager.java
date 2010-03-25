@@ -500,84 +500,90 @@ public class SyncManager extends Service implements Runnable {
 
         @Override
         public void onChange(boolean selfChange) {
-            maybeStartSyncManagerThread();
-            Context context = getContext();
+            new Thread(new Runnable() {
+               public void run() {
+                    maybeStartSyncManagerThread();
+                    Context context = getContext();
 
-            // A change to the list requires us to scan for deletions (to stop running syncs)
-            // At startup, we want to see what accounts exist and cache them
-            AccountList currentAccounts = new AccountList();
-            Cursor c = getContentResolver().query(Account.CONTENT_URI, Account.CONTENT_PROJECTION,
-                    null, null, null);
-            try {
-                collectEasAccounts(c, currentAccounts);
-                for (Account account : mAccounts) {
-                    // Ignore accounts not fully created
-                    if ((account.mFlags & Account.FLAGS_INCOMPLETE) != 0) {
-                        log("Account observer noticed incomplete account; ignoring");
-                        continue;
-                    } else if (!currentAccounts.contains(account.mId)) {
-                        // This is a deletion; shut down any account-related syncs
-                        stopAccountSyncs(account.mId, true);
-                        // Delete this from AccountManager...
-                        android.accounts.Account acct =
-                            new android.accounts.Account(account.mEmailAddress,
-                                    Email.EXCHANGE_ACCOUNT_MANAGER_TYPE);
-                        AccountManager.get(SyncManager.this).removeAccount(acct, null, null);
-                        mSyncableEasMailboxSelector = null;
-                        mEasAccountSelector = null;
-                    } else {
-                        // An account has changed
-                        Account updatedAccount = Account.restoreAccountWithId(context, account.mId);
-                        if (account.mSyncInterval != updatedAccount.mSyncInterval ||
-                                account.mSyncLookback != updatedAccount.mSyncLookback) {
-                            // Set pushable boxes' sync interval to the sync interval of the Account
-                            ContentValues cv = new ContentValues();
-                            cv.put(MailboxColumns.SYNC_INTERVAL, updatedAccount.mSyncInterval);
-                            getContentResolver().update(Mailbox.CONTENT_URI, cv,
-                                    WHERE_IN_ACCOUNT_AND_PUSHABLE,
-                                    new String[] {Long.toString(account.mId)});
-                            // Stop all current syncs; the appropriate ones will restart
-                            log("Account " + account.mDisplayName + " changed; stop syncs");
-                            stopAccountSyncs(account.mId, true);
+                    // A change to the list requires us to scan for deletions (stop running syncs)
+                    // At startup, we want to see what accounts exist and cache them
+                    AccountList currentAccounts = new AccountList();
+                    Cursor c = getContentResolver().query(Account.CONTENT_URI,
+                            Account.CONTENT_PROJECTION, null, null, null);
+                    try {
+                        collectEasAccounts(c, currentAccounts);
+                        for (Account account : mAccounts) {
+                            // Ignore accounts not fully created
+                            if ((account.mFlags & Account.FLAGS_INCOMPLETE) != 0) {
+                                log("Account observer noticed incomplete account; ignoring");
+                                continue;
+                            } else if (!currentAccounts.contains(account.mId)) {
+                                // This is a deletion; shut down any account-related syncs
+                                stopAccountSyncs(account.mId, true);
+                                // Delete this from AccountManager...
+                                android.accounts.Account acct =
+                                    new android.accounts.Account(account.mEmailAddress,
+                                            Email.EXCHANGE_ACCOUNT_MANAGER_TYPE);
+                                AccountManager.get(SyncManager.this).removeAccount(acct,
+                                        null, null);
+                                mSyncableEasMailboxSelector = null;
+                                mEasAccountSelector = null;
+                            } else {
+                                // An account has changed
+                                Account updatedAccount =
+                                    Account.restoreAccountWithId(context, account.mId);
+                                if (account.mSyncInterval != updatedAccount.mSyncInterval ||
+                                        account.mSyncLookback != updatedAccount.mSyncLookback) {
+                                    // Set pushable boxes' interval to the interval of the Account
+                                    ContentValues cv = new ContentValues();
+                                    cv.put(MailboxColumns.SYNC_INTERVAL,
+                                            updatedAccount.mSyncInterval);
+                                    getContentResolver().update(Mailbox.CONTENT_URI, cv,
+                                            WHERE_IN_ACCOUNT_AND_PUSHABLE,
+                                            new String[] {Long.toString(account.mId)});
+                                    // Stop all current syncs; the appropriate ones will restart
+                                    log("Account " + account.mDisplayName + " changed; stop syncs");
+                                    stopAccountSyncs(account.mId, true);
+                                }
+
+                                // See if this account is no longer on security hold
+                                if (onSecurityHold(account) && !onSecurityHold(updatedAccount)) {
+                                    releaseSyncHolds(SyncManager.this,
+                                            AbstractSyncService.EXIT_SECURITY_FAILURE, account);
+                                }
+
+                                // Put current values into our cached account
+                                account.mSyncInterval = updatedAccount.mSyncInterval;
+                                account.mSyncLookback = updatedAccount.mSyncLookback;
+                                account.mFlags = updatedAccount.mFlags;
+                            }
                         }
 
-                        // See if this account is no longer on security hold
-                        if (onSecurityHold(account) && !onSecurityHold(updatedAccount)) {
-                            releaseSyncHolds(SyncManager.this,
-                                    AbstractSyncService.EXIT_SECURITY_FAILURE, account);
+                        // Look for new accounts
+                        for (Account account: currentAccounts) {
+                            if (!mAccounts.contains(account.mId)) {
+                                // This is an addition; create our magic hidden mailbox...
+                                log("Account observer found new account: " + account.mDisplayName);
+                                addAccountMailbox(account.mId);
+                                // Don't forget to cache the HostAuth
+                                HostAuth ha = HostAuth.restoreHostAuthWithId(getContext(),
+                                        account.mHostAuthKeyRecv);
+                                account.mHostAuthRecv = ha;
+                                mAccounts.add(account);
+                                mSyncableEasMailboxSelector = null;
+                                mEasAccountSelector = null;
+                            }
                         }
 
-                        // Put current values into our cached account
-                        account.mSyncInterval = updatedAccount.mSyncInterval;
-                        account.mSyncLookback = updatedAccount.mSyncLookback;
-                        account.mFlags = updatedAccount.mFlags;
+                        // Finally, make sure mAccounts is up to date
+                        mAccounts = currentAccounts;
+                    } finally {
+                        c.close();
                     }
-                }
 
-                // Look for new accounts
-                for (Account account: currentAccounts) {
-                    if (!mAccounts.contains(account.mId)) {
-                        // This is an addition; create our magic hidden mailbox...
-                        log("Account observer found new account: " + account.mDisplayName);
-                        addAccountMailbox(account.mId);
-                        // Don't forget to cache the HostAuth
-                        HostAuth ha =
-                            HostAuth.restoreHostAuthWithId(getContext(), account.mHostAuthKeyRecv);
-                        account.mHostAuthRecv = ha;
-                        mAccounts.add(account);
-                        mSyncableEasMailboxSelector = null;
-                        mEasAccountSelector = null;
-                    }
-                }
-
-                // Finally, make sure mAccounts is up to date
-                mAccounts = currentAccounts;
-            } finally {
-                c.close();
-            }
-
-            // See if there's anything to do...
-            kick("account changed");
+                    // See if there's anything to do...
+                    kick("account changed");
+                }}).start();
         }
 
         private void collectEasAccounts(Cursor c, ArrayList<Account> accounts) {
