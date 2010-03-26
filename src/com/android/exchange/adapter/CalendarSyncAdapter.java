@@ -51,6 +51,7 @@ import android.provider.Calendar.ExtendedProperties;
 import android.provider.Calendar.Reminders;
 import android.provider.Calendar.SyncState;
 import android.provider.ContactsContract.RawContacts;
+import android.text.TextUtils;
 import android.util.Log;
 
 import java.io.IOException;
@@ -1191,7 +1192,14 @@ public class CalendarSyncAdapter extends AbstractSyncAdapter {
         s.data(Tags.CALENDAR_DTSTAMP,
                 CalendarUtilities.millisToEasDateTime(System.currentTimeMillis()));
 
-        s.writeStringValue(entityValues, Events.EVENT_LOCATION, Tags.CALENDAR_LOCATION);
+        String loc = entityValues.getAsString(Events.EVENT_LOCATION);
+        if (!TextUtils.isEmpty(loc)) {
+            if (mService.mProtocolVersionDouble < Eas.SUPPORTED_PROTOCOL_EX2007_DOUBLE) {
+                // EAS 2.5 doesn't like bare line feeds
+                loc = Utility.replaceBareLfWithCrlf(loc);
+            }
+            s.data(Tags.CALENDAR_LOCATION, loc);
+        }
         s.writeStringValue(entityValues, Events.TITLE, Tags.CALENDAR_SUBJECT);
 
         Integer visibility = entityValues.getAsInteger(Events.VISIBILITY);
@@ -1211,7 +1219,8 @@ public class CalendarSyncAdapter extends AbstractSyncAdapter {
                     s.data(Tags.BASE_DATA, desc);
                     s.end();
                 } else {
-                    s.data(Tags.CALENDAR_BODY, desc);
+                    // EAS 2.5 doesn't like bare line feeds
+                    s.data(Tags.CALENDAR_BODY, Utility.replaceBareLfWithCrlf(desc));
                 }
             }
 

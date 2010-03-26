@@ -502,4 +502,8 @@ public class Utility {
         sb.append("0123456789ABCDEF".charAt(b & 0xF));
         return sb;
     }
+
+    public static String replaceBareLfWithCrlf(String str) {
+        return str.replace("\r", "").replace("\n", "\r\n");
+    }
 }
