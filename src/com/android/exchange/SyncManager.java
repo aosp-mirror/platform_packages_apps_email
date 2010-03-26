@@ -173,10 +173,12 @@ public class SyncManager extends Service implements Runnable {
     public static final int PING_STATUS_UNABLE = 3;
 
     // We synchronize on this for all actions affecting the service and error maps
-    private static Object sSyncToken = new Object();
+    private static final Object sSyncLock = new Object();
     // All threads can use this lock to wait for connectivity
-    public static Object sConnectivityLock = new Object();
+    public static final Object sConnectivityLock = new Object();
     public static boolean sConnectivityHold = false;
+    // Keep our cached list of active Accounts here
+    public static final AccountList sAccountList = new AccountList();
 
     // Keeps track of running services (by mailbox id)
     private HashMap<Long, AbstractSyncService> mServiceMap =
@@ -189,7 +191,6 @@ public class SyncManager extends Service implements Runnable {
     private HashMap<Long, PendingIntent> mPendingIntents = new HashMap<Long, PendingIntent>();
     // The actual WakeLock obtained by SyncManager
     private WakeLock mWakeLock = null;
-    private static final AccountList EMPTY_ACCOUNT_LIST = new AccountList();
 
     // Observers that we use to look for changed mail-related data
     private Handler mHandler = new Handler();
@@ -337,7 +338,7 @@ public class SyncManager extends Service implements Runnable {
         public void hostChanged(long accountId) throws RemoteException {
             SyncManager syncManager = INSTANCE;
             if (syncManager == null) return;
-            synchronized (sSyncToken) {
+            synchronized (sSyncLock) {
                 HashMap<Long, SyncError> syncErrorMap = syncManager.mSyncErrorMap;
                 ArrayList<Long> deletedMailboxes = new ArrayList<Long>();
                 // Go through the various error mailboxes
@@ -402,7 +403,7 @@ public class SyncManager extends Service implements Runnable {
         private static final long serialVersionUID = 1L;
 
         public boolean contains(long id) {
-            for (Account account: this) {
+            for (Account account : this) {
                 if (account.mId == id) {
                     return true;
                 }
@@ -411,7 +412,7 @@ public class SyncManager extends Service implements Runnable {
         }
 
         public Account getById(long id) {
-            for (Account account: this) {
+            for (Account account : this) {
                 if (account.mId == id) {
                     return account;
                 }
@@ -421,29 +422,30 @@ public class SyncManager extends Service implements Runnable {
     }
 
     class AccountObserver extends ContentObserver {
-        // mAccounts keeps track of Accounts that we care about (EAS for now)
-        AccountList mAccounts = new AccountList();
         String mSyncableEasMailboxSelector = null;
         String mEasAccountSelector = null;
 
         public AccountObserver(Handler handler) {
             super(handler);
             // At startup, we want to see what EAS accounts exist and cache them
-            Cursor c = getContentResolver().query(Account.CONTENT_URI, Account.CONTENT_PROJECTION,
-                    null, null, null);
-            try {
-                collectEasAccounts(c, mAccounts);
-            } finally {
-                c.close();
-            }
-
-            // Create the account mailbox for any account that doesn't have one
             Context context = getContext();
-            for (Account account: mAccounts) {
-                int cnt = Mailbox.count(context, Mailbox.CONTENT_URI, "accountKey=" + account.mId,
-                        null);
-                if (cnt == 0) {
-                    addAccountMailbox(account.mId);
+            synchronized (sAccountList) {
+                Cursor c = getContentResolver().query(Account.CONTENT_URI,
+                        Account.CONTENT_PROJECTION, null, null, null);
+                // Build the account list from the cursor
+                try {
+                    collectEasAccounts(c, sAccountList);
+                } finally {
+                    c.close();
+                }
+
+                // Create an account mailbox for any account without one
+                for (Account account : sAccountList) {
+                    int cnt = Mailbox.count(context, Mailbox.CONTENT_URI, "accountKey="
+                            + account.mId, null);
+                    if (cnt == 0) {
+                        addAccountMailbox(account.mId);
+                    }
                 }
             }
         }
@@ -457,13 +459,15 @@ public class SyncManager extends Service implements Runnable {
             if (mSyncableEasMailboxSelector == null) {
                 StringBuilder sb = new StringBuilder(WHERE_NOT_INTERVAL_NEVER_AND_ACCOUNT_KEY_IN);
                 boolean first = true;
-                for (Account account: mAccounts) {
-                    if (!first) {
-                        sb.append(',');
-                    } else {
-                        first = false;
+                synchronized (sAccountList) {
+                    for (Account account : sAccountList) {
+                        if (!first) {
+                            sb.append(',');
+                        } else {
+                            first = false;
+                        }
+                        sb.append(account.mId);
                     }
-                    sb.append(account.mId);
                 }
                 sb.append(')');
                 mSyncableEasMailboxSelector = sb.toString();
@@ -480,13 +484,15 @@ public class SyncManager extends Service implements Runnable {
             if (mEasAccountSelector == null) {
                 StringBuilder sb = new StringBuilder(ACCOUNT_KEY_IN);
                 boolean first = true;
-                for (Account account: mAccounts) {
-                    if (!first) {
-                        sb.append(',');
-                    } else {
-                        first = false;
+                synchronized (sAccountList) {
+                    for (Account account : sAccountList) {
+                        if (!first) {
+                            sb.append(',');
+                        } else {
+                            first = false;
+                        }
+                        sb.append(account.mId);
                     }
-                    sb.append(account.mId);
                 }
                 sb.append(')');
                 mEasAccountSelector = sb.toString();
@@ -498,91 +504,94 @@ public class SyncManager extends Service implements Runnable {
             return (account.mFlags & Account.FLAGS_SECURITY_HOLD) != 0;
         }
 
+        private void onAccountChanged() {
+            maybeStartSyncManagerThread();
+            Context context = getContext();
+
+            // A change to the list requires us to scan for deletions (stop running syncs)
+            // At startup, we want to see what accounts exist and cache them
+            AccountList currentAccounts = new AccountList();
+            Cursor c = getContentResolver().query(Account.CONTENT_URI,
+                    Account.CONTENT_PROJECTION, null, null, null);
+            try {
+                collectEasAccounts(c, currentAccounts);
+                synchronized (sAccountList) {
+                    for (Account account : sAccountList) {
+                        // Ignore accounts not fully created
+                        if ((account.mFlags & Account.FLAGS_INCOMPLETE) != 0) {
+                            log("Account observer noticed incomplete account; ignoring");
+                            continue;
+                        } else if (!currentAccounts.contains(account.mId)) {
+                            // This is a deletion; shut down any account-related syncs
+                            stopAccountSyncs(account.mId, true);
+                            // Delete this from AccountManager...
+                            android.accounts.Account acct = new android.accounts.Account(
+                                    account.mEmailAddress, Email.EXCHANGE_ACCOUNT_MANAGER_TYPE);
+                            AccountManager.get(SyncManager.this).removeAccount(acct, null, null);
+                            mSyncableEasMailboxSelector = null;
+                            mEasAccountSelector = null;
+                        } else {
+                            // An account has changed
+                            Account updatedAccount = Account.restoreAccountWithId(context,
+                                    account.mId);
+                            if (account.mSyncInterval != updatedAccount.mSyncInterval
+                                    || account.mSyncLookback != updatedAccount.mSyncLookback) {
+                                // Set pushable boxes' interval to the interval of the Account
+                                ContentValues cv = new ContentValues();
+                                cv.put(MailboxColumns.SYNC_INTERVAL, updatedAccount.mSyncInterval);
+                                getContentResolver().update(Mailbox.CONTENT_URI, cv,
+                                        WHERE_IN_ACCOUNT_AND_PUSHABLE, new String[] {
+                                            Long.toString(account.mId)
+                                        });
+                                // Stop all current syncs; the appropriate ones will restart
+                                log("Account " + account.mDisplayName + " changed; stop syncs");
+                                stopAccountSyncs(account.mId, true);
+                            }
+
+                            // See if this account is no longer on security hold
+                            if (onSecurityHold(account) && !onSecurityHold(updatedAccount)) {
+                                releaseSyncHolds(SyncManager.this,
+                                        AbstractSyncService.EXIT_SECURITY_FAILURE, account);
+                            }
+
+                            // Put current values into our cached account
+                            account.mSyncInterval = updatedAccount.mSyncInterval;
+                            account.mSyncLookback = updatedAccount.mSyncLookback;
+                            account.mFlags = updatedAccount.mFlags;
+                        }
+                    }
+                    // Look for new accounts
+                    for (Account account : currentAccounts) {
+                        if (!sAccountList.contains(account.mId)) {
+                            // This is an addition; create our magic hidden mailbox...
+                            log("Account observer found new account: " + account.mDisplayName);
+                            addAccountMailbox(account.mId);
+                            // Don't forget to cache the HostAuth
+                            HostAuth ha = HostAuth.restoreHostAuthWithId(getContext(),
+                                    account.mHostAuthKeyRecv);
+                            account.mHostAuthRecv = ha;
+                            sAccountList.add(account);
+                            mSyncableEasMailboxSelector = null;
+                            mEasAccountSelector = null;
+                        }
+                    }
+                    // Finally, make sure our account list is up to date
+                    sAccountList.clear();
+                    sAccountList.addAll(currentAccounts);
+                }
+            } finally {
+                c.close();
+            }
+
+            // See if there's anything to do...
+            kick("account changed");
+        }
+
         @Override
         public void onChange(boolean selfChange) {
             new Thread(new Runnable() {
                public void run() {
-                    maybeStartSyncManagerThread();
-                    Context context = getContext();
-
-                    // A change to the list requires us to scan for deletions (stop running syncs)
-                    // At startup, we want to see what accounts exist and cache them
-                    AccountList currentAccounts = new AccountList();
-                    Cursor c = getContentResolver().query(Account.CONTENT_URI,
-                            Account.CONTENT_PROJECTION, null, null, null);
-                    try {
-                        collectEasAccounts(c, currentAccounts);
-                        for (Account account : mAccounts) {
-                            // Ignore accounts not fully created
-                            if ((account.mFlags & Account.FLAGS_INCOMPLETE) != 0) {
-                                log("Account observer noticed incomplete account; ignoring");
-                                continue;
-                            } else if (!currentAccounts.contains(account.mId)) {
-                                // This is a deletion; shut down any account-related syncs
-                                stopAccountSyncs(account.mId, true);
-                                // Delete this from AccountManager...
-                                android.accounts.Account acct =
-                                    new android.accounts.Account(account.mEmailAddress,
-                                            Email.EXCHANGE_ACCOUNT_MANAGER_TYPE);
-                                AccountManager.get(SyncManager.this).removeAccount(acct,
-                                        null, null);
-                                mSyncableEasMailboxSelector = null;
-                                mEasAccountSelector = null;
-                            } else {
-                                // An account has changed
-                                Account updatedAccount =
-                                    Account.restoreAccountWithId(context, account.mId);
-                                if (account.mSyncInterval != updatedAccount.mSyncInterval ||
-                                        account.mSyncLookback != updatedAccount.mSyncLookback) {
-                                    // Set pushable boxes' interval to the interval of the Account
-                                    ContentValues cv = new ContentValues();
-                                    cv.put(MailboxColumns.SYNC_INTERVAL,
-                                            updatedAccount.mSyncInterval);
-                                    getContentResolver().update(Mailbox.CONTENT_URI, cv,
-                                            WHERE_IN_ACCOUNT_AND_PUSHABLE,
-                                            new String[] {Long.toString(account.mId)});
-                                    // Stop all current syncs; the appropriate ones will restart
-                                    log("Account " + account.mDisplayName + " changed; stop syncs");
-                                    stopAccountSyncs(account.mId, true);
-                                }
-
-                                // See if this account is no longer on security hold
-                                if (onSecurityHold(account) && !onSecurityHold(updatedAccount)) {
-                                    releaseSyncHolds(SyncManager.this,
-                                            AbstractSyncService.EXIT_SECURITY_FAILURE, account);
-                                }
-
-                                // Put current values into our cached account
-                                account.mSyncInterval = updatedAccount.mSyncInterval;
-                                account.mSyncLookback = updatedAccount.mSyncLookback;
-                                account.mFlags = updatedAccount.mFlags;
-                            }
-                        }
-
-                        // Look for new accounts
-                        for (Account account: currentAccounts) {
-                            if (!mAccounts.contains(account.mId)) {
-                                // This is an addition; create our magic hidden mailbox...
-                                log("Account observer found new account: " + account.mDisplayName);
-                                addAccountMailbox(account.mId);
-                                // Don't forget to cache the HostAuth
-                                HostAuth ha = HostAuth.restoreHostAuthWithId(getContext(),
-                                        account.mHostAuthKeyRecv);
-                                account.mHostAuthRecv = ha;
-                                mAccounts.add(account);
-                                mSyncableEasMailboxSelector = null;
-                                mEasAccountSelector = null;
-                            }
-                        }
-
-                        // Finally, make sure mAccounts is up to date
-                        mAccounts = currentAccounts;
-                    } finally {
-                        c.close();
-                    }
-
-                    // See if there's anything to do...
-                    kick("account changed");
+                   onAccountChanged();
                 }}).start();
         }
 
@@ -799,20 +808,14 @@ public class SyncManager extends Service implements Runnable {
         return sCallbackProxy;
     }
 
-    static public AccountList getAccountList() {
-        SyncManager syncManager = INSTANCE;
-        if (syncManager == null) return EMPTY_ACCOUNT_LIST;
-        return syncManager.mAccountObserver.mAccounts;
+    static public Account getAccountById(long accountId) {
+        return sAccountList.getById(accountId);
     }
 
     static public String getEasAccountSelector() {
         SyncManager syncManager = INSTANCE;
         if (syncManager == null) return null;
         return syncManager.mAccountObserver.getAccountKeyWhere();
-    }
-
-    private Account getAccountById(long accountId) {
-        return mAccountObserver.mAccounts.getById(accountId);
     }
 
     public class SyncStatus {
@@ -856,7 +859,7 @@ public class SyncManager extends Service implements Runnable {
     }
 
     private void releaseSyncHoldsImpl(Context context, int reason, Account account) {
-        synchronized(sSyncToken) {
+        synchronized(sSyncLock) {
             ArrayList<Long> releaseList = new ArrayList<Long>();
             for (long mailboxId: mSyncErrorMap.keySet()) {
                 if (account != null) {
@@ -901,9 +904,10 @@ public class SyncManager extends Service implements Runnable {
                     if (syncManager != null) {
                         android.accounts.Account[] accountMgrList = AccountManager.get(syncManager)
                             .getAccountsByType(Email.EXCHANGE_ACCOUNT_MANAGER_TYPE);
-                        AccountList providerList = getAccountList();
-                        reconcileAccountsWithAccountManager(syncManager,
-                                providerList, accountMgrList, false, mResolver);
+                        synchronized (sAccountList) {
+                            reconcileAccountsWithAccountManager(syncManager, sAccountList,
+                                    accountMgrList, false, mResolver);
+                        }
                     }
                 }
             }.start();
@@ -1117,7 +1121,7 @@ public class SyncManager extends Service implements Runnable {
     }
 
     private void stopAccountSyncs(long acctId, boolean includeAccountMailbox) {
-        synchronized (sSyncToken) {
+        synchronized (sSyncLock) {
             List<Long> deletedBoxes = new ArrayList<Long>();
             for (Long mid : mServiceMap.keySet()) {
                 Mailbox box = Mailbox.restoreMailboxWithId(this, mid);
@@ -1159,7 +1163,7 @@ public class SyncManager extends Service implements Runnable {
                     Long.toString(Mailbox.TYPE_EAS_ACCOUNT_MAILBOX)}, null);
         try {
             if (c.moveToFirst()) {
-                synchronized(sSyncToken) {
+                synchronized(sSyncLock) {
                     Mailbox m = new Mailbox().restore(c);
                     Account acct = Account.restoreAccountWithId(context, accountId);
                     if (acct == null) {
@@ -1421,10 +1425,11 @@ public class SyncManager extends Service implements Runnable {
      * Make our sync settings match those of AccountManager
      */
     private void checkPIMSyncSettings() {
-        List<Account> easAccounts = getAccountList();
-        for (Account easAccount: easAccounts) {
-            updatePIMSyncSettings(easAccount, Mailbox.TYPE_CONTACTS, ContactsContract.AUTHORITY);
-            updatePIMSyncSettings(easAccount, Mailbox.TYPE_CALENDAR, Calendar.AUTHORITY);
+        synchronized (sAccountList) {
+            for (Account account : sAccountList) {
+                updatePIMSyncSettings(account, Mailbox.TYPE_CONTACTS, ContactsContract.AUTHORITY);
+                updatePIMSyncSettings(account, Mailbox.TYPE_CALENDAR, Calendar.AUTHORITY);
+            }
         }
     }
 
@@ -1552,8 +1557,10 @@ public class SyncManager extends Service implements Runnable {
                 // Otherwise, stop all syncs
                 } else {
                     log("Background data off: stop all syncs");
-                    for (Account account: SyncManager.getAccountList())
-                        SyncManager.stopAccountSyncs(account.mId);
+                    synchronized (sAccountList) {
+                        for (Account account : sAccountList)
+                            SyncManager.stopAccountSyncs(account.mId);
+                    }
                 }
             }
         }
@@ -1566,7 +1573,7 @@ public class SyncManager extends Service implements Runnable {
      * @param m the Mailbox on which the service will operate
      */
     private void startServiceThread(AbstractSyncService service, Mailbox m) {
-        synchronized (sSyncToken) {
+        synchronized (sSyncLock) {
             String mailboxName = m.mDisplayName;
             String accountName = service.mAccount.mDisplayName;
             Thread thread = new Thread(service, mailboxName + "(" + accountName + ")");
@@ -1602,7 +1609,7 @@ public class SyncManager extends Service implements Runnable {
     private void requestSync(Mailbox m, int reason, Request req) {
         // Don't sync if there's no connectivity
         if (sConnectivityHold) return;
-        synchronized (sSyncToken) {
+        synchronized (sSyncLock) {
             Account acct = Account.restoreAccountWithId(this, m.mAccountKey);
             if (acct != null) {
                 // Always make sure there's not a running instance of this service
@@ -1621,7 +1628,7 @@ public class SyncManager extends Service implements Runnable {
     }
 
     private void stopServiceThreads() {
-        synchronized (sSyncToken) {
+        synchronized (sSyncLock) {
             ArrayList<Long> toStop = new ArrayList<Long>();
 
             // Keep track of which services to stop
@@ -1809,7 +1816,7 @@ public class SyncManager extends Service implements Runnable {
     private long checkMailboxes () {
         // First, see if any running mailboxes have been deleted
         ArrayList<Long> deletedMailboxes = new ArrayList<Long>();
-        synchronized (sSyncToken) {
+        synchronized (sSyncLock) {
             for (long mailboxId: mServiceMap.keySet()) {
                 Mailbox m = Mailbox.restoreMailboxWithId(this, mailboxId);
                 if (m == null) {
@@ -1851,7 +1858,7 @@ public class SyncManager extends Service implements Runnable {
             while (c.moveToNext()) {
                 long mid = c.getLong(Mailbox.CONTENT_ID_COLUMN);
                 AbstractSyncService service = null;
-                synchronized (sSyncToken) {
+                synchronized (sSyncLock) {
                     service = mServiceMap.get(mid);
                 }
                 if (service == null) {
@@ -2073,7 +2080,7 @@ public class SyncManager extends Service implements Runnable {
     static public AbstractSyncService startManualSync(long mailboxId, int reason, Request req) {
         SyncManager syncManager = INSTANCE;
         if (syncManager == null) return null;
-        synchronized (sSyncToken) {
+        synchronized (sSyncLock) {
             if (syncManager.mServiceMap.get(mailboxId) == null) {
                 syncManager.mSyncErrorMap.remove(mailboxId);
                 Mailbox m = Mailbox.restoreMailboxWithId(syncManager, mailboxId);
@@ -2090,7 +2097,7 @@ public class SyncManager extends Service implements Runnable {
     static private void stopManualSync(long mailboxId) {
         SyncManager syncManager = INSTANCE;
         if (syncManager == null) return;
-        synchronized (sSyncToken) {
+        synchronized (sSyncLock) {
             AbstractSyncService svc = syncManager.mServiceMap.get(mailboxId);
             if (svc != null) {
                 log("Stopping sync for " + svc.mMailboxName);
@@ -2123,7 +2130,7 @@ public class SyncManager extends Service implements Runnable {
     static public void accountUpdated(long acctId) {
         SyncManager syncManager = INSTANCE;
         if (syncManager == null) return;
-        synchronized (sSyncToken) {
+        synchronized (sSyncLock) {
             for (AbstractSyncService svc : syncManager.mServiceMap.values()) {
                 if (svc.mAccount.mId == acctId) {
                     svc.mAccount = Account.restoreAccountWithId(syncManager, acctId);
@@ -2139,7 +2146,7 @@ public class SyncManager extends Service implements Runnable {
     static public void removeFromSyncErrorMap(long mailboxId) {
         SyncManager syncManager = INSTANCE;
         if (syncManager == null) return;
-        synchronized(sSyncToken) {
+        synchronized(sSyncLock) {
             syncManager.mSyncErrorMap.remove(mailboxId);
         }
     }
@@ -2153,7 +2160,7 @@ public class SyncManager extends Service implements Runnable {
     static public void done(AbstractSyncService svc) {
         SyncManager syncManager = INSTANCE;
         if (syncManager == null) return;
-        synchronized(sSyncToken) {
+        synchronized(sSyncLock) {
             long mailboxId = svc.mMailboxId;
             HashMap<Long, SyncError> errorMap = syncManager.mSyncErrorMap;
             SyncError syncError = errorMap.get(mailboxId);
