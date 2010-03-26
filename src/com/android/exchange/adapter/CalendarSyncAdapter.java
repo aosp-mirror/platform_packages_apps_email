@@ -82,6 +82,8 @@ public class CalendarSyncAdapter extends AbstractSyncAdapter {
         Events._SYNC_DIRTY + "=1 AND " + Events.ORIGINAL_EVENT + " NOTNULL AND " +
         Events.CALENDAR_ID + "=?";
     private static final String CLIENT_ID_SELECTION = Events._SYNC_DATA + "=?";
+    private static final String ORIGINAL_EVENT_AND_CALENDAR =
+        Events.ORIGINAL_EVENT + "=? AND " + Events.CALENDAR_ID + "=?";
     private static final String ATTENDEES_EXCEPT_ORGANIZER = Attendees.EVENT_ID + "=? AND " +
         Attendees.ATTENDEE_RELATIONSHIP + "!=" + Attendees.RELATIONSHIP_ORGANIZER;
     private static final String[] ID_PROJECTION = new String[] {Events._ID};
@@ -1473,9 +1475,10 @@ public class CalendarSyncAdapter extends AbstractSyncAdapter {
 
                     // Now, the hard part; find exceptions for this event
                     if (serverId != null) {
+                        String calendarId = Long.toString(mCalendarId);
                         EntityIterator exIterator = EventsEntity.newEntityIterator(
-                                cr.query(sEventsUri, null, Events.ORIGINAL_EVENT + "=?",
-                                        new String[] {serverId}, null), cr);
+                                cr.query(sEventsUri, null, ORIGINAL_EVENT_AND_CALENDAR,
+                                        new String[] {serverId, calendarId}, null), cr);
                         boolean exFirst = true;
                         while (exIterator.hasNext()) {
                             Entity exEntity = exIterator.next();
