@@ -76,6 +76,9 @@ import java.util.HashSet;
  */
 public class UpgradeAccounts extends ListActivity implements OnClickListener {
 
+    /** DO NOT CHECK IN AS 'TRUE' - DEVELOPMENT ONLY */
+    private static final boolean DEBUG_FORCE_UPGRADES = false;
+
     private AccountInfo[] mLegacyAccounts;
     private UIHandler mHandler = new UIHandler();
     private AccountsAdapter mAdapter;
@@ -90,9 +93,9 @@ public class UpgradeAccounts extends ListActivity implements OnClickListener {
     /** This projection is for looking up accounts by their legacy UUID */
     private static final String WHERE_ACCOUNT_UUID_IS = AccountColumns.COMPATIBILITY_UUID + "=?";
 
-    public static void actionStart(Activity fromActivity) {
-        Intent i = new Intent(fromActivity, UpgradeAccounts.class);
-        fromActivity.startActivity(i);
+    public static void actionStart(Context context) {
+        Intent i = new Intent(context, UpgradeAccounts.class);
+        context.startActivity(i);
     }
 
     @Override
@@ -775,6 +778,57 @@ public class UpgradeAccounts extends ListActivity implements OnClickListener {
             // non-optional TLS - keep as is, with trust all
         } else if (sendUri.contains("+tls")) {
             // optional TLS - TBD
+        }
+    }
+
+    /**
+     * Bulk upgrade old accounts if exist.
+     *
+     * @return true if bulk upgrade has started.  false otherwise.
+     */
+    /* package */ static boolean doBulkUpgradeIfNecessary(Context context) {
+        if (bulkUpgradesRequired(context, Preferences.getPreferences(context))) {
+            UpgradeAccounts.actionStart(context);
+            return true;
+        }
+        return false;
+    }
+
+    /**
+     * Test for bulk upgrades and return true if necessary
+     *
+     * TODO should be in an AsyncTask since it has DB ops
+     *
+     * @return true if upgrades required (old accounts exist).  false otherwise.
+     */
+    private static boolean bulkUpgradesRequired(Context context, Preferences preferences) {
+        if (DEBUG_FORCE_UPGRADES) {
+            // build at least one fake account
+            Account fake = new Account(context);
+            fake.setDescription("Fake Account");
+            fake.setEmail("user@gmail.com");
+            fake.setName("First Last");
+            fake.setSenderUri("smtp://user:password@smtp.gmail.com");
+            fake.setStoreUri("imap://user:password@imap.gmail.com");
+            fake.save(preferences);
+            return true;
+        }
+
+        // 1. Get list of legacy accounts and look for any non-backup entries
+        Account[] legacyAccounts = preferences.getAccounts();
+        if (legacyAccounts.length == 0) {
+            return false;
+        }
+
+        // 2. Look at the first legacy account and decide what to do
+        // We only need to look at the first:  If it's not a backup account, then it's a true
+        // legacy account, and there are one or more accounts needing upgrade.  If it is a backup
+        // account, then we know for sure that there are no legacy accounts (backup deletes all
+        // old accounts, and indicates that "modern" code has already run on this device.)
+        if (0 != (legacyAccounts[0].getBackupFlags() & Account.BACKUP_FLAGS_IS_BACKUP)) {
+            return false;
+        } else {
+            return true;
         }
     }
 }

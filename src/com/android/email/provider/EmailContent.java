@@ -1279,7 +1279,14 @@ public abstract class EmailContent {
          * {@link com.android.email.AccountBackupRestore} won't preserve it.
          */
         public Uri getShortcutSafeUri() {
-            return CONTENT_URI.buildUpon().appendEncodedPath(mCompatibilityUuid).build();
+            return getShortcutSafeUriFromUuid(mCompatibilityUuid);
+        }
+
+        /**
+         * @return {@link Uri} to an {@link Account} with a {@code uuid}.
+         */
+        public static Uri getShortcutSafeUriFromUuid(String uuid) {
+            return CONTENT_URI.buildUpon().appendEncodedPath(uuid).build();
         }
 
         /**
