@@ -696,7 +696,7 @@ public class EasSyncService extends AbstractSyncService {
      */
     static public GalResult searchGal(Context context, long accountId, String filter)
     {
-        Account acct = SyncManager.getAccountList().getById(accountId);
+        Account acct = SyncManager.getAccountById(accountId);
         if (acct != null) {
             HostAuth ha = HostAuth.restoreHostAuthWithId(context, acct.mHostAuthKeyRecv);
             EasSyncService svc = new EasSyncService("%GalLookupk%");
