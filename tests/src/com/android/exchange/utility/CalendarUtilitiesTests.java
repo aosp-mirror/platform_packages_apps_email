@@ -17,7 +17,6 @@
 package com.android.exchange.utility;
 
 import com.android.email.R;
-import com.android.email.TestUtils;
 import com.android.email.Utility;
 import com.android.email.mail.Address;
 import com.android.email.provider.EmailContent.Account;
@@ -628,49 +627,15 @@ public class CalendarUtilitiesTests extends AndroidTestCase {
             Log.d("TimeZoneGeneration", "No rule: " + nr);
         }
     }
-
-    // TODO Planned unit tests; some of these exist in primitive form below
-
-    // testFindNextTransition
-    // testRecurrenceFromRrule
-    // testTimeZoneToTziStringImpl
-    // testGetDSTCalendars
-    // testMillisToVCalendarTime
-    // testMillisToEasDateTime
-
-    //    public void testTimeZoneToTziStringImpl() {
-//        String x = CalendarUtilities.timeZoneToTziStringImpl(TimeZone.getDefault());
-//        for (String timeZoneId: TimeZone.getAvailableIDs()) {
-//            TimeZone timeZone = TimeZone.getTimeZone(timeZoneId);
-//            if (timeZone != null) {
-//                String tzs = CalendarUtilities.timeZoneToTziString(timeZone);
-//                TimeZone newTimeZone = CalendarUtilities.tziStringToTimeZone(tzs);
-//                System.err.println("In: " + timeZone.getDisplayName() + ", Out: " + newTimeZone.getDisplayName());
-//            }
-//        }
-//     }
-
-//    public void testParseTimeZone() {
-//        GregorianCalendar cal = getTestCalendar(parsedTimeZone, dstStart);
-//        cal.add(GregorianCalendar.MINUTE, -1);
-//        Date b = cal.getTime();
-//        cal.add(GregorianCalendar.MINUTE, 2);
-//        Date a = cal.getTime();
-//        if (parsedTimeZone.inDaylightTime(b) || !parsedTimeZone.inDaylightTime(a)) {
-//            userLog("ERROR IN TIME ZONE CONTROL!");
-//        }
-//        cal = getTestCalendar(parsedTimeZone, dstEnd);
-//        cal.add(GregorianCalendar.HOUR, -2);
-//        b = cal.getTime();
-//        cal.add(GregorianCalendar.HOUR, 2);
-//        a = cal.getTime();
-//        if (!parsedTimeZone.inDaylightTime(b)) userLog("ERROR IN TIME ZONE CONTROL");
-//        if (parsedTimeZone.inDaylightTime(a)) userLog("ERROR IN TIME ZONE CONTROL!");
-//    }
 }
-//        b = cal.getTime();
-//        cal.add(GregorianCalendar.HOUR, 2);
-//        a = cal.getTime();
-//        if (!parsedTimeZone.inDaylightTime(b)) userLog("ERROR IN TIME ZONE CONTROL");
-//        if (parsedTimeZone.inDaylightTime(a)) userLog("ERROR IN TIME ZONE CONTROL!");
-//    }
+
+    // TODO Planned unit tests
+    // findNextTransition
+    // recurrenceFromRrule
+    // timeZoneToTziStringImpl
+    // getDSTCalendars
+    // millisToVCalendarTime
+    // millisToEasDateTime
+    // getTrueTransitionMinute
+    // getTrueTransitionHour
+
