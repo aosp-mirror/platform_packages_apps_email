@@ -535,7 +535,7 @@ public class CalendarSyncAdapter extends AbstractSyncAdapter {
             cv.put(Events.ORIGINAL_ALL_DAY, parentCv.getAsInteger(Events.ALL_DAY));
             cv.put(Events.EVENT_LOCATION, parentCv.getAsString(Events.EVENT_LOCATION));
             cv.put(Events.VISIBILITY, parentCv.getAsString(Events.VISIBILITY));
-            cv.put(Events.TIMEZONE, parentCv.getAsString(Events.TIMEZONE));
+            cv.put(Events.EVENT_TIMEZONE, parentCv.getAsString(Events.EVENT_TIMEZONE));
 
             // This column is the key that links the exception to the serverId
             // TODO Make sure calendar knows this isn't globally unique!!
