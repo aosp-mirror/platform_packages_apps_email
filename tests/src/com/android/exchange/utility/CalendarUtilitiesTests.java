@@ -244,8 +244,11 @@ public class CalendarUtilitiesTests extends AndroidTestCase {
 
         // Now check some of the fields of the message
         assertEquals(Address.pack(new Address[] {new Address(ORGANIZER)}), msg.mTo);
-        String accept = getContext().getResources().getString(R.string.meeting_accepted, title);
+        Resources resources = getContext().getResources();
+        String accept = resources.getString(R.string.meeting_accepted, title);
         assertEquals(accept, msg.mSubject);
+        assertNotNull(msg.mText);
+        assertTrue(msg.mText.contains(resources.getString(R.string.meeting_where, "")));
 
         // And make sure we have an attachment
         assertNotNull(msg.mAttachments);
