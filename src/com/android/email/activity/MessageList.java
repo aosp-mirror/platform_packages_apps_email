@@ -181,6 +181,16 @@ public class MessageList extends ListActivity implements OnItemClickListener, On
     }
 
     /**
+     * Open the inbox of the account with a UUID.  It's used to handle old style
+     * (Android <= 1.6) desktop shortcut intents.
+     */
+    public static void actionOpenAccountInboxUuid(Context context, String accountUuid) {
+        Intent i = createIntent(context, -1, -1, Mailbox.TYPE_INBOX);
+        i.setData(Account.getShortcutSafeUriFromUuid(accountUuid));
+        context.startActivity(i);
+    }
+
+    /**
      * Return an intent to open a specific mailbox by account & type.
      *
      * @param context The caller's context (for generating an intent)

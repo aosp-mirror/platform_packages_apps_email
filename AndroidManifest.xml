@@ -170,6 +170,23 @@
                 <action android:name="android.intent.action.MAIN" />
             </intent-filter>
         </activity>
+
+        <!--
+            This activity catches shortcuts to account created on Android 1.6 and before,
+            and redirects to MessageList.
+            singleTask is necessary to make sure the activity is really launched.
+            Without it, the framework brings up the app to front, but doesn't necessarily
+            launch the activity.
+        -->
+        <activity
+            android:name=".activity.FolderMessageList"
+            android:launchMode="singleTask"
+            >
+            <intent-filter>
+                <!-- This action is only to allow an entry point for launcher shortcuts -->
+                <action android:name="android.intent.action.MAIN" />
+            </intent-filter>
+        </activity>
                 
         <activity
             android:name=".activity.MessageView"
