@@ -1210,6 +1210,12 @@ public class CalendarUtilities {
      */
     static public EmailContent.Message createMessageForEntity(Context context, Entity entity,
             int messageFlag, String uid, Account account) {
+        return createMessageForEntity(context, entity, messageFlag, uid, account,
+                true /*requireAddressees*/);
+    }
+
+    static public EmailContent.Message createMessageForEntity(Context context, Entity entity,
+            int messageFlag, String uid, Account account, boolean requireAddressees) {
         ContentValues entityValues = entity.getEntityValues();
         ArrayList<NamedContentValues> subValues = entity.getSubValues();
         boolean isException = entityValues.containsKey(Events.ORIGINAL_EVENT);
@@ -1466,8 +1472,9 @@ public class CalendarUtilities {
                 }
             }
 
-            // If we have no "to" list, we're done
-            if (toList.isEmpty()) return null;
+            // If we have no "to" list and addressees are required (the default), we're done
+            if (toList.isEmpty() && requireAddressees) return null;
+
             // Write out the "to" list
             Address[] toArray = new Address[toList.size()];
             int i = 0;
@@ -1513,11 +1520,20 @@ public class CalendarUtilities {
      * @param messageFlag the Message.FLAG_XXX constant indicating the type of email to be sent
      * @param the unique id of this Event, or null if it can be retrieved from the Event
      * @param the user's account
+     * @param requireAddressees if true (the default), no Message is returned if there aren't any
+     *  addressees; if false, return the Message regardless (addressees will be filled in later)
      * @return a Message with many fields pre-filled (more later)
      * @throws RemoteException if there is an issue retrieving the Event from CalendarProvider
      */
     static public EmailContent.Message createMessageForEventId(Context context, long eventId,
             int messageFlag, String uid, Account account) throws RemoteException {
+        return createMessageForEventId(context, eventId, messageFlag, uid, account,
+                true /*requireAddressees*/);
+    }
+
+    static public EmailContent.Message createMessageForEventId(Context context, long eventId,
+            int messageFlag, String uid, Account account, boolean requireAddressees)
+            throws RemoteException {
         ContentResolver cr = context.getContentResolver();
         EntityIterator eventIterator =
             EventsEntity.newEntityIterator(
@@ -1527,7 +1543,8 @@ public class CalendarUtilities {
         try {
             while (eventIterator.hasNext()) {
                 Entity entity = eventIterator.next();
-                return createMessageForEntity(context, entity, messageFlag, uid, account);
+                return createMessageForEntity(context, entity, messageFlag, uid, account,
+                        requireAddressees);
             }
         } finally {
             eventIterator.close();
