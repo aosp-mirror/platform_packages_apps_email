@@ -43,6 +43,8 @@ public class CalendarSyncAdapterService extends Service {
 
     private static final String ACCOUNT_AND_TYPE_CALENDAR =
         MailboxColumns.ACCOUNT_KEY + "=? AND " + MailboxColumns.TYPE + '=' + Mailbox.TYPE_CALENDAR;
+    private static final String DIRTY_IN_ACCOUNT =
+        Events._SYNC_DIRTY + "=1 AND " + Events._SYNC_ACCOUNT + "=?";
 
     public CalendarSyncAdapterService() {
         super();
@@ -93,16 +95,13 @@ public class CalendarSyncAdapterService extends Service {
             throws OperationCanceledException {
         ContentResolver cr = context.getContentResolver();
         boolean logging = Eas.USER_LOG;
-        if (logging) {
-            Log.d(TAG, "performSync");
-        }
         if (extras.getBoolean(ContentResolver.SYNC_EXTRAS_UPLOAD)) {
             Cursor c = cr.query(Events.CONTENT_URI,
-                    new String[] {Events._ID}, Events._SYNC_DIRTY + "=1", null, null);
+                    new String[] {Events._ID}, DIRTY_IN_ACCOUNT, new String[] {account.name}, null);
             try {
                 if (!c.moveToFirst()) {
                     if (logging) {
-                        Log.d(TAG, "Upload sync; no changes");
+                        Log.d(TAG, "No changes for " + account.name);
                     }
                     return;
                 }
@@ -125,7 +124,7 @@ public class CalendarSyncAdapterService extends Service {
                 try {
                      if (mailboxCursor.moveToFirst()) {
                         if (logging) {
-                            Log.d(TAG, "Calendar sync requested for " + account.name);
+                            Log.d(TAG, "Upload sync requested for " + account.name);
                         }
                         // Ask for a sync from our sync manager
                         SyncManager.serviceRequest(mailboxCursor.getLong(0),
