@@ -1622,7 +1622,8 @@ public class CalendarSyncAdapter extends AbstractSyncAdapter {
                         for (String removedAttendee: originalAttendeeList) {
                             // Send a cancellation message to each of them
                             msg = CalendarUtilities.createMessageForEventId(mContext, eventId,
-                                    Message.FLAG_OUTGOING_MEETING_CANCEL, clientId, mAccount);
+                                    Message.FLAG_OUTGOING_MEETING_CANCEL, clientId, mAccount,
+                                    false);
                             if (msg != null) {
                                 // Just send it to the removed attendee
                                 msg.mTo = removedAttendee;
