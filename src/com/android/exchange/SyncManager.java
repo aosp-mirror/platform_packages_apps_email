@@ -1573,6 +1573,7 @@ public class SyncManager extends Service implements Runnable {
      * @param m the Mailbox on which the service will operate
      */
     private void startServiceThread(AbstractSyncService service, Mailbox m) {
+        if (m == null) return;
         synchronized (sSyncLock) {
             String mailboxName = m.mDisplayName;
             String accountName = service.mAccount.mDisplayName;
@@ -1608,7 +1609,7 @@ public class SyncManager extends Service implements Runnable {
 
     private void requestSync(Mailbox m, int reason, Request req) {
         // Don't sync if there's no connectivity
-        if (sConnectivityHold) return;
+        if (sConnectivityHold || (m == null)) return;
         synchronized (sSyncLock) {
             Account acct = Account.restoreAccountWithId(this, m.mAccountKey);
             if (acct != null) {
@@ -2002,7 +2003,7 @@ public class SyncManager extends Service implements Runnable {
         Mailbox m = Mailbox.restoreMailboxWithId(syncManager, mailboxId);
         // Never allow manual start of Drafts or Outbox via serviceRequest
         if (m == null || m.mType == Mailbox.TYPE_DRAFTS || m.mType == Mailbox.TYPE_OUTBOX) {
-            log("Ignoring serviceRequest for drafts/outbox");
+            log("Ignoring serviceRequest for drafts/outbox/null mailbox");
             return;
         }
         try {
