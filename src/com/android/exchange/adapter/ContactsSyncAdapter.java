@@ -1017,7 +1017,10 @@ public class ContactsSyncAdapter extends AbstractSyncAdapter {
                             }
                         // Note Email.TYPE could be ANY type column; they are all defined in
                         // the private CommonColumns class in ContactsContract
-                        } else if (type < 0 || cv.getAsInteger(Email.TYPE) == type) {
+                        // We'll accept either type < 0 (don't care), cv doesn't have a type,
+                        // or the types are equal
+                        } else if (type < 0 || !cv.containsKey(Email.TYPE) ||
+                                cv.getAsInteger(Email.TYPE) == type) {
                             result = namedContentValues;
                         }
                     }
