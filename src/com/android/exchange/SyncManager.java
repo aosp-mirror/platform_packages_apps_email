@@ -269,8 +269,6 @@ public class SyncManager extends Service implements Runnable {
             IEmailServiceCallback cb = INSTANCE == null ? null: INSTANCE.mCallback;
             if (cb != null) {
                 cb.syncMailboxStatus(mailboxId, statusCode, progress);
-            } else if (INSTANCE != null) {
-                log("orphan syncMailboxStatus, id=" + mailboxId + " status=" + statusCode);
             }
         }
     };
@@ -844,6 +842,28 @@ public class SyncManager extends Service implements Runnable {
                 holdDelay *= 2;
             }
             holdEndTime = System.currentTimeMillis() + holdDelay;
+        }
+    }
+
+    private void logSyncHolds() {
+        if (Eas.USER_LOG && !mSyncErrorMap.isEmpty()) {
+            log("Sync holds:");
+            long time = System.currentTimeMillis();
+            synchronized (sSyncLock) {
+                for (long mailboxId : mSyncErrorMap.keySet()) {
+                    Mailbox m = Mailbox.restoreMailboxWithId(this, mailboxId);
+                    if (m == null) {
+                        log("Mailbox " + mailboxId + " no longer exists");
+                    } else {
+                        SyncError error = mSyncErrorMap.get(mailboxId);
+                        log("Mailbox " + m.mDisplayName + ", error = " + error.reason
+                                + ", fatal = " + error.fatal);
+                        if (error.holdEndTime > 0) {
+                            log("Hold ends in " + ((error.holdEndTime - time) / 1000) + "s");
+                        }
+                    }
+                }
+            }
         }
     }
 
@@ -1517,15 +1537,6 @@ public class SyncManager extends Service implements Runnable {
         }
     }
 
-    private void releaseConnectivityLock(String reason) {
-        // Clear i/o error holds for all accounts
-        releaseSyncHolds(this, AbstractSyncService.EXIT_IO_ERROR, null);
-        synchronized (sConnectivityLock) {
-            sConnectivityLock.notifyAll();
-        }
-        kick(reason);
-    }
-
     public class ConnectivityReceiver extends BroadcastReceiver {
         @Override
         public void onReceive(Context context, Intent intent) {
@@ -1538,7 +1549,10 @@ public class SyncManager extends Service implements Runnable {
                     if (state == State.CONNECTED) {
                         info += " CONNECTED";
                         log(info);
-                        releaseConnectivityLock("connected");
+                        synchronized (sConnectivityLock) {
+                            sConnectivityLock.notifyAll();
+                        }
+                        kick("connected");
                     } else if (state == State.DISCONNECTED) {
                         info += " DISCONNECTED";
                         log(info);
@@ -1653,22 +1667,27 @@ public class SyncManager extends Service implements Runnable {
     }
 
     private void waitForConnectivity() {
-        int cnt = 0;
+        boolean waiting = false;
+        ConnectivityManager cm =
+            (ConnectivityManager)this.getSystemService(Context.CONNECTIVITY_SERVICE);
         while (!mStop) {
-            ConnectivityManager cm =
-                (ConnectivityManager)this.getSystemService(Context.CONNECTIVITY_SERVICE);
             NetworkInfo info = cm.getActiveNetworkInfo();
             if (info != null) {
-                //log("NetworkInfo: " + info.getTypeName() + ", " + info.getState().name());
+                // We're done if there's an active network
+                if (waiting) {
+                    // If we've been waiting, release any I/O error holds
+                    releaseSyncHolds(this, AbstractSyncService.EXIT_IO_ERROR, null);
+                    // And log what's still being held
+                    logSyncHolds();
+                }
                 return;
             } else {
-
-                // If we're waiting for the long haul, shut down running service threads
-                if (++cnt > 1) {
+                // If this is our first time through the loop, shut down running service threads
+                if (!waiting) {
+                    waiting = true;
                     stopServiceThreads();
                 }
-
-                // Wait until a network is connected, but let the device sleep
+                // Wait until a network is connected (or 10 mins), but let the device sleep
                 // We'll set an alarm just in case we don't get notified (bugs happen)
                 synchronized (sConnectivityLock) {
                     runAsleep(SYNC_MANAGER_ID, CONNECTIVITY_WAIT_TIME+5*SECONDS);
@@ -1678,6 +1697,7 @@ public class SyncManager extends Service implements Runnable {
                         sConnectivityLock.wait(CONNECTIVITY_WAIT_TIME);
                         log("Connectivity lock released...");
                     } catch (InterruptedException e) {
+                        // This is fine; we just go around the loop again
                     } finally {
                         sConnectivityHold = false;
                     }
@@ -1848,7 +1868,10 @@ public class SyncManager extends Service implements Runnable {
 
         // Start up threads that need it; use a query which finds eas mailboxes where the
         // the sync interval is not "never".  This is the set of mailboxes that we control
-        if (mAccountObserver == null) return nextWait;
+        if (mAccountObserver == null) {
+            log("mAccountObserver null; service died??");
+            return nextWait;
+        }
         Cursor c = getContentResolver().query(Mailbox.CONTENT_URI, Mailbox.CONTENT_PROJECTION,
                 mAccountObserver.getSyncableEasMailboxWhere(), null, null);
 
@@ -1960,8 +1983,12 @@ public class SyncManager extends Service implements Runnable {
                     }
                 } else {
                     Thread thread = service.mThread;
-                    // Look for threads that have died but aren't in an error state
-                    if (thread != null && !thread.isAlive() && !mSyncErrorMap.containsKey(mid)) {
+                    // Look for threads that have died and remove them from the map
+                    if (thread != null && !thread.isAlive()) {
+                        if (Eas.USER_LOG) {
+                            log("Dead thread, mailbox released: " +
+                                    c.getString(Mailbox.CONTENT_DISPLAY_NAME_COLUMN));
+                        }
                         releaseMailbox(mid);
                         // Restart this if necessary
                         if (nextWait > 3*SECONDS) {
