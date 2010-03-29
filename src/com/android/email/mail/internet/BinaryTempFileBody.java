@@ -24,8 +24,8 @@ import org.apache.commons.io.IOUtils;
 
 import android.util.Config;
 import android.util.Log;
-import android.util.base64.Base64;
-import android.util.base64.Base64OutputStream;
+import android.util.Base64;
+import android.util.Base64OutputStream;
 
 import java.io.File;
 import java.io.FileInputStream;

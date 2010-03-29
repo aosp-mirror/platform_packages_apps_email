@@ -32,7 +32,7 @@ import android.content.res.TypedArray;
 import android.database.Cursor;
 import android.graphics.drawable.Drawable;
 import android.text.Editable;
-import android.util.base64.Base64;
+import android.util.Base64;
 import android.widget.TextView;
 
 import java.io.IOException;

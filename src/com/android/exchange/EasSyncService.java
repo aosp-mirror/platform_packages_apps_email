@@ -86,7 +86,7 @@ import android.provider.Calendar.Attendees;
 import android.provider.Calendar.Events;
 import android.util.Log;
 import android.util.Xml;
-import android.util.base64.Base64;
+import android.util.Base64;
 
 import java.io.ByteArrayOutputStream;
 import java.io.File;

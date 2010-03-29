@@ -29,8 +29,8 @@ import android.content.ContentUris;
 import android.content.Context;
 import android.database.Cursor;
 import android.net.Uri;
-import android.util.base64.Base64;
-import android.util.base64.Base64OutputStream;
+import android.util.Base64;
+import android.util.Base64OutputStream;
 
 import java.io.BufferedOutputStream;
 import java.io.ByteArrayInputStream;

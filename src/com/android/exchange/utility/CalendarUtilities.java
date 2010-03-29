@@ -45,7 +45,7 @@ import android.provider.Calendar.Events;
 import android.provider.Calendar.EventsEntity;
 import android.text.format.Time;
 import android.util.Log;
-import android.util.base64.Base64;
+import android.util.Base64;
 
 import java.io.IOException;
 import java.text.DateFormat;

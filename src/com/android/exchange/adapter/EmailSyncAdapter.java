@@ -45,7 +45,7 @@ import android.content.OperationApplicationException;
 import android.database.Cursor;
 import android.net.Uri;
 import android.os.RemoteException;
-import android.util.base64.Base64;
+import android.util.Base64;
 import android.webkit.MimeTypeMap;
 
 import java.io.IOException;

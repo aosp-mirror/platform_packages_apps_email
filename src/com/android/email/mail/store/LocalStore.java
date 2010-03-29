@@ -45,8 +45,8 @@ import android.database.Cursor;
 import android.database.sqlite.SQLiteDatabase;
 import android.net.Uri;
 import android.util.Log;
-import android.util.base64.Base64;
-import android.util.base64.Base64OutputStream;
+import android.util.Base64;
+import android.util.Base64OutputStream;
 
 import java.io.ByteArrayInputStream;
 import java.io.File;

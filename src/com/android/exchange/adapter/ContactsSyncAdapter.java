@@ -59,7 +59,7 @@ import android.provider.ContactsContract.CommonDataKinds.Website;
 import android.text.util.Rfc822Token;
 import android.text.util.Rfc822Tokenizer;
 import android.util.Log;
-import android.util.base64.Base64;
+import android.util.Base64;
 
 import java.io.IOException;
 import java.io.InputStream;

@@ -19,7 +19,7 @@ package com.android.email.mail.internet;
 import com.android.email.mail.Body;
 import com.android.email.mail.MessagingException;
 
-import android.util.base64.Base64;
+import android.util.Base64;
 
 import java.io.ByteArrayInputStream;
 import java.io.IOException;

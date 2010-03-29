@@ -28,7 +28,7 @@ import com.android.email.provider.EmailContent.Message;
 import android.content.Context;
 import android.util.Config;
 import android.util.Log;
-import android.util.base64.Base64;
+import android.util.Base64;
 
 import java.io.IOException;
 import java.net.InetAddress;
