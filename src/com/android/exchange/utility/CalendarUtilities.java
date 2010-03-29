@@ -43,7 +43,6 @@ import android.provider.Calendar.Attendees;
 import android.provider.Calendar.Calendars;
 import android.provider.Calendar.Events;
 import android.provider.Calendar.EventsEntity;
-import android.provider.Calendar.Reminders;
 import android.text.format.Time;
 import android.util.Log;
 import android.util.base64.Base64;
@@ -1344,56 +1343,42 @@ public class CalendarUtilities {
             if (titleId != 0) {
                 msg.mSubject = resources.getString(titleId, title);
             }
+
+            // Build the text for the message, starting with an initial line describing the
+            // exception (if this is one)
+            StringBuilder sb = new StringBuilder();
+            if (isException && method.equals("REQUEST")) {
+                // Add the line, depending on whether this is a cancellation or update
+                Date date = new Date(entityValues.getAsLong(Events.ORIGINAL_INSTANCE_TIME));
+                String dateString = DateFormat.getDateInstance().format(date);
+                if (titleId == R.string.meeting_canceled) {
+                    sb.append(resources.getString(R.string.exception_cancel, dateString));
+                } else {
+                    sb.append(resources.getString(R.string.exception_updated, dateString));
+                }
+                sb.append("\n\n");
+            }
+            String text =
+                CalendarUtilities.buildMessageTextFromEntityValues(context, entityValues, sb);
+
+            if (text.length() > 0) {
+                ics.writeTag("DESCRIPTION", text);
+            }
+            // And store the message text
+            msg.mText = text;
             if (method.equals("REQUEST")) {
                 if (entityValues.containsKey(Events.ALL_DAY)) {
                     Integer ade = entityValues.getAsInteger(Events.ALL_DAY);
                     ics.writeTag("X-MICROSOFT-CDO-ALLDAYEVENT", ade == 0 ? "FALSE" : "TRUE");
                 }
 
-                // Build the text for the message, starting with an initial line describing the
-                // exception
-                StringBuilder sb = new StringBuilder();
-                if (isException) {
-                    // Add the line, depending on whether this is a cancellation or update
-                    Date date = new Date(entityValues.getAsLong(Events.ORIGINAL_INSTANCE_TIME));
-                    String dateString = DateFormat.getDateInstance().format(date);
-                    if (titleId == R.string.meeting_canceled) {
-                        sb.append(resources.getString(R.string.exception_cancel, dateString));
-                    } else {
-                        sb.append(resources.getString(R.string.exception_updated, dateString));
-                    }
-                    sb.append("\n\n");
-                }
-                String text =
-                    CalendarUtilities.buildMessageTextFromEntityValues(context, entityValues, sb);
-
-                    // If we've got anything here, write it into the ics file
-                if (text.length() > 0) {
-                    ics.writeTag("DESCRIPTION", text);
-                }
-                // And store the message text
-                msg.mText = text;
-
                 String rrule = entityValues.getAsString(Events.RRULE);
                 if (rrule != null) {
                     ics.writeTag("RRULE", rrule);
                 }
 
-                // Handle associated data EXCEPT for attendees, which have to be grouped
-                for (NamedContentValues ncv: subValues) {
-                    Uri ncvUri = ncv.uri;
-                    if (ncvUri.equals(Reminders.CONTENT_URI)) {
-                        // TODO Consider sending alarm information in the meeting request, though
-                        // it's not obviously appropriate (i.e. telling the user what alarm to use)
-                        // This should be for REQUEST only
-                        // Here's what the VALARM would look like:
-                        //                  BEGIN:VALARM
-                        //                  ACTION:DISPLAY
-                        //                  DESCRIPTION:REMINDER
-                        //                  TRIGGER;RELATED=START:-PT15M
-                        //                  END:VALARM
-                    }
-                }
+                // If we decide to send alarm information in the meeting request ics file,
+                // handle it here by looping through the subvalues
             }
 
             // Handle attendee data here; determine "to" list and add ATTENDEE tags to ics
