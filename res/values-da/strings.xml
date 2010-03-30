@@ -89,7 +89,7 @@
     <string name="message_compose_cc_hint" msgid="8481884461031434144">"Cc"</string>
     <string name="message_compose_bcc_hint" msgid="9177337492358841680">"Bcc"</string>
     <string name="message_compose_subject_hint" msgid="6993487234024160782">"Emne"</string>
-    <string name="message_compose_body_hint" msgid="7575406246484103697">"Skriv mail"</string>
+    <string name="message_compose_body_hint" msgid="7575406246484103697">"Skriv e-mail"</string>
     <string name="message_compose_fwd_header_fmt" msgid="5181300290654579434">\n\n"-------- Oprindelig besked --------"\n"Emne: <xliff:g id="SUBJECT">%s</xliff:g>"\n"Fra: <xliff:g id="SENDER">%s</xliff:g>"\n"Til: <xliff:g id="TO">%s</xliff:g>"\n"CC: <xliff:g id="CC_0">%s</xliff:g>"\n\n</string>
     <string name="message_compose_reply_header_fmt" msgid="8815624773273454573">\n\n"<xliff:g id="SENDER">%s</xliff:g> skrev:"\n\n</string>
     <string name="message_compose_quoted_text_label" msgid="5722467956990009520">"Citeret tekst"</string>
@@ -205,7 +205,7 @@
     <string name="account_setup_failed_tls_required" msgid="307030406688611327">"TLS er påkrævet, men understøttes ikke af serveren."</string>
     <string name="account_setup_failed_auth_required" msgid="1676242821459638150">"Godkendelsesmetoderne understøttes ikke af serveren."</string>
     <string name="account_setup_failed_security" msgid="6142264248671379943">"Der kunne ikke åbnes en forbindelse til serveren på grund af en sikkerhedsfejl."</string>
-    <string name="account_setup_failed_ioerror" msgid="7391458717708933095">"Der kunne ikke åbnes en forbindelse til serveren."</string>
+    <string name="account_setup_failed_ioerror" msgid="7391458717708933095">"Der kunne oprettes forbindelse til serveren."</string>
     <string name="account_setup_security_required_title" msgid="1850321535870447468">"Ekstern sikkerhedsadministration"</string>
     <string name="account_setup_security_policies_required_fmt" msgid="8146309611870795951">"Serveren <xliff:g id="SERVER">%s</xliff:g> kræver, at du giver den tilladelse til eksternt at kontrollere nogle af telefonens sikkerhedsfunktioner. Vil du afslutte opsætning af denne konto?"</string>
     <string name="account_setup_failed_security_policies_unsupported" msgid="4093832822988053758">"Denne server kræver sikkerhedsfunktioner, som telefonen ikke understøtter."</string>
@@ -232,8 +232,18 @@
     <string name="account_settings_sync_contacts_summary" msgid="8901452720940015928">"Synkroniser også kontakter fra denne konto"</string>
     <string name="account_settings_sync_calendar_enable" msgid="6855333393468628003">"Synkroniser kalender"</string>
     <string name="account_settings_sync_calendar_summary" msgid="2456010694443333450">"Synkroniser også kalender fra denne konto"</string>
-    <string name="account_settings_vibrate_enable" msgid="8045133290388856478">"Vibration"</string>
-    <string name="account_settings_vibrate_summary" msgid="3690631050585589365">"Vibration ved ny e-mail"</string>
+    <!-- no translation found for account_settings_vibrate_when_label (708477308761702671) -->
+    <skip />
+    <!-- no translation found for account_settings_vibrate_when_summary (3991584445166247189) -->
+    <skip />
+    <!-- no translation found for account_settings_vibrate_when_always (6739506816960483174) -->
+    <skip />
+    <!-- no translation found for account_settings_vibrate_when_silent (6417076436551648924) -->
+    <skip />
+    <!-- no translation found for account_settings_vibrate_when_never (3759680093309511614) -->
+    <skip />
+    <!-- no translation found for account_settings_vibrate_when_dlg_title (308167729046312952) -->
+    <skip />
     <string name="account_settings_ringtone" msgid="7922187231467500404">"Vælg ringetone"</string>
     <string name="account_settings_servers" msgid="4925493817981624242">"Indstillinger for server"</string>
     <string name="account_delete_dlg_title" msgid="6806087520856396608">"Fjern konto"</string>

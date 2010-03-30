@@ -232,8 +232,18 @@
     <string name="account_settings_sync_contacts_summary" msgid="8901452720940015928">"Также синхронизировать контакты из этого аккаунта"</string>
     <string name="account_settings_sync_calendar_enable" msgid="6855333393468628003">"Синхронизировать календарь"</string>
     <string name="account_settings_sync_calendar_summary" msgid="2456010694443333450">"Также синхронизировать календарь из этого аккаунта"</string>
-    <string name="account_settings_vibrate_enable" msgid="8045133290388856478">"Вибровызов"</string>
-    <string name="account_settings_vibrate_summary" msgid="3690631050585589365">"Вибросигнал при получении сообщения"</string>
+    <!-- no translation found for account_settings_vibrate_when_label (708477308761702671) -->
+    <skip />
+    <!-- no translation found for account_settings_vibrate_when_summary (3991584445166247189) -->
+    <skip />
+    <!-- no translation found for account_settings_vibrate_when_always (6739506816960483174) -->
+    <skip />
+    <!-- no translation found for account_settings_vibrate_when_silent (6417076436551648924) -->
+    <skip />
+    <!-- no translation found for account_settings_vibrate_when_never (3759680093309511614) -->
+    <skip />
+    <!-- no translation found for account_settings_vibrate_when_dlg_title (308167729046312952) -->
+    <skip />
     <string name="account_settings_ringtone" msgid="7922187231467500404">"Выбрать мелодию"</string>
     <string name="account_settings_servers" msgid="4925493817981624242">"Настройки сервера"</string>
     <string name="account_delete_dlg_title" msgid="6806087520856396608">"Удалить аккаунт"</string>
