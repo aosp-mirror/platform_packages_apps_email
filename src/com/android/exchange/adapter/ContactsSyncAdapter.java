@@ -744,14 +744,10 @@ public class ContactsSyncAdapter extends AbstractSyncAdapter {
                                         uri, RawContacts.Entity.CONTENT_DIRECTORY);
                                 EntityIterator entityIterator = RawContacts.newEntityIterator(
                                     mContentResolver.query(uri, null, null, null, null));
-                                try {
-                                    if (entityIterator.hasNext()) {
-                                        entity = entityIterator.next();
-                                    }
-                                    userLog("Changing contact ", serverId);
-                                } catch (RemoteException e) {
-                                    // TODO: log the fact that we failed to read the entity
+                                if (entityIterator.hasNext()) {
+                                    entity = entityIterator.next();
                                 }
+                                userLog("Changing contact ", serverId);
                             }
                         } finally {
                             c.close();
@@ -1779,142 +1775,138 @@ public class ContactsSyncAdapter extends AbstractSyncAdapter {
             return false;
         }
 
+        // Get them all atomically
+        EntityIterator ei = RawContacts.newEntityIterator(
+                cr.query(uri, null, RawContacts.DIRTY + "=1", null, null));
+        ContentValues cidValues = new ContentValues();
         try {
-            // Get them all atomically
-            EntityIterator ei = RawContacts.newEntityIterator(
-                    cr.query(uri, null, RawContacts.DIRTY + "=1", null, null));
-            ContentValues cidValues = new ContentValues();
-            try {
-                boolean first = true;
-                final Uri rawContactUri = addCallerIsSyncAdapterParameter(RawContacts.CONTENT_URI);
-                while (ei.hasNext()) {
-                    Entity entity = ei.next();
-                    // For each of these entities, create the change commands
-                    ContentValues entityValues = entity.getEntityValues();
-                    String serverId = entityValues.getAsString(RawContacts.SOURCE_ID);
-                    ArrayList<Integer> groupIds = new ArrayList<Integer>();
-                    if (first) {
-                        s.start(Tags.SYNC_COMMANDS);
-                        userLog("Sending Contacts changes to the server");
-                        first = false;
+            boolean first = true;
+            final Uri rawContactUri = addCallerIsSyncAdapterParameter(RawContacts.CONTENT_URI);
+            while (ei.hasNext()) {
+                Entity entity = ei.next();
+                // For each of these entities, create the change commands
+                ContentValues entityValues = entity.getEntityValues();
+                String serverId = entityValues.getAsString(RawContacts.SOURCE_ID);
+                ArrayList<Integer> groupIds = new ArrayList<Integer>();
+                if (first) {
+                    s.start(Tags.SYNC_COMMANDS);
+                    userLog("Sending Contacts changes to the server");
+                    first = false;
+                }
+                if (serverId == null) {
+                    // This is a new contact; create a clientId
+                    String clientId = "new_" + mMailbox.mId + '_' + System.currentTimeMillis();
+                    userLog("Creating new contact with clientId: ", clientId);
+                    s.start(Tags.SYNC_ADD).data(Tags.SYNC_CLIENT_ID, clientId);
+                    // And save it in the raw contact
+                    cidValues.put(RawContacts.SYNC1, clientId);
+                    cr.update(ContentUris.
+                            withAppendedId(rawContactUri,
+                                    entityValues.getAsLong(RawContacts._ID)),
+                                    cidValues, null, null);
+                } else {
+                    if (entityValues.getAsInteger(RawContacts.DELETED) == 1) {
+                        userLog("Deleting contact with serverId: ", serverId);
+                        s.start(Tags.SYNC_DELETE).data(Tags.SYNC_SERVER_ID, serverId).end();
+                        mDeletedIdList.add(entityValues.getAsLong(RawContacts._ID));
+                        continue;
                     }
-                    if (serverId == null) {
-                        // This is a new contact; create a clientId
-                        String clientId = "new_" + mMailbox.mId + '_' + System.currentTimeMillis();
-                        userLog("Creating new contact with clientId: ", clientId);
-                        s.start(Tags.SYNC_ADD).data(Tags.SYNC_CLIENT_ID, clientId);
-                        // And save it in the raw contact
-                        cidValues.put(ContactsContract.RawContacts.SYNC1, clientId);
-                        cr.update(ContentUris.
-                                withAppendedId(rawContactUri,
-                                        entityValues.getAsLong(ContactsContract.RawContacts._ID)),
-                                        cidValues, null, null);
+                    userLog("Upsync change to contact with serverId: " + serverId);
+                    s.start(Tags.SYNC_CHANGE).data(Tags.SYNC_SERVER_ID, serverId);
+                }
+                s.start(Tags.SYNC_APPLICATION_DATA);
+                // Write out the data here
+                int imCount = 0;
+                int emailCount = 0;
+                int homePhoneCount = 0;
+                int workPhoneCount = 0;
+                String displayName = null;
+                ArrayList<ContentValues> emailValues = new ArrayList<ContentValues>();
+                for (NamedContentValues ncv: entity.getSubValues()) {
+                    ContentValues cv = ncv.values;
+                    String mimeType = cv.getAsString(Data.MIMETYPE);
+                    if (mimeType.equals(Email.CONTENT_ITEM_TYPE)) {
+                        emailValues.add(cv);
+                    } else if (mimeType.equals(Nickname.CONTENT_ITEM_TYPE)) {
+                        sendNickname(s, cv);
+                    } else if (mimeType.equals(EasChildren.CONTENT_ITEM_TYPE)) {
+                        sendChildren(s, cv);
+                    } else if (mimeType.equals(EasBusiness.CONTENT_ITEM_TYPE)) {
+                        sendBusiness(s, cv);
+                    } else if (mimeType.equals(Website.CONTENT_ITEM_TYPE)) {
+                        sendWebpage(s, cv);
+                    } else if (mimeType.equals(EasPersonal.CONTENT_ITEM_TYPE)) {
+                        sendPersonal(s, cv);
+                    } else if (mimeType.equals(Phone.CONTENT_ITEM_TYPE)) {
+                        sendPhone(s, cv, workPhoneCount, homePhoneCount);
+                        int type = cv.getAsInteger(Phone.TYPE);
+                        if (type == Phone.TYPE_HOME) homePhoneCount++;
+                        if (type == Phone.TYPE_WORK) workPhoneCount++;
+                    } else if (mimeType.equals(Relation.CONTENT_ITEM_TYPE)) {
+                        sendRelation(s, cv);
+                    } else if (mimeType.equals(StructuredName.CONTENT_ITEM_TYPE)) {
+                        displayName = sendStructuredName(s, cv);
+                    } else if (mimeType.equals(StructuredPostal.CONTENT_ITEM_TYPE)) {
+                        sendStructuredPostal(s, cv);
+                    } else if (mimeType.equals(Organization.CONTENT_ITEM_TYPE)) {
+                        sendOrganization(s, cv);
+                    } else if (mimeType.equals(Im.CONTENT_ITEM_TYPE)) {
+                        sendIm(s, cv, imCount++);
+                    } else if (mimeType.equals(Event.CONTENT_ITEM_TYPE)) {
+                        Integer eventType = cv.getAsInteger(Event.TYPE);
+                        if (eventType != null && eventType.equals(Event.TYPE_BIRTHDAY)) {
+                            sendBirthday(s, cv);
+                        }
+                    } else if (mimeType.equals(GroupMembership.CONTENT_ITEM_TYPE)) {
+                        // We must gather these, and send them together (below)
+                        groupIds.add(cv.getAsInteger(GroupMembership.GROUP_ROW_ID));
+                    } else if (mimeType.equals(Note.CONTENT_ITEM_TYPE)) {
+                        sendNote(s, cv);
+                    } else if (mimeType.equals(Photo.CONTENT_ITEM_TYPE)) {
+                        sendPhoto(s, cv);
                     } else {
-                        if (entityValues.getAsInteger(RawContacts.DELETED) == 1) {
-                            userLog("Deleting contact with serverId: ", serverId);
-                            s.start(Tags.SYNC_DELETE).data(Tags.SYNC_SERVER_ID, serverId).end();
-                            mDeletedIdList.add(entityValues.getAsLong(RawContacts._ID));
-                            continue;
-                        }
-                        userLog("Upsync change to contact with serverId: " + serverId);
-                        s.start(Tags.SYNC_CHANGE).data(Tags.SYNC_SERVER_ID, serverId);
+                        userLog("Contacts upsync, unknown data: ", mimeType);
                     }
-                    s.start(Tags.SYNC_APPLICATION_DATA);
-                    // Write out the data here
-                    int imCount = 0;
-                    int emailCount = 0;
-                    int homePhoneCount = 0;
-                    int workPhoneCount = 0;
-                    String displayName = null;
-                    ArrayList<ContentValues> emailValues = new ArrayList<ContentValues>();
-                    for (NamedContentValues ncv: entity.getSubValues()) {
-                        ContentValues cv = ncv.values;
-                        String mimeType = cv.getAsString(Data.MIMETYPE);
-                        if (mimeType.equals(Email.CONTENT_ITEM_TYPE)) {
-                            emailValues.add(cv);
-                        } else if (mimeType.equals(Nickname.CONTENT_ITEM_TYPE)) {
-                            sendNickname(s, cv);
-                        } else if (mimeType.equals(EasChildren.CONTENT_ITEM_TYPE)) {
-                            sendChildren(s, cv);
-                        } else if (mimeType.equals(EasBusiness.CONTENT_ITEM_TYPE)) {
-                            sendBusiness(s, cv);
-                        } else if (mimeType.equals(Website.CONTENT_ITEM_TYPE)) {
-                            sendWebpage(s, cv);
-                        } else if (mimeType.equals(EasPersonal.CONTENT_ITEM_TYPE)) {
-                            sendPersonal(s, cv);
-                        } else if (mimeType.equals(Phone.CONTENT_ITEM_TYPE)) {
-                            sendPhone(s, cv, workPhoneCount, homePhoneCount);
-                            int type = cv.getAsInteger(Phone.TYPE);
-                            if (type == Phone.TYPE_HOME) homePhoneCount++;
-                            if (type == Phone.TYPE_WORK) workPhoneCount++;
-                        } else if (mimeType.equals(Relation.CONTENT_ITEM_TYPE)) {
-                            sendRelation(s, cv);
-                        } else if (mimeType.equals(StructuredName.CONTENT_ITEM_TYPE)) {
-                            displayName = sendStructuredName(s, cv);
-                        } else if (mimeType.equals(StructuredPostal.CONTENT_ITEM_TYPE)) {
-                            sendStructuredPostal(s, cv);
-                        } else if (mimeType.equals(Organization.CONTENT_ITEM_TYPE)) {
-                            sendOrganization(s, cv);
-                        } else if (mimeType.equals(Im.CONTENT_ITEM_TYPE)) {
-                            sendIm(s, cv, imCount++);
-                        } else if (mimeType.equals(Event.CONTENT_ITEM_TYPE)) {
-                            Integer eventType = cv.getAsInteger(Event.TYPE);
-                            if (eventType != null && eventType.equals(Event.TYPE_BIRTHDAY)) {
-                                sendBirthday(s, cv);
-                            }
-                        } else if (mimeType.equals(GroupMembership.CONTENT_ITEM_TYPE)) {
-                            // We must gather these, and send them together (below)
-                            groupIds.add(cv.getAsInteger(GroupMembership.GROUP_ROW_ID));
-                        } else if (mimeType.equals(Note.CONTENT_ITEM_TYPE)) {
-                            sendNote(s, cv);
-                        } else if (mimeType.equals(Photo.CONTENT_ITEM_TYPE)) {
-                            sendPhoto(s, cv);
-                        } else {
-                            userLog("Contacts upsync, unknown data: ", mimeType);
-                        }
-                    }
+                }
 
-                    // We do the email rows last, because we need to make sure we've found the
-                    // displayName (if one exists); this would be in a StructuredName rnow
-                    for (ContentValues cv: emailValues) {
-                        sendEmail(s, cv, emailCount++, displayName);
-                    }
+                // We do the email rows last, because we need to make sure we've found the
+                // displayName (if one exists); this would be in a StructuredName rnow
+                for (ContentValues cv: emailValues) {
+                    sendEmail(s, cv, emailCount++, displayName);
+                }
 
-                    // Now, we'll send up groups, if any
-                    if (!groupIds.isEmpty()) {
-                        boolean groupFirst = true;
-                        for (int id: groupIds) {
-                            // Since we get id's from the provider, we need to find their names
-                            Cursor c = cr.query(ContentUris.withAppendedId(Groups.CONTENT_URI, id),
-                                    GROUP_PROJECTION, null, null, null);
-                            try {
-                                // Presumably, this should always succeed, but ...
-                                if (c.moveToFirst()) {
-                                    if (groupFirst) {
-                                        s.start(Tags.CONTACTS_CATEGORIES);
-                                        groupFirst = false;
-                                    }
-                                    s.data(Tags.CONTACTS_CATEGORY, c.getString(0));
+                // Now, we'll send up groups, if any
+                if (!groupIds.isEmpty()) {
+                    boolean groupFirst = true;
+                    for (int id: groupIds) {
+                        // Since we get id's from the provider, we need to find their names
+                        Cursor c = cr.query(ContentUris.withAppendedId(Groups.CONTENT_URI, id),
+                                GROUP_PROJECTION, null, null, null);
+                        try {
+                            // Presumably, this should always succeed, but ...
+                            if (c.moveToFirst()) {
+                                if (groupFirst) {
+                                    s.start(Tags.CONTACTS_CATEGORIES);
+                                    groupFirst = false;
                                 }
-                            } finally {
-                                c.close();
+                                s.data(Tags.CONTACTS_CATEGORY, c.getString(0));
                             }
-                        }
-                        if (!groupFirst) {
-                            s.end();
+                        } finally {
+                            c.close();
                         }
                     }
-                    s.end().end(); // ApplicationData & Change
-                    mUpdatedIdList.add(entityValues.getAsLong(RawContacts._ID));
+                    if (!groupFirst) {
+                        s.end();
+                    }
                 }
-                if (!first) {
-                    s.end(); // Commands
-                }
-            } finally {
-                ei.close();
+                s.end().end(); // ApplicationData & Change
+                mUpdatedIdList.add(entityValues.getAsLong(RawContacts._ID));
             }
-        } catch (RemoteException e) {
-            Log.e(TAG, "Could not read dirty contacts.");
+            if (!first) {
+                s.end(); // Commands
+            }
+        } finally {
+            ei.close();
         }
 
         return false;
