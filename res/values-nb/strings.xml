@@ -127,7 +127,7 @@
     <string name="account_setup_basics_title" msgid="3969856368228940980">"Sett opp e-post"</string>
     <string name="account_setup_basics_exchange_title" msgid="1147638872869594157">"Legg til en Exchange-konto"</string>
     <string name="account_setup_basics_exchange_title_alternate" msgid="4980422714586153809">"Legg til en Exchange ActiveSync-konto"</string>
-    <string name="accounts_welcome" msgid="5901437782383439370">"Velkommen til oppsett av e-post!BREAK_0BREAK_1Du kan bruke en hvilken som helst e-postkonto. De mest populære e-postkontoene kan settes opp i to trinn!"</string>
+    <string name="accounts_welcome" msgid="5901437782383439370">"De mest populære e-postkontoene kan stilles inn i få trinn."</string>
     <string name="accounts_welcome_exchange" msgid="4414121583987233733">"Du kan sette opp en Exchange-konto med bare noen få enkle steg."</string>
     <string name="accounts_welcome_exchange_alternate" msgid="1324339567986452000">"Du kan konfigurere en Exchange ActiveSync-konto ved kun å følge noen få trinn."</string>
     <string name="account_setup_basics_email_hint" msgid="7414269319207261120">"E-postadresse"</string>
@@ -232,8 +232,18 @@
     <string name="account_settings_sync_contacts_summary" msgid="8901452720940015928">"Synkroniser kontakter fra denne kontoen"</string>
     <string name="account_settings_sync_calendar_enable" msgid="6855333393468628003">"Synkroniser kalender"</string>
     <string name="account_settings_sync_calendar_summary" msgid="2456010694443333450">"Synkroniser også kalendere fra denne kontoen"</string>
-    <string name="account_settings_vibrate_enable" msgid="8045133290388856478">"Vibrer"</string>
-    <string name="account_settings_vibrate_summary" msgid="3690631050585589365">"Vibrer når det kommer e-post"</string>
+    <!-- no translation found for account_settings_vibrate_when_label (708477308761702671) -->
+    <skip />
+    <!-- no translation found for account_settings_vibrate_when_summary (3991584445166247189) -->
+    <skip />
+    <!-- no translation found for account_settings_vibrate_when_always (6739506816960483174) -->
+    <skip />
+    <!-- no translation found for account_settings_vibrate_when_silent (6417076436551648924) -->
+    <skip />
+    <!-- no translation found for account_settings_vibrate_when_never (3759680093309511614) -->
+    <skip />
+    <!-- no translation found for account_settings_vibrate_when_dlg_title (308167729046312952) -->
+    <skip />
     <string name="account_settings_ringtone" msgid="7922187231467500404">"Velg ringetone"</string>
     <string name="account_settings_servers" msgid="4925493817981624242">"Innstillinger for tjener"</string>
     <string name="account_delete_dlg_title" msgid="6806087520856396608">"Fjern"</string>

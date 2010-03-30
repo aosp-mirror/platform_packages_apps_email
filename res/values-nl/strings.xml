@@ -145,7 +145,7 @@
     <string name="account_setup_names_instructions" msgid="2880279273965835007">"Uw account is ingesteld en er is e-mail onderweg."</string>
     <string name="account_setup_names_account_name_label" msgid="8033895024273259196">"Geef dit account een naam (optioneel)"</string>
     <string name="account_setup_names_user_name_label" msgid="8967410178488604770">"Uw naam (wordt weergegeven in uitgaande berichten)"</string>
-    <string name="account_setup_account_type_title" msgid="6645576356752495504">"Nieuwe e-mailaccount toevoegen"</string>
+    <string name="account_setup_account_type_title" msgid="6645576356752495504">"Nieuw e-mailaccount toevoegen"</string>
     <string name="account_setup_account_type_instructions" msgid="114515540798408760">"Welk type account is dit?"</string>
     <string name="account_setup_incoming_title" msgid="6862032674547580337">"Serverinstellingen inkomende e-mail"</string>
     <string name="account_setup_incoming_username_label" msgid="5700581386104070302">"Gebruikersnaam"</string>
@@ -232,8 +232,18 @@
     <string name="account_settings_sync_contacts_summary" msgid="8901452720940015928">"Contacten van dit account eveneens synchroniseren"</string>
     <string name="account_settings_sync_calendar_enable" msgid="6855333393468628003">"Agenda synchroniseren"</string>
     <string name="account_settings_sync_calendar_summary" msgid="2456010694443333450">"Agenda van dit account eveneens synchroniseren"</string>
-    <string name="account_settings_vibrate_enable" msgid="8045133290388856478">"Trillen"</string>
-    <string name="account_settings_vibrate_summary" msgid="3690631050585589365">"Ook trillen bij ontvangst van e-mail"</string>
+    <!-- no translation found for account_settings_vibrate_when_label (708477308761702671) -->
+    <skip />
+    <!-- no translation found for account_settings_vibrate_when_summary (3991584445166247189) -->
+    <skip />
+    <!-- no translation found for account_settings_vibrate_when_always (6739506816960483174) -->
+    <skip />
+    <!-- no translation found for account_settings_vibrate_when_silent (6417076436551648924) -->
+    <skip />
+    <!-- no translation found for account_settings_vibrate_when_never (3759680093309511614) -->
+    <skip />
+    <!-- no translation found for account_settings_vibrate_when_dlg_title (308167729046312952) -->
+    <skip />
     <string name="account_settings_ringtone" msgid="7922187231467500404">"Beltoon selecteren"</string>
     <string name="account_settings_servers" msgid="4925493817981624242">"Serverinstellingen"</string>
     <string name="account_delete_dlg_title" msgid="6806087520856396608">"Account verwijderen"</string>
