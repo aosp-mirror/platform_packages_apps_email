@@ -47,6 +47,7 @@ import com.beetstra.jutf7.CharsetProvider;
 import android.content.Context;
 import android.os.Build;
 import android.telephony.TelephonyManager;
+import android.util.Base64;
 import android.util.Config;
 import android.util.Log;
 
