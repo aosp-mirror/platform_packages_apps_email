@@ -44,8 +44,8 @@ import android.provider.Calendar.Calendars;
 import android.provider.Calendar.Events;
 import android.provider.Calendar.EventsEntity;
 import android.text.format.Time;
-import android.util.Log;
 import android.util.Base64;
+import android.util.Log;
 
 import java.io.IOException;
 import java.text.DateFormat;
@@ -1218,16 +1218,20 @@ public class CalendarUtilities {
         ContentValues entityValues = entity.getEntityValues();
         ArrayList<NamedContentValues> subValues = entity.getSubValues();
         boolean isException = entityValues.containsKey(Events.ORIGINAL_EVENT);
+        boolean isReply = false;
 
         EmailContent.Message msg = new EmailContent.Message();
         msg.mFlags = messageFlag;
         msg.mTimeStamp = System.currentTimeMillis();
 
         String method;
-        if ((messageFlag & EmailContent.Message.FLAG_OUTGOING_MEETING_REQUEST_MASK) != 0) {
+        if ((messageFlag & EmailContent.Message.FLAG_OUTGOING_MEETING_INVITE) != 0) {
             method = "REQUEST";
+        } else if ((messageFlag & EmailContent.Message.FLAG_OUTGOING_MEETING_CANCEL) != 0) {
+            method = "CANCEL";
         } else {
             method = "REPLY";
+            isReply = true;
         }
 
         try {
@@ -1245,7 +1249,7 @@ public class CalendarUtilities {
 
             // If we're inviting people and the meeting is recurring, we need to send our time zone
             // information and make sure to send DTSTART/DTEND in local time
-            if (method.equals("REQUEST")  && entityValues.containsKey(Events.RRULE)) {
+            if (!isReply  && entityValues.containsKey(Events.RRULE)) {
                 vCalendarTimeZone = TimeZone.getDefault();
                 // Write the VTIMEZONE block to the writer
                 timeZoneToVTimezone(vCalendarTimeZone, ics);
@@ -1347,7 +1351,7 @@ public class CalendarUtilities {
             // Build the text for the message, starting with an initial line describing the
             // exception (if this is one)
             StringBuilder sb = new StringBuilder();
-            if (isException && method.equals("REQUEST")) {
+            if (isException && !isReply) {
                 // Add the line, depending on whether this is a cancellation or update
                 Date date = new Date(entityValues.getAsLong(Events.ORIGINAL_INSTANCE_TIME));
                 String dateString = DateFormat.getDateInstance().format(date);
@@ -1366,7 +1370,7 @@ public class CalendarUtilities {
             }
             // And store the message text
             msg.mText = text;
-            if (method.equals("REQUEST")) {
+            if (!isReply) {
                 if (entityValues.containsKey(Events.ALL_DAY)) {
                     Integer ade = entityValues.getAsInteger(Events.ALL_DAY);
                     ics.writeTag("X-MICROSOFT-CDO-ALLDAYEVENT", ade == 0 ? "FALSE" : "TRUE");
@@ -1451,7 +1455,7 @@ public class CalendarUtilities {
                     icalTag += ";CN=" + SimpleIcsWriter.quoteParamValue(organizerName);
                 }
                 ics.writeTag(icalTag, "MAILTO:" + organizerEmail);
-                if (method.equals("REPLY")) {
+                if (isReply) {
                     toList.add(organizerName == null ? new Address(organizerEmail) :
                         new Address(organizerEmail, organizerName));
                 }

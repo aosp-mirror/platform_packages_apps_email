@@ -362,16 +362,16 @@ public class CalendarUtilitiesTests extends AndroidTestCase {
         assertEquals("invite.ics", att.mFileName);
         assertEquals(Attachment.FLAG_ICS_ALTERNATIVE_PART,
                 att.mFlags & Attachment.FLAG_ICS_ALTERNATIVE_PART);
-        assertEquals("text/calendar; method=REQUEST", att.mMimeType);
+        assertEquals("text/calendar; method=CANCEL", att.mMimeType);
         assertNotNull(att.mContentBytes);
 
         // We'll check the contents of the ics file here
         BlockHash vcalendar = parseIcsContent(att.mContentBytes);
         assertNotNull(vcalendar);
 
-        // We should have a VCALENDAR with a REQUEST method
+        // We should have a VCALENDAR with a CANCEL method
         assertEquals("VCALENDAR", vcalendar.name);
-        assertEquals("REQUEST", vcalendar.get("METHOD"));
+        assertEquals("CANCEL", vcalendar.get("METHOD"));
 
         // This is the time zone that should be used
         TimeZone timeZone = TimeZone.getDefault();
