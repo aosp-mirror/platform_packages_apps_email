@@ -924,8 +924,8 @@ public class SyncManager extends Service implements Runnable {
                     if (syncManager != null) {
                         android.accounts.Account[] accountMgrList = AccountManager.get(syncManager)
                             .getAccountsByType(Email.EXCHANGE_ACCOUNT_MANAGER_TYPE);
-                        // Make sure we have an up-to-date sAccountList
                         synchronized (sAccountList) {
+                            // Make sure we have an up-to-date sAccountList
                             mAccountObserver.onAccountChanged();
                             reconcileAccountsWithAccountManager(syncManager, sAccountList,
                                     accountMgrList, false, mResolver);
