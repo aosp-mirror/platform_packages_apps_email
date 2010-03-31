@@ -58,8 +58,8 @@ import android.provider.ContactsContract.CommonDataKinds.StructuredPostal;
 import android.provider.ContactsContract.CommonDataKinds.Website;
 import android.text.util.Rfc822Token;
 import android.text.util.Rfc822Tokenizer;
-import android.util.Log;
 import android.util.Base64;
+import android.util.Log;
 
 import java.io.IOException;
 import java.io.InputStream;
@@ -1633,6 +1633,9 @@ public class ContactsSyncAdapter extends AbstractSyncAdapter {
             byte[] bytes = cv.getAsByteArray(Photo.PHOTO);
             String pic = Base64.encodeToString(bytes, Base64.NO_WRAP);
             s.data(Tags.CONTACTS_PICTURE, pic);
+        } else {
+            // Send an empty tag, which signals the server to delete any pre-existing photo
+            s.tag(Tags.CONTACTS_PICTURE);
         }
     }
 
@@ -1664,17 +1667,20 @@ public class ContactsSyncAdapter extends AbstractSyncAdapter {
     }
 
     private void sendNote(Serializer s, ContentValues cv) throws IOException {
+        // Even when there is no local note, we must explicitly upsync an empty note,
+        // which is the only way to force the server to delete any pre-existing note.
+        String note = "";
         if (cv.containsKey(Note.NOTE)) {
             // EAS won't accept note data with raw newline characters
-            String note = cv.getAsString(Note.NOTE).replaceAll("\n", "\r\n");
-            // Format of upsync data depends on protocol version
-            if (mService.mProtocolVersionDouble >= Eas.SUPPORTED_PROTOCOL_EX2007_DOUBLE) {
-                s.start(Tags.BASE_BODY);
-                s.data(Tags.BASE_TYPE, Eas.BODY_PREFERENCE_TEXT).data(Tags.BASE_DATA, note);
-                s.end();
-            } else {
-                s.data(Tags.CONTACTS_BODY, note);
-            }
+            note = cv.getAsString(Note.NOTE).replaceAll("\n", "\r\n");
+        }
+        // Format of upsync data depends on protocol version
+        if (mService.mProtocolVersionDouble >= Eas.SUPPORTED_PROTOCOL_EX2007_DOUBLE) {
+            s.start(Tags.BASE_BODY);
+            s.data(Tags.BASE_TYPE, Eas.BODY_PREFERENCE_TEXT).data(Tags.BASE_DATA, note);
+            s.end();
+        } else {
+            s.data(Tags.CONTACTS_BODY, note);
         }
     }
 
