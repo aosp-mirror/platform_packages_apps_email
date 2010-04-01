@@ -265,6 +265,70 @@ public class CalendarUtilitiesTests extends AndroidTestCase {
         //TODO Check the contents of the attachment using an iCalendar parser
     }
 
+    public void testCreateMessageForEntity_Invite_AllDay() throws IOException {
+        // Set up the "event"
+        String title = "Discuss Unit Tests";
+        Entity entity = setupTestEventEntity(ORGANIZER, ATTENDEE, title);
+        entity.getEntityValues().put(Events.ALL_DAY, 1);
+
+        // Create a dummy account for the attendee
+        Account account = new Account();
+        account.mEmailAddress = ORGANIZER;
+
+        // The uid is required, but can be anything
+        String uid = "31415926535";
+
+        // Create the outgoing message
+        Message msg = CalendarUtilities.createMessageForEntity(mContext, entity,
+                Message.FLAG_OUTGOING_MEETING_INVITE, uid, account);
+
+        // First, we should have a message
+        assertNotNull(msg);
+
+        // Now check some of the fields of the message
+        assertEquals(Address.pack(new Address[] {new Address(ATTENDEE)}), msg.mTo);
+        String accept = getContext().getResources().getString(R.string.meeting_invitation, title);
+        assertEquals(accept, msg.mSubject);
+
+        // And make sure we have an attachment
+        assertNotNull(msg.mAttachments);
+        assertEquals(1, msg.mAttachments.size());
+        Attachment att = msg.mAttachments.get(0);
+        // And that the attachment has the correct elements
+        assertEquals("invite.ics", att.mFileName);
+        assertEquals(Attachment.FLAG_ICS_ALTERNATIVE_PART,
+                att.mFlags & Attachment.FLAG_ICS_ALTERNATIVE_PART);
+        assertEquals("text/calendar; method=REQUEST", att.mMimeType);
+        assertNotNull(att.mContentBytes);
+        assertEquals(att.mSize, att.mContentBytes.length);
+
+        // We'll check the contents of the ics file here
+        BlockHash vcalendar = parseIcsContent(att.mContentBytes);
+        assertNotNull(vcalendar);
+
+        // We should have a VCALENDAR with a REQUEST method
+        assertEquals("VCALENDAR", vcalendar.name);
+        assertEquals("REQUEST", vcalendar.get("METHOD"));
+
+        // We should have one block under VCALENDAR
+        assertEquals(1, vcalendar.blocks.size());
+        BlockHash vevent = vcalendar.blocks.get(0);
+        // It's a VEVENT with the following fields
+        assertEquals("VEVENT", vevent.name);
+        assertEquals("Meeting Location", vevent.get("LOCATION"));
+        assertEquals("0", vevent.get("SEQUENCE"));
+        assertEquals("Discuss Unit Tests", vevent.get("SUMMARY"));
+        assertEquals(uid, vevent.get("UID"));
+        assertEquals("MAILTO:" + ATTENDEE,
+                vevent.get("ATTENDEE;ROLE=REQ-PARTICIPANT;PARTSTAT=NEEDS-ACTION;RSVP=TRUE"));
+
+        // These next two fields should have a date only
+        assertEquals("20100412", vevent.get("DTSTART;VALUE=DATE"));
+        assertEquals("20100412", vevent.get("DTEND;VALUE=DATE"));
+        // This should be set to TRUE for all-day events
+        assertEquals("TRUE", vevent.get("X-MICROSOFT-CDO-ALLDAYEVENT"));
+    }
+
     public void testCreateMessageForEntity_Invite() throws IOException {
         // Set up the "event"
         String title = "Discuss Unit Tests";
@@ -320,6 +384,14 @@ public class CalendarUtilitiesTests extends AndroidTestCase {
         assertEquals(uid, vevent.get("UID"));
         assertEquals("MAILTO:" + ATTENDEE,
                 vevent.get("ATTENDEE;ROLE=REQ-PARTICIPANT;PARTSTAT=NEEDS-ACTION;RSVP=TRUE"));
+
+        // These next two fields should exist (without the VALUE=DATE suffix)
+        assertNotNull(vevent.get("DTSTART"));
+        assertNotNull(vevent.get("DTEND"));
+        assertNull(vevent.get("DTSTART;VALUE=DATE"));
+        assertNull(vevent.get("DTEND;VALUE=DATE"));
+        // This shouldn't exist for this event
+        assertNull(vevent.get("X-MICROSOFT-CDO-ALLDAYEVENT"));
     }
 
     public void testCreateMessageForEntity_Exception_Cancel() throws IOException {
@@ -396,8 +468,8 @@ public class CalendarUtilitiesTests extends AndroidTestCase {
         long originalTime = entityValues.getAsLong(Events.ORIGINAL_INSTANCE_TIME);
         assertNotSame(0, originalTime);
         // For an exception, RECURRENCE-ID is critical
-        assertEquals(CalendarUtilities.millisToEasDateTime(originalTime, timeZone),
-                vevent.get("RECURRENCE-ID" + ";TZID=" + timeZone.getID()));
+        assertEquals(CalendarUtilities.millisToEasDateTime(originalTime, timeZone,
+                true /*withTime*/), vevent.get("RECURRENCE-ID" + ";TZID=" + timeZone.getID()));
     }
 
     public void testUtcOffsetString() {

@@ -795,28 +795,32 @@ public class CalendarUtilities {
      * Generate an EAS formatted date/time string based on GMT. See below for details.
      */
     static public String millisToEasDateTime(long millis) {
-        return millisToEasDateTime(millis, sGmtTimeZone);
+        return millisToEasDateTime(millis, sGmtTimeZone, true);
     }
 
     /**
-     * Generate an EAS formatted local date/time string from a time and a time zone
+     * Generate an EAS formatted local date/time string from a time and a time zone. If the final
+     * argument is false, only a date will be returned (e.g. 20100331)
      * @param millis a time in milliseconds
      * @param tz a time zone
-     * @return an EAS formatted string indicating the date/time in the given time zone
+     * @param withTime if the time is to be included in the string
+     * @return an EAS formatted string indicating the date (and time) in the given time zone
      */
-    static public String millisToEasDateTime(long millis, TimeZone tz) {
+    static public String millisToEasDateTime(long millis, TimeZone tz, boolean withTime) {
         StringBuilder sb = new StringBuilder();
         GregorianCalendar cal = new GregorianCalendar(tz);
         cal.setTimeInMillis(millis);
         sb.append(cal.get(Calendar.YEAR));
         sb.append(formatTwo(cal.get(Calendar.MONTH) + 1));
         sb.append(formatTwo(cal.get(Calendar.DAY_OF_MONTH)));
-        sb.append('T');
-        sb.append(formatTwo(cal.get(Calendar.HOUR_OF_DAY)));
-        sb.append(formatTwo(cal.get(Calendar.MINUTE)));
-        sb.append(formatTwo(cal.get(Calendar.SECOND)));
-        if (tz == sGmtTimeZone) {
-            sb.append('Z');
+        if (withTime) {
+            sb.append('T');
+            sb.append(formatTwo(cal.get(Calendar.HOUR_OF_DAY)));
+            sb.append(formatTwo(cal.get(Calendar.MINUTE)));
+            sb.append(formatTwo(cal.get(Calendar.SECOND)));
+            if (tz == sGmtTimeZone) {
+                sb.append('Z');
+            }
         }
         return sb.toString();
     }
@@ -1245,15 +1249,28 @@ public class CalendarUtilities {
             // Our default vcalendar time zone is UTC, but this will change (below) if we're
             // sending a recurring event, in which case we use local time
             TimeZone vCalendarTimeZone = sGmtTimeZone;
-            String vCalendarTimeZoneSuffix = "";
+            String vCalendarDateSuffix = "";
+
+            // Check for all day event
+            boolean allDayEvent = false;
+            if (entityValues.containsKey(Events.ALL_DAY)) {
+                Integer ade = entityValues.getAsInteger(Events.ALL_DAY);
+                allDayEvent = (ade != null) && (ade == 1);
+                if (allDayEvent) {
+                    // Example: DTSTART;VALUE=DATE:20100331 (all day event)
+                    vCalendarDateSuffix = ";VALUE=DATE";
+                }
+            }
 
             // If we're inviting people and the meeting is recurring, we need to send our time zone
-            // information and make sure to send DTSTART/DTEND in local time
-            if (!isReply  && entityValues.containsKey(Events.RRULE)) {
+            // information and make sure to send DTSTART/DTEND in local time (unless, of course,
+            // this is an all-day event)
+            if (!isReply  && entityValues.containsKey(Events.RRULE) && !allDayEvent) {
                 vCalendarTimeZone = TimeZone.getDefault();
                 // Write the VTIMEZONE block to the writer
                 timeZoneToVTimezone(vCalendarTimeZone, ics);
-                vCalendarTimeZoneSuffix = ";TZID=" + vCalendarTimeZone.getID();
+                // Example: DTSTART;TZID=US/Pacific:20100331T124500
+                vCalendarDateSuffix = ";TZID=" + vCalendarTimeZone.getID();
             }
 
             ics.writeTag("BEGIN", "VEVENT");
@@ -1272,23 +1289,24 @@ public class CalendarUtilities {
 
             long startTime = entityValues.getAsLong(Events.DTSTART);
             if (startTime != 0) {
-                ics.writeTag("DTSTART" + vCalendarTimeZoneSuffix,
-                        millisToEasDateTime(startTime, vCalendarTimeZone));
+                ics.writeTag("DTSTART" + vCalendarDateSuffix,
+                        millisToEasDateTime(startTime, vCalendarTimeZone, !allDayEvent));
             }
 
             // If this is an Exception, we send the recurrence-id, which is just the original
             // instance time
             if (isException) {
                 long originalTime = entityValues.getAsLong(Events.ORIGINAL_INSTANCE_TIME);
-                ics.writeTag("RECURRENCE-ID" + vCalendarTimeZoneSuffix,
-                        millisToEasDateTime(originalTime, vCalendarTimeZone));
+                ics.writeTag("RECURRENCE-ID" + vCalendarDateSuffix,
+                        millisToEasDateTime(originalTime, vCalendarTimeZone, !allDayEvent));
             }
 
             if (!entityValues.containsKey(Events.DURATION)) {
                 if (entityValues.containsKey(Events.DTEND)) {
-                    ics.writeTag("DTEND" + vCalendarTimeZoneSuffix,
+                    ics.writeTag("DTEND" + vCalendarDateSuffix,
                             millisToEasDateTime(
-                                    entityValues.getAsLong(Events.DTEND), vCalendarTimeZone));
+                                    entityValues.getAsLong(Events.DTEND), vCalendarTimeZone,
+                                    !allDayEvent));
                 }
             } else {
                 // Convert this into millis and add it to DTSTART for DTEND
@@ -1300,9 +1318,9 @@ public class CalendarUtilities {
                 } catch (ParseException e) {
                     // We'll use the default in this case
                 }
-                ics.writeTag("DTEND" + vCalendarTimeZoneSuffix,
+                ics.writeTag("DTEND" + vCalendarDateSuffix,
                         millisToEasDateTime(
-                                startTime + durationMillis, vCalendarTimeZone));
+                                startTime + durationMillis, vCalendarTimeZone, !allDayEvent));
             }
 
             String location = null;
