@@ -19,6 +19,8 @@
     <!-- Deprecated strings - Move the identifiers to this section, mark as DO NOT TRANSLATE,
          and remove the actual text.  These will be removed in a bulk operation. -->
     <!-- Do Not Translate.  Unused string. -->
+    <string name="meeting_invitation"></string>
+    <!-- Do Not Translate.  Unused string. -->
     <string name="account_setup_failed_security_policies_required"></string>
     <!-- Do Not Translate.  Unused string. -->
     <string name="account_folder_list_summary_unread"></string>    
@@ -628,10 +630,6 @@
     <!-- Name of Microsoft Exchange account type; used by AccountManager -->
     <string name="exchange_name_alternate">Microsoft Exchange ActiveSync</string>
 
-    <!-- Message subject for meeting invitation.  This is followed by a colon
-         and the title of the meeting (i.e. the title of the meeting becomes part of the subject of
-         the message that's sent) -->
-    <string name="meeting_invitation">Invitation: <xliff:g id="subject">%s</xliff:g></string>
     <!-- Message subject for meeting accepted response.  This will be followed by a colon
          and the title of the meeting (i.e. the title of the meeting becomes part of the subject of
          the message that's sent) -->

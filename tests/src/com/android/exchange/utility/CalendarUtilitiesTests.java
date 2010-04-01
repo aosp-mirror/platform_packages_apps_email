@@ -287,8 +287,7 @@ public class CalendarUtilitiesTests extends AndroidTestCase {
 
         // Now check some of the fields of the message
         assertEquals(Address.pack(new Address[] {new Address(ATTENDEE)}), msg.mTo);
-        String accept = getContext().getResources().getString(R.string.meeting_invitation, title);
-        assertEquals(accept, msg.mSubject);
+        assertEquals(title, msg.mSubject);
 
         // And make sure we have an attachment
         assertNotNull(msg.mAttachments);
@@ -350,8 +349,7 @@ public class CalendarUtilitiesTests extends AndroidTestCase {
 
         // Now check some of the fields of the message
         assertEquals(Address.pack(new Address[] {new Address(ATTENDEE)}), msg.mTo);
-        String accept = getContext().getResources().getString(R.string.meeting_invitation, title);
-        assertEquals(accept, msg.mSubject);
+        assertEquals(title, msg.mSubject);
 
         // And make sure we have an attachment
         assertNotNull(msg.mAttachments);

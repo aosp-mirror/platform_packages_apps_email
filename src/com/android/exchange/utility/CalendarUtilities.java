@@ -1322,12 +1322,11 @@ public class CalendarUtilities {
                 sequence = "0";
             }
 
+            // We'll use 0 to mean a meeting invitation
             int titleId = 0;
             switch (messageFlag) {
                 case Message.FLAG_OUTGOING_MEETING_INVITE:
-                    if (sequence.equals("0")) {
-                        titleId = R.string.meeting_invitation;
-                    } else {
+                    if (!sequence.equals("0")) {
                         titleId = R.string.meeting_updated;
                     }
                     break;
@@ -1350,7 +1349,11 @@ public class CalendarUtilities {
                 title = "";
             }
             ics.writeTag("SUMMARY", title);
-            if (titleId != 0) {
+            // For meeting invitations just use the title
+            if (titleId == 0) {
+                msg.mSubject = title;
+            } else {
+                // Otherwise, use the additional text
                 msg.mSubject = resources.getString(titleId, title);
             }
 
