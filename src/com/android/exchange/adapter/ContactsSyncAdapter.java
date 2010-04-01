@@ -118,6 +118,8 @@ public class ContactsSyncAdapter extends AbstractSyncAdapter {
     private static final int[] HOME_PHONE_TAGS = new int[] {Tags.CONTACTS_HOME_TELEPHONE_NUMBER,
         Tags.CONTACTS_HOME2_TELEPHONE_NUMBER};
 
+    private static final Object sSyncKeyLock = new Object();
+
     ArrayList<Long> mDeletedIdList = new ArrayList<Long>();
     ArrayList<Long> mUpdatedIdList = new ArrayList<Long>();
 
@@ -156,26 +158,29 @@ public class ContactsSyncAdapter extends AbstractSyncAdapter {
      */
     @Override
     public String getSyncKey() throws IOException {
-        ContentProviderClient client =
-            mService.mContentResolver.acquireContentProviderClient(ContactsContract.AUTHORITY_URI);
-        try {
-            byte[] data = SyncStateContract.Helpers.get(client,
-                    ContactsContract.SyncState.CONTENT_URI, mAccountManagerAccount);
-            if (data == null || data.length == 0) {
-                // Initialize the SyncKey
-                setSyncKey("0", false);
-                // Make sure ungrouped contacts for Exchange are defaultly visible
-                ContentValues cv = new ContentValues();
-                cv.put(Groups.ACCOUNT_NAME, mAccount.mEmailAddress);
-                cv.put(Groups.ACCOUNT_TYPE, com.android.email.Email.EXCHANGE_ACCOUNT_MANAGER_TYPE);
-                cv.put(Settings.UNGROUPED_VISIBLE, true);
-                client.insert(addCallerIsSyncAdapterParameter(Settings.CONTENT_URI), cv);
-                return "0";
-            } else {
-                return new String(data);
+        synchronized (sSyncKeyLock) {
+            ContentProviderClient client = mService.mContentResolver
+                    .acquireContentProviderClient(ContactsContract.AUTHORITY_URI);
+            try {
+                byte[] data = SyncStateContract.Helpers.get(client,
+                        ContactsContract.SyncState.CONTENT_URI, mAccountManagerAccount);
+                if (data == null || data.length == 0) {
+                    // Initialize the SyncKey
+                    setSyncKey("0", false);
+                    // Make sure ungrouped contacts for Exchange are defaultly visible
+                    ContentValues cv = new ContentValues();
+                    cv.put(Groups.ACCOUNT_NAME, mAccount.mEmailAddress);
+                    cv.put(Groups.ACCOUNT_TYPE,
+                            com.android.email.Email.EXCHANGE_ACCOUNT_MANAGER_TYPE);
+                    cv.put(Settings.UNGROUPED_VISIBLE, true);
+                    client.insert(addCallerIsSyncAdapterParameter(Settings.CONTENT_URI), cv);
+                    return "0";
+                } else {
+                    return new String(data);
+                }
+            } catch (RemoteException e) {
+                throw new IOException("Can't get SyncKey from ContactsProvider");
             }
-        } catch (RemoteException e) {
-            throw new IOException("Can't get SyncKey from ContactsProvider");
         }
     }
 
@@ -185,19 +190,20 @@ public class ContactsSyncAdapter extends AbstractSyncAdapter {
      */
     @Override
     public void setSyncKey(String syncKey, boolean inCommands) throws IOException {
-        if ("0".equals(syncKey) || !inCommands) {
-            ContentProviderClient client =
-                mService.mContentResolver
-                    .acquireContentProviderClient(ContactsContract.AUTHORITY_URI);
-            try {
-                SyncStateContract.Helpers.set(client, ContactsContract.SyncState.CONTENT_URI,
-                        mAccountManagerAccount, syncKey.getBytes());
-                userLog("SyncKey set to ", syncKey, " in ContactsProvider");
-           } catch (RemoteException e) {
-                throw new IOException("Can't set SyncKey in ContactsProvider");
+        synchronized (sSyncKeyLock) {
+            if ("0".equals(syncKey) || !inCommands) {
+                ContentProviderClient client = mService.mContentResolver
+                        .acquireContentProviderClient(ContactsContract.AUTHORITY_URI);
+                try {
+                    SyncStateContract.Helpers.set(client, ContactsContract.SyncState.CONTENT_URI,
+                            mAccountManagerAccount, syncKey.getBytes());
+                    userLog("SyncKey set to ", syncKey, " in ContactsProvider");
+                } catch (RemoteException e) {
+                    throw new IOException("Can't set SyncKey in ContactsProvider");
+                }
             }
+            mMailbox.mSyncKey = syncKey;
         }
-        mMailbox.mSyncKey = syncKey;
     }
 
     public static final class EasChildren {

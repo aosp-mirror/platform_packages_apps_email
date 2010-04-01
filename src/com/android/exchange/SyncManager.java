@@ -683,7 +683,7 @@ public class SyncManager extends Service implements Runnable {
         }
 
         @Override
-        public void onChange(boolean selfChange) {
+        public synchronized void onChange(boolean selfChange) {
             // See if the user has changed syncing of our calendar
             if (!selfChange) {
                 new Thread(new Runnable() {

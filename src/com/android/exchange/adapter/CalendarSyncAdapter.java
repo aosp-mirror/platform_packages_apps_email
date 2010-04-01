@@ -105,6 +105,8 @@ public class CalendarSyncAdapter extends AbstractSyncAdapter {
     private static final Uri sExtendedPropertiesUri = asSyncAdapter(ExtendedProperties.CONTENT_URI);
     private static final Uri sRemindersUri = asSyncAdapter(Reminders.CONTENT_URI);
 
+    private static final Object sSyncKeyLock = new Object();
+
     private long mCalendarId = -1;
 
     private ArrayList<Long> mDeletedIdList = new ArrayList<Long>();
@@ -173,20 +175,24 @@ public class CalendarSyncAdapter extends AbstractSyncAdapter {
      */
     @Override
     public String getSyncKey() throws IOException {
-        ContentProviderClient client =
-            mService.mContentResolver.acquireContentProviderClient(Calendar.CONTENT_URI);
-        try {
-            byte[] data = SyncStateContract.Helpers.get(client,
-                    asSyncAdapter(Calendar.SyncState.CONTENT_URI), mAccountManagerAccount);
-            if (data == null || data.length == 0) {
-                // Initialize the SyncKey
-                setSyncKey("0", false);
-                return "0";
-            } else {
-                return new String(data);
+        synchronized (sSyncKeyLock) {
+            ContentProviderClient client = mService.mContentResolver
+                    .acquireContentProviderClient(Calendar.CONTENT_URI);
+            try {
+                byte[] data = SyncStateContract.Helpers.get(client,
+                        asSyncAdapter(Calendar.SyncState.CONTENT_URI), mAccountManagerAccount);
+                if (data == null || data.length == 0) {
+                    // Initialize the SyncKey
+                    setSyncKey("0", false);
+                    return "0";
+                } else {
+                    String syncKey = new String(data);
+                    userLog("SyncKey retrieved as ", syncKey, " from CalendarProvider");
+                    return syncKey;
+                }
+            } catch (RemoteException e) {
+                throw new IOException("Can't get SyncKey from CalendarProvider");
             }
-        } catch (RemoteException e) {
-            throw new IOException("Can't get SyncKey from ContactsProvider");
         }
     }
 
@@ -196,19 +202,21 @@ public class CalendarSyncAdapter extends AbstractSyncAdapter {
      */
     @Override
     public void setSyncKey(String syncKey, boolean inCommands) throws IOException {
-        if ("0".equals(syncKey) || !inCommands) {
-            ContentProviderClient client =
-                mService.mContentResolver
-                    .acquireContentProviderClient(Calendar.CONTENT_URI);
-            try {
-                SyncStateContract.Helpers.set(client, asSyncAdapter(Calendar.SyncState.CONTENT_URI),
-                        mAccountManagerAccount, syncKey.getBytes());
-                userLog("SyncKey set to ", syncKey, " in CalendarProvider");
-           } catch (RemoteException e) {
-                throw new IOException("Can't set SyncKey in CalendarProvider");
+        synchronized (sSyncKeyLock) {
+            if ("0".equals(syncKey) || !inCommands) {
+                ContentProviderClient client = mService.mContentResolver
+                        .acquireContentProviderClient(Calendar.CONTENT_URI);
+                try {
+                    SyncStateContract.Helpers.set(client,
+                            asSyncAdapter(Calendar.SyncState.CONTENT_URI), mAccountManagerAccount,
+                            syncKey.getBytes());
+                    userLog("SyncKey set to ", syncKey, " in CalendarProvider");
+                } catch (RemoteException e) {
+                    throw new IOException("Can't set SyncKey in CalendarProvider");
+                }
             }
+            mMailbox.mSyncKey = syncKey;
         }
-        mMailbox.mSyncKey = syncKey;
     }
 
     class EasCalendarSyncParser extends AbstractSyncParser {
