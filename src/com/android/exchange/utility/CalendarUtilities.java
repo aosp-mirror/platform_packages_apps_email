@@ -954,21 +954,9 @@ public class CalendarUtilities {
     static String recurrenceUntilToEasUntil(String until) {
         StringBuilder sb = new StringBuilder();
         sb.append(until.substring(0, 4));
-        sb.append('-');
         sb.append(until.substring(4, 6));
-        sb.append('-');
-        if (until.length() == 8) {
-            sb.append(until.substring(6, 8));
-            sb.append("T00:00:00");
-
-        } else {
-            sb.append(until.substring(6, 11));
-            sb.append(':');
-            sb.append(until.substring(11, 13));
-            sb.append(':');
-            sb.append(until.substring(13, 15));
-        }
-        sb.append(".000Z");
+        sb.append(until.substring(6, 8));
+        sb.append("T000000Z");
         return sb.toString();
     }
 

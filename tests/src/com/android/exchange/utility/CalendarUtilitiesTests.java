@@ -139,11 +139,11 @@ public class CalendarUtilitiesTests extends AndroidTestCase {
     }
 
     public void testRecurrenceUntilToEasUntil() {
-        // Test full formatCC
-        assertEquals("YYYY-MM-DDTHH:MM:SS.000Z",
+        // Test full format
+        assertEquals("YYYYMMDDT000000Z",
                 CalendarUtilities.recurrenceUntilToEasUntil("YYYYMMDDTHHMMSSZ"));
         // Test date only format
-        assertEquals("YYYY-MM-DDT00:00:00.000Z",
+        assertEquals("YYYYMMDDT000000Z",
                 CalendarUtilities.recurrenceUntilToEasUntil("YYYYMMDD"));
     }
 
