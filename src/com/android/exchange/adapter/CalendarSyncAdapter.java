@@ -110,6 +110,7 @@ public class CalendarSyncAdapter extends AbstractSyncAdapter {
     private ArrayList<Long> mDeletedIdList = new ArrayList<Long>();
     private ArrayList<Long> mUploadedIdList = new ArrayList<Long>();
     private ArrayList<Long> mSendCancelIdList = new ArrayList<Long>();
+    private ArrayList<Message> mOutgoingMailList = new ArrayList<Message>();
 
     private String[] mCalendarIdArgument;
 
@@ -876,7 +877,6 @@ public class CalendarSyncAdapter extends AbstractSyncAdapter {
                     EasOutboxService.sendMessage(mContext, mAccount.mId, msg);
                 }
             }
-            mSendCancelIdList.clear();
 
             // Execute these all at once...
             mOps.execute();
@@ -891,7 +891,6 @@ public class CalendarSyncAdapter extends AbstractSyncAdapter {
                         mContentResolver.update(ContentUris.withAppendedId(sEventsUri, eventId), cv,
                                 null, null);
                     }
-                    mUploadedIdList.clear();
                 }
                 // Delete events marked for deletion
                 if (!mDeletedIdList.isEmpty()) {
@@ -899,7 +898,10 @@ public class CalendarSyncAdapter extends AbstractSyncAdapter {
                         mContentResolver.delete(ContentUris.withAppendedId(sEventsUri, eventId),
                                 null, null);
                     }
-                    mDeletedIdList.clear();
+                }
+                // Send any queued up email (invitations replies, etc.)
+                for (Message msg: mOutgoingMailList) {
+                    EasOutboxService.sendMessage(mContext, mAccount.mId, msg);
                 }
             }
         }
@@ -1523,8 +1525,8 @@ public class CalendarSyncAdapter extends AbstractSyncAdapter {
                                     CalendarUtilities.createMessageForEntity(mContext,
                                             exEntity, flag, clientId, mAccount);
                                 if (msg != null) {
-                                    userLog("Sending exception update to " + msg.mTo);
-                                    EasOutboxService.sendMessage(mContext, mAccount.mId, msg);
+                                    userLog("Queueing exception update to " + msg.mTo);
+                                    mOutgoingMailList.add(msg);
                                 }
                             }
                             s.end(); // EXCEPTION
@@ -1549,8 +1551,8 @@ public class CalendarSyncAdapter extends AbstractSyncAdapter {
                                     EmailContent.Message.FLAG_OUTGOING_MEETING_INVITE, clientId,
                                     mAccount);
                         if (msg != null) {
-                            userLog("Sending invitation to ", msg.mTo);
-                            EasOutboxService.sendMessage(mContext, mAccount.mId, msg);
+                            userLog("Queueing invitation to ", msg.mTo);
+                            mOutgoingMailList.add(msg);
                         }
                         // Retrieve our tokenized string of attendee email addresses
                         String attendeeString = null;
@@ -1627,8 +1629,8 @@ public class CalendarSyncAdapter extends AbstractSyncAdapter {
                             if (msg != null) {
                                 // Just send it to the removed attendee
                                 msg.mTo = removedAttendee;
-                                userLog("Sending cancellation to removed attendee " + msg.mTo);
-                                EasOutboxService.sendMessage(mContext, mAccount.mId, msg);
+                                userLog("Queueing cancellation to removed attendee " + msg.mTo);
+                                mOutgoingMailList.add(msg);
                             }
                         }
                     } else if (!selfOrganizer) {
@@ -1667,8 +1669,8 @@ public class CalendarSyncAdapter extends AbstractSyncAdapter {
                                     CalendarUtilities.createMessageForEventId(mContext, eventId,
                                             messageFlag, clientId, mAccount);
                                 if (msg != null) {
-                                    userLog("Sending invitation reply to " + msg.mTo);
-                                    EasOutboxService.sendMessage(mContext, mAccount.mId, msg);
+                                    userLog("Queueing invitation reply to " + msg.mTo);
+                                    mOutgoingMailList.add(msg);
                                 }
                             }
                         }
