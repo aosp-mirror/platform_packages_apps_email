@@ -117,12 +117,20 @@ public abstract class Message implements Part, Body {
         return getFlagSet().toArray(new Flag[] {});
     }
 
-    public void setFlag(Flag flag, boolean set) throws MessagingException {
+    /**
+     * Set/clear a flag directly, without involving overrides of {@link #setFlag} in subclasses.
+     * Only used for testing.
+     */
+    public final void setFlagDirectlyForTest(Flag flag, boolean set) throws MessagingException {
         if (set) {
             getFlagSet().add(flag);
         } else {
             getFlagSet().remove(flag);
         }
+    }
+
+    public void setFlag(Flag flag, boolean set) throws MessagingException {
+        setFlagDirectlyForTest(flag, set);
     }
 
     /**
