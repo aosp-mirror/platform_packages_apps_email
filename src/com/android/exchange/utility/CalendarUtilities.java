@@ -43,6 +43,7 @@ import android.provider.Calendar.Attendees;
 import android.provider.Calendar.Calendars;
 import android.provider.Calendar.Events;
 import android.provider.Calendar.EventsEntity;
+import android.text.TextUtils;
 import android.text.format.Time;
 import android.util.Base64;
 import android.util.Log;
@@ -1177,7 +1178,7 @@ public class CalendarUtilities {
         String location = null;
         if (entityValues.containsKey(Events.EVENT_LOCATION)) {
             location = entityValues.getAsString(Events.EVENT_LOCATION);
-            if (location != null) {
+            if (!TextUtils.isEmpty(location)) {
                 sb.append("\n");
                 sb.append(resources.getString(R.string.meeting_where, location));
             }
