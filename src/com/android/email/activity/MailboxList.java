@@ -32,7 +32,6 @@ import com.android.email.provider.EmailContent.MailboxColumns;
 import com.android.email.provider.EmailContent.Message;
 import com.android.email.provider.EmailContent.MessageColumns;
 
-import android.app.Activity;
 import android.app.ListActivity;
 import android.content.ContentUris;
 import android.content.Context;
@@ -50,7 +49,6 @@ import android.view.MenuItem;
 import android.view.View;
 import android.view.View.OnClickListener;
 import android.view.ViewGroup;
-import android.view.Window;
 import android.view.ContextMenu.ContextMenuInfo;
 import android.view.animation.AnimationUtils;
 import android.widget.AdapterView;
@@ -206,6 +204,7 @@ public class MailboxList extends ListActivity implements OnItemClickListener, On
             mMessageCountTask.cancel(true);
             mMessageCountTask = null;
         }
+        mListAdapter.changeCursor(null);
     }
 
     public void onClick(View v) {

@@ -335,6 +335,8 @@ public class MessageList extends ListActivity implements OnItemClickListener, On
             mSetFooterTask.cancel(true);
             mSetFooterTask = null;
         }
+
+        mListAdapter.changeCursor(null);
     }
 
     @Override

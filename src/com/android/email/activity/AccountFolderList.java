@@ -28,7 +28,6 @@ import com.android.email.mail.MessagingException;
 import com.android.email.mail.Store;
 import com.android.email.provider.EmailContent;
 import com.android.email.provider.EmailContent.Account;
-import com.android.email.provider.EmailContent.AccountColumns;
 import com.android.email.provider.EmailContent.Mailbox;
 import com.android.email.provider.EmailContent.MailboxColumns;
 import com.android.email.provider.EmailContent.Message;
@@ -40,7 +39,6 @@ import android.app.Dialog;
 import android.app.ListActivity;
 import android.app.NotificationManager;
 import android.content.ContentUris;
-import android.content.ContentValues;
 import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
@@ -216,6 +214,8 @@ public class AccountFolderList extends ListActivity implements OnItemClickListen
             mDeleteAccountTask.cancel(false); // false == allow the cancel to run to completion
             mDeleteAccountTask = null;
         }
+
+        mListAdapter.changeCursor(null);
     }
 
     public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
