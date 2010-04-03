@@ -451,7 +451,8 @@ public class SecurityPolicy {
             // bits 0..4: password length (0=no password required)
         private static final int PASSWORD_LENGTH_MASK = 31;
         private static final int PASSWORD_LENGTH_SHIFT = 0;
-        public static final int PASSWORD_LENGTH_MAX = 31;
+        public static final int PASSWORD_LENGTH_MAX = 30;
+        private static final int PASSWORD_LENGTH_EXCEEDED = 31;
             // bits 5..8: password mode
         private static final int PASSWORD_MODE_SHIFT = 5;
         private static final int PASSWORD_MODE_MASK = 15 << PASSWORD_MODE_SHIFT;
@@ -482,22 +483,26 @@ public class SecurityPolicy {
          * @param maxPasswordFails (0=not enforced)
          * @param maxScreenLockTime in seconds (0=not enforced)
          * @param requireRemoteWipe
-         * @throws IllegalArgumentException when any arguments are outside of legal ranges.
+         * @throws IllegalArgumentException for illegal arguments.
          */
         public PolicySet(int minPasswordLength, int passwordMode, int maxPasswordFails,
                 int maxScreenLockTime, boolean requireRemoteWipe) throws IllegalArgumentException {
+            // This value has a hard limit which cannot be supported if exceeded.  Setting the
+            // exceeded value will force isSupported() to return false.
             if (minPasswordLength > PASSWORD_LENGTH_MAX) {
-                throw new IllegalArgumentException("password length");
+                minPasswordLength = PASSWORD_LENGTH_EXCEEDED;
             }
             if (passwordMode < PASSWORD_MODE_NONE
                     || passwordMode > PASSWORD_MODE_STRONG) {
                 throw new IllegalArgumentException("password mode");
             }
+            // This value can be reduced (which actually increases security) if necessary
             if (maxPasswordFails > PASSWORD_MAX_FAILS_MAX) {
-                throw new IllegalArgumentException("password max fails");
+                maxPasswordFails = PASSWORD_MAX_FAILS_MAX;
             }
+            // This value can be reduced (which actually increases security) if necessary
             if (maxScreenLockTime > SCREEN_LOCK_TIME_MAX) {
-                throw new IllegalArgumentException("max screen lock time");
+                maxScreenLockTime = SCREEN_LOCK_TIME_MAX;
             }
 
             mMinPasswordLength = minPasswordLength;

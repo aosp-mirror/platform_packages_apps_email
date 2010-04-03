@@ -1181,7 +1181,6 @@ public class EasSyncService extends AbstractSyncService {
             Eas.SUPPORTED_PROTOCOL_EX2007_DOUBLE) ? EAS_12_POLICY_TYPE : EAS_2_POLICY_TYPE;
     }
 
-    // TODO This is Exchange 2007 only at this point
     /**
      * Obtain a set of policies from the server and determine whether those policies are supported
      * by the device.

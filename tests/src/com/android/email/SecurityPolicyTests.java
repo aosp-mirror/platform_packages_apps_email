@@ -177,7 +177,7 @@ public class SecurityPolicyTests extends ProviderTestCase2<EmailProvider> {
      * for any encoding mask/shift errors, which would cause bits to overflow into other fields.
      */
     @SmallTest
-    public void testFieldRanges() {
+    public void testFieldIsolation() {
         PolicySet p = new PolicySet(PolicySet.PASSWORD_LENGTH_MAX, 0, 0, 0, false);
         assertEquals(PolicySet.PASSWORD_LENGTH_MAX, p.mMinPasswordLength);
         assertEquals(0, p.mPasswordMode);
@@ -212,6 +212,27 @@ public class SecurityPolicyTests extends ProviderTestCase2<EmailProvider> {
         assertEquals(0, p.mMaxPasswordFails);
         assertEquals(0, p.mMaxScreenLockTime);
         assertTrue(p.mRequireRemoteWipe);
+    }
+
+    /**
+     * Test creation of policies with unsupported ranges
+     */
+    @SmallTest
+    public void testFieldRanges() {
+        SecurityPolicy sp = getSecurityPolicy();
+        // Overlong password length cannot be supported
+        PolicySet p = new PolicySet(PolicySet.PASSWORD_LENGTH_MAX + 1, 0, 0, 0, false);
+        assertFalse(sp.isSupported(p));
+
+        // Too many wipes before reboot can be supported (by reducing to the max)
+        p = new PolicySet(0, 0, PolicySet.PASSWORD_MAX_FAILS_MAX + 1, 0, false);
+        assertTrue(sp.isSupported(p));
+        assertEquals(PolicySet.PASSWORD_MAX_FAILS_MAX, p.mMaxPasswordFails);
+
+        // Too long lock time can be supported (by reducing to the max)
+        p = new PolicySet(0, 0, 0, PolicySet.SCREEN_LOCK_TIME_MAX + 1, false);
+        assertTrue(sp.isSupported(p));
+        assertEquals(PolicySet.SCREEN_LOCK_TIME_MAX, p.mMaxScreenLockTime);
     }
 
     /**
