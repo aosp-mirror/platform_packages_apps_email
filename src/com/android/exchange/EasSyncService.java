@@ -56,7 +56,6 @@ import org.apache.http.Header;
 import org.apache.http.HttpEntity;
 import org.apache.http.HttpResponse;
 import org.apache.http.HttpStatus;
-import org.apache.http.client.ClientProtocolException;
 import org.apache.http.client.HttpClient;
 import org.apache.http.client.methods.HttpOptions;
 import org.apache.http.client.methods.HttpPost;
@@ -422,14 +421,14 @@ public class EasSyncService extends AbstractSyncService {
     private HttpResponse postAutodiscover(HttpClient client, HttpPost post)
             throws IOException, MessagingException {
         userLog("Posting autodiscover to: " + post.getURI());
-        HttpResponse resp = client.execute(post);
+        HttpResponse resp = executePostWithTimeout(client, post, COMMAND_TIMEOUT);
         int code = resp.getStatusLine().getStatusCode();
         // On a redirect, try the new location
         if (code == AUTO_DISCOVER_REDIRECT_CODE) {
             post = getRedirect(resp, post);
             if (post != null) {
                 userLog("Posting autodiscover to redirect: " + post.getURI());
-                return client.execute(post);
+                return executePostWithTimeout(client, post, COMMAND_TIMEOUT);
             }
         } else if (code == HttpStatus.SC_UNAUTHORIZED) {
             // 401 (Unauthorized) is for true auth errors when used in Autodiscover
@@ -500,9 +499,8 @@ public class EasSyncService extends AbstractSyncService {
             HttpResponse resp;
             try {
                 resp = postAutodiscover(client, post);
-            } catch (ClientProtocolException e1) {
-                return null;
             } catch (IOException e1) {
+                userLog("IOException in autodiscover; trying alternate address");
                 // We catch the IOException here because we have an alternate address to try
                 post.setURI(URI.create("https://autodiscover." + domain + AUTO_DISCOVER_PAGE));
                 // If we fail here, we're out of options, so we let the outer try catch the
@@ -1054,6 +1052,48 @@ public class EasSyncService extends AbstractSyncService {
        return sendHttpClientPost(PING_COMMAND, new ByteArrayEntity(bytes), (heartbeat+5)*SECONDS);
     }
 
+    /**
+     * Convenience method for executePostWithTimeout for use other than with the Ping command
+     */
+    protected HttpResponse executePostWithTimeout(HttpClient client, HttpPost method, int timeout)
+            throws IOException {
+        return executePostWithTimeout(client, method, timeout, false);
+    }
+
+    /**
+     * Handle executing an HTTP POST command with proper timeout, watchdog, and ping behavior
+     * @param client the HttpClient
+     * @param method the HttpPost
+     * @param timeout the timeout before failure, in ms
+     * @param isPingCommand whether the POST is for the Ping command (requires wakelock logic)
+     * @return the HttpResponse
+     * @throws IOException
+     */
+    protected HttpResponse executePostWithTimeout(HttpClient client, HttpPost method, int timeout,
+            boolean isPingCommand) throws IOException {
+        synchronized(getSynchronizer()) {
+            mPendingPost = method;
+            long alarmTime = timeout+(10*SECONDS);
+            if (isPingCommand) {
+                SyncManager.runAsleep(mMailboxId, alarmTime);
+            } else {
+                SyncManager.setWatchdogAlarm(mMailboxId, alarmTime);
+            }
+        }
+        try {
+            return client.execute(method);
+        } finally {
+            synchronized(getSynchronizer()) {
+                if (isPingCommand) {
+                    SyncManager.runAwake(mMailboxId);
+                } else {
+                    SyncManager.clearWatchdogAlarm(mMailboxId);
+                }
+                mPendingPost = null;
+            }
+        }
+    }
+
     protected HttpResponse sendHttpClientPost(String cmd, HttpEntity entity, int timeout)
             throws IOException {
         HttpClient client = getHttpClient(timeout);
@@ -1082,27 +1122,7 @@ public class EasSyncService extends AbstractSyncService {
         }
         setHeaders(method, !cmd.equals(PING_COMMAND));
         method.setEntity(entity);
-        synchronized(getSynchronizer()) {
-            mPendingPost = method;
-            long alarmTime = timeout+(10*SECONDS);
-            if (isPingCommand) {
-                SyncManager.runAsleep(mMailboxId, alarmTime);
-            } else {
-                SyncManager.setWatchdogAlarm(mMailboxId, alarmTime);
-            }
-        }
-        try {
-            return client.execute(method);
-        } finally {
-            synchronized(getSynchronizer()) {
-                if (isPingCommand) {
-                    SyncManager.runAwake(mMailboxId);
-                } else {
-                    SyncManager.clearWatchdogAlarm(mMailboxId);
-                }
-                mPendingPost = null;
-            }
-        }
+        return executePostWithTimeout(client, method, timeout, isPingCommand);
     }
 
     protected HttpResponse sendHttpClientOptions() throws IOException {
