@@ -1232,7 +1232,6 @@ public class EasSyncService extends AbstractSyncService {
         return null;
     }
 
-    // TODO This is Exchange 2007 only at this point
     /**
      * Acknowledge that we support the policies provided by the server, and that these policies
      * are in force.

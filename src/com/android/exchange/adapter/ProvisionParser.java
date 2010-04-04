@@ -321,7 +321,8 @@ public class ProvisionParser extends Parser {
                     break;
                 case Tags.PROVISION_POLICIES:
                     parsePolicies();
-                    return (mPolicySet != null || mPolicyKey != null);
+                    res = (mPolicySet != null) || (mPolicyKey != null);
+                    break;
                 case Tags.PROVISION_REMOTE_WIPE:
                     // Indicate remote wipe command received
                     mRemoteWipe = true;
