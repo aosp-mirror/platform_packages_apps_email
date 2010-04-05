@@ -713,8 +713,8 @@ public class MessageView extends Activity implements OnClickListener {
             mPreviousMeetingResponse = response;
         }
         Toast.makeText(this, toastResId, Toast.LENGTH_SHORT).show();
-        if (!moveToOlder() && !moveToNewer()) {
-            finish(); // if this is the single message, move up to message-list.
+        if (!moveToOlder()) {
+            finish(); // if this is the last message, move up to message-list.
         }
     }
 
