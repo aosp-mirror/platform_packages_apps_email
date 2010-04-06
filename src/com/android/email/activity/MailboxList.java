@@ -77,8 +77,8 @@ public class MailboxList extends ListActivity implements OnItemClickListener, On
     private TextView mErrorBanner;
 
     private MailboxListAdapter mListAdapter;
-    private MailboxListHandler mHandler = new MailboxListHandler();
-    private ControllerResults mControllerCallback = new ControllerResults();
+    private MailboxListHandler mHandler;
+    private ControllerResults mControllerCallback;
 
     // DB access
     private long mAccountId;
@@ -109,6 +109,8 @@ public class MailboxList extends ListActivity implements OnItemClickListener, On
         super.onCreate(icicle);
         setContentView(R.layout.mailbox_list);
 
+        mHandler = new MailboxListHandler();
+        mControllerCallback = new ControllerResults();
         mListView = getListView();
         mProgressIcon = (ProgressBar) findViewById(R.id.title_progress_icon);
         mErrorBanner = (TextView) findViewById(R.id.connection_error_text);
@@ -189,22 +191,17 @@ public class MailboxList extends ListActivity implements OnItemClickListener, On
     protected void onDestroy() {
         super.onDestroy();
 
-        if (mLoadMailboxesTask != null &&
-                mLoadMailboxesTask.getStatus() != LoadMailboxesTask.Status.FINISHED) {
-            mLoadMailboxesTask.cancel(true);
-            mLoadMailboxesTask = null;
-        }
-        if (mLoadAccountNameTask != null &&
-                mLoadAccountNameTask.getStatus() != LoadMailboxesTask.Status.FINISHED) {
-            mLoadAccountNameTask.cancel(true);
-            mLoadAccountNameTask = null;
-        }
-        if (mMessageCountTask != null &&
-                mMessageCountTask.getStatus() != MessageCountTask.Status.FINISHED) {
-            mMessageCountTask.cancel(true);
-            mMessageCountTask = null;
-        }
+        Utility.cancelTaskInterrupt(mLoadMailboxesTask);
+        mLoadMailboxesTask = null;
+        Utility.cancelTaskInterrupt(mLoadAccountNameTask);
+        mLoadAccountNameTask = null;
+        Utility.cancelTaskInterrupt(mMessageCountTask);
+        mMessageCountTask = null;
+
         mListAdapter.changeCursor(null);
+        mListAdapter = null;
+        mHandler = null;
+        mControllerCallback = null;
     }
 
     public void onClick(View v) {

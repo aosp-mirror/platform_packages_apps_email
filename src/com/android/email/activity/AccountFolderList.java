@@ -91,9 +91,8 @@ public class AccountFolderList extends ListActivity implements OnItemClickListen
 
     private LoadAccountsTask mLoadAccountsTask;
     private DeleteAccountTask mDeleteAccountTask;
-
-    private MessageListHandler mHandler = new MessageListHandler();
-    private ControllerResults mControllerCallback = new ControllerResults();
+    private MessageListHandler mHandler;
+    private ControllerResults mControllerCallback;
 
     /**
      * Reduced mailbox projection used by AccountsAdapter
@@ -154,6 +153,8 @@ public class AccountFolderList extends ListActivity implements OnItemClickListen
         getWindow().setFeatureInt(Window.FEATURE_CUSTOM_TITLE,
                 R.layout.list_title);
 
+        mHandler = new MessageListHandler();
+        mControllerCallback = new ControllerResults();
         mProgressIcon = (ProgressBar) findViewById(R.id.title_progress_icon);
 
         mListView = getListView();
@@ -203,19 +204,21 @@ public class AccountFolderList extends ListActivity implements OnItemClickListen
     @Override
     protected void onDestroy() {
         super.onDestroy();
+        Utility.cancelTaskInterrupt(mLoadAccountsTask);
+        mLoadAccountsTask = null;
 
-        if (mLoadAccountsTask != null &&
-                mLoadAccountsTask.getStatus() != LoadAccountsTask.Status.FINISHED) {
-            mLoadAccountsTask.cancel(true);
-            mLoadAccountsTask = null;
-        }
-        if (mDeleteAccountTask != null &&
-                mDeleteAccountTask.getStatus() != DeleteAccountTask.Status.FINISHED) {
-            mDeleteAccountTask.cancel(false); // false == allow the cancel to run to completion
-            mDeleteAccountTask = null;
-        }
+        // TODO: We shouldn't call cancel() for DeleteAccountTask.  If the task hasn't
+        // started, this will mark it as "don't run", but we always want it to finish.
+        // (But don't just remove this cancel() call.  DeleteAccountTask.onPostExecute() checks if
+        // it's been canceled to decided whether to update the UI.)
+        Utility.cancelTask(mDeleteAccountTask, false); // Don't interrupt if it's running.
+        mDeleteAccountTask = null;
 
         mListAdapter.changeCursor(null);
+        mListAdapter = null;
+
+        mHandler = null;
+        mControllerCallback = null;
     }
 
     public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
@@ -357,8 +360,8 @@ public class AccountFolderList extends ListActivity implements OnItemClickListen
     }
 
     private class DeleteAccountTask extends AsyncTask<Void, Void, Void> {
-        private long mAccountId;
-        private String mAccountUri;
+        private final long mAccountId;
+        private final String mAccountUri;
 
         public DeleteAccountTask(long accountId, String accountUri) {
             mAccountId = accountId;
@@ -395,10 +398,7 @@ public class AccountFolderList extends ListActivity implements OnItemClickListen
     }
 
     private void updateAccounts() {
-        if (mLoadAccountsTask != null &&
-                mLoadAccountsTask.getStatus() != LoadAccountsTask.Status.FINISHED) {
-            mLoadAccountsTask.cancel(true);
-        }
+        Utility.cancelTaskInterrupt(mLoadAccountsTask);
         mLoadAccountsTask = (LoadAccountsTask) new LoadAccountsTask().execute();
     }
 
@@ -468,6 +468,7 @@ public class AccountFolderList extends ListActivity implements OnItemClickListen
                     int numAccounts = EmailContent.count(AccountFolderList.this,
                             Account.CONTENT_URI, null, null);
                     mListAdapter.addOnDeletingAccount(mSelectedContextAccount.mId);
+
                     mDeleteAccountTask = (DeleteAccountTask) new DeleteAccountTask(
                             mSelectedContextAccount.mId,
                             mSelectedContextAccount.getStoreUri(AccountFolderList.this)).execute();
@@ -603,7 +604,7 @@ public class AccountFolderList extends ListActivity implements OnItemClickListen
     /**
      * Handler for UI-thread operations (when called from callbacks or any other threads)
      */
-    class MessageListHandler extends Handler {
+    private class MessageListHandler extends Handler {
         private static final int MSG_PROGRESS = 1;
 
         @Override
@@ -685,12 +686,12 @@ public class AccountFolderList extends ListActivity implements OnItemClickListen
 
     /* package */ static class AccountsAdapter extends CursorAdapter {
 
-        Context mContext;
-        private LayoutInflater mInflater;
-        private int mMailboxesCount;
-        private int mSeparatorPosition;
-        long mDefaultAccountId;
-        ArrayList<Long> mOnDeletingAccounts = new ArrayList<Long>();
+        private final Context mContext;
+        private final LayoutInflater mInflater;
+        private final int mMailboxesCount;
+        private final int mSeparatorPosition;
+        private final long mDefaultAccountId;
+        private final ArrayList<Long> mOnDeletingAccounts = new ArrayList<Long>();
 
         public static AccountsAdapter getInstance(Cursor mailboxesCursor, Cursor accountsCursor,
                 Context context, long defaultAccountId) {

@@ -21,6 +21,7 @@ import com.android.email.Email;
 import com.android.email.LegacyConversions;
 import com.android.email.Preferences;
 import com.android.email.R;
+import com.android.email.Utility;
 import com.android.email.activity.setup.AccountSettingsUtils;
 import com.android.email.activity.setup.AccountSettingsUtils.Provider;
 import com.android.email.mail.FetchProfile;
@@ -134,11 +135,8 @@ public class UpgradeAccounts extends ListActivity implements OnClickListener {
     protected void onDestroy() {
         super.onDestroy();
 
-        if (mConversionTask != null &&
-                mConversionTask.getStatus() != ConversionTask.Status.FINISHED) {
-            mConversionTask.cancel(false);
-            mConversionTask = null;
-        }
+        Utility.cancelTask(mConversionTask, false); // false = Don't interrupt running task
+        mConversionTask = null;
     }
 
     /**
