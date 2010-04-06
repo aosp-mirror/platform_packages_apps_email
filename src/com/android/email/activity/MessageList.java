@@ -110,9 +110,10 @@ public class MessageList extends ListActivity implements OnItemClickListener, On
     private int mListFooterMode;
 
     private MessageListAdapter mListAdapter;
-    private MessageListHandler mHandler = new MessageListHandler();
-    private Controller mController = Controller.getInstance(getApplication());
-    private ControllerResults mControllerCallback = new ControllerResults();
+    private MessageListHandler mHandler;
+    private final Controller mController = Controller.getInstance(getApplication());
+    private ControllerResults mControllerCallback;
+
     private TextView mLeftTitle;
     private ProgressBar mProgressIcon;
 
@@ -228,6 +229,8 @@ public class MessageList extends ListActivity implements OnItemClickListener, On
         super.onCreate(icicle);
         setContentView(R.layout.message_list);
 
+        mHandler = new MessageListHandler();
+        mControllerCallback = new ControllerResults();
         mCanAutoRefresh = true;
         mListView = getListView();
         mMultiSelectPanel = findViewById(R.id.footer_organize);
@@ -315,28 +318,19 @@ public class MessageList extends ListActivity implements OnItemClickListener, On
     protected void onDestroy() {
         super.onDestroy();
 
-        if (mLoadMessagesTask != null &&
-                mLoadMessagesTask.getStatus() != LoadMessagesTask.Status.FINISHED) {
-            mLoadMessagesTask.cancel(true);
-            mLoadMessagesTask = null;
-        }
-        if (mFindMailboxTask != null &&
-                mFindMailboxTask.getStatus() != FindMailboxTask.Status.FINISHED) {
-            mFindMailboxTask.cancel(true);
-            mFindMailboxTask = null;
-        }
-        if (mSetTitleTask != null &&
-                mSetTitleTask.getStatus() != SetTitleTask.Status.FINISHED) {
-            mSetTitleTask.cancel(true);
-            mSetTitleTask = null;
-        }
-        if (mSetFooterTask != null &&
-                mSetFooterTask.getStatus() != SetTitleTask.Status.FINISHED) {
-            mSetFooterTask.cancel(true);
-            mSetFooterTask = null;
-        }
+        Utility.cancelTaskInterrupt(mLoadMessagesTask);
+        mLoadMessagesTask = null;
+        Utility.cancelTaskInterrupt(mFindMailboxTask);
+        mFindMailboxTask = null;
+        Utility.cancelTaskInterrupt(mSetTitleTask);
+        mSetTitleTask = null;
+        Utility.cancelTaskInterrupt(mSetFooterTask);
+        mSetFooterTask = null;
 
         mListAdapter.changeCursor(null);
+        mListAdapter = null;
+        mHandler = null;
+        mControllerCallback = null;
     }
 
     @Override

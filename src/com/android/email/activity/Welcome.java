@@ -16,16 +16,13 @@
 
 package com.android.email.activity;
 
-import com.android.email.Account;
 import com.android.email.AccountBackupRestore;
 import com.android.email.ExchangeUtils;
-import com.android.email.Preferences;
 import com.android.email.activity.setup.AccountSetupBasics;
 import com.android.email.provider.EmailContent;
 import com.android.email.provider.EmailContent.Mailbox;
 
 import android.app.Activity;
-import android.content.Context;
 import android.content.Intent;
 import android.database.Cursor;
 import android.os.Bundle;

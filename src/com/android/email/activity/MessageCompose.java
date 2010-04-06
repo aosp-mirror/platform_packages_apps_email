@@ -150,7 +150,7 @@ public class MessageCompose extends Activity implements OnClickListener, OnFocus
     private TextView mRightTitle;
 
     private Controller mController;
-    private Listener mListener = new Listener();
+    private Listener mListener;
     private boolean mDraftNeedsSaving;
     private boolean mMessageLoaded;
     private AsyncTask mLoadAttachmentsTask;
@@ -295,6 +295,7 @@ public class MessageCompose extends Activity implements OnClickListener, OnFocus
         getWindow().setFeatureInt(Window.FEATURE_CUSTOM_TITLE, R.layout.list_title);
 
         mController = Controller.getInstance(getApplication());
+        mListener = new Listener();
         initViews();
         setDraftNeedsSaving(false);
 
@@ -376,12 +377,6 @@ public class MessageCompose extends Activity implements OnClickListener, OnFocus
         mController.removeResultCallback(mListener);
     }
 
-    private static void cancelTask(AsyncTask<?, ?, ?> task) {
-        if (task != null && task.getStatus() != AsyncTask.Status.FINISHED) {
-            task.cancel(true);
-        }
-    }
-
     /**
      * We override onDestroy to make sure that the WebView gets explicitly destroyed.
      * Otherwise it can leak native references.
@@ -391,22 +386,28 @@ public class MessageCompose extends Activity implements OnClickListener, OnFocus
         super.onDestroy();
         mQuotedText.destroy();
         mQuotedText = null;
-        cancelTask(mLoadAttachmentsTask);
+
+        Utility.cancelTaskInterrupt(mLoadAttachmentsTask);
         mLoadAttachmentsTask = null;
-        cancelTask(mLoadMessageTask);
+        Utility.cancelTaskInterrupt(mLoadMessageTask);
         mLoadMessageTask = null;
         // don't cancel mSaveMessageTask, let it do its job to the end.
+        mSaveMessageTask = null;
 
-        // TODO Make sure the three adapters don't leak their internal cursors
         if (mAddressAdapterTo != null) {
             mAddressAdapterTo.changeCursor(null);
+            mAddressAdapterTo = null;
         }
         if (mAddressAdapterCc != null) {
             mAddressAdapterCc.changeCursor(null);
+            mAddressAdapterCc = null;
         }
         if (mAddressAdapterBcc != null) {
             mAddressAdapterBcc.changeCursor(null);
+            mAddressAdapterBcc = null;
         }
+        mHandler = null;
+        mListener = null;
     }
 
     /**
@@ -1544,7 +1545,7 @@ public class MessageCompose extends Activity implements OnClickListener, OnFocus
         }
     }
 
-    class Listener implements Controller.Result {
+    private class Listener implements Controller.Result {
         public void updateMailboxListCallback(MessagingException result, long accountId,
                 int progress) {
         }

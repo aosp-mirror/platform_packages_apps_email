@@ -156,9 +156,9 @@ public class MessageView extends Activity implements OnClickListener {
     private Drawable mFavoriteIconOn;
     private Drawable mFavoriteIconOff;
 
-    private MessageViewHandler mHandler = new MessageViewHandler();
+    private MessageViewHandler mHandler;
     private Controller mController;
-    private ControllerResults mControllerCallback = new ControllerResults();
+    private ControllerResults mControllerCallback;
 
     private View mMoveToNewer;
     private View mMoveToOlder;
@@ -176,7 +176,7 @@ public class MessageView extends Activity implements OnClickListener {
     // this is true when reply & forward are disabled, such as messages in the trash
     private boolean mDisableReplyAndForward;
 
-    class MessageViewHandler extends Handler {
+    private class MessageViewHandler extends Handler {
         private static final int MSG_PROGRESS = 1;
         private static final int MSG_ATTACHMENT_PROGRESS = 2;
         private static final int MSG_LOAD_CONTENT_URI = 3;
@@ -346,6 +346,9 @@ public class MessageView extends Activity implements OnClickListener {
         super.onCreate(icicle);
         setContentView(R.layout.message_view);
 
+        mHandler = new MessageViewHandler();
+        mControllerCallback = new ControllerResults();
+
         mSubjectView = (TextView) findViewById(R.id.subject);
         mFromView = (TextView) findViewById(R.id.from);
         mToView = (TextView) findViewById(R.id.to);
@@ -472,22 +475,16 @@ public class MessageView extends Activity implements OnClickListener {
         }
     }
 
-    private static void cancelTask(AsyncTask<?, ?, ?> task) {
-        if (task != null && task.getStatus() != AsyncTask.Status.FINISHED) {
-            task.cancel(true);
-        }
-    }
-
     private void cancelAllTasks() {
-        cancelTask(mLoadMessageTask);
+        Utility.cancelTaskInterrupt(mLoadMessageTask);
         mLoadMessageTask = null;
-        cancelTask(mLoadBodyTask);
+        Utility.cancelTaskInterrupt(mLoadBodyTask);
         mLoadBodyTask = null;
-        cancelTask(mLoadAttachmentsTask);
+        Utility.cancelTaskInterrupt(mLoadAttachmentsTask);
         mLoadAttachmentsTask = null;
-        cancelTask(mLoadMessageListTask);
+        Utility.cancelTaskInterrupt(mLoadMessageListTask);
         mLoadMessageListTask = null;
-        cancelTask(mPresenceCheckTask);
+        Utility.cancelTaskInterrupt(mPresenceCheckTask);
         mPresenceCheckTask = null;
     }
 
@@ -505,6 +502,9 @@ public class MessageView extends Activity implements OnClickListener {
             mMessageContentView = null;
         }
         // the cursor was closed in onPause()
+
+        mHandler = null;
+        mControllerCallback = null;
     }
 
     private void onDelete() {
@@ -1433,7 +1433,7 @@ public class MessageView extends Activity implements OnClickListener {
     /**
      * Controller results listener.  This completely replaces MessagingListener
      */
-    class ControllerResults implements Controller.Result {
+    private class ControllerResults implements Controller.Result {
 
         public void loadMessageForViewCallback(MessagingException result, long messageId,
                 int progress) {
@@ -1662,7 +1662,7 @@ public class MessageView extends Activity implements OnClickListener {
         private Context mContext;
         private MediaScannerConnection mConnection;
         private File mFile;
-        MessageViewHandler mHandler;
+        private MessageViewHandler mHandler;
 
         public MediaScannerNotifier(Context context, File file, MessageViewHandler handler) {
             mContext = context;

@@ -31,6 +31,7 @@ import android.content.Context;
 import android.content.res.TypedArray;
 import android.database.Cursor;
 import android.graphics.drawable.Drawable;
+import android.os.AsyncTask;
 import android.text.Editable;
 import android.util.Base64;
 import android.widget.TextView;
@@ -505,5 +506,25 @@ public class Utility {
 
     public static String replaceBareLfWithCrlf(String str) {
         return str.replace("\r", "").replace("\n", "\r\n");
+    }
+
+    /**
+     * Cancel an {@link AsyncTask}.  If it's already running, it'll be interrupted.
+     */
+    public static void cancelTaskInterrupt(AsyncTask<?, ?, ?> task) {
+        cancelTask(task, true);
+    }
+
+    /**
+     * Cancel an {@link AsyncTask}.
+     *
+     * @param mayInterruptIfRunning <tt>true</tt> if the thread executing this
+     *        task should be interrupted; otherwise, in-progress tasks are allowed
+     *        to complete.
+     */
+    public static void cancelTask(AsyncTask<?, ?, ?> task, boolean mayInterruptIfRunning) {
+        if (task != null && task.getStatus() != AsyncTask.Status.FINISHED) {
+            task.cancel(mayInterruptIfRunning);
+        }
     }
 }
