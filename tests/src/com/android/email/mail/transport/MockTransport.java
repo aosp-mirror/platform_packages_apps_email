@@ -26,6 +26,9 @@ import java.io.OutputStream;
 import java.net.URI;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.regex.Pattern;
+
+import junit.framework.Assert;
 
 /**
  * This is a mock Transport that is used to test protocols that use MailTransport.
@@ -113,7 +116,15 @@ public class MockTransport implements Transport {
         Transaction pair = new Transaction(pattern, responses);
         mPairs.add(pair);
     }
-    
+
+    /**
+     * Same as {@link #expect(String, String[])}, but the first arg is taken literally, rather than
+     * as a regexp.
+     */
+    public void expectLiterally(String literal, String[] responses) {
+        expect("^" + Pattern.quote(literal) + "$", responses);
+    }
+
     /** 
      * Tell the Mock Transport that we expect it to be closed.  This will preserve
      * the remaining entries in the expect() stream and allow us to "ride over" the close (which
@@ -190,7 +201,7 @@ public class MockTransport implements Transport {
     }
 
     public OutputStream getOutputStream() {
-        SmtpSenderUnitTests.assertTrue(mOpen);
+        Assert.assertTrue(mOpen);
         return new MockOutputStream();
     }
 
@@ -280,9 +291,11 @@ public class MockTransport implements Transport {
             Log.d(LOG_TAG, ">>> " + s);
         }
         SmtpSenderUnitTests.assertTrue(mOpen);
-        SmtpSenderUnitTests.assertTrue("Overflow writing to MockTransport", 0 != mPairs.size());
+        SmtpSenderUnitTests.assertTrue("Overflow writing to MockTransport: Getting " + s,
+                0 != mPairs.size());
         Transaction pair = mPairs.remove(0);
-        SmtpSenderUnitTests.assertTrue("Unexpected string written to MockTransport", 
+        SmtpSenderUnitTests.assertTrue("Unexpected string written to MockTransport: Actual=" + s
+                + "  Expected=" + pair.mPattern,
                 pair.mPattern != null && s.matches(pair.mPattern));
         if (pair.mResponses != null) {
             sendResponse(pair.mResponses);
