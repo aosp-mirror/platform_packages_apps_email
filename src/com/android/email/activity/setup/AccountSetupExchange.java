@@ -105,11 +105,14 @@ public class AccountSetupExchange extends Activity implements OnClickListener,
     private String mDuplicateAccountName;
 
     public static void actionIncomingSettings(Activity fromActivity, Account account,
-            boolean makeDefault, boolean easFlowMode) {
+            boolean makeDefault, boolean easFlowMode, boolean allowAutoDiscover) {
         Intent i = new Intent(fromActivity, AccountSetupExchange.class);
         i.putExtra(EXTRA_ACCOUNT, account);
         i.putExtra(EXTRA_MAKE_DEFAULT, makeDefault);
         i.putExtra(EXTRA_EAS_FLOW, easFlowMode);
+        if (!allowAutoDiscover) {
+            i.putExtra(EXTRA_DISABLE_AUTO_DISCOVER, true);
+        }
         fromActivity.startActivity(i);
     }
 
