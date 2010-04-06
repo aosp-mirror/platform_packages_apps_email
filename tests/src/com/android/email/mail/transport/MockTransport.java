@@ -40,6 +40,8 @@ public class MockTransport implements Transport {
 
     private boolean mSslAllowed = false;
     private boolean mTlsAllowed = false;
+
+    private boolean mTlsReopened = false;
     
     private boolean mOpen;
     private boolean mInputOpen;
@@ -248,10 +250,30 @@ public class MockTransport implements Transport {
         return line;
     }
 
-    public void reopenTls() /* throws MessagingException */ {
+    public void setTlsAllowed(boolean tlsAllowed) {
+        mTlsAllowed = tlsAllowed;
+    }
+
+    public boolean getTlsAllowed() {
+        return mTlsAllowed;
+    }
+
+    public void setSslAllowed(boolean sslAllowed) {
+        mSslAllowed = sslAllowed;
+    }
+
+    public boolean getSslAllowed() {
+        return mSslAllowed;
+    }
+
+    public void reopenTls() {
         SmtpSenderUnitTests.assertTrue(mOpen);
         SmtpSenderUnitTests.assertTrue(mTlsAllowed);
-        SmtpSenderUnitTests.fail("reopenTls() not implemented");
+        mTlsReopened = true;
+    }
+
+    public boolean getTlsReopened() {
+        return mTlsReopened;
     }
 
     public void setSecurity(int connectionSecurity, boolean trustAllCertificates) {
