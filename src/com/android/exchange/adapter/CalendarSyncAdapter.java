@@ -97,6 +97,8 @@ public class CalendarSyncAdapter extends AbstractSyncAdapter {
     private static final String CATEGORY_TOKENIZER_DELIMITER = "\\";
     private static final String ATTENDEE_TOKENIZER_DELIMITER = CATEGORY_TOKENIZER_DELIMITER;
 
+    private static final String FREE_BUSY_BUSY = "2";
+
     private static final ContentProviderOperation PLACEHOLDER_OPERATION =
         ContentProviderOperation.newInsert(Uri.EMPTY).build();
 
@@ -1146,11 +1148,9 @@ public class CalendarSyncAdapter extends AbstractSyncAdapter {
             s.data(Tags.CALENDAR_TIME_ZONE, timeZone);
         }
 
-        if (mService.mProtocolVersionDouble < Eas.SUPPORTED_PROTOCOL_EX2007_DOUBLE) {
-            // We need BusyStatus for 2.5, so we'll send "busy", which is what OWA does.
-            // Calendar doesn't support free/busy yet
-            s.data(Tags.CALENDAR_BUSY_STATUS, "2");
-        }
+        // Busy status is only required for 2.5, but we need to send it with later
+        // versions as well, because if we don't, the server will clear it.
+        s.data(Tags.CALENDAR_BUSY_STATUS, FREE_BUSY_BUSY);
 
         boolean allDay = false;
         if (entityValues.containsKey(Events.ALL_DAY)) {
