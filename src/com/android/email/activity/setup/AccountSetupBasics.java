@@ -388,9 +388,11 @@ public class AccountSetupBasics extends Activity
         } catch (URISyntaxException use) {
             /*
              * If there is some problem with the URI we give up and go on to
-             * manual setup.
+             * manual setup.  Technically speaking, AutoDiscover is OK here, since user clicked
+             * "Next" to get here.  This would never happen in practice because we don't expect
+             * to find any EAS accounts in the providers list.
              */
-            onManualSetup();
+            onManualSetup(true);
             return;
         }
 
@@ -430,8 +432,8 @@ public class AccountSetupBasics extends Activity
                 return;
             }
         }
-        // Can't use auto setup
-        onManualSetup();
+        // Can't use auto setup (although EAS accounts may still be able to AutoDiscover)
+        onManualSetup(true);
     }
 
     /**
@@ -459,7 +461,12 @@ public class AccountSetupBasics extends Activity
         }
     }
 
-    private void onManualSetup() {
+    /**
+     * @param allowAutoDiscover - true if the user clicked 'next' and (if the account is EAS)
+     * it's OK to use autodiscover.  false to prevent autodiscover and go straight to manual setup.
+     * Ignored for IMAP & POP accounts.
+     */
+    private void onManualSetup(boolean allowAutoDiscover) {
         String email = mEmailView.getText().toString().trim();
         String password = mPasswordView.getText().toString().trim();
         String[] emailParts = email.split("@");
@@ -499,7 +506,7 @@ public class AccountSetupBasics extends Activity
         mAccount.setSyncInterval(DEFAULT_ACCOUNT_CHECK_INTERVAL);
 
         AccountSetupAccountType.actionSelectAccountType(this, mAccount, mDefaultView.isChecked(),
-                mEasFlowMode);
+                mEasFlowMode, allowAutoDiscover);
     }
 
     public void onClick(View v) {
@@ -508,7 +515,8 @@ public class AccountSetupBasics extends Activity
                 onNext();
                 break;
             case R.id.manual_setup:
-                onManualSetup();
+                // no AutoDiscover - user clicked "manual"
+                onManualSetup(false);
                 break;
         }
     }

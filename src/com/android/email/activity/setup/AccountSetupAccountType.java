@@ -43,16 +43,19 @@ public class AccountSetupAccountType extends Activity implements OnClickListener
     private static final String EXTRA_ACCOUNT = "account";
     private static final String EXTRA_MAKE_DEFAULT = "makeDefault";
     private static final String EXTRA_EAS_FLOW = "easFlow";
+    private static final String EXTRA_ALLOW_AUTODISCOVER = "allowAutoDiscover";
 
     private Account mAccount;
     private boolean mMakeDefault;
+    private boolean mAllowAutoDiscover;
 
     public static void actionSelectAccountType(Activity fromActivity, Account account,
-            boolean makeDefault, boolean easFlowMode) {
+            boolean makeDefault, boolean easFlowMode, boolean allowAutoDiscover) {
         Intent i = new Intent(fromActivity, AccountSetupAccountType.class);
         i.putExtra(EXTRA_ACCOUNT, account);
         i.putExtra(EXTRA_MAKE_DEFAULT, makeDefault);
         i.putExtra(EXTRA_EAS_FLOW, easFlowMode);
+        i.putExtra(EXTRA_ALLOW_AUTODISCOVER, allowAutoDiscover);
         fromActivity.startActivity(i);
     }
 
@@ -60,9 +63,11 @@ public class AccountSetupAccountType extends Activity implements OnClickListener
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
 
-        mAccount = (Account) getIntent().getParcelableExtra(EXTRA_ACCOUNT);
-        mMakeDefault = getIntent().getBooleanExtra(EXTRA_MAKE_DEFAULT, false);
-        boolean easFlowMode = getIntent().getBooleanExtra(EXTRA_EAS_FLOW, false);
+        Intent intent = getIntent();
+        mAccount = (Account) intent.getParcelableExtra(EXTRA_ACCOUNT);
+        mMakeDefault = intent.getBooleanExtra(EXTRA_MAKE_DEFAULT, false);
+        boolean easFlowMode = intent.getBooleanExtra(EXTRA_EAS_FLOW, false);
+        mAllowAutoDiscover = intent.getBooleanExtra(EXTRA_ALLOW_AUTODISCOVER, true);
 
         // If we're in account setup flow mode, for EAS, skip this screen and "click" EAS
         if (easFlowMode) {
@@ -146,7 +151,8 @@ public class AccountSetupAccountType extends Activity implements OnClickListener
         mAccount.setDeletePolicy(Account.DELETE_POLICY_ON_DELETE);
         mAccount.setSyncInterval(Account.CHECK_INTERVAL_PUSH);
         mAccount.setSyncLookback(1);
-        AccountSetupExchange.actionIncomingSettings(this, mAccount, mMakeDefault, easFlowMode);
+        AccountSetupExchange.actionIncomingSettings(this, mAccount, mMakeDefault, easFlowMode,
+                mAllowAutoDiscover);
         finish();
     }
 
