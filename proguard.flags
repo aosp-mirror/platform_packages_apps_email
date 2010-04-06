@@ -26,6 +26,10 @@
 
 # Keep names that are used only by unit tests
 
+-keep class ** {
+  *** *ForTest(...);
+}
+
 -keepclasseswithmembers class com.android.email.GroupMessagingListener {
   *** removeListener(com.android.email.MessagingListener);
 }
@@ -168,4 +172,3 @@
 -keep class org.apache.james.mime4j.message.Message {
   *;
 }
-

@@ -1265,22 +1265,26 @@ public class ImapStore extends Store {
                 uidList.append(messages[i].getUid());
             }
 
-            StringBuilder flagList = new StringBuilder();
-            for (int i = 0, count = flags.length; i < count; i++) {
-                Flag flag = flags[i];
-                if (flag == Flag.SEEN) {
-                    flagList.append(" \\Seen");
-                } else if (flag == Flag.DELETED) {
-                    flagList.append(" \\Deleted");
-                } else if (flag == Flag.FLAGGED) {
-                    flagList.append(" \\Flagged");
+            String allFlags = "";
+            if (flags.length > 0) {
+                StringBuilder flagList = new StringBuilder();
+                for (int i = 0, count = flags.length; i < count; i++) {
+                    Flag flag = flags[i];
+                    if (flag == Flag.SEEN) {
+                        flagList.append(" \\Seen"); // TODO this can be a field of Flag...
+                    } else if (flag == Flag.DELETED) {
+                        flagList.append(" \\Deleted");
+                    } else if (flag == Flag.FLAGGED) {
+                        flagList.append(" \\Flagged");
+                    }
                 }
+                allFlags = flagList.substring(1);
             }
             try {
                 mConnection.executeSimpleCommand(String.format("UID STORE %s %sFLAGS.SILENT (%s)",
                         uidList,
                         value ? "+" : "-",
-                        flagList.substring(1)));        // Remove the first space
+                        allFlags));
             }
             catch (IOException ioe) {
                 throw ioExceptionHandler(mConnection, ioe);
@@ -1513,6 +1517,7 @@ public class ImapStore extends Store {
             this.mSize = size;
         }
 
+        @Override
         public void parse(InputStream in) throws IOException, MessagingException {
             super.parse(in);
         }

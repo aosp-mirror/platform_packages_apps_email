@@ -16,6 +16,7 @@
 
 package com.android.email.mail.store;
 
+import com.android.email.mail.Address;
 import com.android.email.mail.FetchProfile;
 import com.android.email.mail.Flag;
 import com.android.email.mail.Folder;
@@ -25,8 +26,11 @@ import com.android.email.mail.Part;
 import com.android.email.mail.Transport;
 import com.android.email.mail.Folder.FolderType;
 import com.android.email.mail.Folder.OpenMode;
+import com.android.email.mail.Message.RecipientType;
 import com.android.email.mail.internet.BinaryTempFileBody;
 import com.android.email.mail.internet.MimeUtility;
+import com.android.email.mail.internet.TextBody;
+import com.android.email.mail.store.ImapStore.ImapMessage;
 import com.android.email.mail.transport.DiscourseLogger;
 import com.android.email.mail.transport.MockTransport;
 
@@ -48,6 +52,7 @@ import java.util.Locale;
  */
 @SmallTest
 public class ImapStoreUnitTests extends AndroidTestCase {
+    private final static String[] NO_REPLY = new String[0];
     
     /* These values are provided by setUp() */
     private ImapStore mStore = null;
@@ -554,5 +559,44 @@ public class ImapStoreUnitTests extends AndroidTestCase {
 
         // And the message is "SEEN".
         assertTrue(message1.isSet(Flag.SEEN));
+    }
+
+    public void testAppendMessages() throws Exception {
+        MockTransport mock = openAndInjectMockTransport();
+        setupOpenFolder(mock);
+        mFolder.open(OpenMode.READ_WRITE, null);
+
+        ImapMessage message = (ImapMessage) mFolder.createMessage("1");
+        message.setFrom(new Address("me@test.com"));
+        message.setRecipient(RecipientType.TO, new Address("you@test.com"));
+        message.setMessageId("<message.id@test.com>");
+        message.setFlagDirectlyForTest(Flag.SEEN, true);
+        message.setBody(new TextBody("Test Body"));
+
+        // + go ahead
+        // * 12345 EXISTS
+        // OK [APPENDUID 627684530 17] (Success)
+
+        mock.expect(getNextTag(false) + " APPEND \\\"INBOX\\\" \\(\\\\Seen\\) \\{166\\}",
+                new String[] {"+ go ahead"});
+
+        mock.expectLiterally("From: me@test.com", NO_REPLY);
+        mock.expectLiterally("To: you@test.com", NO_REPLY);
+        mock.expectLiterally("Message-ID: <message.id@test.com>", NO_REPLY);
+        mock.expectLiterally("Content-Type: text/plain;", NO_REPLY);
+        mock.expectLiterally(" charset=utf-8", NO_REPLY);
+        mock.expectLiterally("Content-Transfer-Encoding: base64", NO_REPLY);
+        mock.expectLiterally("", NO_REPLY);
+        mock.expectLiterally("VGVzdCBCb2R5", NO_REPLY);
+        mock.expectLiterally("", new String[] {
+                "* 7 EXISTS",
+                getNextTag(true) + " OK [APPENDUID 1234567 13] (Success)"
+                });
+
+        mFolder.appendMessages(new Message[] {message});
+        mock.close();
+
+        assertEquals("13", message.getUid());
+        assertEquals(7, mFolder.getMessageCount());
     }
 }
