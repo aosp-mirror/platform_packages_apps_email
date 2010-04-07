@@ -1484,6 +1484,11 @@ public class MessageList extends ListActivity implements OnItemClickListener, On
                         case MessagingException.GENERAL_SECURITY:
                             id = R.string.account_setup_failed_security;
                             break;
+                        // TODO Generate a unique string for this case, which is the case
+                        // where the security policy needs to be updated.
+                        case MessagingException.SECURITY_POLICIES_REQUIRED:
+                            id = R.string.account_setup_failed_security;
+                            break;
                     }
                 }
                 mHandler.showErrorBanner(getString(id));
