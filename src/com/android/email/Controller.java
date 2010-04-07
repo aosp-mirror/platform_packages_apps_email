@@ -1191,6 +1191,9 @@ public class Controller {
                 case EmailServiceStatus.CONNECTION_ERROR:
                     return new MessagingException(MessagingException.IOERROR);
 
+                case EmailServiceStatus.SECURITY_FAILURE:
+                    return new MessagingException(MessagingException.SECURITY_POLICIES_REQUIRED);
+
                 case EmailServiceStatus.MESSAGE_NOT_FOUND:
                 case EmailServiceStatus.ATTACHMENT_NOT_FOUND:
                 case EmailServiceStatus.FOLDER_NOT_DELETED:
