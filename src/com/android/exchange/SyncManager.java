@@ -1598,7 +1598,7 @@ public class SyncManager extends Service implements Runnable {
             thread.start();
             mServiceMap.put(m.mId, service);
             runAwake(m.mId);
-            if (!m.mServerId.startsWith(Eas.ACCOUNT_MAILBOX_PREFIX)) {
+            if ((m.mServerId != null) && !m.mServerId.startsWith(Eas.ACCOUNT_MAILBOX_PREFIX)) {
                 stopPing(m.mAccountKey);
             }
         }
@@ -1782,9 +1782,12 @@ public class SyncManager extends Service implements Runnable {
                     }
                 }
             }
-            stopServiceThreads();
             log("Shutdown requested");
+        } catch (RuntimeException e) {
+            Log.e(TAG, "RuntimeException in SyncManager", e);
+            throw e;
         } finally {
+            log("Finishing SyncManager");
             // Lots of cleanup here
             // Stop our running syncs
             stopServiceThreads();
