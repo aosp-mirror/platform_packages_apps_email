@@ -50,7 +50,6 @@ public class SecurityPolicy {
     private ComponentName mAdminName;
     private PolicySet mAggregatePolicy;
     private boolean mNotificationActive;
-    private boolean mAdminEnabled;
 
     /* package */ static final PolicySet NO_POLICY_SET =
             new PolicySet(0, PolicySet.PASSWORD_MODE_NONE, 0, 0, false);
@@ -635,13 +634,11 @@ public class SecurityPolicy {
     }
 
     /**
-     * Internal handler for enabled/disabled transitions.  Handles DeviceAdmin.onEnabled and
-     * and DeviceAdmin.onDisabled.
+     * Internal handler for enabled->disabled transitions.  Resets all security keys
+     * forcing EAS to resync security state.
      */
     /* package */ void onAdminEnabled(boolean isEnabled) {
-        if (isEnabled && !mAdminEnabled) {
-            // TODO: transition to enabled state
-        } else if (!isEnabled && mAdminEnabled) {
+        if (!isEnabled) {
             // transition to disabled state
             // Response:  clear *all* security state information from the accounts, forcing
             // them back to the initial configurations requiring policy administration
@@ -651,7 +648,6 @@ public class SecurityPolicy {
             mContext.getContentResolver().update(Account.CONTENT_URI, cv, null, null);
             updatePolicies(-1);
         }
-        mAdminEnabled = isEnabled;
     }
 
     /**
@@ -669,7 +665,7 @@ public class SecurityPolicy {
         public void onEnabled(Context context, Intent intent) {
             SecurityPolicy.getInstance(context).onAdminEnabled(true);
         }
-        
+
         /**
          * Called prior to the administrator being disabled.
          */
@@ -677,7 +673,7 @@ public class SecurityPolicy {
         public void onDisabled(Context context, Intent intent) {
             SecurityPolicy.getInstance(context).onAdminEnabled(false);
         }
-        
+
         /**
          * Called after the user has changed their password.
          */
