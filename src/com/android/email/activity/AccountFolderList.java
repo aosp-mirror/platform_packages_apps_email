@@ -214,11 +214,9 @@ public class AccountFolderList extends ListActivity implements OnItemClickListen
         Utility.cancelTask(mDeleteAccountTask, false); // Don't interrupt if it's running.
         mDeleteAccountTask = null;
 
-        mListAdapter.changeCursor(null);
-        mListAdapter = null;
-
-        mHandler = null;
-        mControllerCallback = null;
+        if (mListAdapter != null) { 
+            mListAdapter.changeCursor(null);
+        }
     }
 
     public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
