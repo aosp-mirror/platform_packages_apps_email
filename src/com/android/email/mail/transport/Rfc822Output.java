@@ -147,6 +147,7 @@ public class Rfc822Output {
             writeAddressHeader(writer, "Bcc", message.mBcc);
         }
         writeAddressHeader(writer, "Reply-To", message.mReplyTo);
+        writeHeader(writer, "MIME-Version", "1.0");
 
         // Analyze message and determine if we have multiparts
         String text = buildBodyText(context, message, appendQuotedText);
@@ -170,7 +171,6 @@ public class Rfc822Output {
                 }
             } else {
                 // continue with multipart headers, then into multipart body
-                writeHeader(writer, "MIME-Version", "1.0");
                 multipartBoundary = "--_com.android.email_" + System.nanoTime();
 
                 // Move to the first attachment; this must succeed because multipart is true

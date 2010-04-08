@@ -151,6 +151,7 @@ public class Rfc822OutputTests extends ProviderTestCase2<EmailProvider> {
             new org.apache.james.mime4j.message.Message(messageInputStream);
 
         // Make sure its structure is correct
+        checkMimeVersion(mimeMessage);
         assertFalse(mimeMessage.isMultipart());
         assertEquals("text/plain", mimeMessage.getMimeType());
     }
@@ -184,6 +185,7 @@ public class Rfc822OutputTests extends ProviderTestCase2<EmailProvider> {
             new org.apache.james.mime4j.message.Message(messageInputStream);
 
         // Make sure its structure is correct
+        checkMimeVersion(mimeMessage);
         assertTrue(mimeMessage.isMultipart());
         Header header = mimeMessage.getHeader();
         Field contentType = header.getField("content-type");
@@ -226,6 +228,7 @@ public class Rfc822OutputTests extends ProviderTestCase2<EmailProvider> {
             new org.apache.james.mime4j.message.Message(messageInputStream);
 
         // Make sure its structure is correct
+        checkMimeVersion(mimeMessage);
         assertTrue(mimeMessage.isMultipart());
         Header header = mimeMessage.getHeader();
         Field contentType = header.getField("content-type");
@@ -239,5 +242,14 @@ public class Rfc822OutputTests extends ProviderTestCase2<EmailProvider> {
         assertEquals("text/html", part.getMimeType());
         header = part.getHeader();
         assertNotNull(header.getField("content-disposition"));
+    }
+
+    /**
+     * Confirm that the constructed message includes "MIME-VERSION: 1.0"
+     */
+    private void checkMimeVersion(org.apache.james.mime4j.message.Message mimeMessage) {
+        Header header = mimeMessage.getHeader();
+        Field contentType = header.getField("MIME-VERSION");
+        assertTrue(contentType.getBody().equals("1.0"));
     }
 }

@@ -146,7 +146,6 @@ public class SmtpSenderUnitTests extends ProviderTestCase2<EmailProvider> {
         attachment.save(mProviderContext);
 
         expectSimpleMessage(mockTransport);
-        mockTransport.expect("MIME-Version: 1.0");
         mockTransport.expect("Content-Type: multipart/mixed; boundary=\".*");
         mockTransport.expect("");
         mockTransport.expect("----.*");
@@ -177,7 +176,6 @@ public class SmtpSenderUnitTests extends ProviderTestCase2<EmailProvider> {
         attachment.save(mProviderContext);
 
         expectSimpleMessage(mockTransport);
-        mockTransport.expect("MIME-Version: 1.0");
         mockTransport.expect("Content-Type: multipart/mixed; boundary=\".*");
         mockTransport.expect("");
         mockTransport.expect("----.*");
@@ -212,7 +210,6 @@ public class SmtpSenderUnitTests extends ProviderTestCase2<EmailProvider> {
         attachment2.save(mProviderContext);
 
         expectSimpleMessage(mockTransport);
-        mockTransport.expect("MIME-Version: 1.0");
         mockTransport.expect("Content-Type: multipart/mixed; boundary=\".*");
         mockTransport.expect("");
         mockTransport.expect("----.*");
@@ -251,7 +248,6 @@ public class SmtpSenderUnitTests extends ProviderTestCase2<EmailProvider> {
 
         // prepare for the message traffic we'll see
         expectSimpleMessage(mockTransport);
-        mockTransport.expect("MIME-Version: 1.0");
         mockTransport.expect("Content-Type: multipart/mixed; boundary=\".*");
         mockTransport.expect("");
         mockTransport.expect("----.*");
@@ -294,6 +290,7 @@ public class SmtpSenderUnitTests extends ProviderTestCase2<EmailProvider> {
         mockTransport.expect("Message-ID: .*");
         mockTransport.expect("From: Jones@Registry.Org");
         mockTransport.expect("To: Smith@Registry.Org");
+        mockTransport.expect("MIME-Version: 1.0");
     }
 
     /**
