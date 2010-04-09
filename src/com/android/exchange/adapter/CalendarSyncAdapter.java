@@ -102,10 +102,11 @@ public class CalendarSyncAdapter extends AbstractSyncAdapter {
     private static final ContentProviderOperation PLACEHOLDER_OPERATION =
         ContentProviderOperation.newInsert(Uri.EMPTY).build();
 
-    private static final Uri sEventsUri = asSyncAdapter(Events.CONTENT_URI);
-    private static final Uri sAttendeesUri = asSyncAdapter(Attendees.CONTENT_URI);
-    private static final Uri sExtendedPropertiesUri = asSyncAdapter(ExtendedProperties.CONTENT_URI);
-    private static final Uri sRemindersUri = asSyncAdapter(Reminders.CONTENT_URI);
+    private static final Uri EVENTS_URI = asSyncAdapter(Events.CONTENT_URI);
+    private static final Uri ATTENDEES_URI = asSyncAdapter(Attendees.CONTENT_URI);
+    private static final Uri EXTENDED_PROPERTIES_URI =
+        asSyncAdapter(ExtendedProperties.CONTENT_URI);
+    private static final Uri REMINDERS_URI = asSyncAdapter(Reminders.CONTENT_URI);
 
     private static final Object sSyncKeyLock = new Object();
 
@@ -251,6 +252,7 @@ public class CalendarSyncAdapter extends AbstractSyncAdapter {
             cv.put(Events._SYNC_ACCOUNT_TYPE, Email.EXCHANGE_ACCOUNT_MANAGER_TYPE);
             cv.put(Events._SYNC_ID, serverId);
             cv.put(Events.HAS_ATTENDEE_DATA, 1);
+            cv.put(Events._SYNC_DATA, "0");
 
             int allDayEvent = 0;
             String organizerName = null;
@@ -266,6 +268,7 @@ public class CalendarSyncAdapter extends AbstractSyncAdapter {
             // Keep track of the attendees; exceptions will need them
             ArrayList<ContentValues> attendeeValues = new ArrayList<ContentValues>();
             int reminderMins = -1;
+            String dtStamp = null;
 
             while (nextTag(Tags.SYNC_APPLICATION_DATA) != END) {
                 if (update && firstTag) {
@@ -280,10 +283,14 @@ public class CalendarSyncAdapter extends AbstractSyncAdapter {
                         c.close();
                     }
                     if (id > 0) {
-                        if (tag == Tags.CALENDAR_ATTENDEES) {
+                        // DTSTAMP can come first, and we simply need to track it
+                        if (tag == Tags.CALENDAR_DTSTAMP) {
+                            dtStamp = getValue();
+                            continue;
+                        } else if (tag == Tags.CALENDAR_ATTENDEES) {
                             // This is an attendees-only update; just delete/re-add attendees
                             mBindArgument[0] = Long.toString(id);
-                            ops.add(ContentProviderOperation.newDelete(Attendees.CONTENT_URI)
+                            ops.add(ContentProviderOperation.newDelete(ATTENDEES_URI)
                                     .withSelection(ATTENDEES_EXCEPT_ORGANIZER, mBindArgument)
                                     .build());
                             eventId = id;
@@ -373,7 +380,7 @@ public class CalendarSyncAdapter extends AbstractSyncAdapter {
                         cv.put(Events._SYNC_DATA, getValue());
                         break;
                     case Tags.CALENDAR_DTSTAMP:
-                        ops.newExtendedProperty("dtstamp", getValue());
+                        dtStamp = getValue();
                         break;
                     case Tags.CALENDAR_MEETING_STATUS:
                         ops.newExtendedProperty("meeting_status", getValue());
@@ -442,9 +449,14 @@ public class CalendarSyncAdapter extends AbstractSyncAdapter {
 
             // Put the real event in the proper place in the ops ArrayList
             if (eventOffset >= 0) {
+                // Store away the DTSTAMP here
+                if (dtStamp != null) {
+                    ops.newExtendedProperty("dtstamp", dtStamp);
+                }
+
                 if (isValidEventValues(cv, update)) {
                     ops.set(eventOffset, ContentProviderOperation
-                            .newInsert(sEventsUri).withValues(cv).build());
+                            .newInsert(EVENTS_URI).withValues(cv).build());
                 } else {
                     // If we can't add this event (it's invalid), remove all of the inserts
                     // we've built for it
@@ -898,14 +910,14 @@ public class CalendarSyncAdapter extends AbstractSyncAdapter {
                     cv.put(Events._SYNC_DIRTY, 0);
                     cv.put(Events._SYNC_MARK, 0);
                     for (long eventId: mUploadedIdList) {
-                        mContentResolver.update(ContentUris.withAppendedId(sEventsUri, eventId), cv,
+                        mContentResolver.update(ContentUris.withAppendedId(EVENTS_URI, eventId), cv,
                                 null, null);
                     }
                 }
                 // Delete events marked for deletion
                 if (!mDeletedIdList.isEmpty()) {
                     for (long eventId: mDeletedIdList) {
-                        mContentResolver.delete(ContentUris.withAppendedId(sEventsUri, eventId),
+                        mContentResolver.delete(ContentUris.withAppendedId(EVENTS_URI, eventId),
                                 null, null);
                     }
                 }
@@ -954,7 +966,7 @@ public class CalendarSyncAdapter extends AbstractSyncAdapter {
                     long id = c.getLong(0);
                     // Write the serverId into the Event
                     mOps.add(ContentProviderOperation.newUpdate(
-                            ContentUris.withAppendedId(sEventsUri, id))
+                            ContentUris.withAppendedId(EVENTS_URI, id))
                                     .withValues(cv)
                                     .build());
                     userLog("New event " + clientId + " was given serverId: " + serverId);
@@ -1030,7 +1042,7 @@ public class CalendarSyncAdapter extends AbstractSyncAdapter {
 
         public void newAttendee(ContentValues cv, int eventStart) {
             add(ContentProviderOperation
-                    .newInsert(sAttendeesUri)
+                    .newInsert(ATTENDEES_URI)
                     .withValues(cv)
                     .withValueBackReference(Attendees.EVENT_ID, eventStart)
                     .build());
@@ -1038,16 +1050,16 @@ public class CalendarSyncAdapter extends AbstractSyncAdapter {
 
         public void updatedAttendee(ContentValues cv, long id) {
             cv.put(Attendees.EVENT_ID, id);
-            add(ContentProviderOperation.newInsert(sAttendeesUri).withValues(cv).build());
+            add(ContentProviderOperation.newInsert(ATTENDEES_URI).withValues(cv).build());
         }
 
         public void newException(ContentValues cv) {
-            add(ContentProviderOperation.newInsert(sEventsUri).withValues(cv).build());
+            add(ContentProviderOperation.newInsert(EVENTS_URI).withValues(cv).build());
         }
 
         public void newExtendedProperty(String name, String value) {
             add(ContentProviderOperation
-                    .newInsert(sExtendedPropertiesUri)
+                    .newInsert(EXTENDED_PROPERTIES_URI)
                     .withValue(ExtendedProperties.NAME, name)
                     .withValue(ExtendedProperties.VALUE, value)
                     .withValueBackReference(ExtendedProperties.EVENT_ID, mEventStart)
@@ -1056,7 +1068,7 @@ public class CalendarSyncAdapter extends AbstractSyncAdapter {
 
         public void newReminder(int mins, int eventStart) {
             add(ContentProviderOperation
-                    .newInsert(sRemindersUri)
+                    .newInsert(REMINDERS_URI)
                     .withValue(Reminders.MINUTES, mins)
                     .withValue(Reminders.METHOD, Reminders.METHOD_DEFAULT)
                     .withValueBackReference(ExtendedProperties.EVENT_ID, eventStart)
@@ -1069,10 +1081,10 @@ public class CalendarSyncAdapter extends AbstractSyncAdapter {
 
         public void delete(long id, String syncId) {
             add(ContentProviderOperation
-                    .newDelete(ContentUris.withAppendedId(sEventsUri, id)).build());
+                    .newDelete(ContentUris.withAppendedId(EVENTS_URI, id)).build());
             // Delete the exceptions for this Event (CalendarProvider doesn't do this)
             add(ContentProviderOperation
-                    .newDelete(sEventsUri).withSelection(Events.ORIGINAL_EVENT + "=?",
+                    .newDelete(EVENTS_URI).withSelection(Events.ORIGINAL_EVENT + "=?",
                             new String[] {syncId}).build());
         }
 
@@ -1382,7 +1394,7 @@ public class CalendarSyncAdapter extends AbstractSyncAdapter {
                 while (c.moveToNext()) {
                     // Mark the parents of dirty exceptions
                     String serverId = c.getString(0);
-                    int cnt = cr.update(sEventsUri, cv, SERVER_ID, new String[] {serverId});
+                    int cnt = cr.update(EVENTS_URI, cv, SERVER_ID, new String[] {serverId});
                     // Keep track of any orphaned exceptions
                     if (cnt == 0) {
                         orphanedExceptions.add(c.getLong(1));
@@ -1395,13 +1407,13 @@ public class CalendarSyncAdapter extends AbstractSyncAdapter {
            // Delete any orphaned exceptions
             for (long orphan: orphanedExceptions) {
                 userLog(TAG, "Deleted orphaned exception: " + orphan);
-                cr.delete(ContentUris.withAppendedId(sEventsUri, orphan), null, null);
+                cr.delete(ContentUris.withAppendedId(EVENTS_URI, orphan), null, null);
             }
             orphanedExceptions.clear();
 
             // Now we can go through dirty/marked top-level events and send them back to the server
             EntityIterator eventIterator = EventsEntity.newEntityIterator(
-                    cr.query(sEventsUri, null, DIRTY_OR_MARKED_TOP_LEVEL_IN_CALENDAR,
+                    cr.query(EVENTS_URI, null, DIRTY_OR_MARKED_TOP_LEVEL_IN_CALENDAR,
                             mCalendarIdArgument, null), cr);
             ContentValues cidValues = new ContentValues();
             try {
@@ -1442,7 +1454,7 @@ public class CalendarSyncAdapter extends AbstractSyncAdapter {
                         // And save it in the Event as the local id
                         cidValues.put(Events._SYNC_DATA, clientId);
                         cidValues.put(Events._SYNC_VERSION, "0");
-                        cr.update(ContentUris.withAppendedId(sEventsUri, eventId), cidValues,
+                        cr.update(ContentUris.withAppendedId(EVENTS_URI, eventId), cidValues,
                                 null, null);
                     } else {
                         if (entityValues.getAsInteger(Events.DELETED) == 1) {
@@ -1475,7 +1487,7 @@ public class CalendarSyncAdapter extends AbstractSyncAdapter {
                         cidValues.put(Events._SYNC_VERSION, version);
                         // Also save in entityValues so that we send it this time around
                         entityValues.put(Events._SYNC_VERSION, version);
-                        cr.update(ContentUris.withAppendedId(sEventsUri, eventId), cidValues,
+                        cr.update(ContentUris.withAppendedId(EVENTS_URI, eventId), cidValues,
                                 null, null);
                         s.start(Tags.SYNC_CHANGE).data(Tags.SYNC_SERVER_ID, serverId);
                     }
@@ -1487,7 +1499,7 @@ public class CalendarSyncAdapter extends AbstractSyncAdapter {
                     if (serverId != null) {
                         String calendarId = Long.toString(mCalendarId);
                         EntityIterator exIterator = EventsEntity.newEntityIterator(
-                                cr.query(sEventsUri, null, ORIGINAL_EVENT_AND_CALENDAR,
+                                cr.query(EVENTS_URI, null, ORIGINAL_EVENT_AND_CALENDAR,
                                         new String[] {serverId, calendarId}, null), cr);
                         boolean exFirst = true;
                         while (exIterator.hasNext()) {
@@ -1670,7 +1682,7 @@ public class CalendarSyncAdapter extends AbstractSyncAdapter {
                                 cidValues.clear();
                                 cidValues.put(Events.SYNC_ADAPTER_DATA,
                                         Integer.toString(currentStatus));
-                                cr.update(ContentUris.withAppendedId(sEventsUri, eventId),
+                                cr.update(ContentUris.withAppendedId(EVENTS_URI, eventId),
                                         cidValues, null, null);
                                 // Send mail to the organizer advising of the new status
                                 EmailContent.Message msg =
