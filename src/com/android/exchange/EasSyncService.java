@@ -706,6 +706,7 @@ public class EasSyncService extends AbstractSyncService {
                 svc.mSsl = (ha.mFlags & HostAuth.FLAG_SSL) != 0;
                 svc.mTrustSsl = (ha.mFlags & HostAuth.FLAG_TRUST_ALL_CERTIFICATES) != 0;
                 svc.mDeviceId = SyncManager.getDeviceId();
+                svc.mAccount = acct;
                 Serializer s = new Serializer();
                 s.start(Tags.SEARCH_SEARCH).start(Tags.SEARCH_STORE);
                 s.data(Tags.SEARCH_NAME, "GAL").data(Tags.SEARCH_QUERY, filter);
