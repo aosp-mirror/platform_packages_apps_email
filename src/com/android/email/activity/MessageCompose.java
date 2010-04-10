@@ -396,18 +396,13 @@ public class MessageCompose extends Activity implements OnClickListener, OnFocus
 
         if (mAddressAdapterTo != null) {
             mAddressAdapterTo.changeCursor(null);
-            mAddressAdapterTo = null;
         }
         if (mAddressAdapterCc != null) {
             mAddressAdapterCc.changeCursor(null);
-            mAddressAdapterCc = null;
         }
         if (mAddressAdapterBcc != null) {
             mAddressAdapterBcc.changeCursor(null);
-            mAddressAdapterBcc = null;
         }
-        mHandler = null;
-        mListener = null;
     }
 
     /**

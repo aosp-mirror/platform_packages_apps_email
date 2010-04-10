@@ -199,9 +199,6 @@ public class MailboxList extends ListActivity implements OnItemClickListener, On
         mMessageCountTask = null;
 
         mListAdapter.changeCursor(null);
-        mListAdapter = null;
-        mHandler = null;
-        mControllerCallback = null;
     }
 
     public void onClick(View v) {
