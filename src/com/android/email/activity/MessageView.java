@@ -502,9 +502,6 @@ public class MessageView extends Activity implements OnClickListener {
             mMessageContentView = null;
         }
         // the cursor was closed in onPause()
-
-        mHandler = null;
-        mControllerCallback = null;
     }
 
     private void onDelete() {
