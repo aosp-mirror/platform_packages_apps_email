@@ -881,6 +881,26 @@ public class CalendarUtilities {
         return sb.toString();
     }
 
+    /**
+     * Create a GregorianCalendar representing the year, month, and day for the given time in
+     * milliseconds and the local time zone.  Hours, minutes, and seconds will be set to zero
+     * @param time the time in millis
+     * @param timeZone the time zone to be used
+     * @return a GregorianCalendar with the data required for an all-day event
+     */
+    static public GregorianCalendar getAllDayCalendar(long time, TimeZone timeZone) {
+        // Calendar gives us times in GMT
+        GregorianCalendar calendar = new GregorianCalendar(TimeZone.getTimeZone("GMT"));
+        calendar.setTimeInMillis(time);
+        // But we must send back to EAS in the event's time zone
+        GregorianCalendar allDayCalendar = new GregorianCalendar(timeZone);
+        // Set this calendar with correct year, month, and day, but zero hour, minute, and seconds
+        allDayCalendar.set(calendar.get(GregorianCalendar.YEAR),
+                calendar.get(GregorianCalendar.MONTH),
+                calendar.get(GregorianCalendar.DATE), 0, 0, 0);
+        return allDayCalendar;
+    }
+
     static void addByDay(StringBuilder rrule, int dow, int wom) {
         rrule.append(";BYDAY=");
         boolean addComma = false;
