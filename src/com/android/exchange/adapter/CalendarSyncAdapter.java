@@ -1416,6 +1416,8 @@ public class CalendarSyncAdapter extends AbstractSyncAdapter {
                     cr.query(EVENTS_URI, null, DIRTY_OR_MARKED_TOP_LEVEL_IN_CALENDAR,
                             mCalendarIdArgument, null), cr);
             ContentValues cidValues = new ContentValues();
+            String ourEmailAddress = mAccount.mEmailAddress;
+
             try {
                 boolean first = true;
                 while (eventIterator.hasNext()) {
@@ -1434,6 +1436,8 @@ public class CalendarSyncAdapter extends AbstractSyncAdapter {
                     // EAS 2.5 needs: BusyStatus DtStamp EndTime Sensitivity StartTime TimeZone UID
                     // We can generate all but what we're testing for below
                     String organizerEmail = entityValues.getAsString(Events.ORGANIZER);
+                    boolean selfOrganizer = organizerEmail.equalsIgnoreCase(ourEmailAddress);
+
                     if (!entityValues.containsKey(Events.DTSTART)
                             || (!entityValues.containsKey(Events.DURATION) &&
                                     !entityValues.containsKey(Events.DTEND))
@@ -1461,8 +1465,7 @@ public class CalendarSyncAdapter extends AbstractSyncAdapter {
                             userLog("Deleting event with serverId: ", serverId);
                             s.start(Tags.SYNC_DELETE).data(Tags.SYNC_SERVER_ID, serverId).end();
                             mDeletedIdList.add(eventId);
-                            if (entityValues.getAsString(Events.ORGANIZER)
-                                    .equalsIgnoreCase(mAccount.mEmailAddress)) {
+                            if (selfOrganizer) {
                                 mSendCancelIdList.add(eventId);
                             }
                             continue;
@@ -1516,7 +1519,9 @@ public class CalendarSyncAdapter extends AbstractSyncAdapter {
                                 // attendees about it
                                 long exEventId = exValues.getAsLong(Events._ID);
                                 int flag;
-                                if (getInt(exValues, Events.STATUS) == Events.STATUS_CANCELED) {
+                                if ((getInt(exValues, Events.DELETED) == 1) ||
+                                        (getInt(exValues, Events.STATUS) ==
+                                            Events.STATUS_CANCELED)) {
                                     // Add the eventId of the exception to the proper list, so that
                                     // the dirty bit is cleared or the event is deleted after the
                                     // sync has completed
@@ -1541,12 +1546,14 @@ public class CalendarSyncAdapter extends AbstractSyncAdapter {
                                         entityValues.getAsString(Events.EVENT_LOCATION));
                                 }
 
-                                Message msg =
-                                    CalendarUtilities.createMessageForEntity(mContext,
-                                            exEntity, flag, clientId, mAccount);
-                                if (msg != null) {
-                                    userLog("Queueing exception update to " + msg.mTo);
-                                    mOutgoingMailList.add(msg);
+                                if (selfOrganizer) {
+                                    Message msg =
+                                        CalendarUtilities.createMessageForEntity(mContext,
+                                                exEntity, flag, clientId, mAccount);
+                                    if (msg != null) {
+                                        userLog("Queueing exception update to " + msg.mTo);
+                                        mOutgoingMailList.add(msg);
+                                    }
                                 }
                             }
                             s.end(); // EXCEPTION
@@ -1562,8 +1569,6 @@ public class CalendarSyncAdapter extends AbstractSyncAdapter {
                     // Send the meeting invite if there are attendees and we're the organizer AND
                     // if the Event itself is dirty (we might be syncing only because an exception
                     // is dirty, in which case we DON'T send email about the Event)
-                    boolean selfOrganizer = organizerEmail.equalsIgnoreCase(mAccount.mEmailAddress);
-
                     if (selfOrganizer &&
                             (getInt(entityValues, Events._SYNC_DIRTY) == 1)) {
                         EmailContent.Message msg =
