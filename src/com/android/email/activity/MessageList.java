@@ -328,9 +328,6 @@ public class MessageList extends ListActivity implements OnItemClickListener, On
         mSetFooterTask = null;
 
         mListAdapter.changeCursor(null);
-        mListAdapter = null;
-        mHandler = null;
-        mControllerCallback = null;
     }
 
     @Override
