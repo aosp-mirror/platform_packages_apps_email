@@ -807,7 +807,9 @@ public class SyncManager extends Service implements Runnable {
     }
 
     static public Account getAccountById(long accountId) {
-        return sAccountList.getById(accountId);
+        synchronized (sAccountList) {
+            return sAccountList.getById(accountId);
+        }
     }
 
     static public String getEasAccountSelector() {
