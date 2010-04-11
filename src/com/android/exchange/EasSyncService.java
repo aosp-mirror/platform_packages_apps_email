@@ -83,6 +83,7 @@ import android.os.RemoteException;
 import android.os.SystemClock;
 import android.provider.Calendar.Attendees;
 import android.provider.Calendar.Events;
+import android.text.TextUtils;
 import android.util.Base64;
 import android.util.Log;
 import android.util.Xml;
@@ -1414,6 +1415,24 @@ public class EasSyncService extends AbstractSyncService {
                         .syncMailboxListStatus(mAccount.mId, mExitStatus, 0);
                 } catch (RemoteException e1) {
                     // Don't care if this fails
+                }
+
+                // Before each run of the pingLoop, if this Account has a PolicySet, make sure it's
+                // active; otherwise, clear out the key/flag.  This should cause a provisioning
+                // error on the next POST, and start the security sequence over again
+                String key = mAccount.mSecuritySyncKey;
+                if (!TextUtils.isEmpty(key)) {
+                    PolicySet ps = new PolicySet(mAccount);
+                    SecurityPolicy sp = SecurityPolicy.getInstance(mContext);
+                    if (!sp.isActive(ps)) {
+                        cv.clear();
+                        cv.put(AccountColumns.SECURITY_FLAGS, 0);
+                        cv.putNull(AccountColumns.SECURITY_SYNC_KEY);
+                        long accountId = mAccount.mId;
+                        mContentResolver.update(ContentUris.withAppendedId(
+                                Account.CONTENT_URI, accountId), cv, null, null);
+                        sp.policiesRequired(accountId);
+                    }
                 }
 
                 // Wait for push notifications.
