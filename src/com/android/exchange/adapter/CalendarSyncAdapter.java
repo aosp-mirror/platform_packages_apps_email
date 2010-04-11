@@ -244,6 +244,27 @@ public class CalendarSyncAdapter extends AbstractSyncAdapter {
                     new String[] {mAccount.mEmailAddress, Email.EXCHANGE_ACCOUNT_MANAGER_TYPE});
         }
 
+        private void addOrganizerToAttendees(CalendarOperations ops, long eventId,
+                String organizerName, String organizerEmail) {
+            // Handle the organizer (who IS an attendee on device, but NOT in EAS)
+            if (organizerName != null || organizerEmail != null) {
+                ContentValues attendeeCv = new ContentValues();
+                if (organizerName != null) {
+                    attendeeCv.put(Attendees.ATTENDEE_NAME, organizerName);
+                }
+                if (organizerEmail != null) {
+                    attendeeCv.put(Attendees.ATTENDEE_EMAIL, organizerEmail);
+                }
+                attendeeCv.put(Attendees.ATTENDEE_RELATIONSHIP, Attendees.RELATIONSHIP_ORGANIZER);
+                attendeeCv.put(Attendees.ATTENDEE_TYPE, Attendees.TYPE_REQUIRED);
+                if (eventId < 0) {
+                    ops.newAttendee(attendeeCv);
+                } else {
+                    ops.updatedAttendee(attendeeCv, eventId);
+                }
+            }
+        }
+
         public void addEvent(CalendarOperations ops, String serverId, boolean update)
                 throws IOException {
             ContentValues cv = new ContentValues();
@@ -269,6 +290,7 @@ public class CalendarSyncAdapter extends AbstractSyncAdapter {
             ArrayList<ContentValues> attendeeValues = new ArrayList<ContentValues>();
             int reminderMins = -1;
             String dtStamp = null;
+            boolean organizerAdded = false;
 
             while (nextTag(Tags.SYNC_APPLICATION_DATA) != END) {
                 if (update && firstTag) {
@@ -345,6 +367,10 @@ public class CalendarSyncAdapter extends AbstractSyncAdapter {
                         endTime = Utility.parseDateTimeToMillis(getValue());
                         break;
                     case Tags.CALENDAR_EXCEPTIONS:
+                        // For exceptions to show the organizer, the organizer must be added before
+                        // we call exceptionsParser
+                        addOrganizerToAttendees(ops, eventId, organizerName, organizerEmail);
+                        organizerAdded = true;
                         exceptionsParser(ops, cv, attendeeValues, reminderMins);
                         break;
                     case Tags.CALENDAR_LOCATION:
@@ -399,22 +425,9 @@ public class CalendarSyncAdapter extends AbstractSyncAdapter {
                 }
             }
 
-            // Handle the organizer (who IS an attendee on device, but NOT in EAS)
-            if (organizerName != null || organizerEmail != null) {
-                ContentValues attendeeCv = new ContentValues();
-                if (organizerName != null) {
-                    attendeeCv.put(Attendees.ATTENDEE_NAME, organizerName);
-                }
-                if (organizerEmail != null) {
-                    attendeeCv.put(Attendees.ATTENDEE_EMAIL, organizerEmail);
-                }
-                attendeeCv.put(Attendees.ATTENDEE_RELATIONSHIP, Attendees.RELATIONSHIP_ORGANIZER);
-                attendeeCv.put(Attendees.ATTENDEE_TYPE, Attendees.TYPE_REQUIRED);
-                if (eventId < 0) {
-                    ops.newAttendee(attendeeCv);
-                } else {
-                    ops.updatedAttendee(attendeeCv, eventId);
-                }
+            // If we haven't added the organizer to attendees, do it now
+            if (!organizerAdded) {
+                addOrganizerToAttendees(ops, eventId, organizerName, organizerEmail);
             }
 
             // Store email addresses of attendees (in a tokenizable string) in ExtendedProperties
