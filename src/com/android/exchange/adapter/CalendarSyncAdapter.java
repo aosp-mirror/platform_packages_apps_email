@@ -1158,6 +1158,7 @@ public class CalendarSyncAdapter extends AbstractSyncAdapter {
         boolean isException = (clientId == null);
         boolean hasAttendees = false;
         boolean isChange = entityValues.containsKey(Events._SYNC_ID);
+        Double version = mService.mProtocolVersionDouble;
 
         // Get the event's time zone
         String timeZoneName = entityValues.getAsString(Events.EVENT_TIMEZONE);
@@ -1232,7 +1233,7 @@ public class CalendarSyncAdapter extends AbstractSyncAdapter {
 
         String loc = entityValues.getAsString(Events.EVENT_LOCATION);
         if (!TextUtils.isEmpty(loc)) {
-            if (mService.mProtocolVersionDouble < Eas.SUPPORTED_PROTOCOL_EX2007_DOUBLE) {
+            if (version < Eas.SUPPORTED_PROTOCOL_EX2007_DOUBLE) {
                 // EAS 2.5 doesn't like bare line feeds
                 loc = Utility.replaceBareLfWithCrlf(loc);
             }
@@ -1251,7 +1252,7 @@ public class CalendarSyncAdapter extends AbstractSyncAdapter {
         if (!isException) {
             String desc = entityValues.getAsString(Events.DESCRIPTION);
             if (desc != null && desc.length() > 0) {
-                if (mService.mProtocolVersionDouble >= Eas.SUPPORTED_PROTOCOL_EX2007_DOUBLE) {
+                if (version >= Eas.SUPPORTED_PROTOCOL_EX2007_DOUBLE) {
                     s.start(Tags.BASE_BODY);
                     s.data(Tags.BASE_TYPE, "1");
                     s.data(Tags.BASE_DATA, desc);
@@ -1262,9 +1263,8 @@ public class CalendarSyncAdapter extends AbstractSyncAdapter {
                 }
             }
 
-            // We only write organizer email if the event is new (not a change)
-            // Exchange 2003 will reject upsyncs of changed events with organizer email
-            if (!isChange) {
+            // For Exchange 2003, only upsync if the event is new
+            if ((version >= Eas.SUPPORTED_PROTOCOL_EX2007_DOUBLE) || !isChange) {
                 s.writeStringValue(entityValues, Events.ORGANIZER, Tags.CALENDAR_ORGANIZER_EMAIL);
             }
 
@@ -1357,8 +1357,7 @@ public class CalendarSyncAdapter extends AbstractSyncAdapter {
                         }
                         s.data(Tags.CALENDAR_ATTENDEE_NAME, attendeeName);
                         s.data(Tags.CALENDAR_ATTENDEE_EMAIL, attendeeEmail);
-                        if (mService.mProtocolVersionDouble >=
-                                Eas.SUPPORTED_PROTOCOL_EX2007_DOUBLE) {
+                        if (version >= Eas.SUPPORTED_PROTOCOL_EX2007_DOUBLE) {
                             s.data(Tags.CALENDAR_ATTENDEE_TYPE, "1"); // Required
                         }
                         s.end(); // Attendee
@@ -1376,9 +1375,9 @@ public class CalendarSyncAdapter extends AbstractSyncAdapter {
                 s.data(Tags.CALENDAR_MEETING_STATUS, "3");
             }
 
-            // We only write organizer name if the event is new (not a change)
-            // Exchange 2003 will reject upsyncs of changed events with organizer name
-            if (!isChange && organizerName != null) {
+            // For Exchange 2003, only upsync if the event is new
+            if (((version >= Eas.SUPPORTED_PROTOCOL_EX2007_DOUBLE) || !isChange) &&
+                    organizerName != null) {
                 s.data(Tags.CALENDAR_ORGANIZER_NAME, organizerName);
             }
         } else {
