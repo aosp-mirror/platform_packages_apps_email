@@ -1021,6 +1021,9 @@ public class EasSyncService extends AbstractSyncService {
             if (key == null || key.length() == 0) {
                 return;
             }
+             if (Eas.PARSER_LOG) {
+                userLog("Policy key: " , key);
+            }
             method.setHeader("X-MS-PolicyKey", key);
         }
     }
@@ -1385,7 +1388,10 @@ public class EasSyncService extends AbstractSyncService {
                     }
                 } else if (isProvisionError(code)) {
                     // If the sync error is a provisioning failure (perhaps the policies changed),
-                    // let's try the provisining procedure
+                    // let's try the provisioning procedure
+                    // Provisioning must only be attempted for the account mailbox - trying to
+                    // provision any other mailbox may result in race conditions and the creation
+                    // of multiple policy keys.
                     if (!tryProvision()) {
                         // Set the appropriate failure status
                         mExitStatus = EXIT_SECURITY_FAILURE;
@@ -1918,10 +1924,7 @@ public class EasSyncService extends AbstractSyncService {
             } else {
                 userLog("Sync response error: ", code);
                 if (isProvisionError(code)) {
-                    if (!tryProvision()) {
-                        mExitStatus = EXIT_SECURITY_FAILURE;
-                        return;
-                    }
+                    mExitStatus = EXIT_SECURITY_FAILURE;
                 } else if (isAuthError(code)) {
                     mExitStatus = EXIT_LOGIN_FAILURE;
                 } else {
