@@ -1281,13 +1281,18 @@ public class CalendarSyncAdapter extends AbstractSyncAdapter {
                 Uri ncvUri = ncv.uri;
                 ContentValues ncvValues = ncv.values;
                 if (ncvUri.equals(ExtendedProperties.CONTENT_URI)) {
-                    s.writeStringValue(ncvValues, "dtstamp", Tags.CALENDAR_DTSTAMP);
-                    String categories = ncvValues.getAsString("categories");
-                    if (categories != null) {
+                    String propertyName =
+                        ncvValues.getAsString(ExtendedProperties.NAME);
+                    String propertyValue =
+                        ncvValues.getAsString(ExtendedProperties.VALUE);
+                    if (TextUtils.isEmpty(propertyValue)) {
+                        continue;
+                    }
+                    if (propertyName.equals("categories")) {
                         // Send all the categories back to the server
                         // We've saved them as a String of delimited tokens
                         StringTokenizer st =
-                            new StringTokenizer(categories, CATEGORY_TOKENIZER_DELIMITER);
+                            new StringTokenizer(propertyValue, CATEGORY_TOKENIZER_DELIMITER);
                         if (st.countTokens() > 0) {
                             s.start(Tags.CALENDAR_CATEGORIES);
                             while (st.hasMoreTokens()) {
@@ -1325,6 +1330,7 @@ public class CalendarSyncAdapter extends AbstractSyncAdapter {
 
             // Handle attendee data here; keep track of organizer and stream it afterward
             String organizerName = null;
+            String organizerEmail = null;
             for (NamedContentValues ncv: subValues) {
                 Uri ncvUri = ncv.uri;
                 ContentValues ncvValues = ncv.values;
@@ -1336,6 +1342,7 @@ public class CalendarSyncAdapter extends AbstractSyncAdapter {
                         // Organizer isn't among attendees in EAS
                         if (relationship == Attendees.RELATIONSHIP_ORGANIZER) {
                             organizerName = ncvValues.getAsString(Attendees.ATTENDEE_NAME);
+                            organizerEmail = ncvValues.getAsString(Attendees.ATTENDEE_EMAIL);
                             continue;
                         }
                         if (!hasAttendees) {
@@ -1360,6 +1367,13 @@ public class CalendarSyncAdapter extends AbstractSyncAdapter {
             }
             if (hasAttendees) {
                 s.end();  // Attendees
+            }
+
+            // Meeting status, 0 = appointment, 1 = meeting, 3 = attendee
+            if (organizerEmail.equalsIgnoreCase(mAccount.mEmailAddress)) {
+                s.data(Tags.CALENDAR_MEETING_STATUS, hasAttendees ? "1" : "0");
+            } else {
+                s.data(Tags.CALENDAR_MEETING_STATUS, "3");
             }
 
             // We only write organizer name if the event is new (not a change)
