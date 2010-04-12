@@ -120,7 +120,14 @@ public class EasSyncService extends AbstractSyncService {
     static private final int CHUNK_SIZE = 16*1024;
 
     static private final String PING_COMMAND = "Ping";
+    // Command timeout is the the time allowed for reading data from an open connection before an
+    // IOException is thrown.  After a small added allowance, our watchdog alarm goes off (allowing
+    // us to detect a silently dropped connection).  The allowance is defined below.
     static private final int COMMAND_TIMEOUT = 20*SECONDS;
+    // Connection timeout is the time given to connect to the server before reporting an IOException
+    static private final int CONNECTION_TIMEOUT = 30*SECONDS;
+    // The extra time allowed beyond the COMMAND_TIMEOUT before which our watchdog alarm triggers
+    static private final int WATCHDOG_TIMEOUT_ALLOWANCE = 10*SECONDS;
 
     static private final String AUTO_DISCOVER_SCHEMA_PREFIX =
         "http://schemas.microsoft.com/exchange/autodiscover/mobilesync/";
@@ -1034,7 +1041,7 @@ public class EasSyncService extends AbstractSyncService {
 
     private HttpClient getHttpClient(int timeout) {
         HttpParams params = new BasicHttpParams();
-        HttpConnectionParams.setConnectionTimeout(params, 15*SECONDS);
+        HttpConnectionParams.setConnectionTimeout(params, CONNECTION_TIMEOUT);
         HttpConnectionParams.setSoTimeout(params, timeout);
         HttpConnectionParams.setSocketBufferSize(params, 8192);
         HttpClient client = new DefaultHttpClient(getClientConnectionManager(), params);
@@ -1078,7 +1085,7 @@ public class EasSyncService extends AbstractSyncService {
             boolean isPingCommand) throws IOException {
         synchronized(getSynchronizer()) {
             mPendingPost = method;
-            long alarmTime = timeout+(10*SECONDS);
+            long alarmTime = timeout + WATCHDOG_TIMEOUT_ALLOWANCE;
             if (isPingCommand) {
                 SyncManager.runAsleep(mMailboxId, alarmTime);
             } else {
@@ -1878,9 +1885,14 @@ public class EasSyncService extends AbstractSyncService {
                 .data(Tags.SYNC_COLLECTION_ID, mailbox.mServerId)
                 .tag(Tags.SYNC_DELETES_AS_MOVES);
 
-            // EAS doesn't like GetChanges if the syncKey is "0"; not documented
+            // Start with the default timeout
+            int timeout = COMMAND_TIMEOUT;
             if (!syncKey.equals("0")) {
+                // EAS doesn't like GetChanges if the syncKey is "0"; not documented
                 s.tag(Tags.SYNC_GET_CHANGES);
+            } else {
+                // Use 2x timeout for initial sync, which empirically can take a while longer
+                timeout <<= 1;
             }
             s.data(Tags.SYNC_WINDOW_SIZE,
                     className.equals("Email") ? EMAIL_WINDOW_SIZE : PIM_WINDOW_SIZE);
@@ -1891,8 +1903,8 @@ public class EasSyncService extends AbstractSyncService {
             if (className.equals("Email")) {
                 s.data(Tags.SYNC_FILTER_TYPE, getEmailFilter());
             } else if (className.equals("Calendar")) {
-                // TODO Force one month for calendar until we can set this!
-                s.data(Tags.SYNC_FILTER_TYPE, Eas.FILTER_1_MONTH);
+                // TODO Force two weeks for calendar until we can set this!
+                s.data(Tags.SYNC_FILTER_TYPE, Eas.FILTER_2_WEEKS);
             }
             // Set the truncation amount for all classes
             if (mProtocolVersionDouble >= Eas.SUPPORTED_PROTOCOL_EX2007_DOUBLE) {
@@ -1911,7 +1923,8 @@ public class EasSyncService extends AbstractSyncService {
             target.sendLocalChanges(s);
 
             s.end().end().end().done();
-            HttpResponse resp = sendHttpClientPost("Sync", s.toByteArray());
+            HttpResponse resp = sendHttpClientPost("Sync", new ByteArrayEntity(s.toByteArray()),
+                    timeout);
             int code = resp.getStatusLine().getStatusCode();
             if (code == HttpStatus.SC_OK) {
                 InputStream is = resp.getEntity().getContent();
