@@ -1531,18 +1531,17 @@ public class CalendarSyncAdapter extends AbstractSyncAdapter {
                                 // attendees about it
                                 long exEventId = exValues.getAsLong(Events._ID);
                                 int flag;
+
                                 if ((getInt(exValues, Events.DELETED) == 1) ||
                                         (getInt(exValues, Events.STATUS) ==
                                             Events.STATUS_CANCELED)) {
-                                    // Add the eventId of the exception to the proper list, so that
-                                    // the dirty bit is cleared or the event is deleted after the
-                                    // sync has completed
-                                    mDeletedIdList.add(exEventId);
                                     flag = Message.FLAG_OUTGOING_MEETING_CANCEL;
                                 } else {
-                                    mUploadedIdList.add(exEventId);
                                     flag = Message.FLAG_OUTGOING_MEETING_INVITE;
                                 }
+                                // Add the eventId of the exception to the uploaded id list, so that
+                                // the dirty/mark bits are cleared
+                                mUploadedIdList.add(exEventId);
 
                                 // Copy subvalues into the exception; otherwise, we won't see the
                                 // attendees when preparing the message
