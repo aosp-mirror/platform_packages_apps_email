@@ -1235,20 +1235,20 @@ public class CalendarSyncAdapter extends AbstractSyncAdapter {
             s.data(Tags.CALENDAR_SENSITIVITY, "1");
         }
 
-        if (!isException) {
-            String desc = entityValues.getAsString(Events.DESCRIPTION);
-            if (desc != null && desc.length() > 0) {
-                if (version >= Eas.SUPPORTED_PROTOCOL_EX2007_DOUBLE) {
-                    s.start(Tags.BASE_BODY);
-                    s.data(Tags.BASE_TYPE, "1");
-                    s.data(Tags.BASE_DATA, desc);
-                    s.end();
-                } else {
-                    // EAS 2.5 doesn't like bare line feeds
-                    s.data(Tags.CALENDAR_BODY, Utility.replaceBareLfWithCrlf(desc));
-                }
+        String desc = entityValues.getAsString(Events.DESCRIPTION);
+        if (desc != null && desc.length() > 0) {
+            if (version >= Eas.SUPPORTED_PROTOCOL_EX2007_DOUBLE) {
+                s.start(Tags.BASE_BODY);
+                s.data(Tags.BASE_TYPE, "1");
+                s.data(Tags.BASE_DATA, desc);
+                s.end();
+            } else {
+                // EAS 2.5 doesn't like bare line feeds
+                s.data(Tags.CALENDAR_BODY, Utility.replaceBareLfWithCrlf(desc));
             }
+        }
 
+        if (!isException) {
             // For Exchange 2003, only upsync if the event is new
             if ((version >= Eas.SUPPORTED_PROTOCOL_EX2007_DOUBLE) || !isChange) {
                 s.writeStringValue(entityValues, Events.ORGANIZER, Tags.CALENDAR_ORGANIZER_EMAIL);
