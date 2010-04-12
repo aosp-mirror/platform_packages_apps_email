@@ -1384,6 +1384,21 @@ public class CalendarSyncAdapter extends AbstractSyncAdapter {
         }
     }
 
+    /**
+     * Convenience method for sending an email to the organizer declining the meeting
+     * @param entity
+     * @param clientId
+     */
+    private void sendDeclinedEmail(Entity entity, String clientId) {
+        Message msg =
+            CalendarUtilities.createMessageForEntity(mContext, entity,
+                    Message.FLAG_OUTGOING_MEETING_DECLINE, clientId, mAccount);
+        if (msg != null) {
+            userLog("Queueing declined response to " + msg.mTo);
+            mOutgoingMailList.add(msg);
+        }
+    }
+
     @Override
     public boolean sendLocalChanges(Serializer s) throws IOException {
         ContentResolver cr = mService.mContentResolver;
@@ -1479,6 +1494,8 @@ public class CalendarSyncAdapter extends AbstractSyncAdapter {
                             mDeletedIdList.add(eventId);
                             if (selfOrganizer) {
                                 mSendCancelIdList.add(eventId);
+                            } else {
+                                sendDeclinedEmail(entity, clientId);
                             }
                             continue;
                         }
@@ -1554,7 +1571,29 @@ public class CalendarSyncAdapter extends AbstractSyncAdapter {
                                 // Copy location so that it's included in the outgoing email
                                 if (entityValues.containsKey(Events.EVENT_LOCATION)) {
                                     exValues.put(Events.EVENT_LOCATION,
-                                        entityValues.getAsString(Events.EVENT_LOCATION));
+                                            entityValues.getAsString(Events.EVENT_LOCATION));
+                                }
+
+                                if ((getInt(exValues, Events.DELETED) == 1) ||
+                                        (getInt(exValues, Events.STATUS) ==
+                                            Events.STATUS_CANCELED)) {
+                                    // Add the eventId of the exception to the proper list, so that
+                                    // the dirty bit is cleared or the event is deleted after the
+                                    // sync has completed
+                                    mDeletedIdList.add(exEventId);
+                                    flag = Message.FLAG_OUTGOING_MEETING_CANCEL;
+                                    if (!selfOrganizer) {
+                                        // Send a cancellation notice to the organizer
+                                        // Since CalendarProvider2 sets the organizer of exceptions
+                                        // to the user, we have to reset it first to the original
+                                        // organizer
+                                        exValues.put(Events.ORGANIZER,
+                                                entityValues.getAsString(Events.ORGANIZER));
+                                        sendDeclinedEmail(exEntity, clientId);
+                                    }
+                                } else {
+                                    mUploadedIdList.add(exEventId);
+                                    flag = Message.FLAG_OUTGOING_MEETING_INVITE;
                                 }
 
                                 if (selfOrganizer) {
