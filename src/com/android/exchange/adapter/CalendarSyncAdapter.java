@@ -73,8 +73,8 @@ public class CalendarSyncAdapter extends AbstractSyncAdapter {
     private static final String TAG = "EasCalendarSyncAdapter";
     // Since exceptions will have the same _SYNC_ID as the original event we have to check that
     // there's no original event when finding an item by _SYNC_ID
-    private static final String SERVER_ID = Events._SYNC_ID + "=? AND " +
-        Events.ORIGINAL_EVENT + " ISNULL";
+    private static final String SERVER_ID_AND_CALENDAR_ID = Events._SYNC_ID + "=? AND " +
+        Events.ORIGINAL_EVENT + " ISNULL AND " + Events.CALENDAR_ID + "=?";
     private static final String DIRTY_OR_MARKED_TOP_LEVEL_IN_CALENDAR =
         "(" + Events._SYNC_DIRTY + "=1 OR " + Events._SYNC_MARK + "= 1) AND " +
         Events.ORIGINAL_EVENT + " ISNULL AND " + Events.CALENDAR_ID + "=?";
@@ -111,13 +111,13 @@ public class CalendarSyncAdapter extends AbstractSyncAdapter {
     private static final Object sSyncKeyLock = new Object();
 
     private long mCalendarId = -1;
+    private String mCalendarIdString;
+    private String[] mCalendarIdArgument;
 
     private ArrayList<Long> mDeletedIdList = new ArrayList<Long>();
     private ArrayList<Long> mUploadedIdList = new ArrayList<Long>();
     private ArrayList<Long> mSendCancelIdList = new ArrayList<Long>();
     private ArrayList<Message> mOutgoingMailList = new ArrayList<Message>();
-
-    private String[] mCalendarIdArgument;
 
     public CalendarSyncAdapter(Mailbox mailbox, EasSyncService service) {
         super(mailbox, service);
@@ -131,7 +131,8 @@ public class CalendarSyncAdapter extends AbstractSyncAdapter {
             } else {
                 mCalendarId = CalendarUtilities.createCalendar(mService, mAccount, mMailbox);
             }
-            mCalendarIdArgument = new String[] {Long.toString(mCalendarId)};
+            mCalendarIdString = Long.toString(mCalendarId);
+            mCalendarIdArgument = new String[] {mCalendarIdString};
         } finally {
             c.close();
         }
@@ -225,7 +226,6 @@ public class CalendarSyncAdapter extends AbstractSyncAdapter {
     class EasCalendarSyncParser extends AbstractSyncParser {
 
         String[] mBindArgument = new String[1];
-        String mMailboxIdAsString;
         Uri mAccountUri;
         CalendarOperations mOps = new CalendarOperations();
 
@@ -816,9 +816,8 @@ public class CalendarSyncAdapter extends AbstractSyncAdapter {
         }
 
         private Cursor getServerIdCursor(String serverId) {
-            mBindArgument[0] = serverId;
-            return mContentResolver.query(mAccountUri, ID_PROJECTION, SERVER_ID,
-                    mBindArgument, null);
+            return mContentResolver.query(mAccountUri, ID_PROJECTION, SERVER_ID_AND_CALENDAR_ID,
+                    new String[] {serverId, mCalendarIdString}, null);
         }
 
         private Cursor getClientIdCursor(String clientId) {
@@ -1421,7 +1420,8 @@ public class CalendarSyncAdapter extends AbstractSyncAdapter {
                 while (c.moveToNext()) {
                     // Mark the parents of dirty exceptions
                     String serverId = c.getString(0);
-                    int cnt = cr.update(EVENTS_URI, cv, SERVER_ID, new String[] {serverId});
+                    int cnt = cr.update(EVENTS_URI, cv, SERVER_ID_AND_CALENDAR_ID,
+                            new String[] {serverId, mCalendarIdString});
                     // Keep track of any orphaned exceptions
                     if (cnt == 0) {
                         orphanedExceptions.add(c.getLong(1));
@@ -1529,10 +1529,9 @@ public class CalendarSyncAdapter extends AbstractSyncAdapter {
 
                     // Now, the hard part; find exceptions for this event
                     if (serverId != null) {
-                        String calendarId = Long.toString(mCalendarId);
                         EntityIterator exIterator = EventsEntity.newEntityIterator(
                                 cr.query(EVENTS_URI, null, ORIGINAL_EVENT_AND_CALENDAR,
-                                        new String[] {serverId, calendarId}, null), cr);
+                                        new String[] {serverId, mCalendarIdString}, null), cr);
                         boolean exFirst = true;
                         while (exIterator.hasNext()) {
                             Entity exEntity = exIterator.next();
