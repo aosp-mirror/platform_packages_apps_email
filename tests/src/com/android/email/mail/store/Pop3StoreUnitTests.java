@@ -790,7 +790,58 @@ public class Pop3StoreUnitTests extends AndroidTestCase {
         mFolder.fetch(messages, fp, null);
         checkFetchedMessage(messages[0], 1, false);
     }
-    
+
+    /**
+     * A group of tests to confirm that we're properly juggling the RETR and TOP commands.
+     * Some servers (hello, live.com) support TOP but don't support CAPA.  So we ignore CAPA
+     * and just try TOP.
+     */
+    public void testRetrVariants() throws MessagingException {
+        MockTransport mockTransport = openAndInjectMockTransport();
+        openFolderWithMessage(mockTransport);
+
+        // index the message(s)
+        setupUidlSequence(mockTransport, 2);
+        Message[] messages = mFolder.getMessages(1, 2, null);
+        assertEquals(2, messages.length);
+
+        // basic fetch of flags & envelope
+        setupListSequence(mockTransport, 2);
+        FetchProfile fp = new FetchProfile();
+        fp.add(FetchProfile.Item.FLAGS);
+        fp.add(FetchProfile.Item.ENVELOPE);
+        mFolder.fetch(messages, fp, null);
+
+        // A side effect of how messages work is that if you get fields that are empty, 
+        // then empty arrays are written back into the parsed header fields (e.g. mTo, mFrom).  The
+        // standard message parser needs to clear these before parsing.  Make sure that this
+        // is happening.  (This doesn't affect IMAP, which reads the headers directly via
+        // IMAP envelopes.)
+        for (Message message : messages) {
+            message.getRecipients(RecipientType.TO);
+            message.getRecipients(RecipientType.CC);
+            message.getRecipients(RecipientType.BCC);
+        }
+
+        // In the cases below, we fetch BODY_SANE which tries to load the first chunk of the
+        // message (not the entire thing) in order to quickly access the headers.
+        // In the first test, TOP succeeds
+        Message[] singleMessage = new Message[] { messages[0] };
+        setupSingleMessageTop(mockTransport, 1, true, true);        // try TOP & succeed
+        fp = new FetchProfile();
+        fp.add(FetchProfile.Item.BODY_SANE);
+        mFolder.fetch(singleMessage, fp, null);
+        checkFetchedMessage(singleMessage[0], 1, false);
+
+        // In the 2nd test, TOP fails, so we should fall back to RETR
+        singleMessage[0] = messages[1];
+        setupSingleMessageTop(mockTransport, 2, true, false);        // try TOP & fail
+        fp = new FetchProfile();
+        fp.add(FetchProfile.Item.BODY_SANE);
+        mFolder.fetch(singleMessage, fp, null);
+        checkFetchedMessage(singleMessage[0], 2, false);
+    }
+
     /**
      * Set up a basic MockTransport. open it, and inject it into mStore
      */
@@ -944,7 +995,35 @@ public class Pop3StoreUnitTests extends AndroidTestCase {
      * @param body if true, a non-empty body will be added
      */
     private static void setupSingleMessage(MockTransport transport, int msgNum, boolean body) {
-        transport.expect("RETR " + Integer.toString(msgNum), "+OK message follows");
+        setupSingleMessageTop(transport, msgNum, false, false);
+    }
+
+    /**
+     * Setup a single message to be retrieved (headers only).
+     * This is very similar to setupSingleMessage() but is intended to test the BODY_SANE
+     * fetch mode.
+     * @param transport the mock transport
+     * @param msgNum the message number to expect and return
+     * @param topTry if true, the "client" is going to attempt the TOP command
+     * @param topSupported if true, the "server" supports the TOP command
+     */
+    private static void setupSingleMessageTop(MockTransport transport, int msgNum,
+            boolean topTry, boolean topSupported) {
+        String msgNumString = Integer.toString(msgNum);
+        String topCommand = "TOP " + msgNumString + " 673";
+        String retrCommand = "RETR " + msgNumString;
+
+        if (topTry) {
+            if (topSupported) {
+                transport.expect(topCommand, "+OK message follows");
+            } else {
+                transport.expect(topCommand, "-ERR unsupported command");
+                transport.expect(retrCommand, "+OK message follows");
+            }
+        } else {
+            transport.expect(retrCommand, "+OK message follows");
+        }
+
         transport.expect(null, "Date: 26 Aug 76 1429 EDT");
         transport.expect(null, "From: Jones@Registry.Org");
         transport.expect(null, "To:   Smith@Registry.Org");
