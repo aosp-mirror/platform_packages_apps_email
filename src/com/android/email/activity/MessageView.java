@@ -594,6 +594,7 @@ public class MessageView extends Activity implements OnClickListener {
             if (!TextUtils.isEmpty(senderPersonal)) {
                 intent.putExtra(ContactsContract.Intents.Insert.NAME, senderPersonal);
             }
+            intent.setFlags(Intent.FLAG_ACTIVITY_CLEAR_WHEN_TASK_RESET);
 
             startActivity(intent);
         }
@@ -811,6 +812,7 @@ public class MessageView extends Activity implements OnClickListener {
                     Intent intent = new Intent(Intent.ACTION_VIEW);
                     intent.setData(uri);
                     intent.putExtra("VIEW", "DAY");
+                    intent.setFlags(Intent.FLAG_ACTIVITY_CLEAR_WHEN_TASK_RESET);
                     startActivity(intent);
                 } else {
                     Email.log("meetingInfo without DTSTART " + mMessage.mMeetingInfo);
