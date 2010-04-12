@@ -45,6 +45,10 @@ public class CalendarSyncAdapterService extends Service {
         MailboxColumns.ACCOUNT_KEY + "=? AND " + MailboxColumns.TYPE + '=' + Mailbox.TYPE_CALENDAR;
     private static final String DIRTY_IN_ACCOUNT =
         Events._SYNC_DIRTY + "=1 AND " + Events._SYNC_ACCOUNT + "=?";
+    private static final String[] ID_SYNC_KEY_PROJECTION =
+        new String[] {MailboxColumns.ID, MailboxColumns.SYNC_KEY};
+    private static final int ID_SYNC_KEY_MAILBOX_ID = 0;
+    private static final int ID_SYNC_KEY_SYNC_KEY = 1;
 
     public CalendarSyncAdapterService() {
         super();
@@ -119,15 +123,22 @@ public class CalendarSyncAdapterService extends Service {
             if (accountCursor.moveToFirst()) {
                 long accountId = accountCursor.getLong(0);
                 // Now, find the calendar mailbox associated with the account
-                Cursor mailboxCursor = cr.query(Mailbox.CONTENT_URI, EmailContent.ID_PROJECTION,
+                Cursor mailboxCursor = cr.query(Mailbox.CONTENT_URI, ID_SYNC_KEY_PROJECTION,
                         ACCOUNT_AND_TYPE_CALENDAR, new String[] {Long.toString(accountId)}, null);
                 try {
                      if (mailboxCursor.moveToFirst()) {
                         if (logging) {
                             Log.d(TAG, "Upload sync requested for " + account.name);
                         }
+                        String syncKey = mailboxCursor.getString(ID_SYNC_KEY_SYNC_KEY);
+                        if ((syncKey == null) || (syncKey.equals("0"))) {
+                            if (logging) {
+                                Log.d(TAG, "Can't sync; mailbox in initial state");
+                            }
+                            return;
+                        }
                         // Ask for a sync from our sync manager
-                        SyncManager.serviceRequest(mailboxCursor.getLong(0),
+                        SyncManager.serviceRequest(mailboxCursor.getLong(ID_SYNC_KEY_MAILBOX_ID),
                                 SyncManager.SYNC_UPSYNC);
                     }
                 } finally {
