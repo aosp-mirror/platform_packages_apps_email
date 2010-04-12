@@ -755,20 +755,28 @@ public class Pop3Store extends Store {
          * is fetched. This is implemented with RETR for lines = -1 or TOP
          * for any other value. If the server does not support TOP it is
          * emulated with RETR and extra lines are thrown away.
+         *
+         * Note:  Some servers (e.g. live.com) don't support CAPA, but turn out to
+         * support TOP after all.  For better performance on these servers, we'll always
+         * probe TOP, and fall back to RETR when it's truly unsupported.
+         *
          * @param message
          * @param lines
          */
         private void fetchBody(Pop3Message message, int lines)
                 throws IOException, MessagingException {
             String response = null;
-            if (lines == -1 || !mCapabilities.top) {
-                response = executeSimpleCommand(String.format("RETR %d",
-                        mUidToMsgNumMap.get(message.getUid())));
-            }
-            else {
-                response = executeSimpleCommand(String.format("TOP %d %d",
-                        mUidToMsgNumMap.get(message.getUid()),
-                        lines));
+            int messageId = mUidToMsgNumMap.get(message.getUid());
+            if (lines == -1) {
+                // Fetch entire message
+                response = executeSimpleCommand(String.format("RETR %d", messageId));
+            } else {
+                // Fetch partial message.  Try "TOP", and fall back to slower "RETR" if necessary
+                try {
+                    response = executeSimpleCommand(String.format("TOP %d %d", messageId,  lines));
+                } catch (MessagingException me) {
+                    response = executeSimpleCommand(String.format("RETR %d", messageId));
+                }
             }
             if (response != null)  {
                 try {
