@@ -102,7 +102,17 @@ public class AccountSecurity extends Activity {
                     // now active - try to set actual policies
                     setActivePolicies();
                 } else {
-                    // failed - just give up and go away
+                    // failed - repost notification, and exit
+                    final long accountId = getIntent().getLongExtra(EXTRA_ACCOUNT_ID, -1);
+                    if (accountId != -1) {
+                        new Thread() {
+                            @Override
+                            public void run() {
+                                SecurityPolicy.getInstance(AccountSecurity.this)
+                                        .policiesRequired(accountId);
+                            }
+                        }.start();
+                    }
                 }
         }
         finish();
