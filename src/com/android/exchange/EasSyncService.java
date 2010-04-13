@@ -1269,13 +1269,13 @@ public class EasSyncService extends AbstractSyncService {
 
         s.data(Tags.PROVISION_POLICY_KEY, tempKey);
         s.data(Tags.PROVISION_STATUS, "1");
+        s.end().end(); // PROVISION_POLICY, PROVISION_POLICIES
         if (remoteWipe) {
             s.start(Tags.PROVISION_REMOTE_WIPE);
             s.data(Tags.PROVISION_STATUS, "1");
             s.end();
         }
-        s.end(); // PROVISION_POLICY
-        s.end().end().done(); // PROVISION_POLICIES, PROVISION_PROVISION
+        s.end().done(); // PROVISION_PROVISION
         HttpResponse resp = sendHttpClientPost("Provision", s.toByteArray());
         int code = resp.getStatusLine().getStatusCode();
         if (code == HttpStatus.SC_OK) {
