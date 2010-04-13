@@ -20,6 +20,7 @@ import com.android.email.Controller;
 import com.android.email.Email;
 import com.android.email.R;
 import com.android.email.Utility;
+import com.android.email.activity.setup.AccountSecurity;
 import com.android.email.activity.setup.AccountSettings;
 import com.android.email.mail.AuthenticationFailedException;
 import com.android.email.mail.CertificateValidationException;
@@ -92,6 +93,8 @@ public class MessageList extends ListActivity implements OnItemClickListener, On
     private static final String STATE_CHECKED_ITEMS =
         "com.android.email.activity.MessageList.checkedItems";
 
+    private static final int REQUEST_SECURITY = 0;
+
     // UI support
     private ListView mListView;
     private View mMultiSelectPanel;
@@ -139,6 +142,10 @@ public class MessageList extends ListActivity implements OnItemClickListener, On
     private static final int ACCOUNT_DISPLAY_NAME_COLUMN_ID = 0;
     private static final String[] ACCOUNT_NAME_PROJECTION = new String[] {
             AccountColumns.DISPLAY_NAME };
+
+    private static final int ACCOUNT_INFO_COLUMN_FLAGS = 0;
+    private static final String[] ACCOUNT_INFO_PROJECTION = new String[] {
+            AccountColumns.FLAGS };
 
     private static final String ID_SELECTION = EmailContent.RECORD_ID + "=?";
 
@@ -1060,6 +1067,7 @@ public class MessageList extends ListActivity implements OnItemClickListener, On
         private final int mMailboxType;
         private final boolean mOkToRecurse;
         private boolean showWelcomeActivity;
+        private boolean showSecurityActivity;
 
         /**
          * Special constructor to cache some local info
@@ -1068,10 +1076,17 @@ public class MessageList extends ListActivity implements OnItemClickListener, On
             mAccountId = accountId;
             mMailboxType = mailboxType;
             mOkToRecurse = okToRecurse;
+            showWelcomeActivity = false;
+            showSecurityActivity = false;
         }
 
         @Override
         protected Long doInBackground(Void... params) {
+            // Quick check that account is not in security hold
+            if (isSecurityHold(mAccountId)) {
+                showSecurityActivity = true;
+                return Long.valueOf(-1);
+            }
             // See if we can find the requested mailbox in the DB.
             long mailboxId = Mailbox.findMailboxOfType(MessageList.this, mAccountId, mMailboxType);
             if (mailboxId == Mailbox.NO_MAILBOX) {
@@ -1092,6 +1107,13 @@ public class MessageList extends ListActivity implements OnItemClickListener, On
 
         @Override
         protected void onPostExecute(Long mailboxId) {
+            if (showSecurityActivity) {
+                // launch the security setup activity
+                Intent i = AccountSecurity.actionUpdateSecurityIntent(
+                        MessageList.this, mAccountId);
+                MessageList.this.startActivityForResult(i, REQUEST_SECURITY);
+                return;
+            }
             if (showWelcomeActivity) {
                 // Let the Welcome activity show the default screen.
                 Welcome.actionStart(MessageList.this);
@@ -1107,6 +1129,41 @@ public class MessageList extends ListActivity implements OnItemClickListener, On
             mLoadMessagesTask = new LoadMessagesTask(mMailboxId, mAccountId);
             mLoadMessagesTask.execute();
         }
+    }
+
+    /**
+     * Check a single account for security hold status.  Do not call from UI thread.
+     */
+    private boolean isSecurityHold(long accountId) {
+        Cursor c = MessageList.this.getContentResolver().query(
+                ContentUris.withAppendedId(Account.CONTENT_URI, accountId),
+                ACCOUNT_INFO_PROJECTION, null, null, null);
+        try {
+            if (c.moveToFirst()) {
+                int flags = c.getInt(ACCOUNT_INFO_COLUMN_FLAGS);
+                if ((flags & Account.FLAGS_SECURITY_HOLD) != 0) {
+                    return true;
+                }
+            }
+        } finally {
+            c.close();
+        }
+        return false;
+    }
+
+    /**
+     * Handle the eventual result from the security update activity
+     *
+     * Note, this is extremely coarse, and it simply returns the user to the Accounts list.
+     * Anything more requires refactoring of this Activity.
+     */
+    @Override
+    protected void onActivityResult(int requestCode, int resultCode, Intent data) {
+        switch (requestCode) {
+            case REQUEST_SECURITY:
+                onAccounts();
+        }
+        super.onActivityResult(requestCode, resultCode, data);
     }
 
     /**
