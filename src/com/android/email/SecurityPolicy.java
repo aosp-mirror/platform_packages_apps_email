@@ -49,7 +49,6 @@ public class SecurityPolicy {
     private DevicePolicyManager mDPM;
     private ComponentName mAdminName;
     private PolicySet mAggregatePolicy;
-    private boolean mNotificationActive;
 
     /* package */ static final PolicySet NO_POLICY_SET =
             new PolicySet(0, PolicySet.PASSWORD_MODE_NONE, 0, 0, false);
@@ -102,7 +101,6 @@ public class SecurityPolicy {
         mDPM = null;
         mAdminName = new ComponentName(context, PolicyAdmin.class);
         mAggregatePolicy = null;
-        mNotificationActive = false;
     }
 
     /**
@@ -368,20 +366,7 @@ public class SecurityPolicy {
         // Mark the account as "on hold".
         setAccountHoldFlag(account, true);
 
-        // Put up a notification (unless there already is one)
-        synchronized (this) {
-            if (mNotificationActive) {
-                // no need to do anything - we've already been notified, and we've already
-                // put up a notification
-                return;
-            } else {
-                // Prepare & post a notification
-                // record that we're watching this one
-                mNotificationActive = true;
-            }
-        }
-        // At this point, we will put up a notification
-
+        // Put up a notification
         String tickerText = mContext.getString(R.string.security_notification_ticker_fmt,
                 account.getDisplayName());
         String contentTitle = mContext.getString(R.string.security_notification_content_title);
@@ -421,11 +406,10 @@ public class SecurityPolicy {
      * Called from the notification's intent receiver to register that the notification can be
      * cleared now.
      */
-    public synchronized void clearNotification(long accountId) {
+    public void clearNotification(long accountId) {
         NotificationManager notificationManager =
             (NotificationManager) mContext.getSystemService(Context.NOTIFICATION_SERVICE);
         notificationManager.cancel(MailService.NOTIFICATION_ID_SECURITY_NEEDED);
-        mNotificationActive = false;
     }
 
     /**
