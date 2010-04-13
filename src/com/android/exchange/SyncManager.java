@@ -31,6 +31,7 @@ import com.android.email.provider.EmailContent.Mailbox;
 import com.android.email.provider.EmailContent.MailboxColumns;
 import com.android.email.provider.EmailContent.Message;
 import com.android.email.provider.EmailContent.SyncColumns;
+import com.android.email.service.EmailServiceStatus;
 import com.android.email.service.IEmailService;
 import com.android.email.service.IEmailServiceCallback;
 import com.android.exchange.adapter.CalendarSyncAdapter;
@@ -1177,6 +1178,15 @@ public class SyncManager extends Service implements Runnable {
         }
     }
 
+    static private void reloadFolderListFailed(long accountId) {
+        try {
+            callback().syncMailboxListStatus(accountId,
+                    EmailServiceStatus.ACCOUNT_UNINITIALIZED, 0);
+        } catch (RemoteException e1) {
+            // Don't care if this fails
+        }
+    }
+
     static public void reloadFolderList(Context context, long accountId, boolean force) {
         SyncManager syncManager = INSTANCE;
         if (syncManager == null) return;
@@ -1191,11 +1201,13 @@ public class SyncManager extends Service implements Runnable {
                     Mailbox m = new Mailbox().restore(c);
                     Account acct = Account.restoreAccountWithId(context, accountId);
                     if (acct == null) {
+                        reloadFolderListFailed(accountId);
                         return;
                     }
                     String syncKey = acct.mSyncKey;
                     // No need to reload the list if we don't have one
                     if (!force && (syncKey == null || syncKey.equals("0"))) {
+                        reloadFolderListFailed(accountId);
                         return;
                     }
 
