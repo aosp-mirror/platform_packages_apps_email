@@ -1213,6 +1213,51 @@ public class CalendarUtilities {
     }
 
     /**
+     * Add an attendee to the ics attachment and the to list of the Message being composed
+     * @param ics the ics attachment writer
+     * @param toList the list of addressees for this email
+     * @param attendeeName the name of the attendee
+     * @param attendeeEmail the email address of the attendee
+     * @param messageFlag the flag indicating the action to be indicated by the message
+     * @param account the sending account of the email
+     */
+    static private void addAttendeeToMessage(SimpleIcsWriter ics, ArrayList<Address> toList,
+            String attendeeName, String attendeeEmail, int messageFlag, Account account) {
+        if ((messageFlag & Message.FLAG_OUTGOING_MEETING_REQUEST_MASK) != 0) {
+            String icalTag = ICALENDAR_ATTENDEE_INVITE;
+            if ((messageFlag & Message.FLAG_OUTGOING_MEETING_CANCEL) != 0) {
+                icalTag = ICALENDAR_ATTENDEE_CANCEL;
+            }
+            if (attendeeName != null) {
+                icalTag += ";CN=" + SimpleIcsWriter.quoteParamValue(attendeeName);
+            }
+            ics.writeTag(icalTag, "MAILTO:" + attendeeEmail);
+            toList.add(attendeeName == null ? new Address(attendeeEmail) :
+                new Address(attendeeEmail, attendeeName));
+        } else if (attendeeEmail.equalsIgnoreCase(account.mEmailAddress)) {
+            String icalTag = null;
+            switch (messageFlag) {
+                case Message.FLAG_OUTGOING_MEETING_ACCEPT:
+                    icalTag = ICALENDAR_ATTENDEE_ACCEPT;
+                    break;
+                case Message.FLAG_OUTGOING_MEETING_DECLINE:
+                    icalTag = ICALENDAR_ATTENDEE_DECLINE;
+                    break;
+                case Message.FLAG_OUTGOING_MEETING_TENTATIVE:
+                    icalTag = ICALENDAR_ATTENDEE_TENTATIVE;
+                    break;
+            }
+            if (icalTag != null) {
+                if (attendeeName != null) {
+                    icalTag += ";CN="
+                            + SimpleIcsWriter.quoteParamValue(attendeeName);
+                }
+                ics.writeTag(icalTag, "MAILTO:" + attendeeEmail);
+            }
+        }
+    }
+
+    /**
      * Create a Message for an (Event) Entity
      * @param entity the Entity for the Event (as might be retrieved by CalendarProvider)
      * @param messageFlag the Message.FLAG_XXX constant indicating the type of email to be sent
@@ -1223,11 +1268,11 @@ public class CalendarUtilities {
     static public EmailContent.Message createMessageForEntity(Context context, Entity entity,
             int messageFlag, String uid, Account account) {
         return createMessageForEntity(context, entity, messageFlag, uid, account,
-                true /*requireAddressees*/);
+                null /*specifiedAttendee*/);
     }
 
     static public EmailContent.Message createMessageForEntity(Context context, Entity entity,
-            int messageFlag, String uid, Account account, boolean requireAddressees) {
+            int messageFlag, String uid, Account account, String specifiedAttendee) {
         ContentValues entityValues = entity.getEntityValues();
         ArrayList<NamedContentValues> subValues = entity.getSubValues();
         boolean isException = entityValues.containsKey(Events.ORIGINAL_EVENT);
@@ -1437,43 +1482,24 @@ public class CalendarUtilities {
                         }
                         String attendeeEmail = ncvValues.getAsString(Attendees.ATTENDEE_EMAIL);
                         String attendeeName = ncvValues.getAsString(Attendees.ATTENDEE_NAME);
+
                         // This shouldn't be possible, but allow for it
                         if (attendeeEmail == null) continue;
-
-                        if ((messageFlag & Message.FLAG_OUTGOING_MEETING_REQUEST_MASK) != 0) {
-                            String icalTag = ICALENDAR_ATTENDEE_INVITE;
-                            if ((messageFlag & Message.FLAG_OUTGOING_MEETING_CANCEL) != 0) {
-                                icalTag = ICALENDAR_ATTENDEE_CANCEL;
-                            }
-                            if (attendeeName != null) {
-                                icalTag += ";CN=" + SimpleIcsWriter.quoteParamValue(attendeeName);
-                            }
-                            ics.writeTag(icalTag, "MAILTO:" + attendeeEmail);
-                            toList.add(attendeeName == null ? new Address(attendeeEmail) :
-                                new Address(attendeeEmail, attendeeName));
-                        } else if (attendeeEmail.equalsIgnoreCase(account.mEmailAddress)) {
-                            String icalTag = null;
-                            switch (messageFlag) {
-                                case Message.FLAG_OUTGOING_MEETING_ACCEPT:
-                                    icalTag = ICALENDAR_ATTENDEE_ACCEPT;
-                                    break;
-                                case Message.FLAG_OUTGOING_MEETING_DECLINE:
-                                    icalTag = ICALENDAR_ATTENDEE_DECLINE;
-                                    break;
-                                case Message.FLAG_OUTGOING_MEETING_TENTATIVE:
-                                    icalTag = ICALENDAR_ATTENDEE_TENTATIVE;
-                                    break;
-                            }
-                            if (icalTag != null) {
-                                if (attendeeName != null) {
-                                    icalTag += ";CN="
-                                            + SimpleIcsWriter.quoteParamValue(attendeeName);
-                                }
-                                ics.writeTag(icalTag, "MAILTO:" + attendeeEmail);
-                            }
+                        // If we only want to send to the specifiedAttendee, eliminate others here
+                        if ((specifiedAttendee != null) &&
+                                !attendeeEmail.equalsIgnoreCase(specifiedAttendee)) {
+                            continue;
                         }
+
+                        addAttendeeToMessage(ics, toList, attendeeName, attendeeEmail, messageFlag,
+                                account);
                     }
                 }
+            }
+
+            // Manually add the specifiedAttendee if he wasn't added in the Attendees loop
+            if (toList.isEmpty() && (specifiedAttendee != null)) {
+                addAttendeeToMessage(ics, toList, null, specifiedAttendee, messageFlag, account);
             }
 
             // Create the organizer tag for ical
@@ -1491,8 +1517,8 @@ public class CalendarUtilities {
                 }
             }
 
-            // If we have no "to" list and addressees are required (the default), we're done
-            if (toList.isEmpty() && requireAddressees) return null;
+            // If we have no "to" list, we're done
+            if (toList.isEmpty()) return null;
 
             // Write out the "to" list
             Address[] toArray = new Address[toList.size()];
@@ -1547,11 +1573,11 @@ public class CalendarUtilities {
     static public EmailContent.Message createMessageForEventId(Context context, long eventId,
             int messageFlag, String uid, Account account) throws RemoteException {
         return createMessageForEventId(context, eventId, messageFlag, uid, account,
-                true /*requireAddressees*/);
+                null /*specifiedAttendee*/);
     }
 
     static public EmailContent.Message createMessageForEventId(Context context, long eventId,
-            int messageFlag, String uid, Account account, boolean requireAddressees)
+            int messageFlag, String uid, Account account, String specifiedAttendee)
             throws RemoteException {
         ContentResolver cr = context.getContentResolver();
         EntityIterator eventIterator =
@@ -1563,7 +1589,7 @@ public class CalendarUtilities {
             while (eventIterator.hasNext()) {
                 Entity entity = eventIterator.next();
                 return createMessageForEntity(context, entity, messageFlag, uid, account,
-                        requireAddressees);
+                        specifiedAttendee);
             }
         } finally {
             eventIterator.close();
