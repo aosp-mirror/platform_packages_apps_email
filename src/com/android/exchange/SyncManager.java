@@ -1551,6 +1551,7 @@ public class SyncManager extends Service implements Runnable {
         if (!blockExternalChanges && accountsDeleted) {
             AccountBackupRestore.backupAccounts(context);
             SecurityPolicy.getInstance(context).reducePolicies();
+            Email.setNotifyUiAccountsChanged(true);
         }
     }
 

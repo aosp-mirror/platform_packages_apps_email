@@ -182,6 +182,14 @@ public class MailboxList extends ListActivity implements OnItemClickListener, On
     public void onResume() {
         super.onResume();
         Controller.getInstance(getApplication()).addResultCallback(mControllerCallback);
+
+        // Exit immediately if the accounts list has changed (e.g. externally deleted)
+        if (Email.getNotifyUiAccountsChanged()) {
+            Welcome.actionStart(this);
+            finish();
+            return;
+        }
+
         updateMessageCount();
 
         // TODO: may need to clear notifications here
