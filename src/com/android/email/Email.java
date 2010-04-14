@@ -162,31 +162,32 @@ public class Email extends Application {
         R.drawable.appointment_indicator_leftside_7,
         R.drawable.appointment_indicator_leftside_8,
         R.drawable.appointment_indicator_leftside_9,
-        R.drawable.appointment_indicator_leftside_10,
-        R.drawable.appointment_indicator_leftside_11,
-        R.drawable.appointment_indicator_leftside_12,
-        R.drawable.appointment_indicator_leftside_13,
-        R.drawable.appointment_indicator_leftside_14,
-        R.drawable.appointment_indicator_leftside_15,
-        R.drawable.appointment_indicator_leftside_16,
-        R.drawable.appointment_indicator_leftside_17,
-        R.drawable.appointment_indicator_leftside_18,
-        R.drawable.appointment_indicator_leftside_19,
-        R.drawable.appointment_indicator_leftside_20,
-        R.drawable.appointment_indicator_leftside_21,
     };
 
-    private static final int[] ACCOUNT_COLOR_CHIP_RGBS = new int[] {0x6aad08, 0xe24c7f, 0xed8500,
-        0x3b6dd3, 0x29ad9c, 0x6e38d1, 0x31649b, 0x309363, 0x109918, 0xcc3431, 0xacad18, 0xd4ad00,
-        0x9b449b, 0xe56021, 0xa46c6a, 0x8a6a8a, 0x60738b, 0x7082ab, 0x518987, 0x813149, 0xb48d59
+    private static final int[] ACCOUNT_COLOR_CHIP_RGBS = new int[] {
+        0x71aea7,
+        0x621919,
+        0x18462f,
+        0xbf8e52,
+        0x001f79,
+        0xa8afc2,
+        0x6b64c4,
+        0x738359,
+        0x9d50a4,
     };
+
+    /* package for testing */ static int getColorIndexFromAccountId(long accountId) {
+        // Account id is 1-based, so - 1.
+        // Use abs so that it won't possibly return negative.
+        return Math.abs((int) (accountId - 1) % ACCOUNT_COLOR_CHIP_RES_IDS.length);
+    }
 
     public static int getAccountColorResourceId(long accountId) {
-        return ACCOUNT_COLOR_CHIP_RES_IDS[(int)accountId % ACCOUNT_COLOR_CHIP_RES_IDS.length];
+        return ACCOUNT_COLOR_CHIP_RES_IDS[getColorIndexFromAccountId(accountId)];
     }
     
     public static int getAccountColor(long accountId) {
-        return ACCOUNT_COLOR_CHIP_RGBS[(int)accountId % ACCOUNT_COLOR_CHIP_RGBS.length];
+        return ACCOUNT_COLOR_CHIP_RGBS[getColorIndexFromAccountId(accountId)];
     }
 
     /**
