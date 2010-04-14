@@ -361,7 +361,6 @@ public class CalendarSyncAdapter extends AbstractSyncAdapter {
                     case Tags.CALENDAR_START_TIME:
                         startTime = Utility.parseDateTimeToMillis(getValue());
                         cv.put(Events.DTSTART, startTime);
-                        cv.put(Events.ORIGINAL_INSTANCE_TIME, startTime);
                         break;
                     case Tags.CALENDAR_END_TIME:
                         endTime = Utility.parseDateTimeToMillis(getValue());
@@ -455,7 +454,6 @@ public class CalendarSyncAdapter extends AbstractSyncAdapter {
                 cal.set(GregorianCalendar.MINUTE, 0);
                 cal.set(GregorianCalendar.SECOND, 0);
                 cv.put(Events.DTSTART, cal.getTimeInMillis());
-                cv.put(Events.ORIGINAL_INSTANCE_TIME, cal.getTimeInMillis());
             } else {
                 cv.put(Events.DURATION, "P" + ((endTime - startTime) / MINUTES) + "M");
             }
