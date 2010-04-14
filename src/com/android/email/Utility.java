@@ -32,8 +32,11 @@ import android.content.res.TypedArray;
 import android.database.Cursor;
 import android.graphics.drawable.Drawable;
 import android.os.AsyncTask;
+import android.security.MessageDigest;
+import android.telephony.TelephonyManager;
 import android.text.Editable;
 import android.util.Base64;
+import android.util.Log;
 import android.widget.TextView;
 
 import java.io.IOException;
@@ -43,6 +46,7 @@ import java.io.UnsupportedEncodingException;
 import java.nio.ByteBuffer;
 import java.nio.CharBuffer;
 import java.nio.charset.Charset;
+import java.security.NoSuchAlgorithmException;
 import java.util.Date;
 import java.util.GregorianCalendar;
 import java.util.TimeZone;
@@ -526,5 +530,46 @@ public class Utility {
         if (task != null && task.getStatus() != AsyncTask.Status.FINISHED) {
             task.cancel(mayInterruptIfRunning);
         }
+    }
+
+    /**
+     * @return Device's unique ID if available.  null if the device has no unique ID.
+     */
+    public static String getConsistentDeviceId(Context context) {
+        final String deviceId;
+        try {
+            TelephonyManager tm =
+                    (TelephonyManager) context.getSystemService(Context.TELEPHONY_SERVICE);
+            if (tm == null) {
+                return null;
+            }
+            deviceId = tm.getDeviceId();
+            if (deviceId == null) {
+                return null;
+            }
+        } catch (Exception e) {
+            Log.d(Email.LOG_TAG, "Error in TelephonyManager.getDeviceId(): " + e.getMessage());
+            return null;
+        }
+        final MessageDigest sha;
+        try {
+            sha = MessageDigest.getInstance("SHA-1");
+        } catch (NoSuchAlgorithmException impossible) {
+            return null;
+        }
+        sha.update(Utility.toUtf8(deviceId));
+        final int hash = getSmallHashFromSha1(sha.digest());
+        return Integer.toString(hash);
+    }
+
+    /**
+     * @return a non-negative integer generated from 20 byte SHA-1 hash.
+     */
+    /* package for testing */ static int getSmallHashFromSha1(byte[] sha1) {
+        final int offset = sha1[19] & 0xf; // SHA1 is 20 bytes.
+        return ((sha1[offset]  & 0x7f) << 24)
+                | ((sha1[offset + 1] & 0xff) << 16)
+                | ((sha1[offset + 2] & 0xff) << 8)
+                | ((sha1[offset + 3] & 0xff));
     }
 }

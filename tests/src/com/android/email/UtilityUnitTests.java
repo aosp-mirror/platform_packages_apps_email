@@ -20,9 +20,11 @@ import com.android.email.provider.EmailContent.Mailbox;
 
 import android.content.Context;
 import android.graphics.drawable.Drawable;
+import android.telephony.TelephonyManager;
 import android.test.AndroidTestCase;
 import android.test.MoreAsserts;
 import android.test.suitebuilder.annotation.SmallTest;
+import android.util.Log;
 
 import java.util.HashSet;
 import java.util.Set;
@@ -169,5 +171,38 @@ public class UtilityUnitTests extends AndroidTestCase {
         assertEquals("\r\n", Utility.replaceBareLfWithCrlf("\n"));
         assertEquals("\r\n\r\n\r\n", Utility.replaceBareLfWithCrlf("\n\n\n"));
         assertEquals("A\r\nB\r\nC\r\nD", Utility.replaceBareLfWithCrlf("A\nB\r\nC\nD"));
+    }
+
+    public void testGetConsistentDeviceId() {
+        TelephonyManager tm =
+                (TelephonyManager) getContext().getSystemService(Context.TELEPHONY_SERVICE);
+        if (tm == null) {
+            Log.w(Email.LOG_TAG, "TelephonyManager not supported.  Skipping.");
+            return;
+        }
+        final String deviceId = Utility.getConsistentDeviceId(getContext());
+        assertNotNull(deviceId);
+
+        final String deviceId2 = Utility.getConsistentDeviceId(getContext());
+        // Should be consistent.
+        assertEquals(deviceId, deviceId2);
+    }
+
+    public void testGetSmallSha1() {
+        byte[] sha1 = new byte[20];
+
+        // White box test.  Not so great, but to make sure it may detect careless mistakes...
+        assertEquals(0, Utility.getSmallHashFromSha1(sha1));
+
+        for (int i = 0; i < sha1.length; i++) {
+            sha1[i] = (byte) 0xFF;
+        }
+        assertEquals(Integer.MAX_VALUE, Utility.getSmallHashFromSha1(sha1));
+
+        // Boundary check
+        for (int i = 0; i < 16; i++) {
+            sha1[19] = (byte) i;
+            Utility.getSmallHashFromSha1(sha1);
+        }
     }
 }
