@@ -1095,6 +1095,7 @@ public class MessageList extends ListActivity implements OnItemClickListener, On
                 if (accountExists && mOkToRecurse) {
                     // launch network lookup
                     mControllerCallback.mWaitForMailboxType = mMailboxType;
+                    mControllerCallback.mWaitForMailboxAccountId = mAccountId;
                     mController.updateMailboxList(mAccountId, mControllerCallback);
                 } else {
                     // We don't want to do the network lookup, or the account doesn't exist in the
@@ -1430,11 +1431,23 @@ public class MessageList extends ListActivity implements OnItemClickListener, On
 
         // These are preset for use by updateMailboxListCallback
         int mWaitForMailboxType = -1;
+        long mWaitForMailboxAccountId = -1;
 
         // TODO check accountKey and only react to relevant notifications
         public void updateMailboxListCallback(MessagingException result, long accountKey,
                 int progress) {
-            // no updateBanner here, we are only listing a single mailbox
+            // Special case to show a banner here if we can't refresh the account
+            if (accountKey == mWaitForMailboxAccountId) {
+                // Display error
+                if (result != null) {
+                    updateBanner(result, progress, mMailboxId);
+                }
+                // Reset the account watcher so we don't respond again
+                if (result != null || progress == 100) {
+                    mWaitForMailboxAccountId = -1;
+                }
+            }
+
             updateProgress(result, progress);
             if (progress == 100) {
                 mHandler.lookupMailboxType(accountKey, mWaitForMailboxType);
