@@ -317,6 +317,14 @@ public class MessageList extends ListActivity implements OnItemClickListener, On
         NotificationManager notificationManager = (NotificationManager)
                 getSystemService(Context.NOTIFICATION_SERVICE);
         notificationManager.cancel(MailService.NOTIFICATION_ID_NEW_MESSAGES);
+
+        // Exit immediately if the accounts list has changed (e.g. externally deleted)
+        if (Email.getNotifyUiAccountsChanged()) {
+            Welcome.actionStart(this);
+            finish();
+            return;
+        }
+
         restoreListPosition();
         autoRefreshStaleMailbox();
     }

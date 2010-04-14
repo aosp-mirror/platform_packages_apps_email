@@ -448,6 +448,14 @@ public class MessageView extends Activity implements OnClickListener {
         super.onResume();
         mWaitForLoadMessageId = -1;
         mController.addResultCallback(mControllerCallback);
+
+        // Exit immediately if the accounts list has changed (e.g. externally deleted)
+        if (Email.getNotifyUiAccountsChanged()) {
+            Welcome.actionStart(this);
+            finish();
+            return;
+        }
+
         if (mMessage != null) {
             startPresenceCheck();
 
