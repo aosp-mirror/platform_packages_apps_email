@@ -986,6 +986,7 @@ public class SyncManager extends Service implements Runnable {
                 rdr = new BufferedReader(new FileReader(f), 128);
                 id = rdr.readLine();
                 rdr.close();
+                sDeviceId = id;
                 return id;
             } else if (f.createNewFile()) {
                 BufferedWriter w = new BufferedWriter(new FileWriter(f), 128);
