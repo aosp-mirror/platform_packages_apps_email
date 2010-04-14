@@ -197,6 +197,13 @@ public class AccountFolderList extends ListActivity implements OnItemClickListen
 
         Controller.getInstance(getApplication()).addResultCallback(mControllerCallback);
 
+        // Exit immediately if the accounts list has changed (e.g. externally deleted)
+        if (Email.getNotifyUiAccountsChanged()) {
+            Welcome.actionStart(this);
+            finish();
+            return;
+        }
+
         updateAccounts();
         // TODO: What updates do we need to auto-trigger, now that we have mailboxes in view?
     }

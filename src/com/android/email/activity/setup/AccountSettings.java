@@ -18,6 +18,7 @@ package com.android.email.activity.setup;
 
 import com.android.email.Email;
 import com.android.email.R;
+import com.android.email.activity.Welcome;
 import com.android.email.mail.MessagingException;
 import com.android.email.mail.Sender;
 import com.android.email.mail.Store;
@@ -313,6 +314,14 @@ public class AccountSettings extends PreferenceActivity {
     @Override
     public void onResume() {
         super.onResume();
+
+        // Exit immediately if the accounts list has changed (e.g. externally deleted)
+        if (Email.getNotifyUiAccountsChanged()) {
+            Welcome.actionStart(this);
+            finish();
+            return;
+        }
+
         if (mAccountDirty) {
             // if we are coming back from editing incoming or outgoing settings,
             // we need to refresh them here so we don't accidentally overwrite the
