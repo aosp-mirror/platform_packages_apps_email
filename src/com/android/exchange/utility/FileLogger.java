@@ -106,8 +106,12 @@ public class FileLogger {
                     // If the card is mounted and we can create the writer, retry
                     LOGGER = new FileLogger();
                     if (sLogWriter != null) {
-                        log("FileLogger", "Exception writing log; recreating...");
-                        log(prefix, str);
+                        try {
+                            log("FileLogger", "Exception writing log; recreating...");
+                            log(prefix, str);
+                        } catch (Exception e1) {
+                            // Nothing to do at this point
+                        }
                     }
                 }
             }
