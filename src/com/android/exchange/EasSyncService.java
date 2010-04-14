@@ -125,7 +125,7 @@ public class EasSyncService extends AbstractSyncService {
     // us to detect a silently dropped connection).  The allowance is defined below.
     static private final int COMMAND_TIMEOUT = 20*SECONDS;
     // Connection timeout is the time given to connect to the server before reporting an IOException
-    static private final int CONNECTION_TIMEOUT = 30*SECONDS;
+    static private final int CONNECTION_TIMEOUT = 20*SECONDS;
     // The extra time allowed beyond the COMMAND_TIMEOUT before which our watchdog alarm triggers
     static private final int WATCHDOG_TIMEOUT_ALLOWANCE = 10*SECONDS;
 
@@ -1891,8 +1891,8 @@ public class EasSyncService extends AbstractSyncService {
                 // EAS doesn't like GetChanges if the syncKey is "0"; not documented
                 s.tag(Tags.SYNC_GET_CHANGES);
             } else {
-                // Use 2x timeout for initial sync, which empirically can take a while longer
-                timeout <<= 1;
+                // Use enormous timeout for initial sync, which empirically can take a while longer
+                timeout = 120*SECONDS;
             }
             s.data(Tags.SYNC_WINDOW_SIZE,
                     className.equals("Email") ? EMAIL_WINDOW_SIZE : PIM_WINDOW_SIZE);
