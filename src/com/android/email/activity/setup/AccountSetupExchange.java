@@ -23,6 +23,7 @@ import com.android.email.Utility;
 import com.android.email.provider.EmailContent;
 import com.android.email.provider.EmailContent.Account;
 import com.android.email.provider.EmailContent.HostAuth;
+import com.android.exchange.SyncManager;
 
 import android.app.Activity;
 import android.app.AlertDialog;
@@ -40,8 +41,10 @@ import android.widget.Button;
 import android.widget.CheckBox;
 import android.widget.CompoundButton;
 import android.widget.EditText;
+import android.widget.TextView;
 import android.widget.CompoundButton.OnCheckedChangeListener;
 
+import java.io.IOException;
 import java.net.URI;
 import java.net.URISyntaxException;
 
@@ -198,6 +201,15 @@ public class AccountSetupExchange extends Activity implements OnClickListener,
                     .actionAutoDiscover(this, mAccount, mAccount.mEmailAddress, password);
             }
         }
+
+        //EXCHANGE-REMOVE-SECTION-START
+        // Show device ID
+        try {
+            ((TextView) findViewById(R.id.device_id)).setText(SyncManager.getDeviceId(this));
+        } catch (IOException ignore) {
+            // There's nothing we can do here...
+        }
+        //EXCHANGE-REMOVE-SECTION-END
     }
 
     @Override
