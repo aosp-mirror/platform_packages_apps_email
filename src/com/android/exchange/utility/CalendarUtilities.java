@@ -18,6 +18,7 @@ package com.android.exchange.utility;
 
 import com.android.email.Email;
 import com.android.email.R;
+import com.android.email.Utility;
 import com.android.email.mail.Address;
 import com.android.email.provider.EmailContent;
 import com.android.email.provider.EmailContent.Account;
@@ -1173,6 +1174,40 @@ public class CalendarUtilities {
             return Long.parseLong(stringId);
         }
         return -1;
+    }
+
+    /**
+     * Return the uid for an event based on its globalObjId
+     * @param globalObjId the base64 encoded String provided by EAS
+     * @return the uid for the calendar event
+     */
+    static public String getUidFromGlobalObjId(String globalObjId) {
+        StringBuilder sb = new StringBuilder();
+        // First get the decoded base64
+        try {
+            byte[] idBytes = Base64.decode(globalObjId, Base64.DEFAULT);
+            String idString = new String(idBytes);
+            // If the base64 decoded string contains the magic substring: "vCal-Uid", then
+            // the actual uid is hidden within; the magic substring is never at the start of the
+            // decoded base64
+            int index = idString.indexOf("vCal-Uid");
+            if (index > 0) {
+                // The uid starts after "vCal-Uidxxxx", where xxxx are padding
+                // characters.  And it ends before the last character, which is ascii 0
+                return idString.substring(index + 12, idString.length() - 1);
+            } else {
+                // This is an EAS uid. Go through the bytes and write out the hex
+                // values as characters; this is what we'll need to pass back to EAS
+                // when responding to the invitation
+                for (byte b: idBytes) {
+                    Utility.byteToHex(sb, b);
+                }
+                return sb.toString();
+            }
+        } catch (RuntimeException e) {
+            // In the worst of cases (bad format, etc.), we can always return the input
+            return globalObjId;
+        }
     }
 
     static public String buildMessageTextFromEntityValues(Context context,
