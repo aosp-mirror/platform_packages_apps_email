@@ -62,6 +62,7 @@ import android.view.ContextMenu.ContextMenuInfo;
 import android.widget.AdapterView;
 import android.widget.CursorAdapter;
 import android.widget.ImageView;
+import android.widget.ListAdapter;
 import android.widget.ListView;
 import android.widget.ProgressBar;
 import android.widget.TextView;
@@ -169,8 +170,6 @@ public class AccountFolderList extends ListActivity implements OnItemClickListen
         }
 
         ((TextView) findViewById(R.id.title_left_text)).setText(R.string.app_name);
-
-        mLoadAccountsTask = (LoadAccountsTask) new LoadAccountsTask().execute();
     }
 
     @Override
@@ -346,7 +345,7 @@ public class AccountFolderList extends ListActivity implements OnItemClickListen
             Cursor c1 = getSummaryChildCursor();
 
             // TODO use a custom projection and don't have to sample all of these columns
-            Cursor c2 = AccountFolderList.this.managedQuery(
+            Cursor c2 = getContentResolver().query(
                     EmailContent.Account.CONTENT_URI,
                     EmailContent.Account.CONTENT_PROJECTION, null, null, null);
             Long defaultAccount = Account.getDefaultAccountId(AccountFolderList.this);
@@ -355,9 +354,16 @@ public class AccountFolderList extends ListActivity implements OnItemClickListen
 
         @Override
         protected void onPostExecute(Object[] params) {
-            if (params == null || ((Cursor)params[1]).isClosed()) {
+            if (isCancelled() || params == null || ((Cursor)params[1]).isClosed()) {
                 return;
             }
+            // Before writing a new list adapter into the listview, we need to
+            // shut down the old one (if any).
+            ListAdapter oldAdapter = mListView.getAdapter();
+            if (oldAdapter != null && oldAdapter instanceof CursorAdapter) {
+                ((CursorAdapter)oldAdapter).changeCursor(null);
+            }
+            // Now create a new list adapter and install it
             mListAdapter = AccountsAdapter.getInstance((Cursor)params[0], (Cursor)params[1],
                     AccountFolderList.this, (Long)params[2]);
             mListView.setAdapter(mListAdapter);
