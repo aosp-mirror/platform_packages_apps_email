@@ -921,23 +921,34 @@ public class SyncManager extends Service implements Runnable {
      */
     public class EasAccountsUpdatedListener implements OnAccountsUpdateListener {
         public void onAccountsUpdated(android.accounts.Account[] accounts) {
-            new Thread() {
-                @Override
-                public void run() {
-                    SyncManager syncManager = INSTANCE;
-                    if (syncManager != null) {
-                        android.accounts.Account[] accountMgrList = AccountManager.get(syncManager)
-                            .getAccountsByType(Email.EXCHANGE_ACCOUNT_MANAGER_TYPE);
-                        synchronized (sAccountList) {
-                            // Make sure we have an up-to-date sAccountList
-                            mAccountObserver.onAccountChanged();
-                            reconcileAccountsWithAccountManager(syncManager, sAccountList,
-                                    accountMgrList, false, mResolver);
-                        }
-                    }
-                }
-            }.start();
+            SyncManager syncManager = INSTANCE;
+            if (syncManager != null) {
+                syncManager.runAccountReconciler();
+            }
         }
+    }
+
+    /**
+     * Non-blocking call to run the account reconciler.
+     * Launches a worker thread, so it may be called from UI thread.
+     */
+    private void runAccountReconciler() {
+        final SyncManager syncManager = this;
+        new Thread() {
+            @Override
+            public void run() {
+                android.accounts.Account[] accountMgrList = AccountManager.get(syncManager)
+                        .getAccountsByType(Email.EXCHANGE_ACCOUNT_MANAGER_TYPE);
+                synchronized (sAccountList) {
+                    // Make sure we have an up-to-date sAccountList
+                    if (mAccountObserver != null) {
+                        mAccountObserver.onAccountChanged();
+                    }
+                    reconcileAccountsWithAccountManager(syncManager, sAccountList,
+                            accountMgrList, false, mResolver);
+                }
+            }
+        }.start();
     }
 
     protected static void log(String str) {
@@ -1059,6 +1070,9 @@ public class SyncManager extends Service implements Runnable {
                 throw new RuntimeException();
             }
         }
+        // Run the reconciler and clean up any mismatched accounts - if we weren't running when
+        // accounts were deleted, it won't have been called.
+        runAccountReconciler();
     }
 
     @Override
