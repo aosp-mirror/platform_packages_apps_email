@@ -20,6 +20,7 @@ package com.android.exchange;
 import com.android.email.AccountBackupRestore;
 import com.android.email.Email;
 import com.android.email.SecurityPolicy;
+import com.android.email.Utility;
 import com.android.email.mail.MessagingException;
 import com.android.email.mail.transport.SSLUtils;
 import com.android.email.provider.EmailContent;
@@ -968,16 +969,19 @@ public class SyncManager extends Service implements Runnable {
     }
 
     static public synchronized String getDeviceId(Context context) throws IOException {
-        SyncManager syncManager = INSTANCE;
-        if (sDeviceId != null) {
-            return sDeviceId;
-        } else if (syncManager == null && context == null) {
+        if (sDeviceId == null) {
+            sDeviceId = getDeviceIdInternal(context);
+        }
+        return sDeviceId;
+    }
+
+    static private String getDeviceIdInternal(Context context) throws IOException {
+        if (INSTANCE == null && context == null) {
             throw new IOException("No context for getDeviceId");
         } else if (context == null) {
-            context = syncManager;
+            context = INSTANCE;
         }
 
-        // Otherwise, we'll read the id file or create one if it's not found
         try {
             File f = context.getFileStreamPath("deviceName");
             BufferedReader rdr = null;
@@ -986,14 +990,18 @@ public class SyncManager extends Service implements Runnable {
                 rdr = new BufferedReader(new FileReader(f), 128);
                 id = rdr.readLine();
                 rdr.close();
-                sDeviceId = id;
                 return id;
             } else if (f.createNewFile()) {
                 BufferedWriter w = new BufferedWriter(new FileWriter(f), 128);
-                id = "android" + System.currentTimeMillis();
+                final String consistentDeviceId = Utility.getConsistentDeviceId(context);
+                if (consistentDeviceId != null) {
+                    // Use different prefix from random IDs.
+                    id = "androidc" + consistentDeviceId;
+                } else {
+                    id = "android" + System.currentTimeMillis();
+                }
                 w.write(id);
                 w.close();
-                sDeviceId = id;
                 return id;
             }
         } catch (IOException e) {
