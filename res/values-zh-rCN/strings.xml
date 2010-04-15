@@ -232,18 +232,12 @@
     <string name="account_settings_sync_contacts_summary" msgid="8901452720940015928">"也同步此帐户下的联系人"</string>
     <string name="account_settings_sync_calendar_enable" msgid="6855333393468628003">"同步日历"</string>
     <string name="account_settings_sync_calendar_summary" msgid="2456010694443333450">"也同步此帐户下的日历"</string>
-    <!-- no translation found for account_settings_vibrate_when_label (708477308761702671) -->
-    <skip />
-    <!-- no translation found for account_settings_vibrate_when_summary (3991584445166247189) -->
-    <skip />
-    <!-- no translation found for account_settings_vibrate_when_always (6739506816960483174) -->
-    <skip />
-    <!-- no translation found for account_settings_vibrate_when_silent (6417076436551648924) -->
-    <skip />
-    <!-- no translation found for account_settings_vibrate_when_never (3759680093309511614) -->
-    <skip />
-    <!-- no translation found for account_settings_vibrate_when_dlg_title (308167729046312952) -->
-    <skip />
+    <string name="account_settings_vibrate_when_label" msgid="708477308761702671">"振动"</string>
+    <string name="account_settings_vibrate_when_summary" msgid="3991584445166247189">"收到电子邮件时也振动"</string>
+    <string name="account_settings_vibrate_when_always" msgid="6739506816960483174">"始终"</string>
+    <string name="account_settings_vibrate_when_silent" msgid="6417076436551648924">"仅在静音时"</string>
+    <string name="account_settings_vibrate_when_never" msgid="3759680093309511614">"一律不"</string>
+    <string name="account_settings_vibrate_when_dlg_title" msgid="308167729046312952">"振动"</string>
     <string name="account_settings_ringtone" msgid="7922187231467500404">"选择铃声"</string>
     <string name="account_settings_servers" msgid="4925493817981624242">"服务器设置"</string>
     <string name="account_delete_dlg_title" msgid="6806087520856396608">"删除帐户"</string>
@@ -256,31 +250,24 @@
     <string name="provider_note_t_online" msgid="1973701903400232774">"在设置此电子邮件帐户之前，请访问 T-Online 网站，为访问 POP3 电子邮件创建密码。"</string>
     <string name="exchange_name" msgid="1190783774800310346">"公司"</string>
     <string name="exchange_name_alternate" msgid="5772529644749041052">"Microsoft Exchange ActiveSync"</string>
-    <string name="meeting_invitation" msgid="352782347335101484">"会议邀请：<xliff:g id="SUBJECT">%s</xliff:g>"</string>
     <string name="meeting_accepted" msgid="8796609373330400268">"已接受：<xliff:g id="SUBJECT">%s</xliff:g>"</string>
     <string name="meeting_declined" msgid="6707617183246608552">"已拒绝：<xliff:g id="SUBJECT">%s</xliff:g>"</string>
     <string name="meeting_tentative" msgid="8250995722130443785">"暂定：<xliff:g id="SUBJECT">%s</xliff:g>"</string>
     <string name="meeting_canceled" msgid="3949893881872084244">"已取消：<xliff:g id="SUBJECT">%s</xliff:g>"</string>
-    <!-- no translation found for meeting_updated (8529675857361702860) -->
-    <skip />
-    <!-- no translation found for meeting_when (2765696159697448656) -->
-    <skip />
-    <!-- no translation found for meeting_where (5992367535856553079) -->
-    <skip />
-    <!-- no translation found for meeting_recurring (3134262212606714023) -->
-    <skip />
-    <!-- no translation found for exception_cancel (6160117429428313805) -->
-    <skip />
-    <!-- no translation found for exception_updated (3397583105901142050) -->
-    <skip />
+    <string name="meeting_updated" msgid="8529675857361702860">"已更新：<xliff:g id="SUBJECT">%s</xliff:g>"</string>
+    <string name="meeting_when" msgid="2765696159697448656">"时间：<xliff:g id="WHEN">%s</xliff:g>"</string>
+    <string name="meeting_where" msgid="5992367535856553079">"地点：<xliff:g id="WHERE">%s</xliff:g>"</string>
+    <string name="meeting_recurring" msgid="3134262212606714023">"时间：<xliff:g id="EVENTDATE">%s</xliff:g>（重复）"</string>
+    <string name="exception_cancel" msgid="6160117429428313805">"定于以下日期的活动已取消：<xliff:g id="DATE">%s</xliff:g>"</string>
+    <string name="exception_updated" msgid="3397583105901142050">"定于以下日期的活动的详细信息已更改：<xliff:g id="DATE">%s</xliff:g>"</string>
     <string name="system_account_create_failed" msgid="4917162302393971752">"AccountManager 无法创建帐户，请重试。"</string>
     <string name="device_admin_label" msgid="8680224994637869414">"电子邮件"</string>
     <string name="device_admin_description" msgid="426727923791430306">"启用指定服务器的安全政策"</string>
     <string name="notification_exchange_calendar_added" msgid="6823659622379350159">"已添加 Exchange 日历"</string>
-    <!-- no translation found for gal_searching_fmt (6140450617663543464) -->
-    <skip />
-    <!-- no translation found for gal_completed_fmt:one (7496785524617037642) -->
-    <!-- no translation found for gal_completed_fmt:other (7816121892960632123) -->
-    <!-- no translation found for gal_completed_limited_fmt (2343791690766047585) -->
-    <skip />
+    <string name="gal_searching_fmt" msgid="6140450617663543464">"正在搜索 <xliff:g id="DOMAIN">%s</xliff:g>…"</string>
+  <plurals name="gal_completed_fmt">
+    <item quantity="one" msgid="7496785524617037642">"来自 <xliff:g id="DOMAIN">%s</xliff:g> 的 <xliff:g id="RESULTS">%d</xliff:g> 条结果"</item>
+    <item quantity="other" msgid="7816121892960632123">"来自 <xliff:g id="DOMAIN">%s</xliff:g> 的 <xliff:g id="RESULTS">%d</xliff:g> 条结果"</item>
+  </plurals>
+    <string name="gal_completed_limited_fmt" msgid="2343791690766047585">"来自 <xliff:g id="DOMAIN">%s</xliff:g> 的前 <xliff:g id="RESULTS">%d</xliff:g> 条结果"</string>
 </resources>
