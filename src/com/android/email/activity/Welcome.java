@@ -40,8 +40,14 @@ import android.os.Bundle;
  */
 public class Welcome extends Activity {
 
+    /**
+     * Launch this activity.  Note:  It's assumed that this activity is only called as a means to
+     * 'reset' the UI state; Because of this, it is always launched with FLAG_ACTIVITY_CLEAR_TOP,
+     * which will drop any other activities on the stack (e.g. AccountFolderList or MessageList).
+     */
     public static void actionStart(Activity fromActivity) {
         Intent i = new Intent(fromActivity, Welcome.class);
+        i.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
         fromActivity.startActivity(i);
     }
 
