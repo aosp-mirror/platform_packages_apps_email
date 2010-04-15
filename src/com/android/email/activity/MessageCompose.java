@@ -368,6 +368,13 @@ public class MessageCompose extends Activity implements OnClickListener, OnFocus
     public void onResume() {
         super.onResume();
         mController.addResultCallback(mListener);
+
+        // Exit immediately if the accounts list has changed (e.g. externally deleted)
+        if (Email.getNotifyUiAccountsChanged()) {
+            Welcome.actionStart(this);
+            finish();
+            return;
+        }
     }
 
     @Override

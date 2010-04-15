@@ -143,6 +143,12 @@ public class Email extends Application {
     private static HashMap<Long, Long> sMailboxSyncTimes = new HashMap<Long, Long>();
     private static final long UPDATE_INTERVAL = 5 * DateUtils.MINUTE_IN_MILLIS;
 
+    /**
+     * This is used to force stacked UI to return to the "welcome" screen any time we change
+     * the accounts list (e.g. deleting accounts in the Account Manager preferences.)
+     */
+    private static boolean sAccountsChangedNotification = false;
+
     public static final String EXCHANGE_ACCOUNT_MANAGER_TYPE = "com.android.exchange";
 
     // The color chip resources and the RGB color values in the array below must be kept in sync
@@ -295,5 +301,22 @@ public class Email extends Application {
                 || (System.currentTimeMillis() - sMailboxSyncTimes.get(mailboxId)
                         > UPDATE_INTERVAL);
         }
+    }
+
+    /**
+     * Called by the accounts reconciler to notify that accounts have changed, or by  "Welcome"
+     * to clear the flag.
+     * @param setFlag true to set the notification flag, false to clear it
+     */
+    public static synchronized void setNotifyUiAccountsChanged(boolean setFlag) {
+        sAccountsChangedNotification = setFlag;
+    }
+
+    /**
+     * Called from activity onResume() functions to check for an accounts-changed condition, at
+     * which point they should finish() and jump to the Welcome activity.
+     */
+    public static synchronized boolean getNotifyUiAccountsChanged() {
+        return sAccountsChangedNotification;
     }
 }

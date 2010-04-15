@@ -17,6 +17,7 @@
 package com.android.email.activity;
 
 import com.android.email.AccountBackupRestore;
+import com.android.email.Email;
 import com.android.email.ExchangeUtils;
 import com.android.email.activity.setup.AccountSetupBasics;
 import com.android.email.provider.EmailContent;
@@ -47,6 +48,9 @@ public class Welcome extends Activity {
     @Override
     public void onCreate(Bundle icicle) {
         super.onCreate(icicle);
+
+        // Reset the "accounts changed" notification, now that we're here
+        Email.setNotifyUiAccountsChanged(false);
 
         // Quickly check for bulk upgrades (from older app versions) and switch to the
         // upgrade activity if necessary
