@@ -232,18 +232,12 @@
     <string name="account_settings_sync_contacts_summary" msgid="8901452720940015928">"또한 이 계정에서 연락처 동기화"</string>
     <string name="account_settings_sync_calendar_enable" msgid="6855333393468628003">"캘린더 동기화"</string>
     <string name="account_settings_sync_calendar_summary" msgid="2456010694443333450">"또한 이 계정에서 캘린더 동기화"</string>
-    <!-- no translation found for account_settings_vibrate_when_label (708477308761702671) -->
-    <skip />
-    <!-- no translation found for account_settings_vibrate_when_summary (3991584445166247189) -->
-    <skip />
-    <!-- no translation found for account_settings_vibrate_when_always (6739506816960483174) -->
-    <skip />
-    <!-- no translation found for account_settings_vibrate_when_silent (6417076436551648924) -->
-    <skip />
-    <!-- no translation found for account_settings_vibrate_when_never (3759680093309511614) -->
-    <skip />
-    <!-- no translation found for account_settings_vibrate_when_dlg_title (308167729046312952) -->
-    <skip />
+    <string name="account_settings_vibrate_when_label" msgid="708477308761702671">"진동"</string>
+    <string name="account_settings_vibrate_when_summary" msgid="3991584445166247189">"이메일이 오면 진동도 함께 울림"</string>
+    <string name="account_settings_vibrate_when_always" msgid="6739506816960483174">"항상"</string>
+    <string name="account_settings_vibrate_when_silent" msgid="6417076436551648924">"무음 시에만"</string>
+    <string name="account_settings_vibrate_when_never" msgid="3759680093309511614">"안함"</string>
+    <string name="account_settings_vibrate_when_dlg_title" msgid="308167729046312952">"진동"</string>
     <string name="account_settings_ringtone" msgid="7922187231467500404">"벨소리 선택"</string>
     <string name="account_settings_servers" msgid="4925493817981624242">"서버 설정"</string>
     <string name="account_delete_dlg_title" msgid="6806087520856396608">"계정 삭제"</string>
@@ -256,31 +250,24 @@
     <string name="provider_note_t_online" msgid="1973701903400232774">"이메일 계정을 설정하기 전에 T-온라인 웹사이트를 방문하고 POP3 이메일 액세스용 비밀번호를 만드세요."</string>
     <string name="exchange_name" msgid="1190783774800310346">"회사"</string>
     <string name="exchange_name_alternate" msgid="5772529644749041052">"Microsoft Exchange ActiveSync"</string>
-    <string name="meeting_invitation" msgid="352782347335101484">"초대: <xliff:g id="SUBJECT">%s</xliff:g>"</string>
     <string name="meeting_accepted" msgid="8796609373330400268">"수락: <xliff:g id="SUBJECT">%s</xliff:g>"</string>
     <string name="meeting_declined" msgid="6707617183246608552">"거부: <xliff:g id="SUBJECT">%s</xliff:g>"</string>
     <string name="meeting_tentative" msgid="8250995722130443785">"미정: <xliff:g id="SUBJECT">%s</xliff:g>"</string>
     <string name="meeting_canceled" msgid="3949893881872084244">"취소: <xliff:g id="SUBJECT">%s</xliff:g>"</string>
-    <!-- no translation found for meeting_updated (8529675857361702860) -->
-    <skip />
-    <!-- no translation found for meeting_when (2765696159697448656) -->
-    <skip />
-    <!-- no translation found for meeting_where (5992367535856553079) -->
-    <skip />
-    <!-- no translation found for meeting_recurring (3134262212606714023) -->
-    <skip />
-    <!-- no translation found for exception_cancel (6160117429428313805) -->
-    <skip />
-    <!-- no translation found for exception_updated (3397583105901142050) -->
-    <skip />
+    <string name="meeting_updated" msgid="8529675857361702860">"업데이트: <xliff:g id="SUBJECT">%s</xliff:g>"</string>
+    <string name="meeting_when" msgid="2765696159697448656">"일시: <xliff:g id="WHEN">%s</xliff:g>"</string>
+    <string name="meeting_where" msgid="5992367535856553079">"장소: <xliff:g id="WHERE">%s</xliff:g>"</string>
+    <string name="meeting_recurring" msgid="3134262212606714023">"일시: <xliff:g id="EVENTDATE">%s</xliff:g>(반복 일정)"</string>
+    <string name="exception_cancel" msgid="6160117429428313805">"<xliff:g id="DATE">%s</xliff:g>에 있을 이 일정이 취소되었습니다."</string>
+    <string name="exception_updated" msgid="3397583105901142050">"<xliff:g id="DATE">%s</xliff:g>에 있을 이 일정의 세부사항이 변경되었습니다."</string>
     <string name="system_account_create_failed" msgid="4917162302393971752">"AccountManager가 계정을 만들 수 없습니다. 다시 시도해 보세요."</string>
     <string name="device_admin_label" msgid="8680224994637869414">"이메일"</string>
     <string name="device_admin_description" msgid="426727923791430306">"서버별 보안 정책 사용"</string>
     <string name="notification_exchange_calendar_added" msgid="6823659622379350159">"Exchange 캘린더 추가됨"</string>
-    <!-- no translation found for gal_searching_fmt (6140450617663543464) -->
-    <skip />
-    <!-- no translation found for gal_completed_fmt:one (7496785524617037642) -->
-    <!-- no translation found for gal_completed_fmt:other (7816121892960632123) -->
-    <!-- no translation found for gal_completed_limited_fmt (2343791690766047585) -->
-    <skip />
+    <string name="gal_searching_fmt" msgid="6140450617663543464">"<xliff:g id="DOMAIN">%s</xliff:g> 검색 중..."</string>
+  <plurals name="gal_completed_fmt">
+    <item quantity="one" msgid="7496785524617037642">"<xliff:g id="DOMAIN">%s</xliff:g>의 검색결과 <xliff:g id="RESULTS">%d</xliff:g>개"</item>
+    <item quantity="other" msgid="7816121892960632123">"<xliff:g id="DOMAIN">%s</xliff:g>의 검색결과 <xliff:g id="RESULTS">%d</xliff:g>개"</item>
+  </plurals>
+    <string name="gal_completed_limited_fmt" msgid="2343791690766047585">"<xliff:g id="DOMAIN">%s</xliff:g>의 처음 <xliff:g id="RESULTS">%d</xliff:g>개 검색결과"</string>
 </resources>
