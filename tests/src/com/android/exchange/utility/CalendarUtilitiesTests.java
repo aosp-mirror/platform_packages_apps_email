@@ -700,6 +700,20 @@ public class CalendarUtilitiesTests extends AndroidTestCase {
             Log.d("TimeZoneGeneration", "No rule: " + nr);
         }
     }
+
+    public void testGetUidFromGlobalObjId() {
+        // This is a "foreign" uid (from some vCalendar client)
+        String globalObjId = "BAAAAIIA4AB0xbcQGoLgCAAAAAAAAAAAAAAAAAAAAAAAAAAAMQAAA" +
+                "HZDYWwtVWlkAQAAADI3NjU1NmRkLTg1MzAtNGZiZS1iMzE0LThiM2JlYTYwMjE0OQA=";
+        String uid = CalendarUtilities.getUidFromGlobalObjId(globalObjId);
+        assertEquals(uid, "276556dd-8530-4fbe-b314-8b3bea602149");
+        // This is a native EAS uid
+        globalObjId =
+            "BAAAAIIA4AB0xbcQGoLgCAAAAADACTu7KbPKAQAAAAAAAAAAEAAAAObgsG6HVt1Fmy+7GlLbGhY=";
+        uid = CalendarUtilities.getUidFromGlobalObjId(globalObjId);
+        assertEquals(uid, "040000008200E00074C5B7101A82E00800000000C0093BBB29B3CA" +
+                "01000000000000000010000000E6E0B06E8756DD459B2FBB1A52DB1A16");
+    }
 }
 
     // TODO Planned unit tests
