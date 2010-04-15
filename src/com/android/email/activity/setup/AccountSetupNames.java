@@ -94,10 +94,7 @@ public class AccountSetupNames extends Activity implements OnClickListener {
         mAccount = EmailContent.Account.restoreAccountWithId(this, accountId);
         // Shouldn't happen, but it could
         if (mAccount == null) {
-            // The safe thing to do here is to rewind all the way to the entry activity,
-            // which can handle any configuration of accounts (0, 1, or 2+)
-            Welcome.actionStart(this);
-            finish();
+            onBackPressed();
             return;
         }
         // Get the hostAuth for receiving
@@ -153,7 +150,13 @@ public class AccountSetupNames extends Activity implements OnClickListener {
         if (easFlowMode) {
             AccountSetupBasics.actionAccountCreateFinishedEas(this);
         } else {
-            AccountSetupBasics.actionAccountCreateFinished(this, mAccount.mId);
+            if (mAccount != null) {
+                AccountSetupBasics.actionAccountCreateFinished(this, mAccount.mId);
+            } else {
+                // Safety check here;  If mAccount is null (due to external issues or bugs)
+                // just rewind back to Welcome, which can handle any configuration of accounts
+                Welcome.actionStart(this);
+            }
         }
         finish();
     }
