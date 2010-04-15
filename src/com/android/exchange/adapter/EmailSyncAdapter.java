@@ -45,7 +45,6 @@ import android.content.OperationApplicationException;
 import android.database.Cursor;
 import android.net.Uri;
 import android.os.RemoteException;
-import android.util.Base64;
 import android.webkit.MimeTypeMap;
 
 import java.io.IOException;
@@ -215,16 +214,8 @@ public class EmailSyncAdapter extends AbstractSyncAdapter {
                         packedString.put(MeetingInfo.MEETING_LOCATION, getValue());
                         break;
                     case Tags.EMAIL_GLOBAL_OBJID:
-                        // This is lovely; the unique id is a base64 encoded hex string
-                        String guid = getValue();
-                        StringBuilder sb = new StringBuilder();
-                        // First get the decoded base64
-                        byte[] bytes = Base64.decode(guid, Base64.DEFAULT);
-                        // Then go through the bytes and write out the hex values as characters
-                        for (byte b: bytes) {
-                            Utility.byteToHex(sb, b);
-                        }
-                        packedString.put(MeetingInfo.MEETING_UID, sb.toString());
+                        packedString.put(MeetingInfo.MEETING_UID,
+                                CalendarUtilities.getUidFromGlobalObjId(getValue()));
                         break;
                     case Tags.EMAIL_CATEGORIES:
                         nullParser();
