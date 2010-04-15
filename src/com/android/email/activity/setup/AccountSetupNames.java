@@ -19,6 +19,7 @@ package com.android.email.activity.setup;
 import com.android.email.AccountBackupRestore;
 import com.android.email.R;
 import com.android.email.Utility;
+import com.android.email.activity.Welcome;
 import com.android.email.provider.EmailContent;
 import com.android.email.provider.EmailContent.Account;
 import com.android.email.provider.EmailContent.AccountColumns;
@@ -93,7 +94,11 @@ public class AccountSetupNames extends Activity implements OnClickListener {
         mAccount = EmailContent.Account.restoreAccountWithId(this, accountId);
         // Shouldn't happen, but it could
         if (mAccount == null) {
-            onBackPressed();
+            // The safe thing to do here is to rewind all the way to the entry activity,
+            // which can handle any configuration of accounts (0, 1, or 2+)
+            Welcome.actionStart(this);
+            finish();
+            return;
         }
         // Get the hostAuth for receiving
         HostAuth hostAuth = HostAuth.restoreHostAuthWithId(this, mAccount.mHostAuthKeyRecv);
