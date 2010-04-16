@@ -97,8 +97,6 @@ public class CalendarSyncAdapter extends AbstractSyncAdapter {
     private static final String CATEGORY_TOKENIZER_DELIMITER = "\\";
     private static final String ATTENDEE_TOKENIZER_DELIMITER = CATEGORY_TOKENIZER_DELIMITER;
 
-    private static final String FREE_BUSY_BUSY = "2";
-
     private static final ContentProviderOperation PLACEHOLDER_OPERATION =
         ContentProviderOperation.newInsert(Uri.EMPTY).build();
 
@@ -411,7 +409,9 @@ public class CalendarSyncAdapter extends AbstractSyncAdapter {
                         ops.newExtendedProperty("meeting_status", getValue());
                         break;
                     case Tags.CALENDAR_BUSY_STATUS:
-                        ops.newExtendedProperty("busy_status", getValue());
+                        int busyStatus = getValueInt();
+                        cv.put(Events.SELF_ATTENDEE_STATUS,
+                                CalendarUtilities.selfAttendeeStatusFromBusyStatus(busyStatus));
                         break;
                     case Tags.CALENDAR_CATEGORIES:
                         String categories = categoriesParser(ops);
@@ -618,21 +618,19 @@ public class CalendarSyncAdapter extends AbstractSyncAdapter {
                     case Tags.CALENDAR_SENSITIVITY:
                         cv.put(Events.VISIBILITY, encodeVisibility(getValueInt()));
                         break;
+                    case Tags.CALENDAR_BUSY_STATUS:
+                        int busyStatus = getValueInt();
+                        cv.put(Events.SELF_ATTENDEE_STATUS,
+                                CalendarUtilities.selfAttendeeStatusFromBusyStatus(busyStatus));
+                        break;
 
                         // TODO How to handle these items that are linked to event id!
-
 //                    case Tags.CALENDAR_DTSTAMP:
 //                        ops.newExtendedProperty("dtstamp", getValue());
-//                        break;
-//                    case Tags.CALENDAR_BUSY_STATUS:
-//                        // TODO Try to fit this into Calendar scheme
-//                        ops.newExtendedProperty("busy_status", getValue());
 //                        break;
 //                    case Tags.CALENDAR_REMINDER_MINS_BEFORE:
 //                        ops.newReminder(getValueInt());
 //                        break;
-
-                        // Not yet handled
                     default:
                         skipTag();
                 }
@@ -1173,7 +1171,10 @@ public class CalendarSyncAdapter extends AbstractSyncAdapter {
 
         // Busy status is only required for 2.5, but we need to send it with later
         // versions as well, because if we don't, the server will clear it.
-        s.data(Tags.CALENDAR_BUSY_STATUS, FREE_BUSY_BUSY);
+        int selfAttendeeStatus = entityValues.getAsInteger(Events.SELF_ATTENDEE_STATUS);
+        s.data(Tags.CALENDAR_BUSY_STATUS,
+                Integer.toString(CalendarUtilities
+                        .busyStatusFromSelfAttendeeStatus(selfAttendeeStatus)));
 
         boolean allDay = false;
         if (entityValues.containsKey(Events.ALL_DAY)) {

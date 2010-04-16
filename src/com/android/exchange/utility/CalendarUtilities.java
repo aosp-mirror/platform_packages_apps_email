@@ -137,6 +137,11 @@ public class CalendarUtilities {
     static final String ICALENDAR_ATTENDEE_TENTATIVE =
         ICALENDAR_ATTENDEE + ";PARTSTAT=TENTATIVE";
 
+    public static final int BUSY_STATUS_BUSY = 0;
+    public static final int BUSY_STATUS_FREE = 1;
+    public static final int BUSY_STATUS_TENTATIVE = 2;
+    public static final int BUSY_STATUS_OOF = 3;
+
     // Return a 4-byte long from a byte array (little endian)
     static int getLong(byte[] bytes, int offset) {
         return (bytes[offset++] & 0xFF) | ((bytes[offset++] & 0xFF) << 8) |
@@ -1208,6 +1213,55 @@ public class CalendarUtilities {
             // In the worst of cases (bad format, etc.), we can always return the input
             return globalObjId;
         }
+    }
+
+    /**
+     * Get a selfAttendeeStatus from a busy status
+     * The default here is NONE (i.e. we don't know the status)
+     * Note that a busy status of FREE must mean NONE as well, since it can't mean declined
+     * (there would be no event)
+     * @param busyStatus the busy status, from EAS
+     * @return the corresponding value for selfAttendeeStatus
+     */
+    static public int selfAttendeeStatusFromBusyStatus(int busyStatus) {
+        int selfAttendeeStatus;
+        switch (busyStatus) {
+            case BUSY_STATUS_BUSY:
+                selfAttendeeStatus = Attendees.ATTENDEE_STATUS_ACCEPTED;
+                break;
+            case BUSY_STATUS_TENTATIVE:
+                selfAttendeeStatus = Attendees.ATTENDEE_STATUS_TENTATIVE;
+                break;
+            case BUSY_STATUS_FREE:
+            case BUSY_STATUS_OOF:
+            default:
+                selfAttendeeStatus = Attendees.ATTENDEE_STATUS_NONE;
+        }
+        return selfAttendeeStatus;
+    }
+
+    /** Get a busy status from a selfAttendeeStatus
+     * The default here is BUSY
+     * @param selfAttendeeStatus from CalendarProvider2
+     * @return the corresponding value of busy status
+     */
+    static public int busyStatusFromSelfAttendeeStatus(int selfAttendeeStatus) {
+        int busyStatus;
+        switch (selfAttendeeStatus) {
+            case Attendees.ATTENDEE_STATUS_DECLINED:
+            case Attendees.ATTENDEE_STATUS_NONE:
+            case Attendees.ATTENDEE_STATUS_INVITED:
+                busyStatus = BUSY_STATUS_FREE;
+                break;
+            case Attendees.ATTENDEE_STATUS_TENTATIVE:
+                busyStatus = BUSY_STATUS_TENTATIVE;
+                break;
+            case Attendees.ATTENDEE_STATUS_ACCEPTED:
+            default:
+                busyStatus = BUSY_STATUS_BUSY;
+                break;
+        }
+        return busyStatus;
     }
 
     static public String buildMessageTextFromEntityValues(Context context,
