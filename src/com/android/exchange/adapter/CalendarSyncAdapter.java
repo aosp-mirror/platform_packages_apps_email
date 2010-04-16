@@ -108,6 +108,8 @@ public class CalendarSyncAdapter extends AbstractSyncAdapter {
 
     private static final Object sSyncKeyLock = new Object();
 
+    private static final TimeZone UTC_TIMEZONE = TimeZone.getTimeZone("UTC");
+
     private long mCalendarId = -1;
     private String mCalendarIdString;
     private String[] mCalendarIdArgument;
@@ -439,21 +441,32 @@ public class CalendarSyncAdapter extends AbstractSyncAdapter {
                 ops.newExtendedProperty("attendees", sb.toString());
             }
 
+            boolean hasRrule = cv.containsKey(Events.RRULE);
             // If there's no recurrence, set DTEND to the end time
-            if (!cv.containsKey(Events.RRULE)) {
+            if (!hasRrule) {
                 cv.put(Events.DTEND, endTime);
                 cv.put(Events.LAST_DATE, endTime);
             }
             // Set the DURATION using rfc2445
-            // For all day events, make sure hour, minute, and second are zero for DTSTART
+            // For all day events, make sure hour, minute, and second are zero for DTSTART/DTEND
             if (allDayEvent != 0) {
-                cv.put(Events.DURATION, "P1D");
-                GregorianCalendar cal = new GregorianCalendar(TimeZone.getTimeZone("GMT"));
+                GregorianCalendar cal = new GregorianCalendar(UTC_TIMEZONE);
                 cal.setTimeInMillis(startTime);
                 cal.set(GregorianCalendar.HOUR_OF_DAY, 0);
                 cal.set(GregorianCalendar.MINUTE, 0);
                 cal.set(GregorianCalendar.SECOND, 0);
                 cv.put(Events.DTSTART, cal.getTimeInMillis());
+                // Use DURATION w/ recurrences; otherwise DTEND
+                if (!hasRrule) {
+                    cal.setTimeInMillis(endTime);
+                    cal.set(GregorianCalendar.HOUR_OF_DAY, 0);
+                    cal.set(GregorianCalendar.MINUTE, 0);
+                    cal.set(GregorianCalendar.SECOND, 0);
+                    cv.put(Events.DTEND, cal.getTimeInMillis());
+                } else {
+                    cv.put(Events.DURATION, "P" + ((endTime - startTime) / DAYS) + "D");
+                }
+                cv.put(Events.EVENT_TIMEZONE, UTC_TIMEZONE.getID());
             } else {
                 cv.put(Events.DURATION, "P" + ((endTime - startTime) / MINUTES) + "M");
             }
