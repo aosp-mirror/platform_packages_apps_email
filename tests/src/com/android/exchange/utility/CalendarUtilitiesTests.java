@@ -714,6 +714,39 @@ public class CalendarUtilitiesTests extends AndroidTestCase {
         assertEquals(uid, "040000008200E00074C5B7101A82E00800000000C0093BBB29B3CA" +
                 "01000000000000000010000000E6E0B06E8756DD459B2FBB1A52DB1A16");
     }
+
+    public void testSelfAttendeeStatusFromBusyStatus() {
+        assertEquals(Attendees.ATTENDEE_STATUS_ACCEPTED,
+                CalendarUtilities.selfAttendeeStatusFromBusyStatus(
+                        CalendarUtilities.BUSY_STATUS_BUSY));
+        assertEquals(Attendees.ATTENDEE_STATUS_TENTATIVE,
+                CalendarUtilities.selfAttendeeStatusFromBusyStatus(
+                        CalendarUtilities.BUSY_STATUS_TENTATIVE));
+        assertEquals(Attendees.ATTENDEE_STATUS_NONE,
+                CalendarUtilities.selfAttendeeStatusFromBusyStatus(
+                        CalendarUtilities.BUSY_STATUS_FREE));
+        assertEquals(Attendees.ATTENDEE_STATUS_NONE,
+                CalendarUtilities.selfAttendeeStatusFromBusyStatus(
+                        CalendarUtilities.BUSY_STATUS_OOF));
+    }
+
+    public void testBusyStatusFromSelfStatus() {
+        assertEquals(CalendarUtilities.BUSY_STATUS_FREE,
+                CalendarUtilities.busyStatusFromSelfAttendeeStatus(
+                        Attendees.ATTENDEE_STATUS_DECLINED));
+        assertEquals(CalendarUtilities.BUSY_STATUS_BUSY,
+                CalendarUtilities.busyStatusFromSelfAttendeeStatus(
+                        Attendees.ATTENDEE_STATUS_NONE));
+        assertEquals(CalendarUtilities.BUSY_STATUS_BUSY,
+                CalendarUtilities.busyStatusFromSelfAttendeeStatus(
+                        Attendees.ATTENDEE_STATUS_INVITED));
+        assertEquals(CalendarUtilities.BUSY_STATUS_TENTATIVE,
+                CalendarUtilities.busyStatusFromSelfAttendeeStatus(
+                        Attendees.ATTENDEE_STATUS_TENTATIVE));
+        assertEquals(CalendarUtilities.BUSY_STATUS_BUSY,
+                CalendarUtilities.busyStatusFromSelfAttendeeStatus(
+                        Attendees.ATTENDEE_STATUS_ACCEPTED));
+    }
 }
 
     // TODO Planned unit tests
