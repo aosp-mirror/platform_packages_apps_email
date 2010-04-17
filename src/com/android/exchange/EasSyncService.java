@@ -1180,6 +1180,8 @@ public class EasSyncService extends AbstractSyncService {
             }
             if (pp.getRemoteWipe()) {
                 // We've gotten a remote wipe command
+                // If we're not the admin, we can't do the wipe, so just return
+                if (!sp.isActiveAdmin()) return false;
                 // First, we've got to acknowledge it, but wrap the wipe in try/catch so that
                 // we wipe the device regardless of any errors in acknowledgment
                 try {
