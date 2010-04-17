@@ -1091,7 +1091,7 @@ public class CalendarSyncAdapter extends AbstractSyncAdapter {
             add(ContentProviderOperation
                     .newInsert(REMINDERS_URI)
                     .withValue(Reminders.MINUTES, mins)
-                    .withValue(Reminders.METHOD, Reminders.METHOD_DEFAULT)
+                    .withValue(Reminders.METHOD, Reminders.METHOD_ALERT)
                     .withValueBackReference(ExtendedProperties.EVENT_ID, eventStart)
                     .build());
         }
