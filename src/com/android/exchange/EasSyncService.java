@@ -2046,6 +2046,9 @@ public class EasSyncService extends AbstractSyncService {
                         break;
                     case EXIT_SECURITY_FAILURE:
                         status = EmailServiceStatus.SECURITY_FAILURE;
+                        // Ask for a new folder list.  This should wake up the account mailbox; a
+                        // security error in account mailbox should start the provisioning process
+                        SyncManager.reloadFolderList(mContext, mAccount.mId, true);
                         break;
                     default:
                         status = EmailServiceStatus.REMOTE_EXCEPTION;
