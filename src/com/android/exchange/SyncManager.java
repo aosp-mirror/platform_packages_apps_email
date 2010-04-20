@@ -1651,8 +1651,9 @@ public class SyncManager extends Service implements Runnable {
         for (long mailboxId: mServiceMap.keySet()) {
             Mailbox m = Mailbox.restoreMailboxWithId(this, mailboxId);
             if (m != null) {
-                if (m.mAccountKey == accountId &&
-                        m.mServerId.startsWith(Eas.ACCOUNT_MAILBOX_PREFIX)) {
+                String serverId = m.mServerId;
+                if (m.mAccountKey == accountId && serverId != null &&
+                        serverId.startsWith(Eas.ACCOUNT_MAILBOX_PREFIX)) {
                     // Here's our account mailbox; reset him (stopping pings)
                     AbstractSyncService svc = mServiceMap.get(mailboxId);
                     svc.reset();
