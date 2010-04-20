@@ -274,7 +274,7 @@ public class ImapResponseParser {
                     // ch == '"' || ch == '\' ||
                     ch == '"' || (ch >= 0x00 && ch <= 0x1f) || ch == 0x7f) {
                 if (sb.length() == 0) {
-                    throw new IOException(String.format("parseAtom(): (%04x %c)", (int)ch, ch));
+                    throw new IOException(String.format("parseAtom(): (%04x %c)", ch, ch));
                 }
                 return sb.toString();
             } else {
@@ -350,12 +350,13 @@ public class ImapResponseParser {
 
         /** Safe version of getList() */
         public ImapList getListOrNull(int index) {
-            Object list = get(index);
-            if (list instanceof ImapList) {
-                return (ImapList) list;
-            } else {
-                return null;
+            if (index < size()) {
+                Object list = get(index);
+                if (list instanceof ImapList) {
+                    return (ImapList) list;
+                }
             }
+            return null;
         }
 
         public String getString(int index) {
@@ -460,7 +461,7 @@ public class ImapResponseParser {
                     FixedLengthInputStream is = (FixedLengthInputStream) o;
                     byte[] buffer = new byte[is.available()];
                     is.read(buffer);
-                    set(last, (Object) new String(buffer));
+                    set(last, new String(buffer));
                 }
             }
         }
@@ -502,6 +503,7 @@ public class ImapResponseParser {
             return null;
         }
 
+        @Override
         public String toString() {
             return "#" + mTag + "# " + super.toString();
         }
