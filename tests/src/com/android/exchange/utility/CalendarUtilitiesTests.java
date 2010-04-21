@@ -727,17 +727,17 @@ public class CalendarUtilitiesTests extends AndroidTestCase {
                         CalendarUtilities.BUSY_STATUS_FREE));
         assertEquals(Attendees.ATTENDEE_STATUS_NONE,
                 CalendarUtilities.selfAttendeeStatusFromBusyStatus(
-                        CalendarUtilities.BUSY_STATUS_OOF));
+                        CalendarUtilities.BUSY_STATUS_OUT_OF_OFFICE));
     }
 
     public void testBusyStatusFromSelfStatus() {
         assertEquals(CalendarUtilities.BUSY_STATUS_FREE,
                 CalendarUtilities.busyStatusFromSelfAttendeeStatus(
                         Attendees.ATTENDEE_STATUS_DECLINED));
-        assertEquals(CalendarUtilities.BUSY_STATUS_BUSY,
+        assertEquals(CalendarUtilities.BUSY_STATUS_FREE,
                 CalendarUtilities.busyStatusFromSelfAttendeeStatus(
                         Attendees.ATTENDEE_STATUS_NONE));
-        assertEquals(CalendarUtilities.BUSY_STATUS_BUSY,
+        assertEquals(CalendarUtilities.BUSY_STATUS_FREE,
                 CalendarUtilities.busyStatusFromSelfAttendeeStatus(
                         Attendees.ATTENDEE_STATUS_INVITED));
         assertEquals(CalendarUtilities.BUSY_STATUS_TENTATIVE,

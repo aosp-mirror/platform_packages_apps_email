@@ -137,10 +137,15 @@ public class CalendarUtilities {
     static final String ICALENDAR_ATTENDEE_TENTATIVE =
         ICALENDAR_ATTENDEE + ";PARTSTAT=TENTATIVE";
 
-    public static final int BUSY_STATUS_BUSY = 0;
-    public static final int BUSY_STATUS_FREE = 1;
-    public static final int BUSY_STATUS_TENTATIVE = 2;
-    public static final int BUSY_STATUS_OOF = 3;
+    // Note that these constants apply to Calendar items
+    // For future reference: MeetingRequest data can also include free/busy information, but the
+    // constants for these four options in MeetingRequest data have different values!
+    // See [MS-ASCAL] 2.2.2.8 for Calendar BusyStatus
+    // See [MS-EMAIL] 2.2.2.34 for MeetingRequest BusyStatus
+    public static final int BUSY_STATUS_FREE = 0;
+    public static final int BUSY_STATUS_TENTATIVE = 1;
+    public static final int BUSY_STATUS_BUSY = 2;
+    public static final int BUSY_STATUS_OUT_OF_OFFICE = 3;
 
     // Return a 4-byte long from a byte array (little endian)
     static int getLong(byte[] bytes, int offset) {
@@ -1233,7 +1238,7 @@ public class CalendarUtilities {
                 selfAttendeeStatus = Attendees.ATTENDEE_STATUS_TENTATIVE;
                 break;
             case BUSY_STATUS_FREE:
-            case BUSY_STATUS_OOF:
+            case BUSY_STATUS_OUT_OF_OFFICE:
             default:
                 selfAttendeeStatus = Attendees.ATTENDEE_STATUS_NONE;
         }
