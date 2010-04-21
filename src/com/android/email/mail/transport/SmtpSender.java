@@ -120,15 +120,11 @@ public class SmtpSender extends Sender {
             executeSimpleCommand(null);
 
             String localHost = "localhost";
-            try {
-                InetAddress localAddress = InetAddress.getLocalHost();
-                localHost = localAddress.getHostName();
-            } catch (Exception e) {
-                if (Config.LOGD && Email.DEBUG) {
-                    Log.d(Email.LOG_TAG, "Unable to look up localhost");
-                }
+            // Try to get local address in the X.X.X.X format.
+            InetAddress localAddress = mTransport.getLocalAddress();
+            if (localAddress != null) {
+                localHost = localAddress.getHostAddress();
             }
-
             String result = executeSimpleCommand("EHLO " + localHost);
 
             /*
