@@ -17,6 +17,7 @@
 package com.android.email.mail.store;
 
 import com.android.email.FixedLengthInputStream;
+import com.android.email.mail.MessagingException;
 import com.android.email.mail.store.ImapResponseParser.ImapList;
 import com.android.email.mail.store.ImapResponseParser.ImapResponse;
 import com.android.email.mail.transport.DiscourseLogger;
@@ -26,6 +27,7 @@ import android.test.suitebuilder.annotation.SmallTest;
 
 import java.io.ByteArrayInputStream;
 import java.io.IOException;
+import java.util.Date;
 
 /**
  * This is a series of unit tests for the ImapStore class.  These tests must be locally
@@ -130,5 +132,42 @@ public class ImapResponseParserUnitTests extends AndroidTestCase {
 
         ImapResponse line3 = parser.readResponse();
         assertNull(line3.getAlertText());
+    }
+
+    /**
+     * Test basic ImapList functionality
+     * TODO: Add tests for keyed lists
+     */
+    public void testImapList() throws MessagingException {
+        ByteArrayInputStream is = new ByteArrayInputStream("foo".getBytes());
+        ImapResponseParser parser = new ImapResponseParser(is, new DiscourseLogger(4));
+        ImapList list1 = parser.new ImapList();
+        list1.add("foo");
+        list1.add("bar");
+        list1.add(20);
+        list1.add(is);
+        list1.add(new Date());
+        ImapList list2 = parser.new ImapList();
+        list2.add(list1);
+        // Test getString(), getStringOrNull(), getList(), getListOrNull, getNumber()
+        // getLiteral(), and getDate()
+        assertEquals("foo", list1.getString(0));
+        assertEquals("foo", list1.getStringOrNull(0));
+        assertEquals("bar", list1.getString(1));
+        assertEquals("bar", list1.getStringOrNull(1));
+        assertNull(list1.getStringOrNull(2));
+        assertNull(list1.getStringOrNull(3));
+        assertNull(list1.getStringOrNull(4));
+        assertNull(list1.getListOrNull(2));
+        assertNull(list1.getListOrNull(3));
+        assertNull(list1.getListOrNull(4));
+        assertEquals(20, list1.getNumber(2));
+        assertNull(list1.getStringOrNull(20));
+        assertNotNull(list1.getLiteral(3));
+        assertNotNull(list1.getDate(4));
+        // Test getList() and getListOrNull() with list value
+        assertEquals(list1, list2.getList(0));
+        assertEquals(list1, list2.getListOrNull(0));
+        assertNull(list2.getListOrNull(20));
     }
 }
