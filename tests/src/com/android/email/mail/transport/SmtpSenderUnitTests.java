@@ -36,6 +36,9 @@ import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
+import java.net.InetAddress;
+import java.net.UnknownHostException;
+import java.util.regex.Pattern;
 
 /**
  * This is a series of unit tests for the SMTP Sender class.  These tests must be locally
@@ -50,6 +53,7 @@ public class SmtpSenderUnitTests extends ProviderTestCase2<EmailProvider> {
     EmailProvider mProvider;
     Context mProviderContext;
     Context mContext;
+    private static final String LOCAL_ADDRESS = "1.2.3.4";
 
     /* These values are provided by setUp() */
     private SmtpSender mSender = null;
@@ -79,7 +83,7 @@ public class SmtpSenderUnitTests extends ProviderTestCase2<EmailProvider> {
     /**
      * Confirms simple non-SSL non-TLS login
      */
-    public void testSimpleLogin() throws MessagingException {
+    public void testSimpleLogin() throws Exception {
         
         MockTransport mockTransport = openAndInjectMockTransport();
         
@@ -100,7 +104,7 @@ public class SmtpSenderUnitTests extends ProviderTestCase2<EmailProvider> {
     /**
      * Test:  Open and send a single message (sunny day)
      */
-    public void testSendMessageWithBody() throws MessagingException {
+    public void testSendMessageWithBody() throws Exception {
         MockTransport mockTransport = openAndInjectMockTransport();
 
         // Since SmtpSender.sendMessage() does a close then open, we need to preset for the open
@@ -341,7 +345,7 @@ public class SmtpSenderUnitTests extends ProviderTestCase2<EmailProvider> {
     /**
      * Test:  Recover from a server closing early (or returning an empty string)
      */
-    public void testEmptyLineResponse() {
+    public void testEmptyLineResponse() throws Exception {
         MockTransport mockTransport = openAndInjectMockTransport();
         
         // Since SmtpSender.sendMessage() does a close then open, we need to preset for the open
@@ -349,7 +353,7 @@ public class SmtpSenderUnitTests extends ProviderTestCase2<EmailProvider> {
         
         // Load up just the bare minimum to expose the error
         mockTransport.expect(null, "220 MockTransport 2000 Ready To Assist You Peewee");
-        mockTransport.expect("EHLO .*", "");
+        mockTransport.expect("EHLO " + Pattern.quote(LOCAL_ADDRESS), "");
         
         // Now trigger the transmission
         // Note, a null message is sufficient here, as we won't even get past open()
@@ -365,11 +369,12 @@ public class SmtpSenderUnitTests extends ProviderTestCase2<EmailProvider> {
     /**
      * Set up a basic MockTransport. open it, and inject it into mStore
      */
-    private MockTransport openAndInjectMockTransport() {
+    private MockTransport openAndInjectMockTransport() throws UnknownHostException {
         // Create mock transport and inject it into the SmtpSender that's already set up
         MockTransport mockTransport = new MockTransport();
         mockTransport.setSecurity(Transport.CONNECTION_SECURITY_NONE, false);
         mSender.setTransport(mockTransport);
+        mockTransport.setMockLocalAddress(InetAddress.getByName(LOCAL_ADDRESS));
         return mockTransport;
     }
     

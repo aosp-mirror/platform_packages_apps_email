@@ -23,6 +23,7 @@ import android.util.Log;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
+import java.net.InetAddress;
 import java.net.URI;
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -49,9 +50,10 @@ public class MockTransport implements Transport {
     private int mConnectionSecurity;
     private boolean mTrustCertificates;
     private String mHost;
-    
+    private InetAddress mLocalAddress;
+
     private ArrayList<String> mQueuedInput = new ArrayList<String>();
-            
+
     private static class Transaction {
         public static final int ACTION_INJECT_TEXT = 0;
         public static final int ACTION_SERVER_CLOSE = 1;
@@ -184,6 +186,10 @@ public class MockTransport implements Transport {
 
     public String getHost() {
         return mHost;
+    }
+
+    public void setMockLocalAddress(InetAddress address) {
+        mLocalAddress = address;
     }
 
     public InputStream getInputStream() {
@@ -358,6 +364,14 @@ public class MockTransport implements Transport {
             } else {
                 sb.append((char)oneByte);
             }
+        }
+    }
+
+    public InetAddress getLocalAddress() {
+        if (isOpen()) {
+            return mLocalAddress;
+        } else {
+            return null;
         }
     }
 }
