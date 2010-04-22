@@ -37,7 +37,7 @@ import java.util.Date;
 public class ImapResponseParserUnitTests extends AndroidTestCase {
 
     // TODO more comprehensive test for parsing
-    
+
     /**
      * Test for parsing literal string
      */
@@ -50,19 +50,19 @@ public class ImapResponseParserUnitTests extends AndroidTestCase {
                 + "101 OK STATUS completed\r\n")
                 .getBytes());
         ImapResponseParser parser = new ImapResponseParser(is, new DiscourseLogger(4));
-        
+
         ImapResponse line1 = parser.readResponse();
         assertNull("Line 1 tag", line1.mTag);
         assertTrue("Line 1 completed", line1.completed());
         assertEquals("Line 1 count", 3, line1.size());
         Object line1list = line1.get(2);
         assertEquals("Line 1 list count", 2, ((ImapList)line1list).size());
-        
+
         ImapResponse line2 = parser.readResponse();
         assertEquals("Line 2 tag", "100", line2.mTag);
         assertTrue("Line 2 completed", line2.completed());
         assertEquals("Line 2 count", 3, line2.size());
-        
+
         ImapResponse line3 = parser.readResponse();
         assertNull("Line 3 tag", line3.mTag);
         assertFalse("Line 3 completed", line3.completed());
@@ -72,18 +72,18 @@ public class ImapResponseParserUnitTests extends AndroidTestCase {
         line3.nailDown();
         assertEquals("Line 3 word 2 nailed down", String.class, line3.get(1).getClass());
         assertEquals("Line 3 word 2 value", "INBOX", line3.getString(1));
-        
+
         ImapResponse line4 = parser.readResponse();
         assertEquals("Line 4 tag", "", line4.mTag);
         assertTrue("Line 4 completed", line4.completed());
         assertEquals("Line 4 count", 1, line4.size());
-        
+
         line3.appendAll(line4);
         assertNull("Line 3-4 tag", line3.mTag);
         assertTrue("Line 3-4 completed", line3.completed());
         assertEquals("Line 3-4 count", 3, line3.size());
         assertEquals("Line 3-4 word 3 class", ImapList.class, line3.get(2).getClass());
-        
+
         ImapResponse line5 = parser.readResponse();
         assertEquals("Line 5 tag", "101", line5.mTag);
         assertTrue("Line 5 completed", line5.completed());
@@ -144,30 +144,35 @@ public class ImapResponseParserUnitTests extends AndroidTestCase {
         ImapList list1 = parser.new ImapList();
         list1.add("foo");
         list1.add("bar");
-        list1.add(20);
+        list1.add("20");
         list1.add(is);
-        list1.add(new Date());
+        list1.add("01-Jan-2009 11:20:39 -0800");
         ImapList list2 = parser.new ImapList();
         list2.add(list1);
         // Test getString(), getStringOrNull(), getList(), getListOrNull, getNumber()
         // getLiteral(), and getDate()
         assertEquals("foo", list1.getString(0));
         assertEquals("foo", list1.getStringOrNull(0));
+        assertNull(list1.getListOrNull(0));
+
         assertEquals("bar", list1.getString(1));
         assertEquals("bar", list1.getStringOrNull(1));
-        assertNull(list1.getStringOrNull(2));
-        assertNull(list1.getStringOrNull(3));
-        assertNull(list1.getStringOrNull(4));
-        assertNull(list1.getListOrNull(2));
-        assertNull(list1.getListOrNull(3));
-        assertNull(list1.getListOrNull(4));
+        assertNull(list1.getListOrNull(1));
+
+        assertEquals("20", list1.getString(2));
+        assertEquals("20", list1.getStringOrNull(2));
         assertEquals(20, list1.getNumber(2));
-        assertNull(list1.getStringOrNull(20));
+
+        assertNull(list1.getStringOrNull(3));
         assertNotNull(list1.getLiteral(3));
-        assertNotNull(list1.getDate(4));
+
+        // getDate() is removed by proguard.  (aparently it's not used.)
+        // assertNotNull(list1.getDate(4));
+
         // Test getList() and getListOrNull() with list value
         assertEquals(list1, list2.getList(0));
         assertEquals(list1, list2.getListOrNull(0));
         assertNull(list2.getListOrNull(20));
+        assertNull(list2.getStringOrNull(20));
     }
 }
