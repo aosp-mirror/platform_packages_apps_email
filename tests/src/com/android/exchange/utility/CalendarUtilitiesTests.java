@@ -717,34 +717,34 @@ public class CalendarUtilitiesTests extends AndroidTestCase {
 
     public void testSelfAttendeeStatusFromBusyStatus() {
         assertEquals(Attendees.ATTENDEE_STATUS_ACCEPTED,
-                CalendarUtilities.selfAttendeeStatusFromBusyStatus(
+                CalendarUtilities.attendeeStatusFromBusyStatus(
                         CalendarUtilities.BUSY_STATUS_BUSY));
         assertEquals(Attendees.ATTENDEE_STATUS_TENTATIVE,
-                CalendarUtilities.selfAttendeeStatusFromBusyStatus(
+                CalendarUtilities.attendeeStatusFromBusyStatus(
                         CalendarUtilities.BUSY_STATUS_TENTATIVE));
         assertEquals(Attendees.ATTENDEE_STATUS_NONE,
-                CalendarUtilities.selfAttendeeStatusFromBusyStatus(
+                CalendarUtilities.attendeeStatusFromBusyStatus(
                         CalendarUtilities.BUSY_STATUS_FREE));
         assertEquals(Attendees.ATTENDEE_STATUS_NONE,
-                CalendarUtilities.selfAttendeeStatusFromBusyStatus(
+                CalendarUtilities.attendeeStatusFromBusyStatus(
                         CalendarUtilities.BUSY_STATUS_OUT_OF_OFFICE));
     }
 
     public void testBusyStatusFromSelfStatus() {
         assertEquals(CalendarUtilities.BUSY_STATUS_FREE,
-                CalendarUtilities.busyStatusFromSelfAttendeeStatus(
+                CalendarUtilities.busyStatusFromAttendeeStatus(
                         Attendees.ATTENDEE_STATUS_DECLINED));
         assertEquals(CalendarUtilities.BUSY_STATUS_FREE,
-                CalendarUtilities.busyStatusFromSelfAttendeeStatus(
+                CalendarUtilities.busyStatusFromAttendeeStatus(
                         Attendees.ATTENDEE_STATUS_NONE));
         assertEquals(CalendarUtilities.BUSY_STATUS_FREE,
-                CalendarUtilities.busyStatusFromSelfAttendeeStatus(
+                CalendarUtilities.busyStatusFromAttendeeStatus(
                         Attendees.ATTENDEE_STATUS_INVITED));
         assertEquals(CalendarUtilities.BUSY_STATUS_TENTATIVE,
-                CalendarUtilities.busyStatusFromSelfAttendeeStatus(
+                CalendarUtilities.busyStatusFromAttendeeStatus(
                         Attendees.ATTENDEE_STATUS_TENTATIVE));
         assertEquals(CalendarUtilities.BUSY_STATUS_BUSY,
-                CalendarUtilities.busyStatusFromSelfAttendeeStatus(
+                CalendarUtilities.busyStatusFromAttendeeStatus(
                         Attendees.ATTENDEE_STATUS_ACCEPTED));
     }
 }
