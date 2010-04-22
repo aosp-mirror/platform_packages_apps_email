@@ -38,7 +38,6 @@ import com.android.email.provider.EmailContent.AccountColumns;
 import com.android.email.provider.EmailContent.HostAuth;
 import com.android.email.provider.EmailContent.Mailbox;
 
-import android.app.Activity;
 import android.app.ListActivity;
 import android.content.Context;
 import android.content.Intent;
@@ -64,6 +63,12 @@ import java.util.HashSet;
 
 /**
  * This activity will be used whenever we have a large/slow bulk upgrade operation.
+ *
+ * The general strategy is to iterate through the legacy accounts, convert them one-by-one, and
+ * then delete them.  The loop is very conservative;  If there is any problem, the bias will be
+ * to abandon the conversion and let the account be deleted.  We never want to get stuck here, and
+ * we never want to run more than once (on a device being upgraded from 1.6).  After this code
+ * runs, there should be zero legacy accounts.
  *
  * Note: It's preferable to check for "accounts needing upgrade" before launching this
  * activity, so as to not waste time before every launch.
@@ -171,17 +176,22 @@ public class UpgradeAccounts extends ListActivity implements OnClickListener {
         Account account;
         int maxProgress;
         int progress;
-        String error;
+        String errorMessage;    // set/read by handler - UI thread only
+        boolean isError;        // set/read by worker thread
+
+        public AccountInfo(Account legacyAccount) {
+            account = legacyAccount;
+            maxProgress = 0;
+            progress = 0;
+            errorMessage = null;
+            isError = false;
+        }
     }
 
     private void loadAccountInfoArray(Account[] legacyAccounts) {
         mLegacyAccounts = new AccountInfo[legacyAccounts.length];
         for (int i = 0; i < legacyAccounts.length; i++) {
-            AccountInfo ai = new AccountInfo();
-            ai.account = legacyAccounts[i];
-            ai.maxProgress = 0;
-            ai.progress = 0;
-            ai.error = null;
+            AccountInfo ai = new AccountInfo(legacyAccounts[i]);
             mLegacyAccounts[i] = ai;
         }
     }
@@ -241,7 +251,7 @@ public class UpgradeAccounts extends ListActivity implements OnClickListener {
             ViewHolder vh = (ViewHolder) view.getTag();
             AccountInfo ai = mLegacyAccounts[position];
             vh.displayName.setText(ai.account.getDescription());
-            if (ai.error == null) {
+            if (ai.errorMessage == null) {
                 vh.errorReport.setVisibility(View.GONE);
                 vh.progress.setVisibility(View.VISIBLE);
                 vh.progress.setMax(ai.maxProgress);
@@ -249,7 +259,7 @@ public class UpgradeAccounts extends ListActivity implements OnClickListener {
             } else {
                 vh.progress.setVisibility(View.GONE);
                 vh.errorReport.setVisibility(View.VISIBLE);
-                vh.errorReport.setText(ai.error);
+                vh.errorReport.setText(ai.errorMessage);
             }
         }
     }
@@ -282,7 +292,7 @@ public class UpgradeAccounts extends ListActivity implements OnClickListener {
                     mListView.invalidateViews();        // find a less annoying way to do that
                     break;
                 case MSG_ERROR:
-                    mLegacyAccounts[msg.arg1].error = (String) msg.obj;
+                    mLegacyAccounts[msg.arg1].errorMessage = (String) msg.obj;
                     mListView.invalidateViews();        // find a less annoying way to do that
                     mProceedButton.setEnabled(true);
                     break;
@@ -321,9 +331,10 @@ public class UpgradeAccounts extends ListActivity implements OnClickListener {
         }
 
         // Note: also enables the "OK" button, so we pause when complete
-        public void error(String error) {
+        public void error(int accountNum, String error) {
             android.os.Message msg = android.os.Message.obtain();
             msg.what = MSG_ERROR;
+            msg.arg1 = accountNum;
             msg.obj = error;
             sendMessage(msg);
         }
@@ -338,7 +349,7 @@ public class UpgradeAccounts extends ListActivity implements OnClickListener {
         UpgradeAccounts.AccountInfo[] mAccountInfo;
         final Context mContext;
         final Preferences mPreferences;
-        
+
         public ConversionTask(UpgradeAccounts.AccountInfo[] accountInfo) {
             // TODO: should I copy this?
             mAccountInfo = accountInfo;
@@ -362,17 +373,27 @@ public class UpgradeAccounts extends ListActivity implements OnClickListener {
                 // Step 1:  Analyze accounts and generate progress max values
                 for (int i = 0; i < mAccountInfo.length; i++) {
                     int estimate = UpgradeAccounts.estimateWork(mContext, mAccountInfo[i].account);
+                    if (estimate == -1) {
+                        mAccountInfo[i].isError = true;
+                        mHandler.error(i, mContext.getString(R.string.upgrade_accounts_error));
+                    }
                     UpgradeAccounts.this.mHandler.setMaxProgress(i, estimate);
                 }
 
                 // Step 2:  Scrub accounts, deleting anything we're not keeping to reclaim storage
                 for (int i = 0; i < mAccountInfo.length; i++) {
-                    if (mAccountInfo[i].error == null) {
-                        scrubAccount(mContext, mAccountInfo[i].account, i, handler);
+                    if (!mAccountInfo[i].isError) {
+                        boolean ok = scrubAccount(mContext, mAccountInfo[i].account, i, handler);
+                        if (!ok) {
+                            mAccountInfo[i].isError = true;
+                            mHandler.error(i, mContext.getString(R.string.upgrade_accounts_error));
+                        }
                     }
                 }
 
                 // Step 3:  Copy accounts (and delete old accounts).  POP accounts first.
+                // Note:  We don't check error condition here because we still want to
+                // delete the remaining parts of all accounts (even if in error condition).
                 for (int i = 0; i < mAccountInfo.length; i++) {
                     AccountInfo info = mAccountInfo[i];
                     copyAndDeleteAccount(info, i, handler, Store.STORE_SCHEME_POP3);
@@ -395,19 +416,31 @@ public class UpgradeAccounts extends ListActivity implements OnClickListener {
          * to force conversion of one or another type only.
          */
         private void copyAndDeleteAccount(AccountInfo info, int i, UIHandler handler, String type) {
-            if (type != null) {
-                String storeUri = info.account.getStoreUri();
-                boolean isType = storeUri.startsWith(type);
-                if (!isType) {
-                    return;         // skip this account
+            try {
+                if (type != null) {
+                    String storeUri = info.account.getStoreUri();
+                    boolean isType = storeUri.startsWith(type);
+                    if (!isType) {
+                        return;         // skip this account
+                    }
                 }
+                // Don't try copying if this account is already in error state
+                if (!info.isError) {
+                    copyAccount(mContext, info.account, i, handler);
+                }
+            } catch (RuntimeException e) {
+                Log.d(Email.LOG_TAG, "Exception while copying account " + e);
+                mHandler.error(i, mContext.getString(R.string.upgrade_accounts_error));
+                info.isError = true;
             }
-            if (info.error == null) {
-                copyAccount(mContext, info.account, i, handler);
+            // best effort to delete it (whether copied or not)
+            try {
+                deleteAccountStore(mContext, info.account, i, handler);
+                info.account.delete(mPreferences);
+            } catch (RuntimeException e) {
+                Log.d(Email.LOG_TAG, "Exception while deleting account " + e);
+                // No user notification is required here - we're done
             }
-            deleteAccountStore(mContext, info.account, handler);
-            info.account.delete(mPreferences);
-
             // jam the progress indicator to mark account "complete" (in case est was wrong)
             handler.setProgress(i, Integer.MAX_VALUE);
         }
@@ -427,6 +460,7 @@ public class UpgradeAccounts extends ListActivity implements OnClickListener {
     /**
      * Estimate the work required to convert an account.
      * 1 (account) + # folders + # messages + # attachments
+     * @return conversion operations estimate, or -1 if there's any problem
      */
     /* package */ static int estimateWork(Context context, Account account) {
         int estimate = 1;         // account
@@ -444,6 +478,10 @@ public class UpgradeAccounts extends ListActivity implements OnClickListener {
             store.close();
         } catch (MessagingException e) {
             Log.d(Email.LOG_TAG, "Exception while estimating account size " + e);
+            return -1;
+        } catch (RuntimeException e) {
+            Log.d(Email.LOG_TAG, "Exception while estimating account size " + e);
+            return -1;
         }
         return estimate;
     }
@@ -454,13 +492,13 @@ public class UpgradeAccounts extends ListActivity implements OnClickListener {
      * For IMAP:  Anything we can reload from server, we delete.  This reduces the risk of running
      * out of disk space by copying everything.
      * For POP: Delete the trash folder (which we won't bring forward).
+     * @return true if successful, false if any kind of error
      */
-    /* package */ static void scrubAccount(Context context, Account account, int accountNum,
+    /* package */ static boolean scrubAccount(Context context, Account account, int accountNum,
             UIHandler handler) {
-        String storeUri = account.getStoreUri();
-        boolean isImap = storeUri.startsWith(Store.STORE_SCHEME_IMAP);
-
         try {
+            String storeUri = account.getStoreUri();
+            boolean isImap = storeUri.startsWith(Store.STORE_SCHEME_IMAP);
             LocalStore store = LocalStore.newInstance(account.getLocalStoreUri(), context, null);
             Folder[] folders = store.getPersonalNamespaces();
             for (Folder folder : folders) {
@@ -489,8 +527,13 @@ public class UpgradeAccounts extends ListActivity implements OnClickListener {
             }
             store.close();
         } catch (MessagingException e) {
-            Log.d(Email.LOG_TAG, "Exception while cleaning IMAP account " + e);
+            Log.d(Email.LOG_TAG, "Exception while scrubbing account " + e);
+            return false;
+        } catch (RuntimeException e) {
+            Log.d(Email.LOG_TAG, "Exception while scrubbing account " + e);
+            return false;
         }
+        return true;
     }
 
     private static class FolderConversion {
@@ -514,7 +557,7 @@ public class UpgradeAccounts extends ListActivity implements OnClickListener {
         if (existCount > 0) {
             Log.d(Email.LOG_TAG, "No conversion, account exists: " + account.getDescription());
             if (handler != null) {
-                handler.error(context.getString(R.string.upgrade_accounts_error));
+                handler.error(accountNum, context.getString(R.string.upgrade_accounts_error));
             }
             return;
         }
@@ -568,7 +611,8 @@ public class UpgradeAccounts extends ListActivity implements OnClickListener {
                     // we'll try to keep going.
                     Log.d(Email.LOG_TAG, "Exception copying folder " + folderName + ": " + e);
                     if (handler != null) {
-                        handler.error(context.getString(R.string.upgrade_accounts_error));
+                        handler.error(accountNum,
+                                context.getString(R.string.upgrade_accounts_error));
                     }
                 }
             }
@@ -597,7 +641,7 @@ public class UpgradeAccounts extends ListActivity implements OnClickListener {
             Log.d(Email.LOG_TAG, "Exception while copying folders " + e);
             // Couldn't copy folders at all
             if (handler != null) {
-                handler.error(context.getString(R.string.upgrade_accounts_error));
+                handler.error(accountNum, context.getString(R.string.upgrade_accounts_error));
             }
         } finally {
             if (store != null) {
@@ -612,7 +656,7 @@ public class UpgradeAccounts extends ListActivity implements OnClickListener {
      * @param context a system context
      * @param conversion a folder->mailbox conversion record
      * @param localAttachments true if the attachments refer to local data (to be sent)
-     * @param newAccountId the id of the newly-created account
+     * @param newAccount the id of the newly-created account
      * @param accountNum the UI list # of the account
      * @param handler the handler for updating the UI
      */
@@ -678,7 +722,8 @@ public class UpgradeAccounts extends ListActivity implements OnClickListener {
                     Log.d(Email.LOG_TAG, "Exception copying message " + oldMessage.getSubject()
                             + ": "+ e);
                     if (handler != null) {
-                        handler.error(context.getString(R.string.upgrade_accounts_error));
+                        handler.error(accountNum,
+                                context.getString(R.string.upgrade_accounts_error));
                     }
                 }
             }
@@ -687,7 +732,7 @@ public class UpgradeAccounts extends ListActivity implements OnClickListener {
             Log.d(Email.LOG_TAG, "Exception while copying messages in " +
                     conversion.folder.toString() + ": " + e);
             if (handler != null) {
-                handler.error(context.getString(R.string.upgrade_accounts_error));
+                handler.error(accountNum, context.getString(R.string.upgrade_accounts_error));
             }
         }
     }
@@ -695,7 +740,7 @@ public class UpgradeAccounts extends ListActivity implements OnClickListener {
     /**
      * Delete an account
      */
-    /* package */ static void deleteAccountStore(Context context, Account account,
+    /* package */ static void deleteAccountStore(Context context, Account account, int accountNum,
             UIHandler handler) {
         try {
             Store store = LocalStore.newInstance(account.getLocalStoreUri(), context, null);
@@ -704,7 +749,7 @@ public class UpgradeAccounts extends ListActivity implements OnClickListener {
         } catch (MessagingException e) {
             Log.d(Email.LOG_TAG, "Exception while deleting account " + e);
             if (handler != null) {
-                handler.error(context.getString(R.string.upgrade_accounts_error));
+                handler.error(accountNum, context.getString(R.string.upgrade_accounts_error));
             }
         }
     }
@@ -794,8 +839,6 @@ public class UpgradeAccounts extends ListActivity implements OnClickListener {
 
     /**
      * Test for bulk upgrades and return true if necessary
-     *
-     * TODO should be in an AsyncTask since it has DB ops
      *
      * @return true if upgrades required (old accounts exist).  false otherwise.
      */
