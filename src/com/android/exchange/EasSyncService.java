@@ -1477,7 +1477,7 @@ public class EasSyncService extends AbstractSyncService {
         }
     }
 
-    void pushFallback(long mailboxId) {
+    private void pushFallback(long mailboxId) {
         Mailbox mailbox = Mailbox.restoreMailboxWithId(mContext, mailboxId);
         if (mailbox == null) {
             return;
@@ -1494,7 +1494,22 @@ public class EasSyncService extends AbstractSyncService {
         SyncManager.kick("push fallback");
     }
 
-    void runPingLoop() throws IOException, StaleFolderListException {
+    /**
+     * Simplistic attempt to determine a NAT timeout, based on experience with various carriers
+     * and networks.  The strings "reset by peer" and "broken pipe" are very common in these
+     * situations, so we look for them specifically (sans the b in broken, in case it's lowercase)
+     * @param message
+     * @return whether this message is likely associated with a NAT failure
+     */
+    private boolean isLikelyNatFailure(String message) {
+        if (message == null) return false;
+        if (message.contains("reset by peer") || message.contains("roken pipe")) {
+            return true;
+        }
+        return false;
+    }
+
+    private void runPingLoop() throws IOException, StaleFolderListException {
         int pingHeartbeat = mPingHeartbeat;
         userLog("runPingLoop");
         // Do push for all sync services here
@@ -1647,7 +1662,7 @@ public class EasSyncService extends AbstractSyncService {
                     if (mPostReset) {
                         // Nothing to do in this case; this is SyncManager telling us to try another
                         // ping.
-                    } else if (mPostAborted || (hasMessage && message.contains("reset by peer"))) {
+                    } else if (mPostAborted || isLikelyNatFailure(message)) {
                         long pingLength = SystemClock.elapsedRealtime() - pingTime;
                         if ((pingHeartbeat > PING_MIN_HEARTBEAT) &&
                                 (pingHeartbeat > mPingHighWaterMark)) {
@@ -1668,7 +1683,7 @@ public class EasSyncService extends AbstractSyncService {
                             userLog("Abort or NAT type return < 2 seconds; throwing IOException");
                             throw e;
                         } else {
-                            userLog("NAT type IOException > 2 seconds?");
+                            userLog("NAT type IOException");
                         }
                     } else {
                         throw e;
@@ -1703,7 +1718,7 @@ public class EasSyncService extends AbstractSyncService {
         mPingHeartbeat = pingHeartbeat;
     }
 
-    void sleep(long ms, boolean runAsleep) {
+    private void sleep(long ms, boolean runAsleep) {
         if (runAsleep) {
             SyncManager.runAsleep(mMailboxId, ms+(5*SECONDS));
         }
