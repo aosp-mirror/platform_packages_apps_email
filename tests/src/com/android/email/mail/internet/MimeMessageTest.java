@@ -16,11 +16,13 @@
 
 package com.android.email.mail.internet;
 
+import com.android.email.Email;
 import com.android.email.mail.Address;
 import com.android.email.mail.Flag;
 import com.android.email.mail.MessagingException;
 import com.android.email.mail.Message.RecipientType;
 
+import android.test.AndroidTestCase;
 import android.test.suitebuilder.annotation.SmallTest;
 import android.test.suitebuilder.annotation.MediumTest;
 
@@ -32,14 +34,12 @@ import java.text.SimpleDateFormat;
 import java.util.Date;
 import java.util.Locale;
 
-import junit.framework.TestCase;
-
 /**
  * This is a series of unit tests for the MimeMessage class.  These tests must be locally
  * complete - no server(s) required.
  */
 @SmallTest
-public class MimeMessageTest extends TestCase {
+public class MimeMessageTest extends AndroidTestCase {
 
     /** up arrow, down arrow, left arrow, right arrow */
     private final String SHORT_UNICODE = "\u2191\u2193\u2190\u2192";
@@ -60,6 +60,12 @@ public class MimeMessageTest extends TestCase {
         LONG_PLAIN_16 + LONG_PLAIN_16 + LONG_PLAIN_16 + LONG_PLAIN_16;
     private final String LONG_PLAIN_256 =
         LONG_PLAIN_64 + LONG_PLAIN_64 + LONG_PLAIN_64 + LONG_PLAIN_64;
+
+    @Override
+    protected void setUp() throws Exception {
+        super.setUp();
+        Email.setTempDirectory(getContext());
+    }
 
     /**
      * Confirms that setSentDate() correctly set the "Date" header of a Mime message.
@@ -518,6 +524,25 @@ public class MimeMessageTest extends TestCase {
         mm = new MimeMessage(new ByteArrayInputStream(entireMessage.getBytes("us-ascii")));
 
         assertNull(mm.getMessageId());
+    }
+
+    /**
+     * Make sure the parser accepts the "eBay style" date format.
+     *
+     * Messages from ebay have been seen that they use the wrong date format.
+     * @see com.android.email.Utility#cleanUpMimeDate
+     */
+    public void testEbayDate() throws MessagingException, IOException {
+        String entireMessage =
+            "To:a@b.com\r\n" +
+            "Date:Thu, 10 Dec 09 15:08:08 GMT-0700" +
+            "\r\n" +
+            "\r\n";
+        MimeMessage mm = null;
+        mm = new MimeMessage(new ByteArrayInputStream(entireMessage.getBytes("us-ascii")));
+        Date actual = mm.getSentDate();
+        Date expected = new Date(Date.UTC(109, 11, 10, 15, 8, 8) + 7 * 60 * 60 * 1000);
+        assertEquals(expected, actual);
     }
 
     // TODO more test for writeTo()
