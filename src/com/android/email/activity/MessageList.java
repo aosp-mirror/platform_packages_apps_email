@@ -1102,7 +1102,7 @@ public class MessageList extends ListActivity implements OnItemClickListener, On
                 final boolean accountExists = Account.isValidId(MessageList.this, mAccountId);
                 if (accountExists && mOkToRecurse) {
                     // launch network lookup
-                    mControllerCallback.mWaitForMailboxType = mMailboxType;
+                    mControllerCallback.presetMailboxListCallback(mMailboxType, mAccountId);
                     mController.updateMailboxList(mAccountId, mControllerCallback);
                 } else {
                     // We don't want to do the network lookup, or the account doesn't exist in the
@@ -1436,19 +1436,26 @@ public class MessageList extends ListActivity implements OnItemClickListener, On
         // This is used to alter the connection banner operation for sending messages
         MessagingException mSendMessageException;
 
-        // This is preset for use by updateMailboxListCallback
-        int mWaitForMailboxType = -1;
+        // These values are set by FindMailboxTask, and used by updateMailboxListCallback
+        // Access to these must be synchronized because of various threads dealing with them
+        private int mWaitForMailboxType = -1;
+        private long mWaitForMailboxAccount = -1;
 
-        // TODO check accountKey and only react to relevant notifications
-        public void updateMailboxListCallback(MessagingException result, long accountKey,
-                int progress) {
+        public synchronized void presetMailboxListCallback(int mailboxType, long accountId) {
+            mWaitForMailboxType = mailboxType;
+            mWaitForMailboxAccount = accountId;
+        }
+
+        public synchronized void updateMailboxListCallback(MessagingException result,
+                long accountKey, int progress) {
             // updateMailboxList is never the end goal in MessageList, so we don't show
             // these errors.  There are a couple of corner cases that we miss reporting, but
             // this is better than reporting a number of non-problem intermediate states.
             // updateBanner(result, progress, mMailboxId);
 
             updateProgress(result, progress);
-            if (progress == 100) {
+            if (progress == 100 && accountKey == mWaitForMailboxAccount) {
+                mWaitForMailboxAccount = -1;
                 mHandler.lookupMailboxType(accountKey, mWaitForMailboxType);
             }
         }
