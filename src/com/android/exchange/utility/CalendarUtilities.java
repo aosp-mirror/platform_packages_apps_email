@@ -27,6 +27,7 @@ import com.android.email.provider.EmailContent.Mailbox;
 import com.android.email.provider.EmailContent.Message;
 import com.android.exchange.Eas;
 import com.android.exchange.EasSyncService;
+import com.android.exchange.SyncManager;
 import com.android.exchange.adapter.Serializer;
 import com.android.exchange.adapter.Tags;
 
@@ -322,7 +323,7 @@ public class CalendarUtilities {
         String tziString = sTziStringCache.get(tz);
         if (tziString != null) {
             if (Eas.USER_LOG) {
-                Log.d(TAG, "TZI string for " + tz.getDisplayName() + " found in cache.");
+                SyncManager.log(TAG, "TZI string for " + tz.getDisplayName() + " found in cache.");
             }
             return tziString;
         }
@@ -695,14 +696,14 @@ public class CalendarUtilities {
         TimeZone timeZone = sTimeZoneCache.get(timeZoneString);
         if (timeZone != null) {
             if (Eas.USER_LOG) {
-                Log.d(TAG, " Using cached TimeZone " + timeZone.getDisplayName());
+                SyncManager.log(TAG, " Using cached TimeZone " + timeZone.getDisplayName());
             }
         } else {
             timeZone = tziStringToTimeZoneImpl(timeZoneString);
             if (timeZone == null) {
                 // If we don't find a match, we just return the current TimeZone.  In theory, this
                 // shouldn't be happening...
-                Log.w(TAG, "TimeZone not found using default: " + timeZoneString);
+                SyncManager.alwaysLog("TimeZone not found using default: " + timeZoneString);
                 timeZone = TimeZone.getDefault();
             }
             sTimeZoneCache.put(timeZoneString, timeZone);
@@ -742,7 +743,7 @@ public class CalendarUtilities {
                 String dn = timeZone.getDisplayName();
                 sTimeZoneCache.put(timeZoneString, timeZone);
                 if (Eas.USER_LOG) {
-                    Log.d(TAG, "TimeZone without DST found by offset: " + dn);
+                    SyncManager.log(TAG, "TimeZone without DST found by offset: " + dn);
                 }
                 return timeZone;
             } else {
@@ -1014,7 +1015,9 @@ public class CalendarUtilities {
     // This code must be updated when the Calendar adds new functionality
     static public void recurrenceFromRrule(String rrule, long startTime, Serializer s)
             throws IOException {
-        Log.d("RRULE", "rule: " + rrule);
+        if (Eas.USER_LOG) {
+            SyncManager.log(TAG, "RRULE: " + rrule);
+        }
         String freq = tokenFromRrule(rrule, "FREQ=");
         // If there's no FREQ=X, then we don't write a recurrence
         // Note that we duplicate s.start(Tags.CALENDAR_RECURRENCE); s.end(); to prevent the
@@ -1024,6 +1027,7 @@ public class CalendarUtilities {
                 s.start(Tags.CALENDAR_RECURRENCE);
                 s.data(Tags.CALENDAR_RECURRENCE_TYPE, "0");
                 s.data(Tags.CALENDAR_RECURRENCE_INTERVAL, "1");
+                addUntil(rrule, s);
                 s.end();
             } else if (freq.equals("WEEKLY")) {
                 s.start(Tags.CALENDAR_RECURRENCE);

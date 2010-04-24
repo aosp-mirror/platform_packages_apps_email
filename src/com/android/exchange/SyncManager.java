@@ -953,16 +953,20 @@ public class SyncManager extends Service implements Runnable {
         }.start();
     }
 
-    protected static void log(String str) {
+    public static void log(String str) {
+        log(TAG, str);
+    }
+
+    public static void log(String tag, String str) {
         if (Eas.USER_LOG) {
-            Log.d(TAG, str);
+            Log.d(tag, str);
             if (Eas.FILE_LOG) {
-                FileLogger.log(TAG, str);
+                FileLogger.log(tag, str);
             }
         }
     }
 
-    protected static void alwaysLog(String str) {
+    public static void alwaysLog(String str) {
         if (!Eas.USER_LOG) {
             Log.d(TAG, str);
         } else {
