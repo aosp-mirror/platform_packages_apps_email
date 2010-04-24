@@ -1228,21 +1228,21 @@ public class CalendarUtilities {
      * @param busyStatus the busy status, from EAS
      * @return the corresponding value for selfAttendeeStatus
      */
-    static public int selfAttendeeStatusFromBusyStatus(int busyStatus) {
-        int selfAttendeeStatus;
+    static public int attendeeStatusFromBusyStatus(int busyStatus) {
+        int attendeeStatus;
         switch (busyStatus) {
             case BUSY_STATUS_BUSY:
-                selfAttendeeStatus = Attendees.ATTENDEE_STATUS_ACCEPTED;
+                attendeeStatus = Attendees.ATTENDEE_STATUS_ACCEPTED;
                 break;
             case BUSY_STATUS_TENTATIVE:
-                selfAttendeeStatus = Attendees.ATTENDEE_STATUS_TENTATIVE;
+                attendeeStatus = Attendees.ATTENDEE_STATUS_TENTATIVE;
                 break;
             case BUSY_STATUS_FREE:
             case BUSY_STATUS_OUT_OF_OFFICE:
             default:
-                selfAttendeeStatus = Attendees.ATTENDEE_STATUS_NONE;
+                attendeeStatus = Attendees.ATTENDEE_STATUS_NONE;
         }
-        return selfAttendeeStatus;
+        return attendeeStatus;
     }
 
     /** Get a busy status from a selfAttendeeStatus
@@ -1250,7 +1250,7 @@ public class CalendarUtilities {
      * @param selfAttendeeStatus from CalendarProvider2
      * @return the corresponding value of busy status
      */
-    static public int busyStatusFromSelfAttendeeStatus(int selfAttendeeStatus) {
+    static public int busyStatusFromAttendeeStatus(int selfAttendeeStatus) {
         int busyStatus;
         switch (selfAttendeeStatus) {
             case Attendees.ATTENDEE_STATUS_DECLINED:
