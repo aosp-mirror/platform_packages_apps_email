@@ -90,6 +90,13 @@ public class CalendarSyncAdapter extends AbstractSyncAdapter {
     private static final String[] ORIGINAL_EVENT_PROJECTION =
         new String[] {Events.ORIGINAL_EVENT, Events._ID};
 
+    // Note that we use LIKE below for its case insensitivity
+    private static final String EVENT_AND_EMAIL  =
+        Attendees.EVENT_ID + "=? AND "+ Attendees.ATTENDEE_EMAIL + " LIKE ?";
+    private static final int ATTENDEE_STATUS_COLUMN_STATUS = 0;
+    private static final String[] ATTENDEE_STATUS_PROJECTION =
+        new String[] {Attendees.ATTENDEE_STATUS};
+
     public static final String CALENDAR_SELECTION =
         Calendars._SYNC_ACCOUNT + "=? AND " + Calendars._SYNC_ACCOUNT_TYPE + "=?";
     private static final int CALENDAR_SELECTION_ID = 0;
@@ -113,6 +120,7 @@ public class CalendarSyncAdapter extends AbstractSyncAdapter {
     private long mCalendarId = -1;
     private String mCalendarIdString;
     private String[] mCalendarIdArgument;
+    private String mEmailAddress;
 
     private ArrayList<Long> mDeletedIdList = new ArrayList<Long>();
     private ArrayList<Long> mUploadedIdList = new ArrayList<Long>();
@@ -121,10 +129,10 @@ public class CalendarSyncAdapter extends AbstractSyncAdapter {
 
     public CalendarSyncAdapter(Mailbox mailbox, EasSyncService service) {
         super(mailbox, service);
-
+        mEmailAddress = mAccount.mEmailAddress;
         Cursor c = mService.mContentResolver.query(Calendars.CONTENT_URI,
                 new String[] {Calendars._ID}, CALENDAR_SELECTION,
-                new String[] {mAccount.mEmailAddress, Email.EXCHANGE_ACCOUNT_MANAGER_TYPE}, null);
+                new String[] {mEmailAddress, Email.EXCHANGE_ACCOUNT_MANAGER_TYPE}, null);
         try {
             if (c.moveToFirst()) {
                 mCalendarId = c.getLong(CALENDAR_SELECTION_ID);
@@ -241,7 +249,7 @@ public class CalendarSyncAdapter extends AbstractSyncAdapter {
             // Delete the calendar associated with this account
             // TODO Make sure the Events, etc. are also deleted
             mContentResolver.delete(Calendars.CONTENT_URI, CALENDAR_SELECTION,
-                    new String[] {mAccount.mEmailAddress, Email.EXCHANGE_ACCOUNT_MANAGER_TYPE});
+                    new String[] {mEmailAddress, Email.EXCHANGE_ACCOUNT_MANAGER_TYPE});
         }
 
         private void addOrganizerToAttendees(CalendarOperations ops, long eventId,
@@ -257,6 +265,7 @@ public class CalendarSyncAdapter extends AbstractSyncAdapter {
                 }
                 attendeeCv.put(Attendees.ATTENDEE_RELATIONSHIP, Attendees.RELATIONSHIP_ORGANIZER);
                 attendeeCv.put(Attendees.ATTENDEE_TYPE, Attendees.TYPE_REQUIRED);
+                attendeeCv.put(Attendees.ATTENDEE_STATUS, Attendees.ATTENDEE_STATUS_ACCEPTED);
                 if (eventId < 0) {
                     ops.newAttendee(attendeeCv);
                 } else {
@@ -269,7 +278,7 @@ public class CalendarSyncAdapter extends AbstractSyncAdapter {
                 throws IOException {
             ContentValues cv = new ContentValues();
             cv.put(Events.CALENDAR_ID, mCalendarId);
-            cv.put(Events._SYNC_ACCOUNT, mAccount.mEmailAddress);
+            cv.put(Events._SYNC_ACCOUNT, mEmailAddress);
             cv.put(Events._SYNC_ACCOUNT_TYPE, Email.EXCHANGE_ACCOUNT_MANAGER_TYPE);
             cv.put(Events._SYNC_ID, serverId);
             cv.put(Events.HAS_ATTENDEE_DATA, 1);
@@ -280,6 +289,7 @@ public class CalendarSyncAdapter extends AbstractSyncAdapter {
             String organizerEmail = null;
             int eventOffset = -1;
             int deleteOffset = -1;
+            int busyStatus = CalendarUtilities.BUSY_STATUS_TENTATIVE;
 
             boolean firstTag = true;
             long eventId = -1;
@@ -370,7 +380,7 @@ public class CalendarSyncAdapter extends AbstractSyncAdapter {
                         // we call exceptionsParser
                         addOrganizerToAttendees(ops, eventId, organizerName, organizerEmail);
                         organizerAdded = true;
-                        exceptionsParser(ops, cv, attendeeValues, reminderMins);
+                        exceptionsParser(ops, cv, attendeeValues, reminderMins, busyStatus);
                         break;
                     case Tags.CALENDAR_LOCATION:
                         cv.put(Events.EVENT_LOCATION, getValue());
@@ -411,9 +421,10 @@ public class CalendarSyncAdapter extends AbstractSyncAdapter {
                         ops.newExtendedProperty("meeting_status", getValue());
                         break;
                     case Tags.CALENDAR_BUSY_STATUS:
-                        int busyStatus = getValueInt();
-                        cv.put(Events.SELF_ATTENDEE_STATUS,
-                                CalendarUtilities.selfAttendeeStatusFromBusyStatus(busyStatus));
+                        // We'll set the user's status in the Attendees table below
+                        // Don't set selfAttendeeStatus or CalendarProvider will create a duplicate
+                        // attendee!
+                        busyStatus = getValueInt();
                         break;
                     case Tags.CALENDAR_CATEGORIES:
                         String categories = categoriesParser(ops);
@@ -432,11 +443,24 @@ public class CalendarSyncAdapter extends AbstractSyncAdapter {
             }
 
             // Store email addresses of attendees (in a tokenizable string) in ExtendedProperties
+            // If the user is an attendee, set the attendee status using busyStatus (note that the
+            // busyStatus is inherited from the parent unless it's specified in the exception)
+            // Add the insert/update operation for each attendee (based on whether it's add/change)
             if (attendeeValues.size() > 0) {
                 StringBuilder sb = new StringBuilder();
                 for (ContentValues attendee: attendeeValues) {
-                    sb.append(attendee.getAsString(Attendees.ATTENDEE_EMAIL));
+                    String attendeeEmail = attendee.getAsString(Attendees.ATTENDEE_EMAIL);
+                    sb.append(attendeeEmail);
                     sb.append(ATTENDEE_TOKENIZER_DELIMITER);
+                    if (mEmailAddress.equalsIgnoreCase(attendeeEmail)) {
+                        attendee.put(Attendees.ATTENDEE_STATUS,
+                                CalendarUtilities.attendeeStatusFromBusyStatus(busyStatus));
+                    }
+                    if (eventId < 0) {
+                        ops.newAttendee(attendee);
+                    } else {
+                        ops.updatedAttendee(attendee, eventId);
+                    }
                 }
                 ops.newExtendedProperty("attendees", sb.toString());
             }
@@ -568,10 +592,11 @@ public class CalendarSyncAdapter extends AbstractSyncAdapter {
         }
 
         private void exceptionParser(CalendarOperations ops, ContentValues parentCv,
-                ArrayList<ContentValues> attendeeValues, int reminderMins) throws IOException {
+                ArrayList<ContentValues> attendeeValues, int reminderMins, int busyStatus)
+                throws IOException {
             ContentValues cv = new ContentValues();
             cv.put(Events.CALENDAR_ID, mCalendarId);
-            cv.put(Events._SYNC_ACCOUNT, mAccount.mEmailAddress);
+            cv.put(Events._SYNC_ACCOUNT, mEmailAddress);
             cv.put(Events._SYNC_ACCOUNT_TYPE, Email.EXCHANGE_ACCOUNT_MANAGER_TYPE);
 
             // It appears that these values have to be copied from the parent if they are to appear
@@ -585,7 +610,6 @@ public class CalendarSyncAdapter extends AbstractSyncAdapter {
             cv.put(Events.EVENT_TIMEZONE, parentCv.getAsString(Events.EVENT_TIMEZONE));
 
             // This column is the key that links the exception to the serverId
-            // TODO Make sure calendar knows this isn't globally unique!!
             cv.put(Events.ORIGINAL_EVENT, parentCv.getAsString(Events._SYNC_ID));
 
             String exceptionStartTime = "_noStartTime";
@@ -632,11 +656,10 @@ public class CalendarSyncAdapter extends AbstractSyncAdapter {
                         cv.put(Events.VISIBILITY, encodeVisibility(getValueInt()));
                         break;
                     case Tags.CALENDAR_BUSY_STATUS:
-                        int busyStatus = getValueInt();
-                        cv.put(Events.SELF_ATTENDEE_STATUS,
-                                CalendarUtilities.selfAttendeeStatusFromBusyStatus(busyStatus));
+                        busyStatus = getValueInt();
+                        // Don't set selfAttendeeStatus or CalendarProvider will create a duplicate
+                        // attendee!
                         break;
-
                         // TODO How to handle these items that are linked to event id!
 //                    case Tags.CALENDAR_DTSTAMP:
 //                        ops.newExtendedProperty("dtstamp", getValue());
@@ -666,6 +689,12 @@ public class CalendarSyncAdapter extends AbstractSyncAdapter {
             // Also add the attendees, because they need to be copied over from the parent event
             if (attendeeValues != null) {
                 for (ContentValues attValues: attendeeValues) {
+                    // If this is the user, use his busy status for attendee status
+                    String attendeeEmail = attValues.getAsString(Attendees.ATTENDEE_EMAIL);
+                    if (mEmailAddress.equalsIgnoreCase(attendeeEmail)) {
+                        attValues.put(Attendees.ATTENDEE_STATUS,
+                                CalendarUtilities.attendeeStatusFromBusyStatus(busyStatus));
+                    }
                     ops.newAttendee(attValues, exceptionStart);
                 }
             }
@@ -695,11 +724,12 @@ public class CalendarSyncAdapter extends AbstractSyncAdapter {
         }
 
         private void exceptionsParser(CalendarOperations ops, ContentValues cv,
-                ArrayList<ContentValues> attendeeValues, int reminderMins) throws IOException {
+                ArrayList<ContentValues> attendeeValues, int reminderMins, int busyStatus)
+                throws IOException {
             while (nextTag(Tags.CALENDAR_EXCEPTIONS) != END) {
                 switch (tag) {
                     case Tags.CALENDAR_EXCEPTION:
-                        exceptionParser(ops, cv, attendeeValues, reminderMins);
+                        exceptionParser(ops, cv, attendeeValues, reminderMins, busyStatus);
                         break;
                     default:
                         skipTag();
@@ -782,11 +812,6 @@ public class CalendarSyncAdapter extends AbstractSyncAdapter {
                 }
             }
             cv.put(Attendees.ATTENDEE_RELATIONSHIP, Attendees.RELATIONSHIP_ATTENDEE);
-            if (eventId < 0) {
-                ops.newAttendee(cv);
-            } else {
-                ops.updatedAttendee(cv, eventId);
-            }
             return cv;
         }
 
@@ -1182,13 +1207,6 @@ public class CalendarSyncAdapter extends AbstractSyncAdapter {
             s.data(Tags.CALENDAR_TIME_ZONE, timeZone);
         }
 
-        // Busy status is only required for 2.5, but we need to send it with later
-        // versions as well, because if we don't, the server will clear it.
-        int selfAttendeeStatus = entityValues.getAsInteger(Events.SELF_ATTENDEE_STATUS);
-        s.data(Tags.CALENDAR_BUSY_STATUS,
-                Integer.toString(CalendarUtilities
-                        .busyStatusFromSelfAttendeeStatus(selfAttendeeStatus)));
-
         boolean allDay = false;
         if (entityValues.containsKey(Events.ALL_DAY)) {
             Integer ade = entityValues.getAsInteger(Events.ALL_DAY);
@@ -1365,8 +1383,26 @@ public class CalendarSyncAdapter extends AbstractSyncAdapter {
                 s.end();  // Attendees
             }
 
+            // Get busy status from Attendees table
+            long eventId = entityValues.getAsLong(Events._ID);
+            int busyStatus = CalendarUtilities.BUSY_STATUS_TENTATIVE;
+            Cursor c = mService.mContentResolver.query(ATTENDEES_URI,
+                    ATTENDEE_STATUS_PROJECTION, EVENT_AND_EMAIL,
+                    new String[] {Long.toString(eventId), mEmailAddress}, null);
+            if (c != null) {
+                try {
+                    if (c.moveToFirst()) {
+                        busyStatus = CalendarUtilities.busyStatusFromAttendeeStatus(
+                                c.getInt(ATTENDEE_STATUS_COLUMN_STATUS));
+                    }
+                } finally {
+                    c.close();
+                }
+            }
+            s.data(Tags.CALENDAR_BUSY_STATUS, Integer.toString(busyStatus));
+
             // Meeting status, 0 = appointment, 1 = meeting, 3 = attendee
-            if (organizerEmail.equalsIgnoreCase(mAccount.mEmailAddress)) {
+            if (mEmailAddress.equalsIgnoreCase(organizerEmail)) {
                 s.data(Tags.CALENDAR_MEETING_STATUS, hasAttendees ? "1" : "0");
             } else {
                 s.data(Tags.CALENDAR_MEETING_STATUS, "3");
@@ -1388,9 +1424,21 @@ public class CalendarSyncAdapter extends AbstractSyncAdapter {
             }
 
             // Send exception deleted flag if necessary
+            Integer deleted = entityValues.getAsInteger(Events.DELETED);
+            boolean isDeleted = deleted != null && deleted == 1;
             Integer eventStatus = entityValues.getAsInteger(Events.STATUS);
-            if (eventStatus != null && eventStatus.equals(Events.STATUS_CANCELED)) {
+            boolean isCanceled = eventStatus != null && eventStatus.equals(Events.STATUS_CANCELED);
+            if (isDeleted || isCanceled) {
                 s.data(Tags.CALENDAR_EXCEPTION_IS_DELETED, "1");
+                // If we're deleted, the UI will continue to show this exception until we mark
+                // it canceled, so we'll do that here...
+                if (isDeleted && !isCanceled) {
+                    long eventId = entityValues.getAsLong(Events._ID);
+                    ContentValues cv = new ContentValues();
+                    cv.put(Events.STATUS, Events.STATUS_CANCELED);
+                    mService.mContentResolver.update(
+                            ContentUris.withAppendedId(EVENTS_URI, eventId), cv, null, null);
+                }
             }
         }
     }
@@ -1455,7 +1503,6 @@ public class CalendarSyncAdapter extends AbstractSyncAdapter {
                     cr.query(EVENTS_URI, null, DIRTY_OR_MARKED_TOP_LEVEL_IN_CALENDAR,
                             mCalendarIdArgument, null), cr);
             ContentValues cidValues = new ContentValues();
-            String ourEmailAddress = mAccount.mEmailAddress;
 
             try {
                 boolean first = true;
@@ -1475,7 +1522,7 @@ public class CalendarSyncAdapter extends AbstractSyncAdapter {
                     // EAS 2.5 needs: BusyStatus DtStamp EndTime Sensitivity StartTime TimeZone UID
                     // We can generate all but what we're testing for below
                     String organizerEmail = entityValues.getAsString(Events.ORGANIZER);
-                    boolean selfOrganizer = organizerEmail.equalsIgnoreCase(ourEmailAddress);
+                    boolean selfOrganizer = organizerEmail.equalsIgnoreCase(mEmailAddress);
 
                     if (!entityValues.containsKey(Events.DTSTART)
                             || (!entityValues.containsKey(Events.DURATION) &&
@@ -1707,6 +1754,9 @@ public class CalendarSyncAdapter extends AbstractSyncAdapter {
                         }
                     } else if (!selfOrganizer) {
                         // If we're not the organizer, see if we've changed our attendee status
+                        // Note: Since we "own" our own calendar, selfAttendeeStatus will be
+                        // correct when we set it from the UI.  We NEVER set selfAttendeeStatus
+                        // on downsync, however.
                         int currentStatus = entityValues.getAsInteger(Events.SELF_ATTENDEE_STATUS);
                         String adapterData = entityValues.getAsString(Events.SYNC_ADAPTER_DATA);
                         int syncStatus = Attendees.ATTENDEE_STATUS_NONE;
