@@ -534,6 +534,7 @@ public class SyncManager extends Service implements Runnable {
                             // An account has changed
                             Account updatedAccount = Account.restoreAccountWithId(context,
                                     account.mId);
+                            if (updatedAccount == null) continue;
                             if (account.mSyncInterval != updatedAccount.mSyncInterval
                                     || account.mSyncLookback != updatedAccount.mSyncLookback) {
                                 // Set pushable boxes' interval to the interval of the Account
@@ -563,13 +564,14 @@ public class SyncManager extends Service implements Runnable {
                     // Look for new accounts
                     for (Account account : currentAccounts) {
                         if (!sAccountList.contains(account.mId)) {
-                            // This is an addition; create our magic hidden mailbox...
-                            log("Account observer found new account: " + account.mDisplayName);
-                            addAccountMailbox(account.mId);
                             // Don't forget to cache the HostAuth
                             HostAuth ha = HostAuth.restoreHostAuthWithId(getContext(),
                                     account.mHostAuthKeyRecv);
+                            if (ha == null) continue;
                             account.mHostAuthRecv = ha;
+                            // This is an addition; create our magic hidden mailbox...
+                            log("Account observer found new account: " + account.mDisplayName);
+                            addAccountMailbox(account.mId);
                             sAccountList.add(account);
                             mSyncableEasMailboxSelector = null;
                             mEasAccountSelector = null;
