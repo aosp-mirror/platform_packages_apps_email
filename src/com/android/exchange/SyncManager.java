@@ -1431,7 +1431,14 @@ public class SyncManager extends Service implements Runnable {
                            }
                            service.mAccount = Account.restoreAccountWithId(INSTANCE, m.mAccountKey);
                            service.mMailbox = m;
-                           service.alarm();
+                           // Send the alarm to the sync service
+                           if (!service.alarm()) {
+                               // A false return means that we were forced to interrupt the thread
+                               // In this case, we release the mailbox so that we can start another
+                               // thread to do the work
+                               log("Alarm failed; releasing mailbox");
+                               syncManager.releaseMailbox(id);
+                           }
                        }
                     }}).start();
             }

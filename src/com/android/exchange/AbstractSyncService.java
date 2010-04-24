@@ -82,11 +82,14 @@ public abstract class AbstractSyncService implements Runnable {
     public abstract void stop();
 
     /**
-     * Sent by SyncManager to indicate that an alarm has fired for this service.  Typically, this
-     * means that a network operation has timed out.  The service is NOT stopped, but service
-     * behavior is not otherwise defined (i.e. it's service dependent)
+     * Sent by SyncManager to indicate that an alarm has fired for this service, and that its
+     * pending (network) operation has timed out. The service is NOT automatically stopped,
+     * although the behavior is service dependent.
+     *
+     * @return true if the operation was stopped normally; false if the thread needed to be
+     * interrupted.
      */
-    public abstract void alarm();
+    public abstract boolean alarm();
 
     /**
      * Sent by SyncManager to request that the service reset itself cleanly; the meaning of this
