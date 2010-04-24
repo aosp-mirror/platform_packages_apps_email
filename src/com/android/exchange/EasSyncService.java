@@ -1496,14 +1496,14 @@ public class EasSyncService extends AbstractSyncService {
 
     /**
      * Simplistic attempt to determine a NAT timeout, based on experience with various carriers
-     * and networks.  The strings "reset by peer" and "broken pipe" are very common in these
-     * situations, so we look for them specifically (sans the b in broken, in case it's lowercase)
+     * and networks.  The string "reset by peer" is very common in these situations, so we look for
+     * that specifically.  We may add additional tests here as more is learned.
      * @param message
      * @return whether this message is likely associated with a NAT failure
      */
     private boolean isLikelyNatFailure(String message) {
         if (message == null) return false;
-        if (message.contains("reset by peer") || message.contains("roken pipe")) {
+        if (message.contains("reset by peer")) {
             return true;
         }
         return false;
@@ -1685,6 +1685,10 @@ public class EasSyncService extends AbstractSyncService {
                         } else {
                             userLog("NAT type IOException");
                         }
+                    } else if (hasMessage && message.contains("roken pipe")) {
+                        // The "broken pipe" error (uppercase or lowercase "b") seems to be an
+                        // internal error, so let's not throw an exception (which leads to delays)
+                        // but rather simply run through the loop again
                     } else {
                         throw e;
                     }
