@@ -93,6 +93,7 @@ import java.io.File;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
+import java.lang.Thread.State;
 import java.net.URI;
 import java.net.URLEncoder;
 import java.security.cert.CertificateException;
@@ -159,6 +160,9 @@ public class EasSyncService extends AbstractSyncService {
 
     static private final int PROTOCOL_PING_STATUS_COMPLETED = 1;
 
+    // The amount of time we allow for a thread to release its post lock after receiving an alert
+    static private final int POST_LOCK_TIMEOUT = 10*SECONDS;
+
     // Fallbacks (in minutes) for ping loop failures
     static private final int MAX_PING_FAILURES = 1;
     static private final int PING_FALLBACK_INBOX = 5;
@@ -182,7 +186,8 @@ public class EasSyncService extends AbstractSyncService {
     public ContentResolver mContentResolver;
     private String[] mBindArguments = new String[2];
     private ArrayList<String> mPingChangeList;
-    private HttpPost mPendingPost = null;
+    // The HttpPost in progress
+    private volatile HttpPost mPendingPost = null;
     // The ping time (in seconds)
     private int mPingHeartbeat = PING_STARTING_HEARTBEAT;
     // The longest successful ping heartbeat
@@ -221,25 +226,69 @@ public class EasSyncService extends AbstractSyncService {
     }
 
     @Override
-    public void alarm() {
+    /**
+     * Try to wake up a sync thread that is waiting on an HttpClient POST and has waited past its
+     * socket timeout without having thrown an Exception
+     *
+     * @return true if the POST was successfully stopped; false if we've failed and interrupted
+     * the thread
+     */
+    public boolean alarm() {
+        HttpPost post;
+        String threadName = mThread.getName();
+
+        // Synchronize here so that we are guaranteed to have valid mPendingPost and mPostLock
+        // executePostWithTimeout (which executes the HttpPost) also uses this lock
         synchronized(getSynchronizer()) {
-            if (mPendingPost != null) {
-                URI uri = mPendingPost.getURI();
-                if (uri != null) {
-                    String query = uri.getQuery();
-                    if (query == null) {
-                        query = "POST";
+            // Get a reference to the current post lock
+            post = mPendingPost;
+            if (post != null) {
+                if (Eas.USER_LOG) {
+                    URI uri = post.getURI();
+                    if (uri != null) {
+                        String query = uri.getQuery();
+                        if (query == null) {
+                            query = "POST";
+                        }
+                        userLog(threadName, ": Alert, aborting ", query);
+                    } else {
+                        userLog(threadName, ": Alert, no URI?");
                     }
-                    userLog("Alert, aborting " + query);
-                } else {
-                    userLog("Alert, no URI?");
                 }
+                // Abort the POST
                 mPostAborted = true;
-                mPendingPost.abort();
+                post.abort();
             } else {
+                // If there's no POST, we're done
                 userLog("Alert, no pending POST");
+                return true;
             }
         }
+
+        // Wait for the POST to finish
+        try {
+            Thread.sleep(POST_LOCK_TIMEOUT);
+        } catch (InterruptedException e) {
+        }
+
+        State s = mThread.getState();
+        if (Eas.USER_LOG) {
+            userLog(threadName + ": State = " + s.name());
+        }
+
+        synchronized (getSynchronizer()) {
+            // If the thread is still hanging around and the same post is pending, let's try to
+            // stop the thread with an interrupt.
+            if ((s != State.TERMINATED) && (mPendingPost != null) && (mPendingPost == post)) {
+                mStop = true;
+                mThread.interrupt();
+                userLog("Interrupting...");
+                // Let the caller know we had to interrupt the thread
+                return false;
+            }
+        }
+        // Let the caller know that the alarm was handled normally
+        return true;
     }
 
     @Override
