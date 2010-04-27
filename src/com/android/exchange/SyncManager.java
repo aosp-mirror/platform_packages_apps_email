@@ -656,6 +656,21 @@ public class SyncManager extends Service implements Runnable {
         mCalendarObservers.clear();
     }
 
+    /**
+     * Return the syncable state of an account's calendar, as determined by the sync_events column
+     * of our Calendar (from CalendarProvider2)
+     * Note that the current state of sync_events is cached in our CalendarObserver
+     * @param accountId the id of the account whose calendar we are checking
+     * @return whether or not syncing of events is enabled
+     */
+    private boolean isCalendarEnabled(long accountId) {
+        CalendarObserver observer = mCalendarObservers.get(accountId);
+        if (observer != null) {
+            return (observer.mSyncEvents == 1);
+        }
+        return false;
+    }
+
     private class CalendarObserver extends ContentObserver {
         long mAccountId;
         long mCalendarId;
@@ -706,7 +721,6 @@ public class SyncManager extends Service implements Runnable {
                                             mAccountId, Mailbox.TYPE_CALENDAR);
                                     // Sanity check for mailbox deletion
                                     if (mailbox == null) return;
-                                    ContentValues cv = new ContentValues();
                                     if (newSyncEvents == 0) {
                                         // When sync is disabled, we're supposed to delete
                                         // all events in the calendar
@@ -725,8 +739,10 @@ public class SyncManager extends Service implements Runnable {
                                             // The provider can't be reached; nothing to be done
                                         }
                                         // Reset the sync key locally
+                                        ContentValues cv = new ContentValues();
                                         cv.put(Mailbox.SYNC_KEY, "0");
-                                        cv.put(Mailbox.SYNC_INTERVAL, Mailbox.CHECK_INTERVAL_NEVER);
+                                        mResolver.update(ContentUris.withAppendedId(
+                                                Mailbox.CONTENT_URI, mailbox.mId), cv, null, null);
                                         // Delete all events in this calendar using the sync adapter
                                         // parameter so that the deletion is only local
                                         Uri eventsAsSyncAdapter =
@@ -737,14 +753,8 @@ public class SyncManager extends Service implements Runnable {
                                         mResolver.delete(eventsAsSyncAdapter, WHERE_CALENDAR_ID,
                                                 new String[] {Long.toString(mCalendarId)});
                                     } else {
-                                        // Set sync back to push
-                                        cv.put(Mailbox.SYNC_INTERVAL, Mailbox.CHECK_INTERVAL_PUSH);
                                         kick("calendar sync changed");
                                     }
-
-                                    // Update the calendar mailbox with new settings
-                                    mResolver.update(ContentUris.withAppendedId(
-                                            Mailbox.CONTENT_URI, mailbox.mId), cv, null, null);
 
                                     // Save away the new value
                                     mSyncEvents = newSyncEvents;
@@ -1952,25 +1962,6 @@ public class SyncManager extends Service implements Runnable {
                         continue;
                     }
 
-                    // Check whether we're in a hold (temporary or permanent)
-                    SyncError syncError = mSyncErrorMap.get(mid);
-                    if (syncError != null) {
-                        // Nothing we can do about fatal errors
-                        if (syncError.fatal) continue;
-                        if (now < syncError.holdEndTime) {
-                            // If release time is earlier than next wait time,
-                            // move next wait time up to the release time
-                            if (syncError.holdEndTime < now + nextWait) {
-                                nextWait = syncError.holdEndTime - now;
-                                mNextWaitReason = "Release hold";
-                            }
-                            continue;
-                        } else {
-                            // Keep the error around, but clear the end time
-                            syncError.holdEndTime = 0;
-                        }
-                    }
-
                     if (type == Mailbox.TYPE_CONTACTS || type == Mailbox.TYPE_CALENDAR) {
                         // We don't sync these automatically if master auto sync is off
                         if (!masterAutoSync) {
@@ -1997,10 +1988,33 @@ public class SyncManager extends Service implements Runnable {
                             // See if "sync automatically" is set; if not, punt
                             if (!ContentResolver.getSyncAutomatically(a, authority)) {
                                 continue;
+                            // See if the calendar is enabled; if not, punt
+                            } else if ((type == Mailbox.TYPE_CALENDAR) &&
+                                    !isCalendarEnabled(account.mId)) {
+                                continue;
                             }
                         }
                     } else if (type == Mailbox.TYPE_TRASH) {
                         continue;
+                    }
+
+                    // Check whether we're in a hold (temporary or permanent)
+                    SyncError syncError = mSyncErrorMap.get(mid);
+                    if (syncError != null) {
+                        // Nothing we can do about fatal errors
+                        if (syncError.fatal) continue;
+                        if (now < syncError.holdEndTime) {
+                            // If release time is earlier than next wait time,
+                            // move next wait time up to the release time
+                            if (syncError.holdEndTime < now + nextWait) {
+                                nextWait = syncError.holdEndTime - now;
+                                mNextWaitReason = "Release hold";
+                            }
+                            continue;
+                        } else {
+                            // Keep the error around, but clear the end time
+                            syncError.holdEndTime = 0;
+                        }
                     }
 
                     // Otherwise, we use the sync interval
