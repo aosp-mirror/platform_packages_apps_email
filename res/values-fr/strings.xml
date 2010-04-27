@@ -20,9 +20,9 @@
     <string name="read_attachment_desc" msgid="7594746717616308643">"Permet à cette application de lire les pièces jointes aux e-mails."</string>
     <string name="permission_access_provider_label" msgid="4274353114641168675">"Accéder aux données du client de messagerie"</string>
     <string name="permission_access_provider_desc" msgid="1513898266889541617">"Autorise l\'application à accéder à la base de données de votre messagerie électronique, y compris aux messages reçus et envoyés, aux noms d\'utilisateur et aux mots de passe."</string>
-    <string name="app_name" msgid="5815426892327290362">"E-mail"</string>
-    <string name="compose_title" msgid="427986915662706899">"Nouveau message"</string>
-    <string name="debug_title" msgid="5175710493691536719">"Déboguer"</string>
+    <string name="app_name" msgid="5815426892327290362">"Envoyer un e-mail"</string>
+    <string name="compose_title" msgid="427986915662706899">"Composer"</string>
+    <string name="debug_title" msgid="5175710493691536719">"Débogage"</string>
     <string name="next_action" msgid="3931301986364184415">"Suivant"</string>
     <string name="okay_action" msgid="8365197396795675617">"OK"</string>
     <string name="cancel_action" msgid="6967435583794021865">"Annuler"</string>
@@ -43,7 +43,7 @@
     <string name="refresh_action" msgid="5951383001436708175">"Actualiser"</string>
     <string name="add_account_action" msgid="8835736309476033727">"Ajouter un compte"</string>
     <string name="deselect_all_action" msgid="253663239459688238">"Tout désélectionner"</string>
-    <string name="compose_action" msgid="4045702519637388045">"Nouveau message"</string>
+    <string name="compose_action" msgid="4045702519637388045">"Composer"</string>
     <string name="search_action" msgid="6325101454876682308">"Rechercher"</string>
     <string name="open_action" msgid="936766723989190816">"Ouvrir"</string>
     <string name="account_settings_action" msgid="4494079183315085171">"Paramètres du compte"</string>
@@ -55,16 +55,16 @@
     <string name="add_cc_bcc_action" msgid="5569074812077509737">"Ajouter Cc/CCi"</string>
     <string name="add_attachment_action" msgid="2696013743130573897">"Ajouter une pièce jointe"</string>
     <string name="dump_settings_action" msgid="4478192525236169829">"Paramètres d\'image mémoire"</string>
-    <string name="choose_attachment_dialog_title" msgid="81937507117528954">"Choisir une pièce jointe"</string>
+    <string name="choose_attachment_dialog_title" msgid="81937507117528954">"Choisir·une·pièce·jointe"</string>
     <string name="status_loading_more" msgid="1580386959044617884">"Chargement des messages..."</string>
     <string name="status_sending_messages" msgid="3971880826111264523">"Envoi des messages en cours"</string>
     <string name="status_network_error" msgid="6045933332005067021">"Erreur de connexion"</string>
     <string name="notification_new_title" msgid="2200257910380529139">"Nouvel e-mail"</string>
     <string name="error_loading_message_body" msgid="2265140604109272914">"Une erreur inattendue s\'est produite lors du chargement du message. Il se peut que ce dernier soit trop volumineux."</string>
   <plurals name="notification_new_one_account_fmt">
-    <item quantity="one" msgid="3422945912787702191">"<xliff:g id="UNREAD_MESSAGE_COUNT">%d</xliff:g> non lu (<xliff:g id="ACCOUNT">%s</xliff:g>)"</item>
-    <item quantity="few" msgid="6543078667692990869">"<xliff:g id="UNREAD_MESSAGE_COUNT">%d</xliff:g> non lus (<xliff:g id="ACCOUNT">%s</xliff:g>)"</item>
-    <item quantity="other" msgid="6937673814351448076">"<xliff:g id="UNREAD_MESSAGE_COUNT">%d</xliff:g> non lus (<xliff:g id="ACCOUNT">%s</xliff:g>)"</item>
+    <item quantity="one" msgid="3422945912787702191">"<xliff:g id="UNREAD_MESSAGE_COUNT">%d</xliff:g> non lus (<xliff:g id="ACCOUNT">%s</xliff:g>)"</item>
+    <item quantity="few" msgid="6543078667692990869">"<xliff:g id="UNREAD_MESSAGE_COUNT">%d</xliff:g> non lus (<xliff:g id="ACCOUNT">%s</xliff:g>)"</item>
+    <item quantity="other" msgid="6937673814351448076">"<xliff:g id="UNREAD_MESSAGE_COUNT">%d</xliff:g> non lus (<xliff:g id="ACCOUNT">%s</xliff:g>)"</item>
   </plurals>
   <plurals name="notification_new_multi_account_fmt">
     <item quantity="few" msgid="1991747245324120305">"dans <xliff:g id="NUMBER_ACCOUNTS">%d</xliff:g> comptes"</item>
@@ -85,7 +85,7 @@
     <string name="mailbox_list_title" msgid="8299608543467211089">"Boîtes aux lettres"</string>
     <string name="message_list_load_more_messages_action" msgid="7428302707908825692">"Charger plus de messages"</string>
     <string name="message_list_send_pending_messages_action" msgid="9100624762133992435">"Envoyer les messages sortants"</string>
-    <string name="message_compose_to_hint" msgid="2891895306418177013">"À"</string>
+    <string name="message_compose_to_hint" msgid="2891895306418177013">"Langue cible"</string>
     <string name="message_compose_cc_hint" msgid="8481884461031434144">"Cc"</string>
     <string name="message_compose_bcc_hint" msgid="9177337492358841680">"Cci"</string>
     <string name="message_compose_subject_hint" msgid="6993487234024160782">"Objet"</string>
@@ -98,8 +98,8 @@
     <string name="message_compose_attachments_skipped_toast" msgid="5611815773808423460">"Impossible de transférer certaines pièces jointes : elles n\'ont pas été téléchargées."</string>
     <string name="message_compose_attachment_size" msgid="4401081828287333647">"Impossible de joindre le fichier, car il est trop volumineux."</string>
     <string name="message_compose_display_name" msgid="6415258924917140704">"<xliff:g id="NAME">%1$s</xliff:g> et <xliff:g id="NUMBER">%2$d</xliff:g> autres"</string>
-    <string name="message_view_to_label" msgid="6485191743265527381">"À :"</string>
-    <string name="message_view_cc_label" msgid="6322992216371163122">"Cc :"</string>
+    <string name="message_view_to_label" msgid="6485191743265527381">"Langue cible:"</string>
+    <string name="message_view_cc_label" msgid="6322992216371163122">"Cc : "</string>
     <string name="message_view_attachment_view_action" msgid="5353550848340829134">"Ouvrir"</string>
     <string name="message_view_attachment_download_action" msgid="7552530274014544406">"Enregistrer"</string>
     <string name="message_view_status_attachment_saved" msgid="2802843795251453632">"Pièce jointe enregistrée sur la carte SD sous le nom <xliff:g id="FILENAME">%s</xliff:g>."</string>
@@ -122,12 +122,12 @@
     <item quantity="other" msgid="6574961322865652255">"Messages supprimés"</item>
   </plurals>
     <string name="message_discarded_toast" msgid="3891461729325584026">"Message supprimé."</string>
-    <string name="message_saved_toast" msgid="8443125659172627665">"Message enregistré comme brouillon."</string>
+    <string name="message_saved_toast" msgid="8443125659172627665">"Brouillon enregistré"</string>
     <string name="message_view_display_attachment_toast" msgid="6096315816776330821">"Impossible d\'afficher cette pièce jointe."</string>
     <string name="account_setup_basics_title" msgid="3969856368228940980">"Configuration de votre messagerie"</string>
     <string name="account_setup_basics_exchange_title" msgid="1147638872869594157">"Ajouter un compte Exchange"</string>
     <string name="account_setup_basics_exchange_title_alternate" msgid="4980422714586153809">"Ajouter un compte Exchange ActiveSync"</string>
-    <string name="accounts_welcome" msgid="5901437782383439370">"Configurez votre messagerie en quelques étapes simples. Compatible avec la plupart des comptes."</string>
+    <string name="accounts_welcome" msgid="5901437782383439370">"Configurez des e-mails pour la plupart des comptes en à peine quelques minutes."</string>
     <string name="accounts_welcome_exchange" msgid="4414121583987233733">"Configurez un compte Exchange en un clin d\'œil."</string>
     <string name="accounts_welcome_exchange_alternate" msgid="1324339567986452000">"Configurez un compte Exchange ActiveSync en un clin d\'œil."</string>
     <string name="account_setup_basics_email_hint" msgid="7414269319207261120">"Adresse e-mail"</string>
@@ -154,7 +154,7 @@
     <string name="account_setup_incoming_imap_server_label" msgid="8685076830847734322">"Serveur IMAP"</string>
     <string name="account_setup_incoming_port_label" msgid="8214738923690447796">"Port"</string>
     <string name="account_setup_incoming_security_label" msgid="2110260791086007424">"Type de sécurité"</string>
-    <string name="account_setup_incoming_security_none_label" msgid="8300169413118264895">"Aucun protocole"</string>
+    <string name="account_setup_incoming_security_none_label" msgid="8300169413118264895">"Aucun"</string>
     <string name="account_setup_incoming_security_ssl_trust_certificates_label" msgid="3581382268191377346">"SSL (accepter tous les certificats)"</string>
     <string name="account_setup_incoming_security_ssl_label" msgid="8886698397743061682">"SSL"</string>
     <string name="account_setup_incoming_security_tls_trust_certificates_label" msgid="1089227022489257055">"TLS (accepter tous les certificats)"</string>
@@ -238,7 +238,7 @@
     <string name="account_settings_vibrate_when_silent" msgid="6417076436551648924">"Seulement en mode silencieux"</string>
     <string name="account_settings_vibrate_when_never" msgid="3759680093309511614">"Jamais"</string>
     <string name="account_settings_vibrate_when_dlg_title" msgid="308167729046312952">"Vibreur"</string>
-    <string name="account_settings_ringtone" msgid="7922187231467500404">"Sonnerie"</string>
+    <string name="account_settings_ringtone" msgid="7922187231467500404">"Sélectionner la sonnerie"</string>
     <string name="account_settings_servers" msgid="4925493817981624242">"Paramètres du serveur"</string>
     <string name="account_delete_dlg_title" msgid="6806087520856396608">"Supprimer le compte"</string>
     <string name="account_delete_dlg_instructions_fmt" msgid="8236846322040271280">"Le compte \"<xliff:g id="ACCOUNT">%s</xliff:g>\" va être supprimé de votre messagerie."</string>
