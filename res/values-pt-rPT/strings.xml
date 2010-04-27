@@ -30,7 +30,7 @@
     <string name="reply_action" msgid="4262472229221507619">"Responder"</string>
     <string name="reply_all_action" msgid="6192179825726332152">"Responder a todas"</string>
     <string name="delete_action" msgid="8421026208288857155">"Eliminar"</string>
-    <string name="forward_action" msgid="669174181042344116">"Reencaminhar"</string>
+    <string name="forward_action" msgid="669174181042344116">"Encaminhar"</string>
     <string name="done_action" msgid="7497990549515580249">"Concluído"</string>
     <string name="discard_action" msgid="6532206074859505968">"Rejeitar"</string>
     <string name="save_draft_action" msgid="812855865552028622">"Guardar como rascunho"</string>
@@ -60,7 +60,7 @@
     <string name="status_sending_messages" msgid="3971880826111264523">"A enviar mensagens..."</string>
     <string name="status_network_error" msgid="6045933332005067021">"Erro de ligação"</string>
     <string name="notification_new_title" msgid="2200257910380529139">"Novo e-mail"</string>
-    <string name="error_loading_message_body" msgid="2265140604109272914">"Erro inesperado durante o carregamento do texto da mensagem. É possível que a mensagem seja demasiado extensa para visualização."</string>
+    <string name="error_loading_message_body" msgid="2265140604109272914">"Erro inesperado durante o carregamento do texto da mensagem. É possível que a mensagem seja demasiado extensa para visualização. "</string>
   <plurals name="notification_new_one_account_fmt">
     <item quantity="one" msgid="3422945912787702191">"<xliff:g id="UNREAD_MESSAGE_COUNT">%d</xliff:g> não lidas (<xliff:g id="ACCOUNT">%s</xliff:g>)"</item>
     <item quantity="few" msgid="6543078667692990869">"<xliff:g id="UNREAD_MESSAGE_COUNT">%d</xliff:g> não lidas (<xliff:g id="ACCOUNT">%s</xliff:g>)"</item>
@@ -89,7 +89,7 @@
     <string name="message_compose_cc_hint" msgid="8481884461031434144">"Cc"</string>
     <string name="message_compose_bcc_hint" msgid="9177337492358841680">"Bcc"</string>
     <string name="message_compose_subject_hint" msgid="6993487234024160782">"Assunto"</string>
-    <string name="message_compose_body_hint" msgid="7575406246484103697">"Redigir mensagem"</string>
+    <string name="message_compose_body_hint" msgid="7575406246484103697">"Redigir correio"</string>
     <string name="message_compose_fwd_header_fmt" msgid="5181300290654579434">\n\n"-------- Mensagem original --------"\n"Assunto: <xliff:g id="SUBJECT">%s</xliff:g>"\n"De: <xliff:g id="SENDER">%s</xliff:g>"\n"Para: <xliff:g id="TO">%s</xliff:g>"\n"CC: <xliff:g id="CC_0">%s</xliff:g>"\n\n</string>
     <string name="message_compose_reply_header_fmt" msgid="8815624773273454573">\n\n"<xliff:g id="SENDER">%s</xliff:g> escreveu:"\n\n</string>
     <string name="message_compose_quoted_text_label" msgid="5722467956990009520">"Texto entre aspas"</string>
@@ -142,7 +142,7 @@
     <string name="account_setup_check_settings_check_outgoing_msg" msgid="4033015234096725343">"A verificar definições do servidor de envio..."</string>
     <string name="account_setup_check_settings_canceling_msg" msgid="5077315503721883906">"A cancelar..."</string>
     <string name="account_setup_names_title" msgid="8875040521875381849">"Configurar e-mail"</string>
-    <string name="account_setup_names_instructions" msgid="2880279273965835007">"A sua conta está configurada e o e-mail está a caminho!"</string>
+    <string name="account_setup_names_instructions" msgid="2880279273965835007">"A sua conta está configurada e o e-mail vai a caminho!"</string>
     <string name="account_setup_names_account_name_label" msgid="8033895024273259196">"Dar um nome a esta conta (opcional)"</string>
     <string name="account_setup_names_user_name_label" msgid="8967410178488604770">"O seu nome (apresentado nas mensagens enviadas)"</string>
     <string name="account_setup_account_type_title" msgid="6645576356752495504">"Adicionar nova conta de e-mail"</string>
@@ -154,7 +154,7 @@
     <string name="account_setup_incoming_imap_server_label" msgid="8685076830847734322">"Servidor IMAP"</string>
     <string name="account_setup_incoming_port_label" msgid="8214738923690447796">"Porta"</string>
     <string name="account_setup_incoming_security_label" msgid="2110260791086007424">"Tipo de segurança"</string>
-    <string name="account_setup_incoming_security_none_label" msgid="8300169413118264895">"Nenhum"</string>
+    <string name="account_setup_incoming_security_none_label" msgid="8300169413118264895">"Nenhuma"</string>
     <string name="account_setup_incoming_security_ssl_trust_certificates_label" msgid="3581382268191377346">"SSL (Aceitar todos os certificados)"</string>
     <string name="account_setup_incoming_security_ssl_label" msgid="8886698397743061682">"SSL"</string>
     <string name="account_setup_incoming_security_tls_trust_certificates_label" msgid="1089227022489257055">"TLS (Aceitar todos os certificados)"</string>

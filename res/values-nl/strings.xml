@@ -27,12 +27,12 @@
     <string name="okay_action" msgid="8365197396795675617">"OK"</string>
     <string name="cancel_action" msgid="6967435583794021865">"Annuleren"</string>
     <string name="send_action" msgid="1729766205562446418">"Verzenden"</string>
-    <string name="reply_action" msgid="4262472229221507619">"Antwoord"</string>
+    <string name="reply_action" msgid="4262472229221507619">"Reageren"</string>
     <string name="reply_all_action" msgid="6192179825726332152">"Allen antwoord"</string>
     <string name="delete_action" msgid="8421026208288857155">"Verwijderen"</string>
     <string name="forward_action" msgid="669174181042344116">"Doorsturen"</string>
     <string name="done_action" msgid="7497990549515580249">"Gereed"</string>
-    <string name="discard_action" msgid="6532206074859505968">"Verwijderen"</string>
+    <string name="discard_action" msgid="6532206074859505968">"Weggooien"</string>
     <string name="save_draft_action" msgid="812855865552028622">"Opslaan als concept"</string>
     <string name="read_unread_action" msgid="4721446664849165077">"Gelezen/ongelezen"</string>
     <string name="read_action" msgid="4701484794504781686">"Markeren als gelezen"</string>
@@ -45,7 +45,7 @@
     <string name="deselect_all_action" msgid="253663239459688238">"Selectie van alle items ongedaan maken"</string>
     <string name="compose_action" msgid="4045702519637388045">"Opstellen"</string>
     <string name="search_action" msgid="6325101454876682308">"Zoeken"</string>
-    <string name="open_action" msgid="936766723989190816">"Openen"</string>
+    <string name="open_action" msgid="936766723989190816">"Open"</string>
     <string name="account_settings_action" msgid="4494079183315085171">"Accountinstellingen"</string>
     <string name="remove_account_action" msgid="3789169090601376209">"Account verwijderen"</string>
     <string name="folders_action" msgid="7502431531355227666">"Mappen"</string>
@@ -85,7 +85,7 @@
     <string name="mailbox_list_title" msgid="8299608543467211089">"Mailbox"</string>
     <string name="message_list_load_more_messages_action" msgid="7428302707908825692">"Meer berichten laden"</string>
     <string name="message_list_send_pending_messages_action" msgid="9100624762133992435">"Uitgaande berichten verzenden"</string>
-    <string name="message_compose_to_hint" msgid="2891895306418177013">"Aan"</string>
+    <string name="message_compose_to_hint" msgid="2891895306418177013">"Naar"</string>
     <string name="message_compose_cc_hint" msgid="8481884461031434144">"Cc"</string>
     <string name="message_compose_bcc_hint" msgid="9177337492358841680">"Bcc"</string>
     <string name="message_compose_subject_hint" msgid="6993487234024160782">"Onderwerp"</string>
@@ -100,7 +100,7 @@
     <string name="message_compose_display_name" msgid="6415258924917140704">"<xliff:g id="NAME">%1$s</xliff:g> en <xliff:g id="NUMBER">%2$d</xliff:g> anderen"</string>
     <string name="message_view_to_label" msgid="6485191743265527381">"Aan:"</string>
     <string name="message_view_cc_label" msgid="6322992216371163122">"Cc:"</string>
-    <string name="message_view_attachment_view_action" msgid="5353550848340829134">"Openen"</string>
+    <string name="message_view_attachment_view_action" msgid="5353550848340829134">"Open"</string>
     <string name="message_view_attachment_download_action" msgid="7552530274014544406">"Opslaan"</string>
     <string name="message_view_status_attachment_saved" msgid="2802843795251453632">"Bijlage opgeslagen op SD-kaart als <xliff:g id="FILENAME">%s</xliff:g>."</string>
     <string name="message_view_status_attachment_not_saved" msgid="5039599647697750874">"Kan bijlage niet opslaan op SD-kaart."</string>
@@ -127,7 +127,7 @@
     <string name="account_setup_basics_title" msgid="3969856368228940980">"E-mail instellen"</string>
     <string name="account_setup_basics_exchange_title" msgid="1147638872869594157">"Een Exchange-account toevoegen"</string>
     <string name="account_setup_basics_exchange_title_alternate" msgid="4980422714586153809">"Een Exchange ActiveSync-account toevoegen"</string>
-    <string name="accounts_welcome" msgid="5901437782383439370">"U kunt de functie E-mail voor de meeste accounts in enkele stappen configureren."</string>
+    <string name="accounts_welcome" msgid="5901437782383439370">"U kunt E-mail voor de meeste accounts in enkele stappen configureren."</string>
     <string name="accounts_welcome_exchange" msgid="4414121583987233733">"U kunt een Exchange-account in enkele stappen configureren."</string>
     <string name="accounts_welcome_exchange_alternate" msgid="1324339567986452000">"U kunt een Exchange ActiveSync-account in enkele stappen configureren."</string>
     <string name="account_setup_basics_email_hint" msgid="7414269319207261120">"E-mailadres"</string>
@@ -196,9 +196,9 @@
     <string name="account_setup_options_mail_window_1week" msgid="5639718031108023741">"Eén week"</string>
     <string name="account_setup_options_mail_window_2weeks" msgid="4567049268124213035">"Twee weken"</string>
     <string name="account_setup_options_mail_window_1month" msgid="5846359669750047081">"Eén maand"</string>
-    <string name="account_setup_failed_dlg_auth_message" msgid="42827150104879570">"Gebruikersnaam of wachtwoord onjuist"</string>
+    <string name="account_setup_failed_dlg_auth_message" msgid="42827150104879570">"Gebruikersnaam of wachtwoord is onjuist."</string>
     <string name="account_setup_failed_dlg_auth_message_fmt" msgid="8598560266430207606">"Gebruikersnaam of wachtwoord is onjuist."\n"(<xliff:g id="ERROR">%s</xliff:g>)"</string>
-    <string name="account_setup_failed_dlg_certificate_message" msgid="961843413600482906">"Kan geen veilige verbinding met de server maken."</string>
+    <string name="account_setup_failed_dlg_certificate_message" msgid="961843413600482906">"Kan geen veilige verbinding met de server tot stand brengen."</string>
     <string name="account_setup_failed_dlg_certificate_message_fmt" msgid="2609150986774736900">"Kan geen veilige verbinding met de server tot stand brengen."\n"(<xliff:g id="ERROR">%s</xliff:g>)"</string>
     <string name="account_setup_failed_dlg_server_message" msgid="1828270369532779265">"Kan geen verbinding maken met de server."</string>
     <string name="account_setup_failed_dlg_server_message_fmt" msgid="5956976504788732779">"Kan geen verbinding maken met de server."\n"(<xliff:g id="ERROR">%s</xliff:g>)"</string>
@@ -241,7 +241,7 @@
     <string name="account_settings_ringtone" msgid="7922187231467500404">"Beltoon selecteren"</string>
     <string name="account_settings_servers" msgid="4925493817981624242">"Serverinstellingen"</string>
     <string name="account_delete_dlg_title" msgid="6806087520856396608">"Account verwijderen"</string>
-    <string name="account_delete_dlg_instructions_fmt" msgid="8236846322040271280">"Het account <xliff:g id="ACCOUNT">%s</xliff:g> wordt verwijderd van E-mail"</string>
+    <string name="account_delete_dlg_instructions_fmt" msgid="8236846322040271280">"De account <xliff:g id="ACCOUNT">%s</xliff:g> wordt verwijderd van E-mail"</string>
     <string name="upgrade_accounts_title" msgid="5444140226380754014">"Accounts upgraden"</string>
     <string name="upgrade_accounts_error" msgid="7241661832029255715">"Kan account niet upgraden"</string>
     <string name="provider_note_yahoo" msgid="8762024183024261236">"Toegang tot postvakken wordt niet ondersteund door sommige typen Yahoo!-mailaccounts. Als er problemen ontstaan bij het verbinden, gaat u naar yahoo.com voor meer informatie."</string>

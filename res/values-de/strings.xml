@@ -19,10 +19,10 @@
     <string name="read_attachment_label" msgid="1162255191991555285">"Anhänge lesen"</string>
     <string name="read_attachment_desc" msgid="7594746717616308643">"Erlaubt der Anwendung, Ihre Anhänge zu lesen."</string>
     <string name="permission_access_provider_label" msgid="4274353114641168675">"Auf Daten des E-Mail-Providers zugreifen"</string>
-    <string name="permission_access_provider_desc" msgid="1513898266889541617">"Erlaubt dieser Anwendung, auf Ihre E-Mail-Datenbank zuzugreifen, einschließlich erhaltener Nachrichten, gesendeter Nachrichten, Nutzernamen und Passwörtern."</string>
-    <string name="app_name" msgid="5815426892327290362">"E-Mail"</string>
-    <string name="compose_title" msgid="427986915662706899">"E-Mail schreiben"</string>
-    <string name="debug_title" msgid="5175710493691536719">"Fehlersuche"</string>
+    <string name="permission_access_provider_desc" msgid="1513898266889541617">"Erlaubt dieser Anwendung, auf Ihre E-Mail-Datenbank zuzugreifen, einschließlich erhaltener Nachrichten, gesendeter Nachrichten, Benutzernamen und Passwörtern."</string>
+    <string name="app_name" msgid="5815426892327290362">"E-Mail an"</string>
+    <string name="compose_title" msgid="427986915662706899">"Schreiben"</string>
+    <string name="debug_title" msgid="5175710493691536719">"Fehler suchen"</string>
     <string name="next_action" msgid="3931301986364184415">"Weiter"</string>
     <string name="okay_action" msgid="8365197396795675617">"OK"</string>
     <string name="cancel_action" msgid="6967435583794021865">"Abbrechen"</string>
@@ -30,7 +30,7 @@
     <string name="reply_action" msgid="4262472229221507619">"Antworten"</string>
     <string name="reply_all_action" msgid="6192179825726332152">"Allen antworten"</string>
     <string name="delete_action" msgid="8421026208288857155">"Löschen"</string>
-    <string name="forward_action" msgid="669174181042344116">"Weiterleiten"</string>
+    <string name="forward_action" msgid="669174181042344116">"Vorwärts"</string>
     <string name="done_action" msgid="7497990549515580249">"Fertig"</string>
     <string name="discard_action" msgid="6532206074859505968">"Verwerfen"</string>
     <string name="save_draft_action" msgid="812855865552028622">"Als Entwurf speichern"</string>
@@ -43,9 +43,9 @@
     <string name="refresh_action" msgid="5951383001436708175">"Aktualisieren"</string>
     <string name="add_account_action" msgid="8835736309476033727">"Konto hinzufügen"</string>
     <string name="deselect_all_action" msgid="253663239459688238">"Auswahl für alle aufheben"</string>
-    <string name="compose_action" msgid="4045702519637388045">"E-Mail schreiben"</string>
-    <string name="search_action" msgid="6325101454876682308">"Suchen"</string>
-    <string name="open_action" msgid="936766723989190816">"Öffnen"</string>
+    <string name="compose_action" msgid="4045702519637388045">"Schreiben"</string>
+    <string name="search_action" msgid="6325101454876682308">"Suche"</string>
+    <string name="open_action" msgid="936766723989190816">"Offen"</string>
     <string name="account_settings_action" msgid="4494079183315085171">"Kontoeinstellungen"</string>
     <string name="remove_account_action" msgid="3789169090601376209">"Konto entfernen"</string>
     <string name="folders_action" msgid="7502431531355227666">"Ordner"</string>
@@ -67,8 +67,8 @@
     <item quantity="other" msgid="6937673814351448076">"<xliff:g id="UNREAD_MESSAGE_COUNT">%d</xliff:g> ungelesen (<xliff:g id="ACCOUNT">%s</xliff:g>)"</item>
   </plurals>
   <plurals name="notification_new_multi_account_fmt">
-    <item quantity="few" msgid="1991747245324120305">"in <xliff:g id="NUMBER_ACCOUNTS">%d</xliff:g> E-Mail-Konten"</item>
-    <item quantity="other" msgid="2723797835410343458">"in <xliff:g id="NUMBER_ACCOUNTS">%d</xliff:g> E-Mail-Konten"</item>
+    <item quantity="few" msgid="1991747245324120305">"in <xliff:g id="NUMBER_ACCOUNTS">%d</xliff:g> Google-Konten"</item>
+    <item quantity="other" msgid="2723797835410343458">"in <xliff:g id="NUMBER_ACCOUNTS">%d</xliff:g> Google-Konten"</item>
   </plurals>
     <string name="mailbox_name_display_inbox" msgid="3542327124749861736">"Posteingang"</string>
     <string name="mailbox_name_display_outbox" msgid="2826214174661417662">"Postausgang"</string>
@@ -100,7 +100,7 @@
     <string name="message_compose_display_name" msgid="6415258924917140704">"<xliff:g id="NAME">%1$s</xliff:g> und <xliff:g id="NUMBER">%2$d</xliff:g> weitere"</string>
     <string name="message_view_to_label" msgid="6485191743265527381">"An:"</string>
     <string name="message_view_cc_label" msgid="6322992216371163122">"Cc:"</string>
-    <string name="message_view_attachment_view_action" msgid="5353550848340829134">"Öffnen"</string>
+    <string name="message_view_attachment_view_action" msgid="5353550848340829134">"Offen"</string>
     <string name="message_view_attachment_download_action" msgid="7552530274014544406">"Speichern"</string>
     <string name="message_view_status_attachment_saved" msgid="2802843795251453632">"Anhang auf SD-Speicherkarte unter \"<xliff:g id="FILENAME">%s</xliff:g>\" abgespeichert"</string>
     <string name="message_view_status_attachment_not_saved" msgid="5039599647697750874">"Speichern des Anhangs auf SD-Karte nicht möglich"</string>
@@ -173,7 +173,7 @@
     <string name="account_setup_outgoing_password_label" msgid="227844585493317550">"Passwort"</string>
     <string name="account_setup_exchange_title" msgid="2492853474738063453">"Servereinstellungen"</string>
     <string name="account_setup_exchange_server_label" msgid="795137797983360826">"Server"</string>
-    <string name="account_setup_exchange_username_label" msgid="6517176180828983060">"Domain-/Nutzername"</string>
+    <string name="account_setup_exchange_username_label" msgid="6517176180828983060">"Domain-/Benutzername"</string>
     <string name="account_setup_exchange_ssl_label" msgid="6704105469083211236">"Sichere Verbindung (SSL) verwenden"</string>
     <string name="account_setup_exchange_trust_certificates_label" msgid="6232880757633882678">"Alle SSL-Zertifikate akzeptieren"</string>
     <string name="account_setup_options_title" msgid="8995162193118880993">"Kontooptionen"</string>
@@ -197,7 +197,7 @@
     <string name="account_setup_options_mail_window_2weeks" msgid="4567049268124213035">"Zwei Wochen"</string>
     <string name="account_setup_options_mail_window_1month" msgid="5846359669750047081">"Ein Monat"</string>
     <string name="account_setup_failed_dlg_auth_message" msgid="42827150104879570">"Nutzername oder Passwort falsch"</string>
-    <string name="account_setup_failed_dlg_auth_message_fmt" msgid="8598560266430207606">"Nutzername oder Password falsch"\n"(<xliff:g id="ERROR">%s</xliff:g>)"</string>
+    <string name="account_setup_failed_dlg_auth_message_fmt" msgid="8598560266430207606">"Nutzername/Password falsch"\n"(<xliff:g id="ERROR">%s</xliff:g>)"</string>
     <string name="account_setup_failed_dlg_certificate_message" msgid="961843413600482906">"Keine sichere Verbindung zu Server möglich"</string>
     <string name="account_setup_failed_dlg_certificate_message_fmt" msgid="2609150986774736900">"Keine sichere Verbindung zum Server möglich"\n"(<xliff:g id="ERROR">%s</xliff:g>)"</string>
     <string name="account_setup_failed_dlg_server_message" msgid="1828270369532779265">"Keine Verbindung zu Server möglich"</string>
@@ -228,9 +228,9 @@
     <string name="account_settings_signature_label" msgid="4091969938785803201">"Signatur"</string>
     <string name="account_settings_signature_hint" msgid="7262183168962779403">"Text an zu sendende Nachrichten anhängen"</string>
     <string name="account_settings_notifications" msgid="1042620094281375043">"Benachrichtigungseinstellungen"</string>
-    <string name="account_settings_sync_contacts_enable" msgid="1369272986009573218">"Kontakte synchr."</string>
+    <string name="account_settings_sync_contacts_enable" msgid="1369272986009573218">"Kontakte synchr"</string>
     <string name="account_settings_sync_contacts_summary" msgid="8901452720940015928">"Kontakte dieses Kontos ebenfalls synchronisieren"</string>
-    <string name="account_settings_sync_calendar_enable" msgid="6855333393468628003">"Kalender synchronisieren"</string>
+    <string name="account_settings_sync_calendar_enable" msgid="6855333393468628003">"Kalender synchr"</string>
     <string name="account_settings_sync_calendar_summary" msgid="2456010694443333450">"Kalender dieses Kontos ebenfalls synchronisieren"</string>
     <string name="account_settings_vibrate_when_label" msgid="708477308761702671">"Vibration"</string>
     <string name="account_settings_vibrate_when_summary" msgid="3991584445166247189">"Bei E-Mail-Eingang zusätzlich vibrieren"</string>
