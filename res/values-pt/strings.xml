@@ -23,14 +23,14 @@
     <string name="app_name" msgid="5815426892327290362">"E-mail"</string>
     <string name="compose_title" msgid="427986915662706899">"Escrever"</string>
     <string name="debug_title" msgid="5175710493691536719">"Depurar"</string>
-    <string name="next_action" msgid="3931301986364184415">"Avançar"</string>
+    <string name="next_action" msgid="3931301986364184415">"Próxima"</string>
     <string name="okay_action" msgid="8365197396795675617">"OK"</string>
     <string name="cancel_action" msgid="6967435583794021865">"Cancelar"</string>
     <string name="send_action" msgid="1729766205562446418">"Enviar"</string>
     <string name="reply_action" msgid="4262472229221507619">"Responder"</string>
     <string name="reply_all_action" msgid="6192179825726332152">"Responder a todos"</string>
     <string name="delete_action" msgid="8421026208288857155">"Excluir"</string>
-    <string name="forward_action" msgid="669174181042344116">"Encaminhar"</string>
+    <string name="forward_action" msgid="669174181042344116">"Avançar"</string>
     <string name="done_action" msgid="7497990549515580249">"Concluído"</string>
     <string name="discard_action" msgid="6532206074859505968">"Descartar"</string>
     <string name="save_draft_action" msgid="812855865552028622">"Salvar como rascunho"</string>
@@ -44,7 +44,7 @@
     <string name="add_account_action" msgid="8835736309476033727">"Adicionar conta"</string>
     <string name="deselect_all_action" msgid="253663239459688238">"Desmarcar todas"</string>
     <string name="compose_action" msgid="4045702519637388045">"Escrever"</string>
-    <string name="search_action" msgid="6325101454876682308">"Pesquisar"</string>
+    <string name="search_action" msgid="6325101454876682308">"Pesquisa"</string>
     <string name="open_action" msgid="936766723989190816">"Abrir"</string>
     <string name="account_settings_action" msgid="4494079183315085171">"Configurações da conta"</string>
     <string name="remove_account_action" msgid="3789169090601376209">"Remover conta"</string>
@@ -62,7 +62,7 @@
     <string name="notification_new_title" msgid="2200257910380529139">"Novo e-mail"</string>
     <string name="error_loading_message_body" msgid="2265140604109272914">"Erro inesperado ao carregar o texto da mensagem. A mensagem pode ser grande demais para ser exibida."</string>
   <plurals name="notification_new_one_account_fmt">
-    <item quantity="one" msgid="3422945912787702191">"<xliff:g id="UNREAD_MESSAGE_COUNT">%d</xliff:g> não lida (<xliff:g id="ACCOUNT">%s</xliff:g>)"</item>
+    <item quantity="one" msgid="3422945912787702191">"<xliff:g id="UNREAD_MESSAGE_COUNT">%d</xliff:g> não lidas (<xliff:g id="ACCOUNT">%s</xliff:g>)"</item>
     <item quantity="few" msgid="6543078667692990869">"<xliff:g id="UNREAD_MESSAGE_COUNT">%d</xliff:g> não lidas (<xliff:g id="ACCOUNT">%s</xliff:g>)"</item>
     <item quantity="other" msgid="6937673814351448076">"<xliff:g id="UNREAD_MESSAGE_COUNT">%d</xliff:g> não lidas (<xliff:g id="ACCOUNT">%s</xliff:g>)"</item>
   </plurals>
@@ -161,18 +161,18 @@
     <string name="account_setup_incoming_security_tls_label" msgid="8638006172590036487">"TLS"</string>
     <string name="account_setup_incoming_delete_policy_label" msgid="9213590134693857912">"Excluir e-mail do servidor"</string>
     <string name="account_setup_incoming_delete_policy_never_label" msgid="3222897501875871041">"Nunca"</string>
-    <string name="account_setup_incoming_delete_policy_delete_label" msgid="222216840911785631">"Quando excluir da Caixa de entrada"</string>
+    <string name="account_setup_incoming_delete_policy_delete_label" msgid="222216840911785631">"Quando eu excluir da Caixa de entrada"</string>
     <string name="account_setup_incoming_imap_path_prefix_label" msgid="401167247072926810">"Prefixo do caminho IMAP"</string>
     <string name="account_setup_incoming_imap_path_prefix_hint" msgid="9190845919067906033">"Opcional"</string>
-    <string name="account_setup_outgoing_title" msgid="7437215562885986394">"Configurações de saída do servidor"</string>
+    <string name="account_setup_outgoing_title" msgid="7437215562885986394">"Configurações de servidor enviadas"</string>
     <string name="account_setup_outgoing_smtp_server_label" msgid="6035137446691195177">"Servidor SMTP"</string>
     <string name="account_setup_outgoing_port_label" msgid="7573207437835827876">"Porta"</string>
     <string name="account_setup_outgoing_security_label" msgid="911398071120720589">"Tipo de segurança"</string>
     <string name="account_setup_outgoing_require_login_label" msgid="6371514297854287948">"Requer login."</string>
     <string name="account_setup_outgoing_username_label" msgid="3309680794731596981">"Nome de usuário"</string>
     <string name="account_setup_outgoing_password_label" msgid="227844585493317550">"Senha"</string>
-    <string name="account_setup_exchange_title" msgid="2492853474738063453">"Configurações do servidor\n"</string>
-    <string name="account_setup_exchange_server_label" msgid="795137797983360826">"Servidor\n"</string>
+    <string name="account_setup_exchange_title" msgid="2492853474738063453">"Configurações do servidor"</string>
+    <string name="account_setup_exchange_server_label" msgid="795137797983360826">"Servidor"</string>
     <string name="account_setup_exchange_username_label" msgid="6517176180828983060">"Domínio\\Nome de usuário"</string>
     <string name="account_setup_exchange_ssl_label" msgid="6704105469083211236">"Usar conexão segura (SSL)"</string>
     <string name="account_setup_exchange_trust_certificates_label" msgid="6232880757633882678">"Aceitar todos os certificados SSL"</string>

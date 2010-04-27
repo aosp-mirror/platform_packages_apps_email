@@ -19,17 +19,17 @@
     <string name="read_attachment_label" msgid="1162255191991555285">"Leer los archivos adjuntos del mensaje"</string>
     <string name="read_attachment_desc" msgid="7594746717616308643">"Permite que esta aplicación lea los archivos adjuntos del correo electrónico."</string>
     <string name="permission_access_provider_label" msgid="4274353114641168675">"Acceder a los datos del proveedor de servicios de correo"</string>
-    <string name="permission_access_provider_desc" msgid="1513898266889541617">"Permite que la aplicación acceda a la base de datos de tu correo electrónico, incluidos los mensajes recibidos, los mensajes enviados, los nombres de usuario y las contraseñas."</string>
-    <string name="app_name" msgid="5815426892327290362">"Email"</string>
+    <string name="permission_access_provider_desc" msgid="1513898266889541617">"Permite que la aplicación acceda a la base de datos de tu correo electrónico, incluidos los mensajes recibidos, los mensajes enviados, los nombre de usuario y las contraseñas."</string>
+    <string name="app_name" msgid="5815426892327290362">"Enviar correo electrónico"</string>
     <string name="compose_title" msgid="427986915662706899">"Redactar"</string>
     <string name="debug_title" msgid="5175710493691536719">"Depurar"</string>
     <string name="next_action" msgid="3931301986364184415">"Siguiente"</string>
     <string name="okay_action" msgid="8365197396795675617">"Aceptar"</string>
     <string name="cancel_action" msgid="6967435583794021865">"Cancelar"</string>
     <string name="send_action" msgid="1729766205562446418">"Enviar"</string>
-    <string name="reply_action" msgid="4262472229221507619">"Responder"</string>
+    <string name="reply_action" msgid="4262472229221507619">"Resp"</string>
     <string name="reply_all_action" msgid="6192179825726332152">"Responder a todos"</string>
-    <string name="delete_action" msgid="8421026208288857155">"Suprimir"</string>
+    <string name="delete_action" msgid="8421026208288857155">"Eliminar"</string>
     <string name="forward_action" msgid="669174181042344116">"Reenviar"</string>
     <string name="done_action" msgid="7497990549515580249">"Listo"</string>
     <string name="discard_action" msgid="6532206074859505968">"Descartar"</string>
@@ -44,17 +44,17 @@
     <string name="add_account_action" msgid="8835736309476033727">"Añadir cuenta"</string>
     <string name="deselect_all_action" msgid="253663239459688238">"Desmarcar todo"</string>
     <string name="compose_action" msgid="4045702519637388045">"Redactar"</string>
-    <string name="search_action" msgid="6325101454876682308">"Buscar"</string>
+    <string name="search_action" msgid="6325101454876682308">"Búsqueda"</string>
     <string name="open_action" msgid="936766723989190816">"Abrir"</string>
-    <string name="account_settings_action" msgid="4494079183315085171">"Configuración"</string>
+    <string name="account_settings_action" msgid="4494079183315085171">"Ajustes de la cuenta"</string>
     <string name="remove_account_action" msgid="3789169090601376209">"Eliminar cuenta"</string>
     <string name="folders_action" msgid="7502431531355227666">"Carpetas"</string>
     <string name="accounts_action" msgid="901105887272231493">"Cuentas"</string>
     <string name="mark_as_read_action" msgid="5031651846998842419">"Marcar como leída"</string>
     <string name="mark_as_unread_action" msgid="3766298115778767554">"Marcar como no leído"</string>
     <string name="add_cc_bcc_action" msgid="5569074812077509737">"Añadir Cc/CCO"</string>
-    <string name="add_attachment_action" msgid="2696013743130573897">"Añadir archivo adjunto"</string>
-    <string name="dump_settings_action" msgid="4478192525236169829">"Configuración de volcado"</string>
+    <string name="add_attachment_action" msgid="2696013743130573897">"Añadir adjunto"</string>
+    <string name="dump_settings_action" msgid="4478192525236169829">"Ajustes de volcado"</string>
     <string name="choose_attachment_dialog_title" msgid="81937507117528954">"Elegir archivo adjunto"</string>
     <string name="status_loading_more" msgid="1580386959044617884">"Cargando mensajes..."</string>
     <string name="status_sending_messages" msgid="3971880826111264523">"Enviando mensajes..."</string>
@@ -70,22 +70,22 @@
     <item quantity="few" msgid="1991747245324120305">"en <xliff:g id="NUMBER_ACCOUNTS">%d</xliff:g> cuentas"</item>
     <item quantity="other" msgid="2723797835410343458">"en <xliff:g id="NUMBER_ACCOUNTS">%d</xliff:g> cuentas"</item>
   </plurals>
-    <string name="mailbox_name_display_inbox" msgid="3542327124749861736">"Bandeja de entrada"</string>
+    <string name="mailbox_name_display_inbox" msgid="3542327124749861736">"Recibidos"</string>
     <string name="mailbox_name_display_outbox" msgid="2826214174661417662">"Enviados"</string>
     <string name="mailbox_name_display_drafts" msgid="4868718300700514319">"Borradores"</string>
     <string name="mailbox_name_display_trash" msgid="9139069064580630647">"Papelera"</string>
-    <string name="mailbox_name_display_sent" msgid="3426058998191869523">"Enviados"</string>
+    <string name="mailbox_name_display_sent" msgid="3426058998191869523">"Enviado"</string>
     <string name="mailbox_name_display_junk" msgid="9046762505977999288">"Correo basura"</string>
     <string name="debug_version_fmt" msgid="6160213145745376955">"Versión: <xliff:g id="VERSION">%s</xliff:g>"</string>
     <string name="account_folder_list_separator_accounts" msgid="7568820182396669244">"Cuentas"</string>
-    <string name="account_folder_list_summary_inbox" msgid="5790553737870057607">"Bandeja de entrada combinada"</string>
+    <string name="account_folder_list_summary_inbox" msgid="5790553737870057607">"Combinación de recibidos"</string>
     <string name="account_folder_list_summary_starred" msgid="3134312269246375723">"Destacados"</string>
     <string name="account_folder_list_summary_drafts" msgid="5514845993247300437">"Borradores"</string>
     <string name="account_folder_list_summary_outbox" msgid="3059836696049399377">"Enviados"</string>
     <string name="mailbox_list_title" msgid="8299608543467211089">"Buzón de correo"</string>
     <string name="message_list_load_more_messages_action" msgid="7428302707908825692">"Cargar más mensajes"</string>
     <string name="message_list_send_pending_messages_action" msgid="9100624762133992435">"Enviar mensajes salientes"</string>
-    <string name="message_compose_to_hint" msgid="2891895306418177013">"Para"</string>
+    <string name="message_compose_to_hint" msgid="2891895306418177013">"Al"</string>
     <string name="message_compose_cc_hint" msgid="8481884461031434144">"Cc"</string>
     <string name="message_compose_bcc_hint" msgid="9177337492358841680">"CCO"</string>
     <string name="message_compose_subject_hint" msgid="6993487234024160782">"Asunto"</string>
@@ -99,7 +99,7 @@
     <string name="message_compose_attachment_size" msgid="4401081828287333647">"El archivo es demasiado grande para adjuntarlo."</string>
     <string name="message_compose_display_name" msgid="6415258924917140704">"<xliff:g id="NAME">%1$s</xliff:g> y <xliff:g id="NUMBER">%2$d</xliff:g> más"</string>
     <string name="message_view_to_label" msgid="6485191743265527381">"Para:"</string>
-    <string name="message_view_cc_label" msgid="6322992216371163122">"Cc:"</string>
+    <string name="message_view_cc_label" msgid="6322992216371163122">"Cc: "</string>
     <string name="message_view_attachment_view_action" msgid="5353550848340829134">"Abrir"</string>
     <string name="message_view_attachment_download_action" msgid="7552530274014544406">"Guardar"</string>
     <string name="message_view_status_attachment_saved" msgid="2802843795251453632">"El archivo adjunto se ha guardado en una tarjeta SD como <xliff:g id="FILENAME">%s</xliff:g>."</string>
@@ -147,31 +147,31 @@
     <string name="account_setup_names_user_name_label" msgid="8967410178488604770">"Tu nombre (aparece en los mensajes salientes)"</string>
     <string name="account_setup_account_type_title" msgid="6645576356752495504">"Añadir una cuenta de correo electrónico nueva"</string>
     <string name="account_setup_account_type_instructions" msgid="114515540798408760">"¿Qué tipo de cuenta es ésta?"</string>
-    <string name="account_setup_incoming_title" msgid="6862032674547580337">"Configuración del servidor de entrada"</string>
+    <string name="account_setup_incoming_title" msgid="6862032674547580337">"Ajustes del servidor de entrada"</string>
     <string name="account_setup_incoming_username_label" msgid="5700581386104070302">"Nombre de usuario"</string>
     <string name="account_setup_incoming_password_label" msgid="6365327603172559859">"Contraseña"</string>
     <string name="account_setup_incoming_pop_server_label" msgid="4917504440057879152">"Servidor POP3"</string>
     <string name="account_setup_incoming_imap_server_label" msgid="8685076830847734322">"Servidor IMAP"</string>
     <string name="account_setup_incoming_port_label" msgid="8214738923690447796">"Puerto"</string>
     <string name="account_setup_incoming_security_label" msgid="2110260791086007424">"Tipo de seguridad"</string>
-    <string name="account_setup_incoming_security_none_label" msgid="8300169413118264895">"Ninguna"</string>
+    <string name="account_setup_incoming_security_none_label" msgid="8300169413118264895">"Ninguno"</string>
     <string name="account_setup_incoming_security_ssl_trust_certificates_label" msgid="3581382268191377346">"SSL (aceptar todos los certificados)"</string>
     <string name="account_setup_incoming_security_ssl_label" msgid="8886698397743061682">"SSL"</string>
     <string name="account_setup_incoming_security_tls_trust_certificates_label" msgid="1089227022489257055">"TLS (aceptar todos los certificados)"</string>
     <string name="account_setup_incoming_security_tls_label" msgid="8638006172590036487">"TLS"</string>
-    <string name="account_setup_incoming_delete_policy_label" msgid="9213590134693857912">"Suprimir correo electrónico del servidor"</string>
+    <string name="account_setup_incoming_delete_policy_label" msgid="9213590134693857912">"Eliminar correo electrónico del servidor"</string>
     <string name="account_setup_incoming_delete_policy_never_label" msgid="3222897501875871041">"Nunca"</string>
     <string name="account_setup_incoming_delete_policy_delete_label" msgid="222216840911785631">"Cuando suprimo algún mensaje de \"Bandeja de entrada\""</string>
     <string name="account_setup_incoming_imap_path_prefix_label" msgid="401167247072926810">"Prefijo de ruta IMAP"</string>
     <string name="account_setup_incoming_imap_path_prefix_hint" msgid="9190845919067906033">"Opcional"</string>
-    <string name="account_setup_outgoing_title" msgid="7437215562885986394">"Configuración del servidor de salida"</string>
+    <string name="account_setup_outgoing_title" msgid="7437215562885986394">"Ajustes del servidor de salida"</string>
     <string name="account_setup_outgoing_smtp_server_label" msgid="6035137446691195177">"Servidor SMTP"</string>
     <string name="account_setup_outgoing_port_label" msgid="7573207437835827876">"Puerto"</string>
     <string name="account_setup_outgoing_security_label" msgid="911398071120720589">"Tipo de seguridad"</string>
     <string name="account_setup_outgoing_require_login_label" msgid="6371514297854287948">"Acceso obligatorio"</string>
     <string name="account_setup_outgoing_username_label" msgid="3309680794731596981">"Nombre de usuario"</string>
     <string name="account_setup_outgoing_password_label" msgid="227844585493317550">"Contraseña"</string>
-    <string name="account_setup_exchange_title" msgid="2492853474738063453">"Configuración del servidor"</string>
+    <string name="account_setup_exchange_title" msgid="2492853474738063453">"Ajustes del servidor"</string>
     <string name="account_setup_exchange_server_label" msgid="795137797983360826">"Servidor"</string>
     <string name="account_setup_exchange_username_label" msgid="6517176180828983060">"Dominio\\nombre de usuario"</string>
     <string name="account_setup_exchange_ssl_label" msgid="6704105469083211236">"Utilizar conexión segura (SSL)"</string>
@@ -198,9 +198,9 @@
     <string name="account_setup_options_mail_window_1month" msgid="5846359669750047081">"Un mes"</string>
     <string name="account_setup_failed_dlg_auth_message" msgid="42827150104879570">"Nombre de usuario o contraseña incorrecta"</string>
     <string name="account_setup_failed_dlg_auth_message_fmt" msgid="8598560266430207606">"Nombre de usuario o contraseña incorrecta"\n"(<xliff:g id="ERROR">%s</xliff:g>)"</string>
-    <string name="account_setup_failed_dlg_certificate_message" msgid="961843413600482906">"No se puede establecer conexión de forma segura con el servidor."</string>
+    <string name="account_setup_failed_dlg_certificate_message" msgid="961843413600482906">"No se puede establecer una conexión de forma segura con el servidor."</string>
     <string name="account_setup_failed_dlg_certificate_message_fmt" msgid="2609150986774736900">"No se puede establecer una conexión de forma segura con el servidor."\n"(<xliff:g id="ERROR">%s</xliff:g>)"</string>
-    <string name="account_setup_failed_dlg_server_message" msgid="1828270369532779265">"No se puede establecer conexión con el servidor."</string>
+    <string name="account_setup_failed_dlg_server_message" msgid="1828270369532779265">"No se puede establecer una conexión con el servidor."</string>
     <string name="account_setup_failed_dlg_server_message_fmt" msgid="5956976504788732779">"No se puede establecer una conexión con el servidor."\n"(<xliff:g id="ERROR">%s</xliff:g>)"</string>
     <string name="account_setup_failed_tls_required" msgid="307030406688611327">"El protocolo TLS es obligatorio, pero el servidor no lo admite."</string>
     <string name="account_setup_failed_auth_required" msgid="1676242821459638150">"El servidor no admite los métodos de autenticación."</string>
@@ -214,20 +214,20 @@
     <string name="account_security_title" msgid="4441470647344315196">"Seguridad del dispositivo"</string>
     <string name="account_security_policy_explanation_fmt" msgid="5153981166755002718">"Es necesario que permitas que el servidor <xliff:g id="SERVER">%s</xliff:g> controle de forma remota algunas funciones de seguridad del teléfono."</string>
     <string name="account_setup_failed_dlg_edit_details_action" msgid="5355993309841479360">"Editar detalles"</string>
-    <string name="account_settings_title_fmt" msgid="1702058877284382340">"Configuración general"</string>
+    <string name="account_settings_title_fmt" msgid="1702058877284382340">"Ajustes generales"</string>
     <string name="account_settings_default_label" msgid="3575963379680943640">"Cuenta predeterminada"</string>
     <string name="account_settings_default_summary" msgid="1531901438624688482">"Enviar correo electrónico desde esta cuenta de forma predeterminada"</string>
     <string name="account_settings_notify_label" msgid="1630001017303007974">"Notificaciones de correo"</string>
     <string name="account_settings_exchange_summary" msgid="8498451479029626317">"Frecuencia de sincronización, notificaciones, etc."</string>
     <string name="account_settings_notify_summary" msgid="6609224590300639887">"Notificar en la barra de estado cuando llegue un mensaje"</string>
-    <string name="account_settings_mail_check_frequency_label" msgid="2067835530563849675">"Frecuencia de comprobación del correo"</string>
+    <string name="account_settings_mail_check_frequency_label" msgid="2067835530563849675">"Frecuencia comprobación"</string>
     <string name="account_settings_incoming_label" msgid="7858928031806297542">"Configuración entrante"</string>
     <string name="account_settings_outgoing_label" msgid="4464829249980026745">"Configuración saliente"</string>
     <string name="account_settings_description_label" msgid="8894815221204511715">"Nombre de cuenta"</string>
     <string name="account_settings_name_label" msgid="8186406122590008449">"Tu nombre"</string>
     <string name="account_settings_signature_label" msgid="4091969938785803201">"Firma"</string>
     <string name="account_settings_signature_hint" msgid="7262183168962779403">"Añadir texto a los mensajes que envíes"</string>
-    <string name="account_settings_notifications" msgid="1042620094281375043">"Configuración de la notificación"</string>
+    <string name="account_settings_notifications" msgid="1042620094281375043">"Ajustes de notificaciones"</string>
     <string name="account_settings_sync_contacts_enable" msgid="1369272986009573218">"Sincronizar contactos"</string>
     <string name="account_settings_sync_contacts_summary" msgid="8901452720940015928">"Sincronizar también contactos de esta cuenta"</string>
     <string name="account_settings_sync_calendar_enable" msgid="6855333393468628003">"Sincronizar calendario"</string>
@@ -238,8 +238,8 @@
     <string name="account_settings_vibrate_when_silent" msgid="6417076436551648924">"Solo en modo silencio"</string>
     <string name="account_settings_vibrate_when_never" msgid="3759680093309511614">"Nunca"</string>
     <string name="account_settings_vibrate_when_dlg_title" msgid="308167729046312952">"Vibración"</string>
-    <string name="account_settings_ringtone" msgid="7922187231467500404">"Seleccionar tono de llamada"</string>
-    <string name="account_settings_servers" msgid="4925493817981624242">"Configuración del servidor"</string>
+    <string name="account_settings_ringtone" msgid="7922187231467500404">"Seleccionar tono"</string>
+    <string name="account_settings_servers" msgid="4925493817981624242">"Ajustes del servidor"</string>
     <string name="account_delete_dlg_title" msgid="6806087520856396608">"Eliminar cuenta"</string>
     <string name="account_delete_dlg_instructions_fmt" msgid="8236846322040271280">"Se va a eliminar la cuenta \"<xliff:g id="ACCOUNT">%s</xliff:g>\" de \"Correo electrónico\"."</string>
     <string name="upgrade_accounts_title" msgid="5444140226380754014">"Actualizar cuentas"</string>
