@@ -21,7 +21,7 @@
     <string name="permission_access_provider_label" msgid="4274353114641168675">"이메일 제공업체 데이터 액세스"</string>
     <string name="permission_access_provider_desc" msgid="1513898266889541617">"응용프로그램이 받은 메일, 보낸 메일, 사용자 이름 및 비밀번호를 비롯하여 이메일 데이터베이스에 액세스하도록 합니다."</string>
     <string name="app_name" msgid="5815426892327290362">"이메일"</string>
-    <string name="compose_title" msgid="427986915662706899">"편지쓰기"</string>
+    <string name="compose_title" msgid="427986915662706899">"메시지작성"</string>
     <string name="debug_title" msgid="5175710493691536719">"디버그"</string>
     <string name="next_action" msgid="3931301986364184415">"다음"</string>
     <string name="okay_action" msgid="8365197396795675617">"확인"</string>
@@ -43,7 +43,7 @@
     <string name="refresh_action" msgid="5951383001436708175">"새로고침"</string>
     <string name="add_account_action" msgid="8835736309476033727">"계정 추가"</string>
     <string name="deselect_all_action" msgid="253663239459688238">"모두 선택취소"</string>
-    <string name="compose_action" msgid="4045702519637388045">"편지쓰기"</string>
+    <string name="compose_action" msgid="4045702519637388045">"메시지작성"</string>
     <string name="search_action" msgid="6325101454876682308">"검색"</string>
     <string name="open_action" msgid="936766723989190816">"열기"</string>
     <string name="account_settings_action" msgid="4494079183315085171">"계정 설정"</string>
@@ -56,7 +56,7 @@
     <string name="add_attachment_action" msgid="2696013743130573897">"첨부파일 추가"</string>
     <string name="dump_settings_action" msgid="4478192525236169829">"덤프 설정"</string>
     <string name="choose_attachment_dialog_title" msgid="81937507117528954">"첨부파일 선택"</string>
-    <string name="status_loading_more" msgid="1580386959044617884">"메시지 로드 중..."</string>
+    <string name="status_loading_more" msgid="1580386959044617884">"메시지 로드 중... "</string>
     <string name="status_sending_messages" msgid="3971880826111264523">"메시지를 보내는 중..."</string>
     <string name="status_network_error" msgid="6045933332005067021">"연결 오류"</string>
     <string name="notification_new_title" msgid="2200257910380529139">"새 이메일"</string>
@@ -68,7 +68,7 @@
   </plurals>
   <plurals name="notification_new_multi_account_fmt">
     <item quantity="few" msgid="1991747245324120305">"<xliff:g id="NUMBER_ACCOUNTS">%d</xliff:g>개 계정"</item>
-    <item quantity="other" msgid="2723797835410343458">"(<xliff:g id="NUMBER_ACCOUNTS">%d</xliff:g>개 계정)"</item>
+    <item quantity="other" msgid="2723797835410343458">"<xliff:g id="NUMBER_ACCOUNTS">%d</xliff:g>개 계정"</item>
   </plurals>
     <string name="mailbox_name_display_inbox" msgid="3542327124749861736">"받은편지함"</string>
     <string name="mailbox_name_display_outbox" msgid="2826214174661417662">"보낼편지함"</string>
@@ -85,9 +85,9 @@
     <string name="mailbox_list_title" msgid="8299608543467211089">"편지함"</string>
     <string name="message_list_load_more_messages_action" msgid="7428302707908825692">"더 많은 메시지 로드"</string>
     <string name="message_list_send_pending_messages_action" msgid="9100624762133992435">"발신 메시지 보내기"</string>
-    <string name="message_compose_to_hint" msgid="2891895306418177013">"받는사람"</string>
+    <string name="message_compose_to_hint" msgid="2891895306418177013">"다음 언어로 번역:"</string>
     <string name="message_compose_cc_hint" msgid="8481884461031434144">"참조"</string>
-    <string name="message_compose_bcc_hint" msgid="9177337492358841680">"숨은참조"</string>
+    <string name="message_compose_bcc_hint" msgid="9177337492358841680">"숨은 참조"</string>
     <string name="message_compose_subject_hint" msgid="6993487234024160782">"제목"</string>
     <string name="message_compose_body_hint" msgid="7575406246484103697">"편지쓰기"</string>
     <string name="message_compose_fwd_header_fmt" msgid="5181300290654579434">\n\n"-------- 원본 메시지 --------"\n"제목: <xliff:g id="SUBJECT">%s</xliff:g>"\n"보낸사람: <xliff:g id="SENDER">%s</xliff:g>"\n"받는사람: <xliff:g id="TO">%s</xliff:g>"\n"참조: <xliff:g id="CC_0">%s</xliff:g>"\n\n</string>
@@ -99,7 +99,7 @@
     <string name="message_compose_attachment_size" msgid="4401081828287333647">"파일이 너무 커서 첨부할 수 없습니다."</string>
     <string name="message_compose_display_name" msgid="6415258924917140704">"<xliff:g id="NAME">%1$s</xliff:g> 외 <xliff:g id="NUMBER">%2$d</xliff:g>명"</string>
     <string name="message_view_to_label" msgid="6485191743265527381">"받는사람:"</string>
-    <string name="message_view_cc_label" msgid="6322992216371163122">"참조:"</string>
+    <string name="message_view_cc_label" msgid="6322992216371163122">"참조: "</string>
     <string name="message_view_attachment_view_action" msgid="5353550848340829134">"열기"</string>
     <string name="message_view_attachment_download_action" msgid="7552530274014544406">"저장"</string>
     <string name="message_view_status_attachment_saved" msgid="2802843795251453632">"첨부파일(<xliff:g id="FILENAME">%s</xliff:g>)이 SD 카드에 저장되었습니다."</string>
@@ -122,31 +122,31 @@
     <item quantity="other" msgid="6574961322865652255">"메시지를 삭제했습니다."</item>
   </plurals>
     <string name="message_discarded_toast" msgid="3891461729325584026">"메시지를 삭제했습니다."</string>
-    <string name="message_saved_toast" msgid="8443125659172627665">"메시지가 임시보관함에 저장되었습니다."</string>
+    <string name="message_saved_toast" msgid="8443125659172627665">"메일이 임시보관함에 저장되었습니다."</string>
     <string name="message_view_display_attachment_toast" msgid="6096315816776330821">"첨부파일을 표시할 수 없습니다."</string>
     <string name="account_setup_basics_title" msgid="3969856368228940980">"이메일 설정"</string>
     <string name="account_setup_basics_exchange_title" msgid="1147638872869594157">"Exchange 계정 추가"</string>
     <string name="account_setup_basics_exchange_title_alternate" msgid="4980422714586153809">"Exchange ActiveSync 계정 추가"</string>
-    <string name="accounts_welcome" msgid="5901437782383439370">"간단한 몇 단계를 거쳐 대부분의 계정에 대해 이메일을 구성할 수 있습니다."</string>
-    <string name="accounts_welcome_exchange" msgid="4414121583987233733">"간단한 몇 단계를 거쳐 Exchange 계정을 구성할 수 있습니다."</string>
-    <string name="accounts_welcome_exchange_alternate" msgid="1324339567986452000">"간단한 몇 가지 절차만 수행하면 Exchange ActiveSync 계정을 구성할 수 있습니다."</string>
+    <string name="accounts_welcome" msgid="5901437782383439370">"간단한 몇 가지 설정만으로 이메일 계정을 등록할 수 있습니다."</string>
+    <string name="accounts_welcome_exchange" msgid="4414121583987233733">"간단한 몇 가지 설정만으로 Exchange 계정을 등록할 수 있습니다."</string>
+    <string name="accounts_welcome_exchange_alternate" msgid="1324339567986452000">"간단한 몇 가지 설정만으로 Exchange ActiveSync 계정을 등록할 수 있습니다."</string>
     <string name="account_setup_basics_email_hint" msgid="7414269319207261120">"이메일 주소"</string>
     <string name="account_setup_basics_password_hint" msgid="410210049040536870">"비밀번호"</string>
-    <string name="account_setup_basics_default_label" msgid="5924790142029806711">"이 계정에서 이메일을 보냅니다(기본값)."</string>
+    <string name="account_setup_basics_default_label" msgid="5924790142029806711">"이 계정에서 이메일 보냄(기본값)"</string>
     <string name="account_setup_basics_manual_setup_action" msgid="8053852205391155912">"수동 설정"</string>
     <string name="account_setup_username_password_toast" msgid="4441448542557889481">"올바른 이메일 주소와 비밀번호를 입력하세요."</string>
     <string name="account_duplicate_dlg_title" msgid="3176749833792312641">"중복 계정"</string>
     <string name="account_duplicate_dlg_message_fmt" msgid="1920726613701479851">"이 로그인은 이미 \'<xliff:g id="DUPLICATE">%s</xliff:g>\' 계정에서 사용 중입니다."</string>
-    <string name="account_setup_check_settings_retr_info_msg" msgid="4121970450267725664">"계정 정보 검색 중..."</string>
+    <string name="account_setup_check_settings_retr_info_msg" msgid="4121970450267725664">"계정 정보 검색 중... "</string>
     <string name="account_setup_check_settings_check_incoming_msg" msgid="5356212700221438863">"받는 서버 설정 확인 중..."</string>
     <string name="account_setup_check_settings_check_outgoing_msg" msgid="4033015234096725343">"보내는 서버 설정 확인 중..."</string>
     <string name="account_setup_check_settings_canceling_msg" msgid="5077315503721883906">"취소 중..."</string>
     <string name="account_setup_names_title" msgid="8875040521875381849">"이메일 설정"</string>
-    <string name="account_setup_names_instructions" msgid="2880279273965835007">"계정이 설정되었으며 이메일이 작동됩니다."</string>
+    <string name="account_setup_names_instructions" msgid="2880279273965835007">"계정이 성공적으로 등록되어 이메일을 사용할 수 있습니다."</string>
     <string name="account_setup_names_account_name_label" msgid="8033895024273259196">"계정 이름 지정(선택사항)"</string>
     <string name="account_setup_names_user_name_label" msgid="8967410178488604770">"이름(발신 메시지에 표시)"</string>
     <string name="account_setup_account_type_title" msgid="6645576356752495504">"새 이메일 계정 추가"</string>
-    <string name="account_setup_account_type_instructions" msgid="114515540798408760">"계정 유형을 선택하세요."</string>
+    <string name="account_setup_account_type_instructions" msgid="114515540798408760">"계정 유형이 무엇입니까?"</string>
     <string name="account_setup_incoming_title" msgid="6862032674547580337">"수신 서버 설정"</string>
     <string name="account_setup_incoming_username_label" msgid="5700581386104070302">"사용자 이름"</string>
     <string name="account_setup_incoming_password_label" msgid="6365327603172559859">"비밀번호"</string>
@@ -196,7 +196,7 @@
     <string name="account_setup_options_mail_window_1week" msgid="5639718031108023741">"1주"</string>
     <string name="account_setup_options_mail_window_2weeks" msgid="4567049268124213035">"2주"</string>
     <string name="account_setup_options_mail_window_1month" msgid="5846359669750047081">"1달"</string>
-    <string name="account_setup_failed_dlg_auth_message" msgid="42827150104879570">"사용자 이름 및 비밀번호가 잘못되었습니다."</string>
+    <string name="account_setup_failed_dlg_auth_message" msgid="42827150104879570">"사용자 이름 또는 비밀번호가 잘못되었습니다."</string>
     <string name="account_setup_failed_dlg_auth_message_fmt" msgid="8598560266430207606">"사용자 이름 또는 비밀번호가 잘못되었습니다."\n"(<xliff:g id="ERROR">%s</xliff:g>)"</string>
     <string name="account_setup_failed_dlg_certificate_message" msgid="961843413600482906">"서버에 안전하게 연결할 수 없습니다."</string>
     <string name="account_setup_failed_dlg_certificate_message_fmt" msgid="2609150986774736900">"서버에 안전하게 연결할 수 없습니다."\n"(<xliff:g id="ERROR">%s</xliff:g>)"</string>
@@ -216,7 +216,7 @@
     <string name="account_setup_failed_dlg_edit_details_action" msgid="5355993309841479360">"세부정보 수정"</string>
     <string name="account_settings_title_fmt" msgid="1702058877284382340">"일반 설정"</string>
     <string name="account_settings_default_label" msgid="3575963379680943640">"기본 계정"</string>
-    <string name="account_settings_default_summary" msgid="1531901438624688482">"기본적으로 이 계정에서 이메일 전송"</string>
+    <string name="account_settings_default_summary" msgid="1531901438624688482">"이 계정에서 이메일 보냄(기본값)"</string>
     <string name="account_settings_notify_label" msgid="1630001017303007974">"이메일 알림"</string>
     <string name="account_settings_exchange_summary" msgid="8498451479029626317">"빈도, 알림 등을 동기화합니다."</string>
     <string name="account_settings_notify_summary" msgid="6609224590300639887">"이메일이 오면 상태 표시줄에 알림"</string>
@@ -241,7 +241,7 @@
     <string name="account_settings_ringtone" msgid="7922187231467500404">"벨소리 선택"</string>
     <string name="account_settings_servers" msgid="4925493817981624242">"서버 설정"</string>
     <string name="account_delete_dlg_title" msgid="6806087520856396608">"계정 삭제"</string>
-    <string name="account_delete_dlg_instructions_fmt" msgid="8236846322040271280">"계정(<xliff:g id="ACCOUNT">%s</xliff:g>)이 이메일에서 삭제됩니다."</string>
+    <string name="account_delete_dlg_instructions_fmt" msgid="8236846322040271280">"<xliff:g id="ACCOUNT">%s</xliff:g> 계정이 이메일에서 삭제됩니다."</string>
     <string name="upgrade_accounts_title" msgid="5444140226380754014">"계정 업그레이드"</string>
     <string name="upgrade_accounts_error" msgid="7241661832029255715">"계정을 업그레이드할 수 없음"</string>
     <string name="provider_note_yahoo" msgid="8762024183024261236">"일부 Yahoo! 메일 계정의 경우 편지함에 액세스할 수 없습니다. 접속에 문제가 있을 경우 자세한 정보는 yahoo.com을 참조하세요."</string>

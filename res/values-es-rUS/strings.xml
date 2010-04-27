@@ -46,7 +46,7 @@
     <string name="compose_action" msgid="4045702519637388045">"Redactar"</string>
     <string name="search_action" msgid="6325101454876682308">"Buscar"</string>
     <string name="open_action" msgid="936766723989190816">"Abrir"</string>
-    <string name="account_settings_action" msgid="4494079183315085171">"Config. de la cuenta"</string>
+    <string name="account_settings_action" msgid="4494079183315085171">"Configuración de la cuenta"</string>
     <string name="remove_account_action" msgid="3789169090601376209">"Eliminar cuenta"</string>
     <string name="folders_action" msgid="7502431531355227666">"Carpetas"</string>
     <string name="accounts_action" msgid="901105887272231493">"Cuentas"</string>
@@ -128,9 +128,9 @@
     <string name="account_setup_basics_exchange_title" msgid="1147638872869594157">"Agregar una cuenta de Exchange"</string>
     <string name="account_setup_basics_exchange_title_alternate" msgid="4980422714586153809">"Agregar una cuenta de Exchange ActiveSync"</string>
     <string name="accounts_welcome" msgid="5901437782383439370">"Puedes configurar el correo electrónico de la mayoría de las cuentas en sólo algunos pasos."</string>
-    <string name="accounts_welcome_exchange" msgid="4414121583987233733">"Puedes configurar una cuenta de Exchange en sólo algunos pasos."</string>
+    <string name="accounts_welcome_exchange" msgid="4414121583987233733">"Puedes configurar una cuenta de intercambio en sólo algunos pasos."</string>
     <string name="accounts_welcome_exchange_alternate" msgid="1324339567986452000">"Puedes configurar una cuenta de Exchange ActiveSync en sólo algunos pasos."</string>
-    <string name="account_setup_basics_email_hint" msgid="7414269319207261120">"Dirección de correo electrónico"</string>
+    <string name="account_setup_basics_email_hint" msgid="7414269319207261120">"Dirección de correo elec."</string>
     <string name="account_setup_basics_password_hint" msgid="410210049040536870">"Contraseña"</string>
     <string name="account_setup_basics_default_label" msgid="5924790142029806711">"Enviar mensaje de correo electrónico desde esta cuenta de forma predeterminada."</string>
     <string name="account_setup_basics_manual_setup_action" msgid="8053852205391155912">"Configuración manual"</string>
@@ -162,7 +162,7 @@
     <string name="account_setup_incoming_delete_policy_label" msgid="9213590134693857912">"Suprimir correo electrónico del servidor"</string>
     <string name="account_setup_incoming_delete_policy_never_label" msgid="3222897501875871041">"Nunca"</string>
     <string name="account_setup_incoming_delete_policy_delete_label" msgid="222216840911785631">"Cuándo suprimo desde la bandeja de entrada"</string>
-    <string name="account_setup_incoming_imap_path_prefix_label" msgid="401167247072926810">"Prefijo de ruta IMAP"</string>
+    <string name="account_setup_incoming_imap_path_prefix_label" msgid="401167247072926810">"prefijo de ruta IMAP"</string>
     <string name="account_setup_incoming_imap_path_prefix_hint" msgid="9190845919067906033">"Opcional"</string>
     <string name="account_setup_outgoing_title" msgid="7437215562885986394">"Configuración saliente de servidor"</string>
     <string name="account_setup_outgoing_smtp_server_label" msgid="6035137446691195177">"Servidor SMTP"</string>
@@ -177,7 +177,7 @@
     <string name="account_setup_exchange_ssl_label" msgid="6704105469083211236">"Utilizar conexión segura (SSL)"</string>
     <string name="account_setup_exchange_trust_certificates_label" msgid="6232880757633882678">"Aceptar todos los certificados SSL"</string>
     <string name="account_setup_options_title" msgid="8995162193118880993">"Opciones de cuenta"</string>
-    <string name="account_setup_options_mail_check_frequency_label" msgid="4598023962234986194">"Frec. de verific. de correo electr."</string>
+    <string name="account_setup_options_mail_check_frequency_label" msgid="4598023962234986194">"Frecuencia de verificación de correo electrónico"</string>
     <string name="account_setup_options_mail_check_frequency_never" msgid="287951859480505416">"Nunca"</string>
     <string name="account_setup_options_mail_check_frequency_push" msgid="5934525907736008673">"Automático (Empujar)"</string>
     <string name="account_setup_options_mail_check_frequency_5min" msgid="6388939895878539307">"Cada 5 minutos"</string>
@@ -216,8 +216,8 @@
     <string name="account_setup_failed_dlg_edit_details_action" msgid="5355993309841479360">"Editar detalles"</string>
     <string name="account_settings_title_fmt" msgid="1702058877284382340">"Configuración general"</string>
     <string name="account_settings_default_label" msgid="3575963379680943640">"Cuenta predeterminada"</string>
-    <string name="account_settings_default_summary" msgid="1531901438624688482">"Enviar  correo electr. desde esta cuenta de forma predet."</string>
-    <string name="account_settings_notify_label" msgid="1630001017303007974">"Notific. de correo electr."</string>
+    <string name="account_settings_default_summary" msgid="1531901438624688482">"Enviar mensaje de correo electrónico desde esta cuenta de forma predeterminada"</string>
+    <string name="account_settings_notify_label" msgid="1630001017303007974">"Notificaciones de correo electrónico"</string>
     <string name="account_settings_exchange_summary" msgid="8498451479029626317">"Sincronizar frecuencia, notificaciones, etc."</string>
     <string name="account_settings_notify_summary" msgid="6609224590300639887">"Notificar en la barra de estado cuando llegue un mensaje de correo electrónico"</string>
     <string name="account_settings_mail_check_frequency_label" msgid="2067835530563849675">"Frecuencia de verificación de correo electrónico"</string>
@@ -238,7 +238,7 @@
     <string name="account_settings_vibrate_when_silent" msgid="6417076436551648924">"Sólo cuando esté en silencio"</string>
     <string name="account_settings_vibrate_when_never" msgid="3759680093309511614">"Nunca"</string>
     <string name="account_settings_vibrate_when_dlg_title" msgid="308167729046312952">"Vibrar"</string>
-    <string name="account_settings_ringtone" msgid="7922187231467500404">"Selecc. tono de llam."</string>
+    <string name="account_settings_ringtone" msgid="7922187231467500404">"Seleccionar el tono de timbre"</string>
     <string name="account_settings_servers" msgid="4925493817981624242">"Configuración del servidor"</string>
     <string name="account_delete_dlg_title" msgid="6806087520856396608">"Eliminar cuenta"</string>
     <string name="account_delete_dlg_instructions_fmt" msgid="8236846322040271280">"La cuenta \"<xliff:g id="ACCOUNT">%s</xliff:g>\" se eliminará de correo electrónico."</string>

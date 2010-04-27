@@ -20,7 +20,7 @@
     <string name="read_attachment_desc" msgid="7594746717616308643">"Consente all\'applicazione di leggere i tuoi allegati email."</string>
     <string name="permission_access_provider_label" msgid="4274353114641168675">"Accesso ai dati del provider di posta"</string>
     <string name="permission_access_provider_desc" msgid="1513898266889541617">"Consente a questa applicazione di accedere al database della tua posta, inclusi i messaggi ricevuti e inviati, i nomi utente e le password."</string>
-    <string name="app_name" msgid="5815426892327290362">"Email"</string>
+    <string name="app_name" msgid="5815426892327290362">"Invia email"</string>
     <string name="compose_title" msgid="427986915662706899">"Scrivi"</string>
     <string name="debug_title" msgid="5175710493691536719">"Debug"</string>
     <string name="next_action" msgid="3931301986364184415">"Avanti"</string>
@@ -44,7 +44,7 @@
     <string name="add_account_action" msgid="8835736309476033727">"Aggiungi account"</string>
     <string name="deselect_all_action" msgid="253663239459688238">"Deseleziona tutto"</string>
     <string name="compose_action" msgid="4045702519637388045">"Scrivi"</string>
-    <string name="search_action" msgid="6325101454876682308">"Cerca"</string>
+    <string name="search_action" msgid="6325101454876682308">"Ricerca"</string>
     <string name="open_action" msgid="936766723989190816">"Apri"</string>
     <string name="account_settings_action" msgid="4494079183315085171">"Impostazioni account"</string>
     <string name="remove_account_action" msgid="3789169090601376209">"Rimuovi account"</string>
@@ -85,7 +85,7 @@
     <string name="mailbox_list_title" msgid="8299608543467211089">"Casella di posta"</string>
     <string name="message_list_load_more_messages_action" msgid="7428302707908825692">"Carica ulteriori messaggi"</string>
     <string name="message_list_send_pending_messages_action" msgid="9100624762133992435">"Invia messaggi in uscita"</string>
-    <string name="message_compose_to_hint" msgid="2891895306418177013">"A"</string>
+    <string name="message_compose_to_hint" msgid="2891895306418177013">"In"</string>
     <string name="message_compose_cc_hint" msgid="8481884461031434144">"Cc"</string>
     <string name="message_compose_bcc_hint" msgid="9177337492358841680">"Ccn"</string>
     <string name="message_compose_subject_hint" msgid="6993487234024160782">"Oggetto"</string>
@@ -98,8 +98,8 @@
     <string name="message_compose_attachments_skipped_toast" msgid="5611815773808423460">"Impossibile inviare alcuni allegati poiché non sono stati scaricati."</string>
     <string name="message_compose_attachment_size" msgid="4401081828287333647">"File troppo grande. Impossibile allegarlo."</string>
     <string name="message_compose_display_name" msgid="6415258924917140704">"<xliff:g id="NAME">%1$s</xliff:g> e <xliff:g id="NUMBER">%2$d</xliff:g> altri"</string>
-    <string name="message_view_to_label" msgid="6485191743265527381">"A:"</string>
-    <string name="message_view_cc_label" msgid="6322992216371163122">"Cc:"</string>
+    <string name="message_view_to_label" msgid="6485191743265527381">"In:"</string>
+    <string name="message_view_cc_label" msgid="6322992216371163122">"Cc: "</string>
     <string name="message_view_attachment_view_action" msgid="5353550848340829134">"Apri"</string>
     <string name="message_view_attachment_download_action" msgid="7552530274014544406">"Salva"</string>
     <string name="message_view_status_attachment_saved" msgid="2802843795251453632">"Allegato salvato su scheda SD come <xliff:g id="FILENAME">%s</xliff:g>."</string>
@@ -198,7 +198,7 @@
     <string name="account_setup_options_mail_window_1month" msgid="5846359669750047081">"Un mese"</string>
     <string name="account_setup_failed_dlg_auth_message" msgid="42827150104879570">"Nome utente o password errata."</string>
     <string name="account_setup_failed_dlg_auth_message_fmt" msgid="8598560266430207606">"Nome utente o password errata."\n"(<xliff:g id="ERROR">%s</xliff:g>)"</string>
-    <string name="account_setup_failed_dlg_certificate_message" msgid="961843413600482906">"Impossibile connettersi in modo sicuro al server."</string>
+    <string name="account_setup_failed_dlg_certificate_message" msgid="961843413600482906">"Impossibile connettersi correttamente al server."</string>
     <string name="account_setup_failed_dlg_certificate_message_fmt" msgid="2609150986774736900">"Impossibile connettersi correttamente al server."\n"(<xliff:g id="ERROR">%s</xliff:g>)"</string>
     <string name="account_setup_failed_dlg_server_message" msgid="1828270369532779265">"Impossibile connettersi al server."</string>
     <string name="account_setup_failed_dlg_server_message_fmt" msgid="5956976504788732779">"Impossibile connettersi al server."\n"(<xliff:g id="ERROR">%s</xliff:g>)"</string>
@@ -227,7 +227,7 @@
     <string name="account_settings_name_label" msgid="8186406122590008449">"Nome"</string>
     <string name="account_settings_signature_label" msgid="4091969938785803201">"Firma"</string>
     <string name="account_settings_signature_hint" msgid="7262183168962779403">"Aggiungi testo ai messaggi inviati"</string>
-    <string name="account_settings_notifications" msgid="1042620094281375043">"Impostazioni notifica"</string>
+    <string name="account_settings_notifications" msgid="1042620094281375043">"Impostazioni notifiche"</string>
     <string name="account_settings_sync_contacts_enable" msgid="1369272986009573218">"Sincronizza contatti"</string>
     <string name="account_settings_sync_contacts_summary" msgid="8901452720940015928">"Sincronizza anche contatti da questo account"</string>
     <string name="account_settings_sync_calendar_enable" msgid="6855333393468628003">"Sincronizza calendario"</string>
