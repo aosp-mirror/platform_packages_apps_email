@@ -1177,6 +1177,11 @@ public class SyncManager extends Service implements Runnable {
         return sClientConnectionManager;
     }
 
+    static private synchronized void shutdownConnectionManager() {
+        sClientConnectionManager.shutdown();
+        sClientConnectionManager = null;
+    }
+
     public static void stopAccountSyncs(long acctId) {
         SyncManager syncManager = INSTANCE;
         if (syncManager != null) {
@@ -1448,6 +1453,9 @@ public class SyncManager extends Service implements Runnable {
                                // thread to do the work
                                log("Alarm failed; releasing mailbox");
                                syncManager.releaseMailbox(id);
+                               // Shutdown the connection manager; this should close all of our
+                               // sockets and generate IOExceptions all around.
+                               syncManager.shutdownConnectionManager();
                            }
                        }
                     }}).start();
