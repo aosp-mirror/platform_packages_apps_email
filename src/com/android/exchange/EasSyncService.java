@@ -128,7 +128,7 @@ public class EasSyncService extends AbstractSyncService {
     // Connection timeout is the time given to connect to the server before reporting an IOException
     static private final int CONNECTION_TIMEOUT = 20*SECONDS;
     // The extra time allowed beyond the COMMAND_TIMEOUT before which our watchdog alarm triggers
-    static private final int WATCHDOG_TIMEOUT_ALLOWANCE = 10*SECONDS;
+    static private final int WATCHDOG_TIMEOUT_ALLOWANCE = 30*SECONDS;
 
     static private final String AUTO_DISCOVER_SCHEMA_PREFIX =
         "http://schemas.microsoft.com/exchange/autodiscover/mobilesync/";
