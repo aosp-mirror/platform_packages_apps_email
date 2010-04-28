@@ -38,8 +38,8 @@ import android.widget.TextView;
  * Email Address adapter that performs asynchronous GAL lookups.
  */
 public class GalEmailAddressAdapter extends EmailAddressAdapter {
-    // STOPSHIP - DO NOT RELEASE AS 'TRUE'
-    private static final boolean DEBUG_GAL_LOG = true;
+    // DO NOT CHECK IN SET TO TRUE
+    private static final boolean DEBUG_GAL_LOG = false;
 
     // Don't run GAL query until there are 3 characters typed
     private static final int MINIMUM_GAL_CONSTRAINT_LENGTH = 3;

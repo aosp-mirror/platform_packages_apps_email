@@ -101,8 +101,8 @@ import java.util.ArrayList;
 import java.util.HashMap;
 
 public class EasSyncService extends AbstractSyncService {
-    // STOPSHIP - DO NOT RELEASE AS 'TRUE'
-    public static final boolean DEBUG_GAL_SERVICE = true;
+    // DO NOT CHECK IN SET TO TRUE
+    public static final boolean DEBUG_GAL_SERVICE = false;
 
     private static final String EMAIL_WINDOW_SIZE = "5";
     public static final String PIM_WINDOW_SIZE = "5";
@@ -1939,12 +1939,6 @@ public class EasSyncService extends AbstractSyncService {
             Serializer s = new Serializer();
 
             String className = target.getCollectionName();
-
-            // STOPSHIP Remove the following if statement; temporary logging for Calendar sync
-            if (className.equals("Calendar") && Eas.PARSER_LOG) {
-                s = new Serializer(true, true);
-            }
-
             String syncKey = target.getSyncKey();
             userLog("sync, sending ", className, " syncKey: ", syncKey);
             s.start(Tags.SYNC_SYNC)
