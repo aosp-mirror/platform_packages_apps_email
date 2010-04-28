@@ -668,7 +668,9 @@ public class SyncManager extends Service implements Runnable {
         if (observer != null) {
             return (observer.mSyncEvents == 1);
         }
-        return false;
+        // If there's no observer, there's no Calendar in CalendarProvider2, so we return true
+        // to allow Calendar creation
+        return true;
     }
 
     private class CalendarObserver extends ContentObserver {
