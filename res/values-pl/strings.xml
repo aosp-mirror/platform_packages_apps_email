@@ -127,7 +127,7 @@
     <string name="account_setup_basics_title" msgid="3969856368228940980">"Skonfiguruj konto e-mail"</string>
     <string name="account_setup_basics_exchange_title" msgid="1147638872869594157">"Dodaj konto Exchange"</string>
     <string name="account_setup_basics_exchange_title_alternate" msgid="4980422714586153809">"Dodaj konto Exchange ActiveSync"</string>
-    <string name="accounts_welcome" msgid="5901437782383439370">"Możesz skonfigurować pocztę elektroniczną w ramach większości kont, wykonując zaledwie kilka czynności."</string>
+    <string name="accounts_welcome" msgid="5901437782383439370">"Możesz tu skonfigurować większość kont pocztowych, wykonując zaledwie kilka czynności."</string>
     <string name="accounts_welcome_exchange" msgid="4414121583987233733">"Możesz skonfigurować konto Exchange, wykonując zaledwie kilka czynności."</string>
     <string name="accounts_welcome_exchange_alternate" msgid="1324339567986452000">"Możesz skonfigurować konto Exchange ActiveSync, wykonując zaledwie kilka czynności."</string>
     <string name="account_setup_basics_email_hint" msgid="7414269319207261120">"Adres e-mail"</string>
@@ -144,7 +144,7 @@
     <string name="account_setup_names_title" msgid="8875040521875381849">"Konfiguracja konta e-mail"</string>
     <string name="account_setup_names_instructions" msgid="2880279273965835007">"Konto zostało skonfigurowane, a wiadomości e-mail są w drodze!"</string>
     <string name="account_setup_names_account_name_label" msgid="8033895024273259196">"Nazwa konta (opcjonalnie)"</string>
-    <string name="account_setup_names_user_name_label" msgid="8967410178488604770">"Twoje nazwisko (wyświetlane w wiadomościach wychodzących)"</string>
+    <string name="account_setup_names_user_name_label" msgid="8967410178488604770">"Twoja nazwa (wyświetlana w wiadomościach wychodzących)"</string>
     <string name="account_setup_account_type_title" msgid="6645576356752495504">"Dodaj nowe konto e-mail"</string>
     <string name="account_setup_account_type_instructions" msgid="114515540798408760">"Jakiego typu jest to konto?"</string>
     <string name="account_setup_incoming_title" msgid="6862032674547580337">"Ustawienia serwera poczty przychodzącej"</string>
@@ -159,7 +159,7 @@
     <string name="account_setup_incoming_security_ssl_label" msgid="8886698397743061682">"SSL"</string>
     <string name="account_setup_incoming_security_tls_trust_certificates_label" msgid="1089227022489257055">"TLS (akceptuj wszystkie certyfikaty)"</string>
     <string name="account_setup_incoming_security_tls_label" msgid="8638006172590036487">"TLS"</string>
-    <string name="account_setup_incoming_delete_policy_label" msgid="9213590134693857912">"Usuń wiadomości e-mail z serwera"</string>
+    <string name="account_setup_incoming_delete_policy_label" msgid="9213590134693857912">"Usuwaj wiadomości e-mail z serwera"</string>
     <string name="account_setup_incoming_delete_policy_never_label" msgid="3222897501875871041">"Nigdy"</string>
     <string name="account_setup_incoming_delete_policy_delete_label" msgid="222216840911785631">"Po usunięciu z folderu Odebrane"</string>
     <string name="account_setup_incoming_imap_path_prefix_label" msgid="401167247072926810">"Prefiks ścieżki IMAP"</string>

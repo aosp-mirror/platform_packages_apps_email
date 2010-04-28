@@ -30,9 +30,9 @@
     <string name="reply_action" msgid="4262472229221507619">"Svara"</string>
     <string name="reply_all_action" msgid="6192179825726332152">"Svara alla"</string>
     <string name="delete_action" msgid="8421026208288857155">"Ta bort"</string>
-    <string name="forward_action" msgid="669174181042344116">"Vidarebefordra"</string>
-    <string name="done_action" msgid="7497990549515580249">"Färdig"</string>
-    <string name="discard_action" msgid="6532206074859505968">"Ignorera"</string>
+    <string name="forward_action" msgid="669174181042344116">"Framåt"</string>
+    <string name="done_action" msgid="7497990549515580249">"Klar"</string>
+    <string name="discard_action" msgid="6532206074859505968">"Släng"</string>
     <string name="save_draft_action" msgid="812855865552028622">"Spara som utkast"</string>
     <string name="read_unread_action" msgid="4721446664849165077">"Lästa/olästa"</string>
     <string name="read_action" msgid="4701484794504781686">"Markera som läst"</string>
@@ -52,7 +52,7 @@
     <string name="accounts_action" msgid="901105887272231493">"Konton"</string>
     <string name="mark_as_read_action" msgid="5031651846998842419">"Markera som läst"</string>
     <string name="mark_as_unread_action" msgid="3766298115778767554">"Markera som oläst"</string>
-    <string name="add_cc_bcc_action" msgid="5569074812077509737">"Kopia/hemlig kopia"</string>
+    <string name="add_cc_bcc_action" msgid="5569074812077509737">"Lägg till kopia/hemlig kopia"</string>
     <string name="add_attachment_action" msgid="2696013743130573897">"Lägg till bilaga"</string>
     <string name="dump_settings_action" msgid="4478192525236169829">"Inställningar för dumpar"</string>
     <string name="choose_attachment_dialog_title" msgid="81937507117528954">"Välj bilaga"</string>
@@ -63,8 +63,8 @@
     <string name="error_loading_message_body" msgid="2265140604109272914">"Ett oväntat fel uppstod när meddelandetexten skulle läsas in. Meddelandet kanske är för stort för att visas."</string>
   <plurals name="notification_new_one_account_fmt">
     <item quantity="one" msgid="3422945912787702191">"<xliff:g id="UNREAD_MESSAGE_COUNT">%d</xliff:g> oläst (<xliff:g id="ACCOUNT">%s</xliff:g>"</item>
-    <item quantity="few" msgid="6543078667692990869">"<xliff:g id="UNREAD_MESSAGE_COUNT">%d</xliff:g> olästa (<xliff:g id="ACCOUNT">%s</xliff:g>)"</item>
-    <item quantity="other" msgid="6937673814351448076">"<xliff:g id="UNREAD_MESSAGE_COUNT">%d</xliff:g> olästa (<xliff:g id="ACCOUNT">%s</xliff:g>)"</item>
+    <item quantity="few" msgid="6543078667692990869">"<xliff:g id="UNREAD_MESSAGE_COUNT">%d</xliff:g> oläst (<xliff:g id="ACCOUNT">%s</xliff:g>"</item>
+    <item quantity="other" msgid="6937673814351448076">"<xliff:g id="UNREAD_MESSAGE_COUNT">%d</xliff:g> oläst (<xliff:g id="ACCOUNT">%s</xliff:g>"</item>
   </plurals>
   <plurals name="notification_new_multi_account_fmt">
     <item quantity="few" msgid="1991747245324120305">"i <xliff:g id="NUMBER_ACCOUNTS">%d</xliff:g> konton"</item>
@@ -122,7 +122,7 @@
     <item quantity="other" msgid="6574961322865652255">"Meddelandena har tagits bort."</item>
   </plurals>
     <string name="message_discarded_toast" msgid="3891461729325584026">"Meddelandet slängs."</string>
-    <string name="message_saved_toast" msgid="8443125659172627665">"Meddelandet sparas som utkast."</string>
+    <string name="message_saved_toast" msgid="8443125659172627665">"Meddelande sparat som utkast."</string>
     <string name="message_view_display_attachment_toast" msgid="6096315816776330821">"Bilagan kan inte visas."</string>
     <string name="account_setup_basics_title" msgid="3969856368228940980">"Skapa e-postkonto"</string>
     <string name="account_setup_basics_exchange_title" msgid="1147638872869594157">"Lägg till ett Exchange-konto"</string>
@@ -154,14 +154,14 @@
     <string name="account_setup_incoming_imap_server_label" msgid="8685076830847734322">"IMAP-server"</string>
     <string name="account_setup_incoming_port_label" msgid="8214738923690447796">"Port"</string>
     <string name="account_setup_incoming_security_label" msgid="2110260791086007424">"Säkerhetstyp"</string>
-    <string name="account_setup_incoming_security_none_label" msgid="8300169413118264895">"Inga"</string>
+    <string name="account_setup_incoming_security_none_label" msgid="8300169413118264895">"Ingen"</string>
     <string name="account_setup_incoming_security_ssl_trust_certificates_label" msgid="3581382268191377346">"SSL (Acceptera alla certifikat)"</string>
     <string name="account_setup_incoming_security_ssl_label" msgid="8886698397743061682">"SSL"</string>
     <string name="account_setup_incoming_security_tls_trust_certificates_label" msgid="1089227022489257055">"TLS (Acceptera alla certifikat)"</string>
     <string name="account_setup_incoming_security_tls_label" msgid="8638006172590036487">"TLS"</string>
     <string name="account_setup_incoming_delete_policy_label" msgid="9213590134693857912">"Ta bort e-post från servern"</string>
     <string name="account_setup_incoming_delete_policy_never_label" msgid="3222897501875871041">"Aldrig"</string>
-    <string name="account_setup_incoming_delete_policy_delete_label" msgid="222216840911785631">"Vid borttagning från Inkorgen"</string>
+    <string name="account_setup_incoming_delete_policy_delete_label" msgid="222216840911785631">"När jag tar bort något från min Inkorg"</string>
     <string name="account_setup_incoming_imap_path_prefix_label" msgid="401167247072926810">"IMAP-sökvägsprefix"</string>
     <string name="account_setup_incoming_imap_path_prefix_hint" msgid="9190845919067906033">"Valfritt"</string>
     <string name="account_setup_outgoing_title" msgid="7437215562885986394">"Utgående serverinställningar"</string>
@@ -171,7 +171,7 @@
     <string name="account_setup_outgoing_require_login_label" msgid="6371514297854287948">"Kräv inloggning"</string>
     <string name="account_setup_outgoing_username_label" msgid="3309680794731596981">"Användarnamn"</string>
     <string name="account_setup_outgoing_password_label" msgid="227844585493317550">"Lösenord"</string>
-    <string name="account_setup_exchange_title" msgid="2492853474738063453">"Serverinställningar\n"</string>
+    <string name="account_setup_exchange_title" msgid="2492853474738063453">"Serverinställningar"</string>
     <string name="account_setup_exchange_server_label" msgid="795137797983360826">"Server"</string>
     <string name="account_setup_exchange_username_label" msgid="6517176180828983060">"Domän\\Användarnamn"</string>
     <string name="account_setup_exchange_ssl_label" msgid="6704105469083211236">"Använd säker anslutning (SSL)"</string>
@@ -217,7 +217,7 @@
     <string name="account_settings_title_fmt" msgid="1702058877284382340">"Allmänna inställningar"</string>
     <string name="account_settings_default_label" msgid="3575963379680943640">"Standardkonto"</string>
     <string name="account_settings_default_summary" msgid="1531901438624688482">"Skicka e-post från det här kontot som standard"</string>
-    <string name="account_settings_notify_label" msgid="1630001017303007974">"E-postavisering"</string>
+    <string name="account_settings_notify_label" msgid="1630001017303007974">"E-postaviseringar"</string>
     <string name="account_settings_exchange_summary" msgid="8498451479029626317">"Synkroniseringsfrekvens, aviseringar osv."</string>
     <string name="account_settings_notify_summary" msgid="6609224590300639887">"Meddelande i statusfältet vid e-postmeddelande"</string>
     <string name="account_settings_mail_check_frequency_label" msgid="2067835530563849675">"Intervall för e-postkontroll"</string>
@@ -227,7 +227,7 @@
     <string name="account_settings_name_label" msgid="8186406122590008449">"Ditt namn"</string>
     <string name="account_settings_signature_label" msgid="4091969938785803201">"Signatur"</string>
     <string name="account_settings_signature_hint" msgid="7262183168962779403">"Lägg till text i meddelanden som du skickar"</string>
-    <string name="account_settings_notifications" msgid="1042620094281375043">"Aviseringsinställningar"</string>
+    <string name="account_settings_notifications" msgid="1042620094281375043">"Meddelandeinställningar"</string>
     <string name="account_settings_sync_contacts_enable" msgid="1369272986009573218">"Synkronisera kontakter"</string>
     <string name="account_settings_sync_contacts_summary" msgid="8901452720940015928">"Synkronisera även kontakter från det här kontot"</string>
     <string name="account_settings_sync_calendar_enable" msgid="6855333393468628003">"Synkronisera kalender"</string>
@@ -246,7 +246,7 @@
     <string name="upgrade_accounts_error" msgid="7241661832029255715">"Det går inte att uppgradera kontot"</string>
     <string name="provider_note_yahoo" msgid="8762024183024261236">"Vi stöder inte åtkomst till postlådan för visa typer av Yahoo!-konton. Om du har problem att ansluta besöker du yahoo.com. Där hittar du mer information."</string>
     <string name="provider_note_yahoo_uk" msgid="2055976404478603298">"Innan du skapar e-postkontot besöker du webbplatsen Yahoo! och aktiverar POP3-åtkomst för kontot."</string>
-    <string name="provider_note_live" msgid="3584841823811425060">"POP-åtkomst, som gör så att detta program kan ansluta, ingår bara i vissa pluskonton. Om det inte går att logga in med rätt e-postadress och lösenord kanske du inte har betalat för ett pluskonto. Öppna webbläsaren igen om du vill få åtkomst till dessa e-postkonton."</string>
+    <string name="provider_note_live" msgid="3584841823811425060">"POP-åtkomst, som gör så att detta program kan ansluta, ingår bara i vissa pluskonton. Om det inte går att logga in med rätt e-postadress och lösenord kanske du inte har betalat för ett pluskonto. Öppna webbläsaren igen om du vill få åtkomst tills dessa e-postkonton."</string>
     <string name="provider_note_t_online" msgid="1973701903400232774">"Innan du skapar e-postkontot besöker du T-Onlines webbplats och skapar ett lösenord för POP3-åtkomst till e-post."</string>
     <string name="exchange_name" msgid="1190783774800310346">"Företag"</string>
     <string name="exchange_name_alternate" msgid="5772529644749041052">"Microsoft Exchange ActiveSync"</string>
