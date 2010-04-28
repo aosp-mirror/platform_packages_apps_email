@@ -1091,7 +1091,7 @@ public class MessageList extends ListActivity implements OnItemClickListener, On
         @Override
         protected Long doInBackground(Void... params) {
             // Quick check that account is not in security hold
-            if (isSecurityHold(mAccountId)) {
+            if (mAccountId != -1 && isSecurityHold(mAccountId)) {
                 showSecurityActivity = true;
                 return Long.valueOf(-1);
             }
@@ -1600,7 +1600,7 @@ public class MessageList extends ListActivity implements OnItemClickListener, On
         // How long we want to wait for refreshes (a good starting guess)
         // I suspect this could be lowered down to even 1000 or so, but this seems ok for now
         private static final long REFRESH_INTERVAL_MS = 2500;
-        
+
         private java.text.DateFormat mDateFormat;
         private java.text.DateFormat mTimeFormat;
 
