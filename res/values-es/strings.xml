@@ -55,7 +55,7 @@
     <string name="add_cc_bcc_action" msgid="5569074812077509737">"Añadir Cc/CCO"</string>
     <string name="add_attachment_action" msgid="2696013743130573897">"Añadir adjunto"</string>
     <string name="dump_settings_action" msgid="4478192525236169829">"Ajustes de volcado"</string>
-    <string name="choose_attachment_dialog_title" msgid="81937507117528954">"Elegir archivo adjunto"</string>
+    <string name="choose_attachment_dialog_title" msgid="81937507117528954">"Elegir archivo adjunto\n"</string>
     <string name="status_loading_more" msgid="1580386959044617884">"Cargando mensajes..."</string>
     <string name="status_sending_messages" msgid="3971880826111264523">"Enviando mensajes..."</string>
     <string name="status_network_error" msgid="6045933332005067021">"Error de conexión"</string>
