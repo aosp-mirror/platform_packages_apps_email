@@ -215,8 +215,6 @@ public class CalendarUtilitiesTests extends AndroidTestCase {
         Entity entity = setupTestEventEntity(organizer, attendee, title);
         ContentValues entityValues = entity.getEntityValues();
         entityValues.put(Events.ORIGINAL_EVENT, 69);
-        // April 12, 2010 is a Monday
-        entityValues.put(Events.RRULE, "FREQ=WEEKLY;BYDAY=MO");
         // The exception will be on April 26th
         entityValues.put(Events.ORIGINAL_INSTANCE_TIME,
                 Utility.parseEmailDateTimeToMillis("2010-04-26T18:30:00Z"));
@@ -392,6 +390,83 @@ public class CalendarUtilitiesTests extends AndroidTestCase {
         assertNull(vevent.get("X-MICROSOFT-CDO-ALLDAYEVENT"));
     }
 
+    public void testCreateMessageForEntity_Recurring() throws IOException {
+        // Set up the "event"
+        String title = "Discuss Unit Tests";
+        Entity entity = setupTestEventEntity(ORGANIZER, ATTENDEE, title);
+        // Set up a RRULE for this event
+        entity.getEntityValues().put(Events.RRULE, "FREQ=DAILY");
+
+        // Create a dummy account for the attendee
+        Account account = new Account();
+        account.mEmailAddress = ORGANIZER;
+
+        // The uid is required, but can be anything
+        String uid = "31415926535";
+
+        // Create the outgoing message
+        Message msg = CalendarUtilities.createMessageForEntity(mContext, entity,
+                Message.FLAG_OUTGOING_MEETING_INVITE, uid, account);
+
+        // First, we should have a message
+        assertNotNull(msg);
+
+        // Now check some of the fields of the message
+        assertEquals(Address.pack(new Address[] {new Address(ATTENDEE)}), msg.mTo);
+        assertEquals(title, msg.mSubject);
+
+        // And make sure we have an attachment
+        assertNotNull(msg.mAttachments);
+        assertEquals(1, msg.mAttachments.size());
+        Attachment att = msg.mAttachments.get(0);
+        // And that the attachment has the correct elements
+        assertEquals("invite.ics", att.mFileName);
+        assertEquals(Attachment.FLAG_ICS_ALTERNATIVE_PART,
+                att.mFlags & Attachment.FLAG_ICS_ALTERNATIVE_PART);
+        assertEquals("text/calendar; method=REQUEST", att.mMimeType);
+        assertNotNull(att.mContentBytes);
+        assertEquals(att.mSize, att.mContentBytes.length);
+
+        // We'll check the contents of the ics file here
+        BlockHash vcalendar = parseIcsContent(att.mContentBytes);
+        assertNotNull(vcalendar);
+
+        // We should have a VCALENDAR with a REQUEST method
+        assertEquals("VCALENDAR", vcalendar.name);
+        assertEquals("REQUEST", vcalendar.get("METHOD"));
+
+        // We should have two blocks under VCALENDAR (VTIMEZONE and VEVENT)
+        assertEquals(2, vcalendar.blocks.size());
+
+        // This is the time zone that should be used
+        TimeZone timeZone = TimeZone.getDefault();
+
+        BlockHash vtimezone = vcalendar.blocks.get(0);
+        // It should be a VTIMEZONE for timeZone
+        assertEquals("VTIMEZONE", vtimezone.name);
+        assertEquals(timeZone.getID(), vtimezone.get("TZID"));
+
+        BlockHash vevent = vcalendar.blocks.get(1);
+        // It's a VEVENT with the following fields
+        assertEquals("VEVENT", vevent.name);
+        assertEquals("Meeting Location", vevent.get("LOCATION"));
+        assertEquals("0", vevent.get("SEQUENCE"));
+        assertEquals("Discuss Unit Tests", vevent.get("SUMMARY"));
+        assertEquals(uid, vevent.get("UID"));
+        assertEquals("MAILTO:" + ATTENDEE,
+                vevent.get("ATTENDEE;ROLE=REQ-PARTICIPANT;PARTSTAT=NEEDS-ACTION;RSVP=TRUE"));
+
+        // We should have DTSTART/DTEND with time zone
+        assertNotNull(vevent.get("DTSTART;TZID=" + timeZone.getID()));
+        assertNotNull(vevent.get("DTEND;TZID=" + timeZone.getID()));
+        assertNull(vevent.get("DTSTART"));
+        assertNull(vevent.get("DTEND"));
+        assertNull(vevent.get("DTSTART;VALUE=DATE"));
+        assertNull(vevent.get("DTEND;VALUE=DATE"));
+        // This shouldn't exist for this event
+        assertNull(vevent.get("X-MICROSOFT-CDO-ALLDAYEVENT"));
+    }
+
     public void testCreateMessageForEntity_Exception_Cancel() throws IOException {
         // Set up the "exception"...
         String title = "Discuss Unit Tests";
@@ -402,8 +477,6 @@ public class CalendarUtilitiesTests extends AndroidTestCase {
         entityValues.put(Events._SYNC_DIRTY, 1);
         // And mark it canceled
         entityValues.put(Events.STATUS, Events.STATUS_CANCELED);
-        // Give it an RRULE so that time zone will be included
-        entityValues.put(Events.RRULE, "FREQ=WEEKLY;BYDAY=MO");
 
         // Create a dummy account for the attendee
         Account account = new Account();
