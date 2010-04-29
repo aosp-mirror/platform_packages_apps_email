@@ -1416,8 +1416,11 @@ public class CalendarUtilities {
 
             // If we're inviting people and the meeting is recurring, we need to send our time zone
             // information and make sure to send DTSTART/DTEND in local time (unless, of course,
-            // this is an all-day event)
-            if (!isReply  && entityValues.containsKey(Events.RRULE) && !allDayEvent) {
+            // this is an all-day event).  Recurring, for this purpose, includes exceptions to
+            // recurring events
+            if (!isReply && !allDayEvent &&
+                    (entityValues.containsKey(Events.RRULE) ||
+                            entityValues.containsKey(Events.ORIGINAL_EVENT))) {
                 vCalendarTimeZone = TimeZone.getDefault();
                 // Write the VTIMEZONE block to the writer
                 timeZoneToVTimezone(vCalendarTimeZone, ics);
