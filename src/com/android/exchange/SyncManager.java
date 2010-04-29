@@ -1454,7 +1454,9 @@ public class SyncManager extends Service implements Runnable {
                                // In this case, we release the mailbox so that we can start another
                                // thread to do the work
                                log("Alarm failed; releasing mailbox");
-                               syncManager.releaseMailbox(id);
+                               synchronized(sSyncLock) {
+                                   syncManager.releaseMailbox(id);
+                               }
                                // Shutdown the connection manager; this should close all of our
                                // sockets and generate IOExceptions all around.
                                syncManager.shutdownConnectionManager();
