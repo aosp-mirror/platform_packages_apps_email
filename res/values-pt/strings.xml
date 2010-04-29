@@ -142,7 +142,7 @@
     <string name="account_setup_check_settings_check_outgoing_msg" msgid="4033015234096725343">"Verificando as configurações de saída do servidor..."</string>
     <string name="account_setup_check_settings_canceling_msg" msgid="5077315503721883906">"Cancelando..."</string>
     <string name="account_setup_names_title" msgid="8875040521875381849">"Configurar e-mail"</string>
-    <string name="account_setup_names_instructions" msgid="2880279273965835007">"Sua conta está configurada e os e-mails começarão a chegar!"</string>
+    <string name="account_setup_names_instructions" msgid="2880279273965835007">"Sua conta está configurada e o e-mail está a caminho!"</string>
     <string name="account_setup_names_account_name_label" msgid="8033895024273259196">"Dar nome a esta conta (opcional)"</string>
     <string name="account_setup_names_user_name_label" msgid="8967410178488604770">"Seu nome (exibido nas mensagens enviadas)"</string>
     <string name="account_setup_account_type_title" msgid="6645576356752495504">"Adicionar nova conta de e-mail"</string>
@@ -220,9 +220,9 @@
     <string name="account_settings_notify_label" msgid="1630001017303007974">"Notificações de e-mail"</string>
     <string name="account_settings_exchange_summary" msgid="8498451479029626317">"Frequência de sincronização, notificações etc."</string>
     <string name="account_settings_notify_summary" msgid="6609224590300639887">"Notificar na barra de status quando chegar um e-mail"</string>
-    <string name="account_settings_mail_check_frequency_label" msgid="2067835530563849675">"Frequência de verificação de e-mail"</string>
-    <string name="account_settings_incoming_label" msgid="7858928031806297542">"Configurações entrada"</string>
-    <string name="account_settings_outgoing_label" msgid="4464829249980026745">"Configurações saída"</string>
+    <string name="account_settings_mail_check_frequency_label" msgid="2067835530563849675">"Frequencia de verificação de e-mail"</string>
+    <string name="account_settings_incoming_label" msgid="7858928031806297542">"Configurações recebidas"</string>
+    <string name="account_settings_outgoing_label" msgid="4464829249980026745">"Configurações enviadas"</string>
     <string name="account_settings_description_label" msgid="8894815221204511715">"Nome da conta"</string>
     <string name="account_settings_name_label" msgid="8186406122590008449">"Seu nome"</string>
     <string name="account_settings_signature_label" msgid="4091969938785803201">"Assinatura"</string>
@@ -246,8 +246,8 @@
     <string name="upgrade_accounts_error" msgid="7241661832029255715">"Não é possível atualizar a conta."</string>
     <string name="provider_note_yahoo" msgid="8762024183024261236">"Alguns tipos de contas de e-mail do Yahoo! não suportam o acesso à caixa de e-mail. Se você tiver problemas ao conectar, visite yahoo.com para obter mais informações."</string>
     <string name="provider_note_yahoo_uk" msgid="2055976404478603298">"Antes de configurar esta conta de e-mail, visite o site do Yahoo! e habilite o acesso de e-mail POP3 para esta conta."</string>
-    <string name="provider_note_live" msgid="3584841823811425060">"Somente algumas contas \"Plus\" incluem o acesso POP permitindo que este programa seja conectado. Se não for possível fazer login com seu endereço de e-mail e senha corretos, você talvez não tenha uma conta \"Plus\" paga. Inicie o navegador da web para acessar estas contas de e-mail."</string>
-    <string name="provider_note_t_online" msgid="1973701903400232774">"Antes de configurar essa conta de e-mail, visite o site T-Online e crie uma senha para acessar e-mail POP3."</string>
+    <string name="provider_note_live" msgid="3584841823811425060">"Somente algumas contas \"Plus\" incluem o acesso POP permitindo que este programa seja conectado. Se não for possível fazer login com seu endereço de e-mail e senha corretos, você talvez não tenha uma conta \"Plus\" paga. Inicie o navegador da web para acessar estas contas de email."</string>
+    <string name="provider_note_t_online" msgid="1973701903400232774">"Antes de configurar essa conta de e-mail, visite o site T-Online e crie uma senha para acessar email POP3."</string>
     <string name="exchange_name" msgid="1190783774800310346">"Corporativa"</string>
     <string name="exchange_name_alternate" msgid="5772529644749041052">"Microsoft Exchange ActiveSync"</string>
     <string name="meeting_accepted" msgid="8796609373330400268">"Aceito: <xliff:g id="SUBJECT">%s</xliff:g>"</string>
