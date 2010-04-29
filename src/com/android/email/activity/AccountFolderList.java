@@ -429,8 +429,8 @@ public class AccountFolderList extends ListActivity implements OnItemClickListen
         if (accountId == -1) {
             // TODO implement a suitable "Refresh all accounts" / "check mail" comment in Controller
             // TODO this is temp
-            Toast.makeText(this,
-                    "Please longpress an account to refresh it", Toast.LENGTH_LONG).show();
+            Toast.makeText(this, getString(R.string.account_folder_list_refresh_toast),
+                    Toast.LENGTH_LONG).show();
         } else {
             mHandler.progress(true);
             Controller.getInstance(getApplication()).updateMailboxList(
