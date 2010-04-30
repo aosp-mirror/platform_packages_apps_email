@@ -453,8 +453,17 @@ public class CalendarSyncAdapter extends AbstractSyncAdapter {
                     sb.append(attendeeEmail);
                     sb.append(ATTENDEE_TOKENIZER_DELIMITER);
                     if (mEmailAddress.equalsIgnoreCase(attendeeEmail)) {
-                        attendee.put(Attendees.ATTENDEE_STATUS,
-                                CalendarUtilities.attendeeStatusFromBusyStatus(busyStatus));
+                        int attendeeStatus =
+                            CalendarUtilities.attendeeStatusFromBusyStatus(busyStatus);
+                        attendee.put(Attendees.ATTENDEE_STATUS, attendeeStatus);
+                        // If we're an attendee, save away our initial attendee status in the
+                        // event's ExtendedProperties (we look for differences between this and
+                        // the user's current attendee status to determine whether an email needs
+                        // to be sent to the organizer)
+                        if (!organizerEmail.equalsIgnoreCase(attendeeEmail)) {
+                            ops.newExtendedProperty("userAttendeeStatus",
+                                    Integer.toString(attendeeStatus));
+                        }
                     }
                     if (eventId < 0) {
                         ops.newAttendee(attendee);
@@ -1607,6 +1616,12 @@ public class CalendarSyncAdapter extends AbstractSyncAdapter {
                                 long exEventId = exValues.getAsLong(Events._ID);
                                 int flag;
 
+                                // Copy subvalues into the exception; otherwise, we won't see the
+                                // attendees when preparing the message
+                                for (NamedContentValues ncv: entity.getSubValues()) {
+                                    exEntity.addSubValue(ncv.uri, ncv.values);
+                                }
+
                                 if ((getInt(exValues, Events.DELETED) == 1) ||
                                         (getInt(exValues, Events.STATUS) ==
                                             Events.STATUS_CANCELED)) {
@@ -1627,11 +1642,6 @@ public class CalendarSyncAdapter extends AbstractSyncAdapter {
                                 // the dirty/mark bits are cleared
                                 mUploadedIdList.add(exEventId);
 
-                                // Copy subvalues into the exception; otherwise, we won't see the
-                                // attendees when preparing the message
-                                for (NamedContentValues ncv: entity.getSubValues()) {
-                                    exEntity.addSubValue(ncv.uri, ncv.values);
-                                }
                                 // Copy version so the ics attachment shows the proper sequence #
                                 exValues.put(Events._SYNC_VERSION,
                                         entityValues.getAsString(Events._SYNC_VERSION));
@@ -1661,6 +1671,31 @@ public class CalendarSyncAdapter extends AbstractSyncAdapter {
                     s.end().end(); // ApplicationData & Change
                     mUploadedIdList.add(eventId);
 
+                    // Go through the extended properties of this Event and pull out our tokenized
+                    // attendees list and the user attendee status; we will need them later
+                    String attendeeString = null;
+                    long attendeeStringId = -1;
+                    String userAttendeeStatus = null;
+                    long userAttendeeStatusId = -1;
+                    for (NamedContentValues ncv: entity.getSubValues()) {
+                        if (ncv.uri.equals(ExtendedProperties.CONTENT_URI)) {
+                            ContentValues ncvValues = ncv.values;
+                            String propertyName =
+                                ncvValues.getAsString(ExtendedProperties.NAME);
+                            if (propertyName.equals("attendees")) {
+                                attendeeString =
+                                    ncvValues.getAsString(ExtendedProperties.VALUE);
+                                attendeeStringId =
+                                    ncvValues.getAsLong(ExtendedProperties._ID);
+                            } else if (propertyName.equals("userAttendeeStatus")) {
+                                userAttendeeStatus =
+                                    ncvValues.getAsString(ExtendedProperties.VALUE);
+                                userAttendeeStatusId =
+                                    ncvValues.getAsLong(ExtendedProperties._ID);
+                            }
+                        }
+                    }
+
                     // Send the meeting invite if there are attendees and we're the organizer AND
                     // if the Event itself is dirty (we might be syncing only because an exception
                     // is dirty, in which case we DON'T send email about the Event)
@@ -1674,20 +1709,7 @@ public class CalendarSyncAdapter extends AbstractSyncAdapter {
                             userLog("Queueing invitation to ", msg.mTo);
                             mOutgoingMailList.add(msg);
                         }
-                        // Retrieve our tokenized string of attendee email addresses
-                        String attendeeString = null;
-                        for (NamedContentValues ncv: entity.getSubValues()) {
-                            if (ncv.uri.equals(ExtendedProperties.CONTENT_URI)) {
-                                String propertyName =
-                                    ncv.values.getAsString(ExtendedProperties.NAME);
-                                if (propertyName.equals("attendees")) {
-                                    attendeeString =
-                                        ncv.values.getAsString(ExtendedProperties.VALUE);
-                                    break;
-                                }
-                            }
-                        }
-                        // Make a list out of them, if we have any
+                        // Make a list out of our tokenized attendees, if we have any
                         ArrayList<String> originalAttendeeList = new ArrayList<String>();
                         if (attendeeString != null) {
                             StringTokenizer st =
@@ -1715,24 +1737,8 @@ public class CalendarSyncAdapter extends AbstractSyncAdapter {
                         ContentValues cv = new ContentValues();
                         cv.put(ExtendedProperties.VALUE, newTokenizedAttendees.toString());
                         if (attendeeString != null) {
-                            // Now, we have to find the id of this row in ExtendedProperties
-                            Cursor epCursor = cr.query(ExtendedProperties.CONTENT_URI,
-                                    new String[] {ExtendedProperties._ID},
-                                    ExtendedProperties.EVENT_ID + "=? AND name=\"attendees\"",
-                                    new String[] {Long.toString(eventId)}, null);
-                            if (epCursor != null) {
-                                try {
-                                    // There's no reason this should fail (after all, we found it
-                                    // in the subValues; if it's gone, though, that's fine
-                                    if (epCursor.moveToFirst()) {
-                                        cr.update(ContentUris.withAppendedId(
-                                                ExtendedProperties.CONTENT_URI,
-                                                epCursor.getLong(0)), cv, null, null);
-                                    }
-                                } finally {
-                                    epCursor.close();
-                                }
-                            }
+                            cr.update(ContentUris.withAppendedId(ExtendedProperties.CONTENT_URI,
+                                    attendeeStringId), cv, null, null);
                         } else {
                             // If there wasn't an "attendees" property, insert one
                             cv.put(ExtendedProperties.NAME, "attendees");
@@ -1754,14 +1760,16 @@ public class CalendarSyncAdapter extends AbstractSyncAdapter {
                         }
                     } else if (!selfOrganizer) {
                         // If we're not the organizer, see if we've changed our attendee status
-                        // Note: Since we "own" our own calendar, selfAttendeeStatus will be
-                        // correct when we set it from the UI.  We NEVER set selfAttendeeStatus
-                        // on downsync, however.
+                        // Our last synced attendee status is in ExtendedProperties, and we've
+                        // retrieved it above as userAttendeeStatus
                         int currentStatus = entityValues.getAsInteger(Events.SELF_ATTENDEE_STATUS);
-                        String adapterData = entityValues.getAsString(Events.SYNC_ADAPTER_DATA);
                         int syncStatus = Attendees.ATTENDEE_STATUS_NONE;
-                        if (adapterData != null) {
-                            syncStatus = Integer.parseInt(adapterData);
+                        if (userAttendeeStatus != null) {
+                            try {
+                                syncStatus = Integer.parseInt(userAttendeeStatus);
+                            } catch (NumberFormatException e) {
+                                // Just in case somebody else mucked with this and it's not Integer
+                            }
                         }
                         if ((currentStatus != syncStatus) &&
                                 (currentStatus != Attendees.ATTENDEE_STATUS_NONE)) {
@@ -1779,13 +1787,13 @@ public class CalendarSyncAdapter extends AbstractSyncAdapter {
                                     break;
                             }
                             // Make sure we have a valid status (messageFlag should never be zero)
-                            if (messageFlag != 0) {
+                            if (messageFlag != 0 && userAttendeeStatusId >= 0) {
                                 // Save away the new status
                                 cidValues.clear();
-                                cidValues.put(Events.SYNC_ADAPTER_DATA,
+                                cidValues.put(ExtendedProperties.VALUE,
                                         Integer.toString(currentStatus));
-                                cr.update(ContentUris.withAppendedId(EVENTS_URI, eventId),
-                                        cidValues, null, null);
+                                cr.update(ContentUris.withAppendedId(ExtendedProperties.CONTENT_URI,
+                                        userAttendeeStatusId), cidValues, null, null);
                                 // Send mail to the organizer advising of the new status
                                 EmailContent.Message msg =
                                     CalendarUtilities.createMessageForEventId(mContext, eventId,
