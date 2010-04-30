@@ -220,6 +220,8 @@
     <string name="account_folder_list_summary_drafts">Drafts</string>
     <!-- The summary section entry in the AccountFolder list to display all outboxes -->
     <string name="account_folder_list_summary_outbox">Outbox</string>
+    <!-- Toast that appears when you select "Refresh" menu option -->
+    <string name="account_folder_list_refresh_toast">Please longpress an account to refresh it</string>
 
     <!-- Title of the screen that shows a list of mailboxes for an account -->
     <string name="mailbox_list_title">Mailbox</string>
