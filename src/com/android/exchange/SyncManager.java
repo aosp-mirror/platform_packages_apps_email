@@ -1811,8 +1811,14 @@ public class SyncManager extends Service implements Runnable {
         ContentResolver.addStatusChangeListener(ContentResolver.SYNC_OBSERVER_TYPE_SETTINGS,
                 mSyncStatusObserver);
         mAccountsUpdatedListener = new EasAccountsUpdatedListener();
-        AccountManager.get(getApplication())
-            .addOnAccountsUpdatedListener(mAccountsUpdatedListener, mHandler, true);
+        // TODO Find and fix root cause of duplication
+        try {
+            AccountManager.get(getApplication())
+                .addOnAccountsUpdatedListener(mAccountsUpdatedListener, mHandler, true);
+        } catch (IllegalStateException e1) {
+            // This exception is more of a warning; we shouldn't be in the state in which we
+            // already have a listener.
+        }
 
         // Set up receivers for ConnectivityManager
         mConnectivityReceiver = new ConnectivityReceiver();
