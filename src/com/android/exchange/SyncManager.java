@@ -954,12 +954,14 @@ public class SyncManager extends Service implements Runnable {
                 android.accounts.Account[] accountMgrList = AccountManager.get(syncManager)
                         .getAccountsByType(Email.EXCHANGE_ACCOUNT_MANAGER_TYPE);
                 synchronized (sAccountList) {
-                    // Make sure we have an up-to-date sAccountList
+                    // Make sure we have an up-to-date sAccountList.  If not (for example, if the
+                    // service has been destroyed), we would be reconciling against an empty account
+                    // list, which would cause the deletion of all of our accounts
                     if (mAccountObserver != null) {
                         mAccountObserver.onAccountChanged();
+                        reconcileAccountsWithAccountManager(syncManager, sAccountList,
+                                accountMgrList, false, mResolver);
                     }
-                    reconcileAccountsWithAccountManager(syncManager, sAccountList,
-                            accountMgrList, false, mResolver);
                 }
             }
         }.start();
