@@ -1180,8 +1180,10 @@ public class SyncManager extends Service implements Runnable {
     }
 
     static private synchronized void shutdownConnectionManager() {
-        sClientConnectionManager.shutdown();
-        sClientConnectionManager = null;
+        if (sClientConnectionManager != null) {
+            sClientConnectionManager.shutdown();
+            sClientConnectionManager = null;
+        }
     }
 
     public static void stopAccountSyncs(long acctId) {
