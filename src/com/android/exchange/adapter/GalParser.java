@@ -94,8 +94,10 @@ public class GalParser extends Parser {
              if (tag == Tags.SEARCH_RESULT) {
                  parseResult(galResult);
              } else if (tag == Tags.SEARCH_RANGE) {
+                 // Retrieve value, even if we're not using it for debug logging
+                 String range = getValue();
                  if (EasSyncService.DEBUG_GAL_SERVICE) {
-                     mService.userLog("GAL result range: " + getValue());
+                     mService.userLog("GAL result range: " + range);
                  }
              } else if (tag == Tags.SEARCH_TOTAL) {
                  galResult.total = getValueInt();
