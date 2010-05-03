@@ -199,6 +199,9 @@ public class AttachmentProviderTests extends ProviderTestCase2<AttachmentProvide
         long attachment1Id = 1;
         long attachment2Id = 2;
         long attachment3Id = 3;
+        long attachment4Id = 4;
+        long attachment5Id = 5;
+        long attachment6Id = 6;
 
         Uri attachment1Uri = AttachmentProvider.getAttachmentUri(account1.mId, attachment1Id);
 
@@ -223,6 +226,21 @@ public class AttachmentProviderTests extends ProviderTestCase2<AttachmentProvide
         newAttachment3.mMimeType = "text/plain";
         attachment3Id = addAttachmentToDb(account1, newAttachment3);
 
+        Attachment newAttachment4 = ProviderTestUtils.setupAttachment(message1Id, "file4.doc", 100,
+                false, mMockContext);
+        newAttachment4.mMimeType = "application/octet-stream";
+        attachment4Id = addAttachmentToDb(account1, newAttachment4);
+
+        Attachment newAttachment5 = ProviderTestUtils.setupAttachment(message1Id, "file5.xyz", 100,
+                false, mMockContext);
+        newAttachment5.mMimeType = "application/octet-stream";
+        attachment5Id = addAttachmentToDb(account1, newAttachment5);
+
+        Attachment newAttachment6 = ProviderTestUtils.setupAttachment(message1Id, "file6", 100,
+                false, mMockContext);
+        newAttachment6.mMimeType = "";
+        attachment6Id = addAttachmentToDb(account1, newAttachment6);
+
         // Check the returned filetypes
         Uri uri = AttachmentProvider.getAttachmentUri(account1.mId, attachment2Id);
         type = mMockResolver.getType(uri);
@@ -230,6 +248,15 @@ public class AttachmentProviderTests extends ProviderTestCase2<AttachmentProvide
         uri = AttachmentProvider.getAttachmentUri(account1.mId, attachment3Id);
         type = mMockResolver.getType(uri);
         assertEquals("text/plain", type);
+        uri = AttachmentProvider.getAttachmentUri(account1.mId, attachment4Id);
+        type = mMockResolver.getType(uri);
+        assertEquals("application/msword", type);
+        uri = AttachmentProvider.getAttachmentUri(account1.mId, attachment5Id);
+        type = mMockResolver.getType(uri);
+        assertEquals("application/xyz", type);
+        uri = AttachmentProvider.getAttachmentUri(account1.mId, attachment6Id);
+        type = mMockResolver.getType(uri);
+        assertEquals("application/octet-stream", type);
 
         // Check the returned filetypes for the thumbnails
         uri = AttachmentProvider.getAttachmentThumbnailUri(account1.mId, attachment2Id, 62, 62);
@@ -238,6 +265,45 @@ public class AttachmentProviderTests extends ProviderTestCase2<AttachmentProvide
         uri = AttachmentProvider.getAttachmentThumbnailUri(account1.mId, attachment3Id, 62, 62);
         type = mMockResolver.getType(uri);
         assertEquals("image/png", type);
+    }
+
+    /**
+     * Test static inferMimeType()
+     * From the method doc:
+     *   If the given mime type is non-empty and anything other than "application/octet-stream",
+     *   just return it.  (This is the most common case.)
+     *   If the filename has a recognizable extension and it converts to a mime type, return that.
+     *   If the filename has an unrecognized extension, return "application/extension"
+     *   Otherwise return "application/octet-stream".
+     */
+    public void testInferMimeType() {
+        final String DEFAULT = "application/octet-stream";
+        final String FILE_PDF = "myfile.false.pdf";
+        final String FILE_ABC = "myfile.false.abc";
+        final String FILE_NO_EXT = "myfile";
+
+        // If the given mime type is non-empty and anything other than "application/octet-stream",
+        // just return it.  (This is the most common case.)
+        assertEquals("mime/type", AttachmentProvider.inferMimeType(null, "mime/type"));
+        assertEquals("mime/type", AttachmentProvider.inferMimeType("", "mime/type"));
+        assertEquals("mime/type", AttachmentProvider.inferMimeType(FILE_PDF, "mime/type"));
+
+        // If the filename has a recognizable extension and it converts to a mime type, return that.
+        assertEquals("application/pdf", AttachmentProvider.inferMimeType(FILE_PDF, null));
+        assertEquals("application/pdf", AttachmentProvider.inferMimeType(FILE_PDF, ""));
+        assertEquals("application/pdf", AttachmentProvider.inferMimeType(FILE_PDF, DEFAULT));
+
+        // If the filename has an unrecognized extension, return "application/extension"
+        assertEquals("application/abc", AttachmentProvider.inferMimeType(FILE_ABC, null));
+        assertEquals("application/abc", AttachmentProvider.inferMimeType(FILE_ABC, ""));
+        assertEquals("application/abc", AttachmentProvider.inferMimeType(FILE_ABC, DEFAULT));
+
+        // Otherwise return "application/octet-stream".
+        assertEquals(DEFAULT, AttachmentProvider.inferMimeType(FILE_NO_EXT, null));
+        assertEquals(DEFAULT, AttachmentProvider.inferMimeType(FILE_NO_EXT, ""));
+        assertEquals(DEFAULT, AttachmentProvider.inferMimeType(FILE_NO_EXT, DEFAULT));
+        assertEquals(DEFAULT, AttachmentProvider.inferMimeType(null, null));
+        assertEquals(DEFAULT, AttachmentProvider.inferMimeType("", ""));
     }
 
     /**
