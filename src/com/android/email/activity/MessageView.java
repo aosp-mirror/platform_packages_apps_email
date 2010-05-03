@@ -1004,14 +1004,10 @@ public class MessageView extends Activity implements OnClickListener {
 
         AttachmentInfo attachmentInfo = new AttachmentInfo();
         attachmentInfo.size = attachment.mSize;
-        attachmentInfo.contentType = attachment.mMimeType;
+        attachmentInfo.contentType =
+                AttachmentProvider.inferMimeType(attachment.mFileName, attachment.mMimeType);
         attachmentInfo.name = attachment.mFileName;
         attachmentInfo.attachmentId = attachment.mId;
-
-        // TODO: remove this when EAS writes mime types
-        if (attachmentInfo.contentType == null || attachmentInfo.contentType.length() == 0) {
-            attachmentInfo.contentType = "application/octet-stream";
-        }
 
         LayoutInflater inflater = getLayoutInflater();
         View view = inflater.inflate(R.layout.message_view_attachment, null);
