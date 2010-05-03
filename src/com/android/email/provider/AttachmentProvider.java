@@ -34,6 +34,8 @@ import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.net.Uri;
 import android.os.ParcelFileDescriptor;
+import android.text.TextUtils;
+import android.webkit.MimeTypeMap;
 
 import java.io.File;
 import java.io.FileNotFoundException;
@@ -75,8 +77,12 @@ public class AttachmentProvider extends ContentProvider {
         public static final String SIZE = "_size";
     }
 
-    private String[] PROJECTION_MIME_TYPE = new String[] { AttachmentColumns.MIME_TYPE };
-    private String[] PROJECTION_QUERY = new String[] { AttachmentColumns.FILENAME,
+    private static final String[] MIME_TYPE_PROJECTION = new String[] {
+            AttachmentColumns.MIME_TYPE, AttachmentColumns.FILENAME };
+    private static final int MIME_TYPE_COLUMN_MIME_TYPE = 0;
+    private static final int MIME_TYPE_COLUMN_FILENAME = 1;
+
+    private static final String[] PROJECTION_QUERY = new String[] { AttachmentColumns.FILENAME,
             AttachmentColumns.SIZE, AttachmentColumns.CONTENT_URI };
 
     public static Uri getAttachmentUri(long accountId, long id) {
@@ -152,17 +158,62 @@ public class AttachmentProvider extends ContentProvider {
             return "image/png";
         } else {
             uri = ContentUris.withAppendedId(Attachment.CONTENT_URI, Long.parseLong(id));
-            Cursor c = getContext().getContentResolver().query(uri, PROJECTION_MIME_TYPE,
+            Cursor c = getContext().getContentResolver().query(uri, MIME_TYPE_PROJECTION,
                     null, null, null);
             try {
                 if (c.moveToFirst()) {
-                    return c.getString(0);
+                    String mimeType = c.getString(MIME_TYPE_COLUMN_MIME_TYPE);
+                    String fileName = c.getString(MIME_TYPE_COLUMN_FILENAME);
+                    mimeType = inferMimeType(fileName, mimeType);
+                    return mimeType;
                 }
             } finally {
                 c.close();
             }
             return null;
         }
+    }
+
+    /**
+     * Helper to convert unknown or unmapped attachments to something useful based on filename
+     * extensions.  Imperfect, but helps.
+     *
+     * If the given mime type is non-empty and anything other than "application/octet-stream",
+     * just return it.  (This is the most common case.)
+     * If the filename has a recognizable extension and it converts to a mime type, return that.
+     * If the filename has an unrecognized extension, return "application/extension"
+     * Otherwise return "application/octet-stream".
+     *
+     * @param fileName The given filename
+     * @param mimeType The given mime type
+     * @return A likely mime type for the attachment
+     */
+    public static String inferMimeType(String fileName, String mimeType) {
+        // If the given mime type appears to be non-empty and non-generic - return it
+        if (!TextUtils.isEmpty(mimeType) &&
+                !"application/octet-stream".equalsIgnoreCase(mimeType)) {
+            return mimeType;
+        }
+
+        // Try to find an extension in the filename
+        if (!TextUtils.isEmpty(fileName)) {
+            int lastDot = fileName.lastIndexOf('.');
+            String extension = null;
+            if ((lastDot > 0) && (lastDot < fileName.length() - 1)) {
+                extension = fileName.substring(lastDot + 1).toLowerCase();
+            }
+            if (!TextUtils.isEmpty(extension)) {
+                // Extension found.  Look up mime type, or synthesize if none found.
+                mimeType = MimeTypeMap.getSingleton().getMimeTypeFromExtension(extension);
+                if (mimeType == null) {
+                    mimeType = "application/" + extension;
+                }
+                return mimeType;
+            }
+        }
+
+        // Fallback case - no good guess could be made.
+        return "application/octet-stream";
     }
 
     /**
