@@ -37,6 +37,7 @@ import android.content.Context;
 import android.content.Intent;
 import android.database.Cursor;
 import android.media.AudioManager;
+import android.net.ConnectivityManager;
 import android.net.Uri;
 import android.os.IBinder;
 import android.os.SystemClock;
@@ -177,8 +178,15 @@ public class MailService extends Service {
             if (checkAccountId >= 0) {
                 setWatchdog(checkAccountId, alarmManager);
             }
-            // if no account given, or the given account cannot be synced - reschedule
-            if (checkAccountId == -1 || !syncOneAccount(controller, checkAccountId, startId)) {
+
+            // Start sync if account is given and background data is enabled.
+            boolean syncStarted = false;
+            if (checkAccountId != -1 && isBackgroundDataEnabled()) {
+                syncStarted = syncOneAccount(controller, checkAccountId, startId);
+            }
+
+            // Reschedule if we didn't start sync.
+            if (!syncStarted) {
                 // Prevent runaway on the current account by pretending it updated
                 if (checkAccountId != -1) {
                     updateAccountReport(checkAccountId, 0);
@@ -714,5 +722,14 @@ public class MailService extends Service {
         NotificationManager notificationManager =
             (NotificationManager) getSystemService(Context.NOTIFICATION_SERVICE);
         notificationManager.notify(NOTIFICATION_ID_NEW_MESSAGES, notification);
+    }
+
+    /**
+     * @see ConnectivityManager#getBackgroundDataSetting()
+     */
+    private boolean isBackgroundDataEnabled() {
+        ConnectivityManager cm =
+                (ConnectivityManager)getSystemService(Context.CONNECTIVITY_SERVICE);
+        return cm.getBackgroundDataSetting();
     }
 }
