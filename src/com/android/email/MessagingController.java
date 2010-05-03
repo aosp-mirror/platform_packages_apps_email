@@ -2054,7 +2054,7 @@ public class MessagingController implements Runnable {
                         }
                     }
                 }
-                mListeners.checkMailFinished(mContext, accountId, tag, inboxId);
+                mListeners.checkMailFinished(mContext, accountId, inboxId, tag);
             }
         });
     }
