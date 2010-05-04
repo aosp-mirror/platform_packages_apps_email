@@ -33,8 +33,6 @@ import com.android.email.provider.EmailContent.MailboxColumns;
 import com.android.email.provider.EmailContent.Message;
 import com.android.email.provider.EmailContent.SyncColumns;
 import com.android.email.service.EmailServiceStatus;
-import com.android.email.service.IEmailService;
-import com.android.email.service.IEmailServiceCallback;
 import com.android.exchange.adapter.CalendarSyncAdapter;
 import com.android.exchange.utility.FileLogger;
 
@@ -84,17 +82,9 @@ import android.provider.Calendar;
 import android.provider.ContactsContract;
 import android.provider.Calendar.Calendars;
 import android.provider.Calendar.Events;
+import android.provider.Settings.System;
+import android.renderscript.RenderScriptGL.File;
 import android.util.Log;
-
-import java.io.BufferedReader;
-import java.io.BufferedWriter;
-import java.io.File;
-import java.io.FileReader;
-import java.io.FileWriter;
-import java.io.IOException;
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
 
 /**
  * The SyncManager handles all aspects of starting, maintaining, and stopping the various sync
@@ -114,7 +104,8 @@ public class SyncManager extends Service implements Runnable {
     private static final String TAG = "EAS SyncManager";
 
     // The SyncManager's mailbox "id"
-    private static final int SYNC_MANAGER_ID = -1;
+    protected static final int SYNC_MANAGER_ID = -1;
+    protected static final int SYNC_MANAGER_SERVICE_ID = 0;
 
     private static final int SECONDS = 1000;
     private static final int MINUTES = 60*SECONDS;
@@ -182,8 +173,6 @@ public class SyncManager extends Service implements Runnable {
     // All threads can use this lock to wait for connectivity
     public static final Object sConnectivityLock = new Object();
     public static boolean sConnectivityHold = false;
-    // Keep our cached list of active Accounts here
-    public static final AccountList sAccountList = new AccountList();
 
     // Keeps track of running services (by mailbox id)
     private HashMap<Long, AbstractSyncService> mServiceMap =
@@ -196,6 +185,8 @@ public class SyncManager extends Service implements Runnable {
     private HashMap<Long, PendingIntent> mPendingIntents = new HashMap<Long, PendingIntent>();
     // The actual WakeLock obtained by SyncManager
     private WakeLock mWakeLock = null;
+    // Keep our cached list of active Accounts here
+    public final AccountList mAccountList = new AccountList();
 
     // Observers that we use to look for changed mail-related data
     private Handler mHandler = new Handler();
@@ -204,6 +195,7 @@ public class SyncManager extends Service implements Runnable {
     private SyncedMessageObserver mSyncedMessageObserver;
     private MessageObserver mMessageObserver;
     private EasSyncStatusObserver mSyncStatusObserver;
+    private Object mStatusChangeListener;
     private EasAccountsUpdatedListener mAccountsUpdatedListener;
 
     private HashMap<Long, CalendarObserver> mCalendarObservers =
@@ -221,7 +213,7 @@ public class SyncManager extends Service implements Runnable {
     // Count of ClientConnectionManager shutdowns
     private static volatile int sClientConnectionManagerShutdownCount = 0;
 
-    private boolean mStop = false;
+    private static volatile boolean sStop = false;
 
     // The reason for SyncManager's next wakeup call
     private String mNextWaitReason;
@@ -434,18 +426,18 @@ public class SyncManager extends Service implements Runnable {
             super(handler);
             // At startup, we want to see what EAS accounts exist and cache them
             Context context = getContext();
-            synchronized (sAccountList) {
+            synchronized (mAccountList) {
                 Cursor c = getContentResolver().query(Account.CONTENT_URI,
                         Account.CONTENT_PROJECTION, null, null, null);
                 // Build the account list from the cursor
                 try {
-                    collectEasAccounts(c, sAccountList);
+                    collectEasAccounts(c, mAccountList);
                 } finally {
                     c.close();
                 }
 
                 // Create an account mailbox for any account without one
-                for (Account account : sAccountList) {
+                for (Account account : mAccountList) {
                     int cnt = Mailbox.count(context, Mailbox.CONTENT_URI, "accountKey="
                             + account.mId, null);
                     if (cnt == 0) {
@@ -464,8 +456,8 @@ public class SyncManager extends Service implements Runnable {
             if (mSyncableEasMailboxSelector == null) {
                 StringBuilder sb = new StringBuilder(WHERE_NOT_INTERVAL_NEVER_AND_ACCOUNT_KEY_IN);
                 boolean first = true;
-                synchronized (sAccountList) {
-                    for (Account account : sAccountList) {
+                synchronized (mAccountList) {
+                    for (Account account : mAccountList) {
                         if (!first) {
                             sb.append(',');
                         } else {
@@ -489,8 +481,8 @@ public class SyncManager extends Service implements Runnable {
             if (mEasAccountSelector == null) {
                 StringBuilder sb = new StringBuilder(ACCOUNT_KEY_IN);
                 boolean first = true;
-                synchronized (sAccountList) {
-                    for (Account account : sAccountList) {
+                synchronized (mAccountList) {
+                    for (Account account : mAccountList) {
                         if (!first) {
                             sb.append(',');
                         } else {
@@ -520,8 +512,8 @@ public class SyncManager extends Service implements Runnable {
                     Account.CONTENT_PROJECTION, null, null, null);
             try {
                 collectEasAccounts(c, currentAccounts);
-                synchronized (sAccountList) {
-                    for (Account account : sAccountList) {
+                synchronized (mAccountList) {
+                    for (Account account : mAccountList) {
                         // Ignore accounts not fully created
                         if ((account.mFlags & Account.FLAGS_INCOMPLETE) != 0) {
                             log("Account observer noticed incomplete account; ignoring");
@@ -568,7 +560,7 @@ public class SyncManager extends Service implements Runnable {
                     }
                     // Look for new accounts
                     for (Account account : currentAccounts) {
-                        if (!sAccountList.contains(account.mId)) {
+                        if (!mAccountList.contains(account.mId)) {
                             // Don't forget to cache the HostAuth
                             HostAuth ha = HostAuth.restoreHostAuthWithId(getContext(),
                                     account.mHostAuthKeyRecv);
@@ -577,14 +569,14 @@ public class SyncManager extends Service implements Runnable {
                             // This is an addition; create our magic hidden mailbox...
                             log("Account observer found new account: " + account.mDisplayName);
                             addAccountMailbox(account.mId);
-                            sAccountList.add(account);
+                            mAccountList.add(account);
                             mSyncableEasMailboxSelector = null;
                             mEasAccountSelector = null;
                         }
                     }
                     // Finally, make sure our account list is up to date
-                    sAccountList.clear();
-                    sAccountList.addAll(currentAccounts);
+                    mAccountList.clear();
+                    mAccountList.addAll(currentAccounts);
                 }
             } finally {
                 c.close();
@@ -599,7 +591,7 @@ public class SyncManager extends Service implements Runnable {
             new Thread(new Runnable() {
                public void run() {
                    onAccountChanged();
-                }}).start();
+                }}, "Account Observer").start();
         }
 
         private void collectEasAccounts(Cursor c, ArrayList<Account> accounts) {
@@ -773,7 +765,7 @@ public class SyncManager extends Service implements Runnable {
                         } finally {
                             c.close();
                         }
-                    }}).start();
+                    }}, "Calendar Observer").start();
             }
         }
     }
@@ -831,9 +823,14 @@ public class SyncManager extends Service implements Runnable {
     }
 
     static public Account getAccountById(long accountId) {
-        synchronized (sAccountList) {
-            return sAccountList.getById(accountId);
+        SyncManager syncManager = INSTANCE;
+        if (syncManager != null) {
+            AccountList accountList = syncManager.mAccountList;
+            synchronized (accountList) {
+                return accountList.getById(accountId);
+            }
         }
+        return null;
     }
 
     static public String getEasAccountSelector() {
@@ -963,13 +960,13 @@ public class SyncManager extends Service implements Runnable {
             public void run() {
                 android.accounts.Account[] accountMgrList = AccountManager.get(syncManager)
                         .getAccountsByType(Email.EXCHANGE_ACCOUNT_MANAGER_TYPE);
-                synchronized (sAccountList) {
+                synchronized (mAccountList) {
                     // Make sure we have an up-to-date sAccountList.  If not (for example, if the
                     // service has been destroyed), we would be reconciling against an empty account
                     // list, which would cause the deletion of all of our accounts
                     if (mAccountObserver != null) {
                         mAccountObserver.onAccountChanged();
-                        reconcileAccountsWithAccountManager(syncManager, sAccountList,
+                        reconcileAccountsWithAccountManager(syncManager, mAccountList,
                                 accountMgrList, false, mResolver);
                     }
                 }
@@ -1053,113 +1050,6 @@ public class SyncManager extends Service implements Runnable {
     @Override
     public IBinder onBind(Intent arg0) {
         return mBinder;
-    }
-
-    /**
-     * Note that there are two ways the EAS SyncManager service can be created:
-     *
-     * 1) as a background service instantiated via startService (which happens on boot, when the
-     * first EAS account is created, etc), in which case the service thread is spun up, mailboxes
-     * sync, etc. and
-     * 2) to execute an RPC call from the UI, in which case the background service will already be
-     * running most of the time (unless we're creating a first EAS account)
-     *
-     * If the running background service detects that there are no EAS accounts (on boot, if none
-     * were created, or afterward if the last remaining EAS account is deleted), it will call
-     * stopSelf() to terminate operation.
-     *
-     * The goal is to ensure that the background service is running at all times when there is at
-     * least one EAS account in existence
-     *
-     * Because there are edge cases in which our process can crash (typically, this has been seen
-     * in UI crashes, ANR's, etc.), it's possible for the UI to start up again without the
-     * background service having been started.  We explicitly try to start the service in Welcome
-     * (to handle the case of the app having been reloaded).  We also start the service on any
-     * startSync call (if it isn't already running)
-     */
-    @Override
-    public void onCreate() {
-        alwaysLog("!!! EAS SyncManager, onCreate");
-        if (INSTANCE == null) {
-            INSTANCE = this;
-            mResolver = getContentResolver();
-            mAccountObserver = new AccountObserver(mHandler);
-            mResolver.registerContentObserver(Account.CONTENT_URI, true, mAccountObserver);
-            mMailboxObserver = new MailboxObserver(mHandler);
-            mSyncedMessageObserver = new SyncedMessageObserver(mHandler);
-            mMessageObserver = new MessageObserver(mHandler);
-            mSyncStatusObserver = new EasSyncStatusObserver();
-        } else {
-            alwaysLog("!!! EAS SyncManager onCreated, but INSTANCE not null??");
-        }
-        if (sDeviceId == null) {
-            try {
-                getDeviceId(this);
-            } catch (IOException e) {
-                // We can't run in this situation
-                throw new RuntimeException();
-            }
-        }
-        // Run the reconciler and clean up any mismatched accounts - if we weren't running when
-        // accounts were deleted, it won't have been called.
-        runAccountReconciler();
-    }
-
-    @Override
-    public int onStartCommand(Intent intent, int flags, int startId) {
-        alwaysLog("!!! EAS SyncManager, onStartCommand");
-
-        // Restore accounts, if it has not happened already
-        AccountBackupRestore.restoreAccountsIfNeeded(this);
-
-        maybeStartSyncManagerThread();
-        if (sServiceThread == null) {
-            alwaysLog("!!! EAS SyncManager, stopping self");
-            stopSelf();
-        }
-        return Service.START_STICKY;
-    }
-
-    @Override
-    public void onDestroy() {
-        alwaysLog("!!! EAS SyncManager, onDestroy");
-        if (INSTANCE != null) {
-            INSTANCE = null;
-            mResolver.unregisterContentObserver(mAccountObserver);
-            unregisterCalendarObservers();
-            mResolver = null;
-            mAccountObserver = null;
-            mMailboxObserver = null;
-            mSyncedMessageObserver = null;
-            mMessageObserver = null;
-            mSyncStatusObserver = null;
-            mAccountsUpdatedListener = null;
-        }
-    }
-
-    void maybeStartSyncManagerThread() {
-        // Start our thread...
-        // See if there are any EAS accounts; otherwise, just go away
-        if (EmailContent.count(this, HostAuth.CONTENT_URI, WHERE_PROTOCOL_EAS, null) > 0) {
-            if (sServiceThread == null || !sServiceThread.isAlive()) {
-                log(sServiceThread == null ? "Starting thread..." : "Restarting thread...");
-                sServiceThread = new Thread(this, "SyncManager");
-                sServiceThread.start();
-            }
-        }
-    }
-
-    static void checkSyncManagerServiceRunning() {
-        // Get the service thread running if it isn't
-        // This is a stopgap for cases in which SyncManager died (due to a crash somewhere in
-        // com.android.email) and hasn't been restarted
-        // See the comment for onCreate for details
-        SyncManager syncManager = INSTANCE;
-        if (syncManager == null) return;
-        if (sServiceThread == null) {
-            alwaysLog("!!! checkSyncManagerServiceRunning; starting service...");
-            syncManager.startService(new Intent(syncManager, SyncManager.class));
-        }
     }
 
     static public ConnPerRoute sConnPerRoute = new ConnPerRoute() {
@@ -1453,6 +1343,10 @@ public class SyncManager extends Service implements Runnable {
             if (service != null) {
                 // Handle alerts in a background thread, as we are typically called from a
                 // broadcast receiver, and are therefore running in the UI thread
+                String threadName = "SyncManager Alert: ";
+                if (service.mMailbox != null) {
+                    threadName += service.mMailbox.mDisplayName;
+                }
                 new Thread(new Runnable() {
                    public void run() {
                        Mailbox m = Mailbox.restoreMailboxWithId(syncManager, id);
@@ -1484,7 +1378,7 @@ public class SyncManager extends Service implements Runnable {
                                SyncManager.shutdownConnectionManager();
                            }
                        }
-                    }}).start();
+                    }}, threadName).start();
             }
         }
     }
@@ -1541,8 +1435,8 @@ public class SyncManager extends Service implements Runnable {
      * Make our sync settings match those of AccountManager
      */
     private void checkPIMSyncSettings() {
-        synchronized (sAccountList) {
-            for (Account account : sAccountList) {
+        synchronized (mAccountList) {
+            for (Account account : mAccountList) {
                 updatePIMSyncSettings(account, Mailbox.TYPE_CONTACTS, ContactsContract.AUTHORITY);
                 updatePIMSyncSettings(account, Mailbox.TYPE_CALENDAR, Calendar.AUTHORITY);
             }
@@ -1668,8 +1562,8 @@ public class SyncManager extends Service implements Runnable {
                 // Otherwise, stop all syncs
                 } else {
                     log("Background data off: stop all syncs");
-                    synchronized (sAccountList) {
-                        for (Account account : sAccountList)
+                    synchronized (mAccountList) {
+                        for (Account account : mAccountList)
                             SyncManager.stopAccountSyncs(account.mId);
                     }
                 }
@@ -1723,7 +1617,7 @@ public class SyncManager extends Service implements Runnable {
 
     private void requestSync(Mailbox m, int reason, Request req) {
         // Don't sync if there's no connectivity
-        if (sConnectivityHold || (m == null)) return;
+        if (sConnectivityHold || (m == null) || sStop) return;
         synchronized (sSyncLock) {
             Account acct = Account.restoreAccountWithId(this, m.mAccountKey);
             if (acct != null) {
@@ -1770,7 +1664,7 @@ public class SyncManager extends Service implements Runnable {
         boolean waiting = false;
         ConnectivityManager cm =
             (ConnectivityManager)this.getSystemService(Context.CONNECTIVITY_SERVICE);
-        while (!mStop) {
+        while (!sStop) {
             NetworkInfo info = cm.getActiveNetworkInfo();
             if (info != null) {
                 // We're done if there's an active network
@@ -1807,9 +1701,110 @@ public class SyncManager extends Service implements Runnable {
         }
     }
 
-    public void run() {
-        mStop = false;
+    /**
+     * Note that there are two ways the EAS SyncManager service can be created:
+     *
+     * 1) as a background service instantiated via startService (which happens on boot, when the
+     * first EAS account is created, etc), in which case the service thread is spun up, mailboxes
+     * sync, etc. and
+     * 2) to execute an RPC call from the UI, in which case the background service will already be
+     * running most of the time (unless we're creating a first EAS account)
+     *
+     * If the running background service detects that there are no EAS accounts (on boot, if none
+     * were created, or afterward if the last remaining EAS account is deleted), it will call
+     * stopSelf() to terminate operation.
+     *
+     * The goal is to ensure that the background service is running at all times when there is at
+     * least one EAS account in existence
+     *
+     * Because there are edge cases in which our process can crash (typically, this has been seen
+     * in UI crashes, ANR's, etc.), it's possible for the UI to start up again without the
+     * background service having been started.  We explicitly try to start the service in Welcome
+     * (to handle the case of the app having been reloaded).  We also start the service on any
+     * startSync call (if it isn't already running)
+     */
+    @Override
+    public void onCreate() {
+        synchronized (sSyncLock) {
+            alwaysLog("!!! EAS SyncManager, onCreate");
+            // If we're in the process of shutting down, try again in 5 seconds
+            if (sStop) {
+                setAlarm(SYNC_MANAGER_SERVICE_ID, 5*SECONDS);
+                return;
+            }
+            if (sDeviceId == null) {
+                try {
+                    getDeviceId(this);
+                } catch (IOException e) {
+                    // We can't run in this situation
+                    throw new RuntimeException();
+                }
+            }
+            // Run the reconciler and clean up any mismatched accounts - if we weren't running when
+            // accounts were deleted, it won't have been called.
+            runAccountReconciler();
+        }
+    }
 
+    @Override
+    public int onStartCommand(Intent intent, int flags, int startId) {
+        synchronized (sSyncLock) {
+            alwaysLog("!!! EAS SyncManager, onStartCommand");
+            // Restore accounts, if it has not happened already
+            AccountBackupRestore.restoreAccountsIfNeeded(this);
+            maybeStartSyncManagerThread();
+            if (sServiceThread == null) {
+                alwaysLog("!!! EAS SyncManager, stopping self");
+                stopSelf();
+            }
+            return Service.START_STICKY;
+        }
+    }
+
+    @Override
+    public void onDestroy() {
+        synchronized(sSyncLock) {
+            alwaysLog("!!! EAS SyncManager, onDestroy");
+            // Stop the sync manager thread and return
+            synchronized (sSyncLock) {
+                sStop = true;
+                if (sServiceThread != null) {
+                    sServiceThread.interrupt();
+                }
+            }
+        }
+    }
+
+    void maybeStartSyncManagerThread() {
+        // Start our thread...
+        // See if there are any EAS accounts; otherwise, just go away
+        if (EmailContent.count(this, HostAuth.CONTENT_URI, WHERE_PROTOCOL_EAS, null) > 0) {
+            if (sServiceThread == null || !sServiceThread.isAlive()) {
+                log(sServiceThread == null ? "Starting thread..." : "Restarting thread...");
+                sServiceThread = new Thread(this, "SyncManager");
+                INSTANCE = this;
+                sServiceThread.start();
+            }
+        }
+    }
+
+    /**
+     * Start up the SyncManager service if it's not already running
+     * This is a stopgap for cases in which SyncManager died (due to a crash somewhere in
+     * com.android.email) and hasn't been restarted. See the comment for onCreate for details
+     */
+    static void checkSyncManagerServiceRunning() {
+        SyncManager syncManager = INSTANCE;
+        if (syncManager == null) return;
+        if (sServiceThread == null) {
+            alwaysLog("!!! checkSyncManagerServiceRunning; starting service...");
+            syncManager.startService(new Intent(syncManager, SyncManager.class));
+        }
+    }
+
+    public void run() {
+        sStop = false;
+        alwaysLog("!!! SyncManager thread running");
         // If we're really debugging, turn on all logging
         if (Eas.DEBUG) {
             Eas.USER_LOG = true;
@@ -1822,41 +1817,56 @@ public class SyncManager extends Service implements Runnable {
             Debug.waitForDebugger();
         }
 
-        // Set up our observers; we need them to know when to start/stop various syncs based
-        // on the insert/delete/update of mailboxes and accounts
-        // We also observe synced messages to trigger upsyncs at the appropriate time
-        mResolver.registerContentObserver(Mailbox.CONTENT_URI, false, mMailboxObserver);
-        mResolver.registerContentObserver(Message.SYNCED_CONTENT_URI, true, mSyncedMessageObserver);
-        mResolver.registerContentObserver(Message.CONTENT_URI, true, mMessageObserver);
-        ContentResolver.addStatusChangeListener(ContentResolver.SYNC_OBSERVER_TYPE_SETTINGS,
-                mSyncStatusObserver);
-        mAccountsUpdatedListener = new EasAccountsUpdatedListener();
-        // TODO Find and fix root cause of duplication
-        try {
-            AccountManager.get(getApplication())
-                .addOnAccountsUpdatedListener(mAccountsUpdatedListener, mHandler, true);
-        } catch (IllegalStateException e1) {
-            // This exception is more of a warning; we shouldn't be in the state in which we
-            // already have a listener.
+        // Synchronize here to prevent a shutdown from happening while we initialize our observers
+        // and receivers
+        synchronized (sSyncLock) {
+            if (INSTANCE != null) {
+                mResolver = getContentResolver();
+
+                // Set up our observers; we need them to know when to start/stop various syncs based
+                // on the insert/delete/update of mailboxes and accounts
+                // We also observe synced messages to trigger upsyncs at the appropriate time
+                mAccountObserver = new AccountObserver(mHandler);
+                mResolver.registerContentObserver(Account.CONTENT_URI, true, mAccountObserver);
+                mMailboxObserver = new MailboxObserver(mHandler);
+                mResolver.registerContentObserver(Mailbox.CONTENT_URI, false, mMailboxObserver);
+                mSyncedMessageObserver = new SyncedMessageObserver(mHandler);
+                mResolver.registerContentObserver(Message.SYNCED_CONTENT_URI, true,
+                        mSyncedMessageObserver);
+                mMessageObserver = new MessageObserver(mHandler);
+                mResolver.registerContentObserver(Message.CONTENT_URI, true, mMessageObserver);
+                mSyncStatusObserver = new EasSyncStatusObserver();
+                mStatusChangeListener =
+                    ContentResolver.addStatusChangeListener(
+                            ContentResolver.SYNC_OBSERVER_TYPE_SETTINGS, mSyncStatusObserver);
+
+                // Set up our observer for AccountManager
+                mAccountsUpdatedListener = new EasAccountsUpdatedListener();
+                AccountManager.get(getApplication()).addOnAccountsUpdatedListener(
+                        mAccountsUpdatedListener, mHandler, true);
+
+                // Set up receivers for connectivity and background data setting
+                mConnectivityReceiver = new ConnectivityReceiver();
+                registerReceiver(mConnectivityReceiver, new IntentFilter(
+                        ConnectivityManager.CONNECTIVITY_ACTION));
+
+                mBackgroundDataSettingReceiver = new ConnectivityReceiver();
+                registerReceiver(mBackgroundDataSettingReceiver, new IntentFilter(
+                        ConnectivityManager.ACTION_BACKGROUND_DATA_SETTING_CHANGED));
+                // Save away the current background data setting; we'll keep track of it with the
+                // receiver we just registered
+                ConnectivityManager cm = (ConnectivityManager)getSystemService(
+                        Context.CONNECTIVITY_SERVICE);
+                mBackgroundData = cm.getBackgroundDataSetting();
+
+                // See if any settings have changed while we weren't running...
+                checkPIMSyncSettings();
+            }
         }
 
-        // Set up receivers for ConnectivityManager
-        mConnectivityReceiver = new ConnectivityReceiver();
-        registerReceiver(mConnectivityReceiver,
-                new IntentFilter(ConnectivityManager.CONNECTIVITY_ACTION));
-        mBackgroundDataSettingReceiver = new ConnectivityReceiver();
-        registerReceiver(mBackgroundDataSettingReceiver,
-                 new IntentFilter(ConnectivityManager.ACTION_BACKGROUND_DATA_SETTING_CHANGED));
-        // Save away background data setting; we'll keep track of it with the receiver
-        ConnectivityManager cm =
-            (ConnectivityManager)getSystemService(Context.CONNECTIVITY_SERVICE);
-        mBackgroundData = cm.getBackgroundDataSetting();
-
-        // See if any settings have changed while we weren't running...
-        checkPIMSyncSettings();
-
         try {
-            while (!mStop) {
+            // Loop indefinitely until we're shut down
+            while (!sStop) {
                 runAwake(SYNC_MANAGER_ID);
                 waitForConnectivity();
                 mNextWaitReason = "Heartbeat";
@@ -1877,6 +1887,7 @@ public class SyncManager extends Service implements Runnable {
                     }
                 } catch (InterruptedException e) {
                     // Needs to be caught, but causes no problem
+                    log("SyncManager interrupted");
                 } finally {
                     synchronized (this) {
                         if (mKicked) {
@@ -1891,51 +1902,78 @@ public class SyncManager extends Service implements Runnable {
             Log.e(TAG, "RuntimeException in SyncManager", e);
             throw e;
         } finally {
-            log("Finishing SyncManager");
-            // Lots of cleanup here
-            // Stop our running syncs
-            stopServiceThreads();
-
-            // Stop receivers and content observers
-            if (mConnectivityReceiver != null) {
-                unregisterReceiver(mConnectivityReceiver);
-            }
-            if (mBackgroundDataSettingReceiver != null) {
-                unregisterReceiver(mBackgroundDataSettingReceiver);
-            }
-
-            if (INSTANCE != null) {
-                ContentResolver resolver = getContentResolver();
-                resolver.unregisterContentObserver(mAccountObserver);
-                resolver.unregisterContentObserver(mMailboxObserver);
-                resolver.unregisterContentObserver(mSyncedMessageObserver);
-                resolver.unregisterContentObserver(mMessageObserver);
-                unregisterCalendarObservers();
-            }
-            // Don't leak the Intent associated with this listener
-            if (mAccountsUpdatedListener != null) {
-                AccountManager.get(this).removeOnAccountsUpdatedListener(mAccountsUpdatedListener);
-                mAccountsUpdatedListener = null;
-            }
-
-            // Clear pending alarms and associated Intents
-            clearAlarms();
-
-            // Release our wake lock, if we have one
-            synchronized (mWakeLocks) {
-                if (mWakeLock != null) {
-                    mWakeLock.release();
-                    mWakeLock = null;
-                }
-            }
-
-            log("Goodbye");
+            shutdown();
         }
+    }
 
-        if (!mStop) {
-            // If this wasn't intentional, try to restart the service
-            throw new RuntimeException("EAS SyncManager crash; please restart me...");
-       }
+    private void shutdown() {
+        synchronized (sSyncLock) {
+            // If INSTANCE is null, we've already been shut down
+            if (INSTANCE != null) {
+                log("SyncManager shutting down...");
+
+                // Stop our running syncs
+                stopServiceThreads();
+
+                // Stop receivers
+                if (mConnectivityReceiver != null) {
+                    unregisterReceiver(mConnectivityReceiver);
+                }
+                if (mBackgroundDataSettingReceiver != null) {
+                    unregisterReceiver(mBackgroundDataSettingReceiver);
+                }
+
+                // Unregister observers
+                ContentResolver resolver = getContentResolver();
+                if (mSyncedMessageObserver != null) {
+                    resolver.unregisterContentObserver(mSyncedMessageObserver);
+                    mSyncedMessageObserver = null;
+                }
+                if (mMessageObserver != null) {
+                    resolver.unregisterContentObserver(mMessageObserver);
+                    mMessageObserver = null;
+                }
+                if (mAccountObserver != null) {
+                    resolver.unregisterContentObserver(mAccountObserver);
+                    mAccountObserver = null;
+                }
+                if (mMailboxObserver != null) {
+                    resolver.unregisterContentObserver(mMailboxObserver);
+                    mMailboxObserver = null;
+                }
+                unregisterCalendarObservers();
+
+                // Remove account listener (registered with AccountManager)
+                if (mAccountsUpdatedListener != null) {
+                    AccountManager.get(this).removeOnAccountsUpdatedListener(
+                            mAccountsUpdatedListener);
+                    mAccountsUpdatedListener = null;
+                }
+
+                // Remove the sync status change listener (and null out the observer)
+                if (mStatusChangeListener != null) {
+                    ContentResolver.removeStatusChangeListener(mStatusChangeListener);
+                    mStatusChangeListener = null;
+                    mSyncStatusObserver = null;
+                }
+
+                // Clear pending alarms and associated Intents
+                clearAlarms();
+
+                // Release our wake lock, if we have one
+                synchronized (mWakeLocks) {
+                    if (mWakeLock != null) {
+                        mWakeLock.release();
+                        mWakeLock = null;
+                    }
+                }
+
+                INSTANCE = null;
+                sServiceThread = null;
+                sStop = false;
+                log("Goodbye");
+            }
+        }
     }
 
     private void releaseMailbox(long mailboxId) {
@@ -2112,7 +2150,7 @@ public class SyncManager extends Service implements Runnable {
                         long requestTime = service.mRequestTime;
                         if (requestTime > 0) {
                             long timeToRequest = requestTime - now;
-                            if (service instanceof AbstractSyncService && timeToRequest <= 0) {
+                            if (timeToRequest <= 0) {
                                 service.mRequestTime = 0;
                                 service.alarm();
                             } else if (requestTime > 0 && timeToRequest < nextWait) {

@@ -29,9 +29,14 @@ import android.content.Intent;
 public class MailboxAlarmReceiver extends BroadcastReceiver {
     @Override
     public void onReceive(Context context, Intent intent) {
-        long mid = intent.getLongExtra("mailbox", -1);
-        SyncManager.log("Alarm received for: " + SyncManager.alarmOwner(mid));
-        SyncManager.alert(context, mid);
+        long mailboxId = intent.getLongExtra("mailbox", SyncManager.SYNC_MANAGER_ID);
+        // SYNC_MANAGER_SERVICE_ID tells us that the service is asking to be started
+        if (mailboxId == SyncManager.SYNC_MANAGER_SERVICE_ID) {
+            context.startService(new Intent(context, SyncManager.class));
+        } else {
+            SyncManager.log("Alarm received for: " + SyncManager.alarmOwner(mailboxId));
+            SyncManager.alert(context, mailboxId);
+        }
     }
 }
 
