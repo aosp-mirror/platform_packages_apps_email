@@ -211,4 +211,24 @@ public class SyncManagerAccountTests extends AccountTestCase {
         assertEquals(0, errorMap.keySet().size());
     }
 
+    public void testIsSyncable() {
+        Context context = mMockContext;
+        Account acct1 = ProviderTestUtils.setupAccount("acct1", true, context);
+        Mailbox box1 = ProviderTestUtils.setupMailbox("box1", acct1.mId, true, context,
+                Mailbox.TYPE_DRAFTS);
+        Mailbox box2 = ProviderTestUtils.setupMailbox("box2", acct1.mId, true, context,
+                Mailbox.TYPE_OUTBOX);
+        Mailbox box3 = ProviderTestUtils.setupMailbox("box2", acct1.mId, true, context,
+                Mailbox.TYPE_ATTACHMENT);
+        Mailbox box4 = ProviderTestUtils.setupMailbox("box2", acct1.mId, true, context,
+                Mailbox.TYPE_NOT_SYNCABLE + 64);
+        Mailbox box5 = ProviderTestUtils.setupMailbox("box2", acct1.mId, true, context,
+                Mailbox.TYPE_MAIL);
+        assertFalse(SyncManager.isSyncable(null));
+        assertFalse(SyncManager.isSyncable(box1));
+        assertFalse(SyncManager.isSyncable(box2));
+        assertFalse(SyncManager.isSyncable(box3));
+        assertFalse(SyncManager.isSyncable(box4));
+        assertTrue(SyncManager.isSyncable(box5));
+    }
 }

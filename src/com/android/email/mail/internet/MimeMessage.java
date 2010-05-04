@@ -423,7 +423,7 @@ public class MimeMessage extends Message {
             return;
         }
         if (mExtendedHeader == null) {
-            mExtendedHeader = new MimeHeader(); 
+            mExtendedHeader = new MimeHeader();
         }
         mExtendedHeader.setHeader(name, END_OF_LINE.matcher(value).replaceAll(""));
     }
@@ -433,7 +433,7 @@ public class MimeMessage extends Message {
      * 
      * @param name Extended header name
      * @return header value - null if header does not exist
-     * @throws MessagingException 
+     * @throws MessagingException
      */
     public String getExtendedHeader(String name) throws MessagingException {
         if (mExtendedHeader == null) {

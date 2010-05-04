@@ -16,16 +16,23 @@
 
 package com.android.email;
 
+import com.android.email.mail.MessagingException;
+import com.android.email.mail.transport.Rfc822Output;
 import com.android.email.provider.EmailContent;
 import com.android.email.provider.EmailProvider;
 import com.android.email.provider.ProviderTestUtils;
 import com.android.email.provider.EmailContent.Account;
+import com.android.email.provider.EmailContent.Body;
 import com.android.email.provider.EmailContent.Mailbox;
 import com.android.email.provider.EmailContent.Message;
 
 import android.content.Context;
+import android.net.Uri;
 import android.test.ProviderTestCase2;
 
+import java.io.File;
+import java.io.FileOutputStream;
+import java.io.IOException;
 import java.util.Locale;
 
 /**
@@ -280,6 +287,63 @@ public class ControllerProviderOpsTests extends ProviderTestCase2<EmailProvider>
         ct.setMessageFavorite(message1Id, false);
         message1get = Message.restoreMessageWithId(mProviderContext, message1Id);
         assertFalse(message1get.mFlagFavorite);
+    }
+
+    public void testGetAndDeleteAttachmentMailbox() {
+        Controller ct = new TestController(mProviderContext, mContext);
+        Mailbox box = ct.getAttachmentMailbox();
+        assertNotNull(box);
+        Mailbox anotherBox = ct.getAttachmentMailbox();
+        assertNotNull(anotherBox);
+        // We should always get back the same Mailbox row
+        assertEquals(box.mId, anotherBox.mId);
+        // Add two messages to this mailbox
+        ProviderTestUtils.setupMessage("message1", 0, box.mId, false, true,
+                mProviderContext);
+        ProviderTestUtils.setupMessage("message2", 0, box.mId, false, true,
+                mProviderContext);
+        // Make sure we can find them where they are expected
+        assertEquals(2, EmailContent.count(mProviderContext, Message.CONTENT_URI,
+                Message.MAILBOX_KEY + "=?", new String[] {Long.toString(box.mId)}));
+        // Delete them
+        ct.deleteAttachmentMessages();
+        // Make sure they're gone
+        assertEquals(0, EmailContent.count(mProviderContext, Message.CONTENT_URI,
+                Message.MAILBOX_KEY + "=?", new String[] {Long.toString(box.mId)}));
+    }
+
+    public void testLoadMessageFromUri() throws IOException, MessagingException {
+        // Create a simple message
+        Message msg = new Message();
+        String text = "This is some text";
+        msg.mText = text;
+        String sender = "sender@host.com";
+        msg.mFrom = sender;
+        // Save this away
+        msg.save(mProviderContext);
+
+        // Write out the message in rfc822 format
+        File outputFile = File.createTempFile("message", "tmp", mContext.getFilesDir());
+        assertNotNull(outputFile);
+        FileOutputStream outputStream = new FileOutputStream(outputFile);
+        Rfc822Output.writeTo(mProviderContext, msg.mId, outputStream, false, false);
+        outputStream.close();
+
+        // Load the message via Controller and a Uri
+        Controller ct = new TestController(mProviderContext, mContext);
+        Message loadedMsg = ct.loadMessageFromUri(Uri.fromFile(outputFile));
+
+        // Check server id, mailbox key, account key, and from
+        assertNotNull(loadedMsg);
+        assertTrue(loadedMsg.mServerId.startsWith(Controller.ATTACHMENT_MESSAGE_UID_PREFIX));
+        Mailbox box = ct.getAttachmentMailbox();
+        assertNotNull(box);
+        assertEquals(box.mId, loadedMsg.mMailboxKey);
+        assertEquals(0, loadedMsg.mAccountKey);
+        assertEquals(loadedMsg.mFrom, sender);
+        // Check body text
+        String loadedMsgText = Body.restoreBodyTextWithMessageId(mProviderContext, loadedMsg.mId);
+        assertEquals(text, loadedMsgText);
     }
 
     /**

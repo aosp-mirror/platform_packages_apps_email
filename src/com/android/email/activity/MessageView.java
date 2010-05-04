@@ -17,9 +17,9 @@
 package com.android.email.activity;
 
 import com.android.email.Controller;
+import com.android.email.ControllerResultUiThreadWrapper;
 import com.android.email.Email;
 import com.android.email.R;
-import com.android.email.ControllerResultUiThreadWrapper;
 import com.android.email.Utility;
 import com.android.email.mail.Address;
 import com.android.email.mail.MeetingInfo;
@@ -89,7 +89,10 @@ import java.util.regex.Pattern;
 public class MessageView extends Activity implements OnClickListener {
     private static final String EXTRA_MESSAGE_ID = "com.android.email.MessageView_message_id";
     private static final String EXTRA_MAILBOX_ID = "com.android.email.MessageView_mailbox_id";
-    /* package */ static final String EXTRA_DISABLE_REPLY = "com.android.email.MessageView_disable_reply";
+    private static final String EXTRA_ORIGINAL_MAILBOX_ID =
+        "com.android.email.MessageView_original_mailbox_id";
+    /* package */ static final String EXTRA_DISABLE_REPLY =
+        "com.android.email.MessageView_disable_reply";
 
     // for saveInstanceState()
     private static final String STATE_MESSAGE_ID = "messageId";
@@ -141,6 +144,8 @@ public class MessageView extends Activity implements OnClickListener {
     private long mMailboxId;
     private Message mMessage;
     private long mWaitForLoadMessageId;
+    // Set to true for messages that are attachments
+    private boolean mAttachmentMessageFlag = false;
 
     private LoadMessageTask mLoadMessageTask;
     private LoadBodyTask mLoadBodyTask;
@@ -384,6 +389,10 @@ public class MessageView extends Activity implements OnClickListener {
         mMessageContentView.destroy();
         mMessageContentView = null;
         // the cursor was closed in onPause()
+        // If we're leaving a non-attachment message, delete any/all attachment messages
+        if (!mAttachmentMessageFlag) {
+            mController.deleteAttachmentMessages();
+        }
     }
 
     private void onDelete() {
@@ -875,7 +884,6 @@ public class MessageView extends Activity implements OnClickListener {
      * @param attachment A single attachment loaded from the provider
      */
     private void addAttachment(Attachment attachment) {
-
         AttachmentInfo attachmentInfo = new AttachmentInfo();
         attachmentInfo.size = attachment.mSize;
         attachmentInfo.contentType =
@@ -1056,18 +1064,41 @@ public class MessageView extends Activity implements OnClickListener {
 
         private long mId;
         private boolean mOkToFetch;
+        private Uri mIntentUri;
 
         /**
          * Special constructor to cache some local info
          */
         public LoadMessageTask(long messageId, boolean okToFetch) {
+            mIntentUri = getIntent().getData();
             mId = messageId;
             mOkToFetch = okToFetch;
+            mAttachmentMessageFlag = (mIntentUri != null);
         }
 
+        /**
+         * There will either be a Uri in the Intent (i.e. whose content is the Message to be
+         * loaded), or mId will be holding the id of the Message as stored in the provider.
+         * If we're loading via Uri, the Controller does the actual message parsing and storage,
+         * and we setup the message id and mailbox id based on the result; forward and reply are
+         * disabled for messages loaded via Uri
+         */
         @Override
         protected Message doInBackground(Void... params) {
-            if (mId == Long.MIN_VALUE)  {
+            // If we have a URI, then we were opened via an intent filter (e.g. an attachment that
+            // has a mime type that we can handle (e.g. message/rfc822).
+            if (mIntentUri != null) {
+                final Activity activity = MessageView.this;
+                // Put up a toast; this can take a little while...
+                Utility.showToast(activity, R.string.message_view_parse_message_toast);
+                Message msg = mController.loadMessageFromUri(mIntentUri);
+                if (msg == null) {
+                    // Indicate that the attachment couldn't be loaded
+                    Utility.showToast(activity, R.string.message_view_display_attachment_toast);
+                    return null;
+                }
+                return msg;
+            } else if (mId == Long.MIN_VALUE)  {
                 return null;
             }
             return Message.restoreMessageWithId(MessageView.this, mId);
@@ -1094,6 +1125,9 @@ public class MessageView extends Activity implements OnClickListener {
                 }
                 return;
             }
+            mMessageId = message.mId;
+            mMailboxId = message.mMailboxKey;
+            mDisableReplyAndForward = mIntentUri != null;
             reloadUiFromMessage(message, mOkToFetch);
             startPresenceCheck();
         }

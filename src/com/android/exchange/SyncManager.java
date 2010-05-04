@@ -1737,7 +1737,6 @@ public class SyncManager extends Service implements Runnable {
     public void onCreate() {
         synchronized (sSyncLock) {
             alwaysLog("!!! EAS SyncManager, onCreate");
-            // If we're in the process of shutting down, try again in 5 seconds
             if (sStop) {
                 return;
             }
@@ -2187,15 +2186,24 @@ public class SyncManager extends Service implements Runnable {
         serviceRequest(mailboxId, 5*SECONDS, reason);
     }
 
+    /**
+     * Return a boolean indicating whether the mailbox can be synced
+     * @param m the mailbox
+     * @return whether or not the mailbox can be synced
+     */
+    static /*package*/ boolean isSyncable(Mailbox m) {
+        if (m == null || m.mType == Mailbox.TYPE_DRAFTS || m.mType == Mailbox.TYPE_OUTBOX ||
+                m.mType >= Mailbox.TYPE_NOT_SYNCABLE) {
+            return false;
+        }
+        return true;
+    }
+
     static public void serviceRequest(long mailboxId, long ms, int reason) {
         SyncManager syncManager = INSTANCE;
         if (syncManager == null) return;
         Mailbox m = Mailbox.restoreMailboxWithId(syncManager, mailboxId);
-        // Never allow manual start of Drafts or Outbox via serviceRequest
-        if (m == null || m.mType == Mailbox.TYPE_DRAFTS || m.mType == Mailbox.TYPE_OUTBOX) {
-            log("Ignoring serviceRequest for drafts/outbox/null mailbox");
-            return;
-        }
+        if (!isSyncable(m)) return;
         try {
             AbstractSyncService service = syncManager.mServiceMap.get(mailboxId);
             if (service != null) {

@@ -935,7 +935,7 @@ public class Pop3Store extends Store {
         }
     }
 
-    class Pop3Message extends MimeMessage {
+    public static class Pop3Message extends MimeMessage {
         public Pop3Message(String uid, Pop3Folder folder) throws MessagingException {
             mUid = uid;
             mFolder = folder;
@@ -947,7 +947,7 @@ public class Pop3Store extends Store {
         }
 
         @Override
-        protected void parse(InputStream in) throws IOException, MessagingException {
+        public void parse(InputStream in) throws IOException, MessagingException {
             super.parse(in);
         }
 

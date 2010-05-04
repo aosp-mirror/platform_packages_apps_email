@@ -435,11 +435,11 @@ public class MessagingController implements Runnable {
         }
     }
 
-    private void saveOrUpdate(EmailContent content) {
+    private void saveOrUpdate(EmailContent content, Context context) {
         if (content.isSaved()) {
-            content.update(mContext, content.toContentValues());
+            content.update(context, content.toContentValues());
         } else {
-            content.save(mContext);
+            content.save(context);
         }
     }
 
@@ -619,7 +619,7 @@ public class MessagingController implements Runnable {
                                         LegacyConversions.updateMessageFields(localMessage,
                                                 message, account.mId, folder.mId);
                                         // Commit the message to the local store
-                                        saveOrUpdate(localMessage);
+                                        saveOrUpdate(localMessage, mContext);
                                         // Track the "new" ness of the downloaded message
                                         if (!message.isSet(Flag.SEEN)) {
                                             newMessages.add(message);
@@ -916,7 +916,7 @@ public class MessagingController implements Runnable {
 
     /**
      * Copy one downloaded message (which may have partially-loaded sections)
-     * into a provider message
+     * into a newly created EmailProvider Message, given the account and mailbox
      *
      * @param message the remote message we've just downloaded
      * @param account the account it will be stored into
@@ -924,47 +924,59 @@ public class MessagingController implements Runnable {
      * @param loadStatus when complete, the message will be marked with this status (e.g.
      *        EmailContent.Message.LOADED)
      */
-    private void copyOneMessageToProvider(Message message, EmailContent.Account account,
+    public void copyOneMessageToProvider(Message message, EmailContent.Account account,
             EmailContent.Mailbox folder, int loadStatus) {
+        EmailContent.Message localMessage = null;
+        Cursor c = null;
         try {
-            EmailContent.Message localMessage = null;
-            Cursor c = null;
-            try {
-                c = mContext.getContentResolver().query(
-                        EmailContent.Message.CONTENT_URI,
-                        EmailContent.Message.CONTENT_PROJECTION,
-                        EmailContent.MessageColumns.ACCOUNT_KEY + "=?" +
-                        " AND " + MessageColumns.MAILBOX_KEY + "=?" +
-                        " AND " + SyncColumns.SERVER_ID + "=?",
-                        new String[] {
-                                String.valueOf(account.mId),
-                                String.valueOf(folder.mId),
-                                String.valueOf(message.getUid())
-                        },
-                        null);
-                if (c.moveToNext()) {
-                    localMessage = EmailContent.getContent(c, EmailContent.Message.class);
-                }
-            } finally {
-                if (c != null) {
-                    c.close();
-                }
+            c = mContext.getContentResolver().query(
+                    EmailContent.Message.CONTENT_URI,
+                    EmailContent.Message.CONTENT_PROJECTION,
+                    EmailContent.MessageColumns.ACCOUNT_KEY + "=?" +
+                    " AND " + MessageColumns.MAILBOX_KEY + "=?" +
+                    " AND " + SyncColumns.SERVER_ID + "=?",
+                    new String[] {
+                            String.valueOf(account.mId),
+                            String.valueOf(folder.mId),
+                            String.valueOf(message.getUid())
+                    },
+                    null);
+            if (c.moveToNext()) {
+                localMessage = EmailContent.getContent(c, EmailContent.Message.class);
+                localMessage.mMailboxKey = folder.mId;
+                localMessage.mAccountKey = account.mId;
+                copyOneMessageToProvider(message, localMessage, loadStatus, mContext);
             }
-            if (localMessage == null) {
-                Log.d(Email.LOG_TAG, "Could not retrieve message from db, UUID="
-                        + message.getUid());
-                return;
+        } finally {
+            if (c != null) {
+                c.close();
             }
+        }
+    }
 
-            EmailContent.Body body = EmailContent.Body.restoreBodyWithMessageId(mContext,
+    /**
+     * Copy one downloaded message (which may have partially-loaded sections)
+     * into an already-created EmailProvider Message
+     *
+     * @param message the remote message we've just downloaded
+     * @param localMessage the EmailProvider Message, already created
+     * @param loadStatus when complete, the message will be marked with this status (e.g.
+     *        EmailContent.Message.LOADED)
+     * @param context the context to be used for EmailProvider
+     */
+    public void copyOneMessageToProvider(Message message, EmailContent.Message localMessage,
+            int loadStatus, Context context) {
+        try {
+
+            EmailContent.Body body = EmailContent.Body.restoreBodyWithMessageId(context,
                     localMessage.mId);
             if (body == null) {
                 body = new EmailContent.Body();
             }
             try {
                 // Copy the fields that are available into the message object
-                LegacyConversions.updateMessageFields(localMessage, message, account.mId,
-                        folder.mId);
+                LegacyConversions.updateMessageFields(localMessage, message,
+                        localMessage.mAccountKey, localMessage.mMailboxKey);
 
                 // Now process body parts & attachments
                 ArrayList<Part> viewables = new ArrayList<Part>();
@@ -974,11 +986,11 @@ public class MessagingController implements Runnable {
                 LegacyConversions.updateBodyFields(body, localMessage, viewables);
 
                 // Commit the message & body to the local store immediately
-                saveOrUpdate(localMessage);
-                saveOrUpdate(body);
+                saveOrUpdate(localMessage, context);
+                saveOrUpdate(body, context);
 
                 // process (and save) attachments
-                LegacyConversions.updateAttachments(mContext, localMessage,
+                LegacyConversions.updateAttachments(context, localMessage,
                         attachments, false);
 
                 // One last update of message with two updated flags
@@ -989,7 +1001,7 @@ public class MessagingController implements Runnable {
                 cv.put(EmailContent.MessageColumns.FLAG_LOADED, localMessage.mFlagLoaded);
                 Uri uri = ContentUris.withAppendedId(EmailContent.Message.CONTENT_URI,
                         localMessage.mId);
-                mContext.getContentResolver().update(uri, cv, null, null);
+                context.getContentResolver().update(uri, cv, null, null);
 
             } catch (MessagingException me) {
                 Log.e(Email.LOG_TAG, "Error while copying downloaded message." + me);

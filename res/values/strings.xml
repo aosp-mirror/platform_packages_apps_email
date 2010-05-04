@@ -308,6 +308,8 @@
     <string name="message_saved_toast">Message saved as draft.</string>
     <!-- String that is displayed when the attachment could not be displayed. -->
     <string name="message_view_display_attachment_toast">This attachment cannot be displayed.</string>
+    <!-- String that is displayed when a long message is being parsed. -->
+    <string name="message_view_parse_message_toast">Opening message\u2026</string>
 
     <!-- Title of screen when setting up new email account -->
     <string name="account_setup_basics_title">Set up email</string>

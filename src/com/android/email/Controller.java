@@ -19,6 +19,7 @@ package com.android.email;
 import com.android.email.mail.AuthenticationFailedException;
 import com.android.email.mail.MessagingException;
 import com.android.email.mail.Store;
+import com.android.email.mail.store.Pop3Store.Pop3Message;
 import com.android.email.provider.AttachmentProvider;
 import com.android.email.provider.EmailContent;
 import com.android.email.provider.EmailContent.Account;
@@ -41,6 +42,9 @@ import android.os.RemoteException;
 import android.util.Log;
 
 import java.io.File;
+import java.io.FileNotFoundException;
+import java.io.IOException;
+import java.io.InputStream;
 import java.util.HashSet;
 import java.util.concurrent.ConcurrentHashMap;
 
@@ -58,6 +62,17 @@ public class Controller {
     private final LegacyListener mLegacyListener = new LegacyListener();
     private final ServiceCallback mServiceCallback = new ServiceCallback();
     private final HashSet<Result> mListeners = new HashSet<Result>();
+
+
+    // Note that 0 is a syntactically valid account key; however there can never be an account
+    // with id = 0, so attempts to restore the account will return null.  Null values are
+    // handled properly within the code, so this won't cause any issues.
+    private static final long ATTACHMENT_MAILBOX_ACCOUNT_KEY = 0;
+    /*package*/ static final String ATTACHMENT_MAILBOX_SERVER_ID = "__attachment_mailbox__";
+    /*package*/ static final String ATTACHMENT_MESSAGE_UID_PREFIX = "__attachment_message__";
+    private static final String WHERE_TYPE_ATTACHMENT =
+        MailboxColumns.TYPE + "=" + Mailbox.TYPE_ATTACHMENT;
+    private static final String WHERE_MAILBOX_KEY = MessageColumns.MAILBOX_KEY + "=?";
 
     private static String[] MESSAGEID_TO_ACCOUNTID_PROJECTION = new String[] {
         EmailContent.RECORD_ID,
@@ -83,7 +98,7 @@ public class Controller {
     protected Controller(Context _context) {
         mContext = _context.getApplicationContext();
         mProviderContext = _context;
-        mLegacyController = MessagingController.getInstance(mContext);
+        mLegacyController = MessagingController.getInstance(mProviderContext);
         mLegacyController.addListener(mLegacyListener);
     }
 
@@ -135,6 +150,89 @@ public class Controller {
         synchronized (mListeners) {
             return mListeners.contains(listener);
         }
+    }
+
+    /**
+     * Delete all Messages that live in the attachment mailbox
+     */
+    public void deleteAttachmentMessages() {
+        // Note: There should only be one attachment mailbox at present
+        ContentResolver resolver = mProviderContext.getContentResolver();
+        Cursor c = null;
+        try {
+            c = resolver.query(Mailbox.CONTENT_URI, EmailContent.ID_PROJECTION,
+                    WHERE_TYPE_ATTACHMENT, null, null);
+            while (c.moveToNext()) {
+                long mailboxId = c.getLong(EmailContent.ID_PROJECTION_COLUMN);
+                // Must delete attachments BEFORE messages
+                AttachmentProvider.deleteAllMailboxAttachmentFiles(mProviderContext, 0, mailboxId);
+                resolver.delete(Message.CONTENT_URI, WHERE_MAILBOX_KEY,
+                        new String[] {Long.toString(mailboxId)});
+           }
+        } finally {
+            if (c != null) {
+                c.close();
+            }
+        }
+    }
+
+    /**
+     * Returns the attachment Mailbox (where we store eml attachment Emails), creating one
+     * if necessary
+     * @return the account's temporary Mailbox
+     */
+    public Mailbox getAttachmentMailbox() {
+        Cursor c = mProviderContext.getContentResolver().query(Mailbox.CONTENT_URI,
+                Mailbox.CONTENT_PROJECTION, WHERE_TYPE_ATTACHMENT, null, null);
+        try {
+            if (c.moveToFirst()) {
+                return new Mailbox().restore(c);
+            }
+        } finally {
+            c.close();
+        }
+        Mailbox m = new Mailbox();
+        m.mAccountKey = ATTACHMENT_MAILBOX_ACCOUNT_KEY;
+        m.mServerId = ATTACHMENT_MAILBOX_SERVER_ID;
+        m.mFlagVisible = false;
+        m.mDisplayName = ATTACHMENT_MAILBOX_SERVER_ID;
+        m.mSyncInterval = Mailbox.CHECK_INTERVAL_NEVER;
+        m.mType = Mailbox.TYPE_ATTACHMENT;
+        m.save(mProviderContext);
+        return m;
+    }
+
+    /**
+     * Create a Message from the Uri and store it in the attachment mailbox
+     * @param uri the uri containing message content
+     * @return the Message or null
+     */
+    public Message loadMessageFromUri(Uri uri) {
+        Mailbox mailbox = getAttachmentMailbox();
+        if (mailbox == null) return null;
+        try {
+            InputStream is = mProviderContext.getContentResolver().openInputStream(uri);
+            try {
+                // First, create a Pop3Message from the attachment and then parse it
+                Pop3Message pop3Message = new Pop3Message(
+                        ATTACHMENT_MESSAGE_UID_PREFIX + System.currentTimeMillis(), null);
+                pop3Message.parse(is);
+                // Now, pull out the header fields
+                Message msg = new Message();
+                LegacyConversions.updateMessageFields(msg, pop3Message, 0, mailbox.mId);
+                // Commit the message to the local store
+                msg.save(mProviderContext);
+                // Setup the rest of the message and mark it completely loaded
+                mLegacyController.copyOneMessageToProvider(pop3Message, msg,
+                        Message.FLAG_LOADED_COMPLETE, mProviderContext);
+                // Restore the complete message and return it
+                return Message.restoreMessageWithId(mProviderContext, msg.mId);
+            } catch (MessagingException e) {
+            } catch (IOException e) {
+            }
+        } catch (FileNotFoundException e) {
+        }
+        return null;
     }
 
     /**
