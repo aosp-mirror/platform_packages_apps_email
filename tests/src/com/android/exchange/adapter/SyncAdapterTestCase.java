@@ -28,9 +28,11 @@ import android.test.ProviderTestCase2;
 
 import java.io.ByteArrayInputStream;
 import java.io.InputStream;
+import java.lang.reflect.Constructor;
+import java.lang.reflect.InvocationTargetException;
 
-public class SyncAdapterTestCase extends ProviderTestCase2<EmailProvider> {
-
+public class SyncAdapterTestCase<T extends AbstractSyncAdapter>
+        extends ProviderTestCase2<EmailProvider> {
     EmailProvider mProvider;
     Context mMockContext;
     ContentResolver mMockResolver;
@@ -78,13 +80,24 @@ public class SyncAdapterTestCase extends ProviderTestCase2<EmailProvider> {
         service.mContext = mMockContext;
         service.mMailbox = mailbox;
         service.mAccount = account;
+        service.mContentResolver = mMockResolver;
         return service;
     }
 
-    EmailSyncAdapter getTestSyncAdapter() {
+    T getTestSyncAdapter(Class<T> klass) {
         EasSyncService service = getTestService();
-        EmailSyncAdapter adapter = new EmailSyncAdapter(service.mMailbox, service);
-        return adapter;
+        Constructor<T> c;
+        try {
+            c = klass.getDeclaredConstructor(new Class[] {Mailbox.class, EasSyncService.class});
+            return c.newInstance(service.mMailbox, service);
+        } catch (SecurityException e) {
+        } catch (NoSuchMethodException e) {
+        } catch (IllegalArgumentException e) {
+        } catch (InstantiationException e) {
+        } catch (IllegalAccessException e) {
+        } catch (InvocationTargetException e) {
+        }
+        return null;
     }
 
 }

@@ -133,6 +133,7 @@ public class CalendarSyncAdapter extends AbstractSyncAdapter {
         Cursor c = mService.mContentResolver.query(Calendars.CONTENT_URI,
                 new String[] {Calendars._ID}, CALENDAR_SELECTION,
                 new String[] {mEmailAddress, Email.EXCHANGE_ACCOUNT_MANAGER_TYPE}, null);
+        if (c == null) return;
         try {
             if (c.moveToFirst()) {
                 mCalendarId = c.getLong(CALENDAR_SELECTION_ID);
@@ -231,7 +232,7 @@ public class CalendarSyncAdapter extends AbstractSyncAdapter {
         }
     }
 
-    class EasCalendarSyncParser extends AbstractSyncParser {
+    public class EasCalendarSyncParser extends AbstractSyncParser {
 
         String[] mBindArgument = new String[1];
         Uri mAccountUri;
@@ -271,6 +272,56 @@ public class CalendarSyncAdapter extends AbstractSyncAdapter {
                 } else {
                     ops.updatedAttendee(attendeeCv, eventId);
                 }
+            }
+        }
+
+        /**
+         * Set DTEND and/or DURATION, as appropriate, for the Event
+         * The follow rules are enforced by CalendarProvider2:
+         *   Events MUST have either 1) a DTEND or 2) a DURATION as defined by Rfc2445
+         *   Recurring events (i.e. events with RRULE) must have a DURATION
+         *   All-day recurring events MUST have a DURATION that is in the form P<n>D
+         *   Other events MAY have a DURATION in any valid form (we use P<n>M)
+         *   All-day events MUST have hour, minute, and second = 0; in addition, they must have
+         *   the TIMEZONE set to UTC
+         * @param cv the ContentValues for the Event
+         * @param startTime the start time for the Event
+         * @param endTime the end time for the Event
+         * @param allDayEvent whether this is an all day event (1) or not (0)
+         */
+        /*package*/ void setTimes(ContentValues cv, long startTime, long endTime, int allDayEvent) {
+            // Sanity check for illegal values; just return (the event will be rejected later by
+            // isValidEventValues()
+            if (startTime < 0 || endTime < 0) return;
+            // If this is an all-day event, set hour, minute, and second to zero
+            if (allDayEvent != 0) {
+                GregorianCalendar cal = new GregorianCalendar(UTC_TIMEZONE);
+                cal.setTimeInMillis(startTime);
+                cal.set(GregorianCalendar.HOUR_OF_DAY, 0);
+                cal.set(GregorianCalendar.MINUTE, 0);
+                cal.set(GregorianCalendar.SECOND, 0);
+                startTime = cal.getTimeInMillis();
+                cal.setTimeInMillis(endTime);
+                cal.set(GregorianCalendar.HOUR_OF_DAY, 0);
+                cal.set(GregorianCalendar.MINUTE, 0);
+                cal.set(GregorianCalendar.SECOND, 0);
+                endTime = cal.getTimeInMillis();
+                cv.put(Events.EVENT_TIMEZONE, UTC_TIMEZONE.getID());
+            }
+            // Always set DTSTART
+            cv.put(Events.DTSTART, startTime);
+            // For recurring events, set DURATION.  Use P<n>D format for all day events
+            if (cv.containsKey(Events.RRULE)) {
+                if (allDayEvent != 0) {
+                    cv.put(Events.DURATION, "P" + ((endTime - startTime) / DAYS) + "D");
+                }
+                else {
+                    cv.put(Events.DURATION, "P" + ((endTime - startTime) / MINUTES) + "M");
+                }
+            // For other events, set DTEND and LAST_DATE
+            } else {
+                cv.put(Events.DTEND, endTime);
+                cv.put(Events.LAST_DATE, endTime);
             }
         }
 
@@ -370,7 +421,6 @@ public class CalendarSyncAdapter extends AbstractSyncAdapter {
                         break;
                     case Tags.CALENDAR_START_TIME:
                         startTime = Utility.parseDateTimeToMillis(getValue());
-                        cv.put(Events.DTSTART, startTime);
                         break;
                     case Tags.CALENDAR_END_TIME:
                         endTime = Utility.parseDateTimeToMillis(getValue());
@@ -437,6 +487,9 @@ public class CalendarSyncAdapter extends AbstractSyncAdapter {
                 }
             }
 
+            // Set up DTART and DTEND/DURATION
+            setTimes(cv, startTime, endTime, allDayEvent);
+
             // If we haven't added the organizer to attendees, do it now
             if (!organizerAdded) {
                 addOrganizerToAttendees(ops, eventId, organizerName, organizerEmail);
@@ -474,36 +527,6 @@ public class CalendarSyncAdapter extends AbstractSyncAdapter {
                 ops.newExtendedProperty("attendees", sb.toString());
             }
 
-            boolean hasRrule = cv.containsKey(Events.RRULE);
-            // If there's no recurrence, set DTEND to the end time
-            if (!hasRrule) {
-                cv.put(Events.DTEND, endTime);
-                cv.put(Events.LAST_DATE, endTime);
-            }
-            // Set the DURATION using rfc2445
-            // For all day events, make sure hour, minute, and second are zero for DTSTART/DTEND
-            if (allDayEvent != 0) {
-                GregorianCalendar cal = new GregorianCalendar(UTC_TIMEZONE);
-                cal.setTimeInMillis(startTime);
-                cal.set(GregorianCalendar.HOUR_OF_DAY, 0);
-                cal.set(GregorianCalendar.MINUTE, 0);
-                cal.set(GregorianCalendar.SECOND, 0);
-                cv.put(Events.DTSTART, cal.getTimeInMillis());
-                // Use DURATION w/ recurrences; otherwise DTEND
-                if (!hasRrule) {
-                    cal.setTimeInMillis(endTime);
-                    cal.set(GregorianCalendar.HOUR_OF_DAY, 0);
-                    cal.set(GregorianCalendar.MINUTE, 0);
-                    cal.set(GregorianCalendar.SECOND, 0);
-                    cv.put(Events.DTEND, cal.getTimeInMillis());
-                } else {
-                    cv.put(Events.DURATION, "P" + ((endTime - startTime) / DAYS) + "D");
-                }
-                cv.put(Events.EVENT_TIMEZONE, UTC_TIMEZONE.getID());
-            } else {
-                cv.put(Events.DURATION, "P" + ((endTime - startTime) / MINUTES) + "M");
-            }
-
             // Put the real event in the proper place in the ops ArrayList
             if (eventOffset >= 0) {
                 // Store away the DTSTAMP here
@@ -537,11 +560,12 @@ public class CalendarSyncAdapter extends AbstractSyncAdapter {
             }
         }
 
-        private boolean isValidEventValues(ContentValues cv, boolean update) {
-            // Do a sanity check on this set of values
+        /*package*/ boolean isValidEventValues(ContentValues cv, boolean update) {
             // At the very least, we must get DTSTART and _SYNC_DATA (uid)
-            // If it's invalid, log the columns we've got (will help debugging)
-            if (!cv.containsKey(Events.DTSTART) || !cv.containsKey(Events._SYNC_DATA)) {
+            // and one of DTEND or DURATION
+            // If the content values are invalid, log the columns (will help debugging)
+            if (!cv.containsKey(Events.DTSTART) || !cv.containsKey(Events._SYNC_DATA) ||
+                    (!cv.containsKey(Events.DTEND) && !cv.containsKey(Events.DURATION))) {
                 userLog(TAG, (update ? "Changed" : "New") + " event invalid; skipping");
                 StringBuilder sb = new StringBuilder("Columns: ");
                 for (Entry<String, Object> entry: cv.valueSet()) {
@@ -550,6 +574,16 @@ public class CalendarSyncAdapter extends AbstractSyncAdapter {
                 }
                 userLog(TAG, sb.toString());
                 return false;
+            // If we've got an RRULE, we must have a DURATION
+            } else if (cv.containsKey(Events.RRULE)) {
+                String duration = cv.getAsString(Events.DURATION);
+                if (duration == null) return false;
+                if (cv.containsKey(Events.ALL_DAY)) {
+                    Integer ade = cv.getAsInteger(Events.ALL_DAY);
+                    if (ade != 0 && !duration.endsWith("D")) {
+                        return false;
+                    }
+                }
             }
             return true;
         }
@@ -618,6 +652,17 @@ public class CalendarSyncAdapter extends AbstractSyncAdapter {
             cv.put(Events.VISIBILITY, parentCv.getAsString(Events.VISIBILITY));
             cv.put(Events.EVENT_TIMEZONE, parentCv.getAsString(Events.EVENT_TIMEZONE));
 
+            long startTime = -1;
+            long endTime = -1;
+            int allDayEvent = 0;
+
+            if (parentCv.containsKey(Events.DTSTART)) {
+                startTime = parentCv.getAsLong(Events.DTSTART);
+            }
+            if (parentCv.containsKey(Events.DTEND)) {
+                endTime = parentCv.getAsLong(Events.DTEND);
+            }
+
             // This column is the key that links the exception to the serverId
             cv.put(Events.ORIGINAL_EVENT, parentCv.getAsString(Events._SYNC_ID));
 
@@ -635,7 +680,8 @@ public class CalendarSyncAdapter extends AbstractSyncAdapter {
                         }
                         break;
                     case Tags.CALENDAR_ALL_DAY_EVENT:
-                        cv.put(Events.ALL_DAY, getValueInt());
+                        allDayEvent = getValueInt();
+                        cv.put(Events.ALL_DAY, allDayEvent);
                         break;
                     case Tags.BASE_BODY:
                         cv.put(Events.DESCRIPTION, bodyParser());
@@ -644,10 +690,10 @@ public class CalendarSyncAdapter extends AbstractSyncAdapter {
                         cv.put(Events.DESCRIPTION, getValue());
                         break;
                     case Tags.CALENDAR_START_TIME:
-                        cv.put(Events.DTSTART, Utility.parseDateTimeToMillis(getValue()));
+                        startTime = Utility.parseDateTimeToMillis(getValue());
                         break;
                     case Tags.CALENDAR_END_TIME:
-                        cv.put(Events.DTEND, Utility.parseDateTimeToMillis(getValue()));
+                        endTime = Utility.parseDateTimeToMillis(getValue());
                         break;
                     case Tags.CALENDAR_LOCATION:
                         cv.put(Events.EVENT_LOCATION, getValue());
@@ -685,12 +731,11 @@ public class CalendarSyncAdapter extends AbstractSyncAdapter {
             cv.put(Events._SYNC_ID, parentCv.getAsString(Events._SYNC_ID) + '_' +
                     exceptionStartTime);
 
-            if (!cv.containsKey(Events.DTSTART)) {
-                cv.put(Events.DTSTART, parentCv.getAsLong(Events.DTSTART));
-            }
-            if (!cv.containsKey(Events.DTEND)) {
-                cv.put(Events.DTEND, parentCv.getAsLong(Events.DTEND));
-            }
+            // Set up DTART and DTEND/DURATION
+            setTimes(cv, startTime, endTime, allDayEvent);
+
+            // Don't insert an invalid exception event
+            if (!isValidEventValues(cv, false)) return;
 
             // Add the exception insert
             int exceptionStart = ops.mCount;
