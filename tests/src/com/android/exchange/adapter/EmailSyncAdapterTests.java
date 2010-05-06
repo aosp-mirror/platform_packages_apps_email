@@ -36,7 +36,7 @@ import java.util.ArrayList;
 import java.util.GregorianCalendar;
 import java.util.TimeZone;
 
-public class EmailSyncAdapterTests extends SyncAdapterTestCase {
+public class EmailSyncAdapterTests extends SyncAdapterTestCase<EmailSyncAdapter> {
 
     public EmailSyncAdapterTests() {
         super();
@@ -73,7 +73,7 @@ public class EmailSyncAdapterTests extends SyncAdapterTestCase {
     }
 
     public void testFormatDateTime() throws IOException {
-        EmailSyncAdapter adapter = getTestSyncAdapter();
+        EmailSyncAdapter adapter = getTestSyncAdapter(EmailSyncAdapter.class);
         GregorianCalendar calendar = new GregorianCalendar(TimeZone.getTimeZone("GMT"));
         // Calendar is odd, months are zero based, so the first 11 below is December...
         calendar.set(2008, 11, 11, 18, 19, 20);
