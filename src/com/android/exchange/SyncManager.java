@@ -830,8 +830,10 @@ public class SyncManager extends Service implements Runnable {
 
     static public String getEasAccountSelector() {
         SyncManager syncManager = INSTANCE;
-        if (syncManager == null) return null;
-        return syncManager.mAccountObserver.getAccountKeyWhere();
+        if (syncManager != null && syncManager.mAccountObserver != null) {
+            return syncManager.mAccountObserver.getAccountKeyWhere();
+        }
+        return null;
     }
 
     public class SyncStatus {
