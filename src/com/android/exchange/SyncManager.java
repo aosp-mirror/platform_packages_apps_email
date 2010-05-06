@@ -76,6 +76,7 @@ import android.os.Debug;
 import android.os.Handler;
 import android.os.IBinder;
 import android.os.PowerManager;
+import android.os.Process;
 import android.os.RemoteCallbackList;
 import android.os.RemoteException;
 import android.os.PowerManager.WakeLock;
@@ -174,6 +175,8 @@ public class SyncManager extends Service implements Runnable {
     // Service had a fatal error; can't run
     public static final int PING_STATUS_UNABLE = 3;
 
+    private static final int MAX_CLIENT_CONNECTION_MANAGER_SHUTDOWNS = 1;
+
     // We synchronize on this for all actions affecting the service and error maps
     private static final Object sSyncLock = new Object();
     // All threads can use this lock to wait for connectivity
@@ -215,6 +218,8 @@ public class SyncManager extends Service implements Runnable {
     private static String sDeviceId = null;
     // ConnectionManager that all EAS threads can use
     private static ClientConnectionManager sClientConnectionManager = null;
+    // Count of ClientConnectionManager shutdowns
+    private static volatile int sClientConnectionManagerShutdownCount = 0;
 
     private boolean mStop = false;
 
@@ -1162,6 +1167,12 @@ public class SyncManager extends Service implements Runnable {
 
     static public synchronized ClientConnectionManager getClientConnectionManager() {
         if (sClientConnectionManager == null) {
+            // After two tries, kill the process.  Most likely, this will happen in the background
+            // The service will restart itself after about 5 seconds
+            if (sClientConnectionManagerShutdownCount > MAX_CLIENT_CONNECTION_MANAGER_SHUTDOWNS) {
+                alwaysLog("Shutting down process to unblock threads");
+                Process.killProcess(Process.myPid());
+            }
             // Create a registry for our three schemes; http and https will use built-in factories
             SchemeRegistry registry = new SchemeRegistry();
             registry.register(new Scheme("http",
@@ -1185,7 +1196,9 @@ public class SyncManager extends Service implements Runnable {
 
     static private synchronized void shutdownConnectionManager() {
         if (sClientConnectionManager != null) {
+            alwaysLog("Shutting down ClientConnectionManager");
             sClientConnectionManager.shutdown();
+            sClientConnectionManagerShutdownCount++;
             sClientConnectionManager = null;
         }
     }
@@ -1465,7 +1478,7 @@ public class SyncManager extends Service implements Runnable {
                                }
                                // Shutdown the connection manager; this should close all of our
                                // sockets and generate IOExceptions all around.
-                               syncManager.shutdownConnectionManager();
+                               SyncManager.shutdownConnectionManager();
                            }
                        }
                     }}).start();
@@ -2295,6 +2308,10 @@ public class SyncManager extends Service implements Runnable {
                         // TODO Handle this case
                     }
                     errorMap.remove(mailboxId);
+                    // If we've had a successful sync, clear the shutdown count
+                    synchronized (SyncManager.class) {
+                        sClientConnectionManagerShutdownCount = 0;
+                    }
                     break;
                 // I/O errors get retried at increasing intervals
                 case AbstractSyncService.EXIT_IO_ERROR:
