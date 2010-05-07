@@ -21,7 +21,6 @@ import com.android.email.mail.Multipart;
 import com.android.email.mail.Part;
 import com.android.email.mail.store.LocalStore.LocalAttachmentBodyPart;
 import com.android.email.provider.AttachmentProvider;
-import com.android.email.provider.EmailContent;
 
 import android.content.ContentResolver;
 import android.net.Uri;

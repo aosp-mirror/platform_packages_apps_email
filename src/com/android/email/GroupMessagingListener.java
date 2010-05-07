@@ -16,9 +16,6 @@
 
 package com.android.email;
 
-import com.android.email.mail.Message;
-import com.android.email.provider.EmailContent;
-
 import android.content.Context;
 
 import java.util.Set;

@@ -16,7 +16,6 @@
 
 package com.android.email;
 
-import com.android.email.mail.BodyPart;
 import com.android.email.mail.FetchProfile;
 import com.android.email.mail.Flag;
 import com.android.email.mail.Folder;
