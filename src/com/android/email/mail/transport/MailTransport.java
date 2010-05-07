@@ -34,12 +34,8 @@ import java.net.Socket;
 import java.net.SocketAddress;
 import java.net.SocketException;
 import java.net.URI;
-import java.security.GeneralSecurityException;
-import java.security.SecureRandom;
 
-import javax.net.ssl.SSLContext;
 import javax.net.ssl.SSLException;
-import javax.net.ssl.TrustManager;
 
 /**
  * This class implements the common aspects of "transport", one layer below the 

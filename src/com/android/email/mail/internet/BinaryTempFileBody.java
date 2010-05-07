@@ -16,14 +16,11 @@
 
 package com.android.email.mail.internet;
 
-import com.android.email.Email;
 import com.android.email.mail.Body;
 import com.android.email.mail.MessagingException;
 
 import org.apache.commons.io.IOUtils;
 
-import android.util.Config;
-import android.util.Log;
 import android.util.Base64;
 import android.util.Base64OutputStream;
 

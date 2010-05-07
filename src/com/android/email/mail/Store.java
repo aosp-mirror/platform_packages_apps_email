@@ -27,6 +27,7 @@ import android.os.Bundle;
 import android.util.Log;
 
 import java.io.IOException;
+import java.util.HashMap;
 
 /**
  * Store is the access point for an email message store. It's location can be
@@ -55,9 +56,7 @@ public abstract class Store {
      * should be returned on FetchProfile.Item.BODY_SANE requests.
      */
     public static final int FETCH_BODY_SANE_SUGGESTED_SIZE = (50 * 1024);
-
-    private static java.util.HashMap<String, Store> mStores =
-        new java.util.HashMap<String, Store>();
+    private static HashMap<String, Store> mStores = new HashMap<String, Store>();
 
     /**
      * Static named constructor.  It should be overrode by extending class.
