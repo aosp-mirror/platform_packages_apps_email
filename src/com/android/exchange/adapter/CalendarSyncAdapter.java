@@ -276,24 +276,30 @@ public class CalendarSyncAdapter extends AbstractSyncAdapter {
         }
 
         /**
-         * Set DTEND and/or DURATION, as appropriate, for the Event
+         * Set DTSTART, DTEND, DURATION and EVENT_TIMEZONE as appropriate for the given Event
          * The follow rules are enforced by CalendarProvider2:
-         *   Events MUST have either 1) a DTEND or 2) a DURATION as defined by Rfc2445
+         *   Events that aren't exceptions MUST have either 1) a DTEND or 2) a DURATION
          *   Recurring events (i.e. events with RRULE) must have a DURATION
          *   All-day recurring events MUST have a DURATION that is in the form P<n>D
          *   Other events MAY have a DURATION in any valid form (we use P<n>M)
          *   All-day events MUST have hour, minute, and second = 0; in addition, they must have
-         *   the TIMEZONE set to UTC
+         *   the EVENT_TIMEZONE set to UTC
+         *   Also, exceptions to all-day events need to have an ORIGINAL_INSTANCE_TIME that has
+         *   hour, minute, and second = 0 and be set in UTC
          * @param cv the ContentValues for the Event
          * @param startTime the start time for the Event
          * @param endTime the end time for the Event
          * @param allDayEvent whether this is an all day event (1) or not (0)
          */
-        /*package*/ void setTimes(ContentValues cv, long startTime, long endTime, int allDayEvent) {
-            // Sanity check for illegal values; just return (the event will be rejected later by
-            // isValidEventValues()
-            if (startTime < 0 || endTime < 0) return;
-            // If this is an all-day event, set hour, minute, and second to zero
+        /*package*/ void setTimeRelatedValues(ContentValues cv, long startTime, long endTime,
+                int allDayEvent) {
+            // If there's no startTime, the event will be found to be invalid, so return
+            if (startTime < 0) return;
+            // EAS events can arrive without an end time, but CalendarProvider requires them
+            // so we'll default to 30 minutes; this will be superceded if this is an all-day event
+            if (endTime < 0) endTime = startTime + (30*MINUTES);
+
+            // If this is an all-day event, set hour, minute, and second to zero, and use UTC
             if (allDayEvent != 0) {
                 GregorianCalendar cal = new GregorianCalendar(UTC_TIMEZONE);
                 cal.setTimeInMillis(startTime);
@@ -308,6 +314,23 @@ public class CalendarSyncAdapter extends AbstractSyncAdapter {
                 endTime = cal.getTimeInMillis();
                 cv.put(Events.EVENT_TIMEZONE, UTC_TIMEZONE.getID());
             }
+
+            // If this is an exception, and the original was an all-day event, make sure the
+            // original instance time has hour, minute, and second set to zero, and is in UTC
+            if (cv.containsKey(Events.ORIGINAL_INSTANCE_TIME) &&
+                    cv.containsKey(Events.ORIGINAL_ALL_DAY)) {
+                Integer ade = cv.getAsInteger(Events.ORIGINAL_ALL_DAY);
+                if (ade != null && ade != 0) {
+                    long exceptionTime = cv.getAsLong(Events.ORIGINAL_INSTANCE_TIME);
+                    GregorianCalendar cal = new GregorianCalendar(UTC_TIMEZONE);
+                    cal.setTimeInMillis(exceptionTime);
+                    cal.set(GregorianCalendar.HOUR_OF_DAY, 0);
+                    cal.set(GregorianCalendar.MINUTE, 0);
+                    cal.set(GregorianCalendar.SECOND, 0);
+                    cv.put(Events.ORIGINAL_INSTANCE_TIME, cal.getTimeInMillis());
+                }
+            }
+
             // Always set DTSTART
             cv.put(Events.DTSTART, startTime);
             // For recurring events, set DURATION.  Use P<n>D format for all day events
@@ -430,7 +453,8 @@ public class CalendarSyncAdapter extends AbstractSyncAdapter {
                         // we call exceptionsParser
                         addOrganizerToAttendees(ops, eventId, organizerName, organizerEmail);
                         organizerAdded = true;
-                        exceptionsParser(ops, cv, attendeeValues, reminderMins, busyStatus);
+                        exceptionsParser(ops, cv, attendeeValues, reminderMins, busyStatus,
+                                startTime, endTime);
                         break;
                     case Tags.CALENDAR_LOCATION:
                         cv.put(Events.EVENT_LOCATION, getValue());
@@ -487,8 +511,8 @@ public class CalendarSyncAdapter extends AbstractSyncAdapter {
                 }
             }
 
-            // Set up DTART and DTEND/DURATION
-            setTimes(cv, startTime, endTime, allDayEvent);
+            // Enforce CalendarProvider required properties
+            setTimeRelatedValues(cv, startTime, endTime, allDayEvent);
 
             // If we haven't added the organizer to attendees, do it now
             if (!organizerAdded) {
@@ -534,7 +558,7 @@ public class CalendarSyncAdapter extends AbstractSyncAdapter {
                     ops.newExtendedProperty("dtstamp", dtStamp);
                 }
 
-                if (isValidEventValues(cv, update)) {
+                if (isValidEventValues(cv)) {
                     ops.set(eventOffset, ContentProviderOperation
                             .newInsert(EVENTS_URI).withValues(cv).build());
                 } else {
@@ -560,27 +584,44 @@ public class CalendarSyncAdapter extends AbstractSyncAdapter {
             }
         }
 
-        /*package*/ boolean isValidEventValues(ContentValues cv, boolean update) {
-            // At the very least, we must get DTSTART and _SYNC_DATA (uid)
-            // and one of DTEND or DURATION
-            // If the content values are invalid, log the columns (will help debugging)
-            if (!cv.containsKey(Events.DTSTART) || !cv.containsKey(Events._SYNC_DATA) ||
-                    (!cv.containsKey(Events.DTEND) && !cv.containsKey(Events.DURATION))) {
-                userLog(TAG, (update ? "Changed" : "New") + " event invalid; skipping");
-                StringBuilder sb = new StringBuilder("Columns: ");
+        private void logEventColumns(ContentValues cv, String reason) {
+            if (Eas.USER_LOG) {
+                StringBuilder sb =
+                    new StringBuilder("Event invalid, " + reason + ", skipping: Columns = ");
                 for (Entry<String, Object> entry: cv.valueSet()) {
                     sb.append(entry.getKey());
-                    sb.append(' ');
+                    sb.append('/');
                 }
                 userLog(TAG, sb.toString());
+            }
+        }
+
+        /*package*/ boolean isValidEventValues(ContentValues cv) {
+            boolean isException = cv.containsKey(Events.ORIGINAL_INSTANCE_TIME);
+            // All events require DTSTART
+            if (!cv.containsKey(Events.DTSTART)) {
+                logEventColumns(cv, "DTSTART missing");
                 return false;
-            // If we've got an RRULE, we must have a DURATION
+            // If we're a top-level event, we must have _SYNC_DATA (uid)
+            } else if (!isException && !cv.containsKey(Events._SYNC_DATA)) {
+                logEventColumns(cv, "_SYNC_DATA missing");
+                return false;
+            // We must also have DTEND or DURATION if we're not an exception
+            } else if (!isException && !cv.containsKey(Events.DTEND) &&
+                    !cv.containsKey(Events.DURATION)) {
+                logEventColumns(cv, "DTEND/DURATION missing");
+                return false;
+            // Exceptions require DTEND
+            } else if (isException && !cv.containsKey(Events.DTEND)) { 
+                logEventColumns(cv, "Exception missing DTEND");
+                return false;
+            // If this is a recurrence, we need a DURATION (in days if an all-day event)
             } else if (cv.containsKey(Events.RRULE)) {
                 String duration = cv.getAsString(Events.DURATION);
                 if (duration == null) return false;
                 if (cv.containsKey(Events.ALL_DAY)) {
                     Integer ade = cv.getAsInteger(Events.ALL_DAY);
-                    if (ade != 0 && !duration.endsWith("D")) {
+                    if (ade != null && ade != 0 && !duration.endsWith("D")) {
                         return false;
                     }
                 }
@@ -635,8 +676,8 @@ public class CalendarSyncAdapter extends AbstractSyncAdapter {
         }
 
         private void exceptionParser(CalendarOperations ops, ContentValues parentCv,
-                ArrayList<ContentValues> attendeeValues, int reminderMins, int busyStatus)
-                throws IOException {
+                ArrayList<ContentValues> attendeeValues, int reminderMins, int busyStatus,
+                long startTime, long endTime) throws IOException {
             ContentValues cv = new ContentValues();
             cv.put(Events.CALENDAR_ID, mCalendarId);
             cv.put(Events._SYNC_ACCOUNT, mEmailAddress);
@@ -652,16 +693,7 @@ public class CalendarSyncAdapter extends AbstractSyncAdapter {
             cv.put(Events.VISIBILITY, parentCv.getAsString(Events.VISIBILITY));
             cv.put(Events.EVENT_TIMEZONE, parentCv.getAsString(Events.EVENT_TIMEZONE));
 
-            long startTime = -1;
-            long endTime = -1;
             int allDayEvent = 0;
-
-            if (parentCv.containsKey(Events.DTSTART)) {
-                startTime = parentCv.getAsLong(Events.DTSTART);
-            }
-            if (parentCv.containsKey(Events.DTEND)) {
-                endTime = parentCv.getAsLong(Events.DTEND);
-            }
 
             // This column is the key that links the exception to the serverId
             cv.put(Events.ORIGINAL_EVENT, parentCv.getAsString(Events._SYNC_ID));
@@ -731,11 +763,11 @@ public class CalendarSyncAdapter extends AbstractSyncAdapter {
             cv.put(Events._SYNC_ID, parentCv.getAsString(Events._SYNC_ID) + '_' +
                     exceptionStartTime);
 
-            // Set up DTART and DTEND/DURATION
-            setTimes(cv, startTime, endTime, allDayEvent);
+            // Enforce CalendarProvider required properties
+            setTimeRelatedValues(cv, startTime, endTime, allDayEvent);
 
             // Don't insert an invalid exception event
-            if (!isValidEventValues(cv, false)) return;
+            if (!isValidEventValues(cv)) return;
 
             // Add the exception insert
             int exceptionStart = ops.mCount;
@@ -778,12 +810,13 @@ public class CalendarSyncAdapter extends AbstractSyncAdapter {
         }
 
         private void exceptionsParser(CalendarOperations ops, ContentValues cv,
-                ArrayList<ContentValues> attendeeValues, int reminderMins, int busyStatus)
-                throws IOException {
+                ArrayList<ContentValues> attendeeValues, int reminderMins, int busyStatus,
+                long startTime, long endTime) throws IOException {
             while (nextTag(Tags.CALENDAR_EXCEPTIONS) != END) {
                 switch (tag) {
                     case Tags.CALENDAR_EXCEPTION:
-                        exceptionParser(ops, cv, attendeeValues, reminderMins, busyStatus);
+                        exceptionParser(ops, cv, attendeeValues, reminderMins, busyStatus,
+                                startTime, endTime);
                         break;
                     default:
                         skipTag();
@@ -1264,7 +1297,7 @@ public class CalendarSyncAdapter extends AbstractSyncAdapter {
         boolean allDay = false;
         if (entityValues.containsKey(Events.ALL_DAY)) {
             Integer ade = entityValues.getAsInteger(Events.ALL_DAY);
-            if (ade != 0) {
+            if (ade != null && ade != 0) {
                 allDay = true;
             }
             s.data(Tags.CALENDAR_ALL_DAY_EVENT, ade.toString());
