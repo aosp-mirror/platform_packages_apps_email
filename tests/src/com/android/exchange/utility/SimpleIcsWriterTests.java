@@ -15,7 +15,6 @@
 
 package com.android.exchange.utility;
 
-import com.android.email.TestUtils;
 import com.android.email.Utility;
 
 import junit.framework.TestCase;

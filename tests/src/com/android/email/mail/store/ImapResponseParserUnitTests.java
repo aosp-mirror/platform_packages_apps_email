@@ -27,7 +27,6 @@ import android.test.suitebuilder.annotation.SmallTest;
 
 import java.io.ByteArrayInputStream;
 import java.io.IOException;
-import java.util.Date;
 
 /**
  * This is a series of unit tests for the ImapStore class.  These tests must be locally

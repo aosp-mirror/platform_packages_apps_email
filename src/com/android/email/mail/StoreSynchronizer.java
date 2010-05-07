@@ -22,8 +22,6 @@ import com.android.email.GroupMessagingListener;
 
 import android.content.Context;
 
-import java.util.Collection;
-
 /**
  * This interface allows a store to define a completely different synchronizer algorithm,
  * as necessary.

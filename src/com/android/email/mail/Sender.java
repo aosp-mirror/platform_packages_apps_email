@@ -26,12 +26,12 @@ import android.content.res.XmlResourceParser;
 import android.util.Log;
 
 import java.io.IOException;
+import java.util.HashMap;
 
 public abstract class Sender {
     protected static final int SOCKET_CONNECT_TIMEOUT = 10000;
 
-    private static java.util.HashMap<String, Sender> mSenders =
-        new java.util.HashMap<String, Sender>();
+    private static HashMap<String, Sender> mSenders = new HashMap<String, Sender>();
 
     /**
      * Static named constructor.  It should be overrode by extending class.
