@@ -159,6 +159,7 @@ public class PackedString {
         /**
          * Pack the values and return a single, encoded string
          */
+        @Override
         public String toString() {
             StringBuilder sb = new StringBuilder();
             for (Map.Entry<String,String> entry : mMap.entrySet()) {

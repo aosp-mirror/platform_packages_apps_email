@@ -325,6 +325,7 @@ public class Pop3Store extends Store {
         }
 
         // POP3 does not folder creation
+        @Override
         public boolean canCreate(FolderType type) {
             return false;
         }
@@ -611,6 +612,7 @@ public class Pop3Store extends Store {
          * @param fp
          * @throws MessagingException
          */
+        @Override
         public void fetch(Message[] messages, FetchProfile fp, MessageRetrievalListener listener)
                 throws MessagingException {
             if (messages == null || messages.length == 0) {
@@ -805,16 +807,20 @@ public class Pop3Store extends Store {
             return PERMANENT_FLAGS;
         }
 
+        @Override
         public void appendMessages(Message[] messages) throws MessagingException {
         }
 
+        @Override
         public void delete(boolean recurse) throws MessagingException {
         }
 
+        @Override
         public Message[] expunge() throws MessagingException {
             return null;
         }
 
+        @Override
         public void setFlags(Message[] messages, Flag[] flags, boolean value)
                 throws MessagingException {
             if (!value || !Utility.arrayContains(flags, Flag.DELETED)) {
@@ -953,6 +959,7 @@ public class Pop3Store extends Store {
             mSize = size;
         }
 
+        @Override
         protected void parse(InputStream in) throws IOException, MessagingException {
             super.parse(in);
         }
@@ -980,6 +987,7 @@ public class Pop3Store extends Store {
         /** the server is capable of accepting multiple commands at a time (unused) */
         public boolean pipelining;
 
+        @Override
         public String toString() {
             return String.format("STLS %b, TOP %b, USER %b, UIDL %b, PIPELINING %b",
                     stls,
