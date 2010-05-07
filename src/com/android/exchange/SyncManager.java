@@ -760,6 +760,9 @@ public class SyncManager extends Service implements Runnable {
                                         mResolver.delete(eventsAsSyncAdapter, WHERE_CALENDAR_ID,
                                                 new String[] {Long.toString(mCalendarId)});
                                     } else {
+                                        // If we're in a ping, stop it so that calendar sync can
+                                        // start right away
+                                        stopPing(mAccountId);
                                         kick("calendar sync changed");
                                     }
 
@@ -1702,15 +1705,17 @@ public class SyncManager extends Service implements Runnable {
      */
     private void stopPing(long accountId) {
         // Go through our active mailboxes looking for the right one
-        for (long mailboxId: mServiceMap.keySet()) {
-            Mailbox m = Mailbox.restoreMailboxWithId(this, mailboxId);
-            if (m != null) {
-                String serverId = m.mServerId;
-                if (m.mAccountKey == accountId && serverId != null &&
-                        serverId.startsWith(Eas.ACCOUNT_MAILBOX_PREFIX)) {
-                    // Here's our account mailbox; reset him (stopping pings)
-                    AbstractSyncService svc = mServiceMap.get(mailboxId);
-                    svc.reset();
+        synchronized (sSyncLock) {
+            for (long mailboxId: mServiceMap.keySet()) {
+                Mailbox m = Mailbox.restoreMailboxWithId(this, mailboxId);
+                if (m != null) {
+                    String serverId = m.mServerId;
+                    if (m.mAccountKey == accountId && serverId != null &&
+                            serverId.startsWith(Eas.ACCOUNT_MAILBOX_PREFIX)) {
+                        // Here's our account mailbox; reset him (stopping pings)
+                        AbstractSyncService svc = mServiceMap.get(mailboxId);
+                        svc.reset();
+                    }
                 }
             }
         }
