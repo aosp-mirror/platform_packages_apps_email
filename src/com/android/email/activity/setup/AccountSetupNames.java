@@ -101,6 +101,7 @@ public class AccountSetupNames extends Activity implements OnClickListener {
         HostAuth hostAuth = HostAuth.restoreHostAuthWithId(this, mAccount.mHostAuthKeyRecv);
         if (hostAuth == null) {
             onBackPressed();
+            return;
         }
 
         // Remember whether we're an EAS account, since it doesn't require the user name field

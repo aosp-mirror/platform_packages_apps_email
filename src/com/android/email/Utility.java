@@ -321,13 +321,9 @@ public class Utility {
                 context.getResources().getDrawable(R.drawable.ic_list_combined_inbox);
         }
 
-        public static FolderProperties getInstance(Context context) {
+        public static synchronized FolderProperties getInstance(Context context) {
             if (sInstance == null) {
-                synchronized (FolderProperties.class) {
-                    if (sInstance == null) {
-                        sInstance = new FolderProperties(context);
-                    }
-                }
+                sInstance = new FolderProperties(context);
             }
             return sInstance;
         }
