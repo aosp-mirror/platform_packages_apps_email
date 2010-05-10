@@ -38,9 +38,9 @@ public class Preferences {
     private static final String DEVICE_UID = "deviceUID";
     private static final String ONE_TIME_INITIALIZATION_PROGRESS = "oneTimeInitializationProgress";
 
-    private static Preferences preferences;
+    private static Preferences sPreferences;
 
-    SharedPreferences mSharedPreferences;
+    final SharedPreferences mSharedPreferences;
 
     private Preferences(Context context) {
         mSharedPreferences = context.getSharedPreferences(PREFERENCES_FILE, Context.MODE_PRIVATE);
@@ -53,10 +53,10 @@ public class Preferences {
      * context.
      */
     public static synchronized Preferences getPreferences(Context context) {
-        if (preferences == null) {
-            preferences = new Preferences(context);
+        if (sPreferences == null) {
+            sPreferences = new Preferences(context);
         }
-        return preferences;
+        return sPreferences;
     }
 
     /**

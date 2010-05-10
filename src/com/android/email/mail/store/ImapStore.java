@@ -93,7 +93,7 @@ public class ImapStore extends Store {
 
     private static final Flag[] PERMANENT_FLAGS = { Flag.DELETED, Flag.SEEN, Flag.FLAGGED };
 
-    private Context mContext;
+    private final Context mContext;
     private Transport mRootTransport;
     private String mUsername;
     private String mPassword;
@@ -102,7 +102,7 @@ public class ImapStore extends Store {
     private String mIdPhrase = null;
     private static String sImapId = null;
 
-    private LinkedList<ImapConnection> mConnections =
+    private final LinkedList<ImapConnection> mConnections =
             new LinkedList<ImapConnection>();
 
     /**
@@ -470,7 +470,7 @@ public class ImapStore extends Store {
     }
 
     class ImapFolder extends Folder {
-        private String mName;
+        private final String mName;
         private int mMessageCount = -1;
         private ImapConnection mConnection;
         private OpenMode mMode;

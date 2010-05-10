@@ -54,7 +54,7 @@ public class EmailServiceProxy implements IEmailService {
     private final Class<?> mClass;
     private final IEmailServiceCallback mCallback;
     private Runnable mRunnable;
-    private ServiceConnection mSyncManagerConnection = new EmailServiceConnection ();
+    private final ServiceConnection mSyncManagerConnection = new EmailServiceConnection ();
     private IEmailService mService = null;
     private Object mReturn = null;
     // Service call timeout (in seconds)

@@ -93,8 +93,8 @@ public class MessagingController implements Runnable {
      */
     private static final int MAX_SMALL_MESSAGE_SIZE = (25 * 1024);
 
-    private static Flag[] FLAG_LIST_SEEN = new Flag[] { Flag.SEEN };
-    private static Flag[] FLAG_LIST_FLAGGED = new Flag[] { Flag.FLAGGED };
+    private static final Flag[] FLAG_LIST_SEEN = new Flag[] { Flag.SEEN };
+    private static final Flag[] FLAG_LIST_FLAGGED = new Flag[] { Flag.FLAGGED };
 
     /**
      * We write this into the serverId field of messages that will never be upsynced.
@@ -104,24 +104,24 @@ public class MessagingController implements Runnable {
     /**
      * Projections & CVs used by pruneCachedAttachments
      */
-    private static String[] PRUNE_ATTACHMENT_PROJECTION = new String[] {
+    private static final String[] PRUNE_ATTACHMENT_PROJECTION = new String[] {
         AttachmentColumns.LOCATION
     };
-    private static ContentValues PRUNE_ATTACHMENT_CV = new ContentValues();
+    private static final ContentValues PRUNE_ATTACHMENT_CV = new ContentValues();
     static {
         PRUNE_ATTACHMENT_CV.putNull(AttachmentColumns.CONTENT_URI);
     }
 
-    private static MessagingController inst = null;
-    private BlockingQueue<Command> mCommands = new LinkedBlockingQueue<Command>();
-    private Thread mThread;
+    private static MessagingController sInstance = null;
+    private final BlockingQueue<Command> mCommands = new LinkedBlockingQueue<Command>();
+    private final Thread mThread;
 
     /**
      * All access to mListeners *must* be synchronized
      */
-    private GroupMessagingListener mListeners = new GroupMessagingListener();
+    private final GroupMessagingListener mListeners = new GroupMessagingListener();
     private boolean mBusy;
-    private Context mContext;
+    private final Context mContext;
 
     protected MessagingController(Context _context) {
         mContext = _context;
@@ -137,17 +137,17 @@ public class MessagingController implements Runnable {
      * @return
      */
     public synchronized static MessagingController getInstance(Context _context) {
-        if (inst == null) {
-            inst = new MessagingController(_context);
+        if (sInstance == null) {
+            sInstance = new MessagingController(_context);
         }
-        return inst;
+        return sInstance;
     }
 
     /**
      * Inject a mock controller.  Used only for testing.  Affects future calls to getInstance().
      */
     public static void injectMockController(MessagingController mockController) {
-        inst = mockController;
+        sInstance = mockController;
     }
 
     // TODO: seems that this reading of mBusy isn't thread-safe
@@ -214,10 +214,10 @@ public class MessagingController implements Runnable {
             MailboxColumns.DISPLAY_NAME, MailboxColumns.ACCOUNT_KEY, MailboxColumns.TYPE,
         };
 
-        long mId;
-        String mDisplayName;
-        long mAccountKey;
-        int mType;
+        final long mId;
+        final String mDisplayName;
+        final long mAccountKey;
+        final int mType;
 
         public LocalMailboxInfo(Cursor c) {
             mId = c.getLong(COLUMN_ID);
@@ -419,12 +419,12 @@ public class MessagingController implements Runnable {
             SyncColumns.SERVER_ID, MessageColumns.MAILBOX_KEY, MessageColumns.ACCOUNT_KEY
         };
 
-        int mCursorIndex;
-        long mId;
-        boolean mFlagRead;
-        boolean mFlagFavorite;
-        int mFlagLoaded;
-        String mServerId;
+        final int mCursorIndex;
+        final long mId;
+        final boolean mFlagRead;
+        final boolean mFlagFavorite;
+        final int mFlagLoaded;
+        final String mServerId;
 
         public LocalMessageInfo(Cursor c) {
             mCursorIndex = c.getPosition();

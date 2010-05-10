@@ -42,10 +42,10 @@ import javax.net.ssl.SSLException;
  */
 public class SmtpSender extends Sender {
 
-    Context mContext;
+    private final Context mContext;
     private Transport mTransport;
-    String mUsername;
-    String mPassword;
+    private String mUsername;
+    private String mPassword;
 
     /**
      * Static named constructor.
