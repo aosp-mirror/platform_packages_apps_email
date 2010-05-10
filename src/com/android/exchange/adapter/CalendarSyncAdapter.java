@@ -89,6 +89,8 @@ public class CalendarSyncAdapter extends AbstractSyncAdapter {
     private static final String[] ID_PROJECTION = new String[] {Events._ID};
     private static final String[] ORIGINAL_EVENT_PROJECTION =
         new String[] {Events.ORIGINAL_EVENT, Events._ID};
+    private static final String EVENT_ID_AND_NAME =
+        ExtendedProperties.EVENT_ID + "=? AND " + ExtendedProperties.NAME + "=?";
 
     // Note that we use LIKE below for its case insensitivity
     private static final String EVENT_AND_EMAIL  =
@@ -101,8 +103,18 @@ public class CalendarSyncAdapter extends AbstractSyncAdapter {
         Calendars._SYNC_ACCOUNT + "=? AND " + Calendars._SYNC_ACCOUNT_TYPE + "=?";
     private static final int CALENDAR_SELECTION_ID = 0;
 
+    private static final String[] EXTENDED_PROPERTY_PROJECTION =
+        new String[] {ExtendedProperties._ID};
+    private static final int EXTENDED_PROPERTY_ID = 0;
+
     private static final String CATEGORY_TOKENIZER_DELIMITER = "\\";
     private static final String ATTENDEE_TOKENIZER_DELIMITER = CATEGORY_TOKENIZER_DELIMITER;
+
+    private static final String EXTENDED_PROPERTY_USER_ATTENDEE_STATUS = "userAttendeeStatus";
+    private static final String EXTENDED_PROPERTY_ATTENDEES = "attendees";
+    private static final String EXTENDED_PROPERTY_DTSTAMP = "dtstamp";
+    private static final String EXTENDED_PROPERTY_MEETING_STATUS = "meeting_status";
+    private static final String EXTENDED_PROPERTY_CATEGORIES = "categories";
 
     private static final ContentProviderOperation PLACEHOLDER_OPERATION =
         ContentProviderOperation.newInsert(Uri.EMPTY).build();
@@ -492,7 +504,7 @@ public class CalendarSyncAdapter extends AbstractSyncAdapter {
                         dtStamp = getValue();
                         break;
                     case Tags.CALENDAR_MEETING_STATUS:
-                        ops.newExtendedProperty("meeting_status", getValue());
+                        ops.newExtendedProperty(EXTENDED_PROPERTY_MEETING_STATUS, getValue());
                         break;
                     case Tags.CALENDAR_BUSY_STATUS:
                         // We'll set the user's status in the Attendees table below
@@ -503,7 +515,7 @@ public class CalendarSyncAdapter extends AbstractSyncAdapter {
                     case Tags.CALENDAR_CATEGORIES:
                         String categories = categoriesParser(ops);
                         if (categories.length() > 0) {
-                            ops.newExtendedProperty("categories", categories);
+                            ops.newExtendedProperty(EXTENDED_PROPERTY_CATEGORIES, categories);
                         }
                         break;
                     default:
@@ -537,9 +549,18 @@ public class CalendarSyncAdapter extends AbstractSyncAdapter {
                         // event's ExtendedProperties (we look for differences between this and
                         // the user's current attendee status to determine whether an email needs
                         // to be sent to the organizer)
-                        if (!organizerEmail.equalsIgnoreCase(attendeeEmail)) {
-                            ops.newExtendedProperty("userAttendeeStatus",
-                                    Integer.toString(attendeeStatus));
+                        // organizerEmail will be null in the case that this is an attendees-only
+                        // change from the server
+                        if (organizerEmail == null ||
+                                !organizerEmail.equalsIgnoreCase(attendeeEmail)) {
+                            if (eventId < 0) {
+                                ops.newExtendedProperty(EXTENDED_PROPERTY_USER_ATTENDEE_STATUS,
+                                        Integer.toString(attendeeStatus));
+                            } else {
+                                ops.updatedExtendedProperty(EXTENDED_PROPERTY_USER_ATTENDEE_STATUS,
+                                        Integer.toString(attendeeStatus), eventId);
+
+                            }
                         }
                     }
                     if (eventId < 0) {
@@ -548,14 +569,19 @@ public class CalendarSyncAdapter extends AbstractSyncAdapter {
                         ops.updatedAttendee(attendee, eventId);
                     }
                 }
-                ops.newExtendedProperty("attendees", sb.toString());
+                if (eventId < 0) {
+                    ops.newExtendedProperty(EXTENDED_PROPERTY_ATTENDEES, sb.toString());
+                } else {
+                    ops.updatedExtendedProperty(EXTENDED_PROPERTY_ATTENDEES, sb.toString(),
+                            eventId);
+                }
             }
 
             // Put the real event in the proper place in the ops ArrayList
             if (eventOffset >= 0) {
                 // Store away the DTSTAMP here
                 if (dtStamp != null) {
-                    ops.newExtendedProperty("dtstamp", dtStamp);
+                    ops.newExtendedProperty(EXTENDED_PROPERTY_DTSTAMP, dtStamp);
                 }
 
                 if (isValidEventValues(cv)) {
@@ -1199,6 +1225,34 @@ public class CalendarSyncAdapter extends AbstractSyncAdapter {
                     .build());
         }
 
+        public void updatedExtendedProperty(String name, String value, long id) {
+            // Find an existing ExtendedProperties row for this event and property name
+            Cursor c = mService.mContentResolver.query(ExtendedProperties.CONTENT_URI,
+                    EXTENDED_PROPERTY_PROJECTION, EVENT_ID_AND_NAME,
+                    new String[] {Long.toString(id), name}, null);
+            long extendedPropertyId = -1;
+            // If there is one, capture its _id
+            if (c != null) {
+                try {
+                    if (c.moveToFirst()) {
+                        extendedPropertyId = c.getLong(EXTENDED_PROPERTY_ID);
+                    }
+                } finally {
+                    c.close();
+                }
+            }
+            // Either do an update or an insert, depending on whether one already exists
+            if (extendedPropertyId >= 0) {
+                add(ContentProviderOperation
+                        .newUpdate(ContentUris.withAppendedId(EXTENDED_PROPERTIES_URI,
+                                extendedPropertyId))
+                        .withValue(ExtendedProperties.VALUE, value)
+                        .build());
+            } else {
+                newExtendedProperty(name, value);
+            }
+        }
+
         public void newReminder(int mins, int eventStart) {
             add(ContentProviderOperation
                     .newInsert(REMINDERS_URI)
@@ -1390,7 +1444,7 @@ public class CalendarSyncAdapter extends AbstractSyncAdapter {
                     if (TextUtils.isEmpty(propertyValue)) {
                         continue;
                     }
-                    if (propertyName.equals("categories")) {
+                    if (propertyName.equals(EXTENDED_PROPERTY_CATEGORIES)) {
                         // Send all the categories back to the server
                         // We've saved them as a String of delimited tokens
                         StringTokenizer st =
@@ -1760,12 +1814,13 @@ public class CalendarSyncAdapter extends AbstractSyncAdapter {
                             ContentValues ncvValues = ncv.values;
                             String propertyName =
                                 ncvValues.getAsString(ExtendedProperties.NAME);
-                            if (propertyName.equals("attendees")) {
+                            if (propertyName.equals(EXTENDED_PROPERTY_ATTENDEES)) {
                                 attendeeString =
                                     ncvValues.getAsString(ExtendedProperties.VALUE);
                                 attendeeStringId =
                                     ncvValues.getAsLong(ExtendedProperties._ID);
-                            } else if (propertyName.equals("userAttendeeStatus")) {
+                            } else if (propertyName.equals(
+                                    EXTENDED_PROPERTY_USER_ATTENDEE_STATUS)) {
                                 userAttendeeStatus =
                                     ncvValues.getAsString(ExtendedProperties.VALUE);
                                 userAttendeeStatusId =
@@ -1819,7 +1874,7 @@ public class CalendarSyncAdapter extends AbstractSyncAdapter {
                                     attendeeStringId), cv, null, null);
                         } else {
                             // If there wasn't an "attendees" property, insert one
-                            cv.put(ExtendedProperties.NAME, "attendees");
+                            cv.put(ExtendedProperties.NAME, EXTENDED_PROPERTY_ATTENDEES);
                             cv.put(ExtendedProperties.EVENT_ID, eventId);
                             cr.insert(ExtendedProperties.CONTENT_URI, cv);
                         }
