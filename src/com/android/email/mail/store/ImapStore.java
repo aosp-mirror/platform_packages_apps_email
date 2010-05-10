@@ -480,6 +480,7 @@ public class ImapStore extends Store {
             this.mName = name;
         }
 
+        @Override
         public void open(OpenMode mode, PersistentDataCallbacks callbacks)
                 throws MessagingException {
             if (isOpen() && mMode == mode) {
@@ -542,6 +543,7 @@ public class ImapStore extends Store {
             }
         }
 
+        @Override
         public boolean isOpen() {
             return mConnection != null;
         }
@@ -551,6 +553,7 @@ public class ImapStore extends Store {
             return mMode;
         }
 
+        @Override
         public void close(boolean expunge) {
             if (!isOpen()) {
                 return;
@@ -563,10 +566,12 @@ public class ImapStore extends Store {
             }
         }
 
+        @Override
         public String getName() {
             return mName;
         }
 
+        @Override
         public boolean exists() throws MessagingException {
             if (mExists) {
                 return true;
@@ -605,10 +610,12 @@ public class ImapStore extends Store {
         }
 
         // IMAP supports folder creation
+        @Override
         public boolean canCreate(FolderType type) {
             return true;
         }
 
+        @Override
         public boolean create(FolderType type) throws MessagingException {
             /*
              * This method needs to operate in the unselected mode as well as the selected mode
@@ -756,10 +763,12 @@ public class ImapStore extends Store {
             return messages.toArray(new Message[] {});
         }
 
+        @Override
         public Message[] getMessages(MessageRetrievalListener listener) throws MessagingException {
             return getMessages(null, listener);
         }
 
+        @Override
         public Message[] getMessages(String[] uids, MessageRetrievalListener listener)
                 throws MessagingException {
             checkOpen();
@@ -1160,6 +1169,7 @@ public class ImapStore extends Store {
          * the new UID of the given message on the IMAP server and sets the Message's UID to the
          * new server UID.
          */
+        @Override
         public void appendMessages(Message[] messages) throws MessagingException {
             checkOpen();
             try {
@@ -1245,6 +1255,7 @@ public class ImapStore extends Store {
             }
         }
 
+        @Override
         public Message[] expunge() throws MessagingException {
             checkOpen();
             try {
