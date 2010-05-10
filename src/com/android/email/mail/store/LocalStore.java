@@ -1639,6 +1639,7 @@ public class LocalStore extends Store implements PersistentDataCallbacks {
             return mAttachmentCount;
         }
 
+        @Override
         public void parse(InputStream in) throws IOException, MessagingException {
             super.parse(in);
         }
@@ -1793,6 +1794,7 @@ public class LocalStore extends Store implements PersistentDataCallbacks {
             mAttachmentId = attachmentId;
         }
 
+        @Override
         public String toString() {
             return "" + mAttachmentId;
         }
