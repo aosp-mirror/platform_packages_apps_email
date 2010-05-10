@@ -198,6 +198,7 @@ public class Address {
      * 
      * @return Human readable address string.  Not quoted and not encoded.
      */
+    @Override
     public String toString() {
         if (mPersonal != null) {
             if (mPersonal.matches(".*[\\(\\)<>@,;:\\\\\".\\[\\]].*")) {

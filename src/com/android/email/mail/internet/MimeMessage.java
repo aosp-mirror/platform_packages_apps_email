@@ -147,10 +147,12 @@ public class MimeMessage extends Message {
         return mHeader;
     }
 
+    @Override
     public Date getReceivedDate() throws MessagingException {
         return null;
     }
 
+    @Override
     public Date getSentDate() throws MessagingException {
         if (mSentDate == null) {
             try {
@@ -164,11 +166,13 @@ public class MimeMessage extends Message {
         return mSentDate;
     }
 
+    @Override
     public void setSentDate(Date sentDate) throws MessagingException {
         setHeader("Date", DATE_FORMAT.format(sentDate));
         this.mSentDate = sentDate;
     }
 
+    @Override
     public String getContentType() throws MessagingException {
         String contentType = getFirstHeader(MimeHeader.HEADER_CONTENT_TYPE);
         if (contentType == null) {
@@ -209,6 +213,7 @@ public class MimeMessage extends Message {
      * Returns a list of the given recipient type from this message. If no addresses are
      * found the method returns an empty array.
      */
+    @Override
     public Address[] getRecipients(RecipientType type) throws MessagingException {
         if (type == RecipientType.TO) {
             if (mTo == null) {
@@ -230,6 +235,7 @@ public class MimeMessage extends Message {
         }
     }
 
+    @Override
     public void setRecipients(RecipientType type, Address[] addresses) throws MessagingException {
         final int TO_LENGTH = 4;  // "To: "
         final int CC_LENGTH = 4;  // "Cc: "
@@ -266,15 +272,18 @@ public class MimeMessage extends Message {
     /**
      * Returns the unfolded, decoded value of the Subject header.
      */
+    @Override
     public String getSubject() throws MessagingException {
         return MimeUtility.unfoldAndDecode(getFirstHeader("Subject"));
     }
 
+    @Override
     public void setSubject(String subject) throws MessagingException {
         final int HEADER_NAME_LENGTH = 9;     // "Subject: "
         setHeader("Subject", MimeUtility.foldAndEncode2(subject, HEADER_NAME_LENGTH));
     }
 
+    @Override
     public Address[] getFrom() throws MessagingException {
         if (mFrom == null) {
             String list = MimeUtility.unfold(getFirstHeader("From"));
@@ -286,6 +295,7 @@ public class MimeMessage extends Message {
         return mFrom;
     }
 
+    @Override
     public void setFrom(Address from) throws MessagingException {
         final int FROM_LENGTH = 6;  // "From: "
         if (from != null) {
@@ -298,6 +308,7 @@ public class MimeMessage extends Message {
         }
     }
 
+    @Override
     public Address[] getReplyTo() throws MessagingException {
         if (mReplyTo == null) {
             mReplyTo = Address.parse(MimeUtility.unfold(getFirstHeader("Reply-to")));
@@ -305,6 +316,7 @@ public class MimeMessage extends Message {
         return mReplyTo;
     }
 
+    @Override
     public void setReplyTo(Address[] replyTo) throws MessagingException {
         final int REPLY_TO_LENGTH = 10;  // "Reply-to: "
         if (replyTo == null || replyTo.length == 0) {
@@ -342,14 +354,17 @@ public class MimeMessage extends Message {
         return messageId;
     }
 
+    @Override
     public void saveChanges() throws MessagingException {
         throw new MessagingException("saveChanges not yet implemented");
     }
 
+    @Override
     public Body getBody() throws MessagingException {
         return mBody;
     }
 
+    @Override
     public void setBody(Body body) throws MessagingException {
         this.mBody = body;
         if (body instanceof com.android.email.mail.Multipart) {
@@ -369,18 +384,22 @@ public class MimeMessage extends Message {
         return getMimeHeaders().getFirstHeader(name);
     }
 
+    @Override
     public void addHeader(String name, String value) throws MessagingException {
         getMimeHeaders().addHeader(name, value);
     }
 
+    @Override
     public void setHeader(String name, String value) throws MessagingException {
         getMimeHeaders().setHeader(name, value);
     }
 
+    @Override
     public String[] getHeader(String name) throws MessagingException {
         return getMimeHeaders().getHeader(name);
     }
 
+    @Override
     public void removeHeader(String name) throws MessagingException {
         getMimeHeaders().removeHeader(name);
         if ("Message-ID".equalsIgnoreCase(name)) {

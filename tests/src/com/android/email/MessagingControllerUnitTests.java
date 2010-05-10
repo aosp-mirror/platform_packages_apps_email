@@ -61,6 +61,7 @@ public class MessagingControllerUnitTests extends AndroidTestCase {
             mName = name;
         }
         
+        @Override
         public String getName() {
             return mName;
         }
