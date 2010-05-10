@@ -71,7 +71,7 @@ public class AccountSetupCheckSettings extends Activity implements OnClickListen
     public static final int RESULT_AUTO_DISCOVER_AUTH_FAILED = Activity.RESULT_FIRST_USER;
     public static final int RESULT_SECURITY_REQUIRED_USER_CANCEL = Activity.RESULT_FIRST_USER + 1;
 
-    private Handler mHandler = new Handler();
+    private final Handler mHandler = new Handler();
     private ProgressBar mProgressBar;
     private TextView mMessageView;
 

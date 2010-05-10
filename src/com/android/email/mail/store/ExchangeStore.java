@@ -48,7 +48,7 @@ import java.util.HashMap;
 public class ExchangeStore extends Store {
     public static final String LOG_TAG = "ExchangeStore";
 
-    private URI mUri;
+    private final URI mUri;
     private final ExchangeTransport mTransport;
 
     /**
@@ -171,7 +171,7 @@ public class ExchangeStore extends Store {
         private String mUsername;
         private String mPassword;
 
-        private static HashMap<String, ExchangeTransport> sUriToInstanceMap =
+        private static final HashMap<String, ExchangeTransport> sUriToInstanceMap =
             new HashMap<String, ExchangeTransport>();
 
         /**

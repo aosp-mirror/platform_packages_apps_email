@@ -42,16 +42,16 @@ import android.widget.AdapterView.OnItemClickListener;
  * (or, one could be a base class of the other).
  */
 public class AccountShortcutPicker extends ListActivity implements OnItemClickListener {
-        
+
     /**
      * Support for list adapter
      */
-    private final static String[] sFromColumns = new String[] { 
+    private final static String[] FROM_COLUMNS = new String[] {
             EmailContent.AccountColumns.DISPLAY_NAME,
             EmailContent.AccountColumns.EMAIL_ADDRESS,
             EmailContent.RECORD_ID
     };
-    private final int[] sToIds = new int[] {
+    private final static int[] TO_IDS = new int[] {
             R.id.description,
             R.id.email,
             R.id.new_message_count
@@ -60,7 +60,7 @@ public class AccountShortcutPicker extends ListActivity implements OnItemClickLi
     @Override
     public void onCreate(Bundle icicle) {
         super.onCreate(icicle);
-        
+
         // finish() immediately if we aren't supposed to be here
         if (!Intent.ACTION_CREATE_SHORTCUT.equals(getIntent().getAction())) {
             finish();
@@ -71,22 +71,22 @@ public class AccountShortcutPicker extends ListActivity implements OnItemClickLi
         // TODO: lightweight projection with only those columns needed for this display
         // TODO: query outside of UI thread
         Cursor c = this.managedQuery(
-                EmailContent.Account.CONTENT_URI, 
+                EmailContent.Account.CONTENT_URI,
                 EmailContent.Account.CONTENT_PROJECTION,
                 null, null, null);
         if (c.getCount() == 0) {
             finish();
             return;
         }
-        
+
         setContentView(R.layout.accounts);
         ListView listView = getListView();
         listView.setOnItemClickListener(this);
         listView.setItemsCanFocus(false);
         listView.setEmptyView(findViewById(R.id.empty));
-        
-        AccountsAdapter a = new AccountsAdapter(this, 
-                R.layout.accounts_item, c, sFromColumns, sToIds);
+
+        AccountsAdapter a = new AccountsAdapter(this,
+                R.layout.accounts_item, c, FROM_COLUMNS, TO_IDS);
         listView.setAdapter(a);
     }
 
@@ -103,7 +103,7 @@ public class AccountShortcutPicker extends ListActivity implements OnItemClickLi
             super(context, layout, c, from, to);
             setViewBinder(new MyViewBinder());
         }
-        
+
         /**
          * This is only used for the unread messages count.  Most of the views are handled
          * normally by SimpleCursorAdapter.
@@ -112,7 +112,7 @@ public class AccountShortcutPicker extends ListActivity implements OnItemClickLi
 
             public boolean setViewValue(View view, Cursor cursor, int columnIndex) {
                 if (view.getId() == R.id.new_message_count) {
-                    
+
                     int unreadMessageCount = 0;     // TODO get unread count from Account
                     if (unreadMessageCount <= 0) {
                         view.setVisibility(View.GONE);
@@ -121,19 +121,19 @@ public class AccountShortcutPicker extends ListActivity implements OnItemClickLi
                     }
                     return true;
                 }
-                
+
                 return false;
             }
         }
     }
-    
+
     /**
-     * This function creates a shortcut and returns it to the caller.  There are actually two 
+     * This function creates a shortcut and returns it to the caller.  There are actually two
      * intents that you will send back.
-     * 
-     * The first intent serves as a container for the shortcut and is returned to the launcher by 
+     *
+     * The first intent serves as a container for the shortcut and is returned to the launcher by
      * setResult().  This intent must contain three fields:
-     * 
+     *
      * <ul>
      * <li>{@link android.content.Intent#EXTRA_SHORTCUT_INTENT} The shortcut intent.</li>
      * <li>{@link android.content.Intent#EXTRA_SHORTCUT_NAME} The text that will be displayed with
@@ -142,16 +142,16 @@ public class AccountShortcutPicker extends ListActivity implements OnItemClickLi
      * bitmap, <i>or</i> {@link android.content.Intent#EXTRA_SHORTCUT_ICON_RESOURCE} if provided as
      * a drawable resource.</li>
      * </ul>
-     * 
+     *
      * If you use a simple drawable resource, note that you must wrapper it using
      * {@link android.content.Intent.ShortcutIconResource}, as shown below.  This is required so
-     * that the launcher can access resources that are stored in your application's .apk file.  If 
-     * you return a bitmap, such as a thumbnail, you can simply put the bitmap into the extras 
+     * that the launcher can access resources that are stored in your application's .apk file.  If
+     * you return a bitmap, such as a thumbnail, you can simply put the bitmap into the extras
      * bundle using {@link android.content.Intent#EXTRA_SHORTCUT_ICON}.
-     * 
-     * The shortcut intent can be any intent that you wish the launcher to send, when the user 
-     * clicks on the shortcut.  Typically this will be {@link android.content.Intent#ACTION_VIEW} 
-     * with an appropriate Uri for your content, but any Intent will work here as long as it 
+     *
+     * The shortcut intent can be any intent that you wish the launcher to send, when the user
+     * clicks on the shortcut.  Typically this will be {@link android.content.Intent#ACTION_VIEW}
+     * with an appropriate Uri for your content, but any Intent will work here as long as it
      * triggers the desired action within your Activity.
      */
     private void setupShortcut(Account account) {

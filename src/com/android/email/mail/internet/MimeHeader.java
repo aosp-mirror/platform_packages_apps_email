@@ -47,13 +47,13 @@ public class MimeHeader {
     /**
      * Fields that should be omitted when writing the header using writeTo()
      */
-    private static final String[] writeOmitFields = {
+    private static final String[] WRITE_OMIT_FIELDS = {
 //        HEADER_ANDROID_ATTACHMENT_DOWNLOADED,
 //        HEADER_ANDROID_ATTACHMENT_ID,
         HEADER_ANDROID_ATTACHMENT_STORE_DATA
     };
 
-    protected ArrayList<Field> mFields = new ArrayList<Field>();
+    protected final ArrayList<Field> mFields = new ArrayList<Field>();
 
     public void clear() {
         mFields.clear();
@@ -114,7 +114,7 @@ public class MimeHeader {
         }
         StringBuilder builder = new StringBuilder();
         for (Field field : mFields) {
-            if (!Utility.arrayContains(writeOmitFields, field.name)) {
+            if (!Utility.arrayContains(WRITE_OMIT_FIELDS, field.name)) {
                 builder.append(field.name + ": " + field.value + "\r\n");
             }
         }
@@ -124,7 +124,7 @@ public class MimeHeader {
     public void writeTo(OutputStream out) throws IOException, MessagingException {
         BufferedWriter writer = new BufferedWriter(new OutputStreamWriter(out), 1024);
         for (Field field : mFields) {
-            if (!Utility.arrayContains(writeOmitFields, field.name)) {
+            if (!Utility.arrayContains(WRITE_OMIT_FIELDS, field.name)) {
                 writer.write(field.name + ": " + field.value + "\r\n");
             }
         }

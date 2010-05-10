@@ -68,7 +68,7 @@ public class MimeMessage extends Message {
     private boolean mInhibitLocalMessageId = false;
 
     // Shared random source for generating local message-id values
-    private static java.util.Random sRandom = new java.util.Random();
+    private static final java.util.Random sRandom = new java.util.Random();
     
     // In MIME, en_US-like date format should be used. In other words "MMM" should be encoded to
     // "Jan", not the other localized format like "Ene" (meaning January in locale es).

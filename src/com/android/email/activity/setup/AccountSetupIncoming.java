@@ -47,16 +47,16 @@ public class AccountSetupIncoming extends Activity implements OnClickListener {
     private static final String EXTRA_ACCOUNT = "account";
     private static final String EXTRA_MAKE_DEFAULT = "makeDefault";
 
-    private static final int popPorts[] = {
+    private static final int POP_PORTS[] = {
             110, 995, 995, 110, 110
     };
-    private static final String popSchemes[] = {
+    private static final String POP_SCHEMES[] = {
             "pop3", "pop3+ssl+", "pop3+ssl+trustallcerts", "pop3+tls+", "pop3+tls+trustallcerts"
     };
-    private static final int imapPorts[] = {
+    private static final int IMAP_PORTS[] = {
             143, 993, 993, 143, 143
     };
-    private static final String imapSchemes[] = {
+    private static final String IMAP_SCHEMES[] = {
             "imap", "imap+ssl+", "imap+ssl+trustallcerts", "imap+tls+", "imap+tls+trustallcerts"
     };
 
@@ -210,14 +210,14 @@ public class AccountSetupIncoming extends Activity implements OnClickListener {
 
             if (uri.getScheme().startsWith("pop3")) {
                 serverLabelView.setText(R.string.account_setup_incoming_pop_server_label);
-                mAccountPorts = popPorts;
-                mAccountSchemes = popSchemes;
+                mAccountPorts = POP_PORTS;
+                mAccountSchemes = POP_SCHEMES;
 
                 findViewById(R.id.imap_path_prefix_section).setVisibility(View.GONE);
             } else if (uri.getScheme().startsWith("imap")) {
                 serverLabelView.setText(R.string.account_setup_incoming_imap_server_label);
-                mAccountPorts = imapPorts;
-                mAccountSchemes = imapSchemes;
+                mAccountPorts = IMAP_PORTS;
+                mAccountSchemes = IMAP_SCHEMES;
 
                 findViewById(R.id.account_delete_policy_label).setVisibility(View.GONE);
                 mDeletePolicyView.setVisibility(View.GONE);

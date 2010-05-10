@@ -38,8 +38,6 @@ import java.util.HashMap;
 public class Email extends Application {
     public static final String LOG_TAG = "Email";
 
-    public static File tempDirectory;
-
     /**
      * If this is enabled there will be additional logging information sent to
      * Log.d, including protocol dumps.

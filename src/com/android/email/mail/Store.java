@@ -56,7 +56,7 @@ public abstract class Store {
      * should be returned on FetchProfile.Item.BODY_SANE requests.
      */
     public static final int FETCH_BODY_SANE_SUGGESTED_SIZE = (50 * 1024);
-    private static HashMap<String, Store> mStores = new HashMap<String, Store>();
+    private static final HashMap<String, Store> sStores = new HashMap<String, Store>();
 
     /**
      * Static named constructor.  It should be overrode by extending class.
@@ -169,7 +169,7 @@ public abstract class Store {
     public synchronized static Store getInstance(String uri, Context context, 
             PersistentDataCallbacks callbacks)
         throws MessagingException {
-        Store store = mStores.get(uri);
+        Store store = sStores.get(uri);
         if (store == null) {
             StoreInfo info = StoreInfo.getStoreInfo(uri, context);
             if (info != null) {
@@ -177,7 +177,7 @@ public abstract class Store {
             }
 
             if (store != null) {
-                mStores.put(uri, store);
+                sStores.put(uri, store);
             }
         } else {
             // update the callbacks, which may have been null at creation time.
@@ -199,7 +199,7 @@ public abstract class Store {
      * @param storeUri the store to be removed
      */
     public synchronized static void removeInstance(String storeUri) {
-        mStores.remove(storeUri);
+        sStores.remove(storeUri);
     }
 
     /**

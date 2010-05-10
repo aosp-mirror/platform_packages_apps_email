@@ -88,10 +88,10 @@ public class LocalStore extends Store implements PersistentDataCallbacks {
 
     private static final Flag[] PERMANENT_FLAGS = { Flag.DELETED, Flag.X_DESTROYED, Flag.SEEN };
 
-    private String mPath;
+    private final String mPath;
     private SQLiteDatabase mDb;
-    private File mAttachmentsDir;
-    private Context mContext;
+    private final File mAttachmentsDir;
+    private final Context mContext;
     private int mVisibleLimitDefault = -1;
 
     /**
@@ -589,7 +589,7 @@ public class LocalStore extends Store implements PersistentDataCallbacks {
     }
 
     public class LocalFolder extends Folder implements Folder.PersistentDataCallbacks {
-        private String mName;
+        private final String mName;
         private long mFolderId = -1;
         private int mUnreadMessageCount = -1;
         private int mVisibleLimit = -1;

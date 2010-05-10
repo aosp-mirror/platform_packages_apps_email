@@ -91,12 +91,12 @@ public class Account {
     /**
      * All new fields should have named keys
      */
-    private final String KEY_SYNC_WINDOW = ".syncWindow";
-    private final String KEY_BACKUP_FLAGS = ".backupFlags";
-    private final String KEY_PROTOCOL_VERSION = ".protocolVersion";
-    private final String KEY_SECURITY_FLAGS = ".securityFlags";
-    private final String KEY_SIGNATURE = ".signature";
-    private final String KEY_VIBRATE_WHEN_SILENT = ".vibrateWhenSilent";
+    private static final String KEY_SYNC_WINDOW = ".syncWindow";
+    private static final String KEY_BACKUP_FLAGS = ".backupFlags";
+    private static final String KEY_PROTOCOL_VERSION = ".protocolVersion";
+    private static final String KEY_SECURITY_FLAGS = ".securityFlags";
+    private static final String KEY_SIGNATURE = ".signature";
+    private static final String KEY_VIBRATE_WHEN_SILENT = ".vibrateWhenSilent";
 
     public Account(Context context) {
         // TODO Change local store path to something readable / recognizable

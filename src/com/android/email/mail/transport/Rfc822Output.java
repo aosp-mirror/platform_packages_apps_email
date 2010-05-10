@@ -56,7 +56,7 @@ public class Rfc822Output {
 
     // In MIME, en_US-like date format should be used. In other words "MMM" should be encoded to
     // "Jan", not the other localized format like "Ene" (meaning January in locale es).
-    static final SimpleDateFormat mDateFormat =
+    private static final SimpleDateFormat DATE_FORMAT =
         new SimpleDateFormat("EEE, dd MMM yyyy HH:mm:ss Z", Locale.US);
 
     /*package*/ static String buildBodyText(Context context, Message message,
@@ -131,7 +131,7 @@ public class Rfc822Output {
         // Write the fixed headers.  Ordering is arbitrary (the legacy code iterated through a
         // hashmap here).
 
-        String date = mDateFormat.format(new Date(message.mTimeStamp));
+        String date = DATE_FORMAT.format(new Date(message.mTimeStamp));
         writeHeader(writer, "Date", date);
 
         writeEncodedHeader(writer, "Subject", message.mSubject);
