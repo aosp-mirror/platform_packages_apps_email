@@ -19,7 +19,6 @@ package com.android.email.activity;
 import com.android.email.Email;
 import com.android.email.MessagingController;
 import com.android.email.R;
-import com.android.email.mail.internet.BinaryTempFileBody;
 
 import android.app.Application;
 import android.content.Context;
@@ -84,9 +83,6 @@ public class MessageViewTests
         mToView = (TextView) a.findViewById(R.id.to);
         mSubjectView = (TextView) a.findViewById(R.id.subject);
         mMessageContentView = (WebView) a.findViewById(R.id.message_content);
-
-        // This is needed for mime image bodypart.
-        BinaryTempFileBody.setTempDirectory(getActivity().getCacheDir());
     }
 
     /**

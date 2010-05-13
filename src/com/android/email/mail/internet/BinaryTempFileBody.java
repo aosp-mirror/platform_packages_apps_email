@@ -16,6 +16,7 @@
 
 package com.android.email.mail.internet;
 
+import com.android.email.Email;
 import com.android.email.mail.Body;
 import com.android.email.mail.MessagingException;
 
@@ -39,20 +40,7 @@ import java.io.OutputStream;
  * getInputStream is closed the file is deleted and the Body should be considered disposed of.
  */
 public class BinaryTempFileBody implements Body {
-    private static File mTempDirectory;
-
     private File mFile;
-
-    public static void setTempDirectory(File tempDirectory) {
-        mTempDirectory = tempDirectory;
-    }
-
-    public BinaryTempFileBody() throws IOException {
-        if (mTempDirectory == null) {
-            throw new
-                RuntimeException("setTempDirectory has not been called on BinaryTempFileBody!");
-        }
-    }
 
     /**
      * An alternate way to put data into a BinaryTempFileBody is to simply supply an already-
@@ -64,7 +52,7 @@ public class BinaryTempFileBody implements Body {
     }
 
     public OutputStream getOutputStream() throws IOException {
-        mFile = File.createTempFile("body", null, mTempDirectory);
+        mFile = File.createTempFile("body", null, Email.getTempDirectory());
         mFile.deleteOnExit();
         return new FileOutputStream(mFile);
     }

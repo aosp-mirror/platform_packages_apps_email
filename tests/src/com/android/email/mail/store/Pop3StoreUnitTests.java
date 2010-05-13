@@ -26,7 +26,6 @@ import com.android.email.mail.Transport;
 import com.android.email.mail.Folder.FolderType;
 import com.android.email.mail.Folder.OpenMode;
 import com.android.email.mail.Message.RecipientType;
-import com.android.email.mail.internet.BinaryTempFileBody;
 import com.android.email.mail.internet.MimeMessage;
 import com.android.email.mail.transport.MockTransport;
 
@@ -59,9 +58,6 @@ public class Pop3StoreUnitTests extends AndroidTestCase {
         mStore = (Pop3Store) Pop3Store.newInstance("pop3://user:password@server:999",
                 getContext(), null);
         mFolder = (Pop3Store.Pop3Folder) mStore.getFolder("INBOX");
-        
-        // This is needed for parsing mime messages
-        BinaryTempFileBody.setTempDirectory(this.getContext().getCacheDir());
     }
 
     /**
