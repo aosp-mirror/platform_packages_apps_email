@@ -20,13 +20,13 @@ import com.android.email.mail.FetchProfile;
 import com.android.email.mail.Flag;
 import com.android.email.mail.Folder;
 import com.android.email.mail.Message;
-import com.android.email.mail.MessageRetrievalListener;
 import com.android.email.mail.MessagingException;
 import com.android.email.mail.Part;
 import com.android.email.mail.Sender;
 import com.android.email.mail.Store;
 import com.android.email.mail.StoreSynchronizer;
 import com.android.email.mail.Folder.FolderType;
+import com.android.email.mail.Folder.MessageRetrievalListener;
 import com.android.email.mail.Folder.OpenMode;
 import com.android.email.mail.internet.MimeBodyPart;
 import com.android.email.mail.internet.MimeHeader;
@@ -303,7 +303,7 @@ public class MessagingController implements Runnable {
                                     AttachmentProvider.deleteAllMailboxAttachmentFiles(
                                             mContext, accountId, localInfo.mId);
                                     // Delete the mailbox.  Triggers will take care of
-                                    // related Message, Body and Attachment records. 
+                                    // related Message, Body and Attachment records.
                                     Uri uri = ContentUris.withAppendedId(
                                             EmailContent.Mailbox.CONTENT_URI, localInfo.mId);
                                     mContext.getContentResolver().delete(uri, null, null);
@@ -601,7 +601,7 @@ public class MessagingController implements Runnable {
 
             remoteFolder.fetch(unsyncedMessages.toArray(new Message[0]), fp,
                     new MessageRetrievalListener() {
-                        public void messageFinished(Message message, int number, int ofTotal) {
+                        public void messageRetrieved(Message message) {
                             try {
                                 // Determine if the new message was already known (e.g. partial)
                                 // And create or reload the full message info
@@ -637,9 +637,6 @@ public class MessagingController implements Runnable {
                                 Log.e(Email.LOG_TAG,
                                         "Error while storing downloaded message." + e.toString());
                             }
-                        }
-
-                        public void messageStarted(String uid, int number, int ofTotal) {
                         }
                     });
         }
@@ -768,13 +765,10 @@ public class MessagingController implements Runnable {
         fp.add(FetchProfile.Item.BODY);
         remoteFolder.fetch(smallMessages.toArray(new Message[smallMessages.size()]), fp,
                 new MessageRetrievalListener() {
-                    public void messageFinished(Message message, int number, int ofTotal) {
+                    public void messageRetrieved(Message message) {
                         // Store the updated message locally and mark it fully loaded
                         copyOneMessageToProvider(message, account, folder,
                                 EmailContent.Message.FLAG_LOADED_COMPLETE);
-                    }
-
-                    public void messageStarted(String uid, int number, int ofTotal) {
                     }
         });
 
@@ -1363,7 +1357,7 @@ public class MessagingController implements Runnable {
      */
     private void processPendingFlagChange(Store remoteStore, Mailbox mailbox, boolean changeRead,
             boolean changeFlagged, EmailContent.Message newMessage) throws MessagingException {
-        
+
         // 0. No remote update if the message is local-only
         if (newMessage.mServerId == null || newMessage.mServerId.equals("")
                 || newMessage.mServerId.startsWith(LOCAL_SERVERID_PREFIX)) {

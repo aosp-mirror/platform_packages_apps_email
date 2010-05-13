@@ -41,6 +41,16 @@ public abstract class Folder {
     }
 
     /**
+     * Callback for each message retrieval.
+     *
+     * Not all {@link Folder} implementation won't call it.
+     * (Currently {@link com.android.email.mail.store.LocalStore.LocalFolder} won't.)
+     */
+    public interface MessageRetrievalListener {
+        public void messageRetrieved(Message message);
+    }
+
+    /**
      * Forces an open of the MailProvider. If the provider is already open this
      * function returns without doing anything.
      *
