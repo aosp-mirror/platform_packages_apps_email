@@ -1286,7 +1286,10 @@ public class EasSyncService extends AbstractSyncService {
                 // the framework; if so, return the ProvisionParser containing the policy set and
                 // temporary key
                 PolicySet ps = pp.getPolicySet();
-                if (SecurityPolicy.getInstance(mContext).isSupported(ps)) {
+                // The PolicySet can be null if there are policies we don't know about (e.g. ones
+                // from Exchange 12.1)  If we have a PolicySet, then we ask whether the device can
+                // support the actual parameters of those policies.
+                if ((ps != null) && SecurityPolicy.getInstance(mContext).isSupported(ps)) {
                     return pp;
                 }
             }
