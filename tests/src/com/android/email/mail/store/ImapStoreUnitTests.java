@@ -27,7 +27,6 @@ import com.android.email.mail.Transport;
 import com.android.email.mail.Folder.FolderType;
 import com.android.email.mail.Folder.OpenMode;
 import com.android.email.mail.Message.RecipientType;
-import com.android.email.mail.internet.BinaryTempFileBody;
 import com.android.email.mail.internet.MimeUtility;
 import com.android.email.mail.internet.TextBody;
 import com.android.email.mail.store.ImapStore.ImapMessage;
@@ -71,9 +70,6 @@ public class ImapStoreUnitTests extends AndroidTestCase {
         mStore = (ImapStore) ImapStore.newInstance("imap://user:password@server:999",
                 getContext(), null);
         mFolder = (ImapStore.ImapFolder) mStore.getFolder("INBOX");
-        
-        // This is needed for parsing mime messages
-        BinaryTempFileBody.setTempDirectory(this.getContext().getCacheDir());
     }
 
     /**
