@@ -235,6 +235,7 @@ public class EasSyncService extends AbstractSyncService {
      */
     public boolean alarm() {
         HttpPost post;
+        if (mThread == null) return true;
         String threadName = mThread.getName();
 
         // Synchronize here so that we are guaranteed to have valid mPendingPost and mPostLock
