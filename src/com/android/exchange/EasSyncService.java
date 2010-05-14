@@ -467,15 +467,17 @@ public class EasSyncService extends AbstractSyncService {
 
     /**
      * Send the POST command to the autodiscover server, handling a redirect, if necessary, and
-     * return the HttpResponse
+     * return the HttpResponse.  If we get a 401 (unauthorized) error and we're using the
+     * full email address, try the bare user name instead (e.g. foo instead of foo@bar.com)
      *
      * @param client the HttpClient to be used for the request
      * @param post the HttpPost we're going to send
+     * @param canRetry whether we can retry using the bare name on an authentication failure (401)
      * @return an HttpResponse from the original or redirect server
      * @throws IOException on any IOException within the HttpClient code
      * @throws MessagingException
      */
-    private HttpResponse postAutodiscover(HttpClient client, HttpPost post)
+    private HttpResponse postAutodiscover(HttpClient client, HttpPost post, boolean canRetry)
             throws IOException, MessagingException {
         userLog("Posting autodiscover to: " + post.getURI());
         HttpResponse resp = executePostWithTimeout(client, post, COMMAND_TIMEOUT);
@@ -487,10 +489,21 @@ public class EasSyncService extends AbstractSyncService {
                 userLog("Posting autodiscover to redirect: " + post.getURI());
                 return executePostWithTimeout(client, post, COMMAND_TIMEOUT);
             }
+        // 401 (Unauthorized) is for true auth errors when used in Autodiscover
         } else if (code == HttpStatus.SC_UNAUTHORIZED) {
-            // 401 (Unauthorized) is for true auth errors when used in Autodiscover
-            // 403 (and others) we'll just punt on
+            if (canRetry && mUserName.contains("@")) {
+                // Try again using the bare user name
+                int atSignIndex = mUserName.indexOf('@');
+                mUserName = mUserName.substring(0, atSignIndex);
+                cacheAuthAndCmdString();
+                userLog("401 received; trying username: ", mUserName);
+                // Recreate the basic authentication string and reset the header
+                post.removeHeaders("Authorization");
+                post.setHeader("Authorization", mAuthString);
+                return postAutodiscover(client, post, false);
+            }
             throw new MessagingException(MessagingException.AUTHENTICATION_FAILED);
+        // 403 (and others) we'll just punt on
         } else if (code != HttpStatus.SC_OK) {
             // We'll try the next address if this doesn't work
             userLog("Code: " + code + ", throwing IOException");
@@ -533,8 +546,8 @@ public class EasSyncService extends AbstractSyncService {
             // Initialize the user name and password
             mUserName = userName;
             mPassword = password;
-            // Make sure the authentication string is created (mAuthString)
-            makeUriString("foo", null);
+            // Make sure the authentication string is recreated and cached
+            cacheAuthAndCmdString();
 
             // Split out the domain name
             int amp = userName.indexOf('@');
@@ -546,6 +559,9 @@ public class EasSyncService extends AbstractSyncService {
 
             // There are up to four attempts here; the two URLs that we're supposed to try per the
             // specification, and up to one redirect for each (handled in postAutodiscover)
+            // Note: The expectation is that, of these four attempts, only a single server will
+            // actually be identified as the autodiscover server.  For the identified server,
+            // we may also try a 2nd connection with a different format (bare name).
 
             // Try the domain first and see if we can get a response
             HttpPost post = new HttpPost("https://" + domain + AUTO_DISCOVER_PAGE);
@@ -555,14 +571,14 @@ public class EasSyncService extends AbstractSyncService {
             HttpClient client = getHttpClient(COMMAND_TIMEOUT);
             HttpResponse resp;
             try {
-                resp = postAutodiscover(client, post);
+                resp = postAutodiscover(client, post, true /*canRetry*/);
             } catch (IOException e1) {
                 userLog("IOException in autodiscover; trying alternate address");
                 // We catch the IOException here because we have an alternate address to try
                 post.setURI(URI.create("https://autodiscover." + domain + AUTO_DISCOVER_PAGE));
                 // If we fail here, we're out of options, so we let the outer try catch the
                 // IOException and return null
-                resp = postAutodiscover(client, post);
+                resp = postAutodiscover(client, post, true /*canRetry*/);
             }
 
             // Get the "final" code; if it's not 200, just return null
@@ -588,9 +604,12 @@ public class EasSyncService extends AbstractSyncService {
                             hostAuth = new HostAuth();
                             parseAutodiscover(parser, hostAuth);
                             // On success, we'll have a server address and login
-                            if (hostAuth.mAddress != null && hostAuth.mLogin != null) {
+                            if (hostAuth.mAddress != null) {
                                 // Fill in the rest of the HostAuth
-                                hostAuth.mPassword = password;
+                                // We use the user name and password that were successful during
+                                // the autodiscover process
+                                hostAuth.mLogin = mUserName;
+                                hostAuth.mPassword = mPassword;
                                 hostAuth.mPort = 443;
                                 hostAuth.mProtocol = "eas";
                                 hostAuth.mFlags =
@@ -699,8 +718,7 @@ public class EasSyncService extends AbstractSyncService {
                 String name = parser.getName();
                 if (name.equals("EMailAddress")) {
                     String addr = parser.nextText();
-                    hostAuth.mLogin = addr;
-                    userLog("Autodiscover, login: " + addr);
+                    userLog("Autodiscover, email: " + addr);
                 } else if (name.equals("DisplayName")) {
                     String dn = parser.nextText();
                     userLog("Autodiscover, user: " + dn);
@@ -1041,15 +1059,24 @@ public class EasSyncService extends AbstractSyncService {
         }
     }
 
+    /**
+     * Using mUserName and mPassword, create and cache mAuthString and mCacheString, which are used
+     * in all HttpPost commands.  This should be called if these strings are null, or if mUserName
+     * and/or mPassword are changed
+     */
     @SuppressWarnings("deprecation")
+    private void cacheAuthAndCmdString() {
+        String safeUserName = URLEncoder.encode(mUserName);
+        String cs = mUserName + ':' + mPassword;
+        mAuthString = "Basic " + Base64.encodeToString(cs.getBytes(), Base64.NO_WRAP);
+        mCmdString = "&User=" + safeUserName + "&DeviceId=" + mDeviceId +
+            "&DeviceType=" + mDeviceType;
+    }
+
     private String makeUriString(String cmd, String extra) throws IOException {
          // Cache the authentication string and the command string
-        String safeUserName = URLEncoder.encode(mUserName);
-        if (mAuthString == null) {
-            String cs = mUserName + ':' + mPassword;
-            mAuthString = "Basic " + Base64.encodeToString(cs.getBytes(), Base64.NO_WRAP);
-            mCmdString = "&User=" + safeUserName + "&DeviceId=" + mDeviceId + "&DeviceType="
-                    + mDeviceType;
+        if (mAuthString == null || mCmdString == null) {
+            cacheAuthAndCmdString();
         }
         String us = (mSsl ? (mTrustSsl ? "httpts" : "https") : "http") + "://" + mHostAddress +
             "/Microsoft-Server-ActiveSync";
