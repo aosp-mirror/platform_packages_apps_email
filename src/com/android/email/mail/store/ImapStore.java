@@ -26,7 +26,6 @@ import com.android.email.mail.FetchProfile;
 import com.android.email.mail.Flag;
 import com.android.email.mail.Folder;
 import com.android.email.mail.Message;
-import com.android.email.mail.MessageRetrievalListener;
 import com.android.email.mail.MessagingException;
 import com.android.email.mail.Part;
 import com.android.email.mail.Store;
@@ -748,13 +747,10 @@ public class ImapStore extends Store {
                     }
                 }
                 for (int i = 0, count = uids.size(); i < count; i++) {
-                    if (listener != null) {
-                        listener.messageStarted(uids.get(i), i, count);
-                    }
                     ImapMessage message = new ImapMessage(uids.get(i), this);
                     messages.add(message);
                     if (listener != null) {
-                        listener.messageFinished(message, i, count);
+                        listener.messageRetrieved(message);
                     }
                 }
             } catch (IOException ioe) {
@@ -788,13 +784,10 @@ public class ImapStore extends Store {
                     uids = tempUids.toArray(new String[] {});
                 }
                 for (int i = 0, count = uids.length; i < count; i++) {
-                    if (listener != null) {
-                        listener.messageStarted(uids[i], i, count);
-                    }
                     ImapMessage message = new ImapMessage(uids[i], this);
                     messages.add(message);
                     if (listener != null) {
-                        listener.messageFinished(message, i, count);
+                        listener.messageRetrieved(message);
                     }
                 }
             } catch (IOException ioe) {
@@ -883,10 +876,6 @@ public class ImapStore extends Store {
                         Message message = messageMap.get(uid);
                         if (message == null) continue;
 
-                        if (listener != null) {
-                            listener.messageStarted(uid, messageNumber++, messageMap.size());
-                        }
-
                         if (fp.contains(FetchProfile.Item.FLAGS)) {
                             ImapList flags = fetchList.getKeyedList("FLAGS");
                             ImapMessage imapMessage = (ImapMessage) message;
@@ -960,7 +949,7 @@ public class ImapStore extends Store {
                         }
 
                         if (listener != null) {
-                            listener.messageFinished(message, messageNumber, messageMap.size());
+                            listener.messageRetrieved(message);
                         }
                     }
 
