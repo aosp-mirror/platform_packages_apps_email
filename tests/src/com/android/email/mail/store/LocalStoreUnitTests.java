@@ -31,7 +31,6 @@ import com.android.email.mail.Folder.FolderType;
 import com.android.email.mail.Folder.OpenMode;
 import com.android.email.mail.Message.RecipientType;
 import com.android.email.mail.MessageTestUtils.MultipartBuilder;
-import com.android.email.mail.internet.BinaryTempFileBody;
 import com.android.email.mail.internet.MimeMessage;
 import com.android.email.mail.internet.MimeUtility;
 import com.android.email.mail.internet.TextBody;
@@ -89,10 +88,6 @@ public class LocalStoreUnitTests extends AndroidTestCase {
         
         mStore = (LocalStore) LocalStore.newInstance(mLocalStoreUri, getContext(), null);
         mFolder = (LocalStore.LocalFolder) mStore.getFolder(FOLDER_NAME);
-        
-        // This is needed for parsing mime messages
-        mCacheDir = getContext().getCacheDir();
-        BinaryTempFileBody.setTempDirectory(mCacheDir);
     }
     
     /**

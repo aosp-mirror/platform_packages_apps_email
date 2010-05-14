@@ -174,6 +174,8 @@ public class Email extends Application {
         0x9d50a4,
     };
 
+    private static File sTempDirectory;
+
     /* package for testing */ static int getColorIndexFromAccountId(long accountId) {
         // Account id is 1-based, so - 1.
         // Use abs so that it won't possibly return negative.
@@ -186,6 +188,13 @@ public class Email extends Application {
     
     public static int getAccountColor(long accountId) {
         return ACCOUNT_COLOR_CHIP_RGBS[getColorIndexFromAccountId(accountId)];
+    }
+
+    public static File getTempDirectory() {
+        if (sTempDirectory == null) {
+            throw new RuntimeException("TempDirectory not set.  Application hasn't started??");
+        }
+        return sTempDirectory;
     }
 
     /**
@@ -256,15 +265,10 @@ public class Email extends Application {
         Preferences prefs = Preferences.getPreferences(this);
         DEBUG = prefs.getEnableDebugLogging();
         DEBUG_SENSITIVE = prefs.getEnableSensitiveLogging();
+        sTempDirectory = getCacheDir();
 
         // Reset all accounts to default visible window
         Controller.getInstance(this).resetVisibleLimits();
-
-        /*
-         * We have to give MimeMessage a temp directory because File.createTempFile(String, String)
-         * doesn't work in Android and MimeMessage does not have access to a Context.
-         */
-        BinaryTempFileBody.setTempDirectory(getCacheDir());
 
         // Enable logging in the EAS service, so it starts up as early as possible.
         Debug.updateLoggingFlags(this);
