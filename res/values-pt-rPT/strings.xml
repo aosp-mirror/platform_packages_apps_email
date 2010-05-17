@@ -82,6 +82,7 @@
     <string name="account_folder_list_summary_starred" msgid="3134312269246375723">"Marcado com estrela"</string>
     <string name="account_folder_list_summary_drafts" msgid="5514845993247300437">"Rascunhos"</string>
     <string name="account_folder_list_summary_outbox" msgid="3059836696049399377">"Caixa de saída"</string>
+    <string name="account_folder_list_refresh_toast" msgid="8158352329765828902">"Prima prolongadamente uma conta para a actualizar"</string>
     <string name="mailbox_list_title" msgid="8299608543467211089">"Caixa de correio"</string>
     <string name="message_list_load_more_messages_action" msgid="7428302707908825692">"Carregar mais mensagens"</string>
     <string name="message_list_send_pending_messages_action" msgid="9100624762133992435">"Enviar mensagens a enviar"</string>
