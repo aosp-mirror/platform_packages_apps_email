@@ -82,6 +82,7 @@
     <string name="account_folder_list_summary_starred" msgid="3134312269246375723">"Označené hvězdičkou"</string>
     <string name="account_folder_list_summary_drafts" msgid="5514845993247300437">"Koncepty"</string>
     <string name="account_folder_list_summary_outbox" msgid="3059836696049399377">"Pošta k odeslání"</string>
+    <string name="account_folder_list_refresh_toast" msgid="8158352329765828902">"Účet aktualizujete stisknutím a podržením"</string>
     <string name="mailbox_list_title" msgid="8299608543467211089">"E-mailová schránka"</string>
     <string name="message_list_load_more_messages_action" msgid="7428302707908825692">"Načíst další zprávy"</string>
     <string name="message_list_send_pending_messages_action" msgid="9100624762133992435">"Odeslat odchozí zprávy"</string>

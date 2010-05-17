@@ -82,10 +82,11 @@
     <string name="account_folder_list_summary_starred" msgid="3134312269246375723">"已加星标的内容"</string>
     <string name="account_folder_list_summary_drafts" msgid="5514845993247300437">"草稿"</string>
     <string name="account_folder_list_summary_outbox" msgid="3059836696049399377">"发件箱"</string>
+    <string name="account_folder_list_refresh_toast" msgid="8158352329765828902">"请长按帐户，将其刷新"</string>
     <string name="mailbox_list_title" msgid="8299608543467211089">"邮箱"</string>
     <string name="message_list_load_more_messages_action" msgid="7428302707908825692">"载入更多邮件"</string>
     <string name="message_list_send_pending_messages_action" msgid="9100624762133992435">"外发邮件"</string>
-    <string name="message_compose_to_hint" msgid="2891895306418177013">"目标语言"</string>
+    <string name="message_compose_to_hint" msgid="2891895306418177013">"收件人"</string>
     <string name="message_compose_cc_hint" msgid="8481884461031434144">"抄送"</string>
     <string name="message_compose_bcc_hint" msgid="9177337492358841680">"密送"</string>
     <string name="message_compose_subject_hint" msgid="6993487234024160782">"主题"</string>
@@ -98,7 +99,7 @@
     <string name="message_compose_attachments_skipped_toast" msgid="5611815773808423460">"某些附件无法转发，因为还未下载。"</string>
     <string name="message_compose_attachment_size" msgid="4401081828287333647">"文件太大，无法附加。"</string>
     <string name="message_compose_display_name" msgid="6415258924917140704">"<xliff:g id="NAME">%1$s</xliff:g>以及其他 <xliff:g id="NUMBER">%2$d</xliff:g> 人"</string>
-    <string name="message_view_to_label" msgid="6485191743265527381">"目标语言:"</string>
+    <string name="message_view_to_label" msgid="6485191743265527381">"收件人："</string>
     <string name="message_view_cc_label" msgid="6322992216371163122">"抄送："</string>
     <string name="message_view_attachment_view_action" msgid="5353550848340829134">"打开"</string>
     <string name="message_view_attachment_download_action" msgid="7552530274014544406">"保存"</string>
@@ -204,8 +205,8 @@
     <string name="account_setup_failed_dlg_server_message_fmt" msgid="5956976504788732779">"无法连接到服务器。"\n"(<xliff:g id="ERROR">%s</xliff:g>)"</string>
     <string name="account_setup_failed_tls_required" msgid="307030406688611327">"需要 TLS，但服务器不支持 TLS。"</string>
     <string name="account_setup_failed_auth_required" msgid="1676242821459638150">"服务器不支持身份验证方法。"</string>
-    <string name="account_setup_failed_security" msgid="6142264248671379943">"由于安全错误，无法打开到服务器的连接。"</string>
-    <string name="account_setup_failed_ioerror" msgid="7391458717708933095">"无法打开到服务器的连接。"</string>
+    <string name="account_setup_failed_security" msgid="6142264248671379943">"由于安全方面的问题，无法与服务器建立连接。"</string>
+    <string name="account_setup_failed_ioerror" msgid="7391458717708933095">"无法与服务器建立连接。"</string>
     <string name="account_setup_security_required_title" msgid="1850321535870447468">"远程安全管理"</string>
     <string name="account_setup_security_policies_required_fmt" msgid="8146309611870795951">"<xliff:g id="SERVER">%s</xliff:g> 服务器要求您允许其远程控制手机中的某些安全功能。您希望完成此帐户的设置吗？"</string>
     <string name="account_setup_failed_security_policies_unsupported" msgid="4093832822988053758">"您的手机不支持此服务器要求使用的安全功能。"</string>

@@ -20,7 +20,7 @@
     <string name="read_attachment_desc" msgid="7594746717616308643">"Consente all\'applicazione di leggere i tuoi allegati email."</string>
     <string name="permission_access_provider_label" msgid="4274353114641168675">"Accesso ai dati del provider di posta"</string>
     <string name="permission_access_provider_desc" msgid="1513898266889541617">"Consente a questa applicazione di accedere al database della tua posta, inclusi i messaggi ricevuti e inviati, i nomi utente e le password."</string>
-    <string name="app_name" msgid="5815426892327290362">"Invia email"</string>
+    <string name="app_name" msgid="5815426892327290362">"Email"</string>
     <string name="compose_title" msgid="427986915662706899">"Scrivi"</string>
     <string name="debug_title" msgid="5175710493691536719">"Debug"</string>
     <string name="next_action" msgid="3931301986364184415">"Avanti"</string>
@@ -82,6 +82,7 @@
     <string name="account_folder_list_summary_starred" msgid="3134312269246375723">"Speciali"</string>
     <string name="account_folder_list_summary_drafts" msgid="5514845993247300437">"Bozze"</string>
     <string name="account_folder_list_summary_outbox" msgid="3059836696049399377">"Posta in uscita"</string>
+    <string name="account_folder_list_refresh_toast" msgid="8158352329765828902">"Tieni premuto a lungo su un account per aggiornarlo"</string>
     <string name="mailbox_list_title" msgid="8299608543467211089">"Casella di posta"</string>
     <string name="message_list_load_more_messages_action" msgid="7428302707908825692">"Carica ulteriori messaggi"</string>
     <string name="message_list_send_pending_messages_action" msgid="9100624762133992435">"Invia messaggi in uscita"</string>

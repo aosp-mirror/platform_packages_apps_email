@@ -82,6 +82,7 @@
     <string name="account_folder_list_summary_starred" msgid="3134312269246375723">"Markiert"</string>
     <string name="account_folder_list_summary_drafts" msgid="5514845993247300437">"Entwürfe"</string>
     <string name="account_folder_list_summary_outbox" msgid="3059836696049399377">"Postausgang"</string>
+    <string name="account_folder_list_refresh_toast" msgid="8158352329765828902">"Konto zum Aktualisieren lange drücken"</string>
     <string name="mailbox_list_title" msgid="8299608543467211089">"Postfach"</string>
     <string name="message_list_load_more_messages_action" msgid="7428302707908825692">"Weitere Nachrichten laden"</string>
     <string name="message_list_send_pending_messages_action" msgid="9100624762133992435">"Ausgehende Nachrichten senden"</string>
@@ -226,7 +227,7 @@
     <string name="account_settings_description_label" msgid="8894815221204511715">"Kontoname"</string>
     <string name="account_settings_name_label" msgid="8186406122590008449">"Ihr Name"</string>
     <string name="account_settings_signature_label" msgid="4091969938785803201">"Signatur"</string>
-    <string name="account_settings_signature_hint" msgid="7262183168962779403">"Text an zu sendende Nachrichten anhängen"</string>
+    <string name="account_settings_signature_hint" msgid="7262183168962779403">"Text an ausgehende Nachrichten anhängen"</string>
     <string name="account_settings_notifications" msgid="1042620094281375043">"Benachrichtigungseinstellungen"</string>
     <string name="account_settings_sync_contacts_enable" msgid="1369272986009573218">"Kontakte synchr"</string>
     <string name="account_settings_sync_contacts_summary" msgid="8901452720940015928">"Kontakte dieses Kontos ebenfalls synchronisieren"</string>
