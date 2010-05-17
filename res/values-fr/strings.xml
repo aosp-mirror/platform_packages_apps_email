@@ -20,7 +20,7 @@
     <string name="read_attachment_desc" msgid="7594746717616308643">"Permet à cette application de lire les pièces jointes aux e-mails."</string>
     <string name="permission_access_provider_label" msgid="4274353114641168675">"Accéder aux données du client de messagerie"</string>
     <string name="permission_access_provider_desc" msgid="1513898266889541617">"Autorise l\'application à accéder à la base de données de votre messagerie électronique, y compris aux messages reçus et envoyés, aux noms d\'utilisateur et aux mots de passe."</string>
-    <string name="app_name" msgid="5815426892327290362">"Envoyer un e-mail"</string>
+    <string name="app_name" msgid="5815426892327290362">"E-mail"</string>
     <string name="compose_title" msgid="427986915662706899">"Composer"</string>
     <string name="debug_title" msgid="5175710493691536719">"Débogage"</string>
     <string name="next_action" msgid="3931301986364184415">"Suivant"</string>
@@ -82,6 +82,7 @@
     <string name="account_folder_list_summary_starred" msgid="3134312269246375723">"Suivis"</string>
     <string name="account_folder_list_summary_drafts" msgid="5514845993247300437">"Brouillons"</string>
     <string name="account_folder_list_summary_outbox" msgid="3059836696049399377">"Boîte d\'envoi"</string>
+    <string name="account_folder_list_refresh_toast" msgid="8158352329765828902">"Appuyez de manière prolongée sur un compte pour l\'actualiser."</string>
     <string name="mailbox_list_title" msgid="8299608543467211089">"Boîtes aux lettres"</string>
     <string name="message_list_load_more_messages_action" msgid="7428302707908825692">"Charger plus de messages"</string>
     <string name="message_list_send_pending_messages_action" msgid="9100624762133992435">"Envoyer les messages sortants"</string>
@@ -235,7 +236,7 @@
     <string name="account_settings_vibrate_when_label" msgid="708477308761702671">"Vibreur"</string>
     <string name="account_settings_vibrate_when_summary" msgid="3991584445166247189">"Vibrer à la réception d\'un e-mail"</string>
     <string name="account_settings_vibrate_when_always" msgid="6739506816960483174">"Toujours"</string>
-    <string name="account_settings_vibrate_when_silent" msgid="6417076436551648924">"Seulement en mode silencieux"</string>
+    <string name="account_settings_vibrate_when_silent" msgid="6417076436551648924">"En mode silencieux"</string>
     <string name="account_settings_vibrate_when_never" msgid="3759680093309511614">"Jamais"</string>
     <string name="account_settings_vibrate_when_dlg_title" msgid="308167729046312952">"Vibreur"</string>
     <string name="account_settings_ringtone" msgid="7922187231467500404">"Sélectionner la sonnerie"</string>
