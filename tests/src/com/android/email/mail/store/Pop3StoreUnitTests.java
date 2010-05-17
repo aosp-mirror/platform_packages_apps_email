@@ -16,6 +16,7 @@
 
 package com.android.email.mail.store;
 
+import com.android.email.Email;
 import com.android.email.mail.Address;
 import com.android.email.mail.FetchProfile;
 import com.android.email.mail.Flag;
@@ -53,7 +54,8 @@ public class Pop3StoreUnitTests extends AndroidTestCase {
     @Override
     protected void setUp() throws Exception {
         super.setUp();
-        
+        Email.setTempDirectory(getContext());
+
         // These are needed so we can get at the inner classes
         mStore = (Pop3Store) Pop3Store.newInstance("pop3://user:password@server:999",
                 getContext(), null);
