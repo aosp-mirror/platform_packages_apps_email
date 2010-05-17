@@ -444,6 +444,8 @@
     <string name="account_setup_exchange_ssl_label">Use secure connection (SSL)</string>
     <!-- On "Exchange" setup screen, the trust ssl certificates checkbox label -->
     <string name="account_setup_exchange_trust_certificates_label">Accept all SSL certificates</string>
+    <!-- On "Exchange" setup screen, the exchange device-id label -->
+    <string name="account_setup_exchange_device_id_label">Moblile Device ID</string>
 
     <!-- In Account setup options screen, Activity title -->
     <string name="account_setup_options_title">Account options</string>

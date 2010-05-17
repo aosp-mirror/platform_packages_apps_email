@@ -79,14 +79,16 @@
                 android:layout_width="match_parent"
                 android:text="@string/account_setup_exchange_trust_certificates_label" />
             <TextView
+                android:text="@string/account_setup_exchange_device_id_label"
+                android:layout_height="wrap_content"
+                android:layout_width="match_parent"
+                android:textColor="?android:attr/textColorPrimary" />
+            <TextView
                 android:id="@+id/device_id"
                 android:layout_height="wrap_content"
                 android:layout_width="match_parent"
-                android:paddingTop="5dip"
-                android:paddingBottom="5dip"
-                android:paddingLeft="3dip"
-                android:textAppearance="?android:attr/textAppearanceSmall"
-                android:textColor="?android:attr/textColorTertiary" />
+                android:textAppearance="?android:attr/textAppearanceMedium"
+                android:textColor="#ffbebebe" />
         </LinearLayout>
 
         <RelativeLayout
