@@ -65,6 +65,7 @@ public class MessageViewTests
         super.setUp();
 
         mContext = getInstrumentation().getTargetContext();
+        Email.setTempDirectory(mContext);
         Email.setServicesEnabled(mContext);
         
         // setup an intent to spin up this activity with something useful

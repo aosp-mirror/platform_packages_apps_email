@@ -16,6 +16,7 @@
 
 package com.android.email.mail.internet;
 
+import com.android.email.Email;
 import com.android.email.mail.Message;
 import com.android.email.mail.MessageTestUtils;
 import com.android.email.mail.MessagingException;
@@ -54,6 +55,7 @@ public class EmailHtmlUtilTest extends AndroidTestCase {
         super.setUp();
         // Force assignment of a default account, and retrieve it
         Context context = getContext();
+        Email.setTempDirectory(context);
 
         // Force assignment of a default account
         long accountId = Account.getDefaultAccountId(context);
