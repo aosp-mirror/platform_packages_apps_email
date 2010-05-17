@@ -33,6 +33,8 @@ import com.android.email.provider.EmailContent.MailboxColumns;
 import com.android.email.provider.EmailContent.Message;
 import com.android.email.provider.EmailContent.SyncColumns;
 import com.android.email.service.EmailServiceStatus;
+import com.android.email.service.IEmailService;
+import com.android.email.service.IEmailServiceCallback;
 import com.android.exchange.adapter.CalendarSyncAdapter;
 import com.android.exchange.utility.FileLogger;
 
@@ -82,9 +84,17 @@ import android.provider.Calendar;
 import android.provider.ContactsContract;
 import android.provider.Calendar.Calendars;
 import android.provider.Calendar.Events;
-import android.provider.Settings.System;
-import android.renderscript.RenderScriptGL.File;
 import android.util.Log;
+
+import java.io.BufferedReader;
+import java.io.BufferedWriter;
+import java.io.File;
+import java.io.FileReader;
+import java.io.FileWriter;
+import java.io.IOException;
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
 
 /**
  * The SyncManager handles all aspects of starting, maintaining, and stopping the various sync
