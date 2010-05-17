@@ -82,6 +82,7 @@
     <string name="account_folder_list_summary_starred" msgid="3134312269246375723">"Stjernemerket"</string>
     <string name="account_folder_list_summary_drafts" msgid="5514845993247300437">"Utkast"</string>
     <string name="account_folder_list_summary_outbox" msgid="3059836696049399377">"Utboks"</string>
+    <string name="account_folder_list_refresh_toast" msgid="8158352329765828902">"Trykk på og hold inne en konto for å oppdatere den"</string>
     <string name="mailbox_list_title" msgid="8299608543467211089">"Postboks"</string>
     <string name="message_list_load_more_messages_action" msgid="7428302707908825692">"Hent flere meldinger"</string>
     <string name="message_list_send_pending_messages_action" msgid="9100624762133992435">"Send utgående meldinger"</string>
