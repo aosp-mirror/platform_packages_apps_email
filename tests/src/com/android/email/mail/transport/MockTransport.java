@@ -39,12 +39,12 @@ public class MockTransport implements Transport {
     // All flags defining debug or development code settings must be FALSE
     // when code is checked in or released.
     private static boolean DEBUG_LOG_STREAMS = true;
-    
+
     private static String LOG_TAG = "MockTransport";
 
     private boolean mSslAllowed = false;
     private boolean mTlsAllowed = false;
-    
+
     private boolean mOpen;
     private boolean mInputOpen;
     private int mConnectionSecurity;
@@ -58,23 +58,23 @@ public class MockTransport implements Transport {
         public static final int ACTION_INJECT_TEXT = 0;
         public static final int ACTION_SERVER_CLOSE = 1;
         public static final int ACTION_CLIENT_CLOSE = 2;
-        
+
         int mAction;
         String mPattern;
         String[] mResponses;
-        
+
         Transaction(String pattern, String[] responses) {
             mAction = ACTION_INJECT_TEXT;
             mPattern = pattern;
             mResponses = responses;
         }
-        
+
         Transaction(int otherType) {
             mAction = otherType;
             mPattern = null;
             mResponses = null;
         }
-        
+
         @Override
         public String toString() {
             switch (mAction) {
@@ -89,7 +89,7 @@ public class MockTransport implements Transport {
             }
         }
     }
-    
+
     private ArrayList<Transaction> mPairs = new ArrayList<Transaction>();
 
     /**
@@ -108,7 +108,7 @@ public class MockTransport implements Transport {
     public void expect(String pattern, String response) {
         expect(pattern, (response == null) ? null : new String[] { response });
     }
-    
+
     /**
      * Give the mock a pattern to wait for and a multi-line response to send back.
      * @param pattern Java RegEx to wait for
@@ -127,7 +127,7 @@ public class MockTransport implements Transport {
         expect("^" + Pattern.quote(literal) + "$", responses);
     }
 
-    /** 
+    /**
      * Tell the Mock Transport that we expect it to be closed.  This will preserve
      * the remaining entries in the expect() stream and allow us to "ride over" the close (which
      * would normally reset everything).
@@ -135,7 +135,7 @@ public class MockTransport implements Transport {
     public void expectClose() {
         mPairs.add(new Transaction(Transaction.ACTION_CLIENT_CLOSE));
     }
-    
+
     private void sendResponse(String[] responses) {
         for (String s : responses) {
             mQueuedInput.add(s);
@@ -145,7 +145,7 @@ public class MockTransport implements Transport {
     public boolean canTrySslSecurity() {
         return (mConnectionSecurity == CONNECTION_SECURITY_SSL);
     }
-    
+
     public boolean canTryTlsSecurity() {
         return (mConnectionSecurity == Transport.CONNECTION_SECURITY_TLS);
     }
@@ -155,7 +155,7 @@ public class MockTransport implements Transport {
     }
 
     /**
-     * This simulates a condition where the server has closed its side, causing 
+     * This simulates a condition where the server has closed its side, causing
      * reads to fail.
      */
     public void closeInputStream() {
@@ -199,7 +199,7 @@ public class MockTransport implements Transport {
 
     /**
      * This normally serves as a pseudo-clone, for use by Imap.  For the purposes of unit testing,
-     * until we need something more complex, we'll just return the actual MockTransport.  Then we 
+     * until we need something more complex, we'll just return the actual MockTransport.  Then we
      * don't have to worry about dealing with test metadata like the expects list or socket state.
      */
     public Transport newInstanceWithConfiguration() {
@@ -239,9 +239,9 @@ public class MockTransport implements Transport {
      * from the mQueuedInput list, but if the list is empty, we also peek the expect list.  This
      * supports banners, multi-line responses, and any other cases where we respond without
      * a specific expect pattern.
-     * 
+     *
      * If no response text is available, we assert (failing our test) as an underflow.
-     * 
+     *
      * Logs the read text if DEBUG_LOG_STREAMS is true.
      */
     public String readLine() throws IOException {
@@ -251,7 +251,7 @@ public class MockTransport implements Transport {
         }
         // if there's nothing to read, see if we can find a null-pattern response
         if (0 == mQueuedInput.size()) {
-            Transaction pair = mPairs.get(0);
+            Transaction pair = mPairs.size() > 0 ? mPairs.get(0) : null;
             if (pair != null && pair.mPattern == null) {
                 mPairs.remove(0);
                 sendResponse(pair.mResponses);
@@ -278,7 +278,7 @@ public class MockTransport implements Transport {
 
     public void setSoTimeout(int timeoutMilliseconds) /* throws SocketException */ {
     }
-    
+
     public void setUri(URI uri, int defaultPort) {
         SmtpSenderUnitTests.assertTrue("Don't call setUri on a mock transport", false);
     }
@@ -289,7 +289,7 @@ public class MockTransport implements Transport {
      * If the string was expected, we push the corresponding responses into the mQueuedInput
      * list, for subsequent calls to readLine().  If the string does not match, we assert
      * the mismatch.  If no string was expected, we assert it as an overflow.
-     * 
+     *
      * Logs the written text if DEBUG_LOG_STREAMS is true.
      */
     public void writeLine(String s, String sensitiveReplacement) /* throws IOException */ {
@@ -307,7 +307,7 @@ public class MockTransport implements Transport {
             sendResponse(pair.mResponses);
         }
     }
-    
+
     /**
      * This is an InputStream that satisfies the needs of getInputStream()
      */
@@ -315,7 +315,7 @@ public class MockTransport implements Transport {
 
         byte[] mNextLine = null;
         int mNextIndex = 0;
-        
+
         /**
          * Reads from the same input buffer as readLine()
          */
@@ -324,11 +324,11 @@ public class MockTransport implements Transport {
             if (!mInputOpen) {
                 throw new IOException();
             }
-            
+
             if (mNextLine != null && mNextIndex < mNextLine.length) {
                 return mNextLine[mNextIndex++];
             }
-            
+
             // previous line was exhausted so try to get another one
             String next = readLine();
             if (next == null) {
@@ -340,12 +340,12 @@ public class MockTransport implements Transport {
             if (mNextLine != null && mNextIndex < mNextLine.length) {
                 return mNextLine[mNextIndex++];
             }
-            
-            // no joy - throw an exception                
-            throw new IOException();                
+
+            // no joy - throw an exception
+            throw new IOException();
         }
     }
-    
+
     /**
      * This is an OutputStream that satisfies the needs of getOutputStream()
      */

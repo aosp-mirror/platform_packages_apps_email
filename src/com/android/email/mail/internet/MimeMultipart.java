@@ -104,4 +104,8 @@ public class MimeMultipart extends Multipart {
     public InputStream getInputStream() throws MessagingException {
         return null;
     }
+
+    public String getSubTypeForTest() {
+        return mSubType;
+    }
 }
