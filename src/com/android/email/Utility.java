@@ -35,6 +35,7 @@ import android.os.AsyncTask;
 import android.security.MessageDigest;
 import android.telephony.TelephonyManager;
 import android.text.Editable;
+import android.text.TextUtils;
 import android.util.Base64;
 import android.util.Log;
 import android.widget.TextView;
@@ -50,9 +51,14 @@ import java.security.NoSuchAlgorithmException;
 import java.util.Date;
 import java.util.GregorianCalendar;
 import java.util.TimeZone;
+import java.util.regex.Pattern;
 
 public class Utility {
     public static final Charset UTF_8 = Charset.forName("UTF-8");
+
+    // "GMT" + "+" or "-" + 4 digits
+    private static final Pattern DATE_CLEANUP_PATTERN_WRONG_TIMEZONE =
+            Pattern.compile("GMT([-+]\\d{4})$");
 
     public final static String readInputStream(InputStream in, String encoding) throws IOException {
         InputStreamReader reader = new InputStreamReader(in, encoding);
@@ -96,7 +102,6 @@ public class Utility {
         }
         return sb.toString();
     }
-
     public static String base64Decode(String encoded) {
         if (encoded == null) {
             return null;
@@ -567,5 +572,21 @@ public class Utility {
                 | ((sha1[offset + 1] & 0xff) << 16)
                 | ((sha1[offset + 2] & 0xff) << 8)
                 | ((sha1[offset + 3] & 0xff));
+    }
+
+    /**
+     * Try to make a date MIME(RFC 2822/5322)-compliant.
+     *
+     * It fixes:
+     * - "Thu, 10 Dec 09 15:08:08 GMT-0700" to "Thu, 10 Dec 09 15:08:08 -0700"
+     *   (4 digit zone value can't be preceded by "GMT")
+     *   We got a report saying eBay sends a date in this format
+     */
+    public static String cleanUpMimeDate(String date) {
+        if (TextUtils.isEmpty(date)) {
+            return date;
+        }
+        date = DATE_CLEANUP_PATTERN_WRONG_TIMEZONE.matcher(date).replaceFirst("$1");
+        return date;
     }
 }
