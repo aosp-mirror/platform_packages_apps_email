@@ -23,9 +23,9 @@
 
 -keep class * extends org.apache.james.mime4j.util.TempStorage
 
-
 # Keep names that are used only by unit tests
 
+# Any methods whose name is '*ForTest' are preserved.
 -keep class ** {
   *** *ForTest(...);
 }
@@ -171,4 +171,8 @@
 
 -keep class org.apache.james.mime4j.message.Message {
   *;
+}
+
+-keepclasseswithmembers class org.apache.commons.io.IOUtils {
+  *** toByteArray(...);
 }
