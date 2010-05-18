@@ -52,10 +52,22 @@ import java.util.HashMap;
  *
  * To run these tests alone, use:
  *   $ runtest -c com.android.email.mail.store.ImapStoreUnitTests email
+ *
+ * TODO Check if callback is really called
  */
 @SmallTest
 public class ImapStoreUnitTests extends AndroidTestCase {
     private final static String[] NO_REPLY = new String[0];
+
+    /**
+     * Default folder name.  In order to test for encoding, we use a non-ascii name.
+     */
+    private final static String FOLDER_NAME = "\u65E5";
+
+    /**
+     * Folder name encoded in UTF-7.
+     */
+    private final static String FOLDER_ENCODED = "&ZeU-";
 
     /* These values are provided by setUp() */
     private ImapStore mStore = null;
@@ -74,7 +86,7 @@ public class ImapStoreUnitTests extends AndroidTestCase {
         // These are needed so we can get at the inner classes
         mStore = (ImapStore) ImapStore.newInstance("imap://user:password@server:999",
                 getContext(), null);
-        mFolder = (ImapStore.ImapFolder) mStore.getFolder("INBOX");
+        mFolder = (ImapStore.ImapFolder) mStore.getFolder(FOLDER_NAME);
     }
 
     /**
@@ -358,6 +370,20 @@ public class ImapStoreUnitTests extends AndroidTestCase {
      */
     private void setupOpenFolder(MockTransport mockTransport, String[] imapIdResponse,
             String readWriteMode) {
+        expectLogin(mockTransport, imapIdResponse);
+        mockTransport.expect(
+                getNextTag(false) + " SELECT \"" + FOLDER_ENCODED + "\"", new String[] {
+                "* FLAGS (\\Answered \\Flagged \\Draft \\Deleted \\Seen)",
+                "* OK [PERMANENTFLAGS (\\Answered \\Flagged \\Draft \\Deleted \\Seen \\*)]",
+                "* 0 EXISTS",
+                "* 0 RECENT",
+                "* OK [UNSEEN 0]",
+                "* OK [UIDNEXT 1]",
+                getNextTag(true) + " OK [" + readWriteMode + "] " +
+                        FOLDER_ENCODED + " selected. (Success)"});
+    }
+
+    private void expectLogin(MockTransport mockTransport, String[] imapIdResponse) {
         // Fix the tag # of the ID response
         String last = imapIdResponse[imapIdResponse.length-1];
         last = "2 " + last;
@@ -370,15 +396,7 @@ public class ImapStoreUnitTests extends AndroidTestCase {
         mockTransport.expect("2 ID \\(.*\\)", imapIdResponse);
         mockTransport.expect("3 LOGIN user \"password\"",
                 "3 OK user authenticated (Success)");
-        mockTransport.expect("4 SELECT \"INBOX\"", new String[] {
-                "* FLAGS (\\Answered \\Flagged \\Draft \\Deleted \\Seen)",
-                "* OK [PERMANENTFLAGS (\\Answered \\Flagged \\Draft \\Deleted \\Seen \\*)]",
-                "* 0 EXISTS",
-                "* 0 RECENT",
-                "* OK [UNSEEN 0]",
-                "* OK [UIDNEXT 1]",
-                "4 OK [" + readWriteMode + "] INBOX selected. (Success)"});
-        mNextTag = 5;
+        mNextTag = 4;
     }
 
     /**
@@ -421,8 +439,10 @@ public class ImapStoreUnitTests extends AndroidTestCase {
     public void testGetUnreadMessageCountWithQuotedString() throws Exception {
         MockTransport mock = openAndInjectMockTransport();
         setupOpenFolder(mock);
-        mock.expect(getNextTag(false) + " STATUS \"INBOX\" \\(UNSEEN\\)", new String[] {
-                "* STATUS \"INBOX\" (UNSEEN 2)",
+        mock.expect(
+                getNextTag(false) + " STATUS \"" + FOLDER_ENCODED + "\" \\(UNSEEN\\)",
+                new String[] {
+                "* STATUS \"" + FOLDER_ENCODED + "\" (UNSEEN 2)",
                 getNextTag(true) + " OK STATUS completed"});
         mFolder.open(OpenMode.READ_WRITE, null);
         int unreadCount = mFolder.getUnreadMessageCount();
@@ -435,9 +455,11 @@ public class ImapStoreUnitTests extends AndroidTestCase {
     public void testGetUnreadMessageCountWithLiteralString() throws Exception {
         MockTransport mock = openAndInjectMockTransport();
         setupOpenFolder(mock);
-        mock.expect(getNextTag(false) + " STATUS \"INBOX\" \\(UNSEEN\\)", new String[] {
+        mock.expect(
+                getNextTag(false) + " STATUS \"" + FOLDER_ENCODED + "\" \\(UNSEEN\\)",
+                new String[] {
                 "* STATUS {5}",
-                "INBOX (UNSEEN 10)",
+                FOLDER_ENCODED + " (UNSEEN 10)",
                 getNextTag(true) + " OK STATUS completed"});
         mFolder.open(OpenMode.READ_WRITE, null);
         int unreadCount = mFolder.getUnreadMessageCount();
@@ -764,7 +786,8 @@ public class ImapStoreUnitTests extends AndroidTestCase {
         // * 12345 EXISTS
         // OK [APPENDUID 627684530 17] (Success)
 
-        mock.expect(getNextTag(false) + " APPEND \\\"INBOX\\\" \\(\\\\Seen\\) \\{166\\}",
+        mock.expect(getNextTag(false) +
+                " APPEND \\\"" + FOLDER_ENCODED + "\\\" \\(\\\\Seen\\) \\{166\\}",
                 new String[] {"+ go ahead"});
 
         mock.expectLiterally("From: me@test.com", NO_REPLY);
@@ -785,5 +808,274 @@ public class ImapStoreUnitTests extends AndroidTestCase {
 
         assertEquals("13", message.getUid());
         assertEquals(7, mFolder.getMessageCount());
+    }
+
+    public void testGetPersonalNamespaces() throws Exception {
+        MockTransport mock = openAndInjectMockTransport();
+        expectLogin(mock, new String[] {"* ID NIL", "OK"});
+
+        mock.expect(getNextTag(false) + " LIST \"\" \"\\*\"",
+                new String[] {
+                "* LIST (\\HasNoChildren) \"/\" \"inbox\"",
+                "* LIST (\\hasnochildren) \"/\" \"Drafts\"",
+                "* LIST (\\noselect) \"/\" \"no select\"",
+                "* LIST (\\HasNoChildren) \"/\" \"&ZeVnLIqe-\"", // Japanese folder name
+                getNextTag(true) + " OK SUCCESS"
+                });
+        Folder[] folders = mStore.getPersonalNamespaces();
+
+        ArrayList<String> list = new ArrayList<String>();
+        for (Folder f : folders) {
+            list.add(f.getName());
+        }
+        MoreAsserts.assertEquals(
+                new String[] {"Drafts", "\u65E5\u672C\u8A9E", "INBOX"},
+                list.toArray(new String[0])
+                );
+
+        // TODO test with path prefix
+    }
+
+    public void testEncodeFolderName() {
+        assertEquals("", ImapStore.encodeFolderName(""));
+        assertEquals("a", ImapStore.encodeFolderName("a"));
+        assertEquals("XYZ", ImapStore.encodeFolderName("XYZ"));
+        assertEquals("&ZeVnLIqe-", ImapStore.encodeFolderName("\u65E5\u672C\u8A9E"));
+        assertEquals("!&ZeVnLIqe-!", ImapStore.encodeFolderName("!\u65E5\u672C\u8A9E!"));
+    }
+
+    public void testDecodeFolderName() {
+        assertEquals("", ImapStore.decodeFolderName(""));
+        assertEquals("a", ImapStore.decodeFolderName("a"));
+        assertEquals("XYZ", ImapStore.decodeFolderName("XYZ"));
+        assertEquals("\u65E5\u672C\u8A9E", ImapStore.decodeFolderName("&ZeVnLIqe-"));
+        assertEquals("!\u65E5\u672C\u8A9E!", ImapStore.decodeFolderName("!&ZeVnLIqe-!"));
+    }
+
+    public void testExists() throws Exception {
+        MockTransport mock = openAndInjectMockTransport();
+        expectLogin(mock, new String[] {"* ID NIL", "OK"});
+
+        // Folder exists
+        Folder folder = mStore.getFolder("\u65E5\u672C\u8A9E");
+        mock.expect(getNextTag(false) + " STATUS \\\"&ZeVnLIqe-\\\" \\(UIDVALIDITY\\)",
+                new String[] {
+                "* STATUS \"&ZeVnLIqe-\" (MESSAGES 10)",
+                getNextTag(true) + " OK SUCCESS"
+                });
+
+        assertTrue(folder.exists());
+
+        // Connection verification
+        mock.expect(getNextTag(false) + " NOOP",
+                new String[] {
+                getNextTag(true) + " OK success"
+                });
+
+        // Doesn't exist
+        folder = mStore.getFolder("no such folder");
+        mock.expect(getNextTag(false) + " STATUS \\\"no such folder\\\" \\(UIDVALIDITY\\)",
+                new String[] {
+                getNextTag(true) + " NO No such folder!"
+                });
+
+        assertFalse(folder.exists());
+    }
+
+    public void testCreate() throws Exception {
+        MockTransport mock = openAndInjectMockTransport();
+        expectLogin(mock, new String[] {"* ID NIL", "OK"});
+
+        // Success
+        Folder folder = mStore.getFolder("\u65E5\u672C\u8A9E");
+
+        assertTrue(folder.canCreate(FolderType.HOLDS_MESSAGES));
+
+        mock.expect(getNextTag(false) + " CREATE \\\"&ZeVnLIqe-\\\"",
+                new String[] {
+                getNextTag(true) + " OK Success"
+                });
+
+        assertTrue(folder.create(FolderType.HOLDS_MESSAGES));
+
+        // Connection verification
+        mock.expect(getNextTag(false) + " NOOP",
+                new String[] {
+                getNextTag(true) + " OK success"
+                });
+
+        // Failure
+        mock.expect(getNextTag(false) + " CREATE \\\"&ZeVnLIqe-\\\"",
+                new String[] {
+                getNextTag(true) + " NO Can't create folder"
+                });
+
+        assertFalse(folder.create(FolderType.HOLDS_MESSAGES));
+    }
+
+    public void testCopy() throws Exception {
+        MockTransport mock = openAndInjectMockTransport();
+        setupOpenFolder(mock);
+        mFolder.open(OpenMode.READ_WRITE, null);
+
+        Folder folderTo = mStore.getFolder("\u65E5\u672C\u8A9E");
+        Message[] messages = new Message[] {
+                mFolder.createMessage("11"),
+                mFolder.createMessage("12"),
+                };
+
+        mock.expect(getNextTag(false) + " UID COPY 11\\,12 \\\"&ZeVnLIqe-\\\"",
+                new String[] {
+                getNextTag(true) + " OK copy completed"
+                });
+
+        mFolder.copyMessages(messages, folderTo, null);
+    }
+
+    public void testGetUnreadMessageCount() throws Exception {
+        MockTransport mock = openAndInjectMockTransport();
+        setupOpenFolder(mock);
+        mFolder.open(OpenMode.READ_WRITE, null);
+
+        mock.expect(getNextTag(false) + " STATUS \\\"" + FOLDER_ENCODED + "\\\" \\(UNSEEN\\)",
+                new String[] {
+                "* STATUS \"" + FOLDER_ENCODED + "\" (X 1 UNSEEN 123)",
+                getNextTag(true) + " OK copy completed"
+                });
+
+        assertEquals(123, mFolder.getUnreadMessageCount());
+    }
+
+    public void testExpunge() throws Exception {
+        MockTransport mock = openAndInjectMockTransport();
+        setupOpenFolder(mock);
+        mFolder.open(OpenMode.READ_WRITE, null);
+
+        mock.expect(getNextTag(false) + " EXPUNGE",
+                new String[] {
+                getNextTag(true) + " OK success"
+                });
+
+        mFolder.expunge();
+    }
+
+    public void testSetFlags() throws Exception {
+        MockTransport mock = openAndInjectMockTransport();
+        setupOpenFolder(mock);
+        mFolder.open(OpenMode.READ_WRITE, null);
+
+        Message[] messages = new Message[] {
+                mFolder.createMessage("11"),
+                mFolder.createMessage("12"),
+                };
+
+        // Set
+        mock.expect(
+                getNextTag(false) + " UID STORE 11\\,12 \\+FLAGS.SILENT \\(\\\\Flagged \\\\Seen\\)",
+                new String[] {
+                getNextTag(true) + " OK success"
+                });
+        mFolder.setFlags(messages, new Flag[] {Flag.FLAGGED, Flag.SEEN}, true);
+
+        // Clear
+        mock.expect(
+                getNextTag(false) + " UID STORE 11\\,12 \\-FLAGS.SILENT \\(\\\\Deleted\\)",
+                new String[] {
+                getNextTag(true) + " OK success"
+                });
+        mFolder.setFlags(messages, new Flag[] {Flag.DELETED}, false);
+    }
+
+    public void testGetMessage() throws Exception {
+        MockTransport mock = openAndInjectMockTransport();
+        setupOpenFolder(mock);
+        mFolder.open(OpenMode.READ_WRITE, null);
+
+        // Found
+        mock.expect(
+                getNextTag(false) + " UID SEARCH UID 123",
+                new String[] {
+                    "* SEARCH 123",
+                getNextTag(true) + " OK success"
+                });
+        assertEquals("123", mFolder.getMessage("123").getUid());
+
+        // Not found
+        mock.expect(
+                getNextTag(false) + " UID SEARCH UID 123",
+                new String[] {
+                getNextTag(true) + " NO not found"
+                });
+        assertNull(mFolder.getMessage("123"));
+    }
+
+    /** Test for getMessages(int, int, MessageRetrievalListener) */
+    public void testGetMessages1() throws Exception {
+        MockTransport mock = openAndInjectMockTransport();
+        setupOpenFolder(mock);
+        mFolder.open(OpenMode.READ_WRITE, null);
+
+        // Found
+        mock.expect(
+                getNextTag(false) + " UID SEARCH 3:5 NOT DELETED",
+                new String[] {
+                    "* SEARCH 3 4",
+                getNextTag(true) + " OK success"
+                });
+
+        checkMessageUids(new String[] {"3", "4"}, mFolder.getMessages(3, 5, null));
+
+        // Not found
+        mock.expect(
+                getNextTag(false) + " UID SEARCH 3:5 NOT DELETED",
+                new String[] {
+                getNextTag(true) + " NO not found"
+                });
+
+        checkMessageUids(new String[] {}, mFolder.getMessages(3, 5, null));
+    }
+
+    /**
+     * Test for getMessages(String[] uids, MessageRetrievalListener) where uids != null.
+     * (testGetMessages3() covers the case where uids == null.)
+     */
+    public void testGetMessages2() throws Exception {
+        MockTransport mock = openAndInjectMockTransport();
+        setupOpenFolder(mock);
+        mFolder.open(OpenMode.READ_WRITE, null);
+
+        // No command will be sent
+        checkMessageUids(new String[] {"3", "4", "5"},
+                mFolder.getMessages(new String[] {"3", "4", "5"}, null));
+
+        checkMessageUids(new String[] {},
+                mFolder.getMessages(new String[] {}, null));
+    }
+
+    /**
+     * Test for getMessages(MessageRetrievalListener), which is the same as
+     * getMessages(String[] uids, MessageRetrievalListener) where uids == null.
+     */
+    public void testGetMessages3() throws Exception {
+        MockTransport mock = openAndInjectMockTransport();
+        setupOpenFolder(mock);
+        mFolder.open(OpenMode.READ_WRITE, null);
+
+        mock.expect(
+                getNextTag(false) + " UID SEARCH 1:\\* NOT DELETED",
+                new String[] {
+                    "* SEARCH 3 4 5",
+                getNextTag(true) + " OK success"
+                });
+        checkMessageUids(new String[] {"3", "4", "5"},
+                mFolder.getMessages(null));
+    }
+
+    private static void checkMessageUids(String[] expectedUids, Message[] actualMessages) {
+        ArrayList<String> list = new ArrayList<String>();
+        for (Message m : actualMessages) {
+            list.add(m.getUid());
+        }
+        MoreAsserts.assertEquals(expectedUids, list.toArray(new String[0]) );
     }
 }
