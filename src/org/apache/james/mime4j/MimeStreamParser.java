@@ -53,8 +53,7 @@ import java.util.LinkedList;
 public class MimeStreamParser {
     private static final Log log = LogFactory.getLog(MimeStreamParser.class);
 
-    // STOPSHIP - DO NOT RELEASE AS 'TRUE'
-    private static final boolean DEBUG_LOG_MESSAGE = false;
+    private static final boolean DEBUG_LOG_MESSAGE = false; //DO NOT RELEASE AS 'TRUE'
 
     private static BitSet fieldChars = null;
     
