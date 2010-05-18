@@ -1071,8 +1071,8 @@ public class ContactsSyncAdapter extends AbstractSyncAdapter {
 
             // If we've found an existing data row, we'll delete it.  Any rows left at the
             // end should be deleted...
-            if (result != null) {
-                list.remove(result);
+            for (NamedContentValues values : result) {
+                list.remove(values);
             }
 
             // Return the row found (or null)
