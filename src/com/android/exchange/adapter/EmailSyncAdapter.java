@@ -81,6 +81,9 @@ public class EmailSyncAdapter extends AbstractSyncAdapter {
     ArrayList<Long> mDeletedIdList = new ArrayList<Long>();
     ArrayList<Long> mUpdatedIdList = new ArrayList<Long>();
 
+    // Holds the parser's value for isLooping()
+    boolean mIsLooping = false;
+
     public EmailSyncAdapter(Mailbox mailbox, EasSyncService service) {
         super(mailbox, service);
     }
@@ -88,7 +91,18 @@ public class EmailSyncAdapter extends AbstractSyncAdapter {
     @Override
     public boolean parse(InputStream is) throws IOException {
         EasEmailSyncParser p = new EasEmailSyncParser(is, this);
-        return p.parse();
+        boolean res = p.parse();
+        // Hold on to the parser's value for isLooping() to pass back to the service
+        mIsLooping = p.isLooping();
+        return res;
+    }
+
+    /**
+     * Return the value of isLooping() as returned from the parser
+     */
+    @Override
+    public boolean isLooping() {
+        return mIsLooping;
     }
 
     @Override
