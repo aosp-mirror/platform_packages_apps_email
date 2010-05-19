@@ -57,6 +57,10 @@ public abstract class AbstractSyncAdapter {
     public abstract void cleanup();
     public abstract boolean isSyncable();
 
+    public boolean isLooping() {
+        return false;
+    }
+
     public AbstractSyncAdapter(Mailbox mailbox, EasSyncService service) {
         mMailbox = mailbox;
         mService = service;
