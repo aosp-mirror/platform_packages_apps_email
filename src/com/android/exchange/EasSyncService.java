@@ -158,6 +158,10 @@ public class EasSyncService extends AbstractSyncService {
     static private final int PING_HEARTBEAT_INCREMENT = 3*PING_MINUTES;
     static private final int PING_FORCE_HEARTBEAT = 2*PING_MINUTES;
 
+    // Maximum number of times we'll allow a sync to "loop" with MoreAvailable true before
+    // forcing it to stop.  This number has been determined empirically.
+    static private final int MAX_LOOPING_COUNT = 100;
+
     static private final int PROTOCOL_PING_STATUS_COMPLETED = 1;
 
     // The amount of time we allow for a thread to release its post lock after receiving an alert
@@ -1926,6 +1930,7 @@ public class EasSyncService extends AbstractSyncService {
         Mailbox mailbox = target.mMailbox;
 
         boolean moreAvailable = true;
+        int loopingCount = 0;
         while (!mStop && moreAvailable) {
             // If we have no connectivity, just exit cleanly.  SyncManager will start us up again
             // when connectivity has returned
@@ -2025,6 +2030,18 @@ public class EasSyncService extends AbstractSyncService {
                 InputStream is = resp.getEntity().getContent();
                 if (is != null) {
                     moreAvailable = target.parse(is);
+                    if (target.isLooping()) {
+                        loopingCount++;
+                        userLog("** Looping: " + loopingCount);
+                        // After the maximum number of loops, we'll set moreAvailable to false and
+                        // allow the sync loop to terminate
+                        if (moreAvailable && (loopingCount > MAX_LOOPING_COUNT)) {
+                            userLog("** Looping force stopped");
+                            moreAvailable = false;
+                        }
+                    } else {
+                        loopingCount = 0;
+                    }
                     target.cleanup();
                 } else {
                     userLog("Empty input stream in sync command response");
