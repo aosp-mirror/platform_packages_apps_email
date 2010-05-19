@@ -61,11 +61,13 @@ import java.nio.charset.Charset;
 import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.LinkedHashSet;
-import java.util.LinkedList;
 import java.util.List;
+import java.util.concurrent.ConcurrentLinkedQueue;
+import java.util.concurrent.atomic.AtomicInteger;
 import java.util.regex.Pattern;
 
 import javax.net.ssl.SSLException;
@@ -101,8 +103,8 @@ public class ImapStore extends Store {
     private String mIdPhrase = null;
     private static String sImapId = null;
 
-    private final LinkedList<ImapConnection> mConnections =
-            new LinkedList<ImapConnection>();
+    private final ConcurrentLinkedQueue<ImapConnection> mConnectionPool =
+            new ConcurrentLinkedQueue<ImapConnection>();
 
     /**
      * Charset used for converting folder names to and from UTF-7 as defined by RFC 3501.
@@ -117,6 +119,14 @@ public class ImapStore extends Store {
      * folder name.
      */
     private HashMap<String, ImapFolder> mFolderCache = new HashMap<String, ImapFolder>();
+
+    /**
+     * Next tag to use.  All connections associated to the same ImapStore instance share the same
+     * counter to make tests simpler.
+     * (Some of the tests involve multiple connections but only have a single counter to track the
+     * tag.)
+     */
+    private final AtomicInteger mNextCommandTag = new AtomicInteger(0);
 
     /**
      * Static named constructor.
@@ -180,6 +190,10 @@ public class ImapStore extends Store {
         if ((uri.getPath() != null) && (uri.getPath().length() > 0)) {
             mPathPrefix = uri.getPath().substring(1);
         }
+    }
+
+    /* package */ Collection<ImapConnection> getConnectionPoolForTest() {
+        return mConnectionPool;
     }
 
     /**
@@ -389,7 +403,7 @@ public class ImapStore extends Store {
             connection.close();
             throw new MessagingException("Unable to get folder list.", ioe);
         } finally {
-            releaseConnection(connection);
+            poolConnection(connection);
         }
     }
 
@@ -406,30 +420,35 @@ public class ImapStore extends Store {
     }
 
     /**
-     * Gets a connection if one is available for reuse, or creates a new one if not.
-     * @return
+     * Gets a connection if one is available from the pool, or creates a new one if not.
      */
-    private ImapConnection getConnection() throws MessagingException {
-        synchronized (mConnections) {
-            ImapConnection connection = null;
-            while ((connection = mConnections.poll()) != null) {
-                try {
-                    connection.executeSimpleCommand("NOOP");
-                    break;
-                }
-                catch (IOException ioe) {
-                    connection.close();
-                }
+    /* package */ ImapConnection getConnection() {
+        ImapConnection connection = null;
+        while ((connection = mConnectionPool.poll()) != null) {
+            try {
+                connection.executeSimpleCommand("NOOP");
+                break;
+            } catch (MessagingException e) {
+                // Fall through
+            } catch (IOException e) {
+                // Fall through
             }
-            if (connection == null) {
-                connection = new ImapConnection();
-            }
-            return connection;
+            connection.close();
+            connection = null;
         }
+        if (connection == null) {
+            connection = new ImapConnection();
+        }
+        return connection;
     }
 
-    private void releaseConnection(ImapConnection connection) {
-        mConnections.offer(connection);
+    /**
+     * Save a {@link ImapConnection} in the pool for reuse.
+     */
+    /* package */ void poolConnection(ImapConnection connection) {
+        if (connection != null) {
+            mConnectionPool.add(connection);
+        }
     }
 
     /* package */ static String encodeFolderName(String name) {
@@ -559,7 +578,7 @@ public class ImapStore extends Store {
             // TODO implement expunge
             mMessageCount = -1;
             synchronized (this) {
-                releaseConnection(mConnection);
+                poolConnection(mConnection);
                 mConnection = null;
             }
         }
@@ -602,7 +621,7 @@ public class ImapStore extends Store {
             }
             finally {
                 if (mConnection == null) {
-                    releaseConnection(connection);
+                    poolConnection(connection);
                 }
             }
         }
@@ -642,7 +661,7 @@ public class ImapStore extends Store {
             }
             finally {
                 if (mConnection == null) {
-                    releaseConnection(connection);
+                    poolConnection(connection);
                 }
             }
         }
@@ -1326,7 +1345,6 @@ public class ImapStore extends Store {
         private static final String IMAP_DEDACTED_LOG = "[IMAP command redacted]";
         private Transport mTransport;
         private ImapResponseParser mParser;
-        private int mNextCommandTag;
         /** # of command/response lines to log upon crash. */
         private static final int DISCOURSE_LOGGER_SIZE = 64;
         private final DiscourseLogger mDiscourse = new DiscourseLogger(DISCOURSE_LOGGER_SIZE);
@@ -1335,8 +1353,6 @@ public class ImapStore extends Store {
             if (mTransport != null && mTransport.isOpen()) {
                 return;
             }
-
-            mNextCommandTag = 1;
 
             try {
                 // copy configuration into a clean transport, if necessary
@@ -1441,7 +1457,12 @@ public class ImapStore extends Store {
 //            }
             if (mTransport != null) {
                 mTransport.close();
+                mTransport = null;
             }
+        }
+
+        /* package */ boolean isTransportOpenForTest() {
+            return mTransport != null ? mTransport.isOpen() : false;
         }
 
         public ImapResponse readResponse() throws IOException, MessagingException {
@@ -1459,7 +1480,7 @@ public class ImapStore extends Store {
         public String sendCommand(String command, boolean sensitive)
             throws MessagingException, IOException {
             open();
-            String tag = Integer.toString(mNextCommandTag++);
+            String tag = Integer.toString(mNextCommandTag.incrementAndGet());
             String commandToSend = tag + " " + command;
             mTransport.writeLine(commandToSend, sensitive ? IMAP_DEDACTED_LOG : null);
             mDiscourse.addSentCommand(sensitive ? IMAP_DEDACTED_LOG : commandToSend);
@@ -1467,12 +1488,12 @@ public class ImapStore extends Store {
         }
 
         public List<ImapResponse> executeSimpleCommand(String command) throws IOException,
-                ImapException, MessagingException {
+                MessagingException {
             return executeSimpleCommand(command, false);
         }
 
         public List<ImapResponse> executeSimpleCommand(String command, boolean sensitive)
-                throws IOException, ImapException, MessagingException {
+                throws IOException, MessagingException {
             String tag = sendCommand(command, sensitive);
             ArrayList<ImapResponse> responses = new ArrayList<ImapResponse>();
             ImapResponse response;
