@@ -45,6 +45,8 @@ public abstract class AbstractSyncParser extends Parser {
     protected ContentResolver mContentResolver;
     protected AbstractSyncAdapter mAdapter;
 
+    private boolean mLooping;
+
     public AbstractSyncParser(InputStream in, AbstractSyncAdapter adapter) throws IOException {
         super(in);
         mAdapter = adapter;
@@ -78,6 +80,10 @@ public abstract class AbstractSyncParser extends Parser {
      */
     public abstract void wipe();
 
+    public boolean isLooping() {
+        return mLooping;
+    }
+
     /**
      * Loop through the top-level structure coming from the Exchange server
      * Sync keys and the more available flag are handled here, whereas specific data parsing
@@ -89,7 +95,7 @@ public abstract class AbstractSyncParser extends Parser {
         boolean moreAvailable = false;
         boolean newSyncKey = false;
         int interval = mMailbox.mSyncInterval;
-
+        mLooping = false;
         // If we're not at the top of the xml tree, throw an exception
         if (nextTag(START_DOCUMENT) != Tags.SYNC_SYNC) {
             throw new EasParserException();
@@ -154,8 +160,7 @@ public abstract class AbstractSyncParser extends Parser {
 
         // If we don't have a new sync key, ignore moreAvailable (or we'll loop)
         if (moreAvailable && !newSyncKey) {
-            userLog("!! SyncKey hasn't changed, setting moreAvailable = false");
-            moreAvailable = false;
+            mLooping = true;
         }
 
         // Commit any changes
