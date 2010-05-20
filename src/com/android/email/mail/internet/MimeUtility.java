@@ -44,6 +44,7 @@ import java.util.regex.Pattern;
 
 public class MimeUtility {
 
+    public static final String MIME_TYPE_RFC822 = "message/rfc822";
     private final static Pattern PATTERN_CR_OR_LF = Pattern.compile("\r|\n");
 
     /**
@@ -179,6 +180,8 @@ public class MimeUtility {
      * TODO: Also has a latent bug: uses "startsWith" to match the name, which can false-positive.
      * TODO: The doc says that for a null name you get the first param, but you get the header.
      *    Should probably just fix the doc, but if other code assumes that behavior, fix the code.
+     * TODO: Need to decode %-escaped strings, as in: filename="ab%22d".
+     *       ('+' -> ' ' conversion too? check RFC)
      *
      * @param header
      * @param name
