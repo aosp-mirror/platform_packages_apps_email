@@ -54,7 +54,7 @@ public class SecurityPolicy {
             new PolicySet(0, PolicySet.PASSWORD_MODE_NONE, 0, 0, false);
 
     /**
-     * This projection on Account is for scanning/reading 
+     * This projection on Account is for scanning/reading
      */
     private static final String[] ACCOUNT_SECURITY_PROJECTION = new String[] {
         AccountColumns.ID, AccountColumns.SECURITY_FLAGS
@@ -97,7 +97,7 @@ public class SecurityPolicy {
      * Private constructor (one time only)
      */
     private SecurityPolicy(Context context) {
-        mContext = context;
+        mContext = context.getApplicationContext();
         mDPM = null;
         mAdminName = new ComponentName(context, PolicyAdmin.class);
         mAggregatePolicy = null;
@@ -119,7 +119,7 @@ public class SecurityPolicy {
      *  max password fails          take the min
      *  max screen lock time        take the min
      *  require remote wipe         take the max (logical or)
-     * 
+     *
      * @return a policy representing the strongest aggregate.  If no policy sets are defined,
      * a lightweight "nothing required" policy will be returned.  Never null.
      */

@@ -71,7 +71,7 @@ public class Controller {
     private static int MESSAGEID_TO_MAILBOXID_COLUMN_MAILBOXID = 1;
 
     protected Controller(Context _context) {
-        mContext = _context;
+        mContext = _context.getApplicationContext();
         mProviderContext = _context;
         mLegacyController = MessagingController.getInstance(mContext);
         mLegacyController.addListener(mLegacyListener);
@@ -79,7 +79,6 @@ public class Controller {
 
     /**
      * Gets or creates the singleton instance of Controller.
-     * @param _context The context that will be used for all underlying system access
      */
     public synchronized static Controller getInstance(Context _context) {
         if (sInstance == null) {

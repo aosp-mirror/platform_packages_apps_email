@@ -38,7 +38,7 @@ import java.util.HashMap;
  * making as few network connections as possible.
  */
 public abstract class Store {
-    
+
     /**
      * String constants for known store schemes.
      */
@@ -60,14 +60,14 @@ public abstract class Store {
 
     /**
      * Static named constructor.  It should be overrode by extending class.
-     * Because this method will be called through reflection, it can not be protected. 
+     * Because this method will be called through reflection, it can not be protected.
      */
     public static Store newInstance(String uri, Context context, PersistentDataCallbacks callbacks)
             throws MessagingException {
         throw new MessagingException("Store.newInstance: Unknown scheme in " + uri);
     }
 
-    private static Store instantiateStore(String className, String uri, Context context, 
+    private static Store instantiateStore(String className, String uri, Context context,
             PersistentDataCallbacks callbacks)
         throws MessagingException {
         Object o = null;
@@ -75,7 +75,7 @@ public abstract class Store {
             Class<?> c = Class.forName(className);
             // and invoke "newInstance" class method and instantiate store object.
             java.lang.reflect.Method m =
-                c.getMethod("newInstance", String.class, Context.class, 
+                c.getMethod("newInstance", String.class, Context.class,
                         PersistentDataCallbacks.class);
             o = m.invoke(null, uri, context, callbacks);
         } catch (Exception e) {
@@ -101,7 +101,7 @@ public abstract class Store {
         public int mVisibleLimitDefault;
         public int mVisibleLimitIncrement;
         public int mAccountInstanceLimit;
-        
+
         // TODO cache result for performance - silly to keep reading the XML
         public static StoreInfo getStoreInfo(String scheme, Context context) {
             StoreInfo result = getStoreInfo(R.xml.stores_product, scheme, context);
@@ -110,14 +110,14 @@ public abstract class Store {
             }
             return result;
         }
-        
+
         public static StoreInfo getStoreInfo(int resourceId, String scheme, Context context) {
             try {
                 XmlResourceParser xml = context.getResources().getXml(resourceId);
                 int xmlEventType;
                 // walk through stores.xml file.
                 while ((xmlEventType = xml.next()) != XmlResourceParser.END_DOCUMENT) {
-                    if (xmlEventType == XmlResourceParser.START_TAG && 
+                    if (xmlEventType == XmlResourceParser.START_TAG &&
                             "store".equals(xml.getName())) {
                         String xmlScheme = xml.getAttributeValue(null, "scheme");
                         if (scheme != null && scheme.startsWith(xmlScheme)) {
@@ -148,16 +148,16 @@ public abstract class Store {
     /**
      * Get an instance of a mail store. The URI is parsed as a standard URI and
      * the scheme is used to determine which protocol will be used.
-     * 
-     * Although the URI format is somewhat protocol-specific, we use the following 
+     *
+     * Although the URI format is somewhat protocol-specific, we use the following
      * guidelines wherever possible:
-     * 
+     *
      * scheme [+ security [+]] :// username : password @ host [ / resource ]
-     * 
+     *
      * Typical schemes include imap, pop3, local, eas.
      * Typical security models include SSL or TLS.
      * A + after the security identifier indicates "required".
-     * 
+     *
      * Username, password, and host are as expected.
      * Resource is protocol specific.  For example, IMAP uses it as the path prefix.  EAS uses it
      * as the domain.
@@ -166,11 +166,11 @@ public abstract class Store {
      * @return an initialized store of the appropriate class
      * @throws MessagingException
      */
-    public synchronized static Store getInstance(String uri, Context context, 
-            PersistentDataCallbacks callbacks)
-        throws MessagingException {
+    public synchronized static Store getInstance(String uri, Context context,
+            PersistentDataCallbacks callbacks) throws MessagingException {
         Store store = sStores.get(uri);
         if (store == null) {
+            context = context.getApplicationContext();
             StoreInfo info = StoreInfo.getStoreInfo(uri, context);
             if (info != null) {
                 store = instantiateStore(info.mClassName, uri, context, callbacks);
@@ -190,10 +190,10 @@ public abstract class Store {
 
         return store;
     }
-    
+
     /**
      * Delete an instance of a mail store.
-     * 
+     *
      * The store should have been notified already by calling delete(), and the caller should
      * also take responsibility for deleting the matching LocalStore, etc.
      * @param storeUri the store to be removed
@@ -204,13 +204,13 @@ public abstract class Store {
 
     /**
      * Get class of SettingActivity for this Store class.
-     * @return Activity class that has class method actionEditIncomingSettings(). 
+     * @return Activity class that has class method actionEditIncomingSettings().
      */
     public Class<? extends android.app.Activity> getSettingActivityClass() {
         // default SettingActivity class
         return com.android.email.activity.setup.AccountSetupIncoming.class;
     }
-    
+
     /**
      * Get class of sync'er for this Store class
      * @return Message Sync controller, or null to use default
@@ -218,7 +218,7 @@ public abstract class Store {
     public StoreSynchronizer getMessageSynchronizer() {
         return null;
     }
-    
+
     /**
      * Some stores cannot download a message based only on the uid, and need the message structure
      * to be preloaded and provided to them.  This method allows a remote store to signal this
@@ -229,7 +229,7 @@ public abstract class Store {
     public boolean requireStructurePrefetch() {
         return false;
     }
-    
+
     /**
      * Some protocols require that a sent message be copied (uploaded) into the Sent folder
      * while others can take care of it automatically (ideally, on the server).  This function
@@ -240,20 +240,20 @@ public abstract class Store {
     public boolean requireCopyMessageToSentFolder() {
         return true;
     }
-    
+
     public abstract Folder getFolder(String name) throws MessagingException;
 
     public abstract Folder[] getPersonalNamespaces() throws MessagingException;
-    
+
     public abstract void checkSettings() throws MessagingException;
-    
+
     /**
      * Delete Store and its corresponding resources.
      * @throws MessagingException
      */
     public void delete() throws MessagingException {
     }
-    
+
     /**
      * If a Store intends to implement callbacks, it should be prepared to update them
      * via overriding this method.  They may not be available at creation time (in which case they
@@ -262,13 +262,13 @@ public abstract class Store {
      */
     protected void setPersistentDataCallbacks(PersistentDataCallbacks callbacks) {
     }
-    
+
     /**
      * Callback interface by which a Store can read and write persistent data.
      * TODO This needs to be made more generic & flexible
      */
     public interface PersistentDataCallbacks {
-        
+
         /**
          * Provides a small place for Stores to store persistent data.
          * @param key identifier for the data (e.g. "sync.key" or "folder.id")

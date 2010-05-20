@@ -63,7 +63,7 @@ public abstract class Sender {
         }
         return (Sender) o;
     }
-    
+
     /**
      * Find Sender implementation consulting with sender.xml file.
      */
@@ -98,6 +98,7 @@ public abstract class Sender {
             throws MessagingException {
        Sender sender = sSenders.get(uri);
        if (sender == null) {
+           context = context.getApplicationContext();
            sender = findSender(context, R.xml.senders_product, uri);
            if (sender == null) {
                sender = findSender(context, R.xml.senders, uri);
@@ -114,10 +115,10 @@ public abstract class Sender {
 
        return sender;
     }
-    
+
     /**
      * Get class of SettingActivity for this Sender class.
-     * @return Activity class that has class method actionEditOutgoingSettings(). 
+     * @return Activity class that has class method actionEditOutgoingSettings().
      */
     public Class<? extends android.app.Activity> getSettingActivityClass() {
         // default SettingActivity class
@@ -125,32 +126,32 @@ public abstract class Sender {
     }
 
     public abstract void open() throws MessagingException;
-    
+
     public String validateSenderLimit(long messageId) {
         return null;
     }
 
     /**
      * Check message has any limitation of Sender or not.
-     * 
+     *
      * @param messageId the message that will be checked.
      * @throws LimitViolationException
      */
     public void checkSenderLimitation(long messageId) throws LimitViolationException {
     }
-    
+
     public static class LimitViolationException extends MessagingException {
         public final int mMsgResourceId;
         public final long mActual;
         public final long mLimit;
-        
+
         private LimitViolationException(int msgResourceId, long actual, long limit) {
             super(UNSPECIFIED_EXCEPTION);
             mMsgResourceId = msgResourceId;
             mActual = actual;
             mLimit = limit;
         }
-        
+
         public static void check(int msgResourceId, long actual, long limit)
             throws LimitViolationException {
             if (actual > limit) {
@@ -158,7 +159,7 @@ public abstract class Sender {
             }
         }
     }
-    
+
     public abstract void sendMessage(long messageId) throws MessagingException;
 
     public abstract void close() throws MessagingException;

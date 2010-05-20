@@ -124,7 +124,7 @@ public class MessagingController implements Runnable {
     private final Context mContext;
 
     protected MessagingController(Context _context) {
-        mContext = _context;
+        mContext = _context.getApplicationContext();
 
         mThread = new Thread(this);
         mThread.start();
@@ -133,8 +133,6 @@ public class MessagingController implements Runnable {
     /**
      * Gets or creates the singleton instance of MessagingController. Application is used to
      * provide a Context to classes that need it.
-     * @param application
-     * @return
      */
     public synchronized static MessagingController getInstance(Context _context) {
         if (sInstance == null) {

@@ -176,7 +176,7 @@ public class ExchangeStore extends Store {
          * Public factory.  The transport should be a singleton (per Uri)
          */
         public synchronized static ExchangeTransport getInstance(URI uri, Context context)
-        throws MessagingException {
+                throws MessagingException {
             if (!uri.getScheme().equals("eas") && !uri.getScheme().equals("eas+ssl+") &&
                     !uri.getScheme().equals("eas+ssl+trustallcerts")) {
                 throw new MessagingException("Invalid scheme");
@@ -195,7 +195,7 @@ public class ExchangeStore extends Store {
          * Private constructor - use public factory.
          */
         private ExchangeTransport(URI uri, Context context) throws MessagingException {
-            mContext = context;
+            mContext = context.getApplicationContext();
             setUri(uri);
         }
 
