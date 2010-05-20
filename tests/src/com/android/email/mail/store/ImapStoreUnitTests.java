@@ -47,6 +47,7 @@ import android.test.suitebuilder.annotation.SmallTest;
 
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.regex.Pattern;
 
 /**
  * This is a series of unit tests for the ImapStore class.  These tests must be locally
@@ -58,6 +59,7 @@ import java.util.HashMap;
  * TODO Check if callback is really called
  * TODO test for BAD response in various places?
  * TODO test for BYE response in various places?
+ * TODO test for case-insensitivity (e.g. replace FETCH -> FeTCH)
  */
 @SmallTest
 public class ImapStoreUnitTests extends AndroidTestCase {
@@ -94,6 +96,17 @@ public class ImapStoreUnitTests extends AndroidTestCase {
         mNextTag = 1;
     }
 
+    public void testJoinMessageUids() throws Exception {
+        assertEquals("", ImapStore.joinMessageUids(new Message[] {}));
+        assertEquals("a", ImapStore.joinMessageUids(new Message[] {
+                mFolder.createMessage("a")
+                }));
+        assertEquals("a,XX", ImapStore.joinMessageUids(new Message[] {
+                mFolder.createMessage("a"),
+                mFolder.createMessage("XX"),
+                }));
+    }
+
     /**
      * Confirms simple non-SSL non-TLS login
      */
@@ -124,7 +137,6 @@ public class ImapStoreUnitTests extends AndroidTestCase {
      * TODO: Test with SSL required but not supported
      * TODO: Test with TLS negotiation (faked)
      * TODO: Test with TLS required but not supported
-     * TODO: Test calling getMessageCount(), getMessages(), etc.
      */
 
     /**
@@ -142,7 +154,8 @@ public class ImapStoreUnitTests extends AndroidTestCase {
         //   x-android-device-model Model (Optional, so not tested here)
         //   x-android-net-operator Carrier (Unreliable, so not tested here)
         //   AGUID           A device+account UID
-        String id = mStore.getImapId(getContext(), "user-name", "host-name", "IMAP4rev1 STARTTLS");
+        String id = ImapStore.getImapId(getContext(),
+                "user-name", "host-name", "IMAP4rev1 STARTTLS");
         HashMap<String, String> map = tokenizeImapId(id);
         assertEquals(getContext().getPackageName(), map.get("name"));
         assertEquals("android", map.get("os"));
@@ -154,7 +167,7 @@ public class ImapStoreUnitTests extends AndroidTestCase {
         // variants for release and non-release devices.
 
         // simple API check - non-REL codename, non-empty version
-        id = mStore.makeCommonImapId("packageName", "version", "codeName",
+        id = ImapStore.makeCommonImapId("packageName", "version", "codeName",
                 "model", "id", "vendor", "network-operator");
         map = tokenizeImapId(id);
         assertEquals("packageName", map.get("name"));
@@ -167,7 +180,7 @@ public class ImapStoreUnitTests extends AndroidTestCase {
 
         // simple API check - codename is REL, so use model name.
         // also test empty version => 1.0 and empty network operator
-        id = mStore.makeCommonImapId("packageName", "", "REL",
+        id = ImapStore.makeCommonImapId("packageName", "", "REL",
                 "model", "id", "vendor", "");
         map = tokenizeImapId(id);
         assertEquals("packageName", map.get("name"));
@@ -188,7 +201,8 @@ public class ImapStoreUnitTests extends AndroidTestCase {
      * The most important goal of the filters is to keep out control chars, (, ), and "
      */
     public void testImapIdFiltering() {
-        String id = mStore.makeCommonImapId("abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ",
+        String id = ImapStore.makeCommonImapId(
+                "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ",
                 "0123456789", "codeName",
                 "model", "-_+=;:.,// ",
                 "v(e)n\"d\ro\nr",           // look for bad chars stripped out, leaving OK chars
@@ -212,9 +226,9 @@ public class ImapStoreUnitTests extends AndroidTestCase {
         ImapStore store2 = (ImapStore) ImapStore.newInstance("imap://user2:password@server:999",
                 getContext(), null);
 
-        String id1a = mStore.getImapId(getContext(), "user1", "host-name", "IMAP4rev1");
-        String id1b = mStore.getImapId(getContext(), "user1", "host-name", "IMAP4rev1");
-        String id2 = mStore.getImapId(getContext(), "user2", "host-name", "IMAP4rev1");
+        String id1a = ImapStore.getImapId(getContext(), "user1", "host-name", "IMAP4rev1");
+        String id1b = ImapStore.getImapId(getContext(), "user1", "host-name", "IMAP4rev1");
+        String id2 = ImapStore.getImapId(getContext(), "user2", "host-name", "IMAP4rev1");
 
         String uid1a = tokenizeImapId(id1a).get("AGUID");
         String uid1b = tokenizeImapId(id1b).get("AGUID");
@@ -287,13 +301,7 @@ public class ImapStoreUnitTests extends AndroidTestCase {
     }
 
     /**
-     * TODO: Test the operation of checkSettings()
-     * TODO: Test small Store & Folder functions that manage folders & namespace
-     */
-
-    /**
      * Test small Folder functions that don't really do anything in Imap
-     * TODO: Test all of the small Folder functions.
      */
     public void testSmallFolderFunctions() throws MessagingException {
         // getPermanentFlags() returns { Flag.DELETED, Flag.SEEN, Flag.FLAGGED }
@@ -399,6 +407,10 @@ public class ImapStoreUnitTests extends AndroidTestCase {
                         FOLDER_ENCODED + " selected. (Success)"});
     }
 
+    private void expectLogin(MockTransport mockTransport) {
+        expectLogin(mockTransport, new String[] {"* ID NIL", "OK"});
+    }
+
     private void expectLogin(MockTransport mockTransport, String[] imapIdResponse) {
         expectLogin(mockTransport, imapIdResponse, "OK user authenticated (Success)");
     }
@@ -423,6 +435,12 @@ public class ImapStoreUnitTests extends AndroidTestCase {
 
         mockTransport.expect(getNextTag(false) + " LOGIN user \"password\"",
                 getNextTag(true) + " " + loginResponse);
+    }
+
+    private void expectNoop(MockTransport mockTransport, boolean ok) {
+        String response = ok ? " OK success" : " NO timeout";
+        mockTransport.expect(getNextTag(false) + " NOOP",
+                new String[] {getNextTag(true) + response});
     }
 
     /**
@@ -530,7 +548,10 @@ public class ImapStoreUnitTests extends AndroidTestCase {
         // TODO: Test NO response.
     }
 
-    public void testFetchBodyStructure() throws MessagingException {
+    /**
+     * Test for fetching simple BODYSTRUCTURE.
+     */
+    public void testFetchBodyStructureSimple() throws Exception {
         final MockTransport mock = openAndInjectMockTransport();
         setupOpenFolder(mock);
         mFolder.open(OpenMode.READ_WRITE, null);
@@ -540,91 +561,155 @@ public class ImapStoreUnitTests extends AndroidTestCase {
         fp.add(FetchProfile.Item.STRUCTURE);
         mock.expect(getNextTag(false) + " UID FETCH 1 \\(UID BODYSTRUCTURE\\)",
                 new String[] {
-                "* 9 FETCH (UID 1 BODYSTRUCTURE ((\"TEXT\" \"PLAIN\" (\"CHARSET\" \"ISO-8859-1\")" +
-                        " CID NIL \"7BIT\" 18 3 NIL NIL NIL)" +
-                        "(\"IMAGE\" \"PNG\"" +
-                        " (\"NAME\" \"device.png\") NIL NIL \"BASE64\" 117840 NIL (\"ATTACHMENT\"" +
-                        "(\"FILENAME\" \"device.png\")) NIL)" +
-                        "(\"TEXT\" \"HTML\"" +
-                        " () NIL NIL \"7BIT\" 100 NIL NIL (\"ATTACHMENT\"" +
-                        "(\"FILENAME\" \"attachment.html\" \"SIZE\" 555)) NIL)" +
-                        "\"MIXED\" (\"BOUNDARY\" \"00032556278a7005e40486d159ca\") NIL NIL))",
+                "* 9 FETCH (UID 1 BODYSTRUCTURE (\"TEXT\" \"PLAIN\" NIL" +
+                        " NIL NIL NIL 18 3 NIL NIL NIL))",
                 getNextTag(true) + " OK SUCCESS"
         });
         mFolder.fetch(new Message[] { message }, fp, null);
 
         // Check mime structure...
-        Body body = message.getBody();
+        MoreAsserts.assertEquals(
+                new String[] {"text/plain"},
+                message.getHeader("Content-Type")
+                );
+        assertNull(message.getHeader("Content-Transfer-Encoding"));
+        assertNull(message.getHeader("Content-ID"));
+        MoreAsserts.assertEquals(
+                new String[] {";\n size=18"},
+                message.getHeader("Content-Disposition")
+                );
+
+        MoreAsserts.assertEquals(
+                new String[] {"TEXT"},
+                message.getHeader("X-Android-Attachment-StoreData")
+                );
+
+        // TODO: Test NO response.
+    }
+
+    /**
+     * Test for fetching complex muiltipart BODYSTRUCTURE.
+     */
+    public void testFetchBodyStructureMultipart() throws Exception {
+        final MockTransport mock = openAndInjectMockTransport();
+        setupOpenFolder(mock);
+        mFolder.open(OpenMode.READ_WRITE, null);
+        final Message message = mFolder.createMessage("1");
+
+        final FetchProfile fp = new FetchProfile();
+        fp.add(FetchProfile.Item.STRUCTURE);
+        mock.expect(getNextTag(false) + " UID FETCH 1 \\(UID BODYSTRUCTURE\\)",
+                new String[] {
+                "* 9 FETCH (UID 1 BODYSTRUCTURE ((\"TEXT\" \"PLAIN\" () {20}",
+                "long content id#@!@#" +
+                    " NIL \"7BIT\" 18 3 NIL NIL NIL)" +
+                    "(\"IMAGE\" \"PNG\" (\"NAME\" {10}",
+                "device.png) NIL NIL \"BASE64\" {6}",
+                "117840 NIL (\"ATTACHMENT\" (\"FILENAME\" \"device.png\")) NIL)" +
+                    "(\"TEXT\" \"HTML\" () NIL NIL \"7BIT\" 100 NIL 123 (\"ATTACHMENT\"" +
+                    "(\"FILENAME\" {15}",
+                "attachment.html \"SIZE\" 555)) NIL)" +
+                    "((\"TEXT\" \"HTML\" NIL NIL \"BASE64\")(\"XXX\" \"YYY\"))" + // Nested
+                    "\"MIXED\" (\"BOUNDARY\" \"00032556278a7005e40486d159ca\") NIL NIL))",
+                getNextTag(true) + " OK SUCCESS"
+        });
+        mFolder.fetch(new Message[] { message }, fp, null);
+
+        // Check mime structure...
+        final Body body = message.getBody();
         assertTrue(body instanceof MimeMultipart);
         MimeMultipart mimeMultipart = (MimeMultipart) body;
-        assertEquals(3, mimeMultipart.getCount());
+        assertEquals(4, mimeMultipart.getCount());
         assertEquals("mixed", mimeMultipart.getSubTypeForTest());
 
-        Part part0 = mimeMultipart.getBodyPart(0);
-        Part part1 = mimeMultipart.getBodyPart(1);
-        Part part2 = mimeMultipart.getBodyPart(2);
-        assertTrue(part0 instanceof MimeBodyPart);
+        final Part part1 = mimeMultipart.getBodyPart(0);
+        final Part part2 = mimeMultipart.getBodyPart(1);
+        final Part part3 = mimeMultipart.getBodyPart(2);
+        final Part part4 = mimeMultipart.getBodyPart(3);
         assertTrue(part1 instanceof MimeBodyPart);
         assertTrue(part2 instanceof MimeBodyPart);
+        assertTrue(part3 instanceof MimeBodyPart);
+        assertTrue(part4 instanceof MimeBodyPart);
 
-        MimeBodyPart mimePart0 = (MimeBodyPart) part0; // text/plain
-        MimeBodyPart mimePart1 = (MimeBodyPart) part1; // image/png
-        MimeBodyPart mimePart2 = (MimeBodyPart) part2; // text/html
+        final MimeBodyPart mimePart1 = (MimeBodyPart) part1; // text/plain
+        final MimeBodyPart mimePart2 = (MimeBodyPart) part2; // image/png
+        final MimeBodyPart mimePart3 = (MimeBodyPart) part3; // text/html
+        final MimeBodyPart mimePart4 = (MimeBodyPart) part4; // Nested
 
         MoreAsserts.assertEquals(
-                new String[] {"text/plain;\n CHARSET=\"ISO-8859-1\""},
-                part0.getHeader("Content-Type")
+                new String[] {"1"},
+                part1.getHeader("X-Android-Attachment-StoreData")
                 );
         MoreAsserts.assertEquals(
-                new String[] {"image/png;\n NAME=\"device.png\""},
+                new String[] {"2"},
+                part2.getHeader("X-Android-Attachment-StoreData")
+                );
+        MoreAsserts.assertEquals(
+                new String[] {"3"},
+                part3.getHeader("X-Android-Attachment-StoreData")
+                );
+
+        MoreAsserts.assertEquals(
+                new String[] {"text/plain"},
                 part1.getHeader("Content-Type")
                 );
         MoreAsserts.assertEquals(
-                new String[] {"text/html"},
+                new String[] {"image/png;\n NAME=\"device.png\""},
                 part2.getHeader("Content-Type")
+                );
+        MoreAsserts.assertEquals(
+                new String[] {"text/html"},
+                part3.getHeader("Content-Type")
                 );
 
         MoreAsserts.assertEquals(
-                new String[] {"CID"},
-                part0.getHeader("Content-ID")
-                );
-        assertNull(
+                new String[] {"long content id#@!@#"},
                 part1.getHeader("Content-ID")
                 );
-        assertNull(
-                part2.getHeader("Content-ID")
-                );
+        assertNull(part2.getHeader("Content-ID"));
+        assertNull(part3.getHeader("Content-ID"));
 
         MoreAsserts.assertEquals(
                 new String[] {"7BIT"},
-                part0.getHeader("Content-Transfer-Encoding")
-                );
-        MoreAsserts.assertEquals(
-                new String[] {"BASE64"},
                 part1.getHeader("Content-Transfer-Encoding")
                 );
         MoreAsserts.assertEquals(
-                new String[] {"7BIT"},
+                new String[] {"BASE64"},
                 part2.getHeader("Content-Transfer-Encoding")
+                );
+        MoreAsserts.assertEquals(
+                new String[] {"7BIT"},
+                part3.getHeader("Content-Transfer-Encoding")
                 );
 
         MoreAsserts.assertEquals(
-                new String[] {";\n size=18"}, // TODO Is that right?
-                part0.getHeader("Content-Disposition")
-                );
-        MoreAsserts.assertEquals(
-                new String[] {"attachment;\n filename=\"device.png\";\n size=117840"},
+                new String[] {";\n size=18"},
                 part1.getHeader("Content-Disposition")
                 );
         MoreAsserts.assertEquals(
-                new String[] {"attachment;\n filename=\"attachment.html\";\n size=\"555\""},
+                new String[] {"attachment;\n filename=\"device.png\";\n size=117840"},
                 part2.getHeader("Content-Disposition")
                 );
+        MoreAsserts.assertEquals(
+                new String[] {"attachment;\n filename=\"attachment.html\";\n size=\"555\""},
+                part3.getHeader("Content-Disposition")
+                );
 
-        // TODO Test for quote:  If a filename contains ", it should become %22,
-        // which isn't implemented.
+        // Check the nested parts.
+        final Body part4body = part4.getBody();
+        assertTrue(part4body instanceof MimeMultipart);
+        MimeMultipart mimeMultipartPart4 = (MimeMultipart) part4body;
+        assertEquals(2, mimeMultipartPart4.getCount());
 
-        // TODO: Test NO response.
+        final MimeBodyPart mimePart41 = (MimeBodyPart) mimeMultipartPart4.getBodyPart(0);
+        final MimeBodyPart mimePart42 = (MimeBodyPart) mimeMultipartPart4.getBodyPart(1);
+
+        MoreAsserts.assertEquals(new String[] {"4.1"},
+                mimePart41.getHeader("X-Android-Attachment-StoreData")
+                );
+        MoreAsserts.assertEquals(new String[] {"4.2"},
+                mimePart42.getHeader("X-Android-Attachment-StoreData")
+                );
     }
 
     public void testFetchBodySane() throws MessagingException {
@@ -906,7 +991,7 @@ public class ImapStoreUnitTests extends AndroidTestCase {
 
     public void testGetPersonalNamespaces() throws Exception {
         MockTransport mock = openAndInjectMockTransport();
-        expectLogin(mock, new String[] {"* ID NIL", "OK"});
+        expectLogin(mock);
 
         mock.expect(getNextTag(false) + " LIST \"\" \"\\*\"",
                 new String[] {
@@ -947,11 +1032,70 @@ public class ImapStoreUnitTests extends AndroidTestCase {
         assertEquals("!\u65E5\u672C\u8A9E!", ImapStore.decodeFolderName("!&ZeVnLIqe-!"));
     }
 
-    // TODO test folder open failure
+    public void testOpen() throws Exception {
+        MockTransport mock = openAndInjectMockTransport();
+        expectLogin(mock);
+
+        final Folder folder = mStore.getFolder("test");
+
+        // Not exist
+        mock.expect(getNextTag(false) + " SELECT \\\"test\\\"",
+                new String[] {
+                getNextTag(true) + " NO no such mailbox"
+                });
+        try {
+            folder.open(OpenMode.READ_WRITE, null);
+            fail();
+        } catch (MessagingException expected) {
+        }
+
+        // READ-WRITE
+        expectNoop(mock, true); // Need it because we reuse the connection.
+        mock.expect(getNextTag(false) + " SELECT \\\"test\\\"",
+                new String[] {
+                "* 1 EXISTS",
+                getNextTag(true) + " OK [READ-WRITE]"
+                });
+
+        folder.open(OpenMode.READ_WRITE, null);
+        assertTrue(folder.exists());
+        assertEquals(1, folder.getMessageCount());
+        assertEquals(OpenMode.READ_WRITE, folder.getMode());
+
+        assertTrue(folder.isOpen());
+        folder.close(false);
+        assertFalse(folder.isOpen());
+
+        // READ-ONLY
+        expectNoop(mock, true); // Need it because we reuse the connection.
+        mock.expect(getNextTag(false) + " SELECT \\\"test\\\"",
+                new String[] {
+                "* 2 EXISTS",
+                getNextTag(true) + " OK [READ-ONLY]"
+                });
+
+        folder.open(OpenMode.READ_WRITE, null);
+        assertTrue(folder.exists());
+        assertEquals(2, folder.getMessageCount());
+        assertEquals(OpenMode.READ_ONLY, folder.getMode());
+
+        // Try to re-open as read-write.  Should send SELECT again.
+        expectNoop(mock, true); // Need it because we reuse the connection.
+        mock.expect(getNextTag(false) + " SELECT \\\"test\\\"",
+                new String[] {
+                "* 15 EXISTS",
+                getNextTag(true) + " OK selected"
+                });
+
+        folder.open(OpenMode.READ_WRITE, null);
+        assertTrue(folder.exists());
+        assertEquals(15, folder.getMessageCount());
+        assertEquals(OpenMode.READ_WRITE, folder.getMode());
+    }
 
     public void testExists() throws Exception {
         MockTransport mock = openAndInjectMockTransport();
-        expectLogin(mock, new String[] {"* ID NIL", "OK"});
+        expectLogin(mock);
 
         // Folder exists
         Folder folder = mStore.getFolder("\u65E5\u672C\u8A9E");
@@ -964,10 +1108,7 @@ public class ImapStoreUnitTests extends AndroidTestCase {
         assertTrue(folder.exists());
 
         // Connection verification
-        mock.expect(getNextTag(false) + " NOOP",
-                new String[] {
-                getNextTag(true) + " OK success"
-                });
+        expectNoop(mock, true);
 
         // Doesn't exist
         folder = mStore.getFolder("no such folder");
@@ -981,7 +1122,7 @@ public class ImapStoreUnitTests extends AndroidTestCase {
 
     public void testCreate() throws Exception {
         MockTransport mock = openAndInjectMockTransport();
-        expectLogin(mock, new String[] {"* ID NIL", "OK"});
+        expectLogin(mock);
 
         // Success
         Folder folder = mStore.getFolder("\u65E5\u672C\u8A9E");
@@ -996,10 +1137,7 @@ public class ImapStoreUnitTests extends AndroidTestCase {
         assertTrue(folder.create(FolderType.HOLDS_MESSAGES));
 
         // Connection verification
-        mock.expect(getNextTag(false) + " NOOP",
-                new String[] {
-                getNextTag(true) + " OK success"
-                });
+        expectNoop(mock, true);
 
         // Failure
         mock.expect(getNextTag(false) + " CREATE \\\"&ZeVnLIqe-\\\"",
@@ -1198,7 +1336,7 @@ public class ImapStoreUnitTests extends AndroidTestCase {
         assertFalse(con1.isTransportOpenForTest()); // Transport not open yet.
 
         // Open con1
-        expectLogin(mock, new String[] {"* ID NIL", "OK"});
+        expectLogin(mock);
         con1.open();
         assertTrue(con1.isTransportOpenForTest());
 
@@ -1212,7 +1350,7 @@ public class ImapStoreUnitTests extends AndroidTestCase {
         assertNotSame(con1, con2);
 
         // Open con2
-        expectLogin(mock, new String[] {"* ID NIL", "OK"});
+        expectLogin(mock);
         con2.open();
         assertTrue(con1.isTransportOpenForTest());
 
@@ -1243,5 +1381,137 @@ public class ImapStoreUnitTests extends AndroidTestCase {
         // It should be a new connection.
         assertNotSame(con1, con3);
         assertNotSame(con2, con3);
+    }
+
+    public void testCheckSettings() throws Exception {
+        MockTransport mock = openAndInjectMockTransport();
+
+        expectLogin(mock);
+        mStore.checkSettings();
+
+        expectLogin(mock, new String[] {"* ID NIL", "OK"}, "NO authentication failed");
+        try {
+            mStore.checkSettings();
+            fail();
+        } catch (MessagingException expected) {
+        }
+    }
+
+    // Compatibility tests...
+
+    /**
+     * Getting an ALERT with a % mark in the message, which crashed the old parser.
+     */
+    public void testQuotaAlert() throws Exception {
+        MockTransport mock = openAndInjectMockTransport();
+        expectLogin(mock);
+
+        // Success
+        Folder folder = mStore.getFolder("INBOX");
+
+        // The following response was copied from an actual bug...
+        mock.expect(getNextTag(false) + " SELECT \"INBOX\"", new String[] {
+            "* FLAGS (\\Answered \\Flagged \\Draft \\Deleted \\Seen NonJunk $Forwarded Junk" +
+                    " $Label4 $Label1 $Label2 $Label3 $Label5 $MDNSent Old)",
+            "* OK [PERMANENTFLAGS (\\Answered \\Flagged \\Draft \\Deleted \\Seen NonJunk" +
+                    " $Forwarded Junk $Label4 $Label1 $Label2 $Label3 $Label5 $MDNSent Old \\*)]",
+            "* 6406 EXISTS",
+            "* 0 RECENT",
+            "* OK [UNSEEN 5338]",
+            "* OK [UIDVALIDITY 1055957975]",
+            "* OK [UIDNEXT 449625]",
+            "* NO [ALERT] Mailbox is at 98% of quota",
+            getNextTag(true) + " OK [READ-WRITE] Completed"});
+        folder.open(OpenMode.READ_WRITE, null); // shouldn't crash.
+        assertEquals(6406, folder.getMessageCount());
+    }
+
+    /**
+     * Apparently some servers send a size in the wrong format. e.g. 123E
+     */
+    public void testFetchBodyStructureMalformed() throws Exception {
+        final MockTransport mock = openAndInjectMockTransport();
+        setupOpenFolder(mock);
+        mFolder.open(OpenMode.READ_WRITE, null);
+        final Message message = mFolder.createMessage("1");
+
+        final FetchProfile fp = new FetchProfile();
+        fp.add(FetchProfile.Item.STRUCTURE);
+        mock.expect(getNextTag(false) + " UID FETCH 1 \\(UID BODYSTRUCTURE\\)",
+                new String[] {
+                "* 9 FETCH (UID 1 BODYSTRUCTURE (\"TEXT\" \"PLAIN\" ()" +
+                        " NIL NIL NIL 123E 3))", // 123E isn't a number!
+                getNextTag(true) + " OK SUCCESS"
+        });
+        mFolder.fetch(new Message[] { message }, fp, null);
+
+        // Check mime structure...
+        MoreAsserts.assertEquals(
+                new String[] {"text/plain"},
+                message.getHeader("Content-Type")
+                );
+        assertNull(message.getHeader("Content-Transfer-Encoding"));
+        assertNull(message.getHeader("Content-ID"));
+
+        // Doesn't have size=xxx
+        assertNull(message.getHeader("Content-Disposition"));
+    }
+
+    /**
+     * Folder name with special chars in it.
+     *
+     * Gmail puts the folder name in the OK response, which crashed the old parser if there's a
+     * special char in the folder name.
+     */
+    public void testFolderNameWithSpecialChars() throws Exception {
+        final String FOLDER_1 = "@u88**%_St";
+        final String FOLDER_1_QUOTED = Pattern.quote(FOLDER_1);
+        final String FOLDER_2 = "folder test_06";
+
+        MockTransport mock = openAndInjectMockTransport();
+        expectLogin(mock);
+
+        // List folders.
+        mock.expect(getNextTag(false) + " LIST \"\" \"\\*\"",
+                new String[] {
+                "* LIST () \"/\" \"" + FOLDER_1 + "\"",
+                "* LIST () \"/\" \"" + FOLDER_2 + "\"",
+                getNextTag(true) + " OK SUCCESS"
+                });
+        final Folder[] folders = mStore.getPersonalNamespaces();
+
+        ArrayList<String> list = new ArrayList<String>();
+        for (Folder f : folders) {
+            list.add(f.getName());
+        }
+        MoreAsserts.assertEquals(
+                new String[] {FOLDER_1, FOLDER_2, "INBOX"},
+                list.toArray(new String[0])
+                );
+
+        // Try to open the folders.
+        expectNoop(mock, true);
+        mock.expect(getNextTag(false) + " SELECT \"" + FOLDER_1_QUOTED + "\"", new String[] {
+            "* FLAGS (\\Answered \\Flagged \\Draft \\Deleted \\Seen)",
+            "* OK [PERMANENTFLAGS (\\Answered \\Flagged \\Draft \\Deleted \\Seen \\*)]",
+            "* 0 EXISTS",
+            "* 0 RECENT",
+            "* OK [UNSEEN 0]",
+            "* OK [UIDNEXT 1]",
+            getNextTag(true) + " OK [READ-WRITE] " + FOLDER_1});
+        folders[0].open(OpenMode.READ_WRITE, null);
+        folders[0].close(false);
+
+        expectNoop(mock, true);
+        mock.expect(getNextTag(false) + " SELECT \"" + FOLDER_2 + "\"", new String[] {
+            "* FLAGS (\\Answered \\Flagged \\Draft \\Deleted \\Seen)",
+            "* OK [PERMANENTFLAGS (\\Answered \\Flagged \\Draft \\Deleted \\Seen \\*)]",
+            "* 0 EXISTS",
+            "* 0 RECENT",
+            "* OK [UNSEEN 0]",
+            "* OK [UIDNEXT 1]",
+            getNextTag(true) + " OK [READ-WRITE] " + FOLDER_2});
+        folders[1].open(OpenMode.READ_WRITE, null);
+        folders[1].close(false);
     }
 }
