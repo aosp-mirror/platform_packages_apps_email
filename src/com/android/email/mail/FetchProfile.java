@@ -69,4 +69,17 @@ public class FetchProfile extends ArrayList<Fetchable> {
          */
         BODY,
     }
+
+    /**
+     * @return the first {@link Part} in this collection, or null if it doesn't contain
+     * {@link Part}.
+     */
+    public Part getFirstPart() {
+        for (Fetchable o : this) {
+            if (o instanceof Part) {
+                return (Part) o;
+            }
+        }
+        return null;
+    }
 }

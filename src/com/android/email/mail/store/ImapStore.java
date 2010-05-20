@@ -35,8 +35,12 @@ import com.android.email.mail.internet.MimeHeader;
 import com.android.email.mail.internet.MimeMessage;
 import com.android.email.mail.internet.MimeMultipart;
 import com.android.email.mail.internet.MimeUtility;
-import com.android.email.mail.store.ImapResponseParser.ImapList;
-import com.android.email.mail.store.ImapResponseParser.ImapResponse;
+import com.android.email.mail.store.imap.ImapConstants;
+import com.android.email.mail.store.imap.ImapElement;
+import com.android.email.mail.store.imap.ImapList;
+import com.android.email.mail.store.imap.ImapResponse;
+import com.android.email.mail.store.imap.ImapResponseParser;
+import com.android.email.mail.store.imap.ImapString;
 import com.android.email.mail.transport.CountingOutputStream;
 import com.android.email.mail.transport.DiscourseLogger;
 import com.android.email.mail.transport.EOLConvertingOutputStream;
@@ -46,6 +50,7 @@ import com.beetstra.jutf7.CharsetProvider;
 import android.content.Context;
 import android.os.Build;
 import android.telephony.TelephonyManager;
+import android.text.TextUtils;
 import android.util.Base64;
 import android.util.Config;
 import android.util.Log;
@@ -79,6 +84,8 @@ import javax.net.ssl.SSLException;
  * TODO In fetch(), if we need a ImapMessage and were given
  * TODO Collect ALERT messages and show them to users.
  * something else we can try to do a pre-fetch first.
+ *
+ * TODO Replace literal strings with ImapConstants.
  *
  * ftp://ftp.isi.edu/in-notes/rfc2683.txt When a client asks for
  * certain information in a FETCH command, the server may return the requested
@@ -381,18 +388,21 @@ public class ImapStore extends Store {
                     connection.executeSimpleCommand(String.format("LIST \"\" \"%s*\"",
                         mPathPrefix == null ? "" : mPathPrefix));
             for (ImapResponse response : responses) {
-                if (response.get(0).equals("LIST")) {
+                // S: * LIST (\Noselect) "/" ~/Mail/foo
+                if (response.isDataResponse(0, ImapConstants.LIST)) {
                     boolean includeFolder = true;
-                    String folder = decodeFolderName(response.getString(3));
-                    if (folder.equalsIgnoreCase("INBOX")) {
+
+                    // Get folder name.
+                    ImapString encodedFolder = response.getStringOrEmpty(3);
+                    if (encodedFolder.isEmpty()) continue;
+                    String folder = decodeFolderName(encodedFolder.getString());
+                    if (ImapConstants.INBOX.equalsIgnoreCase(folder)) {
                         continue;
                     }
-                    ImapList attributes = response.getList(1);
-                    for (int i = 0, count = attributes.size(); i < count; i++) {
-                        String attribute = attributes.getString(i);
-                        if (attribute.equalsIgnoreCase("\\NoSelect")) {
-                            includeFolder = false;
-                        }
+
+                    // Parse attributes.
+                    if (response.getListOrEmpty(1).contains(ImapConstants.FLAG_NO_SELECT)) {
+                        includeFolder = false;
                     }
                     if (includeFolder) {
                         folders.add(getFolder(folder));
@@ -427,7 +437,7 @@ public class ImapStore extends Store {
         ImapConnection connection = null;
         while ((connection = mConnectionPool.poll()) != null) {
             try {
-                connection.executeSimpleCommand("NOOP");
+                connection.executeSimpleCommand(ImapConstants.NOOP);
                 break;
             } catch (MessagingException e) {
                 // Fall through
@@ -485,6 +495,22 @@ public class ImapStore extends Store {
         }
     }
 
+    /**
+     * Returns UIDs of Messages joined with "," as the separator.
+     */
+    /* package */ static String joinMessageUids(Message[] messages) {
+        StringBuilder sb = new StringBuilder();
+        boolean notFirst = false;
+        for (Message m : messages) {
+            if (notFirst) {
+                sb.append(',');
+            }
+            sb.append(m.getUid());
+            notFirst = true;
+        }
+        return sb.toString();
+    }
+
     static class ImapFolder extends Folder {
         private final ImapStore mStore;
         private final String mName;
@@ -501,69 +527,83 @@ public class ImapStore extends Store {
         @Override
         public void open(OpenMode mode, PersistentDataCallbacks callbacks)
                 throws MessagingException {
-            if (isOpen() && mMode == mode) {
-                // Make sure the connection is valid. If it's not we'll close it down and continue
-                // on to get a new one.
-                try {
-                    mConnection.executeSimpleCommand("NOOP");
-                    return;
-                }
-                catch (IOException ioe) {
-                    ioExceptionHandler(mConnection, ioe);
-                }
-            }
-            synchronized (this) {
-                mConnection = mStore.getConnection();
-            }
-            // * FLAGS (\Answered \Flagged \Deleted \Seen \Draft NonJunk
-            // $MDNSent)
-            // * OK [PERMANENTFLAGS (\Answered \Flagged \Deleted \Seen \Draft
-            // NonJunk $MDNSent \*)] Flags permitted.
-            // * 23 EXISTS
-            // * 0 RECENT
-            // * OK [UIDVALIDITY 1125022061] UIDs valid
-            // * OK [UIDNEXT 57576] Predicted next UID
-            // 2 OK [READ-WRITE] Select completed.
-            try {
-                List<ImapResponse> responses = mConnection.executeSimpleCommand(
-                        String.format("SELECT \"%s\"",
-                                encodeFolderName(mName)));
-                /*
-                 * If the command succeeds we expect the folder has been opened read-write
-                 * unless we are notified otherwise in the responses.
-                 */
-                mMode = OpenMode.READ_WRITE;
 
-                for (ImapResponse response : responses) {
-                    if (response.mTag == null && response.get(1).equals("EXISTS")) {
-                        mMessageCount = response.getNumber(0);
-                    } else if (response.mTag != null) {
-                        ImapList responseList = response.getListOrNull(1);
-                        if (responseList != null) {
-                            String atom = responseList.getStringOrNull(0);
-                            if ("READ-ONLY".equalsIgnoreCase(atom)) {
-                                mMode = OpenMode.READ_ONLY;
-                            } else if ("READ-WRITE".equalsIgnoreCase(atom)) {
-                                mMode = OpenMode.READ_WRITE;
-                            }
+            try {
+                if (isOpen()) {
+                    if (mMode == mode) {
+                        // Make sure the connection is valid.
+                        // If it's not we'll close it down and continue on to get a new one.
+                        try {
+                            mConnection.executeSimpleCommand(ImapConstants.NOOP);
+                            return;
+
+                        } catch (IOException ioe) {
+                            ioExceptionHandler(mConnection, ioe);
                         }
+                    } else {
+                        // Return the connection to the pool, if exists.
+                        close(false);
                     }
                 }
-
-                if (mMessageCount == -1) {
-                    throw new MessagingException(
-                            "Did not find message count during select");
+                synchronized (this) {
+                    mConnection = mStore.getConnection();
                 }
-                mExists = true;
+                // * FLAGS (\Answered \Flagged \Deleted \Seen \Draft NonJunk
+                // $MDNSent)
+                // * OK [PERMANENTFLAGS (\Answered \Flagged \Deleted \Seen \Draft
+                // NonJunk $MDNSent \*)] Flags permitted.
+                // * 23 EXISTS
+                // * 0 RECENT
+                // * OK [UIDVALIDITY 1125022061] UIDs valid
+                // * OK [UIDNEXT 57576] Predicted next UID
+                // 2 OK [READ-WRITE] Select completed.
+                try {
+                    List<ImapResponse> responses = mConnection.executeSimpleCommand(
+                            String.format("SELECT \"%s\"",
+                                    encodeFolderName(mName)));
+                    /*
+                     * If the command succeeds we expect the folder has been opened read-write
+                     * unless we are notified otherwise in the responses.
+                     */
+                    mMode = OpenMode.READ_WRITE;
 
-            } catch (IOException ioe) {
-                throw ioExceptionHandler(mConnection, ioe);
+                    int messageCount = -1;
+                    for (ImapResponse response : responses) {
+                        if (response.isDataResponse(1, ImapConstants.EXISTS)) {
+                            messageCount = response.getStringOrEmpty(0).getNumberOrZero();
+
+                        } else if (response.isOk()) {
+                            final ImapString responseCode = response.getResponseCodeOrEmpty();
+                            if (responseCode.is(ImapConstants.READ_ONLY)) {
+                                mMode = OpenMode.READ_ONLY;
+                            } else if (responseCode.is(ImapConstants.READ_WRITE)) {
+                                mMode = OpenMode.READ_WRITE;
+                            }
+                        } else if (response.isTagged()) { // Not OK
+                            throw new MessagingException("Can't open mailbox: "
+                                    + response.getStatusResponseTextOrEmpty());
+                        }
+                    }
+
+                    if (messageCount == -1) {
+                        throw new MessagingException("Did not find message count during select");
+                    }
+                    mMessageCount = messageCount;
+                    mExists = true;
+
+                } catch (IOException ioe) {
+                    throw ioExceptionHandler(mConnection, ioe);
+                }
+            } catch (MessagingException e) {
+                mExists = false;
+                close(false);
+                throw e;
             }
         }
 
         @Override
         public boolean isOpen() {
-            return mConnection != null;
+            return mExists && mConnection != null;
         }
 
         @Override
@@ -573,9 +613,6 @@ public class ImapStore extends Store {
 
         @Override
         public void close(boolean expunge) {
-            if (!isOpen()) {
-                return;
-            }
             // TODO implement expunge
             mMessageCount = -1;
             synchronized (this) {
@@ -669,13 +706,9 @@ public class ImapStore extends Store {
         public void copyMessages(Message[] messages, Folder folder,
                 MessageUpdateCallbacks callbacks) throws MessagingException {
             checkOpen();
-            String[] uids = new String[messages.length];
-            for (int i = 0, count = messages.length; i < count; i++) {
-                uids[i] = messages[i].getUid();
-            }
             try {
                 mConnection.executeSimpleCommand(String.format("UID COPY %s \"%s\"",
-                        Utility.combine(uids, ','),
+                        joinMessageUids(messages),
                         encodeFolderName(folder.getName())));
             } catch (IOException ioe) {
                 throw ioExceptionHandler(mConnection, ioe);
@@ -695,10 +728,11 @@ public class ImapStore extends Store {
                 List<ImapResponse> responses = mConnection.executeSimpleCommand(
                         String.format("STATUS \"%s\" (UNSEEN)",
                                 encodeFolderName(mName)));
+                // S: * STATUS mboxname (MESSAGES 231 UIDNEXT 44292)
                 for (ImapResponse response : responses) {
-                    if (response.mTag == null && response.get(0).equals("STATUS")) {
-                        ImapList status = response.getList(2);
-                        unreadMessageCount = status.getKeyedNumber("UNSEEN");
+                    if (response.isDataResponse(0, ImapConstants.STATUS)) {
+                        unreadMessageCount = response.getListOrEmpty(2)
+                                .getKeyedStringOrEmpty(ImapConstants.UNSEEN).getNumberOrZero();
                     }
                 }
                 return unreadMessageCount;
@@ -712,30 +746,49 @@ public class ImapStore extends Store {
             throw new Error("ImapStore.delete() not yet implemented");
         }
 
+        private String[] searchForUids(String searchCriteria)
+                throws MessagingException {
+            checkOpen();
+            List<ImapResponse> responses;
+            try {
+                responses = mConnection.executeSimpleCommand("UID SEARCH " + searchCriteria);
+            } catch (ImapException e) {
+                return Utility.EMPTY_STRINGS; // not found;
+            } catch (IOException ioe) {
+                throw ioExceptionHandler(mConnection, ioe);
+            }
+            // S: * SEARCH 2 3 6
+            for (ImapResponse response : responses) {
+                if (!response.isDataResponse(0, ImapConstants.SEARCH)) {
+                    continue;
+                }
+                // Found SEARCH response data
+                final int count = response.size() - 1;
+                if (count <= 0) {
+                    return Utility.EMPTY_STRINGS; // ... but no UIDs in it!  Return empty array.
+                }
+
+                ArrayList<String> ret = new ArrayList<String>(count);
+                for (int i = 1; i < response.size(); i++) {
+                    ImapString s = response.getStringOrEmpty(i);
+                    if (s.isString()) {
+                        ret.add(s.getString());
+                    }
+                }
+                return ret.toArray(Utility.EMPTY_STRINGS);
+            }
+            return Utility.EMPTY_STRINGS;
+        }
+
         @Override
         public Message getMessage(String uid) throws MessagingException {
             checkOpen();
 
-            try {
-                try {
-                    List<ImapResponse> responses =
-                            mConnection.executeSimpleCommand(String.format("UID SEARCH UID %S", uid));
-                    for (ImapResponse response : responses) {
-                        if (response.mTag == null && response.get(0).equals("SEARCH")) {
-                            for (int i = 1, count = response.size(); i < count; i++) {
-                                if (uid.equals(response.get(i))) {
-                                    return new ImapMessage(uid, this);
-                                }
-                            }
-                        }
-                    }
+            String[] uids = searchForUids("UID " + uid);
+            for (int i = 0; i < uids.length; i++) {
+                if (uids[i].equals(uid)) {
+                    return new ImapMessage(uid, this);
                 }
-                catch (MessagingException me) {
-                    return null;
-                }
-            }
-            catch (IOException ioe) {
-                throw ioExceptionHandler(mConnection, ioe);
             }
             return null;
         }
@@ -744,36 +797,10 @@ public class ImapStore extends Store {
         public Message[] getMessages(int start, int end, MessageRetrievalListener listener)
                 throws MessagingException {
             if (start < 1 || end < 1 || end < start) {
-                throw new MessagingException(
-                        String.format("Invalid message set %d %d",
-                                start, end));
+                throw new MessagingException(String.format("Invalid range: %d %d", start, end));
             }
-            checkOpen();
-            ArrayList<Message> messages = new ArrayList<Message>();
-            try {
-                ArrayList<String> uids = new ArrayList<String>();
-                List<ImapResponse> responses = mConnection
-                        .executeSimpleCommand(String.format("UID SEARCH %d:%d NOT DELETED", start, end));
-                for (ImapResponse response : responses) {
-                    if (response.get(0).equals("SEARCH")) {
-                        for (int i = 1, count = response.size(); i < count; i++) {
-                            uids.add(response.getString(i));
-                        }
-                    }
-                }
-                for (int i = 0, count = uids.size(); i < count; i++) {
-                    ImapMessage message = new ImapMessage(uids.get(i), this);
-                    messages.add(message);
-                    if (listener != null) {
-                        listener.messageRetrieved(message);
-                    }
-                }
-            } catch (ImapException e) {
-                return new Message[0]; // No messages found.
-            } catch (IOException ioe) {
-                throw ioExceptionHandler(mConnection, ioe);
-            }
-            return messages.toArray(new Message[] {});
+            return getMessagesInternal(
+                    searchForUids(String.format("%d:%d NOT DELETED", start, end)), listener);
         }
 
         @Override
@@ -784,33 +811,24 @@ public class ImapStore extends Store {
         @Override
         public Message[] getMessages(String[] uids, MessageRetrievalListener listener)
                 throws MessagingException {
-            checkOpen();
-            ArrayList<Message> messages = new ArrayList<Message>();
-            try {
-                if (uids == null) {
-                    List<ImapResponse> responses = mConnection
-                            .executeSimpleCommand("UID SEARCH 1:* NOT DELETED");
-                    ArrayList<String> tempUids = new ArrayList<String>();
-                    for (ImapResponse response : responses) {
-                        if (response.get(0).equals("SEARCH")) {
-                            for (int i = 1, count = response.size(); i < count; i++) {
-                                tempUids.add(response.getString(i));
-                            }
-                        }
-                    }
-                    uids = tempUids.toArray(new String[] {});
-                }
-                for (int i = 0, count = uids.length; i < count; i++) {
-                    ImapMessage message = new ImapMessage(uids[i], this);
-                    messages.add(message);
-                    if (listener != null) {
-                        listener.messageRetrieved(message);
-                    }
-                }
-            } catch (IOException ioe) {
-                throw ioExceptionHandler(mConnection, ioe);
+            if (uids == null) {
+                uids = searchForUids("1:* NOT DELETED");
             }
-            return messages.toArray(new Message[] {});
+            return getMessagesInternal(uids, listener);
+        }
+
+        public Message[] getMessagesInternal(String[] uids, MessageRetrievalListener listener)
+                throws MessagingException {
+            final ArrayList<Message> messages = new ArrayList<Message>(uids.length);
+            for (int i = 0; i < uids.length; i++) {
+                final String uid = uids[i];
+                final ImapMessage message = new ImapMessage(uid, this);
+                messages.add(message);
+                if (listener != null) {
+                    listener.messageRetrieved(message);
+                }
+            }
+            return messages.toArray(Message.EMPTY_ARRAY);
         }
 
         @Override
@@ -831,107 +849,112 @@ public class ImapStore extends Store {
                 return;
             }
             checkOpen();
-            String[] uids = new String[messages.length];
             HashMap<String, Message> messageMap = new HashMap<String, Message>();
-            for (int i = 0, count = messages.length; i < count; i++) {
-                uids[i] = messages[i].getUid();
-                messageMap.put(uids[i], messages[i]);
+            for (Message m : messages) {
+                messageMap.put(m.getUid(), m);
             }
 
             /*
              * Figure out what command we are going to run:
-             * Flags - UID FETCH (FLAGS)
-             * Envelope - UID FETCH ([FLAGS] INTERNALDATE UID RFC822.SIZE FLAGS BODY.PEEK[HEADER.FIELDS (date subject from content-type to cc)])
-             *
+             * FLAGS     - UID FETCH (FLAGS)
+             * ENVELOPE  - UID FETCH (INTERNALDATE UID RFC822.SIZE FLAGS BODY.PEEK[
+             *                            HEADER.FIELDS (date subject from content-type to cc)])
+             * STRUCTURE - UID FETCH (BODYSTRUCTURE)
+             * BODY_SANE - UID FETCH (BODY.PEEK[]<0.N>) where N = max bytes returned
+             * BODY      - UID FETCH (BODY.PEEK[])
+             * Part      - UID FETCH (BODY.PEEK[ID]) where ID = mime part ID
              */
-            LinkedHashSet<String> fetchFields = new LinkedHashSet<String>();
-            fetchFields.add("UID");
+
+            final LinkedHashSet<String> fetchFields = new LinkedHashSet<String>();
+
+            fetchFields.add(ImapConstants.UID);
             if (fp.contains(FetchProfile.Item.FLAGS)) {
-                fetchFields.add("FLAGS");
+                fetchFields.add(ImapConstants.FLAGS);
             }
             if (fp.contains(FetchProfile.Item.ENVELOPE)) {
-                fetchFields.add("INTERNALDATE");
-                fetchFields.add("RFC822.SIZE");
-                fetchFields.add("BODY.PEEK[HEADER.FIELDS " +
-                        "(date subject from content-type to cc message-id)]");
+                fetchFields.add(ImapConstants.INTERNALDATE);
+                fetchFields.add(ImapConstants.RFC822_SIZE);
+                fetchFields.add(ImapConstants.FETCH_FIELD_HEADERS);
             }
             if (fp.contains(FetchProfile.Item.STRUCTURE)) {
-                fetchFields.add("BODYSTRUCTURE");
+                fetchFields.add(ImapConstants.BODYSTRUCTURE);
             }
+
             if (fp.contains(FetchProfile.Item.BODY_SANE)) {
-                fetchFields.add(String.format("BODY.PEEK[]<0.%d>", FETCH_BODY_SANE_SUGGESTED_SIZE));
+                fetchFields.add(ImapConstants.FETCH_FIELD_BODY_PEEK_SANE);
             }
             if (fp.contains(FetchProfile.Item.BODY)) {
-                fetchFields.add("BODY.PEEK[]");
+                fetchFields.add(ImapConstants.FETCH_FIELD_BODY_PEEK);
             }
-            for (Object o : fp) {
-                if (o instanceof Part) {
-                    Part part = (Part) o;
-                    String[] partIds =
-                        part.getHeader(MimeHeader.HEADER_ANDROID_ATTACHMENT_STORE_DATA);
-                    if (partIds != null) {
-                        fetchFields.add("BODY.PEEK[" + partIds[0] + "]");
-                    }
+
+            final Part fetchPart = fp.getFirstPart();
+            if (fetchPart != null) {
+                String[] partIds =
+                        fetchPart.getHeader(MimeHeader.HEADER_ANDROID_ATTACHMENT_STORE_DATA);
+                if (partIds != null) {
+                    fetchFields.add(ImapConstants.FETCH_FIELD_BODY_PEEK_BARE
+                            + "[" + partIds[0] + "]");
                 }
             }
 
             try {
                 String tag = mConnection.sendCommand(String.format("UID FETCH %s (%s)",
-                        Utility.combine(uids, ','),
+                        joinMessageUids(messages),
                         Utility.combine(fetchFields.toArray(new String[fetchFields.size()]), ' ')
                         ), false);
                 ImapResponse response;
                 int messageNumber = 0;
                 do {
-                    response = mConnection.readResponse();
+                    response = null;
+                    try {
+                        response = mConnection.readResponse();
 
-                    if (response.mTag == null && response.get(1).equals("FETCH")) {
-                        ImapList fetchList = (ImapList)response.getKeyedValue("FETCH");
-                        String uid = fetchList.getKeyedString("UID");
-                        if (uid == null) continue;
+                        if (!response.isDataResponse(1, ImapConstants.FETCH)) {
+                            continue; // Ignore
+                        }
+                        final ImapList fetchList = response.getListOrEmpty(2);
+                        final String uid = fetchList.getKeyedStringOrEmpty(ImapConstants.UID)
+                                .getString();
+                        if (TextUtils.isEmpty(uid)) continue;
 
-                        Message message = messageMap.get(uid);
+                        ImapMessage message = (ImapMessage) messageMap.get(uid);
                         if (message == null) continue;
 
                         if (fp.contains(FetchProfile.Item.FLAGS)) {
-                            ImapList flags = fetchList.getKeyedList("FLAGS");
-                            ImapMessage imapMessage = (ImapMessage) message;
-                            if (flags != null) {
-                                for (int i = 0, count = flags.size(); i < count; i++) {
-                                    String flag = flags.getString(i);
-                                    if (flag.equals("\\Deleted")) {
-                                        imapMessage.setFlagInternal(Flag.DELETED, true);
-                                    }
-                                    else if (flag.equals("\\Answered")) {
-                                        imapMessage.setFlagInternal(Flag.ANSWERED, true);
-                                    }
-                                    else if (flag.equals("\\Seen")) {
-                                        imapMessage.setFlagInternal(Flag.SEEN, true);
-                                    }
-                                    else if (flag.equals("\\Flagged")) {
-                                        imapMessage.setFlagInternal(Flag.FLAGGED, true);
-                                    }
+                            final ImapList flags =
+                                fetchList.getKeyedListOrEmpty(ImapConstants.FLAGS);
+                            for (int i = 0, count = flags.size(); i < count; i++) {
+                                final ImapString flag = flags.getStringOrEmpty(i);
+                                if (flag.is(ImapConstants.FLAG_DELETED)) {
+                                    message.setFlagInternal(Flag.DELETED, true);
+                                } else if (flag.is(ImapConstants.FLAG_ANSWERED)) {
+                                    message.setFlagInternal(Flag.ANSWERED, true);
+                                } else if (flag.is(ImapConstants.FLAG_SEEN)) {
+                                    message.setFlagInternal(Flag.SEEN, true);
+                                } else if (flag.is(ImapConstants.FLAG_FLAGGED)) {
+                                    message.setFlagInternal(Flag.FLAGGED, true);
                                 }
                             }
                         }
                         if (fp.contains(FetchProfile.Item.ENVELOPE)) {
-                            Date internalDate = fetchList.getKeyedDate("INTERNALDATE");
-                            int size = fetchList.getKeyedNumber("RFC822.SIZE");
-                            InputStream headerStream = fetchList.getLiteral(fetchList.size() - 1);
-
-                            ImapMessage imapMessage = (ImapMessage) message;
+                            final Date internalDate = fetchList.getKeyedStringOrEmpty(
+                                    ImapConstants.INTERNALDATE).getDateOrNull();
+                            final int size = fetchList.getKeyedStringOrEmpty(
+                                    ImapConstants.RFC822_SIZE).getNumberOrZero();
+                            final String header = fetchList.getKeyedStringOrEmpty(
+                                    ImapConstants.BODY_BRACKET_HEADER, true).getString();
 
                             message.setInternalDate(internalDate);
-                            imapMessage.setSize(size);
-                            imapMessage.parse(headerStream);
+                            message.setSize(size);
+                            message.parse(Utility.streamFromAsciiString(header));
                         }
                         if (fp.contains(FetchProfile.Item.STRUCTURE)) {
-                            ImapList bs = fetchList.getKeyedList("BODYSTRUCTURE");
-                            if (bs != null) {
+                            ImapList bs = fetchList.getKeyedListOrEmpty(
+                                    ImapConstants.BODYSTRUCTURE);
+                            if (!bs.isEmpty()) {
                                 try {
                                     parseBodyStructure(bs, message, "TEXT");
-                                }
-                                catch (MessagingException e) {
+                                } catch (MessagingException e) {
                                     if (Email.LOGD) {
                                         Log.v(Email.LOG_TAG, "Error handling message", e);
                                     }
@@ -939,42 +962,37 @@ public class ImapStore extends Store {
                                 }
                             }
                         }
-                        if (fp.contains(FetchProfile.Item.BODY)) {
-                            InputStream bodyStream = fetchList.getLiteral(fetchList.size() - 1);
-                            ImapMessage imapMessage = (ImapMessage) message;
-                            imapMessage.parse(bodyStream);
+                        if (fp.contains(FetchProfile.Item.BODY)
+                                || fp.contains(FetchProfile.Item.BODY_SANE)) {
+                            // Body is keyed by "BODY[...".
+                            // TOOD Should we accept "RFC822" as well??
+                            // The old code didn't really check the key, so it accepted any literal
+                            // that first appeared.
+                            ImapString body = fetchList.getKeyedStringOrEmpty("BODY[", true);
+                            InputStream bodyStream = body.getAsStream();
+                            message.parse(bodyStream);
                         }
-                        if (fp.contains(FetchProfile.Item.BODY_SANE)) {
-                            InputStream bodyStream = fetchList.getLiteral(fetchList.size() - 1);
-                            ImapMessage imapMessage = (ImapMessage) message;
-                            imapMessage.parse(bodyStream);
-                        }
-                        for (Object o : fp) {
-                            if (o instanceof Part) {
-                                Part part = (Part) o;
-                                if (part.getSize() > 0) {
-                                    InputStream bodyStream =
-                                        fetchList.getLiteral(fetchList.size() - 1);
-                                    String contentType = part.getContentType();
-                                    String contentTransferEncoding = part.getHeader(
-                                            MimeHeader.HEADER_CONTENT_TRANSFER_ENCODING)[0];
-                                    part.setBody(MimeUtility.decodeBody(
-                                            bodyStream,
-                                            contentTransferEncoding));
-                                }
-                            }
+                        if (fetchPart != null && fetchPart.getSize() > 0) {
+                            InputStream bodyStream =
+                                    fetchList.getKeyedStringOrEmpty("BODY[", true).getAsStream();
+                            String contentType = fetchPart.getContentType();
+                            String contentTransferEncoding = fetchPart.getHeader(
+                                    MimeHeader.HEADER_CONTENT_TRANSFER_ENCODING)[0];
+                            fetchPart.setBody(MimeUtility.decodeBody(
+                                    bodyStream,
+                                    contentTransferEncoding));
                         }
 
                         if (listener != null) {
                             listener.messageRetrieved(message);
                         }
+                    } finally {
+                        if (response != null) {
+                            response.destroy();
+                        }
                     }
-
-                    while (response.more());
-
-                } while (response.mTag == null);
-            }
-            catch (IOException ioe) {
+                } while (!response.isTagged());
+            } catch (IOException ioe) {
                 throw ioExceptionHandler(mConnection, ioe);
             }
         }
@@ -999,41 +1017,39 @@ public class ImapStore extends Store {
          * @param response
          */
         private void handleUntaggedResponse(ImapResponse response) {
-            if (response.mTag == null && response.get(1).equals("EXISTS")) {
-                mMessageCount = response.getNumber(0);
+            if (response.isDataResponse(1, ImapConstants.EXISTS)) {
+                mMessageCount = response.getStringOrEmpty(0).getNumberOrZero();
             }
         }
 
         private static void parseBodyStructure(ImapList bs, Part part, String id)
                 throws MessagingException {
-            if (bs.get(0) instanceof ImapList) {
+            if (bs.getElementOrNone(0).isList()) {
                 /*
                  * This is a multipart/*
                  */
                 MimeMultipart mp = new MimeMultipart();
                 for (int i = 0, count = bs.size(); i < count; i++) {
-                    if (bs.get(i) instanceof ImapList) {
+                    ImapElement e = bs.getElementOrNone(i);
+                    if (e.isList()) {
                         /*
                          * For each part in the message we're going to add a new BodyPart and parse
                          * into it.
                          */
                         MimeBodyPart bp = new MimeBodyPart();
                         if (id.equals("TEXT")) {
-                            parseBodyStructure(bs.getList(i), bp, Integer.toString(i + 1));
-                        }
-                        else {
-                            parseBodyStructure(bs.getList(i), bp, id + "." + (i + 1));
+                            parseBodyStructure(bs.getListOrEmpty(i), bp, Integer.toString(i + 1));
+
+                        } else {
+                            parseBodyStructure(bs.getListOrEmpty(i), bp, id + "." + (i + 1));
                         }
                         mp.addBodyPart(bp);
-                    }
-                    else {
-                        /*
-                         * We've got to the end of the children of the part, so now we can find out
-                         * what type it is and bail out.
-                         */
-                        String subType = bs.getString(i);
-                        mp.setSubType(subType.toLowerCase());
-                        break;
+
+                    } else {
+                        if (e.isString()) {
+                            mp.setSubType(bs.getStringOrEmpty(i).getString().toLowerCase());
+                        }
+                        break; // Ignore the rest of the list.
                     }
                 }
                 part.setBody(mp);
@@ -1053,18 +1069,15 @@ public class ImapStore extends Store {
                  body size
                  */
 
+                final ImapString type = bs.getStringOrEmpty(0);
+                final ImapString subType = bs.getStringOrEmpty(1);
+                final String mimeType =
+                        (type.getString() + "/" + subType.getString()).toLowerCase();
 
-                String type = bs.getString(0);
-                String subType = bs.getString(1);
-                String mimeType = (type + "/" + subType).toLowerCase();
-
-                ImapList bodyParams = null;
-                if (bs.get(2) instanceof ImapList) {
-                    bodyParams = bs.getList(2);
-                }
-                String cid = bs.getString(3);
-                String encoding = bs.getString(5);
-                int size = bs.getNumber(6);
+                final ImapList bodyParams = bs.getListOrEmpty(2);
+                final ImapString cid = bs.getStringOrEmpty(3);
+                final ImapString encoding = bs.getStringOrEmpty(5);
+                final int size = bs.getStringOrEmpty(6).getNumberOrZero();
 
                 if (MimeUtility.mimeTypeMatches(mimeType, MimeUtility.MIME_TYPE_RFC822)) {
                     // A body type of type MESSAGE and subtype RFC822
@@ -1083,86 +1096,101 @@ public class ImapStore extends Store {
                 /*
                  * Set the content type with as much information as we know right now.
                  */
-                String contentType = String.format("%s", mimeType);
+                final StringBuilder contentType = new StringBuilder(mimeType);
 
-                if (bodyParams != null) {
-                    /*
-                     * If there are body params we might be able to get some more information out
-                     * of them.
-                     */
-                    for (int i = 0, count = bodyParams.size(); i < count; i += 2) {
-                        contentType += String.format(";\n %s=\"%s\"",
-                                bodyParams.getString(i),
-                                bodyParams.getString(i + 1));
-                    }
+                /*
+                 * If there are body params we might be able to get some more information out
+                 * of them.
+                 */
+                for (int i = 1, count = bodyParams.size(); i < count; i += 2) {
+
+                    // TODO We need to convert " into %22, but
+                    // because MimeUtility.getHeaderParameter doesn't recognize it,
+                    // we can't fix it for now.
+                    contentType.append(String.format(";\n %s=\"%s\"",
+                            bodyParams.getStringOrEmpty(i - 1).getString(),
+                            bodyParams.getStringOrEmpty(i).getString()));
                 }
 
-                part.setHeader(MimeHeader.HEADER_CONTENT_TYPE, contentType);
+                part.setHeader(MimeHeader.HEADER_CONTENT_TYPE, contentType.toString());
 
                 // Extension items
-                ImapList bodyDisposition = null;
-                if (("text".equalsIgnoreCase(type))
-                        && (bs.size() > 8)
-                        && (bs.get(9) instanceof ImapList)) {
-                    bodyDisposition = bs.getList(9);
-                }
-                else if (!("text".equalsIgnoreCase(type))
-                        && (bs.size() > 7)
-                        && (bs.get(8) instanceof ImapList)) {
-                    bodyDisposition = bs.getList(8);
+                final ImapList bodyDisposition;
+
+                if (type.is("text") && bs.getElementOrNone(9).isList()) {
+                    // If media-type is TEXT, 9th element might be: [body-fld-lines] := number
+                    // So, if it's not a list, use 10th element.
+                    // (Couldn't find evidence in the RFC if it's ALWAYS 10th element.)
+                    bodyDisposition = bs.getListOrEmpty(9);
+                } else {
+                    bodyDisposition = bs.getListOrEmpty(8);
                 }
 
-                String contentDisposition = "";
+                final StringBuilder contentDisposition = new StringBuilder();
 
-                if (bodyDisposition != null && bodyDisposition.size() > 0) {
-                    if (!"NIL".equalsIgnoreCase(bodyDisposition.getString(0))) {
-                        contentDisposition = bodyDisposition.getString(0).toLowerCase();
+                if (bodyDisposition.size() > 0) {
+                    final String bodyDisposition0Str =
+                            bodyDisposition.getStringOrEmpty(0).getString().toLowerCase();
+                    if (!TextUtils.isEmpty(bodyDisposition0Str)) {
+                        contentDisposition.append(bodyDisposition0Str);
                     }
 
-                    if ((bodyDisposition.size() > 1)
-                            && (bodyDisposition.get(1) instanceof ImapList)) {
-                        ImapList bodyDispositionParams = bodyDisposition.getList(1);
+                    final ImapList bodyDispositionParams = bodyDisposition.getListOrEmpty(1);
+                    if (!bodyDispositionParams.isEmpty()) {
                         /*
-                         * If there is body disposition information we can pull some more information
-                         * about the attachment out.
+                         * If there is body disposition information we can pull some more
+                         * information about the attachment out.
                          */
-                        for (int i = 0, count = bodyDispositionParams.size(); i < count; i += 2) {
-                            contentDisposition += String.format(";\n %s=\"%s\"",
-                                    bodyDispositionParams.getString(i).toLowerCase(),
-                                    bodyDispositionParams.getString(i + 1));
+                        for (int i = 1, count = bodyDispositionParams.size(); i < count; i += 2) {
+
+                            // TODO We need to convert " into %22.  See above.
+                            contentDisposition.append(String.format(";\n %s=\"%s\"",
+                                    bodyDispositionParams.getStringOrEmpty(i - 1)
+                                            .getString().toLowerCase(),
+                                    bodyDispositionParams.getStringOrEmpty(i).getString()));
                         }
                     }
                 }
 
-                if (MimeUtility.getHeaderParameter(contentDisposition, "size") == null) {
-                    contentDisposition += String.format(";\n size=%d", size);
+                if ((size > 0)
+                        && (MimeUtility.getHeaderParameter(contentDisposition.toString(), "size")
+                                == null)) {
+                    contentDisposition.append(String.format(";\n size=%d", size));
                 }
 
-                /*
-                 * Set the content disposition containing at least the size. Attachment
-                 * handling code will use this down the road.
-                 */
-                part.setHeader(MimeHeader.HEADER_CONTENT_DISPOSITION, contentDisposition);
-
+                if (contentDisposition.length() > 0) {
+                    /*
+                     * Set the content disposition containing at least the size. Attachment
+                     * handling code will use this down the road.
+                     */
+                    part.setHeader(MimeHeader.HEADER_CONTENT_DISPOSITION,
+                            contentDisposition.toString());
+                }
 
                 /*
                  * Set the Content-Transfer-Encoding header. Attachment code will use this
                  * to parse the body.
                  */
-                part.setHeader(MimeHeader.HEADER_CONTENT_TRANSFER_ENCODING, encoding);
+                if (!encoding.isEmpty()) {
+                    part.setHeader(MimeHeader.HEADER_CONTENT_TRANSFER_ENCODING,
+                            encoding.getString());
+                }
+
                 /*
                  * Set the Content-ID header.
                  */
-                if (!"NIL".equalsIgnoreCase(cid)) {
-                    part.setHeader(MimeHeader.HEADER_CONTENT_ID, cid);
+                if (!cid.isEmpty()) {
+                    part.setHeader(MimeHeader.HEADER_CONTENT_ID, cid.getString());
                 }
 
-                if (part instanceof ImapMessage) {
-                    ((ImapMessage) part).setSize(size);
-                } else if (part instanceof MimeBodyPart) {
-                    ((MimeBodyPart) part).setSize(size);
-                } else {
-                    throw new MessagingException("Unknown part type " + part.toString());
+                if (size > 0) {
+                    if (part instanceof ImapMessage) {
+                        ((ImapMessage) part).setSize(size);
+                    } else if (part instanceof MimeBodyPart) {
+                        ((MimeBodyPart) part).setSize(size);
+                    } else {
+                        throw new MessagingException("Unknown part type " + part.toString());
+                    }
                 }
                 part.setHeader(MimeHeader.HEADER_ANDROID_ATTACHMENT_STORE_DATA, id);
             }
@@ -1210,27 +1238,31 @@ public class ImapStore extends Store {
                     ImapResponse response;
                     do {
                         response = mConnection.readResponse();
-                        if (response.mCommandContinuationRequested) {
-                            eolOut = new EOLConvertingOutputStream(mConnection.mTransport.getOutputStream());
+                        if (response.isContinuationRequest()) {
+                            eolOut = new EOLConvertingOutputStream(
+                                    mConnection.mTransport.getOutputStream());
                             message.writeTo(eolOut);
                             eolOut.write('\r');
                             eolOut.write('\n');
                             eolOut.flush();
-                        } else if (response.mTag == null) {
+                        } else if (!response.isTagged()) {
                             handleUntaggedResponse(response);
                         }
-                        while (response.more());
-                    } while (response.mTag == null);
+                    } while (!response.isTagged());
+
+                    // TODO Why not check the response?
+
                     /*
                      * Try to recover the UID of the message from an APPENDUID response.
                      * e.g. 11 OK [APPENDUID 2 238268] APPEND completed
                      */
-                    ImapList appendList = response.getListOrNull(1);
-                    if (appendList != null && appendList.size() == 3 &&
-                            "APPENDUID".equalsIgnoreCase(appendList.getString(0))) {
-                        String serverUid = appendList.getString(2);
-                        message.setUid(serverUid);
-                        continue;
+                    final ImapList appendList = response.getListOrEmpty(1);
+                    if ((appendList.size() >= 3) && appendList.is(0, ImapConstants.APPENDUID)) {
+                        String serverUid = appendList.getStringOrEmpty(2).getString();
+                        if (!TextUtils.isEmpty(serverUid)) {
+                            message.setUid(serverUid);
+                            continue;
+                        }
                     }
 
                     /*
@@ -1242,14 +1274,10 @@ public class ImapStore extends Store {
                     if (messageId == null || messageId.length() == 0) {
                         continue;
                     }
-                    List<ImapResponse> responses =
-                        mConnection.executeSimpleCommand(
-                                String.format("UID SEARCH (HEADER MESSAGE-ID %s)", messageId));
-                    for (ImapResponse response1 : responses) {
-                        if (response1.mTag == null && response1.get(0).equals("SEARCH")
-                                && response1.size() > 1) {
-                            message.setUid(response1.getString(response1.size()-1));
-                        }
+                    String[] uids = searchForUids(
+                            String.format("(HEADER MESSAGE-ID %s)", messageId));
+                    if (uids.length > 0) {
+                        message.setUid(uids[0]);
                     }
                 }
             } catch (IOException ioe) {
@@ -1272,11 +1300,6 @@ public class ImapStore extends Store {
         public void setFlags(Message[] messages, Flag[] flags, boolean value)
                 throws MessagingException {
             checkOpen();
-            StringBuilder uidList = new StringBuilder();
-            for (int i = 0, count = messages.length; i < count; i++) {
-                if (i > 0) uidList.append(',');
-                uidList.append(messages[i].getUid());
-            }
 
             String allFlags = "";
             if (flags.length > 0) {
@@ -1284,7 +1307,7 @@ public class ImapStore extends Store {
                 for (int i = 0, count = flags.length; i < count; i++) {
                     Flag flag = flags[i];
                     if (flag == Flag.SEEN) {
-                        flagList.append(" \\Seen"); // TODO this can be a field of Flag...
+                        flagList.append(" \\Seen");
                     } else if (flag == Flag.DELETED) {
                         flagList.append(" \\Deleted");
                     } else if (flag == Flag.FLAGGED) {
@@ -1295,7 +1318,7 @@ public class ImapStore extends Store {
             }
             try {
                 mConnection.executeSimpleCommand(String.format("UID STORE %s %sFLAGS.SILENT (%s)",
-                        uidList,
+                        joinMessageUids(messages),
                         value ? "+" : "-",
                         allFlags));
 
@@ -1362,16 +1385,21 @@ public class ImapStore extends Store {
                 mParser.readResponse();
 
                 // CAPABILITY
-                List<ImapResponse> response = executeSimpleCommand("CAPABILITY");
-                if (response.size() != 2) {
+                ImapResponse capabilityResponse = null;
+                for (ImapResponse r : executeSimpleCommand(ImapConstants.CAPABILITY)) {
+                    if (r.is(0, ImapConstants.CAPABILITY)) {
+                        capabilityResponse = r;
+                        break;
+                    }
+                }
+                if (capabilityResponse == null) {
                     throw new MessagingException("Invalid CAPABILITY response received");
                 }
-                String capabilities = response.get(0).toString();
 
                 if (mTransport.canTryTlsSecurity()) {
-                    if (capabilities.contains("STARTTLS")) {
+                    if (capabilityResponse.contains(ImapConstants.STARTTLS)) {
                         // STARTTLS
-                        executeSimpleCommand("STARTTLS");
+                        executeSimpleCommand(ImapConstants.STARTTLS);
 
                         mTransport.reopenTls();
                         mTransport.setSoTimeout(MailTransport.SOCKET_READ_TIMEOUT);
@@ -1387,7 +1415,7 @@ public class ImapStore extends Store {
 
                 // Assign user-agent string (for RFC2971 ID command)
                 String mUserAgent = getImapId(mContext, mUsername, mRootTransport.getHost(),
-                        capabilities);
+                        capabilityResponse.flatten());
                 if (mUserAgent != null) {
                     mIdPhrase = "ID (" + mUserAgent + ")";
                 } else if (DEBUG_FORCE_SEND_ID) {
@@ -1483,28 +1511,13 @@ public class ImapStore extends Store {
             String tag = sendCommand(command, sensitive);
             ArrayList<ImapResponse> responses = new ArrayList<ImapResponse>();
             ImapResponse response;
-            ImapResponse previous = null;
             do {
-                // This is work around to parse literal in the middle of response.
-                // We should nail down the previous response literal string if any.
-                if (previous != null && !previous.completed()) {
-                    previous.nailDown();
-                }
                 response = mParser.readResponse();
-                // This is work around to parse literal in the middle of response.
-                // If we found unmatched tagged response, it possibly be the continuous
-                // response just after the literal string.
-                if (response.mTag != null && !response.mTag.equals(tag)
-                        && previous != null && !previous.completed()) {
-                    previous.appendAll(response);
-                    response.mTag = null;
-                    continue;
-                }
                 responses.add(response);
-                previous = response;
-            } while (response.mTag == null);
-            if (response.size() < 1 || !response.get(0).equals("OK")) {
-                throw new ImapException(response.toString(), response.getAlertText());
+            } while (!response.isTagged());
+            if (!response.isOk()) {
+                throw new ImapException(response.toString(),
+                        response.getAlertTextOrEmpty().getString());
             }
             return responses;
         }

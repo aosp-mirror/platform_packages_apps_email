@@ -40,6 +40,7 @@ import android.util.Base64;
 import android.util.Log;
 import android.widget.TextView;
 
+import java.io.ByteArrayInputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
@@ -55,6 +56,9 @@ import java.util.regex.Pattern;
 
 public class Utility {
     public static final Charset UTF_8 = Charset.forName("UTF-8");
+    public static final Charset ASCII = Charset.forName("US-ASCII");
+
+    public static final String[] EMPTY_STRINGS = new String[0];
 
     // "GMT" + "+" or "-" + 4 digits
     private static final Pattern DATE_CLEANUP_PATTERN_WRONG_TIMEZONE =
@@ -470,24 +474,42 @@ public class Utility {
         return cal.getTimeInMillis();
     }
 
-    /** Converts a String to UTF-8 */
-    public static byte[] toUtf8(String s) {
+    private static byte[] encode(Charset charset, String s) {
         if (s == null) {
             return null;
         }
-        final ByteBuffer buffer = UTF_8.encode(CharBuffer.wrap(s));
+        final ByteBuffer buffer = charset.encode(CharBuffer.wrap(s));
         final byte[] bytes = new byte[buffer.limit()];
         buffer.get(bytes);
         return bytes;
     }
 
-    /** Build a String from UTF-8 bytes */
-    public static String fromUtf8(byte[] b) {
+    private static String decode(Charset charset, byte[] b) {
         if (b == null) {
             return null;
         }
-        final CharBuffer cb = Utility.UTF_8.decode(ByteBuffer.wrap(b));
+        final CharBuffer cb = charset.decode(ByteBuffer.wrap(b));
         return new String(cb.array(), 0, cb.length());
+    }
+
+    /** Converts a String to UTF-8 */
+    public static byte[] toUtf8(String s) {
+        return encode(UTF_8, s);
+    }
+
+    /** Builds a String from UTF-8 bytes */
+    public static String fromUtf8(byte[] b) {
+        return decode(UTF_8, b);
+    }
+
+    /** Converts a String to ASCII bytes */
+    public static byte[] toAscii(String s) {
+        return encode(ASCII, s);
+    }
+
+    /** Builds a String from ASCII bytes */
+    public static String fromAscii(byte[] b) {
+        return decode(ASCII, b);
     }
 
     /**
@@ -588,5 +610,9 @@ public class Utility {
         }
         date = DATE_CLEANUP_PATTERN_WRONG_TIMEZONE.matcher(date).replaceFirst("$1");
         return date;
+    }
+
+    public static ByteArrayInputStream streamFromAsciiString(String ascii) {
+        return new ByteArrayInputStream(toAscii(ascii));
     }
 }

@@ -20,6 +20,8 @@ import java.util.Date;
 import java.util.HashSet;
 
 public abstract class Message implements Part, Body {
+    public static final Message[] EMPTY_ARRAY = new Message[0];
+
     public enum RecipientType {
         TO, CC, BCC,
     }
@@ -111,7 +113,7 @@ public abstract class Message implements Part, Body {
     }
 
     /*
-     * TODO Refactor Flags at some point to be able to store user defined flags. 
+     * TODO Refactor Flags at some point to be able to store user defined flags.
      */
     public Flag[] getFlags() {
         return getFlagSet().toArray(new Flag[] {});
@@ -149,7 +151,7 @@ public abstract class Message implements Part, Body {
     }
 
     public abstract void saveChanges() throws MessagingException;
-    
+
     @Override
     public String toString() {
         return getClass().getSimpleName() + ':' + mUid;
