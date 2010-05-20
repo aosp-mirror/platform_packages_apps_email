@@ -378,9 +378,10 @@ public class AccountSetupBasics extends Activity
                     outgoingUriTemplate.getPath(), null, null);
 
             // Stop here if the login credentials duplicate an existing account
-            mDuplicateAccountName = Utility.findDuplicateAccount(this, -1,
+            Account account = Utility.findExistingAccount(this, -1,
                     incomingUri.getHost(), incomingUsername);
-            if (mDuplicateAccountName != null) {
+            if (account != null) {
+                mDuplicateAccountName = account.mDisplayName;
                 this.showDialog(DIALOG_DUPLICATE_ACCOUNT);
                 return;
             }

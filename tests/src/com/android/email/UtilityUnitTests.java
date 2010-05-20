@@ -16,13 +16,16 @@
 
 package com.android.email;
 
+import com.android.email.provider.EmailProvider;
+import com.android.email.provider.ProviderTestUtils;
+import com.android.email.provider.EmailContent.Account;
 import com.android.email.provider.EmailContent.Mailbox;
 
 import android.content.Context;
 import android.graphics.drawable.Drawable;
 import android.telephony.TelephonyManager;
-import android.test.AndroidTestCase;
 import android.test.MoreAsserts;
+import android.test.ProviderTestCase2;
 import android.test.suitebuilder.annotation.SmallTest;
 import android.util.Log;
 
@@ -32,9 +35,50 @@ import java.util.Set;
 /**
  * This is a series of unit tests for the Utility class.  These tests must be locally
  * complete - no server(s) required.
+ *
+ * You can run this entire test case with:
+ *   runtest -c com.android.email.UtilityUnitTests email
  */
 @SmallTest
-public class UtilityUnitTests extends AndroidTestCase {
+public class UtilityUnitTests extends ProviderTestCase2<EmailProvider> {
+
+    EmailProvider mProvider;
+    Context mMockContext;
+
+    public UtilityUnitTests() {
+        super(EmailProvider.class, EmailProvider.EMAIL_AUTHORITY);
+    }
+
+    @Override
+    public void setUp() throws Exception {
+        super.setUp();
+        mMockContext = getMockContext();
+    }
+
+    public void testFindExistingAccount() {
+        // Create two accounts
+        Account account1 = ProviderTestUtils.setupAccount("account1", false, mMockContext);
+        account1.mHostAuthRecv = ProviderTestUtils.setupHostAuth("ha1", -1, false, mMockContext);
+        account1.mHostAuthSend = ProviderTestUtils.setupHostAuth("ha1", -1, false, mMockContext);
+        account1.save(mMockContext);
+        Account account2 = ProviderTestUtils.setupAccount("account2", false, mMockContext);
+        account2.mHostAuthRecv = ProviderTestUtils.setupHostAuth("ha2", -1, false, mMockContext);
+        account2.mHostAuthSend = ProviderTestUtils.setupHostAuth("ha2", -1, false, mMockContext);
+        account2.save(mMockContext);
+        // Make sure we can find them
+        Account acct = Utility.findExistingAccount(mMockContext, -1, "address-ha1", "login-ha1");
+        assertNotNull(acct);
+        assertEquals("account1", acct.mDisplayName);
+        acct = Utility.findExistingAccount(mMockContext, -1, "address-ha2", "login-ha2");
+        assertNotNull(acct);
+        assertEquals("account2", acct.mDisplayName);
+        // We shouldn't find accounts that don't exist
+        acct = Utility.findExistingAccount(mMockContext, -1, "address-ha3", "login-ha3");
+        assertNull(acct);
+        // Try to find account1, excluding account1
+        acct = Utility.findExistingAccount(mMockContext, account1.mId, "address-ha1", "login-ha1");
+        assertNull(acct);
+    }
 
     /**
      * Tests of the IMAP quoting rules function.

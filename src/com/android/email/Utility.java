@@ -381,19 +381,19 @@ public class Utility {
      *
      * @param context a system context
      * @param allowAccountId this account Id will not trigger (when editing an existing account)
-     * @param hostName the server
-     * @param userLogin the user login string
-     * @result null = no dupes found.  non-null = dupe account's display name
+     * @param hostName the server's address
+     * @param userLogin the user's login string
+     * @result null = no matching account found.  Account = matching account
      */
-    public static String findDuplicateAccount(Context context, long allowAccountId, String hostName,
-            String userLogin) {
+    public static Account findExistingAccount(Context context, long allowAccountId,
+            String hostName, String userLogin) {
         ContentResolver resolver = context.getContentResolver();
         Cursor c = resolver.query(HostAuth.CONTENT_URI, HostAuth.ID_PROJECTION,
                 HOSTAUTH_WHERE_CREDENTIALS, new String[] { hostName, userLogin }, null);
         try {
             while (c.moveToNext()) {
                 long hostAuthId = c.getLong(HostAuth.ID_PROJECTION_COLUMN);
-                // Find account with matching hostauthrecv key, and return its display name
+                // Find account with matching hostauthrecv key, and return it
                 Cursor c2 = resolver.query(Account.CONTENT_URI, Account.ID_PROJECTION,
                         ACCOUNT_WHERE_HOSTAUTH, new String[] { Long.toString(hostAuthId) }, null);
                 try {
@@ -402,7 +402,7 @@ public class Utility {
                         if (accountId != allowAccountId) {
                             Account account = Account.restoreAccountWithId(context, accountId);
                             if (account != null) {
-                                return account.mDisplayName;
+                                return account;
                             }
                         }
                     }

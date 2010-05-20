@@ -401,10 +401,17 @@ public class EasSyncService extends AbstractSyncService {
                 // Make sure we've got the right protocol version set up
                 setupProtocolVersion(svc, versions);
 
-                // Run second test here for provisioning failures...
-                Serializer s = new Serializer();
+                // Run second test here for provisioning failures using FolderSync
                 userLog("Try folder sync");
-                s.start(Tags.FOLDER_FOLDER_SYNC).start(Tags.FOLDER_SYNC_KEY).text("0")
+                // Send "0" as the sync key for new accounts; otherwise we'll use the current key
+                String syncKey = "0";
+                Account existingAccount =
+                    Utility.findExistingAccount(context, -1L, hostAddress, userName);
+                if (existingAccount != null && existingAccount.mSyncKey != null) {
+                    syncKey = existingAccount.mSyncKey;
+                }
+                Serializer s = new Serializer();
+                s.start(Tags.FOLDER_FOLDER_SYNC).start(Tags.FOLDER_SYNC_KEY).text(syncKey)
                     .end().end().done();
                 resp = svc.sendHttpClientPost("FolderSync", s.toByteArray());
                 code = resp.getStatusLine().getStatusCode();

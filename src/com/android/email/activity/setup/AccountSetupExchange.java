@@ -463,9 +463,10 @@ public class AccountSetupExchange extends Activity implements OnClickListener,
 
             // Stop here if the login credentials duplicate an existing account
             // (unless they duplicate the existing account, as they of course will)
-            mDuplicateAccountName = Utility.findDuplicateAccount(this, mAccount.mId,
+            Account account = Utility.findExistingAccount(this, mAccount.mId,
                     uri.getHost(), mCacheLoginCredential);
-            if (mDuplicateAccountName != null) {
+            if (account != null) {
+                mDuplicateAccountName = account.mDisplayName;
                 this.showDialog(DIALOG_DUPLICATE_ACCOUNT);
                 return;
             }
