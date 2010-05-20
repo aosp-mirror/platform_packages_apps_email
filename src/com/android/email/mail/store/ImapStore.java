@@ -77,6 +77,7 @@ import javax.net.ssl.SSLException;
  * TODO Need to start keeping track of UIDVALIDITY
  * TODO Need a default response handler for things like folder updates
  * TODO In fetch(), if we need a ImapMessage and were given
+ * TODO Collect ALERT messages and show them to users.
  * something else we can try to do a pre-fetch first.
  *
  * ftp://ftp.isi.edu/in-notes/rfc2683.txt When a client asks for
@@ -230,7 +231,8 @@ public class ImapStore extends Store {
      * @param capability the capabilities string from the server
      * @return a String for use in an IMAP ID message.
      */
-    public String getImapId(Context context, String userName, String host, String capability) {
+    public static String getImapId(Context context, String userName, String host,
+            String capability) {
         // The first section is global to all IMAP connections, and generates the fixed
         // values in any IMAP ID message
         synchronized (ImapStore.class) {
@@ -290,7 +292,7 @@ public class ImapStore extends Store {
      * @param networkOperator TelephonyManager.getNetworkOperatorName()
      * @return the static (never changes) portion of the IMAP ID
      */
-    /* package */ String makeCommonImapId(String packageName, String version,
+    /* package */ static String makeCommonImapId(String packageName, String version,
             String codeName, String model, String id, String vendor, String networkOperator) {
 
         // Before building up IMAP ID string, pre-filter the input strings for "legal" chars
@@ -363,7 +365,7 @@ public class ImapStore extends Store {
         synchronized (mFolderCache) {
             folder = mFolderCache.get(name);
             if (folder == null) {
-                folder = new ImapFolder(name);
+                folder = new ImapFolder(this, name);
                 mFolderCache.put(name, folder);
             }
         }
@@ -413,8 +415,7 @@ public class ImapStore extends Store {
             ImapConnection connection = new ImapConnection();
             connection.open();
             connection.close();
-        }
-        catch (IOException ioe) {
+        } catch (IOException ioe) {
             throw new MessagingException(MessagingException.IOERROR, ioe.toString());
         }
     }
@@ -457,8 +458,7 @@ public class ImapStore extends Store {
             byte[] b = new byte[bb.limit()];
             bb.get(b);
             return new String(b, "US-ASCII");
-        }
-        catch (UnsupportedEncodingException uee) {
+        } catch (UnsupportedEncodingException uee) {
             /*
              * The only thing that can throw this is getBytes("US-ASCII") and if US-ASCII doesn't
              * exist we're totally screwed.
@@ -476,8 +476,7 @@ public class ImapStore extends Store {
             byte[] encoded = name.getBytes("US-ASCII");
             CharBuffer cb = MODIFIED_UTF_7_CHARSET.decode(ByteBuffer.wrap(encoded));
             return cb.toString();
-        }
-        catch (UnsupportedEncodingException uee) {
+        } catch (UnsupportedEncodingException uee) {
             /*
              * The only thing that can throw this is getBytes("US-ASCII") and if US-ASCII doesn't
              * exist we're totally screwed.
@@ -486,15 +485,17 @@ public class ImapStore extends Store {
         }
     }
 
-    class ImapFolder extends Folder {
+    static class ImapFolder extends Folder {
+        private final ImapStore mStore;
         private final String mName;
         private int mMessageCount = -1;
         private ImapConnection mConnection;
         private OpenMode mMode;
         private boolean mExists;
 
-        public ImapFolder(String name) {
-            this.mName = name;
+        public ImapFolder(ImapStore store, String name) {
+            mStore = store;
+            mName = name;
         }
 
         @Override
@@ -512,7 +513,7 @@ public class ImapStore extends Store {
                 }
             }
             synchronized (this) {
-                mConnection = getConnection();
+                mConnection = mStore.getConnection();
             }
             // * FLAGS (\Answered \Flagged \Deleted \Seen \Draft NonJunk
             // $MDNSent)
@@ -578,7 +579,7 @@ public class ImapStore extends Store {
             // TODO implement expunge
             mMessageCount = -1;
             synchronized (this) {
-                poolConnection(mConnection);
+                mStore.poolConnection(mConnection);
                 mConnection = null;
             }
         }
@@ -601,9 +602,8 @@ public class ImapStore extends Store {
             ImapConnection connection = null;
             synchronized(this) {
                 if (mConnection == null) {
-                    connection = getConnection();
-                }
-                else {
+                    connection = mStore.getConnection();
+                } else {
                     connection = mConnection;
                 }
             }
@@ -612,16 +612,16 @@ public class ImapStore extends Store {
                         encodeFolderName(mName)));
                 mExists = true;
                 return true;
-            }
-            catch (MessagingException me) {
+
+            } catch (MessagingException me) {
                 return false;
-            }
-            catch (IOException ioe) {
+
+            } catch (IOException ioe) {
                 throw ioExceptionHandler(connection, ioe);
-            }
-            finally {
+
+            } finally {
                 if (mConnection == null) {
-                    poolConnection(connection);
+                    mStore.poolConnection(connection);
                 }
             }
         }
@@ -642,9 +642,8 @@ public class ImapStore extends Store {
             ImapConnection connection = null;
             synchronized(this) {
                 if (mConnection == null) {
-                    connection = getConnection();
-                }
-                else {
+                    connection = mStore.getConnection();
+                } else {
                     connection = mConnection;
                 }
             }
@@ -652,16 +651,16 @@ public class ImapStore extends Store {
                 connection.executeSimpleCommand(String.format("CREATE \"%s\"",
                         encodeFolderName(mName)));
                 return true;
-            }
-            catch (MessagingException me) {
+
+            } catch (MessagingException me) {
                 return false;
-            }
-            catch (IOException ioe) {
+
+            } catch (IOException ioe) {
                 throw ioExceptionHandler(connection, ioe);
-            }
-            finally {
+
+            } finally {
                 if (mConnection == null) {
-                    poolConnection(connection);
+                    mStore.poolConnection(connection);
                 }
             }
         }
@@ -678,8 +677,7 @@ public class ImapStore extends Store {
                 mConnection.executeSimpleCommand(String.format("UID COPY %s \"%s\"",
                         Utility.combine(uids, ','),
                         encodeFolderName(folder.getName())));
-            }
-            catch (IOException ioe) {
+            } catch (IOException ioe) {
                 throw ioExceptionHandler(mConnection, ioe);
             }
         }
@@ -704,8 +702,7 @@ public class ImapStore extends Store {
                     }
                 }
                 return unreadMessageCount;
-            }
-            catch (IOException ioe) {
+            } catch (IOException ioe) {
                 throw ioExceptionHandler(mConnection, ioe);
             }
         }
@@ -1007,7 +1004,7 @@ public class ImapStore extends Store {
             }
         }
 
-        private void parseBodyStructure(ImapList bs, Part part, String id)
+        private static void parseBodyStructure(ImapList bs, Part part, String id)
                 throws MessagingException {
             if (bs.get(0) instanceof ImapList) {
                 /*
@@ -1020,7 +1017,7 @@ public class ImapStore extends Store {
                          * For each part in the message we're going to add a new BodyPart and parse
                          * into it.
                          */
-                        ImapBodyPart bp = new ImapBodyPart();
+                        MimeBodyPart bp = new MimeBodyPart();
                         if (id.equals("TEXT")) {
                             parseBodyStructure(bs.getList(i), bp, Integer.toString(i + 1));
                         }
@@ -1040,8 +1037,7 @@ public class ImapStore extends Store {
                     }
                 }
                 part.setBody(mp);
-            }
-            else{
+            } else {
                 /*
                  * This is a body. We need to add as much information as we can find out about
                  * it to the Part.
@@ -1070,16 +1066,18 @@ public class ImapStore extends Store {
                 String encoding = bs.getString(5);
                 int size = bs.getNumber(6);
 
-                if (MimeUtility.mimeTypeMatches(mimeType, "message/rfc822")) {
-//                  A body type of type MESSAGE and subtype RFC822
-//                  contains, immediately after the basic fields, the
-//                  envelope structure, body structure, and size in
-//                  text lines of the encapsulated message.
-//                    [MESSAGE, RFC822, [NAME, Fwd: [#HTR-517941]:  update plans at 1am Friday - Memory allocation - displayware.eml], NIL, NIL, 7BIT, 5974, NIL, [INLINE, [FILENAME*0, Fwd: [#HTR-517941]:  update plans at 1am Friday - Memory all, FILENAME*1, ocation - displayware.eml]], NIL]
+                if (MimeUtility.mimeTypeMatches(mimeType, MimeUtility.MIME_TYPE_RFC822)) {
+                    // A body type of type MESSAGE and subtype RFC822
+                    // contains, immediately after the basic fields, the
+                    // envelope structure, body structure, and size in
+                    // text lines of the encapsulated message.
+                    // [MESSAGE, RFC822, [NAME, filename.eml], NIL, NIL, 7BIT, 5974, NIL,
+                    //     [INLINE, [FILENAME*0, Fwd: Xxx..., FILENAME*1, filename.eml]], NIL]
                     /*
                      * This will be caught by fetch and handled appropriately.
                      */
-                    throw new MessagingException("BODYSTRUCTURE message/rfc822 not yet supported.");
+                    throw new MessagingException("BODYSTRUCTURE " + MimeUtility.MIME_TYPE_RFC822
+                            + " not yet supported.");
                 }
 
                 /*
@@ -1161,11 +1159,9 @@ public class ImapStore extends Store {
 
                 if (part instanceof ImapMessage) {
                     ((ImapMessage) part).setSize(size);
-                }
-                else if (part instanceof ImapBodyPart) {
-                    ((ImapBodyPart) part).setSize(size);
-                }
-                else {
+                } else if (part instanceof MimeBodyPart) {
+                    ((MimeBodyPart) part).setSize(size);
+                } else {
                     throw new MessagingException("Unknown part type " + part.toString());
                 }
                 part.setHeader(MimeHeader.HEADER_ANDROID_ATTACHMENT_STORE_DATA, id);
@@ -1220,8 +1216,7 @@ public class ImapStore extends Store {
                             eolOut.write('\r');
                             eolOut.write('\n');
                             eolOut.flush();
-                        }
-                        else if (response.mTag == null) {
+                        } else if (response.mTag == null) {
                             handleUntaggedResponse(response);
                         }
                         while (response.more());
@@ -1256,10 +1251,8 @@ public class ImapStore extends Store {
                             message.setUid(response1.getString(response1.size()-1));
                         }
                     }
-
                 }
-            }
-            catch (IOException ioe) {
+            } catch (IOException ioe) {
                 throw ioExceptionHandler(mConnection, ioe);
             }
         }
@@ -1305,8 +1298,8 @@ public class ImapStore extends Store {
                         uidList,
                         value ? "+" : "-",
                         allFlags));
-            }
-            catch (IOException ioe) {
+
+            } catch (IOException ioe) {
                 throw ioExceptionHandler(mConnection, ioe);
             }
         }
@@ -1448,13 +1441,6 @@ public class ImapStore extends Store {
         }
 
         public void close() {
-//            if (isOpen()) {
-//                try {
-//                    executeSimpleCommand("LOGOUT");
-//                } catch (Exception e) {
-//
-//                }
-//            }
             if (mTransport != null) {
                 mTransport.close();
                 mTransport = null;
@@ -1529,7 +1515,7 @@ public class ImapStore extends Store {
         }
     }
 
-    class ImapMessage extends MimeMessage {
+    static class ImapMessage extends MimeMessage {
         ImapMessage(String uid, Folder folder) throws MessagingException {
             this.mUid = uid;
             this.mFolder = folder;
@@ -1555,17 +1541,7 @@ public class ImapStore extends Store {
         }
     }
 
-    class ImapBodyPart extends MimeBodyPart {
-        public ImapBodyPart() throws MessagingException {
-            super();
-        }
-
-//        public void setSize(int size) {
-//            this.mSize = size;
-//        }
-    }
-
-    class ImapException extends MessagingException {
+    static class ImapException extends MessagingException {
         String mAlertText;
 
         public ImapException(String message, String alertText, Throwable throwable) {
