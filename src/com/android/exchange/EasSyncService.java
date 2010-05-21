@@ -1982,43 +1982,44 @@ public class EasSyncService extends AbstractSyncService {
                 .start(Tags.SYNC_COLLECTION)
                 .data(Tags.SYNC_CLASS, className)
                 .data(Tags.SYNC_SYNC_KEY, syncKey)
-                .data(Tags.SYNC_COLLECTION_ID, mailbox.mServerId)
-                .tag(Tags.SYNC_DELETES_AS_MOVES);
+                .data(Tags.SYNC_COLLECTION_ID, mailbox.mServerId);
 
             // Start with the default timeout
             int timeout = COMMAND_TIMEOUT;
             if (!syncKey.equals("0")) {
-                // EAS doesn't like GetChanges if the syncKey is "0"; not documented
+                // EAS doesn't allow GetChanges in an initial sync; sending other options
+                // appears to cause the server to delay its response in some cases, and this delay
+                // can be long enough to result in an IOException and total failure to sync.
+                // Therefore, we don't send any options with the initial sync.
+                s.tag(Tags.SYNC_DELETES_AS_MOVES);
                 s.tag(Tags.SYNC_GET_CHANGES);
+                s.data(Tags.SYNC_WINDOW_SIZE,
+                        className.equals("Email") ? EMAIL_WINDOW_SIZE : PIM_WINDOW_SIZE);
+                // Handle options
+                s.start(Tags.SYNC_OPTIONS);
+                // Set the lookback appropriately (EAS calls this a "filter") for all but Contacts
+                if (className.equals("Email")) {
+                    s.data(Tags.SYNC_FILTER_TYPE, getEmailFilter());
+                } else if (className.equals("Calendar")) {
+                    // TODO Force two weeks for calendar until we can set this!
+                    s.data(Tags.SYNC_FILTER_TYPE, Eas.FILTER_2_WEEKS);
+                }
+                // Set the truncation amount for all classes
+                if (mProtocolVersionDouble >= Eas.SUPPORTED_PROTOCOL_EX2007_DOUBLE) {
+                    s.start(Tags.BASE_BODY_PREFERENCE)
+                    // HTML for email; plain text for everything else
+                    .data(Tags.BASE_TYPE, (className.equals("Email") ? Eas.BODY_PREFERENCE_HTML
+                            : Eas.BODY_PREFERENCE_TEXT))
+                            .data(Tags.BASE_TRUNCATION_SIZE, Eas.EAS12_TRUNCATION_SIZE)
+                            .end();
+                } else {
+                    s.data(Tags.SYNC_TRUNCATION, Eas.EAS2_5_TRUNCATION_SIZE);
+                }
+                s.end();
             } else {
                 // Use enormous timeout for initial sync, which empirically can take a while longer
                 timeout = 120*SECONDS;
             }
-            s.data(Tags.SYNC_WINDOW_SIZE,
-                    className.equals("Email") ? EMAIL_WINDOW_SIZE : PIM_WINDOW_SIZE);
-
-            // Handle options
-            s.start(Tags.SYNC_OPTIONS);
-            // Set the lookback appropriately (EAS calls this a "filter") for all but Contacts
-            if (className.equals("Email")) {
-                s.data(Tags.SYNC_FILTER_TYPE, getEmailFilter());
-            } else if (className.equals("Calendar")) {
-                // TODO Force two weeks for calendar until we can set this!
-                s.data(Tags.SYNC_FILTER_TYPE, Eas.FILTER_2_WEEKS);
-            }
-            // Set the truncation amount for all classes
-            if (mProtocolVersionDouble >= Eas.SUPPORTED_PROTOCOL_EX2007_DOUBLE) {
-                s.start(Tags.BASE_BODY_PREFERENCE)
-                    // HTML for email; plain text for everything else
-                    .data(Tags.BASE_TYPE, (className.equals("Email") ? Eas.BODY_PREFERENCE_HTML
-                        : Eas.BODY_PREFERENCE_TEXT))
-                    .data(Tags.BASE_TRUNCATION_SIZE, Eas.EAS12_TRUNCATION_SIZE)
-                    .end();
-            } else {
-                s.data(Tags.SYNC_TRUNCATION, Eas.EAS2_5_TRUNCATION_SIZE);
-            }
-            s.end();
-
             // Send our changes up to the server
             target.sendLocalChanges(s);
 
