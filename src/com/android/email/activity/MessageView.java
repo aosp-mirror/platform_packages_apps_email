@@ -19,6 +19,7 @@ package com.android.email.activity;
 import com.android.email.Controller;
 import com.android.email.Email;
 import com.android.email.R;
+import com.android.email.ControllerResultUiThreadWrapper;
 import com.android.email.Utility;
 import com.android.email.mail.Address;
 import com.android.email.mail.MeetingInfo;
@@ -156,9 +157,8 @@ public class MessageView extends Activity implements OnClickListener {
     private Drawable mFavoriteIconOn;
     private Drawable mFavoriteIconOff;
 
-    private MessageViewHandler mHandler;
     private Controller mController;
-    private ControllerResults mControllerCallback;
+    private Controller.Result mControllerCallback;
 
     private View mMoveToNewer;
     private View mMoveToOlder;
@@ -176,136 +176,7 @@ public class MessageView extends Activity implements OnClickListener {
     // this is true when reply & forward are disabled, such as messages in the trash
     private boolean mDisableReplyAndForward;
 
-    private class MessageViewHandler extends Handler {
-        private static final int MSG_PROGRESS = 1;
-        private static final int MSG_ATTACHMENT_PROGRESS = 2;
-        private static final int MSG_LOAD_CONTENT_URI = 3;
-        private static final int MSG_SET_ATTACHMENTS_ENABLED = 4;
-        private static final int MSG_LOAD_BODY_ERROR = 5;
-        private static final int MSG_NETWORK_ERROR = 6;
-        private static final int MSG_FETCHING_ATTACHMENT = 10;
-        private static final int MSG_VIEW_ATTACHMENT_ERROR = 12;
-        private static final int MSG_UPDATE_ATTACHMENT_ICON = 18;
-        private static final int MSG_FINISH_LOAD_ATTACHMENT = 19;
-
-        @Override
-        public void handleMessage(android.os.Message msg) {
-            switch (msg.what) {
-                case MSG_PROGRESS:
-                    setProgressBarIndeterminateVisibility(msg.arg1 != 0);
-                    break;
-                case MSG_ATTACHMENT_PROGRESS:
-                    boolean progress = (msg.arg1 != 0);
-                    if (progress) {
-                        mProgressDialog.setMessage(
-                                getString(R.string.message_view_fetching_attachment_progress,
-                                        mLoadAttachmentName));
-                        mProgressDialog.show();
-                    } else {
-                        mProgressDialog.dismiss();
-                    }
-                    setProgressBarIndeterminateVisibility(progress);
-                    break;
-                case MSG_LOAD_CONTENT_URI:
-                    String uriString = (String) msg.obj;
-                    if (mMessageContentView != null) {
-                        mMessageContentView.loadUrl(uriString);
-                    }
-                    break;
-                case MSG_SET_ATTACHMENTS_ENABLED:
-                    for (int i = 0, count = mAttachments.getChildCount(); i < count; i++) {
-                        AttachmentInfo attachment =
-                            (AttachmentInfo) mAttachments.getChildAt(i).getTag();
-                        attachment.viewButton.setEnabled(msg.arg1 == 1);
-                        attachment.downloadButton.setEnabled(msg.arg1 == 1);
-                    }
-                    break;
-                case MSG_LOAD_BODY_ERROR:
-                    Toast.makeText(MessageView.this,
-                            R.string.error_loading_message_body, Toast.LENGTH_LONG).show();
-                    break;
-                case MSG_NETWORK_ERROR:
-                    Toast.makeText(MessageView.this,
-                            R.string.status_network_error, Toast.LENGTH_LONG).show();
-                    break;
-                case MSG_FETCHING_ATTACHMENT:
-                    Toast.makeText(MessageView.this,
-                            getString(R.string.message_view_fetching_attachment_toast),
-                            Toast.LENGTH_SHORT).show();
-                    break;
-                case MSG_VIEW_ATTACHMENT_ERROR:
-                    Toast.makeText(MessageView.this,
-                            getString(R.string.message_view_display_attachment_toast),
-                            Toast.LENGTH_SHORT).show();
-                    break;
-                case MSG_UPDATE_ATTACHMENT_ICON:
-                    ((AttachmentInfo) mAttachments.getChildAt(msg.arg1).getTag())
-                        .iconView.setImageBitmap((Bitmap) msg.obj);
-                    break;
-                case MSG_FINISH_LOAD_ATTACHMENT:
-                    long attachmentId = (Long)msg.obj;
-                    doFinishLoadAttachment(attachmentId);
-                    break;
-                default:
-                    super.handleMessage(msg);
-            }
-        }
-
-        public void attachmentProgress(boolean progress) {
-            android.os.Message msg = android.os.Message.obtain(this, MSG_ATTACHMENT_PROGRESS);
-            msg.arg1 = progress ? 1 : 0;
-            sendMessage(msg);
-        }
-
-        public void progress(boolean progress) {
-            android.os.Message msg = android.os.Message.obtain(this, MSG_PROGRESS);
-            msg.arg1 = progress ? 1 : 0;
-            sendMessage(msg);
-        }
-
-        public void loadContentUri(String uriString) {
-            android.os.Message msg = android.os.Message.obtain(this, MSG_LOAD_CONTENT_URI);
-            msg.obj = uriString;
-            sendMessage(msg);
-        }
-
-        public void setAttachmentsEnabled(boolean enabled) {
-            android.os.Message msg = android.os.Message.obtain(this, MSG_SET_ATTACHMENTS_ENABLED);
-            msg.arg1 = enabled ? 1 : 0;
-            sendMessage(msg);
-        }
-
-        public void loadBodyError() {
-            sendEmptyMessage(MSG_LOAD_BODY_ERROR);
-        }
-
-        public void networkError() {
-            sendEmptyMessage(MSG_NETWORK_ERROR);
-        }
-
-        public void fetchingAttachment() {
-            sendEmptyMessage(MSG_FETCHING_ATTACHMENT);
-        }
-
-        public void attachmentViewError() {
-            sendEmptyMessage(MSG_VIEW_ATTACHMENT_ERROR);
-        }
-
-        public void updateAttachmentIcon(int pos, Bitmap icon) {
-            android.os.Message msg = android.os.Message.obtain(this, MSG_UPDATE_ATTACHMENT_ICON);
-            msg.arg1 = pos;
-            msg.obj = icon;
-            sendMessage(msg);
-        }
-
-        public void finishLoadAttachment(long attachmentId) {
-            android.os.Message msg = android.os.Message.obtain(this, MSG_FINISH_LOAD_ATTACHMENT);
-            msg.obj = Long.valueOf(attachmentId);
-            sendMessage(msg);
-        }
-    }
-
-    /**
+   /**
      * Encapsulates known information about a single attachment.
      */
     private static class AttachmentInfo {
@@ -346,8 +217,7 @@ public class MessageView extends Activity implements OnClickListener {
         super.onCreate(icicle);
         setContentView(R.layout.message_view);
 
-        mHandler = new MessageViewHandler();
-        mControllerCallback = new ControllerResults();
+        mControllerCallback = new ControllerResultUiThreadWrapper(this, new ControllerResults());
 
         mSubjectView = (TextView) findViewById(R.id.subject);
         mFromView = (TextView) findViewById(R.id.from);
@@ -408,8 +278,14 @@ public class MessageView extends Activity implements OnClickListener {
 
         mController = Controller.getInstance(getApplication());
 
-        // This observer is used to watch for external changes to the message list
-        mCursorObserver = new ContentObserver(mHandler){
+        // Set up ContentObserver.
+        // This observer is used to watch for external changes to the message list.
+
+        // Pass a Handler so that onChange() gets called back in the UI thread.
+        // (All we want to do here is to run an AsyncTask, so it could run on a bg thread, but doing
+        // so would require synchronization to protect mLoadMessageListTask.  Let's just do it on
+        // the UI thread to keep it simple.)
+        mCursorObserver = new ContentObserver(new Handler()){
                 @Override
                 public void onChange(boolean selfChange) {
                     // get a new message list cursor, but only if we already had one
@@ -504,11 +380,8 @@ public class MessageView extends Activity implements OnClickListener {
     public void onDestroy() {
         super.onDestroy();
         cancelAllTasks();
-        // This is synchronized because the listener accesses mMessageContentView from its thread
-        synchronized (this) {
-            mMessageContentView.destroy();
-            mMessageContentView = null;
-        }
+        mMessageContentView.destroy();
+        mMessageContentView = null;
         // the cursor was closed in onPause()
     }
 
@@ -988,7 +861,7 @@ public class MessageView extends Activity implements OnClickListener {
             if (attachment.attachmentId == attachmentId) {
                 Bitmap previewIcon = getPreviewIcon(attachment);
                 if (previewIcon != null) {
-                    mHandler.updateAttachmentIcon(i, previewIcon);
+                    attachment.iconView.setImageBitmap(previewIcon);
                 }
                 return;
             }
@@ -1231,6 +1104,7 @@ public class MessageView extends Activity implements OnClickListener {
     private class LoadBodyTask extends AsyncTask<Void, Void, String[]> {
 
         private long mId;
+        private boolean mErrorLoadingMessageBody;
 
         /**
          * Special constructor to cache some local info
@@ -1252,7 +1126,7 @@ public class MessageView extends Activity implements OnClickListener {
                 // This catches SQLiteException as well as other RTE's we've seen from the
                 // database calls, such as IllegalStateException
                 Log.d(Email.LOG_TAG, "Exception while loading message body: " + re.toString());
-                mHandler.loadBodyError();
+                mErrorLoadingMessageBody = true;
                 return new String[] { null, null };
             }
         }
@@ -1260,6 +1134,9 @@ public class MessageView extends Activity implements OnClickListener {
         @Override
         protected void onPostExecute(String[] results) {
             if (results == null) {
+                if (mErrorLoadingMessageBody) {
+                    Utility.showToast(MessageView.this, R.string.error_loading_message_body);
+                }
                 return;
             }
             reloadUiFromBody(results[0], results[1]);    // text, html
@@ -1434,7 +1311,8 @@ public class MessageView extends Activity implements OnClickListener {
     }
 
     /**
-     * Controller results listener.  This completely replaces MessagingListener
+     * Controller results listener.  We wrap it with {@link ControllerResultUiThreadWrapper},
+     * so all methods are called on the UI thread.
      */
     private class ControllerResults implements Controller.Result {
 
@@ -1448,12 +1326,12 @@ public class MessageView extends Activity implements OnClickListener {
             if (result == null) {
                 switch (progress) {
                     case 0:
-                        mHandler.progress(true);
-                        mHandler.loadContentUri("file:///android_asset/loading.html");
+                        setProgressBarIndeterminateVisibility(true);
+                        loadBodyContent("file:///android_asset/loading.html");
                         break;
                     case 100:
                         mWaitForLoadMessageId = -1;
-                        mHandler.progress(false);
+                        setProgressBarIndeterminateVisibility(false);
                         // reload UI and reload everything else too
                         // pass false to LoadMessageTask to prevent looping here
                         cancelAllTasks();
@@ -1466,9 +1344,15 @@ public class MessageView extends Activity implements OnClickListener {
                 }
             } else {
                 mWaitForLoadMessageId = -1;
-                mHandler.progress(false);
-                mHandler.networkError();
-                mHandler.loadContentUri("file:///android_asset/empty.html");
+                setProgressBarIndeterminateVisibility(false);
+                Utility.showToast(MessageView.this, R.string.status_network_error);
+                loadBodyContent("file:///android_asset/empty.html");
+            }
+        }
+
+        private void loadBodyContent(String uri) {
+            if (mMessageContentView != null) {
+                mMessageContentView.loadUrl(uri);
             }
         }
 
@@ -1478,26 +1362,47 @@ public class MessageView extends Activity implements OnClickListener {
                 if (result == null) {
                     switch (progress) {
                         case 0:
-                            mHandler.setAttachmentsEnabled(false);
-                            mHandler.attachmentProgress(true);
-                            mHandler.fetchingAttachment();
+                            enableAttachments(false);
+                            showFetchingAttachmentProgress(true);
+                            Utility.showToast(MessageView.this,
+                                    R.string.message_view_fetching_attachment_toast);
                             break;
                         case 100:
-                            mHandler.setAttachmentsEnabled(true);
-                            mHandler.attachmentProgress(false);
+                            enableAttachments(true);
+                            showFetchingAttachmentProgress(false);
                             updateAttachmentThumbnail(attachmentId);
-                            mHandler.finishLoadAttachment(attachmentId);
+                            doFinishLoadAttachment(attachmentId);
                             break;
                         default:
                             // do nothing - we don't have a progress bar at this time
                             break;
                     }
                 } else {
-                    mHandler.setAttachmentsEnabled(true);
-                    mHandler.attachmentProgress(false);
-                    mHandler.networkError();
+                    enableAttachments(true);
+                    showFetchingAttachmentProgress(false);
+                    Utility.showToast(MessageView.this, R.string.status_network_error);
                 }
             }
+        }
+
+        private void enableAttachments(boolean enable) {
+            for (int i = 0, count = mAttachments.getChildCount(); i < count; i++) {
+                AttachmentInfo attachment = (AttachmentInfo) mAttachments.getChildAt(i).getTag();
+                attachment.viewButton.setEnabled(enable);
+                attachment.downloadButton.setEnabled(enable);
+            }
+        }
+
+        private void showFetchingAttachmentProgress(boolean show) {
+            if (show) {
+                mProgressDialog.setMessage(
+                        getString(R.string.message_view_fetching_attachment_progress,
+                                mLoadAttachmentName));
+                mProgressDialog.show();
+            } else {
+                mProgressDialog.dismiss();
+            }
+            setProgressBarIndeterminateVisibility(show);
         }
 
         public void updateMailboxCallback(MessagingException result, long accountId,
@@ -1635,7 +1540,7 @@ public class MessageView extends Activity implements OnClickListener {
                         getString(R.string.message_view_status_attachment_saved), file.getName()),
                         Toast.LENGTH_LONG).show();
 
-                new MediaScannerNotifier(this, file, mHandler);
+                new MediaScannerNotifier(this, file);
             } catch (IOException ioe) {
                 Toast.makeText(MessageView.this,
                         getString(R.string.message_view_status_attachment_not_saved),
@@ -1649,7 +1554,7 @@ public class MessageView extends Activity implements OnClickListener {
                                 | Intent.FLAG_ACTIVITY_CLEAR_WHEN_TASK_RESET);
                 startActivity(intent);
             } catch (ActivityNotFoundException e) {
-                mHandler.attachmentViewError();
+                Utility.showToast(this, R.string.message_view_display_attachment_toast);
                 // TODO: Add a proper warning message (and lots of upstream cleanup to prevent
                 // it from happening) in the next release.
             }
@@ -1662,16 +1567,14 @@ public class MessageView extends Activity implements OnClickListener {
      * to start an ACTION_VIEW activity for the attachment.
     */
     private static class MediaScannerNotifier implements MediaScannerConnectionClient {
-        private Context mContext;
+        private Activity mActivity;
         private MediaScannerConnection mConnection;
         private File mFile;
-        private MessageViewHandler mHandler;
 
-        public MediaScannerNotifier(Context context, File file, MessageViewHandler handler) {
-            mContext = context;
+        public MediaScannerNotifier(Activity activity, File file) {
+            mActivity = activity;
             mFile = file;
-            mHandler = handler;
-            mConnection = new MediaScannerConnection(context, this);
+            mConnection = new MediaScannerConnection(mActivity.getApplicationContext(), this);
             mConnection.connect();
         }
 
@@ -1684,16 +1587,15 @@ public class MessageView extends Activity implements OnClickListener {
                 if (uri != null) {
                     Intent intent = new Intent(Intent.ACTION_VIEW);
                     intent.setData(uri);
-                    mContext.startActivity(intent);
+                    mActivity.startActivity(intent);
                 }
             } catch (ActivityNotFoundException e) {
-                mHandler.attachmentViewError();
+                Utility.showToast(mActivity, R.string.message_view_display_attachment_toast);
                 // TODO: Add a proper warning message (and lots of upstream cleanup to prevent
                 // it from happening) in the next release.
             } finally {
                 mConnection.disconnect();
-                mContext = null;
-                mHandler = null;
+                mActivity = null;
             }
         }
     }

@@ -26,6 +26,7 @@ import com.android.email.provider.EmailContent.MailboxColumns;
 import com.android.email.provider.EmailContent.Message;
 import com.android.email.provider.EmailContent.MessageColumns;
 
+import android.app.Activity;
 import android.content.ContentResolver;
 import android.content.Context;
 import android.content.res.TypedArray;
@@ -39,6 +40,7 @@ import android.text.TextUtils;
 import android.util.Base64;
 import android.util.Log;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import java.io.ByteArrayInputStream;
 import java.io.IOException;
@@ -614,5 +616,20 @@ public class Utility {
 
     public static ByteArrayInputStream streamFromAsciiString(String ascii) {
         return new ByteArrayInputStream(toAscii(ascii));
+    }
+
+    /**
+     * A thread safe way to show a Toast.  This method uses {@link Activity#runOnUiThread}, so it
+     * can be called on any thread.
+     *
+     * @param activity Parent activity.
+     * @param resId Resource ID of the message string.
+     */
+    public static void showToast(final Activity activity, final int resId) {
+        activity.runOnUiThread(new Runnable() {
+            public void run() {
+                Toast.makeText(activity, resId, Toast.LENGTH_LONG).show();
+            }
+        });
     }
 }
