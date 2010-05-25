@@ -114,6 +114,8 @@ public class CalendarUtilities {
     // TZI string cache; we keep around our encoded TimeZoneInformation strings
     private static HashMap<TimeZone, String> sTziStringCache = new HashMap<TimeZone, String>();
 
+    private static final TimeZone UTC_TIMEZONE = TimeZone.getTimeZone("UTC");
+
     // There is no type 4 (thus, the "")
     static final String[] sTypeToFreq =
         new String[] {"DAILY", "WEEKLY", "MONTHLY", "MONTHLY", "", "YEARLY", "YEARLY"};
@@ -740,10 +742,9 @@ public class CalendarUtilities {
                 // In this case, there is no daylight savings time, so the only interesting data
                 // is the offset, and we know that all of the zoneId's match; we'll take the first
                 timeZone = TimeZone.getTimeZone(zoneIds[0]);
-                String dn = timeZone.getDisplayName();
-                sTimeZoneCache.put(timeZoneString, timeZone);
                 if (Eas.USER_LOG) {
-                    SyncManager.log(TAG, "TimeZone without DST found by offset: " + dn);
+                    SyncManager.log(TAG, "TimeZone without DST found by offset: " +
+                            timeZone.getDisplayName());
                 }
                 return timeZone;
             } else {
@@ -785,6 +786,14 @@ public class CalendarUtilities {
                     if (dstSavings != timeZone.getDSTSavings()) continue;
                     return timeZone;
                 }
+                // In this case, there is no daylight savings time, so the only interesting data
+                // is the offset, and we know that all of the zoneId's match; we'll take the first
+                timeZone = TimeZone.getTimeZone(zoneIds[0]);
+                if (Eas.USER_LOG) {
+                    SyncManager.log(TAG, "No TimeZone with correct DST settings; using first: " +
+                            timeZone.getDisplayName());
+                }
+                return timeZone;
             }
         }
         return null;
@@ -894,23 +903,33 @@ public class CalendarUtilities {
     }
 
     /**
-     * Create a GregorianCalendar representing the year, month, and day for the given time in
-     * milliseconds and the local time zone.  Hours, minutes, and seconds will be set to zero
-     * @param time the time in millis
-     * @param timeZone the time zone to be used
-     * @return a GregorianCalendar with the data required for an all-day event
+     * Returns a UTC calendar with year/month/day from local calendar and h/m/s/ms = 0
+     * @param time the time in seconds of an all-day event in local time
+     * @return the time in seconds in UTC
      */
-    static public GregorianCalendar getAllDayCalendar(long time, TimeZone timeZone) {
-        // Calendar gives us times in GMT
-        GregorianCalendar calendar = new GregorianCalendar(TimeZone.getTimeZone("GMT"));
-        calendar.setTimeInMillis(time);
-        // But we must send back to EAS in the event's time zone
-        GregorianCalendar allDayCalendar = new GregorianCalendar(timeZone);
+    static public long getUtcAllDayCalendarTime(long time, TimeZone localTimeZone) {
+        return transposeAllDayTime(time, localTimeZone, UTC_TIMEZONE);
+    }
+
+    /**
+     * Returns a local calendar with year/month/day from UTC calendar and h/m/s/ms = 0
+     * @param time the time in seconds of an all-day event in UTC
+     * @return the time in seconds in local time
+     */
+    static public long getLocalAllDayCalendarTime(long time, TimeZone localTimeZone) {
+        return transposeAllDayTime(time, UTC_TIMEZONE, localTimeZone);
+    }
+
+    static private long transposeAllDayTime(long time, TimeZone fromTimeZone,
+            TimeZone toTimeZone) {
+        GregorianCalendar fromCalendar = new GregorianCalendar(fromTimeZone);
+        fromCalendar.setTimeInMillis(time);
+        GregorianCalendar toCalendar = new GregorianCalendar(toTimeZone);
         // Set this calendar with correct year, month, and day, but zero hour, minute, and seconds
-        allDayCalendar.set(calendar.get(GregorianCalendar.YEAR),
-                calendar.get(GregorianCalendar.MONTH),
-                calendar.get(GregorianCalendar.DATE), 0, 0, 0);
-        return allDayCalendar;
+        toCalendar.set(fromCalendar.get(GregorianCalendar.YEAR),
+                fromCalendar.get(GregorianCalendar.MONTH),
+                fromCalendar.get(GregorianCalendar.DATE), 0, 0, 0);
+        return toCalendar.getTimeInMillis();
     }
 
     static void addByDay(StringBuilder rrule, int dow, int wom) {

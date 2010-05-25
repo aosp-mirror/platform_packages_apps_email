@@ -84,6 +84,13 @@ public class CalendarUtilitiesTests extends AndroidTestCase {
         "AAAAAAAAAAoAAAAFAAMAAAAAAAAAAAAAAFIAdQBzAHMAaQBhAG4AIABEAGEAeQBsAGkAZwBoAHQAIABUAGkA" +
         "bQBlAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAMAAAAFAAIAAAAAAAAAxP///w==";
 
+    // Test a timezone with GMT bias but bogus DST parameters (there is no equivalent time zone
+    // in the database)
+    private static final String GMT_UNKNOWN_DAYLIGHT_TIME =
+        "AAAAACgARwBNAFQAKwAwADAAOgAwADAAKQAgAFQAaQBtAGUAIABaAG8AbgBlAAAAAAAAAAAAAAAAAAAAAAAA" +
+        "AAAAAAAAAAEAAAABAAAAAAAAAAAAAAAAACgARwBNAFQAKwAwADAAOgAwADAAKQAgAFQAaQBtAGUAIABaAG8A" +
+        "bgBlAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAoAAAAFAAEAAAAAAAAAxP///w==";
+
     private static final String ORGANIZER = "organizer@server.com";
     private static final String ATTENDEE = "attendee@server.com";
 
@@ -115,6 +122,9 @@ public class CalendarUtilitiesTests extends AndroidTestCase {
         assertEquals("Australia/ACT", tz.getID());
         tz = CalendarUtilities.tziStringToTimeZone(EUROPE_MOSCOW_TIME);
         assertEquals("Europe/Moscow", tz.getID());
+        tz = CalendarUtilities.tziStringToTimeZone(GMT_UNKNOWN_DAYLIGHT_TIME);
+        int bias = tz.getOffset(System.currentTimeMillis());
+        assertEquals(0, bias);
     }
 
     public void testGenerateEasDayOfWeek() {
@@ -819,6 +829,58 @@ public class CalendarUtilitiesTests extends AndroidTestCase {
         assertEquals(CalendarUtilities.BUSY_STATUS_BUSY,
                 CalendarUtilities.busyStatusFromAttendeeStatus(
                         Attendees.ATTENDEE_STATUS_ACCEPTED));
+    }
+
+    public void testGetUtcAllDayCalendarTime() {
+        GregorianCalendar correctUtc = new GregorianCalendar(TimeZone.getTimeZone("UTC"));
+        correctUtc.set(2011, 2, 10, 0, 0, 0);
+        long correctUtcTime = correctUtc.getTimeInMillis();
+
+        TimeZone localTimeZone = TimeZone.getTimeZone("GMT-0700");
+        GregorianCalendar localCalendar = new GregorianCalendar(localTimeZone);
+        localCalendar.set(2011, 2, 10, 12, 23, 34);
+        long localTimeMillis = localCalendar.getTimeInMillis();
+        long convertedUtcTime =
+            CalendarUtilities.getUtcAllDayCalendarTime(localTimeMillis, localTimeZone);
+        // Milliseconds aren't zeroed out and may not be the same
+        assertEquals(convertedUtcTime/1000, correctUtcTime/1000);
+
+        localTimeZone = TimeZone.getTimeZone("GMT+0700");
+        localCalendar = new GregorianCalendar(localTimeZone);
+        localCalendar.set(2011, 2, 10, 12, 23, 34);
+        localTimeMillis = localCalendar.getTimeInMillis();
+        convertedUtcTime =
+            CalendarUtilities.getUtcAllDayCalendarTime(localTimeMillis, localTimeZone);
+        assertEquals(convertedUtcTime/1000, correctUtcTime/1000);
+    }
+
+    public void testGetLocalAllDayCalendarTime() {
+        TimeZone utcTimeZone = TimeZone.getTimeZone("UTC");
+        TimeZone localTimeZone = TimeZone.getTimeZone("GMT-0700");
+        GregorianCalendar correctLocal = new GregorianCalendar(localTimeZone);
+        correctLocal.set(2011, 2, 10, 0, 0, 0);
+        long correctLocalTime = correctLocal.getTimeInMillis();
+
+        GregorianCalendar utcCalendar = new GregorianCalendar(utcTimeZone);
+        utcCalendar.set(2011, 2, 10, 12, 23, 34);
+        long utcTimeMillis = utcCalendar.getTimeInMillis();
+        long convertedLocalTime =
+            CalendarUtilities.getLocalAllDayCalendarTime(utcTimeMillis, localTimeZone);
+        // Milliseconds aren't zeroed out and may not be the same
+        assertEquals(convertedLocalTime/1000, correctLocalTime/1000);
+
+        localTimeZone = TimeZone.getTimeZone("GMT+0700");
+        correctLocal = new GregorianCalendar(localTimeZone);
+        correctLocal.set(2011, 2, 10, 0, 0, 0);
+        correctLocalTime = correctLocal.getTimeInMillis();
+
+        utcCalendar = new GregorianCalendar(utcTimeZone);
+        utcCalendar.set(2011, 2, 10, 12, 23, 34);
+        utcTimeMillis = utcCalendar.getTimeInMillis();
+        convertedLocalTime =
+            CalendarUtilities.getLocalAllDayCalendarTime(utcTimeMillis, localTimeZone);
+        // Milliseconds aren't zeroed out and may not be the same
+        assertEquals(convertedLocalTime/1000, correctLocalTime/1000);
     }
 }
 
