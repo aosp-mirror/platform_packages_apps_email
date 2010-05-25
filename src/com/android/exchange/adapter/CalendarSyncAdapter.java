@@ -131,7 +131,7 @@ public class CalendarSyncAdapter extends AbstractSyncAdapter {
     private final TimeZone mLocalTimeZone = TimeZone.getDefault();
 
     // Change this to use the constant in Calendar, when that constant is defined
-    private static final String EVENT_TIMEZONE2_COLUMN = "eventTimeZone2";
+    private static final String EVENT_TIMEZONE2_COLUMN = "eventTimezone2";
 
     private long mCalendarId = -1;
     private String mCalendarIdString;
