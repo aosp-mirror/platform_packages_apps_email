@@ -128,6 +128,10 @@ public class CalendarSyncAdapter extends AbstractSyncAdapter {
     private static final Object sSyncKeyLock = new Object();
 
     private static final TimeZone UTC_TIMEZONE = TimeZone.getTimeZone("UTC");
+    private final TimeZone mLocalTimeZone = TimeZone.getDefault();
+
+    // Change this to use the constant in Calendar, when that constant is defined
+    private static final String EVENT_TIMEZONE2_COLUMN = "eventTimeZone2";
 
     private long mCalendarId = -1;
     private String mCalendarIdString;
@@ -313,17 +317,10 @@ public class CalendarSyncAdapter extends AbstractSyncAdapter {
 
             // If this is an all-day event, set hour, minute, and second to zero, and use UTC
             if (allDayEvent != 0) {
-                GregorianCalendar cal = new GregorianCalendar(UTC_TIMEZONE);
-                cal.setTimeInMillis(startTime);
-                cal.set(GregorianCalendar.HOUR_OF_DAY, 0);
-                cal.set(GregorianCalendar.MINUTE, 0);
-                cal.set(GregorianCalendar.SECOND, 0);
-                startTime = cal.getTimeInMillis();
-                cal.setTimeInMillis(endTime);
-                cal.set(GregorianCalendar.HOUR_OF_DAY, 0);
-                cal.set(GregorianCalendar.MINUTE, 0);
-                cal.set(GregorianCalendar.SECOND, 0);
-                endTime = cal.getTimeInMillis();
+                startTime = CalendarUtilities.getUtcAllDayCalendarTime(startTime, mLocalTimeZone);
+                endTime = CalendarUtilities.getUtcAllDayCalendarTime(endTime, mLocalTimeZone);
+                String originalTimeZone = cv.getAsString(Events.EVENT_TIMEZONE);
+                cv.put(EVENT_TIMEZONE2_COLUMN, originalTimeZone);
                 cv.put(Events.EVENT_TIMEZONE, UTC_TIMEZONE.getID());
             }
 
@@ -381,6 +378,7 @@ public class CalendarSyncAdapter extends AbstractSyncAdapter {
             long eventId = -1;
             long startTime = -1;
             long endTime = -1;
+            TimeZone timeZone = null;
 
             // Keep track of the attendees; exceptions will need them
             ArrayList<ContentValues> attendeeValues = new ArrayList<ContentValues>();
@@ -434,6 +432,18 @@ public class CalendarSyncAdapter extends AbstractSyncAdapter {
                 switch (tag) {
                     case Tags.CALENDAR_ALL_DAY_EVENT:
                         allDayEvent = getValueInt();
+                        if (allDayEvent != 0 && timeZone != null) {
+                            // If the event doesn't start at midnight local time, we won't consider
+                            // this an all-day event in the local time zone (this is what OWA does)
+                            GregorianCalendar cal = new GregorianCalendar(mLocalTimeZone);
+                            cal.setTimeInMillis(startTime);
+                            userLog("All-day event arrived in: " + timeZone.getID());
+                            if (cal.get(GregorianCalendar.HOUR_OF_DAY) != 0 ||
+                                    cal.get(GregorianCalendar.MINUTE) != 0) {
+                                allDayEvent = 0;
+                                userLog("Not an all-day event locally: " + mLocalTimeZone.getID());
+                            }
+                        }
                         cv.put(Events.ALL_DAY, allDayEvent);
                         break;
                     case Tags.CALENDAR_ATTENDEES:
@@ -447,12 +457,11 @@ public class CalendarSyncAdapter extends AbstractSyncAdapter {
                         cv.put(Events.DESCRIPTION, getValue());
                         break;
                     case Tags.CALENDAR_TIME_ZONE:
-                        TimeZone tz = CalendarUtilities.tziStringToTimeZone(getValue());
-                        if (tz != null) {
-                            cv.put(Events.EVENT_TIMEZONE, tz.getID());
-                        } else {
-                            cv.put(Events.EVENT_TIMEZONE, TimeZone.getDefault().getID());
+                        timeZone = CalendarUtilities.tziStringToTimeZone(getValue());
+                        if (timeZone == null) {
+                            timeZone = mLocalTimeZone;
                         }
+                        cv.put(Events.EVENT_TIMEZONE, timeZone.getID());
                         break;
                     case Tags.CALENDAR_START_TIME:
                         startTime = Utility.parseDateTimeToMillis(getValue());
@@ -1334,10 +1343,19 @@ public class CalendarSyncAdapter extends AbstractSyncAdapter {
         boolean isChange = entityValues.containsKey(Events._SYNC_ID);
         Double version = mService.mProtocolVersionDouble;
 
+        boolean allDay = false;
+        if (entityValues.containsKey(Events.ALL_DAY)) {
+            Integer ade = entityValues.getAsInteger(Events.ALL_DAY);
+            if (ade != null && ade != 0) {
+                allDay = true;
+            }
+        }
+
         // Get the event's time zone
-        String timeZoneName = entityValues.getAsString(Events.EVENT_TIMEZONE);
+        String timeZoneName =
+            entityValues.getAsString(allDay ? EVENT_TIMEZONE2_COLUMN : Events.EVENT_TIMEZONE);
         if (timeZoneName == null) {
-            timeZoneName = TimeZone.getDefault().getID();
+            timeZoneName = mLocalTimeZone.getID();
         }
         TimeZone eventTimeZone = TimeZone.getTimeZone(timeZoneName);
 
@@ -1348,14 +1366,7 @@ public class CalendarSyncAdapter extends AbstractSyncAdapter {
             s.data(Tags.CALENDAR_TIME_ZONE, timeZone);
         }
 
-        boolean allDay = false;
-        if (entityValues.containsKey(Events.ALL_DAY)) {
-            Integer ade = entityValues.getAsInteger(Events.ALL_DAY);
-            if (ade != null && ade != 0) {
-                allDay = true;
-            }
-            s.data(Tags.CALENDAR_ALL_DAY_EVENT, ade.toString());
-        }
+        s.data(Tags.CALENDAR_ALL_DAY_EVENT, allDay ? "1" : "0");
 
         // DTSTART is always supplied
         long startTime = entityValues.getAsLong(Events.DTSTART);
@@ -1370,6 +1381,7 @@ public class CalendarSyncAdapter extends AbstractSyncAdapter {
                 Duration duration = new Duration();
                 try {
                     duration.parse(entityValues.getAsString(Events.DURATION));
+                    durationMillis = duration.getMillis();
                 } catch (ParseException e) {
                     // Can't do much about this; use the default (1 hour)
                 }
@@ -1377,9 +1389,9 @@ public class CalendarSyncAdapter extends AbstractSyncAdapter {
             endTime = startTime + durationMillis;
         }
         if (allDay) {
-            TimeZone tz = TimeZone.getDefault();
-            startTime = CalendarUtilities.getAllDayCalendar(startTime, tz).getTimeInMillis();
-            endTime = CalendarUtilities.getAllDayCalendar(endTime, tz).getTimeInMillis();
+            TimeZone tz = mLocalTimeZone;
+            startTime = CalendarUtilities.getLocalAllDayCalendarTime(startTime, tz);
+            endTime = CalendarUtilities.getLocalAllDayCalendarTime(endTime, tz);
         }
         s.data(Tags.CALENDAR_START_TIME, CalendarUtilities.millisToEasDateTime(startTime));
         s.data(Tags.CALENDAR_END_TIME, CalendarUtilities.millisToEasDateTime(endTime));
