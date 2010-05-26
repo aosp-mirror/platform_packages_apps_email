@@ -115,6 +115,10 @@ public class CalendarSyncAdapter extends AbstractSyncAdapter {
     private static final String EXTENDED_PROPERTY_DTSTAMP = "dtstamp";
     private static final String EXTENDED_PROPERTY_MEETING_STATUS = "meeting_status";
     private static final String EXTENDED_PROPERTY_CATEGORIES = "categories";
+    // Used to indicate that we removed the attendee list because it was too large
+    private static final String EXTENDED_PROPERTY_ATTENDEES_REDACTED = "attendeesRedacted";
+    // Used to indicate that upsyncs aren't allowed (we catch this in sendLocalChanges)
+    private static final String EXTENDED_PROPERTY_UPSYNC_PROHIBITED = "upsyncProhibited";
 
     private static final ContentProviderOperation PLACEHOLDER_OPERATION =
         ContentProviderOperation.newInsert(Uri.EMPTY).build();
@@ -132,6 +136,14 @@ public class CalendarSyncAdapter extends AbstractSyncAdapter {
 
     // Change this to use the constant in Calendar, when that constant is defined
     private static final String EVENT_TIMEZONE2_COLUMN = "eventTimezone2";
+
+    // Maximum number of allowed attendees; above this number, we mark the Event with the
+    // attendeesRedacted extended property and don't allow the event to be upsynced to the server
+    private static final int MAX_ATTENDEES = 50;
+    // We set the organizer to this when the user is the organizer and we've redacted the
+    // attendee list.  By making the meeting organizer OTHER than the user, we cause the UI to
+    // prevent edits to this event (except local changes like reminder).
+    private static final String BOGUS_ORGANIZER_EMAIL = "upload_disallowed@uploadisdisallowed.aaa";
 
     private long mCalendarId = -1;
     private String mCalendarIdString;
@@ -540,17 +552,44 @@ public class CalendarSyncAdapter extends AbstractSyncAdapter {
                 addOrganizerToAttendees(ops, eventId, organizerName, organizerEmail);
             }
 
+            boolean selfOrganizer = (organizerEmail.equals(mEmailAddress));
+
             // Store email addresses of attendees (in a tokenizable string) in ExtendedProperties
             // If the user is an attendee, set the attendee status using busyStatus (note that the
             // busyStatus is inherited from the parent unless it's specified in the exception)
             // Add the insert/update operation for each attendee (based on whether it's add/change)
-            if (attendeeValues.size() > 0) {
+            int numAttendees = attendeeValues.size();
+            if (numAttendees > MAX_ATTENDEES) {
+                // Indicate that we've redacted attendees.  If we're the organizer, disable edit
+                // by setting organizerEmail to a bogus value and by setting the upsync prohibited
+                // extended properly.
+                // Note that we don't set ANY attendees if we're in this branch; however, the
+                // organizer has already been included above, and WILL show up (which is good)
+                if (eventId < 0) {
+                    ops.newExtendedProperty(EXTENDED_PROPERTY_ATTENDEES_REDACTED, "1");
+                    if (selfOrganizer) {
+                        ops.newExtendedProperty(EXTENDED_PROPERTY_UPSYNC_PROHIBITED, "1");
+                    }
+                } else {
+                    ops.updatedExtendedProperty(EXTENDED_PROPERTY_ATTENDEES_REDACTED, "1", eventId);
+                    if (selfOrganizer) {
+                        ops.updatedExtendedProperty(EXTENDED_PROPERTY_UPSYNC_PROHIBITED, "1",
+                                eventId);
+                    }
+                }
+                if (selfOrganizer) {
+                    organizerEmail = BOGUS_ORGANIZER_EMAIL;
+                }
+                // Tell UI that we don't have any attendees
+                cv.put(Events.HAS_ATTENDEE_DATA, "0");
+                mService.userLog("Maximum number of attendees exceeded; redacting");
+            } else if (numAttendees > 0) {
                 StringBuilder sb = new StringBuilder();
                 for (ContentValues attendee: attendeeValues) {
                     String attendeeEmail = attendee.getAsString(Attendees.ATTENDEE_EMAIL);
                     sb.append(attendeeEmail);
                     sb.append(ATTENDEE_TOKENIZER_DELIMITER);
-                    if (mEmailAddress.equalsIgnoreCase(attendeeEmail)) {
+                    if (selfOrganizer) {
                         int attendeeStatus =
                             CalendarUtilities.attendeeStatusFromBusyStatus(busyStatus);
                         attendee.put(Attendees.ATTENDEE_STATUS, attendeeStatus);
@@ -580,9 +619,13 @@ public class CalendarSyncAdapter extends AbstractSyncAdapter {
                 }
                 if (eventId < 0) {
                     ops.newExtendedProperty(EXTENDED_PROPERTY_ATTENDEES, sb.toString());
+                    ops.newExtendedProperty(EXTENDED_PROPERTY_ATTENDEES_REDACTED, "0");
+                    ops.newExtendedProperty(EXTENDED_PROPERTY_UPSYNC_PROHIBITED, "0");
                 } else {
                     ops.updatedExtendedProperty(EXTENDED_PROPERTY_ATTENDEES, sb.toString(),
                             eventId);
+                    ops.updatedExtendedProperty(EXTENDED_PROPERTY_ATTENDEES_REDACTED, "0", eventId);
+                    ops.updatedExtendedProperty(EXTENDED_PROPERTY_UPSYNC_PROHIBITED, "0", eventId);
                 }
             }
 
@@ -878,11 +921,21 @@ public class CalendarSyncAdapter extends AbstractSyncAdapter {
 
         private ArrayList<ContentValues> attendeesParser(CalendarOperations ops, long eventId)
                 throws IOException {
+            int attendeeCount = 0;
             ArrayList<ContentValues> attendeeValues = new ArrayList<ContentValues>();
             while (nextTag(Tags.CALENDAR_ATTENDEES) != END) {
                 switch (tag) {
                     case Tags.CALENDAR_ATTENDEE:
-                        attendeeValues.add(attendeeParser(ops, eventId));
+                        ContentValues cv = attendeeParser(ops, eventId);
+                        // If we're going to redact these attendees anyway, let's avoid unnecessary
+                        // memory pressure, and not keep them around
+                        // We still need to parse them all, however
+                        attendeeCount++;
+                        // Allow one more than MAX_ATTENDEES, so that the check for "too many" will
+                        // succeed in addEvent
+                        if (attendeeCount <= (MAX_ATTENDEES+1)) {
+                            attendeeValues.add(cv);
+                        }
                         break;
                     default:
                         skipTag();
@@ -1665,6 +1718,23 @@ public class CalendarSyncAdapter extends AbstractSyncAdapter {
                     // For each of these entities, create the change commands
                     ContentValues entityValues = entity.getEntityValues();
                     String serverId = entityValues.getAsString(Events._SYNC_ID);
+
+                    // We first need to check whether we can upsync this event; our test for this
+                    // is currently the value of EXTENDED_PROPERTY_ATTENDEES_REDACTED
+                    // If this is set to "1", we can't upsync the event
+                    for (NamedContentValues ncv: entity.getSubValues()) {
+                        if (ncv.uri.equals(ExtendedProperties.CONTENT_URI)) {
+                            ContentValues ncvValues = ncv.values;
+                            if (ncvValues.getAsString(ExtendedProperties.NAME).equals(
+                                    EXTENDED_PROPERTY_UPSYNC_PROHIBITED)) {
+                                if ("1".equals(ncvValues.getAsString(ExtendedProperties.VALUE))) {
+                                    // Make sure we mark this to clear the dirty flag
+                                    mUploadedIdList.add(entityValues.getAsLong(Events._ID));
+                                    continue;
+                                }
+                            }
+                        }
+                    }
 
                     // Find our uid in the entity; otherwise create one
                     String clientId = entityValues.getAsString(Events._SYNC_DATA);
