@@ -579,6 +579,7 @@ public class CalendarSyncAdapter extends AbstractSyncAdapter {
                 }
                 if (selfOrganizer) {
                     organizerEmail = BOGUS_ORGANIZER_EMAIL;
+                    cv.put(Events.ORGANIZER, organizerEmail);
                 }
                 // Tell UI that we don't have any attendees
                 cv.put(Events.HAS_ATTENDEE_DATA, "0");
