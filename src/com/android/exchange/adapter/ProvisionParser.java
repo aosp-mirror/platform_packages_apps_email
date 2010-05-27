@@ -56,7 +56,7 @@ public class ProvisionParser extends Parser {
         return mRemoteWipe;
     }
 
-    public void parseProvisionDocWbxml() throws IOException {
+    private void parseProvisionDocWbxml() throws IOException {
         int minPasswordLength = 0;
         int passwordMode = PolicySet.PASSWORD_MODE_NONE;
         int maxPasswordFails = 0;
@@ -64,6 +64,7 @@ public class ProvisionParser extends Parser {
         boolean canSupport = true;
 
         while (nextTag(Tags.PROVISION_EAS_PROVISION_DOC) != END) {
+            boolean supported = true;
             switch (tag) {
                 case Tags.PROVISION_DEVICE_PASSWORD_ENABLED:
                     if (getValueInt() == 1) {
@@ -92,10 +93,28 @@ public class ProvisionParser extends Parser {
                     // Hint: I haven't seen any that's more specific than "simple"
                     getValue();
                     break;
-                // The following policy, if false, can't be supported at the moment
+                // The following policies, if false, can't be supported at the moment
                 case Tags.PROVISION_ATTACHMENTS_ENABLED:
+                case Tags.PROVISION_ALLOW_STORAGE_CARD:
+                case Tags.PROVISION_ALLOW_CAMERA:
+                case Tags.PROVISION_ALLOW_UNSIGNED_APPLICATIONS:
+                case Tags.PROVISION_ALLOW_UNSIGNED_INSTALLATION_PACKAGES:
+                case Tags.PROVISION_ALLOW_WIFI:
+                case Tags.PROVISION_ALLOW_TEXT_MESSAGING:
+                case Tags.PROVISION_ALLOW_POP_IMAP_EMAIL:
+                case Tags.PROVISION_ALLOW_IRDA:
+                case Tags.PROVISION_ALLOW_HTML_EMAIL:
+                case Tags.PROVISION_ALLOW_BROWSER:
+                case Tags.PROVISION_ALLOW_CONSUMER_EMAIL:
+                case Tags.PROVISION_ALLOW_INTERNET_SHARING:
                     if (getValueInt() == 0) {
-                        canSupport = false;
+                        supported = false;
+                    }
+                    break;
+                // Bluetooth: 0 = no bluetooth; 1 = only hands-free; 2 = allowed
+                case Tags.PROVISION_ALLOW_BLUETOOTH:
+                    if (getValueInt() != 2) {
+                        supported = false;
                     }
                     break;
                 // The following policies, if true, can't be supported at the moment
@@ -103,13 +122,67 @@ public class ProvisionParser extends Parser {
                 case Tags.PROVISION_PASSWORD_RECOVERY_ENABLED:
                 case Tags.PROVISION_DEVICE_PASSWORD_EXPIRATION:
                 case Tags.PROVISION_DEVICE_PASSWORD_HISTORY:
-                case Tags.PROVISION_MAX_ATTACHMENT_SIZE:
+                case Tags.PROVISION_REQUIRE_DEVICE_ENCRYPTION:
+                case Tags.PROVISION_REQUIRE_SIGNED_SMIME_MESSAGES:
+                case Tags.PROVISION_REQUIRE_ENCRYPTED_SMIME_MESSAGES:
+                case Tags.PROVISION_REQUIRE_SIGNED_SMIME_ALGORITHM:
+                case Tags.PROVISION_REQUIRE_ENCRYPTION_SMIME_ALGORITHM:
+                case Tags.PROVISION_REQUIRE_MANUAL_SYNC_WHEN_ROAMING:
                     if (getValueInt() == 1) {
-                        canSupport = false;
+                        supported = false;
+                    }
+                    break;
+                // The following, if greater than zero, can't be supported at the moment
+                case Tags.PROVISION_MAX_ATTACHMENT_SIZE:
+                    if (getValueInt() > 0) {
+                        supported = false;
+                    }
+                    break;
+                // Complex character setting is only used if we're in "strong" (alphanumeric) mode
+                case Tags.PROVISION_MIN_DEVICE_PASSWORD_COMPLEX_CHARS:
+                    if ((passwordMode == PolicySet.PASSWORD_MODE_STRONG) && (getValueInt() > 0)) {
+                        supported = false;
+                    }
+                    break;
+                // The following policies are moot; they allow functionality that we don't support
+                case Tags.PROVISION_ALLOW_DESKTOP_SYNC:
+                case Tags.PROVISION_ALLOW_SMIME_ENCRYPTION_NEGOTIATION:
+                case Tags.PROVISION_ALLOW_SMIME_SOFT_CERTS:
+                case Tags.PROVISION_ALLOW_REMOTE_DESKTOP:
+                    skipTag();
+                    break;
+                // We don't handle approved/unapproved application lists
+                case Tags.PROVISION_UNAPPROVED_IN_ROM_APPLICATION_LIST:
+                case Tags.PROVISION_APPROVED_APPLICATION_LIST:
+                    // Parse and throw away the content
+                    if (specifiesApplications(tag)) {
+                        supported = false;
+                    }
+                    break;
+                // NOTE: We can support these entirely within the email application if we choose
+                case Tags.PROVISION_MAX_CALENDAR_AGE_FILTER:
+                case Tags.PROVISION_MAX_EMAIL_AGE_FILTER:
+                    // 0 indicates no specified filter
+                    if (getValueInt() != 0) {
+                        supported = false;
+                    }
+                    break;
+                // NOTE: We can support these entirely within the email application if we choose
+                case Tags.PROVISION_MAX_EMAIL_BODY_TRUNCATION_SIZE:
+                case Tags.PROVISION_MAX_EMAIL_HTML_BODY_TRUNCATION_SIZE:
+                    String value = getValue();
+                    // -1 indicates no required truncation
+                    if (!value.equals("-1")) {
+                        supported = false;
                     }
                     break;
                 default:
                     skipTag();
+            }
+
+            if (!supported) {
+                log("** Policy not supported");
+                canSupport = false;
             }
         }
 
@@ -119,6 +192,27 @@ public class ProvisionParser extends Parser {
         }
     }
 
+    /**
+     * Return whether or not either of the application list tags specifies any applications
+     * @param endTag the tag whose children we're walking through
+     * @return whether any applications were specified (by name or by hash)
+     * @throws IOException
+     */
+    private boolean specifiesApplications(int endTag) throws IOException {
+        boolean specifiesApplications = false;
+        while (nextTag(endTag) != END) {
+            switch (tag) {
+                case Tags.PROVISION_APPLICATION_NAME:
+                case Tags.PROVISION_HASH:
+                    specifiesApplications = true;
+                    break;
+                default:
+                    skipTag();
+            }
+        }
+        return specifiesApplications;
+    }
+
     class ShadowPolicySet {
         int mMinPasswordLength = 0;
         int mPasswordMode = PolicySet.PASSWORD_MODE_NONE;
@@ -126,7 +220,7 @@ public class ProvisionParser extends Parser {
         int mMaxScreenLockTime = 0;
     }
 
-    public void parseProvisionDocXml(String doc) throws IOException {
+    /*package*/ void parseProvisionDocXml(String doc) throws IOException {
         ShadowPolicySet sps = new ShadowPolicySet();
 
         try {
@@ -154,7 +248,7 @@ public class ProvisionParser extends Parser {
     /**
      * Return true if password is required; otherwise false.
      */
-    boolean parseSecurityPolicy(XmlPullParser parser, ShadowPolicySet sps)
+    private boolean parseSecurityPolicy(XmlPullParser parser, ShadowPolicySet sps)
             throws XmlPullParserException, IOException {
         boolean passwordRequired = true;
         while (true) {
@@ -177,7 +271,7 @@ public class ProvisionParser extends Parser {
         return passwordRequired;
     }
 
-    void parseCharacteristic(XmlPullParser parser, ShadowPolicySet sps)
+    private void parseCharacteristic(XmlPullParser parser, ShadowPolicySet sps)
             throws XmlPullParserException, IOException {
         boolean enforceInactivityTimer = true;
         while (true) {
@@ -219,7 +313,7 @@ public class ProvisionParser extends Parser {
         }
     }
 
-    void parseRegistry(XmlPullParser parser, ShadowPolicySet sps)
+    private void parseRegistry(XmlPullParser parser, ShadowPolicySet sps)
             throws XmlPullParserException, IOException {
       while (true) {
           int type = parser.nextTag();
@@ -234,7 +328,7 @@ public class ProvisionParser extends Parser {
       }
     }
 
-    void parseWapProvisioningDoc(XmlPullParser parser, ShadowPolicySet sps)
+    private void parseWapProvisioningDoc(XmlPullParser parser, ShadowPolicySet sps)
             throws XmlPullParserException, IOException {
         while (true) {
             int type = parser.nextTag();
@@ -258,7 +352,7 @@ public class ProvisionParser extends Parser {
         }
     }
 
-    public void parseProvisionData() throws IOException {
+    private void parseProvisionData() throws IOException {
         while (nextTag(Tags.PROVISION_DATA) != END) {
             if (tag == Tags.PROVISION_EAS_PROVISION_DOC) {
                 parseProvisionDocWbxml();
@@ -268,7 +362,7 @@ public class ProvisionParser extends Parser {
         }
     }
 
-    public void parsePolicy() throws IOException {
+    private void parsePolicy() throws IOException {
         String policyType = null;
         while (nextTag(Tags.PROVISION_POLICY) != END) {
             switch (tag) {
@@ -297,7 +391,7 @@ public class ProvisionParser extends Parser {
         }
     }
 
-    public void parsePolicies() throws IOException {
+    private void parsePolicies() throws IOException {
         while (nextTag(Tags.PROVISION_POLICIES) != END) {
             if (tag == Tags.PROVISION_POLICY) {
                 parsePolicy();

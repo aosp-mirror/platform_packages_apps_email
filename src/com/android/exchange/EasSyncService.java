@@ -352,7 +352,8 @@ public class EasSyncService extends AbstractSyncService {
         // Find the most recent version we support
         for (String version: supportedVersionsArray) {
             if (version.equals(Eas.SUPPORTED_PROTOCOL_EX2003) ||
-                    version.equals(Eas.SUPPORTED_PROTOCOL_EX2007)) {
+                    version.equals(Eas.SUPPORTED_PROTOCOL_EX2007) ||
+                    version.equals(Eas.SUPPORTED_PROTOCOL_EX2007_SP1)) {
                 ourVersion = version;
             }
         }
@@ -1979,9 +1980,12 @@ public class EasSyncService extends AbstractSyncService {
             userLog("sync, sending ", className, " syncKey: ", syncKey);
             s.start(Tags.SYNC_SYNC)
                 .start(Tags.SYNC_COLLECTIONS)
-                .start(Tags.SYNC_COLLECTION)
-                .data(Tags.SYNC_CLASS, className)
-                .data(Tags.SYNC_SYNC_KEY, syncKey)
+                .start(Tags.SYNC_COLLECTION);
+            // The "Class" element is removed in EAS 12.1 and later versions
+            if (mProtocolVersionDouble < Eas.SUPPORTED_PROTOCOL_EX2007_SP1_DOUBLE) {
+                s.data(Tags.SYNC_CLASS, className);
+            }
+            s.data(Tags.SYNC_SYNC_KEY, syncKey)
                 .data(Tags.SYNC_COLLECTION_ID, mailbox.mServerId);
 
             // Start with the default timeout

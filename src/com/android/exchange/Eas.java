@@ -45,6 +45,8 @@ public class Eas {
     public static final double SUPPORTED_PROTOCOL_EX2003_DOUBLE = 2.5;
     public static final String SUPPORTED_PROTOCOL_EX2007 = "12.0";
     public static final double SUPPORTED_PROTOCOL_EX2007_DOUBLE = 12.0;
+    public static final String SUPPORTED_PROTOCOL_EX2007_SP1 = "12.1";
+    public static final double SUPPORTED_PROTOCOL_EX2007_SP1_DOUBLE = 12.1;
     public static final String DEFAULT_PROTOCOL_VERSION = SUPPORTED_PROTOCOL_EX2003;
 
     // From EAS spec
