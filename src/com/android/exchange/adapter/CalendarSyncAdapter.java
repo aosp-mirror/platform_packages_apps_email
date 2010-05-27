@@ -552,7 +552,8 @@ public class CalendarSyncAdapter extends AbstractSyncAdapter {
                 addOrganizerToAttendees(ops, eventId, organizerName, organizerEmail);
             }
 
-            boolean selfOrganizer = (organizerEmail.equals(mEmailAddress));
+            // Note that organizerEmail can be null with a DTSTAMP only change from the server
+            boolean selfOrganizer = (mEmailAddress.equals(organizerEmail));
 
             // Store email addresses of attendees (in a tokenizable string) in ExtendedProperties
             // If the user is an attendee, set the attendee status using busyStatus (note that the
