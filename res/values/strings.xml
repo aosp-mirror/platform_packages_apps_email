@@ -153,13 +153,13 @@
          one or more new messages; e.g, "279 unread (someone@google.com)". -->
     <plurals name="notification_new_one_account_fmt">
         <!-- Case of one new message. -->
-        <item quantity="one"><xliff:g id="unread_message_count" example="1">%d</xliff:g> unread (<xliff:g id="account">%s</xliff:g>)</item> 
+        <item quantity="one"><xliff:g id="unread_message_count" example="1">%1$d</xliff:g> unread (<xliff:g id="account">%2$s</xliff:g>)</item> 
 
         <!-- Case of "few" (small number of) new messages. -->
-        <item quantity="few"><xliff:g id="unread_message_count" example="2">%d</xliff:g> unread (<xliff:g id="account">%s</xliff:g>)</item> 
+        <item quantity="few"><xliff:g id="unread_message_count" example="2">%1$d</xliff:g> unread (<xliff:g id="account">%2$s</xliff:g>)</item> 
 
         <!-- Case of a plural number of new messages. -->
-        <item quantity="other"><xliff:g id="unread_message_count" example="279">%d</xliff:g> unread (<xliff:g id="account">%s</xliff:g>)</item>
+        <item quantity="other"><xliff:g id="unread_message_count" example="279">%1$d</xliff:g> unread (<xliff:g id="account">%2$s</xliff:g>)</item>
     </plurals>
 
 
@@ -242,7 +242,7 @@
     <!-- Hint text in Message composer body field -->
     <string name="message_compose_body_hint">Compose Mail</string>    
     <!-- Header for forwarded original messages -->
-    <string name="message_compose_fwd_header_fmt">\n\n-------- Original Message --------\nSubject: <xliff:g id="subject">%s</xliff:g>\nFrom: <xliff:g id="sender">%s</xliff:g>\nTo: <xliff:g id="to">%s</xliff:g>\nCC: <xliff:g id="cc">%s</xliff:g>\n\n</string>
+    <string name="message_compose_fwd_header_fmt">\n\n-------- Original Message --------\nSubject: <xliff:g id="subject">%1$s</xliff:g>\nFrom: <xliff:g id="sender">%2$s</xliff:g>\nTo: <xliff:g id="to">%3$s</xliff:g>\nCC: <xliff:g id="cc">%4$s</xliff:g>\n\n</string>
     <!-- Header for replied-to messages -->
     <string name="message_compose_reply_header_fmt">\n\n<xliff:g id="sender">%s</xliff:g> wrote:\n\n</string>
     <!-- Heading that appears before forwarded text -->
@@ -696,16 +696,16 @@
          "5 results from bigcompany.com..."  -->
     <plurals name="gal_completed_fmt">
         <!-- Case of one result from server. -->
-        <item quantity="one"><xliff:g id="results" example="1">%d</xliff:g> result
-        from <xliff:g id="domain">%s</xliff:g></item>
+        <item quantity="one"><xliff:g id="results" example="1">%1$d</xliff:g> result
+        from <xliff:g id="domain">%2$s</xliff:g></item>
 
         <!-- Case of multiple results from server -->
-        <item quantity="other"><xliff:g id="results" example="20">%d</xliff:g> results
-        from <xliff:g id="domain">%s</xliff:g></item>
+        <item quantity="other"><xliff:g id="results" example="20">%1$d</xliff:g> results
+        from <xliff:g id="domain">%2$s</xliff:g></item>
     </plurals>
     <!-- Displayed in small separator in to/cc/bcc dropdowns, when searching GAL completes,
          and a limited amount (not all) of the server results are being displayed.  This is
          always a larger value because it represents the limit of displayed results.  -->
-    <string name="gal_completed_limited_fmt">First <xliff:g id="results" example="20">%d</xliff:g>
-        results from <xliff:g id="domain">%s</xliff:g></string>
+    <string name="gal_completed_limited_fmt">First <xliff:g id="results" example="20">%1$d</xliff:g>
+        results from <xliff:g id="domain">%2$s</xliff:g></string>
 </resources>

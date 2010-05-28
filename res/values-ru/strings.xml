@@ -267,8 +267,8 @@
     <string name="notification_exchange_calendar_added" msgid="6823659622379350159">"Календарь Exchange добавлен"</string>
     <string name="gal_searching_fmt" msgid="6140450617663543464">"Поиск <xliff:g id="DOMAIN">%s</xliff:g>…"</string>
   <plurals name="gal_completed_fmt">
-    <item quantity="one" msgid="7496785524617037642">"Результаты с <xliff:g id="DOMAIN">%s</xliff:g> (<xliff:g id="RESULTS">%d</xliff:g>)"</item>
-    <item quantity="other" msgid="7816121892960632123">"Кол-во результатов: <xliff:g id="RESULTS">%d</xliff:g> с <xliff:g id="DOMAIN">%s</xliff:g>"</item>
+    <item quantity="one" msgid="7496785524617037642">"Результаты с <xliff:g id="DOMAIN">%2$s</xliff:g> (<xliff:g id="RESULTS">%1$d</xliff:g>)"</item>
+    <item quantity="other" msgid="7816121892960632123">"Кол-во результатов: <xliff:g id="RESULTS">%1$d</xliff:g> с <xliff:g id="DOMAIN">%2$s</xliff:g>"</item>
   </plurals>
-    <string name="gal_completed_limited_fmt" msgid="2343791690766047585">"Первые результаты с <xliff:g id="DOMAIN">%s</xliff:g> (<xliff:g id="RESULTS">%d</xliff:g>)"</string>
+    <string name="gal_completed_limited_fmt" msgid="2343791690766047585">"Первые результаты с <xliff:g id="DOMAIN">%2$s</xliff:g> (<xliff:g id="RESULTS">%1$d</xliff:g>)"</string>
 </resources>
