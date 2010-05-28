@@ -596,7 +596,7 @@ public class Tags {
             "MinDevicePasswordComplexCharacters", "AllowWiFi", "AllowTextMessaging",
             "AllowPOPIMAPEmail", "AllowBluetooth", "AllowIrDA", "RequireManualSyncWhenRoaming",
             "AllowDesktopSync",
-            "MaxCalendarAgeFilder", "AllowHTMLEmail", "MaxEmailAgeFilder",
+            "MaxCalendarAgeFilder", "AllowHTMLEmail", "MaxEmailAgeFilter",
             "MaxEmailBodyTruncationSize", "MaxEmailHTMLBodyTruncationSize",
             "RequireSignedSMIMEMessages", "RequireEncryptedSMIMEMessages",
             "RequireSignedSMIMEAlgorithm", "RequireEncryptionSMIMEAlgorithm",
