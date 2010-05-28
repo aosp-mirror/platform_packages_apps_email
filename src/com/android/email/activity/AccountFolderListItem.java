@@ -32,7 +32,7 @@ public class AccountFolderListItem extends LinearLayout {
 
     public long mAccountId;
 
-    private AccountFolderList.AccountsAdapter mAdapter;
+    private AccountsAdapter mAdapter;
 
     private boolean mHasFolderButton;
     private boolean mDownEvent;
@@ -54,7 +54,7 @@ public class AccountFolderListItem extends LinearLayout {
      * 
      * @param adapter the adapter that creates this view
      */
-    public void bindViewInit(AccountFolderList.AccountsAdapter adapter, boolean hasFolderButton) {
+    public void bindViewInit(AccountsAdapter adapter, boolean hasFolderButton) {
         mAdapter = adapter;
         mCachedViewPositions = false;
         mHasFolderButton = hasFolderButton;
