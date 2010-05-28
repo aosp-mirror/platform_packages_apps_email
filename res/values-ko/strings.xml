@@ -267,8 +267,8 @@
     <string name="notification_exchange_calendar_added" msgid="6823659622379350159">"Exchange 캘린더 추가됨"</string>
     <string name="gal_searching_fmt" msgid="6140450617663543464">"<xliff:g id="DOMAIN">%s</xliff:g> 검색 중..."</string>
   <plurals name="gal_completed_fmt">
-    <item quantity="one" msgid="7496785524617037642">"<xliff:g id="DOMAIN">%s</xliff:g>의 검색결과 <xliff:g id="RESULTS">%d</xliff:g>개"</item>
-    <item quantity="other" msgid="7816121892960632123">"<xliff:g id="DOMAIN">%s</xliff:g>의 검색결과 <xliff:g id="RESULTS">%d</xliff:g>개"</item>
+    <item quantity="one" msgid="7496785524617037642">"<xliff:g id="DOMAIN">%2$s</xliff:g>의 검색결과 <xliff:g id="RESULTS">%1$d</xliff:g>개"</item>
+    <item quantity="other" msgid="7816121892960632123">"<xliff:g id="DOMAIN">%2$s</xliff:g>의 검색결과 <xliff:g id="RESULTS">%1$d</xliff:g>개"</item>
   </plurals>
-    <string name="gal_completed_limited_fmt" msgid="2343791690766047585">"<xliff:g id="DOMAIN">%s</xliff:g>의 처음 <xliff:g id="RESULTS">%d</xliff:g>개 검색결과"</string>
+    <string name="gal_completed_limited_fmt" msgid="2343791690766047585">"<xliff:g id="DOMAIN">%2$s</xliff:g>의 처음 <xliff:g id="RESULTS">%1$d</xliff:g>개 검색결과"</string>
 </resources>
