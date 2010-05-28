@@ -267,8 +267,8 @@
     <string name="notification_exchange_calendar_added" msgid="6823659622379350159">"Exchangeカレンダーを追加しました"</string>
     <string name="gal_searching_fmt" msgid="6140450617663543464">"<xliff:g id="DOMAIN">%s</xliff:g>を検索中..."</string>
   <plurals name="gal_completed_fmt">
-    <item quantity="one" msgid="7496785524617037642">"<xliff:g id="DOMAIN">%s</xliff:g>からの結果: <xliff:g id="RESULTS">%d</xliff:g>件"</item>
-    <item quantity="other" msgid="7816121892960632123">"<xliff:g id="DOMAIN">%s</xliff:g>からの結果: <xliff:g id="RESULTS">%d</xliff:g>件"</item>
+    <item quantity="one" msgid="7496785524617037642">"<xliff:g id="DOMAIN">%2$s</xliff:g>からの結果: <xliff:g id="RESULTS">%1$d</xliff:g>件"</item>
+    <item quantity="other" msgid="7816121892960632123">"<xliff:g id="DOMAIN">%2$s</xliff:g>からの結果: <xliff:g id="RESULTS">%1$d</xliff:g>件"</item>
   </plurals>
-    <string name="gal_completed_limited_fmt" msgid="2343791690766047585">"<xliff:g id="DOMAIN">%s</xliff:g>からの結果: 最初の<xliff:g id="RESULTS">%d</xliff:g>件"</string>
+    <string name="gal_completed_limited_fmt" msgid="2343791690766047585">"<xliff:g id="DOMAIN">%2$s</xliff:g>からの結果: 最初の<xliff:g id="RESULTS">%1$d</xliff:g>件"</string>
 </resources>
