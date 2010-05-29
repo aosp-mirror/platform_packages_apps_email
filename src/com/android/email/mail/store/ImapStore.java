@@ -85,8 +85,6 @@ import javax.net.ssl.SSLException;
  * TODO Collect ALERT messages and show them to users.
  * something else we can try to do a pre-fetch first.
  *
- * TODO Replace literal strings with ImapConstants.
- *
  * ftp://ftp.isi.edu/in-notes/rfc2683.txt When a client asks for
  * certain information in a FETCH command, the server may return the requested
  * information in any order, not necessarily in the order that it was requested.
@@ -191,7 +189,8 @@ public class ImapStore extends Store {
 
                 // build the LOGIN string once (instead of over-and-over again.)
                 // apply the quoting here around the built-up password
-                mLoginPhrase = "LOGIN " + mUsername + " " + Utility.imapQuoted(mPassword);
+                mLoginPhrase = ImapConstants.LOGIN + " " + mUsername + " "
+                        + Utility.imapQuoted(mPassword);
             }
         }
 
@@ -384,9 +383,9 @@ public class ImapStore extends Store {
         ImapConnection connection = getConnection();
         try {
             ArrayList<Folder> folders = new ArrayList<Folder>();
-            List<ImapResponse> responses =
-                    connection.executeSimpleCommand(String.format("LIST \"\" \"%s*\"",
-                        mPathPrefix == null ? "" : mPathPrefix));
+            List<ImapResponse> responses = connection.executeSimpleCommand(
+                    String.format(ImapConstants.LIST + " \"\" \"%s*\"",
+                            mPathPrefix == null ? "" : mPathPrefix));
             for (ImapResponse response : responses) {
                 // S: * LIST (\Noselect) "/" ~/Mail/foo
                 if (response.isDataResponse(0, ImapConstants.LIST)) {
@@ -409,7 +408,7 @@ public class ImapStore extends Store {
                     }
                 }
             }
-            folders.add(getFolder("INBOX"));
+            folders.add(getFolder(ImapConstants.INBOX));
             return folders.toArray(new Folder[] {});
         } catch (IOException ioe) {
             connection.close();
@@ -463,18 +462,10 @@ public class ImapStore extends Store {
     }
 
     /* package */ static String encodeFolderName(String name) {
-        try {
-            ByteBuffer bb = MODIFIED_UTF_7_CHARSET.encode(name);
-            byte[] b = new byte[bb.limit()];
-            bb.get(b);
-            return new String(b, "US-ASCII");
-        } catch (UnsupportedEncodingException uee) {
-            /*
-             * The only thing that can throw this is getBytes("US-ASCII") and if US-ASCII doesn't
-             * exist we're totally screwed.
-             */
-            throw new RuntimeException("Unabel to encode folder name: " + name, uee);
-        }
+        ByteBuffer bb = MODIFIED_UTF_7_CHARSET.encode(name);
+        byte[] b = new byte[bb.limit()];
+        bb.get(b);
+        return Utility.fromAscii(b);
     }
 
     /* package */ static String decodeFolderName(String name) {
@@ -482,17 +473,7 @@ public class ImapStore extends Store {
          * Convert the encoded name to US-ASCII, then pass it through the modified UTF-7
          * decoder and return the Unicode String.
          */
-        try {
-            byte[] encoded = name.getBytes("US-ASCII");
-            CharBuffer cb = MODIFIED_UTF_7_CHARSET.decode(ByteBuffer.wrap(encoded));
-            return cb.toString();
-        } catch (UnsupportedEncodingException uee) {
-            /*
-             * The only thing that can throw this is getBytes("US-ASCII") and if US-ASCII doesn't
-             * exist we're totally screwed.
-             */
-            throw new RuntimeException("Unable to decode folder name: " + name, uee);
-        }
+        return MODIFIED_UTF_7_CHARSET.decode(ByteBuffer.wrap(Utility.toAscii(name))).toString();
     }
 
     /**
@@ -559,7 +540,7 @@ public class ImapStore extends Store {
                 // 2 OK [READ-WRITE] Select completed.
                 try {
                     List<ImapResponse> responses = mConnection.executeSimpleCommand(
-                            String.format("SELECT \"%s\"",
+                            String.format(ImapConstants.SELECT + " \"%s\"",
                                     encodeFolderName(mName)));
                     /*
                      * If the command succeeds we expect the folder has been opened read-write
@@ -645,7 +626,8 @@ public class ImapStore extends Store {
                 }
             }
             try {
-                connection.executeSimpleCommand(String.format("STATUS \"%s\" (UIDVALIDITY)",
+                connection.executeSimpleCommand(String.format(
+                        ImapConstants.STATUS + " \"%s\" (" + ImapConstants.UIDVALIDITY + ")",
                         encodeFolderName(mName)));
                 mExists = true;
                 return true;
@@ -685,7 +667,7 @@ public class ImapStore extends Store {
                 }
             }
             try {
-                connection.executeSimpleCommand(String.format("CREATE \"%s\"",
+                connection.executeSimpleCommand(String.format(ImapConstants.CREATE + " \"%s\"",
                         encodeFolderName(mName)));
                 return true;
 
@@ -707,9 +689,10 @@ public class ImapStore extends Store {
                 MessageUpdateCallbacks callbacks) throws MessagingException {
             checkOpen();
             try {
-                mConnection.executeSimpleCommand(String.format("UID COPY %s \"%s\"",
-                        joinMessageUids(messages),
-                        encodeFolderName(folder.getName())));
+                mConnection.executeSimpleCommand(
+                        String.format(ImapConstants.UID_COPY + " %s \"%s\"",
+                                joinMessageUids(messages),
+                                encodeFolderName(folder.getName())));
             } catch (IOException ioe) {
                 throw ioExceptionHandler(mConnection, ioe);
             }
@@ -725,9 +708,9 @@ public class ImapStore extends Store {
             checkOpen();
             try {
                 int unreadMessageCount = 0;
-                List<ImapResponse> responses = mConnection.executeSimpleCommand(
-                        String.format("STATUS \"%s\" (UNSEEN)",
-                                encodeFolderName(mName)));
+                List<ImapResponse> responses = mConnection.executeSimpleCommand(String.format(
+                        ImapConstants.STATUS + " \"%s\" (" + ImapConstants.UNSEEN + ")",
+                        encodeFolderName(mName)));
                 // S: * STATUS mboxname (MESSAGES 231 UIDNEXT 44292)
                 for (ImapResponse response : responses) {
                     if (response.isDataResponse(0, ImapConstants.STATUS)) {
@@ -751,7 +734,8 @@ public class ImapStore extends Store {
             checkOpen();
             List<ImapResponse> responses;
             try {
-                responses = mConnection.executeSimpleCommand("UID SEARCH " + searchCriteria);
+                responses = mConnection.executeSimpleCommand(
+                        ImapConstants.UID_SEARCH + " " + searchCriteria);
             } catch (ImapException e) {
                 return Utility.EMPTY_STRINGS; // not found;
             } catch (IOException ioe) {
@@ -784,7 +768,7 @@ public class ImapStore extends Store {
         public Message getMessage(String uid) throws MessagingException {
             checkOpen();
 
-            String[] uids = searchForUids("UID " + uid);
+            String[] uids = searchForUids(ImapConstants.UID + " " + uid);
             for (int i = 0; i < uids.length; i++) {
                 if (uids[i].equals(uid)) {
                     return new ImapMessage(uid, this);
@@ -898,8 +882,8 @@ public class ImapStore extends Store {
             }
 
             try {
-                String tag = mConnection.sendCommand(String.format("UID FETCH %s (%s)",
-                        joinMessageUids(messages),
+                String tag = mConnection.sendCommand(String.format(
+                        ImapConstants.UID_FETCH + " %s (%s)", joinMessageUids(messages),
                         Utility.combine(fetchFields.toArray(new String[fetchFields.size()]), ' ')
                         ), false);
                 ImapResponse response;
@@ -953,7 +937,7 @@ public class ImapStore extends Store {
                                     ImapConstants.BODYSTRUCTURE);
                             if (!bs.isEmpty()) {
                                 try {
-                                    parseBodyStructure(bs, message, "TEXT");
+                                    parseBodyStructure(bs, message, ImapConstants.TEXT);
                                 } catch (MessagingException e) {
                                     if (Email.LOGD) {
                                         Log.v(Email.LOG_TAG, "Error handling message", e);
@@ -1037,7 +1021,7 @@ public class ImapStore extends Store {
                          * into it.
                          */
                         MimeBodyPart bp = new MimeBodyPart();
-                        if (id.equals("TEXT")) {
+                        if (id.equals(ImapConstants.TEXT)) {
                             parseBodyStructure(bs.getListOrEmpty(i), bp, Integer.toString(i + 1));
 
                         } else {
@@ -1117,7 +1101,7 @@ public class ImapStore extends Store {
                 // Extension items
                 final ImapList bodyDisposition;
 
-                if (type.is("text") && bs.getElementOrNone(9).isList()) {
+                if (type.is(ImapConstants.TEXT) && bs.getElementOrNone(9).isList()) {
                     // If media-type is TEXT, 9th element might be: [body-fld-lines] := number
                     // So, if it's not a list, use 10th element.
                     // (Couldn't find evidence in the RFC if it's ALWAYS 10th element.)
@@ -1220,9 +1204,9 @@ public class ImapStore extends Store {
                         for (int i = 0, count = flags.length; i < count; i++) {
                             Flag flag = flags[i];
                             if (flag == Flag.SEEN) {
-                                sb.append(" \\Seen");
+                                sb.append(" " + ImapConstants.FLAG_SEEN);
                             } else if (flag == Flag.FLAGGED) {
-                                sb.append(" \\Flagged");
+                                sb.append(" " + ImapConstants.FLAG_FLAGGED);
                             }
                         }
                         if (sb.length() > 0) {
@@ -1231,7 +1215,7 @@ public class ImapStore extends Store {
                     }
 
                     mConnection.sendCommand(
-                            String.format("APPEND \"%s\" (%s) {%d}",
+                            String.format(ImapConstants.APPEND + " \"%s\" (%s) {%d}",
                                     encodeFolderName(mName),
                                     flagList,
                                     out.getCount()), false);
@@ -1289,7 +1273,7 @@ public class ImapStore extends Store {
         public Message[] expunge() throws MessagingException {
             checkOpen();
             try {
-                handleUntaggedResponses(mConnection.executeSimpleCommand("EXPUNGE"));
+                handleUntaggedResponses(mConnection.executeSimpleCommand(ImapConstants.EXPUNGE));
             } catch (IOException ioe) {
                 throw ioExceptionHandler(mConnection, ioe);
             }
@@ -1307,17 +1291,18 @@ public class ImapStore extends Store {
                 for (int i = 0, count = flags.length; i < count; i++) {
                     Flag flag = flags[i];
                     if (flag == Flag.SEEN) {
-                        flagList.append(" \\Seen");
+                        flagList.append(" " + ImapConstants.FLAG_SEEN);
                     } else if (flag == Flag.DELETED) {
-                        flagList.append(" \\Deleted");
+                        flagList.append(" " + ImapConstants.FLAG_DELETED);
                     } else if (flag == Flag.FLAGGED) {
-                        flagList.append(" \\Flagged");
+                        flagList.append(" " + ImapConstants.FLAG_FLAGGED);
                     }
                 }
                 allFlags = flagList.substring(1);
             }
             try {
-                mConnection.executeSimpleCommand(String.format("UID STORE %s %sFLAGS.SILENT (%s)",
+                mConnection.executeSimpleCommand(String.format(
+                        ImapConstants.UID_STORE + " %s %s" + ImapConstants.FLAGS_SILENT + " (%s)",
                         joinMessageUids(messages),
                         value ? "+" : "-",
                         allFlags));
@@ -1417,9 +1402,9 @@ public class ImapStore extends Store {
                 String mUserAgent = getImapId(mContext, mUsername, mRootTransport.getHost(),
                         capabilityResponse.flatten());
                 if (mUserAgent != null) {
-                    mIdPhrase = "ID (" + mUserAgent + ")";
+                    mIdPhrase = ImapConstants.ID + " (" + mUserAgent + ")";
                 } else if (DEBUG_FORCE_SEND_ID) {
-                    mIdPhrase = "ID NIL";
+                    mIdPhrase = ImapConstants.ID + " " + ImapConstants.NIL;
                 }
                 // else: mIdPhrase = null, no ID will be emitted
 
