@@ -414,18 +414,21 @@ public class ImapStore extends Store {
             connection.close();
             throw new MessagingException("Unable to get folder list.", ioe);
         } finally {
+            connection.destroyResponses();
             poolConnection(connection);
         }
     }
 
     @Override
     public void checkSettings() throws MessagingException {
+        ImapConnection connection = new ImapConnection();
         try {
-            ImapConnection connection = new ImapConnection();
             connection.open();
             connection.close();
         } catch (IOException ioe) {
             throw new MessagingException(MessagingException.IOERROR, ioe.toString());
+        } finally {
+            connection.destroyResponses();
         }
     }
 
@@ -442,6 +445,8 @@ public class ImapStore extends Store {
                 // Fall through
             } catch (IOException e) {
                 // Fall through
+            } finally {
+                connection.destroyResponses();
             }
             connection.close();
             connection = null;
@@ -522,6 +527,8 @@ public class ImapStore extends Store {
 
                         } catch (IOException ioe) {
                             ioExceptionHandler(mConnection, ioe);
+                        } finally {
+                            mConnection.destroyResponses();
                         }
                     } else {
                         // Return the connection to the pool, if exists.
@@ -576,6 +583,8 @@ public class ImapStore extends Store {
 
                 } catch (IOException ioe) {
                     throw ioExceptionHandler(mConnection, ioe);
+                } finally {
+                    mConnection.destroyResponses();
                 }
             } catch (MessagingException e) {
                 mExists = false;
@@ -641,6 +650,7 @@ public class ImapStore extends Store {
                 throw ioExceptionHandler(connection, ioe);
 
             } finally {
+                connection.destroyResponses();
                 if (mConnection == null) {
                     mStore.poolConnection(connection);
                 }
@@ -680,6 +690,7 @@ public class ImapStore extends Store {
                 throw ioExceptionHandler(connection, ioe);
 
             } finally {
+                connection.destroyResponses();
                 if (mConnection == null) {
                     mStore.poolConnection(connection);
                 }
@@ -697,6 +708,8 @@ public class ImapStore extends Store {
                                 encodeFolderName(folder.getName())));
             } catch (IOException ioe) {
                 throw ioExceptionHandler(mConnection, ioe);
+            } finally {
+                mConnection.destroyResponses();
             }
         }
 
@@ -723,6 +736,8 @@ public class ImapStore extends Store {
                 return unreadMessageCount;
             } catch (IOException ioe) {
                 throw ioExceptionHandler(mConnection, ioe);
+            } finally {
+                mConnection.destroyResponses();
             }
         }
 
@@ -736,32 +751,36 @@ public class ImapStore extends Store {
             checkOpen();
             List<ImapResponse> responses;
             try {
-                responses = mConnection.executeSimpleCommand(
-                        ImapConstants.UID_SEARCH + " " + searchCriteria);
-            } catch (ImapException e) {
-                return Utility.EMPTY_STRINGS; // not found;
-            } catch (IOException ioe) {
-                throw ioExceptionHandler(mConnection, ioe);
-            }
-            // S: * SEARCH 2 3 6
-            for (ImapResponse response : responses) {
-                if (!response.isDataResponse(0, ImapConstants.SEARCH)) {
-                    continue;
+                try {
+                    responses = mConnection.executeSimpleCommand(
+                            ImapConstants.UID_SEARCH + " " + searchCriteria);
+                } catch (ImapException e) {
+                    return Utility.EMPTY_STRINGS; // not found;
+                } catch (IOException ioe) {
+                    throw ioExceptionHandler(mConnection, ioe);
                 }
-                // Found SEARCH response data
-                final int count = response.size() - 1;
-                if (count <= 0) {
-                    return Utility.EMPTY_STRINGS; // ... but no UIDs in it!  Return empty array.
-                }
-
-                ArrayList<String> ret = new ArrayList<String>(count);
-                for (int i = 1; i < response.size(); i++) {
-                    ImapString s = response.getStringOrEmpty(i);
-                    if (s.isString()) {
-                        ret.add(s.getString());
+                // S: * SEARCH 2 3 6
+                for (ImapResponse response : responses) {
+                    if (!response.isDataResponse(0, ImapConstants.SEARCH)) {
+                        continue;
                     }
+                    // Found SEARCH response data
+                    final int count = response.size() - 1;
+                    if (count <= 0) {
+                        return Utility.EMPTY_STRINGS; // ... but no UIDs in it!  Return empty array.
+                    }
+
+                    ArrayList<String> ret = new ArrayList<String>(count);
+                    for (int i = 1; i < response.size(); i++) {
+                        ImapString s = response.getStringOrEmpty(i);
+                        if (s.isString()) {
+                            ret.add(s.getString());
+                        }
+                    }
+                    return ret.toArray(Utility.EMPTY_STRINGS);
                 }
-                return ret.toArray(Utility.EMPTY_STRINGS);
+            } finally {
+                mConnection.destroyResponses();
             }
             return Utility.EMPTY_STRINGS;
         }
@@ -826,6 +845,8 @@ public class ImapStore extends Store {
                 Log.w(Email.LOG_TAG, "Exception detected: " + e.getMessage());
                 mConnection.logLastDiscourse();
                 throw e;
+            } finally {
+                mConnection.destroyResponses();
             }
         }
 
@@ -978,9 +999,7 @@ public class ImapStore extends Store {
                             listener.messageRetrieved(message);
                         }
                     } finally {
-                        if (response != null) {
-                            response.destroy();
-                        }
+                        mConnection.destroyResponses();
                     }
                 } while (!response.isTagged());
             } catch (IOException ioe) {
@@ -1273,6 +1292,8 @@ public class ImapStore extends Store {
                 }
             } catch (IOException ioe) {
                 throw ioExceptionHandler(mConnection, ioe);
+            } finally {
+                mConnection.destroyResponses();
             }
         }
 
@@ -1283,6 +1304,8 @@ public class ImapStore extends Store {
                 handleUntaggedResponses(mConnection.executeSimpleCommand(ImapConstants.EXPUNGE));
             } catch (IOException ioe) {
                 throw ioExceptionHandler(mConnection, ioe);
+            } finally {
+                mConnection.destroyResponses();
             }
             return null;
         }
@@ -1316,6 +1339,8 @@ public class ImapStore extends Store {
 
             } catch (IOException ioe) {
                 throw ioExceptionHandler(mConnection, ioe);
+            } finally {
+                mConnection.destroyResponses();
             }
         }
 
@@ -1371,7 +1396,7 @@ public class ImapStore extends Store {
                 mTransport.open();
                 mTransport.setSoTimeout(MailTransport.SOCKET_READ_TIMEOUT);
 
-                mParser = new ImapResponseParser(mTransport.getInputStream(), mDiscourse);
+                createParser();
 
                 // BANNER
                 mParser.readResponse();
@@ -1395,8 +1420,7 @@ public class ImapStore extends Store {
 
                         mTransport.reopenTls();
                         mTransport.setSoTimeout(MailTransport.SOCKET_READ_TIMEOUT);
-                        mParser = new ImapResponseParser(mTransport.getInputStream(),
-                                mDiscourse);
+                        createParser();
                     } else {
                         if (Config.LOGD && Email.DEBUG) {
                             Log.d(Email.LOG_TAG, "TLS not supported but required");
@@ -1457,6 +1481,8 @@ public class ImapStore extends Store {
                     Log.d(Email.LOG_TAG, ioe.toString());
                 }
                 throw ioe;
+            } finally {
+                destroyResponses();
             }
         }
 
@@ -1464,6 +1490,24 @@ public class ImapStore extends Store {
             if (mTransport != null) {
                 mTransport.close();
                 mTransport = null;
+            }
+        }
+
+        /**
+         * Create an {@link ImapResponseParser} from {@code mTransport.getInputStream()} and
+         * set it to {@link #mParser}.
+         *
+         * If we already have an {@link ImapResponseParser}, we
+         * {@link #destroyResponses()} and throw it away.
+         */
+        private void createParser() {
+            destroyResponses();
+            mParser = new ImapResponseParser(mTransport.getInputStream(), mDiscourse);
+        }
+
+        public void destroyResponses() {
+            if (mParser != null) {
+                mParser.destroyResponses();
             }
         }
 
@@ -1508,8 +1552,10 @@ public class ImapStore extends Store {
                 responses.add(response);
             } while (!response.isTagged());
             if (!response.isOk()) {
-                throw new ImapException(response.toString(),
-                        response.getAlertTextOrEmpty().getString());
+                final String toString = response.toString();
+                final String alert = response.getAlertTextOrEmpty().getString();
+                destroyResponses();
+                throw new ImapException(toString, alert);
             }
             return responses;
         }
