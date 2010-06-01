@@ -462,6 +462,7 @@ public class ImapStore extends Store {
     }
 
     /* package */ static String encodeFolderName(String name) {
+        // TODO bypass the conversion if name doesn't have special char.
         ByteBuffer bb = MODIFIED_UTF_7_CHARSET.encode(name);
         byte[] b = new byte[bb.limit()];
         bb.get(b);
@@ -469,6 +470,7 @@ public class ImapStore extends Store {
     }
 
     /* package */ static String decodeFolderName(String name) {
+        // TODO bypass the conversion if name doesn't have special char.
         /*
          * Convert the encoded name to US-ASCII, then pass it through the modified UTF-7
          * decoder and return the Unicode String.
@@ -962,6 +964,11 @@ public class ImapStore extends Store {
                             String contentType = fetchPart.getContentType();
                             String contentTransferEncoding = fetchPart.getHeader(
                                     MimeHeader.HEADER_CONTENT_TRANSFER_ENCODING)[0];
+
+                            // TODO Don't create 2 temp files.
+                            // decodeBody creates BinaryTempFileBody, but we could avoid this
+                            // if we implement ImapStringBody.
+                            // (We'll need to share a temp file.  Protect it with a ref-count.)
                             fetchPart.setBody(MimeUtility.decodeBody(
                                     bodyStream,
                                     contentTransferEncoding));
