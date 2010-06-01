@@ -47,7 +47,6 @@ import android.database.Cursor;
 import android.net.Uri;
 import android.os.AsyncTask;
 import android.os.Bundle;
-import android.os.Handler;
 import android.os.Parcelable;
 import android.provider.OpenableColumns;
 import android.text.InputFilter;
@@ -96,10 +95,6 @@ public class MessageCompose extends Activity implements OnClickListener, OnFocus
         "com.android.email.activity.MessageCompose.stateKeySourceMessageProced";
     private static final String STATE_KEY_DRAFT_ID =
         "com.android.email.activity.MessageCompose.draftId";
-
-    private static final int MSG_UPDATE_TITLE = 3;
-    private static final int MSG_SKIPPED_ATTACHMENTS = 4;
-    private static final int MSG_DISCARDED_DRAFT = 6;
 
     private static final int ACTIVITY_REQUEST_PICK_ATTACHMENT = 1;
 
@@ -160,26 +155,6 @@ public class MessageCompose extends Activity implements OnClickListener, OnFocus
     private EmailAddressAdapter mAddressAdapterTo;
     private EmailAddressAdapter mAddressAdapterCc;
     private EmailAddressAdapter mAddressAdapterBcc;
-
-    private Handler mHandler = new Handler() {
-        @Override
-        public void handleMessage(android.os.Message msg) {
-            switch (msg.what) {
-                case MSG_UPDATE_TITLE:
-                    updateTitle();
-                    break;
-                case MSG_SKIPPED_ATTACHMENTS:
-                    Toast.makeText(
-                            MessageCompose.this,
-                            getString(R.string.message_compose_attachments_skipped_toast),
-                            Toast.LENGTH_LONG).show();
-                    break;
-                default:
-                    super.handleMessage(msg);
-                    break;
-            }
-        }
-    };
 
     /**
      * Compose a new message using the given account. If account is -1 the default account
@@ -1476,7 +1451,7 @@ public class MessageCompose extends Activity implements OnClickListener, OnFocus
             displayQuotedText(message.mText, message.mHtml);
                 // TODO: re-enable loadAttachments below
 //                 if (!loadAttachments(message, 0)) {
-//                     mHandler.sendEmptyMessage(MSG_SKIPPED_ATTACHMENTS);
+//                     Utility.showToast(this, R.string.message_compose_attachments_skipped_toast);
 //                 }
         } else if (ACTION_EDIT_DRAFT.equals(mAction)) {
             mSubjectView.setText(subject);

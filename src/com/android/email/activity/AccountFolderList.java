@@ -18,6 +18,7 @@ package com.android.email.activity;
 
 import com.android.email.AccountBackupRestore;
 import com.android.email.Controller;
+import com.android.email.ControllerResultUiThreadWrapper;
 import com.android.email.Email;
 import com.android.email.R;
 import com.android.email.SecurityPolicy;
@@ -87,8 +88,7 @@ public class AccountFolderList extends ListActivity
 
     private LoadAccountsTask mLoadAccountsTask;
     private DeleteAccountTask mDeleteAccountTask;
-    private MessageListHandler mHandler;
-    private ControllerResults mControllerCallback;
+    private Controller.Result mControllerCallback;
 
     private static final String FAVORITE_COUNT_SELECTION =
         MessageColumns.FLAG_FAVORITE + "= 1";
@@ -122,8 +122,8 @@ public class AccountFolderList extends ListActivity
         getWindow().setFeatureInt(Window.FEATURE_CUSTOM_TITLE,
                 R.layout.list_title);
 
-        mHandler = new MessageListHandler();
-        mControllerCallback = new ControllerResults();
+        mControllerCallback = new ControllerResultUiThreadWrapper<ControllerResults>(
+                new Handler(), new ControllerResults());
         mProgressIcon = (ProgressBar) findViewById(R.id.title_progress_icon);
 
         mListView = getListView();
@@ -188,7 +188,7 @@ public class AccountFolderList extends ListActivity
         Utility.cancelTask(mDeleteAccountTask, false); // Don't interrupt if it's running.
         mDeleteAccountTask = null;
 
-        if (mListAdapter != null) { 
+        if (mListAdapter != null) {
             mListAdapter.changeCursor(null);
         }
     }
@@ -197,7 +197,7 @@ public class AccountFolderList extends ListActivity
         if (mListAdapter.isMailbox(position)) {
             MessageList.actionHandleMailbox(this, id);
         } else if (mListAdapter.isAccount(position)) {
-            MessageList.actionHandleAccount(this, id, Mailbox.TYPE_INBOX); 
+            MessageList.actionHandleAccount(this, id, Mailbox.TYPE_INBOX);
         }
     }
 
@@ -247,7 +247,7 @@ public class AccountFolderList extends ListActivity
 
     /**
      * Build the group and child cursors that support the summary views (aka "at a glance").
-     * 
+     *
      * This is a placeholder implementation with significant problems that need to be addressed:
      *
      * TODO: We should only show summary mailboxes if they are non-empty.  So there needs to be
@@ -407,7 +407,7 @@ public class AccountFolderList extends ListActivity
             Toast.makeText(this, getString(R.string.account_folder_list_refresh_toast),
                     Toast.LENGTH_LONG).show();
         } else {
-            mHandler.progress(true);
+            showProgressIcon(true);
             Controller.getInstance(getApplication()).updateMailboxList(
                     accountId, mControllerCallback);
         }
@@ -586,43 +586,14 @@ public class AccountFolderList extends ListActivity
         }
         return super.onKeyDown(keyCode, event);
     }
-    
-    /**
-     * Handler for UI-thread operations (when called from callbacks or any other threads)
-     */
-    private class MessageListHandler extends Handler {
-        private static final int MSG_PROGRESS = 1;
 
-        @Override
-        public void handleMessage(android.os.Message msg) {
-            switch (msg.what) {
-                case MSG_PROGRESS:
-                    boolean showProgress = (msg.arg1 != 0);
-                    if (showProgress) {
-                        mProgressIcon.setVisibility(View.VISIBLE);
-                    } else {
-                        mProgressIcon.setVisibility(View.GONE);
-                    }
-                    break;
-                default:
-                    super.handleMessage(msg);
-            }
-        }
-
-        /**
-         * Call from any thread to start/stop progress indicator(s)
-         * @param progress true to start, false to stop
-         */
-        public void progress(boolean progress) {
-            android.os.Message msg = android.os.Message.obtain();
-            msg.what = MSG_PROGRESS;
-            msg.arg1 = progress ? 1 : 0;
-            sendMessage(msg);
-        }
+    private void showProgressIcon(boolean show) {
+        mProgressIcon.setVisibility(show ? View.VISIBLE : View.GONE);
     }
 
     /**
-     * Callback for async Controller results.
+     * Controller results listener.  We wrap it with {@link ControllerResultUiThreadWrapper},
+     * so all methods are called on the UI thread.
      */
     private class ControllerResults implements Controller.Result {
         public void updateMailboxListCallback(MessagingException result, long accountKey,
@@ -662,11 +633,7 @@ public class AccountFolderList extends ListActivity
         }
 
         private void updateProgress(MessagingException result, int progress) {
-            if (result != null || progress == 100) {
-                mHandler.progress(false);
-            } else if (progress == 0) {
-                mHandler.progress(true);
-            }
+            showProgressIcon(result == null && progress < 100);
         }
     }
 }

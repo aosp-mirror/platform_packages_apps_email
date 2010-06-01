@@ -217,7 +217,8 @@ public class MessageView extends Activity implements OnClickListener {
         super.onCreate(icicle);
         setContentView(R.layout.message_view);
 
-        mControllerCallback = new ControllerResultUiThreadWrapper(this, new ControllerResults());
+        mControllerCallback = new ControllerResultUiThreadWrapper<ControllerResults>(
+                new Handler(), new ControllerResults());
 
         mSubjectView = (TextView) findViewById(R.id.subject);
         mFromView = (TextView) findViewById(R.id.from);

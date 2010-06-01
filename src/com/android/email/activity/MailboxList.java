@@ -17,6 +17,7 @@
 package com.android.email.activity;
 
 import com.android.email.Controller;
+import com.android.email.ControllerResultUiThreadWrapper;
 import com.android.email.Email;
 import com.android.email.R;
 import com.android.email.Utility;
@@ -72,8 +73,7 @@ public class MailboxList extends ListActivity implements OnItemClickListener, On
     private TextView mErrorBanner;
 
     private MailboxListAdapter mListAdapter;
-    private MailboxListHandler mHandler;
-    private ControllerResults mControllerCallback;
+    private Controller.Result mControllerCallback;
 
     // DB access
     private long mAccountId;
@@ -86,7 +86,7 @@ public class MailboxList extends ListActivity implements OnItemClickListener, On
 
     /**
      * Open a specific account.
-     * 
+     *
      * @param context
      * @param accountId the account to view
      */
@@ -102,8 +102,8 @@ public class MailboxList extends ListActivity implements OnItemClickListener, On
         super.onCreate(icicle);
         setContentView(R.layout.mailbox_list);
 
-        mHandler = new MailboxListHandler();
-        mControllerCallback = new ControllerResults();
+        mControllerCallback = new ControllerResultUiThreadWrapper<ControllerResults>(
+                new Handler(), new ControllerResults());
         mListView = getListView();
         mProgressIcon = (ProgressBar) findViewById(R.id.title_progress_icon);
         mErrorBanner = (TextView) findViewById(R.id.connection_error_text);
@@ -146,7 +146,7 @@ public class MailboxList extends ListActivity implements OnItemClickListener, On
                 int nAccounts = EmailContent.count(MailboxList.this, Account.CONTENT_URI, null, null);
                 return new Object[] {accountName, nAccounts};
             }
- 
+
             @Override
             protected void onPostExecute(Object[] result) {
                 if (result == null) {
@@ -279,7 +279,7 @@ public class MailboxList extends ListActivity implements OnItemClickListener, On
      */
     private void onRefresh(long mailboxId) {
         Controller controller = Controller.getInstance(getApplication());
-        mHandler.progress(true);
+        showProgressIcon(true);
         if (mailboxId >= 0) {
             controller.updateMailbox(mAccountId, mailboxId, mControllerCallback);
         } else {
@@ -411,74 +411,33 @@ public class MailboxList extends ListActivity implements OnItemClickListener, On
         mMessageCountTask = (MessageCountTask) new MessageCountTask().execute();
     }
 
-    /**
-     * Handler for UI-thread operations (when called from callbacks or any other threads)
-     */
-    class MailboxListHandler extends Handler {
-        private static final int MSG_PROGRESS = 1;
-        private static final int MSG_ERROR_BANNER = 2;
+    private void showProgressIcon(boolean show) {
+        mProgressIcon.setVisibility(show ? View.VISIBLE : View.GONE);
+    }
 
-        @Override
-        public void handleMessage(android.os.Message msg) {
-            switch (msg.what) {
-                case MSG_PROGRESS:
-                    boolean showProgress = (msg.arg1 != 0);
-                    if (showProgress) {
-                        mProgressIcon.setVisibility(View.VISIBLE);
-                    } else {
-                        mProgressIcon.setVisibility(View.GONE);
-                    }
-                    break;
-                case MSG_ERROR_BANNER:
-                    String message = (String) msg.obj;
-                    boolean isVisible = mErrorBanner.getVisibility() == View.VISIBLE;
-                    if (message != null) {
-                        mErrorBanner.setText(message);
-                        if (!isVisible) {
-                            mErrorBanner.setVisibility(View.VISIBLE);
-                            mErrorBanner.startAnimation(
-                                    AnimationUtils.loadAnimation(
-                                            MailboxList.this, R.anim.header_appear));
-                        }
-                    } else {
-                        if (isVisible) {
-                            mErrorBanner.setVisibility(View.GONE);
-                            mErrorBanner.startAnimation(
-                                    AnimationUtils.loadAnimation(
-                                            MailboxList.this, R.anim.header_disappear));
-                        }
-                    }
-                    break;
-                default:
-                    super.handleMessage(msg);
+    private void showErrorBanner(String message) {
+        boolean isVisible = mErrorBanner.getVisibility() == View.VISIBLE;
+        if (message != null) {
+            mErrorBanner.setText(message);
+            if (!isVisible) {
+                mErrorBanner.setVisibility(View.VISIBLE);
+                mErrorBanner.startAnimation(
+                        AnimationUtils.loadAnimation(
+                                MailboxList.this, R.anim.header_appear));
             }
-        }
-
-        /**
-         * Call from any thread to start/stop progress indicator(s)
-         * @param progress true to start, false to stop
-         */
-        public void progress(boolean progress) {
-            android.os.Message msg = android.os.Message.obtain();
-            msg.what = MSG_PROGRESS;
-            msg.arg1 = progress ? 1 : 0;
-            sendMessage(msg);
-        }
-
-        /**
-         * Called from any thread to show or hide the connection error banner.
-         * @param message error text or null to hide the box
-         */
-        public void showErrorBanner(String message) {
-            android.os.Message msg = android.os.Message.obtain();
-            msg.what = MSG_ERROR_BANNER;
-            msg.obj = message;
-            sendMessage(msg);
+        } else {
+            if (isVisible) {
+                mErrorBanner.setVisibility(View.GONE);
+                mErrorBanner.startAnimation(
+                        AnimationUtils.loadAnimation(
+                                MailboxList.this, R.anim.header_disappear));
+            }
         }
     }
 
     /**
-     * Callback for async Controller results.
+     * Controller results listener.  We wrap it with {@link ControllerResultUiThreadWrapper},
+     * so all methods are called on the UI thread.
      */
     private class ControllerResults implements Controller.Result {
 
@@ -524,11 +483,7 @@ public class MailboxList extends ListActivity implements OnItemClickListener, On
         }
 
         private void updateProgress(MessagingException result, int progress) {
-            if (result != null || progress == 100) {
-                mHandler.progress(false);
-            } else if (progress == 0) {
-                mHandler.progress(true);
-            }
+            showProgressIcon(result == null && progress < 100);
         }
 
         /**
@@ -563,9 +518,9 @@ public class MailboxList extends ListActivity implements OnItemClickListener, On
                             break;
                     }
                 }
-                mHandler.showErrorBanner(getString(id));
+                showErrorBanner(getString(id));
             } else if (progress > 0) {
-                mHandler.showErrorBanner(null);
+                showErrorBanner(null);
             }
         }
     }
