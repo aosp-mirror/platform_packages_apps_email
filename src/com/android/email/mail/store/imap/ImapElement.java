@@ -48,6 +48,11 @@ public abstract class ImapElement {
      * is out of range.
      */
     public static final ImapElement NONE = new ImapElement() {
+        @Override public void destroy() {
+            // Don't call super.destroy().
+            // It's a shared object.  We don't want the mDestroyed to be set on this.
+        }
+
         @Override public boolean isList() {
             return false;
         }
@@ -66,15 +71,31 @@ public abstract class ImapElement {
         }
     };
 
+    private boolean mDestroyed = false;
+
     public abstract boolean isList();
 
     public abstract boolean isString();
+
+    protected boolean isDestroyed() {
+        return mDestroyed;
+    }
 
     /**
      * Clean up the resources used by the instance.
      * It's for removing a temp file used by {@link ImapTempFileLiteral}.
      */
     public void destroy() {
+        mDestroyed = true;
+    }
+
+    /**
+     * Throws {@link RuntimeException} if it's already destroyed.
+     */
+    protected final void checkNotDestroyed() {
+        if (mDestroyed) {
+            throw new RuntimeException("Already destroyed");
+        }
     }
 
     /**
