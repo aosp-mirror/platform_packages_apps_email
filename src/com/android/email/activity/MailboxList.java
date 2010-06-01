@@ -37,24 +37,19 @@ import android.content.ContentUris;
 import android.content.Context;
 import android.content.Intent;
 import android.database.Cursor;
-import android.graphics.Typeface;
 import android.net.Uri;
 import android.os.AsyncTask;
 import android.os.Bundle;
 import android.os.Handler;
 import android.view.ContextMenu;
-import android.view.LayoutInflater;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
-import android.view.View.OnClickListener;
-import android.view.ViewGroup;
 import android.view.ContextMenu.ContextMenuInfo;
+import android.view.View.OnClickListener;
 import android.view.animation.AnimationUtils;
 import android.widget.AdapterView;
 import android.widget.Button;
-import android.widget.CursorAdapter;
-import android.widget.ImageView;
 import android.widget.ListView;
 import android.widget.ProgressBar;
 import android.widget.TextView;
@@ -88,8 +83,6 @@ public class MailboxList extends ListActivity implements OnItemClickListener, On
 
     private long mDraftMailboxKey = -1;
     private long mTrashMailboxKey = -1;
-    private int mUnreadCountDraft = 0;
-    private int mUnreadCountTrash = 0;
 
     /**
      * Open a specific account.
@@ -126,6 +119,7 @@ public class MailboxList extends ListActivity implements OnItemClickListener, On
 
         mAccountId = getIntent().getLongExtra(EXTRA_ACCOUNT_ID, -1);
         if (mAccountId != -1) {
+            mListAdapter.setAccountId(mAccountId);
             mLoadMailboxesTask = new LoadMailboxesTask(mAccountId);
             mLoadMailboxesTask.execute();
         } else {
@@ -383,43 +377,26 @@ public class MailboxList extends ListActivity implements OnItemClickListener, On
                         MESSAGE_MAILBOX_ID_SELECTION,
                         new String[] { String.valueOf(mDraftMailboxKey)});
             } else {
-                counts[0] = -1;
+                counts[0] = 0;
             }
             if (mTrashMailboxKey != -1) {
                 counts[1] = EmailContent.count(MailboxList.this, Message.CONTENT_URI,
                         MESSAGE_MAILBOX_ID_SELECTION,
                         new String[] { String.valueOf(mTrashMailboxKey)});
             } else {
-                counts[1] = -1;
+                counts[1] = 0;
             }
             return counts;
         }
 
         @Override
         protected void onPostExecute(int[] counts) {
-            boolean countChanged = false;
             if (counts == null) {
                 return;
             }
-            if (counts[0] != -1) {
-                if (mUnreadCountDraft != counts[0]) {
-                    mUnreadCountDraft = counts[0];
-                    countChanged = true;
-                }
-            } else {
-                mUnreadCountDraft = 0;
-            }
-            if (counts[1] != -1) {
-                if (mUnreadCountTrash != counts[1]) {
-                    mUnreadCountTrash = counts[1];
-                    countChanged = true;
-                }
-            } else {
-                mUnreadCountTrash = 0;
-            }
-            if (countChanged) {
-                mListAdapter.notifyDataSetChanged();
-            }
+            int countDraft = counts[0];
+            int countTrash = counts[1];
+            mListAdapter.setMessageCounts(countDraft, countTrash);
         }
     }
 
@@ -590,106 +567,6 @@ public class MailboxList extends ListActivity implements OnItemClickListener, On
             } else if (progress > 0) {
                 mHandler.showErrorBanner(null);
             }
-        }
-    }
-
-    /**
-     * The adapter for displaying mailboxes.
-     */
-    /* package */ class MailboxListAdapter extends CursorAdapter {
-
-        public final String[] PROJECTION = new String[] { MailboxColumns.ID,
-                MailboxColumns.DISPLAY_NAME, MailboxColumns.UNREAD_COUNT, MailboxColumns.TYPE };
-        public final int COLUMN_ID = 0;
-        public final int COLUMN_DISPLAY_NAME = 1;
-        public final int COLUMN_UNREAD_COUNT = 2;
-        public final int COLUMN_TYPE = 3;
-
-        Context mContext;
-        private LayoutInflater mInflater;
-
-        public MailboxListAdapter(Context context) {
-            super(context, null);
-            mContext = context;
-            mInflater = (LayoutInflater)context.getSystemService(Context.LAYOUT_INFLATER_SERVICE);
-        }
-
-        @Override
-        public void bindView(View view, Context context, Cursor cursor) {
-            int type = cursor.getInt(COLUMN_TYPE);
-            String text = Utility.FolderProperties.getInstance(context)
-                    .getDisplayName(type);
-            if (text == null) {
-                text = cursor.getString(COLUMN_DISPLAY_NAME);
-            }
-            TextView nameView = (TextView) view.findViewById(R.id.mailbox_name);
-            if (text != null) {
-                nameView.setText(text);
-            }
-
-            // TODO get/track live folder status
-            text = null;
-            TextView statusView = (TextView) view.findViewById(R.id.mailbox_status);
-            if (text != null) {
-                statusView.setText(text);
-                statusView.setVisibility(View.VISIBLE);
-            } else {
-                statusView.setVisibility(View.GONE);
-            }
-            View chipView = view.findViewById(R.id.chip);
-            chipView.setBackgroundResource(Email.getAccountColorResourceId(mAccountId));
-            // TODO do we use a different count for special mailboxes (total count vs. unread)
-            int count = -1;
-            switch (type) {
-                case Mailbox.TYPE_DRAFTS:
-                    count = mUnreadCountDraft;
-                    text = String.valueOf(count);
-                    break;
-                case Mailbox.TYPE_TRASH:
-                    count = mUnreadCountTrash;
-                    text = String.valueOf(count);
-                    break;
-                default:
-                    text = cursor.getString(COLUMN_UNREAD_COUNT);
-                    if (text != null) {
-                        count = Integer.valueOf(text);
-                    }
-                    break;
-            }
-            TextView unreadCountView = (TextView) view.findViewById(R.id.new_message_count);
-            TextView allCountView = (TextView) view.findViewById(R.id.all_message_count);
-            // If the unread count is zero, not to show countView.
-            if (count > 0) {
-                nameView.setTypeface(Typeface.DEFAULT_BOLD);
-                switch (type) {
-                case Mailbox.TYPE_DRAFTS:
-                case Mailbox.TYPE_OUTBOX:
-                case Mailbox.TYPE_SENT:
-                case Mailbox.TYPE_TRASH:
-                    unreadCountView.setVisibility(View.GONE);
-                    allCountView.setVisibility(View.VISIBLE);
-                    allCountView.setText(text);
-                    break;
-                default:
-                    allCountView.setVisibility(View.GONE);
-                    unreadCountView.setVisibility(View.VISIBLE);
-                    unreadCountView.setText(text);
-                    break;
-            }
-            } else {
-                nameView.setTypeface(Typeface.DEFAULT);
-                allCountView.setVisibility(View.GONE);
-                unreadCountView.setVisibility(View.GONE);
-            }
-
-            ImageView folderIcon = (ImageView) view.findViewById(R.id.folder_icon);
-            folderIcon.setImageDrawable(Utility.FolderProperties.getInstance(context)
-                    .getIconIds(type));
-        }
-
-        @Override
-        public View newView(Context context, Cursor cursor, ViewGroup parent) {
-            return mInflater.inflate(R.layout.mailbox_list_item, parent, false);
         }
     }
 }
