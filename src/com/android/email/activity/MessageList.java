@@ -81,7 +81,7 @@ import java.util.Timer;
 import java.util.TimerTask;
 
 public class MessageList extends ListActivity implements OnItemClickListener, OnClickListener,
-        AnimationListener {
+        AnimationListener, MessageListAdapter.Callback {
     // Intent extras (internal to this activity)
     private static final String EXTRA_ACCOUNT_ID = "com.android.email.activity._ACCOUNT_ID";
     private static final String EXTRA_MAILBOX_TYPE = "com.android.email.activity.MAILBOX_TYPE";
@@ -257,7 +257,7 @@ public class MessageList extends ListActivity implements OnItemClickListener, On
         mListView.setItemsCanFocus(false);
         registerForContextMenu(mListView);
 
-        mListAdapter = new MessageListAdapter(this);
+        mListAdapter = new MessageListAdapter(this, new Handler(), this);
         setListAdapter(mListAdapter);
 
         mResolver = getContentResolver();
@@ -1322,7 +1322,6 @@ public class MessageList extends ListActivity implements OnItemClickListener, On
         private static final int MSG_PROGRESS = 1;
         private static final int MSG_LOOKUP_MAILBOX_TYPE = 2;
         private static final int MSG_ERROR_BANNER = 3;
-        private static final int MSG_REQUERY_LIST = 4;
 
         @Override
         public void handleMessage(android.os.Message msg) {
@@ -1372,12 +1371,6 @@ public class MessageList extends ListActivity implements OnItemClickListener, On
                         }
                     }
                     break;
-                case MSG_REQUERY_LIST:
-                    mListAdapter.doRequery();
-                    if (mMultiSelectPanel.getVisibility() == View.VISIBLE) {
-                        updateFooterButtonNames();
-                    }
-                    break;
                 default:
                     super.handleMessage(msg);
             }
@@ -1418,13 +1411,6 @@ public class MessageList extends ListActivity implements OnItemClickListener, On
             msg.what = MSG_ERROR_BANNER;
             msg.obj = message;
             sendMessage(msg);
-        }
-
-        /**
-         * Called from any thread to signal that the list adapter should requery and update.
-         */
-        public void requeryList() {
-            sendEmptyMessage(MSG_REQUERY_LIST);
         }
     }
 
@@ -1565,245 +1551,26 @@ public class MessageList extends ListActivity implements OnItemClickListener, On
         }
     }
 
-    /**
-     * This class implements the adapter for displaying messages based on cursors.
-     */
-    /* package */ class MessageListAdapter extends CursorAdapter {
+    public void onAdapterRequery() {
+        if (mMultiSelectPanel.getVisibility() == View.VISIBLE) {
+            updateFooterButtonNames();
+        }
+    }
 
-        public static final int COLUMN_ID = 0;
-        public static final int COLUMN_MAILBOX_KEY = 1;
-        public static final int COLUMN_ACCOUNT_KEY = 2;
-        public static final int COLUMN_DISPLAY_NAME = 3;
-        public static final int COLUMN_SUBJECT = 4;
-        public static final int COLUMN_DATE = 5;
-        public static final int COLUMN_READ = 6;
-        public static final int COLUMN_FAVORITE = 7;
-        public static final int COLUMN_ATTACHMENTS = 8;
-        public static final int COLUMN_FLAGS = 9;
+    public void onAdapterFavoriteChanged(MessageListItem itemView, boolean newFavorite) {
+        onSetMessageFavorite(itemView.mMessageId, newFavorite);
+    }
 
-        Context mContext;
-        private LayoutInflater mInflater;
-        private Drawable mAttachmentIcon;
-        private Drawable mInvitationIcon;
-        private Drawable mFavoriteIconOn;
-        private Drawable mFavoriteIconOff;
-        private Drawable mSelectedIconOn;
-        private Drawable mSelectedIconOff;
-
-        private ColorStateList mTextColorPrimary;
-        private ColorStateList mTextColorSecondary;
-
-        // Timer to control the refresh rate of the list
-        private final RefreshTimer mRefreshTimer = new RefreshTimer();
-        // Last time we allowed a refresh of the list
-        private long mLastRefreshTime = 0;
-        // How long we want to wait for refreshes (a good starting guess)
-        // I suspect this could be lowered down to even 1000 or so, but this seems ok for now
-        private static final long REFRESH_INTERVAL_MS = 2500;
-
-        private java.text.DateFormat mDateFormat;
-        private java.text.DateFormat mTimeFormat;
-
-        private HashSet<Long> mChecked = new HashSet<Long>();
-
-        public MessageListAdapter(Context context) {
-            super(context, null, true);
-            mContext = context;
-            mInflater = (LayoutInflater)context.getSystemService(Context.LAYOUT_INFLATER_SERVICE);
-
-            Resources resources = context.getResources();
-            mAttachmentIcon = resources.getDrawable(R.drawable.ic_mms_attachment_small);
-            mInvitationIcon = resources.getDrawable(R.drawable.ic_calendar_event_small);
-            mFavoriteIconOn = resources.getDrawable(R.drawable.btn_star_big_buttonless_dark_on);
-            mFavoriteIconOff = resources.getDrawable(R.drawable.btn_star_big_buttonless_dark_off);
-            mSelectedIconOn = resources.getDrawable(R.drawable.btn_check_buttonless_dark_on);
-            mSelectedIconOff = resources.getDrawable(R.drawable.btn_check_buttonless_dark_off);
-
-            Theme theme = context.getTheme();
-            TypedArray array;
-            array = theme.obtainStyledAttributes(new int[] { android.R.attr.textColorPrimary });
-            mTextColorPrimary = resources.getColorStateList(array.getResourceId(0, 0));
-            array = theme.obtainStyledAttributes(new int[] { android.R.attr.textColorSecondary });
-            mTextColorSecondary = resources.getColorStateList(array.getResourceId(0, 0));
-
-            mDateFormat = android.text.format.DateFormat.getDateFormat(context);    // short date
-            mTimeFormat = android.text.format.DateFormat.getTimeFormat(context);    // 12/24 time
+    public void onAdapterSelectedChanged(MessageListItem itemView, boolean newSelected,
+            int mSelectedCount) {
+        if (mSelectedCount == 1 && newSelected) {
+            mFirstSelectedItemPosition = getListView().getPositionForView(itemView);
+            mFirstSelectedItemTop = itemView.getBottom();
+            mFirstSelectedItemHeight = itemView.getHeight();
+        } else {
+            mFirstSelectedItemPosition = -1;
         }
 
-        /**
-         * We override onContentChange to throttle the refresh, which can happen way too often
-         * on syncing a large list (up to many times per second).  This will prevent ANR's during
-         * initial sync and potentially at other times as well.
-         */
-        @Override
-        protected synchronized void onContentChanged() {
-            final Cursor cursor = getCursor();
-            if (cursor != null && !cursor.isClosed()) {
-                long sinceRefresh = SystemClock.elapsedRealtime() - mLastRefreshTime;
-                mRefreshTimer.schedule(REFRESH_INTERVAL_MS - sinceRefresh);
-            }
-        }
-
-        /**
-         * Called in UI thread only, from Handler, to complete the requery that we
-         * intercepted in onContentChanged().
-         */
-        public void doRequery() {
-            super.onContentChanged();
-        }
-
-        class RefreshTimer extends Timer {
-            private TimerTask timerTask = null;
-
-            protected void clear() {
-                timerTask = null;
-            }
-
-            protected synchronized void schedule(long delay) {
-                if (timerTask != null) return;
-                if (delay < 0) {
-                    refreshList();
-                } else {
-                    timerTask = new RefreshTimerTask();
-                    schedule(timerTask, delay);
-                }
-            }
-        }
-
-        class RefreshTimerTask extends TimerTask {
-            @Override
-            public void run() {
-                refreshList();
-            }
-        }
-
-        /**
-         * Do the work of requerying the list and notifying the UI of changed data
-         * Make sure we call notifyDataSetChanged on the UI thread.
-         */
-        private synchronized void refreshList() {
-            if (Email.LOGD) {
-                Log.d("messageList", "refresh: "
-                        + (SystemClock.elapsedRealtime() - mLastRefreshTime) + "ms");
-            }
-            mHandler.requeryList();
-            mLastRefreshTime = SystemClock.elapsedRealtime();
-            mRefreshTimer.clear();
-        }
-
-        public Set<Long> getSelectedSet() {
-            return mChecked;
-        }
-
-        @Override
-        public void bindView(View view, Context context, Cursor cursor) {
-            // Reset the view (in case it was recycled) and prepare for binding
-            MessageListItem itemView = (MessageListItem) view;
-            itemView.bindViewInit(this, true);
-
-            // Load the public fields in the view (for later use)
-            itemView.mMessageId = cursor.getLong(COLUMN_ID);
-            itemView.mMailboxId = cursor.getLong(COLUMN_MAILBOX_KEY);
-            itemView.mAccountId = cursor.getLong(COLUMN_ACCOUNT_KEY);
-            itemView.mRead = cursor.getInt(COLUMN_READ) != 0;
-            itemView.mFavorite = cursor.getInt(COLUMN_FAVORITE) != 0;
-            itemView.mSelected = mChecked.contains(Long.valueOf(itemView.mMessageId));
-
-            // Load the UI
-            View chipView = view.findViewById(R.id.chip);
-            chipView.setBackgroundResource(Email.getAccountColorResourceId(itemView.mAccountId));
-
-            TextView fromView = (TextView) view.findViewById(R.id.from);
-            String text = cursor.getString(COLUMN_DISPLAY_NAME);
-            fromView.setText(text);
-
-            TextView subjectView = (TextView) view.findViewById(R.id.subject);
-            text = cursor.getString(COLUMN_SUBJECT);
-            subjectView.setText(text);
-
-            boolean hasInvitation =
-                        (cursor.getInt(COLUMN_FLAGS) & Message.FLAG_INCOMING_MEETING_INVITE) != 0;
-            boolean hasAttachments = cursor.getInt(COLUMN_ATTACHMENTS) != 0;
-            Drawable icon =
-                    hasInvitation ? mInvitationIcon
-                    : hasAttachments ? mAttachmentIcon : null;
-            subjectView.setCompoundDrawablesWithIntrinsicBounds(null, null, icon, null);
-
-            // TODO ui spec suggests "time", "day", "date" - implement "day"
-            TextView dateView = (TextView) view.findViewById(R.id.date);
-            long timestamp = cursor.getLong(COLUMN_DATE);
-            Date date = new Date(timestamp);
-            if (Utility.isDateToday(date)) {
-                text = mTimeFormat.format(date);
-            } else {
-                text = mDateFormat.format(date);
-            }
-            dateView.setText(text);
-
-            if (itemView.mRead) {
-                subjectView.setTypeface(Typeface.DEFAULT);
-                fromView.setTypeface(Typeface.DEFAULT);
-                fromView.setTextColor(mTextColorSecondary);
-                view.setBackgroundDrawable(context.getResources().getDrawable(
-                        R.drawable.message_list_item_background_read));
-            } else {
-                subjectView.setTypeface(Typeface.DEFAULT_BOLD);
-                fromView.setTypeface(Typeface.DEFAULT_BOLD);
-                fromView.setTextColor(mTextColorPrimary);
-                view.setBackgroundDrawable(context.getResources().getDrawable(
-                        R.drawable.message_list_item_background_unread));
-            }
-
-            ImageView selectedView = (ImageView) view.findViewById(R.id.selected);
-            selectedView.setImageDrawable(itemView.mSelected ? mSelectedIconOn : mSelectedIconOff);
-
-            ImageView favoriteView = (ImageView) view.findViewById(R.id.favorite);
-            favoriteView.setImageDrawable(itemView.mFavorite ? mFavoriteIconOn : mFavoriteIconOff);
-        }
-
-        @Override
-        public View newView(Context context, Cursor cursor, ViewGroup parent) {
-            return mInflater.inflate(R.layout.message_list_item, parent, false);
-        }
-
-        /**
-         * This is used as a callback from the list items, to set the selected state
-         *
-         * @param itemView the item being changed
-         * @param newSelected the new value of the selected flag (checkbox state)
-         */
-        public void updateSelected(MessageListItem itemView, boolean newSelected) {
-            ImageView selectedView = (ImageView) itemView.findViewById(R.id.selected);
-            selectedView.setImageDrawable(newSelected ? mSelectedIconOn : mSelectedIconOff);
-
-            // Set checkbox state in list, and show/hide panel if necessary
-            Long id = Long.valueOf(itemView.mMessageId);
-            if (newSelected) {
-                mChecked.add(id);
-            } else {
-                mChecked.remove(id);
-            }
-            if (mChecked.size() == 1 && newSelected) {
-                mFirstSelectedItemPosition = getListView().getPositionForView(itemView);
-                mFirstSelectedItemTop = itemView.getBottom();
-                mFirstSelectedItemHeight = itemView.getHeight();
-            } else {
-                mFirstSelectedItemPosition = -1;
-            }
-
-            MessageList.this.showMultiPanel(mChecked.size() > 0);
-        }
-
-        /**
-         * This is used as a callback from the list items, to set the favorite state
-         *
-         * @param itemView the item being changed
-         * @param newFavorite the new value of the favorite flag (star state)
-         */
-        public void updateFavorite(MessageListItem itemView, boolean newFavorite) {
-            ImageView favoriteView = (ImageView) itemView.findViewById(R.id.favorite);
-            favoriteView.setImageDrawable(newFavorite ? mFavoriteIconOn : mFavoriteIconOff);
-            onSetMessageFavorite(itemView.mMessageId, newFavorite);
-        }
+        showMultiPanel(mSelectedCount > 0);
     }
 }
