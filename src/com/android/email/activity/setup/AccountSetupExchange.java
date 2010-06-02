@@ -20,9 +20,11 @@ import com.android.email.AccountBackupRestore;
 import com.android.email.ExchangeUtils;
 import com.android.email.R;
 import com.android.email.Utility;
+import com.android.email.SecurityPolicy.PolicySet;
 import com.android.email.provider.EmailContent;
 import com.android.email.provider.EmailContent.Account;
 import com.android.email.provider.EmailContent.HostAuth;
+import com.android.email.service.EmailServiceProxy;
 import com.android.exchange.SyncManager;
 
 import android.app.Activity;
@@ -319,9 +321,9 @@ public class AccountSetupExchange extends Activity implements OnClickListener,
         return enabled;
     }
 
-    private void doOptions() {
+    private void doOptions(PolicySet policySet) {
         boolean easFlowMode = getIntent().getBooleanExtra(EXTRA_EAS_FLOW, false);
-        AccountSetupOptions.actionOptions(this, mAccount, mMakeDefault, easFlowMode);
+        AccountSetupOptions.actionOptions(this, mAccount, mMakeDefault, easFlowMode, policySet);
         finish();
     }
 
@@ -384,7 +386,12 @@ public class AccountSetupExchange extends Activity implements OnClickListener,
     private void doActivityResultValidateNewAccount(int resultCode, Intent data) {
         if (resultCode == RESULT_OK) {
             // Go directly to next screen
-            doOptions();
+            PolicySet ps = null;
+            if ((data != null) && data.hasExtra(EmailServiceProxy.VALIDATE_BUNDLE_POLICY_SET)) {
+                ps = (PolicySet)data.getParcelableExtra(
+                        EmailServiceProxy.VALIDATE_BUNDLE_POLICY_SET);
+            }
+            doOptions(ps);
         } else if (resultCode == AccountSetupCheckSettings.RESULT_SECURITY_REQUIRED_USER_CANCEL) {
             finish();
         }

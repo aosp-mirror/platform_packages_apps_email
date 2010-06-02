@@ -245,7 +245,7 @@ public abstract class Store {
 
     public abstract Folder[] getPersonalNamespaces() throws MessagingException;
 
-    public abstract void checkSettings() throws MessagingException;
+    public abstract Bundle checkSettings() throws MessagingException;
 
     /**
      * Delete Store and its corresponding resources.

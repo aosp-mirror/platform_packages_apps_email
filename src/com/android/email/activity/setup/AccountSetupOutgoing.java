@@ -75,8 +75,8 @@ public class AccountSetupOutgoing extends Activity implements OnClickListener,
         fromActivity.startActivity(i);
     }
 
-    public static void actionEditOutgoingSettings(Activity fromActivity, EmailContent.Account account)
-            {
+    public static void actionEditOutgoingSettings(Activity fromActivity,
+            EmailContent.Account account) {
         Intent i = new Intent(fromActivity, AccountSetupOutgoing.class);
         i.setAction(Intent.ACTION_EDIT);
         i.putExtra(EXTRA_ACCOUNT, account);
@@ -260,7 +260,8 @@ public class AccountSetupOutgoing extends Activity implements OnClickListener,
                 AccountBackupRestore.backupAccounts(this);
                 finish();
             } else {
-                AccountSetupOptions.actionOptions(this, mAccount, mMakeDefault, false);
+                AccountSetupOptions.actionOptions(this, mAccount, mMakeDefault,
+                        /*easFlowMode*/false, /*policySet*/null);
                 finish();
             }
         }

@@ -49,6 +49,10 @@ public class MessagingException extends Exception {
     public static final int SECURITY_POLICIES_UNSUPPORTED = 8;
    /** The protocol (or protocol version) isn't supported */
     public static final int PROTOCOL_VERSION_UNSUPPORTED = 9;
+    /** An SSL certificate couldn't be validated */
+    public static final int CERTIFICATE_VALIDATION_ERROR = 10;
+    /** Authentication failed during autodiscover */
+    public static final int AUTODISCOVER_AUTHENTICATION_FAILED = 11;
     
     protected int mExceptionType;
      
@@ -60,6 +64,11 @@ public class MessagingException extends Exception {
     public MessagingException(String message, Throwable throwable) {
         super(message, throwable);
         mExceptionType = UNSPECIFIED_EXCEPTION;
+    }
+
+    public MessagingException(int exceptionType, String message, Throwable throwable) {
+        super(message, throwable);
+        mExceptionType = exceptionType;
     }
     
     /**

@@ -18,7 +18,6 @@ package com.android.email.mail.store;
 
 import com.android.email.Email;
 import com.android.email.ExchangeUtils;
-import com.android.email.mail.AuthenticationFailedException;
 import com.android.email.mail.Folder;
 import com.android.email.mail.MessagingException;
 import com.android.email.mail.Store;
@@ -75,8 +74,8 @@ public class ExchangeStore extends Store {
     }
 
     @Override
-    public void checkSettings() throws MessagingException {
-        mTransport.checkSettings(mUri);
+    public Bundle checkSettings() throws MessagingException {
+        return mTransport.checkSettings(mUri);
     }
 
     static public AccountManagerFuture<Bundle> addSystemAccount(Context context, Account acct,
@@ -232,21 +231,14 @@ public class ExchangeStore extends Store {
          * @param uri the URI of the account to create
          * @throws MessagingException if we can't authenticate the account
          */
-        public void checkSettings(URI uri) throws MessagingException {
+        public Bundle checkSettings(URI uri) throws MessagingException {
             setUri(uri);
             boolean ssl = uri.getScheme().contains("+ssl");
             boolean tssl = uri.getScheme().contains("+trustallcerts");
             try {
                 int port = ssl ? 443 : 80;
-                int result = ExchangeUtils.getExchangeEmailService(mContext, null)
+                return ExchangeUtils.getExchangeEmailService(mContext, null)
                     .validate("eas", mHost, mUsername, mPassword, port, ssl, tssl);
-                if (result != MessagingException.NO_ERROR) {
-                    if (result == MessagingException.AUTHENTICATION_FAILED) {
-                        throw new AuthenticationFailedException("Authentication failed.");
-                    } else {
-                        throw new MessagingException(result);
-                    }
-                }
             } catch (RemoteException e) {
                 throw new MessagingException("Call to validate generated an exception", e);
             }

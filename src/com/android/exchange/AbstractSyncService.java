@@ -30,6 +30,7 @@ import android.net.ConnectivityManager;
 import android.net.NetworkInfo;
 import android.net.Uri;
 import android.net.NetworkInfo.DetailedState;
+import android.os.Bundle;
 import android.util.Log;
 
 import java.util.ArrayList;
@@ -109,10 +110,12 @@ public abstract class AbstractSyncService implements Runnable {
      * @param port
      * @param ssl
      * @param context
+     * @return a Bundle containing a result code and, depending on the result, a PolicySet or an
+     * error message
      * @throws MessagingException
      */
-    public abstract void validateAccount(String host, String userName, String password, int port,
-            boolean ssl, boolean trustCertificates, Context context) throws MessagingException;
+    public abstract Bundle validateAccount(String host, String userName, String password, int port,
+            boolean ssl, boolean trustCertificates, Context context);
 
     public AbstractSyncService(Context _context, Mailbox _mailbox) {
         mContext = _context;
@@ -137,21 +140,22 @@ public abstract class AbstractSyncService implements Runnable {
      * @param port
      * @param ssl
      * @param context
+     * @return a Bundle containing a result code and, depending on the result, a PolicySet or an
+     * error message
      * @throws MessagingException
      */
-    static public void validate(Class<? extends AbstractSyncService> klass, String host,
+    static public Bundle validate(Class<? extends AbstractSyncService> klass, String host,
             String userName, String password, int port, boolean ssl, boolean trustCertificates,
-            Context context)
-            throws MessagingException {
+            Context context) {
         AbstractSyncService svc;
         try {
             svc = klass.newInstance();
-            svc.validateAccount(host, userName, password, port, ssl, trustCertificates, context);
+            return svc.validateAccount(host, userName, password, port, ssl, trustCertificates,
+                    context);
         } catch (IllegalAccessException e) {
-            throw new MessagingException("internal error", e);
         } catch (InstantiationException e) {
-            throw new MessagingException("internal error", e);
         }
+        return null;
     }
 
     public static class ValidationResult {

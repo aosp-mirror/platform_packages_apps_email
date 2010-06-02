@@ -20,7 +20,7 @@ import com.android.email.service.IEmailServiceCallback;
 import android.os.Bundle;
 
 interface IEmailService {
-    int validate(in String protocol, in String host, in String userName, in String password,
+    Bundle validate(in String protocol, in String host, in String userName, in String password,
         int port, boolean ssl, boolean trustCertificates) ;
 
     void startSync(long mailboxId);

@@ -36,6 +36,8 @@ import android.content.Intent;
 import android.database.Cursor;
 import android.media.AudioManager;
 import android.net.Uri;
+import android.os.Parcel;
+import android.os.Parcelable;
 import android.util.Log;
 
 /**
@@ -365,11 +367,9 @@ public class SecurityPolicy {
      */
     public void policiesRequired(long accountId) {
         Account account = EmailContent.Account.restoreAccountWithId(mContext, accountId);
-
         // Mark the account as "on hold".
         setAccountHoldFlag(account, true);
-
-        // Put up a notification
+        // Otherwise, put up a notification
         String tickerText = mContext.getString(R.string.security_notification_ticker_fmt,
                 account.getDisplayName());
         String contentTitle = mContext.getString(R.string.security_notification_content_title);
@@ -431,7 +431,7 @@ public class SecurityPolicy {
     /**
      * Class for tracking policies and reading/writing into accounts
      */
-    public static class PolicySet {
+    public static class PolicySet implements Parcelable {
 
         // Security (provisioning) flags
             // bits 0..4: password length (0=no password required)
@@ -628,6 +628,55 @@ public class SecurityPolicy {
                 return (this.getSecurityCode() == other.getSecurityCode());
             }
             return false;
+        }
+
+        /**
+         * Supports Parcelable
+         */
+        public int describeContents() {
+            return 0;
+        }
+
+        /**
+         * Supports Parcelable
+         */
+        public static final Parcelable.Creator<PolicySet> CREATOR
+                = new Parcelable.Creator<PolicySet>() {
+            public PolicySet createFromParcel(Parcel in) {
+                return new PolicySet(in);
+            }
+
+            public PolicySet[] newArray(int size) {
+                return new PolicySet[size];
+            }
+        };
+
+        /**
+         * Supports Parcelable
+         */
+        public void writeToParcel(Parcel dest, int flags) {
+            dest.writeInt(mMinPasswordLength);
+            dest.writeInt(mPasswordMode);
+            dest.writeInt(mMaxPasswordFails);
+            dest.writeInt(mMaxScreenLockTime);
+            dest.writeInt(mRequireRemoteWipe ? 1 : 0);
+            dest.writeInt(mPasswordExpiration);
+            dest.writeInt(mPasswordHistory);
+            dest.writeInt(mPasswordComplexChars);
+        }
+
+        /**
+         * Supports Parcelable
+         */
+        public PolicySet(Parcel in) {
+            mMinPasswordLength = in.readInt();
+            mPasswordMode = in.readInt();
+            mMaxPasswordFails = in.readInt();
+            mMaxScreenLockTime = in.readInt();
+            mRequireRemoteWipe = in.readInt() == 1;
+            mPasswordExpiration = in.readInt();
+            mPasswordHistory = in.readInt();
+            mPasswordComplexChars = in.readInt();
         }
 
         @Override

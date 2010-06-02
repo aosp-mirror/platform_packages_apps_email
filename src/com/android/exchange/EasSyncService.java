@@ -21,7 +21,6 @@ import com.android.email.SecurityPolicy;
 import com.android.email.Utility;
 import com.android.email.SecurityPolicy.PolicySet;
 import com.android.email.mail.Address;
-import com.android.email.mail.AuthenticationFailedException;
 import com.android.email.mail.MeetingInfo;
 import com.android.email.mail.MessagingException;
 import com.android.email.mail.PackedString;
@@ -377,8 +376,10 @@ public class EasSyncService extends AbstractSyncService {
     }
 
     @Override
-    public void validateAccount(String hostAddress, String userName, String password, int port,
-            boolean ssl, boolean trustCertificates, Context context) throws MessagingException {
+    public Bundle validateAccount(String hostAddress, String userName, String password, int port,
+            boolean ssl, boolean trustCertificates, Context context) {
+        Bundle bundle = new Bundle();
+        int resultCode = MessagingException.NO_ERROR;
         try {
             userLog("Testing EAS: ", hostAddress, ", ", userName, ", ssl = ", ssl ? "1" : "0");
             EasSyncService svc = new EasSyncService("%TestAccount%");
@@ -398,13 +399,19 @@ public class EasSyncService extends AbstractSyncService {
                 // No exception means successful validation
                 Header commands = resp.getFirstHeader("MS-ASProtocolCommands");
                 Header versions = resp.getFirstHeader("ms-asprotocolversions");
-                if (commands == null || versions == null) {
-                    userLog("OPTIONS response without commands or versions; reporting I/O error");
-                    throw new MessagingException(MessagingException.IOERROR);
-                }
-
                 // Make sure we've got the right protocol version set up
-                setupProtocolVersion(svc, versions);
+                try {
+                    if (commands == null || versions == null) {
+                        userLog("OPTIONS response without commands or versions");
+                        // We'll treat this as a protocol exception
+                        throw new MessagingException(0);
+                    }
+                    setupProtocolVersion(svc, versions);
+                } catch (MessagingException e) {
+                    bundle.putInt(EmailServiceProxy.VALIDATE_BUNDLE_RESULT_CODE,
+                            MessagingException.PROTOCOL_VERSION_UNSUPPORTED);
+                    return bundle;
+                }
 
                 // Run second test here for provisioning failures using FolderSync
                 userLog("Try folder sync");
@@ -423,42 +430,44 @@ public class EasSyncService extends AbstractSyncService {
                 // We'll get one of the following responses if policies are required by the server
                 if (code == HttpStatus.SC_FORBIDDEN || code == HTTP_NEED_PROVISIONING) {
                     // Get the policies and see if we are able to support them
-                    if (svc.canProvision() != null) {
-                        // If so, send the advisory Exception (the account may be created later)
-                        throw new MessagingException(MessagingException.SECURITY_POLICIES_REQUIRED);
+                    ProvisionParser pp = svc.canProvision();
+                    if (pp != null) {
+                        // If so, set the proper result code and save the PolicySet in our Bundle
+                        resultCode = MessagingException.SECURITY_POLICIES_REQUIRED;
+                        bundle.putParcelable(EmailServiceProxy.VALIDATE_BUNDLE_POLICY_SET,
+                                pp.getPolicySet());
                     } else
-                        // If not, send the unsupported Exception (the account won't be created)
-                        throw new MessagingException(
-                                MessagingException.SECURITY_POLICIES_UNSUPPORTED);
+                        // If not, set the proper code (the account will not be created)
+                        resultCode = MessagingException.SECURITY_POLICIES_UNSUPPORTED;
                 } else if (code == HttpStatus.SC_NOT_FOUND) {
                     // We get a 404 from OWA addresses (which are NOT EAS addresses)
-                    throw new MessagingException(MessagingException.PROTOCOL_VERSION_UNSUPPORTED);
+                    resultCode = MessagingException.PROTOCOL_VERSION_UNSUPPORTED;
                 } else if (code != HttpStatus.SC_OK) {
                     // Fail generically with anything other than success
                     userLog("Unexpected response for FolderSync: ", code);
-                    throw new MessagingException(MessagingException.UNSPECIFIED_EXCEPTION);
+                    resultCode = MessagingException.UNSPECIFIED_EXCEPTION;
+                } else {
+                    userLog("Validation successful");
                 }
-                userLog("Validation successful");
-                return;
-            }
-            if (isAuthError(code)) {
+            } else if (isAuthError(code)) {
                 userLog("Authentication failed");
-                throw new AuthenticationFailedException("Validation failed");
+                resultCode = MessagingException.AUTHENTICATION_FAILED;
             } else {
                 // TODO Need to catch other kinds of errors (e.g. policy) For now, report the code.
                 userLog("Validation failed, reporting I/O error: ", code);
-                throw new MessagingException(MessagingException.IOERROR);
+                resultCode = MessagingException.IOERROR;
             }
         } catch (IOException e) {
             Throwable cause = e.getCause();
             if (cause != null && cause instanceof CertificateException) {
                 userLog("CertificateException caught: ", e.getMessage());
-                throw new MessagingException(MessagingException.GENERAL_SECURITY);
+                resultCode = MessagingException.GENERAL_SECURITY;
             }
             userLog("IOException caught: ", e.getMessage());
-            throw new MessagingException(MessagingException.IOERROR);
+            resultCode = MessagingException.IOERROR;
         }
-
+        bundle.putInt(EmailServiceProxy.VALIDATE_BUNDLE_RESULT_CODE, resultCode);
+        return bundle;
     }
 
     /**
@@ -1414,13 +1423,19 @@ public class EasSyncService extends AbstractSyncService {
      */
     public void runAccountMailbox() throws IOException, EasParserException {
         // Initialize exit status to success
-        mExitStatus = EmailServiceStatus.SUCCESS;
+        mExitStatus = EXIT_DONE;
         try {
             try {
                 SyncManager.callback()
                     .syncMailboxListStatus(mAccount.mId, EmailServiceStatus.IN_PROGRESS, 0);
             } catch (RemoteException e1) {
                 // Don't care if this fails
+            }
+
+            // Don't run if we're being held
+            if ((mAccount.mFlags & Account.FLAGS_SECURITY_HOLD) != 0) {
+                mExitStatus = EXIT_SECURITY_FAILURE;
+                return;
             }
 
             if (mAccount.mSyncKey == null) {

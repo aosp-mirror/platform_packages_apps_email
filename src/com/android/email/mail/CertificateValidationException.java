@@ -20,10 +20,10 @@ public class CertificateValidationException extends MessagingException {
     public static final long serialVersionUID = -1;
 
     public CertificateValidationException(String message) {
-        super(message);
+        super(MessagingException.CERTIFICATE_VALIDATION_ERROR, message);
     }
 
     public CertificateValidationException(String message, Throwable throwable) {
-        super(message, throwable);
+        super(MessagingException.CERTIFICATE_VALIDATION_ERROR, message, throwable);
     }
 }

@@ -18,8 +18,7 @@ package com.android.email.activity.setup;
 
 import com.android.email.Email;
 import com.android.email.R;
-import com.android.email.mail.AuthenticationFailedException;
-import com.android.email.mail.CertificateValidationException;
+import com.android.email.SecurityPolicy.PolicySet;
 import com.android.email.mail.MessagingException;
 import com.android.email.mail.Sender;
 import com.android.email.mail.Store;
@@ -81,6 +80,7 @@ public class AccountSetupCheckSettings extends Activity implements OnClickListen
     private boolean mAutoDiscover;
     private boolean mCanceled;
     private boolean mDestroyed;
+    private PolicySet mPolicySet;
 
     public static void actionValidateSettings(Activity fromActivity, EmailContent.Account account,
             boolean checkIncoming, boolean checkOutgoing) {
@@ -99,18 +99,6 @@ public class AccountSetupCheckSettings extends Activity implements OnClickListen
         i.putExtra(EXTRA_AUTO_DISCOVER_USERNAME, userName);
         i.putExtra(EXTRA_AUTO_DISCOVER_PASSWORD, password);
         fromActivity.startActivityForResult(i, REQUEST_CODE_AUTO_DISCOVER);
-    }
-
-    /**
-     * We create this simple class so that showErrorDialog can differentiate between a regular
-     * auth error and an auth error during the autodiscover sequence and respond appropriately
-     */
-    private class AutoDiscoverAuthenticationException extends AuthenticationFailedException {
-        private static final long serialVersionUID = 1L;
-
-        public AutoDiscoverAuthenticationException(String message) {
-            super(message);
-        }
     }
 
     @Override
@@ -166,7 +154,8 @@ public class AccountSetupCheckSettings extends Activity implements OnClickListen
                             int errorCode =
                                 result.getInt(EmailServiceProxy.AUTO_DISCOVER_BUNDLE_ERROR_CODE);
                             if (errorCode == MessagingException.AUTHENTICATION_FAILED) {
-                                throw new AutoDiscoverAuthenticationException(null);
+                                throw new MessagingException(
+                                        MessagingException.AUTODISCOVER_AUTHENTICATION_FAILED);
                             } else if (errorCode != MessagingException.NO_ERROR) {
                                 setResult(RESULT_OK);
                                 finish();
@@ -194,7 +183,23 @@ public class AccountSetupCheckSettings extends Activity implements OnClickListen
                         Store store = Store.getInstance(
                                 mAccount.getStoreUri(AccountSetupCheckSettings.this),
                                 getApplication(), null);
-                        store.checkSettings();
+                        Bundle bundle = store.checkSettings();
+                        int resultCode = MessagingException.UNSPECIFIED_EXCEPTION;
+                        if (bundle != null) {
+                            resultCode = bundle.getInt(
+                                    EmailServiceProxy.VALIDATE_BUNDLE_RESULT_CODE);
+                        }
+                        if (resultCode == MessagingException.SECURITY_POLICIES_REQUIRED) {
+                            mPolicySet = (PolicySet)bundle.getParcelable(
+                                    EmailServiceProxy.VALIDATE_BUNDLE_POLICY_SET);
+                            showSecurityRequiredDialog();
+                            return;
+                        }
+                        if (resultCode != MessagingException.NO_ERROR) {
+                            String errorMessage =
+                                bundle.getString(EmailServiceProxy.VALIDATE_BUNDLE_ERROR_MESSAGE);
+                            throw new MessagingException(resultCode, errorMessage);
+                        }
                     }
                     if (mDestroyed) {
                         return;
@@ -217,32 +222,23 @@ public class AccountSetupCheckSettings extends Activity implements OnClickListen
                     }
                     setResult(RESULT_OK);
                     finish();
-                } catch (final AuthenticationFailedException afe) {
-                    // Could be two separate blocks (one for AutoDiscover) but this way we save
-                    // some code
-                    String message = afe.getMessage();
-                    int id = (message == null)
-                            ? R.string.account_setup_failed_dlg_auth_message
-                            : R.string.account_setup_failed_dlg_auth_message_fmt;
-                    showErrorDialog(afe instanceof AutoDiscoverAuthenticationException,
-                            id, message);
-                } catch (final CertificateValidationException cve) {
-                    String message = cve.getMessage();
-                    int id = (message == null)
-                        ? R.string.account_setup_failed_dlg_certificate_message
-                        : R.string.account_setup_failed_dlg_certificate_message_fmt;
-                    showErrorDialog(false, id, message);
                 } catch (final MessagingException me) {
                     int exceptionType = me.getExceptionType();
-                    // Check for non-fatal errors first
-                    if (exceptionType == MessagingException.SECURITY_POLICIES_REQUIRED) {
-                        showSecurityRequiredDialog();
-                        return;
-                    }
                     // Handle fatal errors
                     int id;
                     String message = me.getMessage();
                     switch (exceptionType) {
+                        case MessagingException.CERTIFICATE_VALIDATION_ERROR:
+                            id = (message == null)
+                                ? R.string.account_setup_failed_dlg_certificate_message
+                                : R.string.account_setup_failed_dlg_certificate_message_fmt;
+                            break;
+                        case MessagingException.AUTHENTICATION_FAILED:
+                        case MessagingException.AUTODISCOVER_AUTHENTICATION_FAILED:
+                            id = (message == null)
+                                ? R.string.account_setup_failed_dlg_auth_message
+                                : R.string.account_setup_failed_dlg_auth_message_fmt;
+                            break;
                         case MessagingException.IOERROR:
                             id = R.string.account_setup_failed_ioerror;
                             break;
@@ -264,7 +260,9 @@ public class AccountSetupCheckSettings extends Activity implements OnClickListen
                                     : R.string.account_setup_failed_dlg_server_message_fmt;
                             break;
                     }
-                    showErrorDialog(false, id, message);
+                    showErrorDialog(
+                            exceptionType == MessagingException.AUTODISCOVER_AUTHENTICATION_FAILED,
+                            id, message);
                 }
             }
         }.start();
@@ -349,7 +347,11 @@ public class AccountSetupCheckSettings extends Activity implements OnClickListen
                                 getString(R.string.okay_action),
                                 new DialogInterface.OnClickListener() {
                                     public void onClick(DialogInterface dialog, int which) {
-                                        setResult(RESULT_OK);
+                                        Intent intent = new Intent();
+                                        intent.putExtra(
+                                                EmailServiceProxy.VALIDATE_BUNDLE_POLICY_SET,
+                                                mPolicySet);
+                                        setResult(RESULT_OK, intent);
                                         finish();
                                     }
                                 })

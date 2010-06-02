@@ -23,8 +23,11 @@ public class AuthenticationFailedException extends MessagingException {
         super(MessagingException.AUTHENTICATION_FAILED, message);
     }
 
+    public AuthenticationFailedException(int exceptionType, String message) {
+        super(exceptionType, message);
+    }
+
     public AuthenticationFailedException(String message, Throwable throwable) {
-        super(message, throwable);
-        mExceptionType = MessagingException.AUTHENTICATION_FAILED;
+        super(MessagingException.AUTHENTICATION_FAILED, message, throwable);
      }
 }

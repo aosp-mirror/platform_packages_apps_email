@@ -16,7 +16,6 @@
 
 package com.android.email;
 
-import com.android.email.mail.MessagingException;
 import com.android.email.service.EmailServiceProxy;
 import com.android.email.service.IEmailService;
 import com.android.email.service.IEmailServiceCallback;
@@ -127,9 +126,9 @@ public class ExchangeUtils {
         public void updateFolderList(long accountId) throws RemoteException {
         }
 
-        public int validate(String protocol, String host, String userName, String password,
+        public Bundle validate(String protocol, String host, String userName, String password,
                 int port, boolean ssl, boolean trustCertificates) throws RemoteException {
-            return MessagingException.UNSPECIFIED_EXCEPTION;
+            return null;
         }
 
         public IBinder asBinder() {

@@ -19,6 +19,7 @@ package com.android.email.activity.setup;
 import com.android.email.Email;
 import com.android.email.ExchangeUtils;
 import com.android.email.R;
+import com.android.email.SecurityPolicy.PolicySet;
 import com.android.email.mail.Store;
 import com.android.email.mail.store.ExchangeStore;
 import com.android.email.provider.EmailContent;
@@ -48,6 +49,7 @@ public class AccountSetupOptions extends Activity implements OnClickListener {
     private static final String EXTRA_ACCOUNT = "account";
     private static final String EXTRA_MAKE_DEFAULT = "makeDefault";
     private static final String EXTRA_EAS_FLOW = "easFlow";
+    private static final String EXTRA_POLICY_SET = "policySet";
 
     private Spinner mCheckFrequencyView;
     private Spinner mSyncWindowView;
@@ -59,16 +61,22 @@ public class AccountSetupOptions extends Activity implements OnClickListener {
     private boolean mEasFlowMode;
     private Handler mHandler = new Handler();
     private boolean mDonePressed = false;
+    private PolicySet mPolicySet;
+
+    public static final int REQUEST_CODE_ACCEPT_POLICIES = 1;
 
     /** Default sync window for new EAS accounts */
     private static final int SYNC_WINDOW_EAS_DEFAULT = com.android.email.Account.SYNC_WINDOW_3_DAYS;
 
     public static void actionOptions(Activity fromActivity, EmailContent.Account account,
-            boolean makeDefault, boolean easFlowMode) {
+            boolean makeDefault, boolean easFlowMode, PolicySet policySet) {
         Intent i = new Intent(fromActivity, AccountSetupOptions.class);
         i.putExtra(EXTRA_ACCOUNT, account);
         i.putExtra(EXTRA_MAKE_DEFAULT, makeDefault);
         i.putExtra(EXTRA_EAS_FLOW, easFlowMode);
+        if (policySet != null) {
+            i.putExtra(EXTRA_POLICY_SET, policySet);
+        }
         fromActivity.startActivity(i);
     }
 
@@ -88,6 +96,7 @@ public class AccountSetupOptions extends Activity implements OnClickListener {
 
         mAccount = (EmailContent.Account) getIntent().getParcelableExtra(EXTRA_ACCOUNT);
         boolean makeDefault = getIntent().getBooleanExtra(EXTRA_MAKE_DEFAULT, false);
+        mPolicySet = (PolicySet) getIntent().getParcelableExtra(EXTRA_POLICY_SET);
 
         // Generate spinner entries using XML arrays used by the preferences
         int frequencyValuesId;
@@ -148,7 +157,7 @@ public class AccountSetupOptions extends Activity implements OnClickListener {
                 bundle.keySet();
                 mHandler.post(new Runnable() {
                     public void run() {
-                        finishOnDone();
+                        optionsComplete();
                     }
                 });
                 return;
@@ -184,9 +193,24 @@ public class AccountSetupOptions extends Activity implements OnClickListener {
         });
     }
 
-    private void finishOnDone() {
-        // Clear the incomplete flag now
-        mAccount.mFlags &= ~Account.FLAGS_INCOMPLETE;
+    @Override
+    public void onActivityResult(int requestCode, int resultCode, Intent data) {
+        saveAccountAndFinish();
+    }
+
+    private void optionsComplete() {
+        // If we've got policies for this account, ask the user to accept.
+        if ((mAccount.mFlags & Account.FLAGS_SECURITY_HOLD) != 0) {
+            Intent intent = AccountSecurity.actionUpdateSecurityIntent(this, mAccount.mId);
+            startActivityForResult(intent, AccountSetupOptions.REQUEST_CODE_ACCEPT_POLICIES);
+            return;
+        }
+        saveAccountAndFinish();
+    }
+
+    private void saveAccountAndFinish() {
+        // Clear the incomplete/security hold flag now
+        mAccount.mFlags &= ~(Account.FLAGS_INCOMPLETE | Account.FLAGS_SECURITY_HOLD);
         AccountSettingsUtils.commitSettings(this, mAccount);
         Email.setServicesEnabled(this);
         AccountSetupNames.actionSetNames(this, mAccount.mId, mEasFlowMode);
@@ -210,20 +234,26 @@ public class AccountSetupOptions extends Activity implements OnClickListener {
         }
         mAccount.setDefaultAccount(mDefaultView.isChecked());
 
-        // Call EAS to store account information for use by AccountManager
+        // If this is an Exchange account, setup up the AccountManager account
         if (!mAccount.isSaved()
                 && mAccount.mHostAuthRecv != null
                 && mAccount.mHostAuthRecv.mProtocol.equals("eas")) {
             boolean alsoSyncContacts = mSyncContactsView.isChecked();
             boolean alsoSyncCalendar = mSyncCalendarView.isChecked();
-            // Set the incomplete flag here to avoid reconciliation issues in SyncManager (EAS)
+            // Set the incomplete flag here to avoid reconciliation issues in SyncManager
+            // Set security hold if necessary to prevent initial sync until policies are accepted
             mAccount.mFlags |= Account.FLAGS_INCOMPLETE;
+            if (mPolicySet != null && mPolicySet.getSecurityCode() != 0) {
+                mAccount.mSecurityFlags = mPolicySet.getSecurityCode();
+                mAccount.mFlags |= Account.FLAGS_SECURITY_HOLD;
+            }
             AccountSettingsUtils.commitSettings(this, mAccount);
+            // The callback will call finishOnDone()
             ExchangeStore.addSystemAccount(getApplication(), mAccount,
                     alsoSyncContacts, alsoSyncCalendar, mAccountManagerCallback);
         } else {
-            finishOnDone();
-       }
+            optionsComplete();
+        }
     }
 
     public void onClick(View v) {

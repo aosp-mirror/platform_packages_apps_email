@@ -24,10 +24,10 @@ import com.android.email.mail.FetchProfile;
 import com.android.email.mail.Flag;
 import com.android.email.mail.Folder;
 import com.android.email.mail.Message;
-import com.android.email.mail.Message.RecipientType;
 import com.android.email.mail.MessagingException;
 import com.android.email.mail.Part;
 import com.android.email.mail.Store;
+import com.android.email.mail.Message.RecipientType;
 import com.android.email.mail.Store.PersistentDataCallbacks;
 import com.android.email.mail.internet.MimeBodyPart;
 import com.android.email.mail.internet.MimeHeader;
@@ -43,9 +43,10 @@ import android.content.Context;
 import android.database.Cursor;
 import android.database.sqlite.SQLiteDatabase;
 import android.net.Uri;
-import android.util.Log;
+import android.os.Bundle;
 import android.util.Base64;
 import android.util.Base64OutputStream;
+import android.util.Log;
 
 import java.io.ByteArrayInputStream;
 import java.io.File;
@@ -331,7 +332,8 @@ public class LocalStore extends Store implements PersistentDataCallbacks {
     }
 
     @Override
-    public void checkSettings() throws MessagingException {
+    public Bundle checkSettings() throws MessagingException {
+        return null;
     }
 
     /**

@@ -21,7 +21,6 @@ import com.android.email.AccountBackupRestore;
 import com.android.email.Email;
 import com.android.email.SecurityPolicy;
 import com.android.email.Utility;
-import com.android.email.mail.MessagingException;
 import com.android.email.mail.transport.SSLUtils;
 import com.android.email.provider.EmailContent;
 import com.android.email.provider.EmailContent.Account;
@@ -287,15 +286,10 @@ public class SyncManager extends Service implements Runnable {
      */
     private final IEmailService.Stub mBinder = new IEmailService.Stub() {
 
-        public int validate(String protocol, String host, String userName, String password,
+        public Bundle validate(String protocol, String host, String userName, String password,
                 int port, boolean ssl, boolean trustCertificates) throws RemoteException {
-            try {
-                AbstractSyncService.validate(EasSyncService.class, host, userName, password, port,
-                        ssl, trustCertificates, SyncManager.this);
-                return MessagingException.NO_ERROR;
-            } catch (MessagingException e) {
-                return e.getExceptionType();
-            }
+            return AbstractSyncService.validate(EasSyncService.class, host, userName, password,
+                    port, ssl, trustCertificates, SyncManager.this);
         }
 
         public Bundle autoDiscover(String userName, String password) throws RemoteException {
@@ -524,12 +518,12 @@ public class SyncManager extends Service implements Runnable {
                 collectEasAccounts(c, currentAccounts);
                 synchronized (mAccountList) {
                     for (Account account : mAccountList) {
-                        // Ignore accounts not fully created
-                        if ((account.mFlags & Account.FLAGS_INCOMPLETE) != 0) {
-                            log("Account observer noticed incomplete account; ignoring");
-                            continue;
-                        } else if (!currentAccounts.contains(account.mId)) {
-                            // This is a deletion; shut down any account-related syncs
+                        boolean accountIncomplete =
+                            (account.mFlags & Account.FLAGS_INCOMPLETE) != 0;
+                        // If the current list doesn't include this account and the account wasn't
+                        // incomplete, then this is a deletion
+                        if (!currentAccounts.contains(account.mId) && !accountIncomplete) {
+                            // Shut down any account-related syncs
                             stopAccountSyncs(account.mId, true);
                             // Delete this from AccountManager...
                             android.accounts.Account acct = new android.accounts.Account(
@@ -538,9 +532,9 @@ public class SyncManager extends Service implements Runnable {
                             mSyncableEasMailboxSelector = null;
                             mEasAccountSelector = null;
                         } else {
-                            // An account has changed
-                            Account updatedAccount = Account.restoreAccountWithId(context,
-                                    account.mId);
+                            // Get the newest version of this account
+                            Account updatedAccount =
+                                Account.restoreAccountWithId(context, account.mId);
                             if (updatedAccount == null) continue;
                             if (account.mSyncInterval != updatedAccount.mSyncInterval
                                     || account.mSyncLookback != updatedAccount.mSyncLookback) {

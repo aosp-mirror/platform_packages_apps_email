@@ -50,6 +50,10 @@ public class EmailServiceProxy implements IEmailService {
     public static final String AUTO_DISCOVER_BUNDLE_ERROR_CODE = "autodiscover_error_code";
     public static final String AUTO_DISCOVER_BUNDLE_HOST_AUTH = "autodiscover_host_auth";
 
+    public static final String VALIDATE_BUNDLE_RESULT_CODE = "validate_result_code";
+    public static final String VALIDATE_BUNDLE_POLICY_SET = "validate_policy_set";
+    public static final String VALIDATE_BUNDLE_ERROR_MESSAGE = "validate_error_message";
+
     private final Context mContext;
     private final Class<?> mClass;
     private final IEmailServiceCallback mCallback;
@@ -192,7 +196,7 @@ public class EmailServiceProxy implements IEmailService {
         });
     }
 
-    public int validate(final String protocol, final String host, final String userName,
+    public Bundle validate(final String protocol, final String host, final String userName,
             final String password, final int port, final boolean ssl,
             final boolean trustCertificates) throws RemoteException {
         setTask(new Runnable () {
@@ -207,10 +211,13 @@ public class EmailServiceProxy implements IEmailService {
         });
         waitForCompletion();
         if (mReturn == null) {
-            return MessagingException.UNSPECIFIED_EXCEPTION;
+            Bundle bundle = new Bundle();
+            bundle.putInt(VALIDATE_BUNDLE_RESULT_CODE, MessagingException.UNSPECIFIED_EXCEPTION);
+            return bundle;
         } else {
-            Log.v(TAG, "validate returns " + mReturn);
-            return (Integer)mReturn;
+            Bundle bundle = (Bundle) mReturn;
+            Log.v(TAG, "validate returns " + bundle.getInt(VALIDATE_BUNDLE_RESULT_CODE));
+            return bundle;
         }
     }
 

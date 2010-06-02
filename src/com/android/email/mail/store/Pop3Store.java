@@ -30,8 +30,10 @@ import com.android.email.mail.Folder.OpenMode;
 import com.android.email.mail.internet.MimeMessage;
 import com.android.email.mail.transport.LoggingInputStream;
 import com.android.email.mail.transport.MailTransport;
+import com.android.email.service.EmailServiceProxy;
 
 import android.content.Context;
+import android.os.Bundle;
 import android.util.Config;
 import android.util.Log;
 
@@ -169,14 +171,16 @@ public class Pop3Store extends Store {
      * @throws MessagingException if there was some problem with the account
      */
     @Override
-    public void checkSettings() throws MessagingException {
+    public Bundle checkSettings() throws MessagingException {
         Pop3Folder folder = new Pop3Folder("INBOX");
+        Bundle bundle = null;
         try {
             folder.open(OpenMode.READ_WRITE, null);
-            folder.checkSettings();
+            bundle = folder.checkSettings();
         } finally {
             folder.close(false);    // false == don't expunge anything
         }
+        return bundle;
     }
 
     class Pop3Folder extends Folder {
@@ -202,9 +206,12 @@ public class Pop3Store extends Store {
          * an additional test to see if UIDL is supported on the server. If it's not we
          * can't service this account.
          *
+         * @return Bundle containing validation data (code and, if appropriate, error message)
          * @throws MessagingException if the account is not going to be useable
          */
-        public void checkSettings() throws MessagingException {
+        public Bundle checkSettings() throws MessagingException {
+            Bundle bundle = new Bundle();
+            int result = MessagingException.NO_ERROR;
             if (!mCapabilities.uidl) {
                 try {
                     UidlParser parser = new UidlParser();
@@ -219,9 +226,13 @@ public class Pop3Store extends Store {
                     }
                 } catch (IOException ioe) {
                     mTransport.close();
-                    throw new MessagingException(null, ioe);
+                    result = MessagingException.IOERROR;
+                    bundle.putString(EmailServiceProxy.VALIDATE_BUNDLE_ERROR_MESSAGE,
+                            ioe.getMessage());
                 }
             }
+            bundle.putInt(EmailServiceProxy.VALIDATE_BUNDLE_RESULT_CODE, result);
+            return bundle;
         }
 
         @Override

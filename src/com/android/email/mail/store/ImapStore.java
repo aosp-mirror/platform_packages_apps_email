@@ -45,10 +45,12 @@ import com.android.email.mail.transport.CountingOutputStream;
 import com.android.email.mail.transport.DiscourseLogger;
 import com.android.email.mail.transport.EOLConvertingOutputStream;
 import com.android.email.mail.transport.MailTransport;
+import com.android.email.service.EmailServiceProxy;
 import com.beetstra.jutf7.CharsetProvider;
 
 import android.content.Context;
 import android.os.Build;
+import android.os.Bundle;
 import android.telephony.TelephonyManager;
 import android.text.TextUtils;
 import android.util.Base64;
@@ -418,16 +420,21 @@ public class ImapStore extends Store {
     }
 
     @Override
-    public void checkSettings() throws MessagingException {
+    public Bundle checkSettings() throws MessagingException {
+        int result = MessagingException.NO_ERROR;
+        Bundle bundle = new Bundle();
         ImapConnection connection = new ImapConnection();
         try {
             connection.open();
             connection.close();
         } catch (IOException ioe) {
-            throw new MessagingException(MessagingException.IOERROR, ioe.toString());
+            bundle.putString(EmailServiceProxy.VALIDATE_BUNDLE_ERROR_MESSAGE, ioe.getMessage());
+            result = MessagingException.IOERROR;
         } finally {
             connection.destroyResponses();
         }
+        bundle.putInt(EmailServiceProxy.VALIDATE_BUNDLE_RESULT_CODE, result);
+        return bundle;
     }
 
     /**
