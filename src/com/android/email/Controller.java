@@ -71,9 +71,14 @@ public class Controller {
     };
     private static int MESSAGEID_TO_MAILBOXID_COLUMN_MAILBOXID = 1;
 
-    /** Cache used by {@link #getServiceForAccount} */
-    private final ConcurrentHashMap<Long, Object> mAccountToService
-            = new ConcurrentHashMap<Long, Object>();
+    private static final int ACCOUNT_TYPE_LEGACY = 0;
+    private static final int ACCOUNT_TYPE_SERVICE = 1;
+
+    /**
+     * Cache used by {@link #getServiceForAccount}.  Map from account-ids to ACCOUNT_TYPE_*.
+     */
+    private final ConcurrentHashMap<Long, Integer> mAccountToType
+            = new ConcurrentHashMap<Long, Integer>();
 
     protected Controller(Context _context) {
         mContext = _context.getApplicationContext();
@@ -787,24 +792,29 @@ public class Controller {
      */
     private IEmailService getServiceForAccount(long accountId) {
         // First, try cache.
-        final Object value = mAccountToService.get(accountId);
-        if (value != null) {
-            if (value instanceof IEmailService) {
-                return (IEmailService) value;
-            } else {
-                return null;
+        final Integer type = mAccountToType.get(accountId);
+        if (type != null) {
+            // Cached
+            switch (type) {
+                case ACCOUNT_TYPE_LEGACY:
+                    return null;
+                case ACCOUNT_TYPE_SERVICE:
+                    return getExchangeEmailService();
             }
         }
+        // Not cached
         Account account = EmailContent.Account.restoreAccountWithId(mProviderContext, accountId);
         if (account == null || isMessagingController(account)) {
-            // Put any non-IEmailService object to indicate it uses the legacy controller.
-            mAccountToService.put(accountId, "");
+            mAccountToType.put(accountId, ACCOUNT_TYPE_LEGACY);
             return null;
         } else {
-            IEmailService s = ExchangeUtils.getExchangeEmailService(mContext, mServiceCallback);
-            mAccountToService.put(accountId, s);
-            return s;
+            mAccountToType.put(accountId, ACCOUNT_TYPE_SERVICE);
+            return getExchangeEmailService();
         }
+    }
+
+    private IEmailService getExchangeEmailService() {
+        return ExchangeUtils.getExchangeEmailService(mContext, mServiceCallback);
     }
 
     /**
@@ -832,7 +842,7 @@ public class Controller {
      * TODO: Make it really delete accounts and remove DeleteAccountTask.
      */
     public void deleteAccount(long accountId) {
-        mAccountToService.remove(accountId);
+        mAccountToType.remove(accountId);
     }
 
     /**
