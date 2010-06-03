@@ -17,6 +17,7 @@
 package com.android.email.activity;
 
 import com.android.email.Controller;
+import com.android.email.ControllerResultUiThreadWrapper;
 import com.android.email.Email;
 import com.android.email.R;
 import com.android.email.Utility;
@@ -30,7 +31,6 @@ import com.android.email.provider.EmailContent.Account;
 import com.android.email.provider.EmailContent.AccountColumns;
 import com.android.email.provider.EmailContent.Mailbox;
 import com.android.email.provider.EmailContent.MailboxColumns;
-import com.android.email.provider.EmailContent.Message;
 import com.android.email.provider.EmailContent.MessageColumns;
 import com.android.email.service.MailService;
 
@@ -40,25 +40,16 @@ import android.content.ContentResolver;
 import android.content.ContentUris;
 import android.content.Context;
 import android.content.Intent;
-import android.content.res.ColorStateList;
-import android.content.res.Resources;
-import android.content.res.TypedArray;
-import android.content.res.Resources.Theme;
 import android.database.Cursor;
-import android.graphics.Typeface;
-import android.graphics.drawable.Drawable;
 import android.net.Uri;
 import android.os.AsyncTask;
 import android.os.Bundle;
 import android.os.Handler;
-import android.os.SystemClock;
-import android.util.Log;
 import android.view.ContextMenu;
 import android.view.LayoutInflater;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
-import android.view.ViewGroup;
 import android.view.ContextMenu.ContextMenuInfo;
 import android.view.View.OnClickListener;
 import android.view.animation.Animation;
@@ -66,19 +57,14 @@ import android.view.animation.AnimationUtils;
 import android.view.animation.Animation.AnimationListener;
 import android.widget.AdapterView;
 import android.widget.Button;
-import android.widget.CursorAdapter;
-import android.widget.ImageView;
 import android.widget.ListView;
 import android.widget.ProgressBar;
 import android.widget.TextView;
 import android.widget.Toast;
 import android.widget.AdapterView.OnItemClickListener;
 
-import java.util.Date;
 import java.util.HashSet;
 import java.util.Set;
-import java.util.Timer;
-import java.util.TimerTask;
 
 public class MessageList extends ListActivity implements OnItemClickListener, OnClickListener,
         AnimationListener, MessageListAdapter.Callback {
@@ -113,9 +99,8 @@ public class MessageList extends ListActivity implements OnItemClickListener, On
     private int mListFooterMode;
 
     private MessageListAdapter mListAdapter;
-    private MessageListHandler mHandler;
     private final Controller mController = Controller.getInstance(getApplication());
-    private ControllerResults mControllerCallback;
+    private ControllerResultUiThreadWrapper<ControllerResults> mControllerCallback;
 
     private TextView mLeftTitle;
     private ProgressBar mProgressIcon;
@@ -236,8 +221,8 @@ public class MessageList extends ListActivity implements OnItemClickListener, On
         super.onCreate(icicle);
         setContentView(R.layout.message_list);
 
-        mHandler = new MessageListHandler();
-        mControllerCallback = new ControllerResults();
+        mControllerCallback = new ControllerResultUiThreadWrapper<ControllerResults>(
+                new Handler(), new ControllerResults());
         mCanAutoRefresh = true;
         mListView = getListView();
         mMultiSelectPanel = findViewById(R.id.footer_organize);
@@ -1074,8 +1059,12 @@ public class MessageList extends ListActivity implements OnItemClickListener, On
         private final long mAccountId;
         private final int mMailboxType;
         private final boolean mOkToRecurse;
-        private boolean showWelcomeActivity;
-        private boolean showSecurityActivity;
+
+        private static final int ACTION_DEFAULT = 0;
+        private static final int SHOW_WELCOME_ACTIVITY = 1;
+        private static final int SHOW_SECURITY_ACTIVITY = 2;
+        private static final int START_NETWORK_LOOK_UP = 3;
+        private int mAction = ACTION_DEFAULT;
 
         /**
          * Special constructor to cache some local info
@@ -1084,16 +1073,14 @@ public class MessageList extends ListActivity implements OnItemClickListener, On
             mAccountId = accountId;
             mMailboxType = mailboxType;
             mOkToRecurse = okToRecurse;
-            showWelcomeActivity = false;
-            showSecurityActivity = false;
         }
 
         @Override
         protected Long doInBackground(Void... params) {
             // Quick check that account is not in security hold
             if (mAccountId != -1 && isSecurityHold(mAccountId)) {
-                showSecurityActivity = true;
-                return Long.valueOf(-1);
+                mAction = SHOW_SECURITY_ACTIVITY;
+                return Mailbox.NO_MAILBOX;
             }
             // See if we can find the requested mailbox in the DB.
             long mailboxId = Mailbox.findMailboxOfType(MessageList.this, mAccountId, mMailboxType);
@@ -1102,12 +1089,11 @@ public class MessageList extends ListActivity implements OnItemClickListener, On
                 final boolean accountExists = Account.isValidId(MessageList.this, mAccountId);
                 if (accountExists && mOkToRecurse) {
                     // launch network lookup
-                    mControllerCallback.presetMailboxListCallback(mMailboxType, mAccountId);
-                    mController.updateMailboxList(mAccountId, mControllerCallback);
+                    mAction = START_NETWORK_LOOK_UP;
                 } else {
                     // We don't want to do the network lookup, or the account doesn't exist in the
                     // first place.
-                    showWelcomeActivity = true;
+                    mAction = SHOW_WELCOME_ACTIVITY;
                 }
             }
             return mailboxId;
@@ -1115,27 +1101,36 @@ public class MessageList extends ListActivity implements OnItemClickListener, On
 
         @Override
         protected void onPostExecute(Long mailboxId) {
-            if (showSecurityActivity) {
-                // launch the security setup activity
-                Intent i = AccountSecurity.actionUpdateSecurityIntent(
-                        MessageList.this, mAccountId);
-                MessageList.this.startActivityForResult(i, REQUEST_SECURITY);
-                return;
+            switch (mAction) {
+                case SHOW_SECURITY_ACTIVITY:
+                    // launch the security setup activity
+                    Intent i = AccountSecurity.actionUpdateSecurityIntent(
+                            MessageList.this, mAccountId);
+                    MessageList.this.startActivityForResult(i, REQUEST_SECURITY);
+                    return;
+                case SHOW_WELCOME_ACTIVITY:
+                    // Let the Welcome activity show the default screen.
+                    Welcome.actionStart(MessageList.this);
+                    finish();
+                    return;
+                case START_NETWORK_LOOK_UP:
+                    mControllerCallback.getWrappee().presetMailboxListCallback(
+                            mMailboxType, mAccountId);
+
+                    // TODO updateMailboxList accessed DB, so we shouldn't call on the UI thread,
+                    // but we should fix the Controller side.  (Other Controller methods too access
+                    // DB but are called on the UI thread.)
+                    mController.updateMailboxList(mAccountId, mControllerCallback);
+                    return;
+                default:
+                    // At this point, mailboxId != NO_MAILBOX
+                    mMailboxId = mailboxId;
+                    mSetTitleTask = new SetTitleTask(mMailboxId);
+                    mSetTitleTask.execute();
+                    mLoadMessagesTask = new LoadMessagesTask(mMailboxId, mAccountId);
+                    mLoadMessagesTask.execute();
+                    return;
             }
-            if (showWelcomeActivity) {
-                // Let the Welcome activity show the default screen.
-                Welcome.actionStart(MessageList.this);
-                finish();
-                return;
-            }
-            if (mailboxId == null || mailboxId == Mailbox.NO_MAILBOX) {
-                return;
-            }
-            mMailboxId = mailboxId;
-            mSetTitleTask = new SetTitleTask(mMailboxId);
-            mSetTitleTask.execute();
-            mLoadMessagesTask = new LoadMessagesTask(mMailboxId, mAccountId);
-            mLoadMessagesTask.execute();
         }
     }
 
@@ -1315,124 +1310,62 @@ public class MessageList extends ListActivity implements OnItemClickListener, On
         }
     }
 
-    /**
-     * Handler for UI-thread operations (when called from callbacks or any other threads)
-     */
-    class MessageListHandler extends Handler {
-        private static final int MSG_PROGRESS = 1;
-        private static final int MSG_LOOKUP_MAILBOX_TYPE = 2;
-        private static final int MSG_ERROR_BANNER = 3;
+    private void showProgressIcon(boolean show) {
+        int visibility = show ? View.VISIBLE : View.GONE;
+        mProgressIcon.setVisibility(visibility);
+        if (mListFooterProgress != null) {
+            mListFooterProgress.setVisibility(visibility);
+        }
+        setListFooterText(show);
+    }
 
-        @Override
-        public void handleMessage(android.os.Message msg) {
-            switch (msg.what) {
-                case MSG_PROGRESS:
-                    boolean visible = (msg.arg1 != 0);
-                    if (visible) {
-                        mProgressIcon.setVisibility(View.VISIBLE);
-                    } else {
-                        mProgressIcon.setVisibility(View.GONE);
-                    }
-                    if (mListFooterProgress != null) {
-                        mListFooterProgress.setVisibility(visible ? View.VISIBLE : View.GONE);
-                    }
-                    setListFooterText(visible);
-                    break;
-                case MSG_LOOKUP_MAILBOX_TYPE:
-                    // kill running async task, if any
-                    if (mFindMailboxTask != null &&
-                            mFindMailboxTask.getStatus() != FindMailboxTask.Status.FINISHED) {
-                        mFindMailboxTask.cancel(true);
-                        mFindMailboxTask = null;
-                    }
-                    // start new one.  do not recurse back to controller.
-                    long accountId = ((Long)msg.obj).longValue();
-                    int mailboxType = msg.arg1;
-                    mFindMailboxTask = new FindMailboxTask(accountId, mailboxType, false);
-                    mFindMailboxTask.execute();
-                    break;
-                case MSG_ERROR_BANNER:
-                    String message = (String) msg.obj;
-                    boolean isVisible = mErrorBanner.getVisibility() == View.VISIBLE;
-                    if (message != null) {
-                        mErrorBanner.setText(message);
-                        if (!isVisible) {
-                            mErrorBanner.setVisibility(View.VISIBLE);
-                            mErrorBanner.startAnimation(
-                                    AnimationUtils.loadAnimation(
-                                            MessageList.this, R.anim.header_appear));
-                        }
-                    } else {
-                        if (isVisible) {
-                            mErrorBanner.setVisibility(View.GONE);
-                            mErrorBanner.startAnimation(
-                                    AnimationUtils.loadAnimation(
-                                            MessageList.this, R.anim.header_disappear));
-                        }
-                    }
-                    break;
-                default:
-                    super.handleMessage(msg);
+    private void lookupMailboxType(long accountId, int mailboxType) {
+        // kill running async task, if any
+        Utility.cancelTaskInterrupt(mFindMailboxTask);
+        // start new one.  do not recurse back to controller.
+        mFindMailboxTask = new FindMailboxTask(accountId, mailboxType, false);
+        mFindMailboxTask.execute();
+    }
+
+    private void showErrorBanner(String message) {
+        boolean isVisible = mErrorBanner.getVisibility() == View.VISIBLE;
+        if (message != null) {
+            mErrorBanner.setText(message);
+            if (!isVisible) {
+                mErrorBanner.setVisibility(View.VISIBLE);
+                mErrorBanner.startAnimation(
+                        AnimationUtils.loadAnimation(
+                                MessageList.this, R.anim.header_appear));
             }
-        }
-
-        /**
-         * Call from any thread to start/stop progress indicator(s)
-         * @param progress true to start, false to stop
-         */
-        public void progress(boolean progress) {
-            android.os.Message msg = android.os.Message.obtain();
-            msg.what = MSG_PROGRESS;
-            msg.arg1 = progress ? 1 : 0;
-            sendMessage(msg);
-        }
-
-        /**
-         * Called from any thread to look for a mailbox of a specific type.  This is designed
-         * to be called from the Controller's MailboxList callback;  It instructs the async task
-         * not to recurse, in case the mailbox is not found after this.
-         *
-         * See FindMailboxTask for more notes on this handler.
-         */
-        public void lookupMailboxType(long accountId, int mailboxType) {
-            android.os.Message msg = android.os.Message.obtain();
-            msg.what = MSG_LOOKUP_MAILBOX_TYPE;
-            msg.arg1 = mailboxType;
-            msg.obj = Long.valueOf(accountId);
-            sendMessage(msg);
-        }
-
-        /**
-         * Called from any thread to show or hide the connection error banner.
-         * @param message error text or null to hide the box
-         */
-        public void showErrorBanner(String message) {
-            android.os.Message msg = android.os.Message.obtain();
-            msg.what = MSG_ERROR_BANNER;
-            msg.obj = message;
-            sendMessage(msg);
+        } else {
+            if (isVisible) {
+                mErrorBanner.setVisibility(View.GONE);
+                mErrorBanner.startAnimation(
+                        AnimationUtils.loadAnimation(
+                                MessageList.this, R.anim.header_disappear));
+            }
         }
     }
 
     /**
-     * Callback for async Controller results.
+     * Controller results listener.  We wrap it with {@link ControllerResultUiThreadWrapper},
+     * so all methods are called on the UI thread.
      */
     private class ControllerResults implements Controller.Result {
 
         // This is used to alter the connection banner operation for sending messages
         MessagingException mSendMessageException;
 
-        // These values are set by FindMailboxTask, and used by updateMailboxListCallback
-        // Access to these must be synchronized because of various threads dealing with them
+        // These values are set by FindMailboxTask.
         private int mWaitForMailboxType = -1;
         private long mWaitForMailboxAccount = -1;
 
-        public synchronized void presetMailboxListCallback(int mailboxType, long accountId) {
+        public void presetMailboxListCallback(int mailboxType, long accountId) {
             mWaitForMailboxType = mailboxType;
             mWaitForMailboxAccount = accountId;
         }
 
-        public synchronized void updateMailboxListCallback(MessagingException result,
+        public void updateMailboxListCallback(MessagingException result,
                 long accountKey, int progress) {
             // updateMailboxList is never the end goal in MessageList, so we don't show
             // these errors.  There are a couple of corner cases that we miss reporting, but
@@ -1442,7 +1375,7 @@ public class MessageList extends ListActivity implements OnItemClickListener, On
             updateProgress(result, progress);
             if (progress == 100 && accountKey == mWaitForMailboxAccount) {
                 mWaitForMailboxAccount = -1;
-                mHandler.lookupMailboxType(accountKey, mWaitForMailboxType);
+                lookupMailboxType(accountKey, mWaitForMailboxType);
             }
         }
 
@@ -1497,11 +1430,7 @@ public class MessageList extends ListActivity implements OnItemClickListener, On
         }
 
         private void updateProgress(MessagingException result, int progress) {
-            if (result != null || progress == 100) {
-                mHandler.progress(false);
-            } else if (progress == 0) {
-                mHandler.progress(true);
-            }
+            showProgressIcon(result == null && progress < 100);
         }
 
         /**
@@ -1544,9 +1473,9 @@ public class MessageList extends ListActivity implements OnItemClickListener, On
                             break;
                     }
                 }
-                mHandler.showErrorBanner(getString(id));
+                showErrorBanner(getString(id));
             } else if (progress > 0) {
-                mHandler.showErrorBanner(null);
+                showErrorBanner(null);
             }
         }
     }
