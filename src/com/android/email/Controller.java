@@ -42,6 +42,7 @@ import android.util.Log;
 
 import java.io.File;
 import java.util.HashSet;
+import java.util.concurrent.ConcurrentHashMap;
 
 /**
  * New central controller/dispatcher for Email activities that may require remote operations.
@@ -69,6 +70,10 @@ public class Controller {
         EmailContent.MessageColumns.MAILBOX_KEY
     };
     private static int MESSAGEID_TO_MAILBOXID_COLUMN_MAILBOXID = 1;
+
+    /** Cache used by {@link #getServiceForAccount} */
+    private final ConcurrentHashMap<Long, Object> mAccountToService
+            = new ConcurrentHashMap<Long, Object>();
 
     protected Controller(Context _context) {
         mContext = _context.getApplicationContext();
@@ -777,18 +782,28 @@ public class Controller {
     /**
      * For a given account id, return a service proxy if applicable, or null.
      *
-     * TODO this should use a cache because we'll be doing this a lot
-     *
      * @param accountId the message of interest
      * @result service proxy, or null if n/a
      */
     private IEmailService getServiceForAccount(long accountId) {
-        // TODO make this more efficient, caching the account, MUCH smaller lookup here, etc.
+        // First, try cache.
+        final Object value = mAccountToService.get(accountId);
+        if (value != null) {
+            if (value instanceof IEmailService) {
+                return (IEmailService) value;
+            } else {
+                return null;
+            }
+        }
         Account account = EmailContent.Account.restoreAccountWithId(mProviderContext, accountId);
         if (account == null || isMessagingController(account)) {
+            // Put any non-IEmailService object to indicate it uses the legacy controller.
+            mAccountToService.put(accountId, "");
             return null;
         } else {
-            return ExchangeUtils.getExchangeEmailService(mContext, mServiceCallback);
+            IEmailService s = ExchangeUtils.getExchangeEmailService(mContext, mServiceCallback);
+            mAccountToService.put(accountId, s);
+            return s;
         }
     }
 
@@ -809,6 +824,15 @@ public class Controller {
         String scheme = info.mScheme;
 
         return ("pop3".equals(scheme) || "imap".equals(scheme));
+    }
+
+    /**
+     * This method should be called when an account is deleted.
+     *
+     * TODO: Make it really delete accounts and remove DeleteAccountTask.
+     */
+    public void deleteAccount(long accountId) {
+        mAccountToService.remove(accountId);
     }
 
     /**
