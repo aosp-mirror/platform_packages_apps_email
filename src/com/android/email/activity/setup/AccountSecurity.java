@@ -21,8 +21,11 @@ import com.android.email.SecurityPolicy;
 import com.android.email.provider.EmailContent.Account;
 
 import android.app.Activity;
+import android.app.AlertDialog;
+import android.app.Dialog;
 import android.app.admin.DevicePolicyManager;
 import android.content.Context;
+import android.content.DialogInterface;
 import android.content.Intent;
 import android.os.Bundle;
 
@@ -40,7 +43,11 @@ public class AccountSecurity extends Activity {
 
     private static final String EXTRA_ACCOUNT_ID = "com.android.email.activity.setup.ACCOUNT_ID";
 
+    private static final int DIALOG_KEYGUARD_DISABLED = 1;
+
     private static final int REQUEST_ENABLE = 1;
+
+    private String mKeyguardBlockerName;
 
     /**
      * Used for generating intent for this activity (which is intended to be launched
@@ -59,6 +66,11 @@ public class AccountSecurity extends Activity {
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+        boolean finishNow = true;
+        // Return RESULT_OK in all cases unless explicitly changed (see below).  This is ignored
+        // when we're launched from notification, but it's checked when we're launched from
+        // (and return to) AccountSetupNames.
+        setResult(Activity.RESULT_OK);
 
         Intent i = getIntent();
         long accountId = i.getLongExtra(EXTRA_ACCOUNT_ID, -1);
@@ -68,7 +80,8 @@ public class AccountSecurity extends Activity {
             // TODO: spin up a thread to do this in the background, because of DB ops
             Account account = Account.restoreAccountWithId(this, accountId);
             if (account != null) {
-                if (account.mSecurityFlags != 0) {
+                if ((account.mSecurityFlags != 0) ||
+                        (0 != (account.mFlags & Account.FLAGS_SECURITY_HOLD))) {
                     // This account wants to control security
                     if (!security.isActiveAdmin()) {
                         // try to become active - must happen here in this activity, to get result
@@ -83,12 +96,14 @@ public class AccountSecurity extends Activity {
                         return;
                     } else {
                         // already active - try to set actual policies, finish, and return
-                        setActivePolicies();
+                        finishNow = setActivePolicies();
                     }
                 }
             }
         }
-        finish();
+        if (finishNow) {
+            finish();
+        }
     }
 
     /**
@@ -96,11 +111,12 @@ public class AccountSecurity extends Activity {
      */
     @Override
     protected void onActivityResult(int requestCode, int resultCode, Intent data) {
+        boolean finishNow = true;
         switch (requestCode) {
             case REQUEST_ENABLE:
                 if (resultCode == Activity.RESULT_OK) {
                     // now active - try to set actual policies
-                    setActivePolicies();
+                    finishNow = setActivePolicies();
                 } else {
                     // failed - repost notification, and exit
                     final long accountId = getIntent().getLongExtra(EXTRA_ACCOUNT_ID, -1);
@@ -115,31 +131,85 @@ public class AccountSecurity extends Activity {
                     }
                 }
         }
-        finish();
+        // This activity has no layout and in most cases serves only as a dispatcher for
+        // checking and adjusting device security policies.  However, in a few cases, it
+        // presents an error dialog.  In those cases, setActivePolicies() will return false, and
+        // we don't call finish() so the dialog is able to display.
+        if (finishNow) {
+            finish();
+        }
         super.onActivityResult(requestCode, resultCode, data);
     }
 
     /**
      * Now that we are connected as an active device admin, try to set the device to the
      * correct security level, and ask for a password if necessary.
+     *
+     * @return true if OK to finish the activity (false if we posted a dialog)
      */
-    private void setActivePolicies() {
+    private boolean setActivePolicies() {
         SecurityPolicy sp = SecurityPolicy.getInstance(this);
         // check current security level - if sufficient, we're done!
         if (sp.isActive(null)) {
             sp.clearAccountHoldFlags();
-            return;
+            return true;
         }
         // set current security level
         sp.setActivePolicies();
         // check current security level - if sufficient, we're done!
         if (sp.isActive(null)) {
             sp.clearAccountHoldFlags();
-            return;
+            return true;
+        }
+        // if the problem is an app blocking the lock screen, notify the user
+        String keyguardBlocker = sp.getKeyguardDisablePackage();
+        if (keyguardBlocker != null) {
+            mKeyguardBlockerName = keyguardBlocker;
+            showDialog(DIALOG_KEYGUARD_DISABLED);
+            // Set activity to return RESULT_CANCELED (after dialog) to notify caller that we
+            // didn't configure policies completely.
+            setResult(Activity.RESULT_CANCELED);
+            return false;
         }
         // if not sufficient, launch the activity to have the user set a new password.
         Intent intent = new Intent(DevicePolicyManager.ACTION_SET_NEW_PASSWORD);
         startActivity(intent);
+        // TODO: use startActivityForResult, and when we see the result, recheck to see
+        // if the user actually entered a sufficient password.  If not, repost the notification.
+        return true;
     }
 
+    @Override
+    public Dialog onCreateDialog(int id) {
+        switch (id) {
+            case DIALOG_KEYGUARD_DISABLED:
+                return new AlertDialog.Builder(this)
+                    .setIcon(android.R.drawable.ic_dialog_alert)
+                    .setTitle(R.string.keyguard_disabled_dlg_title)
+                    .setMessage(getString(R.string.keyguard_disabled_dlg_message_fmt,
+                            mKeyguardBlockerName))
+                    .setNeutralButton(R.string.okay_action, new DialogInterface.OnClickListener() {
+                        public void onClick(DialogInterface dialog, int whichButton) {
+                            dismissDialog(DIALOG_KEYGUARD_DISABLED);
+                            finish();
+                        }
+                    })
+                    .setCancelable(false)
+                    .create();
+        }
+        return super.onCreateDialog(id);
+    }
+
+    /**
+     * Update a cached dialog with current values (e.g. account name)
+     */
+    @Override
+    public void onPrepareDialog(int id, Dialog dialog) {
+        switch (id) {
+            case DIALOG_KEYGUARD_DISABLED:
+                AlertDialog alert = (AlertDialog) dialog;
+                alert.setMessage(getString(R.string.keyguard_disabled_dlg_message_fmt,
+                        mKeyguardBlockerName));
+        }
+    }
 }
