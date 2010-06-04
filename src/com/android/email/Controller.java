@@ -821,12 +821,47 @@ public class Controller {
     }
 
     /**
-     * This method should be called when an account is deleted.
-     *
-     * TODO: Make it really delete accounts and remove DeleteAccountTask.
+     * Delete an account.
      */
-    public void deleteAccount(long accountId) {
+    public void deleteAccount(final long accountId) {
         mAccountToType.remove(accountId);
+        Utility.runAsync(new Runnable() {
+            public void run() {
+                try {
+                    // Get the account URI.
+                    final Account account = Account.restoreAccountWithId(mContext, accountId);
+                    if (account == null) {
+                        return; // Already deleted?
+                    }
+                    final String accountUri = account.getStoreUri(mContext);
+
+                    // Delete Remote store at first.
+                    Store.getInstance(accountUri, mContext, null).delete();
+
+                    // Remove the Store instance from cache.
+                    Store.removeInstance(accountUri);
+                    Uri uri = ContentUris.withAppendedId(
+                            EmailContent.Account.CONTENT_URI, accountId);
+                    mContext.getContentResolver().delete(uri, null, null);
+
+                    // Update the backup (side copy) of the accounts
+                    AccountBackupRestore.backupAccounts(mContext);
+
+                    // Release or relax device administration, if relevant
+                    SecurityPolicy.getInstance(mContext).reducePolicies();
+
+                    Email.setServicesEnabled(mContext);
+                } catch (Exception e) {
+                    // Ignore
+                } finally {
+                    synchronized (mListeners) {
+                        for (Result l : mListeners) {
+                            l.deleteAccountCallback(accountId);
+                        }
+                    }
+                }
+            }
+        });
     }
 
     /**
@@ -909,6 +944,12 @@ public class Controller {
          */
         public void sendMailCallback(MessagingException result, long accountId,
                 long messageId, int progress) {
+        }
+
+        /**
+         * Callback from {@link Controller#deleteAccount}.
+         */
+        public void deleteAccountCallback(long accountId) {
         }
     }
 

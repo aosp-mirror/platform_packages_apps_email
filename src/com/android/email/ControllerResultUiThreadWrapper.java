@@ -98,4 +98,13 @@ public class ControllerResultUiThreadWrapper<T extends Result> extends Result {
             }
         });
     }
+
+    @Override
+    public void deleteAccountCallback(final long accountId) {
+        mHandler.post(new Runnable() {
+            public void run() {
+                mWrappee.deleteAccountCallback(accountId);
+            }
+        });
+    }
 }

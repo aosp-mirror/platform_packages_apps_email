@@ -16,17 +16,14 @@
 
 package com.android.email.activity;
 
-import com.android.email.AccountBackupRestore;
 import com.android.email.Controller;
 import com.android.email.ControllerResultUiThreadWrapper;
 import com.android.email.Email;
 import com.android.email.R;
-import com.android.email.SecurityPolicy;
 import com.android.email.Utility;
 import com.android.email.activity.setup.AccountSettings;
 import com.android.email.activity.setup.AccountSetupBasics;
 import com.android.email.mail.MessagingException;
-import com.android.email.mail.Store;
 import com.android.email.provider.EmailContent;
 import com.android.email.provider.EmailContent.Account;
 import com.android.email.provider.EmailContent.Mailbox;
@@ -39,14 +36,12 @@ import android.app.AlertDialog;
 import android.app.Dialog;
 import android.app.ListActivity;
 import android.app.NotificationManager;
-import android.content.ContentUris;
 import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.database.Cursor;
 import android.database.MatrixCursor;
 import android.database.MatrixCursor.RowBuilder;
-import android.net.Uri;
 import android.os.AsyncTask;
 import android.os.Bundle;
 import android.os.Handler;
@@ -87,7 +82,6 @@ public class AccountFolderList extends ListActivity
     private AccountsAdapter mListAdapter;
 
     private LoadAccountsTask mLoadAccountsTask;
-    private DeleteAccountTask mDeleteAccountTask;
     private Controller.Result mControllerCallback;
 
     private static final String FAVORITE_COUNT_SELECTION =
@@ -180,13 +174,6 @@ public class AccountFolderList extends ListActivity
         super.onDestroy();
         Utility.cancelTaskInterrupt(mLoadAccountsTask);
         mLoadAccountsTask = null;
-
-        // TODO: We shouldn't call cancel() for DeleteAccountTask.  If the task hasn't
-        // started, this will mark it as "don't run", but we always want it to finish.
-        // (But don't just remove this cancel() call.  DeleteAccountTask.onPostExecute() checks if
-        // it's been canceled to decided whether to update the UI.)
-        Utility.cancelTask(mDeleteAccountTask, false); // Don't interrupt if it's running.
-        mDeleteAccountTask = null;
 
         if (mListAdapter != null) {
             mListAdapter.changeCursor(null);
@@ -345,44 +332,6 @@ public class AccountFolderList extends ListActivity
         }
     }
 
-    private class DeleteAccountTask extends AsyncTask<Void, Void, Void> {
-        private final long mAccountId;
-        private final String mAccountUri;
-
-        public DeleteAccountTask(long accountId, String accountUri) {
-            mAccountId = accountId;
-            mAccountUri = accountUri;
-        }
-
-        @Override
-        protected Void doInBackground(Void... params) {
-            try {
-                // Delete Remote store at first.
-                Store.getInstance(mAccountUri, getApplication(), null).delete();
-                // Remove the Store instance from cache.
-                Store.removeInstance(mAccountUri);
-                Uri uri = ContentUris.withAppendedId(
-                        EmailContent.Account.CONTENT_URI, mAccountId);
-                AccountFolderList.this.getContentResolver().delete(uri, null, null);
-                // Update the backup (side copy) of the accounts
-                AccountBackupRestore.backupAccounts(AccountFolderList.this);
-                // Release or relax device administration, if relevant
-                SecurityPolicy.getInstance(AccountFolderList.this).reducePolicies();
-            } catch (Exception e) {
-                    // Ignore
-            }
-            Email.setServicesEnabled(AccountFolderList.this);
-            return null;
-        }
-
-        @Override
-        protected void onPostExecute(Void v) {
-            if (!isCancelled()) {
-                updateAccounts();
-            }
-        }
-    }
-
     private void updateAccounts() {
         Utility.cancelTaskInterrupt(mLoadAccountsTask);
         mLoadAccountsTask = (LoadAccountsTask) new LoadAccountsTask().execute();
@@ -454,9 +403,8 @@ public class AccountFolderList extends ListActivity
                             Account.CONTENT_URI, null, null);
                     mListAdapter.addOnDeletingAccount(mSelectedContextAccount.mId);
 
-                    mDeleteAccountTask = (DeleteAccountTask) new DeleteAccountTask(
-                            mSelectedContextAccount.mId,
-                            mSelectedContextAccount.getStoreUri(AccountFolderList.this)).execute();
+                    Controller.getInstance(AccountFolderList.this).deleteAccount(
+                            mSelectedContextAccount.mId);
                     if (numAccounts == 1) {
                         AccountSetupBasics.actionNewAccount(AccountFolderList.this);
                         finish();
@@ -630,7 +578,10 @@ public class AccountFolderList extends ListActivity
         private void updateProgress(MessagingException result, int progress) {
             showProgressIcon(result == null && progress < 100);
         }
+
+        @Override
+        public void deleteAccountCallback(long accountId) {
+            updateAccounts();
+        }
     }
 }
-
-
