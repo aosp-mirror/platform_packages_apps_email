@@ -589,7 +589,7 @@ public class MessageView extends Activity implements OnClickListener {
     private void onRespond(int response, int toastResId) {
         // do not send twice in a row the same response
         if (mPreviousMeetingResponse != response) {
-            mController.sendMeetingResponse(mMessageId, response, mControllerCallback);
+            mController.sendMeetingResponse(mMessageId, response);
             mPreviousMeetingResponse = response;
         }
         Toast.makeText(this, toastResId, Toast.LENGTH_SHORT).show();
@@ -615,7 +615,7 @@ public class MessageView extends Activity implements OnClickListener {
         mLoadAttachmentName = attachment.name;
 
         mController.loadAttachment(attachment.attachmentId, mMessageId, mMessage.mMailboxKey,
-                mAccountId, mControllerCallback);
+                mAccountId);
     }
 
     private void onViewAttachment(AttachmentInfo attachment) {
@@ -624,7 +624,7 @@ public class MessageView extends Activity implements OnClickListener {
         mLoadAttachmentName = attachment.name;
 
         mController.loadAttachment(attachment.attachmentId, mMessageId, mMessage.mMailboxKey,
-                mAccountId, mControllerCallback);
+                mAccountId);
     }
 
     private void onShowPictures() {
@@ -1231,7 +1231,7 @@ public class MessageView extends Activity implements OnClickListener {
         // 4. Else start the loader tasks right away (message already loaded)
         if (okToFetch && message.mFlagLoaded != Message.FLAG_LOADED_COMPLETE) {
             mWaitForLoadMessageId = message.mId;
-            mController.loadMessageForView(message.mId, mControllerCallback);
+            mController.loadMessageForView(message.mId);
         } else {
             mWaitForLoadMessageId = -1;
             // Ask for body
@@ -1315,8 +1315,8 @@ public class MessageView extends Activity implements OnClickListener {
      * Controller results listener.  We wrap it with {@link ControllerResultUiThreadWrapper},
      * so all methods are called on the UI thread.
      */
-    private class ControllerResults implements Controller.Result {
-
+    private class ControllerResults extends Controller.Result {
+        @Override
         public void loadMessageForViewCallback(MessagingException result, long messageId,
                 int progress) {
             if (messageId != MessageView.this.mMessageId
@@ -1357,6 +1357,7 @@ public class MessageView extends Activity implements OnClickListener {
             }
         }
 
+        @Override
         public void loadAttachmentCallback(MessagingException result, long messageId,
                 long attachmentId, int progress) {
             if (messageId == MessageView.this.mMessageId) {
@@ -1406,23 +1407,12 @@ public class MessageView extends Activity implements OnClickListener {
             setProgressBarIndeterminateVisibility(show);
         }
 
+        @Override
         public void updateMailboxCallback(MessagingException result, long accountId,
                 long mailboxId, int progress, int numNewMessages) {
             if (result != null || progress == 100) {
                 Email.updateMailboxRefreshTime(mailboxId);
             }
-        }
-
-        public void updateMailboxListCallback(MessagingException result, long accountId,
-                int progress) {
-        }
-
-        public void serviceCheckMailCallback(MessagingException result, long accountId,
-                long mailboxId, int progress, long tag) {
-        }
-
-        public void sendMailCallback(MessagingException result, long accountId, long messageId,
-                int progress) {
         }
     }
 

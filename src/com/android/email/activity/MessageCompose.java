@@ -1522,32 +1522,13 @@ public class MessageCompose extends Activity implements OnClickListener, OnFocus
         }
     }
 
-    private class Listener implements Controller.Result {
-        public void updateMailboxListCallback(MessagingException result, long accountId,
-                int progress) {
-        }
-
+    private class Listener extends Controller.Result {
+        @Override
         public void updateMailboxCallback(MessagingException result, long accountId,
                 long mailboxId, int progress, int numNewMessages) {
             if (result != null || progress == 100) {
                 Email.updateMailboxRefreshTime(mailboxId);
             }
-        }
-
-        public void loadMessageForViewCallback(MessagingException result, long messageId,
-                int progress) {
-        }
-
-        public void loadAttachmentCallback(MessagingException result, long messageId,
-                long attachmentId, int progress) {
-        }
-
-        public void serviceCheckMailCallback(MessagingException result, long accountId,
-                long mailboxId, int progress, long tag) {
-        }
-
-        public void sendMailCallback(MessagingException result, long accountId, long messageId,
-                int progress) {
         }
     }
 }

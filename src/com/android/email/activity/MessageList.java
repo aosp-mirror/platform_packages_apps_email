@@ -538,7 +538,7 @@ public class MessageList extends ListActivity implements OnItemClickListener, On
         if (mMailboxId >= 0) {
             Mailbox mailbox = Mailbox.restoreMailboxWithId(this, mMailboxId);
             if (mailbox != null) {
-                mController.updateMailbox(mailbox.mAccountKey, mMailboxId, mControllerCallback);
+                mController.updateMailbox(mailbox.mAccountKey, mMailboxId);
             }
         }
     }
@@ -628,7 +628,7 @@ public class MessageList extends ListActivity implements OnItemClickListener, On
 
     private void onLoadMoreMessages() {
         if (mMailboxId >= 0) {
-            mController.loadMoreMessages(mMailboxId, mControllerCallback);
+            mController.loadMoreMessages(mMailboxId);
         }
     }
 
@@ -640,7 +640,7 @@ public class MessageList extends ListActivity implements OnItemClickListener, On
             try {
                 while (c.moveToNext()) {
                     long accountId = c.getLong(Account.ID_PROJECTION_COLUMN);
-                    mController.sendPendingMessages(accountId, mControllerCallback);
+                    mController.sendPendingMessages(accountId);
                 }
             } finally {
                 c.close();
@@ -648,7 +648,7 @@ public class MessageList extends ListActivity implements OnItemClickListener, On
         } else {
             long accountKey = lookupAccountIdFromMailboxId(mMailboxId);
             if (accountKey > -2) {
-                mController.sendPendingMessages(accountKey, mControllerCallback);
+                mController.sendPendingMessages(accountKey);
             } else {
                 finish();
             }
@@ -1120,7 +1120,7 @@ public class MessageList extends ListActivity implements OnItemClickListener, On
                     // TODO updateMailboxList accessed DB, so we shouldn't call on the UI thread,
                     // but we should fix the Controller side.  (Other Controller methods too access
                     // DB but are called on the UI thread.)
-                    mController.updateMailboxList(mAccountId, mControllerCallback);
+                    mController.updateMailboxList(mAccountId);
                     return;
                 default:
                     // At this point, mailboxId != NO_MAILBOX
@@ -1351,7 +1351,7 @@ public class MessageList extends ListActivity implements OnItemClickListener, On
      * Controller results listener.  We wrap it with {@link ControllerResultUiThreadWrapper},
      * so all methods are called on the UI thread.
      */
-    private class ControllerResults implements Controller.Result {
+    private class ControllerResults extends Controller.Result {
 
         // This is used to alter the connection banner operation for sending messages
         MessagingException mSendMessageException;
@@ -1365,6 +1365,7 @@ public class MessageList extends ListActivity implements OnItemClickListener, On
             mWaitForMailboxAccount = accountId;
         }
 
+        @Override
         public void updateMailboxListCallback(MessagingException result,
                 long accountKey, int progress) {
             // updateMailboxList is never the end goal in MessageList, so we don't show
@@ -1380,6 +1381,7 @@ public class MessageList extends ListActivity implements OnItemClickListener, On
         }
 
         // TODO check accountKey and only react to relevant notifications
+        @Override
         public void updateMailboxCallback(MessagingException result, long accountKey,
                 long mailboxKey, int progress, int numNewMessages) {
             updateBanner(result, progress, mailboxKey);
@@ -1387,18 +1389,6 @@ public class MessageList extends ListActivity implements OnItemClickListener, On
                 Email.updateMailboxRefreshTime(mailboxKey);
             }
             updateProgress(result, progress);
-        }
-
-        public void loadMessageForViewCallback(MessagingException result, long messageId,
-                int progress) {
-        }
-
-        public void loadAttachmentCallback(MessagingException result, long messageId,
-                long attachmentId, int progress) {
-        }
-
-        public void serviceCheckMailCallback(MessagingException result, long accountId,
-                long mailboxId, int progress, long tag) {
         }
 
         /**
@@ -1409,6 +1399,7 @@ public class MessageList extends ListActivity implements OnItemClickListener, On
          *  result == xxxx, messageId == xx, progress == 0;     failed sending one message
          *  result == null, messageId == -1, progres == 100;    finish sending batch
          */
+        @Override
         public void sendMailCallback(MessagingException result, long accountId, long messageId,
                 int progress) {
             if (mListFooterMode == LIST_FOOTER_MODE_SEND) {

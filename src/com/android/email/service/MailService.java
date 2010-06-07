@@ -248,7 +248,7 @@ public class MailService extends Service {
             }
             stopSelf(startId);
         }
-        
+
         // Returning START_NOT_STICKY means that if a mail check is killed (e.g. due to memory
         // pressure, there will be no explicit restart.  This is OK;  Note that we set a watchdog
         // alarm before each mailbox check.  If the mailbox check never completes, the watchdog
@@ -409,7 +409,7 @@ public class MailService extends Service {
         if (inboxId == Mailbox.NO_MAILBOX) {
             return false;
         } else {
-            controller.serviceCheckMail(checkAccountId, inboxId, startId, mControllerCallback);
+            controller.serviceCheckMail(checkAccountId, inboxId, startId);
             return true;
         }
     }
@@ -581,16 +581,8 @@ public class MailService extends Service {
         }
     }
 
-    class ControllerResults implements Controller.Result {
-
-        public void loadMessageForViewCallback(MessagingException result, long messageId,
-                int progress) {
-        }
-
-        public void loadAttachmentCallback(MessagingException result, long messageId,
-                long attachmentId, int progress) {
-        }
-
+    class ControllerResults extends Controller.Result {
+        @Override
         public void updateMailboxCallback(MessagingException result, long accountId,
                 long mailboxId, int progress, int numNewMessages) {
             if (result != null || progress == 100) {
@@ -612,10 +604,7 @@ public class MailService extends Service {
             }
         }
 
-        public void updateMailboxListCallback(MessagingException result, long accountId,
-                int progress) {
-        }
-
+        @Override
         public void serviceCheckMailCallback(MessagingException result, long accountId,
                 long mailboxId, int progress, long tag) {
             if (result != null || progress == 100) {
@@ -632,10 +621,6 @@ public class MailService extends Service {
                 }
                 stopSelf(serviceId);
             }
-        }
-
-        public void sendMailCallback(MessagingException result, long accountId, long messageId,
-                int progress) {
         }
     }
 

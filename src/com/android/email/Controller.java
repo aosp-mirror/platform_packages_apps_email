@@ -158,7 +158,7 @@ public class Controller {
      *
      * TODO: Clean up threading in MessagingController cases (or perhaps here in Controller)
      */
-    public void updateMailboxList(final long accountId, final Result callback) {
+    public void updateMailboxList(final long accountId) {
 
         IEmailService service = getServiceForAccount(accountId);
         if (service != null) {
@@ -172,12 +172,11 @@ public class Controller {
             }
         } else {
             // MessagingController implementation
-            new Thread() {
-                @Override
+            Utility.runAsync(new Runnable() {
                 public void run() {
                     mLegacyController.listFolders(accountId, mLegacyListener);
                 }
-            }.start();
+            });
         }
     }
 
@@ -187,8 +186,7 @@ public class Controller {
      * Functionally this is quite similar to updateMailbox(), but it's a separate API and
      * separate callback in order to keep UI callbacks from affecting the service loop.
      */
-    public void serviceCheckMail(final long accountId, final long mailboxId, final long tag,
-            final Result callback) {
+    public void serviceCheckMail(final long accountId, final long mailboxId, final long tag) {
         IEmailService service = getServiceForAccount(accountId);
         if (service != null) {
             // Service implementation
@@ -196,7 +194,7 @@ public class Controller {
                 // TODO this isn't quite going to work, because we're going to get the
                 // generic (UI) callbacks and not the ones we need to restart the ol' service.
                 // service.startSync(mailboxId, tag);
-                callback.serviceCheckMailCallback(null, accountId, mailboxId, 100, tag);
+            mLegacyListener.checkMailFinished(mContext, accountId, mailboxId, tag);
 //            } catch (RemoteException e) {
                 // TODO Change exception handling to be consistent with however this method
                 // is implemented for other protocols
@@ -204,12 +202,11 @@ public class Controller {
 //            }
         } else {
             // MessagingController implementation
-            new Thread() {
-                @Override
+            Utility.runAsync(new Runnable() {
                 public void run() {
                     mLegacyController.checkMail(accountId, tag, mLegacyListener);
                 }
-            }.start();
+            });
         }
     }
 
@@ -220,7 +217,7 @@ public class Controller {
      * a simple message list.  We should also at this point queue up a background task of
      * downloading some/all of the messages in this mailbox, but that should be interruptable.
      */
-    public void updateMailbox(final long accountId, final long mailboxId, final Result callback) {
+    public void updateMailbox(final long accountId, final long mailboxId) {
 
         IEmailService service = getServiceForAccount(accountId);
         if (service != null) {
@@ -234,8 +231,7 @@ public class Controller {
             }
         } else {
             // MessagingController implementation
-            new Thread() {
-                @Override
+            Utility.runAsync(new Runnable() {
                 public void run() {
                     // TODO shouldn't be passing fully-build accounts & mailboxes into APIs
                     Account account =
@@ -247,7 +243,7 @@ public class Controller {
                     }
                     mLegacyController.synchronizeMailbox(account, mailbox, mLegacyListener);
                 }
-            }.start();
+            });
         }
     }
 
@@ -261,7 +257,7 @@ public class Controller {
      * @param messageId the message to load
      * @param callback the Controller callback by which results will be reported
      */
-    public void loadMessageForView(final long messageId, final Result callback) {
+    public void loadMessageForView(final long messageId) {
 
         // Split here for target type (Service or MessagingController)
         IEmailService service = getServiceForMessage(messageId);
@@ -280,12 +276,11 @@ public class Controller {
             }
         } else {
             // MessagingController implementation
-            new Thread() {
-                @Override
+            Utility.runAsync(new Runnable() {
                 public void run() {
                     mLegacyController.loadMessageForView(messageId, mLegacyListener);
                 }
-            }.start();
+            });
         }
     }
 
@@ -415,12 +410,11 @@ public class Controller {
             final EmailContent.Account account =
                     EmailContent.Account.restoreAccountWithId(mProviderContext, accountId);
             final long sentboxId = findOrCreateMailboxOfType(accountId, Mailbox.TYPE_SENT);
-            new Thread() {
-                @Override
+            Utility.runAsync(new Runnable() {
                 public void run() {
                     mLegacyController.sendPendingMessages(account, sentboxId, mLegacyListener);
                 }
-            }.start();
+            });
         }
     }
 
@@ -430,7 +424,7 @@ public class Controller {
      * @param accountId the account for which to send messages (-1 for all accounts)
      * @param callback
      */
-    public void sendPendingMessages(long accountId, Result callback) {
+    public void sendPendingMessages(long accountId) {
         // 1. make sure we even have an outbox, exit early if not
         final long outboxId =
             Mailbox.findMailboxOfType(mProviderContext, accountId, Mailbox.TYPE_OUTBOX);
@@ -454,12 +448,11 @@ public class Controller {
             final EmailContent.Account account =
                 EmailContent.Account.restoreAccountWithId(mProviderContext, accountId);
             final long sentboxId = findOrCreateMailboxOfType(accountId, Mailbox.TYPE_SENT);
-            new Thread() {
-                @Override
+            Utility.runAsync(new Runnable() {
                 public void run() {
                     mLegacyController.sendPendingMessages(account, sentboxId, mLegacyListener);
                 }
-            }.start();
+            });
         }
     }
 
@@ -470,8 +463,7 @@ public class Controller {
      *   write limit into all mailboxes for that account
      */
     public void resetVisibleLimits() {
-        new Thread() {
-            @Override
+        Utility.runAsync(new Runnable() {
             public void run() {
                 ContentResolver resolver = mProviderContext.getContentResolver();
                 Cursor c = null;
@@ -502,7 +494,7 @@ public class Controller {
                     }
                 }
             }
-        }.start();
+        });
     }
 
     /**
@@ -512,9 +504,8 @@ public class Controller {
      * @param mailboxId the mailbox
      * @param callback
      */
-    public void loadMoreMessages(final long mailboxId, Result callback) {
-        new Thread() {
-            @Override
+    public void loadMoreMessages(final long mailboxId) {
+        Utility.runAsync(new Runnable() {
             public void run() {
                 Mailbox mailbox = Mailbox.restoreMailboxWithId(mProviderContext, mailboxId);
                 if (mailbox == null) {
@@ -539,7 +530,7 @@ public class Controller {
                     mLegacyController.synchronizeMailbox(account, mailbox, mLegacyListener);
                 }
             }
-        }.start();
+        });
     }
 
     /**
@@ -630,12 +621,11 @@ public class Controller {
         Account account = Account.restoreAccountWithId(mProviderContext, accountId);
         if (isMessagingController(account)) {
             final long syncAccountId = accountId;
-            new Thread() {
-                @Override
+            Utility.runAsync(new Runnable() {
                 public void run() {
                     mLegacyController.processPendingActions(syncAccountId);
                 }
-            }.start();
+            });
         }
     }
 
@@ -658,12 +648,11 @@ public class Controller {
         final Message message = Message.restoreMessageWithId(mProviderContext, messageId);
         Account account = Account.restoreAccountWithId(mProviderContext, message.mAccountKey);
         if (isMessagingController(account)) {
-            new Thread() {
-                @Override
+            Utility.runAsync(new Runnable() {
                 public void run() {
                     mLegacyController.processPendingActions(message.mAccountKey);
                 }
-            }.start();
+            });
         }
     }
 
@@ -686,12 +675,11 @@ public class Controller {
         final Message message = Message.restoreMessageWithId(mProviderContext, messageId);
         Account account = Account.restoreAccountWithId(mProviderContext, message.mAccountKey);
         if (isMessagingController(account)) {
-            new Thread() {
-                @Override
+            Utility.runAsync(new Runnable() {
                 public void run() {
                     mLegacyController.processPendingActions(message.mAccountKey);
                 }
-            }.start();
+            });
         }
     }
 
@@ -700,10 +688,8 @@ public class Controller {
      *
      * @param messageId the id of the invitation being responded to
      * @param response the code representing the response to the invitation
-     * @callback the Controller callback by which results will be reported (currently not defined)
      */
-    public void sendMeetingResponse(final long messageId, final int response,
-            final Result callback) {
+    public void sendMeetingResponse(final long messageId, final int response) {
          // Split here for target type (Service or MessagingController)
         IEmailService service = getServiceForMessage(messageId);
         if (service != null) {
@@ -726,10 +712,9 @@ public class Controller {
      * @param messageId the owner message
      * @param mailboxId the owner mailbox
      * @param accountId the owner account
-     * @param callback the Controller callback by which results will be reported
      */
     public void loadAttachment(final long attachmentId, final long messageId, final long mailboxId,
-            final long accountId, final Result callback) {
+            final long accountId) {
 
         File saveToFile = AttachmentProvider.getAttachmentFilename(mProviderContext,
                 accountId, attachmentId);
@@ -762,13 +747,12 @@ public class Controller {
             }
         } else {
             // MessagingController implementation
-            new Thread() {
-                @Override
+            Utility.runAsync(new Runnable() {
                 public void run() {
                     mLegacyController.loadAttachment(accountId, messageId, mailboxId, attachmentId,
                             mLegacyListener);
                 }
-            }.start();
+            });
         }
     }
 
@@ -850,7 +834,7 @@ public class Controller {
      * and the result is observed via provider cursors.  The callback will *not* necessarily be
      * made from the UI thread, so you may need further handlers to safely make UI updates.
      */
-    public interface Result {
+    public static abstract class Result {
         /**
          * Callback for updateMailboxList
          *
@@ -859,7 +843,8 @@ public class Controller {
          * @param progress 0 for "starting", 1..99 for updates (if needed in UI), 100 for complete
          */
         public void updateMailboxListCallback(MessagingException result, long accountId,
-                int progress);
+                int progress) {
+        }
 
         /**
          * Callback for updateMailbox.  Note:  This looks a lot like checkMailCallback, but
@@ -872,7 +857,8 @@ public class Controller {
          * @param numNewMessages the number of new messages delivered
          */
         public void updateMailboxCallback(MessagingException result, long accountId,
-                long mailboxId, int progress, int numNewMessages);
+                long mailboxId, int progress, int numNewMessages) {
+        }
 
         /**
          * Callback for loadMessageForView
@@ -882,7 +868,8 @@ public class Controller {
          * @param progress 0 for "starting", 1..99 for updates (if needed in UI), 100 for complete
          */
         public void loadMessageForViewCallback(MessagingException result, long messageId,
-                int progress);
+                int progress) {
+        }
 
         /**
          * Callback for loadAttachment
@@ -893,7 +880,8 @@ public class Controller {
          * @param progress 0 for "starting", 1..99 for updates (if needed in UI), 100 for complete
          */
         public void loadAttachmentCallback(MessagingException result, long messageId,
-                long attachmentId, int progress);
+                long attachmentId, int progress) {
+        }
 
         /**
          * Callback for checkmail.  Note:  This looks a lot like updateMailboxCallback, but
@@ -907,7 +895,8 @@ public class Controller {
          * @param tag the same tag that was passed to serviceCheckMail()
          */
         public void serviceCheckMailCallback(MessagingException result, long accountId,
-                long mailboxId, int progress, long tag);
+                long mailboxId, int progress, long tag) {
+        }
 
         /**
          * Callback for sending pending messages.  This will be called once to start the
@@ -919,7 +908,8 @@ public class Controller {
          * @param progress 0 for "starting", 100 for complete
          */
         public void sendMailCallback(MessagingException result, long accountId,
-                long messageId, int progress);
+                long messageId, int progress) {
+        }
     }
 
     /**

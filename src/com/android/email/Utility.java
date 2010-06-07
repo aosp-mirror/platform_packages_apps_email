@@ -632,4 +632,16 @@ public class Utility {
             }
         });
     }
+
+    /**
+     * Run {@code r} on a worker thread.
+     */
+    public static void runAsync(final Runnable r) {
+        new AsyncTask<Void, Void, Void>() {
+            @Override protected Void doInBackground(Void... params) {
+                r.run();
+                return null;
+            }
+        }.execute();
+    }
 }

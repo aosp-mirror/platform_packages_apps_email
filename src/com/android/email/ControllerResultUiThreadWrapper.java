@@ -25,7 +25,7 @@ import android.os.Handler;
  * A {@link Result} that wraps another {@link Result} and makes sure methods gets called back
  * on the UI thread.
  */
-public class ControllerResultUiThreadWrapper<T extends Result> implements Result {
+public class ControllerResultUiThreadWrapper<T extends Result> extends Result {
     private final Handler mHandler;
     private final T mWrappee;
 
@@ -38,6 +38,7 @@ public class ControllerResultUiThreadWrapper<T extends Result> implements Result
         return mWrappee;
     }
 
+    @Override
     public void loadAttachmentCallback(final MessagingException result, final long messageId,
             final long attachmentId, final int progress) {
         mHandler.post(new Runnable() {
@@ -47,6 +48,7 @@ public class ControllerResultUiThreadWrapper<T extends Result> implements Result
         });
     }
 
+    @Override
     public void loadMessageForViewCallback(final MessagingException result,
             final long messageId, final int progress) {
         mHandler.post(new Runnable() {
@@ -56,6 +58,7 @@ public class ControllerResultUiThreadWrapper<T extends Result> implements Result
         });
     }
 
+    @Override
     public void sendMailCallback(final MessagingException result, final long accountId,
             final long messageId, final int progress) {
         mHandler.post(new Runnable() {
@@ -65,6 +68,7 @@ public class ControllerResultUiThreadWrapper<T extends Result> implements Result
         });
     }
 
+    @Override
     public void serviceCheckMailCallback(final MessagingException result, final long accountId,
             final long mailboxId, final int progress, final long tag) {
         mHandler.post(new Runnable() {
@@ -74,6 +78,7 @@ public class ControllerResultUiThreadWrapper<T extends Result> implements Result
         });
     }
 
+    @Override
     public void updateMailboxCallback(final MessagingException result, final long accountId,
             final long mailboxId, final int progress, final int numNewMessages) {
         mHandler.post(new Runnable() {
@@ -84,6 +89,7 @@ public class ControllerResultUiThreadWrapper<T extends Result> implements Result
         });
     }
 
+    @Override
     public void updateMailboxListCallback(final MessagingException result, final long accountId,
             final int progress) {
         mHandler.post(new Runnable() {

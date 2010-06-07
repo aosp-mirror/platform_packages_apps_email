@@ -408,8 +408,7 @@ public class AccountFolderList extends ListActivity
                     Toast.LENGTH_LONG).show();
         } else {
             showProgressIcon(true);
-            Controller.getInstance(getApplication()).updateMailboxList(
-                    accountId, mControllerCallback);
+            Controller.getInstance(getApplication()).updateMailboxList(accountId);
         }
     }
 
@@ -595,12 +594,14 @@ public class AccountFolderList extends ListActivity
      * Controller results listener.  We wrap it with {@link ControllerResultUiThreadWrapper},
      * so all methods are called on the UI thread.
      */
-    private class ControllerResults implements Controller.Result {
+    private class ControllerResults extends Controller.Result {
+        @Override
         public void updateMailboxListCallback(MessagingException result, long accountKey,
                 int progress) {
             updateProgress(result, progress);
         }
 
+        @Override
         public void updateMailboxCallback(MessagingException result, long accountKey,
                 long mailboxKey, int progress, int numNewMessages) {
             if (result != null || progress == 100) {
@@ -612,19 +613,13 @@ public class AccountFolderList extends ListActivity
             updateProgress(result, progress);
         }
 
-        public void loadMessageForViewCallback(MessagingException result, long messageId,
-                int progress) {
-        }
-
-        public void loadAttachmentCallback(MessagingException result, long messageId,
-                long attachmentId, int progress) {
-        }
-
+        @Override
         public void serviceCheckMailCallback(MessagingException result, long accountId,
                 long mailboxId, int progress, long tag) {
             updateProgress(result, progress);
         }
 
+        @Override
         public void sendMailCallback(MessagingException result, long accountId, long messageId,
                 int progress) {
             if (progress == 100) {
