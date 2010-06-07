@@ -28,12 +28,8 @@ import com.android.email.mail.MessagingException;
 import com.android.email.provider.EmailContent;
 import com.android.email.provider.EmailContent.Account;
 import com.android.email.provider.EmailContent.AccountColumns;
-import com.android.email.provider.EmailContent.Mailbox;
-import com.android.email.provider.EmailContent.MailboxColumns;
-import com.android.email.provider.EmailContent.Message;
-import com.android.email.provider.EmailContent.MessageColumns;
 
-import android.app.ListActivity;
+import android.app.Activity;
 import android.content.ContentUris;
 import android.content.Context;
 import android.content.Intent;
@@ -49,40 +45,25 @@ import android.view.View;
 import android.view.ContextMenu.ContextMenuInfo;
 import android.view.View.OnClickListener;
 import android.view.animation.AnimationUtils;
-import android.widget.AdapterView;
 import android.widget.Button;
-import android.widget.ListView;
 import android.widget.ProgressBar;
 import android.widget.TextView;
-import android.widget.AdapterView.OnItemClickListener;
 
-public class MailboxList extends ListActivity implements OnItemClickListener, OnClickListener {
+public class MailboxList extends Activity implements OnClickListener, MailboxListFragment.Callback {
 
     // Intent extras (internal to this activity)
     private static final String EXTRA_ACCOUNT_ID = "com.android.email.activity._ACCOUNT_ID";
 
-    private static final String MAILBOX_SELECTION = MailboxColumns.ACCOUNT_KEY + "=?"
-        + " AND " + MailboxColumns.TYPE + "<" + Mailbox.TYPE_NOT_EMAIL
-        + " AND " + MailboxColumns.FLAG_VISIBLE + "=1";
-    private static final String MESSAGE_MAILBOX_ID_SELECTION =
-        MessageColumns.MAILBOX_KEY + "=?";
-
     // UI support
-    private ListView mListView;
     private ProgressBar mProgressIcon;
     private TextView mErrorBanner;
+    private MailboxListFragment mListFragment;
 
-    private MailboxListAdapter mListAdapter;
     private Controller.Result mControllerCallback;
 
     // DB access
     private long mAccountId;
-    private LoadMailboxesTask mLoadMailboxesTask;
     private AsyncTask<Void, Void, Object[]> mLoadAccountNameTask;
-    private MessageCountTask mMessageCountTask;
-
-    private long mDraftMailboxKey = -1;
-    private long mTrashMailboxKey = -1;
 
     /**
      * Open a specific account.
@@ -100,33 +81,24 @@ public class MailboxList extends ListActivity implements OnItemClickListener, On
     @Override
     public void onCreate(Bundle icicle) {
         super.onCreate(icicle);
+
+        mAccountId = getIntent().getLongExtra(EXTRA_ACCOUNT_ID, -1);
+        if (mAccountId == -1) {
+            finish();
+            return;
+        }
+
         setContentView(R.layout.mailbox_list);
 
         mControllerCallback = new ControllerResultUiThreadWrapper<ControllerResults>(
                 new Handler(), new ControllerResults());
-        mListView = getListView();
         mProgressIcon = (ProgressBar) findViewById(R.id.title_progress_icon);
         mErrorBanner = (TextView) findViewById(R.id.connection_error_text);
-
-        mListView.setOnItemClickListener(this);
-        mListView.setItemsCanFocus(false);
-        registerForContextMenu(mListView);
-
-        mListAdapter = new MailboxListAdapter(this);
-        setListAdapter(mListAdapter);
+        mListFragment = (MailboxListFragment) findFragmentById(android.R.id.list);
 
         ((Button) findViewById(R.id.account_title_button)).setOnClickListener(this);
-
-        mAccountId = getIntent().getLongExtra(EXTRA_ACCOUNT_ID, -1);
-        if (mAccountId != -1) {
-            mListAdapter.setAccountId(mAccountId);
-            mLoadMailboxesTask = new LoadMailboxesTask(mAccountId);
-            mLoadMailboxesTask.execute();
-        } else {
-            finish();
-        }
-
         ((TextView)findViewById(R.id.title_left_text)).setText(R.string.mailbox_list_title);
+        mListFragment.bindActivityInfo(mAccountId, this);
 
         // Go to the database for the account name
         mLoadAccountNameTask = new AsyncTask<Void, Void, Object[]>() {
@@ -183,9 +155,6 @@ public class MailboxList extends ListActivity implements OnItemClickListener, On
             finish();
             return;
         }
-
-        updateMessageCount();
-
         // TODO: may need to clear notifications here
     }
 
@@ -193,14 +162,8 @@ public class MailboxList extends ListActivity implements OnItemClickListener, On
     protected void onDestroy() {
         super.onDestroy();
 
-        Utility.cancelTaskInterrupt(mLoadMailboxesTask);
-        mLoadMailboxesTask = null;
         Utility.cancelTaskInterrupt(mLoadAccountNameTask);
         mLoadAccountNameTask = null;
-        Utility.cancelTaskInterrupt(mMessageCountTask);
-        mMessageCountTask = null;
-
-        mListAdapter.changeCursor(null);
     }
 
     public void onClick(View v) {
@@ -209,10 +172,6 @@ public class MailboxList extends ListActivity implements OnItemClickListener, On
             onAccounts();
             break;
         }
-    }
-
-    public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
-        onOpenMailbox(id);
     }
 
     @Override
@@ -242,35 +201,32 @@ public class MailboxList extends ListActivity implements OnItemClickListener, On
         }
     }
 
+    // TODO eliminate this, when possible, and do it entirely in the fragment
     @Override
     public void onCreateContextMenu(ContextMenu menu, View v, ContextMenuInfo info) {
         super.onCreateContextMenu(menu, v, info);
-        AdapterView.AdapterContextMenuInfo menuInfo = (AdapterView.AdapterContextMenuInfo) info;
-        Cursor c = (Cursor) mListView.getItemAtPosition(menuInfo.position);
-        String folderName = Utility.FolderProperties.getInstance(MailboxList.this)
-                .getDisplayName(Integer.valueOf(c.getString(mListAdapter.COLUMN_TYPE)));
-        if (folderName == null) {
-            folderName = c.getString(mListAdapter.COLUMN_DISPLAY_NAME);
-        }
-
-        menu.setHeaderTitle(folderName);
-        getMenuInflater().inflate(R.menu.mailbox_list_context, menu);
+        mListFragment.onCreateContextMenu(menu, v, info);
     }
 
+    // TODO eliminate this, when possible, and do it entirely in the fragment
     @Override
     public boolean onContextItemSelected(MenuItem item) {
-        AdapterView.AdapterContextMenuInfo info =
-            (AdapterView.AdapterContextMenuInfo) item.getMenuInfo();
-
-        switch (item.getItemId()) {
-            case R.id.refresh:
-                onRefresh(info.id);
-                break;
-            case R.id.open:
-                onOpenMailbox(info.id);
-                break;
-        }
+        mListFragment.onContextItemSelected(item);
         return super.onContextItemSelected(item);
+    }
+
+    /**
+     * Implements MailboxFragment.Callback
+     */
+    public void onOpen(long accountId, long mailboxId) {
+        onOpenMailbox(mailboxId);
+    }
+
+    /**
+     * Implements MailboxFragment.Callback
+     */
+    public void onRefresh(long accountId, long mailboxId) {
+        onRefresh(mailboxId);
     }
 
     /**
@@ -316,99 +272,6 @@ public class MailboxList extends ListActivity implements OnItemClickListener, On
             textPlain.setVisibility(View.VISIBLE);
             textPlain.setText(accountName);
         }
-    }
-
-    /**
-     * Async task for loading the mailboxes for a given account
-     */
-    private class LoadMailboxesTask extends AsyncTask<Void, Void, Cursor> {
-
-        private long mAccountKey;
-
-        /**
-         * Special constructor to cache some local info
-         */
-        public LoadMailboxesTask(long accountId) {
-            mAccountKey = accountId;
-        }
-
-        @Override
-        protected Cursor doInBackground(Void... params) {
-            Cursor c = MailboxList.this.managedQuery(
-                    EmailContent.Mailbox.CONTENT_URI,
-                    MailboxList.this.mListAdapter.PROJECTION,
-                    MAILBOX_SELECTION,
-                    new String[] { String.valueOf(mAccountKey) },
-                    MailboxColumns.TYPE + "," + MailboxColumns.DISPLAY_NAME);
-            mDraftMailboxKey = -1;
-            mTrashMailboxKey = -1;
-            c.moveToPosition(-1);
-            while (c.moveToNext()) {
-                long mailboxId = c.getInt(mListAdapter.COLUMN_ID);
-                switch (c.getInt(mListAdapter.COLUMN_TYPE)) {
-                case Mailbox.TYPE_DRAFTS:
-                    mDraftMailboxKey = mailboxId;
-                    break;
-                case Mailbox.TYPE_TRASH:
-                    mTrashMailboxKey = mailboxId;
-                    break;
-                }
-            }
-            return c;
-        }
-
-        @Override
-        protected void onPostExecute(Cursor cursor) {
-            if (cursor == null || cursor.isClosed()) {
-                return;
-            }
-            MailboxList.this.mListAdapter.changeCursor(cursor);
-            updateMessageCount();
-        }
-    }
-
-    private class MessageCountTask extends AsyncTask<Void, Void, int[]> {
-
-        @Override
-        protected int[] doInBackground(Void... params) {
-            int[] counts = new int[2];
-            if (mDraftMailboxKey != -1) {
-                counts[0] = EmailContent.count(MailboxList.this, Message.CONTENT_URI,
-                        MESSAGE_MAILBOX_ID_SELECTION,
-                        new String[] { String.valueOf(mDraftMailboxKey)});
-            } else {
-                counts[0] = 0;
-            }
-            if (mTrashMailboxKey != -1) {
-                counts[1] = EmailContent.count(MailboxList.this, Message.CONTENT_URI,
-                        MESSAGE_MAILBOX_ID_SELECTION,
-                        new String[] { String.valueOf(mTrashMailboxKey)});
-            } else {
-                counts[1] = 0;
-            }
-            return counts;
-        }
-
-        @Override
-        protected void onPostExecute(int[] counts) {
-            if (counts == null) {
-                return;
-            }
-            int countDraft = counts[0];
-            int countTrash = counts[1];
-            mListAdapter.setMessageCounts(countDraft, countTrash);
-        }
-    }
-
-    private void updateMessageCount() {
-        if (mAccountId == -1 || mListAdapter.getCursor() == null) {
-            return;
-        }
-        if (mMessageCountTask != null
-                && mMessageCountTask.getStatus() != MessageCountTask.Status.FINISHED) {
-            mMessageCountTask.cancel(true);
-        }
-        mMessageCountTask = (MessageCountTask) new MessageCountTask().execute();
     }
 
     private void showProgressIcon(boolean show) {

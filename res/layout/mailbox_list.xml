@@ -23,9 +23,11 @@
     <include layout="@layout/list_title" />
     <include layout="@layout/connection_error_banner" />
 
-    <ListView
+    <fragment
         android:id="@android:id/list"
+        android:name="com.android.email.activity.MailboxListFragment"
         android:layout_width="match_parent"
         android:layout_height="0dip"
         android:layout_weight="1" />
+
 </LinearLayout>

@@ -35,7 +35,7 @@ import android.widget.TextView;
 /**
  * The adapter for displaying mailboxes.
  */
-/* package */ class MailboxListAdapter extends CursorAdapter {
+/* package */ class MailboxesAdapter extends CursorAdapter {
 
     public final String[] PROJECTION = new String[] { MailboxColumns.ID,
             MailboxColumns.DISPLAY_NAME, MailboxColumns.UNREAD_COUNT, MailboxColumns.TYPE };
@@ -49,7 +49,7 @@ import android.widget.TextView;
     private int mUnreadCountDraft;
     private int mUnreadCountTrash;
 
-    public MailboxListAdapter(Context context) {
+    public MailboxesAdapter(Context context) {
         super(context, null);
         mInflater = (LayoutInflater) context.getSystemService(Context.LAYOUT_INFLATER_SERVICE);
     }
