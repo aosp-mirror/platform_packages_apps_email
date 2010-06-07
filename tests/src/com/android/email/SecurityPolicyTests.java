@@ -62,7 +62,9 @@ public class SecurityPolicyTests extends ProviderTestCase2<EmailProvider> {
     }
 
     /**
-     * Private context wrapper used to add back getPackageName() for these tests
+     * Private context wrapper used to add back getPackageName() for these tests.
+     *
+     * This class also implements {@link Context} method(s) that is called during tests.
      */
     private static class MockContext2 extends ContextWrapper {
 
@@ -71,6 +73,11 @@ public class SecurityPolicyTests extends ProviderTestCase2<EmailProvider> {
         public MockContext2(Context mockContext, Context realContext) {
             super(mockContext);
             mRealContext = realContext;
+        }
+
+        @Override
+        public Context getApplicationContext() {
+            return this;
         }
 
         @Override
