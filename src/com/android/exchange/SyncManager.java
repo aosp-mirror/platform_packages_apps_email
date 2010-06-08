@@ -1739,7 +1739,6 @@ public class SyncManager extends Service implements Runnable {
             alwaysLog("!!! EAS SyncManager, onCreate");
             // If we're in the process of shutting down, try again in 5 seconds
             if (sStop) {
-                setAlarm(SYNC_MANAGER_SERVICE_ID, 5*SECONDS);
                 return;
             }
             if (sDeviceId == null) {
@@ -1766,6 +1765,9 @@ public class SyncManager extends Service implements Runnable {
             if (sServiceThread == null) {
                 alwaysLog("!!! EAS SyncManager, stopping self");
                 stopSelf();
+            } else if (sStop) {
+                // If we were in the middle of trying to stop, attempt a restart in 5 seconds
+                setAlarm(SYNC_MANAGER_SERVICE_ID, 5*SECONDS);
             }
             return Service.START_STICKY;
         }
