@@ -681,6 +681,12 @@
     <string name="device_admin_label">Email</string>
     <!-- Long-form description of the DeviceAdmin (2nd line in settings & in user conf. screen) -->
     <string name="device_admin_description">Enables server-specified security policies</string>
+    <!-- Title of keyguard-lock-disabled dialog box -->
+    <string name="keyguard_disabled_dlg_title">Screen lock disabled</string>
+    <!-- Message of keyguard-lock-disabled dialog box -->
+    <string name="keyguard_disabled_dlg_message_fmt">This account cannot be used while the
+        application \"<xliff:g id="application">%s</xliff:g>\" is installed, because it
+        interferes with the operation of the screen lock.</string>
 
     <!-- Notification message in notifications window when calendar sync is
          automatically enabled for pre-existing Exchange accounts on upgrade -->

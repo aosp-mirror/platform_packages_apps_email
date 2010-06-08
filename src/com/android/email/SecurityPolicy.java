@@ -33,10 +33,15 @@ import android.content.ContentUris;
 import android.content.ContentValues;
 import android.content.Context;
 import android.content.Intent;
+import android.content.pm.ApplicationInfo;
+import android.content.pm.PackageInfo;
+import android.content.pm.PackageManager;
 import android.database.Cursor;
 import android.media.AudioManager;
 import android.net.Uri;
 import android.util.Log;
+
+import java.util.List;
 
 /**
  * Utility functions to support reading and writing security policies, and handshaking the device
@@ -49,6 +54,10 @@ public class SecurityPolicy {
     private DevicePolicyManager mDPM;
     private ComponentName mAdminName;
     private PolicySet mAggregatePolicy;
+    // false = unknown, true = mKeyguardDisablePackageName is valid (or null)
+    private boolean mKeyguardDisableChecked;
+    // null = no apps disabling, non-null = one or more apps disabling
+    private String mKeyguardDisablePackageName;
 
     /* package */ static final PolicySet NO_POLICY_SET =
             new PolicySet(0, PolicySet.PASSWORD_MODE_NONE, 0, 0, false);
@@ -101,6 +110,7 @@ public class SecurityPolicy {
         mDPM = null;
         mAdminName = new ComponentName(context, PolicyAdmin.class);
         mAggregatePolicy = null;
+        mKeyguardDisableChecked = false;
     }
 
     /**
@@ -265,6 +275,13 @@ public class SecurityPolicy {
                 }
             }
             if (policies.mPasswordMode > 0) {
+                // If the server requests a password policy of any kind (PIN, password, etc)
+                // and the user has a keyguard-disable package, then we cannot support the
+                // policy.  In a rare case of a server that doesn't enforce PIN/Password, we
+                // won't do this test.
+                if (getKeyguardDisablePackage() != null) {
+                    return false;
+                }
                 if (dpm.getPasswordQuality(mAdminName) < policies.getDPManagerPasswordQuality()) {
                     return false;
                 }
@@ -608,6 +625,55 @@ public class SecurityPolicy {
     public boolean isActiveAdmin() {
         DevicePolicyManager dpm = getDPM();
         return dpm.isAdminActive(mAdminName);
+    }
+
+    /**
+     * Invalidate the cached result of checking for lock screen disablers.  Called by package
+     * add/replace/delete broadcasts.
+     */
+    public synchronized void invalidateKeyguardCache() {
+        mKeyguardDisableChecked = false;
+        mKeyguardDisablePackageName = null;
+    }
+
+    /**
+     * Return the name of any app that is disabling the keyguard (lock screen) - in which case,
+     * we must treat the device as if required lock screen policies are not met.
+     *
+     * @return non-null if any app is disabling the keyguard
+     */
+    public synchronized String getKeyguardDisablePackage() {
+        if (!mKeyguardDisableChecked) {
+            mKeyguardDisablePackageName = findKeyguardPermission();
+            mKeyguardDisableChecked = true;
+        }
+        return mKeyguardDisablePackageName;
+    }
+
+    /**
+     * Scan installed packages and look for DISABLE_KEYGUARD permission.  Return the first
+     * installed packages (if any are found).  This won't be cheap, so do it as little as possible.
+     *
+     * @return the display name of the package, or null if all clear
+     */
+    private String findKeyguardPermission() {
+        PackageManager pm = mContext.getPackageManager();
+        List<PackageInfo> packages = pm.getInstalledPackages(0);
+        for (PackageInfo info : packages) {
+            // skip over system packages;  they are allowed to have the permission
+            if (0 != (info.applicationInfo.flags &
+                    (ApplicationInfo.FLAG_SYSTEM | ApplicationInfo.FLAG_UPDATED_SYSTEM_APP))) {
+                continue;
+            }
+            // all other packages, check for specific permission
+            int permissionResult = pm.checkPermission(android.Manifest.permission.DISABLE_KEYGUARD,
+                    info.packageName);
+            if (permissionResult == PackageManager.PERMISSION_GRANTED) {
+                Log.d(Email.LOG_TAG, "DISABLE_KEYGUARD found in " + info.packageName);
+                return info.applicationInfo.loadLabel(pm).toString();
+            }
+        }
+        return null;
     }
 
     /**

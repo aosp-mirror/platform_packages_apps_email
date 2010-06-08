@@ -250,6 +250,12 @@ public class Email extends Application {
              */
             MailService.actionReschedule(context);
         }
+        // If enabling, clear the cached test for keyguard-disabling apps;  This is because
+        // we may have missed package install/replace/remove broadcasts while we had no accounts
+        // and the BootReceiver was disabled.
+        if (enabled) {
+            SecurityPolicy.getInstance(context.getApplicationContext()).invalidateKeyguardCache();
+        }
     }
 
     @Override
