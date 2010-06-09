@@ -49,7 +49,7 @@ import java.util.TimerTask;
 /**
  * This class implements the adapter for displaying messages based on cursors.
  */
-/* package */ class MessageListAdapter extends CursorAdapter {
+/* package */ class MessagesAdapter extends CursorAdapter {
 
     public static final int COLUMN_ID = 0;
     public static final int COLUMN_MAILBOX_KEY = 1;
@@ -106,7 +106,7 @@ import java.util.TimerTask;
      */
     private final Handler mHandler;
 
-    public MessageListAdapter(Context context, Handler handler, Callback callback) {
+    public MessagesAdapter(Context context, Handler handler, Callback callback) {
         super(context.getApplicationContext(), null, true);
         mHandler = handler;
         mCallback = callback;

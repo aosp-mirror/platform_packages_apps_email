@@ -38,7 +38,7 @@ public class MessageListItem extends RelativeLayout {
     public boolean mSelected;
 
     private boolean mAllowBatch;
-    private MessageListAdapter mAdapter;
+    private MessagesAdapter mAdapter;
 
     private boolean mDownEvent;
     private boolean mCachedViewPositions;
@@ -67,7 +67,7 @@ public class MessageListItem extends RelativeLayout {
      * @param adapter the adapter that creates this view
      * @param allowBatch true if multi-select is enabled for this list
      */
-    public void bindViewInit(MessageListAdapter adapter, boolean allowBatch) {
+    public void bindViewInit(MessagesAdapter adapter, boolean allowBatch) {
         mAdapter = adapter;
         mAllowBatch = allowBatch;
         mCachedViewPositions = false;
