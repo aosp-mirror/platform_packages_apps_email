@@ -76,7 +76,7 @@ public class Account {
     int mSyncWindow;
     int mBackupFlags;           // for account backups only
     String mProtocolVersion;    // for account backups only
-    int mSecurityFlags;         // for account backups only
+    long mSecurityFlags;        // for account backups only
     String mSignature;          // for account backups only
 
     /**
@@ -177,7 +177,7 @@ public class Account {
         mBackupFlags = preferences.mSharedPreferences.getInt(mUuid + KEY_BACKUP_FLAGS, 0);
         mProtocolVersion = preferences.mSharedPreferences.getString(mUuid + KEY_PROTOCOL_VERSION,
                 null);
-        mSecurityFlags = preferences.mSharedPreferences.getInt(mUuid + KEY_SECURITY_FLAGS, 0);
+        mSecurityFlags = preferences.mSharedPreferences.getLong(mUuid + KEY_SECURITY_FLAGS, 0);
         mSignature = preferences.mSharedPreferences.getString(mUuid + KEY_SIGNATURE, null);
     }
 
@@ -353,7 +353,7 @@ public class Account {
         editor.putInt(mUuid + KEY_SYNC_WINDOW, mSyncWindow);
         editor.putInt(mUuid + KEY_BACKUP_FLAGS, mBackupFlags);
         editor.putString(mUuid + KEY_PROTOCOL_VERSION, mProtocolVersion);
-        editor.putInt(mUuid + KEY_SECURITY_FLAGS, mSecurityFlags);
+        editor.putLong(mUuid + KEY_SECURITY_FLAGS, mSecurityFlags);
         editor.putString(mUuid + KEY_SIGNATURE, mSignature);
         
         // The following fields are *not* written because they need to be more fine-grained

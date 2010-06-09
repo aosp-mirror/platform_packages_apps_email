@@ -65,6 +65,10 @@ public class ProvisionParser extends Parser {
         int passwordMode = PolicySet.PASSWORD_MODE_NONE;
         int maxPasswordFails = 0;
         int maxScreenLockTime = 0;
+        int passwordExpiration = 0;
+        int passwordHistory = 0;
+        int passwordComplexChars = 0;
+        boolean canSupport = true;
 
         while (nextTag(Tags.PROVISION_EAS_PROVISION_DOC) != END) {
             boolean supported = true;
@@ -90,6 +94,16 @@ public class ProvisionParser extends Parser {
                     break;
                 case Tags.PROVISION_MAX_DEVICE_PASSWORD_FAILED_ATTEMPTS:
                     maxPasswordFails = getValueInt();
+                    break;
+                case Tags.PROVISION_DEVICE_PASSWORD_EXPIRATION:
+                    passwordExpiration = getValueInt();
+                    // We don't yet support this
+                    if (passwordExpiration > 0) {
+                        supported = false;
+                    }
+                    break;
+                case Tags.PROVISION_DEVICE_PASSWORD_HISTORY:
+                    passwordHistory = getValueInt();
                     break;
                 case Tags.PROVISION_ALLOW_SIMPLE_DEVICE_PASSWORD:
                     // Ignore this unless there's any MSFT documentation for what this means
@@ -123,8 +137,6 @@ public class ProvisionParser extends Parser {
                 // The following policies, if true, can't be supported at the moment
                 case Tags.PROVISION_DEVICE_ENCRYPTION_ENABLED:
                 case Tags.PROVISION_PASSWORD_RECOVERY_ENABLED:
-                case Tags.PROVISION_DEVICE_PASSWORD_EXPIRATION:
-                case Tags.PROVISION_DEVICE_PASSWORD_HISTORY:
                 case Tags.PROVISION_REQUIRE_DEVICE_ENCRYPTION:
                 case Tags.PROVISION_REQUIRE_SIGNED_SMIME_MESSAGES:
                 case Tags.PROVISION_REQUIRE_ENCRYPTED_SMIME_MESSAGES:
@@ -143,7 +155,9 @@ public class ProvisionParser extends Parser {
                     break;
                 // Complex character setting is only used if we're in "strong" (alphanumeric) mode
                 case Tags.PROVISION_MIN_DEVICE_PASSWORD_COMPLEX_CHARS:
-                    if ((passwordMode == PolicySet.PASSWORD_MODE_STRONG) && (getValueInt() > 0)) {
+                    passwordComplexChars = getValueInt();
+                    if ((passwordMode == PolicySet.PASSWORD_MODE_STRONG) &&
+                            (passwordComplexChars > 0)) {
                         supported = false;
                     }
                     break;
@@ -190,7 +204,8 @@ public class ProvisionParser extends Parser {
         }
 
         mPolicySet = new SecurityPolicy.PolicySet(minPasswordLength, passwordMode,
-                    maxPasswordFails, maxScreenLockTime, true);
+                maxPasswordFails, maxScreenLockTime, true, passwordExpiration, passwordHistory,
+                passwordComplexChars);
     }
 
     /**
@@ -219,6 +234,9 @@ public class ProvisionParser extends Parser {
         int mPasswordMode = PolicySet.PASSWORD_MODE_NONE;
         int mMaxPasswordFails = 0;
         int mMaxScreenLockTime = 0;
+        int mPasswordExpiration = 0;
+        int mPasswordHistory = 0;
+        int mPasswordComplexChars = 0;
     }
 
     /*package*/ void parseProvisionDocXml(String doc) throws IOException {
@@ -243,7 +261,8 @@ public class ProvisionParser extends Parser {
         }
 
         mPolicySet = new PolicySet(sps.mMinPasswordLength, sps.mPasswordMode, sps.mMaxPasswordFails,
-                sps.mMaxScreenLockTime, true);
+                sps.mMaxScreenLockTime, true, sps.mPasswordExpiration, sps.mPasswordHistory,
+                sps.mPasswordComplexChars);
     }
 
     /**

@@ -51,7 +51,7 @@ public class SecurityPolicy {
     private PolicySet mAggregatePolicy;
 
     /* package */ static final PolicySet NO_POLICY_SET =
-            new PolicySet(0, PolicySet.PASSWORD_MODE_NONE, 0, 0, false);
+            new PolicySet(0, PolicySet.PASSWORD_MODE_NONE, 0, 0, false, 0, 0, 0);
 
     /**
      * This projection on Account is for scanning/reading
@@ -110,11 +110,14 @@ public class SecurityPolicy {
      *  max password fails          take the min
      *  max screen lock time        take the min
      *  require remote wipe         take the max (logical or)
+     *  password history            take the max (strongest mode)
+     *  password expiration         take the max (strongest mode)
+     *  password complex chars      take the max (strongest mode)
      *
      * @return a policy representing the strongest aggregate.  If no policy sets are defined,
      * a lightweight "nothing required" policy will be returned.  Never null.
      */
-    /* package */ PolicySet computeAggregatePolicy() {
+    /*package*/ PolicySet computeAggregatePolicy() {
         boolean policiesFound = false;
 
         int minPasswordLength = Integer.MIN_VALUE;
@@ -122,12 +125,15 @@ public class SecurityPolicy {
         int maxPasswordFails = Integer.MAX_VALUE;
         int maxScreenLockTime = Integer.MAX_VALUE;
         boolean requireRemoteWipe = false;
+        int passwordHistory = Integer.MIN_VALUE;
+        int passwordExpiration = Integer.MIN_VALUE;
+        int passwordComplexChars = Integer.MIN_VALUE;
 
         Cursor c = mContext.getContentResolver().query(Account.CONTENT_URI,
                 ACCOUNT_SECURITY_PROJECTION, WHERE_ACCOUNT_SECURITY_NONZERO, null, null);
         try {
             while (c.moveToNext()) {
-                int flags = c.getInt(ACCOUNT_SECURITY_COLUMN_FLAGS);
+                long flags = c.getLong(ACCOUNT_SECURITY_COLUMN_FLAGS);
                 if (flags != 0) {
                     PolicySet p = new PolicySet(flags);
                     minPasswordLength = Math.max(p.mMinPasswordLength, minPasswordLength);
@@ -137,6 +143,16 @@ public class SecurityPolicy {
                     }
                     if (p.mMaxScreenLockTime > 0) {
                         maxScreenLockTime = Math.min(p.mMaxScreenLockTime, maxScreenLockTime);
+                    }
+                    if (p.mPasswordHistory > 0) {
+                        passwordHistory = Math.max(p.mPasswordHistory, passwordHistory);
+                    }
+                    if (p.mPasswordExpiration > 0) {
+                        passwordExpiration = Math.max(p.mPasswordExpiration, passwordExpiration);
+                    }
+                    if (p.mPasswordComplexChars > 0) {
+                        passwordComplexChars = Math.max(p.mPasswordComplexChars,
+                                passwordComplexChars);
                     }
                     requireRemoteWipe |= p.mRequireRemoteWipe;
                     policiesFound = true;
@@ -151,9 +167,13 @@ public class SecurityPolicy {
             if (passwordMode == Integer.MIN_VALUE) passwordMode = 0;
             if (maxPasswordFails == Integer.MAX_VALUE) maxPasswordFails = 0;
             if (maxScreenLockTime == Integer.MAX_VALUE) maxScreenLockTime = 0;
+            if (passwordHistory == Integer.MIN_VALUE) passwordHistory = 0;
+            if (passwordExpiration == Integer.MIN_VALUE) passwordExpiration = 0;
+            if (passwordComplexChars == Integer.MIN_VALUE) passwordComplexChars = 0;
 
             return new PolicySet(minPasswordLength, passwordMode, maxPasswordFails,
-                    maxScreenLockTime, requireRemoteWipe);
+                    maxScreenLockTime, requireRemoteWipe, passwordExpiration, passwordHistory,
+                    passwordComplexChars);
         } else {
             return NO_POLICY_SET;
         }
@@ -242,6 +262,19 @@ public class SecurityPolicy {
                     return false;
                 }
             }
+            if (policies.mPasswordExpiration > 0) {
+                // TODO Complete when DPM supports this
+            }
+            if (policies.mPasswordHistory > 0) {
+                if (dpm.getPasswordHistoryLength(mAdminName) < policies.mPasswordHistory) {
+                    return false;
+                }
+            }
+            if (policies.mPasswordComplexChars > 0) {
+                if (dpm.getPasswordMinimumNonLetter(mAdminName) < policies.mPasswordComplexChars) {
+                    return false;
+                }
+            }
             // password failures are counted locally - no test required here
             // no check required for remote wipe (it's supported, if we're the admin)
 
@@ -273,6 +306,12 @@ public class SecurityPolicy {
             dpm.setMaximumTimeToLock(mAdminName, policies.mMaxScreenLockTime * 1000);
             // local wipe (failed passwords limit)
             dpm.setMaximumFailedPasswordsForWipe(mAdminName, policies.mMaxPasswordFails);
+            // password expiration (days until a password expires)
+            // TODO set this when DPM allows it
+            // password history length (number of previous passwords that may not be reused)
+            dpm.setPasswordHistoryLength(mAdminName, policies.mPasswordHistory);
+            // password minimum complex characters
+            dpm.setPasswordMinimumNonLetter(mAdminName, policies.mPasswordComplexChars);
         }
     }
 
@@ -415,12 +454,27 @@ public class SecurityPolicy {
         public static final int SCREEN_LOCK_TIME_MAX = 2047;
             // bit 25: remote wipe capability required
         private static final int REQUIRE_REMOTE_WIPE = 1 << 25;
+            // bit 26..35: password expiration (days; 0=not required)
+        private static final int PASSWORD_EXPIRATION_SHIFT = 26;
+        private static final long PASSWORD_EXPIRATION_MASK = 1023L << PASSWORD_EXPIRATION_SHIFT;
+        public static final int PASSWORD_EXPIRATION_MAX = 1023;
+            // bit 35..42: password history (length; 0=not required)
+        private static final int PASSWORD_HISTORY_SHIFT = 36;
+        private static final long PASSWORD_HISTORY_MASK = 255L << PASSWORD_HISTORY_SHIFT;
+        public static final int PASSWORD_HISTORY_MAX = 255;
+            // bit 42..46: min complex characters (0=not required)
+        private static final int PASSWORD_COMPLEX_CHARS_SHIFT = 44;
+        private static final long PASSWORD_COMPLEX_CHARS_MASK = 31L << PASSWORD_COMPLEX_CHARS_SHIFT;
+        public static final int PASSWORD_COMPLEX_CHARS_MAX = 31;
 
         /*package*/ final int mMinPasswordLength;
         /*package*/ final int mPasswordMode;
         /*package*/ final int mMaxPasswordFails;
         /*package*/ final int mMaxScreenLockTime;
         /*package*/ final boolean mRequireRemoteWipe;
+        /*package*/ final int mPasswordExpiration;
+        /*package*/ final int mPasswordHistory;
+        /*package*/ final int mPasswordComplexChars;
 
         public int getMinPasswordLength() {
             return mMinPasswordLength;
@@ -452,17 +506,28 @@ public class SecurityPolicy {
          * @throws IllegalArgumentException for illegal arguments.
          */
         public PolicySet(int minPasswordLength, int passwordMode, int maxPasswordFails,
-                int maxScreenLockTime, boolean requireRemoteWipe) throws IllegalArgumentException {
-            // Check against hard limits
-            // EAS doesn't generate values outside these limits anyway
+                int maxScreenLockTime, boolean requireRemoteWipe, int passwordExpiration,
+                int passwordHistory, int passwordComplexChars) throws IllegalArgumentException {
+            // This value has a hard limit which cannot be supported if exceeded.  Setting the
+            // exceeded value will force isSupported() to return false.
             if (minPasswordLength > PASSWORD_LENGTH_MAX) {
                 throw new IllegalArgumentException("password length");
             }
-            if (passwordMode < PASSWORD_MODE_NONE || passwordMode > PASSWORD_MODE_STRONG) {
+            if ((passwordMode != PASSWORD_MODE_NONE) && (passwordMode != PASSWORD_MODE_SIMPLE) &&
+                    (passwordMode != PASSWORD_MODE_STRONG)) {
                 throw new IllegalArgumentException("password mode");
             }
             if (maxScreenLockTime > SCREEN_LOCK_TIME_MAX) {
                 throw new IllegalArgumentException("screen lock time");
+            }
+            if (passwordExpiration > PASSWORD_EXPIRATION_MAX) {
+                throw new IllegalArgumentException("password expiration");
+            }
+            if (passwordHistory > PASSWORD_HISTORY_MAX) {
+                throw new IllegalArgumentException("password history");
+            }
+            if (passwordComplexChars > PASSWORD_COMPLEX_CHARS_MAX) {
+                throw new IllegalArgumentException("complex chars");
             }
             // This value can be reduced (which actually increases security) if necessary
             if (maxPasswordFails > PASSWORD_MAX_FAILS_MAX) {
@@ -472,12 +537,14 @@ public class SecurityPolicy {
             if (maxScreenLockTime > SCREEN_LOCK_TIME_MAX) {
                 maxScreenLockTime = SCREEN_LOCK_TIME_MAX;
             }
-
             mMinPasswordLength = minPasswordLength;
             mPasswordMode = passwordMode;
             mMaxPasswordFails = maxPasswordFails;
             mMaxScreenLockTime = maxScreenLockTime;
             mRequireRemoteWipe = requireRemoteWipe;
+            mPasswordExpiration = passwordExpiration;
+            mPasswordHistory = passwordHistory;
+            mPasswordComplexChars = passwordComplexChars;
         }
 
         /**
@@ -491,16 +558,22 @@ public class SecurityPolicy {
         /**
          * Create from values encoded in an account flags int
          */
-        public PolicySet(int flags) {
+        public PolicySet(long flags) {
             mMinPasswordLength =
-                (flags & PASSWORD_LENGTH_MASK) >> PASSWORD_LENGTH_SHIFT;
+                (int) ((flags & PASSWORD_LENGTH_MASK) >> PASSWORD_LENGTH_SHIFT);
             mPasswordMode =
-                (flags & PASSWORD_MODE_MASK);
+                (int) (flags & PASSWORD_MODE_MASK);
             mMaxPasswordFails =
-                (flags & PASSWORD_MAX_FAILS_MASK) >> PASSWORD_MAX_FAILS_SHIFT;
+                (int) ((flags & PASSWORD_MAX_FAILS_MASK) >> PASSWORD_MAX_FAILS_SHIFT);
             mMaxScreenLockTime =
-                (flags & SCREEN_LOCK_TIME_MASK) >> SCREEN_LOCK_TIME_SHIFT;
+                (int) ((flags & SCREEN_LOCK_TIME_MASK) >> SCREEN_LOCK_TIME_SHIFT);
             mRequireRemoteWipe = 0 != (flags & REQUIRE_REMOTE_WIPE);
+            mPasswordExpiration =
+                (int) ((flags & PASSWORD_EXPIRATION_MASK) >> PASSWORD_EXPIRATION_SHIFT);
+            mPasswordHistory =
+                (int) ((flags & PASSWORD_HISTORY_MASK) >> PASSWORD_HISTORY_SHIFT);
+            mPasswordComplexChars =
+                (int) ((flags & PASSWORD_COMPLEX_CHARS_MASK) >> PASSWORD_COMPLEX_CHARS_SHIFT);
         }
 
         /**
@@ -531,7 +604,7 @@ public class SecurityPolicy {
          */
         public boolean writeAccount(Account account, String syncKey, boolean update,
                 Context context) {
-            int newFlags = hashCode();
+            long newFlags = getSecurityCode();
             boolean dirty = (newFlags != account.mSecurityFlags);
             account.mSecurityFlags = newFlags;
             account.mSecuritySyncKey = syncKey;
@@ -548,32 +621,33 @@ public class SecurityPolicy {
             return dirty;
         }
 
-        @Override
+        @Override 
         public boolean equals(Object o) {
             if (o instanceof PolicySet) {
                 PolicySet other = (PolicySet)o;
-                return (this.mMinPasswordLength == other.mMinPasswordLength)
-                        && (this.mPasswordMode == other.mPasswordMode)
-                        && (this.mMaxPasswordFails == other.mMaxPasswordFails)
-                        && (this.mMaxScreenLockTime == other.mMaxScreenLockTime)
-                        && (this.mRequireRemoteWipe == other.mRequireRemoteWipe);
+                return (this.getSecurityCode() == other.getSecurityCode());
             }
             return false;
         }
 
-        /**
-         * Note: the hash code is defined as the encoding used in Account
-         */
         @Override
         public int hashCode() {
-            int flags = 0;
-            flags = mMinPasswordLength << PASSWORD_LENGTH_SHIFT;
+            long code = getSecurityCode();
+            return (int) code;
+        }
+
+        public long getSecurityCode() {
+            long flags = 0;
+            flags = (long)mMinPasswordLength << PASSWORD_LENGTH_SHIFT;
             flags |= mPasswordMode;
-            flags |= mMaxPasswordFails << PASSWORD_MAX_FAILS_SHIFT;
-            flags |= mMaxScreenLockTime << SCREEN_LOCK_TIME_SHIFT;
+            flags |= (long)mMaxPasswordFails << PASSWORD_MAX_FAILS_SHIFT;
+            flags |= (long)mMaxScreenLockTime << SCREEN_LOCK_TIME_SHIFT;
             if (mRequireRemoteWipe) {
                 flags |= REQUIRE_REMOTE_WIPE;
             }
+            flags |= (long)mPasswordHistory << PASSWORD_HISTORY_SHIFT;
+            flags |= (long)mPasswordExpiration << PASSWORD_EXPIRATION_SHIFT;
+            flags |= (long)mPasswordComplexChars << PASSWORD_COMPLEX_CHARS_SHIFT;
             return flags;
         }
 
@@ -581,7 +655,10 @@ public class SecurityPolicy {
         public String toString() {
             return "{ " + "pw-len-min=" + mMinPasswordLength + " pw-mode=" + mPasswordMode
                     + " pw-fails-max=" + mMaxPasswordFails + " screenlock-max="
-                    + mMaxScreenLockTime + " remote-wipe-req=" + mRequireRemoteWipe + "}";
+                    + mMaxScreenLockTime + " remote-wipe-req=" + mRequireRemoteWipe
+                    + " pw-expiration=" + mPasswordExpiration
+                    + " pw-history=" + mPasswordHistory
+                    + " pw-complex-chars=" + mPasswordComplexChars + "}";
         }
     }
 

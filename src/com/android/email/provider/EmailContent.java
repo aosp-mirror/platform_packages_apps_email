@@ -860,7 +860,7 @@ public abstract class EmailContent {
         public String mRingtoneUri;
         public String mProtocolVersion;
         public int mNewMessageCount;
-        public int mSecurityFlags;
+        public long mSecurityFlags;
         public String mSecuritySyncKey;
         public String mSignature;
 
@@ -988,7 +988,7 @@ public abstract class EmailContent {
             mRingtoneUri = cursor.getString(CONTENT_RINGTONE_URI_COLUMN);
             mProtocolVersion = cursor.getString(CONTENT_PROTOCOL_VERSION_COLUMN);
             mNewMessageCount = cursor.getInt(CONTENT_NEW_MESSAGE_COUNT_COLUMN);
-            mSecurityFlags = cursor.getInt(CONTENT_SECURITY_FLAGS_COLUMN);
+            mSecurityFlags = cursor.getLong(CONTENT_SECURITY_FLAGS_COLUMN);
             mSecuritySyncKey = cursor.getString(CONTENT_SECURITY_SYNC_KEY_COLUMN);
             mSignature = cursor.getString(CONTENT_SIGNATURE_COLUMN);
             return this;
@@ -1549,7 +1549,7 @@ public abstract class EmailContent {
             dest.writeString(mRingtoneUri);
             dest.writeString(mProtocolVersion);
             dest.writeInt(mNewMessageCount);
-            dest.writeInt(mSecurityFlags);
+            dest.writeLong(mSecurityFlags);
             dest.writeString(mSecuritySyncKey);
             dest.writeString(mSignature);
 
@@ -1588,7 +1588,7 @@ public abstract class EmailContent {
             mRingtoneUri = in.readString();
             mProtocolVersion = in.readString();
             mNewMessageCount = in.readInt();
-            mSecurityFlags = in.readInt();
+            mSecurityFlags = in.readLong();
             mSecuritySyncKey = in.readString();
             mSignature = in.readString();
 
