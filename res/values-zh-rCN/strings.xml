@@ -62,9 +62,9 @@
     <string name="notification_new_title" msgid="2200257910380529139">"新电子邮件"</string>
     <string name="error_loading_message_body" msgid="2265140604109272914">"载入消息文本时出现意外错误。可能是讯息太大，无法查看。"</string>
   <plurals name="notification_new_one_account_fmt">
-    <item quantity="one" msgid="3422945912787702191">"<xliff:g id="UNREAD_MESSAGE_COUNT">%d</xliff:g> 封未读邮件 (<xliff:g id="ACCOUNT">%s</xliff:g>)"</item>
-    <item quantity="few" msgid="6543078667692990869">"<xliff:g id="UNREAD_MESSAGE_COUNT">%d</xliff:g> 封未读邮件 (<xliff:g id="ACCOUNT">%s</xliff:g>)"</item>
-    <item quantity="other" msgid="6937673814351448076">"<xliff:g id="UNREAD_MESSAGE_COUNT">%d</xliff:g> 封未读邮件 (<xliff:g id="ACCOUNT">%s</xliff:g>)"</item>
+    <item quantity="one" msgid="3422945912787702191">"<xliff:g id="UNREAD_MESSAGE_COUNT">%1$d</xliff:g> 封未读邮件 (<xliff:g id="ACCOUNT">%2$s</xliff:g>)"</item>
+    <item quantity="few" msgid="6543078667692990869">"<xliff:g id="UNREAD_MESSAGE_COUNT">%1$d</xliff:g> 封未读邮件 (<xliff:g id="ACCOUNT">%2$s</xliff:g>)"</item>
+    <item quantity="other" msgid="6937673814351448076">"<xliff:g id="UNREAD_MESSAGE_COUNT">%1$d</xliff:g> 封未读邮件 (<xliff:g id="ACCOUNT">%2$s</xliff:g>)"</item>
   </plurals>
   <plurals name="notification_new_multi_account_fmt">
     <item quantity="few" msgid="1991747245324120305">"在 <xliff:g id="NUMBER_ACCOUNTS">%d</xliff:g> 个帐户中"</item>
@@ -91,7 +91,7 @@
     <string name="message_compose_bcc_hint" msgid="9177337492358841680">"密送"</string>
     <string name="message_compose_subject_hint" msgid="6993487234024160782">"主题"</string>
     <string name="message_compose_body_hint" msgid="7575406246484103697">"撰写邮件"</string>
-    <string name="message_compose_fwd_header_fmt" msgid="5181300290654579434">\n\n"-------- 原始邮件 --------"\n"主题：<xliff:g id="SUBJECT">%s</xliff:g>"\n"发件人：<xliff:g id="SENDER">%s</xliff:g>"\n"收件人：<xliff:g id="TO">%s</xliff:g>"\n"抄送：<xliff:g id="CC_0">%s</xliff:g>"\n\n</string>
+    <string name="message_compose_fwd_header_fmt" msgid="5181300290654579434">\n\n"-------- 原始邮件 --------"\n"主题：<xliff:g id="SUBJECT">%1$s</xliff:g>"\n"发件人：<xliff:g id="SENDER">%2$s</xliff:g>"\n"收件人：<xliff:g id="TO">%3$s</xliff:g>"\n"抄送：<xliff:g id="CC_0">%4$s</xliff:g>"\n\n</string>
     <string name="message_compose_reply_header_fmt" msgid="8815624773273454573">\n\n"<xliff:g id="SENDER">%s</xliff:g>编写："\n\n</string>
     <string name="message_compose_quoted_text_label" msgid="5722467956990009520">"引用文字"</string>
     <string name="message_compose_error_no_recipients" msgid="4903715888250785486">"必须至少添加一个收件人。"</string>
