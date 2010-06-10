@@ -60,11 +60,11 @@
     <string name="status_sending_messages" msgid="3971880826111264523">"A enviar mensagens..."</string>
     <string name="status_network_error" msgid="6045933332005067021">"Erro de ligação"</string>
     <string name="notification_new_title" msgid="2200257910380529139">"Novo e-mail"</string>
-    <string name="error_loading_message_body" msgid="2265140604109272914">"Erro inesperado durante o carregamento do texto da mensagem. É possível que a mensagem seja demasiado extensa para visualização. "</string>
+    <string name="error_loading_message_body" msgid="2265140604109272914">"Erro inesperado durante o carregamento do texto da mensagem. É possível que a mensagem seja demasiado extensa para visualização."</string>
   <plurals name="notification_new_one_account_fmt">
-    <item quantity="one" msgid="3422945912787702191">"<xliff:g id="UNREAD_MESSAGE_COUNT">%d</xliff:g> não lidas (<xliff:g id="ACCOUNT">%s</xliff:g>)"</item>
-    <item quantity="few" msgid="6543078667692990869">"<xliff:g id="UNREAD_MESSAGE_COUNT">%d</xliff:g> não lidas (<xliff:g id="ACCOUNT">%s</xliff:g>)"</item>
-    <item quantity="other" msgid="6937673814351448076">"<xliff:g id="UNREAD_MESSAGE_COUNT">%d</xliff:g> não lidas (<xliff:g id="ACCOUNT">%s</xliff:g>)"</item>
+    <item quantity="one" msgid="3422945912787702191">"<xliff:g id="UNREAD_MESSAGE_COUNT">%1$d</xliff:g> não lidas (<xliff:g id="ACCOUNT">%2$s</xliff:g>)"</item>
+    <item quantity="few" msgid="6543078667692990869">"<xliff:g id="UNREAD_MESSAGE_COUNT">%1$d</xliff:g> não lidas (<xliff:g id="ACCOUNT">%2$s</xliff:g>)"</item>
+    <item quantity="other" msgid="6937673814351448076">"<xliff:g id="UNREAD_MESSAGE_COUNT">%1$d</xliff:g> não lidas (<xliff:g id="ACCOUNT">%2$s</xliff:g>)"</item>
   </plurals>
   <plurals name="notification_new_multi_account_fmt">
     <item quantity="few" msgid="1991747245324120305">"em <xliff:g id="NUMBER_ACCOUNTS">%d</xliff:g> contas"</item>
@@ -91,7 +91,7 @@
     <string name="message_compose_bcc_hint" msgid="9177337492358841680">"Bcc"</string>
     <string name="message_compose_subject_hint" msgid="6993487234024160782">"Assunto"</string>
     <string name="message_compose_body_hint" msgid="7575406246484103697">"Redigir correio"</string>
-    <string name="message_compose_fwd_header_fmt" msgid="5181300290654579434">\n\n"-------- Mensagem original --------"\n"Assunto: <xliff:g id="SUBJECT">%s</xliff:g>"\n"De: <xliff:g id="SENDER">%s</xliff:g>"\n"Para: <xliff:g id="TO">%s</xliff:g>"\n"CC: <xliff:g id="CC_0">%s</xliff:g>"\n\n</string>
+    <string name="message_compose_fwd_header_fmt" msgid="5181300290654579434">\n\n"-------- Mensagem original --------"\n"Assunto: <xliff:g id="SUBJECT">%1$s</xliff:g>"\n"De: <xliff:g id="SENDER">%2$s</xliff:g>"\n"Para: <xliff:g id="TO">%3$s</xliff:g>"\n"CC: <xliff:g id="CC_0">%4$s</xliff:g>"\n\n</string>
     <string name="message_compose_reply_header_fmt" msgid="8815624773273454573">\n\n"<xliff:g id="SENDER">%s</xliff:g> escreveu:"\n\n</string>
     <string name="message_compose_quoted_text_label" msgid="5722467956990009520">"Texto entre aspas"</string>
     <string name="message_compose_error_no_recipients" msgid="4903715888250785486">"Tem de adicionar pelo menos um destinatário."</string>
@@ -267,8 +267,8 @@
     <string name="notification_exchange_calendar_added" msgid="6823659622379350159">"Calendário do Exchange adicionado"</string>
     <string name="gal_searching_fmt" msgid="6140450617663543464">"A pesquisar <xliff:g id="DOMAIN">%s</xliff:g>…"</string>
   <plurals name="gal_completed_fmt">
-    <item quantity="one" msgid="7496785524617037642">"<xliff:g id="RESULTS">%d</xliff:g> resultado de <xliff:g id="DOMAIN">%s</xliff:g>"</item>
-    <item quantity="other" msgid="7816121892960632123">"<xliff:g id="RESULTS">%d</xliff:g> resultados de <xliff:g id="DOMAIN">%s</xliff:g>"</item>
+    <item quantity="one" msgid="7496785524617037642">"<xliff:g id="RESULTS">%1$d</xliff:g> resultado de <xliff:g id="DOMAIN">%2$s</xliff:g>"</item>
+    <item quantity="other" msgid="7816121892960632123">"<xliff:g id="RESULTS">%1$d</xliff:g> resultados de <xliff:g id="DOMAIN">%2$s</xliff:g>"</item>
   </plurals>
-    <string name="gal_completed_limited_fmt" msgid="2343791690766047585">"Primeiros <xliff:g id="RESULTS">%d</xliff:g> resultados de <xliff:g id="DOMAIN">%s</xliff:g>"</string>
+    <string name="gal_completed_limited_fmt" msgid="2343791690766047585">"Primeiros <xliff:g id="RESULTS">%1$d</xliff:g> resultados de <xliff:g id="DOMAIN">%2$s</xliff:g>"</string>
 </resources>

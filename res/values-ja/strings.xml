@@ -62,9 +62,9 @@
     <string name="notification_new_title" msgid="2200257910380529139">"新着メール"</string>
     <string name="error_loading_message_body" msgid="2265140604109272914">"メッセージテキストの読み込み中に予期しないエラーが発生しました。メッセージが表示できないほど大きい可能性があります。"</string>
   <plurals name="notification_new_one_account_fmt">
-    <item quantity="one" msgid="3422945912787702191">"未読<xliff:g id="UNREAD_MESSAGE_COUNT">%d</xliff:g>件 (<xliff:g id="ACCOUNT">%s</xliff:g>)"</item>
-    <item quantity="few" msgid="6543078667692990869">"未読<xliff:g id="UNREAD_MESSAGE_COUNT">%d</xliff:g>件 (<xliff:g id="ACCOUNT">%s</xliff:g>)"</item>
-    <item quantity="other" msgid="6937673814351448076">"未読<xliff:g id="UNREAD_MESSAGE_COUNT">%d</xliff:g>件 (<xliff:g id="ACCOUNT">%s</xliff:g>)"</item>
+    <item quantity="one" msgid="3422945912787702191">"未読<xliff:g id="UNREAD_MESSAGE_COUNT">%1$d</xliff:g>件 (<xliff:g id="ACCOUNT">%2$s</xliff:g>)"</item>
+    <item quantity="few" msgid="6543078667692990869">"未読<xliff:g id="UNREAD_MESSAGE_COUNT">%1$d</xliff:g>件 (<xliff:g id="ACCOUNT">%2$s</xliff:g>)"</item>
+    <item quantity="other" msgid="6937673814351448076">"未読<xliff:g id="UNREAD_MESSAGE_COUNT">%1$d</xliff:g>件 (<xliff:g id="ACCOUNT">%2$s</xliff:g>)"</item>
   </plurals>
   <plurals name="notification_new_multi_account_fmt">
     <item quantity="few" msgid="1991747245324120305">"（<xliff:g id="NUMBER_ACCOUNTS">%d</xliff:g>個のアカウント）"</item>
@@ -91,7 +91,7 @@
     <string name="message_compose_bcc_hint" msgid="9177337492358841680">"Bcc"</string>
     <string name="message_compose_subject_hint" msgid="6993487234024160782">"件名"</string>
     <string name="message_compose_body_hint" msgid="7575406246484103697">"メッセージを作成"</string>
-    <string name="message_compose_fwd_header_fmt" msgid="5181300290654579434">\n\n"-------- 元のメッセージ --------"\n"件名: <xliff:g id="SUBJECT">%s</xliff:g>"\n"From: <xliff:g id="SENDER">%s</xliff:g>"\n"To: <xliff:g id="TO">%s</xliff:g>"\n"Cc: <xliff:g id="CC_0">%s</xliff:g>"\n\n</string>
+    <string name="message_compose_fwd_header_fmt" msgid="5181300290654579434">\n\n"-------- 元のメッセージ --------"\n"件名: <xliff:g id="SUBJECT">%1$s</xliff:g>"\n"From: <xliff:g id="SENDER">%2$s</xliff:g>"\n"To: <xliff:g id="TO">%3$s</xliff:g>"\n"Cc: <xliff:g id="CC_0">%4$s</xliff:g>"\n\n</string>
     <string name="message_compose_reply_header_fmt" msgid="8815624773273454573">\n\n"<xliff:g id="SENDER">%s</xliff:g>: "\n\n</string>
     <string name="message_compose_quoted_text_label" msgid="5722467956990009520">"元のメッセージ"</string>
     <string name="message_compose_error_no_recipients" msgid="4903715888250785486">"宛先を入力してください。"</string>
