@@ -62,9 +62,9 @@
     <string name="notification_new_title" msgid="2200257910380529139">"新郵件"</string>
     <string name="error_loading_message_body" msgid="2265140604109272914">"載入郵件文字時發生未預期的錯誤，郵件可能過大以致於無法檢視。"</string>
   <plurals name="notification_new_one_account_fmt">
-    <item quantity="one" msgid="3422945912787702191">"<xliff:g id="UNREAD_MESSAGE_COUNT">%d</xliff:g> 封未讀取郵件 (<xliff:g id="ACCOUNT">%s</xliff:g>)"</item>
-    <item quantity="few" msgid="6543078667692990869">"<xliff:g id="UNREAD_MESSAGE_COUNT">%d</xliff:g> 封未讀取郵件 (<xliff:g id="ACCOUNT">%s</xliff:g>)"</item>
-    <item quantity="other" msgid="6937673814351448076">"<xliff:g id="UNREAD_MESSAGE_COUNT">%d</xliff:g> 封未讀取郵件 (<xliff:g id="ACCOUNT">%s</xliff:g>)"</item>
+    <item quantity="one" msgid="3422945912787702191">"<xliff:g id="UNREAD_MESSAGE_COUNT">%1$d</xliff:g> 封未讀取郵件 (<xliff:g id="ACCOUNT">%2$s</xliff:g>)"</item>
+    <item quantity="few" msgid="6543078667692990869">"<xliff:g id="UNREAD_MESSAGE_COUNT">%1$d</xliff:g> 封未讀取郵件 (<xliff:g id="ACCOUNT">%2$s</xliff:g>)"</item>
+    <item quantity="other" msgid="6937673814351448076">"<xliff:g id="UNREAD_MESSAGE_COUNT">%1$d</xliff:g> 封未讀取郵件 (<xliff:g id="ACCOUNT">%2$s</xliff:g>)"</item>
   </plurals>
   <plurals name="notification_new_multi_account_fmt">
     <item quantity="few" msgid="1991747245324120305">"<xliff:g id="NUMBER_ACCOUNTS">%d</xliff:g> 個帳戶"</item>
@@ -91,7 +91,7 @@
     <string name="message_compose_bcc_hint" msgid="9177337492358841680">"密件副本"</string>
     <string name="message_compose_subject_hint" msgid="6993487234024160782">"主旨"</string>
     <string name="message_compose_body_hint" msgid="7575406246484103697">"撰寫郵件"</string>
-    <string name="message_compose_fwd_header_fmt" msgid="5181300290654579434">\n\n"--------原始郵件 --------"\n"主旨：<xliff:g id="SUBJECT">%s</xliff:g>"\n"寄件者：<xliff:g id="SENDER">%s</xliff:g>"\n"收件者：<xliff:g id="TO">%s</xliff:g>"\n"副本：<xliff:g id="CC_0">%s</xliff:g>"\n\n</string>
+    <string name="message_compose_fwd_header_fmt" msgid="5181300290654579434">\n\n"--------原始郵件 --------"\n"主旨：<xliff:g id="SUBJECT">%1$s</xliff:g>"\n"寄件者：<xliff:g id="SENDER">%2$s</xliff:g>"\n"收件者：<xliff:g id="TO">%3$s</xliff:g>"\n"副本：<xliff:g id="CC_0">%4$s</xliff:g>"\n\n</string>
     <string name="message_compose_reply_header_fmt" msgid="8815624773273454573">\n\n"<xliff:g id="SENDER">%s</xliff:g>提到："\n\n</string>
     <string name="message_compose_quoted_text_label" msgid="5722467956990009520">"引用的文字"</string>
     <string name="message_compose_error_no_recipients" msgid="4903715888250785486">"您必須新增至少一位收件者。"</string>
@@ -267,8 +267,8 @@
     <string name="notification_exchange_calendar_added" msgid="6823659622379350159">"已新增 Exchange 日曆"</string>
     <string name="gal_searching_fmt" msgid="6140450617663543464">"搜尋中 <xliff:g id="DOMAIN">%s</xliff:g>…"</string>
   <plurals name="gal_completed_fmt">
-    <item quantity="one" msgid="7496785524617037642">"只有 <xliff:g id="RESULTS">%d</xliff:g> 個來自 <xliff:g id="DOMAIN">%s</xliff:g> 的搜尋結果"</item>
-    <item quantity="other" msgid="7816121892960632123">"共有 <xliff:g id="RESULTS">%d</xliff:g> 個來自 <xliff:g id="DOMAIN">%s</xliff:g> 的搜尋結果"</item>
+    <item quantity="one" msgid="7496785524617037642">"只有 <xliff:g id="RESULTS">%1$d</xliff:g> 個來自 <xliff:g id="DOMAIN">%2$s</xliff:g> 的搜尋結果"</item>
+    <item quantity="other" msgid="7816121892960632123">"共有 <xliff:g id="RESULTS">%1$d</xliff:g> 個來自 <xliff:g id="DOMAIN">%2$s</xliff:g> 的搜尋結果"</item>
   </plurals>
-    <string name="gal_completed_limited_fmt" msgid="2343791690766047585">"前 <xliff:g id="RESULTS">%d</xliff:g> 個來自 <xliff:g id="DOMAIN">%s</xliff:g> 的搜尋結果"</string>
+    <string name="gal_completed_limited_fmt" msgid="2343791690766047585">"前 <xliff:g id="RESULTS">%1$d</xliff:g> 個來自 <xliff:g id="DOMAIN">%2$s</xliff:g> 的搜尋結果"</string>
 </resources>
