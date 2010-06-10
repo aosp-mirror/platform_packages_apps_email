@@ -62,9 +62,9 @@
     <string name="notification_new_title" msgid="2200257910380529139">"Nový e-mail"</string>
     <string name="error_loading_message_body" msgid="2265140604109272914">"Během načítání textu zprávy došlo k neočekávané chybě. Zpráva je možná příliš velká a proto ji nelze zobrazit."</string>
   <plurals name="notification_new_one_account_fmt">
-    <item quantity="one" msgid="3422945912787702191">"Nepřečtené zprávy: <xliff:g id="UNREAD_MESSAGE_COUNT">%d</xliff:g>(<xliff:g id="ACCOUNT">%s</xliff:g>)"</item>
-    <item quantity="few" msgid="6543078667692990869">"Nepřečtené zprávy: <xliff:g id="UNREAD_MESSAGE_COUNT">%d</xliff:g>(<xliff:g id="ACCOUNT">%s</xliff:g>)"</item>
-    <item quantity="other" msgid="6937673814351448076">"Nepřečtené zprávy: <xliff:g id="UNREAD_MESSAGE_COUNT">%d</xliff:g>(<xliff:g id="ACCOUNT">%s</xliff:g>)"</item>
+    <item quantity="one" msgid="3422945912787702191">"Nepřečtené zprávy: <xliff:g id="UNREAD_MESSAGE_COUNT">%1$d</xliff:g>(<xliff:g id="ACCOUNT">%2$s</xliff:g>)"</item>
+    <item quantity="few" msgid="6543078667692990869">"Nepřečtené zprávy: <xliff:g id="UNREAD_MESSAGE_COUNT">%1$d</xliff:g>(<xliff:g id="ACCOUNT">%2$s</xliff:g>)"</item>
+    <item quantity="other" msgid="6937673814351448076">"Nepřečtené zprávy: <xliff:g id="UNREAD_MESSAGE_COUNT">%1$d</xliff:g>(<xliff:g id="ACCOUNT">%2$s</xliff:g>)"</item>
   </plurals>
   <plurals name="notification_new_multi_account_fmt">
     <item quantity="few" msgid="1991747245324120305">"v(e) <xliff:g id="NUMBER_ACCOUNTS">%d</xliff:g> účtech"</item>
@@ -91,7 +91,7 @@
     <string name="message_compose_bcc_hint" msgid="9177337492358841680">"Skrytá kopie"</string>
     <string name="message_compose_subject_hint" msgid="6993487234024160782">"Předmět"</string>
     <string name="message_compose_body_hint" msgid="7575406246484103697">"Napsat e-mail"</string>
-    <string name="message_compose_fwd_header_fmt" msgid="5181300290654579434">\n\n"-------- Původní zpráva --------"\n"Předmět: <xliff:g id="SUBJECT">%s</xliff:g>"\n"Odesílatel: <xliff:g id="SENDER">%s</xliff:g>"\n"Komu: <xliff:g id="TO">%s</xliff:g>"\n"Kopie: <xliff:g id="CC_0">%s</xliff:g>"\n\n</string>
+    <string name="message_compose_fwd_header_fmt" msgid="5181300290654579434">\n\n"-------- Původní zpráva --------"\n"Předmět: <xliff:g id="SUBJECT">%1$s</xliff:g>"\n"Odesílatel: <xliff:g id="SENDER">%2$s</xliff:g>"\n"Komu: <xliff:g id="TO">%3$s</xliff:g>"\n"Kopie: <xliff:g id="CC_0">%4$s</xliff:g>"\n\n</string>
     <string name="message_compose_reply_header_fmt" msgid="8815624773273454573">\n\n"<xliff:g id="SENDER">%s</xliff:g>napsal/a:"\n\n</string>
     <string name="message_compose_quoted_text_label" msgid="5722467956990009520">"Text v uvozovkách"</string>
     <string name="message_compose_error_no_recipients" msgid="4903715888250785486">"Je třeba přidat nejméně jednoho příjemce."</string>
@@ -267,8 +267,8 @@
     <string name="notification_exchange_calendar_added" msgid="6823659622379350159">"Kalendář Exchange byl přidán"</string>
     <string name="gal_searching_fmt" msgid="6140450617663543464">"Vyhledávání na webu <xliff:g id="DOMAIN">%s</xliff:g>…"</string>
   <plurals name="gal_completed_fmt">
-    <item quantity="one" msgid="7496785524617037642">"<xliff:g id="RESULTS">%d</xliff:g> výsledek z webu <xliff:g id="DOMAIN">%s</xliff:g>"</item>
-    <item quantity="other" msgid="7816121892960632123">"Počet výsledků: <xliff:g id="RESULTS">%d</xliff:g> z webu <xliff:g id="DOMAIN">%s</xliff:g>"</item>
+    <item quantity="one" msgid="7496785524617037642">"<xliff:g id="RESULTS">%1$d</xliff:g> výsledek z webu <xliff:g id="DOMAIN">%2$s</xliff:g>"</item>
+    <item quantity="other" msgid="7816121892960632123">"Počet výsledků: <xliff:g id="RESULTS">%1$d</xliff:g> z webu <xliff:g id="DOMAIN">%2$s</xliff:g>"</item>
   </plurals>
-    <string name="gal_completed_limited_fmt" msgid="2343791690766047585">"Prvních <xliff:g id="RESULTS">%d</xliff:g> výsledků z webu <xliff:g id="DOMAIN">%s</xliff:g>"</string>
+    <string name="gal_completed_limited_fmt" msgid="2343791690766047585">"Prvních <xliff:g id="RESULTS">%1$d</xliff:g> výsledků z webu <xliff:g id="DOMAIN">%2$s</xliff:g>"</string>
 </resources>
