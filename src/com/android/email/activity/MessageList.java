@@ -67,7 +67,7 @@ import java.util.HashSet;
 import java.util.Set;
 
 public class MessageList extends ListActivity implements OnItemClickListener, OnClickListener,
-        AnimationListener, MessageListAdapter.Callback {
+        AnimationListener, MessagesAdapter.Callback {
     // Intent extras (internal to this activity)
     private static final String EXTRA_ACCOUNT_ID = "com.android.email.activity._ACCOUNT_ID";
     private static final String EXTRA_MAILBOX_TYPE = "com.android.email.activity.MAILBOX_TYPE";
@@ -98,7 +98,7 @@ public class MessageList extends ListActivity implements OnItemClickListener, On
     private static final int LIST_FOOTER_MODE_SEND = 3;
     private int mListFooterMode;
 
-    private MessageListAdapter mListAdapter;
+    private MessagesAdapter mListAdapter;
     private final Controller mController = Controller.getInstance(getApplication());
     private ControllerResultUiThreadWrapper<ControllerResults> mControllerCallback;
 
@@ -242,7 +242,7 @@ public class MessageList extends ListActivity implements OnItemClickListener, On
         mListView.setItemsCanFocus(false);
         registerForContextMenu(mListView);
 
-        mListAdapter = new MessageListAdapter(this, new Handler(), this);
+        mListAdapter = new MessagesAdapter(this, new Handler(), this);
         setListAdapter(mListAdapter);
 
         mResolver = getContentResolver();
@@ -473,7 +473,7 @@ public class MessageList extends ListActivity implements OnItemClickListener, On
         MessageListItem itemView = (MessageListItem) info.targetView;
 
         Cursor c = (Cursor) mListView.getItemAtPosition(info.position);
-        String messageName = c.getString(MessageListAdapter.COLUMN_SUBJECT);
+        String messageName = c.getString(MessagesAdapter.COLUMN_SUBJECT);
 
         menu.setHeaderTitle(messageName);
 
@@ -679,7 +679,7 @@ public class MessageList extends ListActivity implements OnItemClickListener, On
         toggleMultiple(selectedSet, new MultiToggleHelper() {
 
             public boolean getField(long messageId, Cursor c) {
-                return c.getInt(MessageListAdapter.COLUMN_READ) == 0;
+                return c.getInt(MessagesAdapter.COLUMN_READ) == 0;
             }
 
             public boolean setField(long messageId, Cursor c, boolean newValue) {
@@ -702,7 +702,7 @@ public class MessageList extends ListActivity implements OnItemClickListener, On
         toggleMultiple(selectedSet, new MultiToggleHelper() {
 
             public boolean getField(long messageId, Cursor c) {
-                return c.getInt(MessageListAdapter.COLUMN_FAVORITE) != 0;
+                return c.getInt(MessagesAdapter.COLUMN_FAVORITE) != 0;
             }
 
             public boolean setField(long messageId, Cursor c, boolean newValue) {
@@ -763,7 +763,7 @@ public class MessageList extends ListActivity implements OnItemClickListener, On
 
         c.moveToPosition(-1);
         while (c.moveToNext()) {
-            long id = c.getInt(MessageListAdapter.COLUMN_ID);
+            long id = c.getInt(MessagesAdapter.COLUMN_ID);
             if (selectedSet.contains(Long.valueOf(id))) {
                 anyWereFound = true;
                 if (!helper.getField(id, c)) {
@@ -779,7 +779,7 @@ public class MessageList extends ListActivity implements OnItemClickListener, On
             boolean newValue = !allWereSet;
             c.moveToPosition(-1);
             while (c.moveToNext()) {
-                long id = c.getInt(MessageListAdapter.COLUMN_ID);
+                long id = c.getInt(MessagesAdapter.COLUMN_ID);
                 if (selectedSet.contains(Long.valueOf(id))) {
                     if (helper.setField(id, c, newValue)) {
                         ++numChanged;
@@ -805,7 +805,7 @@ public class MessageList extends ListActivity implements OnItemClickListener, On
         }
         c.moveToPosition(-1);
         while (c.moveToNext()) {
-            long id = c.getInt(MessageListAdapter.COLUMN_ID);
+            long id = c.getInt(MessagesAdapter.COLUMN_ID);
             if (selectedSet.contains(Long.valueOf(id))) {
                 if (c.getInt(column_id) == (defaultflag? 1 : 0)) {
                     return true;
@@ -838,14 +838,14 @@ public class MessageList extends ListActivity implements OnItemClickListener, On
 
     private void updateFooterButtonNames () {
         // Show "unread_action" when one or more read messages are selected.
-        if (testMultiple(mListAdapter.getSelectedSet(), MessageListAdapter.COLUMN_READ, true)) {
+        if (testMultiple(mListAdapter.getSelectedSet(), MessagesAdapter.COLUMN_READ, true)) {
             mReadUnreadButton.setText(R.string.unread_action);
         } else {
             mReadUnreadButton.setText(R.string.read_action);
         }
         // Show "set_star_action" when one or more un-starred messages are selected.
         if (testMultiple(mListAdapter.getSelectedSet(),
-                MessageListAdapter.COLUMN_FAVORITE, false)) {
+                MessagesAdapter.COLUMN_FAVORITE, false)) {
             mFavoriteButton.setText(R.string.set_star_action);
         } else {
             mFavoriteButton.setText(R.string.remove_star_action);

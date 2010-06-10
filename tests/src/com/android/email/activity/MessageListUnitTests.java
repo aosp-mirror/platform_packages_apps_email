@@ -129,7 +129,7 @@ public class MessageListUnitTests
         mMessageList.onSaveInstanceState(bundle);
         long[] checkedarray = bundle.getLongArray(STATE_CHECKED_ITEMS);
         assertEquals(0, checkedarray.length);
-        Set<Long> checkedset = ((MessageListAdapter)mListAdapter).getSelectedSet();
+        Set<Long> checkedset = ((MessagesAdapter)mListAdapter).getSelectedSet();
         checkedset.add(1L);
         checkedset.add(3L);
         checkedset.add(5L);
@@ -149,11 +149,11 @@ public class MessageListUnitTests
         checkedarray[0] = 1;
         checkedarray[1] = 3;
         checkedarray[2] = 5;
-        Set<Long> checkedset = ((MessageListAdapter)mListAdapter).getSelectedSet();
+        Set<Long> checkedset = ((MessagesAdapter)mListAdapter).getSelectedSet();
         assertEquals(0, checkedset.size());
         bundle.putLongArray(STATE_CHECKED_ITEMS, checkedarray);
         mMessageList.onRestoreInstanceState(bundle);
-        checkedset = ((MessageListAdapter)mListAdapter).getSelectedSet();
+        checkedset = ((MessagesAdapter)mListAdapter).getSelectedSet();
         assertEquals(3, checkedset.size());
         assertTrue(checkedset.contains(1L));
         assertTrue(checkedset.contains(3L));
