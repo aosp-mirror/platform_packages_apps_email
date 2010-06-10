@@ -105,7 +105,7 @@ public class EasSyncService extends AbstractSyncService {
     public static final boolean DEBUG_GAL_SERVICE = false;
 
     private static final String EMAIL_WINDOW_SIZE = "5";
-    public static final String PIM_WINDOW_SIZE = "5";
+    public static final String PIM_WINDOW_SIZE = "4";
     private static final String WHERE_ACCOUNT_KEY_AND_SERVER_ID =
         MailboxColumns.ACCOUNT_KEY + "=? and " + MailboxColumns.SERVER_ID + "=?";
     private static final String WHERE_ACCOUNT_AND_SYNC_INTERVAL_PING =
