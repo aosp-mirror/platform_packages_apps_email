@@ -405,6 +405,9 @@ public class Controller {
             // for IMAP & POP only, (attempt to) send the message now
             final EmailContent.Account account =
                     EmailContent.Account.restoreAccountWithId(mProviderContext, accountId);
+            if (account == null) {
+                return;
+            }
             final long sentboxId = findOrCreateMailboxOfType(accountId, Mailbox.TYPE_SENT);
             new Thread() {
                 @Override
@@ -444,6 +447,9 @@ public class Controller {
             // MessagingController implementation
             final EmailContent.Account account =
                 EmailContent.Account.restoreAccountWithId(mProviderContext, accountId);
+            if (account == null) {
+                return;
+            }
             final long sentboxId = findOrCreateMailboxOfType(accountId, Mailbox.TYPE_SENT);
             new Thread() {
                 @Override
@@ -619,6 +625,9 @@ public class Controller {
 
         // 6.  Service runs automatically, MessagingController needs a kick
         Account account = Account.restoreAccountWithId(mProviderContext, accountId);
+        if (account == null) {
+            return; // isMessagingController returns false for null, but let's make it clear.
+        }
         if (isMessagingController(account)) {
             final long syncAccountId = accountId;
             new Thread() {
@@ -647,7 +656,13 @@ public class Controller {
 
         // Service runs automatically, MessagingController needs a kick
         final Message message = Message.restoreMessageWithId(mProviderContext, messageId);
+        if (message == null) {
+            return;
+        }
         Account account = Account.restoreAccountWithId(mProviderContext, message.mAccountKey);
+        if (account == null) {
+            return; // isMessagingController returns false for null, but let's make it clear.
+        }
         if (isMessagingController(account)) {
             new Thread() {
                 @Override
@@ -675,7 +690,13 @@ public class Controller {
 
         // Service runs automatically, MessagingController needs a kick
         final Message message = Message.restoreMessageWithId(mProviderContext, messageId);
+        if (message == null) {
+            return;
+        }
         Account account = Account.restoreAccountWithId(mProviderContext, message.mAccountKey);
+        if (account == null) {
+            return; // isMessagingController returns false for null, but let's make it clear.
+        }
         if (isMessagingController(account)) {
             new Thread() {
                 @Override
@@ -772,6 +793,9 @@ public class Controller {
     private IEmailService getServiceForMessage(long messageId) {
         // TODO make this more efficient, caching the account, smaller lookup here, etc.
         Message message = Message.restoreMessageWithId(mProviderContext, messageId);
+        if (message == null) {
+            return null;
+        }
         return getServiceForAccount(message.mAccountKey);
     }
 
