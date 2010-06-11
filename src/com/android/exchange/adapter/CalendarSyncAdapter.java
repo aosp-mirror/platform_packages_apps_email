@@ -139,11 +139,17 @@ public class CalendarSyncAdapter extends AbstractSyncAdapter {
 
     // Maximum number of allowed attendees; above this number, we mark the Event with the
     // attendeesRedacted extended property and don't allow the event to be upsynced to the server
-    private static final int MAX_ATTENDEES = 50;
+    private static final int MAX_SYNCED_ATTENDEES = 50;
     // We set the organizer to this when the user is the organizer and we've redacted the
     // attendee list.  By making the meeting organizer OTHER than the user, we cause the UI to
     // prevent edits to this event (except local changes like reminder).
     private static final String BOGUS_ORGANIZER_EMAIL = "upload_disallowed@uploadisdisallowed.aaa";
+    // Maximum number of CPO's before we start redacting attendees in exceptions
+    // The number 500 has been determined empirically; 1500 CPOs appears to be the limit before
+    // binder failures occur, but we need room at any point for additional events/exceptions so
+    // we set our limit at 1/3 of the apparent maximum for extra safety
+    // TODO Find a better solution to this workaround
+    private static final int MAX_OPS_BEFORE_EXCEPTION_ATTENDEE_REDACTION = 500;
 
     private long mCalendarId = -1;
     private String mCalendarIdString;
@@ -560,7 +566,7 @@ public class CalendarSyncAdapter extends AbstractSyncAdapter {
             // busyStatus is inherited from the parent unless it's specified in the exception)
             // Add the insert/update operation for each attendee (based on whether it's add/change)
             int numAttendees = attendeeValues.size();
-            if (numAttendees > MAX_ATTENDEES) {
+            if (numAttendees > MAX_SYNCED_ATTENDEES) {
                 // Indicate that we've redacted attendees.  If we're the organizer, disable edit
                 // by setting organizerEmail to a bogus value and by setting the upsync prohibited
                 // extended properly.
@@ -692,7 +698,7 @@ public class CalendarSyncAdapter extends AbstractSyncAdapter {
                 logEventColumns(cv, "DTEND/DURATION missing");
                 return false;
             // Exceptions require DTEND
-            } else if (isException && !cv.containsKey(Events.DTEND)) { 
+            } else if (isException && !cv.containsKey(Events.DTEND)) {
                 logEventColumns(cv, "Exception missing DTEND");
                 return false;
             // If this is a recurrence, we need a DURATION (in days if an all-day event)
@@ -853,20 +859,31 @@ public class CalendarSyncAdapter extends AbstractSyncAdapter {
             int exceptionStart = ops.mCount;
             ops.newException(cv);
             // Also add the attendees, because they need to be copied over from the parent event
+            boolean attendeesRedacted = false;
             if (attendeeValues != null) {
                 for (ContentValues attValues: attendeeValues) {
                     // If this is the user, use his busy status for attendee status
                     String attendeeEmail = attValues.getAsString(Attendees.ATTENDEE_EMAIL);
+                    // Note that the exception at which we surpass the redaction limit might have
+                    // any number of attendees shown; since this is an edge case and a workaround,
+                    // it seems to be an acceptable implementation
                     if (mEmailAddress.equalsIgnoreCase(attendeeEmail)) {
                         attValues.put(Attendees.ATTENDEE_STATUS,
                                 CalendarUtilities.attendeeStatusFromBusyStatus(busyStatus));
+                        ops.newAttendee(attValues, exceptionStart);
+                    } else if (ops.size() < MAX_OPS_BEFORE_EXCEPTION_ATTENDEE_REDACTION) {
+                        ops.newAttendee(attValues, exceptionStart);
+                    } else {
+                        attendeesRedacted = true;
                     }
-                    ops.newAttendee(attValues, exceptionStart);
                 }
             }
             // And add the parent's reminder value
             if (reminderMins > 0) {
                 ops.newReminder(reminderMins, exceptionStart);
+            }
+            if (attendeesRedacted) {
+                mService.userLog("Attendees redacted in this exception");
             }
         }
 
@@ -935,7 +952,7 @@ public class CalendarSyncAdapter extends AbstractSyncAdapter {
                         attendeeCount++;
                         // Allow one more than MAX_ATTENDEES, so that the check for "too many" will
                         // succeed in addEvent
-                        if (attendeeCount <= (MAX_ATTENDEES+1)) {
+                        if (attendeeCount <= (MAX_SYNCED_ATTENDEES+1)) {
                             attendeeValues.add(cv);
                         }
                         break;
