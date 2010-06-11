@@ -18,7 +18,6 @@ package com.android.email.service;
 
 import com.android.email.AccountBackupRestore;
 import com.android.email.Email;
-import com.android.email.SecurityPolicy;
 
 import android.content.BroadcastReceiver;
 import android.content.Context;
@@ -30,24 +29,17 @@ public class BootReceiver extends BroadcastReceiver {
         // Restore accounts, if it has not happened already
         AccountBackupRestore.restoreAccountsIfNeeded(context);
 
-        String intentAction = intent.getAction();
-
-        if (Intent.ACTION_BOOT_COMPLETED.equals(intentAction)) {
+        if (Intent.ACTION_BOOT_COMPLETED.equals(intent.getAction())) {
             // Returns true if there are any accounts
             if (Email.setServicesEnabled(context)) {
                 MailService.actionReschedule(context);
             }
         }
-        else if (Intent.ACTION_DEVICE_STORAGE_LOW.equals(intentAction)) {
+        else if (Intent.ACTION_DEVICE_STORAGE_LOW.equals(intent.getAction())) {
             MailService.actionCancel(context);
         }
-        else if (Intent.ACTION_DEVICE_STORAGE_OK.equals(intentAction)) {
+        else if (Intent.ACTION_DEVICE_STORAGE_OK.equals(intent.getAction())) {
             MailService.actionReschedule(context);
-        }
-        else if (Intent.ACTION_PACKAGE_ADDED.equals(intentAction) ||
-                Intent.ACTION_PACKAGE_REPLACED.equals(intentAction) ||
-                Intent.ACTION_PACKAGE_REMOVED.equals(intentAction)) {
-            SecurityPolicy.getInstance(context.getApplicationContext()).invalidateKeyguardCache();
         }
     }
 }

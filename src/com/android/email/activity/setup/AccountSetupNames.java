@@ -19,7 +19,6 @@ package com.android.email.activity.setup;
 import com.android.email.AccountBackupRestore;
 import com.android.email.R;
 import com.android.email.Utility;
-import com.android.email.activity.AccountFolderList;
 import com.android.email.activity.Welcome;
 import com.android.email.provider.EmailContent;
 import com.android.email.provider.EmailContent.Account;
@@ -147,25 +146,12 @@ public class AccountSetupNames extends Activity implements OnClickListener {
 
     @Override
     public void onBackPressed() {
-        onBackPressed(true);        // OK to "proceed" to next step (the account has been created)
-    }
-
-    private void onBackPressed(boolean okToProceed) {
         boolean easFlowMode = getIntent().getBooleanExtra(EXTRA_EAS_FLOW, false);
         if (easFlowMode) {
             AccountSetupBasics.actionAccountCreateFinishedEas(this);
         } else {
             if (mAccount != null) {
-                if (okToProceed) {
-                    AccountSetupBasics.actionAccountCreateFinished(this, mAccount.mId);
-                } else {
-                    // This is what we do if the account was created, but somebody called
-                    // onBackPressed(false), indicating that the new account's inbox should not be
-                    // entered.  In this case, we'll just go back to the accounts list.
-                    // We don't use the typical "Welcome" activity because if there is only one
-                    // account, it will also try to visit the inbox of that account.
-                    AccountFolderList.actionShowAccounts(this);
-                }
+                AccountSetupBasics.actionAccountCreateFinished(this, mAccount.mId);
             } else {
                 // Safety check here;  If mAccount is null (due to external issues or bugs)
                 // just rewind back to Welcome, which can handle any configuration of accounts
@@ -263,15 +249,14 @@ public class AccountSetupNames extends Activity implements OnClickListener {
 
     /**
      * Handle the eventual result from the security update activity
+     *
+     * TODO: If the user doesn't update the security, don't go to the MessageList.
      */
     @Override
     protected void onActivityResult(int requestCode, int resultCode, Intent data) {
         switch (requestCode) {
             case REQUEST_SECURITY:
-                // If we get RESULT_CANCEL, we tell onBackPressed that there was an error,
-                // and it won't try to take us to the MessageList of the new account.
-                onBackPressed(resultCode == Activity.RESULT_OK);
-                break;
+                onBackPressed();
         }
         super.onActivityResult(requestCode, resultCode, data);
     }
