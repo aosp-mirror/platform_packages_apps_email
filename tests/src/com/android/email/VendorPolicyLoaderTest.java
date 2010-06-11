@@ -23,6 +23,20 @@ import android.os.Bundle;
 import android.test.AndroidTestCase;
 
 public class VendorPolicyLoaderTest extends AndroidTestCase {
+    private String mTestApkPackageName;
+
+    @Override
+    protected void setUp() throws Exception {
+        super.setUp();
+        mTestApkPackageName = getContext().getPackageName() + ".tests";
+    }
+
+    @Override
+    protected void tearDown() throws Exception {
+        super.tearDown();
+        VendorPolicyLoader.clearInstanceForTest();
+    }
+
     /**
      * Test for the case where the helper package doesn't exist.
      */
@@ -37,7 +51,7 @@ public class VendorPolicyLoaderTest extends AndroidTestCase {
     public void testIsSystemPackage() {
         final Context c = getContext();
         assertEquals(false, VendorPolicyLoader.isSystemPackage(c, "no.such.package"));
-        assertEquals(false, VendorPolicyLoader.isSystemPackage(c, "com.android.email.tests"));
+        assertEquals(false, VendorPolicyLoader.isSystemPackage(c, mTestApkPackageName));
         assertEquals(true, VendorPolicyLoader.isSystemPackage(c, "com.android.settings"));
     }
 
@@ -46,9 +60,8 @@ public class VendorPolicyLoaderTest extends AndroidTestCase {
      * policy.
      */
     public void testGetPolicy() {
-        // Because MockVendorPolicy lives in a non-system apk, we need to skip the system-apk check.
-        VendorPolicyLoader pl = new VendorPolicyLoader(getContext(), getContext().getPackageName(),
-                MockVendorPolicy.class.getName(), true);
+        MockVendorPolicy.inject(getContext());
+        VendorPolicyLoader pl = VendorPolicyLoader.getInstance(getContext());
 
         // Prepare result
         Bundle result = new Bundle();
@@ -63,20 +76,19 @@ public class VendorPolicyLoaderTest extends AndroidTestCase {
         Bundle actualResult = pl.getPolicy("policy1", args);
 
         // Check passed args
-        assertEquals("operation", "policy1", MockVendorPolicy.passedPolicy);
+        assertEquals("policy", "policy1", MockVendorPolicy.passedPolicy);
         assertEquals("arg", "a", MockVendorPolicy.passedBundle.getString("arg1"));
 
         // Check return value
         assertEquals("result", 1, actualResult.getInt("ret"));
     }
 
-
     /**
      * Same as {@link #testGetPolicy}, but with the system-apk check.  It's a test for the case
      * where we have a non-system vendor policy installed, which shouldn't be used.
      */
     public void testGetPolicyNonSystem() {
-        VendorPolicyLoader pl = new VendorPolicyLoader(getContext(), "com.android.email.tests",
+        VendorPolicyLoader pl = new VendorPolicyLoader(getContext(), mTestApkPackageName,
                 MockVendorPolicy.class.getName(), false);
 
         MockVendorPolicy.passedPolicy = null;
@@ -88,22 +100,10 @@ public class VendorPolicyLoaderTest extends AndroidTestCase {
         assertNull(MockVendorPolicy.passedPolicy);
     }
 
-    private static class MockVendorPolicy {
-        public static String passedPolicy;
-        public static Bundle passedBundle;
-        public static Bundle mockResult;
-
-        public static Bundle getPolicy(String operation, Bundle args) {
-            passedPolicy = operation;
-            passedBundle = args;
-            return mockResult;
-        }
-    }
-
     /**
      * Test that any vendor policy that happens to be installed returns legal values
      * for getImapIdValues() per its API.
-     * 
+     *
      * Note, in most cases very little will happen in this test, because there is
      * no vendor policy package.  Most of this test exists to test a vendor policy
      * package itself, to make sure that its API returns reasonable values.
@@ -132,7 +132,7 @@ public class VendorPolicyLoaderTest extends AndroidTestCase {
             assertTrue(elements[i+1].charAt(0) != ' ');
             assertTrue(elements[i+2].startsWith(" "));
             assertTrue(elements[i+3].charAt(0) != ' ');
-            i += 4;            
+            i += 4;
         }
     }
 
