@@ -175,7 +175,7 @@ public class MailboxListFragment extends Fragment implements OnItemClickListener
      * This is called via the activity
      * TODO This will be removed when possible
      */
-    public void onContextItemSelected(MenuItem item) {
+    public boolean onContextItemSelected(MenuItem item) {
         AdapterView.AdapterContextMenuInfo info =
             (AdapterView.AdapterContextMenuInfo) item.getMenuInfo();
 
@@ -184,13 +184,14 @@ public class MailboxListFragment extends Fragment implements OnItemClickListener
                 if (mCallback != null) {
                     mCallback.onRefresh(mAccountId, info.id);
                 }
-                 break;
+                return true;
             case R.id.open:
                 if (mCallback != null) {
                     mCallback.onOpen(mAccountId, info.id);
                 }
-                break;
+                return true;
         }
+        return false;
     }
 
     public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
