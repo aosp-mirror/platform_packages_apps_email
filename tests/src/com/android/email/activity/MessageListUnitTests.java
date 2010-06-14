@@ -102,7 +102,7 @@ public class MessageListUnitTests
     private void setUpCustomCursor() throws Throwable {
         runTestOnUiThread(new Runnable() {
             public void run() {
-                mListAdapter = (CursorAdapter)mMessageList.getListAdapter();
+                mListAdapter = mMessageList.getListFragmentForTest().getAdapterForTest();
                 mRowsMap = new HashMap<Long, Map<String, Object>>(0);
                 mIDarray = new ArrayList<Long>(0);
                 final int FIMI = Message.FLAG_INCOMING_MEETING_INVITE;
@@ -116,7 +116,7 @@ public class MessageListUnitTests
                 addElement(7, Long.MIN_VALUE, Long.MIN_VALUE, "h", "H", 0, 0, 0, 0, 0);
                 addElement(8, Long.MIN_VALUE, Long.MIN_VALUE, "i", "I", 0, 0, 0, 0, 0);
                 addElement(9, Long.MIN_VALUE, Long.MIN_VALUE, "j", "J", 0, 0, 0, 0, 0);
-                CustomCursor cc = new CustomCursor(mIDarray, MessageList.MESSAGE_PROJECTION,
+                CustomCursor cc = new CustomCursor(mIDarray, MessageListFragment.MESSAGE_PROJECTION,
                         mRowsMap);
                 mListAdapter.changeCursor(cc);
             }
@@ -126,14 +126,14 @@ public class MessageListUnitTests
     public void testRestoreAndSaveInstanceState() throws Throwable {
         setUpCustomCursor();
         Bundle bundle = new Bundle();
-        mMessageList.onSaveInstanceState(bundle);
+        mMessageList.getListFragmentForTest().onSaveInstanceState(bundle);
         long[] checkedarray = bundle.getLongArray(STATE_CHECKED_ITEMS);
         assertEquals(0, checkedarray.length);
         Set<Long> checkedset = ((MessagesAdapter)mListAdapter).getSelectedSet();
         checkedset.add(1L);
         checkedset.add(3L);
         checkedset.add(5L);
-        mMessageList.onSaveInstanceState(bundle);
+        mMessageList.getListFragmentForTest().onSaveInstanceState(bundle);
         checkedarray = bundle.getLongArray(STATE_CHECKED_ITEMS);
         java.util.Arrays.sort(checkedarray);
         assertEquals(3, checkedarray.length);
@@ -152,7 +152,7 @@ public class MessageListUnitTests
         Set<Long> checkedset = ((MessagesAdapter)mListAdapter).getSelectedSet();
         assertEquals(0, checkedset.size());
         bundle.putLongArray(STATE_CHECKED_ITEMS, checkedarray);
-        mMessageList.onRestoreInstanceState(bundle);
+        mMessageList.getListFragmentForTest().onRestoreInstanceState(bundle);
         checkedset = ((MessagesAdapter)mListAdapter).getSelectedSet();
         assertEquals(3, checkedset.size());
         assertTrue(checkedset.contains(1L));
