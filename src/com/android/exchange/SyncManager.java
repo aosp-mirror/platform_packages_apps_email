@@ -420,6 +420,15 @@ public class SyncManager extends Service implements Runnable {
             }
             return null;
         }
+
+        public Account getByName(String accountName) {
+            for (Account account : this) {
+                if (account.mEmailAddress.equalsIgnoreCase(accountName)) {
+                    return account;
+                }
+            }
+            return null;
+        }
     }
 
     class AccountObserver extends ContentObserver {
@@ -832,6 +841,17 @@ public class SyncManager extends Service implements Runnable {
             AccountList accountList = syncManager.mAccountList;
             synchronized (accountList) {
                 return accountList.getById(accountId);
+            }
+        }
+        return null;
+    }
+
+    static public Account getAccountByName(String accountName) {
+        SyncManager syncManager = INSTANCE;
+        if (syncManager != null) {
+            AccountList accountList = syncManager.mAccountList;
+            synchronized (accountList) {
+                return accountList.getByName(accountName);
             }
         }
         return null;

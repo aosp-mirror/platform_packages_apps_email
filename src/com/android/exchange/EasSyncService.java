@@ -788,7 +788,7 @@ public class EasSyncService extends AbstractSyncService {
      * @param context caller's context
      * @param accountId the account Id to search
      * @param filter the characters entered so far
-     * @return a result record or null
+     * @return a result record or null for no data
      *
      * TODO: shorter timeout for interactive lookup
      * TODO: make watchdog actually work (it doesn't understand our service w/Mailbox == 0)

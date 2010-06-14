@@ -17,7 +17,10 @@
 package com.android.email.service;
 
 import com.android.email.Email;
+import com.android.email.R;
+import com.android.email.VendorPolicyLoader;
 import com.android.email.activity.setup.AccountSetupBasics;
+import com.android.exchange.provider.ExchangeDirectoryProvider;
 
 import android.accounts.AbstractAccountAuthenticator;
 import android.accounts.Account;
@@ -26,12 +29,14 @@ import android.accounts.AccountManager;
 import android.accounts.NetworkErrorException;
 import android.app.Service;
 import android.content.ContentResolver;
+import android.content.ContentValues;
 import android.content.Context;
 import android.content.Intent;
 import android.os.Bundle;
 import android.os.IBinder;
 import android.provider.Calendar;
 import android.provider.ContactsContract;
+import android.provider.ContactsContract.Directory;
 
 /**
  * A very basic authenticator service for EAS.  At the moment, it has no UI hooks.  When called
@@ -45,8 +50,11 @@ public class EasAuthenticatorService extends Service {
     public static final String OPTIONS_CALENDAR_SYNC_ENABLED = "calendar";
 
     class EasAuthenticator extends AbstractAccountAuthenticator {
+        private Context mContext;
+
         public EasAuthenticator(Context context) {
             super(context);
+            mContext = context;
         }
 
         @Override
@@ -83,6 +91,21 @@ public class EasAuthenticatorService extends Service {
                 ContentResolver.setIsSyncable(account, Calendar.AUTHORITY, 1);
                 ContentResolver.setSyncAutomatically(account, Calendar.AUTHORITY, syncCalendar);
 
+                // Register our GAL provider
+                ContentValues values = new ContentValues();
+                values.put(Directory.DIRECTORY_AUTHORITY,
+                        ExchangeDirectoryProvider.EXCHANGE_GAL_AUTHORITY);
+                values.put(Directory.ACCOUNT_NAME, account.name);
+                values.put(Directory.ACCOUNT_TYPE, account.type);
+                values.put(Directory.PACKAGE_NAME, mContext.getPackageName());
+                if (VendorPolicyLoader.getInstance(EasAuthenticatorService.this)
+                        .useAlternateExchangeStrings()) {
+                    values.put(Directory.TYPE_RESOURCE_ID, R.string.exchange_name_alternate);
+                } else {
+                    values.put(Directory.TYPE_RESOURCE_ID, R.string.exchange_name);
+                }
+                values.put(Directory.DISPLAY_NAME, account.name);
+                values.put(Directory.EXPORT_SUPPORT, Directory.EXPORT_SUPPORT_SAME_ACCOUNT_ONLY);
                 Bundle b = new Bundle();
                 b.putString(AccountManager.KEY_ACCOUNT_NAME, options.getString(OPTIONS_USERNAME));
                 b.putString(AccountManager.KEY_ACCOUNT_TYPE, Email.EXCHANGE_ACCOUNT_MANAGER_TYPE);
@@ -144,10 +167,7 @@ public class EasAuthenticatorService extends Service {
 
     @Override
     public IBinder onBind(Intent intent) {
-        // TODO Replace this with an appropriate constant in AccountManager, when it's created
-        String authenticatorIntent = "android.accounts.AccountAuthenticator";
-
-        if (authenticatorIntent.equals(intent.getAction())) {
+        if (AccountManager.ACTION_AUTHENTICATOR_INTENT.equals(intent.getAction())) {
             return new EasAuthenticator(this).getIBinder();
         } else {
             return null;
