@@ -1251,7 +1251,7 @@ public class CalendarSyncAdapter extends AbstractSyncAdapter {
         }
     }
 
-    private class CalendarOperations extends ArrayList<ContentProviderOperation> {
+    protected class CalendarOperations extends ArrayList<ContentProviderOperation> {
         private static final long serialVersionUID = 1L;
         public int mCount = 0;
         private ContentProviderResult[] mResults = null;
