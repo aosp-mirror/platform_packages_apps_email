@@ -17,7 +17,9 @@
 package com.android.email.mail.store;
 
 import com.android.email.Email;
+import com.android.email.MockVendorPolicy;
 import com.android.email.Utility;
+import com.android.email.VendorPolicyLoader;
 import com.android.email.mail.Address;
 import com.android.email.mail.AuthenticationFailedException;
 import com.android.email.mail.Body;
@@ -37,10 +39,13 @@ import com.android.email.mail.internet.MimeUtility;
 import com.android.email.mail.internet.TextBody;
 import com.android.email.mail.store.ImapStore.ImapConnection;
 import com.android.email.mail.store.ImapStore.ImapMessage;
+import com.android.email.mail.store.imap.ImapResponse;
+import com.android.email.mail.store.imap.ImapTestUtils;
 import com.android.email.mail.transport.MockTransport;
 
 import org.apache.commons.io.IOUtils;
 
+import android.os.Bundle;
 import android.test.AndroidTestCase;
 import android.test.MoreAsserts;
 import android.test.suitebuilder.annotation.SmallTest;
@@ -73,6 +78,9 @@ public class ImapStoreUnitTests extends AndroidTestCase {
      * Folder name encoded in UTF-7.
      */
     private final static String FOLDER_ENCODED = "&ZeU-";
+
+    private static ImapResponse CAPABILITY_RESPONSE = ImapTestUtils.parseResponse(
+            "* CAPABILITY IMAP4rev1 STARTTLS");
 
     /* These values are provided by setUp() */
     private ImapStore mStore = null;
@@ -153,8 +161,8 @@ public class ImapStoreUnitTests extends AndroidTestCase {
         //   x-android-device-model Model (Optional, so not tested here)
         //   x-android-net-operator Carrier (Unreliable, so not tested here)
         //   AGUID           A device+account UID
-        String id = ImapStore.getImapId(getContext(),
-                "user-name", "host-name", "IMAP4rev1 STARTTLS");
+        String id = ImapStore.getImapId(getContext(), "user-name", "host-name",
+                CAPABILITY_RESPONSE);
         HashMap<String, String> map = tokenizeImapId(id);
         assertEquals(getContext().getPackageName(), map.get("name"));
         assertEquals("android", map.get("os"));
@@ -192,6 +200,36 @@ public class ImapStoreUnitTests extends AndroidTestCase {
     }
 
     /**
+     * Test for the interaction between {@link ImapStore#getImapId} and a vendor policy.
+     */
+    public void testImapIdWithVendorPolicy() {
+        try {
+            MockVendorPolicy.inject(getContext());
+
+            // Prepare mock result
+            Bundle result = new Bundle();
+            result.putString("getImapId", "\"test-key\" \"test-value\"");
+            MockVendorPolicy.mockResult = result;
+
+            // Invoke
+            String id = ImapStore.getImapId(getContext(), "user-name", "host-name",
+                    ImapTestUtils.parseResponse("* CAPABILITY IMAP4rev1 XXX YYY Z"));
+
+            // Check the result
+            assertEquals("test-value", tokenizeImapId(id).get("test-key"));
+
+            // Verify what's passed to the policy
+            assertEquals("getImapId", MockVendorPolicy.passedPolicy);
+            assertEquals("user-name", MockVendorPolicy.passedBundle.getString("getImapId.user"));
+            assertEquals("host-name", MockVendorPolicy.passedBundle.getString("getImapId.host"));
+            assertEquals("[CAPABILITY,IMAP4rev1,XXX,YYY,Z]",
+                    MockVendorPolicy.passedBundle.getString("getImapId.capabilities"));
+        } finally {
+            VendorPolicyLoader.clearInstanceForTest();
+        }
+    }
+
+    /**
      * Test of the internal generator for IMAP ID strings, specifically looking for proper
      * filtering of illegal values.  This is required because we cannot necessarily trust
      * the external sources of some of this data (e.g. release labels).
@@ -225,9 +263,9 @@ public class ImapStoreUnitTests extends AndroidTestCase {
         ImapStore store2 = (ImapStore) ImapStore.newInstance("imap://user2:password@server:999",
                 getContext(), null);
 
-        String id1a = ImapStore.getImapId(getContext(), "user1", "host-name", "IMAP4rev1");
-        String id1b = ImapStore.getImapId(getContext(), "user1", "host-name", "IMAP4rev1");
-        String id2 = ImapStore.getImapId(getContext(), "user2", "host-name", "IMAP4rev1");
+        String id1a = ImapStore.getImapId(getContext(), "user1", "host-name", CAPABILITY_RESPONSE);
+        String id1b = ImapStore.getImapId(getContext(), "user1", "host-name", CAPABILITY_RESPONSE);
+        String id2 = ImapStore.getImapId(getContext(), "user2", "host-name", CAPABILITY_RESPONSE);
 
         String uid1a = tokenizeImapId(id1a).get("AGUID");
         String uid1b = tokenizeImapId(id1b).get("AGUID");
