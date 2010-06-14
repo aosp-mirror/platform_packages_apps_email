@@ -17,6 +17,12 @@
 
 package com.android.exchange;
 
+import com.android.email.provider.EmailContent.Account;
+
+import org.apache.http.Header;
+import org.apache.http.client.methods.HttpPost;
+import org.apache.http.client.methods.HttpRequestBase;
+
 import android.content.Context;
 import android.test.AndroidTestCase;
 
@@ -118,5 +124,42 @@ import java.io.IOException;
         assertEquals(600, svc.mPingHeartbeat);
         assertEquals(100, svc.mPingForceHeartbeat);
         assertFalse(svc.mPingHeartbeatDropped);
+    }
+
+    public void testAddHeaders() {
+        HttpRequestBase method = new HttpPost();
+        EasSyncService svc = new EasSyncService();
+        svc.mAuthString = "auth";
+        svc.mProtocolVersion = "12.1";
+        svc.mDeviceType = "android";
+        svc.mAccount = null;
+        // With second argument false, there should be no header
+        svc.setHeaders(method, false);
+        Header[] headers = method.getHeaders("X-MS-PolicyKey");
+        assertEquals(0, headers.length);
+        // With second argument true, there should always be a header
+        // The value will be "0" without an account
+        method.removeHeaders("X-MS-PolicyKey");
+        svc.setHeaders(method, true);
+        headers = method.getHeaders("X-MS-PolicyKey");
+        assertEquals(1, headers.length);
+        assertEquals("0", headers[0].getValue());
+        // With an account, but null security key, the header's value should be "0"
+        Account account = new Account();
+        account.mSecuritySyncKey = null;
+        svc.mAccount = account;
+        method.removeHeaders("X-MS-PolicyKey");
+        svc.setHeaders(method, true);
+        headers = method.getHeaders("X-MS-PolicyKey");
+        assertEquals(1, headers.length);
+        assertEquals("0", headers[0].getValue());
+        // With an account and security key, the header's value should be the security key
+        account.mSecuritySyncKey = "key";
+        svc.mAccount = account;
+        method.removeHeaders("X-MS-PolicyKey");
+        svc.setHeaders(method, true);
+        headers = method.getHeaders("X-MS-PolicyKey");
+        assertEquals(1, headers.length);
+        assertEquals("key", headers[0].getValue());
     }
 }

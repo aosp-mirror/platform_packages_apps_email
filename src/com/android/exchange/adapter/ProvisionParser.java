@@ -37,11 +37,11 @@ public class ProvisionParser extends Parser {
     PolicySet mPolicySet = null;
     String mPolicyKey = null;
     boolean mRemoteWipe = false;
+    boolean mIsSupportable = true;
 
     public ProvisionParser(InputStream in, EasSyncService service) throws IOException {
         super(in);
         mService = service;
-        setDebug(true);
     }
 
     public PolicySet getPolicySet() {
@@ -56,12 +56,16 @@ public class ProvisionParser extends Parser {
         return mRemoteWipe;
     }
 
-    public void parseProvisionDocWbxml() throws IOException {
+    public boolean hasSupportablePolicySet() {
+        return (mPolicySet != null) && mIsSupportable;
+    }
+
+    private void parseProvisionDocWbxml() throws IOException {
         int minPasswordLength = 0;
         int passwordMode = PolicySet.PASSWORD_MODE_NONE;
         int maxPasswordFails = 0;
         int maxScreenLockTime = 0;
-        boolean canSupport = true;
+        boolean supported = true;
 
         while (nextTag(Tags.PROVISION_EAS_PROVISION_DOC) != END) {
             switch (tag) {
@@ -95,7 +99,7 @@ public class ProvisionParser extends Parser {
                 // The following policy, if false, can't be supported at the moment
                 case Tags.PROVISION_ATTACHMENTS_ENABLED:
                     if (getValueInt() == 0) {
-                        canSupport = false;
+                       supported = false;
                     }
                     break;
                 // The following policies, if true, can't be supported at the moment
@@ -105,18 +109,21 @@ public class ProvisionParser extends Parser {
                 case Tags.PROVISION_DEVICE_PASSWORD_HISTORY:
                 case Tags.PROVISION_MAX_ATTACHMENT_SIZE:
                     if (getValueInt() == 1) {
-                        canSupport = false;
+                        supported = false;
                     }
                     break;
                 default:
                     skipTag();
             }
+
+            if (!supported) {
+                log("Policy not supported: " + tag);
+                mIsSupportable = false;
+            }
         }
 
-        if (canSupport) {
-            mPolicySet = new SecurityPolicy.PolicySet(minPasswordLength, passwordMode,
+        mPolicySet = new SecurityPolicy.PolicySet(minPasswordLength, passwordMode,
                     maxPasswordFails, maxScreenLockTime, true);
-        }
     }
 
     class ShadowPolicySet {
@@ -318,10 +325,10 @@ public class ProvisionParser extends Parser {
                 case Tags.PROVISION_STATUS:
                     int status = getValueInt();
                     mService.userLog("Provision status: ", status);
+                    res = (status == 1);
                     break;
                 case Tags.PROVISION_POLICIES:
                     parsePolicies();
-                    res = (mPolicySet != null) || (mPolicyKey != null);
                     break;
                 case Tags.PROVISION_REMOTE_WIPE:
                     // Indicate remote wipe command received
