@@ -95,7 +95,7 @@ public class MailboxListFragment extends Fragment implements OnItemClickListener
         mListView = (ListView) inflater.inflate(R.layout.mailbox_list_fragment, container, false);
         mListView.setOnItemClickListener(this);
         mListView.setItemsCanFocus(false);
-        mActivity.registerForContextMenu(mListView);    // TODO This will be removed when possible
+        registerForContextMenu(mListView);
 
         mListAdapter = new MailboxesAdapter(mActivity);
         mListView.setAdapter(mListAdapter);
@@ -158,6 +158,7 @@ public class MailboxListFragment extends Fragment implements OnItemClickListener
      * This is called via the activity
      * TODO This will be removed when possible
      */
+    @Override
     public void onCreateContextMenu(ContextMenu menu, View v, ContextMenuInfo info) {
         AdapterView.AdapterContextMenuInfo menuInfo = (AdapterView.AdapterContextMenuInfo) info;
         Cursor c = (Cursor) mListView.getItemAtPosition(menuInfo.position);
@@ -175,6 +176,7 @@ public class MailboxListFragment extends Fragment implements OnItemClickListener
      * This is called via the activity
      * TODO This will be removed when possible
      */
+    @Override
     public boolean onContextItemSelected(MenuItem item) {
         AdapterView.AdapterContextMenuInfo info =
             (AdapterView.AdapterContextMenuInfo) item.getMenuInfo();

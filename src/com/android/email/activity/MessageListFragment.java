@@ -180,7 +180,7 @@ public class MessageListFragment extends Fragment implements OnItemClickListener
         mListView = (ListView) inflater.inflate(R.layout.message_list_fragment, container, false);
         mListView.setOnItemClickListener(this);
         mListView.setItemsCanFocus(false);
-        mActivity.registerForContextMenu(mListView);
+        registerForContextMenu(mListView);
 
         mListAdapter = new MessagesAdapter(mActivity, new Handler(), this);
         mListView.setAdapter(mListAdapter);
@@ -328,7 +328,8 @@ public class MessageListFragment extends Fragment implements OnItemClickListener
         onMultiDelete(mListAdapter.getSelectedSet());
     }
 
-    public void createContextMenu(ContextMenu menu, View v, ContextMenuInfo menuInfo) {
+    @Override
+    public void onCreateContextMenu(ContextMenu menu, View v, ContextMenuInfo menuInfo) {
         AdapterView.AdapterContextMenuInfo info = (AdapterView.AdapterContextMenuInfo) menuInfo;
         // There is no context menu for the list footer
         if (info.targetView == mListFooterView) {
@@ -368,6 +369,7 @@ public class MessageListFragment extends Fragment implements OnItemClickListener
         }
     }
 
+    @Override
     public boolean onContextItemSelected(MenuItem item) {
         AdapterView.AdapterContextMenuInfo info =
                 (AdapterView.AdapterContextMenuInfo) item.getMenuInfo();
