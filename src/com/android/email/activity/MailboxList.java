@@ -201,20 +201,6 @@ public class MailboxList extends Activity implements OnClickListener, MailboxLis
         }
     }
 
-    // TODO eliminate this, when possible, and do it entirely in the fragment
-    @Override
-    public void onCreateContextMenu(ContextMenu menu, View v, ContextMenuInfo info) {
-        super.onCreateContextMenu(menu, v, info);
-        mListFragment.onCreateContextMenu(menu, v, info);
-    }
-
-    // TODO eliminate this, when possible, and do it entirely in the fragment
-    @Override
-    public boolean onContextItemSelected(MenuItem item) {
-        mListFragment.onContextItemSelected(item);
-        return super.onContextItemSelected(item);
-    }
-
     /**
      * Implements MailboxFragment.Callback
      */

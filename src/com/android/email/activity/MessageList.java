@@ -343,18 +343,6 @@ public class MessageList extends Activity implements OnClickListener,
         }
     }
 
-    // TODO Move these two method to the fragment.
-    @Override
-    public void onCreateContextMenu(ContextMenu menu, View v, ContextMenuInfo menuInfo) {
-        super.onCreateContextMenu(menu, v, menuInfo);
-        mListFragment.createContextMenu(menu, v, menuInfo);
-    }
-
-    @Override
-    public boolean onContextItemSelected(MenuItem item) {
-        return mListFragment.onContextItemSelected(item);
-    }
-
     private void onFolders() {
         long mailboxId = mListFragment.getMailboxId();
         if (mailboxId >= 0) {
