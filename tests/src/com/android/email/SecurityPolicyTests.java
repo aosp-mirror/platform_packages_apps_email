@@ -88,6 +88,27 @@ public class SecurityPolicyTests extends ProviderTestCase2<EmailProvider> {
         return sp;
     }
 
+    public void testPolicySetConstructor() {
+        // We know that EMPTY_POLICY_SET doesn't generate an Exception or we wouldn't be here
+        // Try some illegal parameters
+        try {
+            new PolicySet(100, PolicySet.PASSWORD_MODE_NONE, 0, 0, false);
+            fail("Too-long password allowed");
+        } catch (IllegalArgumentException e) {
+        }
+        try {
+            new PolicySet(0, PolicySet.PASSWORD_MODE_STRONG + 1, 0, 0, false);
+            fail("Illegal password mode allowed");
+        } catch (IllegalArgumentException e) {
+        }
+        try {
+            new PolicySet(0, PolicySet.PASSWORD_MODE_NONE, 0,
+                    PolicySet.SCREEN_LOCK_TIME_MAX + 1, false);
+            fail("Too-long screen lock time allowed");
+        } catch (IllegalArgumentException e) {
+        }
+    }
+
     /**
      * Test business logic of aggregating accounts with policies
      */
@@ -212,27 +233,6 @@ public class SecurityPolicyTests extends ProviderTestCase2<EmailProvider> {
         assertEquals(0, p.mMaxPasswordFails);
         assertEquals(0, p.mMaxScreenLockTime);
         assertTrue(p.mRequireRemoteWipe);
-    }
-
-    /**
-     * Test creation of policies with unsupported ranges
-     */
-    @SmallTest
-    public void testFieldRanges() {
-        SecurityPolicy sp = getSecurityPolicy();
-        // Overlong password length cannot be supported
-        PolicySet p = new PolicySet(PolicySet.PASSWORD_LENGTH_MAX + 1, 0, 0, 0, false);
-        assertFalse(sp.isSupported(p));
-
-        // Too many wipes before reboot can be supported (by reducing to the max)
-        p = new PolicySet(0, 0, PolicySet.PASSWORD_MAX_FAILS_MAX + 1, 0, false);
-        assertTrue(sp.isSupported(p));
-        assertEquals(PolicySet.PASSWORD_MAX_FAILS_MAX, p.mMaxPasswordFails);
-
-        // Too long lock time can be supported (by reducing to the max)
-        p = new PolicySet(0, 0, 0, PolicySet.SCREEN_LOCK_TIME_MAX + 1, false);
-        assertTrue(sp.isSupported(p));
-        assertEquals(PolicySet.SCREEN_LOCK_TIME_MAX, p.mMaxScreenLockTime);
     }
 
     /**

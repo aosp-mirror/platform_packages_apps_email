@@ -172,12 +172,17 @@ public class EasSyncService extends AbstractSyncService {
     // MSFT's custom HTTP result code indicating the need to provision
     static private final int HTTP_NEED_PROVISIONING = 449;
 
+    // The EAS protocol Provision status for "we implement all of the policies"
+    static private final String PROVISION_STATUS_OK = "1";
+    // The EAS protocol Provision status meaning "we partially implement the policies"
+    static private final String PROVISION_STATUS_PARTIAL = "2";
+
     // Reasonable default
     public String mProtocolVersion = Eas.DEFAULT_PROTOCOL_VERSION;
     public Double mProtocolVersionDouble;
     protected String mDeviceId = null;
-    private String mDeviceType = "Android";
-    private String mAuthString = null;
+    /*package*/ String mDeviceType = "Android";
+    /*package*/ String mAuthString = null;
     private String mCmdString = null;
     public String mHostAddress;
     public String mUserName;
@@ -775,8 +780,7 @@ public class EasSyncService extends AbstractSyncService {
      * TODO: make watchdog actually work (it doesn't understand our service w/Mailbox == 0)
      * TODO: figure out why sendHttpClientPost() hangs - possibly pool exhaustion
      */
-    static public GalResult searchGal(Context context, long accountId, String filter)
-    {
+    static public GalResult searchGal(Context context, long accountId, String filter) {
         Account acct = SyncManager.getAccountById(accountId);
         if (acct != null) {
             HostAuth ha = HostAuth.restoreHostAuthWithId(context, acct.mHostAuthKeyRecv);
@@ -1102,18 +1106,21 @@ public class EasSyncService extends AbstractSyncService {
      * @param method the method we are going to send
      * @param usePolicyKey whether or not a policy key should be sent in the headers
      */
-    private void setHeaders(HttpRequestBase method, boolean usePolicyKey) {
+    /*package*/ void setHeaders(HttpRequestBase method, boolean usePolicyKey) {
         method.setHeader("Authorization", mAuthString);
         method.setHeader("MS-ASProtocolVersion", mProtocolVersion);
         method.setHeader("Connection", "keep-alive");
         method.setHeader("User-Agent", mDeviceType + '/' + Eas.VERSION);
-        if (usePolicyKey && (mAccount != null)) {
-            String key = mAccount.mSecuritySyncKey;
-            if (key == null || key.length() == 0) {
-                return;
-            }
-             if (Eas.PARSER_LOG) {
-                userLog("Policy key: " , key);
+        if (usePolicyKey) {
+            // If there's an account in existence, use its key; otherwise (we're creating the
+            // account), send "0".  The server will respond with code 449 if there are policies
+            // to be enforced
+            String key = "0";
+            if (mAccount != null) {
+                String accountKey = mAccount.mSecuritySyncKey;
+                if (!TextUtils.isEmpty(accountKey)) {
+                    key = accountKey;
+                }
             }
             method.setHeader("X-MS-PolicyKey", key);
         }
@@ -1280,7 +1287,7 @@ public class EasSyncService extends AbstractSyncService {
             } else if (sp.isActive(ps)) {
                 // See if the required policies are in force; if they are, acknowledge the policies
                 // to the server and get the final policy key
-                String policyKey = acknowledgeProvision(pp.getPolicyKey());
+                String policyKey = acknowledgeProvision(pp.getPolicyKey(), PROVISION_STATUS_OK);
                 if (policyKey != null) {
                     // Write the final policy key to the Account and say we've been successful
                     ps.writeAccount(mAccount, policyKey, true, mContext);
@@ -1317,15 +1324,20 @@ public class EasSyncService extends AbstractSyncService {
             InputStream is = resp.getEntity().getContent();
             ProvisionParser pp = new ProvisionParser(is, this);
             if (pp.parse()) {
-                // If true, we received policies from the server; see if they are supported by
-                // the framework; if so, return the ProvisionParser containing the policy set and
-                // temporary key
-                PolicySet ps = pp.getPolicySet();
-                // The PolicySet can be null if there are policies we don't know about (e.g. ones
-                // from Exchange 12.1)  If we have a PolicySet, then we ask whether the device can
-                // support the actual parameters of those policies.
-                if ((ps != null) && SecurityPolicy.getInstance(mContext).isSupported(ps)) {
+                // The PolicySet in the ProvisionParser will have the requirements for all KNOWN
+                // policies.  If others are required, hasSupportablePolicySet will be false
+                if (pp.hasSupportablePolicySet()) {
+                    // If the policies are supportable (in this context, meaning that there are no
+                    // completely unimplemented policies required), just return the parser itself
                     return pp;
+                } else {
+                    // Try to acknowledge using the "partial" status (i.e. we can partially
+                    // accommodate the required policies).  The server will agree to this if the
+                    // "allow non-provisionable devices" setting is enabled on the server
+                    String policyKey = acknowledgeProvision(pp.getPolicyKey(),
+                            PROVISION_STATUS_PARTIAL);
+                    // Return either the parser (success) or null (failure)
+                    return (policyKey != null) ? pp : null;
                 }
             }
         }
@@ -1341,14 +1353,15 @@ public class EasSyncService extends AbstractSyncService {
      * @throws IOException
      */
     private void acknowledgeRemoteWipe(String tempKey) throws IOException {
-        acknowledgeProvisionImpl(tempKey, true);
+        acknowledgeProvisionImpl(tempKey, PROVISION_STATUS_OK, true);
     }
 
-    private String acknowledgeProvision(String tempKey) throws IOException {
-        return acknowledgeProvisionImpl(tempKey, false);
+    private String acknowledgeProvision(String tempKey, String result) throws IOException {
+        return acknowledgeProvisionImpl(tempKey, result, false);
     }
 
-    private String acknowledgeProvisionImpl(String tempKey, boolean remoteWipe) throws IOException {
+    private String acknowledgeProvisionImpl(String tempKey, String status,
+            boolean remoteWipe) throws IOException {
         Serializer s = new Serializer();
         s.start(Tags.PROVISION_PROVISION).start(Tags.PROVISION_POLICIES);
         s.start(Tags.PROVISION_POLICY);
@@ -1357,11 +1370,11 @@ public class EasSyncService extends AbstractSyncService {
         s.data(Tags.PROVISION_POLICY_TYPE, getPolicyType());
 
         s.data(Tags.PROVISION_POLICY_KEY, tempKey);
-        s.data(Tags.PROVISION_STATUS, "1");
+        s.data(Tags.PROVISION_STATUS, status);
         s.end().end(); // PROVISION_POLICY, PROVISION_POLICIES
         if (remoteWipe) {
             s.start(Tags.PROVISION_REMOTE_WIPE);
-            s.data(Tags.PROVISION_STATUS, "1");
+            s.data(Tags.PROVISION_STATUS, PROVISION_STATUS_OK);
             s.end();
         }
         s.end().done(); // PROVISION_PROVISION
@@ -1371,7 +1384,7 @@ public class EasSyncService extends AbstractSyncService {
             InputStream is = resp.getEntity().getContent();
             ProvisionParser pp = new ProvisionParser(is, this);
             if (pp.parse()) {
-                // Return the final polic key from the ProvisionParser
+                // Return the final policy key from the ProvisionParser
                 return pp.getPolicyKey();
             }
         }
