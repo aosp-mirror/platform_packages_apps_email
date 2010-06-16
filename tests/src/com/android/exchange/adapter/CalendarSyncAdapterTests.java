@@ -16,13 +16,17 @@
 
 package com.android.exchange.adapter;
 
+import com.android.exchange.adapter.CalendarSyncAdapter.CalendarOperations;
 import com.android.exchange.adapter.CalendarSyncAdapter.EasCalendarSyncParser;
 
+import android.content.ContentProviderOperation;
 import android.content.ContentValues;
 import android.provider.Calendar.Events;
 
+import java.io.ByteArrayInputStream;
 import java.io.IOException;
 import java.util.GregorianCalendar;
+import java.util.List;
 import java.util.TimeZone;
 
 /**
@@ -172,5 +176,130 @@ public class CalendarSyncAdapterTests extends SyncAdapterTestCase<CalendarSyncAd
         // Valid (DTSTART, RRULE, ALL_DAY, DURATION(P<n>D)
         cv.put(Events.DURATION, "P1D");
         assertTrue(p.isValidEventValues(cv));
+    }
+
+    private void addAttendeesToSerializer(Serializer s, int num) throws IOException {
+        for (int i = 0; i < num; i++) {
+            s.start(Tags.CALENDAR_ATTENDEE);
+            s.data(Tags.CALENDAR_ATTENDEE_EMAIL, "frederick" + num +
+                    ".flintstone@this.that.verylongservername.com");
+            s.data(Tags.CALENDAR_ATTENDEE_TYPE, "1");
+            s.data(Tags.CALENDAR_ATTENDEE_NAME, "Frederick" + num + " Flintstone, III");
+            s.end();
+        }
+    }
+
+    private int countInsertOperationsForTable(CalendarOperations ops, String tableName) {
+        int cnt = 0;
+        for (ContentProviderOperation op: ops) {
+            List<String> segments = op.getUri().getPathSegments();
+            if (segments.get(0).equalsIgnoreCase(tableName) &&
+                    op.getType() == ContentProviderOperation.TYPE_INSERT) {
+                cnt++;
+            }
+        }
+        return cnt;
+    }
+
+    /**
+     * Note that there is no way to access the ContentValues inside of a ContentProviderOperation,
+     * which limits the extent to which we can test the result of parsing events.  We can count
+     * the number of objects to be created, but we can't examine them.
+     */
+    // TODO Try to convince fredq to allow access to the ContentValues of a CPO
+    public void testAddEvent() throws IOException {
+        CalendarSyncAdapter adapter = getTestSyncAdapter(CalendarSyncAdapter.class);
+        EasCalendarSyncParser p = adapter.new EasCalendarSyncParser(getTestInputStream(), adapter);
+
+        // Set up an input stream with new event data
+        Serializer s = new Serializer(false);
+        s.start(Tags.SYNC_APPLICATION_DATA);
+        s.data(Tags.CALENDAR_TIME_ZONE, "4AEAAFAAYQBjAGkAZgBpAGMAIABTAHQAYQBuAGQAYQByA" +
+                "GQAIABUAGkAbQBlAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAsAAAABAAIAAAAAAAAAAAAAAFAAY" +
+                "QBjAGkAZgBpAGMAIABEAGEAeQBsAGkAZwBoAHQAIABUAGkAbQBlAAAAAAAAAAAAAAAAAAAAAAAAA" +
+                "AAAAAAAAAMAAAACAAIAAAAAAAAAxP///w==");
+        s.data(Tags.CALENDAR_DTSTAMP, "20100518T213156Z");
+        s.data(Tags.CALENDAR_START_TIME, "20100518T220000Z");
+        s.data(Tags.CALENDAR_SUBJECT, "Documentation");
+        s.data(Tags.CALENDAR_UID, "4417556B-27DE-4ECE-B679-A63EFE1F9E85");
+        s.data(Tags.CALENDAR_ORGANIZER_NAME, "Fred Squatibuquitas");
+        s.data(Tags.CALENDAR_ORGANIZER_EMAIL, "fred.squatibuquitas@prettylongdomainname.com");
+        s.start(Tags.CALENDAR_ATTENDEES);
+        addAttendeesToSerializer(s, 10);
+        s.end(); // CALENDAR_ATTENDEES
+        s.data(Tags.CALENDAR_LOCATION, "CR SF 601T2/North Shore Presentation Self Service (16)");
+        s.data(Tags.CALENDAR_END_TIME, "20100518T223000Z");
+        s.start(Tags.BASE_BODY);
+        s.data(Tags.BASE_BODY_PREFERENCE, "1");
+        s.data(Tags.BASE_ESTIMATED_DATA_SIZE, "69105"); // The number is ignored by the parser
+        s.data(Tags.BASE_DATA, "This is the event description; we should probably make it longer");
+        s.end(); // BASE_BODY
+        s.data(Tags.CALENDAR_SENSITIVITY, "0");
+        s.data(Tags.CALENDAR_BUSY_STATUS, "2");
+        s.data(Tags.CALENDAR_ALL_DAY_EVENT, "0");
+        s.data(Tags.CALENDAR_MEETING_STATUS, "3");
+        s.data(Tags.BASE_NATIVE_BODY_TYPE, "3");
+        s.end().done(); // SYNC_APPLICATION_DATA
+
+        // Set up our parser's input and eat the initial tag
+        byte[] bytes = s.toByteArray();
+        p.resetInput(new ByteArrayInputStream(bytes));
+        p.nextTag(0);
+
+        p.addEvent(p.mOps, "1:1", false);
+        // There should be 1 event
+        assertEquals(1, countInsertOperationsForTable(p.mOps, "events"));
+        // Two attendees (organizer and 10 attendees)
+        assertEquals(11, countInsertOperationsForTable(p.mOps, "attendees"));
+        // dtstamp, meeting status, attendees, attendees redacted, and upsync prohibited
+        assertEquals(5, countInsertOperationsForTable(p.mOps, "extendedproperties"));
+    }
+
+    public void testAddEventRedactedAttendees() throws IOException {
+        CalendarSyncAdapter adapter = getTestSyncAdapter(CalendarSyncAdapter.class);
+        EasCalendarSyncParser p = adapter.new EasCalendarSyncParser(getTestInputStream(), adapter);
+
+        // Set up an input stream with new event data
+        Serializer s = new Serializer(false);
+        s.start(Tags.SYNC_APPLICATION_DATA);
+        s.data(Tags.CALENDAR_TIME_ZONE, "4AEAAFAAYQBjAGkAZgBpAGMAIABTAHQAYQBuAGQAYQByA" +
+                "GQAIABUAGkAbQBlAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAsAAAABAAIAAAAAAAAAAAAAAFAAY" +
+                "QBjAGkAZgBpAGMAIABEAGEAeQBsAGkAZwBoAHQAIABUAGkAbQBlAAAAAAAAAAAAAAAAAAAAAAAAA" +
+                "AAAAAAAAAMAAAACAAIAAAAAAAAAxP///w==");
+        s.data(Tags.CALENDAR_DTSTAMP, "20100518T213156Z");
+        s.data(Tags.CALENDAR_START_TIME, "20100518T220000Z");
+        s.data(Tags.CALENDAR_SUBJECT, "Documentation");
+        s.data(Tags.CALENDAR_UID, "4417556B-27DE-4ECE-B679-A63EFE1F9E85");
+        s.data(Tags.CALENDAR_ORGANIZER_NAME, "Fred Squatibuquitas");
+        s.data(Tags.CALENDAR_ORGANIZER_EMAIL, "fred.squatibuquitas@prettylongdomainname.com");
+        s.start(Tags.CALENDAR_ATTENDEES);
+        addAttendeesToSerializer(s, 100);
+        s.end(); // CALENDAR_ATTENDEES
+        s.data(Tags.CALENDAR_LOCATION, "CR SF 601T2/North Shore Presentation Self Service (16)");
+        s.data(Tags.CALENDAR_END_TIME, "20100518T223000Z");
+        s.start(Tags.BASE_BODY);
+        s.data(Tags.BASE_BODY_PREFERENCE, "1");
+        s.data(Tags.BASE_ESTIMATED_DATA_SIZE, "69105"); // The number is ignored by the parser
+        s.data(Tags.BASE_DATA, "This is the event description; we should probably make it longer");
+        s.end(); // BASE_BODY
+        s.data(Tags.CALENDAR_SENSITIVITY, "0");
+        s.data(Tags.CALENDAR_BUSY_STATUS, "2");
+        s.data(Tags.CALENDAR_ALL_DAY_EVENT, "0");
+        s.data(Tags.CALENDAR_MEETING_STATUS, "3");
+        s.data(Tags.BASE_NATIVE_BODY_TYPE, "3");
+        s.end().done(); // SYNC_APPLICATION_DATA
+
+        // Set up our parser's input and eat the initial tag
+        byte[] bytes = s.toByteArray();
+        p.resetInput(new ByteArrayInputStream(bytes));
+        p.nextTag(0);
+
+        p.addEvent(p.mOps, "1:1", false);
+        // There should be 1 event
+        assertEquals(1, countInsertOperationsForTable(p.mOps, "events"));
+        // One attendees (organizer; all others are redacted)
+        assertEquals(1, countInsertOperationsForTable(p.mOps, "attendees"));
+        // dtstamp, meeting status, and attendees redacted
+        assertEquals(3, countInsertOperationsForTable(p.mOps, "extendedproperties"));
     }
 }
