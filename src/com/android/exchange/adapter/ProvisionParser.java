@@ -37,11 +37,11 @@ public class ProvisionParser extends Parser {
     PolicySet mPolicySet = null;
     String mPolicyKey = null;
     boolean mRemoteWipe = false;
+    boolean mIsSupportable = true;
 
     public ProvisionParser(InputStream in, EasSyncService service) throws IOException {
         super(in);
         mService = service;
-        setDebug(true);
     }
 
     public PolicySet getPolicySet() {
@@ -56,12 +56,15 @@ public class ProvisionParser extends Parser {
         return mRemoteWipe;
     }
 
+    public boolean hasSupportablePolicySet() {
+        return (mPolicySet != null) && mIsSupportable;
+    }
+
     private void parseProvisionDocWbxml() throws IOException {
         int minPasswordLength = 0;
         int passwordMode = PolicySet.PASSWORD_MODE_NONE;
         int maxPasswordFails = 0;
         int maxScreenLockTime = 0;
-        boolean canSupport = true;
 
         while (nextTag(Tags.PROVISION_EAS_PROVISION_DOC) != END) {
             boolean supported = true;
@@ -181,15 +184,13 @@ public class ProvisionParser extends Parser {
             }
 
             if (!supported) {
-                log("** Policy not supported");
-                canSupport = false;
+                log("Policy not supported: " + tag);
+                mIsSupportable = false;
             }
         }
 
-        if (canSupport) {
-            mPolicySet = new SecurityPolicy.PolicySet(minPasswordLength, passwordMode,
+        mPolicySet = new SecurityPolicy.PolicySet(minPasswordLength, passwordMode,
                     maxPasswordFails, maxScreenLockTime, true);
-        }
     }
 
     /**
@@ -412,10 +413,10 @@ public class ProvisionParser extends Parser {
                 case Tags.PROVISION_STATUS:
                     int status = getValueInt();
                     mService.userLog("Provision status: ", status);
+                    res = (status == 1);
                     break;
                 case Tags.PROVISION_POLICIES:
                     parsePolicies();
-                    res = (mPolicySet != null) || (mPolicyKey != null);
                     break;
                 case Tags.PROVISION_REMOTE_WIPE:
                     // Indicate remote wipe command received
