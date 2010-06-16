@@ -20,16 +20,16 @@
     <item android:id="@+id/refresh"
         android:alphabeticShortcut="r"
         android:title="@string/refresh_action"
-        android:icon="@*android:drawable/ic_menu_refresh"
+        android:icon="@drawable/ic_menu_refresh"
     />
     <item android:id="@+id/compose"
         android:alphabeticShortcut="c"
         android:title="@string/compose_action"
-        android:icon="@*android:drawable/ic_menu_compose"
+        android:icon="@drawable/ic_menu_compose"
     />
     <item android:id="@+id/accounts"
         android:title="@string/accounts_action"
-        android:icon="@*android:drawable/ic_menu_account_list"
+        android:icon="@drawable/ic_menu_account_list"
     />
     <group android:id="@+id/deselect_all_group">
         <item android:id="@+id/deselect_all"
