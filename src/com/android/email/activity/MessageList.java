@@ -44,11 +44,9 @@ import android.net.Uri;
 import android.os.AsyncTask;
 import android.os.Bundle;
 import android.os.Handler;
-import android.view.ContextMenu;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
-import android.view.ContextMenu.ContextMenuInfo;
 import android.view.View.OnClickListener;
 import android.view.animation.Animation;
 import android.view.animation.AnimationUtils;
@@ -344,10 +342,9 @@ public class MessageList extends Activity implements OnClickListener,
     }
 
     private void onFolders() {
-        long mailboxId = mListFragment.getMailboxId();
-        if (mailboxId >= 0) {
+        if (!mListFragment.isMagicMailbox()) { // Magic boxes don't have "folders" option.
             // TODO smaller projection
-            Mailbox mailbox = Mailbox.restoreMailboxWithId(this, mailboxId);
+            Mailbox mailbox = Mailbox.restoreMailboxWithId(this, mListFragment.getMailboxId());
             if (mailbox != null) {
                 MailboxList.actionHandleAccount(this, mailbox.mAccountKey);
                 finish();
@@ -365,27 +362,8 @@ public class MessageList extends Activity implements OnClickListener,
     }
 
     private void onEditAccount() {
-        // TOOD it actually doesn't work for -1.
-        AccountSettings.actionSettings(this, mListFragment.getAccountId());
-    }
-
-    // TODO move this to controller.  It doesn't really belong here.
-    public void onSendPendingMessages() {
-        long mailboxId = mListFragment.getMailboxId();
-        if (mailboxId == Mailbox.QUERY_ALL_OUTBOX) {
-            // For the combined Outbox, we loop through all accounts and send the messages
-            Cursor c = mResolver.query(Account.CONTENT_URI, Account.ID_PROJECTION,
-                    null, null, null);
-            try {
-                while (c.moveToNext()) {
-                    long accountId = c.getLong(Account.ID_PROJECTION_COLUMN);
-                    mController.sendPendingMessages(accountId);
-                }
-            } finally {
-                c.close();
-            }
-        } else {
-            mController.sendPendingMessages(mListFragment.getAccountId());
+        if (!mListFragment.isMagicMailbox()) { // Magic boxes don't have "accout settings" option.
+            AccountSettings.actionSettings(this, mListFragment.getAccountId());
         }
     }
 

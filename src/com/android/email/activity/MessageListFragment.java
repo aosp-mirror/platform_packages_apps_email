@@ -66,7 +66,7 @@ public class MessageListFragment extends Fragment implements OnItemClickListener
 
     // UI Support
     private Activity mActivity;
-    private Callback mCallback;
+    private Callback mCallback = EmptyCallback.INSTANCE;
     private ListView mListView;
     private View mListFooterView;
     private TextView mListFooterText;
@@ -110,9 +110,24 @@ public class MessageListFragment extends Fragment implements OnItemClickListener
      * Callback interface that owning activities must implement
      */
     public interface Callback {
-        public void onSendPendingMessages();
+        /**
+         * Called when selected messages have been changed.
+         */
         public void onSelectionChanged();
+
+        /**
+         * Called when the specified mailbox does not exist.
+         */
         public void onMailboxNotFound();
+    }
+
+    private static final class EmptyCallback implements Callback {
+        public static final Callback INSTANCE = new EmptyCallback();
+
+        public void onMailboxNotFound() {
+        }
+        public void onSelectionChanged() {
+        }
     }
 
     private ListView getListView() {
@@ -127,9 +142,8 @@ public class MessageListFragment extends Fragment implements OnItemClickListener
         return mListAdapter;
     }
 
-    // comment on when it's valid, and how to tell
     /**
-     * @return the account id, or -1 if it's unkown yet.
+     * @return the account id or -1 if it's unknown yet.  It's also -1 if it's a magic mailbox.
      */
     public long getAccountId() {
         return mAccountId;
@@ -202,7 +216,7 @@ public class MessageListFragment extends Fragment implements OnItemClickListener
     }
 
     public void setCallback(Callback callback) {
-        mCallback = callback;
+        mCallback = (callback != null) ? callback : EmptyCallback.INSTANCE;
     }
 
     /**
@@ -310,7 +324,7 @@ public class MessageListFragment extends Fragment implements OnItemClickListener
     public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
         if (view != mListFooterView) {
             MessageListItem itemView = (MessageListItem) view;
-            onOpenMessage(id, itemView.mMailboxId);
+            onMessageOpen(id, itemView.mMailboxId);
         } else {
             doFooterClick();
         }
@@ -377,19 +391,20 @@ public class MessageListFragment extends Fragment implements OnItemClickListener
 
         switch (item.getItemId()) {
             case R.id.open:
-                onOpenMessage(info.id, itemView.mMailboxId);
+                onMessageOpen(info.id, itemView.mMailboxId);
                 return true;
             case R.id.delete:
+                // Don't use this.mAccountId, which can be null in magic mailboxes.
                 onDelete(info.id, itemView.mAccountId);
                 return true;
             case R.id.reply:
-                onReply(itemView.mMessageId);
+                onMessageReply(itemView.mMessageId);
                 return true;
             case R.id.reply_all:
-                onReplyAll(itemView.mMessageId);
+                onMessageReplyAll(itemView.mMessageId);
                 return true;
             case R.id.forward:
-                onForward(itemView.mMessageId);
+                onMessageForward(itemView.mMessageId);
                 return true;
             case R.id.mark_as_read:
                 onSetMessageRead(info.id, !itemView.mRead);
@@ -399,67 +414,79 @@ public class MessageListFragment extends Fragment implements OnItemClickListener
     }
 
     /**
-     * Refresh the list.  NOOP for special mailboxes. (e.g. combined inbox)
+     * Refresh the list.  NOOP for special mailboxes (e.g. combined inbox).
      */
     public void onRefresh() {
-        // TODO: Should not be reading from DB in UI thread - need a cleaner way to get accountId
-        // TODO It already has account id.  Second DB lookup isn't necessary.
-        if (mMailboxId >= 0) {
-            Mailbox mailbox = Mailbox.restoreMailboxWithId(mActivity, mMailboxId);
-            if (mailbox != null) {
-                mController.updateMailbox(mailbox.mAccountKey, mMailboxId);
-            }
+        if (!isMagicMailbox()) {
+            // Note we can use mAccountId here because it's not a magic mailbox, which doesn't have
+            // a specific account id.
+            mController.updateMailbox(mAccountId, mMailboxId);
         }
     }
 
     public void onDeselectAll() {
         mListAdapter.getSelectedSet().clear();
         getListView().invalidateViews();
-        if (mCallback != null) {
-            mCallback.onSelectionChanged();
-        }
+        mCallback.onSelectionChanged();
     }
 
-    private void onOpenMessage(long messageId, long mailboxId) {
-        // TODO: Should not be reading from DB in UI thread
-        EmailContent.Mailbox mailbox = EmailContent.Mailbox.restoreMailboxWithId(mActivity,
-                mailboxId);
-        if (mailbox == null) {
-            return;
-        }
+    public void onMessageOpen(final long messageId, final long mailboxId) {
+        Utility.runAsync(new Runnable() {
+            public void run() {
+                EmailContent.Mailbox mailbox = EmailContent.Mailbox.restoreMailboxWithId(mActivity,
+                        mailboxId);
+                if (mailbox == null) {
+                    return;
+                }
 
-        if (mailbox.mType == EmailContent.Mailbox.TYPE_DRAFTS) {
-            MessageCompose.actionEditDraft(mActivity, messageId);
-        } else {
-            final boolean disableReply = (mailbox.mType == EmailContent.Mailbox.TYPE_TRASH);
-            // WARNING: here we pass mMailboxId, which can be the negative id of a compound
-            // mailbox, instead of the mailboxId of the particular message that is opened
-            MessageView.actionView(mActivity, messageId, mMailboxId, disableReply);
-        }
+                if (mailbox.mType == EmailContent.Mailbox.TYPE_DRAFTS) {
+                    MessageCompose.actionEditDraft(mActivity, messageId);
+                } else {
+                    final boolean disableReply = (mailbox.mType == EmailContent.Mailbox.TYPE_TRASH);
+                    // WARNING: here we pass getMailboxId(), which can be the negative id of
+                    // a compound mailbox, instead of the mailboxId of the particular message that
+                    // is opened.  This is to support the next/prev buttons on the message view
+                    // properly even for combined mailboxes.
+                    MessageView.actionView(mActivity, messageId, mMailboxId, disableReply);
+                }
+            }
+        });
     }
 
-    private void onReply(long messageId) {
+    private void onMessageReply(long messageId) {
         MessageCompose.actionReply(mActivity, messageId, false);
     }
 
-    private void onReplyAll(long messageId) {
+    private void onMessageReplyAll(long messageId) {
         MessageCompose.actionReply(mActivity, messageId, true);
     }
 
-    private void onForward(long messageId) {
+    private void onMessageForward(long messageId) {
         MessageCompose.actionForward(mActivity, messageId);
     }
 
+    /**
+     * Load more messages.  NOOP for special mailboxes (e.g. combined inbox).
+     */
     private void onLoadMoreMessages() {
-        if (mMailboxId >= 0) {
+        if (!isMagicMailbox()) {
             mController.loadMoreMessages(mMailboxId);
         }
     }
 
-    private void onDelete(long messageId, long accountId) { // TODO no account id needed
+    public void onSendPendingMessages() {
+        if (getMailboxId() == Mailbox.QUERY_ALL_OUTBOX) {
+            mController.sendPendingMessagesForAllAccounts(mActivity);
+        } else if (!isMagicMailbox()) { // Magic boxes don't have a specific account id.
+            mController.sendPendingMessages(getAccountId());
+        }
+    }
+
+    private void onDelete(long messageId, long accountId) {
+        // Don't use this.mAccountId, which can be null in magic mailboxes.
         mController.deleteMessage(messageId, accountId);
-        Toast.makeText(mActivity, mActivity.getResources().getQuantityString( // TODO Utility.
-                R.plurals.message_deleted_toast, 1), Toast.LENGTH_SHORT).show();
+        Utility.showToast(mActivity, mActivity.getResources().getQuantityString(
+                R.plurals.message_deleted_toast, 1));
     }
 
     private void onSetMessageRead(long messageId, boolean newRead) {
@@ -526,9 +553,7 @@ public class MessageListFragment extends Fragment implements OnItemClickListener
         Toast.makeText(mActivity, mActivity.getResources().getQuantityString(
                 R.plurals.message_deleted_toast, cloneSet.size()), Toast.LENGTH_SHORT).show();
         selectedSet.clear();
-        if (mCallback != null) {
-            mCallback.onSelectionChanged();
-        }
+        mCallback.onSelectionChanged();
     }
 
     private interface MultiToggleHelper {
@@ -644,7 +669,7 @@ public class MessageListFragment extends Fragment implements OnItemClickListener
         if (!mCanAutoRefresh
                 || (mListAdapter.getCursor() == null) // Check if messages info is loaded
                 || (mPushModeMailbox != null && mPushModeMailbox) // Check the push mode
-                || (mMailboxId < 0)) { // Check if this mailbox is synthetic/combined
+                || isMagicMailbox()) { // Check if this mailbox is synthetic/combined
             return;
         }
         mCanAutoRefresh = false;
@@ -682,10 +707,8 @@ public class MessageListFragment extends Fragment implements OnItemClickListener
     }
 
     public void onAdapterRequery() {
-        if (mCallback != null) {
-            // This updates the "multi-selection" button labels.
-            mCallback.onSelectionChanged();
-        }
+        // This updates the "multi-selection" button labels.
+        mCallback.onSelectionChanged();
     }
 
     public void onAdapterSelectedChanged(MessageListItem itemView, boolean newSelected,
@@ -697,9 +720,7 @@ public class MessageListFragment extends Fragment implements OnItemClickListener
         } else {
             mFirstSelectedItemPosition = -1;
         }
-        if (mCallback != null) {
-            mCallback.onSelectionChanged();
-        }
+        mCallback.onSelectionChanged();
     }
 
     /**
@@ -860,9 +881,7 @@ public class MessageListFragment extends Fragment implements OnItemClickListener
                 onLoadMoreMessages();
                 break;
             case LIST_FOOTER_MODE_SEND:
-                if (mCallback != null) {
-                    mCallback.onSendPendingMessages(); // TODO move to controller
-                }
+                onSendPendingMessages();
                 break;
         }
     }
@@ -922,9 +941,7 @@ public class MessageListFragment extends Fragment implements OnItemClickListener
                 return;
             }
             if (cursor == null || cursor.isClosed()) {
-                if (mCallback != null) {
-                    mCallback.onMailboxNotFound();
-                }
+                mCallback.onMailboxNotFound();
                 return;
             }
             MessageListFragment.this.mAccountId = mAccountKey;

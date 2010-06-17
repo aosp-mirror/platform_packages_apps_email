@@ -625,10 +625,21 @@ public class Utility {
      * @param activity Parent activity.
      * @param resId Resource ID of the message string.
      */
-    public static void showToast(final Activity activity, final int resId) {
+    public static void showToast(Activity activity, int resId) {
+        showToast(activity, activity.getResources().getString(resId));
+    }
+
+    /**
+     * A thread safe way to show a Toast.  This method uses {@link Activity#runOnUiThread}, so it
+     * can be called on any thread.
+     *
+     * @param activity Parent activity.
+     * @param message Message to show.
+     */
+    public static void showToast(final Activity activity, final String message) {
         activity.runOnUiThread(new Runnable() {
             public void run() {
-                Toast.makeText(activity, resId, Toast.LENGTH_LONG).show();
+                Toast.makeText(activity, message, Toast.LENGTH_LONG).show();
             }
         });
     }
