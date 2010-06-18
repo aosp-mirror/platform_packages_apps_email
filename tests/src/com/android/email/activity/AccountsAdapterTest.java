@@ -259,4 +259,20 @@ public class AccountsAdapterTest extends AndroidTestCase {
             id = accountId;
         }
     }
+
+    /**
+     * Tests for cursor management.  Make sure that the underlying cursor is closed properly
+     * when we set the cursor to null.
+     */
+    public void testCursorManagement() {
+        setupUpperCursor();
+        setupLowerCursor();
+        AccountsAdapter adapter = AccountsAdapter.getInstance(mUpperCursor, mLowerCursor,
+                getContext(), -1, null);
+
+        Cursor c = adapter.getCursor();
+        assertFalse(c.isClosed());
+        adapter.changeCursor(null);
+        assertTrue(c.isClosed());
+    }
 }

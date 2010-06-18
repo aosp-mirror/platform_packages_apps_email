@@ -20,49 +20,34 @@ import com.android.email.Controller;
 import com.android.email.ControllerResultUiThreadWrapper;
 import com.android.email.Email;
 import com.android.email.R;
-import com.android.email.Utility;
 import com.android.email.activity.setup.AccountSettings;
 import com.android.email.activity.setup.AccountSetupBasics;
 import com.android.email.mail.MessagingException;
 import com.android.email.provider.EmailContent;
 import com.android.email.provider.EmailContent.Account;
 import com.android.email.provider.EmailContent.Mailbox;
-import com.android.email.provider.EmailContent.MailboxColumns;
-import com.android.email.provider.EmailContent.Message;
-import com.android.email.provider.EmailContent.MessageColumns;
 import com.android.email.service.MailService;
 
+import android.app.Activity;
 import android.app.AlertDialog;
 import android.app.Dialog;
-import android.app.ListActivity;
 import android.app.NotificationManager;
 import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
-import android.database.Cursor;
-import android.database.MatrixCursor;
-import android.database.MatrixCursor.RowBuilder;
-import android.os.AsyncTask;
 import android.os.Bundle;
 import android.os.Handler;
-import android.view.ContextMenu;
 import android.view.KeyEvent;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
 import android.view.Window;
-import android.view.ContextMenu.ContextMenuInfo;
 import android.widget.AdapterView;
-import android.widget.CursorAdapter;
-import android.widget.ListAdapter;
-import android.widget.ListView;
 import android.widget.ProgressBar;
 import android.widget.TextView;
 import android.widget.Toast;
-import android.widget.AdapterView.OnItemClickListener;
 
-public class AccountFolderList extends ListActivity
-        implements OnItemClickListener, AccountsAdapter.Callback {
+public class AccountFolderList extends Activity implements AccountFolderListFragment.Callback {
     private static final int DIALOG_REMOVE_ACCOUNT = 1;
     /**
      * Key codes used to open a debug settings screen.
@@ -76,26 +61,11 @@ public class AccountFolderList extends ListActivity
     private static final String ICICLE_SELECTED_ACCOUNT = "com.android.email.selectedAccount";
     private EmailContent.Account mSelectedContextAccount;
 
-    private ListView mListView;
+    // UI Support
     private ProgressBar mProgressIcon;
+    private AccountFolderListFragment mListFragment;
 
-    private AccountsAdapter mListAdapter;
-
-    private LoadAccountsTask mLoadAccountsTask;
     private Controller.Result mControllerCallback;
-
-    private static final String FAVORITE_COUNT_SELECTION =
-        MessageColumns.FLAG_FAVORITE + "= 1";
-
-    private static final String MAILBOX_TYPE_SELECTION =
-        MailboxColumns.TYPE + " =?";
-
-    private static final String MAILBOX_ID_SELECTION =
-        MessageColumns.MAILBOX_KEY + " =?";
-
-    private static final String[] MAILBOX_SUM_OF_UNREAD_COUNT_PROJECTION = new String [] {
-        "sum(" + MailboxColumns.UNREAD_COUNT + ")"
-    };
 
     /**
      * Start the Accounts list activity.  Uses the CLEAR_TOP flag which means that other stacked
@@ -119,13 +89,9 @@ public class AccountFolderList extends ListActivity
         mControllerCallback = new ControllerResultUiThreadWrapper<ControllerResults>(
                 new Handler(), new ControllerResults());
         mProgressIcon = (ProgressBar) findViewById(R.id.title_progress_icon);
-
-        mListView = getListView();
-        mListView.setItemsCanFocus(false);
-        mListView.setScrollBarStyle(View.SCROLLBARS_OUTSIDE_INSET);
-        mListView.setOnItemClickListener(this);
-        mListView.setLongClickable(true);
-        registerForContextMenu(mListView);
+        mListFragment =
+                (AccountFolderListFragment) findFragmentById(R.id.account_folder_list_fragment);
+        mListFragment.bindActivityInfo(this);
 
         if (icicle != null && icicle.containsKey(ICICLE_SELECTED_ACCOUNT)) {
             mSelectedContextAccount = (Account) icicle.getParcelable(ICICLE_SELECTED_ACCOUNT);
@@ -164,192 +130,24 @@ public class AccountFolderList extends ListActivity
             finish();
             return;
         }
-
-        updateAccounts();
-        // TODO: What updates do we need to auto-trigger, now that we have mailboxes in view?
     }
 
     @Override
     protected void onDestroy() {
         super.onDestroy();
-        Utility.cancelTaskInterrupt(mLoadAccountsTask);
-        mLoadAccountsTask = null;
-
-        if (mListAdapter != null) {
-            mListAdapter.changeCursor(null);
-        }
-    }
-
-    public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
-        if (mListAdapter.isMailbox(position)) {
-            MessageList.actionHandleMailbox(this, id);
-        } else if (mListAdapter.isAccount(position)) {
-            MessageList.actionHandleAccount(this, id, Mailbox.TYPE_INBOX);
-        }
-    }
-
-    /**
-     * Implements AccountsAdapter.Controller
-     */
-    public void onClickAccountFolders(long accountId) {
-        MailboxList.actionHandleAccount(this, accountId);
-    }
-
-    private static int getUnreadCountByMailboxType(Context context, int type) {
-        int count = 0;
-        Cursor c = context.getContentResolver().query(Mailbox.CONTENT_URI,
-                MAILBOX_SUM_OF_UNREAD_COUNT_PROJECTION,
-                MAILBOX_TYPE_SELECTION,
-                new String[] { String.valueOf(type) }, null);
-
-        try {
-            if (c.moveToFirst()) {
-                return c.getInt(0);
-            }
-        } finally {
-            c.close();
-        }
-        return count;
-    }
-
-    private static int getCountByMailboxType(Context context, int type) {
-        int count = 0;
-        Cursor c = context.getContentResolver().query(Mailbox.CONTENT_URI,
-                EmailContent.ID_PROJECTION, MAILBOX_TYPE_SELECTION,
-                new String[] { String.valueOf(type) }, null);
-
-        try {
-            c.moveToPosition(-1);
-            while (c.moveToNext()) {
-                count += EmailContent.count(context, Message.CONTENT_URI,
-                        MAILBOX_ID_SELECTION,
-                        new String[] {
-                            String.valueOf(c.getLong(EmailContent.ID_PROJECTION_COLUMN)) });
-            }
-        } finally {
-            c.close();
-        }
-        return count;
-    }
-
-    /**
-     * Build the group and child cursors that support the summary views (aka "at a glance").
-     *
-     * This is a placeholder implementation with significant problems that need to be addressed:
-     *
-     * TODO: We should only show summary mailboxes if they are non-empty.  So there needs to be
-     * a more dynamic child-cursor here, probably listening for update notifications on a number
-     * of other internally-held queries such as count-of-inbox, count-of-unread, etc.
-     *
-     * TODO: This simple list is incomplete.  For example, we probably want drafts, outbox, and
-     * (maybe) sent (again, these would be displayed only when non-empty).
-     *
-     * TODO: We need a way to count total unread in all inboxes (probably with some provider help)
-     *
-     * TODO: We need a way to count total # messages in all other summary boxes (probably with
-     * some provider help).
-     *
-     * TODO use narrower account projection (see LoadAccountsTask)
-     */
-    private MatrixCursor getSummaryChildCursor() {
-        MatrixCursor childCursor = new MatrixCursor(AccountsAdapter.MAILBOX_PROJECTION);
-        int count;
-        RowBuilder row;
-        // TYPE_INBOX
-        count = getUnreadCountByMailboxType(this, Mailbox.TYPE_INBOX);
-        row = childCursor.newRow();
-        row.add(Long.valueOf(Mailbox.QUERY_ALL_INBOXES));   // MAILBOX_COLUMN_ID = 0;
-        row.add(getString(R.string.account_folder_list_summary_inbox)); // MAILBOX_DISPLAY_NAME
-        row.add(null);                                          // MAILBOX_ACCOUNT_KEY = 2;
-        row.add(Integer.valueOf(Mailbox.TYPE_INBOX));           // MAILBOX_TYPE = 3;
-        row.add(Integer.valueOf(count));                        // MAILBOX_UNREAD_COUNT = 4;
-        // TYPE_MAIL (FAVORITES)
-        count = EmailContent.count(this, Message.CONTENT_URI, FAVORITE_COUNT_SELECTION, null);
-        if (count > 0) {
-            row = childCursor.newRow();
-            row.add(Long.valueOf(Mailbox.QUERY_ALL_FAVORITES)); // MAILBOX_COLUMN_ID = 0;
-            // MAILBOX_DISPLAY_NAME
-            row.add(getString(R.string.account_folder_list_summary_starred));
-            row.add(null);                                          // MAILBOX_ACCOUNT_KEY = 2;
-            row.add(Integer.valueOf(Mailbox.TYPE_MAIL));            // MAILBOX_TYPE = 3;
-            row.add(Integer.valueOf(count));                        // MAILBOX_UNREAD_COUNT = 4;
-        }
-        // TYPE_DRAFTS
-        count = getCountByMailboxType(this, Mailbox.TYPE_DRAFTS);
-        if (count > 0) {
-            row = childCursor.newRow();
-            row.add(Long.valueOf(Mailbox.QUERY_ALL_DRAFTS));    // MAILBOX_COLUMN_ID = 0;
-            row.add(getString(R.string.account_folder_list_summary_drafts));// MAILBOX_DISPLAY_NAME
-            row.add(null);                                          // MAILBOX_ACCOUNT_KEY = 2;
-            row.add(Integer.valueOf(Mailbox.TYPE_DRAFTS));          // MAILBOX_TYPE = 3;
-            row.add(Integer.valueOf(count));                        // MAILBOX_UNREAD_COUNT = 4;
-        }
-        // TYPE_OUTBOX
-        count = getCountByMailboxType(this, Mailbox.TYPE_OUTBOX);
-        if (count > 0) {
-            row = childCursor.newRow();
-            row.add(Long.valueOf(Mailbox.QUERY_ALL_OUTBOX));    // MAILBOX_COLUMN_ID = 0;
-            row.add(getString(R.string.account_folder_list_summary_outbox));// MAILBOX_DISPLAY_NAME
-            row.add(null);                                          // MAILBOX_ACCOUNT_KEY = 2;
-            row.add(Integer.valueOf(Mailbox.TYPE_OUTBOX));          // MAILBOX_TYPE = 3;
-            row.add(Integer.valueOf(count));                        // MAILBOX_UNREAD_COUNT = 4;
-        }
-        return childCursor;
-    }
-
-    /**
-     * Async task to handle the accounts query outside of the UI thread
-     */
-    private class LoadAccountsTask extends AsyncTask<Void, Void, Object[]> {
-        @Override
-        protected Object[] doInBackground(Void... params) {
-            // Create the summaries cursor
-            Cursor c1 = getSummaryChildCursor();
-
-            // TODO use a custom projection and don't have to sample all of these columns
-            Cursor c2 = getContentResolver().query(
-                    EmailContent.Account.CONTENT_URI,
-                    EmailContent.Account.CONTENT_PROJECTION, null, null, null);
-            Long defaultAccount = Account.getDefaultAccountId(AccountFolderList.this);
-            return new Object[] { c1, c2 , defaultAccount};
-        }
-
-        @Override
-        protected void onPostExecute(Object[] params) {
-            if (isCancelled() || params == null || ((Cursor)params[1]).isClosed()) {
-                return;
-            }
-            // Before writing a new list adapter into the listview, we need to
-            // shut down the old one (if any).
-            ListAdapter oldAdapter = mListView.getAdapter();
-            if (oldAdapter != null && oldAdapter instanceof CursorAdapter) {
-                ((CursorAdapter)oldAdapter).changeCursor(null);
-            }
-            // Now create a new list adapter and install it
-            mListAdapter = AccountsAdapter.getInstance((Cursor)params[0], (Cursor)params[1],
-                    AccountFolderList.this, (Long)params[2], AccountFolderList.this);
-            mListView.setAdapter(mListAdapter);
-        }
-    }
-
-    private void updateAccounts() {
-        Utility.cancelTaskInterrupt(mLoadAccountsTask);
-        mLoadAccountsTask = (LoadAccountsTask) new LoadAccountsTask().execute();
     }
 
     private void onAddNewAccount() {
         AccountSetupBasics.actionNewAccount(this);
     }
 
-    private void onEditAccount(long accountId) {
+    /* Implements AccountFolderListFragment.Callback */
+    public void onEditAccount(long accountId) {
         AccountSettings.actionSettings(this, accountId);
     }
 
-    /**
-     * Refresh one or all accounts
-     * @param accountId A specific id to refresh folders only, or -1 to refresh everything
-     */
-    private void onRefresh(long accountId) {
+    /* Implements AccountFolderListFragment.Callback */
+    public void onRefresh(long accountId) {
         if (accountId == -1) {
             // TODO implement a suitable "Refresh all accounts" / "check mail" comment in Controller
             // TODO this is temp
@@ -358,10 +156,12 @@ public class AccountFolderList extends ListActivity
         } else {
             showProgressIcon(true);
             Controller.getInstance(getApplication()).updateMailboxList(accountId);
+            // TODO update the inbox too
         }
     }
 
-    private void onCompose(long accountId) {
+    /* Implements AccountFolderListFragment.Callback */
+    public void onCompose(long accountId) {
         if (accountId == -1) {
             accountId = Account.getDefaultAccountId(this);
         }
@@ -372,18 +172,34 @@ public class AccountFolderList extends ListActivity
         }
     }
 
-    private void onDeleteAccount(long accountId) {
+    /* Implements AccountFolderListFragment.Callback */
+    public void onDeleteAccount(long accountId) {
         mSelectedContextAccount = Account.restoreAccountWithId(this, accountId);
         showDialog(DIALOG_REMOVE_ACCOUNT);
     }
 
+    /* Implements AccountFolderListFragment.Callback */
+    public void onOpenAccount(long accountId) {
+        MessageList.actionHandleAccount(this, accountId, Mailbox.TYPE_INBOX);
+    }
+
+    /* Implements AccountFolderListFragment.Callback */
+    public void onOpenMailbox(long mailboxId) {
+        MessageList.actionHandleMailbox(this, mailboxId);
+    }
+
+    /* Implements AccountFolderListFragment.Callback */
+    public void onOpenMailboxes(long accountId) {
+        MailboxList.actionHandleAccount(this, accountId);
+    }
+
     @Override
-    public Dialog onCreateDialog(int id) {
+    public Dialog onCreateDialog(int id, Bundle args) {
         switch (id) {
             case DIALOG_REMOVE_ACCOUNT:
                 return createRemoveAccountDialog();
         }
-        return super.onCreateDialog(id);
+        return super.onCreateDialog(id, args);
     }
 
     private Dialog createRemoveAccountDialog() {
@@ -401,7 +217,7 @@ public class AccountFolderList extends ListActivity
                     notificationManager.cancel(MailService.NOTIFICATION_ID_NEW_MESSAGES);
                     int numAccounts = EmailContent.count(AccountFolderList.this,
                             Account.CONTENT_URI, null, null);
-                    mListAdapter.addOnDeletingAccount(mSelectedContextAccount.mId);
+                    mListFragment.hideDeletingAccount(mSelectedContextAccount.mId);
 
                     Controller.getInstance(AccountFolderList.this).deleteAccount(
                             mSelectedContextAccount.mId);
@@ -423,55 +239,13 @@ public class AccountFolderList extends ListActivity
      * Update a cached dialog with current values (e.g. account name)
      */
     @Override
-    public void onPrepareDialog(int id, Dialog dialog) {
+    public void onPrepareDialog(int id, Dialog dialog, Bundle args) {
         switch (id) {
             case DIALOG_REMOVE_ACCOUNT:
                 AlertDialog alert = (AlertDialog) dialog;
                 alert.setMessage(getString(R.string.account_delete_dlg_instructions_fmt,
                         mSelectedContextAccount.getDisplayName()));
         }
-    }
-
-    @Override
-    public boolean onContextItemSelected(MenuItem item) {
-        AdapterView.AdapterContextMenuInfo menuInfo =
-            (AdapterView.AdapterContextMenuInfo) item.getMenuInfo();
-
-        if (mListAdapter.isMailbox(menuInfo.position)) {
-            Cursor c = (Cursor) mListView.getItemAtPosition(menuInfo.position);
-            long id = c.getLong(AccountsAdapter.MAILBOX_COLUMN_ID);
-            switch (item.getItemId()) {
-                case R.id.open_folder:
-                    MessageList.actionHandleMailbox(this, id);
-                    break;
-                case R.id.check_mail:
-                    onRefresh(-1);
-                    break;
-            }
-            return false;
-        } else if (mListAdapter.isAccount(menuInfo.position)) {
-            Cursor c = (Cursor) mListView.getItemAtPosition(menuInfo.position);
-            long accountId = c.getLong(Account.CONTENT_ID_COLUMN);
-            switch (item.getItemId()) {
-                case R.id.open_folder:
-                    MailboxList.actionHandleAccount(this, accountId);
-                    break;
-                case R.id.compose:
-                    onCompose(accountId);
-                    break;
-                case R.id.refresh_account:
-                    onRefresh(accountId);
-                    break;
-                case R.id.edit_account:
-                    onEditAccount(accountId);
-                    break;
-                case R.id.delete_account:
-                    onDeleteAccount(accountId);
-                    break;
-            }
-            return true;
-        }
-        return false;
     }
 
     @Override
@@ -501,23 +275,6 @@ public class AccountFolderList extends ListActivity
         super.onCreateOptionsMenu(menu);
         getMenuInflater().inflate(R.menu.account_folder_list_option, menu);
         return true;
-    }
-
-    @Override
-    public void onCreateContextMenu(ContextMenu menu, View v, ContextMenuInfo info) {
-        super.onCreateContextMenu(menu, v, info);
-        AdapterView.AdapterContextMenuInfo menuInfo = (AdapterView.AdapterContextMenuInfo) info;
-        if (mListAdapter.isMailbox(menuInfo.position)) {
-            Cursor c = (Cursor) mListView.getItemAtPosition(menuInfo.position);
-            String displayName = c.getString(Account.CONTENT_DISPLAY_NAME_COLUMN);
-            menu.setHeaderTitle(displayName);
-            getMenuInflater().inflate(R.menu.account_folder_list_smart_folder_context, menu);
-        } else if (mListAdapter.isAccount(menuInfo.position)) {
-            Cursor c = (Cursor) mListView.getItemAtPosition(menuInfo.position);
-            String accountName = c.getString(Account.CONTENT_DISPLAY_NAME_COLUMN);
-            menu.setHeaderTitle(accountName);
-            getMenuInflater().inflate(R.menu.account_folder_list_context, menu);
-        }
     }
 
     @Override
@@ -555,9 +312,6 @@ public class AccountFolderList extends ListActivity
             if (result != null || progress == 100) {
                 Email.updateMailboxRefreshTime(mailboxKey);
             }
-            if (progress == 100) {
-                updateAccounts();
-            }
             updateProgress(result, progress);
         }
 
@@ -570,18 +324,10 @@ public class AccountFolderList extends ListActivity
         @Override
         public void sendMailCallback(MessagingException result, long accountId, long messageId,
                 int progress) {
-            if (progress == 100) {
-                updateAccounts();
-            }
         }
 
         private void updateProgress(MessagingException result, int progress) {
             showProgressIcon(result == null && progress < 100);
-        }
-
-        @Override
-        public void deleteAccountCallback(long accountId) {
-            updateAccounts();
         }
     }
 }

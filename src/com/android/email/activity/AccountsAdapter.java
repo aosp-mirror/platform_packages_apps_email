@@ -99,6 +99,7 @@ public class AccountsAdapter extends CursorAdapter {
      */
     @Override
     public void changeCursor(Cursor cursor) {
+        super.changeCursor(cursor);
         if (cursor == null) {
             mCallback = null;
         }
