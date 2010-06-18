@@ -868,44 +868,51 @@ public class Controller {
      * Delete an account.
      */
     public void deleteAccount(final long accountId) {
-        mAccountToType.remove(accountId);
         Utility.runAsync(new Runnable() {
             public void run() {
-                try {
-                    // Get the account URI.
-                    final Account account = Account.restoreAccountWithId(mContext, accountId);
-                    if (account == null) {
-                        return; // Already deleted?
-                    }
-                    final String accountUri = account.getStoreUri(mContext);
-
-                    // Delete Remote store at first.
-                    Store.getInstance(accountUri, mContext, null).delete();
-
-                    // Remove the Store instance from cache.
-                    Store.removeInstance(accountUri);
-                    Uri uri = ContentUris.withAppendedId(
-                            EmailContent.Account.CONTENT_URI, accountId);
-                    mContext.getContentResolver().delete(uri, null, null);
-
-                    // Update the backup (side copy) of the accounts
-                    AccountBackupRestore.backupAccounts(mContext);
-
-                    // Release or relax device administration, if relevant
-                    SecurityPolicy.getInstance(mContext).reducePolicies();
-
-                    Email.setServicesEnabled(mContext);
-                } catch (Exception e) {
-                    // Ignore
-                } finally {
-                    synchronized (mListeners) {
-                        for (Result l : mListeners) {
-                            l.deleteAccountCallback(accountId);
-                        }
-                    }
-                }
+                deleteAccountSync(accountId);
             }
         });
+    }
+
+    /**
+     * Delete an account synchronously.  Intended to be used only by unit tests.
+     */
+    public void deleteAccountSync(long accountId) {
+        try {
+            mAccountToType.remove(accountId);
+            // Get the account URI.
+            final Account account = Account.restoreAccountWithId(mContext, accountId);
+            if (account == null) {
+                return; // Already deleted?
+            }
+            final String accountUri = account.getStoreUri(mContext);
+
+            // Delete Remote store at first.
+            Store.getInstance(accountUri, mContext, null).delete();
+
+            // Remove the Store instance from cache.
+            Store.removeInstance(accountUri);
+            Uri uri = ContentUris.withAppendedId(
+                    EmailContent.Account.CONTENT_URI, accountId);
+            mContext.getContentResolver().delete(uri, null, null);
+
+            // Update the backup (side copy) of the accounts
+            AccountBackupRestore.backupAccounts(mContext);
+
+            // Release or relax device administration, if relevant
+            SecurityPolicy.getInstance(mContext).reducePolicies();
+
+            Email.setServicesEnabled(mContext);
+        } catch (Exception e) {
+            // Ignore
+        } finally {
+            synchronized (mListeners) {
+                for (Result l : mListeners) {
+                    l.deleteAccountCallback(accountId);
+                }
+            }
+        }
     }
 
     /**
