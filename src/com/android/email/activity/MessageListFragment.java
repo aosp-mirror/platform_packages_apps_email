@@ -31,6 +31,7 @@ import android.app.Activity;
 import android.app.Fragment;
 import android.content.ContentResolver;
 import android.content.ContentUris;
+import android.content.Context;
 import android.database.Cursor;
 import android.net.Uri;
 import android.os.AsyncTask;
@@ -52,8 +53,6 @@ import android.widget.AdapterView.OnItemClickListener;
 import java.security.InvalidParameterException;
 import java.util.HashSet;
 import java.util.Set;
-
-// TODO Better method naming
 
 public class MessageListFragment extends Fragment implements OnItemClickListener,
         MessagesAdapter.Callback {
@@ -119,6 +118,28 @@ public class MessageListFragment extends Fragment implements OnItemClickListener
          * Called when the specified mailbox does not exist.
          */
         public void onMailboxNotFound();
+
+        /**
+         * Called when the user wants to open a message.
+         * Note {@code mailboxId} is of the actual mailbox of the message, which is different from
+         * {@link MessageListFragment#getMailboxId} if it's magic mailboxes.
+         */
+        public void onMessageOpen(final long messageId, final long mailboxId);
+
+        /**
+         * Called when the user wants to reply to a message.
+         */
+        public void onMessageReply(long messageId);
+
+        /**
+         * Called when the user wants to reply-all to a message.
+         */
+        public void onMessageReplyAll(long messageId);
+
+        /**
+         * Called when the user wants to forward a message.
+         */
+        public void onMessageForward(long messageId);
     }
 
     private static final class EmptyCallback implements Callback {
@@ -127,6 +148,14 @@ public class MessageListFragment extends Fragment implements OnItemClickListener
         public void onMailboxNotFound() {
         }
         public void onSelectionChanged() {
+        }
+        public void onMessageForward(long messageId) {
+        }
+        public void onMessageOpen(long messageId, long mailboxId) {
+        }
+        public void onMessageReply(long messageId) {
+        }
+        public void onMessageReplyAll(long messageId) {
         }
     }
 
@@ -290,6 +319,8 @@ public class MessageListFragment extends Fragment implements OnItemClickListener
 
     /**
      * Save the focused list item.
+     *
+     * TODO It's not really working.  Fix it.
      */
     private void saveListPosition() {
         mSavedItemPosition = getListView().getSelectedItemPosition();
@@ -309,6 +340,8 @@ public class MessageListFragment extends Fragment implements OnItemClickListener
 
     /**
      * Restore the focused list item.
+     *
+     * TODO It's not really working.  Fix it.
      */
     private void restoreListPosition() {
         if (mSavedItemPosition >= 0 && mSavedItemPosition < getListView().getCount()) {
@@ -324,7 +357,7 @@ public class MessageListFragment extends Fragment implements OnItemClickListener
     public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
         if (view != mListFooterView) {
             MessageListItem itemView = (MessageListItem) view;
-            onMessageOpen(id, itemView.mMailboxId);
+            mCallback.onMessageOpen(id, itemView.mMailboxId);
         } else {
             doFooterClick();
         }
@@ -391,20 +424,20 @@ public class MessageListFragment extends Fragment implements OnItemClickListener
 
         switch (item.getItemId()) {
             case R.id.open:
-                onMessageOpen(info.id, itemView.mMailboxId);
+                mCallback.onMessageOpen(info.id, itemView.mMailboxId);
                 return true;
             case R.id.delete:
-                // Don't use this.mAccountId, which can be null in magic mailboxes.
-                onDelete(info.id, itemView.mAccountId);
+                // Don't use this.mAccountId, which can be -1 in magic mailboxes.
+                onMessageDelete(info.id, itemView.mAccountId);
                 return true;
             case R.id.reply:
-                onMessageReply(itemView.mMessageId);
+                mCallback.onMessageReply(itemView.mMessageId);
                 return true;
             case R.id.reply_all:
-                onMessageReplyAll(itemView.mMessageId);
+                mCallback.onMessageReplyAll(itemView.mMessageId);
                 return true;
             case R.id.forward:
-                onMessageForward(itemView.mMessageId);
+                mCallback.onMessageForward(itemView.mMessageId);
                 return true;
             case R.id.mark_as_read:
                 onSetMessageRead(info.id, !itemView.mRead);
@@ -430,41 +463,6 @@ public class MessageListFragment extends Fragment implements OnItemClickListener
         mCallback.onSelectionChanged();
     }
 
-    public void onMessageOpen(final long messageId, final long mailboxId) {
-        Utility.runAsync(new Runnable() {
-            public void run() {
-                EmailContent.Mailbox mailbox = EmailContent.Mailbox.restoreMailboxWithId(mActivity,
-                        mailboxId);
-                if (mailbox == null) {
-                    return;
-                }
-
-                if (mailbox.mType == EmailContent.Mailbox.TYPE_DRAFTS) {
-                    MessageCompose.actionEditDraft(mActivity, messageId);
-                } else {
-                    final boolean disableReply = (mailbox.mType == EmailContent.Mailbox.TYPE_TRASH);
-                    // WARNING: here we pass getMailboxId(), which can be the negative id of
-                    // a compound mailbox, instead of the mailboxId of the particular message that
-                    // is opened.  This is to support the next/prev buttons on the message view
-                    // properly even for combined mailboxes.
-                    MessageView.actionView(mActivity, messageId, mMailboxId, disableReply);
-                }
-            }
-        });
-    }
-
-    private void onMessageReply(long messageId) {
-        MessageCompose.actionReply(mActivity, messageId, false);
-    }
-
-    private void onMessageReplyAll(long messageId) {
-        MessageCompose.actionReply(mActivity, messageId, true);
-    }
-
-    private void onMessageForward(long messageId) {
-        MessageCompose.actionForward(mActivity, messageId);
-    }
-
     /**
      * Load more messages.  NOOP for special mailboxes (e.g. combined inbox).
      */
@@ -482,7 +480,7 @@ public class MessageListFragment extends Fragment implements OnItemClickListener
         }
     }
 
-    private void onDelete(long messageId, long accountId) {
+    private void onMessageDelete(long messageId, long accountId) {
         // Don't use this.mAccountId, which can be null in magic mailboxes.
         mController.deleteMessage(messageId, accountId);
         Utility.showToast(mActivity, mActivity.getResources().getQuantityString(

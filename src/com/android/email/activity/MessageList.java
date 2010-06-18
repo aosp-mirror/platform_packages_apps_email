@@ -274,6 +274,43 @@ public class MessageList extends Activity implements OnClickListener,
         finish();
     }
 
+    public void onMessageOpen(final long messageId, final long mailboxId) {
+        final Context context = this; // Make the code shorter.
+        Utility.runAsync(new Runnable() {
+            public void run() {
+                EmailContent.Mailbox mailbox = EmailContent.Mailbox.restoreMailboxWithId(context,
+                        mailboxId);
+                if (mailbox == null) {
+                    return;
+                }
+
+                if (mailbox.mType == EmailContent.Mailbox.TYPE_DRAFTS) {
+                    MessageCompose.actionEditDraft(context, messageId);
+                } else {
+                    final boolean disableReply = (mailbox.mType == EmailContent.Mailbox.TYPE_TRASH);
+                    // WARNING: here we pass getMailboxId(), which can be the negative id of
+                    // a compound mailbox, instead of the mailboxId of the particular message that
+                    // is opened.  This is to support the next/prev buttons on the message view
+                    // properly even for combined mailboxes.
+                    MessageView.actionView(context, messageId, mListFragment.getMailboxId(),
+                            disableReply);
+                }
+            }
+        });
+    }
+
+    public void onMessageReply(long messageId) {
+        MessageCompose.actionReply(this, messageId, false);
+    }
+
+    public void onMessageReplyAll(long messageId) {
+        MessageCompose.actionReply(this, messageId, true);
+    }
+
+    public void onMessageForward(long messageId) {
+        MessageCompose.actionForward(this, messageId);
+    }
+
     public void onClick(View v) {
         switch (v.getId()) {
             case R.id.btn_read_unread:
