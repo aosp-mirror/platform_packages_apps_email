@@ -79,7 +79,7 @@
     <string name="debug_version_fmt" msgid="6160213145745376955">"Wersja: <xliff:g id="VERSION">%s</xliff:g>"</string>
     <string name="account_folder_list_separator_accounts" msgid="7568820182396669244">"Konta"</string>
     <string name="account_folder_list_summary_inbox" msgid="5790553737870057607">"Wszystkie skrzynki odbiorcze"</string>
-    <string name="account_folder_list_summary_starred" msgid="3134312269246375723">"Oznaczone gwiazdkami"</string>
+    <string name="account_folder_list_summary_starred" msgid="3134312269246375723">"Oznaczone gwiazdką"</string>
     <string name="account_folder_list_summary_drafts" msgid="5514845993247300437">"Kopie robocze"</string>
     <string name="account_folder_list_summary_outbox" msgid="3059836696049399377">"Do wysłania"</string>
     <string name="account_folder_list_refresh_toast" msgid="8158352329765828902">"Naciśnij i przytrzymaj konto, aby je odświeżyć"</string>
