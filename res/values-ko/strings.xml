@@ -17,9 +17,9 @@
 <resources xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:xliff="urn:oasis:names:tc:xliff:document:1.2">
     <string name="read_attachment_label" msgid="1162255191991555285">"이메일 첨부파일 읽기"</string>
-    <string name="read_attachment_desc" msgid="7594746717616308643">"응용프로그램이 이메일 첨부파일을 읽도록 허용합니다."</string>
+    <string name="read_attachment_desc" msgid="7594746717616308643">"애플리케이션이 이메일 첨부파일을 읽도록 허용합니다."</string>
     <string name="permission_access_provider_label" msgid="4274353114641168675">"이메일 제공업체 데이터 액세스"</string>
-    <string name="permission_access_provider_desc" msgid="1513898266889541617">"응용프로그램이 받은 메일, 보낸 메일, 사용자 이름 및 비밀번호를 비롯하여 이메일 데이터베이스에 액세스하도록 합니다."</string>
+    <string name="permission_access_provider_desc" msgid="1513898266889541617">"애플리케이션이 받은 메일, 보낸 메일, 사용자 이름 및 비밀번호를 비롯하여 이메일 데이터베이스에 액세스하도록 합니다."</string>
     <string name="app_name" msgid="5815426892327290362">"이메일"</string>
     <string name="compose_title" msgid="427986915662706899">"메시지작성"</string>
     <string name="debug_title" msgid="5175710493691536719">"디버그"</string>
