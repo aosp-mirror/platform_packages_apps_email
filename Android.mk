@@ -30,6 +30,17 @@ LOCAL_PACKAGE_NAME := Email
 
 LOCAL_PROGUARD_FLAGS := -include $(LOCAL_PATH)/proguard.flags
 
+# The Emma tool analyzes code coverage when running unit tests on the
+# application. This configuration line selects which packages will be analyzed,
+# leaving out code which is tested by other means (e.g. static libraries) that
+# would dilute the coverage results. These options do not affect regular
+# production builds.
+LOCAL_EMMA_COVERAGE_FILTER := +com.android.email.*,+org.apache.james.mime4j.* \
+	+com.beetstra.jutf7.*,+org.apache.commons.io.*
+# EXCHANGE-REMOVE-SECTION-START
+LOCAL_EMMA_COVERAGE_FILTER += +com.android.exchange.*
+# EXCHANGE-REMOVE-SECTION-END
+
 include $(BUILD_PACKAGE)
 
 # additionally, build unit tests in a separate .apk
