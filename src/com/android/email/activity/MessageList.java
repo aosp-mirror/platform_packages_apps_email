@@ -299,18 +299,6 @@ public class MessageList extends Activity implements OnClickListener,
         });
     }
 
-    public void onMessageReply(long messageId) {
-        MessageCompose.actionReply(this, messageId, false);
-    }
-
-    public void onMessageReplyAll(long messageId) {
-        MessageCompose.actionReply(this, messageId, true);
-    }
-
-    public void onMessageForward(long messageId) {
-        MessageCompose.actionForward(this, messageId);
-    }
-
     public void onClick(View v) {
         switch (v.getId()) {
             case R.id.btn_read_unread:

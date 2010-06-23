@@ -25,16 +25,6 @@
         android:layout_width="4dip"
         android:layout_height="match_parent"
         android:layout_centerVertical="true" />
-    <!-- TODO: Remove the top padding hack and align to the subject baseline -->
-    <ImageView
-        android:id="@+id/selected"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_toRightOf="@id/chip"
-        android:paddingTop="10dip"
-        android:paddingLeft="4dip"
-        android:src="@drawable/btn_check_buttonless_dark_off" />
-    <!-- TODO: Remove the top padding hack and align to the subject baseline -->
     <ImageView
         android:id="@+id/favorite"
         android:layout_width="wrap_content"
@@ -46,7 +36,7 @@
         android:id="@+id/from"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_toRightOf="@id/selected"
+        android:layout_toRightOf="@id/chip"
         android:layout_toLeftOf="@id/favorite"
         android:ellipsize="end"
         android:singleLine="true"

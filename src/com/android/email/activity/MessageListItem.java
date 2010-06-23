@@ -35,18 +35,14 @@ public class MessageListItem extends RelativeLayout {
     public long mAccountId;
     public boolean mRead;
     public boolean mFavorite;
-    public boolean mSelected;
 
-    private boolean mAllowBatch;
     private MessagesAdapter mAdapter;
 
     private boolean mDownEvent;
     private boolean mCachedViewPositions;
-    private int mCheckRight;
     private int mStarLeft;
 
-    // Padding to increase clickable areas on left & right of each list item
-    private final static float CHECKMARK_PAD = 10.0F;
+    // Padding to increase clickable areas on right of each list item
     private final static float STAR_PAD = 10.0F;
 
     public MessageListItem(Context context) {
@@ -65,11 +61,9 @@ public class MessageListItem extends RelativeLayout {
      * Called by the adapter at bindView() time
      *
      * @param adapter the adapter that creates this view
-     * @param allowBatch true if multi-select is enabled for this list
      */
-    public void bindViewInit(MessagesAdapter adapter, boolean allowBatch) {
+    public void bindViewInit(MessagesAdapter adapter) {
         mAdapter = adapter;
-        mAllowBatch = allowBatch;
         mCachedViewPositions = false;
     }
 
@@ -84,9 +78,7 @@ public class MessageListItem extends RelativeLayout {
 
         if (!mCachedViewPositions) {
             float paddingScale = getContext().getResources().getDisplayMetrics().density;
-            int checkPadding = (int) ((CHECKMARK_PAD * paddingScale) + 0.5);
             int starPadding = (int) ((STAR_PAD * paddingScale) + 0.5);
-            mCheckRight = findViewById(R.id.selected).getRight() + checkPadding;
             mStarLeft = findViewById(R.id.favorite).getLeft() - starPadding;
             mCachedViewPositions = true;
         }
@@ -94,7 +86,7 @@ public class MessageListItem extends RelativeLayout {
         switch (event.getAction()) {
             case MotionEvent.ACTION_DOWN:
                 mDownEvent = true;
-                if ((mAllowBatch && touchX < mCheckRight) || touchX > mStarLeft) {
+                if (touchX > mStarLeft) {
                     handled = true;
                 }
                 break;
@@ -105,11 +97,7 @@ public class MessageListItem extends RelativeLayout {
 
             case MotionEvent.ACTION_UP:
                 if (mDownEvent) {
-                    if (mAllowBatch && touchX < mCheckRight) {
-                        mSelected = !mSelected;
-                        mAdapter.updateSelected(this, mSelected);
-                        handled = true;
-                    } else if (touchX > mStarLeft) {
+                    if (touchX > mStarLeft) {
                         mFavorite = !mFavorite;
                         mAdapter.updateFavorite(this, mFavorite);
                         handled = true;
