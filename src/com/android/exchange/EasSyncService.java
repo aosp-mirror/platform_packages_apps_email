@@ -2052,6 +2052,24 @@ public class EasSyncService extends AbstractSyncService {
                     timeout);
             int code = resp.getStatusLine().getStatusCode();
             if (code == HttpStatus.SC_OK) {
+                // In EAS 12.1, we can get "empty" sync responses, which indicate that there are
+                // no changes in the mailbox; handle that case here
+                Header header = resp.getFirstHeader("content-length");
+                if (header != null && header.getValue().equals("0")) {
+                    // If this happens, exit cleanly, and change the interval from push to ping
+                    // if necessary
+                    mExitStatus = EXIT_DONE;
+                    userLog("Empty sync response; finishing");
+                    if (mMailbox.mSyncInterval == Mailbox.CHECK_INTERVAL_PUSH) {
+                        userLog("Changing mailbox from push to ping");
+                        ContentValues cv = new ContentValues();
+                        cv.put(Mailbox.SYNC_INTERVAL, Mailbox.CHECK_INTERVAL_PING);
+                        mContentResolver.update(
+                                ContentUris.withAppendedId(Mailbox.CONTENT_URI, mMailbox.mId), cv,
+                                null, null);
+                    }
+                    return;
+                }
                 InputStream is = resp.getEntity().getContent();
                 if (is != null) {
                     moreAvailable = target.parse(is);
