@@ -31,31 +31,28 @@ import android.app.Activity;
 import android.app.Fragment;
 import android.content.ContentResolver;
 import android.content.ContentUris;
-import android.content.Context;
 import android.database.Cursor;
 import android.net.Uri;
 import android.os.AsyncTask;
 import android.os.Bundle;
 import android.os.Handler;
-import android.view.ContextMenu;
 import android.view.LayoutInflater;
 import android.view.MenuInflater;
-import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
-import android.view.ContextMenu.ContextMenuInfo;
 import android.widget.AdapterView;
 import android.widget.ListView;
 import android.widget.TextView;
 import android.widget.Toast;
 import android.widget.AdapterView.OnItemClickListener;
+import android.widget.AdapterView.OnItemLongClickListener;
 
 import java.security.InvalidParameterException;
 import java.util.HashSet;
 import java.util.Set;
 
 public class MessageListFragment extends Fragment implements OnItemClickListener,
-        MessagesAdapter.Callback {
+        OnItemLongClickListener, MessagesAdapter.Callback {
     private static final String STATE_SELECTED_ITEM_TOP =
             "com.android.email.activity.MessageList.selectedItemTop";
     private static final String STATE_SELECTED_POSITION =
@@ -125,21 +122,6 @@ public class MessageListFragment extends Fragment implements OnItemClickListener
          * {@link MessageListFragment#getMailboxId} if it's magic mailboxes.
          */
         public void onMessageOpen(final long messageId, final long mailboxId);
-
-        /**
-         * Called when the user wants to reply to a message.
-         */
-        public void onMessageReply(long messageId);
-
-        /**
-         * Called when the user wants to reply-all to a message.
-         */
-        public void onMessageReplyAll(long messageId);
-
-        /**
-         * Called when the user wants to forward a message.
-         */
-        public void onMessageForward(long messageId);
     }
 
     private static final class EmptyCallback implements Callback {
@@ -149,63 +131,8 @@ public class MessageListFragment extends Fragment implements OnItemClickListener
         }
         public void onSelectionChanged() {
         }
-        public void onMessageForward(long messageId) {
-        }
         public void onMessageOpen(long messageId, long mailboxId) {
         }
-        public void onMessageReply(long messageId) {
-        }
-        public void onMessageReplyAll(long messageId) {
-        }
-    }
-
-    private ListView getListView() {
-        return mListView;
-    }
-
-    private MenuInflater getMenuInflater() {
-        return mActivity.getMenuInflater();
-    }
-
-    /* package */ MessagesAdapter getAdapterForTest() {
-        return mListAdapter;
-    }
-
-    /**
-     * @return the account id or -1 if it's unknown yet.  It's also -1 if it's a magic mailbox.
-     */
-    public long getAccountId() {
-        return mAccountId;
-    }
-
-    /**
-     * @return the mailbox id, which is the value set to {@link #openMailbox(long, long)}.
-     * (Meaning it will never return -1, but may return special values,
-     * eg {@link Mailbox#QUERY_ALL_INBOXES}).
-     */
-    public long getMailboxId() {
-        return mMailboxId;
-    }
-
-    /**
-     * @return true if the mailbox is a "special" box.  (e.g. combined inbox, all starred, etc.)
-     */
-    public boolean isMagicMailbox() {
-        return mMailboxId < 0;
-    }
-
-    /**
-     * @return if it's an outbox.
-     */
-    public boolean isOutbox() {
-        return mListFooterMode == LIST_FOOTER_MODE_SEND;
-    }
-
-    /**
-     * @return the number of messages that are currently selecteed.
-     */
-    public int getSelectedCount() {
-        return mListAdapter.getSelectedSet().size();
     }
 
     @Override
@@ -222,8 +149,8 @@ public class MessageListFragment extends Fragment implements OnItemClickListener
             Bundle savedInstanceState) {
         mListView = (ListView) inflater.inflate(R.layout.message_list_fragment, container, false);
         mListView.setOnItemClickListener(this);
+        mListView.setOnItemLongClickListener(this);
         mListView.setItemsCanFocus(false);
-        registerForContextMenu(mListView);
 
         mListAdapter = new MessagesAdapter(mActivity, new Handler(), this);
         mListView.setAdapter(mListAdapter);
@@ -242,33 +169,6 @@ public class MessageListFragment extends Fragment implements OnItemClickListener
             // Fragment doesn't have this method.  Call it manually.
             onRestoreInstanceState(savedInstanceState);
         }
-    }
-
-    public void setCallback(Callback callback) {
-        mCallback = (callback != null) ? callback : EmptyCallback.INSTANCE;
-    }
-
-    /**
-     * Open an mailbox.
-     *
-     * @param accountId account id of the mailbox, if already known.  Pass -1 if unknown or
-     *     {@code mailboxId} is of a special mailbox.  If -1 is passed, this fragment will find it
-     *     using {@code mailboxId}, which the activity can get later with {@link #getAccountId()}.
-     *     Passing -1 is always safe, but we can skip a database lookup if specified.
-     *
-     * @param mailboxId the ID of a mailbox, or one of "special" mailbox IDs like
-     *     {@link Mailbox#QUERY_ALL_INBOXES}.  -1 is not allowed.
-     */
-    public void openMailbox(long accountId, long mailboxId) {
-        if (mailboxId == -1) {
-            throw new InvalidParameterException();
-        }
-        mAccountId = accountId;
-        mMailboxId = mailboxId;
-
-        Utility.cancelTaskInterrupt(mLoadMessagesTask);
-        mLoadMessagesTask = new LoadMessagesTask(mailboxId, accountId);
-        mLoadMessagesTask.execute();
     }
 
     @Override
@@ -317,6 +217,85 @@ public class MessageListFragment extends Fragment implements OnItemClickListener
         }
     }
 
+    public void setCallback(Callback callback) {
+        mCallback = (callback != null) ? callback : EmptyCallback.INSTANCE;
+    }
+
+    /**
+     * Called by an Activity to open an mailbox.
+     *
+     * @param accountId account id of the mailbox, if already known.  Pass -1 if unknown or
+     *     {@code mailboxId} is of a special mailbox.  If -1 is passed, this fragment will find it
+     *     using {@code mailboxId}, which the activity can get later with {@link #getAccountId()}.
+     *     Passing -1 is always safe, but we can skip a database lookup if specified.
+     *
+     * @param mailboxId the ID of a mailbox, or one of "special" mailbox IDs like
+     *     {@link Mailbox#QUERY_ALL_INBOXES}.  -1 is not allowed.
+     */
+    public void openMailbox(long accountId, long mailboxId) {
+        if (mailboxId == -1) {
+            throw new InvalidParameterException();
+        }
+        mAccountId = accountId;
+        mMailboxId = mailboxId;
+
+        Utility.cancelTaskInterrupt(mLoadMessagesTask);
+        mLoadMessagesTask = new LoadMessagesTask(mailboxId, accountId);
+        mLoadMessagesTask.execute();
+    }
+
+    private ListView getListView() {
+        return mListView;
+    }
+
+    /* package */ MessagesAdapter getAdapterForTest() {
+        return mListAdapter;
+    }
+
+    /**
+     * @return the account id or -1 if it's unknown yet.  It's also -1 if it's a magic mailbox.
+     */
+    public long getAccountId() {
+        return mAccountId;
+    }
+
+    /**
+     * @return the mailbox id, which is the value set to {@link #openMailbox(long, long)}.
+     * (Meaning it will never return -1, but may return special values,
+     * eg {@link Mailbox#QUERY_ALL_INBOXES}).
+     */
+    public long getMailboxId() {
+        return mMailboxId;
+    }
+
+    /**
+     * @return true if the mailbox is a "special" box.  (e.g. combined inbox, all starred, etc.)
+     */
+    public boolean isMagicMailbox() {
+        return mMailboxId < 0;
+    }
+
+    /**
+     * @return if it's an outbox.
+     */
+    public boolean isOutbox() {
+        return mListFooterMode == LIST_FOOTER_MODE_SEND;
+    }
+
+    /**
+     * @return the number of messages that are currently selecteed.
+     */
+    public int getSelectedCount() {
+        return mListAdapter.getSelectedSet().size();
+    }
+
+    /**
+     * @return true if the list is in the "selection" mode.
+     */
+    private boolean isInSelectionMode() {
+        return getSelectedCount() > 0;
+    }
+
     /**
      * Save the focused list item.
      *
@@ -357,10 +336,30 @@ public class MessageListFragment extends Fragment implements OnItemClickListener
     public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
         if (view != mListFooterView) {
             MessageListItem itemView = (MessageListItem) view;
-            mCallback.onMessageOpen(id, itemView.mMailboxId);
+            if (isInSelectionMode()) {
+                toggleSelection(itemView);
+            } else {
+                mCallback.onMessageOpen(id, itemView.mMailboxId);
+            }
         } else {
             doFooterClick();
         }
+    }
+
+    public boolean onItemLongClick(AdapterView<?> parent, View view, int position, long id) {
+        if (view != mListFooterView) {
+            if (isInSelectionMode()) {
+                // Already in selection mode.  Ignore.
+            } else {
+                toggleSelection((MessageListItem) view);
+                return true;
+            }
+        }
+        return false;
+    }
+
+    private void toggleSelection(MessageListItem itemView) {
+        mListAdapter.updateSelected(itemView, !mListAdapter.isSelected(itemView));
     }
 
     public void onMultiToggleRead() {
@@ -373,77 +372,6 @@ public class MessageListFragment extends Fragment implements OnItemClickListener
 
     public void onMultiDelete() {
         onMultiDelete(mListAdapter.getSelectedSet());
-    }
-
-    @Override
-    public void onCreateContextMenu(ContextMenu menu, View v, ContextMenuInfo menuInfo) {
-        AdapterView.AdapterContextMenuInfo info = (AdapterView.AdapterContextMenuInfo) menuInfo;
-        // There is no context menu for the list footer
-        if (info.targetView == mListFooterView) {
-            return;
-        }
-        MessageListItem itemView = (MessageListItem) info.targetView;
-
-        Cursor c = (Cursor) getListView().getItemAtPosition(info.position);
-        String messageName = c.getString(MessagesAdapter.COLUMN_SUBJECT);
-
-        menu.setHeaderTitle(messageName);
-
-        // TODO: There is probably a special context menu for the trash
-        Mailbox mailbox = Mailbox.restoreMailboxWithId(mActivity, itemView.mMailboxId);
-        if (mailbox == null) {
-            return;
-        }
-
-        switch (mailbox.mType) {
-            case EmailContent.Mailbox.TYPE_DRAFTS:
-                getMenuInflater().inflate(R.menu.message_list_context_drafts, menu);
-                break;
-            case EmailContent.Mailbox.TYPE_OUTBOX:
-                getMenuInflater().inflate(R.menu.message_list_context_outbox, menu);
-                break;
-            case EmailContent.Mailbox.TYPE_TRASH:
-                getMenuInflater().inflate(R.menu.message_list_context_trash, menu);
-                break;
-            default:
-                getMenuInflater().inflate(R.menu.message_list_context, menu);
-                // The default menu contains "mark as read".  If the message is read, change
-                // the menu text to "mark as unread."
-                if (itemView.mRead) {
-                    menu.findItem(R.id.mark_as_read).setTitle(R.string.mark_as_unread_action);
-                }
-                break;
-        }
-    }
-
-    @Override
-    public boolean onContextItemSelected(MenuItem item) {
-        AdapterView.AdapterContextMenuInfo info =
-                (AdapterView.AdapterContextMenuInfo) item.getMenuInfo();
-        MessageListItem itemView = (MessageListItem) info.targetView;
-
-        switch (item.getItemId()) {
-            case R.id.open:
-                mCallback.onMessageOpen(info.id, itemView.mMailboxId);
-                return true;
-            case R.id.delete:
-                // Don't use this.mAccountId, which can be -1 in magic mailboxes.
-                onMessageDelete(info.id, itemView.mAccountId);
-                return true;
-            case R.id.reply:
-                mCallback.onMessageReply(itemView.mMessageId);
-                return true;
-            case R.id.reply_all:
-                mCallback.onMessageReplyAll(itemView.mMessageId);
-                return true;
-            case R.id.forward:
-                mCallback.onMessageForward(itemView.mMessageId);
-                return true;
-            case R.id.mark_as_read:
-                onSetMessageRead(info.id, !itemView.mRead);
-                return true;
-        }
-        return false;
     }
 
     /**
@@ -478,13 +406,6 @@ public class MessageListFragment extends Fragment implements OnItemClickListener
         } else if (!isMagicMailbox()) { // Magic boxes don't have a specific account id.
             mController.sendPendingMessages(getAccountId());
         }
-    }
-
-    private void onMessageDelete(long messageId, long accountId) {
-        // Don't use this.mAccountId, which can be null in magic mailboxes.
-        mController.deleteMessage(messageId, accountId);
-        Utility.showToast(mActivity, mActivity.getResources().getQuantityString(
-                R.plurals.message_deleted_toast, 1));
     }
 
     private void onSetMessageRead(long messageId, boolean newRead) {

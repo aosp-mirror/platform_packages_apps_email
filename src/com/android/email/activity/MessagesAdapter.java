@@ -62,13 +62,13 @@ import java.util.TimerTask;
     public static final int COLUMN_ATTACHMENTS = 8;
     public static final int COLUMN_FLAGS = 9;
 
+    private static final int ITEM_BACKGROUND_SELECTED = 0xFFB0FFB0; // TODO color not finalized
+
     private final LayoutInflater mInflater;
     private final Drawable mAttachmentIcon;
     private final Drawable mInvitationIcon;
     private final Drawable mFavoriteIconOn;
     private final Drawable mFavoriteIconOff;
-    private final Drawable mSelectedIconOn;
-    private final Drawable mSelectedIconOff;
 
     private final ColorStateList mTextColorPrimary;
     private final ColorStateList mTextColorSecondary;
@@ -84,7 +84,7 @@ import java.util.TimerTask;
     private final java.text.DateFormat mDateFormat;
     private final java.text.DateFormat mTimeFormat;
 
-    private final HashSet<Long> mChecked = new HashSet<Long>();
+    private final HashSet<Long> mSelected = new HashSet<Long>();
 
     /**
      * Callback from MessageListAdapter.  All methods are called on the UI thread.
@@ -117,8 +117,6 @@ import java.util.TimerTask;
         mInvitationIcon = resources.getDrawable(R.drawable.ic_calendar_event_small);
         mFavoriteIconOn = resources.getDrawable(R.drawable.btn_star_big_buttonless_dark_on);
         mFavoriteIconOff = resources.getDrawable(R.drawable.btn_star_big_buttonless_dark_off);
-        mSelectedIconOn = resources.getDrawable(R.drawable.btn_check_buttonless_dark_on);
-        mSelectedIconOff = resources.getDrawable(R.drawable.btn_check_buttonless_dark_off);
 
         Theme theme = context.getTheme();
         TypedArray array;
@@ -200,14 +198,18 @@ import java.util.TimerTask;
     }
 
     public Set<Long> getSelectedSet() {
-        return mChecked;
+        return mSelected;
+    }
+
+    public boolean isSelected(MessageListItem itemView) {
+        return mSelected.contains(itemView.mMessageId);
     }
 
     @Override
     public void bindView(View view, Context context, Cursor cursor) {
         // Reset the view (in case it was recycled) and prepare for binding
         MessageListItem itemView = (MessageListItem) view;
-        itemView.bindViewInit(this, true);
+        itemView.bindViewInit(this);
 
         // Load the public fields in the view (for later use)
         itemView.mMessageId = cursor.getLong(COLUMN_ID);
@@ -215,7 +217,6 @@ import java.util.TimerTask;
         itemView.mAccountId = cursor.getLong(COLUMN_ACCOUNT_KEY);
         itemView.mRead = cursor.getInt(COLUMN_READ) != 0;
         itemView.mFavorite = cursor.getInt(COLUMN_FAVORITE) != 0;
-        itemView.mSelected = mChecked.contains(Long.valueOf(itemView.mMessageId));
 
         // Load the UI
         View chipView = view.findViewById(R.id.chip);
@@ -262,11 +263,9 @@ import java.util.TimerTask;
                     R.drawable.message_list_item_background_unread));
         }
 
-        ImageView selectedView = (ImageView) view.findViewById(R.id.selected);
-        selectedView.setImageDrawable(itemView.mSelected ? mSelectedIconOn : mSelectedIconOff);
-
         ImageView favoriteView = (ImageView) view.findViewById(R.id.favorite);
         favoriteView.setImageDrawable(itemView.mFavorite ? mFavoriteIconOn : mFavoriteIconOff);
+        updateBackgroundColor(itemView);
     }
 
     @Override
@@ -283,18 +282,16 @@ import java.util.TimerTask;
      * @param newSelected the new value of the selected flag (checkbox state)
      */
     public void updateSelected(MessageListItem itemView, boolean newSelected) {
-        ImageView selectedView = (ImageView) itemView.findViewById(R.id.selected);
-        selectedView.setImageDrawable(newSelected ? mSelectedIconOn : mSelectedIconOff);
-
         // Set checkbox state in list, and show/hide panel if necessary
         Long id = Long.valueOf(itemView.mMessageId);
         if (newSelected) {
-            mChecked.add(id);
+            mSelected.add(id);
         } else {
-            mChecked.remove(id);
+            mSelected.remove(id);
         }
+        updateBackgroundColor(itemView);
         if (mCallback != null) {
-            mCallback.onAdapterSelectedChanged(itemView, newSelected, mChecked.size());
+            mCallback.onAdapterSelectedChanged(itemView, newSelected, mSelected.size());
         }
     }
 
@@ -311,6 +308,17 @@ import java.util.TimerTask;
         favoriteView.setImageDrawable(newFavorite ? mFavoriteIconOn : mFavoriteIconOff);
         if (mCallback != null) {
             mCallback.onAdapterFavoriteChanged(itemView, newFavorite);
+        }
+    }
+
+    /**
+     * Update the background color according to the selection state.
+     */
+    public void updateBackgroundColor(MessageListItem itemView) {
+        if (isSelected(itemView)) {
+            itemView.setBackgroundColor(ITEM_BACKGROUND_SELECTED);
+        } else {
+            itemView.setBackgroundDrawable(null); // Change back to default.
         }
     }
 }
