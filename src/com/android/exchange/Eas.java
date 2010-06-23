@@ -93,5 +93,16 @@ public class Eas {
             Log.d("Eas Debug", "Logging: " + (USER_LOG ? "User " : "") +
                     (PARSER_LOG ? "Parser " : "") + (FILE_LOG ? "File" : ""));
         }
-     }
+    }
+
+    static public Double getProtocolVersionDouble(String version) {
+        if (SUPPORTED_PROTOCOL_EX2003.equals(version)) {
+            return SUPPORTED_PROTOCOL_EX2003_DOUBLE;
+        } else if (SUPPORTED_PROTOCOL_EX2007.equals(version)) {
+            return SUPPORTED_PROTOCOL_EX2007_DOUBLE;
+        } if (SUPPORTED_PROTOCOL_EX2007_SP1.equals(version)) {
+            return SUPPORTED_PROTOCOL_EX2007_SP1_DOUBLE;
+        }
+        throw new IllegalArgumentException("illegal protocol version");
+    }
 }
