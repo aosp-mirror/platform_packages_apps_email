@@ -31,6 +31,7 @@ import android.app.Notification;
 import android.app.NotificationManager;
 import android.app.PendingIntent;
 import android.app.Service;
+import android.content.ContentResolver;
 import android.content.ContentUris;
 import android.content.ContentValues;
 import android.content.Context;
@@ -77,14 +78,16 @@ public class MailService extends Service {
     private static final String[] NEW_MESSAGE_COUNT_PROJECTION =
         new String[] {AccountColumns.NEW_MESSAGE_COUNT};
 
+    /*package*/ Controller mController;
     private final Controller.Result mControllerCallback = new ControllerResults();
+    private ContentResolver mContentResolver;
 
     private int mStartId;
 
     /**
      * Access must be synchronized, because there are accesses from the Controller callback
      */
-    private static HashMap<Long,AccountSyncReport> mSyncReports =
+    /*package*/ static HashMap<Long,AccountSyncReport> mSyncReports =
         new HashMap<Long,AccountSyncReport>();
 
     /**
@@ -161,8 +164,9 @@ public class MailService extends Service {
         this.mStartId = startId;
         String action = intent.getAction();
 
-        Controller controller = Controller.getInstance(getApplication());
-        controller.addResultCallback(mControllerCallback);
+        mController = Controller.getInstance(this);
+        mController.addResultCallback(mControllerCallback);
+        mContentResolver = getContentResolver();
 
         if (ACTION_CHECK_MAIL.equals(action)) {
             // If we have the data, restore the last-sync-times for each account
@@ -182,7 +186,7 @@ public class MailService extends Service {
             // Start sync if account is given and background data is enabled.
             boolean syncStarted = false;
             if (checkAccountId != -1 && isBackgroundDataEnabled()) {
-                syncStarted = syncOneAccount(controller, checkAccountId, startId);
+                syncStarted = syncOneAccount(mController, checkAccountId, startId);
             }
 
             // Reschedule if we didn't start sync.
@@ -224,7 +228,7 @@ public class MailService extends Service {
         } else if (ACTION_NOTIFY_MAIL.equals(action)) {
             long accountId = intent.getLongExtra(EXTRA_CHECK_ACCOUNT, -1);
             // Get the current new message count
-            Cursor c = getContentResolver().query(
+            Cursor c = mContentResolver.query(
                     ContentUris.withAppendedId(Account.CONTENT_URI, accountId),
                     NEW_MESSAGE_COUNT_PROJECTION, null, null, null);
             int newMessageCount = 0;
@@ -284,7 +288,7 @@ public class MailService extends Service {
 
             // Delete the sync reports to force a refresh from live account db data
             mSyncReports.clear();
-            setupSyncReportsLocked(-1);
+            setupSyncReportsLocked(-1, mContentResolver);
 
             // Restore prev-sync & next-sync times for any reports in the new list
             for (AccountSyncReport newReport : mSyncReports.values()) {
@@ -319,9 +323,10 @@ public class MailService extends Service {
             long timeNow = SystemClock.elapsedRealtime();
 
             for (AccountSyncReport report : mSyncReports.values()) {
-                if (report.syncInterval <= 0) {                         // no timed checks - skip
+                if (report.syncInterval <= 0) {  // no timed checks - skip
                     continue;
                 }
+
                 long prevSyncTime = report.prevSyncTime;
                 long nextSyncTime = report.nextSyncTime;
 
@@ -417,7 +422,7 @@ public class MailService extends Service {
     /**
      * Note:  Times are relative to SystemClock.elapsedRealtime()
      */
-    private static class AccountSyncReport {
+    /*package*/ static class AccountSyncReport {
         long accountId;
         long prevSyncTime;      // 0 == unknown
         long nextSyncTime;      // 0 == ASAP  -1 == don't sync
@@ -448,14 +453,14 @@ public class MailService extends Service {
      */
     /* package */ void setupSyncReports(long accountId) {
         synchronized (mSyncReports) {
-            setupSyncReportsLocked(accountId);
+            setupSyncReportsLocked(accountId, mContentResolver);
         }
     }
 
     /**
      * Handle the work of setupSyncReports.  Must be synchronized on mSyncReports.
      */
-    private void setupSyncReportsLocked(long accountId) {
+    /*package*/ void setupSyncReportsLocked(long accountId, ContentResolver resolver) {
         if (accountId == -1) {
             // -1 == reload the list if empty, otherwise exit immediately
             if (mSyncReports.size() > 0) {
@@ -477,17 +482,19 @@ public class MailService extends Service {
         }
 
         // TODO use a narrower projection here
-        Cursor c = getContentResolver().query(uri, Account.CONTENT_PROJECTION,
-                null, null, null);
+        Cursor c = resolver.query(uri, Account.CONTENT_PROJECTION, null, null, null);
         try {
             while (c.moveToNext()) {
                 AccountSyncReport report = new AccountSyncReport();
                 int syncInterval = c.getInt(Account.CONTENT_SYNC_INTERVAL_COLUMN);
                 int flags = c.getInt(Account.CONTENT_FLAGS_COLUMN);
+                long id = c.getInt(Account.CONTENT_ID_COLUMN);
                 String ringtoneString = c.getString(Account.CONTENT_RINGTONE_URI_COLUMN);
 
-                // For debugging only
-                if (DEBUG_FORCE_QUICK_REFRESH && syncInterval >= 0) {
+                // If we're not using MessagingController (EAS at this point), don't schedule syncs
+                if (!mController.isMessagingController(id)) {
+                    syncInterval = Account.CHECK_INTERVAL_NEVER;
+                } else if (DEBUG_FORCE_QUICK_REFRESH && syncInterval >= 0) {
                     syncInterval = 1;
                 }
 
