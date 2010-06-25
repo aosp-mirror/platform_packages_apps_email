@@ -167,6 +167,28 @@ public class ProviderTests extends ProviderTestCase2<EmailProvider> {
         return Account.CONTENT_URI.buildUpon().appendEncodedPath("" + account.mId).build();
     }
 
+    public void testGetProtocol() {
+        Account account1 = ProviderTestUtils.setupAccount("account-hostauth", false, mMockContext);
+        // add hostauth data, with protocol
+        account1.mHostAuthRecv = ProviderTestUtils.setupHostAuth("eas", "account-hostauth-recv", -1,
+                false, mMockContext);
+        // Note that getProtocol uses the receive host auth, so the protocol here shouldn't matter
+        // to the test result
+        account1.mHostAuthSend = ProviderTestUtils.setupHostAuth("foo", "account-hostauth-send", -1,
+                false, mMockContext);
+        account1.save(mMockContext);
+        assertEquals("eas-account-hostauth-recv", Account.getProtocol(mMockContext, account1.mId));
+        assertEquals("eas-account-hostauth-recv", account1.getProtocol(mMockContext));
+        Account account2 = ProviderTestUtils.setupAccount("account-nohostauth", false,
+                mMockContext);
+        account2.save(mMockContext);
+        // Make sure that we return null when there's no host auth
+        assertNull(Account.getProtocol(mMockContext, account2.mId));
+        assertNull(account2.getProtocol(mMockContext));
+        // And when there's no account
+        assertNull(Account.getProtocol(mMockContext, 0));
+    }
+
     public void testAccountIsValidId() {
         final Account account1 = ProviderTestUtils.setupAccount("account-1", true, mMockContext);
         final Account account2 = ProviderTestUtils.setupAccount("account-2", true, mMockContext);

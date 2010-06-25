@@ -1351,6 +1351,33 @@ public abstract class EmailContent {
         }
 
         /**
+         * Given an account id, return the account's protocol
+         * @param context the caller's context
+         * @param accountId the id of the account to be examined
+         * @return the account's protocol (or null if the Account or HostAuth do not exist)
+         */
+        public static String getProtocol(Context context, long accountId) {
+            Account account = Account.restoreAccountWithId(context, accountId);
+            if (account != null) {
+                return account.getProtocol(context);
+             }
+            return null;
+        }
+
+        /**
+         * Return the account's protocol
+         * @param context the caller's context
+         * @return the account's protocol (or null if the HostAuth doesn't not exist)
+         */
+        public String getProtocol(Context context) {
+            HostAuth hostAuth = HostAuth.restoreHostAuthWithId(context, mHostAuthKeyRecv);
+            if (hostAuth != null) {
+                return hostAuth.mProtocol;
+            }
+            return null;
+        }
+
+        /**
          * @return true if an {@code accountId} is assigned to any existing account.
          */
         public static boolean isValidId(Context context, long accountId) {

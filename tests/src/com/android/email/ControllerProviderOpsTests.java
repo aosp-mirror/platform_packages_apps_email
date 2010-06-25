@@ -23,6 +23,7 @@ import com.android.email.provider.EmailProvider;
 import com.android.email.provider.ProviderTestUtils;
 import com.android.email.provider.EmailContent.Account;
 import com.android.email.provider.EmailContent.Body;
+import com.android.email.provider.EmailContent.HostAuth;
 import com.android.email.provider.EmailContent.Mailbox;
 import com.android.email.provider.EmailContent.Message;
 
@@ -347,10 +348,54 @@ public class ControllerProviderOpsTests extends ProviderTestCase2<EmailProvider>
     }
 
     /**
-     * TODO: releasing associated data (e.g. attachments, embedded images)
+     * Create a simple HostAuth with protocol
      */
+    private HostAuth setupSimpleHostAuth(String protocol) {
+        HostAuth hostAuth = new HostAuth();
+        hostAuth.mProtocol = protocol;
+        return hostAuth;
+    }
+
+    public void testIsMessagingController() {
+        Controller ct = new TestController(mProviderContext, mContext);
+        Account account1 = ProviderTestUtils.setupAccount("account1", false,
+                mProviderContext);
+        account1.mHostAuthRecv = setupSimpleHostAuth("eas");
+        account1.save(mProviderContext);
+        assertFalse(ct.isMessagingController(account1));
+        Account account2 = ProviderTestUtils.setupAccount("account2", false,
+                mProviderContext);
+        account2.mHostAuthRecv = setupSimpleHostAuth("imap");
+        account2.save(mProviderContext);
+        assertTrue(ct.isMessagingController(account2));
+        Account account3 = ProviderTestUtils.setupAccount("account3", false,
+                mProviderContext);
+        account3.mHostAuthRecv = setupSimpleHostAuth("pop3");
+        account3.save(mProviderContext);
+        assertTrue(ct.isMessagingController(account3));
+        Account account4 = ProviderTestUtils.setupAccount("account4", false,
+                mProviderContext);
+        account4.mHostAuthRecv = setupSimpleHostAuth("smtp");
+        account4.save(mProviderContext);
+        assertFalse(ct.isMessagingController(account4));
+        // There should be values for all of these accounts in the legacy map
+        assertNotNull(ct.mLegacyControllerMap.get(account1.mId));
+        assertNotNull(ct.mLegacyControllerMap.get(account2.mId));
+        assertNotNull(ct.mLegacyControllerMap.get(account3.mId));
+        assertNotNull(ct.mLegacyControllerMap.get(account4.mId));
+        // The map should have the expected values
+        assertFalse(ct.mLegacyControllerMap.get(account1.mId));
+        assertTrue(ct.mLegacyControllerMap.get(account2.mId));
+        assertTrue(ct.mLegacyControllerMap.get(account3.mId));
+        assertFalse(ct.mLegacyControllerMap.get(account4.mId));
+        // This second pass should pull values from the cache
+        assertFalse(ct.isMessagingController(account1));
+        assertTrue(ct.isMessagingController(account2));
+        assertTrue(ct.isMessagingController(account3));
+        assertFalse(ct.isMessagingController(account4));
+    }
 
     /**
-     * TODO: test isMessagingController()
+     * TODO: releasing associated data (e.g. attachments, embedded images)
      */
 }

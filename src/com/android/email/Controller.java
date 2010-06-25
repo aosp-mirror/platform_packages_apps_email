@@ -62,6 +62,8 @@ public class Controller {
     private final LegacyListener mLegacyListener = new LegacyListener();
     private final ServiceCallback mServiceCallback = new ServiceCallback();
     private final HashSet<Result> mListeners = new HashSet<Result>();
+    /*package*/ final ConcurrentHashMap<Long, Boolean> mLegacyControllerMap =
+        new ConcurrentHashMap<Long, Boolean>();
 
 
     // Note that 0 is a syntactically valid account key; however there can never be an account
@@ -85,15 +87,6 @@ public class Controller {
         EmailContent.MessageColumns.MAILBOX_KEY
     };
     private static int MESSAGEID_TO_MAILBOXID_COLUMN_MAILBOXID = 1;
-
-    private static final int ACCOUNT_TYPE_LEGACY = 0;
-    private static final int ACCOUNT_TYPE_SERVICE = 1;
-
-    /**
-     * Cache used by {@link #getServiceForAccount}.  Map from account-ids to ACCOUNT_TYPE_*.
-     */
-    private final ConcurrentHashMap<Long, Integer> mAccountToType
-            = new ConcurrentHashMap<Long, Integer>();
 
     protected Controller(Context _context) {
         mContext = _context.getApplicationContext();
@@ -917,26 +910,8 @@ public class Controller {
      * @result service proxy, or null if n/a
      */
     private IEmailService getServiceForAccount(long accountId) {
-        // First, try cache.
-        final Integer type = mAccountToType.get(accountId);
-        if (type != null) {
-            // Cached
-            switch (type) {
-                case ACCOUNT_TYPE_LEGACY:
-                    return null;
-                case ACCOUNT_TYPE_SERVICE:
-                    return getExchangeEmailService();
-            }
-        }
-        // Not cached
-        Account account = EmailContent.Account.restoreAccountWithId(mProviderContext, accountId);
-        if (account == null || isMessagingController(account)) {
-            mAccountToType.put(accountId, ACCOUNT_TYPE_LEGACY);
-            return null;
-        } else {
-            mAccountToType.put(accountId, ACCOUNT_TYPE_SERVICE);
-            return getExchangeEmailService();
-        }
+        if (isMessagingController(accountId)) return null;
+        return getExchangeEmailService();
     }
 
     private IEmailService getExchangeEmailService() {
@@ -945,21 +920,20 @@ public class Controller {
 
     /**
      * Simple helper to determine if legacy MessagingController should be used
-     *
-     * TODO this should not require a full account, just an accountId
-     * TODO this should use a cache because we'll be doing this a lot
      */
     public boolean isMessagingController(EmailContent.Account account) {
         if (account == null) return false;
-        Store.StoreInfo info =
-            Store.StoreInfo.getStoreInfo(account.getStoreUri(mProviderContext), mContext);
-        // This null happens in testing.
-        if (info == null) {
-            return false;
-        }
-        String scheme = info.mScheme;
+        return isMessagingController(account.mId);
+    }
 
-        return ("pop3".equals(scheme) || "imap".equals(scheme));
+    public boolean isMessagingController(long accountId) {
+        Boolean isLegacyController = mLegacyControllerMap.get(accountId);
+        if (isLegacyController == null) {
+            String protocol = Account.getProtocol(mProviderContext, accountId);
+            isLegacyController = ("pop3".equals(protocol) || "imap".equals(protocol));
+            mLegacyControllerMap.put(accountId, isLegacyController);
+        }
+        return isLegacyController;
     }
 
     /**
@@ -978,7 +952,7 @@ public class Controller {
      */
     public void deleteAccountSync(long accountId) {
         try {
-            mAccountToType.remove(accountId);
+            mLegacyControllerMap.remove(accountId);
             // Get the account URI.
             final Account account = Account.restoreAccountWithId(mContext, accountId);
             if (account == null) {
