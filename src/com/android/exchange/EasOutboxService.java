@@ -36,6 +36,7 @@ import android.content.ContentUris;
 import android.content.ContentValues;
 import android.content.Context;
 import android.database.Cursor;
+import android.net.Uri;
 import android.os.RemoteException;
 
 import java.io.File;
@@ -69,6 +70,11 @@ public class EasOutboxService extends EasSyncService {
         } catch (RemoteException e) {
             // It's all good
         }
+    }
+
+    /*package*/ String generateSmartSendCmd(boolean reply, String itemId, String collectionId) {
+        return (reply ? "SmartReply" : "SmartForward") + "&ItemId=" + Uri.encode(itemId) +
+            "&CollectionId=" + Uri.encode(collectionId);
     }
 
     /**
@@ -130,11 +136,12 @@ public class EasOutboxService extends EasSyncService {
                 new InputStreamEntity(inputStream, tmpFile.length());
 
             // Create the appropriate command and POST it to the server
-            String cmd = "SendMail&SaveInSent=T";
+            String cmd = "SendMail";
             if (smartSend) {
-                cmd = reply ? "SmartReply" : "SmartForward";
-                cmd += "&ItemId=" + itemId + "&CollectionId=" + collectionId + "&SaveInSent=T";
+                cmd = generateSmartSendCmd(reply, itemId, collectionId);
             }
+            cmd += "&SaveInSent=T";
+
             userLog("Send cmd: " + cmd);
             HttpResponse resp = sendHttpClientPost(cmd, inputEntity, SEND_MAIL_TIMEOUT);
 
