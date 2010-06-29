@@ -77,6 +77,7 @@ import android.content.ContentValues;
 import android.content.Context;
 import android.content.Entity;
 import android.database.Cursor;
+import android.net.Uri;
 import android.os.Bundle;
 import android.os.RemoteException;
 import android.os.SystemClock;
@@ -94,7 +95,6 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.lang.Thread.State;
 import java.net.URI;
-import java.net.URLEncoder;
 import java.security.cert.CertificateException;
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -185,7 +185,7 @@ public class EasSyncService extends AbstractSyncService {
     protected String mDeviceId = null;
     /*package*/ String mDeviceType = "Android";
     /*package*/ String mAuthString = null;
-    private String mCmdString = null;
+    /*package*/ String mCmdString = null;
     public String mHostAddress;
     public String mUserName;
     public String mPassword;
@@ -1099,17 +1099,16 @@ public class EasSyncService extends AbstractSyncService {
      * in all HttpPost commands.  This should be called if these strings are null, or if mUserName
      * and/or mPassword are changed
      */
-    @SuppressWarnings("deprecation")
     private void cacheAuthAndCmdString() {
-        String safeUserName = URLEncoder.encode(mUserName);
+        String safeUserName = Uri.encode(mUserName);
         String cs = mUserName + ':' + mPassword;
         mAuthString = "Basic " + Base64.encodeToString(cs.getBytes(), Base64.NO_WRAP);
         mCmdString = "&User=" + safeUserName + "&DeviceId=" + mDeviceId +
             "&DeviceType=" + mDeviceType;
     }
 
-    private String makeUriString(String cmd, String extra) throws IOException {
-         // Cache the authentication string and the command string
+    /*package*/ String makeUriString(String cmd, String extra) throws IOException {
+        // Cache the authentication string and the command string
         if (mAuthString == null || mCmdString == null) {
             cacheAuthAndCmdString();
         }
