@@ -15,19 +15,17 @@
 -->
 
 <menu xmlns:android="http://schemas.android.com/apk/res/android">
-    <item android:id="@+id/refresh"
-        android:alphabeticShortcut="r"
-        android:title="@string/refresh_action"
-        android:icon="@drawable/ic_menu_refresh"
-    />
     <item android:id="@+id/compose"
         android:alphabeticShortcut="c"
         android:title="@string/compose_action"
         android:icon="@drawable/ic_menu_compose"
+        android:showAsAction="ifRoom"
     />
-    <item android:id="@+id/accounts"
-        android:title="@string/accounts_action"
-        android:icon="@drawable/ic_menu_account_list"
+    <item android:id="@+id/refresh"
+        android:alphabeticShortcut="r"
+        android:title="@string/refresh_action"
+        android:icon="@drawable/ic_menu_refresh"
+        android:showAsAction="ifRoom"
     />
     <item android:id="@+id/account_settings"
         android:title="@string/account_settings_action"

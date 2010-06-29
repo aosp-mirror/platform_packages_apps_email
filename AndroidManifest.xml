@@ -160,7 +160,7 @@
         
         <activity
             android:name=".activity.MailboxList"
-            android:theme="@style/ThemeNoTitleBar">
+            android:theme="@android:style/Theme.WithActionBar" >
         </activity>
         
         <activity

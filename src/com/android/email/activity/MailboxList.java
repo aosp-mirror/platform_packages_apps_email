@@ -25,10 +25,10 @@ import com.android.email.activity.setup.AccountSettings;
 import com.android.email.mail.AuthenticationFailedException;
 import com.android.email.mail.CertificateValidationException;
 import com.android.email.mail.MessagingException;
-import com.android.email.provider.EmailContent;
 import com.android.email.provider.EmailContent.Account;
 import com.android.email.provider.EmailContent.AccountColumns;
 
+import android.app.ActionBar;
 import android.app.Activity;
 import android.content.ContentUris;
 import android.content.Context;
@@ -38,24 +38,20 @@ import android.net.Uri;
 import android.os.AsyncTask;
 import android.os.Bundle;
 import android.os.Handler;
-import android.view.ContextMenu;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
-import android.view.ContextMenu.ContextMenuInfo;
-import android.view.View.OnClickListener;
 import android.view.animation.AnimationUtils;
-import android.widget.Button;
-import android.widget.ProgressBar;
 import android.widget.TextView;
 
-public class MailboxList extends Activity implements OnClickListener, MailboxListFragment.Callback {
+public class MailboxList extends Activity implements MailboxListFragment.Callback {
 
     // Intent extras (internal to this activity)
     private static final String EXTRA_ACCOUNT_ID = "com.android.email.activity._ACCOUNT_ID";
 
     // UI support
-    private ProgressBar mProgressIcon;
+    private ActionBar mActionBar;
+    private boolean mProgressRunning;
     private TextView mErrorBanner;
     private MailboxListFragment mListFragment;
 
@@ -63,7 +59,7 @@ public class MailboxList extends Activity implements OnClickListener, MailboxLis
 
     // DB access
     private long mAccountId;
-    private AsyncTask<Void, Void, Object[]> mLoadAccountNameTask;
+    private AsyncTask<Void, Void, String[]> mLoadAccountNameTask;
 
     /**
      * Open a specific account.
@@ -92,18 +88,17 @@ public class MailboxList extends Activity implements OnClickListener, MailboxLis
 
         mControllerCallback = new ControllerResultUiThreadWrapper<ControllerResults>(
                 new Handler(), new ControllerResults());
-        mProgressIcon = (ProgressBar) findViewById(R.id.title_progress_icon);
+        mActionBar = getActionBar();
         mErrorBanner = (TextView) findViewById(R.id.connection_error_text);
         mListFragment = (MailboxListFragment) findFragmentById(android.R.id.list);
 
-        ((Button) findViewById(R.id.account_title_button)).setOnClickListener(this);
-        ((TextView)findViewById(R.id.title_left_text)).setText(R.string.mailbox_list_title);
+        mActionBar.setStandardNavigationMode(this.getText(R.string.mailbox_list_title));
         mListFragment.bindActivityInfo(mAccountId, this);
 
         // Go to the database for the account name
-        mLoadAccountNameTask = new AsyncTask<Void, Void, Object[]>() {
+        mLoadAccountNameTask = new AsyncTask<Void, Void, String[]>() {
             @Override
-            protected Object[] doInBackground(Void... params) {
+            protected String[] doInBackground(Void... params) {
                 String accountName = null;
                 Uri uri = ContentUris.withAppendedId(Account.CONTENT_URI, mAccountId);
                 Cursor c = MailboxList.this.getContentResolver().query(
@@ -115,12 +110,11 @@ public class MailboxList extends Activity implements OnClickListener, MailboxLis
                 } finally {
                     c.close();
                 }
-                int nAccounts = EmailContent.count(MailboxList.this, Account.CONTENT_URI, null, null);
-                return new Object[] {accountName, nAccounts};
+                return new String[] { accountName };
             }
 
             @Override
-            protected void onPostExecute(Object[] result) {
+            protected void onPostExecute(String[] result) {
                 if (result == null) {
                     return;
                 }
@@ -130,9 +124,12 @@ public class MailboxList extends Activity implements OnClickListener, MailboxLis
                     // something is wrong with this account
                     finish();
                 }
-
-                final int nAccounts = (Integer) result[1];
-                setTitleAccountName(accountName, nAccounts > 1);
+                // STOPSHIP this doesn't work - the subtitle doesn't work - bug 2805131
+//                mActionBar.setStandardNavigationMode(
+//                        MailboxList.this.getText(R.string.mailbox_list_title),
+//                        accountName);
+                // STOPSHIP - so, for temp fix, show the account name (since it's the dynamic value)
+                mActionBar.setStandardNavigationMode(accountName);
             }
 
         }.execute();
@@ -166,14 +163,6 @@ public class MailboxList extends Activity implements OnClickListener, MailboxLis
         mLoadAccountNameTask = null;
     }
 
-    public void onClick(View v) {
-        switch (v.getId()) {
-        case R.id.account_title_button:
-            onAccounts();
-            break;
-        }
-    }
-
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {
         super.onCreateOptionsMenu(menu);
@@ -181,14 +170,28 @@ public class MailboxList extends Activity implements OnClickListener, MailboxLis
         return true;
     }
 
+    // STOPSHIP - this is a placeholder if/until there's support for progress in actionbar
+    // Remove it, or replace with a better icon
+    @Override
+    public boolean onPrepareOptionsMenu(Menu menu) {
+        super.onPrepareOptionsMenu(menu);
+        MenuItem item = menu.findItem(R.id.refresh);
+        if (mProgressRunning) {
+            item.setIcon(android.R.drawable.progress_indeterminate_horizontal);
+        } else {
+            item.setIcon(R.drawable.ic_menu_refresh);
+        }
+        return true;
+    }
+
     @Override
     public boolean onOptionsItemSelected(MenuItem item) {
         switch (item.getItemId()) {
+            case android.R.id.home:
+                onAccounts();
+                return true;
             case R.id.refresh:
                 onRefresh(-1);
-                return true;
-            case R.id.accounts:
-                onAccounts();
                 return true;
             case R.id.compose:
                 onCompose();
@@ -246,22 +249,12 @@ public class MailboxList extends Activity implements OnClickListener, MailboxLis
         MessageCompose.actionCompose(this, mAccountId);
     }
 
-    private void setTitleAccountName(String accountName, boolean showAccountsButton) {
-        TextView accountsButton = (TextView) findViewById(R.id.account_title_button);
-        TextView textPlain = (TextView) findViewById(R.id.title_right_text);
-        if (showAccountsButton) {
-            accountsButton.setVisibility(View.VISIBLE);
-            textPlain.setVisibility(View.GONE);
-            accountsButton.setText(accountName);
-        } else {
-            accountsButton.setVisibility(View.GONE);
-            textPlain.setVisibility(View.VISIBLE);
-            textPlain.setText(accountName);
-        }
-    }
-
     private void showProgressIcon(boolean show) {
-        mProgressIcon.setVisibility(show ? View.VISIBLE : View.GONE);
+        // STOPSHIP:  This doesn't work, pending fix is bug b/2802962
+        //setProgressBarIndeterminateVisibility(show);
+        // STOPSHIP:  This is a hack used to replace the refresh icon with a spinner
+        mProgressRunning = show;
+        invalidateOptionsMenu();
     }
 
     private void showErrorBanner(String message) {
