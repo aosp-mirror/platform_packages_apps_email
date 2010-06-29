@@ -339,7 +339,7 @@
         <!--EXCHANGE-REMOVE-SECTION-START-->
         <!-- In this release, GAL information is used locally only, so we used the same
              strict permissions. -->
-        <!-- NOTE: ExchangeGalProvider will replace ExchangeProvider after integration with
+        <!-- NOTE: ExchangeDirectoryProvider will replace ExchangeProvider after integration with
              the new GAL/contacts implementation -->
         <provider
             android:name="com.android.exchange.provider.ExchangeProvider"
@@ -348,8 +348,8 @@
             android:permission="com.android.email.permission.ACCESS_PROVIDER"
             />
         <provider
-            android:name="com.android.exchange.provider.ExchangeGalProvider"
-            android:authorities="com.android.exchange.gal.provider"
+            android:name="com.android.exchange.provider.ExchangeDirectoryProvider"
+            android:authorities="com.android.exchange.directory.provider"
             android:readPermission="android.permission.READ_CONTACTS"
             android:multiprocess="false"
             />

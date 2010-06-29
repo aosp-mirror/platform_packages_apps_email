@@ -37,7 +37,7 @@ import android.provider.ContactsContract.RawContacts;
  * used solely to provide GAL (Global Address Lookup) service to email address adapters
  */
 public class ExchangeDirectoryProvider extends ContentProvider {
-    public static final String EXCHANGE_GAL_AUTHORITY = "com.android.exchange.gal.provider";
+    public static final String EXCHANGE_GAL_AUTHORITY = "com.android.exchange.directory.provider";
 
     private static final int GAL_BASE = 0;
     private static final int GAL_FILTER = GAL_BASE;
