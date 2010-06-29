@@ -44,7 +44,7 @@ import java.io.IOException;
 
 /**
  * Tests of the Email Attachments provider.
- * 
+ *
  * You can run this entire test case with:
  *   runtest -c com.android.email.provider.AttachmentProviderTests email
  */
@@ -270,11 +270,13 @@ public class AttachmentProviderTests extends ProviderTestCase2<AttachmentProvide
     /**
      * Test static inferMimeType()
      * From the method doc:
-     *   If the given mime type is non-empty and anything other than "application/octet-stream",
-     *   just return it.  (This is the most common case.)
-     *   If the filename has a recognizable extension and it converts to a mime type, return that.
-     *   If the filename has an unrecognized extension, return "application/extension"
-     *   Otherwise return "application/octet-stream".
+     * If the file extension is ".eml", return "message/rfc822", which is necessary for the email
+     * app to open it.
+     * If the given mime type is non-empty and anything other than "application/octet-stream",
+     * just return it.  (This is the most common case.)
+     * If the filename has a recognizable extension and it converts to a mime type, return that.
+     * If the filename has an unrecognized extension, return "application/extension"
+     * Otherwise return "application/octet-stream".
      */
     public void testInferMimeType() {
         final String DEFAULT = "application/octet-stream";
@@ -304,6 +306,10 @@ public class AttachmentProviderTests extends ProviderTestCase2<AttachmentProvide
         assertEquals(DEFAULT, AttachmentProvider.inferMimeType(FILE_NO_EXT, DEFAULT));
         assertEquals(DEFAULT, AttachmentProvider.inferMimeType(null, null));
         assertEquals(DEFAULT, AttachmentProvider.inferMimeType("", ""));
+
+        // Test for eml files.
+        assertEquals("message/rfc822", AttachmentProvider.inferMimeType("a.eMl", "text/plain"));
+        assertEquals("message/rfc822", AttachmentProvider.inferMimeType("a.eml", DEFAULT));
     }
 
     /**
@@ -484,7 +490,7 @@ public class AttachmentProviderTests extends ProviderTestCase2<AttachmentProvide
         // the DB, and does not sample the files, so we won't bother creating the files
         {
             Uri attachmentUri = createAttachment(account1, message1Id, "file:///path/to/file");
-            Uri contentUri = AttachmentProvider.resolveAttachmentIdToContentUri(mMockResolver, 
+            Uri contentUri = AttachmentProvider.resolveAttachmentIdToContentUri(mMockResolver,
                     attachmentUri);
             // When the attachment is found, return the stored content_uri value
             assertEquals("file:///path/to/file", contentUri.toString());
@@ -493,7 +499,7 @@ public class AttachmentProviderTests extends ProviderTestCase2<AttachmentProvide
         // Test with existing attachement and contentUri == null
         {
             Uri attachmentUri = createAttachment(account1, message1Id, null);
-            Uri contentUri = AttachmentProvider.resolveAttachmentIdToContentUri(mMockResolver, 
+            Uri contentUri = AttachmentProvider.resolveAttachmentIdToContentUri(mMockResolver,
                     attachmentUri);
             // When contentUri is null should return input
             assertEquals(attachmentUri, contentUri);
@@ -532,7 +538,7 @@ public class AttachmentProviderTests extends ProviderTestCase2<AttachmentProvide
         assertEquals(3, attachmentsDir.listFiles().length);
 
         // Command deletion of some files and check for results
-        
+
         // Message 4 has no attachments so no files should be deleted
         AttachmentProvider.deleteAllAttachmentFiles(mMockContext, account1.mId, message4Id);
         assertEquals(3, attachmentsDir.listFiles().length);
@@ -562,7 +568,7 @@ public class AttachmentProviderTests extends ProviderTestCase2<AttachmentProvide
         long mailbox1Id = mailbox1.mId;
         Mailbox mailbox2 = ProviderTestUtils.setupMailbox("mbox2", account1Id, true, mMockContext);
         long mailbox2Id = mailbox2.mId;
-        
+
         // two messages per mailbox, one w/attachments, one w/o attachments
         Message message1a = ProviderTestUtils.setupMessage("msg1a", account1Id, mailbox1Id, false,
                 true, mMockContext);
@@ -582,7 +588,7 @@ public class AttachmentProviderTests extends ProviderTestCase2<AttachmentProvide
                 true, mMockContext);
         Attachment newAttachment4 = ProviderTestUtils.setupAttachment(message2a.mId, "file4", 100,
                 true, mMockContext);
-        
+
         // Create test files
         createAttachmentFile(account1, newAttachment1.mId);
         createAttachmentFile(account1, newAttachment2.mId);
@@ -601,7 +607,7 @@ public class AttachmentProviderTests extends ProviderTestCase2<AttachmentProvide
         AttachmentProvider.deleteAllMailboxAttachmentFiles(mMockContext, account1Id, mailbox2Id);
         assertEquals(0, attachmentsDir.listFiles().length);
     }
-    
+
 
     /**
      * Create an attachment by copying an image resource into a file.  Uses "real" resources
