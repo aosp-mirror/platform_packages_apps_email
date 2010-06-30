@@ -19,6 +19,7 @@ package com.android.email.activity;
 import com.android.email.Email;
 import com.android.email.MessagingController;
 import com.android.email.R;
+import com.android.email.Utility;
 
 import android.app.Application;
 import android.content.Context;
@@ -39,14 +40,14 @@ import java.io.IOException;
 import java.io.OutputStream;
 
 /**
- * Various instrumentation tests for MessageCompose.  
- * 
+ * Various instrumentation tests for MessageCompose.
+ *
  * It might be possible to convert these to ActivityUnitTest, which would be faster.
  */
 @LargeTest
-public class MessageViewTests 
+public class MessageViewTests
         extends ActivityInstrumentationTestCase2<MessageView> {
-    
+
     // copied from MessageView (could be package class)
     private static final String EXTRA_MESSAGE_ID = "com.android.email.MessageView_message_id";
     private static final String EXTRA_MAILBOX_ID = "com.android.email.MessageView_mailbox_id";
@@ -55,7 +56,7 @@ public class MessageViewTests
     private TextView mSubjectView;
     private WebView mMessageContentView;
     private Context mContext;
-    
+
     public MessageViewTests() {
         super(MessageView.class);
     }
@@ -67,7 +68,7 @@ public class MessageViewTests
         mContext = getInstrumentation().getTargetContext();
         Email.setTempDirectory(mContext);
         Email.setServicesEnabled(mContext);
-        
+
         // setup an intent to spin up this activity with something useful
         // Long.MIN_VALUE are sentinels to command MessageView to skip loading
         Intent i = new Intent()
@@ -76,7 +77,7 @@ public class MessageViewTests
         this.setActivityIntent(i);
 
         // configure a mock controller
-        MessagingController mockController = 
+        MessagingController mockController =
             new MockMessagingController(getActivity().getApplication());
         MessagingController.injectMockController(mockController);
 
@@ -99,7 +100,7 @@ public class MessageViewTests
         assertEquals(0, mSubjectView.length());
         assertNotNull(mMessageContentView);
     }
-    
+
     /**
      * Test that we have the necessary permissions to write to external storage.
      */
@@ -110,7 +111,7 @@ public class MessageViewTests
             if (!Environment.getExternalStorageState().equals(Environment.MEDIA_MOUNTED)) {
                 return;
             }
-            file = MessageView.createUniqueFile(Environment.getExternalStorageDirectory(),
+            file = Utility.createUniqueFile(Environment.getExternalStorageDirectory(),
                     "write-test");
             OutputStream out = new FileOutputStream(file);
             out.write(1);
@@ -127,16 +128,16 @@ public class MessageViewTests
             }
         }
     }
-    
+
     /**
      * Tests that various UI calls can be made safely even before the messaging controller
      * has completed loading the message.  This catches various race conditions.
      */
     @Suppress
     public void testUiRaceConditions() {
-        
+
         MessageView a = getActivity();
-        
+
         // on-streen controls
         a.onClick(a.findViewById(R.id.reply));
         a.onClick(a.findViewById(R.id.reply_all));
@@ -146,7 +147,7 @@ public class MessageViewTests
 //      a.onClick(a.findViewById(R.id.download));    // not revealed yet, so unfair test
 //      a.onClick(a.findViewById(R.id.view));        // not revealed yet, so unfair test
         a.onClick(a.findViewById(R.id.show_pictures));
-        
+
         // menus
         a.handleMenuItem(R.id.delete);
         a.handleMenuItem(R.id.reply);

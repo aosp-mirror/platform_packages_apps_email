@@ -29,6 +29,7 @@ import com.android.email.provider.EmailContent.MessageColumns;
 import android.app.Activity;
 import android.content.ContentResolver;
 import android.content.Context;
+import android.content.res.Resources;
 import android.content.res.TypedArray;
 import android.database.Cursor;
 import android.graphics.drawable.Drawable;
@@ -43,6 +44,7 @@ import android.widget.TextView;
 import android.widget.Toast;
 
 import java.io.ByteArrayInputStream;
+import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
@@ -654,5 +656,82 @@ public class Utility {
                 return null;
             }
         }.execute();
+    }
+
+    /**
+     * Formats the given size as a String in bytes, kB, MB or GB.  Ex: 12,315,000 = 11 MB
+     */
+    public static String formatSize(Context context, long size) {
+        final Resources res = context.getResources();
+        final long KB = 1024;
+        final long MB = (KB * 1024);
+        final long GB  = (MB * 1024);
+
+        int resId;
+        int value;
+
+        if (size < KB) {
+            resId = R.plurals.message_view_attachment_bytes;
+            value = (int) size;
+        } else if (size < MB) {
+            resId = R.plurals.message_view_attachment_kilobytes;
+            value = (int) (size / KB);
+        } else if (size < GB) {
+            resId = R.plurals.message_view_attachment_megabytes;
+            value = (int) (size / MB);
+        } else {
+            resId = R.plurals.message_view_attachment_gigabytes;
+            value = (int) (size / GB);
+        }
+        return res.getQuantityString(resId, value, value);
+    }
+
+    /**
+     * Interface used in {@link #createUniqueFile} instead of {@link File#createNewFile()} to make
+     * it testable.
+     */
+    /* package */ interface NewFileCreator {
+        public static final NewFileCreator DEFAULT = new NewFileCreator() {
+                    @Override public boolean createNewFile(File f) throws IOException {
+                        return f.createNewFile();
+                    }
+        };
+        public boolean createNewFile(File f) throws IOException ;
+    }
+
+    /**
+     * Creates a new empty file with a unique name in the given directory by appending a hyphen and
+     * a number to the given filename.
+     *
+     * @return a new File object, or null if one could not be created
+     */
+    public static File createUniqueFile(File directory, String filename) throws IOException {
+        return createUniqueFileInternal(NewFileCreator.DEFAULT, directory, filename);
+    }
+
+    /* package */ static File createUniqueFileInternal(NewFileCreator nfc,
+            File directory, String filename) throws IOException {
+        File file = new File(directory, filename);
+        if (nfc.createNewFile(file)) {
+            return file;
+        }
+        // Get the extension of the file, if any.
+        int index = filename.lastIndexOf('.');
+        String format;
+        if (index != -1) {
+            String name = filename.substring(0, index);
+            String extension = filename.substring(index);
+            format = name + "-%d" + extension;
+        } else {
+            format = filename + "-%d";
+        }
+
+        for (int i = 2; i < Integer.MAX_VALUE; i++) {
+            file = new File(directory, String.format(format, i));
+            if (nfc.createNewFile(file)) {
+                return file;
+            }
+        }
+        return null;
     }
 }
