@@ -597,7 +597,7 @@ public class CalendarSyncAdapter extends AbstractSyncAdapter {
                     String attendeeEmail = attendee.getAsString(Attendees.ATTENDEE_EMAIL);
                     sb.append(attendeeEmail);
                     sb.append(ATTENDEE_TOKENIZER_DELIMITER);
-                    if (selfOrganizer) {
+                    if (mEmailAddress.equalsIgnoreCase(attendeeEmail)) {
                         int attendeeStatus =
                             CalendarUtilities.attendeeStatusFromBusyStatus(busyStatus);
                         attendee.put(Attendees.ATTENDEE_STATUS, attendeeStatus);
