@@ -292,7 +292,7 @@ public class AccountFolderList extends Activity implements AccountFolderListFrag
             mSecretKeyCodeIndex++;
             if (mSecretKeyCodeIndex == SECRET_KEY_CODES.length) {
                 mSecretKeyCodeIndex = 0;
-                startActivity(new Intent(this, Debug.class));
+                Debug.actionShow(this);
             }
         } else {
             mSecretKeyCodeIndex = 0;

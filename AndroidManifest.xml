@@ -233,6 +233,12 @@
                 <action android:name="android.intent.action.DEVICE_STORAGE_LOW" />
                 <action android:name="android.intent.action.DEVICE_STORAGE_OK" />
             </intent-filter>
+            <!-- To handle secret code to activate the debug screen. -->
+            <intent-filter>
+                <action android:name="android.provider.Telephony.SECRET_CODE" />
+                <!-- "36245" = "email" -->
+                <data android:scheme="android_secret_code" android:host="36245" />
+            </intent-filter>
         </receiver>
         <service android:name=".service.EmailBroadcastProcessorService" />
 

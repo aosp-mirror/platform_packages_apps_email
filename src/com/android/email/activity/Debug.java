@@ -25,6 +25,7 @@ import com.android.exchange.utility.FileLogger;
 
 import android.app.Activity;
 import android.content.Context;
+import android.content.Intent;
 import android.os.Bundle;
 import android.view.Menu;
 import android.view.MenuItem;
@@ -36,11 +37,16 @@ import android.widget.CompoundButton.OnCheckedChangeListener;
 public class Debug extends Activity implements OnCheckedChangeListener {
     private TextView mVersionView;
     private CheckBox mEnableDebugLoggingView;
-    private CheckBox mEnableSensitiveLoggingView;
     private CheckBox mEnableExchangeLoggingView;
     private CheckBox mEnableExchangeFileLoggingView;
 
     private Preferences mPreferences;
+
+    public static void actionShow(Context context) {
+        Intent i = new Intent(context, Debug.class);
+        i.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
+        context.startActivity(i);
+    }
 
     @Override
     public void onCreate(Bundle savedInstanceState) {
@@ -52,16 +58,13 @@ public class Debug extends Activity implements OnCheckedChangeListener {
 
         mVersionView = (TextView)findViewById(R.id.version);
         mEnableDebugLoggingView = (CheckBox)findViewById(R.id.debug_logging);
-        mEnableSensitiveLoggingView = (CheckBox)findViewById(R.id.sensitive_logging);
 
         mEnableDebugLoggingView.setOnCheckedChangeListener(this);
-        mEnableSensitiveLoggingView.setOnCheckedChangeListener(this);
 
         mVersionView.setText(String.format(getString(R.string.debug_version_fmt).toString(),
                 getString(R.string.build_number)));
 
         mEnableDebugLoggingView.setChecked(Email.DEBUG);
-        mEnableSensitiveLoggingView.setChecked(Email.DEBUG_SENSITIVE);
 
         //EXCHANGE-REMOVE-SECTION-START
         mEnableExchangeLoggingView = (CheckBox)findViewById(R.id.exchange_logging);
@@ -78,10 +81,6 @@ public class Debug extends Activity implements OnCheckedChangeListener {
             case R.id.debug_logging:
                 Email.DEBUG = isChecked;
                 mPreferences.setEnableDebugLogging(Email.DEBUG);
-                break;
-            case R.id.sensitive_logging:
-                Email.DEBUG_SENSITIVE = isChecked;
-                mPreferences.setEnableSensitiveLogging(Email.DEBUG_SENSITIVE);
                 break;
             //EXCHANGE-REMOVE-SECTION-START
             case R.id.exchange_logging:

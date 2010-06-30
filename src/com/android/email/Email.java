@@ -54,7 +54,7 @@ public class Email extends Application {
      * If this is enabled than logging that normally hides sensitive information
      * like passwords will show that information.
      */
-    public static boolean DEBUG_SENSITIVE = false;
+    public static final boolean DEBUG_SENSITIVE = false;
 
     /**
      * Set this to 'true' to enable as much Email logging as possible.
@@ -263,7 +263,6 @@ public class Email extends Application {
         super.onCreate();
         Preferences prefs = Preferences.getPreferences(this);
         DEBUG = prefs.getEnableDebugLogging();
-        DEBUG_SENSITIVE = prefs.getEnableSensitiveLogging();
         setTempDirectory(this);
 
         // Reset all accounts to default visible window

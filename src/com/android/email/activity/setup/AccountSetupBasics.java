@@ -480,7 +480,7 @@ public class AccountSetupBasics extends Activity
         if (ENTER_DEBUG_SCREEN && "d@d.d".equals(email) && "debug".equals(password)) {
             mEmailView.setText("");
             mPasswordView.setText("");
-            startActivity(new Intent(this, Debug.class));
+            Debug.actionShow(this);
             return;
         }
 

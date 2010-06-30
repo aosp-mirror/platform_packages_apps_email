@@ -20,6 +20,7 @@ import com.android.email.Email;
 import com.android.email.ExchangeUtils;
 import com.android.email.Preferences;
 import com.android.email.VendorPolicyLoader;
+import com.android.email.activity.Debug;
 
 import android.app.IntentService;
 import android.content.ComponentName;
@@ -40,6 +41,10 @@ import android.util.Log;
  * </ul>
  */
 public class EmailBroadcastProcessorService extends IntentService {
+    // Dialing "*#*#36245#*#*" to open the debug screen.   "36245" = "email"
+    private static final String SECRET_CODE_ACTION = "android.provider.Telephony.SECRET_CODE";
+    private static final String SECRET_CODE_HOST_DEBUG_SCREEN = "36245";
+
     public EmailBroadcastProcessorService() {
         // Class name will be the thread name.
         super(EmailBroadcastProcessorService.class.getName());
@@ -74,6 +79,9 @@ public class EmailBroadcastProcessorService extends IntentService {
             MailService.actionCancel(this);
         } else if (Intent.ACTION_DEVICE_STORAGE_OK.equals(action)) {
             enableComponentsIfNecessary();
+        } else if (SECRET_CODE_ACTION.equals(action)
+                && SECRET_CODE_HOST_DEBUG_SCREEN.equals(original.getData().getHost())) {
+            Debug.actionShow(this);
         }
     }
 

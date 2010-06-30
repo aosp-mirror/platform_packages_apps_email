@@ -32,7 +32,6 @@ public class Preferences {
     private static final String ACCOUNT_UUIDS = "accountUuids";
     private static final String DEFAULT_ACCOUNT_UUID = "defaultAccountUuid";
     private static final String ENABLE_DEBUG_LOGGING = "enableDebugLogging";
-    private static final String ENABLE_SENSITIVE_LOGGING = "enableSensitiveLogging";
     private static final String ENABLE_EXCHANGE_LOGGING = "enableExchangeLogging";
     private static final String ENABLE_EXCHANGE_FILE_LOGGING = "enableExchangeFileLogging";
     private static final String DEVICE_UID = "deviceUID";
@@ -139,14 +138,6 @@ public class Preferences {
 
     public boolean getEnableDebugLogging() {
         return mSharedPreferences.getBoolean(ENABLE_DEBUG_LOGGING, false);
-    }
-
-    public void setEnableSensitiveLogging(boolean value) {
-        mSharedPreferences.edit().putBoolean(ENABLE_SENSITIVE_LOGGING, value).commit();
-    }
-
-    public boolean getEnableSensitiveLogging() {
-        return mSharedPreferences.getBoolean(ENABLE_SENSITIVE_LOGGING, false);
     }
 
     public void setEnableExchangeLogging(boolean value) {
