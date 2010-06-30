@@ -35,7 +35,12 @@ import java.net.SocketAddress;
 import java.net.SocketException;
 import java.net.URI;
 
+import javax.net.ssl.HostnameVerifier;
+import javax.net.ssl.HttpsURLConnection;
 import javax.net.ssl.SSLException;
+import javax.net.ssl.SSLPeerUnverifiedException;
+import javax.net.ssl.SSLSession;
+import javax.net.ssl.SSLSocket;
 
 /**
  * This class implements the common aspects of "transport", one layer below the 
@@ -46,6 +51,9 @@ public class MailTransport implements Transport {
     // TODO protected eventually
     /*protected*/ public static final int SOCKET_CONNECT_TIMEOUT = 10000;
     /*protected*/ public static final int SOCKET_READ_TIMEOUT = 60000;
+
+    private static final HostnameVerifier HOSTNAME_VERIFIER =
+            HttpsURLConnection.getDefaultHostnameVerifier();
 
     private String mDebugLabel;
     
@@ -153,6 +161,10 @@ public class MailTransport implements Transport {
                 mSocket = new Socket();
             }
             mSocket.connect(socketAddress, SOCKET_CONNECT_TIMEOUT);
+            // After the socket connects to an SSL server, confirm that the hostname is as expected
+            if (canTrySslSecurity() && !canTrustAllCertificates()) {
+                verifyHostname(mSocket, getHost());
+            }
             mIn = new BufferedInputStream(mSocket.getInputStream(), 1024);
             mOut = new BufferedOutputStream(mSocket.getOutputStream(), 512);
             
@@ -171,6 +183,9 @@ public class MailTransport implements Transport {
 
     /**
      * Attempts to reopen a TLS connection using the Uri supplied for connection parameters.
+     *
+     * NOTE: No explicit hostname verification is required here, because it's handled automatically
+     * by the call to createSocket().
      *
      * TODO should we explicitly close the old socket?  This seems funky to abandon it.
      */
@@ -194,7 +209,45 @@ public class MailTransport implements Transport {
             throw new MessagingException(MessagingException.IOERROR, ioe.toString());
         }
     }
-    
+
+    /**
+     * Lightweight version of SSLCertificateSocketFactory.verifyHostname, which provides this
+     * service but is not in the public API.
+     *
+     * Verify the hostname of the certificate used by the other end of a
+     * connected socket.  You MUST call this if you did not supply a hostname
+     * to SSLCertificateSocketFactory.createSocket().  It is harmless to call this method
+     * redundantly if the hostname has already been verified.
+     *
+     * <p>Wildcard certificates are allowed to verify any matching hostname,
+     * so "foo.bar.example.com" is verified if the peer has a certificate
+     * for "*.example.com".
+     *
+     * @param socket An SSL socket which has been connected to a server
+     * @param hostname The expected hostname of the remote server
+     * @throws IOException if something goes wrong handshaking with the server
+     * @throws SSLPeerUnverifiedException if the server cannot prove its identity
+      */
+    private void verifyHostname(Socket socket, String hostname) throws IOException {
+        // The code at the start of OpenSSLSocketImpl.startHandshake()
+        // ensures that the call is idempotent, so we can safely call it.
+        SSLSocket ssl = (SSLSocket) socket;
+        ssl.startHandshake();
+
+        SSLSession session = ssl.getSession();
+        if (session == null) {
+            throw new SSLException("Cannot verify SSL socket without session");
+        }
+        // TODO: Instead of reporting the name of the server we think we're connecting to,
+        // we should be reporting the bad name in the certificate.  Unfortunately this is buried
+        // in the verifier code and is not available in the verifier API, and extracting the
+        // CN & alts is beyond the scope of this patch.
+        if (!HOSTNAME_VERIFIER.verify(hostname, session)) {
+            throw new SSLPeerUnverifiedException(
+                    "Certificate hostname not useable for server: " + hostname);
+        }
+    }
+
     /**
      * Set the socket timeout.
      * @param timeoutMilliseconds the read timeout value if greater than {@code 0}, or
