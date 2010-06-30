@@ -128,13 +128,23 @@ public class MessageView extends Activity implements OnClickListener {
     private TextView mMeetingNo;
     private int mPreviousMeetingResponse = -1;
 
+    /**
+     * If set, URI to the email (i.e. *.eml files, and possibly *.msg files) file that's being
+     * viewed.
+     *
+     * Use {@link #isViewingEmailFile()} to see if the activity is created for opening an EML file.
+     *
+     * TODO: We probably should split it into two different MessageViews, one for regular messages
+     * and the other for for EML files (these two will share the same base MessageView class) to
+     * eliminate the bunch of 'if {@link #isViewingEmailFile()}'s.
+     * Do this after making it into a fragment.
+     */
+    private Uri mFileEmailUri;
     private long mAccountId;
     private long mMessageId;
     private long mMailboxId;
     private Message mMessage;
     private long mWaitForLoadMessageId;
-    // Set to true for messages that are attachments
-    private boolean mAttachmentMessageFlag = false;
 
     private LoadMessageTask mLoadMessageTask;
     private LoadBodyTask mLoadBodyTask;
@@ -297,12 +307,24 @@ public class MessageView extends Activity implements OnClickListener {
 
     /* package */ void initFromIntent() {
         Intent intent = getIntent();
-        mMessageId = intent.getLongExtra(EXTRA_MESSAGE_ID, -1);
-        mMailboxId = intent.getLongExtra(EXTRA_MAILBOX_ID, -1);
-        mDisableReplyAndForward = intent.getBooleanExtra(EXTRA_DISABLE_REPLY, false);
+        mFileEmailUri = intent.getData();
+        if (mFileEmailUri == null) {
+            mMessageId = intent.getLongExtra(EXTRA_MESSAGE_ID, -1);
+            mMailboxId = intent.getLongExtra(EXTRA_MAILBOX_ID, -1);
+        } else {
+            mMessageId = -1;
+            mMailboxId = -1;
+        }
+        mDisableReplyAndForward = intent.getBooleanExtra(EXTRA_DISABLE_REPLY, false)
+                || isViewingEmailFile();
         if (mDisableReplyAndForward) {
             findViewById(R.id.reply).setEnabled(false);
             findViewById(R.id.reply_all).setEnabled(false);
+        }
+        if (isViewingEmailFile()) {
+            // TODO set title here: "Viewing XXX.eml".
+            findViewById(R.id.delete).setEnabled(false);
+            findViewById(R.id.favorite).setVisibility(View.GONE);
         }
     }
 
@@ -378,10 +400,17 @@ public class MessageView extends Activity implements OnClickListener {
         mMessageContentView = null;
         // the cursor was closed in onPause()
         // If we're leaving a non-attachment message, delete any/all attachment messages
-        if (!mAttachmentMessageFlag) {
+        if (!isViewingEmailFile()) {
             mController.deleteAttachmentMessages();
         }
         super.onDestroy();
+    }
+
+    /**
+     * @return true if viewing an email file.  (i.e. *.eml files)
+     */
+    private boolean isViewingEmailFile() {
+        return mFileEmailUri != null;
     }
 
     /**
@@ -467,6 +496,9 @@ public class MessageView extends Activity implements OnClickListener {
      * Toggle favorite status and write back to provider
      */
     private void onClickFavorite() {
+        if (isViewingEmailFile()) {
+            return;
+        }
         if (mMessage != null) {
             // Update UI
             boolean newFavorite = ! mMessage.mFlagFavorite;
@@ -479,6 +511,9 @@ public class MessageView extends Activity implements OnClickListener {
     }
 
     private void onReply() {
+        if (isViewingEmailFile()) {
+            return;
+        }
         if (mMessage != null) {
             MessageCompose.actionReply(this, mMessage.mId, false);
             finish();
@@ -486,6 +521,9 @@ public class MessageView extends Activity implements OnClickListener {
     }
 
     private void onReplyAll() {
+        if (isViewingEmailFile()) {
+            return;
+        }
         if (mMessage != null) {
             MessageCompose.actionReply(this, mMessage.mId, true);
             finish();
@@ -493,6 +531,9 @@ public class MessageView extends Activity implements OnClickListener {
     }
 
     private void onForward() {
+        if (isViewingEmailFile()) {
+            return;
+        }
         if (mMessage != null) {
             MessageCompose.actionForward(this, mMessage.mId);
             finish();
@@ -500,6 +541,9 @@ public class MessageView extends Activity implements OnClickListener {
     }
 
     private void onDeleteMessage() {
+        if (isViewingEmailFile()) {
+            return;
+        }
         if (mMessage != null) {
             // the delete triggers mCursorObserver
             // first move to older/newer before the actual delete
@@ -517,6 +561,9 @@ public class MessageView extends Activity implements OnClickListener {
     }
 
     private boolean moveToOlder() {
+        if (isViewingEmailFile()) {
+            return false;
+        }
         // Guard with !isLast() because Cursor.moveToNext() returns false even as it moves
         // from last to after-last.
         if (mMessageListCursor != null
@@ -530,6 +577,9 @@ public class MessageView extends Activity implements OnClickListener {
     }
 
     private boolean moveToNewer() {
+        if (isViewingEmailFile()) {
+            return false;
+        }
         // Guard with !isFirst() because Cursor.moveToPrev() returns false even as it moves
         // from first to before-first.
         if (mMessageListCursor != null
@@ -543,6 +593,9 @@ public class MessageView extends Activity implements OnClickListener {
     }
 
     private void onMarkAsRead(boolean isRead) {
+        if (isViewingEmailFile()) {
+            return;
+        }
         if (mMessage != null && mMessage.mFlagRead != isRead) {
             mMessage.mFlagRead = isRead;
             mController.setMessageRead(mMessageId, isRead);
@@ -553,6 +606,9 @@ public class MessageView extends Activity implements OnClickListener {
      * Send a service message indicating that a meeting invite button has been clicked.
      */
     private void onRespondToInvite(int response, int toastResId) {
+        if (isViewingEmailFile()) {
+            return;
+        }
         // do not send twice in a row the same response
         if (mPreviousMeetingResponse != response) {
             mController.sendMeetingResponse(mMessageId, response);
@@ -658,6 +714,9 @@ public class MessageView extends Activity implements OnClickListener {
     }
 
     private void onInviteLinkClicked() {
+        if (isViewingEmailFile()) {
+            return;
+        }
         String startTime = new PackedString(mMessage.mMeetingInfo).get(MeetingInfo.MEETING_DTSTART);
         if (startTime != null) {
             long epochTimeMillis = Utility.parseEmailDateTimeToMillis(startTime);
@@ -715,6 +774,9 @@ public class MessageView extends Activity implements OnClickListener {
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {
         super.onCreateOptionsMenu(menu);
+        if (isViewingEmailFile()) {
+            return false; // No menu options for EML files.
+        }
         getMenuInflater().inflate(R.menu.message_view_option, menu);
         if (mDisableReplyAndForward) {
             menu.findItem(R.id.forward).setEnabled(false);
@@ -743,7 +805,7 @@ public class MessageView extends Activity implements OnClickListener {
         mAttachmentIcon.setVisibility(View.GONE);
 
         // Start an AsyncTask to make a new cursor and load the message
-        mLoadMessageTask = new LoadMessageTask(mMessageId, true);
+        mLoadMessageTask = new LoadMessageTask(mFileEmailUri, mMessageId, true);
         mLoadMessageTask.execute();
         updateNavigationArrows(mMessageListCursor);
     }
@@ -771,6 +833,11 @@ public class MessageView extends Activity implements OnClickListener {
      * Update the arrows based on the current position of the older/newer cursor.
      */
     private void updateNavigationArrows(Cursor cursor) {
+        if (isViewingEmailFile()) {
+            mMoveToNewer.setVisibility(View.INVISIBLE);
+            mMoveToOlder.setVisibility(View.INVISIBLE);
+            return;
+        }
         if (cursor != null) {
             boolean hasNewer, hasOlder;
             if (cursor.isAfterLast() || cursor.isBeforeFirst()) {
@@ -999,18 +1066,17 @@ public class MessageView extends Activity implements OnClickListener {
      */
     private class LoadMessageTask extends AsyncTask<Void, Void, Message> {
 
-        private long mId;
-        private boolean mOkToFetch;
-        private Uri mIntentUri;
+        private final long mId;
+        private final boolean mOkToFetch;
+        private final Uri mFileEmailUri;
 
         /**
          * Special constructor to cache some local info
          */
-        public LoadMessageTask(long messageId, boolean okToFetch) {
-            mIntentUri = getIntent().getData();
+        public LoadMessageTask(Uri fileEmailUri, long messageId, boolean okToFetch) {
+            mFileEmailUri = fileEmailUri;
             mId = messageId;
             mOkToFetch = okToFetch;
-            mAttachmentMessageFlag = (mIntentUri != null);
         }
 
         /**
@@ -1024,11 +1090,11 @@ public class MessageView extends Activity implements OnClickListener {
         protected Message doInBackground(Void... params) {
             // If we have a URI, then we were opened via an intent filter (e.g. an attachment that
             // has a mime type that we can handle (e.g. message/rfc822).
-            if (mIntentUri != null) {
+            if (mFileEmailUri != null) {
                 final Activity activity = MessageView.this;
                 // Put up a toast; this can take a little while...
                 Utility.showToast(activity, R.string.message_view_parse_message_toast);
-                Message msg = mController.loadMessageFromUri(mIntentUri);
+                Message msg = mController.loadMessageFromUri(mFileEmailUri);
                 if (msg == null) {
                     // Indicate that the attachment couldn't be loaded
                     Utility.showToast(activity, R.string.message_view_display_attachment_toast);
@@ -1064,7 +1130,6 @@ public class MessageView extends Activity implements OnClickListener {
             }
             mMessageId = message.mId;
             mMailboxId = message.mMailboxKey;
-            mDisableReplyAndForward = mIntentUri != null;
             reloadUiFromMessage(message, mOkToFetch);
             startPresenceCheck();
         }
@@ -1307,7 +1372,7 @@ public class MessageView extends Activity implements OnClickListener {
                         // reload UI and reload everything else too
                         // pass false to LoadMessageTask to prevent looping here
                         cancelAllTasks();
-                        mLoadMessageTask = new LoadMessageTask(mMessageId, false);
+                        mLoadMessageTask = new LoadMessageTask(mFileEmailUri, mMessageId, false);
                         mLoadMessageTask.execute();
                         break;
                     default:
