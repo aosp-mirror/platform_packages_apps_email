@@ -28,7 +28,6 @@ import com.android.email.mail.PackedString;
 import com.android.email.mail.internet.EmailHtmlUtil;
 import com.android.email.mail.internet.MimeUtility;
 import com.android.email.provider.AttachmentProvider;
-import com.android.email.provider.EmailContent;
 import com.android.email.provider.EmailContent.Attachment;
 import com.android.email.provider.EmailContent.Body;
 import com.android.email.provider.EmailContent.Message;
@@ -42,7 +41,6 @@ import android.content.ActivityNotFoundException;
 import android.content.ContentResolver;
 import android.content.Context;
 import android.content.Intent;
-import android.database.ContentObserver;
 import android.database.Cursor;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
@@ -83,7 +81,7 @@ import java.util.Date;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
-public class MessageView extends Activity implements OnClickListener {
+public class MessageView extends Activity implements OnClickListener, MessageOrderManager.Callback {
     private static final String EXTRA_MESSAGE_ID = "com.android.email.MessageView_message_id";
     private static final String EXTRA_MAILBOX_ID = "com.android.email.MessageView_mailbox_id";
     /* package */ static final String EXTRA_DISABLE_REPLY =
@@ -139,12 +137,13 @@ public class MessageView extends Activity implements OnClickListener {
     private long mMessageId;
     private long mMailboxId;
     private Message mMessage;
-    private long mWaitForLoadMessageId;
 
     private LoadMessageTask mLoadMessageTask;
     private LoadBodyTask mLoadBodyTask;
     private LoadAttachmentsTask mLoadAttachmentsTask;
     private PresenceUpdater mPresenceUpdater;
+
+    private MessageOrderManager mOrderManager;
 
     private long mLoadAttachmentId;         // the attachment being saved/viewed
     private boolean mLoadAttachmentSave;    // if true, saving - if false, viewing
@@ -157,13 +156,10 @@ public class MessageView extends Activity implements OnClickListener {
     private Drawable mFavoriteIconOff;
 
     private Controller mController;
-    private Controller.Result mControllerCallback;
+    private ControllerResultUiThreadWrapper<ControllerResults> mControllerCallback;
 
     private View mMoveToNewer;
     private View mMoveToOlder;
-    private LoadMessageListTask mLoadMessageListTask;
-    private Cursor mMessageListCursor;
-    private ContentObserver mCursorObserver;
 
     // contains the HTML body. Is used by LoadAttachmentTask to display inline images.
     // is null most of the time, is used transiently to pass info to LoadAttachementTask
@@ -278,26 +274,6 @@ public class MessageView extends Activity implements OnClickListener {
         }
 
         mController = Controller.getInstance(getApplication());
-
-        // Set up ContentObserver.
-        // This observer is used to watch for external changes to the message list.
-
-        // Pass a Handler so that onChange() gets called back in the UI thread.
-        // (All we want to do here is to run an AsyncTask, so it could run on a bg thread, but doing
-        // so would require synchronization to protect mLoadMessageListTask.  Let's just do it on
-        // the UI thread to keep it simple.)
-        mCursorObserver = new ContentObserver(new Handler()){
-                @Override
-                public void onChange(boolean selfChange) {
-                    // get a new message list cursor, but only if we already had one
-                    // (otherwise it's "too soon" and other pathways will cause it to be loaded)
-                    if (mLoadMessageListTask == null && mMessageListCursor != null) {
-                        mLoadMessageListTask = new LoadMessageListTask(mMailboxId);
-                        mLoadMessageListTask.execute();
-                    }
-                }
-            };
-
         messageChanged();
     }
 
@@ -335,7 +311,6 @@ public class MessageView extends Activity implements OnClickListener {
     @Override
     public void onResume() {
         super.onResume();
-        mWaitForLoadMessageId = -1;
         mController.addResultCallback(mControllerCallback);
 
         // Exit immediately if the accounts list has changed (e.g. externally deleted)
@@ -347,29 +322,20 @@ public class MessageView extends Activity implements OnClickListener {
 
         if (mMessage != null) {
             startPresenceCheck();
-
-            // get a new message list cursor, but only if mailbox is set
-            // (otherwise it's "too soon" and other pathways will cause it to be loaded)
-            if (mLoadMessageListTask == null && mMailboxId != -1) {
-                mLoadMessageListTask = new LoadMessageListTask(mMailboxId);
-                mLoadMessageListTask.execute();
-            }
+        }
+        if (!isViewingEmailFile()) {
+            mOrderManager = new MessageOrderManager(this, mMailboxId, this);
         }
     }
 
     @Override
     public void onPause() {
         mController.removeResultCallback(mControllerCallback);
-        closeMessageListCursor();
-        super.onPause();
-    }
-
-    private void closeMessageListCursor() {
-        if (mMessageListCursor != null) {
-            mMessageListCursor.unregisterContentObserver(mCursorObserver);
-            mMessageListCursor.close();
-            mMessageListCursor = null;
+        if (mOrderManager != null) {
+            mOrderManager.close();
+            mOrderManager = null;
         }
+        super.onPause();
     }
 
     private void cancelAllTasks() {
@@ -379,8 +345,6 @@ public class MessageView extends Activity implements OnClickListener {
         mLoadBodyTask = null;
         Utility.cancelTaskInterrupt(mLoadAttachmentsTask);
         mLoadAttachmentsTask = null;
-        Utility.cancelTaskInterrupt(mLoadMessageListTask);
-        mLoadMessageListTask = null;
         mPresenceUpdater.cancelAll();
     }
 
@@ -390,6 +354,9 @@ public class MessageView extends Activity implements OnClickListener {
      */
     @Override
     public void onDestroy() {
+        if (mOrderManager != null) {
+            mOrderManager.close();
+        }
         cancelAllTasks();
         mMessageContentView.destroy();
         mMessageContentView = null;
@@ -561,10 +528,8 @@ public class MessageView extends Activity implements OnClickListener {
         }
         // Guard with !isLast() because Cursor.moveToNext() returns false even as it moves
         // from last to after-last.
-        if (mMessageListCursor != null
-                && !mMessageListCursor.isLast()
-                && mMessageListCursor.moveToNext()) {
-            mMessageId = mMessageListCursor.getLong(0);
+        if (mOrderManager != null && mOrderManager.moveToOlder()) {
+            mMessageId = mOrderManager.getCurrentMessageId();
             messageChanged();
             return true;
         }
@@ -577,10 +542,8 @@ public class MessageView extends Activity implements OnClickListener {
         }
         // Guard with !isFirst() because Cursor.moveToPrev() returns false even as it moves
         // from first to before-first.
-        if (mMessageListCursor != null
-                && !mMessageListCursor.isFirst()
-                && mMessageListCursor.moveToPrevious()) {
-            mMessageId = mMessageListCursor.getLong(0);
+        if (mOrderManager != null && mOrderManager.moveToNewer()) {
+            mMessageId = mOrderManager.getCurrentMessageId();
             messageChanged();
             return true;
         }
@@ -802,50 +765,17 @@ public class MessageView extends Activity implements OnClickListener {
         // Start an AsyncTask to make a new cursor and load the message
         mLoadMessageTask = new LoadMessageTask(mFileEmailUri, mMessageId, true);
         mLoadMessageTask.execute();
-        updateNavigationArrows(mMessageListCursor);
-    }
-
-    /**
-     * Reposition the older/newer cursor.  Finish() the activity if we are no longer
-     * in the list.  Update the UI arrows as appropriate.
-     */
-    private void repositionMessageListCursor() {
-        if (Email.DEBUG) {
-            Email.log("MessageView: reposition to id=" + mMessageId);
-        }
-        // position the cursor on the current message
-        mMessageListCursor.moveToPosition(-1);
-        while (mMessageListCursor.moveToNext() && mMessageListCursor.getLong(0) != mMessageId) {
-        }
-        if (mMessageListCursor.isAfterLast()) {
-            // overshoot - get out now, the list is no longer valid
-            finish();
-        }
-        updateNavigationArrows(mMessageListCursor);
+        updateNavigationArrows();
     }
 
     /**
      * Update the arrows based on the current position of the older/newer cursor.
      */
-    private void updateNavigationArrows(Cursor cursor) {
-        if (isViewingEmailFile()) {
-            mMoveToNewer.setVisibility(View.INVISIBLE);
-            mMoveToOlder.setVisibility(View.INVISIBLE);
-            return;
-        }
-        if (cursor != null) {
-            boolean hasNewer, hasOlder;
-            if (cursor.isAfterLast() || cursor.isBeforeFirst()) {
-                // The cursor not being on a message means that the current message was not found.
-                // While this should not happen, simply disable prev/next arrows in that case.
-                hasNewer = hasOlder = false;
-            } else {
-                hasNewer = !cursor.isFirst();
-                hasOlder = !cursor.isLast();
-            }
-            mMoveToNewer.setVisibility(hasNewer ? View.VISIBLE : View.INVISIBLE);
-            mMoveToOlder.setVisibility(hasOlder ? View.VISIBLE : View.INVISIBLE);
-        }
+    private void updateNavigationArrows() {
+        mMoveToNewer.setVisibility((mOrderManager != null) && mOrderManager.canMoveToNewer()
+                ? View.VISIBLE : View.INVISIBLE);
+        mMoveToOlder.setVisibility((mOrderManager != null) && mOrderManager.canMoveToOlder()
+                ? View.VISIBLE : View.INVISIBLE);
     }
 
     private Bitmap getPreviewIcon(AttachmentInfo attachment) {
@@ -968,50 +898,6 @@ public class MessageView extends Activity implements OnClickListener {
                     });
                 }
             }
-        }
-    }
-
-    /**
-     * This task finds out the messageId for the previous and next message
-     * in the order given by mailboxId as used in MessageList.
-     *
-     * It generates the same cursor as the one used in MessageList (but with an id-only projection),
-     * scans through it until finds the current messageId, and takes the previous and next ids.
-     */
-    private class LoadMessageListTask extends AsyncTask<Void, Void, Cursor> {
-        private long mLocalMailboxId;
-
-        public LoadMessageListTask(long mailboxId) {
-            mLocalMailboxId = mailboxId;
-        }
-
-        @Override
-        protected Cursor doInBackground(Void... params) {
-            String selection =
-                Utility.buildMailboxIdSelection(getContentResolver(), mLocalMailboxId);
-            Cursor c = getContentResolver().query(EmailContent.Message.CONTENT_URI,
-                    EmailContent.ID_PROJECTION,
-                    selection, null,
-                    EmailContent.MessageColumns.TIMESTAMP + " DESC");
-            return c;
-        }
-
-        @Override
-        protected void onPostExecute(Cursor cursor) {
-            if (cursor == null) {
-                return;
-            }
-            // remove the reference to ourselves so another one can be launched
-            MessageView.this.mLoadMessageListTask = null;
-
-            if (cursor.isClosed()) {
-                return;
-            }
-            // replace the older cursor if there is one
-            closeMessageListCursor();
-            mMessageListCursor = cursor;
-            mMessageListCursor.registerContentObserver(MessageView.this.mCursorObserver);
-            repositionMessageListCursor();
         }
     }
 
@@ -1189,10 +1075,9 @@ public class MessageView extends Activity implements OnClickListener {
         if (mMailboxId == -1) {
             mMailboxId = message.mMailboxKey;
         }
-        // only start LoadMessageListTask here if it's the first time
-        if (mMessageListCursor == null) {
-            mLoadMessageListTask = new LoadMessageListTask(mMailboxId);
-            mLoadMessageListTask.execute();
+
+        if (mOrderManager != null) {
+            mOrderManager.moveTo(message.mId);
         }
 
         mSubjectView.setText(message.mSubject);
@@ -1216,10 +1101,10 @@ public class MessageView extends Activity implements OnClickListener {
         // 3. Controller callback (after loaded) should trigger LoadBodyTask & LoadAttachmentsTask
         // 4. Else start the loader tasks right away (message already loaded)
         if (okToFetch && message.mFlagLoaded != Message.FLAG_LOADED_COMPLETE) {
-            mWaitForLoadMessageId = message.mId;
+            mControllerCallback.getWrappee().setWaitForLoadMessageId(message.mId);
             mController.loadMessageForView(message.mId);
         } else {
-            mWaitForLoadMessageId = -1;
+            mControllerCallback.getWrappee().setWaitForLoadMessageId(-1);
             // Ask for body
             mLoadBodyTask = new LoadBodyTask(message.mId);
             mLoadBodyTask.execute();
@@ -1302,11 +1187,16 @@ public class MessageView extends Activity implements OnClickListener {
      * so all methods are called on the UI thread.
      */
     private class ControllerResults extends Controller.Result {
+        private long mWaitForLoadMessageId;
+
+        public void setWaitForLoadMessageId(long messageId) {
+            mWaitForLoadMessageId = messageId;
+        }
+
         @Override
         public void loadMessageForViewCallback(MessagingException result, long messageId,
                 int progress) {
-            if (messageId != MessageView.this.mMessageId
-                    || messageId != MessageView.this.mWaitForLoadMessageId) {
+            if (messageId != mWaitForLoadMessageId) {
                 // We are not waiting for this message to load, so exit quickly
                 return;
             }
@@ -1489,5 +1379,15 @@ public class MessageView extends Activity implements OnClickListener {
                 mActivity = null;
             }
         }
+    }
+
+    @Override
+    public void onMessageNotFound() {
+        finish();
+    }
+
+    @Override
+    public void onMessagesChanged() {
+        updateNavigationArrows();
     }
 }
