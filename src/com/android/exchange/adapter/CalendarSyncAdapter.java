@@ -598,6 +598,14 @@ public class CalendarSyncAdapter extends AbstractSyncAdapter {
                     sb.append(attendeeEmail);
                     sb.append(ATTENDEE_TOKENIZER_DELIMITER);
                     if (mEmailAddress.equalsIgnoreCase(attendeeEmail)) {
+                        // For new events of a non-organizer, we can't tell whether Busy means
+                        // accepted or not responded; it's safest to set this to Free (which will be
+                        // shown in the UI as "No response"), allowing any setting by the user to
+                        // be uploaded and a reply sent to the organizer
+                        if (!update && !selfOrganizer &&
+                                (busyStatus == CalendarUtilities.BUSY_STATUS_BUSY)) {
+                            busyStatus = CalendarUtilities.BUSY_STATUS_FREE;
+                        }
                         int attendeeStatus =
                             CalendarUtilities.attendeeStatusFromBusyStatus(busyStatus);
                         attendee.put(Attendees.ATTENDEE_STATUS, attendeeStatus);
