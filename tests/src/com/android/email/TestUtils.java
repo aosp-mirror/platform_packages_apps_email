@@ -17,13 +17,21 @@
 package com.android.email;
 
 import android.test.MoreAsserts;
+import android.test.suitebuilder.annotation.LargeTest;
+import android.util.Log;
 
+import junit.framework.AssertionFailedError;
 import junit.framework.TestCase;
 
 /**
  * Utility methods used only by tests.
  */
+@LargeTest
 public class TestUtils extends TestCase /* It tests itself */ {
+    public interface Condition {
+        public boolean isMet();
+    }
+
     /** Shortcut to create byte array */
     public static byte[] b(int... array) {
         if (array == null) {
@@ -40,5 +48,89 @@ public class TestUtils extends TestCase /* It tests itself */ {
         assertNull(b(null));
         MoreAsserts.assertEquals(new byte[] {}, b());
         MoreAsserts.assertEquals(new byte[] {1, 2, (byte) 0xff}, b(1, 2, 0xff));
+    }
+
+    /**
+     * Run {@code runnable} and fails if it doesn't throw a {@code expectedThrowable} or a subclass
+     * of it.
+     */
+    public static void expectThrowable(Runnable runnable,
+            Class<? extends Throwable> expectedThrowable) {
+        try {
+            runnable.run();
+            fail("Expected throwable not thrown.");
+        } catch (Throwable th) {
+            if (expectedThrowable.isAssignableFrom(th.getClass())) {
+                return; // Expcted. OK
+            }
+            fail("Cought unexpected throwable " + th.getClass().getName());
+        }
+    }
+
+    public void testExpectThrowable() {
+        try {
+            expectThrowable(new Runnable() {
+                @Override public void run() {
+                    // Throwing no exception
+                }
+            }, Throwable.class);
+            fail();
+        } catch (AssertionFailedError ok) {
+        }
+
+        try {
+            expectThrowable(new Runnable() {
+                @Override public void run() {
+                    // Throw RuntimeException, which is not a subclass of Error.
+                    throw new RuntimeException();
+                }
+            }, Error.class);
+            fail();
+        } catch (AssertionFailedError ok) {
+        }
+
+        expectThrowable(new Runnable() {
+            @Override public void run() {
+                throw new RuntimeException();
+            }
+        }, Exception.class);
+    }
+
+    /**
+     * Wait until a {@code Condition} is met.
+     */
+    public static void waitUntil(String message, Condition condition, int timeoutSeconds) {
+        Log.d(Email.LOG_TAG, message + ": Waiting...");
+        final long timeout = System.currentTimeMillis() + timeoutSeconds * 1000;
+        while (System.currentTimeMillis() < timeout) {
+            if (condition.isMet()) {
+                return;
+            }
+            try {
+                Thread.sleep(500);
+            } catch (InterruptedException ignore) {
+            }
+        }
+        fail(message + ": Timeout");
+    }
+
+    public void testWaitUntil() {
+        // Shouldn't fail.
+        waitUntil("message", new Condition() {
+            @Override public boolean isMet() {
+                return true;
+            }
+        }, 1000000);
+
+        expectThrowable(new Runnable() {
+            @Override public void run() {
+                // Condition never meets, should fail.
+                waitUntil("message", new Condition() {
+                    @Override public boolean isMet() {
+                        return false;
+                    }
+                }, 0);
+            }
+        }, AssertionFailedError.class);
     }
 }
