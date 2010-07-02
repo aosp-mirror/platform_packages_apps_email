@@ -311,6 +311,27 @@
     <!-- String that is displayed when a long message is being parsed. -->
     <string name="message_view_parse_message_toast">Opening message\u2026</string>
 
+    <!-- Size unit for bytes for attachments-->
+    <plurals name="message_view_attachment_bytes">
+        <item quantity="one"  ><xliff:g id="size_in_bytes" example="1"  >%d</xliff:g>B</item>
+        <item quantity="other"><xliff:g id="size_in_bytes" example="279">%d</xliff:g>B</item>
+    </plurals>
+    <!-- Size unit for kilo bytes for attachments -->
+    <plurals name="message_view_attachment_kilobytes">
+        <item quantity="one"  ><xliff:g id="size_in_kilobytes" example="1"  >%d</xliff:g>KB</item>
+        <item quantity="other"><xliff:g id="size_in_kilobytes" example="279">%d</xliff:g>KB</item>
+    </plurals>
+    <!-- Size unit for mega bytes for attachments -->
+    <plurals name="message_view_attachment_megabytes">
+        <item quantity="one"  ><xliff:g id="size_in_megabytes" example="1"  >%d</xliff:g>MB</item>
+        <item quantity="other"><xliff:g id="size_in_megabytes" example="279">%d</xliff:g>MB</item>
+    </plurals>
+    <!-- Size unit for giga bytes for attachments -->
+    <plurals name="message_view_attachment_gigabytes">
+        <item quantity="one"  ><xliff:g id="size_in_gigabytes" example="1"  >%d</xliff:g>GB</item>
+        <item quantity="other"><xliff:g id="size_in_gigabytes" example="279">%d</xliff:g>GB</item>
+    </plurals>
+
     <!-- Title of screen when setting up new email account -->
     <string name="account_setup_basics_title">Set up email</string>
     <!-- Title of the screen when adding exchange account -->

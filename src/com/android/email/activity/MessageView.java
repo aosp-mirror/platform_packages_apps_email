@@ -31,7 +31,6 @@ import com.android.email.provider.AttachmentProvider;
 import com.android.email.provider.EmailContent;
 import com.android.email.provider.EmailContent.Attachment;
 import com.android.email.provider.EmailContent.Body;
-import com.android.email.provider.EmailContent.BodyColumns;
 import com.android.email.provider.EmailContent.Message;
 import com.android.email.service.EmailServiceConstants;
 
@@ -89,8 +88,6 @@ import java.util.regex.Pattern;
 public class MessageView extends Activity implements OnClickListener {
     private static final String EXTRA_MESSAGE_ID = "com.android.email.MessageView_message_id";
     private static final String EXTRA_MAILBOX_ID = "com.android.email.MessageView_mailbox_id";
-    private static final String EXTRA_ORIGINAL_MAILBOX_ID =
-        "com.android.email.MessageView_original_mailbox_id";
     /* package */ static final String EXTRA_DISABLE_REPLY =
         "com.android.email.MessageView_disable_reply";
 
@@ -102,19 +99,11 @@ public class MessageView extends Activity implements OnClickListener {
     // Regex that matches Web URL protocol part as case insensitive.
     private static final Pattern WEB_URL_PROTOCOL = Pattern.compile("(?i)http|https://");
 
-    // Support for LoadBodyTask
-    private static final String[] BODY_CONTENT_PROJECTION = new String[] {
-        Body.RECORD_ID, BodyColumns.MESSAGE_KEY,
-        BodyColumns.HTML_CONTENT, BodyColumns.TEXT_CONTENT
-    };
-
     private static final String[] PRESENCE_STATUS_PROJECTION =
         new String[] { Contacts.CONTACT_PRESENCE };
 
-    private static final int BODY_CONTENT_COLUMN_RECORD_ID = 0;
-    private static final int BODY_CONTENT_COLUMN_MESSAGE_KEY = 1;
-    private static final int BODY_CONTENT_COLUMN_HTML_CONTENT = 2;
-    private static final int BODY_CONTENT_COLUMN_TEXT_CONTENT = 3;
+    private static int PREVIEW_ICON_WIDTH = 62;
+    private static int PREVIEW_ICON_HEIGHT = 62;
 
     private TextView mSubjectView;
     private TextView mFromView;
@@ -352,9 +341,9 @@ public class MessageView extends Activity implements OnClickListener {
 
     @Override
     public void onPause() {
-        super.onPause();
         mController.removeResultCallback(mControllerCallback);
         closeMessageListCursor();
+        super.onPause();
     }
 
     private void closeMessageListCursor() {
@@ -384,7 +373,6 @@ public class MessageView extends Activity implements OnClickListener {
      */
     @Override
     public void onDestroy() {
-        super.onDestroy();
         cancelAllTasks();
         mMessageContentView.destroy();
         mMessageContentView = null;
@@ -393,23 +381,7 @@ public class MessageView extends Activity implements OnClickListener {
         if (!mAttachmentMessageFlag) {
             mController.deleteAttachmentMessages();
         }
-    }
-
-    private void onDelete() {
-        if (mMessage != null) {
-            // the delete triggers mCursorObserver
-            // first move to older/newer before the actual delete
-            long messageIdToDelete = mMessageId;
-            boolean moved = moveToOlder() || moveToNewer();
-            mController.deleteMessage(messageIdToDelete, mMessage.mAccountKey);
-            Toast.makeText(this, getResources().getQuantityString(R.plurals.message_deleted_toast,
-                    1), Toast.LENGTH_SHORT).show();
-            if (!moved) {
-                // this generates a benign warning "Duplicate finish request" because
-                // repositionMessageListCursor() will fail to reposition and do its own finish()
-                finish();
-            }
-        }
+        super.onDestroy();
     }
 
     /**
@@ -527,6 +499,23 @@ public class MessageView extends Activity implements OnClickListener {
         }
     }
 
+    private void onDeleteMessage() {
+        if (mMessage != null) {
+            // the delete triggers mCursorObserver
+            // first move to older/newer before the actual delete
+            long messageIdToDelete = mMessageId;
+            boolean moved = moveToOlder() || moveToNewer();
+            mController.deleteMessage(messageIdToDelete, mMessage.mAccountKey);
+            Utility.showToast(this,
+                    getResources().getQuantityString(R.plurals.message_deleted_toast, 1));
+            if (!moved) {
+                // this generates a benign warning "Duplicate finish request" because
+                // repositionMessageListCursor() will fail to reposition and do its own finish()
+                finish();
+            }
+        }
+    }
+
     private boolean moveToOlder() {
         // Guard with !isLast() because Cursor.moveToNext() returns false even as it moves
         // from last to after-last.
@@ -561,41 +550,9 @@ public class MessageView extends Activity implements OnClickListener {
     }
 
     /**
-     * Creates a unique file in the given directory by appending a hyphen
-     * and a number to the given filename.
-     * @param directory
-     * @param filename
-     * @return a new File object, or null if one could not be created
-     */
-    /* package */ static File createUniqueFile(File directory, String filename) {
-        File file = new File(directory, filename);
-        if (!file.exists()) {
-            return file;
-        }
-        // Get the extension of the file, if any.
-        int index = filename.lastIndexOf('.');
-        String format;
-        if (index != -1) {
-            String name = filename.substring(0, index);
-            String extension = filename.substring(index);
-            format = name + "-%d" + extension;
-        }
-        else {
-            format = filename + "-%d";
-        }
-        for (int i = 2; i < Integer.MAX_VALUE; i++) {
-            file = new File(directory, String.format(format, i));
-            if (!file.exists()) {
-                return file;
-            }
-        }
-        return null;
-    }
-
-    /**
      * Send a service message indicating that a meeting invite button has been clicked.
      */
-    private void onRespond(int response, int toastResId) {
+    private void onRespondToInvite(int response, int toastResId) {
         // do not send twice in a row the same response
         if (mPreviousMeetingResponse != response) {
             mController.sendMeetingResponse(mMessageId, response);
@@ -636,7 +593,7 @@ public class MessageView extends Activity implements OnClickListener {
                 mAccountId);
     }
 
-    private void onShowPictures() {
+    private void onShowPicturesInHtml() {
         if (mMessage != null) {
             if (mMessageContentView != null) {
                 mMessageContentView.getSettings().setBlockNetworkLoads(false);
@@ -665,7 +622,7 @@ public class MessageView extends Activity implements OnClickListener {
                 onReplyAll();
                 break;
             case R.id.delete:
-                onDelete();
+                onDeleteMessage();
                 break;
             case R.id.moveToOlder:
                 moveToOlder();
@@ -680,35 +637,38 @@ public class MessageView extends Activity implements OnClickListener {
                 onViewAttachment((AttachmentInfo) view.getTag());
                 break;
             case R.id.show_pictures:
-                onShowPictures();
+                onShowPicturesInHtml();
                 break;
             case R.id.accept:
-                onRespond(EmailServiceConstants.MEETING_REQUEST_ACCEPTED,
+                onRespondToInvite(EmailServiceConstants.MEETING_REQUEST_ACCEPTED,
                          R.string.message_view_invite_toast_yes);
                 break;
             case R.id.maybe:
-                onRespond(EmailServiceConstants.MEETING_REQUEST_TENTATIVE,
+                onRespondToInvite(EmailServiceConstants.MEETING_REQUEST_TENTATIVE,
                          R.string.message_view_invite_toast_maybe);
                 break;
             case R.id.decline:
-                onRespond(EmailServiceConstants.MEETING_REQUEST_DECLINED,
+                onRespondToInvite(EmailServiceConstants.MEETING_REQUEST_DECLINED,
                          R.string.message_view_invite_toast_no);
                 break;
             case R.id.invite_link:
-                String startTime =
-                    new PackedString(mMessage.mMeetingInfo).get(MeetingInfo.MEETING_DTSTART);
-                if (startTime != null) {
-                    long epochTimeMillis = Utility.parseEmailDateTimeToMillis(startTime);
-                    Uri uri = Uri.parse("content://com.android.calendar/time/" + epochTimeMillis);
-                    Intent intent = new Intent(Intent.ACTION_VIEW);
-                    intent.setData(uri);
-                    intent.putExtra("VIEW", "DAY");
-                    intent.setFlags(Intent.FLAG_ACTIVITY_CLEAR_WHEN_TASK_RESET);
-                    startActivity(intent);
-                } else {
-                    Email.log("meetingInfo without DTSTART " + mMessage.mMeetingInfo);
-                }
+                onInviteLinkClicked();
                 break;
+        }
+    }
+
+    private void onInviteLinkClicked() {
+        String startTime = new PackedString(mMessage.mMeetingInfo).get(MeetingInfo.MEETING_DTSTART);
+        if (startTime != null) {
+            long epochTimeMillis = Utility.parseEmailDateTimeToMillis(startTime);
+            Uri uri = Uri.parse("content://com.android.calendar/time/" + epochTimeMillis);
+            Intent intent = new Intent(Intent.ACTION_VIEW);
+            intent.setData(uri);
+            intent.putExtra("VIEW", "DAY");
+            intent.setFlags(Intent.FLAG_ACTIVITY_CLEAR_WHEN_TASK_RESET);
+            startActivity(intent);
+        } else {
+            Email.log("meetingInfo without DTSTART " + mMessage.mMeetingInfo);
         }
     }
 
@@ -731,7 +691,7 @@ public class MessageView extends Activity implements OnClickListener {
    /* package */ boolean handleMenuItem(int menuItemId) {
        switch (menuItemId) {
            case R.id.delete:
-               onDelete();
+               onDeleteMessage();
                break;
            case R.id.reply:
                onReply();
@@ -832,36 +792,13 @@ public class MessageView extends Activity implements OnClickListener {
                     getContentResolver().openInputStream(
                             AttachmentProvider.getAttachmentThumbnailUri(
                                     mAccountId, attachment.attachmentId,
-                                    62,
-                                    62)));
-        }
-        catch (Exception e) {
+                                    PREVIEW_ICON_WIDTH,
+                                    PREVIEW_ICON_HEIGHT)));
+        } catch (Exception e) {
             /*
              * We don't care what happened, we just return null for the preview icon.
              */
             return null;
-        }
-    }
-
-    /*
-     * Formats the given size as a String in bytes, kB, MB or GB with a single digit
-     * of precision. Ex: 12,315,000 = 12.3 MB
-     */
-    public static String formatSize(float size) {
-        long kb = 1024;
-        long mb = (kb * 1024);
-        long gb  = (mb * 1024);
-        if (size < kb) {
-            return String.format("%d bytes", (int) size);
-        }
-        else if (size < mb) {
-            return String.format("%.1f kB", size / kb);
-        }
-        else if (size < gb) {
-            return String.format("%.1f MB", size / mb);
-        }
-        else {
-            return String.format("%.1f GB", size / gb);
         }
     }
 
@@ -929,7 +866,7 @@ public class MessageView extends Activity implements OnClickListener {
         attachmentDownload.setTag(attachmentInfo);
 
         attachmentName.setText(attachmentInfo.name);
-        attachmentInfoView.setText(formatSize(attachmentInfo.size));
+        attachmentInfoView.setText(Utility.formatSize(this, attachmentInfo.size));
 
         Bitmap previewIcon = getPreviewIcon(attachmentInfo);
         if (previewIcon != null) {
@@ -1450,90 +1387,6 @@ public class MessageView extends Activity implements OnClickListener {
         }
     }
 
-
-//        @Override
-//        public void loadMessageForViewBodyAvailable(Account account, String folder,
-//                String uid, com.android.email.mail.Message message) {
-//             MessageView.this.mOldMessage = message;
-//             try {
-//                 Part part = MimeUtility.findFirstPartByMimeType(mOldMessage, "text/html");
-//                 if (part == null) {
-//                     part = MimeUtility.findFirstPartByMimeType(mOldMessage, "text/plain");
-//                 }
-//                 if (part != null) {
-//                     String text = MimeUtility.getTextFromPart(part);
-//                     if (part.getMimeType().equalsIgnoreCase("text/html")) {
-//                         text = EmailHtmlUtil.resolveInlineImage(
-//                                 getContentResolver(), mAccount.mId, text, mOldMessage, 0);
-//                     } else {
-//                         // And also escape special character, such as "<>&",
-//                         // to HTML escape sequence.
-//                         text = EmailHtmlUtil.escapeCharacterToDisplay(text);
-
-//                         /*
-//                          * Linkify the plain text and convert it to HTML by replacing
-//                          * \r?\n with <br> and adding a html/body wrapper.
-//                          */
-//                         StringBuffer sb = new StringBuffer("<html><body>");
-//                         if (text != null) {
-//                             Matcher m = Patterns.WEB_URL.matcher(text);
-//                             while (m.find()) {
-//                                 int start = m.start();
-//                                 /*
-//                                  * WEB_URL_PATTERN may match domain part of email address. To detect
-//                                  * this false match, the character just before the matched string
-//                                  * should not be '@'.
-//                                  */
-//                                 if (start == 0 || text.charAt(start - 1) != '@') {
-//                                     String url = m.group();
-//                                     Matcher proto = WEB_URL_PROTOCOL.matcher(url);
-//                                     String link;
-//                                     if (proto.find()) {
-//                                         // Work around to force URL protocol part be lower case,
-//                                         // since WebView could follow only lower case protocol link.
-//                                         link = proto.group().toLowerCase()
-//                                             + url.substring(proto.end());
-//                                     } else {
-//                                         // Patterns.WEB_URL matches URL without protocol part,
-//                                         // so added default protocol to link.
-//                                         link = "http://" + url;
-//                                     }
-//                                     String href = String.format("<a href=\"%s\">%s</a>", link, url);
-//                                     m.appendReplacement(sb, href);
-//                                 }
-//                                 else {
-//                                     m.appendReplacement(sb, "$0");
-//                                 }
-//                             }
-//                             m.appendTail(sb);
-//                         }
-//                         sb.append("</body></html>");
-//                         text = sb.toString();
-//                     }
-
-//                     /*
-//                      * TODO consider how to get background images and a million other things
-//                      * that HTML allows.
-//                      */
-//                     // Check if text contains img tag.
-//                     if (IMG_TAG_START_REGEX.matcher(text).find()) {
-//                         mHandler.showShowPictures(true);
-//                     }
-
-//                     loadMessageContentText(text);
-//                 }
-//                 else {
-//                     loadMessageContentUrl("file:///android_asset/empty.html");
-//                 }
-// //                renderAttachments(mOldMessage, 0);
-//             }
-//             catch (Exception e) {
-//                 if (Email.LOGD) {
-//                     Log.v(Email.LOG_TAG, "loadMessageForViewBodyAvailable", e);
-//                 }
-//             }
-//        }
-
     /**
      * Back in the UI thread, handle the final steps of downloading an attachment (view or save).
      *
@@ -1552,7 +1405,7 @@ public class MessageView extends Activity implements OnClickListener {
 
         if (mLoadAttachmentSave) {
             try {
-                File file = createUniqueFile(Environment.getExternalStorageDirectory(),
+                File file = Utility.createUniqueFile(Environment.getExternalStorageDirectory(),
                         attachment.mFileName);
                 InputStream in = getContentResolver().openInputStream(contentUri);
                 OutputStream out = new FileOutputStream(file);
@@ -1561,15 +1414,13 @@ public class MessageView extends Activity implements OnClickListener {
                 out.close();
                 in.close();
 
-                Toast.makeText(MessageView.this, String.format(
-                        getString(R.string.message_view_status_attachment_saved), file.getName()),
-                        Toast.LENGTH_LONG).show();
+                Utility.showToast(this, String.format(
+                        getString(R.string.message_view_status_attachment_saved), file.getName()));
 
                 new MediaScannerNotifier(this, file);
             } catch (IOException ioe) {
-                Toast.makeText(MessageView.this,
-                        getString(R.string.message_view_status_attachment_not_saved),
-                        Toast.LENGTH_LONG).show();
+                Utility.showToast(this,
+                        getString(R.string.message_view_status_attachment_not_saved));
             }
         } else {
             try {

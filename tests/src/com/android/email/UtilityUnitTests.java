@@ -16,6 +16,7 @@
 
 package com.android.email;
 
+import com.android.email.Utility.NewFileCreator;
 import com.android.email.provider.EmailContent.Mailbox;
 
 import android.content.Context;
@@ -26,7 +27,10 @@ import android.test.MoreAsserts;
 import android.test.suitebuilder.annotation.SmallTest;
 import android.util.Log;
 
+import java.io.File;
+import java.io.IOException;
 import java.util.HashSet;
+import java.util.Locale;
 import java.util.Set;
 
 /**
@@ -43,13 +47,13 @@ public class UtilityUnitTests extends AndroidTestCase {
      * Tests of the IMAP quoting rules function.
      */
     public void testImapQuote() {
-        
+
         // Simple strings should come through with simple quotes
         assertEquals("\"abcd\"", Utility.imapQuoted("abcd"));
-        
+
         // Quoting internal double quotes with \
         assertEquals("\"ab\\\"cd\"", Utility.imapQuoted("ab\"cd"));
-        
+
         // Quoting internal \ with \\
         assertEquals("\"ab\\\\cd\"", Utility.imapQuoted("ab\\cd"));
     }
@@ -225,5 +229,66 @@ public class UtilityUnitTests extends AndroidTestCase {
                 Utility.cleanUpMimeDate("Thu, 10 Dec 09 15:08:08 GMT-0700"));
         assertEquals("Thu, 10 Dec 09 15:08:08 -0700",
                 Utility.cleanUpMimeDate("Thu, 10 Dec 09 15:08:08 -0700"));
+    }
+
+    public void testFormatSize() {
+        if (!"en".equalsIgnoreCase(Locale.getDefault().getLanguage())) {
+            return; // Only works on the EN locale.
+        }
+        assertEquals("0B", Utility.formatSize(getContext(), 0));
+        assertEquals("1B", Utility.formatSize(getContext(), 1));
+        assertEquals("1023B", Utility.formatSize(getContext(), 1023));
+        assertEquals("1KB", Utility.formatSize(getContext(), 1024));
+        assertEquals("1023KB", Utility.formatSize(getContext(), 1024 * 1024 - 1));
+        assertEquals("1MB", Utility.formatSize(getContext(), 1024 * 1024));
+        assertEquals("1023MB", Utility.formatSize(getContext(), 1024 * 1024 * 1024 - 1));
+        assertEquals("1GB", Utility.formatSize(getContext(), 1024 * 1024 * 1024));
+        assertEquals("5GB", Utility.formatSize(getContext(), 5L * 1024 * 1024 * 1024));
+    }
+
+    private static class MyNewFileCreator implements NewFileCreator {
+        private final HashSet<String> mExistingFileNames;
+
+        public MyNewFileCreator(String... fileNames) {
+            mExistingFileNames = new HashSet<String>();
+            for (String f : fileNames) {
+                mExistingFileNames.add(f);
+            }
+        }
+
+        @Override public boolean createNewFile(File f) {
+            return !mExistingFileNames.contains(f.getAbsolutePath());
+        }
+    }
+
+    public void testCreateUniqueFile() throws Exception {
+        final MyNewFileCreator noFiles = new MyNewFileCreator();
+
+        // Case 1: Files don't exist.
+        checkCreateUniqueFile("/a", noFiles, "/", "a");
+        checkCreateUniqueFile("/a.txt", noFiles, "/", "a.txt");
+
+        checkCreateUniqueFile("/a/b/a", noFiles, "/a/b", "a");
+        checkCreateUniqueFile("/a/b/a.txt", noFiles, "/a/b", "a.txt");
+
+        // Case 2: Files exist already.
+        final MyNewFileCreator files = new MyNewFileCreator(
+                "/a", "/a.txt", "/a/b/a", "/a/b/a.txt",
+                "/a-2.txt",
+                "/a/b/a-2", "/a/b/a-3",
+                "/a/b/a-2.txt", "/a/b/a-3.txt", "/a/b/a-4.txt"
+                );
+
+        checkCreateUniqueFile("/a-2", files, "/", "a");
+        checkCreateUniqueFile("/a-3.txt", files, "/", "a.txt");
+
+        checkCreateUniqueFile("/a/b/a-4", files, "/a/b", "a");
+        checkCreateUniqueFile("/a/b/a-5.txt", files, "/a/b", "a.txt");
+    }
+
+    private void checkCreateUniqueFile(String expectedFileName, NewFileCreator nfc,
+            String dir, String fileName) throws Exception {
+        assertEquals(expectedFileName,
+                Utility.createUniqueFileInternal(nfc, new File(dir), fileName).toString());
     }
 }
