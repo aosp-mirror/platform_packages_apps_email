@@ -154,7 +154,7 @@ public class CalendarSyncAdapter extends AbstractSyncAdapter {
     private long mCalendarId = -1;
     private String mCalendarIdString;
     private String[] mCalendarIdArgument;
-    private String mEmailAddress;
+    /*package*/ String mEmailAddress;
 
     private ArrayList<Long> mDeletedIdList = new ArrayList<Long>();
     private ArrayList<Long> mUploadedIdList = new ArrayList<Long>();
@@ -410,11 +410,11 @@ public class CalendarSyncAdapter extends AbstractSyncAdapter {
                     Cursor c = getServerIdCursor(serverId);
                     long id = -1;
                     try {
-                        if (c.moveToFirst()) {
+                        if (c != null && c.moveToFirst()) {
                             id = c.getLong(0);
                         }
                     } finally {
-                        c.close();
+                        if (c != null) c.close();
                     }
                     if (id > 0) {
                         // DTSTAMP can come first, and we simply need to track it

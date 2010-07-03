@@ -21,10 +21,11 @@ import com.android.email.provider.EmailContent.Account;
 import com.android.email.provider.EmailContent.Mailbox;
 import com.android.exchange.EasSyncService;
 import com.android.exchange.adapter.EmailSyncAdapter.EasEmailSyncParser;
+import com.android.exchange.provider.MockProvider;
 
-import android.content.ContentResolver;
 import android.content.Context;
 import android.test.ProviderTestCase2;
+import android.test.mock.MockContentResolver;
 
 import java.io.ByteArrayInputStream;
 import java.io.InputStream;
@@ -35,7 +36,7 @@ public class SyncAdapterTestCase<T extends AbstractSyncAdapter>
         extends ProviderTestCase2<EmailProvider> {
     EmailProvider mProvider;
     Context mMockContext;
-    ContentResolver mMockResolver;
+    MockContentResolver mMockResolver;
     Mailbox mMailbox;
     Account mAccount;
     EmailSyncAdapter mSyncAdapter;
@@ -49,7 +50,8 @@ public class SyncAdapterTestCase<T extends AbstractSyncAdapter>
     public void setUp() throws Exception {
         super.setUp();
         mMockContext = getMockContext();
-        mMockResolver = mMockContext.getContentResolver();
+        mMockResolver = (MockContentResolver)mMockContext.getContentResolver();
+        mMockResolver.addProvider(MockProvider.AUTHORITY, new MockProvider());
     }
 
     @Override
