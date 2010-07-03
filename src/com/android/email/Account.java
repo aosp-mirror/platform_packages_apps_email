@@ -177,7 +177,13 @@ public class Account {
         mBackupFlags = preferences.mSharedPreferences.getInt(mUuid + KEY_BACKUP_FLAGS, 0);
         mProtocolVersion = preferences.mSharedPreferences.getString(mUuid + KEY_PROTOCOL_VERSION,
                 null);
-        mSecurityFlags = preferences.mSharedPreferences.getLong(mUuid + KEY_SECURITY_FLAGS, 0);
+        // Wrap this in a try/catch, as this preference was formerly saved as an int (the value no
+        // longer fits in an int, and is now stored as a long)
+        try {
+            mSecurityFlags = preferences.mSharedPreferences.getLong(mUuid + KEY_SECURITY_FLAGS, 0);
+        } catch (ClassCastException e) {
+            mSecurityFlags = preferences.mSharedPreferences.getInt(mUuid + KEY_SECURITY_FLAGS, 0);
+        }
         mSignature = preferences.mSharedPreferences.getString(mUuid + KEY_SIGNATURE, null);
     }
 
