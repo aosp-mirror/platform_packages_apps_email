@@ -40,9 +40,12 @@ import android.widget.MultiAutoCompleteTextView;
  * Various instrumentation tests for MessageCompose.
  *
  * It might be possible to convert these to ActivityUnitTest, which would be faster.
+ *
+ * You can run this entire test case with:
+ *   runtest -c com.android.email.activity.MessageComposeTests email
  */
 @LargeTest
-public class MessageComposeInstrumentationTests
+public class MessageComposeTests
         extends ActivityInstrumentationTestCase2<MessageCompose> {
 
     private MultiAutoCompleteTextView mToView;
@@ -104,7 +107,7 @@ public class MessageComposeInstrumentationTests
     private static final String ACTION_FORWARD = "com.android.email.intent.action.FORWARD";
     private static final String ACTION_EDIT_DRAFT = "com.android.email.intent.action.EDIT_DRAFT";
 
-    public MessageComposeInstrumentationTests() {
+    public MessageComposeTests() {
         super(MessageCompose.class);
     }
 
@@ -177,7 +180,6 @@ public class MessageComposeInstrumentationTests
      *   TODO test REPLY_ALL
      */
     public void testProcessSourceMessageReply() throws MessagingException, Throwable {
-
         final Message message = buildTestMessage(RECIPIENT_TO, SENDER, SUBJECT, BODY);
         Intent intent = new Intent(ACTION_REPLY);
         final MessageCompose a = getActivity();
@@ -201,6 +203,51 @@ public class MessageComposeInstrumentationTests
                 checkFields(REPLYTO + ", ", null, null, "Re: " + SUBJECT, null, null);
                 checkFocused(mMessageView);
             }
+        });
+    }
+
+    public void testProcessSourceMessageReplyWithSignature() throws MessagingException, Throwable {
+        final Message message = buildTestMessage(RECIPIENT_TO, SENDER, SUBJECT, BODY);
+        Intent intent = new Intent(ACTION_REPLY);
+        final MessageCompose a = getActivity();
+        a.setIntent(intent);
+        final Account account = new Account();
+        account.mSignature = SIGNATURE;
+        runTestOnUiThread(new Runnable() {
+            public void run() {
+                a.processSourceMessage(message, account);
+                checkFields(SENDER + ", ", null, null, "Re: " + SUBJECT, null, SIGNATURE);
+                checkFocused(mMessageView);
+            }
+        });
+
+        message.mFrom = null;
+        message.mReplyTo = Address.parseAndPack(REPLYTO);
+
+        runTestOnUiThread(new Runnable() {
+            public void run() {
+                resetViews();
+                a.processSourceMessage(message, account);
+                checkFields(REPLYTO + ", ", null, null, "Re: " + SUBJECT, null, SIGNATURE);
+                checkFocused(mMessageView);
+            }
+        });
+    }
+
+    public void testProcessSourceMessageForwardWithSignature()
+            throws MessagingException, Throwable {
+        final Message message = buildTestMessage(RECIPIENT_TO, SENDER, SUBJECT, BODY);
+        Intent intent = new Intent(ACTION_FORWARD);
+        final MessageCompose a = getActivity();
+        a.setIntent(intent);
+        final Account account = new Account();
+        account.mSignature = SIGNATURE;
+        runTestOnUiThread(new Runnable() {
+            public void run() {
+                a.processSourceMessage(message, account);
+                checkFields(null, null, null, "Fwd: " + SUBJECT, null, SIGNATURE);
+                checkFocused(mToView);
+           }
         });
     }
 
@@ -692,9 +739,10 @@ public class MessageComposeInstrumentationTests
         }
 
         String contentText = mMessageView.getText().toString();
-        if (content == null) {
+        if (content == null && signature == null) {
             assertEquals(0, contentText.length());
         } else {
+            if (content == null) content = "";
             if (signature != null) {
                 int textLength = content.length();
                 if (textLength == 0 || content.charAt(textLength - 1) != '\n') {
