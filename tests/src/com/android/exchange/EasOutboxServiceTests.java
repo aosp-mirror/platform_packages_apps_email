@@ -38,11 +38,11 @@ public class EasOutboxServiceTests extends AndroidTestCase {
 
     public void testGenerateSmartSendCmd() {
         EasOutboxService svc = new EasOutboxService(mMockContext, new Mailbox());
-        // Test encoding of collection id
+        // Test encoding of collection id; colon should be preserved
         String cmd = svc.generateSmartSendCmd(true, "1339085683659694034", "Mail:^f");
-        assertEquals("SmartReply&ItemId=1339085683659694034&CollectionId=Mail%3A%5Ef", cmd);
+        assertEquals("SmartReply&ItemId=1339085683659694034&CollectionId=Mail:%5Ef", cmd);
         // Test encoding of item id
-        cmd = svc.generateSmartSendCmd(false, "14:3", "6");
-        assertEquals("SmartForward&ItemId=14%3A3&CollectionId=6", cmd);
+        cmd = svc.generateSmartSendCmd(false, "14:&3", "6");
+        assertEquals("SmartForward&ItemId=14:%263&CollectionId=6", cmd);
     }
 }

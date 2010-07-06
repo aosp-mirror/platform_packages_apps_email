@@ -73,8 +73,8 @@ public class EasOutboxService extends EasSyncService {
     }
 
     /*package*/ String generateSmartSendCmd(boolean reply, String itemId, String collectionId) {
-        return (reply ? "SmartReply" : "SmartForward") + "&ItemId=" + Uri.encode(itemId) +
-            "&CollectionId=" + Uri.encode(collectionId);
+        return (reply ? "SmartReply" : "SmartForward") + "&ItemId=" + Uri.encode(itemId, ":") +
+            "&CollectionId=" + Uri.encode(collectionId, ":");
     }
 
     /**
