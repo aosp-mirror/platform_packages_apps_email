@@ -16,6 +16,7 @@
 
 package com.android.email.mail.transport;
 
+import com.android.email.R;
 import com.android.email.mail.MessagingException;
 import com.android.email.provider.EmailProvider;
 import com.android.email.provider.EmailContent.Attachment;
@@ -52,10 +53,11 @@ public class Rfc822OutputTests extends ProviderTestCase2<EmailProvider> {
     private static final String SUBJECT = "This is the subject";
     private static final String BODY = "This is the body.  This is also the body.";
     private static final String TEXT = "Here is some new text.";
-    private static final String REPLY_BODY_SHORT = "\n\n" + SENDER + " wrote:\n\n";
-    private static final String REPLY_BODY = REPLY_BODY_SHORT + ">" + BODY;
 
     private Context mMockContext;
+    private String mForwardIntro;
+    private String mReplyIntro;
+    private String mReplyBody;
 
     public Rfc822OutputTests () {
         super(EmailProvider.class, EmailProvider.EMAIL_AUTHORITY);
@@ -65,6 +67,10 @@ public class Rfc822OutputTests extends ProviderTestCase2<EmailProvider> {
     public void setUp() throws Exception {
         super.setUp();
         mMockContext = getMockContext();
+        mForwardIntro = mMockContext.getString(R.string.message_compose_fwd_header_fmt, SUBJECT,
+                SENDER, RECIPIENT_TO, RECIPIENT_CC);
+        mReplyIntro = mMockContext.getString(R.string.message_compose_reply_header_fmt, SENDER);
+        mReplyBody = mReplyIntro + ">" + BODY;
     }
 
     // TODO Create more tests here.  Specifically, we should test to make sure that forward works
@@ -73,16 +79,10 @@ public class Rfc822OutputTests extends ProviderTestCase2<EmailProvider> {
     // TODO Write test that ensures that bcc is handled properly (i.e. sent/not send depending
     // on the flag passed to writeTo
 
-    // TODO Localize the following test, which will not work properly in other than English
-    // speaking locales!
-
     /**
      * Test for buildBodyText().
      * Compare with expected values.
      * Also test the situation where the message has no body.
-     *
-     * WARNING: This test is NOT localized, so it will fail if run on a device in a
-     * non-English speaking locale!
      */
     public void testBuildBodyTextWithReply() {
         // Create the least necessary; sender, flags, and the body of the reply
@@ -91,18 +91,18 @@ public class Rfc822OutputTests extends ProviderTestCase2<EmailProvider> {
         msg.mFrom = SENDER;
         msg.mFlags = Message.FLAG_TYPE_REPLY;
         msg.mTextReply = BODY;
-        msg.mIntroText = REPLY_BODY_SHORT;
+        msg.mIntroText = mReplyIntro;
         msg.save(mMockContext);
 
         String body = Rfc822Output.buildBodyText(mMockContext, msg, true);
-        assertEquals(REPLY_BODY, body);
+        assertEquals(mReplyBody, body);
 
         // Save a different message with no reply body (so we reset the id)
         msg.mId = -1;
         msg.mTextReply = null;
         msg.save(mMockContext);
         body = Rfc822Output.buildBodyText(mMockContext, msg, true);
-        assertEquals(REPLY_BODY_SHORT, body);
+        assertEquals(mReplyIntro, body);
     }
 
     /**
@@ -117,18 +117,37 @@ public class Rfc822OutputTests extends ProviderTestCase2<EmailProvider> {
         msg.mFrom = SENDER;
         msg.mFlags = Message.FLAG_TYPE_REPLY;
         msg.mTextReply = BODY;
-        msg.mIntroText = REPLY_BODY_SHORT;
+        msg.mIntroText = mReplyIntro;
         msg.save(mMockContext);
 
         String body = Rfc822Output.buildBodyText(mMockContext, msg, false);
-        assertEquals(TEXT + REPLY_BODY_SHORT, body);
+        assertEquals(TEXT + mReplyIntro, body);
 
         // Save a different message with no reply body (so we reset the id)
         msg.mId = -1;
         msg.mTextReply = null;
         msg.save(mMockContext);
         body = Rfc822Output.buildBodyText(mMockContext, msg, false);
-        assertEquals(TEXT + REPLY_BODY_SHORT, body);
+        assertEquals(TEXT + mReplyIntro, body);
+    }
+
+    /**
+     * Test for buildBodyText().
+     * Compare with expected values.
+     */
+    public void testBuildBodyTextWithForward() {
+        Message msg = new Message();
+        msg.mText = TEXT;
+        msg.mFrom = SENDER;
+        msg.mTo = RECIPIENT_TO;
+        msg.mCc = RECIPIENT_CC;
+        msg.mSubject = SUBJECT;
+        msg.mFlags = Message.FLAG_TYPE_FORWARD;
+        msg.mTextReply = BODY;
+        msg.mIntroText = mForwardIntro;
+        msg.save(mMockContext);
+        String body = Rfc822Output.buildBodyText(mMockContext, msg, true);
+        assertEquals(TEXT + mForwardIntro + BODY, body);
     }
 
     public void testWriteToText() throws IOException, MessagingException {
@@ -201,6 +220,7 @@ public class Rfc822OutputTests extends ProviderTestCase2<EmailProvider> {
         assertNull(header.getField("content-disposition"));
     }
 
+    @SuppressWarnings("unchecked")
     public void testWriteToMixedPart() throws IOException, MessagingException {
         // Create a message with a mixed part
         Message msg = new Message();
