@@ -57,9 +57,7 @@ import android.os.Handler;
 import android.provider.Browser;
 import android.provider.ContactsContract;
 import android.provider.ContactsContract.CommonDataKinds;
-import android.provider.ContactsContract.Contacts;
 import android.provider.ContactsContract.QuickContact;
-import android.provider.ContactsContract.StatusUpdates;
 import android.text.TextUtils;
 import android.util.Log;
 import android.util.Patterns;
@@ -98,9 +96,6 @@ public class MessageView extends Activity implements OnClickListener {
     private static final Pattern IMG_TAG_START_REGEX = Pattern.compile("<(?i)img\\s+");
     // Regex that matches Web URL protocol part as case insensitive.
     private static final Pattern WEB_URL_PROTOCOL = Pattern.compile("(?i)http|https://");
-
-    private static final String[] PRESENCE_STATUS_PROJECTION =
-        new String[] { Contacts.CONTACT_PRESENCE };
 
     private static int PREVIEW_ICON_WIDTH = 62;
     private static int PREVIEW_ICON_HEIGHT = 62;
@@ -149,7 +144,7 @@ public class MessageView extends Activity implements OnClickListener {
     private LoadMessageTask mLoadMessageTask;
     private LoadBodyTask mLoadBodyTask;
     private LoadAttachmentsTask mLoadAttachmentsTask;
-    private PresenceCheckTask mPresenceCheckTask;
+    private PresenceUpdater mPresenceUpdater;
 
     private long mLoadAttachmentId;         // the attachment being saved/viewed
     private boolean mLoadAttachmentSave;    // if true, saving - if false, viewing
@@ -223,6 +218,7 @@ public class MessageView extends Activity implements OnClickListener {
 
         mControllerCallback = new ControllerResultUiThreadWrapper<ControllerResults>(
                 new Handler(), new ControllerResults());
+        mPresenceUpdater = new PresenceUpdater(this);
 
         mSubjectView = (TextView) findViewById(R.id.subject);
         mFromView = (TextView) findViewById(R.id.from);
@@ -385,8 +381,7 @@ public class MessageView extends Activity implements OnClickListener {
         mLoadAttachmentsTask = null;
         Utility.cancelTaskInterrupt(mLoadMessageListTask);
         mLoadMessageListTask = null;
-        Utility.cancelTaskInterrupt(mPresenceCheckTask);
-        mPresenceCheckTask = null;
+        mPresenceUpdater.cancelAll();
     }
 
     /**
@@ -944,38 +939,8 @@ public class MessageView extends Activity implements OnClickListener {
         mAttachments.setVisibility(View.VISIBLE);
     }
 
-    private class PresenceCheckTask extends AsyncTask<String, Void, Integer> {
-        @Override
-        protected Integer doInBackground(String... emails) {
-            Cursor cursor =
-                    getContentResolver().query(ContactsContract.Data.CONTENT_URI,
-                    PRESENCE_STATUS_PROJECTION, CommonDataKinds.Email.DATA + "=?", emails, null);
-            if (cursor != null) {
-                try {
-                    if (cursor.moveToFirst()) {
-                        int status = cursor.getInt(0);
-                        int icon = StatusUpdates.getPresenceIconResourceId(status);
-                        return icon;
-                    }
-                } finally {
-                    cursor.close();
-                }
-            }
-            return 0;
-        }
-
-        @Override
-        protected void onPostExecute(Integer icon) {
-            if (icon == null) {
-                return;
-            }
-            updateSenderPresence(icon);
-        }
-    }
-
     /**
-     * Launch a thread (because of cross-process DB lookup) to check presence of the sender of the
-     * message.  When that thread completes, update the UI.
+     * Start checking presence of the sender of the message.
      *
      * This must only be called when mMessage is null (it will hide presence indications) or when
      * mMessage has already seen its headers loaded.
@@ -987,33 +952,24 @@ public class MessageView extends Activity implements OnClickListener {
      * sufficient.
      */
     private void startPresenceCheck() {
+        // Set "unknown" presence icon.
+        mSenderPresenceView.setImageResource(PresenceUpdater.getPresenceIconResourceId(null));
         if (mMessage != null) {
             Address sender = Address.unpackFirst(mMessage.mFrom);
             if (sender != null) {
                 String email = sender.getAddress();
                 if (email != null) {
-                    mPresenceCheckTask = new PresenceCheckTask();
-                    mPresenceCheckTask.execute(email);
-                    return;
+                    mPresenceUpdater.checkPresence(email, new PresenceUpdater.Callback() {
+                        @Override
+                        public void onPresenceResult(String emailAddress, Integer presenceStatus) {
+                            mSenderPresenceView.setImageResource(
+                                    PresenceUpdater.getPresenceIconResourceId(presenceStatus));
+                        }
+                    });
                 }
             }
         }
-        updateSenderPresence(0);
     }
-
-    /**
-     * Update the actual UI.  Must be called from main thread (or handler)
-     * @param presenceIconId the presence of the sender, 0 for "unknown"
-     */
-    private void updateSenderPresence(int presenceIconId) {
-        if (presenceIconId == 0) {
-            // This is a placeholder used for "unknown" presence, including signed off,
-            // no presence relationship.
-            presenceIconId = R.drawable.presence_inactive;
-        }
-        mSenderPresenceView.setImageResource(presenceIconId);
-    }
-
 
     /**
      * This task finds out the messageId for the previous and next message
