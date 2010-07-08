@@ -23,7 +23,7 @@
     <include layout="@layout/connection_error_banner" />
 
     <fragment
-        android:id="@android:id/list"
+        android:id="@+id/mailbox_list_fragment"
         android:name="com.android.email.activity.MailboxListFragment"
         android:layout_width="match_parent"
         android:layout_height="0dip"

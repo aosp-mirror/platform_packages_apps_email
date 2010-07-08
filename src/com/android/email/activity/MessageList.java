@@ -178,7 +178,7 @@ public class MessageList extends Activity implements OnClickListener,
 
         mControllerCallback = new ControllerResultUiThreadWrapper<ControllerResults>(
                 new Handler(), new ControllerResults());
-        mListFragment = (MessageListFragment) findFragmentById(R.id.list);
+        mListFragment = (MessageListFragment) findFragmentById(R.id.message_list_fragment);
         mMultiSelectPanel = findViewById(R.id.footer_organize);
         mReadUnreadButton = (Button) findViewById(R.id.btn_read_unread);
         mFavoriteButton = (Button) findViewById(R.id.btn_multi_favorite);

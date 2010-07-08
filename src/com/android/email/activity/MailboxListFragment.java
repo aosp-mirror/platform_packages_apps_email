@@ -25,19 +25,17 @@ import com.android.email.provider.EmailContent.Message;
 import com.android.email.provider.EmailContent.MessageColumns;
 
 import android.app.Activity;
-import android.app.Fragment;
+import android.app.ListFragment;
 import android.database.Cursor;
 import android.os.AsyncTask;
 import android.os.Bundle;
 import android.view.ContextMenu;
-import android.view.LayoutInflater;
+import android.view.ContextMenu.ContextMenuInfo;
 import android.view.MenuItem;
 import android.view.View;
-import android.view.ViewGroup;
-import android.view.ContextMenu.ContextMenuInfo;
 import android.widget.AdapterView;
-import android.widget.ListView;
 import android.widget.AdapterView.OnItemClickListener;
+import android.widget.ListView;
 
 /**
  * This fragment presents a list of mailboxes for a given account.  The "API" includes the
@@ -47,7 +45,7 @@ import android.widget.AdapterView.OnItemClickListener;
  *  - provide callbacks for onOpen and onRefresh
  *  - pass-through implementations of onCreateContextMenu() and onContextItemSelected() (temporary)
  */
-public class MailboxListFragment extends Fragment implements OnItemClickListener {
+public class MailboxListFragment extends ListFragment implements OnItemClickListener {
 
     private static final String MAILBOX_SELECTION = MailboxColumns.ACCOUNT_KEY + "=?" +
             " AND " + MailboxColumns.TYPE + "<" + Mailbox.TYPE_NOT_EMAIL +
@@ -63,7 +61,6 @@ public class MailboxListFragment extends Fragment implements OnItemClickListener
 
     // UI Support
     private Activity mActivity;
-    private ListView mListView;
     private MailboxesAdapter mListAdapter;
     private Callback mCallback;
 
@@ -84,23 +81,19 @@ public class MailboxListFragment extends Fragment implements OnItemClickListener
         super.onCreate(savedInstanceState);
     }
 
-    /**
-     * Called to have the fragment instantiate its user interface view.
-     */
     @Override
-    public View onCreateView(LayoutInflater inflater, ViewGroup container,
-            Bundle savedInstanceState) {
+    public void onActivityCreated(Bundle savedInstanceState) {
+        super.onActivityCreated(savedInstanceState);
 
         mActivity = getActivity();
-        mListView = (ListView) inflater.inflate(R.layout.mailbox_list_fragment, container, false);
-        mListView.setOnItemClickListener(this);
-        mListView.setItemsCanFocus(false);
-        registerForContextMenu(mListView);
+
+        ListView listView = getListView();
+        listView.setOnItemClickListener(this);
+        listView.setItemsCanFocus(false);
+        registerForContextMenu(listView);
 
         mListAdapter = new MailboxesAdapter(mActivity);
-        mListView.setAdapter(mListAdapter);
-
-        return mListView;
+        setListAdapter(mListAdapter);
     }
 
     /**
@@ -161,7 +154,7 @@ public class MailboxListFragment extends Fragment implements OnItemClickListener
     @Override
     public void onCreateContextMenu(ContextMenu menu, View v, ContextMenuInfo info) {
         AdapterView.AdapterContextMenuInfo menuInfo = (AdapterView.AdapterContextMenuInfo) info;
-        Cursor c = (Cursor) mListView.getItemAtPosition(menuInfo.position);
+        Cursor c = (Cursor) getListView().getItemAtPosition(menuInfo.position);
         String folderName = Utility.FolderProperties.getInstance(mActivity)
                 .getDisplayName(Integer.valueOf(c.getString(mListAdapter.COLUMN_TYPE)));
         if (folderName == null) {

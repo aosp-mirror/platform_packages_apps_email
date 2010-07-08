@@ -24,7 +24,7 @@
     <include layout="@layout/connection_error_banner" />
 
     <fragment
-        android:id="@+id/list"
+        android:id="@+id/message_list_fragment"
         android:name="com.android.email.activity.MessageListFragment"
         android:layout_width="match_parent"
         android:layout_height="0dip"

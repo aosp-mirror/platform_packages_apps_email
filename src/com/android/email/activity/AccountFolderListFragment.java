@@ -38,16 +38,14 @@ import android.os.AsyncTask;
 import android.os.Bundle;
 import android.os.Handler;
 import android.view.ContextMenu;
-import android.view.LayoutInflater;
+import android.view.ContextMenu.ContextMenuInfo;
 import android.view.MenuItem;
 import android.view.View;
-import android.view.ViewGroup;
-import android.view.ContextMenu.ContextMenuInfo;
 import android.widget.AdapterView;
+import android.widget.AdapterView.OnItemClickListener;
 import android.widget.CursorAdapter;
 import android.widget.ListAdapter;
 import android.widget.ListView;
-import android.widget.AdapterView.OnItemClickListener;
 
 public class AccountFolderListFragment extends ListFragment
         implements OnItemClickListener, AccountsAdapter.Callback  {
@@ -99,20 +97,6 @@ public class AccountFolderListFragment extends ListFragment
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-    }
-
-    /**
-     * Called to have the fragment instantiate its user interface view.
-     *
-     * TODO:  When supported by ListFragment, it should be possible to remove this
-     * and accept the default behavior which would be to create a single ListView.
-     */
-    @Override
-    public View onCreateView(LayoutInflater inflater, ViewGroup container,
-            Bundle savedInstanceState) {
-        View fragmentView =
-                inflater.inflate(R.layout.account_folder_list_fragment, container, false);
-        return fragmentView;
     }
 
     /**

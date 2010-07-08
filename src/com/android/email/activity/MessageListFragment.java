@@ -29,6 +29,7 @@ import com.android.email.service.MailService;
 
 import android.app.Activity;
 import android.app.Fragment;
+import android.app.ListFragment;
 import android.content.ContentResolver;
 import android.content.ContentUris;
 import android.database.Cursor;
@@ -51,7 +52,7 @@ import java.security.InvalidParameterException;
 import java.util.HashSet;
 import java.util.Set;
 
-public class MessageListFragment extends Fragment implements OnItemClickListener,
+public class MessageListFragment extends ListFragment implements OnItemClickListener,
         OnItemLongClickListener, MessagesAdapter.Callback {
     private static final String STATE_SELECTED_ITEM_TOP =
             "com.android.email.activity.MessageList.selectedItemTop";
@@ -63,7 +64,6 @@ public class MessageListFragment extends Fragment implements OnItemClickListener
     // UI Support
     private Activity mActivity;
     private Callback mCallback = EmptyCallback.INSTANCE;
-    private ListView mListView;
     private View mListFooterView;
     private TextView mListFooterText;
     private View mListFooterProgress;
@@ -145,26 +145,22 @@ public class MessageListFragment extends Fragment implements OnItemClickListener
     }
 
     @Override
-    public View onCreateView(LayoutInflater inflater, ViewGroup container,
-            Bundle savedInstanceState) {
-        mListView = (ListView) inflater.inflate(R.layout.message_list_fragment, container, false);
-        mListView.setOnItemClickListener(this);
-        mListView.setOnItemLongClickListener(this);
-        mListView.setItemsCanFocus(false);
+    public void onActivityCreated(Bundle savedInstanceState) {
+        super.onActivityCreated(savedInstanceState);
+
+        ListView listView = getListView();
+        listView.setOnItemClickListener(this);
+        listView.setOnItemLongClickListener(this);
+        listView.setItemsCanFocus(false);
 
         mListAdapter = new MessagesAdapter(mActivity, new Handler(), this);
-        mListView.setAdapter(mListAdapter);
+        setListAdapter(mListAdapter);
 
-        mListFooterView = inflater.inflate(R.layout.message_list_item_footer, mListView, false);
+        mListFooterView = getActivity().getLayoutInflater().inflate(
+                R.layout.message_list_item_footer, listView, false);
 
         // TODO extend this to properly deal with multiple mailboxes, cursor, etc.
 
-        return mListView;
-    }
-
-    @Override
-    public void onActivityCreated(Bundle savedInstanceState) {
-        super.onActivityCreated(savedInstanceState);
         if (savedInstanceState != null) {
             // Fragment doesn't have this method.  Call it manually.
             onRestoreInstanceState(savedInstanceState);
@@ -242,10 +238,6 @@ public class MessageListFragment extends Fragment implements OnItemClickListener
         Utility.cancelTaskInterrupt(mLoadMessagesTask);
         mLoadMessagesTask = new LoadMessagesTask(mailboxId, accountId);
         mLoadMessagesTask.execute();
-    }
-
-    private ListView getListView() {
-        return mListView;
     }
 
     /* package */ MessagesAdapter getAdapterForTest() {
