@@ -94,7 +94,7 @@ public class AccountFolderListFragment extends ListFragment
 
     /**
      * Called to do initial creation of a fragment.  This is called after
-     * {@link #onAttach(Activity)} and before {@link #onReady(Bundle)}.
+     * {@link #onAttach(Activity)} and before {@link #onActivityCreated(Bundle)}.
      */
     @Override
     public void onCreate(Bundle savedInstanceState) {
@@ -127,8 +127,8 @@ public class AccountFolderListFragment extends ListFragment
      * Called when the fragment is instantiated, but not yet displayed.
      */
     @Override
-    public void onReady(Bundle savedInstanceState) {
-        super.onReady(savedInstanceState);
+    public void onActivityCreated(Bundle savedInstanceState) {
+        super.onActivityCreated(savedInstanceState);
         mActivity = getActivity();
 
         mListView = getListView();

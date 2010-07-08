@@ -77,7 +77,7 @@ public class MailboxListFragment extends Fragment implements OnItemClickListener
 
     /**
      * Called to do initial creation of a fragment.  This is called after
-     * {@link #onAttach(Activity)} and before {@link #onReady(Bundle)}.
+     * {@link #onAttach(Activity)} and before {@link #onActivityCreated(Bundle)}.
      */
     @Override
     public void onCreate(Bundle savedInstanceState) {

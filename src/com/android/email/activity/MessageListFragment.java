@@ -163,8 +163,8 @@ public class MessageListFragment extends Fragment implements OnItemClickListener
     }
 
     @Override
-    public void onReady(Bundle savedInstanceState) {
-        super.onReady(savedInstanceState);
+    public void onActivityCreated(Bundle savedInstanceState) {
+        super.onActivityCreated(savedInstanceState);
         if (savedInstanceState != null) {
             // Fragment doesn't have this method.  Call it manually.
             onRestoreInstanceState(savedInstanceState);
