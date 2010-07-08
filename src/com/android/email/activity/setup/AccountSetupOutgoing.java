@@ -20,6 +20,7 @@ import com.android.email.AccountBackupRestore;
 import com.android.email.R;
 import com.android.email.Utility;
 import com.android.email.provider.EmailContent;
+import com.android.email.provider.EmailContent.Account;
 
 import android.app.Activity;
 import android.content.Intent;
@@ -44,10 +45,6 @@ import java.net.URISyntaxException;
 
 public class AccountSetupOutgoing extends Activity implements OnClickListener,
         OnCheckedChangeListener {
-    private static final String EXTRA_ACCOUNT = "account";
-
-    private static final String EXTRA_MAKE_DEFAULT = "makeDefault";
-
     private static final int SMTP_PORTS[] = {
             587, 465, 465, 587, 587
     };
@@ -64,23 +61,14 @@ public class AccountSetupOutgoing extends Activity implements OnClickListener,
     private ViewGroup mRequireLoginSettingsView;
     private Spinner mSecurityTypeView;
     private Button mNextButton;
-    private EmailContent.Account mAccount;
-    private boolean mMakeDefault;
 
-    public static void actionOutgoingSettings(Activity fromActivity, EmailContent.Account account, 
-            boolean makeDefault) {
-        Intent i = new Intent(fromActivity, AccountSetupOutgoing.class);
-        i.putExtra(EXTRA_ACCOUNT, account);
-        i.putExtra(EXTRA_MAKE_DEFAULT, makeDefault);
-        fromActivity.startActivity(i);
+    public static void actionOutgoingSettings(Activity fromActivity, int mode, Account acct) {
+        SetupData.init(mode, acct);
+        fromActivity.startActivity(new Intent(fromActivity, AccountSetupOutgoing.class));
     }
 
-    public static void actionEditOutgoingSettings(Activity fromActivity,
-            EmailContent.Account account) {
-        Intent i = new Intent(fromActivity, AccountSetupOutgoing.class);
-        i.setAction(Intent.ACTION_EDIT);
-        i.putExtra(EXTRA_ACCOUNT, account);
-        fromActivity.startActivity(i);
+    public static void actionEditOutgoingSettings(Activity fromActivity, int mode, Account acct) {
+        actionOutgoingSettings(fromActivity, mode, acct);
     }
 
     @Override
@@ -96,7 +84,6 @@ public class AccountSetupOutgoing extends Activity implements OnClickListener,
         mRequireLoginSettingsView = (ViewGroup)findViewById(R.id.account_require_login_settings);
         mSecurityTypeView = (Spinner)findViewById(R.id.account_security_type);
         mNextButton = (Button)findViewById(R.id.next);
-
         mNextButton.setOnClickListener(this);
         mRequireLoginView.setOnCheckedChangeListener(this);
 
@@ -153,20 +140,9 @@ public class AccountSetupOutgoing extends Activity implements OnClickListener,
          */
         mPortView.setKeyListener(DigitsKeyListener.getInstance("0123456789"));
 
-        mAccount = (EmailContent.Account)getIntent().getParcelableExtra(EXTRA_ACCOUNT);
-        mMakeDefault = getIntent().getBooleanExtra(EXTRA_MAKE_DEFAULT, false);
-
-        /*
-         * If we're being reloaded we override the original account with the one
-         * we saved
-         */
-        if (savedInstanceState != null && savedInstanceState.containsKey(EXTRA_ACCOUNT)) {
-            mAccount = (EmailContent.Account)savedInstanceState.getParcelable(EXTRA_ACCOUNT);
-        }
-
         try {
             // TODO this should be accessed directly via the HostAuth structure
-            URI uri = new URI(mAccount.getSenderUri(this));
+            URI uri = new URI(SetupData.getAccount().getSenderUri(this));
             String username = null;
             String password = null;
             if (uri.getUserInfo() != null) {
@@ -211,23 +187,17 @@ public class AccountSetupOutgoing extends Activity implements OnClickListener,
         validateFields();
     }
 
-    @Override
-    public void onSaveInstanceState(Bundle outState) {
-        super.onSaveInstanceState(outState);
-        outState.putParcelable(EXTRA_ACCOUNT, mAccount);
-    }
-
     /**
      * Preflight the values in the fields and decide if it makes sense to enable the "next" button
-     * NOTE:  Does it make sense to extract & combine with similar code in AccountSetupIncoming? 
+     * NOTE:  Does it make sense to extract & combine with similar code in AccountSetupIncoming?
      */
     private void validateFields() {
-        boolean enabled = 
-            Utility.requiredFieldValid(mServerView) && Utility.requiredFieldValid(mPortView);
+        boolean enabled =
+            Utility.isTextViewNotEmpty(mServerView) && Utility.isPortFieldValid(mPortView);
 
         if (enabled && mRequireLoginView.isChecked()) {
-            enabled = (Utility.requiredFieldValid(mUsernameView)
-                    && Utility.requiredFieldValid(mPasswordView));
+            enabled = (Utility.isTextViewNotEmpty(mUsernameView)
+                    && Utility.isTextViewNotEmpty(mPasswordView));
         }
 
         if (enabled) {
@@ -248,27 +218,27 @@ public class AccountSetupOutgoing extends Activity implements OnClickListener,
 
     @Override
     public void onActivityResult(int requestCode, int resultCode, Intent data) {
+        EmailContent.Account account = SetupData.getAccount();
         if (resultCode == RESULT_OK) {
-            if (Intent.ACTION_EDIT.equals(getIntent().getAction())) {
-                if (mAccount.isSaved()) {
-                    mAccount.update(this, mAccount.toContentValues());
-                    mAccount.mHostAuthSend.update(this, mAccount.mHostAuthSend.toContentValues());
+            if (SetupData.getFlowMode() == SetupData.FLOW_MODE_EDIT) {
+                if (account.isSaved()) {
+                    account.update(this, account.toContentValues());
+                    account.mHostAuthSend.update(this, account.mHostAuthSend.toContentValues());
                 } else {
-                    mAccount.save(this);
+                    account.save(this);
                 }
                 // Update the backup (side copy) of the accounts
                 AccountBackupRestore.backupAccounts(this);
                 finish();
             } else {
-                AccountSetupOptions.actionOptions(this, mAccount, mMakeDefault,
-                        /*easFlowMode*/false, /*policySet*/null);
+                AccountSetupOptions.actionOptions(this);
                 finish();
             }
         }
     }
     
     /**
-     * Attempt to create a URI from the fields provided.  Throws URISyntaxException if there's 
+     * Attempt to create a URI from the fields provided.  Throws URISyntaxException if there's
      * a problem with the user input.
      * @return a URI built from the account setup fields
      */
@@ -289,11 +259,12 @@ public class AccountSetupOutgoing extends Activity implements OnClickListener,
         return uri;
     }
 
-    private void onNext() {       
+    private void onNext() {
+        EmailContent.Account account = SetupData.getAccount();
         try {
             // TODO this should be accessed directly via the HostAuth structure
             URI uri = getUri();
-            mAccount.setSenderUri(this, uri.toString());
+            account.setSenderUri(this, uri.toString());
         } catch (URISyntaxException use) {
             /*
              * It's unrecoverable if we cannot create a URI from components that
@@ -301,7 +272,7 @@ public class AccountSetupOutgoing extends Activity implements OnClickListener,
              */
             throw new Error(use);
         }
-        AccountSetupCheckSettings.actionValidateSettings(this, mAccount, false, true);
+        AccountSetupCheckSettings.actionCheckSettings(this, SetupData.CHECK_OUTGOING);
     }
 
     public void onClick(View v) {

@@ -16,18 +16,12 @@
 
 package com.android.email.mail.store;
 
-import com.android.email.Email;
 import com.android.email.ExchangeUtils;
 import com.android.email.mail.Folder;
 import com.android.email.mail.MessagingException;
 import com.android.email.mail.Store;
 import com.android.email.mail.StoreSynchronizer;
-import com.android.email.provider.EmailContent.Account;
-import com.android.email.service.EasAuthenticatorService;
 
-import android.accounts.AccountManager;
-import android.accounts.AccountManagerCallback;
-import android.accounts.AccountManagerFuture;
 import android.content.Context;
 import android.os.Bundle;
 import android.os.RemoteException;
@@ -76,37 +70,6 @@ public class ExchangeStore extends Store {
     @Override
     public Bundle checkSettings() throws MessagingException {
         return mTransport.checkSettings(mUri);
-    }
-
-    static public AccountManagerFuture<Bundle> addSystemAccount(Context context, Account acct,
-            boolean syncContacts, boolean syncCalendar, AccountManagerCallback<Bundle> callback) {
-        // Create a description of the new account
-        Bundle options = new Bundle();
-        options.putString(EasAuthenticatorService.OPTIONS_USERNAME, acct.mEmailAddress);
-        options.putString(EasAuthenticatorService.OPTIONS_PASSWORD, acct.mHostAuthRecv.mPassword);
-        options.putBoolean(EasAuthenticatorService.OPTIONS_CONTACTS_SYNC_ENABLED, syncContacts);
-        options.putBoolean(EasAuthenticatorService.OPTIONS_CALENDAR_SYNC_ENABLED, syncCalendar);
-
-        // Here's where we tell AccountManager about the new account.  The addAccount
-        // method in AccountManager calls the addAccount method in our authenticator
-        // service (EasAuthenticatorService)
-        return AccountManager.get(context).addAccount(Email.EXCHANGE_ACCOUNT_MANAGER_TYPE,
-                null, null, options, null, callback, null);
-    }
-
-    /**
-     * Remove an account from the Account manager - see {@link AccountManager#removeAccount(
-     * android.accounts.Account, AccountManagerCallback, android.os.Handler)}.
-     *
-     * @param context context to use
-     * @param acct the account to remove
-     * @param callback async results callback - pass null to use blocking mode
-     */
-    static public AccountManagerFuture<Boolean> removeSystemAccount(Context context, Account acct,
-            AccountManagerCallback<Bundle> callback) {
-        android.accounts.Account systemAccount =
-            new android.accounts.Account(acct.mEmailAddress, Email.EXCHANGE_ACCOUNT_MANAGER_TYPE);
-        return AccountManager.get(context).removeAccount(systemAccount, null, null);
     }
 
     @Override

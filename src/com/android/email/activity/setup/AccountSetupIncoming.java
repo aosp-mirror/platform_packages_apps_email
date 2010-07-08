@@ -43,10 +43,7 @@ import android.widget.TextView;
 import java.net.URI;
 import java.net.URISyntaxException;
 
-public class AccountSetupIncoming extends Activity implements OnClickListener {
-    private static final String EXTRA_ACCOUNT = "account";
-    private static final String EXTRA_MAKE_DEFAULT = "makeDefault";
-
+public class AccountSetupIncoming extends AccountSetupActivity implements OnClickListener {
     private static final int POP_PORTS[] = {
             110, 995, 995, 110, 110
     };
@@ -72,25 +69,18 @@ public class AccountSetupIncoming extends Activity implements OnClickListener {
     private Spinner mDeletePolicyView;
     private EditText mImapPathPrefixView;
     private Button mNextButton;
-    private EmailContent.Account mAccount;
-    private boolean mMakeDefault;
     private String mCacheLoginCredential;
     private String mDuplicateAccountName;
 
-    public static void actionIncomingSettings(Activity fromActivity, EmailContent.Account account,
-            boolean makeDefault) {
-        Intent i = new Intent(fromActivity, AccountSetupIncoming.class);
-        i.putExtra(EXTRA_ACCOUNT, account);
-        i.putExtra(EXTRA_MAKE_DEFAULT, makeDefault);
-        fromActivity.startActivity(i);
+    public static void actionIncomingSettings(Activity fromActivity, int mode,
+            EmailContent.Account account) {
+        SetupData.init(mode, account);
+        fromActivity.startActivity(new Intent(fromActivity, AccountSetupIncoming.class));
     }
 
-    public static void actionEditIncomingSettings(Activity fromActivity, EmailContent.Account account)
-            {
-        Intent i = new Intent(fromActivity, AccountSetupIncoming.class);
-        i.setAction(Intent.ACTION_EDIT);
-        i.putExtra(EXTRA_ACCOUNT, account);
-        fromActivity.startActivity(i);
+    public static void actionEditIncomingSettings(Activity fromActivity, int mode,
+            EmailContent.Account account) {
+        actionIncomingSettings(fromActivity, mode, account);
     }
 
     @Override
@@ -107,7 +97,6 @@ public class AccountSetupIncoming extends Activity implements OnClickListener {
         mDeletePolicyView = (Spinner)findViewById(R.id.account_delete_policy);
         mImapPathPrefixView = (EditText)findViewById(R.id.imap_path_prefix);
         mNextButton = (Button)findViewById(R.id.next);
-
         mNextButton.setOnClickListener(this);
 
         SpinnerOption securityTypes[] = {
@@ -176,20 +165,10 @@ public class AccountSetupIncoming extends Activity implements OnClickListener {
          */
         mPortView.setKeyListener(DigitsKeyListener.getInstance("0123456789"));
 
-        mAccount = (EmailContent.Account)getIntent().getParcelableExtra(EXTRA_ACCOUNT);
-        mMakeDefault = getIntent().getBooleanExtra(EXTRA_MAKE_DEFAULT, false);
-
-        /*
-         * If we're being reloaded we override the original account with the one
-         * we saved
-         */
-        if (savedInstanceState != null && savedInstanceState.containsKey(EXTRA_ACCOUNT)) {
-            mAccount = (EmailContent.Account)savedInstanceState.getParcelable(EXTRA_ACCOUNT);
-        }
-
         try {
             // TODO this should be accessed directly via the HostAuth structure
-            URI uri = new URI(mAccount.getStoreUri(this));
+            EmailContent.Account account = SetupData.getAccount();
+            URI uri = new URI(account.getStoreUri(this));
             String username = null;
             String password = null;
             if (uri.getUserInfo() != null) {
@@ -225,7 +204,7 @@ public class AccountSetupIncoming extends Activity implements OnClickListener {
                     mImapPathPrefixView.setText(uri.getPath().substring(1));
                 }
             } else {
-                throw new Error("Unknown account type: " + mAccount.getStoreUri(this));
+                throw new Error("Unknown account type: " + account.getStoreUri(this));
             }
 
             for (int i = 0; i < mAccountSchemes.length; i++) {
@@ -234,7 +213,7 @@ public class AccountSetupIncoming extends Activity implements OnClickListener {
                 }
             }
 
-            SpinnerOption.setSpinnerOptionValue(mDeletePolicyView, mAccount.getDeletePolicy());
+            SpinnerOption.setSpinnerOptionValue(mDeletePolicyView, account.getDeletePolicy());
 
             if (uri.getHost() != null) {
                 mServerView.setText(uri.getHost());
@@ -253,12 +232,6 @@ public class AccountSetupIncoming extends Activity implements OnClickListener {
         }
 
         validateFields();
-    }
-
-    @Override
-    public void onSaveInstanceState(Bundle outState) {
-        super.onSaveInstanceState(outState);
-        outState.putParcelable(EXTRA_ACCOUNT, mAccount);
     }
 
     /**
@@ -302,13 +275,13 @@ public class AccountSetupIncoming extends Activity implements OnClickListener {
 
     /**
      * Check the values in the fields and decide if it makes sense to enable the "next" button
-     * NOTE:  Does it make sense to extract & combine with similar code in AccountSetupIncoming? 
+     * NOTE:  Does it make sense to extract & combine with similar code in AccountSetupIncoming?
      */
     private void validateFields() {
-        boolean enabled = Utility.requiredFieldValid(mUsernameView)
-                && Utility.requiredFieldValid(mPasswordView)
-                && Utility.requiredFieldValid(mServerView)
-                && Utility.requiredFieldValid(mPortView);
+        boolean enabled = Utility.isTextViewNotEmpty(mUsernameView)
+                && Utility.isTextViewNotEmpty(mPasswordView)
+                && Utility.isTextViewNotEmpty(mServerView)
+                && Utility.isPortFieldValid(mPortView);
         if (enabled) {
             try {
                 URI uri = getUri();
@@ -328,12 +301,13 @@ public class AccountSetupIncoming extends Activity implements OnClickListener {
     @Override
     public void onActivityResult(int requestCode, int resultCode, Intent data) {
         if (resultCode == RESULT_OK) {
-            if (Intent.ACTION_EDIT.equals(getIntent().getAction())) {
-                if (mAccount.isSaved()) {
-                    mAccount.update(this, mAccount.toContentValues());
-                    mAccount.mHostAuthRecv.update(this, mAccount.mHostAuthRecv.toContentValues());
+            EmailContent.Account account = SetupData.getAccount();
+            if (SetupData.getFlowMode() == SetupData.FLOW_MODE_EDIT) {
+                if (account.isSaved()) {
+                    account.update(this, account.toContentValues());
+                    account.mHostAuthRecv.update(this, account.mHostAuthRecv.toContentValues());
                 } else {
-                    mAccount.save(this);
+                    account.save(this);
                 }
                 // Update the backup (side copy) of the accounts
                 AccountBackupRestore.backupAccounts(this);
@@ -344,17 +318,17 @@ public class AccountSetupIncoming extends Activity implements OnClickListener {
                  * password the user just set for incoming.
                  */
                 try {
-                    URI oldUri = new URI(mAccount.getSenderUri(this));
+                    URI oldUri = new URI(account.getSenderUri(this));
                     URI uri = new URI(
                             oldUri.getScheme(),
-                            mUsernameView.getText().toString().trim() + ":" 
+                            mUsernameView.getText().toString().trim() + ":"
                                     + mPasswordView.getText().toString().trim(),
                             oldUri.getHost(),
                             oldUri.getPort(),
                             null,
                             null,
                             null);
-                    mAccount.setSenderUri(this, uri.toString());
+                    account.setSenderUri(this, uri.toString());
                 } catch (URISyntaxException use) {
                     /*
                      * If we can't set up the URL we just continue. It's only for
@@ -362,14 +336,15 @@ public class AccountSetupIncoming extends Activity implements OnClickListener {
                      */
                 }
 
-                AccountSetupOutgoing.actionOutgoingSettings(this, mAccount, mMakeDefault);
+                AccountSetupOutgoing.actionOutgoingSettings(this, SetupData.getFlowMode(),
+                        SetupData.getAccount());
                 finish();
             }
         }
     }
     
     /**
-     * Attempt to create a URI from the fields provided.  Throws URISyntaxException if there's 
+     * Attempt to create a URI from the fields provided.  Throws URISyntaxException if there's
      * a problem with the user input.
      * @return a URI built from the account setup fields
      */
@@ -394,13 +369,14 @@ public class AccountSetupIncoming extends Activity implements OnClickListener {
     }
 
     private void onNext() {
+        EmailContent.Account setupAccount = SetupData.getAccount();
         try {
             URI uri = getUri();
-            mAccount.setStoreUri(this, uri.toString());
+            setupAccount.setStoreUri(this, uri.toString());
 
             // Stop here if the login credentials duplicate an existing account
             // (unless they duplicate the existing account, as they of course will)
-            EmailContent.Account account = Utility.findExistingAccount(this, mAccount.mId,
+            EmailContent.Account account = Utility.findExistingAccount(this, setupAccount.mId,
                     uri.getHost(), mCacheLoginCredential);
             if (account != null) {
                 mDuplicateAccountName = account.mDisplayName;
@@ -415,8 +391,9 @@ public class AccountSetupIncoming extends Activity implements OnClickListener {
             throw new Error(use);
         }
 
-        mAccount.setDeletePolicy((Integer)((SpinnerOption)mDeletePolicyView.getSelectedItem()).value);
-        AccountSetupCheckSettings.actionValidateSettings(this, mAccount, true, false);
+        setupAccount.setDeletePolicy(
+                (Integer)((SpinnerOption)mDeletePolicyView.getSelectedItem()).value);
+        AccountSetupCheckSettings.actionCheckSettings(this, SetupData.CHECK_INCOMING);
     }
 
     public void onClick(View v) {

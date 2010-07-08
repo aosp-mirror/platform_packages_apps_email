@@ -21,7 +21,6 @@ import com.android.email.ExchangeUtils;
 import com.android.email.R;
 import com.android.email.Utility;
 import com.android.email.SecurityPolicy.PolicySet;
-import com.android.email.provider.EmailContent;
 import com.android.email.provider.EmailContent.Account;
 import com.android.email.provider.EmailContent.HostAuth;
 import com.android.email.service.EmailServiceProxy;
@@ -88,13 +87,8 @@ import java.net.URISyntaxException;
  * we don't want to restart on every orientation - this would launch autodiscover again.
  * Do not attempt to define orientation-specific resources, they won't be loaded.
  */
-public class AccountSetupExchange extends Activity implements OnClickListener,
+public class AccountSetupExchange extends AccountSetupActivity implements OnClickListener,
         OnCheckedChangeListener {
-    /*package*/ static final String EXTRA_ACCOUNT = "account";
-    private static final String EXTRA_MAKE_DEFAULT = "makeDefault";
-    private static final String EXTRA_EAS_FLOW = "easFlow";
-    /*package*/ static final String EXTRA_DISABLE_AUTO_DISCOVER = "disableAutoDiscover";
-
     private final static int DIALOG_DUPLICATE_ACCOUNT = 1;
 
     private EditText mUsernameView;
@@ -104,41 +98,24 @@ public class AccountSetupExchange extends Activity implements OnClickListener,
     private CheckBox mTrustCertificatesView;
 
     private Button mNextButton;
-    private Account mAccount;
-    private boolean mMakeDefault;
     private String mCacheLoginCredential;
     private String mDuplicateAccountName;
 
-    public static void actionIncomingSettings(Activity fromActivity, Account account,
-            boolean makeDefault, boolean easFlowMode, boolean allowAutoDiscover) {
-        Intent i = new Intent(fromActivity, AccountSetupExchange.class);
-        i.putExtra(EXTRA_ACCOUNT, account);
-        i.putExtra(EXTRA_MAKE_DEFAULT, makeDefault);
-        i.putExtra(EXTRA_EAS_FLOW, easFlowMode);
-        if (!allowAutoDiscover) {
-            i.putExtra(EXTRA_DISABLE_AUTO_DISCOVER, true);
-        }
-        fromActivity.startActivity(i);
+    public static void actionIncomingSettings(Activity fromActivity, int mode, Account acct) {
+        SetupData.init(mode, acct);
+        fromActivity.startActivity(new Intent(fromActivity, AccountSetupExchange.class));
     }
 
-    public static void actionEditIncomingSettings(Activity fromActivity, Account account)
-            {
-        Intent i = new Intent(fromActivity, AccountSetupExchange.class);
-        i.setAction(Intent.ACTION_EDIT);
-        i.putExtra(EXTRA_ACCOUNT, account);
-        fromActivity.startActivity(i);
+    public static void actionEditIncomingSettings(Activity fromActivity, int mode, Account acct) {
+        actionIncomingSettings(fromActivity, mode, acct);
     }
 
     /**
      * For now, we'll simply replicate outgoing, for the purpose of satisfying the
      * account settings flow.
      */
-    public static void actionEditOutgoingSettings(Activity fromActivity, Account account)
-            {
-        Intent i = new Intent(fromActivity, AccountSetupExchange.class);
-        i.setAction(Intent.ACTION_EDIT);
-        i.putExtra(EXTRA_ACCOUNT, account);
-        fromActivity.startActivity(i);
+    public static void actionEditOutgoingSettings(Activity fromActivity, int mode, Account acct) {
+        actionIncomingSettings(fromActivity, mode, acct);
     }
 
     @Override
@@ -175,32 +152,19 @@ public class AccountSetupExchange extends Activity implements OnClickListener,
         mPasswordView.addTextChangedListener(validationTextWatcher);
         mServerView.addTextChangedListener(validationTextWatcher);
 
-        Intent intent = getIntent();
-        mAccount = (EmailContent.Account) intent.getParcelableExtra(EXTRA_ACCOUNT);
-        mMakeDefault = intent.getBooleanExtra(EXTRA_MAKE_DEFAULT, false);
-
-        /*
-         * If we're being reloaded we override the original account with the one
-         * we saved
-         */
-        if (savedInstanceState != null && savedInstanceState.containsKey(EXTRA_ACCOUNT)) {
-            mAccount = (EmailContent.Account) savedInstanceState.getParcelable(EXTRA_ACCOUNT);
-        }
-
-        loadFields(mAccount);
+        Account account = SetupData.getAccount();
+        loadFields(account);
         validateFields();
 
         // If we've got a username and password and we're NOT editing, try autodiscover
-        String username = mAccount.mHostAuthRecv.mLogin;
-        String password = mAccount.mHostAuthRecv.mPassword;
+        String username = account.mHostAuthRecv.mLogin;
+        String password = account.mHostAuthRecv.mPassword;
+        Intent intent = getIntent();
         if (username != null && password != null &&
-                !Intent.ACTION_EDIT.equals(intent.getAction())) {
+                SetupData.getFlowMode() != SetupData.FLOW_MODE_EDIT) {
             // NOTE: Disabling AutoDiscover is only used in unit tests
-            boolean disableAutoDiscover =
-                intent.getBooleanExtra(EXTRA_DISABLE_AUTO_DISCOVER, false);
-            if (!disableAutoDiscover) {
-                AccountSetupCheckSettings
-                    .actionAutoDiscover(this, mAccount, mAccount.mEmailAddress, password);
+            if (SetupData.isAllowAutodiscover()) {
+                AccountSetupCheckSettings.actionAutoDiscover(this, account.mEmailAddress, password);
             }
         }
 
@@ -214,14 +178,8 @@ public class AccountSetupExchange extends Activity implements OnClickListener,
         //EXCHANGE-REMOVE-SECTION-END
     }
 
-    @Override
-    public void onSaveInstanceState(Bundle outState) {
-        super.onSaveInstanceState(outState);
-        outState.putParcelable(EXTRA_ACCOUNT, mAccount);
-    }
-
     private boolean usernameFieldValid(EditText usernameView) {
-        return Utility.requiredFieldValid(usernameView) &&
+        return Utility.isTextViewNotEmpty(usernameView) &&
             !usernameView.getText().toString().equals("\\");
     }
 
@@ -307,8 +265,8 @@ public class AccountSetupExchange extends Activity implements OnClickListener,
      */
     private boolean validateFields() {
         boolean enabled = usernameFieldValid(mUsernameView)
-                && Utility.requiredFieldValid(mPasswordView)
-                && Utility.requiredFieldValid(mServerView);
+                && Utility.isTextViewNotEmpty(mPasswordView)
+                && Utility.isTextViewNotEmpty(mServerView);
         if (enabled) {
             try {
                 URI uri = getUri();
@@ -322,8 +280,7 @@ public class AccountSetupExchange extends Activity implements OnClickListener,
     }
 
     private void doOptions(PolicySet policySet) {
-        boolean easFlowMode = getIntent().getBooleanExtra(EXTRA_EAS_FLOW, false);
-        AccountSetupOptions.actionOptions(this, mAccount, mMakeDefault, easFlowMode, policySet);
+        AccountSetupOptions.actionOptions(this);
         finish();
     }
 
@@ -338,7 +295,7 @@ public class AccountSetupExchange extends Activity implements OnClickListener,
     @Override
     public void onActivityResult(int requestCode, int resultCode, Intent data) {
         if (requestCode == AccountSetupCheckSettings.REQUEST_CODE_VALIDATE) {
-            if (Intent.ACTION_EDIT.equals(getIntent().getAction())) {
+            if (SetupData.getFlowMode() == SetupData.FLOW_MODE_EDIT) {
                 doActivityResultValidateExistingAccount(resultCode, data);
             } else {
                 doActivityResultValidateNewAccount(resultCode, data);
@@ -352,26 +309,27 @@ public class AccountSetupExchange extends Activity implements OnClickListener,
      * Process activity result when validating existing account
      */
     private void doActivityResultValidateExistingAccount(int resultCode, Intent data) {
+        Account account = SetupData.getAccount();
         if (resultCode == RESULT_OK) {
-            if (mAccount.isSaved()) {
+            if (account.isSaved()) {
                 // Account.update will NOT save the HostAuth's
-                mAccount.update(this, mAccount.toContentValues());
-                mAccount.mHostAuthRecv.update(this,
-                        mAccount.mHostAuthRecv.toContentValues());
-                mAccount.mHostAuthSend.update(this,
-                        mAccount.mHostAuthSend.toContentValues());
-                if (mAccount.mHostAuthRecv.mProtocol.equals("eas")) {
+                account.update(this, account.toContentValues());
+                account.mHostAuthRecv.update(this,
+                        account.mHostAuthRecv.toContentValues());
+                account.mHostAuthSend.update(this,
+                        account.mHostAuthSend.toContentValues());
+                if (account.mHostAuthRecv.mProtocol.equals("eas")) {
                     // For EAS, notify SyncManager that the password has changed
                     try {
                         ExchangeUtils.getExchangeEmailService(this, null)
-                        .hostChanged(mAccount.mId);
+                            .hostChanged(account.mId);
                     } catch (RemoteException e) {
                         // Nothing to be done if this fails
                     }
                 }
             } else {
                 // Account.save will save the HostAuth's
-                mAccount.save(this);
+                account.save(this);
             }
             // Update the backup (side copy) of the accounts
             AccountBackupRestore.backupAccounts(this);
@@ -413,9 +371,10 @@ public class AccountSetupExchange extends Activity implements OnClickListener,
             Parcelable p = data.getParcelableExtra("HostAuth");
             if (p != null) {
                 HostAuth hostAuth = (HostAuth)p;
-                mAccount.mHostAuthSend = hostAuth;
-                mAccount.mHostAuthRecv = hostAuth;
-                loadFields(mAccount);
+                Account account = SetupData.getAccount();
+                account.mHostAuthSend = hostAuth;
+                account.mHostAuthRecv = hostAuth;
+                loadFields(account);
                 if (validateFields()) {
                     // "click" next to launch server verification
                     onNext();
@@ -465,12 +424,13 @@ public class AccountSetupExchange extends Activity implements OnClickListener,
     private void onNext() {
         try {
             URI uri = getUri();
-            mAccount.setStoreUri(this, uri.toString());
-            mAccount.setSenderUri(this, uri.toString());
+            Account setupAccount = SetupData.getAccount();
+            setupAccount.setStoreUri(this, uri.toString());
+            setupAccount.setSenderUri(this, uri.toString());
 
             // Stop here if the login credentials duplicate an existing account
             // (unless they duplicate the existing account, as they of course will)
-            Account account = Utility.findExistingAccount(this, mAccount.mId,
+            Account account = Utility.findExistingAccount(this, setupAccount.mId,
                     uri.getHost(), mCacheLoginCredential);
             if (account != null) {
                 mDuplicateAccountName = account.mDisplayName;
@@ -485,7 +445,7 @@ public class AccountSetupExchange extends Activity implements OnClickListener,
             throw new Error(use);
         }
 
-        AccountSetupCheckSettings.actionValidateSettings(this, mAccount, true, false);
+        AccountSetupCheckSettings.actionCheckSettings(this, SetupData.CHECK_INCOMING);
     }
 
     public void onClick(View v) {

@@ -19,14 +19,19 @@ package com.android.email.activity;
 import com.android.email.AccountBackupRestore;
 import com.android.email.Email;
 import com.android.email.ExchangeUtils;
+import com.android.email.Utility;
 import com.android.email.activity.setup.AccountSetupBasics;
 import com.android.email.provider.EmailContent;
 import com.android.email.provider.EmailContent.Mailbox;
+import com.android.email.service.MailService;
 
+import android.accounts.AccountManager;
+import android.accounts.OnAccountsUpdateListener;
 import android.app.Activity;
 import android.content.Intent;
 import android.database.Cursor;
 import android.os.Bundle;
+import android.os.Handler;
 
 /**
  * The Welcome activity initializes the application and decides what Activity
@@ -39,6 +44,9 @@ import android.os.Bundle;
  * they can select an account.
  */
 public class Welcome extends Activity {
+
+    private AccountsUpdatedListener mAccountsUpdatedListener;
+    private Handler mHandler = new Handler();
 
     /**
      * Launch this activity.  Note:  It's assumed that this activity is only called as a means to
@@ -78,6 +86,14 @@ public class Welcome extends Activity {
         // TODO More completely separate SyncManager from Email app
         ExchangeUtils.startExchangeService(this);
 
+        // TODO Move this listener code to a more central location
+        // Set up our observer for AccountManager
+        mAccountsUpdatedListener = new AccountsUpdatedListener();
+        AccountManager.get(getApplication()).addOnAccountsUpdatedListener(
+                mAccountsUpdatedListener, mHandler, true);
+        // Run reconciliation to make sure we're up-to-date on account status
+        mAccountsUpdatedListener.onAccountsUpdated(null);
+
         // Find out how many accounts we have, and if there's just one, go directly to it
         Cursor c = null;
         try {
@@ -106,5 +122,26 @@ public class Welcome extends Activity {
 
         // In all cases, do not return to this activity
         finish();
+    }
+
+    @Override
+    public void onDestroy() {
+        super.onDestroy();
+        if (mAccountsUpdatedListener != null) {
+            AccountManager.get(this).removeOnAccountsUpdatedListener(mAccountsUpdatedListener);
+        }
+    }
+
+    /**
+     * Reconcile accounts when accounts are added/removed from AccountManager
+     */
+    public class AccountsUpdatedListener implements OnAccountsUpdateListener {
+        public void onAccountsUpdated(android.accounts.Account[] accounts) {
+            Utility.runAsync(new Runnable() {
+                public void run() {
+                    MailService.reconcilePopImapAccounts(Welcome.this);
+                }
+            });
+        }
     }
 }

@@ -30,13 +30,11 @@ import android.widget.Button;
 
 /**
  * Tests of basic UI logic in the AccountSetupNamesTest screen.
+ * You can run this entire test case with:
+ *   runtest -c com.android.email.activity.setup.AccountSetupNamesTests email
  */
 @MediumTest
 public class AccountSetupNamesTests extends ActivityInstrumentationTestCase2<AccountSetupNames> {
-
-    // borrowed from AccountSetupNames
-    private static final String EXTRA_ACCOUNT_ID = "accountId";
-
     private long mAccountId;
     private EmailContent.Account mAccount;
 
@@ -129,9 +127,7 @@ public class AccountSetupNamesTests extends ActivityInstrumentationTestCase2<Acc
         mAccount.mHostAuthRecv = hostAuth;
         mAccount.save(mContext);
         mAccountId = mAccount.mId;
-
-        Intent i = new Intent(Intent.ACTION_MAIN);
-        i.putExtra(EXTRA_ACCOUNT_ID, mAccountId);
-        return i;
+        SetupData.init(SetupData.FLOW_MODE_NORMAL, mAccount);
+        return new Intent(Intent.ACTION_MAIN);
     }
 }

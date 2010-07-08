@@ -394,8 +394,8 @@ public class AccountSettings extends PreferenceActivity {
                 Class<? extends android.app.Activity> setting = store.getSettingActivityClass();
                 if (setting != null) {
                     java.lang.reflect.Method m = setting.getMethod("actionEditIncomingSettings",
-                            android.app.Activity.class, Account.class);
-                    m.invoke(null, this, mAccount);
+                            Activity.class, Integer.class, Account.class);
+                    m.invoke(null, this, SetupData.FLOW_MODE_EDIT, mAccount);
                     mAccountDirty = true;
                 }
             }
@@ -411,8 +411,8 @@ public class AccountSettings extends PreferenceActivity {
                 Class<? extends android.app.Activity> setting = sender.getSettingActivityClass();
                 if (setting != null) {
                     java.lang.reflect.Method m = setting.getMethod("actionEditOutgoingSettings",
-                            android.app.Activity.class, Account.class);
-                    m.invoke(null, this, mAccount);
+                            Activity.class, Integer.class, Account.class);
+                    m.invoke(null, this, SetupData.FLOW_MODE_EDIT, mAccount);
                     mAccountDirty = true;
                 }
             }

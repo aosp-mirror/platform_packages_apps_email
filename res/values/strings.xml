@@ -504,6 +504,9 @@
     <!-- In Account setup options screen, optional check box to also sync contacts -->
     <string name="account_setup_options_sync_calendar_label">Sync calendar from this account.
     </string>
+    <!-- In Account setup options screen, check box to sync email -->
+    <string name="account_setup_options_sync_email_label">Sync email from this account.
+    </string>
     <!-- Dialog title when "setup" could not finish -->
     <string name="account_setup_failed_dlg_title">Setup could not finish</string>
     <!-- In Account setup options screen, label for email check frequency selector -->
@@ -582,7 +585,7 @@
     <!-- On Settings screen, setting option name -->
     <string name="account_settings_notify_label">Email notifications</string>
     <!-- On Settings screen, summary line when called via AccountManager for Exchange accounts -->
-    <string name="account_settings_exchange_summary">Sync frequency, notifications, etc.</string>
+    <string name="account_settings_summary">Sync frequency, notifications, etc.</string>
     <!-- On Settings screen, setting summary text -->
     <string name="account_settings_notify_summary">Notify in status bar when email arrives</string>
     <!-- On Settings screen, setting option name and title of dialog box that opens -->
@@ -603,15 +606,17 @@
     <string name="account_settings_notifications">Notification settings</string>
 
     <!-- On settings screen, sync contacts check box label -->
-    <string name="account_settings_sync_contacts_enable">Sync contacts</string>
+    <string name="account_settings_sync_contacts_enable">Sync Contacts</string>
     <!-- On settings screen, sync contacts summary text -->
-    <string name="account_settings_sync_contacts_summary">Also sync contacts from this account
-        </string>
+    <string name="account_settings_sync_contacts_summary">Sync contacts for this account</string>
     <!-- On settings screen, sync calendar check box label -->
-        <string name="account_settings_sync_calendar_enable">Sync calendar</string>
+        <string name="account_settings_sync_calendar_enable">Sync Calendar</string>
     <!-- On settings screen, sync calendar summary text -->
-    <string name="account_settings_sync_calendar_summary">Also sync calendar from this account
-        </string>
+    <string name="account_settings_sync_calendar_summary">Sync calendar for this account</string>
+    <!-- On settings screen, sync email check box label -->
+    <string name="account_settings_sync_email_enable">Sync Email</string>
+    <!-- On settings screen, sync email summary text -->
+    <string name="account_settings_sync_email_summary">Sync email for this account</string>
 
     <!-- On Settings screen, vibrate pop-up menu label -->
     <string name="account_settings_vibrate_when_label">Vibrate</string>

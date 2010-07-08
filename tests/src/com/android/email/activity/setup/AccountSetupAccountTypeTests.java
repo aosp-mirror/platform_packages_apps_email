@@ -18,7 +18,6 @@ package com.android.email.activity.setup;
 
 import com.android.email.R;
 import com.android.email.mail.Store;
-import com.android.email.provider.EmailContent;
 import com.android.email.provider.EmailContent.Account;
 
 import android.content.ContentUris;
@@ -33,26 +32,23 @@ import java.util.HashSet;
 
 /**
  * This is a series of unit tests for the AccountSetupAccountType class.
+ * You can run this entire test case with:
+ *   runtest -c com.android.email.activity.setup.AccountSetupAccountTypeTests email
  */
 @SmallTest
-public class AccountSetupAccountTypeUnitTests
+public class AccountSetupAccountTypeTests
         extends ActivityUnitTestCase<AccountSetupAccountType> {
 
-    // Borrowed from AccountSetupAccountType
-    private static final String EXTRA_ACCOUNT = "account";
-
     Context mContext;
-
     private HashSet<Account> mAccounts = new HashSet<Account>();
 
-    public AccountSetupAccountTypeUnitTests() {
+    public AccountSetupAccountTypeTests() {
         super(AccountSetupAccountType.class);
       }
 
     @Override
     protected void setUp() throws Exception {
         super.setUp();
-
         mContext = this.getInstrumentation().getTargetContext();
     }
 
@@ -74,11 +70,11 @@ public class AccountSetupAccountTypeUnitTests
      * Test store type limit enforcement
      */
     public void testStoreTypeLimits() {
-        EmailContent.Account acct1 = createTestAccount("scheme1");
-        EmailContent.Account acct2 = createTestAccount("scheme1");
-        EmailContent.Account acct3 = createTestAccount("scheme2");
+        createTestAccount("scheme1");
+        createTestAccount("scheme1");
+        createTestAccount("scheme2");
 
-        AccountSetupAccountType activity = startActivity(getTestIntent(acct1), null, null);
+        AccountSetupAccountType activity = startActivity(getTestIntent(), null, null);
 
         // Test with no limit
         Store.StoreInfo info = new Store.StoreInfo();
@@ -99,8 +95,8 @@ public class AccountSetupAccountTypeUnitTests
      * Confirm that EAS is presented, when supported.
      */
     public void testEasOffered() {
-        Account acct1 = createTestAccount("scheme1");
-        AccountSetupAccountType activity = startActivity(getTestIntent(acct1), null, null);
+        createTestAccount("scheme1");
+        AccountSetupAccountType activity = startActivity(getTestIntent(), null, null);
         View exchangeButton = activity.findViewById(R.id.exchange);
 
         int expected = View.GONE; // Default is hidden
@@ -119,16 +115,15 @@ public class AccountSetupAccountTypeUnitTests
         account.setStoreUri(mContext, scheme + "://user:pass@server.com:123");
         account.save(mContext);
         mAccounts.add(account);
+        SetupData.init(SetupData.FLOW_MODE_NORMAL, account);
         return account;
     }
 
     /**
      * Create an intent with the Account in it
      */
-    private Intent getTestIntent(EmailContent.Account account) {
-        Intent i = new Intent(Intent.ACTION_MAIN);
-        i.putExtra(EXTRA_ACCOUNT, account);
-        return i;
+    private Intent getTestIntent() {
+        return new Intent(Intent.ACTION_MAIN);
     }
 
 }

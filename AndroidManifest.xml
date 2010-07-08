@@ -277,7 +277,45 @@
         </service>
 
         <!--EXCHANGE-REMOVE-SECTION-START-->
-        <!--Required stanza to register the ContactsSyncAdapterService with SyncManager -->
+        <!--Required stanza to register the PopImapAuthenticatorService with AccountManager -->
+        <service
+            android:name=".service.PopImapAuthenticatorService"
+            android:exported="true"
+            android:enabled="true"
+            >
+            <intent-filter>
+                <action android:name="android.accounts.AccountAuthenticator" />
+            </intent-filter>
+            <meta-data
+                android:name="android.accounts.AccountAuthenticator"
+                android:resource="@xml/pop_imap_authenticator"
+                />
+        </service>
+
+        <!--Required stanza to register the PopImapSyncAdapterService with SyncManager -->
+        <service
+            android:name="com.android.email.service.PopImapSyncAdapterService"
+            android:exported="true">
+            <intent-filter>
+                <action android:name="android.content.SyncAdapter" />
+            </intent-filter>
+            <meta-data android:name="android.content.SyncAdapter"
+                       android:resource="@xml/syncadapter_pop_imap" />
+        </service>
+
+        <!--EXCHANGE-REMOVE-SECTION-START-->
+        <!--Required stanza to register the EAS EmailSyncAdapterService with SyncManager -->
+        <service
+            android:name="com.android.exchange.EmailSyncAdapterService"
+            android:exported="true">
+            <intent-filter>
+                <action android:name="android.content.SyncAdapter" />
+            </intent-filter>
+            <meta-data android:name="android.content.SyncAdapter"
+                       android:resource="@xml/syncadapter_email" />
+        </service>
+
+        <!--Required stanza to register the EAS ContactsSyncAdapterService with SyncManager -->
         <service
             android:name="com.android.exchange.ContactsSyncAdapterService"
             android:exported="true">
@@ -288,7 +326,7 @@
                        android:resource="@xml/syncadapter_contacts" />
         </service>
 
-        <!--Required stanza to register the CalendarSyncAdapterService with SyncManager -->
+        <!--Required stanza to register the EAS CalendarSyncAdapterService with SyncManager -->
         <service
             android:name="com.android.exchange.CalendarSyncAdapterService"
             android:exported="true">
@@ -317,7 +355,7 @@
             </intent-filter>
             <meta-data
                 android:name="android.accounts.AccountAuthenticator"
-                android:resource="@xml/authenticator"
+                android:resource="@xml/eas_authenticator"
                 />
         </service>
         <!--
@@ -354,6 +392,7 @@
             android:authorities="com.android.email.provider"
             android:multiprocess="true"
             android:permission="com.android.email.permission.ACCESS_PROVIDER"
+            android:label="@string/app_name"
             />
 
         <!--EXCHANGE-REMOVE-SECTION-START-->

@@ -28,6 +28,8 @@ import android.widget.EditText;
 
 /**
  * Tests of the basic UI logic in the Account Setup Outgoing (SMTP) screen.
+ * You can run this entire test case with:
+ *   runtest -c com.android.email.activity.setup.AccountSetupOutgoingTests email
  */
 @MediumTest
 public class AccountSetupOutgoingTests extends 
@@ -140,9 +142,8 @@ public class AccountSetupOutgoingTests extends
     private Intent getTestIntent(String senderUriString) {
         EmailContent.Account account = new EmailContent.Account();
         account.setSenderUri(this.getInstrumentation().getTargetContext(), senderUriString);
-        Intent i = new Intent(Intent.ACTION_MAIN);
-        i.putExtra("account", account);     // AccountSetupNames.EXTRA_ACCOUNT == "account"
-        return i;
+        SetupData.init(SetupData.FLOW_MODE_NORMAL, account);
+        return new Intent(Intent.ACTION_MAIN);
     }
 
 }

@@ -33,6 +33,8 @@ import android.widget.EditText;
 
 /**
  * Tests of the basic UI logic in the Account Setup Incoming (IMAP / POP3) screen.
+ * You can run this entire test case with:
+ *   runtest -c com.android.email.activity.setup.AccountSetupExchangeTests email
  */
 @MediumTest
 public class AccountSetupExchangeTests extends
@@ -183,8 +185,8 @@ public class AccountSetupExchangeTests extends
         EmailContent.Account account = new EmailContent.Account();
         account.setStoreUri(getInstrumentation().getTargetContext(), storeUriString);
         Intent i = new Intent(Intent.ACTION_MAIN);
-        i.putExtra(AccountSetupExchange.EXTRA_ACCOUNT, account);
-        i.putExtra(AccountSetupExchange.EXTRA_DISABLE_AUTO_DISCOVER, true);
+        SetupData.init(SetupData.FLOW_MODE_NORMAL, account);
+        SetupData.setAllowAutodiscover(false);
         return i;
     }
     //EXCHANGE-REMOVE-SECTION-END

@@ -22,7 +22,7 @@ import com.android.email.SecurityPolicy.PolicySet;
 import com.android.email.mail.MessagingException;
 import com.android.email.mail.Sender;
 import com.android.email.mail.Store;
-import com.android.email.provider.EmailContent;
+import com.android.email.provider.EmailContent.Account;
 import com.android.email.service.EmailServiceProxy;
 
 import android.app.Activity;
@@ -47,7 +47,7 @@ import android.widget.TextView;
  * it doesn't correctly deal with restarting while its thread is running.
  * Do not attempt to define orientation-specific resources, they won't be loaded.
  */
-public class AccountSetupCheckSettings extends Activity implements OnClickListener {
+public class AccountSetupCheckSettings extends AccountSetupActivity implements OnClickListener {
     
     // If true, returns immediately as if account was OK
     private static final boolean DBG_SKIP_CHECK_OK = false;     // DO NOT CHECK IN WHILE TRUE
@@ -55,13 +55,6 @@ public class AccountSetupCheckSettings extends Activity implements OnClickListen
     private static final boolean DBG_SKIP_CHECK_ERR = false;    // DO NOT CHECK IN WHILE TRUE
     // If true, performs real check(s), but always returns fixed OK result
     private static final boolean DBG_FORCE_RESULT_OK = false;   // DO NOT CHECK IN WHILE TRUE
-
-    private static final String EXTRA_ACCOUNT = "account";
-    private static final String EXTRA_CHECK_INCOMING = "checkIncoming";
-    private static final String EXTRA_CHECK_OUTGOING = "checkOutgoing";
-    private static final String EXTRA_AUTO_DISCOVER = "autoDiscover";
-    private static final String EXTRA_AUTO_DISCOVER_USERNAME = "userName";
-    private static final String EXTRA_AUTO_DISCOVER_PASSWORD = "password";
 
     public static final int REQUEST_CODE_VALIDATE = 1;
     public static final int REQUEST_CODE_AUTO_DISCOVER = 2;
@@ -74,31 +67,22 @@ public class AccountSetupCheckSettings extends Activity implements OnClickListen
     private ProgressBar mProgressBar;
     private TextView mMessageView;
 
-    private EmailContent.Account mAccount;
-    private boolean mCheckIncoming;
-    private boolean mCheckOutgoing;
-    private boolean mAutoDiscover;
     private boolean mCanceled;
     private boolean mDestroyed;
-    private PolicySet mPolicySet;
 
-    public static void actionValidateSettings(Activity fromActivity, EmailContent.Account account,
-            boolean checkIncoming, boolean checkOutgoing) {
-        Intent i = new Intent(fromActivity, AccountSetupCheckSettings.class);
-        i.putExtra(EXTRA_ACCOUNT, account);
-        i.putExtra(EXTRA_CHECK_INCOMING, checkIncoming);
-        i.putExtra(EXTRA_CHECK_OUTGOING, checkOutgoing);
-        fromActivity.startActivityForResult(i, REQUEST_CODE_VALIDATE);
+    public static void actionCheckSettings(Activity fromActivity, int mode) {
+        SetupData.setCheckSettingsMode(mode);
+        fromActivity.startActivityForResult(
+                new Intent(fromActivity, AccountSetupCheckSettings.class), REQUEST_CODE_VALIDATE);
     }
 
-    public static void actionAutoDiscover(Activity fromActivity, EmailContent.Account account,
-            String userName, String password) {
-        Intent i = new Intent(fromActivity, AccountSetupCheckSettings.class);
-        i.putExtra(EXTRA_ACCOUNT, account);
-        i.putExtra(EXTRA_AUTO_DISCOVER, true);
-        i.putExtra(EXTRA_AUTO_DISCOVER_USERNAME, userName);
-        i.putExtra(EXTRA_AUTO_DISCOVER_PASSWORD, password);
-        fromActivity.startActivityForResult(i, REQUEST_CODE_AUTO_DISCOVER);
+    public static void actionAutoDiscover(Activity fromActivity, String email, String password) {
+        SetupData.setUsername(email);
+        SetupData.setPassword(password);
+        SetupData.setCheckSettingsMode(SetupData.CHECK_AUTODISCOVER);
+        fromActivity.startActivityForResult(
+                new Intent(fromActivity, AccountSetupCheckSettings.class),
+                    REQUEST_CODE_AUTO_DISCOVER);
     }
 
     @Override
@@ -119,12 +103,15 @@ public class AccountSetupCheckSettings extends Activity implements OnClickListen
             return;
         }
 
-        final Intent intent = getIntent();
-        mAccount = (EmailContent.Account)intent.getParcelableExtra(EXTRA_ACCOUNT);
-        mCheckIncoming = intent.getBooleanExtra(EXTRA_CHECK_INCOMING, false);
-        mCheckOutgoing = intent.getBooleanExtra(EXTRA_CHECK_OUTGOING, false);
-        mAutoDiscover = intent.getBooleanExtra(EXTRA_AUTO_DISCOVER, false);
-
+        // Gather our data before starting up the thread to avoid any thread unpleasantness
+        final Account account = SetupData.getAccount();
+        final boolean checkIncoming = SetupData.isCheckIncoming();
+        final boolean checkOutgoing = SetupData.isCheckOutgoing();
+        final boolean checkAutodiscover = SetupData.isCheckAutodiscover();
+        final boolean allowAutodiscover = SetupData.isAllowAutodiscover();
+        final String userName = SetupData.getUsername();
+        final String password = SetupData.getPassword();
+        
         new Thread() {
             @Override
             public void run() {
@@ -137,12 +124,10 @@ public class AccountSetupCheckSettings extends Activity implements OnClickListen
                         finish();
                         return;
                     }
-                    if (mAutoDiscover) {
-                        String userName = intent.getStringExtra(EXTRA_AUTO_DISCOVER_USERNAME);
-                        String password = intent.getStringExtra(EXTRA_AUTO_DISCOVER_PASSWORD);
+                    if (checkAutodiscover && allowAutodiscover) {
                         Log.d(Email.LOG_TAG, "Begin auto-discover for " + userName);
                         Store store = Store.getInstance(
-                                mAccount.getStoreUri(AccountSetupCheckSettings.this),
+                                account.getStoreUri(AccountSetupCheckSettings.this),
                                 getApplication(), null);
                         Bundle result = store.autoDiscover(AccountSetupCheckSettings.this,
                                 userName, password);
@@ -177,11 +162,11 @@ public class AccountSetupCheckSettings extends Activity implements OnClickListen
                         finish();
                         return;
                     }
-                    if (mCheckIncoming) {
+                    if (checkIncoming) {
                         Log.d(Email.LOG_TAG, "Begin check of incoming email settings");
                         setMessage(R.string.account_setup_check_settings_check_incoming_msg);
                         Store store = Store.getInstance(
-                                mAccount.getStoreUri(AccountSetupCheckSettings.this),
+                                account.getStoreUri(AccountSetupCheckSettings.this),
                                 getApplication(), null);
                         Bundle bundle = store.checkSettings();
                         int resultCode = MessagingException.UNSPECIFIED_EXCEPTION;
@@ -190,8 +175,8 @@ public class AccountSetupCheckSettings extends Activity implements OnClickListen
                                     EmailServiceProxy.VALIDATE_BUNDLE_RESULT_CODE);
                         }
                         if (resultCode == MessagingException.SECURITY_POLICIES_REQUIRED) {
-                            mPolicySet = (PolicySet)bundle.getParcelable(
-                                    EmailServiceProxy.VALIDATE_BUNDLE_POLICY_SET);
+                            SetupData.setPolicySet((PolicySet)bundle.getParcelable(
+                                    EmailServiceProxy.VALIDATE_BUNDLE_POLICY_SET));
                             showSecurityRequiredDialog();
                             return;
                         }
@@ -208,11 +193,11 @@ public class AccountSetupCheckSettings extends Activity implements OnClickListen
                         finish();
                         return;
                     }
-                    if (mCheckOutgoing) {
+                    if (checkOutgoing) {
                         Log.d(Email.LOG_TAG, "Begin check of outgoing email settings");
                         setMessage(R.string.account_setup_check_settings_check_outgoing_msg);
                         Sender sender = Sender.getInstance(getApplication(),
-                                mAccount.getSenderUri(AccountSetupCheckSettings.this));
+                                account.getSenderUri(AccountSetupCheckSettings.this));
                         sender.close();
                         sender.open();
                         sender.close();
@@ -335,7 +320,7 @@ public class AccountSetupCheckSettings extends Activity implements OnClickListen
                     return;
                 }
                 mProgressBar.setIndeterminate(false);
-                String host = mAccount.mHostAuthRecv.mAddress;
+                String host = SetupData.getAccount().mHostAuthRecv.mAddress;
                 Object[] args = new String[] { host };
                 new AlertDialog.Builder(AccountSetupCheckSettings.this)
                         .setIcon(android.R.drawable.ic_dialog_alert)
@@ -350,7 +335,7 @@ public class AccountSetupCheckSettings extends Activity implements OnClickListen
                                         Intent intent = new Intent();
                                         intent.putExtra(
                                                 EmailServiceProxy.VALIDATE_BUNDLE_POLICY_SET,
-                                                mPolicySet);
+                                                SetupData.getPolicySet());
                                         setResult(RESULT_OK, intent);
                                         finish();
                                     }

@@ -27,6 +27,7 @@ import android.test.AndroidTestCase;
 import android.test.MoreAsserts;
 import android.test.suitebuilder.annotation.SmallTest;
 import android.util.Log;
+import android.widget.TextView;
 
 import java.io.File;
 import java.io.FileNotFoundException;
@@ -322,5 +323,29 @@ public class UtilityUnitTests extends AndroidTestCase {
                 // ignore cleanup error - it still throws the original
             }
         }
+    }
+
+    public void testIsPortFieldValid() {
+        TextView view = new TextView(getContext());
+        // null, empty, negative, and non integer strings aren't valid
+        view.setText(null);
+        assertFalse(Utility.isPortFieldValid(view));
+        view.setText("");
+        assertFalse(Utility.isPortFieldValid(view));
+        view.setText("-1");
+        assertFalse(Utility.isPortFieldValid(view));
+        view.setText("1403.75");
+        assertFalse(Utility.isPortFieldValid(view));
+        view.setText("0");
+        assertFalse(Utility.isPortFieldValid(view));
+        view.setText("65536");
+        assertFalse(Utility.isPortFieldValid(view));
+        view.setText("i'm not valid");
+        assertFalse(Utility.isPortFieldValid(view));
+        // These next values are valid
+        view.setText("1");
+        assertTrue(Utility.isPortFieldValid(view));
+        view.setText("65535");
+        assertTrue(Utility.isPortFieldValid(view));
     }
 }

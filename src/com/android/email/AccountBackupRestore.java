@@ -16,14 +16,13 @@
 
 package com.android.email;
 
-import com.android.email.mail.store.ExchangeStore;
 import com.android.email.provider.EmailContent;
+import com.android.email.provider.EmailProvider;
+import com.android.email.service.MailService;
 
-import android.accounts.AccountManagerFuture;
 import android.content.ContentResolver;
 import android.content.Context;
 import android.database.Cursor;
-import android.os.Bundle;
 import android.provider.Calendar;
 import android.provider.ContactsContract;
 import android.util.Log;
@@ -63,7 +62,7 @@ public class AccountBackupRestore {
         if (restored) {
             // after restoring accounts, register services appropriately
             Log.w(Email.LOG_TAG, "Register services after restoring accounts");
-            // update security profile 
+            // update security profile
             SecurityPolicy.getInstance(context).updatePolicies(-1);
             // enable/disable other email services as necessary
             Email.setServicesEnabled(context);
@@ -121,6 +120,11 @@ public class AccountBackupRestore {
                     if (syncCalendar) {
                         toAccount.mBackupFlags |= Account.BACKUP_FLAGS_SYNC_CALENDAR;
                     }
+                    boolean syncEmail = ContentResolver.getSyncAutomatically(acct,
+                            EmailProvider.EMAIL_AUTHORITY);
+                    if (!syncEmail) {
+                        toAccount.mBackupFlags |= Account.BACKUP_FLAGS_DONT_SYNC_EMAIL;
+                    }
                 }
 
                 // If this is the default account, mark it as such
@@ -171,60 +175,27 @@ public class AccountBackupRestore {
             }
             // Restore the account
             Log.w(Email.LOG_TAG, "Restoring account:" + backupAccount.getDescription());
-            EmailContent.Account toAccount =
-                LegacyConversions.makeAccount(context, backupAccount);
+            EmailContent.Account toAccount = LegacyConversions.makeAccount(context, backupAccount);
 
             // Mark the default account if this is it
             if (0 != (backupAccount.mBackupFlags & Account.BACKUP_FLAGS_IS_DEFAULT)) {
                 toAccount.setDefaultAccount(true);
             }
 
-            // For exchange accounts, handle system account first, then save in provider
+            // Note that the sense of the email flag is opposite that of contacts/calendar flags
+            boolean email =
+                (backupAccount.mBackupFlags & Account.BACKUP_FLAGS_DONT_SYNC_EMAIL) == 0;
+            boolean contacts = false;
+            boolean calendar = false;
+            // Handle system account first, then save in provider
             if (toAccount.mHostAuthRecv.mProtocol.equals("eas")) {
-                // Recreate entry in Account Manager as well, if needed
-                // Set "sync contacts/calendar" mode as well, if needed
-                boolean alsoSyncContacts =
-                    (backupAccount.mBackupFlags & Account.BACKUP_FLAGS_SYNC_CONTACTS) != 0;
-                boolean alsoSyncCalendar =
-                    (backupAccount.mBackupFlags & Account.BACKUP_FLAGS_SYNC_CALENDAR) != 0;
-
-                // Use delete-then-add semantic to simplify handling of update-in-place
-//                AccountManagerFuture<Boolean> removeResult = ExchangeStore.removeSystemAccount(
-//                        context.getApplicationContext(), toAccount, null);
-//                try {
-//                    // This call blocks until removeSystemAccount completes.  Result is not used.
-//                    removeResult.getResult();
-//                } catch (AccountsException e) {
-//                    Log.d(Email.LOG_TAG, "removeSystemAccount failed: " + e);
-//                    // log and discard - we don't care if remove fails, generally
-//                } catch (IOException e) {
-//                    Log.d(Email.LOG_TAG, "removeSystemAccount failed: " + e);
-//                    // log and discard - we don't care if remove fails, generally
-//                }
-
-                // NOTE: We must use the Application here, rather than the current context, because
-                // all future references to AccountManager will use the context passed in here
-                // TODO: Need to implement overwrite semantics for an already-installed account
-                AccountManagerFuture<Bundle> addAccountResult =
-                     ExchangeStore.addSystemAccount(context.getApplicationContext(), toAccount,
-                             alsoSyncContacts, alsoSyncCalendar, null);
-//                try {
-//                    // This call blocks until addSystemAccount completes.  Result is not used.
-//                    addAccountResult.getResult();
-                    toAccount.save(context);
-//                } catch (OperationCanceledException e) {
-//                    Log.d(Email.LOG_TAG, "addAccount was canceled");
-//                } catch (IOException e) {
-//                    Log.d(Email.LOG_TAG, "addAccount failed: " + e);
-//                } catch (AuthenticatorException e) {
-//                    Log.d(Email.LOG_TAG, "addAccount failed: " + e);
-//                }
-
-            } else {
-                // non-eas account - save it immediately
-                toAccount.save(context);
+                contacts = (backupAccount.mBackupFlags & Account.BACKUP_FLAGS_SYNC_CONTACTS) != 0;
+                calendar = (backupAccount.mBackupFlags & Account.BACKUP_FLAGS_SYNC_CALENDAR) != 0;
             }
-            // report that an account was restored
+
+            toAccount.save(context);
+            MailService.setupAccountManagerAccount(context, toAccount, email, calendar, contacts,
+                    null);
             result = true;
         }
         return result;

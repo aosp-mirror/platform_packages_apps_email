@@ -20,12 +20,22 @@ import com.android.email.AccountBackupRestore;
 import com.android.email.Controller;
 import com.android.email.Email;
 import com.android.email.R;
+import com.android.email.SecurityPolicy;
 import com.android.email.activity.MessageList;
 import com.android.email.mail.MessagingException;
+import com.android.email.provider.EmailContent;
+import com.android.email.provider.EmailProvider;
 import com.android.email.provider.EmailContent.Account;
 import com.android.email.provider.EmailContent.AccountColumns;
+import com.android.email.provider.EmailContent.HostAuth;
 import com.android.email.provider.EmailContent.Mailbox;
 
+import android.accounts.AccountManager;
+import android.accounts.AccountManagerCallback;
+import android.accounts.AccountManagerFuture;
+import android.accounts.AuthenticatorException;
+import android.accounts.OnAccountsUpdateListener;
+import android.accounts.OperationCanceledException;
 import android.app.AlarmManager;
 import android.app.Notification;
 import android.app.NotificationManager;
@@ -36,16 +46,22 @@ import android.content.ContentUris;
 import android.content.ContentValues;
 import android.content.Context;
 import android.content.Intent;
+import android.content.SyncStatusObserver;
 import android.database.Cursor;
 import android.media.AudioManager;
 import android.net.ConnectivityManager;
 import android.net.Uri;
+import android.os.Bundle;
+import android.os.Handler;
 import android.os.IBinder;
 import android.os.SystemClock;
 import android.util.Config;
 import android.util.Log;
 
+import java.io.IOException;
+import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.List;
 
 /**
  * Background service for refreshing non-push email accounts.
@@ -81,6 +97,8 @@ public class MailService extends Service {
     /*package*/ Controller mController;
     private final Controller.Result mControllerCallback = new ControllerResults();
     private ContentResolver mContentResolver;
+    private AccountsUpdatedListener mAccountsUpdatedListener;
+    private Handler mHandler = new Handler();
 
     private int mStartId;
 
@@ -160,6 +178,13 @@ public class MailService extends Service {
         // Restore accounts, if it has not happened already
         AccountBackupRestore.restoreAccountsIfNeeded(this);
 
+        // Set up our observer for AccountManager
+        mAccountsUpdatedListener = new AccountsUpdatedListener();
+        AccountManager.get(getApplication()).addOnAccountsUpdatedListener(
+                mAccountsUpdatedListener, mHandler, true);
+        // Run reconciliation to make sure we're up-to-date on account status
+        mAccountsUpdatedListener.onAccountsUpdated(null);
+
         // TODO this needs to be passed through the controller and back to us
         this.mStartId = startId;
         String action = intent.getAction();
@@ -183,10 +208,20 @@ public class MailService extends Service {
                 setWatchdog(checkAccountId, alarmManager);
             }
 
-            // Start sync if account is given and background data is enabled.
+            // Start sync if account is given and background data is enabled and the account itself
+            // has sync enabled
             boolean syncStarted = false;
             if (checkAccountId != -1 && isBackgroundDataEnabled()) {
-                syncStarted = syncOneAccount(mController, checkAccountId, startId);
+                synchronized(mSyncReports) {
+                    for (AccountSyncReport report: mSyncReports.values()) {
+                        if (report.accountId == checkAccountId) {
+                            if (report.syncEnabled) {
+                                syncStarted = syncOneAccount(mController, checkAccountId, startId);
+                            }
+                            break;
+                        }
+                    }
+                }
             }
 
             // Reschedule if we didn't start sync.
@@ -269,6 +304,10 @@ public class MailService extends Service {
     public void onDestroy() {
         super.onDestroy();
         Controller.getInstance(getApplication()).removeResultCallback(mControllerCallback);
+        // Unregister our account listener
+        if (mAccountsUpdatedListener != null) {
+            AccountManager.get(this).removeOnAccountsUpdatedListener(mAccountsUpdatedListener);
+        }
     }
 
     private void cancel() {
@@ -435,6 +474,7 @@ public class MailService extends Service {
         Uri ringtoneUri;
 
         String displayName;     // temporary, for debug logging
+        boolean syncEnabled;    // whether auto sync is enabled for this account
 
 
         @Override
@@ -512,6 +552,14 @@ public class MailService extends Service {
 
                 report.displayName = c.getString(Account.CONTENT_DISPLAY_NAME_COLUMN);
 
+                // See if the account is enabled for sync in AccountManager
+                Account providerAccount = Account.restoreAccountWithId(this, id);
+                android.accounts.Account accountManagerAccount =
+                    new android.accounts.Account(providerAccount.mEmailAddress,
+                            Email.POP_IMAP_ACCOUNT_MANAGER_TYPE);
+                report.syncEnabled = ContentResolver.getSyncAutomatically(accountManagerAccount,
+                        EmailProvider.EMAIL_AUTHORITY);
+ 
                 // TODO lookup # new in inbox
                 mSyncReports.put(report.accountId, report);
             }
@@ -723,5 +771,160 @@ public class MailService extends Service {
         ConnectivityManager cm =
                 (ConnectivityManager)getSystemService(Context.CONNECTIVITY_SERVICE);
         return cm.getBackgroundDataSetting();
+    }
+
+    public class EmailSyncStatusObserver implements SyncStatusObserver {
+        public void onStatusChanged(int which) {
+            // We ignore the argument (we can only get called in one case - when settings change)
+        }
+    }
+
+    public static ArrayList<Account> getPopImapAccountList(Context context) {
+        ArrayList<Account> providerAccounts = new ArrayList<Account>();
+        Cursor c = context.getContentResolver().query(Account.CONTENT_URI, Account.ID_PROJECTION,
+                null, null, null);
+        try {
+            while (c.moveToNext()) {
+                long accountId = c.getLong(Account.CONTENT_ID_COLUMN);
+                String protocol = Account.getProtocol(context, accountId);
+                if (protocol.equals("pop3") || protocol.equals("imap")) {
+                    Account account = Account.restoreAccountWithId(context, accountId);
+                    if (account != null) {
+                        providerAccounts.add(account);
+                    }
+                }
+            }
+        } finally {
+            c.close();
+        }
+        return providerAccounts;
+    }
+
+    /**
+     * We synchronize this, since it can be called from multiple threads
+     */
+    public static synchronized void reconcilePopImapAccounts(Context context) {
+        android.accounts.Account[] accountManagerAccounts = AccountManager.get(context)
+            .getAccountsByType(Email.POP_IMAP_ACCOUNT_MANAGER_TYPE);
+        ArrayList<Account> providerAccounts = getPopImapAccountList(context);
+        MailService.reconcileAccountsWithAccountManager(context, providerAccounts,
+                accountManagerAccounts, false, context.getContentResolver());
+
+    }
+
+    /**
+     * Reconcile accounts when accounts are added/removed from AccountManager; note that the
+     * required argument is ignored (we request those of our specific type within the method)
+     */
+    public class AccountsUpdatedListener implements OnAccountsUpdateListener {
+        public void onAccountsUpdated(android.accounts.Account[] accounts) {
+            reconcilePopImapAccounts(MailService.this);
+        }
+    }
+
+    /**
+     * Compare our account list (obtained from EmailProvider) with the account list owned by
+     * AccountManager.  If there are any orphans (an account in one list without a corresponding
+     * account in the other list), delete the orphan, as these must remain in sync.
+     *
+     * Note that the duplication of account information is caused by the Email application's
+     * incomplete integration with AccountManager.
+     *
+     * This function may not be called from the main/UI thread, because it makes blocking calls
+     * into the account manager.
+     *
+     * @param context The context in which to operate
+     * @param emailProviderAccounts the exchange provider accounts to work from
+     * @param accountManagerAccounts The account manager accounts to work from
+     * @param blockExternalChanges FOR TESTING ONLY - block backups, security changes, etc.
+     * @param resolver the content resolver for making provider updates (injected for testability)
+     */
+    /* package */ public static void reconcileAccountsWithAccountManager(Context context,
+            List<Account> emailProviderAccounts, android.accounts.Account[] accountManagerAccounts,
+            boolean blockExternalChanges, ContentResolver resolver) {
+        // First, look through our EmailProvider accounts to make sure there's a corresponding
+        // AccountManager account
+        boolean accountsDeleted = false;
+        for (Account providerAccount: emailProviderAccounts) {
+            String providerAccountName = providerAccount.mEmailAddress;
+            boolean found = false;
+            for (android.accounts.Account accountManagerAccount: accountManagerAccounts) {
+                if (accountManagerAccount.name.equalsIgnoreCase(providerAccountName)) {
+                    found = true;
+                    break;
+                }
+            }
+            if (!found) {
+                if ((providerAccount.mFlags & Account.FLAGS_INCOMPLETE) != 0) {
+                    if (Email.DEBUG) {
+                        Log.d(LOG_TAG, "Account reconciler noticed incomplete account; ignoring");
+                    }
+                    continue;
+                }
+                // This account has been deleted in the AccountManager!
+                Log.d(LOG_TAG, "Account deleted in AccountManager; deleting from provider: " +
+                        providerAccountName);
+                // TODO This will orphan downloaded attachments; need to handle this
+                resolver.delete(ContentUris.withAppendedId(Account.CONTENT_URI,
+                        providerAccount.mId), null, null);
+                accountsDeleted = true;
+            }
+        }
+        // Now, look through AccountManager accounts to make sure we have a corresponding cached EAS
+        // account from EmailProvider
+        for (android.accounts.Account accountManagerAccount: accountManagerAccounts) {
+            String accountManagerAccountName = accountManagerAccount.name;
+            boolean found = false;
+            for (Account cachedEasAccount: emailProviderAccounts) {
+                if (cachedEasAccount.mEmailAddress.equalsIgnoreCase(accountManagerAccountName)) {
+                    found = true;
+                }
+            }
+            if (!found) {
+                // This account has been deleted from the EmailProvider database
+                Log.d(LOG_TAG, "Account deleted from provider; deleting from AccountManager: " +
+                        accountManagerAccountName);
+                // Delete the account
+                AccountManagerFuture<Boolean> blockingResult = AccountManager.get(context)
+                        .removeAccount(accountManagerAccount, null, null);
+                try {
+                    // Note: All of the potential errors from removeAccount() are simply logged
+                    // here, as there is nothing to actually do about them.
+                    blockingResult.getResult();
+                } catch (OperationCanceledException e) {
+                    Log.w(Email.LOG_TAG, e.toString());
+                } catch (AuthenticatorException e) {
+                    Log.w(Email.LOG_TAG, e.toString());
+                } catch (IOException e) {
+                    Log.w(Email.LOG_TAG, e.toString());
+                }
+                accountsDeleted = true;
+            }
+        }
+        // If we changed the list of accounts, refresh the backup & security settings
+        if (!blockExternalChanges && accountsDeleted) {
+            AccountBackupRestore.backupAccounts(context);
+            SecurityPolicy.getInstance(context).reducePolicies();
+            Email.setNotifyUiAccountsChanged(true);
+            MailService.actionReschedule(context);
+        }
+    }
+
+    public static void setupAccountManagerAccount(Context context, EmailContent.Account account,
+            boolean email, boolean calendar, boolean contacts,
+            AccountManagerCallback<Bundle> callback) {
+        Bundle options = new Bundle();
+        HostAuth hostAuthRecv = HostAuth.restoreHostAuthWithId(context, account.mHostAuthKeyRecv);
+        // Set up username/password
+        options.putString(EasAuthenticatorService.OPTIONS_USERNAME, account.mEmailAddress);
+        options.putString(EasAuthenticatorService.OPTIONS_PASSWORD, hostAuthRecv.mPassword);
+        options.putBoolean(EasAuthenticatorService.OPTIONS_CONTACTS_SYNC_ENABLED, contacts);
+        options.putBoolean(EasAuthenticatorService.OPTIONS_CALENDAR_SYNC_ENABLED, calendar);
+        options.putBoolean(EasAuthenticatorService.OPTIONS_EMAIL_SYNC_ENABLED, email);
+        String accountType = hostAuthRecv.mProtocol.equals("eas") ?
+                Email.EXCHANGE_ACCOUNT_MANAGER_TYPE :
+                Email.POP_IMAP_ACCOUNT_MANAGER_TYPE;
+        AccountManager.get(context).addAccount(accountType, null, null, options, null, callback,
+                null);
     }
 }

@@ -36,7 +36,6 @@ import android.graphics.drawable.Drawable;
 import android.os.AsyncTask;
 import android.security.MessageDigest;
 import android.telephony.TelephonyManager;
-import android.text.Editable;
 import android.text.TextUtils;
 import android.util.Base64;
 import android.util.Log;
@@ -125,17 +124,28 @@ public class Utility {
         return Base64.encodeToString(s.getBytes(), Base64.NO_WRAP);
     }
 
-    public static boolean requiredFieldValid(TextView view) {
-        return view.getText() != null && view.getText().length() > 0;
+    public static boolean isTextViewNotEmpty(TextView view) {
+        return !TextUtils.isEmpty(view.getText());
     }
 
-    public static boolean requiredFieldValid(Editable s) {
-        return s != null && s.length() > 0;
-    }
+    public static boolean isPortFieldValid(TextView view) {
+        CharSequence chars = view.getText();
+        if (TextUtils.isEmpty(chars)) return false;
+        Integer port;
+        // In theory, we can't get an illegal value here, since the field is monitored for valid
+        // numeric input. But this might be used elsewhere without such a check.
+        try {
+            port = Integer.parseInt(chars.toString());
+        } catch (NumberFormatException e) {
+            return false;
+        }
+        return port > 0 && port < 65536;
+     }
 
     /**
-     * Ensures that the given string starts and ends with the double quote character. The string is not modified in any way except to add the
-     * double quote character to start and end if it's not already there.
+     * Ensures that the given string starts and ends with the double quote character. The string is
+     * not modified in any way except to add the double quote character to start and end if it's not
+     * already there.
      *
      * TODO: Rename this, because "quoteString()" can mean so many different things.
      *

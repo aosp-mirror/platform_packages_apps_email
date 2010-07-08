@@ -24,7 +24,7 @@
     <PreferenceScreen
         android:key="account_settings"
         android:title="@string/account_settings_action"
-        android:summary="@string/account_settings_exchange_summary">
+        android:summary="@string/account_settings_summary">
         <intent
             android:action="com.android.email.activity.setup.ACCOUNT_MANAGER_ENTRY"
             />

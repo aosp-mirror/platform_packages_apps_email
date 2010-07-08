@@ -38,40 +38,20 @@ import java.net.URISyntaxException;
  * passed in email address, password and makeDefault are then passed on to the
  * AccountSetupIncoming activity.
  */
-public class AccountSetupAccountType extends Activity implements OnClickListener {
+public class AccountSetupAccountType extends AccountSetupActivity implements OnClickListener {
 
-    private static final String EXTRA_ACCOUNT = "account";
-    private static final String EXTRA_MAKE_DEFAULT = "makeDefault";
-    private static final String EXTRA_EAS_FLOW = "easFlow";
-    private static final String EXTRA_ALLOW_AUTODISCOVER = "allowAutoDiscover";
-
-    private Account mAccount;
-    private boolean mMakeDefault;
-    private boolean mAllowAutoDiscover;
-
-    public static void actionSelectAccountType(Activity fromActivity, Account account,
-            boolean makeDefault, boolean easFlowMode, boolean allowAutoDiscover) {
-        Intent i = new Intent(fromActivity, AccountSetupAccountType.class);
-        i.putExtra(EXTRA_ACCOUNT, account);
-        i.putExtra(EXTRA_MAKE_DEFAULT, makeDefault);
-        i.putExtra(EXTRA_EAS_FLOW, easFlowMode);
-        i.putExtra(EXTRA_ALLOW_AUTODISCOVER, allowAutoDiscover);
-        fromActivity.startActivity(i);
+    public static void actionSelectAccountType(Activity fromActivity) {
+        fromActivity.startActivity(new Intent(fromActivity, AccountSetupAccountType.class));
     }
 
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-
-        Intent intent = getIntent();
-        mAccount = (Account) intent.getParcelableExtra(EXTRA_ACCOUNT);
-        mMakeDefault = intent.getBooleanExtra(EXTRA_MAKE_DEFAULT, false);
-        boolean easFlowMode = intent.getBooleanExtra(EXTRA_EAS_FLOW, false);
-        mAllowAutoDiscover = intent.getBooleanExtra(EXTRA_ALLOW_AUTODISCOVER, true);
+        int flowMode = SetupData.getFlowMode();
 
         // If we're in account setup flow mode, for EAS, skip this screen and "click" EAS
-        if (easFlowMode) {
-            onExchange(true);
+        if (flowMode == SetupData.FLOW_MODE_ACCOUNT_MANAGER_EAS) {
+            onExchange();
             return;
         }
 
@@ -82,6 +62,9 @@ public class AccountSetupAccountType extends Activity implements OnClickListener
         final Button exchangeButton = ((Button)findViewById(R.id.exchange));
         exchangeButton.setOnClickListener(this);
 
+        // TODO If we decide to exclude the Exchange option in POP_IMAP mode, use the following line
+        // instead of the line that follows it
+        //if (isExchangeAvailable() && flowMode != SetupData.FLOW_MODE_POP_IMAP) {
         if (isExchangeAvailable()) {
             exchangeButton.setVisibility(View.VISIBLE);
             if (VendorPolicyLoader.getInstance(this).useAlternateExchangeStrings()) {
@@ -93,17 +76,19 @@ public class AccountSetupAccountType extends Activity implements OnClickListener
     }
 
     private void onPop() {
+        Account account = SetupData.getAccount();
         try {
-            URI uri = new URI(mAccount.getStoreUri(this));
+            URI uri = new URI(account.getStoreUri(this));
             uri = new URI("pop3", uri.getUserInfo(), uri.getHost(), uri.getPort(), null, null, null);
-            mAccount.setStoreUri(this, uri.toString());
+            account.setStoreUri(this, uri.toString());
         } catch (URISyntaxException use) {
             /*
              * This should not happen.
              */
             throw new Error(use);
         }
-        AccountSetupIncoming.actionIncomingSettings(this, mAccount, mMakeDefault);
+        SetupData.setCheckSettingsMode(SetupData.CHECK_INCOMING | SetupData.CHECK_OUTGOING);
+        AccountSetupIncoming.actionIncomingSettings(this, SetupData.getFlowMode(), account);
         finish();
     }
 
@@ -112,10 +97,11 @@ public class AccountSetupAccountType extends Activity implements OnClickListener
      * email address.  Also set the mail delete policy here, because there is no UI (for IMAP).
      */
     private void onImap() {
+        Account account = SetupData.getAccount();
         try {
-            URI uri = new URI(mAccount.getStoreUri(this));
+            URI uri = new URI(account.getStoreUri(this));
             uri = new URI("imap", uri.getUserInfo(), uri.getHost(), uri.getPort(), null, null, null);
-            mAccount.setStoreUri(this, uri.toString());
+            account.setStoreUri(this, uri.toString());
         } catch (URISyntaxException use) {
             /*
              * This should not happen.
@@ -124,8 +110,9 @@ public class AccountSetupAccountType extends Activity implements OnClickListener
         }
         // Delete policy must be set explicitly, because IMAP does not provide a UI selection
         // for it. This logic needs to be followed in the auto setup flow as well.
-        mAccount.setDeletePolicy(Account.DELETE_POLICY_ON_DELETE);
-        AccountSetupIncoming.actionIncomingSettings(this, mAccount, mMakeDefault);
+        account.setDeletePolicy(Account.DELETE_POLICY_ON_DELETE);
+        SetupData.setCheckSettingsMode(SetupData.CHECK_INCOMING | SetupData.CHECK_OUTGOING);
+        AccountSetupIncoming.actionIncomingSettings(this, SetupData.getFlowMode(), account);
         finish();
     }
 
@@ -134,13 +121,14 @@ public class AccountSetupAccountType extends Activity implements OnClickListener
      * email address.  Also set the mail delete policy here, because there is no UI (for exchange),
      * and switch the default sync interval to "push".
      */
-    private void onExchange(boolean easFlowMode) {
+    private void onExchange() {
+        Account account = SetupData.getAccount();
         try {
-            URI uri = new URI(mAccount.getStoreUri(this));
+            URI uri = new URI(account.getStoreUri(this));
             uri = new URI("eas+ssl+", uri.getUserInfo(), uri.getHost(), uri.getPort(),
                     null, null, null);
-            mAccount.setStoreUri(this, uri.toString());
-            mAccount.setSenderUri(this, uri.toString());
+            account.setStoreUri(this, uri.toString());
+            account.setSenderUri(this, uri.toString());
         } catch (URISyntaxException use) {
             /*
              * This should not happen.
@@ -148,11 +136,11 @@ public class AccountSetupAccountType extends Activity implements OnClickListener
             throw new Error(use);
         }
         // TODO: Confirm correct delete policy for exchange
-        mAccount.setDeletePolicy(Account.DELETE_POLICY_ON_DELETE);
-        mAccount.setSyncInterval(Account.CHECK_INTERVAL_PUSH);
-        mAccount.setSyncLookback(1);
-        AccountSetupExchange.actionIncomingSettings(this, mAccount, mMakeDefault, easFlowMode,
-                mAllowAutoDiscover);
+        account.setDeletePolicy(Account.DELETE_POLICY_ON_DELETE);
+        account.setSyncInterval(Account.CHECK_INTERVAL_PUSH);
+        account.setSyncLookback(1);
+        SetupData.setCheckSettingsMode(SetupData.CHECK_AUTODISCOVER);
+        AccountSetupExchange.actionIncomingSettings(this, SetupData.getFlowMode(), account);
         finish();
     }
 
@@ -165,7 +153,7 @@ public class AccountSetupAccountType extends Activity implements OnClickListener
     private boolean isExchangeAvailable() {
         //EXCHANGE-REMOVE-SECTION-START
         try {
-            URI uri = new URI(mAccount.getStoreUri(this));
+            URI uri = new URI(SetupData.getAccount().getStoreUri(this));
             uri = new URI("eas", uri.getUserInfo(), uri.getHost(), uri.getPort(), null, null, null);
             Store.StoreInfo storeInfo = Store.StoreInfo.getStoreInfo(uri.toString(), this);
             return (storeInfo != null && checkAccountInstanceLimit(storeInfo));
@@ -220,7 +208,7 @@ public class AccountSetupAccountType extends Activity implements OnClickListener
                 onImap();
                 break;
             case R.id.exchange:
-                onExchange(false);
+                onExchange();
                 break;
         }
     }

@@ -50,9 +50,9 @@ public class Account {
     public static final int BACKUP_FLAGS_SYNC_CONTACTS = 2;
     public static final int BACKUP_FLAGS_IS_DEFAULT = 4;
     public static final int BACKUP_FLAGS_SYNC_CALENDAR = 8;
-
-    // transient values - do not serialize
-    private transient Preferences mPreferences;
+    // Since email sync has always been "on" prior to the creation of this flag, it's sense is
+    // reversed to avoid legacy issues.
+    public static final int BACKUP_FLAGS_DONT_SYNC_EMAIL = 16;
 
     // serialized values
     String mUuid;
@@ -124,8 +124,6 @@ public class Account {
      * Refresh the account from the stored settings.
      */
     public void refresh(Preferences preferences) {
-        mPreferences = preferences;
-
         mStoreUri = Utility.base64Decode(preferences.mSharedPreferences.getString(mUuid
                 + ".storeUri", null));
         mLocalStoreUri = preferences.mSharedPreferences.getString(mUuid + ".localStoreUri", null);
@@ -301,8 +299,6 @@ public class Account {
     }
 
     public void save(Preferences preferences) {
-        mPreferences = preferences;
-        
         if (!preferences.mSharedPreferences.getString("accountUuids", "").contains(mUuid)) {
             /*
              * When the account is first created we assign it a unique account number. The

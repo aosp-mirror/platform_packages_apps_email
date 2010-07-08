@@ -20,7 +20,6 @@ import com.android.email.AccountBackupRestore;
 import com.android.email.R;
 import com.android.email.Utility;
 import com.android.email.activity.Welcome;
-import com.android.email.provider.EmailContent;
 import com.android.email.provider.EmailContent.Account;
 import com.android.email.provider.EmailContent.AccountColumns;
 import com.android.email.provider.EmailContent.HostAuth;
@@ -41,14 +40,11 @@ import android.view.View.OnClickListener;
 import android.widget.Button;
 import android.widget.EditText;
 
-public class AccountSetupNames extends Activity implements OnClickListener {
-    private static final String EXTRA_ACCOUNT_ID = "accountId";
-    private static final String EXTRA_EAS_FLOW = "easFlow";
+public class AccountSetupNames extends AccountSetupActivity implements OnClickListener {
     private static final int REQUEST_SECURITY = 0;
 
     private EditText mDescription;
     private EditText mName;
-    private Account mAccount;
     private Button mDoneButton;
     private boolean mEasAccount = false;
 
@@ -59,11 +55,8 @@ public class AccountSetupNames extends Activity implements OnClickListener {
     private static final String[] ACCOUNT_INFO_PROJECTION = new String[] {
             AccountColumns.FLAGS, AccountColumns.SECURITY_FLAGS };
 
-    public static void actionSetNames(Activity fromActivity, long accountId, boolean easFlowMode) {
-        Intent i = new Intent(fromActivity, AccountSetupNames.class);
-        i.putExtra(EXTRA_ACCOUNT_ID, accountId);
-        i.putExtra(EXTRA_EAS_FLOW, easFlowMode);
-        fromActivity.startActivity(i);
+    public static void actionSetNames(Activity fromActivity) {
+        fromActivity.startActivity(new Intent(fromActivity, AccountSetupNames.class));
     }
 
     @Override
@@ -87,18 +80,16 @@ public class AccountSetupNames extends Activity implements OnClickListener {
             }
         };
         mName.addTextChangedListener(validationTextWatcher);
-        
         mName.setKeyListener(TextKeyListener.getInstance(false, Capitalize.WORDS));
 
-        long accountId = getIntent().getLongExtra(EXTRA_ACCOUNT_ID, -1);
-        mAccount = EmailContent.Account.restoreAccountWithId(this, accountId);
+        Account account = SetupData.getAccount();
         // Shouldn't happen, but it could
-        if (mAccount == null) {
+        if (account == null) {
             onBackPressed();
             return;
         }
         // Get the hostAuth for receiving
-        HostAuth hostAuth = HostAuth.restoreHostAuthWithId(this, mAccount.mHostAuthKeyRecv);
+        HostAuth hostAuth = HostAuth.restoreHostAuthWithId(this, account.mHostAuthKeyRecv);
         if (hostAuth == null) {
             onBackPressed();
             return;
@@ -116,8 +107,8 @@ public class AccountSetupNames extends Activity implements OnClickListener {
          * just leave the saved value alone.
          */
         // mDescription.setText(mAccount.getDescription());
-        if (mAccount != null && mAccount.getSenderName() != null) {
-            mName.setText(mAccount.getSenderName());
+        if (account != null && account.getSenderName() != null) {
+            mName.setText(account.getSenderName());
         }
 
         // Make sure the "done" button is in the proper state
@@ -140,19 +131,19 @@ public class AccountSetupNames extends Activity implements OnClickListener {
      */
     private void validateFields() {
         if (!mEasAccount) {
-            mDoneButton.setEnabled(Utility.requiredFieldValid(mName));
+            mDoneButton.setEnabled(Utility.isTextViewNotEmpty(mName));
         }
         Utility.setCompoundDrawablesAlpha(mDoneButton, mDoneButton.isEnabled() ? 255 : 128);
     }
 
     @Override
     public void onBackPressed() {
-        boolean easFlowMode = getIntent().getBooleanExtra(EXTRA_EAS_FLOW, false);
-        if (easFlowMode) {
-            AccountSetupBasics.actionAccountCreateFinishedEas(this);
+        if (SetupData.getFlowMode() != SetupData.FLOW_MODE_NORMAL) {
+            AccountSetupBasics.actionAccountCreateFinishedAccountFlow(this);
         } else {
-            if (mAccount != null) {
-                AccountSetupBasics.actionAccountCreateFinished(this, mAccount.mId);
+            Account account = SetupData.getAccount();
+            if (account != null) {
+                AccountSetupBasics.actionAccountCreateFinished(this, account.mId);
             } else {
                 // Safety check here;  If mAccount is null (due to external issues or bugs)
                 // just rewind back to Welcome, which can handle any configuration of accounts
@@ -170,21 +161,22 @@ public class AccountSetupNames extends Activity implements OnClickListener {
      * TODO: Validator should also trim the description string before checking it.
      */
     private void onNext() {
-        if (Utility.requiredFieldValid(mDescription)) {
-            mAccount.setDisplayName(mDescription.getText().toString());
+        Account account = SetupData.getAccount();
+        if (Utility.isTextViewNotEmpty(mDescription)) {
+            account.setDisplayName(mDescription.getText().toString());
         }
         String name = mName.getText().toString();
-        mAccount.setSenderName(name);
+        account.setSenderName(name);
         ContentValues cv = new ContentValues();
-        cv.put(AccountColumns.DISPLAY_NAME, mAccount.getDisplayName());
+        cv.put(AccountColumns.DISPLAY_NAME, account.getDisplayName());
         cv.put(AccountColumns.SENDER_NAME, name);
-        mAccount.update(this, cv);
+        account.update(this, cv);
         // Update the backup (side copy) of the accounts
         AccountBackupRestore.backupAccounts(this);
 
         // Before proceeding, launch an AsyncTask to test the account for any syncing problems,
         // and if there's a problem, bring up the UI to update the security level.
-        mCheckAccountStateTask = new CheckAccountStateTask(mAccount.mId);
+        mCheckAccountStateTask = new CheckAccountStateTask(account.mId);
         mCheckAccountStateTask.execute();
     }
 

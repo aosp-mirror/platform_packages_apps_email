@@ -16,8 +16,6 @@
 
 package com.android.email.activity.setup;
 
-import com.android.email.AccountBackupRestore;
-import com.android.email.Email;
 import com.android.email.EmailAddressValidator;
 import com.android.email.R;
 import com.android.email.Utility;
@@ -58,23 +56,9 @@ import java.net.URISyntaxException;
  * activity. If no settings are found the settings are handed off to the
  * AccountSetupAccountType activity.
  */
-public class AccountSetupBasics extends Activity
+public class AccountSetupBasics extends AccountSetupActivity
         implements OnClickListener, TextWatcher {
     private final static boolean ENTER_DEBUG_SCREEN = true;
-
-    private final static String EXTRA_ACCOUNT = "com.android.email.AccountSetupBasics.account";
-    public final static String EXTRA_EAS_FLOW = "com.android.email.extra.eas_flow";
-
-    // Action asking us to return to our original caller (i.e. finish)
-    private static final String ACTION_RETURN_TO_CALLER =
-        "com.android.email.AccountSetupBasics.return";
-    // Action asking us to restart the task from the Welcome activity (which will figure out the
-    // right place to go) and finish
-    private static final String ACTION_START_AT_MESSAGE_LIST =
-        "com.android.email.AccountSetupBasics.messageList";
-
-    private final static String EXTRA_USERNAME = "com.android.email.AccountSetupBasics.username";
-    private final static String EXTRA_PASSWORD = "com.android.email.AccountSetupBasics.password";
 
     private final static int DIALOG_NOTE = 1;
     private final static int DIALOG_DUPLICATE_ACCOUNT = 2;
@@ -90,69 +74,78 @@ public class AccountSetupBasics extends Activity
     private CheckBox mDefaultView;
     private Button mNextButton;
     private Button mManualSetupButton;
-    private EmailContent.Account mAccount;
+
     private Provider mProvider;
-    private boolean mEasFlowMode;
     private String mDuplicateAccountName;
 
     private EmailAddressValidator mEmailValidator = new EmailAddressValidator();
 
     public static void actionNewAccount(Activity fromActivity) {
-        Intent i = new Intent(fromActivity, AccountSetupBasics.class);
-        fromActivity.startActivity(i);
+        SetupData.init(SetupData.FLOW_MODE_NORMAL);
+        fromActivity.startActivity(new Intent(fromActivity, AccountSetupBasics.class));
     }
 
     public static void actionNewAccountWithCredentials(Activity fromActivity,
-            String username, String password, boolean easFlow) {
-        Intent i = new Intent(fromActivity, AccountSetupBasics.class);
-        i.putExtra(EXTRA_USERNAME, username);
-        i.putExtra(EXTRA_PASSWORD, password);
-        i.putExtra(EXTRA_EAS_FLOW, easFlow);
-        fromActivity.startActivity(i);
+            String username, String password, int accountFlowMode) {
+        SetupData.init(accountFlowMode, username, password);
+        fromActivity.startActivity(new Intent(fromActivity, AccountSetupBasics.class));
     }
 
     /**
-     * This creates an intent that can be used to start a self-contained account creation flow
+     * This generates setup data that can be used to start a self-contained account creation flow
      * for exchange accounts.
      */
     public static Intent actionSetupExchangeIntent(Context context) {
-        Intent i = new Intent(context, AccountSetupBasics.class);
-        i.putExtra(EXTRA_EAS_FLOW, true);
-        return i;
+        SetupData.init(SetupData.FLOW_MODE_ACCOUNT_MANAGER_EAS);
+        return new Intent(context, AccountSetupBasics.class);
     }
 
-    public static void actionAccountCreateFinishedEas(Activity fromActivity) {
+    /**
+     * This generates setup data that can be used to start a self-contained account creation flow
+     * for pop/imap accounts.
+     */
+    public static Intent actionSetupPopImapIntent(Context context) {
+        SetupData.init(SetupData.FLOW_MODE_ACCOUNT_MAANGER_POP_IMAP);
+        return new Intent(context, AccountSetupBasics.class);
+    }
+
+    public static void actionAccountCreateFinishedAccountFlow(Activity fromActivity) {
         Intent i= new Intent(fromActivity, AccountSetupBasics.class);
-        // If we're in the "eas flow" (from AccountManager), we want to return to the caller
+        // If we're in the "account flow" (from AccountManager), we want to return to the caller
         // (in the settings app)
-        i.putExtra(AccountSetupBasics.ACTION_RETURN_TO_CALLER, true);
+        SetupData.init(SetupData.FLOW_MODE_RETURN_TO_CALLER);
         i.setFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
         fromActivity.startActivity(i);
     }
 
-    public static void actionAccountCreateFinished(Activity fromActivity, long accountId) {
-        Intent i= new Intent(fromActivity, AccountSetupBasics.class);
-        // If we're not in the "eas flow" (from AccountManager), we want to show the message list
-        // for the new inbox
-        i.putExtra(AccountSetupBasics.ACTION_START_AT_MESSAGE_LIST, accountId);
-        i.setFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
-        fromActivity.startActivity(i);
+    public static void actionAccountCreateFinished(final Activity fromActivity,
+            final long accountId) {
+        Utility.runAsync(new Runnable() {
+           public void run() {
+               Intent i = new Intent(fromActivity, AccountSetupBasics.class);
+               // If we're not in the "account flow" (from AccountManager), we want to show the
+               // message list for the new inbox
+               Account account = Account.restoreAccountWithId(fromActivity, accountId);
+               SetupData.init(SetupData.FLOW_MODE_RETURN_TO_MESSAGE_LIST, account);
+               i.setFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
+               fromActivity.startActivity(i);
+            }});
     }
 
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
 
-        Intent intent = getIntent();
-        if (intent.getBooleanExtra(ACTION_RETURN_TO_CALLER, false)) {
+        int flowMode = SetupData.getFlowMode();
+        if (flowMode == SetupData.FLOW_MODE_RETURN_TO_CALLER) {
             // Return to the caller who initiated account creation
             finish();
             return;
-        } else {
-            long accountId = intent.getLongExtra(ACTION_START_AT_MESSAGE_LIST, -1);
-            if (accountId >= 0) {
+        } else if (flowMode == SetupData.FLOW_MODE_RETURN_TO_MESSAGE_LIST) {
+            Account account = SetupData.getAccount();
+            if (account != null && account.mId >= 0) {
                 // Show the message list for the new account
-                MessageList.actionHandleAccount(this, accountId, Mailbox.TYPE_INBOX);
+                MessageList.actionHandleAccount(this, account.mId, Mailbox.TYPE_INBOX);
                 finish();
                 return;
             }
@@ -180,7 +173,7 @@ public class AccountSetupBasics extends Activity
                     EmailContent.Account.CONTENT_URI,
                     EmailContent.Account.ID_PROJECTION,
                     null, null, null);
-            if (c.getCount() > 0) {
+            if (c != null && c.getCount() > 0) {
                 mDefaultView.setVisibility(View.VISIBLE);
             }
         } finally {
@@ -189,33 +182,27 @@ public class AccountSetupBasics extends Activity
             }
         }
 
-        mEasFlowMode = intent.getBooleanExtra(EXTRA_EAS_FLOW, false);
-        if (mEasFlowMode) {
+        if (flowMode == SetupData.FLOW_MODE_ACCOUNT_MANAGER_EAS) {
             // No need for manual button -> next is appropriate
             mManualSetupButton.setVisibility(View.GONE);
             // Swap welcome text for EAS-specific text
             TextView welcomeView = (TextView) findViewById(R.id.instructions);
             final boolean alternateStrings =
-                    VendorPolicyLoader.getInstance(this).useAlternateExchangeStrings();
+                VendorPolicyLoader.getInstance(this).useAlternateExchangeStrings();
             setTitle(alternateStrings
                     ? R.string.account_setup_basics_exchange_title_alternate
-                    : R.string.account_setup_basics_exchange_title);
+                            : R.string.account_setup_basics_exchange_title);
             welcomeView.setText(alternateStrings
                     ? R.string.accounts_welcome_exchange_alternate
-                    : R.string.accounts_welcome_exchange);
+                            : R.string.accounts_welcome_exchange);
         }
 
-        if (intent.hasExtra(EXTRA_USERNAME)) {
-            mEmailView.setText(intent.getStringExtra(EXTRA_USERNAME));
+        if (SetupData.getUsername() != null) {
+            mEmailView.setText(SetupData.getUsername());
         }
-        if (intent.hasExtra(EXTRA_PASSWORD)) {
-            mPasswordView.setText(intent.getStringExtra(EXTRA_PASSWORD));
+        if (SetupData.getPassword() != null) {
+            mPasswordView.setText(SetupData.getPassword());
         }
-
-        if (savedInstanceState != null && savedInstanceState.containsKey(EXTRA_ACCOUNT)) {
-            mAccount = (EmailContent.Account)savedInstanceState.getParcelable(EXTRA_ACCOUNT);
-        }
-
         if (savedInstanceState != null && savedInstanceState.containsKey(STATE_KEY_PROVIDER)) {
             mProvider = (Provider)savedInstanceState.getSerializable(STATE_KEY_PROVIDER);
         }
@@ -230,7 +217,6 @@ public class AccountSetupBasics extends Activity
     @Override
     public void onSaveInstanceState(Bundle outState) {
         super.onSaveInstanceState(outState);
-        outState.putParcelable(EXTRA_ACCOUNT, mAccount);
         if (mProvider != null) {
             outState.putSerializable(STATE_KEY_PROVIDER, mProvider);
         }
@@ -247,8 +233,8 @@ public class AccountSetupBasics extends Activity
     }
 
     private void validateFields() {
-        boolean valid = Utility.requiredFieldValid(mEmailView)
-                && Utility.requiredFieldValid(mPasswordView)
+        boolean valid = Utility.isTextViewNotEmpty(mEmailView)
+                && Utility.isTextViewNotEmpty(mPasswordView)
                 && mEmailValidator.isValid(mEmailView.getText().toString().trim());
         mNextButton.setEnabled(valid);
         mManualSetupButton.setEnabled(valid);
@@ -397,11 +383,11 @@ public class AccountSetupBasics extends Activity
             return;
         }
 
-        mAccount = new EmailContent.Account();
-        mAccount.setSenderName(getOwnerName());
-        mAccount.setEmailAddress(email);
-        mAccount.setStoreUri(this, incomingUri.toString());
-        mAccount.setSenderUri(this, outgoingUri.toString());
+        Account account = SetupData.getAccount();
+        account.setSenderName(getOwnerName());
+        account.setEmailAddress(email);
+        account.setStoreUri(this, incomingUri.toString());
+        account.setSenderUri(this, outgoingUri.toString());
 /* TODO figure out the best way to implement this concept
         mAccount.setDraftsFolderName(getString(R.string.special_mailbox_name_drafts));
         mAccount.setTrashFolderName(getString(R.string.special_mailbox_name_trash));
@@ -411,15 +397,16 @@ public class AccountSetupBasics extends Activity
         if (incomingUri.toString().startsWith("imap")) {
             // Delete policy must be set explicitly, because IMAP does not provide a UI selection
             // for it. This logic needs to be followed in the auto setup flow as well.
-            mAccount.setDeletePolicy(EmailContent.Account.DELETE_POLICY_ON_DELETE);
+            account.setDeletePolicy(EmailContent.Account.DELETE_POLICY_ON_DELETE);
         }
-        mAccount.setSyncInterval(DEFAULT_ACCOUNT_CHECK_INTERVAL);
-        AccountSetupCheckSettings.actionValidateSettings(this, mAccount, true, true);
+        account.setSyncInterval(DEFAULT_ACCOUNT_CHECK_INTERVAL);
+        AccountSetupCheckSettings.actionCheckSettings(this,
+                SetupData.CHECK_INCOMING | SetupData.CHECK_OUTGOING);
     }
 
     private void onNext() {
         // If this is EAS flow, don't try to find a provider for the domain!
-        if (!mEasFlowMode) {
+        if (SetupData.getFlowMode() != SetupData.FLOW_MODE_ACCOUNT_MANAGER_EAS) {
             String email = mEmailView.getText().toString().trim();
             String[] emailParts = email.split("@");
             String domain = emailParts[1].trim();
@@ -447,17 +434,13 @@ public class AccountSetupBasics extends Activity
     @Override
     public void onActivityResult(int requestCode, int resultCode, Intent data) {
         if (resultCode == RESULT_OK) {
-            String email = mAccount.getEmailAddress();
+            Account account = SetupData.getAccount();
+            String email = account.getEmailAddress();
+            account.setDisplayName(email);
             boolean isDefault = mDefaultView.isChecked();
-            mAccount.setDisplayName(email);
-            mAccount.setDefaultAccount(isDefault);
-            // At this point we write the Account object to the DB for the first time.
-            // From now on we'll only pass the accountId around.
-            mAccount.save(this);
-            // Update the backup (side copy) of the accounts
-            AccountBackupRestore.backupAccounts(this);
-            Email.setServicesEnabled(this);
-            AccountSetupNames.actionSetNames(this, mAccount.mId, false);
+            account.setDefaultAccount(isDefault);
+            SetupData.setDefault(isDefault);
+            AccountSetupOptions.actionOptions(this);
             finish();
         }
     }
@@ -484,18 +467,18 @@ public class AccountSetupBasics extends Activity
             return;
         }
 
-        mAccount = new EmailContent.Account();
-        mAccount.setSenderName(getOwnerName());
-        mAccount.setEmailAddress(email);
+        Account account = SetupData.getAccount();
+        account.setSenderName(getOwnerName());
+        account.setEmailAddress(email);
         try {
             URI uri = new URI("placeholder", user + ":" + password, domain, -1, null, null, null);
-            mAccount.setStoreUri(this, uri.toString());
-            mAccount.setSenderUri(this, uri.toString());
+            account.setStoreUri(this, uri.toString());
+            account.setSenderUri(this, uri.toString());
         } catch (URISyntaxException use) {
             // If we can't set up the URL, don't continue - account setup pages will fail too
             Toast.makeText(this, R.string.account_setup_username_password_toast, Toast.LENGTH_LONG)
                     .show();
-            mAccount = null;
+            account = null;
             return;
         }
 /* TODO figure out the best way to implement this concept
@@ -504,10 +487,9 @@ public class AccountSetupBasics extends Activity
         mAccount.setOutboxFolderName(getString(R.string.special_mailbox_name_outbox));
         mAccount.setSentFolderName(getString(R.string.special_mailbox_name_sent));
 */
-        mAccount.setSyncInterval(DEFAULT_ACCOUNT_CHECK_INTERVAL);
+        account.setSyncInterval(DEFAULT_ACCOUNT_CHECK_INTERVAL);
 
-        AccountSetupAccountType.actionSelectAccountType(this, mAccount, mDefaultView.isChecked(),
-                mEasFlowMode, allowAutoDiscover);
+        AccountSetupAccountType.actionSelectAccountType(this);
     }
 
     public void onClick(View v) {

@@ -19,7 +19,6 @@ package com.android.exchange;
 
 import com.android.email.AccountBackupRestore;
 import com.android.email.Email;
-import com.android.email.SecurityPolicy;
 import com.android.email.Utility;
 import com.android.email.mail.transport.SSLUtils;
 import com.android.email.provider.EmailContent;
@@ -34,6 +33,7 @@ import com.android.email.provider.EmailContent.SyncColumns;
 import com.android.email.service.EmailServiceStatus;
 import com.android.email.service.IEmailService;
 import com.android.email.service.IEmailServiceCallback;
+import com.android.email.service.MailService;
 import com.android.exchange.adapter.CalendarSyncAdapter;
 import com.android.exchange.utility.FileLogger;
 
@@ -49,10 +49,7 @@ import org.apache.http.params.BasicHttpParams;
 import org.apache.http.params.HttpParams;
 
 import android.accounts.AccountManager;
-import android.accounts.AccountManagerFuture;
-import android.accounts.AuthenticatorException;
 import android.accounts.OnAccountsUpdateListener;
-import android.accounts.OperationCanceledException;
 import android.app.AlarmManager;
 import android.app.PendingIntent;
 import android.app.Service;
@@ -990,7 +987,7 @@ public class SyncManager extends Service implements Runnable {
                     // list, which would cause the deletion of all of our accounts
                     if (mAccountObserver != null) {
                         mAccountObserver.onAccountChanged();
-                        reconcileAccountsWithAccountManager(syncManager, mAccountList,
+                        MailService.reconcileAccountsWithAccountManager(syncManager, mAccountList,
                                 accountMgrList, false, mResolver);
                     }
                 }
@@ -1464,91 +1461,6 @@ public class SyncManager extends Service implements Runnable {
                 updatePIMSyncSettings(account, Mailbox.TYPE_CONTACTS, ContactsContract.AUTHORITY);
                 updatePIMSyncSettings(account, Mailbox.TYPE_CALENDAR, Calendar.AUTHORITY);
             }
-        }
-    }
-
-    /**
-     * Compare our account list (obtained from EmailProvider) with the account list owned by
-     * AccountManager.  If there are any orphans (an account in one list without a corresponding
-     * account in the other list), delete the orphan, as these must remain in sync.
-     *
-     * Note that the duplication of account information is caused by the Email application's
-     * incomplete integration with AccountManager.
-     *
-     * This function may not be called from the main/UI thread, because it makes blocking calls
-     * into the account manager.
-     *
-     * @param context The context in which to operate
-     * @param cachedEasAccounts the exchange provider accounts to work from
-     * @param accountManagerAccounts The account manager accounts to work from
-     * @param blockExternalChanges FOR TESTING ONLY - block backups, security changes, etc.
-     * @param resolver the content resolver for making provider updates (injected for testability)
-     */
-    /* package */ static void reconcileAccountsWithAccountManager(Context context,
-            List<Account> cachedEasAccounts, android.accounts.Account[] accountManagerAccounts,
-            boolean blockExternalChanges, ContentResolver resolver) {
-        // First, look through our cached EAS Accounts (from EmailProvider) to make sure there's a
-        // corresponding AccountManager account
-        boolean accountsDeleted = false;
-        for (Account providerAccount: cachedEasAccounts) {
-            String providerAccountName = providerAccount.mEmailAddress;
-            boolean found = false;
-            for (android.accounts.Account accountManagerAccount: accountManagerAccounts) {
-                if (accountManagerAccount.name.equalsIgnoreCase(providerAccountName)) {
-                    found = true;
-                    break;
-                }
-            }
-            if (!found) {
-                if ((providerAccount.mFlags & Account.FLAGS_INCOMPLETE) != 0) {
-                    log("Account reconciler noticed incomplete account; ignoring");
-                    continue;
-                }
-                // This account has been deleted in the AccountManager!
-                alwaysLog("Account deleted in AccountManager; deleting from provider: " +
-                        providerAccountName);
-                // TODO This will orphan downloaded attachments; need to handle this
-                resolver.delete(ContentUris.withAppendedId(Account.CONTENT_URI,
-                        providerAccount.mId), null, null);
-                accountsDeleted = true;
-            }
-        }
-        // Now, look through AccountManager accounts to make sure we have a corresponding cached EAS
-        // account from EmailProvider
-        for (android.accounts.Account accountManagerAccount: accountManagerAccounts) {
-            String accountManagerAccountName = accountManagerAccount.name;
-            boolean found = false;
-            for (Account cachedEasAccount: cachedEasAccounts) {
-                if (cachedEasAccount.mEmailAddress.equalsIgnoreCase(accountManagerAccountName)) {
-                    found = true;
-                }
-            }
-            if (!found) {
-                // This account has been deleted from the EmailProvider database
-                alwaysLog("Account deleted from provider; deleting from AccountManager: " +
-                        accountManagerAccountName);
-                // Delete the account
-                AccountManagerFuture<Boolean> blockingResult = AccountManager.get(context)
-                        .removeAccount(accountManagerAccount, null, null);
-                try {
-                    // Note: All of the potential errors from removeAccount() are simply logged
-                    // here, as there is nothing to actually do about them.
-                    blockingResult.getResult();
-                } catch (OperationCanceledException e) {
-                    Log.w(Email.LOG_TAG, e.toString());
-                } catch (AuthenticatorException e) {
-                    Log.w(Email.LOG_TAG, e.toString());
-                } catch (IOException e) {
-                    Log.w(Email.LOG_TAG, e.toString());
-                }
-                accountsDeleted = true;
-            }
-        }
-        // If we changed the list of accounts, refresh the backup & security settings
-        if (!blockExternalChanges && accountsDeleted) {
-            AccountBackupRestore.backupAccounts(context);
-            SecurityPolicy.getInstance(context).reducePolicies();
-            Email.setNotifyUiAccountsChanged(true);
         }
     }
 

@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2009 The Android Open Source Project
+ * Copyright (C) 2010 The Android Open Source Project
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -17,11 +17,8 @@
 package com.android.email.service;
 
 import com.android.email.Email;
-import com.android.email.R;
-import com.android.email.VendorPolicyLoader;
 import com.android.email.activity.setup.AccountSetupBasics;
 import com.android.email.provider.EmailContent;
-import com.android.exchange.provider.ExchangeDirectoryProvider;
 
 import android.accounts.AbstractAccountAuthenticator;
 import android.accounts.Account;
@@ -30,33 +27,29 @@ import android.accounts.AccountManager;
 import android.accounts.NetworkErrorException;
 import android.app.Service;
 import android.content.ContentResolver;
-import android.content.ContentValues;
 import android.content.Context;
 import android.content.Intent;
 import android.os.Bundle;
 import android.os.IBinder;
 import android.provider.Calendar;
 import android.provider.ContactsContract;
-import android.provider.ContactsContract.Directory;
 
 /**
- * A very basic authenticator service for EAS.  At the moment, it has no UI hooks.  When called
+ * A very basic authenticator service for POP/IMAP.  At the moment, it has no UI hooks.  When called
  * with addAccount, it simply adds the account to AccountManager directly with a username and
  * password.
  */
-public class EasAuthenticatorService extends Service {
+public class PopImapAuthenticatorService extends Service {
     public static final String OPTIONS_USERNAME = "username";
     public static final String OPTIONS_PASSWORD = "password";
     public static final String OPTIONS_CONTACTS_SYNC_ENABLED = "contacts";
     public static final String OPTIONS_CALENDAR_SYNC_ENABLED = "calendar";
     public static final String OPTIONS_EMAIL_SYNC_ENABLED = "email";
 
-    class EasAuthenticator extends AbstractAccountAuthenticator {
-        private Context mContext;
+    class PopImapAuthenticator extends AbstractAccountAuthenticator {
 
-        public EasAuthenticator(Context context) {
+        public PopImapAuthenticator(Context context) {
             super(context);
-            mContext = context;
         }
 
         @Override
@@ -69,31 +62,11 @@ public class EasAuthenticatorService extends Service {
             if (options != null && options.containsKey(OPTIONS_PASSWORD)
                     && options.containsKey(OPTIONS_USERNAME)) {
                 final Account account = new Account(options.getString(OPTIONS_USERNAME),
-                        Email.EXCHANGE_ACCOUNT_MANAGER_TYPE);
-                AccountManager.get(EasAuthenticatorService.this).addAccountExplicitly(
+                        Email.POP_IMAP_ACCOUNT_MANAGER_TYPE);
+                AccountManager.get(PopImapAuthenticatorService.this).addAccountExplicitly(
                             account, options.getString(OPTIONS_PASSWORD), null);
 
-                // Set up contacts syncing.  SyncManager will use information from ContentResolver
-                // to determine syncability of Contacts for Exchange
-                boolean syncContacts = false;
-                if (options.containsKey(OPTIONS_CONTACTS_SYNC_ENABLED) &&
-                        options.getBoolean(OPTIONS_CONTACTS_SYNC_ENABLED)) {
-                    syncContacts = true;
-                }
-                ContentResolver.setIsSyncable(account, ContactsContract.AUTHORITY, 1);
-                ContentResolver.setSyncAutomatically(account, ContactsContract.AUTHORITY,
-                        syncContacts);
-
-                // Set up calendar syncing, as above
-                boolean syncCalendar = false;
-                if (options.containsKey(OPTIONS_CALENDAR_SYNC_ENABLED) &&
-                        options.getBoolean(OPTIONS_CALENDAR_SYNC_ENABLED)) {
-                    syncCalendar = true;
-                }
-                ContentResolver.setIsSyncable(account, Calendar.AUTHORITY, 1);
-                ContentResolver.setSyncAutomatically(account, Calendar.AUTHORITY, syncCalendar);
-
-                // Set up email syncing, as above
+                // Set up email syncing
                 boolean syncEmail = false;
                 if (options.containsKey(OPTIONS_EMAIL_SYNC_ENABLED) &&
                         options.getBoolean(OPTIONS_EMAIL_SYNC_ENABLED)) {
@@ -101,26 +74,12 @@ public class EasAuthenticatorService extends Service {
                 }
                 ContentResolver.setIsSyncable(account, EmailContent.AUTHORITY, 1);
                 ContentResolver.setSyncAutomatically(account, EmailContent.AUTHORITY, syncEmail);
+                ContentResolver.setIsSyncable(account, ContactsContract.AUTHORITY, 0);
+                ContentResolver.setIsSyncable(account, Calendar.AUTHORITY, 0);
 
-                // Register our GAL provider
-                ContentValues values = new ContentValues();
-                values.put(Directory.DIRECTORY_AUTHORITY,
-                        ExchangeDirectoryProvider.EXCHANGE_GAL_AUTHORITY);
-                values.put(Directory.ACCOUNT_NAME, account.name);
-                values.put(Directory.ACCOUNT_TYPE, account.type);
-                values.put(Directory.PACKAGE_NAME, mContext.getPackageName());
-                if (VendorPolicyLoader.getInstance(EasAuthenticatorService.this)
-                        .useAlternateExchangeStrings()) {
-                    values.put(Directory.TYPE_RESOURCE_ID, R.string.exchange_name_alternate);
-                } else {
-                    values.put(Directory.TYPE_RESOURCE_ID, R.string.exchange_name);
-                }
-                values.put(Directory.DISPLAY_NAME, account.name);
-                values.put(Directory.EXPORT_SUPPORT, Directory.EXPORT_SUPPORT_SAME_ACCOUNT_ONLY);
-                getContentResolver().insert(Directory.CONTENT_URI, values);
                 Bundle b = new Bundle();
                 b.putString(AccountManager.KEY_ACCOUNT_NAME, options.getString(OPTIONS_USERNAME));
-                b.putString(AccountManager.KEY_ACCOUNT_TYPE, Email.EXCHANGE_ACCOUNT_MANAGER_TYPE);
+                b.putString(AccountManager.KEY_ACCOUNT_TYPE, Email.POP_IMAP_ACCOUNT_MANAGER_TYPE);
                 return b;
             // 2) The other case is that we're creating a new account from an Account manager
             //    activity.  In this case, we add an intent that will be used to gather the
@@ -128,7 +87,7 @@ public class EasAuthenticatorService extends Service {
             } else {
                 Bundle b = new Bundle();
                 Intent intent =
-                    AccountSetupBasics.actionSetupExchangeIntent(EasAuthenticatorService.this);
+                    AccountSetupBasics.actionSetupPopImapIntent(PopImapAuthenticatorService.this);
                 intent.putExtra(AccountManager.KEY_ACCOUNT_AUTHENTICATOR_RESPONSE, response);
                 b.putParcelable(AccountManager.KEY_INTENT, intent);
                 return b;
@@ -175,7 +134,7 @@ public class EasAuthenticatorService extends Service {
     @Override
     public IBinder onBind(Intent intent) {
         if (AccountManager.ACTION_AUTHENTICATOR_INTENT.equals(intent.getAction())) {
-            return new EasAuthenticator(this).getIBinder();
+            return new PopImapAuthenticator(this).getIBinder();
         } else {
             return null;
         }

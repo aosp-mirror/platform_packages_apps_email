@@ -28,14 +28,13 @@ import android.widget.EditText;
 
 /**
  * Tests of the basic UI logic in the Account Setup Incoming (IMAP / POP3) screen.
+ * You can run this entire test case with:
+ *   runtest -c com.android.email.activity.setup.AccountSetupIncomingTests email
  */
 @MediumTest
 public class AccountSetupIncomingTests extends 
         ActivityInstrumentationTestCase2<AccountSetupIncoming> {
     
-    // borrowed from AccountSetupIncoming
-    private static final String EXTRA_ACCOUNT = "account";
-
     private AccountSetupIncoming mActivity;
     private EditText mServerView;
     private Button mNextButton;
@@ -146,9 +145,8 @@ public class AccountSetupIncomingTests extends
     private Intent getTestIntent(String storeUriString) {
         EmailContent.Account account = new EmailContent.Account();
         account.setStoreUri(getInstrumentation().getTargetContext(), storeUriString);
-        Intent i = new Intent(Intent.ACTION_MAIN);
-        i.putExtra(EXTRA_ACCOUNT, account);
-        return i;
+        SetupData.init(SetupData.FLOW_MODE_NORMAL, account);
+        return new Intent(Intent.ACTION_MAIN);
     }
 
 }
