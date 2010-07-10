@@ -18,9 +18,14 @@ package com.android.exchange.adapter;
 
 import com.android.exchange.adapter.CalendarSyncAdapter.CalendarOperations;
 import com.android.exchange.adapter.CalendarSyncAdapter.EasCalendarSyncParser;
+import com.android.exchange.provider.MockProvider;
 
 import android.content.ContentProviderOperation;
 import android.content.ContentValues;
+import android.content.OperationApplicationException;
+import android.database.Cursor;
+import android.os.RemoteException;
+import android.provider.Calendar.Attendees;
 import android.provider.Calendar.Events;
 
 import java.io.ByteArrayInputStream;
@@ -35,6 +40,21 @@ import java.util.TimeZone;
  */
 
 public class CalendarSyncAdapterTests extends SyncAdapterTestCase<CalendarSyncAdapter> {
+    private static final String[] ATTENDEE_PROJECTION = new String[] {Attendees.ATTENDEE_EMAIL,
+            Attendees.ATTENDEE_NAME, Attendees.ATTENDEE_STATUS};
+    private static final int ATTENDEE_EMAIL = 0;
+    private static final int ATTENDEE_NAME = 1;
+    private static final int ATTENDEE_STATUS = 2;
+
+    private static final String SINGLE_ATTENDEE_EMAIL = "attendee@host.com";
+    private static final String SINGLE_ATTENDEE_NAME = "Bill Attendee";
+
+    // This is the US/Pacific time zone as a base64-encoded TIME_ZONE_INFORMATION structure, as
+    // it would appear coming from an Exchange server
+    private static final String TEST_TIME_ZONE = "4AEAAFAAYQBjAGkAZgBpAGMAIABTAHQAYQBuAGQAYQByA" +
+        "GQAIABUAGkAbQBlAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAsAAAABAAIAAAAAAAAAAAAAAFAAY" +
+        "QBjAGkAZgBpAGMAIABEAGEAeQBsAGkAZwBoAHQAIABUAGkAbQBlAAAAAAAAAAAAAAAAAAAAAAAAA" +
+        "AAAAAAAAAMAAAACAAIAAAAAAAAAxP///w==";
 
     public CalendarSyncAdapterTests() {
         super();
@@ -189,6 +209,15 @@ public class CalendarSyncAdapterTests extends SyncAdapterTestCase<CalendarSyncAd
         }
     }
 
+    private void addAttendeeToSerializer(Serializer s, String email, String name)
+            throws IOException {
+        s.start(Tags.CALENDAR_ATTENDEE);
+        s.data(Tags.CALENDAR_ATTENDEE_EMAIL, email);
+        s.data(Tags.CALENDAR_ATTENDEE_TYPE, "1");
+        s.data(Tags.CALENDAR_ATTENDEE_NAME, name);
+        s.end();
+    }
+
     private int countInsertOperationsForTable(CalendarOperations ops, String tableName) {
         int cnt = 0;
         for (ContentProviderOperation op: ops) {
@@ -201,51 +230,79 @@ public class CalendarSyncAdapterTests extends SyncAdapterTestCase<CalendarSyncAd
         return cnt;
     }
 
-    /**
-     * Note that there is no way to access the ContentValues inside of a ContentProviderOperation,
-     * which limits the extent to which we can test the result of parsing events.  We can count
-     * the number of objects to be created, but we can't examine them.
-     */
-    // TODO Try to convince fredq to allow access to the ContentValues of a CPO
+    class TestEvent extends Serializer {
+        CalendarSyncAdapter mAdapter;
+        EasCalendarSyncParser mParser;
+        Serializer mSerializer;
+
+        TestEvent() throws IOException {
+            super(false);
+            mAdapter = getTestSyncAdapter(CalendarSyncAdapter.class);
+            mParser = mAdapter.new EasCalendarSyncParser(getTestInputStream(), mAdapter);
+        }
+
+        void setUserEmailAddress(String addr) {
+            mAdapter.mAccount.mEmailAddress = addr;
+            mAdapter.mEmailAddress = addr;
+        }
+
+        EasCalendarSyncParser getParser() throws IOException {
+            // Set up our parser's input and eat the initial tag
+            mParser.resetInput(new ByteArrayInputStream(toByteArray()));
+            mParser.nextTag(0);
+            return mParser;
+        }
+
+        // setupPreAttendees and setupPostAttendees initialize calendar data in the order in which
+        // they would appear in an actual EAS session.  Between these two calls, we initialize
+        // attendee data, which varies between the following tests
+        TestEvent setupPreAttendees() throws IOException {
+            start(Tags.SYNC_APPLICATION_DATA);
+            data(Tags.CALENDAR_TIME_ZONE, TEST_TIME_ZONE);
+            data(Tags.CALENDAR_DTSTAMP, "20100518T213156Z");
+            data(Tags.CALENDAR_START_TIME, "20100518T220000Z");
+            data(Tags.CALENDAR_SUBJECT, "Documentation");
+            data(Tags.CALENDAR_UID, "4417556B-27DE-4ECE-B679-A63EFE1F9E85");
+            data(Tags.CALENDAR_ORGANIZER_NAME, "Fred Squatibuquitas");
+            data(Tags.CALENDAR_ORGANIZER_EMAIL, "fred.squatibuquitas@prettylongdomainname.com");
+            return this;
+        }
+
+        TestEvent setupPostAttendees()throws IOException {
+            data(Tags.CALENDAR_LOCATION, "CR SF 601T2/North Shore Presentation Self Service (16)");
+            data(Tags.CALENDAR_END_TIME, "20100518T223000Z");
+            start(Tags.BASE_BODY);
+            data(Tags.BASE_BODY_PREFERENCE, "1");
+            data(Tags.BASE_ESTIMATED_DATA_SIZE, "69105"); // The number is ignored by the parser
+            data(Tags.BASE_DATA,
+                    "This is the event description; we should probably make it longer");
+            end(); // BASE_BODY
+            start(Tags.CALENDAR_RECURRENCE);
+            data(Tags.CALENDAR_RECURRENCE_TYPE, "1"); // weekly
+            data(Tags.CALENDAR_RECURRENCE_INTERVAL, "1");
+            data(Tags.CALENDAR_RECURRENCE_OCCURRENCES, "10");
+            data(Tags.CALENDAR_RECURRENCE_DAYOFWEEK, "12"); // tue, wed
+            data(Tags.CALENDAR_RECURRENCE_UNTIL, "2005-04-14T00:00:00.000Z");
+            end();  // CALENDAR_RECURRENCE
+            data(Tags.CALENDAR_SENSITIVITY, "0");
+            data(Tags.CALENDAR_BUSY_STATUS, "2");
+            data(Tags.CALENDAR_ALL_DAY_EVENT, "0");
+            data(Tags.CALENDAR_MEETING_STATUS, "3");
+            data(Tags.BASE_NATIVE_BODY_TYPE, "3");
+            end().done(); // SYNC_APPLICATION_DATA
+            return this;
+        }
+    }
+
     public void testAddEvent() throws IOException {
-        CalendarSyncAdapter adapter = getTestSyncAdapter(CalendarSyncAdapter.class);
-        EasCalendarSyncParser p = adapter.new EasCalendarSyncParser(getTestInputStream(), adapter);
+        TestEvent event = new TestEvent();
+        event.setupPreAttendees();
+        event.start(Tags.CALENDAR_ATTENDEES);
+        addAttendeesToSerializer(event, 10);
+        event.end(); // CALENDAR_ATTENDEES
+        event.setupPostAttendees();
 
-        // Set up an input stream with new event data
-        Serializer s = new Serializer(false);
-        s.start(Tags.SYNC_APPLICATION_DATA);
-        s.data(Tags.CALENDAR_TIME_ZONE, "4AEAAFAAYQBjAGkAZgBpAGMAIABTAHQAYQBuAGQAYQByA" +
-                "GQAIABUAGkAbQBlAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAsAAAABAAIAAAAAAAAAAAAAAFAAY" +
-                "QBjAGkAZgBpAGMAIABEAGEAeQBsAGkAZwBoAHQAIABUAGkAbQBlAAAAAAAAAAAAAAAAAAAAAAAAA" +
-                "AAAAAAAAAMAAAACAAIAAAAAAAAAxP///w==");
-        s.data(Tags.CALENDAR_DTSTAMP, "20100518T213156Z");
-        s.data(Tags.CALENDAR_START_TIME, "20100518T220000Z");
-        s.data(Tags.CALENDAR_SUBJECT, "Documentation");
-        s.data(Tags.CALENDAR_UID, "4417556B-27DE-4ECE-B679-A63EFE1F9E85");
-        s.data(Tags.CALENDAR_ORGANIZER_NAME, "Fred Squatibuquitas");
-        s.data(Tags.CALENDAR_ORGANIZER_EMAIL, "fred.squatibuquitas@prettylongdomainname.com");
-        s.start(Tags.CALENDAR_ATTENDEES);
-        addAttendeesToSerializer(s, 10);
-        s.end(); // CALENDAR_ATTENDEES
-        s.data(Tags.CALENDAR_LOCATION, "CR SF 601T2/North Shore Presentation Self Service (16)");
-        s.data(Tags.CALENDAR_END_TIME, "20100518T223000Z");
-        s.start(Tags.BASE_BODY);
-        s.data(Tags.BASE_BODY_PREFERENCE, "1");
-        s.data(Tags.BASE_ESTIMATED_DATA_SIZE, "69105"); // The number is ignored by the parser
-        s.data(Tags.BASE_DATA, "This is the event description; we should probably make it longer");
-        s.end(); // BASE_BODY
-        s.data(Tags.CALENDAR_SENSITIVITY, "0");
-        s.data(Tags.CALENDAR_BUSY_STATUS, "2");
-        s.data(Tags.CALENDAR_ALL_DAY_EVENT, "0");
-        s.data(Tags.CALENDAR_MEETING_STATUS, "3");
-        s.data(Tags.BASE_NATIVE_BODY_TYPE, "3");
-        s.end().done(); // SYNC_APPLICATION_DATA
-
-        // Set up our parser's input and eat the initial tag
-        byte[] bytes = s.toByteArray();
-        p.resetInput(new ByteArrayInputStream(bytes));
-        p.nextTag(0);
-
+        EasCalendarSyncParser p = event.getParser();
         p.addEvent(p.mOps, "1:1", false);
         // There should be 1 event
         assertEquals(1, countInsertOperationsForTable(p.mOps, "events"));
@@ -255,45 +312,37 @@ public class CalendarSyncAdapterTests extends SyncAdapterTestCase<CalendarSyncAd
         assertEquals(5, countInsertOperationsForTable(p.mOps, "extendedproperties"));
     }
 
+    public void testAddEventIllegal() throws IOException {
+        // We don't send a start time; the event is illegal and nothing should be added
+        TestEvent event = new TestEvent();
+        event.start(Tags.SYNC_APPLICATION_DATA);
+        event.data(Tags.CALENDAR_TIME_ZONE, TEST_TIME_ZONE);
+        event.data(Tags.CALENDAR_DTSTAMP, "20100518T213156Z");
+        event.data(Tags.CALENDAR_SUBJECT, "Documentation");
+        event.data(Tags.CALENDAR_UID, "4417556B-27DE-4ECE-B679-A63EFE1F9E85");
+        event.data(Tags.CALENDAR_ORGANIZER_NAME, "Fred Squatibuquitas");
+        event.data(Tags.CALENDAR_ORGANIZER_EMAIL, "fred.squatibuquitas@prettylongdomainname.com");
+        event.start(Tags.CALENDAR_ATTENDEES);
+        addAttendeesToSerializer(event, 10);
+        event.end(); // CALENDAR_ATTENDEES
+        event.setupPostAttendees();
+
+        EasCalendarSyncParser p = event.getParser();
+        p.addEvent(p.mOps, "1:1", false);
+        assertEquals(0, countInsertOperationsForTable(p.mOps, "events"));
+        assertEquals(0, countInsertOperationsForTable(p.mOps, "attendees"));
+        assertEquals(0, countInsertOperationsForTable(p.mOps, "extendedproperties"));
+    }
+
     public void testAddEventRedactedAttendees() throws IOException {
-        CalendarSyncAdapter adapter = getTestSyncAdapter(CalendarSyncAdapter.class);
-        EasCalendarSyncParser p = adapter.new EasCalendarSyncParser(getTestInputStream(), adapter);
+        TestEvent event = new TestEvent();
+        event.setupPreAttendees();
+        event.start(Tags.CALENDAR_ATTENDEES);
+        addAttendeesToSerializer(event, 100);
+        event.end(); // CALENDAR_ATTENDEES
+        event.setupPostAttendees();
 
-        // Set up an input stream with new event data
-        Serializer s = new Serializer(false);
-        s.start(Tags.SYNC_APPLICATION_DATA);
-        s.data(Tags.CALENDAR_TIME_ZONE, "4AEAAFAAYQBjAGkAZgBpAGMAIABTAHQAYQBuAGQAYQByA" +
-                "GQAIABUAGkAbQBlAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAsAAAABAAIAAAAAAAAAAAAAAFAAY" +
-                "QBjAGkAZgBpAGMAIABEAGEAeQBsAGkAZwBoAHQAIABUAGkAbQBlAAAAAAAAAAAAAAAAAAAAAAAAA" +
-                "AAAAAAAAAMAAAACAAIAAAAAAAAAxP///w==");
-        s.data(Tags.CALENDAR_DTSTAMP, "20100518T213156Z");
-        s.data(Tags.CALENDAR_START_TIME, "20100518T220000Z");
-        s.data(Tags.CALENDAR_SUBJECT, "Documentation");
-        s.data(Tags.CALENDAR_UID, "4417556B-27DE-4ECE-B679-A63EFE1F9E85");
-        s.data(Tags.CALENDAR_ORGANIZER_NAME, "Fred Squatibuquitas");
-        s.data(Tags.CALENDAR_ORGANIZER_EMAIL, "fred.squatibuquitas@prettylongdomainname.com");
-        s.start(Tags.CALENDAR_ATTENDEES);
-        addAttendeesToSerializer(s, 100);
-        s.end(); // CALENDAR_ATTENDEES
-        s.data(Tags.CALENDAR_LOCATION, "CR SF 601T2/North Shore Presentation Self Service (16)");
-        s.data(Tags.CALENDAR_END_TIME, "20100518T223000Z");
-        s.start(Tags.BASE_BODY);
-        s.data(Tags.BASE_BODY_PREFERENCE, "1");
-        s.data(Tags.BASE_ESTIMATED_DATA_SIZE, "69105"); // The number is ignored by the parser
-        s.data(Tags.BASE_DATA, "This is the event description; we should probably make it longer");
-        s.end(); // BASE_BODY
-        s.data(Tags.CALENDAR_SENSITIVITY, "0");
-        s.data(Tags.CALENDAR_BUSY_STATUS, "2");
-        s.data(Tags.CALENDAR_ALL_DAY_EVENT, "0");
-        s.data(Tags.CALENDAR_MEETING_STATUS, "3");
-        s.data(Tags.BASE_NATIVE_BODY_TYPE, "3");
-        s.end().done(); // SYNC_APPLICATION_DATA
-
-        // Set up our parser's input and eat the initial tag
-        byte[] bytes = s.toByteArray();
-        p.resetInput(new ByteArrayInputStream(bytes));
-        p.nextTag(0);
-
+        EasCalendarSyncParser p = event.getParser();
         p.addEvent(p.mOps, "1:1", false);
         // There should be 1 event
         assertEquals(1, countInsertOperationsForTable(p.mOps, "events"));
@@ -301,5 +350,74 @@ public class CalendarSyncAdapterTests extends SyncAdapterTestCase<CalendarSyncAd
         assertEquals(1, countInsertOperationsForTable(p.mOps, "attendees"));
         // dtstamp, meeting status, and attendees redacted
         assertEquals(3, countInsertOperationsForTable(p.mOps, "extendedproperties"));
+    }
+
+    /**
+     * Setup for the following three tests, which check attendee status of an added event
+     * @param userEmail the email address of the user
+     * @param update whether or not the event is an update (rather than new)
+     * @return a Cursor to the Attendee records added to our MockProvider
+     * @throws IOException
+     * @throws RemoteException
+     * @throws OperationApplicationException
+     */
+    private Cursor setupAddEventOneAttendee(String userEmail, boolean update)
+            throws IOException, RemoteException, OperationApplicationException {
+        TestEvent event = new TestEvent();
+        event.setupPreAttendees();
+        event.start(Tags.CALENDAR_ATTENDEES);
+        addAttendeeToSerializer(event, SINGLE_ATTENDEE_EMAIL, SINGLE_ATTENDEE_NAME);
+        event.setUserEmailAddress(userEmail);
+        event.end(); // CALENDAR_ATTENDEES
+        event.setupPostAttendees();
+
+        EasCalendarSyncParser p = event.getParser();
+        p.addEvent(p.mOps, "1:1", update);
+        // Send the CPO's to the mock provider
+        mMockResolver.applyBatch(MockProvider.AUTHORITY, p.mOps);
+        return mMockResolver.query(MockProvider.uri(Attendees.CONTENT_URI), ATTENDEE_PROJECTION,
+                null, null, null);
+    }
+
+    public void testAddEventOneAttendee() throws IOException, RemoteException,
+            OperationApplicationException {
+        Cursor c = setupAddEventOneAttendee("foo@bar.com", false);
+        assertEquals(2, c.getCount());
+        // The organizer should be "accepted", the unknown attendee "none"
+        while (c.moveToNext()) {
+            if (SINGLE_ATTENDEE_EMAIL.equals(c.getString(ATTENDEE_EMAIL))) {
+                assertEquals(Attendees.ATTENDEE_STATUS_NONE, c.getInt(ATTENDEE_STATUS));
+            } else {
+                assertEquals(Attendees.ATTENDEE_STATUS_ACCEPTED, c.getInt(ATTENDEE_STATUS));
+            }
+        }
+    }
+
+    public void testAddEventSelfAttendee() throws IOException, RemoteException,
+            OperationApplicationException {
+        Cursor c = setupAddEventOneAttendee(SINGLE_ATTENDEE_EMAIL, false);
+        // The organizer should be "accepted", and our user/attendee should be "done" even though
+        // the busy status = 2 (because we can't tell from a status of 2 on new events)
+        while (c.moveToNext()) {
+            if (SINGLE_ATTENDEE_EMAIL.equals(c.getString(ATTENDEE_EMAIL))) {
+                assertEquals(Attendees.ATTENDEE_STATUS_NONE, c.getInt(ATTENDEE_STATUS));
+            } else {
+                assertEquals(Attendees.ATTENDEE_STATUS_ACCEPTED, c.getInt(ATTENDEE_STATUS));
+            }
+        }
+    }
+
+    public void testAddEventSelfAttendeeUpdate() throws IOException, RemoteException,
+            OperationApplicationException {
+        Cursor c = setupAddEventOneAttendee(SINGLE_ATTENDEE_EMAIL, true);
+        // The organizer should be "accepted", and our user/attendee should be "accepted" (because
+        // busy status = 2 and this is an update
+        while (c.moveToNext()) {
+            if (SINGLE_ATTENDEE_EMAIL.equals(c.getString(ATTENDEE_EMAIL))) {
+                assertEquals(Attendees.ATTENDEE_STATUS_ACCEPTED, c.getInt(ATTENDEE_STATUS));
+            } else {
+                assertEquals(Attendees.ATTENDEE_STATUS_ACCEPTED, c.getInt(ATTENDEE_STATUS));
+            }
+        }
     }
 }
