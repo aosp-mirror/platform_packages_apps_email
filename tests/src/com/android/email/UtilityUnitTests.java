@@ -21,6 +21,7 @@ import com.android.email.provider.EmailContent.Mailbox;
 
 import android.content.Context;
 import android.graphics.drawable.Drawable;
+import android.os.Environment;
 import android.telephony.TelephonyManager;
 import android.test.AndroidTestCase;
 import android.test.MoreAsserts;
@@ -28,7 +29,10 @@ import android.test.suitebuilder.annotation.SmallTest;
 import android.util.Log;
 
 import java.io.File;
+import java.io.FileNotFoundException;
+import java.io.FileOutputStream;
 import java.io.IOException;
+import java.io.OutputStream;
 import java.util.HashSet;
 import java.util.Locale;
 import java.util.Set;
@@ -290,5 +294,33 @@ public class UtilityUnitTests extends AndroidTestCase {
             String dir, String fileName) throws Exception {
         assertEquals(expectedFileName,
                 Utility.createUniqueFileInternal(nfc, new File(dir), fileName).toString());
+    }
+
+    /**
+     * Test that we have the necessary permissions to write to external storage.
+     */
+    public void testExternalStoragePermissions() throws FileNotFoundException, IOException {
+        File file = null;
+        try {
+            // If there's no storage available, this test is moot
+            if (!Environment.getExternalStorageState().equals(Environment.MEDIA_MOUNTED)) {
+                return;
+            }
+            file = Utility.createUniqueFile(Environment.getExternalStorageDirectory(),
+                    "write-test");
+            OutputStream out = new FileOutputStream(file);
+            out.write(1);
+            out.close();
+        } finally {
+            try {
+                if (file != null) {
+                    if (file.exists()) {
+                        file.delete();
+                    }
+                }
+            } catch (Exception e) {
+                // ignore cleanup error - it still throws the original
+            }
+        }
     }
 }

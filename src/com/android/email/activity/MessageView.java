@@ -1061,8 +1061,6 @@ public class MessageView extends Activity implements OnClickListener {
 
     /**
      * Async task for loading a single message outside of the UI thread
-     * Note:  To support unit testing, a sentinel messageId of Long.MIN_VALUE prevents
-     * loading the message but leaves the activity open.
      */
     private class LoadMessageTask extends AsyncTask<Void, Void, Message> {
 
@@ -1101,8 +1099,6 @@ public class MessageView extends Activity implements OnClickListener {
                     return null;
                 }
                 return msg;
-            } else if (mId == Long.MIN_VALUE)  {
-                return null;
             }
             return Message.restoreMessageWithId(MessageView.this, mId);
         }
@@ -1123,9 +1119,7 @@ public class MessageView extends Activity implements OnClickListener {
                 return;
             }
             if (message == null) {
-                if (mId != Long.MIN_VALUE) {
-                    finish();
-                }
+                finish();
                 return;
             }
             mMessageId = message.mId;
