@@ -410,7 +410,7 @@ public class AccountFolderListFragment extends ListFragment
             // Now create a new list adapter and install it
             mListAdapter = AccountsAdapter.getInstance((Cursor)params[0], (Cursor)params[1],
                     mActivity, (Long)params[2], AccountFolderListFragment.this);
-            mListView.setAdapter(mListAdapter);
+            setListAdapter(mListAdapter);
         }
     }
 
