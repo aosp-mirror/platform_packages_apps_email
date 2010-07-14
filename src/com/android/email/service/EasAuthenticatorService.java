@@ -106,6 +106,7 @@ public class EasAuthenticatorService extends Service {
                 }
                 values.put(Directory.DISPLAY_NAME, account.name);
                 values.put(Directory.EXPORT_SUPPORT, Directory.EXPORT_SUPPORT_SAME_ACCOUNT_ONLY);
+                getContentResolver().insert(Directory.CONTENT_URI, values);
                 Bundle b = new Bundle();
                 b.putString(AccountManager.KEY_ACCOUNT_NAME, options.getString(OPTIONS_USERNAME));
                 b.putString(AccountManager.KEY_ACCOUNT_TYPE, Email.EXCHANGE_ACCOUNT_MANAGER_TYPE);
