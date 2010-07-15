@@ -17,6 +17,7 @@
 package com.android.exchange.adapter;
 
 import com.android.exchange.EasSyncService;
+import com.android.exchange.IllegalHeartbeatException;
 import com.android.exchange.StaleFolderListException;
 
 import java.io.IOException;
@@ -62,7 +63,7 @@ public class PingParser extends Parser {
     }
 
     @Override
-    public boolean parse() throws IOException, StaleFolderListException {
+    public boolean parse() throws IOException, StaleFolderListException, IllegalHeartbeatException {
         boolean res = false;
         if (nextTag(START_DOCUMENT) != Tags.PING_PING) {
             throw new IOException();
@@ -77,9 +78,15 @@ public class PingParser extends Parser {
                 } else if (status == 7 || status == 4) {
                     // Status of 7 or 4 indicate a stale folder list
                     throw new StaleFolderListException();
+                } else if (status == 5) {
+                    // Status 5 means our heartbeat is beyond allowable limits
+                    // In this case, there will be a heartbeat interval set
                 }
             } else if (tag == Tags.PING_FOLDERS) {
                 parsePingFolders(syncList);
+            } else if (tag == Tags.PING_HEARTBEAT_INTERVAL) {
+                // Throw an exception, saving away the legal heartbeat interval specified
+                throw new IllegalHeartbeatException(getValueInt());
             } else {
                 skipTag();
             }

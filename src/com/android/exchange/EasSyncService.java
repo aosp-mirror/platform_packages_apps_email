@@ -153,10 +153,7 @@ public class EasSyncService extends AbstractSyncService {
     static private final int PING_MINUTES = 60; // in seconds
     static private final int PING_FUDGE_LOW = 10;
     static private final int PING_STARTING_HEARTBEAT = (8*PING_MINUTES)-PING_FUDGE_LOW;
-    static private final int PING_MIN_HEARTBEAT = (5*PING_MINUTES)-PING_FUDGE_LOW;
-    static private final int PING_MAX_HEARTBEAT = (17*PING_MINUTES)-PING_FUDGE_LOW;
     static private final int PING_HEARTBEAT_INCREMENT = 3*PING_MINUTES;
-    static private final int PING_FORCE_HEARTBEAT = 2*PING_MINUTES;
 
     // Maximum number of times we'll allow a sync to "loop" with MoreAvailable true before
     // forcing it to stop.  This number has been determined empirically.
@@ -192,12 +189,18 @@ public class EasSyncService extends AbstractSyncService {
     private ArrayList<String> mPingChangeList;
     // The HttpPost in progress
     private volatile HttpPost mPendingPost = null;
+    // Our heartbeat when we are waiting for ping boxes to be ready
+    /*package*/ int mPingForceHeartbeat = 2*PING_MINUTES;
+    // The minimum heartbeat we will send
+    /*package*/ int mPingMinHeartbeat = (5*PING_MINUTES)-PING_FUDGE_LOW;
+    // The maximum heartbeat we will send
+    /*package*/ int mPingMaxHeartbeat = (17*PING_MINUTES)-PING_FUDGE_LOW;
     // The ping time (in seconds)
-    private int mPingHeartbeat = PING_STARTING_HEARTBEAT;
+    /*package*/ int mPingHeartbeat = PING_STARTING_HEARTBEAT;
     // The longest successful ping heartbeat
     private int mPingHighWaterMark = 0;
     // Whether we've ever lowered the heartbeat
-    private boolean mPingHeartbeatDropped = false;
+    /*package*/ boolean mPingHeartbeatDropped = false;
     // Whether a POST was aborted due to alarm (watchdog alarm)
     private boolean mPostAborted = false;
     // Whether a POST was aborted due to reset
@@ -1541,6 +1544,10 @@ public class EasSyncService extends AbstractSyncService {
                 } catch (StaleFolderListException e) {
                     // We break out if we get told about a stale folder list
                     userLog("Ping interrupted; folder list requires sync...");
+                } catch (IllegalHeartbeatException e) {
+                    // If we're sending an illegal heartbeat, reset either the min or the max to
+                    // that heartbeat
+                    resetHeartbeats(e.mLegalHeartbeat);
                 } finally {
                     Thread.currentThread().setName(threadName);
                 }
@@ -1559,6 +1566,44 @@ public class EasSyncService extends AbstractSyncService {
             }
             throw e;
         }
+    }
+
+    /**
+     * Reset either our minimum or maximum ping heartbeat to a heartbeat known to be legal
+     * @param legalHeartbeat a known legal heartbeat (from the EAS server)
+     */
+    /*package*/ void resetHeartbeats(int legalHeartbeat) {
+        userLog("Resetting min/max heartbeat, legal = " + legalHeartbeat);
+        // We are here because the current heartbeat (mPingHeartbeat) is invalid.  Depending on
+        // whether the argument is above or below the current heartbeat, we can infer the need to
+        // change either the minimum or maximum heartbeat
+        if (legalHeartbeat > mPingHeartbeat) {
+            // The legal heartbeat is higher than the ping heartbeat; therefore, our minimum was
+            // too low.  We respond by raising either or both of the minimum heartbeat or the
+            // force heartbeat to the argument value
+            if (mPingMinHeartbeat < legalHeartbeat) {
+                mPingMinHeartbeat = legalHeartbeat;
+            }
+            if (mPingForceHeartbeat < legalHeartbeat) {
+                mPingForceHeartbeat = legalHeartbeat;
+            }
+            // If our minimum is now greater than the max, bring them together
+            if (mPingMinHeartbeat > mPingMaxHeartbeat) {
+                mPingMaxHeartbeat = legalHeartbeat;
+            }
+        } else if (legalHeartbeat < mPingHeartbeat) {
+            // The legal heartbeat is lower than the ping heartbeat; therefore, our maximum was
+            // too high.  We respond by lowering the maximum to the argument value
+            mPingMaxHeartbeat = legalHeartbeat;
+            // If our maximum is now less than the minimum, bring them together
+            if (mPingMaxHeartbeat < mPingMinHeartbeat) {
+                mPingMinHeartbeat = legalHeartbeat;
+            }
+        }
+        // Set current heartbeat to the legal heartbeat
+        mPingHeartbeat = legalHeartbeat;
+        // Allow the heartbeat logic to run
+        mPingHeartbeatDropped = false;
     }
 
     private void pushFallback(long mailboxId) {
@@ -1593,7 +1638,8 @@ public class EasSyncService extends AbstractSyncService {
         return false;
     }
 
-    private void runPingLoop() throws IOException, StaleFolderListException {
+    private void runPingLoop() throws IOException, StaleFolderListException,
+            IllegalHeartbeatException {
         int pingHeartbeat = mPingHeartbeat;
         userLog("runPingLoop");
         // Do push for all sync services here
@@ -1693,7 +1739,7 @@ public class EasSyncService extends AbstractSyncService {
                         userLog("Forcing ping after waiting for all boxes to be ready");
                     }
                     HttpResponse res =
-                        sendPing(s.toByteArray(), forcePing ? PING_FORCE_HEARTBEAT : pingHeartbeat);
+                        sendPing(s.toByteArray(), forcePing ? mPingForceHeartbeat : pingHeartbeat);
 
                     int code = res.getStatusLine().getStatusCode();
                     userLog("Ping response: ", code);
@@ -1719,11 +1765,11 @@ public class EasSyncService extends AbstractSyncService {
                                     mPingHighWaterMark = pingHeartbeat;
                                     userLog("Setting high water mark at: ", mPingHighWaterMark);
                                 }
-                                if ((pingHeartbeat < PING_MAX_HEARTBEAT) &&
+                                if ((pingHeartbeat < mPingMaxHeartbeat) &&
                                         !mPingHeartbeatDropped) {
                                     pingHeartbeat += PING_HEARTBEAT_INCREMENT;
-                                    if (pingHeartbeat > PING_MAX_HEARTBEAT) {
-                                        pingHeartbeat = PING_MAX_HEARTBEAT;
+                                    if (pingHeartbeat > mPingMaxHeartbeat) {
+                                        pingHeartbeat = mPingMaxHeartbeat;
                                     }
                                     userLog("Increasing ping heartbeat to ", pingHeartbeat, "s");
                                 }
@@ -1748,12 +1794,12 @@ public class EasSyncService extends AbstractSyncService {
                         // ping.
                     } else if (mPostAborted || isLikelyNatFailure(message)) {
                         long pingLength = SystemClock.elapsedRealtime() - pingTime;
-                        if ((pingHeartbeat > PING_MIN_HEARTBEAT) &&
+                        if ((pingHeartbeat > mPingMinHeartbeat) &&
                                 (pingHeartbeat > mPingHighWaterMark)) {
                             pingHeartbeat -= PING_HEARTBEAT_INCREMENT;
                             mPingHeartbeatDropped = true;
-                            if (pingHeartbeat < PING_MIN_HEARTBEAT) {
-                                pingHeartbeat = PING_MIN_HEARTBEAT;
+                            if (pingHeartbeat < mPingMinHeartbeat) {
+                                pingHeartbeat = mPingMinHeartbeat;
                             }
                             userLog("Decreased ping heartbeat to ", pingHeartbeat, "s");
                         } else if (mPostAborted) {
@@ -1823,7 +1869,7 @@ public class EasSyncService extends AbstractSyncService {
 
     private int parsePingResult(InputStream is, ContentResolver cr,
             HashMap<String, Integer> errorMap)
-        throws IOException, StaleFolderListException {
+            throws IOException, StaleFolderListException, IllegalHeartbeatException {
         PingParser pp = new PingParser(is, this);
         if (pp.parse()) {
             // True indicates some mailboxes need syncing...
