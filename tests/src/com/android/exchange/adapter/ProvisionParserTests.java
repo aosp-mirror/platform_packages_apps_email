@@ -113,11 +113,11 @@ public class ProvisionParserTests extends SyncAdapterTestCase {
         PolicySet ps = parser.getPolicySet();
         assertNotNull(ps);
         // Check the settings to make sure they were parsed correctly
-        assertEquals(5*60, ps.mMaxScreenLockTime);  // Screen lock time is in seconds
-        assertEquals(8, ps.mMinPasswordLength);
-        assertEquals(PolicySet.PASSWORD_MODE_STRONG, ps.mPasswordMode);
-        assertEquals(20, ps.mMaxPasswordFails);
-        assertTrue(ps.mRequireRemoteWipe);
+        assertEquals(5*60, ps.getMaxScreenLockTime());  // Screen lock time is in seconds
+        assertEquals(8, ps.getMinPasswordLength());
+        assertEquals(PolicySet.PASSWORD_MODE_STRONG, ps.getPasswordMode());
+        assertEquals(20, ps.getMaxPasswordFails());
+        assertTrue(ps.isRequireRemoteWipe());
     }
 
     public void testWapProvisionParser2() throws IOException {
@@ -126,7 +126,7 @@ public class ProvisionParserTests extends SyncAdapterTestCase {
         PolicySet ps = parser.getPolicySet();
         assertNotNull(ps);
         // Password should be set to none; others are ignored in this case.
-        assertEquals(PolicySet.PASSWORD_MODE_NONE, ps.mPasswordMode);
+        assertEquals(PolicySet.PASSWORD_MODE_NONE, ps.getPasswordMode());
     }
 
     public void testWapProvisionParser3() throws IOException {
@@ -135,10 +135,10 @@ public class ProvisionParserTests extends SyncAdapterTestCase {
         PolicySet ps = parser.getPolicySet();
         assertNotNull(ps);
         // Password should be set to simple
-        assertEquals(2*60, ps.mMaxScreenLockTime);  // Screen lock time is in seconds
-        assertEquals(4, ps.mMinPasswordLength);
-        assertEquals(PolicySet.PASSWORD_MODE_SIMPLE, ps.mPasswordMode);
-        assertEquals(5, ps.mMaxPasswordFails);
-        assertTrue(ps.mRequireRemoteWipe);
+        assertEquals(2*60, ps.getMaxScreenLockTime());  // Screen lock time is in seconds
+        assertEquals(4, ps.getMinPasswordLength());
+        assertEquals(PolicySet.PASSWORD_MODE_SIMPLE, ps.getPasswordMode());
+        assertEquals(5, ps.getMaxPasswordFails());
+        assertTrue(ps.isRequireRemoteWipe());
     }
 }
