@@ -68,10 +68,9 @@ public class ProvisionParser extends Parser {
         int passwordExpiration = 0;
         int passwordHistory = 0;
         int passwordComplexChars = 0;
-        boolean canSupport = true;
+        boolean supported = true;
 
         while (nextTag(Tags.PROVISION_EAS_PROVISION_DOC) != END) {
-            boolean supported = true;
             switch (tag) {
                 case Tags.PROVISION_DEVICE_PASSWORD_ENABLED:
                     if (getValueInt() == 1) {

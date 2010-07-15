@@ -621,7 +621,7 @@ public class SecurityPolicy {
             return dirty;
         }
 
-        @Override 
+        @Override
         public boolean equals(Object o) {
             if (o instanceof PolicySet) {
                 PolicySet other = (PolicySet)o;
