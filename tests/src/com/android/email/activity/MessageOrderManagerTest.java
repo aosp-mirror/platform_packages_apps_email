@@ -16,7 +16,6 @@
 
 package com.android.email.activity;
 
-import com.android.email.Email;
 import com.android.email.provider.EmailContent;
 import com.android.email.provider.EmailProvider;
 
@@ -216,9 +215,19 @@ public class MessageOrderManagerTest extends ProviderTestCase2<EmailProvider> {
         assertEquals(22, mom.getCurrentMessageId());
         assertCanMove(mom, false, false); // Can't move either way
 
-        // Now the current message is gone... messageNotFound gets called.
-        mom.updateMessageList(11, 33, 44);
+        // Delete 22 -- no messages left.
+        mom.updateMessageList();
+        mCallback.assertCallbacksCalled(false, true);
 
+        // Test for the case where list is not empty, but the current message is gone.
+        // First, set up a list with 22 as the current message.
+        mom.updateMessageList(11, 22, 33, 44);
+        mom.moveTo(22);
+        assertEquals(22, mom.getCurrentMessageId());
+        mCallback.assertCallbacksCalled(true, false);
+
+        // Then remove the current message.
+        mom.updateMessageList(11, 33, 44);
         mCallback.assertCallbacksCalled(false, true);
     }
 
