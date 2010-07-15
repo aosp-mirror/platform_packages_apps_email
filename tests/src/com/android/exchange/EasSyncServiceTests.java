@@ -172,4 +172,46 @@ public class EasSyncServiceTests extends AndroidTestCase {
         assertEquals("https://" + HOST + "/Microsoft-Server-ActiveSync?Cmd=OPTIONS" +
                 svc.mCmdString, uriString);
     }
+
+    public void testResetHeartbeats() {
+        EasSyncService svc = new EasSyncService();
+        // Test case in which the minimum and force heartbeats need to come up
+        svc.mPingMaxHeartbeat = 1000;
+        svc.mPingMinHeartbeat = 200;
+        svc.mPingHeartbeat = 300;
+        svc.mPingForceHeartbeat = 100;
+        svc.mPingHeartbeatDropped = true;
+        svc.resetHeartbeats(400);
+        assertEquals(400, svc.mPingMinHeartbeat);
+        assertEquals(1000, svc.mPingMaxHeartbeat);
+        assertEquals(400, svc.mPingHeartbeat);
+        assertEquals(400, svc.mPingForceHeartbeat);
+        assertFalse(svc.mPingHeartbeatDropped);
+
+        // Test case in which the force heartbeat needs to come up
+        svc.mPingMaxHeartbeat = 1000;
+        svc.mPingMinHeartbeat = 200;
+        svc.mPingHeartbeat = 100;
+        svc.mPingForceHeartbeat = 100;
+        svc.mPingHeartbeatDropped = true;
+        svc.resetHeartbeats(150);
+        assertEquals(200, svc.mPingMinHeartbeat);
+        assertEquals(1000, svc.mPingMaxHeartbeat);
+        assertEquals(150, svc.mPingHeartbeat);
+        assertEquals(150, svc.mPingForceHeartbeat);
+        assertFalse(svc.mPingHeartbeatDropped);
+
+        // Test case in which the maximum needs to come down
+        svc.mPingMaxHeartbeat = 1000;
+        svc.mPingMinHeartbeat = 200;
+        svc.mPingHeartbeat = 800;
+        svc.mPingForceHeartbeat = 100;
+        svc.mPingHeartbeatDropped = true;
+        svc.resetHeartbeats(600);
+        assertEquals(200, svc.mPingMinHeartbeat);
+        assertEquals(600, svc.mPingMaxHeartbeat);
+        assertEquals(600, svc.mPingHeartbeat);
+        assertEquals(100, svc.mPingForceHeartbeat);
+        assertFalse(svc.mPingHeartbeatDropped);
+    }
 }
