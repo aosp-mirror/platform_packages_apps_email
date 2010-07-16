@@ -1,0 +1,10 @@
+# Copyright 2010 Google Inc. All Rights Reserved.
+#Fri Jul 16 10:03:08 PDT 2010
+currentVersion=0.6
+version=Unknown / modified locally
+isNative=false
+feedurl=https\://issues.apache.org/jira/secure/ReleaseNote.jspa
+name=apache_mime4j
+keywords=apache mime4j
+onDevice=true
+homepage=http\://james.apache.org/index.html
