@@ -154,7 +154,6 @@ public class MessageListFragment extends ListFragment implements OnItemClickList
         listView.setItemsCanFocus(false);
 
         mListAdapter = new MessagesAdapter(mActivity, new Handler(), this);
-        setListAdapter(mListAdapter);
 
         mListFooterView = getActivity().getLayoutInflater().inflate(
                 R.layout.message_list_item_footer, listView, false);
@@ -861,6 +860,7 @@ public class MessageListFragment extends ListFragment implements OnItemClickList
 
             // TODO changeCursor(null)??
             mListAdapter.changeCursor(cursor);
+            setListAdapter(mListAdapter);
 
             // changeCursor occurs the jumping of position in ListView, so it's need to restore
             // the position;
