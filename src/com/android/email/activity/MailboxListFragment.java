@@ -93,7 +93,6 @@ public class MailboxListFragment extends ListFragment implements OnItemClickList
         registerForContextMenu(listView);
 
         mListAdapter = new MailboxesAdapter(mActivity);
-        setListAdapter(mListAdapter);
     }
 
     /**
@@ -247,6 +246,7 @@ public class MailboxListFragment extends ListFragment implements OnItemClickList
 
             if (cursor.isClosed()) return;
             mListAdapter.changeCursor(cursor);
+            setListAdapter(mListAdapter);
             updateMessageCount();
         }
     }
