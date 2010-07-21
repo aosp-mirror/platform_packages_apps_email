@@ -4,9 +4,9 @@
      Licensed under the Apache License, Version 2.0 (the "License");
      you may not use this file except in compliance with the License.
      You may obtain a copy of the License at
-  
+
           http://www.apache.org/licenses/LICENSE-2.0
-  
+
      Unless required by applicable law or agreed to in writing, software
      distributed under the License is distributed on an "AS IS" BASIS,
      WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
@@ -23,7 +23,7 @@
     <!-- Do Not Translate.  Unused string. -->
     <string name="account_setup_failed_security_policies_required"></string>
     <!-- Do Not Translate.  Unused string. -->
-    <string name="account_folder_list_summary_unread"></string>    
+    <string name="account_folder_list_summary_unread"></string>
     <!-- Do Not Translate.  Unused string. -->
     <string name="account_settings_add_account_label"></string>
     <!-- Do Not Translate.  Unused string. -->
@@ -69,11 +69,11 @@
 
     <!-- Actions will be used as buttons and in menu items -->
     <skip />
-    
+
     <!-- Used as part of a multi-step process -->
-    <string name="next_action">Next</string> 
+    <string name="next_action">Next</string>
     <!--  Button name used to confirm acceptance of dialog boxes, warnings, errors, etc. -->
-    <string name="okay_action">OK</string> 
+    <string name="okay_action">OK</string>
     <!--  Button name used to cancel out of dialog boxes -->
     <string name="cancel_action">Cancel</string>
     <!-- Menu item/button name -->
@@ -87,7 +87,7 @@
     <!-- Menu item/button name -->
     <string name="forward_action">Forward</string>
     <!--  Button name used to complete a multi-step process -->
-    <string name="done_action">Done</string> 
+    <string name="done_action">Done</string>
     <!-- Menu item/button name -->
     <string name="discard_action">Discard</string>
     <!-- Menu item/button name -->
@@ -153,10 +153,10 @@
          one or more new messages; e.g, "279 unread (someone@google.com)". -->
     <plurals name="notification_new_one_account_fmt">
         <!-- Case of one new message. -->
-        <item quantity="one"><xliff:g id="unread_message_count" example="1">%1$d</xliff:g> unread (<xliff:g id="account">%2$s</xliff:g>)</item> 
+        <item quantity="one"><xliff:g id="unread_message_count" example="1">%1$d</xliff:g> unread (<xliff:g id="account">%2$s</xliff:g>)</item>
 
         <!-- Case of "few" (small number of) new messages. -->
-        <item quantity="few"><xliff:g id="unread_message_count" example="2">%1$d</xliff:g> unread (<xliff:g id="account">%2$s</xliff:g>)</item> 
+        <item quantity="few"><xliff:g id="unread_message_count" example="2">%1$d</xliff:g> unread (<xliff:g id="account">%2$s</xliff:g>)</item>
 
         <!-- Case of a plural number of new messages. -->
         <item quantity="other"><xliff:g id="unread_message_count" example="279">%1$d</xliff:g> unread (<xliff:g id="account">%2$s</xliff:g>)</item>
@@ -240,7 +240,7 @@
     <!-- Hint text in Subject field -->
     <string name="message_compose_subject_hint">Subject</string>
     <!-- Hint text in Message composer body field -->
-    <string name="message_compose_body_hint">Compose Mail</string>    
+    <string name="message_compose_body_hint">Compose Mail</string>
     <!-- Header for forwarded original messages -->
     <string name="message_compose_fwd_header_fmt">\n\n-------- Original Message --------\nSubject: <xliff:g id="subject">%1$s</xliff:g>\nFrom: <xliff:g id="sender">%2$s</xliff:g>\nTo: <xliff:g id="to">%3$s</xliff:g>\nCC: <xliff:g id="cc">%4$s</xliff:g>\n\n</string>
     <!-- Header for replied-to messages -->
@@ -331,6 +331,11 @@
         <item quantity="one"  ><xliff:g id="size_in_gigabytes" example="1"  >%d</xliff:g>GB</item>
         <item quantity="other"><xliff:g id="size_in_gigabytes" example="279">%d</xliff:g>GB</item>
     </plurals>
+
+    <!-- Do Not Translate.  The label of the next button on the message view screen. -->
+    <string name="message_view_move_to_newer">&lt;</string>
+    <!-- Do Not Translate.  The label of the previous button on the message view screen. -->
+    <string name="message_view_move_to_older">&gt;</string>
 
     <!-- Title of screen when setting up new email account -->
     <string name="account_setup_basics_title">Set up email</string>
@@ -437,7 +442,7 @@
     <string name="account_setup_incoming_delete_policy_never_label">Never</string>
     <!-- "Incoming server settings" screen, options in pop-up menu for Delete email from server: -->
     <string name="account_setup_incoming_delete_policy_delete_label">When I delete from Inbox</string>
-    
+
     <!-- "Incoming server settings" screen, label for setting IMAP path prefix: -->
     <string name="account_setup_incoming_imap_path_prefix_label">IMAP path prefix</string>
     <!-- "Incoming server settings" screen, hint for setting IMAP path prefix: -->
@@ -456,7 +461,7 @@
     <string name="account_setup_outgoing_username_label">Username</string>
     <!-- On "Outgoing server settings" screen, label for text field -->
     <string name="account_setup_outgoing_password_label">Password</string>
-    
+
     <!-- Title of "Exchange server settings" screen -->
     <string name="account_setup_exchange_title">Server settings</string>
     <!-- On "Exchange" setup screen, the name of the server -->
@@ -515,19 +520,19 @@
     <string name="account_setup_options_mail_window_1month">One month</string>
 
     <!-- "Setup could not finish" dialog text; e.g., Username or password incorrect -->
-    <string name="account_setup_failed_dlg_auth_message">Username or password incorrect.</string> 
+    <string name="account_setup_failed_dlg_auth_message">Username or password incorrect.</string>
     <!-- "Setup could not finish" dialog text; e.g., Username or password incorrect\n(ERR01 Account does not exist) -->
-    <string name="account_setup_failed_dlg_auth_message_fmt">Username or password incorrect.\n(<xliff:g id="error">%s</xliff:g>)</string> 
+    <string name="account_setup_failed_dlg_auth_message_fmt">Username or password incorrect.\n(<xliff:g id="error">%s</xliff:g>)</string>
 
     <!-- "Setup could not finish" dialog text; e.g., Cannot safely connect to server -->
-    <string name="account_setup_failed_dlg_certificate_message">Cannot safely connect to server.</string> 
+    <string name="account_setup_failed_dlg_certificate_message">Cannot safely connect to server.</string>
     <!-- "Setup could not finish" dialog text; e.g., Cannot safely connect to server\n(TLS Not Supported) -->
-    <string name="account_setup_failed_dlg_certificate_message_fmt">Cannot safely connect to server.\n(<xliff:g id="error">%s</xliff:g>)</string> 
+    <string name="account_setup_failed_dlg_certificate_message_fmt">Cannot safely connect to server.\n(<xliff:g id="error">%s</xliff:g>)</string>
 
     <!-- "Setup could not finish" dialog text; e.g., Cannot connect to server -->
-    <string name="account_setup_failed_dlg_server_message">Cannot connect to server.</string> 
+    <string name="account_setup_failed_dlg_server_message">Cannot connect to server.</string>
     <!-- "Setup could not finish" dialog text; e.g., Cannot connect to server\n(Connection timed out) -->
-    <string name="account_setup_failed_dlg_server_message_fmt">Cannot connect to server.\n(<xliff:g id="error">%s</xliff:g>)</string> 
+    <string name="account_setup_failed_dlg_server_message_fmt">Cannot connect to server.\n(<xliff:g id="error">%s</xliff:g>)</string>
 
     <!-- Additional diagnostic text when TLS was required but the server doesn't support it -->
     <string name="account_setup_failed_tls_required">TLS required but not supported by server.</string>
