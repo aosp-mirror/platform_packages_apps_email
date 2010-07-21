@@ -102,6 +102,8 @@ public class MessageListFragment extends ListFragment implements OnItemClickList
     private int mFirstSelectedItemHeight = -1;
     private boolean mCanAutoRefresh;
 
+    private boolean mStarted;
+
     /**
      * Callback interface that owning activities must implement
      */
@@ -164,6 +166,21 @@ public class MessageListFragment extends ListFragment implements OnItemClickList
             // Fragment doesn't have this method.  Call it manually.
             onRestoreInstanceState(savedInstanceState);
         }
+    }
+
+    @Override
+    public void onStart() {
+        super.onStart();
+        mStarted = true;
+        if (mAccountId != -1) {
+            startLoading();
+        }
+    }
+
+    @Override
+    public void onStop() {
+        mStarted = false;
+        super.onStop();
     }
 
     @Override
@@ -234,8 +251,14 @@ public class MessageListFragment extends ListFragment implements OnItemClickList
         mAccountId = accountId;
         mMailboxId = mailboxId;
 
+        if (mStarted) {
+            startLoading();
+        }
+    }
+
+    private void startLoading() {
         Utility.cancelTaskInterrupt(mLoadMessagesTask);
-        mLoadMessagesTask = new LoadMessagesTask(mailboxId, accountId);
+        mLoadMessagesTask = new LoadMessagesTask(mMailboxId, mAccountId);
         mLoadMessagesTask.execute();
     }
 

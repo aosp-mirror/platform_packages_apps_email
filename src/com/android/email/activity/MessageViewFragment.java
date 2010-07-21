@@ -151,6 +151,8 @@ public class MessageViewFragment extends Fragment implements View.OnClickListene
     // contains the HTML content as set in WebView.
     private String mHtmlTextWebView;
 
+    private boolean mStarted;
+
     /**
      * Encapsulates known information about a single attachment.
      */
@@ -332,6 +334,10 @@ public class MessageViewFragment extends Fragment implements View.OnClickListene
     @Override
     public void onStart() {
         super.onStart();
+        mStarted = true;
+        if (mMessageId != -1 || mFileEmailUri != null) {
+            openMessageInternal();
+        }
     }
 
     @Override
@@ -346,6 +352,7 @@ public class MessageViewFragment extends Fragment implements View.OnClickListene
 
     @Override
     public void onStop() {
+        mStarted = false;
         super.onStop();
     }
 
@@ -378,7 +385,9 @@ public class MessageViewFragment extends Fragment implements View.OnClickListene
         mLoadBodyTask = null;
         Utility.cancelTaskInterrupt(mLoadAttachmentsTask);
         mLoadAttachmentsTask = null;
-        mPresenceUpdater.cancelAll();
+        if (mPresenceUpdater != null) {
+            mPresenceUpdater.cancelAll();
+        }
     }
 
     /**
@@ -401,7 +410,9 @@ public class MessageViewFragment extends Fragment implements View.OnClickListene
         mFileEmailUri = null;
         mMessageId = messageId;
         mAccountId = -1;
-        openMessageInternal();
+        if (mStarted) {
+            openMessageInternal();
+        }
     }
 
     /** Called by activities to a URI to an EML file to open. */
@@ -409,7 +420,9 @@ public class MessageViewFragment extends Fragment implements View.OnClickListene
         mFileEmailUri = fileEmailUri;
         mMessageId = -1;
         mAccountId = -1;
-        openMessageInternal();
+        if (mStarted) {
+            openMessageInternal();
+        }
     }
 
     private void openMessageInternal() {

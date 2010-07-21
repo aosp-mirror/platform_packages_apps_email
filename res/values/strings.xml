@@ -737,4 +737,8 @@
          always a larger value because it represents the limit of displayed results.  -->
     <string name="gal_completed_limited_fmt">First <xliff:g id="results" example="20">%1$d</xliff:g>
         results from <xliff:g id="domain">%2$s</xliff:g></string>
+
+    <!-- Do Not Translate.  STOPSHIP: Dev version only.  Remove this. -->
+    <string name="activity_label_2pane">Email 2 Pane</string>
+
 </resources>

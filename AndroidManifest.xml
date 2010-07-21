@@ -4,9 +4,9 @@
      Licensed under the Apache License, Version 2.0 (the "License");
      you may not use this file except in compliance with the License.
      You may obtain a copy of the License at
-  
+
           http://www.apache.org/licenses/LICENSE-2.0
-  
+
      Unless required by applicable law or agreed to in writing, software
      distributed under the License is distributed on an "AS IS" BASIS,
      WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
@@ -63,6 +63,20 @@
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
                 <category android:name="android.intent.category.DEFAULT" />
+                <category android:name="android.intent.category.LAUNCHER" />
+            </intent-filter>
+        </activity>
+        <!--
+            We show this on the home for the development purpose.
+            STOPSHIP: Remove label, and MAIN/LAUNCHER intent filter.
+        -->
+        <activity
+            android:name=".activity.MessageListXL"
+            android:label="@string/activity_label_2pane"
+            android:theme="@android:style/Theme.WithActionBar"
+            >
+            <intent-filter>
+                <action android:name="android.intent.action.MAIN" />
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
         </activity>
@@ -146,8 +160,8 @@
             android:launchMode="singleTop"
             android:theme="@android:style/Theme.WithActionBar" >
         </activity>
-        
-        <activity 
+
+        <activity
             android:name=".activity.AccountShortcutPicker"
             android:label="@string/app_name"
             android:enabled="false"
@@ -157,12 +171,12 @@
                 <category android:name="android.intent.category.DEFAULT" />
             </intent-filter>
         </activity>
-        
+
         <activity
             android:name=".activity.MailboxList"
             android:theme="@android:style/Theme.WithActionBar" >
         </activity>
-        
+
         <activity
             android:name=".activity.MessageList"
             android:theme="@style/ThemeNoTitleBar">
@@ -188,7 +202,7 @@
                 <action android:name="android.intent.action.MAIN" />
             </intent-filter>
         </activity>
-                
+
         <activity
             android:name=".activity.MessageView"
             android:theme="@android:style/Theme.NoTitleBar" >
@@ -261,12 +275,12 @@
             android:enabled="false"
             >
         </service>
-        
+
         <!--EXCHANGE-REMOVE-SECTION-START-->
         <!--Required stanza to register the ContactsSyncAdapterService with SyncManager -->
-        <service 
-            android:name="com.android.exchange.ContactsSyncAdapterService" 
-        	android:exported="true">
+        <service
+            android:name="com.android.exchange.ContactsSyncAdapterService"
+            android:exported="true">
             <intent-filter>
                 <action android:name="android.content.SyncAdapter" />
             </intent-filter>

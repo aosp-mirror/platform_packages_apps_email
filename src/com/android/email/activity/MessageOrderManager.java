@@ -90,6 +90,10 @@ public class MessageOrderManager {
         startTask();
     }
 
+    public long getMailboxId() {
+        return mMailboxId;
+    }
+
     /**
      * @return a {@link Handler} for {@link ContentObserver}.
      *

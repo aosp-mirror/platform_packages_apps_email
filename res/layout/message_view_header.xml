@@ -23,7 +23,7 @@
     xmlns:android="http://schemas.android.com/apk/res/android"
     android:id="@+id/scrollview"
     android:layout_width="match_parent"
-    android:layout_height="0dip"
+    android:layout_height="match_parent"
     android:scrollbarStyle="outsideOverlay"
     android:fadingEdge="none"
     android:fillViewport="true"

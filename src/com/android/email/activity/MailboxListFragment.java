@@ -53,7 +53,7 @@ public class MailboxListFragment extends ListFragment implements OnItemClickList
     private static final String MESSAGE_MAILBOX_ID_SELECTION = MessageColumns.MAILBOX_KEY + "=?";
 
     // Account & mailboxes access
-    private long mAccountId;
+    private long mAccountId = -1;
     private LoadMailboxesTask mLoadMailboxesTask;
     private MessageCountTask mMessageCountTask;
     private long mDraftMailboxKey = -1;
@@ -63,6 +63,8 @@ public class MailboxListFragment extends ListFragment implements OnItemClickList
     private Activity mActivity;
     private MailboxesAdapter mListAdapter;
     private Callback mCallback;
+
+    private boolean mStarted;
 
     /**
      * Callback interface that owning activities must implement
@@ -86,12 +88,10 @@ public class MailboxListFragment extends ListFragment implements OnItemClickList
         super.onActivityCreated(savedInstanceState);
 
         mActivity = getActivity();
-
         ListView listView = getListView();
         listView.setOnItemClickListener(this);
         listView.setItemsCanFocus(false);
         registerForContextMenu(listView);
-
         mListAdapter = new MailboxesAdapter(mActivity);
     }
 
@@ -103,6 +103,9 @@ public class MailboxListFragment extends ListFragment implements OnItemClickList
     public void bindActivityInfo(long accountId, Callback callback) {
         mAccountId = accountId;
         mCallback = callback;
+        if (mStarted) {
+            startLoading();
+        }
     }
 
     /**
@@ -111,8 +114,8 @@ public class MailboxListFragment extends ListFragment implements OnItemClickList
     @Override
     public void onStart() {
         super.onStart();
-        mLoadMailboxesTask = new LoadMailboxesTask(mAccountId);
-        mLoadMailboxesTask.execute();
+        mStarted = true;
+        startLoading();
     }
 
     /**
@@ -120,6 +123,7 @@ public class MailboxListFragment extends ListFragment implements OnItemClickList
      */
     @Override
     public void onResume() {
+        mStarted = false;
         super.onResume();
         updateMessageCount();
     }
@@ -139,12 +143,19 @@ public class MailboxListFragment extends ListFragment implements OnItemClickList
     /**
      * Called when the fragment is no longer in use.
      */
-   @Override
-   public void onDestroy() {
+    @Override
+    public void onDestroy() {
         super.onDestroy();
 
         mListAdapter.changeCursor(null);
-   }
+    }
+
+    private void startLoading() {
+        if (mAccountId != -1) {
+            mLoadMailboxesTask = new LoadMailboxesTask(mAccountId);
+            mLoadMailboxesTask.execute();
+        }
+    }
 
     /**
      * This is called via the activity
