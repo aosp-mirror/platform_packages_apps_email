@@ -286,7 +286,7 @@ public class MessageViewFragment extends Fragment implements View.OnClickListene
     @Override
     public View onCreateView(
             LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
-        final View view = inflater.inflate(R.layout.message_view_header, container, false);
+        final View view = inflater.inflate(R.layout.message_view_fragment, container, false);
 
         mSubjectView = (TextView) view.findViewById(R.id.subject);
         mFromView = (TextView) view.findViewById(R.id.from);
