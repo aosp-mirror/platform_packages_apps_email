@@ -19,35 +19,7 @@
     <!-- Deprecated strings - Move the identifiers to this section, mark as DO NOT TRANSLATE,
          and remove the actual text.  These will be removed in a bulk operation. -->
     <!-- Do Not Translate.  Unused string. -->
-    <string name="meeting_invitation"></string>
-    <!-- Do Not Translate.  Unused string. -->
-    <string name="account_setup_failed_security_policies_required"></string>
-    <!-- Do Not Translate.  Unused string. -->
-    <string name="account_folder_list_summary_unread"></string>
-    <!-- Do Not Translate.  Unused string. -->
-    <string name="account_settings_add_account_label"></string>
-    <!-- Do Not Translate.  Unused string. -->
-    <string name="account_setup_basics_instructions"></string>
-    <!-- Do Not Translate.  Unused string. -->
-    <string name="account_setup_exchange_domain_hint"></string>
-    <!-- Do Not Translate.  Unused string. -->
-    <string name="account_setup_exchange_domain_label"></string>
-    <!-- Do Not Translate.  Unused string. -->
-    <string name="account_setup_options_mail_window_all"></string>
-    <!-- Do Not Translate.  Unused string. -->
-    <string name="accounts_context_menu_title"></string>
-    <!-- Do Not Translate.  Unused string. -->
-    <string name="accounts_title"></string>
-    <!-- Do Not Translate.  Unused string. -->
-    <string name="add_contact_dlg_message_fmt"></string>
-    <!-- Do Not Translate.  Unused string. -->
-    <string name="add_contact_dlg_title"></string>
-    <!-- Do Not Translate.  Unused string. -->
-    <string name="message_list_title"></string>
-    <!-- Do Not Translate.  Unused string. -->
-    <string name="status_loading_more_failed"></string>
-    <!-- Do Not Translate.  Unused string. -->
-    <string name="status_sending_messages_failed"></string>
+    <string name="account_settings_exchange_summary"></string>
 
     <!-- Permissions label for reading attachments -->
     <string name="read_attachment_label">Read Email attachments</string>
