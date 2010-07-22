@@ -265,7 +265,9 @@ public class MessageViewFragment extends Fragment implements View.OnClickListene
 
     @Override
     public void onCreate(Bundle savedInstanceState) {
-        if (Email.DEBUG) Log.d(Email.LOG_TAG, "MessageViewFragment onCreate");
+        if (Email.DEBUG_LIFECYCLE && Email.DEBUG) {
+            Log.d(Email.LOG_TAG, "MessageViewFragment onCreate");
+        }
         super.onCreate(savedInstanceState);
 
         mContext = getActivity().getApplicationContext();
@@ -287,7 +289,9 @@ public class MessageViewFragment extends Fragment implements View.OnClickListene
     @Override
     public View onCreateView(
             LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
-        if (Email.DEBUG) Log.d(Email.LOG_TAG, "MessageViewFragment onCreateView");
+        if (Email.DEBUG_LIFECYCLE && Email.DEBUG) {
+            Log.d(Email.LOG_TAG, "MessageViewFragment onCreateView");
+        }
         final View view = inflater.inflate(R.layout.message_view_fragment, container, false);
 
         mSubjectView = (TextView) view.findViewById(R.id.subject);
@@ -329,14 +333,18 @@ public class MessageViewFragment extends Fragment implements View.OnClickListene
 
     @Override
     public void onActivityCreated(Bundle savedInstanceState) {
-        if (Email.DEBUG) Log.d(Email.LOG_TAG, "MessageViewFragment onActivityCreated");
+        if (Email.DEBUG_LIFECYCLE && Email.DEBUG) {
+            Log.d(Email.LOG_TAG, "MessageViewFragment onActivityCreated");
+        }
         super.onActivityCreated(savedInstanceState);
         mController.addResultCallback(mControllerCallback);
     }
 
     @Override
     public void onStart() {
-        if (Email.DEBUG) Log.d(Email.LOG_TAG, "MessageViewFragment onStart");
+        if (Email.DEBUG_LIFECYCLE && Email.DEBUG) {
+            Log.d(Email.LOG_TAG, "MessageViewFragment onStart");
+        }
         super.onStart();
         mStarted = true;
         if (mMessageId != -1 || mFileEmailUri != null) {
@@ -346,26 +354,34 @@ public class MessageViewFragment extends Fragment implements View.OnClickListene
 
     @Override
     public void onResume() {
-        if (Email.DEBUG) Log.d(Email.LOG_TAG, "MessageViewFragment onResume");
+        if (Email.DEBUG_LIFECYCLE && Email.DEBUG) {
+            Log.d(Email.LOG_TAG, "MessageViewFragment onResume");
+        }
         super.onResume();
     }
 
     @Override
     public void onPause() {
-        if (Email.DEBUG) Log.d(Email.LOG_TAG, "MessageViewFragment onPause");
+        if (Email.DEBUG_LIFECYCLE && Email.DEBUG) {
+            Log.d(Email.LOG_TAG, "MessageViewFragment onPause");
+        }
         super.onPause();
     }
 
     @Override
     public void onStop() {
-        if (Email.DEBUG) Log.d(Email.LOG_TAG, "MessageViewFragment onStop");
+        if (Email.DEBUG_LIFECYCLE && Email.DEBUG) {
+            Log.d(Email.LOG_TAG, "MessageViewFragment onStop");
+        }
         mStarted = false;
         super.onStop();
     }
 
     @Override
     public void onDestroy() {
-        if (Email.DEBUG) Log.d(Email.LOG_TAG, "MessageViewFragment onDestroy");
+        if (Email.DEBUG_LIFECYCLE && Email.DEBUG) {
+            Log.d(Email.LOG_TAG, "MessageViewFragment onDestroy");
+        }
         mController.removeResultCallback(mControllerCallback);
         cancelAllTasks();
         mMessageContentView.destroy();
@@ -384,7 +400,9 @@ public class MessageViewFragment extends Fragment implements View.OnClickListene
 
     @Override
     public void onSaveInstanceState(Bundle outState) {
-        if (Email.DEBUG) Log.d(Email.LOG_TAG, "MessageViewFragment onSaveInstanceState");
+        if (Email.DEBUG_LIFECYCLE && Email.DEBUG) {
+            Log.d(Email.LOG_TAG, "MessageViewFragment onSaveInstanceState");
+        }
         super.onSaveInstanceState(outState);
     }
 
@@ -421,7 +439,9 @@ public class MessageViewFragment extends Fragment implements View.OnClickListene
 
     /** Called by activities to set an id of a message to open. */
     public void openMessage(long messageId) {
-        if (Email.DEBUG) Log.d(Email.LOG_TAG, "MessageViewFragment openMessage");
+        if (Email.DEBUG_LIFECYCLE && Email.DEBUG) {
+            Log.d(Email.LOG_TAG, "MessageViewFragment openMessage");
+        }
         mFileEmailUri = null;
         mMessageId = messageId;
         mAccountId = -1;

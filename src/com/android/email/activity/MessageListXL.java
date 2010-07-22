@@ -21,7 +21,6 @@ import com.android.email.R;
 
 import android.app.Activity;
 import android.app.Fragment;
-import android.app.FragmentTransaction;
 import android.app.LoaderManager.LoaderCallbacks;
 import android.content.Context;
 import android.content.Loader;
@@ -31,179 +30,182 @@ import android.util.Log;
 import android.view.KeyEvent;
 import android.view.View;
 
-import java.util.ArrayList;
-
 // TODO Where/when/how do we close loaders??  Do we have to?  Getting this error:
 // Finalizing a Cursor that has not been deactivated or closed.
 // database = /data/data/com.google.android.email/databases/EmailProvider.db,
 // table = Account, query = SELECT _id, displayName, emailAddress FROM Account
 
 /**
- * Two pane activity for XL screen devices.
- *
- * TOOD Test it!
+ * The main (two-pane) activity for XL devices.
  */
-public class MessageListXL extends Activity implements View.OnClickListener {
-    private static final String BUNDLE_KEY_ACCOUNT_ID = "MessageListXl.account_id";
-    private static final String BUNDLE_KEY_MAILBOX_ID = "MessageListXl.mailbox_id";
-    private static final String BUNDLE_KEY_MESSAGE_ID = "MessageListXl.message_id";
-
+public class MessageListXL extends Activity implements View.OnClickListener,
+        MessageListXLFragmentManager.TargetActivity {
     private static final int LOADER_ID_DEFAULT_ACCOUNT = 0;
 
     private Context mContext;
 
-    private long mAccountId = -1;
-    private long mMailboxId = -1;
-    private long mMessageId = -1;
+    private View mMessageViewButtonPanel;
+    private View mMoveToNewerButton;
+    private View mMoveToOlderButton;
 
-    private MailboxListFragment mMailboxListFragment;
-    private MessageListFragment mMessageListFragment;
-    private MessageViewFragment mMessageViewFragment;
-
-    private View mMessageViewButtons;
-    private View mMoveToNewer;
-    private View mMoveToOlder;
-
-    private boolean mActivityInitialized;
-    private final ArrayList<Fragment> mRestoredFragments = new ArrayList<Fragment>();
     private MessageOrderManager mOrderManager;
+
+    private final MessageListXLFragmentManager mFragmentManager
+            = new MessageListXLFragmentManager(this);
+
+    private final MessageOrderManagerCallback mMessageOrderManagerCallback
+            = new MessageOrderManagerCallback();
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
+        if (Email.DEBUG_LIFECYCLE && Email.DEBUG) Log.d(Email.LOG_TAG, "MessageListXL onCreate");
         super.onCreate(savedInstanceState);
-
         setContentView(R.layout.message_list_xl);
 
         final boolean isRestoring = (savedInstanceState != null);
 
         mContext = getApplicationContext();
 
-        mMessageViewButtons = findViewById(R.id.message_view_buttons);
-        mMoveToNewer = findViewById(R.id.moveToNewer);
-        mMoveToOlder = findViewById(R.id.moveToOlder);
-        mMoveToNewer.setOnClickListener(this);
-        mMoveToOlder.setOnClickListener(this);
+        mFragmentManager.setMailboxListFragmentCallback(new MailboxListFragmentCallback());
+        mFragmentManager.setMessageListFragmentCallback(new MessageListFragmentCallback());
+        mFragmentManager.setMessageViewFragmentCallback(new MessageViewFragmentCallback());
+
+        mMessageViewButtonPanel = findViewById(R.id.message_view_buttons);
+        mMoveToNewerButton = findViewById(R.id.moveToNewer);
+        mMoveToOlderButton = findViewById(R.id.moveToOlder);
+        mMoveToNewerButton.setOnClickListener(this);
+        mMoveToOlderButton.setOnClickListener(this);
 
         if (isRestoring) {
-            restoreSavedState(savedInstanceState);
+            mFragmentManager.loadState(savedInstanceState);
         }
-        if (mAccountId == -1) {
+        if (!mFragmentManager.isAccountSelected()) {
             loadDefaultAccount();
         }
-        // TODO Initialize accounts dropdown.
-
-        mActivityInitialized = true;
-        if (isRestoring) {
-            initRestoredFragments();
-        }
-    }
-
-    private void restoreSavedState(Bundle savedInstanceState) {
-        mAccountId = savedInstanceState.getLong(BUNDLE_KEY_ACCOUNT_ID, -1);
-        mMailboxId = savedInstanceState.getLong(BUNDLE_KEY_MAILBOX_ID, -1);
-        mMessageId = savedInstanceState.getLong(BUNDLE_KEY_MESSAGE_ID, -1);
-        if (Email.DEBUG) {
-            Log.d(Email.LOG_TAG, "MessageListXl: Restoring "
-                    + mAccountId + "," + mMailboxId + "," + mMessageId);
-        }
+        // TODO load account list and show account selector
     }
 
     @Override
     protected void onSaveInstanceState(Bundle outState) {
+        if (Email.DEBUG_LIFECYCLE && Email.DEBUG) {
+            Log.d(Email.LOG_TAG, "MessageListXL onSaveInstanceState");
+        }
         super.onSaveInstanceState(outState);
-        outState.putLong(BUNDLE_KEY_ACCOUNT_ID, mAccountId);
-        outState.putLong(BUNDLE_KEY_MAILBOX_ID, mMailboxId);
-        outState.putLong(BUNDLE_KEY_MESSAGE_ID, mMessageId);
+        mFragmentManager.onSaveInstanceState(outState);
     }
 
     @Override
     protected void onStart() {
+        if (Email.DEBUG_LIFECYCLE && Email.DEBUG) Log.d(Email.LOG_TAG, "MessageListXL onStart");
         super.onStart();
-        startMessageOrderManager();
+
+        mFragmentManager.setStart();
+
+        if (mFragmentManager.isMessageSelected()) {
+            updateMessageOrderManager();
+        }
     }
 
     @Override
     protected void onResume() {
+        if (Email.DEBUG_LIFECYCLE && Email.DEBUG) Log.d(Email.LOG_TAG, "MessageListXL onResume");
         super.onResume();
-
         // TODO Add stuff that's done in MessageList.onResume().
     }
 
     @Override
     protected void onPause() {
+        if (Email.DEBUG_LIFECYCLE && Email.DEBUG) Log.d(Email.LOG_TAG, "MessageListXL onPause");
         super.onPause();
     }
 
     @Override
     protected void onStop() {
+        if (Email.DEBUG_LIFECYCLE && Email.DEBUG) Log.d(Email.LOG_TAG, "MessageListXL onStop");
         super.onStop();
+
+        mFragmentManager.onStop();
+
         stopMessageOrderManager();
     }
 
     @Override
     protected void onDestroy() {
+        if (Email.DEBUG_LIFECYCLE && Email.DEBUG) Log.d(Email.LOG_TAG, "MessageListXL onDestroy");
         super.onDestroy();
     }
 
     @Override
     public void onAttachFragment(Fragment fragment) {
-        if (!mActivityInitialized) {
-            // Fragments are being restored in super.onCreate().
-            // We can't initialize fragments until the activity is initialized, so remember them for
-            // now, and initialize them later in initRestoredFragments().
-            mRestoredFragments.add(fragment);
-            return;
-        }
-        if (Email.DEBUG) {
-            Log.d(Email.LOG_TAG, "MessageListXl.onAttachFragment fragment=" + fragment.getClass());
+        if (Email.DEBUG_LIFECYCLE && Email.DEBUG) {
+            Log.d(Email.LOG_TAG, "MessageListXL onAttachFragment " + fragment.getClass());
         }
         super.onAttachFragment(fragment);
-        initFragment(fragment);
+        mFragmentManager.onAttachFragment(fragment);
     }
 
-    private void initFragment(Fragment fragment) {
-        if (fragment instanceof MailboxListFragment) {
-            initMailboxListFragment((MailboxListFragment) fragment);
-        } else if (fragment instanceof MessageListFragment) {
-            initMessageListFragment((MessageListFragment) fragment);
-        } else if (fragment instanceof MessageViewFragment) {
-            initMessageViewFragment((MessageViewFragment) fragment);
+    @Override
+    public void onBackPressed() {
+        if (Email.DEBUG_LIFECYCLE && Email.DEBUG) {
+            Log.d(Email.LOG_TAG, "MessageListXL onBackPressed");
+        }
+        if (mFragmentManager.isMessageSelected()) {
+            // Go back to the message list.
+            // TODO: This works for now, but it doesn't restore the list view state, e.g. scroll
+            // position.
+            // TODO: FragmentTransaction *does* support backstack, but the behavior isn't too clear
+            // at this point.
+            mFragmentManager.selectMailbox(mFragmentManager.getMailboxId());
+        } else {
+            // Perform the default behavior == close the activity.
+            super.onBackPressed();
         }
     }
+
+    @Override
+    public void onClick(View view) {
+        switch (view.getId()) {
+            case R.id.moveToOlder:
+                moveToOlder();
+                break;
+            case R.id.moveToNewer:
+                moveToNewer();
+                break;
+        }
+    }
+
     /**
-     * Called from {@link #onCreate}.
-     * Initializes the fragmetns that are restored in super.onCreate().
+     * Start {@link MessageOrderManager} if not started, and sync it to the current message.
      */
-    private void initRestoredFragments() {
-        for (Fragment f : mRestoredFragments) {
-            initFragment(f);
-        }
-        mRestoredFragments.clear();
-    }
-
-    private void startMessageOrderManager() {
-        if (mMailboxId == -1) {
+    private void updateMessageOrderManager() {
+        if (!mFragmentManager.isMailboxSelected()) {
             return;
         }
-        if (mOrderManager != null && mOrderManager.getMailboxId() == mMailboxId) {
-            return;
+        final long mailboxId = mFragmentManager.getMailboxId();
+        if (mOrderManager == null || mOrderManager.getMailboxId() != mailboxId) {
+            stopMessageOrderManager();
+            mOrderManager = new MessageOrderManager(this, mailboxId, mMessageOrderManagerCallback);
         }
-        stopMessageOrderManager();
-        mOrderManager = new MessageOrderManager(this, mMailboxId,
-                new MessageOrderManager.Callback() {
-            @Override
-            public void onMessagesChanged() {
-                updateNavigationArrows();
-            }
-
-            @Override
-            public void onMessageNotFound() {
-                // Current message removed.
-                selectMailbox(mMailboxId);
-            }
-        });
+        if (mFragmentManager.isMessageSelected()) {
+            mOrderManager.moveTo(mFragmentManager.getMessageId());
+        }
     }
 
+    private class MessageOrderManagerCallback implements MessageOrderManager.Callback {
+        @Override
+        public void onMessagesChanged() {
+            updateNavigationArrows();
+        }
+
+        @Override
+        public void onMessageNotFound() {
+            // TODO Current message gone
+        }
+    }
+
+    /**
+     * Stop {@link MessageOrderManager}.
+     */
     private void stopMessageOrderManager() {
         if (mOrderManager != null) {
             mOrderManager.close();
@@ -226,12 +228,15 @@ public class MessageListXL extends Activity implements View.OnClickListener {
                 if (accountId == null || accountId == -1) {
                     onNoAccountFound();
                 } else {
-                    selectAccount(accountId);
+                    mFragmentManager.selectAccount(accountId);
                 }
             }
         });
     }
 
+    /**
+     * Called when the default account is not found, i.e. there's no account set up.
+     */
     private void onNoAccountFound() {
         // Open Welcome, which in turn shows the adding a new account screen.
         Welcome.actionStart(this);
@@ -239,232 +244,124 @@ public class MessageListXL extends Activity implements View.OnClickListener {
         return;
     }
 
-    // NOTE These selectXxx are *not* only methods where mXxxId's are changed.
-    // When the activity is re-created (e.g. for orientation change), the following things happen.
-    // - mXxxId's are restored from Bundle
-    // - Fragments are restored by the framework (in super.onCreate())
-    // - mXxxId's are set to fragments in initXxxFragment()
-    //
-    // So, if you want to do something when, for example, the current account changes,
-    // selectAccount() is probably not a good place to do it, because it'll be skipped when
-    // the activity is re-created.
-    // Instead, do that in initXxxFragment().  Alternatively, adding the same procedure to
-    // initRestoredFragments() too will probably work.
-
-    private void selectAccount(long accountId) {
-        // TODO Handle "combined mailboxes".  Who should take care of it?  This activity?
-        // MailboxListFragment??
-        if (Email.DEBUG) {
-            Log.d(Email.LOG_TAG, "selectAccount mAccountId=" + mAccountId);
-        }
-        if (accountId == -1) {
-            throw new RuntimeException();
-        }
-        if (mAccountId == accountId) {
-            return;
-        }
-        mAccountId = accountId;
-        mMailboxId = -1;
-        mMessageId = -1;
-
-        // TODO We don't have to replace the fragment, Just update it.
-        // That will be in accordance with our back model.
-
-        final MailboxListFragment fragment = new MailboxListFragment();
-        final FragmentTransaction ft = openFragmentTransaction();
-        ft.replace(R.id.left_pane, fragment);
-        if (mMessageListFragment != null) {
-            ft.remove(mMessageListFragment);
-        }
-        if (mMessageViewFragment != null) {
-            ft.remove(mMessageListFragment);
-        }
-        ft.commit();
-
-        // TODO Open inbox for the selected account.
-    }
-
-    private void selectMailbox(long mailboxId) {
-        if (Email.DEBUG) {
-            Log.d(Email.LOG_TAG, "selectMailbox mMailboxId=" + mMailboxId);
-        }
-        if (mMailboxId == mailboxId) {
-            return;
-        }
-
-        // TODO We don't have to replace the fragment, if it's already the message list.  Just
-        // update it.
-        // That will be in accordance with our back model.
-
-        mMailboxId = mailboxId;
-        mMessageId = -1;
-        MessageListFragment fragment = new MessageListFragment();
-        openFragmentTransaction().replace(R.id.right_pane, fragment).commit();
-    }
-
-    private void selectMessage(long messageId) {
-        // TODO: Deal with draft messages.  (open MessageCompose instead)
-        if (Email.DEBUG) {
-            Log.d(Email.LOG_TAG, "selectMessage messageId=" + mMessageId);
-        }
-        if (mMessageId == messageId) {
-            return;
-        }
-        mMessageId = messageId;
-        MessageViewFragment fragment = new MessageViewFragment();
-        openFragmentTransaction().replace(R.id.right_pane, fragment).commit();
-    }
-
-    private void initMailboxListFragment(MailboxListFragment fragment) {
-        if (Email.DEBUG) {
-            Log.d(Email.LOG_TAG, "initMailboxListFragment mAccountId=" + mAccountId);
-        }
-        if (mAccountId == -1) {
-            throw new RuntimeException();
-        }
-        mMessageListFragment = null;
-        mMessageViewFragment = null;
-        mMailboxListFragment = fragment;
-        fragment.setCallback(new MailboxListFragment.Callback() {
-            @Override
-            public void onRefresh(long accountId, long mailboxId) {
-                // Will be removed.
-            }
-
-            // TODO Rename to onSelectMailbox
-            @Override
-            public void onMailboxSelected(long accountId, long mailboxId) {
-                selectMailbox(mailboxId);
-            }
-        });
-        fragment.openMailboxes(mAccountId);
-    }
-
-    private void initMessageListFragment(MessageListFragment fragment) {
-        if (Email.DEBUG) {
-            Log.d(Email.LOG_TAG, "initMessageListFragment mMailboxId=" + mMailboxId);
-        }
-        if (mAccountId == -1 || mMailboxId == -1) {
-            throw new RuntimeException();
-        }
-        mMessageListFragment = fragment;
-        mMessageViewFragment = null;
-        mMessageViewButtons.setVisibility(View.GONE);
-        fragment.setCallback(new MessageListFragment.Callback() {
-            @Override
-            public void onSelectionChanged() {
-                // TODO Context mode
-            }
-
-            @Override
-            // TODO Rename to onSelectMessage
-            public void onMessageOpen(long messageId, long mailboxId) { // RENAME: OpenMessage ?
-                selectMessage(messageId);
-            }
-
-            @Override
-            public void onMailboxNotFound() { // RENAME: NotExists? (see MessageViewFragment)
-                // TODO: What to do??
-            }
-        });
-        fragment.openMailbox(mAccountId, mMailboxId);
-    }
-
-    private void initMessageViewFragment(MessageViewFragment fragment) {
-        if (Email.DEBUG) {
-            Log.d(Email.LOG_TAG, "initMessageViewFragment messageId=" + mMessageId);
-        }
-        if (mMessageId == -1) {
-            throw new RuntimeException();
-        }
-        mMessageViewFragment = fragment;
-        mMessageListFragment = null;
-        mMessageViewButtons.setVisibility(View.VISIBLE);
-        fragment.setCallback(new MessageViewFragment.Callback() {
-            @Override
-            public boolean onUrlInMessageClicked(String url) {
-                return false;
-            }
-
-            @Override
-            public void onRespondedToInvite(int response) {
-            }
-
-            @Override
-            public void onMessageSetUnread() {
-            }
-
-            @Override
-            public void onMessageNotExists() {
-            }
-
-            @Override
-            public void onLoadMessageStarted() {
-            }
-
-            @Override
-            public void onLoadMessageFinished() {
-            }
-
-            @Override
-            public void onLoadMessageError() {
-            }
-
-            @Override
-            public void onFetchAttachmentStarted(String attachmentName) {
-            }
-
-            @Override
-            public void onFetchAttachmentFinished() {
-            }
-
-            @Override
-            public void onFetchAttachmentError() {
-            }
-
-            @Override
-            public void onCalendarLinkClicked(long epochEventStartTime) {
-            }
-        });
-        fragment.openMessage(mMessageId);
-        startMessageOrderManager();
-        mOrderManager.moveTo(mMessageId);
-        updateNavigationArrows();
-    }
-
+    /**
+     * Disable/enable the previous/next buttons for the message view.
+     */
     private void updateNavigationArrows() {
-        mMoveToNewer.setEnabled((mOrderManager != null) && mOrderManager.canMoveToNewer());
-        mMoveToOlder.setEnabled((mOrderManager != null) && mOrderManager.canMoveToOlder());
-    }
-
-    @Override
-    public void onClick(View view) {
-        switch (view.getId()) {
-            case R.id.moveToOlder:
-                moveToOlder();
-                break;
-            case R.id.moveToNewer:
-                moveToNewer();
-                break;
-        }
+        mMoveToNewerButton.setEnabled((mOrderManager != null) && mOrderManager.canMoveToNewer());
+        mMoveToOlderButton.setEnabled((mOrderManager != null) && mOrderManager.canMoveToOlder());
     }
 
     private boolean moveToOlder() {
-        if (mOrderManager != null && mOrderManager.moveToOlder()) {
-            mMessageId = mOrderManager.getCurrentMessageId();
-            mMessageViewFragment.openMessage(mMessageId);
+        if (mFragmentManager.isMessageSelected() && (mOrderManager != null)
+                && mOrderManager.moveToOlder()) {
+            mFragmentManager.selectMessage(mOrderManager.getCurrentMessageId());
             return true;
         }
         return false;
     }
 
     private boolean moveToNewer() {
-        if (mOrderManager != null && mOrderManager.moveToNewer()) {
-            mMessageId = mOrderManager.getCurrentMessageId();
-            mMessageViewFragment.openMessage(mMessageId);
+        if (mFragmentManager.isMessageSelected() && (mOrderManager != null)
+                && mOrderManager.moveToNewer()) {
+            mFragmentManager.selectMessage(mOrderManager.getCurrentMessageId());
             return true;
         }
         return false;
+    }
+
+    private class MailboxListFragmentCallback implements MailboxListFragment.Callback {
+        @Override
+        public void onRefresh(long accountId, long mailboxId) {
+            // Will be removed.
+        }
+
+        // TODO Rename to onSelectMailbox
+        @Override
+        public void onMailboxSelected(long accountId, long mailboxId) {
+            mFragmentManager.selectMailbox(mailboxId);
+        }
+    }
+
+    private class MessageListFragmentCallback implements MessageListFragment.Callback {
+        @Override
+        public void onSelectionChanged() {
+            // TODO Context mode
+        }
+
+        @Override
+        // TODO Rename to onSelectMessage
+        public void onMessageOpen(long messageId, long mailboxId) { // RENAME: OpenMessage ?
+            // TODO Deal with drafts.  (Open MessageCompose instead.)
+            mFragmentManager.selectMessage(messageId);
+        }
+
+        @Override
+        public void onMailboxNotFound() { // RENAME: NotExists? (see MessageViewFragment)
+            // TODO: What to do??
+        }
+    }
+
+    private class MessageViewFragmentCallback implements MessageViewFragment.Callback {
+        @Override
+        public boolean onUrlInMessageClicked(String url) {
+            return false;
+        }
+
+        @Override
+        public void onRespondedToInvite(int response) {
+        }
+
+        @Override
+        public void onMessageSetUnread() {
+        }
+
+        @Override
+        public void onMessageNotExists() {
+        }
+
+        @Override
+        public void onLoadMessageStarted() {
+        }
+
+        @Override
+        public void onLoadMessageFinished() {
+        }
+
+        @Override
+        public void onLoadMessageError() {
+        }
+
+        @Override
+        public void onFetchAttachmentStarted(String attachmentName) {
+        }
+
+        @Override
+        public void onFetchAttachmentFinished() {
+        }
+
+        @Override
+        public void onFetchAttachmentError() {
+        }
+
+        @Override
+        public void onCalendarLinkClicked(long epochEventStartTime) {
+        }
+    }
+
+    @Override
+    public void onMessageViewFragmentShown(long accountId, long mailboxId, long messageId) {
+        mMessageViewButtonPanel.setVisibility(View.VISIBLE);
+
+        updateMessageOrderManager();
+        updateNavigationArrows();
+    }
+
+    @Override
+    public void onMessageViewFragmentHidden() {
+        mMessageViewButtonPanel.setVisibility(View.GONE);
+
+        stopMessageOrderManager();
     }
 
     /**
