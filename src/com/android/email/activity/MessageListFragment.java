@@ -28,7 +28,6 @@ import com.android.email.provider.EmailContent.MessageColumns;
 import com.android.email.service.MailService;
 
 import android.app.Activity;
-import android.app.Fragment;
 import android.app.ListFragment;
 import android.content.ContentResolver;
 import android.content.ContentUris;
@@ -37,16 +36,13 @@ import android.net.Uri;
 import android.os.AsyncTask;
 import android.os.Bundle;
 import android.os.Handler;
-import android.view.LayoutInflater;
-import android.view.MenuInflater;
 import android.view.View;
-import android.view.ViewGroup;
 import android.widget.AdapterView;
+import android.widget.AdapterView.OnItemClickListener;
+import android.widget.AdapterView.OnItemLongClickListener;
 import android.widget.ListView;
 import android.widget.TextView;
 import android.widget.Toast;
-import android.widget.AdapterView.OnItemClickListener;
-import android.widget.AdapterView.OnItemLongClickListener;
 
 import java.security.InvalidParameterException;
 import java.util.HashSet;
@@ -172,7 +168,7 @@ public class MessageListFragment extends ListFragment implements OnItemClickList
     public void onStart() {
         super.onStart();
         mStarted = true;
-        if (mAccountId != -1) {
+        if (mMailboxId != -1) {
             startLoading();
         }
     }
