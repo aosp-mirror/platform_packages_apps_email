@@ -93,7 +93,8 @@ public class MailboxList extends Activity implements MailboxListFragment.Callbac
         mListFragment = (MailboxListFragment) findFragmentById(R.id.mailbox_list_fragment);
 
         mActionBar.setStandardNavigationMode(this.getText(R.string.mailbox_list_title));
-        mListFragment.bindActivityInfo(mAccountId, this);
+        mListFragment.setCallback(this);
+        mListFragment.openMailboxes(mAccountId);
 
         // Go to the database for the account name
         mLoadAccountNameTask = new AsyncTask<Void, Void, String[]>() {
@@ -207,7 +208,7 @@ public class MailboxList extends Activity implements MailboxListFragment.Callbac
     /**
      * Implements MailboxFragment.Callback
      */
-    public void onOpen(long accountId, long mailboxId) {
+    public void onMailboxSelected(long accountId, long mailboxId) {
         onOpenMailbox(mailboxId);
     }
 

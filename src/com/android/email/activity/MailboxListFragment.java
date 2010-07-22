@@ -62,7 +62,7 @@ public class MailboxListFragment extends ListFragment implements OnItemClickList
     // UI Support
     private Activity mActivity;
     private MailboxesAdapter mListAdapter;
-    private Callback mCallback;
+    private Callback mCallback = EmptyCallback.INSTANCE;
 
     private boolean mStarted;
 
@@ -70,8 +70,21 @@ public class MailboxListFragment extends ListFragment implements OnItemClickList
      * Callback interface that owning activities must implement
      */
     public interface Callback {
+        /** @deprecated There'll be no context menu, so no refresh. */
         public void onRefresh(long accountId, long mailboxId);
-        public void onOpen(long accountId, long mailboxId);
+        public void onMailboxSelected(long accountId, long mailboxId);
+    }
+
+    private static class EmptyCallback implements Callback {
+        public static final Callback INSTANCE = new EmptyCallback();
+        @Override
+        public void onMailboxSelected(long accountId, long mailboxId) {
+        }
+
+        /** @deprecated */
+        @Override
+        public void onRefresh(long accountId, long mailboxId) {
+        }
     }
 
     /**
@@ -95,14 +108,16 @@ public class MailboxListFragment extends ListFragment implements OnItemClickList
         mListAdapter = new MailboxesAdapter(mActivity);
     }
 
+    public void setCallback(Callback callback) {
+        mCallback = (callback == null) ? EmptyCallback.INSTANCE : callback;
+    }
+
     /**
-     * Called by activity during onCreate() to bind additional information
      * @param accountId the account we're looking at
-     * @param callback if non-null, UI clicks (e.g. refresh or open) will be delivered here
      */
-    public void bindActivityInfo(long accountId, Callback callback) {
+    public void openMailboxes(long accountId) {
+        cancelAllTasks();
         mAccountId = accountId;
-        mCallback = callback;
         if (mStarted) {
             startLoading();
         }
@@ -134,10 +149,7 @@ public class MailboxListFragment extends ListFragment implements OnItemClickList
     @Override
     public void onStop() {
         super.onStop();
-        Utility.cancelTaskInterrupt(mLoadMailboxesTask);
-        mLoadMailboxesTask = null;
-        Utility.cancelTaskInterrupt(mMessageCountTask);
-        mMessageCountTask = null;
+        cancelAllTasks();
     }
 
     /**
@@ -148,6 +160,13 @@ public class MailboxListFragment extends ListFragment implements OnItemClickList
         super.onDestroy();
 
         mListAdapter.changeCursor(null);
+    }
+
+    private void cancelAllTasks() {
+        Utility.cancelTaskInterrupt(mLoadMailboxesTask);
+        mLoadMailboxesTask = null;
+        Utility.cancelTaskInterrupt(mMessageCountTask);
+        mMessageCountTask = null;
     }
 
     private void startLoading() {
@@ -186,23 +205,17 @@ public class MailboxListFragment extends ListFragment implements OnItemClickList
 
         switch (item.getItemId()) {
             case R.id.refresh:
-                if (mCallback != null) {
-                    mCallback.onRefresh(mAccountId, info.id);
-                }
+                mCallback.onRefresh(mAccountId, info.id);
                 return true;
             case R.id.open:
-                if (mCallback != null) {
-                    mCallback.onOpen(mAccountId, info.id);
-                }
+                mCallback.onMailboxSelected(mAccountId, info.id);
                 return true;
         }
         return false;
     }
 
     public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
-        if (mCallback != null) {
-            mCallback.onOpen(mAccountId, id);
-        }
+        mCallback.onMailboxSelected(mAccountId, id);
     }
 
     /**
@@ -217,6 +230,8 @@ public class MailboxListFragment extends ListFragment implements OnItemClickList
          */
         public LoadMailboxesTask(long accountId) {
             mAccountKey = accountId;
+            mDraftMailboxKey = -1;
+            mTrashMailboxKey = -1;
         }
 
         @Override
@@ -250,7 +265,7 @@ public class MailboxListFragment extends ListFragment implements OnItemClickList
 
         @Override
         protected void onPostExecute(Object[] results) {
-            if (results == null) return;
+            if (results == null || isCancelled()) return;
             Cursor cursor = (Cursor) results[0];
             mDraftMailboxKey = (Long) results[1];
             mTrashMailboxKey = (Long) results[2];
@@ -286,7 +301,7 @@ public class MailboxListFragment extends ListFragment implements OnItemClickList
 
         @Override
         protected void onPostExecute(int[] counts) {
-            if (counts == null) {
+            if (counts == null || isCancelled()) {
                 return;
             }
             int countDraft = counts[0];

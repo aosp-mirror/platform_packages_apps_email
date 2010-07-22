@@ -323,7 +323,7 @@ public class MessageListXL extends Activity implements View.OnClickListener {
         mMessageListFragment = null;
         mMessageViewFragment = null;
         mMailboxListFragment = fragment;
-        fragment.bindActivityInfo(mAccountId, new MailboxListFragment.Callback() {
+        fragment.setCallback(new MailboxListFragment.Callback() {
             @Override
             public void onRefresh(long accountId, long mailboxId) {
                 // Will be removed.
@@ -331,10 +331,11 @@ public class MessageListXL extends Activity implements View.OnClickListener {
 
             // TODO Rename to onSelectMailbox
             @Override
-            public void onOpen(long accountId, long mailboxId) {
+            public void onMailboxSelected(long accountId, long mailboxId) {
                 selectMailbox(mailboxId);
             }
         });
+        fragment.openMailboxes(mAccountId);
     }
 
     private void initMessageListFragment(MessageListFragment fragment) {
