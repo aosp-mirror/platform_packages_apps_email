@@ -244,6 +244,10 @@ public class MessageListFragment extends ListFragment implements OnItemClickList
         if (mailboxId == -1) {
             throw new InvalidParameterException();
         }
+        if ((mAccountId == accountId) && (mMailboxId == mailboxId)) {
+            return;
+        }
+
         mAccountId = accountId;
         mMailboxId = mailboxId;
 
@@ -253,6 +257,12 @@ public class MessageListFragment extends ListFragment implements OnItemClickList
     }
 
     private void startLoading() {
+        // Clear the list.  (ListFragment will show the "Loading" animation)
+        getListView().removeFooterView(mListFooterView);
+        setListAdapter(null);
+        setListShown(false);
+
+        // Start loading...
         Utility.cancelTaskInterrupt(mLoadMessagesTask);
         mLoadMessagesTask = new LoadMessagesTask(mMailboxId, mAccountId);
         mLoadMessagesTask.execute();

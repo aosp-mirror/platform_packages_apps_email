@@ -37,6 +37,8 @@ import android.widget.AdapterView;
 import android.widget.AdapterView.OnItemClickListener;
 import android.widget.ListView;
 
+import java.security.InvalidParameterException;
+
 /**
  * This fragment presents a list of mailboxes for a given account.  The "API" includes the
  * following elements which must be provided by the host Activity.
@@ -94,18 +96,19 @@ public class MailboxListFragment extends ListFragment implements OnItemClickList
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+
+        mActivity = getActivity();
+        mListAdapter = new MailboxesAdapter(mActivity);
     }
 
     @Override
     public void onActivityCreated(Bundle savedInstanceState) {
         super.onActivityCreated(savedInstanceState);
 
-        mActivity = getActivity();
         ListView listView = getListView();
         listView.setOnItemClickListener(this);
         listView.setItemsCanFocus(false);
         registerForContextMenu(listView);
-        mListAdapter = new MailboxesAdapter(mActivity);
     }
 
     public void setCallback(Callback callback) {
@@ -116,7 +119,12 @@ public class MailboxListFragment extends ListFragment implements OnItemClickList
      * @param accountId the account we're looking at
      */
     public void openMailboxes(long accountId) {
-        cancelAllTasks();
+        if (accountId == -1) {
+            throw new InvalidParameterException();
+        }
+        if (mAccountId == accountId) {
+            return;
+        }
         mAccountId = accountId;
         if (mStarted) {
             startLoading();
@@ -130,7 +138,9 @@ public class MailboxListFragment extends ListFragment implements OnItemClickList
     public void onStart() {
         super.onStart();
         mStarted = true;
-        startLoading();
+        if (mAccountId != -1) {
+            startLoading();
+        }
     }
 
     /**
@@ -170,10 +180,14 @@ public class MailboxListFragment extends ListFragment implements OnItemClickList
     }
 
     private void startLoading() {
-        if (mAccountId != -1) {
-            mLoadMailboxesTask = new LoadMailboxesTask(mAccountId);
-            mLoadMailboxesTask.execute();
-        }
+        cancelAllTasks();
+
+        // Clear the list.  (ListFragment will show the "Loading" animation)
+        setListAdapter(null);
+        setListShown(false);
+
+        mLoadMailboxesTask = new LoadMailboxesTask(mAccountId);
+        mLoadMailboxesTask.execute();
     }
 
     /**
