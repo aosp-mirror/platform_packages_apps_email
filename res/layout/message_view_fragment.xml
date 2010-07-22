@@ -14,11 +14,6 @@
      limitations under the License.
 -->
 
-<!--
-    TODO Rename to message_view_fragment.xml
-    Can't do it now because git wouldn't detect renaming.
--->
-
 <ScrollView
     xmlns:android="http://schemas.android.com/apk/res/android"
     android:id="@+id/scrollview"
