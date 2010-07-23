@@ -896,6 +896,18 @@ public class SyncManager extends Service implements Runnable {
     }
 
     /**
+     * Release security holds for the specified account
+     * @param account the account whose Mailboxes should be released from security hold
+     */
+    static public void releaseSecurityHold(Account account) {
+        SyncManager syncManager = INSTANCE;
+        if (syncManager != null) {
+            syncManager.releaseSyncHolds(INSTANCE, AbstractSyncService.EXIT_SECURITY_FAILURE,
+                    account);
+        }
+    }
+
+    /**
      * Release a specific type of hold (the reason) for the specified Account; if the account
      * is null, mailboxes from all accounts with the specified hold will be released
      * @param reason the reason for the SyncError (AbstractSyncService.EXIT_XXX)
