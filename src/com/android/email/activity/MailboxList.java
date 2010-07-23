@@ -125,12 +125,9 @@ public class MailboxList extends Activity implements MailboxListFragment.Callbac
                     // something is wrong with this account
                     finish();
                 }
-                // STOPSHIP this doesn't work - the subtitle doesn't work - bug 2805131
-//                mActionBar.setStandardNavigationMode(
-//                        MailboxList.this.getText(R.string.mailbox_list_title),
-//                        accountName);
-                // STOPSHIP - so, for temp fix, show the account name (since it's the dynamic value)
-                mActionBar.setStandardNavigationMode(accountName);
+                mActionBar.setStandardNavigationMode(
+                        MailboxList.this.getText(R.string.mailbox_list_title),
+                        accountName);
             }
 
         }.execute();
