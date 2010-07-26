@@ -25,8 +25,10 @@ import android.app.FragmentTransaction;
 import android.app.LoaderManager.LoaderCallbacks;
 import android.content.Context;
 import android.content.Loader;
+import android.content.pm.ActivityInfo;
 import android.os.Bundle;
 import android.util.Log;
+import android.view.KeyEvent;
 import android.view.View;
 
 import java.util.ArrayList;
@@ -463,5 +465,21 @@ public class MessageListXL extends Activity implements View.OnClickListener {
             return true;
         }
         return false;
+    }
+
+    /**
+     * STOPSHIP: Remove this.
+     * Rotate screen when the R key is pressed.  Workaround for auto-orientation not working.
+     */
+    @Override
+    public boolean onKeyDown(int keyCode, KeyEvent event) {
+        if (keyCode == KeyEvent.KEYCODE_R) {
+            setRequestedOrientation(
+                    (getRequestedOrientation() == ActivityInfo.SCREEN_ORIENTATION_LANDSCAPE)
+                    ? ActivityInfo.SCREEN_ORIENTATION_PORTRAIT
+                    : ActivityInfo.SCREEN_ORIENTATION_LANDSCAPE);
+            return true;
+        }
+        return super.onKeyDown(keyCode, event);
     }
 }
