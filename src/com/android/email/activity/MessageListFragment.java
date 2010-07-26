@@ -36,6 +36,7 @@ import android.net.Uri;
 import android.os.AsyncTask;
 import android.os.Bundle;
 import android.os.Handler;
+import android.util.Log;
 import android.view.View;
 import android.widget.AdapterView;
 import android.widget.AdapterView.OnItemClickListener;
@@ -135,6 +136,7 @@ public class MessageListFragment extends ListFragment implements OnItemClickList
 
     @Override
     public void onCreate(Bundle savedInstanceState) {
+        if (Email.DEBUG) Log.d(Email.LOG_TAG, "MessageListFragment onCreate");
         super.onCreate(savedInstanceState);
         mActivity = getActivity();
         mResolver = mActivity.getContentResolver();
@@ -144,6 +146,7 @@ public class MessageListFragment extends ListFragment implements OnItemClickList
 
     @Override
     public void onActivityCreated(Bundle savedInstanceState) {
+        if (Email.DEBUG) Log.d(Email.LOG_TAG, "MessageListFragment onActivityCreated");
         super.onActivityCreated(savedInstanceState);
 
         ListView listView = getListView();
@@ -166,6 +169,7 @@ public class MessageListFragment extends ListFragment implements OnItemClickList
 
     @Override
     public void onStart() {
+        if (Email.DEBUG) Log.d(Email.LOG_TAG, "MessageListFragment onStart");
         super.onStart();
         mStarted = true;
         if (mMailboxId != -1) {
@@ -175,12 +179,14 @@ public class MessageListFragment extends ListFragment implements OnItemClickList
 
     @Override
     public void onStop() {
+        if (Email.DEBUG) Log.d(Email.LOG_TAG, "MessageListFragment onStop");
         mStarted = false;
         super.onStop();
     }
 
     @Override
     public void onResume() {
+        if (Email.DEBUG) Log.d(Email.LOG_TAG, "MessageListFragment onResume");
         super.onResume();
         restoreListPosition();
         autoRefreshStaleMailbox();
@@ -188,6 +194,7 @@ public class MessageListFragment extends ListFragment implements OnItemClickList
 
     @Override
     public void onDestroy() {
+        if (Email.DEBUG) Log.d(Email.LOG_TAG, "MessageListFragment onDestroy");
         Utility.cancelTaskInterrupt(mLoadMessagesTask);
         mLoadMessagesTask = null;
         Utility.cancelTaskInterrupt(mSetFooterTask);
@@ -201,6 +208,7 @@ public class MessageListFragment extends ListFragment implements OnItemClickList
 
     @Override
     public void onSaveInstanceState(Bundle outState) {
+        if (Email.DEBUG) Log.d(Email.LOG_TAG, "MessageListFragment onSaveInstanceState");
         super.onSaveInstanceState(outState);
         saveListPosition();
         outState.putInt(STATE_SELECTED_POSITION, mSavedItemPosition);
@@ -241,6 +249,7 @@ public class MessageListFragment extends ListFragment implements OnItemClickList
      *     {@link Mailbox#QUERY_ALL_INBOXES}.  -1 is not allowed.
      */
     public void openMailbox(long accountId, long mailboxId) {
+        if (Email.DEBUG) Log.d(Email.LOG_TAG, "MessageListFragment openMailbox");
         if (mailboxId == -1) {
             throw new InvalidParameterException();
         }
