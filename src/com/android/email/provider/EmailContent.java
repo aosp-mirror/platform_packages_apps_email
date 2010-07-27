@@ -16,6 +16,8 @@
 
 package com.android.email.provider;
 
+import com.android.email.Utility;
+
 import android.content.ContentProviderOperation;
 import android.content.ContentProviderResult;
 import android.content.ContentResolver;
@@ -150,16 +152,8 @@ public abstract class EmailContent {
      * @return the number of items matching the query (or zero)
      */
     static public int count(Context context, Uri uri, String selection, String[] selectionArgs) {
-        Cursor cursor = context.getContentResolver()
-            .query(uri, COUNT_COLUMNS, selection, selectionArgs, null);
-        try {
-            if (!cursor.moveToFirst()) {
-                return 0;
-            }
-            return cursor.getInt(0);
-        } finally {
-            cursor.close();
-        }
+        return Utility.getFirstRowLong(context,
+                uri, COUNT_COLUMNS, selection, selectionArgs, null, 0, Long.valueOf(0)).intValue();
     }
 
     /**
@@ -290,15 +284,11 @@ public abstract class EmailContent {
         /**
          * Returns the bodyId for the given messageId, or -1 if no body is found.
          */
-        public static long lookupBodyIdWithMessageId(ContentResolver resolver, long messageId) {
-            Cursor c = resolver.query(Body.CONTENT_URI, ID_PROJECTION,
-                    Body.MESSAGE_KEY + "=?",
-                    new String[] {Long.toString(messageId)}, null);
-            try {
-                return c.moveToFirst() ? c.getLong(ID_PROJECTION_COLUMN) : -1;
-            } finally {
-                c.close();
-            }
+        public static long lookupBodyIdWithMessageId(Context context, long messageId) {
+            return Utility.getFirstRowLong(context, Body.CONTENT_URI,
+                    ID_PROJECTION, Body.MESSAGE_KEY + "=?",
+                    new String[] {Long.toString(messageId)}, null, ID_PROJECTION_COLUMN,
+                            Long.valueOf(-1));
         }
 
         /**
@@ -309,7 +299,7 @@ public abstract class EmailContent {
         public static void updateBodyWithMessageId(Context context, long messageId,
                 ContentValues values) {
             ContentResolver resolver = context.getContentResolver();
-            long bodyId = lookupBodyIdWithMessageId(resolver, messageId);
+            long bodyId = lookupBodyIdWithMessageId(context, messageId);
             values.put(BodyColumns.MESSAGE_KEY, messageId);
             if (bodyId == -1) {
                 resolver.insert(CONTENT_URI, values);
@@ -320,18 +310,10 @@ public abstract class EmailContent {
         }
 
         public static long restoreBodySourceKey(Context context, long messageId) {
-            Cursor c = context.getContentResolver().query(Body.CONTENT_URI,
+            return Utility.getFirstRowLong(context, Body.CONTENT_URI,
                     Body.PROJECTION_SOURCE_KEY,
-                    Body.MESSAGE_KEY + "=?", new String[] {Long.toString(messageId)}, null);
-            try {
-                if (c.moveToFirst()) {
-                    return c.getLong(0);
-                } else {
-                    return 0;
-                }
-            } finally {
-                c.close();
-            }
+                    Body.MESSAGE_KEY + "=?", new String[] {Long.toString(messageId)}, null, 0,
+                            Long.valueOf(0));
         }
 
         private static String restoreTextWithMessageId(Context context, long messageId,
@@ -907,6 +889,11 @@ public abstract class EmailContent {
             RECORD_ID, MailboxColumns.TYPE
         };
 
+        public static final int ACCOUNT_FLAGS_COLUMN_ID = 0;
+        public static final int ACCOUNT_FLAGS_COLUMN_FLAGS = 1;
+        public static final String[] ACCOUNT_FLAGS_PROJECTION = new String[] {
+                AccountColumns.ID, AccountColumns.FLAGS};
+
         public static final String MAILBOX_SELECTION =
             MessageColumns.MAILBOX_KEY + " =?";
 
@@ -914,6 +901,10 @@ public abstract class EmailContent {
             MessageColumns.MAILBOX_KEY + " =? and " + MessageColumns.FLAG_READ + "= 0";
 
         public static final String UUID_SELECTION = AccountColumns.COMPATIBILITY_UUID + " =?";
+
+        public static final String SECURITY_NONZERO_SELECTION =
+            Account.SECURITY_FLAGS + " IS NOT NULL AND " + Account.SECURITY_FLAGS + "!=0";
+
 
         /**
          * This projection is for searching for the default account
@@ -1257,17 +1248,9 @@ public abstract class EmailContent {
          * Helper method for finding the default account.
          */
         static private long getDefaultAccountWhere(Context context, String where) {
-            Cursor cursor = context.getContentResolver().query(CONTENT_URI,
+            return Utility.getFirstRowLong(context, CONTENT_URI,
                     DEFAULT_ID_PROJECTION,
-                    where, null, null);
-            try {
-                if (cursor.moveToFirst()) {
-                    return cursor.getLong(0);   // column 0 is id
-                }
-            } finally {
-                cursor.close();
-            }
-            return -1;
+                    where, null, null, 0, Long.valueOf(-1));
         }
 
         /**
@@ -1322,16 +1305,9 @@ public abstract class EmailContent {
             }
 
             // Now id is a UUId.
-            Cursor cursor = context.getContentResolver().query(CONTENT_URI, ID_PROJECTION,
-                    UUID_SELECTION, new String[] {id}, null);
-            try {
-                if (cursor.moveToFirst()) {
-                    return cursor.getLong(0);   // column 0 is id
-                }
-            } finally {
-                cursor.close();
-            }
-            return -1; // Not found.
+            return Utility.getFirstRowLong(context,
+                    CONTENT_URI, ID_PROJECTION,
+                    UUID_SELECTION, new String[] {id}, null, 0, Long.valueOf(-1));
         }
 
         /**
@@ -1381,16 +1357,45 @@ public abstract class EmailContent {
          * @return true if an {@code accountId} is assigned to any existing account.
          */
         public static boolean isValidId(Context context, long accountId) {
-            Cursor cursor = context.getContentResolver().query(CONTENT_URI, ID_PROJECTION,
-                    ID_SELECTION, new String[] {"" + accountId}, null);
+            return null != Utility.getFirstRowLong(context, CONTENT_URI, ID_PROJECTION,
+                    ID_SELECTION, new String[] {Long.toString(accountId)}, null, 0);
+        }
+
+        /**
+         * Check a single account for security hold status.
+         */
+        public static boolean isSecurityHold(Context context, long accountId) {
+            Long flags = Utility.getFirstRowLong(context,
+                    ContentUris.withAppendedId(Account.CONTENT_URI, accountId),
+                    ACCOUNT_FLAGS_PROJECTION, null, null, null, ACCOUNT_FLAGS_COLUMN_FLAGS);
+            return (flags != null) && ((flags & Account.FLAGS_SECURITY_HOLD) != 0);
+        }
+
+        /**
+         * Clear all account hold flags that are set.
+         *
+         * (This will trigger watchers, and in particular will cause EAS to try and resync the
+         * account(s).)
+         */
+        public static void clearSecurityHoldOnAllAccounts(Context context) {
+            ContentResolver resolver = context.getContentResolver();
+            Cursor c = resolver.query(Account.CONTENT_URI, ACCOUNT_FLAGS_PROJECTION,
+                    SECURITY_NONZERO_SELECTION, null, null);
             try {
-                if (cursor.moveToFirst()) {
-                    return true;
+                while (c.moveToNext()) {
+                    int flags = c.getInt(ACCOUNT_FLAGS_COLUMN_FLAGS);
+
+                    if (0 != (flags & FLAGS_SECURITY_HOLD)) {
+                        ContentValues cv = new ContentValues();
+                        cv.put(AccountColumns.FLAGS, flags & ~FLAGS_SECURITY_HOLD);
+                        long accountId = c.getLong(ACCOUNT_FLAGS_COLUMN_ID);
+                        Uri uri = ContentUris.withAppendedId(Account.CONTENT_URI, accountId);
+                        resolver.update(uri, cv, null, null);
+                    }
                 }
             } finally {
-                cursor.close();
+                c.close();
             }
-            return false; // Not found.
         }
 
         /**
@@ -2126,18 +2131,10 @@ public abstract class EmailContent {
          * @return the id of the mailbox, or -1 if not found
          */
         public static long findMailboxOfType(Context context, long accountId, int type) {
-            long mailboxId = NO_MAILBOX;
             String[] bindArguments = new String[] {Long.toString(type), Long.toString(accountId)};
-            Cursor c = context.getContentResolver().query(Mailbox.CONTENT_URI,
-                    ID_PROJECTION, WHERE_TYPE_AND_ACCOUNT_KEY, bindArguments, null);
-            try {
-                if (c.moveToFirst()) {
-                    mailboxId = c.getLong(ID_PROJECTION_COLUMN);
-                }
-            } finally {
-                c.close();
-            }
-            return mailboxId;
+            return Utility.getFirstRowLong(context, Mailbox.CONTENT_URI,
+                    ID_PROJECTION, WHERE_TYPE_AND_ACCOUNT_KEY, bindArguments, null,
+                    ID_PROJECTION_COLUMN, NO_MAILBOX);
         }
 
         /**

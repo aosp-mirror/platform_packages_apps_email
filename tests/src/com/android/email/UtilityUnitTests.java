@@ -17,6 +17,7 @@
 package com.android.email;
 
 import com.android.email.Utility.NewFileCreator;
+import com.android.email.provider.EmailContent.Account;
 import com.android.email.provider.EmailContent.Mailbox;
 
 import android.content.Context;
@@ -25,6 +26,7 @@ import android.os.Environment;
 import android.telephony.TelephonyManager;
 import android.test.AndroidTestCase;
 import android.test.MoreAsserts;
+import android.test.mock.MockCursor;
 import android.test.suitebuilder.annotation.SmallTest;
 import android.util.Log;
 import android.widget.TextView;
@@ -347,5 +349,56 @@ public class UtilityUnitTests extends AndroidTestCase {
         assertTrue(Utility.isPortFieldValid(view));
         view.setText("65535");
         assertTrue(Utility.isPortFieldValid(view));
+    }
+
+    public void testGetFirstRowLong() {
+        DBTestHelper.MyContext context = new DBTestHelper.MyContext();
+        DBTestHelper.MyProvider provider = context.getMyProvider();
+
+        // Case 1: Row found
+        DBTestHelper.EasyMockCursor cursor = new DBTestHelper.EasyMockCursor(1) {
+            @Override
+            public boolean moveToFirst() {
+                return true;
+            }
+
+            @Override
+            public long getLong(int index) {
+                assertEquals(1, index);
+                return 100;
+            }
+        };
+        provider.mQueryPresetResult = cursor;
+
+        Long actual = Utility.getFirstRowLong(context, Account.CONTENT_URI,
+                new String[] {"p"}, "se", new String[] {"sa"}, "so", 1);
+        assertEquals(Long.valueOf(100), actual);
+
+        MoreAsserts.assertEquals(new String[] {"p"}, provider.mPassedProjection);
+        assertEquals("se", provider.mPassedSelection);
+        MoreAsserts.assertEquals(new String[] {"sa"}, provider.mPassedSelectionArgs);
+        assertEquals("so", provider.mPassedSortOrder);
+
+        assertTrue(cursor.mClosed);
+
+        // Case 2: No row found
+        cursor = new DBTestHelper.EasyMockCursor(0) {
+            @Override
+            public boolean moveToFirst() {
+                return false;
+            }
+        };
+        provider.mQueryPresetResult = cursor;
+
+        actual = Utility.getFirstRowLong(context, Account.CONTENT_URI, new String[] {"p"},
+                null, null, null, 0);
+        assertEquals(null, actual);
+        assertTrue(cursor.mClosed);
+
+        // Test with a default value.
+        actual = Utility.getFirstRowLong(context, Account.CONTENT_URI, new String[] {"p"},
+                null, null, null, 0, Long.valueOf(-1));
+        assertEquals(Long.valueOf(-1), actual);
+        assertTrue(cursor.mClosed);
     }
 }

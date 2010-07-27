@@ -33,6 +33,7 @@ import android.content.res.Resources;
 import android.content.res.TypedArray;
 import android.database.Cursor;
 import android.graphics.drawable.Drawable;
+import android.net.Uri;
 import android.os.AsyncTask;
 import android.security.MessageDigest;
 import android.telephony.TelephonyManager;
@@ -743,5 +744,33 @@ public class Utility {
             }
         }
         return null;
+    }
+
+    /**
+     * @return a long in column {@code column} of the first result row, if the query returns at
+     * least 1 row.  Otherwise returns {@code defaultValue}.
+     */
+    public static Long getFirstRowLong(Context context, Uri uri, String[] projection,
+            String selection, String[] selectionArgs, String sortOrder, int column,
+            Long defaultValue) {
+        Cursor c = context.getContentResolver().query(uri, projection, selection, selectionArgs,
+                sortOrder);
+        try {
+            if (c.moveToFirst()) {
+                return c.getLong(column);
+            }
+        } finally {
+            c.close();
+        }
+        return defaultValue;
+    }
+
+    /**
+     * {@link #getFirstRowLong} with null as a default value.
+     */
+    public static Long getFirstRowLong(Context context, Uri uri, String[] projection,
+            String selection, String[] selectionArgs, String sortOrder, int column) {
+        return getFirstRowLong(context, uri, projection, selection, selectionArgs,
+                sortOrder, column, null);
     }
 }
