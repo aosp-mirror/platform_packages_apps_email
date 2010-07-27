@@ -559,7 +559,7 @@ public class MailService extends Service {
                             Email.POP_IMAP_ACCOUNT_MANAGER_TYPE);
                 report.syncEnabled = ContentResolver.getSyncAutomatically(accountManagerAccount,
                         EmailProvider.EMAIL_AUTHORITY);
- 
+
                 // TODO lookup # new in inbox
                 mSyncReports.put(report.accountId, report);
             }
@@ -787,7 +787,7 @@ public class MailService extends Service {
             while (c.moveToNext()) {
                 long accountId = c.getLong(Account.CONTENT_ID_COLUMN);
                 String protocol = Account.getProtocol(context, accountId);
-                if (protocol.equals("pop3") || protocol.equals("imap")) {
+                if ("pop3".equals(protocol) || "imap".equals(protocol)) {
                     Account account = Account.restoreAccountWithId(context, accountId);
                     if (account != null) {
                         providerAccounts.add(account);
