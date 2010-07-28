@@ -62,19 +62,6 @@ public class SecurityPolicy {
         AccountColumns.ID, AccountColumns.SECURITY_FLAGS
     };
     private static final int ACCOUNT_SECURITY_COLUMN_FLAGS = 1;
-    // Note, this handles the NULL case to deal with older accounts where the column was added
-    private static final String WHERE_ACCOUNT_SECURITY_NONZERO =
-        Account.SECURITY_FLAGS + " IS NOT NULL AND " + Account.SECURITY_FLAGS + "!=0";
-
-    /**
-     * This projection on Account is for clearing the "security hold" column.  Also includes
-     * the security flags column, so we can use it for selecting.
-     */
-    private static final String[] ACCOUNT_FLAGS_PROJECTION = new String[] {
-        AccountColumns.ID, AccountColumns.FLAGS, AccountColumns.SECURITY_FLAGS
-    };
-    private static final int ACCOUNT_FLAGS_COLUMN_ID = 0;
-    private static final int ACCOUNT_FLAGS_COLUMN_FLAGS = 1;
 
     /**
      * Get the security policy instance
@@ -132,7 +119,7 @@ public class SecurityPolicy {
         int passwordComplexChars = Integer.MIN_VALUE;
 
         Cursor c = mContext.getContentResolver().query(Account.CONTENT_URI,
-                ACCOUNT_SECURITY_PROJECTION, WHERE_ACCOUNT_SECURITY_NONZERO, null, null);
+                ACCOUNT_SECURITY_PROJECTION, Account.SECURITY_NONZERO_SELECTION, null, null);
         try {
             while (c.moveToNext()) {
                 long flags = c.getLong(ACCOUNT_SECURITY_COLUMN_FLAGS);
@@ -331,30 +318,6 @@ public class SecurityPolicy {
         ContentValues cv = new ContentValues();
         cv.put(AccountColumns.FLAGS, account.mFlags);
         account.update(mContext, cv);
-    }
-
-    /**
-     * Clear all account hold flags that are set.  This will trigger watchers, and in particular
-     * will cause EAS to try and resync the account(s).
-     */
-    public void clearAccountHoldFlags() {
-        ContentResolver resolver = mContext.getContentResolver();
-        Cursor c = resolver.query(Account.CONTENT_URI, ACCOUNT_FLAGS_PROJECTION,
-                WHERE_ACCOUNT_SECURITY_NONZERO, null, null);
-        try {
-            while (c.moveToNext()) {
-                int flags = c.getInt(ACCOUNT_FLAGS_COLUMN_FLAGS);
-                if (0 != (flags & Account.FLAGS_SECURITY_HOLD)) {
-                    ContentValues cv = new ContentValues();
-                    cv.put(AccountColumns.FLAGS, flags & ~Account.FLAGS_SECURITY_HOLD);
-                    long accountId = c.getLong(ACCOUNT_FLAGS_COLUMN_ID);
-                    Uri uri = ContentUris.withAppendedId(Account.CONTENT_URI, accountId);
-                    resolver.update(uri, cv, null, null);
-                }
-            }
-        } finally {
-            c.close();
-        }
     }
 
     /**
@@ -774,7 +737,7 @@ public class SecurityPolicy {
          */
         @Override
         public void onPasswordChanged(Context context, Intent intent) {
-            SecurityPolicy.getInstance(context).clearAccountHoldFlags();
+            Account.clearSecurityHoldOnAllAccounts(context);
         }
     }
 }

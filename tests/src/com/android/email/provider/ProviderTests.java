@@ -577,14 +577,14 @@ public class ProviderTests extends ProviderTestCase2<EmailProvider> {
         Message message1 = ProviderTestUtils.setupMessage("message1", account1Id, box1Id, false,
                 true, mMockContext);
         long message1Id = message1.mId;
-        long bodyId1 = Body.lookupBodyIdWithMessageId(resolver, message1Id);
+        long bodyId1 = Body.lookupBodyIdWithMessageId(mMockContext, message1Id);
         assertEquals(bodyId1, -1);
 
         // 2. create message with body, check that returned bodyId is correct
         Message message2 = ProviderTestUtils.setupMessage("message1", account1Id, box1Id, true,
                 true, mMockContext);
         long message2Id = message2.mId;
-        long bodyId2 = Body.lookupBodyIdWithMessageId(resolver, message2Id);
+        long bodyId2 = Body.lookupBodyIdWithMessageId(mMockContext, message2Id);
         Body body = loadBodyForMessageId(message2Id);
         assertNotNull(body);
         assertEquals(body.mId, bodyId2);
@@ -1226,7 +1226,7 @@ public class ProviderTests extends ProviderTestCase2<EmailProvider> {
         long account1Id = account1.mId;
         Mailbox box1 = ProviderTestUtils.setupMailbox("box1", account1Id, true, mMockContext);
         long box1Id = box1.mId;
-        
+
         // Each message has a body, and also give each 2 attachments
         Message message1 = ProviderTestUtils.setupMessage("message1", account1Id, box1Id, true,
                 false, mMockContext);
@@ -1256,7 +1256,7 @@ public class ProviderTests extends ProviderTestCase2<EmailProvider> {
         String bodySelection = BodyColumns.MESSAGE_KEY + " IN (?,?)";
         String attachmentSelection = AttachmentColumns.MESSAGE_KEY + " IN (?,?)";
         String[] selArgs = new String[] { String.valueOf(message1Id), String.valueOf(message2Id) };
-        
+
         // make sure there are two bodies
         int numBodies = EmailContent.count(mMockContext, Body.CONTENT_URI, bodySelection, selArgs);
         assertEquals(2, numBodies);
@@ -1632,7 +1632,7 @@ public class ProviderTests extends ProviderTestCase2<EmailProvider> {
 
         // TODO We should check for the deletion of attachment files once this is implemented in
         // the provider
-        
+
         // Explanation for what happens below...
         // The next time the database is created by the provider, it will notice that there's
         // already a EmailProviderBody.db file.  In this case, it will delete that database to
@@ -1773,5 +1773,36 @@ public class ProviderTests extends ProviderTestCase2<EmailProvider> {
                 Mailbox.restoreMailboxOfType(context, acct1.mId, Mailbox.TYPE_CONTACTS));
         ProviderTestUtils.assertMailboxEqual("testRestoreMailboxOfType", acct2Contacts,
                 Mailbox.restoreMailboxOfType(context, acct2.mId, Mailbox.TYPE_CONTACTS));
+    }
+
+    public void testAccountIsSecurityHold() {
+        final Context context = mMockContext;
+        Account acct1 = ProviderTestUtils.setupAccount("acct1", true, context);
+
+        Account acct2 = ProviderTestUtils.setupAccount("acct2", false, context);
+        acct2.mFlags |= Account.FLAGS_SECURITY_HOLD;
+        acct2.save(context);
+
+        assertFalse(Account.isSecurityHold(context, acct1.mId));
+        assertTrue(Account.isSecurityHold(context, acct2.mId));
+        assertFalse(Account.isSecurityHold(context, 9999999)); // No such account
+   }
+
+    public void testClearAccountHoldFlags() {
+        Account a1 = ProviderTestUtils.setupAccount("holdflag-1", false, mMockContext);
+        a1.mFlags = Account.FLAGS_NOTIFY_NEW_MAIL;
+        a1.save(mMockContext);
+        Account a2 = ProviderTestUtils.setupAccount("holdflag-2", false, mMockContext);
+        a2.mFlags = Account.FLAGS_VIBRATE_ALWAYS | Account.FLAGS_SECURITY_HOLD;
+        a2.save(mMockContext);
+
+        // bulk clear
+        Account.clearSecurityHoldOnAllAccounts(mMockContext);
+
+        // confirm new values as expected - no hold flags; other flags unmolested
+        Account a1a = Account.restoreAccountWithId(mMockContext, a1.mId);
+        assertEquals(Account.FLAGS_NOTIFY_NEW_MAIL, a1a.mFlags);
+        Account a2a = Account.restoreAccountWithId(mMockContext, a2.mId);
+        assertEquals(Account.FLAGS_VIBRATE_ALWAYS, a2a.mFlags);
     }
 }

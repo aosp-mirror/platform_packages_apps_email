@@ -127,19 +127,18 @@ public class AccountSecurity extends Activity {
         SecurityPolicy sp = SecurityPolicy.getInstance(this);
         // check current security level - if sufficient, we're done!
         if (sp.isActive(null)) {
-            sp.clearAccountHoldFlags();
+            Account.clearSecurityHoldOnAllAccounts(this);
             return;
         }
         // set current security level
         sp.setActivePolicies();
         // check current security level - if sufficient, we're done!
         if (sp.isActive(null)) {
-            sp.clearAccountHoldFlags();
+            Account.clearSecurityHoldOnAllAccounts(this);
             return;
         }
         // if not sufficient, launch the activity to have the user set a new password.
         Intent intent = new Intent(DevicePolicyManager.ACTION_SET_NEW_PASSWORD);
         startActivity(intent);
     }
-
 }

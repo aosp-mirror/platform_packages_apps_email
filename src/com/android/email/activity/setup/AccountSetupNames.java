@@ -50,11 +50,6 @@ public class AccountSetupNames extends AccountSetupActivity implements OnClickLi
 
     private CheckAccountStateTask mCheckAccountStateTask;
 
-    private static final int ACCOUNT_INFO_COLUMN_FLAGS = 0;
-    private static final int ACCOUNT_INFO_COLUMN_SECURITY_FLAGS = 1;
-    private static final String[] ACCOUNT_INFO_PROJECTION = new String[] {
-            AccountColumns.FLAGS, AccountColumns.SECURITY_FLAGS };
-
     public static void actionSetNames(Activity fromActivity) {
         fromActivity.startActivity(new Intent(fromActivity, AccountSetupNames.class));
     }
@@ -208,22 +203,7 @@ public class AccountSetupNames extends AccountSetupActivity implements OnClickLi
 
         @Override
         protected Boolean doInBackground(Void... params) {
-            Cursor c = AccountSetupNames.this.getContentResolver().query(
-                    ContentUris.withAppendedId(Account.CONTENT_URI, mAccountId),
-                    ACCOUNT_INFO_PROJECTION, null, null, null);
-            try {
-                if (c.moveToFirst()) {
-                    int flags = c.getInt(ACCOUNT_INFO_COLUMN_FLAGS);
-                    int securityFlags = c.getInt(ACCOUNT_INFO_COLUMN_SECURITY_FLAGS);
-                    if ((flags & Account.FLAGS_SECURITY_HOLD) != 0) {
-                        return Boolean.TRUE;
-                    }
-                }
-            } finally {
-                c.close();
-            }
-
-            return Boolean.FALSE;
+            return Account.isSecurityHold(AccountSetupNames.this, mAccountId);
         }
 
         @Override

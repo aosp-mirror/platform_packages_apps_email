@@ -94,10 +94,6 @@ public class MessageList extends Activity implements OnClickListener,
     private static final String[] ACCOUNT_NAME_PROJECTION = new String[] {
             AccountColumns.DISPLAY_NAME };
 
-    private static final int ACCOUNT_INFO_COLUMN_FLAGS = 0;
-    private static final String[] ACCOUNT_INFO_PROJECTION = new String[] {
-            AccountColumns.FLAGS };
-
     private static final String ID_SELECTION = EmailContent.RECORD_ID + "=?";
 
     /* package */ MessageListFragment getListFragmentForTest() {
@@ -470,7 +466,7 @@ public class MessageList extends Activity implements OnClickListener,
         @Override
         protected Long doInBackground(Void... params) {
             // Quick check that account is not in security hold
-            if (mAccountId != -1 && isSecurityHold(mAccountId)) {
+            if (mAccountId != -1 && Account.isSecurityHold(MessageList.this, mAccountId)) {
                 mAction = SHOW_SECURITY_ACTIVITY;
                 return Mailbox.NO_MAILBOX;
             }
@@ -522,26 +518,6 @@ public class MessageList extends Activity implements OnClickListener,
                     return;
             }
         }
-    }
-
-    /**
-     * Check a single account for security hold status.  Do not call from UI thread.
-     */
-    private boolean isSecurityHold(long accountId) {
-        Cursor c = MessageList.this.getContentResolver().query(
-                ContentUris.withAppendedId(Account.CONTENT_URI, accountId),
-                ACCOUNT_INFO_PROJECTION, null, null, null);
-        try {
-            if (c.moveToFirst()) {
-                int flags = c.getInt(ACCOUNT_INFO_COLUMN_FLAGS);
-                if ((flags & Account.FLAGS_SECURITY_HOLD) != 0) {
-                    return true;
-                }
-            }
-        } finally {
-            c.close();
-        }
-        return false;
     }
 
     /**
