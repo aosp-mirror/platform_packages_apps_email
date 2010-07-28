@@ -106,6 +106,15 @@ public class Controller {
     }
 
     /**
+     * Inject a mock controller.  Used only for testing.  Affects future calls to getInstance().
+     *
+     * Tests that use this method MUST clean it up by calling this method again with null.
+     */
+    public synchronized static void injectMockControllerForTest(Controller mockController) {
+        sInstance = mockController;
+    }
+
+    /**
      * For testing only:  Inject a different context for provider access.  This will be
      * used internally for access the underlying provider (e.g. getContentResolver().query()).
      * @param providerContext the provider context to be used by this instance
@@ -246,29 +255,27 @@ public class Controller {
 
     /**
      * Request a remote update of mailboxes for an account.
-     *
-     * TODO: Clean up threading in MessagingController cases (or perhaps here in Controller)
      */
     public void updateMailboxList(final long accountId) {
-
-        IEmailService service = getServiceForAccount(accountId);
-        if (service != null) {
-            // Service implementation
-            try {
-                service.updateFolderList(accountId);
-            } catch (RemoteException e) {
-                // TODO Change exception handling to be consistent with however this method
-                // is implemented for other protocols
-                Log.d("updateMailboxList", "RemoteException" + e);
-            }
-        } else {
-            // MessagingController implementation
-            Utility.runAsync(new Runnable() {
-                public void run() {
+        Utility.runAsync(new Runnable() {
+            @Override
+            public void run() {
+                final IEmailService service = getServiceForAccount(accountId);
+                if (service != null) {
+                    // Service implementation
+                    try {
+                        service.updateFolderList(accountId);
+                    } catch (RemoteException e) {
+                        // TODO Change exception handling to be consistent with however this method
+                        // is implemented for other protocols
+                        Log.d("updateMailboxList", "RemoteException" + e);
+                    }
+                } else {
+                    // MessagingController implementation
                     mLegacyController.listFolders(accountId, mLegacyListener);
                 }
-            });
-        }
+            }
+        });
     }
 
     /**

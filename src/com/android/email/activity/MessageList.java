@@ -36,7 +36,6 @@ import com.android.email.service.MailService;
 import android.app.Activity;
 import android.app.NotificationManager;
 import android.content.ContentResolver;
-import android.content.ContentUris;
 import android.content.Context;
 import android.content.Intent;
 import android.database.Cursor;
@@ -49,8 +48,8 @@ import android.view.MenuItem;
 import android.view.View;
 import android.view.View.OnClickListener;
 import android.view.animation.Animation;
-import android.view.animation.AnimationUtils;
 import android.view.animation.Animation.AnimationListener;
+import android.view.animation.AnimationUtils;
 import android.widget.Button;
 import android.widget.ProgressBar;
 import android.widget.TextView;
@@ -80,8 +79,10 @@ public class MessageList extends Activity implements OnClickListener,
 
     // DB access
     private ContentResolver mResolver;
-    private FindMailboxTask mFindMailboxTask;
     private SetTitleTask mSetTitleTask;
+
+    private MailboxFinder mMailboxFinder;
+    private MailboxFinderCallback mMailboxFinderCallback = new MailboxFinderCallback();
 
     private static final int MAILBOX_NAME_COLUMN_ID = 0;
     private static final int MAILBOX_NAME_COLUMN_ACCOUNT_KEY = 1;
@@ -212,19 +213,16 @@ public class MessageList extends Activity implements OnClickListener,
             // TODO Possible ANR.  getAccountIdFromShortcutSafeUri accesses DB.
             long accountId = (uri == null) ? -1
                     : Account.getAccountIdFromShortcutSafeUri(this, uri);
-
-            // TODO Both branches have almost identical code.  Unify them.
-            // (And why not "okay to recurse" in the first case?)
-            if (accountId != -1) {
-                // A content URI was provided - try to look up the account
-                mFindMailboxTask = new FindMailboxTask(accountId, mailboxType, false);
-                mFindMailboxTask.execute();
-            } else {
-                // Go by account id + type
+            if (accountId == -1) {
                 accountId = intent.getLongExtra(EXTRA_ACCOUNT_ID, -1);
-                mFindMailboxTask = new FindMailboxTask(accountId, mailboxType, true);
-                mFindMailboxTask.execute();
             }
+            if (accountId == -1) {
+                launchWelcomeAndFinish();
+                return;
+            }
+            mMailboxFinder = new MailboxFinder(this, accountId, mailboxType,
+                    mMailboxFinderCallback);
+            mMailboxFinder.startLookup();
         }
         // TODO set title to "account > mailbox (#unread)"
     }
@@ -257,10 +255,18 @@ public class MessageList extends Activity implements OnClickListener,
     protected void onDestroy() {
         super.onDestroy();
 
-        Utility.cancelTaskInterrupt(mFindMailboxTask);
-        mFindMailboxTask = null;
+        if (mMailboxFinder != null) {
+            mMailboxFinder.close();
+            mMailboxFinder = null;
+        }
         Utility.cancelTaskInterrupt(mSetTitleTask);
         mSetTitleTask = null;
+    }
+
+
+    private void launchWelcomeAndFinish() {
+        Welcome.actionStart(this);
+        finish();
     }
 
     /**
@@ -431,96 +437,6 @@ public class MessageList extends Activity implements OnClickListener,
     }
 
     /**
-     * Async task for finding a single mailbox by type (possibly even going to the network).
-     *
-     * This is much too complex, as implemented.  It uses this AsyncTask to check for a mailbox,
-     * then (if not found) a Controller call to refresh mailboxes from the server, and a handler
-     * to relaunch this task (a 2nd time) to read the results of the network refresh.  The core
-     * problem is that we have two different non-UI-thread jobs (reading DB and reading network)
-     * and two different paradigms for dealing with them.  Some unification would be needed here
-     * to make this cleaner.
-     *
-     * TODO: If this problem spreads to other operations, find a cleaner way to handle it.
-     */
-    private class FindMailboxTask extends AsyncTask<Void, Void, Long> {
-
-        private final long mAccountId;
-        private final int mMailboxType;
-        private final boolean mOkToRecurse;
-
-        private static final int ACTION_DEFAULT = 0;
-        private static final int SHOW_WELCOME_ACTIVITY = 1;
-        private static final int SHOW_SECURITY_ACTIVITY = 2;
-        private static final int START_NETWORK_LOOK_UP = 3;
-        private int mAction = ACTION_DEFAULT;
-
-        /**
-         * Special constructor to cache some local info
-         */
-        public FindMailboxTask(long accountId, int mailboxType, boolean okToRecurse) {
-            mAccountId = accountId;
-            mMailboxType = mailboxType;
-            mOkToRecurse = okToRecurse;
-        }
-
-        @Override
-        protected Long doInBackground(Void... params) {
-            // Quick check that account is not in security hold
-            if (mAccountId != -1 && Account.isSecurityHold(MessageList.this, mAccountId)) {
-                mAction = SHOW_SECURITY_ACTIVITY;
-                return Mailbox.NO_MAILBOX;
-            }
-            // See if we can find the requested mailbox in the DB.
-            long mailboxId = Mailbox.findMailboxOfType(MessageList.this, mAccountId, mMailboxType);
-            if (mailboxId == Mailbox.NO_MAILBOX) {
-                // Mailbox not found.  Does the account really exists?
-                final boolean accountExists = Account.isValidId(MessageList.this, mAccountId);
-                if (accountExists && mOkToRecurse) {
-                    // launch network lookup
-                    mAction = START_NETWORK_LOOK_UP;
-                } else {
-                    // We don't want to do the network lookup, or the account doesn't exist in the
-                    // first place.
-                    mAction = SHOW_WELCOME_ACTIVITY;
-                }
-            }
-            return mailboxId;
-        }
-
-        @Override
-        protected void onPostExecute(Long mailboxId) {
-            switch (mAction) {
-                case SHOW_SECURITY_ACTIVITY:
-                    // launch the security setup activity
-                    Intent i = AccountSecurity.actionUpdateSecurityIntent(
-                            MessageList.this, mAccountId);
-                    MessageList.this.startActivityForResult(i, REQUEST_SECURITY);
-                    return;
-                case SHOW_WELCOME_ACTIVITY:
-                    // Let the Welcome activity show the default screen.
-                    Welcome.actionStart(MessageList.this);
-                    finish();
-                    return;
-                case START_NETWORK_LOOK_UP:
-                    mControllerCallback.getWrappee().presetMailboxListCallback(
-                            mMailboxType, mAccountId);
-
-                    // TODO updateMailboxList accessed DB, so we shouldn't call on the UI thread,
-                    // but we should fix the Controller side.  (Other Controller methods too access
-                    // DB but are called on the UI thread.)
-                    mController.updateMailboxList(mAccountId);
-                    return;
-                default:
-                    // At this point, mailboxId != NO_MAILBOX
-                    mSetTitleTask = new SetTitleTask(mailboxId);
-                    mSetTitleTask.execute();
-                    mListFragment.openMailbox(mAccountId, mailboxId);
-                    return;
-            }
-        }
-    }
-
-    /**
      * Handle the eventual result from the security update activity
      *
      * Note, this is extremely coarse, and it simply returns the user to the Accounts list.
@@ -631,14 +547,6 @@ public class MessageList extends Activity implements OnClickListener,
         mListFragment.showProgressIcon(show);
     }
 
-    private void lookupMailboxType(long accountId, int mailboxType) {
-        // kill running async task, if any
-        Utility.cancelTaskInterrupt(mFindMailboxTask);
-        // start new one.  do not recurse back to controller.
-        mFindMailboxTask = new FindMailboxTask(accountId, mailboxType, false);
-        mFindMailboxTask.execute();
-    }
-
     private void showErrorBanner(String message) {
         boolean isVisible = mErrorBanner.getVisibility() == View.VISIBLE;
         if (message != null) {
@@ -666,31 +574,7 @@ public class MessageList extends Activity implements OnClickListener,
     private class ControllerResults extends Controller.Result {
 
         // This is used to alter the connection banner operation for sending messages
-        MessagingException mSendMessageException;
-
-        // These values are set by FindMailboxTask.
-        private int mWaitForMailboxType = -1;
-        private long mWaitForMailboxAccount = -1;
-
-        public void presetMailboxListCallback(int mailboxType, long accountId) {
-            mWaitForMailboxType = mailboxType;
-            mWaitForMailboxAccount = accountId;
-        }
-
-        @Override
-        public void updateMailboxListCallback(MessagingException result,
-                long accountKey, int progress) {
-            // updateMailboxList is never the end goal in MessageList, so we don't show
-            // these errors.  There are a couple of corner cases that we miss reporting, but
-            // this is better than reporting a number of non-problem intermediate states.
-            // updateBanner(result, progress, mMailboxId);
-
-            updateProgress(result, progress);
-            if (progress == 100 && accountKey == mWaitForMailboxAccount) {
-                mWaitForMailboxAccount = -1;
-                lookupMailboxType(accountKey, mWaitForMailboxType);
-            }
-        }
+        private MessagingException mSendMessageException;
 
         // TODO check accountKey and only react to relevant notifications
         @Override
@@ -780,6 +664,35 @@ public class MessageList extends Activity implements OnClickListener,
             } else if (progress > 0) {
                 showErrorBanner(null);
             }
+        }
+    }
+
+    private class MailboxFinderCallback implements MailboxFinder.Callback {
+        @Override
+        public void onMailboxFound(long accountId, long mailboxId) {
+            mSetTitleTask = new SetTitleTask(mailboxId);
+            mSetTitleTask.execute();
+            mListFragment.openMailbox(accountId, mailboxId);
+        }
+
+        @Override
+        public void onAccountNotFound() {
+            // Let the Welcome activity show the default screen.
+            launchWelcomeAndFinish();
+        }
+
+        @Override
+        public void onMailboxNotFound(long accountId) {
+            // Let the Welcome activity show the default screen.
+            launchWelcomeAndFinish();
+        }
+
+        @Override
+        public void onAccountSecurityHold(long accountId) {
+            // launch the security setup activity
+            Intent i = AccountSecurity.actionUpdateSecurityIntent(
+                    MessageList.this, accountId);
+            MessageList.this.startActivityForResult(i, REQUEST_SECURITY);
         }
     }
 }
