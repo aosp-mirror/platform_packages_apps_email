@@ -19,12 +19,14 @@ package com.android.email.activity;
 import com.android.email.Email;
 import com.android.email.R;
 
+import android.app.ActionBar;
 import android.app.Activity;
 import android.app.Fragment;
 import android.app.LoaderManager.LoaderCallbacks;
 import android.content.Context;
 import android.content.Loader;
 import android.content.pm.ActivityInfo;
+import android.database.Cursor;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.KeyEvent;
@@ -39,14 +41,18 @@ import android.view.View;
  * The main (two-pane) activity for XL devices.
  */
 public class MessageListXL extends Activity implements View.OnClickListener,
-        MessageListXLFragmentManager.TargetActivity {
-    private static final int LOADER_ID_DEFAULT_ACCOUNT = 0;
+MessageListXLFragmentManager.TargetActivity {
+    private static final int LOADER_ID_ACCOUNT_LIST = 0;
 
     private Context mContext;
 
     private View mMessageViewButtonPanel;
     private View mMoveToNewerButton;
     private View mMoveToOlderButton;
+
+    private AccountSelectorAdapter mAccountsSelectorAdapter;
+    private final ActionBarNavigationCallback mActionBarNavigationCallback
+            = new ActionBarNavigationCallback();
 
     private MessageOrderManager mOrderManager;
 
@@ -76,13 +82,12 @@ public class MessageListXL extends Activity implements View.OnClickListener,
         mMoveToNewerButton.setOnClickListener(this);
         mMoveToOlderButton.setOnClickListener(this);
 
+        mAccountsSelectorAdapter = new AccountSelectorAdapter(mContext, null);
+
         if (isRestoring) {
             mFragmentManager.loadState(savedInstanceState);
         }
-        if (!mFragmentManager.isAccountSelected()) {
-            loadDefaultAccount();
-        }
-        // TODO load account list and show account selector
+        loadAccounts();
     }
 
     @Override
@@ -99,7 +104,7 @@ public class MessageListXL extends Activity implements View.OnClickListener,
         if (Email.DEBUG_LIFECYCLE && Email.DEBUG) Log.d(Email.LOG_TAG, "MessageListXL onStart");
         super.onStart();
 
-        mFragmentManager.setStart();
+        mFragmentManager.onStart();
 
         if (mFragmentManager.isMessageSelected()) {
             updateMessageOrderManager();
@@ -125,7 +130,6 @@ public class MessageListXL extends Activity implements View.OnClickListener,
         super.onStop();
 
         mFragmentManager.onStop();
-
         stopMessageOrderManager();
     }
 
@@ -211,27 +215,6 @@ public class MessageListXL extends Activity implements View.OnClickListener,
             mOrderManager.close();
             mOrderManager = null;
         }
-    }
-
-    private void loadDefaultAccount() {
-        getLoaderManager().initLoader(LOADER_ID_DEFAULT_ACCOUNT, null, new LoaderCallbacks<Long>() {
-            @Override
-            public Loader<Long> onCreateLoader(int id, Bundle args) {
-                return new DefaultAccountLoader(mContext);
-            }
-
-            @Override
-            public void onLoadFinished(Loader<Long> loader, Long accountId) {
-                if (Email.DEBUG) {
-                    Log.d(Email.LOG_TAG, "Default account=" + accountId);
-                }
-                if (accountId == null || accountId == -1) {
-                    onNoAccountFound();
-                } else {
-                    mFragmentManager.selectAccount(accountId);
-                }
-            }
-        });
     }
 
     /**
@@ -364,6 +347,60 @@ public class MessageListXL extends Activity implements View.OnClickListener,
         stopMessageOrderManager();
     }
 
+    private void loadAccounts() {
+        getLoaderManager().initLoader(LOADER_ID_ACCOUNT_LIST, null, new LoaderCallbacks<Cursor>() {
+            @Override
+            public Loader<Cursor> onCreateLoader(int id, Bundle args) {
+                return AccountSelectorAdapter.createLoader(mContext);
+            }
+
+            @Override
+            public void onLoadFinished(Loader<Cursor> loader, Cursor data) {
+                updateAccountList(data);
+            }
+        });
+    }
+
+    private void updateAccountList(Cursor accountsCursor) {
+        if (accountsCursor.getCount() == 0) {
+            onNoAccountFound();
+            return;
+        }
+
+        // Find the currently selected account, and select it.
+        int defaultSelection = 0;
+        if (mFragmentManager.isAccountSelected()) {
+            // Need to change the selection
+            accountsCursor.moveToFirst();
+            int i = 0;
+            while (accountsCursor.moveToNext()) {
+                final long accountId = AccountSelectorAdapter.getAccountId(accountsCursor);
+                if (accountId == mFragmentManager.getAccountId()) {
+                    defaultSelection = i;
+                    break;
+                }
+                i++;
+            }
+        }
+
+        // Update the dropdown list.
+        final ActionBar ab = getActionBar();
+        mAccountsSelectorAdapter.changeCursor(accountsCursor);
+        if (ab.getNavigationMode() != ActionBar.NAVIGATION_MODE_DROPDOWN_LIST) {
+            ab.setDropdownNavigationMode(mAccountsSelectorAdapter,
+                    mActionBarNavigationCallback, defaultSelection);
+        }
+    }
+
+    private class ActionBarNavigationCallback implements ActionBar.NavigationCallback {
+        @Override
+        public boolean onNavigationItemSelected(int itemPosition, long accountId) {
+            if (Email.DEBUG) Log.d(Email.LOG_TAG, "Account selected: accountId=" + accountId);
+            mFragmentManager.selectAccount(accountId);
+            return true;
+        }
+    }
+
     /**
      * STOPSHIP: Remove this.
      * Rotate screen when the R key is pressed.  Workaround for auto-orientation not working.
@@ -372,9 +409,9 @@ public class MessageListXL extends Activity implements View.OnClickListener,
     public boolean onKeyDown(int keyCode, KeyEvent event) {
         if (keyCode == KeyEvent.KEYCODE_R) {
             setRequestedOrientation(
-                    (getRequestedOrientation() == ActivityInfo.SCREEN_ORIENTATION_LANDSCAPE)
-                    ? ActivityInfo.SCREEN_ORIENTATION_PORTRAIT
-                    : ActivityInfo.SCREEN_ORIENTATION_LANDSCAPE);
+                    (getRequestedOrientation() == ActivityInfo.SCREEN_ORIENTATION_PORTRAIT)
+                    ? ActivityInfo.SCREEN_ORIENTATION_LANDSCAPE
+                    : ActivityInfo.SCREEN_ORIENTATION_PORTRAIT);
             return true;
         }
         return super.onKeyDown(keyCode, event);

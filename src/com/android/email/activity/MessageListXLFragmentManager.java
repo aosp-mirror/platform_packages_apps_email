@@ -149,7 +149,7 @@ class MessageListXLFragmentManager {
      *
      * @see #initRestoredFragments
      */
-    public void setStart() {
+    public void onStart() {
         if (mIsActivityStarted) {
             return;
         }
