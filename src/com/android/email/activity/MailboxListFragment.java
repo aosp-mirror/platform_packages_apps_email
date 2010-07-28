@@ -165,9 +165,16 @@ public class MailboxListFragment extends ListFragment implements OnItemClickList
         if (Email.DEBUG_LIFECYCLE && Email.DEBUG) {
             Log.d(Email.LOG_TAG, "MailboxListFragment onResume");
         }
-        mStarted = false;
         super.onResume();
         updateMessageCount();
+    }
+
+    @Override
+    public void onPause() {
+        if (Email.DEBUG_LIFECYCLE && Email.DEBUG) {
+            Log.d(Email.LOG_TAG, "MailboxListFragment onPause");
+        }
+        super.onPause();
     }
 
     /**
@@ -178,6 +185,7 @@ public class MailboxListFragment extends ListFragment implements OnItemClickList
         if (Email.DEBUG_LIFECYCLE && Email.DEBUG) {
             Log.d(Email.LOG_TAG, "MailboxListFragment onStop");
         }
+        mStarted = false;
         super.onStop();
         cancelAllTasks();
     }
