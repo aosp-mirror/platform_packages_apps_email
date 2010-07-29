@@ -1291,6 +1291,8 @@ public class EasSyncService extends AbstractSyncService {
                 if (policyKey != null) {
                     // Write the final policy key to the Account and say we've been successful
                     ps.writeAccount(mAccount, policyKey, true, mContext);
+                    // Release any mailboxes that might be in a security hold
+                    SyncManager.releaseSecurityHold(mAccount);
                     return true;
                 }
             } else {
