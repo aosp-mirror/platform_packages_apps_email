@@ -16,16 +16,25 @@
 
 package com.android.email;
 
+import com.android.email.provider.EmailContent;
 import com.android.email.provider.EmailProvider;
 
 import android.content.ContentProvider;
 import android.content.ContentResolver;
 import android.content.ContentValues;
+import android.content.Context;
+import android.content.res.Resources;
 import android.database.Cursor;
 import android.net.Uri;
+import android.test.IsolatedContext;
+import android.test.RenamingDelegatingContext;
 import android.test.mock.MockContentResolver;
 import android.test.mock.MockContext;
 import android.test.mock.MockCursor;
+
+import java.io.File;
+
+import junit.framework.Assert;
 
 /**
  * Helper classes (and possibly methods) for database related tests.
@@ -133,6 +142,65 @@ public final class DBTestHelper {
         @Override
         public void close() {
             mClosed = true;
+        }
+    }
+
+    /**
+     * This class has only one method, that creats an isolated {@link Context} similar to what
+     * {@link android.test.ProviderTestCase2} provides.
+     *
+     * The method also creates a {@link ContentProvider} of {@code providerClass}, and add it to
+     * the context.  See the javadoc on android.test.ProviderTestCase2 for the details.
+     */
+    public static class ProviderContextSetupHelper {
+        // Based on ProviderTestCase2.MockContext2.
+        private static class MockContext2 extends MockContext {
+            private final Context mBaseContext;
+
+            public MockContext2(Context baseContext) {
+                mBaseContext = baseContext;
+            }
+
+            @Override
+            public Resources getResources() {
+                return mBaseContext.getResources();
+            }
+
+            @Override
+            public File getDir(String name, int mode) {
+                return mBaseContext.getDir("mockcontext2_" + name, mode);
+            }
+        }
+
+        /** {@link IsolatedContext} + getApplicationContext() */
+        private static class MyIsolatedContext extends IsolatedContext {
+            public MyIsolatedContext(ContentResolver resolver, Context targetContext) {
+                super(resolver, targetContext);
+            }
+
+            @Override
+            public Context getApplicationContext() {
+                return this;
+            }
+        }
+
+        // Based on ProviderTestCase2.setUp().
+        public static <T extends ContentProvider> Context getProviderContext(
+                Context context, Class<T> providerClass) throws Exception {
+            MockContentResolver resolver = new MockContentResolver();
+            final String filenamePrefix = "test.";
+            RenamingDelegatingContext targetContextWrapper = new RenamingDelegatingContext(
+                    new MockContext2(context), // The context that most methods are delegated to
+                    context, // The context that file methods are delegated to
+                    filenamePrefix);
+            final Context providerContext = new MyIsolatedContext(resolver, targetContextWrapper);
+            providerContext.getContentResolver();
+
+            final T provider = providerClass.newInstance();
+            provider.attachInfo(providerContext, null);
+            Assert.assertNotNull(provider);
+            resolver.addProvider(EmailContent.AUTHORITY, provider);
+            return providerContext;
         }
     }
 }

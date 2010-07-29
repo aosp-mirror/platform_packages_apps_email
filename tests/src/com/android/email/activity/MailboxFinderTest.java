@@ -17,6 +17,7 @@
 package com.android.email.activity;
 
 import com.android.email.Controller;
+import com.android.email.DBTestHelper;
 import com.android.email.Email;
 import com.android.email.TestUtils;
 import com.android.email.mail.MessagingException;
@@ -26,18 +27,10 @@ import com.android.email.provider.EmailContent.Mailbox;
 import com.android.email.provider.EmailProvider;
 import com.android.email.provider.ProviderTestUtils;
 
-import android.content.ContentResolver;
 import android.content.Context;
-import android.content.res.Resources;
 import android.test.InstrumentationTestCase;
-import android.test.IsolatedContext;
 import android.test.ProviderTestCase2;
-import android.test.RenamingDelegatingContext;
-import android.test.mock.MockContentResolver;
-import android.test.mock.MockContext;
 import android.test.suitebuilder.annotation.LargeTest;
-
-import java.io.File;
 
 /**
  * Test case for {@link MailboxFinder}.
@@ -51,13 +44,11 @@ import java.io.File;
 public class MailboxFinderTest extends InstrumentationTestCase {
     private static final int TIMEOUT = 10; // in seconds
 
-    // These are needed to run the provider in a separate context
-    private IsolatedContext mProviderContext;
-    private MockContentResolver mResolver;
-    private EmailProvider mProvider;
-
     // Test target
     private MailboxFinder mMailboxFinder;
+
+    // Isolted Context for providers.
+    private Context mProviderContext;
 
     // Mock to track callback invocations.
     private MockController mMockController;
@@ -70,8 +61,9 @@ public class MailboxFinderTest extends InstrumentationTestCase {
     @Override
     protected void setUp() throws Exception {
         super.setUp();
-        setUpProviderContext();
 
+        mProviderContext = DBTestHelper.ProviderContextSetupHelper.getProviderContext(
+                getInstrumentation().getTargetContext(), EmailProvider.class);
         mCallback = new MockCallback();
         mMockController = new MockController(getContext());
         Controller.injectMockControllerForTest(mMockController);
@@ -81,50 +73,6 @@ public class MailboxFinderTest extends InstrumentationTestCase {
     protected void tearDown() throws Exception {
         super.tearDown();
         Controller.injectMockControllerForTest(null);
-    }
-
-    /** Copied from ProviderTestCase2 and modified a bit. */
-    private class MockContext2 extends MockContext {
-        @Override
-        public Resources getResources() {
-            return getContext().getResources();
-        }
-
-        @Override
-        public File getDir(String name, int mode) {
-            return getContext().getDir("mockcontext2_" + name, mode);
-        }
-    }
-
-    /** {@link IsolatedContext} + getApplicationContext() */
-    private static class MyIsolatedContext extends IsolatedContext {
-        public MyIsolatedContext(ContentResolver resolver, Context targetContext) {
-            super(resolver, targetContext);
-        }
-
-        @Override
-        public Context getApplicationContext() {
-            return this;
-        }
-    }
-
-    /** Copied from ProviderTestCase2 and modified a bit. */
-    private void setUpProviderContext() {
-        mResolver = new MockContentResolver();
-        final String filenamePrefix = "test.";
-        RenamingDelegatingContext targetContextWrapper = new
-                RenamingDelegatingContext(
-                new MockContext2(), // The context that most methods are
-                                    //delegated to
-                getContext(), // The context that file methods are delegated to
-                filenamePrefix);
-        mProviderContext = new MyIsolatedContext(mResolver, targetContextWrapper);
-        mProviderContext.getContentResolver();
-
-        mProvider = new EmailProvider();
-        mProvider.attachInfo(mProviderContext, null);
-        assertNotNull(mProvider);
-        mResolver.addProvider(EmailContent.AUTHORITY, mProvider);
     }
 
     /**
