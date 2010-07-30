@@ -103,7 +103,7 @@ public class MessageViewTest extends ActivityInstrumentationTestCase2<MessageVie
         TestUtils.waitUntil(new TestUtils.Condition() {
             @Override
             public boolean isMet() {
-                MessageViewFragment2 f = activity.getFragment();
+                MessageViewFragment f = activity.getFragment();
                 return f != null && f.isMessageLoadedForTest();
             }
         }, TIMEOUT);

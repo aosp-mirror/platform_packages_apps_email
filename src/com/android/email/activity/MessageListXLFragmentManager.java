@@ -70,11 +70,11 @@ class MessageListXLFragmentManager {
 
     private MailboxListFragment mMailboxListFragment;
     private MessageListFragment mMessageListFragment;
-    private MessageViewFragment2 mMessageViewFragment;
+    private MessageViewFragment mMessageViewFragment;
 
     private MailboxListFragment.Callback mMailboxListFragmentCallback;
     private MessageListFragment.Callback mMessageListFragmentCallback;
-    private MessageViewFragment2.Callback mMessageViewFragmentCallback;
+    private MessageViewFragment.Callback mMessageViewFragmentCallback;
 
     /**
      * The interface that {@link MessageListXL} implements.  We don't call its methods directly,
@@ -114,7 +114,7 @@ class MessageListXLFragmentManager {
 
     /** Set callback for fragment. */
     public void setMessageViewFragmentCallback(
-            MessageViewFragment2.Callback messageViewFragmentCallback) {
+            MessageViewFragment.Callback messageViewFragmentCallback) {
         mMessageViewFragmentCallback = messageViewFragmentCallback;
     }
 
@@ -202,8 +202,8 @@ class MessageListXLFragmentManager {
             updateMailboxListFragment((MailboxListFragment) fragment);
         } else if (fragment instanceof MessageListFragment) {
             updateMessageListFragment((MessageListFragment) fragment);
-        } else if (fragment instanceof MessageViewFragment2) {
-            updateMessageViewFragment((MessageViewFragment2) fragment);
+        } else if (fragment instanceof MessageViewFragment) {
+            updateMessageViewFragment((MessageViewFragment) fragment);
         }
     }
 
@@ -354,7 +354,7 @@ class MessageListXLFragmentManager {
 
         // Update fragments.
         if (mMessageViewFragment == null) {
-            MessageViewFragment2 f = new MessageViewFragment2();
+            MessageViewFragment f = new MessageViewFragment();
 
             // TODO We want to support message view -> [back] -> message list, but the back behavior
             // with addToBackStack() is not too clear.  We do it manually for now.
@@ -368,7 +368,7 @@ class MessageListXLFragmentManager {
         }
     }
 
-    private void updateMessageViewFragment(MessageViewFragment2 fragment) {
+    private void updateMessageViewFragment(MessageViewFragment fragment) {
         if (Email.DEBUG_LIFECYCLE && Email.DEBUG) {
             Log.d(Email.LOG_TAG, "updateMessageViewFragment messageId=" + mMessageId);
         }

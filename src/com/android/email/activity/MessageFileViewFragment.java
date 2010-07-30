@@ -40,7 +40,7 @@ public class MessageFileViewFragment extends MessageViewFragmentBase {
     /**
      * Loads the layout.
      *
-     * This class uses the same layout as {@link MessageViewFragment2}, but hides the star.
+     * This class uses the same layout as {@link MessageViewFragment}, but hides the star.
      */
     @Override
     public View onCreateView(

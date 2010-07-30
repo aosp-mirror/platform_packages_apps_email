@@ -72,7 +72,7 @@ import java.util.regex.Pattern;
 // TODO Restore "Show pictures" state and scroll position on rotation.
 
 /**
- * Base class for {@link MessageViewFragment2} and {@link MessageFileViewFragment}.
+ * Base class for {@link MessageViewFragment} and {@link MessageFileViewFragment}.
  *
  * See {@link MessageViewBase} for the class relation diagram.
  */

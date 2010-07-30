@@ -41,11 +41,8 @@ import java.security.InvalidParameterException;
  * files").
  *
  * See {@link MessageViewBase} for the class relation diagram.
- *
- * TODO Rename it to MessageViewFragment.  "2" was added so that GIT correctly detects the rename
- * from MessageViewFragment to MessageViewFragmentBase.
  */
-public class MessageViewFragment2 extends MessageViewFragmentBase {
+public class MessageViewFragment extends MessageViewFragmentBase {
 
     private ImageView mFavoriteIcon;
     private View mInviteSection;

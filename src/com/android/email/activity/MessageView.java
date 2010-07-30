@@ -37,7 +37,7 @@ import android.view.View;
  * See {@link MessageViewBase} for the class relation diagram.
  */
 public class MessageView extends MessageViewBase implements View.OnClickListener,
-        MessageOrderManager.Callback, MessageViewFragment2.Callback {
+        MessageOrderManager.Callback, MessageViewFragment.Callback {
     private static final String EXTRA_MESSAGE_ID = "com.android.email.MessageView_message_id";
     private static final String EXTRA_MAILBOX_ID = "com.android.email.MessageView_mailbox_id";
     private static final String EXTRA_DISABLE_REPLY =
@@ -51,7 +51,7 @@ public class MessageView extends MessageViewBase implements View.OnClickListener
 
     private MessageOrderManager mOrderManager;
 
-    private MessageViewFragment2 mFragment;
+    private MessageViewFragment mFragment;
 
     private View mMoveToNewer;
     private View mMoveToOlder;
@@ -91,7 +91,7 @@ public class MessageView extends MessageViewBase implements View.OnClickListener
     public void onCreate(Bundle icicle) {
         super.onCreate(icicle);
 
-        mFragment = (MessageViewFragment2) findFragmentById(R.id.message_view_fragment);
+        mFragment = (MessageViewFragment) findFragmentById(R.id.message_view_fragment);
         mFragment.setCallback(this);
 
         mMoveToNewer = findViewById(R.id.moveToNewer);
@@ -159,7 +159,7 @@ public class MessageView extends MessageViewBase implements View.OnClickListener
 
     // Note the return type is a subclass of that of the super class method.
     @Override
-    protected MessageViewFragment2 getFragment() {
+    protected MessageViewFragment getFragment() {
         return mFragment;
     }
 
