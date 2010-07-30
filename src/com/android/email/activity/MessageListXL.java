@@ -285,7 +285,7 @@ MessageListXLFragmentManager.TargetActivity {
         }
     }
 
-    private class MessageViewFragmentCallback implements MessageViewFragment.Callback {
+    private class MessageViewFragmentCallback implements MessageViewFragment2.Callback {
         @Override
         public boolean onUrlInMessageClicked(String url) {
             return false;

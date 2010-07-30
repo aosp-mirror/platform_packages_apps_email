@@ -29,19 +29,37 @@ import android.provider.Browser;
 
 /**
  * Base class for {@link MessageView} and {@link MessageFileView}.
+ *
+ * Class relation diagram:
+ * <pre>
+ * (activities)                       (fragments)
+ * MessageViewBase                    MessageViewFragmentBase
+ *   |                                  |     (with nested interface Callback)
+ *   |                                  |
+ *   |-- MessageFileView  -- owns -->   |-- MessageFileViewFragment : For EML files.
+ *   |                                  |     (with nested interface Callback, which implements
+ *   |                                  |      MessageViewFragmentBase.Callback)
+ *   |                                  |
+ *   |-- MessageView      -- owns -->   |-- MessageViewFragment     : For regular messages
+ *
+ * MessageView is basically same as MessageFileView, but has more operations, such as "delete",
+ * "forward", "reply", etc.
+ *
+ * Similarly, MessageViewFragment has more operations than MessageFileViewFragment does, such as
+ * "mark unread", "respond to invite", etc.  Also its Callback interface has more method than
+ * MessageViewFragmentBase.Callback does, for the extra operations.
+ * </pre>
  */
-public abstract class MessageViewBase extends Activity implements MessageViewFragment.Callback {
+public abstract class MessageViewBase extends Activity implements MessageViewFragmentBase.Callback {
     private ProgressDialog mFetchAttachmentProgressDialog;
-    private MessageViewFragment mMessageViewFragment;
     private Controller mController;
+
+    protected abstract int getLayoutId();
 
     @Override
     public void onCreate(Bundle icicle) {
         super.onCreate(icicle);
-        setContentView(R.layout.message_view);
-
-        mMessageViewFragment = (MessageViewFragment) findFragmentById(R.id.message_view_fragment);
-        mMessageViewFragment.setCallback(this);
+        setContentView(getLayoutId());
 
         // TODO Turn it into a "managed" dialog?
         // Managed dialogs survive activity re-creation.  (e.g. orientation change)
@@ -71,9 +89,7 @@ public abstract class MessageViewBase extends Activity implements MessageViewFra
         return mController;
     }
 
-    protected MessageViewFragment getFragment() {
-        return mMessageViewFragment;
-    }
+    protected abstract MessageViewFragmentBase getFragment();
 
     /**
      * @return the account id for the current message, or -1 if there's no account associated with.
@@ -159,13 +175,4 @@ public abstract class MessageViewBase extends Activity implements MessageViewFra
     public void onMessageNotExists() { // Probably meessage deleted.
         finish();
     }
-
-    @Override
-    public abstract void onRespondedToInvite(int response);
-
-    @Override
-    public abstract void onCalendarLinkClicked(long epochEventStartTime);
-
-    @Override
-    public abstract void onMessageSetUnread();
 }

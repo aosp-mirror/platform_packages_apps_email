@@ -17,6 +17,7 @@
 package com.android.email.provider;
 
 import com.android.email.Utility;
+import com.android.email.mail.transport.Rfc822Output;
 import com.android.email.provider.EmailContent.Account;
 import com.android.email.provider.EmailContent.Attachment;
 import com.android.email.provider.EmailContent.HostAuth;
@@ -24,7 +25,12 @@ import com.android.email.provider.EmailContent.Mailbox;
 import com.android.email.provider.EmailContent.Message;
 
 import android.content.Context;
+import android.net.Uri;
 import android.test.MoreAsserts;
+
+import java.io.File;
+import java.io.FileOutputStream;
+import java.io.IOException;
 
 import junit.framework.Assert;
 
@@ -369,5 +375,20 @@ public class ProviderTestUtils extends Assert {
         assertEquals(caller + " mFlags", expect.mFlags, actual.mFlags);
         MoreAsserts.assertEquals(caller + " mContentBytes",
                 expect.mContentBytes, actual.mContentBytes);
+    }
+
+    /**
+     * Create a temporary EML file based on {@code msg} in the directory {@code directory}.
+     */
+    public static Uri createTempEmlFile(Context context, Message msg, File directory)
+            throws Exception {
+        // Write out the message in rfc822 format
+        File outputFile = File.createTempFile("message", "tmp", directory);
+        assertNotNull(outputFile);
+        FileOutputStream outputStream = new FileOutputStream(outputFile);
+        Rfc822Output.writeTo(context, msg.mId, outputStream, false, false);
+        outputStream.close();
+
+        return Uri.fromFile(outputFile);
     }
 }

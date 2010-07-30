@@ -38,11 +38,11 @@ import java.util.Locale;
 
 /**
  * Tests of the Controller class that depend on the underlying provider.
- * 
+ *
  * NOTE:  It would probably make sense to rewrite this using a MockProvider, instead of the
  * ProviderTestCase (which is a real provider running on a temp database).  This would be more of
  * a true "unit test".
- * 
+ *
  * You can run this entire test case with:
  *   runtest -c com.android.email.ControllerProviderOpsTests email
  */
@@ -119,12 +119,12 @@ public class ControllerProviderOpsTests extends ProviderTestCase2<EmailProvider>
         Controller ct = new TestController(mProviderContext, mContext);
         ct.createMailbox(accountId, Mailbox.TYPE_DRAFTS);
         long boxId = Mailbox.findMailboxOfType(mProviderContext, accountId, Mailbox.TYPE_DRAFTS);
-        
+
         // check that the drafts mailbox exists
         assertTrue("mailbox exists", boxId != Mailbox.NO_MAILBOX);
     }
-    
-    /** 
+
+    /**
      * Test of Controller.findOrCreateMailboxOfType().
      * Checks:
      * - finds correctly the ID of existing mailbox
@@ -154,7 +154,7 @@ public class ControllerProviderOpsTests extends ProviderTestCase2<EmailProvider>
         // check it doesn't create twice when existing
         long boxId3 = ct.findOrCreateMailboxOfType(accountId, Mailbox.TYPE_DRAFTS);
         assertEquals("don't create if exists", boxId3, boxId2);
-        
+
         // check invalid aruments
         assertEquals(Mailbox.NO_MAILBOX, ct.findOrCreateMailboxOfType(-1, Mailbox.TYPE_DRAFTS));
         assertEquals(Mailbox.NO_MAILBOX, ct.findOrCreateMailboxOfType(accountId, -1));
@@ -313,7 +313,7 @@ public class ControllerProviderOpsTests extends ProviderTestCase2<EmailProvider>
                 Message.MAILBOX_KEY + "=?", new String[] {Long.toString(box.mId)}));
     }
 
-    public void testLoadMessageFromUri() throws IOException, MessagingException {
+    public void testLoadMessageFromUri() throws Exception {
         // Create a simple message
         Message msg = new Message();
         String text = "This is some text";
@@ -323,16 +323,12 @@ public class ControllerProviderOpsTests extends ProviderTestCase2<EmailProvider>
         // Save this away
         msg.save(mProviderContext);
 
-        // Write out the message in rfc822 format
-        File outputFile = File.createTempFile("message", "tmp", mContext.getFilesDir());
-        assertNotNull(outputFile);
-        FileOutputStream outputStream = new FileOutputStream(outputFile);
-        Rfc822Output.writeTo(mProviderContext, msg.mId, outputStream, false, false);
-        outputStream.close();
+        Uri fileUri = ProviderTestUtils.createTempEmlFile(mProviderContext, msg,
+                mContext.getFilesDir());
 
         // Load the message via Controller and a Uri
         Controller ct = new TestController(mProviderContext, mContext);
-        Message loadedMsg = ct.loadMessageFromUri(Uri.fromFile(outputFile));
+        Message loadedMsg = ct.loadMessageFromUri(fileUri);
 
         // Check server id, mailbox key, account key, and from
         assertNotNull(loadedMsg);

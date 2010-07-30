@@ -16,12 +16,13 @@
 
 package com.android.email.activity;
 
+import com.android.email.Email;
 import com.android.email.R;
 
 import android.content.Intent;
 import android.net.Uri;
 import android.os.Bundle;
-import android.view.View;
+import android.util.Log;
 
 /**
  * Activity to show file-based messages.  (i.e. *.eml files, and possibly *.msg files).
@@ -33,7 +34,7 @@ import android.view.View;
  *   <li>No navigating around (no older/newer buttons)
  * </ul>
  *
- * TODO Test it!
+ * See {@link MessageViewBase} for the class relation diagram.
  */
 public class MessageFileView extends MessageViewBase {
     /**
@@ -41,56 +42,48 @@ public class MessageFileView extends MessageViewBase {
      */
     private Uri mFileEmailUri;
 
+    private MessageFileViewFragment mFragment;
+
+    @Override
+    protected int getLayoutId() {
+        return R.layout.message_file_view;
+    }
+
     @Override
     public void onCreate(Bundle icicle) {
         super.onCreate(icicle);
 
+        mFragment = (MessageFileViewFragment) findFragmentById(R.id.message_file_view_fragment);
+        mFragment.setCallback(this);
+
         Intent intent = getIntent();
         mFileEmailUri = intent.getData();
+        if (mFileEmailUri == null) {
+            Log.w(Email.LOG_TAG, "Insufficient intent parameter.  Closing...");
+            finish();
+            return;
+        }
 
         // TODO set title here: "Viewing XXX.eml".
-
-        // Hide all bottom buttons.
-        findViewById(R.id.button_panel).setVisibility(View.GONE);
-        findViewById(R.id.favorite).setVisibility(View.GONE);
     }
 
     @Override
     public void onResume() {
         super.onResume();
-        // Note: We don't have to close it even if an account has been deleted, unlike MessageView.
+        // Note: We don't have to close the activity even if an account has been deleted,
+        // unlike MessageView.
         getFragment().openMessage(mFileEmailUri);
     }
 
-    /** @return always -1, as there's no account associated with EML files. */
+    /** @return always -1, as no accounts are associated with EML files. */
     @Override
     protected long getAccountId() {
         return -1;
     }
 
-    // Note EML files can have ICS (calendar invitation) files, but we don't treat them as
-    // invitations at this point.  (Only exchange provider sets the FLAG_INCOMING_MEETING_INVITE
-    // flag.)  At any rate, it'd be weird to respond to an invitation in an EML that might not
-    // be addressed to you...
-
-    // TODO Remove these callbacks below, when breaking down the fragment.
-    // MessageViewFragment for email files shouldn't have these callbacks.
-
+    // Note the return type is a subclass of that of the super class method.
     @Override
-    public void onRespondedToInvite(int response) {
-        // EML files shouldn't have calender response buttons.
-        throw new RuntimeException();
-    }
-
-    @Override
-    public void onCalendarLinkClicked(long epochEventStartTime) {
-        // EML files shouldn't have the "View in calender" button.
-        throw new RuntimeException();
-    }
-
-    @Override
-    public void onMessageSetUnread() {
-        // EML files shouldn't have the "mark unread" button.
-        throw new RuntimeException();
+    protected MessageFileViewFragment getFragment() {
+        return mFragment;
     }
 }

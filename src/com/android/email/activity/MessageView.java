@@ -24,6 +24,7 @@ import android.content.Context;
 import android.content.Intent;
 import android.net.Uri;
 import android.os.Bundle;
+import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
@@ -33,13 +34,13 @@ import android.view.View;
  *
  * This activity shows regular email messages, which are not file-based.  (i.e. not *.eml or *.msg)
  *
- * TODO Test it!
+ * See {@link MessageViewBase} for the class relation diagram.
  */
 public class MessageView extends MessageViewBase implements View.OnClickListener,
-        MessageOrderManager.Callback {
+        MessageOrderManager.Callback, MessageViewFragment2.Callback {
     private static final String EXTRA_MESSAGE_ID = "com.android.email.MessageView_message_id";
     private static final String EXTRA_MAILBOX_ID = "com.android.email.MessageView_mailbox_id";
-    /* package */ static final String EXTRA_DISABLE_REPLY =
+    private static final String EXTRA_DISABLE_REPLY =
         "com.android.email.MessageView_disable_reply";
 
     // for saveInstanceState()
@@ -49,6 +50,8 @@ public class MessageView extends MessageViewBase implements View.OnClickListener
     private long mMailboxId;
 
     private MessageOrderManager mOrderManager;
+
+    private MessageViewFragment2 mFragment;
 
     private View mMoveToNewer;
     private View mMoveToOlder;
@@ -80,8 +83,16 @@ public class MessageView extends MessageViewBase implements View.OnClickListener
     }
 
     @Override
+    protected int getLayoutId() {
+        return R.layout.message_view;
+    }
+
+    @Override
     public void onCreate(Bundle icicle) {
         super.onCreate(icicle);
+
+        mFragment = (MessageViewFragment2) findFragmentById(R.id.message_view_fragment);
+        mFragment.setCallback(this);
 
         mMoveToNewer = findViewById(R.id.moveToNewer);
         mMoveToOlder = findViewById(R.id.moveToOlder);
@@ -102,6 +113,12 @@ public class MessageView extends MessageViewBase implements View.OnClickListener
         Intent intent = getIntent();
         mMessageId = intent.getLongExtra(EXTRA_MESSAGE_ID, -1);
         mMailboxId = intent.getLongExtra(EXTRA_MAILBOX_ID, -1);
+        if (mMessageId == -1 || mMailboxId == -1) {
+            Log.w(Email.LOG_TAG, "Insufficient intent parameter.  Closing...");
+            finish();
+            return;
+        }
+
         mDisableReplyAndForward = intent.getBooleanExtra(EXTRA_DISABLE_REPLY, false);
         if (mDisableReplyAndForward) {
             findViewById(R.id.reply).setEnabled(false);
@@ -138,6 +155,12 @@ public class MessageView extends MessageViewBase implements View.OnClickListener
             mOrderManager = null;
         }
         super.onPause();
+    }
+
+    // Note the return type is a subclass of that of the super class method.
+    @Override
+    protected MessageViewFragment2 getFragment() {
+        return mFragment;
     }
 
     @Override

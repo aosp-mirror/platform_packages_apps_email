@@ -22,29 +22,23 @@ import com.android.email.Email;
 import com.android.email.R;
 import com.android.email.Utility;
 import com.android.email.mail.Address;
-import com.android.email.mail.MeetingInfo;
 import com.android.email.mail.MessagingException;
-import com.android.email.mail.PackedString;
 import com.android.email.mail.internet.EmailHtmlUtil;
 import com.android.email.mail.internet.MimeUtility;
 import com.android.email.provider.AttachmentProvider;
 import com.android.email.provider.EmailContent.Attachment;
 import com.android.email.provider.EmailContent.Body;
 import com.android.email.provider.EmailContent.Message;
-import com.android.email.service.EmailServiceConstants;
 
 import org.apache.commons.io.IOUtils;
 
-import android.app.Activity;
 import android.app.Fragment;
 import android.content.ActivityNotFoundException;
 import android.content.ContentResolver;
 import android.content.Context;
 import android.content.Intent;
-import android.content.res.Resources;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
-import android.graphics.drawable.Drawable;
 import android.net.Uri;
 import android.os.AsyncTask;
 import android.os.Bundle;
@@ -77,7 +71,12 @@ import java.util.regex.Pattern;
 
 // TODO Restore "Show pictures" state and scroll position on rotation.
 
-public class MessageViewFragment extends Fragment implements View.OnClickListener {
+/**
+ * Base class for {@link MessageViewFragment2} and {@link MessageFileViewFragment}.
+ *
+ * See {@link MessageViewBase} for the class relation diagram.
+ */
+public abstract class MessageViewFragmentBase extends Fragment implements View.OnClickListener {
     private Context mContext;
 
     // Regex that matches start of img tag. '<(?i)img\s+'.
@@ -98,30 +97,10 @@ public class MessageViewFragment extends Fragment implements View.OnClickListene
     private WebView mMessageContentView;
     private LinearLayout mAttachments;
     private ImageView mAttachmentIcon;
-    private ImageView mFavoriteIcon;
     private View mShowPicturesSection;
-    private View mInviteSection;
     private ImageView mSenderPresenceView;
     private View mScrollView;
 
-    // calendar meeting invite answers
-    private TextView mMeetingYes;
-    private TextView mMeetingMaybe;
-    private TextView mMeetingNo;
-    private int mPreviousMeetingResponse = -1;
-
-    /**
-     * If set, URI to the email (i.e. *.eml files, and possibly *.msg files) file that's being
-     * viewed.
-     *
-     * Use {@link #isViewingEmailFile()} to see if the activity is created for opening an EML file.
-     *
-     * TODO: We probably should split it into two different MessageViews, one for regular messages
-     * and the other for for EML files (these two will share the same base MessageView class) to
-     * eliminate the bunch of 'if {@link #isViewingEmailFile()}'s.
-     * Do this after making it into a fragment.
-     */
-    private Uri mFileEmailUri;
     private long mAccountId = -1;
     private long mMessageId = -1;
     private Message mMessage;
@@ -138,9 +117,6 @@ public class MessageViewFragment extends Fragment implements View.OnClickListene
     private java.text.DateFormat mDateFormat;
     private java.text.DateFormat mTimeFormat;
 
-    private Drawable mFavoriteIconOn;
-    private Drawable mFavoriteIconOff;
-
     private Controller mController;
     private ControllerResultUiThreadWrapper<ControllerResults> mControllerCallback;
 
@@ -152,6 +128,8 @@ public class MessageViewFragment extends Fragment implements View.OnClickListene
     private String mHtmlTextWebView;
 
     private boolean mStarted;
+
+    private boolean mIsMessageLoadedForTest;
 
     /**
      * Encapsulates known information about a single attachment.
@@ -178,9 +156,6 @@ public class MessageViewFragment extends Fragment implements View.OnClickListene
         /** Called when the message specified doesn't exist. */
         public void onMessageNotExists();
 
-        /** Called when the "view in calendar" link is clicked. */
-        public void onCalendarLinkClicked(long epochEventStartTime);
-
         /** Called when it starts loading a message. */
         public void onLoadMessageStarted();
 
@@ -189,18 +164,6 @@ public class MessageViewFragment extends Fragment implements View.OnClickListene
 
         /** Called when an error occurred during loading a message. */
         public void onLoadMessageError();
-
-        /** Called when the current message is set unread. */
-        public void onMessageSetUnread();
-
-        /**
-         * Called when a calender response button is clicked.
-         *
-         * @param response one of {@link EmailServiceConstants#MEETING_REQUEST_ACCEPTED},
-         * {@link EmailServiceConstants#MEETING_REQUEST_DECLINED}, or
-         * {@link EmailServiceConstants#MEETING_REQUEST_TENTATIVE}.
-         */
-        public void onRespondedToInvite(int response);
 
         /** Called when it starts loading an attachment. */
         public void onFetchAttachmentStarted(String attachmentName);
@@ -212,12 +175,8 @@ public class MessageViewFragment extends Fragment implements View.OnClickListene
         public void onFetchAttachmentError();
     }
 
-    private static final class EmptyCallback implements Callback {
+    public static class EmptyCallback implements Callback {
         public static final Callback INSTANCE = new EmptyCallback();
-
-        @Override
-        public void onCalendarLinkClicked(long epochEventStartTime) {
-        }
 
         @Override
         public void onFetchAttachmentError() {
@@ -248,14 +207,6 @@ public class MessageViewFragment extends Fragment implements View.OnClickListene
         }
 
         @Override
-        public void onMessageSetUnread() {
-        }
-
-        @Override
-        public void onRespondedToInvite(int response) {
-        }
-
-        @Override
         public boolean onUrlInMessageClicked(String url) {
             return false;
         }
@@ -279,10 +230,6 @@ public class MessageViewFragment extends Fragment implements View.OnClickListene
         mDateFormat = android.text.format.DateFormat.getDateFormat(mContext); // short format
         mTimeFormat = android.text.format.DateFormat.getTimeFormat(mContext); // 12/24 date format
 
-        final Resources res = mContext.getResources();
-        mFavoriteIconOn = res.getDrawable(R.drawable.btn_star_big_buttonless_on);
-        mFavoriteIconOff = res.getDrawable(R.drawable.btn_star_big_buttonless_off);
-
         mController = Controller.getInstance(mContext);
     }
 
@@ -304,25 +251,13 @@ public class MessageViewFragment extends Fragment implements View.OnClickListene
         mMessageContentView = (WebView) view.findViewById(R.id.message_content);
         mAttachments = (LinearLayout) view.findViewById(R.id.attachments);
         mAttachmentIcon = (ImageView) view.findViewById(R.id.attachment);
-        mFavoriteIcon = (ImageView) view.findViewById(R.id.favorite);
         mShowPicturesSection = view.findViewById(R.id.show_pictures_section);
-        mInviteSection = view.findViewById(R.id.invite_section);
         mSenderPresenceView = (ImageView) view.findViewById(R.id.presence);
         mScrollView = view.findViewById(R.id.scrollview);
 
         mFromView.setOnClickListener(this);
         mSenderPresenceView.setOnClickListener(this);
-        mFavoriteIcon.setOnClickListener(this);
         view.findViewById(R.id.show_pictures).setOnClickListener(this);
-
-        mMeetingYes = (TextView) view.findViewById(R.id.accept);
-        mMeetingMaybe = (TextView) view.findViewById(R.id.maybe);
-        mMeetingNo = (TextView) view.findViewById(R.id.decline);
-
-        mMeetingYes.setOnClickListener(this);
-        mMeetingMaybe.setOnClickListener(this);
-        mMeetingNo.setOnClickListener(this);
-        view.findViewById(R.id.invite_link).setOnClickListener(this);
 
         mMessageContentView.setVerticalScrollBarEnabled(false);
         mMessageContentView.getSettings().setBlockNetworkLoads(true);
@@ -347,8 +282,8 @@ public class MessageViewFragment extends Fragment implements View.OnClickListene
         }
         super.onStart();
         mStarted = true;
-        if (mMessageId != -1 || mFileEmailUri != null) {
-            openMessageInternal();
+        if (isMessageSpecified()) {
+            openMessageIfStarted();
         }
     }
 
@@ -386,15 +321,6 @@ public class MessageViewFragment extends Fragment implements View.OnClickListene
         cancelAllTasks();
         mMessageContentView.destroy();
         mMessageContentView = null;
-
-        // If we're leaving a non-attachment message, delete any/all attachment messages
-
-        // TODO It's probably wronn.  We can show an EML in other app's stack, in which case
-        // we can task-switch between the main app and the activity showing an EML.
-        // We probably have to keep track of the number of EMLs currently open in a static field.
-        if (!isViewingEmailFile()) {
-            mController.deleteAttachmentMessages();
-        }
         super.onDestroy();
     }
 
@@ -423,44 +349,38 @@ public class MessageViewFragment extends Fragment implements View.OnClickListene
     }
 
     /**
-     * @return true if viewing an email file.  (i.e. *.eml files)
+     * Subclass returns true if which message to open is already specified by the activity.
      */
-    private boolean isViewingEmailFile() {
-        return mFileEmailUri != null;
+    protected abstract boolean isMessageSpecified();
+
+    protected final Controller getController() {
+        return mController;
+    }
+
+    protected final Callback getCallback() {
+        return mCallback;
+    }
+
+    protected final Message getMessage() {
+        return mMessage;
+    }
+
+    protected final boolean isMessageOpen() {
+        return mMessage != null;
     }
 
     /**
-     * Returns the account id of the current message, or -1 if unknown.
-     * Probably doesn't make sense if {@link #isViewingEmailFile()}.
+     * Returns the account id of the current message, or -1 if unknown (message not open yet, or
+     * viewing an EML message).
      */
     public long getAccountId() {
         return mAccountId;
     }
 
-    /** Called by activities to set an id of a message to open. */
-    public void openMessage(long messageId) {
-        if (Email.DEBUG_LIFECYCLE && Email.DEBUG) {
-            Log.d(Email.LOG_TAG, "MessageViewFragment openMessage");
+    protected void openMessageIfStarted() {
+        if (!mStarted) {
+            return;
         }
-        mFileEmailUri = null;
-        mMessageId = messageId;
-        mAccountId = -1;
-        if (mStarted) {
-            openMessageInternal();
-        }
-    }
-
-    /** Called by activities to a URI to an EML file to open. */
-    public void openMessage(Uri fileEmailUri) {
-        mFileEmailUri = fileEmailUri;
-        mMessageId = -1;
-        mAccountId = -1;
-        if (mStarted) {
-            openMessageInternal();
-        }
-    }
-
-    private void openMessageInternal() {
         cancelAllTasks();
         if (mMessageContentView != null) {
             mMessageContentView.getSettings().setBlockNetworkLoads(true);
@@ -471,7 +391,7 @@ public class MessageViewFragment extends Fragment implements View.OnClickListene
         mAttachments.removeAllViews();
         mAttachments.setVisibility(View.GONE);
         mAttachmentIcon.setVisibility(View.GONE);
-        mLoadMessageTask = new LoadMessageTask(mFileEmailUri, mMessageId, true);
+        mLoadMessageTask = new LoadMessageTask(true);
         mLoadMessageTask.execute();
     }
 
@@ -482,9 +402,6 @@ public class MessageViewFragment extends Fragment implements View.OnClickListene
      * TODO Move DB lookup to a worker thread.
      */
     private void onClickSender() {
-        // Bail early if message or sender not present
-        if (mMessage == null) return;
-
         final Address senderEmail = Address.unpackFirst(mMessage.mFrom);
         if (senderEmail == null) return;
 
@@ -518,56 +435,6 @@ public class MessageViewFragment extends Fragment implements View.OnClickListene
 
             startActivity(intent);
         }
-    }
-
-    /**
-     * Toggle favorite status and write back to provider
-     */
-    private void onClickFavorite() {
-        if (isViewingEmailFile()) {
-            return;
-        }
-        if (mMessage != null) {
-            // Update UI
-            boolean newFavorite = ! mMessage.mFlagFavorite;
-            mFavoriteIcon.setImageDrawable(newFavorite ? mFavoriteIconOn : mFavoriteIconOff);
-
-            // Update provider
-            mMessage.mFlagFavorite = newFavorite;
-            mController.setMessageFavorite(mMessageId, newFavorite);
-        }
-    }
-
-    /**
-     * Set message read/unread.
-     */
-    public void onMarkMessageAsRead(boolean isRead) {
-        if (isViewingEmailFile()) {
-            return;
-        }
-        if (mMessage != null && mMessage.mFlagRead != isRead) {
-            mMessage.mFlagRead = isRead;
-            mController.setMessageRead(mMessageId, isRead);
-            if (!isRead) { // Became unread.  We need to close the message.
-                mCallback.onMessageSetUnread();
-            }
-        }
-    }
-
-    /**
-     * Send a service message indicating that a meeting invite button has been clicked.
-     */
-    private void onRespondToInvite(int response, int toastResId) {
-        if (isViewingEmailFile()) {
-            return;
-        }
-        // do not send twice in a row the same response
-        if (mPreviousMeetingResponse != response) {
-            mController.sendMeetingResponse(mMessageId, response);
-            mPreviousMeetingResponse = response;
-        }
-        Utility.showToast(getActivity(), toastResId);
-        mCallback.onRespondedToInvite(response);
     }
 
     private void onDownloadAttachment(AttachmentInfo attachment) {
@@ -646,40 +513,25 @@ public class MessageViewFragment extends Fragment implements View.OnClickListene
     }
 
     private void onShowPicturesInHtml() {
-        if (mMessage != null) {
-            if (mMessageContentView != null) {
-                mMessageContentView.getSettings().setBlockNetworkLoads(false);
-                if (mHtmlTextWebView != null) {
-                    mMessageContentView.loadDataWithBaseURL("email://", mHtmlTextWebView,
-                                                            "text/html", "utf-8", null);
-                }
+        if (mMessageContentView != null) {
+            mMessageContentView.getSettings().setBlockNetworkLoads(false);
+            if (mHtmlTextWebView != null) {
+                mMessageContentView.loadDataWithBaseURL("email://", mHtmlTextWebView,
+                                                        "text/html", "utf-8", null);
             }
-            mShowPicturesSection.setVisibility(View.GONE);
         }
-    }
-
-    private void onInviteLinkClicked() {
-        if (isViewingEmailFile()) {
-            return;
-        }
-        String startTime = new PackedString(mMessage.mMeetingInfo).get(MeetingInfo.MEETING_DTSTART);
-        if (startTime != null) {
-            long epochTimeMillis = Utility.parseEmailDateTimeToMillis(startTime);
-            mCallback.onCalendarLinkClicked(epochTimeMillis);
-        } else {
-            Email.log("meetingInfo without DTSTART " + mMessage.mMeetingInfo);
-        }
+        mShowPicturesSection.setVisibility(View.GONE);
     }
 
     @Override
     public void onClick(View view) {
+        if (!isMessageOpen()) {
+            return; // Ignore.
+        }
         switch (view.getId()) {
             case R.id.from:
             case R.id.presence:
                 onClickSender();
-                break;
-            case R.id.favorite:
-                onClickFavorite();
                 break;
             case R.id.download:
                 onDownloadAttachment((AttachmentInfo) view.getTag());
@@ -689,21 +541,6 @@ public class MessageViewFragment extends Fragment implements View.OnClickListene
                 break;
             case R.id.show_pictures:
                 onShowPicturesInHtml();
-                break;
-            case R.id.accept:
-                onRespondToInvite(EmailServiceConstants.MEETING_REQUEST_ACCEPTED,
-                         R.string.message_view_invite_toast_yes);
-                break;
-            case R.id.maybe:
-                onRespondToInvite(EmailServiceConstants.MEETING_REQUEST_TENTATIVE,
-                         R.string.message_view_invite_toast_maybe);
-                break;
-            case R.id.decline:
-                onRespondToInvite(EmailServiceConstants.MEETING_REQUEST_DECLINED,
-                         R.string.message_view_invite_toast_no);
-                break;
-            case R.id.invite_link:
-                onInviteLinkClicked();
                 break;
         }
     }
@@ -738,47 +575,28 @@ public class MessageViewFragment extends Fragment implements View.OnClickListene
     }
 
     /**
+     * Called on a worker thread by {@link LoadMessageTask} to load a message in a subclass specific
+     * way.
+     */
+    protected abstract Message openMessageSync();
+
+    /**
      * Async task for loading a single message outside of the UI thread
      */
     private class LoadMessageTask extends AsyncTask<Void, Void, Message> {
 
-        private final long mId;
         private final boolean mOkToFetch;
-        private final Uri mFileEmailUri;
 
         /**
          * Special constructor to cache some local info
          */
-        public LoadMessageTask(Uri fileEmailUri, long messageId, boolean okToFetch) {
-            mFileEmailUri = fileEmailUri;
-            mId = messageId;
+        public LoadMessageTask(boolean okToFetch) {
             mOkToFetch = okToFetch;
         }
 
-        /**
-         * There will either be a Uri in the Intent (i.e. whose content is the Message to be
-         * loaded), or mId will be holding the id of the Message as stored in the provider.
-         * If we're loading via Uri, the Controller does the actual message parsing and storage,
-         * and we setup the message id and mailbox id based on the result; forward and reply are
-         * disabled for messages loaded via Uri
-         */
         @Override
         protected Message doInBackground(Void... params) {
-            // If we have a URI, then we were opened via an intent filter (e.g. an attachment that
-            // has a mime type that we can handle (e.g. message/rfc822).
-            if (mFileEmailUri != null) {
-                final Activity activity = getActivity();
-                // Put up a toast; this can take a little while...
-                Utility.showToast(activity, R.string.message_view_parse_message_toast);
-                Message msg = mController.loadMessageFromUri(mFileEmailUri);
-                if (msg == null) {
-                    // Indicate that the attachment couldn't be loaded
-                    Utility.showToast(activity, R.string.message_view_display_attachment_toast);
-                    return null;
-                }
-                return msg;
-            }
-            return Message.restoreMessageWithId(mContext, mId);
+            return openMessageSync();
         }
 
         @Override
@@ -805,6 +623,12 @@ public class MessageViewFragment extends Fragment implements View.OnClickListene
             reloadUiFromMessage(message, mOkToFetch);
             startPresenceCheck();
         }
+    }
+
+    /**
+     * Called when the message body is loaded.
+     */
+    protected void onPostLoadBody() {
     }
 
     /**
@@ -849,7 +673,7 @@ public class MessageViewFragment extends Fragment implements View.OnClickListene
                 return;
             }
             reloadUiFromBody(results[0], results[1]);    // text, html
-            onMarkMessageAsRead(true);
+            onPostLoadBody();
         }
     }
 
@@ -994,7 +818,7 @@ public class MessageViewFragment extends Fragment implements View.OnClickListene
      *
      * TODO: trigger presence check
      */
-    private void reloadUiFromMessage(Message message, boolean okToFetch) {
+    protected void reloadUiFromMessage(Message message, boolean okToFetch) {
         mMessage = message;
         mAccountId = message.mAccountKey;
 
@@ -1008,10 +832,6 @@ public class MessageViewFragment extends Fragment implements View.OnClickListene
         mCcView.setText(friendlyCc);
         mCcContainerView.setVisibility((friendlyCc != null) ? View.VISIBLE : View.GONE);
         mAttachmentIcon.setVisibility(message.mAttachments != null ? View.VISIBLE : View.GONE);
-        mFavoriteIcon.setImageDrawable(message.mFlagFavorite ? mFavoriteIconOn : mFavoriteIconOff);
-        // Show the message invite section if we're an incoming meeting invitation only
-        mInviteSection.setVisibility((message.mFlags & Message.FLAG_INCOMING_MEETING_INVITE) != 0 ?
-                View.VISIBLE : View.GONE);
 
         // Handle partially-loaded email, as follows:
         // 1. Check value of message.mFlagLoaded
@@ -1102,6 +922,8 @@ public class MessageViewFragment extends Fragment implements View.OnClickListene
         // Ask for attachments after body
         mLoadAttachmentsTask = new LoadAttachmentsTask();
         mLoadAttachmentsTask.execute(mMessage.mId);
+
+        mIsMessageLoadedForTest = true;
     }
 
     /**
@@ -1144,7 +966,7 @@ public class MessageViewFragment extends Fragment implements View.OnClickListene
                         // reload UI and reload everything else too
                         // pass false to LoadMessageTask to prevent looping here
                         cancelAllTasks();
-                        mLoadMessageTask = new LoadMessageTask(mFileEmailUri, mMessageId, false);
+                        mLoadMessageTask = new LoadMessageTask(false);
                         mLoadMessageTask.execute();
                         break;
                     default:
@@ -1210,5 +1032,13 @@ public class MessageViewFragment extends Fragment implements View.OnClickListene
                 Email.updateMailboxRefreshTime(mailboxId);
             }
         }
+    }
+
+    public boolean isMessageLoadedForTest() {
+        return mIsMessageLoadedForTest;
+    }
+
+    public void clearIsMessageLoadedForTest() {
+        mIsMessageLoadedForTest = true;
     }
 }

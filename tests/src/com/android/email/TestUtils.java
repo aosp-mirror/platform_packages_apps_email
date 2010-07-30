@@ -99,6 +99,13 @@ public class TestUtils extends TestCase /* It tests itself */ {
     /**
      * Wait until a {@code Condition} is met.
      */
+    public static void waitUntil(Condition condition, int timeoutSeconds) {
+        waitUntil("", condition, timeoutSeconds);
+    }
+
+    /**
+     * Wait until a {@code Condition} is met.
+     */
     public static void waitUntil(String message, Condition condition, int timeoutSeconds) {
         Log.d(Email.LOG_TAG, message + ": Waiting...");
         final long timeout = System.currentTimeMillis() + timeoutSeconds * 1000;
