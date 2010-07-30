@@ -194,9 +194,9 @@ public class UtilityUnitTests extends AndroidTestCase {
             Log.w(Email.LOG_TAG, "TelephonyManager not supported.  Skipping.");
             return;
         }
-        final String deviceId = Utility.getConsistentDeviceId(getContext());
-        assertNotNull(deviceId);
 
+        // Note null is a valid return value.  But still it should be consistent.
+        final String deviceId = Utility.getConsistentDeviceId(getContext());
         final String deviceId2 = Utility.getConsistentDeviceId(getContext());
         // Should be consistent.
         assertEquals(deviceId, deviceId2);

@@ -41,6 +41,12 @@ public class SyncManagerAccountTests extends AccountTestCase {
         super();
     }
 
+    @Override
+    protected void setUp() throws Exception {
+        super.setUp();
+        mMockContext = getMockContext();
+    }
+
     public void testReleaseSyncHolds() {
         Context context = mMockContext;
         SyncManager syncManager = new SyncManager();
