@@ -81,7 +81,8 @@ public class EmailProvider extends ContentProvider {
     // Version 10: Add meeting info to message table
     // Version 11: Add content and flags to attachment table
     // Version 12: Add content_bytes to attachment table. content is deprecated.
-    public static final int DATABASE_VERSION = 12;
+    // Version 13: Add messageCount to Mailbox table.
+    public static final int DATABASE_VERSION = 13;
 
     // Any changes to the database format *must* include update-in-place code.
     // Original version: 2
@@ -350,6 +351,9 @@ public class EmailProvider extends ContentProvider {
 
         // Add triggers to keep unread count accurate per mailbox
 
+        // NOTE: SQLite's before triggers are not safe when recursive triggers are involved.
+        // Use caution when changing them.
+
         // Insert a message; if flagRead is zero, add to the unread count of the message's mailbox
         db.execSQL("create trigger unread_message_insert before insert on " + Message.TABLE_NAME +
                 " when NEW." + MessageColumns.FLAG_READ + "=0" +
@@ -387,7 +391,36 @@ public class EmailProvider extends ContentProvider {
                 " when 0 then -1 else 1 end" +
                 "  where " + EmailContent.RECORD_ID + "=OLD." + MessageColumns.MAILBOX_KEY +
                 "; end");
-   }
+
+        // Add triggers to update message count per mailbox
+
+        // Insert a message.
+        db.execSQL("create trigger message_count_message_insert after insert on " +
+                Message.TABLE_NAME +
+                " begin update " + Mailbox.TABLE_NAME + " set " + MailboxColumns.MESSAGE_COUNT +
+                '=' + MailboxColumns.MESSAGE_COUNT + "+1" +
+                "  where " + EmailContent.RECORD_ID + "=NEW." + MessageColumns.MAILBOX_KEY +
+                "; end");
+
+        // Delete a message; if flagRead is zero, decrement the unread count of the msg's mailbox
+        db.execSQL("create trigger message_count_message_delete after delete on " +
+                Message.TABLE_NAME +
+                " begin update " + Mailbox.TABLE_NAME + " set " + MailboxColumns.MESSAGE_COUNT +
+                '=' + MailboxColumns.MESSAGE_COUNT + "-1" +
+                "  where " + EmailContent.RECORD_ID + "=OLD." + MessageColumns.MAILBOX_KEY +
+                "; end");
+
+        // Change a message's mailbox
+        db.execSQL("create trigger message_count_message_move after update of " +
+                MessageColumns.MAILBOX_KEY + " on " + Message.TABLE_NAME +
+                " begin update " + Mailbox.TABLE_NAME + " set " + MailboxColumns.MESSAGE_COUNT +
+                '=' + MailboxColumns.MESSAGE_COUNT + "-1" +
+                "  where " + EmailContent.RECORD_ID + "=OLD." + MessageColumns.MAILBOX_KEY +
+                "; update " + Mailbox.TABLE_NAME + " set " + MailboxColumns.MESSAGE_COUNT +
+                '=' + MailboxColumns.MESSAGE_COUNT + "+1" +
+                " where " + EmailContent.RECORD_ID + "=NEW." + MessageColumns.MAILBOX_KEY +
+                "; end");
+    }
 
     static void resetMessageTable(SQLiteDatabase db, int oldVersion, int newVersion) {
         try {
@@ -477,7 +510,8 @@ public class EmailProvider extends ContentProvider {
             + MailboxColumns.FLAG_VISIBLE + " integer, "
             + MailboxColumns.FLAGS + " integer, "
             + MailboxColumns.VISIBLE_LIMIT + " integer, "
-            + MailboxColumns.SYNC_STATUS + " text"
+            + MailboxColumns.SYNC_STATUS + " text, "
+            + MailboxColumns.MESSAGE_COUNT + " integer not null default 0"
             + ");";
         db.execSQL("create table " + Mailbox.TABLE_NAME + s);
         db.execSQL("create index mailbox_" + MailboxColumns.SERVER_ID
@@ -781,6 +815,18 @@ public class EmailProvider extends ContentProvider {
                     Log.w(TAG, "Exception upgrading EmailProvider.db from 11 to 12 " + e);
                 }
                 oldVersion = 12;
+            }
+            if (oldVersion == 12) {
+                try {
+                    db.execSQL("alter table " + Mailbox.TABLE_NAME
+                            + " add column " + Mailbox.MESSAGE_COUNT
+                                    +" integer not null default 0" + ";");
+                    recalculateMessageCount(db);
+                } catch (SQLException e) {
+                    // Shouldn't be needed unless we're debugging and interrupt the process
+                    Log.w(TAG, "Exception upgrading EmailProvider.db from 12 to 13 " + e);
+                }
+                oldVersion = 13;
             }
         }
 
@@ -1251,5 +1297,15 @@ public class EmailProvider extends ContentProvider {
         } finally {
             db.endTransaction();
         }
+    }
+
+    /**
+     * Count the number of messages in each mailbox, and update the message count column.
+     */
+    /* package */ static void recalculateMessageCount(SQLiteDatabase db) {
+        db.execSQL("update " + Mailbox.TABLE_NAME + " set " + MailboxColumns.MESSAGE_COUNT +
+                "= (select count(*) from " + Message.TABLE_NAME +
+                " where " + Message.MAILBOX_KEY + " = " +
+                    Mailbox.TABLE_NAME + "." + EmailContent.RECORD_ID + ")");
     }
 }

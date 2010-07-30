@@ -33,6 +33,7 @@ import android.content.ContentUris;
 import android.content.ContentValues;
 import android.content.Context;
 import android.database.Cursor;
+import android.database.sqlite.SQLiteDatabase;
 import android.net.Uri;
 import android.os.Bundle;
 import android.os.Environment;
@@ -1804,5 +1805,118 @@ public class ProviderTests extends ProviderTestCase2<EmailProvider> {
         assertEquals(Account.FLAGS_NOTIFY_NEW_MAIL, a1a.mFlags);
         Account a2a = Account.restoreAccountWithId(mMockContext, a2.mId);
         assertEquals(Account.FLAGS_VIBRATE_ALWAYS, a2a.mFlags);
+    }
+
+    /**
+     * @return the number of messages in a mailbox.
+     */
+    private int getMessageCount(long mailboxId) {
+        Mailbox b = Mailbox.restoreMailboxWithId(mMockContext, mailboxId);
+        return b.mMessageCount;
+    }
+
+    /** Set -1 to the message count of all mailboxes for the recalculateMessageCount test. */
+    private void setMinusOneToMessageCounts() {
+        ContentValues values = new ContentValues();
+        values.put(MailboxColumns.MESSAGE_COUNT, -1);
+
+        getProvider().update(Mailbox.CONTENT_URI, values, null, null);
+    }
+
+    /**
+     * Test for the message count trrigers (insert/delete/move mailbox), and also
+     * {@link EmailProvider#recalculateMessageCount}.
+     */
+    public void testMessageCount() {
+        final Context c = mMockContext;
+
+        // Create 2 accounts
+        Account a1 = ProviderTestUtils.setupAccount("holdflag-1", true, c);
+        Account a2 = ProviderTestUtils.setupAccount("holdflag-2", true, c);
+
+        // Create 2 mailboxes for each account
+        Mailbox b1 = ProviderTestUtils.setupMailbox("box1", a1.mId, true, c);
+        Mailbox b2 = ProviderTestUtils.setupMailbox("box2", a1.mId, true, c);
+        Mailbox b3 = ProviderTestUtils.setupMailbox("box3", a2.mId, true, c);
+        Mailbox b4 = ProviderTestUtils.setupMailbox("box4", a2.mId, true, c);
+
+        // 0. Check the initial values, just in case.
+
+        assertEquals(0, getMessageCount(b1.mId));
+        assertEquals(0, getMessageCount(b2.mId));
+        assertEquals(0, getMessageCount(b3.mId));
+        assertEquals(0, getMessageCount(b4.mId));
+
+        // 1. Test for insert triggers.
+
+        // Create some messages
+        Mailbox b = b1; // 1 message
+        Message m11 = ProviderTestUtils.setupMessage("1", b.mAccountKey, b.mId, true, true, c);
+
+        b = b2; // 2 messages
+        Message m21 = ProviderTestUtils.setupMessage("1", b.mAccountKey, b.mId, true, true, c);
+        Message m22 = ProviderTestUtils.setupMessage("1", b.mAccountKey, b.mId, true, true, c);
+
+        b = b3; // 3 messages
+        Message m31 = ProviderTestUtils.setupMessage("1", b.mAccountKey, b.mId, true, true, c);
+        Message m32 = ProviderTestUtils.setupMessage("1", b.mAccountKey, b.mId, true, true, c);
+        Message m33 = ProviderTestUtils.setupMessage("1", b.mAccountKey, b.mId, true, true, c);
+
+        // b4 has no messages.
+
+        // Check message counts
+        assertEquals(1, getMessageCount(b1.mId));
+        assertEquals(2, getMessageCount(b2.mId));
+        assertEquals(3, getMessageCount(b3.mId));
+        assertEquals(0, getMessageCount(b4.mId));
+
+        // 2. test for recalculateMessageCount.
+
+        // First, invalidate the message counts.
+        setMinusOneToMessageCounts();
+        assertEquals(-1, getMessageCount(b1.mId));
+        assertEquals(-1, getMessageCount(b2.mId));
+        assertEquals(-1, getMessageCount(b3.mId));
+        assertEquals(-1, getMessageCount(b4.mId));
+
+        // Batch update.
+        SQLiteDatabase db = getProvider().getDatabase(mMockContext);
+        EmailProvider.recalculateMessageCount(db);
+
+        // Check message counts
+        assertEquals(1, getMessageCount(b1.mId));
+        assertEquals(2, getMessageCount(b2.mId));
+        assertEquals(3, getMessageCount(b3.mId));
+        assertEquals(0, getMessageCount(b4.mId));
+
+        // 3. Check the "move mailbox" trigger.
+
+        // Move m32 (in mailbox 3) to mailbox 4.
+        ContentValues values = new ContentValues();
+        values.put(MessageColumns.MAILBOX_KEY, b4.mId);
+
+        getProvider().update(Message.CONTENT_URI, values, EmailContent.ID_SELECTION,
+                new String[] {"" + m32.mId});
+
+        // Check message counts
+        assertEquals(1, getMessageCount(b1.mId));
+        assertEquals(2, getMessageCount(b2.mId));
+        assertEquals(2, getMessageCount(b3.mId));
+        assertEquals(1, getMessageCount(b4.mId));
+
+        // 4. Check the delete trigger.
+
+        // Delete m11 (in mailbox 1)
+        getProvider().delete(Message.CONTENT_URI, EmailContent.ID_SELECTION,
+                new String[] {"" + m11.mId});
+        // Delete m21 (in mailbox 2)
+        getProvider().delete(Message.CONTENT_URI, EmailContent.ID_SELECTION,
+                new String[] {"" + m21.mId});
+
+        // Check message counts
+        assertEquals(0, getMessageCount(b1.mId));
+        assertEquals(1, getMessageCount(b2.mId));
+        assertEquals(2, getMessageCount(b3.mId));
+        assertEquals(1, getMessageCount(b4.mId));
     }
 }
