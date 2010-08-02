@@ -16,10 +16,10 @@
 
 package com.android.email.activity;
 
+import com.android.email.data.ThrottlingCursorLoader;
 import com.android.email.provider.EmailContent;
 
 import android.content.Context;
-import android.content.CursorLoader;
 import android.content.Loader;
 import android.database.Cursor;
 import android.view.View;
@@ -36,6 +36,8 @@ import android.widget.TextView;
  * simpler for now.)  Maybe we can just use SimpleCursorAdapter.
  */
 public class AccountSelectorAdapter extends CursorAdapter {
+    private static final int AUTO_REQUERY_TIMEOUT = 5 * 1000; // in ms
+
     private static final String[] PROJECTION = new String[] {
         EmailContent.RECORD_ID,
         EmailContent.Account.DISPLAY_NAME,
@@ -51,8 +53,8 @@ public class AccountSelectorAdapter extends CursorAdapter {
             EmailContent.Account.IS_DEFAULT + " desc, " + EmailContent.Account.RECORD_ID;
 
     public static Loader<Cursor> createLoader(Context context) {
-        return new CursorLoader(context, EmailContent.Account.CONTENT_URI, PROJECTION, null, null,
-                ORDER_BY);
+        return new ThrottlingCursorLoader(context, EmailContent.Account.CONTENT_URI, PROJECTION,
+                null, null, ORDER_BY, AUTO_REQUERY_TIMEOUT);
     }
 
     public AccountSelectorAdapter(Context context, Cursor c) {
