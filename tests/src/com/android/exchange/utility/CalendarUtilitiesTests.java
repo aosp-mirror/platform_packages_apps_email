@@ -564,6 +564,8 @@ public class CalendarUtilitiesTests extends AndroidTestCase {
         // on either side of the transition.
         // Use CST for testing (any other will do as well, as long as it has DST)
         TimeZone tz = TimeZone.getTimeZone("US/Central");
+        // Confirm that this time zone uses DST
+        assertTrue(tz.useDaylightTime());
         // Get a calendar at January 1st of the current year
         GregorianCalendar calendar = new GregorianCalendar(tz);
         calendar.set(CalendarUtilities.sCurrentYear, Calendar.JANUARY, 1);
@@ -590,10 +592,10 @@ public class CalendarUtilitiesTests extends AndroidTestCase {
         assertTrue(tz.inDaylightTime(beforeDate));
         assertFalse(tz.inDaylightTime(afterDate));
 
-        // Captain Renault: What in heaven's name brought you to Casablanca?
-        // Rick: My health. I came to Casablanca for the waters.
-        // Also, they have no daylight savings time
-        tz = TimeZone.getTimeZone("Africa/Casablanca");
+        // Kinshasa has no daylight savings time
+        tz = TimeZone.getTimeZone("Africa/Kinshasa");
+        // Confirm that there's no DST for this time zone
+        assertFalse(tz.useDaylightTime());
         // Get a calendar at January 1st of the current year
         calendar = new GregorianCalendar(tz);
         calendar.set(CalendarUtilities.sCurrentYear, Calendar.JANUARY, 1);
@@ -776,12 +778,14 @@ public class CalendarUtilitiesTests extends AndroidTestCase {
                 nodst++;
             }
         }
-        assertTrue(norule < rule/10);
         Log.d("TimeZoneGeneration",
                 "Rule: " + rule + ", No DST: " + nodst + ", No rule: " + norule);
         for (String nr: norulelist) {
             Log.d("TimeZoneGeneration", "No rule: " + nr);
         }
+        // This is an empirical sanity test; we shouldn't have too many time zones with DST and
+        // without a rule.
+        assertTrue(norule < rule/8);
     }
 
     public void testGetUidFromGlobalObjId() {
