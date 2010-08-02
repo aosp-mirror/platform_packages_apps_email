@@ -33,7 +33,10 @@ import android.test.suitebuilder.annotation.SmallTest;
 
 /**
  * This is a series of unit tests for backup/restore of the SecurityPolicy class.
- */
+ *
+ * You can run this entire test case with:
+ *   runtest -c com.android.email.SecurityPolicyTests email
+*/
 @MediumTest
 public class SecurityPolicyTests extends ProviderTestCase2<EmailProvider> {
 
@@ -101,12 +104,12 @@ public class SecurityPolicyTests extends ProviderTestCase2<EmailProvider> {
             fail("Illegal password mode allowed");
         } catch (IllegalArgumentException e) {
         }
-        try {
-            new PolicySet(0, PolicySet.PASSWORD_MODE_NONE, 0,
-                    PolicySet.SCREEN_LOCK_TIME_MAX + 1, false);
-            fail("Too-long screen lock time allowed");
-        } catch (IllegalArgumentException e) {
-        }
+        PolicySet ps = new PolicySet(0, PolicySet.PASSWORD_MODE_NONE, 0,
+                PolicySet.SCREEN_LOCK_TIME_MAX + 1, false);
+        assertEquals(PolicySet.SCREEN_LOCK_TIME_MAX, ps.getMaxScreenLockTime());
+        ps = new PolicySet(0, PolicySet.PASSWORD_MODE_NONE,
+                PolicySet.PASSWORD_MAX_FAILS_MAX + 1, 0, false);
+        assertEquals(PolicySet.PASSWORD_MAX_FAILS_MAX, ps.getMaxPasswordFails());
     }
 
     /**
