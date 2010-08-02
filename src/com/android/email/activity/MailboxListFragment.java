@@ -17,23 +17,15 @@
 package com.android.email.activity;
 
 import com.android.email.Email;
-import com.android.email.R;
-import com.android.email.Utility;
-import com.android.email.provider.EmailContent;
-import com.android.email.provider.EmailContent.Mailbox;
-import com.android.email.provider.EmailContent.MailboxColumns;
-import com.android.email.provider.EmailContent.Message;
-import com.android.email.provider.EmailContent.MessageColumns;
 
 import android.app.Activity;
 import android.app.ListFragment;
+import android.app.LoaderManager.LoaderCallbacks;
+import android.content.Loader;
 import android.database.Cursor;
-import android.os.AsyncTask;
 import android.os.Bundle;
+import android.os.Parcelable;
 import android.util.Log;
-import android.view.ContextMenu;
-import android.view.ContextMenu.ContextMenuInfo;
-import android.view.MenuItem;
 import android.view.View;
 import android.widget.AdapterView;
 import android.widget.AdapterView.OnItemClickListener;
@@ -50,23 +42,14 @@ import java.security.InvalidParameterException;
  *  - pass-through implementations of onCreateContextMenu() and onContextItemSelected() (temporary)
  */
 public class MailboxListFragment extends ListFragment implements OnItemClickListener {
-
-    private static final String MAILBOX_SELECTION = MailboxColumns.ACCOUNT_KEY + "=?" +
-            " AND " + MailboxColumns.TYPE + "<" + Mailbox.TYPE_NOT_EMAIL +
-            " AND " + MailboxColumns.FLAG_VISIBLE + "=1";
-    private static final String MESSAGE_MAILBOX_ID_SELECTION = MessageColumns.MAILBOX_KEY + "=?";
-
-    // Account & mailboxes access
+    private static final int LOADER_ID_MAILBOX_LIST = 1;
     private long mAccountId = -1;
-    private LoadMailboxesTask mLoadMailboxesTask;
-    private MessageCountTask mMessageCountTask;
-    private long mDraftMailboxKey = -1;
-    private long mTrashMailboxKey = -1;
 
     // UI Support
     private Activity mActivity;
     private MailboxesAdapter mListAdapter;
     private Callback mCallback = EmptyCallback.INSTANCE;
+    private final MyLoaderCallbacks mMyLoaderCallbacks = new MyLoaderCallbacks();
 
     private boolean mStarted;
 
@@ -150,6 +133,7 @@ public class MailboxListFragment extends ListFragment implements OnItemClickList
         if (Email.DEBUG_LIFECYCLE && Email.DEBUG) {
             Log.d(Email.LOG_TAG, "MailboxListFragment onStart");
         }
+        getLoaderManager(); // TODO Work around internal bug 2887723.
         super.onStart();
         mStarted = true;
         if (mAccountId != -1) {
@@ -166,7 +150,6 @@ public class MailboxListFragment extends ListFragment implements OnItemClickList
             Log.d(Email.LOG_TAG, "MailboxListFragment onResume");
         }
         super.onResume();
-        updateMessageCount();
     }
 
     @Override
@@ -187,7 +170,6 @@ public class MailboxListFragment extends ListFragment implements OnItemClickList
         }
         mStarted = false;
         super.onStop();
-        cancelAllTasks();
     }
 
     /**
@@ -199,8 +181,6 @@ public class MailboxListFragment extends ListFragment implements OnItemClickList
             Log.d(Email.LOG_TAG, "MailboxListFragment onDestroy");
         }
         super.onDestroy();
-
-        mListAdapter.changeCursor(null);
     }
 
     @Override
@@ -211,166 +191,41 @@ public class MailboxListFragment extends ListFragment implements OnItemClickList
         super.onSaveInstanceState(outState);
     }
 
-    private void cancelAllTasks() {
-        Utility.cancelTaskInterrupt(mLoadMailboxesTask);
-        mLoadMailboxesTask = null;
-        Utility.cancelTaskInterrupt(mMessageCountTask);
-        mMessageCountTask = null;
-    }
-
     private void startLoading() {
-        cancelAllTasks();
-
+        if (Email.DEBUG_LIFECYCLE && Email.DEBUG) {
+            Log.d(Email.LOG_TAG, "MailboxListFragment startLoading");
+        }
         // Clear the list.  (ListFragment will show the "Loading" animation)
-        setListAdapter(null);
         setListShown(false);
 
-        mLoadMailboxesTask = new LoadMailboxesTask(mAccountId);
-        mLoadMailboxesTask.execute();
+        getLoaderManager().restartLoader(LOADER_ID_MAILBOX_LIST, null, mMyLoaderCallbacks);
     }
 
-    /**
-     * This is called via the activity
-     * TODO This will be removed when possible
-     */
-    @Override
-    public void onCreateContextMenu(ContextMenu menu, View v, ContextMenuInfo info) {
-        AdapterView.AdapterContextMenuInfo menuInfo = (AdapterView.AdapterContextMenuInfo) info;
-        Cursor c = (Cursor) getListView().getItemAtPosition(menuInfo.position);
-        String folderName = Utility.FolderProperties.getInstance(mActivity)
-                .getDisplayName(Integer.valueOf(c.getString(mListAdapter.COLUMN_TYPE)));
-        if (folderName == null) {
-            folderName = c.getString(mListAdapter.COLUMN_DISPLAY_NAME);
+    private class MyLoaderCallbacks implements LoaderCallbacks<Cursor> {
+        @Override
+        public Loader<Cursor> onCreateLoader(int id, Bundle args) {
+            if (Email.DEBUG_LIFECYCLE && Email.DEBUG) {
+                Log.d(Email.LOG_TAG, "MailboxListFragment onCreateLoader");
+            }
+            return MailboxesAdapter.createLoader(getActivity(), mAccountId);
         }
 
-        menu.setHeaderTitle(folderName);
-        mActivity.getMenuInflater().inflate(R.menu.mailbox_list_context, menu);
-    }
+        @Override
+        public void onLoadFinished(Loader<Cursor> loader, Cursor cursor) {
+            if (Email.DEBUG_LIFECYCLE && Email.DEBUG) {
+                Log.d(Email.LOG_TAG, "MailboxListFragment onLoadFinished");
+            }
 
-    /**
-     * This is called via the activity
-     * TODO This will be removed when possible
-     */
-    @Override
-    public boolean onContextItemSelected(MenuItem item) {
-        AdapterView.AdapterContextMenuInfo info =
-            (AdapterView.AdapterContextMenuInfo) item.getMenuInfo();
-
-        switch (item.getItemId()) {
-            case R.id.refresh:
-                mCallback.onRefresh(mAccountId, info.id);
-                return true;
-            case R.id.open:
-                mCallback.onMailboxSelected(mAccountId, info.id);
-                return true;
+            final ListView lv = getListView();
+            final Parcelable listState = lv.onSaveInstanceState();
+            mListAdapter.changeCursor(cursor);
+            setListAdapter(mListAdapter);
+            setListShown(true);
+            lv.onRestoreInstanceState(listState);
         }
-        return false;
     }
 
     public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
         mCallback.onMailboxSelected(mAccountId, id);
-    }
-
-    /**
-     * Async task for loading the mailboxes for a given account
-     */
-    private class LoadMailboxesTask extends AsyncTask<Void, Void, Object[]> {
-
-        private long mAccountKey;
-
-        /**
-         * Special constructor to cache some local info
-         */
-        public LoadMailboxesTask(long accountId) {
-            mAccountKey = accountId;
-            mDraftMailboxKey = -1;
-            mTrashMailboxKey = -1;
-        }
-
-        @Override
-        protected Object[] doInBackground(Void... params) {
-            long draftMailboxKey = -1;
-            long trashMailboxKey = -1;
-            Cursor c = mActivity.managedQuery(
-                    EmailContent.Mailbox.CONTENT_URI,
-                    mListAdapter.PROJECTION,
-                    MAILBOX_SELECTION,
-                    new String[] { String.valueOf(mAccountKey) },
-                    MailboxColumns.TYPE + "," + MailboxColumns.DISPLAY_NAME);
-            c.moveToPosition(-1);
-            while (c.moveToNext()) {
-                long mailboxId = c.getInt(mListAdapter.COLUMN_ID);
-                switch (c.getInt(mListAdapter.COLUMN_TYPE)) {
-                case Mailbox.TYPE_DRAFTS:
-                    draftMailboxKey = mailboxId;
-                    break;
-                case Mailbox.TYPE_TRASH:
-                    trashMailboxKey = mailboxId;
-                    break;
-                }
-            }
-            Object[] result = new Object[3];
-            result[0] = c;
-            result[1] = draftMailboxKey;
-            result[2] = trashMailboxKey;
-            return result;
-        }
-
-        @Override
-        protected void onPostExecute(Object[] results) {
-            if (results == null || isCancelled()) return;
-            Cursor cursor = (Cursor) results[0];
-            mDraftMailboxKey = (Long) results[1];
-            mTrashMailboxKey = (Long) results[2];
-
-            if (cursor.isClosed()) return;
-            mListAdapter.changeCursor(cursor);
-            setListAdapter(mListAdapter);
-            updateMessageCount();
-        }
-    }
-
-    private class MessageCountTask extends AsyncTask<Void, Void, int[]> {
-
-        @Override
-        protected int[] doInBackground(Void... params) {
-            int[] counts = new int[2];
-            if (mDraftMailboxKey != -1) {
-                counts[0] = EmailContent.count(mActivity, Message.CONTENT_URI,
-                        MESSAGE_MAILBOX_ID_SELECTION,
-                        new String[] { String.valueOf(mDraftMailboxKey)});
-            } else {
-                counts[0] = 0;
-            }
-            if (mTrashMailboxKey != -1) {
-                counts[1] = EmailContent.count(mActivity, Message.CONTENT_URI,
-                        MESSAGE_MAILBOX_ID_SELECTION,
-                        new String[] { String.valueOf(mTrashMailboxKey)});
-            } else {
-                counts[1] = 0;
-            }
-            return counts;
-        }
-
-        @Override
-        protected void onPostExecute(int[] counts) {
-            if (counts == null || isCancelled()) {
-                return;
-            }
-            int countDraft = counts[0];
-            int countTrash = counts[1];
-            mListAdapter.setMessageCounts(countDraft, countTrash);
-        }
-    }
-
-    private void updateMessageCount() {
-        if (mAccountId == -1 || mListAdapter.getCursor() == null) {
-            return;
-        }
-        if (mMessageCountTask != null
-                && mMessageCountTask.getStatus() != MessageCountTask.Status.FINISHED) {
-            mMessageCountTask.cancel(true);
-        }
-        mMessageCountTask = (MessageCountTask) new MessageCountTask().execute();
     }
 }
