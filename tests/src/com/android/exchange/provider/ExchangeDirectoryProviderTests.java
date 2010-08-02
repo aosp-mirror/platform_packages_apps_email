@@ -16,6 +16,7 @@
 
 package com.android.exchange.provider;
 
+import com.android.email.mail.PackedString;
 import com.android.exchange.provider.GalResult.GalData;
 
 import android.database.Cursor;
@@ -32,18 +33,19 @@ public class ExchangeDirectoryProviderTests extends AndroidTestCase {
 
     // Create a test projection; we should only get back values for display name and email address
     private static final String[] GAL_RESULT_PROJECTION =
-        new String[] {Contacts.DISPLAY_NAME, CommonDataKinds.Email.ADDRESS, Contacts.CONTENT_TYPE};
-    private static final int GAL_RESULT_DISPLAY_NAME_COLUMN = 0;
-    private static final int GAL_RESULT_EMAIL_ADDRESS_COLUMN = 1;
-    private static final int GAL_RESULT_CONTENT_TYPE_COLUMN = 2;
+        new String[] {Contacts.DISPLAY_NAME, CommonDataKinds.Email.ADDRESS, Contacts.CONTENT_TYPE,
+            Contacts.LOOKUP_KEY};
+    private static final int GAL_RESULT_COLUMN_DISPLAY_NAME = 0;
+    private static final int GAL_RESULT_COLUMN_EMAIL_ADDRESS = 1;
+    private static final int GAL_RESULT_COLUMN_CONTENT_TYPE = 2;
+    private static final int GAL_RESULT_COLUMN_LOOKUP_KEY = 3;
 
-    public void testBuildGalResultCursor() {
+    public void testBuildSimpleGalResultCursor() {
         GalResult result = new GalResult();
         result.addGalData(1, "Alice Aardvark", "alice@aardvark.com");
         result.addGalData(2, "Bob Badger", "bob@badger.com");
         result.addGalData(3, "Clark Cougar", "clark@cougar.com");
         result.addGalData(4, "Dan Dolphin", "dan@dolphin.com");
-
         // Make sure our returned cursor has the expected contents
         ExchangeDirectoryProvider provider = new ExchangeDirectoryProvider();
         Cursor c = provider.buildGalResultCursor(GAL_RESULT_PROJECTION, result);
@@ -53,9 +55,67 @@ public class ExchangeDirectoryProviderTests extends AndroidTestCase {
         for (int i = 0; i < 4; i++) {
             GalData data = result.galData.get(i);
             assertTrue(c.moveToNext());
-            assertEquals(data.displayName, c.getString(GAL_RESULT_DISPLAY_NAME_COLUMN));
-            assertEquals(data.emailAddress, c.getString(GAL_RESULT_EMAIL_ADDRESS_COLUMN));
-            assertNull(c.getString(GAL_RESULT_CONTENT_TYPE_COLUMN));
+            assertEquals(data.displayName, c.getString(GAL_RESULT_COLUMN_DISPLAY_NAME));
+            assertEquals(data.emailAddress, c.getString(GAL_RESULT_COLUMN_EMAIL_ADDRESS));
+            assertNull(c.getString(GAL_RESULT_COLUMN_CONTENT_TYPE));
+        }
+    }
+
+    private static final String[][] DISPLAY_NAME_TEST_FIELDS = {
+        {"Alice", "Aardvark", "Another Name"},
+        {"Alice", "Aardvark", null},
+        {"Alice", null, null},
+        {null, "Aardvark", null},
+        {null, null, null}
+    };
+    private static final int TEST_FIELD_FIRST_NAME = 0;
+    private static final int TEST_FIELD_LAST_NAME = 1;
+    private static final int TEST_FIELD_DISPLAY_NAME = 2;
+    private static final String[] EXPECTED_DISPLAY_NAMES = new String[] {"Another Name",
+        "Alice Aardvark", "Alice", "Aardvark", null};
+
+    private GalResult getTestDisplayNameResult() {
+        GalResult result = new GalResult();
+        for (int i = 0; i < DISPLAY_NAME_TEST_FIELDS.length; i++) {
+            GalData galData = new GalData();
+            String[] names = DISPLAY_NAME_TEST_FIELDS[i];
+            galData.put(GalData.FIRST_NAME, names[TEST_FIELD_FIRST_NAME]);
+            galData.put(GalData.LAST_NAME, names[TEST_FIELD_LAST_NAME]);
+            galData.put(GalData.DISPLAY_NAME, names[TEST_FIELD_DISPLAY_NAME]);
+            result.addGalData(galData);
+        }
+        return result;
+    }
+
+    public void testDisplayNameLogic() {
+        GalResult result = getTestDisplayNameResult();
+        // Make sure our returned cursor has the expected contents
+        ExchangeDirectoryProvider provider = new ExchangeDirectoryProvider();
+        Cursor c = provider.buildGalResultCursor(GAL_RESULT_PROJECTION, result);
+        assertNotNull(c);
+        assertEquals(MatrixCursor.class, c.getClass());
+        assertEquals(DISPLAY_NAME_TEST_FIELDS.length, c.getCount());
+        for (int i = 0; i < EXPECTED_DISPLAY_NAMES.length; i++) {
+            assertTrue(c.moveToNext());
+            assertEquals(EXPECTED_DISPLAY_NAMES[i], c.getString(GAL_RESULT_COLUMN_DISPLAY_NAME));
+        }
+    }
+
+    public void testLookupKeyLogic() {
+        GalResult result = getTestDisplayNameResult();
+        // Make sure our returned cursor has the expected contents
+        ExchangeDirectoryProvider provider = new ExchangeDirectoryProvider();
+        Cursor c = provider.buildGalResultCursor(GAL_RESULT_PROJECTION, result);
+        assertNotNull(c);
+        assertEquals(MatrixCursor.class, c.getClass());
+        assertEquals(DISPLAY_NAME_TEST_FIELDS.length, c.getCount());
+        for (int i = 0; i < EXPECTED_DISPLAY_NAMES.length; i++) {
+            assertTrue(c.moveToNext());
+            PackedString ps = new PackedString(c.getString(GAL_RESULT_COLUMN_LOOKUP_KEY));
+            String[] testFields = DISPLAY_NAME_TEST_FIELDS[i];
+            assertEquals(testFields[TEST_FIELD_FIRST_NAME], ps.get(GalData.FIRST_NAME));
+            assertEquals(testFields[TEST_FIELD_LAST_NAME], ps.get(GalData.LAST_NAME));
+            assertEquals(EXPECTED_DISPLAY_NAMES[i], ps.get(GalData.DISPLAY_NAME));
         }
     }
 }
