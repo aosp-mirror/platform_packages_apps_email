@@ -23,12 +23,14 @@ import com.android.email.provider.EmailContent.Mailbox;
 import android.content.Context;
 import android.graphics.drawable.Drawable;
 import android.os.Environment;
+import android.os.Parcelable;
 import android.telephony.TelephonyManager;
 import android.test.AndroidTestCase;
 import android.test.MoreAsserts;
 import android.test.mock.MockCursor;
 import android.test.suitebuilder.annotation.SmallTest;
 import android.util.Log;
+import android.widget.ListView;
 import android.widget.TextView;
 
 import java.io.File;
@@ -400,5 +402,40 @@ public class UtilityUnitTests extends AndroidTestCase {
                 null, null, null, 0, Long.valueOf(-1));
         assertEquals(Long.valueOf(-1), actual);
         assertTrue(cursor.mClosed);
+    }
+
+    public void testListStateSaver() {
+        MockListView lv = new MockListView(getContext());
+
+        Utility.ListStateSaver lss = new Utility.ListStateSaver(lv);
+        assertTrue(lv.mCalledOnSaveInstanceState);
+        assertFalse(lv.mCalledOnRestoreInstanceState);
+
+        lv.mCalledOnSaveInstanceState = false;
+
+        lss.restore(lv);
+        assertFalse(lv.mCalledOnSaveInstanceState);
+        assertTrue(lv.mCalledOnRestoreInstanceState);
+    }
+
+    private static class MockListView extends ListView {
+        public boolean mCalledOnSaveInstanceState;
+        public boolean mCalledOnRestoreInstanceState;
+
+        public MockListView(Context context) {
+            super(context);
+        }
+
+        @Override
+        public Parcelable onSaveInstanceState() {
+            mCalledOnSaveInstanceState = true;
+            return super.onSaveInstanceState();
+        }
+
+        @Override
+        public void onRestoreInstanceState(Parcelable state) {
+            mCalledOnRestoreInstanceState = true;
+            super.onRestoreInstanceState(state);
+        }
     }
 }

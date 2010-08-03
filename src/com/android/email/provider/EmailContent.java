@@ -504,6 +504,9 @@ public abstract class EmailContent {
 
         public static final String[] ID_COLUMN_PROJECTION = new String[] { RECORD_ID };
 
+        private static final String FAVORITE_COUNT_SELECTION =
+            MessageColumns.FLAG_FAVORITE + "= 1";
+
         // _id field is in AbstractContent
         public String mDisplayName;
         public long mTimeStamp;
@@ -764,6 +767,15 @@ public abstract class EmailContent {
                         .build());
                 }
             }
+        }
+
+        /**
+         * @return number of favorite (starred) messages throughout all accounts.
+         *
+         * TODO Add trigger to keep track.  (index isn't efficient in this case.)
+         */
+        public static int getFavoriteMessageCount(Context context) {
+            return count(context, Message.CONTENT_URI, FAVORITE_COUNT_SELECTION, null);
         }
     }
 
@@ -1996,6 +2008,18 @@ public abstract class EmailContent {
             MailboxColumns.FLAG_VISIBLE, MailboxColumns.FLAGS, MailboxColumns.VISIBLE_LIMIT,
             MailboxColumns.SYNC_STATUS, MailboxColumns.MESSAGE_COUNT
         };
+
+        private static final String MAILBOX_TYPE_SELECTION =
+                MailboxColumns.TYPE + " =?";
+        private static final String[] MAILBOX_SUM_OF_UNREAD_COUNT_PROJECTION = new String [] {
+                "sum(" + MailboxColumns.UNREAD_COUNT + ")"
+                };
+        private static final int UNREAD_COUNT_COUNT_COLUMN = 0;
+        private static final String[] MAILBOX_SUM_OF_MESSAGE_COUNT_PROJECTION = new String [] {
+                "sum(" + MailboxColumns.MESSAGE_COUNT + ")"
+                };
+        private static final int MESSAGE_COUNT_COUNT_COLUMN = 0;
+
         public static final long NO_MAILBOX = -1;
 
         // Sentinel values for the mSyncInterval field of both Mailbox records
@@ -2152,6 +2176,22 @@ public abstract class EmailContent {
                 return Mailbox.restoreMailboxWithId(context, mailboxId);
             }
             return null;
+        }
+
+        public static int getUnreadCountByMailboxType(Context context, int type) {
+            return Utility.getFirstRowLong(context, Mailbox.CONTENT_URI,
+                    MAILBOX_SUM_OF_UNREAD_COUNT_PROJECTION,
+                    MAILBOX_TYPE_SELECTION,
+                    new String[] { String.valueOf(type) }, null, UNREAD_COUNT_COUNT_COLUMN)
+                            .intValue();
+        }
+
+        public static int getMessageCountByMailboxType(Context context, int type) {
+            return Utility.getFirstRowLong(context, Mailbox.CONTENT_URI,
+                    MAILBOX_SUM_OF_MESSAGE_COUNT_PROJECTION,
+                    MAILBOX_TYPE_SELECTION,
+                    new String[] { String.valueOf(type) }, null, MESSAGE_COUNT_COUNT_COLUMN)
+                            .intValue();
         }
     }
 

@@ -17,6 +17,7 @@
 package com.android.email.activity;
 
 import com.android.email.Email;
+import com.android.email.Utility;
 
 import android.app.Activity;
 import android.app.ListFragment;
@@ -216,12 +217,17 @@ public class MailboxListFragment extends ListFragment implements OnItemClickList
                 Log.d(Email.LOG_TAG, "MailboxListFragment onLoadFinished");
             }
 
+            // Save list view state (primarily scroll position)
             final ListView lv = getListView();
-            final Parcelable listState = lv.onSaveInstanceState();
+            final Utility.ListStateSaver lss = new Utility.ListStateSaver(lv);
+
+            // Set the adapter.
             mListAdapter.changeCursor(cursor);
             setListAdapter(mListAdapter);
             setListShown(true);
-            lv.onRestoreInstanceState(listState);
+
+            // Restore the state
+            lss.restore(lv);
         }
     }
 

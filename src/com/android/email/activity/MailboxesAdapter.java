@@ -21,11 +21,15 @@ import com.android.email.Utility;
 import com.android.email.provider.EmailContent;
 import com.android.email.provider.EmailContent.Mailbox;
 import com.android.email.provider.EmailContent.MailboxColumns;
+import com.android.email.provider.EmailContent.Message;
 
 import android.content.Context;
 import android.content.CursorLoader;
 import android.content.Loader;
 import android.database.Cursor;
+import android.database.MatrixCursor;
+import android.database.MatrixCursor.RowBuilder;
+import android.database.MergeCursor;
 import android.graphics.Typeface;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -39,16 +43,18 @@ import android.widget.TextView;
  *
  * TODO Add "combined inbox/star/etc.".
  * TODO Throttle auto-requery.
+ * TODO New UI will probably not distinguish unread counts from # of messages.
+ *      i.e. we won't need two different viewes for them.
  * TODO Unit test, when UI is settled.
  */
 /* package */ class MailboxesAdapter extends CursorAdapter {
     private static final String[] PROJECTION = new String[] { MailboxColumns.ID,
-            MailboxColumns.DISPLAY_NAME, MailboxColumns.UNREAD_COUNT, MailboxColumns.TYPE,
+            MailboxColumns.DISPLAY_NAME, MailboxColumns.TYPE, MailboxColumns.UNREAD_COUNT,
             MailboxColumns.MESSAGE_COUNT};
     private static final int COLUMN_ID = 0;
     private static final int COLUMN_DISPLAY_NAME = 1;
-    private static final int COLUMN_UNREAD_COUNT = 2;
-    private static final int COLUMN_TYPE = 3;
+    private static final int COLUMN_TYPE = 2;
+    private static final int COLUMN_UNREAD_COUNT = 3;
     private static final int COLUMN_MESSAGE_COUNT = 4;
 
     private static final String MAILBOX_SELECTION = MailboxColumns.ACCOUNT_KEY + "=?" +
@@ -65,11 +71,12 @@ import android.widget.TextView;
     @Override
     public void bindView(View view, Context context, Cursor cursor) {
         final int type = cursor.getInt(COLUMN_TYPE);
+        final long mailboxId = cursor.getLong(COLUMN_ID);
 
         // Set mailbox name
         final TextView nameView = (TextView) view.findViewById(R.id.mailbox_name);
         String mailboxName = Utility.FolderProperties.getInstance(context)
-                .getDisplayName(type);
+                .getDisplayName(type, mailboxId);
         if (mailboxName == null) {
             mailboxName = cursor.getString(COLUMN_DISPLAY_NAME);
         }
@@ -110,7 +117,7 @@ import android.widget.TextView;
         // Set folder icon
         ((ImageView) view.findViewById(R.id.folder_icon))
                 .setImageDrawable(Utility.FolderProperties.getInstance(context)
-                .getIconIds(type));
+                .getIcon(type, mailboxId));
     }
 
     @Override
@@ -122,11 +129,70 @@ import android.widget.TextView;
      * @return mailboxes Loader for an account.
      */
     public static Loader<Cursor> createLoader(Context context, long accountId) {
-        return new CursorLoader(context,
-                EmailContent.Mailbox.CONTENT_URI,
-                MailboxesAdapter.PROJECTION,
-                MAILBOX_SELECTION,
-                new String[] { String.valueOf(accountId) },
-                MailboxColumns.TYPE + "," + MailboxColumns.DISPLAY_NAME);
+        return new MailboxesLoader(context, accountId);
+    }
+
+    /**
+     * Loader for mailboxes.  If there's more than 1 account set up, the result will also include
+     * special mailboxes.  (e.g. combined inbox, etc)
+     */
+    private static class MailboxesLoader extends CursorLoader {
+        private final Context mContext;
+
+        public MailboxesLoader(Context context, long accountId) {
+            super(context, EmailContent.Mailbox.CONTENT_URI,
+                    MailboxesAdapter.PROJECTION,
+                    MAILBOX_SELECTION,
+                    new String[] { String.valueOf(accountId) },
+                    MailboxColumns.TYPE + "," + MailboxColumns.DISPLAY_NAME);
+            mContext = context;
+        }
+
+        @Override
+        public Cursor loadInBackground() {
+            final Cursor mailboxes = super.loadInBackground();
+            return new MergeCursor(
+                    new Cursor[] {getSpecialMailboxesCursor(mContext), mailboxes});
+        }
+    }
+
+    /* package */ static Cursor getSpecialMailboxesCursor(Context context) {
+        MatrixCursor cursor = new MatrixCursor(PROJECTION);
+
+        // TODO show combined boxes only if # accounts > 1 (wait for UI) but we always need starred.
+
+        // Combined inbox -- show unread count
+        addSummaryMailboxRow(context, cursor,
+                Mailbox.QUERY_ALL_INBOXES, Mailbox.TYPE_INBOX,
+                Mailbox.getUnreadCountByMailboxType(context, Mailbox.TYPE_INBOX));
+
+        // Favorite -- show # of favorites
+        addSummaryMailboxRow(context, cursor,
+                Mailbox.QUERY_ALL_FAVORITES, Mailbox.TYPE_MAIL,
+                Message.getFavoriteMessageCount(context));
+
+        // Drafts -- show # of drafts
+        addSummaryMailboxRow(context, cursor,
+                Mailbox.QUERY_ALL_DRAFTS, Mailbox.TYPE_DRAFTS,
+                Mailbox.getMessageCountByMailboxType(context, Mailbox.TYPE_DRAFTS));
+
+        // Outbox -- # of sent messages
+        addSummaryMailboxRow(context, cursor,
+                Mailbox.QUERY_ALL_OUTBOX, Mailbox.TYPE_OUTBOX,
+                Mailbox.getMessageCountByMailboxType(context, Mailbox.TYPE_OUTBOX));
+
+        return cursor;
+    }
+
+    private static void addSummaryMailboxRow(Context context, MatrixCursor cursor,
+            long id, int type, int count) {
+        if (count > 0) {
+            RowBuilder row = cursor.newRow();
+            row.add(id);
+            row.add(""); // Display name.  We get it from FolderProperties.
+            row.add(type);
+            row.add(count);
+            row.add(count);
+        }
     }
 }
