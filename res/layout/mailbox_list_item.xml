@@ -45,12 +45,6 @@
             android:layout_height="wrap_content"
             android:textAppearance="?android:attr/textAppearanceMedium"
             android:textColor="?android:attr/textColorPrimary" />
-        <TextView
-            android:id="@+id/mailbox_status"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:textAppearance="?android:attr/textAppearanceSmall"
-            android:textColor="?android:attr/textColorTertiary" />
     </LinearLayout>
     <TextView
         android:id="@+id/new_message_count"
