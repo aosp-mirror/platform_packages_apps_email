@@ -461,9 +461,6 @@ public class SecurityPolicy {
             if (passwordMode < PASSWORD_MODE_NONE || passwordMode > PASSWORD_MODE_STRONG) {
                 throw new IllegalArgumentException("password mode");
             }
-            if (maxScreenLockTime > SCREEN_LOCK_TIME_MAX) {
-                throw new IllegalArgumentException("screen lock time");
-            }
             // This value can be reduced (which actually increases security) if necessary
             if (maxPasswordFails > PASSWORD_MAX_FAILS_MAX) {
                 maxPasswordFails = PASSWORD_MAX_FAILS_MAX;
