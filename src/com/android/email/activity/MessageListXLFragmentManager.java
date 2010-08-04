@@ -18,9 +18,11 @@ package com.android.email.activity;
 
 import com.android.email.Email;
 import com.android.email.R;
+import com.android.email.provider.EmailContent.Mailbox;
 
 import android.app.Fragment;
 import android.app.FragmentTransaction;
+import android.content.Context;
 import android.os.Bundle;
 import android.util.Log;
 
@@ -51,6 +53,8 @@ class MessageListXLFragmentManager {
     private static final String BUNDLE_KEY_MAILBOX_ID = "MessageListXl.state.mailbox_id";
     private static final String BUNDLE_KEY_MESSAGE_ID = "MessageListXl.state.message_id";
 
+    private final Context mContext;
+
     /**
      * List of fragments that are restored by the framework when the activity is being re-created.
      * (e.g. for orientation change)
@@ -76,9 +80,13 @@ class MessageListXLFragmentManager {
     private MessageListFragment.Callback mMessageListFragmentCallback;
     private MessageViewFragment.Callback mMessageViewFragmentCallback;
 
+    private MailboxFinder mMailboxFinder;
+    private final MailboxFinderCallback mMailboxFinderCallback = new MailboxFinderCallback();
+
     /**
      * The interface that {@link MessageListXL} implements.  We don't call its methods directly,
-     * in the hope that it'll make writing tests easier.
+     * in the hope that it'll make writing tests easier, and make it clear which methods are needed
+     * for MessageListXLFragmentManager.
      */
     public interface TargetActivity {
         public FragmentTransaction openFragmentTransaction();
@@ -92,12 +100,18 @@ class MessageListXLFragmentManager {
          * {@link MessageListXL} uses it to hide the navigation buttons.
          */
         public void onMessageViewFragmentHidden();
+
+        /**
+         * Called when the selected account is on security-hold.
+         */
+        public void onAccountSecurityHold();
     }
 
     private final TargetActivity mTargetActivity;
 
-    public MessageListXLFragmentManager(TargetActivity targetActivity) {
-        mTargetActivity = targetActivity;
+    public MessageListXLFragmentManager(MessageListXL activity) {
+        mContext = activity;
+        mTargetActivity = activity;
     }
 
     /** Set callback for fragment. */
@@ -165,6 +179,7 @@ class MessageListXLFragmentManager {
             return;
         }
         mIsActivityStarted = false;
+        closeMailboxFinder();
     }
 
     public void onSaveInstanceState(Bundle outState) {
@@ -268,7 +283,7 @@ class MessageListXLFragmentManager {
             Log.w(Email.LOG_TAG, "MailboxListFragment not set yet.");
         }
 
-        // TODO Open the inbox on the right pane.
+        startInboxLookup();
     }
 
     private void updateMailboxListFragment(MailboxListFragment fragment) {
@@ -380,4 +395,56 @@ class MessageListXLFragmentManager {
         fragment.openMessage(mMessageId);
         mTargetActivity.onMessageViewFragmentShown(getAccountId(), getMailboxId(), getMessageId());
     }
+
+    private void startInboxLookup() {
+        if (Email.DEBUG_LIFECYCLE && Email.DEBUG) {
+            Log.d(Email.LOG_TAG, "startLookForInbox account=" + mAccountId);
+        }
+        closeMailboxFinder();
+        mMailboxFinder = new MailboxFinder(mContext, mAccountId, Mailbox.TYPE_INBOX,
+                mMailboxFinderCallback);
+        mMailboxFinder.startLookup();
+    }
+
+    private void closeMailboxFinder() {
+        if (mMailboxFinder != null) {
+            mMailboxFinder.close();
+            mMailboxFinder = null;
+        }
+    }
+
+    private class MailboxFinderCallback implements MailboxFinder.Callback {
+        @Override
+        public void onAccountNotFound() {
+            if (Email.DEBUG_LIFECYCLE && Email.DEBUG) {
+                Log.d(Email.LOG_TAG, "MailboxFinderCallback.onAccountNotFound");
+            }
+            // Shouldn't happen
+        }
+
+        @Override
+        public void onAccountSecurityHold(long accountId) {
+            if (Email.DEBUG_LIFECYCLE && Email.DEBUG) {
+                Log.d(Email.LOG_TAG, "MailboxFinderCallback.onAccountSecurityHold");
+            }
+            mTargetActivity.onAccountSecurityHold();
+        }
+
+        @Override
+        public void onMailboxFound(long accountId, long mailboxId) {
+            if (Email.DEBUG_LIFECYCLE && Email.DEBUG) {
+                Log.d(Email.LOG_TAG, "  Found inbox");
+            }
+            selectMailbox(mailboxId);
+        }
+
+        @Override
+        public void onMailboxNotFound(long accountId) {
+            if (Email.DEBUG_LIFECYCLE && Email.DEBUG) {
+                Log.d(Email.LOG_TAG, "MailboxFinderCallback.onMailboxNotFound");
+            }
+            // Shouldn't happen
+        }
+    }
+
 }

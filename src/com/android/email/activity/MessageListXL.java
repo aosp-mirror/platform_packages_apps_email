@@ -355,6 +355,11 @@ public class MessageListXL extends Activity implements View.OnClickListener,
         stopMessageOrderManager();
     }
 
+    @Override
+    public void onAccountSecurityHold() {
+        // TODO: implement this
+    }
+
     private void loadAccounts() {
         getLoaderManager().initLoader(LOADER_ID_ACCOUNT_LIST, null, new LoaderCallbacks<Cursor>() {
             @Override
