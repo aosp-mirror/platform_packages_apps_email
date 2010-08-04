@@ -86,7 +86,7 @@
     <string name="mailbox_list_title" msgid="8299608543467211089">"Почтовый ящик"</string>
     <string name="message_list_load_more_messages_action" msgid="7428302707908825692">"Загрузить еще сообщения"</string>
     <string name="message_list_send_pending_messages_action" msgid="9100624762133992435">"Отправить исходящие сообщения"</string>
-    <string name="message_compose_to_hint" msgid="2891895306418177013">"Язык перевода:"</string>
+    <string name="message_compose_to_hint" msgid="2891895306418177013">"Получатели"</string>
     <string name="message_compose_cc_hint" msgid="8481884461031434144">"Копия"</string>
     <string name="message_compose_bcc_hint" msgid="9177337492358841680">"Скрытая копия"</string>
     <string name="message_compose_subject_hint" msgid="6993487234024160782">"Тема"</string>

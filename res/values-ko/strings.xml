@@ -140,7 +140,7 @@
     <string name="account_duplicate_dlg_message_fmt" msgid="1920726613701479851">"이 로그인은 이미 \'<xliff:g id="DUPLICATE">%s</xliff:g>\' 계정에서 사용 중입니다."</string>
     <string name="account_setup_check_settings_retr_info_msg" msgid="4121970450267725664">"계정 정보 검색 중... "</string>
     <string name="account_setup_check_settings_check_incoming_msg" msgid="5356212700221438863">"받는 서버 설정 확인 중..."</string>
-    <string name="account_setup_check_settings_check_outgoing_msg" msgid="4033015234096725343">"보내는 서버 설정 확인 중..."</string>
+    <string name="account_setup_check_settings_check_outgoing_msg" msgid="4033015234096725343">"발신 서버 설정 확인 중..."</string>
     <string name="account_setup_check_settings_canceling_msg" msgid="5077315503721883906">"취소 중..."</string>
     <string name="account_setup_names_title" msgid="8875040521875381849">"이메일 설정"</string>
     <string name="account_setup_names_instructions" msgid="2880279273965835007">"계정이 성공적으로 등록되어 이메일을 사용할 수 있습니다."</string>
@@ -165,11 +165,11 @@
     <string name="account_setup_incoming_delete_policy_delete_label" msgid="222216840911785631">"받은편지함에서 삭제할 때"</string>
     <string name="account_setup_incoming_imap_path_prefix_label" msgid="401167247072926810">"IMAP 경로 접두어"</string>
     <string name="account_setup_incoming_imap_path_prefix_hint" msgid="9190845919067906033">"선택사항"</string>
-    <string name="account_setup_outgoing_title" msgid="7437215562885986394">"보내는 서버 설정"</string>
+    <string name="account_setup_outgoing_title" msgid="7437215562885986394">"발신 서버 설정"</string>
     <string name="account_setup_outgoing_smtp_server_label" msgid="6035137446691195177">"SMTP 서버"</string>
     <string name="account_setup_outgoing_port_label" msgid="7573207437835827876">"포트"</string>
     <string name="account_setup_outgoing_security_label" msgid="911398071120720589">"보안 유형"</string>
-    <string name="account_setup_outgoing_require_login_label" msgid="6371514297854287948">"로그인해야 합니다."</string>
+    <string name="account_setup_outgoing_require_login_label" msgid="6371514297854287948">"로그인 필요"</string>
     <string name="account_setup_outgoing_username_label" msgid="3309680794731596981">"사용자 이름"</string>
     <string name="account_setup_outgoing_password_label" msgid="227844585493317550">"비밀번호"</string>
     <string name="account_setup_exchange_title" msgid="2492853474738063453">"서버 설정"</string>
