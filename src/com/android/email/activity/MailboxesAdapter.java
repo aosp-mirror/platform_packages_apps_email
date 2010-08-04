@@ -18,13 +18,13 @@ package com.android.email.activity;
 
 import com.android.email.R;
 import com.android.email.Utility;
+import com.android.email.data.ThrottlingCursorLoader;
 import com.android.email.provider.EmailContent;
 import com.android.email.provider.EmailContent.Mailbox;
 import com.android.email.provider.EmailContent.MailboxColumns;
 import com.android.email.provider.EmailContent.Message;
 
 import android.content.Context;
-import android.content.CursorLoader;
 import android.content.Loader;
 import android.database.Cursor;
 import android.database.MatrixCursor;
@@ -48,6 +48,8 @@ import android.widget.TextView;
  * TODO Unit test, when UI is settled.
  */
 /* package */ class MailboxesAdapter extends CursorAdapter {
+    private static final int AUTO_REQUERY_TIMEOUT = 5000; // in ms
+
     private static final String[] PROJECTION = new String[] { MailboxColumns.ID,
             MailboxColumns.DISPLAY_NAME, MailboxColumns.TYPE, MailboxColumns.UNREAD_COUNT,
             MailboxColumns.MESSAGE_COUNT};
@@ -136,7 +138,7 @@ import android.widget.TextView;
      * Loader for mailboxes.  If there's more than 1 account set up, the result will also include
      * special mailboxes.  (e.g. combined inbox, etc)
      */
-    private static class MailboxesLoader extends CursorLoader {
+    private static class MailboxesLoader extends ThrottlingCursorLoader {
         private final Context mContext;
 
         public MailboxesLoader(Context context, long accountId) {
@@ -144,7 +146,7 @@ import android.widget.TextView;
                     MailboxesAdapter.PROJECTION,
                     MAILBOX_SELECTION,
                     new String[] { String.valueOf(accountId) },
-                    MailboxColumns.TYPE + "," + MailboxColumns.DISPLAY_NAME);
+                    MailboxColumns.TYPE + "," + MailboxColumns.DISPLAY_NAME, AUTO_REQUERY_TIMEOUT);
             mContext = context;
         }
 
