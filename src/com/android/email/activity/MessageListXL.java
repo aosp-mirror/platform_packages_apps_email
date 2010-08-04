@@ -375,8 +375,7 @@ MessageListXLFragmentManager.TargetActivity {
         // Find the currently selected account, and select it.
         int defaultSelection = 0;
         if (mFragmentManager.isAccountSelected()) {
-            // Need to change the selection
-            accountsCursor.moveToFirst();
+            accountsCursor.moveToPosition(-1);
             int i = 0;
             while (accountsCursor.moveToNext()) {
                 final long accountId = AccountSelectorAdapter.getAccountId(accountsCursor);

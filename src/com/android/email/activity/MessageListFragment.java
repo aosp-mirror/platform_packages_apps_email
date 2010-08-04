@@ -167,7 +167,7 @@ public class MessageListFragment extends ListFragment implements OnItemClickList
 
         if (savedInstanceState != null) {
             // Fragment doesn't have this method.  Call it manually.
-            onRestoreInstanceState(savedInstanceState);
+            loadState(savedInstanceState);
         }
     }
 
@@ -238,7 +238,7 @@ public class MessageListFragment extends ListFragment implements OnItemClickList
     }
 
     // Unit tests use it
-    /* package */ void onRestoreInstanceState(Bundle savedInstanceState) {
+    /* package */ void loadState(Bundle savedInstanceState) {
         mSavedItemTop = savedInstanceState.getInt(STATE_SELECTED_ITEM_TOP, 0);
         mSavedItemPosition = savedInstanceState.getInt(STATE_SELECTED_POSITION, -1);
         Set<Long> checkedset = mListAdapter.getSelectedSet();

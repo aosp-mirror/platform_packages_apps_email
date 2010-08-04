@@ -16,6 +16,7 @@
 
 package com.android.email.activity;
 
+import com.android.email.Email;
 import com.android.email.R;
 import com.android.email.Utility;
 import com.android.email.data.ThrottlingCursorLoader;
@@ -31,6 +32,7 @@ import android.database.MatrixCursor;
 import android.database.MatrixCursor.RowBuilder;
 import android.database.MergeCursor;
 import android.graphics.Typeface;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -48,7 +50,7 @@ import android.widget.TextView;
  * TODO Unit test, when UI is settled.
  */
 /* package */ class MailboxesAdapter extends CursorAdapter {
-    private static final int AUTO_REQUERY_TIMEOUT = 5000; // in ms
+    private static final int AUTO_REQUERY_TIMEOUT = 3 * 1000; // in ms
 
     private static final String[] PROJECTION = new String[] { MailboxColumns.ID,
             MailboxColumns.DISPLAY_NAME, MailboxColumns.TYPE, MailboxColumns.UNREAD_COUNT,
@@ -131,6 +133,9 @@ import android.widget.TextView;
      * @return mailboxes Loader for an account.
      */
     public static Loader<Cursor> createLoader(Context context, long accountId) {
+        if (Email.DEBUG_LIFECYCLE && Email.DEBUG) {
+            Log.d(Email.LOG_TAG, "MailboxesAdapter createLoader accountId=" + accountId);
+        }
         return new MailboxesLoader(context, accountId);
     }
 

@@ -25,7 +25,6 @@ import android.app.LoaderManager.LoaderCallbacks;
 import android.content.Loader;
 import android.database.Cursor;
 import android.os.Bundle;
-import android.os.Parcelable;
 import android.util.Log;
 import android.view.View;
 import android.widget.AdapterView;
@@ -41,6 +40,8 @@ import java.security.InvalidParameterException;
  *  - call bindActivityInfo() to provide the account ID and set callbacks
  *  - provide callbacks for onOpen and onRefresh
  *  - pass-through implementations of onCreateContextMenu() and onContextItemSelected() (temporary)
+ *
+ * TODO Restoring ListView state -- don't do this when changing accounts
  */
 public class MailboxListFragment extends ListFragment implements OnItemClickListener {
     private static final int LOADER_ID_MAILBOX_LIST = 1;
