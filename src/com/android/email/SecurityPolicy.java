@@ -28,8 +28,6 @@ import android.app.PendingIntent;
 import android.app.admin.DeviceAdminReceiver;
 import android.app.admin.DevicePolicyManager;
 import android.content.ComponentName;
-import android.content.ContentResolver;
-import android.content.ContentUris;
 import android.content.ContentValues;
 import android.content.Context;
 import android.content.Intent;
@@ -479,9 +477,6 @@ public class SecurityPolicy {
             if ((passwordMode != PASSWORD_MODE_NONE) && (passwordMode != PASSWORD_MODE_SIMPLE) &&
                     (passwordMode != PASSWORD_MODE_STRONG)) {
                 throw new IllegalArgumentException("password mode");
-            }
-            if (maxScreenLockTime > SCREEN_LOCK_TIME_MAX) {
-                throw new IllegalArgumentException("screen lock time");
             }
             if (passwordExpiration > PASSWORD_EXPIRATION_MAX) {
                 throw new IllegalArgumentException("password expiration");
