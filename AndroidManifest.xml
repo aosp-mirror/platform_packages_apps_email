@@ -59,24 +59,12 @@
     <application android:icon="@drawable/icon" android:label="@string/app_name"
         android:name="Email">
         <activity
-            android:name=".activity.Welcome">
-            <intent-filter>
-                <action android:name="android.intent.action.MAIN" />
-                <category android:name="android.intent.category.DEFAULT" />
-                <category android:name="android.intent.category.LAUNCHER" />
-            </intent-filter>
-        </activity>
-        <!--
-            We show this on the home for the development purpose.
-            STOPSHIP: Remove label, and MAIN/LAUNCHER intent filter.
-        -->
-        <activity
-            android:name=".activity.MessageListXL"
-            android:label="@string/activity_label_2pane"
-            android:theme="@android:style/Theme.WithActionBar"
+            android:name=".activity.Welcome"
+            android:theme="@android:style/Theme.WithActionBar" >
             >
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
+                <category android:name="android.intent.category.DEFAULT" />
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
         </activity>
@@ -180,10 +168,11 @@
         <activity
             android:name=".activity.MessageList"
             android:theme="@style/ThemeNoTitleBar">
-            <intent-filter>
-                <!-- This action is only to allow an entry point for launcher shortcuts -->
-                <action android:name="android.intent.action.MAIN" />
-            </intent-filter>
+        </activity>
+        <activity
+            android:name=".activity.MessageListXL"
+            android:theme="@android:style/Theme.WithActionBar"
+            >
         </activity>
 
         <!--
@@ -419,6 +408,30 @@
           <meta-data android:name="android.content.ContactDirectory" android:value="true"/>
         </provider>
         <!--EXCHANGE-REMOVE-SECTION-END-->
+
+        <!--
+            STOPSHIP: These aliases are only for development.  Remove them.
+        -->
+        <activity-alias
+            android:name="dev_one_pane"
+            android:label="@string/activity_label_1pane"
+            android:targetActivity=".activity.AccountFolderList"
+            >
+            <intent-filter>
+                <action android:name="android.intent.action.MAIN" />
+                <category android:name="android.intent.category.LAUNCHER" />
+            </intent-filter>
+        </activity-alias>
+        <activity-alias
+            android:name="dev_two_pane"
+            android:label="@string/activity_label_2pane"
+            android:targetActivity=".activity.MessageListXL"
+            >
+            <intent-filter>
+                <action android:name="android.intent.action.MAIN" />
+                <category android:name="android.intent.category.LAUNCHER" />
+            </intent-filter>
+        </activity-alias>
 
     </application>
 </manifest>

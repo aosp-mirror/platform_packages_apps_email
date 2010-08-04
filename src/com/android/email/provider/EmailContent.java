@@ -145,6 +145,7 @@ public abstract class EmailContent {
 
     /**
      * Generic count method that can be used for any ContentProvider
+     *
      * @param context the calling Context
      * @param uri the Uri for the provider query
      * @param selection as with a query call
@@ -154,6 +155,13 @@ public abstract class EmailContent {
     static public int count(Context context, Uri uri, String selection, String[] selectionArgs) {
         return Utility.getFirstRowLong(context,
                 uri, COUNT_COLUMNS, selection, selectionArgs, null, 0, Long.valueOf(0)).intValue();
+    }
+
+    /**
+     * Same as {@link #count(Context, Uri, String, String[])} without selection.
+     */
+    static public int count(Context context, Uri uri) {
+        return count(context, uri, null, null);
     }
 
     /**

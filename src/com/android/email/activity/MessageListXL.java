@@ -24,6 +24,7 @@ import android.app.Activity;
 import android.app.Fragment;
 import android.app.LoaderManager.LoaderCallbacks;
 import android.content.Context;
+import android.content.Intent;
 import android.content.Loader;
 import android.content.pm.ActivityInfo;
 import android.database.Cursor;
@@ -61,6 +62,10 @@ MessageListXLFragmentManager.TargetActivity {
 
     private final MessageOrderManagerCallback mMessageOrderManagerCallback
             = new MessageOrderManagerCallback();
+
+    public static void actionStart(Activity fromActivity) {
+        fromActivity.startActivity(new Intent(fromActivity, MessageListXL.class));
+    }
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {

@@ -29,7 +29,9 @@ import android.accounts.AccountManager;
 import android.accounts.OnAccountsUpdateListener;
 import android.app.Activity;
 import android.content.Intent;
+import android.content.res.Configuration;
 import android.database.Cursor;
+import android.os.AsyncTask;
 import android.os.Bundle;
 import android.os.Handler;
 
@@ -94,34 +96,7 @@ public class Welcome extends Activity {
         // Run reconciliation to make sure we're up-to-date on account status
         mAccountsUpdatedListener.onAccountsUpdated(null);
 
-        // Find out how many accounts we have, and if there's just one, go directly to it
-        Cursor c = null;
-        try {
-            c = getContentResolver().query(
-                    EmailContent.Account.CONTENT_URI,
-                    EmailContent.Account.ID_PROJECTION,
-                    null, null, null);
-            switch (c.getCount()) {
-                case 0:
-                    AccountSetupBasics.actionNewAccount(this);
-                    break;
-                case 1:
-                    c.moveToFirst();
-                    long accountId = c.getLong(EmailContent.Account.CONTENT_ID_COLUMN);
-                    MessageList.actionHandleAccount(this, accountId, Mailbox.TYPE_INBOX);
-                    break;
-                default:
-                    AccountFolderList.actionShowAccounts(this);
-                    break;
-            }
-        } finally {
-            if (c != null) {
-                c.close();
-            }
-        }
-
-        // In all cases, do not return to this activity
-        finish();
+        new MainActivityLauncher(this).execute();
     }
 
     @Override
@@ -142,6 +117,51 @@ public class Welcome extends Activity {
                     MailService.reconcilePopImapAccounts(Welcome.this);
                 }
             });
+        }
+    }
+
+    /**
+     * Open the Activity appropriate to the current configuration.
+     *
+     * - If there's 0 accounts, open AccountSetupBasics.
+     * - If it has XL screen, open MessageListXL.
+     * - If there's 1 account, open MessageList.
+     * - Otherwise open AccountFolderList.
+     */
+    private static class MainActivityLauncher extends AsyncTask<Void, Void, Void> {
+        private final Activity mFromActivity;
+
+        public MainActivityLauncher(Activity fromActivity) {
+            mFromActivity = fromActivity;
+        }
+
+        @Override
+        protected Void doInBackground(Void... params) {
+            final int numAccount =
+                    EmailContent.count(mFromActivity, EmailContent.Account.CONTENT_URI);
+            if (numAccount == 0) {
+                AccountSetupBasics.actionNewAccount(mFromActivity);
+            } else {
+                final int screenLayout = mFromActivity.getResources().getConfiguration()
+                        .screenLayout;
+                if ((screenLayout & Configuration.SCREENLAYOUT_SIZE_XLARGE) != 0) {
+                    MessageListXL.actionStart(mFromActivity);
+                } else {
+                    if (numAccount == 1) {
+                        long accountId = EmailContent.Account.getDefaultAccountId(mFromActivity);
+                        MessageList.actionHandleAccount(mFromActivity, accountId,
+                                Mailbox.TYPE_INBOX);
+                    } else {
+                        AccountFolderList.actionShowAccounts(mFromActivity);
+                    }
+                }
+            }
+            return null;
+        }
+
+        @Override
+        protected void onPostExecute(Void result) {
+            mFromActivity.finish();
         }
     }
 }
