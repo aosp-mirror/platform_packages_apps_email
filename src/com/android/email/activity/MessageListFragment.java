@@ -910,11 +910,11 @@ public class MessageListFragment extends ListFragment implements OnItemClickList
             }
             MessageListFragment.this.mAccountId = mAccountKey;
 
-            addFooterView(mMailboxKey, mAccountKey);
-
             // TODO changeCursor(null)??
             mListAdapter.changeCursor(cursor);
             setListAdapter(mListAdapter);
+
+            addFooterView(mMailboxKey, mAccountKey);
 
             // changeCursor occurs the jumping of position in ListView, so it's need to restore
             // the position;

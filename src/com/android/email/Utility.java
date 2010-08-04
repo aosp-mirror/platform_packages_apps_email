@@ -35,11 +35,13 @@ import android.database.Cursor;
 import android.graphics.drawable.Drawable;
 import android.net.Uri;
 import android.os.AsyncTask;
+import android.os.Parcelable;
 import android.security.MessageDigest;
 import android.telephony.TelephonyManager;
 import android.text.TextUtils;
 import android.util.Base64;
 import android.util.Log;
+import android.widget.AbsListView;
 import android.widget.TextView;
 import android.widget.Toast;
 
@@ -316,18 +318,24 @@ public class Utility {
         return selection.toString();
     }
 
+    // TODO When the UI is settled, cache all strings/drawables
+    // TODO When the UI is settled, write up tests
+    // TODO When the UI is settled, remove backward-compatibility methods
     public static class FolderProperties {
 
         private static FolderProperties sInstance;
 
+        private final Context mContext;
+
         // Caches for frequently accessed resources.
-        private String[] mSpecialMailbox = new String[] {};
-        private TypedArray mSpecialMailboxDrawable;
-        private Drawable mDefaultMailboxDrawable;
-        private Drawable mSummaryStarredMailboxDrawable;
-        private Drawable mSummaryCombinedInboxDrawable;
+        private final String[] mSpecialMailbox;
+        private final TypedArray mSpecialMailboxDrawable;
+        private final Drawable mDefaultMailboxDrawable;
+        private final Drawable mSummaryStarredMailboxDrawable;
+        private final Drawable mSummaryCombinedInboxDrawable;
 
         private FolderProperties(Context context) {
+            mContext = context.getApplicationContext();
             mSpecialMailbox = context.getResources().getStringArray(R.array.mailbox_display_names);
             for (int i = 0; i < mSpecialMailbox.length; ++i) {
                 if ("".equals(mSpecialMailbox[i])) {
@@ -352,12 +360,41 @@ public class Utility {
             return sInstance;
         }
 
+        // For backward compatibility.
+        public String getDisplayName(int type) {
+            return getDisplayName(type, -1);
+        }
+
+        // For backward compatibility.
+        public Drawable getSummaryMailboxIconIds(long id) {
+            return getIcon(-1, id);
+        }
+
+        public Drawable getIconIds(int type) {
+            return getIcon(type, -1);
+        }
+
         /**
          * Lookup names of localized special mailboxes
-         * @param type
-         * @return Localized strings
          */
-        public String getDisplayName(int type) {
+        public String getDisplayName(int type, long mailboxId) {
+            // Special combined mailboxes
+            int resId = 0;
+
+            // Can't use long for switch!?
+            if (mailboxId == Mailbox.QUERY_ALL_INBOXES) {
+                resId = R.string.account_folder_list_summary_inbox;
+            } else if (mailboxId == Mailbox.QUERY_ALL_FAVORITES) {
+                resId = R.string.account_folder_list_summary_starred;
+            } else if (mailboxId == Mailbox.QUERY_ALL_DRAFTS) {
+                resId = R.string.account_folder_list_summary_drafts;
+            } else if (mailboxId == Mailbox.QUERY_ALL_OUTBOX) {
+                resId = R.string.account_folder_list_summary_outbox;
+            }
+            if (resId != 0) {
+                return mContext.getString(resId);
+            }
+
             if (type < mSpecialMailbox.length) {
                 return mSpecialMailbox[type];
             }
@@ -366,25 +403,19 @@ public class Utility {
 
         /**
          * Lookup icons of special mailboxes
-         * @param type
-         * @return icon's drawable
          */
-        public Drawable getIconIds(int type) {
-            if (type < mSpecialMailboxDrawable.length()) {
-                return mSpecialMailboxDrawable.getDrawable(type);
-            }
-            return mDefaultMailboxDrawable;
-        }
-
-        public Drawable getSummaryMailboxIconIds(long mailboxKey) {
-            if (mailboxKey == Mailbox.QUERY_ALL_INBOXES) {
+        public Drawable getIcon(int type, long mailboxId) {
+            if (mailboxId == Mailbox.QUERY_ALL_INBOXES) {
                 return mSummaryCombinedInboxDrawable;
-            } else if (mailboxKey == Mailbox.QUERY_ALL_FAVORITES) {
+            } else if (mailboxId == Mailbox.QUERY_ALL_FAVORITES) {
                 return mSummaryStarredMailboxDrawable;
-            } else if (mailboxKey == Mailbox.QUERY_ALL_DRAFTS) {
+            } else if (mailboxId == Mailbox.QUERY_ALL_DRAFTS) {
                 return mSpecialMailboxDrawable.getDrawable(Mailbox.TYPE_DRAFTS);
-            } else if (mailboxKey == Mailbox.QUERY_ALL_OUTBOX) {
+            } else if (mailboxId == Mailbox.QUERY_ALL_OUTBOX) {
                 return mSpecialMailboxDrawable.getDrawable(Mailbox.TYPE_OUTBOX);
+            }
+            if (0 <= type && type < mSpecialMailboxDrawable.length()) {
+                return mSpecialMailboxDrawable.getDrawable(type);
             }
             return mDefaultMailboxDrawable;
         }
@@ -772,5 +803,22 @@ public class Utility {
             String selection, String[] selectionArgs, String sortOrder, int column) {
         return getFirstRowLong(context, uri, projection, selection, selectionArgs,
                 sortOrder, column, null);
+    }
+
+    /**
+     * A class used to restore ListView state (e.g. scroll position) when changing adapter.
+     *
+     * TODO For some reason it doesn't always work.  Investigate and fix it.
+     */
+    public static class ListStateSaver {
+        private final Parcelable mState;
+
+        public ListStateSaver(AbsListView lv) {
+            mState = lv.onSaveInstanceState();
+        }
+
+        public void restore(AbsListView lv) {
+            lv.onRestoreInstanceState(mState);
+        }
     }
 }

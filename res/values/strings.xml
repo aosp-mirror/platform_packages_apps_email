@@ -187,11 +187,11 @@
     <!-- The summary section entry in the AccountFolder list to display all inboxes -->
     <string name="account_folder_list_summary_inbox">Combined Inbox</string>
     <!-- The summary section entry in the AccountFolder list to display all starred -->
-    <string name="account_folder_list_summary_starred">Starred</string>
+    <string name="account_folder_list_summary_starred">All Starred</string>
     <!-- The summary section entry in the AccountFolder list to display all drafts -->
-    <string name="account_folder_list_summary_drafts">Drafts</string>
+    <string name="account_folder_list_summary_drafts">All Drafts</string>
     <!-- The summary section entry in the AccountFolder list to display all outboxes -->
-    <string name="account_folder_list_summary_outbox">Outbox</string>
+    <string name="account_folder_list_summary_outbox">Combined Outbox</string>
     <!-- Toast that appears when you select "Refresh" menu option -->
     <string name="account_folder_list_refresh_toast">Please longpress an account to refresh it</string>
 

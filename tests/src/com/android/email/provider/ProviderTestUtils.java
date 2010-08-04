@@ -137,20 +137,26 @@ public class ProviderTestUtils extends Assert {
 
     /**
      * Create a message for test purposes
-     *
-     * TODO: body
-     * TODO: attachments
      */
     public static Message setupMessage(String name, long accountId, long mailboxId,
             boolean addBody, boolean saveIt, Context context) {
+        // Default starred, read,  (backword compatibility)
+        return setupMessage(name, accountId, mailboxId, addBody, saveIt, context, true, true);
+    }
+
+    /**
+     * Create a message for test purposes
+     */
+    public static Message setupMessage(String name, long accountId, long mailboxId,
+            boolean addBody, boolean saveIt, Context context, boolean starred, boolean read) {
         Message message = new Message();
 
         message.mDisplayName = name;
         message.mTimeStamp = 100 + name.length();
         message.mSubject = "subject " + name;
-        message.mFlagRead = true;
+        message.mFlagRead = read;
         message.mFlagLoaded = Message.FLAG_LOADED_UNLOADED;
-        message.mFlagFavorite = true;
+        message.mFlagFavorite = starred;
         message.mFlagAttachment = true;
         message.mFlags = 0;
 
