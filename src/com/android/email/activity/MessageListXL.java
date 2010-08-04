@@ -31,6 +31,8 @@ import android.database.Cursor;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.KeyEvent;
+import android.view.Menu;
+import android.view.MenuItem;
 import android.view.View;
 
 // TODO Where/when/how do we close loaders??  Do we have to?  Getting this error:
@@ -411,6 +413,36 @@ public class MessageListXL extends Activity implements View.OnClickListener,
             mFragmentManager.selectAccount(accountId);
             return true;
         }
+    }
+
+    @Override
+    public boolean onCreateOptionsMenu(Menu menu) {
+        super.onCreateOptionsMenu(menu);
+        getMenuInflater().inflate(R.menu.message_list_xl_option, menu);
+        return true;
+    }
+
+    @Override
+    public boolean onOptionsItemSelected(MenuItem item) {
+        switch (item.getItemId()) {
+            case R.id.compose:
+                return onCompose();
+            case R.id.refresh:
+                // TODO Implement this
+                return true;
+            case R.id.account_settings:
+                // TODO Implement this
+                return true;
+        }
+        return super.onOptionsItemSelected(item);
+    }
+
+    private boolean onCompose() {
+        if (!mFragmentManager.isAccountSelected()) {
+            return false; // this shouldn't really happen
+        }
+        MessageCompose.actionCompose(this, mFragmentManager.getAccountId());
+        return true;
     }
 
     /**
