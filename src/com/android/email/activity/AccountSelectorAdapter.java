@@ -16,12 +16,13 @@
 
 package com.android.email.activity;
 
-import com.android.email.data.ThrottlingCursorLoader;
 import com.android.email.provider.EmailContent;
 
 import android.content.Context;
+import android.content.CursorLoader;
 import android.content.Loader;
 import android.database.Cursor;
+import android.net.Uri;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.CursorAdapter;
@@ -38,8 +39,6 @@ import android.widget.TextView;
  * TODO We actually don't need the auto-requery.  Just refresh it when we modify accounts.
  */
 public class AccountSelectorAdapter extends CursorAdapter {
-    private static final int AUTO_REQUERY_TIMEOUT = 5 * 1000; // in ms
-
     private static final String[] PROJECTION = new String[] {
         EmailContent.RECORD_ID,
         EmailContent.Account.DISPLAY_NAME,
@@ -55,8 +54,8 @@ public class AccountSelectorAdapter extends CursorAdapter {
             EmailContent.Account.IS_DEFAULT + " desc, " + EmailContent.Account.RECORD_ID;
 
     public static Loader<Cursor> createLoader(Context context) {
-        return new ThrottlingCursorLoader(context, EmailContent.Account.CONTENT_URI, PROJECTION,
-                null, null, ORDER_BY, AUTO_REQUERY_TIMEOUT);
+        return new NoAutoRequeryCursorLoader(context, EmailContent.Account.CONTENT_URI, PROJECTION,
+                null, null, ORDER_BY);
     }
 
     public AccountSelectorAdapter(Context context, Cursor c) {
@@ -77,5 +76,21 @@ public class AccountSelectorAdapter extends CursorAdapter {
     /** @return Account id extracted from a Cursor. */
     public static long getAccountId(Cursor c) {
         return c.getLong(ID_COLUMN);
+    }
+
+    /**
+     * Same as {@link CursorLoader} but it doesn't auto-requery when it gets content-changed
+     * notifications.
+     */
+    private static class NoAutoRequeryCursorLoader extends CursorLoader {
+        public NoAutoRequeryCursorLoader(Context context, Uri uri, String[] projection,
+                String selection, String[] selectionArgs, String sortOrder) {
+            super(context, uri, projection, selection, selectionArgs, sortOrder);
+        }
+
+        @Override
+        public void onContentChanged() {
+            // Don't reload.
+        }
     }
 }

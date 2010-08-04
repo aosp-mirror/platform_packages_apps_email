@@ -40,9 +40,12 @@ import android.view.View;
 
 /**
  * The main (two-pane) activity for XL devices.
+ *
+ * TODO Refresh account list when adding/removing/changing(e.g. display name) accounts.
+ *      -> Need the MessageList.onResume logic.  Figure out a clean way to do that.
  */
 public class MessageListXL extends Activity implements View.OnClickListener,
-MessageListXLFragmentManager.TargetActivity {
+        MessageListXLFragmentManager.TargetActivity {
     private static final int LOADER_ID_ACCOUNT_LIST = 0;
 
     private Context mContext;
