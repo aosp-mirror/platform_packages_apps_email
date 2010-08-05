@@ -103,21 +103,8 @@ public class EasAuthenticatorService extends Service {
                 ContentResolver.setSyncAutomatically(account, EmailContent.AUTHORITY, syncEmail);
 
                 // Register our GAL provider
-                ContentValues values = new ContentValues();
-                values.put(Directory.DIRECTORY_AUTHORITY,
-                        ExchangeDirectoryProvider.EXCHANGE_GAL_AUTHORITY);
-                values.put(Directory.ACCOUNT_NAME, account.name);
-                values.put(Directory.ACCOUNT_TYPE, account.type);
-                values.put(Directory.PACKAGE_NAME, mContext.getPackageName());
-                if (VendorPolicyLoader.getInstance(EasAuthenticatorService.this)
-                        .useAlternateExchangeStrings()) {
-                    values.put(Directory.TYPE_RESOURCE_ID, R.string.exchange_name_alternate);
-                } else {
-                    values.put(Directory.TYPE_RESOURCE_ID, R.string.exchange_name);
-                }
-                values.put(Directory.DISPLAY_NAME, account.name);
-                values.put(Directory.EXPORT_SUPPORT, Directory.EXPORT_SUPPORT_SAME_ACCOUNT_ONLY);
-                getContentResolver().insert(Directory.CONTENT_URI, values);
+                ContactsContract.Directory.notifyDirectoryChange(getContentResolver());
+
                 Bundle b = new Bundle();
                 b.putString(AccountManager.KEY_ACCOUNT_NAME, options.getString(OPTIONS_USERNAME));
                 b.putString(AccountManager.KEY_ACCOUNT_TYPE, Email.EXCHANGE_ACCOUNT_MANAGER_TYPE);

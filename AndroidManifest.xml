@@ -415,7 +415,9 @@
             android:authorities="com.android.exchange.directory.provider"
             android:readPermission="android.permission.READ_CONTACTS"
             android:multiprocess="false"
-            />
+            >
+          <meta-data android:name="android.content.ContactDirectory" android:value="true"/>
+        </provider>
         <!--EXCHANGE-REMOVE-SECTION-END-->
 
     </application>

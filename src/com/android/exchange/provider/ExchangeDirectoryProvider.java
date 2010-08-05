@@ -16,12 +16,15 @@
 
 package com.android.exchange.provider;
 
+import com.android.email.R;
+import com.android.email.VendorPolicyLoader;
 import com.android.email.mail.PackedString;
 import com.android.email.provider.EmailContent.Account;
 import com.android.exchange.EasSyncService;
 import com.android.exchange.SyncManager;
 import com.android.exchange.provider.GalResult.GalData;
 
+import android.accounts.AccountManager;
 import android.content.ContentProvider;
 import android.content.ContentValues;
 import android.content.UriMatcher;
@@ -35,6 +38,7 @@ import android.provider.ContactsContract.CommonDataKinds.Phone;
 import android.provider.ContactsContract.CommonDataKinds.StructuredName;
 import android.provider.ContactsContract.Contacts;
 import android.provider.ContactsContract.Contacts.Data;
+import android.provider.ContactsContract.Directory;
 import android.provider.ContactsContract.RawContacts;
 import android.text.TextUtils;
 
@@ -51,16 +55,17 @@ public class ExchangeDirectoryProvider extends ContentProvider {
     private static final int DEFAULT_CONTACT_ID = 1;
 
     private static final int GAL_BASE = 0;
-    private static final int GAL_FILTER = GAL_BASE;
-    private static final int GAL_CONTACT = GAL_BASE + 1;
-    private static final int GAL_CONTACT_WITH_ID = GAL_BASE + 2;
+    private static final int GAL_DIRECTORIES = GAL_BASE;
+    private static final int GAL_FILTER = GAL_BASE + 1;
+    private static final int GAL_CONTACT = GAL_BASE + 2;
+    private static final int GAL_CONTACT_WITH_ID = GAL_BASE + 3;
 
     private static final UriMatcher sURIMatcher = new UriMatcher(UriMatcher.NO_MATCH);
 
     static {
+        sURIMatcher.addURI(EXCHANGE_GAL_AUTHORITY, "directories", GAL_DIRECTORIES);
         sURIMatcher.addURI(EXCHANGE_GAL_AUTHORITY, "contacts/filter/*", GAL_FILTER);
-        sURIMatcher.addURI(EXCHANGE_GAL_AUTHORITY, "contacts/lookup/*/entities",
-                GAL_CONTACT);
+        sURIMatcher.addURI(EXCHANGE_GAL_AUTHORITY, "contacts/lookup/*/entities", GAL_CONTACT);
         sURIMatcher.addURI(EXCHANGE_GAL_AUTHORITY, "contacts/lookup/*/#/entities",
                 GAL_CONTACT_WITH_ID);
     }
@@ -163,30 +168,66 @@ public class ExchangeDirectoryProvider extends ContentProvider {
     @Override
     public Cursor query(Uri uri, String[] projection, String selection, String[] selectionArgs,
             String sortOrder) {
-        String accountName = uri.getQueryParameter(RawContacts.ACCOUNT_NAME);
-        if (accountName == null) {
-            return null;
-        }
-
-        Account account = SyncManager.getAccountByName(accountName);
-        if (account == null) {
-            return null;
-        }
-
         int match = sURIMatcher.match(uri);
         MatrixCursor cursor;
         Object[] row;
         PackedString ps;
-        List<String> pathSegments = uri.getPathSegments();
         String lookupKey;
 
         switch (match) {
+            case GAL_DIRECTORIES: {
+                // Assuming that GAL can be used with all exchange accounts
+                android.accounts.Account[] accounts = AccountManager.get(getContext())
+                        .getAccountsByType(com.android.email.Email.EXCHANGE_ACCOUNT_MANAGER_TYPE);
+                cursor = new MatrixCursor(projection);
+                if (accounts != null) {
+                    for (android.accounts.Account account : accounts) {
+                        row = new Object[projection.length];
+
+                        for (int i = 0; i < projection.length; i++) {
+                            String column = projection[i];
+                            if (column.equals(Directory.ACCOUNT_NAME)) {
+                                row[i] = account.name;
+                            } else if (column.equals(Directory.ACCOUNT_TYPE)) {
+                                row[i] = account.type;
+                            } else if (column.equals(Directory.TYPE_RESOURCE_ID)) {
+                                if (VendorPolicyLoader.getInstance(getContext())
+                                        .useAlternateExchangeStrings()) {
+                                    row[i] = R.string.exchange_name_alternate;
+                                } else {
+                                    row[i] = R.string.exchange_name;
+                                }
+                            } else if (column.equals(Directory.DISPLAY_NAME)) {
+                                row[i] = account.name;
+                            } else if (column.equals(Directory.EXPORT_SUPPORT)) {
+                                row[i] = Directory.EXPORT_SUPPORT_SAME_ACCOUNT_ONLY;
+                            } else if (column.equals(Directory.SHORTCUT_SUPPORT)) {
+                                row[i] = Directory.SHORTCUT_SUPPORT_FULL;
+                            }
+                        }
+                        cursor.addRow(row);
+                    }
+                }
+                return cursor;
+            }
+
             case GAL_FILTER: {
                 String filter = uri.getLastPathSegment();
                 // We should have at least two characters before doing a GAL search
                 if (filter == null || filter.length() < 2) {
                     return null;
                 }
+
+                String accountName = uri.getQueryParameter(RawContacts.ACCOUNT_NAME);
+                if (accountName == null) {
+                    return null;
+                }
+
+                Account account = SyncManager.getAccountByName(accountName);
+                if (account == null) {
+                    return null;
+                }
+
                 long callingId = Binder.clearCallingIdentity();
                 try {
                     // Get results from the Exchange account
@@ -203,9 +244,15 @@ public class ExchangeDirectoryProvider extends ContentProvider {
 
             case GAL_CONTACT:
             case GAL_CONTACT_WITH_ID: {
+                String accountName = uri.getQueryParameter(RawContacts.ACCOUNT_NAME);
+                if (accountName == null) {
+                    return null;
+                }
+
                 GalProjection galProjection = new GalProjection(projection);
                 cursor = new MatrixCursor(projection);
                 // Handle the decomposition of the key into rows suitable for CP2
+                List<String> pathSegments = uri.getPathSegments();
                 lookupKey = pathSegments.get(2);
                 long contactId = (match == GAL_CONTACT_WITH_ID)
                         ? Long.parseLong(pathSegments.get(3))
