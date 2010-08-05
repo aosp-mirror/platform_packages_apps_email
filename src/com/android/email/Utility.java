@@ -806,6 +806,28 @@ public class Utility {
     }
 
     /**
+     * @return an integer in column {@code column} of the first result row, if the query returns at
+     * least 1 row.  Otherwise returns {@code defaultValue}.
+     */
+    public static Integer getFirstRowInt(Context context, Uri uri, String[] projection,
+            String selection, String[] selectionArgs, String sortOrder, int column,
+            Integer defaultValue) {
+        Long longDefault = (defaultValue == null) ? null : defaultValue.longValue();
+        Long result = getFirstRowLong(context, uri, projection, selection, selectionArgs, sortOrder,
+                column, longDefault);
+        return (result == null) ? null : result.intValue();
+    }
+
+    /**
+     * {@link #getFirstRowInt} with null as a default value.
+     */
+    public static Integer getFirstRowInt(Context context, Uri uri, String[] projection,
+            String selection, String[] selectionArgs, String sortOrder, int column) {
+        return getFirstRowInt(context, uri, projection, selection, selectionArgs,
+                sortOrder, column, null);
+    }
+
+    /**
      * A class used to restore ListView state (e.g. scroll position) when changing adapter.
      *
      * TODO For some reason it doesn't always work.  Investigate and fix it.

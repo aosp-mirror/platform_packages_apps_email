@@ -404,6 +404,57 @@ public class UtilityUnitTests extends AndroidTestCase {
         assertTrue(cursor.mClosed);
     }
 
+    public void testGetFirstRowInt() {
+        DBTestHelper.MyContext context = new DBTestHelper.MyContext();
+        DBTestHelper.MyProvider provider = context.getMyProvider();
+
+        // Case 1: Row found
+        DBTestHelper.EasyMockCursor cursor = new DBTestHelper.EasyMockCursor(1) {
+            @Override
+            public boolean moveToFirst() {
+                return true;
+            }
+
+            @Override
+            public long getLong(int index) {
+                assertEquals(1, index);
+                return 100;
+            }
+        };
+        provider.mQueryPresetResult = cursor;
+
+        Integer actual = Utility.getFirstRowInt(context, Account.CONTENT_URI,
+                new String[] {"p"}, "se", new String[] {"sa"}, "so", 1);
+        assertEquals(Integer.valueOf(100), actual);
+
+        MoreAsserts.assertEquals(new String[] {"p"}, provider.mPassedProjection);
+        assertEquals("se", provider.mPassedSelection);
+        MoreAsserts.assertEquals(new String[] {"sa"}, provider.mPassedSelectionArgs);
+        assertEquals("so", provider.mPassedSortOrder);
+
+        assertTrue(cursor.mClosed);
+
+        // Case 2: No row found
+        cursor = new DBTestHelper.EasyMockCursor(0) {
+            @Override
+            public boolean moveToFirst() {
+                return false;
+            }
+        };
+        provider.mQueryPresetResult = cursor;
+
+        actual = Utility.getFirstRowInt(context, Account.CONTENT_URI, new String[] {"p"},
+                null, null, null, 0);
+        assertEquals(null, actual);
+        assertTrue(cursor.mClosed);
+
+        // Test with a default value.
+        actual = Utility.getFirstRowInt(context, Account.CONTENT_URI, new String[] {"p"},
+                null, null, null, 0, Integer.valueOf(-1));
+        assertEquals(Integer.valueOf(-1), actual);
+        assertTrue(cursor.mClosed);
+    }
+
     public void testListStateSaver() {
         MockListView lv = new MockListView(getContext());
 
