@@ -4,9 +4,9 @@
      Licensed under the Apache License, Version 2.0 (the "License");
      you may not use this file except in compliance with the License.
      You may obtain a copy of the License at
-  
+
           http://www.apache.org/licenses/LICENSE-2.0
-  
+
      Unless required by applicable law or agreed to in writing, software
      distributed under the License is distributed on an "AS IS" BASIS,
      WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
@@ -79,9 +79,12 @@
     <string name="debug_version_fmt" msgid="6160213145745376955">"버전: <xliff:g id="VERSION">%s</xliff:g>"</string>
     <string name="account_folder_list_separator_accounts" msgid="7568820182396669244">"계정"</string>
     <string name="account_folder_list_summary_inbox" msgid="5790553737870057607">"모든 받은편지함"</string>
-    <string name="account_folder_list_summary_starred" msgid="3134312269246375723">"중요편지함"</string>
-    <string name="account_folder_list_summary_drafts" msgid="5514845993247300437">"임시보관함"</string>
-    <string name="account_folder_list_summary_outbox" msgid="3059836696049399377">"보낼편지함"</string>
+    <!-- no translation found for account_folder_list_summary_starred (2699605259405555890) -->
+    <skip />
+    <!-- no translation found for account_folder_list_summary_drafts (1582947228021407150) -->
+    <skip />
+    <!-- no translation found for account_folder_list_summary_outbox (1438676397481851177) -->
+    <skip />
     <string name="account_folder_list_refresh_toast" msgid="8158352329765828902">"새로고침하려면 계정을 길게 누르세요."</string>
     <string name="mailbox_list_title" msgid="8299608543467211089">"편지함"</string>
     <string name="message_list_load_more_messages_action" msgid="7428302707908825692">"더 많은 메시지 로드"</string>
@@ -109,7 +112,8 @@
     <string name="message_view_show_pictures_action" msgid="5059936981743072545">"사진 표시"</string>
     <string name="message_view_fetching_attachment_toast" msgid="8812363375155391184">"첨부파일을 가져오는 중입니다."</string>
     <string name="message_view_fetching_attachment_progress" msgid="8238550182655758164">"첨부파일(<xliff:g id="FILENAME">%s</xliff:g>)을 가져오는 중"</string>
-    <string name="message_view_invite_view" msgid="6256018854688891069">"캘린더에서 보기 »"</string>
+    <!-- no translation found for message_view_invite_view (5521032519960111675) -->
+    <skip />
     <string name="message_view_invite_title" msgid="5024473745902772299">"캘린더 초대"</string>
     <string name="message_view_invite_text" msgid="1212799906603873708">"참석하시겠습니까?"</string>
     <string name="message_view_invite_accept" msgid="744546668021679819">" 수락"</string>
@@ -125,6 +129,16 @@
     <string name="message_discarded_toast" msgid="3891461729325584026">"메시지를 삭제했습니다."</string>
     <string name="message_saved_toast" msgid="8443125659172627665">"메일이 임시보관함에 저장되었습니다."</string>
     <string name="message_view_display_attachment_toast" msgid="6096315816776330821">"첨부파일을 표시할 수 없습니다."</string>
+    <!-- no translation found for message_view_parse_message_toast (8830378966553031281) -->
+    <skip />
+    <!-- no translation found for message_view_attachment_bytes:one (8914124732074848509) -->
+    <!-- no translation found for message_view_attachment_bytes:other (4613385949384337840) -->
+    <!-- no translation found for message_view_attachment_kilobytes:one (869981846437074463) -->
+    <!-- no translation found for message_view_attachment_kilobytes:other (8869993299924901593) -->
+    <!-- no translation found for message_view_attachment_megabytes:one (7527095670565758434) -->
+    <!-- no translation found for message_view_attachment_megabytes:other (4365876866570165282) -->
+    <!-- no translation found for message_view_attachment_gigabytes:one (6261986598249539093) -->
+    <!-- no translation found for message_view_attachment_gigabytes:other (1041353825053598633) -->
     <string name="account_setup_basics_title" msgid="3969856368228940980">"이메일 설정"</string>
     <string name="account_setup_basics_exchange_title" msgid="1147638872869594157">"Exchange 계정 추가"</string>
     <string name="account_setup_basics_exchange_title_alternate" msgid="4980422714586153809">"Exchange ActiveSync 계정 추가"</string>
@@ -140,7 +154,7 @@
     <string name="account_duplicate_dlg_message_fmt" msgid="1920726613701479851">"이 로그인은 이미 \'<xliff:g id="DUPLICATE">%s</xliff:g>\' 계정에서 사용 중입니다."</string>
     <string name="account_setup_check_settings_retr_info_msg" msgid="4121970450267725664">"계정 정보 검색 중... "</string>
     <string name="account_setup_check_settings_check_incoming_msg" msgid="5356212700221438863">"받는 서버 설정 확인 중..."</string>
-    <string name="account_setup_check_settings_check_outgoing_msg" msgid="4033015234096725343">"보내는 서버 설정 확인 중..."</string>
+    <string name="account_setup_check_settings_check_outgoing_msg" msgid="4033015234096725343">"발신 서버 설정 확인 중..."</string>
     <string name="account_setup_check_settings_canceling_msg" msgid="5077315503721883906">"취소 중..."</string>
     <string name="account_setup_names_title" msgid="8875040521875381849">"이메일 설정"</string>
     <string name="account_setup_names_instructions" msgid="2880279273965835007">"계정이 성공적으로 등록되어 이메일을 사용할 수 있습니다."</string>
@@ -165,11 +179,11 @@
     <string name="account_setup_incoming_delete_policy_delete_label" msgid="222216840911785631">"받은편지함에서 삭제할 때"</string>
     <string name="account_setup_incoming_imap_path_prefix_label" msgid="401167247072926810">"IMAP 경로 접두어"</string>
     <string name="account_setup_incoming_imap_path_prefix_hint" msgid="9190845919067906033">"선택사항"</string>
-    <string name="account_setup_outgoing_title" msgid="7437215562885986394">"보내는 서버 설정"</string>
+    <string name="account_setup_outgoing_title" msgid="7437215562885986394">"발신 서버 설정"</string>
     <string name="account_setup_outgoing_smtp_server_label" msgid="6035137446691195177">"SMTP 서버"</string>
     <string name="account_setup_outgoing_port_label" msgid="7573207437835827876">"포트"</string>
     <string name="account_setup_outgoing_security_label" msgid="911398071120720589">"보안 유형"</string>
-    <string name="account_setup_outgoing_require_login_label" msgid="6371514297854287948">"로그인해야 합니다."</string>
+    <string name="account_setup_outgoing_require_login_label" msgid="6371514297854287948">"로그인 필요"</string>
     <string name="account_setup_outgoing_username_label" msgid="3309680794731596981">"사용자 이름"</string>
     <string name="account_setup_outgoing_password_label" msgid="227844585493317550">"비밀번호"</string>
     <string name="account_setup_exchange_title" msgid="2492853474738063453">"서버 설정"</string>
@@ -177,6 +191,8 @@
     <string name="account_setup_exchange_username_label" msgid="6517176180828983060">"도메인\\사용자 이름"</string>
     <string name="account_setup_exchange_ssl_label" msgid="6704105469083211236">"보안 연결(SSL) 사용"</string>
     <string name="account_setup_exchange_trust_certificates_label" msgid="6232880757633882678">"모든 SSL 인증서 수락"</string>
+    <!-- no translation found for account_setup_exchange_device_id_label (1646827333223157658) -->
+    <skip />
     <string name="account_setup_options_title" msgid="8995162193118880993">"계정 옵션"</string>
     <string name="account_setup_options_mail_check_frequency_label" msgid="4598023962234986194">"이메일 확인 빈도"</string>
     <string name="account_setup_options_mail_check_frequency_never" msgid="287951859480505416">"안함"</string>
@@ -190,6 +206,8 @@
     <string name="account_setup_options_notify_label" msgid="1247525794828820038">"이메일이 오면 알림"</string>
     <string name="account_setup_options_sync_contacts_label" msgid="7467467090023434271">"이 계정에서 연락처를 동기화합니다."</string>
     <string name="account_setup_options_sync_calendar_label" msgid="3195979658426293931">"이 계정에서 캘린더를 동기화합니다."</string>
+    <!-- no translation found for account_setup_options_sync_email_label (3930927721878987383) -->
+    <skip />
     <string name="account_setup_failed_dlg_title" msgid="7827583313117521383">"설정을 완료할 수 없음"</string>
     <string name="account_setup_options_mail_window_label" msgid="8764417340954006086">"동기화할 이메일 양"</string>
     <string name="account_setup_options_mail_window_1day" msgid="3965715241135811407">"하루"</string>
@@ -219,7 +237,8 @@
     <string name="account_settings_default_label" msgid="3575963379680943640">"기본 계정"</string>
     <string name="account_settings_default_summary" msgid="1531901438624688482">"이 계정에서 이메일 보냄(기본값)"</string>
     <string name="account_settings_notify_label" msgid="1630001017303007974">"이메일 알림"</string>
-    <string name="account_settings_exchange_summary" msgid="8498451479029626317">"빈도, 알림 등을 동기화합니다."</string>
+    <!-- no translation found for account_settings_summary (8403582255413830007) -->
+    <skip />
     <string name="account_settings_notify_summary" msgid="6609224590300639887">"이메일이 오면 상태 표시줄에 알림"</string>
     <string name="account_settings_mail_check_frequency_label" msgid="2067835530563849675">"이메일 확인 빈도"</string>
     <string name="account_settings_incoming_label" msgid="7858928031806297542">"수신 설정"</string>
@@ -229,10 +248,18 @@
     <string name="account_settings_signature_label" msgid="4091969938785803201">"서명"</string>
     <string name="account_settings_signature_hint" msgid="7262183168962779403">"보내는 메일에 텍스트 첨부"</string>
     <string name="account_settings_notifications" msgid="1042620094281375043">"알림 설정"</string>
-    <string name="account_settings_sync_contacts_enable" msgid="1369272986009573218">"연락처 동기화"</string>
-    <string name="account_settings_sync_contacts_summary" msgid="8901452720940015928">"또한 이 계정에서 연락처 동기화"</string>
-    <string name="account_settings_sync_calendar_enable" msgid="6855333393468628003">"캘린더 동기화"</string>
-    <string name="account_settings_sync_calendar_summary" msgid="2456010694443333450">"또한 이 계정에서 캘린더 동기화"</string>
+    <!-- no translation found for account_settings_sync_contacts_enable (7338813435392098842) -->
+    <skip />
+    <!-- no translation found for account_settings_sync_contacts_summary (816919452270997919) -->
+    <skip />
+    <!-- no translation found for account_settings_sync_calendar_enable (3039820725699412208) -->
+    <skip />
+    <!-- no translation found for account_settings_sync_calendar_summary (5241995538395965804) -->
+    <skip />
+    <!-- no translation found for account_settings_sync_email_enable (4305222662654506074) -->
+    <skip />
+    <!-- no translation found for account_settings_sync_email_summary (262964076412310990) -->
+    <skip />
     <string name="account_settings_vibrate_when_label" msgid="708477308761702671">"진동"</string>
     <string name="account_settings_vibrate_when_summary" msgid="3991584445166247189">"이메일이 오면 진동도 함께 울림"</string>
     <string name="account_settings_vibrate_when_always" msgid="6739506816960483174">"항상"</string>
