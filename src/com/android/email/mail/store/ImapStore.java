@@ -517,10 +517,15 @@ public class ImapStore extends Store {
             mName = name;
         }
 
+        private void destroyResponses() {
+            if (mConnection != null) {
+                mConnection.destroyResponses();
+            }
+        }
+
         @Override
         public void open(OpenMode mode, PersistentDataCallbacks callbacks)
                 throws MessagingException {
-
             try {
                 if (isOpen()) {
                     if (mMode == mode) {
@@ -533,7 +538,7 @@ public class ImapStore extends Store {
                         } catch (IOException ioe) {
                             ioExceptionHandler(mConnection, ioe);
                         } finally {
-                            mConnection.destroyResponses();
+                            destroyResponses();
                         }
                     } else {
                         // Return the connection to the pool, if exists.
@@ -589,7 +594,7 @@ public class ImapStore extends Store {
                 } catch (IOException ioe) {
                     throw ioExceptionHandler(mConnection, ioe);
                 } finally {
-                    mConnection.destroyResponses();
+                    destroyResponses();
                 }
             } catch (MessagingException e) {
                 mExists = false;
@@ -613,6 +618,7 @@ public class ImapStore extends Store {
             // TODO implement expunge
             mMessageCount = -1;
             synchronized (this) {
+                destroyResponses();
                 mStore.poolConnection(mConnection);
                 mConnection = null;
             }
@@ -714,7 +720,7 @@ public class ImapStore extends Store {
             } catch (IOException ioe) {
                 throw ioExceptionHandler(mConnection, ioe);
             } finally {
-                mConnection.destroyResponses();
+                destroyResponses();
             }
         }
 
@@ -742,7 +748,7 @@ public class ImapStore extends Store {
             } catch (IOException ioe) {
                 throw ioExceptionHandler(mConnection, ioe);
             } finally {
-                mConnection.destroyResponses();
+                destroyResponses();
             }
         }
 
@@ -785,7 +791,7 @@ public class ImapStore extends Store {
                     return ret.toArray(Utility.EMPTY_STRINGS);
                 }
             } finally {
-                mConnection.destroyResponses();
+                destroyResponses();
             }
             return Utility.EMPTY_STRINGS;
         }
@@ -848,16 +854,16 @@ public class ImapStore extends Store {
                 fetchInternal(messages, fp, listener);
             } catch (RuntimeException e) { // Probably a parser error.
                 Log.w(Email.LOG_TAG, "Exception detected: " + e.getMessage());
-                mConnection.logLastDiscourse();
+                if (mConnection != null) {
+                    mConnection.logLastDiscourse();
+                }
                 throw e;
-            } finally {
-                mConnection.destroyResponses();
             }
         }
 
         public void fetchInternal(Message[] messages, FetchProfile fp,
                 MessageRetrievalListener listener) throws MessagingException {
-            if (messages == null || messages.length == 0) {
+            if (messages.length == 0) {
                 return;
             }
             checkOpen();
@@ -910,7 +916,7 @@ public class ImapStore extends Store {
             }
 
             try {
-                String tag = mConnection.sendCommand(String.format(
+                mConnection.sendCommand(String.format(
                         ImapConstants.UID_FETCH + " %s (%s)", joinMessageUids(messages),
                         Utility.combine(fetchFields.toArray(new String[fetchFields.size()]), ' ')
                         ), false);
@@ -1004,7 +1010,7 @@ public class ImapStore extends Store {
                             listener.messageRetrieved(message);
                         }
                     } finally {
-                        mConnection.destroyResponses();
+                        destroyResponses();
                     }
                 } while (!response.isTagged());
             } catch (IOException ioe) {
@@ -1298,7 +1304,7 @@ public class ImapStore extends Store {
             } catch (IOException ioe) {
                 throw ioExceptionHandler(mConnection, ioe);
             } finally {
-                mConnection.destroyResponses();
+                destroyResponses();
             }
         }
 
@@ -1310,7 +1316,7 @@ public class ImapStore extends Store {
             } catch (IOException ioe) {
                 throw ioExceptionHandler(mConnection, ioe);
             } finally {
-                mConnection.destroyResponses();
+                destroyResponses();
             }
             return null;
         }
@@ -1345,7 +1351,7 @@ public class ImapStore extends Store {
             } catch (IOException ioe) {
                 throw ioExceptionHandler(mConnection, ioe);
             } finally {
-                mConnection.destroyResponses();
+                destroyResponses();
             }
         }
 
@@ -1357,8 +1363,15 @@ public class ImapStore extends Store {
 
         private MessagingException ioExceptionHandler(ImapConnection connection, IOException ioe)
                 throws MessagingException {
+            if (Email.DEBUG) {
+                Log.d(Email.LOG_TAG, "IO Exception detected: ", ioe);
+            }
+            connection.destroyResponses();
             connection.close();
-            close(false);
+            if (connection == mConnection) {
+                mConnection = null; // To prevent close() from returning the connection to the pool.
+                close(false);
+            }
             return new MessagingException("IO Error", ioe);
         }
 
