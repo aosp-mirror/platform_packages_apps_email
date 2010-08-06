@@ -46,7 +46,7 @@ public class Log {
     }
 
     public boolean isWarnEnabled() {
-        return true;
+        return Email.DEBUG;
     }
 
     public void trace(Object message) {
