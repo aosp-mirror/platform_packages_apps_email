@@ -719,5 +719,7 @@
     <string name="activity_label_2pane">Email 2 Pane</string>
     <!-- Do Not Translate.  STOPSHIP: Dev version only.  Remove this. -->
     <string name="activity_label_1pane">Email 1 Pane</string>
+    <!-- Do Not Translate.  STOPSHIP: Dev version only.  Remove this. -->
+    <string name="menu_change_orientation">Change orientation</string>
 
 </resources>

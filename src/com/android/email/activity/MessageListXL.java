@@ -18,6 +18,7 @@ package com.android.email.activity;
 
 import com.android.email.Email;
 import com.android.email.R;
+import com.android.email.Utility;
 
 import android.app.ActionBar;
 import android.app.Activity;
@@ -26,7 +27,6 @@ import android.app.LoaderManager.LoaderCallbacks;
 import android.content.Context;
 import android.content.Intent;
 import android.content.Loader;
-import android.content.pm.ActivityInfo;
 import android.database.Cursor;
 import android.os.Bundle;
 import android.util.Log;
@@ -433,6 +433,10 @@ public class MessageListXL extends Activity implements View.OnClickListener,
             case R.id.account_settings:
                 // TODO Implement this
                 return true;
+                // STOPSHIP remove this
+                case R.id.change_orientation:
+                Utility.changeOrientation(this);
+                return true;
         }
         return super.onOptionsItemSelected(item);
     }
@@ -452,10 +456,7 @@ public class MessageListXL extends Activity implements View.OnClickListener,
     @Override
     public boolean onKeyDown(int keyCode, KeyEvent event) {
         if (keyCode == KeyEvent.KEYCODE_R) {
-            setRequestedOrientation(
-                    (getRequestedOrientation() == ActivityInfo.SCREEN_ORIENTATION_PORTRAIT)
-                    ? ActivityInfo.SCREEN_ORIENTATION_LANDSCAPE
-                    : ActivityInfo.SCREEN_ORIENTATION_PORTRAIT);
+            Utility.changeOrientation(this);
             return true;
         }
         return super.onKeyDown(keyCode, event);

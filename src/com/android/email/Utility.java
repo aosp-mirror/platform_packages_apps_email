@@ -29,6 +29,7 @@ import com.android.email.provider.EmailContent.MessageColumns;
 import android.app.Activity;
 import android.content.ContentResolver;
 import android.content.Context;
+import android.content.pm.ActivityInfo;
 import android.content.res.Resources;
 import android.content.res.TypedArray;
 import android.database.Cursor;
@@ -842,5 +843,16 @@ public class Utility {
         public void restore(AbsListView lv) {
             lv.onRestoreInstanceState(mState);
         }
+    }
+
+    /**
+     * STOPSHIP Remove this method
+     * Toggle between portrait and landscape.  Developement use only.
+     */
+    public static void changeOrientation(Activity activity) {
+        activity.setRequestedOrientation(
+                (activity.getRequestedOrientation() == ActivityInfo.SCREEN_ORIENTATION_PORTRAIT)
+                ? ActivityInfo.SCREEN_ORIENTATION_LANDSCAPE
+                : ActivityInfo.SCREEN_ORIENTATION_PORTRAIT);
     }
 }
