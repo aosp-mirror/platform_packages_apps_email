@@ -469,31 +469,41 @@ public class SecurityPolicy {
         public PolicySet(int minPasswordLength, int passwordMode, int maxPasswordFails,
                 int maxScreenLockTime, boolean requireRemoteWipe, int passwordExpiration,
                 int passwordHistory, int passwordComplexChars) throws IllegalArgumentException {
-            // This value has a hard limit which cannot be supported if exceeded.  Setting the
-            // exceeded value will force isSupported() to return false.
-            if (minPasswordLength > PASSWORD_LENGTH_MAX) {
-                throw new IllegalArgumentException("password length");
-            }
-            if ((passwordMode != PASSWORD_MODE_NONE) && (passwordMode != PASSWORD_MODE_SIMPLE) &&
-                    (passwordMode != PASSWORD_MODE_STRONG)) {
-                throw new IllegalArgumentException("password mode");
-            }
-            if (passwordExpiration > PASSWORD_EXPIRATION_MAX) {
-                throw new IllegalArgumentException("password expiration");
-            }
-            if (passwordHistory > PASSWORD_HISTORY_MAX) {
-                throw new IllegalArgumentException("password history");
-            }
-            if (passwordComplexChars > PASSWORD_COMPLEX_CHARS_MAX) {
-                throw new IllegalArgumentException("complex chars");
-            }
-            // This value can be reduced (which actually increases security) if necessary
-            if (maxPasswordFails > PASSWORD_MAX_FAILS_MAX) {
-                maxPasswordFails = PASSWORD_MAX_FAILS_MAX;
-            }
-            // This value can be reduced (which actually increases security) if necessary
-            if (maxScreenLockTime > SCREEN_LOCK_TIME_MAX) {
-                maxScreenLockTime = SCREEN_LOCK_TIME_MAX;
+            // If we're not enforcing passwords, make sure we clean up related values, since EAS
+            // can send non-zero values for any or all of these
+            if (passwordMode == PASSWORD_MODE_NONE) {
+                maxPasswordFails = 0;
+                maxScreenLockTime = 0;
+                minPasswordLength = 0;
+                passwordComplexChars = 0;
+                passwordHistory = 0;
+                passwordExpiration = 0;
+            } else {
+                if ((passwordMode != PASSWORD_MODE_SIMPLE) &&
+                        (passwordMode != PASSWORD_MODE_STRONG)) {
+                    throw new IllegalArgumentException("password mode");
+                }
+                // The next four values have hard limits which cannot be supported if exceeded.
+                if (minPasswordLength > PASSWORD_LENGTH_MAX) {
+                    throw new IllegalArgumentException("password length");
+                }
+                if (passwordExpiration > PASSWORD_EXPIRATION_MAX) {
+                    throw new IllegalArgumentException("password expiration");
+                }
+                if (passwordHistory > PASSWORD_HISTORY_MAX) {
+                    throw new IllegalArgumentException("password history");
+                }
+                if (passwordComplexChars > PASSWORD_COMPLEX_CHARS_MAX) {
+                    throw new IllegalArgumentException("complex chars");
+                }
+                // This value can be reduced (which actually increases security) if necessary
+                if (maxPasswordFails > PASSWORD_MAX_FAILS_MAX) {
+                    maxPasswordFails = PASSWORD_MAX_FAILS_MAX;
+                }
+                // This value can be reduced (which actually increases security) if necessary
+                if (maxScreenLockTime > SCREEN_LOCK_TIME_MAX) {
+                    maxScreenLockTime = SCREEN_LOCK_TIME_MAX;
+                }
             }
             mMinPasswordLength = minPasswordLength;
             mPasswordMode = passwordMode;
