@@ -1053,31 +1053,34 @@ public class SyncManager extends Service implements Runnable {
             context = INSTANCE;
         }
 
-        try {
-            File f = context.getFileStreamPath("deviceName");
-            BufferedReader rdr = null;
-            String id;
-            if (f.exists() && f.canRead()) {
+        File f = context.getFileStreamPath("deviceName");
+        BufferedReader rdr = null;
+        String id;
+        if (f.exists()) {
+            if (f.canRead()) {
                 rdr = new BufferedReader(new FileReader(f), 128);
                 id = rdr.readLine();
                 rdr.close();
                 return id;
-            } else if (f.createNewFile()) {
-                BufferedWriter w = new BufferedWriter(new FileWriter(f), 128);
-                final String consistentDeviceId = Utility.getConsistentDeviceId(context);
-                if (consistentDeviceId != null) {
-                    // Use different prefix from random IDs.
-                    id = "androidc" + consistentDeviceId;
-                } else {
-                    id = "android" + System.currentTimeMillis();
+            } else {
+                Log.w(Email.LOG_TAG, f.getAbsolutePath() + ": File exists, but can't read?" +
+                        "  Trying to remove.");
+                if (!f.delete()) {
+                    Log.w(Email.LOG_TAG, "Remove failed. Tring to overwrite.");
                 }
-                w.write(id);
-                w.close();
-                return id;
             }
-        } catch (IOException e) {
         }
-        throw new IOException("Can't get device name");
+        BufferedWriter w = new BufferedWriter(new FileWriter(f), 128);
+        final String consistentDeviceId = Utility.getConsistentDeviceId(context);
+        if (consistentDeviceId != null) {
+            // Use different prefix from random IDs.
+            id = "androidc" + consistentDeviceId;
+        } else {
+            id = "android" + System.currentTimeMillis();
+        }
+        w.write(id);
+        w.close();
+        return id;
     }
 
     @Override
@@ -1683,7 +1686,7 @@ public class SyncManager extends Service implements Runnable {
                     getDeviceId(this);
                 } catch (IOException e) {
                     // We can't run in this situation
-                    throw new RuntimeException();
+                    throw new RuntimeException(e);
                 }
             }
             // Run the reconciler and clean up any mismatched accounts - if we weren't running when
