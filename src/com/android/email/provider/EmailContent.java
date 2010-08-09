@@ -1256,6 +1256,16 @@ public abstract class EmailContent {
         }
 
         /**
+         * @return true if the instance is of an EAS account.
+         */
+        public boolean isEasAccount() {
+            if (mHostAuthRecv == null) {
+                return false;
+            }
+            return "eas".equals(mHostAuthRecv.mProtocol);
+        }
+
+        /**
          * Set the account to be the default account.  If this is set to "true", when the account
          * is saved, all other accounts will have the same value set to "false".
          * @param newDefaultState the new default state - if true, others will be cleared.

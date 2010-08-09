@@ -39,6 +39,7 @@ import android.content.Context;
 import android.database.Cursor;
 import android.net.Uri;
 import android.os.RemoteException;
+import android.text.TextUtils;
 import android.util.Log;
 
 import java.io.File;
@@ -965,13 +966,15 @@ public class Controller {
             if (account == null) {
                 return; // Already deleted?
             }
+
             final String accountUri = account.getStoreUri(mContext);
-
             // Delete Remote store at first.
-            Store.getInstance(accountUri, mContext, null).delete();
+            if (!TextUtils.isEmpty(accountUri)) {
+                Store.getInstance(accountUri, mContext, null).delete();
+                // Remove the Store instance from cache.
+                Store.removeInstance(accountUri);
+            }
 
-            // Remove the Store instance from cache.
-            Store.removeInstance(accountUri);
             Uri uri = ContentUris.withAppendedId(
                     EmailContent.Account.CONTENT_URI, accountId);
             mContext.getContentResolver().delete(uri, null, null);
@@ -984,7 +987,7 @@ public class Controller {
 
             Email.setServicesEnabled(mContext);
         } catch (Exception e) {
-            // Ignore
+            Log.w(Email.LOG_TAG, "Exception while deleting account", e);
         } finally {
             synchronized (mListeners) {
                 for (Result l : mListeners) {

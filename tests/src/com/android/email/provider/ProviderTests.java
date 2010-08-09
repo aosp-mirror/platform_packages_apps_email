@@ -1942,4 +1942,21 @@ public class ProviderTests extends ProviderTestCase2<EmailProvider> {
         return ProviderTestUtils.setupMessage("1", b.mAccountKey, b.mId, true, true, c, starred,
                 read);
     }
+
+    public static void testAccountIsEasAccount() {
+        Account account = new Account();
+        assertFalse(account.isEasAccount());
+
+        account.mHostAuthRecv = new HostAuth();
+        assertFalse(account.isEasAccount());
+
+        account.mHostAuthRecv.mProtocol = "";
+        assertFalse(account.isEasAccount());
+
+        account.mHostAuthRecv.mProtocol = "x";
+        assertFalse(account.isEasAccount());
+
+        account.mHostAuthRecv.mProtocol = "eas";
+        assertTrue(account.isEasAccount());
+    }
 }
