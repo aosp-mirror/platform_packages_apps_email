@@ -1,11 +1,11 @@
 # keep names that are used by reflection.
 -keep class com.android.email.provider.EmailContent$Account
 -keepclasseswithmembers class * {
-  public static void actionEditIncomingSettings(android.app.Activity, com.android.email.provider.EmailContent$Account);
+  public static void actionEditIncomingSettings(android.app.Activity, int, com.android.email.provider.EmailContent$Account);
 }
 
 -keepclasseswithmembers class * {
-  public static void actionEditOutgoingSettings(android.app.Activity, com.android.email.provider.EmailContent$Account);
+  public static void actionEditOutgoingSettings(android.app.Activity, int, com.android.email.provider.EmailContent$Account);
 }
 
 -keepclasseswithmembers class * {
