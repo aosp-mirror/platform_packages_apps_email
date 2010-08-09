@@ -894,7 +894,8 @@ public class MessageListFragment extends ListFragment implements OnItemClickList
             // Load messages
             String selection =
                 Utility.buildMailboxIdSelection(mResolver, mMailboxKey);
-            Cursor c = mActivity.managedQuery(EmailContent.Message.CONTENT_URI, MESSAGE_PROJECTION,
+            Cursor c = mActivity.getContentResolver().query(
+                    EmailContent.Message.CONTENT_URI, MESSAGE_PROJECTION,
                     selection, null, EmailContent.MessageColumns.TIMESTAMP + " DESC");
             return c;
         }
@@ -910,7 +911,6 @@ public class MessageListFragment extends ListFragment implements OnItemClickList
             }
             MessageListFragment.this.mAccountId = mAccountKey;
 
-            // TODO changeCursor(null)??
             mListAdapter.changeCursor(cursor);
             setListAdapter(mListAdapter);
 
