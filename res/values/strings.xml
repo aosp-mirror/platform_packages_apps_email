@@ -19,7 +19,7 @@
     <!-- Deprecated strings - Move the identifiers to this section, mark as DO NOT TRANSLATE,
          and remove the actual text.  These will be removed in a bulk operation. -->
     <!-- Do Not Translate.  Unused string. -->
-    <string name="account_settings_exchange_summary"></string>
+    <string name="account_settings_exchange_summary" translatable="false"></string>
 
     <!-- Permissions label for reading attachments -->
     <string name="read_attachment_label">Read Email attachments</string>
@@ -145,17 +145,17 @@
 
     <!-- The next set of strings are used server-side and must not be localized. -->
     <!-- Do Not Translate.  This is the name of the "inbox" folder, on the server. -->
-    <string name="mailbox_name_server_inbox">Inbox</string>
+    <string name="mailbox_name_server_inbox" translatable="false">Inbox</string>
     <!-- Do Not Translate.  This is the name of the "outbox" folder, on the server. -->
-    <string name="mailbox_name_server_outbox">Outbox</string>
+    <string name="mailbox_name_server_outbox" translatable="false">Outbox</string>
     <!-- Do Not Translate.  This is the name of the "drafts" folder, on the server. -->
-    <string name="mailbox_name_server_drafts">Drafts</string>
+    <string name="mailbox_name_server_drafts" translatable="false">Drafts</string>
     <!-- Do Not Translate.  This is the name of the "trash" folder, on the server. -->
-    <string name="mailbox_name_server_trash">Trash</string>
+    <string name="mailbox_name_server_trash" translatable="false">Trash</string>
     <!-- Do Not Translate.  This is the name of the "sent" folder, on the server. -->
-    <string name="mailbox_name_server_sent">Sent</string>
+    <string name="mailbox_name_server_sent" translatable="false">Sent</string>
     <!-- Do Not Translate.  This is the name of the "junk" folder, on the server. -->
-    <string name="mailbox_name_server_junk">Junk</string>
+    <string name="mailbox_name_server_junk" translatable="false">Junk</string>
 
     <!-- The next set of strings are used in local display and may be localized. -->
     <!-- In the UI, the inbox will be displayed with this name -->
@@ -305,9 +305,9 @@
     </plurals>
 
     <!-- Do Not Translate.  The label of the next button on the message view screen. -->
-    <string name="message_view_move_to_newer">&lt;</string>
+    <string name="message_view_move_to_newer" translatable="false">&lt;</string>
     <!-- Do Not Translate.  The label of the previous button on the message view screen. -->
-    <string name="message_view_move_to_older">&gt;</string>
+    <string name="message_view_move_to_older" translatable="false">&gt;</string>
 
     <!-- Title of screen when setting up new email account -->
     <string name="account_setup_basics_title">Set up email</string>
@@ -346,7 +346,7 @@
     </string>
 
     <!-- Do Not Translate.  Activity Title for check-settings screen -->
-    <string name="account_setup_check_settings_title"></string>
+    <string name="account_setup_check_settings_title" translatable="false"></string>
     <!-- On check-settings screen, this is the initially-displayed message. -->
     <string name="account_setup_check_settings_retr_info_msg">Retrieving account information\u2026</string>
     <!-- Appears on screen while system is checking incoming server settings -->
@@ -371,17 +371,17 @@
 
     <!-- Do Not Translate. "Add new email account" screen, button name in response to what
          type of account this is -->
-    <string name="account_setup_account_type_pop_action">POP3</string>
+    <string name="account_setup_account_type_pop_action" translatable="false">POP3</string>
     <!-- Do Not Translate. "Add new email account" screen, button name in response to what
          type of account this is -->
-    <string name="account_setup_account_type_imap_action">IMAP</string>
+    <string name="account_setup_account_type_imap_action" translatable="false">IMAP</string>
     <!-- Do Not Translate. "Add new email account" screen, button name in response to what
          type of account this is -->
-    <string name="account_setup_account_type_exchange_action">Exchange</string>
+    <string name="account_setup_account_type_exchange_action" translatable="false">Exchange</string>
     <!-- Do Not Translate. "Add new email account" screen, button name in
          response to what type of account this is -->
-    <string name="account_setup_account_type_exchange_action_alternate">
-        Microsoft Exchange ActiveSync</string>
+    <string name="account_setup_account_type_exchange_action_alternate"
+         translatable="false">Microsoft Exchange ActiveSync</string>
 
     <!-- "Incoming server settings" screen, label for text field -->
     <string name="account_setup_incoming_title">Incoming server settings</string>
@@ -716,10 +716,10 @@
         results from <xliff:g id="domain">%2$s</xliff:g></string>
 
     <!-- Do Not Translate.  STOPSHIP: Dev version only.  Remove this. -->
-    <string name="activity_label_2pane">Email 2 Pane</string>
+    <string name="activity_label_2pane" translatable="false">Email 2 Pane</string>
     <!-- Do Not Translate.  STOPSHIP: Dev version only.  Remove this. -->
-    <string name="activity_label_1pane">Email 1 Pane</string>
+    <string name="activity_label_1pane" translatable="false">Email 1 Pane</string>
     <!-- Do Not Translate.  STOPSHIP: Dev version only.  Remove this. -->
-    <string name="menu_change_orientation">Change orientation</string>
+    <string name="menu_change_orientation" translatable="false">Change orientation</string>
 
 </resources>
