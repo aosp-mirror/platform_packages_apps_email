@@ -17,7 +17,6 @@
 package com.android.email.activity.setup;
 
 import com.android.email.mail.Store;
-import com.android.email.provider.EmailContent;
 import com.android.email.provider.EmailContent.Account;
 
 import android.content.ContentUris;
@@ -127,7 +126,7 @@ public class AccountSettingsTests extends ActivityInstrumentationTestCase2<Accou
      */
     private void getActivityAndFields() {
         mActivity = getActivity();
-        mCheckFrequency = (ListPreference) mActivity.findPreference(PREFERENCE_FREQUENCY);
+        mCheckFrequency = (ListPreference) mActivity.mFragment.findPreference(PREFERENCE_FREQUENCY);
     }
 
     /**
