@@ -22,15 +22,16 @@ import com.android.email.ExchangeUtils;
 import com.android.email.Utility;
 import com.android.email.activity.setup.AccountSetupBasics;
 import com.android.email.provider.EmailContent;
+import com.android.email.provider.EmailContent.Account;
 import com.android.email.provider.EmailContent.Mailbox;
 import com.android.email.service.MailService;
 
 import android.accounts.AccountManager;
 import android.accounts.OnAccountsUpdateListener;
 import android.app.Activity;
+import android.content.Context;
 import android.content.Intent;
 import android.content.res.Configuration;
-import android.database.Cursor;
 import android.os.AsyncTask;
 import android.os.Bundle;
 import android.os.Handler;
@@ -46,9 +47,18 @@ import android.os.Handler;
  * they can select an account.
  */
 public class Welcome extends Activity {
+    private static final String EXTRA_ACCOUNT_ID = "com.android.email.activity._ACCOUNT_ID";
 
     private AccountsUpdatedListener mAccountsUpdatedListener;
     private Handler mHandler = new Handler();
+
+    /**
+     * @return true if the two-pane activity should be used on the current configuration.
+     */
+    public static boolean useTwoPane(Context context) {
+        final int screenLayout = context.getResources().getConfiguration().screenLayout;
+        return (screenLayout & Configuration.SCREENLAYOUT_SIZE_XLARGE) != 0;
+    }
 
     /**
      * Launch this activity.  Note:  It's assumed that this activity is only called as a means to
@@ -59,6 +69,24 @@ public class Welcome extends Activity {
         Intent i = new Intent(fromActivity, Welcome.class);
         i.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
         fromActivity.startActivity(i);
+    }
+
+    /**
+     * Create an Intent to open account's inbox.
+     */
+    public static Intent createOpenAccountInboxIntent(Activity fromActivity, long accountId) {
+        Intent i = new Intent(fromActivity, Welcome.class);
+        if (accountId != -1) {
+            i.putExtra(EXTRA_ACCOUNT_ID, accountId);
+        }
+        return i;
+    }
+
+    /**
+     * Open account's inbox.
+     */
+    public static void actionOpenAccountInbox(Activity fromActivity, long accountId) {
+        fromActivity.startActivity(createOpenAccountInboxIntent(fromActivity, accountId));
     }
 
     @Override
@@ -96,7 +124,8 @@ public class Welcome extends Activity {
         // Run reconciliation to make sure we're up-to-date on account status
         mAccountsUpdatedListener.onAccountsUpdated(null);
 
-        new MainActivityLauncher(this).execute();
+        final long accountId = getIntent().getLongExtra(EXTRA_ACCOUNT_ID, -1);
+        new MainActivityLauncher(this, accountId).execute();
     }
 
     @Override
@@ -121,18 +150,18 @@ public class Welcome extends Activity {
     }
 
     /**
-     * Open the Activity appropriate to the current configuration.
+     * Open an account with the Activity appropriate to the current configuration.
+     * If there's no accounts set up, open the "add account" screen.
      *
-     * - If there's 0 accounts, open AccountSetupBasics.
-     * - If it has XL screen, open MessageListXL.
-     * - If there's 1 account, open MessageList.
-     * - Otherwise open AccountFolderList.
+     * if {@code account} is -1, open the default account.
      */
     private static class MainActivityLauncher extends AsyncTask<Void, Void, Void> {
         private final Activity mFromActivity;
+        private final long mAccountId;
 
-        public MainActivityLauncher(Activity fromActivity) {
+        public MainActivityLauncher(Activity fromActivity, long accountId) {
             mFromActivity = fromActivity;
+            mAccountId = accountId;
         }
 
         @Override
@@ -142,18 +171,15 @@ public class Welcome extends Activity {
             if (numAccount == 0) {
                 AccountSetupBasics.actionNewAccount(mFromActivity);
             } else {
-                final int screenLayout = mFromActivity.getResources().getConfiguration()
-                        .screenLayout;
-                if ((screenLayout & Configuration.SCREENLAYOUT_SIZE_XLARGE) != 0) {
-                    MessageListXL.actionStart(mFromActivity);
+                long accountId = mAccountId;
+                if (accountId == -1 || !Account.isValidId(mFromActivity, accountId)) {
+                    accountId = EmailContent.Account.getDefaultAccountId(mFromActivity);
+                }
+
+                if (useTwoPane(mFromActivity)) {
+                    MessageListXL.actionStart(mFromActivity, accountId);
                 } else {
-                    if (numAccount == 1) {
-                        long accountId = EmailContent.Account.getDefaultAccountId(mFromActivity);
-                        MessageList.actionHandleAccount(mFromActivity, accountId,
-                                Mailbox.TYPE_INBOX);
-                    } else {
-                        AccountFolderList.actionShowAccounts(mFromActivity);
-                    }
+                    MessageList.actionHandleAccount(mFromActivity, accountId, Mailbox.TYPE_INBOX);
                 }
             }
             return null;

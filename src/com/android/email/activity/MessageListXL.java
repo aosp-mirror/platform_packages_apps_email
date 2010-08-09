@@ -48,6 +48,7 @@ import android.view.View;
  */
 public class MessageListXL extends Activity implements View.OnClickListener,
         MessageListXLFragmentManager.TargetActivity {
+    private static final String EXTRA_ACCOUNT_ID = "com.android.email.activity._ACCOUNT_ID";
     private static final int LOADER_ID_ACCOUNT_LIST = 0;
 
     private Context mContext;
@@ -68,8 +69,15 @@ public class MessageListXL extends Activity implements View.OnClickListener,
     private final MessageOrderManagerCallback mMessageOrderManagerCallback
             = new MessageOrderManagerCallback();
 
-    public static void actionStart(Activity fromActivity) {
-        fromActivity.startActivity(new Intent(fromActivity, MessageListXL.class));
+    /**
+     * Launch and open account's inbox.
+     */
+    public static void actionStart(Activity fromActivity, long accountId) {
+        Intent i = new Intent(fromActivity, MessageListXL.class);
+        if (accountId != -1) {
+            i.putExtra(EXTRA_ACCOUNT_ID, accountId);
+        }
+        fromActivity.startActivity(i);
     }
 
     @Override
@@ -96,8 +104,18 @@ public class MessageListXL extends Activity implements View.OnClickListener,
 
         if (isRestoring) {
             mFragmentManager.loadState(savedInstanceState);
+        } else {
+            initFromIntent();
         }
         loadAccounts();
+    }
+
+    private void initFromIntent() {
+        final Intent i = getIntent();
+        final long accountId = i.getLongExtra(EXTRA_ACCOUNT_ID, -1);
+        if (accountId != -1) {
+            mFragmentManager.selectAccount(accountId);
+        }
     }
 
     @Override

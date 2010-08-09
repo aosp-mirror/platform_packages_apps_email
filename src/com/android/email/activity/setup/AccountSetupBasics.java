@@ -20,9 +20,8 @@ import com.android.email.R;
 import com.android.email.Utility;
 import com.android.email.VendorPolicyLoader;
 import com.android.email.activity.Debug;
-import com.android.email.activity.MessageList;
+import com.android.email.activity.Welcome;
 import com.android.email.provider.EmailContent.Account;
-import com.android.email.provider.EmailContent.Mailbox;
 
 import android.app.Activity;
 import android.content.Context;
@@ -112,7 +111,7 @@ public class AccountSetupBasics extends AccountSetupActivity
             Account account = SetupData.getAccount();
             if (account != null && account.mId >= 0) {
                 // Show the message list for the new account
-                MessageList.actionHandleAccount(this, account.mId, Mailbox.TYPE_INBOX);
+                Welcome.actionOpenAccountInbox(this, account.mId);
                 finish();
                 return;
             }

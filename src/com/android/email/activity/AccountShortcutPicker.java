@@ -19,7 +19,6 @@ package com.android.email.activity;
 import com.android.email.R;
 import com.android.email.provider.EmailContent;
 import com.android.email.provider.EmailContent.Account;
-import com.android.email.provider.EmailContent.Mailbox;
 
 import android.app.ListActivity;
 import android.content.Context;
@@ -29,10 +28,10 @@ import android.os.Bundle;
 import android.os.Parcelable;
 import android.view.View;
 import android.widget.AdapterView;
+import android.widget.AdapterView.OnItemClickListener;
 import android.widget.ListView;
 import android.widget.SimpleCursorAdapter;
 import android.widget.TextView;
-import android.widget.AdapterView.OnItemClickListener;
 
 /**
  *
@@ -40,6 +39,9 @@ import android.widget.AdapterView.OnItemClickListener;
  *
  * This is simply a lightweight version of Accounts, and should almost certainly be merged with it
  * (or, one could be a base class of the other).
+ *
+ * TODO Handle upgraded shortcuts for the phone UI release.  Shortcuts used to launch MessageList
+ * directly.  We need to detect this and redirect to Welcome.
  */
 public class AccountShortcutPicker extends ListActivity implements OnItemClickListener {
 
@@ -156,12 +158,9 @@ public class AccountShortcutPicker extends ListActivity implements OnItemClickLi
      */
     private void setupShortcut(Account account) {
         // First, set up the shortcut intent.
-
-        Intent shortcutIntent = MessageList.createAccountIntentForShortcut(
-                this, account, Mailbox.TYPE_INBOX);
+        Intent shortcutIntent = Welcome.createOpenAccountInboxIntent(this, account.mId);
 
         // Then, set up the container intent (the response to the caller)
-
         Intent intent = new Intent();
         intent.putExtra(Intent.EXTRA_SHORTCUT_INTENT, shortcutIntent);
         intent.putExtra(Intent.EXTRA_SHORTCUT_NAME, account.getDisplayName());
@@ -172,8 +171,4 @@ public class AccountShortcutPicker extends ListActivity implements OnItemClickLi
 
         setResult(RESULT_OK, intent);
     }
-
-
 }
-
-
