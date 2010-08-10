@@ -23,7 +23,6 @@ import com.android.email.EmailAddressValidator;
 import com.android.email.R;
 import com.android.email.Utility;
 import com.android.email.mail.Address;
-import com.android.email.mail.MessagingException;
 import com.android.email.mail.internet.EmailHtmlUtil;
 import com.android.email.mail.internet.MimeUtility;
 import com.android.email.provider.EmailContent;
@@ -147,9 +146,8 @@ public class MessageCompose extends Activity implements OnClickListener, OnFocus
     private Controller mController;
     private boolean mDraftNeedsSaving;
     private boolean mMessageLoaded;
-    private AsyncTask mLoadAttachmentsTask;
-    private AsyncTask mSaveMessageTask;
-    private AsyncTask mLoadMessageTask;
+    private AsyncTask<Long, Void, Attachment[]> mLoadAttachmentsTask;
+    private AsyncTask<Long, Void, Object[]> mLoadMessageTask;
 
     private EmailAddressAdapter mAddressAdapterTo;
     private EmailAddressAdapter mAddressAdapterCc;
@@ -369,8 +367,6 @@ public class MessageCompose extends Activity implements OnClickListener, OnFocus
         mLoadAttachmentsTask = null;
         Utility.cancelTaskInterrupt(mLoadMessageTask);
         mLoadMessageTask = null;
-        // don't cancel mSaveMessageTask, let it do its job to the end.
-        mSaveMessageTask = null;
 
         if (mAddressAdapterTo != null) {
             mAddressAdapterTo.changeCursor(null);
@@ -631,11 +627,26 @@ public class MessageCompose extends Activity implements OnClickListener, OnFocus
                 return;
             }
 
-            if (ACTION_EDIT_DRAFT.equals(mAction)) {
-                mDraft = message;
+            // Drafts and "forwards" need to include attachments from the original unless the
+            // account is marked as supporting smart forward
+            if (ACTION_EDIT_DRAFT.equals(mAction) || ACTION_FORWARD.equals(mAction)) {
+                final boolean draft = ACTION_EDIT_DRAFT.equals(mAction);
+                if (draft) {
+                    mDraft = message;
+                } else {
+                    mSource = message;
+                }
                 mLoadAttachmentsTask = new AsyncTask<Long, Void, Attachment[]>() {
                     @Override
                     protected Attachment[] doInBackground(Long... messageIds) {
+                        // TODO: When we finally allow the user to change the sending account,
+                        // we'll need a test to check whether the sending account is
+                        // the message's account
+                        boolean smartForward =
+                            (account.mFlags & Account.FLAGS_SUPPORTS_SMART_FORWARD) != 0;
+                        if (smartForward && !draft) {
+                            return null;
+                        }
                         return Attachment.restoreAttachmentsWithMessageId(MessageCompose.this,
                                 messageIds[0]);
                     }
@@ -645,13 +656,11 @@ public class MessageCompose extends Activity implements OnClickListener, OnFocus
                             return;
                         }
                         for (Attachment attachment : attachments) {
-                            addAttachment(attachment);
+                            addAttachment(attachment, true);
                         }
                     }
                 }.execute(message.mId);
-            } else if (ACTION_REPLY.equals(mAction)
-                       || ACTION_REPLY_ALL.equals(mAction)
-                       || ACTION_FORWARD.equals(mAction)) {
+            } else if (ACTION_REPLY.equals(mAction) || ACTION_REPLY_ALL.equals(mAction)) {
                 mSource = message;
             } else if (Email.LOGD) {
                 Email.log("Action " + mAction + " has unexpected EXTRA_MESSAGE_ID");
@@ -834,6 +843,90 @@ public class MessageCompose extends Activity implements OnClickListener, OnFocus
         }
     }
 
+    private class SendOrSaveMessageTask extends AsyncTask<Boolean, Void, Boolean> {
+
+        @Override
+        protected Boolean doInBackground(Boolean... params) {
+            boolean send = params[0];
+            final Attachment[] attachments = getAttachmentsFromUI();
+            updateMessage(mDraft, mAccount, attachments.length > 0);
+            synchronized (mDraft) {
+                ContentResolver resolver = getContentResolver();
+                if (mDraft.isSaved()) {
+                    // Update the message
+                    Uri draftUri =
+                        ContentUris.withAppendedId(Message.SYNCED_CONTENT_URI, mDraft.mId);
+                    resolver.update(draftUri, getUpdateContentValues(mDraft), null, null);
+                    // Update the body
+                    ContentValues values = new ContentValues();
+                    values.put(BodyColumns.TEXT_CONTENT, mDraft.mText);
+                    values.put(BodyColumns.TEXT_REPLY, mDraft.mTextReply);
+                    values.put(BodyColumns.HTML_REPLY, mDraft.mHtmlReply);
+                    values.put(BodyColumns.INTRO_TEXT, mDraft.mIntroText);
+                    values.put(BodyColumns.SOURCE_MESSAGE_KEY, mDraft.mSourceKey);
+                    Body.updateBodyWithMessageId(MessageCompose.this, mDraft.mId, values);
+                } else {
+                    // mDraft.mId is set upon return of saveToMailbox()
+                    mController.saveToMailbox(mDraft, EmailContent.Mailbox.TYPE_DRAFTS);
+                }
+                // For any unloaded attachment, set the flag saying we need it loaded
+                boolean hasUnloadedAttachments = false;
+                for (Attachment attachment : attachments) {
+                    if (attachment.mContentUri == null) {
+                        attachment.mFlags |= Attachment.FLAG_DOWNLOAD_FORWARD;
+                        hasUnloadedAttachments = true;
+                        if (Email.DEBUG){
+                            Log.d("MessageCompose",
+                                    "Requesting download of attachment #" + attachment.mId);
+                        }
+                    }
+                    if (!attachment.isSaved()) {
+                        // this attachment is new so save it to DB.
+                        attachment.mMessageKey = mDraft.mId;
+                        attachment.save(MessageCompose.this);
+                    } else if (attachment.mContentUri == null) {
+                        // We clone the attachment and save it again; otherwise, it will
+                        // continue to point to the source message.  From this point forward,
+                        // the attachments will be independent of the original message in the
+                        // database; however, we still need the message on the server in order
+                        // to retrieve unloaded attachments
+                        ContentValues cv = attachment.toContentValues();
+                        cv.put(Attachment.FLAGS, attachment.mFlags);
+                        cv.put(Attachment.MESSAGE_KEY, mDraft.mId);
+                        getContentResolver().insert(Attachment.CONTENT_URI, cv);
+                    }
+                }
+
+                if (send) {
+                    // Let the user know if message sending might be delayed by background
+                    // downlading of unloaded attachments
+                    if (hasUnloadedAttachments) {
+                        Utility.showToast(MessageCompose.this,
+                                R.string.message_view_attachment_background_load);
+                    }
+                    mController.sendMessage(mDraft.mId, mDraft.mAccountKey);
+                }
+                return send;
+            }
+        }
+
+        @Override
+        protected void onPostExecute(Boolean send) {
+            synchronized (sSaveInProgressCondition) {
+                sSaveInProgress = false;
+                sSaveInProgressCondition.notify();
+            }
+            if (isCancelled()) {
+                return;
+            }
+            // Don't display the toast if the user is just changing the orientation
+            if (!send && (getChangingConfigurations() & ActivityInfo.CONFIG_ORIENTATION) == 0) {
+                Toast.makeText(MessageCompose.this, R.string.message_saved_toast,
+                        Toast.LENGTH_LONG).show();
+            }
+        }
+    }
+
     /**
      * Send or save a message:
      * - out of the UI thread
@@ -841,72 +934,16 @@ public class MessageCompose extends Activity implements OnClickListener, OnFocus
      * - if send, invoke Controller.sendMessage()
      * - when operation is complete, display toast
      */
-    private void sendOrSaveMessage(final boolean send) {
-        final Attachment[] attachments = getAttachmentsFromUI();
+    private void sendOrSaveMessage(boolean send) {
         if (!mMessageLoaded) {
             // early save, before the message was loaded: do nothing
             return;
         }
-        updateMessage(mDraft, mAccount, attachments.length > 0);
-
         synchronized (sSaveInProgressCondition) {
             sSaveInProgress = true;
         }
-
-        mSaveMessageTask = new AsyncTask<Void, Void, Void>() {
-            @Override
-            protected Void doInBackground(Void... params) {
-                synchronized (mDraft) {
-                    if (mDraft.isSaved()) {
-                        // Update the message
-                        Uri draftUri =
-                            ContentUris.withAppendedId(mDraft.SYNCED_CONTENT_URI, mDraft.mId);
-                        getContentResolver().update(draftUri, getUpdateContentValues(mDraft),
-                                null, null);
-                        // Update the body
-                        ContentValues values = new ContentValues();
-                        values.put(BodyColumns.TEXT_CONTENT, mDraft.mText);
-                        values.put(BodyColumns.TEXT_REPLY, mDraft.mTextReply);
-                        values.put(BodyColumns.HTML_REPLY, mDraft.mHtmlReply);
-                        values.put(BodyColumns.INTRO_TEXT, mDraft.mIntroText);
-                        values.put(BodyColumns.SOURCE_MESSAGE_KEY, mDraft.mSourceKey);
-                        Body.updateBodyWithMessageId(MessageCompose.this, mDraft.mId, values);
-                    } else {
-                        // mDraft.mId is set upon return of saveToMailbox()
-                        mController.saveToMailbox(mDraft, EmailContent.Mailbox.TYPE_DRAFTS);
-                    }
-                    for (Attachment attachment : attachments) {
-                        if (!attachment.isSaved()) {
-                            // this attachment is new so save it to DB.
-                            attachment.mMessageKey = mDraft.mId;
-                            attachment.save(MessageCompose.this);
-                        }
-                    }
-
-                    if (send) {
-                        mController.sendMessage(mDraft.mId, mDraft.mAccountKey);
-                    }
-                    return null;
-                }
-            }
-
-            @Override
-            protected void onPostExecute(Void dummy) {
-                synchronized (sSaveInProgressCondition) {
-                    sSaveInProgress = false;
-                    sSaveInProgressCondition.notify();
-                }
-                if (isCancelled()) {
-                    return;
-                }
-                // Don't display the toast if the user is just changing the orientation
-                if (!send && (getChangingConfigurations() & ActivityInfo.CONFIG_ORIENTATION) == 0) {
-                    Toast.makeText(MessageCompose.this, R.string.message_saved_toast,
-                            Toast.LENGTH_LONG).show();
-                }
-            }
-        }.execute();
-    }
+        new SendOrSaveMessageTask().execute(send);
+   }
 
     private void saveIfNeeded() {
         if (!mDraftNeedsSaving) {
@@ -1011,7 +1048,7 @@ public class MessageCompose extends Activity implements OnClickListener, OnFocus
         return attachment;
     }
 
-    private void addAttachment(Attachment attachment) {
+    private void addAttachment(Attachment attachment, boolean allowDelete) {
         // Before attaching the attachment, make sure it meets any other pre-attach criteria
         if (attachment.mSize > Email.MAX_ATTACHMENT_UPLOAD_SIZE) {
             Toast.makeText(this, R.string.message_compose_attachment_size, Toast.LENGTH_LONG)
@@ -1024,14 +1061,18 @@ public class MessageCompose extends Activity implements OnClickListener, OnFocus
         TextView nameView = (TextView)view.findViewById(R.id.attachment_name);
         ImageButton delete = (ImageButton)view.findViewById(R.id.attachment_delete);
         nameView.setText(attachment.mFileName);
-        delete.setOnClickListener(this);
-        delete.setTag(view);
+        if (allowDelete) {
+            delete.setOnClickListener(this);
+            delete.setTag(view);
+        } else {
+            delete.setVisibility(View.INVISIBLE);
+        }
         view.setTag(attachment);
         mAttachments.addView(view);
     }
 
     private void addAttachment(Uri uri) {
-        addAttachment(loadAttachmentInfo(uri));
+        addAttachment(loadAttachmentInfo(uri), true);
     }
 
     @Override
@@ -1125,40 +1166,6 @@ public class MessageCompose extends Activity implements OnClickListener, OnFocus
     }
 
     /**
-     * Returns true if all attachments were able to be attached, otherwise returns false.
-     */
-//     private boolean loadAttachments(Part part, int depth) throws MessagingException {
-//         if (part.getBody() instanceof Multipart) {
-//             Multipart mp = (Multipart) part.getBody();
-//             boolean ret = true;
-//             for (int i = 0, count = mp.getCount(); i < count; i++) {
-//                 if (!loadAttachments(mp.getBodyPart(i), depth + 1)) {
-//                     ret = false;
-//                 }
-//             }
-//             return ret;
-//         } else {
-//             String contentType = MimeUtility.unfoldAndDecode(part.getContentType());
-//             String name = MimeUtility.getHeaderParameter(contentType, "name");
-//             if (name != null) {
-//                 Body body = part.getBody();
-//                 if (body != null && body instanceof LocalAttachmentBody) {
-//                     final Uri uri = ((LocalAttachmentBody) body).getContentUri();
-//                     mHandler.post(new Runnable() {
-//                         public void run() {
-//                             addAttachment(uri);
-//                         }
-//                     });
-//                 }
-//                 else {
-//                     return false;
-//                 }
-//             }
-//             return true;
-//         }
-//     }
-
-    /**
      * Set a message body and a signature when the Activity is launched.
      *
      * @param text the message body
@@ -1191,7 +1198,6 @@ public class MessageCompose extends Activity implements OnClickListener, OnFocus
     /* package */ void initFromIntent(Intent intent) {
 
         // First, add values stored in top-level extras
-
         String[] extraStrings = intent.getStringArrayExtra(Intent.EXTRA_EMAIL);
         if (extraStrings != null) {
             addAddresses(mToView, extraStrings);
@@ -1213,7 +1219,6 @@ public class MessageCompose extends Activity implements OnClickListener, OnFocus
         // We'll take two courses here.  If it's mailto:, there is a specific set of rules
         // that define various optional fields.  However, for any other scheme, we'll simply
         // take the entire scheme-specific part and interpret it as a possible list of addresses.
-
         final Uri dataUri = intent.getData();
         if (dataUri != null) {
             if ("mailto".equals(dataUri.getScheme())) {
@@ -1227,14 +1232,12 @@ public class MessageCompose extends Activity implements OnClickListener, OnFocus
         }
 
         // Next, fill in the plaintext (note, this will override mailto:?body=)
-
         CharSequence text = intent.getCharSequenceExtra(Intent.EXTRA_TEXT);
         if (text != null) {
             setInitialComposeText(text, null);
         }
 
         // Next, convert EXTRA_STREAM into an attachment
-
         if (Intent.ACTION_SEND.equals(mAction) && intent.hasExtra(Intent.EXTRA_STREAM)) {
             String type = intent.getType();
             Uri stream = (Uri) intent.getParcelableExtra(Intent.EXTRA_STREAM);
@@ -1256,7 +1259,7 @@ public class MessageCompose extends Activity implements OnClickListener, OnFocus
                         Attachment attachment = loadAttachmentInfo(uri);
                         if (MimeUtility.mimeTypeMatches(attachment.mMimeType,
                                 Email.ACCEPTABLE_ATTACHMENT_SEND_INTENT_TYPES)) {
-                            addAttachment(attachment);
+                            addAttachment(attachment, true);
                         }
                     }
                 }
@@ -1264,7 +1267,6 @@ public class MessageCompose extends Activity implements OnClickListener, OnFocus
         }
 
         // Finally - expose fields that were filled in but are normally hidden, and set focus
-
         if (mCcView.length() > 0) {
             mCcView.setVisibility(View.VISIBLE);
         }
@@ -1447,10 +1449,6 @@ public class MessageCompose extends Activity implements OnClickListener, OnFocus
                     "Fwd: " + subject : subject);
             displayQuotedText(message.mText, message.mHtml);
             setInitialComposeText(null, (account != null) ? account.mSignature : null);
-                // TODO: re-enable loadAttachments below
-//                 if (!loadAttachments(message, 0)) {
-//                     Utility.showToast(this, R.string.message_compose_attachments_skipped_toast);
-//                 }
         } else if (ACTION_EDIT_DRAFT.equals(mAction)) {
             mSubjectView.setText(subject);
             addAddresses(mToView, Address.unpack(message.mTo));

@@ -358,6 +358,9 @@ public class SyncManager extends Service implements Runnable {
 
         public void loadAttachment(long attachmentId, String destinationFile,
                 String contentUriString) throws RemoteException {
+            if (Email.DEBUG) {
+                Log.d(TAG, "loadAttachment: " + attachmentId + " to " + destinationFile);
+            }
             Attachment att = Attachment.restoreAttachmentWithId(SyncManager.this, attachmentId);
             sendMessageRequest(new PartRequest(att, destinationFile, contentUriString));
         }
@@ -1710,6 +1713,7 @@ public class SyncManager extends Service implements Runnable {
     @Override
     public void onCreate() {
         synchronized (sSyncLock) {
+            Email.setServicesEnabled(this);
             alwaysLog("!!! EAS SyncManager, onCreate");
             if (sStop) {
                 return;
@@ -1742,6 +1746,7 @@ public class SyncManager extends Service implements Runnable {
                 // If we were in the middle of trying to stop, attempt a restart in 5 seconds
                 setAlarm(SYNC_MANAGER_SERVICE_ID, 5*SECONDS);
             }
+            // If we're running, we want the download service running
             return Service.START_STICKY;
         }
     }
@@ -1966,6 +1971,28 @@ public class SyncManager extends Service implements Runnable {
         releaseWakeLock(mailboxId);
     }
 
+    /**
+     * Check whether an Outbox (referenced by a Cursor) has any messages that can be sent
+     * @param c the cursor to an Outbox
+     * @return true if there is mail to be sent
+     */
+    private boolean hasSendableMessages(Cursor outboxCursor) {
+        Cursor c = mResolver.query(Message.CONTENT_URI, Message.ID_COLUMN_PROJECTION,
+                EasOutboxService.MAILBOX_KEY_AND_NOT_SEND_FAILED,
+                new String[] {Long.toString(outboxCursor.getLong(Mailbox.CONTENT_ID_COLUMN))},
+                null);
+        try {
+            while (c.moveToNext()) {
+                if (!Utility.hasUnloadedAttachments(this, c.getLong(Message.CONTENT_ID_COLUMN))) {
+                    return true;
+                }
+            }
+        } finally {
+            c.close();
+        }
+        return false;
+    }
+
     private long checkMailboxes () {
         // First, see if any running mailboxes have been deleted
         ArrayList<Long> deletedMailboxes = new ArrayList<Long>();
@@ -2088,10 +2115,7 @@ public class SyncManager extends Service implements Runnable {
                         Mailbox m = EmailContent.getContent(c, Mailbox.class);
                         requestSync(m, SYNC_PUSH, null);
                     } else if (type == Mailbox.TYPE_OUTBOX) {
-                        int cnt = EmailContent.count(this, Message.CONTENT_URI,
-                                EasOutboxService.MAILBOX_KEY_AND_NOT_SEND_FAILED,
-                                new String[] {Long.toString(mid)});
-                        if (cnt > 0) {
+                        if (hasSendableMessages(c)) {
                             Mailbox m = EmailContent.getContent(c, Mailbox.class);
                             startServiceThread(new EasOutboxService(this, m), m);
                         }

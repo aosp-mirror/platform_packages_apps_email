@@ -82,7 +82,7 @@ public abstract class EmailContent {
     public static final String ADD_COLUMN_NAME = "add";
 
     // Newly created objects get this id
-    private static final int NOT_SAVED = -1;
+    public static final int NOT_SAVED = -1;
     // The base Uri that this piece of content came from
     public Uri mBaseUri;
     // Lazily initialized uri for this Content
@@ -141,6 +141,11 @@ public abstract class EmailContent {
     static public int update(Context context, Uri baseUri, long id, ContentValues contentValues) {
         return context.getContentResolver()
             .update(ContentUris.withAppendedId(baseUri, id), contentValues, null, null);
+    }
+
+    static public int delete(Context context, Uri baseUri, long id) {
+        return context.getContentResolver()
+            .delete(ContentUris.withAppendedId(baseUri, id), null, null);
     }
 
     /**
@@ -231,7 +236,10 @@ public abstract class EmailContent {
         public static final String[] COMMON_PROJECTION_INTRO = new String[] {
             RECORD_ID, BodyColumns.INTRO_TEXT
         };
-        public static final int COMMON_PROJECTION_COLUMN_TEXT = 1;
+        public static final String[] COMMON_PROJECTION_SOURCE = new String[] {
+            RECORD_ID, BodyColumns.SOURCE_MESSAGE_KEY
+        };
+         public static final int COMMON_PROJECTION_COLUMN_TEXT = 1;
 
         private static final String[] PROJECTION_SOURCE_KEY =
             new String[] { BodyColumns.SOURCE_MESSAGE_KEY };
@@ -839,6 +847,7 @@ public abstract class EmailContent {
         public static final int FLAGS_INCOMPLETE = 16;
         public static final int FLAGS_SECURITY_HOLD = 32;
         public static final int FLAGS_VIBRATE_WHEN_SILENT = 64;
+        public static final int FLAGS_SUPPORTS_SMART_FORWARD = 128;
 
         public static final int DELETE_POLICY_NEVER = 0;
         public static final int DELETE_POLICY_7DAYS = 1;        // not supported
@@ -1756,6 +1765,14 @@ public abstract class EmailContent {
         // with this attachment.  This is only valid if there is one and only one attachment and
         // that attachment has this flag set
         public static final int FLAG_ICS_ALTERNATIVE_PART = 1<<0;
+        // Indicate that this attachment has been requested for downloading by the user; this is
+        // the highest priority for attachment downloading
+        public static final int FLAG_DOWNLOAD_USER_REQUEST = 1<<1;
+        // Indicate that this attachment needs to be downloaded as part of an outgoing forwarded
+        // message
+        public static final int FLAG_DOWNLOAD_FORWARD = 1<<2;
+        // Indicates that the attachment download failed in a non-recoverable manner
+        public static final int FLAG_DOWNLOAD_FAILED = 1<<3;
 
         /**
          * no public constructor since this is a utility class

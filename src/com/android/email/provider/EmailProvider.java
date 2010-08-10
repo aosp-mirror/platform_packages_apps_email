@@ -30,6 +30,7 @@ import com.android.email.provider.EmailContent.MailboxColumns;
 import com.android.email.provider.EmailContent.Message;
 import com.android.email.provider.EmailContent.MessageColumns;
 import com.android.email.provider.EmailContent.SyncColumns;
+import com.android.email.service.AttachmentDownloadService;
 
 import android.accounts.AccountManager;
 import android.content.ContentProvider;
@@ -57,6 +58,13 @@ public class EmailProvider extends ContentProvider {
 
     protected static final String DATABASE_NAME = "EmailProvider.db";
     protected static final String BODY_DATABASE_NAME = "EmailProviderBody.db";
+
+    public static final String ACTION_ATTACHMENT_UPDATED = "com.android.email.ATTACHMENT_UPDATED";
+    public static final String ATTACHMENT_UPDATED_EXTRA_FLAGS =
+        "com.android.email.ATTACHMENT_UPDATED_FLAGS";
+
+    public static final String EMAIL_ATTACHMENT_MIME_TYPE =
+        "vnd.android.cursor.item/email-attachment";
 
     public static final Uri INTEGRITY_CHECK_URI =
         Uri.parse("content://" + EmailContent.AUTHORITY + "/integrityCheck");
@@ -970,7 +978,7 @@ public class EmailProvider extends ContentProvider {
             case ATTACHMENT:
                 return "vnd.android.cursor.dir/email-attachment";
             case ATTACHMENT_ID:
-                return "vnd.android.cursor.item/email-attachment";
+                return EMAIL_ATTACHMENT_MIME_TYPE;
             case HOSTAUTH:
                 return "vnd.android.cursor.dir/email-hostauth";
             case HOSTAUTH_ID:
@@ -1013,6 +1021,12 @@ public class EmailProvider extends ContentProvider {
                     // would if this weren't allowed.
                     if (match == UPDATED_MESSAGE || match == DELETED_MESSAGE) {
                         throw new IllegalArgumentException("Unknown URL " + uri);
+                    }
+                    if (match == ATTACHMENT) {
+                        if (values.containsKey(Attachment.FLAGS)) {
+                            int flags = values.getAsInteger(Attachment.FLAGS);
+                            AttachmentDownloadService.attachmentChanged(id, flags);
+                        }
                     }
                     break;
                 case MAILBOX_ID:
@@ -1259,6 +1273,13 @@ public class EmailProvider extends ContentProvider {
                     }
                     result = db.update(TABLE_NAMES[table], values, whereWithId(id, selection),
                             selectionArgs);
+                    if (match == ATTACHMENT_ID) {
+                        if (values.containsKey(Attachment.FLAGS)) {
+                            int flags = values.getAsInteger(Attachment.FLAGS);
+                            AttachmentDownloadService.attachmentChanged(
+                                    Integer.parseInt(id), flags);
+                        }
+                    }
                     break;
                 case BODY:
                 case MESSAGE:
@@ -1277,7 +1298,7 @@ public class EmailProvider extends ContentProvider {
             throw e;
         }
 
-        getContext().getContentResolver().notifyChange(uri, null);
+        context.getContentResolver().notifyChange(uri, null);
         return result;
     }
 

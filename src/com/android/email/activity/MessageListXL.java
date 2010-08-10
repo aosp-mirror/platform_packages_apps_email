@@ -399,21 +399,6 @@ public class MessageListXL extends Activity implements View.OnClickListener,
         }
 
         @Override
-        public void onFetchAttachmentStarted(String attachmentName) {
-            // TODO Will probably be deprecate, then remove.
-        }
-
-        @Override
-        public void onFetchAttachmentFinished() {
-            // TODO Will probably be deprecate, then remove.
-        }
-
-        @Override
-        public void onFetchAttachmentError() {
-            // TODO Will probably be deprecate, then remove.
-        }
-
-        @Override
         public void onRespondedToInvite(int response) {
             if (!moveToOlder()) {
                 openMailbox(); // if this is the last message, move up to message-list.

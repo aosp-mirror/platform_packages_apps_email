@@ -17,8 +17,10 @@
 
 package com.android.exchange;
 
+import com.android.email.Utility;
 import com.android.email.mail.MessagingException;
 import com.android.email.mail.transport.Rfc822Output;
+import com.android.email.provider.EmailContent.Account;
 import com.android.email.provider.EmailContent.Body;
 import com.android.email.provider.EmailContent.BodyColumns;
 import com.android.email.provider.EmailContent.Mailbox;
@@ -92,8 +94,8 @@ public class EasOutboxService extends EasSyncService {
         File tmpFile = File.createTempFile("eas_", "tmp", cacheDir);
         // Write the output to a temporary file
         try {
-            String[] cols = getRowColumns(Message.CONTENT_URI, msgId, MessageColumns.FLAGS,
-                    MessageColumns.SUBJECT);
+            String[] cols = Utility.getRowColumns(mContext, Message.CONTENT_URI, msgId,
+                    MessageColumns.FLAGS, MessageColumns.SUBJECT);
             int flags = Integer.parseInt(cols[0]);
             String subject = cols[1];
 
@@ -104,18 +106,19 @@ public class EasOutboxService extends EasSyncService {
             String collectionId = null;
             if (reply || forward) {
                 // First, we need to get the id of the reply/forward message
-                cols = getRowColumns(Body.CONTENT_URI, BODY_SOURCE_PROJECTION,
+                cols = Utility.getRowColumns(mContext, Body.CONTENT_URI, BODY_SOURCE_PROJECTION,
                         WHERE_MESSAGE_KEY, new String[] {Long.toString(msgId)});
                 if (cols != null) {
                     long refId = Long.parseLong(cols[0]);
                     // Then, we need the serverId and mailboxKey of the message
-                    cols = getRowColumns(Message.CONTENT_URI, refId, SyncColumns.SERVER_ID,
-                            MessageColumns.MAILBOX_KEY);
+                    cols = Utility.getRowColumns(mContext, Message.CONTENT_URI, refId,
+                            SyncColumns.SERVER_ID, MessageColumns.MAILBOX_KEY);
                     if (cols != null) {
                         itemId = cols[0];
                         long boxId = Long.parseLong(cols[1]);
                         // Then, we need the serverId of the mailbox
-                        cols = getRowColumns(Mailbox.CONTENT_URI, boxId, MailboxColumns.SERVER_ID);
+                        cols = Utility.getRowColumns(mContext, Mailbox.CONTENT_URI, boxId,
+                                MailboxColumns.SERVER_ID);
                         if (cols != null) {
                             collectionId = cols[0];
                         }
@@ -123,7 +126,14 @@ public class EasOutboxService extends EasSyncService {
                 }
             }
 
+            // Generally, we use SmartReply/SmartForward if we've got a good reference
             boolean smartSend = itemId != null && collectionId != null;
+            // But we won't use SmartForward if the account isn't set up for it (currently, we only
+            // use SmartForward for EAS 12.0 or later to avoid creating eml files that are
+            // potentially difficult for the recipient to handle)
+            if (forward && ((mAccount.mFlags & Account.FLAGS_SUPPORTS_SMART_FORWARD) == 0)) {
+                smartSend = false;
+            }
 
             // Write the message in rfc822 format to the temporary file
             FileOutputStream fileStream = new FileOutputStream(tmpFile);
@@ -195,6 +205,10 @@ public class EasOutboxService extends EasSyncService {
                 while (c.moveToNext()) {
                     long msgId = c.getLong(0);
                     if (msgId != 0) {
+                        if (Utility.hasUnloadedAttachments(mContext, msgId)) {
+                            // We'll just have to wait on this...
+                            continue;
+                        }
                         int result = sendMessage(cacheDir, msgId);
                         // If there's an error, it should stop the service; we will distinguish
                         // at least between login failures and everything else

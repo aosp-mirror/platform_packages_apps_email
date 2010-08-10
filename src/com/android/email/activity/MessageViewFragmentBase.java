@@ -29,6 +29,7 @@ import com.android.email.provider.AttachmentProvider;
 import com.android.email.provider.EmailContent.Attachment;
 import com.android.email.provider.EmailContent.Body;
 import com.android.email.provider.EmailContent.Message;
+import com.android.email.service.AttachmentDownloadService;
 
 import org.apache.commons.io.IOUtils;
 
@@ -58,6 +59,7 @@ import android.webkit.WebViewClient;
 import android.widget.Button;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
+import android.widget.ProgressBar;
 import android.widget.TextView;
 
 import java.io.File;
@@ -110,10 +112,6 @@ public abstract class MessageViewFragmentBase extends Fragment implements View.O
     private LoadAttachmentsTask mLoadAttachmentsTask;
     private PresenceUpdater mPresenceUpdater;
 
-    private long mLoadAttachmentId;         // the attachment being saved/viewed
-    private boolean mLoadAttachmentSave;    // if true, saving - if false, viewing
-    private String mLoadAttachmentName;     // the display name
-
     private java.text.DateFormat mDateFormat;
     private java.text.DateFormat mTimeFormat;
 
@@ -140,8 +138,11 @@ public abstract class MessageViewFragmentBase extends Fragment implements View.O
         public long size;
         public long attachmentId;
         public Button viewButton;
-        public Button downloadButton;
+        public Button saveButton;
+        public Button loadButton;
+        public Button cancelButton;
         public ImageView iconView;
+        public ProgressBar progressView;
     }
 
     public interface Callback {
@@ -164,31 +165,10 @@ public abstract class MessageViewFragmentBase extends Fragment implements View.O
 
         /** Called when an error occurred during loading a message. */
         public void onLoadMessageError();
-
-        /** Called when it starts loading an attachment. */
-        public void onFetchAttachmentStarted(String attachmentName);
-
-        /** Called when it successfully finishes loading an attachment. */
-        public void onFetchAttachmentFinished();
-
-        /** Called when an error occurred during loading an attachment. */
-        public void onFetchAttachmentError();
     }
 
     public static class EmptyCallback implements Callback {
         public static final Callback INSTANCE = new EmptyCallback();
-
-        @Override
-        public void onFetchAttachmentError() {
-        }
-
-        @Override
-        public void onFetchAttachmentFinished() {
-        }
-
-        @Override
-        public void onFetchAttachmentStarted(String attachmentName) {
-        }
 
         @Override
         public void onLoadMessageError() {
@@ -437,8 +417,8 @@ public abstract class MessageViewFragmentBase extends Fragment implements View.O
         }
     }
 
-    private void onDownloadAttachment(AttachmentInfo attachment) {
-        if (!Environment.getExternalStorageState().equals(Environment.MEDIA_MOUNTED)) {
+    private void onSaveAttachment(AttachmentInfo info) {
+        if (!Utility.isExternalStorageMounted()) {
             /*
              * Abort early if there's no place to save the attachment. We don't want to spend
              * the time downloading it and then abort.
@@ -446,69 +426,79 @@ public abstract class MessageViewFragmentBase extends Fragment implements View.O
             Utility.showToast(getActivity(), R.string.message_view_status_attachment_not_saved);
             return;
         }
-        startLoadAttachment(attachment, true);
+        Attachment attachment = Attachment.restoreAttachmentWithId(mContext, info.attachmentId);
+        Uri attachmentUri = AttachmentProvider.getAttachmentUri(mAccountId, attachment.mId);
+
+        try {
+            File file = Utility.createUniqueFile(Environment.getExternalStorageDirectory(),
+                    attachment.mFileName);
+            Uri contentUri = AttachmentProvider.resolveAttachmentIdToContentUri(
+                    mContext.getContentResolver(), attachmentUri);
+            InputStream in = mContext.getContentResolver().openInputStream(contentUri);
+            OutputStream out = new FileOutputStream(file);
+            IOUtils.copy(in, out);
+            out.flush();
+            out.close();
+            in.close();
+
+            Utility.showToast(getActivity(), String.format(
+                    mContext.getString(R.string.message_view_status_attachment_saved),
+                    file.getName()));
+            MediaOpener.scanAndOpen(getActivity(), file);
+        } catch (IOException ioe) {
+            Utility.showToast(getActivity(), R.string.message_view_status_attachment_not_saved);
+        }
     }
 
-    private void onViewAttachment(AttachmentInfo attachment) {
-        startLoadAttachment(attachment, false);
+    private void onViewAttachment(AttachmentInfo info) {
+        Uri attachmentUri = AttachmentProvider.getAttachmentUri(mAccountId, info.attachmentId);
+        Uri contentUri = AttachmentProvider.resolveAttachmentIdToContentUri(
+                mContext.getContentResolver(), attachmentUri);
+        try {
+            Intent intent = new Intent(Intent.ACTION_VIEW);
+            intent.setData(contentUri);
+            intent.addFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION
+                            | Intent.FLAG_ACTIVITY_CLEAR_WHEN_TASK_RESET);
+            startActivity(intent);
+        } catch (ActivityNotFoundException e) {
+            Utility.showToast(getActivity(), R.string.message_view_display_attachment_toast);
+            // TODO: Add a proper warning message (and lots of upstream cleanup to prevent
+            // it from happening) in the next release.
+        }
     }
 
-    private void startLoadAttachment(AttachmentInfo attachment, boolean save) {
-        mLoadAttachmentId = attachment.attachmentId;
-        mLoadAttachmentSave = save;
-        mLoadAttachmentName = attachment.name;
-
+    private void onLoadAttachment(AttachmentInfo attachment) {
+        attachment.loadButton.setVisibility(View.GONE);
+        attachment.cancelButton.setVisibility(View.VISIBLE);
+        ProgressBar bar = attachment.progressView;
+        bar.setVisibility(View.VISIBLE);
+        bar.setIndeterminate(true);
         mController.loadAttachment(attachment.attachmentId, mMessageId, mMessage.mMailboxKey,
                 mAccountId);
     }
 
+    private void onCancelAttachment(AttachmentInfo attachment) {
+        // Don't change button states if we couldn't cancel the download
+        if (AttachmentDownloadService.cancelQueuedAttachment(attachment.attachmentId)) {
+            attachment.loadButton.setVisibility(View.VISIBLE);
+            attachment.cancelButton.setVisibility(View.GONE);
+            ProgressBar bar = attachment.progressView;
+            bar.setVisibility(View.GONE);
+        }
+    }
+
     /**
-     * Called by ControllerResults. Handle the final steps of downloading an attachment
-     * (view or save).
+     * Called by ControllerResults. Show the "View" and "Save" buttons; hide "Load"
      *
      * @param attachmentId the attachment that was just downloaded
      */
     private void doFinishLoadAttachment(long attachmentId) {
-        // If the result does't line up, just skip it - we handle one at a time.
-        if (attachmentId != mLoadAttachmentId) {
-            return;
-        }
-        Attachment attachment = Attachment.restoreAttachmentWithId(mContext, attachmentId);
-        Uri attachmentUri = AttachmentProvider.getAttachmentUri(mAccountId, attachment.mId);
-        Uri contentUri = AttachmentProvider.resolveAttachmentIdToContentUri(
-                mContext.getContentResolver(), attachmentUri);
-
-        if (mLoadAttachmentSave) {
-            try {
-                File file = Utility.createUniqueFile(Environment.getExternalStorageDirectory(),
-                        attachment.mFileName);
-                InputStream in = mContext.getContentResolver().openInputStream(contentUri);
-                OutputStream out = new FileOutputStream(file);
-                IOUtils.copy(in, out);
-                out.flush();
-                out.close();
-                in.close();
-
-                Utility.showToast(getActivity(), String.format(
-                        mContext.getString(R.string.message_view_status_attachment_saved),
-                        file.getName()));
-
-                MediaOpener.scanAndOpen(getActivity(), file);
-            } catch (IOException ioe) {
-                Utility.showToast(getActivity(), R.string.message_view_status_attachment_not_saved);
-            }
-        } else {
-            try {
-                Intent intent = new Intent(Intent.ACTION_VIEW);
-                intent.setData(contentUri);
-                intent.addFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION
-                                | Intent.FLAG_ACTIVITY_CLEAR_WHEN_TASK_RESET);
-                startActivity(intent);
-            } catch (ActivityNotFoundException e) {
-                Utility.showToast(getActivity(), R.string.message_view_display_attachment_toast);
-                // TODO: Add a proper warning message (and lots of upstream cleanup to prevent
-                // it from happening) in the next release.
-            }
+        AttachmentInfo info = findAttachmentInfo(attachmentId);
+        if (info != null) {
+            info.loadButton.setVisibility(View.INVISIBLE);
+            info.loadButton.setVisibility(View.GONE);
+            info.saveButton.setVisibility(View.VISIBLE);
+            info.viewButton.setVisibility(View.VISIBLE);
         }
     }
 
@@ -533,11 +523,17 @@ public abstract class MessageViewFragmentBase extends Fragment implements View.O
             case R.id.presence:
                 onClickSender();
                 break;
-            case R.id.download:
-                onDownloadAttachment((AttachmentInfo) view.getTag());
+            case R.id.load:
+                onLoadAttachment((AttachmentInfo) view.getTag());
+                break;
+            case R.id.save:
+                onSaveAttachment((AttachmentInfo) view.getTag());
                 break;
             case R.id.view:
                 onViewAttachment((AttachmentInfo) view.getTag());
+                break;
+            case R.id.cancel:
+                onCancelAttachment((AttachmentInfo) view.getTag());
                 break;
             case R.id.show_pictures:
                 onShowPicturesInHtml();
@@ -767,35 +763,73 @@ public abstract class MessageViewFragmentBase extends Fragment implements View.O
         TextView attachmentInfoView = (TextView)view.findViewById(R.id.attachment_info);
         ImageView attachmentIcon = (ImageView)view.findViewById(R.id.attachment_icon);
         Button attachmentView = (Button)view.findViewById(R.id.view);
-        Button attachmentDownload = (Button)view.findViewById(R.id.download);
+        Button attachmentSave = (Button)view.findViewById(R.id.save);
+        Button attachmentLoad = (Button)view.findViewById(R.id.load);
+        Button attachmentCancel = (Button)view.findViewById(R.id.cancel);
+        ProgressBar attachmentProgress = (ProgressBar)view.findViewById(R.id.progress);
 
+        // TODO: Remove this test (acceptable types = everything; unacceptable = nothing)
         if ((!MimeUtility.mimeTypeMatches(attachmentInfo.contentType,
                 Email.ACCEPTABLE_ATTACHMENT_VIEW_TYPES))
                 || (MimeUtility.mimeTypeMatches(attachmentInfo.contentType,
                         Email.UNACCEPTABLE_ATTACHMENT_VIEW_TYPES))) {
             attachmentView.setVisibility(View.GONE);
         }
-        if ((!MimeUtility.mimeTypeMatches(attachmentInfo.contentType,
-                Email.ACCEPTABLE_ATTACHMENT_DOWNLOAD_TYPES))
-                || (MimeUtility.mimeTypeMatches(attachmentInfo.contentType,
-                        Email.UNACCEPTABLE_ATTACHMENT_DOWNLOAD_TYPES))) {
-            attachmentDownload.setVisibility(View.GONE);
-        }
 
         if (attachmentInfo.size > Email.MAX_ATTACHMENT_DOWNLOAD_SIZE) {
             attachmentView.setVisibility(View.GONE);
-            attachmentDownload.setVisibility(View.GONE);
+            attachmentSave.setVisibility(View.GONE);
         }
 
         attachmentInfo.viewButton = attachmentView;
-        attachmentInfo.downloadButton = attachmentDownload;
+        attachmentInfo.saveButton = attachmentSave;
+        attachmentInfo.loadButton = attachmentLoad;
+        attachmentInfo.cancelButton = attachmentCancel;
         attachmentInfo.iconView = attachmentIcon;
+        attachmentInfo.progressView = attachmentProgress;
+
+        // If the attachment is loaded, show 100% progress
+        // Note that for POP3 messages, the user will only see "Open" and "Save" since the entire
+        // message is loaded before being shown.
+        if (Utility.attachmentExists(mContext, mAccountId, attachment)) {
+            // Hide "Load", show "View" and "Save"
+            attachmentProgress.setVisibility(View.VISIBLE);
+            attachmentProgress.setProgress(100);
+            attachmentSave.setVisibility(View.VISIBLE);
+            attachmentView.setVisibility(View.VISIBLE);
+            attachmentLoad.setVisibility(View.INVISIBLE);
+            attachmentCancel.setVisibility(View.GONE);
+        } else {
+            // Show "Load"; hide "View" and "Save"
+            attachmentSave.setVisibility(View.INVISIBLE);
+            attachmentView.setVisibility(View.INVISIBLE);
+            // If the attachment is queued, show the indeterminate progress bar.  From this point,.
+            // any progress changes will cause this to be replaced by the normal progress bar
+            if (AttachmentDownloadService.isAttachmentQueued(attachment.mId)){
+                attachmentProgress.setVisibility(View.VISIBLE);
+                attachmentProgress.setIndeterminate(true);
+                attachmentLoad.setVisibility(View.GONE);
+                attachmentCancel.setVisibility(View.VISIBLE);
+            } else {
+                attachmentLoad.setVisibility(View.VISIBLE);
+                attachmentCancel.setVisibility(View.GONE);
+            }
+        }
+
+        // Don't enable the "save" button if we've got no place to save the file
+        if (!Utility.isExternalStorageMounted()) {
+            attachmentSave.setEnabled(false);
+        }
 
         view.setTag(attachmentInfo);
         attachmentView.setOnClickListener(this);
         attachmentView.setTag(attachmentInfo);
-        attachmentDownload.setOnClickListener(this);
-        attachmentDownload.setTag(attachmentInfo);
+        attachmentSave.setOnClickListener(this);
+        attachmentSave.setTag(attachmentInfo);
+        attachmentLoad.setOnClickListener(this);
+        attachmentLoad.setTag(attachmentInfo);
+        attachmentCancel.setOnClickListener(this);
+        attachmentCancel.setTag(attachmentInfo);
 
         attachmentName.setText(attachmentInfo.name);
         attachmentInfoView.setText(Utility.formatSize(mContext, attachmentInfo.size));
@@ -936,6 +970,25 @@ public abstract class MessageViewFragmentBase extends Fragment implements View.O
         }
     }
 
+    private View findAttachmentView(long attachmentId) {
+        for (int i = 0, count = mAttachments.getChildCount(); i < count; i++) {
+            View view = mAttachments.getChildAt(i);
+            AttachmentInfo attachment = (AttachmentInfo) view.getTag();
+            if (attachment.attachmentId == attachmentId) {
+                return view;
+            }
+        }
+        return null;
+    }
+
+    private AttachmentInfo findAttachmentInfo(long attachmentId) {
+        View view = findAttachmentView(attachmentId);
+        if (view != null) {
+            return (AttachmentInfo)view.getTag();
+        }
+        return null;
+    }
+
     /**
      * Controller results listener.  We wrap it with {@link ControllerResultUiThreadWrapper},
      * so all methods are called on the UI thread.
@@ -992,16 +1045,9 @@ public abstract class MessageViewFragmentBase extends Fragment implements View.O
                 long attachmentId, int progress) {
             if (messageId == mMessageId) {
                 if (result == null) {
+                    showAttachmentProgress(attachmentId, progress);
                     switch (progress) {
-                        case 0:
-                            enableAttachments(false);
-                            mCallback.onFetchAttachmentStarted(mLoadAttachmentName);
-                            Utility.showToast(getActivity(),
-                                    R.string.message_view_fetching_attachment_toast);
-                            break;
                         case 100:
-                            enableAttachments(true);
-                            mCallback.onFetchAttachmentFinished();
                             updateAttachmentThumbnail(attachmentId);
                             doFinishLoadAttachment(attachmentId);
                             break;
@@ -1010,18 +1056,34 @@ public abstract class MessageViewFragmentBase extends Fragment implements View.O
                             break;
                     }
                 } else {
-                    enableAttachments(true);
-                    mCallback.onFetchAttachmentError();
-                    Utility.showToast(getActivity(), R.string.status_network_error);
+                    AttachmentInfo attachment = findAttachmentInfo(attachmentId);
+                    attachment.cancelButton.setVisibility(View.GONE);
+                    attachment.loadButton.setVisibility(View.VISIBLE);
+                    attachment.progressView.setVisibility(View.INVISIBLE);
+                    if (result.getCause() instanceof IOException) {
+                        Utility.showToast(getActivity(), R.string.status_network_error);
+                    } else {
+                        Utility.showToast(getActivity(), String.format(
+                                mContext.getString(
+                                        R.string.message_view_load_attachment_failed_toast),
+                                attachment.name));
+                    }
                 }
             }
         }
 
-        private void enableAttachments(boolean enable) {
-            for (int i = 0, count = mAttachments.getChildCount(); i < count; i++) {
-                AttachmentInfo attachment = (AttachmentInfo) mAttachments.getChildAt(i).getTag();
-                attachment.viewButton.setEnabled(enable);
-                attachment.downloadButton.setEnabled(enable);
+        private void showAttachmentProgress(long attachmentId, int progress) {
+            AttachmentInfo attachment = findAttachmentInfo(attachmentId);
+            if (attachment != null) {
+                ProgressBar bar = attachment.progressView;
+                if (progress == 0) {
+                    // When the download starts, we can get rid of the indeterminate bar
+                    bar.setVisibility(View.VISIBLE);
+                    bar.setIndeterminate(false);
+                    // And we're not implementing stop of in-progress downloads
+                    attachment.cancelButton.setVisibility(View.GONE);
+                }
+                bar.setProgress(progress);
             }
         }
     }

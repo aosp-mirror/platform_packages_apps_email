@@ -276,6 +276,12 @@
             >
         </service>
 
+        <service
+            android:name=".service.AttachmentDownloadService"
+            android:enabled="false"
+            >
+        </service>
+
         <!--EXCHANGE-REMOVE-SECTION-START-->
         <!--Required stanza to register the PopImapAuthenticatorService with AccountManager -->
         <service

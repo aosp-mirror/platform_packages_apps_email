@@ -76,6 +76,7 @@ public class MailService extends Service {
     public static final int NOTIFICATION_ID_NEW_MESSAGES = 1;
     public static final int NOTIFICATION_ID_SECURITY_NEEDED = 2;
     public static final int NOTIFICATION_ID_EXCHANGE_CALENDAR_ADDED = 3;
+    public static final int NOTIFICATION_ID_WARNING = 4;
 
     private static final String ACTION_CHECK_MAIL =
         "com.android.email.intent.action.MAIL_SERVICE_WAKEUP";
@@ -85,8 +86,10 @@ public class MailService extends Service {
         "com.android.email.intent.action.MAIL_SERVICE_CANCEL";
     private static final String ACTION_NOTIFY_MAIL =
         "com.android.email.intent.action.MAIL_SERVICE_NOTIFY";
+    private static final String ACTION_SEND_PENDING_MAIL =
+        "com.android.email.intent.action.MAIL_SERVICE_SEND_PENDING";
 
-    private static final String EXTRA_CHECK_ACCOUNT = "com.android.email.intent.extra.ACCOUNT";
+    private static final String EXTRA_ACCOUNT = "com.android.email.intent.extra.ACCOUNT";
     private static final String EXTRA_ACCOUNT_INFO = "com.android.email.intent.extra.ACCOUNT_INFO";
     private static final String EXTRA_DEBUG_WATCHDOG = "com.android.email.intent.extra.WATCHDOG";
 
@@ -133,6 +136,19 @@ public class MailService extends Service {
     }
 
     /**
+     * Entry point for AttachmentDownloadService to ask that pending mail be sent
+     * @param context the caller's context
+     * @param accountId the account whose pending mail should be sent
+     */
+    public static void actionSendPendingMail(Context context, long accountId)  {
+        Intent i = new Intent();
+        i.setClass(context, MailService.class);
+        i.setAction(MailService.ACTION_SEND_PENDING_MAIL);
+        i.putExtra(MailService.EXTRA_ACCOUNT, accountId);
+        context.startService(i);
+    }
+
+    /**
      * Reset new message counts for one or all accounts.  This clears both our local copy and
      * the values (if any) stored in the account records.
      *
@@ -168,7 +184,7 @@ public class MailService extends Service {
     public static void actionNotifyNewMessages(Context context, long accountId) {
         Intent i = new Intent(ACTION_NOTIFY_MAIL);
         i.setClass(context, MailService.class);
-        i.putExtra(EXTRA_CHECK_ACCOUNT, accountId);
+        i.putExtra(EXTRA_ACCOUNT, accountId);
         context.startService(i);
     }
 
@@ -201,7 +217,7 @@ public class MailService extends Service {
 
             // Sync a specific account if given
             AlarmManager alarmManager = (AlarmManager)getSystemService(Context.ALARM_SERVICE);
-            long checkAccountId = intent.getLongExtra(EXTRA_CHECK_ACCOUNT, -1);
+            long checkAccountId = intent.getLongExtra(EXTRA_ACCOUNT, -1);
             if (Config.LOGD && Email.DEBUG) {
                 Log.d(LOG_TAG, "action: check mail for id=" + checkAccountId);
             }
@@ -243,6 +259,22 @@ public class MailService extends Service {
             cancel();
             stopSelf(startId);
         }
+        else if (ACTION_SEND_PENDING_MAIL.equals(action)) {
+            if (Config.LOGD && Email.DEBUG) {
+                Log.d(LOG_TAG, "action: send pending mail");
+            }
+            final long accountId = intent.getLongExtra(EXTRA_ACCOUNT, -1);
+            EmailContent.Account account =
+                EmailContent.Account.restoreAccountWithId(this, accountId);
+            if (account != null) {
+                Utility.runAsync(new Runnable() {
+                    public void run() {
+                        mController.sendPendingMessages(accountId);
+                    }
+                });
+            }
+            stopSelf(startId);
+        }
         else if (ACTION_RESCHEDULE.equals(action)) {
             if (Config.LOGD && Email.DEBUG) {
                 Log.d(LOG_TAG, "action: reschedule");
@@ -262,7 +294,7 @@ public class MailService extends Service {
             reschedule(alarmManager);
             stopSelf(startId);
         } else if (ACTION_NOTIFY_MAIL.equals(action)) {
-            long accountId = intent.getLongExtra(EXTRA_CHECK_ACCOUNT, -1);
+            long accountId = intent.getLongExtra(EXTRA_ACCOUNT, -1);
             // Get the current new message count
             Cursor c = mContentResolver.query(
                     ContentUris.withAppendedId(Account.CONTENT_URI, accountId),
@@ -432,7 +464,7 @@ public class MailService extends Service {
         Intent i = new Intent();
         i.setClass(this, MailService.class);
         i.setAction(ACTION_CHECK_MAIL);
-        i.putExtra(EXTRA_CHECK_ACCOUNT, checkId);
+        i.putExtra(EXTRA_ACCOUNT, checkId);
         i.putExtra(EXTRA_ACCOUNT_INFO, accountInfo);
         if (isWatchdog) {
             i.putExtra(EXTRA_DEBUG_WATCHDOG, true);

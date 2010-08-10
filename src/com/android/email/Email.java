@@ -20,11 +20,13 @@ import com.android.email.activity.AccountShortcutPicker;
 import com.android.email.activity.Debug;
 import com.android.email.activity.MessageCompose;
 import com.android.email.provider.EmailContent;
+import com.android.email.service.AttachmentDownloadService;
 import com.android.email.service.MailService;
 
 import android.app.Application;
 import android.content.ComponentName;
 import android.content.Context;
+import android.content.Intent;
 import android.content.pm.PackageManager;
 import android.database.Cursor;
 import android.text.format.DateUtils;
@@ -228,8 +230,9 @@ public class Email extends Application {
 
     public static void setServicesEnabled(Context context, boolean enabled) {
         PackageManager pm = context.getPackageManager();
-        if (!enabled && pm.getComponentEnabledSetting(new ComponentName(context, MailService.class)) ==
-                PackageManager.COMPONENT_ENABLED_STATE_ENABLED) {
+        if (!enabled && pm.getComponentEnabledSetting(
+                new ComponentName(context, MailService.class)) ==
+                    PackageManager.COMPONENT_ENABLED_STATE_ENABLED) {
             /*
              * If no accounts now exist but the service is still enabled we're about to disable it
              * so we'll reschedule to kill off any existing alarms.
@@ -251,13 +254,26 @@ public class Email extends Application {
                 enabled ? PackageManager.COMPONENT_ENABLED_STATE_ENABLED :
                     PackageManager.COMPONENT_ENABLED_STATE_DISABLED,
                 PackageManager.DONT_KILL_APP);
-        if (enabled && pm.getComponentEnabledSetting(new ComponentName(context, MailService.class)) ==
-                PackageManager.COMPONENT_ENABLED_STATE_ENABLED) {
+        pm.setComponentEnabledSetting(
+                new ComponentName(context, AttachmentDownloadService.class),
+                enabled ? PackageManager.COMPONENT_ENABLED_STATE_ENABLED :
+                    PackageManager.COMPONENT_ENABLED_STATE_DISABLED,
+                PackageManager.DONT_KILL_APP);
+        if (enabled && pm.getComponentEnabledSetting(
+                new ComponentName(context, MailService.class)) ==
+                    PackageManager.COMPONENT_ENABLED_STATE_ENABLED) {
             /*
              * And now if accounts do exist then we've just enabled the service and we want to
              * schedule alarms for the new accounts.
              */
             MailService.actionReschedule(context);
+        }
+        // Start/stop the AttachmentDownloadService, depending on whether there are any accounts
+        Intent intent = new Intent(context, AttachmentDownloadService.class);
+        if (enabled) {
+            context.startService(intent);
+        } else {
+            context.stopService(intent);
         }
     }
 

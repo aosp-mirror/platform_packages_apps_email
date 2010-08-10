@@ -119,6 +119,11 @@
     </provider>
 
     <!-- USA -->
+    <!-- STOPSHIP For Marc's debugging -->
+    <provider id="eon" label="Everyone.net" domain="nextobject.com">
+        <incoming uri="imap://imap.everyone.net" label="IMAP" username="$email" />
+        <outgoing uri="smtp://smtp.everyone.net" username="$email" />
+    </provider>
     <!-- Note, AOL appears to support SSL on both sides, as well -->
     <provider id="aim" label="AIM" domain="aim.com">
         <incoming uri="imap://imap.aim.com" label="IMAP" username="$email" />

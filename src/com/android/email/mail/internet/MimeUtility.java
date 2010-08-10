@@ -30,9 +30,9 @@ import org.apache.james.mime4j.decoder.DecoderUtil;
 import org.apache.james.mime4j.decoder.QuotedPrintableInputStream;
 import org.apache.james.mime4j.util.CharsetUtil;
 
-import android.util.Log;
 import android.util.Base64;
 import android.util.Base64InputStream;
+import android.util.Log;
 
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
@@ -344,13 +344,14 @@ public class MimeUtility {
     }
 
     /**
-     * Removes any content transfer encoding from the stream and returns a Body.
+     * Given an input stream and a transfer encoding, return a wrapped input stream for that
+     * encoding (or the original if none is required)
+     * @param in the input stream
+     * @param contentTransferEncoding the content transfer encoding
+     * @return a properly wrapped stream
      */
-    public static Body decodeBody(InputStream in, String contentTransferEncoding)
-            throws IOException {
-        /*
-         * We'll remove any transfer encoding by wrapping the stream.
-         */
+    public static InputStream getInputStreamForContentTransferEncoding(InputStream in,
+            String contentTransferEncoding) {
         if (contentTransferEncoding != null) {
             contentTransferEncoding =
                 MimeUtility.getHeaderParameter(contentTransferEncoding, null);
@@ -361,7 +362,18 @@ public class MimeUtility {
                 in = new Base64InputStream(in, Base64.DEFAULT);
             }
         }
+        return in;
+    }
 
+    /**
+     * Removes any content transfer encoding from the stream and returns a Body.
+     */
+    public static Body decodeBody(InputStream in, String contentTransferEncoding)
+            throws IOException {
+        /*
+         * We'll remove any transfer encoding by wrapping the stream.
+         */
+        in = getInputStreamForContentTransferEncoding(in, contentTransferEncoding);
         BinaryTempFileBody tempBody = new BinaryTempFileBody();
         OutputStream out = tempBody.getOutputStream();
         IOUtils.copy(in, out);

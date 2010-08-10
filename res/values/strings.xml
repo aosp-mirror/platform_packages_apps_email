@@ -21,7 +21,9 @@
     <!-- Do Not Translate.  Unused string. -->
     <string name="account_settings_exchange_summary" translatable="false"></string>
     <!-- Do Not Translate.  Unused string. -->
-    <string name="status_loading_more" translatable="false">Loading messages\u2026</string>
+    <string name="message_compose_attachments_skipped_toast" translatable="false"></string>
+    <!-- Do Not Translate.  Unused string. -->
+    <string name="status_loading_more" translatable="false"></string>
 
     <!-- Messages that are not currently used, but will probably reused in the near future -->
     <!-- STOPSHIP Remove them if they're not used after all -->
@@ -30,7 +32,11 @@
     <!-- Appears at the bottom of list of messages of outbox;
          user selects to send pending messages. -->
     <string name="message_list_send_pending_messages_action">Send outgoing messages</string>
-
+    <!-- Toast while fetching attachment -->
+    <string name="message_view_fetching_attachment_toast">Fetching attachment.</string>
+    <!-- Appears progress dialog for fetching attachment -->
+    <string name="message_view_fetching_attachment_progress">Fetching attachment <xliff:g
+        id="filename">%s</xliff:g></string>
     <!-- Permissions label for reading attachments -->
     <string name="read_attachment_label">Read Email attachments</string>
     <!-- Permissions description for reading attachments -->
@@ -234,8 +240,6 @@
     <string name="message_compose_error_no_recipients">You must add at least one recipient.</string>
     <!-- An address field contains invalid email addresses. -->
     <string name="message_compose_error_invalid_email">Some email addresses are invalid.</string>
-    <!-- Toast that appears in the context of forwarding a message with attachment(s) -->
-    <string name="message_compose_attachments_skipped_toast">Some attachments cannot be forwarded because they have not downloaded.</string>
     <!-- Toast that appears when an attachment is too big to send. -->
     <string name="message_compose_attachment_size">File too large to attach.</string>
     <!-- Display name for composed message, indicating the destination of the message.
@@ -245,22 +249,26 @@
     <string name="message_view_to_label">To:</string>
     <!-- Label for CC field in read message view -->
     <string name="message_view_cc_label">Cc:</string>
-    <!-- Menu item -->
-    <string name="message_view_attachment_view_action">Open</string>
-    <!-- Button name -->
-    <string name="message_view_attachment_download_action">Save</string>
+    <!-- Button name to view an attachment (in another activity) [CHAR LIMIT=10]-->
+    <string name="message_view_attachment_view_action">View</string>
+    <!-- Button name, to load an attachment from the mail server [CHAR LIMIT=10]-->
+    <string name="message_view_attachment_load_action">Load</string>
+    <!-- Button name, to save the attachment to SD card [CHAR LIMIT=10]-->
+    <string name="message_view_attachment_save_action">Save</string>
+    <!-- Button name, to cancel a queued attachment download [CHAR LIMIT=10]-->
+    <string name="message_view_attachment_cancel_action">Stop</string>
     <!-- Toast after saving attachment -->
     <string name="message_view_status_attachment_saved">Attachment saved to SD card as <xliff:g id="filename">%s</xliff:g>.</string>
     <!-- Toast after attachment could not be saved-->
     <string name="message_view_status_attachment_not_saved">Unable to save attachment to SD card.</string>
+    <!-- Toast upon using "send" when one or more attachments will need to be background loaded
+      [CHAR LIMIT=none]-->
+    <string name="message_view_attachment_background_load">Note: One or more attachments in your
+        forwarded message will be downloaded prior to sending.</string>
     <!-- Displayed in message view -->
     <string name="message_view_show_pictures_instructions">Select \"Show pictures\" to display embedded pictures.</string>
     <!-- Button on email opened for reading -->
     <string name="message_view_show_pictures_action">Show pictures</string>
-    <!-- Toast while fetching attachment -->
-    <string name="message_view_fetching_attachment_toast">Fetching attachment.</string>
-    <!-- Appears progress dialog for fetching attachment -->
-    <string name="message_view_fetching_attachment_progress">Fetching attachment <xliff:g id="filename">%s</xliff:g></string>
     <!-- Calendar invitation, label of the button to open in calendar -->
     <string name="message_view_invite_view">View in Calendar</string>
     <!-- String shown with a calendar invitation. -->
@@ -290,9 +298,19 @@
     <!-- Toast shown briefly while saving a draft -->
     <string name="message_saved_toast">Message saved as draft.</string>
     <!-- String that is displayed when the attachment could not be displayed. -->
-    <string name="message_view_display_attachment_toast">This attachment cannot be displayed.</string>
+    <string name="message_view_display_attachment_toast">This attachment cannot be
+        displayed.</string>
+    <!-- String that is displayed when the attachment could not be loaded.[CHAR LIMIT=none] -->
+    <string name="message_view_load_attachment_failed_toast">The attachment \"
+        <xliff:g id="filename">%s</xliff:g>\" could not be loaded.</string>
     <!-- String that is displayed when a long message is being parsed. -->
     <string name="message_view_parse_message_toast">Opening message\u2026</string>
+    <!-- Notification ticker when a forwarded attachment couldn't be sent [CHAR LIMIT=none] -->
+    <string name="forward_download_failed_ticker">"An attachment couldn't be forwarded"</string>
+    <!-- Notification text when a forwarded attachment couldn't be sent -->
+    <string name="forward_download_failed_notification">"The attachment "<xliff:g id="filename">%s
+        </xliff:g>" couldn't be sent with your outgoing mail because it couldn't be downloaded."
+        </string>
 
     <!-- Size unit for bytes for attachments-->
     <plurals name="message_view_attachment_bytes">

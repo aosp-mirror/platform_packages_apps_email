@@ -22,13 +22,9 @@ import com.android.email.provider.EmailContent.Account;
 import com.android.email.provider.EmailContent.Mailbox;
 import com.android.exchange.utility.FileLogger;
 
-import android.content.ContentResolver;
-import android.content.ContentUris;
 import android.content.Context;
-import android.database.Cursor;
 import android.net.ConnectivityManager;
 import android.net.NetworkInfo;
-import android.net.Uri;
 import android.net.NetworkInfo.DetailedState;
 import android.os.Bundle;
 import android.util.Log;
@@ -308,38 +304,5 @@ public abstract class AbstractSyncService implements Runnable {
         synchronized (mRequests) {
             mRequests.remove(req);
         }
-    }
-
-    /**
-     * Convenience method wrapping calls to retrieve columns from a single row, via EmailProvider.
-     * The arguments are exactly the same as to contentResolver.query().  Results are returned in
-     * an array of Strings corresponding to the columns in the projection.
-     */
-    protected String[] getRowColumns(Uri contentUri, String[] projection, String selection,
-            String[] selectionArgs) {
-        String[] values = new String[projection.length];
-        ContentResolver cr = mContext.getContentResolver();
-        Cursor c = cr.query(contentUri, projection, selection, selectionArgs, null);
-        try {
-            if (c.moveToFirst()) {
-                for (int i = 0; i < projection.length; i++) {
-                    values[i] = c.getString(i);
-                }
-            } else {
-                return null;
-            }
-        } finally {
-            c.close();
-        }
-        return values;
-    }
-
-    /**
-     * Convenience method for retrieving columns from a particular row in EmailProvider.
-     * Passed in here are a base uri (e.g. Message.CONTENT_URI), the unique id of a row, and
-     * a projection.  This method calls the previous one with the appropriate URI.
-     */
-    protected String[] getRowColumns(Uri baseUri, long id, String ... projection) {
-        return getRowColumns(ContentUris.withAppendedId(baseUri, id), projection, null, null);
     }
 }

@@ -16,9 +16,12 @@
 
 package com.android.email;
 
+import com.android.email.provider.AttachmentProvider;
 import com.android.email.provider.EmailContent;
 import com.android.email.provider.EmailContent.Account;
 import com.android.email.provider.EmailContent.AccountColumns;
+import com.android.email.provider.EmailContent.Attachment;
+import com.android.email.provider.EmailContent.AttachmentColumns;
 import com.android.email.provider.EmailContent.HostAuth;
 import com.android.email.provider.EmailContent.HostAuthColumns;
 import com.android.email.provider.EmailContent.Mailbox;
@@ -28,6 +31,8 @@ import com.android.email.provider.EmailContent.MessageColumns;
 
 import android.app.Activity;
 import android.content.ContentResolver;
+import android.content.ContentUris;
+import android.content.ContentValues;
 import android.content.Context;
 import android.content.pm.ActivityInfo;
 import android.content.res.Resources;
@@ -36,6 +41,7 @@ import android.database.Cursor;
 import android.graphics.drawable.Drawable;
 import android.net.Uri;
 import android.os.AsyncTask;
+import android.os.Environment;
 import android.os.Parcelable;
 import android.security.MessageDigest;
 import android.telephony.TelephonyManager;
@@ -847,6 +853,87 @@ public class Utility {
         }
     }
 
+    public static boolean attachmentExists(Context context, long accountId, Attachment attachment) {
+        File saveToFile =
+            AttachmentProvider.getAttachmentFilename(context, accountId, attachment.mId);
+        return saveToFile.exists() && attachment.mContentUri != null;
+    }
+
+    /**
+     * Check whether the message with a given id has unloaded attachments.  If the message is
+     * a forwarded message, we look instead at the messages's source for the attachments.  If the
+     * message or forward source can't be found, we return false
+     * @param context the caller's context
+     * @param messageId the id of the message
+     * @return whether or not the message has unloaded attachments
+     */
+    public static boolean hasUnloadedAttachments(Context context, long messageId) {
+        Message msg = Message.restoreMessageWithId(context, messageId);
+        if (msg == null) return false;
+        Attachment[] atts = Attachment.restoreAttachmentsWithMessageId(context, messageId);
+        for (Attachment att: atts) {
+            if (!attachmentExists(context, msg.mAccountKey, att)) {
+                // If the attachment doesn't exist and isn't marked for download, we're in trouble
+                // since the outbound message will be stuck indefinitely in the Outbox.  Instead,
+                // we'll just delete the attachment and continue; this is far better than the
+                // alternative.  In theory, this situation shouldn't be possible.
+                if ((att.mFlags & (Attachment.FLAG_DOWNLOAD_FORWARD |
+                        Attachment.FLAG_DOWNLOAD_USER_REQUEST)) == 0) {
+                    Log.d(Email.LOG_TAG, "Unloaded attachment isn't marked for download: " +
+                            att.mFileName + ", #" + att.mId);
+                    Attachment.delete(context, Attachment.CONTENT_URI, att.mId);
+                } else if (att.mContentUri != null) {
+                    // In this case, the attachment file is gone from the cache; let's clear the
+                    // contentUri; this should be a very unusual case
+                    ContentValues cv = new ContentValues();
+                    cv.putNull(AttachmentColumns.CONTENT_URI);
+                    Attachment.update(context, Attachment.CONTENT_URI, att.mId, cv);
+                }
+                return true;
+            }
+        }
+        return false;
+    }
+
+    /**
+     * Convenience method wrapping calls to retrieve columns from a single row, via EmailProvider.
+     * The arguments are exactly the same as to contentResolver.query().  Results are returned in
+     * an array of Strings corresponding to the columns in the projection.  If the cursor has no
+     * rows, null is returned.
+     */
+    public static String[] getRowColumns(Context context, Uri contentUri, String[] projection,
+            String selection, String[] selectionArgs) {
+        String[] values = new String[projection.length];
+        ContentResolver cr = context.getContentResolver();
+        Cursor c = cr.query(contentUri, projection, selection, selectionArgs, null);
+        try {
+            if (c.moveToFirst()) {
+                for (int i = 0; i < projection.length; i++) {
+                    values[i] = c.getString(i);
+                }
+            } else {
+                return null;
+            }
+        } finally {
+            c.close();
+        }
+        return values;
+    }
+
+    /**
+     * Convenience method for retrieving columns from a particular row in EmailProvider.
+     * Passed in here are a base uri (e.g. Message.CONTENT_URI), the unique id of a row, and
+     * a projection.  This method calls the previous one with the appropriate URI.
+     */
+    public static String[] getRowColumns(Context context, Uri baseUri, long id,
+            String ... projection) {
+        return getRowColumns(context, ContentUris.withAppendedId(baseUri, id), projection, null,
+                null);
+    }
+
+    public static boolean isExternalStorageMounted() {
+        return Environment.getExternalStorageState().equals(Environment.MEDIA_MOUNTED);
+    }
     /**
      * STOPSHIP Remove this method
      * Toggle between portrait and landscape.  Developement use only.

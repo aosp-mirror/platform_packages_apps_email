@@ -17,7 +17,6 @@
 package com.android.email.activity;
 
 import com.android.email.Controller;
-import com.android.email.R;
 
 import android.app.Activity;
 import android.app.ProgressDialog;
@@ -118,26 +117,6 @@ public abstract class MessageViewBase extends Activity implements MessageViewFra
     @Override
     public void onLoadMessageError() {
         onLoadMessageFinished();
-    }
-
-    @Override
-    public void onFetchAttachmentStarted(String attachmentName) {
-        mFetchAttachmentProgressDialog.setMessage(
-                getString(R.string.message_view_fetching_attachment_progress,
-                        attachmentName));
-        mFetchAttachmentProgressDialog.show();
-        setProgressBarIndeterminateVisibility(true);
-    }
-
-    @Override
-    public void onFetchAttachmentFinished() {
-        mFetchAttachmentProgressDialog.dismiss();
-        setProgressBarIndeterminateVisibility(false);
-    }
-
-    @Override
-    public void onFetchAttachmentError() {
-        onFetchAttachmentFinished();
     }
 
     @Override

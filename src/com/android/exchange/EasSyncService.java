@@ -903,7 +903,7 @@ public class EasSyncService extends AbstractSyncService {
      * @param req the part (attachment) to be retrieved
      * @throws IOException
      */
-    protected void getAttachment(PartRequest req) throws IOException {
+    protected void loadAttachment(PartRequest req) throws IOException {
         Attachment att = req.mAttachment;
         Message msg = Message.restoreMessageWithId(mContext, att.mMessageKey);
         doProgressCallback(msg.mId, att.mId, 0);
@@ -1485,8 +1485,13 @@ public class EasSyncService extends AbstractSyncService {
                     }
                     // Save the protocol version
                     cv.clear();
-                    // Save the protocol version in the account
+                    // Save the protocol version in the account; if we're using 12.0 or greater,
+                    // set the flag for support of SmartForward
                     cv.put(Account.PROTOCOL_VERSION, mProtocolVersion);
+                    if (mProtocolVersionDouble >= 12.0) {
+                        cv.put(Account.FLAGS,
+                                mAccount.mFlags | Account.FLAGS_SUPPORTS_SMART_FORWARD);
+                    }
                     mAccount.update(mContext, cv);
                     cv.clear();
                     // Save the sync time of the account mailbox to current time
@@ -2052,7 +2057,7 @@ public class EasSyncService extends AbstractSyncService {
                 // Our two request types are PartRequest (loading attachment) and
                 // MeetingResponseRequest (respond to a meeting request)
                 if (req instanceof PartRequest) {
-                    getAttachment((PartRequest)req);
+                    loadAttachment((PartRequest)req);
                 } else if (req instanceof MeetingResponseRequest) {
                     sendMeetingResponse((MeetingResponseRequest)req);
                 }
