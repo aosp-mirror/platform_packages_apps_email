@@ -231,50 +231,83 @@ public class SyncManager extends Service implements Runnable {
     private ConnectivityReceiver mBackgroundDataSettingReceiver = null;
     private volatile boolean mBackgroundData = true;
 
-    // The callback sent in from the UI using setCallback
-    private IEmailServiceCallback mCallback;
+    // Callbacks as set up via setCallback
     private RemoteCallbackList<IEmailServiceCallback> mCallbackList =
         new RemoteCallbackList<IEmailServiceCallback>();
+
+    private interface ServiceCallbackWrapper {
+        public void call(IEmailServiceCallback cb) throws RemoteException;
+    }
 
     /**
      * Proxy that can be used by various sync adapters to tie into SyncManager's callback system.
      * Used this way:  SyncManager.callback().callbackMethod(args...);
-     * The proxy wraps checking for existence of a SyncManager instance and an active callback.
+     * The proxy wraps checking for existence of a SyncManager instance
      * Failures of these callbacks can be safely ignored.
      */
     static private final IEmailServiceCallback.Stub sCallbackProxy =
         new IEmailServiceCallback.Stub() {
 
-        public void loadAttachmentStatus(long messageId, long attachmentId, int statusCode,
-                int progress) throws RemoteException {
-            IEmailServiceCallback cb = INSTANCE == null ? null: INSTANCE.mCallback;
-            if (cb != null) {
-                cb.loadAttachmentStatus(messageId, attachmentId, statusCode, progress);
+        /**
+         * Broadcast a callback to the everyone that's registered
+         *
+         * @param wrapper the ServiceCallbackWrapper used in the broadcast
+         */
+        private synchronized void broadcastCallback(ServiceCallbackWrapper wrapper) {
+            RemoteCallbackList<IEmailServiceCallback> callbackList =
+                (INSTANCE == null) ? null: INSTANCE.mCallbackList;
+            if (callbackList != null) {
+                // Call everyone on our callback list
+                // Exceptions can be safely ignored
+                int count = callbackList.beginBroadcast();
+                for (int i = 0; i < count; i++) {
+                    try {
+                        wrapper.call(callbackList.getBroadcastItem(i));
+                    } catch (RemoteException e) {
+                    }
+                }
+                callbackList.finishBroadcast();
             }
         }
 
-        public void sendMessageStatus(long messageId, String subject, int statusCode, int progress)
-                throws RemoteException {
-            IEmailServiceCallback cb = INSTANCE == null ? null: INSTANCE.mCallback;
-            if (cb != null) {
-                cb.sendMessageStatus(messageId, subject, statusCode, progress);
-            }
+        public void loadAttachmentStatus(final long messageId, final long attachmentId,
+                final int status, final int progress) {
+            broadcastCallback(new ServiceCallbackWrapper() {
+                @Override
+                public void call(IEmailServiceCallback cb) throws RemoteException {
+                    cb.loadAttachmentStatus(messageId, attachmentId, status, progress);
+                }
+            });
         }
 
-        public void syncMailboxListStatus(long accountId, int statusCode, int progress)
-                throws RemoteException {
-            IEmailServiceCallback cb = INSTANCE == null ? null: INSTANCE.mCallback;
-            if (cb != null) {
-                cb.syncMailboxListStatus(accountId, statusCode, progress);
-            }
+        public void sendMessageStatus(final long messageId, final String subject, final int status,
+                final int progress) {
+            broadcastCallback(new ServiceCallbackWrapper() {
+                @Override
+                public void call(IEmailServiceCallback cb) throws RemoteException {
+                    cb.sendMessageStatus(messageId, subject, status, progress);
+                }
+            });
         }
 
-        public void syncMailboxStatus(long mailboxId, int statusCode, int progress)
-                throws RemoteException {
-            IEmailServiceCallback cb = INSTANCE == null ? null: INSTANCE.mCallback;
-            if (cb != null) {
-                cb.syncMailboxStatus(mailboxId, statusCode, progress);
-            }
+        public void syncMailboxListStatus(final long accountId, final int status,
+                final int progress) {
+            broadcastCallback(new ServiceCallbackWrapper() {
+                @Override
+                public void call(IEmailServiceCallback cb) throws RemoteException {
+                    cb.syncMailboxListStatus(accountId, status, progress);
+                }
+            });
+        }
+
+        public void syncMailboxStatus(final long mailboxId, final int status,
+                final int progress) {
+            broadcastCallback(new ServiceCallbackWrapper() {
+                @Override
+                public void call(IEmailServiceCallback cb) throws RemoteException {
+                    cb.syncMailboxStatus(mailboxId, status, progress);
+                }
+            });
         }
     };
 
@@ -389,10 +422,6 @@ public class SyncManager extends Service implements Runnable {
         }
 
         public void setCallback(IEmailServiceCallback cb) throws RemoteException {
-            if (mCallback != null) {
-                mCallbackList.unregister(mCallback);
-            }
-            mCallback = cb;
             mCallbackList.register(cb);
         }
     };
