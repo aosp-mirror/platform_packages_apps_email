@@ -19,6 +19,8 @@ package com.android.email.activity;
 import com.android.email.Email;
 import com.android.email.R;
 import com.android.email.Utility;
+import com.android.email.activity.setup.AccountSettings;
+import com.android.email.activity.setup.AccountSetupBasics;
 
 import android.app.ActionBar;
 import android.app.Activity;
@@ -449,12 +451,12 @@ public class MessageListXL extends Activity implements View.OnClickListener,
                 // TODO Implement this
                 return true;
             case R.id.account_settings:
-                // TODO Implement this
-                return true;
-                // STOPSHIP remove this
-                case R.id.change_orientation:
+                return onAccountSettings();
+            case R.id.change_orientation: // STOPSHIP remove this
                 Utility.changeOrientation(this);
                 return true;
+            case R.id.add_new_account: // STOPSHIP remove this
+                return onAddNewAccount();
         }
         return super.onOptionsItemSelected(item);
     }
@@ -464,6 +466,19 @@ public class MessageListXL extends Activity implements View.OnClickListener,
             return false; // this shouldn't really happen
         }
         MessageCompose.actionCompose(this, mFragmentManager.getAccountId());
+        return true;
+    }
+
+    private boolean onAccountSettings() {
+        if (!mFragmentManager.isAccountSelected()) {
+            return false; // this shouldn't really happen
+        }
+        AccountSettings.actionSettings(this, mFragmentManager.getAccountId());
+        return true;
+    }
+
+    private boolean onAddNewAccount() {
+        AccountSetupBasics.actionNewAccount(this);
         return true;
     }
 
