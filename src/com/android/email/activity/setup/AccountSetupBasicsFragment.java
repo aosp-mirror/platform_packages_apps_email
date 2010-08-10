@@ -31,7 +31,6 @@ import android.app.DialogFragment;
 import android.app.Fragment;
 import android.content.Context;
 import android.content.DialogInterface;
-import android.database.Cursor;
 import android.os.Bundle;
 import android.text.Editable;
 import android.text.TextWatcher;
@@ -116,8 +115,8 @@ public class AccountSetupBasicsFragment extends Fragment implements TextWatcher 
     }
 
     @Override
-    public View onCreateView(
-            LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
+    public View onCreateView(LayoutInflater inflater, ViewGroup container,
+            Bundle savedInstanceState) {
         if (Email.DEBUG_LIFECYCLE && Email.DEBUG) {
             Log.d(Email.LOG_TAG, "AccountSetupBasicsFragment onCreateView");
         }
@@ -145,7 +144,7 @@ public class AccountSetupBasicsFragment extends Fragment implements TextWatcher 
     @Override
     public void onActivityCreated(Bundle savedInstanceState) {
         if (Email.DEBUG_LIFECYCLE && Email.DEBUG) {
-            Log.d(Email.LOG_TAG, "MailboxListFragment onActivityCreated");
+            Log.d(Email.LOG_TAG, "AccountSetupBasicsFragment onActivityCreated");
         }
         super.onActivityCreated(savedInstanceState);
     }
@@ -156,7 +155,7 @@ public class AccountSetupBasicsFragment extends Fragment implements TextWatcher 
     @Override
     public void onStart() {
         if (Email.DEBUG_LIFECYCLE && Email.DEBUG) {
-            Log.d(Email.LOG_TAG, "MailboxListFragment onStart");
+            Log.d(Email.LOG_TAG, "AccountSetupBasicsFragment onStart");
         }
         super.onStart();
         mStarted = true;
@@ -171,7 +170,7 @@ public class AccountSetupBasicsFragment extends Fragment implements TextWatcher 
     @Override
     public void onResume() {
         if (Email.DEBUG_LIFECYCLE && Email.DEBUG) {
-            Log.d(Email.LOG_TAG, "MailboxListFragment onResume");
+            Log.d(Email.LOG_TAG, "AccountSetupBasicsFragment onResume");
         }
         super.onResume();
         validateFields();
@@ -180,7 +179,7 @@ public class AccountSetupBasicsFragment extends Fragment implements TextWatcher 
     @Override
     public void onPause() {
         if (Email.DEBUG_LIFECYCLE && Email.DEBUG) {
-            Log.d(Email.LOG_TAG, "MailboxListFragment onPause");
+            Log.d(Email.LOG_TAG, "AccountSetupBasicsFragment onPause");
         }
         super.onPause();
     }
@@ -191,7 +190,7 @@ public class AccountSetupBasicsFragment extends Fragment implements TextWatcher 
     @Override
     public void onStop() {
         if (Email.DEBUG_LIFECYCLE && Email.DEBUG) {
-            Log.d(Email.LOG_TAG, "MailboxListFragment onStop");
+            Log.d(Email.LOG_TAG, "AccountSetupBasicsFragment onStop");
         }
         super.onStop();
         mStarted = false;
@@ -203,7 +202,7 @@ public class AccountSetupBasicsFragment extends Fragment implements TextWatcher 
     @Override
     public void onDestroy() {
         if (Email.DEBUG_LIFECYCLE && Email.DEBUG) {
-            Log.d(Email.LOG_TAG, "MailboxListFragment onDestroy");
+            Log.d(Email.LOG_TAG, "AccountSetupBasicsFragment onDestroy");
         }
         super.onDestroy();
     }
@@ -211,7 +210,7 @@ public class AccountSetupBasicsFragment extends Fragment implements TextWatcher 
     @Override
     public void onSaveInstanceState(Bundle outState) {
         if (Email.DEBUG_LIFECYCLE && Email.DEBUG) {
-            Log.d(Email.LOG_TAG, "MailboxListFragment onSaveInstanceState");
+            Log.d(Email.LOG_TAG, "AccountSetupBasicsFragment onSaveInstanceState");
         }
         super.onSaveInstanceState(outState);
         if (mProvider != null) {
@@ -525,79 +524,4 @@ public class AccountSetupBasicsFragment extends Fragment implements TextWatcher 
         }
     }
 
-    /**
-     * Dialog fragment to show "duplicate account" dialog
-     *
-     * NOTE:  There is some duplication in the following DialogFragments, because this area of
-     * the framework is going to get some new features (to better handle callbacks to the "owner"
-     * of the dialog) and I'll wait for that before I combine the duplicate code.
-     *
-     * TODO: Since there is no callback, the parent fragment id is unused here.
-     */
-    public static class DuplicateAccountDialogFragment extends DialogFragment {
-        private final static String TAG = "DuplicateAccountDialogFragment";
-        private String mAccountName;
-        private int mParentFragmentId;
-
-        // Note: Linkage back to parent fragment is TBD, due to upcoming framework changes
-        // Until then, we'll implement in each dialog
-        private final static String BUNDLE_KEY_PARENT_ID = "NoteDialogFragment.ParentId";
-        private final static String BUNDLE_KEY_ACCOUNT_NAME = "NoteDialogFragment.AccountName";
-
-        /**
-         * This is required because the non-default constructor hides it, preventing auto-creation
-         */
-        public DuplicateAccountDialogFragment() {
-            super();
-        }
-
-        /**
-         * Create the dialog with parameters
-         */
-        public DuplicateAccountDialogFragment(String note, int parentFragmentId) {
-            super();
-            mAccountName = note;
-            mParentFragmentId = parentFragmentId;
-        }
-
-        /**
-         * If created automatically (e.g. after orientation change) restore parameters
-         */
-        @Override
-        public void onCreate(Bundle savedInstanceState) {
-            super.onCreate(savedInstanceState);
-            if (savedInstanceState != null) {
-                mParentFragmentId = savedInstanceState.getInt(BUNDLE_KEY_PARENT_ID);
-                mAccountName = savedInstanceState.getString(BUNDLE_KEY_ACCOUNT_NAME);
-            }
-        }
-
-        /**
-         * Save parameters to support auto-recreation
-         */
-        @Override
-        public void onSaveInstanceState(Bundle outState) {
-            super.onSaveInstanceState(outState);
-            outState.putInt(BUNDLE_KEY_PARENT_ID, mParentFragmentId);
-            outState.putString(BUNDLE_KEY_ACCOUNT_NAME, mAccountName);
-        }
-
-        @Override
-        public Dialog onCreateDialog(Bundle savedInstanceState) {
-            Context context = getActivity();
-            return new AlertDialog.Builder(context)
-                .setIcon(android.R.drawable.ic_dialog_alert)
-                .setTitle(R.string.account_duplicate_dlg_title)
-                .setMessage(context.getString(
-                        R.string.account_duplicate_dlg_message_fmt, mAccountName))
-                .setPositiveButton(
-                        R.string.okay_action,
-                        new DialogInterface.OnClickListener() {
-                            public void onClick(DialogInterface dialog, int which) {
-                                dismiss();
-                            }
-                        })
-                .create();
-        }
-    }
 }

@@ -175,11 +175,8 @@ public class AccountSetupBasics extends AccountSetupActivity
     public void onEnableProceedButtons(boolean enable) {
         mNextButton.setEnabled(enable);
         mManualSetupButton.setEnabled(enable);
-        /*
-         * Dim the next button's icon to 50% if the button is disabled.
-         * TODO this can probably be done with a stateful drawable. Check into it.
-         * android:state_enabled
-         */
+        // Dim the next button's icon to 50% if the button is disabled.
+        // TODO this can probably be done with a stateful drawable. (check android:state_enabled
         Utility.setCompoundDrawablesAlpha(mNextButton, mNextButton.isEnabled() ? 255 : 128);
     }
 
