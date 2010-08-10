@@ -31,6 +31,7 @@ import android.app.Activity;
 import android.app.ListFragment;
 import android.content.ContentResolver;
 import android.content.ContentUris;
+import android.content.Context;
 import android.database.Cursor;
 import android.net.Uri;
 import android.os.AsyncTask;
@@ -105,6 +106,10 @@ public class MessageListFragment extends ListFragment implements OnItemClickList
      * Callback interface that owning activities must implement
      */
     public interface Callback {
+        public static final int TYPE_REGULAR = 0;
+        public static final int TYPE_DRAFT = 1;
+        public static final int TYPE_TRASH = 2;
+
         /**
          * Called when selected messages have been changed.
          */
@@ -119,18 +124,30 @@ public class MessageListFragment extends ListFragment implements OnItemClickList
          * Called when the user wants to open a message.
          * Note {@code mailboxId} is of the actual mailbox of the message, which is different from
          * {@link MessageListFragment#getMailboxId} if it's magic mailboxes.
+         *
+         * @param messageId the message ID of the message
+         * @param messageMailboxId the mailbox ID of the message.
+         *     This will never take values like {@link Mailbox#QUERY_ALL_INBOXES}.
+         * @param listMailboxId the mailbox ID of the listbox shown on this fragment.
+         *     This can be that of a magic mailbox, e.g.  {@link Mailbox#QUERY_ALL_INBOXES}.
+         * @param type {@link #TYPE_REGULAR}, {@link #TYPE_DRAFT} or {@link #TYPE_TRASH}.
          */
-        public void onMessageOpen(final long messageId, final long mailboxId);
+        public void onMessageOpen(long messageId, long messageMailboxId, long listMailboxId,
+                int type);
     }
 
     private static final class EmptyCallback implements Callback {
         public static final Callback INSTANCE = new EmptyCallback();
 
+        @Override
         public void onMailboxNotFound() {
         }
+        @Override
         public void onSelectionChanged() {
         }
-        public void onMessageOpen(long messageId, long mailboxId) {
+        @Override
+        public void onMessageOpen(
+                long messageId, long messageMailboxId, long listMailboxId, int type) {
         }
     }
 
@@ -384,7 +401,7 @@ public class MessageListFragment extends ListFragment implements OnItemClickList
             if (isInSelectionMode()) {
                 toggleSelection(itemView);
             } else {
-                mCallback.onMessageOpen(id, itemView.mMailboxId);
+                onMessageOpen(itemView.mMailboxId, id);
             }
         } else {
             doFooterClick();
@@ -405,6 +422,36 @@ public class MessageListFragment extends ListFragment implements OnItemClickList
 
     private void toggleSelection(MessageListItem itemView) {
         mListAdapter.updateSelected(itemView, !mListAdapter.isSelected(itemView));
+    }
+
+    private void onMessageOpen(final long mailboxId, final long messageId) {
+        // Use asynctask to determine the type.
+        new AsyncTask<Void, Void, Integer>() {
+            @Override
+            protected Integer doInBackground(Void... params) {
+                EmailContent.Mailbox mailbox = EmailContent.Mailbox.restoreMailboxWithId(
+                        getActivity(), mailboxId);
+                if (mailbox == null) {
+                    return null;
+                }
+                switch (mailbox.mType) {
+                    case EmailContent.Mailbox.TYPE_DRAFTS:
+                        return Callback.TYPE_DRAFT;
+                    case EmailContent.Mailbox.TYPE_TRASH:
+                        return Callback.TYPE_TRASH;
+                    default:
+                        return Callback.TYPE_REGULAR;
+                }
+            }
+
+            @Override
+            protected void onPostExecute(Integer type) {
+                if (type == null) {
+                    return;
+                }
+                mCallback.onMessageOpen(messageId, mailboxId, getMailboxId(), type);
+            }
+        }.execute();
     }
 
     public void onMultiToggleRead() {

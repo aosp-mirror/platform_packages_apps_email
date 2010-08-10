@@ -303,10 +303,15 @@ public class MessageListXL extends Activity implements View.OnClickListener,
         }
 
         @Override
-        // TODO Rename to onSelectMessage
-        public void onMessageOpen(long messageId, long mailboxId) { // RENAME: OpenMessage ?
-            // TODO Deal with drafts.  (Open MessageCompose instead.)
-            mFragmentManager.selectMessage(messageId);
+        public void onMessageOpen(long messageId, long messageMailboxId, long listMailboxId,
+                int type) {
+            if (type == MessageListFragment.Callback.TYPE_DRAFT) {
+                MessageCompose.actionEditDraft(MessageListXL.this, messageId);
+            } else {
+                // TODO Disable reply/forward for messages in trash.
+                // First, need to figure out what to do with these buttons for MessageViewFragment.
+                mFragmentManager.selectMessage(messageId);
+            }
         }
 
         @Override

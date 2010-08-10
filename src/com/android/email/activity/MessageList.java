@@ -276,29 +276,18 @@ public class MessageList extends Activity implements OnClickListener,
         finish();
     }
 
-    public void onMessageOpen(final long messageId, final long mailboxId) {
-        final Context context = this; // Make the code shorter.
-        Utility.runAsync(new Runnable() {
-            public void run() {
-                EmailContent.Mailbox mailbox = EmailContent.Mailbox.restoreMailboxWithId(context,
-                        mailboxId);
-                if (mailbox == null) {
-                    return;
-                }
-
-                if (mailbox.mType == EmailContent.Mailbox.TYPE_DRAFTS) {
-                    MessageCompose.actionEditDraft(context, messageId);
-                } else {
-                    final boolean disableReply = (mailbox.mType == EmailContent.Mailbox.TYPE_TRASH);
-                    // WARNING: here we pass getMailboxId(), which can be the negative id of
-                    // a compound mailbox, instead of the mailboxId of the particular message that
-                    // is opened.  This is to support the next/prev buttons on the message view
-                    // properly even for combined mailboxes.
-                    MessageView.actionView(context, messageId, mListFragment.getMailboxId(),
-                            disableReply);
-                }
-            }
-        });
+    @Override
+    public void onMessageOpen(long messageId, long messageMailboxId, long listMailboxId, int type) {
+        if (type == MessageListFragment.Callback.TYPE_DRAFT) {
+            MessageCompose.actionEditDraft(this, messageId);
+        } else {
+            final boolean disableReply = (type == MessageListFragment.Callback.TYPE_TRASH);
+            // WARNING: here we pass "listMailboxId", which can be the negative id of
+            // a compound mailbox, instead of the mailboxId of the particular message that
+            // is opened.  This is to support the next/prev buttons on the message view
+            // properly even for combined mailboxes.
+            MessageView.actionView(this, messageId, listMailboxId, disableReply);
+        }
     }
 
     public void onClick(View v) {
