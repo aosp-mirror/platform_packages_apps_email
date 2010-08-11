@@ -50,6 +50,7 @@ import android.test.AndroidTestCase;
 import android.test.MoreAsserts;
 import android.test.suitebuilder.annotation.SmallTest;
 
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.regex.Pattern;
@@ -1550,5 +1551,116 @@ public class ImapStoreUnitTests extends AndroidTestCase {
             getNextTag(true) + " OK [READ-WRITE] " + FOLDER_2});
         folders[1].open(OpenMode.READ_WRITE, null);
         folders[1].close(false);
+    }
+
+    /**
+     * Callback for {@link #runAndExpectMessagingException}.
+     */
+    private interface RunAndExpectMessagingExceptionTarget {
+        public void run(MockTransport mockTransport) throws Exception;
+    }
+
+    /**
+     * Set up the usual mock transport, open the folder,
+     * run {@link RunAndExpectMessagingExceptionTarget} and make sure a {@link MessagingException}
+     * is thrown.
+     */
+    private void runAndExpectMessagingException(RunAndExpectMessagingExceptionTarget target)
+            throws Exception {
+        try {
+            final MockTransport mockTransport = openAndInjectMockTransport();
+            setupOpenFolder(mockTransport);
+            mFolder.open(OpenMode.READ_WRITE, null);
+
+            target.run(mockTransport);
+
+            fail("MessagingException expected.");
+        } catch (MessagingException expected) {
+        }
+    }
+
+    /**
+     * Make sure that IOExceptions are always converted to MessagingException.
+     */
+    public void testFetchIOException() throws Exception {
+        runAndExpectMessagingException(new RunAndExpectMessagingExceptionTarget() {
+            public void run(MockTransport mockTransport) throws Exception {
+                mockTransport.expectIOException();
+
+                final Message message = mFolder.createMessage("1");
+                final FetchProfile fp = new FetchProfile();
+                fp.add(FetchProfile.Item.STRUCTURE);
+
+                mFolder.fetch(new Message[] { message }, fp, null);
+            }
+        });
+    }
+
+    /**
+     * Make sure that IOExceptions are always converted to MessagingException.
+     */
+    public void testUnreadMessageCountIOException() throws Exception {
+        runAndExpectMessagingException(new RunAndExpectMessagingExceptionTarget() {
+            public void run(MockTransport mockTransport) throws Exception {
+                mockTransport.expectIOException();
+
+                mFolder.getUnreadMessageCount();
+            }
+        });
+    }
+
+    /**
+     * Make sure that IOExceptions are always converted to MessagingException.
+     */
+    public void testCopyMessagesIOException() throws Exception {
+        runAndExpectMessagingException(new RunAndExpectMessagingExceptionTarget() {
+            public void run(MockTransport mockTransport) throws Exception {
+                mockTransport.expectIOException();
+
+                final Message message = mFolder.createMessage("1");
+                final Folder folder = mStore.getFolder("test");
+
+                mFolder.copyMessages(new Message[] { message }, folder, null);
+            }
+        });
+    }
+
+    /**
+     * Make sure that IOExceptions are always converted to MessagingException.
+     */
+    public void testSearchForUidsIOException() throws Exception {
+        runAndExpectMessagingException(new RunAndExpectMessagingExceptionTarget() {
+            public void run(MockTransport mockTransport) throws Exception {
+                mockTransport.expectIOException();
+
+                mFolder.getMessage("uid");
+            }
+        });
+    }
+
+    /**
+     * Make sure that IOExceptions are always converted to MessagingException.
+     */
+    public void testExpungeIOException() throws Exception {
+        runAndExpectMessagingException(new RunAndExpectMessagingExceptionTarget() {
+            public void run(MockTransport mockTransport) throws Exception {
+                mockTransport.expectIOException();
+
+                mFolder.expunge();
+            }
+        });
+    }
+
+    /**
+     * Make sure that IOExceptions are always converted to MessagingException.
+     */
+    public void testOpenIOException() throws Exception {
+        runAndExpectMessagingException(new RunAndExpectMessagingExceptionTarget() {
+            public void run(MockTransport mockTransport) throws Exception {
+                mockTransport.expectIOException();
+                final Folder folder = mStore.getFolder("test");
+                folder.open(OpenMode.READ_WRITE, null);
+            }
+        });
     }
 }

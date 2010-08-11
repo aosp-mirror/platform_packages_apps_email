@@ -42,6 +42,8 @@ public class MockTransport implements Transport {
 
     private static String LOG_TAG = "MockTransport";
 
+    private static final String SPECIAL_RESPONSE_IOEXCEPTION = "!!!IOEXCEPTION!!!";
+
     private boolean mSslAllowed = false;
     private boolean mTlsAllowed = false;
 
@@ -56,8 +58,8 @@ public class MockTransport implements Transport {
 
     private static class Transaction {
         public static final int ACTION_INJECT_TEXT = 0;
-        public static final int ACTION_SERVER_CLOSE = 1;
-        public static final int ACTION_CLIENT_CLOSE = 2;
+        public static final int ACTION_CLIENT_CLOSE = 1;
+        public static final int ACTION_IO_EXCEPTION = 2;
 
         int mAction;
         String mPattern;
@@ -80,10 +82,10 @@ public class MockTransport implements Transport {
             switch (mAction) {
                 case ACTION_INJECT_TEXT:
                     return mPattern + ": " + Arrays.toString(mResponses);
-                case ACTION_SERVER_CLOSE:
-                    return "Close the server connection";
                 case ACTION_CLIENT_CLOSE:
                     return "Expect the client to close";
+                case ACTION_IO_EXCEPTION:
+                    return "Expect IOException";
                 default:
                     return "(Hmm.  Unknown action.)";
             }
@@ -136,9 +138,22 @@ public class MockTransport implements Transport {
         mPairs.add(new Transaction(Transaction.ACTION_CLIENT_CLOSE));
     }
 
-    private void sendResponse(String[] responses) {
-        for (String s : responses) {
-            mQueuedInput.add(s);
+    public void expectIOException() {
+        mPairs.add(new Transaction(Transaction.ACTION_IO_EXCEPTION));
+    }
+
+    private void sendResponse(Transaction pair) {
+        switch (pair.mAction) {
+            case Transaction.ACTION_INJECT_TEXT:
+                for (String s : pair.mResponses) {
+                    mQueuedInput.add(s);
+                }
+                break;
+            case Transaction.ACTION_IO_EXCEPTION:
+                mQueuedInput.add(SPECIAL_RESPONSE_IOEXCEPTION);
+                break;
+            default:
+                Assert.fail("Invalid action for sendResponse: " + pair.mAction);
         }
     }
 
@@ -250,17 +265,24 @@ public class MockTransport implements Transport {
             throw new IOException("Reading from MockTransport with closed input");
         }
         // if there's nothing to read, see if we can find a null-pattern response
-        if (0 == mQueuedInput.size()) {
-            Transaction pair = mPairs.size() > 0 ? mPairs.get(0) : null;
-            if (pair != null && pair.mPattern == null) {
+        if ((mQueuedInput.size() == 0) && (mPairs.size() > 0)) {
+            Transaction pair = mPairs.get(0);
+            if (pair.mPattern == null) {
                 mPairs.remove(0);
-                sendResponse(pair.mResponses);
+                sendResponse(pair);
             }
         }
-        SmtpSenderUnitTests.assertTrue("Underflow reading from MockTransport", 0 != mQueuedInput.size());
+        if (mQueuedInput.size() == 0) {
+            // MailTransport returns "" at EOS.
+            Log.w(LOG_TAG, "Underflow reading from MockTransport");
+            return "";
+        }
         String line = mQueuedInput.remove(0);
         if (DEBUG_LOG_STREAMS) {
             Log.d(LOG_TAG, "<<< " + line);
+        }
+        if (SPECIAL_RESPONSE_IOEXCEPTION.equals(line)) {
+            throw new IOException("Expected IOException.");
         }
         return line;
     }
@@ -292,7 +314,7 @@ public class MockTransport implements Transport {
      *
      * Logs the written text if DEBUG_LOG_STREAMS is true.
      */
-    public void writeLine(String s, String sensitiveReplacement) /* throws IOException */ {
+    public void writeLine(String s, String sensitiveReplacement) throws IOException {
         if (DEBUG_LOG_STREAMS) {
             Log.d(LOG_TAG, ">>> " + s);
         }
@@ -300,11 +322,14 @@ public class MockTransport implements Transport {
         SmtpSenderUnitTests.assertTrue("Overflow writing to MockTransport: Getting " + s,
                 0 != mPairs.size());
         Transaction pair = mPairs.remove(0);
+        if (pair.mAction == Transaction.ACTION_IO_EXCEPTION) {
+            throw new IOException("Expected IOException.");
+        }
         SmtpSenderUnitTests.assertTrue("Unexpected string written to MockTransport: Actual=" + s
                 + "  Expected=" + pair.mPattern,
                 pair.mPattern != null && s.matches(pair.mPattern));
         if (pair.mResponses != null) {
-            sendResponse(pair.mResponses);
+            sendResponse(pair);
         }
     }
 
@@ -354,7 +379,7 @@ public class MockTransport implements Transport {
         StringBuilder sb = new StringBuilder();
 
         @Override
-        public void write(int oneByte) {
+        public void write(int oneByte) throws IOException {
             // CR or CRLF will immediately dump previous line (w/o CRLF)
             if (oneByte == '\r') {
                 writeLine(sb.toString(), null);
