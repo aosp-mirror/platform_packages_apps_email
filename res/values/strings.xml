@@ -20,6 +20,8 @@
          and remove the actual text.  These will be removed in a bulk operation. -->
     <!-- Do Not Translate.  Unused string. -->
     <string name="account_settings_exchange_summary" translatable="false"></string>
+    <!-- Do Not Translate.  Unused string. -->
+    <string name="status_loading_more" translatable="false">Loading messages\u2026</string>
 
     <!-- Messages that are not currently used, but will probably reused in the near future -->
     <!-- STOPSHIP Remove them if they're not used after all -->
