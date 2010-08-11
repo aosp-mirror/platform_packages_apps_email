@@ -45,6 +45,8 @@ import java.security.InvalidParameterException;
  */
 public class MailboxListFragment extends ListFragment implements OnItemClickListener {
     private static final int LOADER_ID_MAILBOX_LIST = 1;
+
+    private long mLastLoadedAccountId = -1;
     private long mAccountId = -1;
 
     // UI Support
@@ -53,7 +55,7 @@ public class MailboxListFragment extends ListFragment implements OnItemClickList
     private Callback mCallback = EmptyCallback.INSTANCE;
     private final MyLoaderCallbacks mMyLoaderCallbacks = new MyLoaderCallbacks();
 
-    private boolean mStarted;
+    private boolean mResumed;
 
     /**
      * Callback interface that owning activities must implement
@@ -122,7 +124,7 @@ public class MailboxListFragment extends ListFragment implements OnItemClickList
             return;
         }
         mAccountId = accountId;
-        if (mStarted) {
+        if (mResumed) {
             startLoading();
         }
     }
@@ -135,12 +137,7 @@ public class MailboxListFragment extends ListFragment implements OnItemClickList
         if (Email.DEBUG_LIFECYCLE && Email.DEBUG) {
             Log.d(Email.LOG_TAG, "MailboxListFragment onStart");
         }
-        getLoaderManager(); // TODO Work around internal bug 2887723.
         super.onStart();
-        mStarted = true;
-        if (mAccountId != -1) {
-            startLoading();
-        }
     }
 
     /**
@@ -152,6 +149,11 @@ public class MailboxListFragment extends ListFragment implements OnItemClickList
             Log.d(Email.LOG_TAG, "MailboxListFragment onResume");
         }
         super.onResume();
+
+        mResumed = true;
+        if (mAccountId != -1) {
+            startLoading();
+        }
     }
 
     @Override
@@ -159,6 +161,7 @@ public class MailboxListFragment extends ListFragment implements OnItemClickList
         if (Email.DEBUG_LIFECYCLE && Email.DEBUG) {
             Log.d(Email.LOG_TAG, "MailboxListFragment onPause");
         }
+        mResumed = false;
         super.onPause();
     }
 
@@ -170,7 +173,6 @@ public class MailboxListFragment extends ListFragment implements OnItemClickList
         if (Email.DEBUG_LIFECYCLE && Email.DEBUG) {
             Log.d(Email.LOG_TAG, "MailboxListFragment onStop");
         }
-        mStarted = false;
         super.onStop();
     }
 
@@ -200,7 +202,14 @@ public class MailboxListFragment extends ListFragment implements OnItemClickList
         // Clear the list.  (ListFragment will show the "Loading" animation)
         setListShown(false);
 
-        getLoaderManager().restartLoader(LOADER_ID_MAILBOX_LIST, null, mMyLoaderCallbacks);
+        // If we've already loaded for a different account, discard the previous result and
+        // start loading again.
+        // We don't want to use restartLoader(), because if the Loader is retained, we *do* want to
+        // reuse the previous result.
+        if ((mLastLoadedAccountId != -1) && (mLastLoadedAccountId != mAccountId)) {
+            getLoaderManager().stopLoader(LOADER_ID_MAILBOX_LIST);
+        }
+        getLoaderManager().initLoader(LOADER_ID_MAILBOX_LIST, null, mMyLoaderCallbacks);
     }
 
     private class MyLoaderCallbacks implements LoaderCallbacks<Cursor> {
@@ -217,6 +226,7 @@ public class MailboxListFragment extends ListFragment implements OnItemClickList
             if (Email.DEBUG_LIFECYCLE && Email.DEBUG) {
                 Log.d(Email.LOG_TAG, "MailboxListFragment onLoadFinished");
             }
+            mLastLoadedAccountId = mAccountId;
 
             // Save list view state (primarily scroll position)
             final ListView lv = getListView();
