@@ -757,7 +757,7 @@ public class ImapStore extends Store {
             throw new Error("ImapStore.delete() not yet implemented");
         }
 
-        private String[] searchForUids(String searchCriteria)
+        /* package */ String[] searchForUids(String searchCriteria)
                 throws MessagingException {
             checkOpen();
             List<ImapResponse> responses;
@@ -771,29 +771,23 @@ public class ImapStore extends Store {
                     throw ioExceptionHandler(mConnection, ioe);
                 }
                 // S: * SEARCH 2 3 6
+                final ArrayList<String> uids = new ArrayList<String>();
                 for (ImapResponse response : responses) {
                     if (!response.isDataResponse(0, ImapConstants.SEARCH)) {
                         continue;
                     }
                     // Found SEARCH response data
-                    final int count = response.size() - 1;
-                    if (count <= 0) {
-                        return Utility.EMPTY_STRINGS; // ... but no UIDs in it!  Return empty array.
-                    }
-
-                    ArrayList<String> ret = new ArrayList<String>(count);
                     for (int i = 1; i < response.size(); i++) {
                         ImapString s = response.getStringOrEmpty(i);
                         if (s.isString()) {
-                            ret.add(s.getString());
+                            uids.add(s.getString());
                         }
                     }
-                    return ret.toArray(Utility.EMPTY_STRINGS);
                 }
+                return uids.toArray(Utility.EMPTY_STRINGS);
             } finally {
                 destroyResponses();
             }
-            return Utility.EMPTY_STRINGS;
         }
 
         @Override
