@@ -21,7 +21,6 @@ import com.android.email.Email;
 import com.android.email.R;
 import com.android.email.Utility;
 import com.android.email.provider.EmailContent;
-import com.android.email.provider.EmailContent.Account;
 
 import android.app.Activity;
 import android.app.Fragment;
@@ -36,50 +35,37 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
+import android.widget.CheckBox;
+import android.widget.CompoundButton;
+import android.widget.CompoundButton.OnCheckedChangeListener;
 import android.widget.EditText;
 import android.widget.Spinner;
-import android.widget.TextView;
 
 import java.net.URI;
 import java.net.URISyntaxException;
 
-public class AccountSetupIncomingFragment extends Fragment {
-
-    private final static String STATE_KEY_CREDENTIAL =
-            "AccountSetupIncomingFragment.loginCredential";
-
-    private static final int POP_PORTS[] = {
-            110, 995, 995, 110, 110
-    };
-    private static final String POP_SCHEMES[] = {
-            "pop3", "pop3+ssl+", "pop3+ssl+trustallcerts", "pop3+tls+", "pop3+tls+trustallcerts"
-    };
-    private static final int IMAP_PORTS[] = {
-            143, 993, 993, 143, 143
-    };
-    private static final String IMAP_SCHEMES[] = {
-            "imap", "imap+ssl+", "imap+ssl+trustallcerts", "imap+tls+", "imap+tls+trustallcerts"
+public class AccountSetupOutgoingFragment extends Fragment implements OnCheckedChangeListener {
+    private static final int SMTP_PORTS[] = {
+            587, 465, 465, 587, 587
     };
 
-    private int mAccountPorts[];
-    private String mAccountSchemes[];
+    private static final String SMTP_SCHEMES[] = {
+            "smtp", "smtp+ssl+", "smtp+ssl+trustallcerts", "smtp+tls+", "smtp+tls+trustallcerts"
+    };
+
     private EditText mUsernameView;
     private EditText mPasswordView;
-    private TextView mServerLabelView;
     private EditText mServerView;
     private EditText mPortView;
+    private CheckBox mRequireLoginView;
+    private ViewGroup mRequireLoginSettingsView;
     private Spinner mSecurityTypeView;
-    private TextView mDeletePolicyLabelView;
-    private Spinner mDeletePolicyView;
-    private View mImapPathPrefixSectionView;
-    private EditText mImapPathPrefixView;
 
     // Support for lifecycle
     private Context mContext;
     private Callback mCallback = EmptyCallback.INSTANCE;
     private boolean mStarted;
     private boolean mLoaded;
-    private String mCacheLoginCredential;
 
     /**
      * Callback interface that owning activities must implement
@@ -102,68 +88,48 @@ public class AccountSetupIncomingFragment extends Fragment {
     @Override
     public void onCreate(Bundle savedInstanceState) {
         if (Email.DEBUG_LIFECYCLE && Email.DEBUG) {
-            Log.d(Email.LOG_TAG, "AccountSetupIncomingFragment onCreate");
+            Log.d(Email.LOG_TAG, "AccountSetupOutgoingFragment onCreate");
         }
         super.onCreate(savedInstanceState);
-
-        if (savedInstanceState != null) {
-            mCacheLoginCredential = savedInstanceState.getString(STATE_KEY_CREDENTIAL);
-        }
     }
 
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
             Bundle savedInstanceState) {
         if (Email.DEBUG_LIFECYCLE && Email.DEBUG) {
-            Log.d(Email.LOG_TAG, "AccountSetupIncomingFragment onCreateView");
+            Log.d(Email.LOG_TAG, "AccountSetupOutgoingFragment onCreateView");
         }
-        View view = inflater.inflate(R.layout.account_setup_incoming_fragment, container, false);
+        View view = inflater.inflate(R.layout.account_setup_outgoing_fragment, container, false);
         Context context = getActivity();
 
         mUsernameView = (EditText) view.findViewById(R.id.account_username);
         mPasswordView = (EditText) view.findViewById(R.id.account_password);
-        mServerLabelView = (TextView) view.findViewById(R.id.account_server_label);
         mServerView = (EditText) view.findViewById(R.id.account_server);
         mPortView = (EditText) view.findViewById(R.id.account_port);
+        mRequireLoginView = (CheckBox) view.findViewById(R.id.account_require_login);
+        mRequireLoginSettingsView =
+                (ViewGroup) view.findViewById(R.id.account_require_login_settings);
         mSecurityTypeView = (Spinner) view.findViewById(R.id.account_security_type);
-        mDeletePolicyLabelView = (TextView) view.findViewById(R.id.account_delete_policy_label);
-        mDeletePolicyView = (Spinner) view.findViewById(R.id.account_delete_policy);
-        mImapPathPrefixSectionView = view.findViewById(R.id.imap_path_prefix_section);
-        mImapPathPrefixView = (EditText) view.findViewById(R.id.imap_path_prefix);
+        mRequireLoginView.setOnCheckedChangeListener(this);
 
-        // Set up spinners
+        // Note:  Strings are shared with AccountSetupIncomingFragment
         SpinnerOption securityTypes[] = {
-            new SpinnerOption(0,
-                    context.getString(R.string.account_setup_incoming_security_none_label)),
-            new SpinnerOption(1,
-                    context.getString(R.string.account_setup_incoming_security_ssl_label)),
-            new SpinnerOption(2,
-                    context.getString(
-                            R.string.account_setup_incoming_security_ssl_trust_certificates_label)),
-            new SpinnerOption(3,
-                    context.getString(R.string.account_setup_incoming_security_tls_label)),
-            new SpinnerOption(4,
-                    context.getString(
-                            R.string.account_setup_incoming_security_tls_trust_certificates_label)),
-        };
-
-        SpinnerOption deletePolicies[] = {
-            new SpinnerOption(Account.DELETE_POLICY_NEVER,
-                    context.getString(R.string.account_setup_incoming_delete_policy_never_label)),
-            new SpinnerOption(Account.DELETE_POLICY_ON_DELETE,
-                    context.getString(R.string.account_setup_incoming_delete_policy_delete_label)),
+            new SpinnerOption(0, context.getString(
+                    R.string.account_setup_incoming_security_none_label)),
+            new SpinnerOption(1, context.getString(
+                    R.string.account_setup_incoming_security_ssl_label)),
+            new SpinnerOption(2, context.getString(
+                    R.string.account_setup_incoming_security_ssl_trust_certificates_label)),
+            new SpinnerOption(3, context.getString(
+                    R.string.account_setup_incoming_security_tls_label)),
+            new SpinnerOption(4, context.getString(
+                    R.string.account_setup_incoming_security_tls_trust_certificates_label)),
         };
 
         ArrayAdapter<SpinnerOption> securityTypesAdapter = new ArrayAdapter<SpinnerOption>(context,
                 android.R.layout.simple_spinner_item, securityTypes);
         securityTypesAdapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
         mSecurityTypeView.setAdapter(securityTypesAdapter);
-
-        ArrayAdapter<SpinnerOption> deletePoliciesAdapter = new ArrayAdapter<SpinnerOption>(context,
-                android.R.layout.simple_spinner_item, deletePolicies);
-        deletePoliciesAdapter.setDropDownViewResource(
-                android.R.layout.simple_spinner_dropdown_item);
-        mDeletePolicyView.setAdapter(deletePoliciesAdapter);
 
         // Updates the port when the user changes the security type. This allows
         // us to show a reasonable default which the user can change.
@@ -175,7 +141,7 @@ public class AccountSetupIncomingFragment extends Fragment {
             public void onNothingSelected(AdapterView<?> arg0) { }
         });
 
-        // After any text edits, call validateFields() which enables or disables the Next button
+        // Calls validateFields() which enables or disables the Next button
         TextWatcher validationTextWatcher = new TextWatcher() {
             public void afterTextChanged(Editable s) {
                 validateFields();
@@ -189,16 +155,17 @@ public class AccountSetupIncomingFragment extends Fragment {
         mServerView.addTextChangedListener(validationTextWatcher);
         mPortView.addTextChangedListener(validationTextWatcher);
 
-        // Only allow digits in the port field.
+        /*
+         * Only allow digits in the port field.
+         */
         mPortView.setKeyListener(DigitsKeyListener.getInstance("0123456789"));
-
         return view;
     }
 
     @Override
     public void onActivityCreated(Bundle savedInstanceState) {
         if (Email.DEBUG_LIFECYCLE && Email.DEBUG) {
-            Log.d(Email.LOG_TAG, "AccountSetupIncomingFragment onActivityCreated");
+            Log.d(Email.LOG_TAG, "AccountSetupOutgoingFragment onActivityCreated");
         }
         super.onActivityCreated(savedInstanceState);
     }
@@ -209,7 +176,7 @@ public class AccountSetupIncomingFragment extends Fragment {
     @Override
     public void onStart() {
         if (Email.DEBUG_LIFECYCLE && Email.DEBUG) {
-            Log.d(Email.LOG_TAG, "AccountSetupIncomingFragment onStart");
+            Log.d(Email.LOG_TAG, "AccountSetupOutgoingFragment onStart");
         }
         super.onStart();
         mStarted = true;
@@ -224,7 +191,7 @@ public class AccountSetupIncomingFragment extends Fragment {
     @Override
     public void onResume() {
         if (Email.DEBUG_LIFECYCLE && Email.DEBUG) {
-            Log.d(Email.LOG_TAG, "AccountSetupIncomingFragment onResume");
+            Log.d(Email.LOG_TAG, "AccountSetupOutgoingFragment onResume");
         }
         super.onResume();
         validateFields();
@@ -233,7 +200,7 @@ public class AccountSetupIncomingFragment extends Fragment {
     @Override
     public void onPause() {
         if (Email.DEBUG_LIFECYCLE && Email.DEBUG) {
-            Log.d(Email.LOG_TAG, "AccountSetupIncomingFragment onPause");
+            Log.d(Email.LOG_TAG, "AccountSetupOutgoingFragment onPause");
         }
         super.onPause();
     }
@@ -244,7 +211,7 @@ public class AccountSetupIncomingFragment extends Fragment {
     @Override
     public void onStop() {
         if (Email.DEBUG_LIFECYCLE && Email.DEBUG) {
-            Log.d(Email.LOG_TAG, "AccountSetupIncomingFragment onStop");
+            Log.d(Email.LOG_TAG, "AccountSetupOutgoingFragment onStop");
         }
         super.onStop();
         mStarted = false;
@@ -256,7 +223,7 @@ public class AccountSetupIncomingFragment extends Fragment {
     @Override
     public void onDestroy() {
         if (Email.DEBUG_LIFECYCLE && Email.DEBUG) {
-            Log.d(Email.LOG_TAG, "AccountSetupIncomingFragment onDestroy");
+            Log.d(Email.LOG_TAG, "AccountSetupOutgoingFragment onDestroy");
         }
         super.onDestroy();
     }
@@ -264,11 +231,9 @@ public class AccountSetupIncomingFragment extends Fragment {
     @Override
     public void onSaveInstanceState(Bundle outState) {
         if (Email.DEBUG_LIFECYCLE && Email.DEBUG) {
-            Log.d(Email.LOG_TAG, "AccountSetupIncomingFragment onSaveInstanceState");
+            Log.d(Email.LOG_TAG, "AccountSetupOutgoingFragment onSaveInstanceState");
         }
         super.onSaveInstanceState(outState);
-
-        outState.putString(STATE_KEY_CREDENTIAL, mCacheLoginCredential);
     }
 
     /**
@@ -288,8 +253,7 @@ public class AccountSetupIncomingFragment extends Fragment {
     private void loadSettings() {
         try {
             // TODO this should be accessed directly via the HostAuth structure
-            EmailContent.Account account = SetupData.getAccount();
-            URI uri = new URI(account.getStoreUri(mContext));
+            URI uri = new URI(SetupData.getAccount().getSenderUri(mContext));
             String username = null;
             String password = null;
             if (uri.getUserInfo() != null) {
@@ -302,39 +266,18 @@ public class AccountSetupIncomingFragment extends Fragment {
 
             if (username != null) {
                 mUsernameView.setText(username);
+                mRequireLoginView.setChecked(true);
             }
 
             if (password != null) {
                 mPasswordView.setText(password);
             }
 
-            if (uri.getScheme().startsWith("pop3")) {
-                mServerLabelView.setText(R.string.account_setup_incoming_pop_server_label);
-                mAccountPorts = POP_PORTS;
-                mAccountSchemes = POP_SCHEMES;
-
-                mImapPathPrefixSectionView.setVisibility(View.GONE);
-            } else if (uri.getScheme().startsWith("imap")) {
-                mServerLabelView.setText(R.string.account_setup_incoming_imap_server_label);
-                mAccountPorts = IMAP_PORTS;
-                mAccountSchemes = IMAP_SCHEMES;
-
-                mDeletePolicyLabelView.setVisibility(View.GONE);
-                mDeletePolicyView.setVisibility(View.GONE);
-                if (uri.getPath() != null && uri.getPath().length() > 0) {
-                    mImapPathPrefixView.setText(uri.getPath().substring(1));
-                }
-            } else {
-                throw new Error("Unknown account type: " + account.getStoreUri(mContext));
-            }
-
-            for (int i = 0; i < mAccountSchemes.length; i++) {
-                if (mAccountSchemes[i].equals(uri.getScheme())) {
+            for (int i = 0; i < SMTP_SCHEMES.length; i++) {
+                if (SMTP_SCHEMES[i].equals(uri.getScheme())) {
                     SpinnerOption.setSpinnerOptionValue(mSecurityTypeView, i);
                 }
             }
-
-            SpinnerOption.setSpinnerOptionValue(mDeletePolicyView, account.getDeletePolicy());
 
             if (uri.getHost() != null) {
                 mServerView.setText(uri.getHost());
@@ -356,13 +299,17 @@ public class AccountSetupIncomingFragment extends Fragment {
     }
 
     /**
-     * Check the values in the fields and decide if it makes sense to enable the "next" button
+     * Preflight the values in the fields and decide if it makes sense to enable the "next" button
      */
     private void validateFields() {
-        boolean enabled = Utility.isTextViewNotEmpty(mUsernameView)
-                && Utility.isTextViewNotEmpty(mPasswordView)
-                && Utility.isTextViewNotEmpty(mServerView)
-                && Utility.isPortFieldValid(mPortView);
+        boolean enabled =
+            Utility.isTextViewNotEmpty(mServerView) && Utility.isPortFieldValid(mPortView);
+
+        if (enabled && mRequireLoginView.isChecked()) {
+            enabled = (Utility.isTextViewNotEmpty(mUsernameView)
+                    && Utility.isTextViewNotEmpty(mPasswordView));
+        }
+
         if (enabled) {
             try {
                 URI uri = getUri();
@@ -371,11 +318,20 @@ public class AccountSetupIncomingFragment extends Fragment {
             }
         }
         mCallback.onEnableProceedButtons(enabled);
+   }
+
+    /**
+     * implements OnCheckedChangeListener
+     */
+    @Override
+    public void onCheckedChanged(CompoundButton buttonView, boolean isChecked) {
+        mRequireLoginSettingsView.setVisibility(isChecked ? View.VISIBLE : View.GONE);
+        validateFields();
     }
 
     private void updatePortFromSecurityType() {
         int securityType = (Integer)((SpinnerOption)mSecurityTypeView.getSelectedItem()).value;
-        mPortView.setText(Integer.toString(mAccountPorts[securityType]));
+        mPortView.setText(Integer.toString(SMTP_PORTS[securityType]));
     }
 
     /**
@@ -385,37 +341,12 @@ public class AccountSetupIncomingFragment extends Fragment {
         EmailContent.Account account = SetupData.getAccount();
         if (account.isSaved()) {
             account.update(mContext, account.toContentValues());
-            account.mHostAuthRecv.update(mContext, account.mHostAuthRecv.toContentValues());
+            account.mHostAuthSend.update(mContext, account.mHostAuthSend.toContentValues());
         } else {
             account.save(mContext);
         }
         // Update the backup (side copy) of the accounts
         AccountBackupRestore.backupAccounts(mContext);
-    }
-
-    /**
-     * Entry point from Activity after entering new settings and verifying them.  For setup mode.
-     */
-    public void saveSettingsAfterSetup() {
-        EmailContent.Account account = SetupData.getAccount();
-
-        // Set the username and password for the outgoing settings to the username and
-        // password the user just set for incoming.
-        try {
-            URI oldUri = new URI(account.getSenderUri(mContext));
-            URI uri = new URI(
-                    oldUri.getScheme(),
-                    mUsernameView.getText().toString().trim() + ":"
-                            + mPasswordView.getText().toString().trim(),
-                    oldUri.getHost(),
-                    oldUri.getPort(),
-                    null,
-                    null,
-                    null);
-            account.setSenderUri(mContext, uri.toString());
-        } catch (URISyntaxException use) {
-            // If we can't set up the URL we just continue. It's only for convenience.
-        }
     }
 
     /**
@@ -425,21 +356,17 @@ public class AccountSetupIncomingFragment extends Fragment {
      */
     private URI getUri() throws URISyntaxException {
         int securityType = (Integer)((SpinnerOption)mSecurityTypeView.getSelectedItem()).value;
-        String path = null;
-        if (mAccountSchemes[securityType].startsWith("imap")) {
-            path = "/" + mImapPathPrefixView.getText().toString().trim();
+        String userInfo = null;
+        if (mRequireLoginView.isChecked()) {
+            userInfo = mUsernameView.getText().toString().trim() + ":"
+                    + mPasswordView.getText().toString().trim();
         }
-        String userName = mUsernameView.getText().toString().trim();
-        mCacheLoginCredential = userName;
         URI uri = new URI(
-                mAccountSchemes[securityType],
-                userName + ":" + mPasswordView.getText().toString().trim(),
+                SMTP_SCHEMES[securityType],
+                userInfo,
                 mServerView.getText().toString().trim(),
                 Integer.parseInt(mPortView.getText().toString().trim()),
-                path, // path
-                null, // query
-                null);
-
+                null, null, null);
         return uri;
     }
 
@@ -447,21 +374,11 @@ public class AccountSetupIncomingFragment extends Fragment {
      * Entry point from Activity, when "next" button is clicked
      */
     public void onNext() {
-        EmailContent.Account setupAccount = SetupData.getAccount();
+        EmailContent.Account account = SetupData.getAccount();
         try {
+            // TODO this should be accessed directly via the HostAuth structure
             URI uri = getUri();
-            setupAccount.setStoreUri(mContext, uri.toString());
-
-            // Stop here if the login credentials duplicate an existing account
-            // (unless they duplicate the existing account, as they of course will)
-            EmailContent.Account account = Utility.findExistingAccount(mContext, setupAccount.mId,
-                    uri.getHost(), mCacheLoginCredential);
-            if (account != null) {
-                DuplicateAccountDialogFragment dialogFragment =
-                    new DuplicateAccountDialogFragment(account.mDisplayName, getId());
-                dialogFragment.show(getActivity(), DuplicateAccountDialogFragment.TAG);
-                return;
-            }
+            account.setSenderUri(mContext, uri.toString());
         } catch (URISyntaxException use) {
             /*
              * It's unrecoverable if we cannot create a URI from components that
@@ -469,10 +386,6 @@ public class AccountSetupIncomingFragment extends Fragment {
              */
             throw new Error(use);
         }
-
-        setupAccount.setDeletePolicy(
-                (Integer)((SpinnerOption)mDeletePolicyView.getSelectedItem()).value);
-
         mCallback.onProceedNext();
     }
 }

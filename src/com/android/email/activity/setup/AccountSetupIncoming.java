@@ -100,7 +100,7 @@ public class AccountSetupIncoming extends AccountSetupActivity
     public void onEnableProceedButtons(boolean enabled) {
         mNextButton.setEnabled(enabled);
         // Dim the next button's icon to 50% if the button is disabled.
-        // TODO this can probably be done with a stateful drawable. (check android:state_enabled
+        // TODO this can probably be done with a stateful drawable. (check android:state_enabled)
         Utility.setCompoundDrawablesAlpha(mNextButton, enabled ? 255 : 128);
     }
 }
