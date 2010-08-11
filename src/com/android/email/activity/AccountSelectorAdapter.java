@@ -16,6 +16,7 @@
 
 package com.android.email.activity;
 
+import com.android.email.data.NoAutoRequeryCursorLoader;
 import com.android.email.provider.EmailContent;
 
 import android.content.Context;
@@ -76,21 +77,5 @@ public class AccountSelectorAdapter extends CursorAdapter {
     /** @return Account id extracted from a Cursor. */
     public static long getAccountId(Cursor c) {
         return c.getLong(ID_COLUMN);
-    }
-
-    /**
-     * Same as {@link CursorLoader} but it doesn't auto-requery when it gets content-changed
-     * notifications.
-     */
-    private static class NoAutoRequeryCursorLoader extends CursorLoader {
-        public NoAutoRequeryCursorLoader(Context context, Uri uri, String[] projection,
-                String selection, String[] selectionArgs, String sortOrder) {
-            super(context, uri, projection, selection, selectionArgs, sortOrder);
-        }
-
-        @Override
-        public void onContentChanged() {
-            // Don't reload.
-        }
     }
 }

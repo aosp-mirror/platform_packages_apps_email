@@ -206,7 +206,7 @@ public class MessageList extends Activity implements OnClickListener,
             // Specific mailbox ID was provided - go directly to it
             mSetTitleTask = new SetTitleTask(mailboxId);
             mSetTitleTask.execute();
-            mListFragment.openMailbox(-1, mailboxId);
+            mListFragment.openMailbox(mailboxId);
         } else {
             int mailboxType = intent.getIntExtra(EXTRA_MAILBOX_TYPE, Mailbox.TYPE_INBOX);
             Uri uri = intent.getData();
@@ -308,7 +308,8 @@ public class MessageList extends Activity implements OnClickListener,
     }
 
     public void onAnimationEnd(Animation animation) {
-        mListFragment.updateListPosition();
+        // TODO: If the button panel hides the only selected item, scroll the list to make it
+        // visible again.
     }
 
     public void onAnimationRepeat(Animation animation) {
@@ -661,7 +662,7 @@ public class MessageList extends Activity implements OnClickListener,
         public void onMailboxFound(long accountId, long mailboxId) {
             mSetTitleTask = new SetTitleTask(mailboxId);
             mSetTitleTask.execute();
-            mListFragment.openMailbox(accountId, mailboxId);
+            mListFragment.openMailbox(mailboxId);
         }
 
         @Override
