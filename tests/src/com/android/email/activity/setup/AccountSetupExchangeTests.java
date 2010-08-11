@@ -128,12 +128,12 @@ public class AccountSetupExchangeTests extends
     }
 
     /**
-     * Test aspects of loadFields()
+     * Test aspects of loadSettings()
      *
      * TODO: More cases
      */
     @UiThreadTest
-    public void testLoadFields() {
+    public void testLoadSettings() {
         // The default URI has no SSL and no "trust"
         getActivityAndFields();
         assertFalse(mSslRequiredCheckbox.isChecked());
@@ -148,7 +148,8 @@ public class AccountSetupExchangeTests extends
                 "eas", "hostauth", 1, false, mActivity.getBaseContext());
         account.mHostAuthRecv.mFlags |= HostAuth.FLAG_SSL;
         account.mHostAuthRecv.mFlags &= ~HostAuth.FLAG_TRUST_ALL_CERTIFICATES;
-        mActivity.loadFields(account);
+        boolean loadResult = mActivity.mFragment.loadSettings(account);
+        assertTrue(loadResult);
         assertTrue(mSslRequiredCheckbox.isChecked());
         assertFalse(mTrustAllCertificatesCheckbox.isChecked());
         assertTrue(mTrustAllCertificatesCheckbox.getVisibility() == View.VISIBLE);
@@ -156,10 +157,16 @@ public class AccountSetupExchangeTests extends
         // Setup host auth with variants of SSL enabled and check.  This also enables the
         // "trust certificates" checkbox (not checked, but visible now).
         account.mHostAuthRecv.mFlags |= HostAuth.FLAG_TRUST_ALL_CERTIFICATES;
-        mActivity.loadFields(account);
+        loadResult = mActivity.mFragment.loadSettings(account);
+        assertTrue(loadResult);
         assertTrue(mSslRequiredCheckbox.isChecked());
         assertTrue(mTrustAllCertificatesCheckbox.isChecked());
         assertTrue(mTrustAllCertificatesCheckbox.getVisibility() == View.VISIBLE);
+
+        // A simple test of an incomplete account, which will fail validation
+        account.mHostAuthRecv.mPassword = "";
+        loadResult = mActivity.mFragment.loadSettings(account);
+        assertFalse(loadResult);
     }
 
     /**
