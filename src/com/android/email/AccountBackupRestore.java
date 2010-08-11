@@ -107,7 +107,7 @@ public class AccountBackupRestore {
                 Account toAccount = LegacyConversions.makeLegacyAccount(context, fromAccount);
 
                 // Determine if contacts are also synced, and if so, record that
-                if (fromAccount.mHostAuthRecv.mProtocol.equals("eas")) {
+                if (fromAccount.isEasAccount()) {
                     android.accounts.Account acct = new android.accounts.Account(
                             fromAccount.mEmailAddress, Email.EXCHANGE_ACCOUNT_MANAGER_TYPE);
                     boolean syncContacts = ContentResolver.getSyncAutomatically(acct,
@@ -188,7 +188,7 @@ public class AccountBackupRestore {
             boolean contacts = false;
             boolean calendar = false;
             // Handle system account first, then save in provider
-            if (toAccount.mHostAuthRecv.mProtocol.equals("eas")) {
+            if (toAccount.isEasAccount()) {
                 contacts = (backupAccount.mBackupFlags & Account.BACKUP_FLAGS_SYNC_CONTACTS) != 0;
                 calendar = (backupAccount.mBackupFlags & Account.BACKUP_FLAGS_SYNC_CALENDAR) != 0;
             }
