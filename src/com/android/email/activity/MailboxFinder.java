@@ -22,12 +22,9 @@ import com.android.email.Email;
 import com.android.email.Utility;
 import com.android.email.mail.MessagingException;
 import com.android.email.provider.EmailContent.Account;
-import com.android.email.provider.EmailContent.AccountColumns;
 import com.android.email.provider.EmailContent.Mailbox;
 
-import android.content.ContentUris;
 import android.content.Context;
-import android.database.Cursor;
 import android.os.AsyncTask;
 import android.os.Handler;
 import android.util.Log;
@@ -109,6 +106,7 @@ public class MailboxFinder {
         @Override
         public void updateMailboxListCallback(MessagingException result, long accountId,
                 int progress) {
+            Log.i(Email.LOG_TAG, "MailboxFinder: updateMailboxListCallback");
             if (result != null) {
                 // Error while updating the mailbox list.  Notify the UI...
                 mCallback.onMailboxNotFound(mAccountId);
@@ -182,23 +180,26 @@ public class MailboxFinder {
             }
             switch (mResult) {
                 case RESULT_ACCOUNT_SECURITY_HOLD:
-                    Log.w(Email.LOG_TAG, "Account security hold.");
+                    Log.w(Email.LOG_TAG, "MailboxFinder: Account security hold.");
                     mCallback.onAccountSecurityHold(mAccountId);
                     return;
                 case RESULT_ACCOUNT_NOT_FOUND:
-                    Log.w(Email.LOG_TAG, "Account not found.");
+                    Log.w(Email.LOG_TAG, "MailboxFinder: Account not found.");
                     mCallback.onAccountNotFound();
                     return;
                 case RESULT_MAILBOX_NOT_FOUND:
-                    Log.w(Email.LOG_TAG, "Mailbox not found.");
+                    Log.w(Email.LOG_TAG, "MailboxFinder: Mailbox not found.");
                     mCallback.onMailboxNotFound(mAccountId);
                     return;
                 case RESULT_START_NETWORK_LOOK_UP:
                     // Not found locally.  Let's sync the mailbox list...
-                    Log.i(Email.LOG_TAG, "Mailbox not found locally. Starting network lookup.");
+                    Log.i(Email.LOG_TAG, "MailboxFinder: Starting network lookup.");
                     mController.updateMailboxList(mAccountId);
                     return;
                 case RESULT_MAILBOX_FOUND:
+                    if (Email.DEBUG_LIFECYCLE && Email.DEBUG) {
+                        Log.d(Email.LOG_TAG, "MailboxFinder: mailbox found: id=" + mailboxId);
+                    }
                     mCallback.onMailboxFound(mAccountId, mailboxId);
                     return;
                 default:
