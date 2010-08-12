@@ -33,6 +33,7 @@ import android.database.MatrixCursor;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.net.Uri;
+import android.os.Binder;
 import android.os.ParcelFileDescriptor;
 import android.text.TextUtils;
 import android.util.Log;
@@ -151,27 +152,31 @@ public class AttachmentProvider extends ContentProvider {
      */
     @Override
     public String getType(Uri uri) {
-        List<String> segments = uri.getPathSegments();
-        String accountId = segments.get(0);
-        String id = segments.get(1);
-        String format = segments.get(2);
-        if (FORMAT_THUMBNAIL.equals(format)) {
-            return "image/png";
-        } else {
-            uri = ContentUris.withAppendedId(Attachment.CONTENT_URI, Long.parseLong(id));
-            Cursor c = getContext().getContentResolver().query(uri, MIME_TYPE_PROJECTION,
-                    null, null, null);
-            try {
-                if (c.moveToFirst()) {
-                    String mimeType = c.getString(MIME_TYPE_COLUMN_MIME_TYPE);
-                    String fileName = c.getString(MIME_TYPE_COLUMN_FILENAME);
-                    mimeType = inferMimeType(fileName, mimeType);
-                    return mimeType;
+        long callingId = Binder.clearCallingIdentity();
+        try {
+            List<String> segments = uri.getPathSegments();
+            String id = segments.get(1);
+            String format = segments.get(2);
+            if (FORMAT_THUMBNAIL.equals(format)) {
+                return "image/png";
+            } else {
+                uri = ContentUris.withAppendedId(Attachment.CONTENT_URI, Long.parseLong(id));
+                Cursor c = getContext().getContentResolver().query(uri, MIME_TYPE_PROJECTION,
+                        null, null, null);
+                try {
+                    if (c.moveToFirst()) {
+                        String mimeType = c.getString(MIME_TYPE_COLUMN_MIME_TYPE);
+                        String fileName = c.getString(MIME_TYPE_COLUMN_FILENAME);
+                        mimeType = inferMimeType(fileName, mimeType);
+                        return mimeType;
+                    }
+                } finally {
+                    c.close();
                 }
-            } finally {
-                c.close();
+                return null;
             }
-            return null;
+        } finally {
+            Binder.restoreCallingIdentity(callingId);
         }
     }
 
@@ -230,58 +235,64 @@ public class AttachmentProvider extends ContentProvider {
      */
     @Override
     public ParcelFileDescriptor openFile(Uri uri, String mode) throws FileNotFoundException {
-        List<String> segments = uri.getPathSegments();
-        String accountId = segments.get(0);
-        String id = segments.get(1);
-        String format = segments.get(2);
-        if (FORMAT_THUMBNAIL.equals(format)) {
-            int width = Integer.parseInt(segments.get(3));
-            int height = Integer.parseInt(segments.get(4));
-            String filename = "thmb_" + accountId + "_" + id;
-            File dir = getContext().getCacheDir();
-            File file = new File(dir, filename);
-            if (!file.exists()) {
-                Uri attachmentUri = getAttachmentUri(Long.parseLong(accountId), Long.parseLong(id));
-                Cursor c = query(attachmentUri,
-                        new String[] { AttachmentProviderColumns.DATA }, null, null, null);
-                if (c != null) {
+        long callingId = Binder.clearCallingIdentity();
+        try {
+            List<String> segments = uri.getPathSegments();
+            String accountId = segments.get(0);
+            String id = segments.get(1);
+            String format = segments.get(2);
+            if (FORMAT_THUMBNAIL.equals(format)) {
+                int width = Integer.parseInt(segments.get(3));
+                int height = Integer.parseInt(segments.get(4));
+                String filename = "thmb_" + accountId + "_" + id;
+                File dir = getContext().getCacheDir();
+                File file = new File(dir, filename);
+                if (!file.exists()) {
+                    Uri attachmentUri =
+                        getAttachmentUri(Long.parseLong(accountId), Long.parseLong(id));
+                    Cursor c = query(attachmentUri,
+                            new String[] { AttachmentProviderColumns.DATA }, null, null, null);
+                    if (c != null) {
+                        try {
+                            if (c.moveToFirst()) {
+                                attachmentUri = Uri.parse(c.getString(0));
+                            } else {
+                                return null;
+                            }
+                        } finally {
+                            c.close();
+                        }
+                    }
+                    String type = getContext().getContentResolver().getType(attachmentUri);
                     try {
-                        if (c.moveToFirst()) {
-                            attachmentUri = Uri.parse(c.getString(0));
-                        } else {
+                        InputStream in =
+                            getContext().getContentResolver().openInputStream(attachmentUri);
+                        Bitmap thumbnail = createThumbnail(type, in);
+                        if (thumbnail == null) {
                             return null;
                         }
-                    } finally {
-                        c.close();
-                    }
-                }
-                String type = getContext().getContentResolver().getType(attachmentUri);
-                try {
-                    InputStream in =
-                        getContext().getContentResolver().openInputStream(attachmentUri);
-                    Bitmap thumbnail = createThumbnail(type, in);
-                    if (thumbnail == null) {
+                        thumbnail = Bitmap.createScaledBitmap(thumbnail, width, height, true);
+                        FileOutputStream out = new FileOutputStream(file);
+                        thumbnail.compress(Bitmap.CompressFormat.PNG, 100, out);
+                        out.close();
+                        in.close();
+                    } catch (IOException ioe) {
+                        Log.d(Email.LOG_TAG, "openFile/thumbnail failed with " + ioe.getMessage());
+                        return null;
+                    } catch (OutOfMemoryError oome) {
+                        Log.d(Email.LOG_TAG, "openFile/thumbnail failed with " + oome.getMessage());
                         return null;
                     }
-                    thumbnail = Bitmap.createScaledBitmap(thumbnail, width, height, true);
-                    FileOutputStream out = new FileOutputStream(file);
-                    thumbnail.compress(Bitmap.CompressFormat.PNG, 100, out);
-                    out.close();
-                    in.close();
-                } catch (IOException ioe) {
-                    Log.d(Email.LOG_TAG, "openFile/thumbnail failed with " + ioe.getMessage());
-                    return null;
-                } catch (OutOfMemoryError oome) {
-                    Log.d(Email.LOG_TAG, "openFile/thumbnail failed with " + oome.getMessage());
-                    return null;
+                }
+                return ParcelFileDescriptor.open(file, ParcelFileDescriptor.MODE_READ_ONLY);
             }
+            else {
+                return ParcelFileDescriptor.open(
+                        new File(getContext().getDatabasePath(accountId + ".db_att"), id),
+                        ParcelFileDescriptor.MODE_READ_ONLY);
             }
-            return ParcelFileDescriptor.open(file, ParcelFileDescriptor.MODE_READ_ONLY);
-        }
-        else {
-            return ParcelFileDescriptor.open(
-                    new File(getContext().getDatabasePath(accountId + ".db_att"), id),
-                    ParcelFileDescriptor.MODE_READ_ONLY);
+        } finally {
+            Binder.restoreCallingIdentity(callingId);
         }
     }
 
@@ -305,56 +316,61 @@ public class AttachmentProvider extends ContentProvider {
     @Override
     public Cursor query(Uri uri, String[] projection, String selection, String[] selectionArgs,
             String sortOrder) {
-        if (projection == null) {
-            projection =
-                new String[] {
-                    AttachmentProviderColumns._ID,
-                    AttachmentProviderColumns.DATA,
-                    };
-        }
-
-        List<String> segments = uri.getPathSegments();
-        String accountId = segments.get(0);
-        String id = segments.get(1);
-        String format = segments.get(2);
-        String name = null;
-        int size = -1;
-        String contentUri = null;
-
-        uri = ContentUris.withAppendedId(Attachment.CONTENT_URI, Long.parseLong(id));
-        Cursor c = getContext().getContentResolver().query(uri, PROJECTION_QUERY,
-                null, null, null);
+        long callingId = Binder.clearCallingIdentity();
         try {
-            if (c.moveToFirst()) {
-                name = c.getString(0);
-                size = c.getInt(1);
-                contentUri = c.getString(2);
-            } else {
-                return null;
+            if (projection == null) {
+                projection =
+                    new String[] {
+                        AttachmentProviderColumns._ID,
+                        AttachmentProviderColumns.DATA,
+                };
             }
-        } finally {
-            c.close();
-        }
 
-        MatrixCursor ret = new MatrixCursor(projection);
-        Object[] values = new Object[projection.length];
-        for (int i = 0, count = projection.length; i < count; i++) {
-            String column = projection[i];
-            if (AttachmentProviderColumns._ID.equals(column)) {
-                values[i] = id;
+            List<String> segments = uri.getPathSegments();
+            String accountId = segments.get(0);
+            String id = segments.get(1);
+            String format = segments.get(2);
+            String name = null;
+            int size = -1;
+            String contentUri = null;
+
+            uri = ContentUris.withAppendedId(Attachment.CONTENT_URI, Long.parseLong(id));
+            Cursor c = getContext().getContentResolver().query(uri, PROJECTION_QUERY,
+                    null, null, null);
+            try {
+                if (c.moveToFirst()) {
+                    name = c.getString(0);
+                    size = c.getInt(1);
+                    contentUri = c.getString(2);
+                } else {
+                    return null;
+                }
+            } finally {
+                c.close();
             }
-            else if (AttachmentProviderColumns.DATA.equals(column)) {
-                values[i] = contentUri;
+
+            MatrixCursor ret = new MatrixCursor(projection);
+            Object[] values = new Object[projection.length];
+            for (int i = 0, count = projection.length; i < count; i++) {
+                String column = projection[i];
+                if (AttachmentProviderColumns._ID.equals(column)) {
+                    values[i] = id;
+                }
+                else if (AttachmentProviderColumns.DATA.equals(column)) {
+                    values[i] = contentUri;
+                }
+                else if (AttachmentProviderColumns.DISPLAY_NAME.equals(column)) {
+                    values[i] = name;
+                }
+                else if (AttachmentProviderColumns.SIZE.equals(column)) {
+                    values[i] = size;
+                }
             }
-            else if (AttachmentProviderColumns.DISPLAY_NAME.equals(column)) {
-                values[i] = name;
-            }
-            else if (AttachmentProviderColumns.SIZE.equals(column)) {
-                values[i] = size;
-            }
+            ret.addRow(values);
+            return ret;
+        } finally {
+            Binder.restoreCallingIdentity(callingId);
         }
-        ret.addRow(values);
-        return ret;
     }
 
     @Override
