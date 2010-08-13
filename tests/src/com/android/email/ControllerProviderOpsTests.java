@@ -16,24 +16,19 @@
 
 package com.android.email;
 
-import com.android.email.mail.MessagingException;
-import com.android.email.mail.transport.Rfc822Output;
 import com.android.email.provider.EmailContent;
-import com.android.email.provider.EmailProvider;
-import com.android.email.provider.ProviderTestUtils;
 import com.android.email.provider.EmailContent.Account;
 import com.android.email.provider.EmailContent.Body;
 import com.android.email.provider.EmailContent.HostAuth;
 import com.android.email.provider.EmailContent.Mailbox;
 import com.android.email.provider.EmailContent.Message;
+import com.android.email.provider.EmailProvider;
+import com.android.email.provider.ProviderTestUtils;
 
 import android.content.Context;
 import android.net.Uri;
 import android.test.ProviderTestCase2;
 
-import java.io.File;
-import java.io.FileOutputStream;
-import java.io.IOException;
 import java.util.Locale;
 
 /**
@@ -48,9 +43,10 @@ import java.util.Locale;
  */
 public class ControllerProviderOpsTests extends ProviderTestCase2<EmailProvider> {
 
-    EmailProvider mProvider;
-    Context mProviderContext;
-    Context mContext;
+    private Context mProviderContext;
+    private Context mContext;
+    private TestController mTestController;
+
 
     public ControllerProviderOpsTests() {
         super(EmailProvider.class, EmailProvider.EMAIL_AUTHORITY);
@@ -61,11 +57,13 @@ public class ControllerProviderOpsTests extends ProviderTestCase2<EmailProvider>
         super.setUp();
         mProviderContext = getMockContext();
         mContext = getContext();
+        mTestController = new TestController(mProviderContext, mContext);
     }
 
     @Override
     public void tearDown() throws Exception {
         super.tearDown();
+        mTestController.cleanupForTest();
     }
 
     /**
@@ -83,24 +81,22 @@ public class ControllerProviderOpsTests extends ProviderTestCase2<EmailProvider>
      * These are strings that should not change per locale.
      */
     public void testGetMailboxServerName() {
-        Controller ct = new TestController(mProviderContext, mContext);
+        assertEquals("", mTestController.getMailboxServerName(-1));
 
-        assertEquals("", ct.getMailboxServerName(-1));
-
-        assertEquals("Inbox", ct.getMailboxServerName(Mailbox.TYPE_INBOX));
-        assertEquals("Outbox", ct.getMailboxServerName(Mailbox.TYPE_OUTBOX));
-        assertEquals("Trash", ct.getMailboxServerName(Mailbox.TYPE_TRASH));
-        assertEquals("Sent", ct.getMailboxServerName(Mailbox.TYPE_SENT));
-        assertEquals("Junk", ct.getMailboxServerName(Mailbox.TYPE_JUNK));
+        assertEquals("Inbox", mTestController.getMailboxServerName(Mailbox.TYPE_INBOX));
+        assertEquals("Outbox", mTestController.getMailboxServerName(Mailbox.TYPE_OUTBOX));
+        assertEquals("Trash", mTestController.getMailboxServerName(Mailbox.TYPE_TRASH));
+        assertEquals("Sent", mTestController.getMailboxServerName(Mailbox.TYPE_SENT));
+        assertEquals("Junk", mTestController.getMailboxServerName(Mailbox.TYPE_JUNK));
 
         // Now try again with translation
         Locale savedLocale = Locale.getDefault();
         Locale.setDefault(Locale.FRANCE);
-        assertEquals("Inbox", ct.getMailboxServerName(Mailbox.TYPE_INBOX));
-        assertEquals("Outbox", ct.getMailboxServerName(Mailbox.TYPE_OUTBOX));
-        assertEquals("Trash", ct.getMailboxServerName(Mailbox.TYPE_TRASH));
-        assertEquals("Sent", ct.getMailboxServerName(Mailbox.TYPE_SENT));
-        assertEquals("Junk", ct.getMailboxServerName(Mailbox.TYPE_JUNK));
+        assertEquals("Inbox", mTestController.getMailboxServerName(Mailbox.TYPE_INBOX));
+        assertEquals("Outbox", mTestController.getMailboxServerName(Mailbox.TYPE_OUTBOX));
+        assertEquals("Trash", mTestController.getMailboxServerName(Mailbox.TYPE_TRASH));
+        assertEquals("Sent", mTestController.getMailboxServerName(Mailbox.TYPE_SENT));
+        assertEquals("Junk", mTestController.getMailboxServerName(Mailbox.TYPE_JUNK));
         Locale.setDefault(savedLocale);
     }
 
@@ -116,8 +112,7 @@ public class ControllerProviderOpsTests extends ProviderTestCase2<EmailProvider>
         long oldBoxId = Mailbox.findMailboxOfType(mProviderContext, accountId, Mailbox.TYPE_DRAFTS);
         assertEquals(Mailbox.NO_MAILBOX, oldBoxId);
 
-        Controller ct = new TestController(mProviderContext, mContext);
-        ct.createMailbox(accountId, Mailbox.TYPE_DRAFTS);
+        mTestController.createMailbox(accountId, Mailbox.TYPE_DRAFTS);
         long boxId = Mailbox.findMailboxOfType(mProviderContext, accountId, Mailbox.TYPE_DRAFTS);
 
         // check that the drafts mailbox exists
@@ -141,23 +136,23 @@ public class ControllerProviderOpsTests extends ProviderTestCase2<EmailProvider>
         box.save(mProviderContext);
         long boxId = box.mId;
 
-        Controller ct = new TestController(mProviderContext, mContext);
-        long testBoxId = ct.findOrCreateMailboxOfType(accountId, boxType);
+        long testBoxId = mTestController.findOrCreateMailboxOfType(accountId, boxType);
 
         // check it found the right mailbox id
         assertEquals(boxId, testBoxId);
 
-        long boxId2 = ct.findOrCreateMailboxOfType(accountId, Mailbox.TYPE_DRAFTS);
+        long boxId2 = mTestController.findOrCreateMailboxOfType(accountId, Mailbox.TYPE_DRAFTS);
         assertTrue("mailbox created", boxId2 != Mailbox.NO_MAILBOX);
         assertTrue("with different id", testBoxId != boxId2);
 
         // check it doesn't create twice when existing
-        long boxId3 = ct.findOrCreateMailboxOfType(accountId, Mailbox.TYPE_DRAFTS);
+        long boxId3 = mTestController.findOrCreateMailboxOfType(accountId, Mailbox.TYPE_DRAFTS);
         assertEquals("don't create if exists", boxId3, boxId2);
 
         // check invalid aruments
-        assertEquals(Mailbox.NO_MAILBOX, ct.findOrCreateMailboxOfType(-1, Mailbox.TYPE_DRAFTS));
-        assertEquals(Mailbox.NO_MAILBOX, ct.findOrCreateMailboxOfType(accountId, -1));
+        assertEquals(Mailbox.NO_MAILBOX,
+                mTestController.findOrCreateMailboxOfType(-1, Mailbox.TYPE_DRAFTS));
+        assertEquals(Mailbox.NO_MAILBOX, mTestController.findOrCreateMailboxOfType(accountId, -1));
     }
 
     /**
@@ -179,9 +174,7 @@ public class ControllerProviderOpsTests extends ProviderTestCase2<EmailProvider>
                 true, mProviderContext);
         long message1Id = message1.mId;
 
-        Controller ct = new TestController(mProviderContext, mContext);
-
-        ct.deleteMessage(message1Id, account1Id);
+        mTestController.deleteMessage(message1Id, account1Id);
 
         // now read back a fresh copy and confirm it's in the trash
         Message message1get = EmailContent.Message.restoreMessageWithId(mProviderContext,
@@ -193,7 +186,7 @@ public class ControllerProviderOpsTests extends ProviderTestCase2<EmailProvider>
                 true, mProviderContext);
         long message2Id = message2.mId;
 
-        ct.deleteMessage(message2Id, -1);
+        mTestController.deleteMessage(message2Id, -1);
 
         // now read back a fresh copy and confirm it's in the trash
         Message message2get = EmailContent.Message.restoreMessageWithId(mProviderContext,
@@ -216,9 +209,7 @@ public class ControllerProviderOpsTests extends ProviderTestCase2<EmailProvider>
                         mProviderContext);
         long message1Id = message1.mId;
 
-        Controller ct = new TestController(mProviderContext, mContext);
-
-        ct.deleteMessage(message1Id, account1Id);
+        mTestController.deleteMessage(message1Id, account1Id);
 
         // now read back a fresh copy and confirm it's in the trash
         Message message1get =
@@ -248,15 +239,13 @@ public class ControllerProviderOpsTests extends ProviderTestCase2<EmailProvider>
                         mProviderContext);
         long message1Id = message1.mId;
 
-        Controller ct = new TestController(mProviderContext, mContext);
-
         // test setting to "read"
-        ct.setMessageRead(message1Id, true);
+        mTestController.setMessageRead(message1Id, true);
         Message message1get = Message.restoreMessageWithId(mProviderContext, message1Id);
         assertTrue(message1get.mFlagRead);
 
         // test setting to "unread"
-        ct.setMessageRead(message1Id, false);
+        mTestController.setMessageRead(message1Id, false);
         message1get = Message.restoreMessageWithId(mProviderContext, message1Id);
         assertFalse(message1get.mFlagRead);
     }
@@ -277,24 +266,21 @@ public class ControllerProviderOpsTests extends ProviderTestCase2<EmailProvider>
                         mProviderContext);
         long message1Id = message1.mId;
 
-        Controller ct = new TestController(mProviderContext, mContext);
-
         // test setting to "favorite"
-        ct.setMessageFavorite(message1Id, true);
+        mTestController.setMessageFavorite(message1Id, true);
         Message message1get = Message.restoreMessageWithId(mProviderContext, message1Id);
         assertTrue(message1get.mFlagFavorite);
 
         // test setting to "not favorite"
-        ct.setMessageFavorite(message1Id, false);
+        mTestController.setMessageFavorite(message1Id, false);
         message1get = Message.restoreMessageWithId(mProviderContext, message1Id);
         assertFalse(message1get.mFlagFavorite);
     }
 
     public void testGetAndDeleteAttachmentMailbox() {
-        Controller ct = new TestController(mProviderContext, mContext);
-        Mailbox box = ct.getAttachmentMailbox();
+        Mailbox box = mTestController.getAttachmentMailbox();
         assertNotNull(box);
-        Mailbox anotherBox = ct.getAttachmentMailbox();
+        Mailbox anotherBox = mTestController.getAttachmentMailbox();
         assertNotNull(anotherBox);
         // We should always get back the same Mailbox row
         assertEquals(box.mId, anotherBox.mId);
@@ -307,7 +293,7 @@ public class ControllerProviderOpsTests extends ProviderTestCase2<EmailProvider>
         assertEquals(2, EmailContent.count(mProviderContext, Message.CONTENT_URI,
                 Message.MAILBOX_KEY + "=?", new String[] {Long.toString(box.mId)}));
         // Delete them
-        ct.deleteAttachmentMessages();
+        mTestController.deleteAttachmentMessages();
         // Make sure they're gone
         assertEquals(0, EmailContent.count(mProviderContext, Message.CONTENT_URI,
                 Message.MAILBOX_KEY + "=?", new String[] {Long.toString(box.mId)}));
@@ -327,13 +313,12 @@ public class ControllerProviderOpsTests extends ProviderTestCase2<EmailProvider>
                 mContext.getFilesDir());
 
         // Load the message via Controller and a Uri
-        Controller ct = new TestController(mProviderContext, mContext);
-        Message loadedMsg = ct.loadMessageFromUri(fileUri);
+        Message loadedMsg = mTestController.loadMessageFromUri(fileUri);
 
         // Check server id, mailbox key, account key, and from
         assertNotNull(loadedMsg);
         assertTrue(loadedMsg.mServerId.startsWith(Controller.ATTACHMENT_MESSAGE_UID_PREFIX));
-        Mailbox box = ct.getAttachmentMailbox();
+        Mailbox box = mTestController.getAttachmentMailbox();
         assertNotNull(box);
         assertEquals(box.mId, loadedMsg.mMailboxKey);
         assertEquals(0, loadedMsg.mAccountKey);
@@ -353,42 +338,41 @@ public class ControllerProviderOpsTests extends ProviderTestCase2<EmailProvider>
     }
 
     public void testIsMessagingController() {
-        Controller ct = new TestController(mProviderContext, mContext);
         Account account1 = ProviderTestUtils.setupAccount("account1", false,
                 mProviderContext);
         account1.mHostAuthRecv = setupSimpleHostAuth("eas");
         account1.save(mProviderContext);
-        assertFalse(ct.isMessagingController(account1));
+        assertFalse(mTestController.isMessagingController(account1));
         Account account2 = ProviderTestUtils.setupAccount("account2", false,
                 mProviderContext);
         account2.mHostAuthRecv = setupSimpleHostAuth("imap");
         account2.save(mProviderContext);
-        assertTrue(ct.isMessagingController(account2));
+        assertTrue(mTestController.isMessagingController(account2));
         Account account3 = ProviderTestUtils.setupAccount("account3", false,
                 mProviderContext);
         account3.mHostAuthRecv = setupSimpleHostAuth("pop3");
         account3.save(mProviderContext);
-        assertTrue(ct.isMessagingController(account3));
+        assertTrue(mTestController.isMessagingController(account3));
         Account account4 = ProviderTestUtils.setupAccount("account4", false,
                 mProviderContext);
         account4.mHostAuthRecv = setupSimpleHostAuth("smtp");
         account4.save(mProviderContext);
-        assertFalse(ct.isMessagingController(account4));
+        assertFalse(mTestController.isMessagingController(account4));
         // There should be values for all of these accounts in the legacy map
-        assertNotNull(ct.mLegacyControllerMap.get(account1.mId));
-        assertNotNull(ct.mLegacyControllerMap.get(account2.mId));
-        assertNotNull(ct.mLegacyControllerMap.get(account3.mId));
-        assertNotNull(ct.mLegacyControllerMap.get(account4.mId));
+        assertNotNull(mTestController.mLegacyControllerMap.get(account1.mId));
+        assertNotNull(mTestController.mLegacyControllerMap.get(account2.mId));
+        assertNotNull(mTestController.mLegacyControllerMap.get(account3.mId));
+        assertNotNull(mTestController.mLegacyControllerMap.get(account4.mId));
         // The map should have the expected values
-        assertFalse(ct.mLegacyControllerMap.get(account1.mId));
-        assertTrue(ct.mLegacyControllerMap.get(account2.mId));
-        assertTrue(ct.mLegacyControllerMap.get(account3.mId));
-        assertFalse(ct.mLegacyControllerMap.get(account4.mId));
+        assertFalse(mTestController.mLegacyControllerMap.get(account1.mId));
+        assertTrue(mTestController.mLegacyControllerMap.get(account2.mId));
+        assertTrue(mTestController.mLegacyControllerMap.get(account3.mId));
+        assertFalse(mTestController.mLegacyControllerMap.get(account4.mId));
         // This second pass should pull values from the cache
-        assertFalse(ct.isMessagingController(account1));
-        assertTrue(ct.isMessagingController(account2));
-        assertTrue(ct.isMessagingController(account3));
-        assertFalse(ct.isMessagingController(account4));
+        assertFalse(mTestController.isMessagingController(account1));
+        assertTrue(mTestController.isMessagingController(account2));
+        assertTrue(mTestController.isMessagingController(account3));
+        assertFalse(mTestController.isMessagingController(account4));
     }
 
     /**
