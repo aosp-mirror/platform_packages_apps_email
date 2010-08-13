@@ -50,7 +50,6 @@ import android.test.AndroidTestCase;
 import android.test.MoreAsserts;
 import android.test.suitebuilder.annotation.SmallTest;
 
-import java.io.IOException;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.regex.Pattern;
@@ -1264,6 +1263,67 @@ public class ImapStoreUnitTests extends AndroidTestCase {
 
         // TODO: Test NO response. (src message not found)
     }
+
+    public void testSearchForUids() throws Exception {
+        MockTransport mock = openAndInjectMockTransport();
+        setupOpenFolder(mock);
+        mFolder.open(OpenMode.READ_WRITE, null);
+
+        // Single results
+        mock.expect(
+                getNextTag(false) + " UID SEARCH X",
+                new String[] {
+                        "* sEARCH 1",
+                        getNextTag(true) + " oK success"
+                });
+        MoreAsserts.assertEquals(new String[] {
+                "1"
+                }, mFolder.searchForUids("X"));
+
+        // Multiple results, including SEARCH with no UIDs.
+        mock.expect(
+                getNextTag(false) + " UID SEARCH UID 123",
+                new String[] {
+                        "* sEARCH 123 4 567",
+                        "* search",
+                        "* sEARCH 0",
+                        "* SEARCH",
+                        "* sEARCH 100 200 300",
+                        getNextTag(true) + " oK success"
+                });
+        MoreAsserts.assertEquals(new String[] {
+                "123", "4", "567", "0", "100", "200", "300"
+                }, mFolder.searchForUids("UID 123"));
+
+        // NO result
+        mock.expect(
+                getNextTag(false) + " UID SEARCH SOME CRITERIA",
+                new String[] {
+                        getNextTag(true) + " nO not found"
+                });
+        MoreAsserts.assertEquals(new String[] {
+                }, mFolder.searchForUids("SOME CRITERIA"));
+
+        // OK result, but result is empty. (Probably against RFC)
+        mock.expect(
+                getNextTag(false) + " UID SEARCH SOME CRITERIA",
+                new String[] {
+                        getNextTag(true) + " oK success"
+                });
+        MoreAsserts.assertEquals(new String[] {
+                }, mFolder.searchForUids("SOME CRITERIA"));
+
+        // OK result with empty search response.
+        mock.expect(
+                getNextTag(false) + " UID SEARCH SOME CRITERIA",
+                new String[] {
+                        "* search",
+                        getNextTag(true) + " oK success"
+                });
+        MoreAsserts.assertEquals(new String[] {
+                }, mFolder.searchForUids("SOME CRITERIA"));
+    }
+
 
     public void testGetMessage() throws Exception {
         MockTransport mock = openAndInjectMockTransport();
