@@ -660,13 +660,13 @@ public abstract class MessageViewFragmentBase extends Fragment implements View.O
                 // database calls, such as IllegalStateException
                 Log.d(Email.LOG_TAG, "Exception while loading message body: " + re.toString());
                 mErrorLoadingMessageBody = true;
-                return new String[] { null, null };
+                return null;
             }
         }
 
         @Override
         protected void onPostExecute(String[] results) {
-            if (results == null) {
+            if (results == null || isCancelled()) {
                 if (mErrorLoadingMessageBody) {
                     Utility.showToast(getActivity(), R.string.error_loading_message_body);
                 }
