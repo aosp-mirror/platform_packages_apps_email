@@ -303,8 +303,12 @@ class MessageListXLFragmentManager {
      *
      * We assume the mailbox selected here belongs to the account selected with
      * {@link #selectAccount}.
+     *
+     * @param mailboxId ID of mailbox
+     * @param byUserAction set true if the user is explicitly opening the mailbox, in which case
+     *     we perform "auto-refresh".
      */
-    public void selectMailbox(long mailboxId) {
+    public void selectMailbox(long mailboxId, boolean byUserAction) {
         if (Email.DEBUG_LIFECYCLE && Email.DEBUG) {
             Log.d(Email.LOG_TAG, "selectMailbox mMailboxId=" + mailboxId);
         }
@@ -322,6 +326,9 @@ class MessageListXLFragmentManager {
         // Update fragments.
         if (mMessageListFragment == null) {
             MessageListFragment f = new MessageListFragment();
+            if (byUserAction) {
+                f.doAutoRefresh();
+            }
             mTargetActivity.openFragmentTransaction().replace(R.id.right_pane, f).commit();
 
             if (mMessageViewFragment != null) {
@@ -330,6 +337,9 @@ class MessageListXLFragmentManager {
                 mTargetActivity.onMessageViewFragmentHidden(); // Don't forget to tell the activity.
             }
         } else {
+            if (byUserAction) {
+                mMessageListFragment.doAutoRefresh();
+            }
             updateMessageListFragment(mMessageListFragment);
         }
     }
@@ -344,7 +354,7 @@ class MessageListXLFragmentManager {
         mMessageListFragment = fragment;
 
         fragment.setCallback(mMessageListFragmentCallback);
-        fragment.openMailbox(mAccountId, mMailboxId);
+        fragment.openMailbox(mMailboxId);
     }
 
     /**
@@ -435,7 +445,7 @@ class MessageListXLFragmentManager {
             if (Email.DEBUG_LIFECYCLE && Email.DEBUG) {
                 Log.d(Email.LOG_TAG, "  Found inbox");
             }
-            selectMailbox(mailboxId);
+            selectMailbox(mailboxId, true);
         }
 
         @Override

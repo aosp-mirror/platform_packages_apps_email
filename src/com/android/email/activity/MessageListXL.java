@@ -189,7 +189,7 @@ public class MessageListXL extends Activity implements View.OnClickListener,
             // position.
             // TODO: FragmentTransaction *does* support backstack, but the behavior isn't too clear
             // at this point.
-            mFragmentManager.selectMailbox(mFragmentManager.getMailboxId());
+            mFragmentManager.selectMailbox(mFragmentManager.getMailboxId(), false);
         } else {
             // Perform the default behavior == close the activity.
             super.onBackPressed();
@@ -292,7 +292,7 @@ public class MessageListXL extends Activity implements View.OnClickListener,
         // TODO Rename to onSelectMailbox
         @Override
         public void onMailboxSelected(long accountId, long mailboxId) {
-            mFragmentManager.selectMailbox(mailboxId);
+            mFragmentManager.selectMailbox(mailboxId, true);
         }
     }
 

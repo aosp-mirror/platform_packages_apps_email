@@ -19,18 +19,22 @@ package com.android.email.activity;
 import com.android.email.Email;
 import com.android.email.R;
 import com.android.email.Utility;
+import com.android.email.data.ThrottlingCursorLoader;
+import com.android.email.provider.EmailContent;
 import com.android.email.provider.EmailContent.Message;
+import com.android.email.provider.EmailContent.MessageColumns;
 
 import android.content.Context;
+import android.content.Loader;
 import android.content.res.ColorStateList;
 import android.content.res.Resources;
-import android.content.res.TypedArray;
 import android.content.res.Resources.Theme;
+import android.content.res.TypedArray;
 import android.database.Cursor;
 import android.graphics.Typeface;
 import android.graphics.drawable.Drawable;
+import android.os.Bundle;
 import android.os.Handler;
-import android.os.SystemClock;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -42,14 +46,21 @@ import android.widget.TextView;
 import java.util.Date;
 import java.util.HashSet;
 import java.util.Set;
-import java.util.Timer;
-import java.util.TimerTask;
 
 
 /**
  * This class implements the adapter for displaying messages based on cursors.
  */
 /* package */ class MessagesAdapter extends CursorAdapter {
+    private static final String STATE_CHECKED_ITEMS =
+            "com.android.email.activity.MessagesAdapter.checkedItems";
+
+    /* package */ static final String[] MESSAGE_PROJECTION = new String[] {
+        EmailContent.RECORD_ID, MessageColumns.MAILBOX_KEY, MessageColumns.ACCOUNT_KEY,
+        MessageColumns.DISPLAY_NAME, MessageColumns.SUBJECT, MessageColumns.TIMESTAMP,
+        MessageColumns.FLAG_READ, MessageColumns.FLAG_FAVORITE, MessageColumns.FLAG_ATTACHMENT,
+        MessageColumns.FLAGS,
+    };
 
     public static final int COLUMN_ID = 0;
     public static final int COLUMN_MAILBOX_KEY = 1;
@@ -73,13 +84,9 @@ import java.util.TimerTask;
     private final ColorStateList mTextColorPrimary;
     private final ColorStateList mTextColorSecondary;
 
-    // Timer to control the refresh rate of the list
-    private final RefreshTimer mRefreshTimer = new RefreshTimer();
-    // Last time we allowed a refresh of the list
-    private long mLastRefreshTime = 0;
     // How long we want to wait for refreshes (a good starting guess)
     // I suspect this could be lowered down to even 1000 or so, but this seems ok for now
-    private static final long REFRESH_INTERVAL_MS = 2500;
+    private static final int REFRESH_INTERVAL_MS = 2500;
 
     private final java.text.DateFormat mDateFormat;
     private final java.text.DateFormat mTimeFormat;
@@ -90,8 +97,6 @@ import java.util.TimerTask;
      * Callback from MessageListAdapter.  All methods are called on the UI thread.
      */
     public interface Callback {
-        /** Called when the adapter refreshes */
-        void onAdapterRequery();
         /** Called when the use starts/unstars a message */
         void onAdapterFavoriteChanged(MessageListItem itemView, boolean newFavorite);
         /** Called when the user selects/unselects a message */
@@ -107,7 +112,7 @@ import java.util.TimerTask;
     private final Handler mHandler;
 
     public MessagesAdapter(Context context, Handler handler, Callback callback) {
-        super(context.getApplicationContext(), null, true);
+        super(context.getApplicationContext(), null, 0 /* no auto requery */);
         mHandler = handler;
         mCallback = callback;
         mInflater = (LayoutInflater) context.getSystemService(Context.LAYOUT_INFLATER_SERVICE);
@@ -129,72 +134,22 @@ import java.util.TimerTask;
         mTimeFormat = android.text.format.DateFormat.getTimeFormat(context);    // 12/24 time
     }
 
-    /**
-     * We override onContentChange to throttle the refresh, which can happen way too often
-     * on syncing a large list (up to many times per second).  This will prevent ANR's during
-     * initial sync and potentially at other times as well.
-     */
-    @Override
-    protected synchronized void onContentChanged() {
-        final Cursor cursor = getCursor();
-        if (cursor != null && !cursor.isClosed()) {
-            long sinceRefresh = SystemClock.elapsedRealtime() - mLastRefreshTime;
-            mRefreshTimer.schedule(REFRESH_INTERVAL_MS - sinceRefresh);
+    public void onSaveInstanceState(Bundle outState) {
+        Set<Long> checkedset = getSelectedSet();
+        long[] checkedarray = new long[checkedset.size()];
+        int i = 0;
+        for (Long l : checkedset) {
+            checkedarray[i] = l;
+            i++;
         }
+        outState.putLongArray(STATE_CHECKED_ITEMS, checkedarray);
     }
 
-    /**
-     * Called in UI thread only to complete the requery that we
-     * intercepted in onContentChanged().
-     */
-    private void doRequery() {
-        super.onContentChanged();
-    }
-
-    private class RefreshTimer extends Timer {
-        private TimerTask timerTask = null;
-
-        protected void clear() {
-            timerTask = null;
+    public void loadState(Bundle savedInstanceState) {
+        Set<Long> checkedset = getSelectedSet();
+        for (long l: savedInstanceState.getLongArray(STATE_CHECKED_ITEMS)) {
+            checkedset.add(l);
         }
-
-        protected synchronized void schedule(long delay) {
-            if (timerTask != null) return;
-            if (delay < 0) {
-                refreshList();
-            } else {
-                timerTask = new RefreshTimerTask();
-                schedule(timerTask, delay);
-            }
-        }
-    }
-
-    private class RefreshTimerTask extends TimerTask {
-        @Override
-        public void run() {
-            refreshList();
-        }
-    }
-
-    /**
-     * Do the work of requerying the list and notifying the UI of changed data
-     * Make sure we call notifyDataSetChanged on the UI thread.
-     */
-    private synchronized void refreshList() {
-        if (Email.LOGD) {
-            Log.d("messageList", "refresh: "
-                    + (SystemClock.elapsedRealtime() - mLastRefreshTime) + "ms");
-        }
-        mHandler.post(new Runnable() {
-            public void run() {
-                doRequery();
-                if (mCallback != null) {
-                    mCallback.onAdapterRequery();
-                }
-            }
-        });
-        mLastRefreshTime = SystemClock.elapsedRealtime();
-        mRefreshTimer.clear();
     }
 
     public Set<Long> getSelectedSet() {
@@ -320,5 +275,17 @@ import java.util.TimerTask;
         } else {
             itemView.setBackgroundDrawable(null); // Change back to default.
         }
+    }
+
+    public static Loader<Cursor> createLoader(Context context, long mailboxId) {
+        if (Email.DEBUG_LIFECYCLE && Email.DEBUG) {
+            Log.d(Email.LOG_TAG, "MessagesAdapter createLoader mailboxId=" + mailboxId);
+        }
+        String selection =
+                Utility.buildMailboxIdSelection(context.getContentResolver(), mailboxId);
+        return new ThrottlingCursorLoader(context, EmailContent.Message.CONTENT_URI,
+                MESSAGE_PROJECTION, selection, null,
+                EmailContent.MessageColumns.TIMESTAMP + " DESC", REFRESH_INTERVAL_MS);
+
     }
 }
