@@ -72,6 +72,7 @@ public class MailboxFinderTest extends InstrumentationTestCase {
     @Override
     protected void tearDown() throws Exception {
         super.tearDown();
+        mMockController.cleanupForTest();
         Controller.injectMockControllerForTest(null);
     }
 

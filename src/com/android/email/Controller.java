@@ -97,6 +97,16 @@ public class Controller {
     }
 
     /**
+     * Cleanup for test.  Mustn't be called for the regular {@link Controller}, as it's a
+     * singleton and lives till the process finishes.
+     *
+     * <p>However, this method MUST be called for mock instances.
+     */
+    public void cleanupForTest() {
+        mLegacyController.removeListener(mLegacyListener);
+    }
+
+    /**
      * Gets or creates the singleton instance of Controller.
      */
     public synchronized static Controller getInstance(Context _context) {
