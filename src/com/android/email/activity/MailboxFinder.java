@@ -174,7 +174,6 @@ public class MailboxFinder {
 
         @Override
         protected void onPostExecute(Long mailboxId) {
-            Log.w(Email.LOG_TAG, "" + isCancelled() + " " + mResult);
             if (isCancelled()) {
                 return;
             }
