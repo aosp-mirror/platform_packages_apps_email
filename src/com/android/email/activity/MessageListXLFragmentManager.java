@@ -21,6 +21,7 @@ import com.android.email.R;
 import com.android.email.provider.EmailContent.Mailbox;
 
 import android.app.Fragment;
+import android.app.FragmentManager;
 import android.app.FragmentTransaction;
 import android.content.Context;
 import android.os.Bundle;
@@ -89,7 +90,7 @@ class MessageListXLFragmentManager {
      * for MessageListXLFragmentManager.
      */
     public interface TargetActivity {
-        public FragmentTransaction openFragmentTransaction();
+        public FragmentManager getFragmentManager();
         /**
          * Called when MessageViewFragment is being shown.
          * {@link MessageListXL} uses it to show the navigation buttons.
@@ -108,10 +109,12 @@ class MessageListXLFragmentManager {
     }
 
     private final TargetActivity mTargetActivity;
+    private final FragmentManager mFragmentManager;
 
     public MessageListXLFragmentManager(MessageListXL activity) {
         mContext = activity;
         mTargetActivity = activity;
+        mFragmentManager = mTargetActivity.getFragmentManager();
     }
 
     /** Set callback for fragment. */
@@ -223,7 +226,7 @@ class MessageListXLFragmentManager {
     }
 
     /**
-     * Called by {@link #setActivityStarted} to initialize the "restored" fragments.
+     * Called by {@link #onStart} to initialize the "restored" fragments.
      */
     private void initRestoredFragments() {
         if (Email.DEBUG_LIFECYCLE && Email.DEBUG) {
@@ -256,7 +259,7 @@ class MessageListXLFragmentManager {
         mMessageId = -1;
 
         // Replace fragments if necessary.
-        final FragmentTransaction ft = mTargetActivity.openFragmentTransaction();
+        final FragmentTransaction ft = mFragmentManager.openTransaction();
         if (mMailboxListFragment == null) {
             // The left pane not set yet.
 
@@ -329,7 +332,7 @@ class MessageListXLFragmentManager {
             if (byUserAction) {
                 f.doAutoRefresh();
             }
-            mTargetActivity.openFragmentTransaction().replace(R.id.right_pane, f).commit();
+            mFragmentManager.openTransaction().replace(R.id.right_pane, f).commit();
 
             if (mMessageViewFragment != null) {
                 // Message view will disappear.
@@ -384,7 +387,7 @@ class MessageListXLFragmentManager {
             // TODO We want to support message view -> [back] -> message list, but the back behavior
             // with addToBackStack() is not too clear.  We do it manually for now.
             // See MessageListXL.onBackPressed().
-            mTargetActivity.openFragmentTransaction().replace(R.id.right_pane, f)
+            mFragmentManager.openTransaction().replace(R.id.right_pane, f)
 //                    .addToBackStack(null)
                     .commit();
             mMessageListFragment = null;

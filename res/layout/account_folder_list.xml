@@ -22,7 +22,7 @@
 
     <fragment
         android:id="@+id/account_folder_list_fragment"
-        android:name="com.android.email.activity.AccountFolderListFragment"
+        class="com.android.email.activity.AccountFolderListFragment"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
         />

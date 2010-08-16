@@ -22,7 +22,7 @@
     android:background="@android:color/white">
     <fragment
         android:id="@+id/message_view_fragment"
-        android:name="com.android.email.activity.MessageViewFragment"
+        class="com.android.email.activity.MessageViewFragment"
         android:layout_width="match_parent"
         android:layout_height="0dip"
         android:layout_weight="1"
